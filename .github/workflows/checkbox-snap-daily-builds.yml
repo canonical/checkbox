@@ -59,7 +59,7 @@ jobs:
           git config --global user.name "Certification bot"
       - name: Print Launchpad build repository
         run: |
-          echo "Building at: https://git.launchpad.net/~ce-certification-qa/+git/$SNAPCRAFT_BUILDER_ID"
+          echo "Building at: https://git.launchpad.net/~ce-certification-qa/+snap/$SNAPCRAFT_BUILDER_ID"
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
         name: Building the snaps
         with:

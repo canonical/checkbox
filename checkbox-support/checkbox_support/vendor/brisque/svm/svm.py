@@ -29,7 +29,9 @@ if sys.platform == 'win32':
     except OSError:
         raise Exception('LIBSVM library not found.')
 
-# For unix the prefix 'lib' is not considered.
+# Note: This import could lead to import errors in the future if libsvm.so.3
+#       is updated. The reason is that the find_library function is not finding
+#       the library in the snap packages and CDLL requires the specific name-
 if find_library('svm'):
     libsvm = CDLL(find_library('svm'))
 elif find_library('libsvm'):

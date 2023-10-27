@@ -42,7 +42,6 @@ nested_part:
     networking-cert-manual
     optical-cert-manual
     power-management-precheck-cert-manual
-    snappy-snap-automated
     touchpad-cert-manual
     touchscreen-cert-manual
     usb-cert-manual
@@ -117,6 +116,7 @@ nested_part:
     networking-cert-automated
     optical-cert-automated
     power-management-precheck-cert-automated
+    snappy-snap-automated
     touchpad-cert-automated
     touchscreen-cert-automated
     usb-cert-automated

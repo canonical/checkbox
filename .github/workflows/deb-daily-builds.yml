@@ -42,7 +42,7 @@ jobs:
         with:
           fetch-depth: 0
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
-        name: Check for new commits, push build and wait result
+        name: Import to LP, ask for a build and wait result
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1

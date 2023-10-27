@@ -12,7 +12,18 @@ everything passing [flake8].
 - The code doesn’t have to be pylint-clean, but
 running [pylint] on your code may inform you about issues that could come up
 later in the review process.
-- To get your changes accepted, you need to [sign your commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits). This practice is enforced by many of the CI pipelines executed in the repository (pipelines which use Canonical's [github-runner-operator](https://github.com/canonical/github-runner-operator) operated runners).
+
+## Signed commits required
+
+- To get your changes accepted, please [sign your commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits). This practice is enforced by many of the CI pipelines executed in the repository (pipelines which use Canonical's [github-runner-operator](https://github.com/canonical/github-runner-operator) operated runners).
+- To make commit signing convenient, as per https://stackoverflow.com/a/70484849/504931, do the following:
+
+   ```bash
+   git config --global user.signingkey <your-key-id>
+   git config --global commit.gpgSign true
+   git config --global tag.gpgSign true
+   git config --global push.gpgSign if-asked
+   ```
 
 ## Testing
 
@@ -234,7 +245,7 @@ been reviewed by others). Instead of creating new commits with these new
 modifications, it is preferred to use Git features such as [rebase] to rework
 your existing commits.
 
-## Merge requests
+## Pull requests
 
 ### General workflow
 

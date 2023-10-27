@@ -7,10 +7,12 @@ its providers and its documentation.
 
 ## General recommendations
 
-Setup your editor of choice to run [autopep8] on save. This helps keep
-everything passing [flake8]. The code doesn’t have to be pylint-clean, but
+- Setup your editor of choice to run [autopep8] on save. This helps keep
+everything passing [flake8].
+- The code doesn’t have to be pylint-clean, but
 running [pylint] on your code may inform you about issues that could come up
 later in the review process.
+- To get your changes accepted, you need to [sign your commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits). This practice is enforced by many of the CI pipelines executed in the repository (pipelines which use Canonical's [github-runner-operator](https://github.com/canonical/github-runner-operator) operated runners).
 
 ## Testing
 

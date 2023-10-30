@@ -23,6 +23,7 @@ jobs:
 
       - name: Install Aspell
         run: |
+          sudo apt update -qq
           sudo apt install -qq -y aspell aspell-en
 
       - name: Install the doc framework

@@ -1,0 +1,49 @@
+id: tracers/ptrace
+plugin: shell
+command:
+  if ptrace_test
+  then
+      echo "ptrace: supported"
+      exit 0
+  else
+      echo "ptrace: unsupported"
+      exit 1
+  fi
+_summary:
+ Tests the ptrace tracer availability
+_description:
+ The test initiates tracing using the ptrace syscall with ptrace_test binary (c source code).
+
+id: tracers/ftrace
+plugin: shell
+command: 
+  if grep -q -e "^CONFIG_FTRACE=y" /boot/config-"$(uname -r)"
+  then
+      echo "ftrace: supported"
+      exit 0
+  else
+      echo "ftrace: unsupported"
+      exit 1
+  fi
+_summary:
+ Tests ftrace kernel tracing infrastructure is enable
+_description:
+ Check if kernel configuration item CONFIG_FTRACE bool is set to 'y'.
+requires:
+  kernel_config_file.detected == 'true'
+
+id: tracers/tracefs
+plugin: shell
+command: 
+  if mount | grep -q tracefs
+  then
+      echo "tracefs: supported"
+      exit 0
+  else
+      echo "ftracefs: unsupported"
+      exit 1
+  fi
+_summary:
+ Tests the tracefs file system availability
+_description:
+ Check if the tracefs is mounted on a system using the mount command.

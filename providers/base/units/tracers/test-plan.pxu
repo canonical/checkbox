@@ -1,0 +1,11 @@
+id: tracers
+unit: test plan
+_name: Tracers tests
+_description:
+ Tracers tests
+include:
+    tracers/ftrace
+    tracers/ptrace
+    tracers/tracefs
+bootstrap_include:
+    kernel_config_file

@@ -19,7 +19,7 @@ Signed commits are required.
   - If you are posting your first pull request from a fork of the repository, a Checkbox maintainer (someone with contributor / maintainer / admin rights) will be required to enable CI checks in the repo to be executed.
     - This will be communicated with a comment to the PR of the form `/canonical/self-hosted-runners/run-workflows <SHA-for-HEAD-commit>`
 -->
--->
+
 ## Description
 
 <!--

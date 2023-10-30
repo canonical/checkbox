@@ -22,7 +22,7 @@ from metabox.core.actions import Expect
 from metabox.core.actions import Send
 from metabox.core.actions import Start
 from metabox.core.scenario import Scenario
-from metabox.core.utils import _re
+from metabox.core.utils import _re, tag
 
 
 class ManualJobFailed(Scenario):
@@ -232,6 +232,7 @@ class UserInteractJobSkippedBeforeRun(Scenario):
     ]
 
 
+@tag("resume")
 class ManualJobSkippedWhenResumingSession(Scenario):
     """
     Run a test plan with a manual job set to cert-blocker. Save and quit the
@@ -239,37 +240,41 @@ class ManualJobSkippedWhenResumingSession(Scenario):
     added.
     """
 
-    modes = ['local']
-    launcher = textwrap.dedent("""
+    modes = ["local"]
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
         [test plan]
         unit = 2021.com.canonical.certification::cert-blocker-manual-resume
-        forced = yes
         [test selection]
         forced = yes
-        """)
+        """
+    )
     steps = [
         Start(),
-        Expect('Pick an action'),
-        Send('p' + keys.KEY_ENTER),
-        Expect('save the session and quit'),
-        Send('q' + keys.KEY_ENTER),
-        Start(),
-        Expect('resume this session'),
-        Send('r' + keys.KEY_ENTER),
-        Expect('What do you want to do with that job?'),
-        Send('s' + keys.KEY_ENTER),
-        Expect('Please add a comment to explain why you want to skip it.', timeout=30),
-        Send('c' + keys.KEY_ENTER),
-        Expect('Please enter your comments:'),
-        Send('This is a comment' + keys.KEY_ENTER),
-        Expect('What do you want to do with that job?'),
-        Send('s' + keys.KEY_ENTER),
-        Expect('Pick an action'),
+        Expect("Select test plan"),
         Send(keys.KEY_ENTER),
-        Expect('Select jobs to re-run'),
-        Send('f' + keys.KEY_ENTER),
-        Expect(_re('(☐|job skipped).*A simple manual job')),
+        Expect("Pick an action"),
+        Send("p" + keys.KEY_ENTER),
+        Expect("save the session and quit"),
+        Send("q" + keys.KEY_ENTER),
+        Start(),
+        Expect("(R) Resume session"),
+        Send("r"),
+        Expect("blocker-manual-resume"),
+        Send(keys.KEY_ENTER),
+        Send(keys.KEY_DOWN + keys.KEY_ENTER),
+        Expect(
+            "Please add a comment to explain why you want to skip it.",
+            timeout=30,
+        ),
+        Expect("Please enter your comments:"),
+        Send("This is a comment" + keys.KEY_ENTER),
+        Expect("Pick an action"),
+        Send(keys.KEY_ENTER),
+        Expect("Select jobs to re-run"),
+        Send("f" + keys.KEY_ENTER),
+        Expect(_re("(☐|job skipped).*A simple manual job")),
     ]

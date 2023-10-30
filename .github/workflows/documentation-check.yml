@@ -23,11 +23,13 @@ jobs:
 
       - name: Install Aspell
         run: |
+          sudo apt update -qq
           sudo apt install -qq -y aspell aspell-en
 
       - name: Install the doc framework
         working-directory: docs/
         run: |
+          sudo apt install -y -qq python3-venv
           make install
 
       - name: Build docs and run spelling checker
@@ -63,6 +65,7 @@ jobs:
       - name: Install the doc framework
         working-directory: docs/
         run: |
+          sudo apt install -y -qq python3-venv
           make install
 
       - name: Run linkchecker

@@ -455,10 +455,10 @@ class Launcher(MainLoopStage, ReportsStage):
                         "why you want to skip it."
                     )
             else:
-                result_dict["outcome"] = IJobResult.OUTCOME_SKIP
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Skipped after resuming execution"
                 )
+            result_dict["outcome"] = IJobResult.OUTCOME_SKIP
 
         elif resume_params.action == "rerun":
             # if we don't call use_job_result it means we'll rerun the job
@@ -1388,8 +1388,8 @@ def request_comment(prompt: str) -> str:
     :return: the comment provided by the user
     """
     colorizer = Colorizer()
-    red = colorizer.C.RED
-    blue = colorizer.C.BLUE
+    red = colorizer.RED
+    blue = colorizer.BLUE
     comment = ""
     while not comment:
         print(red("This job is required in order to issue a certificate."))

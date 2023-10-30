@@ -808,11 +808,11 @@ class TestPlanBrowser:
             screen=Screen(),
         )
         self.loop.run()
+        if self._resume_instead:
+            raise ResumeInstead()
         try:
             return next(i.tp_id for i in self.radio_button_group if i.state)
         except StopIteration:
-            if self._resume_instead:
-                raise ResumeInstead()
             return None
 
 

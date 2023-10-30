@@ -20,13 +20,13 @@ Run the following command:
 
 .. code-block:: none
 
-    systemctl status snap.checkbox.service.service
+    systemctl status snap.checkbox.agent.service
 
 You should see something like this:
 
 .. code-block:: none
 
-    ● snap.checkbox.service.service - Service for snap application checkbox.service
+    ● snap.checkbox.agent.service - Service for snap application checkbox.service
          Loaded: loaded (/etc/systemd/system/snap.checkbox.service.service; enabled; vendor preset: enabled)
          Active: active (running) since Fri 2023-07-21 13:38:48 CST; 1h 29min ago
        Main PID: 1411 (python3)
@@ -46,14 +46,14 @@ For the sake of this tutorial, let's stop this service for the moment:
 
 .. code-block:: none
 
-    sudo systemctl stop snap.checkbox.service.service
+    sudo systemctl stop snap.checkbox.agent.service
 
 Now, open two terminal windows using ``Ctrl+Alt+T``. In the first one,
 start the Checkbox agent:
 
 .. code-block:: none
 
-    sudo checkbox.checkbox-cli agent
+    sudo checkbox.checkbox-cli run-agent
 
 In the second one, run Checkbox as a controller to connect to the agent:
 
@@ -107,11 +107,11 @@ restart the Checkbox agent service with:
 
 .. code-block:: none
 
-    sudo systemctl start snap.checkbox.service.service
+    sudo systemctl start snap.checkbox.agent.service
 
 If you have another device running Ubuntu, you can try to install Checkbox on
 it, then connect to it using your own computer with the ``checkbox.checkbox-cli
-remote x.x.x.x`` command, replacing ``x.x.x.x`` by the IP address of the
+control x.x.x.x`` command, replacing ``x.x.x.x`` by the IP address of the
 other device.
 
 Launchers in remote mode
@@ -123,7 +123,7 @@ local mode. If you still have the launcher file you created in the
 
 .. code-block:: none
 
-    checkbox.checkbox-cli remote 127.0.0.1 mylauncher
+    checkbox.checkbox-cli control 127.0.0.1 mylauncher
 
 This will start a remote test session with the configuration defined in
 your launcher.
@@ -136,7 +136,7 @@ of them is the interrupt screen. Run Checkbox remote:
 
 .. code-block:: none
 
-    checkbox.checkbox-cli remote 127.0.0.1
+    checkbox.checkbox-cli control 127.0.0.1
 
 Select the "Checkbox Base Tutorial" test plan, leave all the jobs selected,
 and press ``T`` to start the testing session.
@@ -169,7 +169,7 @@ see the Checkbox agent Systemd service is not running anymore:
 
 .. code-block:: none
 
-    systemctl is-active snap.checkbox.service.service
+    systemctl is-active snap.checkbox.agent.service
     inactive
 
 If you try reconnecting to the agent, the controller will wait 5 minutes
@@ -177,7 +177,7 @@ for the agent to be reactivated, after what it will time out:
 
 .. code-block:: none
 
-    checkbox.checkbox-cli remote 127.0.0.1
+    checkbox.checkbox-cli control 127.0.0.1
     .....
     Connection timed out.
 
@@ -185,7 +185,7 @@ Restart the agent by typing:
 
 .. code-block:: none
 
-    sudo systemctl start snap.checkbox.service.service
+    sudo systemctl start snap.checkbox.agent.service
 
 Wrapping up
 ===========

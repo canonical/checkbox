@@ -33,6 +33,14 @@ later in the review process.
    git config --global push.gpgSign if-asked
    ```
 
+- To make sure that your GPG signatures are valid, you need to enroll to
+  GitHub the key(s) you've used to sign the commits.
+
+  Follow the [Adding a GPG key to GitHub] document to enroll your keys.
+
+  Note that the email used to commit changes to git, and the email address
+  associated with your GPG key must match.
+
 ## Testing
 
 ### Hacking on Checkbox and/or its providers
@@ -374,3 +382,4 @@ changes using a pull request.
 [reStructuredText]: https://docutils.sourceforge.io/rst.html
 [Sphinx]: https://www.sphinx-doc.org/
 [style guide]: https://docs.ubuntu.com/styleguide/en
+[Adding a GPG key to GitHub]: https://docs.github.com/en/authentication/managing-commit-signature-verification/adding-a-gpg-key-to-your-github-account

@@ -33,8 +33,8 @@ You should see something like this:
           Tasks: 1 (limit: 19014)
          Memory: 69.7M
             CPU: 2.537s
-         CGroup: /system.slice/snap.checkbox.service.service
-                 └─1411 python3 /snap/checkbox22/current/bin/checkbox-cli service
+         CGroup: /system.slice/snap.checkbox.agent.service
+                 └─1411 python3 /snap/checkbox22/current/bin/checkbox-cli run-agent
 
     Jul 21 13:38:48 coltrane systemd[1]: Started Service for snap application checkbox.service.
     (...)

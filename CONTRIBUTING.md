@@ -17,14 +17,14 @@ later in the review process.
 
 - To get your changes accepted, please [sign your commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits). This practice is enforced by many of the CI pipelines executed in the repository (pipelines which use Canonical's [github-runner-operator](https://github.com/canonical/github-runner-operator) operated runners).
 - If you have just discovered the requirement for signed commits after already creating a feature branch with unsigned commits, you can issue `git rebase --exec 'git commit --amend --no-edit -n -S' -i main` to sign them. To translate this into English:
-   - `git rebase --exec`: rebases commits
-   - `--exec '...'`: exec command `'...'` after each commit, creating a new commit
-   - `git commit --amend --no-edit`: amend a commit without changing its message
-      - `-n`: bypass pre-commit and commit-msg hooks
-      - `-S`: GPG sign commit
-      - `-i`: let the user see and edit the list of commits to rebase
-      - `main`: to all the commits until you reach main  
-- To make commit signing convenient, as per https://stackoverflow.com/a/70484849/504931, do the following:
+  - `git rebase --exec`: rebases commits
+  - `--exec '...'`: exec command `'...'` after each commit, creating a new commit
+  - `git commit --amend --no-edit`: amend a commit without changing its message
+    - `-n`: bypass pre-commit and commit-msg hooks
+    - `-S`: GPG sign commit
+    - `-i`: let the user see and edit the list of commits to rebase
+    - `main`: to all the commits until you reach main
+- To make commit signing convenient, as per <https://stackoverflow.com/a/70484849/504931>, do the following:
 
    ```bash
    git config --global user.signingkey <your-key-id>
@@ -43,7 +43,7 @@ install everything you need in a Python virtual environment.
 Install the required tools:
 
 ``` bash
-$ sudo apt install git python3-virtualenv
+sudo apt install git python3-virtualenv
 ```
 
 Prepare the development environment. If you are an external contributor and
@@ -51,16 +51,16 @@ plan on submitting some changes, you will have to [fork the Checkbox repository
 first], and clone your own version locally. Otherwise:
 
 ``` bash
-$ cd ~
-$ git clone git@github.com:canonical/checkbox.git
+cd ~
+git clone git@github.com:canonical/checkbox.git
 ```
 
 Create and activate the Python virtual environment:
 
 ``` bash
-$ cd ~/checkbox/checkbox-ng
-$ ./mk-venv
-$ . ~/checkbox-ng/venv/bin/activate
+cd ~/checkbox/checkbox-ng
+./mk-venv
+. ~/checkbox-ng/venv/bin/activate
 ```
 
 Activate the base providers in the virtual environment from within the virtual
@@ -85,6 +85,7 @@ You should now be able to run checkbox, select a test plan and run it:
 ``` bash
 (venv) $ checkbox-cli
 ```
+
 ### Running/Testing checkbox remote
 
 By default `checkbox-cli` runs locally. If you want to run the [remote version]
@@ -98,6 +99,7 @@ you have to activate the `checkbox-cli run-agent` on the Machine under test:
 > virtual env, you may have to re-enable/activate it after a `sudo -s`
 
 Now you can run the control command to connect to it:
+
 ```bash
 (venv) $ checkbox-cli control IP
 ```
@@ -116,14 +118,18 @@ use the standard [unittest library].
 Ensure the job and test plan definitions follow the correct syntax using
 the `validate` command:
 
-    $ ./manage.py validate
+```bash
+    ./manage.py validate
+```
 
 ### Writing and running unit tests for providers
 
 Run checks for code quality of provider hosted scripts and any unit
 tests for providers:
 
-    $ ./manage.py test
+```bash
+    ./manage.py test
+```
 
 ### Coverage
 
@@ -134,11 +140,13 @@ and therefore easy to break down the line with any change.
 #### Collecting Coverage
 
 To collect your coverage you can run the following:
-```
+
+```bash
 $ python -m pip install coverage pytest pytest-cov
 # cd to where your test is
 $ python -m coverage run -m pytest .
 ```
+
 Note that every part of this repository has a `.coveragerc` file, they should
 already include anything you may want to see in the report. If something is
 missing you can edit it but please, consult with the team before doing so.
@@ -162,6 +170,7 @@ Coverage is more of a proxy measure of how much of your code behaviour does
 your test actually execute.
 
 Consider the following:
+
 ```python
 def get_mod_status(a : int, b : int) -> str:
     try:
@@ -175,6 +184,7 @@ def get_mod_status(a : int, b : int) -> str:
 ```
 
 To get 100% code coverage you may write the following tests:
+
 ```python
 def test_nominal_ok_0(): assert get_mod_status(10, 2) == "A is divisible by B"
 def test_nominal_ok_1(): assert get_mod_status(10, 3) == "A is not divisible by B"
@@ -208,9 +218,9 @@ complexity to squeeze out just a little bit more coverage.
 
 In general, try to follow [Chris Beams’ recommendations]. In a nutshell:
 
-> -   Limit the length of the title to 50 characters
-> -   Begin title with a capital letter
-> -   Use the imperative mode (your title should always be able to
+> - Limit the length of the title to 50 characters
+> - Begin title with a capital letter
+> - Use the imperative mode (your title should always be able to
 >     complete the sentence “If applied, this commit will...”)
 
 ### Commit message body
@@ -220,16 +230,16 @@ and why vs. how.
 
 Example:
 
-    Run Shellcheck on bin dir scripts
-
-    The test command to manage.py currently looks for python unittests
-    in the provider tests/ directory. This change searches the bin/
-    directory for files with suffix .sh and automatically generates
-    a unittest that runs the shellcheck command on the file.
+>Run Shellcheck on bin dir scripts
+>
+>The test command to manage.py currently looks for python unittests
+>in the provider tests/ directory. This change searches the bin/
+>directory for files with suffix .sh and automatically generates
+>a unittest that runs the shellcheck command on the file.
 
 ### Linking a pull request to a GitHub issue
 
-See the [GitHub documentation] for more information.
+See the [Linking a PR - GitHub documentation] for more information.
 
 ### Splitting work in separate commits if required
 
@@ -272,13 +282,16 @@ repository] first.
 number it relates to as well as a quick explanation of what the branch is
 about:
 
-        $ git checkout -b 123456-invalid-session-content
+    ```bash
+    git checkout -b 123456-invalid-session-content
+    ```
 
 1. Work on your changes, test them, iterate, commit your work.
 
 1. Before sending your changes for review, make sure to rebase your work using
    the most up-to-date data from the main repository:
 
+    ```bash
         $ git checkout main
         # If you are a Checkbox contributor:
         $ git fetch origin
@@ -289,10 +302,11 @@ about:
         $ git rebase main
         First, rewinding head to replay your work on top of it...
         Applying: <your commits>
+    ```
 
 1. [Push your changes] to your GitHub repository.
 
-### Finally...
+### Finally
 
 Once enough people have reviewed and approved your work, it can be merged into
 the main branch of the main repository. Ask a member of the Checkbox team to do
@@ -310,7 +324,7 @@ at Canonical. Please refer to it when proposing a change.
 
 To install everything you need, go to the `docs/` directory and type:
 
-```
+```bash
 make install
 ```
 
@@ -319,7 +333,7 @@ output and validate the documentation.
 
 To get a live preview of the documentation, you can then run:
 
-```
+```bash
 make run
 ```
 
@@ -328,7 +342,7 @@ that will be updated every time a file is modified.
 
 Finally, you can validate your changes with:
 
-```
+```bash
 make spelling  # to make sure there is no typos
 make linkcheck # to make sure there are no dead links
 make woke      # to check for non-inclusive language
@@ -348,7 +362,7 @@ changes using a pull request.
 [doctest]: https://docs.python.org/3/library/doctest.html
 [unittest library]: https://docs.python.org/3/library/unittest.html
 [Chris Beams’ recommendations]: https://chris.beams.io/posts/git-commit/
-[GitHub documentation]: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue
+[Linking a PR - GitHub documentation]: https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue
 [rebase]: https://git-scm.com/book/en/v2/Git-Tools-Rewriting-History
 [GitHub documentation]: https://docs.github.com
 [Checkbox repository]: https://github.com/canonical/checkbox

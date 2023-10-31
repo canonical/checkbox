@@ -298,6 +298,66 @@ class RunOffloadCmdTests(unittest.TestCase):
                                      universal_newlines=True)
         self.assertEqual(rv, PrimeOffloaderError.NO_ERROR)
 
+class parseArgsTests(unittest.TestCase):
+    def test_success(self):
+        pf = PrimeOffloader()
+        # no arguments, load default
+        args = []
+        rv = pf.parse_args(args)
+        self.assertEqual(rv.command, "glxgears")
+        self.assertEqual(rv.pci, "0000:00:02.0")
+        self.assertEqual(rv.driver, "i915")
+        self.assertEqual(rv.timeout, 0)
+
+        pf = PrimeOffloader()
+        # change command
+        args = ["-c", "glxgears -fullscreen"]
+        rv = pf.parse_args(args)
+        self.assertEqual(rv.command, "glxgears -fullscreen")
+        self.assertEqual(rv.pci, "0000:00:02.0")
+        self.assertEqual(rv.driver, "i915")
+        self.assertEqual(rv.timeout, 0)
+
+        pf = PrimeOffloader()
+        # change pci
+        args = ["-p", "0000:00:01.0"]
+        rv = pf.parse_args(args)
+        self.assertEqual(rv.command, "glxgears")
+        self.assertEqual(rv.pci, "0000:00:01.0")
+        self.assertEqual(rv.driver, "i915")
+        self.assertEqual(rv.timeout, 0)
+
+        pf = PrimeOffloader()
+        # change driver
+        args = ["-d", "nvidia"]
+        rv = pf.parse_args(args)
+        self.assertEqual(rv.command, "glxgears")
+        self.assertEqual(rv.pci, "0000:00:02.0")
+        self.assertEqual(rv.driver, "nvidia")
+        self.assertEqual(rv.timeout, 0)
+
+        pf = PrimeOffloader()
+        # change timeout
+        args = ["-t", "5"]
+        rv = pf.parse_args(args)
+        self.assertEqual(rv.command, "glxgears")
+        self.assertEqual(rv.pci, "0000:00:02.0")
+        self.assertEqual(rv.driver, "i915")
+        self.assertEqual(rv.timeout, 5)
+
+        pf = PrimeOffloader()
+        # change all
+        args = ["-c", "glxgears -fullscreen",
+                "-p", "0000:00:01.0",
+                "-d", "nvidia",
+                "-t", "5"]
+        rv = pf.parse_args(args)
+        self.assertEqual(rv.command, "glxgears -fullscreen")
+        self.assertEqual(rv.pci, "0000:00:01.0")
+        self.assertEqual(rv.driver, "nvidia")
+        self.assertEqual(rv.timeout, 5)
+
+
 
 if __name__ == '__main__':
     unittest.main()

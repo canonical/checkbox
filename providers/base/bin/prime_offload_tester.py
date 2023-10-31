@@ -275,9 +275,9 @@ class PrimeOffloader:
             self.logger.info(line)
         return PrimeOffloaderError.NO_ERROR
 
-    def main(self) -> int:
+    def parse_args(self, args=sys.argv[1:]):
         """
-        main function for command line processing
+        command line arguments parsing
         """
         parser = argparse.ArgumentParser(
             prog="Prime offload tester",
@@ -302,8 +302,15 @@ class PrimeOffloader:
                  ' If provide 0, then the command will be executed'
                  ' without timeout.'
         )
+        return parser.parse_args(args)
 
-        args = parser.parse_args()
+
+    def main(self) -> int:
+        """
+        main function for command line processing
+        """
+
+        args = self.parse_args()
 
         # create self.logger.formatter
         log_formatter = logging.Formatter(fmt='%(message)s')

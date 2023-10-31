@@ -298,7 +298,8 @@ class RunOffloadCmdTests(unittest.TestCase):
                                      universal_newlines=True)
         self.assertEqual(rv, PrimeOffloaderError.NO_ERROR)
 
-class parseArgsTests(unittest.TestCase):
+
+class ParseArgsTests(unittest.TestCase):
     def test_success(self):
         pf = PrimeOffloader()
         # no arguments, load default
@@ -356,7 +357,6 @@ class parseArgsTests(unittest.TestCase):
         self.assertEqual(rv.pci, "0000:00:01.0")
         self.assertEqual(rv.driver, "nvidia")
         self.assertEqual(rv.timeout, 5)
-
 
 
 if __name__ == '__main__':

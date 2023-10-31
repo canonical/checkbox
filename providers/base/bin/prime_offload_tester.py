@@ -304,7 +304,6 @@ class PrimeOffloader:
         )
         return parser.parse_args(args)
 
-
     def main(self) -> int:
         """
         main function for command line processing

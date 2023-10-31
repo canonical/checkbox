@@ -205,9 +205,9 @@ class CheckNvOffloadEnvTests(unittest.TestCase):
         self.assertEqual(rv, PrimeOffloaderError.NV_DRIVER_ERROR)
 
         # with nv driver, on-demand mode, no nv driver error
-        mock_run.return_value = Mock(stdout=["prime-select on-demand",
-                                 "prime-select on-demand",
-                                 ""])
+        mock_run.side_effect = [Mock(stdout="prime-select on-demand"),
+                                Mock(stdout="prime-select on-demand"),
+                                Mock(stdout="")]
         rv = PrimeOffloader().check_nv_offload_env()
         self.assertEqual(rv, PrimeOffloaderError.NO_ERROR)
 
@@ -249,6 +249,23 @@ class RunOffloadCmdTests(unittest.TestCase):
         # check check_offload function get correct args
         pf.check_offload.assert_called_with('echo', 'card0', 'Intel')
 
+        # non NV driver with timeout setting
+        pf = PrimeOffloader()
+        pf.find_card_id = Mock(return_value="card0")
+        pf.find_card_name = Mock(return_value="Intel")
+        pf.check_nv_offload_env =\
+            Mock(return_value=PrimeOffloaderError.NO_ERROR)
+        pf.check_offload = Mock(return_value="")
+        rv = pf.run_offload_cmd("echo", "0000:00:00.0", "xxx", 1)
+        # check run_offload_cmd executing correct command
+        mock_open.assert_called_with("DRI_PRIME=pci-0000_00_00_0 "
+                                     "timeout 1 echo",
+                                     shell=True,
+                                     stdout=subprocess.PIPE,
+                                     universal_newlines=True)
+        # check check_offload function get correct args
+        pf.check_offload.assert_called_with('echo', 'card0', 'Intel')
+
         # NV driver
         pf = PrimeOffloader()
         pf.find_card_id = Mock(return_value="card0")
@@ -265,6 +282,7 @@ class RunOffloadCmdTests(unittest.TestCase):
                                      universal_newlines=True)
         # check check_offload function get correct args
         pf.check_offload.assert_called_with('echo', 'card0', 'NV')
+        print(rv)
 
 
 if __name__ == '__main__':

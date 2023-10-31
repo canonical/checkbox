@@ -282,7 +282,21 @@ class RunOffloadCmdTests(unittest.TestCase):
                                      universal_newlines=True)
         # check check_offload function get correct args
         pf.check_offload.assert_called_with('echo', 'card0', 'NV')
-        print(rv)
+
+        # Not support nvidia prime
+        pf = PrimeOffloader()
+        pf.find_card_id = Mock(return_value="card0")
+        pf.find_card_name = Mock(return_value="NV")
+        pf.check_nv_offload_env =\
+            Mock(return_value=PrimeOffloaderError.NOT_SUPPORT_NV_PRIME)
+        pf.check_offload = Mock(return_value="")
+        rv = pf.run_offload_cmd("echo", "0000:00:00.0", "nvidia", 0)
+        # check run_offload_cmd executing correct command
+        mock_open.assert_called_with('echo',
+                                     shell=True,
+                                     stdout=subprocess.PIPE,
+                                     universal_newlines=True)
+        self.assertEqual(rv, PrimeOffloaderError.NO_ERROR)
 
 
 if __name__ == '__main__':

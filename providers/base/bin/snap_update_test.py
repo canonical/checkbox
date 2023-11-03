@@ -250,7 +250,7 @@ class SnapRefreshRevert:
                 "Current revision ({}) is different from expected revision "
                 "({})"
             ).format(current_rev, tested_rev)
-            raise SystemExit()
+            raise SystemExit(msg)
         else:
             logger.info(
                 "PASS: current revision (%s) matches the expected revision",

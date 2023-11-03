@@ -220,10 +220,9 @@ class SnapRefreshRevert:
                         self.name, type, timeout
                     )
                 )
-            logger.info("Waiting for %s snap %s to be done...",
-                        self.name,
-                        type
-                        )
+            logger.info(
+                "Waiting for %s snap %s to be done...", self.name, type
+            )
             logger.info("Trying again in 10 seconds...")
             time.sleep(10)
 

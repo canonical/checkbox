@@ -155,19 +155,15 @@ class SnapRefreshRevertTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             snap_update_test.SnapRefreshRevert.snap_refresh(mock_self)
 
-    @patch("snap_update_test.Snapd")
     @patch("snap_update_test.save_change_info")
-    def test_snap_refresh_different_revision(
-        self, mock_save_change_info, mock_snapd
-    ):
+    def test_snap_refresh_different_revision(self, mock_save_change_info):
         mock_self = MagicMock()
         mock_self.revision = "1"
         mock_snap_info = MagicMock()
         mock_snap_info.installed_revision = "2"
         mock_self.snap_info = mock_snap_info
-        mock_self.snapd = mock_snapd
         snap_update_test.SnapRefreshRevert.snap_refresh(mock_self)
-        self.assertTrue(mock_snapd.refresh.called)
+        self.assertTrue(mock_self.snapd.refresh.called)
 
     @patch("snap_update_test.Snapd.revert")
     @patch("snap_update_test.load_change_info")

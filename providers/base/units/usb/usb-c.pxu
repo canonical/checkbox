@@ -251,6 +251,8 @@ _siblings: [
        "_summary": "Cleanup USB OTG serial interface setup after serial device test (after suspend)",
        "after": "after-suspend-usb-c-otg/g_serial"
      }]
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_usbc_otg == 'True'
 
 id: usb-c-otg/g_mass_storage
 _summary: Check DUT can be detected as a mass storage device
@@ -298,6 +300,8 @@ _siblings: [
        "_summary": "Cleanup mass storage setup after mass storage device test (after suspend)",
        "after": "after-suspend-usb-c-otg/g_mass_storage"
      }]
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_usbc_otg == 'True'
 
 id: usb-c-otg/g_ether
 _summary: Check DUT can be detected as USB ethernet device
@@ -346,3 +350,5 @@ _siblings: [
        "_summary": "Cleanup USB OTG ethernet interface setup after ethernet device test (after suspend)",
        "after": "after-suspend-usb-c-otg/g_ether"
      }]
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_usbc_otg == 'True'

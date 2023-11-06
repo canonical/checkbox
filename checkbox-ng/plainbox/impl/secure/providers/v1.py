@@ -597,7 +597,7 @@ class ProviderContentLoader:
             or (self.provider.data_dir and filename.startswith(self.provider.data_dir))
             or (self.provider.bin_dir and filename.startswith(self.provider.bin_dir))
             or (self.provider.locale_dir and filename.startswith(self.provider.locale_dir))):
-            logger.warn("Skipped file: %s", filename)
+            logger.warn("File %s is not executable, skipping", filename)
 
     def _load_file(self, filename, text, plugin_kwargs):
         # NOTE: text is lazy, call str() or iter() to see the real content This

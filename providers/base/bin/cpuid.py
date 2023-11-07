@@ -27,8 +27,7 @@
 import ctypes
 import platform
 import sys
-from ctypes import (c_uint32, c_int, c_size_t, c_void_p,
-                    POINTER, CFUNCTYPE)
+from ctypes import c_uint32, c_int, c_size_t, c_void_p, POINTER, CFUNCTYPE
 from subprocess import check_output
 
 # Posix x86_64:
@@ -44,32 +43,59 @@ from subprocess import check_output
 # Volatile registers         : EAX, ECX, EDX
 
 _POSIX_64_OPC = [
-        0x53,                    # push   %rbx
-        0x89, 0xf0,              # mov    %esi,%eax
-        0x89, 0xd1,              # mov    %edx,%ecx
-        0x0f, 0xa2,              # cpuid
-        0x89, 0x07,              # mov    %eax,(%rdi)
-        0x89, 0x5f, 0x04,        # mov    %ebx,0x4(%rdi)
-        0x89, 0x4f, 0x08,        # mov    %ecx,0x8(%rdi)
-        0x89, 0x57, 0x0c,        # mov    %edx,0xc(%rdi)
-        0x5b,                    # pop    %rbx
-        0xc3                     # retq
+    0x53,  # push   %rbx
+    0x89,
+    0xF0,  # mov    %esi,%eax
+    0x89,
+    0xD1,  # mov    %edx,%ecx
+    0x0F,
+    0xA2,  # cpuid
+    0x89,
+    0x07,  # mov    %eax,(%rdi)
+    0x89,
+    0x5F,
+    0x04,  # mov    %ebx,0x4(%rdi)
+    0x89,
+    0x4F,
+    0x08,  # mov    %ecx,0x8(%rdi)
+    0x89,
+    0x57,
+    0x0C,  # mov    %edx,0xc(%rdi)
+    0x5B,  # pop    %rbx
+    0xC3,  # retq
 ]
 
 _CDECL_32_OPC = [
-        0x53,                    # push   %ebx
-        0x57,                    # push   %edi
-        0x8b, 0x7c, 0x24, 0x0c,  # mov    0xc(%esp),%edi
-        0x8b, 0x44, 0x24, 0x10,  # mov    0x10(%esp),%eax
-        0x8b, 0x4c, 0x24, 0x14,  # mov    0x14(%esp),%ecx
-        0x0f, 0xa2,              # cpuid
-        0x89, 0x07,              # mov    %eax,(%edi)
-        0x89, 0x5f, 0x04,        # mov    %ebx,0x4(%edi)
-        0x89, 0x4f, 0x08,        # mov    %ecx,0x8(%edi)
-        0x89, 0x57, 0x0c,        # mov    %edx,0xc(%edi)
-        0x5f,                    # pop    %edi
-        0x5b,                    # pop    %ebx
-        0xc3                     # ret
+    0x53,  # push   %ebx
+    0x57,  # push   %edi
+    0x8B,
+    0x7C,
+    0x24,
+    0x0C,  # mov    0xc(%esp),%edi
+    0x8B,
+    0x44,
+    0x24,
+    0x10,  # mov    0x10(%esp),%eax
+    0x8B,
+    0x4C,
+    0x24,
+    0x14,  # mov    0x14(%esp),%ecx
+    0x0F,
+    0xA2,  # cpuid
+    0x89,
+    0x07,  # mov    %eax,(%edi)
+    0x89,
+    0x5F,
+    0x04,  # mov    %ebx,0x4(%edi)
+    0x89,
+    0x4F,
+    0x08,  # mov    %ecx,0x8(%edi)
+    0x89,
+    0x57,
+    0x0C,  # mov    %edx,0xc(%edi)
+    0x5F,  # pop    %edi
+    0x5B,  # pop    %ebx
+    0xC3,  # ret
 ]
 
 is_64bit = ctypes.sizeof(ctypes.c_voidp) == 8
@@ -102,43 +128,42 @@ is_64bit = ctypes.sizeof(ctypes.c_voidp) == 8
 # [6] Stepping
 
 CPUIDS = {
-        "Amber Lake":       ['0x806e9'],
-        "AMD EPYC":         ['0x800f12'],
-        "AMD Genoa":        ['0xa10f11'],
-        "AMD Lisbon":       ['0x100f81'],
-        "AMD Magny-Cours":  ['0x100f91'],
-        "AMD Milan":        ['0xa00f11'],
-        "AMD Milan-X":      ['0xa00f12'],
-        "AMD ROME":         ['0x830f10'],
-        "AMD Ryzen":        ['0x810f81'],
-        "AMD Bergamo":      ['0xaa0f01', '0xaa0f02'],
-        "Broadwell":        ['0x4067', '0x306d4', '0x5066', '0x406f'],
-        "Canon Lake":       ['0x6066'],
-        "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],
-        "Coffee Lake":      [
-            '0x806ea', '0x906ea', '0x906eb', '0x906ec', '0x906ed'],
-        "Comet Lake":       ['0x806ec', '0xa065'],
-        "Cooper Lake":      ['0x5065a', '0x5065b'],
-        "Haswell":          ['0x306c', '0x4065', '0x4066', '0x306f'],
-        "Hygon Dhyana Plus": ['0x900f22'],
-        "Ice Lake":         ['0x606e6', '0x606a6', '0x706e6', '0x606c1'],
-        "Ivy Bridge":       ['0x306a', '0x306e'],
-        "Kaby Lake":        ['0x806e9', '0x906e9'],
-        "Knights Landing":  ['0x5067'],
-        "Knights Mill":     ['0x8065'],
-        "Nehalem":          ['0x106a', '0x106e5', '0x206e'],
-        "Pineview":         ['0x106ca'],
-        "Penryn":           ['0x1067a'],
-        "Rocket Lake":      ['0xa0671'],
-        "Sandy Bridge":     ['0x206a', '0x206d6', '0x206d7'],
-        "Sapphire Rapids":  ['0x806f3', '0x806f6', '0x806f7', '0x806f8'],
-        "Skylake":          ['0x406e3', '0x506e3', '0x50654', '0x50652'],
-        "Tiger Lake":       ['0x806c1'],
-        "Aderlake":         ['0x906a4', '0x906A3', '0x90675', '0x90672'],
-        "Raptorlake":       ['0xB0671', '0xB06F2', '0xB06F5', '0xB06A2'],
-        "Westmere":         ['0x2065', '0x206c', '0x206f'],
-        "Whisky Lake":      ['0x806eb', '0x806ec'],
-        }
+    "Amber Lake": ["0x806e9"],
+    "AMD EPYC": ["0x800f12"],
+    "AMD Genoa": ["0xa10f11"],
+    "AMD Lisbon": ["0x100f81"],
+    "AMD Magny-Cours": ["0x100f91"],
+    "AMD Milan": ["0xa00f11"],
+    "AMD Milan-X": ["0xa00f12"],
+    "AMD ROME": ["0x830f10"],
+    "AMD Ryzen": ["0x810f81"],
+    "AMD Bergamo": ["0xaa0f01", "0xaa0f02"],
+    "Broadwell": ["0x4067", "0x306d4", "0x5066", "0x406f"],
+    "Canon Lake": ["0x6066"],
+    "Cascade Lake": ["0x50655", "0x50656", "0x50657"],
+    "Coffee Lake": ["0x806ea", "0x906ea", "0x906eb", "0x906ec", "0x906ed"],
+    "Comet Lake": ["0x806ec", "0xa065"],
+    "Cooper Lake": ["0x5065a", "0x5065b"],
+    "Haswell": ["0x306c", "0x4065", "0x4066", "0x306f"],
+    "Hygon Dhyana Plus": ["0x900f22"],
+    "Ice Lake": ["0x606e6", "0x606a6", "0x706e6", "0x606c1"],
+    "Ivy Bridge": ["0x306a", "0x306e"],
+    "Kaby Lake": ["0x806e9", "0x906e9"],
+    "Knights Landing": ["0x5067"],
+    "Knights Mill": ["0x8065"],
+    "Nehalem": ["0x106a", "0x106e5", "0x206e"],
+    "Pineview": ["0x106ca"],
+    "Penryn": ["0x1067a"],
+    "Rocket Lake": ["0xa0671"],
+    "Sandy Bridge": ["0x206a", "0x206d6", "0x206d7"],
+    "Sapphire Rapids": ["0x806f3", "0x806f6", "0x806f7", "0x806f8"],
+    "Skylake": ["0x406e3", "0x506e3", "0x50654", "0x50652"],
+    "Tiger Lake": ["0x806c1"],
+    "Aderlake": ["0x906a4", "0x906A3", "0x90675", "0x90672"],
+    "Raptorlake": ["0xB0671", "0xB06F2", "0xB06F5", "0xB06A2"],
+    "Westmere": ["0x2065", "0x206c", "0x206f"],
+    "Whisky Lake": ["0x806eb", "0x806ec"],
+}
 
 
 class CPUID_struct(ctypes.Structure):
@@ -195,18 +220,20 @@ def main():
 
     # Lets play Guess The CPU!
     # First lets get the name from /proc/cpuinfo
-    cpu_data = check_output('lscpu', universal_newlines=True).split('\n')
+    cpu_data = check_output("lscpu", universal_newlines=True).split("\n")
     for line in cpu_data:
-        if line.startswith('Model name:'):
-            print("CPU Model: %s" % line.split(':')[1].lstrip())
+        if line.startswith("Model name:"):
+            print("CPU Model: %s" % line.split(":")[1].lstrip())
 
-    my_id = (hex(cpu[0]))
+    my_id = hex(cpu[0])
     complete = False
     for key in CPUIDS.keys():
         for value in CPUIDS[key]:
             if value in my_id:
-                print("CPUID: %s which appears to be a %s processor" %
-                      (my_id, key))
+                print(
+                    "CPUID: %s which appears to be a %s processor"
+                    % (my_id, key)
+                )
                 complete = True
 
     if not complete:

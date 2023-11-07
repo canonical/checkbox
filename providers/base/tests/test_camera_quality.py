@@ -27,8 +27,8 @@ import cv2
 
 from bin.camera_quality_test import brisque
 
-default_dir = os.path.join(os.path.dirname(__file__), '../data')
-data_dir = os.getenv('PLAINBOX_PROVIDER_DATA', default=default_dir)
+default_dir = os.path.join(os.path.dirname(__file__), "../data")
+data_dir = os.getenv("PLAINBOX_PROVIDER_DATA", default=default_dir)
 
 
 class CameraQualityTests(unittest.TestCase):
@@ -36,7 +36,7 @@ class CameraQualityTests(unittest.TestCase):
 
     # Setup the patch for all the tests
     def setUp(self):
-        self.patcher = patch('cv2.VideoCapture')
+        self.patcher = patch("cv2.VideoCapture")
         self.mock_capture = self.patcher.start()
 
     def tearDown(self):
@@ -115,5 +115,5 @@ class CameraQualityTests(unittest.TestCase):
 
         # Set the mock
         img_path = os.path.join(data_dir, "images/image_quality_plain.jpg")
-        
+
         assert brisque(file=img_path) == 1

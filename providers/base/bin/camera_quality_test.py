@@ -75,8 +75,11 @@ def brisque(device: str = "video0", file: str = "", save: bool = False):
             return 1
 
         # Create a temporary file
-        f = NamedTemporaryFile(prefix='camera_test_brisque_%s_' % device,
-                               suffix='.jpg', delete=not save)
+        f = NamedTemporaryFile(
+            prefix="camera_test_brisque_%s_" % device,
+            suffix=".jpg",
+            delete=not save,
+        )
         cv2.imwrite(f.name, image)
         if save:
             print("Image saved to %s" % f.name)
@@ -98,12 +101,18 @@ def brisque(device: str = "video0", file: str = "", save: bool = False):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the image quality test")
-    parser.add_argument("-d", "--device", default="video0",
-                        help="Device for the webcam to use")
-    parser.add_argument("-f", "--file", default="",
-                        help="Parse a file instead of a device")
-    parser.add_argument("-s", "--save", action="store_true",
-                        help="Keep the image file after the test")
+    parser.add_argument(
+        "-d", "--device", default="video0", help="Device for the webcam to use"
+    )
+    parser.add_argument(
+        "-f", "--file", default="", help="Parse a file instead of a device"
+    )
+    parser.add_argument(
+        "-s",
+        "--save",
+        action="store_true",
+        help="Keep the image file after the test",
+    )
     args = parser.parse_args()
 
     sys.exit(brisque(args.device, args.file, args.save))

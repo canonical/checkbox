@@ -55,6 +55,9 @@ Therefore, if there has been no negative feedback from internal teams after a
 cycle of testing the beta release, run the [Stable release workflow] to copy deb
 packages to the stable PPA and promote all snaps to stable.
 
+> **_NOTE:_** Copy to the stable ppa only selects packages published in the last
+4 weeks.
+
 Then, it's time to build the new beta version.
 
 ## Tag the release

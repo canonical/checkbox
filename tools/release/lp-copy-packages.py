@@ -45,7 +45,7 @@ dest_ppa = dest_owner.getPPAByName(name=dest_ppa_name)
 # Define the time period for package publication
 one_week_ago = datetime.datetime.utcnow().replace(
     tzinfo=datetime.timezone.utc
-) - datetime.timedelta(weeks=1)
+) - datetime.timedelta(weeks=4)
 
 # Get the packages in the source PPA that were published within the last week
 # and start with "checkbox"

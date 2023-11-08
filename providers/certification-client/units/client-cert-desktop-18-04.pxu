@@ -34,7 +34,7 @@ nested_part:
     misc-client-cert-manual
     mediacard-cert-manual
     memory-manual
-    mobilebroadband-cert-manual
+    wwan-manual
     ethernet-cert-manual
     networking-cert-manual
     optical-cert-manual
@@ -104,7 +104,7 @@ nested_part:
     mediacard-cert-automated
     mediacard-automated
     memory-automated
-    mobilebroadband-cert-automated
+    wwan-automated
     ethernet-cert-automated
     networking-cert-automated
     optical-cert-automated
@@ -129,6 +129,7 @@ nested_part:
     after-suspend-touchscreen-cert-automated
     after-suspend-wireless-cert-automated
     after-suspend-bluetooth-cert-automated
+    after-suspend-wwan-automated
     # The following tests should run BEFORE the automated tests. The reboot and
     # power off tests will also give us a clean system to start the stress run
     # with.

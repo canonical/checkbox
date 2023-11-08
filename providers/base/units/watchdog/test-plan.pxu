@@ -7,6 +7,12 @@ nested_part:
     watchdog-manual
     watchdog-automated
 
+id: watchdog-manual
+unit: test plan
+_name: Manual watchdog tests
+_description: Manual watchdog tests for Ubuntu Core devices
+include:
+
 id: watchdog-automated
 unit: test plan
 _name: Automated watchdog tests

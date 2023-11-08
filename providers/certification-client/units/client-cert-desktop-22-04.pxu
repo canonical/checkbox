@@ -37,7 +37,7 @@ nested_part:
     led-cert-manual
     mediacard-cert-manual
     memory-manual
-    mobilebroadband-cert-manual
+    wwan-manual
     ethernet-cert-manual
     networking-cert-manual
     optical-cert-manual
@@ -112,7 +112,7 @@ nested_part:
     mediacard-cert-automated
     mediacard-automated
     memory-automated
-    mobilebroadband-cert-automated
+    wwan-automated
     ethernet-cert-automated
     networking-cert-automated
     optical-cert-automated
@@ -137,7 +137,7 @@ nested_part:
     after-suspend-cpu-cert-automated
     after-suspend-input-cert-automated
     after-suspend-disk-cert-automated
-    after-suspend-mobilebroadband-cert-automated
+    after-suspend-wwan-automated
     after-suspend-ethernet-cert-automated
     after-suspend-networking-cert-automated
     after-suspend-optical-cert-automated

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import abc
 import json
 from subprocess import run, PIPE, check_output, STDOUT, CalledProcessError
 
@@ -61,17 +62,33 @@ def collect() -> dict:
     return CollectorMeta.collect()
 
 
-class OutputSuccess:
+class OutputABC:
+
+    @abc.abstractmethod
+    def to_dict(self):
+        """
+        Creates a dictionary from the class
+        """
+        raise NotImplementedError
+
+    @classmethod
+    @abc.abstractmethod
+    def from_dict(cls, dct) -> "OutputABC":
+        """
+        Creates this class from a dictionary
+        """
+        raise NotImplementedError
+
+
+class OutputSuccess(OutputABC):
     def __init__(self, json_output: dict, stderr: str):
         self.json_output = json_output
         self.stderr = stderr
-        self.success = True
 
     def to_dict(self):
         return {
             "json_output": self.json_output,
             "stderr": self.stderr,
-            "success": self.success,
         }
 
     @classmethod
@@ -79,7 +96,7 @@ class OutputSuccess:
         return cls(dct["json_output"], dct["stderr"])
 
 
-class OutputFailure:
+class OutputFailure(OutputABC):
     def __init__(self, stdout: str, stderr: str, return_code: int):
         self.stdout = stdout
         self.stderr = stderr
@@ -101,7 +118,7 @@ class CollectionOutput:
     def __init__(
         self,
         tool_version: str,
-        outputs: "OutputSuccess|OutputFailure",
+        outputs: "OutputABC",
     ):
         self.tool_version = tool_version
         self.outputs = outputs

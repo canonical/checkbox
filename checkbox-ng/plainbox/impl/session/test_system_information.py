@@ -190,7 +190,7 @@ class TestCollectionOutput(TestCase):
             collection_output.outputs.json_output, {"key": "value"}
         )
         self.assertEqual(collection_output.outputs.stderr, "")
-        self.assertTrue(collection_output.outputs.success)
+        self.assertTrue(collection_output.success)
 
     def test_from_dict_failure(self):
         input_dict = {

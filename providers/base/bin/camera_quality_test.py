@@ -20,86 +20,126 @@
 #
 
 import argparse
+from collections import deque
+import logging
 import time
 import sys
 
 import cv2
-from numpy import isnan
+import numpy as np
 
 from checkbox_support.vendor.brisque.brisque import BRISQUE
 from tempfile import NamedTemporaryFile
 
 THRESHOLD = 60
+TIMEOUT = 10
+MIN_INTERVAL = 0.5
+
+logger = logging.getLogger("camera_quality_test")
 
 
-def get_image_from_device(device: str):
+def get_score_from_device(device: str, save: bool = False) -> float:
+    """
+    "This function calculates the BRISQUE score for images captured by a
+    specified device within a given time window. If the score stabilizes
+    during this period, the function returns this stable value. If the score
+    does not stabilize within the time window, the function will return the
+    last computed score."
+
+    :param device:
+        The device to use for the webcam
+    :param save:
+        If True, the image will be saved to a temporary file
+    :return:
+        The BRISQUE score for the image
+    :raises RuntimeError:
+        If the device cannot be opened or read
+    """
+    brisque = BRISQUE()
+
     # Set the video device
     index = int(device.replace("video", ""))
     cam = cv2.VideoCapture(index)
 
     if not cam.isOpened():
-        print("Cannot open the selected device", file=sys.stderr)
-        return None
+        msg = "Cannot open the selected device: {}".format(device)
+        raise RuntimeError(msg)
 
-    # Discard the frames for 4 seconds
-    tmax = time.time() + 4
-    while time.time() < tmax:
-        if not cam.grab():
-            print("Cannot read from the selected device", file=sys.stderr)
-            return None
+    # Compute the score for some time and check if it stabilizes
+    scores = deque(maxlen=4)
+    tmax = time.time() + TIMEOUT
+    iter_count = 0
 
-    # Get the image
-    result, image = cam.read()
-    cam.release()
-    if not result:
-        print("Cannot read from the selected device", file=sys.stderr)
-        return None
+    # We compute the score for at most TIMEOUT seconds. If the computation is
+    # too slow, we iterate at least two times.
+    while time.time() < tmax or iter_count < 2:
+        # Compute the time for each iteration
+        start_compute = time.time()
 
-    return image
+        # Compute the score
+        result, image = cam.read()
+        if not result:
+            msg = "Cannot read from the selected device: {}".format(device)
+            raise RuntimeError(msg)
+        score = brisque.score(image)
 
+        compute_time = time.time() - start_compute
 
-def brisque(device: str = "video0", file: str = "", save: bool = False):
-    """
-    Captures an image to a file and computes the quality using the
-    Blinded/Unreferenced Spatial Image Quality Evaluator (BRISQUE). If the
-    score is below a certain threshold, the test passes.
-    """
+        # If the computation time is smaller than the minimum interval for
+        # this iteration, we wait for the remaining time to have enough
+        # time between iterations.
+        if compute_time < MIN_INTERVAL:
+            time.sleep(MIN_INTERVAL - compute_time)
 
-    brisque = BRISQUE()
-    if file:
-        score = brisque.score(file)
+        # If the deviation of the scores is low enough for the last 4
+        # iterations, we can stop.
+        if len(scores) == 4 and np.std(scores) < 0.5:
+            break
 
-    else:
-        image = get_image_from_device(device)
-        if image is None:
-            return 1
+        scores.append(score)
+        iter_count += 1
 
-        # Create a temporary file
-        f = NamedTemporaryFile(
-            prefix="camera_test_brisque_%s_" % device,
+    # Save the image if requested
+    if save:
+        with NamedTemporaryFile(
+            prefix="camera_test_brisque_{}".format(device),
             suffix=".jpg",
-            delete=not save,
-        )
-        cv2.imwrite(f.name, image)
-        if save:
-            print("Image saved to %s" % f.name)
+            delete=False,
+        ) as f:
+            cv2.imwrite(f.name, image)
+            print("Saved image to {}".format(f.name))
 
-        # Compute the BRISQUE score
-        score = brisque.score(f.name)
-        f.close()
+    # Release the video device
+    cam.release()
+    return score
 
-    if isnan(score):
-        print("Unable to compute BRISQUE score", file=sys.stderr)
+
+def evaluate_score(score: float) -> int:
+    """
+    Evaluate the BRISQUE score for an image and checks if it is below the
+    threshold value.
+
+    :param score:
+        The BRISQUE score to be evaluated
+    :returns:
+        0 if the test passes, 1 otherwise
+    """
+
+    if np.isnan(score):
+        msg = "Unable to compute BRISQUE score"
+        logger.error(msg)
         return 1
+
     elif score > THRESHOLD:
-        print("The BRISQUE score is too high: %s" % score, file=sys.stderr)
+        msg = "The BRISQUE score is too high: {} > {}".format(score, THRESHOLD)
+        logger.error(msg)
         return 1
 
-    print("BRISQUE score: %s" % score)
+    print("BRISQUE score: {}".format(score))
     return 0
 
 
-if __name__ == "__main__":
+def main(argv: list) -> int:
     parser = argparse.ArgumentParser(description="Run the image quality test")
     parser.add_argument(
         "-d", "--device", default="video0", help="Device for the webcam to use"
@@ -113,6 +153,17 @@ if __name__ == "__main__":
         action="store_true",
         help="Keep the image file after the test",
     )
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
-    sys.exit(brisque(args.device, args.file, args.save))
+    if args.file:
+        img = cv2.imread(args.file)
+        brisque = BRISQUE()
+        score = brisque.score(img)
+    else:
+        score = get_score_from_device(args.device, args.save)
+
+    return evaluate_score(score)
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

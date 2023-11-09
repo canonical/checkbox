@@ -20,100 +20,149 @@
 #
 
 import os
+from pathlib import Path
+import time
 import unittest
 from unittest.mock import patch
 
 import cv2
 
-from bin.camera_quality_test import brisque
-
-default_dir = os.path.join(os.path.dirname(__file__), "../data")
-data_dir = os.getenv("PLAINBOX_PROVIDER_DATA", default=default_dir)
+import bin.camera_quality_test as cqt
 
 
+default_dir = Path(__file__).parent.joinpath("../data")
+data_dir = Path(os.getenv("PLAINBOX_PROVIDER_DATA", default=default_dir))
+
+score_path = "checkbox_support.vendor.brisque.brisque.BRISQUE.score"
+
+
+@patch("bin.camera_quality_test.TIMEOUT", new=0.05)
+@patch("bin.camera_quality_test.MIN_INTERVAL", new=0.01)
 class CameraQualityTests(unittest.TestCase):
     """This class provides test cases for the camera_quality_test module."""
 
     # Setup the patch for all the tests
     def setUp(self):
-        self.patcher = patch("cv2.VideoCapture")
-        self.mock_capture = self.patcher.start()
+        # Patch the VideoCapture
+        self.cv_patcher = patch("cv2.VideoCapture")
+        self.mock_capture = self.cv_patcher.start()
+        self.img_path = str(data_dir / "images/image_quality_good.jpg")
+        self.img = cv2.imread(self.img_path)
 
     def tearDown(self):
-        self.patcher.stop()
+        self.cv_patcher.stop()
+
+    @patch(score_path)
+    def test_get_score_from_file(self, mock_score):
+        """
+        The test should pass if a good image is read from a file.
+        """
+        mock_score.return_value = 10
+
+        result = cqt.main(["-f", self.img_path])
+        self.assertEqual(result, 0)
+        self.assertTrue(mock_score.called)
+
+    @patch("bin.camera_quality_test.get_score_from_device")
+    def test_get_score_from_device(self, mock_score):
+        """
+        The test should pass if a good image is read from a device.
+        """
+        mock_score.return_value = 10
+
+        result = cqt.main(["-d", "video0"])
+        self.assertEqual(result, 0)
+        mock_score.assert_called_with("video0", False)
+
+        result = cqt.main(["-d", "video0", "-s"])
+        self.assertEqual(result, 0)
+        mock_score.assert_called_with("video0", True)
+
+    def test_quality_evaluation(self):
+        """
+        The test should pass if the image is good and fails if it has bad
+        quality.
+        """
+
+        result = cqt.main(["-f", self.img_path])
+        self.assertEqual(result, 0, "Good image should pass the test")
+
+        bad_img_path = str(data_dir / "images/image_quality_bad.jpg")
+        result = cqt.main(["-f", bad_img_path])
+        self.assertEqual(result, 1, "Bad quality image should fail the test")
+
+        plain_img_path = str(data_dir / "images/image_quality_plain.jpg")
+        result = cqt.main(["-f", plain_img_path])
+        self.assertEqual(result, 1, "Plain image should fail the test")
 
     def test_device_not_opened(self):
         """
         The test should fail if the camera device is not opened.
         """
 
-        # Set the mock
         self.mock_capture.return_value.isOpened.return_value = False
-
-        assert brisque() == 1
-
-    def test_grab_not_available(self):
-        """
-        The test should fail if the camera device can't grab an image.
-        """
-
-        # Set the mock
-        self.mock_capture.return_value.isOpened.return_value = True
-        self.mock_capture.return_value.grab.return_value = False
-
-        assert brisque() == 1
+        self.assertRaises(RuntimeError, cqt.get_score_from_device, "video0")
 
     def test_image_not_read(self):
         """
-        The test should fail if the camera device can't read the image.
+        The test should fail if the camera cannot read an image.
         """
 
-        # Set the mock
         self.mock_capture.return_value.isOpened.return_value = True
-        self.mock_capture.return_value.grab.return_value = True
         self.mock_capture.return_value.read.return_value = (False, None)
 
-        assert brisque() == 1
+        self.assertRaises(RuntimeError, cqt.get_score_from_device, "video0")
 
-    def test_good_image_from_camera(self):
+    @patch(score_path)
+    def test_stable_image_from_cam(self, mock_score):
         """
-        Check if the test passes with a valid image.
+        The test should pass with a good still image.
         """
-        # Set the mock
-        img_path = os.path.join(data_dir, "images/image_quality_good.jpg")
-        img = cv2.imread(img_path)
+
         self.mock_capture.return_value.isOpened.return_value = True
-        self.mock_capture.return_value.grab.return_value = True
-        self.mock_capture.return_value.read.return_value = (True, img)
+        self.mock_capture.return_value.read.return_value = (True, None)
+        mock_score.return_value = 10
 
-        assert brisque() == 0
-        assert brisque(save=True) == 0
+        self.assertEqual(cqt.get_score_from_device("video0"), 10)
 
-    def test_good_image_from_file(self):
+    @patch(score_path)
+    def test_unstable_image_from_cam(self, mock_score):
         """
-        Check if the test passes with a valid image from a file.
-        """
-
-        img_path = os.path.join(data_dir, "images/image_quality_good.jpg")
-
-        assert brisque(file=img_path) == 0
-
-    def test_bad_image_from_file(self):
-        """
-        Check if the test fails with a bad image.
+        The test should pass with a good still image.
         """
 
-        # Set the mock
-        img_path = os.path.join(data_dir, "images/image_quality_bad.jpg")
+        self.mock_capture.return_value.isOpened.return_value = True
+        self.mock_capture.return_value.read.return_value = (True, None)
+        mock_score.side_effect = [10, 20, 10, 20, 10, 10]
 
-        assert brisque(file=img_path) == 1
+        self.assertEqual(cqt.get_score_from_device("video0"), 10)
 
-    def test_invalid_image_from_file(self):
+    def slow_score(*args):
+        time.sleep(0.06)
+        return 10
+
+    @patch(score_path, side_effect=slow_score)
+    def test_slow_brisque_calculation(self, mock_slow_score):
         """
-        Check if the test fails with a plain image.
+        The test should iterate even if the computation time is slow.
         """
 
-        # Set the mock
-        img_path = os.path.join(data_dir, "images/image_quality_plain.jpg")
+        self.mock_capture.return_value.isOpened.return_value = True
+        self.mock_capture.return_value.read.return_value = (True, None)
 
-        assert brisque(file=img_path) == 1
+        self.assertEqual(cqt.get_score_from_device("video0"), 10)
+        self.assertEqual(mock_slow_score.call_count, 2)
+
+    @patch("cv2.imwrite")
+    @patch(score_path)
+    def test_save_image_from_cam(self, mock_score, mock_imwrite):
+        """
+        The test should pass with a good still image.
+        """
+
+        self.mock_capture.return_value.isOpened.return_value = True
+        self.mock_capture.return_value.read.return_value = (True, self.img)
+        mock_score.return_value = 10
+
+        cqt.get_score_from_device("video0", True)
+        self.assertTrue(mock_imwrite.called)

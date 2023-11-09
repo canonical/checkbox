@@ -114,6 +114,7 @@ estimated_duration: 10.0
 requires:
   module.name == 'platform_profile'
   package.name == 'power-profiles-daemon'
+  platform_profile.supported == 'True'
 command: switch_power_mode.py
 _description:
   This test will check if the power mode could be switched.

@@ -5,24 +5,17 @@
 # Written by:
 #   Bin Li <bin.li@canonical.com>
 
-"""Modules providing a function running os or sys commands."""
+""" Switching the power mode to check if the power mode can be switched. """
 import os
+from pathlib import Path
 import sys
 
 
 def main():
-    """Switching the power mode to check if the power mode can be switched."""
-    sysfs_root = "/sys/firmware/acpi/"
-    if not os.path.isdir(sysfs_root):
-        return
-    choices_filename = os.path.join(sysfs_root, "platform_profile_choices")
-    if (not os.path.isfile(choices_filename) or
-            not os.access(choices_filename, os.R_OK)):
-        return
-    profile_filename = os.path.join(sysfs_root, "platform_profile")
-    if (not os.path.isfile(profile_filename) or
-            not os.access(profile_filename, os.R_OK)):
-        return
+    """ main function to switch the power mode. """
+    sysfs_root = Path("/sys/firmware/acpi/")
+    choices_path = sysfs_root / "platform_profile_choices"
+    profile_path = sysfs_root / "platform_profile"
 
     return_value = 0
 
@@ -30,12 +23,12 @@ def main():
     old_profile = os.popen("powerprofilesctl get").read().strip().split()[0]
 
     # Read the power mode from /sys/firmware/acpi/platform_profile_choices
-    with open(choices_filename, "rt", encoding="utf-8") as stream:
+    with open(choices_path, "rt", encoding="utf-8") as stream:
         choices = stream.read().strip().split()
-        if len(choices) < 1:
+        if not choices:
             print("No power mode to switch.")
             return
-    print(f'Power mode choices: {choices}')
+    print('Power mode choices: {}'.format(choices))
     # Switch the power mode with powerprofilesctl
     for choice in choices:
         # Convert the power mode, e.g. low-power = power-saver,
@@ -45,20 +38,20 @@ def main():
         else:
             value = choice
 
-        os.system(f"powerprofilesctl set {value}")
+        os.system("powerprofilesctl set {}".format(value))
 
-        os.system("sleep 2")
+        os.system("sleep 1")
 
-        with open(profile_filename, "rt", encoding="utf-8") as stream:
+        with open(profile_path, "rt", encoding="utf-8") as stream:
             current_profile = stream.read().strip().split()
         if current_profile[0] == choice:
-            print(f"Switch to {value} successfully.")
+            print("Switch to {} successfully.".format(value))
         else:
-            print(f"Failed to switch to {value}.")
+            print("Failed to switch to {}.".format(value))
             return_value = 1
 
     # Switch back to the original power mode
-    os.system(f"powerprofilesctl set {old_profile}")
+    os.system("powerprofilesctl set {}".format(old_profile))
 
     sys.exit(return_value)
 

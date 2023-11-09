@@ -5,15 +5,16 @@
 # Written by:
 #   Bin Li <bin.li@canonical.com>
 
-"""Modules providing a function running os or sys commands."""
+""" Switching the power mode to check if the power mode can be switched. """
 import os
+import pathlib
 import sys
 
 
 def main():
-    """Switching the power mode to check if the power mode can be switched."""
+    """ main function to switch the power mode. """
     sysfs_root = "/sys/firmware/acpi/"
-    if not os.path.isdir(sysfs_root):
+    if not pathlib.Path(sysfs_root).exists():
         return
     choices_filename = os.path.join(sysfs_root, "platform_profile_choices")
     if (not os.path.isfile(choices_filename) or
@@ -32,10 +33,10 @@ def main():
     # Read the power mode from /sys/firmware/acpi/platform_profile_choices
     with open(choices_filename, "rt", encoding="utf-8") as stream:
         choices = stream.read().strip().split()
-        if len(choices) < 1:
+        if not choices:
             print("No power mode to switch.")
             return
-    print(f'Power mode choices: {choices}')
+    print('Power mode choices: {}'.format(choices))
     # Switch the power mode with powerprofilesctl
     for choice in choices:
         # Convert the power mode, e.g. low-power = power-saver,
@@ -45,7 +46,7 @@ def main():
         else:
             value = choice
 
-        os.system(f"powerprofilesctl set {value}")
+        os.system("powerprofilesctl set {}".format(value))
 
         os.system("sleep 2")
 

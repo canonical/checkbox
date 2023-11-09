@@ -497,6 +497,16 @@ parts:
       sed -i 's|LIBMARSHAL_CFLAGS = \\|LIBMARSHAL_CFLAGS = |g' Makefile.am
       sed -i 's|-DALG_ECMQV=1||g' Makefile.am
 ################################################################################
+  parts-meta-info:
+    plugin: nil
+    build-environment:
+      - RUNTIME_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
+    override-build: |
+      snapcraftctl build
+      echo "checkbox-runtime:" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+      echo "$RUNTIME_VERSION" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+    after: [checkbox-provider-certification-server]
+################################################################################
   common-config:
     plugin: dump
     source: config/

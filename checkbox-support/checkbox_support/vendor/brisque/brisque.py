@@ -25,16 +25,16 @@ class BRISQUE:
         with open(self.norm, "rb") as f:
             self.scale_params = pickle.load(f)
 
-    def load_gray_image(self, path):
-        img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+    def preprocess_image(self, img):
+        grey_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         # Resize image to a width of 640
         desired_width = int(640)
-        height, width = img.shape
+        height, width = grey_img.shape
         aspect_ratio = width / height
         desired_height = int(desired_width / aspect_ratio)
         resized_image = cv2.resize(
-            img,
+            grey_img,
             (desired_width, desired_height),
             interpolation=cv2.INTER_NEAREST,
         )
@@ -42,16 +42,16 @@ class BRISQUE:
         float_img = np.float64(resized_image) / 255.0
         return float_img
 
-    def score(self, path):
-        gray_image = self.load_gray_image(path)
+    def score(self, img):
+        proc_img = self.preprocess_image(img)
         # Don't calculate score if image is too homogeneous
-        if np.std(gray_image) < 1e-2:
+        if np.std(proc_img) < 1e-2:
             return float("nan")
         brisque_features = self.calculate_brisque_features(
-            gray_image, kernel_size=7, sigma=7 / 6
+            proc_img, kernel_size=7, sigma=7 / 6
         )
         downscaled_image = cv2.resize(
-            gray_image, None, fx=1 / 2, fy=1 / 2, interpolation=cv2.INTER_CUBIC
+            proc_img, None, fx=1 / 2, fy=1 / 2, interpolation=cv2.INTER_CUBIC
         )
         downscale_brisque_features = self.calculate_brisque_features(
             downscaled_image, kernel_size=7, sigma=7 / 6

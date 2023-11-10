@@ -20,13 +20,12 @@ def main():
 
     return_value = 0
 
-    # Get the current power mode in quiet mode.
-    result = subprocess.check_output(["powerprofilesctl", "get"], shell=True, text=True)
-    if result.returncode != 0:
-        print("Failed to get the current power mode.")
-        return 1
-    else:
+    try:
+        result = subprocess.check_output(["powerprofilesctl", "get"], text=True)
         old_profile = result.strip().split()[0]
+    except subprocess.CalledProcessError as err:
+        print("Failed to get the current power mode: {}".format(err))
+        return 1
 
     # Read the power mode from /sys/firmware/acpi/platform_profile_choices
     with open(choices_path, "rt", encoding="utf-8") as stream:

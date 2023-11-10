@@ -9,6 +9,7 @@
 import os
 from pathlib import Path
 import sys
+import subprocess
 
 
 def main():
@@ -20,7 +21,12 @@ def main():
     return_value = 0
 
     # Get the current power mode in quiet mode.
-    old_profile = os.popen("powerprofilesctl get").read().strip().split()[0]
+    result = subprocess.check_output(["powerprofilesctl", "get"], shell=True, text=True)
+    if result.returncode != 0:
+        print("Failed to get the current power mode.")
+        return 1
+    else:
+        old_profile = result.strip().split()[0]
 
     # Read the power mode from /sys/firmware/acpi/platform_profile_choices
     with open(choices_path, "rt", encoding="utf-8") as stream:

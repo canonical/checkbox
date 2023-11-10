@@ -476,3 +476,10 @@ _summary: Collect information about the audio card
 _description: Gets audio resource info from /proc/asound/pcm
 command: audio_card_resource.py
 
+id: platform_profile
+estimated_duration: 1.0
+plugin: resource
+_summary: Discover if the system supports power modes via acpi
+_description: Discover resource info from /sys/firmware/apci
+command: platform_profile_resource.py
+

@@ -28,11 +28,14 @@ summary``, and it looks like:
 
 .. code-block:: none
 
-     ☐ : Resource for NVDIMM detection
-     ☑ : Display USB devices attached to SUT
-     ☒ : Test USB 2.0 or 1.1 ports
-     ☑ : Collect information about supported types of USB
-     ☒ : Test USB 3.0 or 3.1 ports
+    ☑ : A job that always passes
+    ☒ : A job that always fails
+    ⚠ : A job that always crashes
+    ☑ : A job that depends on other job that passes
+    ☐ : A job that is skipped because it depends on a job that fails
+    ☑ : A job that generates different resources for tutorial purposes
+    ☑ : A job that requires a resource and it is available
+    ...
 
 Checkout this table to map outcome symbols to their corresponding descriptions:
 
@@ -101,11 +104,18 @@ Now, let's explore each of the submission files together!
     - System Information
     - Tests Results
     - Logs
+
+.. figure:: ../../_images/checkbox-tutorial-test-report.png
     
-    You can expand entries in Tests Results and Logs sections to access more 
-    detailed information. Additionally, you can utilize *search bar* to filter 
-    specific tests for easier navigation. For instance, type "audio" in the 
-    search bar to view all test results related to audio testing.
+    Tutorial HTML report
+
+    
+You can expand entries in Tests Results and Logs sections to access more
+detailed information. 
+
+Additionally, if the report is more complex, you can utilize the *search bar* to
+filter specific tests for easier navigation. For instance, if you type "audio"
+in the search bar, you can view all test results related to audio testing.
 
 .. figure:: ../../_images/checkbox-test-report.png
     

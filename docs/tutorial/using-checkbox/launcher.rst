@@ -215,7 +215,7 @@ in it:
     stock_reports = text, submission_files
 
     [test plan]
-    unit = com.canonical.certification::TODO
+    unit = com.canonical.certification::tutorial-base
     forced = yes
 
     [test selection]
@@ -261,7 +261,7 @@ and where it comes from. Run the following command:
        [test plan]
          filter=*                           (Default)
          forced=True                        From config file: /home/user/.config/checkbox.conf
-         unit=com.canonical.certification::TODO From config file: /home/user/.config/checkbox.conf
+         unit=com.canonical.certification::tutorial-base From config file: /home/user/.config/checkbox.conf
        [test selection]
          exclude=                           (Default)
          forced=True                        From config file: /home/user/.config/checkbox.conf

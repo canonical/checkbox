@@ -60,7 +60,7 @@ Create and activate the Python virtual environment:
 ``` bash
 $ cd ~/checkbox/checkbox-ng
 $ ./mk-venv
-$ . ~/checkbox-ng/venv/bin/activate
+$ . ~/checkbox/checkbox-ng/venv/bin/activate
 ```
 
 Activate the base providers in the virtual environment from within the virtual

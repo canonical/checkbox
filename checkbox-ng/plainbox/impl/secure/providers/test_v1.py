@@ -29,6 +29,8 @@ from plainbox.impl.secure.config import Unset
 from plainbox.impl.secure.config import ValidationError
 from plainbox.impl.secure.plugins import PlugIn
 from plainbox.impl.secure.plugins import PlugInError
+from plainbox.impl.secure.providers.v1 import logger
+from plainbox.impl.secure.providers.v1 import ProviderContentLoader
 from plainbox.impl.secure.providers.v1 import AbsolutePathValidator
 from plainbox.impl.secure.providers.v1 import ExistingDirectoryValidator
 from plainbox.impl.secure.providers.v1 import IQNValidator
@@ -41,6 +43,102 @@ from plainbox.impl.secure.rfc822 import FileTextSource
 from plainbox.impl.secure.rfc822 import Origin
 from plainbox.impl.unit.file import FileUnit
 from plainbox.vendor import mock
+
+
+class ProviderContentLoaderTests(TestCase):
+
+    units_path = '/path/to/units'
+    jobs_path = '/path/to/jobs'
+    data_path = '/path/to/data'
+    bin_path = '/path/to/bin'
+    locale_path = '/path/to/localedb'
+
+    def assertLogsInline(self, function, *args, **kwargs):
+        '''
+        Asserts that a callable logs a message when called with args and/or kwargs. This methos is meant to be used where assertLogs context manager would decrease readability.
+
+        :param function:
+            callable to be tested
+
+        :param logger:
+            logging.Logger object or str as used in assertLogs
+
+        :param level:
+            numeric logging level or its string equivalent as usede in assertLogs
+
+        :param *args:
+            positional args that will be passed to function
+
+        :param **kwargs:
+            keyword args that will be passed to function
+
+        :returns:
+            log recording helper object of assertLogs
+        '''
+        logger = None
+        level = None
+        if 'logger' in kwargs:
+            logger = kwargs.pop('logger')
+        if 'level' in kwargs:
+            level = kwargs.pop('level')
+
+        with self.assertLogs(logger=logger, level=level) as log_recorder:
+            function(*args, **kwargs)
+        return log_recorder
+
+    def setUp(self):
+        patcher = mock.patch(
+            'plainbox.impl.secure.providers.v1.ProviderContentLoader',
+            autospec=True,
+        )
+        self.provider_mock = patcher.start()
+        self.provider_mock.units_dir = self.units_path
+        self.provider_mock.jobs_dir = self.jobs_path
+        self.provider_mock.data_dir = self.data_path
+        self.provider_mock.bin_dir = self.bin_path
+        self.provider_mock.locale_dir = self.locale_path
+        self.addCleanup(patcher.stop)
+
+        self.loader = ProviderContentLoader(self.provider_mock)
+
+    def test_warn_ignored_file_warns_about_skipped_files(self):
+        filenames = [
+            '/'.join([self.units_path, 'unitfile']),
+            '/'.join([self.jobs_path, 'jobfile']),
+            '/'.join([self.data_path, 'datafile']),
+            '/'.join([self.bin_path, 'binfile']),
+            '/'.join([self.locale_path, 'localefile']),
+        ]
+        for filename in filenames:
+            with self.subTest(filename=filename):
+                self.assertLogsInline(self.loader._warn_ignored_file, filename, level='WARNING')
+
+    def test_warn_ignored_file_warns_with_correct_content(self):
+        # The message should:
+        #   - contain the skipped filename
+        #   - contain the reason to skip
+        #   - be clear on skipping
+        filename = '/'.join([self.units_path, 'unitsfile'])
+        with self.assertLogs(level='WARNING') as log_recorder:
+            self.loader._warn_ignored_file(filename)
+
+            self.assertRegex(log_recorder.output[0], filename)
+            self.assertRegex(log_recorder.output[0], '(?i)executable')
+            self.assertRegex(log_recorder.output[0], '(?i)skip')
+
+    def test_warn_ignored_file_does_not_log_files_outside_provider_dirs(self):
+        outside_path = '/not/a/provider/path'
+        filename = '/'.join([outside_path, 'unitsfile'])
+        with self.assertLogs(level='WARNING') as log_recorder:
+            logger.warning("Dummy warning")
+            self.loader._warn_ignored_file(filename)
+
+        self.assertEqual(
+            ["WARNING:plainbox.secure.providers.v1:Dummy warning"],
+            log_recorder.output,
+            "_warn_ignored_file should not log files outside provider \
+            directories",
+        )
 
 
 class IQNValidatorTests(TestCase):

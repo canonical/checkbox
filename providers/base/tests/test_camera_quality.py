@@ -137,21 +137,23 @@ class CameraQualityTests(unittest.TestCase):
 
         self.assertEqual(cqt.get_score_from_device("video0"), 10)
 
-    def slow_score(*args):
-        time.sleep(0.06)
-        return 10
-
-    @patch(score_path, side_effect=slow_score)
-    def test_slow_brisque_calculation(self, mock_slow_score):
+    @patch(score_path)
+    def test_slow_brisque_calculation(self, mock_score):
         """
-        The test should iterate even if the computation time is slow.
+        The test should iterate at least two times even if the computation time
+        is longer than the timeout.
         """
 
         self.mock_capture.return_value.isOpened.return_value = True
         self.mock_capture.return_value.read.return_value = (True, None)
+        mock_score.return_value = 10
 
-        self.assertEqual(cqt.get_score_from_device("video0"), 10)
-        self.assertEqual(mock_slow_score.call_count, 2)
+        # Set the timeout and the min interval to 0 to force the iteration
+        with patch("bin.camera_quality_test.TIMEOUT", new=0.0), patch(
+            "bin.camera_quality_test.MIN_INTERVAL", new=0.0
+        ):
+            self.assertEqual(cqt.get_score_from_device("video0"), 10)
+            self.assertEqual(mock_score.call_count, 2)
 
     @patch("cv2.imwrite")
     @patch(score_path)

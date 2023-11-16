@@ -14,15 +14,15 @@ import subprocess
 import sys
 import time
 
-from monitor_hotplug import check_connected
+from monitor_hotplug import check_connected, discover_video_output_device
 
 from checkbox_support.scripts.zapper_proxy import (             # noqa: E402
     zapper_run)
 
-PATTERN = r"^HDMI-1.*\n.*^\s+(\d+x\d+).*\*"
+PATTERN = r"^{}.*\n.*^\s+(\d+x\d+).*\*"
 
 
-def _match(output):
+def _match(video_device, output):
     """
     Match the given randr output with a pattern to grab
     the current resolution on HDMI-1.
@@ -76,13 +76,13 @@ def _match(output):
     ... "[x1.00+, x2.00]\\n")
     '2048x1080'
     """
-    match = re.search(PATTERN, output, re.MULTILINE | re.DOTALL)
+    match = re.search(PATTERN.format(video_device), output, re.MULTILINE | re.DOTALL)
     if match:
         return match.group(1)
     return None
 
 
-def check_resolution():
+def _check_resolution(video_device):
     """
     Check output resolution on HDMI using randr.
     """
@@ -95,7 +95,7 @@ def check_resolution():
         [cmd],
         universal_newlines=True, encoding="utf-8")
 
-    return _match(randr_output)
+    return _match(video_device, randr_output)
 
 
 def _wait_edid_change(expected):
@@ -113,7 +113,7 @@ def _wait_edid_change(expected):
         raise TimeoutError
 
 
-def change_edid(host, edid_file):
+def _change_edid(host, edid_file):
     """Clear EDID and then 'plug' back a new monitor."""
     zapper_run(host, "change_edid", None)
     _wait_edid_change(False)
@@ -128,20 +128,25 @@ def main():
     if len(sys.argv) != 2:
         raise SystemExit('Usage: {} user@edid-host'.format(sys.argv[0]))
     failed = False
+    try:
+        video_device = discover_video_output_device(sys.argv[0])
+    except FileNotFoundError as exc:
+        raise SystemExit("Cannot detect the target video output device.")
+
     for res in ['2560x1440', '1920x1080', '1280x1024']:
         print('changing EDID to {}'.format(res))
         edid_file = os.path.expandvars(os.path.join(
             '$PLAINBOX_PROVIDER_DATA', 'edids', '{}.edid'.format(res)))
 
         try:
-            change_edid(sys.argv[1], edid_file)
+            _change_edid(sys.argv[1], edid_file)
         except TimeoutError:
             print("FAIL, timed out.")
             failed = True
             continue
 
         print('checking resolution... ', end='')
-        actual_res = check_resolution()
+        actual_res = _check_resolution(video_device)
         if actual_res != res:
             print('FAIL, got {} instead'.format(actual_res))
             failed = True

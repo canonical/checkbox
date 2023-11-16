@@ -6,12 +6,35 @@ on:
   workflow_dispatch:
 
 jobs:
+  check_for_commits:
+    runs-on: [self-hosted, linux, large]
+    name: Check for commits
+    outputs:
+      new_commit_count: ${{ steps.commit_check.outputs.new_commit_count }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Check for commits
+        id: commit_check
+        run: |
+          commit_count=$(git log --since="24 hours ago" --oneline -- checkbox-ng checkbox-support providers checkbox-core-snap checkbox-snap | wc -l)
+          echo "new_commit_count=$commit_count" | tee $GITHUB_OUTPUT
+
   checkbox-core-snap-daily:
+    needs: check_for_commits
+    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-core-snap-daily-builds.yml
     secrets: inherit
+
   checkbox-snap-daily:
+    needs: check_for_commits
+    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-snap-daily-builds.yml
     secrets: inherit
+
   checkbox-deb-daily:
+    needs: check_for_commits
+    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/deb-daily-builds.yml
     secrets: inherit

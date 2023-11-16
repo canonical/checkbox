@@ -20,18 +20,15 @@
 import unittest
 import io
 import sys
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 from camera_test import CameraTest, v4l2_capability
 
 
+@patch("builtins.print", new=MagicMock())
 class CameraTestTests(unittest.TestCase):
     """This class provides test cases for the CameraTest class."""
     def setUp(self):
-        # supress stdout to hide print message
-        suppress_text = io.StringIO()
-        sys.stdout = suppress_text
-
         self.camera_instance = CameraTest(None)
 
     @patch('camera_test.CameraTest._supported_resolutions_to_string')

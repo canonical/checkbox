@@ -23,7 +23,7 @@ import os
 from pathlib import Path
 import time
 import unittest
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 
 import cv2
 
@@ -38,6 +38,7 @@ score_path = "checkbox_support.vendor.brisque.brisque.BRISQUE.score"
 
 @patch("bin.camera_quality_test.TIMEOUT", new=0.05)
 @patch("bin.camera_quality_test.MIN_INTERVAL", new=0.01)
+@patch("builtins.print", new=MagicMock())
 class CameraQualityTests(unittest.TestCase):
     """This class provides test cases for the camera_quality_test module."""
 
@@ -78,6 +79,7 @@ class CameraQualityTests(unittest.TestCase):
         self.assertEqual(result, 0)
         mock_score.assert_called_with("video0", True)
 
+    @patch("logging.Logger.error", new=MagicMock())
     def test_quality_evaluation(self):
         """
         The test should pass if the image is good and fails if it has bad

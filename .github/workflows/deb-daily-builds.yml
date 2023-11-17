@@ -5,31 +5,8 @@ on:
   workflow_call:
 
 jobs:
-  check_history:
-    runs-on: ubuntu-latest
-    name: Check for new commits
-    outputs:
-      should_run: ${{ steps.check_log.outputs.should_run }}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Check for new commits to any deb
-        id: check_log
-        run: |
-          git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers checkbox-core-snap checkbox-snap
-          changes=$(git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-ng checkbox-support providers checkbox-core-snap checkbox-snap)
-          if [[ -z $changes ]]
-            then
-              echo "should_run=false" >> $GITHUB_OUTPUT
-            else
-              echo "should_run=true" >> $GITHUB_OUTPUT
-          fi
-
   deb_daily_builds:
     name: Debian packages daily build
-    needs: check_history
-    if: ${{ needs.check_history.outputs.should_run != 'false' }} || github.event_name == 'workflow_dispatch'
     runs-on: [self-hosted, linux, large]
     steps:
       - name: Install dependencies

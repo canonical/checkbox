@@ -1,15 +1,3 @@
-unit: template
-template-resource: graphics_card
-template-filter: graphics_card.prime_gpu_offload == 'Off'
-id: monitor/{index}_zapper_hdmi_{product_slug}
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_hdmi == 'True' and zapper_capabilities.capability == 'hdmi-capture'
-plugin: shell
-estimated_duration: 20
-_summary: Check if the system recognizes hotplug events on HDMI
-category_id: com.canonical.plainbox::monitor
-command: monitor_hotplug.py hdmi {index} "$ZAPPER_HOST"
-
 id: monitor/zapper-edid
 requires: zapper_capabilities.capability == 'hdmi-capture' and zapper_capabilities.edid_cycling == 'True'
 category_id: com.canonical.plainbox::monitor

@@ -4,108 +4,143 @@ This program tests whether the system changes the resolution automatically
 when supplied with a new EDID information.
 
 To run the test you need Zapper board connected and set up.
-
-The command-line argument for the program is the address of the RaspberryPi
-Host (optionally with a username), e.g.: ubuntu@192.168.1.100
 """
+import argparse
+import glob
 import os
 import re
 import subprocess
-import sys
 import time
 
-from monitor_hotplug import check_connected, discover_video_output_device
+from checkbox_support.scripts.zapper_proxy import zapper_run  # noqa: E402
 
-from checkbox_support.scripts.zapper_proxy import (             # noqa: E402
-    zapper_run)
+EDID_FILES = glob.glob(
+    os.path.expandvars(
+        os.path.join("$PLAINBOX_PROVIDER_DATA", "edids", "*.edid")
+    )
+)
 
-PATTERN = r"^{}.*\n.*^\s+(\d+x\d+).*\*"
 
-
-def _match(video_device, output):
+def discover_video_output_device(zapper_host):
     """
-    Match the given randr output with a pattern to grab
-    the current resolution on HDMI-1.
+    Try to discover the output device connected to Zapper
+    checking the difference in xrandr when plugged in and
+    unplugged.
 
-    Both gnome-randr and xrandr highlight the currently
-    selected resolution for each monitor with a `*`.
-
-    xrandr
-    >>> _match("Screen 0: minimum 320 x 200, current 1920 x 1080,"
-    ... " maximum 16384 x 16384i\\n"
-    ... "DPI-1 connected primary 1920x1080+0+0 (normal left inverted"
-    ... "   1920x1080     60.00*+  59.97    59.96    59.93    40.00\\n"
-    ... "HDMI-1 connected primary 1920x1080+0+0 (normal left inverted"
-    ... " right x axis y axis) 309mm x 174mm\\n"
-    ... "   1920x1080     60.00+  59.97    59.96    59.93    40.00\\n"
-    ... "   1680x1050     59.95    59.88\\n"
-    ... "   1600x1024     60.17*\\n")
-    '1600x1024'
-
-    xrandr, no output on HDMI-1
-    >>> _match("Screen 0: minimum 320 x 200, current 1920 x 1080,"
-    ... " maximum 16384 x 16384i\\n"
-    ... "DPI-1 connected primary 1920x1080+0+0 (normal left inverted"
-    ... "   1920x1080     60.00*+  59.97    59.96    59.93    40.00\\n"
-    ... "HDMI-1 connected primary 1920x1080+0+0 (normal left inverted"
-    ... " right x axis y axis) 309mm x 174mm\\n"
-    ... "   1920x1080     60.00+  59.97    59.96    59.93    40.00\\n"
-    ... "   1680x1050     59.95    59.88\\n")
-
-    xrandr, no HDMI-1 available
-    >>> _match("Screen 0: minimum 320 x 200, current 1920 x 1080,"
-    ... " maximum 16384 x 16384i\\n"
-    ... "DPI-1 connected primary 1920x1080+0+0 (normal left inverted"
-    ... "   1920x1080     60.00*+  59.97    59.96    59.93    40.00\\n")
-
-    gnome-randr
-    >>> _match("supports-mirroring: true\\n"
-    ... "layout-mode: physical\\n"
-    ... "supports-changing-layout-mode: false\\n"
-    ... "global-scale-required: false\\n"
-    ... "legacy-ui-scaling-factor: 1\\n"
-    ... 'renderer: "native"\\n\\n'
-    ... "logical monitor 0:\\n"
-    ... "x: 0, y: 0, scale: 1, rotation: normal, primary: yes\\n"
-    ... "associated physical monitors:\\n"
-    ... "	HDMI-1 DEL DELL U2722DE 4M9KFH3\\n\\n"
-    ... "HDMI-1 DEL DELL U2722DE 4M9KFH3\\n"
-    ... "              2560x1440@59.951	2560x1440 	59.95+"
-    ... "[x1.00+, x2.00, x3.00]\\n"
-    ... "              2048x1080@23.997	2048x1080 	24.00*"
-    ... "[x1.00+, x2.00]\\n")
-    '2048x1080'
+    :param zapper_host: Target Zapper IP
+    :return: Video Output Port, i.e. `HDMI-1`
+    :raises IOError: cannot discover the video port under test
     """
-    match = re.search(PATTERN.format(video_device), output, re.MULTILINE | re.DOTALL)
-    if match:
-        return match.group(1)
-    return None
 
+    def get_active_devices():
+        """Get the list of active video ouput devices."""
+        if os.getenv("XDG_SESSION_TYPE") == "wayland":
+            command = ["gnome-randr", "query"]
+            pattern = r"^\b\w+-\d+\b"
+        else:
+            command = ["xrandr", "--listactivemonitors"]
+            pattern = r"\b\w+-\d+\b$"
 
-def _check_resolution(video_device):
-    """
-    Check output resolution on HDMI using randr.
-    """
-    if os.getenv('XDG_SESSION_TYPE') == 'wayland':
-        cmd = "gnome-randr"
+        xrandr_output = subprocess.check_output(
+            command,
+            universal_newlines=True,
+            encoding="utf-8",
+        )
+
+        return set(re.findall(pattern, xrandr_output, re.MULTILINE))
+
+    _set_edid(zapper_host, None)
+
+    # Not knowing what to except I can't use a busy loop here
+    time.sleep(5)
+
+    devices = get_active_devices()
+
+    _set_edid(zapper_host, EDID_FILES[0])
+    for _ in range(5):
+        target = list(get_active_devices() - devices)
+        if target:
+            break
+
+        time.sleep(1)
     else:
-        cmd = "xrandr"
+        raise IOError
+
+    return target[0]
+
+
+def test_edid(zapper_host, edid_file, video_device):
+    """
+    Set a EDID file and check whether the resolution
+    is recognized and selected on DUT.
+
+    :param zapper_host: Target Zapper IP
+    :param edid_file: path to the EDID file to test
+    :param video_device: video output port under test
+
+    :raises AssertionError: in case of mismatch between set
+                            and read resolution
+    """
+    resolution = os.path.basename(edid_file).split(".")[0]
+    print("switching EDID to {}".format(resolution))
+
+    try:
+        _switch_edid(zapper_host, edid_file, video_device)
+    except TimeoutError as exc:
+        raise AssertionError("Timed out switching EDID") from exc
+
+    print("checking resolution... ", end="")
+    actual_res = _check_resolution(video_device)
+    if actual_res != resolution:
+        print("FAIL, got {} instead".format(actual_res))
+        raise AssertionError()
+
+    print("PASS")
+
+
+def _switch_edid(zapper_host, edid_file, video_device):
+    """Clear EDID and then 'plug' back a new monitor."""
+    _set_edid(zapper_host, None)
+    _wait_edid_change(video_device, False)
+
+    _set_edid(zapper_host, edid_file)
+
+    _wait_edid_change(video_device, True)
+
+
+def _set_edid(zapper_host, edid_file=None):
+    """Request EDID change to Zapper."""
+    if edid_file:
+        with open(edid_file, "rb") as f:
+            zapper_run(zapper_host, "change_edid", f.read())
+    else:
+        zapper_run(zapper_host, "change_edid", None)
+
+
+def _check_connected(device):
+    """Check if the video input device is recognized and active."""
+    if os.getenv("XDG_SESSION_TYPE") == "wayland":
+        cmd = ["gnome-randr", "query", device]
+    else:
+        cmd = ["xrandr", "--listactivemonitors"]
 
     randr_output = subprocess.check_output(
-        [cmd],
-        universal_newlines=True, encoding="utf-8")
+        cmd,
+        universal_newlines=True,
+        encoding="utf-8",
+    )
 
-    return _match(video_device, randr_output)
+    return device in randr_output
 
 
-def _wait_edid_change(expected):
+def _wait_edid_change(video_device, expected):
     """
     Wait until `expected` connection state is reached.
     Times out after 5 seconds.
     """
     iteration = 0
     max_iter = 5
-    while check_connected("HDMI-1") != expected and iteration < max_iter:
+    while _check_connected(video_device) != expected and iteration < max_iter:
         time.sleep(1)
         iteration += 1
 
@@ -113,48 +148,63 @@ def _wait_edid_change(expected):
         raise TimeoutError
 
 
-def _change_edid(host, edid_file):
-    """Clear EDID and then 'plug' back a new monitor."""
-    zapper_run(host, "change_edid", None)
-    _wait_edid_change(False)
+def _check_resolution(video_device):
+    """
+    Check output resolution on HDMI using randr.
 
-    with open(edid_file, 'rb') as f:
-        zapper_run(host, "change_edid", f.read())
+    Match the randr output with a pattern to grab
+    the current resolution on <video_device>.
 
-    _wait_edid_change(True)
+    Both gnome-randr and xrandr highlight the currently
+    selected resolution for each monitor with a `*`.
+    """
+    pattern = r"^{}.*\n.*^\s+(\d+x\d+).*\*"
+
+    if os.getenv("XDG_SESSION_TYPE") == "wayland":
+        cmd = "gnome-randr"
+    else:
+        cmd = "xrandr"
+
+    randr_output = subprocess.check_output(
+        [cmd], universal_newlines=True, encoding="utf-8"
+    )
+
+    match = re.search(
+        pattern.format(video_device), randr_output, re.MULTILINE | re.DOTALL
+    )
+
+    if match:
+        return match.group(1)
+    return None
 
 
-def main():
-    if len(sys.argv) != 2:
-        raise SystemExit('Usage: {} user@edid-host'.format(sys.argv[0]))
-    failed = False
+def main(args=None):
+    """
+    Test for different EDID files whether the resolution
+    is recognized and selected on DUT.
+    """
+    parser = argparse.ArgumentParser()
+    parser.add_argument("host", help="Zapper IP address")
+    args = parser.parse_args(args)
+
     try:
-        video_device = discover_video_output_device(sys.argv[0])
-    except FileNotFoundError as exc:
-        raise SystemExit("Cannot detect the target video output device.")
+        video_device = discover_video_output_device(args.host)
+        print("Testing EDID cycling on {}".format(video_device))
+    except IOError as exc:
+        raise SystemExit(
+            "Cannot detect the target video output device."
+        ) from exc
 
-    for res in ['2560x1440', '1920x1080', '1280x1024']:
-        print('changing EDID to {}'.format(res))
-        edid_file = os.path.expandvars(os.path.join(
-            '$PLAINBOX_PROVIDER_DATA', 'edids', '{}.edid'.format(res)))
+    failed = False
 
+    for edid_file in EDID_FILES:
         try:
-            _change_edid(sys.argv[1], edid_file)
-        except TimeoutError:
-            print("FAIL, timed out.")
+            test_edid(args.host, edid_file, video_device)
+        except AssertionError:
             failed = True
-            continue
-
-        print('checking resolution... ', end='')
-        actual_res = _check_resolution(video_device)
-        if actual_res != res:
-            print('FAIL, got {} instead'.format(actual_res))
-            failed = True
-        else:
-            print('PASS')
 
     return failed
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     raise SystemExit(main())

@@ -23,6 +23,7 @@ Test definitions for plainbox.impl.secure.providers.v1 module
 """
 
 from unittest import TestCase
+import os
 
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.config import Unset
@@ -103,11 +104,11 @@ class ProviderContentLoaderTests(TestCase):
 
     def test_warn_ignored_file_warns_about_skipped_files(self):
         filenames = [
-            '/'.join([self.units_path, 'unitfile']),
-            '/'.join([self.jobs_path, 'jobfile']),
-            '/'.join([self.data_path, 'datafile']),
-            '/'.join([self.bin_path, 'binfile']),
-            '/'.join([self.locale_path, 'localefile']),
+            os.path.join(self.units_path, 'unitfile'),
+            os.path.join(self.jobs_path, 'jobfile'),
+            os.path.join(self.data_path, 'datafile'),
+            os.path.join(self.bin_path, 'binfile'),
+            os.path.join(self.locale_path, 'localefile'),
         ]
         for filename in filenames:
             with self.subTest(filename=filename):
@@ -118,7 +119,7 @@ class ProviderContentLoaderTests(TestCase):
         #   - contain the skipped filename
         #   - contain the reason to skip
         #   - be clear on skipping
-        filename = '/'.join([self.units_path, 'unitsfile'])
+        filename = os.path.join(self.units_path, 'unitsfile')
         with self.assertLogs(level='WARNING') as log_recorder:
             self.loader._warn_ignored_file(filename)
 
@@ -128,7 +129,7 @@ class ProviderContentLoaderTests(TestCase):
 
     def test_warn_ignored_file_does_not_log_files_outside_provider_dirs(self):
         outside_path = '/not/a/provider/path'
-        filename = '/'.join([outside_path, 'unitsfile'])
+        filename = os.path.join(outside_path, 'unitsfile')
         with self.assertLogs(level='WARNING') as log_recorder:
             logger.warning("Dummy warning")
             self.loader._warn_ignored_file(filename)

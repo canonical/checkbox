@@ -123,9 +123,9 @@ class ProviderContentLoaderTests(TestCase):
         with self.assertLogs(level='WARNING') as log_recorder:
             self.loader._warn_ignored_file(filename)
 
-            self.assertRegex(log_recorder.output[0], filename)
-            self.assertRegex(log_recorder.output[0], '(?i)executable')
-            self.assertRegex(log_recorder.output[0], '(?i)skip')
+            self.assertIn(filename, log_recorder.output[0])
+            self.assertIn('executable', log_recorder.output[0])
+            self.assertIn('skip', log_recorder.output[0])
 
     def test_warn_ignored_file_does_not_log_files_outside_provider_dirs(self):
         outside_path = '/not/a/provider/path'

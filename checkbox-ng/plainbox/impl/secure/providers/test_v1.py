@@ -89,7 +89,7 @@ class ProviderContentLoaderTests(TestCase):
 
     def setUp(self):
         patcher = mock.patch(
-            'plainbox.impl.secure.providers.v1.ProviderContentLoader',
+            'plainbox.impl.secure.providers.v1.Provider1',
             autospec=True,
         )
         self.provider_mock = patcher.start()

@@ -56,7 +56,7 @@ class ProviderContentLoaderTests(TestCase):
 
     def assertLogsInline(self, function, *args, **kwargs):
         '''
-        Asserts that a callable logs a message when called with args and/or kwargs. This methos is meant to be used where assertLogs context manager would decrease readability.
+        Asserts that a callable logs a message when called with args and/or kwargs. This method is meant to be used where assertLogs context manager would decrease readability.
 
         :param function:
             callable to be tested

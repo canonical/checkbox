@@ -592,12 +592,14 @@ class ProviderContentLoader:
         Do not print warning for all skipped files, do it only for file that is located
         inside a official provider folder (bin, data, units, ..).
         """
-        file_is_in_units_dir = self.provider.units_dir and filename.startswith(self.provider.units_dir)
-        file_is_in_jobs_dir = self.provider.jobs_dir and filename.startswith(self.provider.jobs_dir)
-        file_is_in_data_dir = self.provider.data_dir and filename.startswith(self.provider.data_dir)
-        file_is_in_bin_dir = self.provider.bin_dir and filename.startswith(self.provider.bin_dir)
-        file_is_in_locale_dir = self.provider.locale_dir and filename.startswith(self.provider.locale_dir)
-        if any([file_is_in_units_dir, file_is_in_jobs_dir, file_is_in_data_dir, file_is_in_bin_dir, file_is_in_locale_dir]):
+        provider_folders = [
+            self.provider.units_dir,
+            self.provider.jobs_dir,
+            self.provider.data_dir,
+            self.provider.bin_dir,
+            self.provider.locale_dir
+        ]
+        if any(location and filename.startswith(location) for location in provider_folders):
             logger.warning("File %s is not executable, skipping", filename)
 
     def _load_file(self, filename, text, plugin_kwargs):

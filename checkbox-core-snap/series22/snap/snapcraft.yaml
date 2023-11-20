@@ -273,6 +273,12 @@ parts:
       python3 manage.py validate
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-base --root="$SNAPCRAFT_PART_INSTALL"
+      # Strip the executable stack bit on libde265.so.0.1.1
+      # Only armhf requires this modification, arm64 and amd64 both pass the
+      # automated store validation (i.e review-tools.snap-review)
+      if [ $SNAPCRAFT_TARGET_ARCH = "armhf" ]; then
+        execstack --clear-execstack $SNAPCRAFT_PART_INSTALL/usr/lib/*/libde265.so.0.1.1
+      fi
     stage-packages:
       - bc
       - bluez-tests
@@ -346,6 +352,7 @@ parts:
       - on arm64:
         - python3-rpi.gpio # only in focal
     build-packages:
+      - execstack
       - libasound2-dev
       - libcap-dev
     organize:

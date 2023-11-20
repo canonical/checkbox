@@ -514,9 +514,9 @@ def main():
 
     logger.setLevel(logging.DEBUG if args.debug else logging.INFO)
 
-    # Make sure we're root, because smartctl doesn't work otherwise.
+    # Check if we're root, because smartctl doesn't work otherwise.
     if not os.geteuid() == 0:
-        parser.error("You must be root to run this program")
+        raise SystemExit("You must be root to run this program")
 
     disk = args.block_dev
     num_disks, raid_type = count_raid_disks(disk)

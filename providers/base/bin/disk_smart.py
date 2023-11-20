@@ -181,23 +181,19 @@ def count_raid_disks(disk):
     for type in KNOWN_RAID_TYPES:
         if any("-d {},N".format(type) in s for s in diskinfo):
             logging.info("Found RAID controller of type {}".format(type))
-            raid_type = type
-            break
-    if raid_type != "none":
-        # This is a hardware RAID controller, so count individual disks....
-        disk_exists = True
-        while disk_exists:
-            command = "smartctl -i {} -d {},{}".format(
-                disk, raid_type, raid_element
-            )
-            try:
-                check_output(shlex.split(command))
-                raid_element += 1
-            except CalledProcessError:
-                disk_exists = False
-        logging.info(
-            "Counted {} RAID disks on {}\n".format(raid_element, disk)
+            return 0, type
+    # This is a hardware RAID controller, so count individual disks....
+    disk_exists = True
+    while disk_exists:
+        command = "smartctl -i {} -d {},{}".format(
+            disk, raid_type, raid_element
         )
+        try:
+            check_output(shlex.split(command))
+            raid_element += 1
+        except CalledProcessError:
+            disk_exists = False
+    logging.info("Counted {} RAID disks on {}\n".format(raid_element, disk))
     return raid_element, raid_type
 
 

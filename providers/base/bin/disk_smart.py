@@ -442,7 +442,7 @@ def run_smart_test(args, disk, raid_element, raid_type):
             disk, raid_element, raid_type, True
         )
         logging.error(
-            "FAIL: SMART Self-Test appears to have failed " "for some reason."
+            "FAIL: SMART Self-Test appears to have failed for some reason."
         )
         logging.error("\tLast smartctl return code: %d", returncode)
         logging.error("\tLast smartctl run status: %s", status)
@@ -479,7 +479,7 @@ def main():
         "--block-dev",
         metavar="DISK",
         default="/dev/sda",
-        help=("the DISK to run this test against " "[default: %(default)s]"),
+        help="the DISK to run this test against [default: %(default)s]",
     )
     parser.add_argument(
         "-d",

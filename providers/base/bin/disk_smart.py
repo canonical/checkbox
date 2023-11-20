@@ -530,10 +530,7 @@ def main():
                 )
             else:
                 success = False
-    if success is False:
-        return 1
-    else:
-        return 0
+    return not success
 
 
 if __name__ == "__main__":

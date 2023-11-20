@@ -485,8 +485,7 @@ def main():
         "-d",
         "--debug",
         action="store_true",
-        default=False,
-        help="prints some debug info",
+        help="print debug messages",
     )
     parser.add_argument(
         "-s",
@@ -513,10 +512,7 @@ def main():
     logger = logging.getLogger()
     logger.addHandler(handler)
 
-    if args.debug:
-        logger.setLevel(logging.DEBUG)
-    else:
-        logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG if args.debug else logging.INFO)
 
     # Make sure we're root, because smartctl doesn't work otherwise.
     if not os.geteuid() == 0:

@@ -68,7 +68,7 @@ nested_part:
     ce-oem-rs485-automated
     ce-oem-eeprom-automated
     ce-oem-led-automated
-    ce-oem-caam-automated
+    ce-oem-accelerator-automated
     ce-oem-crypto-automated
     ce-oem-optee-automated
     com.canonical.certification::eeprom-automated
@@ -123,7 +123,7 @@ nested_part:
     after-suspend-ce-oem-rs485-automated
     after-suspend-ce-oem-eeprom-automated
     after-suspend-ce-oem-led-automated
-    after-suspend-ce-oem-caam-automated
+    after-suspend-ce-oem-accelerator-automated
     after-suspend-ce-oem-crypto-automated
     after-suspend-ce-oem-optee-automated
     com.canonical.certification::after-suspend-eeprom-automated

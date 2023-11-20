@@ -411,9 +411,7 @@ def run_smart_test(args, disk, raid_element, raid_type):
 
 def main():
     """Test SMART capabilities on disks that support SMART functions."""
-    description = ('Tests SMART capabilities on disks that support '
-                   'SMART functions.')
-    parser = ArgumentParser(description=description)
+    parser = ArgumentParser(description=main.__doc__)
     parser.add_argument('-b', '--block-dev',
                         metavar='DISK',
                         default='/dev/sda',

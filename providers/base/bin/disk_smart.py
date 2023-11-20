@@ -77,9 +77,6 @@ from subprocess import Popen, PIPE, check_call, check_output
 from subprocess import CalledProcessError
 from argparse import ArgumentParser
 
-# NOTE: If raid_types changes, also change it in block_device_resource script!
-raid_types = ["megaraid", "cciss", "3ware", "areca"]
-
 
 class ListHandler(logging.StreamHandler):
     def emit(self, record):
@@ -177,7 +174,11 @@ def count_raid_disks(disk):
     diskinfo = diskinfo_bytes.decode(
         encoding="utf-8", errors="ignore"
     ).splitlines()
-    for type in raid_types:
+
+    # NOTE: If raid_types changes, also change it in block_device_resource script!
+    KNOWN_RAID_TYPES = ["megaraid", "cciss", "3ware", "areca"]
+
+    for type in KNOWN_RAID_TYPES:
         if any("-d {},N".format(type) in s for s in diskinfo):
             logging.info("Found RAID controller of type {}".format(type))
             raid_type = type

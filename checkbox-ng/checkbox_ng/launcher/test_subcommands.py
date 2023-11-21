@@ -19,11 +19,13 @@
 import unittest
 from unittest import TestCase
 
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, Mock, MagicMock, call
 from io import StringIO
-from checkbox_ng.launcher.subcommands import Launcher
-from checkbox_ng.launcher.subcommands import ListBootstrapped
-from checkbox_ng.launcher.subcommands import ResumeInstead
+from checkbox_ng.launcher.subcommands import (
+    Launcher,
+    ResumeInstead,
+    IJobResult,
+)
 from unittest.mock import patch, Mock, MagicMock
 
 
@@ -94,11 +96,125 @@ class TestLauncher(TestCase):
         resume_menu_mock().run().session_id = "nonempty"
 
         # the user has selected something from the list, we notice
-        self.assertTrue(
-            Launcher._maybe_manually_resume_session(self_mock, [])
-        )
+        self.assertTrue(Launcher._maybe_manually_resume_session(self_mock, []))
         # and we try to resume the session
         self.assertTrue(self_mock._resume_session.called)
+
+    @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
+    @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
+    def test__resume_session_pass(self, memory_job_result_mock):
+        self_mock = MagicMock()
+        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock.flags = ["testplanless"]
+
+        resume_params_mock = MagicMock()
+        resume_params_mock.action = "pass"
+
+        Launcher._resume_session(self_mock, resume_params_mock)
+
+        args, _ = memory_job_result_mock.call_args_list[-1]
+        result_dict, *_ = args
+        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_PASS)
+
+    @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
+    @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
+    def test__resume_session_fail_cert_blocker(self, memory_job_result_mock):
+        self_mock = MagicMock()
+        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+            "blocker"
+        )
+
+        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock.flags = ["testplanless"]
+
+        resume_params_mock = MagicMock()
+        resume_params_mock.action = "fail"
+
+        Launcher._resume_session(self_mock, resume_params_mock)
+
+        args, _ = memory_job_result_mock.call_args_list[-1]
+        result_dict, *_ = args
+        # failing cert blockers with no comment needed dont get a outcome
+        self.assertNotIn("outcome", result_dict)
+
+    @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
+    @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
+    def test__resume_session_fail_non_blocker(self, memory_job_result_mock):
+        self_mock = MagicMock()
+        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+            "non-blocker"
+        )
+
+        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock.flags = ["testplanless"]
+
+        resume_params_mock = MagicMock()
+        resume_params_mock.action = "fail"
+
+        Launcher._resume_session(self_mock, resume_params_mock)
+
+        args, _ = memory_job_result_mock.call_args_list[-1]
+        result_dict, *_ = args
+        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_FAIL)
+
+    @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
+    @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
+    def test__resume_session_skip_blocker(self, memory_job_result_mock):
+        self_mock = MagicMock()
+        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+            "blocker"
+        )
+
+        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock.flags = ["testplanless"]
+
+        resume_params_mock = MagicMock()
+        resume_params_mock.action = "skip"
+
+        Launcher._resume_session(self_mock, resume_params_mock)
+
+        args, _ = memory_job_result_mock.call_args_list[-1]
+        result_dict, *_ = args
+        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_SKIP)
+
+    @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
+    @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
+    def test__resume_session_skip_non_blocker(self, memory_job_result_mock):
+        self_mock = MagicMock()
+        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+            "non-blocker"
+        )
+
+        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock.flags = ["testplanless"]
+
+        resume_params_mock = MagicMock()
+        resume_params_mock.action = "skip"
+
+        Launcher._resume_session(self_mock, resume_params_mock)
+
+        args, _ = memory_job_result_mock.call_args_list[-1]
+        result_dict, *_ = args
+        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_SKIP)
+
+    @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
+    @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
+    def test__resume_session_rerun(self, memory_job_result_mock):
+        self_mock = MagicMock()
+        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+            "non-blocker"
+        )
+
+        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock.flags = ["testplanless"]
+
+        resume_params_mock = MagicMock()
+        resume_params_mock.action = "rerun"
+
+        Launcher._resume_session(self_mock, resume_params_mock)
+
+        # we don't use job result of rerun jobs
+        self.assertFalse(self_mock.ctx.sa.use_job_result.called)
 
     @patch("checkbox_ng.launcher.subcommands.load_configs")
     @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())

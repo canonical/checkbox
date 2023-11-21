@@ -13,6 +13,8 @@ omit =
     plainbox/impl/session/test_*
     plainbox/impl/commands/test_*
     plainbox/impl/exporter/test_*
+    checkbox_ng/urwid_ui.py
+    checkbox_ng/resume_menu.py
 
 [report]
 exclude_lines =

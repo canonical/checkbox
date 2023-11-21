@@ -231,6 +231,26 @@ class ControllerTests(TestCase):
 
         self.assertTrue(res_dia_mock.called)
 
+        def test_restart(self):
+        self_mock = mock.MagicMock()
+
+        RemoteController.restart(self_mock)
+
+        # restarting a controller means abandoning the current session
+        # and get the possibility to start/resume another
+
+        self.assertTrue(self_mock.abandon.called)
+        self.assertTrue(self_mock.resume_or_start_new_session.called)
+
+    def test_resume_or_start_new_session_interactive(self):
+        self_mock = mock.MagicMock()
+        self_mock.sa.sideloaded_providers = True  # trigger the warning
+        # the session is not interactive
+        self_mock.launcher.get_value.return_value = False
+
+        RemoteController.resume_or_start_new_session(self_mock)
+
+        self.assertTrue(self_mock.interactively_choose_tp.called)
 
 class IsHostnameALoopbackTests(TestCase):
     @mock.patch("socket.gethostbyname")

@@ -114,6 +114,7 @@ class TestLauncher(TestCase):
 
         self.assertFalse(Launcher._manually_resume_session(self_mock, []))
 
+
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
     def test__resume_session_pass(self, memory_job_result_mock):

@@ -18,9 +18,13 @@
 
 import unittest
 from unittest import TestCase
-from unittest.mock import patch, Mock
+
+from unittest.mock import patch, Mock, MagicMock
 from io import StringIO
-from checkbox_ng.launcher.subcommands import Launcher, ListBootstrapped
+from checkbox_ng.launcher.subcommands import Launcher
+from checkbox_ng.launcher.subcommands import ListBootstrapped
+from checkbox_ng.launcher.subcommands import ResumeInstead
+from unittest.mock import patch, Mock, MagicMock
 
 
 class TestLauncher(TestCase):
@@ -72,6 +76,48 @@ class TestLauncher(TestCase):
                 "launcher_path --resume session_id"
             ],
         )
+
+    @patch("checkbox_ng.launcher.subcommands.ResumeMenu")
+    def test__maybe_manually_resume_session_delete(self, resume_menu_mock):
+        self_mock = MagicMock()
+        resume_menu_mock().run().action = "delete"
+
+        # delete something, the check should see that the entries list is
+        # empty and return false as there is nothing to maybe resume
+        self.assertFalse(
+            Launcher._maybe_manually_resume_session(self_mock, [])
+        )
+
+    @patch("checkbox_ng.launcher.subcommands.ResumeMenu")
+    def test__maybe_manually_resume_session(self, resume_menu_mock):
+        self_mock = MagicMock()
+        resume_menu_mock().run().session_id = "nonempty"
+
+        # the user has selected something from the list, we notice
+        self.assertTrue(
+            Launcher._maybe_manually_resume_session(self_mock, [])
+        )
+        # and we try to resume the session
+        self.assertTrue(self_mock._resume_session.called)
+
+    @patch("checkbox_ng.launcher.subcommands.load_configs")
+    @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())
+    def test_invoked_resume(self, load_config_mock):
+        self_mock = MagicMock()
+        self_mock._maybe_auto_resume_session.return_value = [False, True]
+        self_mock._start_new_session.side_effect = ResumeInstead()
+
+        ctx_mock = MagicMock()
+        ctx_mock.args.verify = False
+        ctx_mock.args.version = False
+        ctx_mock.args.verbose = False
+        ctx_mock.args.debug = False
+        ctx_mock.sa.get_resumable_sessions.return_value = []
+        ctx_mock.sa.get_static_todo_list.return_value = False
+
+        load_config_mock.return_value.get_value.return_value = "normal"
+
+        Launcher.invoked(self_mock, ctx_mock)
 
 
 class TestLauncherReturnCodes(TestCase):

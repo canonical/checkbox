@@ -45,6 +45,7 @@ def discover_video_output_device(zapper_host):
             command,
             universal_newlines=True,
             encoding="utf-8",
+            stderr=subprocess.DEVNULL,
         )
 
         return set(re.findall(pattern, xrandr_output, re.MULTILINE))
@@ -128,6 +129,7 @@ def _check_connected(device):
         cmd,
         universal_newlines=True,
         encoding="utf-8",
+        stderr=subprocess.DEVNULL,
     )
 
     return device in randr_output
@@ -166,7 +168,10 @@ def _check_resolution(video_device):
         cmd = "xrandr"
 
     randr_output = subprocess.check_output(
-        [cmd], universal_newlines=True, encoding="utf-8"
+        [cmd],
+        universal_newlines=True,
+        encoding="utf-8",
+        stderr=subprocess.DEVNULL,
     )
 
     match = re.search(

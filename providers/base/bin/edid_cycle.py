@@ -31,13 +31,18 @@ def discover_video_output_device(zapper_host):
     """
 
     def get_active_devices():
-        """Get the list of active video ouput devices."""
+        """
+        Get the list of active video ouput devices.
+
+        The pattern we're looking for is <port-type>-<port-index>
+        for instance HDMI-1 or DP-5.
+        """
         if os.getenv("XDG_SESSION_TYPE") == "wayland":
             command = ["gnome-randr", "query"]
             pattern = r"^\b\w+-\d+\b"
         else:
             command = ["xrandr", "--listactivemonitors"]
-            pattern = r"\b\w+-\d+\b$"
+            pattern = r"\b\w+-\d+$"
 
         xrandr_output = subprocess.check_output(
             command,
@@ -50,22 +55,32 @@ def discover_video_output_device(zapper_host):
 
     _clear_edid(zapper_host)
 
-    # Not knowing what to except I can't use a busy loop here
+    # Not knowing the target I can't use a busy loop here
+    # and I'm waiting for the DUT to react to the EDID change.
     time.sleep(5)
 
     devices = get_active_devices()
 
     _set_edid(zapper_host, EDID_FILES[0])
+
+    # Wait until the list of active devices changes.
+    # From manual testing, 5 seconds seem more than
+    # enough for such changes to happen.
+    targets = []
     for _ in range(5):
-        target = list(get_active_devices() - devices)
-        if target:
+        targets = list(get_active_devices() - devices)
+        if targets:
             break
 
         time.sleep(1)
-    else:
-        raise IOError
 
-    return target[0]
+    if len(targets) != 1:
+        raise IOError(
+            "Can't identify the video port under test, "
+            "got {} new devices.".format(len(targets))
+        )
+
+    return targets[0]
 
 
 def test_edid(zapper_host, edid_file, video_device):
@@ -88,11 +103,11 @@ def test_edid(zapper_host, edid_file, video_device):
     except TimeoutError as exc:
         raise AssertionError("Timed out switching EDID") from exc
 
-    print("checking resolution... ", end="")
     actual_res = _check_resolution(video_device)
     if actual_res != resolution:
-        print("FAIL, got {} instead".format(actual_res))
-        raise AssertionError()
+        raise AssertionError(
+            "FAIL, got {} but {} expected".format(actual_res, resolution)
+        )
 
     print("PASS")
 
@@ -104,7 +119,6 @@ def _switch_edid(zapper_host, edid_file, video_device):
     _wait_edid_change(video_device, False)
 
     _set_edid(zapper_host, edid_file)
-
     _wait_edid_change(video_device, True)
 
 
@@ -143,23 +157,37 @@ def _wait_edid_change(video_device, expected):
     """
     iteration = 0
     max_iter = 5
+    sleep = 1
     while _check_connected(video_device) != expected and iteration < max_iter:
-        time.sleep(1)
+        time.sleep(sleep)
         iteration += 1
 
     if iteration == max_iter:
-        raise TimeoutError
+        raise TimeoutError(
+            "Reacting to the EDID change took more than {}s.".format(
+                max_iter * sleep
+            )
+        )
 
 
 def _check_resolution(video_device):
     """
-    Check output resolution on HDMI using randr.
+    Check output resolution on target video port using randr.
 
     Match the randr output with a pattern to grab
     the current resolution on <video_device>.
 
     Both gnome-randr and xrandr highlight the currently
     selected resolution for each monitor with a `*`.
+
+    A target string usually looks like:
+    ```
+    HDMI-1 connected primary 2560x1440+0+0
+       2560x1440     59.91+
+       1920x1080     59.91*
+    ```
+    where `HDMI-1` is the port and `1920x1080` is the
+    resolution in use.
     """
     pattern = r"^{}.*\n.*^\s+(\d+x\d+).*\*"
 

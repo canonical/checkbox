@@ -117,8 +117,11 @@ class TestLauncher(TestCase):
         self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_PASS)
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
+    @patch("checkbox_ng.launcher.subcommands.request_comment")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
-    def test__resume_session_fail_cert_blocker(self, memory_job_result_mock):
+    def test__resume_session_fail_cert_blocker(
+        self, request_comment_mock, memory_job_result_mock
+    ):
         self_mock = MagicMock()
         self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
             "blocker"
@@ -129,6 +132,7 @@ class TestLauncher(TestCase):
 
         resume_params_mock = MagicMock()
         resume_params_mock.action = "fail"
+        resume_params_mock.comments = None
 
         Launcher._resume_session(self_mock, resume_params_mock)
 
@@ -136,6 +140,8 @@ class TestLauncher(TestCase):
         result_dict, *_ = args
         # failing cert blockers with no comment needed dont get a outcome
         self.assertNotIn("outcome", result_dict)
+        # given that no comment was in resume_params, the resume procedure asks for it
+        self.assertTrue(request_comment_mock.called)
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
@@ -158,8 +164,11 @@ class TestLauncher(TestCase):
         self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_FAIL)
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
+    @patch("checkbox_ng.launcher.subcommands.request_comment")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
-    def test__resume_session_skip_blocker(self, memory_job_result_mock):
+    def test__resume_session_skip_blocker(
+        self, request_comment_mock, memory_job_result_mock
+    ):
         self_mock = MagicMock()
         self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
             "blocker"
@@ -170,12 +179,15 @@ class TestLauncher(TestCase):
 
         resume_params_mock = MagicMock()
         resume_params_mock.action = "skip"
+        resume_params_mock.comments = None
 
         Launcher._resume_session(self_mock, resume_params_mock)
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
         self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_SKIP)
+        # given that no comment was in resume_params, the resume procedure asks for it
+        self.assertTrue(request_comment_mock.called)
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())

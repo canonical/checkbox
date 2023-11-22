@@ -1,5 +1,7 @@
 """This module provides test cases for the edid_cycle module."""
 import unittest
+import textwrap
+from pathlib import Path
 from unittest.mock import patch, call, Mock
 
 from bin import edid_cycle
@@ -13,125 +15,314 @@ class ZapperEdidCycleTests(unittest.TestCase):
     @patch("builtins.open")
     @patch("os.getenv")
     @patch("subprocess.check_output")
-    def test_discover_video_output_device(
+    def test_discover_video_output_device_x11(
         self, mock_check, mock_getenv, mock_open
     ):
         """
         Check if the function automatically discover the port
-        under test with output given by randr in different conditions.
+        under test with output given by randr on X11.
         """
-        disconnected_output = {"x11": "Monitors: 0", "wayland": ""}
+        mock_getenv.return_value = "x11"
+        edid_cycle.EDID_FILES = [Path("1920x1080.edid")]
 
-        connected_output = {
-            "x11": (
-                "Monitors: 1\n"
-                " 0: +HDMI-1 1920/576x1080/324+800+1080 HDMI-1\n"
-            ),
-            "wayland": (
-                "x: 0, y: 0, scale: 1, rotation: normal, primary: yes\n"
-                "associated physical monitors:\n"
-                "    HDMI-1 TSB PI-KVM Video 0x88888800\n\n"
-                "HDMI-1 TSB PI-KVM Video\n"
-            ),
-        }
+        disconnected_output = "Monitors: 0"
+        connected_output = textwrap.dedent(
+            """
+            Monitors: 1
+             0: +HDMI-1 1920/576x1080/324+800+1080 HDMI-1
+            """
+        )
 
-        edid_cycle.EDID_FILES = ["1920x1080.edid"]
+        mock_check.side_effect = [
+            disconnected_output,
+            connected_output,
+        ]
 
-        for env in ["x11", "wayland"]:
-            mock_getenv.return_value = env
-            mock_open.reset_mock()
-
-            # Happy Case
-            mock_check.side_effect = [
-                disconnected_output[env],
-                connected_output[env],
-            ]
-
-            port = edid_cycle.discover_video_output_device("zapper-ip")
-            assert port == "HDMI-1"
-
-            # Failure
-            mock_check.side_effect = None
-            mock_check.return_value = connected_output[env]
-            with self.assertRaises(IOError):
-                edid_cycle.discover_video_output_device("zapper-ip")
+        port = edid_cycle.discover_video_output_device("zapper-ip")
+        self.assertEqual(port, "HDMI-1")
 
     @patch("time.sleep", new=Mock)
     @patch("bin.edid_cycle.zapper_run", new=Mock)
     @patch("builtins.open")
     @patch("os.getenv")
     @patch("subprocess.check_output")
-    def test_test_edid(self, mock_check, mock_getenv, mock_open):
+    def test_discover_video_output_device_x11_error(
+        self, mock_check, mock_getenv, mock_open
+    ):
+        """
+        Check if the function raises an exception when
+        if fails to discover the video port on X11.
+        """
+        mock_getenv.return_value = "x11"
+        edid_cycle.EDID_FILES = [Path("1920x1080.edid")]
+
+        connected_output = textwrap.dedent(
+            """
+            Monitors: 1
+             0: +HDMI-1 1920/576x1080/324+800+1080 HDMI-1
+            """
+        )
+
+        mock_check.side_effect = None
+        mock_check.return_value = connected_output
+        with self.assertRaises(IOError):
+            edid_cycle.discover_video_output_device("zapper-ip")
+
+    @patch("time.sleep", new=Mock)
+    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("builtins.open")
+    @patch("os.getenv")
+    @patch("subprocess.check_output")
+    def test_discover_video_output_device_wayland(
+        self, mock_check, mock_getenv, mock_open
+    ):
+        """
+        Check if the function automatically discover the port
+        under test with output given by randr on Wayland.
+        """
+        mock_getenv.return_value = "wayland"
+        edid_cycle.EDID_FILES = [Path("1920x1080.edid")]
+
+        disconnected_output = ""
+        connected_output = textwrap.dedent(
+            """
+            x: 0, y: 0, scale: 1, rotation: normal, primary: yes
+            associated physical monitors:
+                HDMI-1 TSB PI-KVM Video 0x88888800
+
+            HDMI-1 TSB PI-KVM Video
+            """
+        )
+
+        mock_check.side_effect = [
+            disconnected_output,
+            connected_output,
+        ]
+
+        port = edid_cycle.discover_video_output_device("zapper-ip")
+        self.assertEqual(port, "HDMI-1")
+
+    @patch("time.sleep", new=Mock)
+    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("builtins.open")
+    @patch("os.getenv")
+    @patch("subprocess.check_output")
+    def test_discover_video_output_device_wayland_error(
+        self, mock_check, mock_getenv, mock_open
+    ):
+        """
+        Check if the function raises an exception when
+        if fails to discover the video port on Wayland.
+        """
+        mock_getenv.return_value = "wayland"
+        edid_cycle.EDID_FILES = [Path("1920x1080.edid")]
+
+        connected_output = textwrap.dedent(
+            """
+            x: 0, y: 0, scale: 1, rotation: normal, primary: yes
+            associated physical monitors:
+                HDMI-1 TSB PI-KVM Video 0x88888800
+
+            HDMI-1 TSB PI-KVM Video
+            """
+        )
+
+        mock_check.side_effect = None
+        mock_check.return_value = connected_output
+        with self.assertRaises(IOError):
+            edid_cycle.discover_video_output_device("zapper-ip")
+
+    @patch("time.sleep", new=Mock)
+    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("builtins.open")
+    @patch("os.getenv")
+    @patch("subprocess.check_output")
+    def test_test_edid_x11(self, mock_check, mock_getenv, mock_open):
         """
         Check the function set an EDID and assert the actual
-        resolution matches the request.
+        resolution matches the request on X11.
         """
+        mock_getenv.return_value = "x11"
 
-        disconnected_output = {"x11": "Monitors: 0", "wayland": ""}
+        disconnected_output = "Monitors: 0"
 
-        connected_output = {
-            "x11": "Monitors: 1\n 0: +HDMI-1 1920/576x1080/324+800+1080",
-            "wayland": (
-                "x: 0, y: 0, scale: 1, rotation: normal, primary: yes\n"
-                "associated physical monitors:\n"
-                "    HDMI-1 TSB PI-KVM Video 0x88888800"
-            ),
-        }
+        connected_output = textwrap.dedent(
+            """
+            Monitors: 1
+             0: +HDMI-1 1920/576x1080/324+800+1080",
+            """
+        )
 
-        resolution_output = {
-            "x11": (
-                "Screen 0: minimum 320 x 200\n"
-                "HDMI-1 connected 1920x1080+800+1080\n"
-                "   1920x1080     49.88*+"
-            ),
-            "wayland": (
-                "HDMI-1 TSB PI-KVM Video 0x88888800\n"
-                "    1920x1080@49.939697265625  1920x1080  49.94*+ "
-            ),
-        }
+        resolution_output = textwrap.dedent(
+            """
+            Screen 0: minimum 320 x 200
+            HDMI-1 connected 1920x1080+800+1080
+               1920x1080     49.88*+"
+            """
+        )
 
-        for env in ["x11", "wayland"]:
-            mock_getenv.return_value = env
-            mock_open.reset_mock()
+        mock_check.side_effect = [
+            disconnected_output,
+            connected_output,
+            resolution_output,
+        ]
 
-            # Happy case
-            mock_check.side_effect = [
-                disconnected_output[env],
-                connected_output[env],
-                resolution_output[env],
-            ]
+        edid_cycle.test_edid("zapper-ip", Path("1920x1080.edid"), "HDMI-1")
+        mock_open.assert_called_with("1920x1080.edid", "rb")
 
-            edid_cycle.test_edid("zapper-ip", "1920x1080.edid", "HDMI-1")
-            mock_open.assert_called_with("1920x1080.edid", "rb")
+    @patch("time.sleep", new=Mock)
+    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("builtins.open")
+    @patch("os.getenv")
+    @patch("subprocess.check_output")
+    def test_test_edid_x11_error(self, mock_check, mock_getenv, mock_open):
+        """
+        Check the function raise an exception when the assertion
+        on resolution fails on X11.
+        """
+        mock_getenv.return_value = "x11"
 
-            # Times out when switching
-            mock_check.side_effect = None
-            mock_check.return_value = disconnected_output[env]
+        disconnected_output = "Monitors: 0"
 
-            with self.assertRaises(AssertionError):
-                edid_cycle.test_edid("zapper-ip", "1920x1080.edid", "HDMI-1")
+        connected_output = textwrap.dedent(
+            """
+            Monitors: 1
+             0: +HDMI-1 1920/576x1080/324+800+1080",
+            """
+        )
 
-            # No output
-            mock_check.return_value = None
-            mock_check.side_effect = [
-                disconnected_output[env],
-                connected_output[env],
-                "",
-            ]
+        resolution_output = textwrap.dedent(
+            """
+            Screen 0: minimum 320 x 200
+            HDMI-1 connected 1920x1080+800+1080
+               1920x1080     49.88*+"
+            """
+        )
 
-            with self.assertRaises(AssertionError):
-                edid_cycle.test_edid("zapper-ip", "1280x800.edid", "HDMI-1")
+        # Times out when switching
+        mock_check.side_effect = None
+        mock_check.return_value = disconnected_output
 
-            # Wrong resolution
-            mock_check.return_value = None
-            mock_check.side_effect = [
-                disconnected_output[env],
-                connected_output[env],
-                resolution_output[env],
-            ]
+        with self.assertRaises(AssertionError):
+            edid_cycle.test_edid("zapper-ip", Path("1920x1080.edid"), "HDMI-1")
 
-            with self.assertRaises(AssertionError):
-                edid_cycle.test_edid("zapper-ip", "1280x800.edid", "HDMI-1")
+        # No output
+        mock_check.return_value = None
+        mock_check.side_effect = [
+            disconnected_output,
+            connected_output,
+            "",
+        ]
+
+        with self.assertRaises(AssertionError):
+            edid_cycle.test_edid("zapper-ip", Path("1280x800.edid"), "HDMI-1")
+
+        # Wrong resolution
+        mock_check.return_value = None
+        mock_check.side_effect = [
+            disconnected_output,
+            connected_output,
+            resolution_output,
+        ]
+
+        with self.assertRaises(AssertionError):
+            edid_cycle.test_edid("zapper-ip", Path("1280x800.edid"), "HDMI-1")
+
+    @patch("time.sleep", new=Mock)
+    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("builtins.open")
+    @patch("os.getenv")
+    @patch("subprocess.check_output")
+    def test_test_edid_wayland(self, mock_check, mock_getenv, mock_open):
+        """
+        Check the function set an EDID and assert the actual
+        resolution matches the request on Wayland.
+        """
+        mock_getenv.return_value = "wayland"
+
+        disconnected_output = ""
+
+        connected_output = textwrap.dedent(
+            """
+                x: 0, y: 0, scale: 1, rotation: normal, primary: yes
+                associated physical monitors:
+                    HDMI-1 TSB PI-KVM Video 0x88888800
+                """
+        )
+
+        resolution_output = textwrap.dedent(
+            """
+                HDMI-1 TSB PI-KVM Video 0x88888800
+                    1920x1080@49.939697265625  1920x1080  49.94*+
+                """
+        )
+
+        mock_check.side_effect = [
+            disconnected_output,
+            connected_output,
+            resolution_output,
+        ]
+
+        edid_cycle.test_edid("zapper-ip", Path("1920x1080.edid"), "HDMI-1")
+        mock_open.assert_called_with("1920x1080.edid", "rb")
+
+    @patch("time.sleep", new=Mock)
+    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("builtins.open")
+    @patch("os.getenv")
+    @patch("subprocess.check_output")
+    def test_test_edid_wayland_error(self, mock_check, mock_getenv, mock_open):
+        """
+        Check the function raise an exception when the assertion
+        on resolution fails on Wayland.
+        """
+        mock_getenv.return_value = "wayland"
+
+        disconnected_output = ""
+
+        connected_output = textwrap.dedent(
+            """
+                x: 0, y: 0, scale: 1, rotation: normal, primary: yes
+                associated physical monitors:
+                    HDMI-1 TSB PI-KVM Video 0x88888800
+                """
+        )
+
+        resolution_output = textwrap.dedent(
+            """
+                HDMI-1 TSB PI-KVM Video 0x88888800
+                    1920x1080@49.939697265625  1920x1080  49.94*+
+                """
+        )
+
+        # Times out when switching
+        mock_check.side_effect = None
+        mock_check.return_value = disconnected_output
+
+        with self.assertRaises(AssertionError):
+            edid_cycle.test_edid("zapper-ip", Path("1920x1080.edid"), "HDMI-1")
+
+        # No output
+        mock_check.return_value = None
+        mock_check.side_effect = [
+            disconnected_output,
+            connected_output,
+            "",
+        ]
+
+        with self.assertRaises(AssertionError):
+            edid_cycle.test_edid("zapper-ip", Path("1280x800.edid"), "HDMI-1")
+
+        # Wrong resolution
+        mock_check.return_value = None
+        mock_check.side_effect = [
+            disconnected_output,
+            connected_output,
+            resolution_output,
+        ]
+
+        with self.assertRaises(AssertionError):
+            edid_cycle.test_edid("zapper-ip", Path("1280x800.edid"), "HDMI-1")
 
     @patch("bin.edid_cycle.discover_video_output_device")
     def test_main_no_device(self, mock_discover):
@@ -149,16 +340,20 @@ class ZapperEdidCycleTests(unittest.TestCase):
         Test if main function run the EDID test for every available EDID file.
         """
         args = ["zapper-ip"]
-        edid_cycle.EDID_FILES = ["file1", "file2", "file3"]
+        edid_cycle.EDID_FILES = [
+            Path("file1"),
+            Path("file2"),
+            Path("file3"),
+        ]
 
-        assert not edid_cycle.main(args)
+        self.assertFalse(edid_cycle.main(args))
         mock_test_edid.assert_has_calls(
             [
-                call("zapper-ip", "file1", mock_discover.return_value),
-                call("zapper-ip", "file2", mock_discover.return_value),
-                call("zapper-ip", "file3", mock_discover.return_value),
+                call("zapper-ip", Path("file1"), mock_discover.return_value),
+                call("zapper-ip", Path("file2"), mock_discover.return_value),
+                call("zapper-ip", Path("file3"), mock_discover.return_value),
             ]
         )
 
         mock_test_edid.side_effect = AssertionError
-        assert edid_cycle.main(args)
+        self.assertTrue(edid_cycle.main(args))

@@ -220,8 +220,8 @@ class TestLauncher(TestCase):
     @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())
     def test_invoked_resume(self, load_config_mock):
         self_mock = MagicMock()
-        self_mock._maybe_auto_resume_session.return_value = [False, True]
-        self_mock._start_new_session.side_effect = ResumeInstead()
+        self_mock._maybe_auto_resume_session.side_effect = [False, True]
+        self_mock._pick_jobs_to_run.side_effect = ResumeInstead()
 
         ctx_mock = MagicMock()
         ctx_mock.args.verify = False

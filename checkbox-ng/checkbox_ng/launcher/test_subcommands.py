@@ -143,8 +143,7 @@ class TestLauncher(TestCase):
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
-        # failing cert blockers with no comment needed dont get a outcome
-        self.assertNotIn("outcome", result_dict)
+        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_FAIL)
         # given that no comment was in resume_params, the resume procedure asks for it
         self.assertTrue(request_comment_mock.called)
 

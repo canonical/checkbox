@@ -223,6 +223,7 @@ class Launcher(MainLoopStage, ReportsStage):
     def invoked(self, ctx):
         if ctx.args.version:
             import checkbox_ng
+
             print(checkbox_ng.__version__)
             return
         if ctx.args.verify:
@@ -328,11 +329,13 @@ class Launcher(MainLoopStage, ReportsStage):
         if ctx.args.launcher:
             respawn_cmd.append(os.path.abspath(ctx.args.launcher))
         respawn_cmd.append("--resume")
+
         def join_cmd(args):
             try:
                 return shlex.join(args)
             except AttributeError:
                 return " ".join(shlex.quote(x) for x in args)
+
         ctx.sa.configure_application_restart(
             lambda session_id: [join_cmd(respawn_cmd + [session_id])]
         )
@@ -443,11 +446,11 @@ class Launcher(MainLoopStage, ReportsStage):
                 if not resume_params.comments:
                     result_dict["comments"] = request_comment("why it failed.")
             else:
-                result_dict["outcome"] = IJobResult.OUTCOME_FAIL
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Failed after resuming execution"
                 )
 
+            result_dict["outcome"] = IJobResult.OUTCOME_FAIL
         elif resume_params.action == "skip":
             if is_cert_blocker:
                 if not resume_params.comments:
@@ -1352,10 +1355,10 @@ def _generate_resume_candidate_description(candidate):
         """
         Session Title:
             {session_title}
-        
+
         Test plan used:
             {tp_id}
-        
+
         Last job that was run:
             {last_job_id}
 

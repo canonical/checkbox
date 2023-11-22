@@ -19,12 +19,16 @@
 import unittest
 from unittest import TestCase
 
+from unittest.mock import patch, Mock, MagicMock
+
 from unittest.mock import patch, Mock, MagicMock, call
 from io import StringIO
 from checkbox_ng.launcher.subcommands import (
     Launcher,
     ResumeInstead,
     IJobResult,
+    request_comment,
+    _generate_resume_candidate_description,
 )
 from unittest.mock import patch, Mock, MagicMock
 
@@ -290,6 +294,7 @@ class TestLauncherReturnCodes(TestCase):
         self.assertEqual(self.launcher.invoked(self.ctx), 1)
 
 
+<<<<<<< HEAD
 class TestLListBootstrapped(TestCase):
     def setUp(self):
         self.launcher = ListBootstrapped()
@@ -385,3 +390,43 @@ class TestLListBootstrapped(TestCase):
         )
         self.launcher.invoked(self.ctx)
         self.assertEqual(stdout.getvalue(), expected_out)
+=======
+class TestUtilsFunctions(TestCase):
+    @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())
+    @patch("builtins.print")
+    @patch("builtins.input")
+    def test_request_comment(self, input_mock, print_mock):
+        input_mock.side_effect = ["", "failure"]
+
+        comment = request_comment("Job Name")
+
+        self.assertEqual(comment, "failure")
+
+    def test__generate_resume_candidate_description_default_time(self):
+        candidate_mock = MagicMock()
+        candidate_mock.metadata.app_blob = '{ "testplan_id" : "123" }'
+        candidate_mock.metadata.title = "Title"
+        candidate_mock.metadata.last_job_start_time = None
+        candidate_mock.metadata.running_job_name = "Test"
+
+        description = _generate_resume_candidate_description(candidate_mock)
+
+        self.assertIn("Unknown", description)
+        self.assertIn("123", description)
+        self.assertIn("Title", description)
+        self.assertIn("Test", description)
+
+    def test__generate_resume_candidate_description(self):
+        candidate_mock = MagicMock()
+        candidate_mock.metadata.app_blob = '{ "testplan_id" : "123" }'
+        candidate_mock.metadata.title = "Title"
+        candidate_mock.metadata.last_job_start_time = 1
+        candidate_mock.metadata.running_job_name = "Test"
+
+        description = _generate_resume_candidate_description(candidate_mock)
+
+        self.assertIn("1970", description) # time 1 is second 1 of 1970
+        self.assertIn("123", description)
+        self.assertIn("Title", description)
+        self.assertIn("Test", description)
+>>>>>>> 36b0319f9 (Tests for utils functions)

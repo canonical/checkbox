@@ -399,6 +399,7 @@ class TestLListBootstrapped(TestCase):
         self.launcher.invoked(self.ctx)
         self.assertEqual(stdout.getvalue(), expected_out)
 
+
 class TestUtilsFunctions(TestCase):
     @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())
     @patch("builtins.print")

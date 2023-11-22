@@ -48,7 +48,7 @@ def discover_video_output_device(zapper_host):
 
         return set(re.findall(pattern, xrandr_output, re.MULTILINE))
 
-    _set_edid(zapper_host, None)
+    _clear_edid(zapper_host)
 
     # Not knowing what to except I can't use a busy loop here
     time.sleep(5)
@@ -99,7 +99,8 @@ def test_edid(zapper_host, edid_file, video_device):
 
 def _switch_edid(zapper_host, edid_file, video_device):
     """Clear EDID and then 'plug' back a new monitor."""
-    _set_edid(zapper_host, None)
+
+    _clear_edid(zapper_host)
     _wait_edid_change(video_device, False)
 
     _set_edid(zapper_host, edid_file)
@@ -107,13 +108,15 @@ def _switch_edid(zapper_host, edid_file, video_device):
     _wait_edid_change(video_device, True)
 
 
-def _set_edid(zapper_host, edid_file=None):
+def _set_edid(zapper_host, edid_file):
     """Request EDID change to Zapper."""
-    if edid_file:
-        with open(edid_file, "rb") as f:
-            zapper_run(zapper_host, "change_edid", f.read())
-    else:
-        zapper_run(zapper_host, "change_edid", None)
+    with open(str(edid_file), "rb") as f:
+        zapper_run(zapper_host, "change_edid", f.read())
+
+
+def _clear_edid(zapper_host):
+    """Request EDID clear to Zapper."""
+    zapper_run(zapper_host, "change_edid", None)
 
 
 def _check_connected(device):

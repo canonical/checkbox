@@ -6,7 +6,7 @@ when supplied with a new EDID information.
 To run the test you need Zapper board connected and set up.
 """
 import argparse
-import glob
+import pathlib
 import os
 import re
 import subprocess
@@ -14,10 +14,8 @@ import time
 
 from checkbox_support.scripts.zapper_proxy import zapper_run  # noqa: E402
 
-EDID_FILES = glob.glob(
-    os.path.expandvars(
-        os.path.join("$PLAINBOX_PROVIDER_DATA", "edids", "*.edid")
-    )
+EDID_FILES = list(
+    pathlib.Path(os.getenv("PLAINBOX_PROVIDER_DATA", ".")).glob("edids/*.edid")
 )
 
 
@@ -82,7 +80,7 @@ def test_edid(zapper_host, edid_file, video_device):
     :raises AssertionError: in case of mismatch between set
                             and read resolution
     """
-    resolution = os.path.basename(edid_file).split(".")[0]
+    resolution = edid_file.stem
     print("switching EDID to {}".format(resolution))
 
     try:

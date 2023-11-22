@@ -25,6 +25,7 @@ from unittest.mock import patch, Mock, MagicMock, call
 from io import StringIO
 from checkbox_ng.launcher.subcommands import (
     Launcher,
+    ListBootstrapped,
     ResumeInstead,
     IJobResult,
     request_comment,
@@ -293,8 +294,6 @@ class TestLauncherReturnCodes(TestCase):
         self.ctx.sa.get_summary = Mock(return_value=mock_results)
         self.assertEqual(self.launcher.invoked(self.ctx), 1)
 
-
-<<<<<<< HEAD
 class TestLListBootstrapped(TestCase):
     def setUp(self):
         self.launcher = ListBootstrapped()
@@ -390,7 +389,8 @@ class TestLListBootstrapped(TestCase):
         )
         self.launcher.invoked(self.ctx)
         self.assertEqual(stdout.getvalue(), expected_out)
-=======
+
+
 class TestUtilsFunctions(TestCase):
     @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())
     @patch("builtins.print")
@@ -429,4 +429,3 @@ class TestUtilsFunctions(TestCase):
         self.assertIn("123", description)
         self.assertIn("Title", description)
         self.assertIn("Test", description)
->>>>>>> 36b0319f9 (Tests for utils functions)

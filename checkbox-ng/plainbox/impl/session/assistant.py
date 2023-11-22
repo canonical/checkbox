@@ -1703,7 +1703,7 @@ class SessionAssistant:
 
         if all(flag not in self._metadata.flags for flag in finalizable_flags):
             _logger.info(
-                "finalize_session called for already finalized" " session: %s",
+                "finalize_session called for already finalized session: %s",
                 self._manager.storage.id,
             )
             # leave the same usage expectations

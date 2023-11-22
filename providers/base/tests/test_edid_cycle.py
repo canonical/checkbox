@@ -355,5 +355,5 @@ class ZapperEdidCycleTests(unittest.TestCase):
             ]
         )
 
-        mock_test_edid.side_effect = AssertionError
+        mock_test_edid.side_effect = AssertionError("Mismatch")
         self.assertTrue(edid_cycle.main(args))

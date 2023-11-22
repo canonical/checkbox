@@ -22,8 +22,8 @@ EDID_FILES = list(
 def discover_video_output_device(zapper_host):
     """
     Try to discover the output device connected to Zapper
-    checking the difference in xrandr when plugged in and
-    unplugged.
+    checking the difference in randr when a monitor gets
+    plugged in.
 
     :param zapper_host: Target Zapper IP
     :return: Video Output Port, i.e. `HDMI-1`
@@ -61,6 +61,8 @@ def discover_video_output_device(zapper_host):
 
     devices = get_active_devices()
 
+    # It doesn't really matter which EDID file we set in this function:
+    # we just want to recognize the port type and index, not the resolution.
     _set_edid(zapper_host, EDID_FILES[0])
 
     # Wait until the list of active devices changes.
@@ -234,7 +236,8 @@ def main(args=None):
     for edid_file in EDID_FILES:
         try:
             test_edid(args.host, edid_file, video_device)
-        except AssertionError:
+        except AssertionError as exc:
+            print(exc.args[0])
             failed = True
 
     return failed

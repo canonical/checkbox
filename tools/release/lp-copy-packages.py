@@ -26,7 +26,8 @@ from launchpadlib.launchpad import Launchpad
 # Authenticate with Launchpad
 credentials = Credentials.from_string(os.getenv("LP_CREDENTIALS"))
 lp = Launchpad(
-    credentials, None, None, service_root="production", version="devel")
+    credentials, None, None, service_root="production", version="devel"
+)
 
 # Define the source and destination PPAs
 source_ppa_name = "beta"

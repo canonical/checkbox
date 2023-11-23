@@ -1,0 +1,50 @@
+id: ce-oem-socketcan-full
+unit: test plan
+_name: SocketCAN remote test
+_description: SocketCAN remote tests for devices
+include:
+nested_part:
+    ce-oem-socketcan-manual
+    ce-oem-socketcan-stress-automated
+    after-suspend-ce-oem-socketcan-manual
+    after-suspend-ce-oem-socketcan-stress-automated
+
+id: ce-oem-socketcan-manual
+unit: test plan
+_name:  SocketCAN manual Tests (Manual, Remote)
+_description: SocketCAN manual Tests (Manual, Remote)
+bootstrap_include:
+    com.canonical.certification::device
+include:
+    ce-oem-socketcan/bus_off_recovery_.*
+
+id: after-suspend-ce-oem-socketcan-manual
+unit: test plan
+_name:  After suspend SocketCAN manual Tests (Manual, Remote)
+_description: After suspend SocketCAN manual Tests (Manual, Remote)
+bootstrap_include:
+    com.canonical.certification::device
+include:
+    after-suspend-ce-oem-socketcan/bus_off_recovery_.*
+
+id: ce-oem-socketcan-stress-automated
+unit: test plan
+_name: SocketCAN send stress Tests (Automated, Remote)
+_description:
+    SocketCAN send stress Tests (Automated, Remote)
+bootstrap_include:
+    com.canonical.certification::device
+include:
+    ce-oem-socketcan/stress_fd_remote_.*
+    ce-oem-socketcan/stress_remote_.*
+
+id: after-suspend-ce-oem-socketcan-stress-automated
+unit: test plan
+_name: After suspend SocketCAN send stress Tests (Automated, Remote)
+_description:
+    After suspend SocketCAN send stress Tests (Automated, Remote)
+bootstrap_include:
+    com.canonical.certification::device
+include:
+    after-suspend-ce-oem-socketcan/stress_fd_remote_.*
+    after-suspend-ce-oem-socketcan/stress_remote_.*

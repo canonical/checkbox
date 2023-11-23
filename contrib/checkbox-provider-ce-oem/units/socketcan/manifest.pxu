@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_socket_can_fd
+_name: CAN FD capable devices
+value-type: bool

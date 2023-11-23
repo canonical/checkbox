@@ -26,6 +26,16 @@ except ImportError:
     sys.exit(127)
 
 
+def sorting(item):
+    # use to sort JSON object
+    if isinstance(item, dict):
+        return sorted((key, sorting(values)) for key, values in item.items())
+    if isinstance(item, list):
+        return sorted(sorting(x) for x in item)
+    else:
+        return item
+
+
 class PIDControllerTests(unittest.TestCase):
 
     def test_input_change(self):
@@ -253,6 +263,38 @@ class GStreamerMessageHandlerTests(unittest.TestCase):
         self.gmh.spectrum_method(self.analyzer, [-0, -10])
         self.assertEqual(0, self.analyzer.number_of_samples)
 
+    @patch("pipewire_test.parse_spectrum_message_structure")
+    def test_bus_message_handler_spectrum(self, mock_parse_spectrum_message):
+        self_mock = MagicMock()
+
+        message_mock = MagicMock()
+        message_mock.type = Gst.MessageType.ELEMENT
+        message_mock.get_structure().get_name.return_value = "spectrum"
+
+        mock_parse_spectrum_message.return_value = {
+            "magnitude": 1
+        }
+
+        GStreamerMessageHandler.bus_message_handler(self_mock,
+                                                    MagicMock(),
+                                                    message_mock)
+
+        self.assertTrue(self_mock.spectrum_method.called)
+
+    def test_bus_message_handler_level(self):
+        self_mock = MagicMock()
+
+        message_mock = MagicMock()
+        message_mock.type = Gst.MessageType.ELEMENT
+        message_mock.get_structure().get_name.return_value = "level"
+        message_mock.get_structure().get_value.return_value = [0]
+
+        GStreamerMessageHandler.bus_message_handler(self_mock,
+                                                    MagicMock(),
+                                                    message_mock)
+
+        self.assertTrue(self_mock.level_method.called)
+
 
 class GstAudioObjectTests(unittest.TestCase):
 
@@ -274,7 +316,8 @@ class ParseSpectrumMessageStructureTests(unittest.TestCase):
 
     def test_succ(self):
         json_string = parse_spectrum_message_structure(self.ss)
-        self.assertEqual(self.ans, json.dumps(json_string))
+        self.assertEqual(sorting(json.loads(self.ans)),
+                         sorting(json_string))
 
     def test_non_josn(self):
         self.assertEqual(None, parse_spectrum_message_structure("test"))

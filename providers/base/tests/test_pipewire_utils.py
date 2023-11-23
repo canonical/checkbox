@@ -14,6 +14,12 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+# There are some issue with assertLog for python version lower than 3.10,
+# https://github.com/python/cpython/commit/6fdfcec5b11f44f27aae3d53ddeb004150ae1f61
+# and make some duplicate code in this script.
+# Therefore, please don't add new test cases of assertLog
+# and the old one might be removed in the future.
+
 import unittest
 import sys
 from unittest.mock import MagicMock
@@ -106,6 +112,17 @@ class GeneratePwMediaClassTests(unittest.TestCase):
         pt = PipewireTest()
 
         # return UNKNOWN TYPE
+        if sys.version_info < (3, 10):
+            wrong_type1 = "videog"
+            wrong_type2 = "xxxx"
+            self.assertEqual("UNKNOWN TYPE",
+                             pt.generate_pw_media_class(wrong_type1,
+                                                        "source"))
+            self.assertEqual("UNKNOWN TYPE",
+                             pt.generate_pw_media_class(wrong_type2,
+                                                        "sources"))
+            return
+
         with self.assertLogs("root", level="INFO") as cm:
             wrong_type1 = "videog"
             wrong_type2 = "xxxx"
@@ -123,6 +140,16 @@ class GeneratePwMediaClassTests(unittest.TestCase):
                               .format(wrong_type2)])
 
         # return UNKNOWN CLASS
+        if sys.version_info < (3, 10):
+            wrong_class1 = "sourceg"
+            wrong_class2 = "sinkf"
+            self.assertEqual("UNKNOWN CLASS",
+                             pt.generate_pw_media_class("video",
+                                                        wrong_class1))
+            self.assertEqual("UNKNOWN CLASS",
+                             pt.generate_pw_media_class("video",
+                                                        wrong_class2))
+            return
         with self.assertLogs("root", level="INFO") as cm:
             wrong_class1 = "sourceg"
             wrong_class2 = "sinkf"
@@ -215,6 +242,17 @@ class DetectDeviceTests(unittest.TestCase):
     def test_succ(self, mock_checkout):
         pt = PipewireTest()
 
+        if sys.version_info < (3, 10):
+            # detect audio sink succ
+            mock_checkout.return_value = self.sink_audio_node
+            self.assertEqual(PipewireTestError.NO_ERROR,
+                             pt.detect_device("audio", "sink"))
+
+            # detect audio source succ
+            mock_checkout.return_value = self.source_audio_node
+            self.assertEqual(PipewireTestError.NO_ERROR,
+                             pt.detect_device("audio", "source"))
+            return
         with self.assertLogs("root", level="INFO") as cm:
             # detect audio sink succ
             mock_checkout.return_value = self.sink_audio_node
@@ -225,6 +263,7 @@ class DetectDeviceTests(unittest.TestCase):
             mock_checkout.return_value = self.source_audio_node
             self.assertEqual(PipewireTestError.NO_ERROR,
                              pt.detect_device("audio", "source"))
+
             # check log output
             self.assertEqual(cm.output,
                              ["INFO:root:device id:[29]"
@@ -238,6 +277,22 @@ class DetectDeviceTests(unittest.TestCase):
     def test_fail(self, mock_checkout):
         pt = PipewireTest()
 
+        if sys.version_info < (3, 10):
+            # detect audio sink fail
+            mock_checkout.return_value = self.source_audio_node
+            self.assertEqual(PipewireTestError.NOT_DETECTED,
+                             pt.detect_device("audio", "sink"))
+
+            # detect audio source fail
+            mock_checkout.return_value = self.sink_audio_node
+            self.assertEqual(PipewireTestError.NOT_DETECTED,
+                             pt.detect_device("audio", "source"))
+
+            # wrong media class
+            mock_checkout.return_value = self.sink_audio_node
+            self.assertEqual(PipewireTestError.NOT_DETECTED,
+                             pt.detect_device("xxx", "ooo"))
+            return
         with self.assertLogs("root", level="INFO") as cm:
             # detect audio sink fail
             mock_checkout.return_value = self.source_audio_node
@@ -253,6 +308,7 @@ class DetectDeviceTests(unittest.TestCase):
             mock_checkout.return_value = self.sink_audio_node
             self.assertEqual(PipewireTestError.NOT_DETECTED,
                              pt.detect_device("xxx", "ooo"))
+
             # check log output
             self.assertEqual(cm.output,
                              ["INFO:root:"
@@ -304,10 +360,16 @@ class SelectDeviceTests(unittest.TestCase):
     def test_wrong_pw_dump(self, mock_checkout):
         pt = PipewireTest()
 
+        if sys.version_info < (3, 10):
+            mock_checkout.return_value = "xxxx"
+            self.assertEqual(PipewireTestError.NO_AVAILABLE_PORT,
+                             pt.select_device("video", "sink", "hdmi"))
+            return
         with self.assertLogs("root", level="INFO") as cm:
             mock_checkout.return_value = "xxxx"
             self.assertEqual(PipewireTestError.NO_AVAILABLE_PORT,
                              pt.select_device("video", "sink", "hdmi"))
+
             # check log output
             self.assertEqual(cm.output,
                              ["ERROR:root:pw-dump Node failed !!!",
@@ -323,10 +385,16 @@ class SelectDeviceTests(unittest.TestCase):
         self.assertEqual(PipewireTestError.NO_AVAILABLE_PORT,
                          pt.select_device("video", "xxx", "hdmi"))
 
+        if sys.version_info < (3, 10):
+            mock_checkout.return_value = self.sink_audio_node
+            self.assertEqual(PipewireTestError.NO_AVAILABLE_PORT,
+                             pt.select_device("video", "sink", "hdmi"))
+            return
         with self.assertLogs("root", level="INFO") as cm:
             mock_checkout.return_value = self.sink_audio_node
             self.assertEqual(PipewireTestError.NO_AVAILABLE_PORT,
                              pt.select_device("video", "sink", "hdmi"))
+
             # check log output
             self.assertEqual(cm.output,
                              ["ERROR:root:No available Video/Sink found"])
@@ -397,10 +465,16 @@ class GstPipeLineTests(unittest.TestCase):
     def test_wrong_gst_pipeline_device(self, mock_checkout):
         pt = PipewireTest()
 
+        if sys.version_info < (3, 10):
+            mock_checkout.return_value = self.device
+            self.assertEqual(PipewireTestError.NO_SPECIFIC_DEVICE,
+                             pt.gst_pipeline("pipe", 10, "qoo"))
+            return
         with self.assertLogs("root", level="INFO") as cm:
             mock_checkout.return_value = self.device
             self.assertEqual(PipewireTestError.NO_SPECIFIC_DEVICE,
                              pt.gst_pipeline("pipe", 10, "qoo"))
+
             # check log output
             self.assertEqual(cm.output,
                              ["ERROR:root:No abailable output device for qoo"])
@@ -409,12 +483,20 @@ class GstPipeLineTests(unittest.TestCase):
     def test_gst_pipeline(self, mock_checkout):
         pt = PipewireTest()
 
+        if sys.version_info < (3, 10):
+            mock_checkout.return_value = self.device
+            self.assertEqual(PipewireTestError.NO_ERROR,
+                             pt.gst_pipeline("audiotestsrc wave=sine freq=512"
+                                             " ! audioconvert ! audioresample"
+                                             " ! autoaudiosink", 2, "hdmi"))
+            return
         with self.assertLogs("root", level="INFO") as cm:
             mock_checkout.return_value = self.device
             self.assertEqual(PipewireTestError.NO_ERROR,
                              pt.gst_pipeline("audiotestsrc wave=sine freq=512"
                                              " ! audioconvert ! audioresample"
                                              " ! autoaudiosink", 2, "hdmi"))
+
             # check log output
             self.assertEqual(cm.output,
                              ["INFO:root:" + "[ Audio sink ]".center(80, '='),
@@ -517,10 +599,16 @@ class MonitorActivePortTests(unittest.TestCase):
     def test_couldnt_detect_change(self, mock_checkout):
         pt = PipewireTest()
 
+        if sys.version_info < (3, 10):
+            mock_checkout.return_value = self.before_device
+            self.assertEqual(PipewireTestError.NO_CHANGE_DETECTED,
+                             pt.monitor_active_port_change(2, "sink"))
+            return
         with self.assertLogs("root", level="INFO") as cm:
             mock_checkout.return_value = self.before_device
             self.assertEqual(PipewireTestError.NO_CHANGE_DETECTED,
                              pt.monitor_active_port_change(2, "sink"))
+
             # check log output
             self.assertEqual(cm.output,
                              ["INFO:root:Starting with config: "
@@ -533,10 +621,16 @@ class MonitorActivePortTests(unittest.TestCase):
     def test_could_detect_change(self, mock_checkout):
         pt = PipewireTest()
 
+        if sys.version_info < (3, 10):
+            mock_checkout.side_effect = [self.before_device, self.after_device]
+            self.assertEqual(PipewireTestError.NO_ERROR,
+                             pt.monitor_active_port_change(2, "sink"))
+            return
         with self.assertLogs("root", level="INFO") as cm:
             mock_checkout.side_effect = [self.before_device, self.after_device]
             self.assertEqual(PipewireTestError.NO_ERROR,
                              pt.monitor_active_port_change(2, "sink"))
+
             # check log output
             self.assertEqual(cm.output,
                              ["INFO:root:Starting with config: "
@@ -597,6 +691,11 @@ class GoThroughPortTests(unittest.TestCase):
     def test_though(self, mock_checkout, mock_input):
         pt = PipewireTest()
 
+        if sys.version_info < (3, 10):
+            mock_checkout.return_value = self.device
+            mock_input.side_effect = ["yes", "yes"]
+            self.assertEqual(None, pt.go_through_ports("echo test", "sink"))
+            return
         with self.assertLogs("root", level="INFO") as cm:
             mock_checkout.return_value = self.device
             mock_input.side_effect = ["yes", "yes"]

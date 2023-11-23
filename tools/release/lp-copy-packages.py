@@ -29,10 +29,10 @@ lp = Launchpad(
     credentials, None, None, service_root="production", version="devel")
 
 # Define the source and destination PPAs
-source_ppa_name = "testing"
+source_ppa_name = "beta"
 source_owner_name = "checkbox-dev"
-dest_ppa_name = "public"
-dest_owner_name = "hardware-certification"
+dest_ppa_name = "stable"
+dest_owner_name = "checkbox-dev"
 
 # Load the source and destination PPA owners
 source_owner = lp.people[source_owner_name]

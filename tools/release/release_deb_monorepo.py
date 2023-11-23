@@ -64,7 +64,7 @@ def check_build(name) -> bool:
             [
                 "/tmp/ppa-dev-tools/scripts/ppa",
                 "wait",
-                "ppa:checkbox-dev/testing",
+                "ppa:checkbox-dev/beta",
                 "-C",
                 path
             ]
@@ -73,7 +73,7 @@ def check_build(name) -> bool:
     return False
 
 def main():
-    """Update the PPA testing recipes and kick-off the builds."""
+    """Update the PPA beta recipes and kick-off the builds."""
     # Request code import
     staging = ""
     if os.getenv("CHECKBOX_REPO", "").endswith("staging"):
@@ -99,7 +99,7 @@ def main():
             new_version = cmd.stdout.decode().rstrip().split('v')[1]
             print("Request {} build ({})".format(
                 package_name, new_version))
-            recipes_name = package_name + '-testing'
+            recipes_name = package_name + '-beta'
             output = run(
                 "./tools/release/lp-recipe-update-build.py checkbox "
                 "--recipe {} -n {}".format(

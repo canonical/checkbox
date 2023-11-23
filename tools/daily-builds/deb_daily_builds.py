@@ -65,7 +65,7 @@ def check_build(name) -> bool:
             [
                 "/tmp/ppa-dev-tools/scripts/ppa",
                 "wait",
-                "ppa:checkbox-dev/ppa",
+                "ppa:checkbox-dev/edge",
                 "-C",
                 path,
             ]
@@ -75,7 +75,8 @@ def check_build(name) -> bool:
 
 
 def main():
-    """Parse the checkbox monorepo to trigger deb daily builds in Launchpad."""
+    """Parse the checkbox monorepo to trigger deb daily builds in Launchpad.
+    The daily builds will be stored under the checkbox-dev/edge PPA."""
     # First request code import (GitHub -> Launchpad)
     run(
         "./tools/release/lp-request-import.py "
@@ -99,7 +100,7 @@ def main():
         output = (
             run(
                 "./tools/release/lp-recipe-update-build.py checkbox "
-                "--recipe {} -n {}".format(name + "-daily", get_version()),
+                "--recipe {} -n {}".format(name + "-edge", get_version()),
                 shell=True,
                 check=True,
             )

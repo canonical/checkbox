@@ -67,7 +67,7 @@ optional arguments:
 Let's say I want to test:
 
 - the [`basic` scenario] (which focuses on Checkbox local)
-- using the latest Debian version of Checkbox available in the Daily Builds PPA
+- using the latest Debian version of Checkbox available in the Edge PPA
 - on bionic (18.04) and focal (20.04)
 - for Checkbox local only (not Checkbox remote)
 
@@ -77,7 +77,7 @@ I can create the following `local-daily-builds-config.py` file:
 configuration = {
     'local': {
         'origin': 'ppa',
-        'uri': 'ppa:checkbox-dev/ppa',
+        'uri': 'ppa:checkbox-dev/edge',
         'releases': ['bionic', 'focal'],
     },
 }

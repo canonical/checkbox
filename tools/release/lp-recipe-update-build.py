@@ -22,6 +22,10 @@ Kicks off a recipe build for a branch in Launchpad which has an associated
 recipe.
 Meant to be used as part of a checkbox release to the Hardware Certification
 public PPA and the ~checkbox-dev testing PPA.
+
+NOTE: The Hardware Certification public PPA has no further use over the 
+~checkbox-dev testing PPA. It is kept for historical reasons and should be
+removed at some point.
 """
 
 import os

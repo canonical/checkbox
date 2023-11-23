@@ -58,7 +58,7 @@ slots:
 
 package-repositories:
   - type: apt
-    ppa: hardware-certification/public
+    ppa: checkbox-dev/stable
 
 parts:
   version-calculator:

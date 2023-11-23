@@ -47,7 +47,7 @@ proceed with the release.
 ## Promote the previous beta release to stable
 
 Internal teams (mostly QA and Certification) are using the version in the beta
-snap channels or the Testing PPA to complete their tests. If this version is
+snap channels or the beta PPA to complete their tests. If this version is
 validated, it can then be pushed to stable for other teams and external
 stakeholders.
 
@@ -132,7 +132,7 @@ a date postfix in the form of `.YYYYMMDD`, this should never happen in a release
 
 3 workflows are triggered on tag push events:
 
-- [checkbox deb packages] *(built and published to the testing PPA)*
+- [checkbox deb packages] *(built and published to the beta PPA)*
 - [checkbox snap packages] *(built and uploaded to their respective beta
   channels)*
 - [checkbox core snap packages] *(built and uploaded to their respective beta
@@ -177,10 +177,9 @@ be able to send an e-mail to them.
 
 ## PPA/Repositories
 
-* [Stable]\: The official release of Checkbox
-* [Testing]\: Release candidates of Checkbox before it becomes the official
-release
-* [Development]\: Daily builds (that may contain experimental features)
+* [stable]\: For external customers.
+* [beta]\: For Canonical internal users. This version should be the one used for Certification, and early QA pipelines.
+* [edge]\: To test recent developments that are not yet in beta.
 
 ## Projects released as Debian packages
 
@@ -199,9 +198,9 @@ release
 [setuptools_scm]: https://github.com/pypa/setuptools_scm/
 [Stable release workflow]: https://github.com/canonical/checkbox/actions/workflows/checkbox-stable-release.yml
 [Bumpversion]: https://github.com/c4urself/bump2version
-[Stable]: https://launchpad.net/~hardware-certification/+archive/ubuntu/public
-[Testing]: https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/testing
-[Development]: https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/ppa
+[stable]: https://launchpad.net/~checkbox-dev/+archive/ubuntu/stable
+[beta]: https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/beta
+[edge]: https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/edge
 [Launchpad Builders status]: https://launchpad.net/builders
 [checkbox deb packages]: https://github.com/canonical/checkbox/actions/workflows/deb-beta-release.yml
 [checkbox snap packages]: https://github.com/canonical/checkbox/actions/workflows/checkbox-snap-beta-release.yml

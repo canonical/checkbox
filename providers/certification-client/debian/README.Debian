@@ -1,16 +1,16 @@
-To build this package against the testing PPA
+To build this package against the beta PPA
 
 sbuild -d precise \
     --chroot-setup-commands="apt-key adv --keyserver keyserver.ubuntu.com --recv-key 1B4B6B2D2BBDF2BD" \
     --extra-repository="deb http://archive.ubuntu.com/ubuntu precise universe"  \
-    --extra-repository="deb http://ppa.launchpad.net/checkbox-dev/testing/ubuntu precise main"
+    --extra-repository="deb http://ppa.launchpad.net/checkbox-dev/beta/ubuntu precise main"
 
-To build this package against the daily PPA
+To build this package against the edge PPA
 
 sbuild -d precise \
     --chroot-setup-commands="apt-key adv --keyserver keyserver.ubuntu.com --recv-key 1B4B6B2D2BBDF2BD" \
     --extra-repository="deb http://archive.ubuntu.com/ubuntu precise universe"  \
-    --extra-repository="deb http://ppa.launchpad.net/checkbox-dev/ppa/ubuntu precise main"
+    --extra-repository="deb http://ppa.launchpad.net/checkbox-dev/edge/ubuntu precise main"
 
 The precise universe component is optional. It is needed if you created a
 vanilla precise schroot. If you already modified it have universe enabled then

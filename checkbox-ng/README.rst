@@ -7,7 +7,7 @@ desktops, servers and IOT devices with Ubuntu.
 Installation
 ============
 
-$ sudo add-apt-repository ppa:checkbox-dev/ppa
+$ sudo add-apt-repository ppa:checkbox-dev/edge
 $ sudo apt-get update
 $ sudo apt-get install checkbox-ng
 

@@ -24,7 +24,7 @@ import os
 from functools import lru_cache
 
 
-@lru_cache
+@lru_cache(maxsize=1)
 def on_core():
     """
     Return True if we are running on Ubuntu Core. False otherwise.

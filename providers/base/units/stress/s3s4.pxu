@@ -235,7 +235,7 @@ user: root
 command:
    suspend.sh 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
-    This is part of automated stress suspend cycles test that will force the system to suspend/resume.
+    Suspend and resume device (suspend cycle 1, reboot cycle 1)
 
 unit: template
 template-resource: stress_s3_cycles_iterations_1
@@ -257,7 +257,7 @@ user: root
 command:
  suspend.sh 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
-    This is part of automated stress suspend cycles (suspend_cycles_1_reboot{{suspend_reboot_id}}) test that will force the system to suspend/resume.
+    Suspend and resume device (suspend cycle 1, reboot cycle {{suspend_reboot_id}})
 
 unit: template
 template-resource: stress_s3_cycles_iterations_multiple
@@ -279,7 +279,7 @@ user: root
 command:
  suspend.sh 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:
-    This is part of automated stress suspend cycles (suspend_cycles_{{suspend_id}}_reboot{{suspend_reboot_id}}) test that will force the system to suspend/resume.
+    Suspend and resume device (suspend cycle {{suspend_id}}, reboot cycle {{suspend_reboot_id}})
 
 unit: template
 template-resource: stress_suspend_reboot_cycles_iterations
@@ -301,7 +301,7 @@ command:
 flags: noreturn autorestart
 after: stress-tests/suspend_cycles_{{s3_iterations}}_reboot{{suspend_reboot_id}}
 summary:
-    This is part of automated stress suspend cycles test that will force the system to reboot (suspend_cycles_reboot{{suspend_reboot_id}}).
+   Reboot device (reboot cycle {{suspend_reboot_id}}).
 
 unit: template
 template-resource: stress_suspend_reboot_iterations

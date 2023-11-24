@@ -16,9 +16,9 @@ jobs:
       - name: Install dependencies
         run: |
           which curl || (sudo apt update && sudo apt install curl -y)
-          curl https://cli.github.com/packages/githubcli-archive-keyring.gpg --output /usr/share/keyrings/githubcli-archive-keyring.gpg
+          sudo curl https://cli.github.com/packages/githubcli-archive-keyring.gpg --output /usr/share/keyrings/githubcli-archive-keyring.gpg
           sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-          sudo gpg --import /usr/share/keyrings/githubcli-archive-keyring.gpg
+          gpg --import /usr/share/keyrings/githubcli-archive-keyring.gpg
           gpg --fingerprint "2C6106201985B60E6C7AC87323F3D4EA75716059"
           echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
           sudo apt update -qq

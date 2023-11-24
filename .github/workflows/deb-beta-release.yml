@@ -18,6 +18,8 @@ jobs:
           git clone -b main https://git.launchpad.net/~hook25/ppa-dev-tools /tmp/ppa-dev-tools
       - name: Checkout checkbox monorepo
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
         name: Import to LP, ask for a build and wait result
         env:

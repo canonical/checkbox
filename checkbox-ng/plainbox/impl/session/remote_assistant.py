@@ -681,7 +681,13 @@ class RemoteSessionAssistant:
             test_info_list = test_info_list + ((test_info,))
         return json.dumps(test_info_list)
 
-    def resume_by_id(self, session_id=None):
+    def delete_sessions(self, session_list):
+        return self._sa.delete_sessions(session_list)
+
+    def get_resumable_sessions(self):
+        return self._sa.get_resumable_sessions()
+
+    def resume_by_id(self, session_id=None, overwrite_result_dict={}):
         _logger.info("resume_by_id: %r", session_id)
         self._launcher = load_configs()
         resume_candidates = list(self._sa.get_resumable_sessions())
@@ -730,22 +736,19 @@ class RemoteSessionAssistant:
             self._sa._manager.storage.id
         )
         result_path = os.path.join(session_share, "__result")
-        if os.path.exists(result_path):
-            try:
-                with open(result_path, "rt") as f:
-                    result_dict = json.load(f)
-                    # the only really important field in the result is
-                    # 'outcome' so let's make sure it doesn't contain
-                    # anything stupid
-                    if result_dict.get("outcome") not in [
-                        "pass",
-                        "fail",
-                        "skip",
-                    ]:
-                        result_dict["outcome"] = IJobResult.OUTCOME_PASS
-            except json.JSONDecodeError:
-                pass
-        else:
+        try:
+            with open(result_path, "rt") as f:
+                result_dict = json.load(f)
+                # the only really important field in the result is
+                # 'outcome' so let's make sure it doesn't contain
+                # anything stupid
+                if result_dict.get("outcome") not in [
+                    "pass",
+                    "fail",
+                    "skip",
+                ]:
+                    result_dict["outcome"] = IJobResult.OUTCOME_PASS
+        except (json.JSONDecodeError, FileNotFoundError):
             the_job = self._sa.get_job(self._last_job)
             if the_job.plugin == "shell":
                 if "noreturn" in the_job.get_flag_set():
@@ -753,6 +756,7 @@ class RemoteSessionAssistant:
                 else:
                     result_dict["outcome"] = IJobResult.OUTCOME_CRASH
 
+        result_dict.update(overwrite_result_dict)
         result = MemoryJobResult(result_dict)
         if self._last_job:
             try:

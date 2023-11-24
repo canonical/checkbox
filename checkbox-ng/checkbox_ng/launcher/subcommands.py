@@ -21,7 +21,6 @@ Definition of sub-command classes for checkbox-cli
 from argparse import ArgumentTypeError
 from argparse import SUPPRESS
 from collections import defaultdict
-from datetime import datetime
 from string import Formatter
 from tempfile import TemporaryDirectory
 import fnmatch
@@ -34,7 +33,6 @@ import re
 import shlex
 import sys
 import tarfile
-import textwrap
 import time
 
 from plainbox.abc import IJobResult
@@ -66,7 +64,11 @@ from checkbox_ng.urwid_ui import ManifestBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import ResumeInstead
 from checkbox_ng.urwid_ui import TestPlanBrowser
-from checkbox_ng.utils import newline_join
+from checkbox_ng.utils import (
+    newline_join,
+    generate_resume_candidate_description,
+    request_comment,
+)
 
 _ = gettext.gettext
 
@@ -370,7 +372,7 @@ class Launcher(MainLoopStage, ReportsStage):
         entries = [
             (
                 candidate.id,
-                _generate_resume_candidate_description(candidate),
+                generate_resume_candidate_description(candidate),
             )
             for candidate in resume_candidates
         ]

@@ -244,17 +244,17 @@ class ZapperEdidCycleTests(unittest.TestCase):
 
         connected_output = textwrap.dedent(
             """
-                x: 0, y: 0, scale: 1, rotation: normal, primary: yes
-                associated physical monitors:
-                    HDMI-1 TSB PI-KVM Video 0x88888800
-                """
+            x: 0, y: 0, scale: 1, rotation: normal, primary: yes
+            associated physical monitors:
+                HDMI-1 TSB PI-KVM Video 0x88888800
+            """
         )
 
         resolution_output = textwrap.dedent(
             """
-                HDMI-1 TSB PI-KVM Video 0x88888800
-                    1920x1080@49.939697265625  1920x1080  49.94*+
-                """
+            HDMI-1 TSB PI-KVM Video 0x88888800
+                1920x1080@49.939697265625  1920x1080  49.94*+
+            """
         )
 
         mock_check.side_effect = [
@@ -282,17 +282,17 @@ class ZapperEdidCycleTests(unittest.TestCase):
 
         connected_output = textwrap.dedent(
             """
-                x: 0, y: 0, scale: 1, rotation: normal, primary: yes
-                associated physical monitors:
-                    HDMI-1 TSB PI-KVM Video 0x88888800
-                """
+            x: 0, y: 0, scale: 1, rotation: normal, primary: yes
+            associated physical monitors:
+                HDMI-1 TSB PI-KVM Video 0x88888800
+            """
         )
 
         resolution_output = textwrap.dedent(
             """
-                HDMI-1 TSB PI-KVM Video 0x88888800
-                    1920x1080@49.939697265625  1920x1080  49.94*+
-                """
+            HDMI-1 TSB PI-KVM Video 0x88888800
+                1920x1080@49.939697265625  1920x1080  49.94*+
+            """
         )
 
         # Times out when switching

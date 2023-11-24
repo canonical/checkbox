@@ -75,8 +75,8 @@ Let's begin by creating the container and installing the needed packages.
 # First, create the container
 # Note: Always use the version of ubuntu for the snap you 
 #       are building, series22 -> ubuntu22.04 (jammy)
-(host) > lxd launch ubuntu:22.04 jammy
-(host) > lxd exec jammy bash
+(host) > lxc launch ubuntu:22.04 jammy
+(host) > lxc exec jammy bash
 # Once in the container install snapcraft.
 # Note: For series16 you will need snapcraft4.x, to install
 #       it use run: 
@@ -91,12 +91,12 @@ environment, so that you don't need to repeat the above steps if something
 goes wrong.
 ```bash
 (jammy)> exit
-(host) > lxd snapshot jammy backup
+(host) > lxc snapshot jammy backup
 ```
 If at any point you need to rollback to this backup run
 ```bash
-(host) > lxd restore jammy backup
-(host) > lxd exec jammy bash
+(host) > lxc restore jammy backup
+(host) > lxc exec jammy bash
 # This you may want to do if you made any updates to the repo
 # in the meantime
 (jammy)> (cd checkbox && git pull)

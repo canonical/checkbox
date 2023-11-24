@@ -561,9 +561,14 @@ class UdevadmDevice(object):
             if self._environment["SUBSYSTEM"] == "hidraw":
                 return "HIDRAW"
             if self._environment["SUBSYSTEM"] == "video4linux":
-                if self.driver not in ('bcm2835-codec', 'bcm2835-isp'):
-                    # Ignore raspberrypi memory to memory (M2M) devices,
-                    # for the video decoder, encoder, and ISP resize.
+                # Ignore raspberrypi memory to memory (M2M) devices,
+                # for the video decoder, encoder, and ISP resize.
+                # Ignore Mediatek v4l2 encoder, decoder, jpeg codec and
+                # image processor 3
+                drivers_blocklist = ('bcm2835-codec', 'bcm2835-isp',
+                                     'mtk-vcodec-enc', 'mtk-vcodec-dec',
+                                     'mtk-jpeg', 'mtk-mdp3')
+                if self.driver not in drivers_blocklist:
                     return "CAPTURE"
             # special device for PiCamera
             if self._environment["SUBSYSTEM"] == "vchiq":

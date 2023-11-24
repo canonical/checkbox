@@ -516,6 +516,7 @@ class SessionAssistant:
             self.select_test_plan: "select the test plan to execute",
             self.get_session_id: "to get the id of currently running session",
             self.hand_pick_jobs: "select jobs to run (w/o a test plan)",
+            self.get_resumable_sessions: "get resume candidates",
             self.finalize_session: "to finalize session",
             self.configure_application_restart: (
                 "configure automatic restart capability"
@@ -615,8 +616,8 @@ class SessionAssistant:
         Applications can use sessions' metadata (and the app_blob contained
         in them) to decide which session is the best one to propose resuming.
         """
-        UsageExpectation.of(self).enforce()
         # let's keep resume_candidates, so we don't have to load data again
+        UsageExpectation.of(self).enforce()
         self._resume_candidates = {}
         for storage in WellKnownDirsHelper.get_storage_list():
             data = storage.load_checkpoint()
@@ -1909,6 +1910,7 @@ class SessionAssistant:
             self.get_manifest_repr: ("to get participating manifest units"),
             self.run_job: "to run a given job",
             self.use_alternate_selection: "to change the selection",
+            self.get_resumable_sessions: "get resume candidates",
             self.hand_pick_jobs: "to generate new selection and use it",
             self.use_job_result: "to feed job result back to the session",
             # XXX: should this be available right off the bat or should we wait

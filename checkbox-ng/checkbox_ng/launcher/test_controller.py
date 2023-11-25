@@ -63,6 +63,42 @@ class ControllerTests(TestCase):
 
         self.assertTrue(self_mock.connect_and_run.called)
 
+    @mock.patch("checkbox_ng.launcher.controller.is_hostname_a_loopback")
+    @mock.patch("time.time")
+    @mock.patch("builtins.print")
+    @mock.patch("os.path.exists")
+    @mock.patch("checkbox_ng.launcher.controller.Configuration.from_text")
+    @mock.patch("checkbox_ng.launcher.controller._")
+    def test_invoked_ok_for_localhost(
+        self,
+        gettext_mock,
+        configuration_mock,
+        path_exists_mock,
+        print_mock,
+        time_mock,
+        loopback_check,
+    ):
+        ctx_mock = mock.MagicMock()
+        ctx_mock.args.launcher = "example"
+        ctx_mock.args.user = "some username"
+        ctx_mock.args.host = "undertest@local"
+        ctx_mock.args.port = "9999"
+        loopback_check.return_value = True
+
+        self_mock = mock.MagicMock()
+
+        # make the check if launcher is there go through
+        path_exists_mock.return_value = True
+        # avoid monitoring time (no timeout in this test)
+        time_mock.return_value = 0
+
+        with mock.patch("builtins.open") as mm:
+            mm.return_value = mm
+            mm.read.return_value = "[launcher]\nversion=0"
+            RemoteController.invoked(self_mock, ctx_mock)
+
+        self.assertTrue(self_mock.connect_and_run.called)
+
     @mock.patch("checkbox_ng.launcher.controller.RemoteSessionAssistant")
     def test_check_remote_api_match_ok(self, remote_assistant_mock):
         """

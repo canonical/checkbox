@@ -16,9 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+
+import socket
+
 from unittest import TestCase, mock
 
 from checkbox_ng.launcher.controller import RemoteController
+from checkbox_ng.launcher.controller import is_hostname_a_loopback
 
 
 class ControllerTests(TestCase):
@@ -192,3 +196,30 @@ class ControllerTests(TestCase):
                 )
 
         self.assertTrue(res_dia_mock.called)
+
+
+class IsHostnameALoopbackTests(TestCase):
+    @mock.patch("socket.gethostbyname")
+    @mock.patch("ipaddress.ip_address")
+    def test_is_hostname_a_loopback(self, ip_address_mock, gethostbyname_mock):
+        """
+        Test that the is_hostname_a_loopback function returns True
+        when the ip_address claims it is a loopback
+        """
+        gethostbyname_mock.return_value = "127.0.0.1"
+        # we still can't just use 127.0.0.1 and assume it's a loopback
+        # because that address is just a convention and it could be
+        # changed by the user, and also this is a thing just for IPv4
+        # so we need to mock the ip_address as well
+        ip_address_mock.return_value = ip_address_mock
+        ip_address_mock.is_loopback = True
+        self.assertTrue(is_hostname_a_loopback("foobar"))
+
+    @mock.patch("socket.gethostbyname")
+    def test_is_hostname_a_loopback_socket_raises(self, gethostbyname_mock):
+        """
+        Test that the is_hostname_a_loopback function returns False
+        when the socket.gethostname function raises an exception
+        """
+        gethostbyname_mock.side_effect = socket.gaierror
+        self.assertFalse(is_hostname_a_loopback("foobar"))

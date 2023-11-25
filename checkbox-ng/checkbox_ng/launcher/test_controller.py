@@ -216,6 +216,24 @@ class IsHostnameALoopbackTests(TestCase):
         self.assertTrue(is_hostname_a_loopback("foobar"))
 
     @mock.patch("socket.gethostbyname")
+    @mock.patch("ipaddress.ip_address")
+    def test_is_hostname_a_loopback_false_case(
+        self, ip_address_mock, gethostbyname_mock
+    ):
+        """
+        Test that the is_hostname_a_loopback function returns False
+        when the ip_address claims it is not a loopback
+        """
+        gethostbyname_mock.return_value = "127.0.0.1"
+        # we still can't just use 127.0.0.1 and assume it's a loopback
+        # because that address is just a convention and it could be
+        # changed by the user, and also this is a thing just for IPv4
+        # so we need to mock the ip_address as well
+        ip_address_mock.return_value = ip_address_mock
+        ip_address_mock.is_loopback = False
+        self.assertFalse(is_hostname_a_loopback("foobar"))
+
+    @mock.patch("socket.gethostbyname")
     def test_is_hostname_a_loopback_socket_raises(self, gethostbyname_mock):
         """
         Test that the is_hostname_a_loopback function returns False

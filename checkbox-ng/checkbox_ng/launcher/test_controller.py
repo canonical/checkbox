@@ -26,7 +26,7 @@ from checkbox_ng.launcher.controller import is_hostname_a_loopback
 
 
 class ControllerTests(TestCase):
-    @mock.patch("ipaddress.ip_address")
+    @mock.patch("checkbox_ng.launcher.controller.is_hostname_a_loopback")
     @mock.patch("time.time")
     @mock.patch("builtins.print")
     @mock.patch("os.path.exists")
@@ -40,16 +40,14 @@ class ControllerTests(TestCase):
         path_exists_mock,
         print_mock,
         time_mock,
-        ip_address_mock,
+        loopback_check,
     ):
         ctx_mock = mock.MagicMock()
         ctx_mock.args.launcher = "example"
         ctx_mock.args.user = "some username"
         ctx_mock.args.host = "undertest@local"
         ctx_mock.args.port = "9999"
-
-        ip_address_mock.return_value = ip_address_mock
-        ip_address_mock.is_loopback = False
+        loopback_check.return_value = False
 
         self_mock = mock.MagicMock()
 

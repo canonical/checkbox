@@ -33,9 +33,8 @@ def on_core():
     """
 
     with open("/etc/os-release") as os_release_file:
-        return any(
-            line.startswith("NAME=Ubuntu Core") for line in os_release_file
-        )
+        contents = os_release_file.readlines()
+        return any(line.startswith("NAME=Ubuntu Core") for line in contents)
 
 
 def application_name():

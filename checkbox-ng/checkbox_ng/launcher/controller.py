@@ -152,7 +152,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         timeout = 600
         deadline = time.time() + timeout
         port = ctx.args.port
-        if not ipaddress.ip_address(ctx.args.host).is_loopback:
+
+        if not is_hostname_a_loopback(ctx.args.host):
             print(
                 _("Connecting to {}:{}. Timeout: {}s").format(
                     ctx.args.host, port, timeout
@@ -810,3 +811,14 @@ class RemoteController(ReportsStage, MainLoopStage):
                     break
             if next_job:
                 continue
+
+
+def is_hostname_a_loopback(hostname):
+    """
+    Check if hostname is a loopback address
+    """
+    try:
+        ip_address = ipaddress.ip_address(socket.gethostbyname(hostname))
+    except socket.gaierror:
+        return False
+    return ip_address.is_loopback

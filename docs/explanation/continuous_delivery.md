@@ -35,7 +35,8 @@ breaking("Bump the Major component of the version")
 are_new_things{"Are there new features?"}
 minor("Bump the Minor component of the version")
 patch("Bump the Patch component of the version")
-append_suffix("Compute and add the `-dev` suffix")
+count("Count the number of commits\nsince last tag (stable release)")
+append_suffix("Add the `-dev$COUNT` suffix")
 
 START --> last_stable
 last_stable --> are_breaking
@@ -45,9 +46,11 @@ are_breaking -->|yes| breaking
 are_new_things -->|no| patch
 are_new_things -->|yes| minor
 
-breaking --> append_suffix
-minor --> append_suffix
-patch --> append_suffix
+breaking --> count
+minor --> count
+patch --> count
+
+count --> append_suffix
 ```
 
 ## Getting to a new beta version

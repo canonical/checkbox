@@ -1,4 +1,35 @@
 #!/usr/bin/env python3
+# This file is part of Checkbox.
+#
+# Copyright 2023 Canonical Ltd.
+# Written by:
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+"""
+This module calculates the next version based on the current state of a
+repository.It analyzes the commit history since the last tag, categorizes
+commits into breaking changes, new features, bug fixes, or infrastructure
+changes, and determines the appropriate version bump. The calculated version
+can be optionally suffixed with a development suffix indicating the count of
+commits since the latest tag.
+
+Note: The commit messages are expected to follow the format:
+        "Message that ends with (Traceability) (#PR)".
+      Any deviation may result in a warning, and the script may not
+      categorize the commit correctly.
+"""
+
 import sys
 import logging
 import argparse
@@ -52,6 +83,9 @@ def get_last_stable_release(repo_path: str) -> str:
 
 
 def get_history_since(tag: str, repo_path: str) -> list[str]:
+    """
+    Returns the list of commits messages since the input tag
+    """
     period = f"{tag}..HEAD"
     # get all commit hash short descriptions in the period
     return check_output(
@@ -62,6 +96,9 @@ def get_history_since(tag: str, repo_path: str) -> list[str]:
 def get_most_severe(
     trace_one: TraceabilityEnum, trace_other: TraceabilityEnum
 ) -> TraceabilityEnum:
+    """
+    Compares two TraceabilityEnum returning the most severe
+    """
     severity = [
         TraceabilityEnum.BREAKING,
         TraceabilityEnum.NEW,
@@ -119,10 +156,16 @@ def get_needed_bump(history: list[str]) -> TraceabilityEnum:
 
 
 def add_dev_suffix(version: str, history_len: int):
+    """
+    Adds the dev suffix to a version string
+    """
     return f"{version}-dev{history_len}"
 
 
 def get_bumped_version(version: str, needed_bump: TraceabilityEnum) -> str:
+    """
+    Increases to the correct version part given the traceability
+    """
     version_no_v = version.replace("v", "")
     major, minor, patch = (int(n) for n in version_no_v.split("."))
     if needed_bump == TraceabilityEnum.BREAKING:
@@ -180,7 +223,14 @@ def get_cli_args(argv):
     return parser.parse_args(argv)
 
 
-def get_version(repo_path: str, dev_suffix: bool, log_level: str):
+def get_version(
+    dev_suffix: bool, log_level: str = "WARNING", repo_path: str = None
+) -> str:
+    """
+    Gets the next version string after calculting the current using tags.
+    When dev_suffix is true, this new version string will also include a
+    suffix that indicates the number of commits since the latest tag.
+    """
     setup_logger(log_level)
 
     last_stable_release = get_last_stable_release(repo_path)
@@ -205,7 +255,7 @@ def get_version(repo_path: str, dev_suffix: bool, log_level: str):
 
 def main(argv):
     args = get_cli_args(argv)
-    version = get_version(args.repo_path, args.dev_suffix, args.log)
+    version = get_version(args.dev_suffix, args.log, args.repo_path)
     print(version)
 
 

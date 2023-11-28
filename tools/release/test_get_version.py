@@ -99,7 +99,7 @@ class GetVersionTests(unittest.TestCase):
     def test_describe_bump(self):
         # describe supports all traceability enums
         for value in TraceabilityEnum:
-            get_version.describe_bump(value)
+            value.describe()
 
 
 @patch("logging.getLogger", new=MagicMock())

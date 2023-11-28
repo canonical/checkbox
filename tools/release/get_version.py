@@ -54,6 +54,16 @@ class TraceabilityEnum(Enum):
         # not too pedantic, the string is case insensitive
         return cls(trace.replace("(", "").replace(")", "").lower())
 
+    def describe(self) -> str:
+        description = "none"
+        if self == TraceabilityEnum.BREAKING:
+            description = "major"
+        elif self == TraceabilityEnum.NEW:
+            description = "minor"
+        elif self == TraceabilityEnum.BUGFIX:
+            description = "patch"
+        return description
+
 
 FailedCategory = namedtuple("FailedCategory", ["commit", "pr"])
 
@@ -184,16 +194,6 @@ def bump_version(version: str, needed_bump: TraceabilityEnum) -> str:
     return f"v{major}.{minor}.{patch}"
 
 
-def describe_bump(needed_bump: TraceabilityEnum) -> str:
-    if needed_bump == TraceabilityEnum.BREAKING:
-        return "major"
-    elif needed_bump == TraceabilityEnum.NEW:
-        return "minor"
-    elif needed_bump == TraceabilityEnum.BUGFIX:
-        return "patch"
-    return "none"
-
-
 def setup_logger(log_level: str):
     """
     Sets up the global logger to the provider log_level
@@ -248,7 +248,7 @@ def get_version(
     if dev_suffix:
         final_version = add_dev_suffix(bumped_version, len(history))
 
-    bump_reason = describe_bump(needed_bump)
+    bump_reason = needed_bump.describe()
     logger.info(f"Detected necessary bump: {bump_reason}")
     logger.info("Proposed new version:")
 

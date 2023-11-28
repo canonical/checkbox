@@ -178,19 +178,20 @@ def bump_version(version: str, needed_bump: TraceabilityEnum) -> str:
     """
     version_no_v = version.replace("v", "")
     major, minor, patch = (int(n) for n in version_no_v.split("."))
-    if needed_bump == TraceabilityEnum.BREAKING:
-        major += 1
-        minor = 0
-        patch = 0
-    elif needed_bump == TraceabilityEnum.NEW:
-        minor += 1
-        patch = 0
-    elif needed_bump == TraceabilityEnum.BUGFIX:
-        patch += 1
-    elif needed_bump == TraceabilityEnum.INFRA:
-        ...
-    else:
-        raise ValueError(f"Unknown traceability marker {needed_bump}")
+    match needed_bump:
+        case TraceabilityEnum.BREAKING:
+            major += 1
+            minor = 0
+            patch = 0
+        case TraceabilityEnum.NEW:
+            minor += 1
+            patch = 0
+        case TraceabilityEnum.BUGFIX:
+            patch += 1
+        case TraceabilityEnum.INFRA:
+            ...
+        case _:
+            raise ValueError(f"Unknown traceability marker {needed_bump}")
     return f"v{major}.{minor}.{patch}"
 
 

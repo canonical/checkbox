@@ -111,7 +111,7 @@ class MainTests(unittest.TestCase):
             "v1.2.3",
             "a (new) #1\nb (breaking) #2\nc (infra) #3",
         ]
-        get_version.main(["--dev-suffix", "--log", "WARNING"])
+        get_version.main(["--dev-suffix", "-v"])
         self.assertEqual(print_mock.call_count, 1)
         # last version is v1.2.3
         # we had at least 1 breaking change, we should get v2.0.0
@@ -126,7 +126,7 @@ class MainTests(unittest.TestCase):
             "v1.2.3",
             "a (new) #1\nb (new) #2\nc (infra) #3",
         ]
-        get_version.main(["--log", "WARNING"])
+        get_version.main([])
         self.assertEqual(print_mock.call_count, 1)
         # last version is v1.2.3
         # we had at least 1 new feature, we should get v1.3.0
@@ -140,7 +140,7 @@ class MainTests(unittest.TestCase):
             "v1.2.3",
             "a (bugfix) #1\nb (infra) #2\nc (infra) #3",
         ]
-        get_version.main(["--log", "WARNING"])
+        get_version.main([])
         self.assertEqual(print_mock.call_count, 1)
         # last version is v1.2.3
         # we had at least 1 bugfix, we should get v1.2.4
@@ -157,7 +157,7 @@ class MainTests(unittest.TestCase):
         # last version is v1.2.3
         # this should fail because we didn't have any release worthy commit
         with self.assertRaises(SystemExit):
-            get_version.main(["--log", "WARNING"])
+            get_version.main([])
 
         check_output_mock.side_effect = [
             "v1.2.3",
@@ -167,4 +167,4 @@ class MainTests(unittest.TestCase):
         # this should fail because we are on a tagged commit
         # (so nothing to release here)
         with self.assertRaises(SystemExit):
-            get_version.main(["--log", "WARNING"])
+            get_version.main([])

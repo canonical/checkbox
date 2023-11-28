@@ -195,20 +195,22 @@ def bump_version(version: str, needed_bump: TraceabilityEnum) -> str:
     return f"v{major}.{minor}.{patch}"
 
 
-def setup_logger(log_level: str):
+def setup_logger(verbose: bool):
     """
     Sets up the global logger to the provider log_level
     """
-    logger.setLevel(getattr(logging, log_level))
+    if verbose:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.WARNING)
 
 
 def get_cli_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--log",
-        choices=["ERROR", "WARNING", "INFO"],
-        help="set the log level (default: %(default)s)",
-        default="WARNING",
+        "-v",
+        help="increase verbosity, describing each step",
+        action="store_true",
     )
     parser.add_argument(
         "--dev-suffix",
@@ -225,17 +227,17 @@ def get_cli_args(argv):
 
 
 def get_version(
-    dev_suffix: bool, log_level: str = "WARNING", repo_path: str = None
+    dev_suffix: bool, verbose: bool = False, repo_path: str = None
 ) -> str:
     """
     Gets the next version string after calculting the current using tags.
     When dev_suffix is true, this new version string will also include a
     suffix that indicates the number of commits since the latest tag.
     """
-    setup_logger(log_level)
+    setup_logger(verbose)
 
     last_stable_release = get_last_stable_release(repo_path)
-    logger.info("Last stable release:", last_stable_release)
+    logger.info(f"Last stable release: {last_stable_release}")
     history = get_history_since(last_stable_release, repo_path)
     needed_bump = get_needed_bump(history)
     if needed_bump == TraceabilityEnum.INFRA:
@@ -256,7 +258,7 @@ def get_version(
 
 def main(argv):
     args = get_cli_args(argv)
-    version = get_version(args.dev_suffix, args.log, args.repo_path)
+    version = get_version(args.dev_suffix, args.v, args.repo_path)
     print(version)
 
 

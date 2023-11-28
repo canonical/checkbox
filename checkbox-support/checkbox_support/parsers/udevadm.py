@@ -256,7 +256,10 @@ class UdevadmDevice(object):
                      self._environment["INTERFACE"].startswith('wlan')
                      )):
                     return "WIRELESS"
-                if (self._environment["INTERFACE"].startswith('can')):
+                # generic CAN device will be named as 'can$n'
+                # LLCE CAN device will be named as 'llcecan$n'
+                if (re.search(r"^([a-z]+can|can[a-z]*)[0-9]+$",
+                              self._environment["INTERFACE"])):
                     return "SOCKETCAN"
             if "ID_MODEL" in self._environment:
                 if (self._environment["ID_MODEL"].startswith('XClarity')):

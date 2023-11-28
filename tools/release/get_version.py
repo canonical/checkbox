@@ -180,13 +180,12 @@ def get_cli_args(argv):
     return parser.parse_args(argv)
 
 
-def main(argv):
-    args = get_cli_args(argv)
-    setup_logger(args.log)
+def get_version(repo_path: str, dev_suffix: bool, log_level: str):
+    setup_logger(log_level)
 
-    last_stable_release = get_last_stable_release(args.repo_path)
+    last_stable_release = get_last_stable_release(repo_path)
     logger.info("Last stable release:", last_stable_release)
-    history = get_history_since(last_stable_release, args.repo_path)
+    history = get_history_since(last_stable_release, repo_path)
     needed_bump = get_needed_bump(history)
     if needed_bump == TraceabilityEnum.INFRA:
         raise SystemExit("Could not detect any release worthy commit!")
@@ -194,14 +193,20 @@ def main(argv):
     final_version = bumped_version = get_bumped_version(
         last_stable_release, needed_bump
     )
-    if args.dev_suffix:
+    if dev_suffix:
         final_version = add_dev_suffix(bumped_version, len(history))
 
     bump_reason = describe_bump(needed_bump)
     logger.info(f"Detected necessary bump: {bump_reason}")
     logger.info("Proposed new version:")
 
-    print(final_version)
+    return final_version
+
+
+def main(argv):
+    args = get_cli_args(argv)
+    version = get_version(args.repo_path, args.dev_suffix, args.log)
+    print(version)
 
 
 if __name__ == "__main__":

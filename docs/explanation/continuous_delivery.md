@@ -96,7 +96,7 @@ check_age{"Was there a beta version older than 2
            weeks, that's newer than the last stable release?"}
 up2date("No need for a new stable release")
 blocked("Can't do a release")
-trim("Trim the version string to X.Y.Z")
+release("Initiate the promotion to stable")
 ppa("Checkout the repo that corresponds to the checked beta
      and push it to the stable PPA for LP to build")
 snaps("Push snaps to the stable channel")
@@ -110,9 +110,9 @@ check_age -->|yes| check_bugs
 check_age -->|no| up2date
 
 check_bugs --> |yes| blocked
-check_bugs --> |no| trim
-trim --> ppa
-trim --> snaps
+check_bugs --> |no| release
+release --> ppa
+release --> snaps
 ppa --> done
 snaps --> done
 up2date --> done

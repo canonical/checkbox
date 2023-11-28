@@ -26,7 +26,7 @@ title: "'beta' means channel of distribution (snap store / PPA)"
 gitGraph LR:
 
    commit id:"1.0.0"
-   branch reusable-docker-image
+   branch reusable-docker-image order:3
    commit id:"Save"
    checkout beta
    commit id:"1.0.1"
@@ -68,7 +68,7 @@ title: "'beta' means channel of distribution (snap store / PPA)"
 gitGraph LR:
 
    commit id:"1.0.0"
-   branch reusable-docker-image
+   branch reusable-docker-image order:3
    commit id:"Save"
    checkout beta
    commit id:"1.0.1"
@@ -198,13 +198,13 @@ gitGraph LR:
    commit id:"1.0.0"
 
    branch checkbox-docker
-
+   checkout beta
    commit id:"1.0.1"
    checkout checkbox-docker
    merge beta id:"update to 1.0.1"
-   branch controller
+   branch controller order:2
    checkout beta
-   branch DUT
+   branch DUT order:1
 
    commit id:"provision"
    commit id:"agent 1.0.1 running"

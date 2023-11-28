@@ -39,7 +39,7 @@ from enum import Enum
 from collections import namedtuple
 from subprocess import check_output
 
-logger = None
+logger = logging.getLogger(__name__)
 
 
 class TraceabilityEnum(Enum):
@@ -199,8 +199,6 @@ def setup_logger(log_level: str):
     """
     Sets up the global logger to the provider log_level
     """
-    global logger
-    logger = logging.getLogger(__name__)
     logger.setLevel(getattr(logging, log_level))
 
 

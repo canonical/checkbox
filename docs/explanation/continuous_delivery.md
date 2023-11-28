@@ -66,7 +66,10 @@ build_decision{"all deliverables available\nbefore the timeout"}
 
 canary("Canary testing")
 canary_decision{"Tests passed"}
-beta_git("Move `beta` HEAD\nto the version being CD'd")
+beta_git("Progress `beta` in the version control, i.e.:
+          git checkout beta
+          git reset $COMMIT_TESTED
+          git push origin beta")
 beta_promo("Promote the snaps from edge to beta\ncopy debs from edge ppa to beta ppa")
 
 

@@ -162,7 +162,7 @@ def add_dev_suffix(version: str, history_len: int):
     return f"{version}-dev{history_len}"
 
 
-def get_bumped_version(version: str, needed_bump: TraceabilityEnum) -> str:
+def bump_version(version: str, needed_bump: TraceabilityEnum) -> str:
     """
     Increases to the correct version part given the traceability
     """
@@ -177,8 +177,10 @@ def get_bumped_version(version: str, needed_bump: TraceabilityEnum) -> str:
         patch = 0
     elif needed_bump == TraceabilityEnum.BUGFIX:
         patch += 1
-    else:
+    elif needed_bump == TraceabilityEnum.INFRA:
         ...
+    else:
+        raise ValueError(f"Unknown traceability marker {needed_bump}")
     return f"v{major}.{minor}.{patch}"
 
 
@@ -240,7 +242,7 @@ def get_version(
     if needed_bump == TraceabilityEnum.INFRA:
         raise SystemExit("Could not detect any release worthy commit!")
 
-    final_version = bumped_version = get_bumped_version(
+    final_version = bumped_version = bump_version(
         last_stable_release, needed_bump
     )
     if dev_suffix:

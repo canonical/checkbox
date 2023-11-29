@@ -88,7 +88,9 @@ try:
     algs_caps = subprocess.check_output(['tpm2_getcap', 'algorithms'])
     pcrs_caps = subprocess.check_output(['tpm2_getcap', 'pcrs'])
 except (subprocess.CalledProcessError, FileNotFoundError):
-    raise SystemExit("Please make sure you have installed tpm-tools or tpm chip")
+    raise SystemExit("""
+                     Please make sure you have installed tpm-tools and tpm chip
+                     """)
 
 
 algs_list = yaml.load(algs_caps, Loader=yaml.FullLoader)

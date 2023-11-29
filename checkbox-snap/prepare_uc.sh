@@ -44,13 +44,13 @@ rsync -r --links common_series_uc/ $series/
 echo "Dumping version in version file for $series..."
 if which python3 1>/dev/null && which git 1>/dev/null; then
 	# get_version.py produces a version number from the traceability
-  # markers in the history of the repository in the form
-  # vX.Y.Z-devXX, where XX is the number of commits since the latest tag
+	# markers in the history of the repository in the form
+	# vX.Y.Z-devXX, where XX is the number of commits since the latest tag
 	(cd .. && python3 tools/release/get_version.py -v --dev-suffix) 1>$series/version.txt
 else
 	echo "Error: python3 and git binaries are required."
 	echo "Please install them and try again."
-  echo "If they are not installed run: "
-  echo "  apt install python3 git"
+	echo "If they are not installed run: "
+	echo "  apt install python3 git"
 	exit 1
 fi

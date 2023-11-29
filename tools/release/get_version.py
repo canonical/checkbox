@@ -36,7 +36,6 @@ import argparse
 import textwrap
 
 from enum import Enum
-from typing import Self
 from collections import namedtuple
 from subprocess import check_output
 
@@ -65,7 +64,7 @@ class TraceabilityEnum(Enum):
             description = "patch"
         return description
 
-    def __lt__(self, trace_other: Self) -> bool:
+    def __lt__(self, trace_other: 'Self') -> bool:
         severity = [
             TraceabilityEnum.INFRA,
             TraceabilityEnum.BUGFIX,

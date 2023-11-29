@@ -29,30 +29,9 @@ class GetVersionTests(unittest.TestCase):
         self.assertIn("vX.Y.Z", shlex.join(args[0]))
 
     def test_get_most_severe(self):
-        self.assertEqual(
-            TraceabilityEnum.BREAKING,
-            get_version.get_most_severe(
-                TraceabilityEnum.BREAKING, TraceabilityEnum.NEW
-            ),
-        )
-        self.assertEqual(
-            TraceabilityEnum.NEW,
-            get_version.get_most_severe(
-                TraceabilityEnum.BUGFIX, TraceabilityEnum.NEW
-            ),
-        )
-        self.assertEqual(
-            TraceabilityEnum.BUGFIX,
-            get_version.get_most_severe(
-                TraceabilityEnum.BUGFIX, TraceabilityEnum.INFRA
-            ),
-        )
-        self.assertEqual(
-            TraceabilityEnum.INFRA,
-            get_version.get_most_severe(
-                TraceabilityEnum.INFRA, TraceabilityEnum.INFRA
-            ),
-        )
+        self.assertTrue(TraceabilityEnum.BREAKING > TraceabilityEnum.NEW)
+        self.assertTrue(TraceabilityEnum.BUGFIX < TraceabilityEnum.NEW)
+        self.assertTrue(TraceabilityEnum.BUGFIX > TraceabilityEnum.INFRA)
 
     def test_get_needed_bump_breaking(self):
         history = ["a (new) #3", "b (bugfix) #2", "c (Breaking) #1"]

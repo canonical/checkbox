@@ -36,6 +36,7 @@ import argparse
 import textwrap
 
 from enum import Enum
+from typing import Self
 from collections import namedtuple
 from subprocess import check_output
 
@@ -63,6 +64,17 @@ class TraceabilityEnum(Enum):
         elif self == TraceabilityEnum.BUGFIX:
             description = "patch"
         return description
+
+    def __lt__(self, trace_other: Self) -> bool:
+        severity = [
+            TraceabilityEnum.INFRA,
+            TraceabilityEnum.BUGFIX,
+            TraceabilityEnum.NEW,
+            TraceabilityEnum.BREAKING,
+        ]
+        trace_one_severity = severity.index(self)
+        trace_other_severity = severity.index(trace_other)
+        return trace_one_severity < trace_other_severity
 
 
 FailedCategory = namedtuple("FailedCategory", ["commit", "pr"])
@@ -103,23 +115,6 @@ def get_history_since(tag: str, repo_path: str) -> list[str]:
     ).splitlines()
 
 
-def get_most_severe(
-    trace_one: TraceabilityEnum, trace_other: TraceabilityEnum
-) -> TraceabilityEnum:
-    """
-    Compares two TraceabilityEnum returning the most severe
-    """
-    severity = [
-        TraceabilityEnum.BREAKING,
-        TraceabilityEnum.NEW,
-        TraceabilityEnum.BUGFIX,
-        TraceabilityEnum.INFRA,
-    ]
-    trace_one_severity = severity.index(trace_one)
-    trace_other_severity = severity.index(trace_other)
-    return severity[min(trace_one_severity, trace_other_severity)]
-
-
 def get_needed_bump(history: list[str]) -> TraceabilityEnum:
     """
     Get what version number should be bumped using traceability postfixes
@@ -148,7 +143,7 @@ def get_needed_bump(history: list[str]) -> TraceabilityEnum:
                 FailedCategory(commit=commit_message, pr=pr)
             )
             continue
-        needed_bump = get_most_severe(needed_bump, current_trace)
+        needed_bump = max(needed_bump, current_trace)
 
     # report commits that were not automatically categorized
     if failed_category:

@@ -24,7 +24,7 @@ import subprocess
 
 from functools import partial
 from contextlib import suppress
-from setuptools_scm import get_version
+from get_version import get_version
 
 CONFIG_PPA_DEV_TOOLS = """{{
     'wait_max_age_hours' : 10,
@@ -97,10 +97,11 @@ def main():
     to_check = []
     # Find projects new commits from the last 24 hours
     for name, path in sorted(projects.items(), key=lambda i: i[1]):
+        version = get_version(dev_suffix=True, verbose=True)
         output = (
             run(
                 "./tools/release/lp-recipe-update-build.py checkbox "
-                "--recipe {} -n {}".format(name + "-edge", get_version()),
+                "--recipe {} -n {}".format(name + "-edge", version),
                 shell=True,
                 check=True,
             )

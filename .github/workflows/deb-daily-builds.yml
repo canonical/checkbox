@@ -27,4 +27,4 @@ jobs:
           attempt_delay: 600000 # 10min
           attempt_limit: 3
           command: |
-            tools/daily-builds/deb_daily_builds.py
+            tools/release/deb_daily_builds.py

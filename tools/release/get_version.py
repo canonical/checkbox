@@ -189,7 +189,7 @@ def bump_version(version: str, needed_bump: TraceabilityEnum) -> str:
         case TraceabilityEnum.BUGFIX:
             patch += 1
         case TraceabilityEnum.INFRA:
-            ...
+            pass
         case _:
             raise ValueError(f"Unknown traceability marker {needed_bump}")
     return f"v{major}.{minor}.{patch}"
@@ -200,7 +200,7 @@ def setup_logger(verbose: bool):
     Sets up the global logger to the provider log_level
     """
     if verbose:
-        logger.setLevel(logging.DEBUG)
+        logger.setLevel(logging.INFO)
     else:
         logger.setLevel(logging.WARNING)
 

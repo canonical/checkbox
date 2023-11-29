@@ -23,7 +23,7 @@ recipe.
 Meant to be used as part of a checkbox release to the Hardware Certification
 public PPA and the ~checkbox-dev testing PPA.
 
-NOTE: The Hardware Certification public PPA has no further use over the 
+NOTE: The Hardware Certification public PPA has no further use over the
 ~checkbox-dev testing PPA. It is kept for historical reasons and should be
 removed at some point.
 """
@@ -87,8 +87,8 @@ def main():
             )
 
         # pre-release versions (for us, not tagged daily versions) on LP are denoted
-        # with ~dev[...] not .dev[...] as setuptools_scm marks them
-        new_version = args.new_version.replace(".dev", "~dev")
+        # with ~dev[...] not -dev[...] as setuptools_scm marks them
+        new_version = args.new_version.replace("-dev", "~dev")
 
         text = build_recipe.recipe_text
         # 0.28.0rc1 → 0.28.0~rc1

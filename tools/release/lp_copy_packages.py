@@ -4,6 +4,7 @@
 # Copyright 2023 Canonical Ltd.
 # Written by:
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -16,47 +17,58 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
-import datetime
 import os
+import sys
+import datetime
+import argparse
 
 from launchpadlib.credentials import Credentials
 from launchpadlib.launchpad import Launchpad
 
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("source_owner", help="Name of source the ppa owner")
+    parser.add_argument("source_ppa", help="Source ppa to copy from")
+    parser.add_argument("dest_owner", help="Name of destination the ppa owner")
+    parser.add_argument("dest_ppa", help="Destination ppa to copy to")
 
-def main():
-    # Authenticate with Launchpad
-    credentials = Credentials.from_string(os.getenv("LP_CREDENTIALS"))
-    lp = Launchpad(
+    return parser.parse_args(argv)
+
+
+def get_launchpad_client() -> Launchpad:
+    # return Launchpad(None, None, None, service_root="production", version="devel")
+    credentials = os.getenv("LP_CREDENTIALS")
+    if not credentials:
+        raise SystemExit("LP_CREDENTIALS environment variable missing")
+
+    credentials = Credentials.from_string(credentials)
+    return Launchpad(
         credentials, None, None, service_root="production", version="devel"
     )
 
-    # Define the source and destination PPAs
-    source_ppa_name = "beta"
-    source_owner_name = "checkbox-dev"
-    dest_ppa_name = "stable"
-    dest_owner_name = "checkbox-dev"
 
-    # Load the source and destination PPA owners
-    source_owner = lp.people[source_owner_name]
-    dest_owner = lp.people[dest_owner_name]
+def get_ppa(lp, ppa_name: str, ppa_owner: str):
+    ppa_owner = lp.people[ppa_owner]
+    return ppa_owner.getPPAByName(name=ppa_name)
 
-    # Get the source and destination PPAs
-    source_ppa = source_owner.getPPAByName(name=source_ppa_name)
-    dest_ppa = dest_owner.getPPAByName(name=dest_ppa_name)
 
-    # Define the time period for package publication
-    one_week_ago = datetime.datetime.utcnow().replace(
-        tzinfo=datetime.timezone.utc
-    ) - datetime.timedelta(weeks=4)
+def get_checkbox_packages(ppa):
+    time_ago = datetime.datetime.now() - datetime.timedelta(weeks=4)
+    # The time ago is needed because else LP api will choke trying to
+    # return the full history including any published source in the ppa
+    return ppa.getPublishedSource(
+        created_since_date=time_ago, source_name="checkbox"
+    )
 
-    # Get the packages in the source PPA that were published within the last week
-    # and start with "checkbox"
-    packages = [
-        p
-        for p in source_ppa.getPublishedSources(created_since_date=one_week_ago)
-        if p.source_package_name.startswith("checkbox")
-    ]
+
+def copy_packages(source_ppa, source_owner, dest_ppa, dest_owner):
+    ...
+    lp = get_launchpad_client()
+
+    source_ppa = get_ppa(lp, source_ppa, source_owner)
+    dest_ppa = get_ppa(lp, dest_ppa, dest_owner)
+
+    packages = get_checkbox_packages(source_ppa)
 
     # Copy each package from the source PPA to the destination PPA,
     # without rebuilding them
@@ -71,8 +83,20 @@ def main():
         print(
             f"Copied {package.source_package_name} "
             f"version {package.source_package_version} "
-            f"from {source_ppa_name} to {dest_ppa_name} (without rebuilding)"
+            f"from {source_ppa} to {dest_ppa} "
+            "(without rebuilding)"
         )
 
+
+def main(argv):
+    parsed = parse_args(argv)
+    copy_packages(
+        parsed.source_ppa,
+        parsed.source_owner,
+        parsed.dest_ppa,
+        parsed.dest_owner,
+    )
+
+
 if __name__ == "__main__":
-    main()
+    main(sys.argv[1:])

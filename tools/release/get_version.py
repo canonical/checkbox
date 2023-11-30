@@ -239,6 +239,8 @@ def get_cli_args(argv):
         choices=list(OutputFormats),
         type=OutputFormats,
         default=OutputFormats.TAG,
+        help="formats the output into a valid version string for the given "
+        "choice. (default: %(default)s)"
     )
     parser.add_argument(
         "repo_path", nargs="?", help="location of the repo (default: cwd)"

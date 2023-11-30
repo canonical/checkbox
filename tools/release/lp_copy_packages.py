@@ -68,7 +68,7 @@ def get_checkbox_packages(ppa):
     )
 
 
-def copy_checkbox_packages(source_ppa, source_owner, dest_ppa, dest_owner):
+def copy_checkbox_packages(source_owner, source_ppa, dest_owner, dest_ppa):
     """
     Copy Checkbox packages from a source PPA to a destination PPA without
     rebuilding.
@@ -101,10 +101,10 @@ def copy_checkbox_packages(source_ppa, source_owner, dest_ppa, dest_owner):
 def main(argv):
     parsed = parse_args(argv)
     copy_checkbox_packages(
-        parsed.source_ppa,
         parsed.source_owner,
-        parsed.dest_ppa,
+        parsed.source_ppa,
         parsed.dest_owner,
+        parsed.dest_ppa,
     )
 
 

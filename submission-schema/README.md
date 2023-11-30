@@ -47,24 +47,6 @@ done
 
 ```
 
-### Running genson
-
-[GenSON](https://github.com/wolverdude/GenSON) is a Python package that can generate the schema out of existing json files.
-
-It's best used from virtual environment.
-
-```bash
-python3 -m virtualenv venv
-. venv/bin/activate
-pip3 install genson
-```
-
-With genson installed you can now run the `build_schema.py` program.
-
-```bash
-./build_schema.py ../jsons -o ./schema.json
-```
-
 ### Generating Python loader out of the schema
 
 As an alternative to `genson`, `quicktype` can be used to generate the schema, as well as Python types using classes.

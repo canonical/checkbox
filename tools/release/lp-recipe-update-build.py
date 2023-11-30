@@ -86,9 +86,7 @@ def main():
                 )
             )
 
-        # pre-release versions (for us, not tagged daily versions) on LP are denoted
-        # with ~dev[...] not -dev[...] as setuptools_scm marks them
-        new_version = args.new_version.replace("-dev", "~dev")
+        new_version = args.new_version
 
         text = build_recipe.recipe_text
         # 0.28.0rc1 → 0.28.0~rc1

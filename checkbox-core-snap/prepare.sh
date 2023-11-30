@@ -52,7 +52,7 @@ if which python3 1>/dev/null && which git 1>/dev/null; then
 	# get_version.py produces a version number from the traceability
 	# markers in the history of the repository in the form
 	# vX.Y.Z-devXX, where XX is the number of commits since the latest tag
-	(cd .. && python3 tools/release/get_version.py -v --dev-suffix) 1>$series/version.txt
+	(cd .. && python3 tools/release/get_version.py -v --dev-suffix --output-format snap) 1>$series/version.txt
 else
 	echo "Error: python3 and git binaries are required."
 	echo "Please install them and try again."

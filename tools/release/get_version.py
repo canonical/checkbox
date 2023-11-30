@@ -42,6 +42,15 @@ from subprocess import check_output
 logger = logging.getLogger(__name__)
 
 
+class OutputFormats(Enum):
+    DEB = "deb"  # M.m.p~devXX
+    TAG = "tag"  # vM.m.p-devXX
+    SNAP = "snap"  # M.m.p-devXX
+
+    def __str__(self):
+        return self.value
+
+
 class TraceabilityEnum(Enum):
     BREAKING = "breaking"
     NEW = "new"
@@ -64,7 +73,7 @@ class TraceabilityEnum(Enum):
             description = "patch"
         return description
 
-    def __lt__(self, trace_other: 'Self') -> bool:
+    def __lt__(self, trace_other: "Self") -> bool:
         severity = [
             TraceabilityEnum.INFRA,
             TraceabilityEnum.BUGFIX,
@@ -159,14 +168,21 @@ def get_needed_bump(history: list[str]) -> TraceabilityEnum:
     return needed_bump
 
 
-def add_dev_suffix(version: str, history_len: int):
+def add_dev_suffix(
+    version: str, history_len: int, output_format: OutputFormats
+):
     """
     Adds the dev suffix to a version string
     """
-    return f"{version}-dev{history_len}"
+    dev_prefix = "-"
+    if output_format == OutputFormats.DEB:
+        dev_prefix = "~"
+    return f"{version}{dev_prefix}dev{history_len}"
 
 
-def bump_version(version: str, needed_bump: TraceabilityEnum) -> str:
+def bump_version(
+    version: str, needed_bump: TraceabilityEnum, output_format: OutputFormats
+) -> str:
     """
     Increases to the correct version part given the traceability
     """
@@ -186,7 +202,11 @@ def bump_version(version: str, needed_bump: TraceabilityEnum) -> str:
             pass
         case _:
             raise ValueError(f"Unknown traceability marker {needed_bump}")
-    return f"v{major}.{minor}.{patch}"
+
+    prefix = ""
+    if output_format == OutputFormats.TAG:
+        prefix = "v"
+    return f"{prefix}{major}.{minor}.{patch}"
 
 
 def setup_logger(verbose: bool):
@@ -215,13 +235,24 @@ def get_cli_args(argv):
         ),
     )
     parser.add_argument(
+        "--output-format",
+        choices=list(OutputFormats),
+        type=OutputFormats,
+        default=OutputFormats.TAG,
+        help="formats the output into a valid version string for the given "
+        "choice. (default: %(default)s)"
+    )
+    parser.add_argument(
         "repo_path", nargs="?", help="location of the repo (default: cwd)"
     )
     return parser.parse_args(argv)
 
 
 def get_version(
-    dev_suffix: bool, verbose: bool = False, repo_path: str = None
+    dev_suffix: bool,
+    output_format: OutputFormats,
+    verbose: bool = False,
+    repo_path: str = None,
 ) -> str:
     """
     Gets the next version string after calculting the current using tags.
@@ -238,10 +269,12 @@ def get_version(
         raise SystemExit("Could not detect any release worthy commit!")
 
     final_version = bumped_version = bump_version(
-        last_stable_release, needed_bump
+        last_stable_release, needed_bump, output_format
     )
     if dev_suffix:
-        final_version = add_dev_suffix(bumped_version, len(history))
+        final_version = add_dev_suffix(
+            bumped_version, len(history), output_format
+        )
 
     bump_reason = needed_bump.describe()
     logger.info(f"Detected necessary bump: {bump_reason}")
@@ -252,7 +285,9 @@ def get_version(
 
 def main(argv):
     args = get_cli_args(argv)
-    version = get_version(args.dev_suffix, args.v, args.repo_path)
+    version = get_version(
+        args.dev_suffix, args.output_format, args.v, args.repo_path
+    )
     print(version)
 
 

@@ -64,16 +64,24 @@ for line in output:
         modeline = line.split()
         try:
             mode, resolution, rate = modeline[:3]
+            #ignore preferred for rate
+            rate = rate.replace('+', '')
             width, height = [int(x) for x in resolution.split('x')]
             aspect = Fraction(width, height)
             if width < 675 or width / aspect < 530:
                 continue
+            if "*" in rate:
+                current_modes.append((monitor, resolution, mode, rate))
             if resolution in monitors[monitor]:
-                existing_rate = monitors[monitor][resolution][4]
-                if rate < existing_rate:
+                rate=rate.replace('*', '')
+                existing_rate = monitors[monitor][resolution][3]
+                if float(rate) < float(existing_rate):
                     continue
             monitors[monitor][resolution] = (width, aspect, mode, rate)
         except IndexError:
+            continue
+        except ValueError as e:
+            print(f"Invalid refresh rate format: {e}")
             continue
 
 for monitor in monitors.keys():
@@ -81,16 +89,10 @@ for monitor in monitors.keys():
     # (width, because it's easier to compare simple ints when looking for the
     # highest value).
     top_res_per_aspect = OrderedDict()
-    connected = False
     for resolution in monitors[monitor]:
         width, aspect, mode, rate = monitors[monitor][resolution]
         cur_max = top_res_per_aspect.get(aspect, 0)
         top_res_per_aspect[aspect] = max(cur_max, width)
-        if '*' in rate:
-            connected = True
-            current_modes.append((monitor, resolution, mode, rate))
-    if not connected:
-        continue
     for aspect_ratio, max_width in reversed(top_res_per_aspect.items()):
         for resolution in monitors[monitor]:
             width, aspect, mode, rate = monitors[monitor][resolution]

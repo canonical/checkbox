@@ -60,11 +60,11 @@ def get_ppa(lp, ppa_name: str, ppa_owner: str):
 
 
 def get_checkbox_packages(ppa):
-    time_ago = datetime.datetime.now() - datetime.timedelta(weeks=4)
+    since_date = datetime.datetime.now() - datetime.timedelta(weeks=4)
     # The time ago is needed because else LP api will choke trying to
     # return the full history including any published source in the ppa
     return ppa.getPublishedSource(
-        created_since_date=time_ago, source_name="checkbox"
+        created_since_date=since_date, source_name="checkbox"
     )
 
 
@@ -99,12 +99,12 @@ def copy_checkbox_packages(source_owner, source_ppa, dest_owner, dest_ppa):
 
 
 def main(argv):
-    parsed = parse_args(argv)
+    args = parse_args(argv)
     copy_checkbox_packages(
-        parsed.source_owner,
-        parsed.source_ppa,
-        parsed.dest_owner,
-        parsed.dest_ppa,
+        args.source_owner,
+        args.source_ppa,
+        args.dest_owner,
+        args.dest_ppa,
     )
 
 

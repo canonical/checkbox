@@ -17,6 +17,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+"""
+This script facilitates the copying of packages from one Launchpad
+Personal Package Archive (PPA) to another. It is designed for copying
+every Checkbox package from a source PPA to a destination PPA
+without the need for rebuilding.
+
+Note: This script uses the LP_CREDENTIALS environment variable
+"""
 import os
 import sys
 import datetime
@@ -36,7 +44,6 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 def get_launchpad_client() -> Launchpad:
-    # return Launchpad(None, None, None, service_root="production", version="devel")
     credentials = os.getenv("LP_CREDENTIALS")
     if not credentials:
         raise SystemExit("LP_CREDENTIALS environment variable missing")

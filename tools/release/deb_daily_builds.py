@@ -98,7 +98,7 @@ def main():
     # Find projects new commits from the last 24 hours
     for name, path in sorted(projects.items(), key=lambda i: i[1]):
         version = get_version(
-            dev_suffix=True, output_format=OutputFormats.SNAP, verbose=True
+            dev_suffix=True, output_format=OutputFormats.DEB, verbose=True
         )
         output = (
             run(

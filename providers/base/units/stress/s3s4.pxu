@@ -156,10 +156,9 @@ category_id: stress-tests/suspend
 summary:
   This resource generates suspend_reboot iteration numbers for suspend_cycles_1_reboot{2..k} jobs
 plugin: resource
-environ: STRESS_S3_ITERATIONS STRESS_SUSPEND_REBOOT_ITERATIONS
+environ: STRESS_SUSPEND_REBOOT_ITERATIONS
 command:
- REBOOT_ITERATIONS=${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}
- for i in $(seq 2 "$REBOOT_ITERATIONS"); do
+ for i in $(seq 2 "${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}"); do
      echo "suspend_reboot_id: $i"
      echo "suspend_reboot_previous: $((i-1))"
      echo
@@ -173,10 +172,8 @@ summary:
 plugin: resource
 environ: STRESS_S3_ITERATIONS STRESS_SUSPEND_REBOOT_ITERATIONS
 command:
- REBOOT_ITERATIONS=${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}
- SUSPEND_ITERATIONS=${STRESS_S3_ITERATIONS:-30}
- for i in $(seq 1 "$REBOOT_ITERATIONS"); do
-   for j in $(seq 2 "$SUSPEND_ITERATIONS"); do
+ for i in $(seq 1 "${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}"); do
+   for j in $(seq 2 "${STRESS_S3_ITERATIONS:-30}"); do
      echo "suspend_id: $j"
      echo "suspend_id_previous: $((j-1))"
      echo "suspend_reboot_id: $i"
@@ -192,10 +189,8 @@ summary:
 plugin: resource
 environ: STRESS_S3_ITERATIONS STRESS_SUSPEND_REBOOT_ITERATIONS
 command:
- REBOOT_ITERATIONS=${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}
- SUSPEND_ITERATIONS=${STRESS_S3_ITERATIONS:-30}
- for i in $(seq 1 "$REBOOT_ITERATIONS"); do
-   echo "s3_iterations: ${SUSPEND_ITERATIONS}"
+ for i in $(seq 1 "${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}"); do
+   echo "s3_iterations: ${STRESS_S3_ITERATIONS:-30}"
    echo "suspend_reboot_id: $i"
    echo
  done
@@ -208,14 +203,10 @@ summary:
 plugin: resource
 environ: STRESS_S3_ITERATIONS STRESS_SUSPEND_REBOOT_ITERATIONS STRESS_SUSPEND_SLEEP_THRESHOLD STRESS_SUSPEND_RESUME_THRESHOLD
 command:
- REBOOT_ITERATIONS=${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}
- SUSPEND_ITERATIONS=${STRESS_S3_ITERATIONS:-30}
- SLEEP_THRESHOLD=${STRESS_SUSPEND_SLEEP_THRESHOLD:-10}
- RESUME_THRESHOLD=${STRESS_SUSPEND_RESUME_THRESHOLD:-5}
- echo "reboot_iterations: ${REBOOT_ITERATIONS}"
- echo "s3_iterations: ${SUSPEND_ITERATIONS}"
- echo "resume_threshold: ${RESUME_THRESHOLD}"
- echo "sleep_threshold: ${SLEEP_THRESHOLD}"
+ echo "reboot_iterations: ${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}"
+ echo "s3_iterations: ${STRESS_S3_ITERATIONS:-30}"
+ echo "resume_threshold: ${STRESS_SUSPEND_SLEEP_THRESHOLD:-10}"
+ echo "sleep_threshold: ${STRESS_SUSPEND_RESUME_THRESHOLD:-5}"
  echo
 estimated_duration: 1s
 

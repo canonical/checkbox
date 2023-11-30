@@ -71,9 +71,17 @@ class GetVersionTests(unittest.TestCase):
         self.assertEqual(get_version.logger.warning.call_count, 3)
         self.assertEqual(needed_bump, TraceabilityEnum.INFRA)
 
-    def test_add_dev_suffix(self):
-        postfixed_version = get_version.add_dev_suffix("vX.Y.Z", 24)
-        self.assertEqual(postfixed_version, "vX.Y.Z-dev24")
+    def test_add_dev_suffix_snap(self):
+        postfixed_version = get_version.add_dev_suffix(
+            "X.Y.Z", 24, get_version.OutputFormats.SNAP
+        )
+        self.assertEqual(postfixed_version, "X.Y.Z-dev24")
+
+    def test_add_dev_suffix_deb(self):
+        postfixed_version = get_version.add_dev_suffix(
+            "X.Y.Z", 24, get_version.OutputFormats.DEB
+        )
+        self.assertEqual(postfixed_version, "X.Y.Z~dev24")
 
     def test_describe_bump(self):
         # describe supports all traceability enums
@@ -125,6 +133,34 @@ class MainTests(unittest.TestCase):
         # we had at least 1 bugfix, we should get v1.2.4
         # we didnt ask the dev suffix, so it shouldnt be there
         self.assertEqual(print_mock.call_args, call("v1.2.4"))
+
+    @patch("get_version.check_output")
+    @patch("get_version.print")
+    def test_get_version_deb(self, print_mock, check_output_mock):
+        check_output_mock.side_effect = [
+            "v1.2.3",
+            "a (bugfix) #1\nb (infra) #2\nc (infra) #3",
+        ]
+        get_version.main(["--dev-suffix", "--output-format", "deb"])
+        self.assertEqual(print_mock.call_count, 1)
+        # last version is v1.2.3
+        # we had at least 1 bugfix, we should get v1.2.4
+        # deb version should not start with v and should have a ~ before dev
+        self.assertEqual(print_mock.call_args, call("1.2.4~dev3"))
+
+    @patch("get_version.check_output")
+    @patch("get_version.print")
+    def test_get_version_snap(self, print_mock, check_output_mock):
+        check_output_mock.side_effect = [
+            "v1.2.3",
+            "a (bugfix) #1\nb (infra) #2\nc (infra) #3",
+        ]
+        get_version.main(["--dev-suffix", "--output-format", "snap"])
+        self.assertEqual(print_mock.call_count, 1)
+        # last version is v1.2.3
+        # we had at least 1 bugfix, we should get v1.2.4
+        # snap version should not start with v and should have a - before dev
+        self.assertEqual(print_mock.call_args, call("1.2.4-dev3"))
 
     @patch("get_version.check_output")
     @patch("get_version.print")

@@ -1,0 +1,179 @@
+id: stress_s3_cycles_iterations_1
+category_id: stress-tests/suspend
+summary:
+  This resource generates suspend_reboot iteration numbers for suspend_cycles_1_reboot{2..k} jobs
+plugin: resource
+environ: STRESS_SUSPEND_REBOOT_ITERATIONS
+command:
+ for i in $(seq 2 "${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}"); do
+     echo "suspend_reboot_id: $i"
+     echo "suspend_reboot_previous: $((i-1))"
+     echo
+ done
+estimated_duration: 1s
+
+id: stress_s3_cycles_iterations_multiple
+category_id: stress-tests/suspend
+summary:
+  This resource generates suspend_reboot iteration numbers for suspend_cycles_{2..n}_reboot{1..k} jobs
+plugin: resource
+environ: STRESS_S3_ITERATIONS STRESS_SUSPEND_REBOOT_ITERATIONS
+command:
+ for i in $(seq 1 "${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}"); do
+   for j in $(seq 2 "${STRESS_S3_ITERATIONS:-30}"); do
+     echo "suspend_id: $j"
+     echo "suspend_id_previous: $((j-1))"
+     echo "suspend_reboot_id: $i"
+     echo
+   done
+ done
+estimated_duration: 1s
+
+id: stress_suspend_reboot_cycles_iterations
+category_id: stress-tests/suspend
+summary:
+  This resource generates suspend_reboot iteration numbers for suspend_cycles_reboot{1..k} jobs
+plugin: resource
+environ: STRESS_S3_ITERATIONS STRESS_SUSPEND_REBOOT_ITERATIONS
+command:
+ for i in $(seq 1 "${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}"); do
+   echo "s3_iterations: ${STRESS_S3_ITERATIONS:-30}"
+   echo "suspend_reboot_id: $i"
+   echo
+ done
+estimated_duration: 1s
+
+id: stress_suspend_reboot_iterations
+category_id: stress-tests/suspend
+summary:
+  This resource generates suspend_reboot iteration numbers for suspend-{n}-cycles-with-reboot-{k}-{log/time}-check jobs
+plugin: resource
+environ: STRESS_S3_ITERATIONS STRESS_SUSPEND_REBOOT_ITERATIONS STRESS_SUSPEND_SLEEP_THRESHOLD STRESS_SUSPEND_RESUME_THRESHOLD
+command:
+ echo "reboot_iterations: ${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}"
+ echo "s3_iterations: ${STRESS_S3_ITERATIONS:-30}"
+ echo "resume_threshold: ${STRESS_SUSPEND_SLEEP_THRESHOLD:-10}"
+ echo "sleep_threshold: ${STRESS_SUSPEND_RESUME_THRESHOLD:-5}"
+ echo
+estimated_duration: 1s
+
+unit: job
+plugin: shell
+category_id: stress-tests/suspend
+id: stress-tests/suspend_cycles_1_reboot1
+imports:
+  from com.canonical.certification import sleep
+  from com.canonical.certification import rtc
+requires:
+  sleep.mem == 'supported'
+  rtc.state == 'supported'
+estimated_duration: 75.0
+environ: PLAINBOX_SESSION_SHARE STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH
+user: root
+command:
+   suspend.sh 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
+summary:
+    Suspend and resume device (suspend cycle 1, reboot cycle 1)
+
+unit: template
+template-resource: stress_s3_cycles_iterations_1
+template-unit: job
+template-engine: jinja2
+plugin: shell
+category_id: stress-tests/suspend
+id: stress-tests/suspend_cycles_1_reboot{{suspend_reboot_id}}
+imports:
+  from com.canonical.certification import sleep
+  from com.canonical.certification import rtc
+requires:
+  sleep.mem == 'supported'
+  rtc.state == 'supported'
+estimated_duration: 75.0
+environ: PLAINBOX_SESSION_SHARE STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH
+after: stress-tests/suspend_cycles_reboot{{suspend_reboot_previous}}
+user: root
+command:
+ suspend.sh 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
+summary:
+    Suspend and resume device (suspend cycle 1, reboot cycle {{suspend_reboot_id}})
+
+unit: template
+template-resource: stress_s3_cycles_iterations_multiple
+template-unit: job
+template-engine: jinja2
+plugin: shell
+category_id: stress-tests/suspend
+id: stress-tests/suspend_cycles_{{suspend_id}}_reboot{{suspend_reboot_id}}
+imports:
+  from com.canonical.certification import sleep
+  from com.canonical.certification import rtc
+requires:
+  sleep.mem == 'supported'
+  rtc.state == 'supported'
+estimated_duration: 75.0
+environ: PLAINBOX_SESSION_SHARE STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH
+after: stress-tests/suspend_cycles_{{suspend_id_previous}}_reboot{{suspend_reboot_id}}
+user: root
+command:
+ suspend.sh 2>&1 | tee -a "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
+summary:
+    Suspend and resume device (suspend cycle {{suspend_id}}, reboot cycle {{suspend_reboot_id}})
+
+unit: template
+template-resource: stress_suspend_reboot_cycles_iterations
+template-unit: job
+template-engine: jinja2
+plugin: shell
+category_id: stress-tests/suspend
+id: stress-tests/suspend_cycles_reboot{{suspend_reboot_id}}
+imports:
+  from com.canonical.certification import sleep
+  from com.canonical.certification import rtc
+requires:
+  sleep.mem == 'supported'
+  rtc.state == 'supported'
+estimated_duration: 30.0
+user: root
+command:
+ reboot
+flags: noreturn autorestart
+after: stress-tests/suspend_cycles_{{s3_iterations}}_reboot{{suspend_reboot_id}}
+summary:
+   Reboot device (reboot cycle {{suspend_reboot_id}}).
+
+unit: template
+template-resource: stress_suspend_reboot_iterations
+template-unit: job
+plugin: shell
+category_id: stress-tests/suspend
+id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-log-check
+requires: cpuinfo.platform in ("i386", "x86_64")
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
+after: stress-tests/suspend_cycles_reboot{reboot_iterations}
+summary:
+ Automated check of the {s3_iterations} cycles Suspend/Resume with reboot {reboot_iterations} suspend log for errors detected by fwts.
+
+unit: template
+template-resource: stress_suspend_reboot_iterations
+template-unit: job
+plugin: shell
+category_id: stress-tests/suspend
+id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-time-check
+requires: cpuinfo.platform in ("i386", "x86_64")
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log --s {sleep_threshold} --r {resume_threshold}
+after: stress-tests/suspend_cycles_reboot{reboot_iterations}
+summary:
+ Automated check of the {s3_iterations} cycles Suspend/Resume with reboot {reboot_iterations} suspend log for time.
+
+unit: template
+template-resource: stress_suspend_reboot_iterations
+template-unit: job
+plugin: attachment
+category_id: stress-tests/suspend
+id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-log-attach
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
+summary:
+ Attach the suspend {s3_iterations} cycles with reboot {reboot_iterations} total log.

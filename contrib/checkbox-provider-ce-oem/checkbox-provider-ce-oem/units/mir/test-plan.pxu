@@ -1,0 +1,42 @@
+id: ce-oem-mir-full
+unit: test plan
+_name: Mir tests
+_description: Full graphics tests on Mir
+include:
+nested_part:
+    ce-oem-mir-manual
+    ce-oem-mir-automated
+    after-suspend-ce-oem-mir-manual
+    after-suspend-ce-oem-mir-automated
+
+id: ce-oem-mir-manual
+unit: test plan
+_name: Mir manual tests
+_description: Manual graphics tests on Mir
+include:
+
+id: ce-oem-mir-automated
+unit: test plan
+_name: Mir auto tests
+_description: Automated graphics tests on Mir
+bootstrap_include:
+    com.canonical.certification::snap
+include:
+    mir/check-ubuntu-frame-launching-auto
+    mir/glmark2-es2-wayland-auto
+
+id: after-suspend-ce-oem-mir-manual
+unit: test plan
+_name: After suspend Mir manual tests
+_description: Manual after-suspend graphics tests on Mir
+include:
+
+id: after-suspend-ce-oem-mir-automated
+unit: test plan
+_name: After suspend Mir auto tests
+_description: Automated after-suspend graphics tests on Mir
+bootstrap_include:
+    com.canonical.certification::snap
+include:
+    after-suspend-mir/check-ubuntu-frame-launching-auto
+    after-suspend-mir/glmark2-es2-wayland-auto

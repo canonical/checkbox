@@ -45,7 +45,7 @@ jobs:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           CHECKBOX_REPO: ${{ github.repository }}
         run: |
-          tools/release/lp_copy_packages.py
+          tools/release/lp_copy_packages.py checkbox-dev beta checkbox-dev stable
 
   checkbox_core_snap:
     name: Checkbox core snap packages

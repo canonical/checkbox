@@ -897,34 +897,6 @@
             ],
             "title": "MlnxOfedKernelDkms"
         },
-        "NvidiaDkms470_InstallMods": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "nvidia": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Nvidia"
-                    }
-                },
-                "nvidia_drm": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Nvidia"
-                    }
-                },
-                "nvidia_modeset": {
-                    "type": "array",
-                    "items": {}
-                },
-                "nvidia_uvm": {
-                    "type": "array",
-                    "items": {}
-                }
-            },
-            "required": [],
-            "title": "NvidiaDkms470_InstallMods"
-        },
         "NvidiaDkms470_Pkg": {
             "type": "object",
             "additionalProperties": false,

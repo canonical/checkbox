@@ -565,9 +565,11 @@ class UdevadmDevice(object):
                 # for the video decoder, encoder, and ISP resize.
                 # Ignore Mediatek v4l2 encoder, decoder, jpeg codec and
                 # image processor 3
+                # Ignore Intel image process uint 6th generation (IPU6)
                 drivers_blocklist = ('bcm2835-codec', 'bcm2835-isp',
                                      'mtk-vcodec-enc', 'mtk-vcodec-dec',
-                                     'mtk-jpeg', 'mtk-mdp3')
+                                     'mtk-jpeg', 'mtk-mdp3',
+                                     'intel-ipu6-isys')
                 if self.driver not in drivers_blocklist:
                     return "CAPTURE"
             # special device for PiCamera

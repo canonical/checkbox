@@ -839,6 +839,12 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         ]
         self.verify_devices(devices, expected_devices)
 
+    def test_DELL_LATITUDE_7350_WITH_IPU6_DRIVER(self):
+        # Ignore intel-ipu6-isys camera driver on a Dell Latitude 7350
+        # See https://bugs.launchpad.net/somerville/+bug/2042424
+        devices = self.parse("DELL_LATITUDE_7350_WITH_IPU6_DRIVER")
+        self.assertEqual(self.count(devices, "CAPTURE"), 1)
+
     def test_CARA_T(self):
         # A Snappy system with CANBus
         devices = self.parse("CARA_T")

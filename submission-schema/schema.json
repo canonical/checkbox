@@ -1788,32 +1788,8 @@
         },
         "Module": {
             "type": "string",
-            "enum": [
-                "bt87x",
-                "cx88_alsa",
-                "md_mod",
-                "saa7134-alsa",
-                "snd-atiixp-modem",
-                "snd-cmipci",
-                "snd-intel8x0m",
-                "snd-pcsp",
-                "snd-usb-audio",
-                "snd-usb-caiaq",
-                "snd-usb-ua101",
-                "snd-usb-us122l",
-                "snd-usb-usx2y",
-                "snd-via82xx-modem",
-                "nvidia-drm",
-                "kvm_intel",
-                "nouveau",
-                "ib_ipoib",
-                "bcmdhd",
-                "pt5111",
-                "v4l2loopback",
-                "nvidia",
-                "nvme-core"
-            ],
-            "title": "Module"
+            "title": "Module",
+            "description": "Module name"
         },
         "CPULPIFile": {
             "type": "string",

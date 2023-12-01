@@ -751,7 +751,7 @@
                     }
                 },
                 "pkg": {
-                    "$ref": "#/definitions/IserDkmsPkg"
+                    "$ref": "#/definitions/DkmsPkg"
                 },
                 "pkg_name": {
                     "$ref": "#/definitions/DkmsName"
@@ -770,7 +770,7 @@
             ],
             "title": "Dkms"
         },
-        "IserDkmsPkg": {
+        "DkmsPkg": {
             "type": "object",
             "additionalProperties": false,
             "properties": {
@@ -834,7 +834,7 @@
                 "status",
                 "version"
             ],
-            "title": "IserDkmsPkg"
+            "title": "DkmsPkg"
         },
         "KnemDkms": {
             "type": "object",

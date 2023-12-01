@@ -49,7 +49,8 @@ done
 
 ### Generating Python loader out of the schema
 
-As an alternative to `genson`, `quicktype` can be used to generate the schema, as well as Python types using classes.
+
+`quicktype` can be used to generate the schema, as well as Python classes representing submission data.
 
 #### Getting quicktype
 

@@ -6,11 +6,11 @@ import json
 import argparse
 
 
-def collapse_definition(schema, definition_key, replacement, rename, new_name):
+def modify_definition(schema, definition_key, replacement, rename, new_name):
     if rename and definition_key in schema["definitions"]:
         schema["definitions"][new_name] = schema["definitions"][definition_key]
         del schema["definitions"][definition_key]
-        replacement = f"#/definitions/{new_name}"
+        replacement = {"$ref": f"#/definitions/{new_name}"}
 
     if not rename and definition_key in schema["definitions"]:
         del schema["definitions"][definition_key]

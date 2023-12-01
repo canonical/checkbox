@@ -10,7 +10,7 @@ config:
     apt:
       sources:
         stable_ppa:
-          source: "ppa:hardware-certification/public"
+          source: "ppa:checkbox-dev/stable"
     packages:
       - alsa-base
       - gir1.2-cheese-3.0

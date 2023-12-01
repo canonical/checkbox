@@ -1595,7 +1595,7 @@
                     "type": "string"
                 },
                 "model_number": {
-                    "$ref": "#/definitions/ModelNumberUnion"
+                    "$ref": "#/definitions/ModelNumber"
                 },
                 "model_revision": {
                     "type": "string"
@@ -1697,17 +1697,10 @@
             ],
             "title": "SnapPackage"
         },
-        "ModelNumberUnion": {
-            "anyOf": [
-                {
-                    "$ref": "#/definitions/ModelNumberEnum"
-                },
-                {
-                    "type": "string",
-                    "format": "integer"
-                }
-            ],
-            "title": "ModelNumberUnion"
+        "ModelNumber": {
+            "type": "string",
+            "title": "ModelNumber",
+            "description": "Model number (in either decimal or hexadecimal format)"
         },
         "Revision": {
             "type": "string",
@@ -2235,18 +2228,6 @@
             ],
             "title": "Governors"
         },
-        "ModelNumberEnum": {
-            "type": "string",
-            "enum": [
-                "0x0",
-                "8335-GTB",
-                "0x1",
-                "0xd",
-                "0x2",
-                "0x3"
-            ],
-            "title": "ModelNumberEnum"
-        },
         "Scaling": {
             "type": "string",
             "enum": [
@@ -2261,27 +2242,13 @@
                 "slp_s0_residency_usec",
                 "low_power_idle_system_residency_us"
             ],
-            "title": "SysLPIFile"
+            "title": "SysLPIFile",
+            "description": "Low Power Idle table filename for the system (see https://www.kernel.org/doc/html/latest/firmware-guide/acpi/lpit.html for more information about LPI, an Intel specific property)"
         },
         "ProcessorType": {
             "type": "string",
-            "enum": [
-                "GenuineIntel",
-                "AuthenticAMD",
-                "s390x",
-                "BCM2835",
-                "PowerNV",
-                "aarch64",
-                "BCM2711",
-                "Freescale i.MX6 Ultralite (Device Tree)",
-                "BCM2709",
-                "Qualcomm Technologies, Inc SA8155P",
-                "riscv64",
-                "Freescale i.MX6 SoloX (Device Tree)",
-                "Freescale i.MX7 Dual (Device Tree)",
-                "HygonGenuine"
-            ],
-            "title": "ProcessorType"
+            "title": "ProcessorType",
+            "description": "Type of the processor"
         },
         "Channel": {
             "type": "string",
@@ -2298,7 +2265,8 @@
         },
         "Developer": {
             "type": "string",
-            "title": "Developer"
+            "title": "Developer",
+            "description": ""
         },
         "Devmode": {
             "type": "string",

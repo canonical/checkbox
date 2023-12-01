@@ -313,7 +313,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "architecture": "#/definitions/OSArchitecture",
+                "architecture": {
+                    "$ref": "#/definitions/OSArchitecture"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -489,7 +491,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "architecture": "#/definitions/OSArchitecture",
+                "architecture": {
+                    "$ref": "#/definitions/OSArchitecture"
+                },
                 "depends": {
                     "type": "string"
                 },
@@ -770,7 +774,9 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "architecture": "#/definitions/OSArchitecture",
+                "architecture": {
+                    "$ref": "#/definitions/OSArchitecture"
+                },
                 "depends": {
                     "type": "string"
                 },
@@ -1707,7 +1713,7 @@
             "title": "Revision",
             "description": "Snap package revision"
         },
-        "SubmissionArchitecture": {
+        "OSArchitecture": {
             "type": "string",
             "enum": [
                 "amd64",
@@ -1718,7 +1724,7 @@
                 "arm64",
                 "riscv64"
             ],
-            "title": "SubmissionArchitecture"
+            "title": "OSArchitecture"
         },
         "CertificationStatus": {
             "type": "string",
@@ -2295,14 +2301,6 @@
                 "kernel"
             ],
             "title": "SnapPackageType"
-        },
-        "OSArchitecture": {
-            "type": "string",
-            "enum": [
-                "all",
-                "amd64"
-            ],
-            "title": "OSArchitecture"
         }
     }
 }

@@ -1825,17 +1825,8 @@
         },
         "Governors": {
             "type": "string",
-            "enum": [
-                "conservative ondemand userspace powersave performance schedutil",
-                "GOVERNORS NOT FOUND",
-                "performance powersave",
-                "conservative ondemand userspace powersave performance",
-                "userspace",
-                "ondemand userspace performance schedutil",
-                "ondemand performance schedutil",
-                "userspace ondemand performance schedutil"
-            ],
-            "title": "Governors"
+            "title": "Governors",
+            "description": "List of CPU governors as a whitespace separated list"
         },
         "Scaling": {
             "type": "string",

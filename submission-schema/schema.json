@@ -1,0 +1,3452 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$ref": "#/definitions/SchemaQt",
+    "definitions": {
+        "SchemaQt": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "testplan_id": {
+                    "type": "string"
+                },
+                "custom_joblist": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "packages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Package"
+                    }
+                },
+                "snap-packages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SnapPackage"
+                    }
+                },
+                "distribution": {
+                    "$ref": "#/definitions/Distribution"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Result"
+                    }
+                },
+                "resource-results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Result"
+                    }
+                },
+                "attachment-results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Result"
+                    }
+                },
+                "rejected-jobs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/RejectedJob"
+                    }
+                },
+                "category_map": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "processor": {
+                    "$ref": "#/definitions/Processor"
+                },
+                "kernel-cmdline": {
+                    "type": "string"
+                },
+                "dkms_info": {
+                    "$ref": "#/definitions/DkmsInfo"
+                },
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Device"
+                    }
+                },
+                "raw-devices-dmi": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string",
+                            "qt-uri-protocols": [
+                                "https"
+                            ]
+                        }
+                    }
+                },
+                "modprobe-info": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ModprobeInfo"
+                    }
+                },
+                "pci_subsystem_id": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "kernel": {
+                    "type": "string"
+                },
+                "architecture": {
+                    "$ref": "#/definitions/SchemaQtArchitecture"
+                },
+                "memory": {
+                    "$ref": "#/definitions/Memory"
+                },
+                "buildstamp": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "attachment-results",
+                "category_map",
+                "custom_joblist",
+                "rejected-jobs",
+                "resource-results",
+                "results",
+                "title"
+            ],
+            "title": "SchemaQt"
+        },
+        "Result": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "full_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "certification_status": {
+                    "$ref": "#/definitions/CertificationStatus"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/Outcome"
+                },
+                "outcome": {
+                    "$ref": "#/definitions/Outcome"
+                },
+                "comments": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "io_log": {
+                    "type": "string",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "duration": {
+                    "type": "number"
+                },
+                "type": {
+                    "$ref": "#/definitions/AttachmentResultType"
+                },
+                "project": {
+                    "$ref": "#/definitions/Project"
+                },
+                "plugin": {
+                    "$ref": "#/definitions/Plugin"
+                }
+            },
+            "required": [
+                "category",
+                "category_id",
+                "certification_status",
+                "comments",
+                "duration",
+                "full_id",
+                "id",
+                "io_log",
+                "name",
+                "outcome",
+                "status"
+            ],
+            "title": "Result"
+        },
+        "Device": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "bus": {
+                    "$ref": "#/definitions/Bus"
+                },
+                "category": {
+                    "$ref": "#/definitions/Category"
+                },
+                "driver": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "product": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "product_slug": {
+                    "type": "string"
+                },
+                "vendor": {
+                    "type": "string"
+                },
+                "vendor_slug": {
+                    "type": "string"
+                },
+                "subproduct_id": {
+                    "type": "integer"
+                },
+                "subvendor_id": {
+                    "type": "integer"
+                },
+                "vendor_id": {
+                    "type": "integer"
+                },
+                "interface": {
+                    "type": "string"
+                },
+                "mac": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "bus",
+                "path"
+            ],
+            "title": "Device"
+        },
+        "Distribution": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "codename": {
+                    "$ref": "#/definitions/Codename"
+                },
+                "description": {
+                    "$ref": "#/definitions/Description"
+                },
+                "distributor_id": {
+                    "$ref": "#/definitions/DistributorID"
+                },
+                "release": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "codename",
+                "description",
+                "distributor_id",
+                "release"
+            ],
+            "title": "Distribution"
+        },
+        "DkmsInfo": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "fwts-efi-runtime-dkms": {
+                    "$ref": "#/definitions/FwtsEFIRuntimeDkms"
+                },
+                "tp-smapi-dkms": {
+                    "$ref": "#/definitions/NvidiaDkms390"
+                },
+                "oem-release": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-kingdra-adl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "dell-0758-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "dell-service-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "ford-constantine-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-marvell-wireless-1566612-dkms": {
+                    "$ref": "#/definitions/OEMMarvellWireless1566612-Dkms"
+                },
+                "oem-network-manage-ethernet": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-workaround-disable-iface-rename": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-workaround-disable-usb-autosuspend": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-workaround-fix-intel-i915-power-well": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-workaround-force-install-intel-red": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-workaround-force-install-qualcomm-red": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-workaround-kernel-parameter-alx-enable-wol": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-workaround-marvell-wifi-suspend": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "dell-0759-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-workaround-fix-wdt-reboot": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "nvidia-driver-510": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-matira-5-7-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "nvidia-dkms-470": {
+                    "$ref": "#/definitions/NvidiaDkms470_Class"
+                },
+                "nvidia-driver-470": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "beaver-italia-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-eevee-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "beaver-berlinetta-p-mlk-cfl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "config-prime-select-intel-all": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "nvidia-dkms-390": {
+                    "$ref": "#/definitions/NvidiaDkms390"
+                },
+                "nvidia-driver-390": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-disable-wacom-gesture-lp1777815": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-fix-eth-realtek-disabletlpr8153": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-workaround-modprobe-blacklist-hid-sensor-accel-3d": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "tlp-config": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "tlp-sensible": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "workaround-wifi-hotkey": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "bucky-n5-v5-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-ethernet-r8169-aspm-support-bionic-dkms": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-workaround-bt-auto-resume-lp1774582": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "workaround-systemd-bluetooth": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-pinsir-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-workaround-disable-usb-runtime-pm-before-s2i-lp1781335": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-workaround-use-radeon-lp1789572": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-hic": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-somerville-zuma-p-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "lenovo-doc-t490-t590-p53s": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-ircamera-workaround-1725152": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-beaver-osp1-missandei-meta": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-fix-gfx-nvidia-powersavingmode": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-kernel-parameter-suspend-to-ram": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-seventy-percent-brightness": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "backport-iwlwifi-dkms": {
+                    "$ref": "#/definitions/BackportIwlwifiDkms"
+                },
+                "oem-beaver-osp1-loras-meta": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-fix-bt-intel-icl-0aaa.firmware.divert": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-kernel-parameter-tsc-reliable": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-beaver-osp1-melisa-meta": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "libfprint-2-tod1-goodix": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-melisa-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-maester-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-fix-gfx-nvidia-ondemandmode": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-somerville-bronn-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-shireen-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.bachman-banaing-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "nvidia-driver-515": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.bachman-baker-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "amaro-third-party-tools": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-amaro-meta": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "nvidia-dkms-515": {
+                    "$ref": "#/definitions/NvidiaDkms470_Class"
+                },
+                "oem-sutton.bachman-baldhere-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.bachman-bale-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-rhyhorn-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-staryu-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-meowth-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-machop-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-diglett-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-tangela-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "rtl8821ce-dkms": {
+                    "$ref": "#/definitions/Rtl8821CeDkms"
+                },
+                "oem-stella.cmit-tentacool-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-charizard-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-beric-icl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.bachman-banner-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-butterfree-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-samwell-tgl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-bulbasaur-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-meera-tgl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-matira-3-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-pearl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-grimer-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-aerodactyl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-ivysaur-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-charmander-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-beric-amd-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-fix-audio-intel-soundwire": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-somerville-octillery-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-alolan-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-grimer-rkl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.bachman-baara-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-igglybuff-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-latios-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-deoxys-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-mamoswine-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-rattata-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-tangela-jsl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-weedle-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-aipom-adl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-fix-audio-cirrus-default-sample-rate": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-somerville-davos-adl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "libfprint-2-tod1-broadcom": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-fix-eth-rtl-mac-pass-through": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-somerville-delibird-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-kingdra-adl-wave2-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-corsola-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-porygon-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-nobisuke-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-purrloin-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-onix-adl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-jolteon-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-slowpoke-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "nvidia-dkms-495": {
+                    "$ref": "#/definitions/NvidiaDkms495_Class"
+                },
+                "nvidia-driver-495": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-onix-rpl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-pypar-adl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-cagatay-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-cagney-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-cage-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-starmie-adl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-suneo-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-olly-amd-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-minccino-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-cahya-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-beldum-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-fix-fpr-goodix-deletestoredfp": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-fix-misc-cnl-backport-iwlwifi-helper": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-somerville-rast-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "libcamhal-ipu6ep0": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-tentacool-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-seedot-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-seedot-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-rockruff-adl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-spearow-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-spearow-14-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-olly-adl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-beldum-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "nvidia-dkms-510": {
+                    "$ref": "#/definitions/NvidiaDkms495_Class"
+                },
+                "oem-kernel-parameter-dg2": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-somerville-omastar-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-oranguru-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-marowak-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-mankey-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-paras-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-nobita-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-paras-35-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "nvidia-driver-525": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-marowak-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-qyburn-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "murcia-meta": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-somerville-marill-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-sewashi-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-dorami-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-dekisugi-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-asobo-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.bachman-balesego-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-cai-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-shizuka-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-hoppip-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-abdiel-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-abdon-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-fix-cam-intel-mipi-ipu6ep": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-somerville-arbok-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-psyduck-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-abeeku-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.simon-balin-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.bachman-balwina-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-vanillite-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-kakuna-adl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-vanillite-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-abdalah-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-kakuna-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.simon-abdukrahman-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-bergmite-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-warcraft-intel-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-graveler-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.simon-ballard-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "intel-gpgpu-dkms-ubuntu-5.17-oem": {
+                    "$ref": "#/definitions/IntelGPGPUDkmsUbuntu5.17-OEM"
+                },
+                "oem-sutton.newell-abdullah-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-spearow-14p-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-abedabun-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-abdul-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.simon-abdulrahman-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-abeje-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-davos-rpl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-zubat-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.simon-abednego-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-abe-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "nvidia-dkms-525": {
+                    "$ref": "#/definitions/NvidiaDkms470_Class"
+                },
+                "oem-somerville-rockruff-rpl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella.cmit-sensei-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.newell-abdulkareem-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-edge-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-balin-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-balint-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-cailyn-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-lapras-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-gardevoir-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-arcanine-14-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton.simon-carlisle-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-chansey-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-wartortle-amd-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-lapras-13-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-qwilfish-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-jellyfish-qwilfish-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-fix-misc-intel-fccunlock": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-somerville-wartortle-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-asobo-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-banagher-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-aron-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-mii-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-cascoon-rpl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-tentacool-rpl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-suneo-br-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-torchic-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-arcanine-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-slowpoke-rpl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-jolteon-r-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-quilladin-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-acheron-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-cinccino-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-kuku-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-romi-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "ast-dkms": {
+                    "$ref": "#/definitions/ASTDkms"
+                },
+                "oem-stella.cmit-yoshio-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-aitland-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-achaicus-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-akando-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-adair-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-chiko-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-wangdora-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-muk-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-maria-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-caia-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-caprice-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-barrera-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-bartlett-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-bash-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-baz-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-bast-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-barossa-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-barrett-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-barrington-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-abishag-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-barry-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-bartek-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-capricorn-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-tynamo-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-caimbrie-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "pfeng-dkms": {
+                    "$ref": "#/definitions/PfengDkms"
+                },
+                "sja1110-dkms": {
+                    "$ref": "#/definitions/Sja1110Dkms"
+                },
+                "oem-stella-ichi-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-purrloin-rpl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-nobisuke-rpl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-addie-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-addison-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-africa-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-adelia-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-calaminag-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "nvidia-dkms-530": {
+                    "$ref": "#/definitions/NvidiaDkms495_Class"
+                },
+                "nvidia-driver-530": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-icarus-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-seedot-rpl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-beldum-rpl-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-adamina-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-caitir-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-addo-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "libfprint-2-tod1-fpc": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "libfprint-2-tod1-goodix-550a": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-chapek-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-log-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-jaiko-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-rattata-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "nvidia-dkms-535": {
+                    "$ref": "#/definitions/NvidiaDkms470_Class"
+                },
+                "nvidia-driver-535": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-delphox-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-somerville-abra-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-stella-animalhunters-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-jinju-jasper-meta": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "oem-somerville-dartrix-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-banner-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "oem-sutton-barth-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "iser-dkms": {
+                    "$ref": "#/definitions/Dkms"
+                },
+                "isert-dkms": {
+                    "$ref": "#/definitions/Dkms"
+                },
+                "kernel-mft-dkms": {
+                    "$ref": "#/definitions/Dkms"
+                },
+                "knem-dkms": {
+                    "$ref": "#/definitions/KnemDkms"
+                },
+                "mlnx-nfsrdma-dkms": {
+                    "$ref": "#/definitions/Dkms"
+                },
+                "mlnx-ofed-kernel-dkms": {
+                    "$ref": "#/definitions/MlnxOfedKernelDkms"
+                },
+                "nvidia-driver-470-server": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "nvidia-peer-memory-dkms": {
+                    "$ref": "#/definitions/NvidiaPeerMemoryDkms"
+                },
+                "srp-dkms": {
+                    "$ref": "#/definitions/Dkms"
+                },
+                "oem-stella-bergmite-meta": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                }
+            },
+            "required": [],
+            "title": "DkmsInfo"
+        },
+        "AmaroThirdPartyTools": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "architecture": {
+                    "$ref": "#/definitions/AmaroThirdPartyToolsArchitecture"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/AmaroThirdPartyToolsDkmsStatus"
+                },
+                "installed-size": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "maintainer": {
+                    "type": "string"
+                },
+                "match_patterns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "modaliases": {
+                    "type": "string"
+                },
+                "package": {
+                    "type": "string"
+                },
+                "priority": {
+                    "$ref": "#/definitions/Priority"
+                },
+                "section": {
+                    "$ref": "#/definitions/Section"
+                },
+                "status": {
+                    "$ref": "#/definitions/AmaroThirdPartyToolsStatus"
+                },
+                "ubuntu-oem-kernel-flavour": {
+                    "$ref": "#/definitions/UbuntuOEMKernelFlavour"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "conffiles": {
+                    "type": "string"
+                },
+                "depends": {
+                    "type": "string"
+                },
+                "recommends": {
+                    "type": "string"
+                },
+                "homepage": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "http",
+                        "https"
+                    ]
+                },
+                "provides": {
+                    "$ref": "#/definitions/ProvidesEnum"
+                },
+                "source": {
+                    "$ref": "#/definitions/Source"
+                },
+                "conflicts": {
+                    "$ref": "#/definitions/ProvidesEnum"
+                },
+                "original-maintainer": {
+                    "$ref": "#/definitions/OriginalMaintainer"
+                },
+                "breaks": {
+                    "type": "string"
+                },
+                "multi-arch": {
+                    "$ref": "#/definitions/MultiArch"
+                },
+                "replaces": {
+                    "type": "string"
+                },
+                "support": {
+                    "$ref": "#/definitions/Support"
+                },
+                "pmaliases": {
+                    "type": "string"
+                },
+                "suggests": {
+                    "$ref": "#/definitions/Suggests"
+                },
+                "config-version": {
+                    "type": "string"
+                },
+                "pre-depends": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "architecture",
+                "description",
+                "installed-size",
+                "maintainer",
+                "package",
+                "priority",
+                "section",
+                "status",
+                "version"
+            ],
+            "title": "AmaroThirdPartyTools"
+        },
+        "ASTDkms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "type": "string"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/ASTDkmsInstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "pkg_name": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "ASTDkms"
+        },
+        "ASTDkmsInstallMods": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ast": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "ast"
+            ],
+            "title": "ASTDkmsInstallMods"
+        },
+        "MurciaMeta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "architecture": {
+                    "$ref": "#/definitions/AmaroThirdPartyToolsArchitecture"
+                },
+                "depends": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "installed-size": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "maintainer": {
+                    "type": "string"
+                },
+                "package": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                },
+                "priority": {
+                    "$ref": "#/definitions/Priority"
+                },
+                "provides": {
+                    "$ref": "#/definitions/Provides"
+                },
+                "section": {
+                    "$ref": "#/definitions/Section"
+                },
+                "status": {
+                    "$ref": "#/definitions/AmaroThirdPartyToolsStatus"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "homepage": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "http",
+                        "https"
+                    ]
+                },
+                "modaliases": {
+                    "type": "string"
+                },
+                "original-maintainer": {
+                    "type": "string"
+                },
+                "source": {
+                    "$ref": "#/definitions/SourceEnum"
+                },
+                "config-version": {
+                    "type": "string"
+                },
+                "recommends": {
+                    "type": "string"
+                },
+                "conflicts": {
+                    "$ref": "#/definitions/MurciaMetaConflicts"
+                },
+                "replaces": {
+                    "type": "string"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/AmaroThirdPartyToolsDkmsStatus"
+                },
+                "match_patterns": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "breaks": {
+                    "$ref": "#/definitions/Breaks"
+                },
+                "multi-arch": {
+                    "$ref": "#/definitions/MultiArch"
+                },
+                "conffiles": {
+                    "type": "string"
+                },
+                "ubuntu-oem-kernel-flavour": {
+                    "$ref": "#/definitions/UbuntuOEMKernelFlavour"
+                },
+                "unused_dkms": {
+                    "type": "boolean"
+                },
+                "suggests": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "architecture",
+                "description",
+                "installed-size",
+                "maintainer",
+                "package",
+                "priority",
+                "section",
+                "status",
+                "version"
+            ],
+            "title": "MurciaMeta"
+        },
+        "BackportIwlwifiDkms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "type": "string"
+                },
+                "dkms_ver": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "install_mods": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "pkg_name": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "BackportIwlwifiDkms"
+        },
+        "FwtsEFIRuntimeDkms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                },
+                "dkms_ver": {
+                    "$ref": "#/definitions/DkmsVer"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/FwtsEFIRuntimeDkmsInstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FwtsEFIRuntimeDkmsMod"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "pkg_name": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "FwtsEFIRuntimeDkms"
+        },
+        "FwtsEFIRuntimeDkmsInstallMods": {
+            "type": "object",
+            "additionalProperties": false,
+            "title": "FwtsEFIRuntimeDkmsInstallMods"
+        },
+        "IntelGPGPUDkmsUbuntu5.17-OEM": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "type": "string"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/IntelGPGPUDkmsUbuntu5.17-OEMInstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "pkg_name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "IntelGPGPUDkmsUbuntu5.17-OEM"
+        },
+        "IntelGPGPUDkmsUbuntu5.17-OEMInstallMods": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "compat": {
+                    "type": "array",
+                    "items": {}
+                },
+                "i915": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "i915_spi": {
+                    "type": "array",
+                    "items": {}
+                }
+            },
+            "required": [
+                "compat",
+                "i915",
+                "i915_spi"
+            ],
+            "title": "IntelGPGPUDkmsUbuntu5.17-OEMInstallMods"
+        },
+        "Dkms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "type": "string"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/FwtsEFIRuntimeDkmsInstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/IserDkmsPkg"
+                },
+                "pkg_name": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "Dkms"
+        },
+        "IserDkmsPkg": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "architecture": {
+                    "$ref": "#/definitions/AmaroThirdPartyToolsArchitecture"
+                },
+                "depends": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "homepage": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "http"
+                    ]
+                },
+                "installed-size": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "maintainer": {
+                    "type": "string"
+                },
+                "package": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                },
+                "priority": {
+                    "$ref": "#/definitions/Priority"
+                },
+                "recommends": {
+                    "type": "string"
+                },
+                "section": {
+                    "$ref": "#/definitions/Section"
+                },
+                "source": {
+                    "$ref": "#/definitions/SourceEnum"
+                },
+                "status": {
+                    "$ref": "#/definitions/AmaroThirdPartyToolsStatus"
+                },
+                "version": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "architecture",
+                "depends",
+                "description",
+                "homepage",
+                "installed-size",
+                "maintainer",
+                "package",
+                "priority",
+                "recommends",
+                "section",
+                "source",
+                "status",
+                "version"
+            ],
+            "title": "IserDkmsPkg"
+        },
+        "KnemDkms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "$ref": "#/definitions/Source"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/KnemDkmsInstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Source"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "pkg_name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "KnemDkms"
+        },
+        "KnemDkmsInstallMods": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "knem": {
+                    "type": "array",
+                    "items": {}
+                }
+            },
+            "required": [
+                "knem"
+            ],
+            "title": "KnemDkmsInstallMods"
+        },
+        "MlnxOfedKernelDkms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "$ref": "#/definitions/SourceEnum"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "pkg_name": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "MlnxOfedKernelDkms"
+        },
+        "NvidiaDkms390": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "$ref": "#/definitions/NvidiaDkms390_DkmsName"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/FwtsEFIRuntimeDkmsInstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/NvidiaDkms390_Mod"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "pkg_name": {
+                    "$ref": "#/definitions/NvidiaDkms390_PkgName"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "NvidiaDkms390"
+        },
+        "NvidiaDkms470_Class": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "$ref": "#/definitions/NvidiaDkms390_DkmsName"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/NvidiaDkms470_InstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/NvidiaDkms390_Mod"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/NvidiaDkms470_Pkg"
+                },
+                "pkg_name": {
+                    "$ref": "#/definitions/NvidiaDkms470_PkgName"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "NvidiaDkms470_Class"
+        },
+        "NvidiaDkms470_InstallMods": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "nvidia": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Nvidia"
+                    }
+                },
+                "nvidia_drm": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Nvidia"
+                    }
+                },
+                "nvidia_modeset": {
+                    "type": "array",
+                    "items": {}
+                },
+                "nvidia_uvm": {
+                    "type": "array",
+                    "items": {}
+                }
+            },
+            "required": [],
+            "title": "NvidiaDkms470_InstallMods"
+        },
+        "NvidiaDkms470_Pkg": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "architecture": {
+                    "$ref": "#/definitions/SchemaQtArchitecture"
+                },
+                "breaks": {
+                    "$ref": "#/definitions/Breaks"
+                },
+                "conflicts": {
+                    "$ref": "#/definitions/ProvidesEnum"
+                },
+                "depends": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "homepage": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "http"
+                    ]
+                },
+                "installed-size": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "maintainer": {
+                    "$ref": "#/definitions/Maintainer"
+                },
+                "multi-arch": {
+                    "$ref": "#/definitions/MultiArch"
+                },
+                "package": {
+                    "$ref": "#/definitions/NvidiaDkms470_PkgName"
+                },
+                "priority": {
+                    "$ref": "#/definitions/Priority"
+                },
+                "provides": {
+                    "$ref": "#/definitions/ProvidesEnum"
+                },
+                "replaces": {
+                    "type": "string"
+                },
+                "section": {
+                    "$ref": "#/definitions/Section"
+                },
+                "source": {
+                    "$ref": "#/definitions/Source"
+                },
+                "status": {
+                    "$ref": "#/definitions/AmaroThirdPartyToolsStatus"
+                },
+                "version": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "architecture",
+                "breaks",
+                "conflicts",
+                "depends",
+                "description",
+                "homepage",
+                "installed-size",
+                "maintainer",
+                "multi-arch",
+                "package",
+                "priority",
+                "provides",
+                "replaces",
+                "section",
+                "source",
+                "status",
+                "version"
+            ],
+            "title": "NvidiaDkms470_Pkg"
+        },
+        "NvidiaDkms495_Class": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "$ref": "#/definitions/NvidiaDkms390_DkmsName"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/NvidiaDkms470_InstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/NvidiaDkms390_Mod"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "pkg_name": {
+                    "$ref": "#/definitions/NvidiaDkms495_PkgName"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "NvidiaDkms495_Class"
+        },
+        "NvidiaPeerMemoryDkms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "type": "string"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/NvidiaPeerMemoryDkmsInstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "pkg_name": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "NvidiaPeerMemoryDkms"
+        },
+        "NvidiaPeerMemoryDkmsInstallMods": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "nv_peer_mem": {
+                    "type": "array",
+                    "items": {}
+                }
+            },
+            "required": [
+                "nv_peer_mem"
+            ],
+            "title": "NvidiaPeerMemoryDkmsInstallMods"
+        },
+        "OEMMarvellWireless1566612-Dkms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "type": "string"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/OEMMarvellWireless1566612-DkmsInstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "pkg_name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "OEMMarvellWireless1566612-Dkms"
+        },
+        "OEMMarvellWireless1566612-DkmsInstallMods": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "mwifiex": {
+                    "type": "array",
+                    "items": {}
+                },
+                "mwifiex_pcie": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "mwifiex",
+                "mwifiex_pcie"
+            ],
+            "title": "OEMMarvellWireless1566612-DkmsInstallMods"
+        },
+        "PfengDkms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/PfengDkmsInstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "pkg_name": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "PfengDkms"
+        },
+        "PfengDkmsInstallMods": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "pfeng": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "pfeng"
+            ],
+            "title": "PfengDkmsInstallMods"
+        },
+        "Rtl8821CeDkms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "$ref": "#/definitions/Source"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/Rtl8821CeDkmsInstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Source"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/AmaroThirdPartyTools"
+                },
+                "pkg_name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "Rtl8821CeDkms"
+        },
+        "Rtl8821CeDkmsInstallMods": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "rtl8821ce": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [],
+            "title": "Rtl8821CeDkmsInstallMods"
+        },
+        "Sja1110Dkms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                },
+                "dkms_name": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/Sja1110DkmsInstallMods"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/MurciaMeta"
+                },
+                "pkg_name": {
+                    "$ref": "#/definitions/DkmsNameEnum"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "Sja1110Dkms"
+        },
+        "Sja1110DkmsInstallMods": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "sja1110": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            },
+            "required": [
+                "sja1110"
+            ],
+            "title": "Sja1110DkmsInstallMods"
+        },
+        "Memory": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "swap": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "swap",
+                "total"
+            ],
+            "title": "Memory"
+        },
+        "ModprobeInfo": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "module": {
+                    "$ref": "#/definitions/Module"
+                },
+                "options": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "module",
+                "options"
+            ],
+            "title": "ModprobeInfo"
+        },
+        "Package": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "version"
+            ],
+            "title": "Package"
+        },
+        "Processor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "bogomips": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "cache": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "count": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "governors": {
+                    "$ref": "#/definitions/Governors"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "model_number": {
+                    "$ref": "#/definitions/ModelNumberUnion"
+                },
+                "model_revision": {
+                    "type": "string"
+                },
+                "model_version": {
+                    "type": "string"
+                },
+                "other": {
+                    "type": "string"
+                },
+                "platform": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "scaling": {
+                    "$ref": "#/definitions/Scaling"
+                },
+                "speed": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/ProcessorType"
+                },
+                "cpu_lpi_file": {
+                    "$ref": "#/definitions/CPULPIFile"
+                },
+                "sys_lpi_file": {
+                    "$ref": "#/definitions/SysLPIFile"
+                }
+            },
+            "required": [
+                "bogomips",
+                "cache",
+                "count",
+                "governors",
+                "model",
+                "platform",
+                "scaling",
+                "speed",
+                "type"
+            ],
+            "title": "Processor"
+        },
+        "RejectedJob": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "full_id": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "full_id"
+            ],
+            "title": "RejectedJob"
+        },
+        "SnapPackage": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "confinement": {
+                    "$ref": "#/definitions/Confinement"
+                },
+                "developer": {
+                    "$ref": "#/definitions/Developer"
+                },
+                "devmode": {
+                    "$ref": "#/definitions/Devmode"
+                },
+                "install-date": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "revision": {
+                    "$ref": "#/definitions/RevisionUnion"
+                },
+                "status": {
+                    "$ref": "#/definitions/SnapPackageStatus"
+                },
+                "type": {
+                    "$ref": "#/definitions/SnapPackageType"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "channel": {
+                    "$ref": "#/definitions/Channel"
+                }
+            },
+            "required": [
+                "confinement",
+                "devmode",
+                "name",
+                "revision",
+                "status"
+            ],
+            "title": "SnapPackage"
+        },
+        "ModelNumberUnion": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/ModelNumberEnum"
+                },
+                {
+                    "type": "string",
+                    "format": "integer"
+                }
+            ],
+            "title": "ModelNumberUnion"
+        },
+        "RevisionUnion": {
+            "anyOf": [
+                {
+                    "$ref": "#/definitions/RevisionEnum"
+                },
+                {
+                    "type": "string",
+                    "format": "integer"
+                }
+            ],
+            "title": "RevisionUnion"
+        },
+        "SchemaQtArchitecture": {
+            "type": "string",
+            "enum": [
+                "amd64",
+                "i386",
+                "s390x",
+                "armhf",
+                "ppc64el",
+                "arm64",
+                "riscv64"
+            ],
+            "title": "SchemaQtArchitecture"
+        },
+        "CertificationStatus": {
+            "type": "string",
+            "enum": [
+                "unspecified",
+                "non-blocker",
+                "blocker"
+            ],
+            "title": "CertificationStatus"
+        },
+        "Outcome": {
+            "type": "string",
+            "enum": [
+                "pass",
+                "fail",
+                "not-supported",
+                "crash",
+                "skip",
+                "undecided"
+            ],
+            "title": "Outcome"
+        },
+        "Plugin": {
+            "type": "string",
+            "enum": [
+                "shell",
+                "user-interact-verify",
+                "user-interact",
+                "manual"
+            ],
+            "title": "Plugin"
+        },
+        "Project": {
+            "type": "string",
+            "enum": [
+                "certification"
+            ],
+            "title": "Project"
+        },
+        "AttachmentResultType": {
+            "type": "string",
+            "enum": [
+                "test"
+            ],
+            "title": "AttachmentResultType"
+        },
+        "Bus": {
+            "type": "string",
+            "enum": [
+                "input",
+                "pnp",
+                "pci",
+                "scsi",
+                "usb",
+                "hid",
+                "power_supply",
+                "hidraw",
+                "sound",
+                "video4linux",
+                "tty",
+                "nvme",
+                "platform",
+                "net",
+                "mmc",
+                "watchdog",
+                "block",
+                "i2c",
+                "vchiq",
+                "infiniband",
+                "bluetooth",
+                "drm",
+                "mmc_rpmb",
+                "rc",
+                "sdio",
+                "serial",
+                "dmi",
+                "ccw",
+                "mtd",
+                "apex",
+                "nd",
+                "spi"
+            ],
+            "title": "Bus"
+        },
+        "Category": {
+            "type": "string",
+            "enum": [
+                "OTHER",
+                "NETWORK",
+                "SCSI",
+                "DISK",
+                "USB",
+                "KEYBOARD",
+                "MOUSE",
+                "VIDEO",
+                "IDE",
+                "CDROM",
+                "HIDRAW",
+                "AUDIO",
+                "CAPTURE",
+                "BLUETOOTH",
+                "CARDREADER",
+                "WIRELESS",
+                "TOUCHPAD",
+                "RAID",
+                "TOUCHSCREEN",
+                "WATCHDOG",
+                "WWAN",
+                "ACCELEROMETER",
+                "MMAL",
+                "FIREWIRE",
+                "CANBUS",
+                "SOCKETCAN",
+                "BMC_NETWORK",
+                "TPU",
+                "INFINIBAND"
+            ],
+            "title": "Category"
+        },
+        "Codename": {
+            "type": "string",
+            "enum": [
+                "Bionic Beaver",
+                "focal",
+                "bionic",
+                "unknown",
+                "jammy",
+                "Xenial Xerus",
+                "kinetic",
+                "Focal Fossa",
+                "lunar",
+                "impish"
+            ],
+            "title": "Codename"
+        },
+        "Description": {
+            "type": "string",
+            "enum": [
+                "Ubuntu 18.04.6 LTS",
+                "Ubuntu 20.04.4 LTS",
+                "Ubuntu 20.04.6 LTS",
+                "Ubuntu 20.04.5 LTS",
+                "Ubuntu 20.04.3 LTS",
+                "Ubuntu 20.04.4 LTS (fossa-kingdra-adl X132)",
+                "Ubuntu Core 18",
+                "Ubuntu 22.04 LTS",
+                "Ubuntu 16.04.7 LTS",
+                "Ubuntu Core 16",
+                "Ubuntu 22.04.1 LTS",
+                "Ubuntu 22.10",
+                "Ubuntu 22.04.3 LTS",
+                "Ubuntu Core 20",
+                "Ubuntu Core 22",
+                "Ubuntu 20.04.1 LTS (fossa-caterpie X35)",
+                "Ubuntu 22.04.2 LTS",
+                "Ubuntu 23.04",
+                "Ubuntu 21.10",
+                "Ubuntu 20.04.3 LTS (fossa-grimer-rkl X77)",
+                "Ubuntu 20.04.2 LTS",
+                "Ubuntu Jammy Jellyfish (development branch)",
+                "Ubuntu 20.04.3 LTS (fossa-weedle X167)",
+                "Ubuntu 18.04.5 LTS",
+                "Ubuntu 20.04.4 LTS (fossa-onix-adl X171)",
+                "Ubuntu 20.04.4 LTS (fossa-onix-adl X167)",
+                "Ubuntu 20.04.4 LTS (fossa-pypar-adl X174)",
+                "Ubuntu 20.04.4 LTS (fossa-pypar-adl X171)",
+                "Ubuntu 20.04.4 LTS (fossa-olly-amd X180)",
+                "Ubuntu 20.04.4 LTS (fossa-olly-amd X182)",
+                "Ubuntu 20.04.4 LTS (fossa-arbok X163)",
+                "Ubuntu 20.04.4 LTS (fossa-weedle X169)",
+                "Ubuntu 20.04.4 LTS (fossa-kingdra-adl X131)"
+            ],
+            "title": "Description"
+        },
+        "DistributorID": {
+            "type": "string",
+            "enum": [
+                "Ubuntu",
+                "Ubuntu Core"
+            ],
+            "title": "DistributorID"
+        },
+        "AmaroThirdPartyToolsArchitecture": {
+            "type": "string",
+            "enum": [
+                "all",
+                "amd64"
+            ],
+            "title": "AmaroThirdPartyToolsArchitecture"
+        },
+        "ProvidesEnum": {
+            "type": "string",
+            "enum": [
+                "libcamhal.so.0",
+                "nvidia-dkms-kernel",
+                "nvidia-driver-lrm-535",
+                "oem-fix-hotkey-cnl-1883044",
+                "oem-fix-gfx-nvidia-1868199, oem-fix-misc-cnl-1886894",
+                "oem-fix-misc-cnl-1886894",
+                "oem-fix-misc-nvidia-lp1845801",
+                "i915-modules",
+                "oem-somerville-onix-adl-meta"
+            ],
+            "title": "ProvidesEnum"
+        },
+        "AmaroThirdPartyToolsDkmsStatus": {
+            "type": "string",
+            "enum": [
+                "non-dkms"
+            ],
+            "title": "AmaroThirdPartyToolsDkmsStatus"
+        },
+        "MultiArch": {
+            "type": "string",
+            "enum": [
+                "foreign"
+            ],
+            "title": "MultiArch"
+        },
+        "OriginalMaintainer": {
+            "type": "string",
+            "enum": [
+                "Jim Zhang <jim.zhang@fingerprints.com>",
+                "Boger.Wang <boger@goodix.com>",
+                "Evgeni Golov <evgeni@debian.org>"
+            ],
+            "title": "OriginalMaintainer"
+        },
+        "Priority": {
+            "type": "string",
+            "enum": [
+                "optional",
+                "extra"
+            ],
+            "title": "Priority"
+        },
+        "Section": {
+            "type": "string",
+            "enum": [
+                "misc",
+                "kernel",
+                "admin",
+                "libs",
+                "non-free/libs",
+                "devel",
+                "metapackages",
+                "net"
+            ],
+            "title": "Section"
+        },
+        "AmaroThirdPartyToolsStatus": {
+            "type": "string",
+            "enum": [
+                "install ok installed",
+                "deinstall ok config-files",
+                "install ok unpacked",
+                "install ok half-configured"
+            ],
+            "title": "AmaroThirdPartyToolsStatus"
+        },
+        "Suggests": {
+            "type": "string",
+            "enum": [
+                "nvidia-settings, nvidia-prime (>= 0.8)",
+                "nvidia-driver-440"
+            ],
+            "title": "Suggests"
+        },
+        "Support": {
+            "type": "string",
+            "enum": [
+                "Legacy",
+                "LTSB",
+                "NFB",
+                "PB"
+            ],
+            "title": "Support"
+        },
+        "UbuntuOEMKernelFlavour": {
+            "type": "string",
+            "enum": [
+                "default",
+                "oem"
+            ],
+            "title": "UbuntuOEMKernelFlavour"
+        },
+        "Platform": {
+            "type": "string",
+            "enum": [
+                "x86_64",
+                "i386",
+                "s390x",
+                "armv7l",
+                "PowerNV",
+                "aarch64",
+                "riscv64"
+            ],
+            "title": "Platform"
+        },
+        "ASTDkmsDkmsStatus": {
+            "type": "string",
+            "enum": [
+                "dkms"
+            ],
+            "title": "ASTDkmsDkmsStatus"
+        },
+        "Breaks": {
+            "type": "string",
+            "enum": [
+                "nvidia-kernel-source-470 (<< 390.25-0ubuntu2~)",
+                "nvidia-kernel-source-515 (<< 390.25-0ubuntu2~)",
+                "nvidia-kernel-source-525 (<< 390.25-0ubuntu2~)",
+                "nvidia-kernel-source-535 (<< 390.25-0ubuntu2~)"
+            ],
+            "title": "Breaks"
+        },
+        "MurciaMetaConflicts": {
+            "type": "string",
+            "enum": [
+                "mlnx-rdma-rxe-dkms",
+                "nvidia-dkms-kernel",
+                "oem-fix-tlp-realtek-lp1819812-blacklistr8153 (<= 2)"
+            ],
+            "title": "MurciaMetaConflicts"
+        },
+        "DkmsNameEnum": {
+            "type": "string",
+            "enum": [
+                "ast-dkms",
+                "backport-iwlwifi-dkms",
+                "fwts-efi-runtime-dkms",
+                "iser-dkms",
+                "isert-dkms",
+                "kernel-mft-dkms",
+                "mlnx-ofed-kernel-dkms",
+                "murcia-meta",
+                "nvidia-dkms-470",
+                "nvidia-peer-memory-dkms",
+                "oem-amaro-meta",
+                "oem-beaver-osp1-loras-meta",
+                "oem-beaver-osp1-melisa-meta",
+                "oem-beaver-osp1-missandei-meta",
+                "oem-disable-wacom-gesture-lp1777815",
+                "oem-ethernet-r8169-aspm-support-bionic-dkms",
+                "oem-fix-audio-cirrus-default-sample-rate",
+                "oem-fix-audio-intel-soundwire",
+                "oem-fix-bt-intel-icl-0aaa.firmware.divert",
+                "oem-fix-cam-intel-mipi-ipu6ep",
+                "oem-fix-eth-realtek-disabletlpr8153",
+                "oem-fix-eth-rtl-mac-pass-through",
+                "oem-fix-fpr-goodix-deletestoredfp",
+                "oem-fix-gfx-nvidia-ondemandmode",
+                "oem-fix-gfx-nvidia-powersavingmode",
+                "oem-fix-misc-cnl-backport-iwlwifi-helper",
+                "oem-fix-misc-intel-fccunlock",
+                "oem-hic",
+                "oem-ircamera-workaround-1725152",
+                "oem-jinju-jasper-meta",
+                "oem-kernel-parameter-dg2",
+                "oem-kernel-parameter-suspend-to-ram",
+                "oem-kernel-parameter-tsc-reliable",
+                "pfeng-dkms",
+                "sja1110-dkms",
+                "srp-dkms",
+                "tlp-config",
+                "tlp-sensible",
+                "mlnx-nfsrdma-dkms"
+            ],
+            "title": "DkmsNameEnum"
+        },
+        "Provides": {
+            "type": "string",
+            "enum": [
+                "ast-modules (= 1.13.3)",
+                "iwlwifi-modules",
+                "mlnx-rdma-rxe-dkms",
+                "nvidia-dkms-kernel"
+            ],
+            "title": "Provides"
+        },
+        "SourceEnum": {
+            "type": "string",
+            "enum": [
+                "fwts",
+                "iser",
+                "isert",
+                "kernel-mft",
+                "mlnx-ofed-kernel",
+                "nvidia-graphics-drivers-470",
+                "nvidia-peer-memory",
+                "oem-fix-cam-intel-mipi-ipu6",
+                "srp",
+                "mlnx-nfsrdma"
+            ],
+            "title": "SourceEnum"
+        },
+        "DkmsVer": {
+            "type": "string",
+            "enum": [
+                "23.07.00",
+                "22.01.00",
+                "22.11.00",
+                "22.03.00",
+                "20.12.00",
+                "22.09.00",
+                "22.05.00",
+                "23.01.00",
+                "22.07.00",
+                "23.05.00",
+                "18.03.00",
+                "23.03.00",
+                "21.12.00",
+                "23.09.00",
+                "21.07.00",
+                "21.03.00",
+                "21.08.00",
+                "21.09.00"
+            ],
+            "title": "DkmsVer"
+        },
+        "FwtsEFIRuntimeDkmsMod": {
+            "type": "string",
+            "enum": [
+                "efi_runtime"
+            ],
+            "title": "FwtsEFIRuntimeDkmsMod"
+        },
+        "Source": {
+            "type": "string",
+            "enum": [
+                "knem",
+                "ipu6-camera-hal",
+                "libfprint-2-tod1-goodix",
+                "mlnx-nfsrdma",
+                "nvidia-graphics-drivers-390",
+                "nvidia-graphics-drivers-495",
+                "nvidia-graphics-drivers-510",
+                "nvidia-graphics-drivers-515",
+                "nvidia-graphics-drivers-525",
+                "nvidia-graphics-drivers-530",
+                "nvidia-graphics-drivers-535",
+                "nvidia-graphics-drivers-470",
+                "nvidia-graphics-drivers-470-server",
+                "rtl8821ce",
+                "tp-smapi"
+            ],
+            "title": "Source"
+        },
+        "NvidiaDkms390_DkmsName": {
+            "type": "string",
+            "enum": [
+                "nvidia",
+                "tp_smapi",
+                "tp-smapi"
+            ],
+            "title": "NvidiaDkms390_DkmsName"
+        },
+        "NvidiaDkms390_Mod": {
+            "type": "string",
+            "enum": [
+                "nvidia",
+                "nvidia_uvm",
+                "nvidia_modeset",
+                "nvidia_drm",
+                "tp_smapi",
+                "thinkpad_ec",
+                "hdaps",
+                "nvidia_peermem"
+            ],
+            "title": "NvidiaDkms390_Mod"
+        },
+        "NvidiaDkms390_PkgName": {
+            "type": "string",
+            "enum": [
+                "nvidia-dkms-390",
+                "tp-smapi-dkms"
+            ],
+            "title": "NvidiaDkms390_PkgName"
+        },
+        "Nvidia": {
+            "type": "string",
+            "enum": [
+                "pci:v000010DEd*sv*sd*bc03sc00i00*",
+                "pci:v000010DEd*sv*sd*bc03sc02i00*",
+                "pci:v000010DEd*sv*sd*bc06sc80i00*"
+            ],
+            "title": "Nvidia"
+        },
+        "Maintainer": {
+            "type": "string",
+            "enum": [
+                "Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
+            ],
+            "title": "Maintainer"
+        },
+        "NvidiaDkms470_PkgName": {
+            "type": "string",
+            "enum": [
+                "nvidia-dkms-470",
+                "nvidia-dkms-515",
+                "nvidia-dkms-525",
+                "nvidia-dkms-535"
+            ],
+            "title": "NvidiaDkms470_PkgName"
+        },
+        "NvidiaDkms495_PkgName": {
+            "type": "string",
+            "enum": [
+                "nvidia-dkms-495",
+                "nvidia-dkms-510",
+                "nvidia-dkms-530"
+            ],
+            "title": "NvidiaDkms495_PkgName"
+        },
+        "Module": {
+            "type": "string",
+            "enum": [
+                "bt87x",
+                "cx88_alsa",
+                "md_mod",
+                "saa7134-alsa",
+                "snd-atiixp-modem",
+                "snd-cmipci",
+                "snd-intel8x0m",
+                "snd-pcsp",
+                "snd-usb-audio",
+                "snd-usb-caiaq",
+                "snd-usb-ua101",
+                "snd-usb-us122l",
+                "snd-usb-usx2y",
+                "snd-via82xx-modem",
+                "nvidia-drm",
+                "kvm_intel",
+                "nouveau",
+                "ib_ipoib",
+                "bcmdhd",
+                "pt5111",
+                "v4l2loopback",
+                "nvidia",
+                "nvme-core"
+            ],
+            "title": "Module"
+        },
+        "CPULPIFile": {
+            "type": "string",
+            "enum": [
+                "package_cstate_show",
+                "low_power_idle_cpu_residency_us"
+            ],
+            "title": "CPULPIFile"
+        },
+        "Governors": {
+            "type": "string",
+            "enum": [
+                "conservative ondemand userspace powersave performance schedutil",
+                "GOVERNORS NOT FOUND",
+                "performance powersave",
+                "conservative ondemand userspace powersave performance",
+                "userspace",
+                "ondemand userspace performance schedutil",
+                "ondemand performance schedutil",
+                "userspace ondemand performance schedutil"
+            ],
+            "title": "Governors"
+        },
+        "ModelNumberEnum": {
+            "type": "string",
+            "enum": [
+                "0x0",
+                "8335-GTB",
+                "0x1",
+                "0xd",
+                "0x2",
+                "0x3"
+            ],
+            "title": "ModelNumberEnum"
+        },
+        "Scaling": {
+            "type": "string",
+            "enum": [
+                "supported",
+                "non-supported"
+            ],
+            "title": "Scaling"
+        },
+        "SysLPIFile": {
+            "type": "string",
+            "enum": [
+                "slp_s0_residency_usec",
+                "low_power_idle_system_residency_us"
+            ],
+            "title": "SysLPIFile"
+        },
+        "ProcessorType": {
+            "type": "string",
+            "enum": [
+                "GenuineIntel",
+                "AuthenticAMD",
+                "s390x",
+                "BCM2835",
+                "PowerNV",
+                "aarch64",
+                "BCM2711",
+                "Freescale i.MX6 Ultralite (Device Tree)",
+                "BCM2709",
+                "Qualcomm Technologies, Inc SA8155P",
+                "riscv64",
+                "Freescale i.MX6 SoloX (Device Tree)",
+                "Freescale i.MX7 Dual (Device Tree)",
+                "HygonGenuine"
+            ],
+            "title": "ProcessorType"
+        },
+        "Channel": {
+            "type": "string",
+            "enum": [
+                "latest/stable",
+                "edge",
+                "latest/beta",
+                "stable",
+                "latest/candidate",
+                "20.04/stable",
+                "22/stable",
+                "latest/edge",
+                "4.0/stable",
+                "18.04/beta",
+                "uc18/beta",
+                "18/stable",
+                "latest/beta/feMoshagh4ip",
+                "16/stable",
+                "uc16/beta",
+                "uc18/stable",
+                "5.0/stable",
+                "uc20/stable",
+                "uc22/stable",
+                "20/stable",
+                "uc20/beta",
+                "20/candidate",
+                "18/beta",
+                "20.04/beta",
+                "18-pi/stable",
+                "uc16/edge",
+                "latest/stable/ubuntu-22.04",
+                "latest/stable/ubuntu-23.04",
+                "20/beta",
+                "kmc20/stable",
+                "1.10/stable",
+                "beta",
+                "uc20/edge",
+                "1.x/stable",
+                "20.04/edge",
+                "latest/beta/hwacc",
+                "latest/beta/shiner",
+                "latest/edge/buildkey",
+                "focal/edge",
+                "uc22/beta",
+                "22.04/stable",
+                "4.0/stable/ubuntu-22.04",
+                "22.04/edge",
+                "latest/edge/devel",
+                "dev/stable"
+            ],
+            "title": "Channel"
+        },
+        "Confinement": {
+            "type": "string",
+            "enum": [
+                "strict",
+                "classic",
+                "devmode"
+            ],
+            "title": "Confinement"
+        },
+        "Developer": {
+            "type": "string",
+            "enum": [
+                "canonical",
+                "mwhudson",
+                "cking-kernel-tools",
+                "ce-certification-qa",
+                "jdstrand",
+                "kde",
+                "ken-vandine",
+                "pwlars",
+                "didrocks",
+                "ozmartian",
+                "videolan",
+                "alangriffiths",
+                "vscode",
+                "snap-retiring",
+                "skype",
+                "pieq",
+                "mvo",
+                "mozilla",
+                "rigadobrandstore",
+                "ce-partners",
+                "waveform",
+                "kz6fittycent",
+                "openprinting",
+                "brand-store-ubuntu-bur",
+                "alexanderschaepperbur",
+                "plusonerobotics",
+                "cachio",
+                "kmc-commander",
+                "kmccontrols",
+                "m-iot",
+                "avt-bsso",
+                "brlin",
+                "de-iotcore",
+                "iotcore-snapstore-brand",
+                "interactive-strength",
+                "ondra",
+                "kdrp-brand",
+                "mosquitto",
+                "opennmsbrand",
+                "qualcomm-sso",
+                "everactive",
+                "everactive-snapstore",
+                "brandstore-btvs",
+                "xlnx",
+                "lenovo-snap",
+                "honeywellowner",
+                "fetcibs",
+                "elembio",
+                "redislabs",
+                "arif-ali",
+                "ccs-brand-store-group",
+                "capilano",
+                "amgiscore1",
+                "edgegateway",
+                "ceqa",
+                "western-digital",
+                "test-snaps-canonical",
+                "stephanosio",
+                "ibmcloud-snap",
+                "apearson",
+                "nvent-snapbrand",
+                "storethreeowner",
+                "tridiumstoreowner",
+                "storetwoowner",
+                "gsp-brand-id",
+                "woodrow"
+            ],
+            "title": "Developer"
+        },
+        "Devmode": {
+            "type": "string",
+            "enum": [
+                "False",
+                "True"
+            ],
+            "title": "Devmode"
+        },
+        "RevisionEnum": {
+            "type": "string",
+            "enum": [
+                "x3",
+                "x1"
+            ],
+            "title": "RevisionEnum"
+        },
+        "SnapPackageStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "installed"
+            ],
+            "title": "SnapPackageStatus"
+        },
+        "SnapPackageType": {
+            "type": "string",
+            "enum": [
+                "base",
+                "app",
+                "snapd",
+                "os",
+                "gadget",
+                "kernel"
+            ],
+            "title": "SnapPackageType"
+        }
+    }
+}

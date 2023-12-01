@@ -440,7 +440,7 @@
                     "type": "string"
                 },
                 "install_mods": {
-                    "$ref": "#/definitions/ASTDkmsInstallMods"
+                    "$ref": "#/definitions/DkmsInstallMods"
                 },
                 "kernel_ver": {
                     "type": "string"
@@ -471,21 +471,11 @@
             ],
             "title": "ASTDkms"
         },
-        "ASTDkmsInstallMods": {
+        "DkmsInstallMods": {
             "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "ast": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            },
-            "required": [
-                "ast"
-            ],
-            "title": "ASTDkmsInstallMods"
+            "additionalProperties": true,
+            "title": "DkmsInstallMods",
+            "description": "List of DKMS modules to install, and parameter values passed for them (?)"
         },
         "MurciaMeta": {
             "type": "object",
@@ -612,7 +602,7 @@
                     "$ref": "#/definitions/DkmsVer"
                 },
                 "install_mods": {
-                    "$ref": "#/definitions/FwtsEFIRuntimeDkmsInstallMods"
+                    "$ref": "#/definitions/DkmsInstallMods"
                 },
                 "kernel_ver": {
                     "type": "string"
@@ -642,11 +632,6 @@
                 "pkg_name"
             ],
             "title": "FwtsEFIRuntimeDkms"
-        },
-        "FwtsEFIRuntimeDkmsInstallMods": {
-            "type": "object",
-            "additionalProperties": false,
-            "title": "FwtsEFIRuntimeDkmsInstallMods"
         },
         "IntelGPGPUDkmsUbuntu5.17-OEM": {
             "type": "object",
@@ -696,32 +681,6 @@
             ],
             "title": "IntelGPGPUDkmsUbuntu5.17-OEM"
         },
-        "IntelGPGPUDkmsUbuntu5.17-OEMInstallMods": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "compat": {
-                    "type": "array",
-                    "items": {}
-                },
-                "i915": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "i915_spi": {
-                    "type": "array",
-                    "items": {}
-                }
-            },
-            "required": [
-                "compat",
-                "i915",
-                "i915_spi"
-            ],
-            "title": "IntelGPGPUDkmsUbuntu5.17-OEMInstallMods"
-        },
         "Dkms": {
             "type": "object",
             "additionalProperties": false,
@@ -739,7 +698,7 @@
                     "type": "string"
                 },
                 "install_mods": {
-                    "$ref": "#/definitions/FwtsEFIRuntimeDkmsInstallMods"
+                    "$ref": "#/definitions/DkmsInstallMods"
                 },
                 "kernel_ver": {
                     "type": "string"
@@ -853,7 +812,7 @@
                     "type": "string"
                 },
                 "install_mods": {
-                    "$ref": "#/definitions/KnemDkmsInstallMods"
+                    "$ref": "#/definitions/DkmsInstallMods"
                 },
                 "kernel_ver": {
                     "type": "string"
@@ -883,20 +842,6 @@
                 "pkg_name"
             ],
             "title": "KnemDkms"
-        },
-        "KnemDkmsInstallMods": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "knem": {
-                    "type": "array",
-                    "items": {}
-                }
-            },
-            "required": [
-                "knem"
-            ],
-            "title": "KnemDkmsInstallMods"
         },
         "MlnxOfedKernelDkms": {
             "type": "object",
@@ -1079,7 +1024,7 @@
                     "type": "string"
                 },
                 "install_mods": {
-                    "$ref": "#/definitions/NvidiaPeerMemoryDkmsInstallMods"
+                    "$ref": "#/definitions/DkmsInstallMods"
                 },
                 "kernel_ver": {
                     "type": "string"
@@ -1110,20 +1055,6 @@
             ],
             "title": "NvidiaPeerMemoryDkms"
         },
-        "NvidiaPeerMemoryDkmsInstallMods": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "nv_peer_mem": {
-                    "type": "array",
-                    "items": {}
-                }
-            },
-            "required": [
-                "nv_peer_mem"
-            ],
-            "title": "NvidiaPeerMemoryDkmsInstallMods"
-        },
         "OEMMarvellWireless1566612-Dkms": {
             "type": "object",
             "additionalProperties": false,
@@ -1141,7 +1072,7 @@
                     "type": "string"
                 },
                 "install_mods": {
-                    "$ref": "#/definitions/OEMMarvellWireless1566612-DkmsInstallMods"
+                    "$ref": "#/definitions/DkmsInstallMods"
                 },
                 "kernel_ver": {
                     "type": "string"
@@ -1172,27 +1103,6 @@
             ],
             "title": "OEMMarvellWireless1566612-Dkms"
         },
-        "OEMMarvellWireless1566612-DkmsInstallMods": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "mwifiex": {
-                    "type": "array",
-                    "items": {}
-                },
-                "mwifiex_pcie": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            },
-            "required": [
-                "mwifiex",
-                "mwifiex_pcie"
-            ],
-            "title": "OEMMarvellWireless1566612-DkmsInstallMods"
-        },
         "PfengDkms": {
             "type": "object",
             "additionalProperties": false,
@@ -1210,7 +1120,7 @@
                     "type": "string"
                 },
                 "install_mods": {
-                    "$ref": "#/definitions/PfengDkmsInstallMods"
+                    "$ref": "#/definitions/InstallMods"
                 },
                 "kernel_ver": {
                     "type": "string"
@@ -1241,22 +1151,6 @@
             ],
             "title": "PfengDkms"
         },
-        "PfengDkmsInstallMods": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "pfeng": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            },
-            "required": [
-                "pfeng"
-            ],
-            "title": "PfengDkmsInstallMods"
-        },
         "Rtl8821CeDkms": {
             "type": "object",
             "additionalProperties": false,
@@ -1274,7 +1168,7 @@
                     "type": "string"
                 },
                 "install_mods": {
-                    "$ref": "#/definitions/Rtl8821CeDkmsInstallMods"
+                    "$ref": "#/definitions/DkmsInstallMods"
                 },
                 "kernel_ver": {
                     "type": "string"
@@ -1305,20 +1199,6 @@
             ],
             "title": "Rtl8821CeDkms"
         },
-        "Rtl8821CeDkmsInstallMods": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "rtl8821ce": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            },
-            "required": [],
-            "title": "Rtl8821CeDkmsInstallMods"
-        },
         "Sja1110Dkms": {
             "type": "object",
             "additionalProperties": false,
@@ -1336,7 +1216,7 @@
                     "type": "string"
                 },
                 "install_mods": {
-                    "$ref": "#/definitions/Sja1110DkmsInstallMods"
+                    "$ref": "#/definitions/DkmsInstallMods"
                 },
                 "kernel_ver": {
                     "type": "string"
@@ -1366,22 +1246,6 @@
                 "pkg_name"
             ],
             "title": "Sja1110Dkms"
-        },
-        "Sja1110DkmsInstallMods": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "sja1110": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            },
-            "required": [
-                "sja1110"
-            ],
-            "title": "Sja1110DkmsInstallMods"
         },
         "Memory": {
             "type": "object",

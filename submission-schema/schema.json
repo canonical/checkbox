@@ -431,7 +431,7 @@
                     "$ref": "#/definitions/Platform"
                 },
                 "dkms-status": {
-                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                    "$ref": "#/definitions/DkmsStatus"
                 },
                 "dkms_name": {
                     "type": "string"
@@ -603,7 +603,7 @@
                     "$ref": "#/definitions/Platform"
                 },
                 "dkms-status": {
-                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                    "$ref": "#/definitions/DkmsStatus"
                 },
                 "dkms_name": {
                     "$ref": "#/definitions/DkmsName"
@@ -656,7 +656,7 @@
                     "$ref": "#/definitions/Platform"
                 },
                 "dkms-status": {
-                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                    "$ref": "#/definitions/DkmsStatus"
                 },
                 "dkms_name": {
                     "type": "string"
@@ -730,7 +730,7 @@
                     "$ref": "#/definitions/Platform"
                 },
                 "dkms-status": {
-                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                    "$ref": "#/definitions/DkmsStatus"
                 },
                 "dkms_name": {
                     "type": "string"
@@ -844,7 +844,7 @@
                     "$ref": "#/definitions/Platform"
                 },
                 "dkms-status": {
-                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                    "$ref": "#/definitions/DkmsStatus"
                 },
                 "dkms_name": {
                     "$ref": "#/definitions/Source"
@@ -906,7 +906,7 @@
                     "$ref": "#/definitions/Platform"
                 },
                 "dkms-status": {
-                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                    "$ref": "#/definitions/DkmsStatus"
                 },
                 "dkms_name": {
                     "$ref": "#/definitions/SourceEnum"
@@ -1070,7 +1070,7 @@
                     "$ref": "#/definitions/Platform"
                 },
                 "dkms-status": {
-                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                    "$ref": "#/definitions/DkmsStatus"
                 },
                 "dkms_name": {
                     "type": "string"
@@ -1132,7 +1132,7 @@
                     "$ref": "#/definitions/Platform"
                 },
                 "dkms-status": {
-                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                    "$ref": "#/definitions/DkmsStatus"
                 },
                 "dkms_name": {
                     "type": "string"
@@ -1201,7 +1201,7 @@
                     "$ref": "#/definitions/Platform"
                 },
                 "dkms-status": {
-                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                    "$ref": "#/definitions/DkmsStatus"
                 },
                 "dkms_name": {
                     "$ref": "#/definitions/DkmsName"
@@ -1265,7 +1265,7 @@
                     "$ref": "#/definitions/Platform"
                 },
                 "dkms-status": {
-                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                    "$ref": "#/definitions/DkmsStatus"
                 },
                 "dkms_name": {
                     "$ref": "#/definitions/Source"
@@ -1327,7 +1327,7 @@
                     "$ref": "#/definitions/Platform"
                 },
                 "dkms-status": {
-                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
+                    "$ref": "#/definitions/DkmsStatus"
                 },
                 "dkms_name": {
                     "$ref": "#/definitions/DkmsName"
@@ -1824,13 +1824,6 @@
             ],
             "title": "Platform"
         },
-        "ASTDkmsDkmsStatus": {
-            "type": "string",
-            "enum": [
-                "dkms"
-            ],
-            "title": "ASTDkmsDkmsStatus"
-        },
         "Breaks": {
             "type": "string",
             "enum": [
@@ -2098,6 +2091,13 @@
                 "kernel"
             ],
             "title": "SnapPackageType"
+        },
+        "DkmsStatus": {
+            "type": "string",
+            "enum": [
+                "dkms"
+            ],
+            "title": "DkmsStatus"
         }
     }
 }

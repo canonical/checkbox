@@ -455,7 +455,7 @@
                     "$ref": "#/definitions/MurciaMeta"
                 },
                 "pkg_name": {
-                    "$ref": "#/definitions/DkmsNameEnum"
+                    "$ref": "#/definitions/DkmsName"
                 }
             },
             "required": [
@@ -508,7 +508,7 @@
                     "type": "string"
                 },
                 "package": {
-                    "$ref": "#/definitions/DkmsNameEnum"
+                    "$ref": "#/definitions/DkmsName"
                 },
                 "priority": {
                     "$ref": "#/definitions/Priority"
@@ -606,7 +606,7 @@
                     "$ref": "#/definitions/ASTDkmsDkmsStatus"
                 },
                 "dkms_name": {
-                    "$ref": "#/definitions/DkmsNameEnum"
+                    "$ref": "#/definitions/DkmsName"
                 },
                 "dkms_ver": {
                     "$ref": "#/definitions/DkmsVer"
@@ -627,7 +627,7 @@
                     "$ref": "#/definitions/MurciaMeta"
                 },
                 "pkg_name": {
-                    "$ref": "#/definitions/DkmsNameEnum"
+                    "$ref": "#/definitions/DkmsName"
                 }
             },
             "required": [
@@ -754,7 +754,7 @@
                     "$ref": "#/definitions/IserDkmsPkg"
                 },
                 "pkg_name": {
-                    "$ref": "#/definitions/DkmsNameEnum"
+                    "$ref": "#/definitions/DkmsName"
                 }
             },
             "required": [
@@ -798,7 +798,7 @@
                     "type": "string"
                 },
                 "package": {
-                    "$ref": "#/definitions/DkmsNameEnum"
+                    "$ref": "#/definitions/DkmsName"
                 },
                 "priority": {
                     "$ref": "#/definitions/Priority"
@@ -936,7 +936,7 @@
                     "$ref": "#/definitions/MurciaMeta"
                 },
                 "pkg_name": {
-                    "$ref": "#/definitions/DkmsNameEnum"
+                    "$ref": "#/definitions/DkmsName"
                 }
             },
             "required": [
@@ -1238,7 +1238,7 @@
                     "$ref": "#/definitions/MurciaMeta"
                 },
                 "pkg_name": {
-                    "$ref": "#/definitions/DkmsNameEnum"
+                    "$ref": "#/definitions/DkmsName"
                 }
             },
             "required": [
@@ -1348,7 +1348,7 @@
                     "$ref": "#/definitions/ASTDkmsDkmsStatus"
                 },
                 "dkms_name": {
-                    "$ref": "#/definitions/DkmsNameEnum"
+                    "$ref": "#/definitions/DkmsName"
                 },
                 "dkms_ver": {
                     "type": "string"
@@ -1369,7 +1369,7 @@
                     "$ref": "#/definitions/MurciaMeta"
                 },
                 "pkg_name": {
-                    "$ref": "#/definitions/DkmsNameEnum"
+                    "$ref": "#/definitions/DkmsName"
                 }
             },
             "required": [
@@ -1474,7 +1474,7 @@
                     "$ref": "#/definitions/ASTDkmsDkmsStatus"
                 },
                 "dkms_name": {
-                    "$ref": "#/definitions/DkmsNameEnum"
+                    "$ref": "#/definitions/DkmsName"
                 },
                 "dkms_ver": {
                     "type": "string"
@@ -1495,7 +1495,7 @@
                     "$ref": "#/definitions/MurciaMeta"
                 },
                 "pkg_name": {
-                    "$ref": "#/definitions/DkmsNameEnum"
+                    "$ref": "#/definitions/DkmsName"
                 }
             },
             "required": [
@@ -1994,50 +1994,10 @@
             ],
             "title": "MurciaMetaConflicts"
         },
-        "DkmsNameEnum": {
+        "DkmsName": {
             "type": "string",
-            "enum": [
-                "ast-dkms",
-                "backport-iwlwifi-dkms",
-                "fwts-efi-runtime-dkms",
-                "iser-dkms",
-                "isert-dkms",
-                "kernel-mft-dkms",
-                "mlnx-ofed-kernel-dkms",
-                "murcia-meta",
-                "nvidia-dkms-470",
-                "nvidia-peer-memory-dkms",
-                "oem-amaro-meta",
-                "oem-beaver-osp1-loras-meta",
-                "oem-beaver-osp1-melisa-meta",
-                "oem-beaver-osp1-missandei-meta",
-                "oem-disable-wacom-gesture-lp1777815",
-                "oem-ethernet-r8169-aspm-support-bionic-dkms",
-                "oem-fix-audio-cirrus-default-sample-rate",
-                "oem-fix-audio-intel-soundwire",
-                "oem-fix-bt-intel-icl-0aaa.firmware.divert",
-                "oem-fix-cam-intel-mipi-ipu6ep",
-                "oem-fix-eth-realtek-disabletlpr8153",
-                "oem-fix-eth-rtl-mac-pass-through",
-                "oem-fix-fpr-goodix-deletestoredfp",
-                "oem-fix-gfx-nvidia-ondemandmode",
-                "oem-fix-gfx-nvidia-powersavingmode",
-                "oem-fix-misc-cnl-backport-iwlwifi-helper",
-                "oem-fix-misc-intel-fccunlock",
-                "oem-hic",
-                "oem-ircamera-workaround-1725152",
-                "oem-jinju-jasper-meta",
-                "oem-kernel-parameter-dg2",
-                "oem-kernel-parameter-suspend-to-ram",
-                "oem-kernel-parameter-tsc-reliable",
-                "pfeng-dkms",
-                "sja1110-dkms",
-                "srp-dkms",
-                "tlp-config",
-                "tlp-sensible",
-                "mlnx-nfsrdma-dkms"
-            ],
-            "title": "DkmsNameEnum"
+            "title": "DkmsName",
+            "description": "Dynamic kernel module name"
         },
         "Provides": {
             "type": "string",

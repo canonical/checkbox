@@ -962,7 +962,7 @@
                     "$ref": "#/definitions/MultiArch"
                 },
                 "package": {
-                    "$ref": "#/definitions/NvidiaDkms470_PkgName"
+                    "$ref": "#/definitions/PkgName"
                 },
                 "priority": {
                     "$ref": "#/definitions/Priority"
@@ -1765,14 +1765,6 @@
             ],
             "title": "NvidiaDkms390_Mod"
         },
-        "NvidiaDkms390_PkgName": {
-            "type": "string",
-            "enum": [
-                "nvidia-dkms-390",
-                "tp-smapi-dkms"
-            ],
-            "title": "NvidiaDkms390_PkgName"
-        },
         "Nvidia": {
             "type": "string",
             "enum": [
@@ -1789,24 +1781,10 @@
             ],
             "title": "Maintainer"
         },
-        "NvidiaDkms470_PkgName": {
+        "PkgName": {
             "type": "string",
-            "enum": [
-                "nvidia-dkms-470",
-                "nvidia-dkms-515",
-                "nvidia-dkms-525",
-                "nvidia-dkms-535"
-            ],
-            "title": "NvidiaDkms470_PkgName"
-        },
-        "NvidiaDkms495_PkgName": {
-            "type": "string",
-            "enum": [
-                "nvidia-dkms-495",
-                "nvidia-dkms-510",
-                "nvidia-dkms-530"
-            ],
-            "title": "NvidiaDkms495_PkgName"
+            "title": "PkgName",
+            "description": "Package name"
         },
         "Module": {
             "type": "string",

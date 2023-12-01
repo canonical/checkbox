@@ -313,9 +313,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "architecture": {
-                    "$ref": "#/definitions/AmaroThirdPartyToolsArchitecture"
-                },
+                "architecture": "#/definitions/OSArchitecture",
                 "description": {
                     "type": "string"
                 },
@@ -491,9 +489,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "architecture": {
-                    "$ref": "#/definitions/AmaroThirdPartyToolsArchitecture"
-                },
+                "architecture": "#/definitions/OSArchitecture",
                 "depends": {
                     "type": "string"
                 },
@@ -774,9 +770,7 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
-                "architecture": {
-                    "$ref": "#/definitions/AmaroThirdPartyToolsArchitecture"
-                },
+                "architecture": "#/definitions/OSArchitecture",
                 "depends": {
                     "type": "string"
                 },
@@ -1866,14 +1860,6 @@
             "title": "DistributorID",
             "description": "OS release distributor ID (the value matching `lsb_release -i`)"
         },
-        "AmaroThirdPartyToolsArchitecture": {
-            "type": "string",
-            "enum": [
-                "all",
-                "amd64"
-            ],
-            "title": "AmaroThirdPartyToolsArchitecture"
-        },
         "ProvidesEnum": {
             "type": "string",
             "enum": [
@@ -2409,6 +2395,14 @@
                 "kernel"
             ],
             "title": "SnapPackageType"
+        },
+        "OSArchitecture": {
+            "type": "string",
+            "enum": [
+                "all",
+                "amd64"
+            ],
+            "title": "OSArchitecture"
         }
     }
 }

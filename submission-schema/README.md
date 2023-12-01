@@ -49,7 +49,6 @@ done
 
 ### Generating Python loader out of the schema
 
-
 `quicktype` can be used to generate the schema, as well as Python classes representing submission data.
 
 #### Getting quicktype

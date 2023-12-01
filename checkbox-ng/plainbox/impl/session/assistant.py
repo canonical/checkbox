@@ -34,6 +34,9 @@ import shlex
 import time
 from tempfile import SpooledTemporaryFile
 
+
+from checkbox_ng.app_context import application_name
+
 from plainbox.abc import IJobResult
 from plainbox.abc import IJobRunnerUI
 from plainbox.abc import ISessionStateTransport
@@ -123,7 +126,11 @@ class SessionAssistant:
     # TODO: create a flowchart of possible states
 
     def __init__(
-        self, app_id, app_version=None, api_version="0.99", api_flags=()
+        self,
+        app_id=application_name(),
+        app_version=None,
+        api_version="0.99",
+        api_flags=(),
     ):
         """
         Initialize a new session assistant.

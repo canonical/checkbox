@@ -26,35 +26,36 @@ from plainbox.vendor import mock
 from plainbox.vendor import morris
 
 
-@mock.patch('plainbox.impl.session.assistant.get_providers')
+@mock.patch("plainbox.impl.session.assistant.get_providers")
 class SessionAssistantTests(morris.SignalTestCase):
 
     """Tests for the SessionAssitant class."""
 
-    APP_ID = 'app-id'
-    APP_VERSION = '1.0'
-    API_VERSION = '0.99'
+    APP_ID = "app-id"
+    APP_VERSION = "1.0"
+    API_VERSION = "0.99"
     API_FLAGS = []
 
     def setUp(self):
         """Common set-up code."""
         self.sa = SessionAssistant(
-            self.APP_ID, self.APP_VERSION, self.API_VERSION, self.API_FLAGS)
+            self.APP_ID, self.APP_VERSION, self.API_VERSION, self.API_FLAGS
+        )
         # Monitor the provider_selected signal since some tests check it
         self.watchSignal(self.sa.provider_selected)
         # Create a few mocked providers that tests can use.
         # The all-important plainbox provider
-        self.p1 = mock.Mock(spec_set=Provider1, name='p1')
-        self.p1.namespace = 'com.canonical.plainbox'
-        self.p1.name = 'com.canonical.plainbox:special'
+        self.p1 = mock.Mock(spec_set=Provider1, name="p1")
+        self.p1.namespace = "com.canonical.plainbox"
+        self.p1.name = "com.canonical.plainbox:special"
         # An example 3rd party provider
-        self.p2 = mock.Mock(spec_set=Provider1, name='p2')
-        self.p2.namespace = 'pl.zygoon'
-        self.p2.name = 'pl.zygoon:example'
+        self.p2 = mock.Mock(spec_set=Provider1, name="p2")
+        self.p2.namespace = "pl.zygoon"
+        self.p2.name = "pl.zygoon:example"
         # A Canonical certification provider
-        self.p3 = mock.Mock(spec_set=Provider1, name='p3')
-        self.p3.namespace = 'com.canonical.certification'
-        self.p3.name = 'com.canonical.certification:stuff'
+        self.p3 = mock.Mock(spec_set=Provider1, name="p3")
+        self.p3.namespace = "com.canonical.certification"
+        self.p3.name = "com.canonical.certification:stuff"
 
     def _get_mock_providers(self):
         """Get some mocked provides for testing."""
@@ -64,16 +65,22 @@ class SessionAssistantTests(morris.SignalTestCase):
         """Track the sequence of allowed method calls."""
         mock_get_providers.return_value = self._get_mock_providers()
         # SessionAssistant.start_new_session() must now be allowed
-        self.assertIn(self.sa.start_new_session,
-                      UsageExpectation.of(self.sa).allowed_calls)
+        self.assertIn(
+            self.sa.start_new_session,
+            UsageExpectation.of(self.sa).allowed_calls,
+        )
         # Call SessionAssistant.start_new_session()
         self.sa.start_new_session("just for testing")
         # SessionAssistant.start_new_session() must no longer allowed
-        self.assertNotIn(self.sa.start_new_session,
-                         UsageExpectation.of(self.sa).allowed_calls)
+        self.assertNotIn(
+            self.sa.start_new_session,
+            UsageExpectation.of(self.sa).allowed_calls,
+        )
         # SessionAssistant.select_test_plan() must now be allowed
-        self.assertIn(self.sa.select_test_plan,
-                      UsageExpectation.of(self.sa).allowed_calls)
+        self.assertIn(
+            self.sa.select_test_plan,
+            UsageExpectation.of(self.sa).allowed_calls,
+        )
         # Use the manager to tidy up after the tests when normally you wouldnt
         # be allowed to
         self.sa._manager.destroy()

@@ -16,9 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import json
 from unittest import TestCase, mock
 
+from checkbox_ng.launcher.agent import is_the_session_noninteractive
 from checkbox_ng.launcher.agent import RemoteAgent
+from plainbox.impl.session.assistant import ResumeCandidate
+from plainbox.impl.session.state import SessionMetaData
 
 
 class AgentTests(TestCase):
@@ -61,3 +65,24 @@ class AgentTests(TestCase):
         server = threaded_server_mock.return_value
         # the server was started
         self.assertTrue(server.start.called)
+
+
+class IsTheSessionNonInteractiveTests(TestCase):
+    def test_a_non_interactive_one(self):
+        a_non_interactive_launcher = """
+            [ui]
+            type = silent
+        """
+        app_blob = json.dumps({"launcher": a_non_interactive_launcher})
+        metadata = SessionMetaData(app_blob=app_blob.encode("utf-8"))
+
+        candidate = ResumeCandidate("an_id", metadata)
+        self.assertTrue(is_the_session_noninteractive(candidate))
+
+    def test_an_interactive(self):
+        a_non_interactive_launcher = ""  # the defautl one is interactive
+        app_blob = json.dumps({"launcher": a_non_interactive_launcher})
+        metadata = SessionMetaData(app_blob=app_blob.encode("utf-8"))
+
+        candidate = ResumeCandidate("an_id", metadata)
+        self.assertFalse(is_the_session_noninteractive(candidate))

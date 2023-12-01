@@ -287,399 +287,10 @@
         },
         "DkmsInfo": {
             "type": "object",
-            "additionalProperties": false,
-            "required": [
-                "properties"
-            ],
-            "title": "DkmsInfo",
-            "properties": {
-                "properties": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "object",
-                        "required": [
-                            "$ref"
-                        ],
-                        "properties": {
-                            "$ref": {
-                                "type": "string"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "AmaroThirdPartyTools": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "architecture": {
-                    "$ref": "#/definitions/OSArchitecture"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "dkms-status": {
-                    "$ref": "#/definitions/AmaroThirdPartyToolsDkmsStatus"
-                },
-                "installed-size": {
-                    "type": "string",
-                    "format": "integer"
-                },
-                "maintainer": {
-                    "type": "string"
-                },
-                "match_patterns": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "modaliases": {
-                    "type": "string"
-                },
-                "package": {
-                    "type": "string"
-                },
-                "priority": {
-                    "$ref": "#/definitions/Priority"
-                },
-                "section": {
-                    "$ref": "#/definitions/Section"
-                },
-                "status": {
-                    "$ref": "#/definitions/AmaroThirdPartyToolsStatus"
-                },
-                "ubuntu-oem-kernel-flavour": {
-                    "$ref": "#/definitions/UbuntuOEMKernelFlavour"
-                },
-                "version": {
-                    "type": "string"
-                },
-                "conffiles": {
-                    "type": "string"
-                },
-                "depends": {
-                    "type": "string"
-                },
-                "recommends": {
-                    "type": "string"
-                },
-                "homepage": {
-                    "type": "string",
-                    "format": "uri",
-                    "qt-uri-protocols": [
-                        "http",
-                        "https"
-                    ]
-                },
-                "provides": {
-                    "$ref": "#/definitions/PackageList"
-                },
-                "source": {
-                    "$ref": "#/definitions/Source"
-                },
-                "conflicts": {
-                    "$ref": "#/definitions/PackageList"
-                },
-                "original-maintainer": {
-                    "$ref": "#/definitions/OriginalMaintainer"
-                },
-                "breaks": {
-                    "type": "string"
-                },
-                "multi-arch": {
-                    "$ref": "#/definitions/MultiArch"
-                },
-                "replaces": {
-                    "type": "string"
-                },
-                "support": {
-                    "$ref": "#/definitions/Support"
-                },
-                "pmaliases": {
-                    "type": "string"
-                },
-                "suggests": {
-                    "$ref": "#/definitions/Suggests"
-                },
-                "config-version": {
-                    "type": "string"
-                },
-                "pre-depends": {
-                    "type": "string"
-                }
+            "additionalProperties": {
+                "$ref": "#/definitions/Dkms"
             },
-            "required": [
-                "architecture",
-                "description",
-                "installed-size",
-                "maintainer",
-                "package",
-                "priority",
-                "section",
-                "status",
-                "version"
-            ],
-            "title": "AmaroThirdPartyTools"
-        },
-        "ASTDkms": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "arch": {
-                    "$ref": "#/definitions/Platform"
-                },
-                "dkms-status": {
-                    "$ref": "#/definitions/DkmsStatus"
-                },
-                "dkms_name": {
-                    "type": "string"
-                },
-                "dkms_ver": {
-                    "type": "string"
-                },
-                "install_mods": {
-                    "$ref": "#/definitions/DkmsInstallMods"
-                },
-                "kernel_ver": {
-                    "type": "string"
-                },
-                "mods": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "pkg": {
-                    "$ref": "#/definitions/MurciaMeta"
-                },
-                "pkg_name": {
-                    "$ref": "#/definitions/DkmsName"
-                }
-            },
-            "required": [
-                "arch",
-                "dkms-status",
-                "dkms_name",
-                "dkms_ver",
-                "install_mods",
-                "kernel_ver",
-                "mods",
-                "pkg",
-                "pkg_name"
-            ],
-            "title": "ASTDkms"
-        },
-        "DkmsInstallMods": {
-            "type": "object",
-            "additionalProperties": true,
-            "title": "DkmsInstallMods",
-            "description": "List of DKMS modules to install, and parameter values passed for them (?)"
-        },
-        "MurciaMeta": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "architecture": {
-                    "$ref": "#/definitions/OSArchitecture"
-                },
-                "depends": {
-                    "type": "string"
-                },
-                "description": {
-                    "type": "string"
-                },
-                "installed-size": {
-                    "type": "string",
-                    "format": "integer"
-                },
-                "maintainer": {
-                    "type": "string"
-                },
-                "package": {
-                    "$ref": "#/definitions/DkmsName"
-                },
-                "priority": {
-                    "$ref": "#/definitions/Priority"
-                },
-                "provides": {
-                    "$ref": "#/definitions/PackageList"
-                },
-                "section": {
-                    "$ref": "#/definitions/Section"
-                },
-                "status": {
-                    "$ref": "#/definitions/AmaroThirdPartyToolsStatus"
-                },
-                "version": {
-                    "type": "string"
-                },
-                "homepage": {
-                    "type": "string",
-                    "format": "uri",
-                    "qt-uri-protocols": [
-                        "http",
-                        "https"
-                    ]
-                },
-                "modaliases": {
-                    "type": "string"
-                },
-                "original-maintainer": {
-                    "type": "string"
-                },
-                "source": {
-                    "$ref": "#/definitions/SourceEnum"
-                },
-                "config-version": {
-                    "type": "string"
-                },
-                "recommends": {
-                    "type": "string"
-                },
-                "conflicts": {
-                    "$ref": "#/definitions/PackageList"
-                },
-                "replaces": {
-                    "type": "string"
-                },
-                "dkms-status": {
-                    "$ref": "#/definitions/AmaroThirdPartyToolsDkmsStatus"
-                },
-                "match_patterns": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "breaks": {
-                    "$ref": "#/definitions/Breaks"
-                },
-                "multi-arch": {
-                    "$ref": "#/definitions/MultiArch"
-                },
-                "conffiles": {
-                    "type": "string"
-                },
-                "ubuntu-oem-kernel-flavour": {
-                    "$ref": "#/definitions/UbuntuOEMKernelFlavour"
-                },
-                "unused_dkms": {
-                    "type": "boolean"
-                },
-                "suggests": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "architecture",
-                "description",
-                "installed-size",
-                "maintainer",
-                "package",
-                "priority",
-                "section",
-                "status",
-                "version"
-            ],
-            "title": "MurciaMeta"
-        },
-        "FwtsEFIRuntimeDkms": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "arch": {
-                    "$ref": "#/definitions/Platform"
-                },
-                "dkms-status": {
-                    "$ref": "#/definitions/DkmsStatus"
-                },
-                "dkms_name": {
-                    "$ref": "#/definitions/DkmsName"
-                },
-                "dkms_ver": {
-                    "$ref": "#/definitions/DkmsVer"
-                },
-                "install_mods": {
-                    "$ref": "#/definitions/DkmsInstallMods"
-                },
-                "kernel_ver": {
-                    "type": "string"
-                },
-                "mods": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/FwtsEFIRuntimeDkmsMod"
-                    }
-                },
-                "pkg": {
-                    "$ref": "#/definitions/MurciaMeta"
-                },
-                "pkg_name": {
-                    "$ref": "#/definitions/DkmsName"
-                }
-            },
-            "required": [
-                "arch",
-                "dkms-status",
-                "dkms_name",
-                "dkms_ver",
-                "install_mods",
-                "kernel_ver",
-                "mods",
-                "pkg",
-                "pkg_name"
-            ],
-            "title": "FwtsEFIRuntimeDkms"
-        },
-        "IntelGPGPUDkmsUbuntu5.17-OEM": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "arch": {
-                    "$ref": "#/definitions/Platform"
-                },
-                "dkms-status": {
-                    "$ref": "#/definitions/DkmsStatus"
-                },
-                "dkms_name": {
-                    "type": "string"
-                },
-                "dkms_ver": {
-                    "type": "string"
-                },
-                "install_mods": {
-                    "$ref": "#/definitions/IntelGPGPUDkmsUbuntu5.17-OEMInstallMods"
-                },
-                "kernel_ver": {
-                    "type": "string"
-                },
-                "mods": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "pkg": {
-                    "$ref": "#/definitions/AmaroThirdPartyTools"
-                },
-                "pkg_name": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "arch",
-                "dkms-status",
-                "dkms_name",
-                "dkms_ver",
-                "install_mods",
-                "kernel_ver",
-                "mods",
-                "pkg",
-                "pkg_name"
-            ],
-            "title": "IntelGPGPUDkmsUbuntu5.17-OEM"
+            "title": "Each key in this object is the name of a DKM, and against it is information about the module"
         },
         "Dkms": {
             "type": "object",
@@ -1234,13 +845,6 @@
             "title": "PackageList",
             "description": "List of packages"
         },
-        "AmaroThirdPartyToolsDkmsStatus": {
-            "type": "string",
-            "enum": [
-                "non-dkms"
-            ],
-            "title": "AmaroThirdPartyToolsDkmsStatus"
-        },
         "MultiArch": {
             "type": "string",
             "enum": [
@@ -1255,7 +859,8 @@
                 "Boger.Wang <boger@goodix.com>",
                 "Evgeni Golov <evgeni@debian.org>"
             ],
-            "title": "OriginalMaintainer"
+            "title": "OriginalMaintainer",
+            "description": "Original maintainer in the 'Given Family <email@address.com>' form"
         },
         "Priority": {
             "type": "string",
@@ -1278,16 +883,6 @@
                 "net"
             ],
             "title": "Section"
-        },
-        "AmaroThirdPartyToolsStatus": {
-            "type": "string",
-            "enum": [
-                "install ok installed",
-                "deinstall ok config-files",
-                "install ok unpacked",
-                "install ok half-configured"
-            ],
-            "title": "AmaroThirdPartyToolsStatus"
         },
         "Suggests": {
             "type": "string",
@@ -1338,11 +933,6 @@
             ],
             "title": "Breaks"
         },
-        "DkmsName": {
-            "type": "string",
-            "title": "DkmsName",
-            "description": "Dynamic kernel module name"
-        },
         "SourceEnum": {
             "type": "string",
             "enum": [
@@ -1358,18 +948,6 @@
                 "mlnx-nfsrdma"
             ],
             "title": "SourceEnum"
-        },
-        "DkmsVer": {
-            "type": "string",
-            "title": "DkmsVer",
-            "description": "Version string for the dynamic kernel module"
-        },
-        "FwtsEFIRuntimeDkmsMod": {
-            "type": "string",
-            "enum": [
-                "efi_runtime"
-            ],
-            "title": "FwtsEFIRuntimeDkmsMod"
         },
         "Source": {
             "type": "string",
@@ -1391,38 +969,6 @@
                 "tp-smapi"
             ],
             "title": "Source"
-        },
-        "NvidiaDkms390_DkmsName": {
-            "type": "string",
-            "enum": [
-                "nvidia",
-                "tp_smapi",
-                "tp-smapi"
-            ],
-            "title": "NvidiaDkms390_DkmsName"
-        },
-        "NvidiaDkms390_Mod": {
-            "type": "string",
-            "enum": [
-                "nvidia",
-                "nvidia_uvm",
-                "nvidia_modeset",
-                "nvidia_drm",
-                "tp_smapi",
-                "thinkpad_ec",
-                "hdaps",
-                "nvidia_peermem"
-            ],
-            "title": "NvidiaDkms390_Mod"
-        },
-        "Nvidia": {
-            "type": "string",
-            "enum": [
-                "pci:v000010DEd*sv*sd*bc03sc00i00*",
-                "pci:v000010DEd*sv*sd*bc03sc02i00*",
-                "pci:v000010DEd*sv*sd*bc06sc80i00*"
-            ],
-            "title": "Nvidia"
         },
         "Maintainer": {
             "type": "string",
@@ -1521,13 +1067,6 @@
                 "kernel"
             ],
             "title": "SnapPackageType"
-        },
-        "DkmsStatus": {
-            "type": "string",
-            "enum": [
-                "dkms"
-            ],
-            "title": "DkmsStatus"
         }
     }
 }

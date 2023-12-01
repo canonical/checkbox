@@ -117,9 +117,9 @@ flags: also-after-suspend
 _summary: Webcam brisque score for {{ product_slug }}
 estimated_duration: 20s
 depends: camera/detect
-requires: lsb.release >= '22.04'
+requires: lsb.release == '22.04'
 command:
-  timeout 120 camera_quality_test.py -d {{ name }} || 
+  timeout 120 camera_quality_test.py -d {{ name }} ||
   (>&2 echo "Timeout computing score"; false)
 _description:
   Takes a picture and computes the quality based on a No-Reference image

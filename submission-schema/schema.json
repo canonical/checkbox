@@ -374,13 +374,13 @@
                     ]
                 },
                 "provides": {
-                    "$ref": "#/definitions/ProvidesEnum"
+                    "$ref": "#/definitions/PackageList"
                 },
                 "source": {
                     "$ref": "#/definitions/Source"
                 },
                 "conflicts": {
-                    "$ref": "#/definitions/ProvidesEnum"
+                    "$ref": "#/definitions/PackageList"
                 },
                 "original-maintainer": {
                     "$ref": "#/definitions/OriginalMaintainer"
@@ -504,7 +504,7 @@
                     "$ref": "#/definitions/Priority"
                 },
                 "provides": {
-                    "$ref": "#/definitions/Provides"
+                    "$ref": "#/definitions/PackageList"
                 },
                 "section": {
                     "$ref": "#/definitions/Section"
@@ -539,7 +539,7 @@
                     "type": "string"
                 },
                 "conflicts": {
-                    "$ref": "#/definitions/MurciaMetaConflicts"
+                    "$ref": "#/definitions/PackageList"
                 },
                 "replaces": {
                     "type": "string"
@@ -936,7 +936,7 @@
                     "$ref": "#/definitions/Breaks"
                 },
                 "conflicts": {
-                    "$ref": "#/definitions/ProvidesEnum"
+                    "$ref": "#/definitions/PackageList"
                 },
                 "depends": {
                     "type": "string"
@@ -968,7 +968,7 @@
                     "$ref": "#/definitions/Priority"
                 },
                 "provides": {
-                    "$ref": "#/definitions/ProvidesEnum"
+                    "$ref": "#/definitions/PackageList"
                 },
                 "replaces": {
                     "type": "string"
@@ -1579,20 +1579,10 @@
             "title": "DistributorID",
             "description": "OS release distributor ID (the value matching `lsb_release -i`)"
         },
-        "ProvidesEnum": {
+        "PackageList": {
             "type": "string",
-            "enum": [
-                "libcamhal.so.0",
-                "nvidia-dkms-kernel",
-                "nvidia-driver-lrm-535",
-                "oem-fix-hotkey-cnl-1883044",
-                "oem-fix-gfx-nvidia-1868199, oem-fix-misc-cnl-1886894",
-                "oem-fix-misc-cnl-1886894",
-                "oem-fix-misc-nvidia-lp1845801",
-                "i915-modules",
-                "oem-somerville-onix-adl-meta"
-            ],
-            "title": "ProvidesEnum"
+            "title": "PackageList",
+            "description": "List of packages"
         },
         "AmaroThirdPartyToolsDkmsStatus": {
             "type": "string",
@@ -1698,29 +1688,10 @@
             ],
             "title": "Breaks"
         },
-        "MurciaMetaConflicts": {
-            "type": "string",
-            "enum": [
-                "mlnx-rdma-rxe-dkms",
-                "nvidia-dkms-kernel",
-                "oem-fix-tlp-realtek-lp1819812-blacklistr8153 (<= 2)"
-            ],
-            "title": "MurciaMetaConflicts"
-        },
         "DkmsName": {
             "type": "string",
             "title": "DkmsName",
             "description": "Dynamic kernel module name"
-        },
-        "Provides": {
-            "type": "string",
-            "enum": [
-                "ast-modules (= 1.13.3)",
-                "iwlwifi-modules",
-                "mlnx-rdma-rxe-dkms",
-                "nvidia-dkms-kernel"
-            ],
-            "title": "Provides"
         },
         "SourceEnum": {
             "type": "string",

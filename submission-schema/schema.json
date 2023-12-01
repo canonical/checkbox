@@ -595,61 +595,6 @@
             ],
             "title": "MurciaMeta"
         },
-        "BackportIwlwifiDkms": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "arch": {
-                    "$ref": "#/definitions/Platform"
-                },
-                "dkms-status": {
-                    "$ref": "#/definitions/ASTDkmsDkmsStatus"
-                },
-                "dkms_name": {
-                    "type": "string"
-                },
-                "dkms_ver": {
-                    "type": "string",
-                    "format": "integer"
-                },
-                "install_mods": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "kernel_ver": {
-                    "type": "string"
-                },
-                "mods": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "pkg": {
-                    "$ref": "#/definitions/MurciaMeta"
-                },
-                "pkg_name": {
-                    "$ref": "#/definitions/DkmsNameEnum"
-                }
-            },
-            "required": [
-                "arch",
-                "dkms-status",
-                "dkms_name",
-                "dkms_ver",
-                "install_mods",
-                "kernel_ver",
-                "mods",
-                "pkg",
-                "pkg_name"
-            ],
-            "title": "BackportIwlwifiDkms"
-        },
         "FwtsEFIRuntimeDkms": {
             "type": "object",
             "additionalProperties": false,

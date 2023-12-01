@@ -82,3 +82,19 @@ Python classes can be created directly from input JSONs.
 ```bash
 npm run generate-python-types-from-input-jsons
 ```
+
+#### Simplifying the schema with `manipulate-schema.py`
+
+`manipulate-schema.py` is a tool that helps you manipulate the schema, by removing and renaming definitions included in it.
+
+To replace a type definition with a replacement value, do:
+
+```bash
+./collapse-type.py path_to_schema.json definition_to_remove replacement_value -o output_file.json
+```
+
+To rename a type definition:
+
+```bash
+./collapse-type.py path_to_schema.json old_definition_name -r -n new_definition_name -o output_file.json
+```

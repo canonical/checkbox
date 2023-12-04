@@ -19,14 +19,10 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-Kicks off a recipe build for a branch in Launchpad which has an associated
-recipe.
-Meant to be used as part of a checkbox release to the Hardware Certification
-public PPA and the ~checkbox-dev testing PPA.
+This script updates a recipe on a given ppa with the objective of
+updating the revision to build and the version of the package.
 
-NOTE: The Hardware Certification public PPA has no further use over the
-~checkbox-dev testing PPA. It is kept for historical reasons and should be
-removed at some point.
+Note: This script uses the LP_CREDENTIALS environment variable
 """
 
 import sys

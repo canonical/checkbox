@@ -25,13 +25,12 @@ without the need for rebuilding.
 
 Note: This script uses the LP_CREDENTIALS environment variable
 """
-import os
 import sys
 import datetime
 import argparse
 
-from launchpadlib.credentials import Credentials
-from launchpadlib.launchpad import Launchpad
+from utils import get_launchpad_client
+
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
@@ -41,17 +40,6 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument("dest_ppa", help="Destination ppa to copy to")
 
     return parser.parse_args(argv)
-
-
-def get_launchpad_client() -> Launchpad:
-    credentials = os.getenv("LP_CREDENTIALS")
-    if not credentials:
-        raise SystemExit("LP_CREDENTIALS environment variable missing")
-
-    credentials = Credentials.from_string(credentials)
-    return Launchpad(
-        credentials, None, None, service_root="production", version="devel"
-    )
 
 
 def get_ppa(lp, ppa_name: str, ppa_owner: str):

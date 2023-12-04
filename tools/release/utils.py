@@ -6,6 +6,7 @@ import os
 from launchpadlib.credentials import Credentials
 from launchpadlib.launchpad import Launchpad
 
+
 def get_launchpad_client() -> Launchpad:
     """return Launchpad(
         None, None, None, service_root="production", version="devel"
@@ -33,6 +34,9 @@ def get_build_recipe(project_name: str, recipe_name: str):
     build_recipe = (
         recipe for recipe in project.recipes if recipe.name == recipe_name
     )
+    # Note: this is intentionally an iterator because every call that we make
+    #       to .name will make a GET request to LP, so we avoid the full
+    #       unwrapping of the iterator given that we only ever going to use 1
     try:
         return next(build_recipe)
     except StopIteration:

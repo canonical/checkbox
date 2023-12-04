@@ -36,7 +36,7 @@ import argparse
 from utils import get_build_recipe
 
 
-def get_build_path(recipe_name: str):
+def get_build_path(recipe_name: str) -> str:
     # recipe name is in the form checkbox-{package}-{risk}
     package = recipe_name.split("-")[:-1]  # remove checkbox and risk
     if "provider" in recipe_name:
@@ -49,7 +49,7 @@ def get_updated_build_recipe(
     recipe_name: str,
     version: str,
     revision: str,
-):
+) -> str:
     target_path = get_build_path(recipe_name)
     new_recipe = textwrap.dedent(
         f"""
@@ -96,10 +96,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 def main(argv):
     args = parse_args(argv)
     update_build_recipe(
-        args.project,
-        args.recipe,
-        args.new_version,
-        args.revision
+        args.project, args.recipe, args.new_version, args.revision
     )
 
 

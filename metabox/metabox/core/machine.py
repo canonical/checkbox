@@ -357,7 +357,8 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 ExecStart=/usr/local/bin/checkbox-cli run-agent
                 SyslogIdentifier=checkbox-ng.service
                 Environment="XDG_CACHE_HOME=/var/cache/"
-                Restart=on-failure
+                Restart=always
+                RestartSec=1
                 TimeoutStopSec=30
                 Type=simple
 

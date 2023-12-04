@@ -79,7 +79,7 @@ checkbox-ce-oem will define a slot *provider-ce-oem* to allow checkbox interface
 ## In checkbox interface snap
 You have to modify two parts and rebuild your SNAP of checkbox interface snap.
 ### snapcraft.yaml
-Add a plug into plugs section in *snapcraft.yaml* of your checkbox interface snap.
+Add a plug into plugs section in *snapcraft.yaml* of your checkbox interface snap if you are testing on Core image.
 ```
 example:
 

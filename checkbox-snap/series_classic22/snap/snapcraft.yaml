@@ -32,6 +32,7 @@ apps:
     command: bin/checkbox-cli-wrapper run-agent
     daemon: simple
     restart-condition: always
+    restart-delay: 1s
   shell:
     command-chain: [bin/wrapper_local]
     command: bin/shell-wrapper

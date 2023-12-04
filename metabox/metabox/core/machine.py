@@ -525,7 +525,8 @@ class ContainerSnapMachine(ContainerBaseMachine):
                 [Service]
                 ExecStart={cmd}
                 SyslogIdentifier=overlay-checkbox.service
-                Restart=on-failure
+                Restart=always
+                RestartSec=1
                 TimeoutStopSec=30
                 Type=simple
 

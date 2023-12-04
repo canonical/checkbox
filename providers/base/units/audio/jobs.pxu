@@ -691,7 +691,7 @@ command:
   diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend_30_cycles
 
 id: audio/detect-playback-devices
-_summary: Check that at least one audio playback device exits
+_summary: Check that at least one audio playback device exists
 plugin: shell
 category_id: com.canonical.plainbox::audio
 flags: also-after-suspend

@@ -133,8 +133,10 @@ in the search bar, you can view all test results related to audio testing.
     The xz compressed tarball is a comprehensive archive that includes the 
     aforementioned reports and all associated attachments, such as I/O logs 
     and binary files. You can extract the tarball with ``tar -xf 
-    sumbission.tar.xz -C /path/to/destination``.
+    submission.tar.xz -C /path/to/destination``.
 
     Certification Website only accepts submissions tarballs, from which it 
     extracts the ``submission.json`` file to create a new test report in the 
     database. 
+
+For a detailed description of the ``submission.json`` file, see the :doc:`../../reference/submission-schema` reference.

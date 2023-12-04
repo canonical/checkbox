@@ -13,3 +13,4 @@ lxd-sphinx-extensions
 sphinx-copybutton
 myst-parser
 setuptools-scm
+sphinx-jsonschema

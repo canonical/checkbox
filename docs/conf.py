@@ -52,7 +52,8 @@ extensions = [
     'terminal-output',
     'sphinx_copybutton',
     'sphinxext.opengraph',
-    'myst_parser'
+    'myst_parser',
+    'sphinx-jsonschema'
     ]
 
 myst_enable_extensions = [

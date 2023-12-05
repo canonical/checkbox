@@ -6,18 +6,18 @@ import json
 import argparse
 
 
-def modify_definition(schema, definition_key, replacement, rename, new_name):
-    if rename and definition_key in schema["definitions"]:
+def modify_definition(schema, definition_key, replacement, new_name):
+    if new_name and definition_key in schema["definitions"]:
         schema["definitions"][new_name] = schema["definitions"][definition_key]
         del schema["definitions"][definition_key]
         replacement = {"$ref": f"#/definitions/{new_name}"}
 
-    if not rename and definition_key in schema["definitions"]:
+    if not new_name and definition_key in schema["definitions"]:
         del schema["definitions"][definition_key]
 
     def replace_refs(obj):
         if isinstance(obj, dict):
-            if "$ref" in obj and obj["$ref"] == f"#/definitions/{definition_key}":
+            if obj.get("$ref") == f"#/definitions/{definition_key}":
                 return replacement
             else:
                 return {k: replace_refs(v) for k, v in obj.items()}
@@ -53,12 +53,6 @@ def main():
         help="Output file path. If not provided, prints to stdout.",
     )
     parser.add_argument(
-        "-r",
-        "--rename",
-        action="store_true",
-        help="Rename the definition instead of removing it.",
-    )
-    parser.add_argument(
         "-n",
         "--new-name",
         type=str,
@@ -67,7 +61,7 @@ def main():
     )
 
     args = parser.parse_args()
-    if args.rename and args.replacement:
+    if args.new_name and args.replacement:
         parser.error(
             "Replacement (-r/--replacement) is not allowed when renaming a definition."
         )
@@ -78,7 +72,7 @@ def main():
     with open(args.schema, "r") as file:
         schema = json.load(file)
 
-    modified_schema = collapse_definition(
+    modified_schema = modify_definition(
         schema, args.definition, args.replacement, args.rename, args.new_name
     )
 

@@ -10,9 +10,6 @@ from launchpadlib.launchpad import Launchpad
 
 
 def get_launchpad_client() -> Launchpad:
-    """return Launchpad(
-        None, None, None, service_root="production", version="devel"
-    )"""
     credentials = os.getenv("LP_CREDENTIALS")
     if not credentials:
         raise SystemExit("LP_CREDENTIALS environment variable missing")

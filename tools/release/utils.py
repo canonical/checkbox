@@ -3,6 +3,8 @@ This module contains various shared utils function used in
 multiple release scripts
 """
 import os
+import datetime
+
 from launchpadlib.credentials import Credentials
 from launchpadlib.launchpad import Launchpad
 
@@ -46,3 +48,6 @@ def get_build_recipe(project_name: str, recipe_name: str):
             f'{project} does not have a "{recipe_name}" recipe '
             f"(possible recipes: {all_recipe_names})"
         )
+
+def get_date_utc_now():
+    return datetime.datetime.now(tz=datetime.UTC)

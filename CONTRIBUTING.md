@@ -132,12 +132,16 @@ and therefore easy to break down the line with any change.
 
 #### Collecting Coverage
 
-To collect your coverage you can run the following:
-```
-$ python -m pip install coverage pytest pytest-cov
-# cd to where your test is
-$ python -m coverage run -m pytest .
-```
+To collect your coverage and generate a coverage report, run the following:
+
+    $ python -m pip install coverage
+    # cd to the provider you want to test
+    $ python -m coverage run manage.py test -u
+    $ python -m coverage html
+
+You will get a nice HTML report you can use to visualize the test coverage for
+all the scripts in the provider.
+
 Note that every part of this repository has a `.coveragerc` file, they should
 already include anything you may want to see in the report. If something is
 missing you can edit it but please, consult with the team before doing so.

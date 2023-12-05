@@ -290,7 +290,21 @@
             "additionalProperties": {
                 "$ref": "#/definitions/Dkms"
             },
-            "title": "Each key in this object is the name of a DKM, and against it is information about the module"
+            "title": "DkmsInfo",
+            "description": "Each key in this object is the name of a module, and stored against this key is information about the module"
+        },
+        "DkmsStatus": {
+            "type": "string",
+            "enum": [
+                "dkms",
+                "non-dkms"
+            ],
+            "title": "DkmsStatus"
+        },
+        "DkmsInstallMods": {
+            "type": "object",
+            "additionalProperties": true,
+            "title": "DkmsInstallMods"
         },
         "Dkms": {
             "type": "object",
@@ -309,7 +323,7 @@
                     "type": "string"
                 },
                 "install_mods": {
-                    "$ref": "#/definitions/DkmsInstallMods"
+                    "$ref": "#/definitions/PackageList"
                 },
                 "kernel_ver": {
                     "type": "string"
@@ -405,108 +419,6 @@
                 "version"
             ],
             "title": "DkmsPkg"
-        },
-        "KnemDkms": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "arch": {
-                    "$ref": "#/definitions/Platform"
-                },
-                "dkms-status": {
-                    "$ref": "#/definitions/DkmsStatus"
-                },
-                "dkms_name": {
-                    "$ref": "#/definitions/Source"
-                },
-                "dkms_ver": {
-                    "type": "string"
-                },
-                "install_mods": {
-                    "$ref": "#/definitions/DkmsInstallMods"
-                },
-                "kernel_ver": {
-                    "type": "string"
-                },
-                "mods": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Source"
-                    }
-                },
-                "pkg": {
-                    "$ref": "#/definitions/AmaroThirdPartyTools"
-                },
-                "pkg_name": {
-                    "type": "string"
-                }
-            },
-            "required": [
-                "arch",
-                "dkms-status",
-                "dkms_name",
-                "dkms_ver",
-                "install_mods",
-                "kernel_ver",
-                "mods",
-                "pkg",
-                "pkg_name"
-            ],
-            "title": "KnemDkms"
-        },
-        "MlnxOfedKernelDkms": {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-                "arch": {
-                    "$ref": "#/definitions/Platform"
-                },
-                "dkms-status": {
-                    "$ref": "#/definitions/DkmsStatus"
-                },
-                "dkms_name": {
-                    "$ref": "#/definitions/SourceEnum"
-                },
-                "dkms_ver": {
-                    "type": "string"
-                },
-                "install_mods": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "array",
-                        "items": {
-                            "type": "string"
-                        }
-                    }
-                },
-                "kernel_ver": {
-                    "type": "string"
-                },
-                "mods": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "pkg": {
-                    "$ref": "#/definitions/MurciaMeta"
-                },
-                "pkg_name": {
-                    "$ref": "#/definitions/DkmsName"
-                }
-            },
-            "required": [
-                "arch",
-                "dkms-status",
-                "dkms_name",
-                "dkms_ver",
-                "install_mods",
-                "kernel_ver",
-                "mods",
-                "pkg",
-                "pkg_name"
-            ],
-            "title": "MlnxOfedKernelDkms"
         },
         "Memory": {
             "type": "object",

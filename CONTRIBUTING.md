@@ -13,24 +13,6 @@ everything passing [flake8].
 running [pylint] on your code may inform you about issues that could come up
 later in the review process.
 
-## Signed commits required
-
-- To get your changes accepted, please [sign your commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits). This practice is enforced by many of the CI pipelines executed in the repository (pipelines which use Canonical's [github-runner-operator](https://github.com/canonical/github-runner-operator) operated runners).
-- If you have just discovered the requirement for signed commits after already creating a feature branch with unsigned commits, you can issue `git rebase --exec 'git commit --amend --no-edit -n -S' -i main` to sign them. To translate this into English:
-   - `git rebase --exec`: rebases commits
-   - `--exec '...'`: exec command `'...'` after each commit, creating a new commit
-   - `git commit --amend --no-edit`: amend a commit without changing its message
-      - `-n`: bypass pre-commit and commit-msg hooks
-      - `-S`: GPG sign commit
-      - `-i`: let the user see and edit the list of commits to rebase
-      - `main`: to all the commits until you reach main  
-- To make commit signing convenient, as per https://stackoverflow.com/a/70484849/504931, do the following:
-
-   git config --global user.signingkey <your-key-id>
-   git config --global commit.gpgSign true
-   git config --global tag.gpgSign true
-   git config --global push.gpgSign if-asked
-
 ## Testing
 
 ### Install Checkbox and its providers in a virtual environment
@@ -260,6 +242,29 @@ your existing commits.
 
 ## Pull requests
 
+### Signed commits required
+
+- To get your changes accepted, please [sign your commits]. This practice is
+enforced by many of the CI pipelines executed in the repository (pipelines
+which use Canonical's [github-runner-operator] operated runners).
+- If you have just discovered the requirement for signed commits after already
+creating a feature branch with unsigned commits, you can issue
+`git rebase --exec 'git commit --amend --no-edit -n -S' -i main` to sign them.
+To translate this into English:
+   - `git rebase --exec`: rebases commits
+   - `--exec '...'`: exec command `'...'` after each commit, creating a new commit
+   - `git commit --amend --no-edit`: amend a commit without changing its message
+      - `-n`: bypass pre-commit and commit-msg hooks
+      - `-S`: GPG sign commit
+      - `-i`: let the user see and edit the list of commits to rebase
+      - `main`: to all the commits until you reach main
+- To make commit signing convenient, as per [this SO thread], do the following:
+
+   git config --global user.signingkey <your-key-id>
+   git config --global commit.gpgSign true
+   git config --global tag.gpgSign true
+   git config --global push.gpgSign if-asked
+
 ### General workflow
 
 Follow these steps to make a change to a Checkbox-related project.
@@ -360,3 +365,6 @@ changes using a pull request.
 [Sphinx]: https://www.sphinx-doc.org/
 [style guide]: https://docs.ubuntu.com/styleguide/en
 [ShellCheck]: https://www.shellcheck.net/
+[sign your commits]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits
+[github-runner-operator]: https://github.com/canonical/github-runner-operator
+[this SO thread]: https://stackoverflow.com/a/70484849/504931

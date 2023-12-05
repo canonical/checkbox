@@ -4,4 +4,4 @@
 
 echo "$SNAP_NAME runtime shell, type 'exit' to quit the session"
 
-exec bash
+exec bash --rcfile <(cat ~/.bashrc; echo 'PS1="(checkbox-shell) $PS1"')

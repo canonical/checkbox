@@ -66,14 +66,11 @@ def main():
             "Replacement (-r/--replacement) is not allowed when renaming a definition."
         )
 
-    if args.rename and not args.new_name:
-        parser.error("New name (-n/--new-name) is required when renaming a definition.")
-
     with open(args.schema, "r") as file:
         schema = json.load(file)
 
     modified_schema = modify_definition(
-        schema, args.definition, args.replacement, args.rename, args.new_name
+        schema, args.definition, args.replacement, args.new_name
     )
 
     if args.output:

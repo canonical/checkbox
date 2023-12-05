@@ -109,6 +109,21 @@ tests for providers. From one of the providers directory:
 
     (venv) $ ./manage.py test
 
+Under the hood, this command will
+
+- check Shell scripts using [ShellCheck]
+- check Python code quality using [flake8]
+- run all the Python unit tests
+
+You can run each part separately. See `./manage.py test -h` for more
+information.
+
+If you only want to run one test script from the test suite, you have to
+point the `PYTHONPATH` environment variable to the provider's `bin/` directory,
+then go to the `tests/` directory and run the unit tests for your test file:
+
+    (venv) $ PYTHONPATH=~/checkbox/providers/base/bin python -m unittest <your_test_file.py>
+
 ### Coverage
 
 In Checkbox we have a coverage requirement for new PRs. This is to ensure

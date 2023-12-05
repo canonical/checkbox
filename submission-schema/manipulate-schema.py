@@ -4,9 +4,12 @@
 
 import json
 import argparse
+from typing import Dict, Any, List, Union
 
 
-def modify_definition(schema, definition_key, replacement, new_name):
+def modify_definition(
+    schema: Dict[str, Any], definition_key: str, replacement: str, new_name: str
+) -> Dict[str, Any]:
     if new_name and definition_key in schema["definitions"]:
         schema["definitions"][new_name] = schema["definitions"][definition_key]
         del schema["definitions"][definition_key]
@@ -15,7 +18,9 @@ def modify_definition(schema, definition_key, replacement, new_name):
     if not new_name and definition_key in schema["definitions"]:
         del schema["definitions"][definition_key]
 
-    def replace_refs(obj):
+    def replace_refs(
+        obj: Union[Dict[str, Any], List[Any]]
+    ) -> Union[Dict[str, Any], List[Any]]:
         if isinstance(obj, dict):
             if obj.get("$ref") == f"#/definitions/{definition_key}":
                 return replacement
@@ -29,7 +34,7 @@ def modify_definition(schema, definition_key, replacement, new_name):
     return replace_refs(schema)
 
 
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(
         description="Collapse or rename a type definition in a JSON schema."
     )

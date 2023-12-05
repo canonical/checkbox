@@ -13,117 +13,98 @@ everything passing [flake8].
 running [pylint] on your code may inform you about issues that could come up
 later in the review process.
 
-## Signed commits required
-
-- To get your changes accepted, please [sign your commits](https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits). This practice is enforced by many of the CI pipelines executed in the repository (pipelines which use Canonical's [github-runner-operator](https://github.com/canonical/github-runner-operator) operated runners).
-- If you have just discovered the requirement for signed commits after already creating a feature branch with unsigned commits, you can issue `git rebase --exec 'git commit --amend --no-edit -n -S' -i main` to sign them. To translate this into English:
-   - `git rebase --exec`: rebases commits
-   - `--exec '...'`: exec command `'...'` after each commit, creating a new commit
-   - `git commit --amend --no-edit`: amend a commit without changing its message
-      - `-n`: bypass pre-commit and commit-msg hooks
-      - `-S`: GPG sign commit
-      - `-i`: let the user see and edit the list of commits to rebase
-      - `main`: to all the commits until you reach main  
-- To make commit signing convenient, as per https://stackoverflow.com/a/70484849/504931, do the following:
-
-   ```bash
-   git config --global user.signingkey <your-key-id>
-   git config --global commit.gpgSign true
-   git config --global tag.gpgSign true
-   git config --global push.gpgSign if-asked
-   ```
-
 ## Testing
 
-### Hacking on Checkbox and/or its providers
+### Install Checkbox and its providers in a virtual environment
 
 If you want to hack on Checkbox or its providers, one method is to
 install everything you need in a Python virtual environment.
 
 Install the required tools:
 
-``` bash
-$ sudo apt install git python3-virtualenv
-```
+    $ sudo apt install git python3-virtualenv
 
 Prepare the development environment. If you are an external contributor and
 plan on submitting some changes, you will have to [fork the Checkbox repository
 first], and clone your own version locally. Otherwise:
 
-``` bash
-$ cd ~
-$ git clone git@github.com:canonical/checkbox.git
-```
+    $ cd ~
+    $ git clone git@github.com:canonical/checkbox.git
 
 Create and activate the Python virtual environment:
 
-``` bash
-$ cd ~/checkbox/checkbox-ng
-$ ./mk-venv
-$ . ~/checkbox/checkbox-ng/venv/bin/activate
-```
+    $ cd ~/checkbox/checkbox-ng
+    $ ./mk-venv
+    $ . ~/checkbox/checkbox-ng/venv/bin/activate
 
 Activate the base providers in the virtual environment from within the virtual
 environment:
 
-``` bash
-(venv) $ cd ~/checkbox/providers/resource/
-(venv) $ ./manage.py develop -d $PROVIDERPATH
-(venv) $ cd ~/checkbox/providers/base
-(venv) $ ./manage.py develop -d $PROVIDERPATH
-```
+    (venv) $ cd ~/checkbox/providers/resource/
+    (venv) $ ./manage.py develop -d $PROVIDERPATH
+    (venv) $ cd ~/checkbox/providers/base
+    (venv) $ ./manage.py develop -d $PROVIDERPATH
 
 Install the Checkbox support library in the virtual environment:
 
-``` bash
-(venv) $ cd ~/checkbox/checkbox-support
-(venv) $ python3 -m pip install -e .
-```
+    (venv) $ cd ~/checkbox/checkbox-support
+    (venv) $ python3 -m pip install -e .
 
 You should now be able to run checkbox, select a test plan and run it:
 
-``` bash
-(venv) $ checkbox-cli
-```
-### Running/Testing checkbox remote
+    (venv) $ checkbox-cli
+
+### Running/Testing Checkbox Remote
 
 By default `checkbox-cli` runs locally. If you want to run the [remote version]
 you have to activate the `checkbox-cli run-agent` on the Machine under test:
 
-```bash
-(venv) # checkbox-cli run-agent
-```
+    (venv) # checkbox-cli run-agent
 
 > Note: Keep in mind that run-agent has to be run as root and needs the
 > virtual env, you may have to re-enable/activate it after a `sudo -s`
 
 Now you can run the control command to connect to it:
-```bash
-(venv) $ checkbox-cli control IP
-```
+
+    (venv) $ checkbox-cli control IP
 
 > Note: `run-agent` and `control` can both run on the same machine.
-> in that situation, simply use `127.0.0.1`
+> in that situation, simply use `127.0.0.1` as the `IP`.
 
 ### Writing and running unit tests for Checkbox
 
-Writing unit tests for your code is strongly recommended. For functions with an
-easily defined input and output, use [doctest]. For more complex units of code
-use the standard [unittest library].
+Writing unit tests for your code is required. For functions with an easily
+defined input and output, use [doctest]. For more complex units of code, use
+the standard [unittest library].
 
 ### Validate the providers
 
-Ensure the job and test plan definitions follow the correct syntax using
-the `validate` command:
+Ensure the jobs and test plans definitions follow the correct syntax using
+the `validate` command. From one of the providers directory:
 
-    $ ./manage.py validate
+    (venv) $ ./manage.py validate
 
 ### Writing and running unit tests for providers
 
 Run checks for code quality of provider hosted scripts and any unit
-tests for providers:
+tests for providers. From one of the providers directory:
 
-    $ ./manage.py test
+    (venv) $ ./manage.py test
+
+Under the hood, this command will
+
+- check Shell scripts using [ShellCheck]
+- check Python code quality using [flake8]
+- run all the Python unit tests
+
+You can run each part separately. See `./manage.py test -h` for more
+information.
+
+If you only want to run one test script from the test suite, you have to
+point the `PYTHONPATH` environment variable to the provider's `bin/` directory,
+then go to the `tests/` directory and run the unit tests for your test file:
+
+    (venv) $ PYTHONPATH=~/checkbox/providers/base/bin python -m unittest <your_test_file.py>
 
 ### Coverage
 
@@ -133,12 +114,16 @@ and therefore easy to break down the line with any change.
 
 #### Collecting Coverage
 
-To collect your coverage you can run the following:
-```
-$ python -m pip install coverage pytest pytest-cov
-# cd to where your test is
-$ python -m coverage run -m pytest .
-```
+To collect your coverage and generate a coverage report, run the following:
+
+    $ python -m pip install coverage
+    # cd to the provider you want to test
+    $ python -m coverage run manage.py test -u
+    $ python -m coverage html
+
+You will get a nice HTML report you can use to visualize the test coverage for
+all the scripts in the provider.
+
 Note that every part of this repository has a `.coveragerc` file, they should
 already include anything you may want to see in the report. If something is
 missing you can edit it but please, consult with the team before doing so.
@@ -162,6 +147,7 @@ Coverage is more of a proxy measure of how much of your code behaviour does
 your test actually execute.
 
 Consider the following:
+
 ```python
 def get_mod_status(a : int, b : int) -> str:
     try:
@@ -175,6 +161,7 @@ def get_mod_status(a : int, b : int) -> str:
 ```
 
 To get 100% code coverage you may write the following tests:
+
 ```python
 def test_nominal_ok_0(): assert get_mod_status(10, 2) == "A is divisible by B"
 def test_nominal_ok_1(): assert get_mod_status(10, 3) == "A is not divisible by B"
@@ -255,6 +242,29 @@ your existing commits.
 
 ## Pull requests
 
+### Signed commits required
+
+- To get your changes accepted, please [sign your commits]. This practice is
+enforced by many of the CI pipelines executed in the repository (pipelines
+which use Canonical's [github-runner-operator] operated runners).
+- If you have just discovered the requirement for signed commits after already
+creating a feature branch with unsigned commits, you can issue
+`git rebase --exec 'git commit --amend --no-edit -n -S' -i main` to sign them.
+To translate this into English:
+   - `git rebase --exec`: rebases commits
+   - `--exec '...'`: exec command `'...'` after each commit, creating a new commit
+   - `git commit --amend --no-edit`: amend a commit without changing its message
+      - `-n`: bypass pre-commit and commit-msg hooks
+      - `-S`: GPG sign commit
+      - `-i`: let the user see and edit the list of commits to rebase
+      - `main`: to all the commits until you reach main
+- To make commit signing convenient, as per [this SO thread], do the following:
+
+      git config --global user.signingkey <your-key-id>
+      git config --global commit.gpgSign true
+      git config --global tag.gpgSign true
+      git config --global push.gpgSign if-asked
+
 ### General workflow
 
 Follow these steps to make a change to a Checkbox-related project.
@@ -310,29 +320,23 @@ at Canonical. Please refer to it when proposing a change.
 
 To install everything you need, go to the `docs/` directory and type:
 
-```
-make install
-```
+    make install
 
 This will create a virtual environment with all the tooling dedicated to
 output and validate the documentation.
 
 To get a live preview of the documentation, you can then run:
 
-```
-make run
-```
+    make run
 
 This will provide a link to a locally rendered version of the documentation
 that will be updated every time a file is modified.
 
 Finally, you can validate your changes with:
 
-```
-make spelling  # to make sure there is no typos
-make linkcheck # to make sure there are no dead links
-make woke      # to check for non-inclusive language
-```
+    make spelling  # to make sure there is no typos
+    make linkcheck # to make sure there are no dead links
+    make woke      # to check for non-inclusive language
 
 ***Note:*** Please make sure you wrap the text at 80 characters for easier
 review of the source files.
@@ -360,3 +364,7 @@ changes using a pull request.
 [reStructuredText]: https://docutils.sourceforge.io/rst.html
 [Sphinx]: https://www.sphinx-doc.org/
 [style guide]: https://docs.ubuntu.com/styleguide/en
+[ShellCheck]: https://www.shellcheck.net/
+[sign your commits]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits
+[github-runner-operator]: https://github.com/canonical/github-runner-operator
+[this SO thread]: https://stackoverflow.com/a/70484849/504931

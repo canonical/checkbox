@@ -260,10 +260,10 @@ To translate this into English:
       - `main`: to all the commits until you reach main
 - To make commit signing convenient, as per [this SO thread], do the following:
 
-   git config --global user.signingkey <your-key-id>
-   git config --global commit.gpgSign true
-   git config --global tag.gpgSign true
-   git config --global push.gpgSign if-asked
+      git config --global user.signingkey <your-key-id>
+      git config --global commit.gpgSign true
+      git config --global tag.gpgSign true
+      git config --global push.gpgSign if-asked
 
 ### General workflow
 

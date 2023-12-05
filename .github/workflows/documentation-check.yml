@@ -1,6 +1,10 @@
 name: Automatic documentation checks
 
 on:
+  push:
+    branches: [doc-preview]
+    paths:
+      - 'docs/**'
   pull_request:
     paths:
       - 'docs/**'

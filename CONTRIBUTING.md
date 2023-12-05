@@ -26,12 +26,10 @@ later in the review process.
       - `main`: to all the commits until you reach main  
 - To make commit signing convenient, as per https://stackoverflow.com/a/70484849/504931, do the following:
 
-   ```bash
    git config --global user.signingkey <your-key-id>
    git config --global commit.gpgSign true
    git config --global tag.gpgSign true
    git config --global push.gpgSign if-asked
-   ```
 
 ## Testing
 
@@ -42,65 +40,51 @@ install everything you need in a Python virtual environment.
 
 Install the required tools:
 
-``` bash
-$ sudo apt install git python3-virtualenv
-```
+    $ sudo apt install git python3-virtualenv
 
 Prepare the development environment. If you are an external contributor and
 plan on submitting some changes, you will have to [fork the Checkbox repository
 first], and clone your own version locally. Otherwise:
 
-``` bash
-$ cd ~
-$ git clone git@github.com:canonical/checkbox.git
-```
+    $ cd ~
+    $ git clone git@github.com:canonical/checkbox.git
 
 Create and activate the Python virtual environment:
 
-``` bash
-$ cd ~/checkbox/checkbox-ng
-$ ./mk-venv
-$ . ~/checkbox/checkbox-ng/venv/bin/activate
-```
+    $ cd ~/checkbox/checkbox-ng
+    $ ./mk-venv
+    $ . ~/checkbox/checkbox-ng/venv/bin/activate
 
 Activate the base providers in the virtual environment from within the virtual
 environment:
 
-``` bash
-(venv) $ cd ~/checkbox/providers/resource/
-(venv) $ ./manage.py develop -d $PROVIDERPATH
-(venv) $ cd ~/checkbox/providers/base
-(venv) $ ./manage.py develop -d $PROVIDERPATH
-```
+    (venv) $ cd ~/checkbox/providers/resource/
+    (venv) $ ./manage.py develop -d $PROVIDERPATH
+    (venv) $ cd ~/checkbox/providers/base
+    (venv) $ ./manage.py develop -d $PROVIDERPATH
 
 Install the Checkbox support library in the virtual environment:
 
-``` bash
-(venv) $ cd ~/checkbox/checkbox-support
-(venv) $ python3 -m pip install -e .
-```
+    (venv) $ cd ~/checkbox/checkbox-support
+    (venv) $ python3 -m pip install -e .
 
 You should now be able to run checkbox, select a test plan and run it:
 
-``` bash
-(venv) $ checkbox-cli
-```
 ### Running/Testing checkbox remote
+    (venv) $ checkbox-cli
+
 
 By default `checkbox-cli` runs locally. If you want to run the [remote version]
 you have to activate the `checkbox-cli run-agent` on the Machine under test:
 
-```bash
-(venv) # checkbox-cli run-agent
-```
+    (venv) # checkbox-cli run-agent
 
 > Note: Keep in mind that run-agent has to be run as root and needs the
 > virtual env, you may have to re-enable/activate it after a `sudo -s`
 
 Now you can run the control command to connect to it:
-```bash
-(venv) $ checkbox-cli control IP
-```
+
+    (venv) $ checkbox-cli control IP
 
 > Note: `run-agent` and `control` can both run on the same machine.
 > in that situation, simply use `127.0.0.1`
@@ -116,14 +100,14 @@ use the standard [unittest library].
 Ensure the job and test plan definitions follow the correct syntax using
 the `validate` command:
 
-    $ ./manage.py validate
+    (venv) $ ./manage.py validate
 
 ### Writing and running unit tests for providers
 
 Run checks for code quality of provider hosted scripts and any unit
 tests for providers:
 
-    $ ./manage.py test
+    (venv) $ ./manage.py test
 
 ### Coverage
 
@@ -310,29 +294,23 @@ at Canonical. Please refer to it when proposing a change.
 
 To install everything you need, go to the `docs/` directory and type:
 
-```
-make install
-```
+    make install
 
 This will create a virtual environment with all the tooling dedicated to
 output and validate the documentation.
 
 To get a live preview of the documentation, you can then run:
 
-```
-make run
-```
+    make run
 
 This will provide a link to a locally rendered version of the documentation
 that will be updated every time a file is modified.
 
 Finally, you can validate your changes with:
 
-```
-make spelling  # to make sure there is no typos
-make linkcheck # to make sure there are no dead links
-make woke      # to check for non-inclusive language
-```
+    make spelling  # to make sure there is no typos
+    make linkcheck # to make sure there are no dead links
+    make woke      # to check for non-inclusive language
 
 ***Note:*** Please make sure you wrap the text at 80 characters for easier
 review of the source files.

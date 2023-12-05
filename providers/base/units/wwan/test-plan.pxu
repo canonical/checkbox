@@ -47,6 +47,7 @@ _description: Manual wwan tests for Snappy Ubuntu Core devices
 include:
     wwan/detect-manual
     wwan/scan-networks-manual
+    wwan/check-sim-present-manual
     wwan/gsm-connection-interrupted-manual
 
 id: after-suspend-wwan-manual
@@ -56,4 +57,5 @@ _description: Manual wwan tests for Snappy Ubuntu Core devices
 include:
     after-suspend-wwan/detect-manual
     after-suspend-wwan/scan-networks-manual
+    after-suspend-wwan/check-sim-present-manual
     after-suspend-wwan/gsm-connection-interrupted-manual

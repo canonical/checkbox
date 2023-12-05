@@ -6,8 +6,15 @@ import itertools
 
 from lazr.restfulclient.errors import BadRequest
 
-
 from utils import get_build_recipe, get_date_utc_now
+
+"""
+This script builds a recipe (for the platforms requested on LP),
+monitoring the build process and automatically retrying any build
+that fails. If Launchpad doesn't allow to retry a build, the script
+will keep on monitoring the others, and then exit with a non-0 return
+value.
+"""
 
 # delay between updates requested to LP
 LP_POLLING_DELAY = 60

@@ -33,7 +33,7 @@ later in the review process.
 
 ## Testing
 
-### Hacking on Checkbox and/or its providers
+### Install Checkbox and its providers in a virtual environment
 
 If you want to hack on Checkbox or its providers, one method is to
 install everything you need in a Python virtual environment.
@@ -70,9 +70,9 @@ Install the Checkbox support library in the virtual environment:
 
 You should now be able to run checkbox, select a test plan and run it:
 
-### Running/Testing checkbox remote
     (venv) $ checkbox-cli
 
+### Running/Testing Checkbox Remote
 
 By default `checkbox-cli` runs locally. If you want to run the [remote version]
 you have to activate the `checkbox-cli run-agent` on the Machine under test:
@@ -87,25 +87,25 @@ Now you can run the control command to connect to it:
     (venv) $ checkbox-cli control IP
 
 > Note: `run-agent` and `control` can both run on the same machine.
-> in that situation, simply use `127.0.0.1`
+> in that situation, simply use `127.0.0.1` as the `IP`.
 
 ### Writing and running unit tests for Checkbox
 
-Writing unit tests for your code is strongly recommended. For functions with an
-easily defined input and output, use [doctest]. For more complex units of code
-use the standard [unittest library].
+Writing unit tests for your code is required. For functions with an easily
+defined input and output, use [doctest]. For more complex units of code, use
+the standard [unittest library].
 
 ### Validate the providers
 
-Ensure the job and test plan definitions follow the correct syntax using
-the `validate` command:
+Ensure the jobs and test plans definitions follow the correct syntax using
+the `validate` command. From one of the providers directory:
 
     (venv) $ ./manage.py validate
 
 ### Writing and running unit tests for providers
 
 Run checks for code quality of provider hosted scripts and any unit
-tests for providers:
+tests for providers. From one of the providers directory:
 
     (venv) $ ./manage.py test
 
@@ -146,6 +146,7 @@ Coverage is more of a proxy measure of how much of your code behaviour does
 your test actually execute.
 
 Consider the following:
+
 ```python
 def get_mod_status(a : int, b : int) -> str:
     try:
@@ -159,6 +160,7 @@ def get_mod_status(a : int, b : int) -> str:
 ```
 
 To get 100% code coverage you may write the following tests:
+
 ```python
 def test_nominal_ok_0(): assert get_mod_status(10, 2) == "A is divisible by B"
 def test_nominal_ok_1(): assert get_mod_status(10, 3) == "A is not divisible by B"
@@ -338,3 +340,4 @@ changes using a pull request.
 [reStructuredText]: https://docutils.sourceforge.io/rst.html
 [Sphinx]: https://www.sphinx-doc.org/
 [style guide]: https://docs.ubuntu.com/styleguide/en
+[ShellCheck]: https://www.shellcheck.net/

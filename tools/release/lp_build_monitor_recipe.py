@@ -13,20 +13,16 @@ from utils import get_build_recipe, get_date_utc_now
 LP_POLLING_DELAY = 60
 
 
-def get_new_builds(build_recipe, started_datetime):
-    """
-    Returns all builds of a recipe since started_date (UTC+0)
-    """
-    # note build_recipe.builds is sorted from newer to older
-    # using takewhile here saves quite a lot of time/requests to LP
-    # because we don't get the full history of builds but just those that we
-    # need
-    return list(
-        itertools.takewhile(
-            lambda build: build.date_first_dispatched > started_datetime,
-            build_recipe.builds,
-        )
-    )
+def start_all_build(build_recipe):
+    for series in build_recipe.distroseries:
+        try:
+            build_recipe.requestBuild(
+                pocket="Release",
+                distroseries=series,
+                archive=build_recipe.daily_build_archive_link,
+            )
+        except BadRequest:
+            print("An identical build of this recipe is already pending")
 
 
 def wait_every_build_started(build_recipe):
@@ -43,16 +39,20 @@ def wait_every_build_started(build_recipe):
         pending_builds = build_recipe.getPendingBuildInfo()
 
 
-def start_all_build(build_recipe):
-    for series in build_recipe.distroseries:
-        try:
-            build_recipe.requestBuild(
-                pocket="Release",
-                distroseries=series,
-                archive=build_recipe.daily_build_archive_link,
-            )
-        except BadRequest:
-            print("An identical build of this recipe is already pending")
+def get_new_builds(build_recipe, started_datetime):
+    """
+    Returns all builds of a recipe since started_date (UTC+0)
+    """
+    # note build_recipe.builds is sorted from newer to older
+    # using takewhile here saves quite a lot of time/requests to LP
+    # because we don't get the full history of builds but just those that we
+    # need
+    return list(
+        itertools.takewhile(
+            lambda build: build.date_first_dispatched > started_datetime,
+            build_recipe.builds,
+        )
+    )
 
 
 def monitor_retry_builds(build_recipe, start_date):

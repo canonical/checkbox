@@ -14,7 +14,7 @@ class TestMain(unittest.TestCase):
 
         source = MagicMock()
         ppas = checkbox_dev_user.getPPAByName()
-        ppas.getPublishedSource.return_value = [source] * 5
+        ppas.getPublishedSources.return_value = [source] * 5
 
         lp_copy_packages.main(
             ["checkbox-dev", "beta", "checkbox-dev", "stable"]

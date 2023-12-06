@@ -5,26 +5,63 @@ on:
   workflow_call:
 
 jobs:
-  deb_daily_builds:
-    name: Debian packages daily build
+  ppa_update:
+    name: PPA update
     runs-on: [self-hosted, linux, large]
     steps:
       - name: Install dependencies
         run: |
           sudo apt update -qq
-          sudo apt install -qq -y python3-launchpadlib python3-setuptools-scm
-          git clone -b main https://git.launchpad.net/~hook25/ppa-dev-tools /tmp/ppa-dev-tools
+          sudo apt install -qq -y python3-launchpadlib
       - name: Checkout checkbox monorepo
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
-        name: Import to LP, ask for a build and wait result
+        name: Import checkbox to LP
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1
         with:
-          attempt_delay: 600000 # 10min
+          attempt_delay: 6000 # 1 min
+          attempt_limit: 60   # max 1 hour of retries
+          command: |
+            tools/release/lp-request-import.py "~checkbox-dev/checkbox/+git/checkbox"
+  ppa_build:
+    name: PPA build
+    runs-on: [self-hosted, linux, large]
+    needs: ppa_update
+    strategy:
+      matrix:
+        recipe:
+        - checkbox-ng-edge
+        - checkbox-support-edge
+        - checkbox-provider-base-edge
+        - checkbox-provider-resource-edge
+        - checkbox-provider-certification-server-edge
+        - checkbox-provider-certification-client-edge
+        - checkbox-provider-gpgpu-edge
+        - checkbox-provider-sru-edge
+        - checkbox-provider-tpm2-edge
+    steps:
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Update the recipe in the checkbox PPA
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
+          PYTHONUNBUFFERED: 1
+        with:
+          attempt_delay: 6000 # 1 min
+          attempt_limit: 60   # max 1 hour of retries
+          command: |
+            VERSION=$(tools/release/get_version --dev-suffix --output-format deb)
+            tools/release/lp_update_recipe.py --recipe ${{ matrix.recipe }} --new-version $VERSION --revision $GITHUB_SHA
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Build and wait result
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
+          PYTHONUNBUFFERED: 1
+        with:
+          attempt_delay: 60000 # 10min
           attempt_limit: 3
           command: |
-            tools/release/deb_daily_builds.py
+            tools/release/lp_build_monitor_recipe.py checkbox ${{ matrix.recipe }}

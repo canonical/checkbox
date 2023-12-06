@@ -28,7 +28,7 @@ jobs:
           command: |
             tools/release/lp-request-import.py "~checkbox-dev/checkbox/+git/checkbox"
   ppa_build:
-    name: PPA build
+    name: Trigger and monitor PPA builds
     runs-on: [self-hosted, linux, large]
     needs: ppa_update
     strategy:

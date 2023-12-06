@@ -9,7 +9,7 @@ from lazr.restfulclient.errors import BadRequest
 from utils import get_build_recipe, get_date_utc_now
 
 """
-This script builds a recipe (for the platforms requested on LP),
+This script triggers a build on a recipe (for the platforms configured on LP),
 monitoring the build process and automatically retrying any build
 that fails. If Launchpad doesn't allow to retry a build, the script
 will keep on monitoring the others, and then exit with a non-0 return
@@ -126,7 +126,7 @@ def monitor_retry_builds(build_recipe, start_date):
 
 
 def build_monitor_recipe(project_name: str, recipe_name: str):
-    start_time = get_date_utc_now()  # - datetime.timedelta(hours=3)
+    start_time = get_date_utc_now()
     build_recipe = get_build_recipe(project_name, recipe_name)
 
     start_all_build(build_recipe)
@@ -139,9 +139,7 @@ def build_monitor_recipe(project_name: str, recipe_name: str):
 def parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser("Update a recipe of a specific project")
     parser.add_argument("project", help="Unique name of the project")
-    parser.add_argument(
-        "--recipe", "-r", help="Recipe name to build with", required=True
-    )
+    parser.add_argument("recipe", help="Recipe name to build with")
     return parser.parse_args(argv)
 
 

@@ -1,6 +1,6 @@
 import unittest
 
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import MagicMock, patch
 
 import lp_build_monitor_recipe
 
@@ -161,7 +161,6 @@ class TestMain(unittest.TestCase):
         "lp_build_monitor_recipe.get_date_utc_now",
         new=MagicMock(return_value=10),
     )
-    @patch("lp_build_monitor_recipe.print", new=MagicMock())
     @patch("lp_build_monitor_recipe.get_build_recipe")
     def test_success(self, get_build_recipe_mock):
         recipe_mock = get_build_recipe_mock()
@@ -203,7 +202,7 @@ class TestMain(unittest.TestCase):
         build_mock.lp_refresh.side_effect = lp_refresh_side_effect
         recipe_mock.builds = [build_mock, build_mock, build_mock]
 
-        lp_build_monitor_recipe.main(["checkbox", "--recipe", "some_recipe"])
+        lp_build_monitor_recipe.main(["checkbox", "some_recipe"])
 
         self.assertEqual(recipe_mock.requestBuild.call_count, 3)
         # after 3 calls all builds were started correctly
@@ -216,7 +215,6 @@ class TestMain(unittest.TestCase):
         "lp_build_monitor_recipe.get_date_utc_now",
         new=MagicMock(return_value=10),
     )
-    @patch("lp_build_monitor_recipe.print", new=MagicMock())
     @patch("lp_build_monitor_recipe.get_build_recipe")
     def test_failure(self, get_build_recipe_mock):
         recipe_mock = get_build_recipe_mock()
@@ -251,9 +249,7 @@ class TestMain(unittest.TestCase):
         recipe_mock.builds = [build_mock, build_mock, build_mock]
 
         with self.assertRaises(SystemExit):
-            lp_build_monitor_recipe.main(
-                ["checkbox", "--recipe", "some_recipe"]
-            )
+            lp_build_monitor_recipe.main(["checkbox", "some_recipe"])
 
         self.assertEqual(recipe_mock.requestBuild.call_count, 3)
         self.assertEqual(recipe_mock.getPendingBuildInfo.call_count, 1)

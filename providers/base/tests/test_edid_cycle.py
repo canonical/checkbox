@@ -4,14 +4,14 @@ import textwrap
 from pathlib import Path
 from unittest.mock import patch, call, Mock
 
-from bin import edid_cycle
+import edid_cycle
 
 
 class ZapperEdidCycleTests(unittest.TestCase):
     """This class provides test cases for the edid_cycle module."""
 
     @patch("time.sleep", new=Mock)
-    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("edid_cycle.zapper_run", new=Mock)
     @patch("builtins.open")
     @patch("os.getenv")
     @patch("subprocess.check_output")
@@ -42,7 +42,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
         self.assertEqual(port, "HDMI-1")
 
     @patch("time.sleep", new=Mock)
-    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("edid_cycle.zapper_run", new=Mock)
     @patch("builtins.open")
     @patch("os.getenv")
     @patch("subprocess.check_output")
@@ -69,7 +69,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
             edid_cycle.discover_video_output_device("zapper-ip")
 
     @patch("time.sleep", new=Mock)
-    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("edid_cycle.zapper_run", new=Mock)
     @patch("builtins.open")
     @patch("os.getenv")
     @patch("subprocess.check_output")
@@ -103,7 +103,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
         self.assertEqual(port, "HDMI-1")
 
     @patch("time.sleep", new=Mock)
-    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("edid_cycle.zapper_run", new=Mock)
     @patch("builtins.open")
     @patch("os.getenv")
     @patch("subprocess.check_output")
@@ -133,7 +133,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
             edid_cycle.discover_video_output_device("zapper-ip")
 
     @patch("time.sleep", new=Mock)
-    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("edid_cycle.zapper_run", new=Mock)
     @patch("builtins.open")
     @patch("os.getenv")
     @patch("subprocess.check_output")
@@ -171,7 +171,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
         mock_open.assert_called_with("1920x1080.edid", "rb")
 
     @patch("time.sleep", new=Mock)
-    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("edid_cycle.zapper_run", new=Mock)
     @patch("builtins.open")
     @patch("os.getenv")
     @patch("subprocess.check_output")
@@ -229,7 +229,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
             edid_cycle.test_edid("zapper-ip", Path("1280x800.edid"), "HDMI-1")
 
     @patch("time.sleep", new=Mock)
-    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("edid_cycle.zapper_run", new=Mock)
     @patch("builtins.open")
     @patch("os.getenv")
     @patch("subprocess.check_output")
@@ -267,7 +267,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
         mock_open.assert_called_with("1920x1080.edid", "rb")
 
     @patch("time.sleep", new=Mock)
-    @patch("bin.edid_cycle.zapper_run", new=Mock)
+    @patch("edid_cycle.zapper_run", new=Mock)
     @patch("builtins.open")
     @patch("os.getenv")
     @patch("subprocess.check_output")
@@ -324,7 +324,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
         with self.assertRaises(AssertionError):
             edid_cycle.test_edid("zapper-ip", Path("1280x800.edid"), "HDMI-1")
 
-    @patch("bin.edid_cycle.discover_video_output_device")
+    @patch("edid_cycle.discover_video_output_device")
     def test_main_no_device(self, mock_discover):
         """Test if main function exits when no device is detected."""
         args = ["zapper-ip"]
@@ -333,8 +333,8 @@ class ZapperEdidCycleTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             edid_cycle.main(args)
 
-    @patch("bin.edid_cycle.test_edid")
-    @patch("bin.edid_cycle.discover_video_output_device")
+    @patch("edid_cycle.test_edid")
+    @patch("edid_cycle.discover_video_output_device")
     def test_main(self, mock_discover, mock_test_edid):
         """
         Test if main function run the EDID test for every available EDID file.

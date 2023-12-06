@@ -51,7 +51,7 @@ def get_checkbox_packages(ppa):
     since_date = datetime.datetime.now() - datetime.timedelta(weeks=4)
     # The time ago is needed because else LP api will choke trying to
     # return the full history including any published source in the ppa
-    return ppa.getPublishedSource(
+    return ppa.getPublishedSources(
         created_since_date=since_date, source_name="checkbox"
     )
 

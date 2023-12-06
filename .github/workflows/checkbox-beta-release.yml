@@ -61,6 +61,9 @@ jobs:
         env:
           SNAPCRAFT_HAS_TTY: "true" # this is necessary because snapcraft will not allow --yes for promotions of the edge channel
         run: |
+          # Note: using `yes |` instead of `--yes` because snapcraft will
+          #       refuse to non-interactively promote a snap from the edge
+          #       channel if it is done without any branch qualifiers
           yes | snapcraft promote checkbox16 --from-channel latest/edge --to-channel latest/beta
           yes | snapcraft promote checkbox18 --from-channel latest/edge --to-channel latest/beta
           yes | snapcraft promote checkbox20 --from-channel latest/edge --to-channel latest/beta
@@ -77,8 +80,11 @@ jobs:
           sudo snap install snapcraft --classic
       - name: Promote checkbox snaps to the beta channel
         env:
-          SNAPCRAFT_HAS_TTY: "true"
+          SNAPCRAFT_HAS_TTY: "true" # this is necessary because snapcraft will not allow --yes for promotions of the edge channel
         run: |
+          # Note: using `yes |` instead of `--yes` because snapcraft will
+          #       refuse to non-interactively promote a snap from the edge
+          #       channel if it is done without any branch qualifiers
           yes | snapcraft promote checkbox --from-channel uc16/edge --to-channel uc16/beta
           yes | snapcraft promote checkbox --from-channel uc18/edge --to-channel uc18/beta
           yes | snapcraft promote checkbox --from-channel uc20/edge --to-channel uc20/beta

@@ -6,7 +6,7 @@ on:
 
 jobs:
   ppa_update:
-    name: PPA update
+    name: Sync PPA history with monorepo
     runs-on: [self-hosted, linux, large]
     steps:
       - name: Install dependencies

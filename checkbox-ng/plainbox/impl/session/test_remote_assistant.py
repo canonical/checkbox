@@ -63,7 +63,7 @@ class RemoteAssistantTests(TestCase):
             init_mock.return_value = None
             # RSA constructor calls _reset_sa, which in turns creates a new SA
             rsa = remote_assistant.RemoteSessionAssistant(lambda: None)
-            init_mock.assert_called_once()
+            self.assertEqual(init_mock.call_count, 1)
 
     @mock.patch("fnmatch.filter")
     def test_start_session_with_launcher(self, mock_filter):

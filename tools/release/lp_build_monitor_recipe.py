@@ -7,7 +7,7 @@ import itertools
 
 from lazr.restfulclient.errors import BadRequest
 
-from utils import get_build_recipe, get_date_utc_now
+from utils import get_source_build_recipe, get_date_utc_now
 
 """
 This script triggers a build on a recipe (for the platforms configured on LP),
@@ -128,7 +128,7 @@ def monitor_retry_builds(build_recipe, start_date):
 
 def build_monitor_recipe(project_name: str, recipe_name: str):
     start_time = get_date_utc_now()
-    build_recipe = get_build_recipe(project_name, recipe_name)
+    build_recipe = get_source_build_recipe(project_name, recipe_name)
 
     start_all_build(build_recipe)
 

@@ -161,9 +161,9 @@ class TestMain(unittest.TestCase):
         "lp_build_monitor_recipe.get_date_utc_now",
         new=MagicMock(return_value=10),
     )
-    @patch("lp_build_monitor_recipe.get_build_recipe")
-    def test_success(self, get_build_recipe_mock):
-        recipe_mock = get_build_recipe_mock()
+    @patch("lp_build_monitor_recipe.get_source_build_recipe")
+    def test_success(self, get_source_build_recipe_mock):
+        recipe_mock = get_source_build_recipe_mock()
         # we are asking this to build on 3 platforms
         recipe_mock.distroseries = ["Xenial", "Bionic", "Jammy"]
         # every build starts and pends for some time
@@ -215,9 +215,9 @@ class TestMain(unittest.TestCase):
         "lp_build_monitor_recipe.get_date_utc_now",
         new=MagicMock(return_value=10),
     )
-    @patch("lp_build_monitor_recipe.get_build_recipe")
-    def test_failure(self, get_build_recipe_mock):
-        recipe_mock = get_build_recipe_mock()
+    @patch("lp_build_monitor_recipe.get_source_build_recipe")
+    def test_failure(self, get_source_build_recipe_mock):
+        recipe_mock = get_source_build_recipe_mock()
         # we are asking this to build on 3 platforms
         recipe_mock.distroseries = ["Xenial", "Bionic", "Jammy"]
         # every build starts and pends for some time

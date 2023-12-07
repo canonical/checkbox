@@ -31,7 +31,7 @@ class TestUpdateBuildRecipe(unittest.TestCase):
         # revision is also included in the recipe
         self.assertIn("aaabbb", new_recipe)
 
-    @patch("lp_update_recipe.get_build_recipe")
+    @patch("lp_update_recipe.get_source_build_recipe")
     @patch("lp_update_recipe.print")
     def test_main(self, print_mock, get_build_path_mock):
         lp_recipe = get_build_path_mock()

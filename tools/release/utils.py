@@ -20,7 +20,7 @@ def get_launchpad_client() -> Launchpad:
     )
 
 
-def get_build_recipe(project_name: str, recipe_name: str):
+def get_source_build_recipe(project_name: str, recipe_name: str):
     lp = get_launchpad_client()
     try:
         project = lp.projects[project_name]

@@ -3,6 +3,7 @@
 # Copyright 2023 Canonical Ltd.
 # Written by:
 #   Massimiliano Girardi <massimiliano.girardi@canonical.com>
+#   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -16,10 +17,15 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+from os.path import exists
+
 from unittest import TestCase, mock
+
+from checkbox_ng.config import load_configs
 
 from plainbox.abc import IJobResult
 from plainbox.impl.config import Configuration
+from plainbox.impl.result import MemoryJobResult
 
 from plainbox.impl.secure.sudo_broker import is_passwordless_sudo
 
@@ -129,6 +135,95 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.resume_session.return_value = mock_meta
         remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
         self.assertEqual(rsa._state, "testsselected")
+
+    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
+    def test_resume_by_id_with_result_file_ok(self, mock_load_configs):
+        rsa = mock.Mock()
+        resumable_session = mock.Mock()
+        resumable_session.id = "session_id"
+        rsa._sa.get_resumable_sessions.return_value = [resumable_session]
+        rsa.get_rerun_candidates.return_value = []
+        rsa._state = remote_assistant.Idle
+
+        mock_meta = mock.Mock()
+        mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+
+        rsa._sa.resume_session.return_value = mock_meta
+        os_path_exists_mock = mock.Mock()
+
+        with mock.patch("os.path.exists", os_path_exists_mock):
+            with mock.patch("builtins.open", mock.mock_open(read_data="pass")):
+                os_path_exists_mock.return_value = True
+                # mock_open.return_value.read.return_value = "pass"
+                remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+
+        mjr = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "comments": "Automatically passed after resuming execution",
+            }
+        )
+
+        rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
+
+    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
+    def test_resume_by_id_with_result_no_file(self, mock_load_configs):
+        rsa = mock.Mock()
+        resumable_session = mock.Mock()
+        resumable_session.id = "session_id"
+        rsa._sa.get_resumable_sessions.return_value = [resumable_session]
+        rsa.get_rerun_candidates.return_value = []
+        rsa._state = remote_assistant.Idle
+
+        mock_meta = mock.Mock()
+        mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+
+        rsa._sa.resume_session.return_value = mock_meta
+        os_path_exists_mock = mock.Mock()
+
+        with mock.patch("os.path.exists", os_path_exists_mock):
+            os_path_exists_mock.return_value = False
+            # mock_open.return_value.read.return_value = "pass"
+            remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+
+        mjr = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "comments": "Automatically passed after resuming execution",
+            }
+        )
+
+        rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
+
+    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
+    def test_resume_by_id_with_result_file_not_json(self, mock_load_configs):
+        rsa = mock.Mock()
+        resumable_session = mock.Mock()
+        resumable_session.id = "session_id"
+        rsa._sa.get_resumable_sessions.return_value = [resumable_session]
+        rsa.get_rerun_candidates.return_value = []
+        rsa._state = remote_assistant.Idle
+
+        mock_meta = mock.Mock()
+        mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+
+        rsa._sa.resume_session.return_value = mock_meta
+        os_path_exists_mock = mock.Mock()
+
+        with mock.patch("os.path.exists", os_path_exists_mock):
+            with mock.patch("builtins.open", mock.mock_open(read_data="!@!")):
+                os_path_exists_mock.return_value = True
+                # mock_open.return_value.read.return_value = "pass"
+                remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+
+        mjr = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "comments": "Automatically passed after resuming execution",
+            }
+        )
+
+        rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
 
 
 class RemoteAssistantFinishJobTests(TestCase):

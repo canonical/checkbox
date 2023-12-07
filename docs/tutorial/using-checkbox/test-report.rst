@@ -17,6 +17,10 @@ respective contents.
     exporter to customize the reports. See :doc:`launcher<../../reference/launcher>` 
     and :doc:`exporter<../../reference/units/exporter>` for more details.
 
+.. note:: 
+   
+    For a detailed description of the ``submission.json`` file, see the :doc:`../../reference/submission-schema` reference.
+
 .. _text-summary:
 
 Text Summary
@@ -122,8 +126,8 @@ in the search bar, you can view all test results related to audio testing.
     An example of beginning of a HTML report
 
 ``json``
-    JSON files store session exports that are compatible for submission to 
-    Certification Website.
+    JSON files store session exports that are generated using the pre-defined
+    :doc:`../../reference/submission-schema`.
 
 ``junit``
     `JUnit XML <https://windyroad.com.au/dl/Open%20Source/JUnit.xsd>`_ files 
@@ -138,5 +142,3 @@ in the search bar, you can view all test results related to audio testing.
     Certification Website only accepts submissions tarballs, from which it 
     extracts the ``submission.json`` file to create a new test report in the 
     database. 
-
-For a detailed description of the ``submission.json`` file, see the :doc:`../../reference/submission-schema` reference.

@@ -1,9 +1,9 @@
 .. _submission_schema:
 
-Submission Schema
-==================
+Submission JSON Schema
+=======================
 
-Checkbox :ref:`submissions <submission-files>` contain reports of the tests and in-depth information that helps analyzing the test results. These files are sent to the :term:`Certification Website` for sharing test results.
+Checkbox :ref:`submissions <submission-files>` contain reports of the tests and in-depth information that helps analysing the test results. 
 
 This document describes the schema of the ``submission.json`` files as part of the submission. To get the latest JSON schema file, go to the Checkbox `GitHub repository <https://github.com/canonical/checkbox/blob/main/submission-schema/schema.json>`_.
 

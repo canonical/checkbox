@@ -47,4 +47,4 @@ def get_build_recipe(project_name: str, recipe_name: str):
         )
 
 def get_date_utc_now():
-    return datetime.datetime.now(tz=datetime.UTC)
+    return datetime.datetime.now(tz=datetime.timezone.utc)

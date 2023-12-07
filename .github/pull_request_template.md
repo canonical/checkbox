@@ -14,6 +14,8 @@ Pick one of the following:
 
 If your change is to providers it can only be (Infra, BugFix or New).
 
+If your change impacts the submission format in Checkbox test reports, ensure that `submission-schema/schema.json` is updated and relevant fields are documented.
+
 Signed commits are required.
   - See CONTRIBUTING.md (https://github.com/canonical/checkbox/blob/main/CONTRIBUTING.md#signed-commits-required) for further instructions.
   - If you are posting your first pull request from a fork of the repository, a Checkbox maintainer (someone with contributor / maintainer / admin rights) will be required to enable CI checks in the repo to be executed.

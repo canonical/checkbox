@@ -14,7 +14,7 @@ Pick one of the following:
 
 If your change is to providers it can only be (Infra, BugFix or New).
 
-If your change impacts the submission format in Checkbox test reports, ensure that the schema is updated and relevant fields are documented. Follow the instructions in `submission-schema/README.md` to recreate the schema.json file.
+If your change impacts the submission format in Checkbox test reports, ensure that `submission-schema/schema.json` is updated and relevant fields are documented.
 
 Signed commits are required.
   - See CONTRIBUTING.md (https://github.com/canonical/checkbox/blob/main/CONTRIBUTING.md#signed-commits-required) for further instructions.

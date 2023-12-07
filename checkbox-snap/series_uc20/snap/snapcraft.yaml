@@ -76,7 +76,8 @@ apps:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper run-agent
     daemon: simple
-    restart-condition: on-failure
+    restart-condition: always
+    restart-delay: 1s
     plugs: *standard
   shell:
     command-chain: [bin/wrapper_local]

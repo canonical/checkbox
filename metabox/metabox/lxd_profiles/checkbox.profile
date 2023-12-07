@@ -13,15 +13,7 @@ config:
           source: "ppa:hardware-certification/public"
     packages:
       - alsa-base
-      - gir1.2-cheese-3.0
-      - gir1.2-gst-plugins-base-1.0
-      - gir1.2-gstreamer-1.0
-      - gstreamer1.0-plugins-good
-      - gstreamer1.0-pulseaudio
       - jq
-      - libgstreamer1.0-0
-      - mesa-utils
-      - pulseaudio
       - python3-jinja2
       - python3-markupsafe
       - python3-packaging
@@ -34,5 +26,3 @@ config:
       - python3-urwid
       - python3-xlsxwriter
       - virtualenv
-      - x11-apps
-      - xvfb

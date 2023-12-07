@@ -84,3 +84,19 @@ class SessionAssistantTests(morris.SignalTestCase):
         # Use the manager to tidy up after the tests when normally you wouldnt
         # be allowed to
         self.sa._manager.destroy()
+
+    def test_start_new_session(self, mock_get_providers):
+        """Test that start_new_session() works."""
+        mock_get_providers.return_value = self._get_mock_providers()
+        # SessionAssistant.start_new_session() must now be allowed
+        self.assertIn(
+            self.sa.start_new_session,
+            UsageExpectation.of(self.sa).allowed_calls,
+        )
+        # Call SessionAssistant.start_new_session()
+        self.sa.start_new_session("just for testing")
+        # SessionAssistant.start_new_session() must no longer allowed
+        self.assertNotIn(
+            self.sa.start_new_session,
+            UsageExpectation.of(self.sa).allowed_calls,
+        )

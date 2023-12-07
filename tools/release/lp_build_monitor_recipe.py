@@ -61,7 +61,7 @@ def wait_every_source_build_started(build_recipe):
         pending_builds = build_recipe.getPendingBuildInfo()
 
 
-def recipe_name_to_source(name):
+def recipe_name_to_source_name(name):
     # name is in the form of source-name-with-dashes-risk
     # this removes risk
     return name.rsplit("-", 1)[0]
@@ -72,7 +72,7 @@ def get_all_binary_builds(build_recipe, started_datetime):
     Returns all builds of the current calculated recipe target
     started after started_date (UTC+0)
     """
-    recipe_target = recipe_name_to_source(build_recipe.name)
+    recipe_target = recipe_name_to_source_name(build_recipe.name)
     builds = build_recipe.daily_build_archive.getBuildRecords(
         source_name=recipe_target
     )
@@ -155,9 +155,7 @@ def monitor_retry_builds(builds_to_check) -> list["LPBuild"]:
 
 
 def build_monitor_recipe(project_name: str, recipe_name: str):
-    import datetime
-
-    start_time = get_date_utc_now() - datetime.timedelta(hours=6)
+    start_time = get_date_utc_now()
     build_recipe = get_source_build_recipe(project_name, recipe_name)
 
     start_all_source_builds(build_recipe)

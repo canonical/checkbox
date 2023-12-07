@@ -1,3 +1,5 @@
+:orphan: This document is built but not included in the table of content.
+
 .. _test_output:
 
 ============================

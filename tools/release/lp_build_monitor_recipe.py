@@ -18,10 +18,10 @@ value.
 """
 
 # delay between updates requested to LP
-LP_POLLING_DELAY = 60
+LP_POLLING_DELAY = 1
 
 
-def start_all_build(build_recipe):
+def start_all_source_builds(build_recipe):
     for series in build_recipe.distroseries:
         try:
             build_recipe.requestBuild(
@@ -33,7 +33,21 @@ def start_all_build(build_recipe):
             print("An identical build of this recipe is already pending")
 
 
-def wait_every_build_started(build_recipe):
+def wait_every_binary_build_started(build_recipe):
+    # Note: this is a different definition of pending, this means pending or
+    #       building. This means that we will start to retry builds only once
+    #       every other build is done.
+    build_counters = build_recipe.daily_build_archive.getBuildCounters()
+    while build_counters["pending"] > 0:
+        print(
+            "Waiting some binary builds that are pending "
+            f"({build_counters['pending']})"
+        )
+        time.sleep(LP_POLLING_DELAY)
+        build_counters = build_recipe.daily_build_archive.getBuildCounters()
+
+
+def wait_every_source_build_started(build_recipe):
     pending_builds = build_recipe.getPendingBuildInfo()
     while pending_builds:
         print("Waiting some builds that are pending:")
@@ -47,7 +61,30 @@ def wait_every_build_started(build_recipe):
         pending_builds = build_recipe.getPendingBuildInfo()
 
 
-def get_new_builds(build_recipe, started_datetime):
+def recipe_name_to_source(name):
+    # name is in the form of source-name-with-dashes-risk
+    # this removes risk
+    return name.rsplit("-", 1)[0]
+
+
+def get_all_binary_builds(build_recipe, started_datetime):
+    """
+    Returns all builds of the current calculated recipe target
+    started after started_date (UTC+0)
+    """
+    recipe_target = recipe_name_to_source(build_recipe.name)
+    builds = build_recipe.daily_build_archive.getBuildRecords(
+        source_name=recipe_target
+    )
+    return list(
+        itertools.takewhile(
+            lambda build: build.date_first_dispatched > started_datetime,
+            builds,
+        )
+    )
+
+
+def get_all_source_builds(build_recipe, started_datetime):
     """
     Returns all builds of a recipe since started_date (UTC+0)
     """
@@ -63,7 +100,7 @@ def get_new_builds(build_recipe, started_datetime):
     )
 
 
-def monitor_retry_builds(build_recipe, start_date):
+def monitor_retry_builds(builds_to_check) -> list["LPBuild"]:
     """
     This function monitors the builds that were started after start_date
 
@@ -81,11 +118,9 @@ def monitor_retry_builds(build_recipe, start_date):
     - Cancelling build - retry or note failure
     - Cancelled build - retry or note failure
 
-    If a build can not be retried, once the monitoring of the others
-    is finished, this function will raise SystemExit with the list of
-    failed builds
+    This function returns the list of builds that didn't succeed and
+    it was unable to retry
     """
-    builds_to_check = get_new_builds(build_recipe, start_date)
     builds_unrecoverable = []
     builds_ok = []
     while builds_to_check:
@@ -116,6 +151,25 @@ def monitor_retry_builds(build_recipe, start_date):
             print(f"Build failed with status '{buildstate}' ")
             print(f"  unrecoverable: {build.web_link}")
 
+    return builds_unrecoverable
+
+
+def build_monitor_recipe(project_name: str, recipe_name: str):
+    import datetime
+
+    start_time = get_date_utc_now() - datetime.timedelta(hours=6)
+    build_recipe = get_source_build_recipe(project_name, recipe_name)
+
+    start_all_source_builds(build_recipe)
+
+    wait_every_source_build_started(build_recipe)
+    source_builds_to_check = get_all_source_builds(build_recipe, start_time)
+    builds_unrecoverable = monitor_retry_builds(source_builds_to_check)
+
+    # source builds will trigger new binary build
+    wait_every_binary_build_started(build_recipe)
+    binary_builds_to_check = get_all_binary_builds(build_recipe, start_time)
+    builds_unrecoverable += monitor_retry_builds(binary_builds_to_check)
     if builds_unrecoverable:
         weblinks_of_failed = "\n".join(
             build.web_link for build in builds_unrecoverable
@@ -124,17 +178,6 @@ def monitor_retry_builds(build_recipe, start_date):
             "The following failed and can't be recovered\n"
             + textwrap.indent(weblinks_of_failed, "  ")
         )
-
-
-def build_monitor_recipe(project_name: str, recipe_name: str):
-    start_time = get_date_utc_now()
-    build_recipe = get_source_build_recipe(project_name, recipe_name)
-
-    start_all_build(build_recipe)
-
-    wait_every_build_started(build_recipe)
-
-    monitor_retry_builds(build_recipe, start_time)
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:

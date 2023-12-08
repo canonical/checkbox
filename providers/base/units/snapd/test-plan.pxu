@@ -89,6 +89,7 @@ exclude:
 nested_part:
     snappy-snap-automated
 
+# See README.md file for more information about this test plan
 id: snap-refresh-revert
 unit: test plan
 _name: Snaps refresh and revert automated tests

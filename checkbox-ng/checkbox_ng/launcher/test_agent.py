@@ -97,7 +97,7 @@ class AgentTests(TestCase):
         server = threaded_server_mock.return_value
         # the server was started
         self.assertTrue(server.start.called)
-        logger_mock.warning.assert_called()
+        self.assertTrue(logger_mock.warning.called)
 
     def test_invoked_with_session(
         self,
@@ -127,7 +127,9 @@ class AgentTests(TestCase):
             itni.return_value = True
 
             RemoteAgent.invoked(self_mock, ctx_mock)
-            remote_assistant_mock.return_value.resume_by_id.assert_called()
+            self.assertTrue(
+                remote_assistant_mock.return_value.resume_by_id.called
+            )
 
         remote_assistant_mock.reset_mock()
 

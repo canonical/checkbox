@@ -1,3 +1,5 @@
+AMD
+amd
 APIs
 autoconf
 backend
@@ -94,6 +96,7 @@ sys
 systemd
 Systemd
 templating
+Testflinger
 testplan
 tmp
 TODO

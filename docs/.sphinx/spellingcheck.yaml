@@ -24,4 +24,4 @@ matrix:
       - div.relatedlinks
       - div.visually-hidden
       - img
-      - div.spellignore
+      - div.mermaid

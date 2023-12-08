@@ -70,6 +70,8 @@ include:
     snappy/test-store-config-.*
     snappy/test-system-confinement
     snappy/test-snaps-confinement
+nested_part:
+    snap-refresh-revert
 mandatory_include:
     snap
 bootstrap_include:

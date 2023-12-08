@@ -324,3 +324,17 @@ class RemoteAssistantFinishJobTests(TestCase):
             outcome=IJobResult.OUTCOME_PASS,
             comments="Automatically passed while resuming",
         )
+
+
+class SessionAssistantAgentTests(TestCase):
+    def test_on_connect(self):
+        conn = mock.Mock()
+        conn._config = {"endpoints": [("first", 1), ("second", 2)]}
+        blaster_mock = mock.Mock()
+        SessionAssistantAgent.controller_blaster = blaster_mock
+        SessionAssistantAgent.controlling_controller_conn = mock.Mock()
+        saa = mock.Mock()
+        SessionAssistantAgent.on_connect(saa, conn)
+        blaster_mock.assert_called_with(
+            "Forcefully disconnected by new controller from second:2"
+        )

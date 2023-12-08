@@ -116,22 +116,7 @@ class RemoteAgent:
 
         agent_port = ctx.args.port
 
-        # Check if able to connect to the agent port as indicator of there
-        # already being a agent running
-        def agent_port_open():
-            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            sock.settimeout(0.5)
-            result = sock.connect_ex(("127.0.0.1", agent_port))
-            sock.close()
-            return result
-
-        if agent_port_open() == 0:
-            raise SystemExit(
-                _(
-                    "Found port {} is open. Is Checkbox agent"
-                    " already running?"
-                ).format(agent_port)
-            )
+        exit_if_port_unavailable(agent_port)
 
         SessionAssistantAgent.session_assistant = RemoteSessionAssistant(
             lambda s: [sys.argv[0] + "agent"]
@@ -189,3 +174,24 @@ def is_the_session_noninteractive(
     app_blob = json.loads(resumable_session.metadata.app_blob.decode("utf-8"))
     launcher = Configuration.from_text(app_blob["launcher"], "resumed session")
     return launcher.sections["ui"].get("type") == "silent"
+
+
+def exit_if_port_unavailable(port: int) -> None:
+    """
+    Check if the port is available and exit if it's not.
+
+    This is used by the agent to check if it's already running.
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(0.5)
+    result = sock.connect_ex(("127.0.0.1", port))
+    sock.close()
+    # the result is 0 if the port is open (which means the low level
+    # connect() call succeeded), and 1 if it's closed (which means the low
+    # level connect() call failed)
+    if result == 0:
+        raise SystemExit(
+            _(
+                "Found port {} is open. Is Checkbox agent" " already running?"
+            ).format(port)
+        )

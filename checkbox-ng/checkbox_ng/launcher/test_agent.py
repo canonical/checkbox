@@ -20,6 +20,7 @@ import json
 from unittest import TestCase, mock
 
 from checkbox_ng.launcher.agent import is_the_session_noninteractive
+from checkbox_ng.launcher.agent import exit_if_port_unavailable
 from checkbox_ng.launcher.agent import RemoteAgent
 from plainbox.impl.session.assistant import ResumeCandidate
 from plainbox.impl.session.state import SessionMetaData
@@ -86,3 +87,20 @@ class IsTheSessionNonInteractiveTests(TestCase):
 
         candidate = ResumeCandidate("an_id", metadata)
         self.assertFalse(is_the_session_noninteractive(candidate))
+
+
+class ExitIfPortUnavilableTests(TestCase):
+    def test_exit_if_port_unavailable_it_is(self):
+        mocked_socket = mock.Mock()
+        mocked_socket.connect_ex.return_value = 1
+        with mock.patch("socket.socket") as socket_mock:
+            socket_mock.return_value = mocked_socket
+            self.assertIsNone(exit_if_port_unavailable(1234))
+
+    def test_exit_if_port_unavailable_nope(self):
+        mocked_socket = mock.Mock()
+        mocked_socket.connect_ex.return_value = 0
+        with mock.patch("socket.socket") as socket_mock:
+            socket_mock.return_value = mocked_socket
+            with self.assertRaises(SystemExit):
+                exit_if_port_unavailable(1234)

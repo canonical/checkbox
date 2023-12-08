@@ -4,7 +4,7 @@ Canary Pipeline
 ^^^^^^^^^^^^^^^
 This is an example on how the whole pipeline can be implemented in Jenkins.
 
-::
+.. code-block:: groovy
     
     pipeline {
         agent any
@@ -24,7 +24,7 @@ This is an example on how the whole pipeline can be implemented in Jenkins.
                             },
                             "Checkbox series-16 for amd64": {
                                 echo 'Running Canary on core16 amd64'
-                                build job: 'ccheckbox-edge-validation-core16-amd64', wait: true, propagate: true
+                                build job: 'checkbox-edge-validation-core16-amd64', wait: true, propagate: true
                             }
 
                         )
@@ -42,3 +42,4 @@ This is an example on how the whole pipeline can be implemented in Jenkins.
             }
         }
     }
+

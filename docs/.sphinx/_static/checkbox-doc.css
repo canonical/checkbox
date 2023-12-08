@@ -1,0 +1,44 @@
+.mermaid {
+    display: flex;
+    justify-content: center;
+    padding-bottom: 0.5rem;
+    font-family: Ubuntu, sans-serif;
+}
+
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node ellipse,
+.mermaid .node polygon,
+.mermaid .node path,
+.mermaid .actor rect,
+.mermaid .labelBox polygon
+{
+    fill: var(--color-background-item) !important;
+    stroke: var(--color-background-border) !important;
+}
+
+
+.mermaid .label text,
+.mermaid span,
+.mermaid p
+{
+    color: var(--color-content-foreground) !important;
+}
+
+.mermaid .actor tspan,
+.mermaid text.messageText
+{
+    fill: var(--color-content-foreground) !important;
+}
+
+.mermaid .flowchart-link,
+.mermaid line
+{
+    stroke: var(--color-content-foreground) !important;
+}
+
+.mermaid .marker
+{
+    fill: var(--color-content-foreground) !important;
+    stroke: var(--color-content-foreground) !important;
+}

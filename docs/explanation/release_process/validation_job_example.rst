@@ -6,7 +6,7 @@ Example of a validation job
 Below is the shell code that can be used as a build step in Jenkins in a job
 responsible for validating edge snap of Checkbox.
 
-::
+.. code-block:: shell
 
   #!/bin/bash
   set -e

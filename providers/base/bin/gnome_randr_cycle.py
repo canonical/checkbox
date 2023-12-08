@@ -64,8 +64,8 @@ for line in output:
         modeline = line.split()
         try:
             mode, resolution, rate = modeline[:3]
-            #ignore preferred for rate
-            rate = rate.replace('+', '')
+            # ignore preferred for rate
+            rate = rate.replace("+", "")
             width, height = [int(x) for x in resolution.split('x')]
             aspect = Fraction(width, height)
             if width < 675 or width / aspect < 530:
@@ -73,7 +73,7 @@ for line in output:
             if "*" in rate:
                 current_modes.append((monitor, resolution, mode, rate))
             if resolution in monitors[monitor]:
-                rate=rate.replace('*', '')
+                rate = rate.replace("*", "")
                 existing_rate = monitors[monitor][resolution][3]
                 if float(rate) < float(existing_rate):
                     continue
@@ -81,7 +81,7 @@ for line in output:
         except IndexError:
             continue
         except ValueError as e:
-            print(f"Invalid refresh rate format: {e}")
+            print("Invalid refresh rate format: {}".format(e))
             continue
 
 for monitor in monitors.keys():

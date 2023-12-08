@@ -104,3 +104,18 @@ class ExitIfPortUnavilableTests(TestCase):
             socket_mock.return_value = mocked_socket
             with self.assertRaises(SystemExit):
                 exit_if_port_unavailable(1234)
+
+
+class RegisterArgumentsTests(TestCase):
+    def test_register_arguments(self):
+        parser = mock.Mock()
+        rsa = mock.Mock()
+        with mock.patch("checkbox_ng.launcher.agent._") as _mock:
+            _mock.return_value = "_"
+            RemoteAgent.register_arguments(rsa, parser)
+            parser.add_argument.assert_any_call(
+                "--resume", action="store_true", help="_"
+            )
+            parser.add_argument.assert_any_call(
+                "--port", type=int, default=18871, help="_"
+            )

@@ -1,0 +1,17 @@
+unit: manifest entry
+id: need_kernel_snap_update_test
+_prompt: Do the following snaps types require snap refresh/revert testing?
+_name: Kernel
+value-type: bool
+
+unit: manifest entry
+id: need_snapd_snap_update_test
+_prompt: Do the following snaps types require snap refresh/revert testing?
+_name: Snapd
+value-type: bool
+
+unit: manifest entry
+id: need_gadget_snap_update_test
+_prompt: Do the following snaps types require snap refresh/revert testing?
+_name: Gadget
+value-type: bool

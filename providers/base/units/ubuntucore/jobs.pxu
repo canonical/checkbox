@@ -176,9 +176,12 @@ plugin: shell
 estimated_duration: 1m
 category_id: ubuntucore
 user: root
-imports: from com.canonical.certification import snap_revision_info
+imports:
+ from com.canonical.certification import snap_revision_info
+ from com.canonical.plainbox import manifest
 requires:
  (snap_revision_info.name == "{name}") and snap_revision_info.stable_rev != snap_revision_info.original_installed_rev
+ manifest.need_{type}_snap_update_test == "True"
 command:
     path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
     snap_update_test.py --refresh --revision {stable_rev} --info-path "$path" {name}
@@ -275,9 +278,12 @@ plugin: shell
 estimated_duration: 3m
 category_id: ubuntucore
 user: root
-imports: from com.canonical.certification import snap_revision_info
+imports:
+ from com.canonical.certification import snap_revision_info
+ from com.canonical.plainbox import manifest
 requires:
  (snap_revision_info.name == "{name}") and snap_revision_info.base_rev != snap_revision_info.original_installed_rev
+ manifest.need_{type}_snap_update_test == "True"
 command:
     path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
     snap_update_test.py --refresh --revision {base_rev} --info-path "$path" {name}

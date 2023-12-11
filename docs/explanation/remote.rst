@@ -121,7 +121,7 @@ reboot or a system hang).
     idle("go into idle state")
     listen("listen for a controller")
     proc --> load
-    last_job{"was the last job a `noreturn` job?"}
+    last_job{"last job `noreturn`?"}
     load -->last_job
     last_job-->|yes| resume
     resume --> mark_pass

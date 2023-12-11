@@ -84,7 +84,7 @@ def main():
     print("Start code import...")
     output = (
         run(
-            "./tools/release/lp-request-import.py {}".format(
+            "./tools/release/lp_request_import.py {}".format(
                 "~checkbox-dev/checkbox/+git/checkbox" + staging
             ),
             shell=True,

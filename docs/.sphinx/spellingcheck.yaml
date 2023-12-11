@@ -21,7 +21,7 @@ matrix:
       - div.visually-hidden
       - img
       - link
-      - mermaid
+      - div.mermaid
       - pre
       - spellexception
       - title

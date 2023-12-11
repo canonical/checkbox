@@ -1,0 +1,12 @@
+# python
+*.egg-info
+*.pyc
+__pycache__
+
+# coverage
+.coverage
+coverage.xml
+htmlcov
+
+# tox working folder
+/.tox

@@ -1,3 +1,8 @@
+
+# If the following manifest entries are set to true, SRU and Cert IoT test
+# plans will try to run snap refresh/revert to and from the base revision and
+# the stable revision. See README.md for more information.
+
 unit: manifest entry
 id: need_kernel_snap_update_test
 _prompt: Do the following snaps types require snap refresh/revert testing?

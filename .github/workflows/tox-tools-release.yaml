@@ -1,0 +1,34 @@
+name: Test release tools with tox
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - tools/release/**
+  pull_request:
+    branches: [ main ]
+    paths:
+      - tools/release/**
+  workflow_dispatch:
+
+jobs:
+  build:
+    defaults:
+      run:
+        working-directory: tools/release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+      - name: Install tox
+        run: pip install tox
+      - name: Run tox
+        run: tox -e py310
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: release-tools

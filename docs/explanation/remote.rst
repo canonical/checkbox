@@ -111,7 +111,7 @@ reboot or a system hang).
 
   graph TD;
 
-  proc("agent process starts")
+  process("agent process starts")
     load("load previous session")
     resume("resume the previous session")
     resume_crashed("resume the previous session")
@@ -120,8 +120,8 @@ reboot or a system hang).
     mark_crash("mark last running job as crashing")
     idle("go into idle state")
     listen("listen for a controller")
-    proc --> load
-    last_job{"last job `noreturn`?"}
+    process --> load
+    last_job{"last job ``noreturn``?"}
     load -->last_job
     last_job-->|yes| resume
     resume --> mark_pass

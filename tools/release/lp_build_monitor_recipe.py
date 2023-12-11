@@ -18,7 +18,7 @@ value.
 """
 
 # delay between updates requested to LP
-LP_POLLING_DELAY = 1
+LP_POLLING_DELAY = 60
 
 
 def start_all_source_builds(build_recipe):

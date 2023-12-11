@@ -92,8 +92,11 @@ def main():
 
         kernel_rev = os.path.basename(
             os.path.realpath('/snap/{}/current'.format(kernel)))
-        boot_kernel = '/boot/uboot/{}_{}.snap/kernel.img'.format(
-            kernel, kernel_rev)
+        boot_kernel = (
+            "/var/lib/snapd/hostfs/boot/uboot/{}_{}.snap/kernel.img".format(
+                kernel, kernel_rev
+            )
+        )
         boot_objects = fitdumpimage(boot_kernel)
 
         for obj, attrs in boot_objects.items():

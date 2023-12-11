@@ -92,6 +92,8 @@ def main():
 
         kernel_rev = os.path.basename(
             os.path.realpath('/snap/{}/current'.format(kernel)))
+        # update boot kernel path according to
+        # https://snapcraft.io/docs/the-system-backup-interface
         boot_kernel = (
             "/var/lib/snapd/hostfs/boot/uboot/{}_{}.snap/kernel.img".format(
                 kernel, kernel_rev

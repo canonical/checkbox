@@ -105,7 +105,7 @@ interrupted is decided on the type of job it was running.
 
 The jobs marked with a ``noreturn`` flag are marked as passing, while other jobs
 are considered to have crashed (due to the interruption of the session like a
-reboot or a system hang).
+reboot or a system stall).
 
 .. mermaid::
 

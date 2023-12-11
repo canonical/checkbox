@@ -118,8 +118,12 @@ class RemoteAgent:
 
         exit_if_port_unavailable(agent_port)
 
+        # The RemoteSessionAssistant required a callable that was used to
+        # start the agent as a part of restart strategy. We don't need that
+        # functionality, so we just pass a dummy callable that will never be
+        # called. It's left in to avoid breaking the API.
         SessionAssistantAgent.session_assistant = RemoteSessionAssistant(
-            lambda s: [sys.argv[0] + "agent"]
+            lambda x: None
         )
 
         # the agent is meant to be run only as a service,

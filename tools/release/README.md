@@ -173,6 +173,7 @@ Send the release e-mail to:
 **_Note:_** You need to be registered to both these mailing lists in order to
 be able to send an e-mail to them.
 
+
 # References
 
 ## PPA/Repositories
@@ -211,3 +212,23 @@ be able to send an e-mail to them.
 [semantic versioning]: https://semver.org
 
 [1]: https://lists.ubuntu.com/archives/checkbox-devel/2023-August/000508.html
+
+
+# Usage
+
+## Testing release tools
+
+These are the steps to run the tests for the release tools:
+
+```bash
+# Only run the tests
+python -m pytest
+# Run the tests and get the coverage
+python -m coverage run -m pytest
+python -m coverage html
+```
+If you have `tox` instaled, you can just run
+
+```bash
+tox -e py310
+``````

@@ -13,14 +13,15 @@ matrix:
   - pyspelling.filters.html:
       comments: false
       attributes:
-      - title
       - alt
+      - title
       ignores:
       - code
-      - pre
-      - spellexception
-      - link
-      - title
       - div.relatedlinks
       - div.visually-hidden
       - img
+      - link
+      - mermaid
+      - pre
+      - spellexception
+      - title

@@ -29,7 +29,7 @@ import sys
 import textwrap
 import argparse
 
-from utils import get_build_recipe
+from utils import get_source_build_recipe
 
 
 def get_build_path(recipe_name: str) -> str:
@@ -64,7 +64,7 @@ def update_build_recipe(
     version: str,
     revision: str,
 ):
-    lp_recipe = get_build_recipe(project_name, recipe_name)
+    lp_recipe = get_source_build_recipe(project_name, recipe_name)
     new_recipe = get_updated_build_recipe(recipe_name, version, revision)
     lp_recipe.recipe_text = new_recipe
     lp_recipe.lp_save()

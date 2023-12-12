@@ -11,7 +11,7 @@ from launchpadlib.launchpad import Launchpad
 from lazr.restfulclient.resource import Entry
 
 
-class LPObjects(Entry):
+class LPObject(Entry):
     """
     This object rappresents the result of a query using launchpadlib. This
     was introduced here for three reasons:
@@ -33,7 +33,7 @@ class LPObjects(Entry):
     Documentation: https://launchpad.net/+apidoc/devel.html
     """
 
-LPBuild = LPObjects
+LPBuild = LPObject
 
 class LPSourceBuild(LPBuild):
     """
@@ -45,7 +45,7 @@ class LPBinaryBuild(LPBuild):
     Documentation: https://api.launchpad.net/devel/#build
     """
 
-class LPSourcePackageRecipe(Entry):
+class LPSourcePackageRecipe(LPObject):
     """
     Documentation: https://api.launchpad.net/devel/#source_package_recipe
     """

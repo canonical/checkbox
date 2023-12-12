@@ -106,5 +106,5 @@ There are multiple entities participating in the chain of validating a Checkbox 
 
 .. add code format to link text
 .. |hwcert-jenkins-jobs| replace:: ``hwcert-jenkins-jobs``
-.. _hwcert-jenkins-jobs: https://github.com/canonical/hwcert-jenkins-jobs
+.. _hwcert-jenkins-jobs: https://github.com
 

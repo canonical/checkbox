@@ -42,4 +42,3 @@ This is an example on how the whole pipeline can be implemented in Jenkins.
             }
         }
     }
-

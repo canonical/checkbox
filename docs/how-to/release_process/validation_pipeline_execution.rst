@@ -11,12 +11,12 @@ and if anything new landed a new version is created.
 
 
 .. mermaid::
-
+    
     graph TB
 
         A[GitHub Workflow: Detect New Commits]
 
-        B{Run Metabox Tests on New Version}
+        B[Run Metabox Tests on New Version]
         C[Mark Version as Edge and Build Snaps]
         D{Did Metabox Tests Pass?}
         E{Did Snap Builds Succeed?}
@@ -33,15 +33,17 @@ and if anything new landed a new version is created.
         D -->|No| G
         E -->|No| G
 
+
 With new Edge version of Checkbox in the store we can start validating it.
 
 Validating the Edge version
 ---------------------------
 
-On the Cert Jenkins instance, the `{insert_final_job_name_here}` checks the store API for new Edge versions of Checkbox.
-The job is defined in the hwcert-jenkins-jobs repository here: `{insert url to the trigger job}`.
+On the Certification Jenkins instance, the ``{insert_final_job_name_here}`` job checks the store API for new Edge versions of Checkbox.
+The job is defined in the |hwcert-jenkins-jobs|_ repository.
+
 This job is also responsible for checking if all of the necessary snaps were published (for other series and architectures).
-Once confirmed the "Canary Test Plan" defined here: `Canry test plan <https://github.com/canonical/checkbox/blob/main/providers/base/units/canary/test-plan.pxu>`_
+Once confirmed, the "Canary Test Plan" is defined in `Canary test plan <https://github.com/canonical/checkbox/blob/main/providers/base/units/canary/test-plan.pxu>`_.
 
 .. mermaid::
 
@@ -62,7 +64,7 @@ Once confirmed the "Canary Test Plan" defined here: `Canry test plan <https://gi
 
 
 
-There's multiple entities participating in the chain of validating a Checkbox snap.
+There are multiple entities participating in the chain of validating a Checkbox snap.
 
 .. mermaid::
 
@@ -101,3 +103,8 @@ There's multiple entities participating in the chain of validating a Checkbox sn
         deactivate TServer
         Jenkins-->>Pipeline: Update Pipeline with Job Outcome
         deactivate Pipeline
+
+.. add code format to link text
+.. |hwcert-jenkins-jobs| replace:: ``hwcert-jenkins-jobs``
+.. _hwcert-jenkins-jobs: https://github.com
+

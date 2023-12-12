@@ -10,7 +10,7 @@
 .mermaid .node ellipse,
 .mermaid .node polygon,
 .mermaid .node path,
-.mermaid .actor rect,
+.mermaid rect.actor,
 .mermaid .labelBox polygon
 {
     fill: var(--color-background-item) !important;

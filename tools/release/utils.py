@@ -16,13 +16,11 @@ class LPSourceBuild(LPBuild):
     """
     Documentation: https://api.launchpad.net/devel/#source_package_recipe_build
     """
-    pass
 
 class LPBinaryBuild(LPBuild):
     """
     Documentation: https://api.launchpad.net/devel/#build
     """
-    pass
 
 class LPSourcePackageRecipe(Entry):
     """

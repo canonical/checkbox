@@ -217,7 +217,7 @@ def monitor_retry_builds(builds_to_check: list[LPBuild]) -> list[LPBuild]:
 
 def build_monitor_recipe(project_name: str, recipe_name: str):
     """
-    This will start the recipe with the given name under the given process
+    This will start the recipe with the given name under the given project
     and trigger->(monitor and retry) any source build till they are either
     unrecoverably failed or successful, then (wait->monitor->retry-?>wait)
     any binary build that the source landing in the ppa will trigger till

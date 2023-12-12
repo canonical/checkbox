@@ -136,11 +136,11 @@ def monitor_retry_binary_builds(
     # source builds will trigger new binary build
     while are_binary_builds_ongoing(source_recipe):
         # to avoid a race condition, lets get the time at the beginning of the
-        # cycle that we will use to filters binary builds the next cycle
-        cycle_start_time = get_date_utc_now()
+        # iteration that we will use to filters binary builds the next iteration
+        iteration_start_time = get_date_utc_now()
 
         # this filters the binary builds from start_checking_binary (the
-        # beginning of the previous cycle). This is done because if a build
+        # beginning of the previous iteration). This is done because if a build
         # was included in the previous get_all_binary_builds it has been
         # taken to completion by monitor_retry_builds either failing it
         # completely or making it pass. What matters is that we don't
@@ -151,7 +151,7 @@ def monitor_retry_binary_builds(
             source_recipe, start_checking_binary
         )
         builds_unrecoverable += monitor_retry_builds(binary_builds_to_check)
-        start_checking_binary = cycle_start_time
+        start_checking_binary = iteration_start_time
 
         if not binary_builds_to_check:
             # this may be because all builds for this recipe are done, either

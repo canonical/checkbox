@@ -68,7 +68,7 @@ class TestHelperFunctions(unittest.TestCase):
 
     @patch("time.sleep", new=MagicMock())
     @patch("lp_build_monitor_recipe.print")
-    def test_wait_every_binary_build_started(self, print_mock):
+    def test_monitor_retry_binary_builds(self, print_mock):
         build_recipe_mock = MagicMock()
         build_recipe_mock.daily_build_archive.getBuildCounters.side_effect = [
             {"pending": 10},
@@ -76,8 +76,8 @@ class TestHelperFunctions(unittest.TestCase):
             {"pending": 0},
         ]
 
-        lp_build_monitor_recipe.wait_every_binary_build_started(
-            build_recipe_mock
+        lp_build_monitor_recipe.monitor_retry_binary_builds(
+            build_recipe_mock, 0
         )
 
         # the function waited for getPendingBuildInfo to return an empty list
@@ -85,8 +85,6 @@ class TestHelperFunctions(unittest.TestCase):
             build_recipe_mock.daily_build_archive.getBuildCounters.call_count,
             3,
         )
-        # the user was notified of every pending build
-        self.assertTrue(print_mock.call_count >= 2)
 
     def test_recipe_name_to_source_name(self):
         self.assertEqual(

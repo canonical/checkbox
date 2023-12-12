@@ -33,18 +33,12 @@ def start_all_source_builds(build_recipe):
             print("An identical build of this recipe is already pending")
 
 
-def wait_every_binary_build_started(build_recipe):
+def are_binary_builds_ongoing(build_recipe):
     # Note: this is a different definition of pending, this means pending or
     #       building. This means that we will start to retry builds only once
     #       every other build is done.
     build_counters = build_recipe.daily_build_archive.getBuildCounters()
-    while build_counters["pending"] > 0:
-        print(
-            "Waiting some binary builds that are pending "
-            f"({build_counters['pending']})"
-        )
-        time.sleep(LP_POLLING_DELAY)
-        build_counters = build_recipe.daily_build_archive.getBuildCounters()
+    return build_counters["pending"] > 0
 
 
 def wait_every_source_build_started(build_recipe):
@@ -98,6 +92,37 @@ def get_all_source_builds(build_recipe, started_datetime):
             build_recipe.builds,
         )
     )
+
+
+def monitor_retry_binary_builds(source_recipe, start_time) -> list["LPBuild"]:
+    builds_unrecoverable = []
+    start_checking_binary = start_time
+    # source builds will trigger new binary build
+    while are_binary_builds_ongoing(source_recipe):
+        # to avoid a race condition, lets get the time at the beginning of the
+        # cycle that we will use to filters binary builds the next cycle
+        cycle_start_time = get_date_utc_now()
+
+        # this filters the binary builds from start_checking_binary (the
+        # beginning of the previous cycle). This is done because if a build
+        # was included in the previous get_all_binary_builds it has been
+        # taken to completion by monitor_retry_builds either failing it
+        # completely or making it pass. What matters is that we don't
+        # under-monitor, as re-getting the same build will deterministically
+        # yield the same result resulting in the wcs. in a duplicated
+        # builds_unrecoverable record
+        binary_builds_to_check = get_all_binary_builds(
+            source_recipe, start_checking_binary
+        )
+        builds_unrecoverable += monitor_retry_builds(binary_builds_to_check)
+        start_checking_binary = cycle_start_time
+
+        if not binary_builds_to_check:
+            # this may be because all builds for this recipe are done, either
+            # way lets not spam LP with requests
+            time.sleep(LP_POLLING_DELAY)
+
+    return builds_unrecoverable
 
 
 def monitor_retry_builds(builds_to_check) -> list["LPBuild"]:
@@ -164,10 +189,10 @@ def build_monitor_recipe(project_name: str, recipe_name: str):
     source_builds_to_check = get_all_source_builds(build_recipe, start_time)
     builds_unrecoverable = monitor_retry_builds(source_builds_to_check)
 
-    # source builds will trigger new binary build
-    wait_every_binary_build_started(build_recipe)
-    binary_builds_to_check = get_all_binary_builds(build_recipe, start_time)
-    builds_unrecoverable += monitor_retry_builds(binary_builds_to_check)
+    builds_unrecoverable += monitor_retry_binary_builds(
+        build_recipe, start_time
+    )
+
     if builds_unrecoverable:
         weblinks_of_failed = "\n".join(
             build.web_link for build in builds_unrecoverable

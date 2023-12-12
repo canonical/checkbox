@@ -29,6 +29,11 @@ LP_POLLING_DELAY = 60
 
 
 def start_all_source_builds(build_recipe: LPSourcePackageRecipe):
+    """
+    Starts building a source recipe on all distro configured for it on
+    launchpad targeting the default archive connected to the recipe
+    (the daily build archive)
+    """
     for series in build_recipe.distroseries:
         try:
             build_recipe.requestBuild(
@@ -40,10 +45,15 @@ def start_all_source_builds(build_recipe: LPSourcePackageRecipe):
             print("An identical build of this recipe is already pending")
 
 
-def are_binary_builds_ongoing(build_recipe: LPSourcePackageRecipe):
-    # Note: this is a different definition of pending, this means pending or
-    #       building. This means that we will start to retry builds only once
-    #       every other build is done.
+def are_binary_builds_ongoing(build_recipe: LPSourcePackageRecipe) -> bool:
+    """
+    Returns whether there is any pending or ongoing build in the default
+    archive connected to the build_recipe.
+    """
+    # Note: this is a different definition of pending than the one used in
+    #       in the buildstatus enum, this means pending (as in: the build
+    #       is ready to start but no worker was assigned to it yet) and
+    #       building (as in: the build is ongoing).
     build_counters = build_recipe.daily_build_archive.getBuildCounters()
     return build_counters["pending"] > 0
 
@@ -63,8 +73,10 @@ def wait_every_source_build_started(build_recipe: LPSourcePackageRecipe):
 
 
 def recipe_name_to_source_name(name: str) -> str:
-    # name is in the form of source-name-with-dashes-risk
-    # this removes risk
+    """
+    In Checkbox the recipe name is in the form of
+    source-name-with-dashes-risk, this function removes risk
+    """
     return name.rsplit("-", 1)[0]
 
 
@@ -108,6 +120,17 @@ def get_all_source_builds(
 def monitor_retry_binary_builds(
     source_recipe: LPSourcePackageRecipe, start_time
 ) -> list[LPBinaryBuild]:
+    """
+    This function will monitor all binary builds in the default archive for
+    a given recipe and react to them exactly as monitor_retry_builds does.
+
+    This is different from monitor_retry_builds because it
+    will keep monitoring for new builds till there is nothing pending or
+    building in the archive. The reason this is done is that there does not
+    seem to be a way to wait for all pending binary builds in an archive to
+    start so we have no way of knowing when all pending builds actually
+    started.
+    """
     builds_unrecoverable = []
     start_checking_binary = start_time
     # source builds will trigger new binary build
@@ -193,6 +216,16 @@ def monitor_retry_builds(builds_to_check: list[LPBuild]) -> list[LPBuild]:
 
 
 def build_monitor_recipe(project_name: str, recipe_name: str):
+    """
+    This will start the recipe with the given name under the given process
+    and trigger->(monitor and retry) any source build till they are either
+    unrecoverably failed or successful, then (wait->monitor->retry-?>wait)
+    any binary build that the source landing in the ppa will trigger till
+    they all unrecoverably fail or succeed.
+
+    This will raise SystemExit with a human readable message if any build
+    unrecoverably fails.
+    """
     start_time = get_date_utc_now()
     build_recipe = get_source_build_recipe(project_name, recipe_name)
 

@@ -7,7 +7,14 @@ import itertools
 
 from lazr.restfulclient.errors import BadRequest
 
-from utils import get_source_build_recipe, get_date_utc_now
+from utils import (
+    get_source_build_recipe,
+    get_date_utc_now,
+    LPBuild,
+    LPSourceBuild,
+    LPBinaryBuild,
+    LPSourcePackageRecipe,
+)
 
 """
 This script triggers a build on a recipe (for the platforms configured on LP),
@@ -21,7 +28,7 @@ value.
 LP_POLLING_DELAY = 60
 
 
-def start_all_source_builds(build_recipe):
+def start_all_source_builds(build_recipe: LPSourcePackageRecipe):
     for series in build_recipe.distroseries:
         try:
             build_recipe.requestBuild(
@@ -33,7 +40,7 @@ def start_all_source_builds(build_recipe):
             print("An identical build of this recipe is already pending")
 
 
-def are_binary_builds_ongoing(build_recipe):
+def are_binary_builds_ongoing(build_recipe: LPSourcePackageRecipe):
     # Note: this is a different definition of pending, this means pending or
     #       building. This means that we will start to retry builds only once
     #       every other build is done.
@@ -41,7 +48,7 @@ def are_binary_builds_ongoing(build_recipe):
     return build_counters["pending"] > 0
 
 
-def wait_every_source_build_started(build_recipe):
+def wait_every_source_build_started(build_recipe: LPSourcePackageRecipe):
     pending_builds = build_recipe.getPendingBuildInfo()
     while pending_builds:
         print("Waiting some builds that are pending:")
@@ -55,13 +62,15 @@ def wait_every_source_build_started(build_recipe):
         pending_builds = build_recipe.getPendingBuildInfo()
 
 
-def recipe_name_to_source_name(name):
+def recipe_name_to_source_name(name: str) -> str:
     # name is in the form of source-name-with-dashes-risk
     # this removes risk
     return name.rsplit("-", 1)[0]
 
 
-def get_all_binary_builds(build_recipe, started_datetime):
+def get_all_binary_builds(
+    build_recipe: LPSourcePackageRecipe, started_datetime
+) -> list[LPBinaryBuild]:
     """
     Returns all builds of the current calculated recipe target
     started after started_date (UTC+0)
@@ -78,7 +87,9 @@ def get_all_binary_builds(build_recipe, started_datetime):
     )
 
 
-def get_all_source_builds(build_recipe, started_datetime):
+def get_all_source_builds(
+    build_recipe: LPSourcePackageRecipe, started_datetime
+) -> list[LPSourceBuild]:
     """
     Returns all builds of a recipe since started_date (UTC+0)
     """
@@ -94,7 +105,9 @@ def get_all_source_builds(build_recipe, started_datetime):
     )
 
 
-def monitor_retry_binary_builds(source_recipe, start_time) -> list["LPBuild"]:
+def monitor_retry_binary_builds(
+    source_recipe: LPSourcePackageRecipe, start_time
+) -> list[LPBinaryBuild]:
     builds_unrecoverable = []
     start_checking_binary = start_time
     # source builds will trigger new binary build
@@ -125,7 +138,7 @@ def monitor_retry_binary_builds(source_recipe, start_time) -> list["LPBuild"]:
     return builds_unrecoverable
 
 
-def monitor_retry_builds(builds_to_check) -> list["LPBuild"]:
+def monitor_retry_builds(builds_to_check: list[LPBuild]) -> list[LPBuild]:
     """
     This function monitors the builds that were started after start_date
 

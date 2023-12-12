@@ -8,6 +8,27 @@ import datetime
 from launchpadlib.credentials import Credentials
 from launchpadlib.launchpad import Launchpad
 
+from lazr.restfulclient.resource import Entry
+
+LPBuild = Entry
+
+class LPSourceBuild(LPBuild):
+    """
+    Documentation: https://api.launchpad.net/devel/#source_package_recipe_build
+    """
+    pass
+
+class LPBinaryBuild(LPBuild):
+    """
+    Documentation: https://api.launchpad.net/devel/#build
+    """
+    pass
+
+class LPSourcePackageRecipe(Entry):
+    """
+    Documentation: https://api.launchpad.net/devel/#source_package_recipe
+    """
+
 
 def get_launchpad_client() -> Launchpad:
     credentials = os.getenv("LP_CREDENTIALS")

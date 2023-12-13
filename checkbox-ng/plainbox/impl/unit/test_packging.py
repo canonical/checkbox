@@ -25,6 +25,7 @@ from plainbox.impl.unit.packaging import PackagingMetaDataUnit
 from plainbox.impl.unit.packaging import _strategy_id
 from plainbox.impl.unit.packaging import _strategy_id_like
 from plainbox.impl.unit.packaging import _strategy_id_version
+from plainbox.impl.unit.packaging import _compare_versions
 
 
 class DebianPackagingDriverTests(TestCase):
@@ -178,3 +179,50 @@ class DebianPackagingDriverTests(TestCase):
         self.assertFalse(_strategy_id_like(unit, self.DEBIAN_SID))
         self.assertFalse(_strategy_id_like(unit, self.DEBIAN_JESSIE))
         self.assertFalse(_strategy_id_like(unit, self.UBUNTU_VIVID))
+
+    def test_package_with_comparision(self):
+        unit = PackagingMetaDataUnit({
+            'os-id': 'ubuntu',
+            'os-version-id': '>=14.04'
+        })
+        # Using id and version match
+        self.assertFalse(_strategy_id_version(unit, {}))
+        self.assertFalse(_strategy_id_version(unit, self.DEBIAN_SID))
+        self.assertFalse(_strategy_id_version(unit, self.DEBIAN_JESSIE))
+        self.assertTrue(_strategy_id_version(unit, self.UBUNTU_VIVID))
+
+    def test_compare_versions(self):
+
+        # equal operator
+        self.assertTrue(_compare_versions("==1.0.0", "1.0.0"))
+        self.assertFalse(_compare_versions("==1.0.1", "1.0.0"))
+
+        self.assertTrue(_compare_versions("1.0.0", "1.0.0"))
+        self.assertFalse(_compare_versions("1.0.1", "1.0.0"))
+
+        self.assertTrue(_compare_versions("=1.0.0", "1.0.0"))
+        self.assertFalse(_compare_versions("=1.0.1", "1.0.0"))
+
+        # greater than operator
+        self.assertTrue(_compare_versions(">1.1.9", "1.2.0"))
+        self.assertFalse(_compare_versions(">1.0.0", "1.0.0"))
+
+        # greater than or equal operator
+        self.assertTrue(_compare_versions(">=1.0.0", "1.0.0"))
+        self.assertTrue(_compare_versions(">=1.0.0", "1.1.0"))
+        self.assertFalse(_compare_versions(">=1.0.0", "0.9.9"))
+
+        # less than operator
+        self.assertTrue(_compare_versions("<1.0.0", "0.9.9"))
+        self.assertFalse(_compare_versions("<1.0.0", "1.0.0"))
+
+        # less than or equal operator
+        self.assertTrue(_compare_versions("<=1.0.0", "1.0.0"))
+        self.assertTrue(_compare_versions("<=1.0.0", "0.9.9"))
+
+        # not equal operator
+        self.assertTrue(_compare_versions("!=1.0.0", "1.0.1"))
+        self.assertFalse(_compare_versions("!=1.0.0", "1.0.0"))
+
+        with self.assertRaises(ValueError):
+            _compare_versions("!!==1.0.0", "1.0.0")

@@ -115,6 +115,8 @@ not documented.
 import abc
 import errno
 import logging
+from packaging import version
+import operator
 import re
 import shlex
 import sys
@@ -297,12 +299,14 @@ class IPackagingDriver(metaclass=abc.ABCMeta):
 
 def _strategy_id_version(unit, os_release):
     _logger.debug(_("Considering strategy: %s"),
-                  _("os-id == ID and os-version-id == VERSION_ID"))
+                  _("os-id == ID and os-version-id compares to VERSION_ID"))
+    if not unit.os_version_id:
+        return False
     return (
         'ID' in os_release and
         unit.os_id == os_release['ID'] and
         'VERSION_ID' in os_release and
-        unit.os_version_id == os_release['VERSION_ID']
+        _compare_versions(unit.os_version_id, os_release['VERSION_ID'])
     )
 
 
@@ -324,6 +328,36 @@ def _strategy_id_like(unit, os_release):
         unit.os_id == os_release['ID_LIKE'] and
         unit.os_version_id is None
     )
+
+
+def _compare_versions(comparison_string, system_version):
+    # Extract the operator and the version from the comparison string
+    # Make the operator optional and default to '=='
+    match = re.match(
+        r"(=|==|>=|<=|>|<|!=)?\s*([\d\.a-zA-Z]+)", comparison_string
+    )
+    if not match:
+        raise ValueError("Invalid version comparison string")
+
+    operator_match, version_match = match.groups()
+    print(match.groups())
+    # Default to '==' if no operator is provided
+
+    operators = {
+        None: operator.eq,
+        '=': operator.eq,
+        '==': operator.eq,
+        '>=': operator.ge,
+        '<=': operator.le,
+        '>': operator.gt,
+        '<': operator.lt,
+        '!=': operator.ne
+    }
+
+    system_ver = version.parse(system_version)
+    target_ver = version.parse(version_match)
+
+    return operators[operator_match](system_ver, target_ver)
 
 
 class PackagingDriverBase(IPackagingDriver):

@@ -20,7 +20,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
+from collections import namedtuple
 from pathlib import Path
+
+
+BTDevice = namedtuple("BTDevice", ["sysfs_name", "device_name"])
 
 
 def get_node_content(path):
@@ -31,7 +36,6 @@ def get_node_content(path):
     :return: content of the sysfs node
     :rtype: str
     """
-    content = None
     with open(path, "r") as f:
         content = f.read().strip()
     return content
@@ -56,27 +60,32 @@ def get_bluetooth_devices(paths_list):
 
     :param paths_list: List of sysfs paths to check
     :type paths_list: list
-    :raises SystemExit: If no bluetooth adapters are found
-    :return: List of tuples containing the sysfs basename and the device name
-        (e.g.: [("rfkill3", "dell-bluetooth"),])
+    :return: List of named tuples containing the sysfs basename and the device
+        name, for example:
+        [BTDevice(sysfs_name='rfkill3', device_name='dell-bluetooth'),]
     :rtype: list
     """
     rf_devices = []
     for rfdev in paths_list:
         if is_bluetooth_adapter(rfdev):
             device_name = get_node_content(rfdev / "name")
-            rf_devices.append((rfdev.name, device_name))
+            btdev = BTDevice(rfdev.name, device_name)
+            rf_devices.append(btdev)
+    return rf_devices
+
+
+def main():
+    try:
+        rf_devices_paths = list(Path("/sys/class/rfkill").iterdir())
+    except FileNotFoundError:
+        rf_devices_paths = []
+    rf_devices = get_bluetooth_devices(rf_devices_paths)
     if rf_devices:
-        return rf_devices
+        for rf_device in rf_devices:
+            print(" ".join(rf_device))
     else:
         raise SystemExit("No bluetooth adapters registered with rfkill")
 
 
 if __name__ == "__main__":
-    rfkill_path = Path("/sys/class/rfkill")
-    rf_devices_paths = []
-    if rfkill_path.is_dir():
-        rf_devices_paths = list(rfkill_path.iterdir())
-    rf_devices = get_bluetooth_devices(rf_devices_paths)
-    for rf_device in rf_devices:
-        print(" ".join(rf_device))
+    sys.exit(main())

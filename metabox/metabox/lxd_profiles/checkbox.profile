@@ -12,7 +12,6 @@ config:
         stable_ppa:
           source: "ppa:checkbox-dev/stable"
     packages:
-      - alsa-base
       - jq
       - python3-jinja2
       - python3-markupsafe
@@ -21,7 +20,6 @@ config:
       - python3-psutil
       - python3-pyparsing
       - python3-requests-oauthlib
-      - python3-tqdm
       - python3-urwid
       - python3-xlsxwriter
       - virtualenv

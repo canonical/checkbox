@@ -5,13 +5,13 @@ import threading
 import unittest
 from unittest.mock import patch, Mock
 
-from bin import zapper_keyboard_test
+import zapper_keyboard_test
 
 
 class ZapperKeyboardTests(unittest.TestCase):
     """This class provides test cases for the zapper_keyboard_test module."""
 
-    @patch("bin.zapper_keyboard_test.zapper_run")
+    @patch("zapper_keyboard_test.zapper_run")
     def test_assert_key_combo(self, mock_run):
         """
         Check if the function properly clear the events list and
@@ -32,7 +32,7 @@ class ZapperKeyboardTests(unittest.TestCase):
             {},
         )
 
-    @patch("bin.zapper_keyboard_test.zapper_run")
+    @patch("zapper_keyboard_test.zapper_run")
     def test_assert_type_string(self, mock_run):
         """
         Check if the function properly clear the events list and
@@ -65,9 +65,9 @@ class ZapperKeyboardTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             zapper_keyboard_test.main([1, 2])
 
-    @patch("bin.zapper_keyboard_test.assert_type_string")
-    @patch("bin.zapper_keyboard_test.assert_key_combo")
-    @patch("bin.zapper_keyboard_test.KeyboardListener")
+    @patch("zapper_keyboard_test.assert_type_string")
+    @patch("zapper_keyboard_test.assert_key_combo")
+    @patch("zapper_keyboard_test.KeyboardListener")
     @patch("os.access")
     def test_main(self, mock_access, mock_key, mock_combo, mock_type):
         """Check main exits with failure if any of the test fails."""

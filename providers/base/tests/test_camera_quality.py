@@ -21,13 +21,12 @@
 
 import os
 from pathlib import Path
-import time
 import unittest
 from unittest.mock import patch, MagicMock
 
 import cv2
 
-import bin.camera_quality_test as cqt
+import camera_quality_test as cqt
 
 
 default_dir = Path(__file__).parent.joinpath("../data")
@@ -36,8 +35,8 @@ data_dir = Path(os.getenv("PLAINBOX_PROVIDER_DATA", default=default_dir))
 score_path = "checkbox_support.vendor.brisque.brisque.BRISQUE.score"
 
 
-@patch("bin.camera_quality_test.TIMEOUT", new=0.05)
-@patch("bin.camera_quality_test.MIN_INTERVAL", new=0.01)
+@patch("camera_quality_test.TIMEOUT", new=0.05)
+@patch("camera_quality_test.MIN_INTERVAL", new=0.01)
 @patch("builtins.print", new=MagicMock())
 class CameraQualityTests(unittest.TestCase):
     """This class provides test cases for the camera_quality_test module."""
@@ -64,7 +63,7 @@ class CameraQualityTests(unittest.TestCase):
         self.assertEqual(result, 0)
         self.assertTrue(mock_score.called)
 
-    @patch("bin.camera_quality_test.get_score_from_device")
+    @patch("camera_quality_test.get_score_from_device")
     def test_get_score_from_device(self, mock_score):
         """
         The test should pass if a good image is read from a device.
@@ -151,8 +150,8 @@ class CameraQualityTests(unittest.TestCase):
         mock_score.return_value = 10
 
         # Set the timeout and the min interval to 0 to force the iteration
-        with patch("bin.camera_quality_test.TIMEOUT", new=0.0), patch(
-            "bin.camera_quality_test.MIN_INTERVAL", new=0.0
+        with patch("camera_quality_test.TIMEOUT", new=0.0), patch(
+            "camera_quality_test.MIN_INTERVAL", new=0.0
         ):
             self.assertEqual(cqt.get_score_from_device("video0"), 10)
             self.assertEqual(mock_score.call_count, 2)

@@ -25,7 +25,7 @@ Test definitions for plainbox.impl.resouce module
 """
 
 import ast
-from unittest import TestCase
+from unittest import TestCase, expectedFailure
 
 from plainbox.impl.resource import CodeNotAllowed
 from plainbox.impl.resource import ExpressionCannotEvaluateError
@@ -414,6 +414,30 @@ class ResourceExpressionTests(TestCase):
     def test_evaluate_checks_resource_type(self):
         expr = ResourceExpression("obj.a == 2")
         self.assertRaises(TypeError, expr.evaluate, [{'a': 2}])
+
+    # `and`ed expressions evaluate different objects
+    #
+    # https://github.com/canonical/checkbox/issues/665
+    @expectedFailure
+    def test_evaluate_same_object(self):
+        resource_map = {
+            'a': [Resource({'foo': 1, 'baz': 'b'}), Resource({'foo': 2, 'baz': 'a'})],
+        }
+        expr = ResourceExpression("a.foo == 1 and a.baz != 'b'")
+        self.assertFalse(expr.evaluate(
+            resource_map['a'],
+            resource_map=resource_map
+        ))
+
+    def test_evaluate_same_object_parens(self):
+        resource_map = {
+            'a': [Resource({'foo': 1, 'baz': 'b'}), Resource({'foo': 2, 'baz': 'a'})],
+        }
+        expr = ResourceExpression("(a.foo == 1) and a.baz != 'b'")
+        self.assertFalse(expr.evaluate(
+            resource_map['a'],
+            resource_map=resource_map
+        ))
 
 
 class ResourceProgramTests(TestCase):

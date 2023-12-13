@@ -58,13 +58,13 @@ class RemoteAssistantTests(TestCase):
         with self.assertRaises(AssertionError):
             not_allowed(self_mock)
 
+    @mock.patch.object(SessionAssistant, "__init__")
     @mock.patch("plainbox.impl.secure.sudo_broker.is_passwordless_sudo")
-    def test__reset_sa(self, is_passwordless_sudo_mock):
-        with mock.patch.object(SessionAssistant, "__init__") as init_mock:
-            init_mock.return_value = None
-            # RSA constructor calls _reset_sa, which in turns creates a new SA
-            rsa = remote_assistant.RemoteSessionAssistant(lambda: None)
-            self.assertEqual(init_mock.call_count, 1)
+    def test__reset_sa(self, is_passwordless_sudo_mock, init_mock):
+        init_mock.return_value = None
+        # RSA constructor calls _reset_sa, which in turns creates a new SA
+        rsa = remote_assistant.RemoteSessionAssistant(lambda: None)
+        self.assertEqual(init_mock.call_count, 1)
 
     @mock.patch("fnmatch.filter")
     def test_start_session_with_launcher(self, mock_filter):

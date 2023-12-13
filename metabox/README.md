@@ -34,8 +34,8 @@ Create a Python virtual environment and install Metabox in it:
 
 ```shell
 $ cd metabox/
-$ python3 -m venv metabox
-$ source metabox/bin/activate
+$ python3 -m venv venv
+$ source venv/bin/activate
 (metabox) $ pip install -e .
 ```
 

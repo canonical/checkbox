@@ -152,11 +152,14 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
 
-        with mock.patch("os.path.exists", os_path_exists_mock):
-            with mock.patch("builtins.open", mock.mock_open(read_data="pass")):
-                os_path_exists_mock.return_value = True
-                # mock_open.return_value.read.return_value = "pass"
-                remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+        with mock.patch("plainbox.impl.session.remote_assistant._") as mock__:
+            mock__.side_effect = lambda x: x
+            with mock.patch("os.path.exists", os_path_exists_mock):
+                with mock.patch(
+                    "builtins.open", mock.mock_open(read_data="pass")
+                ):
+                    os_path_exists_mock.return_value = True
+                    remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
 
         mjr = MemoryJobResult(
             {
@@ -164,7 +167,6 @@ class RemoteAssistantTests(TestCase):
                 "comments": "Automatically passed after resuming execution",
             }
         )
-
         rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
 
     @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
@@ -251,12 +253,12 @@ class RemoteAssistantTests(TestCase):
 
         rsa._sa.resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
-
-        with mock.patch("os.path.exists", os_path_exists_mock):
+        with mock.patch("plainbox.impl.session.remote_assistant._") as mock__:
+            mock__.side_effect = lambda x: x
             with mock.patch("builtins.open", mock.mock_open(read_data="!@!")):
-                os_path_exists_mock.return_value = True
-                # mock_open.return_value.read.return_value = "pass"
-                remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+                with mock.patch("os.path.exists", os_path_exists_mock):
+                    os_path_exists_mock.return_value = True
+                    remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
 
         mjr = MemoryJobResult(
             {

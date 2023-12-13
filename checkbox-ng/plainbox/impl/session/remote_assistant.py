@@ -719,7 +719,7 @@ class RemoteSessionAssistant:
 
         result_dict = {
             "outcome": IJobResult.OUTCOME_PASS,
-            "comments": "Automatically passed after resuming execution",
+            "comments": _("Automatically passed after resuming execution"),
         }
         session_share = WellKnownDirsHelper.session_share(
             self._sa._manager.storage.id

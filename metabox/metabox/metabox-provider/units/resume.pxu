@@ -1,0 +1,20 @@
+id: agent-crasher
+_summary: Crash the agent
+flags: simple
+user: root
+command:
+ kill `ps aux|grep run-agent|grep -v 'grep'  | awk '{print $2}'`
+
+id: reboot-emulator
+_summary: Emulate the reboot
+flags: simple noreturn
+user: root
+command:
+ kill `ps aux|grep run-agent|grep -v 'grep'  | awk '{print $2}'`
+
+unit: test plan
+id: agent-resume-crash-then-reboot
+_name: Agent resume after crash then reboot
+include:
+ agent-crasher
+ reboot-emulator

@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2018 Canonical Ltd.
+# Copyright 2018-2023 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
@@ -162,7 +162,7 @@ class RemoteSessionAssistant:
     def _reset_sa(self):
         _logger.info("Resetting RSA")
         self._state = Idle
-        self._sa = SessionAssistant("service", api_flags={SA_RESTARTABLE})
+        self._sa = SessionAssistant()
         self._be = None
         self._session_id = ""
         self._jobs_count = 0
@@ -292,7 +292,8 @@ class RemoteSessionAssistant:
                 configuration["launcher"], "Remote launcher"
             )
             self._launcher.update_from_another(
-                launcher_from_controller, "Remote launcher")
+                launcher_from_controller, "Remote launcher"
+            )
             session_title = (
                 self._launcher.get_value("launcher", "session_title")
                 or session_title
@@ -326,8 +327,6 @@ class RemoteSessionAssistant:
             }
         ).encode("UTF-8")
         self._sa.update_app_blob(new_blob)
-        self._sa.configure_application_restart(self._cmd_callback)
-
         self._session_id = self._sa.get_session_id()
         tps = self._sa.get_test_plans()
         filtered_tps = set()
@@ -702,7 +701,8 @@ class RemoteSessionAssistant:
             app_blob["launcher"], "Remote launcher"
         )
         self._launcher.update_from_another(
-            launcher_from_controller, "Remote launcher")
+            launcher_from_controller, "Remote launcher"
+        )
         self._sa.use_alternate_configuration(self._launcher)
 
         self._normal_user = app_blob.get(
@@ -740,6 +740,14 @@ class RemoteSessionAssistant:
                         result_dict["outcome"] = IJobResult.OUTCOME_PASS
             except json.JSONDecodeError:
                 pass
+        else:
+            the_job = self._sa.get_job(self._last_job)
+            if the_job.plugin == "shell":
+                if "noreturn" in the_job.get_flag_set():
+                    result_dict["outcome"] = IJobResult.OUTCOME_PASS
+                else:
+                    result_dict["outcome"] = IJobResult.OUTCOME_CRASH
+
         result = MemoryJobResult(result_dict)
         if self._last_job:
             try:

@@ -92,6 +92,51 @@ End this test session preserving its data and launch a new one
   selection screens, in which case a similar test session is immediately
   started.
 
+
+Automatic session resume
+========================
+
+When the agent starts, it checks if there is a previous session that was not
+abandoned. If there is, and the session was a non-interactive one it resumes
+it. Otherwise, it waits for a Controller to connect and chose what to do.
+
+The outcome of the job that was last running before the session was
+interrupted is decided on the type of job it was running.
+
+The jobs marked with a ``noreturn`` flag are marked as passing, while other jobs
+are considered to have crashed (due to the interruption of the session like a
+reboot or a system stall).
+
+.. mermaid::
+
+  graph TD;
+
+  process("agent process starts")
+    load("load previous session")
+    resume("resume the previous session")
+    resume_crashed("resume the previous session")
+    interactive{"last session interactive?"}
+    mark_pass("mark last running job as passing")
+    mark_crash("mark last running job as crashing")
+    idle("go into idle state")
+    listen("listen for a controller")
+    process --> load
+    last_job{"last job ``noreturn``?"}
+    load -->last_job
+    last_job-->|yes| resume
+    resume --> mark_pass
+
+    last_job-->|no| interactive
+    interactive-->|yes| idle
+    idle --> listen
+    mark_pass --> listen
+
+    interactive-->|no| resume_crashed
+    resume_crashed --> mark_crash
+    mark_crash --> listen
+
+
+
 Remote session characteristics
 ==============================
 

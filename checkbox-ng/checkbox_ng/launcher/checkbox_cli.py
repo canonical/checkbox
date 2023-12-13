@@ -80,7 +80,7 @@ def main():
         "slave": "run-agent",
         "service": "run-agent",
         "master": "control",
-        "remote": "control"
+        "remote": "control",
     }
 
     known_cmds = list(commands.keys())
@@ -141,12 +141,7 @@ def main():
     subcmd = commands[args.subcommand]()
     subcmd.register_arguments(subcmd_parser)
     sub_args = subcmd_parser.parse_args(sys.argv[subcmd_index + 1 :])
-    sa = SessionAssistant(
-        "com.canonical:checkbox-cli",
-        "0.99",
-        "0.99",
-        ["restartable"],
-    )
+    sa = SessionAssistant()
     ctx = Context(sub_args, sa)
     try:
         socket.getaddrinfo("localhost", 443)  # 443 for HTTPS

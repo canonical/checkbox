@@ -71,24 +71,24 @@ package versions from git metadata.
 '2.9.0-dev38
 ```
 
-This script can generate the version for any packaging we support and can also
-be called from the CLI. The idea is that each commit since the last tag is
-categorized using the postfix included in the commit message and the version is
-calculated as follows:
+The get\_version module can generate the version for any packaging we support
+and can also be called from the CLI. The idea is that each commit done since
+the last tag is categorized using the postfix included in the commit message
+and the version is calculated as follows:
 - **Infra:** are changes to our CI/CD infrastructure, they are ignored
 - **Bugfix:** are bugfixes, the patch number is incremented
 - **New:** are new backward compatible features, the minor version is incremented
 - **Breaking:** are new breaking changes, the major version number is incremented
 
-> **_NOTE:_** If any commit is in a different format the script will complain
-about it by logging it to the stderr. Don't ignore these messages, double check
-what was changed in the problematic commits and re-calculate the version
-accordingly
+> **_NOTE:_** If any commit is in a different format, the script will complain
+> about it by logging it to the stderr. Don't ignore these messages: double check
+> what was changed in the problematic commits and re-calculate the version
+> accordingly
 
 ## Tag the release
 
-First you need to understand what tag to push. You can use the previously
-described scipt to do so:
+First you need to determine the version string for the tag.
+You can use the previously described script to do so:
 
 - Clone the repository and get the version
   ```bash

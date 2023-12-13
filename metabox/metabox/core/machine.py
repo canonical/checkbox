@@ -302,7 +302,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 "sudo python3 -m pip install -e .'"
             ),
         ]
-        if self.config.alias in ["xenial"]:
+        if self.config.alias == "xenial":
             commands.append(
                 # ensure these two are at the correct version to support xenial
                 (

@@ -60,44 +60,41 @@ packages to the stable PPA and promote all snaps to stable.
 
 Then, it's time to build the new beta version.
 
-## Tag the release
+## How packages versions are generated?
 
-First you need to understand what tag to push. Checkbox uses
-[semantic versioning], in order to calculate what version number you should
-push, you need to see what you are actually releasing.
+Both Debian packages and checkbox snaps rely on [get\_version.py] to calculate
+package versions from git metadata.
 
-Run the following commands to get a list of changes since the last stable
-release:
-
-```bash
-$ git fetch --tags
-$ git describe --tags --match "*[0123456789]" origin/main &&
-    git log $(
-        git describe --tags --match "*[0123456789]" --abbrev=0 origin/main
-    )..origin/main
+```python
+>>> from get_version import get_version, OutputFormat
+>>> get_version(dev_suffix=True, output_format=OutputFormat.SNAP)
+'2.9.0-dev38
 ```
 
-If the list includes:
-- Only bugfixes: you can use the version tag that was calculated by the
-`edge-verification` job (increment patch).
-- New, backward compatible features: you have to increment the minor version
-- Non-backward compatible changes: you have to increment the major version
+The get\_version module can generate the version for any packaging we support
+and can also be called from the CLI. The idea is that each commit done since
+the last tag is categorized using the postfix included in the commit message
+and the version is calculated as follows:
+- **Infra:** are changes to our CI/CD infrastructure, they are ignored
+- **Bugfix:** are bugfixes, the patch number is incremented
+- **New:** are new backward compatible features, the minor version is incremented
+- **Breaking:** are new breaking changes, the major version number is incremented
 
-All commit messages in the main history should have a postfix indicating what
-kind of change they are:
-- **Infra:** are changes to our testing infrastructure, you can safely ignore
-them
-- **Bugfix:** are bugfixes, increment patch version
-- **New:** are new backward compatible features, increment minor version
-- **Breaking:** are new breaking changes, increment major version
+> **_NOTE:_** If any commit is in a different format, the script will complain
+> about it by logging it to the stderr. Don't ignore these messages: double check
+> what was changed in the problematic commits and re-calculate the version
+> accordingly
 
-If you were to be at at the tag `v2.9.1-edge-validation-success` and you
-had to release a new version with at least one backward compatible new feature,
-run the following commands:
+## Tag the release
 
-- Clone the repository
-  ```
+First you need to determine the version string for the tag.
+You can use the previously described script to do so:
+
+- Clone the repository and get the version
+  ```bash
   $ git clone git@github.com:canonical/checkbox.git
+  $ cd checkbox/tools/release
+  $ ./get_version.py --output-format tag
   ```
 - Tag the release
   ```
@@ -107,26 +104,6 @@ run the following commands:
   ```
   $ git push --tags
   ```
-
-## How packages versions are generated?
-
-Both Debian packages and checkbox snaps rely on [setuptools_scm] to extract
-package versions from git metadata.
-
-```
->>> from setuptools_scm import get_version
->>> get_version()
-'2.9.dev38+g896ae8978
-```
-
-In general, when the HEAD of a branch is tagged, the version is going to be
-the tag. If a branch's HEAD is not tagged, the version is going to be the latest
-tag with the patch number incremented by 1, a postfix that encodes the distance
-from the tag itself (in the form of `dev{N}` where `N` is the number of
-commits since the latest tag) and the hash of the current HEAD.
-
-> **_NOTE_**: If you have some uncommitted changes your version might also have
-a date postfix in the form of `.YYYYMMDD`, this should never happen in a release!
 
 ## Monitor the build and publish workflows
 

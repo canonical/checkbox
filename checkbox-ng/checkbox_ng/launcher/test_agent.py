@@ -157,8 +157,18 @@ class IsTheSessionNonInteractiveTests(TestCase):
         self.assertTrue(is_the_session_noninteractive(candidate))
 
     def test_an_interactive(self):
-        a_non_interactive_launcher = ""  # the defautl one is interactive
-        app_blob = json.dumps({"launcher": a_non_interactive_launcher})
+        an_interactive_launcher = """
+            [ui]
+            type = interactive
+        """
+        app_blob = json.dumps({"launcher": an_interactive_launcher})
+        metadata = SessionMetaData(app_blob=app_blob.encode("utf-8"))
+
+        candidate = ResumeCandidate("an_id", metadata)
+        self.assertFalse(is_the_session_noninteractive(candidate))
+
+    def test_no_launcher_in_app_blob(self):
+        app_blob = json.dumps({})
         metadata = SessionMetaData(app_blob=app_blob.encode("utf-8"))
 
         candidate = ResumeCandidate("an_id", metadata)

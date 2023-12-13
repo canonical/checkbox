@@ -176,7 +176,9 @@ def is_the_session_noninteractive(
     # app blob is a bytes string with a utf-8 encoded json
     # let's decode it and parse it as json
     app_blob = json.loads(resumable_session.metadata.app_blob.decode("utf-8"))
-    launcher = Configuration.from_text(app_blob["launcher"], "resumed session")
+    launcher = Configuration.from_text(
+        app_blob.get("launcher", ""), "resumed session"
+    )
     return launcher.sections["ui"].get("type") == "silent"
 
 

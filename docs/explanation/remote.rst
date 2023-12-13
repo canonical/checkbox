@@ -115,7 +115,7 @@ reboot or a system stall).
     load("load previous session")
     resume("resume the previous session")
     resume_crashed("resume the previous session")
-    interactive{"was the previous interactive"}
+    interactive{"last session interactive?"}
     mark_pass("mark last running job as passing")
     mark_crash("mark last running job as crashing")
     idle("go into idle state")

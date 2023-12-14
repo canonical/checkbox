@@ -1,6 +1,6 @@
 import unittest
 
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import lp_build_monitor_recipe
 
@@ -14,18 +14,25 @@ class TestHelperFunctions(unittest.TestCase):
         build_selected = MagicMock()
         build_selected.date_first_dispatched = 10
 
+        build_selected_pending = MagicMock()
+        # pending builds have a None date_first_dispatched
+        # we select them because they are "newer" of the start date
+        # for sure given that they didn't even start yet
+        build_selected_pending.date_first_dispatched = None
+
         build_not_selected = MagicMock()
         build_not_selected.date_first_dispatched = 0
 
         build_recipe.daily_build_archive.getBuildRecords.return_value = [
             build_selected,
+            build_selected_pending,
             build_not_selected,
         ]
         selected = lp_build_monitor_recipe.get_all_binary_builds(
             build_recipe, 6
         )
 
-        self.assertEqual(selected, [build_selected])
+        self.assertEqual(selected, [build_selected, build_selected_pending])
         build_recipe.daily_build_archive.getBuildRecords.assert_called_with(
             source_name="checkbox-ng"
         )

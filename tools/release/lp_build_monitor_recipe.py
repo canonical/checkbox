@@ -91,9 +91,14 @@ def get_all_binary_builds(
     builds = build_recipe.daily_build_archive.getBuildRecords(
         source_name=recipe_target
     )
+
+    # date_first_dispatched is filled in once a build is dispatched
+    # and is the actual start time, it can be None if the build is
+    # still waiting to get picked up by a builder
     return list(
         itertools.takewhile(
-            lambda build: build.date_first_dispatched > started_datetime,
+            lambda build: build.date_first_dispatched is None
+            or build.date_first_dispatched >= started_datetime,
             builds,
         )
     )
@@ -111,7 +116,7 @@ def get_all_source_builds(
     # need
     return list(
         itertools.takewhile(
-            lambda build: build.date_first_dispatched > started_datetime,
+            lambda build: build.date_first_dispatched >= started_datetime,
             build_recipe.builds,
         )
     )
@@ -140,9 +145,10 @@ def monitor_retry_binary_builds(
         iteration_start_time = get_date_utc_now()
 
         # this filters the binary builds from start_checking_binary (the
-        # beginning of the previous iteration). This is done because if a build
-        # was included in the previous get_all_binary_builds it has been
-        # taken to completion by monitor_retry_builds either failing it
+        # beginning of the previous iteration or the latest pending build).
+        # This is done because if a build was included in the previous
+        # get_all_binary_builds it has been taken to completion
+        # by monitor_retry_builds either failing it
         # completely or making it pass. What matters is that we don't
         # under-monitor, as re-getting the same build will deterministically
         # yield the same result resulting in the wcs. in a duplicated
@@ -197,14 +203,27 @@ def monitor_retry_builds(builds_to_check: list[LPBuild]) -> list[LPBuild]:
             "Gathering build output",
         ]:
             # avoid flooding LP with requests
-            time.sleep(LP_POLLING_DELAY)
-            builds_to_check.insert(0, build)
             print(f"Build ongoing with status '{buildstate}'")
             print(f"  weblink: {build.web_link}")
-        elif build.can_be_retried:
             time.sleep(LP_POLLING_DELAY)
+            builds_to_check.insert(0, build)
+        elif buildstate not in [
+            "Failed to build",
+            "Dependency wait",
+            "Chroot problem",
+            "Failed to upload",
+            "Build for superseded Source",
+            "Cancelling build",
+            "Cancelled build",
+        ]:
+            print(f"Unknown build status '{buildstate}'")
+            print(f"  weblink: {build.web_link}")
+            time.sleep(LP_POLLING_DELAY)
+            builds_to_check.insert(0, build)
+        elif build.can_be_retried:
             print(f"Build failed with status '{buildstate}'")
             print(f"  retrying: {build.web_link}")
+            time.sleep(LP_POLLING_DELAY)
             build.retry()
             builds_to_check.insert(0, build)
         else:

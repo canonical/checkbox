@@ -59,17 +59,19 @@ class RemoteAssistantTests(TestCase):
             not_allowed(self_mock)
 
     @mock.patch.object(SessionAssistant, "__init__")
-    @mock.patch("plainbox.impl.secure.sudo_broker.is_passwordless_sudo")
+    @mock.patch("plainbox.impl.session.remote_assistant.is_passwordless_sudo")
     def test__reset_sa(self, is_passwordless_sudo_mock, init_mock):
         init_mock.return_value = None
         # RSA constructor calls _reset_sa, which in turns creates a new SA
         rsa = remote_assistant.RemoteSessionAssistant(lambda: None)
         self.assertEqual(init_mock.call_count, 1)
 
+    @mock.patch("plainbox.impl.session.remote_assistant.guess_normal_user")
     @mock.patch("fnmatch.filter")
-    def test_start_session_with_launcher(self, mock_filter):
+    def test_start_session_with_launcher(self, mock_filter, mock_gnu):
         # the real tp is referenced later on by it's second field
         mock_filter.return_value = [("tp", "tp")]
+        mock_gnu.return_value = "user"
         extra_cfg = dict()
         extra_cfg["launcher"] = "test_launcher"
         rsa = mock.Mock()
@@ -82,10 +84,12 @@ class RemoteAssistantTests(TestCase):
             )
             self.assertEqual(tps[0][0][1], "tp")
 
+    @mock.patch("plainbox.impl.session.remote_assistant.guess_normal_user")
     @mock.patch("fnmatch.filter")
-    def test_start_session_without_launcher(self, mock_filter):
+    def test_start_session_without_launcher(self, mock_filter, mock_gnu):
         # the real tp is referenced later on by it's second field
         mock_filter.return_value = [("tp", "tp")]
+        mock_gnu.return_value = "user"
         extra_cfg = dict()
         extra_cfg["launcher"] = "test_launcher"
         rsa = mock.Mock()

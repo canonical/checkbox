@@ -6,7 +6,7 @@ A Traceability Marker is required as a suffix in the PR title to help understand
 Pick one of the following:
 - Infra: Your change only includes documentation, comments, github actions or metabox
 - BugFix: Your change fixes a bug
-- New: Your chage is a new backward compatible feature, a new test/test plan/test inclusion
+- New: Your change is a new backward compatible feature, a new test/test plan/test inclusion
 - Breaking: Your change breaks backward compatibility.
     - This includes any API change to checkbox-ng/checkbox-support
     - Changes to PXU grammar/field requirements

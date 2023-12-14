@@ -70,6 +70,8 @@ include:
     snappy/test-store-config-.*
     snappy/test-system-confinement
     snappy/test-snaps-confinement
+nested_part:
+    snap-refresh-revert
 mandatory_include:
     snap
 bootstrap_include:
@@ -86,3 +88,66 @@ exclude:
     snappy/test-store.*
 nested_part:
     snappy-snap-automated
+
+# See README.md file for more information about this test plan
+id: snap-refresh-revert
+unit: test plan
+_name: Snaps refresh and revert automated tests
+_description:
+ For each of the kernel/snapd/gadget snap, this test plan will:
+ - simulate fresh install snap refresh by first refreshing to the base revision
+ of the kernel snap
+ - revert to the version used (usually revision from beta channel if used in
+ the snap-update-verification process)
+ - refresh to the previous stable version
+ - revert to version used
+ This test plan is useful for devices that cannot be provisioned easily in the
+ lab.
+bootstrap_include:
+    snap_revision_info
+include:
+    ######################
+    # Gadget-related tests
+    ######################
+    snapd/snap-refresh-gadget-.*-base-rev
+    snapd/reboot-after-snap-refresh-gadget-.*-base-rev
+    snapd/snap-verify-after-refresh-gadget-.*-base-rev
+    snapd/snap-revert-gadget-.*-base-rev
+    snapd/reboot-after-snap-revert-gadget-.*-base-rev
+    snapd/snap-verify-after-revert-gadget-.*-base-rev
+    snapd/snap-refresh-gadget-.*-stable-rev
+    snapd/reboot-after-snap-refresh-gadget-.*-stable-rev
+    snapd/snap-verify-after-refresh-gadget-.*-stable-rev
+    snapd/snap-revert-gadget-.*-stable-rev
+    snapd/reboot-after-snap-revert-gadget-.*-stable-rev
+    snapd/snap-verify-after-revert-gadget-.*-stable-rev
+    #####################
+    # Snapd-related tests
+    #####################
+    snapd/snap-refresh-snapd-.*-base-rev
+    snapd/reboot-after-snap-refresh-snapd-.*-base-rev
+    snapd/snap-verify-after-refresh-snapd-.*-base-rev
+    snapd/snap-revert-snapd-.*-base-rev
+    snapd/reboot-after-snap-revert-snapd-.*-base-rev
+    snapd/snap-verify-after-revert-snapd-.*-base-rev
+    snapd/snap-refresh-snapd-.*-stable-rev
+    snapd/reboot-after-snap-refresh-snapd-.*-stable-rev
+    snapd/snap-verify-after-refresh-snapd-.*-stable-rev
+    snapd/snap-revert-snapd-.*-stable-rev
+    snapd/reboot-after-snap-revert-snapd-.*-stable-rev
+    snapd/snap-verify-after-revert-snapd-.*-stable-rev
+    ######################
+    # Kernel-related tests
+    ######################
+    snapd/snap-refresh-kernel-.*-base-rev
+    snapd/reboot-after-snap-refresh-kernel-.*-base-rev
+    snapd/snap-verify-after-refresh-kernel-.*-base-rev
+    snapd/snap-revert-kernel-.*-base-rev
+    snapd/reboot-after-snap-revert-kernel-.*-base-rev
+    snapd/snap-verify-after-revert-kernel-.*-base-rev
+    snapd/snap-refresh-kernel-.*-stable-rev
+    snapd/reboot-after-snap-refresh-kernel-.*-stable-rev
+    snapd/snap-verify-after-refresh-kernel-.*-stable-rev
+    snapd/snap-revert-kernel-.*-stable-rev
+    snapd/reboot-after-snap-revert-kernel-.*-stable-rev
+    snapd/snap-verify-after-revert-kernel-.*-stable-rev

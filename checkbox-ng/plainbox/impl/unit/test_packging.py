@@ -23,9 +23,9 @@ import textwrap
 
 from plainbox.impl.unit.packaging import DebianPackagingDriver
 from plainbox.impl.unit.packaging import PackagingMetaDataUnit
-from plainbox.impl.unit.packaging import _strategy_id
-from plainbox.impl.unit.packaging import _strategy_id_like
-from plainbox.impl.unit.packaging import _strategy_id_version
+from plainbox.impl.unit.packaging import _is_id_match
+from plainbox.impl.unit.packaging import _is_id_like_match
+from plainbox.impl.unit.packaging import _is_id_version_match
 from plainbox.impl.unit.packaging import _compare_versions
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 
@@ -123,39 +123,39 @@ class DebianPackagingDriverTests(TestCase):
             }
         )
         # Using id and version match
-        self.assertFalse(_strategy_id_version(unit, {}))
-        self.assertFalse(_strategy_id_version(unit, self.DEBIAN_SID))
-        self.assertFalse(_strategy_id_version(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_strategy_id_version(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_version_match(unit, {}))
+        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_SID))
+        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_JESSIE))
+        self.assertFalse(_is_id_version_match(unit, self.UBUNTU_VIVID))
         # Using id match
-        self.assertFalse(_strategy_id(unit, {}))
-        self.assertTrue(_strategy_id(unit, self.DEBIAN_SID))
-        self.assertTrue(_strategy_id(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_strategy_id(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_match(unit, {}))
+        self.assertTrue(_is_id_match(unit, self.DEBIAN_SID))
+        self.assertTrue(_is_id_match(unit, self.DEBIAN_JESSIE))
+        self.assertFalse(_is_id_match(unit, self.UBUNTU_VIVID))
         # Using id like
-        self.assertFalse(_strategy_id_like(unit, {}))
-        self.assertFalse(_strategy_id_like(unit, self.DEBIAN_SID))
-        self.assertFalse(_strategy_id_like(unit, self.DEBIAN_JESSIE))
-        self.assertTrue(_strategy_id_like(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_like_match(unit, {}))
+        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_SID))
+        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_JESSIE))
+        self.assertTrue(_is_id_like_match(unit, self.UBUNTU_VIVID))
         # This unit is supposed to for Debian Jessie only.  Note below that
         # only Debian Jessie is passed and only by id and version match.
         # Nothing else is allowed.
         unit = PackagingMetaDataUnit({"os-id": "debian", "os-version-id": "8"})
         # Using id and version match
-        self.assertFalse(_strategy_id_version(unit, {}))
-        self.assertFalse(_strategy_id_version(unit, self.DEBIAN_SID))
-        self.assertTrue(_strategy_id_version(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_strategy_id_version(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_version_match(unit, {}))
+        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_SID))
+        self.assertTrue(_is_id_version_match(unit, self.DEBIAN_JESSIE))
+        self.assertFalse(_is_id_version_match(unit, self.UBUNTU_VIVID))
         # Using id match
-        self.assertFalse(_strategy_id(unit, {}))
-        self.assertFalse(_strategy_id(unit, self.DEBIAN_SID))
-        self.assertFalse(_strategy_id(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_strategy_id(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_match(unit, {}))
+        self.assertFalse(_is_id_match(unit, self.DEBIAN_SID))
+        self.assertFalse(_is_id_match(unit, self.DEBIAN_JESSIE))
+        self.assertFalse(_is_id_match(unit, self.UBUNTU_VIVID))
         # Using id like
-        self.assertFalse(_strategy_id_like(unit, {}))
-        self.assertFalse(_strategy_id_like(unit, self.DEBIAN_SID))
-        self.assertFalse(_strategy_id_like(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_strategy_id_like(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_like_match(unit, {}))
+        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_SID))
+        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_JESSIE))
+        self.assertFalse(_is_id_like_match(unit, self.UBUNTU_VIVID))
         # This unit is supposed to for Ubuntu (any version) and derivatives.
         # Note that None of the Debian versions pass anymore and the only
         # version that is allowed here is the one Vivid version we test for.
@@ -167,20 +167,20 @@ class DebianPackagingDriverTests(TestCase):
             }
         )
         # Using id and version match
-        self.assertFalse(_strategy_id_version(unit, {}))
-        self.assertFalse(_strategy_id_version(unit, self.DEBIAN_SID))
-        self.assertFalse(_strategy_id_version(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_strategy_id_version(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_version_match(unit, {}))
+        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_SID))
+        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_JESSIE))
+        self.assertFalse(_is_id_version_match(unit, self.UBUNTU_VIVID))
         # Using id match
-        self.assertFalse(_strategy_id(unit, {}))
-        self.assertFalse(_strategy_id(unit, self.DEBIAN_SID))
-        self.assertFalse(_strategy_id(unit, self.DEBIAN_JESSIE))
-        self.assertTrue(_strategy_id(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_match(unit, {}))
+        self.assertFalse(_is_id_match(unit, self.DEBIAN_SID))
+        self.assertFalse(_is_id_match(unit, self.DEBIAN_JESSIE))
+        self.assertTrue(_is_id_match(unit, self.UBUNTU_VIVID))
         # Using id like
-        self.assertFalse(_strategy_id_like(unit, {}))
-        self.assertFalse(_strategy_id_like(unit, self.DEBIAN_SID))
-        self.assertFalse(_strategy_id_like(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_strategy_id_like(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_like_match(unit, {}))
+        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_SID))
+        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_JESSIE))
+        self.assertFalse(_is_id_like_match(unit, self.UBUNTU_VIVID))
         # This unit is supposed to for Ubuntu Vivid only.  Note that it behaves
         # exactly like the Debian Jessie test above.  Only Ubuntu Vivid is
         # passed and only by the id and version match.
@@ -188,32 +188,32 @@ class DebianPackagingDriverTests(TestCase):
             {"os-id": "ubuntu", "os-version-id": "15.04"}
         )
         # Using id and version match
-        self.assertFalse(_strategy_id_version(unit, {}))
-        self.assertFalse(_strategy_id_version(unit, self.DEBIAN_SID))
-        self.assertFalse(_strategy_id_version(unit, self.DEBIAN_JESSIE))
-        self.assertTrue(_strategy_id_version(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_version_match(unit, {}))
+        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_SID))
+        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_JESSIE))
+        self.assertTrue(_is_id_version_match(unit, self.UBUNTU_VIVID))
         # Using id match
-        self.assertFalse(_strategy_id(unit, {}))
-        self.assertFalse(_strategy_id(unit, self.DEBIAN_SID))
-        self.assertFalse(_strategy_id(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_strategy_id(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_match(unit, {}))
+        self.assertFalse(_is_id_match(unit, self.DEBIAN_SID))
+        self.assertFalse(_is_id_match(unit, self.DEBIAN_JESSIE))
+        self.assertFalse(_is_id_match(unit, self.UBUNTU_VIVID))
         # Using id like
-        self.assertFalse(_strategy_id_like(unit, {}))
-        self.assertFalse(_strategy_id_like(unit, self.DEBIAN_SID))
-        self.assertFalse(_strategy_id_like(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_strategy_id_like(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_like_match(unit, {}))
+        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_SID))
+        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_JESSIE))
+        self.assertFalse(_is_id_like_match(unit, self.UBUNTU_VIVID))
 
     def test_package_with_comparision(self):
         unit = PackagingMetaDataUnit(
             {"os-id": "ubuntu", "os-version-id": ">=14.04"}
         )
         # Using id and version match
-        self.assertFalse(_strategy_id_version(unit, {}))
-        self.assertFalse(_strategy_id_version(unit, self.DEBIAN_SID))
-        self.assertFalse(_strategy_id_version(unit, self.DEBIAN_JESSIE))
-        self.assertTrue(_strategy_id_version(unit, self.UBUNTU_VIVID))
+        self.assertFalse(_is_id_version_match(unit, {}))
+        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_SID))
+        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_JESSIE))
+        self.assertTrue(_is_id_version_match(unit, self.UBUNTU_VIVID))
 
-    def test_read_os_version_id_from_text(self):
+    def test_read_os_version_from_text(self):
         file_content_1 = textwrap.dedent(
             """\
         unit: packaging meta-data
@@ -226,9 +226,9 @@ class DebianPackagingDriverTests(TestCase):
         record_1 = load_rfc822_records(file_content_1)[0]
         unit_1 = PackagingMetaDataUnit.from_rfc822_record(record_1)
 
-        self.assertFalse(_strategy_id_version(unit_1, self.UBUNTU_VIVID))
-        self.assertTrue(_strategy_id_version(unit_1, self.UBUNTU_FOCAL))
-        self.assertTrue(_strategy_id_version(unit_1, self.UBUNTU_JAMMY))
+        self.assertFalse(_is_id_version_match(unit_1, self.UBUNTU_VIVID))
+        self.assertTrue(_is_id_version_match(unit_1, self.UBUNTU_FOCAL))
+        self.assertTrue(_is_id_version_match(unit_1, self.UBUNTU_JAMMY))
 
         file_content = textwrap.dedent(
             """\
@@ -242,9 +242,9 @@ class DebianPackagingDriverTests(TestCase):
         record_2 = load_rfc822_records(file_content)[0]
         unit_2 = PackagingMetaDataUnit.from_rfc822_record(record_2)
 
-        self.assertFalse(_strategy_id_version(unit_2, self.UBUNTU_VIVID))
-        self.assertTrue(_strategy_id_version(unit_2, self.UBUNTU_FOCAL))
-        self.assertFalse(_strategy_id_version(unit_2, self.UBUNTU_JAMMY))
+        self.assertFalse(_is_id_version_match(unit_2, self.UBUNTU_VIVID))
+        self.assertTrue(_is_id_version_match(unit_2, self.UBUNTU_FOCAL))
+        self.assertFalse(_is_id_version_match(unit_2, self.UBUNTU_JAMMY))
 
     def test_compare_versions(self):
         # equal operator

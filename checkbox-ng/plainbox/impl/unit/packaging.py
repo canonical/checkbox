@@ -297,9 +297,7 @@ class IPackagingDriver(metaclass=abc.ABCMeta):
         """
 
 
-def _strategy_id_version(unit, os_release):
-    _logger.debug(_("Considering strategy: %s"),
-                  _("os-id == ID and os-version-id compares to VERSION_ID"))
+def _is_id_version_match(unit, os_release):
     if not unit.os_version_id:
         return False
     return (
@@ -310,9 +308,7 @@ def _strategy_id_version(unit, os_release):
     )
 
 
-def _strategy_id(unit, os_release):
-    _logger.debug(_("Considering strategy: %s"),
-                  _("os-id == ID and os-version-id == undefined"))
+def _is_id_match(unit, os_release):
     return (
         'ID' in os_release and
         unit.os_id == os_release['ID'] and
@@ -320,9 +316,7 @@ def _strategy_id(unit, os_release):
     )
 
 
-def _strategy_id_like(unit, os_release):
-    _logger.debug(_("Considering strategy: %s"),
-                  _("os-id == ID_LIKE and os-version-id == undefined"))
+def _is_id_like_match(unit, os_release):
     return (
         'ID_LIKE' in os_release and
         unit.os_id == os_release['ID_LIKE'] and
@@ -340,9 +334,8 @@ def _compare_versions(comparison_string, system_version):
         raise ValueError("Invalid version comparison string")
 
     operator_match, version_match = match.groups()
-    print(match.groups())
-    # Default to '==' if no operator is provided
 
+    # Default to '==' if no operator is provided
     operators = {
         None: operator.eq,
         '=': operator.eq,
@@ -371,13 +364,20 @@ class PackagingDriverBase(IPackagingDriver):
         os_release = self.os_release
         if unit.Meta.name != PackagingMetaDataUnit.Meta.name:
             return False
-        if (not _strategy_id_version(unit, os_release) and not
-                _strategy_id(unit, os_release) and not
-                _strategy_id_like(unit, os_release)):
-            _logger.debug(_("All strategies unsuccessful"))
-            return False
-        _logger.debug(_("Last strategy was successful"))
-        return True
+
+        # Check each strategy and log accordingly
+        if _is_id_version_match(unit, os_release):
+            _logger.debug(_("Strategy successful: ID and Version ID match"))
+            return True
+        if _is_id_match(unit, os_release):
+            _logger.debug(_("Strategy successful: ID match, no Version ID required"))
+            return True
+        if _is_id_like_match(unit, os_release):
+            _logger.debug(_("Strategy successful: ID_LIKE match, no Version ID required"))
+            return True
+
+        _logger.debug(_("All strategies unsuccessful"))
+        return False
 
     def inspect_provider(self, provider: 'Provider1') -> None:
         for unit in provider.unit_list:

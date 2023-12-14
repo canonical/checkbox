@@ -32,6 +32,7 @@ jobs:
     runs-on: [self-hosted, linux, large]
     needs: ppa_update
     strategy:
+      fail-fast: false
       matrix:
         recipe:
         - checkbox-ng-edge

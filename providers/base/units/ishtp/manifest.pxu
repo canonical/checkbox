@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_ishtp
+_name: Has support for Intel Integrated Sensor Hub Tranport Protocol (ISHTP)
+value-type: bool
+
+unit: manifest entry
+id: has_eclite
+_name: Has support for Intel ISHTP eclite controller Driver (ECLITE)
+value-type: bool

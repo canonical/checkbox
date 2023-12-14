@@ -145,10 +145,9 @@ def monitor_retry_binary_builds(
         iteration_start_time = get_date_utc_now()
 
         # this filters the binary builds from start_checking_binary (the
-        # beginning of the previous iteration or the latest pending build).
-        # This is done because if a build was included in the previous
-        # get_all_binary_builds it has been taken to completion
-        # by monitor_retry_builds either failing it
+        # beginning of the previous iteration). This is done because if a build
+        # was included in the previous get_all_binary_builds it has been
+        # taken to completion by monitor_retry_builds either failing it
         # completely or making it pass. What matters is that we don't
         # under-monitor, as re-getting the same build will deterministically
         # yield the same result resulting in the wcs. in a duplicated

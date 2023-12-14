@@ -1,3 +1,8 @@
+# This set of test cases is use to perform the suspend `n` cycles for `k` reboot
+# cycles.
+# For more details, please view the suspend_cycles_reboot.md file in this
+# folder.
+
 id: stress_s3_cycles_iterations_1
 category_id: stress-tests/suspend
 summary:

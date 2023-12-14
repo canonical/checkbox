@@ -68,6 +68,7 @@ def wait_every_source_build_started(build_recipe: LPSourcePackageRecipe):
                 "  ",
             )
         )
+        # avoid flooding LP with requests
         time.sleep(LP_POLLING_DELAY)
         pending_builds = build_recipe.getPendingBuildInfo()
 
@@ -201,9 +202,9 @@ def monitor_retry_builds(builds_to_check: list[LPBuild]) -> list[LPBuild]:
             "Uploading build",
             "Gathering build output",
         ]:
-            # avoid flooding LP with requests
             print(f"Build ongoing with status '{buildstate}'")
             print(f"  weblink: {build.web_link}")
+            # avoid flooding LP with requests
             time.sleep(LP_POLLING_DELAY)
             builds_to_check.insert(0, build)
         elif buildstate not in [
@@ -217,11 +218,13 @@ def monitor_retry_builds(builds_to_check: list[LPBuild]) -> list[LPBuild]:
         ]:
             print(f"Unknown build status '{buildstate}'")
             print(f"  weblink: {build.web_link}")
+            # avoid flooding LP with requests
             time.sleep(LP_POLLING_DELAY)
             builds_to_check.insert(0, build)
         elif build.can_be_retried:
             print(f"Build failed with status '{buildstate}'")
             print(f"  retrying: {build.web_link}")
+            # avoid flooding LP with requests
             time.sleep(LP_POLLING_DELAY)
             build.retry()
             builds_to_check.insert(0, build)

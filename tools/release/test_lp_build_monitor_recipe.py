@@ -1,6 +1,6 @@
 import unittest
 
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 
 import lp_build_monitor_recipe
 
@@ -14,18 +14,25 @@ class TestHelperFunctions(unittest.TestCase):
         build_selected = MagicMock()
         build_selected.date_first_dispatched = 10
 
+        build_selected_pending = MagicMock()
+        # pending builds have a None date_first_dispatched
+        # we select them because they are "newer" of the start date
+        # for sure given that they didn't even start yet
+        build_selected_pending.date_first_dispatched = None
+
         build_not_selected = MagicMock()
         build_not_selected.date_first_dispatched = 0
 
         build_recipe.daily_build_archive.getBuildRecords.return_value = [
             build_selected,
+            build_selected_pending,
             build_not_selected,
         ]
         selected = lp_build_monitor_recipe.get_all_binary_builds(
             build_recipe, 6
         )
 
-        self.assertEqual(selected, [build_selected])
+        self.assertEqual(selected, [build_selected, build_selected_pending])
         build_recipe.daily_build_archive.getBuildRecords.assert_called_with(
             source_name="checkbox-ng"
         )
@@ -136,6 +143,29 @@ class TestMonitorRetryBuilds(unittest.TestCase):
         self.assertEqual(time_sleep_mock.call_count, 5)
         # each time a failure was detected, the build was retried
         self.assertEqual(build_mock.retry.call_count, 3)
+
+    @patch("time.sleep")
+    def test_monitor_retry_builds_robust(self, time_sleep_mock):
+        build_mock = MagicMock()
+        # A build is updated via the lp_refresh function, lets do the same
+        # here but inject our test values
+        build_status_evolution = [
+            "Successfully built",
+            None # this may be possible for pending builds
+        ]
+
+        def lp_refresh_side_effect():
+            if build_status_evolution:
+                build_mock.buildstate = build_status_evolution.pop()
+
+        build_mock.lp_refresh.side_effect = lp_refresh_side_effect
+
+        lp_build_monitor_recipe.monitor_retry_builds([build_mock])
+
+        # we updated till the build reported a success
+        self.assertEqual(build_mock.lp_refresh.call_count, 2)
+        # we didnt fload LP with requests, waiting once per progress
+        self.assertEqual(time_sleep_mock.call_count, 1)
 
     @patch("time.sleep")
     def test_monitor_retry_builds_more_wait(self, time_sleep_mock):

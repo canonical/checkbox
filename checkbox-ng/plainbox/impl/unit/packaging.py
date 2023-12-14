@@ -297,62 +297,6 @@ class IPackagingDriver(metaclass=abc.ABCMeta):
         """
 
 
-def _is_id_version_match(unit, os_release):
-    if not unit.os_version_id:
-        return False
-    return (
-        'ID' in os_release and
-        unit.os_id == os_release['ID'] and
-        'VERSION_ID' in os_release and
-        _compare_versions(unit.os_version_id, os_release['VERSION_ID'])
-    )
-
-
-def _is_id_match(unit, os_release):
-    return (
-        'ID' in os_release and
-        unit.os_id == os_release['ID'] and
-        unit.os_version_id is None
-    )
-
-
-def _is_id_like_match(unit, os_release):
-    return (
-        'ID_LIKE' in os_release and
-        unit.os_id == os_release['ID_LIKE'] and
-        unit.os_version_id is None
-    )
-
-
-def _compare_versions(comparison_string, system_version):
-    # Extract the operator and the version from the comparison string
-    # Make the operator optional and default to '=='
-    match = re.match(
-        r"(=|==|>=|<=|>|<|!=)?\s*([\d\.a-zA-Z]+)", comparison_string
-    )
-    if not match:
-        raise ValueError("Invalid version comparison string")
-
-    operator_match, version_match = match.groups()
-
-    # Default to '==' if no operator is provided
-    operators = {
-        None: operator.eq,
-        '=': operator.eq,
-        '==': operator.eq,
-        '>=': operator.ge,
-        '<=': operator.le,
-        '>': operator.gt,
-        '<': operator.lt,
-        '!=': operator.ne
-    }
-
-    system_ver = version.parse(system_version)
-    target_ver = version.parse(version_match)
-
-    return operators[operator_match](system_ver, target_ver)
-
-
 class PackagingDriverBase(IPackagingDriver):
 
     """Base implementation of a packaging driver."""
@@ -361,18 +305,17 @@ class PackagingDriverBase(IPackagingDriver):
         self.os_release = os_release
 
     def is_applicable(self, unit: Unit) -> bool:
-        os_release = self.os_release
         if unit.Meta.name != PackagingMetaDataUnit.Meta.name:
             return False
 
         # Check each strategy and log accordingly
-        if _is_id_version_match(unit, os_release):
+        if self._is_id_version_match(unit):
             _logger.debug(_("Strategy successful: ID and Version ID match"))
             return True
-        if _is_id_match(unit, os_release):
+        if self._is_id_match(unit):
             _logger.debug(_("Strategy successful: ID match, no Version ID required"))
             return True
-        if _is_id_like_match(unit, os_release):
+        if self._is_id_like_match(unit):
             _logger.debug(_("Strategy successful: ID_LIKE match, no Version ID required"))
             return True
 
@@ -383,6 +326,59 @@ class PackagingDriverBase(IPackagingDriver):
         for unit in provider.unit_list:
             if self.is_applicable(unit):
                 self.collect(unit)
+
+    def _is_id_version_match(self, unit):
+        if not unit.os_version_id:
+            return False
+        return (
+            'ID' in self.os_release and
+            unit.os_id == self.os_release['ID'] and
+            'VERSION_ID' in self.os_release and
+            self._compare_versions(unit.os_version_id, self.os_release['VERSION_ID'])
+        )
+
+    def _is_id_match(self, unit):
+        return (
+            'ID' in self.os_release and
+            unit.os_id == self.os_release['ID'] and
+            unit.os_version_id is None
+        )
+
+    def _is_id_like_match(self, unit):
+        return (
+            'ID_LIKE' in self.os_release and
+            unit.os_id == self.os_release['ID_LIKE'] and
+            unit.os_version_id is None
+        )
+
+    @staticmethod
+    def _compare_versions(comparison_string, system_version):
+        # Extract the operator and the version from the comparison string
+        # Make the operator optional and default to '=='
+        match = re.match(
+            r"(=|==|>=|<=|>|<|!=)?\s*([\d\.a-zA-Z]+)", comparison_string
+        )
+        if not match:
+            raise ValueError("Invalid version comparison string")
+
+        operator_match, version_match = match.groups()
+
+        # Default to '==' if no operator is provided
+        operators = {
+            None: operator.eq,
+            '=': operator.eq,
+            '==': operator.eq,
+            '>=': operator.ge,
+            '<=': operator.le,
+            '>': operator.gt,
+            '<': operator.lt,
+            '!=': operator.ne
+        }
+
+        system_ver = version.parse(system_version)
+        target_ver = version.parse(version_match)
+
+        return operators[operator_match](system_ver, target_ver)
 
 
 class NullPackagingDriver(PackagingDriverBase):

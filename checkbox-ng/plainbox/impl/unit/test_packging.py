@@ -22,11 +22,8 @@ from unittest import TestCase
 import textwrap
 
 from plainbox.impl.unit.packaging import DebianPackagingDriver
+from plainbox.impl.unit.packaging import PackagingDriverBase
 from plainbox.impl.unit.packaging import PackagingMetaDataUnit
-from plainbox.impl.unit.packaging import _is_id_match
-from plainbox.impl.unit.packaging import _is_id_like_match
-from plainbox.impl.unit.packaging import _is_id_version_match
-from plainbox.impl.unit.packaging import _compare_versions
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 
 
@@ -34,7 +31,9 @@ class DebianPackagingDriverTests(TestCase):
 
     """Tests for the DebianPackagingDriver class."""
 
-    DEBIAN_JESSIE = {
+    EMPTY_DRIVER = DebianPackagingDriver({}
+                                                 )
+    DEBIAN_JESSIE_DRIVER = DebianPackagingDriver({
         "PRETTY_NAME": "Debian GNU/Linux 8 (jessie)",
         "NAME": "Debian GNU/Linux",
         "VERSION_ID": "8",
@@ -43,18 +42,18 @@ class DebianPackagingDriverTests(TestCase):
         "HOME_URL": "http://www.debian.org/",
         "SUPPORT_URL": "http://www.debian.org/support/",
         "BUG_REPORT_URL": "https://bugs.debian.org/",
-    }
+    })
 
-    DEBIAN_SID = {
+    DEBIAN_SID_DRIVER = DebianPackagingDriver({
         "PRETTY_NAME": "Debian GNU/Linux stretch/sid",
         "NAME": "Debian GNU/Linux",
         "ID": "debian",
         "HOME_URL": "https://www.debian.org/",
         "SUPPORT_URL": "https://www.debian.org/support/",
         "BUG_REPORT_URL": "https://bugs.debian.org/",
-    }
+    })
 
-    UBUNTU_VIVID = {
+    UBUNTU_VIVID_DRIVER = DebianPackagingDriver({
         "NAME": "Ubuntu",
         "VERSION": "15.04 (Vivid Vervet)",
         "ID": "ubuntu",
@@ -64,21 +63,21 @@ class DebianPackagingDriverTests(TestCase):
         "HOME_URL": "http://www.ubuntu.com/",
         "SUPPORT_URL": "http://help.ubuntu.com/",
         "BUG_REPORT_URL": "http://bugs.launchpad.net/ubuntu/",
-    }
+    })
 
-    UBUNTU_FOCAL = {
+    UBUNTU_FOCAL_DRIVER = DebianPackagingDriver({
         "NAME": "Ubuntu",
         "ID": "ubuntu",
         "ID_LIKE": "debian",
         "VERSION_ID": "20.04",
-    }
+    })
 
-    UBUNTU_JAMMY = {
+    UBUNTU_JAMMY_DRIVER = DebianPackagingDriver({
         "NAME": "Ubuntu",
         "ID": "ubuntu",
         "ID_LIKE": "debian",
         "VERSION_ID": "22.04",
-    }
+    })
 
     def test_fix_1476678(self):
         """Check https://bugs.launchpad.net/plainbox/+bug/1476678."""
@@ -101,10 +100,7 @@ class DebianPackagingDriverTests(TestCase):
         )
         self.assertEqual(
             driver._depends,
-            [
-                "python3-checkbox-support (>= 0.2)",
-                "python3 (>= 3.2)",
-            ],
+            ["python3-checkbox-support (>= 0.2)", "python3 (>= 3.2)"],
         )
         self.assertEqual(
             driver._recommends,
@@ -117,70 +113,63 @@ class DebianPackagingDriverTests(TestCase):
         # This unit is supposed to for Debian (any version) and derivatives.
         # Note below that id match lets both Debian Jessie and Debian Sid pass
         # and that id_like match also lets Ubuntu Vivid pass.
-        unit = PackagingMetaDataUnit(
-            {
-                "os-id": "debian",
-            }
-        )
+        unit = PackagingMetaDataUnit({"os-id": "debian"})
+
         # Using id and version match
-        self.assertFalse(_is_id_version_match(unit, {}))
-        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_SID))
-        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_is_id_version_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
         # Using id match
-        self.assertFalse(_is_id_match(unit, {}))
-        self.assertTrue(_is_id_match(unit, self.DEBIAN_SID))
-        self.assertTrue(_is_id_match(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_is_id_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_match(unit))
+        self.assertTrue(self.DEBIAN_SID_DRIVER._is_id_match(unit))
+        self.assertTrue(self.DEBIAN_JESSIE_DRIVER._is_id_match(unit))
+        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_match(unit))
         # Using id like
-        self.assertFalse(_is_id_like_match(unit, {}))
-        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_SID))
-        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_JESSIE))
-        self.assertTrue(_is_id_like_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_like_match(unit))
+        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_like_match(unit))
+        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_like_match(unit))
+        self.assertTrue(self.UBUNTU_VIVID_DRIVER._is_id_like_match(unit))
         # This unit is supposed to for Debian Jessie only.  Note below that
         # only Debian Jessie is passed and only by id and version match.
         # Nothing else is allowed.
         unit = PackagingMetaDataUnit({"os-id": "debian", "os-version-id": "8"})
         # Using id and version match
-        self.assertFalse(_is_id_version_match(unit, {}))
-        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_SID))
-        self.assertTrue(_is_id_version_match(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_is_id_version_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_version_match(unit))
+        self.assertTrue(self.DEBIAN_JESSIE_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
         # Using id match
-        self.assertFalse(_is_id_match(unit, {}))
-        self.assertFalse(_is_id_match(unit, self.DEBIAN_SID))
-        self.assertFalse(_is_id_match(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_is_id_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_match(unit))
+        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_match(unit))
+        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_match(unit))
+        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_match(unit))
         # Using id like
-        self.assertFalse(_is_id_like_match(unit, {}))
-        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_SID))
-        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_is_id_like_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_like_match(unit))
+        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_like_match(unit))
+        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_like_match(unit))
+        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_like_match(unit))
         # This unit is supposed to for Ubuntu (any version) and derivatives.
         # Note that None of the Debian versions pass anymore and the only
         # version that is allowed here is the one Vivid version we test for.
         # (If there was an Elementary test here it would have passed as well, I
         # hope).
-        unit = PackagingMetaDataUnit(
-            {
-                "os-id": "ubuntu",
-            }
-        )
+        unit = PackagingMetaDataUnit({"os-id": "ubuntu"})
         # Using id and version match
-        self.assertFalse(_is_id_version_match(unit, {}))
-        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_SID))
-        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_is_id_version_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
         # Using id match
-        self.assertFalse(_is_id_match(unit, {}))
-        self.assertFalse(_is_id_match(unit, self.DEBIAN_SID))
-        self.assertFalse(_is_id_match(unit, self.DEBIAN_JESSIE))
-        self.assertTrue(_is_id_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_match(unit))
+        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_match(unit))
+        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_match(unit))
+        self.assertTrue(self.UBUNTU_VIVID_DRIVER._is_id_match(unit))
         # Using id like
-        self.assertFalse(_is_id_like_match(unit, {}))
-        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_SID))
-        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_is_id_like_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_like_match(unit))
+        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_like_match(unit))
+        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_like_match(unit))
+        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_like_match(unit))
         # This unit is supposed to for Ubuntu Vivid only.  Note that it behaves
         # exactly like the Debian Jessie test above.  Only Ubuntu Vivid is
         # passed and only by the id and version match.
@@ -188,33 +177,33 @@ class DebianPackagingDriverTests(TestCase):
             {"os-id": "ubuntu", "os-version-id": "15.04"}
         )
         # Using id and version match
-        self.assertFalse(_is_id_version_match(unit, {}))
-        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_SID))
-        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_JESSIE))
-        self.assertTrue(_is_id_version_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_version_match(unit))
+        self.assertTrue(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
         # Using id match
-        self.assertFalse(_is_id_match(unit, {}))
-        self.assertFalse(_is_id_match(unit, self.DEBIAN_SID))
-        self.assertFalse(_is_id_match(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_is_id_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_match(unit))
+        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_match(unit))
+        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_match(unit))
+        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_match(unit))
         # Using id like
-        self.assertFalse(_is_id_like_match(unit, {}))
-        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_SID))
-        self.assertFalse(_is_id_like_match(unit, self.DEBIAN_JESSIE))
-        self.assertFalse(_is_id_like_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_like_match(unit))
+        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_like_match(unit))
+        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_like_match(unit))
+        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_like_match(unit))
 
     def test_package_with_comparision(self):
         unit = PackagingMetaDataUnit(
             {"os-id": "ubuntu", "os-version-id": ">=14.04"}
         )
         # Using id and version match
-        self.assertFalse(_is_id_version_match(unit, {}))
-        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_SID))
-        self.assertFalse(_is_id_version_match(unit, self.DEBIAN_JESSIE))
-        self.assertTrue(_is_id_version_match(unit, self.UBUNTU_VIVID))
+        self.assertFalse(self.EMPTY_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_version_match(unit))
+        self.assertTrue(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
 
     def test_read_os_version_from_text(self):
-        file_content_1 = textwrap.dedent(
+        file_content = textwrap.dedent(
             """\
         unit: packaging meta-data
         os-id: ubuntu
@@ -223,13 +212,14 @@ class DebianPackagingDriverTests(TestCase):
         """
         )
 
-        record_1 = load_rfc822_records(file_content_1)[0]
-        unit_1 = PackagingMetaDataUnit.from_rfc822_record(record_1)
+        record = load_rfc822_records(file_content)[0]
+        unit = PackagingMetaDataUnit.from_rfc822_record(record)
 
-        self.assertFalse(_is_id_version_match(unit_1, self.UBUNTU_VIVID))
-        self.assertTrue(_is_id_version_match(unit_1, self.UBUNTU_FOCAL))
-        self.assertTrue(_is_id_version_match(unit_1, self.UBUNTU_JAMMY))
+        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
+        self.assertTrue(self.UBUNTU_FOCAL_DRIVER._is_id_version_match(unit))
+        self.assertTrue(self.UBUNTU_JAMMY_DRIVER._is_id_version_match(unit))
 
+    def test_read_os_version_comparison_from_text(self):
         file_content = textwrap.dedent(
             """\
         unit: packaging meta-data
@@ -239,44 +229,46 @@ class DebianPackagingDriverTests(TestCase):
         """
         )
 
-        record_2 = load_rfc822_records(file_content)[0]
-        unit_2 = PackagingMetaDataUnit.from_rfc822_record(record_2)
+        record = load_rfc822_records(file_content)[0]
+        unit = PackagingMetaDataUnit.from_rfc822_record(record)
 
-        self.assertFalse(_is_id_version_match(unit_2, self.UBUNTU_VIVID))
-        self.assertTrue(_is_id_version_match(unit_2, self.UBUNTU_FOCAL))
-        self.assertFalse(_is_id_version_match(unit_2, self.UBUNTU_JAMMY))
+        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
+        self.assertTrue(self.UBUNTU_FOCAL_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.UBUNTU_JAMMY_DRIVER._is_id_version_match(unit))
 
-    def test_compare_versions(self):
+    def testcompare_versions(self):
+
+        compare_versions = PackagingDriverBase._compare_versions
         # equal operator
-        self.assertTrue(_compare_versions("==1.0.0", "1.0.0"))
-        self.assertFalse(_compare_versions("==1.0.1", "1.0.0"))
+        self.assertTrue(compare_versions("==1.0.0", "1.0.0"))
+        self.assertFalse(compare_versions("==1.0.1", "1.0.0"))
 
-        self.assertTrue(_compare_versions("1.0.0", "1.0.0"))
-        self.assertFalse(_compare_versions("1.0.1", "1.0.0"))
+        self.assertTrue(compare_versions("1.0.0", "1.0.0"))
+        self.assertFalse(compare_versions("1.0.1", "1.0.0"))
 
-        self.assertTrue(_compare_versions("=1.0.0", "1.0.0"))
-        self.assertFalse(_compare_versions("=1.0.1", "1.0.0"))
+        self.assertTrue(compare_versions("=1.0.0", "1.0.0"))
+        self.assertFalse(compare_versions("=1.0.1", "1.0.0"))
 
         # greater than operator
-        self.assertTrue(_compare_versions(">1.1.9", "1.2.0"))
-        self.assertFalse(_compare_versions(">1.0.0", "1.0.0"))
+        self.assertTrue(compare_versions(">1.1.9", "1.2.0"))
+        self.assertFalse(compare_versions(">1.0.0", "1.0.0"))
 
         # greater than or equal operator
-        self.assertTrue(_compare_versions(">=1.0.0", "1.0.0"))
-        self.assertTrue(_compare_versions(">=1.0.0", "1.1.0"))
-        self.assertFalse(_compare_versions(">=1.0.0", "0.9.9"))
+        self.assertTrue(compare_versions(">=1.0.0", "1.0.0"))
+        self.assertTrue(compare_versions(">=1.0.0", "1.1.0"))
+        self.assertFalse(compare_versions(">=1.0.0", "0.9.9"))
 
         # less than operator
-        self.assertTrue(_compare_versions("<1.0.0", "0.9.9"))
-        self.assertFalse(_compare_versions("<1.0.0", "1.0.0"))
+        self.assertTrue(compare_versions("<1.0.0", "0.9.9"))
+        self.assertFalse(compare_versions("<1.0.0", "1.0.0"))
 
         # less than or equal operator
-        self.assertTrue(_compare_versions("<=1.0.0", "1.0.0"))
-        self.assertTrue(_compare_versions("<=1.0.0", "0.9.9"))
+        self.assertTrue(compare_versions("<=1.0.0", "1.0.0"))
+        self.assertTrue(compare_versions("<=1.0.0", "0.9.9"))
 
         # not equal operator
-        self.assertTrue(_compare_versions("!=1.0.0", "1.0.1"))
-        self.assertFalse(_compare_versions("!=1.0.0", "1.0.0"))
+        self.assertTrue(compare_versions("!=1.0.0", "1.0.1"))
+        self.assertFalse(compare_versions("!=1.0.0", "1.0.0"))
 
         with self.assertRaises(ValueError):
-            _compare_versions("!!==1.0.0", "1.0.0")
+            compare_versions("!!==1.0.0", "1.0.0")

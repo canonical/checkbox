@@ -31,53 +31,77 @@ class DebianPackagingDriverTests(TestCase):
 
     """Tests for the DebianPackagingDriver class."""
 
-    EMPTY_DRIVER = DebianPackagingDriver({}
-                                                 )
-    DEBIAN_JESSIE_DRIVER = DebianPackagingDriver({
-        "PRETTY_NAME": "Debian GNU/Linux 8 (jessie)",
-        "NAME": "Debian GNU/Linux",
-        "VERSION_ID": "8",
-        "VERSION": "8 (jessie)",
-        "ID": "debian",
-        "HOME_URL": "http://www.debian.org/",
-        "SUPPORT_URL": "http://www.debian.org/support/",
-        "BUG_REPORT_URL": "https://bugs.debian.org/",
-    })
+    empty_driver = DebianPackagingDriver({})
+    debian_jessie_driver = DebianPackagingDriver(
+        {
+            "PRETTY_NAME": "Debian GNU/Linux 8 (jessie)",
+            "NAME": "Debian GNU/Linux",
+            "VERSION_ID": "8",
+            "VERSION": "8 (jessie)",
+            "ID": "debian",
+            "HOME_URL": "http://www.debian.org/",
+            "SUPPORT_URL": "http://www.debian.org/support/",
+            "BUG_REPORT_URL": "https://bugs.debian.org/",
+        }
+    )
 
-    DEBIAN_SID_DRIVER = DebianPackagingDriver({
-        "PRETTY_NAME": "Debian GNU/Linux stretch/sid",
-        "NAME": "Debian GNU/Linux",
-        "ID": "debian",
-        "HOME_URL": "https://www.debian.org/",
-        "SUPPORT_URL": "https://www.debian.org/support/",
-        "BUG_REPORT_URL": "https://bugs.debian.org/",
-    })
+    debian_sid_driver = DebianPackagingDriver(
+        {
+            "PRETTY_NAME": "Debian GNU/Linux stretch/sid",
+            "NAME": "Debian GNU/Linux",
+            "ID": "debian",
+            "HOME_URL": "https://www.debian.org/",
+            "SUPPORT_URL": "https://www.debian.org/support/",
+            "BUG_REPORT_URL": "https://bugs.debian.org/",
+        }
+    )
 
-    UBUNTU_VIVID_DRIVER = DebianPackagingDriver({
-        "NAME": "Ubuntu",
-        "VERSION": "15.04 (Vivid Vervet)",
-        "ID": "ubuntu",
-        "ID_LIKE": "debian",
-        "PRETTY_NAME": "Ubuntu 15.04",
-        "VERSION_ID": "15.04",
-        "HOME_URL": "http://www.ubuntu.com/",
-        "SUPPORT_URL": "http://help.ubuntu.com/",
-        "BUG_REPORT_URL": "http://bugs.launchpad.net/ubuntu/",
-    })
+    ubuntu_vivid_driver = DebianPackagingDriver(
+        {
+            "NAME": "Ubuntu",
+            "VERSION": "15.04 (Vivid Vervet)",
+            "ID": "ubuntu",
+            "ID_LIKE": "debian",
+            "PRETTY_NAME": "Ubuntu 15.04",
+            "VERSION_ID": "15.04",
+            "HOME_URL": "http://www.ubuntu.com/",
+            "SUPPORT_URL": "http://help.ubuntu.com/",
+            "BUG_REPORT_URL": "http://bugs.launchpad.net/ubuntu/",
+        }
+    )
 
-    UBUNTU_FOCAL_DRIVER = DebianPackagingDriver({
-        "NAME": "Ubuntu",
-        "ID": "ubuntu",
-        "ID_LIKE": "debian",
-        "VERSION_ID": "20.04",
-    })
+    ubuntu_focal_driver = DebianPackagingDriver(
+        {
+            "NAME": "Ubuntu",
+            "ID": "ubuntu",
+            "ID_LIKE": "debian",
+            "VERSION_ID": "20.04",
+        }
+    )
 
-    UBUNTU_JAMMY_DRIVER = DebianPackagingDriver({
-        "NAME": "Ubuntu",
-        "ID": "ubuntu",
-        "ID_LIKE": "debian",
-        "VERSION_ID": "22.04",
-    })
+    ubuntu_jammy_driver = DebianPackagingDriver(
+        {
+            "NAME": "Ubuntu",
+            "ID": "ubuntu",
+            "ID_LIKE": "debian",
+            "VERSION_ID": "22.04",
+        }
+    )
+
+    debian_unit = PackagingMetaDataUnit({"os-id": "debian"})
+    debian_8_unit = PackagingMetaDataUnit(
+        {"os-id": "debian", "os-version-id": "8"}
+    )
+    ubuntu_unit = PackagingMetaDataUnit({"os-id": "ubuntu"})
+    ubuntu_15_unit = PackagingMetaDataUnit(
+        {"os-id": "ubuntu", "os-version-id": "15.04"}
+    )
+    ubuntu_22_unit = PackagingMetaDataUnit(
+        {"os-id": "ubuntu", "os-version-id": "22.04"}
+    )
+    fedora_unit = PackagingMetaDataUnit(
+        {"os-id": "fedora", "os-version-id": "33"}
+    )
 
     def test_fix_1476678(self):
         """Check https://bugs.launchpad.net/plainbox/+bug/1476678."""
@@ -110,97 +134,87 @@ class DebianPackagingDriverTests(TestCase):
 
     def test_fix_1477095(self):
         """Check https://bugs.launchpad.net/plainbox/+bug/1477095."""
-        # This unit is supposed to for Debian (any version) and derivatives.
+
+        # This unit should apply for Debian (any version) and derivatives.
         # Note below that id match lets both Debian Jessie and Debian Sid pass
         # and that id_like match also lets Ubuntu Vivid pass.
-        unit = PackagingMetaDataUnit({"os-id": "debian"})
+        unit = self.debian_unit
+        self.assertFalse(self.empty_driver.is_applicable(unit))
+        self.assertTrue(self.debian_sid_driver.is_applicable(unit))
+        self.assertTrue(self.debian_jessie_driver.is_applicable(unit))
+        self.assertTrue(self.ubuntu_vivid_driver.is_applicable(unit))
 
-        # Using id and version match
-        self.assertFalse(self.EMPTY_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
-        # Using id match
-        self.assertFalse(self.EMPTY_DRIVER._is_id_match(unit))
-        self.assertTrue(self.DEBIAN_SID_DRIVER._is_id_match(unit))
-        self.assertTrue(self.DEBIAN_JESSIE_DRIVER._is_id_match(unit))
-        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_match(unit))
-        # Using id like
-        self.assertFalse(self.EMPTY_DRIVER._is_id_like_match(unit))
-        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_like_match(unit))
-        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_like_match(unit))
-        self.assertTrue(self.UBUNTU_VIVID_DRIVER._is_id_like_match(unit))
-        # This unit is supposed to for Debian Jessie only.  Note below that
+        # This unit should apply for Debian Jessie only.  Note below that
         # only Debian Jessie is passed and only by id and version match.
         # Nothing else is allowed.
-        unit = PackagingMetaDataUnit({"os-id": "debian", "os-version-id": "8"})
-        # Using id and version match
-        self.assertFalse(self.EMPTY_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_version_match(unit))
-        self.assertTrue(self.DEBIAN_JESSIE_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
-        # Using id match
-        self.assertFalse(self.EMPTY_DRIVER._is_id_match(unit))
-        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_match(unit))
-        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_match(unit))
-        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_match(unit))
-        # Using id like
-        self.assertFalse(self.EMPTY_DRIVER._is_id_like_match(unit))
-        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_like_match(unit))
-        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_like_match(unit))
-        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_like_match(unit))
-        # This unit is supposed to for Ubuntu (any version) and derivatives.
+        unit = self.debian_8_unit
+        self.assertFalse(self.empty_driver.is_applicable(unit))
+        self.assertFalse(self.debian_sid_driver.is_applicable(unit))
+        self.assertTrue(self.debian_jessie_driver.is_applicable(unit))
+        self.assertFalse(self.ubuntu_vivid_driver.is_applicable(unit))
+
+        # This unit should apply for Ubuntu (any version) and derivatives.
         # Note that None of the Debian versions pass anymore and the only
         # version that is allowed here is the one Vivid version we test for.
         # (If there was an Elementary test here it would have passed as well, I
         # hope).
-        unit = PackagingMetaDataUnit({"os-id": "ubuntu"})
-        # Using id and version match
-        self.assertFalse(self.EMPTY_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
-        # Using id match
-        self.assertFalse(self.EMPTY_DRIVER._is_id_match(unit))
-        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_match(unit))
-        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_match(unit))
-        self.assertTrue(self.UBUNTU_VIVID_DRIVER._is_id_match(unit))
-        # Using id like
-        self.assertFalse(self.EMPTY_DRIVER._is_id_like_match(unit))
-        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_like_match(unit))
-        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_like_match(unit))
-        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_like_match(unit))
-        # This unit is supposed to for Ubuntu Vivid only.  Note that it behaves
+        unit = self.ubuntu_unit
+        self.assertFalse(self.empty_driver.is_applicable(unit))
+        self.assertFalse(self.debian_sid_driver.is_applicable(unit))
+        self.assertFalse(self.debian_jessie_driver.is_applicable(unit))
+        self.assertTrue(self.ubuntu_vivid_driver.is_applicable(unit))
+        self.assertTrue(self.ubuntu_focal_driver.is_applicable(unit))
+
+        # This unit should apply for Ubuntu Vivid only.  Note that it behaves
         # exactly like the Debian Jessie test above.  Only Ubuntu Vivid is
         # passed and only by the id and version match.
-        unit = PackagingMetaDataUnit(
-            {"os-id": "ubuntu", "os-version-id": "15.04"}
-        )
-        # Using id and version match
-        self.assertFalse(self.EMPTY_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_version_match(unit))
-        self.assertTrue(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
-        # Using id match
-        self.assertFalse(self.EMPTY_DRIVER._is_id_match(unit))
-        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_match(unit))
-        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_match(unit))
-        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_match(unit))
-        # Using id like
-        self.assertFalse(self.EMPTY_DRIVER._is_id_like_match(unit))
-        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_like_match(unit))
-        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_like_match(unit))
-        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_like_match(unit))
+        unit = self.ubuntu_15_unit
+        self.assertFalse(self.empty_driver.is_applicable(unit))
+        self.assertFalse(self.debian_sid_driver.is_applicable(unit))
+        self.assertFalse(self.debian_jessie_driver.is_applicable(unit))
+        self.assertTrue(self.ubuntu_vivid_driver.is_applicable(unit))
+        self.assertFalse(self.ubuntu_focal_driver.is_applicable(unit))
+
+    def test_id_match(self):
+        driver = self.ubuntu_jammy_driver
+        # It outputs true for the same id and no version is specified
+        self.assertTrue(driver._is_id_match(self.ubuntu_unit))
+        # It outputs false for different id
+        self.assertFalse(driver._is_id_match(self.debian_unit))
+        # It outputs false for the same id and some version is specified
+        self.assertFalse(driver._is_id_match(self.ubuntu_15_unit))
+        # It outputs false with no id
+        self.assertFalse(self.empty_driver._is_id_match(self.ubuntu_unit))
+
+    def test_id_like_match(self):
+        driver = self.ubuntu_jammy_driver
+        # It outputs true for the id_like id and no version is specified
+        self.assertTrue(driver._is_id_like_match(self.debian_unit))
+        # It outputs false for different id_like id
+        self.assertFalse(driver._is_id_like_match(self.fedora_unit))
+        # It outputs false for the same id and some version is specified
+        self.assertFalse(driver._is_id_like_match(self.debian_8_unit))
+        # It outputs false with no id
+        self.assertFalse(self.empty_driver._is_id_like_match(self.ubuntu_unit))
+
+    def test_id_version_match(self):
+        driver = self.ubuntu_jammy_driver
+        # It outputs true for the same id and version
+        self.assertTrue(driver._is_id_version_match(self.ubuntu_22_unit))
+        # It outputs false for the same id and different version
+        self.assertFalse(driver._is_id_version_match(self.ubuntu_15_unit))
+        # It outputs false with no version
+        self.assertFalse(driver._is_id_version_match(self.ubuntu_unit))
 
     def test_package_with_comparision(self):
         unit = PackagingMetaDataUnit(
-            {"os-id": "ubuntu", "os-version-id": ">=14.04"}
+            {"os-id": "ubuntu", "os-version-id": ">=20.04"}
         )
         # Using id and version match
-        self.assertFalse(self.EMPTY_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.DEBIAN_SID_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.DEBIAN_JESSIE_DRIVER._is_id_version_match(unit))
-        self.assertTrue(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
+        self.assertTrue(self.ubuntu_jammy_driver.is_applicable(unit))
+        self.assertTrue(self.ubuntu_focal_driver.is_applicable(unit))
+        self.assertFalse(self.ubuntu_vivid_driver.is_applicable(unit))
+        self.assertFalse(self.debian_jessie_driver.is_applicable(unit))
 
     def test_read_os_version_from_text(self):
         file_content = textwrap.dedent(
@@ -215,9 +229,9 @@ class DebianPackagingDriverTests(TestCase):
         record = load_rfc822_records(file_content)[0]
         unit = PackagingMetaDataUnit.from_rfc822_record(record)
 
-        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
-        self.assertTrue(self.UBUNTU_FOCAL_DRIVER._is_id_version_match(unit))
-        self.assertTrue(self.UBUNTU_JAMMY_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.ubuntu_vivid_driver.is_applicable(unit))
+        self.assertTrue(self.ubuntu_focal_driver.is_applicable(unit))
+        self.assertTrue(self.ubuntu_jammy_driver.is_applicable(unit))
 
     def test_read_os_version_comparison_from_text(self):
         file_content = textwrap.dedent(
@@ -232,12 +246,11 @@ class DebianPackagingDriverTests(TestCase):
         record = load_rfc822_records(file_content)[0]
         unit = PackagingMetaDataUnit.from_rfc822_record(record)
 
-        self.assertFalse(self.UBUNTU_VIVID_DRIVER._is_id_version_match(unit))
-        self.assertTrue(self.UBUNTU_FOCAL_DRIVER._is_id_version_match(unit))
-        self.assertFalse(self.UBUNTU_JAMMY_DRIVER._is_id_version_match(unit))
+        self.assertFalse(self.ubuntu_vivid_driver.is_applicable(unit))
+        self.assertTrue(self.ubuntu_focal_driver.is_applicable(unit))
+        self.assertFalse(self.ubuntu_jammy_driver.is_applicable(unit))
 
-    def testcompare_versions(self):
-
+    def test_compare_versions(self):
         compare_versions = PackagingDriverBase._compare_versions
         # equal operator
         self.assertTrue(compare_versions("==1.0.0", "1.0.0"))

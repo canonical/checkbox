@@ -3,10 +3,44 @@
 import argparse
 import datetime
 import os
+import sys
 import re
 import subprocess
 import select
+import logging
 from systemd import journal
+from pathlib import Path
+from serial_test import serial_init, client_mode
+
+
+def init_logger():
+    """
+    Set the logger to log DEBUG and INFO to stdout, and
+    WARNING, ERROR, CRITICAL to stderr.
+    """
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    logger_format = "%(asctime)s %(levelname)-8s %(message)s"
+    date_format = "%Y-%m-%d %H:%M:%S"
+
+    # Log DEBUG and INFO to stdout, others to stderr
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setFormatter(logging.Formatter(logger_format, date_format))
+
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    stderr_handler.setFormatter(logging.Formatter(logger_format, date_format))
+
+    stdout_handler.setLevel(logging.DEBUG)
+    stderr_handler.setLevel(logging.WARNING)
+
+    # Add a filter to the stdout handler to limit log records to
+    # INFO level and below
+    stdout_handler.addFilter(lambda record: record.levelno <= logging.INFO)
+
+    root_logger.addHandler(stderr_handler)
+    root_logger.addHandler(stdout_handler)
+
+    return root_logger
 
 
 RPMSG_ROOT = "/sys/bus/rpmsg/devices"
@@ -23,13 +57,13 @@ def check_rpmsg_device():
     Returns:
         rpmsg_devices (list): a list of RPMSG device path
     """
-    print("## Checking RPMSG device is available ...")
+    logging.info("## Checking RPMSG device is available ...")
 
     rpmsg_devices = os.listdir(RPMSG_ROOT)
     if not rpmsg_devices:
         raise SystemExit("RPMSG device is not available")
     else:
-        print("RPMSG device is available")
+        logging.info("RPMSG device is available")
 
     return rpmsg_devices
 
@@ -44,7 +78,7 @@ def get_rpmsg_channel():
     Returns:
         rpmsg_channels (list): a list of RPMSG destination channel
     """
-    print("## Checking RPMSG channel ...")
+    logging.info("## Checking RPMSG channel ...")
 
     rpmsg_channels = []
     rpmsg_devices = check_rpmsg_device()
@@ -55,7 +89,7 @@ def get_rpmsg_channel():
                 rpmsg_channels.append(fp.read().strip("\n"))
 
     if rpmsg_channels:
-        print("Available RPMSG channels is {}".format(rpmsg_channels))
+        logging.info("Available RPMSG channels is %s", rpmsg_channels)
     else:
         raise SystemExit("RPMSG channel is not created")
 
@@ -75,7 +109,7 @@ def get_soc_family():
         with open(path, "r") as fp:
             soc_family = fp.read().strip()
 
-    print("SoC family is {}".format(soc_family))
+    logging.info("SoC family is %s", soc_family)
     return soc_family
 
 
@@ -92,7 +126,7 @@ def get_soc_machine():
         with open(path, "r") as fp:
             soc_machine = fp.read().strip()
 
-    print("SoC machine is {}".format(soc_machine))
+    logging.info("SoC machine is %s", soc_machine)
     return soc_machine
 
 
@@ -105,7 +139,7 @@ def detect_arm_processor_type():
     """
     family = get_soc_family()
     machine = get_soc_machine()
-    print("SoC family is {}, machine is {}".format(family, machine))
+    logging.info("SoC family is %s, machine is %s", family, machine)
 
     if "i.MX" in family or "i.MX" in machine:
         arm_cpu_type = "imx"
@@ -125,7 +159,7 @@ def pingpong_test(cpu_type):
         SystemExit: if ping pong event count is not expected
     """
 
-    print("## Probe pingpong kernel module")
+    logging.info("## Probe pingpong kernel module")
     if cpu_type == "imx":
         kernel_module = "imx_rpmsg_pingpong"
         probe_cmd = "modprobe {}".format(kernel_module)
@@ -160,8 +194,8 @@ def pingpong_test(cpu_type):
     poll.register(log_reader, log_reader.get_events())
 
     start_time = datetime.datetime.now()
-    print("# start time: {}".format(start_time))
-    print("# probe pingpong module with '{}'".format(probe_cmd))
+    logging.info("# start time: %s", start_time)
+    logging.info("# probe pingpong module with '%s'", probe_cmd)
     try:
         subprocess.run(probe_cmd, shell=True)
     except subprocess.CalledProcessError:
@@ -174,7 +208,7 @@ def pingpong_test(cpu_type):
             continue
 
         for entry in log_reader:
-            print(entry["MESSAGE"])
+            logging.info(entry["MESSAGE"])
             if entry["MESSAGE"] == "":
                 continue
 
@@ -191,29 +225,108 @@ def pingpong_test(cpu_type):
         if needed_break:
             break
 
-    print("## Check Ping pong test is finish")
-
+    logging.info("## Check Ping pong test is finish")
     if len(pingpong_events) != expected_count:
-        print(
-            "ping-pong count is not match. expected {}, actual: {}".format(
-                expected_count, len(pingpong_events))
-        )
+        logging.info(
+            "ping-pong count is not match. expected %s, actual: %s",
+            expected_count, len(pingpong_events))
         raise SystemExit("The ping-pong message is not match.")
     else:
-        print("ping-pong logs count is match")
+        logging.info("ping-pong logs count is match")
+
+
+def rpmsg_tty_test_supported(cpu_type):
+    """Validate the RPMSG TTY test is supported,
+    the probe driver command and RPMSG-TTY device pattern will return
+
+    Args:
+        cpu_type (str): the SoC type
+
+    Raises:
+        SystemExit: If CPU is not expected
+
+    Returns:
+        check_pattern (str): the pattern of RPMSG-TTY device
+        probe_cmd (str): the command to probe RPMSG-TTY driver
+    """
+    if cpu_type == "imx":
+        probe_cmd = "modprobe imx_rpmsg_tty"
+        check_pattern = r"ttyRPMSG[0-9]*"
+    elif cpu_type == "ti":
+        # To DO: verify it while we have a system
+        # Following configuration is for TI platform
+        # But we don't have platform to ensure it is working
+        #
+        # probe_cmd = "modprobe rpmsg_pru"
+        # check_pattern = r"rpmsg_pru[0-9]*"
+        raise SystemExit("Unsupported method for TI.")
+    else:
+        raise SystemExit("Unexpected CPU type.")
+
+    return check_pattern, probe_cmd
+
+
+def check_rpmsg_tty_devices(path_obj, pattern, probe_command):
+    """
+    Detect the RPMSG TTY devices, probe module might be executed if needed
+
+    Args:
+        path_obj (Path): a Path object
+        pattern (str): the pattern of RPMSG devices
+        probe_command (str): command of probe RPMSG TTY module
+
+    Returns:
+        list(Path()): a list of Path object
+    """
+    rpmsg_devices = sorted(path_obj.glob(pattern))
+    if not rpmsg_devices:
+        logging.info("probe rpmsg-tty kernel module")
+        try:
+            subprocess.run(probe_command, shell=True)
+        except subprocess.CalledProcessError:
+            pass
+        rpmsg_devices = sorted(path_obj.glob(pattern))
+
+    return rpmsg_devices
+
+
+def serial_tty_test(cpu_type, data_size):
+    """
+    Probe rpmsg-tty kernel module for RPMSG TTY test
+
+    Raises:
+        SystemExit: in following condition
+            - CPU type is not supported or
+            - RPMSG TTY device is not exists or
+            - no data received from serial device
+            - received data not match
+    """
+    logging.info("# Start string-echo test for RPMSG TTY device")
+
+    check_pattern, probe_cmd = rpmsg_tty_test_supported(cpu_type)
+    path_obj = Path("/dev")
+    rpmsg_devs = check_rpmsg_tty_devices(path_obj, check_pattern, probe_cmd)
+    if rpmsg_devs:
+        client_mode(serial_init(str(rpmsg_devs[0])), data_size)
+    else:
+        raise SystemExit("No RPMSG TTY devices found.")
 
 
 def main():
     parser = argparse.ArgumentParser(description='RPMSG related test')
     parser.add_argument('--type',
-                        help='To filter out PKCS11 for the suite',
-                        choices=["detect", "pingpong"])
+                        help='RPMSG tests',
+                        required=True,
+                        choices=["detect", "pingpong", "serial-tty"])
     args = parser.parse_args()
+    init_logger()
 
     if args.type == "detect":
         check_rpmsg_device()
     elif args.type == "pingpong":
         pingpong_test(detect_arm_processor_type())
+    elif args.type == "serial-tty":
+        serial_tty_test(detect_arm_processor_type(), 1024)
 
 
 if __name__ == "__main__":

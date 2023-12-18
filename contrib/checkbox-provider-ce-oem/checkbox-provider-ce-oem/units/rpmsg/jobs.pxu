@@ -20,3 +20,15 @@ user: root
 plugin: shell
 command:
     rpmsg_tests.py --type pingpong
+
+id: ce-oem-rpmsg/serial-tty
+_summary: Check if M series core RPMSG is loaded and RPMSG TTY works.
+category_id: rpmsg
+estimated_duration: 60
+requires: manifest.has_rpmsg == 'True'
+imports: from com.canonical.plainbox import manifest
+depends: ce-oem-rpmsg/detect-device
+user: root
+plugin: shell
+command:
+    rpmsg_tests.py --type serial-tty

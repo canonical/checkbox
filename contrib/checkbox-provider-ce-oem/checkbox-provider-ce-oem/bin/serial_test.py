@@ -11,8 +11,7 @@ Whole idea of this RS485/232/422 remote test script is to connet
 all rs485/232/422 that on DUT to the server(RPi 3). And test the
 port on DUT.
 """
-
-
+import sys
 import argparse
 import serial
 import time
@@ -20,33 +19,54 @@ import string
 import random
 import logging
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s [%(levelname)s] %(message)s",
-    handlers=[
-        # logging.FileHandler("rs485-stress.log"),
-        logging.StreamHandler(),
-    ],
-)
+
+def init_logger():
+    """
+    Set the logger to log DEBUG and INFO to stdout, and
+    WARNING, ERROR, CRITICAL to stderr.
+    """
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    logger_format = "%(asctime)s %(levelname)-8s %(message)s"
+    date_format = "%Y-%m-%d %H:%M:%S"
+
+    # Log DEBUG and INFO to stdout, others to stderr
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setFormatter(logging.Formatter(logger_format, date_format))
+
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    stderr_handler.setFormatter(logging.Formatter(logger_format, date_format))
+
+    stdout_handler.setLevel(logging.DEBUG)
+    stderr_handler.setLevel(logging.WARNING)
+
+    # Add a filter to the stdout handler to limit log records to
+    # INFO level and below
+    stdout_handler.addFilter(lambda record: record.levelno <= logging.INFO)
+
+    root_logger.addHandler(stderr_handler)
+    root_logger.addHandler(stdout_handler)
+
+    return root_logger
 
 
-def str_generator(
-    size,
-    chars=string.ascii_uppercase
-    + string.digits
-    + string.ascii_lowercase
-    + string.punctuation,
-):
-    return "".join(random.choice(chars) for _ in range(size))
+def str_generator(size):
+    chars = []
+    chars.extend(string.ascii_uppercase)
+    chars.extend(string.ascii_lowercase)
+    chars.extend(string.digits)
+    chars.extend(string.punctuation)
+
+    return "".join(random.choices(chars, k=size))
 
 
-def serial_init(args):
+def serial_init(device, **kwargs):
     ser = serial.Serial(
-        args.device,
-        baudrate=args.baudrate,
-        bytesize=args.bytesize,
-        parity=args.parity,
-        stopbits=args.stopbits,
+        device,
+        baudrate=kwargs.get("baudrate", 115200),
+        bytesize=kwargs.get("bytesize", 8),
+        parity=kwargs.get("parity", "N"),
+        stopbits=kwargs.get("stopbits", 1),
         timeout=1,
         write_timeout=1,
         xonxoff=True
@@ -80,7 +100,7 @@ def receiver(ser):
     return rcv
 
 
-def server_mode(ser, args):
+def server_mode(ser):
     """
     Running as a server, it will be sniffing for received string.
     And it will send the same string out.
@@ -88,18 +108,18 @@ def server_mode(ser, args):
     running on port /dev/ttyUSB0 as a server
     $ sudo ./rs485-remote.py /dev/ttyUSB0 --mode server
     """
-    logging.info("Listening on port {} ...".format(args.device))
+    logging.info("Listening on port {} ...".format(ser._port))
     while True:
         re_string = receiver(ser)
         if re_string:
             time.sleep(3)
             logging.info("Send string back ...")
             sender(ser, re_string)
-            logging.info("Listening on port {} ...".format(args.device))
+            logging.info("Listening on port {} ...".format(ser._port))
             ser.reset_input_buffer()
 
 
-def client_mode(ser, args):
+def client_mode(ser, data_length):
     """
     Running as a clinet and it will sending out a string and wait
     the string send back from server. After receive the string,
@@ -108,7 +128,7 @@ def client_mode(ser, args):
     running on port /dev/ttymxc1 as a client
     $ sudo ./rs485-remotr.py /dev/ttymxc1 --mode client
     """
-    test_str = "{}-{}".format(args.device, str_generator(args.size))
+    test_str = "{}-{}".format(ser._port, str_generator(data_length))
     sender(ser, test_str)
     for i in range(1, 6):
         logging.info("Attempting receive string... {} time".format(i))
@@ -116,11 +136,9 @@ def client_mode(ser, args):
         readback = receiver(ser)
         if readback:
             if readback == test_str:
-                logging.info("Expect: {}".format(test_str))
                 logging.info("Received string is correct!")
                 raise SystemExit(0)
             else:
-                logging.info("Expect: {}".format(test_str))
                 logging.error("Received string is incorrect!")
                 raise SystemExit(1)
     logging.error("Not able to receive string!!")
@@ -161,11 +179,19 @@ def main():
         default=1,
     )
     args = parser.parse_args()
-    ser = serial_init(args)
+    init_logger()
+    ser = serial_init(
+        args.device,
+        baudrate=args.baudrate,
+        bytesize=args.bytesize,
+        parity=args.parity,
+        stopbits=args.stopbits,
+    )
+
     if args.mode == "server":
-        server_mode(ser, args)
+        server_mode(ser)
     else:
-        client_mode(ser, args)
+        client_mode(ser, args.size)
 
 
 if __name__ == "__main__":

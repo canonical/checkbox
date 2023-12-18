@@ -1,24 +1,36 @@
-<!-- markdownlint-disable MD033 -->
 # Flow of the suspend-cycles-stress-test test plan
 
+<!-- markdownlint-disable MD033 -->
 This description will focus on the suspend cycles and reboot process.
-The  remaining work log check, suspend time check, and log attachments will be executed at the end of a suspend and reboot jobs.
+
+The remaining work log check, suspend time check, and log attachments will be\
+executed at the end of a suspend and reboot jobs.
 
 ## Definition of the test case name
 
-- **suspend\_cycles\_{n}\_reboot{k} :** Indicates the execution of a suspend operation, n is the suspend index of the k<sup>th</sup> round of reboot. Simply put: S<sub>k</sub>n
-- **suspend\_cycles\_reboot{k}:** Indicate the execution of a reboot operation, k is the the reboot index. Simply put: R<sub>k</sub>
+- **suspend\_cycles\_{n}\_reboot{k} :**
+  - Indicates the execution of a suspend operation, n is the suspend index of\
+    the k<sup>th</sup> round of reboot.
+  - For example: S<sub>k</sub>n
+- **suspend\_cycles\_reboot{k}:**
+  - Indicate the execution of a reboot operation, k is the the reboot index.
+  - For example: R<sub>k</sub>
 
 ## Example
 
 If doing 5 suspends per reboot round for 3 rounds (N = 5, K = 3), it means:
+
 - `n`: numbers of suspend  in each reboot
 - `k`: numbers of reboot
 
-- suspend\_cycles\_1\_reboot1: S<sub>A</sub>1
-- suspend\_cycles_1\_reboot{{suspend\_reboot\_id}}: S<sub>k</sub>1 (`k`: from A to C)
-- suspend\_cycles\_{{suspend\_id}}\_reboot{{suspend\_reboot\_id}}: S<sub>k</sub>n (`n`: from 2 to 5, `k`: from A to C)
-- suspend\_cycles\_reboot{{suspend\_reboot\_id}}: R<sub>k</sub> (`k`: from A to C)
+- suspend\_cycles\_1\_reboot1:
+  - S<sub>A</sub>1
+- suspend\_cycles_1\_reboot{{suspend\_reboot\_id}}:
+  - S<sub>k</sub>1 (`k`: from A to C)
+- suspend\_cycles\_{{suspend\_id}}\_reboot{{suspend\_reboot\_id}}:
+  - S<sub>k</sub>n (`n`: from 2 to 5, `k`: from A to C)
+- suspend\_cycles\_reboot{{suspend\_reboot\_id}}:
+  - R<sub>k</sub> (`k`: from A to C)
 
 The flow will be the following:
 

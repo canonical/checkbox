@@ -16,7 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import patch, MagicMock
 
 from prime_offload_tester import *
 
@@ -27,32 +27,62 @@ class FindCardIdTests(unittest.TestCase):
     (pci bus information)
     """
 
-    @patch("subprocess.run")
-    def test_pci_name_format_check(self, mock_run):
+    @patch("subprocess.check_output")
+    def test_pci_name_format_check(self, mock_check):
+        po = PrimeOffloader()
         # correct format
-        mock_run.return_value = Mock(stdout="/sys/kernel/debug/dri/card0/name")
-        card_id = PrimeOffloader().find_card_id("0000:00:00.0")
-        self.assertEqual(card_id, "card0")
+        mock_check.return_value = "/sys/kernel/debug/dri/0/name"
+        self.assertEqual(po.find_card_id("0000:00:00.0"), "0")
+        mock_check.assert_called_with(["grep",
+                                       "-lr",
+                                       "--include=name",
+                                       "0000:00:00.0",
+                                       "/sys/kernel/debug/dri"],
+                                      universal_newlines=True)
 
         # error format - with alphabet
-        card_id = PrimeOffloader().find_card_id("000r:00:00.0")
-        self.assertEqual(card_id, PrimeOffloaderError.NO_CARD_ID)
+        with self.assertRaises(RuntimeError):
+            po.find_card_id("000r:00:00.0")
 
         # error format - digital position error
-        card_id = PrimeOffloader().find_card_id("0000:00:000.0")
-        self.assertEqual(card_id, PrimeOffloaderError.NO_CARD_ID)
+        with self.assertRaises(RuntimeError):
+            po.find_card_id("0000:00:000.0")
 
-    @patch("subprocess.run")
-    def test_id_not_found(self, mock_run):
+    @patch("subprocess.check_output")
+    def test_id_not_found(self, mock_check):
+        po = PrimeOffloader()
         # empty string
-        mock_run.return_value = Mock(stdout="")
-        card_id = PrimeOffloader().find_card_id("0000:00:00.0")
-        self.assertEqual(card_id, PrimeOffloaderError.NO_CARD_ID)
+        mock_check.return_value = ""
+        with self.assertRaises(RuntimeError):
+            po.find_card_id("0000:00:00.0")
+        mock_check.assert_called_with(["grep",
+                                       "-lr",
+                                       "--include=name",
+                                       "0000:00:00.0",
+                                       "/sys/kernel/debug/dri"],
+                                      universal_newlines=True)
 
         # None
-        mock_run.return_value = Mock(stdout=None)
-        card_id = PrimeOffloader().find_card_id("0000:00:00.0")
-        self.assertEqual(card_id, PrimeOffloaderError.NO_CARD_ID)
+        mock_check.return_value = None
+        with self.assertRaises(RuntimeError):
+            po.find_card_id("0000:00:00.0")
+        mock_check.assert_called_with(["grep",
+                                       "-lr",
+                                       "--include=name",
+                                       "0000:00:00.0",
+                                       "/sys/kernel/debug/dri"],
+                                      universal_newlines=True)
+
+        # subprocess error
+        mock_check.side_effect = subprocess.CalledProcessError(-1, "test")
+        with self.assertRaises(RuntimeError):
+            po.find_card_id("0000:00:00.0")
+        mock_check.assert_called_with(["grep",
+                                       "-lr",
+                                       "--include=name",
+                                       "0000:00:00.0",
+                                       "/sys/kernel/debug/dri"],
+                                      universal_newlines=True)
 
 
 class FindCardNameTests(unittest.TestCase):
@@ -61,66 +91,137 @@ class FindCardNameTests(unittest.TestCase):
     (pci bus information)
     """
 
-    lshw_output = '[\
-                  {\
-                    "id" : "display",\
-                    "class" : "display",\
-                    "claimed" : true,\
-                    "handle" : "PCI:0000:00:02.0",\
-                    "description" : "VGA compatible controller",\
-                    "product" : "TigerLake-LP GT2 [Iris Xe Graphics]",\
-                    "vendor" : "Intel Corporation",\
-                    "physid" : "2",\
-                    "businfo" : "pci@0000:00:02.0",\
-                    "logicalname" : "/dev/fb0",\
-                    "version" : "01",\
-                    "width" : 64,\
-                    "clock" : 33000000,\
-                    "configuration" : {\
-                      "depth" : "32",\
-                      "driver" : "i915",\
-                      "latency" : "0",\
-                      "mode" : "1920x1080",\
-                      "resolution" : "1920,1080",\
-                      "visual" : "truecolor",\
-                      "xres" : "1920",\
-                      "yres" : "1080"\
-                    },\
-                    "capabilities" : {\
-                      "pciexpress" : "PCI Express",\
-                      "msi" : "Message Signalled Interrupts",\
-                      "pm" : "Power Management",\
-                      "vga_controller" : true,\
-                      "bus_master" : "bus mastering",\
-                      "cap_list" : "PCI capabilities listing",\
-                      "rom" : "extension ROM",\
-                      "fb" : "framebuffer"\
-                    }\
-                  }\
-                ]'
+    lshw_output = """
+                 [
+                  {
+                    "id" : "display",
+                    "class" : "display",
+                    "claimed" : true,
+                    "handle" : "PCI:0000:00:02.0",
+                    "description" : "VGA compatible controller",
+                    "product" : "TigerLake-LP GT2 [Iris Xe Graphics]",
+                    "vendor" : "Intel Corporation",
+                    "physid" : "2",
+                    "businfo" : "pci@0000:00:02.0",
+                    "logicalname" : "/dev/fb0",
+                    "version" : "01",
+                    "width" : 64,
+                    "clock" : 33000000,
+                    "configuration" : {
+                      "depth" : "32",
+                      "driver" : "i915",
+                      "latency" : "0",
+                      "mode" : "1920x1080",
+                      "resolution" : "1920,1080",
+                      "visual" : "truecolor",
+                      "xres" : "1920",
+                      "yres" : "1080"
+                    },
+                    "capabilities" : {
+                      "pciexpress" : "PCI Express",
+                      "msi" : "Message Signalled Interrupts",
+                      "pm" : "Power Management",
+                      "vga_controller" : true,
+                      "bus_master" : "bus mastering",
+                      "cap_list" : "PCI capabilities listing",
+                      "rom" : "extension ROM",
+                      "fb" : "framebuffer"
+                    }
+                  }
+                ]"""
 
-    @patch("subprocess.run")
-    def test_name_found_check(self, mock_run):
-        mock_run.return_value = Mock(stdout=self.lshw_output)
-        card_name = PrimeOffloader().find_card_name("0000:00:02.0")
-        self.assertEqual(card_name, "TigerLake-LP GT2 [Iris Xe Graphics]")
+    lshw_output_err = """
+                    [
+                     {
+                       "id" : "display",
+                       "class" : "display",
+                       "claimed" : true,
+                       "handle" : "PCI:0000:00:02.0",
+                       "description" : "VGA compatible controller",
+                       "product" : "TigerLake-LP GT2 [Iris Xe Graphics]",
+                       "vendor" : "Intel Corporation",
+                       "physid" : "2",
+                       "logicalname" : "/dev/fb0",
+                       "version" : "01",
+                       "width" : 64,
+                       "clock" : 33000000,
+                       "configuration" : {
+                         "depth" : "32",
+                         "driver" : "i915",
+                         "latency" : "0",
+                         "mode" : "1920x1080",
+                         "resolution" : "1920,1080",
+                         "visual" : "truecolor",
+                         "xres" : "1920",
+                         "yres" : "1080"
+                       }
+                     }
+                   ]"""
 
-    @patch("subprocess.run")
-    def test_name_not_found_check(self, mock_run):
+    @patch("subprocess.check_output")
+    def test_name_found_check(self, mock_check):
+        po = PrimeOffloader()
+        mock_check.return_value = self.lshw_output
+        self.assertEqual(po.find_card_name("0000:00:02.0"),
+                         "TigerLake-LP GT2 [Iris Xe Graphics]")
+        mock_check.assert_called_with(["lshw",
+                                       "-c",
+                                       "display",
+                                       "-json"],
+                                      universal_newlines=True)
+
+    @patch("subprocess.check_output")
+    def test_name_not_found_check(self, mock_check):
+        po = PrimeOffloader()
         # pci_name error
-        mock_run.return_value = Mock(stdout=self.lshw_output)
-        card_name = PrimeOffloader().find_card_name("0000:00:00.0")
-        self.assertEqual(card_name, None)
+        mock_check.return_value = self.lshw_output
+        with self.assertRaises(RuntimeError):
+            po.find_card_name("0000:00:00.0")
+        mock_check.assert_called_with(["lshw",
+                                       "-c",
+                                       "display",
+                                       "-json"],
+                                      universal_newlines=True)
+
+        # no businfo in lshw output
+        mock_check.return_value = self.lshw_output_err
+        with self.assertRaises(RuntimeError):
+            po.find_card_name("0000:00:00.0")
+        mock_check.assert_called_with(["lshw",
+                                       "-c",
+                                       "display",
+                                       "-json"],
+                                      universal_newlines=True)
 
         # empty string
-        mock_run.return_value = Mock(stdout="")
-        card_name = PrimeOffloader().find_card_name("0000:00:00.0")
-        self.assertEqual(card_name, None)
+        mock_check.return_value = ""
+        with self.assertRaises(RuntimeError):
+            po.find_card_name("0000:00:00.0")
+        mock_check.assert_called_with(["lshw",
+                                       "-c",
+                                       "display",
+                                       "-json"],
+                                      universal_newlines=True)
 
         # None
-        mock_run.return_value = Mock(stdout=None)
-        card_name = PrimeOffloader().find_card_name("0000:00:00.0")
-        self.assertEqual(card_name, None)
+        mock_check.return_value = None
+        with self.assertRaises(RuntimeError):
+            po.find_card_name("0000:00:00.0")
+        mock_check.assert_called_with(["lshw",
+                                       "-c",
+                                       "display",
+                                       "-json"],
+                                      universal_newlines=True)
+
+        # subprocess error
+        mock_check.side_effect = subprocess.CalledProcessError(-1, "test")
+        with self.assertRaises(RuntimeError):
+            po.find_card_name("0000:00:00.0")
+        mock_check.assert_called_with(["lshw",
+                                       "-c",
+                                       "display",
+                                       "-json"],
+                                      universal_newlines=True)
 
 
 class CheckOffloadTests(unittest.TestCase):
@@ -129,48 +230,95 @@ class CheckOffloadTests(unittest.TestCase):
     debug file system
     """
 
-    @patch("subprocess.run")
-    def test_offload_succ_check(self, mock_run):
-        cmd = "echo"
-        mock_run.return_value = Mock(stdout=cmd)
-        pf = PrimeOffloader()
-        rv = pf.check_offload(cmd, "card_id", "card_name")
-        self.assertEqual(rv, None)
-        self.assertEqual(pf.check_result,
-                         PrimeOffloaderError.NO_ERROR)
+    @patch("subprocess.check_output")
+    def test_offload_succ_check(self, mock_check):
+        cmd = ["echo"]
+        mock_check.return_value = cmd
+        po = PrimeOffloader()
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 1),
+                         None)
+        self.assertFalse(po.check_result)
+        mock_check.assert_called_with(["cat",
+                                       "/sys/kernel/debug/dri/card_id/clients"
+                                       ],
+                                      universal_newlines=True)
 
-    @patch("subprocess.run")
-    def test_offload_fail_check(self, mock_run):
-        # cmd, card id and card name are checked and won't be None
+        # for 6.5 kernel. check the difference
+        mock_check.side_effect = ["Xorg", "Xorg\nXorg"]
+
+        po = PrimeOffloader()
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
+                         None)
+        self.assertFalse(po.check_result)
+        mock_check.assert_called_with(["cat",
+                                       "/sys/kernel/debug/dri/card_id/clients"
+                                       ],
+                                      universal_newlines=True)
+
+        # for 6.5 kernel. check the difference
+        mock_check.side_effect = ["Xwayland", "Xwayland\nXwayland"]
+
+        po = PrimeOffloader()
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
+                         None)
+        self.assertFalse(po.check_result)
+        mock_check.assert_called_with(["cat",
+                                       "/sys/kernel/debug/dri/card_id/clients"
+                                       ],
+                                      universal_newlines=True)
+
+    @patch("subprocess.check_output")
+    def test_offload_fail_check(self, mock_check):
 
         # cmd isn't showed in debug file system
         # empty string
-        cmd = "echo"
-        mock_run.return_value = Mock(stdout="")
-        pf = PrimeOffloader()
-        rv = pf.check_offload(cmd, "card_id", "card_name")
-        self.assertEqual(rv, None)
-        self.assertEqual(pf.check_result,
-                         PrimeOffloaderError.OFFLOAD_FAIL)
+        cmd = ["echo"]
+        mock_check.return_value = ""
+        po = PrimeOffloader()
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
+                         None)
+        self.assertTrue(po.check_result)
+        mock_check.assert_called_with(
+                ["cat",
+                 "/sys/kernel/debug/dri/card_id/clients"
+                 ],
+                universal_newlines=True)
 
         # None
-        cmd = "echo"
-        mock_run.return_value = Mock(stdout=None)
-        pf = PrimeOffloader()
-        rv = pf.check_offload(cmd, "card_id", "card_name")
-        self.assertEqual(rv, None)
-        self.assertEqual(pf.check_result,
-                         PrimeOffloaderError.OFFLOAD_FAIL)
+        mock_check.return_value = None
+        po = PrimeOffloader()
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
+                         None)
+        self.assertTrue(po.check_result)
 
         # OS Error
         # Missing file or permissions
-        cmd = "echo"
-        mock_run.side_effect = OSError
-        pf = PrimeOffloader()
-        rv = pf.check_offload(cmd, "card_id", "card_name")
-        self.assertEqual(rv, None)
-        self.assertEqual(pf.check_result,
-                         PrimeOffloaderError.OFFLOAD_FAIL)
+        mock_check.side_effect = OSError
+        po = PrimeOffloader()
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
+                         None)
+        self.assertTrue(po.check_result)
+
+        # no match process
+        mock_check.side_effect = ["xxx",
+                                  "test\ndemo",
+                                  "test\ndemo",
+                                  "test\ndemo",
+                                  "test\ndemo",
+                                  "test\ndemo",
+                                  "test\ndemo",
+                                  "test\ndemo",
+                                  "test\ndemo",
+                                  "test\ndemo"
+                                  ]
+        po = PrimeOffloader()
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
+                         None)
+        self.assertTrue(po.check_result)
+        mock_check.assert_called_with(["cat",
+                                       "/sys/kernel/debug/dri/card_id/clients"
+                                       ],
+                                      universal_newlines=True)
 
 
 class CheckNvOffloadEnvTests(unittest.TestCase):
@@ -179,37 +327,112 @@ class CheckNvOffloadEnvTests(unittest.TestCase):
     Only on-demand mode is supported for NV driver.
     """
 
-    @patch("subprocess.run")
-    def test_no_prime_select_check(self, mock_run):
-        mock_run.return_value = Mock(stdout="")
-        rv = PrimeOffloader().check_nv_offload_env()
-        self.assertEqual(rv, PrimeOffloaderError.NO_ERROR)
+    @patch("subprocess.check_output")
+    def test_no_prime_select_check(self, mock_check):
+        po = PrimeOffloader()
+        # subprocess failed
+        mock_check.side_effect = subprocess.CalledProcessError(-1, "which")
+        self.assertEqual(None, po.check_nv_offload_env())
+        mock_check.assert_called_with(["which",
+                                       "prime-select"
+                                       ],
+                                      universal_newlines=True)
 
-    @patch("subprocess.run")
-    def test_on_demand_check(self, mock_run):
+        mock_check.side_effect = ["xxxxx"]
+        self.assertEqual(None, po.check_nv_offload_env())
+        mock_check.assert_called_with(["which",
+                                       "prime-select"
+                                       ],
+                                      universal_newlines=True)
+
+    @patch("subprocess.check_output")
+    def test_on_demand_check(self, mock_check):
+        po = PrimeOffloader()
         # with nv driver, not on-demand mode
-        mock_run.return_value = Mock(stdout="prime-select")
-        rv = PrimeOffloader().check_nv_offload_env()
-        self.assertEqual(rv, PrimeOffloaderError.NOT_SUPPORT_NV_PRIME)
+        mock_check.return_value = "prime-select"
+        with self.assertRaises(RuntimeError):
+            po.check_nv_offload_env()
+        mock_check.assert_called_with(["prime-select",
+                                       "query"],
+                                      universal_newlines=True)
 
-    @patch("subprocess.run")
-    def test_nvlink_check(self, mock_run):
+    @patch("subprocess.check_output")
+    def test_nvlink_check(self, mock_check):
+        po = PrimeOffloader()
         # with nv driver, on-demand mode. This might be NVLINK environment
-        mock_run.return_value = Mock(stdout="prime-select on-demand")
-        rv = PrimeOffloader().check_nv_offload_env()
-        self.assertEqual(rv, PrimeOffloaderError.NOT_SUPPORT_NV_PRIME)
+        mock_check.return_value = "prime-select on-demand"
+        with self.assertRaises(RuntimeError):
+            po.check_nv_offload_env()
+        mock_check.assert_called_with(["nvidia-smi",
+                                       "nvlink",
+                                       "-s"],
+                                      universal_newlines=True)
 
         # with nv driver, on-demand mode, nv driver error
-        mock_run.return_value = Mock(stdout="prime-select on-demand error")
-        rv = PrimeOffloader().check_nv_offload_env()
-        self.assertEqual(rv, PrimeOffloaderError.NV_DRIVER_ERROR)
+        mock_check.side_effect = ["prime-select", "on-demand", "error"]
+        with self.assertRaises(RuntimeError):
+            po.check_nv_offload_env()
+        mock_check.assert_called_with(["nvidia-smi",
+                                       "nvlink",
+                                       "-s"],
+                                      universal_newlines=True)
 
         # with nv driver, on-demand mode, no nv driver error
-        mock_run.side_effect = [Mock(stdout="prime-select on-demand"),
-                                Mock(stdout="prime-select on-demand"),
-                                Mock(stdout="")]
-        rv = PrimeOffloader().check_nv_offload_env()
-        self.assertEqual(rv, PrimeOffloaderError.NO_ERROR)
+        mock_check.side_effect = ["prime-select",
+                                  "on-demand",
+                                  ""]
+        self.assertEqual(None, po.check_nv_offload_env())
+        mock_check.assert_called_with(["nvidia-smi",
+                                       "nvlink",
+                                       "-s"],
+                                      universal_newlines=True)
+
+
+class CheckForKernelBugTests(unittest.TestCase):
+    """
+    avoid kernel bug only
+    """
+
+    def test_check(self):
+        before = """
+                     command   pid dev master a   uid      magic
+              systemd-logind  1331   0   y    y     0          0
+                    Xwayland  4272 128   n    n  1000          0
+                    Xwayland  4272 128   n    n  1000          0
+                   librewolf  4268 128   n    n  1000          0
+                    Xwayland  4272 128   n    n  1000          0
+                    Xwayland  4272 128   n    n  1000          0
+        """
+        correct = """
+                     command   pid dev master a   uid      magic
+              systemd-logind  1331   0   y    y     0          0
+                    Xwayland  4272 128   n    n  1000          0
+                    Xwayland  4272 128   n    n  1000          0
+                   librewolf  4268 128   n    n  1000          0
+                    Xwayland  4272 128   n    n  1000          0
+                    Xwayland  4272 128   n    n  1000          0
+                    Xwayland  4272 128   n    n  1000          0
+        """
+        wrong = """
+                     command   pid dev master a   uid      magic
+              systemd-logind  1331   0   y    y     0          0
+                    Xwayland  4272 128   n    n  1000          0
+                    Xwayland  4272 128   n    n  1000          0
+                   librewolf  4268 128   n    n  1000          0
+                    Xwayland  4272 128   n    n  1000          0
+                    Xwayland  4272 128   n    n  1000          0
+                    demo      5272 128   n    n  1000          0
+        """
+        po = PrimeOffloader()
+
+        # same
+        self.assertEqual(False, po.check_for_kernel_bug(before, before))
+
+        # wrong
+        self.assertEqual(False, po.check_for_kernel_bug(before, wrong))
+
+        # correct
+        self.assertEqual(True, po.check_for_kernel_bug(before, correct))
 
 
 class RunOffloadCmdTests(unittest.TestCase):
@@ -219,140 +442,174 @@ class RunOffloadCmdTests(unittest.TestCase):
     """
 
     def test_condition_check(self):
+        po = PrimeOffloader()
         # no card id
-        pf = PrimeOffloader()
-        pf.find_card_id = Mock(return_value=PrimeOffloaderError.NO_CARD_ID)
-        rv = pf.run_offload_cmd("echo", "0000:00:00.0", "driver", 0)
-        self.assertEqual(rv, PrimeOffloaderError.NO_CARD_ID)
+        po.find_card_id = MagicMock(side_effect=RuntimeError)
+        with self.assertRaises(RuntimeError):
+            po.run_offload_cmd("echo", "0000:00:00.0", "driver", 0)
 
         # no card name
-        pf.find_card_id = Mock(return_value="card0")
-        pf.find_card_name = Mock(return_value=None)
-        rv = pf.run_offload_cmd("echo", "0000:00:00.0", "driver", 0)
-        self.assertEqual(rv, PrimeOffloaderError.NO_CARD_NAME)
+        po.find_card_id = MagicMock(return_value="0")
+        po.find_card_name = MagicMock(side_effect=RuntimeError)
+        with self.assertRaises(RuntimeError):
+            po.run_offload_cmd("echo", "0000:00:00.0", "driver", 0)
+
+        # timeout in command
+        po.find_card_id = MagicMock(return_value="0")
+        po.find_card_name = MagicMock(return_value="Card")
+        with self.assertRaises(RuntimeError):
+            po.run_offload_cmd("timeout 10 echo",
+                               "0000:00:00.0",
+                               "driver",
+                               0)
+
+        # check_nv_offload_env failed
+        po.find_card_id = MagicMock(return_value="0")
+        po.find_card_name = MagicMock(return_value="Card")
+        po.check_nv_offload_env = MagicMock(side_effect=RuntimeError)
+        with self.assertRaises(RuntimeError):
+            po.run_offload_cmd("echo",
+                               "0000:00:00.0",
+                               "driver",
+                               0)
 
     @patch("subprocess.Popen")
     def test_offload_cmd_check(self, mock_open):
+        nv_env = {'__NV_PRIME_RENDER_OFFLOAD': '1',
+                  '__GLX_VENDOR_LIBRARY_NAME': 'nvidia'}
+        o_env = {'DRI_PRIME': 'pci-0000_00_00_0'}
+
         # non NV driver
-        pf = PrimeOffloader()
-        pf.find_card_id = Mock(return_value="card0")
-        pf.find_card_name = Mock(return_value="Intel")
-        pf.check_nv_offload_env =\
-            Mock(return_value=PrimeOffloaderError.NO_ERROR)
-        pf.check_offload = Mock(return_value="")
-        rv = pf.run_offload_cmd("echo", "0000:00:00.0", "xxx", 0)
+        po = PrimeOffloader()
+        po.find_card_id = MagicMock(return_value="0")
+        po.find_card_name = MagicMock(return_value="Intel")
+        po.check_nv_offload_env = MagicMock(return_value=None)
+        po.check_offload = MagicMock(return_value="")
+        os.environ.copy = MagicMock(return_value={})
+        po.run_offload_cmd("echo", "0000:00:00.0", "xxx", 0)
         # check run_offload_cmd executing correct command
-        mock_open.assert_called_with('DRI_PRIME=pci-0000_00_00_0 echo',
-                                     shell=True,
+        mock_open.assert_called_with(["echo"],
+                                     env=o_env,
                                      stdout=subprocess.PIPE,
                                      universal_newlines=True)
         # check check_offload function get correct args
-        pf.check_offload.assert_called_with('echo', 'card0', 'Intel')
+        po.check_offload.assert_called_with(["echo"], '0', 'Intel', 0)
 
         # non NV driver with timeout setting
-        pf = PrimeOffloader()
-        pf.find_card_id = Mock(return_value="card0")
-        pf.find_card_name = Mock(return_value="Intel")
-        pf.check_nv_offload_env =\
-            Mock(return_value=PrimeOffloaderError.NO_ERROR)
-        pf.check_offload = Mock(return_value="")
-        rv = pf.run_offload_cmd("echo", "0000:00:00.0", "xxx", 1)
+        po.find_card_id = MagicMock(return_value="0")
+        po.find_card_name = MagicMock(return_value="Intel")
+        po.check_nv_offload_env = MagicMock(return_value=None)
+        po.check_offload = MagicMock(return_value="")
+        os.environ.copy = MagicMock(return_value={})
+        po.run_offload_cmd("echo", "0000:00:00.0", "xxx", 1)
         # check run_offload_cmd executing correct command
-        mock_open.assert_called_with("DRI_PRIME=pci-0000_00_00_0 "
-                                     "timeout 1 echo",
-                                     shell=True,
+        mock_open.assert_called_with(["timeout", "1", "echo"],
+                                     env=o_env,
                                      stdout=subprocess.PIPE,
                                      universal_newlines=True)
         # check check_offload function get correct args
-        pf.check_offload.assert_called_with('echo', 'card0', 'Intel')
+        po.check_offload.assert_called_with(["echo"], '0', 'Intel', 1)
 
         # NV driver
-        pf = PrimeOffloader()
-        pf.find_card_id = Mock(return_value="card0")
-        pf.find_card_name = Mock(return_value="NV")
-        pf.check_nv_offload_env =\
-            Mock(return_value=PrimeOffloaderError.NO_ERROR)
-        pf.check_offload = Mock(return_value="")
-        rv = pf.run_offload_cmd("echo", "0000:00:00.0", "nvidia", 0)
+        po.find_card_id = MagicMock(return_value="0")
+        po.find_card_name = MagicMock(return_value="NV")
+        po.check_nv_offload_env = MagicMock(return_value=None)
+        po.check_offload = MagicMock(return_value="")
+        os.environ.copy = MagicMock(return_value={})
+        po.run_offload_cmd("echo", "0000:00:00.0", "nvidia", 1)
         # check run_offload_cmd executing correct command
-        mock_open.assert_called_with('__NV_PRIME_RENDER_OFFLOAD=1'
-                                     ' __GLX_VENDOR_LIBRARY_NAME=nvidia echo',
-                                     shell=True,
+        mock_open.assert_called_with(["timeout", "1", "echo"],
+                                     env=nv_env,
                                      stdout=subprocess.PIPE,
                                      universal_newlines=True)
         # check check_offload function get correct args
-        pf.check_offload.assert_called_with('echo', 'card0', 'NV')
+        po.check_offload.assert_called_with(["echo"], '0', 'NV', 1)
 
-        # Not support nvidia prime
-        pf = PrimeOffloader()
-        pf.find_card_id = Mock(return_value="card0")
-        pf.find_card_name = Mock(return_value="NV")
-        pf.check_nv_offload_env =\
-            Mock(return_value=PrimeOffloaderError.NOT_SUPPORT_NV_PRIME)
-        pf.check_offload = Mock(return_value="")
-        rv = pf.run_offload_cmd("echo", "0000:00:00.0", "nvidia", 0)
+        # subprocess error
+        po.find_card_id = MagicMock(return_value="0")
+        po.find_card_name = MagicMock(return_value="NV")
+        po.check_nv_offload_env = MagicMock(return_value=None)
+        po.check_offload = MagicMock(return_value="")
+        os.environ.copy = MagicMock(return_value={})
+        mock_open.side_effect = subprocess.CalledProcessError(-1, "test")
+        with self.assertRaises(RuntimeError):
+            po.run_offload_cmd("echo", "0000:00:00.0", "nvidia", 1)
         # check run_offload_cmd executing correct command
-        mock_open.assert_called_with('echo',
-                                     shell=True,
+        mock_open.assert_called_with(["timeout", "1", "echo"],
+                                     env=nv_env,
                                      stdout=subprocess.PIPE,
                                      universal_newlines=True)
-        self.assertEqual(rv, PrimeOffloaderError.NO_ERROR)
+        # check check_offload function get correct args
+        po.check_offload.assert_called_with(["echo"], '0', 'NV', 1)
+
+        # check offload failed
+        po.find_card_id = MagicMock(return_value="0")
+        po.find_card_name = MagicMock(return_value="NV")
+        po.check_nv_offload_env = MagicMock(return_value=None)
+        po.check_offload = MagicMock(return_value="")
+        os.environ.copy = MagicMock(return_value={})
+        po.check_result = True
+        mock_open.side_effect = None
+        with self.assertRaises(RuntimeError):
+            po.run_offload_cmd("echo", "0000:00:00.0", "nvidia", 1)
+        # check run_offload_cmd executing correct command
+        mock_open.assert_called_with(["timeout", "1", "echo"],
+                                     env=nv_env,
+                                     stdout=subprocess.PIPE,
+                                     universal_newlines=True)
+        # check check_offload function get correct args
+        po.check_offload.assert_called_with(["echo"], '0', 'NV', 1)
 
 
 class ParseArgsTests(unittest.TestCase):
     def test_success(self):
-        pf = PrimeOffloader()
+        po = PrimeOffloader()
         # no arguments, load default
         args = []
-        rv = pf.parse_args(args)
+        rv = po.parse_args(args)
         self.assertEqual(rv.command, "glxgears")
         self.assertEqual(rv.pci, "0000:00:02.0")
         self.assertEqual(rv.driver, "i915")
         self.assertEqual(rv.timeout, 0)
 
-        pf = PrimeOffloader()
         # change command
         args = ["-c", "glxgears -fullscreen"]
-        rv = pf.parse_args(args)
+        rv = po.parse_args(args)
         self.assertEqual(rv.command, "glxgears -fullscreen")
         self.assertEqual(rv.pci, "0000:00:02.0")
         self.assertEqual(rv.driver, "i915")
         self.assertEqual(rv.timeout, 0)
 
-        pf = PrimeOffloader()
         # change pci
         args = ["-p", "0000:00:01.0"]
-        rv = pf.parse_args(args)
+        rv = po.parse_args(args)
         self.assertEqual(rv.command, "glxgears")
         self.assertEqual(rv.pci, "0000:00:01.0")
         self.assertEqual(rv.driver, "i915")
         self.assertEqual(rv.timeout, 0)
 
-        pf = PrimeOffloader()
         # change driver
         args = ["-d", "nvidia"]
-        rv = pf.parse_args(args)
+        rv = po.parse_args(args)
         self.assertEqual(rv.command, "glxgears")
         self.assertEqual(rv.pci, "0000:00:02.0")
         self.assertEqual(rv.driver, "nvidia")
         self.assertEqual(rv.timeout, 0)
 
-        pf = PrimeOffloader()
         # change timeout
         args = ["-t", "5"]
-        rv = pf.parse_args(args)
+        rv = po.parse_args(args)
         self.assertEqual(rv.command, "glxgears")
         self.assertEqual(rv.pci, "0000:00:02.0")
         self.assertEqual(rv.driver, "i915")
         self.assertEqual(rv.timeout, 5)
 
-        pf = PrimeOffloader()
         # change all
         args = ["-c", "glxgears -fullscreen",
                 "-p", "0000:00:01.0",
                 "-d", "nvidia",
                 "-t", "5"]
-        rv = pf.parse_args(args)
+        rv = po.parse_args(args)
         self.assertEqual(rv.command, "glxgears -fullscreen")
         self.assertEqual(rv.pci, "0000:00:01.0")
         self.assertEqual(rv.driver, "nvidia")

@@ -1,0 +1,10 @@
+id: ce-oem-vpu/check-device
+category_id: vpu
+_summary: Check VPU device node has been probed in the system.
+plugin: shell
+flags: also-after-suspend
+estimated_duration: 20.0
+requires: manifest.has_vpu == 'True'
+imports: from com.canonical.plainbox import manifest
+command:
+    check_vpu_device.py

@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_vpu
+_name: Does platfrom supported Video Processing Unit (VPU)?
+value-type: bool

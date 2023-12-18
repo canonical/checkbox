@@ -19,4 +19,4 @@ _name: M-series core RPMSG auto tests
 _description: Automated RPMSG framework tests
 include:
     ce-oem-rpmsg/detect-device
-    ce-oem-rpmsg/pingpong
+    ce-oem-rpmsg/serial-tty

@@ -15,8 +15,8 @@ one can find in a configuration. Refer to the :ref:`launcher` section for more.
 Transport and Report
 ====================
 
-Checkbox allows a configuration to specify how the test report should be represented.
-One usage of this feature is to output the final report to ``stdout`` in text form.
+Checkbox allows a configuration to specify how the test report should be represented and where each representation should be output.
+One use case for this is outputting the final report to ``stdout`` in text form.
 Create a launcher like the following:
 
 .. code-block:: none
@@ -48,7 +48,7 @@ Create a launcher like the following:
   # and we use the transport we defined as well
   transport = out_to_stdout
 
-Launch Checkbox, it should print a human readable output to the stream you chose!
+When you now launch Checkbox it prints a human readable output to the stream you chose!
 
 .. note::
 
@@ -85,11 +85,10 @@ instance to create a beautiful HTML report to a file:
   # without asking any confirmation
   forced = yes
 
-Launch Checkbox, you should now have an html report to check out in
+Launch Checkbox, and you should now have an HTML report to check out at
 ``/tmp/output.html``.
 
-Of course you can have multiple exporters, as mentioned before, try the following
-launcher, it will produce one html report and two (equal) textual reports.
+You can configure multiple exporters. Try the following launcher to produce a HTML report and two (identical) textual reports.
 
 .. code-block:: none
 
@@ -136,14 +135,14 @@ launcher, it will produce one html report and two (equal) textual reports.
 .. note::
 
   If you start Checkbox with this launcher, remember that it will
-  create a file in ``~/.last_result.txt``. You may not want
+  create a file in ``~/.last_result.txt``. You may want
   to remove it after this experiment.
 
 UI Verbosity
 ==============
 
 Sometimes we may want to know more on the tests that are executing, sometimes
-we may only care about the results. Checkbox allows you to customize how much
+we may only care about the results. To customise how much
 output is produced while running via two mechanisms: ``ui.output``
 and ``ui.verbosity``.
 
@@ -162,8 +161,8 @@ standard output may fill up with their output and we may not want to read it.
   [ui]
   output = hide-resource-and-attachment
 
-Similarly, we may not want to see the standard output of automatic jobs, we can
-obtain that with the following launcher:
+Similarly, we may not want to see the standard output of automatic jobs. We can
+achieve that with the following launcher:
 
 .. code:: none
 
@@ -178,9 +177,9 @@ obtain that with the following launcher:
   # This also hides resource and attachments, they are automated as well!
   output = hide-automated
 
-We can also obtain the opposite result, sometimes we may want to have as
-much information possible about a Checkbox execution, for example, we may
-want to read when a job is started. Check out the following launcher to get that.
+We can also obtain the opposite result: sometimes we may want to have as
+much information possible about a Checkbox execution. For example, we may
+want to read when a job is started. The following launcher accomplishes that:
 
 .. code:: none
 
@@ -198,7 +197,7 @@ want to read when a job is started. Check out the following launcher to get that
 Auto-Retrying Failing Tests
 ===========================
 
-Checkbox is able to automatically retry failing jobs, try to use the following
+Checkbox is able to automatically retry failing jobs. Use the following
 launcher to see how this is done.
 
 .. code:: none
@@ -216,22 +215,21 @@ launcher to see how this is done.
   # the delay is in seconds
   delay_before_retry = 2
 
-As you may have noticed, once every test was executed, all failing tests were
+After every test was executed, all failing tests were
 retried up to two times, waiting a few seconds between one attempt and the next.
-This may be very useful if, for example, a test relies on an external factor
-like, for example, WiFi access.
+This may be useful if, for example, a test relies on an external factor
+like WiFi access.
 
 Config Renaming
 ===============
 
-Checkbox, by default, always calls its configs as ``checkbox.conf`` and always
+The default configuration filename Checkbox looks for is `checkbox.conf`. The config file is always
 looks for them in the same three places. This may be an issue when one wants to
 store and use multiple configurations on the same machine.
 
-Lets try to make Checkbox load a new configuration from a different location and
-with a different name.
+Let's try to make Checkbox load a new configuration from a different location.
 
-First, create the following config in ``/tmp/my_config_name.conf``
+First, create the following config at ``/tmp/my_config_name.conf``
 
 .. code:: none
 
@@ -242,8 +240,8 @@ First, create the following config in ``/tmp/my_config_name.conf``
    [test selection]
    forced = yes
 
-Also, just to be sure that this works, lets create a standard
-``~/.config/checkbox.conf`` config that does not do what we want
+To verify that this works, let's create a config file with the default filename `checkbox.conf` at one of the default lookup locations
+``~/.config/checkbox.conf`` config that does _not_ do what we want.
 
 .. code:: none
 
@@ -257,11 +255,11 @@ Then create the following launcher and call Checkbox with it.
    [config]
    config_filename = /tmp/my_config_name.conf
 
-As you can see the correct file was loaded, as the other one would have
-risen an error. The ``config_filename`` can also be just a name. To try this
+Since no error was raised, you can see that the correct file was loaded,.
+The ``config_filename`` can also be just a name. To try this
 modify the previous launcher by removing ``/tmp/`` and move the
-``my_config_name.conf`` to ``~/.config``. Launch Checkbox and see, you should
-obtain the same result.
+``my_config_name.conf`` to ``~/.config``. Now launch Checkbox and you should
+see the same result.
 
 Config Inheritance
 ==================
@@ -295,7 +293,7 @@ For example, create the following config file in ``~/.config/checkbox_global.con
   [manifest]
   com.canonical.certification::my_manifest_key = True
 
-Now create a launcher file that uses this global configs:
+Now create a launcher file that uses this global config:
 
 .. code:: none
 
@@ -306,10 +304,10 @@ Now create a launcher file that uses this global configs:
    unit = com.canonical.certification::smoke
    force = True
 
-Launch Checkbox and check that both configs are taken into account. Lets say
-that this is the default behavior that you use when running tests and
-checking that everything is all right. Now create another launcher that we can use
-for submissions
+Launch Checkbox and check that both configuration sources are taken into account. Let's say
+that this is the default behavior that you use when running tests.
+Now create another launcher that we can use
+for when we want to output a submission:
 
 .. code:: none
 
@@ -324,17 +322,17 @@ for submissions
    stock_reports = [text, certification, submission_files]
    local_submission = True
 
-As you can see, this launcher overwrites the ``stock_reports`` value from the imported
-config. This is intended, this is why we call this feature inheritance, when a config
-or a launcher imports another config/launcher, every value is inherited and can be
+As you can see, this launcher overrides the ``stock_reports`` value from the imported
+config. This configuration value inheritance (when a config
+or a launcher imports another config/launcher) allows every value to be inherited and
 overwritten.
 
 .. warning::
 
    Checkbox will happily resolve names and paths in your configs with the only
-   boundary that you can not have a circular import. We strongly advise you to
-   use this feature in moderation, it can simplify the maintaining of multiple
-   configurations by avoiding copy-pasting values around but it can make debugging
-   a configuration very complicated as well. Also, remember ``check-config``, it
+   restriction that you can not have a circular import. We advise you to
+   use this feature in moderation since whilst it can simplify the maintaining of multiple
+   configurations by avoiding copy-pasting values around, it can also make debugging
+   a configuration complicated. Also, remember ``check-config``, which
    tracks the origin of config values and can help you remember where you set any
    configuration.

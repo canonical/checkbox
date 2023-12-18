@@ -256,8 +256,8 @@ class PrimeOffloader:
 
         env = os.environ.copy()
         if driver in ('nvidia', 'pcieport'):
-            offload_env ={"__NV_PRIME_RENDER_OFFLOAD": "1",
-                         "__GLX_VENDOR_LIBRARY_NAME": "nvidia"}
+            offload_env = {"__NV_PRIME_RENDER_OFFLOAD": "1",
+                           "__GLX_VENDOR_LIBRARY_NAME": "nvidia"}
         else:
             offload_env = {"DRI_PRIME": "pci-{}".format(dri_pci_name_format)}
 
@@ -273,7 +273,8 @@ class PrimeOffloader:
                                               card_name,
                                               timeout))
         check_thread.start()
-        # sleep 5 seconds for waiting check_offload thread get clients before testing
+        # sleep 5 seconds for waiting check_offload
+        # thread get clients before testing
         time.sleep(5)
         try:
             with subprocess.Popen(offload_cmd, env=env,

@@ -59,7 +59,7 @@ add-apt-repository -y "deb http://developer.download.nvidia.com/compute/cuda/rep
 echo "*  Installing necessary pacakges"
 apt install -y build-essential git
 ## need to break this out to fix issue where cuda installs gdm3
-apt install -y --no-install-recommends cuda
+apt install -y --no-install-recommends cuda-toolkit
 
 #fix the path to get nvcc from the cuda package
 CUDA_PATH=$(find /usr/local -maxdepth 1 -type d -iname "cuda*")/bin

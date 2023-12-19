@@ -1,10 +1,12 @@
+.. _manifest_entry:
+
 ===================
 Manifest Entry Unit
 ===================
 
 A manifest entry unit describes a single entry in a *manifest* that describes
 the machine or device under test. The purpose of each entry is to define one
-specific fact. Plainbox uses such units to create a manifest that associates
+specific fact. Checkbox uses such units to create a manifest that associates
 each entry with a value.
 
 The values themselves can come from multiple sources, the simplest one is the
@@ -16,8 +18,8 @@ steps.
 File format and location
 ------------------------
 
-Manifest entry units are regular plainbox units and are contained and shipped
-with plainbox providers. In other words, they are just the same as job and test
+Manifest entry units are regular Checkbox units and are contained and shipped
+with Checkbox providers. In other words, they are just the same as job and test
 plan units, for example.
 
 Fields
@@ -101,8 +103,8 @@ Using Manifest Entries in Jobs
 
 Manifest data can be used to decide if a given test is applicable for a given
 device under test or not. When used as a resource they behave in a standard
-way, like all other resources. The only special thing is the unique name-space
-of the resource job as it is provided by plainbox itself. The name of the
+way, like all other resources. The only special thing is the unique namespace
+of the resource job as it is provided by Checkbox itself. The name of the
 resource job is: ``com.canonical.plainbox``. In practice a simple job that
 depends on data from the manifest can look like this::
 
@@ -114,27 +116,70 @@ depends on data from the manifest can look like this::
     imports: from com.canonical.plainbox import manifest
 
 Note that the job uses the ``manifest`` job from the
-``com.canonical.plainbox`` name-space. It has to be imported using the
-``imports:`` field as it is in a different name-space than the one the example
-unit is defined in (which is arbitrary). Having that resource it can then check
+``com.canonical.plainbox`` namespace. It has to be imported using the
+``imports:`` field as it is in a different namespace than the one the example
+unit is defined in (which is arbitrary). Having that resource, it can then check
 for the ``has_thunderbolt`` field manifest entry in the
-``com.canonical.checkbox`` name-space. Note that the name-space of the
+``com.canonical.checkbox`` namespace. Note that the namespace of the
 ``manifest`` job is not related to the ``manifest.ns`` value. Since any
 provider can ship additional manifest entries and then all share the flat
-name-space of resource attributes looking at the ``.ns`` attribute is a way to
+namespace of resource attributes looking at the ``.ns`` attribute is a way to
 uniquely identify a given manifest entry.
 
 Collecting Manifest Data
 ------------------------
 
-To interactively collect manifest data from a user please include this job
-somewhere early in your test plan:
-``com.canonical.plainbox::collect-manifest``.
+When running Checkbox, if some jobs in the selected test plan depend on a
+manifest entry, a System Manifest screen will be presented so that the user
+can define the value for each required manifest entries, for example:
+
+.. code-block:: none
+
+     System Manifest:
+    ┌──────────────────────────────────────────────────────────────────────────────┐
+    │ Does this machine have the following graphics ports?                         │
+    │   DVI                                    ( ) Yes   ( ) No                    │
+    │   DisplayPort                            ( ) Yes   ( ) No                    │
+    │   HDMI                                   ( ) Yes   ( ) No                    │
+    │   VGA                                    ( ) Yes   ( ) No                    │
+    │ Does this machine have this piece of hardware?                               │
+    │   A Wi-Fi Module                         ( ) Yes   ( ) No                    │
+    │   A fingerprint reader                   ( ) Yes   ( ) No                    │
+    │   An Ethernet Port                       ( ) Yes   ( ) No                    │
+    │   Audio capture                          ( ) Yes   ( ) No                    │
+    │   Audio playback                         ( ) Yes   ( ) No                    │
+    │   Thunderbolt 3 Support                  ( ) Yes   ( ) No                    │
+    │   Touchpad                               ( ) Yes   ( ) No                    │
+    │   Touchscreen                            ( ) Yes   ( ) No                    │
+    └──────────────────────────────────────────────────────────────────────────────┘
+     Press (T) to start Testing                                      Shortcuts: y/n
+
+User can quickly fill these by using the ``y`` and ``n`` keyboard shortcuts,
+or highlight an entry and select the right answer using the arrow and the
+``Space`` keys.
+
+.. note::
+    This screen will be skipped if Checkbox is set to run in silent mode
+    (see :ref:`launcher_ui`). In this case, existing values from the manifest
+    file (see below) will be used; if there is no value for a given entry,
+    Checkbox will use ``False`` by default.
 
 Supplying External Manifest
 ---------------------------
 
-The manifest file is stored in
-``$HOME/.local/share/plainbox/machine-manifest.json``.
-If the provisioning method ships a valid manifest file there it can be used for
-fully automatic but manifest-based deployments.
+The manifest file is stored in ``/var/tmp/checkbox-ng/machine-manifest.json``.
+If the provisioning method ships a valid manifest file there it can be used
+for fully automated manifest-based deployments.
+
+Here is an example of such a file:
+
+.. code-block:: none
+
+    {
+      "com.canonical.certification::has_camera": false,
+      "com.canonical.certification::has_dp": true,
+      "com.canonical.certification::has_dvi": false,
+      "com.canonical.certification::has_ethernet_adapter": true,
+      "com.canonical.certification::has_hdmi": true,
+      "com.canonical.certification::has_wlan_adapter": false
+    }

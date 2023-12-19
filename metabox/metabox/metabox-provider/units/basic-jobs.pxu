@@ -6,6 +6,10 @@ id: basic-shell-failing
 flags: simple
 command: false
 
+id: basic-shell-crashing
+flags: simple
+command: timeout -s KILL 0.1 sleep 5
+
 id: basic-environ-printing
 flags: simple
 command: echo foo: $foo
@@ -20,6 +24,11 @@ id: config-environ-vars
 flags: simple
 command: echo variables: $var1 $var2 $var3 $var4 $var_launcher
 environ: var1 var2 var3 var4
+
+id: config-environ-case
+flags: simple
+command: echo variables: $Case $CASE $case
+environ: Case CASE case
 
 id: stub/manual
 _summary: A simple manual job
@@ -232,3 +241,9 @@ _description:
  VERIFICATION:
      1. Did the 3d animation appear?
      2. Was the animation free from slowness/jerkiness?
+
+plugin: shell
+id: dependency_installation
+command: dependency_installation.py
+_summary: Verify that all required modules are installed
+_description: Verify that all required modules are installed

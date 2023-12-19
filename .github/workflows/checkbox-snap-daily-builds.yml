@@ -1,44 +1,24 @@
 name: checkbox snap daily build
 
 on:
-  schedule:
-    - cron: '00 04 * * *'
   workflow_dispatch:
+  workflow_call:
 
 jobs:
-  check_history:
-    runs-on: ubuntu-latest
-    name: Check for new commits
-    outputs:
-      should_run: ${{ steps.check_log.outputs.should_run }}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Check for checkbox snap new commits
-        id: check_log
-        run: |
-          git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-snap
-          changes=$(git rev-list --abbrev-commit --pretty=oneline HEAD --not $(git rev-list -n1 --before="24 hours" --first-parent HEAD) -- checkbox-snap)
-          if [[ -z $changes ]]
-            then
-              echo "should_run=false" >> $GITHUB_OUTPUT
-            else
-              echo "should_run=true" >> $GITHUB_OUTPUT
-          fi
-
   snap:
     strategy:
       matrix:
         type: [classic, uc]
         releases: [16, 18, 20, 22]
-    needs: check_history
-    if: ${{ needs.check_history.outputs.should_run != 'false' }}
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, large]
     env:
       SERIES: series_${{ matrix.type }}${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-    name: Checkbox snap for series ${{ matrix.type }}${{ matrix.releases }}
+      # snapcraft remote-build will create a repository with the name decided by the --build-id arg
+      # URL to this repo echoed below to help debug builds (does not change if the workflow is re-run)
+      # as the run_id will not change
+      SNAPCRAFT_BUILDER_ID: checkbox-${{ matrix.type }}${{ matrix.releases }}-${{ github.run_id }}
+    name: Frontend ${{ matrix.type }}${{ matrix.releases }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -48,41 +28,55 @@ jobs:
           cd checkbox-snap/
           sudo apt update && sudo apt install -qq -y python3-setuptools-scm
           ./prepare_${{ matrix.type }}.sh $SERIES
-      - name: add LP credentials
+      - name: Add LP credentials
         run: |
           mkdir -p ~/.local/share/snapcraft/provider/launchpad/
           echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
-      - uses: snapcore/action-build@v1
-        id: snapcraft
+      - name: Print Launchpad build repository
+        run: |
+          echo "Building at: https://git.launchpad.net/~ce-certification-qa/+snap/$SNAPCRAFT_BUILDER_ID"
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Building the snaps
         with:
-          path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
-          snapcraft-channel: 7.x/stable
-          snapcraft-args: remote-build --build-on amd64,arm64,armhf,i386 --launchpad-accept-public-upload
+          action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
+          attempt_delay: 600000 # 10min
+          attempt_limit: 5
+          with: |
+            path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
+            snapcraft-channel: 7.x/stable
+            snapcraft-args: remote-build --build-for amd64,arm64,armhf --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
       - uses: actions/upload-artifact@v3
+        name: Upload logs on failure
         if: failure()
         with:
           name: snapcraft-log-series-${{ matrix.type }}${{ matrix.releases }}
           path: |
             /home/runner/.cache/snapcraft/log/
             /home/runner/.local/state/snapcraft/log/
+            checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/checkbox*.txt
       - uses: actions/upload-artifact@v3
+        name: Upload the snaps as artefacts
         with:
           name: series_${{ matrix.type }}${{ matrix.releases }}
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
-      - name: Upload checkbox snaps to the store
-        run: |
-          for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
-          do
-            echo "Uploading $snap..."
-            if [[ ${{ matrix.type }} == 'classic' ]]; then
-              if [[ ${{ matrix.releases }} == '22' ]]; then
-                snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge
-              else
-                snapcraft upload $snap --release ${{ matrix.releases }}.04/edge
-              fi
-            else
-              snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge
-            fi
-          done
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Upload the snaps to the store
+        with:
+          attempt_delay: 600000 # 10min
+          attempt_limit: 10
+          command: |
+            for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap ; \
+            do \
+              echo "Uploading $snap..." ; \
+              if [ ${{ matrix.type }} = 'classic' ]; then \
+                if [ ${{ matrix.releases }} = '22' ]; then \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
+                else \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
+                fi \
+              else \
+                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge ; \
+              fi ; \
+            done

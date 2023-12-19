@@ -561,9 +561,16 @@ class UdevadmDevice(object):
             if self._environment["SUBSYSTEM"] == "hidraw":
                 return "HIDRAW"
             if self._environment["SUBSYSTEM"] == "video4linux":
-                if self.driver not in ('bcm2835-codec', 'bcm2835-isp'):
-                    # Ignore raspberrypi memory to memory (M2M) devices,
-                    # for the video decoder, encoder, and ISP resize.
+                # Ignore raspberrypi memory to memory (M2M) devices,
+                # for the video decoder, encoder, and ISP resize.
+                # Ignore Mediatek v4l2 encoder, decoder, jpeg codec and
+                # image processor 3
+                # Ignore Intel image process uint 6th generation (IPU6)
+                drivers_blocklist = ('bcm2835-codec', 'bcm2835-isp',
+                                     'mtk-vcodec-enc', 'mtk-vcodec-dec',
+                                     'mtk-jpeg', 'mtk-mdp3',
+                                     'intel-ipu6-isys')
+                if self.driver not in drivers_blocklist:
                     return "CAPTURE"
             # special device for PiCamera
             if self._environment["SUBSYSTEM"] == "vchiq":
@@ -1430,7 +1437,7 @@ def known_to_be_video_device(vendor_id, product_id, pci_class, pci_subclass):
         # older GPUs have subdevices with OTHER which are uninteresting. If
         # Intel, we only consider OTHER devices as VIDEO if they are in this
         # explicit list
-        return product_id in [0x0152, 0x0412, 0x0402]
+        return product_id in [0x0152, 0x0412, 0x0402, 0xa780]
 
 
 def parse_udevadm_output(output, lsblk=None, list_partitions=False, bits=None):

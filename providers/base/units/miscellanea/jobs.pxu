@@ -486,12 +486,19 @@ _description: Verify installed Debian package files against MD5 checksum lists f
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
-estimated_duration: 60
+estimated_duration: 1
 id: miscellanea/ubuntu-desktop-recommends
 requires: package.name == 'ubuntu-desktop'
 command: check-ubuntu-desktop-recommends.sh
-_summary: Check if Debian packages in Recommends of ubuntu-desktop are installed
-_description: Check if Debian packages in Recommends of ubuntu-desktop are installed
+_summary: Check that all the recommended packages for ubuntu-desktop are installed
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+estimated_duration: 1
+id: miscellanea/ubuntu-desktop-minimal-recommends
+requires: package.name == 'ubuntu-desktop-minimal'
+command: check-ubuntu-desktop-recommends.sh ubuntu-desktop-minimal
+_summary: Check that all the recommended packages for ubuntu-desktop-minimal are installed
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea

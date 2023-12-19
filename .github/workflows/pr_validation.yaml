@@ -1,0 +1,28 @@
+name: PR Validation
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+      - edited
+jobs:
+  validate_title:
+    runs-on: [self-hosted, linux, large]
+    steps:
+    - name: Checking the presence of the Traceability Marker in the PR title
+      env:
+        PR_TITLE: ${{ github.event.pull_request.title }}
+      run: |
+        if echo "$PR_TITLE" | grep -iqP "\((infra|bugfix|new|breaking)\)$"; then
+          echo "PR title contains the traceability marker"
+          exit 0
+        else
+          echo "Traceability marker missing"
+          echo "Update your title with one of the following postfix"
+          echo "(Infra,Bugfix,New,Breaking)"
+          echo
+          echo "e.g. $PR_TITLE (BugFix)"
+          exit 1
+        fi

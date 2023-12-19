@@ -13,7 +13,7 @@ concurrency:
 jobs:
   spellcheck:
     name: Spelling check
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, large]
     defaults:
       run:
         working-directory: docs
@@ -23,11 +23,13 @@ jobs:
 
       - name: Install Aspell
         run: |
-          sudo apt-get install aspell aspell-en
+          sudo apt update -qq
+          sudo apt install -qq -y aspell aspell-en
 
       - name: Install the doc framework
         working-directory: docs/
         run: |
+          sudo apt install -y -qq python3-venv
           make install
 
       - name: Build docs and run spelling checker
@@ -37,7 +39,7 @@ jobs:
 
   woke:
     name: Inclusive language check
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, large]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -52,7 +54,7 @@ jobs:
 
   linkcheck:
     name: Link check
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, large]
     defaults:
       run:
         working-directory: docs
@@ -63,6 +65,7 @@ jobs:
       - name: Install the doc framework
         working-directory: docs/
         run: |
+          sudo apt install -y -qq python3-venv
           make install
 
       - name: Run linkchecker

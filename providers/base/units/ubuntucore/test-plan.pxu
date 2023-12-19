@@ -11,13 +11,7 @@ id: ubuntucore-automated
 unit: test plan
 _name: Automated Ubuntu Core OS feature tests
 _description: Automated OS feature tests for Ubuntu Core devices
-bootstrap_include:
-    kernel_revision_info
 include:
-    ubuntucore/kernel-refresh-.*
-    ubuntucore/kernel-verify-after-refresh-.*
-    ubuntucore/kernel-revert-.*
-    ubuntucore/kernel-verify-after-revert-.*
 
 id: ubuntucore-manual
 unit: test plan

@@ -1,27 +1,75 @@
 name: Debian packages daily build
 
 on:
-  schedule:
-    - cron: '00 04 * * *'
   workflow_dispatch:
+  workflow_call:
 
 jobs:
-  deb_daily_builds:
-    name: Debian packages daily build
-    runs-on: ubuntu-latest
+  ppa_update:
+    name: Sync PPA history with monorepo
+    runs-on: [self-hosted, linux, large]
     steps:
       - name: Install dependencies
         run: |
           sudo apt update -qq
-          sudo apt install -qq -y python3-launchpadlib python3-setuptools-scm
-          git clone -b main https://git.launchpad.net/~hook25/ppa-dev-tools /tmp/ppa-dev-tools
+          sudo apt install -qq -y python3-launchpadlib
       - name: Checkout checkbox monorepo
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Check for new commits, push build and wait result
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Make LP pull the monorepo
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1
+        with:
+          attempt_delay: 6000 # 1 min
+          attempt_limit: 60   # max 1 hour of retries
+          command: |
+            tools/release/lp_request_import.py "~checkbox-dev/checkbox/+git/checkbox"
+  ppa_build:
+    name: Trigger and monitor PPA builds
+    runs-on: [self-hosted, linux, large]
+    needs: ppa_update
+    strategy:
+      fail-fast: false
+      matrix:
+        recipe:
+        - checkbox-ng-edge
+        - checkbox-support-edge
+        - checkbox-provider-base-edge
+        - checkbox-provider-resource-edge
+        - checkbox-provider-certification-server-edge
+        - checkbox-provider-certification-client-edge
+        - checkbox-provider-gpgpu-edge
+        - checkbox-provider-sru-edge
+        - checkbox-provider-tpm2-edge
+    steps:
+      - name: Install dependencies
         run: |
-          tools/daily-builds/deb_daily_builds.py
+          sudo apt update -qq
+          sudo apt install -qq -y python3-launchpadlib
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Update the recipe in the checkbox PPA
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
+          PYTHONUNBUFFERED: 1
+        with:
+          attempt_delay: 6000 # 1 min
+          attempt_limit: 60   # max 1 hour of retries
+          command: |
+            tools/release/lp_update_recipe.py checkbox --recipe ${{ matrix.recipe }} --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $GITHUB_SHA
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Build and wait result
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
+          PYTHONUNBUFFERED: 1
+        with:
+          attempt_delay: 60000 # 10min
+          attempt_limit: 3
+          command: |
+            tools/release/lp_build_monitor_recipe.py checkbox ${{ matrix.recipe }}

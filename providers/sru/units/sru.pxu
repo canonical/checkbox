@@ -56,7 +56,6 @@ include:
     audio/alsa_record_playback_automated
     install/apt-get-gets-updates
     miscellanea/dkms_build_validation
-    miscellanea/fan_stress_reaction
     networking/http
     networking/gateway_ping
     thunderbolt3/storage-preinserted
@@ -142,7 +141,6 @@ include:
     1_screenshot_fullscreen_video_.*.jpg
     install/apt-get-gets-updates
     miscellanea/dkms_build_validation
-    miscellanea/fan_stress_reaction
     networking/http
     networking/gateway_ping
     thunderbolt3/storage-preinserted
@@ -152,6 +150,7 @@ nested_part:
     monitor-discrete-gpu-cert-automated
     graphics-integrated-gpu-cert-automated
     graphics-discrete-gpu-cert-automated
+    zapper-enabled-automated
     # start of suspend related tests
     before-suspend-reference-cert-full
     # suspend point
@@ -163,6 +162,7 @@ nested_part:
     # Now we ask to switch to the integrated graphics card.
     after-suspend-graphics-integrated-gpu-cert-automated
     # after-suspend-monitor-integrated-gpu-cert-automated # not defined
+    com.canonical.certification::snap-refresh-revert
 bootstrap_include:
     device
     graphics_card

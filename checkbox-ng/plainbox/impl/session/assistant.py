@@ -34,6 +34,9 @@ import shlex
 import time
 from tempfile import SpooledTemporaryFile
 
+
+from checkbox_ng.app_context import application_name
+
 from plainbox.abc import IJobResult
 from plainbox.abc import IJobRunnerUI
 from plainbox.abc import ISessionStateTransport
@@ -123,7 +126,11 @@ class SessionAssistant:
     # TODO: create a flowchart of possible states
 
     def __init__(
-        self, app_id, app_version=None, api_version="0.99", api_flags=()
+        self,
+        app_id=application_name(),
+        app_version=None,
+        api_version="0.99",
+        api_flags=(),
     ):
         """
         Initialize a new session assistant.
@@ -194,18 +201,16 @@ class SessionAssistant:
             self.get_old_sessions: ("get previously created sessions"),
             self.delete_sessions: ("delete previously created sessions"),
             self.finalize_session: "to finalize session",
+            self.configure_application_restart: (
+                "configure automatic restart capability"
+            ),
+            self.use_alternate_restart_strategy: (
+                "configure automatic restart capability"
+            ),
         }
         # Restart support
         self._restart_cmd_callback = None
         self._restart_strategy = None  # None implies auto-detection
-        if SA_RESTARTABLE in self._flags:
-            allowed_calls = UsageExpectation.of(self).allowed_calls
-            allowed_calls[
-                self.configure_application_restart
-            ] = "configure automatic restart capability"
-            allowed_calls[
-                self.use_alternate_restart_strategy
-            ] = "configure automatic restart capability"
 
     @property
     def config(self):
@@ -248,23 +253,12 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         if self._restart_strategy is None:
-            # 'checkbox-slave' is deprecated, it's here so people can resume
-            # old session, the next if statement can be changed to just checking
-            # for 'remote' type
-            # session_type = 'remote' if self._metadata.title == 'remote'
-            #                         else 'local'
-            # with the next release or when we do inclusive naming refactor
-            # or roughly after April of 2022
             # TODO: REMOTE API RAPI:
             # this heuristic of guessing session type from the title
             # should be changed to a proper arg/flag with the Remote API bump
-            remote_types = ("remote", "checkbox-slave")
-            session_type = "local"
             try:
                 app_blob = json.loads(self._metadata.app_blob.decode("UTF-8"))
                 session_type = app_blob["type"]
-                if session_type in remote_types:
-                    session_type = "remote"
             except (AttributeError, ValueError, KeyError):
                 session_type = "local"
             self._restart_strategy = detect_restart_strategy(
@@ -523,15 +517,13 @@ class SessionAssistant:
             self.get_session_id: "to get the id of currently running session",
             self.hand_pick_jobs: "select jobs to run (w/o a test plan)",
             self.finalize_session: "to finalize session",
+            self.configure_application_restart: (
+                "configure automatic restart capability"
+            ),
+            self.use_alternate_restart_strategy: (
+                "configure automatic restart capability"
+            ),
         }
-        if SA_RESTARTABLE in self._flags:
-            allowed_calls = UsageExpectation.of(self).allowed_calls
-            allowed_calls[
-                self.configure_application_restart
-            ] = "configure automatic restart capability"
-            allowed_calls[
-                self.use_alternate_restart_strategy
-            ] = "configure automatic restart capability"
 
     @raises(KeyError, UnexpectedMethodCall)
     def resume_session(

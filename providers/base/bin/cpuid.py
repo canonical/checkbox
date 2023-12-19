@@ -111,7 +111,7 @@ CPUIDS = {
         "AMD Milan-X":      ['0xa00f12'],
         "AMD ROME":         ['0x830f10'],
         "AMD Ryzen":        ['0x810f81'],
-        "AMD Bergamo":      ['0xaa0f01'],
+        "AMD Bergamo":      ['0xaa0f01', '0xaa0f02'],
         "Broadwell":        ['0x4067', '0x306d4', '0x5066', '0x406f'],
         "Canon Lake":       ['0x6066'],
         "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],
@@ -203,7 +203,7 @@ def main():
     complete = False
     for key in CPUIDS.keys():
         for value in CPUIDS[key]:
-            if value in my_id:
+            if value.lower() in my_id.lower():
                 print("CPUID: %s which appears to be a %s processor" %
                       (my_id, key))
                 complete = True

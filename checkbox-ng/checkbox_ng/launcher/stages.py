@@ -588,7 +588,7 @@ class ReportsStage(CheckboxUiStage):
                     "api/v1/submission/{}/".format(secure_id)
                 )
             elif os.getenv("C3_URL"):
-                url = "{}/{}/".format(os.getenv("C3_URL"), ctx.args.secure_id)
+                url = "{}/{}/".format(os.getenv("C3_URL"), secure_id)
             else:
                 url = (
                     "https://certification.canonical.com/"
@@ -651,17 +651,11 @@ class ReportsStage(CheckboxUiStage):
             if cmd == "n":
                 continue
             all_exporters = self.sa.config.get_parametric_sections("exporter")
-            exporter_id = self.sa.config.get_parametric_sections("exporter")[
-                params["exporter"]
-            ]["unit"]
+            exporter_id = all_exporters[params["exporter"]]["unit"]
 
-            exp_options = (
-                self.sa.config.get_parametric_sections("exporter")[
-                    params["exporter"]
-                ]
-                .get("options", "")
-                .split()
-            )
+            exp_options = self.sa.config.get_parametric_sections("exporter")[
+                params["exporter"]
+            ].get("options", [])
             done_sending = False
             while not done_sending:
                 try:

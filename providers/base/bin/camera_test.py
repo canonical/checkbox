@@ -93,6 +93,7 @@ class v4l2_capability(ctypes.Structure):
 
 # Values for 'capabilities' field
 V4L2_CAP_VIDEO_CAPTURE = 0x00000001
+V4L2_CAP_VIDEO_CAPTURE_MPLANE = 0x00001000
 V4L2_CAP_VIDEO_OVERLAY = 0x00000004
 V4L2_CAP_READWRITE = 0x01000000
 V4L2_CAP_STREAMING = 0x04000000
@@ -186,34 +187,53 @@ class CameraTest:
             except IOError:
                 continue
             dev_status = 0
-            print("%s: OK" % device)
-            print("    name   : %s" % cp.card.decode('UTF-8'))
-            print("    driver : %s" % cp.driver.decode('UTF-8'))
-            print(
-                "    version: %s.%s.%s"
-                % (cp.version >> 16, (cp.version >> 8) & 0xff,
-                   cp.version & 0xff))
-            print("    flags  : 0x%x [" % cp.capabilities,
-                  ' CAPTURE' if cp.capabilities & V4L2_CAP_VIDEO_CAPTURE
-                  else '',
-                  ' OVERLAY' if cp.capabilities & V4L2_CAP_VIDEO_OVERLAY
-                  else '',
-                  ' READWRITE' if cp.capabilities & V4L2_CAP_READWRITE
-                  else '',
-                  ' STREAMING' if cp.capabilities & V4L2_CAP_STREAMING
-                  else '',
-                  ' ]', sep="")
+            cap_status = self._detect_and_show_camera_info(device, cp)
 
-            resolutions = self._supported_resolutions_to_string(
-                self._get_supported_resolutions(device))
-            resolutions = resolutions.replace(
-                "Resolutions:", "    Resolutions:")
-            resolutions = resolutions.replace("Format:", "    Format:")
-            print(resolutions)
-
-            if cp.capabilities & V4L2_CAP_VIDEO_CAPTURE:
-                cap_status = 0
         return dev_status | cap_status
+
+    def _detect_and_show_camera_info(self, device, cp):
+        """
+        Detect the capture capability and show the information of a specific
+        camera device
+
+        :param device:
+            Full path of camera device under /dev. e.g. /dev/video0
+        :param cp:
+            The v4l2 capabitliy
+
+        :returns:
+            0 if the camera supports the capture capability
+            1 if the camera doesn't support the capture capability
+        """
+        capture_capabilities = cp.capabilities & V4L2_CAP_VIDEO_CAPTURE or \
+            cp.capabilities & V4L2_CAP_VIDEO_CAPTURE_MPLANE
+
+        print("%s: OK" % device)
+        print("    name   : %s" % cp.card.decode('UTF-8'))
+        print("    driver : %s" % cp.driver.decode('UTF-8'))
+        print(
+            "    version: %s.%s.%s"
+            % (cp.version >> 16, (cp.version >> 8) & 0xff,
+                cp.version & 0xff))
+        print("    flags  : 0x%x [" % cp.capabilities,
+              ' CAPTURE' if capture_capabilities
+              else '',
+              ' OVERLAY' if cp.capabilities & V4L2_CAP_VIDEO_OVERLAY
+              else '',
+              ' READWRITE' if cp.capabilities & V4L2_CAP_READWRITE
+              else '',
+              ' STREAMING' if cp.capabilities & V4L2_CAP_STREAMING
+              else '',
+              ' ]', sep="")
+
+        resolutions = self._supported_resolutions_to_string(
+            self._get_supported_resolutions(device))
+        resolutions = resolutions.replace(
+            "Resolutions:", "    Resolutions:")
+        resolutions = resolutions.replace("Format:", "    Format:")
+        print(resolutions)
+
+        return 0 if capture_capabilities else 1
 
     def _stop(self):
         self.camerabin.set_state(Gst.State.NULL)

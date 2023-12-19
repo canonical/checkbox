@@ -19,12 +19,16 @@ copyright = "%s, %s" % (datetime.date.today().year, author)
 # Here we just keep the version number and not any .devhash because that would
 #  make the CI/CD spellcheck fail mistaking any .devhash occurence for an
 #  unknown word
-release = re.match(r"(\d+\.{0,1})+", checkbox_ng.__version__).group(0).rstrip(".")
+release = (
+    re.match(r"(\d+\.{0,1})+", checkbox_ng.__version__).group(0).rstrip(".")
+)
 
 # Open Graph configuration - defines what is displayed in the website preview
 ogp_site_url = "https://checkbox.readthedocs-hosted.com/"
 ogp_site_name = project
-ogp_image = "https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg"
+ogp_image = (
+    "https://assets.ubuntu.com/v1/253da317-image-document-ubuntudocs.svg"
+)
 
 html_context = {
     # Change to the discourse instance you want to be able to link to
@@ -44,6 +48,7 @@ if "discourse" in html_context:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
+    "sphinxcontrib.mermaid",
     "sphinx_design",
     "sphinx_tabs.tabs",
     "sphinx_reredirects",
@@ -55,6 +60,7 @@ extensions = [
     "sphinxext.opengraph",
     "myst_parser",
     "sphinx.ext.todo",
+    "sphinx-jsonschema",
 ]
 
 myst_enable_extensions = ["substitution", "deflist"]

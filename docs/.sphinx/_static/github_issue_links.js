@@ -10,6 +10,15 @@ window.onload = function() {
         + "&body=*Please describe the question or issue you're facing with "
         + `"${document.title}"`
         + ".*"
+        + "%0A%0A"
+        + "<!-- "
+        + "%0A"
+        + "Please check if your question or issue is not already listed here: "
+        + "%0A"
+        + github_url
+        + "/labels/documentation"
+        + "%0A"
+        + "-->"
         + "%0A%0A%0A%0A%0A"
         + "---"
         + "%0A"

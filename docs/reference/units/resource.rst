@@ -1,6 +1,8 @@
-==================
-Resource Job Units
-==================
+.. _resource:
+
+=================
+Resource Job Unit
+=================
 
 Resources
 =========
@@ -11,8 +13,7 @@ This mechanism allows some types of jobs to publish resource objects to an
 abstract namespace and to a way to evaluate a resource program to determine if
 a job can be started.
 
-Resources also serve as a 'generator' for template units.
-See :ref:`templates`
+Resources also serve as a "generator" for :ref:`template units<templates>`.
 
 Resource Jobs
 -------------

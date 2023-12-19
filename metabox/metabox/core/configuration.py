@@ -65,14 +65,14 @@ def validate_config(config):
     if not _has_local_or_remote_declaration(config):
         raise SystemExit(
             "Configuration has to define at least one way of running checkbox."
-            "Define 'local' or 'service' and 'remote'."
+            "Define 'local' or 'agent' and 'controller'."
         )
     for kind in config:
-        if kind not in ("local", "service", "remote"):
+        if kind not in ("local", "agent", "controller"):
             raise SystemExit(
                 "Configuration has to define at least one way "
                 "of running checkbox."
-                "Define 'local' or 'service' and 'remote'."
+                "Define 'local' or 'agent' and 'controller'."
             )
         for decl in config[kind]:
             if not _decl_has_a_valid_origin(config[kind]):
@@ -93,18 +93,19 @@ def _has_local_or_remote_declaration(config):
     >>> config = {'local': []}
     >>> _has_local_or_remote_declaration(config)
     False
-    >>> config = {'service': 'something'}
+    >>> config = {'agent': 'something'}
     >>> _has_local_or_remote_declaration(config)
     False
-    >>> config = {'remote': 'something'}
+    >>> config = {'controller': 'something'}
     >>> _has_local_or_remote_declaration(config)
     False
-    >>> config = {'remote': 'something', 'service': 'somethig_else'}
+    >>> config = {'controller': 'something', 'agent': 'somethig_else'}
     >>> _has_local_or_remote_declaration(config)
     True
     """
 
-    return bool(config.get("local") or (config.get("service") and config.get("remote")))
+    return bool(config.get('local') or (
+        config.get('agent') and config.get('controller')))
 
 
 def _decl_has_a_valid_origin(decl):

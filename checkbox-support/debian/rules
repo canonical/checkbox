@@ -2,5 +2,14 @@
 export PYBUILD_NAME=checkbox-support
 export SRCTOP=checkbox-support
 
+# DEBVER is the latest version as declared by the changelog
+#   it is in this form pkg_version~ubuntu(ubuntu_version)
+# pkg_version = get_version() where -dev -> ~dev (to make this a valid dpkg version)
+# This is not a valid python version, remove the ~ubuntu(ubuntu_version)
+# replace ~dev -> .dev as PEP440 mandates
+DEBVER := $(shell dpkg-parsechangelog -SVersion)
+PYTHON_VERSION := $(shell echo $(DEBVER) | sed 's/.ubuntu.\+//' | sed 's/~dev/.dev/')
+export SETUPTOOLS_SCM_PRETEND_VERSION=$(PYTHON_VERSION)
+
 %:
 	dh $@ --sourcedirectory=$(SRCTOP) --with=python3 --buildsystem=pybuild

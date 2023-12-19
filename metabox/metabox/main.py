@@ -40,37 +40,53 @@ def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        'config', metavar='CONFIG', type=Path,
-        help='Metabox configuration file'
+        "config",
+        metavar="CONFIG",
+        type=Path,
+        help="Metabox configuration file",
     )
     parser.add_argument(
-        '--tag', action='append', dest='tags',
-        help='Run only scenario with the specified tag. '
-             'Can be used multiple times.',
+        "--tag",
+        action="append",
+        dest="tags",
+        help="Run only scenario with the specified tag. "
+        "Can be used multiple times.",
     )
     parser.add_argument(
-        '--exclude-tag', action='append', dest='exclude_tags',
-        help='Do not run scenario with the specified tag. '
-             'Can be used multiple times.',
+        "--exclude-tag",
+        action="append",
+        dest="exclude_tags",
+        help="Do not run scenario with the specified tag. "
+        "Can be used multiple times.",
     )
     parser.add_argument(
-        "--log", dest="log_level", choices=Core().levels.keys(),
-        default='SUCCESS',
+        "--log",
+        dest="log_level",
+        choices=Core().levels.keys(),
+        default="INFO",
         help="Set the logging level",
     )
     parser.add_argument(
-        '--do-not-dispose', action='store_true',
-        help="Do not delete LXD containers after the run")
+        "--do-not-dispose",
+        action="store_true",
+        help="Do not delete LXD containers after the run",
+    )
     parser.add_argument(
-        '--use-existing', action='store_true',
-        help="Use existing containers updating the source inside them")
+        "--use-existing",
+        action="store_true",
+        help="Use existing containers updating the source inside them",
+    )
     parser.add_argument(
-        '--hold-on-fail', action='store_true',
-        help="Pause testing when a scenario fails")
+        "--hold-on-fail",
+        action="store_true",
+        help="Pause testing when a scenario fails",
+    )
     parser.add_argument(
-        '--debug-machine-setup', action='store_true',
+        "--debug-machine-setup",
+        action="store_true",
         help="Turn on verbosity during machine setup. "
-             "Only works with --log TRACE")
+        "Only works with --log TRACE",
+    )
     logging.basicConfig(handlers=[InterceptHandler()], level=0, force=True)
     # Ignore warnings issued by pylxd/models/operation.py
     with warnings.catch_warnings():
@@ -81,5 +97,5 @@ def main():
         raise SystemExit(not runner.wasSuccessful())
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

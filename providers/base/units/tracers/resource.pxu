@@ -1,0 +1,12 @@
+id: kernel_config_file
+plugin: resource
+_summary:
+ Kernel config file resource
+command:
+ if [[ -f "/boot/config-$(uname -r)" ]]
+ then
+     echo "detected: true"
+ else
+     echo "detected: false"
+ fi
+_description: Check existence of kernel config file

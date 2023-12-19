@@ -16,13 +16,11 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-import itertools
-import os.path
-import re
 import time
-from pathlib import Path
 import textwrap
-from contextlib import suppress
+import itertools
+import pkg_resources
+from pathlib import Path
 
 import pylxd.exceptions
 from loguru import logger
@@ -96,12 +94,20 @@ class ContainerBaseMachine:
 
     def execute(self, cmd, env={}, verbose=False, timeout=0):
         return run_or_raise(
-            self._container, self._checkbox_wrapper + cmd, env, verbose, timeout
+            self._container,
+            self._checkbox_wrapper + cmd,
+            env,
+            verbose,
+            timeout,
         )
 
     def interactive_execute(self, cmd, env={}, verbose=False, timeout=0):
         return interactive_execute(
-            self._container, self._checkbox_wrapper + cmd, env, verbose, timeout
+            self._container,
+            self._checkbox_wrapper + cmd,
+            env,
+            verbose,
+            timeout,
         )
 
     def rollback_to(self, savepoint):
@@ -109,8 +115,10 @@ class ContainerBaseMachine:
             self._container.stop(wait=True)
         self._container.restore_snapshot(savepoint, wait=True)
         self._container.start(wait=True)
-        logger.opt(colors=True).debug("[<y>restored</y>    ] {}", self._container.name)
-        if self.config.role == "service":
+        logger.opt(colors=True).debug(
+            "[<y>restored</y>    ] {}", self._container.name
+        )
+        if self.config.role == "agent":
             attempts_left = 60
             out = ""
             while attempts_left and out.rstrip() not in (
@@ -134,7 +142,9 @@ class ContainerBaseMachine:
             raise
 
     def get_connecting_cmd(self):
-        return "lxc exec {} -- sudo --user ubuntu --login".format(self._container.name)
+        return "lxc exec {} -- sudo --user ubuntu --login".format(
+            self._container.name
+        )
 
     @property
     def address(self):
@@ -165,25 +175,31 @@ class ContainerBaseMachine:
         """
         return []
 
-    def start_remote(self, host, launcher, interactive=False, timeout=0):
-        assert self.config.role == "remote"
+    def start_controller(self, host, launcher, interactive=False, timeout=0):
+        assert self.config.role == "controller"
 
         if interactive:
             # Return a PTS object to interact with
             return self.interactive_execute(
-                "remote {} {}".format(host, launcher), verbose=True, timeout=timeout
+                "control {} {}".format(host, launcher),
+                verbose=True,
+                timeout=timeout,
             )
         else:
             # Return an ExecuteResult named tuple
             return self.execute(
-                "remote {} {}".format(host, launcher), verbose=True, timeout=timeout
+                "control {} {}".format(host, launcher),
+                verbose=True,
+                timeout=timeout,
             )
 
     def start(self, cmd=None, env={}, interactive=False, timeout=0):
         assert self.config.role == "local"
         if interactive:
             # Return a PTS object to interact with
-            return self.interactive_execute(cmd, env=env, verbose=True, timeout=timeout)
+            return self.interactive_execute(
+                cmd, env=env, verbose=True, timeout=timeout
+            )
         else:
             # Return an ExecuteResult named tuple
             return self.execute(cmd, env=env, verbose=True, timeout=timeout)
@@ -192,7 +208,9 @@ class ContainerBaseMachine:
         verbose = True
         if interactive:
             # Return a PTS object to interact with
-            return interactive_execute(self._container, cmd, env, verbose, timeout)
+            return interactive_execute(
+                self._container, cmd, env, verbose, timeout
+            )
         else:
             # Return an ExecuteResult named tuple
             return run_or_raise(self._container, cmd, env, verbose, timeout)
@@ -220,7 +238,7 @@ class ContainerBaseMachine:
         pass
 
     def start_user_session(self):
-        assert self.config.role in ("service", "local")
+        assert self.config.role in ("agent", "local")
         # Start a set of ubuntu-user-owned processes to fake an active GDM user
         # session (A virtual framebuffer and a pulseaudio server with a dummy
         # output)
@@ -264,37 +282,17 @@ class ContainerSourceMachine(ContainerBaseMachine):
 
     def _get_install_dependencies_cmds(self):
         # We need any pip version >20 because we use pyproject.toml
-        if self.config.alias in ["xenial", "bionic"]:
-            # Use <21 to get the latest 20 as 21+ is not supported here
-            return [
-                "bash -c 'sudo python3 -m pip install -U \"pip<21\"'",
-            ]
-        if self.config.alias not in ["focal", "jammy"]:
-            logger.warning("Unknown revision dependencies version, installing latest")
+        pip_version = (
+            '"pip<21"'
+            if self.config.alias in ["xenial", "bionic"]
+            else '"pip>20"'
+        )
         return [
-            "bash -c 'sudo python3 -m pip install -U \"pip>20\"'",
+            "bash -c 'sudo python3 -m pip install -U {}'".format(pip_version),
         ]
 
     def _get_install_source_cmds(self):
-        if self.config.alias in ["xenial", "bionic"]:
-            # pip<20 does not support editable install without a setup.py file
-            return [
-                (
-                    "bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
-                    'echo "from setuptools import setup; setup()" > setup.py;'
-                    "sudo python3 -m pip install -e .'"
-                ),
-                (
-                    "bash -c 'pushd /home/ubuntu/checkbox/checkbox-support ; "
-                    'echo "from setuptools import setup; setup()" > setup.py;'
-                    "sudo python3 -m pip install -e .'"
-                ),
-                # ensure these two are at the correct version to support xenial
-                "bash -c 'sudo python3 -m pip install importlib_metadata==1.0.0 \"zipp<2\"'",
-            ]
-        if self.config.alias not in ["focal", "jammy"]:
-            logger.warning("Unknown revision dependencies version, installing latest")
-        return [
+        commands = [
             (
                 "bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
                 "sudo python3 -m pip install -e .'"
@@ -304,6 +302,15 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 "sudo python3 -m pip install -e .'"
             ),
         ]
+        if self.config.alias == "xenial":
+            commands.append(
+                # ensure these two are at the correct version to support xenial
+                (
+                    "bash -c 'sudo python3 -m "
+                    'pip install importlib_metadata==1.0.0 "zipp<2"\''
+                )
+            )
+        return commands
 
     def _get_provider_setup_cmds(self):
         # This installs the providers. This is based on the fact
@@ -318,6 +325,11 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 "bash -c 'ls /home/ubuntu/checkbox/providers/*/manage.py"
                 "| xargs -I{} -n1 sudo python3 {} install'"
             ),
+            (
+                "bash -c 'sudo python3 "
+                "/home/ubuntu/checkbox/metabox/metabox/metabox-provider/manage.py "
+                "install'"
+            ),
         ]
 
     def get_early_setup(self):
@@ -330,7 +342,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
             + self._get_provider_setup_cmds()
         )
 
-        if self.config.role in ("remote", "service"):
+        if self.config.role in ("controller", "agent"):
             commands += [
                 "sudo bash -c 'systemctl daemon-reload'",
                 "sudo bash -c 'systemctl enable checkbox-ng.service --now'",
@@ -338,14 +350,15 @@ class ContainerSourceMachine(ContainerBaseMachine):
             service_content = textwrap.dedent(
                 """
                 [Unit]
-                Description=Checkbox Remote Service
+                Description=Checkbox Agent Service
                 Wants=network.target
 
                 [Service]
-                ExecStart=/usr/local/bin/checkbox-cli service
+                ExecStart=/usr/local/bin/checkbox-cli run-agent
                 SyslogIdentifier=checkbox-ng.service
                 Environment="XDG_CACHE_HOME=/var/cache/"
-                Restart=on-failure
+                Restart=always
+                RestartSec=1
                 TimeoutStopSec=30
                 Type=simple
 
@@ -353,9 +366,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 WantedBy=multi-user.target
                 """
             ).lstrip()
-            self.run_cmd(
-                "sudo mkdir -p '/usr/lib/systemd/system'"
-            )
+            self.run_cmd("sudo mkdir -p '/usr/lib/systemd/system'")
             self.put(
                 "/usr/lib/systemd/system/checkbox-ng.service",
                 service_content,
@@ -366,23 +377,25 @@ class ContainerSourceMachine(ContainerBaseMachine):
         return commands
 
     def start_service(self, force=False):
-        assert self.config.role in ("remote", "service")
+        assert self.config.role in ("controller", "agent")
         if force:
             return run_or_raise(
                 self._container, "sudo systemctl start checkbox-ng.service"
             )
 
     def stop_service(self):
-        assert self.config.role in ("remote", "service")
-        return run_or_raise(self._container, "sudo systemctl stop checkbox-ng.service")
+        assert self.config.role in ("controller", "agent")
+        return run_or_raise(
+            self._container, "sudo systemctl stop checkbox-ng.service"
+        )
 
     def reboot_service(self):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         verbose = True
         return run_or_raise(self._container, "sudo reboot", verbose)
 
     def is_service_active(self):
-        assert self.config.role in ("remote", "service")
+        assert self.config.role in ("controller", "agent")
         return (
             run_or_raise(
                 self._container, "systemctl is-active checkbox-ng.service"
@@ -403,7 +416,7 @@ class ContainerPPAMachine(ContainerBaseMachine):
     def get_early_setup(self):
         if self.config.setup:
             return []
-        if self.config.role == "remote":
+        if self.config.role == "controller":
             deb = "checkbox-ng"
         else:
             deb = "canonical-certification-client"
@@ -414,18 +427,20 @@ class ContainerPPAMachine(ContainerBaseMachine):
         ]
 
     def start_service(self, force=False):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         if force:
             return run_or_raise(
                 self._container, "sudo systemctl start checkbox-ng.service"
             )
 
     def stop_service(self):
-        assert self.config.role == "service"
-        return run_or_raise(self._container, "sudo systemctl stop checkbox-ng.service")
+        assert self.config.role == "agent"
+        return run_or_raise(
+            self._container, "sudo systemctl stop checkbox-ng.service"
+        )
 
     def is_service_active(self):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         return (
             run_or_raise(
                 self._container, "systemctl is-active checkbox-ng.service"
@@ -441,7 +456,7 @@ class ContainerSnapMachine(ContainerBaseMachine):
     """
 
     CHECKBOX_CORE_SNAP_MAP = {
-        "xenial": "checkbox",
+        "xenial": "checkbox16",
         "bionic": "checkbox18",
         "focal": "checkbox20",
         "jammy": "checkbox22",
@@ -461,7 +476,9 @@ class ContainerSnapMachine(ContainerBaseMachine):
     def get_file_transfer(self):
         file_tranfer_list = []
         if self.config.checkbox_core_snap.get("uri"):
-            core_filename = Path(self.config.checkbox_core_snap.get("uri")).expanduser()
+            core_filename = Path(
+                self.config.checkbox_core_snap.get("uri")
+            ).expanduser()
             self.core_dest = Path("/home", "ubuntu", core_filename.name)
             file_tranfer_list.append((core_filename, self.core_dest))
         if self.config.checkbox_snap.get("uri"):
@@ -469,6 +486,85 @@ class ContainerSnapMachine(ContainerBaseMachine):
             self.dest = Path("/home", "ubuntu", filename.name)
             file_tranfer_list.append((filename, self.dest))
         return file_tranfer_list
+
+    def get_early_dir_transfer(self):
+        provider_path = pkg_resources.resource_filename(
+            "metabox", "metabox-provider"
+        )
+        return [(provider_path, "/home/ubuntu/metabox-provider")]
+
+    def get_setup_overlay_fs(self):
+        """
+        Overlay here is used to put the metabox provider in the checkbox snap
+        This is done via a service that mounts an overlay fs on the
+        checkbox snap where we have installed the metabox provider
+        """
+        snap_runtime_name = self.CHECKBOX_CORE_SNAP_MAP[self.config.alias]
+        snap_runtime_loc = "/snap/{}/current".format(snap_runtime_name)
+
+        overlay_dir = "/home/ubuntu/.overlay"
+        work_dir = "/home/ubuntu/.work_overlay"
+        service_cmd = (
+            "/bin/mount -t overlay -o "
+            "lowerdir={snap_runtime_loc},upperdir={overlay_dir},workdir={work_dir} "
+            "overlayfs {snap_runtime_loc}"
+        ).format(
+            snap_runtime_loc=snap_runtime_loc,
+            overlay_dir=overlay_dir,
+            work_dir=work_dir,
+        )
+
+        service_content = (
+            textwrap.dedent(
+                """
+                [Unit]
+                Description=Checkbox Overlay Service
+                Wants=network.target
+                Before=snap.{name}.agent.service
+
+                [Service]
+                ExecStart={cmd}
+                SyslogIdentifier=overlay-checkbox.service
+                Restart=always
+                RestartSec=1
+                TimeoutStopSec=30
+                Type=simple
+
+                [Install]
+                WantedBy=multi-user.target
+                """
+            )
+            .lstrip()
+            .format(name=self._snap_name, cmd=service_cmd)
+        )
+        self.run_cmd("sudo mkdir -p '/usr/lib/systemd/system'")
+        self.run_cmd("sudo mkdir -p '{}'".format(overlay_dir))
+        self.run_cmd("sudo mkdir -p '{}'".format(work_dir))
+        self.put(
+            "/usr/lib/systemd/system/overlay-checkbox.service",
+            service_content,
+            uid=0,
+            gid=0,
+        )
+        install_metabox_provider = (
+            "sudo /snap/checkbox/current/bin/wrapper_local python3 "
+            "/home/ubuntu/metabox-provider/manage.py install "
+            "--layout=relocatable --prefix=/providers/metabox-provider "
+            "--root={snap_runtime_location}"
+        ).format(
+            snap_runtime_location=snap_runtime_loc,
+        )
+
+        cmds = [
+            "sudo systemctl daemon-reload",
+            "sudo systemctl enable overlay-checkbox.service --now",
+            install_metabox_provider,
+            "sudo systemctl restart snap.{}.agent.service".format(
+                self._snap_name
+            ),
+        ]
+
+        return cmds
 
     def get_early_setup(self):
         cmds = []
@@ -479,13 +575,17 @@ class ContainerSnapMachine(ContainerBaseMachine):
             else:
                 core_snap = self.CHECKBOX_CORE_SNAP_MAP[self.config.alias]
                 channel = f"latest/{self.config.checkbox_core_snap['risk']}"
-                cmds.append(f"sudo snap install {core_snap} --channel={channel}")
+                cmds.append(
+                    f"sudo snap install {core_snap} --channel={channel}"
+                )
         # Then install the checkbox snap
         confinement = "devmode"
         if self.config.origin == "classic-snap":
             confinement = "classic"
         if self.config.checkbox_snap.get("uri"):
-            cmds.append(f"sudo snap install {self.dest} --{confinement} --dangerous")
+            cmds.append(
+                f"sudo snap install {self.dest} --{confinement} --dangerous"
+            )
         else:
             try:
                 track_map = self.config.checkbox_snap["track_map"]
@@ -499,29 +599,38 @@ class ContainerSnapMachine(ContainerBaseMachine):
                     self._snap_name, channel, confinement
                 )
             )
+
+        cmds += self.get_setup_overlay_fs()
+
         return cmds
 
     def start_service(self, force=False):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         if force:
             return run_or_raise(
                 self._container,
-                "sudo systemctl start snap.{}.service.service".format(self._snap_name),
+                "sudo systemctl start snap.{}.agent.service".format(
+                    self._snap_name
+                ),
             )
 
     def stop_service(self):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         return run_or_raise(
             self._container,
-            "sudo systemctl stop snap.{}.service.service".format(self._snap_name),
+            "sudo systemctl stop snap.{}.agent.service".format(
+                self._snap_name
+            ),
         )
 
     def is_service_active(self):
-        assert self.config.role == "service"
+        assert self.config.role == "agent"
         return (
             run_or_raise(
                 self._container,
-                "systemctl is-active snap.{}.service.service".format(self._snap_name),
+                "systemctl is-active snap.{}.agent.service".format(
+                    self._snap_name
+                ),
             ).stdout
             == "active"
         )

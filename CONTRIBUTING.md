@@ -2,106 +2,192 @@
 
 ## Introduction
 
-This document provides the information needed to contribute to Checkbox
-and its providers.
+This document provides the information needed to contribute to Checkbox,
+its providers and its documentation.
 
 ## General recommendations
 
-Setup your editor of choice to run [autopep8] on save. This helps keep
-everything passing [flake8]. The code doesn’t have to be pylint-clean, but
+- Setup your editor of choice to run [autopep8] on save. This helps keep
+everything passing [flake8].
+- The code doesn’t have to be pylint-clean, but
 running [pylint] on your code may inform you about issues that could come up
 later in the review process.
 
 ## Testing
 
-### Hacking on Checkbox and/or its providers
+### Install Checkbox and its providers in a virtual environment
 
 If you want to hack on Checkbox or its providers, one method is to
 install everything you need in a Python virtual environment.
 
 Install the required tools:
 
-``` bash
-$ sudo apt install git python3-virtualenv
-```
+    $ sudo apt install git python3-virtualenv
 
 Prepare the development environment. If you are an external contributor and
 plan on submitting some changes, you will have to [fork the Checkbox repository
 first], and clone your own version locally. Otherwise:
 
-``` bash
-$ cd ~
-$ git clone git@github.com:canonical/checkbox.git
-```
+    $ cd ~
+    $ git clone git@github.com:canonical/checkbox.git
 
 Create and activate the Python virtual environment:
 
-``` bash
-$ cd ~/checkbox/checkbox-ng
-$ ./mk-venv
-$ . ~/checkbox-ng/venv/bin/activate
-```
+    $ cd ~/checkbox/checkbox-ng
+    $ ./mk-venv
+    $ . ~/checkbox/checkbox-ng/venv/bin/activate
 
 Activate the base providers in the virtual environment from within the virtual
 environment:
 
-``` bash
-(venv) $ cd ~/checkbox/providers/resource/
-(venv) $ ./manage.py develop -d $PROVIDERPATH
-(venv) $ cd ~/checkbox/providers/base
-(venv) $ ./manage.py develop -d $PROVIDERPATH
-```
+    (venv) $ cd ~/checkbox/providers/resource/
+    (venv) $ ./manage.py develop -d $PROVIDERPATH
+    (venv) $ cd ~/checkbox/providers/base
+    (venv) $ ./manage.py develop -d $PROVIDERPATH
 
 Install the Checkbox support library in the virtual environment:
 
-``` bash
-(venv) $ cd ~/checkbox/checkbox-support
-(venv) $ python3 -m pip install -e .
-```
+    (venv) $ cd ~/checkbox/checkbox-support
+    (venv) $ python3 -m pip install -e .
 
 You should now be able to run checkbox, select a test plan and run it:
 
-``` bash
-(venv) $ checkbox-cli
-```
-### Running/Testing checkbox remote
+    (venv) $ checkbox-cli
+
+### Running/Testing Checkbox Remote
 
 By default `checkbox-cli` runs locally. If you want to run the [remote version]
-you have to activate the `checkbox-cli service` on the Machine under test:
+you have to activate the `checkbox-cli run-agent` on the Machine under test:
 
-```bash
-(venv) # checkbox-cli service
-```
-> Note: Keep in mind that service has to be run as root and needs the 
+    (venv) # checkbox-cli run-agent
+
+> Note: Keep in mind that run-agent has to be run as root and needs the
 > virtual env, you may have to re-enable/activate it after a `sudo -s`
 
-Now you can run the remote command to connect to it:
-```bash
-(venv) $ checkbox-cli remote IP 
-```
+Now you can run the control command to connect to it:
 
-> Note: `service` and `remote` can both run on the same machine. 
-> in that situation, simply use `127.0.0.1`
+    (venv) $ checkbox-cli control IP
+
+> Note: `run-agent` and `control` can both run on the same machine.
+> in that situation, simply use `127.0.0.1` as the `IP`.
 
 ### Writing and running unit tests for Checkbox
 
-Writing unit tests for your code is strongly recommended. For functions with an
-easily defined input and output, use [doctest]. For more complex units of code
-use the standard [unittest library].
+Writing unit tests for your code is required. For functions with an easily
+defined input and output, use [doctest]. For more complex units of code, use
+the standard [unittest library].
 
 ### Validate the providers
 
-Ensure the job and test plan definitions follow the correct syntax using
-the `validate` command:
+Ensure the jobs and test plans definitions follow the correct syntax using
+the `validate` command. From one of the providers directory:
 
-    $ ./manage.py validate
+    (venv) $ ./manage.py validate
 
 ### Writing and running unit tests for providers
 
 Run checks for code quality of provider hosted scripts and any unit
-tests for providers:
+tests for providers. From one of the providers directory:
 
-    $ ./manage.py test
+    (venv) $ ./manage.py test
+
+Under the hood, this command will
+
+- check Shell scripts using [ShellCheck]
+- check Python code quality using [flake8]
+- run all the Python unit tests
+
+You can run each part separately. See `./manage.py test -h` for more
+information.
+
+If you only want to run one test script from the test suite, you have to
+point the `PYTHONPATH` environment variable to the provider's `bin/` directory,
+then go to the `tests/` directory and run the unit tests for your test file:
+
+    (venv) $ PYTHONPATH=~/checkbox/providers/base/bin python -m unittest <your_test_file.py>
+
+### Coverage
+
+In Checkbox we have a coverage requirement for new PRs. This is to ensure
+that new contributions do not add source paths that are not explored in testing
+and therefore easy to break down the line with any change.
+
+#### Collecting Coverage
+
+To collect your coverage and generate a coverage report, run the following:
+
+    $ python -m pip install coverage
+    # cd to the provider you want to test
+    $ python -m coverage run manage.py test -u
+    $ python -m coverage html
+
+You will get a nice HTML report you can use to visualize the test coverage for
+all the scripts in the provider.
+
+Note that every part of this repository has a `.coveragerc` file, they should
+already include anything you may want to see in the report. If something is
+missing you can edit it but please, consult with the team before doing so.
+Tests are intentionally excluded from the coverage report, this is because
+test files tend to inflate the coverage with no real benefit, so don't
+worry if you can not spot yours in the report.
+
+Of course, you may only be interested in the coverage of your patch (for
+example, if you change a file that has a very low coverage, we do not want
+you to take up the challenge of testing it all if you don't want to!). The
+easiest way to get this measurement is to open a new PR and connect it with
+your branch. The `codecov.io` Bot should comment on it as soon as the `tox`
+job relevant to your change is finished, giving you a handy report. Note
+that the bot will tell you what you should improve to meet the requirements,
+the constraints are listed in `codecov.yaml` in the repo root.
+
+#### Effective coverage
+
+Getting coverage right is not about having all lines in a source file executed.
+Coverage is more of a proxy measure of how much of your code behaviour does
+your test actually execute.
+
+Consider the following:
+
+```python
+def get_mod_status(a : int, b : int) -> str:
+    try:
+        if a % b == 0:
+            return "A is divisible by B"
+        return "A is not divisible by B"
+    except ZeroDivisionError:
+        return "B is 0"
+    except ValueError:
+        return "Unknown error"
+```
+
+To get 100% code coverage you may write the following tests:
+
+```python
+def test_nominal_ok_0(): assert get_mod_status(10, 2) == "A is divisible by B"
+def test_nominal_ok_1(): assert get_mod_status(10, 3) == "A is not divisible by B"
+def test_error_0(): assert get_mod_status(10, 0) == "B is 0"
+
+def test_error_1():
+    class error_mod:
+        def __mod__(self, other):
+            raise ValueError("Unknown error")
+    assert get_mod_status(error_mod(), 10) == "Unknown error"
+```
+
+This is not a very good test suite but we have reached 100% coverage. Notice
+that most of the function above is easily tested by the first
+three tests and covering the last two lines takes quite a lot of complexity.
+This is already an indicator that it may not be worth covering them.
+Now consider the fact that `a % b` is equivalent to
+`a - (a // b * b)` so they are interchangeable, but if we swap them in the
+implementation, the last test fails. What went wrong here is that to reach
+100% coverage we are giving up on testing the functionality and we are
+writing tests that mindlessly follow specific code path.
+
+Wrapping up, while preparing the tests for your PR use the coverage as an handy
+metric to guide you toward thoroughly tested code. **Do** try to cover all
+important behaviour of your code but **don't** add a lot of mocks and/or
+complexity to squeeze out just a little bit more coverage.
 
 ## Version control recommendations
 
@@ -154,7 +240,30 @@ been reviewed by others). Instead of creating new commits with these new
 modifications, it is preferred to use Git features such as [rebase] to rework
 your existing commits.
 
-## Merge requests
+## Pull requests
+
+### Signed commits required
+
+- To get your changes accepted, please [sign your commits]. This practice is
+enforced by many of the CI pipelines executed in the repository (pipelines
+which use Canonical's [github-runner-operator] operated runners).
+- If you have just discovered the requirement for signed commits after already
+creating a feature branch with unsigned commits, you can issue
+`git rebase --exec 'git commit --amend --no-edit -n -S' -i main` to sign them.
+To translate this into English:
+   - `git rebase --exec`: rebases commits
+   - `--exec '...'`: exec command `'...'` after each commit, creating a new commit
+   - `git commit --amend --no-edit`: amend a commit without changing its message
+      - `-n`: bypass pre-commit and commit-msg hooks
+      - `-S`: GPG sign commit
+      - `-i`: let the user see and edit the list of commits to rebase
+      - `main`: to all the commits until you reach main
+- To make commit signing convenient, as per [this SO thread], do the following:
+
+      git config --global user.signingkey <your-key-id>
+      git config --global commit.gpgSign true
+      git config --global tag.gpgSign true
+      git config --global push.gpgSign if-asked
 
 ### General workflow
 
@@ -200,6 +309,40 @@ the main branch of the main repository. Ask a member of the Checkbox team to do
 this. The branch should be then shortly automatically merged. The pull request
 status will then switch to “Merged”.
 
+## Documentation
+
+[Checkbox documentation] lives in the `docs/` directory and is deployed on
+[Read the Docs]. It is written using the [reStructuredText] format and built
+using [Sphinx].
+
+The documentation should follow the [style guide] in use for documentation
+at Canonical. Please refer to it when proposing a change.
+
+To install everything you need, go to the `docs/` directory and type:
+
+    make install
+
+This will create a virtual environment with all the tooling dedicated to
+output and validate the documentation.
+
+To get a live preview of the documentation, you can then run:
+
+    make run
+
+This will provide a link to a locally rendered version of the documentation
+that will be updated every time a file is modified.
+
+Finally, you can validate your changes with:
+
+    make spelling  # to make sure there is no typos
+    make linkcheck # to make sure there are no dead links
+    make woke      # to check for non-inclusive language
+
+***Note:*** Please make sure you wrap the text at 80 characters for easier
+review of the source files.
+
+Once all is good, you can submit your documentation change like any other
+changes using a pull request.
 
 [autopep8]: https://pypi.org/project/autopep8/
 [flake8]: https://flake8.pycqa.org/en/latest/
@@ -216,3 +359,12 @@ status will then switch to “Merged”.
 [fork the repository]: https://docs.github.com/en/get-started/quickstart/fork-a-repo
 [configure Git to sync your fork with the original repository.]: https://docs.github.com/en/get-started/quickstart/fork-a-repo#configuring-git-to-sync-your-fork-with-the-original-repository
 [Push your changes]: https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository
+[Checkbox documentation]: https://checkbox.readthedocs.io/
+[Read the Docs]: https://www.readthedocs.com/
+[reStructuredText]: https://docutils.sourceforge.io/rst.html
+[Sphinx]: https://www.sphinx-doc.org/
+[style guide]: https://docs.ubuntu.com/styleguide/en
+[ShellCheck]: https://www.shellcheck.net/
+[sign your commits]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits
+[github-runner-operator]: https://github.com/canonical/github-runner-operator
+[this SO thread]: https://stackoverflow.com/a/70484849/504931

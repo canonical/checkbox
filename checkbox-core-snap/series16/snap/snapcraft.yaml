@@ -54,7 +54,7 @@ slots:
 
 package-repositories:
   - type: apt
-    ppa: hardware-certification/public
+    ppa: checkbox-dev/stable
 
 parts:
   version-calculator:
@@ -66,13 +66,15 @@ parts:
       export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
       [ $version ] || exit 1
       snapcraftctl set-version $version
+    stage:
+      - version.txt
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
-    source-tag: "V23.07.00"
+    source-tag: "V23.09.00"
     source-depth: 1
     plugin: autotools
-    source: git://kernel.ubuntu.com/hwe/fwts
+    source: https://github.com/fwts/fwts.git
     stage-packages:
       - libfdt1
       - libbsd0
@@ -141,17 +143,24 @@ parts:
     source: checkbox-support
     source-type: local
     stage-packages:
+      - python3-dbus
+      - python3-dev
+      - python3-evdev
+      - python3-gi
+      - python3-natsort
       - python3-requests-unixsocket
-      - python3-systemd
+      - python3-serial
       - python3-setuptools
+      - python3-systemd
+      - python3-yaml
+      - pyotherside
       - libbluetooth3
-    python-packages:
-      - pynmea2
-      - pybluez
-    after: [acpi-tools]
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
+    after:
+      - version-calculator
+      - acpi-tools
     override-stage: |
       snapcraftctl stage
       # The oneliner below was required in 2019 to fix an upstream bug:
@@ -160,24 +169,23 @@ parts:
       # when running lsb_release on ubuntu core
       # The fix was finally released with the distro 1.6 release available as of
       # 22.04 (i.e base: core22)
-      sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' lib/python3.*/site-packages/**/**/distro.py
+      find -name distro.py | xargs sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g'
     override-pull: |
-      PYTHONHOME=/usr PYTHONUSERBASE=$SNAPCRAFT_PART_INSTALL $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install --upgrade 'pip; python_version >= "3.6"' 'pip<21; python_version < "3.6"' --user
       snapcraftctl pull
     build-packages:
+      - gcc
       - libbluetooth-dev
       - python3-dev
       - python3-pip
     override-build: |
-      # this is a bodge to be backward compatible
+      # we need a new version of pip and setuptools + dependencies
+      # these have an hardcoded version because we need a combination that is
+      # compatible with python 3.5.1 (note the `.1`)
+      /usr/bin/pip3 install --prefix $SNAPCRAFT_PART_INSTALL --upgrade "pip==20.3.4" "setuptools<48" "setuptools_scm[toml]==3.4.3" "importlib_metadata==1.0.0" "zipp<2" "pynmea2" "pybluez"
       snapcraftctl build
-      # also use build to ensure install (pip is not compinat to pyproject)
-      # on this version
-      echo "from setuptools import setup; setup()" > setup.py
-      python3 -m pip install "build<0.4" "setuptools>=42,<51" setuptools>=42 setuptools_scm[toml]>=3.4 --force-reinstall
-      python3 -m build --no-isolation -x
-      # also, call pip again, this installs the module itself
-      python3 -m pip install .
+      # install the dependencies of checkbox-support itself because this
+      # pip version  pyproject.toml dependencies
+      $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "pyparsing<3.0.0" "requests<2.26.0" "distro<1.7.0" "requests_unixsocket<=0.3.0" "importlib_metadata<=1.0.0"
 ################################################################################
   checkbox-ng:
     plugin: python
@@ -195,6 +203,7 @@ parts:
       - python3-urwid
       - python3-xlsxwriter
       - python3-setuptools
+      - python3-dev
     python-packages:
       - tqdm
     after: [checkbox-support]
@@ -202,15 +211,14 @@ parts:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     override-build: |
-      # this is a bodge to be backward compatible
+      # we need a new version of pip and setuptools + dependencies
+      # these have an hardcoded version because we need a combination that is
+      # compatible with python 3.5.1 (note the `.1`)
+      /usr/bin/pip3 install --prefix $SNAPCRAFT_PART_INSTALL --upgrade "pip==20.3.4" "setuptools<48" "setuptools_scm[toml]==3.4.3" "importlib_metadata==1.0.0" "zipp<2"
       snapcraftctl build
-      # also use build to ensure install (pip is not compinat to pyproject)
-      # on this version
-      echo "from setuptools import setup; setup()" > setup.py
-      python3 -m pip install "build<0.4" "setuptools>=42,<51" setuptools>=42 setuptools_scm[toml]>=3.4 --force-reinstall
-      python3 -m build --no-isolation -x
-      # also, call pip again, this installs the module itself
-      python3 -m pip install .
+      # install the dependencies of checkbox-support itself because this
+      # pip version  pyproject.toml dependencies
+      $SNAPCRAFT_PART_INSTALL/usr/bin/python3 -m pip install "packaging<21.0" "psutil<=5.9.5" "requests<2.26.0" "urwid<=2.1.2" "Jinja2<=2.11.3" "XlsxWriter<=3.0.3" "tqdm<4.65.0" "importlib_metadata<=1.0.0"
 ################################################################################
   checkbox-provider-resource:
     plugin: dump
@@ -222,11 +230,10 @@ parts:
       - dmidecode
       - libjson-xs-perl
       - pciutils
-      - python3-requests-unixsocket
       - smartmontools
     override-build: |
       cd src && autoreconf -i && cd -
-      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.5/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -244,7 +251,7 @@ parts:
     source: providers/base
     source-type: local
     override-build: |
-      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.5/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -296,14 +303,6 @@ parts:
       - parted
       - pciutils
       - pulseaudio-utils
-      - pyotherside
-      - python3-dbus
-      - python3-evdev
-      - python3-gi
-      - python3-natsort
-      - python3-psutil
-      - python3-serial
-      - python3-yaml
       - qml-module-qtquick-controls
       - qml-module-qtquick-layouts
       - qmlscene
@@ -326,7 +325,7 @@ parts:
     source: providers/docker
     source-type: local
     override-build: |
-      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.5/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -340,7 +339,7 @@ parts:
     source: providers/tpm2
     source-type: local
     override-build: |
-      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.5/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -352,7 +351,7 @@ parts:
     source: providers/sru
     source-type: local
     override-build: |
-      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.5/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -364,7 +363,7 @@ parts:
     source: providers/gpgpu
     source-type: local
     override-build: |
-      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.5/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -376,7 +375,7 @@ parts:
     source: providers/certification-client
     source-type: local
     override-build: |
-      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.5/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -388,7 +387,7 @@ parts:
     source: providers/certification-server
     source-type: local
     override-build: |
-      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.5/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
@@ -423,6 +422,17 @@ parts:
     organize:
       usr/lib/lib*.so: usr/lib/$SNAPCRAFT_ARCH_TRIPLET/
 ################################################################################
+  parts-meta-info:
+    plugin: nil
+    build-environment:
+      - RUNTIME_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
+    override-build: |
+      snapcraftctl build
+      echo "checkbox-runtime:" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+      echo "$RUNTIME_VERSION" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+    after: [checkbox-provider-certification-server]
+################################################################################
   common-config:
     plugin: dump
     source: config/
+    source-type: local

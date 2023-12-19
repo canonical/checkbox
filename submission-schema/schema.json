@@ -1,0 +1,984 @@
+{
+    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$id": "https://certification.canonical.com/checkbox-submission.json",
+    "description": "Output format for the Checkbox test framework (see more info at https://checkbox.readthedocs.io)",
+    "$ref": "#/definitions/Submission",
+    "definitions": {
+        "Submission": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "testplan_id": {
+                    "type": "string"
+                },
+                "custom_joblist": {
+                    "type": "boolean"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "packages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Package"
+                    }
+                },
+                "snap-packages": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/SnapPackage"
+                    }
+                },
+                "distribution": {
+                    "$ref": "#/definitions/Distribution"
+                },
+                "results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Result"
+                    }
+                },
+                "resource-results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Result"
+                    }
+                },
+                "attachment-results": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Result"
+                    }
+                },
+                "rejected-jobs": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/RejectedJob"
+                    }
+                },
+                "category_map": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "processor": {
+                    "$ref": "#/definitions/Processor"
+                },
+                "kernel-cmdline": {
+                    "type": "string"
+                },
+                "dkms_info": {
+                    "$ref": "#/definitions/DkmsInfo"
+                },
+                "devices": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Device"
+                    }
+                },
+                "raw-devices-dmi": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "additionalProperties": {
+                            "type": "string",
+                            "qt-uri-protocols": [
+                                "https"
+                            ]
+                        }
+                    }
+                },
+                "modprobe-info": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ModprobeInfo"
+                    }
+                },
+                "pci_subsystem_id": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "kernel": {
+                    "type": "string"
+                },
+                "architecture": {
+                    "$ref": "#/definitions/SubmissionArchitecture"
+                },
+                "memory": {
+                    "$ref": "#/definitions/Memory"
+                },
+                "buildstamp": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "attachment-results",
+                "category_map",
+                "custom_joblist",
+                "rejected-jobs",
+                "resource-results",
+                "results",
+                "title"
+            ],
+            "title": "Submission"
+        },
+        "Result": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "full_id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "certification_status": {
+                    "$ref": "#/definitions/CertificationStatus"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/Outcome"
+                },
+                "outcome": {
+                    "$ref": "#/definitions/Outcome"
+                },
+                "comments": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                },
+                "io_log": {
+                    "type": "string",
+                    "qt-uri-protocols": [
+                        "https"
+                    ]
+                },
+                "duration": {
+                    "type": "number"
+                },
+                "type": {
+                    "$ref": "#/definitions/AttachmentResultType"
+                },
+                "project": {
+                    "$ref": "#/definitions/Project"
+                },
+                "plugin": {
+                    "$ref": "#/definitions/Plugin"
+                }
+            },
+            "required": [
+                "category",
+                "category_id",
+                "certification_status",
+                "comments",
+                "duration",
+                "full_id",
+                "id",
+                "io_log",
+                "name",
+                "outcome",
+                "status"
+            ],
+            "title": "Result"
+        },
+        "Device": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "bus": {
+                    "$ref": "#/definitions/Bus"
+                },
+                "category": {
+                    "$ref": "#/definitions/Category"
+                },
+                "driver": {
+                    "type": "string"
+                },
+                "path": {
+                    "type": "string"
+                },
+                "product": {
+                    "type": "string"
+                },
+                "product_id": {
+                    "type": "integer"
+                },
+                "product_slug": {
+                    "type": "string"
+                },
+                "vendor": {
+                    "type": "string"
+                },
+                "vendor_slug": {
+                    "type": "string"
+                },
+                "subproduct_id": {
+                    "type": "integer"
+                },
+                "subvendor_id": {
+                    "type": "integer"
+                },
+                "vendor_id": {
+                    "type": "integer"
+                },
+                "interface": {
+                    "type": "string"
+                },
+                "mac": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "bus",
+                "path"
+            ],
+            "title": "Device"
+        },
+        "Distribution": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "codename": {
+                    "$ref": "#/definitions/OSCodename"
+                },
+                "description": {
+                    "$ref": "#/definitions/OSDescription"
+                },
+                "distributor_id": {
+                    "$ref": "#/definitions/OSDistributorID"
+                },
+                "release": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "codename",
+                "description",
+                "distributor_id",
+                "release"
+            ],
+            "title": "Distribution"
+        },
+        "DkmsInfo": {
+            "type": "object",
+            "additionalProperties": {
+                "$ref": "#/definitions/Dkms"
+            },
+            "title": "DkmsInfo",
+            "description": "Each key in this object is the name of a module, and stored against this key is information about the module"
+        },
+        "DkmsStatus": {
+            "type": "string",
+            "enum": [
+                "dkms",
+                "non-dkms"
+            ],
+            "title": "DkmsStatus"
+        },
+        "DkmsInstallMods": {
+            "type": "object",
+            "additionalProperties": true,
+            "title": "DkmsInstallMods"
+        },
+        "Dkms": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "arch": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "dkms-status": {
+                    "$ref": "#/definitions/DkmsStatus"
+                },
+                "dkms_name": {
+                    "type": "string"
+                },
+                "dkms_ver": {
+                    "type": "string"
+                },
+                "install_mods": {
+                    "$ref": "#/definitions/PackageList"
+                },
+                "kernel_ver": {
+                    "type": "string"
+                },
+                "mods": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "pkg": {
+                    "$ref": "#/definitions/DkmsPkg"
+                },
+                "pkg_name": {
+                    "$ref": "#/definitions/DkmsName"
+                }
+            },
+            "required": [
+                "arch",
+                "dkms-status",
+                "dkms_name",
+                "dkms_ver",
+                "install_mods",
+                "kernel_ver",
+                "mods",
+                "pkg",
+                "pkg_name"
+            ],
+            "title": "Dkms"
+        },
+        "DkmsPkg": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "architecture": {
+                    "$ref": "#/definitions/OSArchitecture"
+                },
+                "depends": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "homepage": {
+                    "type": "string",
+                    "format": "uri",
+                    "qt-uri-protocols": [
+                        "http"
+                    ]
+                },
+                "installed-size": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "maintainer": {
+                    "type": "string"
+                },
+                "package": {
+                    "$ref": "#/definitions/DkmsName"
+                },
+                "priority": {
+                    "$ref": "#/definitions/Priority"
+                },
+                "recommends": {
+                    "type": "string"
+                },
+                "section": {
+                    "$ref": "#/definitions/Section"
+                },
+                "source": {
+                    "$ref": "#/definitions/SourceEnum"
+                },
+                "status": {
+                    "$ref": "#/definitions/AmaroThirdPartyToolsStatus"
+                },
+                "version": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "architecture",
+                "depends",
+                "description",
+                "homepage",
+                "installed-size",
+                "maintainer",
+                "package",
+                "priority",
+                "recommends",
+                "section",
+                "source",
+                "status",
+                "version"
+            ],
+            "title": "DkmsPkg"
+        },
+        "Memory": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "swap": {
+                    "type": "integer"
+                },
+                "total": {
+                    "type": "integer"
+                }
+            },
+            "required": [
+                "swap",
+                "total"
+            ],
+            "title": "Memory"
+        },
+        "ModprobeInfo": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "module": {
+                    "$ref": "#/definitions/Module"
+                },
+                "options": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "module",
+                "options"
+            ],
+            "title": "ModprobeInfo"
+        },
+        "Package": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "version": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "name",
+                "version"
+            ],
+            "title": "Package"
+        },
+        "Processor": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "bogomips": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "cache": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "count": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "governors": {
+                    "$ref": "#/definitions/Governors"
+                },
+                "model": {
+                    "type": "string"
+                },
+                "model_number": {
+                    "$ref": "#/definitions/ModelNumber"
+                },
+                "model_revision": {
+                    "type": "string"
+                },
+                "model_version": {
+                    "type": "string"
+                },
+                "other": {
+                    "type": "string"
+                },
+                "platform": {
+                    "$ref": "#/definitions/Platform"
+                },
+                "scaling": {
+                    "$ref": "#/definitions/Scaling"
+                },
+                "speed": {
+                    "type": "string",
+                    "format": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/ProcessorType"
+                },
+                "cpu_lpi_file": {
+                    "$ref": "#/definitions/CPULPIFile"
+                },
+                "sys_lpi_file": {
+                    "$ref": "#/definitions/SysLPIFile"
+                }
+            },
+            "required": [
+                "bogomips",
+                "cache",
+                "count",
+                "governors",
+                "model",
+                "platform",
+                "scaling",
+                "speed",
+                "type"
+            ],
+            "title": "Processor"
+        },
+        "RejectedJob": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "full_id": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "full_id"
+            ],
+            "title": "RejectedJob"
+        },
+        "SnapPackage": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "confinement": {
+                    "$ref": "#/definitions/Confinement"
+                },
+                "developer": {
+                    "$ref": "#/definitions/Developer"
+                },
+                "devmode": {
+                    "$ref": "#/definitions/Devmode"
+                },
+                "install-date": {
+                    "type": "string",
+                    "format": "date-time"
+                },
+                "revision": {
+                    "$ref": "#/definitions/Revision"
+                },
+                "status": {
+                    "$ref": "#/definitions/SnapPackageStatus"
+                },
+                "type": {
+                    "$ref": "#/definitions/SnapPackageType"
+                },
+                "version": {
+                    "type": "string"
+                },
+                "channel": {
+                    "$ref": "#/definitions/Channel"
+                }
+            },
+            "required": [
+                "confinement",
+                "devmode",
+                "name",
+                "revision",
+                "status"
+            ],
+            "title": "SnapPackage"
+        },
+        "ModelNumber": {
+            "type": "string",
+            "title": "ModelNumber",
+            "description": "Model number (in either decimal or hexadecimal format)"
+        },
+        "Revision": {
+            "type": "string",
+            "title": "Revision",
+            "description": "Snap package revision"
+        },
+        "OSArchitecture": {
+            "type": "string",
+            "enum": [
+                "amd64",
+                "i386",
+                "s390x",
+                "armhf",
+                "ppc64el",
+                "arm64",
+                "riscv64"
+            ],
+            "title": "OSArchitecture"
+        },
+        "CertificationStatus": {
+            "type": "string",
+            "enum": [
+                "unspecified",
+                "non-blocker",
+                "blocker"
+            ],
+            "title": "CertificationStatus"
+        },
+        "Outcome": {
+            "type": "string",
+            "enum": [
+                "pass",
+                "fail",
+                "not-supported",
+                "crash",
+                "skip",
+                "undecided"
+            ],
+            "title": "Outcome"
+        },
+        "Plugin": {
+            "type": "string",
+            "enum": [
+                "shell",
+                "user-interact-verify",
+                "user-interact",
+                "manual"
+            ],
+            "title": "Plugin"
+        },
+        "Project": {
+            "type": "string",
+            "enum": [
+                "certification"
+            ],
+            "title": "Project"
+        },
+        "AttachmentResultType": {
+            "type": "string",
+            "enum": [
+                "test"
+            ],
+            "title": "AttachmentResultType"
+        },
+        "Bus": {
+            "type": "string",
+            "enum": [
+                "input",
+                "pnp",
+                "pci",
+                "scsi",
+                "usb",
+                "hid",
+                "power_supply",
+                "hidraw",
+                "sound",
+                "video4linux",
+                "tty",
+                "nvme",
+                "platform",
+                "net",
+                "mmc",
+                "watchdog",
+                "block",
+                "i2c",
+                "vchiq",
+                "infiniband",
+                "bluetooth",
+                "drm",
+                "mmc_rpmb",
+                "rc",
+                "sdio",
+                "serial",
+                "dmi",
+                "ccw",
+                "mtd",
+                "apex",
+                "nd",
+                "spi"
+            ],
+            "title": "Bus"
+        },
+        "Category": {
+            "type": "string",
+            "enum": [
+                "OTHER",
+                "NETWORK",
+                "SCSI",
+                "DISK",
+                "USB",
+                "KEYBOARD",
+                "MOUSE",
+                "VIDEO",
+                "IDE",
+                "CDROM",
+                "HIDRAW",
+                "AUDIO",
+                "CAPTURE",
+                "BLUETOOTH",
+                "CARDREADER",
+                "WIRELESS",
+                "TOUCHPAD",
+                "RAID",
+                "TOUCHSCREEN",
+                "WATCHDOG",
+                "WWAN",
+                "ACCELEROMETER",
+                "MMAL",
+                "FIREWIRE",
+                "CANBUS",
+                "SOCKETCAN",
+                "BMC_NETWORK",
+                "TPU",
+                "INFINIBAND"
+            ],
+            "title": "Category"
+        },
+        "OSCodename": {
+            "type": "string",
+            "title": "Codename",
+            "description": "OS release codename (the value matching `lsb_release -r`)"
+        },
+        "OSDescription": {
+            "type": "string",
+            "title": "Description",
+            "description": "OS release description (the value matching `lsb_release -d`)"
+        },
+        "OSDistributorID": {
+            "type": "string",
+            "title": "DistributorID",
+            "description": "OS release distributor ID (the value matching `lsb_release -i`)"
+        },
+        "PackageList": {
+            "type": "string",
+            "title": "PackageList",
+            "description": "List of packages"
+        },
+        "MultiArch": {
+            "type": "string",
+            "enum": [
+                "foreign"
+            ],
+            "title": "MultiArch"
+        },
+        "OriginalMaintainer": {
+            "type": "string",
+            "enum": [
+                "Jim Zhang <jim.zhang@fingerprints.com>",
+                "Boger.Wang <boger@goodix.com>",
+                "Evgeni Golov <evgeni@debian.org>"
+            ],
+            "title": "OriginalMaintainer",
+            "description": "Original maintainer in the 'Given Family <email@address.com>' form"
+        },
+        "Priority": {
+            "type": "string",
+            "enum": [
+                "optional",
+                "extra"
+            ],
+            "title": "Priority"
+        },
+        "Section": {
+            "type": "string",
+            "enum": [
+                "misc",
+                "kernel",
+                "admin",
+                "libs",
+                "non-free/libs",
+                "devel",
+                "metapackages",
+                "net"
+            ],
+            "title": "Section"
+        },
+        "Suggests": {
+            "type": "string",
+            "enum": [
+                "nvidia-settings, nvidia-prime (>= 0.8)",
+                "nvidia-driver-440"
+            ],
+            "title": "Suggests"
+        },
+        "Support": {
+            "type": "string",
+            "enum": [
+                "Legacy",
+                "LTSB",
+                "NFB",
+                "PB"
+            ],
+            "title": "Support"
+        },
+        "UbuntuOEMKernelFlavour": {
+            "type": "string",
+            "enum": [
+                "default",
+                "oem"
+            ],
+            "title": "UbuntuOEMKernelFlavour"
+        },
+        "Platform": {
+            "type": "string",
+            "enum": [
+                "x86_64",
+                "i386",
+                "s390x",
+                "armv7l",
+                "PowerNV",
+                "aarch64",
+                "riscv64"
+            ],
+            "title": "Platform"
+        },
+        "Breaks": {
+            "type": "string",
+            "enum": [
+                "nvidia-kernel-source-470 (<< 390.25-0ubuntu2~)",
+                "nvidia-kernel-source-515 (<< 390.25-0ubuntu2~)",
+                "nvidia-kernel-source-525 (<< 390.25-0ubuntu2~)",
+                "nvidia-kernel-source-535 (<< 390.25-0ubuntu2~)"
+            ],
+            "title": "Breaks"
+        },
+        "SourceEnum": {
+            "type": "string",
+            "enum": [
+                "fwts",
+                "iser",
+                "isert",
+                "kernel-mft",
+                "mlnx-ofed-kernel",
+                "nvidia-graphics-drivers-470",
+                "nvidia-peer-memory",
+                "oem-fix-cam-intel-mipi-ipu6",
+                "srp",
+                "mlnx-nfsrdma"
+            ],
+            "title": "SourceEnum"
+        },
+        "Source": {
+            "type": "string",
+            "enum": [
+                "knem",
+                "ipu6-camera-hal",
+                "libfprint-2-tod1-goodix",
+                "mlnx-nfsrdma",
+                "nvidia-graphics-drivers-390",
+                "nvidia-graphics-drivers-495",
+                "nvidia-graphics-drivers-510",
+                "nvidia-graphics-drivers-515",
+                "nvidia-graphics-drivers-525",
+                "nvidia-graphics-drivers-530",
+                "nvidia-graphics-drivers-535",
+                "nvidia-graphics-drivers-470",
+                "nvidia-graphics-drivers-470-server",
+                "rtl8821ce",
+                "tp-smapi"
+            ],
+            "title": "Source"
+        },
+        "Maintainer": {
+            "type": "string",
+            "enum": [
+                "Ubuntu Core Developers <ubuntu-devel-discuss@lists.ubuntu.com>"
+            ],
+            "title": "Maintainer"
+        },
+        "PkgName": {
+            "type": "string",
+            "title": "PkgName",
+            "description": "Package name"
+        },
+        "Module": {
+            "type": "string",
+            "title": "Module",
+            "description": "Module name"
+        },
+        "CPULPIFile": {
+            "type": "string",
+            "enum": [
+                "package_cstate_show",
+                "low_power_idle_cpu_residency_us"
+            ],
+            "title": "CPULPIFile"
+        },
+        "Governors": {
+            "type": "string",
+            "title": "Governors",
+            "description": "List of CPU governors as a whitespace separated list"
+        },
+        "Scaling": {
+            "type": "string",
+            "enum": [
+                "supported",
+                "non-supported"
+            ],
+            "title": "Scaling"
+        },
+        "SysLPIFile": {
+            "type": "string",
+            "enum": [
+                "slp_s0_residency_usec",
+                "low_power_idle_system_residency_us"
+            ],
+            "title": "SysLPIFile",
+            "description": "Low Power Idle table filename for the system (see https://www.kernel.org/doc/html/latest/firmware-guide/acpi/lpit.html for more information about LPI, an Intel specific property)"
+        },
+        "ProcessorType": {
+            "type": "string",
+            "title": "ProcessorType",
+            "description": "Type of the processor"
+        },
+        "Channel": {
+            "type": "string",
+            "title": "Channel"
+        },
+        "Confinement": {
+            "type": "string",
+            "enum": [
+                "strict",
+                "classic",
+                "devmode"
+            ],
+            "title": "Confinement"
+        },
+        "Developer": {
+            "type": "string",
+            "title": "Developer",
+            "description": ""
+        },
+        "Devmode": {
+            "type": "string",
+            "enum": [
+                "False",
+                "True"
+            ],
+            "title": "Devmode"
+        },
+        "SnapPackageStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "installed"
+            ],
+            "title": "SnapPackageStatus"
+        },
+        "SnapPackageType": {
+            "type": "string",
+            "enum": [
+                "base",
+                "app",
+                "snapd",
+                "os",
+                "gadget",
+                "kernel"
+            ],
+            "title": "SnapPackageType"
+        }
+    }
+}

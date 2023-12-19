@@ -25,6 +25,31 @@ from metabox.core.actions import AssertPrinted, Start, MkTree, Put
 from .config_files import environment
 
 
+class CheckboxConfEnvvarCaseSensitive(Scenario):
+    """
+    Check that environment variables are case sensitive
+    """
+    launcher = textwrap.dedent("""
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::config-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        [environment]
+        CASE = CASE
+        Case = Case
+        case = case
+        """)
+    steps = [
+        AssertPrinted("CASE"),
+        AssertPrinted("Case"),
+        AssertPrinted("case"),
+    ]
+
+
 class CheckboxConfXDG(Scenario):
     """
     Check that environment variables are read from the XDG directory when
@@ -238,12 +263,12 @@ class CheckboxConfLocalResolutionOrder(Scenario):
     ]
 
 
-class CheckboxConfRemoteServiceResolutionOrder(Scenario):
+class CheckboxConfRemoteAgentResolutionOrder(Scenario):
     """
     According to the documentation, when the Checkbox Remote starts, it looks
     for config files in the same places that local Checkbox session would look
-    (on the Service side). If the Remote uses a Launcher, then the values from
-    that Launcher take precedence over the values from configs on the Service
+    (on the Agent side). If the Remote uses a Launcher, then the values from
+    that Launcher take precedence over the values from configs on the Agent
     side.
 
     This scenario sets 3 environment variables in different config locations
@@ -266,10 +291,10 @@ class CheckboxConfRemoteServiceResolutionOrder(Scenario):
         """
     )
     steps = [
-        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="service"),
+        Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         MkTree("/root/.config", privileged=True),
         Put(
-            "/root/.config/checkbox.conf", checkbox_conf_home, target="service"
+            "/root/.config/checkbox.conf", checkbox_conf_home, target="agent"
         ),
         Start(),
         AssertPrinted("variables: HOME LAUNCHER XDG"),

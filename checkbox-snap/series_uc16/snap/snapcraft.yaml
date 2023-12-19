@@ -68,11 +68,12 @@ apps:
     plugs: *standard
   configure:
     command: bin/configure
-  service:
+  agent:
     command-chain: [bin/wrapper_local]
-    command: bin/checkbox-cli-wrapper service
+    command: bin/checkbox-cli-wrapper run-agent
     daemon: simple
-    restart-condition: on-failure
+    restart-condition: always
+    restart-delay: 1s
     plugs: *standard
   shell:
     command-chain: [bin/wrapper_local]

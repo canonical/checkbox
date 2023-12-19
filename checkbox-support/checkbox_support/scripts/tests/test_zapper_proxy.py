@@ -19,7 +19,11 @@
 from unittest import TestCase
 from unittest.mock import Mock, patch
 
-from checkbox_support.scripts.zapper_proxy import get_capabilities, zapper_run
+from checkbox_support.scripts.zapper_proxy import (
+    get_capabilities,
+    zapper_run,
+    main,
+)
 
 
 class ZapperProxyV1Tests(TestCase):
@@ -43,7 +47,6 @@ class ZapperProxyV1Tests(TestCase):
         result = zapper_run("0.0.0.0", "command", *args, **kwargs)
         self._mocked_conn.root.command.assert_called_once_with(*args, **kwargs)
         assert result == "test"
-        
 
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_zapper_run_wrong_cmd(self, import_mock):
@@ -56,6 +59,15 @@ class ZapperProxyV1Tests(TestCase):
             zapper_run("0.0.0.0", "command")
 
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
+    def test_zapper_run_missing_rpyc(self, import_mock):
+        """
+        Check if SystemExit is raised when RPyC cannot be imported.
+        """
+        import_mock.side_effect = ImportError
+        with self.assertRaises(SystemExit):
+            zapper_run("0.0.0.0", "command")
+
+    @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_zapper_run_service_error(self, import_mock):
         """
         Check if SystemExit is raised when an error occurs on Zapper service.
@@ -64,6 +76,7 @@ class ZapperProxyV1Tests(TestCase):
 
         class TestException(Exception):
             pass
+
         self._rpyc_mock.core.vinegar.GenericException = TestException
         self._mocked_conn.root.command.side_effect = TestException()
 
@@ -83,7 +96,6 @@ class ZapperProxyV1Tests(TestCase):
         with self.assertRaises(SystemExit):
             zapper_run("0.0.0.0", "command")
         assert self._rpyc_mock.connect.call_count == 2
-        
 
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_get_capabilities_one_cap(self, import_mock):
@@ -95,12 +107,26 @@ class ZapperProxyV1Tests(TestCase):
         """
         import_mock.return_value = self._rpyc_mock
 
-        ret_val = [{'foo': 'bar'}]
+        ret_val = [{"foo": "bar"}]
         self._mocked_conn.root.get_capabilities = Mock(return_value=ret_val)
 
-        with patch('builtins.print') as mocked_print:
+        with patch("builtins.print") as mocked_print:
             get_capabilities("0.0.0.0")
-            mocked_print.assert_called_once_with('foo: bar')
+            mocked_print.assert_called_once_with("foo: bar")
+
+    @patch("checkbox_support.scripts.zapper_proxy.import_module")
+    def test_get_capabilities_error(self, import_mock):
+        """
+        Check if get_capabilities prints nothing on error while
+        fetching capabilities.
+        """
+        import_mock.return_value = self._rpyc_mock
+
+        self._mocked_conn.root.get_capabilities.side_effect = AttributeError
+
+        with patch("builtins.print") as mocked_print:
+            get_capabilities("0.0.0.0")
+            mocked_print.assert_called_once_with("")
 
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_get_capabilities_empty(self, import_mock):
@@ -109,9 +135,9 @@ class ZapperProxyV1Tests(TestCase):
 
         ret_val = []
         self._mocked_conn.root.get_capabilities = Mock(return_value=ret_val)
-        with patch('builtins.print') as mocked_print:
+        with patch("builtins.print") as mocked_print:
             get_capabilities("0.0.0.0")
-            mocked_print.assert_called_once_with('')
+            mocked_print.assert_called_once_with("")
 
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_get_capabilities_multiple_caps(self, import_mock):
@@ -123,12 +149,12 @@ class ZapperProxyV1Tests(TestCase):
         """
         import_mock.return_value = self._rpyc_mock
 
-        ret_val = [{'foo': 'bar'}, {'baz': 'biz'}]
+        ret_val = [{"foo": "bar"}, {"baz": "biz"}]
         self._mocked_conn.root.get_capabilities = Mock(return_value=ret_val)
 
-        with patch('builtins.print') as mocked_print:
+        with patch("builtins.print") as mocked_print:
             get_capabilities("0.0.0.0")
-            mocked_print.assert_called_once_with('foo: bar\n\nbaz: biz')
+            mocked_print.assert_called_once_with("foo: bar\n\nbaz: biz")
 
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_get_capabilities_one_cap_multi_rows(self, import_mock):
@@ -140,9 +166,25 @@ class ZapperProxyV1Tests(TestCase):
         """
         import_mock.return_value = self._rpyc_mock
 
-        ret_val = [{'foo': 'bar', 'foo2': 'bar2'}]
+        ret_val = [{"foo": "bar", "foo2": "bar2"}]
         self._mocked_conn.root.get_capabilities = Mock(return_value=ret_val)
 
-        with patch('builtins.print') as mocked_print:
+        with patch("builtins.print") as mocked_print:
             get_capabilities("0.0.0.0")
-            mocked_print.assert_called_once_with('foo: bar\nfoo2: bar2')
+            mocked_print.assert_called_once_with("foo: bar\nfoo2: bar2")
+
+    @patch("checkbox_support.scripts.zapper_proxy.zapper_run")
+    def test_main_run(self, mock_run):
+        """
+        Check if main calls zapper_run with proper parameters.
+        """
+        main(["command", "arg1", "arg2", "--host", "myhost"])
+        mock_run.assert_called_once_with("myhost", "command", "arg1", "arg2")
+
+    @patch("checkbox_support.scripts.zapper_proxy.get_capabilities")
+    def test_main_capabilities(self, mock_cap):
+        """
+        Check if main calls get_capabilities with zapper host.
+        """
+        main(["get_capabilities", "arg1", "arg2", "--host", "myhost"])
+        mock_cap.assert_called_once_with("myhost")

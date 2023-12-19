@@ -1,0 +1,24 @@
+unit: test plan
+id: tutorial-base
+_name: Checkbox Base Tutorial Test Plan
+bootstrap_include:
+ tutorial_resources
+include:
+ tutorial/passing
+ tutorial/failing
+ tutorial/crashing
+ tutorial/passing_dependency
+ tutorial/failing_dependency
+ tutorial/has_resource
+ tutorial/no_resource
+ tutorial/environment_variable
+ tutorial/manual
+ tutorial/user-interact
+ tutorial/user-interact-verify
+
+unit: test plan
+id: tutorial-base-manifest
+_name: Checkbox Base Tutorial Test Plan (using manifest)
+include:
+ tutorial/passing
+ tutorial/manifest

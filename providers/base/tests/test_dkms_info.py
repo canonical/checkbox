@@ -21,10 +21,12 @@
 import io
 import unittest
 from unittest import mock
+from unittest.mock import patch, MagicMock
 
 import dkms_info
 
 
+@patch("logging.Logger.info", new=MagicMock())
 class SystemInfoTests(unittest.TestCase):
 
     """Tests for System Information Parsing and Collection."""
@@ -118,6 +120,7 @@ usb:v1D6Bp0003d0319dc09dsc00dp03ic09isc00ip00in00
                          matched_modalieses)
 
 
+@patch("logging.Logger.info", new=MagicMock())
 class DebianPackageHandlerTest(unittest.TestCase):
 
     """Test of DebianPackageHandler."""

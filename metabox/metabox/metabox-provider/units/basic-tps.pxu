@@ -44,3 +44,18 @@ _name: Checkbox Configuration Tests
 include:
  config-environ-source
  config-environ-vars
+ config-environ-case
+
+unit: test plan
+id: pass-and-fail
+_name: Pass and Fail
+include:
+ basic-shell-passing
+ basic-shell-failing
+
+unit: test plan
+id: pass-and-crash
+_name: Pass and Crash
+include:
+ basic-shell-passing
+ basic-shell-crashing

@@ -58,7 +58,7 @@ slots:
 
 package-repositories:
   - type: apt
-    ppa: hardware-certification/public
+    ppa: checkbox-dev/stable
 
 parts:
   version-calculator:
@@ -70,13 +70,15 @@ parts:
       export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
       [ $version ] || exit 1
       snapcraftctl set-version $version
+    stage:
+      - version.txt
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
-    source-tag: "V23.07.00"
+    source-tag: "V23.09.00"
     source-depth: 1
     plugin: autotools
-    source: git://kernel.ubuntu.com/hwe/fwts
+    source: https://github.com/fwts/fwts.git
     autotools-configure-parameters:
       - --prefix=/
     stage-packages:
@@ -184,8 +186,6 @@ parts:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     override-build: |
-      # this is a bodge to be backward compatible
-      echo "from setuptools import setup; setup();" > setup.py
       snapcraftctl build
 ################################################################################
   checkbox-ng:
@@ -230,8 +230,6 @@ parts:
       - READTHEDOCS: 'True' # simplifies picamera install
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     override-build: |
-      # this is a bodge to be backward compatible
-      echo "from setuptools import setup; setup();" > setup.py
       snapcraftctl build
 ################################################################################
   checkbox-provider-resource:
@@ -481,6 +479,16 @@ parts:
           # native build
           gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${SNAPCRAFT_PART_INSTALL}/bin/lk-boot-env
       fi
+################################################################################
+  parts-meta-info:
+    plugin: nil
+    build-environment:
+      - RUNTIME_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
+    override-build: |
+      snapcraftctl build
+      echo "checkbox-runtime:" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+      echo "$RUNTIME_VERSION" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+    after: [checkbox-provider-certification-server]
 ################################################################################
   common-config:
     plugin: dump

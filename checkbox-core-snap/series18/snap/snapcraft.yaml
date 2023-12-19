@@ -58,7 +58,7 @@ slots:
 
 package-repositories:
   - type: apt
-    ppa: hardware-certification/public
+    ppa: checkbox-dev/stable
 
 parts:
   version-calculator:
@@ -70,13 +70,15 @@ parts:
       export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
       [ $version ] || exit 1
       snapcraftctl set-version $version
+    stage:
+      - version.txt
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
-    source-tag: "V23.07.00"
+    source-tag: "V23.09.00"
     source-depth: 1
     plugin: autotools
-    source: git://kernel.ubuntu.com/hwe/fwts
+    source: https://github.com/fwts/fwts.git
     stage-packages:
       - libfdt1
       - libbsd0
@@ -173,10 +175,8 @@ parts:
       # when running lsb_release on ubuntu core
       # The fix was finally released with the distro 1.6 release available as of
       # 22.04 (i.e base: core22)
-      sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g' $SNAPCRAFT_STAGE/lib/python3.*/site-packages/**/**/distro.py
+      find -name distro.py | xargs sed -i 's|except OSError:  # Command not found|except subprocess.CalledProcessError:  # Command not found|g'
     override-build: |
-      # this is a bodge to be backward compatible
-      echo "from setuptools import setup; setup()" > setup.py
       snapcraftctl build
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version
@@ -204,8 +204,6 @@ parts:
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     after: [checkbox-support]
     override-build: |
-      # this is a bodge to be backward compatible
-      echo "from setuptools import setup; setup()" > setup.py
       snapcraftctl build
       # also use build to ensure install (pip is not compinat to pyproject)
       # on this version
@@ -498,6 +496,16 @@ parts:
       # https://github.com/tpm2-software/tpm2-tools/issues/908
       sed -i 's|LIBMARSHAL_CFLAGS = \\|LIBMARSHAL_CFLAGS = |g' Makefile.am
       sed -i 's|-DALG_ECMQV=1||g' Makefile.am
+################################################################################
+  parts-meta-info:
+    plugin: nil
+    build-environment:
+      - RUNTIME_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
+    override-build: |
+      snapcraftctl build
+      echo "checkbox-runtime:" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+      echo "$RUNTIME_VERSION" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+    after: [checkbox-provider-certification-server]
 ################################################################################
   common-config:
     plugin: dump

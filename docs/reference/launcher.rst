@@ -231,6 +231,8 @@ Note: To clear the exclude list use...
 ...in your 'last' config.
 
 
+.. _launcher_ui:
+
 User Interface section
 ======================
 

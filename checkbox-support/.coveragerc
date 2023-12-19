@@ -1,0 +1,22 @@
+[run]
+branch = True
+source = checkbox_support
+omit =
+    checkbox_support/tests/*
+    checkbox_support/vendor/*
+    checkbox_support/parsers/tests/*
+    checkbox_support/scripts/tests/*
+    checkbox_support/snap_utils/tests/*
+    checkbox_support/heuristics/tests/*
+
+[report]
+exclude_lines =
+    @abc.abstractmethod
+    @abc.abstractproperty
+    @abstractmethod
+    @abstractproperty
+    @public
+    pragma: no cover
+    raise NotImplementedError
+    if __name__ == .__main__.:
+show_missing = True

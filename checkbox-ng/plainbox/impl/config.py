@@ -40,6 +40,11 @@ class Configuration:
     For instance what reports to generate, should the session be interactive,
     and many others. Look at CONFIG_SPEC for details.
     """
+
+    DEPRECATED_SECTION_NAMES = {
+        "daemon": "agent"
+    }
+
     def __init__(self, source=None):
         """Create a new configuration object filled with default values."""
         self.sections = OrderedDict()
@@ -168,7 +173,7 @@ class Configuration:
                     self._origins[section] = dict()
             self.sections[section][name] = value
             self._origins[section][name] = origin
-        except TypeError:
+        except (TypeError, ValueError):
             problem = (
                 "Problem with setting field {} in section [{}] "
                 "'{}' cannot be used as {}. Origin: {}"
@@ -240,6 +245,9 @@ class Configuration:
         """
         cfg = Configuration(origin)
         parser = ConfigParser(delimiters="=")
+        # make the option names case sensitive
+        # else envvars are broken
+        parser.optionxform = str
         parser.read_string(ini_file.read())
         for sect_name, section in parser.items():
             if sect_name == "DEFAULT":
@@ -250,6 +258,14 @@ class Configuration:
                     ).format(var_name)
                     cfg.notice_problem(problem)
                 continue
+
+            if sect_name in cls.DEPRECATED_SECTION_NAMES:
+                current_name = cls.DEPRECATED_SECTION_NAMES[sect_name]
+                logger.warning(
+                    "Config: %s section name is deprecated. Use %s instead.",
+                    sect_name, current_name
+                )
+                sect_name = current_name
             if ":" in sect_name:
                 for var_name, var in section.items():
                     cfg.set_value(sect_name, var_name, var, origin)
@@ -407,7 +423,7 @@ CONFIG_SPEC = [
         },
     ),
     (
-        "daemon",
+        "agent",
         {
             "normal_user": VarSpec(
                 str, "", "Username to use for jobs that don't specify user."

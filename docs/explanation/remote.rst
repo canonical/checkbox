@@ -61,20 +61,13 @@ Examples:
 
   ``checkbox-cli control dut8.local --port 10101``
 
+.. _remote_session_control:
+
 Session control
 ===============
 
 While Controller is connected, sending ``SIGINT`` (pressing ``Ctrl-C``) to the
-application invokes the interrupt screen::
-
-      What do you want to interrupt?
-
-  (X) Nothing, continue testing (ESC)
-  ( ) Stop the test case in progress and move on to the next
-  ( ) Disconnect but let the test session continue (CTRL+C)
-  ( ) Exit and stop the Checkbox service on the agent at 127.0.0.1
-  ( ) End this test session preserving its data and launch a new one
-
+application invokes the interrupt screen which provides the following choices:
 
 Nothing, continue testing (ESC)
   As the name implies, it returns to the session. You can press the ``Esc`` key
@@ -83,19 +76,66 @@ Nothing, continue testing (ESC)
 Stop the test case in progress and move on to the next
   Skip current test case and move to the next.
 
-Disconnect but let the test session continue (CTRL+C)
-  Leaves the session on the Agent running, but let the Controller exit.
+Pause the test session and disconnect from the agent (CTRL+C)
+  Leave the session on the Agent running but let the Controller exit.
   Pressing ``Ctrl-C`` a second time will have the same effect. It is possible
   to reconnect to the Agent later on and resume the testing session.
 
 Exit and stop the Checkbox service on the agent at 127.0.0.1
-  Stops the session on and terminates the Checkbox process on the Agent. In
-  addition, stops the Controller.
+  Stop the current test session and terminate the Checkbox Agent. In
+  addition, stop the Controller.
 
 End this test session preserving its data and launch a new one
-  Stops the current session on the Agent and mark it so it is not possible to resume
-  it, then immediately starts a new one. The Controller will be greeted with
-  the test plan selection screen.
+  Stop the current session on the Agent and mark it so it is not possible to
+  resume it, then immediately start a new one. The Controller will be greeted
+  with the test plan selection screen unless a launcher was used to bypass the
+  selection screens, in which case a similar test session is immediately
+  started.
+
+
+Automatic session resume
+========================
+
+When the agent starts, it checks if there is a previous session that was not
+abandoned. If there is, and the session was a non-interactive one it resumes
+it. Otherwise, it waits for a Controller to connect and chose what to do.
+
+The outcome of the job that was last running before the session was
+interrupted is decided on the type of job it was running.
+
+The jobs marked with a ``noreturn`` flag are marked as passing, while other jobs
+are considered to have crashed (due to the interruption of the session like a
+reboot or a system stall).
+
+.. mermaid::
+
+  graph TD;
+
+  process("agent process starts")
+    load("load previous session")
+    resume("resume the previous session")
+    resume_crashed("resume the previous session")
+    interactive{"last session interactive?"}
+    mark_pass("mark last running job as passing")
+    mark_crash("mark last running job as crashing")
+    idle("go into idle state")
+    listen("listen for a controller")
+    process --> load
+    last_job{"last job ``noreturn``?"}
+    load -->last_job
+    last_job-->|yes| resume
+    resume --> mark_pass
+
+    last_job-->|no| interactive
+    interactive-->|yes| idle
+    idle --> listen
+    mark_pass --> listen
+
+    interactive-->|no| resume_crashed
+    resume_crashed --> mark_crash
+    mark_crash --> listen
+
+
 
 Remote session characteristics
 ==============================

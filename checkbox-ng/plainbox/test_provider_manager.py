@@ -240,7 +240,8 @@ class ProviderManagerToolTests(TestCase):
         """
         verify that ``sdist`` creates a proper tarball
         """
-        self.tool.main(["sdist"])
+        with mock.patch('subprocess.call'):
+            self.tool.main(["sdist"])
         tarball = os.path.join(
             self.tmpdir, "dist", "com.example.test-1.0.tar.gz")
         self.assertTarballContent(
@@ -259,7 +260,8 @@ class ProviderManagerToolTests(TestCase):
         even if some files are missing
         """
         shutil.rmtree(os.path.join(self.tmpdir, "jobs"))
-        self.tool.main(["sdist"])
+        with mock.patch('subprocess.call'):
+            self.tool.main(["sdist"])
         tarball = os.path.join(
             self.tmpdir, "dist", "com.example.test-1.0.tar.gz")
         self.assertNoTarballContent(

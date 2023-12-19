@@ -691,7 +691,7 @@ command:
   diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend_30_cycles
 
 id: audio/detect-playback-devices
-_summary: Check that at least one audio playback device exits
+_summary: Check that at least one audio playback device exists
 plugin: shell
 category_id: com.canonical.plainbox::audio
 flags: also-after-suspend
@@ -699,12 +699,12 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_audio_playback == 'True'
 command:
- COUNT=$(alsa_pcm_info.py | grep -c Playback)
- echo "Count: $COUNT"
- if [ "$COUNT" -eq 0 ]; then
-  exit 1
- fi
-estimated_duration: 1s
+  COUNT=$(audio_card_resource.py | grep -c 'playback: supported')
+  echo "Count: $COUNT"
+  if [ "$COUNT" -eq 0 ]; then
+    exit 1
+  fi
+estimated_duration: 0.5
 
 id: audio/detect-capture-devices
 _summary: Check that at least one audio capture device exists
@@ -715,12 +715,12 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_audio_capture == 'True'
 command:
- COUNT=$(alsa_pcm_info.py | grep -c Capture)
- echo "Count: $COUNT"
- if [ "$COUNT" -eq 0 ]; then
-   exit 1
- fi
-esimated_duration: 1s
+  COUNT=$(audio_card_resource.py | grep -c 'capture: supported')
+  echo "Count: $COUNT"
+  if [ "$COUNT" -eq 0 ]; then
+    exit 1
+  fi
+esimated_duration: 0.5
 
 id: audio/alsa-playback
 _summary: Playback works

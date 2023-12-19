@@ -31,7 +31,6 @@ include:
     firmware/fwts_uefirtvariable.*                 certification-status=blocker
     miscellanea/oops                               certification-status=blocker
     miscellanea/oops_results.log
-    miscellanea/fan_stress_reaction
     miscellanea/debsums                            certification-status=blocker
     miscellanea/check_prerelease                   certification-status=blocker
     miscellanea/ubuntu-desktop-recommends          certification-status=blocker

@@ -19,7 +19,7 @@
 import os
 import unittest
 from unittest import mock
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 import sys
 
 import recovery_info
@@ -96,6 +96,7 @@ class MountedPartitionTests(unittest.TestCase):
                        universal_newlines=True)])
 
 
+@patch("builtins.print", new=MagicMock())
 class RecoveryInfoTests(unittest.TestCase):
 
     """Tests for RecoveryInfo."""

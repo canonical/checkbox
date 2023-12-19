@@ -271,7 +271,9 @@ class Launcher(MainLoopStage, ReportsStage):
                         break
             self._export_results()
             ctx.sa.finalize_session()
-            return 0 if ctx.sa.get_summary()["fail"] == 0 else 1
+            failed = ctx.sa.get_summary()["fail"] != 0
+            crashed = ctx.sa.get_summary()["crash"] != 0
+            return 0 if not failed and not crashed else 1
         except KeyboardInterrupt:
             return 1
 
@@ -290,10 +292,10 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def _configure_restart(self, ctx):
         try:
-            strategy = detect_restart_strategy(session_type="local")
+            _ = detect_restart_strategy(session_type="local")
         except LookupError as exc:
             _logger.warning(exc)
-            _logger.warning(_("Automatic restart disabled!"))
+            _logger.warning(gettext.gettext("Automatic restart disabled!"))
             return
 
         snap_name = os.getenv("SNAP_NAME")
@@ -308,8 +310,13 @@ class Launcher(MainLoopStage, ReportsStage):
         if ctx.args.launcher:
             respawn_cmd.append(os.path.abspath(ctx.args.launcher))
         respawn_cmd.append("--resume")
+        def join_cmd(args):
+            try:
+                return shlex.join(args)
+            except AttributeError:
+                return " ".join(shlex.quote(x) for x in args)
         ctx.sa.configure_application_restart(
-            lambda session_id: [shlex.join(respawn_cmd.append(session_id))]
+            lambda session_id: [join_cmd(respawn_cmd + [session_id])]
         )
 
     def _maybe_resume_session(self):
@@ -384,7 +391,7 @@ class Launcher(MainLoopStage, ReportsStage):
             title += " {}".format(app_version)
         runner_kwargs = {
             "normal_user_provider": lambda: self.configuration.get_value(
-                "daemon", "normal_user"
+                "agent", "normal_user"
             ),
             "password_provider": sudo_password_provider.get_sudo_password,
             "stdin": None,

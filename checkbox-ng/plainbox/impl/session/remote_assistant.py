@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2018 Canonical Ltd.
+# Copyright 2018-2023 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #
@@ -86,7 +86,7 @@ class BufferedUI(SilentUI):
             try:
                 self._output.write(stream_name + line.decode("UTF-8"))
             except UnicodeDecodeError:
-                # Don't start a slave->master transfer for binary attachments
+                # Don't start a agent->controller transfer for binary attachments
                 self._output.write("hidden(Hiding binary test output)\n")
                 self.got_program_output = self._ignore_program_output
 
@@ -154,7 +154,7 @@ class RemoteSessionAssistant:
         self._input_piping = os.pipe()
         self._passwordless_sudo = is_passwordless_sudo()
         self.terminate_cb = None
-        self._pipe_from_master = open(self._input_piping[1], "w")
+        self._pipe_from_controller = open(self._input_piping[1], "w")
         self._pipe_to_subproc = open(self._input_piping[0])
         self._reset_sa()
         self._currently_running_job = None
@@ -162,7 +162,7 @@ class RemoteSessionAssistant:
     def _reset_sa(self):
         _logger.info("Resetting RSA")
         self._state = Idle
-        self._sa = SessionAssistant("service", api_flags={SA_RESTARTABLE})
+        self._sa = SessionAssistant()
         self._be = None
         self._session_id = ""
         self._jobs_count = 0
@@ -292,7 +292,8 @@ class RemoteSessionAssistant:
                 configuration["launcher"], "Remote launcher"
             )
             self._launcher.update_from_another(
-                launcher_from_controller, "Remote launcher")
+                launcher_from_controller, "Remote launcher"
+            )
             session_title = (
                 self._launcher.get_value("launcher", "session_title")
                 or session_title
@@ -303,7 +304,7 @@ class RemoteSessionAssistant:
             )
 
         self._sa.use_alternate_configuration(self._launcher)
-        self._normal_user = self._launcher.get_value("daemon", "normal_user")
+        self._normal_user = self._launcher.get_value("agent", "normal_user")
         if self._normal_user:
             if not check_user_exists(self._normal_user):
                 raise RuntimeError(
@@ -326,8 +327,6 @@ class RemoteSessionAssistant:
             }
         ).encode("UTF-8")
         self._sa.update_app_blob(new_blob)
-        self._sa.configure_application_restart(self._cmd_callback)
-
         self._session_id = self._sa.get_session_id()
         tps = self._sa.get_test_plans()
         filtered_tps = set()
@@ -358,7 +357,7 @@ class RemoteSessionAssistant:
         self._sa.select_test_plan(test_plan_id)
         # TODO: REMOTE API RAPI: Change this API on the next RAPI bump
         # previously the function returned bool signifying the need for sudo
-        # password. With slave being guaranteed to never need it anymor
+        # password. With agent being guaranteed to never need it anymor
         # we can make this funciton return nothing
         return False
 
@@ -596,7 +595,16 @@ class RemoteSessionAssistant:
             # it is already determined
             return
         if not result:
-            result = self._be.wait().get_result()
+            if not self._be or not self._be.wait():
+                # the job is considered done and there's no background
+                # executor, because the job was auto-passed from the session
+                # resume mechanism after a no-return job has been run
+                result = result_builder = JobResultBuilder(
+                    outcome=IJobResult.OUTCOME_PASS,
+                    comments="Automatically passed while resuming",
+                ).get_result()
+            else:
+                result = self._be.wait().get_result()
         self._sa.use_job_result(self._currently_running_job, result)
         if self._state != Bootstrapping:
             if not self._sa.get_dynamic_todo_list():
@@ -693,12 +701,13 @@ class RemoteSessionAssistant:
             app_blob["launcher"], "Remote launcher"
         )
         self._launcher.update_from_another(
-            launcher_from_controller, "Remote launcher")
+            launcher_from_controller, "Remote launcher"
+        )
         self._sa.use_alternate_configuration(self._launcher)
 
         self._normal_user = app_blob.get(
             "effective_normal_user",
-            self._launcher.get_value("daemon", "normal_user"),
+            self._launcher.get_value("agent", "normal_user"),
         )
         _logger.info(
             "normal_user after loading metadata: %r", self._normal_user
@@ -731,6 +740,14 @@ class RemoteSessionAssistant:
                         result_dict["outcome"] = IJobResult.OUTCOME_PASS
             except json.JSONDecodeError:
                 pass
+        else:
+            the_job = self._sa.get_job(self._last_job)
+            if the_job.plugin == "shell":
+                if "noreturn" in the_job.get_flag_set():
+                    result_dict["outcome"] = IJobResult.OUTCOME_PASS
+                else:
+                    result_dict["outcome"] = IJobResult.OUTCOME_CRASH
+
         result = MemoryJobResult(result_dict)
         if self._last_job:
             try:
@@ -757,10 +774,10 @@ class RemoteSessionAssistant:
 
     def transmit_input(self, text):
         if not text:
-            self._pipe_from_master.close()
+            self._pipe_from_controller.close()
             return
-        self._pipe_from_master.write(text)
-        self._pipe_from_master.flush()
+        self._pipe_from_controller.write(text)
+        self._pipe_from_controller.flush()
 
     def send_signal(self, signal):
         if not self._currently_running_job:
@@ -775,7 +792,7 @@ class RemoteSessionAssistant:
     @property
     def passwordless_sudo(self):
         # TODO: REMOTE API RAPI: Remove this API on the next RAPI bump
-        # if the slave is still running it means it's very passwordless
+        # if the agent is still running it means it's very passwordless
         return True
 
     @property

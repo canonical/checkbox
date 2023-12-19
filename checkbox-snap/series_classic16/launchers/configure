@@ -13,9 +13,12 @@ sys.path.append(os.path.expandvars("$SNAP/usr/lib/python3/dist-packages"))
 sitepkgpath = "$SNAP/lib/python3.5/site-packages"
 sys.path.append(os.path.expandvars(sitepkgpath))
 
-sys.path.append(os.path.expandvars(
-    "/snap/checkbox/current/usr/lib/python3/dist-packages"))
-runtimepath = "/snap/checkbox/current/lib/python3.5/site-packages"
+sys.path.append(
+    os.path.expandvars(
+        "/snap/checkbox16/current/usr/lib/python3/dist-packages"
+    )
+)
+runtimepath = "/snap/checkbox16/current/lib/python3.5/site-packages"
 sys.path.append(os.path.expandvars(runtimepath))
 
 try:
@@ -35,24 +38,26 @@ snap install checkbox16
 def main():
     # we need run as root to be able to write to /var/snap/...
     if os.geteuid() != 0:
-        print('You have to run this command with sudo')
+        print("You have to run this command with sudo")
         return
 
-    if len(sys.argv) > 1 and sys.argv[1] == '-l':
+    if len(sys.argv) > 1 and sys.argv[1] == "-l":
         print_checkbox_conf()
         return
 
     key_re = re.compile(r"^(?:[A-Z0-9]+_?)*[A-Z](?:_?[A-Z0-9])*$")
     vars_to_set = dict()
     for pair in sys.argv[1:]:
-        k, _, v = pair.partition('=')
+        k, _, v = pair.partition("=")
         if not key_re.match(k) or not v:
-            raise SystemExit("'%s' is not a valid configuration entry. "
-                             "Should be KEY=val" % pair)
-        k = k.replace('_', '-').lower()
+            raise SystemExit(
+                "'%s' is not a valid configuration entry. "
+                "Should be KEY=val" % pair
+            )
+        k = k.replace("_", "-").lower()
         vars_to_set[k] = v
     update_configuration(vars_to_set)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

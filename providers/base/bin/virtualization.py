@@ -847,7 +847,7 @@ class LXDTest_vm(object):
 
     def start_vm(self):
         """
-        Creates an lxd virtutal machine and performs the test
+        Creates an lxd virtual machine and performs the test
         """
         wait_interval = 5
         test_interval = 300
@@ -886,7 +886,7 @@ class LXDTest_vm(object):
             time.sleep(wait_interval)
             cmd = ("lxc exec {} -- lsb_release -a".format(self.name))
             if self.run_command(cmd):
-                print("Vm started and booted succefully")
+                print("Vm started and booted successfully")
                 return True
             else:
                 logging.debug("Re-verify VM booted")
@@ -920,7 +920,7 @@ def test_lxd_vm(args):
     result = lxd_test.start_vm()
     lxd_test.cleanup()
     if result:
-        print("PASS: Virtual Machine was succssfully started and checked")
+        print("PASS: Virtual Machine was successfully started and checked")
         sys.exit(0)
     else:
         print("FAIL: Virtual Machine was not started and checked")

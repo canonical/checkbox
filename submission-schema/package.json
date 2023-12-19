@@ -1,0 +1,24 @@
+{
+  "name": "checkbox-submission-json-schema-generator",
+  "version": "0.0.1",
+  "description": "Checkbox submission data JSON schema generator",
+  "main": "index.js",
+  "scripts": {
+    "generate-schema-from-input-jsons": "quicktype --lang json-schema --out schema-from-qt.json --src-lang json ../jsons/*.json",
+    "generate-python-types-from-schema": "quicktype --src-lang json-schema -s schema.json -o submission_from_schema.py",
+    "generate-python-types-from-input-jsons": "quicktype --lang python --out submission.py --src-lang json ../jsons/*.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/canonical/checkbox.git"
+  },
+  "author": "Maciej Kisiliewski <maciej.kisiliewski@canonical.com>",
+  "license": "GPL",
+  "bugs": {
+    "url": "https://github.com/canonical/checkbox/issues"
+  },
+  "homepage": "https://github.com/canonical/checkbox#readme",
+  "dependencies": {
+    "quicktype": "^23.0.76"
+  }
+}

@@ -51,6 +51,10 @@ slots:
     interface: content
     read:
       - $SNAP/providers/checkbox-provider-certification-server
+  provider-tutorial:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-tutorial
   checkbox-runtime:
     interface: content
     read:
@@ -58,7 +62,7 @@ slots:
 
 package-repositories:
   - type: apt
-    ppa: hardware-certification/public
+    ppa: checkbox-dev/stable
 
 parts:
   version-calculator:
@@ -70,13 +74,15 @@ parts:
       export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
       [ $version ] || exit 1
       snapcraftctl set-version $version
+    stage:
+      - version.txt
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
-    source-tag: "V23.07.00"
+    source-tag: "V23.09.00"
     source-depth: 1
     plugin: autotools
-    source: git://kernel.ubuntu.com/hwe/fwts
+    source: https://github.com/fwts/fwts.git
     autotools-configure-parameters:
       - --prefix=/
     stage-packages:
@@ -184,8 +190,6 @@ parts:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     override-build: |
-      # this is a bodge to be backward compatible
-      echo "from setuptools import setup; setup();" > setup.py
       snapcraftctl build
 ################################################################################
   checkbox-ng:
@@ -230,8 +234,6 @@ parts:
       - READTHEDOCS: 'True' # simplifies picamera install
       - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
     override-build: |
-      # this is a bodge to be backward compatible
-      echo "from setuptools import setup; setup();" > setup.py
       snapcraftctl build
 ################################################################################
   checkbox-provider-resource:
@@ -271,6 +273,12 @@ parts:
       python3 manage.py validate
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-base --root="$SNAPCRAFT_PART_INSTALL"
+      # Strip the executable stack bit on libde265.so.0.1.1
+      # Only armhf requires this modification, arm64 and amd64 both pass the
+      # automated store validation (i.e review-tools.snap-review)
+      if [ $SNAPCRAFT_TARGET_ARCH = "armhf" ]; then
+        execstack --clear-execstack $SNAPCRAFT_PART_INSTALL/usr/lib/*/libde265.so.0.1.1
+      fi
     stage-packages:
       - bc
       - bluez-tests
@@ -304,6 +312,7 @@ parts:
       - libasound2
       - libcap2-bin
       - libfdt1
+      - libsvm3
       - lsb-release
       - lshw
       - mesa-utils
@@ -321,6 +330,7 @@ parts:
       - python3-evdev
       - python3-gi
       - python3-natsort
+      - python3-opencv
       - python3-pil
       - python3-psutil
       - python3-pyqrcode
@@ -342,6 +352,7 @@ parts:
       - on arm64:
         - python3-rpi.gpio # only in focal
     build-packages:
+      - execstack
       - libasound2-dev
       - libcap-dev
     organize:
@@ -437,6 +448,18 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-certification-server --root="$SNAPCRAFT_PART_INSTALL"
     after: [checkbox-provider-certification-client]
 ################################################################################
+  checkbox-provider-tutorial:
+    plugin: dump
+    source: providers/tutorial
+    source-type: local
+    override-build: |
+      export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.10/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-tutorial --root="$SNAPCRAFT_PART_INSTALL"
+    after: [checkbox-provider-base]
+################################################################################
   gnome-randr:
     source: https://github.com/maxwellainatchi/gnome-randr-rust.git
     plugin: rust
@@ -496,6 +519,16 @@ parts:
           # native build
           gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${SNAPCRAFT_PART_INSTALL}/bin/lk-boot-env
       fi
+################################################################################
+  parts-meta-info:
+    plugin: nil
+    build-environment:
+      - RUNTIME_VERSION: "$(cat $SNAPCRAFT_STAGE/version.txt)"
+    override-build: |
+      snapcraftctl build
+      echo "checkbox-runtime:" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+      echo "$RUNTIME_VERSION" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+    after: [checkbox-provider-certification-server]
 ################################################################################
   common-config:
     plugin: dump

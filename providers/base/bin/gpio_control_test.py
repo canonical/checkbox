@@ -181,11 +181,29 @@ def blinking_test(args):
         led_controller.blinking(args.duration, args.interval)
 
 
+def dump_gpiochip(args):
+    gpio_debug_path = "/sys/kernel/debug/gpio"
+
+    gpio_debug = Path(gpio_debug_path)
+    if gpio_debug.exists():
+        print(gpio_debug.read_text())
+    else:
+        raise FileNotFoundError("{} file not exists".format(str(gpio_debug)))
+
+
 def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description='GPIO Control Tests')
-    sub_parsers = parser.add_subparsers(help="GPIO test type")
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Turn on debug level output for extra info during test run.",
+    )
+
+    sub_parsers = parser.add_subparsers(
+        help="GPIO test type", dest="test_func", required=True)
+
     gpio_led_parser = sub_parsers.add_parser("led")
     gpio_led_parser.add_argument(
         "-n", "--name",
@@ -217,12 +235,10 @@ def register_arguments():
         action="store_true",
         default=False
     )
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Turn on debug level output for extra info during test run.",
-    )
     gpio_led_parser.set_defaults(test_func=blinking_test)
+
+    gpio_dump_parser = sub_parsers.add_parser("dump")
+    gpio_dump_parser.set_defaults(test_func=dump_gpiochip)
 
     args = parser.parse_args()
     return args
@@ -230,6 +246,7 @@ def register_arguments():
 
 def main():
     args = register_arguments()
+    print(args)
     logger = init_logger()
     if args.debug:
         logger.setLevel(logging.DEBUG)

@@ -27,31 +27,25 @@ Launcher can specify external file(s) to load values from.
     Beginning of the configuration section.
 
 ``config_filename``
-    Name of the configuration file to look for. Default value: ``checkbox.conf``
+    Name of the configuration file to look for. The value may be a file name or an absolute path, and may use environment variables. If no directory is specified, the default directories where the file will be searched for are ``/etc/xdg/`` and ``~/.config/``.
 
-The directories that will be searched for the file are ``/etc/xdg/`` and
-``~/.config/``.
+    Default value: ``checkbox.conf``
 
-Example::
+Examples::
 
+    # Looks for ``/etc/xdg/testing.conf`` and ``~/.config/testing.conf``
     [config]
     config_filename = testing.conf
 
-This will make checkbox look for ``/etc/xdg/testing.conf`` and
-``~/config/testing.conf`` files.
-
-The ``config_filename`` may be an absolute path, and may use environment
-variables
-
-Example::
-
+    # Use an environment variable
     [config]
     config_filename = $MYCONFIGS/testing.conf
 
+    # Use an absolute path
     [config]
     config_filename = /home/ubuntu/next-testing.conf
 
-For more details about value resolution order see :doc:`configs <../explanation/configs>`
+For more details about value resolution order, see :doc:`../explanation/configs`.
 
 Launcher meta-information
 =========================
@@ -605,7 +599,7 @@ The launcher
     delay_before_retry = 15
 
 
-The launcher configuration ``laucher.conf``
+The launcher configuration ``launcher.conf``
 
 ::
 

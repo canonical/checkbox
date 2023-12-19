@@ -24,12 +24,10 @@ External configuration files
 Launcher can specify external file(s) to load values from.
 
 ``[config]``
-
-Beginning of the configuration section.
+    Beginning of the configuration section.
 
 ``config_filename``
-
-Name of the configuration file to look for. Default value: ``checkbox.conf``
+    Name of the configuration file to look for. Default value: ``checkbox.conf``
 
 The directories that will be searched for the file are ``/etc/xdg/`` and
 ``~/.config/``.
@@ -62,72 +60,63 @@ Launcher meta-information helps to provide consistent checkbox behavior in the
 future.
 
 ``[launcher]``
-
-Beginning of the launcher meta-information section.
+    Beginning of the launcher meta-information section.
 
 ``app_id``
-
-This fields helps to differentiate between checkbox front-ends. This way
-sessions started with launcher with one ``app_id`` won't interfere with
-sessions started with a different launcher (provided it has ``app_id`` set to
-other value).  The app_id should be in a IQN form. Default value:
-``com.canonical:checkbox-cli``
+    This fields helps to differentiate between checkbox front-ends. This way
+    sessions started with launcher with one ``app_id`` won't interfere with
+    sessions started with a different launcher (provided it has ``app_id`` set to
+    other value).  The app_id should be in a IQN form. Default value:
+    ``com.canonical:checkbox-cli``
 
 ``app_version``
-
-This field is purely informational.
+    This field is purely informational.
 
 ``launcher_version``
-
-Version of the launcher language syntax and semantics to use.
+    Version of the launcher language syntax and semantics to use.
 
 ``api_flags``
-
-API flags variable determines optional feature set.
-List of API flags that this launcher requires. Items should be separated by
-spaces or commas. The default value is an empty list.
+    API flags variable determines optional feature set.
+    List of API flags that this launcher requires. Items should be separated by
+    spaces or commas. The default value is an empty list.
 
 ``api_version``
-
-API version determines the behavior of the launcher. Each checkbox feature is
-added at a specific API version. Default behaviors don't change silently;
-explicit launcher change is required. Default value: ``0.99``
+    API version determines the behavior of the launcher. Each checkbox feature is
+    added at a specific API version. Default behaviors don't change silently;
+    explicit launcher change is required. Default value: ``0.99``
 
 ``session_title``
-
-A title to be applied to the sessions created using this launcher. This can be
-be used to identify a stored sessions and can be used in report generation.
+    A title to be applied to the sessions created using this launcher. This can be
+    be used to identify a stored sessions and can be used in report generation.
 
 ``session_desc``
-
-A string that can be applied to sessions created using this launcher. Useful
-for storing some contextual information about the session.
+    A string that can be applied to sessions created using this launcher. Useful
+    for storing some contextual information about the session.
 
 ``stock_reports``
+    Stock reports are shortcuts in creating common reports. Instead of having to
+    specify exporter, transport and a report section in a launcher, you can use any
+    number of the stock ones. In launchers version 1 there are 4 stock reports you
+    may use:
 
-Stock reports are shortcuts in creating common reports. Instead of having to
-specify exporter, transport and a report section in a launcher, you can use any
-number of the stock ones. In launchers version 1 there are 4 stock reports you
-may use:
+    * ``text``: Print results as text on standard output
+    * ``submission_files``: Write ``html``, ``json`` and ``tar.xz``
+      files to ``$XDG_DATA_HOME`` directory (or to ``~/.local/share/`` if
+      ``$XDG_DATA_HOME`` is not defined)
+    * ``certification``: Send results to certification site
+    * ``certification-staging``: Send results to staging version of
+      certification site
 
-* ``text``: Print results as text on standard output
-* ``submission_files``: Write ``html``, ``json`` and ``tar.xz``
-  files to ``$XDG_DATA_HOME`` directory (or to ``~/.local/share/`` if
-  ``$XDG_DATA_HOME`` is not defined)
-* ``certification``: Send results to certification site
-* ``certification-staging``: Send results to staging version of
-  certification site
+    If you don't want to have any stock report automatically generated use
+    ``none`` as the value.
 
-If you don't want to have any stock report automatically generated use
-``none`` as the value.
+    This field is a list; use commas or spaces to separate stock reports. The
+    default value: ``text, certification, submission_files``.
 
-This field is a list; use commas or spaces to separate stock reports. The
-default value: ``text, certification, submission_files``.
-
-When using ``certification`` stock report, the ``secure_id`` variable may be
-overridden by the launcher.
-To do this define ``secure_id`` in a ``transport:c3`` section (this is the
-transport that's used by the ``certification`` stock reports).
+    When using ``certification`` stock report, the ``secure_id`` variable may be
+    overridden by the launcher.
+    To do this define ``secure_id`` in a ``transport:c3`` section (this is the
+    transport that's used by the ``certification`` stock reports).
 
 Launcher section example:
 
@@ -163,23 +152,19 @@ This section provides control over which test plans are visible in the menus
 and optionally forces the app to use particular one.
 
 ``[test plan]``
-
-Beginning of the test plan section.
+    Beginning of the test plan section.
 
 ``unit``
-
-An ID of a test plan that should be selected by default. By default nothing is
-selected.
+    An ID of a test plan that should be selected by default. By default nothing is
+    selected.
 
 ``filter``
-
-Glob that test plan IDs have to match in order to be visible. Default value:
-``*``
+    Glob that test plan IDs have to match in order to be visible. Default value:
+    ``*``
 
 ``forced``
-
-If set to ``yes``, test plan selection screen will be skipped. Requires
-``unit`` field to be set. Default value: ``no``.
+    If set to ``yes``, test plan selection screen will be skipped. Requires
+    ``unit`` field to be set. Default value: ``no``.
 
 
 Test selection section
@@ -187,21 +172,18 @@ Test selection section
 This section provides control over test selection.
 
 ``[test selection]``
-
-Beginning of the test selection section
+    Beginning of the test selection section
 
 ``forced``
-
-If set to ``yes``, test selection screen will be skipped and all test specified
-in the test plan will be selected. Default value: ``no``
+    If set to ``yes``, test selection screen will be skipped and all test specified
+    in the test plan will be selected. Default value: ``no``
 
 ``exclude``
-
-List of regex patterns that job ids will be matched against. The matched jobs
-will be excluded from running in both stages of the session: bootstrapping and
-normal stage. Note that if you specify a pattern that matches a resource job
-that is used to instantiate template units those units won't get generated. The
-patterns should be separated with whitespace. Examples:
+    List of regex patterns that job ids will be matched against. The matched jobs
+    will be excluded from running in both stages of the session: bootstrapping and
+    normal stage. Note that if you specify a pattern that matches a resource job
+    that is used to instantiate template units those units won't get generated. The
+    patterns should be separated with whitespace. Examples:
 
 Exclude all jobs containing 'bluetooth' in their id:
 
@@ -239,91 +221,84 @@ User Interface section
 This section controls which type of UI to use.
 
 ``[ui]``
-
-Beginning of the user interface section
+    Beginning of the user interface section
 
 ``type``
+    Type of UI to use:
 
-Type of UI to use. This has to be set to ``interactive``, ``silent``,
-``converged``, or ``converged-silent``.
+    * ``interactive`` runs the standard Checkbox command line version that prompts
+      user in non-automated tests.
+    * ``silent`` skips the tests that would require human interaction. This UI
+      type requires forcing test selection and test plan selection. It's not
+      'silent' in the traditional command-line tool sense.
+    * ``converged`` launches the QML interface. It requires ``checkbox-converged`` 
+      to be installed on your system.
+    * ``converged-silent`` launches the QML interface and skips the tests that
+      would require human interaction. It requires ``checkbox-converged`` to be
+      installed on your system. This UI type requires forcing test selection and
+      test plan selection.
 
-``interactive`` runs the standard Checkbox command line version that prompts
-user in non-automated tests.
-
-``silent`` skips the tests that would require human interaction. It's not
-'silent' in the traditional command-line tool sense.
-
-Default value: ``interactive``.
-
-Note: the ``converged`` and ``converged-silent`` UI types will launch the QML
-interface and requires checkbox-converged to be installed on your system.
-Note: using ``silent`` or ``converged-silent`` UI types requires forcing
-test selection and test plan selection.
+    Default value: ``interactive``.
 
 ``dont_suppress_output``
+    .. warning::
 
-.. warning::
+        This field is deprecated, use 'output' to specify which jobs should have
+        their output printed to the screen.
 
-    This field is deprecated, use 'output' to specify which jobs should have
-    their output printed to the screen.
-
-Setting this field to ``yes`` disables hiding of command output for jobs of
-type ``resource`` and ``attachment``. Default value: ``no``.
+    Setting this field to ``yes`` disables hiding of command output for jobs of
+    type ``resource`` and ``attachment``. Default value: ``no``.
 
 ``output``
+    This setting lets you hide output of commands run by checkbox. It can be set to
+    one of the following values:
 
-This setting lets you hide output of commands run by checkbox. It can be set to
-one of the following values:
+    - ``show`` - output of all jobs will be printed
+    - ``hide-resource-and-attachment`` - output of resource and attachment jobs
+      will be hidden, output of other job types will be printed
+    - ``hide-automated`` - output of shell jobs as well as attachment and resource
+      jobs will be hidden. Only interactive job command's output will be shown
+    - ``hide`` - same as ``hide-automated``. This value is deprecated, use
+      ``hide-automated``
 
-- ``show`` - output of all jobs will be printed
-- ``hide-resource-and-attachment`` - output of resource and attachment jobs
-  will be hidden, output of other job types will be printed
-- ``hide-automated`` - output of shell jobs as well as attachment and resource
-  jobs will be hidden. Only interactive job command's output will be shown
-- ``hide`` - same as ``hide-automated``. This value is deprecated, use
-  ``hide-automated``
+    Default value: ``show``
 
-Default value: ``show``
+    .. note::
 
-.. note::
-
-    Individual jobs can have their output hidden by specifying
-    'suppress-output' in their definition.
+        Individual jobs can have their output hidden by specifying
+        'suppress-output' in their definition.
 
 ``verbosity``
+    This setting makes checkbox report more information from checkbox internals.
+    Possible values are:
 
-This setting makes checkbox report more information from checkbox internals.
-Possible values are:
+    - ``normal`` - report only warnings and errors.
+    - ``verbose`` - report important events that take place during execution (E.g.
+      adding units, starting jobs, changing the state of the session)
+    - ``debug`` - print out everything
 
-- ``normal`` - report only warnings and errors.
-- ``verbose`` - report important events that take place during execution (E.g.
-  adding units, starting jobs, changing the state of the session)
+    Default value: ``normal``
 
-- ``debug`` - print out everything
+    .. note::
 
-Default value: ``normal``
-
-.. note::
-
-    You can also change this behavior when invoking Checkbox by using
-    ``--verbose`` and ``--debug`` options respectively.
+        You can also change this behavior when invoking Checkbox by using
+        ``--verbose`` and ``--debug`` options respectively.
 
 ``auto_retry``
-
-If set to ``yes``, failed jobs will automatically be retried at the end of
-the testing session. In addition, the re-run screen (where user can select
-failed and skipped jobs to re-run) will not be shown. Default value: ``no``.
+    If set to ``yes``, failed jobs will automatically be retried at the end of
+    the testing session. In addition, the re-run screen (where user can select
+    failed and skipped jobs to re-run) will not be shown. Default value: ``no``.
 
 ``max_attempts``
-Defines the maximum number of times a job should be run in auto-retry mode.
-If the job passes, it won't be retried even if the maximum number of attempts
-have not been reached. Default value: ``3``.
+    Defines the maximum number of times a job should be run in auto-retry mode.
+    If the job passes, it won't be retried even if the maximum number of attempts
+    have not been reached. Default value: ``3``.
 
 ``delay_before_retry``
-The number of seconds to wait before retrying the failed jobs at the end of
-the testing session. This can be useful when the jobs rely on external
-factors (e.g. a WiFi access point) and you want to wait before retrying the
-same job. Default value: ``1``.
+    The number of seconds to wait before retrying the failed jobs at the end of
+    the testing session. This can be useful when the jobs rely on external
+    factors (e.g. a WiFi access point) and you want to wait before retrying the
+    same job. Default value: ``1``.
 
 .. warning::
 
@@ -351,24 +326,21 @@ Restart section
 This section enables fine control over how checkbox is restarted.
 
 ``[restart]``
-
-Beginning of the restart section
+    Beginning of the restart section
 
 ``strategy``
-
-Override the restart strategy that should be used. Currently supported
-strategies are ``XDG`` and ``Snappy``. By default the best strategy is
-determined at runtime.
+    Override the restart strategy that should be used. Currently supported
+    strategies are ``XDG`` and ``Snappy``. By default the best strategy is
+    determined at runtime.
 
 Environment section
 ===================
 
 ``[environment]``
+    Beginning of the environment section
 
-Beginning of the environment section
-
-Each variable present in the ``environment`` section will be present as
-environment variable for all jobs run.
+    Each variable present in the ``environment`` section will be present as
+    environment variable for all jobs run.
 
 Example:
 
@@ -383,33 +355,30 @@ Daemon-specific configuration
 =============================
 
 ``[agent]``
+    .. warning::
+        This section was previously called ``[daemon]``. This term has been
+        deprecated as of Checkbox 2.9 and is planned for removal.
 
-.. warning::
-    This section was previously called ``[daemon]``. This term has been
-    deprecated as of Checkbox 2.9 and is planned for removal.
+    Beginning of the agent-specific section.
 
-Beginning of the agent-specific section.
-
-Settings in this section only apply to sessions that are run by :term:`Checkbox
-Agent` spawned as Systemd service.
+    Settings in this section only apply to sessions that are run by :term:`Checkbox
+    Agent` spawned as Systemd service.
 
 ``normal_user``
+    Username to use when job doesn't specify which user to run as.
 
-Username to use when job doesn't specify which user to run as.
-
-The systemd service run on the :term:`agent` is run by root so in order to
-run some jobs as an unprivileged user this variable can be used.
+    The systemd service run on the :term:`agent` is run by root so in order to
+    run some jobs as an unprivileged user this variable can be used.
 
 
 Manifest section
 ================
 
 ``[manifest]``
+    Beginning of the manifest section.
 
-Beginning of the manifest section.
-
-Each variable present in the ``manifest`` section will be used as a preset value
-for the system manifest, taking precedence over the disk cache.
+    Each variable present in the ``manifest`` section will be used as a preset value
+    for the system manifest, taking precedence over the disk cache.
 
 Example:
 
@@ -432,19 +401,17 @@ Exporter
 --------
 
 ``[exporter:exporter_name]``
-
-Beginning of an exporter declaration. Note that ``exporter_name`` should be
-replaced with something meaningful, like ``html``.
+    Beginning of an exporter declaration. Note that ``exporter_name`` should be
+    replaced with something meaningful, like ``html``.
 
 ``unit``
-
-ID of an exporter to use. To get the list of available exporters on your system
-run ``$ checkbox-cli list exporter``.
+    ID of an exporter to use. To get the list of available exporters on your system
+    run ``$ checkbox-cli list exporter``.
 
 ``options``
+    A list of options that will be supplied to the exporter. Items should be separated by
+    spaces or commas.
 
-A list of options that will be supplied to the exporter. Items should be separated by
-spaces or commas.
 
 Example::
 
@@ -455,13 +422,12 @@ Transport
 ---------
 
 ``[transport:transport_name]``
-Beginning of a transport declaration. Note that ``transport_name`` should be
-replaced with something meaningful, like ``standard_out``.
+    Beginning of a transport declaration. Note that ``transport_name`` should be
+    replaced with something meaningful, like ``standard_out``.
 
 ``type``
-
-Type of a transport to use. Allowed values are: ``stream``, ``file``, and
-``certification``.
+    Type of a transport to use. Allowed values are: ``stream``, ``file``, and
+    ``certification``.
 
 Depending on the type of transport there might be additional fields.
 
@@ -504,22 +470,18 @@ Report
 ------
 
 ``[report:report_name]``
-
-Beginning of a report declaration. Note that ``report_name`` should be
-replaced with something meaningful, like ``to_screen``.
+    Beginning of a report declaration. Note that ``report_name`` should be
+    replaced with something meaningful, like ``to_screen``.
 
 ``exporter``
-
-Name of the exporter to use
+    Name of the exporter to use
 
 ``transport``
-
-Name of the transport to use
+    Name of the transport to use
 
 ``forced``
-
-If set to ``yes`` will make checkbox always produce the report (skipping the
-prompt). Default value: ``no``.
+    If set to ``yes`` will make checkbox always produce the report (skipping the
+    prompt). Default value: ``no``.
 
 Example of all three sections working to produce a report:
 

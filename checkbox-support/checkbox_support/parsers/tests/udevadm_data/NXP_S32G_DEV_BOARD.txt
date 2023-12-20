@@ -1,0 +1,5910 @@
+P: /devices/armv8_pmuv3
+L: 0
+E: DEVPATH=/devices/armv8_pmuv3
+E: SUBSYSTEM=event_source
+
+P: /devices/breakpoint
+L: 0
+E: DEVPATH=/devices/breakpoint
+E: SUBSYSTEM=event_source
+
+P: /devices/iio_sysfs_trigger
+L: 0
+E: DEVPATH=/devices/iio_sysfs_trigger
+E: SUBSYSTEM=iio
+
+P: /devices/kprobe
+L: 0
+E: DEVPATH=/devices/kprobe
+E: SUBSYSTEM=event_source
+
+P: /devices/optee-ta-ab7a617c-b8e7-4d8f-8301-d09b61036b64
+L: 0
+E: DEVPATH=/devices/optee-ta-ab7a617c-b8e7-4d8f-8301-d09b61036b64
+E: SUBSYSTEM=tee
+E: DRIVER=optee-rng
+E: MODALIAS=tee:ab7a617c-b8e7-4d8f-8301-d09b61036b64
+
+P: /devices/optee-ta-f04a0fe7-1f5d-4b9b-abf7-619b85b4ce8c
+L: 0
+E: DEVPATH=/devices/optee-ta-f04a0fe7-1f5d-4b9b-abf7-619b85b4ce8c
+E: SUBSYSTEM=tee
+E: MODALIAS=tee:f04a0fe7-1f5d-4b9b-abf7-619b85b4ce8c
+
+P: /devices/platform/Fixed MDIO bus.0
+L: 0
+E: DEVPATH=/devices/platform/Fixed MDIO bus.0
+E: SUBSYSTEM=platform
+E: MODALIAS=platform:Fixed MDIO bus
+E: USEC_INITIALIZED=13752937
+E: ID_PATH=platform-Fixed MDIO bus.0
+E: ID_PATH_TAG=platform-Fixed_MDIO_bus_0
+
+P: /devices/platform/Fixed MDIO bus.0/mdio_bus/fixed-0
+L: 0
+E: DEVPATH=/devices/platform/Fixed MDIO bus.0/mdio_bus/fixed-0
+E: SUBSYSTEM=mdio_bus
+
+P: /devices/platform/firmware:optee
+L: 0
+E: DEVPATH=/devices/platform/firmware:optee
+E: SUBSYSTEM=platform
+E: DRIVER=optee
+E: OF_NAME=optee
+E: OF_FULLNAME=/firmware/optee
+E: OF_COMPATIBLE_0=linaro,optee-tz
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NopteeT(null)Clinaro,optee-tz
+E: USEC_INITIALIZED=13731566
+E: ID_PATH=platform-firmware:optee
+E: ID_PATH_TAG=platform-firmware_optee
+
+P: /devices/platform/firmware:psci
+L: 0
+E: DEVPATH=/devices/platform/firmware:psci
+E: SUBSYSTEM=platform
+E: DRIVER=psci-cpuidle-domain
+E: OF_NAME=psci
+E: OF_FULLNAME=/firmware/psci
+E: OF_COMPATIBLE_0=arm,psci-1.0
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NpsciT(null)Carm,psci-1.0
+E: USEC_INITIALIZED=13731530
+E: ID_PATH=platform-firmware:psci
+E: ID_PATH_TAG=platform-firmware_psci
+
+P: /devices/platform/firmware:scmi
+L: 0
+E: DEVPATH=/devices/platform/firmware:scmi
+E: SUBSYSTEM=platform
+E: DRIVER=arm-scmi
+E: OF_NAME=scmi
+E: OF_FULLNAME=/firmware/scmi
+E: OF_COMPATIBLE_0=arm,scmi-smc
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NscmiT(null)Carm,scmi-smc
+E: USEC_INITIALIZED=13732256
+E: ID_PATH=platform-firmware:scmi
+E: ID_PATH_TAG=platform-firmware_scmi
+
+P: /devices/platform/firmware:scmi/scmi_dev.1
+L: 0
+E: DEVPATH=/devices/platform/firmware:scmi/scmi_dev.1
+E: SUBSYSTEM=scmi_protocol
+E: DRIVER=scmi-clocks
+E: OF_NAME=protocol
+E: OF_FULLNAME=/firmware/scmi/protocol@14
+E: OF_COMPATIBLE_N=0
+
+P: /devices/platform/firmware:scmi/scmi_dev.2
+L: 0
+E: DEVPATH=/devices/platform/firmware:scmi/scmi_dev.2
+E: SUBSYSTEM=scmi_protocol
+E: DRIVER=scmi-reset
+E: OF_NAME=protocol
+E: OF_FULLNAME=/firmware/scmi/protocol@16
+E: OF_COMPATIBLE_N=0
+
+P: /devices/platform/firmware:scmi/scmi_dev.3
+L: 0
+E: DEVPATH=/devices/platform/firmware:scmi/scmi_dev.3
+E: SUBSYSTEM=scmi_protocol
+E: DRIVER=scmi-cpufreq
+E: OF_NAME=protocol
+E: OF_FULLNAME=/firmware/scmi/protocol@13
+E: OF_COMPATIBLE_N=0
+
+P: /devices/platform/kgdboc
+L: 0
+E: DEVPATH=/devices/platform/kgdboc
+E: SUBSYSTEM=platform
+E: DRIVER=kgdboc
+E: MODALIAS=platform:kgdboc
+E: USEC_INITIALIZED=13752463
+E: ID_PATH=platform-kgdboc
+E: ID_PATH_TAG=platform-kgdboc
+
+P: /devices/platform/platform-framebuffer.0
+L: 0
+E: DEVPATH=/devices/platform/platform-framebuffer.0
+E: SUBSYSTEM=platform
+E: MODALIAS=platform:platform-framebuffer
+E: USEC_INITIALIZED=13750469
+E: ID_PATH=platform-platform-framebuffer.0
+E: ID_PATH_TAG=platform-platform-framebuffer_0
+
+P: /devices/platform/pmu
+L: 0
+E: DEVPATH=/devices/platform/pmu
+E: SUBSYSTEM=platform
+E: DRIVER=armv8-pmu
+E: OF_NAME=pmu
+E: OF_FULLNAME=/pmu
+E: OF_COMPATIBLE_0=arm,armv8-pmuv3
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NpmuT(null)Carm,armv8-pmuv3
+E: USEC_INITIALIZED=13731751
+E: ID_PATH=platform-pmu
+E: ID_PATH_TAG=platform-pmu
+
+P: /devices/platform/psci-cpuidle
+L: 0
+E: DEVPATH=/devices/platform/psci-cpuidle
+E: SUBSYSTEM=platform
+E: MODALIAS=platform:psci-cpuidle
+E: USEC_INITIALIZED=13750469
+E: ID_PATH=platform-psci-cpuidle
+E: ID_PATH_TAG=platform-psci-cpuidle
+
+P: /devices/platform/reg-dummy
+L: 0
+E: DEVPATH=/devices/platform/reg-dummy
+E: SUBSYSTEM=platform
+E: DRIVER=reg-dummy
+E: MODALIAS=platform:reg-dummy
+E: USEC_INITIALIZED=13753315
+E: ID_PATH=platform-reg-dummy
+E: ID_PATH_TAG=platform-reg-dummy
+
+P: /devices/platform/reg-dummy/regulator/regulator.0
+L: 0
+E: DEVPATH=/devices/platform/reg-dummy/regulator/regulator.0
+E: SUBSYSTEM=regulator
+
+P: /devices/platform/serial8250
+L: 0
+E: DEVPATH=/devices/platform/serial8250
+E: SUBSYSTEM=platform
+E: DRIVER=serial8250
+E: MODALIAS=platform:serial8250
+E: USEC_INITIALIZED=13752953
+E: ID_PATH=platform-serial8250
+E: ID_PATH_TAG=platform-serial8250
+
+P: /devices/platform/serial8250/tty/ttyS0
+N: ttyS0
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS0
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS0
+E: MAJOR=4
+E: MINOR=64
+E: USEC_INITIALIZED=13766499
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS1
+N: ttyS1
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS1
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS1
+E: MAJOR=4
+E: MINOR=65
+E: USEC_INITIALIZED=13771567
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS10
+N: ttyS10
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS10
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS10
+E: MAJOR=4
+E: MINOR=74
+E: USEC_INITIALIZED=13761326
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS11
+N: ttyS11
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS11
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS11
+E: MAJOR=4
+E: MINOR=75
+E: USEC_INITIALIZED=13770916
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS12
+N: ttyS12
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS12
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS12
+E: MAJOR=4
+E: MINOR=76
+E: USEC_INITIALIZED=13759611
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS13
+N: ttyS13
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS13
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS13
+E: MAJOR=4
+E: MINOR=77
+E: USEC_INITIALIZED=13781753
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS14
+N: ttyS14
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS14
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS14
+E: MAJOR=4
+E: MINOR=78
+E: USEC_INITIALIZED=13797685
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS15
+N: ttyS15
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS15
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS15
+E: MAJOR=4
+E: MINOR=79
+E: USEC_INITIALIZED=13801641
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS16
+N: ttyS16
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS16
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS16
+E: MAJOR=4
+E: MINOR=80
+E: USEC_INITIALIZED=13781765
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS17
+N: ttyS17
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS17
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS17
+E: MAJOR=4
+E: MINOR=81
+E: USEC_INITIALIZED=13803100
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS18
+N: ttyS18
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS18
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS18
+E: MAJOR=4
+E: MINOR=82
+E: USEC_INITIALIZED=13787323
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS19
+N: ttyS19
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS19
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS19
+E: MAJOR=4
+E: MINOR=83
+E: USEC_INITIALIZED=13804734
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS2
+N: ttyS2
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS2
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS2
+E: MAJOR=4
+E: MINOR=66
+E: USEC_INITIALIZED=13799796
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS20
+N: ttyS20
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS20
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS20
+E: MAJOR=4
+E: MINOR=84
+E: USEC_INITIALIZED=13863620
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS21
+N: ttyS21
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS21
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS21
+E: MAJOR=4
+E: MINOR=85
+E: USEC_INITIALIZED=13855969
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS22
+N: ttyS22
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS22
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS22
+E: MAJOR=4
+E: MINOR=86
+E: USEC_INITIALIZED=13878556
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS23
+N: ttyS23
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS23
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS23
+E: MAJOR=4
+E: MINOR=87
+E: USEC_INITIALIZED=13875312
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS24
+N: ttyS24
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS24
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS24
+E: MAJOR=4
+E: MINOR=88
+E: USEC_INITIALIZED=13817102
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS25
+N: ttyS25
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS25
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS25
+E: MAJOR=4
+E: MINOR=89
+E: USEC_INITIALIZED=13817116
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS26
+N: ttyS26
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS26
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS26
+E: MAJOR=4
+E: MINOR=90
+E: USEC_INITIALIZED=13823157
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS27
+N: ttyS27
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS27
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS27
+E: MAJOR=4
+E: MINOR=91
+E: USEC_INITIALIZED=13846984
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS28
+N: ttyS28
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS28
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS28
+E: MAJOR=4
+E: MINOR=92
+E: USEC_INITIALIZED=13846713
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS29
+N: ttyS29
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS29
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS29
+E: MAJOR=4
+E: MINOR=93
+E: USEC_INITIALIZED=13849712
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS3
+N: ttyS3
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS3
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS3
+E: MAJOR=4
+E: MINOR=67
+E: USEC_INITIALIZED=13848563
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS30
+N: ttyS30
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS30
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS30
+E: MAJOR=4
+E: MINOR=94
+E: USEC_INITIALIZED=13866887
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS31
+N: ttyS31
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS31
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS31
+E: MAJOR=4
+E: MINOR=95
+E: USEC_INITIALIZED=13845129
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS4
+N: ttyS4
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS4
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS4
+E: MAJOR=4
+E: MINOR=68
+E: USEC_INITIALIZED=13845144
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS5
+N: ttyS5
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS5
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS5
+E: MAJOR=4
+E: MINOR=69
+E: USEC_INITIALIZED=13849195
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS6
+N: ttyS6
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS6
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS6
+E: MAJOR=4
+E: MINOR=70
+E: USEC_INITIALIZED=13850678
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS7
+N: ttyS7
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS7
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS7
+E: MAJOR=4
+E: MINOR=71
+E: USEC_INITIALIZED=13829588
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS8
+N: ttyS8
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS8
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS8
+E: MAJOR=4
+E: MINOR=72
+E: USEC_INITIALIZED=13835297
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/serial8250/tty/ttyS9
+N: ttyS9
+L: 0
+E: DEVPATH=/devices/platform/serial8250/tty/ttyS9
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyS9
+E: MAJOR=4
+E: MINOR=73
+E: USEC_INITIALIZED=13848111
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc
+L: 0
+E: DEVPATH=/devices/platform/soc
+E: SUBSYSTEM=platform
+E: DRIVER=simple-pm-bus
+E: OF_NAME=soc
+E: OF_FULLNAME=/soc
+E: OF_COMPATIBLE_0=simple-bus
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NsocT(null)Csimple-bus
+E: USEC_INITIALIZED=13739856
+E: ID_PATH=platform-soc
+E: ID_PATH_TAG=platform-soc
+
+P: /devices/platform/soc/0.spi
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi
+E: SUBSYSTEM=platform
+E: DRIVER=fsl-quadspi
+E: OF_NAME=spi
+E: OF_FULLNAME=/soc/spi@40134000
+E: OF_COMPATIBLE_0=nxp,s32g-qspi
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=spi6
+E: MODALIAS=of:NspiT(null)Cnxp,s32g-qspi
+E: USEC_INITIALIZED=13883651
+E: ID_PATH=platform-0.spi
+E: ID_PATH_TAG=platform-0_spi
+
+P: /devices/platform/soc/0.spi/spi_master/spi6
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6
+E: SUBSYSTEM=spi_master
+E: OF_NAME=spi
+E: OF_FULLNAME=/soc/spi@40134000
+E: OF_COMPATIBLE_0=nxp,s32g-qspi
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=spi6
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0
+E: SUBSYSTEM=spi
+E: DRIVER=spi-nor
+E: OF_NAME=mx25uw51245g
+E: OF_FULLNAME=/soc/spi@40134000/mx25uw51245g@0
+E: OF_COMPATIBLE_0=jedec,spi-nor
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=spi:spi-nor
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd0
+N: mtd0
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd0
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd0
+E: DEVTYPE=mtd
+E: OF_NAME=flashimage
+E: OF_FULLNAME=/soc/spi@40134000/mx25uw51245g@0/partitions/flashimage@0
+E: OF_COMPATIBLE_N=0
+E: MAJOR=90
+E: MINOR=0
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd0/mtd0
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd0/mtd0
+E: SUBSYSTEM=nvmem
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd0ro
+N: mtd0ro
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd0ro
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd0ro
+E: MAJOR=90
+E: MINOR=1
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd1
+N: mtd1
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd1
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd1
+E: DEVTYPE=mtd
+E: OF_NAME=boot
+E: OF_FULLNAME=/soc/spi@40134000/mx25uw51245g@0/partitions/boot@0
+E: OF_COMPATIBLE_N=0
+E: MAJOR=90
+E: MINOR=2
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd1/mtd1
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd1/mtd1
+E: SUBSYSTEM=nvmem
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd1ro
+N: mtd1ro
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd1ro
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd1ro
+E: MAJOR=90
+E: MINOR=3
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd2
+N: mtd2
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd2
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd2
+E: DEVTYPE=mtd
+E: OF_NAME=boot-env
+E: OF_FULLNAME=/soc/spi@40134000/mx25uw51245g@0/partitions/boot-env@1e0000
+E: OF_COMPATIBLE_N=0
+E: MAJOR=90
+E: MINOR=4
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd2/mtd2
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd2/mtd2
+E: SUBSYSTEM=nvmem
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd2ro
+N: mtd2ro
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd2ro
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd2ro
+E: MAJOR=90
+E: MINOR=5
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd3
+N: mtd3
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd3
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd3
+E: DEVTYPE=mtd
+E: OF_NAME=kernel
+E: OF_FULLNAME=/soc/spi@40134000/mx25uw51245g@0/partitions/kernel@1f0000
+E: OF_COMPATIBLE_N=0
+E: MAJOR=90
+E: MINOR=6
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd3/mtd3
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd3/mtd3
+E: SUBSYSTEM=nvmem
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd3ro
+N: mtd3ro
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd3ro
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd3ro
+E: MAJOR=90
+E: MINOR=7
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd4
+N: mtd4
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd4
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd4
+E: DEVTYPE=mtd
+E: OF_NAME=dtb
+E: OF_FULLNAME=/soc/spi@40134000/mx25uw51245g@0/partitions/dtb@ff0000
+E: OF_COMPATIBLE_N=0
+E: MAJOR=90
+E: MINOR=8
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd4/mtd4
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd4/mtd4
+E: SUBSYSTEM=nvmem
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd4ro
+N: mtd4ro
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd4ro
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd4ro
+E: MAJOR=90
+E: MINOR=9
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd5
+N: mtd5
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd5
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd5
+E: DEVTYPE=mtd
+E: OF_NAME=rootfs
+E: OF_FULLNAME=/soc/spi@40134000/mx25uw51245g@0/partitions/rootfs@10f0000
+E: OF_COMPATIBLE_N=0
+E: MAJOR=90
+E: MINOR=10
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd5/mtd5
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd5/mtd5
+E: SUBSYSTEM=nvmem
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd5ro
+N: mtd5ro
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd5ro
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd5ro
+E: MAJOR=90
+E: MINOR=11
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd6
+N: mtd6
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd6
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd6
+E: DEVTYPE=mtd
+E: OF_NAME=pfe
+E: OF_FULLNAME=/soc/spi@40134000/mx25uw51245g@0/partitions/pfe@3000000
+E: OF_COMPATIBLE_N=0
+E: MAJOR=90
+E: MINOR=12
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd6/mtd6
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd6/mtd6
+E: SUBSYSTEM=nvmem
+
+P: /devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd6ro
+N: mtd6ro
+L: 0
+E: DEVPATH=/devices/platform/soc/0.spi/spi_master/spi6/spi6.0/mtd/mtd6ro
+E: SUBSYSTEM=mtd
+E: DEVNAME=/dev/mtd6ro
+E: MAJOR=90
+E: MINOR=13
+
+P: /devices/platform/soc/40060000.rtc
+L: 0
+E: DEVPATH=/devices/platform/soc/40060000.rtc
+E: SUBSYSTEM=platform
+E: DRIVER=s32cc-rtc
+E: OF_NAME=rtc
+E: OF_FULLNAME=/soc/rtc@40060000
+E: OF_COMPATIBLE_0=nxp,s32cc-rtc
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NrtcT(null)Cnxp,s32cc-rtc
+E: USEC_INITIALIZED=13883580
+E: ID_PATH=platform-40060000.rtc
+E: ID_PATH_TAG=platform-40060000_rtc
+
+P: /devices/platform/soc/40060000.rtc/rtc/rtc0
+N: rtc0
+L: -100
+S: rtc
+E: DEVPATH=/devices/platform/soc/40060000.rtc/rtc/rtc0
+E: SUBSYSTEM=rtc
+E: DEVNAME=/dev/rtc0
+E: MAJOR=247
+E: MINOR=0
+E: USEC_INITIALIZED=14144256
+E: DEVLINKS=/dev/rtc
+
+P: /devices/platform/soc/40060000.rtc/rtc/rtc0/alarmtimer.0.auto
+L: 0
+E: DEVPATH=/devices/platform/soc/40060000.rtc/rtc/rtc0/alarmtimer.0.auto
+E: SUBSYSTEM=platform
+E: DRIVER=alarmtimer
+E: MODALIAS=platform:alarmtimer
+E: USEC_INITIALIZED=14273282
+E: ID_PATH=platform-40060000.rtc-platform-alarmtimer.0.auto
+E: ID_PATH_TAG=platform-40060000_rtc-platform-alarmtimer_0_auto
+
+P: /devices/platform/soc/40060000.rtc/rtc/rtc0/alarmtimer.0.auto/wakeup/wakeup1
+L: 0
+E: DEVPATH=/devices/platform/soc/40060000.rtc/rtc/rtc0/alarmtimer.0.auto/wakeup/wakeup1
+E: SUBSYSTEM=wakeup
+
+P: /devices/platform/soc/40060000.rtc/wakeup/wakeup0
+L: 0
+E: DEVPATH=/devices/platform/soc/40060000.rtc/wakeup/wakeup0
+E: SUBSYSTEM=wakeup
+
+P: /devices/platform/soc/4007c000.syscon
+L: 0
+E: DEVPATH=/devices/platform/soc/4007c000.syscon
+E: SUBSYSTEM=platform
+E: OF_NAME=syscon
+E: OF_FULLNAME=/soc/syscon@4007c000
+E: OF_COMPATIBLE_0=syscon
+E: OF_COMPATIBLE_1=simple-mfd
+E: OF_COMPATIBLE_N=2
+E: MODALIAS=of:NsysconT(null)CsysconCsimple-mfd
+E: USEC_INITIALIZED=13903941
+E: ID_PATH=platform-4007c000.syscon
+E: ID_PATH_TAG=platform-4007c000_syscon
+
+P: /devices/platform/soc/4007c000.syscon/4007c0f0.mux-controller
+L: 0
+E: DEVPATH=/devices/platform/soc/4007c000.syscon/4007c0f0.mux-controller
+E: SUBSYSTEM=platform
+E: DRIVER=mmio-mux
+E: OF_NAME=mux-controller
+E: OF_FULLNAME=/soc/syscon@4007c000/mux-controller@f0
+E: OF_COMPATIBLE_0=mmio-mux
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nmux-controllerT(null)Cmmio-mux
+E: USEC_INITIALIZED=14119999
+E: ID_PATH=platform-4007c0f0.mux-controller
+E: ID_PATH_TAG=platform-4007c0f0_mux-controller
+
+P: /devices/platform/soc/4007c000.syscon/4007c0f0.mux-controller/mux/muxchip0
+L: 0
+E: DEVPATH=/devices/platform/soc/4007c000.syscon/4007c0f0.mux-controller/mux/muxchip0
+E: SUBSYSTEM=mux
+E: DEVTYPE=mux-chip
+E: OF_NAME=mux-controller
+E: OF_FULLNAME=/soc/syscon@4007c000/mux-controller@f0
+E: OF_COMPATIBLE_0=mmio-mux
+E: OF_COMPATIBLE_N=1
+
+P: /devices/platform/soc/4007c600.ddr_gpr
+L: 0
+E: DEVPATH=/devices/platform/soc/4007c600.ddr_gpr
+E: SUBSYSTEM=platform
+E: OF_NAME=ddr_gpr
+E: OF_FULLNAME=/soc/ddr_gpr@4007c600
+E: OF_COMPATIBLE_0=nxp,s32cc-ddr-gpr
+E: OF_COMPATIBLE_1=syscon
+E: OF_COMPATIBLE_N=2
+E: MODALIAS=of:Nddr_gprT(null)Cnxp,s32cc-ddr-gprCsyscon
+E: USEC_INITIALIZED=13903951
+E: ID_PATH=platform-4007c600.ddr_gpr
+E: ID_PATH_TAG=platform-4007c600_ddr_gpr
+
+P: /devices/platform/soc/400a4000.ocotp
+L: 0
+E: DEVPATH=/devices/platform/soc/400a4000.ocotp
+E: SUBSYSTEM=platform
+E: DRIVER=s32cc-ocotp
+E: OF_NAME=ocotp
+E: OF_FULLNAME=/soc/ocotp@400a4000
+E: OF_COMPATIBLE_0=nxp,s32g-ocotp
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NocotpT(null)Cnxp,s32g-ocotp
+E: USEC_INITIALIZED=13944158
+E: ID_PATH=platform-400a4000.ocotp
+E: ID_PATH_TAG=platform-400a4000_ocotp
+
+P: /devices/platform/soc/400a4000.ocotp/s32cc-ocotp0
+L: 0
+E: DEVPATH=/devices/platform/soc/400a4000.ocotp/s32cc-ocotp0
+E: SUBSYSTEM=nvmem
+E: OF_NAME=ocotp
+E: OF_FULLNAME=/soc/ocotp@400a4000
+E: OF_COMPATIBLE_0=nxp,s32g-ocotp
+E: OF_COMPATIBLE_N=1
+
+P: /devices/platform/soc/400a8000.tmu
+L: 0
+E: DEVPATH=/devices/platform/soc/400a8000.tmu
+E: SUBSYSTEM=platform
+E: DRIVER=s32cctmu
+E: OF_NAME=tmu
+E: OF_FULLNAME=/soc/tmu@400a8000
+E: OF_COMPATIBLE_0=nxp,s32g2-tmu
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NtmuT(null)Cnxp,s32g2-tmu
+E: USEC_INITIALIZED=13919623
+E: ID_PATH=platform-400a8000.tmu
+E: ID_PATH_TAG=platform-400a8000_tmu
+
+P: /devices/platform/soc/400a8000.tmu/hwmon/hwmon0
+L: 0
+E: DEVPATH=/devices/platform/soc/400a8000.tmu/hwmon/hwmon0
+E: SUBSYSTEM=hwmon
+E: OF_NAME=tmu
+E: OF_FULLNAME=/soc/tmu@400a8000
+E: OF_COMPATIBLE_0=nxp,s32g2-tmu
+E: OF_COMPATIBLE_N=1
+
+P: /devices/platform/soc/4010c000.watchdog
+L: 0
+E: DEVPATH=/devices/platform/soc/4010c000.watchdog
+E: SUBSYSTEM=platform
+E: DRIVER=s32cc-wdt
+E: OF_NAME=watchdog
+E: OF_FULLNAME=/soc/watchdog@4010c000
+E: OF_COMPATIBLE_0=nxp,s32cc-wdt
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NwatchdogT(null)Cnxp,s32cc-wdt
+E: USEC_INITIALIZED=13944714
+E: ID_PATH=platform-4010c000.watchdog
+E: ID_PATH_TAG=platform-4010c000_watchdog
+
+P: /devices/platform/soc/4011c000.stm
+L: 0
+E: DEVPATH=/devices/platform/soc/4011c000.stm
+E: SUBSYSTEM=platform
+E: OF_NAME=stm
+E: OF_FULLNAME=/soc/stm@4011c000
+E: OF_COMPATIBLE_0=nxp,s32cc-stm
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NstmT(null)Cnxp,s32cc-stm
+E: USEC_INITIALIZED=13919657
+E: ID_PATH=platform-4011c000.stm
+E: ID_PATH_TAG=platform-4011c000_stm
+
+P: /devices/platform/soc/40120000.stm
+L: 0
+E: DEVPATH=/devices/platform/soc/40120000.stm
+E: SUBSYSTEM=platform
+E: OF_NAME=stm
+E: OF_FULLNAME=/soc/stm@40120000
+E: OF_COMPATIBLE_0=nxp,s32cc-stm
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NstmT(null)Cnxp,s32cc-stm
+E: USEC_INITIALIZED=13923645
+E: ID_PATH=platform-40120000.stm
+E: ID_PATH_TAG=platform-40120000_stm
+
+P: /devices/platform/soc/40144000.dma-controller
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller
+E: SUBSYSTEM=platform
+E: DRIVER=fsl-edma
+E: OF_NAME=dma-controller
+E: OF_FULLNAME=/soc/dma-controller@40144000
+E: OF_COMPATIBLE_0=nxp,s32cc-edma
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Ndma-controllerT(null)Cnxp,s32cc-edma
+E: USEC_INITIALIZED=13959343
+E: ID_PATH=platform-40144000.dma-controller
+E: ID_PATH_TAG=platform-40144000_dma-controller
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan0
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan0
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan1
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan1
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan10
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan10
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan11
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan11
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan12
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan12
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan13
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan13
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan14
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan14
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan15
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan15
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan16
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan16
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan17
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan17
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan18
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan18
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan19
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan19
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan2
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan2
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan20
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan20
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan21
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan21
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan22
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan22
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan23
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan23
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan24
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan24
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan25
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan25
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan26
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan26
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan27
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan27
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan28
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan28
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan29
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan29
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan3
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan3
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan30
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan30
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan31
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan31
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan4
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan4
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan5
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan5
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan6
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan6
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan7
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan7
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan8
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan8
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40144000.dma-controller/dma/dma0chan9
+L: 0
+E: DEVPATH=/devices/platform/soc/40144000.dma-controller/dma/dma0chan9
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40188000.pit
+L: 0
+E: DEVPATH=/devices/platform/soc/40188000.pit
+E: SUBSYSTEM=platform
+E: OF_NAME=pit
+E: OF_FULLNAME=/soc/pit@40188000
+E: OF_COMPATIBLE_0=nxp,s32cc-pit
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NpitT(null)Cnxp,s32cc-pit
+E: USEC_INITIALIZED=13948267
+E: ID_PATH=platform-40188000.pit
+E: ID_PATH_TAG=platform-40188000_pit
+
+P: /devices/platform/soc/40198000.mscm
+L: 0
+E: DEVPATH=/devices/platform/soc/40198000.mscm
+E: SUBSYSTEM=platform
+E: OF_NAME=mscm
+E: OF_FULLNAME=/soc/mscm@40198000
+E: OF_COMPATIBLE_0=nxp,s32cc-mscm
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NmscmT(null)Cnxp,s32cc-mscm
+E: USEC_INITIALIZED=13923645
+E: ID_PATH=platform-40198000.mscm
+E: ID_PATH_TAG=platform-40198000_mscm
+
+P: /devices/platform/soc/401b4000.flexcan
+L: 0
+E: DEVPATH=/devices/platform/soc/401b4000.flexcan
+E: SUBSYSTEM=platform
+E: DRIVER=flexcan
+E: OF_NAME=flexcan
+E: OF_FULLNAME=/soc/flexcan@401b4000
+E: OF_COMPATIBLE_0=nxp,s32cc-flexcan
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=can0
+E: MODALIAS=of:NflexcanT(null)Cnxp,s32cc-flexcan
+E: USEC_INITIALIZED=13931805
+E: ID_PATH=platform-401b4000.flexcan
+E: ID_PATH_TAG=platform-401b4000_flexcan
+
+P: /devices/platform/soc/401b4000.flexcan/net/can0
+L: 0
+E: DEVPATH=/devices/platform/soc/401b4000.flexcan/net/can0
+E: SUBSYSTEM=net
+E: INTERFACE=can0
+E: IFINDEX=2
+E: USEC_INITIALIZED=15599782
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-401b4000.flexcan
+E: ID_PATH_TAG=platform-401b4000_flexcan
+E: ID_NET_DRIVER=flexcan
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=can0
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/can0
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/401be000.flexcan
+L: 0
+E: DEVPATH=/devices/platform/soc/401be000.flexcan
+E: SUBSYSTEM=platform
+E: DRIVER=flexcan
+E: OF_NAME=flexcan
+E: OF_FULLNAME=/soc/flexcan@401be000
+E: OF_COMPATIBLE_0=nxp,s32cc-flexcan
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=can1
+E: MODALIAS=of:NflexcanT(null)Cnxp,s32cc-flexcan
+E: USEC_INITIALIZED=13948212
+E: ID_PATH=platform-401be000.flexcan
+E: ID_PATH_TAG=platform-401be000_flexcan
+
+P: /devices/platform/soc/401be000.flexcan/net/can1
+L: 0
+E: DEVPATH=/devices/platform/soc/401be000.flexcan/net/can1
+E: SUBSYSTEM=net
+E: INTERFACE=can1
+E: IFINDEX=3
+E: USEC_INITIALIZED=15595654
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-401be000.flexcan
+E: ID_PATH_TAG=platform-401be000_flexcan
+E: ID_NET_DRIVER=flexcan
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=can1
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/can1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/401c8000.serial
+L: 0
+E: DEVPATH=/devices/platform/soc/401c8000.serial
+E: SUBSYSTEM=platform
+E: DRIVER=fsl-linflexuart
+E: OF_NAME=serial
+E: OF_FULLNAME=/soc/serial@401c8000
+E: OF_COMPATIBLE_0=nxp,s32cc-linflexuart
+E: OF_COMPATIBLE_1=fsl,s32v234-linflexuart
+E: OF_COMPATIBLE_N=2
+E: OF_ALIAS_0=serial0
+E: MODALIAS=of:NserialT(null)Cnxp,s32cc-linflexuartCfsl,s32v234-linflexuart
+E: USEC_INITIALIZED=13935750
+E: ID_PATH=platform-401c8000.serial
+E: ID_PATH_TAG=platform-401c8000_serial
+
+P: /devices/platform/soc/401c8000.serial/tty/ttyLF0
+N: ttyLF0
+L: 0
+E: DEVPATH=/devices/platform/soc/401c8000.serial/tty/ttyLF0
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyLF0
+E: MAJOR=238
+E: MINOR=0
+E: USEC_INITIALIZED=14182536
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/401cc000.serial
+L: 0
+E: DEVPATH=/devices/platform/soc/401cc000.serial
+E: SUBSYSTEM=platform
+E: DRIVER=fsl-linflexuart
+E: OF_NAME=serial
+E: OF_FULLNAME=/soc/serial@401cc000
+E: OF_COMPATIBLE_0=nxp,s32cc-linflexuart
+E: OF_COMPATIBLE_1=fsl,s32v234-linflexuart
+E: OF_COMPATIBLE_N=2
+E: OF_ALIAS_0=serial1
+E: MODALIAS=of:NserialT(null)Cnxp,s32cc-linflexuartCfsl,s32v234-linflexuart
+E: USEC_INITIALIZED=13931761
+E: ID_PATH=platform-401cc000.serial
+E: ID_PATH_TAG=platform-401cc000_serial
+
+P: /devices/platform/soc/401cc000.serial/tty/ttyLF1
+N: ttyLF1
+L: 0
+E: DEVPATH=/devices/platform/soc/401cc000.serial/tty/ttyLF1
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyLF1
+E: MAJOR=238
+E: MINOR=1
+E: USEC_INITIALIZED=14275903
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/401d8000.spi
+L: 0
+E: DEVPATH=/devices/platform/soc/401d8000.spi
+E: SUBSYSTEM=platform
+E: DRIVER=fsl-dspi
+E: OF_NAME=spi
+E: OF_FULLNAME=/soc/spi@401d8000
+E: OF_COMPATIBLE_0=nxp,s32cc-dspi
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NspiT(null)Cnxp,s32cc-dspi
+E: USEC_INITIALIZED=13939834
+E: ID_PATH=platform-401d8000.spi
+E: ID_PATH_TAG=platform-401d8000_spi
+
+P: /devices/platform/soc/401d8000.spi/spi_master/spi1
+L: 0
+E: DEVPATH=/devices/platform/soc/401d8000.spi/spi_master/spi1
+E: SUBSYSTEM=spi_master
+E: OF_NAME=spi
+E: OF_FULLNAME=/soc/spi@401d8000
+E: OF_COMPATIBLE_0=nxp,s32cc-dspi
+E: OF_COMPATIBLE_N=1
+
+P: /devices/platform/soc/401e4000.i2c
+L: 0
+E: DEVPATH=/devices/platform/soc/401e4000.i2c
+E: SUBSYSTEM=platform
+E: DRIVER=imx-i2c
+E: OF_NAME=i2c
+E: OF_FULLNAME=/soc/i2c@401e4000
+E: OF_COMPATIBLE_0=nxp,s32cc-i2c
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=i2c0
+E: MODALIAS=of:Ni2cT(null)Cnxp,s32cc-i2c
+E: USEC_INITIALIZED=13935738
+E: ID_PATH=platform-401e4000.i2c
+E: ID_PATH_TAG=platform-401e4000_i2c
+
+P: /devices/platform/soc/401e4000.i2c/i2c-0
+L: 0
+E: DEVPATH=/devices/platform/soc/401e4000.i2c/i2c-0
+E: SUBSYSTEM=i2c
+E: OF_NAME=i2c
+E: OF_FULLNAME=/soc/i2c@401e4000
+E: OF_COMPATIBLE_0=nxp,s32cc-i2c
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=i2c0
+
+P: /devices/platform/soc/401e4000.i2c/i2c-0/0-0022
+L: 0
+E: DEVPATH=/devices/platform/soc/401e4000.i2c/i2c-0/0-0022
+E: SUBSYSTEM=i2c
+E: DRIVER=pca953x
+E: OF_NAME=gpio-expander
+E: OF_FULLNAME=/soc/i2c@401e4000/gpio-expander@22
+E: OF_COMPATIBLE_0=nxp,pcal6524
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Ngpio-expanderT(null)Cnxp,pcal6524
+
+P: /devices/platform/soc/401e4000.i2c/i2c-0/0-0022/gpio/gpiochip297
+L: 0
+E: DEVPATH=/devices/platform/soc/401e4000.i2c/i2c-0/0-0022/gpio/gpiochip297
+E: SUBSYSTEM=gpio
+
+P: /devices/platform/soc/401e4000.i2c/i2c-0/0-0022/gpiochip1
+N: gpiochip1
+L: 0
+E: DEVPATH=/devices/platform/soc/401e4000.i2c/i2c-0/0-0022/gpiochip1
+E: SUBSYSTEM=gpio
+E: DEVNAME=/dev/gpiochip1
+E: OF_NAME=gpio-expander
+E: OF_FULLNAME=/soc/i2c@401e4000/gpio-expander@22
+E: OF_COMPATIBLE_0=nxp,pcal6524
+E: OF_COMPATIBLE_N=1
+E: MAJOR=254
+E: MINOR=1
+
+P: /devices/platform/soc/401e4000.i2c/i2c-0/0-0051
+L: 0
+E: DEVPATH=/devices/platform/soc/401e4000.i2c/i2c-0/0-0051
+E: SUBSYSTEM=i2c
+E: DRIVER=rtc-pcf85063
+E: OF_NAME=rtc
+E: OF_FULLNAME=/soc/i2c@401e4000/rtc@51
+E: OF_COMPATIBLE_0=nxp,pca85073a
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NrtcT(null)Cnxp,pca85073a
+
+P: /devices/platform/soc/401e4000.i2c/i2c-0/0-0051/pcf85063_nvram0
+L: 0
+E: DEVPATH=/devices/platform/soc/401e4000.i2c/i2c-0/0-0051/pcf85063_nvram0
+E: SUBSYSTEM=nvmem
+E: OF_NAME=rtc
+E: OF_FULLNAME=/soc/i2c@401e4000/rtc@51
+E: OF_COMPATIBLE_0=nxp,pca85073a
+E: OF_COMPATIBLE_N=1
+
+P: /devices/platform/soc/401e4000.i2c/i2c-0/0-0051/rtc/rtc1
+N: rtc1
+L: 0
+E: DEVPATH=/devices/platform/soc/401e4000.i2c/i2c-0/0-0051/rtc/rtc1
+E: SUBSYSTEM=rtc
+E: DEVNAME=/dev/rtc1
+E: MAJOR=247
+E: MINOR=1
+
+P: /devices/platform/soc/401e4000.i2c/i2c-0/i2c-dev/i2c-0
+N: i2c-0
+L: 0
+E: DEVPATH=/devices/platform/soc/401e4000.i2c/i2c-0/i2c-dev/i2c-0
+E: SUBSYSTEM=i2c-dev
+E: DEVNAME=/dev/i2c-0
+E: MAJOR=89
+E: MINOR=0
+
+P: /devices/platform/soc/401ec000.i2c
+L: 0
+E: DEVPATH=/devices/platform/soc/401ec000.i2c
+E: SUBSYSTEM=platform
+E: DRIVER=imx-i2c
+E: OF_NAME=i2c
+E: OF_FULLNAME=/soc/i2c@401ec000
+E: OF_COMPATIBLE_0=nxp,s32cc-i2c
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=i2c2
+E: MODALIAS=of:Ni2cT(null)Cnxp,s32cc-i2c
+E: USEC_INITIALIZED=13939835
+E: ID_PATH=platform-401ec000.i2c
+E: ID_PATH_TAG=platform-401ec000_i2c
+
+P: /devices/platform/soc/401ec000.i2c/i2c-2
+L: 0
+E: DEVPATH=/devices/platform/soc/401ec000.i2c/i2c-2
+E: SUBSYSTEM=i2c
+E: OF_NAME=i2c
+E: OF_FULLNAME=/soc/i2c@401ec000
+E: OF_COMPATIBLE_0=nxp,s32cc-i2c
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=i2c2
+
+P: /devices/platform/soc/401ec000.i2c/i2c-2/i2c-dev/i2c-2
+N: i2c-2
+L: 0
+E: DEVPATH=/devices/platform/soc/401ec000.i2c/i2c-2/i2c-dev/i2c-2
+E: SUBSYSTEM=i2c-dev
+E: DEVNAME=/dev/i2c-2
+E: MAJOR=89
+E: MINOR=2
+
+P: /devices/platform/soc/401f4000.pwm
+L: 0
+E: DEVPATH=/devices/platform/soc/401f4000.pwm
+E: SUBSYSTEM=platform
+E: DRIVER=fsl-ftm-pwm
+E: OF_NAME=pwm
+E: OF_FULLNAME=/soc/pwm@401f4000
+E: OF_COMPATIBLE_0=nxp,s32cc-ftm-pwm
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NpwmT(null)Cnxp,s32cc-ftm-pwm
+E: USEC_INITIALIZED=13917867
+E: ID_PATH=platform-401f4000.pwm
+E: ID_PATH_TAG=platform-401f4000_pwm
+
+P: /devices/platform/soc/401f4000.pwm/pwm/pwmchip0
+L: 0
+E: DEVPATH=/devices/platform/soc/401f4000.pwm/pwm/pwmchip0
+E: SUBSYSTEM=pwm
+
+P: /devices/platform/soc/401f8000.adc
+L: 0
+E: DEVPATH=/devices/platform/soc/401f8000.adc
+E: SUBSYSTEM=platform
+E: DRIVER=s32-adc
+E: OF_NAME=adc
+E: OF_FULLNAME=/soc/adc@401f8000
+E: OF_COMPATIBLE_0=nxp,s32cc-adc
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NadcT(null)Cnxp,s32cc-adc
+E: USEC_INITIALIZED=13928240
+E: ID_PATH=platform-401f8000.adc
+E: ID_PATH_TAG=platform-401f8000_adc
+
+P: /devices/platform/soc/401f8000.adc/iio:device0
+N: iio:device0
+L: 0
+E: DEVPATH=/devices/platform/soc/401f8000.adc/iio:device0
+E: SUBSYSTEM=iio
+E: DEVNAME=/dev/iio:device0
+E: DEVTYPE=iio_device
+E: OF_NAME=adc
+E: OF_FULLNAME=/soc/adc@401f8000
+E: OF_COMPATIBLE_0=nxp,s32cc-adc
+E: OF_COMPATIBLE_N=1
+E: MAJOR=243
+E: MINOR=0
+
+P: /devices/platform/soc/40200000.watchdog
+L: 0
+E: DEVPATH=/devices/platform/soc/40200000.watchdog
+E: SUBSYSTEM=platform
+E: DRIVER=s32cc-wdt
+E: OF_NAME=watchdog
+E: OF_FULLNAME=/soc/watchdog@40200000
+E: OF_COMPATIBLE_0=nxp,s32cc-wdt
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NwatchdogT(null)Cnxp,s32cc-wdt
+E: USEC_INITIALIZED=13943651
+E: ID_PATH=platform-40200000.watchdog
+E: ID_PATH_TAG=platform-40200000_watchdog
+
+P: /devices/platform/soc/40204000.watchdog
+L: 0
+E: DEVPATH=/devices/platform/soc/40204000.watchdog
+E: SUBSYSTEM=platform
+E: DRIVER=s32cc-wdt
+E: OF_NAME=watchdog
+E: OF_FULLNAME=/soc/watchdog@40204000
+E: OF_COMPATIBLE_0=nxp,s32cc-wdt
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NwatchdogT(null)Cnxp,s32cc-wdt
+E: USEC_INITIALIZED=13943648
+E: ID_PATH=platform-40204000.watchdog
+E: ID_PATH_TAG=platform-40204000_watchdog
+
+P: /devices/platform/soc/40208000.watchdog
+L: 0
+E: DEVPATH=/devices/platform/soc/40208000.watchdog
+E: SUBSYSTEM=platform
+E: DRIVER=s32cc-wdt
+E: OF_NAME=watchdog
+E: OF_FULLNAME=/soc/watchdog@40208000
+E: OF_COMPATIBLE_0=nxp,s32cc-wdt
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NwatchdogT(null)Cnxp,s32cc-wdt
+E: USEC_INITIALIZED=14023520
+E: ID_PATH=platform-40208000.watchdog
+E: ID_PATH_TAG=platform-40208000_watchdog
+
+P: /devices/platform/soc/40228000.stm
+L: 0
+E: DEVPATH=/devices/platform/soc/40228000.stm
+E: SUBSYSTEM=platform
+E: DRIVER=NXP S32CC Univesal Time Source
+E: OF_NAME=stm
+E: OF_FULLNAME=/soc/stm@40228000
+E: OF_COMPATIBLE_0=nxp,s32cc-stm-ts
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NstmT(null)Cnxp,s32cc-stm-ts
+E: USEC_INITIALIZED=13967458
+E: ID_PATH=platform-40228000.stm
+E: ID_PATH_TAG=platform-40228000_stm
+
+P: /devices/platform/soc/40244000.dma-controller
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller
+E: SUBSYSTEM=platform
+E: DRIVER=fsl-edma
+E: OF_NAME=dma-controller
+E: OF_FULLNAME=/soc/dma-controller@40244000
+E: OF_COMPATIBLE_0=nxp,s32cc-edma
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Ndma-controllerT(null)Cnxp,s32cc-edma
+E: USEC_INITIALIZED=13982602
+E: ID_PATH=platform-40244000.dma-controller
+E: ID_PATH_TAG=platform-40244000_dma-controller
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan0
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan0
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan1
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan1
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan10
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan10
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan11
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan11
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan12
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan12
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan13
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan13
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan14
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan14
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan15
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan15
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan16
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan16
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan17
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan17
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan18
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan18
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan19
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan19
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan2
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan2
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan20
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan20
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan21
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan21
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan22
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan22
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan23
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan23
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan24
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan24
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan25
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan25
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan26
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan26
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan27
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan27
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan28
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan28
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan29
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan29
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan3
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan3
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan30
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan30
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan31
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan31
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan4
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan4
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan5
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan5
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan6
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan6
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan7
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan7
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan8
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan8
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40244000.dma-controller/dma/dma1chan9
+L: 0
+E: DEVPATH=/devices/platform/soc/40244000.dma-controller/dma/dma1chan9
+E: SUBSYSTEM=dma
+
+P: /devices/platform/soc/40288000.pit
+L: 0
+E: DEVPATH=/devices/platform/soc/40288000.pit
+E: SUBSYSTEM=platform
+E: OF_NAME=pit
+E: OF_FULLNAME=/soc/pit@40288000
+E: OF_COMPATIBLE_0=nxp,s32cc-pit
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NpitT(null)Cnxp,s32cc-pit
+E: USEC_INITIALIZED=14007493
+E: ID_PATH=platform-40288000.pit
+E: ID_PATH_TAG=platform-40288000_pit
+
+P: /devices/platform/soc/402bc000.serial
+L: 0
+E: DEVPATH=/devices/platform/soc/402bc000.serial
+E: SUBSYSTEM=platform
+E: DRIVER=fsl-linflexuart
+E: OF_NAME=serial
+E: OF_FULLNAME=/soc/serial@402bc000
+E: OF_COMPATIBLE_0=nxp,s32cc-linflexuart
+E: OF_COMPATIBLE_1=fsl,s32v234-linflexuart
+E: OF_COMPATIBLE_N=2
+E: OF_ALIAS_0=serial2
+E: MODALIAS=of:NserialT(null)Cnxp,s32cc-linflexuartCfsl,s32v234-linflexuart
+E: USEC_INITIALIZED=14295742
+E: ID_PATH=platform-402bc000.serial
+E: ID_PATH_TAG=platform-402bc000_serial
+
+P: /devices/platform/soc/402bc000.serial/tty/ttyLF2
+N: ttyLF2
+L: 0
+E: DEVPATH=/devices/platform/soc/402bc000.serial/tty/ttyLF2
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyLF2
+E: MAJOR=238
+E: MINOR=2
+E: USEC_INITIALIZED=14381796
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/402d0000.spi
+L: 0
+E: DEVPATH=/devices/platform/soc/402d0000.spi
+E: SUBSYSTEM=platform
+E: DRIVER=fsl-dspi
+E: OF_NAME=spi
+E: OF_FULLNAME=/soc/spi@402d0000
+E: OF_COMPATIBLE_0=nxp,s32cc-dspi
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NspiT(null)Cnxp,s32cc-dspi
+E: USEC_INITIALIZED=14276258
+E: ID_PATH=platform-402d0000.spi
+E: ID_PATH_TAG=platform-402d0000_spi
+
+P: /devices/platform/soc/402d0000.spi/spi_master/spi5
+L: 0
+E: DEVPATH=/devices/platform/soc/402d0000.spi/spi_master/spi5
+E: SUBSYSTEM=spi_master
+E: OF_NAME=spi
+E: OF_FULLNAME=/soc/spi@402d0000
+E: OF_COMPATIBLE_0=nxp,s32cc-dspi
+E: OF_COMPATIBLE_N=1
+
+P: /devices/platform/soc/402d0000.spi/spi_master/spi5/spi5.0
+L: 0
+E: DEVPATH=/devices/platform/soc/402d0000.spi/spi_master/spi5/spi5.0
+E: SUBSYSTEM=spi
+E: DRIVER=sja1110
+E: OF_NAME=sja1110-uc
+E: OF_FULLNAME=/soc/spi@402d0000/sja1110-uc@0
+E: OF_COMPATIBLE_0=nxp,sja1110-uc
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=spi:sja1110-uc
+
+P: /devices/platform/soc/402d0000.spi/spi_master/spi5/spi5.1
+L: 0
+E: DEVPATH=/devices/platform/soc/402d0000.spi/spi_master/spi5/spi5.1
+E: SUBSYSTEM=spi
+E: DRIVER=sja1110
+E: OF_NAME=sja1110-sw
+E: OF_FULLNAME=/soc/spi@402d0000/sja1110-sw@1
+E: OF_COMPATIBLE_0=nxp,sja1110-switch
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=spi:sja1110-switch
+
+P: /devices/platform/soc/402d0000.spi/spi_master/spi5/spi5.1/gpio/gpiochip281
+L: 0
+E: DEVPATH=/devices/platform/soc/402d0000.spi/spi_master/spi5/spi5.1/gpio/gpiochip281
+E: SUBSYSTEM=gpio
+
+P: /devices/platform/soc/402d0000.spi/spi_master/spi5/spi5.1/gpiochip2
+N: gpiochip2
+L: 0
+E: DEVPATH=/devices/platform/soc/402d0000.spi/spi_master/spi5/spi5.1/gpiochip2
+E: SUBSYSTEM=gpio
+E: DEVNAME=/dev/gpiochip2
+E: OF_NAME=sja1110-sw
+E: OF_FULLNAME=/soc/spi@402d0000/sja1110-sw@1
+E: OF_COMPATIBLE_0=nxp,sja1110-switch
+E: OF_COMPATIBLE_N=1
+E: MAJOR=254
+E: MINOR=2
+
+P: /devices/platform/soc/402dc000.i2c
+L: 0
+E: DEVPATH=/devices/platform/soc/402dc000.i2c
+E: SUBSYSTEM=platform
+E: DRIVER=imx-i2c
+E: OF_NAME=i2c
+E: OF_FULLNAME=/soc/i2c@402dc000
+E: OF_COMPATIBLE_0=nxp,s32cc-i2c
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=i2c4
+E: MODALIAS=of:Ni2cT(null)Cnxp,s32cc-i2c
+E: USEC_INITIALIZED=14285807
+E: ID_PATH=platform-402dc000.i2c
+E: ID_PATH_TAG=platform-402dc000_i2c
+
+P: /devices/platform/soc/402dc000.i2c/i2c-4
+L: 0
+E: DEVPATH=/devices/platform/soc/402dc000.i2c/i2c-4
+E: SUBSYSTEM=i2c
+E: OF_NAME=i2c
+E: OF_FULLNAME=/soc/i2c@402dc000
+E: OF_COMPATIBLE_0=nxp,s32cc-i2c
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=i2c4
+
+P: /devices/platform/soc/402dc000.i2c/i2c-4/i2c-dev/i2c-4
+N: i2c-4
+L: 0
+E: DEVPATH=/devices/platform/soc/402dc000.i2c/i2c-4/i2c-dev/i2c-4
+E: SUBSYSTEM=i2c-dev
+E: DEVNAME=/dev/i2c-4
+E: MAJOR=89
+E: MINOR=4
+
+P: /devices/platform/soc/402e4000.pwm
+L: 0
+E: DEVPATH=/devices/platform/soc/402e4000.pwm
+E: SUBSYSTEM=platform
+E: DRIVER=fsl-ftm-pwm
+E: OF_NAME=pwm
+E: OF_FULLNAME=/soc/pwm@402e4000
+E: OF_COMPATIBLE_0=nxp,s32cc-ftm-pwm
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NpwmT(null)Cnxp,s32cc-ftm-pwm
+E: USEC_INITIALIZED=14274233
+E: ID_PATH=platform-402e4000.pwm
+E: ID_PATH_TAG=platform-402e4000_pwm
+
+P: /devices/platform/soc/402e4000.pwm/pwm/pwmchip6
+L: 0
+E: DEVPATH=/devices/platform/soc/402e4000.pwm/pwm/pwmchip6
+E: SUBSYSTEM=pwm
+
+P: /devices/platform/soc/402e8000.adc
+L: 0
+E: DEVPATH=/devices/platform/soc/402e8000.adc
+E: SUBSYSTEM=platform
+E: DRIVER=s32-adc
+E: OF_NAME=adc
+E: OF_FULLNAME=/soc/adc@402e8000
+E: OF_COMPATIBLE_0=nxp,s32cc-adc
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NadcT(null)Cnxp,s32cc-adc
+E: USEC_INITIALIZED=14348721
+E: ID_PATH=platform-402e8000.adc
+E: ID_PATH_TAG=platform-402e8000_adc
+
+P: /devices/platform/soc/402e8000.adc/iio:device1
+N: iio:device1
+L: 0
+E: DEVPATH=/devices/platform/soc/402e8000.adc/iio:device1
+E: SUBSYSTEM=iio
+E: DEVNAME=/dev/iio:device1
+E: DEVTYPE=iio_device
+E: OF_NAME=adc
+E: OF_FULLNAME=/soc/adc@402e8000
+E: OF_COMPATIBLE_0=nxp,s32cc-adc
+E: OF_COMPATIBLE_N=1
+E: MAJOR=243
+E: MINOR=1
+
+P: /devices/platform/soc/402f0000.mmc
+L: 0
+E: DEVPATH=/devices/platform/soc/402f0000.mmc
+E: SUBSYSTEM=platform
+E: DRIVER=sdhci-esdhc-imx
+E: OF_NAME=mmc
+E: OF_FULLNAME=/soc/mmc@402f0000
+E: OF_COMPATIBLE_0=nxp,s32cc-usdhc
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NmmcT(null)Cnxp,s32cc-usdhc
+E: USEC_INITIALIZED=14289714
+E: ID_PATH=platform-402f0000.mmc
+E: ID_PATH_TAG=platform-402f0000_mmc
+
+P: /devices/platform/soc/402f0000.mmc/leds/mmc0::
+L: 0
+E: DEVPATH=/devices/platform/soc/402f0000.mmc/leds/mmc0::
+E: SUBSYSTEM=leds
+E: USEC_INITIALIZED=14418850
+E: ID_PATH=platform-402f0000.mmc
+E: ID_PATH_TAG=platform-402f0000_mmc
+E: ID_FOR_SEAT=leds-platform-402f0000_mmc
+E: TAGS=:seat:
+E: CURRENT_TAGS=:seat:
+
+P: /devices/platform/soc/402f0000.mmc/mmc_host/mmc0
+L: 0
+E: DEVPATH=/devices/platform/soc/402f0000.mmc/mmc_host/mmc0
+E: SUBSYSTEM=mmc_host
+
+P: /devices/platform/soc/402f0000.mmc/mmc_host/mmc0/mmc0:aaaa
+L: 0
+E: DEVPATH=/devices/platform/soc/402f0000.mmc/mmc_host/mmc0/mmc0:aaaa
+E: SUBSYSTEM=mmc
+E: DRIVER=mmcblk
+E: MMC_TYPE=SD
+E: MMC_NAME=SC16G
+E: MODALIAS=mmc:block
+
+P: /devices/platform/soc/402f0000.mmc/mmc_host/mmc0/mmc0:aaaa/block/mmcblk0
+N: mmcblk0
+L: 0
+S: disk/by-id/mmc-SC16G_0xd3db0e42
+S: disk/by-path/platform-402f0000.mmc
+E: DEVPATH=/devices/platform/soc/402f0000.mmc/mmc_host/mmc0/mmc0:aaaa/block/mmcblk0
+E: SUBSYSTEM=block
+E: DEVNAME=/dev/mmcblk0
+E: DEVTYPE=disk
+E: DISKSEQ=9
+E: MAJOR=179
+E: MINOR=0
+E: USEC_INITIALIZED=14955794
+E: ID_SERIAL=0xd3db0e42
+E: ID_NAME=SC16G
+E: ID_PATH=platform-402f0000.mmc
+E: ID_PATH_TAG=platform-402f0000_mmc
+E: ID_PART_TABLE_UUID=55fef5a1
+E: ID_PART_TABLE_TYPE=dos
+E: DEVLINKS=/dev/disk/by-id/mmc-SC16G_0xd3db0e42 /dev/disk/by-path/platform-402f0000.mmc
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/402f0000.mmc/mmc_host/mmc0/mmc0:aaaa/block/mmcblk0/mmcblk0p1
+N: mmcblk0p1
+L: 0
+S: disk/by-partuuid/55fef5a1-01
+S: disk/by-label/system-boot
+S: disk/by-path/platform-402f0000.mmc-part1
+S: disk/by-uuid/092C-1688
+S: disk/by-id/mmc-SC16G_0xd3db0e42-part1
+E: DEVPATH=/devices/platform/soc/402f0000.mmc/mmc_host/mmc0/mmc0:aaaa/block/mmcblk0/mmcblk0p1
+E: SUBSYSTEM=block
+E: DEVNAME=/dev/mmcblk0p1
+E: DEVTYPE=partition
+E: DISKSEQ=9
+E: PARTN=1
+E: MAJOR=179
+E: MINOR=1
+E: USEC_INITIALIZED=15397797
+E: ID_SERIAL=0xd3db0e42
+E: ID_NAME=SC16G
+E: ID_PATH=platform-402f0000.mmc
+E: ID_PATH_TAG=platform-402f0000_mmc
+E: ID_PART_TABLE_UUID=55fef5a1
+E: ID_PART_TABLE_TYPE=dos
+E: ID_FS_LABEL=system-boot
+E: ID_FS_LABEL_ENC=system-boot
+E: ID_FS_UUID=092C-1688
+E: ID_FS_UUID_ENC=092C-1688
+E: ID_FS_VERSION=FAT32
+E: ID_FS_TYPE=vfat
+E: ID_FS_USAGE=filesystem
+E: ID_PART_ENTRY_SCHEME=dos
+E: ID_PART_ENTRY_UUID=55fef5a1-01
+E: ID_PART_ENTRY_TYPE=0xc
+E: ID_PART_ENTRY_FLAGS=0x80
+E: ID_PART_ENTRY_NUMBER=1
+E: ID_PART_ENTRY_OFFSET=8193
+E: ID_PART_ENTRY_SIZE=102400
+E: ID_PART_ENTRY_DISK=179:0
+E: DEVLINKS=/dev/disk/by-partuuid/55fef5a1-01 /dev/disk/by-label/system-boot /dev/disk/by-path/platform-402f0000.mmc-part1 /dev/disk/by-uuid/092C-1688 /dev/disk/by-id/mmc-SC16G_0xd3db0e42-part1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/402f0000.mmc/mmc_host/mmc0/mmc0:aaaa/block/mmcblk0/mmcblk0p2
+N: mmcblk0p2
+L: 0
+S: disk/by-path/platform-402f0000.mmc-part2
+S: disk/by-id/mmc-SC16G_0xd3db0e42-part2
+S: disk/by-label/writable
+S: disk/by-partuuid/55fef5a1-02
+S: disk/by-uuid/cac57583-0f49-4ee7-b8d7-01360d5828ad
+E: DEVPATH=/devices/platform/soc/402f0000.mmc/mmc_host/mmc0/mmc0:aaaa/block/mmcblk0/mmcblk0p2
+E: SUBSYSTEM=block
+E: DEVNAME=/dev/mmcblk0p2
+E: DEVTYPE=partition
+E: DISKSEQ=9
+E: PARTN=2
+E: MAJOR=179
+E: MINOR=2
+E: USEC_INITIALIZED=15387524
+E: ID_SERIAL=0xd3db0e42
+E: ID_NAME=SC16G
+E: ID_PATH=platform-402f0000.mmc
+E: ID_PATH_TAG=platform-402f0000_mmc
+E: ID_PART_TABLE_UUID=55fef5a1
+E: ID_PART_TABLE_TYPE=dos
+E: ID_FS_LABEL=writable
+E: ID_FS_LABEL_ENC=writable
+E: ID_FS_UUID=cac57583-0f49-4ee7-b8d7-01360d5828ad
+E: ID_FS_UUID_ENC=cac57583-0f49-4ee7-b8d7-01360d5828ad
+E: ID_FS_VERSION=1.0
+E: ID_FS_TYPE=ext4
+E: ID_FS_USAGE=filesystem
+E: ID_PART_ENTRY_SCHEME=dos
+E: ID_PART_ENTRY_UUID=55fef5a1-02
+E: ID_PART_ENTRY_TYPE=0x83
+E: ID_PART_ENTRY_NUMBER=2
+E: ID_PART_ENTRY_OFFSET=110593
+E: ID_PART_ENTRY_SIZE=31005662
+E: ID_PART_ENTRY_DISK=179:0
+E: DEVLINKS=/dev/disk/by-path/platform-402f0000.mmc-part2 /dev/disk/by-id/mmc-SC16G_0xd3db0e42-part2 /dev/disk/by-label/writable /dev/disk/by-partuuid/55fef5a1-02 /dev/disk/by-uuid/cac57583-0f49-4ee7-b8d7-01360d5828ad
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/4030c000.fccu
+L: 0
+E: DEVPATH=/devices/platform/soc/4030c000.fccu
+E: SUBSYSTEM=platform
+E: DRIVER=s32cc_fccu
+E: OF_NAME=fccu
+E: OF_FULLNAME=/soc/fccu@4030c000
+E: OF_COMPATIBLE_0=nxp,s32cc-fccu
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NfccuT(null)Cnxp,s32cc-fccu
+E: USEC_INITIALIZED=14419426
+E: ID_PATH=platform-4030c000.fccu
+E: ID_PATH_TAG=platform-4030c000_fccu
+
+P: /devices/platform/soc/4030c000.fccu/misc/fccu
+N: fccu
+L: 0
+E: DEVPATH=/devices/platform/soc/4030c000.fccu/misc/fccu
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/fccu
+E: MAJOR=10
+E: MINOR=1
+
+P: /devices/platform/soc/4033c000.ethernet
+L: 0
+E: DEVPATH=/devices/platform/soc/4033c000.ethernet
+E: SUBSYSTEM=platform
+E: DRIVER=s32cc-dwmac
+E: OF_NAME=ethernet
+E: OF_FULLNAME=/soc/ethernet@4033c000
+E: OF_COMPATIBLE_0=nxp,s32cc-dwmac
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=gmac0
+E: MODALIAS=of:NethernetT(null)Cnxp,s32cc-dwmac
+E: USEC_INITIALIZED=14340887
+E: ID_PATH=platform-4033c000.ethernet
+E: ID_PATH_TAG=platform-4033c000_ethernet
+
+P: /devices/platform/soc/4033c000.ethernet/mdio_bus/stmmac-0
+L: 0
+E: DEVPATH=/devices/platform/soc/4033c000.ethernet/mdio_bus/stmmac-0
+E: SUBSYSTEM=mdio_bus
+E: OF_NAME=mdio0
+E: OF_FULLNAME=/soc/ethernet@4033c000/mdio0
+E: OF_COMPATIBLE_0=snps,dwmac-mdio
+E: OF_COMPATIBLE_N=1
+
+P: /devices/platform/soc/4033c000.ethernet/mdio_bus/stmmac-0/stmmac-0:01
+L: 0
+E: DEVPATH=/devices/platform/soc/4033c000.ethernet/mdio_bus/stmmac-0/stmmac-0:01
+E: SUBSYSTEM=mdio_bus
+E: DEVTYPE=PHY
+E: DRIVER=Micrel KSZ9031 Gigabit PHY
+E: OF_NAME=ethernet-phy
+E: OF_FULLNAME=/soc/ethernet@4033c000/mdio0/ethernet-phy@1
+E: OF_COMPATIBLE_N=0
+E: MODALIAS=of:Nethernet-phyT(null)
+
+P: /devices/platform/soc/4033c000.ethernet/mdio_bus/stmmac-0/stmmac-0:08
+L: 0
+E: DEVPATH=/devices/platform/soc/4033c000.ethernet/mdio_bus/stmmac-0/stmmac-0:08
+E: SUBSYSTEM=mdio_bus
+E: DEVTYPE=PHY
+E: DRIVER=Aquantia AQR113c
+E: OF_NAME=ethernet-phy
+E: OF_FULLNAME=/soc/ethernet@4033c000/mdio0/ethernet-phy@3
+E: OF_COMPATIBLE_0=ethernet-phy-ieee802.3-c45
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nethernet-phyT(null)Cethernet-phy-ieee802.3-c45
+
+P: /devices/platform/soc/4033c000.ethernet/mdio_bus/stmmac-0/stmmac-0:08/hwmon/hwmon1
+L: 0
+E: DEVPATH=/devices/platform/soc/4033c000.ethernet/mdio_bus/stmmac-0/stmmac-0:08/hwmon/hwmon1
+E: SUBSYSTEM=hwmon
+E: OF_NAME=ethernet-phy
+E: OF_FULLNAME=/soc/ethernet@4033c000/mdio0/ethernet-phy@3
+E: OF_COMPATIBLE_0=ethernet-phy-ieee802.3-c45
+E: OF_COMPATIBLE_N=1
+
+P: /devices/platform/soc/4033c000.ethernet/net/eth0
+L: 0
+E: DEVPATH=/devices/platform/soc/4033c000.ethernet/net/eth0
+E: SUBSYSTEM=net
+E: INTERFACE=eth0
+E: IFINDEX=4
+E: USEC_INITIALIZED=15780709
+E: ID_MM_CANDIDATE=1
+E: ID_NET_NAMING_SCHEME=v249
+E: ID_NET_NAME_MAC=enxc6bb1614200c
+E: ID_PATH=platform-4033c000.ethernet
+E: ID_PATH_TAG=platform-4033c000_ethernet
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=eth0
+E: NM_UNMANAGED=1
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/eth0
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/4033c000.ethernet/ptp/ptp0
+N: ptp0
+L: 0
+E: DEVPATH=/devices/platform/soc/4033c000.ethernet/ptp/ptp0
+E: SUBSYSTEM=ptp
+E: DEVNAME=/dev/ptp0
+E: MAJOR=245
+E: MINOR=0
+
+P: /devices/platform/soc/403c0000.ddr_errata
+L: 0
+E: DEVPATH=/devices/platform/soc/403c0000.ddr_errata
+E: SUBSYSTEM=platform
+E: DRIVER=ddr
+E: OF_NAME=ddr_errata
+E: OF_FULLNAME=/soc/ddr_errata@403c0000
+E: OF_COMPATIBLE_0=nxp,s32cc-ddr
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nddr_errataT(null)Cnxp,s32cc-ddr
+E: USEC_INITIALIZED=14389865
+E: ID_PATH=platform-403c0000.ddr_errata
+E: ID_PATH_TAG=platform-403c0000_ddr_errata
+
+P: /devices/platform/soc/403e0000.ddr-perf
+L: 0
+E: DEVPATH=/devices/platform/soc/403e0000.ddr-perf
+E: SUBSYSTEM=platform
+E: DRIVER=nxp_s32cc_ddr_perf
+E: OF_NAME=ddr-perf
+E: OF_FULLNAME=/soc/ddr-perf@403e0000
+E: OF_COMPATIBLE_0=nxp,s32cc-ddr-perf
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nddr-perfT(null)Cnxp,s32cc-ddr-perf
+E: USEC_INITIALIZED=14468528
+E: ID_PATH=platform-403e0000.ddr-perf
+E: ID_PATH_TAG=platform-403e0000_ddr-perf
+
+P: /devices/platform/soc/40400000.pcie
+L: 0
+E: DEVPATH=/devices/platform/soc/40400000.pcie
+E: SUBSYSTEM=platform
+E: DRIVER=s32cc-pcie
+E: OF_NAME=pcie
+E: OF_FULLNAME=/soc/pcie@40400000
+E: OF_TYPE=pci
+E: OF_COMPATIBLE_0=nxp,s32cc-pcie
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=pci0
+E: MODALIAS=of:NpcieTpciCnxp,s32cc-pcie
+E: USEC_INITIALIZED=14392282
+E: ID_PATH=platform-40400000.pcie
+E: ID_PATH_TAG=platform-40400000_pcie
+
+P: /devices/platform/soc/40400000.pcie/pci0000:00/0000:00:00.0
+L: 0
+E: DEVPATH=/devices/platform/soc/40400000.pcie/pci0000:00/0000:00:00.0
+E: SUBSYSTEM=pci
+E: DRIVER=pcieport
+E: PCI_CLASS=60400
+E: PCI_ID=1957:4002
+E: PCI_SUBSYS_ID=0000:0000
+E: PCI_SLOT_NAME=0000:00:00.0
+E: MODALIAS=pci:v00001957d00004002sv00000000sd00000000bc06sc04i00
+E: USEC_INITIALIZED=14734994
+E: ID_PCI_CLASS_FROM_DATABASE=Bridge
+E: ID_PCI_SUBCLASS_FROM_DATABASE=PCI bridge
+E: ID_PCI_INTERFACE_FROM_DATABASE=Normal decode
+E: ID_VENDOR_FROM_DATABASE=Freescale Semiconductor Inc
+
+P: /devices/platform/soc/40400000.pcie/pci0000:00/0000:00:00.0/0000:00:00.0:pcie001
+L: 0
+E: DEVPATH=/devices/platform/soc/40400000.pcie/pci0000:00/0000:00:00.0/0000:00:00.0:pcie001
+E: SUBSYSTEM=pci_express
+E: DRIVER=pcie_pme
+
+P: /devices/platform/soc/40400000.pcie/pci0000:00/0000:00:00.0/pci_bus/0000:01
+L: 0
+E: DEVPATH=/devices/platform/soc/40400000.pcie/pci0000:00/0000:00:00.0/pci_bus/0000:01
+E: SUBSYSTEM=pci_bus
+
+P: /devices/platform/soc/40400000.pcie/pci0000:00/pci_bus/0000:00
+L: 0
+E: DEVPATH=/devices/platform/soc/40400000.pcie/pci0000:00/pci_bus/0000:00
+E: SUBSYSTEM=pci_bus
+E: OF_NAME=pcie
+E: OF_FULLNAME=/soc/pcie@40400000
+E: OF_TYPE=pci
+E: OF_COMPATIBLE_0=nxp,s32cc-pcie
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=pci0
+
+P: /devices/platform/soc/40480000.serdes
+L: 0
+E: DEVPATH=/devices/platform/soc/40480000.serdes
+E: SUBSYSTEM=platform
+E: DRIVER=phy-s32cc-serdes
+E: OF_NAME=serdes
+E: OF_FULLNAME=/soc/serdes@40480000
+E: OF_COMPATIBLE_0=nxp,s32cc-serdes
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=serdes0
+E: MODALIAS=of:NserdesT(null)Cnxp,s32cc-serdes
+E: USEC_INITIALIZED=14380434
+E: ID_PATH=platform-40480000.serdes
+E: ID_PATH_TAG=platform-40480000_serdes
+
+P: /devices/platform/soc/40480000.serdes/phy/phy-40480000.serdes.0
+L: 0
+E: DEVPATH=/devices/platform/soc/40480000.serdes/phy/phy-40480000.serdes.0
+E: SUBSYSTEM=phy
+E: OF_NAME=serdes
+E: OF_FULLNAME=/soc/serdes@40480000
+E: OF_COMPATIBLE_0=nxp,s32cc-serdes
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=serdes0
+
+P: /devices/platform/soc/40480000.serdes/phy/phy-40480000.serdes.1
+L: 0
+E: DEVPATH=/devices/platform/soc/40480000.serdes/phy/phy-40480000.serdes.1
+E: SUBSYSTEM=phy
+E: OF_NAME=serdes
+E: OF_FULLNAME=/soc/serdes@40480000
+E: OF_COMPATIBLE_0=nxp,s32cc-serdes
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=serdes0
+
+P: /devices/platform/soc/43000000.llce_dte_sram
+L: 0
+E: DEVPATH=/devices/platform/soc/43000000.llce_dte_sram
+E: SUBSYSTEM=platform
+E: DRIVER=sram
+E: OF_NAME=llce_dte_sram
+E: OF_FULLNAME=/soc/llce_dte_sram@43000000
+E: OF_COMPATIBLE_0=mmio-sram
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_dte_sramT(null)Cmmio-sram
+E: USEC_INITIALIZED=14395741
+E: ID_PATH=platform-43000000.llce_dte_sram
+E: ID_PATH_TAG=platform-43000000_llce_dte_sram
+
+P: /devices/platform/soc/43100000.llce_ppe_rx_sram
+L: 0
+E: DEVPATH=/devices/platform/soc/43100000.llce_ppe_rx_sram
+E: SUBSYSTEM=platform
+E: DRIVER=sram
+E: OF_NAME=llce_ppe_rx_sram
+E: OF_FULLNAME=/soc/llce_ppe_rx_sram@43100000
+E: OF_COMPATIBLE_0=mmio-sram
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_ppe_rx_sramT(null)Cmmio-sram
+E: USEC_INITIALIZED=14362776
+E: ID_PATH=platform-43100000.llce_ppe_rx_sram
+E: ID_PATH_TAG=platform-43100000_llce_ppe_rx_sram
+
+P: /devices/platform/soc/43200000.llce_ppe_tx_sram
+L: 0
+E: DEVPATH=/devices/platform/soc/43200000.llce_ppe_tx_sram
+E: SUBSYSTEM=platform
+E: DRIVER=sram
+E: OF_NAME=llce_ppe_tx_sram
+E: OF_FULLNAME=/soc/llce_ppe_tx_sram@43200000
+E: OF_COMPATIBLE_0=mmio-sram
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_ppe_tx_sramT(null)Cmmio-sram
+E: USEC_INITIALIZED=14421324
+E: ID_PATH=platform-43200000.llce_ppe_tx_sram
+E: ID_PATH_TAG=platform-43200000_llce_ppe_tx_sram
+
+P: /devices/platform/soc/43300000.llce_frpe_sram
+L: 0
+E: DEVPATH=/devices/platform/soc/43300000.llce_frpe_sram
+E: SUBSYSTEM=platform
+E: DRIVER=sram
+E: OF_NAME=llce_frpe_sram
+E: OF_FULLNAME=/soc/llce_frpe_sram@43300000
+E: OF_COMPATIBLE_0=mmio-sram
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_frpe_sramT(null)Cmmio-sram
+E: USEC_INITIALIZED=14501160
+E: ID_PATH=platform-43300000.llce_frpe_sram
+E: ID_PATH_TAG=platform-43300000_llce_frpe_sram
+
+P: /devices/platform/soc/43800000.llce_shmem
+L: 0
+E: DEVPATH=/devices/platform/soc/43800000.llce_shmem
+E: SUBSYSTEM=platform
+E: DRIVER=sram
+E: OF_NAME=llce_shmem
+E: OF_FULLNAME=/soc/llce_shmem@43800000
+E: OF_COMPATIBLE_0=mmio-sram
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_shmemT(null)Cmmio-sram
+E: USEC_INITIALIZED=14417763
+E: ID_PATH=platform-43800000.llce_shmem
+E: ID_PATH_TAG=platform-43800000_llce_shmem
+
+P: /devices/platform/soc/4383c000.llce_boot_status
+L: 0
+E: DEVPATH=/devices/platform/soc/4383c000.llce_boot_status
+E: SUBSYSTEM=platform
+E: DRIVER=sram
+E: OF_NAME=llce_boot_status
+E: OF_FULLNAME=/soc/llce_boot_status@4383c000
+E: OF_COMPATIBLE_0=mmio-sram
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_boot_statusT(null)Cmmio-sram
+E: USEC_INITIALIZED=14371492
+E: ID_PATH=platform-4383c000.llce_boot_status
+E: ID_PATH_TAG=platform-4383c000_llce_boot_status
+
+P: /devices/platform/soc/43ff8000.llce
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce
+E: SUBSYSTEM=platform
+E: DRIVER=llce_core
+E: OF_NAME=llce
+E: OF_FULLNAME=/soc/llce@43a00000
+E: OF_COMPATIBLE_0=nxp,s32g-llce-core
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NllceT(null)Cnxp,s32g-llce-core
+E: USEC_INITIALIZED=14438234
+E: ID_PATH=platform-43ff8000.llce
+E: ID_PATH_TAG=platform-43ff8000_llce
+
+P: /devices/platform/soc/43ff8000.llce/43a00000.llce_mb
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43a00000.llce_mb
+E: SUBSYSTEM=platform
+E: DRIVER=llce_mb
+E: OF_NAME=llce_mb
+E: OF_FULLNAME=/soc/llce@43a00000/llce_mb@43a00000
+E: OF_COMPATIBLE_0=nxp,s32g-llce-mailbox
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_mbT(null)Cnxp,s32g-llce-mailbox
+E: USEC_INITIALIZED=15781268
+E: ID_PATH=platform-43a00000.llce_mb
+E: ID_PATH_TAG=platform-43a00000_llce_mb
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can0
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can0
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can0
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can0
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can0T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16019735
+E: ID_PATH=platform-43ff8000.llce:llce_can0
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can0
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can0/net/llcecan0
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can0/net/llcecan0
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan0
+E: IFINDEX=8
+E: USEC_INITIALIZED=16403925
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can0
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can0
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan0
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan0
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can1
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can1
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can1
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can1
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can1T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16024855
+E: ID_PATH=platform-43ff8000.llce:llce_can1
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can1
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can1/net/llcecan1
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can1/net/llcecan1
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan1
+E: IFINDEX=9
+E: USEC_INITIALIZED=16454918
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can1
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can1
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan1
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can10
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can10
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can10
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can10
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can10T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16184716
+E: ID_PATH=platform-43ff8000.llce:llce_can10
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can10
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can10/net/llcecan10
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can10/net/llcecan10
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan10
+E: IFINDEX=18
+E: USEC_INITIALIZED=16457316
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can10
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can10
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan10
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan10
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can11
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can11
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can11
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can11
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can11T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16174463
+E: ID_PATH=platform-43ff8000.llce:llce_can11
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can11
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can11/net/llcecan11
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can11/net/llcecan11
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan11
+E: IFINDEX=19
+E: USEC_INITIALIZED=16464149
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can11
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can11
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan11
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan11
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can13
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can13
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can13
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can13
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can13T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16193469
+E: ID_PATH=platform-43ff8000.llce:llce_can13
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can13
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can13/net/llcecan13
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can13/net/llcecan13
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan13
+E: IFINDEX=20
+E: USEC_INITIALIZED=16527263
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can13
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can13
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan13
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan13
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can14
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can14
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can14
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can14
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can14T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16232200
+E: ID_PATH=platform-43ff8000.llce:llce_can14
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can14
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can14/net/llcecan14
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can14/net/llcecan14
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan14
+E: IFINDEX=21
+E: USEC_INITIALIZED=16499549
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can14
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can14
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan14
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan14
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can15
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can15
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can15
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can15
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can15T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16258300
+E: ID_PATH=platform-43ff8000.llce:llce_can15
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can15
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can15/net/llcecan15
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can15/net/llcecan15
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan15
+E: IFINDEX=22
+E: USEC_INITIALIZED=16488512
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can15
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can15
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan15
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan15
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can2
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can2
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can2
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can2
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can2T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16061840
+E: ID_PATH=platform-43ff8000.llce:llce_can2
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can2
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can2/net/llcecan2
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can2/net/llcecan2
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan2
+E: IFINDEX=10
+E: USEC_INITIALIZED=16423853
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can2
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can2
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan2
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan2
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can3
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can3
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can3
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can3
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can3T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16071332
+E: ID_PATH=platform-43ff8000.llce:llce_can3
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can3
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can3/net/llcecan3
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can3/net/llcecan3
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan3
+E: IFINDEX=11
+E: USEC_INITIALIZED=16505431
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can3
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can3
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan3
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan3
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can4
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can4
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can4
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can4
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can4T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16087797
+E: ID_PATH=platform-43ff8000.llce:llce_can4
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can4
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can4/net/llcecan4
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can4/net/llcecan4
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan4
+E: IFINDEX=12
+E: USEC_INITIALIZED=16398289
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can4
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can4
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan4
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan4
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can5
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can5
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can5
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can5
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can5T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16111986
+E: ID_PATH=platform-43ff8000.llce:llce_can5
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can5
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can5/net/llcecan5
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can5/net/llcecan5
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan5
+E: IFINDEX=13
+E: USEC_INITIALIZED=16437943
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can5
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can5
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan5
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan5
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can6
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can6
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can6
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can6
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can6T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16107426
+E: ID_PATH=platform-43ff8000.llce:llce_can6
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can6
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can6/net/llcecan6
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can6/net/llcecan6
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan6
+E: IFINDEX=14
+E: USEC_INITIALIZED=16433346
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can6
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can6
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan6
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan6
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can7
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can7
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can7
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can7
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can7T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16125236
+E: ID_PATH=platform-43ff8000.llce:llce_can7
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can7
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can7/net/llcecan7
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can7/net/llcecan7
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan7
+E: IFINDEX=15
+E: USEC_INITIALIZED=16429791
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can7
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can7
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan7
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan7
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can8
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can8
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can8
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can8
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can8T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16148135
+E: ID_PATH=platform-43ff8000.llce:llce_can8
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can8
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can8/net/llcecan8
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can8/net/llcecan8
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan8
+E: IFINDEX=16
+E: USEC_INITIALIZED=16420651
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can8
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can8
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan8
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan8
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can9
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can9
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can
+E: OF_NAME=llce_can9
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can9
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can9T(null)Cnxp,s32g-llce-can
+E: USEC_INITIALIZED=16160791
+E: ID_PATH=platform-43ff8000.llce:llce_can9
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can9
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can9/net/llcecan9
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can9/net/llcecan9
+E: SUBSYSTEM=net
+E: INTERFACE=llcecan9
+E: IFINDEX=17
+E: USEC_INITIALIZED=16440474
+E: ID_MM_CANDIDATE=1
+E: ID_PATH=platform-43ff8000.llce:llce_can9
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can9
+E: ID_NET_DRIVER=llce_can
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=llcecan9
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/llcecan9
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_core
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_core
+E: SUBSYSTEM=platform
+E: DRIVER=llce_can_core
+E: OF_NAME=llce_can_core
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_core
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-core
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_coreT(null)Cnxp,s32g-llce-can-core
+E: USEC_INITIALIZED=15770927
+E: ID_PATH=platform-43ff8000.llce:llce_can_core
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_core
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger0
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger0
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger0
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger0
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger0T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=15771761
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger0
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger0
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger1
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger1
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger1
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger1
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger1T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=15798527
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger1
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger1
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger10
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger10
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger10
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger10
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger10T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=15994195
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger10
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger10
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger11
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger11
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger11
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger11
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger11T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=16005706
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger11
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger11
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger12
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger12
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger12
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger12
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger12T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=16010621
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger12
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger12
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger13
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger13
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger13
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger13
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger13T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=16003393
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger13
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger13
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger14
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger14
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger14
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger14
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger14T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=16003396
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger14
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger14
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger15
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger15
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger15
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger15
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger15T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=16015394
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger15
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger15
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger2
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger2
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger2
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger2
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger2T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=15789880
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger2
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger2
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger3
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger3
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger3
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger3
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger3T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=15804923
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger3
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger3
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger4
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger4
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger4
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger4
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger4T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=15810003
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger4
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger4
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger5
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger5
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger5
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger5
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger5T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=15815225
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger5
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger5
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger6
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger6
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger6
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger6
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger6T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=15809970
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger6
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger6
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger7
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger7
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger7
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger7
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger7T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=15891349
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger7
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger7
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger8
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger8
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger8
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger8
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger8T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=15977557
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger8
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger8
+
+P: /devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger9
+L: 0
+E: DEVPATH=/devices/platform/soc/43ff8000.llce/43ff8000.llce:llce_can_logger9
+E: SUBSYSTEM=platform
+E: OF_NAME=llce_can_logger9
+E: OF_FULLNAME=/soc/llce@43a00000/llce_can_logger9
+E: OF_COMPATIBLE_0=nxp,s32g-llce-can-logger
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nllce_can_logger9T(null)Cnxp,s32g-llce-can-logger
+E: USEC_INITIALIZED=15975596
+E: ID_PATH=platform-43ff8000.llce:llce_can_logger9
+E: ID_PATH_TAG=platform-43ff8000_llce_llce_can_logger9
+
+P: /devices/platform/soc/44064000.usb
+L: 0
+E: DEVPATH=/devices/platform/soc/44064000.usb
+E: SUBSYSTEM=platform
+E: DRIVER=imx_usb
+E: OF_NAME=usb
+E: OF_FULLNAME=/soc/usb@44064000
+E: OF_COMPATIBLE_0=nxp,s32g-usb
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NusbT(null)Cnxp,s32g-usb
+E: USEC_INITIALIZED=14458950
+E: ID_PATH=platform-44064000.usb
+E: ID_PATH_TAG=platform-44064000_usb
+
+P: /devices/platform/soc/44064000.usb/ci_hdrc.0
+L: 0
+E: DEVPATH=/devices/platform/soc/44064000.usb/ci_hdrc.0
+E: SUBSYSTEM=platform
+E: DRIVER=ci_hdrc
+E: MODALIAS=platform:ci_hdrc
+E: USEC_INITIALIZED=15716235
+E: ID_PATH=platform-ci_hdrc.0
+E: ID_PATH_TAG=platform-ci_hdrc_0
+
+P: /devices/platform/soc/44064000.usb/ci_hdrc.0/ci_hdrc.0.ulpi
+L: 0
+E: DEVPATH=/devices/platform/soc/44064000.usb/ci_hdrc.0/ci_hdrc.0.ulpi
+E: SUBSYSTEM=ulpi
+E: DEVTYPE=ulpi_device
+E: MODALIAS=ulpi:v0000p0000
+
+P: /devices/platform/soc/44064000.usb/ci_hdrc.0/udc/ci_hdrc.0
+L: 0
+E: DEVPATH=/devices/platform/soc/44064000.usb/ci_hdrc.0/udc/ci_hdrc.0
+E: SUBSYSTEM=udc
+E: USB_UDC_NAME=44064000.usb
+E: USEC_INITIALIZED=15727473
+E: SYSTEMD_WANTS=usb-gadget.target
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/44064200.usbmisc
+L: 0
+E: DEVPATH=/devices/platform/soc/44064200.usbmisc
+E: SUBSYSTEM=platform
+E: DRIVER=usbmisc_imx
+E: OF_NAME=usbmisc
+E: OF_FULLNAME=/soc/usbmisc@44064200
+E: OF_COMPATIBLE_0=nxp,s32g2-usbmisc
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NusbmiscT(null)Cnxp,s32g2-usbmisc
+E: USEC_INITIALIZED=14432987
+E: ID_PATH=platform-44064200.usbmisc
+E: ID_PATH_TAG=platform-44064200_usbmisc
+
+P: /devices/platform/soc/44180000.serdes
+L: 0
+E: DEVPATH=/devices/platform/soc/44180000.serdes
+E: SUBSYSTEM=platform
+E: DRIVER=phy-s32cc-serdes
+E: OF_NAME=serdes
+E: OF_FULLNAME=/soc/serdes@44180000
+E: OF_COMPATIBLE_0=nxp,s32cc-serdes
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=serdes1
+E: MODALIAS=of:NserdesT(null)Cnxp,s32cc-serdes
+E: USEC_INITIALIZED=14435774
+E: ID_PATH=platform-44180000.serdes
+E: ID_PATH_TAG=platform-44180000_serdes
+
+P: /devices/platform/soc/44180000.serdes/phy/phy-44180000.serdes.2
+L: 0
+E: DEVPATH=/devices/platform/soc/44180000.serdes/phy/phy-44180000.serdes.2
+E: SUBSYSTEM=phy
+E: OF_NAME=serdes
+E: OF_FULLNAME=/soc/serdes@44180000
+E: OF_COMPATIBLE_0=nxp,s32cc-serdes
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=serdes1
+
+P: /devices/platform/soc/44180000.serdes/phy/phy-44180000.serdes.3
+L: 0
+E: DEVPATH=/devices/platform/soc/44180000.serdes/phy/phy-44180000.serdes.3
+E: SUBSYSTEM=phy
+E: OF_NAME=serdes
+E: OF_FULLNAME=/soc/serdes@44180000
+E: OF_COMPATIBLE_0=nxp,s32cc-serdes
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=serdes1
+
+P: /devices/platform/soc/46000000.pfe
+L: 0
+E: DEVPATH=/devices/platform/soc/46000000.pfe
+E: SUBSYSTEM=platform
+E: DRIVER=pfeng
+E: OF_NAME=pfe
+E: OF_FULLNAME=/soc/pfe@46000000
+E: OF_COMPATIBLE_0=nxp,s32g-pfe
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NpfeT(null)Cnxp,s32g-pfe
+E: USEC_INITIALIZED=14439581
+E: ID_PATH=platform-46000000.pfe
+E: ID_PATH_TAG=platform-46000000_pfe
+
+P: /devices/platform/soc/46000000.pfe/mdio_bus/PFEng Ethernet MDIO.2
+L: 0
+E: DEVPATH=/devices/platform/soc/46000000.pfe/mdio_bus/PFEng Ethernet MDIO.2
+E: SUBSYSTEM=mdio_bus
+E: OF_NAME=mdio
+E: OF_FULLNAME=/soc/pfe@46000000/mdio@2
+E: OF_COMPATIBLE_0=nxp,s32g-pfe-mdio
+E: OF_COMPATIBLE_N=1
+
+P: /devices/platform/soc/46000000.pfe/mdio_bus/PFEng Ethernet MDIO.2/PFEng Ethernet MDIO.2:04
+L: 0
+E: DEVPATH=/devices/platform/soc/46000000.pfe/mdio_bus/PFEng Ethernet MDIO.2/PFEng Ethernet MDIO.2:04
+E: SUBSYSTEM=mdio_bus
+E: DEVTYPE=PHY
+E: DRIVER=Micrel KSZ9031 Gigabit PHY
+E: OF_NAME=ethernet-phy
+E: OF_FULLNAME=/soc/pfe@46000000/mdio@2/ethernet-phy@4
+E: OF_COMPATIBLE_N=0
+E: MODALIAS=of:Nethernet-phyT(null)
+
+P: /devices/platform/soc/46000000.pfe/net/pfe0
+L: 0
+E: DEVPATH=/devices/platform/soc/46000000.pfe/net/pfe0
+E: SUBSYSTEM=net
+E: OF_NAME=ethernet
+E: OF_FULLNAME=/soc/pfe@46000000/ethernet@10
+E: OF_COMPATIBLE_0=nxp,s32g-pfe-netif
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=pfe0
+E: INTERFACE=pfe0
+E: IFINDEX=5
+E: USEC_INITIALIZED=15841176
+E: ID_MM_CANDIDATE=1
+E: ID_NET_NAMING_SCHEME=v249
+E: ID_NET_NAME_MAC=enx00049fbeef00
+E: ID_OUI_FROM_DATABASE=Freescale Semiconductor
+E: ID_PATH=platform-46000000.pfe
+E: ID_PATH_TAG=platform-46000000_pfe
+E: ID_NET_DRIVER=pfeng
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=pfe0
+E: NM_UNMANAGED=1
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/pfe0
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/46000000.pfe/net/pfe1
+L: 0
+E: DEVPATH=/devices/platform/soc/46000000.pfe/net/pfe1
+E: SUBSYSTEM=net
+E: OF_NAME=ethernet
+E: OF_FULLNAME=/soc/pfe@46000000/ethernet@11
+E: OF_COMPATIBLE_0=nxp,s32g-pfe-netif
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=pfe1
+E: INTERFACE=pfe1
+E: IFINDEX=6
+E: USEC_INITIALIZED=15841028
+E: ID_MM_CANDIDATE=1
+E: ID_NET_NAMING_SCHEME=v249
+E: ID_NET_NAME_MAC=enx00049fbeef01
+E: ID_OUI_FROM_DATABASE=Freescale Semiconductor
+E: ID_PATH=platform-46000000.pfe
+E: ID_PATH_TAG=platform-46000000_pfe
+E: ID_NET_DRIVER=pfeng
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=pfe1
+E: NM_UNMANAGED=1
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/pfe1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/46000000.pfe/net/pfe2
+L: 0
+E: DEVPATH=/devices/platform/soc/46000000.pfe/net/pfe2
+E: SUBSYSTEM=net
+E: OF_NAME=ethernet
+E: OF_FULLNAME=/soc/pfe@46000000/ethernet@12
+E: OF_COMPATIBLE_0=nxp,s32g-pfe-netif
+E: OF_COMPATIBLE_N=1
+E: OF_ALIAS_0=pfe2
+E: INTERFACE=pfe2
+E: IFINDEX=7
+E: USEC_INITIALIZED=15916447
+E: ID_MM_CANDIDATE=1
+E: ID_NET_NAMING_SCHEME=v249
+E: ID_NET_NAME_MAC=enx00049fbeef02
+E: ID_OUI_FROM_DATABASE=Freescale Semiconductor
+E: ID_PATH=platform-46000000.pfe
+E: ID_PATH_TAG=platform-46000000_pfe
+E: ID_NET_DRIVER=pfeng
+E: ID_NET_LINK_FILE=/usr/lib/systemd/network/99-default.link
+E: ID_NET_NAME=pfe2
+E: NM_UNMANAGED=1
+E: SYSTEMD_ALIAS=/sys/subsystem/net/devices/pfe2
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/platform/soc/soc:crypto
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:crypto
+E: SUBSYSTEM=platform
+E: DRIVER=simple-pm-bus
+E: OF_NAME=crypto
+E: OF_FULLNAME=/soc/crypto
+E: OF_COMPATIBLE_0=simple-bus
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NcryptoT(null)Csimple-bus
+E: USEC_INITIALIZED=14631766
+E: ID_PATH=platform-soc:crypto
+E: ID_PATH_TAG=platform-soc_crypto
+
+P: /devices/platform/soc/soc:crypto/40210000.mu0b
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:crypto/40210000.mu0b
+E: SUBSYSTEM=platform
+E: DRIVER=hse-uio
+E: OF_NAME=mu0b
+E: OF_FULLNAME=/soc/crypto/mu0b@40210000
+E: OF_COMPATIBLE_0=nxp,s32cc-hse
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nmu0bT(null)Cnxp,s32cc-hse
+E: USEC_INITIALIZED=14753406
+E: ID_PATH=platform-40210000.mu0b
+E: ID_PATH_TAG=platform-40210000_mu0b
+
+P: /devices/platform/soc/soc:crypto/40210000.mu0b/uio/uio0
+N: uio0
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:crypto/40210000.mu0b/uio/uio0
+E: SUBSYSTEM=uio
+E: DEVNAME=/dev/uio0
+E: MAJOR=235
+E: MINOR=0
+
+P: /devices/platform/soc/soc:crypto/40211000.mu1b
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:crypto/40211000.mu1b
+E: SUBSYSTEM=platform
+E: OF_NAME=mu1b
+E: OF_FULLNAME=/soc/crypto/mu1b@40211000
+E: OF_COMPATIBLE_0=nxp,s32cc-hse
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nmu1bT(null)Cnxp,s32cc-hse
+E: USEC_INITIALIZED=14829100
+E: ID_PATH=platform-40211000.mu1b
+E: ID_PATH_TAG=platform-40211000_mu1b
+
+P: /devices/platform/soc/soc:crypto/40212000.mu2b
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:crypto/40212000.mu2b
+E: SUBSYSTEM=platform
+E: OF_NAME=mu2b
+E: OF_FULLNAME=/soc/crypto/mu2b@40212000
+E: OF_COMPATIBLE_0=nxp,s32cc-hse
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nmu2bT(null)Cnxp,s32cc-hse
+E: USEC_INITIALIZED=14832868
+E: ID_PATH=platform-40212000.mu2b
+E: ID_PATH_TAG=platform-40212000_mu2b
+
+P: /devices/platform/soc/soc:crypto/40213000.mu3b
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:crypto/40213000.mu3b
+E: SUBSYSTEM=platform
+E: OF_NAME=mu3b
+E: OF_FULLNAME=/soc/crypto/mu3b@40213000
+E: OF_COMPATIBLE_0=nxp,s32cc-hse
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nmu3bT(null)Cnxp,s32cc-hse
+E: USEC_INITIALIZED=14840660
+E: ID_PATH=platform-40213000.mu3b
+E: ID_PATH_TAG=platform-40213000_mu3b
+
+P: /devices/platform/soc/soc:siul2@4009c000
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:siul2@4009c000
+E: SUBSYSTEM=platform
+E: DRIVER=simple-pm-bus
+E: OF_NAME=siul2
+E: OF_FULLNAME=/soc/siul2@4009c000
+E: OF_COMPATIBLE_0=simple-mfd
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:Nsiul2T(null)Csimple-mfd
+E: USEC_INITIALIZED=14565433
+E: ID_PATH=platform-soc:siul2@4009c000
+E: ID_PATH_TAG=platform-soc_siul2_4009c000
+
+P: /devices/platform/soc/soc:siul2@4009c000/4009c000.nvram
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:siul2@4009c000/4009c000.nvram
+E: SUBSYSTEM=platform
+E: DRIVER=s32-siul2-nvmem
+E: OF_NAME=nvram
+E: OF_FULLNAME=/soc/siul2@4009c000/nvram@4009c000
+E: OF_COMPATIBLE_0=nxp,s32g2-siul2_0-nvmem
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NnvramT(null)Cnxp,s32g2-siul2_0-nvmem
+E: USEC_INITIALIZED=14643027
+E: ID_PATH=platform-4009c000.nvram
+E: ID_PATH_TAG=platform-4009c000_nvram
+
+P: /devices/platform/soc/soc:siul2@4009c000/4009c000.nvram/s32cc-siul2_0_nvmem0
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:siul2@4009c000/4009c000.nvram/s32cc-siul2_0_nvmem0
+E: SUBSYSTEM=nvmem
+E: OF_NAME=nvram
+E: OF_FULLNAME=/soc/siul2@4009c000/nvram@4009c000
+E: OF_COMPATIBLE_0=nxp,s32g2-siul2_0-nvmem
+E: OF_COMPATIBLE_N=1
+
+P: /devices/platform/soc/soc:siul2@4009c000/4009c240.siul2-pinctrl
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:siul2@4009c000/4009c240.siul2-pinctrl
+E: SUBSYSTEM=platform
+E: DRIVER=s32g-siul2-pinctrl
+E: OF_NAME=siul2-pinctrl
+E: OF_FULLNAME=/soc/siul2@4009c000/siul2-pinctrl@4009c240
+E: OF_COMPATIBLE_0=nxp,s32g-siul2-pinctrl
+E: OF_COMPATIBLE_1=nxp,s32cc-siul2-pinctrl
+E: OF_COMPATIBLE_N=2
+E: MODALIAS=of:Nsiul2-pinctrlT(null)Cnxp,s32g-siul2-pinctrlCnxp,s32cc-siul2-pinctrl
+E: USEC_INITIALIZED=14617207
+E: ID_PATH=platform-4009c240.siul2-pinctrl
+E: ID_PATH_TAG=platform-4009c240_siul2-pinctrl
+
+P: /devices/platform/soc/soc:siul2@4009c000/4009d700.siul2-gpio
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:siul2@4009c000/4009d700.siul2-gpio
+E: SUBSYSTEM=platform
+E: DRIVER=s32cc-siul2-gpio
+E: OF_NAME=siul2-gpio
+E: OF_FULLNAME=/soc/siul2@4009c000/siul2-gpio@4009d700
+E: OF_COMPATIBLE_0=nxp,s32g-siul2-gpio
+E: OF_COMPATIBLE_1=nxp,s32cc-siul2-gpio
+E: OF_COMPATIBLE_N=2
+E: MODALIAS=of:Nsiul2-gpioT(null)Cnxp,s32g-siul2-gpioCnxp,s32cc-siul2-gpio
+E: USEC_INITIALIZED=14739192
+E: ID_PATH=platform-4009d700.siul2-gpio
+E: ID_PATH_TAG=platform-4009d700_siul2-gpio
+
+P: /devices/platform/soc/soc:siul2@4009c000/4009d700.siul2-gpio/gpio/gpiochip321
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:siul2@4009c000/4009d700.siul2-gpio/gpio/gpiochip321
+E: SUBSYSTEM=gpio
+
+P: /devices/platform/soc/soc:siul2@4009c000/4009d700.siul2-gpio/gpiochip0
+N: gpiochip0
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:siul2@4009c000/4009d700.siul2-gpio/gpiochip0
+E: SUBSYSTEM=gpio
+E: DEVNAME=/dev/gpiochip0
+E: OF_NAME=siul2-gpio
+E: OF_FULLNAME=/soc/siul2@4009c000/siul2-gpio@4009d700
+E: OF_COMPATIBLE_0=nxp,s32g-siul2-gpio
+E: OF_COMPATIBLE_1=nxp,s32cc-siul2-gpio
+E: OF_COMPATIBLE_N=2
+E: MAJOR=254
+E: MINOR=0
+
+P: /devices/platform/soc/soc:siul2@4009c000/44010000.nvram
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:siul2@4009c000/44010000.nvram
+E: SUBSYSTEM=platform
+E: DRIVER=s32-siul2-nvmem
+E: OF_NAME=nvram
+E: OF_FULLNAME=/soc/siul2@4009c000/nvram@44010000
+E: OF_COMPATIBLE_0=nxp,s32cc-siul2_1-nvmem
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NnvramT(null)Cnxp,s32cc-siul2_1-nvmem
+E: USEC_INITIALIZED=14798006
+E: ID_PATH=platform-44010000.nvram
+E: ID_PATH_TAG=platform-44010000_nvram
+
+P: /devices/platform/soc/soc:siul2@4009c000/44010000.nvram/s32cc-siul2_1_nvmem0
+L: 0
+E: DEVPATH=/devices/platform/soc/soc:siul2@4009c000/44010000.nvram/s32cc-siul2_1_nvmem0
+E: SUBSYSTEM=nvmem
+E: OF_NAME=nvram
+E: OF_FULLNAME=/soc/siul2@4009c000/nvram@44010000
+E: OF_COMPATIBLE_0=nxp,s32cc-siul2_1-nvmem
+E: OF_COMPATIBLE_N=1
+
+P: /devices/platform/timer
+L: 0
+E: DEVPATH=/devices/platform/timer
+E: SUBSYSTEM=platform
+E: OF_NAME=timer
+E: OF_FULLNAME=/timer
+E: OF_COMPATIBLE_0=arm,armv8-timer
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NtimerT(null)Carm,armv8-timer
+E: USEC_INITIALIZED=14570149
+E: ID_PATH=platform-timer
+E: ID_PATH_TAG=platform-timer
+
+P: /devices/platform/usbphynop
+L: 0
+E: DEVPATH=/devices/platform/usbphynop
+E: SUBSYSTEM=platform
+E: DEVTYPE=usb_phy
+E: DRIVER=usb_phy_generic
+E: OF_NAME=usbphynop
+E: OF_FULLNAME=/usbphynop
+E: OF_COMPATIBLE_0=usb-nop-xceiv
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=of:NusbphynopT(null)Cusb-nop-xceiv
+E: USB_CHARGER_STATE=USB_CHARGER_DEFAULT
+E: USB_CHARGER_TYPE=USB_CHARGER_UNKNOWN_TYPE
+E: USEC_INITIALIZED=14522826
+E: ID_PATH=platform-usbphynop
+E: ID_PATH_TAG=platform-usbphynop
+
+P: /devices/s32cc_ddr0
+L: 0
+E: DEVPATH=/devices/s32cc_ddr0
+E: SUBSYSTEM=event_source
+
+P: /devices/software
+L: 0
+E: DEVPATH=/devices/software
+E: SUBSYSTEM=event_source
+
+P: /devices/system/clockevents/broadcast
+L: 0
+E: DEVPATH=/devices/system/clockevents/broadcast
+E: SUBSYSTEM=clockevents
+
+P: /devices/system/clockevents/clockevent0
+L: 0
+E: DEVPATH=/devices/system/clockevents/clockevent0
+E: SUBSYSTEM=clockevents
+
+P: /devices/system/clockevents/clockevent1
+L: 0
+E: DEVPATH=/devices/system/clockevents/clockevent1
+E: SUBSYSTEM=clockevents
+
+P: /devices/system/clockevents/clockevent2
+L: 0
+E: DEVPATH=/devices/system/clockevents/clockevent2
+E: SUBSYSTEM=clockevents
+
+P: /devices/system/clockevents/clockevent3
+L: 0
+E: DEVPATH=/devices/system/clockevents/clockevent3
+E: SUBSYSTEM=clockevents
+
+P: /devices/system/clocksource/clocksource0
+L: 0
+E: DEVPATH=/devices/system/clocksource/clocksource0
+E: SUBSYSTEM=clocksource
+
+P: /devices/system/cpu/cpu0
+L: 0
+E: DEVPATH=/devices/system/cpu/cpu0
+E: SUBSYSTEM=cpu
+E: OF_NAME=cpu
+E: OF_FULLNAME=/cpus/cpu@0
+E: OF_TYPE=cpu
+E: OF_COMPATIBLE_0=arm,cortex-a53
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=cpu:type:aarch64:feature:,0000,0001,0002,0003,0004,0005,0006,0007,000B
+
+P: /devices/system/cpu/cpu1
+L: 0
+E: DEVPATH=/devices/system/cpu/cpu1
+E: SUBSYSTEM=cpu
+E: OF_NAME=cpu
+E: OF_FULLNAME=/cpus/cpu@1
+E: OF_TYPE=cpu
+E: OF_COMPATIBLE_0=arm,cortex-a53
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=cpu:type:aarch64:feature:,0000,0001,0002,0003,0004,0005,0006,0007,000B
+
+P: /devices/system/cpu/cpu2
+L: 0
+E: DEVPATH=/devices/system/cpu/cpu2
+E: SUBSYSTEM=cpu
+E: OF_NAME=cpu
+E: OF_FULLNAME=/cpus/cpu@100
+E: OF_TYPE=cpu
+E: OF_COMPATIBLE_0=arm,cortex-a53
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=cpu:type:aarch64:feature:,0000,0001,0002,0003,0004,0005,0006,0007,000B
+
+P: /devices/system/cpu/cpu3
+L: 0
+E: DEVPATH=/devices/system/cpu/cpu3
+E: SUBSYSTEM=cpu
+E: OF_NAME=cpu
+E: OF_FULLNAME=/cpus/cpu@101
+E: OF_TYPE=cpu
+E: OF_COMPATIBLE_0=arm,cortex-a53
+E: OF_COMPATIBLE_N=1
+E: MODALIAS=cpu:type:aarch64:feature:,0000,0001,0002,0003,0004,0005,0006,0007,000B
+
+P: /devices/system/edac/mc
+L: 0
+E: DEVPATH=/devices/system/edac/mc
+E: SUBSYSTEM=edac
+
+P: /devices/system/memory/memory16
+L: 0
+E: DEVPATH=/devices/system/memory/memory16
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory17
+L: 0
+E: DEVPATH=/devices/system/memory/memory17
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory18
+L: 0
+E: DEVPATH=/devices/system/memory/memory18
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory19
+L: 0
+E: DEVPATH=/devices/system/memory/memory19
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory20
+L: 0
+E: DEVPATH=/devices/system/memory/memory20
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory21
+L: 0
+E: DEVPATH=/devices/system/memory/memory21
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory22
+L: 0
+E: DEVPATH=/devices/system/memory/memory22
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory23
+L: 0
+E: DEVPATH=/devices/system/memory/memory23
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory24
+L: 0
+E: DEVPATH=/devices/system/memory/memory24
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory25
+L: 0
+E: DEVPATH=/devices/system/memory/memory25
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory26
+L: 0
+E: DEVPATH=/devices/system/memory/memory26
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory27
+L: 0
+E: DEVPATH=/devices/system/memory/memory27
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory272
+L: 0
+E: DEVPATH=/devices/system/memory/memory272
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory273
+L: 0
+E: DEVPATH=/devices/system/memory/memory273
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory274
+L: 0
+E: DEVPATH=/devices/system/memory/memory274
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory275
+L: 0
+E: DEVPATH=/devices/system/memory/memory275
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory276
+L: 0
+E: DEVPATH=/devices/system/memory/memory276
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory277
+L: 0
+E: DEVPATH=/devices/system/memory/memory277
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory278
+L: 0
+E: DEVPATH=/devices/system/memory/memory278
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory279
+L: 0
+E: DEVPATH=/devices/system/memory/memory279
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory28
+L: 0
+E: DEVPATH=/devices/system/memory/memory28
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory280
+L: 0
+E: DEVPATH=/devices/system/memory/memory280
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory281
+L: 0
+E: DEVPATH=/devices/system/memory/memory281
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory282
+L: 0
+E: DEVPATH=/devices/system/memory/memory282
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory283
+L: 0
+E: DEVPATH=/devices/system/memory/memory283
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory29
+L: 0
+E: DEVPATH=/devices/system/memory/memory29
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory30
+L: 0
+E: DEVPATH=/devices/system/memory/memory30
+E: SUBSYSTEM=memory
+
+P: /devices/system/memory/memory31
+L: 0
+E: DEVPATH=/devices/system/memory/memory31
+E: SUBSYSTEM=memory
+
+P: /devices/system/node/node0
+L: 0
+E: DEVPATH=/devices/system/node/node0
+E: SUBSYSTEM=node
+
+P: /devices/tracepoint
+L: 0
+E: DEVPATH=/devices/tracepoint
+E: SUBSYSTEM=event_source
+
+P: /devices/uprobe
+L: 0
+E: DEVPATH=/devices/uprobe
+E: SUBSYSTEM=event_source
+
+P: /devices/virtual/bdi/179:0
+L: 0
+E: DEVPATH=/devices/virtual/bdi/179:0
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:0
+L: 0
+E: DEVPATH=/devices/virtual/bdi/7:0
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:1
+L: 0
+E: DEVPATH=/devices/virtual/bdi/7:1
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:2
+L: 0
+E: DEVPATH=/devices/virtual/bdi/7:2
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:3
+L: 0
+E: DEVPATH=/devices/virtual/bdi/7:3
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:4
+L: 0
+E: DEVPATH=/devices/virtual/bdi/7:4
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:5
+L: 0
+E: DEVPATH=/devices/virtual/bdi/7:5
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:6
+L: 0
+E: DEVPATH=/devices/virtual/bdi/7:6
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/7:7
+L: 0
+E: DEVPATH=/devices/virtual/bdi/7:7
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/bdi/mtd-0
+L: 0
+E: DEVPATH=/devices/virtual/bdi/mtd-0
+E: SUBSYSTEM=bdi
+
+P: /devices/virtual/block/loop0
+N: loop0
+L: 0
+E: DEVPATH=/devices/virtual/block/loop0
+E: SUBSYSTEM=block
+E: DEVNAME=/dev/loop0
+E: DEVTYPE=disk
+E: DISKSEQ=10
+E: MAJOR=7
+E: MINOR=0
+E: USEC_INITIALIZED=15063100
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/virtual/block/loop1
+N: loop1
+L: 0
+E: DEVPATH=/devices/virtual/block/loop1
+E: SUBSYSTEM=block
+E: DEVNAME=/dev/loop1
+E: DEVTYPE=disk
+E: DISKSEQ=11
+E: MAJOR=7
+E: MINOR=1
+E: USEC_INITIALIZED=14955783
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/virtual/block/loop2
+N: loop2
+L: 0
+E: DEVPATH=/devices/virtual/block/loop2
+E: SUBSYSTEM=block
+E: DEVNAME=/dev/loop2
+E: DEVTYPE=disk
+E: DISKSEQ=12
+E: MAJOR=7
+E: MINOR=2
+E: USEC_INITIALIZED=15102977
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/virtual/block/loop3
+N: loop3
+L: 0
+E: DEVPATH=/devices/virtual/block/loop3
+E: SUBSYSTEM=block
+E: DEVNAME=/dev/loop3
+E: DEVTYPE=disk
+E: DISKSEQ=15
+E: MAJOR=7
+E: MINOR=3
+E: USEC_INITIALIZED=15192500
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/virtual/block/loop4
+N: loop4
+L: 0
+E: DEVPATH=/devices/virtual/block/loop4
+E: SUBSYSTEM=block
+E: DEVNAME=/dev/loop4
+E: DEVTYPE=disk
+E: DISKSEQ=18
+E: MAJOR=7
+E: MINOR=4
+E: USEC_INITIALIZED=15045180
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/virtual/block/loop5
+N: loop5
+L: 0
+E: DEVPATH=/devices/virtual/block/loop5
+E: SUBSYSTEM=block
+E: DEVNAME=/dev/loop5
+E: DEVTYPE=disk
+E: DISKSEQ=19
+E: MAJOR=7
+E: MINOR=5
+E: USEC_INITIALIZED=15118833
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/virtual/block/loop6
+N: loop6
+L: 0
+E: DEVPATH=/devices/virtual/block/loop6
+E: SUBSYSTEM=block
+E: DEVNAME=/dev/loop6
+E: DEVTYPE=disk
+E: DISKSEQ=7
+E: MAJOR=7
+E: MINOR=6
+E: USEC_INITIALIZED=15031669
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/virtual/block/loop7
+N: loop7
+L: 0
+E: DEVPATH=/devices/virtual/block/loop7
+E: SUBSYSTEM=block
+E: DEVNAME=/dev/loop7
+E: DEVTYPE=disk
+E: DISKSEQ=8
+E: MAJOR=7
+E: MINOR=7
+E: USEC_INITIALIZED=15049571
+E: SYSTEMD_READY=0
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/virtual/devlink/phy:phy-40480000.serdes.0--platform:40400000.pcie
+L: 0
+E: DEVPATH=/devices/virtual/devlink/phy:phy-40480000.serdes.0--platform:40400000.pcie
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/phy:phy-40480000.serdes.1--platform:40400000.pcie
+L: 0
+E: DEVPATH=/devices/virtual/devlink/phy:phy-40480000.serdes.1--platform:40400000.pcie
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/phy:phy-44180000.serdes.2--platform:46000000.pfe
+L: 0
+E: DEVPATH=/devices/virtual/devlink/phy:phy-44180000.serdes.2--platform:46000000.pfe
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/phy:phy-44180000.serdes.3--platform:46000000.pfe
+L: 0
+E: DEVPATH=/devices/virtual/devlink/phy:phy-44180000.serdes.3--platform:46000000.pfe
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c000.nvram--platform:40400000.pcie
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c000.nvram--platform:40400000.pcie
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c000.nvram--platform:46000000.pfe
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c000.nvram--platform:46000000.pfe
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:0.spi
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:0.spi
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:401b4000.flexcan
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:401b4000.flexcan
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:401be000.flexcan
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:401be000.flexcan
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:401d8000.spi
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:401d8000.spi
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:401e4000.i2c
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:401e4000.i2c
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:401ec000.i2c
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:401ec000.i2c
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:401f4000.pwm
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:401f4000.pwm
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:402d0000.spi
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:402d0000.spi
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:402dc000.i2c
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:402dc000.i2c
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:402e4000.pwm
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:402e4000.pwm
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:402f0000.mmc
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:402f0000.mmc
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:4033c000.ethernet
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:4033c000.ethernet
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can0
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can0
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can1
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can1
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can10
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can10
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can11
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can11
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can13
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can13
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can14
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can14
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can15
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can15
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can2
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can2
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can3
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can3
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can4
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can4
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can5
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can5
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can6
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can6
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can7
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can7
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can8
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can8
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can9
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:43ff8000.llce:llce_can9
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:44064000.usb
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:44064000.usb
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:46000000.pfe
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009c240.siul2-pinctrl--platform:46000000.pfe
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009d700.siul2-gpio--platform:401e4000.i2c
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009d700.siul2-gpio--platform:401e4000.i2c
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009d700.siul2-gpio--platform:401ec000.i2c
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009d700.siul2-gpio--platform:401ec000.i2c
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:4009d700.siul2-gpio--platform:402dc000.i2c
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:4009d700.siul2-gpio--platform:402dc000.i2c
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:400a4000.ocotp--platform:400a8000.tmu
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:400a4000.ocotp--platform:400a8000.tmu
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:40480000.serdes--platform:4033c000.ethernet
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:40480000.serdes--platform:4033c000.ethernet
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:40480000.serdes--platform:40400000.pcie
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:40480000.serdes--platform:40400000.pcie
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:40480000.serdes--platform:46000000.pfe
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:40480000.serdes--platform:46000000.pfe
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can0
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can0
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can1
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can1
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can10
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can10
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can11
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can11
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can13
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can13
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can14
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can14
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can15
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can15
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can2
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can2
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can3
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can3
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can4
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can4
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can5
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can5
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can6
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can6
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can7
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can7
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can8
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can8
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can9
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can9
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_core
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_core
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger0
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger0
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger1
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger1
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger10
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger10
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger11
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger11
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger12
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger12
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger13
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger13
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger14
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger14
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger15
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger15
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger2
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger2
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger3
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger3
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger4
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger4
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger5
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger5
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger6
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger6
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger7
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger7
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger8
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger8
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger9
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:43a00000.llce_mb--platform:43ff8000.llce:llce_can_logger9
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:44010000.nvram--platform:40400000.pcie
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:44010000.nvram--platform:40400000.pcie
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:44180000.serdes--platform:46000000.pfe
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:44180000.serdes--platform:46000000.pfe
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:0.spi
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:0.spi
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:40060000.rtc
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:40060000.rtc
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:400a8000.tmu
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:400a8000.tmu
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:4010c000.watchdog
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:4010c000.watchdog
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:4011c000.stm
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:4011c000.stm
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:40120000.stm
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:40120000.stm
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:40144000.dma-controller
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:40144000.dma-controller
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:40188000.pit
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:40188000.pit
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:401b4000.flexcan
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:401b4000.flexcan
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:401be000.flexcan
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:401be000.flexcan
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:401c8000.serial
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:401c8000.serial
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:401cc000.serial
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:401cc000.serial
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:401d8000.spi
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:401d8000.spi
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:401e4000.i2c
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:401e4000.i2c
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:401ec000.i2c
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:401ec000.i2c
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:401f4000.pwm
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:401f4000.pwm
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:401f8000.adc
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:401f8000.adc
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:40200000.watchdog
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:40200000.watchdog
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:40204000.watchdog
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:40204000.watchdog
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:40208000.watchdog
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:40208000.watchdog
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:40228000.stm
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:40228000.stm
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:40244000.dma-controller
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:40244000.dma-controller
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:40288000.pit
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:40288000.pit
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:402bc000.serial
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:402bc000.serial
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:402d0000.spi
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:402d0000.spi
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:402dc000.i2c
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:402dc000.i2c
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:402e4000.pwm
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:402e4000.pwm
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:402e8000.adc
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:402e8000.adc
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:402f0000.mmc
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:402f0000.mmc
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:4030c000.fccu
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:4030c000.fccu
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:4033c000.ethernet
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:4033c000.ethernet
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:40480000.serdes
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:40480000.serdes
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43a00000.llce_mb
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43a00000.llce_mb
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can0
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can0
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can1
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can1
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can10
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can10
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can11
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can11
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can13
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can13
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can14
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can14
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can15
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can15
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can2
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can2
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can3
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can3
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can4
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can4
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can5
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can5
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can6
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can6
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can7
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can7
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can8
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can8
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can9
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:43ff8000.llce:llce_can9
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:44064000.usb
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:44064000.usb
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:44180000.serdes
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:44180000.serdes
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--platform:46000000.pfe
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--platform:46000000.pfe
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--scmi_protocol:scmi_dev.1
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--scmi_protocol:scmi_dev.1
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--scmi_protocol:scmi_dev.2
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--scmi_protocol:scmi_dev.2
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/platform:firmware:scmi--scmi_protocol:scmi_dev.3
+L: 0
+E: DEVPATH=/devices/virtual/devlink/platform:firmware:scmi--scmi_protocol:scmi_dev.3
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/regulator:regulator.0--i2c:0-0022
+L: 0
+E: DEVPATH=/devices/virtual/devlink/regulator:regulator.0--i2c:0-0022
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/devlink/regulator:regulator.0--platform:usbphynop
+L: 0
+E: DEVPATH=/devices/virtual/devlink/regulator:regulator.0--platform:usbphynop
+E: SUBSYSTEM=devlink
+
+P: /devices/virtual/dma_heap/reserved
+N: dma_heap/reserved
+L: 0
+E: DEVPATH=/devices/virtual/dma_heap/reserved
+E: SUBSYSTEM=dma_heap
+E: DEVNAME=/dev/dma_heap/reserved
+E: MAJOR=248
+E: MINOR=1
+
+P: /devices/virtual/dma_heap/system
+N: dma_heap/system
+L: 0
+E: DEVPATH=/devices/virtual/dma_heap/system
+E: SUBSYSTEM=dma_heap
+E: DEVNAME=/dev/dma_heap/system
+E: MAJOR=248
+E: MINOR=0
+
+P: /devices/virtual/graphics/fbcon
+L: 0
+E: DEVPATH=/devices/virtual/graphics/fbcon
+E: SUBSYSTEM=graphics
+
+P: /devices/virtual/mem/full
+N: full
+L: 0
+E: DEVPATH=/devices/virtual/mem/full
+E: SUBSYSTEM=mem
+E: DEVNAME=/dev/full
+E: DEVMODE=0666
+E: MAJOR=1
+E: MINOR=7
+
+P: /devices/virtual/mem/kmsg
+N: kmsg
+L: 0
+E: DEVPATH=/devices/virtual/mem/kmsg
+E: SUBSYSTEM=mem
+E: DEVNAME=/dev/kmsg
+E: DEVMODE=0644
+E: MAJOR=1
+E: MINOR=11
+
+P: /devices/virtual/mem/mem
+N: mem
+L: 0
+E: DEVPATH=/devices/virtual/mem/mem
+E: SUBSYSTEM=mem
+E: DEVNAME=/dev/mem
+E: MAJOR=1
+E: MINOR=1
+
+P: /devices/virtual/mem/null
+N: null
+L: 0
+E: DEVPATH=/devices/virtual/mem/null
+E: SUBSYSTEM=mem
+E: DEVNAME=/dev/null
+E: DEVMODE=0666
+E: MAJOR=1
+E: MINOR=3
+
+P: /devices/virtual/mem/port
+N: port
+L: 0
+E: DEVPATH=/devices/virtual/mem/port
+E: SUBSYSTEM=mem
+E: DEVNAME=/dev/port
+E: MAJOR=1
+E: MINOR=4
+
+P: /devices/virtual/mem/random
+N: random
+L: 0
+E: DEVPATH=/devices/virtual/mem/random
+E: SUBSYSTEM=mem
+E: DEVNAME=/dev/random
+E: DEVMODE=0666
+E: MAJOR=1
+E: MINOR=8
+
+P: /devices/virtual/mem/urandom
+N: urandom
+L: 0
+E: DEVPATH=/devices/virtual/mem/urandom
+E: SUBSYSTEM=mem
+E: DEVNAME=/dev/urandom
+E: DEVMODE=0666
+E: MAJOR=1
+E: MINOR=9
+
+P: /devices/virtual/mem/zero
+N: zero
+L: 0
+E: DEVPATH=/devices/virtual/mem/zero
+E: SUBSYSTEM=mem
+E: DEVNAME=/dev/zero
+E: DEVMODE=0666
+E: MAJOR=1
+E: MINOR=5
+
+P: /devices/virtual/misc/autofs
+N: autofs
+L: 0
+E: DEVPATH=/devices/virtual/misc/autofs
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/autofs
+E: DEVMODE=0644
+E: MAJOR=10
+E: MINOR=235
+
+P: /devices/virtual/misc/cpu_dma_latency
+N: cpu_dma_latency
+L: 0
+E: DEVPATH=/devices/virtual/misc/cpu_dma_latency
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/cpu_dma_latency
+E: MAJOR=10
+E: MINOR=124
+
+P: /devices/virtual/misc/device-mapper
+N: mapper/control
+L: 0
+E: DEVPATH=/devices/virtual/misc/device-mapper
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/mapper/control
+E: MAJOR=10
+E: MINOR=236
+
+P: /devices/virtual/misc/ecryptfs
+N: ecryptfs
+L: 0
+E: DEVPATH=/devices/virtual/misc/ecryptfs
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/ecryptfs
+E: MAJOR=10
+E: MINOR=126
+
+P: /devices/virtual/misc/fuse
+N: fuse
+L: 0
+E: DEVPATH=/devices/virtual/misc/fuse
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/fuse
+E: MAJOR=10
+E: MINOR=229
+
+P: /devices/virtual/misc/hw_random
+N: hwrng
+L: 0
+E: DEVPATH=/devices/virtual/misc/hw_random
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/hwrng
+E: MAJOR=10
+E: MINOR=183
+
+P: /devices/virtual/misc/loop-control
+N: loop-control
+L: 0
+E: DEVPATH=/devices/virtual/misc/loop-control
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/loop-control
+E: MAJOR=10
+E: MINOR=237
+
+P: /devices/virtual/misc/rfkill
+N: rfkill
+L: 0
+E: DEVPATH=/devices/virtual/misc/rfkill
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/rfkill
+E: MAJOR=10
+E: MINOR=242
+E: USEC_INITIALIZED=15282381
+E: SYSTEMD_WANTS=systemd-rfkill.socket
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/virtual/misc/tun
+N: net/tun
+L: 0
+E: DEVPATH=/devices/virtual/misc/tun
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/net/tun
+E: MAJOR=10
+E: MINOR=200
+
+P: /devices/virtual/misc/udmabuf
+N: udmabuf
+L: 0
+E: DEVPATH=/devices/virtual/misc/udmabuf
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/udmabuf
+E: MAJOR=10
+E: MINOR=125
+
+P: /devices/virtual/misc/vga_arbiter
+N: vga_arbiter
+L: 0
+E: DEVPATH=/devices/virtual/misc/vga_arbiter
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/vga_arbiter
+E: MAJOR=10
+E: MINOR=127
+
+P: /devices/virtual/misc/watchdog
+N: watchdog
+L: 0
+E: DEVPATH=/devices/virtual/misc/watchdog
+E: SUBSYSTEM=misc
+E: DEVNAME=/dev/watchdog
+E: MAJOR=10
+E: MINOR=130
+
+P: /devices/virtual/net/lo
+L: 0
+E: DEVPATH=/devices/virtual/net/lo
+E: SUBSYSTEM=net
+E: INTERFACE=lo
+E: IFINDEX=1
+E: USEC_INITIALIZED=15293505
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/powercap/dtpm
+L: 0
+E: DEVPATH=/devices/virtual/powercap/dtpm
+E: SUBSYSTEM=powercap
+
+P: /devices/virtual/ppp/ppp
+N: ppp
+L: 0
+E: DEVPATH=/devices/virtual/ppp/ppp
+E: SUBSYSTEM=ppp
+E: DEVNAME=/dev/ppp
+E: MAJOR=108
+E: MINOR=0
+
+P: /devices/virtual/tee/tee0
+N: tee0
+L: 0
+E: DEVPATH=/devices/virtual/tee/tee0
+E: SUBSYSTEM=tee
+E: DEVNAME=/dev/tee0
+E: MAJOR=509
+E: MINOR=0
+
+P: /devices/virtual/tee/teepriv0
+N: teepriv0
+L: 0
+E: DEVPATH=/devices/virtual/tee/teepriv0
+E: SUBSYSTEM=tee
+E: DEVNAME=/dev/teepriv0
+E: MAJOR=509
+E: MINOR=16
+
+P: /devices/virtual/tty/console
+N: console
+L: 0
+E: DEVPATH=/devices/virtual/tty/console
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/console
+E: MAJOR=5
+E: MINOR=1
+E: USEC_INITIALIZED=15306089
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/ptmx
+N: ptmx
+L: 0
+E: DEVPATH=/devices/virtual/tty/ptmx
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ptmx
+E: DEVMODE=0666
+E: MAJOR=5
+E: MINOR=2
+E: USEC_INITIALIZED=15260290
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/ptyp0
+N: ptyp0
+L: 0
+E: DEVPATH=/devices/virtual/tty/ptyp0
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ptyp0
+E: MAJOR=2
+E: MINOR=0
+E: USEC_INITIALIZED=15313329
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty
+N: tty
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty
+E: DEVMODE=0666
+E: MAJOR=5
+E: MINOR=0
+E: USEC_INITIALIZED=15275525
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty0
+N: tty0
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty0
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty0
+E: MAJOR=4
+E: MINOR=0
+E: USEC_INITIALIZED=15320592
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty1
+N: tty1
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty1
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty1
+E: MAJOR=4
+E: MINOR=1
+E: USEC_INITIALIZED=15289354
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty10
+N: tty10
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty10
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty10
+E: MAJOR=4
+E: MINOR=10
+E: USEC_INITIALIZED=15325970
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty11
+N: tty11
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty11
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty11
+E: MAJOR=4
+E: MINOR=11
+E: USEC_INITIALIZED=15294037
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty12
+N: tty12
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty12
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty12
+E: MAJOR=4
+E: MINOR=12
+E: USEC_INITIALIZED=15326703
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty13
+N: tty13
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty13
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty13
+E: MAJOR=4
+E: MINOR=13
+E: USEC_INITIALIZED=15343550
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty14
+N: tty14
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty14
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty14
+E: MAJOR=4
+E: MINOR=14
+E: USEC_INITIALIZED=15348952
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty15
+N: tty15
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty15
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty15
+E: MAJOR=4
+E: MINOR=15
+E: USEC_INITIALIZED=15343493
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty16
+N: tty16
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty16
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty16
+E: MAJOR=4
+E: MINOR=16
+E: USEC_INITIALIZED=15323145
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty17
+N: tty17
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty17
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty17
+E: MAJOR=4
+E: MINOR=17
+E: USEC_INITIALIZED=15336708
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty18
+N: tty18
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty18
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty18
+E: MAJOR=4
+E: MINOR=18
+E: USEC_INITIALIZED=15337652
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty19
+N: tty19
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty19
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty19
+E: MAJOR=4
+E: MINOR=19
+E: USEC_INITIALIZED=15330840
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty2
+N: tty2
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty2
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty2
+E: MAJOR=4
+E: MINOR=2
+E: USEC_INITIALIZED=15336958
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty20
+N: tty20
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty20
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty20
+E: MAJOR=4
+E: MINOR=20
+E: USEC_INITIALIZED=15357335
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty21
+N: tty21
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty21
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty21
+E: MAJOR=4
+E: MINOR=21
+E: USEC_INITIALIZED=15350009
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty22
+N: tty22
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty22
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty22
+E: MAJOR=4
+E: MINOR=22
+E: USEC_INITIALIZED=15353723
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty23
+N: tty23
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty23
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty23
+E: MAJOR=4
+E: MINOR=23
+E: USEC_INITIALIZED=15364722
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty24
+N: tty24
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty24
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty24
+E: MAJOR=4
+E: MINOR=24
+E: USEC_INITIALIZED=15351460
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty25
+N: tty25
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty25
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty25
+E: MAJOR=4
+E: MINOR=25
+E: USEC_INITIALIZED=15364418
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty26
+N: tty26
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty26
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty26
+E: MAJOR=4
+E: MINOR=26
+E: USEC_INITIALIZED=15354882
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty27
+N: tty27
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty27
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty27
+E: MAJOR=4
+E: MINOR=27
+E: USEC_INITIALIZED=15362555
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty28
+N: tty28
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty28
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty28
+E: MAJOR=4
+E: MINOR=28
+E: USEC_INITIALIZED=15357942
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty29
+N: tty29
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty29
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty29
+E: MAJOR=4
+E: MINOR=29
+E: USEC_INITIALIZED=15362866
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty3
+N: tty3
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty3
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty3
+E: MAJOR=4
+E: MINOR=3
+E: USEC_INITIALIZED=15367212
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty30
+N: tty30
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty30
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty30
+E: MAJOR=4
+E: MINOR=30
+E: USEC_INITIALIZED=15371590
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty31
+N: tty31
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty31
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty31
+E: MAJOR=4
+E: MINOR=31
+E: USEC_INITIALIZED=15384443
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty32
+N: tty32
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty32
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty32
+E: MAJOR=4
+E: MINOR=32
+E: USEC_INITIALIZED=15375045
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty33
+N: tty33
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty33
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty33
+E: MAJOR=4
+E: MINOR=33
+E: USEC_INITIALIZED=15380817
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty34
+N: tty34
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty34
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty34
+E: MAJOR=4
+E: MINOR=34
+E: USEC_INITIALIZED=15387634
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty35
+N: tty35
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty35
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty35
+E: MAJOR=4
+E: MINOR=35
+E: USEC_INITIALIZED=15373313
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty36
+N: tty36
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty36
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty36
+E: MAJOR=4
+E: MINOR=36
+E: USEC_INITIALIZED=15388473
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty37
+N: tty37
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty37
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty37
+E: MAJOR=4
+E: MINOR=37
+E: USEC_INITIALIZED=15388132
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty38
+N: tty38
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty38
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty38
+E: MAJOR=4
+E: MINOR=38
+E: USEC_INITIALIZED=15387756
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty39
+N: tty39
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty39
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty39
+E: MAJOR=4
+E: MINOR=39
+E: USEC_INITIALIZED=15422825
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty4
+N: tty4
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty4
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty4
+E: MAJOR=4
+E: MINOR=4
+E: USEC_INITIALIZED=15381514
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty40
+N: tty40
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty40
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty40
+E: MAJOR=4
+E: MINOR=40
+E: USEC_INITIALIZED=15405928
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty41
+N: tty41
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty41
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty41
+E: MAJOR=4
+E: MINOR=41
+E: USEC_INITIALIZED=15385835
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty42
+N: tty42
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty42
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty42
+E: MAJOR=4
+E: MINOR=42
+E: USEC_INITIALIZED=15400779
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty43
+N: tty43
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty43
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty43
+E: MAJOR=4
+E: MINOR=43
+E: USEC_INITIALIZED=15407452
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty44
+N: tty44
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty44
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty44
+E: MAJOR=4
+E: MINOR=44
+E: USEC_INITIALIZED=15403344
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty45
+N: tty45
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty45
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty45
+E: MAJOR=4
+E: MINOR=45
+E: USEC_INITIALIZED=15395569
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty46
+N: tty46
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty46
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty46
+E: MAJOR=4
+E: MINOR=46
+E: USEC_INITIALIZED=15422860
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty47
+N: tty47
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty47
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty47
+E: MAJOR=4
+E: MINOR=47
+E: USEC_INITIALIZED=15428260
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty48
+N: tty48
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty48
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty48
+E: MAJOR=4
+E: MINOR=48
+E: USEC_INITIALIZED=15426305
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty49
+N: tty49
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty49
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty49
+E: MAJOR=4
+E: MINOR=49
+E: USEC_INITIALIZED=15426356
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty5
+N: tty5
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty5
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty5
+E: MAJOR=4
+E: MINOR=5
+E: USEC_INITIALIZED=15461696
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty50
+N: tty50
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty50
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty50
+E: MAJOR=4
+E: MINOR=50
+E: USEC_INITIALIZED=15459872
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty51
+N: tty51
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty51
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty51
+E: MAJOR=4
+E: MINOR=51
+E: USEC_INITIALIZED=15457583
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty52
+N: tty52
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty52
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty52
+E: MAJOR=4
+E: MINOR=52
+E: USEC_INITIALIZED=15438657
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty53
+N: tty53
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty53
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty53
+E: MAJOR=4
+E: MINOR=53
+E: USEC_INITIALIZED=15446845
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty54
+N: tty54
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty54
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty54
+E: MAJOR=4
+E: MINOR=54
+E: USEC_INITIALIZED=15445618
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty55
+N: tty55
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty55
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty55
+E: MAJOR=4
+E: MINOR=55
+E: USEC_INITIALIZED=15453804
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty56
+N: tty56
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty56
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty56
+E: MAJOR=4
+E: MINOR=56
+E: USEC_INITIALIZED=15433793
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty57
+N: tty57
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty57
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty57
+E: MAJOR=4
+E: MINOR=57
+E: USEC_INITIALIZED=15479472
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty58
+N: tty58
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty58
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty58
+E: MAJOR=4
+E: MINOR=58
+E: USEC_INITIALIZED=15462032
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty59
+N: tty59
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty59
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty59
+E: MAJOR=4
+E: MINOR=59
+E: USEC_INITIALIZED=15477846
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty6
+N: tty6
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty6
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty6
+E: MAJOR=4
+E: MINOR=6
+E: USEC_INITIALIZED=15474756
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty60
+N: tty60
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty60
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty60
+E: MAJOR=4
+E: MINOR=60
+E: USEC_INITIALIZED=15485283
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty61
+N: tty61
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty61
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty61
+E: MAJOR=4
+E: MINOR=61
+E: USEC_INITIALIZED=15475797
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty62
+N: tty62
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty62
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty62
+E: MAJOR=4
+E: MINOR=62
+E: USEC_INITIALIZED=15493929
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty63
+N: tty63
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty63
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty63
+E: MAJOR=4
+E: MINOR=63
+E: USEC_INITIALIZED=15479171
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty7
+N: tty7
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty7
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty7
+E: MAJOR=4
+E: MINOR=7
+E: USEC_INITIALIZED=15498935
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty8
+N: tty8
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty8
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty8
+E: MAJOR=4
+E: MINOR=8
+E: USEC_INITIALIZED=15503593
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/tty9
+N: tty9
+L: 0
+E: DEVPATH=/devices/virtual/tty/tty9
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/tty9
+E: MAJOR=4
+E: MINOR=9
+E: USEC_INITIALIZED=15515801
+E: ID_MM_CANDIDATE=1
+
+P: /devices/virtual/tty/ttyp0
+N: ttyp0
+L: 0
+E: DEVPATH=/devices/virtual/tty/ttyp0
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyp0
+E: MAJOR=3
+E: MINOR=0
+E: USEC_INITIALIZED=15511401
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/virtual/tty/ttyprintk
+N: ttyprintk
+L: 0
+E: DEVPATH=/devices/virtual/tty/ttyprintk
+E: SUBSYSTEM=tty
+E: DEVNAME=/dev/ttyprintk
+E: MAJOR=5
+E: MINOR=3
+E: USEC_INITIALIZED=15517037
+E: ID_MM_CANDIDATE=1
+E: TAGS=:systemd:
+E: CURRENT_TAGS=:systemd:
+
+P: /devices/virtual/usbmon/usbmon0
+N: usbmon0
+L: 0
+E: DEVPATH=/devices/virtual/usbmon/usbmon0
+E: SUBSYSTEM=usbmon
+E: DEVNAME=/dev/usbmon0
+E: MAJOR=234
+E: MINOR=0
+
+P: /devices/virtual/vc/vcs
+N: vcs
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcs
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcs
+E: MAJOR=7
+E: MINOR=0
+
+P: /devices/virtual/vc/vcs1
+N: vcs1
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcs1
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcs1
+E: MAJOR=7
+E: MINOR=1
+
+P: /devices/virtual/vc/vcs2
+N: vcs2
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcs2
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcs2
+E: MAJOR=7
+E: MINOR=2
+
+P: /devices/virtual/vc/vcs3
+N: vcs3
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcs3
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcs3
+E: MAJOR=7
+E: MINOR=3
+
+P: /devices/virtual/vc/vcs4
+N: vcs4
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcs4
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcs4
+E: MAJOR=7
+E: MINOR=4
+
+P: /devices/virtual/vc/vcs5
+N: vcs5
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcs5
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcs5
+E: MAJOR=7
+E: MINOR=5
+
+P: /devices/virtual/vc/vcs6
+N: vcs6
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcs6
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcs6
+E: MAJOR=7
+E: MINOR=6
+
+P: /devices/virtual/vc/vcsa
+N: vcsa
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsa
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsa
+E: MAJOR=7
+E: MINOR=128
+
+P: /devices/virtual/vc/vcsa1
+N: vcsa1
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsa1
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsa1
+E: MAJOR=7
+E: MINOR=129
+
+P: /devices/virtual/vc/vcsa2
+N: vcsa2
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsa2
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsa2
+E: MAJOR=7
+E: MINOR=130
+
+P: /devices/virtual/vc/vcsa3
+N: vcsa3
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsa3
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsa3
+E: MAJOR=7
+E: MINOR=131
+
+P: /devices/virtual/vc/vcsa4
+N: vcsa4
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsa4
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsa4
+E: MAJOR=7
+E: MINOR=132
+
+P: /devices/virtual/vc/vcsa5
+N: vcsa5
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsa5
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsa5
+E: MAJOR=7
+E: MINOR=133
+
+P: /devices/virtual/vc/vcsa6
+N: vcsa6
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsa6
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsa6
+E: MAJOR=7
+E: MINOR=134
+
+P: /devices/virtual/vc/vcsu
+N: vcsu
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsu
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsu
+E: MAJOR=7
+E: MINOR=64
+
+P: /devices/virtual/vc/vcsu1
+N: vcsu1
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsu1
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsu1
+E: MAJOR=7
+E: MINOR=65
+
+P: /devices/virtual/vc/vcsu2
+N: vcsu2
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsu2
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsu2
+E: MAJOR=7
+E: MINOR=66
+
+P: /devices/virtual/vc/vcsu3
+N: vcsu3
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsu3
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsu3
+E: MAJOR=7
+E: MINOR=67
+
+P: /devices/virtual/vc/vcsu4
+N: vcsu4
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsu4
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsu4
+E: MAJOR=7
+E: MINOR=68
+
+P: /devices/virtual/vc/vcsu5
+N: vcsu5
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsu5
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsu5
+E: MAJOR=7
+E: MINOR=69
+
+P: /devices/virtual/vc/vcsu6
+N: vcsu6
+L: 0
+E: DEVPATH=/devices/virtual/vc/vcsu6
+E: SUBSYSTEM=vc
+E: DEVNAME=/dev/vcsu6
+E: MAJOR=7
+E: MINOR=70
+
+P: /devices/virtual/vtconsole/vtcon0
+L: 0
+E: DEVPATH=/devices/virtual/vtconsole/vtcon0
+E: SUBSYSTEM=vtconsole
+
+P: /devices/virtual/wakeup/wakeup2
+L: 0
+E: DEVPATH=/devices/virtual/wakeup/wakeup2
+E: SUBSYSTEM=wakeup
+
+P: /devices/virtual/watchdog/watchdog0
+N: watchdog0
+L: 0
+E: DEVPATH=/devices/virtual/watchdog/watchdog0
+E: SUBSYSTEM=watchdog
+E: DEVNAME=/dev/watchdog0
+E: MAJOR=242
+E: MINOR=0
+
+P: /devices/virtual/watchdog/watchdog1
+N: watchdog1
+L: 0
+E: DEVPATH=/devices/virtual/watchdog/watchdog1
+E: SUBSYSTEM=watchdog
+E: DEVNAME=/dev/watchdog1
+E: MAJOR=242
+E: MINOR=1
+
+P: /devices/virtual/watchdog/watchdog2
+N: watchdog2
+L: 0
+E: DEVPATH=/devices/virtual/watchdog/watchdog2
+E: SUBSYSTEM=watchdog
+E: DEVNAME=/dev/watchdog2
+E: MAJOR=242
+E: MINOR=2
+
+P: /devices/virtual/watchdog/watchdog3
+N: watchdog3
+L: 0
+E: DEVPATH=/devices/virtual/watchdog/watchdog3
+E: SUBSYSTEM=watchdog
+E: DEVNAME=/dev/watchdog3
+E: MAJOR=242
+E: MINOR=3
+
+P: /devices/virtual/workqueue/blkcg_punt_bio
+L: 0
+E: DEVPATH=/devices/virtual/workqueue/blkcg_punt_bio
+E: SUBSYSTEM=workqueue
+
+P: /devices/virtual/workqueue/firmware:scmi
+L: 0
+E: DEVPATH=/devices/virtual/workqueue/firmware:scmi
+E: SUBSYSTEM=workqueue
+
+P: /devices/virtual/workqueue/writeback
+L: 0
+E: DEVPATH=/devices/virtual/workqueue/writeback
+E: SUBSYSTEM=workqueue
+

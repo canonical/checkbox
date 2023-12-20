@@ -90,7 +90,6 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = parser.run()
         self.assertEqual(devices[0].category, "NETWORK")
 
-
     def test_DELL_INSPIRON3521_TOUCHSCREEN(self):
         """
         Check devices category having the ID_INPUT_TOUCHSCREEN property
@@ -877,6 +876,25 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "CANBUS"), 0)
         self.assertEqual(self.count(devices, "SOCKETCAN"), 1)
         self.assertEqual(self.count(devices, "WATCHDOG"), 1)
+
+    def test_NXP_S32G_SOCKETCAN(self):
+        devices = self.parse("NXP_S32G_DEV_BOARD")
+        self.assertEqual(len(devices), 27)
+        self.assertEqual(self.count(devices, "VIDEO"), 0)
+        self.assertEqual(self.count(devices, "AUDIO"), 0)
+        self.assertEqual(self.count(devices, "KEYBOARD"), 0)
+        self.assertEqual(self.count(devices, "CARDREADER"), 1)
+        self.assertEqual(self.count(devices, "CDROM"), 0)
+        self.assertEqual(self.count(devices, "FIREWIRE"), 0)
+        self.assertEqual(self.count(devices, "MOUSE"), 0)
+        self.assertEqual(self.count(devices, "WIRELESS"), 0)
+        self.assertEqual(self.count(devices, "NETWORK"), 4)
+        self.assertEqual(self.count(devices, "BLUETOOTH"), 0)
+        self.assertEqual(self.count(devices, "CAPTURE"), 0)
+        self.assertEqual(self.count(devices, "DISK"), 0)
+        self.assertEqual(self.count(devices, "CANBUS"), 0)
+        self.assertEqual(self.count(devices, "SOCKETCAN"), 17)
+        self.assertEqual(self.count(devices, "WATCHDOG"), 4)
 
     def test_IBM_s390x_DASD(self):
         devices = self.parse("IBM_s390x_DASD")

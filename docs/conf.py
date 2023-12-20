@@ -59,7 +59,6 @@ extensions = [
     "sphinx_copybutton",
     "sphinxext.opengraph",
     "myst_parser",
-    "sphinx.ext.todo",
     "sphinx-jsonschema",
 ]
 

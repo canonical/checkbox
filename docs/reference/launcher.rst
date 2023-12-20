@@ -410,7 +410,7 @@ Transport
 
 ``type``
     Type of a transport to use. Allowed values are: ``stream``, ``file``, and
-    ``certification``.
+    ``submission-service``.
 
 Depending on the type of transport there might be additional fields.
 
@@ -432,13 +432,13 @@ Depending on the type of transport there might be additional fields.
 +------------------------+---------------+----------------+----------------------+
 | ``submission-service`` | ``secure-id`` | secure-id to   | ``[transport:c3]``   |
 |                        |               | use when       |                      |
-|                        |               | uploading to   | ``secure_id = 01``\  |
-|                        |               | certification  | ``23456789ABCD``     |
+|                        |               | uploading to   | ``type = sub`` \     |
+|                        |               | certification  | ``mission-service``  |
 |                        |               | sites          |                      |
-|                        |               |                | ``staging = yes``    |
-|                        |               |                |                      |
+|                        |               |                | ``secure_id = 01``\  |
+|                        |               |                | ``23456789ABCD``     |
 |                        +---------------+----------------+                      |
-|                        | ``staging``   | determines if  |                      |
+|                        | ``staging``   | determines if  | ``staging = yes``    |
 |                        |               | staging site   |                      |
 |                        |               | should be used |                      |
 |                        |               | Default:       |                      |

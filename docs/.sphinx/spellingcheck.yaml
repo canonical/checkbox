@@ -25,3 +25,4 @@ matrix:
       - pre
       - spellexception
       - title
+      - div.code-block-caption

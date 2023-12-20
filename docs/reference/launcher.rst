@@ -31,7 +31,9 @@ Launcher can specify external file(s) to load values from.
 
     Default value: ``checkbox.conf``
 
-Examples::
+Examples:
+
+.. code-block:: ini
 
     # Looks for ``/etc/xdg/testing.conf`` and ``~/.config/testing.conf``
     [config]
@@ -114,7 +116,7 @@ future.
 
 Launcher section example:
 
-::
+.. code-block:: ini
 
     [launcher]
     app_id = com.foobar:system-testing
@@ -125,14 +127,14 @@ Launcher section example:
 
 Launcher using all defaults with overridden secure_id:
 
-::
+.. code-block:: ini
 
     [transport:c3]
     secure_id = 001122334455667788
 
 Launcher that disables all stock reports:
 
-::
+.. code-block:: ini
 
     [launcher]
     app_id = com.foobar:system-testing
@@ -181,7 +183,7 @@ This section provides control over test selection.
 
 Exclude all jobs containing 'bluetooth' in their id:
 
-::
+.. code-block:: ini
 
     [test selection]
     exclude = .*bluetooth.*
@@ -190,7 +192,7 @@ Exclude all jobs containing 'bluetooth' in their id:
 Exclude all jobs containing ``bluetooth`` in their id, or having ids starting
 with ``com.canonical.certification::dock/wireless``:
 
-::
+.. code-block:: ini
 
     [test selection]
     exclude = .*bluetooth.* com.canonical.certification::dock/wireless.*
@@ -279,9 +281,14 @@ This section controls which type of UI to use.
         ``--verbose`` and ``--debug`` options respectively.
 
 ``auto_retry``
-    If set to ``yes``, failed jobs will automatically be retried at the end of
+    If set to ``yes``, all failed jobs will automatically be retried at the end of
     the testing session. In addition, the re-run screen (where user can select
     failed and skipped jobs to re-run) will not be shown. Default value: ``no``.
+
+    .. note::
+
+        You can use ``auto-retry=no`` inline in the test plan to exclude a job 
+        from auto-retrying. For more details, see :doc:`../how-to/launcher/auto-retry`.
 
 ``max_attempts``
     Defines the maximum number of times a job should be run in auto-retry mode.
@@ -293,27 +300,7 @@ This section controls which type of UI to use.
     the testing session. This can be useful when the jobs rely on external
     factors (e.g. a WiFi access point) and you want to wait before retrying the
     same job. Default value: ``1``.
-
-.. warning::
-
-    When ``auto_retry`` is set to ``yes``, **every** failing job will be retried.
-    This can be a problem, for instance, for jobs that take a really long time
-    to run. To avoid this, you can use the ``auto-retry=no`` inline override
-    in the test plan to explicitly mark each job you do not wish to see
-    retried.
-
-    For example::
-
-        id: foo-bar-and-froz
-        _name: Tests Foo, Bar and Froz
-        include:
-            foo
-            bar     auto-retry=no
-            froz
-
-    In that case, even if job ``bar`` fails and auto-retry is activated, it
-    will not be retried.
-
+    
 Restart section
 ===============
 
@@ -338,7 +325,7 @@ Environment section
 
 Example:
 
-::
+.. code-block:: ini
 
     [environment]
     TESTING_HOST = 192.168.0.100
@@ -376,7 +363,7 @@ Manifest section
 
 Example:
 
-::
+.. code-block:: ini
 
     [manifest]
     com.canonical.certification::has_touchscreen = yes
@@ -407,7 +394,9 @@ Exporter
     spaces or commas.
 
 
-Example::
+Example:
+
+.. code-block:: ini
 
     [exporter:html]
     unit = com.canonical.plainbox::html
@@ -479,7 +468,7 @@ Report
 
 Example of all three sections working to produce a report:
 
-::
+.. code-block:: ini
 
     [exporter:text]
     unit = com.canonical.plainbox::text
@@ -501,7 +490,7 @@ Launcher examples
 'com.canonical.certification::smoke' test plan concluded by producing text
 report to standard output.
 
-::
+.. code-block:: ini
 
     #!/usr/bin/env checkbox-cli
 
@@ -534,7 +523,7 @@ report to standard output.
 2) Interactive testing of FooBar project. Report should be uploaded to the
 staging version of certification site and saved to /tmp/submission.tar.xz
 
-::
+.. code-block:: ini
 
     #!/usr/bin/env checkbox-cli
 
@@ -576,7 +565,7 @@ customized environment configuration.
 
 The launcher
 
-::
+.. code-block:: ini
 
     #!/usr/bin/env checkbox-cli
     [launcher]
@@ -601,7 +590,7 @@ The launcher
 
 The launcher configuration ``launcher.conf``
 
-::
+.. code-block:: ini
 
     #!/usr/bin/env checkbox-cli
     [launcher]

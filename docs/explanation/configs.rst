@@ -66,7 +66,7 @@ And another config file at the one of the default lookup locations
 Then invoke Checkbox with the following launcher:
 
 .. code-block:: none
-   :caption: myLauncher
+   :caption: my_launcher
    :emphasize-lines: 2
 
    [config] 
@@ -115,7 +115,7 @@ If you invoke Checkbox with a launcher file that refers to this global config,
 both configuration sources are taken into account:
 
 .. code-block:: none
-   :caption: myLauncher
+   :caption: my_launcher
    :emphasize-lines: 2
  
    [config]
@@ -133,7 +133,7 @@ For example, the following launcher configures the test report and submission,
 where the ``stock_reports`` value overrides the imported value:
 
 .. code-block:: none
-   :caption: mySecondLauncher
+   :caption: my_second_launcher
    :emphasize-lines: 2, 9
 
    [config]
@@ -155,7 +155,7 @@ the origin of config values before running tests.
 .. warning::
 
    Circular import is not allowed. We advise you to use this feature in
-   moderation since whilst it can simplify the maintanoneng of multiple
+   moderation since whilst it can simplify the maintenance of multiple
    configurations by avoiding copy-pasting values around, it can also make
    debugging a configuration complicated. 
 

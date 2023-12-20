@@ -1,4 +1,4 @@
-# The 'memory/memory_stress_ng' job requires numactl
+# The 'stress/memory_stress_ng' job requires numactl
 unit: packaging meta-data
 os-id: debian
 Depends: numactl

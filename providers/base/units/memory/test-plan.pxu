@@ -25,4 +25,4 @@ _name: Automated memory tests
 _desctiption: Automated memory tests for Server Cert
 include:
     memory/info                 certification-status=blocker
-    memory/memory_stress_ng     certification-status=blocker
+    stress/memory_stress_ng     certification-status=blocker

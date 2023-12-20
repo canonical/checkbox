@@ -4,7 +4,7 @@
 Launchers
 =========
 
-Checkbox features and behaviors can be configured and customized using
+Checkbox features and behaviours can be configured and customised using
 a launcher.
 
 In this section, you will use a launcher to filter the list of test plans
@@ -117,7 +117,7 @@ runs the "Checkbox Base Tutorial" test plan. This is because:
 - in the ``[test selection]`` section, we forced the selection of all the
   tests, bypassing the test selection screen.
 
-Customize test cases with environment variables
+customise test cases with environment variables
 ===============================================
 
 One of the test cases in the Tutorial test plan uses the value set in an
@@ -146,7 +146,7 @@ Run Checkbox using your launcher, and observe the output of the
 ``tutorial/environment_variable`` test case. The output now shows ``Value
 from my launcher!``.
 
-The ``[environment]`` section is often used to provide customized values to
+The ``[environment]`` section is often used to provide customised values to
 test cases. For instance, you may have a generic test case to connect to a
 WiFi access point, but its SSID and password might change, so you can use an
 environment variable in the test case definition and set their values in the
@@ -155,7 +155,7 @@ environment variable in the test case definition and set their values in the
 Tailor Checkbox output
 ======================
 
-At the end of the test session, Checkbox summarizes the test results on
+At the end of the test session, Checkbox summarises the test results on
 the screen, generates test reports and test archive, and asks you whether
 you want to upload the test results to the Canonical :term:`Certification
 website`. Let's say you don't need to upload the results there; you are only
@@ -188,7 +188,7 @@ finished running, Checkbox generates a summary on the screen and provides
 the links to the test reports and test archive, but does not ask if the
 result should be uploaded to the Canonical Certification website.
 
-This is thanks to the customization of the ``stock_reports`` field in the
+This is thanks to the customisation of the ``stock_reports`` field in the
 ``[launcher]`` section. If not specified in the launcher, its default value
 is set to ``text, certification, submission_files``.
 
@@ -199,7 +199,7 @@ been produced by the test cases.
 A note about config files
 =========================
 
-So far, you have customized Checkbox using a launcher file. It is also
+So far, you have customised Checkbox using a launcher file. It is also
 possible to put these options in a configuration file that Checkbox will use
 when it is launched. The main difference is that you don't have to specify
 the launcher when running Checkbox.
@@ -277,7 +277,7 @@ You can see:
 
 - a list of the configuration files being used
 - for each section, the configured parameters being used
-- the origin of each of these customized parameters
+- the origin of each of these customised parameters
 - an overall status report ("No problems with config(s) found!")
 
 This can be really helpful when debugging a Checkbox run. For instance,
@@ -374,10 +374,10 @@ Wrapping up
 ===========
 
 In this section, you've got more familiar with Checkbox launchers. You created
-a launcher that modified the behavior of Checkbox by pre-selecting a test
+a launcher that modified the behaviour of Checkbox by pre-selecting a test
 plan and executing it, provided environment variables to the test cases and
 outputted only what you needed: a text summary and the submission files.
 
-There are many more options available in the launchers to customize
+There are many more options available in the launchers to customise
 Checkbox runs. Please check the :ref:`launchers reference<launcher>` for
 more information.

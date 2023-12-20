@@ -197,7 +197,7 @@ Let's check the content of the manifest file:
 As you can see, it's a JSON file that stores the value for each of the entries
 (only one in our case :)) we need to run our test plan.
 
-Using your favorite text editor, open the file, replace ``false`` with
+Using your favourite text editor, open the file, replace ``false`` with
 ``true`` and save your modifications.
 
 Run Checkbox again, following the same steps we have done so far, and you will
@@ -247,7 +247,7 @@ Next, create a launcher file named ``auto-manifest`` with the following content:
     type = silent
 
 You have previously learned about most of the sections in this launcher. One
-addition is the ``[ui]`` section, which covers customization related to
+addition is the ``[ui]`` section, which covers customisation related to
 the user interface. ``type = silent`` means Checkbox will run everything
 automatically. If there are any interactive jobs, they will be skipped. In
 addition, the System Manifest screen will be skipped and the values from the

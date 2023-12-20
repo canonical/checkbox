@@ -28,7 +28,7 @@ Following fields may be used by the job unit:
     be generated if there are duplicates. Should contain characters in
     [a-z0-9/-].
     This field used to be called ``name``. That name is now deprecated. For
-    backwards compatibility it is still recognized and used if ``id`` is
+    backwards compatibility it is still recognised and used if ``id`` is
     missing.
 
 .. _Job summary field:
@@ -73,7 +73,7 @@ Following fields may be used by the job unit:
     issue a certificate. The allowed values are:
 
     :unspecified:
-        This value means that a job was not analyzed in the context of
+        This value means that a job was not analysed in the context of
         certification status classification and it has no classification at this
         time. This is also the default certification status for all jobs.
     :not-part-of-certification:
@@ -202,7 +202,7 @@ Following fields may be used by the job unit:
     *values*, which will be taken from the existing environment. This
     only makes sense for jobs that also have the ``user`` attribute.
     This key provides a mechanism to account for security policies in
-    ``sudo`` and ``pkexec``, which provide a sanitized execution
+    ``sudo`` and ``pkexec``, which provide a sanitised execution
     environment, with the downside that useful configuration specified
     in environment variables may be lost in the process.
 

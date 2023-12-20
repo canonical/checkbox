@@ -62,7 +62,7 @@ Resource expressions
 --------------------
 
 Resource expressions are evaluated like normal python programs. They use all of
-the same syntax, semantics and behavior. None of the operators are overridden
+the same syntax, semantics and behaviour. None of the operators are overridden
 to do anything unexpected. The evaluator tries to follow the principle of least
 surprise but this is not always possible.
 
@@ -156,13 +156,13 @@ The design of resource programs has the following shortcomings. The list is
 non-exhaustive, it only contains issues that we came across found not to work
 in practice.
 
-Joins are not optimized
+Joins are not optimised
 ^^^^^^^^^^^^^^^^^^^^^^^
 
 Starting with plainbox 0.24, a resource expression can use more than one
 resource object (resource job) at the same time. This allows the use of joins
 as the whole expression is evaluated over the Cartesian product of all the
-resource records. This operation is not optimized, you can think of it as a
+resource records. This operation is not optimised, you can think of it as a
 JOIN that is performed on a database without any indices.
 
 Let's look at a practical example::
@@ -201,7 +201,7 @@ object. In other words, that expression is equivalent to this one::
 
     A == True and A == False
 
-This type of error is not captured by our limited semantic analyzer. It will
+This type of error is not captured by our limited semantic analyser. It will
 silently evaluate to False and inhibit the job from being stated.
 
 To work around this, split the expression to two consecutive lines. As stated
@@ -235,7 +235,7 @@ Now let's assume that we have exactly two resources in the ``xinput`` group::
     device_class: XITouchClass
     touch_mode: something else
 
-Now, this expression will evaluate to ``True``, as the second resource fulfills
+Now, this expression will evaluate to ``True``, as the second resource fulfils
 the requirements. Is this what the test designer had expected? That's hard to
 say. The problem here is that this expression can be understood as *at least
 one resource isn't something* **or** *all resources weren't something*. Both

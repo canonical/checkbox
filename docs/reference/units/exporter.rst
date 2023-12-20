@@ -2,8 +2,8 @@
 Exporter Unit
 =============
 
-The purpose of exporter units is to provide an easy way to customize the
-plainbox reports by delegating the customization bits to providers.
+The purpose of exporter units is to provide an easy way to customise the
+plainbox reports by delegating the customisation bits to providers.
 
 Each exporter unit expresses a binding between code (the entry point) and data.
 Data can be new options, different Jinja2 templates and/or new paths to load

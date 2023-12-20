@@ -10,7 +10,7 @@ specific fact. Checkbox uses such units to create a manifest that associates
 each entry with a value.
 
 The values themselves can come from multiple sources, the simplest one is the
-test operator who can provide an answer. In more complex cases a specialized
+test operator who can provide an answer. In more complex cases a specialised
 application might look up the type of the device using some identification
 method (such as DMI data) from a server, thus removing the extra interaction
 steps.
@@ -40,7 +40,7 @@ Following fields may be used by a manifest entry unit.
     (mandatory) - A human readable name of the entry. This should read as in a
     feature matrix of a device in a store (e.g., "802.11ac wireless
     capability", or "Thunderbolt support", "Number of hard drive bays"). This
-    is not a sentence, don't end it with a dot. Please capitalize the first
+    is not a sentence, don't end it with a dot. Please capitalise the first
     letter. The name is used in various listings so it should be kept
     reasonably short.
 
@@ -72,7 +72,7 @@ Following fields may be used by a manifest entry unit.
 .. _Manifest Entry prompt field:
 
 ``prompt``:
-    (optional) - Allows the manifest unit to customize the prompt presented
+    (optional) - Allows the manifest unit to customise the prompt presented
     when collecting values from a user. When the ``value-type`` is ``bool`` the
     default prompt is "Does this machine have this piece of hardware?", when
     the ``value-type`` is ``natural`` the default prompt is "Please enter the

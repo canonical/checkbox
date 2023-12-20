@@ -362,7 +362,7 @@ You will see the following:
      ☑ : A semi-automated job where the user manually sets the outcome
 
 This is the summary of the test session. It will list each job and its outcome.
-Here is a table that summarizes the different outcomes a job can have and
+Here is a table that summarises the different outcomes a job can have and
 their symbols:
 
 .. list-table::

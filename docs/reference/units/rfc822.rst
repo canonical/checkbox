@@ -13,7 +13,7 @@ general, off-the-shelf text editors.
 Backus--Naur Form
 -----------------
 
-An approximated syntax can be summarized as the following BNF::
+An approximated syntax can be summarised as the following BNF::
 
     record-list: record-list '\n' record
                  | record

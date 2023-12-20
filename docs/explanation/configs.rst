@@ -44,7 +44,7 @@ Fortunately, the ``check-config`` command will list:
 
 - all the configuration files being used
 - for each section, the configured parameters being used
-- the origin of each of these customized parameters
+- the origin of each of these customised parameters
 - an overall status report
 
 For example:

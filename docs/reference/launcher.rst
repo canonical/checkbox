@@ -3,8 +3,8 @@
 Checkbox launchers
 ^^^^^^^^^^^^^^^^^^
 
-Checkbox launchers are INI files that customize checkbox experience. The
-customization includes:
+Checkbox launchers are INI files that customise checkbox experience. The
+customisation includes:
 
 * choosing what jobs will be run
 * how to handle machine restart
@@ -58,7 +58,7 @@ For more details about value resolution order see :doc:`configs <../explanation/
 Launcher meta-information
 =========================
 
-Launcher meta-information helps to provide consistent checkbox behavior in the
+Launcher meta-information helps to provide consistent checkbox behaviour in the
 future.
 
 ``[launcher]``
@@ -89,8 +89,8 @@ spaces or commas. The default value is an empty list.
 
 ``api_version``
 
-API version determines the behavior of the launcher. Each checkbox feature is
-added at a specific API version. Default behaviors don't change silently;
+API version determines the behaviour of the launcher. Each checkbox feature is
+added at a specific API version. Default behaviours don't change silently;
 explicit launcher change is required. Default value: ``0.99``
 
 ``session_title``
@@ -305,7 +305,7 @@ Default value: ``normal``
 
 .. note::
 
-    You can also change this behavior when invoking Checkbox by using
+    You can also change this behaviour when invoking Checkbox by using
     ``--verbose`` and ``--debug`` options respectively.
 
 ``auto_retry``
@@ -616,7 +616,7 @@ staging version of certification site and saved to /tmp/submission.tar.xz
 3) A typical launcher to run a desktop SRU test plan automatically.
 The launcher will automatically retry the failed test jobs. Besides,
 this launcher includes another launcher ``launcher.conf`` as its
-customized environment configuration.
+customised environment configuration.
 
 The launcher
 

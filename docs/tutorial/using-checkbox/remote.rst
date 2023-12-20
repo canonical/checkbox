@@ -97,7 +97,7 @@ On the agent terminal, you can see a message like:
 
 .. code-block:: none
 
-    Finalizing session that hasn't been submitted anywhere: remote-2023-07-21T07.26.58
+    Finalising session that hasn't been submitted anywhere: remote-2023-07-21T07.26.58
 
 This means the test session ``remote-2023-07-21T07.26.58`` has been completed
 and it was not uploaded to the Certification website.

@@ -255,7 +255,7 @@ Run the following command:
                           USB Device 0x46d:0x802 at usb-0000:00:14.0-4, high speed
     ------------------------------------------------------------------------- >8 ---
     Outcome: job passed
-    Finalizing session that hasn't been submitted anywhere: checkbox-run-2023-07-24T09.01.24
+    Finalising session that hasn't been submitted anywhere: checkbox-run-2023-07-24T09.01.24
     ==================================[ Results ]===================================
      ☑ : Collect information about installed software packages
      ☑ : Collect information about hardware devices (udev)
@@ -299,7 +299,7 @@ Wrapping up
 Congratulations! You've completed the Checkbox usage tutorial!
 
 You've installed Checkbox, run a test plan and reviewed the report generated,
-written a launcher to customize a test run, discovered how to run Checkbox on
+written a launcher to customise a test run, discovered how to run Checkbox on
 one device to control another device, and used Checkbox commands to navigate
 the available objects in Checkbox. You are now ready to use Checkbox to test
 any kind of devices!

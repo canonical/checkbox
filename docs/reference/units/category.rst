@@ -2,7 +2,7 @@
 Category Unit
 =============
 
-The category unit is a normalized implementation of a "test category" concept.
+The category unit is a normalised implementation of a "test category" concept.
 Using category units one can define logical groups of tests that deal with some
 specific testing area (for example, suspend-resume or USB support).
 
@@ -33,7 +33,7 @@ Rationale
 =========
 
 The unit is a separate entity so that it can be shipped separately of job
-definitions and so that its name can be localized, yet still be referred to
+definitions and so that its name can be localised, yet still be referred to
 uniquely by any job definition.
 
 In the future it is likely that the unit will be extended with additional

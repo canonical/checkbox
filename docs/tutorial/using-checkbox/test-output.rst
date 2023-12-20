@@ -44,7 +44,7 @@ purposes.
     ID: com.canonical.plainbox::manifest
     Category: com.canonical.plainbox::uncategorised
 
-**ID** indicates the job IDs run during the test. and it's organized into 
+**ID** indicates the job IDs run during the test. and it's organised into 
 different **Categories** based on their functionalities or characteristics.
 
 
@@ -95,7 +95,7 @@ the machine lacks the necessary audio devices to support the test.
       ☐ : Check that at least one audio playback device exits
       ☑ : Check that at least one audio capture device exists
       
-After all the jobs are completed, a checklist will summarize the results of 
+After all the jobs are completed, a checklist will summarise the results of 
 each test.
 
 

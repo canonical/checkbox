@@ -14,7 +14,7 @@ respective contents.
 .. note::
 
     You can tailor desired reports in your launcher file, or define your own 
-    exporter to customize the reports. See :doc:`launcher<../../reference/launcher>` 
+    exporter to customise the reports. See :doc:`launcher<../../reference/launcher>` 
     and :doc:`exporter<../../reference/units/exporter>` for more details.
 
 .. note:: 
@@ -87,7 +87,7 @@ after the text summary block.
     file:///home/user/.local/share/checkbox-ng/submission_2023-07-19T07.36.00.399658.tar.xz
 
 Head to the folder ``~/.local/share/``, you should find submission files 
-organized as follows:
+organised as follows:
 
 .. code-block:: none
 
@@ -117,7 +117,7 @@ Now, let's explore each of the submission files together!
 You can expand entries in Tests Results and Logs sections to access more
 detailed information. 
 
-Additionally, if the report is more complex, you can utilize the *search bar* to
+Additionally, if the report is more complex, you can utilise the *search bar* to
 filter specific tests for easier navigation. For instance, if you type "audio"
 in the search bar, you can view all test results related to audio testing.
 

@@ -27,7 +27,7 @@ Test Plan Fields
 The following fields can be used in a test plan. Note that **not all** fields
 need to be used or even should be used. Please remember that Checkbox needs to
 maintain backwards compatibility so some of the test plans it defines may have
-non-typical constructs required to ensure proper behavior. You don't have to
+non-typical constructs required to ensure proper behaviour. You don't have to
 copy such constructs when working on a new test plan from scratch
 
 .. _Test Plan id field:
@@ -158,7 +158,7 @@ copy such constructs when working on a new test plan from scratch
 ``nested_part``:
    A multi-line list of test-plan identifiers whose contents will become part
    of this test-plan. This is a method of creating a tree of test plans,
-   something that can be useful for organization and de-duplication of test plan
+   something that can be useful for organisation and de-duplication of test plan
    definitions. For a full discussion of this capability see
    :ref:`nested-test-plan`.
 
@@ -283,7 +283,7 @@ to some of its own definitions::
     id: extended-tests
     _name: Extended Storage Tests (By Corp Inc.)
     _description:
-        This test plan runs an extended set of storage tests, customized
+        This test plan runs an extended set of storage tests, customised
         by the Corp Inc. corporation. In addition to the standard Ubuntu
         set of storage tests, this test plan includes the following tests::
 

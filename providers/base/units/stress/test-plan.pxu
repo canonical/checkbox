@@ -101,7 +101,7 @@ _description: Stress NG tests (automated)
 include:
     stress/store_and_change_oomd_config
     stress/cpu_stress_ng_test                      certification-status=blocker
-    memory/memory_stress_ng                        certification-status=blocker
+    stress/memory_stress_ng                        certification-status=blocker
     stress/restore_oomd_config
 
 id: stress-warmboot-coldboot-automated

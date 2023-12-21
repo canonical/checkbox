@@ -1,0 +1,58 @@
+unit: job
+category_id: qep
+id: qep/qep-devices
+plugin: resource
+_summary: test QEP
+_description: Generates the 4 QEP devices to be used in the template test jobs
+command:
+    DEVICES="4bc3 4b81 4b82 4b83"
+    for d in $DEVICES; do
+        echo "qep-device: $d"
+        echo
+    done
+flags: preserve-locale
+
+unit: template
+template-resource: qep/qep-devices
+template-unit: job
+id: qep/qep-device-driver-for-{qep-device}
+category_id: qep
+_summary: Verify PCI Device {qep-device} is using the correct driver
+_description: Checks that the device exists in lspci and that the device driver associated is correct.\
+    Device ID should be 8086:{qep-device} and the driver is always intel_qep.
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_qep == 'True'
+plugin: shell
+command:
+        echo "Verifying: 8086:{qep-device} is using intel_qep driver"
+        lspci -nnkd 8086:{qep-device} | grep intel_qep
+
+unit: template
+template-resource: qep/qep-devices
+template-unit: job
+id: qep/qep-device-node-for-{qep-device}
+category_id: qep
+_summary: Verify device directory exists for {qep-device}
+_description: Detects if the device's directory exists.\
+    First needs to find the PCI ID from lspci\
+    Then tests if the PCI device directory exists.\
+    The PCI ID is always ##:##.# (e.g. 18:00.2)\
+    The PCI device directory is always in the format of 0000:$PCI_ID
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_qep == 'True'
+plugin: shell
+command:
+    echo "Test for: "{qep-device}
+    echo "Find PCI ID for "{qep-device}
+    PCI=$(lspci -nd 8086:{qep-device} | cut -c 1-7)
+    echo "PCI ID is: $PCI"
+    if [ -d "/sys/bus/pci/devices/0000:$PCI" ]
+    then
+        echo "path /sys/bus/pci/devices/0000:$PCI exists"
+        exit 0
+    else
+        echo "path /sys/bus/pci/devices/0000:$PCI does not exist"
+        exit 1
+    fi

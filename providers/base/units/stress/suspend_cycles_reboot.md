@@ -1,9 +1,8 @@
 # Flow of the suspend-cycles-stress-test test plan
 
-<!-- markdownlint-disable MD033 -->
 This description will focus on the suspend cycles and reboot process.
 
-The remaining work log check, suspend time check, and log attachments will be\
+The remaining work log check, suspend time check, and log attachments will be
 executed at the end of a suspend and reboot jobs.
 
 ## Definition of the test case name

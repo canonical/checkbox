@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import re
 import time
@@ -44,14 +46,21 @@ class SysFsLEDController():
     def __init__(self, name, on_value="0", off_value="0"):
         self.led_name = name
         self.led_node = Path(self.SysFsLEDPath).joinpath(name)
-        self.brightness_node = self.led_node / "brightness"
-        self.max_brightness_node = self.led_node / "max_brightness"
-        self.trigger_node = self.led_node / "trigger"
+        self.brightness_node = self.led_node.joinpath("brightness")
+        self.max_brightness_node = self.led_node.joinpath("max_brightness")
+        self.trigger_node = self.led_node.joinpath("trigger")
         self.initial_state = {"trigger": None, "brightness": None}
         self._on_value = on_value
         self._off_value = off_value
 
     def __enter__(self):
+        self.setup()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.teardown()
+
+    def setup(self):
         logging.debug("setup action for LED testing")
 
         if int(self._on_value) > int(self.max_brightness):
@@ -65,9 +74,7 @@ class SysFsLEDController():
         self.trigger = "none"
         self.off()
 
-        return self
-
-    def __exit__(self, type, value, traceback):
+    def teardown(self):
         logging.debug("teardown action for LED testing")
         initial_state = self.initial_state
         self.brightness = initial_state["brightness"]
@@ -169,6 +176,11 @@ def register_arguments():
         type=int,
         default="0"
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Turn on debug level output for extra info during test run.",
+    )
 
     args = parser.parse_args()
     return args
@@ -182,10 +194,10 @@ def main():
 
     logging.info("# Start LED testing")
     logging.info(("# Set the %s LED blinking around %d seconds"
-                  "with %d seconds blink interval"),
-                 args.led_name, args.duration, args.interval)
+                  "with %f seconds blink interval"),
+                 args.name, args.duration, args.interval)
 
-    with SysFsLEDController(args.led_name, str(args.on_value),
+    with SysFsLEDController(args.name, str(args.on_value),
                             str(args.off_value)) as led_controller:
         led_controller.blinking(args.duration, args.interval)
 

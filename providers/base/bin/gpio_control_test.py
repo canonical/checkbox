@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import sys
 import time
 import logging
@@ -42,46 +44,63 @@ class GPIOController():
     GPIOExportPath = "{}/export".format(GPIORootPath)
     GPIOUnexportPath = "{}/unexport".format(GPIORootPath)
 
-    def __init__(self, gpio_chip, gpio_pin, direction, need_export):
-        self.gpio_pin = gpio_pin
-        self.gpio_chip_node = Path(self.GPIORootPath).joinpath(
-                                    "gpiochip{}".format(gpio_chip))
-        self.gpio_node = None
-        self.value_node = None
-        self.direction_node = None
-        self.gpiochip_info = {"base": None, "ngpio": None}
+    def __init__(self, gpiochip, gpiopin, direction, need_export):
+        if gpiochip.isnumeric() is False or gpiopin.isnumeric() is False:
+            raise ValueError("Invalid GPIO chip or GPIO pin")
+
+        self._gpio_root_node = Path(self.GPIORootPath)
+        self.gpio_chip_node = self._gpio_root_node.joinpath(
+                                    "gpiochip{}".format(gpiochip))
+        self.gpio_node = self.value_node = self.direction_node = None
+        self.gpiochip_info = {"base": None, "ngpio": None, "offset": gpiopin}
         self._direction = direction
         self._need_export = need_export
-        self.initial_state = {"value": None, "direction": None}
+        self.initial_state = {
+            "value": None, "direction": None, "number": None
+        }
 
     def __enter__(self):
+        self.setup()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.teardown()
+
+    def check_gpio_offset(self, pin, ngpio):
+        if int(pin) == 0:
+            raise ValueError("")
+
+        if int(pin) > int(ngpio):
+            raise IndexError(
+                "GPIO pin '{}' greater than ngpio value '{}'".format(
+                    pin, ngpio))
+
+    def setup(self):
         logging.debug("setup action for GPIO testing")
         for key in ["base", "ngpio"]:
             with self.gpio_chip_node.joinpath(key) as gpio_node:
-                if gpio_node.exists():
-                    self.gpiochip_info[key] = gpio_node.read_text().strip("\n")
-                else:
+                if self._node_exists(gpio_node) is False:
                     raise FileNotFoundError(
                         "{} file not exists".format(str(gpio_node)))
+                self.gpiochip_info[key] = self._read_node(gpio_node)
 
-        if int(self.gpio_pin) > int(self.gpiochip_info["ngpio"]):
-            raise IndexError(
-                "GPIO pin '{}' greater than ngpio value '{}'".format(
-                    self.gpio_pin, self.gpiochip_info["ngpio"]
-                )
-            )
+        self.check_gpio_offset(
+            self.gpiochip_info["offset"], self.gpiochip_info["ngpio"]
+        )
 
-        self.gpio_pin = (
-            int(self.gpiochip_info["base"]) + int(self.gpio_pin) - 1)
-        self.gpio_node = Path(self.GPIORootPath).joinpath(
-                                    "gpio{}".format(self.gpio_pin))
+        self.initial_state["number"] = str((
+            int(self.gpiochip_info["base"]) +
+            int(self.gpiochip_info["offset"]) - 1
+        ))
+        self.gpio_node = self._gpio_root_node.joinpath(
+                "gpio{}".format(self.initial_state["number"]))
 
         # Export GPIO node if needed
-        if self.initial_state["need_export"]:
-            self._export(str(self.gpio_pin))
+        if self._need_export:
+            self._export(self.initial_state["number"])
             time.sleep(1)
 
-        if not self.gpio_node.exists():
+        if self._node_exists(self.gpio_node) is False:
             raise FileNotFoundError(
                         "{} file not exists".format(str(self.gpio_node)))
 
@@ -89,16 +108,15 @@ class GPIOController():
         self.initial_state["value"] = self.value
         self.initial_state["direction"] = self.direction
 
+        # Configure the GPIO direction
         self.direction = self._direction
 
-        return self
-
-    def __exit__(self, type, value, traceback):
+    def teardown(self):
         logging.debug("teardown action for LED testing")
         self.value = self.initial_state["value"]
         self.direction = self.initial_state["direction"]
         if self._need_export:
-            self._unexport(str(self.gpio_pin))
+            self._unexport(self.initial_state["number"])
 
     def _node_exists(self, node):
         if node.exists() is False:
@@ -116,15 +134,15 @@ class GPIOController():
             raise ValueError(
                 "Unable to change the value of {} file".format(str(node)))
 
-    def _export(self, pin):
+    def _export(self, gpio_number):
         logging.debug("export %s node", self.gpio_node.name)
         with Path(self.GPIOExportPath) as gpio_node:
-            gpio_node.write_text(pin)
+            self._write_node(gpio_node, gpio_number, False)
 
-    def _unexport(self, pin):
+    def _unexport(self, gpio_number):
         logging.debug("unexport %s node", self.gpio_node.name)
         with Path(self.GPIOUnexportPath) as gpio_node:
-            gpio_node.write_text(pin)
+            self._write_node(gpio_node, gpio_number, False)
 
     @property
     def direction(self):
@@ -133,6 +151,9 @@ class GPIOController():
 
     @direction.setter
     def direction(self, value):
+        if value not in ["in", "out"]:
+            raise ValueError(
+                "The {} is not allowed for direction".format(value))
 
         with self.gpio_node.joinpath("direction") as gpio_node:
             logging.debug("set direction to {} for {}".format(
@@ -147,6 +168,10 @@ class GPIOController():
 
     @value.setter
     def value(self, value):
+        if value not in ["1", "0"]:
+            raise ValueError(
+                "The {} is not allowed for value".format(value))
+
         with self.gpio_node.joinpath("value") as gpio_node:
             logging.debug("set value to {} for {}".format(
                 value, gpio_node.name
@@ -154,15 +179,16 @@ class GPIOController():
             self._write_node(gpio_node, value)
 
     def on(self):
-        logging.debug("turn on GPIO{} LED".format(self.gpio_pin))
-        self.value = 1
+        logging.debug("turn on GPIO")
+        self.value = "1"
 
     def off(self):
-        logging.debug("turn off GPIO{} LED".format(self.gpio_pin))
-        self.value = 0
+        logging.debug("turn off GPIO")
+        self.value = "0"
 
     def blinking(self, duration=10, interval=1):
-        logging.debug("set GPIO{} LED blinking".format(self.gpio_pin))
+        logging.debug(
+            "set GPIO{} LED blinking".format(self.initial_state["number"]))
         start_time = datetime.now()
         while (datetime.now() - start_time).total_seconds() <= duration:
             self.on()
@@ -177,7 +203,7 @@ def blinking_test(args):
                         "out", args.need_export) as led_controller:
         logging.info(("# Set the {} LED blinking around {} seconds "
                      "with {} seconds blink interval").format(
-                        args.led_name, args.duration, args.interval))
+                        args.name, args.duration, args.interval))
         led_controller.blinking(args.duration, args.interval)
 
 
@@ -246,7 +272,6 @@ def register_arguments():
 
 def main():
     args = register_arguments()
-    print(args)
     logger = init_logger()
     if args.debug:
         logger.setLevel(logging.DEBUG)

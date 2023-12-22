@@ -347,7 +347,7 @@ estimated_duration: 10
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_led_indicator == 'True'
 command:
-    led_tests.py sysfs_led -n {path}
+    led_control_test.py -n {path} -d 10
 
 id: led-indicator/gpio-controller-leds
 plugin: resource
@@ -387,12 +387,9 @@ _verification:
     Does the "{name}" LED blink?
 command:
     if $(snap connections | grep $SNAP_NAME:gpio); then
-        # the gpio slots has been connected to checkbox
-        #   skip the GPIO export steps
-        led_tests.py gpio_led -n {path} --gpio-chip {chip_number} --gpio-pin {port}
+        # the gpio slots has been connected to checkbox, skip the GPIO export steps
+        gpio_control_test.py led -n {name} --gpio-chip {chip_number} --gpio-pin {port}
     else
-        # the gpio slots has not been connected to checkbox
-        # perform the GPIO export steps during testing
-        led_tests.py gpio_led -n {path} --gpio-chip {chip_number} --gpio-pin {port} --need-export
+        # the gpio slots has not been connected to checkbox, perform the GPIO export steps during testing
+        gpio_control_test.py led -n {name} --gpio-chip {chip_number} --gpio-pin {port} --need-export
     fi
-

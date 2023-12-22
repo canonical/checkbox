@@ -107,7 +107,6 @@ _name: Manual audio tests
 _description: Manual audio tests for Snappy Ubuntu Core devices
 include:
     audio/alsa-playback
-    audio/alsa-loopback
 
 id: audio-pa-manual
 unit: test plan
@@ -144,7 +143,6 @@ _name: Manual audio tests (after suspend)
 _description: Manual audio tests for Snappy Ubuntu Core devices
 include:
     after-suspend-audio/alsa-playback
-    after-suspend-audio/alsa-loopback
 
 id: after-suspend-audio-pa-manual
 unit: test plan

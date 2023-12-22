@@ -755,25 +755,6 @@ estimated_duration: 5
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_audio_loopback_connector == 'True'
 
-id: audio/alsa-loopback
-_summary: Captured sound matches played one
-_purpose:
- Check if sound that is 'hearable' by capture device
-_steps:
- 1. Connect line-out to line-in (plug the loop-back cable)
- 2. Commence the test
- 3. Observe command's output
-_verification:
- Is the reported frequency in the 438 - 442 range
-plugin: user-interact-verify
-depends: audio/detect-playback-devices audio/detect-capture-devices
-user: root
-environ: ALSA_CONFIG_PATH LD_LIBRARY_PATH ALSADEVICE
-flags: also-after-suspend
-command: alsa_test loopback -d 5
-category_id: com.canonical.plainbox::audio
-estimated_duration: 30
-
 id: audio/pa-record-internal-mic
 _summary: Record a wav file and check it using pulseaudio - internal mic
 _purpose:

@@ -95,7 +95,7 @@ nested_part:
     # The following tests should run BEFORE the automated tests. The reboot and
     # power off tests will also give us a clean system to start the stress run
     # with.
-    power-management-reboot-poweroff-cert-automated
+    power-automated
     tpm-cert-automated
     stress-pm-graph
     stress-ng-cert-automated

@@ -387,7 +387,7 @@ _steps:
 _verification:
     Does the "{name}" LED blink?
 command:
-    if $(snap connections | grep $SNAP_NAME:gpio); then
+    if (snap connections | grep "$SNAP_NAME:gpio"); then
         # the gpio slots has been connected to checkbox, skip the GPIO export steps
         gpio_control_test.py led -n {name} --gpio-chip {chip_number} --gpio-pin {port}
     else

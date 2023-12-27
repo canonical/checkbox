@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-
+import re
 import sys
 import time
 import logging
@@ -44,13 +44,20 @@ class GPIOController():
     GPIOExportPath = "{}/export".format(GPIORootPath)
     GPIOUnexportPath = "{}/unexport".format(GPIORootPath)
 
-    def __init__(self, gpiochip, gpiopin, direction, need_export):
+    def __init__(self, gpiochip: str, gpiopin: str,
+                 direction: int, need_export: bool):
         if gpiochip.isnumeric() is False or gpiopin.isnumeric() is False:
             raise ValueError("Invalid GPIO chip or GPIO pin")
 
         self._gpio_root_node = Path(self.GPIORootPath)
+        self._gpiochip_mapping = self.get_gpiochip_mapping()
+
+        if gpiochip not in self._gpiochip_mapping.keys():
+            raise KeyError("GPIO chip number {} is incorrect".format(gpiochip))
+
         self.gpio_chip_node = self._gpio_root_node.joinpath(
-                                    "gpiochip{}".format(gpiochip))
+                                    "gpiochip{}".format(
+                                        self._gpiochip_mapping.get(gpiochip)))
         self.gpio_node = self.value_node = self.direction_node = None
         self.gpiochip_info = {"base": None, "ngpio": None, "offset": gpiopin}
         self._direction = direction
@@ -66,7 +73,7 @@ class GPIOController():
     def __exit__(self, type, value, traceback):
         self.teardown()
 
-    def check_gpio_offset(self, pin, ngpio):
+    def check_gpio_offset(self, pin: str, ngpio: str):
         if int(pin) == 0:
             raise ValueError("")
 
@@ -74,6 +81,18 @@ class GPIOController():
             raise IndexError(
                 "GPIO pin '{}' greater than ngpio value '{}'".format(
                     pin, ngpio))
+
+    def get_gpiochip_mapping(self):
+        mapping = {}
+        nodes = sorted(
+                    self._gpio_root_node.glob("gpiochip*/device/gpiochip*"))
+        for node in nodes:
+            match = re.search(
+                r"/sys/class/gpio/gpiochip([0-9]+)/device/gpiochip([0-9]+)",
+                str(node))
+            if match:
+                mapping.update({match.groups()[1]: match.groups()[0]})
+        return mapping
 
     def setup(self):
         logging.debug("setup action for GPIO testing")
@@ -118,15 +137,15 @@ class GPIOController():
         if self._need_export:
             self._unexport(self.initial_state["number"])
 
-    def _node_exists(self, node):
+    def _node_exists(self, node: Path):
         if node.exists() is False:
             raise FileNotFoundError("{} file not exists".format(str(node)))
 
-    def _read_node(self, node):
+    def _read_node(self, node: Path):
         self._node_exists(node)
         return node.read_text().strip("\n")
 
-    def _write_node(self, node, value, check=True):
+    def _write_node(self, node: Path, value: str, check=True):
 
         self._node_exists(node)
         node.write_text(value)
@@ -134,12 +153,12 @@ class GPIOController():
             raise ValueError(
                 "Unable to change the value of {} file".format(str(node)))
 
-    def _export(self, gpio_number):
+    def _export(self, gpio_number: str):
         logging.debug("export %s node", self.gpio_node.name)
         with Path(self.GPIOExportPath) as gpio_node:
             self._write_node(gpio_node, gpio_number, False)
 
-    def _unexport(self, gpio_number):
+    def _unexport(self, gpio_number: str):
         logging.debug("unexport %s node", self.gpio_node.name)
         with Path(self.GPIOUnexportPath) as gpio_node:
             self._write_node(gpio_node, gpio_number, False)
@@ -150,7 +169,7 @@ class GPIOController():
             return self._read_node(gpio_node)
 
     @direction.setter
-    def direction(self, value):
+    def direction(self, value: str):
         if value not in ["in", "out"]:
             raise ValueError(
                 "The {} is not allowed for direction".format(value))
@@ -167,7 +186,7 @@ class GPIOController():
             return self._read_node(gpio_node)
 
     @value.setter
-    def value(self, value):
+    def value(self, value: str):
         if value not in ["1", "0"]:
             raise ValueError(
                 "The {} is not allowed for value".format(value))

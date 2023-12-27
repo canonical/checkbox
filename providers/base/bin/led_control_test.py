@@ -9,36 +9,6 @@ from pathlib import Path
 from datetime import datetime
 
 
-def init_logger():
-    """
-    Set the logger to log DEBUG and INFO to stdout, and
-    WARNING, ERROR, CRITICAL to stderr.
-    """
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
-    logger_format = "%(asctime)s %(levelname)-8s %(message)s"
-    date_format = "%Y-%m-%d %H:%M:%S"
-
-    # Log DEBUG and INFO to stdout, others to stderr
-    stdout_handler = logging.StreamHandler(sys.stdout)
-    stdout_handler.setFormatter(logging.Formatter(logger_format, date_format))
-
-    stderr_handler = logging.StreamHandler(sys.stderr)
-    stderr_handler.setFormatter(logging.Formatter(logger_format, date_format))
-
-    stdout_handler.setLevel(logging.DEBUG)
-    stderr_handler.setLevel(logging.WARNING)
-
-    # Add a filter to the stdout handler to limit log records to
-    # INFO level and below
-    stdout_handler.addFilter(lambda record: record.levelno <= logging.INFO)
-
-    root_logger.addHandler(stderr_handler)
-    root_logger.addHandler(stdout_handler)
-
-    return root_logger
-
-
 class SysFsLEDController():
 
     SysFsLEDPath = "/sys/class/leds"
@@ -186,11 +156,33 @@ def register_arguments():
     return args
 
 
-def main():
+if __name__ == "__main__":
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    logger_format = "%(asctime)s %(levelname)-8s %(message)s"
+    date_format = "%Y-%m-%d %H:%M:%S"
+
+    # Log DEBUG and INFO to stdout, others to stderr
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setFormatter(logging.Formatter(logger_format, date_format))
+
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    stderr_handler.setFormatter(logging.Formatter(logger_format, date_format))
+
+    stdout_handler.setLevel(logging.DEBUG)
+    stderr_handler.setLevel(logging.WARNING)
+
+    # Add a filter to the stdout handler to limit log records to
+    # INFO level and below
+    stdout_handler.addFilter(lambda record: record.levelno <= logging.INFO)
+
+    root_logger.addHandler(stderr_handler)
+    root_logger.addHandler(stdout_handler)
+
     args = register_arguments()
-    logger = init_logger()
     if args.debug:
-        logger.setLevel(logging.DEBUG)
+        root_logger.setLevel(logging.DEBUG)
 
     logging.info("# Start LED testing")
     logging.info(("# Set the %s LED blinking around %d seconds"
@@ -200,7 +192,3 @@ def main():
     with SysFsLEDController(args.name, str(args.on_value),
                             str(args.off_value)) as led_controller:
         led_controller.blinking(args.duration, args.interval)
-
-
-if __name__ == "__main__":
-    main()

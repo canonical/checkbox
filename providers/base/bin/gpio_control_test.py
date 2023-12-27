@@ -8,36 +8,6 @@ from pathlib import Path
 from datetime import datetime
 
 
-def init_logger():
-    """
-    Set the logger to log DEBUG and INFO to stdout, and
-    WARNING, ERROR, CRITICAL to stderr.
-    """
-    root_logger = logging.getLogger()
-    root_logger.setLevel(logging.INFO)
-    logger_format = "%(asctime)s %(levelname)-8s %(message)s"
-    date_format = "%Y-%m-%d %H:%M:%S"
-
-    # Log DEBUG and INFO to stdout, others to stderr
-    stdout_handler = logging.StreamHandler(sys.stdout)
-    stdout_handler.setFormatter(logging.Formatter(logger_format, date_format))
-
-    stderr_handler = logging.StreamHandler(sys.stderr)
-    stderr_handler.setFormatter(logging.Formatter(logger_format, date_format))
-
-    stdout_handler.setLevel(logging.DEBUG)
-    stderr_handler.setLevel(logging.WARNING)
-
-    # Add a filter to the stdout handler to limit log records to
-    # INFO level and below
-    stdout_handler.addFilter(lambda record: record.levelno <= logging.INFO)
-
-    root_logger.addHandler(stderr_handler)
-    root_logger.addHandler(stdout_handler)
-
-    return root_logger
-
-
 class GPIOController():
 
     GPIORootPath = "/sys/class/gpio"
@@ -58,7 +28,7 @@ class GPIOController():
         self.gpio_chip_node = self._gpio_root_node.joinpath(
                                     "gpiochip{}".format(
                                         self._gpiochip_mapping.get(gpiochip)))
-        self.gpio_node = self.value_node = self.direction_node = None
+        self.gpio_node = self.value_node = None
         self.gpiochip_info = {"base": None, "ngpio": None, "offset": gpiopin}
         self._direction = direction
         self._need_export = need_export
@@ -154,12 +124,12 @@ class GPIOController():
                 "Unable to change the value of {} file".format(str(node)))
 
     def _export(self, gpio_number: str):
-        logging.debug("export %s node", self.gpio_node.name)
+        logging.debug("export GPIO node %s", gpio_number)
         with Path(self.GPIOExportPath) as gpio_node:
             self._write_node(gpio_node, gpio_number, False)
 
     def _unexport(self, gpio_number: str):
-        logging.debug("unexport %s node", self.gpio_node.name)
+        logging.debug("unexport GPIO node %s", gpio_number)
         with Path(self.GPIOUnexportPath) as gpio_node:
             self._write_node(gpio_node, gpio_number, False)
 
@@ -246,8 +216,9 @@ def register_arguments():
         help="Turn on debug level output for extra info during test run.",
     )
 
-    sub_parsers = parser.add_subparsers(
-        help="GPIO test type", dest="test_func", required=True)
+    sub_parsers = parser.add_subparsers(help="GPIO test type",
+                                        dest="test_func")
+    sub_parsers.required = True
 
     gpio_led_parser = sub_parsers.add_parser("led")
     gpio_led_parser.add_argument(
@@ -289,17 +260,36 @@ def register_arguments():
     return args
 
 
-def main():
+if __name__ == "__main__":
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    logger_format = "%(asctime)s %(levelname)-8s %(message)s"
+    date_format = "%Y-%m-%d %H:%M:%S"
+
+    # Log DEBUG and INFO to stdout, others to stderr
+    stdout_handler = logging.StreamHandler(sys.stdout)
+    stdout_handler.setFormatter(logging.Formatter(logger_format, date_format))
+
+    stderr_handler = logging.StreamHandler(sys.stderr)
+    stderr_handler.setFormatter(logging.Formatter(logger_format, date_format))
+
+    stdout_handler.setLevel(logging.DEBUG)
+    stderr_handler.setLevel(logging.WARNING)
+
+    # Add a filter to the stdout handler to limit log records to
+    # INFO level and below
+    stdout_handler.addFilter(lambda record: record.levelno <= logging.INFO)
+
+    root_logger.addHandler(stderr_handler)
+    root_logger.addHandler(stdout_handler)
+
     args = register_arguments()
-    logger = init_logger()
+
     if args.debug:
-        logger.setLevel(logging.DEBUG)
+        root_logger.setLevel(logging.DEBUG)
 
     try:
         args.test_func(args)
     except Exception as err:
         logging.error(err)
-
-
-if __name__ == "__main__":
-    main()

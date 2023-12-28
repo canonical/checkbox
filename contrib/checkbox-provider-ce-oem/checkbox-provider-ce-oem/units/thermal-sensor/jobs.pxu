@@ -1,16 +1,21 @@
-id: ce-oem-sensor/thermal
-_summary: Check Thermal sensor
+id: thermal_zones
+plugin: resource
+_summary: Gather list of thermal zone on the platform
+_description:
+ Gather list of all thermal zone on the platform
+estimated_duration: 1s
+command: thermal_sensor_test.py dump
+
+unit: template
+template-resource: thermal_zones
+id: ce-oem-thermal/temperature_{name}_{type}
+_summary: Check Thermal temperature of {name} - {type}
+_description:
+    Test a thermal temperature for {name} - {type}.
+category_id: thermal
 plugin: shell
 user: root
+estimated_duration: 5m
+flags: also-after-suspend
 command:
- echo "Starting stress-ng in 10s"
- sleep 10
- cur=$(cat /sys/class/thermal/thermal_zone0/temp)
- printf "Before stress: %0.2f°C\n" "$(bc -l <<< "$cur/1000")"
- stress-ng --cpu 8 --io 4 --vm 2 --vm-bytes 128M --fork 4 --timeout 20s
- new=$(cat /sys/class/thermal/thermal_zone0/temp)
- printf "After stress:  %0.2f°C\n" "$(bc -l <<< "$new/1000")"
- [[ $new -gt $cur ]]
-category_id: sensor
-estimated_duration: 30
-flags: preserve-locale also-after-suspend
+    thermal_sensor_test.py monitor -n {name}

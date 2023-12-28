@@ -29,7 +29,7 @@ nested_part:
     ce-oem-installation-info-manual
     ce-oem-cpu-manual
     ce-oem-button-manual
-    ce-oem-sensor-manual
+    ce-oem-thermal-manual
     ce-oem-gps-manual
     ce-oem-mtd-manual
     ce-oem-buzzer-manual
@@ -59,7 +59,7 @@ nested_part:
     ce-oem-cpu-automated
     ce-oem-button-automated
     ce-oem-ptp-automated
-    ce-oem-sensor-automated
+    ce-oem-thermal-automated
     ce-oem-gps-automated
     ce-oem-mtd-automated
     ce-oem-buzzer-automated
@@ -88,7 +88,7 @@ include:
 nested_part:
     after-suspend-ce-oem-cpu-manual
     after-suspend-ce-oem-button-manual
-    after-suspend-ce-oem-sensor-manual
+    after-suspend-ce-oem-thermal-manual
     after-suspend-ce-oem-gps-manual
     after-suspend-ce-oem-mtd-manual
     after-suspend-ce-oem-buzzer-manual
@@ -116,7 +116,7 @@ nested_part:
     after-suspend-ce-oem-cpu-automated
     after-suspend-ce-oem-button-automated
     after-suspend-ce-oem-ptp-automated
-    after-suspend-ce-oem-sensor-automated
+    after-suspend-ce-oem-thermal-automated
     after-suspend-ce-oem-gps-automated
     after-suspend-ce-oem-mtd-automated
     after-suspend-ce-oem-buzzer-automated

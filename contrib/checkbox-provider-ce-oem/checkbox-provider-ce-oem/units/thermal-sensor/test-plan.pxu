@@ -1,36 +1,40 @@
-id: ce-oem-sensor-full
+id: ce-oem-thermal-full
 unit: test plan
-_name: Thermal sensor tests
-_description: Full thermal sensor tests for devices
+_name: Thermal thermal tests
+_description: Full thermal thermal tests for devices
 include:
 nested_part:
-    ce-oem-sensor-manual
-    ce-oem-sensor-automated
-    after-suspend-ce-oem-sensor-manual
-    after-suspend-ce-oem-sensor-automated
+    ce-oem-thermal-manual
+    ce-oem-thermal-automated
+    after-suspend-ce-oem-thermal-manual
+    after-suspend-ce-oem-thermal-automated
 
-id: ce-oem-sensor-manual
+id: ce-oem-thermal-manual
 unit: test plan
-_name: Thermal sensor manual tests
-_description: Manual thermal sensor tests for devices
+_name: Thermal manual tests
+_description: Manual thermal tests for devices
 include:
 
-id: ce-oem-sensor-automated
+id: ce-oem-thermal-automated
 unit: test plan
-_name: Thermal sensor auto tests
-_description: Automated thermal sensor tests for devices
+_name: Thermal auto tests
+_description: Automated thermal tests for devices
+bootstrap_include:
+    thermal_zones
 include:
-    ce-oem-sensor/thermal
+    ce-oem-thermal/temperature_.*
 
-id: after-suspend-ce-oem-sensor-manual
+id: after-suspend-ce-oem-thermal-manual
 unit: test plan
-_name: After suspend thermal sensor manual tests
-_description: Manual after suspend thermal sensor tests for devices
+_name: After suspend thermal manual tests
+_description: Manual after suspend thermal tests for devices
 include:
 
-id: after-suspend-ce-oem-sensor-automated
+id: after-suspend-ce-oem-thermal-automated
 unit: test plan
-_name: After suspend thermal sensor auto tests
-_description: Automated after suspend thermal sensor tests for devices
+_name: After suspend thermal auto tests
+_description: Automated after suspend thermal tests for devices
+bootstrap_include:
+    thermal_zones
 include:
-    after-suspend-ce-oem-sensor/thermal
+    after-suspend-ce-oem-thermal/temperature_.*

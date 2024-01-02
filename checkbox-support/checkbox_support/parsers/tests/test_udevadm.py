@@ -1019,6 +1019,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = self.parse("ZCU104")
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "DRI"), 0)
+        self.assertEqual(self.count(devices, "SOCKETCAN"), 1)
 
     def test_CAPTURE_METADATA(self):
         devices = self.parse("CAPTURE_METADATA")

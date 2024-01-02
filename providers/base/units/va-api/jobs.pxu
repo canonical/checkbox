@@ -1,0 +1,12 @@
+id: va-api/va-initialize
+_summary: Detect if the VA API could be loaded
+category_id: va-api
+imports: from com.canonical.plainbox import manifest
+requires:
+    package.name == 'vainfo'
+    cpuinfo.platform == 'x86_64'
+    manifest.has_va_api == 'True'
+plugin: shell
+flags: simple
+command:
+    vainfo && exit 0 || exit 1

@@ -1,6 +1,6 @@
 unit: packaging meta-data
 os-id: ubuntu
-os-version-id: 22.04
+os-version-id: >=22.04
 Depends: gnome-randr
 
 unit: packaging meta-data

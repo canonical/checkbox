@@ -4,7 +4,7 @@ import abc
 import json
 from subprocess import run, PIPE, check_output, STDOUT, CalledProcessError
 
-from plainbox.vendor import system_information
+from plainbox import vendor
 
 
 class CollectorMeta(type):
@@ -219,7 +219,7 @@ class InxiCollector(Collector):
     def __init__(self):
         super().__init__(
             collection_cmd=[
-                str(system_information.INXI_PATH),
+                str(vendor.INXI_PATH),
                 "--admin",
                 "--tty",
                 "-v8",
@@ -229,7 +229,7 @@ class InxiCollector(Collector):
                 "print",
                 "-c0",
             ],
-            version_cmd=[str(system_information.INXI_PATH), "--vs"],
+            version_cmd=[str(vendor.INXI_PATH), "--vs"],
         )
 
 

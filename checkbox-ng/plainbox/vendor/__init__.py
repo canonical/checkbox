@@ -1,13 +1,13 @@
 # This file is part of Checkbox.
 #
-# Copyright 2013 Canonical Ltd.
+# Copyright 2024 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -22,7 +22,12 @@
 =============================================
 
 This module contains external packages that were vendorized (shipped with a
-tree of another project) to simplify dependency management. There is no problem
-with expressing those dependencies at pypi level but it would be annoying to
-have to first package and introduce them to Ubuntu.
+tree of another project) to simplify dependency management. These may
+be modules that have to be modified to be compatible with an old python
+version or tools that we need but don't want to package for every
+redistribution avenue that we currently use.
 """
+
+from pathlib import Path
+
+INXI_PATH = (Path(__file__).parent / "inxi").resolve()

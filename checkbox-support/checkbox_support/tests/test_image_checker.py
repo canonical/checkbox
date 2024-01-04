@@ -18,7 +18,7 @@
 
 import unittest
 from unittest.mock import patch, mock_open
-from checkbox_support.image_checker import get_type, get_source, main
+from checkbox_support.scripts.image_checker import get_type, get_source, main
 
 
 class ImageCheckerTest(unittest.TestCase):
@@ -29,7 +29,7 @@ class ImageCheckerTest(unittest.TestCase):
                               "iot-vincent-core-24-x24-2023-10-31-24\n")
         self.mock_stock_info = "20231031.6"
 
-    @patch("checkbox_support.image_checker.on_ubuntucore")
+    @patch("checkbox_support.scripts.image_checker.on_ubuntucore")
     def test_get_type(self, mock_on_ubuntu_core):
         mock_on_ubuntu_core.return_value = True
         self.assertEqual(get_type(), "core")
@@ -37,8 +37,8 @@ class ImageCheckerTest(unittest.TestCase):
         mock_on_ubuntu_core.return_value = False
         self.assertEqual(get_type(), "classic")
 
-    @patch("checkbox_support.image_checker.exists")
-    @patch("checkbox_support.image_checker.get_type")
+    @patch("checkbox_support.scripts.image_checker.exists")
+    @patch("checkbox_support.scripts.image_checker.get_type")
     def test_get_source(self, mock_get_type, mock_exists):
         # Test when it is core image
         mock_get_type.return_value = "core"
@@ -60,8 +60,8 @@ class ImageCheckerTest(unittest.TestCase):
         self.assertEqual(get_source(), "stock")
 
     @patch("sys.argv", ["script_name.py", "--get_type", "--get_source"])
-    @patch("checkbox_support.image_checker.get_source")
-    @patch("checkbox_support.image_checker.get_type")
+    @patch("checkbox_support.scripts.image_checker.get_source")
+    @patch("checkbox_support.scripts.image_checker.get_type")
     def test_main(self, mock_get_type, mock_get_source):
         main()
         mock_get_type.assert_called_with()

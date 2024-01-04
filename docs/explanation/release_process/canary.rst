@@ -71,7 +71,7 @@ Testing Platforms and Specifications
 The pipeline concurrently runs 3 distinct jobs on different platforms:
 
 1. **amd64 ubuntu core 22**: Utilizing machines that consume Testflinger tasks from the ``dearest team`` queue.
-2. **amd64 ubuntu core 16**: Also using machines from the ``dearest team`` queue.
+2. **amd64 ubuntu core 16**: Also using machines from the ``dearest team`` queue, which corresponds to generic x86_64 machines.
 3. **arm64 ubuntu core 22**: Targeting machines in the ``cert-rpi4b4g`` queue, which corresponds to the Raspberry Pi4 4GB model.
 
 The :doc:`validation_job_example` contains the Jenkins job definition for the amd64 ubuntu core 22 validation.

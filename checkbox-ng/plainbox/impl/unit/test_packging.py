@@ -259,9 +259,6 @@ class DebianPackagingDriverTests(TestCase):
         self.assertTrue(compare_versions("1.0.0", "1.0.0"))
         self.assertFalse(compare_versions("1.0.1", "1.0.0"))
 
-        self.assertTrue(compare_versions("=1.0.0", "1.0.0"))
-        self.assertFalse(compare_versions("=1.0.1", "1.0.0"))
-
         # greater than operator
         self.assertTrue(compare_versions(">1.1.9", "1.2.0"))
         self.assertFalse(compare_versions(">1.0.0", "1.0.0"))

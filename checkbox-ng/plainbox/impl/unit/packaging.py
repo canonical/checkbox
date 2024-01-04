@@ -356,7 +356,7 @@ class PackagingDriverBase(IPackagingDriver):
         # Extract the operator and the version from the comparison string
         # Make the operator optional and default to '=='
         match = re.match(
-            r"(=|==|>=|<=|>|<|!=)?\s*([\d\.a-zA-Z]+)", comparison_string
+            r"(==|>=|<=|>|<|!=)?\s*([\d\.a-zA-Z]+)", comparison_string
         )
         if not match:
             raise ValueError("Invalid version comparison string")
@@ -366,7 +366,6 @@ class PackagingDriverBase(IPackagingDriver):
         # Default to '==' if no operator is provided
         operators = {
             None: operator.eq,
-            '=': operator.eq,
             '==': operator.eq,
             '>=': operator.ge,
             '<=': operator.le,

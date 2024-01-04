@@ -81,7 +81,10 @@ source_suffix = {
 }
 
 # Links to ignore when checking links
-linkcheck_ignore = ["http://127.0.0.1:8000"]
+linkcheck_ignore = [
+    'http://127.0.0.1:8000',
+    'https://github.com/canonical/hwcert-jenkins-jobs',
+]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

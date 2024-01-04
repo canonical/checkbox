@@ -1,8 +1,7 @@
 Validation pipeline execution
 =============================
 
-When validating various versions of Checkbox multiple workflows are in play.
-Everything starts with automated creation of an Edge version.
+When validating various versions of Checkbox multiple workflows are in play. Everything starts with automated creation of an Edge version.
 
 Creating new Edge version
 -------------------------
@@ -39,7 +38,7 @@ With new Edge version of Checkbox in the store we can start validating it.
 Validating the Edge version
 ---------------------------
 
-On the Certification Jenkins instance, the ``{insert_final_job_name_here}`` job checks the store API for new Edge versions of Checkbox.
+On the Certification Jenkins instance, the ``checkbox-edge-validation-detect-new-build`` job checks the store API for new Edge versions of Checkbox.
 The job is defined in the |hwcert-jenkins-jobs|_ repository.
 
 This job is also responsible for checking if all of the necessary snaps were published (for other series and architectures).
@@ -106,5 +105,5 @@ There are multiple entities participating in the chain of validating a Checkbox 
 
 .. add code format to link text
 .. |hwcert-jenkins-jobs| replace:: ``hwcert-jenkins-jobs``
-.. _hwcert-jenkins-jobs: https://github.com
+.. _hwcert-jenkins-jobs: https://github.com/canonical/hwcert-jenkins-jobs
 

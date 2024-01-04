@@ -4,6 +4,8 @@
 #
 # Written by:
 #   Patrick Chang <patrick.chang@canonical.com>
+# Originally copied from https://git.launchpad.net/~checkbox-dev/
+# checkbox-iiotg/+git/checkbox-provider-intliotg/tree/bin/image_checker.py
 
 import argparse
 from os.path import exists
@@ -26,7 +28,7 @@ def get_source():
     if get_type() == "core":
         try:
             with open("/run/mnt/ubuntu-seed/.disk/info") as file:
-                lines = [line.rstrip() for line in file]
+                lines = file.readlines()
                 # Only one timestamp such as 20221021.4 if it's stock image
                 # There're three lines in info file if it's oem image
                 is_oem_source = (len(lines) > 1)

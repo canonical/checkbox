@@ -11,4 +11,3 @@ These how-to guides cover key operations and processes in Checkbox.
    nested-test-plan
    side-loading
    agent-service
-   release_process/canary

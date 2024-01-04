@@ -42,7 +42,7 @@ On the Certification Jenkins instance, the ``checkbox-edge-validation-detect-new
 The job is defined in the |hwcert-jenkins-jobs|_ repository.
 
 This job is also responsible for checking if all of the necessary snaps were published (for other series and architectures).
-Once confirmed, the "Canary Test Plan" is defined in `Canary test plan <https://github.com/canonical/checkbox/blob/main/providers/base/units/canary/test-plan.pxu>`_.
+Once confirmed, the "Canary Test Plan" is executed. It is defined in the |hwcert-jenkins-jobs|_ repository as too.
 
 .. mermaid::
 

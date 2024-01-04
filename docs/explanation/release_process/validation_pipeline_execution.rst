@@ -5,7 +5,7 @@ When validating various versions of Checkbox multiple workflows are in play. Eve
 
 Creating new Edge version
 -------------------------
-Every day github checks for new commits that landed in the Checkbox repository,
+Every day GitHub checks for new commits that landed in the Checkbox repository,
 and if anything new landed a new version is created.
 
 

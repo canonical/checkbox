@@ -476,3 +476,12 @@ _summary: Collect information about the audio card
 _description: Gets audio resource info from /proc/asound/pcm
 command: audio_card_resource.py
 
+id: image_source_and_type
+estimated_duration: 0.05
+plugin: resource
+_summary: Collect the source and type of image
+_description:
+    Get the source and type of image.
+    Source: 'stock' or 'oem'
+    Type: 'classic' or 'core'
+command: checkbox-support-image_checker -t -s

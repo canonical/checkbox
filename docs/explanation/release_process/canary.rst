@@ -8,15 +8,6 @@ Canary testing applies on Checkbox snaps that are released through the `edge cha
 
 The following sections provide a detailed walk-through of the Canary Testing process for the Checkbox Edge version, starting from snap building to the outcomes of the testing.
 
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-
-   canary_pipeline
-   validation_pipeline_execution
-   validation_job_example
-   
-
 Snap Build and Release
 -----------------------
 

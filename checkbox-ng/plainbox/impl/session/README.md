@@ -9,7 +9,7 @@ in memory (and on disk in the checkpoint). When generating a submission report
 checkbox will include all information in a top level field of the json called
 "system_information".
 
-# Format
+## Format
 
 A collector can either run succesfully or fail. Regardless of the result,
 running a collector will create a new field in the submission file following
@@ -46,7 +46,7 @@ If it failed to run, the output field will have the following structure:
 ```
 Where `collector_error_log` and `collector_output_log` are a string.
 
-# Creating new collectors
+## Creating new collectors
 
 To create a new collector, one has to create a class that uses the
 `CollectorMeta` metaclass. Additionally every collector has to define
@@ -58,7 +58,7 @@ in-dept description.
 > prefer using an already existing collector than creating a new one
 
 
-## Using external tools
+### Using external tools
 
 If the collector needs a tool, it should be added, when appropriate, to the
 vendorized section of Checkbox. Vendorization refers to the inclusion of

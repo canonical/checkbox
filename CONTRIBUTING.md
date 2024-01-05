@@ -325,7 +325,7 @@ Checkbox maintainers will follow the following process to make the determination
 
 If the PR has no problems to address that requires actions from its contributor, reviewer merges it upon approval (and deletes the feature branch).
 
-When non-blocking issues are encountered by the reviewer, they mark the PR "approved" and leaves the changes and resulting merge to the contributor. Approval with comments is done by the reviewer when:
+When non-blocking issues are encountered by the reviewer, they mark the PR "approved" and leave the changes and resulting merge to the contributor. Approval with comments is done by the reviewer when:
 
 - Reviewer's change requests on the PR are only at most subjective (taste is a factor, e.g. arguable readability benefits).
 - Reviewer is proposing cleaner / simpler alternatives to some parts of the code being proposed that if un-addressed is not risky to address in follow-up.

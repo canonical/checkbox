@@ -306,7 +306,7 @@ about:
 
 At all cases when a Checkbox maintainer picks up a PR for review, they are prepared to go back to the same PR if needed (if changes were requested).
 
-As a general rule there is one reviewer to the PR. When more are needed, comments explaining that are made in the PR comment thread (for example when the changes are fundamental refactors to something where there are known to be dragons).
+As a general rule there is one reviewer per PR. Other reviewers may pop in to smooth up the process (where they feel confident they can _approve and merge_ changes after some were requested by another review). When more reviewers are needed an approval of, comments explaining that are made in the comment thread. Chiefly this is done to work around cases of low test coverage in cases when the changes affect something known to be of low quality (i.e. something significantly complex and hard to reason about, brittle, dated, known to have broken in the past).
 
 The approving reviewer will merge the code if the review is accepted, and leave a comment if they have for some good reason decided not to merge it at approval time.
 

@@ -332,7 +332,7 @@ Checkbox maintainers will follow the following process to make the determination
 4. the solution is unnecessarily, significantly, too complex for the problem being solved
 5. the introduced code/patch is very difficult to understand (the reviewer has doubts of understanding it right, or doubts that others would).
 
-#### Review will "comment" if:
+#### Reviewer will "comment" if...
 
 1. The reviewer's requests are subjective in nature, where the benefit is arguable (taste is a factor, e.g. arguable readability benefits).
 2. The reviewer is proposing cleaner / simpler alternatives to some parts of the code being proposed that if un-addressed is not risky to address in follow-up.

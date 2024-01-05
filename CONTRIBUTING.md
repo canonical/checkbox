@@ -342,7 +342,9 @@ When non-blocking issues are encountered by the reviewer, they mark the PR "appr
 4. introduces a maintenance problem.
 5. the solution is unnecessarily, significantly, too complex for the problem being solved.
 6. the introduced code / patch is very difficult to understand (the reviewer has doubts of understanding it right, or doubts that others would).
-7. the PR should be split into multiple parts (is too big to safely review, i.e. may hide critical issues). This call is not be done for sake of readability, as much as safety (i.e. if reviewer believes it were more elegant to split the PR, they should approve and comment, and if the reviewer believes to not be doing a good job reviewing it without it being split, they should "request changes" and in their comment request for it to be split).
+7. the PR should be split into multiple parts (is too big to safely review, i.e. may hide critical issues). This call is not be done for sake of readability, it is done for safety: 
+  - if reviewer believes it were _more elegant_ to split the PR, they should approve and comment
+  - if the reviewer believes to not be doing a good job reviewing it without it being split, they should "request changes" and in their comment request for it to be split.
 
 #### Reviewer will "comment" if...
 

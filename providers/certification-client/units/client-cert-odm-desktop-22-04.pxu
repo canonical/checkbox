@@ -172,7 +172,7 @@ nested_part:
     stress-iperf3-automated
     warm-boot-stress-test
     cold-boot-stress-test
-    suspend-stress-test
+    suspend-cycles-stress-test
     stress-ng-cert-automated
     tpm-cert-automated
     info-attachment-cert-full

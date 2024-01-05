@@ -129,7 +129,7 @@ include:
 nested_part:
     warm-boot-stress-test
     cold-boot-stress-test
-    suspend-stress-test
+    suspend-cycles-stress-test
     hibernate-stress-test
     stress-ng-automated
 
@@ -234,6 +234,39 @@ bootstrap_include:
   stress_s4_iterations
 include:
   stress-tests/hibernate.*
+mandatory_include:
+    com.canonical.plainbox::manifest
+    package
+    snap
+    uname
+    lsb
+    cpuinfo
+    dpkg
+    dmi_attachment
+    sysfs_attachment
+    udev_attachment
+    lspci_attachment
+    lsusb_attachment
+    dmi
+    meminfo
+    interface
+
+unit: test plan
+id: suspend-cycles-stress-test
+_name: Suspend (S3) cycles stress test
+_description:
+ Suspends the machine a pre-defined number of times and on
+ resume of OS performs a hardware check to ensure all
+ items are still present.
+estimated_duration: 42h
+bootstrap_include:
+  stress_s3_cycles_iterations_1
+  stress_s3_cycles_iterations_multiple
+  stress_suspend_reboot_cycles_iterations
+  stress_suspend_reboot_iterations
+include:
+  stress-tests/suspend_cycles.*
+  stress-tests/suspend-.*-cycles.*
 mandatory_include:
     com.canonical.plainbox::manifest
     package

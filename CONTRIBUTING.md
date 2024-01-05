@@ -314,7 +314,7 @@ The reviewer is encouraged to use suggestions to communicate exact solutions and
 
 Checkbox maintainers will follow the following process to make the determination between "accept", "request changes" and "comment".
 
-### Review will approve the pull request when...
+#### Reviewer will approve the pull request when...
 
 1. They have read and understood the pull request description and changes being proposed.
 2. The requirements laid out [in the PR template](.github/pull_request_template.md) are met. In particular:

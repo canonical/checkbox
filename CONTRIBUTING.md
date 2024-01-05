@@ -304,7 +304,7 @@ about:
 
 ### Code review criteria & workflow
 
-As a general rule there is one reviewer per PR. Other reviewers may pop in to smooth up the process (where they feel confident they can _approve and merge_ changes after some were requested by another review). When more reviewers are needed an approval of, comments explaining that are made in the comment thread. Chiefly this is done to work around cases of low test coverage in cases when the changes affect something known to be of low quality (i.e. something significantly complex and hard to reason about, brittle, dated, known to have broken in the past, etc).
+As a general rule there is one reviewer per PR. Other reviewers may pop in to smooth up the process (where they feel confident they can _approve and merge_ changes after some were requested by another review). When more reviewers are needed an approval of, comments explaining that are made in the comment thread. Chiefly this is done to work around cases of low test coverage or when the changes affect something known to be of low quality (i.e. something significantly complex and hard to reason about, brittle, dated, known to have broken in the past, etc).
 
 The approving reviewer will merge the code if the review they choose to accept it. If they have chosen not to do that, they leave a comment explaining the rationale (mostly this exception is to cover situations when significant changes need to be staged across multiple releases).
 

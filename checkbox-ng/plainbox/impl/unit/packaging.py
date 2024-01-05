@@ -352,15 +352,17 @@ class PackagingDriverBase(IPackagingDriver):
         )
 
     @staticmethod
-    def _compare_versions(comparison_string, system_version):
+    def _compare_versions(comparison_str, system_version):
         # Extract the operator and the version from the comparison string
         # Make the operator optional and default to '=='
         match = re.match(
-            r"(==|>=|<=|>|<|!=)?\s*([\d\.a-zA-Z]+)", comparison_string
+            r"^\s*(==|>=|<=|>|<|!=)?\s*([\d\.a-zA-Z]+)\s*$", comparison_str
         )
-        if not match:
-            raise ValueError("Invalid version comparison string")
 
+        if not match:
+            raise SystemExit(
+                "Invalid version comparison string: {}".format(comparison_str)
+            )
         operator_match, version_match = match.groups()
 
         # Default to '==' if no operator is provided

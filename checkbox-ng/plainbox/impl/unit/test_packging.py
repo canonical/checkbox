@@ -253,32 +253,50 @@ class DebianPackagingDriverTests(TestCase):
     def test_compare_versions(self):
         compare_versions = PackagingDriverBase._compare_versions
         # equal operator
-        self.assertTrue(compare_versions("==1.0.0", "1.0.0"))
-        self.assertFalse(compare_versions("==1.0.1", "1.0.0"))
+        self.assertTrue(compare_versions("== 1.0.0", "1.0.0"))
+        self.assertFalse(compare_versions("== 1.0.1", "1.0.0"))
 
         self.assertTrue(compare_versions("1.0.0", "1.0.0"))
         self.assertFalse(compare_versions("1.0.1", "1.0.0"))
 
         # greater than operator
-        self.assertTrue(compare_versions(">1.1.9", "1.2.0"))
-        self.assertFalse(compare_versions(">1.0.0", "1.0.0"))
+        self.assertTrue(compare_versions("> 1.1.9", "1.2.0"))
+        self.assertFalse(compare_versions("> 1.0.0", "1.0.0"))
 
         # greater than or equal operator
-        self.assertTrue(compare_versions(">=1.0.0", "1.0.0"))
-        self.assertTrue(compare_versions(">=1.0.0", "1.1.0"))
-        self.assertFalse(compare_versions(">=1.0.0", "0.9.9"))
+        self.assertTrue(compare_versions(">= 1.0.0", "1.0.0"))
+        self.assertTrue(compare_versions(">= 1.0.0", "1.1.0"))
+        self.assertFalse(compare_versions(">= 1.0.0", "0.9.9"))
 
         # less than operator
-        self.assertTrue(compare_versions("<1.0.0", "0.9.9"))
-        self.assertFalse(compare_versions("<1.0.0", "1.0.0"))
+        self.assertTrue(compare_versions("< 1.0.0", "0.9.9"))
+        self.assertFalse(compare_versions("< 1.0.0", "1.0.0"))
 
         # less than or equal operator
-        self.assertTrue(compare_versions("<=1.0.0", "1.0.0"))
-        self.assertTrue(compare_versions("<=1.0.0", "0.9.9"))
+        self.assertTrue(compare_versions("<= 1.0.0", "1.0.0"))
+        self.assertTrue(compare_versions("<= 1.0.0", "0.9.9"))
 
         # not equal operator
-        self.assertTrue(compare_versions("!=1.0.0", "1.0.1"))
-        self.assertFalse(compare_versions("!=1.0.0", "1.0.0"))
+        self.assertTrue(compare_versions("!= 1.0.0", "1.0.1"))
+        self.assertFalse(compare_versions("!= 1.0.0", "1.0.0"))
 
-        with self.assertRaises(ValueError):
-            compare_versions("!!==1.0.0", "1.0.0")
+    def test_malformed_versions(self):
+        compare_versions = PackagingDriverBase._compare_versions
+
+        # Using just one equal operator
+        with self.assertRaises(SystemExit) as context:
+            compare_versions("= 1.0.0", "1.0.0")
+            self.assertIn("= 1.0.0", str(context.exception))
+
+        # Using a bad operator
+        with self.assertRaises(SystemExit) as context:
+            compare_versions("!!== 1.0.0", "1.0.0")
+            self.assertIn("!! == 1.0.0", str(context.exception))
+
+        # Using composed operators
+        with self.assertRaises(SystemExit) as context:
+            compare_versions(">=1.0.0, <=2.0.0", "1.0.0")
+
+        # Using wrong version format
+        with self.assertRaises(SystemExit) as context:
+            compare_versions("== ***", "1.0.0")

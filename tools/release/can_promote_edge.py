@@ -45,7 +45,7 @@ def get_latest_ok_head(builds: list[dict]) -> str:
 
 def get_head_beta_validated() -> str:
     return subprocess.check_output(
-        ["git", "show", "origin/main", "--pretty=format:%H", "--no-patch"],
+        ["git", "show", "origin/beta_validation", "--pretty=format:%H", "--no-patch"],
         text=True,
     )
 

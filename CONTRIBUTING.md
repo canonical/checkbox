@@ -310,7 +310,7 @@ As a general rule there is one reviewer to the PR. When more are needed, comment
 
 The approving reviewer will merge the code if the review is accepted, and leave a comment if they have for some good reason decided not to merge it at approval time.
 
-The reviewer is encouraged to use suggestions to communicate exact solutions and to make it easy to applying them. The reviewer _must_ do this when making trivial style related suggestions. The reviewer might also post code into the PR, or to a branch branched off from the feature branch, to communicate more complex suggestions. 
+The reviewer is encouraged to use suggestions to communicate exact solutions and to make it easy to apply them. The reviewer _must_ do this when making trivial style related suggestions. The reviewer might also post code into the PR, or to a branch branched off from the feature branch, to communicate more complex suggestions. 
 
 Checkbox maintainers will follow the following process to make the determination between "accept", "request changes" and "comment".
 

@@ -2,7 +2,7 @@
 
 declare -A DICT_ARCH
 
-DICT_ARCH=( [x86_64]='x86_64' [aarch64]='arm64' [armhf]='armS' )
+DICT_ARCH=( [x86_64]='x86_64' [aarch64]='arm64' [armhf]='arm' )
 FILE_CORE="/boot/grub/${DICT_ARCH[$(uname -m)]}-efi/core.efi"
 
 if [ -e "${FILE_CORE}" ]; then

@@ -302,12 +302,44 @@ about:
 
 1. [Push your changes] to your GitHub repository.
 
-### Finally...
+### Code review criteria & workflow
 
-Once enough people have reviewed and approved your work, it can be merged into
-the main branch of the main repository. Ask a member of the Checkbox team to do
-this. The branch should be then shortly automatically merged. The pull request
-status will then switch to “Merged”.
+At all cases when a Checkbox maintainer picks up a PR for review, they are prepared to go back to the same PR if needed (if changes were requested).
+
+As a general rule there is one reviewer to the PR. When more are needed, comments explaining that are made in the PR comment thread (for example when the changes are fundamental refactors to something where there are known to be dragons).
+
+The approving reviewer will merge the code if the review is accepted, and leave a comment if they have for some good reason decided not to merge it at approval time.
+
+The reviewer is encouraged to use suggestions to communicate exact solutions and to make it easy to applying them. The reviewer _must_ do this when making trivial style related suggestions. The reviewer might also post code into the PR, or to a branch branched off from the feature branch, to communicate more complex suggestions. 
+
+Checkbox maintainers will follow the following process to make the determination between "request changes", "comment", "reject" and "accept".
+
+### Review will approve the pull request if:
+
+1. They have read and understood the pull request description and changes being proposed.
+2. The requirements laid out [in the PR template](.github/pull_request_template.md) are met. In particular:
+  - the reviewer is convinced the changed code works as advertised
+  - tests introduced cover the new functionality, as well as untouched code it may affect
+  - testing reported by the author covers the new functionality, as well as untouched code it may affect 
+  - if needed, reviewer has tested the changed solution locally
+
+#### Reviewer will "request changes" to your PR when...
+
+1. the pull request description is unclear, or it is clear that the changes do not meet the requirements [in the PR template](.github/pull_request_template.md).
+1. doesn't do what is claimed.
+2. introduces a new bug.
+3. introduces a maintenance problem.
+4. the solution is unnecessarily, significantly, too complex for the problem being solved
+5. the introduced code/patch is very difficult to understand (the reviewer has doubts of understanding it right, or doubts that others would).
+
+#### Review will "comment" if:
+
+1. The reviewer's requests are subjective in nature, where the benefit is arguable (taste is a factor, e.g. arguable readability benefits).
+2. The reviewer is proposing cleaner / simpler alternatives to some parts of the code being proposed that if un-addressed is not risky to address in follow-up.
+3. The code was difficult to read, could be improved, but in the end you understood it.
+4. You are unsure why something was done in particular way (you posted a question).
+5. The problems the review points out are unrelated to what the PR is trying to do (the problem existed before).
+
 
 ## Documentation
 

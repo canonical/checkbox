@@ -302,12 +302,53 @@ about:
 
 1. [Push your changes] to your GitHub repository.
 
-### Finally...
+### Code review criteria & workflow
 
-Once enough people have reviewed and approved your work, it can be merged into
-the main branch of the main repository. Ask a member of the Checkbox team to do
-this. The branch should be then shortly automatically merged. The pull request
-status will then switch to “Merged”.
+As a general rule there is one reviewer per PR. Other reviewers may pop in to smooth up the process (where they feel confident they can _approve and merge_ changes after some were requested by another review). When more reviewers are needed an approval of, comments explaining that are made in the comment thread. Chiefly this is done to work around cases of low test coverage or when the changes affect something known to be of low quality (i.e. something significantly complex and hard to reason about, brittle, dated, known to have broken in the past, etc).
+
+On accepting a change without any change requests, the approving reviewer will merge the pull request. If they choose not to do that, they leave a comment explaining the rationale (mostly this exception is to cover situations when significant changes need to be staged across multiple releases).
+
+The reviewer is encouraged to use suggestions to communicate exact intended solutions, and to make it easy to apply them. The reviewer _must_ do this when making trivial style related suggestions. The reviewer might also post code into the PR, or to a branch branched off from the feature branch, to communicate more complex suggestions. 
+
+At all cases when a Checkbox maintainer picks up a PR for review, they are prepared to go back to the same PR if needed (if changes were requested).
+
+Checkbox maintainers will follow the following process to make the determination between "accept", "request changes" and "comment".
+
+#### Reviewer will approve the pull request when...
+
+1. They have read and understood the pull request description and changes being proposed.
+2. The requirements laid out [in the PR template](.github/pull_request_template.md) are met. In particular:
+  - the reviewer is convinced the changed code works as advertised.
+  - tests introduced cover the new functionality, as well as untouched code it may affect.
+  - testing reported by the author covers the new functionality, as well as untouched code it may affect. 
+  - if needed, reviewer has tested the changed solution locally.
+
+If the PR has no problems to address that requires actions from its contributor, reviewer merges it upon approval (and deletes the feature branch).
+
+When non-blocking issues are encountered by the reviewer, they mark the PR "approved" and leave the changes and resulting merge to the contributor. Approval with comments is done by the reviewer when:
+
+- Reviewer's change requests on the PR are only at most subjective (taste is a factor, e.g. arguable readability benefits).
+- Reviewer is proposing cleaner / simpler alternatives to some parts of the code being proposed that if un-addressed is not risky to address in follow-up.
+- Reviewer is proposing changes that are best (safer, faster, more productive, etc) to address in follow-up PRs. The reviewer will in these cases file follow-up issues, and link to them _in the PR description_.
+- The code was determined to be difficult to read, i.e. it _could_ be improved, but in the end the reviewer understood it (reviewer leaves a comment in these cases, but leaves it to contributor discretion to address).
+- Reviewer believes they have not caught a problem, but asks question(s) out of curiosity or to confirm their understanding (on contributor then to consider the question and either make further changes or simply answer it).
+- Reviewer points out issues unrelated to what the PR is trying to accomplish (i.e. the problem existed before).
+
+#### Reviewer will "request changes" to your PR when...
+
+1. the pull request description is unclear, or it is clear that the changes do not meet the requirements [in the PR template](.github/pull_request_template.md).
+2. doesn't do what is claimed.
+3. introduces a new bug.
+4. introduces a maintenance problem.
+5. the solution is unnecessarily, significantly, too complex for the problem being solved.
+6. the introduced code / patch is very difficult to understand (the reviewer has doubts of understanding it right, or doubts that others would).
+7. the PR should be split into multiple parts (is too big to safely review, i.e. may hide critical issues). This call is not to be done for sake of readability, it is done for safety: 
+  - if reviewer believes it were _more elegant_ to split the PR, they should approve and comment
+  - if the reviewer believes to not be doing a good job reviewing it without it being split, they should "request changes" and in their comment request for it to be split.
+
+#### Reviewer will "comment" if...
+
+They are not confident in making a call, delegating explicitly in a comment to a reviewer who they believe _can_ make a call, as quickly and as early as possible in the process.
 
 ## Documentation
 

@@ -174,16 +174,15 @@ class IPerfPerformanceTest(object):
             with open(filename, "r") as file:
                 node_num = int(file.read())
         except FileNotFoundError:
+            node_num = -1
+        # Some systems (that don't support NUMA?) produce a node_num of -1.
+        # Later in the script, this will be interpreted to omit the -A option
+        # to iperf3, thus disabling NUMA features.
+        if node_num == -1:
             logging.warning("WARNING: Could not find the NUMA node "
                             "associated with {}!".format(device))
-            logging.warning("Setting the association to NUMA node 0, "
-                            "which may not be optimal!")
-            node_num = 0
-        # Some systems (that don't support NUMA?) produce a node_num of -1.
-        # Change this to 0, which seems to be correct....
-        if node_num == -1:
-            node_num = 0
-        logging.info("NUMA node of {} is {}....".format(device, node_num))
+        else:
+            logging.info("NUMA node of {} is {}....".format(device, node_num))
         return node_num
 
     def extract_core_list(self, line):
@@ -214,6 +213,9 @@ class IPerfPerformanceTest(object):
         """Return a list of CPU cores tied to the specified NUMA node."""
         numa_return = check_output("lscpu", universal_newlines=True,
                                    stderr=STDOUT).split("\n")
+        # Note: If numa_node = -1, the below will never find a match, so
+        # core_list will remain empty, and later in the script, the -A option
+        # to iperf3 will be dropped.
         expression = "NUMA node.*" + str(numa_node) + ".*CPU"
 
         regex = re.compile(expression)

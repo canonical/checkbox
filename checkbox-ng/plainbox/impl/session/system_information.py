@@ -10,13 +10,19 @@ from plainbox import vendor
 class CollectorOutputs(dict):
     """
     This is the output of all collection. This class is a map
-        tool_name : tool_collction_output (see below)
+        collector_name : collection_output (see below)
+    Once encoded into json it will contain all the items and also
+    a "version" key. This version indicates the keys that the
+    collector will include in its output
     """
+
+    COLLECTOR_OUTPUTS_VERSION = 1
 
     def to_json(self) -> str:
         to_dump = {
             name: collected.to_dict() for (name, collected) in self.items()
         }
+        to_dump["version"] = self.COLLECTOR_OUTPUTS_VERSION
         return json.dumps(to_dump, indent=4)
 
 

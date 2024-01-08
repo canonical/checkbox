@@ -318,15 +318,16 @@ def main():
         logger.setLevel(logging.DEBUG)
 
     if args.mode == "server":
-        start_echo_server(args.dev, args.fd_mode, args.time_delay)
+        start_echo_server(args.device, args.fd_mode, args.time_delay)
     elif args.mode == "client":
         if args.execute_test == "stress-echo":
             stress_echo_test(
-                args.dev, args.can_id, args.eff_mode, args.fd_mode, args.loop
+                args.device, args.can_id, args.eff_mode,
+                args.fd_mode, args.loop
             )
         elif args.execute_test == "echo":
             echo_test(
-                args.dev, args.can_id, args.eff_mode, args.fd_mode
+                args.device, args.can_id, args.eff_mode, args.fd_mode
             )
 
 

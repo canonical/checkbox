@@ -63,6 +63,7 @@ from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.state import SessionState
+from plainbox.impl.session.system_information import CollectionOutput, CollectorOutputs
 
 logger = logging.getLogger("plainbox.session.resume")
 
@@ -202,6 +203,8 @@ class SessionPeekHelper(EnvelopeUnpackMixIn):
             return SessionPeekHelper6().peek_json(json_repr)
         elif version == 7:
             return SessionPeekHelper7().peek_json(json_repr)
+        elif version == 8:
+            return SessionPeekHelper8().peek_json(json_repr)
         else:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version))
@@ -332,6 +335,9 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
                 self.job_list, self.flags, self.location)
         elif version == 7:
             helper = SessionResumeHelper7(
+                self.job_list, self.flags, self.location)
+        elif version == 8:
+            helper = SessionResumeHelper8(
                 self.job_list, self.flags, self.location)
         else:
             raise IncompatibleSessionError(
@@ -575,6 +581,18 @@ class SessionPeekHelper6(MetaDataHelper6MixIn, SessionPeekHelper5):
     """
 
 class SessionPeekHelper7(MetaDataHelper7MixIn, SessionPeekHelper6):
+    """
+    Helper class for implementing session peek feature
+
+    This class works with data constructed by
+    :class:`~plainbox.impl.session.suspend.SessionSuspendHelper7` which has
+    been pre-processed by :class:`SessionPeekHelper` (to strip the initial
+    envelope).
+
+    The only goal of this class is to reconstruct session state meta-data.
+    """
+
+class SessionPeekHelper8(MetaDataHelper7MixIn, SessionPeekHelper6):
     """
     Helper class for implementing session peek feature
 
@@ -1157,10 +1175,28 @@ class SessionResumeHelper6(MetaDataHelper6MixIn, SessionResumeHelper5):
         logger.debug(_("Resume complete!"))
         return session
 
-
 class SessionResumeHelper7(MetaDataHelper7MixIn, SessionResumeHelper6):
     pass
 
+class SessionResumeHelper8(SessionResumeHelper7):
+    def _restore_SessionState_system_information(self, session_state, session_repr):
+        _validate(session_repr, key="system_information", value_type=dict)
+        system_information = CollectorOutputs(
+            {
+                tool_name: CollectionOutput.from_dict(tool_output_json)
+                for (tool_name, tool_output_json) in session_repr[
+                    "system_information"
+                ].items()
+            }
+        )
+        session_state.system_information = system_information
+
+    def _build_SessionState(self, session_repr, early_cb=None):
+        session_state = super()._build_SessionState(session_repr, early_cb)
+        self._restore_SessionState_system_information(
+            session_state, session_repr
+        )
+        return session_state
 
 def _validate(obj, **flags):
     """Multi-purpose extraction and validation function."""

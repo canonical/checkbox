@@ -35,6 +35,9 @@ from plainbox.impl.depmgr import DependencySolver
 from plainbox.impl.secure.qualifiers import select_jobs
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
+from plainbox.impl.session.system_information import(
+    collect as collect_system_information
+)
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
@@ -746,6 +749,9 @@ class SessionState:
         self._resource_map = {}
         self._fake_resources = False
         self._metadata = SessionMetaData()
+        # If unset, this is loaded via system_information
+        self._system_information = None
+
         super(SessionState, self).__init__()
 
     def trim_job_list(self, qualifier):
@@ -814,6 +820,18 @@ class SessionState:
             for job in remove_list:
                 self.on_job_removed(job)
                 self.on_unit_removed(job)
+
+    @property
+    def system_information(self):
+        if not self._system_information:
+            # This is a new session, we need to query this infos
+            self._system_information = collect_system_information()
+        return self._system_information
+
+    @system_information.setter
+    def system_information(self, value):
+        #TODO: check if system_information was already set
+        self._system_information = value
 
     def update_mandatory_job_list(self, mandatory_job_list):
         """

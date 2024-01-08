@@ -392,7 +392,7 @@ class ContainerSourceMachine(ContainerBaseMachine):
             )
         self.mock_inxi_at(
             "/home/ubuntu/checkbox/checkbox-ng"
-            "/plainbox/vendor/system_information/inxi"
+            "/plainbox/vendor/inxi"
         )
 
         return commands

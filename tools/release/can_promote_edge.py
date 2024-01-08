@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 """
-This script is ment to be the validation step to gate the promotion of
+This script is meant to be the validation step to gate the promotion of
 the edge channel in the store/ppa to beta. This only checks if the
 preconditions are met for such an event.
 

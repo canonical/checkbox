@@ -1,13 +1,14 @@
 # System Information Collection
 
-Checkbox collects every information on the system it can using Collectors.
-A collector is a tool that can provide a JSON-serializable set of information.
-When Checkbox starts, it will leverage these collectors and collect/store
-all information it can gather in the session storage before the first
-session checkpoint is created. From then onward these information will remain
-in memory (and on disk in the checkpoint). When generating a submission report
-checkbox will include all information in a top level field of the json called
-"system_information".
+Checkbox collects various information about the system using Collectors.
+A Collector is a class that wraps a tool that can provide a JSON-serializable
+set of information.
+When Checkbox starts, it uses these collectors to collect and store
+in the session storage all the information it can gather. This is done before
+the first session checkpoint is created. From then onward, these information
+will remain in memory (and on disk in the checkpoint). When generating a
+submission report, Checkbox will include all the information in a top-level
+field of the json called "system_information".
 
 ## Format
 
@@ -17,9 +18,9 @@ this format:
 
 ```
 "system_information" : {
-  "collector_name" : {
-    "tool_version" : collector_version,
-    "success" : True/False,
+  collector_name : {
+    "version" : collector_version,
+    "success" : true/false,
     "outputs" : { ... }
 }
 ```

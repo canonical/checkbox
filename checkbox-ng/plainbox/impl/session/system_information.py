@@ -7,6 +7,19 @@ from subprocess import run, PIPE, check_output, STDOUT, CalledProcessError
 from plainbox import vendor
 
 
+class CollectorOutputs(dict):
+    """
+    This is the output of all collection. This class is a map
+        tool_name : tool_collction_output (see below)
+    """
+
+    def to_json(self) -> dict:
+        to_dump = {
+            name: collected.to_dict() for (name, collected) in self.items()
+        }
+        return json.dumps(to_dump, indent=4)
+
+
 class CollectorMeta(type):
     """
     Creates an instance of a Collector type storing what was created
@@ -51,11 +64,13 @@ class CollectorMeta(type):
         return collector_type
 
     @classmethod
-    def collect(cls):
-        return {
-            name: collector().collect()
-            for (name, collector) in cls.collectors.items()
-        }
+    def collect(cls) -> CollectorOutputs:
+        return CollectorOutputs(
+            {
+                name: collector().collect()
+                for (name, collector) in cls.collectors.items()
+            }
+        )
 
 
 def collect() -> dict:
@@ -63,7 +78,6 @@ def collect() -> dict:
 
 
 class OutputABC:
-
     @abc.abstractmethod
     def to_dict(self):
         """
@@ -235,7 +249,3 @@ class InxiCollector(Collector):
 
 if __name__ == "__main__":
     collection = collect()
-    to_dump = {
-        name: collected.to_dict() for (name, collected) in collection.items()
-    }
-    print(json.dumps(to_dump, indent=4))

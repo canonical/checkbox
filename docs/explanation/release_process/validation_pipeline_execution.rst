@@ -51,8 +51,8 @@ Once confirmed, the "Canary Test Plan" is executed. It is defined in the |hwcert
         A[Detect New Edge Version in Store]
         B{Check if All Necessary Snaps are Published}
         C{Run Canary Test Plan on Devices}
-        D[Tag as `edge-validation-failed``]
-        E[Tag as `edge-validation-completed``]
+        D[No changes in the repository]
+        E[Move `beta` HEAD to the point at the validated revision]
 
         A --> B
         B -->|No| D

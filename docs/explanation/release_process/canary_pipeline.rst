@@ -36,8 +36,8 @@ This is an example on how the whole pipeline can be implemented in Jenkins.
             always {
                 script {
                     def resultParam = currentBuild.resultIsBetterOrEqualTo('SUCCESS') ? 'edge-validation-succeeded' : 'edge-validation-failed'
-                    // Trigger the tagging job
-                    build job: 'checkbox-edge-validation-tag-and-finish', parameters: [string(name: 'RESULT', value: resultParam)]
+                    // Trigger the job shifting the beta reference
+                    build job: 'checkbox-edge-validation-move-beta', parameters: [string(name: 'RESULT', value: resultParam)]
                 }
             }
         }

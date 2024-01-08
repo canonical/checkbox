@@ -84,12 +84,11 @@ Canary Test Plan Criteria
 
 The canary test plan outlines specific tests that are imperative for the new snap's validation. The pipeline's successful conclusion is contingent upon all these tests passing on each of the mentioned platforms.
 
-Outcome and Commit Tagging
-----------------------------
+Outcome and Information propagation
+-----------------------------------
 
-The outcome of the process is a tag that's being assigned to the commit from which the snaps were built.
-The tag is either ``edge-validation-succeeded`` on success or ``edge-validation-failed`` otherwise.
-The tag is pushed to the Checkbox repository on GitHub.
+Should the validation complete without errors, the `beta` reference in the Checkbox repository is set to point at the revision that got validated.
+The `beta` branch head is then updated on GitHub.
 
 Conclusion
 ----------

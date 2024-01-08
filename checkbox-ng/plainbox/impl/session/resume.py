@@ -63,7 +63,7 @@ from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.session.state import SessionState
-from plainbox.impl.session.system_information import CollectionOutput
+from plainbox.impl.session.system_information import CollectionOutput, CollectorOutputs
 
 logger = logging.getLogger("plainbox.session.resume")
 
@@ -1181,12 +1181,14 @@ class SessionResumeHelper7(MetaDataHelper7MixIn, SessionResumeHelper6):
 class SessionResumeHelper8(SessionResumeHelper7):
     def _restore_SessionState_system_information(self, session_state, session_repr):
         _validate(session_repr, key="system_information", value_type=dict)
-        system_information = {
-            tool_name: CollectionOutput.from_dict(tool_output_json)
-            for (tool_name, tool_output_json) in session_repr[
-                "system_information"
-            ].items()
-        }
+        system_information = CollectorOutputs(
+            {
+                tool_name: CollectionOutput.from_dict(tool_output_json)
+                for (tool_name, tool_output_json) in session_repr[
+                    "system_information"
+                ].items()
+            }
+        )
         session_state.system_information = system_information
 
     def _build_SessionState(self, session_repr, early_cb=None):

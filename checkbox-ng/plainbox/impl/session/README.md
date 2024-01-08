@@ -31,11 +31,11 @@ If it ran successfully, the output field will have the follwing structure:
 
 ```
   "outputs" : {
-    "json_output" : collector_json_output,
+    "payload" : collector_parsed_json_output,
     "stderr" : collector_error_log
   }
 ```
-Where the `collector_json_output` is either an array or a dictionary.
+Where the `collector.payload` is either an array or a dictionary.
 
 If it failed to run, the output field will have the following structure:
 

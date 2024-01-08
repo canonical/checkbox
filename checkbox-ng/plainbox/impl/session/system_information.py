@@ -81,19 +81,19 @@ class OutputABC:
 
 
 class OutputSuccess(OutputABC):
-    def __init__(self, json_output: dict, stderr: str):
-        self.json_output = json_output
+    def __init__(self, payload: dict, stderr: str):
+        self.payload = payload
         self.stderr = stderr
 
     def to_dict(self):
         return {
-            "json_output": self.json_output,
+            "payload": self.payload,
             "stderr": self.stderr,
         }
 
     @classmethod
     def from_dict(cls, dct):
-        return cls(dct["json_output"], dct["stderr"])
+        return cls(dct["payload"], dct["stderr"])
 
 
 class OutputFailure(OutputABC):

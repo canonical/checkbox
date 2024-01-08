@@ -54,7 +54,7 @@ class TestCollector(TestCase):
         # system_information, returning OutputSuccess
         self.assertTrue(isinstance(outputs, OutputSuccess))
         # The output has to be in the json field, parsed
-        self.assertTrue(outputs.json_output["key"], "value")
+        self.assertTrue(outputs.payload["key"], "value")
 
     def test_collect_outputs_failure_command(self):
         self_mock = MagicMock()
@@ -179,7 +179,7 @@ class TestCollectionOutput(TestCase):
             "tool_version": "1.0",
             "success": True,
             "outputs": {
-                "json_output": {"key": "value"},
+                "payload": {"key": "value"},
                 "stderr": "",
             },
         }
@@ -187,7 +187,7 @@ class TestCollectionOutput(TestCase):
         self.assertEqual(collection_output.tool_version, "1.0")
         self.assertTrue(isinstance(collection_output.outputs, OutputSuccess))
         self.assertEqual(
-            collection_output.outputs.json_output, {"key": "value"}
+            collection_output.outputs.payload, {"key": "value"}
         )
         self.assertEqual(collection_output.outputs.stderr, "")
         self.assertTrue(collection_output.success)

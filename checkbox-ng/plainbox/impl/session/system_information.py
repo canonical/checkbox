@@ -13,7 +13,7 @@ class CollectorOutputs(dict):
         tool_name : tool_collction_output (see below)
     """
 
-    def to_json(self) -> dict:
+    def to_json(self) -> str:
         to_dump = {
             name: collected.to_dict() for (name, collected) in self.items()
         }
@@ -249,3 +249,4 @@ class InxiCollector(Collector):
 
 if __name__ == "__main__":
     collection = collect()
+    print(collection.to_json())

@@ -1,0 +1,20 @@
+id: va-api-full
+_name: Hardware video acceleration tests
+unit: test plan
+include:
+nested_part:
+    va-api-manual
+    va-api-automated
+
+id: va-api-manual
+_name: Hardware video acceleration tests (manual)
+unit: test plan
+include:
+bootstrap_include:
+
+id: va-api-automated
+_name: Hardware video acceleration tests (automated)
+unit: test plan
+include:
+    va-api/va-initialize
+bootstrap_include:

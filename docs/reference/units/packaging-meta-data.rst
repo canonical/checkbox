@@ -52,6 +52,9 @@ for **Debian** are:
     The syntax is the same as in normal Debian control files (including package
     version dependencies). This field can be split into multiple lines, for
     readability, as newlines are discarded.
+    In order to avoid unwanted dependency repetitions, this field is declared as
+    an unique value for validation.
+
 
 .. _Packaging Meta Data Suggests field:
 

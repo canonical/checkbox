@@ -15,6 +15,7 @@ include:
     networking/info_device.*                       certification-status=blocker
 bootstrap_include:
     device
+    executable
 
 id: networking-cert-automated
 unit: test plan
@@ -43,6 +44,7 @@ include:
     networking/ntp                                 certification-status=blocker
 bootstrap_include:
     device
+    executable
 
 id: networking-full
 unit: test plan
@@ -87,6 +89,7 @@ include:
     after-suspend-networking/info_device.*                       certification-status=blocker
 bootstrap_include:
     device
+    executable
 
 id: after-suspend-networking-automated
 unit: test plan

@@ -16,6 +16,7 @@ id: networking/info_device{__index__}_{interface}
 flags: also-after-suspend
 _summary: Network Information of device {__index__} ({interface})
 estimated_duration: 1.0
+requires: executable.name == 'ethtool'
 command:
   network_device_info.py info NETWORK --interface {interface}
 _description:

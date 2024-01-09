@@ -144,19 +144,23 @@ Following fields may be used by the job unit:
 
 ``command``:
     (optional). A command can be provided, to be executed under specific
-    circumstances. For ``manual``, ``user-interact`` and ``user-verify``
-    jobs, the command will be executed when the user presses a "test"
-    button present in the user interface. For ``shell`` jobs, the
-    command will be executed unconditionally as soon as the job is
-    started. In both cases the exit code from the command (0 for
-    success, !0 for failure) will be used to set the test's outcome. For
-    ``manual``, ``user-interact`` and ``user-verify`` jobs, the user can
-    override the command's outcome.  The command will be run using the
-    default system shell. If a specific shell is needed it should be
-    instantiated in the command. A multi-line command or shell script
-    can be used with the usual multi-line syntax.
+    circumstances.
 
-    Note that a ``shell`` job without a command will do nothing.
+    For ``manual``, ``user-interact`` and ``user-verify`` jobs, the command
+    will be executed when the user starts the test. For ``shell`` jobs,
+    the command will be executed unconditionally as soon as the job is
+    started. In both cases the exit code from the command (``0`` for success,
+    ``!0`` for failure) will be used to set the test outcome. For ``manual``,
+    ``user-interact`` and ``user-verify`` jobs, the user can override the
+    command outcome.
+
+    The command will be run using the default system shell. If a specific
+    shell is needed it should be instantiated in the command.
+
+    It is recommended to call a shell script rather than writing a multi-line
+    command.
+
+    Note: A ``shell`` job without a command will do nothing.
 
 .. _Job purpose field:
 

@@ -6,7 +6,7 @@ the edge channel in the store/ppa to beta. This only checks if the
 preconditions are met for such an event.
 
 Current pre-conditions:
-- Latest succesful Daily Build matches origin/beta_validation
+- Latest succesful Daily Build matches origin/beta
 """
 
 import json
@@ -51,15 +51,15 @@ def get_latest_ok_head(builds: list[dict]) -> str:
         raise SystemExit("Couldn't fetch any successful daily build")
 
 
-def get_head_beta_validated() -> str:
+def get_head_beta() -> str:
     """
-    Returns the full hash of origin/beta_validation's HEAD
+    Returns the full hash of origin/beta's HEAD
     """
     return subprocess.check_output(
         [
             "git",
             "show",
-            "origin/beta_validation",
+            "origin/beta",
             "--pretty=format:%H",
             "--no-patch",
         ],
@@ -67,21 +67,21 @@ def get_head_beta_validated() -> str:
     )
 
 
-def beta_validation_matches_successful_daily() -> bool:
+def beta_matches_successful_daily() -> bool:
     """
     Returns true if the most recent daily build was run on the same commit
-    that the head of beta_validation points to, else false
+    that the head of beta points to, else false
     """
     builds = get_gh_daily_builds_array()
     last_daily_build_commit_hash = get_latest_ok_head(builds)
-    last_beta_validated_head = get_head_beta_validated()
+    last_beta_head = get_head_beta()
     print("Latest daily build commit hash:", last_daily_build_commit_hash)
-    print("Latest beta validated head: ", last_beta_validated_head)
-    return last_daily_build_commit_hash == last_beta_validated_head
+    print("Latest beta validated head: ", last_beta_head)
+    return last_daily_build_commit_hash == last_beta_head
 
 
 def main():
-    if not beta_validation_matches_successful_daily():
+    if not beta_matches_successful_daily():
         raise SystemExit(
             "Latest built version and validated version do not match"
         )

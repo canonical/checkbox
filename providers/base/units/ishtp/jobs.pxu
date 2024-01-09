@@ -1,0 +1,81 @@
+unit: job
+category_id: intel-ishtp
+id: ishtp/module-detect
+plugin: shell
+_summary: Verifies that the intel_ish_ipc module for ISHTP is loaded
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_ishtp == 'True'
+flags: simple
+command:
+    expected_modules='intel_ishtp_loader intel_ishtp_hid intel_ish_ipc intel_ishtp'
+    EXIT=0
+    for m in $expected_modules
+    do
+        echo "Checking module: $m"
+        if ! lsmod | grep -qw "$m"; then
+            echo "FAIL: The '$m' module is not loaded!"
+            EXIT=1
+        else
+            echo "PASS: It's loaded"
+        fi
+        echo
+    done
+    exit $EXIT
+
+unit: job
+category_id: intel-ishtp
+id: ishtp/device-detect
+plugin: shell
+_summary: Verify that at least 1 device entry exists in /sys/bus/ishtp/devices
+depends: ishtp/module-detect
+command:
+    DIR="/sys/bus/ishtp/devices/"
+    if ! [ -d "$DIR" ]; then
+        echo "ishtp devices directory does not exist!"
+        exit 1
+    fi
+    if ! [ "$(ls -A $DIR)" ]; then
+        # empty, fail
+        echo "ishtp devices directory empty - no devices found!"
+        exit 1
+    fi
+    echo "found ishtp devices"
+    exit 0
+
+unit: job
+category_id: intel-ishtp
+id: eclite/module-detect
+plugin: shell
+_summary: Verifies that the ishtp_eclite module is loaded
+flags: simple
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_eclite == 'True'
+command:
+    if lsmod | grep -w ishtp_eclite; then
+        echo "ishtp_eclite module loaded"
+    else
+        echo "The 'ishtp_eclite' module isn't loaded!"
+        echo "Please make sure this feature is supported on this platform and check the BIOS setting."
+        exit 1
+    fi
+
+unit: job
+category_id: intel-ishtp
+id: eclite/temperature-reading-from-thermal-acpitz
+estimated_duration: 5m
+_summary: Read the temperature of acpitz to make sure Eclite is functional
+depends: eclite/module-detect
+_description:
+    For testing the feature of Eclite, one way is to monitor the
+    temperature of acpitz thermal.
+    Read the CPU temperature, run stress-ng for 5 minutes, then check the CPU
+    temperature again.
+    The temperatures should be non-zero, and the temperature after the stress
+    test should be higher.
+    If any of these conditions is not true, the test fails.
+plugin: shell
+user: root
+command:
+    monitor_acpitz_thermal.sh

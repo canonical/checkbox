@@ -92,6 +92,23 @@ class ContainerBaseMachine:
         self._container = container
         self._checkbox_wrapper = self.CHECKBOX
 
+    def mock_inxi_at(self, path):
+        """
+        Inxi is pretty heavy to run and the result is not actively used for
+        now. This replaces inxi with a script that outputs
+        """
+        mocked_inxi = textwrap.dedent(
+            """#!/bin/bash
+            if [[ "$1" == "--vs" ]]
+            then
+              echo "v0 fake inxi"
+            else
+              echo "[ ]"
+            fi
+            """
+        )
+        self.put(path, mocked_inxi)
+
     def execute(self, cmd, env={}, verbose=False, timeout=0):
         return run_or_raise(
             self._container,
@@ -373,6 +390,10 @@ class ContainerSourceMachine(ContainerBaseMachine):
                 uid=0,
                 gid=0,
             )
+        self.mock_inxi_at(
+            "/home/ubuntu/checkbox/checkbox-ng"
+            "/plainbox/vendor/inxi"
+        )
 
         return commands
 

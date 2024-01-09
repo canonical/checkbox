@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_va_api
+_name: Has support for hardware video acceleration (VA API)
+value-type: bool

@@ -1,14 +1,14 @@
 # This file is part of Checkbox.
 #
-# Copyright 2021 Canonical Ltd.
+# Copyright 2023 Canonical Ltd.
 # Written by:
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -45,4 +45,45 @@ class Reboot(Scenario):
     steps = [
         AssertPrinted("Connection lost!"),
         AssertPrinted("job passed   : Warm reboot"),
+    ]
+
+
+@tag("system_information")
+class SystemInfoPersistency(Scenario):
+    """
+    System Information should be persistent across reboots
+    """
+
+    modes = ["remote"]
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = com.canonical.certification::power-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        exclude = .*cold.*
+        [ui]
+        type = silent
+        # Use json exporter to dump the submission.json file to the screen
+        # so that we can read it with AssertPrinted
+        [exporter:json]
+        unit = com.canonical.plainbox::json
+        [transport:out]
+        type = stream
+        stream = stdout
+        [report:screen]
+        exporter = json
+        transport = out
+        forced = yes
+        """
+    )
+    steps = [
+        AssertPrinted("Connection lost!"),
+        AssertPrinted("job passed   : Warm reboot"),
+        AssertPrinted('"system_information"'),
+        AssertPrinted('"inxi"'),
     ]

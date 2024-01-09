@@ -109,7 +109,7 @@ exclude:
     disk/stats_.*
     disk/storage_device_.*
     installer_debug.gz
-    memory/memory_stress_ng
+    stress/memory_stress_ng
     audio/valid-sof-firmware-sig
     miscellanea/check_prerelease
     suspend/bluetooth_obex_.*
@@ -172,7 +172,7 @@ exclude:
     disk/stats_.*
     disk/storage_device_.*
     installer_debug.gz
-    memory/memory_stress_ng
+    stress/memory_stress_ng
     audio/valid-sof-firmware-sig
     miscellanea/check_prerelease
     suspend/bluetooth_obex_.*

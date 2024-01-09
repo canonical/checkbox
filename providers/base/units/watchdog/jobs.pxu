@@ -15,27 +15,6 @@ flags: simple
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hardware_watchdog == 'True'
 
-id: watchdog/trigger-system-reset
-depends: watchdog/systemd-config
-_summary: Test that the watchdog module can trigger a system reset
-_purpose:
- The watchdog module should be capable of issuing a hard reset of the SUT.
-_steps:
- 1. Commence the test to trigger a SysRq.
- 2. Once the watchdog timeout has expired (10s) the SUT should reset itself.
- 3. The board will reboot and the user should resume the test session.
-_verification:
- Did the board reset itself?
-command:
-  echo 1 > /proc/sys/kernel/sysrq
-  echo 0 > /proc/sys/kernel/panic
-  echo c > /proc/sysrq-trigger
-flags: noreturn preserve-locale
-user: root
-plugin: user-interact-verify
-category_id: com.canonical.plainbox::power-management
-estimated_duration: 60
-
 id: watchdog/trigger-system-reset-auto
 depends: watchdog/systemd-config
 _summary: Test that the watchdog module can trigger a system reset

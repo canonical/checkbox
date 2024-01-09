@@ -28,9 +28,11 @@ include plainbox/impl/providers/manifest/po/*.po
 include plainbox/impl/providers/manifest/po/*.pot
 include plainbox/impl/providers/manifest/po/POTFILES.in
 include plainbox/impl/providers/manifest/units/*.pxu
+include plainbox/vendor/inxi
 
 recursive-exclude daily-package-testing *
 recursive-include contrib *.policy
 recursive-include docs *.rst *.py *.html *.conf
 recursive-include plainbox/test-data *.json *.html *.tar.xz
 recursive-exclude debian *
+recursive-exclude build *

@@ -48,18 +48,23 @@ if "discourse" in html_context:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 extensions = [
-    "sphinxcontrib.mermaid",
-    "sphinx_design",
-    "sphinx_tabs.tabs",
-    "sphinx_reredirects",
-    "youtube-links",
-    "related-links",
     "custom-rst-roles",
-    "terminal-output",
-    "sphinx_copybutton",
-    "sphinxext.opengraph",
     "myst_parser",
+    "related-links",
+    "sphinx_copybutton",
+    "sphinx_design",
+    "sphinx_reredirects",
+    "sphinx_tabs.tabs",
     "sphinx-jsonschema",
+    "sphinxcontrib.mermaid",
+    "sphinxext.opengraph",
+    "terminal-output",
+    "youtube-links",
+]
+
+myst_enable_extensions = [
+    "substitution",
+    "deflist"
 ]
 
 myst_enable_extensions = ["substitution", "deflist"]
@@ -76,7 +81,10 @@ source_suffix = {
 }
 
 # Links to ignore when checking links
-linkcheck_ignore = ["http://127.0.0.1:8000"]
+linkcheck_ignore = [
+    'http://127.0.0.1:8000',
+    'https://github.com/canonical/hwcert-jenkins-jobs',
+]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -152,8 +160,9 @@ html_theme_options = {
 
 html_static_path = [".sphinx/_static"]
 html_css_files = [
-    "custom.css",
-    "github_issue_links.css",
+    'checkbox-doc.css'
+    'custom.css',
+    'github_issue_links.css',
 ]
 html_js_files = [
     "github_issue_links.js",

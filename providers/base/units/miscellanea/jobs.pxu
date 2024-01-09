@@ -540,3 +540,15 @@ command:
     cat "$PLAINBOX_SESSION_SHARE/ubuntu_drivers_list_oem_check"
   fi
   true
+
+id: miscellanea/grub_file_check
+category_id: com.canonical.plainbox::miscellanea
+_summary: Check if the file core.efi exists to make sure shim and grub can be upgraded
+plugin: shell
+estimated_duration: 0.2
+requires:
+  "Ubuntu Core" not in lsb.description
+  cpuinfo.platform in ("x86_64", "aarch64", "armhf")
+  bootloader.name == "grub"
+command: grub_file_check.sh
+

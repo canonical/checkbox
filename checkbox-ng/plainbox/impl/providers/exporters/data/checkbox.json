@@ -3,6 +3,7 @@
 {%- set resource_map = state.resource_map -%}
 {%- set job_state_map = state.job_state_map -%}
 {%- set category_map = state.category_map -%}
+{%- set system_information = state.system_information -%}
 {
     "title": {{ state.metadata.title | jsonify | safe }},
 {%- if "testplan_id" in app_blob %}
@@ -115,7 +116,8 @@
         {%- for cat_id, cat_name in category_map|dictsort %}
         "{{ cat_id }}": "{{ cat_name }}"{%- if not loop.last -%},{%- endif %}
         {%- endfor %}
-    }
+    },
+    "system_information": {{system_information.to_json() | safe}}
 {%- if ns ~ 'dkms_info_json' in state.job_state_map and state.job_state_map[ns ~ 'dkms_info_json'].result.outcome == 'pass' %},
 {%- set dkms_info_json = '{' + state.job_state_map[ns ~ 'dkms_info_json'].result.io_log_as_text_attachment.split('{', 1)[-1] %}
     "dkms_info": {{ dkms_info_json | indent(4, false) | safe }}

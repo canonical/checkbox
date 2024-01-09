@@ -7,3 +7,4 @@ Explanation
    understanding
    remote
    configs
+   release_process/canary

@@ -1,0 +1,26 @@
+id: ishtp-full
+_name: Intel Integrated Sensor Hub Transport Protocol (ISHTP) tests (Full)
+unit: test plan
+include: 
+nested_part:
+    ishtp-manual
+    ishtp-automated
+
+id: ishtp-manual
+_name: Intel Integrated Sensor Hub Transport Protocol (ISHTP) tests (Manual)
+unit: test plan
+include: 
+nested_part:
+
+id: ishtp-automated
+_name: Intel Integrated Sensor Hub Transport Protocol (ISHTP) tests (Automated)
+unit: test plan
+include:
+    ishtp/module-detect
+    ishtp/device-detect
+    eclite/module-detect
+    eclite/temperature-reading-from-thermal-acpitz
+nested_part:
+bootstrap_include:
+    device
+    module

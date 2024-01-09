@@ -390,6 +390,38 @@ class SessionStateAPITests(TestCase):
         session.update_desired_job_list([A])
         self.assertEqual(session.run_list, [B, A])
 
+    def test_system_information_collection_called(self):
+        getter = SessionState.system_information.__get__
+
+        self_mock = mock.MagicMock()
+        self_mock._system_information = None
+        with mock.patch(
+            "plainbox.impl.session.state.collect_system_information"
+        ) as collect_system_information_mock:
+            return_value = getter(self_mock)
+            self.assertEqual(
+                return_value, collect_system_information_mock.return_value
+            )
+
+    def test_system_information_collection_cached(self):
+        getter = SessionState.system_information.__get__
+        setter = SessionState.system_information.__set__
+
+        self_mock = mock.MagicMock()
+        self_mock._system_information = None
+        with mock.patch(
+            "plainbox.impl.session.state.collect_system_information"
+        ) as collect_system_information_mock:
+            setter(self_mock, {"inxi": {}})
+            self.assertFalse(collect_system_information_mock.called)
+
+        with mock.patch(
+            "plainbox.impl.session.state.collect_system_information"
+        ) as collect_system_information_mock:
+            return_value = getter(self_mock)
+            self.assertFalse(collect_system_information_mock.called)
+            self.assertEqual(return_value, {"inxi": {}})
+
 
 class SessionStateTrimTests(TestCase):
     """

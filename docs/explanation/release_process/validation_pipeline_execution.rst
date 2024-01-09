@@ -14,22 +14,14 @@ and if anything new landed a new version is created.
     graph TB
 
         A[GitHub Workflow: Detect New Commits]
-
-        B[Run Metabox Tests on New Version]
         C[Mark Version as Edge and Build Snaps]
-        D{Did Metabox Tests Pass?}
         E{Did Snap Builds Succeed?}
         F[Upload New Edge Version to Store]
-
         G[End: Build Failed - No New Edge Version]
 
-
-        A --> B
-        B --> D
-        D -->|Yes| C
+        A --> C
         C --> E
         E -->|Yes| F
-        D -->|No| G
         E -->|No| G
 
 
@@ -57,8 +49,8 @@ Once confirmed, the "Canary Test Plan" is executed. It is defined in the |hwcert
         A --> B
         B -->|No| D
         B -->|Yes| C
-        C -->|Yes| E
-        C -->|No| D
+        C -->|Passes| E
+        C -->|Fails| D
 
 
 

@@ -10,7 +10,6 @@ command:
         echo "qep-device: $d"
         echo
     done
-flags: preserve-locale
 
 unit: template
 template-resource: qep/qep-devices
@@ -18,8 +17,9 @@ template-unit: job
 id: qep/qep-device-driver-for-{qep-device}
 category_id: qep
 _summary: Verify PCI Device {qep-device} is using the correct driver
-_description: Checks that the device exists in lspci and that the device driver associated is correct.\
-    Device ID should be 8086:{qep-device} and the driver is always intel_qep.
+_description:
+ Checks that the device exists in lspci and that the device driver associated is correct.
+ Device ID should be 8086:{qep-device} and the driver is always intel_qep.
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_qep == 'True'
@@ -34,11 +34,12 @@ template-unit: job
 id: qep/qep-device-node-for-{qep-device}
 category_id: qep
 _summary: Verify device directory exists for {qep-device}
-_description: Detects if the device's directory exists.\
-    First needs to find the PCI ID from lspci\
-    Then tests if the PCI device directory exists.\
-    The PCI ID is always ##:##.# (e.g. 18:00.2)\
-    The PCI device directory is always in the format of 0000:$PCI_ID
+_description:
+ Detects if the device's directory exists.
+ First needs to find the PCI ID from lspci
+ Then tests if the PCI device directory exists.
+ The PCI ID is always ##:##.# (e.g. 18:00.2)
+ The PCI device directory is always in the format of 0000:$PCI_ID
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_qep == 'True'
@@ -51,7 +52,6 @@ command:
     if [ -d "/sys/bus/pci/devices/0000:$PCI" ]
     then
         echo "path /sys/bus/pci/devices/0000:$PCI exists"
-        exit 0
     else
         echo "path /sys/bus/pci/devices/0000:$PCI does not exist"
         exit 1

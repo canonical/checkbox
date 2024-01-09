@@ -24,7 +24,6 @@ from collections import defaultdict
 from datetime import datetime
 from string import Formatter
 from tempfile import TemporaryDirectory
-import copy
 import fnmatch
 import gettext
 import json
@@ -39,7 +38,6 @@ import textwrap
 import time
 
 from plainbox.abc import IJobResult
-from plainbox.i18n import ngettext
 from plainbox.impl.color import Colorizer
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.highlevel import Explorer
@@ -48,7 +46,6 @@ from plainbox.impl.runner import slugify
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.restart import detect_restart_strategy
-from plainbox.impl.session.restart import get_strategy_by_name
 from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports

@@ -1,0 +1,25 @@
+id: qep-full
+_name: Quadrature Encoder Peripheral (QEP) tests
+unit: test plan
+include: 
+bootstrap_include:
+  qep/qep-devices
+nested_part:
+  qep-manual
+  qep-automated
+
+id: qep-manual
+_name: Quadrature Encoder Peripheral (QEP) test (manual)
+unit: test plan
+bootstrap_include:
+  qep/qep-devices
+include: 
+
+id: qep-automated
+_name: Quadrature Encoder Peripheral (QEP) test (automated)
+unit: test plan
+bootstrap_include:
+  qep/qep-devices
+include:
+  qep/qep-device-driver-for-.*
+  qep/qep-device-node-for-.*

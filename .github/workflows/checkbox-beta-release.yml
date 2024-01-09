@@ -2,10 +2,34 @@ name: Beta version of checkbox
 run-name: Promote edge versions of checkbox to beta
 
 on:
+  push:
+    branches:
+      - beta
   workflow_dispatch:
 
 jobs:
+  should-run:
+    runs-on: [self-hosted, linux, large]
+      - name: Setup the gh repository and install gh
+        run: |
+          which curl || (sudo apt update && sudo apt install curl -y)
+          sudo curl https://cli.github.com/packages/githubcli-archive-keyring.gpg --output /usr/share/keyrings/githubcli-archive-keyring.gpg
+          sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+          gpg --import /usr/share/keyrings/githubcli-archive-keyring.gpg
+          gpg --fingerprint "2C6106201985B60E6C7AC87323F3D4EA75716059"
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+          sudo apt update -qq
+          sudo apt install -qq -y gh
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Verify Promotion Conditions
+        run: |
+          tools/release/can_promote_edge.py
+
   release-notes:
+    needs: should-run
     runs-on: [self-hosted, linux, large]
     steps:
       - name: Checkout checkbox monorepo
@@ -31,6 +55,7 @@ jobs:
           gh release create $(git describe --tags --abbrev=0 --match v*) -d --generate-notes
 
   checkbox_deb_packages:
+    needs: should-run
     name: Checkbox Debian packages
     runs-on: [self-hosted, linux, large]
     steps:
@@ -49,6 +74,7 @@ jobs:
           tools/release/lp_copy_packages.py checkbox-dev edge checkbox-dev beta
 
   checkbox_core_snap:
+    needs: should-run
     name: Checkbox core snap packages
     runs-on: [self-hosted, linux, large]
     env:
@@ -70,6 +96,7 @@ jobs:
           yes | snapcraft promote checkbox22 --from-channel latest/edge --to-channel latest/beta
 
   checkbox_snap:
+    needs: should-run
     name: Checkbox snap packages
     runs-on: [self-hosted, linux, large]
     env:

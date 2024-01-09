@@ -306,6 +306,24 @@ class DebianPackagingDriverTests(TestCase):
         with self.assertRaises(SystemExit) as context:
             compare_versions("== ***", "1.0.0")
 
+    def test_unit_to_string(self):
+        unit = PackagingMetaDataUnit(
+            {
+                "os-id": "ubuntu",
+                "os-version-id": "22.04",
+                "Depends": "dep_package",
+                "Recommends": "rec_package",
+                "Suggests": "sug_package",
+            }
+        )
+
+        unit_string = str(unit)
+
+        self.assertIn("ubuntu", unit_string)
+        self.assertIn("Depends: dep_package", unit_string)
+        self.assertIn("Recommends: rec_package", unit_string)
+        self.assertIn("Suggests: sug_package", unit_string)
+
 
 class PackagingUnitFieldValidationTests(UnitFieldValidationTests):
     def test_validation_unique_package(self):

@@ -35,6 +35,7 @@ journey through the product.
    using-checkbox/manifest
    using-checkbox/remote
    using-checkbox/advanced-commands
+   using-checkbox/generate-report
 
 Extended tutorial
 -----------------

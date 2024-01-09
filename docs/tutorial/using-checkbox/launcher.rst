@@ -22,7 +22,7 @@ filter them to only select the ones that matter to you.
 
 Create a file named ``mylauncher`` and add the following information in it:
 
-.. code-block:: none
+.. code-block:: ini
     :caption: mylauncher
     :name: initial-launcher
 
@@ -34,7 +34,7 @@ Create a file named ``mylauncher`` and add the following information in it:
 
 Save it, then launch Checkbox using this launcher:
 
-.. code-block:: none
+.. code-block:: bash
 
     $ checkbox.checkbox-cli launcher mylauncher
 
@@ -61,7 +61,7 @@ Select a test plan by default
 Set the filter back to ``*tutorial*`` in the ``[test plan]`` section and add
 the following line:
 
-.. code-block:: none
+.. code-block:: ini
     :caption: mylauncher
     :name: launcher-filter
     :emphasize-lines: 7
@@ -86,7 +86,7 @@ same test plan, and you always want to run all the tests in it. You don't
 want to spend time in the test plan selection screen nor the test selection
 screen. Modify your launcher so it looks like that:
 
-.. code-block:: none
+.. code-block:: ini
     :caption: mylauncher
     :name: launcher-forced-selection
     :emphasize-lines: 7-10
@@ -104,7 +104,7 @@ screen. Modify your launcher so it looks like that:
 
 Run Checkbox with this modified version of the launcher:
 
-.. code-block:: none
+.. code-block:: bash
 
     $ checkbox.checkbox-cli launcher mylauncher
 
@@ -123,7 +123,7 @@ Customize test cases with environment variables
 One of the test cases in the Tutorial test plan uses the value set in an
 environment variable. Add the following lines in the launcher:
 
-.. code-block:: none
+.. code-block:: ini
     :caption: mylauncher
     :name: launcher-environment
     :emphasize-lines: 12-13
@@ -163,7 +163,7 @@ interested in the text summary and the test reports.
 
 Edit the launcher file:
 
-.. code-block:: none
+.. code-block:: ini
     :caption: mylauncher
     :name: launcher-stock-reports
     :emphasize-lines: 4
@@ -207,7 +207,7 @@ the launcher when running Checkbox.
 Create the file ``~/.config/checkbox.conf`` and add the following content
 in it:
 
-.. code-block:: none
+.. code-block:: ini
 
     [launcher]
     launcher_version = 1
@@ -226,7 +226,7 @@ in it:
 
 Now, run Checkbox without any argument:
 
-.. code-block:: none
+.. code-block:: bash
 
     $ checkbox.checkbox-cli
 
@@ -332,7 +332,7 @@ file that can be interpreted, similarly to an executable bash script.
 
 At the top of the launcher file, add this line:
 
-.. code-block:: none
+.. code-block:: ini
     :caption: mylauncher
     :name: launcher-shebang
     :emphasize-lines: 1
@@ -356,13 +356,13 @@ At the top of the launcher file, add this line:
 
 Make the launcher executable:
 
-.. code-block:: none
+.. code-block:: bash
 
     $ chmod +x mylauncher
 
 Run it:
 
-.. code-block:: none
+.. code-block:: bash
 
     $ ./mylauncher
 

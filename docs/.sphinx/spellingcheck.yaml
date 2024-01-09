@@ -19,6 +19,7 @@ matrix:
       - code
       - div.relatedlinks
       - div.visually-hidden
+      - div.code-block-caption
       - img
       - link
       - div.mermaid

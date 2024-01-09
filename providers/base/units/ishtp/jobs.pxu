@@ -64,6 +64,7 @@ command:
 unit: job
 category_id: intel-ishtp
 id: eclite/temperature-reading-from-thermal-acpitz
+estimated_duration: 5m
 _summary: Read the temperature of acpitz to make sure Eclite is functional
 depends: eclite/module-detect
 _description:

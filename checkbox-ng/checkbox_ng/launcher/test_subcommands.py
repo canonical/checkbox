@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import datetime
+
 from unittest import TestCase
 
 from unittest.mock import patch, Mock, MagicMock
@@ -427,11 +429,14 @@ class TestUtilsFunctions(TestCase):
         candidate_mock.metadata.app_blob = '{ "testplan_id" : "123" }'
         candidate_mock.metadata.title = "Title"
         candidate_mock.metadata.last_job_start_time = 1
+        # let's create a real point in time that we can verify on the screen
+        date = datetime.datetime(2023, 1, 1, tzinfo=datetime.timezone.utc)
+        candidate_mock.metadata.last_job_start_time = date.timestamp()
         candidate_mock.metadata.running_job_name = "Test"
 
         description = _generate_resume_candidate_description(candidate_mock)
 
-        self.assertIn("1970", description) # time 1 is second 1 of 1970
+        self.assertIn("2023", description)
         self.assertIn("123", description)
         self.assertIn("Title", description)
         self.assertIn("Test", description)

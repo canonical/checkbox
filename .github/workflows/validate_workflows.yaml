@@ -1,0 +1,22 @@
+name: Workflow validation
+
+on:
+  push:
+    paths:
+      - '.github/workflows/*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@v3
+      - name: Install action-validator with asdf
+        uses: asdf-vm/actions/install@v3
+        with:
+          tool_versions: |
+            action-validator 0.5.1
+      - name: Lint Actions
+        run: |
+          find .github/workflows -type f \( -iname \*.yaml -o -iname \*.yml \) \
+            | xargs -I {} action-validator --verbose {}

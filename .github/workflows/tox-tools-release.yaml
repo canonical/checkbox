@@ -4,11 +4,11 @@ on:
   push:
     branches: [ main ]
     paths:
-      - tools/release/**
+      - tools/release/*
   pull_request:
     branches: [ main ]
     paths:
-      - tools/release/**
+      - tools/release/*
   workflow_dispatch:
 
 jobs:

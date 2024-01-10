@@ -310,7 +310,7 @@ On approving a change without any change requests the reviewer will merge the pu
 
 The reviewer is encouraged to use suggestions to communicate exact intended solutions, and to make it easy to apply them. The reviewer _must_ do this when making trivial style related suggestions. The reviewer might also post code into the PR, or to a branch branched off from the feature branch, to communicate more complex suggestions. 
 
-Whenver a Checkbox maintainer provides a review for a PR they are accepting responsibility to follow the PR to conclusion.
+Whenever a Checkbox maintainer provides a review for a PR, they accept responsibility to follow the PR through to its conclusion.
 
 The following sections describe the criteria on which Checkbox maintainers will make the determination between "Approve", "Request changes" and "Comment".
 

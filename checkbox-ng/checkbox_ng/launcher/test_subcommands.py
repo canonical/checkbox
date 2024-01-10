@@ -22,7 +22,6 @@ from unittest import TestCase
 
 from unittest.mock import patch, Mock, MagicMock
 
-from unittest.mock import patch, Mock, MagicMock, call
 from io import StringIO
 from checkbox_ng.launcher.subcommands import (
     Launcher,
@@ -32,7 +31,6 @@ from checkbox_ng.launcher.subcommands import (
     request_comment,
     _generate_resume_candidate_description,
 )
-from unittest.mock import patch, Mock, MagicMock
 
 
 class TestLauncher(TestCase):

@@ -850,11 +850,8 @@ class LXDTest_vm(object):
         """
         Creates an lxd virtual machine and performs the test
         """
-        wait_interval = 5
-        test_interval = 300
 
-        result = self.setup()
-        if not result:
+        if not self.setup():
             logging.error("One or more setup stages failed.")
             return False
 
@@ -882,20 +879,20 @@ class LXDTest_vm(object):
             return False
 
         logging.debug("Wait for vm to boot")
-        check_vm = 0
-        while check_vm < test_interval:
+        wait_interval = 5
+        max_wait_duration = 300
+        time_waited = 0
+        while time_waited < max_wait_duration:
             time.sleep(wait_interval)
             cmd = ("lxc exec {} -- lsb_release -a".format(self.name))
             if self.run_command(cmd, False):
                 print("Vm started and booted successfully")
                 return True
-            else:
-                logging.debug("Re-verify VM booted")
-                check_vm = check_vm + wait_interval
+            logging.debug("Re-verify VM booted")
+            time_waited += wait_interval
 
         logging.debug("testing vm failed")
-        if check_vm == test_interval:
-            return False
+        return False
 
 
 def test_lxd_vm(args):

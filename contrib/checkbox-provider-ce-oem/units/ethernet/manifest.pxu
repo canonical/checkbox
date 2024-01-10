@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_tcp_multi_connection_server
+_name: Has the TCP multi-connection server been set up?
+value-type: bool
+
+unit: manifest entry
+id: has_tcp_echo_stress_server
+_name: Has the TCP echo stress server been set up?
+value-type: bool

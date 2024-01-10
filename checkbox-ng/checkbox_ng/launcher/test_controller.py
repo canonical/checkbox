@@ -231,7 +231,7 @@ class ControllerTests(TestCase):
 
         self.assertTrue(res_dia_mock.called)
 
-        def test_restart(self):
+    def test_restart(self):
         self_mock = mock.MagicMock()
 
         RemoteController.restart(self_mock)

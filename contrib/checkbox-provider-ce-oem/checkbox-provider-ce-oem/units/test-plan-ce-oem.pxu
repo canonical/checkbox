@@ -73,6 +73,7 @@ nested_part:
     ce-oem-crypto-automated
     ce-oem-optee-automated
     ce-oem-socketcan-stress-automated
+    ce-oem-ethernet-tcp-automated
     com.canonical.certification::eeprom-automated
     com.canonical.certification::rtc-automated
 
@@ -130,6 +131,7 @@ nested_part:
     after-suspend-ce-oem-crypto-automated
     after-suspend-ce-oem-optee-automated
     after-suspend-ce-oem-socketcan-stress-automated
+    after-suspend-ce-oem-ethernet-tcp-automated
     com.canonical.certification::after-suspend-eeprom-automated
     com.canonical.certification::after-suspend-rtc-automated
 
@@ -142,3 +144,4 @@ estimated_duration: 3600
 include:
 nested_part:
     ce-oem-cold-boot-stress-test-by-pdu
+    ce-oem-ethernet-tcp-stress

@@ -1,0 +1,27 @@
+id: rt-performance-tests-full
+_name: Realtime Peformance Tests (Full)
+unit: test plan
+include:
+nested_part:
+    rt-performance-tests-manual
+    rt-performance-tests-automated
+    rt-performance-tests-stress
+
+id: rt-performance-tests-manual
+_name: Realtime Performance Tests (Manual)
+unit: test plan
+include:
+bootstrap_include:
+
+id: rt-performance-tests-automated
+_name: Realtime Performance Tests (Automated)
+unit: test plan
+include:
+bootstrap_include:
+
+id: rt-performance-tests-stress
+_name: Realtime Performance Tests (Stress)
+unit: test plan
+include:
+    rt-performance-tests/cyclictest_rt_latency
+bootstrap_include:

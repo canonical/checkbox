@@ -1,0 +1,11 @@
+id: rt-performance-tests/cyclictest_rt_latency
+category_id: rt-performance-tests
+_summary:
+    Run cyclictest to test scheduling latency. Default run time is 24 hours.
+plugin: shell
+requires:
+    package.name == 'rt-tests'
+user: root
+environ: CYCLICTEST_DURATION
+command:
+    run_cyclictest.py --duration "${CYCLICTEST_DURATION:-86400}"

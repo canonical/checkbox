@@ -444,7 +444,7 @@ class Launcher(MainLoopStage, ReportsStage):
         elif resume_params.action == "fail":
             if is_cert_blocker:
                 if not resume_params.comments:
-                    result_dict["comments"] = request_comment("why it failed.")
+                    result_dict["comments"] = request_comment("why it failed")
             else:
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Failed after resuming execution"
@@ -455,7 +455,7 @@ class Launcher(MainLoopStage, ReportsStage):
             if is_cert_blocker:
                 if not resume_params.comments:
                     result_dict["comments"] = request_comment(
-                        "why you want to skip it."
+                        "why you want to skip it"
                     )
             else:
                 result_dict["comments"] = newline_join(

@@ -304,7 +304,7 @@ about:
 
 ### Code review criteria & workflow
 
-As a general rule there should be one reviewer per PR. A review that requests changes should provide sufficient depth that the proposer is able to bring the code to an acceptable standard without input from other reviewers. In certain infrequent situations it may be necessary for a reviewwer to request that another reviewer provide additional guidance, this must be explicitly communicated in the PR comments. Examples of when this might be done are to work around cases of low test coverage or when the changes affect something known to be of low quality (i.e. something significantly complex and hard to reason about, brittle, dated, known to have broken in the past, etc).
+As a general rule, there should be one reviewer per PR. A review that requests changes should provide sufficient depth so that the proposer can bring the code to an acceptable standard without input from other reviewers. In certain infrequent situations, it may be necessary for a reviewer to request that another reviewer provide additional guidance. This must be explicitly communicated in the PR comments. Examples of when this might be done include working around cases of low test coverage or when the changes affect something known to be of low quality (e.g., something significantly complex and hard to reason about, brittle, dated, known to have broken in the past, etc.).
 
 On approving a change without any change requests the reviewer will merge the pull request. If they choose not to perform the merge, they must leave a comment explaining the rationale (mostly this exception is to cover situations when significant changes need to be staged across multiple releases).
 

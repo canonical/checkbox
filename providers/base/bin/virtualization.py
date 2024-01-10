@@ -734,22 +734,26 @@ class LXDTest_vm(object):
         self.default_remote = "ubuntu:"
         self.os_version = get_release_to_test()
 
-    def run_command(self, cmd):
+    def run_command(self, cmd, log_stderr=True):
         task = RunCommand(cmd)
         if task.returncode != 0:
-            logging.error('Command {} returned a code of {}'.format(
-                task.cmd, task.returncode))
-            logging.error(' STDOUT: {}'.format(task.stdout))
-            logging.error(' STDERR: {}'.format(task.stderr))
+            logging.error(
+                "Command {} returned a code of {}".format(
+                    task.cmd, task.returncode
+                )
+            )
+            logging.error(" STDOUT: {}".format(task.stdout))
+            if log_stderr:
+                logging.error(" STDERR: {}".format(task.stderr))
             return False
         else:
-            logging.debug('Command {}:'.format(task.cmd))
-            if task.stdout != '':
-                logging.debug(' STDOUT: {}'.format(task.stdout))
-            elif task.stderr != '':
-                logging.debug(' STDERR: {}'.format(task.stderr))
-            else:
-                logging.debug(' Command returned no output')
+            logging.debug("Command {}:".format(task.cmd))
+            if task.stdout != "":
+                logging.debug(" STDOUT: {}".format(task.stdout))
+            if task.stderr and log_stderr:
+                logging.debug(" STDERR: {}".format(task.stderr))
+            if not (task.stderr or task.stdout):
+                logging.debug(" Command returned no output")
             return True
 
     def setup(self):
@@ -842,59 +846,57 @@ class LXDTest_vm(object):
         Clean up test files an Virtual Machines created
         """
         logging.debug('Cleaning up images and VMs created during test')
-        self.run_command('lxc image delete {}'.format(self.image_alias))
-        self.run_command('lxc delete --force {}'.format(self.name))
+        self.run_command('lxc image delete {}'.format(self.image_alias), False)
+        self.run_command('lxc delete --force {}'.format(self.name), False)
 
     def start_vm(self):
         """
         Creates an lxd virtual machine and performs the test
         """
-        wait_interval = 5
-        test_interval = 300
 
-        result = self.setup()
-        if not result:
+        if not self.setup():
             logging.error("One or more setup stages failed.")
             return False
 
         # Create Virtual Machine
         logging.debug("Launching Virtual Machine")
         if not self.image_url and not self.template_url:
-            logging.debug("No local image available, attempting to "
-                          "import from default remote.")
-            cmd = ('lxc init {}{} {} --vm '.format(
-               self.default_remote, self.os_version, self.name))
+            logging.debug(
+                "No local image available, attempting to "
+                "import from default remote."
+            )
+            cmd = "lxc init {}{} {} --vm ".format(
+                self.default_remote, self.os_version, self.name
+            )
         else:
-            cmd = ('lxc init {} {} --vm'.format(self.image_alias, self.name))
+            cmd = "lxc init {} {} --vm".format(self.image_alias, self.name)
 
         if not self.run_command(cmd):
             return False
 
         logging.debug("Start VM:")
-        cmd = ("lxc start {} ".format(self.name))
-        if not self.run_command(cmd):
+        if not self.run_command("lxc start {} ".format(self.name)):
             return False
 
         logging.debug("Virtual Machine listing:")
-        cmd = ("lxc list")
-        if not self.run_command(cmd):
+        if not self.run_command("lxc list"):
             return False
 
         logging.debug("Wait for vm to boot")
-        check_vm = 0
-        while check_vm < test_interval:
+        wait_interval = 5
+        max_wait_duration = 300
+        time_waited = 0
+        while time_waited < max_wait_duration:
             time.sleep(wait_interval)
-            cmd = ("lxc exec {} -- lsb_release -a".format(self.name))
-            if self.run_command(cmd):
+            cmd = "lxc exec {} -- lsb_release -a".format(self.name)
+            if self.run_command(cmd, False):
                 print("Vm started and booted successfully")
                 return True
-            else:
-                logging.debug("Re-verify VM booted")
-                check_vm = check_vm + wait_interval
+            logging.debug("Re-verify VM booted")
+            time_waited += wait_interval
 
         logging.debug("testing vm failed")
-        if check_vm == test_interval:
-            return False
+        return False
 
 
 def test_lxd_vm(args):

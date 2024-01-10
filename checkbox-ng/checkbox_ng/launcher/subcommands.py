@@ -1102,6 +1102,8 @@ class ListBootstrapped:
             attrs = job_unit._raw_data.copy()
             attrs["full_id"] = job_unit.id
             attrs["id"] = job_unit.partial_id
+            attrs["certification_status"] = self.ctx.sa.get_job_state(
+                                      job).effective_certification_status
             jobs.append(attrs)
         if ctx.args.format == "?":
             all_keys = set()

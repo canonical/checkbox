@@ -246,7 +246,7 @@ class Launcher(MainLoopStage, ReportsStage):
             self._prepare_transports()
             ctx.sa.use_alternate_configuration(self.configuration)
             self.resume_candidates = list(ctx.sa.get_resumable_sessions())
-            if not self._maybe_auto_resume_session(self.resume_candidates):
+            if not self._auto_resume_session(self.resume_candidates):
                 something_got_chosen = False
                 while not something_got_chosen:
                     try:
@@ -256,7 +256,7 @@ class Launcher(MainLoopStage, ReportsStage):
                     except ResumeInstead:
                         self.sa.finalize_session()
                         something_got_chosen = (
-                            self._maybe_manually_resume_session(
+                            self._manually_resume_session(
                                 self.resume_candidates
                             )
                         )
@@ -337,7 +337,16 @@ class Launcher(MainLoopStage, ReportsStage):
             lambda session_id: [join_cmd(respawn_cmd + [session_id])]
         )
 
-    def _maybe_auto_resume_session(self, resume_candidates):
+    def _auto_resume_session(self, resume_candidates):
+        """
+        Check if there was a request to auto-resume a session.
+
+        The ID of the session to be resumed is kept in the object, in the
+        args context.
+        Returns True if a session was resumed, False otherwise.
+        Can raises various exceptions if there are problem with resuming
+        the session.
+        """
         if self.ctx.args.session_id:
             requested_sessions = [
                 s
@@ -353,7 +362,11 @@ class Launcher(MainLoopStage, ReportsStage):
         else:
             return False
 
-    def _maybe_manually_resume_session(self, resume_candidates):
+    def _manually_resume_session(self, resume_candidates):
+        """
+        Run the interactive resume menu.
+        Returns True if a session was resumed, False otherwise.
+        """
         entries = [
             (
                 candidate.id,

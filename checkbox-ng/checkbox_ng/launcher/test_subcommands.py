@@ -85,25 +85,33 @@ class TestLauncher(TestCase):
         )
 
     @patch("checkbox_ng.launcher.subcommands.ResumeMenu")
-    def test__maybe_manually_resume_session_delete(self, resume_menu_mock):
+    def test__manually_resume_session_delete(self, resume_menu_mock):
         self_mock = MagicMock()
         resume_menu_mock().run().action = "delete"
 
         # delete something, the check should see that the entries list is
         # empty and return false as there is nothing to maybe resume
         self.assertFalse(
-            Launcher._maybe_manually_resume_session(self_mock, [])
+            Launcher._manually_resume_session(self_mock, [])
         )
 
     @patch("checkbox_ng.launcher.subcommands.ResumeMenu")
-    def test__maybe_manually_resume_session(self, resume_menu_mock):
+    def test__manually_resume_session(self, resume_menu_mock):
         self_mock = MagicMock()
         resume_menu_mock().run().session_id = "nonempty"
 
         # the user has selected something from the list, we notice
-        self.assertTrue(Launcher._maybe_manually_resume_session(self_mock, []))
+        self.assertTrue(Launcher._manually_resume_session(self_mock, []))
         # and we try to resume the session
         self.assertTrue(self_mock._resume_session.called)
+
+
+    @patch("checkbox_ng.launcher.subcommands.ResumeMenu")
+    def test__manually_resume_session_empty_id(self, resume_menu_mock):
+        self_mock = MagicMock()
+        resume_menu_mock().run().session_id = ""
+
+        self.assertFalse(Launcher._manually_resume_session(self_mock, []))
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
@@ -256,8 +264,8 @@ class TestLauncherReturnCodes(TestCase):
     def setUp(self):
         self.launcher = Launcher()
         self.launcher._maybe_rerun_jobs = Mock(return_value=False)
-        self.launcher._maybe_auto_resume_session = Mock(return_value=False)
-        self.launcher._maybe_resume_session = Mock(return_value=False)
+        self.launcher._auto_resume_session = Mock(return_value=False)
+        self.launcher._resume_session = Mock(return_value=False)
         self.launcher._start_new_session = Mock()
         self.launcher._pick_jobs_to_run = Mock()
         self.launcher._export_results = Mock()

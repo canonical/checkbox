@@ -10,6 +10,7 @@ on:
 jobs:
   should-run:
     runs-on: [self-hosted, linux, large]
+    steps:
       - name: Setup the gh repository and install gh
         run: |
           which curl || (sudo apt update && sudo apt install curl -y)

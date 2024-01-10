@@ -26,6 +26,35 @@ from virtualization import LXDTest_vm
 class TestLXDTest_vm(TestCase):
     @patch("virtualization.logging")
     @patch("virtualization.RunCommand")
+    def test_run_command_no_stderr(self, run_command_mock, logging_mock):
+        task = run_command_mock()
+        task.returncode = 0
+        task.stdout = "abc"
+        task.stderr = None
+
+        command_result = LXDTest_vm.run_command(
+            MagicMock(), "command", log_stderr=True
+        )
+
+        self.assertTrue(logging_mock.debug.called)
+        self.assertTrue(command_result)
+
+    @patch("virtualization.logging")
+    @patch("virtualization.RunCommand")
+    def test_run_command_no_log_stderr(self, run_command_mock, logging_mock):
+        task = run_command_mock()
+        task.returncode = 1
+        task.stdout = "abc"
+        task.stderr = None
+
+        command_result = LXDTest_vm.run_command(
+            MagicMock(), "command", log_stderr=False
+        )
+
+        self.assertFalse(command_result)
+
+    @patch("virtualization.logging")
+    @patch("virtualization.RunCommand")
     def test_run_command_error(self, run_command_mock, logging_mock):
         task = run_command_mock()
         task.returncode = 1
@@ -53,6 +82,22 @@ class TestLXDTest_vm(TestCase):
 
         self.assertTrue(logging_mock.debug.called)
         self.assertTrue(command_result)
+
+    @patch("virtualization.logging")
+    @patch("virtualization.RunCommand")
+    def test_run_command_ok_no_stdout(self, run_command_mock, logging_mock):
+        task = run_command_mock()
+        task.returncode = 0
+        task.stdout = ""
+        task.stderr = "some error"
+
+        command_result = LXDTest_vm.run_command(
+            MagicMock(), "command", log_stderr=True
+        )
+
+        self.assertTrue(logging_mock.debug.called)
+        self.assertTrue(command_result)
+
 
     @patch("virtualization.logging")
     def test_cleanup(self, logging_mock):

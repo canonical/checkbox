@@ -305,3 +305,30 @@ class Scenario:
             cmd = ["sudo"] + cmd
         cmd_str = shlex.join(cmd)
         self.run_cmd(cmd_str, target=target, timeout=timeout)
+
+    def run_manage(self, command, privileged=False, timeout=0, target="all"):
+        """
+        Runs the manage.py script with some arguments
+        """
+        path = "/home/ubuntu/checkbox/metabox/metabox/metabox-provider"
+        cmd = ["manage.py", command, path]
+        if privileged:
+            cmd = ["sudo"] + cmd
+        cmd_str = shlex.join(cmd)
+        cmd_str = f"cd {path}; " + cmd_str
+        self.run_cmd(cmd_str, target=target, timeout=timeout)
+
+    def assert_in_file(self, pattern, path):
+        """
+        Check if a file created during Checkbox execution contains text that
+        matches the pattern.
+        :param patter: regular expresion to check against the lines.
+        :param path: path to the file
+        """
+        regex = re.compile(pattern)
+        with open(path, "r") as file:
+            data = file.read()
+            self._checks.append(
+                bool(regex.search(data))
+                or bool(regex.search(data))
+            )

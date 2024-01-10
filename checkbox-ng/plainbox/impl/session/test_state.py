@@ -1216,3 +1216,4 @@ class SessionDeviceContextTests(SignalTestCase):
         sig2 = self.assertSignalFired(self.ctx.state.on_unit_removed, self.job)
         sig3 = self.assertSignalFired(self.ctx.state.on_job_removed, self.job)
         self.assertSignalOrdering(sig1, sig2, sig3)
+Manage

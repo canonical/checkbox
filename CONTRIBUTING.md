@@ -304,15 +304,15 @@ about:
 
 ### Code review criteria & workflow
 
-As a general rule there is one reviewer per PR. Other reviewers may pop in to smooth up the process (where they feel confident they can _approve and merge_ changes after some were requested by another review). When more reviewers are needed an approval of, comments explaining that are made in the comment thread. Chiefly this is done to work around cases of low test coverage or when the changes affect something known to be of low quality (i.e. something significantly complex and hard to reason about, brittle, dated, known to have broken in the past, etc).
+As a general rule, there should be one reviewer per PR. A review that requests changes should provide sufficient depth so that the proposer can bring the code to an acceptable standard without input from other reviewers. In certain infrequent situations, it may be necessary for a reviewer to request that another reviewer provide additional guidance. This must be explicitly communicated in the PR comments. Examples of when this might be done include working around cases of low test coverage or when the changes affect something known to be of low quality (e.g., something significantly complex and hard to reason about, brittle, dated, known to have broken in the past, etc.).
 
-On accepting a change without any change requests, the approving reviewer will merge the pull request. If they choose not to do that, they leave a comment explaining the rationale (mostly this exception is to cover situations when significant changes need to be staged across multiple releases).
+On approving a change without any change requests the reviewer will merge the pull request. If they choose not to perform the merge, they must leave a comment explaining the rationale (mostly this exception is to cover situations when significant changes need to be staged across multiple releases).
 
 The reviewer is encouraged to use suggestions to communicate exact intended solutions, and to make it easy to apply them. The reviewer _must_ do this when making trivial style related suggestions. The reviewer might also post code into the PR, or to a branch branched off from the feature branch, to communicate more complex suggestions. 
 
-At all cases when a Checkbox maintainer picks up a PR for review, they are prepared to go back to the same PR if needed (if changes were requested).
+Whenever a Checkbox maintainer provides a review for a PR, they accept responsibility to follow the PR through to its conclusion.
 
-Checkbox maintainers will follow the following process to make the determination between "accept", "request changes" and "comment".
+The following sections describe the criteria upon which Checkbox maintainers will base their determination among "Approve", "Request Changes", and "Comment".
 
 #### Reviewer will approve the pull request when...
 

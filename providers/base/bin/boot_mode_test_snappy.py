@@ -61,6 +61,37 @@ def fitdumpimage(filename):
     return objects
 
 
+def get_bootloader(gadget_yaml):
+    """Parse gadget.yaml to get bootloader"""
+    with open(gadget_yaml) as f:
+        data = yaml.load(f, Loader=yaml.SafeLoader)
+        for k in data['volumes'].keys():
+            if 'bootloader' not in data['volumes'][k]:
+                continue
+            bootloader = data['volumes'][k]['bootloader']
+    if not bootloader:
+        raise SystemExit('ERROR: could not find name of bootloader')
+
+    if bootloader not in ('u-boot', 'grub', 'lk'):
+        raise SystemExit(
+            'ERROR: Unexpected bootloader name {}'.format(bootloader)
+        )
+    print('Bootloader is {}\n'.format(bootloader))
+    return bootloader
+
+
+def get_uboot_kernel(kernel):
+    """Get u-boot kernel path"""
+    kernel_rev = os.path.basename(
+        os.path.realpath('/snap/{}/current'.format(kernel))
+    )
+    # update boot kernel path according to
+    # https://snapcraft.io/docs/the-system-backup-interface
+    return '/var/lib/snapd/hostfs/boot/uboot/{}_{}.snap/kernel.img'.format(
+        kernel, kernel_rev
+    )
+
+
 def main():
     if len(sys.argv) != 3:
         raise SystemExit('ERROR: please supply gadget & kernel name')
@@ -73,27 +104,12 @@ def main():
         raise SystemExit(
             'ERROR: failed to find gadget.yaml at {}'.format(gadget_yaml))
 
-    with open(gadget_yaml) as f:
-        data = yaml.load(f, Loader=yaml.SafeLoader)
-        for k in data['volumes'].keys():
-            if 'bootloader' not in data['volumes'][k]:
-                continue
-            bootloader = data['volumes'][k]['bootloader']
-    if not bootloader:
-        raise SystemExit('ERROR: could not find name of bootloader')
-
-    if bootloader not in ('u-boot', 'grub', 'lk'):
-        raise SystemExit(
-            'ERROR: Unexpected bootloader name {}'.format(bootloader))
-    print('Bootloader is {}\n'.format(bootloader))
+    bootloader = get_bootloader(gadget_yaml)
 
     if bootloader == 'u-boot':
         print('Parsing FIT image information...\n')
 
-        kernel_rev = os.path.basename(
-            os.path.realpath('/snap/{}/current'.format(kernel)))
-        boot_kernel = '/boot/uboot/{}_{}.snap/kernel.img'.format(
-            kernel, kernel_rev)
+        boot_kernel = get_uboot_kernel(kernel)
         boot_objects = fitdumpimage(boot_kernel)
 
         for obj, attrs in boot_objects.items():

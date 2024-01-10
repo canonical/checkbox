@@ -37,6 +37,11 @@ Following fields may be used by a manifest entry unit.
     file ``/etc/os-release``. If this field is not present then the rule
     applies to all versions of a given operating system.
 
+    It is also possible to specify a version comparison operator, such as
+    ``>=`` or ``<=``. This is useful when a rule applies to a range of versions.
+    For example, ``os-version-id: >= 20.04`` will match all versions of Ubuntu
+    greater than or equal to 20.04.
+
 The remaining fields are custom and depend on the packaging driver. The values
 for **Debian** are:
 
@@ -85,8 +90,8 @@ derivatives, like Ubuntu.
 Each matching packaging meta-data unit is then passed to the driver to generate
 packaging meta-data.
 
-Example
--------
+Examples
+--------
 
 This is an example packaging meta-data unit, as taken from the resource provider::
 
@@ -106,6 +111,15 @@ version of ``python3-checkbox-support`` and ``python3`` in both *Debian*,
 *Ubuntu* and, for example, *Elementary OS*. In addition the package will
 recommend some utilities that are used by some of the jobs contained in this
 provider.
+
+If we want a version of the package to be available in Ubuntu 20.04 or newer,
+we can use the following packaging meta-data unit::
+
+    unit: packaging meta-data
+    os-id: ubuntu
+    os-version-id: >= 20.04
+    Depends: libsvm3
+
 
 Using Packaging Meta-Data in Debian
 -----------------------------------

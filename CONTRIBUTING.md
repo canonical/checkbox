@@ -312,7 +312,7 @@ The reviewer is encouraged to use suggestions to communicate exact intended solu
 
 Whenever a Checkbox maintainer provides a review for a PR, they accept responsibility to follow the PR through to its conclusion.
 
-The following sections describe the criteria on which Checkbox maintainers will make the determination between "Approve", "Request changes" and "Comment".
+The following sections describe the criteria upon which Checkbox maintainers will base their determination among "Approve", "Request Changes", and "Comment".
 
 #### Reviewer will approve the pull request when...
 

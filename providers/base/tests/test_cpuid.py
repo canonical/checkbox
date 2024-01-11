@@ -40,7 +40,10 @@ class CpuidMainTests(unittest.TestCase):
         cpuid_mock.return_value = call_mock
         co_mock.return_value = ""
         main()
-        self.assertIn("Hygon Dhyana Plus", print_mock.mock_calls[1].args[0])
+        expected_msg = "CPUID: {} which appears to be a {} processor".format(
+            "0x900f22", "Hygon Dhyana Plus"
+        )
+        print_mock.assert_called_with(expected_msg)
 
     @patch("subprocess.check_output")
     @patch("cpuid.CPUID")

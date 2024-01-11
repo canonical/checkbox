@@ -175,7 +175,8 @@ def count_raid_disks(disk):
         encoding="utf-8", errors="ignore"
     ).splitlines()
 
-    # NOTE: If raid_types changes, also change it in block_device_resource script!
+    # NOTE: If raid_types changes,
+    # also change it in block_device_resource script!
     KNOWN_RAID_TYPES = ["megaraid", "cciss", "3ware", "areca"]
 
     for type in KNOWN_RAID_TYPES:
@@ -284,7 +285,7 @@ def get_smart_entries(disk, raid_element, raid_type, verbose=False):
         if line.startswith("#"):
             entry = {}
             for i, column in enumerate(columns):
-                entry[column] = line[lengths[i] : lengths[i + 1]].strip()
+                entry[column] = line[lengths[i]:lengths[i + 1]].strip()
 
             # Convert some columns to integers
             entry["number"] = int(entry["number"][1:])

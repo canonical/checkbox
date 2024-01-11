@@ -27,8 +27,7 @@
 import ctypes
 import platform
 import sys
-from ctypes import (c_uint32, c_int, c_size_t, c_void_p,
-                    POINTER, CFUNCTYPE)
+from ctypes import c_uint32, c_int, c_size_t, c_void_p, POINTER, CFUNCTYPE
 from subprocess import check_output
 
 # Posix x86_64:
@@ -43,6 +42,7 @@ from subprocess import check_output
 # Three first call registers : Stack (%esp)
 # Volatile registers         : EAX, ECX, EDX
 
+# fmt: off
 _POSIX_64_OPC = [
         0x53,                    # push   %rbx
         0x89, 0xf0,              # mov    %esi,%eax
@@ -55,7 +55,7 @@ _POSIX_64_OPC = [
         0x5b,                    # pop    %rbx
         0xc3                     # retq
 ]
-
+# fmt: off
 _CDECL_32_OPC = [
         0x53,                    # push   %ebx
         0x57,                    # push   %edi
@@ -100,44 +100,6 @@ is_64bit = ctypes.sizeof(ctypes.c_voidp) == 8
 # [4] Base Family
 # [5] Base Model
 # [6] Stepping
-
-CPUIDS = {
-        "Amber Lake":       ['0x806e9'],
-        "AMD EPYC":         ['0x800f12'],
-        "AMD Genoa":        ['0xa10f11'],
-        "AMD Lisbon":       ['0x100f81'],
-        "AMD Magny-Cours":  ['0x100f91'],
-        "AMD Milan":        ['0xa00f11'],
-        "AMD Milan-X":      ['0xa00f12'],
-        "AMD ROME":         ['0x830f10'],
-        "AMD Ryzen":        ['0x810f81'],
-        "AMD Bergamo":      ['0xaa0f01', '0xaa0f02'],
-        "Broadwell":        ['0x4067', '0x306d4', '0x5066', '0x406f'],
-        "Canon Lake":       ['0x6066'],
-        "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],
-        "Coffee Lake":      [
-            '0x806ea', '0x906ea', '0x906eb', '0x906ec', '0x906ed'],
-        "Comet Lake":       ['0x806ec', '0xa065'],
-        "Cooper Lake":      ['0x5065a', '0x5065b'],
-        "Haswell":          ['0x306c', '0x4065', '0x4066', '0x306f'],
-        "Ice Lake":         ['0x606e6', '0x606a6', '0x706e6', '0x606c1'],
-        "Ivy Bridge":       ['0x306a', '0x306e'],
-        "Kaby Lake":        ['0x806e9', '0x906e9'],
-        "Knights Landing":  ['0x5067'],
-        "Knights Mill":     ['0x8065'],
-        "Nehalem":          ['0x106a', '0x106e5', '0x206e'],
-        "Pineview":         ['0x106ca'],
-        "Penryn":           ['0x1067a'],
-        "Rocket Lake":      ['0xa0671'],
-        "Sandy Bridge":     ['0x206a', '0x206d6', '0x206d7'],
-        "Sapphire Rapids":  ['0x806f3', '0x806f6', '0x806f7', '0x806f8'],
-        "Skylake":          ['0x406e3', '0x506e3', '0x50654', '0x50652'],
-        "Tiger Lake":       ['0x806c1'],
-        "Aderlake":         ['0x906a4', '0x906A3', '0x90675', '0x90672'],
-        "Raptorlake":       ['0xB0671', '0xB06F2', '0xB06F5', '0xB06A2'],
-        "Westmere":         ['0x2065', '0x206c', '0x206f'],
-        "Whisky Lake":      ['0x806eb', '0x806ec'],
-        }
 
 
 class CPUID_struct(ctypes.Structure):
@@ -188,6 +150,66 @@ class CPUID(object):
         self.libc.free(self.addr)
 
 
+def cpuid_to_human_friendly(cpuid: str) -> str:
+    """
+    Translate the cpuid into a human friendly name.
+
+    :param cpuid: cpuid in "hex" form, like "0x806c1"
+    :raises KeyError: when the cpuid is not in the database.
+
+    The "database" is a the big dict below.
+
+    The dict inefficiency in this implementation is obvious. The lookup is
+    done over the cpuid, so that should be the key. For now let's keep it
+    consistent with how it was in the past.
+    """
+    # let's disable the formatting so the structure is easier to follow
+    # fmt: off
+    CPUIDS = {
+        "Amber Lake":       ['0x806e9'],
+        "AMD EPYC":         ['0x800f12'],
+        "AMD Genoa":        ['0xa10f11'],
+        "AMD Lisbon":       ['0x100f81'],
+        "AMD Magny-Cours":  ['0x100f91'],
+        "AMD Milan":        ['0xa00f11'],
+        "AMD Milan-X":      ['0xa00f12'],
+        "AMD ROME":         ['0x830f10'],
+        "AMD Ryzen":        ['0x810f81'],
+        "AMD Bergamo":      ['0xaa0f01', '0xaa0f02'],
+        "Broadwell":        ['0x4067', '0x306d4', '0x5066', '0x406f'],
+        "Canon Lake":       ['0x6066'],
+        "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],
+        "Coffee Lake":      [
+            '0x806ea', '0x906ea', '0x906eb', '0x906ec', '0x906ed'],
+        "Comet Lake":       ['0x806ec', '0xa065'],
+        "Cooper Lake":      ['0x5065a', '0x5065b'],
+        "Haswell":          ['0x306c', '0x4065', '0x4066', '0x306f'],
+        "Hygon Dhyana Plus": ["0x900f22"],
+        "Ice Lake":         ['0x606e6', '0x606a6', '0x706e6', '0x606c1'],
+        "Ivy Bridge":       ['0x306a', '0x306e'],
+        "Kaby Lake":        ['0x806e9', '0x906e9'],
+        "Knights Landing":  ['0x5067'],
+        "Knights Mill":     ['0x8065'],
+        "Nehalem":          ['0x106a', '0x106e5', '0x206e'],
+        "Pineview":         ['0x106ca'],
+        "Penryn":           ['0x1067a'],
+        "Rocket Lake":      ['0xa0671'],
+        "Sandy Bridge":     ['0x206a', '0x206d6', '0x206d7'],
+        "Sapphire Rapids":  ['0x806f3', '0x806f6', '0x806f7', '0x806f8'],
+        "Skylake":          ['0x406e3', '0x506e3', '0x50654', '0x50652'],
+        "Tiger Lake":       ['0x806c1'],
+        "Aderlake":         ['0x906a4', '0x906A3', '0x90675', '0x90672'],
+        "Raptorlake":       ['0xB0671', '0xB06F2', '0xB06F5', '0xB06A2'],
+        "Westmere":         ['0x2065', '0x206c', '0x206f'],
+        "Whisky Lake":      ['0x806eb', '0x806ec'],
+    }
+    for key in CPUIDS.keys():
+        for value in CPUIDS[key]:
+            if value.lower() in cpuid.lower():
+                return key
+    raise ValueError("No processor found with the CPUID of {}".format(cpuid))
+
+
 def main():
     cpuid = CPUID()
     cpu = cpuid(1)
@@ -200,19 +222,13 @@ def main():
             print("CPU Model: %s" % line.split(':')[1].lstrip())
 
     my_id = (hex(cpu[0]))
-    complete = False
-    for key in CPUIDS.keys():
-        for value in CPUIDS[key]:
-            if value.lower() in my_id.lower():
-                print("CPUID: %s which appears to be a %s processor" %
-                      (my_id, key))
-                complete = True
-
-    if not complete:
-        print("Unable to determine CPU Family for this CPUID: %s" % my_id)
-        return 1
-    else:
-        return 0
+    try:
+        nice_name = cpuid_to_human_friendly(my_id)
+        print("CPUID: {} which appears to be a {} processor".format(
+            my_id, nice_name))
+    except ValueError:
+        raise SystemExit(
+            "Unable to determine CPU Family for this CPUID: {}".format(cpuid))
 
 
 if __name__ == "__main__":

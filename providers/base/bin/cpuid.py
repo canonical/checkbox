@@ -27,8 +27,7 @@
 import ctypes
 import platform
 import sys
-from ctypes import (c_uint32, c_int, c_size_t, c_void_p,
-                    POINTER, CFUNCTYPE)
+from ctypes import c_uint32, c_int, c_size_t, c_void_p, POINTER, CFUNCTYPE
 from subprocess import check_output
 
 # Posix x86_64:
@@ -43,6 +42,7 @@ from subprocess import check_output
 # Three first call registers : Stack (%esp)
 # Volatile registers         : EAX, ECX, EDX
 
+# fmt: off
 _POSIX_64_OPC = [
         0x53,                    # push   %rbx
         0x89, 0xf0,              # mov    %esi,%eax
@@ -55,7 +55,7 @@ _POSIX_64_OPC = [
         0x5b,                    # pop    %rbx
         0xc3                     # retq
 ]
-
+# fmt: off
 _CDECL_32_OPC = [
         0x53,                    # push   %ebx
         0x57,                    # push   %edi
@@ -100,7 +100,6 @@ is_64bit = ctypes.sizeof(ctypes.c_voidp) == 8
 # [4] Base Family
 # [5] Base Model
 # [6] Stepping
-
 
 
 class CPUID_struct(ctypes.Structure):
@@ -149,6 +148,7 @@ class CPUID(object):
         self.libc.free.restype = None
         self.libc.free.argtypes = [c_void_p]
         self.libc.free(self.addr)
+
 
 def cpuid_to_human_friendly(cpuid: str) -> str:
     """
@@ -209,6 +209,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
                 return key
     raise ValueError("No processor found with the CPUID of {}".format(cpuid))
 
+
 def main():
     cpuid = CPUID()
     cpu = cpuid(1)
@@ -228,6 +229,7 @@ def main():
     except ValueError:
         raise SystemExit(
             "Unable to determine CPU Family for this CPUID: {}".format(cpuid))
+
 
 if __name__ == "__main__":
     sys.exit(main())

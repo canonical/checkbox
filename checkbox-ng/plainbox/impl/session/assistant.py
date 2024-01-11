@@ -1708,9 +1708,11 @@ class SessionAssistant:
             )
             # leave the same usage expectations
             return
-        submitted = SessionMetaData.FLAG_SUBMITTED in self._metadata.flags
-        fresh = SessionMetaData.FLAG_BOOTSTRAPPING in self._metadata.flags
-        if not fresh and not submitted:
+        ignored_flags = {
+            SessionMetaData.FLAG_SUBMITTED,
+            SessionMetaData.FLAG_BOOTSTRAPPING,
+        }
+        if not (ignored_flags & set(self._metadata.flags)):
             _logger.warning(
                 "Finalizing session that hasn't been submitted "
                 "anywhere: %s",

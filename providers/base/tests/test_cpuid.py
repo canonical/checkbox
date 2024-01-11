@@ -13,7 +13,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import unittest
 
-from cpuid import cpuid_to_human_friendly
+from unittest.mock import MagicMock, patch
+
+from cpuid import cpuid_to_human_friendly, main
 
 
 class CpuidTests(unittest.TestCase):
@@ -25,3 +27,28 @@ class CpuidTests(unittest.TestCase):
     def test_unknown_throws(self):
         with self.assertRaises(ValueError):
             cpuid_to_human_friendly("0xdeadbeef")
+
+
+class CpuidMainTests(unittest.TestCase):
+    @patch("builtins.print")
+    @patch("subprocess.check_output")
+    @patch("cpuid.CPUID")
+    def test_hygon_dhyana_plus(self, cpuid_mock, co_mock, print_mock):
+        #import pdb; pdb.set_trace()
+        call_mock = MagicMock()
+        call_mock.return_value = [0x900f22, 0x0, 0x0, 0x0]
+        cpuid_mock.return_value = call_mock
+        co_mock.return_value = ""
+        main()
+        self.assertIn("Hygon Dhyana Plus", print_mock.mock_calls[1].args[0])
+
+    @patch("subprocess.check_output")
+    @patch("cpuid.CPUID")
+    def test_unknown_cpu(self, cpuid_mock, co_mock):
+        #import pdb; pdb.set_trace()
+        call_mock = MagicMock()
+        call_mock.return_value = [0xdeadbeef, 0x0, 0x0, 0x0]
+        cpuid_mock.return_value = call_mock
+        co_mock.return_value = ""
+        with self.assertRaises(SystemExit):
+            main()

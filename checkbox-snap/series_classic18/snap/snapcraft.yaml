@@ -52,6 +52,8 @@ parts:
       export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
       [ $version ] || exit 1
       snapcraftctl set-version $version
+    stage:
+      - version.txt
   launchers:
     plugin: dump
     source: launchers/

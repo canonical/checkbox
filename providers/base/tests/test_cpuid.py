@@ -15,11 +15,13 @@ import unittest
 
 from cpuid import cpuid_to_human_friendly
 
+
 class CpuidTests(unittest.TestCase):
     def test_hygon_dhyana_plus(self):
         self.assertEquals(
-            cpuid_to_human_friendly("0x900f22"),
-            "Hygon Dhyana Plus"
+            cpuid_to_human_friendly("0x900f22"), "Hygon Dhyana Plus"
         )
 
-
+    def test_unknown_throws(self):
+        with self.assertRaises(ValueError):
+            cpuid_to_human_friendly("0xdeadbeef")

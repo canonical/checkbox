@@ -24,7 +24,6 @@ import logging
 import time
 import json
 import sys
-import re
 import gi
 gi.require_version('Gst', '1.0')
 gi.require_version('GLib', '2.0')
@@ -50,6 +49,9 @@ class PipewireTestError(IntEnum):
 
     :attr PIPELINE_PROCESS_FAIL: gst pipeline process failed
     :type PIPELINE_PROCESS_FAIL: int
+
+    :attr NO_CHANGE_DETECTED: couldn't detect audio setting is changed
+    :type NO_CHANGE_DETECTED: int
     """
     NO_ERROR = 0
     NOT_DETECTED = -1
@@ -72,10 +74,13 @@ class PipewireTest:
 
         :param media_class: sink(s) or source(s)
         :type media_class: str
+
+        :returns: "Ouput", "Input" or "UNKNOWN CLASS"
+        :"rtype": str
         """
-        if re.match('sinks*', media_class, re.IGNORECASE):
+        if media_class.lower() in ["sink", "sinks"]:
             return "Output"
-        elif re.match('sources*', media_class, re.IGNORECASE):
+        elif media_class.lower() in ["source", "sources"]:
             return "Input"
         else:
             self.logger.info("Media class:[{}] is unknown".format(media_class))
@@ -84,13 +89,19 @@ class PipewireTest:
     def _get_pw_dump(self, p_type) -> dict:
         """
         Use to convert the json output of pw-dump to dict object
+
+        :param p_type: pipewire object type, such as "Node"
+        :type p_type: str
+
+        :returns: pw-dump in dict data structure
+        :"rtype": dict
         """
         pw_dump = subprocess.check_output("pw-dump {}".format(p_type),
                                           shell=True,
                                           universal_newlines=True)
         try:
             return json.loads(pw_dump)
-        except (ValueError, TypeError):
+        except (json.decoder.JSONDecodeError, TypeError):
             self.logger.error("pw-dump {} failed !!!".format(p_type))
             return {}
 
@@ -104,18 +115,21 @@ class PipewireTest:
 
         :param media_class: For now only support Sinks* or Sources*
         :type media_class: str
+
+        :returns: pipewire style media.class or "UNKNOWN CLASS"
+        :"rtype": str
         """
-        if re.fullmatch('audio', media_type, re.IGNORECASE):
+        if media_type.lower() == "audio":
             mtype = "Audio"
-        elif re.fullmatch('video', media_type, re.IGNORECASE):
+        elif media_type.lower() == "video":
             mtype = "Video"
         else:
             self.logger.info("Media type:[{}] is unknown".format(media_type))
             return "UNKNOWN TYPE"
 
-        if re.fullmatch('sinks*', media_class, re.IGNORECASE):
+        if media_class.lower() in ["sink", "sinks"]:
             return "{}/Sink".format(mtype)
-        elif re.fullmatch('sources*', media_class, re.IGNORECASE):
+        elif media_class.lower() in ["source", "sources"]:
             return "{}/Source".format(mtype)
         else:
             self.logger.info("Media class:[{}] is unknown".format(media_class))
@@ -132,6 +146,9 @@ class PipewireTest:
 
         :param media_class: For now only support Sinks* or Sources*
         :type media_class: str
+
+        :returns: "NOT_DETECTED" or "NO_ERROR"
+        :"rtype": int
         """
         mclass = self.generate_pw_media_class(media_type, media_class)
         if mclass in ["UNKNOWN CLASS", "UNKNOWN TYPE"]:
@@ -244,7 +261,7 @@ class PipewireTest:
             raise ValueError('No abailable output device for {}'
                              .format(device))
         except (IndexError, ValueError) as e:
-            logging.error(str(e))
+            logging.error(repr(e))
             return False
 
     def gst_pipeline(self, pipe, timeout, device) -> int:
@@ -387,6 +404,54 @@ class PipewireTest:
 
                             checked = input()
 
+    def _get_node_description(self, properties) -> str:
+        """
+        Get node description from the output of wpctl inspect
+
+        :param properties: output of wpctl inxpect
+        :type properties: str
+
+        :returns: the node description
+        :rtype: str
+        """
+        try:
+            for line in properties.splitlines():
+                if "node.description" in line:
+                    return line.split("=")[1]
+        except IndexError as e:
+            raise RuntimeError("properties format error {}".format(repr(e)))
+
+    def show_default_device(self, device_type):
+        """
+        show the default device
+
+        :param device_type: audio or video
+        :type device_type: str
+        """
+        device_type = device_type.upper()
+        if device_type not in ["AUDIO", "VIDEO"]:
+            raise ValueError("Only support 'video' and 'audio'")
+        sink_cmd = ["wpctl",
+                    "inspect",
+                    "@DEFAULT_{}_SINK@".format(device_type)]
+        source_cmd = ["wpctl",
+                      "inspect",
+                      "@DEFAULT_{}_SOURCE@".format(device_type)]
+        self.logger.info("Default input device:")
+        try:
+            source = subprocess.check_output(source_cmd,
+                                             universal_newlines=True)
+            self.logger.info(self._get_node_description(source))
+            if device_type == "AUDIO":
+                self.logger.info("Default output device:")
+                sink = subprocess.check_output(sink_cmd,
+                                               universal_newlines=True)
+                self.logger.info(self._get_node_description(sink))
+            self.logger.info("If these are not you would like to test,"
+                             " please change them before testing")
+        except subprocess.CalledProcessError as e:
+            raise RuntimeError("Show default device error {}".format(repr(e)))
+
     def _args_parsing(self, args=sys.argv[1:]):
         parser = argparse.ArgumentParser(
                 prog="Pipewire validator",
@@ -461,6 +526,13 @@ class PipewireTest:
                 "-m", "--mode", type=str,
                 help="Either sinks or sources")
 
+        # Add parser for show default device function
+        parser_show = subparsers.add_parser(
+                'show', help='show the default device')
+        parser_show.add_argument(
+                "-t", "--type", type=str, required=True,
+                help="VIDEO or AUDIO")
+
         return parser.parse_args(args)
 
     def function_select(self, args):
@@ -479,26 +551,24 @@ class PipewireTest:
         elif args.test_type == "through":
             # go_through_ports("speaker-test -c 2 -l 1 -t wav", "sink")
             return self.go_through_ports(args.command, args.mode)
-
-    def main(self) -> int:
-        """
-        main function for command line processing
-        """
-        # create logger formatter
-        log_formatter = logging.Formatter(fmt='%(message)s')
-
-        # set log level
-        self.logger.setLevel(logging.INFO)
-
-        # create console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(log_formatter)
-
-        # Add console handler to logger
-        self.logger.addHandler(console_handler)
-
-        return self.function_select(self._args_parsing())
+        elif args.test_type == "show":
+            # show_default_device("AUDIO")
+            return self.show_default_device(args.type)
 
 
 if __name__ == "__main__":
-    sys.exit(PipewireTest().main())
+    pw = PipewireTest()
+
+    # create logger formatter
+    log_formatter = logging.Formatter(fmt='%(message)s')
+
+    # set log level
+    pw.logger.setLevel(logging.INFO)
+
+    # create console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(log_formatter)
+
+    # Add console handler to logger
+    pw.logger.addHandler(console_handler)
+    sys.exit(pw.function_select(pw._args_parsing()))

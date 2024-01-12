@@ -105,7 +105,7 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_deamon.sh ; then
-    show_default_audio_device.sh
+    pipewire_utils.py show -t audio
     pipewire_utils.py gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
   else
@@ -454,7 +454,7 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_deamon.sh ; then
-    show_default_audio_device.sh
+    pipewire_utils.py show -t audio
     alsa_record_playback.sh
     EXIT_CODE=$?
   else

@@ -7,11 +7,7 @@ requires: manifest.has_thunderbolt == 'True'
 estimated_duration: 20.0
 template-engine: jinja2
 command:
-    {%- if __on_ubuntucore__ %}
-        checkbox-support-run_watcher insertion thunderbolt
-    {%- else %}
-        removable_storage_watcher.py insert --timeout 40 scsi
-    {% endif -%}
+ checkbox-support-run_watcher insertion thunderbolt
 _siblings: [
     { "id": "after-suspend-thunderbolt/insert",
       "_summary": "thunderbolt/insert after suspend",
@@ -65,11 +61,7 @@ depends: thunderbolt/insert
 estimated_duration: 10.0
 template-engine: jinja2
 command:
-    {%- if __on_ubuntucore__ %}
-        checkbox-support-run_watcher insertion thunderbolt
-    {%- else %}
-        removable_storage_watcher.py remove scsi
-    {% endif -%}
+ checkbox-support-run_watcher insertion thunderbolt
 _summary: Storage removal detection on Thunderbolt
 _siblings: [
     { "id": "after-suspend-thunderbolt/remove",
@@ -120,11 +112,7 @@ requires: manifest.has_thunderbolt3 == 'True'
 estimated_duration: 20.0
 template-engine: jinja2
 command:
-    {%- if __on_ubuntucore__ %}
-        checkbox-support-run_watcher insertion thunderbolt
-    {%- else %}
-        removable_storage_watcher.py insert --timeout 40 scsi
-    {% endif -%}
+ checkbox-support-run_watcher insertion thunderbolt
 _summary: Storage insert detection on Thunderbolt 3 port
 _description:
  PURPOSE:
@@ -184,11 +172,7 @@ depends: thunderbolt3/insert
 estimated_duration: 10.0
 template-engine: jinja2
 command:
-    {%- if __on_ubuntucore__ %}
-        checkbox-support-run_watcher removal thunderbolt
-    {%- else %}
-        removable_storage_watcher.py remove scsi
-    {% endif -%}
+ checkbox-support-run_watcher removal thunderbolt
 _summary: Storage removal detection on Thunderbolt 3 port
 _description:
  PURPOSE:

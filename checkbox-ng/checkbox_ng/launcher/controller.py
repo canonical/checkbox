@@ -290,7 +290,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                     )
                     printed_reconnecting = False
                 keep_running = {
-                    "idle": self.new_session,
+                    "idle": self.resume_or_start_new_session,
                     "running": self.wait_and_continue,
                     "finalizing": self.finish_session,
                     "testsselected": partial(
@@ -344,13 +344,14 @@ class RemoteController(ReportsStage, MainLoopStage):
                 break
         return self._has_anything_failed
 
-    def new_session(self):
+    def resume_or_start_new_session(self):
         _logger.info("controller: Starting new session.")
         configuration = dict()
         configuration["launcher"] = self._launcher_text
         configuration["normal_user"] = self._normal_user
 
         try:
+            _logger.info("remote: Starting new session.")
             tps = self.sa.start_session(configuration)
             if self.sa.sideloaded_providers:
                 _logger.warning("Agent is using sideloaded providers")
@@ -625,7 +626,7 @@ class RemoteController(ReportsStage, MainLoopStage):
     def restart(self):
         _logger.info("controller: Restarting session.")
         self.abandon()
-        self.new_session()
+        self.resume_or_start_new_session()
 
     def local_export(self, exporter_id, transport, options=()):
         _logger.info("controller: Exporting locally'")

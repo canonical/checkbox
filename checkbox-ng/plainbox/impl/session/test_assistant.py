@@ -19,10 +19,14 @@
 
 """Tests for the session assistant module class."""
 
+from unittest import mock
+
 from plainbox.impl.secure.providers.v1 import Provider1
-from plainbox.impl.session.assistant import SessionAssistant
-from plainbox.impl.session.assistant import UsageExpectation
-from plainbox.vendor import mock
+from plainbox.impl.session.assistant import (
+    SessionAssistant,
+    UsageExpectation,
+    SessionMetaData,
+)
 from plainbox.vendor import morris
 
 
@@ -69,6 +73,7 @@ class SessionAssistantTests(morris.SignalTestCase):
             self.sa.start_new_session,
             UsageExpectation.of(self.sa).allowed_calls,
         )
+
         # patch system_information to avoid the actual collection of
         # system_information in tests
         with mock.patch(
@@ -76,6 +81,7 @@ class SessionAssistantTests(morris.SignalTestCase):
         ):
             # Call SessionAssistant.start_new_session()
             self.sa.start_new_session("just for testing")
+
         # SessionAssistant.start_new_session() must no longer allowed
         self.assertNotIn(
             self.sa.start_new_session,
@@ -89,3 +95,37 @@ class SessionAssistantTests(morris.SignalTestCase):
         # Use the manager to tidy up after the tests when normally you wouldnt
         # be allowed to
         self.sa._manager.destroy()
+
+    @mock.patch(
+        "plainbox.impl.session.assistant.UsageExpectation",
+        new=mock.MagicMock(),
+    )
+    @mock.patch("plainbox.impl.session.assistant._logger")
+    def test_finalize_session_incomplete(
+        self, logger_mock, mock_get_providers
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._metadata.flags = [SessionMetaData.FLAG_INCOMPLETE]
+
+        SessionAssistant.finalize_session(self_mock)
+
+        self.assertNotIn(
+            SessionMetaData.FLAG_INCOMPLETE, self_mock._metadata.flags
+        )
+
+    @mock.patch(
+        "plainbox.impl.session.assistant.UsageExpectation",
+        new=mock.MagicMock(),
+    )
+    @mock.patch("plainbox.impl.session.assistant._logger")
+    def test_finalize_session_bootstrapping(
+        self, logger_mock, mock_get_providers
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._metadata.flags = [SessionMetaData.FLAG_BOOTSTRAPPING]
+
+        SessionAssistant.finalize_session(self_mock)
+
+        self.assertNotIn(
+            SessionMetaData.FLAG_BOOTSTRAPPING, self_mock._metadata.flags
+        )

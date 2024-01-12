@@ -5,9 +5,9 @@ from plainbox.provider_manager import setup
 from plainbox.provider_manager import N_
 
 setup(
-    name='checkbox-provider-ce-oem',
-    namespace='com.canonical.qa.ceoem',
+    name="checkbox-provider-ce-oem",
+    namespace="com.canonical.contrib",
     version="0.1",
     description=N_("Checkbox provider for both IoT and PC devices"),
-    gettext_domain='checkbox-provider-ce-oem',
+    gettext_domain="checkbox-provider-ce-oem",
 )

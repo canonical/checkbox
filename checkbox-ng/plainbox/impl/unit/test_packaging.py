@@ -24,6 +24,11 @@ import textwrap
 from plainbox.impl.unit.packaging import DebianPackagingDriver
 from plainbox.impl.unit.packaging import PackagingDriverBase
 from plainbox.impl.unit.packaging import PackagingMetaDataUnit
+from plainbox.impl.unit.test_unit import UnitFieldValidationTests
+from plainbox.impl.unit.validators import UnitValidationContext
+from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
+
 from plainbox.impl.secure.rfc822 import load_rfc822_records
 
 
@@ -300,3 +305,77 @@ class DebianPackagingDriverTests(TestCase):
         # Using wrong version format
         with self.assertRaises(SystemExit) as context:
             compare_versions("== ***", "1.0.0")
+
+    def test_unit_to_string(self):
+        unit = PackagingMetaDataUnit(
+            {
+                "os-id": "ubuntu",
+                "os-version-id": "22.04",
+                "Depends": "dep_package",
+                "Recommends": "rec_package",
+                "Suggests": "sug_package",
+            }
+        )
+
+        unit_string = str(unit)
+
+        self.assertIn("ubuntu", unit_string)
+        self.assertIn("Depends: dep_package", unit_string)
+        self.assertIn("Recommends: rec_package", unit_string)
+        self.assertIn("Suggests: sug_package", unit_string)
+
+
+class PackagingUnitFieldValidationTests(UnitFieldValidationTests):
+    def test_validation_unique_package(self):
+        unit_1 = PackagingMetaDataUnit(
+            {
+                "os-id": "ubuntu",
+                "os-version-id": ">=20.04",
+                "Depends": "dep_package1",
+                "Recommends": "rec_package1",
+                "Suggests": "sug_package1",
+            },
+            provider=self.provider,
+        )
+        unit_2 = PackagingMetaDataUnit(
+            {
+                "os-id": "ubuntu",
+                "os-version-id": ">=20.04",
+                "Depends": "dep_package1",
+                "Recommends": "rec_package1",
+                "Suggests": "sug_package1",
+            },
+            provider=self.provider,
+        )
+
+        self.provider.unit_list = [unit_1, unit_2]
+        self.provider.problem_list = []
+        context = UnitValidationContext([self.provider])
+        issue_list = unit_1.check(context=context)
+
+        message_start = "field 'Depends', clashes with 1 other unit"
+        depends_issue = self.assertIssueFound(
+            issue_list,
+            PackagingMetaDataUnit.Meta.fields.Depends,
+            Problem.not_unique,
+            Severity.error,
+        )
+        self.assertTrue(depends_issue.message.startswith(message_start))
+
+        message_start = "field 'Recommends', clashes with 1 other unit"
+        recommends_issue = self.assertIssueFound(
+            issue_list,
+            PackagingMetaDataUnit.Meta.fields.Recommends,
+            Problem.not_unique,
+            Severity.error,
+        )
+        self.assertTrue(recommends_issue.message.startswith(message_start))
+
+        message_start = "field 'Suggests', clashes with 1 other unit"
+        suggests_issue = self.assertIssueFound(
+            issue_list,
+            PackagingMetaDataUnit.Meta.fields.Suggests,
+            Problem.not_unique,
+            Severity.error,
+        )
+        self.assertTrue(suggests_issue.message.startswith(message_start))

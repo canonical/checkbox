@@ -124,6 +124,7 @@ import sys
 from plainbox.i18n import gettext as _
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
+from plainbox.impl.unit.validators import UniqueValueValidator
 from plainbox.impl.unit.unit import Unit
 
 _logger = logging.getLogger("plainbox.unit.packaging")
@@ -153,6 +154,22 @@ class PackagingMetaDataUnit(Unit):
         """Version of the operating system."""
         return self.get_record_value(self.Meta.fields.os_version_id)
 
+    @property
+    def Depends(self):
+        """Package dependencies"""
+        return self.get_record_value(self.Meta.fields.Depends)
+
+    @property
+    def Recommends(self):
+        """Package recommendations"""
+        return self.get_record_value(self.Meta.fields.Recommends)
+
+    @property
+    def Suggests(self):
+        """Package suggestions"""
+        return self.get_record_value(self.Meta.fields.Suggests)
+
+
     class Meta:
 
         name = 'packaging meta-data'
@@ -163,6 +180,9 @@ class PackagingMetaDataUnit(Unit):
 
             os_id = 'os-id'
             os_version_id = 'os-version-id'
+            Depends = 'Depends'
+            Recommends = 'Recommends'
+            Suggests = 'Suggests'
 
         field_validators = {
             fields.os_id: [
@@ -172,20 +192,26 @@ class PackagingMetaDataUnit(Unit):
             fields.os_version_id: [
                 concrete_validators.untranslatable,
             ],
+            fields.Depends: [
+                UniqueValueValidator(),
+            ],
+            fields.Recommends: [
+                UniqueValueValidator(),
+            ],
+            fields.Suggests: [
+                UniqueValueValidator(),
+            ],
         }
 
     def __str__(self):
         parts = [_("Operating System: {}").format(self.os_id)]
         if self.os_id == 'debian' or self.os_id == 'ubuntu':
-            Depends = self.get_record_value('Depends')
-            Recommends = self.get_record_value('Recommends')
-            Suggests = self.get_record_value('Suggests')
-            if Depends:
-                parts.append(_("Depends: {}").format(Depends))
-            if Recommends:
-                parts.append(_("Recommends: {}").format(Recommends))
-            if Suggests:
-                parts.append(_("Suggests: {}").format(Suggests))
+            if self.Depends:
+                parts.append(_("Depends: {}").format(self.Depends))
+            if self.Recommends:
+                parts.append(_("Recommends: {}").format(self.Recommends))
+            if self.Suggests:
+                parts.append(_("Suggests: {}").format(self.Suggests))
         else:
             parts.append("...")
         return ', '.join(parts)

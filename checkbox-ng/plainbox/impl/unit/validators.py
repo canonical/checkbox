@@ -582,7 +582,7 @@ class UniqueValueValidator(FieldValidatorBase):
         value = getattr(unit, field2prop(field))
         units_with_this_value = value_map[value]
         n = len(units_with_this_value)
-        if n > 1:
+        if n > 1 and value is not None:
             # come up with unit_list where this unit is always at the front
             unit_list = list(units_with_this_value)
             unit_list = sorted(

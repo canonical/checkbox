@@ -412,7 +412,7 @@ class TestUtilsFunctions(TestCase):
 
     def test__generate_resume_candidate_description_default_time(self):
         candidate_mock = MagicMock()
-        candidate_mock.metadata.app_blob = '{ "testplan_id" : "123" }'
+        candidate_mock.metadata.app_blob = b'{ "testplan_id" : "123" }'
         candidate_mock.metadata.title = "Title"
         candidate_mock.metadata.last_job_start_time = None
         candidate_mock.metadata.running_job_name = "Test"
@@ -426,7 +426,7 @@ class TestUtilsFunctions(TestCase):
 
     def test__generate_resume_candidate_description(self):
         candidate_mock = MagicMock()
-        candidate_mock.metadata.app_blob = '{ "testplan_id" : "123" }'
+        candidate_mock.metadata.app_blob = b'{ "testplan_id" : "123" }'
         candidate_mock.metadata.title = "Title"
         candidate_mock.metadata.last_job_start_time = 1
         # let's create a real point in time that we can verify on the screen

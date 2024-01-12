@@ -1376,7 +1376,7 @@ def _generate_resume_candidate_description(candidate):
             {last_job_start_time}
         """
     )
-    app_blob = json.loads(candidate.metadata.app_blob)
+    app_blob = json.loads(candidate.metadata.app_blob.decode("UTF-8"))
     session_title = candidate.metadata.title or "Unknown"
     tp_id = app_blob.get("testplan_id", "Unknown")
     last_job_id = candidate.metadata.running_job_name or "Unknown"

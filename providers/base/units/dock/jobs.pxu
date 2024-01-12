@@ -253,17 +253,23 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name == 'pulseaudio-utils'
+ package.name in ['pulseaudio-utils', 'pipewire']
 _summary: HDMI audio test
 plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
- audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
- EXIT_CODE=$?
- audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ if check_audio_deamon.sh ; then
+   pipewire_utils.py show -t audio
+   pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+   EXIT_CODE=$?
+ else
+   audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+   audio_settings.py set --verbose --device=hdmi --volume=50
+   gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+   EXIT_CODE=$?
+   audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ fi
  exit $EXIT_CODE
 _purpose:
     Dock HDMI audio interface verification
@@ -281,17 +287,23 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name == 'pulseaudio-utils'
+ package.name in ['pulseaudio-utils', 'pipewire']
 _summary: DisplayPort audio test
 plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
- audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
- EXIT_CODE=$?
- audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ if check_audio_deamon.sh ; then
+   pipewire_utils.py show -t audio
+   pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+   EXIT_CODE=$?
+ else
+   audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+   audio_settings.py set --verbose --device=hdmi --volume=50
+   gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+   EXIT_CODE=$?
+   audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ fi
  exit $EXIT_CODE
 _purpose:
     Dock DisplayPort audio interface verification
@@ -311,16 +323,22 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name == 'pulseaudio-utils'
+ package.name in ['pulseaudio-utils', 'pipewire']
 _summary: HDMI audio test
 plugin: user-interact-verify
 estimated_duration: 30.0
 command:
- audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
- audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
- EXIT_CODE=$?
- audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ if check_audio_deamon.sh ; then
+   pipewire_utils.py show -t audio
+   pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+   EXIT_CODE=$?
+ else
+   audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+   audio_settings.py set --verbose --device=hdmi --volume=50
+   gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+   EXIT_CODE=$?
+   audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ fi
  exit $EXIT_CODE
 _purpose:
     Dock USB Type-C HDMI audio interface verification
@@ -340,17 +358,23 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name == 'pulseaudio-utils'
+ package.name in ['pulseaudio-utils', 'pipewire']
 _summary: HDMI audio test
 plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
- audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
- EXIT_CODE=$?
- audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ if check_audio_deamon.sh ; then
+   pipewire_utils.py show -t audio
+   pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+   EXIT_CODE=$?
+ else
+   audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+   audio_settings.py set --verbose --device=hdmi --volume=50
+   gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+   EXIT_CODE=$?
+   audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ fi
  exit $EXIT_CODE
 _purpose:
     Dock USB Type-C Displayport audio interface verification
@@ -369,18 +393,24 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name == 'pulseaudio-utils'
+ package.name in ['pulseaudio-utils', 'pipewire']
  manifest.has_thunderbolt3 == 'True'
 _summary: DisplayPort audio test
 plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
- audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
- EXIT_CODE=$?
- audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ if check_audio_deamon.sh ; then
+   pipewire_utils.py show -t audio
+   pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+   EXIT_CODE=$?
+ else
+   audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+   audio_settings.py set --verbose --device=hdmi --volume=50
+   gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+   EXIT_CODE=$?
+   audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ fi
  exit $EXIT_CODE
 _purpose:
     Dock Thunderbolt3 audio interface verification
@@ -403,14 +433,20 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name == 'pulseaudio-utils'
+ package.name in ['pulseaudio-utils', 'pipewire']
 command:
-  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
-  audio_settings.py set --device=pci --volume=50
-  gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
-  EXIT_CODE=$?
-  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
-  exit $EXIT_CODE
+ if check_audio_deamon.sh ; then
+   pipewire_utils.py show -t audio
+   pipewire_utils.py gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+   EXIT_CODE=$?
+ else
+   audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+   audio_settings.py set --device=pci --volume=50
+   gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+   EXIT_CODE=$?
+   audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ fi
+ exit $EXIT_CODE
 _purpose:
     This test will check that headphones connector works correctly.
     (Skip this test if there is no headphone connector on the dock)
@@ -431,14 +467,20 @@ depends: dock/audio-playback-headphones
 requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
- package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+ package.name in ['pulseaudio-utils', 'pipewire']
 command:
- audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
- audio_settings.py set --device=pci --volume=50
- alsa_record_playback.sh
- EXIT_CODE=$?
- audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ if check_audio_deamon.sh ; then
+   pipewire_utils.py show -t audio
+   alsa_record_playback.sh
+   EXIT_CODE=$?
+ else
+   audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+   audio_settings.py set --device=pci --volume=50
+   alsa_record_playback.sh
+   EXIT_CODE=$?
+   audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ fi
  exit $EXIT_CODE
 _purpose:
     This test will check that recording sound using an external microphone works correctly
@@ -499,15 +541,21 @@ _summary: Line-in connection test
 requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
- package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+ package.name in ['pulseaudio-utils', 'pipewire']
 command:
-  audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
-  audio_settings.py set --device=pci --volume=50
-  alsa_record_playback.sh
-  EXIT_CODE=$?
-  audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
-  exit $EXIT_CODE
+ if check_audio_deamon.sh ; then
+   pipewire_utils.py show -t audio
+   alsa_record_playback.sh
+   EXIT_CODE=$?
+ else
+   audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+   audio_settings.py set --device=pci --volume=50
+   alsa_record_playback.sh
+   EXIT_CODE=$?
+   audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ fi
+ exit $EXIT_CODE
 _purpose:
     Check that external line-in connection works correctly
     (Skip this test if the dock does not have a line in connector)
@@ -526,8 +574,13 @@ estimated_duration: 60.0
 _summary: Headphones recognized when plugged to the dock test
 requires:
  device.category == 'AUDIO'
- package.name == 'pulseaudio-utils'
-command: pulse_active_port_change.py sinks
+ package.name in ['pulseaudio-utils', 'pipewire']
+command:
+  if check_audio_deamon.sh ; then
+    pipewire_utils.py monitor -t 30 -m sinks
+  else
+    pulse_active_port_change.py sinks
+  fi
 _purpose:
     Check that system detects speakers or headphones being plugged in
     (Skip this test if the dock does not have headphones connector)
@@ -549,8 +602,13 @@ estimated_duration: 60.0
 _summary: Microphone recognized when plugged to the dock test
 requires:
  device.category == 'AUDIO'
- package.name == 'pulseaudio-utils'
-command: pulse_active_port_change.py sources
+ package.name in ['pulseaudio-utils', 'pipewire']
+command:
+  if check_audio_deamon.sh ; then
+    pipewire_utils.py monitor -t 30 -m sources
+  else
+    pulse_active_port_change.py sources
+  fi
 _purpose:
     Check that system detects a microphone being plugged in
     (Skip this test if the dock does not have a microphone connector)
@@ -1129,17 +1187,23 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name == 'pulseaudio-utils'
+ package.name in ['pulseaudio-utils', 'pipewire']
 _summary: HDMI audio test
 plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
- audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
- EXIT_CODE=$?
- audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ if check_audio_deamon.sh ; then
+    pipewire_utils.py show -t audio
+    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+ else
+    audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --verbose --device=hdmi --volume=50
+    gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+    audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ fi
  exit $EXIT_CODE
 _purpose:
     Dock USB Type-C Displayport audio interface verification
@@ -1157,17 +1221,23 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name == 'pulseaudio-utils'
+ package.name in ['pulseaudio-utils', 'pipewire']
 _summary: HDMI audio test
 plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
- audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
- EXIT_CODE=$?
- audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ if check_audio_deamon.sh ; then
+    pipewire_utils.py show -t audio
+    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+ else
+    audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --verbose --device=hdmi --volume=50
+    gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+    audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ fi
  exit $EXIT_CODE
 _purpose:
     Dock Thunderbolt3 audio interface verification
@@ -1185,17 +1255,23 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name == 'pulseaudio-utils'
+ package.name in ['pulseaudio-utils', 'pipewire']
 _summary: DisplayPort audio test
 plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
- audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
- EXIT_CODE=$?
- audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ if check_audio_deamon.sh ; then
+    pipewire_utils.py show -t audio
+    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+ else
+    audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --verbose --device=hdmi --volume=50
+    gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+    audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ fi
  exit $EXIT_CODE
 _purpose:
     Dock DisplayPort audio interface verification
@@ -1213,17 +1289,23 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name == 'pulseaudio-utils'
+ package.name in ['pulseaudio-utils', 'pipewire']
 _summary: HDMI audio test
 plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
- audio_settings.py set --verbose --device=hdmi --volume=50
- gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
- EXIT_CODE=$?
- audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ if check_audio_deamon.sh ; then
+    pipewire_utils.py show -t audio
+    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+ else
+    audio_settings.py store --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --verbose --device=hdmi --volume=50
+    gst_pipeline_test.py -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+    audio_settings.py restore --verbose --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+ fi
  exit $EXIT_CODE
 _purpose:
     Dock HDMI audio interface verification
@@ -1742,10 +1824,16 @@ requires:
  package.name == 'gir1.2-gstreamer-1.0'
  package.name == 'libgstreamer1.0-0'
  package.name == 'gstreamer1.0-plugins-good'
- package.name == 'gstreamer1.0-pulseaudio'
+ package.name in ['gstreamer1.0-pulseaudio', 'gstreamer1.0-pipewire']
  package.name == 'alsa-base'
+ package.name in ['pulseaudio-utils', 'pipewire']
  device.category == 'AUDIO'
-command: audio_test.py
+command:
+  if check_audio_deamon.sh ; then
+    pipewire_test.py
+  else
+    audio_test.py
+  fi
 _description:
  This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 
@@ -2452,19 +2540,24 @@ id: dock/all-init-monitor-multi-head-audio-playback
 category_id: dock-audio
 requires:
     device.category == 'AUDIO'
+    package.name in ['pulseaudio-utils', 'pipewire']
 _summary: Multiple monitor audio test
 plugin: user-interact-verify
 estimated_duration: 60.0
 command:
-    indexes=$(pacmd list-sinks | grep -e 'index' -e 'available' | grep -B 1 -e 'available: unknown' -e 'available: yes' | grep index | awk '{print $NF}')
-    for index in $indexes
-    do
-            pacmd set-default-sink "$index"
-            audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/dockaudio_settings
-            pacmd set-sink-volume "$index" 65536
-            speaker-test -c 2 -l 1 -t wav
-            audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/dockaudio_settings
-    done
+    if check_audio_deamon.sh ; then
+        pipewire_utils.py through -m sink -c "speaker-test -c 2 -l 1 -t wav"
+    else
+        indexes=$(pacmd list-sinks | grep -e 'index' -e 'available' | grep -B 1 -e 'available: unknown' -e 'available: yes' | grep index | awk '{print $NF}')
+        for index in $indexes
+        do
+                pacmd set-default-sink "$index"
+                audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/dockaudio_settings
+                pacmd set-sink-volume "$index" 65536
+                speaker-test -c 2 -l 1 -t wav
+                audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/dockaudio_settings
+        done
+    fi
 _purpose:
     This test is to check if every external monitor on the dock can play sound.
 _steps:
@@ -2763,8 +2856,13 @@ estimated_duration: 60.0
 _summary: Headphones recognized when plugged to the dock test
 requires:
  device.category == 'AUDIO'
- package.name == 'pulseaudio-utils'
-command: pulse_active_port_change.py sinks
+ package.name in ['pulseaudio-utils', 'pipewire']
+command:
+  if check_audio_deamon.sh ; then
+    pipewire_utils.py monitor -t 30 -m sinks
+  else
+    pulse_active_port_change.py sinks
+  fi
 _purpose:
     Check that system detects speakers or headphones being plugged in.
     (Skip this test if the dock does not have headphones connector)
@@ -2794,14 +2892,20 @@ requires:
     device.category == 'AUDIO'
     package.name == 'alsa-base'
     package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
-    package.name == 'pulseaudio-utils'
+    package.name in ['pulseaudio-utils', 'pipewire']
 command:
+  if check_audio_deamon.sh ; then
+    pipewire_utils.py show -t audio
+    pipewire_utils.py gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
+    EXIT_CODE=$?
+  else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
     audio_settings.py set --device=pci --volume=50
     gst_pipeline_test.py -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
     audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
-    exit $EXIT_CODE
+  fi
+  exit $EXIT_CODE
 _purpose:
     This test will check that headphones connector works correctly.
     (Skip this test if there is no headphone connector on the dock)
@@ -2828,8 +2932,13 @@ estimated_duration: 60.0
 _summary: Microphone recognized when plugged to the dock test
 requires:
  device.category == 'AUDIO'
- package.name == 'pulseaudio-utils'
-command: pulse_active_port_change.py sources
+ package.name in ['pulseaudio-utils', 'pipewire']
+command:
+  if check_audio_deamon.sh ; then
+    pipewire_utils.py monitor -t 30 -m sources
+  else
+    pulse_active_port_change.py sources
+  fi
 _purpose:
     Check that system detects a microphone being plugged in.
     (Skip this test if the dock does not have a microphone connector)
@@ -2859,15 +2968,21 @@ depends: dock/all-init-audio-microphone-plug-detection
 requires:
     device.category == 'AUDIO'
     package.name == 'alsa-base'
-    package.name == 'pulseaudio-utils'
     package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
+    package.name in ['pulseaudio-utils', 'pipewire']
 command:
+  if check_audio_deamon.sh ; then
+    pipewire_utils.py show -t audio
+    alsa_record_playback.sh
+    EXIT_CODE=$?
+  else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
     audio_settings.py set --device=pci --volume=50
     alsa_record_playback.sh
     EXIT_CODE=$?
     audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
-    exit $EXIT_CODE
+  fi
+  exit $EXIT_CODE
 _purpose:
     This test will check that recording sound using an external microphone works correctly.
     (Skip this test if the dock does not have a microphone connector)

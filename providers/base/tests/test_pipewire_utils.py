@@ -150,73 +150,75 @@ class GeneratePwMediaClassTests(unittest.TestCase):
 class DetectDeviceTests(unittest.TestCase):
 
     # Correct Node
-    sink_audio_node = '[{\
-                        "id": 29,\
-                        "type": "PipeWire:Interface:Node",\
-                        "version": 3,\
-                        "permissions": [ "r", "w", "x", "m" ],\
-                        "info": {\
-                          "max-input-ports": 0,\
-                          "max-output-ports": 0,\
-                          "change-mask": [ "input-ports",\
-                                           "output-ports",\
-                                           "state", "props",\
-                                           "params" ],\
-                          "n-input-ports": 0,\
-                          "n-output-ports": 0,\
-                          "state": "suspended",\
-                          "error": null,\
-                          "props": {\
-                            "media.class": "Audio/Sink",\
-                            "factory.name": "support.node.driver",\
-                            "node.name": "Freewheel-Driver",\
-                            "priority.driver": 19000,\
-                            "node.group": "pipewire.freewheel",\
-                            "node.freewheel": true,\
-                            "factory.id": 10,\
-                            "clock.quantum-limit": 8192,\
-                            "node.driver": true,\
-                            "object.id": 29,\
-                            "object.serial": 29\
-                          },\
-                          "params": {\
-                          }\
-                        }\
-                      }]'
+    sink_audio_node = """
+                       [{
+                        "id": 29,
+                        "type": "PipeWire:Interface:Node",
+                        "version": 3,
+                        "permissions": [ "r", "w", "x", "m" ],
+                        "info": {
+                          "max-input-ports": 0,
+                          "max-output-ports": 0,
+                          "change-mask": [ "input-ports",
+                                           "output-ports",
+                                           "state", "props",
+                                           "params" ],
+                          "n-input-ports": 0,
+                          "n-output-ports": 0,
+                          "state": "suspended",
+                          "error": null,
+                          "props": {
+                            "media.class": "Audio/Sink",
+                            "factory.name": "support.node.driver",
+                            "node.name": "Freewheel-Driver",
+                            "priority.driver": 19000,
+                            "node.group": "pipewire.freewheel",
+                            "node.freewheel": true,
+                            "factory.id": 10,
+                            "clock.quantum-limit": 8192,
+                            "node.driver": true,
+                            "object.id": 29,
+                            "object.serial": 29
+                          },
+                          "params": {
+                          }
+                        }
+                      }]"""
 
-    source_audio_node = '[{\
-                           "id": 30,\
-                           "type": "PipeWire:Interface:Node",\
-                           "version": 3,\
-                           "permissions": [ "r", "w", "x", "m" ],\
-                           "info": {\
-                             "max-input-ports": 0,\
-                             "max-output-ports": 0,\
-                             "change-mask": [ "input-ports",\
-                                              "output-ports",\
-                                              "state", "props",\
-                                              "params" ],\
-                             "n-input-ports": 0,\
-                             "n-output-ports": 0,\
-                             "state": "suspended",\
-                             "error": null,\
-                             "props": {\
-                               "media.class": "Audio/Source",\
-                               "factory.name": "support.node.driver",\
-                               "node.name": "Freewheel-Driver",\
-                               "priority.driver": 19000,\
-                               "node.group": "pipewire.freewheel",\
-                               "node.freewheel": true,\
-                               "factory.id": 10,\
-                               "clock.quantum-limit": 8192,\
-                               "node.driver": true,\
-                               "object.id": 29,\
-                               "object.serial": 29\
-                             },\
-                             "params": {\
-                             }\
-                           }\
-                         }]'
+    source_audio_node = """
+                         [{
+                           "id": 30,
+                           "type": "PipeWire:Interface:Node",
+                           "version": 3,
+                           "permissions": [ "r", "w", "x", "m" ],
+                           "info": {
+                             "max-input-ports": 0,
+                             "max-output-ports": 0,
+                             "change-mask": [ "input-ports",
+                                              "output-ports",
+                                              "state", "props",
+                                              "params" ],
+                             "n-input-ports": 0,
+                             "n-output-ports": 0,
+                             "state": "suspended",
+                             "error": null,
+                             "props": {
+                               "media.class": "Audio/Source",
+                               "factory.name": "support.node.driver",
+                               "node.name": "Freewheel-Driver",
+                               "priority.driver": 19000,
+                               "node.group": "pipewire.freewheel",
+                               "node.freewheel": true,
+                               "factory.id": 10,
+                               "clock.quantum-limit": 8192,
+                               "node.driver": true,
+                               "object.id": 29,
+                               "object.serial": 29
+                             },
+                             "params": {
+                             }
+                           }
+                         }]"""
 
     @patch("subprocess.check_output")
     def test_succ(self, mock_checkout):
@@ -255,40 +257,41 @@ class DetectDeviceTests(unittest.TestCase):
 class SelectDeviceTests(unittest.TestCase):
 
     # Correct Node
-    sink_audio_node = '[{\
-                        "id": 29,\
-                        "type": "PipeWire:Interface:Node",\
-                        "version": 3,\
-                        "permissions": [ "r", "w", "x", "m" ],\
-                        "info": {\
-                          "max-input-ports": 0,\
-                          "max-output-ports": 0,\
-                          "change-mask": [ "input-ports",\
-                                           "output-ports",\
-                                           "state", "props",\
-                                           "params" ],\
-                          "n-input-ports": 0,\
-                          "n-output-ports": 0,\
-                          "state": "suspended",\
-                          "error": null,\
-                          "props": {\
-                            "media.class": "Audio/Sink",\
-                            "factory.name": "support.node.driver",\
-                            "node.name": "demo-hdmi",\
-                            "node.description": "unit test",\
-                            "priority.driver": 19000,\
-                            "node.group": "pipewire.freewheel",\
-                            "node.freewheel": true,\
-                            "factory.id": 10,\
-                            "clock.quantum-limit": 8192,\
-                            "node.driver": true,\
-                            "object.id": 29,\
-                            "object.serial": 29\
-                          },\
-                          "params": {\
-                          }\
-                        }\
-                      }]'
+    sink_audio_node = """
+                       [{
+                        "id": 29,
+                        "type": "PipeWire:Interface:Node",
+                        "version": 3,
+                        "permissions": [ "r", "w", "x", "m" ],
+                        "info": {
+                          "max-input-ports": 0,
+                          "max-output-ports": 0,
+                          "change-mask": [ "input-ports",
+                                           "output-ports",
+                                           "state", "props",
+                                           "params" ],
+                          "n-input-ports": 0,
+                          "n-output-ports": 0,
+                          "state": "suspended",
+                          "error": null,
+                          "props": {
+                            "media.class": "Audio/Sink",
+                            "factory.name": "support.node.driver",
+                            "node.name": "demo-hdmi",
+                            "node.description": "unit test",
+                            "priority.driver": 19000,
+                            "node.group": "pipewire.freewheel",
+                            "node.freewheel": true,
+                            "factory.id": 10,
+                            "clock.quantum-limit": 8192,
+                            "node.driver": true,
+                            "object.id": 29,
+                            "object.serial": 29
+                          },
+                          "params": {
+                          }
+                        }
+                      }]"""
 
     @patch("subprocess.check_output")
     def test_wrong_pw_dump(self, mock_checkout):
@@ -334,45 +337,46 @@ class SelectDeviceTests(unittest.TestCase):
 class GstPipeLineTests(unittest.TestCase):
 
     # Correct Device
-    device = '[{\
-                 "id": 29,\
-                 "type": "PipeWire:Interface:Device",\
-                 "version": 3,\
-                 "permissions": [ "r", "w", "x", "m" ],\
-                 "info": {\
-                   "max-input-ports": 0,\
-                   "max-output-ports": 0,\
-                   "change-mask": [ "input-ports",\
-                                    "output-ports",\
-                                    "state", "props",\
-                                    "params" ],\
-                   "n-input-ports": 0,\
-                   "n-output-ports": 0,\
-                   "state": "suspended",\
-                   "error": null,\
-                   "props": {\
-                     "media.class": "Audio/Device",\
-                     "factory.name": "support.node.driver",\
-                     "node.name": "Freewheel-Driver",\
-                     "node.description": "unit test",\
-                     "priority.driver": 19000,\
-                     "node.group": "pipewire.freewheel",\
-                     "node.freewheel": true,\
-                     "factory.id": 10,\
-                     "clock.quantum-limit": 8192,\
-                     "node.driver": true,\
-                     "object.id": 29,\
-                     "object.serial": 29\
-                   },\
-                   "params": {\
-                       "Route": [{\
-                           "name": "hdmi_demo_output",\
-                           "available": "yes",\
-                           "description": "hdmi demo output"\
-                       }]\
-                   }\
-                 }\
-                }]'
+    device = """
+              [{
+               "id": 29,
+               "type": "PipeWire:Interface:Device",
+               "version": 3,
+               "permissions": [ "r", "w", "x", "m" ],
+               "info": {
+                 "max-input-ports": 0,
+                 "max-output-ports": 0,
+                 "change-mask": [ "input-ports",
+                                  "output-ports",
+                                  "state", "props",
+                                  "params" ],
+                 "n-input-ports": 0,
+                 "n-output-ports": 0,
+                 "state": "suspended",
+                 "error": null,
+                 "props": {
+                   "media.class": "Audio/Device",
+                   "factory.name": "support.node.driver",
+                   "node.name": "Freewheel-Driver",
+                   "node.description": "unit test",
+                   "priority.driver": 19000,
+                   "node.group": "pipewire.freewheel",
+                   "node.freewheel": true,
+                   "factory.id": 10,
+                   "clock.quantum-limit": 8192,
+                   "node.driver": true,
+                   "object.id": 29,
+                   "object.serial": 29
+                 },
+                 "params": {
+                     "Route": [{
+                         "name": "hdmi_demo_output",
+                         "available": "yes",
+                         "description": "hdmi demo output"
+                     }]
+                 }
+               }
+              }]"""
 
     @patch("subprocess.check_output")
     def test_wrong_gst_pipeline_device(self, mock_checkout):
@@ -396,88 +400,90 @@ class GstPipeLineTests(unittest.TestCase):
 class MonitorActivePortTests(unittest.TestCase):
 
     # Correct Device
-    before_device = '[{\
-                 "id": 29,\
-                 "type": "PipeWire:Interface:Device",\
-                 "version": 3,\
-                 "permissions": [ "r", "w", "x", "m" ],\
-                 "info": {\
-                   "max-input-ports": 0,\
-                   "max-output-ports": 0,\
-                   "change-mask": [ "input-ports",\
-                                    "output-ports",\
-                                    "state", "props",\
-                                    "params" ],\
-                   "n-input-ports": 0,\
-                   "n-output-ports": 0,\
-                   "state": "suspended",\
-                   "error": null,\
-                   "props": {\
-                     "media.class": "Audio/Device",\
-                     "factory.name": "support.node.driver",\
-                     "node.name": "Freewheel-Driver",\
-                     "node.description": "unit test",\
-                     "priority.driver": 19000,\
-                     "node.group": "pipewire.freewheel",\
-                     "node.freewheel": true,\
-                     "factory.id": 10,\
-                     "clock.quantum-limit": 8192,\
-                     "node.driver": true,\
-                     "object.id": 29,\
-                     "object.serial": 29\
-                   },\
-                   "params": {\
-                       "Route": [{\
-                           "name": "hdmi_demo_output",\
-                           "available": "yes",\
-                           "direction": "Output",\
-                           "description": "hdmi demo output"\
-                       }]\
-                   }\
-                 }\
-                }]'
+    before_device = """
+                     [{
+                       "id": 29,
+                       "type": "PipeWire:Interface:Device",
+                       "version": 3,
+                       "permissions": [ "r", "w", "x", "m" ],
+                       "info": {
+                         "max-input-ports": 0,
+                         "max-output-ports": 0,
+                         "change-mask": [ "input-ports",
+                                          "output-ports",
+                                          "state", "props",
+                                          "params" ],
+                         "n-input-ports": 0,
+                         "n-output-ports": 0,
+                         "state": "suspended",
+                         "error": null,
+                         "props": {
+                           "media.class": "Audio/Device",
+                           "factory.name": "support.node.driver",
+                           "node.name": "Freewheel-Driver",
+                           "node.description": "unit test",
+                           "priority.driver": 19000,
+                           "node.group": "pipewire.freewheel",
+                           "node.freewheel": true,
+                           "factory.id": 10,
+                           "clock.quantum-limit": 8192,
+                           "node.driver": true,
+                           "object.id": 29,
+                           "object.serial": 29
+                         },
+                         "params": {
+                             "Route": [{
+                                 "name": "hdmi_demo_output",
+                                 "available": "yes",
+                                 "direction": "Output",
+                                 "description": "hdmi demo output"
+                             }]
+                         }
+                       }
+                      }]"""
 
     # Correct Device
-    after_device = '[{\
-                 "id": 29,\
-                 "type": "PipeWire:Interface:Device",\
-                 "version": 3,\
-                 "permissions": [ "r", "w", "x", "m" ],\
-                 "info": {\
-                   "max-input-ports": 0,\
-                   "max-output-ports": 0,\
-                   "change-mask": [ "input-ports",\
-                                    "output-ports",\
-                                    "state", "props",\
-                                    "params" ],\
-                   "n-input-ports": 0,\
-                   "n-output-ports": 0,\
-                   "state": "suspended",\
-                   "error": null,\
-                   "props": {\
-                     "media.class": "Audio/Device",\
-                     "factory.name": "support.node.driver",\
-                     "node.name": "Freewheel-Driver",\
-                     "node.description": "unit test",\
-                     "priority.driver": 19000,\
-                     "node.group": "pipewire.freewheel",\
-                     "node.freewheel": true,\
-                     "factory.id": 10,\
-                     "clock.quantum-limit": 8192,\
-                     "node.driver": true,\
-                     "object.id": 29,\
-                     "object.serial": 29\
-                   },\
-                   "params": {\
-                       "Route": [{\
-                           "name": "hdmi_after_output",\
-                           "available": "yes",\
-                           "direction": "Output",\
-                           "description": "hdmi after output"\
-                       }]\
-                   }\
-                 }\
-                }]'
+    after_device = """
+                    [{
+                      "id": 29,
+                      "type": "PipeWire:Interface:Device",
+                      "version": 3,
+                      "permissions": [ "r", "w", "x", "m" ],
+                      "info": {
+                        "max-input-ports": 0,
+                        "max-output-ports": 0,
+                        "change-mask": [ "input-ports",
+                                         "output-ports",
+                                         "state", "props",
+                                         "params" ],
+                        "n-input-ports": 0,
+                        "n-output-ports": 0,
+                        "state": "suspended",
+                        "error": null,
+                        "props": {
+                          "media.class": "Audio/Device",
+                          "factory.name": "support.node.driver",
+                          "node.name": "Freewheel-Driver",
+                          "node.description": "unit test",
+                          "priority.driver": 19000,
+                          "node.group": "pipewire.freewheel",
+                          "node.freewheel": true,
+                          "factory.id": 10,
+                          "clock.quantum-limit": 8192,
+                          "node.driver": true,
+                          "object.id": 29,
+                          "object.serial": 29
+                        },
+                        "params": {
+                            "Route": [{
+                                "name": "hdmi_after_output",
+                                "available": "yes",
+                                "direction": "Output",
+                                "description": "hdmi after output"
+                            }]
+                        }
+                      }
+                     }]"""
 
     @patch("subprocess.check_output")
     def test_couldnt_detect_change(self, mock_checkout):
@@ -499,46 +505,46 @@ class MonitorActivePortTests(unittest.TestCase):
 class GoThroughPortTests(unittest.TestCase):
 
     # Correct Device
-    device = '[{\
-                 "id": 29,\
-                 "type": "PipeWire:Interface:Device",\
-                 "version": 3,\
-                 "permissions": [ "r", "w", "x", "m" ],\
-                 "info": {\
-                   "max-input-ports": 0,\
-                   "max-output-ports": 0,\
-                   "change-mask": [ "input-ports",\
-                                    "output-ports",\
-                                    "state", "props",\
-                                    "params" ],\
-                   "n-input-ports": 0,\
-                   "n-output-ports": 0,\
-                   "state": "suspended",\
-                   "error": null,\
-                   "props": {\
-                     "media.class": "Audio/Device",\
-                     "factory.name": "support.node.driver",\
-                     "node.name": "Freewheel-Driver",\
-                     "node.description": "unit test",\
-                     "priority.driver": 19000,\
-                     "node.group": "pipewire.freewheel",\
-                     "node.freewheel": true,\
-                     "factory.id": 10,\
-                     "clock.quantum-limit": 8192,\
-                     "node.driver": true,\
-                     "object.id": 29,\
-                     "object.serial": 29\
-                   },\
-                   "params": {\
-                       "EnumRoute": [{\
-                           "name": "hdmi_demo_output",\
-                           "available": "yes",\
-                           "direction": "Output",\
-                           "description": "hdmi demo output"\
-                       }]\
-                   }\
-                 }\
-                }]'
+    device = """[{
+                 "id": 29,
+                 "type": "PipeWire:Interface:Device",
+                 "version": 3,
+                 "permissions": [ "r", "w", "x", "m" ],
+                 "info": {
+                   "max-input-ports": 0,
+                   "max-output-ports": 0,
+                   "change-mask": [ "input-ports",
+                                    "output-ports",
+                                    "state", "props",
+                                    "params" ],
+                   "n-input-ports": 0,
+                   "n-output-ports": 0,
+                   "state": "suspended",
+                   "error": null,
+                   "props": {
+                     "media.class": "Audio/Device",
+                     "factory.name": "support.node.driver",
+                     "node.name": "Freewheel-Driver",
+                     "node.description": "unit test",
+                     "priority.driver": 19000,
+                     "node.group": "pipewire.freewheel",
+                     "node.freewheel": true,
+                     "factory.id": 10,
+                     "clock.quantum-limit": 8192,
+                     "node.driver": true,
+                     "object.id": 29,
+                     "object.serial": 29
+                   },
+                   "params": {
+                       "EnumRoute": [{
+                           "name": "hdmi_demo_output",
+                           "available": "yes",
+                           "direction": "Output",
+                           "description": "hdmi demo output"
+                       }]
+                   }
+                 }
+                }]"""
 
     @patch("builtins.input")
     @patch("subprocess.check_output")
@@ -549,6 +555,36 @@ class GoThroughPortTests(unittest.TestCase):
         mock_input.side_effect = ["yes", "yes"]
         self.assertEqual(None, pt.go_through_ports("echo test", "sink"))
 
+
+class ShowDefaultDeviceTests(unittest.TestCase):
+
+    def test_device_type_error(self):
+        pt = PipewireTest()
+
+        with self.assertRaises(ValueError):
+            pt.show_default_device("XXX")
+
+    @patch("subprocess.check_output")
+    def test_video_sink_not_call(self, mock_check):
+        pt = PipewireTest()
+
+        mock_check.side_effect = ["node.description=xxx",
+                                  "node.description=ooo"]
+        pt.show_default_device("VIDEO")
+        mock_check.assert_called_with(["wpctl", "inspect",
+                                       "@DEFAULT_VIDEO_SOURCE@"],
+                                      universal_newlines=True)
+
+    @patch("subprocess.check_output")
+    def test_audio(self, mock_check):
+        pt = PipewireTest()
+
+        mock_check.side_effect = ["node.description=xxx",
+                                  "node.description=ooo"]
+        pt.show_default_device("AUDIO")
+        mock_check.assert_called_with(["wpctl", "inspect",
+                                       "@DEFAULT_AUDIO_SINK@"],
+                                      universal_newlines=True)
 
 class ArgsParsingTests(unittest.TestCase):
     def test_success(self):
@@ -594,6 +630,10 @@ class ArgsParsingTests(unittest.TestCase):
         self.assertEqual(rv.command, "echo")
         self.assertEqual(rv.mode, "mode")
 
+        args = ["show", "-t", "AUDIO"]
+        rv = pt._args_parsing(args)
+        self.assertEqual(rv.type, "AUDIO")
+
 
 class FunctionSelectTests(unittest.TestCase):
 
@@ -632,3 +672,10 @@ class FunctionSelectTests(unittest.TestCase):
         args = ["through", "-c", "echo", "-m", "mode"]
         rv = pt.function_select(pt._args_parsing(args))
         self.assertEqual(rv, 55)
+
+    @patch("pipewire_utils.PipewireTest.show_default_device", return_value=44)
+    def test_through(self, mock_monitor):
+        pt = PipewireTest()
+        args = ["show", "-t", "AUDIO"]
+        rv = pt.function_select(pt._args_parsing(args))
+        self.assertEqual(rv, 44)

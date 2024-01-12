@@ -1,0 +1,44 @@
+unit: template
+template-resource: com.canonical.certification::device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
+plugin: user-interact
+category_id: com.canonical.plainbox::touchscreen
+id: ce-oem-touchscreen/evdev/single-touch-tap-{{ product_slug }}
+imports: from com.canonical.certification import device
+estimated_duration: 10.0
+_purpose:
+    Validate that single-touch tap is properly detected
+_steps:
+    1. Commence the test
+    2. Tap the screen with one finger.
+user: root
+command: evdev_touch_test.py '{{ product }}' -x 1
+flags: also-after-suspend
+
+unit: template
+template-resource: com.canonical.certification::device
+template-filter: device.category == 'TOUCHSCREEN'
+template-engine: jinja2
+template-unit: job
+plugin: user-interact
+category_id: com.canonical.plainbox::touchscreen
+id: ce-oem-touchscreen/evdev/maximum-touch-tap-{{ product_slug }}
+imports: from com.canonical.certification import device
+estimated_duration: 10.0
+_purpose:
+    Validate that maximum-touch tap is properly detected
+    the maximum finger support is 10 by default
+    please modify the TOUCHSCREEN_MAX_FINGERS variable
+_steps:
+    1. Commence the test
+    2. Tap the screen with 10 fingers
+    (Or the maximum supported fingers for this touchscreen)
+user: root
+command:
+    VAR_MAX="${TOUCHSCREEN_MAX_FINGERS:-10}"
+    echo "Tap the screen with $VAR_MAX fingers simultaneously."
+    evdev_touch_test.py '{{ product }}' -x "$VAR_MAX"
+flags: also-after-suspend
+after: ce-oem-touchscreen/evdev/single-touch-tap-{{ product_slug }}

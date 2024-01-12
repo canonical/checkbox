@@ -1,0 +1,48 @@
+id: ce-oem-digital-io-full
+unit: test plan
+_name: Digital I/O tests
+_description: Full Digital I/O tests for devices
+include:
+nested_part:
+    ce-oem-digital-io-manual
+    ce-oem-digital-io-automated
+    after-suspend-ce-oem-digital-io-manual
+    after-suspend-ce-oem-digital-io-automated
+
+
+id: ce-oem-digital-io-manual
+unit: test plan
+_name: Digital I/O manual tests
+_description: Manual digital-io tests for devices
+include:
+
+
+id: ce-oem-digital-io-automated
+unit: test plan
+_name: Digital I/O auto tests
+_description: Automated led tests for devices
+bootstrap_include:
+    ce-oem-digital-io/loopback_mapping_gpio
+    ce-oem-digital-io/loopback_mapping_serial
+include:
+    ce-oem-digital-io/loopback_gpio_DO.*-DI.*
+    ce-oem-digital-io/loopback_serial_DO.*-DI.*
+
+
+id: after-suspend-ce-oem-digital-io-manual
+unit: test plan
+_name: Post suspend Digital I/O manual tests
+_description: Manual Digital I/O tests for devices
+include:
+
+
+id: after-suspend-ce-oem-digital-io-automated
+unit: test plan
+_name: Post suspend Digital-io auto tests
+_description: Automated digital I/O tests for devices
+bootstrap_include:
+    ce-oem-digital-io/loopback_mapping_gpio
+    ce-oem-digital-io/loopback_mapping_serial
+include:
+    after-suspend-ce-oem-digital-io/loopback_gpio_DO.*-DI.*
+    after-suspend-ce-oem-digital-io/loopback_serial_DO.*-DI.*

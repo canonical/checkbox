@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_optee
+_name: OP-TEE(Open Source - Trusted Execution Environment) test Trusted Applications supported?
+value-type: bool

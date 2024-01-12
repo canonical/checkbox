@@ -1,0 +1,127 @@
+id: cpufreq_policy_list
+_summary: List the cpufreq policies
+_description:
+    List the cpufreq policies with the corresponding scaling drivers
+plugin: resource
+user: root
+category_id: com.canonical.plainbox::cpu
+estimated_duration: 1s
+command: cpufreq_governors.py --policy-resource
+
+id: ce-oem-cpu/cpufreq_driver_detect
+_summary: Detect if the CPU scaling driver exists
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 1s
+command: cpufreq_governors.py --driver-detect
+
+unit: template
+template-resource: cpufreq_policy_list
+template-unit: job
+template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate'
+id: ce-oem-cpu/cpufreq-governor-performance-policy{policy}
+_summary: Test "performance" scaling governor on policy{policy}
+_description:
+    This job sets the governor to "performance" and 
+    verifies whether the frequency is maximum.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 1s
+depends: ce-oem-cpu/cpufreq_driver_detect
+command: cpufreq_governors.py --policy {policy} --governor performance
+
+unit: template
+template-resource: cpufreq_policy_list
+template-unit: job
+template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate'
+id: ce-oem-cpu/cpufreq-governor-powersave-policy{policy}
+_summary: Test "powersave" scaling governor on policy{policy}
+_description:
+    This job sets the governor to "powersave" and 
+    verifies whether the frequency is minimum.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 1s
+depends: ce-oem-cpu/cpufreq_driver_detect
+command: cpufreq_governors.py --policy {policy} --governor powersave
+
+unit: template
+template-resource: cpufreq_policy_list
+template-unit: job
+template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate'
+id: ce-oem-cpu/cpufreq-governor-userspace-policy{policy}
+_summary: Test "userspace" scaling governor on policy{policy}
+_description:
+    This job sets the governor to "userspace" and 
+    verifies the frequency when setting it to maximum
+    and minimum.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 1s
+depends: ce-oem-cpu/cpufreq_driver_detect
+command: cpufreq_governors.py --policy {policy} --governor userspace
+
+unit: template
+template-resource: cpufreq_policy_list
+template-unit: job
+template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate'
+id: ce-oem-cpu/cpufreq-governor-schedutil-policy{policy}
+_summary: Test "schedutil" scaling governor on policy{policy}
+_description:
+    This job sets the governor to "schedutil" and
+    verifies whether the frequency will be maximum
+    after stressing CPUs and settling down after
+    sleeping for a few seconds.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 14s
+depends: ce-oem-cpu/cpufreq_driver_detect
+command: cpufreq_governors.py --policy {policy} --governor schedutil
+
+unit: template
+template-resource: cpufreq_policy_list
+template-unit: job
+template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate'
+id: ce-oem-cpu/cpufreq-governor-ondemand-policy{policy}
+_summary: Test "ondemand" scaling governor on policy{policy}
+_description:
+    This job sets the governor to "ondemand" and
+    verifies whether the frequency will be maximum
+    after stressing CPUs and settling down after
+    sleeping for a few seconds.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 14s
+depends: ce-oem-cpu/cpufreq_driver_detect
+command: cpufreq_governors.py --policy {policy} --governor ondemand
+
+unit: template
+template-resource: cpufreq_policy_list
+template-unit: job
+template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate'
+id: ce-oem-cpu/cpufreq-governor-conservative-policy{policy}
+_summary: Test "conservative" scaling governor on policy{policy}
+_description:
+    This job sets the governor to "conservative" and
+    verifies whether the frequency will be maximum
+    after stressing CPUs and settling down after
+    sleeping for a few seconds.
+plugin: shell
+user: root
+category_id: com.canonical.plainbox::cpu
+flags: also-after-suspend
+estimated_duration: 14s
+depends: ce-oem-cpu/cpufreq_driver_detect
+command: cpufreq_governors.py --policy {policy} --governor conservative

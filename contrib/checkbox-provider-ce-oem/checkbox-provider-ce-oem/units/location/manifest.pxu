@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_gps
+_name: Does platfrom supported GPS?
+value-type: bool

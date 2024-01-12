@@ -1,0 +1,30 @@
+unit: test plan
+id: ce-oem-cold-boot-stress-test-by-pdu
+_name: Cold boot stress test with Network PDU
+_description:
+    Reboots the machine a pre-defined number of times and on
+    resumption of OS performs a hardware check to ensure all
+    items are still present. The reboot is delayed by few minutes
+    by the network PDU to allow hardware to cool.
+estimated_duration: 42h
+bootstrap_include:
+    com.canonical.certification::reboot-run-generator
+include:
+    ce-oem-cold-boot-loop-by-pdu-reboot.*
+    ce-oem-post-cold-boot-loop-by-pdu-reboot.*
+mandatory_include:
+    com.canonical.plainbox::manifest
+    com.canonical.certification::package
+    com.canonical.certification::snap
+    com.canonical.certification::uname
+    com.canonical.certification::lsb
+    com.canonical.certification::cpuinfo
+    com.canonical.certification::dpkg
+    com.canonical.certification::dmi_attachment
+    com.canonical.certification::sysfs_attachment
+    com.canonical.certification::udev_attachment
+    com.canonical.certification::lspci_attachment
+    com.canonical.certification::lsusb_attachment
+    com.canonical.certification::dmi
+    com.canonical.certification::meminfo
+    com.canonical.certification::interface

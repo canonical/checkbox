@@ -1,0 +1,34 @@
+id: ce-oem-ethernet-tcp-stress
+unit: test plan
+_name: TCP stress test plan
+_description: TCP stress
+estimated_duration: 60h
+bootstrap_include:
+    com.canonical.certification::device
+include:
+    ce-oem-ethernet/tcp-echo-stress-.*
+
+id: ce-oem-tcp-full
+unit: test plan
+_name: TCP connection tests
+_description: TCP connection test of the device
+include:
+nested_part:
+    ce-oem-ethernet-tcp-automated
+    after-suspend-ce-oem-ethernet-tcp-automated
+
+id: ce-oem-ethernet-tcp-automated
+unit: test plan
+_name: TCP connection test plan
+_description: TCP connection test
+estimated_duration: 300
+include:
+    ce-oem-ethernet/tcp-multi-connections
+
+id: after-suspend-ce-oem-ethernet-tcp-automated
+unit: test plan
+_name: TCP connection test plan
+_description: TCP connection test
+estimated_duration: 300
+include:
+    after-suspend-ce-oem-ethernet/tcp-multi-connections

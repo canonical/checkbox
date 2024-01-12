@@ -1,0 +1,40 @@
+id: ce-oem-optee-full
+unit: test plan
+_name: OP-TEE tests
+_description: Full OP-TEE tests for devices
+include:
+nested_part:
+    ce-oem-optee-automated
+
+id: ce-oem-optee-automated
+unit: test plan
+_name: OP-TEE auto tests
+_description: Automated OP-TEE tests for devices
+bootstrap_include:
+    ce-oem-optee-test-list
+    ce-oem-optee-test-list-pkcs11
+include:
+    ce-oem-optee/device-node
+    ce-oem-optee/xtest-check
+    ce-oem-optee/ta-install
+    ce-oem-optee/xtest-regression.*
+    ce-oem-optee/xtest-benchmark.*
+    ce-oem-optee/xtest-pkcs11.*
+
+id: after-suspend-ce-oem-optee-full
+unit: test plan
+_name: After suspend OP-TEE tests
+_description: Full after-suspend OP-TEE tests for devices
+include:
+nested_part:
+    after-suspend-ce-oem-optee-automated
+
+id: after-suspend-ce-oem-optee-automated
+unit: test plan
+_name: After suspend OP-TEE auto tests
+_description: Automated after-suspend OP-TEE tests for devices
+bootstrap_include:
+include:
+    after-suspend-ce-oem-optee/xtest-regression.*
+    after-suspend-ce-oem-optee/xtest-benchmark.*
+    after-suspend-ce-oem-optee/xtest-pkcs11.*

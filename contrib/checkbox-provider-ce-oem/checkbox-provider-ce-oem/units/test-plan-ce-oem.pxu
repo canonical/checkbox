@@ -1,0 +1,147 @@
+# Copyright 2022 Canonical Ltd.
+# All rights reserved.
+#
+# Test plans and (optionally) jobs unique to the Ubuntu Core and Classic devices.
+#
+
+id: ce-oem-full
+unit: test plan
+_name: CE-OEM - Full manual + automated tests for Ubuntu Core and Classic
+_description:
+ Combined manual and automated test plans for Ubuntu Core and Classic devices.
+include:
+nested_part:
+    ce-oem-manual
+    ce-oem-automated
+    after-suspend-ce-oem-manual
+    after-suspend-ce-oem-automated
+
+id: ce-oem-manual
+unit: test plan
+_name: CE-OEM - Manual only QA tests for Ubuntu Core and Classic
+_description:
+ Ubuntu Core and Classic QA test plan for the hardware. This test plan contains
+ all of the tests that require manual control of device hardware
+ or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-installation-info-manual
+    ce-oem-cpu-manual
+    ce-oem-button-manual
+    ce-oem-thermal-manual
+    ce-oem-gps-manual
+    ce-oem-mtd-manual
+    ce-oem-buzzer-manual
+    ce-oem-audio-manual
+    ce-oem-otg-manual
+    ce-oem-rtc-manual
+    ce-oem-rs485-manual
+    ce-oem-eeprom-manual
+    ce-oem-led-manual
+    ce-oem-caam-manual
+    ce-oem-crypto-manual
+    ce-oem-touchscreen-evdev
+    ce-oem-socketcan-manual
+    com.canonical.certification::led-indicator-manual
+
+id: ce-oem-automated
+unit: test plan
+_name: CE-OEM - Automated only QA tests for Ubuntu Core and Classic
+_description:
+ Ubuntu Core and Classic QA test plan for the hardware. This test plan contains
+ all of the automated tests used to validate the device.
+estimated_duration: 120
+include:
+nested_part:
+    ce-oem-installation-info-automated
+    ce-oem-dtb-automated
+    ce-oem-cpu-automated
+    ce-oem-button-automated
+    ce-oem-ptp-automated
+    ce-oem-thermal-automated
+    ce-oem-gps-automated
+    ce-oem-mtd-automated
+    ce-oem-buzzer-automated
+    ce-oem-audio-automated
+    ce-oem-otg-automated
+    ce-oem-rtc-automated
+    ce-oem-rs485-automated
+    ce-oem-eeprom-automated
+    ce-oem-led-automated
+    ce-oem-accelerator-automated
+    ce-oem-crypto-automated
+    ce-oem-optee-automated
+    ce-oem-socketcan-stress-automated
+    ce-oem-ethernet-tcp-automated
+    com.canonical.certification::eeprom-automated
+    com.canonical.certification::rtc-automated
+
+id: after-suspend-ce-oem-manual
+unit: test plan
+_name: CE-OEM - Manual only QA tests for Ubuntu Core and Classic
+_description:
+ Ubuntu Core and Classic QA test plan for the hardware. This test plan contains
+ all of the tests that require manual control of device hardware
+ or some other user input to complete.
+estimated_duration: 3600
+include:
+nested_part:
+    after-suspend-ce-oem-cpu-manual
+    after-suspend-ce-oem-button-manual
+    after-suspend-ce-oem-thermal-manual
+    after-suspend-ce-oem-gps-manual
+    after-suspend-ce-oem-mtd-manual
+    after-suspend-ce-oem-buzzer-manual
+    after-suspend-ce-oem-audio-manual
+    after-suspend-ce-oem-otg-manual
+    after-suspend-ce-oem-rtc-manual
+    after-suspend-ce-oem-rs485-manual
+    after-suspend-ce-oem-eeprom-manual
+    after-suspend-ce-oem-led-manual
+    after-suspend-ce-oem-caam-manual
+    after-suspend-ce-oem-crypto-manual
+    after-suspend-ce-oem-touchscreen-evdev
+    after-suspend-ce-oem-socketcan-manual
+    com.canonical.certification::after-suspend-led-indicator-manual
+
+id: after-suspend-ce-oem-automated
+unit: test plan
+_name: CE-OEM - Automated only QA tests for Ubuntu Core and Classic
+_description:
+ Ubuntu Core and Classic QA test plan for the hardware. This test plan contains
+ all of the automated tests used to validate the device.
+estimated_duration: 120
+include:
+nested_part:
+    after-suspend-ce-oem-cpu-automated
+    after-suspend-ce-oem-button-automated
+    after-suspend-ce-oem-ptp-automated
+    after-suspend-ce-oem-thermal-automated
+    after-suspend-ce-oem-gps-automated
+    after-suspend-ce-oem-mtd-automated
+    after-suspend-ce-oem-buzzer-automated
+    after-suspend-ce-oem-audio-automated
+    after-suspend-ce-oem-otg-automated
+    after-suspend-ce-oem-rtc-automated
+    after-suspend-ce-oem-rs485-automated
+    after-suspend-ce-oem-eeprom-automated
+    after-suspend-ce-oem-led-automated
+    after-suspend-ce-oem-accelerator-automated
+    after-suspend-ce-oem-crypto-automated
+    after-suspend-ce-oem-optee-automated
+    after-suspend-ce-oem-socketcan-stress-automated
+    after-suspend-ce-oem-ethernet-tcp-automated
+    com.canonical.certification::after-suspend-eeprom-automated
+    com.canonical.certification::after-suspend-rtc-automated
+
+id: ce-oem-stress
+unit: test plan
+_name: CE-OEM - stress only QA tests for Ubuntu Core and Classic
+_description:
+    Ubuntu Core and Classic QA test plan that includes all stress tests required for devices
+estimated_duration: 3600
+include:
+nested_part:
+    ce-oem-cold-boot-stress-test-by-pdu
+    ce-oem-ethernet-tcp-stress

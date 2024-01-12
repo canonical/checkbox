@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_digital_io
+_name: Does platform support digital-io interface?
+value-type: bool

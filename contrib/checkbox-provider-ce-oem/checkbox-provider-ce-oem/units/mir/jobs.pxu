@@ -1,0 +1,29 @@
+id: mir/check-ubuntu-frame-launching-auto
+category_id: mir_test
+plugin: shell
+flags: also-after-suspend
+user: root
+imports:
+    from com.canonical.certification import snap
+    from com.canonical.plainbox import manifest
+requires:
+    snap.name == "ubuntu-frame"
+    manifest.has_ubuntu_frame == "True"
+_summary: Test if Ubuntu-Frame can be brought up
+command: graphics_test.sh frame
+
+id: mir/glmark2-es2-wayland-auto
+category_id: mir_test
+plugin: shell
+flags: also-after-suspend
+user: root
+depends: mir/check-ubuntu-frame-launching-auto
+imports: 
+    from com.canonical.certification import snap
+    from com.canonical.plainbox import manifest
+requires:
+    snap.name == "graphics-test-tools"
+    manifest.has_ubuntu_frame == "True"
+_summary: Run OpenGL ES 2.0 Wayland benchmark on the GPU
+environ: PLAINBOX_SESSION_SHARE GL_VENDOR GL_RENDERER
+command: graphics_test.sh glmark2

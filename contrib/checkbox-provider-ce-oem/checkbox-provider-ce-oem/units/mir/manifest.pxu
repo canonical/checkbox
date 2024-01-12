@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_ubuntu_frame
+_name: Does platform support ubuntu-frame?
+value-type: bool

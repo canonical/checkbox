@@ -1,0 +1,37 @@
+id: ce-oem-audio/alsa-utils-record-mono
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+depends:
+    com.canonical.certification::audio/detect-playback-devices
+    com.canonical.certification::audio/detect-capture-devices
+user: root
+flags: also-after-suspend
+estimated_duration: 10
+_summary: Record a wav file in mono
+_purpose: Record a wav file in mono and check the sound play
+_steps:
+    1. Press enter and start to record for five seconds
+_verification:
+    Do you hear the sound you record clearly?
+command:
+    arecord -d 5 -t wav "$PLAINBOX_SESSION_SHARE/mono.wav"
+    aplay "$PLAINBOX_SESSION_SHARE/mono.wav"
+
+id: ce-oem-audio/alsa-utils-record-stereo
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::audio
+depends:
+    com.canonical.certification::audio/detect-playback-devices
+    com.canonical.certification::audio/detect-capture-devices
+user: root
+flags: also-after-suspend
+estimated_duration: 10
+_summary: Record a wav file in stereo
+_purpose: Record a wav file in stereo and check the sound play
+_steps:
+    1. Press enter and start to record for five seconds
+_verification:
+    Do you hear the sound you record clearly?
+command:
+    arecord -d 5 -f cd -t wav "$PLAINBOX_SESSION_SHARE/stereo.wav"
+    aplay "$PLAINBOX_SESSION_SHARE/stereo.wav"

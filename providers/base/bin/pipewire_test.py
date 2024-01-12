@@ -192,7 +192,8 @@ class FileDumper(object):
                 for i in data:
                     print(i, file=f)
             return_value = True
-        except (TypeError, IOError):
+        except (TypeError, IOError) as e:
+            logging.error(repr(e))
             return_value = False
         return return_value
 
@@ -441,7 +442,8 @@ def parse_spectrum_message_structure(struct_string):
     # the data was unparsable.
     try:
         return json.loads(text)
-    except ValueError:
+    except ValueError as e:
+        logging.error(repr(e))
         return None
 
 

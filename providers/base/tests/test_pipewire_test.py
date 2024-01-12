@@ -18,12 +18,9 @@ import unittest
 import sys
 from unittest.mock import MagicMock
 from unittest.mock import Mock, patch, mock_open, call
-try:
-    sys.modules["gi"] = MagicMock()
-    sys.modules["gi.repository"] = MagicMock()
-    from pipewire_test import *
-except ImportError:
-    sys.exit(127)
+sys.modules["gi"] = MagicMock()
+sys.modules["gi.repository"] = MagicMock()
+from pipewire_test import *
 
 
 def sorting(item):

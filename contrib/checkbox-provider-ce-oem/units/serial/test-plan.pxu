@@ -1,0 +1,40 @@
+id: ce-oem-rs485-full
+unit: test plan
+_name: RS485 remote test
+_description: RS485 remote tests for devices
+include:
+nested_part:
+    ce-oem-rs485-manual
+    ce-oem-rs485-automated
+    after-suspend-ce-oem-rs485-manual
+    after-suspend-ce-oem-rs485-automated
+
+id: ce-oem-rs485-manual
+unit: test plan
+_name:  RS485 remote manual tests
+_description: Manual RS485 remote tests for devices
+include:
+
+id: ce-oem-rs485-automated
+unit: test plan
+_name:  RS485 remote auto tests
+_description: Automated RS485 remote tests for devices
+bootstrap_include:
+    ce-oem-serial/rs485-list
+include:
+    ce-oem-serial/rs485-remote-.*
+
+id: after-suspend-ce-oem-rs485-manual
+unit: test plan
+_name: After suspend RS485 remote manual tests
+_description: Manual after-suspend RS485 remote tests for devices
+include:
+
+id: after-suspend-ce-oem-rs485-automated
+unit: test plan
+_name:  After suspend RS485 remote auto tests
+_description: Automated after-suspend RS485 remote tests for devices
+bootstrap_include:
+    ce-oem-serial/rs485-list
+include:
+    also-after-suspend-ce-oem-serial/rs485-remote-.*

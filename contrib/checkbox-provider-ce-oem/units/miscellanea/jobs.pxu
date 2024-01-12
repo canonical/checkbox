@@ -1,0 +1,8 @@
+id: gadget_name
+_summary: Get the name of gadget snap.
+_purpose:
+ Get the name of gadget snap.
+plugin: resource
+estimated_duration: 1
+command:
+ python3 -c 'from checkbox_support.snap_utils.system import get_gadget_snap ; print("gadget_snap: {}".format(get_gadget_snap()))'

@@ -1,0 +1,20 @@
+id: dbus-warm-boot
+unit: test plan
+_name: Warm reboot test via dbus
+_description: Warm reboot test by using dbus command
+bootstrap_include:
+    com.canonical.certification::reboot-run-generator
+include:
+    dbus-warm-boot-boot
+    dbus-warm-boot-test
+
+
+id: dbus-cold-boot
+unit: test plan
+_name: Cold boot test via dbus
+_description: Cold boot test by using dbus command
+bootstrap_include:
+    com.canonical.certification::reboot-run-generator
+include:
+    dbus-cold-boot-boot
+    dbus-cold-boot-test

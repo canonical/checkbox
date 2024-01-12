@@ -1,0 +1,84 @@
+id: ce-oem-buzzer/input-pcspkr
+plugin: user-interact-verify
+category_id: buzzer
+user: root
+estimated_duration: 5
+_summary: Buzzer that probe as an input PC speaker test
+_purpose: Check the functionality of buzzer
+_steps:
+ 1. Press enter and listen to the buzzer
+_verification:
+    Do you hear the beep sound?
+command:
+    beep "$BEEP_PATH"
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_buzzer == 'True'
+
+id: ce-oem-gpio-buzzer-mapping
+_summary: Generates a GPIO and buzzer mappings for further buzzer test
+_description:
+    A buzzer-gpio mapping resource that relies on the user specifying in config varirable.
+    Usage of parameter: GPIO_BUZZER=name1:port1:enable_value1 name2:port2:enable_value2 ...
+    e.g. GPIO_BUZZER=buzzer1:498:0
+estimated_duration: 0.02
+category_id: buzzer
+plugin: resource
+command:
+    awk '{
+        split($0, record, " ")
+        for (i in record) {
+            split(record[i], data, ":")
+            printf "name: %s\nport: %s\nenable_value: %s\n", data[1], data[2], data[3]
+        }
+    }' <<< "$GPIO_BUZZER"
+
+unit: template
+template-resource: ce-oem-gpio-buzzer-mapping
+template-unit: job
+id: ce-oem-buzzer/sound-test-{name}
+_summary: To test {name} could be make a sound by GPIO
+_purpose:
+    To test {name} could be make a sound by GPIO.
+plugin: user-interact
+user: root
+category_id: buzzer
+estimated_duration: 40s
+flags: also-after-suspend
+command: buzzer_test.sh -n {name} -p {port} -e {enable_value} -t gpio
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_buzzer == 'True'
+
+id: ce-oem-pwm-buzzer-mapping
+_summary: Generates a PWM and buzzer mappings for further buzzer test
+_description:
+    A buzzer-pwm mapping resource that relies on the user specifying in config varirable.
+    Usage of parameter: PWM_BUZZER=name1:chip1:port1:enable_value1 name2:chip2:port2:enable_value2 ...
+    e.g. PWM_BUZZER=buzzer1:1:0:1
+estimated_duration: 0.02
+category_id: buzzer
+plugin: resource
+command:
+    awk '{
+        split($0, record, " ")
+        for (i in record) {
+            split(record[i], data, ":")
+            printf "name: %s\nchip: %s\nport: %s\nenable_value: %s\n", data[1], data[2], data[3], data[4]
+        }
+    }' <<< "$PWM_BUZZER"
+
+unit: template
+template-resource: ce-oem-pwm-buzzer-mapping
+template-unit: job
+id: ce-oem-buzzer/sound-test-{name}
+_summary: To test {name} could be make a sound by PWM
+_purpose:
+    To test {name} could be make a sound by PWM.
+plugin: user-interact
+user: root
+category_id: buzzer
+estimated_duration: 40s
+flags: also-after-suspend
+command: buzzer_test.sh -n {name} -c {chip} -p {port} -e {enable_value} -t pwm
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_buzzer == 'True'

@@ -1,0 +1,21 @@
+id: ce-oem-touchscreen-evdev
+unit: test plan
+_name: Touchscreen evdev tests
+_description:
+    Touchscreen evdev tests
+include:
+    ce-oem-touchscreen/evdev/single-touch-tap-.*
+    ce-oem-touchscreen/evdev/maximum-touch-tap-.*
+bootstrap_include:
+    com.canonical.certification::device
+
+id: after-suspend-ce-oem-touchscreen-evdev
+unit: test plan
+_name: Touchscreen evdev tests (after suspend)
+_description:
+    Touchscreen evdev tests
+include:
+    after-suspend-ce-oem-touchscreen/evdev/single-touch-tap-.*
+    after-suspend-ce-oem-touchscreen/evdev/maximum-touch-tap-.*
+bootstrap_include:
+    com.canonical.certification::device

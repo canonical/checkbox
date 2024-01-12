@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_otg
+_name: Does platfrom supported USB OTG?
+value-type: bool

@@ -1,0 +1,36 @@
+id: ce-oem-led-full
+unit: test plan
+_name: LED tests
+_description: Full LED tests for devices
+include:
+nested_part:
+    ce-oem-led-manual
+    ce-oem-led-automated
+    after-suspend-ce-oem-led-manual
+    after-suspend-ce-oem-led-automated
+
+id: ce-oem-led-manual
+unit: test plan
+_name: LED manual tests
+_description: Manual LED tests for devices
+bootstrap_include:
+include:
+    
+id: ce-oem-led-automated
+unit: test plan
+_name: LED auto tests
+_description: Automated led tests for devices
+include:
+
+id: after-suspend-ce-oem-led-manual
+unit: test plan
+_name: LED manual tests
+_description: Manual LED tests for devices
+bootstrap_include:
+include:
+    
+id: after-suspend-ce-oem-led-automated
+unit: test plan
+_name: LED auto tests
+_description: Automated led tests for devices
+include:

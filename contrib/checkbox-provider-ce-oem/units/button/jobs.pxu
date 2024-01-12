@@ -1,0 +1,65 @@
+id: ce-oem-gpio-button-mapping
+_summary: Generates a GPIO and button mappings for further button test
+_description:
+    A button-GPIO mapping resource that relies on the user specifying in config varirable.
+    Usage of parameter: GPIO_BUTTONS={name1}:{port1} {name2}:{port2} ...
+    e.g. GPIO_BUTTONS=sys_restore:71 ip_addr:72 sys_discover:465
+estimated_duration: 0.02
+category_id: button
+plugin: resource
+command:
+    awk '{
+        split($0, record, " ")
+        for (i in record) {
+            split(record[i], data, ":")
+            printf "name: %s\nport: %s\n\n", data[1], data[2]
+        }
+    }' <<< "$GPIO_BUTTONS"
+
+unit: template
+template-resource: ce-oem-gpio-button-mapping
+template-unit: job
+id: ce-oem-button/detect-by-gpio-press-{name}
+_summary: To test system detect a signal by press {name} button
+_purpose:
+    Check {name} button can trigger a signal after pressing and releasing button.
+plugin: user-interact
+user: root
+category_id: button
+estimated_duration: 25s
+flags: also-after-suspend
+command: button_test.sh -t gpio -n {name} -p {port}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_button == 'True'
+
+id: ce-oem-interrupts-button-mapping
+_summary: Generates a interrupts and button mappings for further button test
+_description:
+    A button-interrupts mapping resource that relies on the user specifying in config varirable.
+    Usage of parameter: INTERRUPTS_BUTTONS={name1} {name2} ...
+    e.g. INTERRUPTS_BUTTONS=s1 s2
+estimated_duration: 0.02
+plugin: resource
+command:
+    awk '{
+        split($0, record, " ")
+        for (i in record) {
+            printf "name: %s\n\n", record[i]
+        }
+    }' <<< "$INTERRUPTS_BUTTONS"
+
+unit: template
+template-resource: ce-oem-interrupts-button-mapping
+template-unit: job
+id: ce-oem-button/detect-by-interrupts-press-{name}
+_summary: To test system detect a interrupts by press {name} button
+_purpose:
+    Check {name} button can trigger a interrupts after pressing and releasing button.
+plugin: user-interact
+user: root
+category_id: button
+estimated_duration: 25s
+flags: also-after-suspend
+command: button_test.sh -t interrupts -n {name}
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_button == 'True'

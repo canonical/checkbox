@@ -1,0 +1,58 @@
+unit: template
+template-resource: com.canonical.certification::device
+template-filter: device.category == 'SOCKETCAN'
+id: ce-oem-socketcan/stress_fd_remote_{interface}
+_summary: Send stress test through CAN device {interface} (Raw, Remote, FD)
+_description:
+    Test a CAN device by sending packets using a raw socket to a remote device.
+    As a prerequisite the remote device should have can-echo-server installed so
+    as to return the predicted packet.
+category_id: com.canonical.certification::socketcan
+plugin: shell
+user: root
+estimated_duration: 10m
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.socket_can_echo_server_running == 'True'
+    manifest.has_socket_can_fd == 'True'
+command:
+    socketcan_test.py -d {interface} -f client -x stress-echo -l 100000 -c 123
+
+unit: template
+template-resource: com.canonical.certification::device
+template-filter: device.category == 'SOCKETCAN'
+id: ce-oem-socketcan/stress_remote_{interface}
+_summary: Send stress test through CAN device {interface} (Raw, Remote)
+_description:
+    Test a CAN device by sending packets using a raw socket to a remote device.
+    As a prerequisite the remote device should have can-echo-server installed so
+    as to return the predicted packet.
+category_id: com.canonical.certification::socketcan
+plugin: shell
+user: root
+estimated_duration: 10m
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.socket_can_echo_server_running == 'True'
+command:
+    socketcan_test.py -d {interface} client -x stress-echo -l 100000 -c 123
+
+unit: template
+template-resource: com.canonical.certification::device
+template-filter: device.category == 'SOCKETCAN'
+id: ce-oem-socketcan/bus_off_recovery_{interface}
+_summary:  CAN device BUS-OFF recovery {interface}
+_description:
+    Test a CAN device will recovery automatically while it enter BUS-OFF state.
+category_id: com.canonical.certification::socketcan
+plugin: shell
+user: root
+estimated_duration: 10m
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.socket_can_echo_server_running == 'True'
+command:
+    socketcan_busoff_test.py -d {interface} -t 60

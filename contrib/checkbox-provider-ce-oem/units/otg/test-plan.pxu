@@ -1,0 +1,42 @@
+id: ce-oem-otg-full
+unit: test plan
+_name: OTG tests
+_description: Full OTG tests for devices
+include:
+nested_part:
+    ce-oem-otg-manual
+    ce-oem-otg-automated
+
+id: ce-oem-otg-manual
+unit: test plan
+_name: OTG manual tests
+_description: Manual OTG tests for devices
+bootstrap_include:
+    otg_ports
+include:
+    ce-oem-otg/g_serial-.*
+    ce-oem-otg/g_mass_storage-.*
+    ce-oem-otg/g_ether-.*
+
+id: ce-oem-otg-automated
+unit: test plan
+_name: OTG auto tests
+_description: Automated OTG tests for devices
+include:
+
+id: after-suspend-ce-oem-otg-manual
+unit: test plan
+_name: After suspend OTG manual tests
+_description: Manual after suspend OTG tests for devices
+bootstrap_include:
+    otg_ports
+include:
+    after-suspend-ce-oem-otg/g_serial-.*
+    after-suspend-ce-oem-otg/g_mass_storage-.*
+    after-suspend-ce-oem-otg/g_ether-.*
+
+id: after-suspend-ce-oem-otg-automated
+unit: test plan
+_name: After suspend OTG auto tests
+_description: Automated after suspend OTG tests for devices
+include:

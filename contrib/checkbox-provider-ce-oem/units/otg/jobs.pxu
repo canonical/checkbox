@@ -1,0 +1,129 @@
+id: otg_ports
+plugin: resource
+_summary: Gather list of USB ports and UDC.
+_description:
+    A USB port and UDC mapping resource that relies on the user specifying in config varirable.
+    Usage of parameter: OTG={port1}:{node1} {port2}:{node2} ...
+    e.g. OTG=USB-C1:11200000 USB-Micro:112a1000
+estimated_duration: 1s
+environ: OTG
+flags: preserve-locale
+user: root
+command:
+    if [ "$OTG" ]; then
+        multiple-otg.sh -c "$OTG"
+    else
+        echo "OTG config variable: not found"
+    fi
+
+unit: template
+template-resource: otg_ports
+template-unit: job
+category_id: com.canonical.plainbox::usb
+id: ce-oem-otg/g_serial-{USB_port}
+estimated_duration: 60
+plugin: user-interact-verify
+user: root
+imports: 
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import cpuinfo
+requires: 
+    manifest.has_otg == 'True'
+    cpuinfo.platform in ("aarch64", "armv7l")
+flags: also-after-suspend
+_summary: Check {USB_port} can be detected as a serial device
+_purpose: 
+    Check that after connecting the device under test (DUT) to another device
+    (host), {USB_port} can be detected as a serial device by the host.
+_steps:
+    1. Press enter to probe USB OTG g_serial
+    2. Connect a USB cable from an Ubuntu host to the {USB_port} on DUT.
+    3. On the host, to check if ttyACM0 has been probed
+        $ ls /dev/ttyACM0
+    4. On the host, listen to the ttyACM0 port as a receive side.
+        $ sudo su
+        $ cat /dev/ttyACM0
+    5. On DUT, send a string via /dev/ttyGS0 as a send side.
+        $ sudo su
+        $ echo 123 > /dev/ttyGS0
+    6. Check if received the string "123" on the host side.
+    7. Check the string sending from the host to {USB_port} by repeating steps 4-6, but swap the send and receive sides.
+_verification:
+    Does string send and receive work?
+command: 
+    # shellcheck disable=SC2050
+    if [ {Mode} != "otg" ]; then
+        echo -e "Error: USB mode is {Mode} mode, but expected in otg mode."
+        exit 1 
+    fi
+    multiple-otg.sh -u {UDC} -f acm
+
+unit: template
+template-resource: otg_ports
+template-unit: job
+category_id: com.canonical.plainbox::usb
+id: ce-oem-otg/g_mass_storage-{USB_port} 
+estimated_duration: 60
+plugin: user-interact-verify
+user: root
+imports: 
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import cpuinfo
+requires: 
+    manifest.has_otg == 'True'
+    cpuinfo.platform in ("aarch64", "armv7l")
+flags: also-after-suspend
+_summary: Check {USB_port} can be detected as a mass storage device
+_purpose:
+    Check that after connecting the device under test (DUT) to another device
+    (host), {USB_port} can be detected as a mass storage device by the host.
+_steps:
+    1. Press Enter to setup a 16 MB FAT32 image on the device.
+    2. From an Ubuntu host, connect a cable to the USB OTG port 
+    (it's the USB connector) of the DUT.
+_verification:
+    The host detects and mounts a mass storage device. It has read and write 
+    permissions on it.
+command:
+    # shellcheck disable=SC2050
+    if [ {Mode} != "otg" ]; then
+        echo -e "Error: USB mode is {Mode} mode, but expected in otg mode."
+        exit 1 
+    fi
+    multiple-otg.sh -u {UDC} -f mass_storage
+
+unit: template
+template-resource: otg_ports
+template-unit: job
+category_id: com.canonical.plainbox::usb
+id: ce-oem-otg/g_ether-{USB_port}
+plugin: user-interact-verify
+user: root
+imports: 
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import cpuinfo
+requires: 
+    manifest.has_otg == 'True'
+    cpuinfo.platform in ("aarch64", "armv7l")
+flags: also-after-suspend
+_summary: Check {USB_port} can be detected as USB ethernet device.
+_purpose: 
+    Check that after connecting the device under test (DUT) to another device
+    (host), {USB_port} can be detected as a USB ethernet device by the host.
+_steps:
+    1. From an Ubuntu host, connect a cable to the USB OTG port 
+     (it's the USB connector) of the {USB_port}.
+    2. Press Enter to config the IP address for the USB OTG ethernet interface on the DUT.
+     (IP will be 192.168.9.1/24)
+    3. On the host, config the IP address for the USB OTG ethernet interface. And it should be 
+      the same subnet with {USB_port}. (eg. 192.168.9.2/24)
+    4. Try to ping between the host and {USB_port}.
+_verification:
+    The host and {USB_port} can ping each other.
+command:
+    # shellcheck disable=SC2050
+    if [ {Mode} != "otg" ]; then
+        echo -e "Error: USB mode is {Mode} mode, but expected in otg mode."
+        exit 1 
+    fi
+    multiple-otg.sh -u {UDC} -f ecm

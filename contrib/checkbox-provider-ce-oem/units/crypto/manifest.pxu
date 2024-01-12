@@ -1,0 +1,19 @@
+unit: manifest entry
+id: has_caam
+_name: CAAM(Cryptographic Acceleration and Assurance Module) support
+value-type: bool
+
+unit: manifest entry
+id: has_mcrc_engine
+_name: MCRC(MCRC crc64 Hardware acceleration) support
+value-type: bool
+
+unit: manifest entry
+id: has_sa2ul_engine
+_name: SA2UL(Security Accelerator 2 Ultra Light) support
+value-type: bool
+
+unit: manifest entry
+id: has_hardware_rng
+_name: Hardware Random Number Generate support
+value-type: bool

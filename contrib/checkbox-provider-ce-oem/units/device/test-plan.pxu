@@ -1,0 +1,38 @@
+id: ce-oem-dtb-full
+unit: test plan
+_name: Device Tree tests
+_description: Full Device Tree tests for devices
+include:
+nested_part:
+    ce-oem-dtb-manual
+    ce-oem-dtb-automated
+    after-suspend-ce-oem-dtb-manual
+    after-suspend-ce-oem-dtb-automated
+
+id: ce-oem-dtb-manual
+unit: test plan
+_name: Device Tree manual tests
+_description: Manual Device Tree tests for devices
+bootstrap_include:
+include:
+    
+id: ce-oem-dtb-automated
+unit: test plan
+_name: Device Tree auto tests
+_description: Automated Device Tree tests for devices
+include:
+    ce-oem-device-tree/log-attach
+
+id: after-suspend-ce-oem-dtb-manual
+unit: test plan
+_name: After suspend Device Tree manual tests
+_description: Manual after suspend Device Tree tests for devices
+bootstrap_include:
+include:
+    
+id: after-suspend-ce-oem-dtb-automated
+unit: test plan
+_name: After suspend Device Tree auto tests
+_description: Automated after suspend Device Tree tests for devices
+bootstrap_include:
+include:

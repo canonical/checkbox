@@ -1,0 +1,7 @@
+id: ce-oem-power-automated-by-pdu
+unit: test plan
+_name: Automated power tests
+_description: Automated power tests for devices
+include:
+    ce-oem-power-management/cold-reboot-by-pdu
+    ce-oem-power-management/post-cold-reboot-by-pdu

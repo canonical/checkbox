@@ -1,0 +1,57 @@
+id: ce-oem-accelerator-full
+unit: test plan
+_name: Crypto accelerator tests
+_description: Full crypto accelerator tests for devices
+include:
+nested_part:
+    ce-oem-accelerator-manual
+    ce-oem-accelerator-automated
+
+id: ce-oem-accelerator-manual
+unit: test plan
+_name: Crypto accelerator manual tests
+_description: Manual crypto accelerator tests for devices
+include:
+
+id: ce-oem-accelerator-automated
+unit: test plan
+_name: Crypto accelerator auto tests
+_description: Automated crypto accelerator tests for devices
+bootstrap_include:
+    cryptoinfo
+include:
+    ce-oem-crypto/caam/caam_hwrng_test
+    ce-oem-crypto/caam/algo_check
+    ce-oem-crypto/check-caam-priority
+    ce-oem-crypto/check-mcrc-priority
+    ce-oem-crypto/check-sa2ul-priority
+    ce-oem-crypto/hwrng-current
+
+id: after-suspend-ce-oem-accelerator-full
+unit: test plan
+_name: After suspend Crypto accelerator tests
+_description: Full after-suspend crypto accelerator tests for devices
+include:
+nested_part:
+    after-suspend-ce-oem-accelerator-manual
+    after-suspend-ce-oem-accelerator-automated
+
+id: after-suspend-ce-oem-accelerator-manual
+unit: test plan
+_name: After suspend Crypto accelerator manual tests
+_description: Manual after-suspend crypto accelerator tests for devices
+include:
+
+id: after-suspend-ce-oem-accelerator-automated
+unit: test plan
+_name: After suspend Crypto accelerator auto tests
+_description: Automated after-suspend crypto accelerator tests for devices
+bootstrap_include:
+    cryptoinfo
+include:
+    after-suspend-ce-oem-crypto/caam/caam_hwrng_test
+    after-suspend-ce-oem-crypto/caam/algo_check
+    after-suspend-ce-oem-crypto/check-caam-priority
+    after-suspend-ce-oem-crypto/check-mcrc-priority
+    after-suspend-ce-oem-crypto/check-sa2ul-priority
+    after-suspend-ce-oem-crypto/hwrng-current

@@ -1,0 +1,44 @@
+id: ce-oem-button-full
+unit: test plan
+_name: Button tests
+_description: Full button tests for devices
+include:
+nested_part:
+    ce-oem-button-manual
+    ce-oem-button-automated
+    after-suspend-ce-oem-button-manual
+    after-suspend-ce-oem-button-automated
+
+id: ce-oem-button-manual
+unit: test plan
+_name: Button manual tests
+_description: Manual button tests for devices
+bootstrap_include:
+    ce-oem-gpio-button-mapping
+    ce-oem-interrupts-button-mapping
+include:
+    ce-oem-button/detect-by-gpio-press-.*
+    ce-oem-button/detect-by-interrupts-press-.*
+
+id: ce-oem-button-automated
+unit: test plan
+_name: Button auto tests
+_description: Automated button tests for devices
+include:
+
+id: after-suspend-ce-oem-button-manual
+unit: test plan
+_name: After suspend button manual tests
+_description: Manual after suspend button tests for devices
+bootstrap_include:
+    ce-oem-gpio-button-mapping
+    ce-oem-interrupts-button-mapping
+include:
+    after-suspend-ce-oem-button/detect-by-gpio-press-.*
+    after-suspend-ce-oem-button/detect-by-interrupts-press-.*
+
+id: after-suspend-ce-oem-button-automated
+unit: test plan
+_name: After suspend button auto tests
+_description: Automated after suspend button tests for devices
+include:

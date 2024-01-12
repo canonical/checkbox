@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_ptp
+_name: Does platfrom supported PTP for ethernet port?
+value-type: bool

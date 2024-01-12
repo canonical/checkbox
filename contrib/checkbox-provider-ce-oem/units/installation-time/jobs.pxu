@@ -1,0 +1,108 @@
+id: ce-oem-info/snapd_installation_time
+plugin: attachment
+category_id: com.canonical.plainbox::info
+_summary: Snapd installation time statistics via snap change log
+estimated_duration: 5
+imports: from com.canonical.certification import lsb
+requires: lsb.distributor_id == 'Ubuntu Core'
+command:
+    installation_time.py snapd -a timing
+    exit 0  # Make attachment job always pass
+_description: 
+    Fetch the time of snapd change log, include 
+    "Initialize system state" and "Initialize device"
+
+plugin: attachment
+category_id: com.canonical.plainbox::info
+id: ce-oem-info/snapd_installation_log
+estimated_duration: 1.0
+depends: ce-oem-info/snapd_installation_time
+command:
+    installation_time.py snapd -a dump
+    exit 0  # Make attachment job always pass
+_summary: Gather Snapd installation time log
+user: root
+_description:
+    Attaches Snapd change log of "Initialize system state" and "Initialize device"
+    log to the results.
+
+plugin: attachment
+category_id: com.canonical.plainbox::info
+id: ce-oem-info/cloud_init_time
+estimated_duration: 5
+_summary: Cloud init finished time statistics
+imports: from com.canonical.certification import lsb
+requires: lsb.distributor_id == 'Ubuntu Core'
+command:
+    installation_time.py cloud-init -f cloud-init.log -a timing
+    exit 0  # Make attachment job always pass
+user: root
+_description: 
+    Fetch the time from Cloud-init.log
+
+plugin: attachment
+category_id: com.canonical.plainbox::info
+id: ce-oem-info/cloud_init_time_log
+estimated_duration: 1.0
+depends: ce-oem-info/cloud_init_time
+_summary: Gather cloud init log
+command:
+    installation_time.py cloud-init -f cloud-init.log -a dump
+    exit 0  # Make attachment job always pass
+user: root
+_description:
+    Attaches cloud init log to the results.
+
+plugin: attachment
+category_id: com.canonical.plainbox::info
+id: ce-oem-info/install_timing
+estimated_duration: 5
+_summary: Snapd installion time(seed + install system) via install timing log
+imports: from com.canonical.certification import lsb
+requires: lsb.distributor_id == 'Ubuntu Core'
+command:
+    installation_time.py gzip-log -f install-timings.txt.gz -a timing
+    exit 0  # Make attachment job always pass
+user: root
+_description: 
+    Fetch the time from install-timing.txt.gz
+
+plugin: attachment
+category_id: com.canonical.plainbox::info
+id: ce-oem-info/install_timing_log
+estimated_duration: 1.0
+depends: ce-oem-info/install_timing
+_summary: Gather install timing log
+command:
+    installation_time.py gzip-log -f install-timings.txt.gz -a dump
+    exit 0  # Make attachment job always pass
+user: root
+_description:
+    Attaches install timing log to the results.
+
+plugin: attachment
+category_id: com.canonical.plainbox::info
+id: ce-oem-info/install_mode_time
+estimated_duration: 5
+_summary: Install mode time statistics via install log
+imports: from com.canonical.certification import lsb
+requires: lsb.distributor_id == 'Ubuntu Core'
+command:
+    installation_time.py gzip-log -f install-mode.log.gz -a timing
+    exit 0  # Make attachment job always pass
+user: root
+_description: 
+    Fetch the time from install-mode.log.gz
+
+plugin: attachment
+category_id: com.canonical.plainbox::info
+id: ce-oem-info/install_mode_time_log
+estimated_duration: 1.0
+depends: ce-oem-info/install_mode_time
+_summary: Gather install mode log
+command:
+    installation_time.py gzip-log -f install-mode.log.gz -a dump
+    exit 0  # Make attachment job always pass
+user: root
+_description:
+    Attaches install mode log to the results.

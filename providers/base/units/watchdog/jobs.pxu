@@ -1,44 +1,208 @@
+id: watchdog/check-timeout
+category_id: com.canonical.plainbox::power-management
+_summary: Check the timeout of Hardware Watchdog
+_description:
+    Check the value of RuntimeWatchdogUSec shouldn't be 0 in OEM image.
+    It means the systemd watchdog is disabled if the value is 0.
+flags: simple
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hardware_watchdog == 'True'
+    image_source_and_type.source == 'oem'
+command: watchdog_config_test.py --check_time
+
+
+id: watchdog/check-service
+category_id: com.canonical.plainbox::power-management
+_summary: Check the watchdog.service is enabled or not
+_description:
+    Check the watchdog.service is enabled or not.
+    Watchdog implementation on both classic and core image no longer rely
+    on watchdogd service since 20.04.
+flags: simple
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hardware_watchdog == 'True'
+command: watchdog_config_test.py --check_service
+
+
+id: watchdog/probe-module
+category_id: com.canonical.plainbox::power-management
+_summary: Probe the suitable module for watchdog
+_description:
+    Probe the suitable module of watchdog based on the environment variable 'WATCHDOG_TYPE' in config file.
+    This job only be execute on the Stock Classic image because the module isn't probed automatically.
+user: root
+flags: simple
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hardware_watchdog == 'True'
+    image_source_and_type.source == 'stock'
+    image_source_and_type.type == 'classic'
+environ: WATCHDOG_TYPE
+command:
+    if [[ ! -n "$WATCHDOG_TYPE" ]]; then
+        >&2 echo "WATCHDOG_TYPE is not available"
+        exit 1
+    fi
+    echo "Trying to probe '$WATCHDOG_TYPE' module"
+    modprobe $WATCHDOG_TYPE
+    if [[ "$?" -ne 0 ]]; then
+        >&2 echo "Unable to probe the '$WATCHDOG_TYPE' module"
+        exit 1
+    fi
+    lsmod | grep -q -i $WATCHDOG_TYPE
+    if [[ "$?" -ne 0 ]]; then
+        >&2 echo "Unable to find the '$WATCHDOG_TYPE' module after probing it"
+        exit 1
+    fi
+
+
 id: watchdog/detect
 category_id: com.canonical.plainbox::power-management
-_summary: Detect the presence of a Hardware Watchdog
+_summary: Detect presence of a Hardware Watchdog
+_description:
+    Detect the watchdog is under the /sys/class/watchdog/ path and no other type of watchdog
 flags: simple
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_hardware_watchdog == 'True'
-command: udev_resource.py -f WATCHDOG
+requires:
+    manifest.has_hardware_watchdog == 'True'
+environ: WATCHDOG_TYPE WATCHDOG_IDENTITY
+command:
+    source=$(checkbox-support-image_checker -s| awk -F ": " '{print $2}')
+    if [[ $source == "oem" ]]; then
+        udev_resource.py -f WATCHDOG
+    elif [[ $source == "stock" ]]; then
+        if [ -z "$WATCHDOG_TYPE" ] || [ -z "$WATCHDOG_IDENTITY" ]; then
+            >&2 echo "Please define the WATCHDOG_TYPE and WATCHDOG_IDENTITY in advance"
+            exit 1
+        fi
+        WATCHDOGDS=$(find /sys/class/watchdog/watchdog*[0-9])
+        EXIT=$?
+        for w in $WATCHDOGDS; do
+            identity=$(cat "$w"/identity)
+            echo "Identity of $w: $identity"
+            if [[ "$identity" != "$WATCHDOG_IDENTITY" ]]; then
+                >&2 echo "Find an unmatched watchdog"
+                EXIT=1
+            fi
+        done
+        exit $EXIT
+    else
+        >&2 echo "Unrecognized image source: $source"
+        exit 1
+    fi
 
-id: watchdog/systemd-config
-_summary: Check if the hardware watchdog is properly configured
-template-engine: jinja2
-command: watchdog_config_test.py
+
+id: watchdog/set-timeout
 category_id: com.canonical.plainbox::power-management
+_summary: Configure the timeout for Hardware Watchdog
+_description:
+    Configure the value of RuntimeWatchdogSec
 flags: simple
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_hardware_watchdog == 'True'
+requires:
+    manifest.has_hardware_watchdog == 'True'
+    image_source_and_type.source == 'stock'
+depends:
+    watchdog/check-service
+    watchdog/detect
+user: root
+command:
+    DEFAULT_WATCHDOG="^#RuntimeWatchdogSec"
+    search_pattern="#RuntimeWatchdogSec=[0-9]*s*"
+    for i in {0..1}
+    do
+        result=`grep $DEFAULT_WATCHDOG /etc/systemd/system.conf`
+        if [[ -n "$result" && $i -eq 0 ]]; then
+            echo "Modifying the watchdog timeout"
+            sed -i "s/$search_pattern/RuntimeWatchdogSec=35/g" /etc/systemd/system.conf
+        elif [[ $i -eq 1 ]]; then
+            if [[ -n "$result" ]]; then
+                >&2 echo "Failed to set watchdog timeout"; RET=1
+            else
+                echo "Watchdog timeout has been configured, reloading configuration"
+                systemctl daemon-reexec; RET=$?
+                if [[ $RET -ne 0 ]]; then
+                    >&2 echo "Failed to reloading configuration"
+                fi
+            fi
+        else
+            echo "Watchdog timeout is already set"
+            break
+        fi
+    done
+    exit $RET
+
+
+id: watchdog/revert-timeout
+category_id: com.canonical.plainbox::power-management
+_summary: Restore the timeout for Hardware Watchdog
+_description:
+    Restore the value of RuntimeWatchdogSec
+flags: simple
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_hardware_watchdog == 'True'
+    image_source_and_type.source == 'stock'
+depends:
+    watchdog/set-timeout
+user: root
+command:
+    SET_WATCHDOG="RuntimeWatchdogSec=35"
+    for i in {0..1}
+    do
+        result=`grep $SET_WATCHDOG /etc/systemd/system.conf`
+        if [[ "$result" == "$SET_WATCHDOG" && $i -eq 0 ]]; then
+            echo "Modifying the watchdog timeout"
+            sed -i "s/$SET_WATCHDOG/#RuntimeWatchdogSec=0/g" /etc/systemd/system.conf
+        elif [[ $i -eq 1 ]]; then
+            if [[ "$result" == "$SET_WATCHDOG" ]]; then
+                >&2 echo "Failed to revert watchdog timeout"; RET=1
+            else
+                echo "Watchdog timeout has been configured, reloading configuration"
+                systemctl daemon-reexec; RET=$?
+                if [[ $RET -ne 0 ]]; then
+                    >&2 echo "Failed to reloading configuration"
+                fi
+            fi
+        else
+            timeout_value=`grep RuntimeWatchdogSec /etc/systemd/system.conf | awk -F '=' {'print $2'}`
+            echo "The watchdog timeout is $timeout_value now, not the value we set in previouse job"
+            echo "No need to revert watchdog timeout"
+            break
+        fi
+    done
+    exit $RET
+
 
 id: watchdog/trigger-system-reset-auto
-depends: watchdog/systemd-config
-_summary: Test that the watchdog module can trigger a system reset
-command:
-  sync
-  sleep 5
-  echo 1 > /proc/sys/kernel/sysrq
-  echo 0 > /proc/sys/kernel/panic
-  echo c > /proc/sysrq-trigger
-flags: preserve-locale noreturn autorestart
-user: root
 plugin: shell
 category_id: com.canonical.plainbox::power-management
+_summary: Test that the watchdog module can trigger a system reset
+user: root
+flags: noreturn autorestart
 estimated_duration: 60
-_purpose: Ensure that the watchdog module can successfully initiate a system reset.
+depends:
+    watchdog/check-service
+    watchdog/detect
+command:
+    sync
+    sleep 5
+    echo 1 > /proc/sys/kernel/sysrq
+    echo 0 > /proc/sys/kernel/panic
+    echo c > /proc/sysrq-trigger
+
 
 id: watchdog/post-trigger-system-reset-auto
-after: watchdog/trigger-system-reset-auto
+plugin: shell
 category_id: com.canonical.plainbox::power-management
 _summary: Post watchdog reset service check
-_purpose: Check there are no failed services after the watchdog triggered
-unit: job
-plugin: shell
-command: failed_service_check.sh
+_description: Check there are no failed services after the watchdog triggered
 estimated_duration: 1.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_hardware_watchdog == 'True'
+requires:
+    manifest.has_hardware_watchdog == 'True'
+depends:
+    watchdog/trigger-system-reset-auto
+command: failed_service_check.sh

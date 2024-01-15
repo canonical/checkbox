@@ -3,8 +3,9 @@
 import os
 import re
 import shlex
+import textwrap
 from glob import glob
-from subprocess import Popen, PIPE, check_output, CalledProcessError
+from subprocess import check_output, CalledProcessError
 
 rootdir_pattern = re.compile("^.*?/devices")
 
@@ -70,6 +71,21 @@ def device_rotation(name):
     return "no"
 
 
+def smart_supporting_diskinfo(diskinfo) -> bool:
+    # if a diskinfo line contains any of the following (all on one line)
+    # assume the disk supports SMART
+    # ex. SMART support is: Avaliable
+    indicators = [("SMART support is", "Available"), ("SMART", "test result")]
+
+    def contains_indicator(line):
+        return any(
+            all(indicator_segment in line for indicator_segment in indicator)
+            for indicator in indicators
+        )
+
+    return any(contains_indicator(line) for line in diskinfo)
+
+
 def smart_support_raid(name, raid_type):
     """Check for availability of SMART support in a RAID device.
 
@@ -91,20 +107,14 @@ def smart_support_raid(name, raid_type):
     # of disk_smart. This is by design, since such a mix is likely an assembly
     # error by the manufacturer.
     while disk_exists:
-        command = "smartctl -i /dev/{} -d {},{}".format(
+        command = "smartctl -x /dev/{} -d {},{}".format(
             name, raid_type, disk_num
         )
-        # Return 'True' if the output (diskinfo) includes
-        # "SMART support is.*Available", and terminate check when a failure
-        # is found or when number of disks rises above level supported by
-        # smartctl (which likely indicates a bug).
         try:
-            diskinfo = (
-                check_output(shlex.split(command)).decode("utf-8").splitlines()
-            )
-            if any(
-                "SMART support is" in s and "Available" in s for s in diskinfo
-            ):
+            diskinfo = check_output(
+                shlex.split(command), universal_newlines=True
+            ).splitlines()
+            if smart_supporting_diskinfo(diskinfo):
                 supported = "True"
                 disk_num += 1
         except CalledProcessError:
@@ -123,16 +133,15 @@ def smart_support(name):
     """
     supported = "False"
     # Check with smartctl to see if SMART is available and enabled on the disk
-    command = "smartctl -i /dev/%s" % name
-    diskinfo_bytes = Popen(command, stdout=PIPE, shell=True).communicate()[0]
-    diskinfo = diskinfo_bytes.decode(
-        encoding="utf-8", errors="ignore"
-    ).splitlines()
 
-    # Return True if the output (diskinfo) includes
-    # "SMART support is.*Available"
+    command = "smartctl -x /dev/%s" % name
+    diskinfo_bytes = check_output(
+        shlex.split(command), universal_newlines=True
+    )
+    diskinfo = diskinfo_bytes.splitlines()
+
     if len(diskinfo) > 2:
-        if any("SMART support is" in s and "Available" in s for s in diskinfo):
+        if smart_supporting_diskinfo(diskinfo):
             supported = "True"
         else:
             for type in raid_types:
@@ -142,28 +151,33 @@ def smart_support(name):
     return supported
 
 
-for path in glob("/sys/block/*/device") + glob("/sys/block/*/dm"):
-    name = re.sub(".*/(.*?)/(device|dm)", "\g<1>", path)  # noqa: W605
-    state = device_state(name)
-    usb2 = usb_support(name, 2.00)
-    usb3 = usb_support(name, 3.00)
-    rotation = device_rotation(name)
-    smart = smart_support(name)
-    print(
-        """\
-name: %(name)s
-state: %(state)s
-usb2: %(usb2)s
-usb3: %(usb3)s
-rotation: %(rotation)s
-smart: %(smart)s
-"""
-        % {
-            "name": name,
-            "state": state,
-            "usb2": usb2,
-            "usb3": usb3,
-            "rotation": rotation,
-            "smart": smart,
-        }
-    )
+def main():
+    for path in glob("/sys/block/*/device") + glob("/sys/block/*/dm"):
+        name = re.sub(".*/(.*?)/(device|dm)", "\g<1>", path)  # noqa: W605
+        state = device_state(name)
+        usb2 = usb_support(name, 2.00)
+        usb3 = usb_support(name, 3.00)
+        rotation = device_rotation(name)
+        smart = smart_support(name)
+        resource_text = textwrap.dedent(
+            """
+                name: {name}
+                state: {state}
+                usb2: {usb2}
+                usb3: {usb3}
+                rotation: {rotation}
+                smart: {smart}
+                """.format(
+                name=name,
+                state=state,
+                usb2=usb2,
+                usb3=usb3,
+                rotation=rotation,
+                smart=smart,
+            )
+        ).lstrip()
+        print(resource_text)
+
+
+if __name__ == "__main__":
+    main()

@@ -118,4 +118,4 @@ parts:
       echo "This file is a workaround for a bug in the automated snap review tool" > $SNAPCRAFT_PART_INSTALL/size_workaround
       echo "this only contains random bytes to pad the snap to 16kb" >> $SNAPCRAFT_PART_INSTALL/size_workaround
       echo "see: https://bugs.launchpad.net/review-tools/+bug/2049093" >>  $SNAPCRAFT_PART_INSTALL/size_workaround
-      cat /dev/urandom | head -c 16384 >> $SNAPCRAFT_PART_INSTALL/size_workaround
+      head -c 16384 /dev/urandom >> $SNAPCRAFT_PART_INSTALL/size_workaround

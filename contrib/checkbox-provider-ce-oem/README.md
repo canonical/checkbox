@@ -105,7 +105,7 @@ Install the SNAP of checkbox interface snap and checkbox-ce-oem. Connect slot an
 Now, you are able to include the job, plan or utility from checkbox-provider-ce-oem.
 ```
 example for running a job:
-$ sudo checkbox{interface snap}.checkbox-cli run com.canonical.qa.ceoem::location/gps_coordinate
+$ sudo checkbox{interface snap}.checkbox-cli run com.canonical.contrib::location/gps_coordinate
 
 example for using utility:
 $ sudo checkbox{interface snap}.shell

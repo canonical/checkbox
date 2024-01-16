@@ -24,8 +24,10 @@ nested_part:
     bluetooth-cert-manual
     camera-cert-manual
     thunderbolt-cert-manual
-    monitor-gpu-cert-manual
-    graphics-gpu-cert-manual
+    monitor-integrated-gpu-cert-manual
+    graphics-integrated-gpu-cert-manual
+    graphics-discrete-gpu-cert-manual
+    monitor-discrete-gpu-cert-manual
     cpu-cert-manual
     input-cert-manual
     disk-cert-manual
@@ -49,8 +51,14 @@ nested_part:
     wireless-cert-manual
     # start of suspend related tests
     # suspend point
-    after-suspend-graphics-gpu-cert-manual
-    after-suspend-monitor-gpu-cert-manual
+    # Test discrete card first, if present, since it's the one we will be using
+    # after coming back from suspend if the system has hybrid graphics.
+    after-suspend-graphics-discrete-gpu-cert-manual
+    after-suspend-monitor-discrete-gpu-cert-full
+    # Now we ask to switch to the integrated graphics card. This requires a
+    # restart of checkbox.
+    after-suspend-graphics-integrated-gpu-cert-manual
+    after-suspend-monitor-integrated-gpu-cert-full
     suspend-key-led-oops-check-cert
     after-suspend-audio-cert-full
     after-suspend-bluetooth-cert-manual
@@ -90,8 +98,10 @@ nested_part:
     bluetooth-cert-automated
     camera-cert-automated
     thunderbolt-cert-automated
-    monitor-gpu-cert-automated
-    graphics-gpu-cert-automated
+    monitor-integrated-gpu-cert-automated
+    graphics-integrated-gpu-cert-automated
+    graphics-discrete-gpu-cert-automated
+    monitor-discrete-gpu-cert-automated
     cpu-cert-automated
     input-cert-automated
     disk-cert-automated
@@ -116,9 +126,14 @@ nested_part:
     before-suspend-reference-cert-full
     # suspend point
     after-suspend-reference-cert-full
+    # Test discrete card first, if present, since it's the one we will be using
+    # after coming back from suspend if the system has hybrid graphics.
     after-suspend-audio-cert-automated
-    after-suspend-graphics-gpu-cert-automated
-    after-suspend-monitor-gpu-cert-automated
+    after-suspend-graphics-discrete-gpu-cert-automated
+    # after-suspend-monitor-discrete-gpu-cert-automated # not defined
+    # Now we ask to switch to the integrated graphics card.
+    after-suspend-graphics-integrated-gpu-cert-automated
+    # after-suspend-monitor-integrated-gpu-cert-automated # not defined
     after-suspend-cpu-cert-automated
     after-suspend-input-cert-automated
     after-suspend-disk-cert-automated

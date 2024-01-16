@@ -555,5 +555,24 @@ class ParseArgsTests(unittest.TestCase):
         self.assertEqual(rv.timeout, 5)
 
 
+class MainTests(unittest.TestCase):
+    @patch("prime_offload_tester.PrimeOffloader.parse_args")
+    @patch("prime_offload_tester.PrimeOffloader.run_offload_cmd")
+    def test_run_offload_cmd_succ(self, mock_run_offload, mock_parse_args):
+        po = PrimeOffloader()
+        with self.assertRaises(SystemExit) as cm:
+            po.main()
+        self.assertEqual(cm.exception.code, 0)
+
+    @patch("prime_offload_tester.PrimeOffloader.parse_args")
+    @patch("prime_offload_tester.PrimeOffloader.run_offload_cmd")
+    def test_run_offload_cmd_fail(self, mock_run_offload, mock_parse_args):
+        po = PrimeOffloader()
+        mock_run_offload.side_effect = RuntimeError
+        with self.assertRaises(SystemExit) as cm:
+            po.main()
+        self.assertEqual(cm.exception.code, 1)
+
+
 if __name__ == '__main__':
     unittest.main()

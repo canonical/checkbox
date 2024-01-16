@@ -41,11 +41,11 @@ class FindCardIdTests(unittest.TestCase):
                                       universal_newlines=True)
 
         # error format - with alphabet
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.find_card_id("000r:00:00.0")
 
         # error format - digital position error
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.find_card_id("0000:00:000.0")
 
     @patch("subprocess.check_output")
@@ -53,18 +53,7 @@ class FindCardIdTests(unittest.TestCase):
         po = PrimeOffloader()
         # empty string
         mock_check.return_value = ""
-        with self.assertRaises(RuntimeError):
-            po.find_card_id("0000:00:00.0")
-        mock_check.assert_called_with(["grep",
-                                       "-lr",
-                                       "--include=name",
-                                       "0000:00:00.0",
-                                       "/sys/kernel/debug/dri"],
-                                      universal_newlines=True)
-
-        # None
-        mock_check.return_value = None
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.find_card_id("0000:00:00.0")
         mock_check.assert_called_with(["grep",
                                        "-lr",
@@ -75,7 +64,7 @@ class FindCardIdTests(unittest.TestCase):
 
         # subprocess error
         mock_check.side_effect = subprocess.CalledProcessError(-1, "test")
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.find_card_id("0000:00:00.0")
         mock_check.assert_called_with(["grep",
                                        "-lr",
@@ -175,7 +164,7 @@ class FindCardNameTests(unittest.TestCase):
         po = PrimeOffloader()
         # pci_name error
         mock_check.return_value = self.lshw_output
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.find_card_name("0000:00:00.0")
         mock_check.assert_called_with(["lshw",
                                        "-c",
@@ -185,7 +174,7 @@ class FindCardNameTests(unittest.TestCase):
 
         # no businfo in lshw output
         mock_check.return_value = self.lshw_output_err
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.find_card_name("0000:00:00.0")
         mock_check.assert_called_with(["lshw",
                                        "-c",
@@ -195,7 +184,7 @@ class FindCardNameTests(unittest.TestCase):
 
         # empty string
         mock_check.return_value = ""
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.find_card_name("0000:00:00.0")
         mock_check.assert_called_with(["lshw",
                                        "-c",
@@ -205,7 +194,7 @@ class FindCardNameTests(unittest.TestCase):
 
         # None
         mock_check.return_value = None
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.find_card_name("0000:00:00.0")
         mock_check.assert_called_with(["lshw",
                                        "-c",
@@ -215,7 +204,7 @@ class FindCardNameTests(unittest.TestCase):
 
         # subprocess error
         mock_check.side_effect = subprocess.CalledProcessError(-1, "test")
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.find_card_name("0000:00:00.0")
         mock_check.assert_called_with(["lshw",
                                        "-c",
@@ -230,8 +219,9 @@ class CheckOffloadTests(unittest.TestCase):
     debug file system
     """
 
+    @patch('time.sleep', return_value=None)
     @patch("subprocess.check_output")
-    def test_offload_succ_check(self, mock_check):
+    def test_offload_succ_check(self, mock_check, mock_sleep):
         cmd = ["echo"]
         mock_check.return_value = cmd
         po = PrimeOffloader()
@@ -243,8 +233,14 @@ class CheckOffloadTests(unittest.TestCase):
                                        ],
                                       universal_newlines=True)
 
-        # for 6.5 kernel. check the difference
-        mock_check.side_effect = ["Xorg", "Xorg\nXorg"]
+        po = PrimeOffloader()
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
+                         None)
+        self.assertFalse(po.check_result)
+        mock_check.assert_called_with(["cat",
+                                       "/sys/kernel/debug/dri/card_id/clients"
+                                       ],
+                                      universal_newlines=True)
 
         po = PrimeOffloader()
         self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
@@ -255,20 +251,9 @@ class CheckOffloadTests(unittest.TestCase):
                                        ],
                                       universal_newlines=True)
 
-        # for 6.5 kernel. check the difference
-        mock_check.side_effect = ["Xwayland", "Xwayland\nXwayland"]
-
-        po = PrimeOffloader()
-        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
-                         None)
-        self.assertFalse(po.check_result)
-        mock_check.assert_called_with(["cat",
-                                       "/sys/kernel/debug/dri/card_id/clients"
-                                       ],
-                                      universal_newlines=True)
-
+    @patch('time.sleep', return_value=None)
     @patch("subprocess.check_output")
-    def test_offload_fail_check(self, mock_check):
+    def test_offload_fail_check(self, mock_check, mock_sleep):
 
         # cmd isn't showed in debug file system
         # empty string
@@ -388,53 +373,6 @@ class CheckNvOffloadEnvTests(unittest.TestCase):
                                       universal_newlines=True)
 
 
-class CheckForKernelBugTests(unittest.TestCase):
-    """
-    avoid kernel bug only
-    """
-
-    def test_check(self):
-        before = """
-                     command   pid dev master a   uid      magic
-              systemd-logind  1331   0   y    y     0          0
-                    Xwayland  4272 128   n    n  1000          0
-                    Xwayland  4272 128   n    n  1000          0
-                   librewolf  4268 128   n    n  1000          0
-                    Xwayland  4272 128   n    n  1000          0
-                    Xwayland  4272 128   n    n  1000          0
-        """
-        correct = """
-                     command   pid dev master a   uid      magic
-              systemd-logind  1331   0   y    y     0          0
-                    Xwayland  4272 128   n    n  1000          0
-                    Xwayland  4272 128   n    n  1000          0
-                   librewolf  4268 128   n    n  1000          0
-                    Xwayland  4272 128   n    n  1000          0
-                    Xwayland  4272 128   n    n  1000          0
-                    Xwayland  4272 128   n    n  1000          0
-        """
-        wrong = """
-                     command   pid dev master a   uid      magic
-              systemd-logind  1331   0   y    y     0          0
-                    Xwayland  4272 128   n    n  1000          0
-                    Xwayland  4272 128   n    n  1000          0
-                   librewolf  4268 128   n    n  1000          0
-                    Xwayland  4272 128   n    n  1000          0
-                    Xwayland  4272 128   n    n  1000          0
-                    demo      5272 128   n    n  1000          0
-        """
-        po = PrimeOffloader()
-
-        # same
-        self.assertEqual(False, po.check_for_kernel_bug(before, before))
-
-        # wrong
-        self.assertEqual(False, po.check_for_kernel_bug(before, wrong))
-
-        # correct
-        self.assertEqual(True, po.check_for_kernel_bug(before, correct))
-
-
 class RunOffloadCmdTests(unittest.TestCase):
     """
     This function is the entry point to run the command with prime offload,
@@ -473,8 +411,9 @@ class RunOffloadCmdTests(unittest.TestCase):
                                "driver",
                                0)
 
+    @patch('time.sleep', return_value=None)
     @patch("subprocess.Popen")
-    def test_offload_cmd_check(self, mock_open):
+    def test_offload_cmd_check(self, mock_open, mock_sleep):
         nv_env = {'__NV_PRIME_RENDER_OFFLOAD': '1',
                   '__GLX_VENDOR_LIBRARY_NAME': 'nvidia'}
         o_env = {'DRI_PRIME': 'pci-0000_00_00_0'}

@@ -44,18 +44,18 @@ class PrimeOffloader:
     logger = logging.getLogger()
     check_result = False
 
-    def find_card_id(self, pci_name):
+    def find_card_id(self, pci_name: str):
         """
         use pci name to find card id under /sys/kernel/debug/dri
 
         :param pci_name: pci device name in NNNN:NN:NN.N format
         :type card_name: str
 
-        : returns : card id
-        : rtype : str
+        :returns: card id
+        :rtype: str
         """
         if not re.match("[0-9]{4}:[0-9]{2}:[0-9]{2}.[0-9]", pci_name):
-            raise RuntimeError("pci name format error")
+            raise SystemExit("pci name format error")
 
         try:
             cmd = ["grep",
@@ -67,12 +67,12 @@ class PrimeOffloader:
             card_path = subprocess.check_output(cmd,
                                                 universal_newlines=True)
             return card_path.split('/')[5]
-        except (IndexError, AttributeError) as e:
-            raise RuntimeError("return value format error {}".format(e))
+        except IndexError as e:
+            raise SystemExit("return value format error {}".format(repr(e)))
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(e)
+            raise SystemExit(repr(e))
 
-    def find_card_name(self, pci_name):
+    def find_card_name(self, pci_name: str):
         """
         use pci name to find card name by lshw
 
@@ -90,39 +90,14 @@ class PrimeOffloader:
             for info in infos:
                 if pci_name in info['businfo']:
                     return info['product']
-            raise RuntimeError("Card name not found")
+            raise SystemExit("Card name not found")
         except (KeyError, TypeError, json.decoder.JSONDecodeError) as e:
-            raise RuntimeError("return value format error {}".format(e))
+            raise SystemExit("return value format error {}".format(e))
         except subprocess.CalledProcessError as e:
-            raise RuntimeError(e)
+            raise SystemExit(e)
 
-    def check_for_kernel_bug(self, b, a):
-        """
-        for 6.5 kernel, a bug of dir debugfs should be fixed.
-        before that, we have to check the difference
-        https://warthogs.atlassian.net/browse/OEMQA-3459
-
-        :param b: clients before test
-        :type b: str
-
-        :param a: clients after test
-        :type a: str
-
-        : returns : check result
-        : rtype : Boolean
-        """
-        line_b = b.strip().splitlines()
-        line_a = a.strip().splitlines()
-
-        len_b = len(line_b)
-        len_a = len(line_a)
-
-        if (len_b == (len_a - 1)
-           and any(x in line_a[len_a - 1] for x in ('Xorg', 'Xwayland'))):
-            return True
-        return False
-
-    def check_offload(self, cmd, card_id, card_name, timeout):
+    def check_offload(self, cmd: list, card_id: str,
+                      card_name: str, timeout: str):
         """
         Use to check provided command is executed on specific GPU.
 
@@ -165,13 +140,6 @@ class PrimeOffloader:
                     pre_test_clients = clients
                     continue
                 if cmd[0] in clients:
-                    self.logger.info("Checking success:")
-                    self.logger.info("  Offload process:[{}]".format(cmd))
-                    self.logger.info("  Card ID:[{}]".format(card_id))
-                    self.logger.info("  Device Name:[{}]".format(card_name))
-                    return
-                elif self.check_for_kernel_bug(pre_test_clients, clients):
-                    self.logger.info("correct for 6.5 kernel bug only")
                     self.logger.info("Checking success:")
                     self.logger.info("  Offload process:[{}]".format(cmd))
                     self.logger.info("  Card ID:[{}]".format(card_id))
@@ -223,7 +191,8 @@ class PrimeOffloader:
                 raise RuntimeError("nvidia driver error")
             raise RuntimeError("NVLINK detected")
 
-    def run_offload_cmd(self, cmd, pci_name, driver, timeout):
+    def run_offload_cmd(self, cmd: str, pci_name: str,
+                        driver: str, timeout: int):
         """
         run offload command and check it runs on correct GPU
 
@@ -273,9 +242,6 @@ class PrimeOffloader:
                                               card_name,
                                               timeout))
         check_thread.start()
-        # sleep 5 seconds for waiting check_offload
-        # thread get clients before testing
-        time.sleep(5)
         try:
             with subprocess.Popen(offload_cmd, env=env,
                                   stdout=subprocess.PIPE,
@@ -326,32 +292,33 @@ class PrimeOffloader:
         )
         return parser.parse_args(args)
 
+    def main(self):
+        args = self.parse_args()
+
+        # create self.logger.formatter
+        log_formatter = logging.Formatter(fmt='%(message)s')
+
+        # create logger
+        self.logger.setLevel(logging.INFO)
+
+        # create console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(log_formatter)
+
+        # Add console handler to logger
+        self.logger.addHandler(console_handler)
+
+        # run_offload_cmd("glxgears", "0000:00:02.0", "i915", 0)
+        try:
+            self.run_offload_cmd(args.command,
+                                 args.pci,
+                                 args.driver,
+                                 args.timeout)
+            sys.exit(0)
+        except RuntimeError as e:
+            self.logger.info(e)
+            sys.exit(1)
+
 
 if __name__ == "__main__":
-    po = PrimeOffloader()
-
-    args = po.parse_args()
-
-    # create self.logger.formatter
-    log_formatter = logging.Formatter(fmt='%(message)s')
-
-    # create logger
-    po.logger.setLevel(logging.INFO)
-
-    # create console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setFormatter(log_formatter)
-
-    # Add console handler to logger
-    po.logger.addHandler(console_handler)
-
-    # run_offload_cmd("glxgears", "0000:00:02.0", "i915", 0)
-    try:
-        po.run_offload_cmd(args.command,
-                           args.pci,
-                           args.driver,
-                           args.timeout)
-        sys.exit(0)
-    except RuntimeError as e:
-        po.logger.info(e)
-        sys.exit(1)
+    PrimeOffloader().main()

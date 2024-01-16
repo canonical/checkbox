@@ -4,7 +4,8 @@ import os
 import re
 import shlex
 import textwrap
-from glob import glob
+from pathlib import Path
+from itertools import chain
 from subprocess import check_output, CalledProcessError
 
 rootdir_pattern = re.compile("^.*?/devices")
@@ -36,7 +37,7 @@ def usb_support(name, version):
     path = rootdir_pattern.sub("", os.readlink("/sys/block/%s" % name))
 
     # Remove the usb config.interface part of the path
-    m = re.match("((.*usb\d+).*\/)\d-[\d\.:\-]+\/.*", path)  # noqa: W605
+    m = re.match(r"((.*usb\d+).*\/)\d-[\d\.:\-]+\/.*", path)  # noqa: W605
     if m:
         device_path = m.group(1)
         hub_port_path = m.group(2)
@@ -98,15 +99,13 @@ def smart_support_raid(name, raid_type):
     :returns:
         'True' or 'False' as string (for return to Checkbox)
     """
-    supported = "False"
     disk_num = 0
-    disk_exists = True
     # Loop through all disks in array to verify that SMART is available on
     # at least one of them. Note that if there's a mix of supported and
     # unsupported, this test returns 'True', which will result in a failure
     # of disk_smart. This is by design, since such a mix is likely an assembly
     # error by the manufacturer.
-    while disk_exists:
+    while True:
         command = "smartctl -x /dev/{} -d {},{}".format(
             name, raid_type, disk_num
         )
@@ -115,11 +114,11 @@ def smart_support_raid(name, raid_type):
                 shlex.split(command), universal_newlines=True
             ).splitlines()
             if smart_supporting_diskinfo(diskinfo):
-                supported = "True"
-                disk_num += 1
+                return "True"
+
+            disk_num += 1
         except CalledProcessError:
-            disk_exists = False
-    return supported
+            return "False"
 
 
 def smart_support(name):
@@ -131,44 +130,45 @@ def smart_support(name):
     :returns:
         'True' or 'False' as string (for return to Checkbox)
     """
-    supported = "False"
     # Check with smartctl to see if SMART is available and enabled on the disk
-
     command = "smartctl -x /dev/%s" % name
-    diskinfo_bytes = check_output(
+    diskinfo = check_output(
         shlex.split(command), universal_newlines=True
-    )
-    diskinfo = diskinfo_bytes.splitlines()
+    ).splitlines()
 
-    if len(diskinfo) > 2:
-        if smart_supporting_diskinfo(diskinfo):
-            supported = "True"
-        else:
-            for type in raid_types:
-                if any("-d {},N".format(type) in s for s in diskinfo):
-                    supported = smart_support_raid(name, type)
-                    break
-    return supported
+    # First check if the current name supports SMART
+    if smart_supporting_diskinfo(diskinfo):
+        return "True"
+    # Try to check if the disk is in a raid configuration
+    for type in raid_types:
+        if any("-d {},N".format(type) in s for s in diskinfo):
+            return smart_support_raid(name, type)
+    return "False"
 
 
 def main():
-    for path in glob("/sys/block/*/device") + glob("/sys/block/*/dm"):
-        name = re.sub(".*/(.*?)/(device|dm)", "\g<1>", path)  # noqa: W605
-        state = device_state(name)
-        usb2 = usb_support(name, 2.00)
-        usb3 = usb_support(name, 3.00)
-        rotation = device_rotation(name)
-        smart = smart_support(name)
+    sys_block = Path("/sys/block")
+    # match the name any dir in sys block that has a subdirectory device or dm
+    disk_names = (
+        path.parent.name
+        for path in chain(sys_block.glob("*/device"), sys_block.glob("*/dm"))
+    )
+    for disk_name in disk_names:
+        state = device_state(disk_name)
+        usb2 = usb_support(disk_name, 2.00)
+        usb3 = usb_support(disk_name, 3.00)
+        rotation = device_rotation(disk_name)
+        smart = smart_support(disk_name)
         resource_text = textwrap.dedent(
             """
-                name: {name}
-                state: {state}
-                usb2: {usb2}
-                usb3: {usb3}
-                rotation: {rotation}
-                smart: {smart}
-                """.format(
-                name=name,
+            name: {disk_name}
+            state: {state}
+            usb2: {usb2}
+            usb3: {usb3}
+            rotation: {rotation}
+            smart: {smart}
+            """.format(
+                disk_name=disk_name,
                 state=state,
                 usb2=usb2,
                 usb3=usb3,

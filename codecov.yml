@@ -8,3 +8,12 @@ flag_management:
     # carryforward means if a test was not run again, use the previous
     # coverage result for the current flag (part)
     carryforward: true
+  individual_flags:
+    # non-blocking status check for ce-oem provider in contrib area
+    - name: contrib-provider-ce-oem
+      paths:
+      - contrib/checkbox-provider-ce-oem
+      carryforward: true
+      statuses:
+        - type: patch
+          informational: true

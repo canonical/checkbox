@@ -37,7 +37,7 @@ def usb_support(name, version):
     path = rootdir_pattern.sub("", os.readlink("/sys/block/%s" % name))
 
     # Remove the usb config.interface part of the path
-    m = re.match(r"((.*usb\d+).*\/)\d-[\d\.:\-]+\/.*", path)  # noqa: W605
+    m = re.match(r"((.*usb\d+).*\/)\d-[\d\.:\-]+\/.*", path)
     if m:
         device_path = m.group(1)
         hub_port_path = m.group(2)

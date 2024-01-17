@@ -96,6 +96,12 @@ class TestSmartSupportDiskInfo(unittest.TestCase):
         self.assertEqual(result, "False")
 
     @patch("block_device_resource.check_output")
+    def test_smart_support_failed_to_fetch(self, mock_check_output):
+        mock_check_output.side_effect = CalledProcessError("cmd", 1)
+        result = block_device_resource.smart_support("sdb")
+        self.assertEqual(result, "False")
+
+    @patch("block_device_resource.check_output")
     def test_smart_support_enabled_raid(self, mock_check_output):
         mock_check_output.side_effect = [
             textwrap.dedent(

@@ -132,9 +132,12 @@ def smart_support(name):
     """
     # Check with smartctl to see if SMART is available and enabled on the disk
     command = "smartctl -x /dev/%s" % name
-    diskinfo = check_output(
-        shlex.split(command), universal_newlines=True
-    ).splitlines()
+    try:
+        diskinfo = check_output(
+            shlex.split(command), universal_newlines=True
+        ).splitlines()
+    except CalledProcessError:
+        return "False"
 
     # First check if the current name supports SMART
     if smart_supporting_diskinfo(diskinfo):

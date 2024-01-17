@@ -1,3 +1,90 @@
+id: graphics-gpu-cert-full
+unit: test plan
+_name: Graphics tests (GPU)
+_description:
+ Graphics tests (GPU)
+include:
+bootstrap_include:
+ graphics_card
+nested_part:
+ com.canonical.certification::graphics-gpu-cert-automated
+ com.canonical.certification::graphics-gpu-cert-manual
+
+id: graphics-gpu-cert-automated
+unit: test plan
+_name: Graphics tests (Automated)
+_description:
+ Graphics tests (Automated)
+include:
+ graphics/VESA_drivers_not_in_use               certification-status=blocker
+ graphics/1_driver_version_.*                   certification-status=blocker
+ graphics/1_gl_support_.*                       certification-status=blocker
+ graphics/1_minimum_resolution_.*
+ graphics/2_driver_version_.*                   certification-status=blocker
+ graphics/2_minimum_resolution_.*
+ graphics/1_auto_glxgears_.*                    certification-status=blocker
+ graphics/2_auto_glxgears_.*                    certification-status=blocker
+ suspend/resolution_before_suspend              certification-status=blocker
+bootstrap_include:
+    graphics_card
+
+id: graphics-gpu-cert-manual
+unit: test plan
+_name: Graphics tests (Manual)
+_description:
+ Graphics tests (Manual)
+include:
+ miscellanea/chvt
+ graphics/1_maximum_resolution_.*               certification-status=blocker
+ graphics/1_rotation_.*                         certification-status=blocker
+ graphics/1_video_.*                            certification-status=blocker
+ graphics/1_cycle_resolution_.*                 certification-status=non-blocker
+ graphics/1_valid_glxgears_.*                   certification-status=blocker
+ graphics/2_valid_glxgears_.*                   certification-status=blocker
+bootstrap_include:
+    graphics_card
+
+id: after-suspend-graphics-gpu-cert-full
+unit: test plan
+_name: After suspend tests
+_description: After suspend tests
+include:
+nested_part:
+ com.canonical.certification::after-suspend-graphics-gpu-cert-automated
+ com.canonical.certification::after-suspend-graphics-gpu-cert-manual
+
+id: after-suspend-graphics-gpu-cert-automated
+unit: test plan
+_name: After suspend tests (GPU automated)
+_description: After suspend tests (GPU automated)
+include:
+ suspend/suspend-time-check                               certification-status=non-blocker
+ suspend/suspend-single-log-attach                        certification-status=non-blocker
+ after-suspend-graphics/VESA_drivers_not_in_use           certification-status=blocker
+ after-suspend-graphics/1_driver_version_.*               certification-status=blocker
+ after-suspend-graphics/1_gl_support_.*                   certification-status=blocker
+ after-suspend-graphics/1_minimum_resolution_.*
+ after-suspend-graphics/1_auto_glxgears_.*                certification-status=blocker
+ after-suspend-graphics/2_auto_glxgears_.*                certification-status=blocker
+ suspend/resolution_after_suspend                         certification-status=blocker
+
+id: after-suspend-graphics-gpu-cert-manual
+unit: test plan
+_name: After suspend tests (GPU manual)
+_description: After suspend tests (GPU manual)
+include:
+ power-management/lid_close_suspend_open                  certification-status=blocker
+ power-management/lid                                     certification-status=blocker
+ after-suspend-miscellanea/chvt
+ suspend/display_after_suspend                            certification-status=blocker
+ after-suspend-graphics/1_maximum_resolution_.*           certification-status=blocker
+ after-suspend-graphics/1_rotation_.*                     certification-status=blocker
+ after-suspend-graphics/1_video_.*                        certification-status=blocker
+ after-suspend-graphics/1_cycle_resolution_.*             certification-status=non-blocker
+ after-suspend-graphics/1_valid_glxgears_.*               certification-status=blocker
+ after-suspend-graphics/2_valid_glxgears_.*               certification-status=blocker
+ suspend/1_xrandr_screens_after_suspend.tar.gz_auto
+
 id: graphics-integrated-gpu-cert-full
 unit: test plan
 _name: Graphics tests (integrated GPU)

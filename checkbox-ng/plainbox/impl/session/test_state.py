@@ -50,17 +50,17 @@ from plainbox.vendor.morris import SignalTestCase
 
 
 def load_tests(loader, tests, ignore):
-    tests.addTests(DocTestSuite(
-        'plainbox.impl.session.state', optionflags=REPORT_NDIFF))
+    tests.addTests(
+        DocTestSuite("plainbox.impl.session.state", optionflags=REPORT_NDIFF)
+    )
     return tests
 
 
 class SessionStateSmokeTests(TestCase):
-
     def setUp(self):
-        A = make_job('A', requires='R.attr == "value"')
-        B = make_job('B', depends='C')
-        C = make_job('C')
+        A = make_job("A", requires='R.attr == "value"')
+        B = make_job("B", depends="C")
+        C = make_job("C")
         self.job_list = [A, B, C]
         self.session_state = SessionState(self.job_list)
 
@@ -80,7 +80,7 @@ class SessionStateSmokeTests(TestCase):
         self.assertEqual(expected, observed)
 
     def test_update_mandatory_job_list_updates(self):
-        D = make_job('D')
+        D = make_job("D")
         self.session_state.update_mandatory_job_list([D])
         expected = [D]
         observed = self.session_state.mandatory_job_list
@@ -91,7 +91,7 @@ class RegressionTests(TestCase):
     # Tests for bugfixes
 
     def test_crash_on_missing_job(self):
-        """ http://pad.lv/1334296 """
+        """http://pad.lv/1334296"""
         A = make_job("A")
         state = SessionState([])
         problems = state.update_desired_job_list([A])
@@ -101,8 +101,8 @@ class RegressionTests(TestCase):
     def test_crash_in_update_desired_job_list(self):
         # This checks if a DependencyError can cause crash
         # update_desired_job_list() with a ValueError, in certain conditions.
-        A = make_job('A', depends='X')
-        L = make_job('L', plugin='shell')
+        A = make_job("A", depends="X")
+        L = make_job("L", plugin="shell")
         session = SessionState([A, L])
         problems = session.update_desired_job_list([A, L])
         # We should get exactly one DependencyMissingError related to job A and
@@ -132,15 +132,18 @@ class RegressionTests(TestCase):
             self.assertIs(call.exception.affected_job, different_A)
 
     def test_dont_remove_missing_jobs(self):
-        """ http://pad.lv/1444126 """
+        """http://pad.lv/1444126"""
         A = make_job("A", depends="B")
         B = make_job("B", depends="C")
         state = SessionState([A, B])
         problems = state.update_desired_job_list([A, B])
-        self.assertEqual(problems, [
-            DependencyMissingError(B, 'C', 'direct'),
-            DependencyMissingError(A, 'B', 'direct'),
-        ])
+        self.assertEqual(
+            problems,
+            [
+                DependencyMissingError(B, "C", "direct"),
+                DependencyMissingError(A, "B", "direct"),
+            ],
+        )
         self.assertEqual(state.desired_job_list, [])
         self.assertEqual(state.run_list, [])
 
@@ -153,19 +156,22 @@ class RegressionTests(TestCase):
         result_pass = MemoryJobResult({"outcome": IJobResult.OUTCOME_PASS})
         state.update_job_result(job_a, result_pass)
         self.assertEqual(
-            state.category_outcome_map, {"a": IJobResult.OUTCOME_PASS}
+            state.category_outcome_map,
+            {"a": IJobResult.OUTCOME_PASS},
         )
 
         result_fail = MemoryJobResult({"outcome": IJobResult.OUTCOME_FAIL})
         state.update_job_result(job_a, result_fail)
         self.assertEqual(
-            state.category_outcome_map, {"a": IJobResult.OUTCOME_FAIL}
+            state.category_outcome_map,
+            {"a": IJobResult.OUTCOME_FAIL},
         )
 
         result_skip = MemoryJobResult({"outcome": IJobResult.OUTCOME_SKIP})
         state.update_job_result(job_a, result_skip)
         self.assertEqual(
-            state.category_outcome_map, {"a": IJobResult.OUTCOME_SKIP},
+            state.category_outcome_map,
+            {"a": IJobResult.OUTCOME_SKIP},
         )
 
         # Test different outcomes for non valid jobs
@@ -177,33 +183,30 @@ class RegressionTests(TestCase):
 
         state.update_job_result(job_a, result_pass)
         self.assertEqual(
-            state.category_outcome_map, {"a": IJobResult.OUTCOME_PASS}
+            state.category_outcome_map,
+            {"a": IJobResult.OUTCOME_PASS},
         )
 
 
-
-
-
 class SessionStateAPITests(TestCase):
-
     def test_set_resource_list(self):
         # Define an empty session
         session = SessionState([])
         # Define a resource
-        old_res = Resource({'attr': 'old value'})
+        old_res = Resource({"attr": "old value"})
         # Set the resource list with the old resource
         # So here the old result is stored into a new 'R' resource
-        session.set_resource_list('R', [old_res])
+        session.set_resource_list("R", [old_res])
         # Ensure that it worked
-        self.assertEqual(session._resource_map, {'R': [old_res]})
+        self.assertEqual(session._resource_map, {"R": [old_res]})
         # Define another resource
-        new_res = Resource({'attr': 'new value'})
+        new_res = Resource({"attr": "new value"})
         # Now we present the second result for the same job
-        session.set_resource_list('R', [new_res])
+        session.set_resource_list("R", [new_res])
         # What should happen here is that the R resource is entirely replaced
         # by the data from the new result. The data should not be merged or
         # appended in any way.
-        self.assertEqual(session._resource_map, {'R': [new_res]})
+        self.assertEqual(session._resource_map, {"R": [new_res]})
 
     def test_add_unit(self):
         # Define a job
@@ -223,7 +226,8 @@ class SessionStateAPITests(TestCase):
         # The job is not selected to run
         self.assertEqual(
             session.job_state_map[job.id].readiness_inhibitor_list,
-            [UndesiredJobReadinessInhibitor])
+            [UndesiredJobReadinessInhibitor],
+        )
 
     def test_add_unit_duplicate_job(self):
         # Define a job
@@ -256,7 +260,7 @@ class SessionStateAPITests(TestCase):
         # The job got added to job list
         self.assertIn(job, session.job_list)
         # Define a different job that clashes with the initial job
-        clashing_job = make_job("A", plugin='other')
+        clashing_job = make_job("A", plugin="other")
         self.assertNotEqual(job, clashing_job)
         self.assertEqual(job.id, clashing_job.id)
         # Try adding it to the session
@@ -281,8 +285,8 @@ class SessionStateAPITests(TestCase):
         # Both jobs got added to job list
         self.assertEqual(len(session.job_list), 2)
         self.assertIn(job, session.job_list)
-        self.assertEqual(session.job_list[1].id, 'B')
-        self.assertEqual(session.job_list[1].summary, 'foo')
+        self.assertEqual(session.job_list[1].id, "B")
+        self.assertEqual(session.job_list[1].summary, "foo")
         sibling = session.job_list[1]
         # Both jobs got added to job state map
         self.assertIs(session.job_state_map[job.id].job, job)
@@ -296,14 +300,16 @@ class SessionStateAPITests(TestCase):
         # Both jobs are not selected to run
         self.assertEqual(
             session.job_state_map[job.id].readiness_inhibitor_list,
-            [UndesiredJobReadinessInhibitor])
+            [UndesiredJobReadinessInhibitor],
+        )
         self.assertEqual(
             session.job_state_map[sibling.id].readiness_inhibitor_list,
-            [UndesiredJobReadinessInhibitor])
+            [UndesiredJobReadinessInhibitor],
+        )
 
     def test_also_after_suspend_flag(self):
         # Define a job
-        job = make_job("A", summary="foo", flags='also-after-suspend')
+        job = make_job("A", summary="foo", flags="also-after-suspend")
         # Define an empty session
         session = SessionState([])
         # Add the job to the session
@@ -311,14 +317,14 @@ class SessionStateAPITests(TestCase):
         # Both jobs got added to job list
         self.assertEqual(len(session.job_list), 2)
         self.assertIn(job, session.job_list)
-        self.assertEqual(session.job_list[1].id, 'after-suspend-A')
-        self.assertEqual(session.job_list[1].summary, 'foo after suspend (S3)')
+        self.assertEqual(session.job_list[1].id, "after-suspend-A")
+        self.assertEqual(session.job_list[1].summary, "foo after suspend (S3)")
         self.assertEqual(
             session.job_list[1].depends,
-            ('A com.canonical.certification::suspend/'
-            'suspend_advanced_auto'))
+            ("A com.canonical.certification::suspend/suspend_advanced_auto"),
+        )
         sibling = session.job_list[1]
-        self.assertNotIn('also-after-suspend', sibling.get_flag_set())
+        self.assertNotIn("also-after-suspend", sibling.get_flag_set())
         # Both jobs got added to job state map
         self.assertIs(session.job_state_map[job.id].job, job)
         self.assertIs(session.job_state_map[sibling.id].job, sibling)
@@ -331,14 +337,16 @@ class SessionStateAPITests(TestCase):
         # Both jobs are not selected to run
         self.assertEqual(
             session.job_state_map[job.id].readiness_inhibitor_list,
-            [UndesiredJobReadinessInhibitor])
+            [UndesiredJobReadinessInhibitor],
+        )
         self.assertEqual(
             session.job_state_map[sibling.id].readiness_inhibitor_list,
-            [UndesiredJobReadinessInhibitor])
+            [UndesiredJobReadinessInhibitor],
+        )
 
     def test_also_after_suspend_manual_flag(self):
         # Define a job
-        job = make_job("A", summary="foo", flags='also-after-suspend-manual')
+        job = make_job("A", summary="foo", flags="also-after-suspend-manual")
         # Define an empty session
         session = SessionState([])
         # Add the job to the session
@@ -346,13 +354,14 @@ class SessionStateAPITests(TestCase):
         # Both jobs got added to job list
         self.assertEqual(len(session.job_list), 2)
         self.assertIn(job, session.job_list)
-        self.assertEqual(session.job_list[1].id, 'after-suspend-manual-A')
-        self.assertEqual(session.job_list[1].summary, 'foo after suspend (S3)')
+        self.assertEqual(session.job_list[1].id, "after-suspend-manual-A")
+        self.assertEqual(session.job_list[1].summary, "foo after suspend (S3)")
         self.assertEqual(
             session.job_list[1].depends,
-            'A com.canonical.certification::suspend/suspend_advanced')
+            "A com.canonical.certification::suspend/suspend_advanced",
+        )
         sibling = session.job_list[1]
-        self.assertNotIn('also-after-suspend-manual', sibling.get_flag_set())
+        self.assertNotIn("also-after-suspend-manual", sibling.get_flag_set())
         # Both jobs got added to job state map
         self.assertIs(session.job_state_map[job.id].job, job)
         self.assertIs(session.job_state_map[sibling.id].job, sibling)
@@ -365,66 +374,86 @@ class SessionStateAPITests(TestCase):
         # Both jobs are not selected to run
         self.assertEqual(
             session.job_state_map[job.id].readiness_inhibitor_list,
-            [UndesiredJobReadinessInhibitor])
+            [UndesiredJobReadinessInhibitor],
+        )
         self.assertEqual(
             session.job_state_map[sibling.id].readiness_inhibitor_list,
-            [UndesiredJobReadinessInhibitor])
+            [UndesiredJobReadinessInhibitor],
+        )
 
     def test_get_estimated_duration_auto(self):
         # Define jobs with an estimated duration
-        one_second = make_job("one_second", plugin="shell",
-                              command="foobar",
-                              estimated_duration=1.0)
-        half_second = make_job("half_second", plugin="shell",
-                               command="barfoo",
-                               estimated_duration=0.5)
+        one_second = make_job(
+            "one_second",
+            plugin="shell",
+            command="foobar",
+            estimated_duration=1.0,
+        )
+        half_second = make_job(
+            "half_second",
+            plugin="shell",
+            command="barfoo",
+            estimated_duration=0.5,
+        )
         session = SessionState([one_second, half_second])
         session.update_desired_job_list([one_second, half_second])
         self.assertEqual(session.get_estimated_duration(), (1.5, 0.0))
 
     def test_get_estimated_duration_manual(self):
-        two_seconds = make_job("two_seconds", plugin="manual",
-                               command="farboo",
-                               estimated_duration=2.0)
-        shell_job = make_job("shell_job", plugin="shell",
-                             command="boofar",
-                             estimated_duration=0.6)
+        two_seconds = make_job(
+            "two_seconds",
+            plugin="manual",
+            command="farboo",
+            estimated_duration=2.0,
+        )
+        shell_job = make_job(
+            "shell_job",
+            plugin="shell",
+            command="boofar",
+            estimated_duration=0.6,
+        )
         session = SessionState([two_seconds, shell_job])
         session.update_desired_job_list([two_seconds, shell_job])
         self.assertEqual(session.get_estimated_duration(), (0.6, 32.0))
 
     def test_get_estimated_duration_automated_unknown(self):
-        three_seconds = make_job("three_seconds", plugin="shell",
-                                 command="frob",
-                                 estimated_duration=3.0)
-        no_estimated_duration = make_job("no_estimated_duration",
-                                         plugin="shell",
-                                         command="borf")
+        three_seconds = make_job(
+            "three_seconds",
+            plugin="shell",
+            command="frob",
+            estimated_duration=3.0,
+        )
+        no_estimated_duration = make_job(
+            "no_estimated_duration", plugin="shell", command="borf"
+        )
         session = SessionState([three_seconds, no_estimated_duration])
         session.update_desired_job_list([three_seconds, no_estimated_duration])
         self.assertEqual(session.get_estimated_duration(), (None, 0.0))
 
     def test_get_estimated_duration_manual_unknown(self):
-        four_seconds = make_job("four_seconds", plugin="shell",
-                                command="fibble",
-                                estimated_duration=4.0)
-        no_estimated_duration = make_job("no_estimated_duration",
-                                         plugin="user-verify",
-                                         command="bibble")
+        four_seconds = make_job(
+            "four_seconds",
+            plugin="shell",
+            command="fibble",
+            estimated_duration=4.0,
+        )
+        no_estimated_duration = make_job(
+            "no_estimated_duration", plugin="user-verify", command="bibble"
+        )
         session = SessionState([four_seconds, no_estimated_duration])
         session.update_desired_job_list([four_seconds, no_estimated_duration])
         self.assertEqual(session.get_estimated_duration(), (4.0, None))
 
     def test_update_mandatory_job_list_affects_run_list(self):
-        A = make_job('A')
+        A = make_job("A")
         session = SessionState([A])
         session.update_mandatory_job_list([A])
         session.update_desired_job_list([])
         self.assertEqual(session.run_list, [A])
 
     def test_mandatory_jobs_are_first_in_run_list(self):
-        A = make_job('A')
-        B = make_job('B')
+        A = make_job("A")
+        B = make_job("B")
         session = SessionState([A, B])
         session.update_mandatory_job_list([B])
         session.update_desired_job_list([A])
@@ -440,7 +469,8 @@ class SessionStateAPITests(TestCase):
         ) as collect_system_information_mock:
             return_value = getter(self_mock)
             self.assertEqual(
-                return_value, collect_system_information_mock.return_value
+                return_value,
+                collect_system_information_mock.return_value,
             )
 
     def test_system_information_collection_cached(self):
@@ -471,7 +501,7 @@ class SessionStateTrimTests(TestCase):
     def setUp(self):
         self.job_a = make_job("a")
         self.job_b = make_job("b")
-        self.origin = mock.Mock(name='origin', spec_set=Origin)
+        self.origin = mock.Mock(name="origin", spec_set=Origin)
         self.session = SessionState([self.job_a, self.job_b])
 
     def test_trim_does_remove_jobs(self):
@@ -493,7 +523,7 @@ class SessionStateTrimTests(TestCase):
         """
         verify that trim_job_list() removes resources for removed jobs
         """
-        self.session.set_resource_list("a", [Resource({'attr': 'value'})])
+        self.session.set_resource_list("a", [Resource({"attr": "value"})])
         self.assertIn("a", self.session.resource_map)
         self.session.trim_job_list(JobIdQualifier("a", self.origin))
         self.assertNotIn("a", self.session.resource_map)
@@ -508,6 +538,7 @@ class SessionStateTrimTests(TestCase):
             self.assertIs(job, self.job_a)
             nonlocal signal_fired
             signal_fired = True
+
         self.session.on_job_removed.connect(on_job_removed)
         self.session.trim_job_list(JobIdQualifier("a", self.origin))
         self.assertTrue(signal_fired)
@@ -521,6 +552,7 @@ class SessionStateTrimTests(TestCase):
         def on_job_state_map_changed():
             nonlocal signal_fired
             signal_fired = True
+
         self.session.on_job_state_map_changed.connect(on_job_state_map_changed)
         self.session.trim_job_list(JobIdQualifier("a", self.origin))
         self.assertTrue(signal_fired)
@@ -535,6 +567,7 @@ class SessionStateTrimTests(TestCase):
         def on_job_state_map_changed():
             nonlocal signal_fired
             signal_fired = True
+
         self.session.on_job_state_map_changed.connect(on_job_state_map_changed)
         self.session.trim_job_list(JobIdQualifier("x", self.origin))
         self.assertFalse(signal_fired)
@@ -548,8 +581,8 @@ class SessionStateTrimTests(TestCase):
         with self.assertRaises(ValueError) as boom:
             self.session.trim_job_list(JobIdQualifier("a", self.origin))
             self.assertEqual(
-                str(boom.exception),
-                "cannot remove jobs that are on the run list: a")
+                str(boom.exception), "cannot remove jobs that are on the run list: a"
+            )
 
 
 class SessionStateReactionToJobResultTests(TestCase):
@@ -569,10 +602,9 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.job_A = make_job("A", requires="R.attr == 'value'")
         self.job_A_expr = self.job_A.get_resource_program().expression_list[0]
         self.job_R = make_job("R", plugin="resource")
-        self.job_X = make_job("X", depends='Y')
+        self.job_X = make_job("X", depends="Y")
         self.job_Y = make_job("Y")
-        self.job_list = [
-            self.job_A, self.job_R, self.job_X, self.job_Y]
+        self.job_list = [self.job_A, self.job_R, self.job_X, self.job_Y]
         self.session = SessionState(self.job_list)
 
     def job_state(self, id):
@@ -594,18 +626,26 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.assertEqual(self.session.desired_job_list, [])
         # All jobs have state objects that indicate they cannot run (because
         # they have the UNDESIRED inhibitor set for them by default).
-        self.assertFalse(self.job_state('A').can_start())
-        self.assertFalse(self.job_state('R').can_start())
-        self.assertFalse(self.job_state('X').can_start())
-        self.assertFalse(self.job_state('Y').can_start())
-        self.assertEqual(self.job_inhibitor('A', 0).cause,
-                         InhibitionCause.UNDESIRED)
-        self.assertEqual(self.job_inhibitor('R', 0).cause,
-                         InhibitionCause.UNDESIRED)
-        self.assertEqual(self.job_inhibitor('X', 0).cause,
-                         InhibitionCause.UNDESIRED)
-        self.assertEqual(self.job_inhibitor('Y', 0).cause,
-                         InhibitionCause.UNDESIRED)
+        self.assertFalse(self.job_state("A").can_start())
+        self.assertFalse(self.job_state("R").can_start())
+        self.assertFalse(self.job_state("X").can_start())
+        self.assertFalse(self.job_state("Y").can_start())
+        self.assertEqual(
+            self.job_inhibitor("A", 0).cause,
+            InhibitionCause.UNDESIRED,
+        )
+        self.assertEqual(
+            self.job_inhibitor("R", 0).cause,
+            InhibitionCause.UNDESIRED,
+        )
+        self.assertEqual(
+            self.job_inhibitor("X", 0).cause,
+            InhibitionCause.UNDESIRED,
+        )
+        self.assertEqual(
+            self.job_inhibitor("Y", 0).cause,
+            InhibitionCause.UNDESIRED,
+        )
 
     def test_desire_job_A_updates_state_map(self):
         # This function checks what happens when the job A becomes desired via
@@ -620,35 +660,40 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.assertEqual(self.session.run_list, [self.job_R, self.job_A])
         # This also recomputes job readiness state so that job R is no longer
         # undesired, has no other inhibitor and thus can start
-        self.assertEqual(self.job_state('R').readiness_inhibitor_list, [])
-        self.assertTrue(self.job_state('R').can_start())
+        self.assertEqual(self.job_state("R").readiness_inhibitor_list, [])
+        self.assertTrue(self.job_state("R").can_start())
         # While the A job still cannot run it now has a different inhibitor,
         # one with the PENDING_RESOURCE cause. The inhibitor also properly
         # pinpoints the related job and related expression.
-        self.assertNotEqual(self.job_state('A').readiness_inhibitor_list, [])
-        self.assertEqual(self.job_inhibitor('A', 0).cause,
-                         InhibitionCause.PENDING_RESOURCE)
-        self.assertEqual(self.job_inhibitor('A', 0).related_job, self.job_R)
-        self.assertEqual(self.job_inhibitor('A', 0).related_expression,
-                         self.job_A_expr)
-        self.assertFalse(self.job_state('A').can_start())
+        self.assertNotEqual(self.job_state("A").readiness_inhibitor_list, [])
+        self.assertEqual(
+            self.job_inhibitor("A", 0).cause, InhibitionCause.PENDING_RESOURCE
+        )
+        self.assertEqual(self.job_inhibitor("A", 0).related_job, self.job_R)
+        self.assertEqual(
+            self.job_inhibitor("A", 0).related_expression,
+            self.job_A_expr,
+        )
+        self.assertFalse(self.job_state("A").can_start())
 
     def test_resource_job_result_updates_resource_and_job_states(self):
         # This function checks what happens when a JobResult for job R (which
         # is a resource job via the resource plugin) is presented to the
         # session.
-        result_R = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'io_log': [(0, 'stdout', b"attr: value\n")],
-        })
+        result_R = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "io_log": [(0, "stdout", b"attr: value\n")],
+            }
+        )
         self.session.update_job_result(self.job_R, result_R)
         # The most obvious thing that can happen, is that the result is simply
         # stored in the associated job state object.
-        self.assertIs(self.job_state('R').result, result_R)
+        self.assertIs(self.job_state("R").result, result_R)
         # Initially the _resource_map was empty. SessionState parses the io_log
         # of results of resource jobs and creates appropriate resource objects.
         self.assertIn("R", self.session._resource_map)
-        expected = {'R': [Resource({'attr': 'value'})]}
+        expected = {"R": [Resource({"attr": "value"})]}
         self.assertEqual(self.session._resource_map, expected)
         # As job results are presented to the session the readiness of other
         # jobs is changed. Since A depends on R via a resource expression and
@@ -657,12 +702,14 @@ class SessionStateReactionToJobResultTests(TestCase):
         # have been removed. Since this test does not use
         # update_desired_job_list() a will still have the UNDESIRED inhibitor
         # but it will no longer have the PENDING_RESOURCE inhibitor,
-        self.assertEqual(self.job_inhibitor('A', 0).cause,
-                         InhibitionCause.UNDESIRED)
+        self.assertEqual(
+            self.job_inhibitor("A", 0).cause,
+            InhibitionCause.UNDESIRED,
+        )
         # Now if we put A on the desired list this should clear the UNDESIRED
         # inhibitor and make A runnable.
         self.session.update_desired_job_list([self.job_A])
-        self.assertTrue(self.job_state('A').can_start())
+        self.assertTrue(self.job_state("A").can_start())
 
     def test_normal_job_result_updates(self):
         # This function checks what happens when a JobResult for job A is
@@ -670,35 +717,39 @@ class SessionStateReactionToJobResultTests(TestCase):
         # the initial job result was pretty much identical and the comparison
         # below would fail to work as the update would have been silently
         # ignored.
-        result_A = MemoryJobResult({'outcome': 'different'})
+        result_A = MemoryJobResult({"outcome": "different"})
         self.session.update_job_result(self.job_A, result_A)
         # As before the result should be stored as-is
-        self.assertIs(self.job_state('A').result, result_A)
+        self.assertIs(self.job_state("A").result, result_A)
         # Unlike before _resource_map should be left unchanged
         self.assertEqual(self.session._resource_map, {})
         # One interesting observation is that readiness inhibitors are entirely
         # unaffected by existing test results beyond dependency and resource
         # relationships. While a result for job A was presented, job A is still
         # inhibited by the UNDESIRED inhibitor.
-        self.assertEqual(self.job_inhibitor('A', 0).cause,
-                         InhibitionCause.UNDESIRED)
+        self.assertEqual(
+            self.job_inhibitor("A", 0).cause,
+            InhibitionCause.UNDESIRED,
+        )
 
-    @mock.patch('plainbox.impl.ctrl.logger')
+    @mock.patch("plainbox.impl.ctrl.logger")
     def test_resource_job_with_broken_output(self, mock_logger):
         # This function checks how SessionState parses partially broken
         # resource jobs.  A JobResult with broken output is constructed below.
         # The output will describe one proper record, one broken record and
         # another proper record in that order.
-        result_R = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'io_log': [
-                (0, 'stdout', b"attr: value-1\n"),
-                (1, 'stdout', b"\n"),
-                (1, 'stdout', b"I-sound-like-a-broken-record\n"),
-                (1, 'stdout', b"\n"),
-                (1, 'stdout', b"attr: value-2\n")
-            ],
-        })
+        result_R = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "io_log": [
+                    (0, "stdout", b"attr: value-1\n"),
+                    (1, "stdout", b"\n"),
+                    (1, "stdout", b"I-sound-like-a-broken-record\n"),
+                    (1, "stdout", b"\n"),
+                    (1, "stdout", b"attr: value-2\n"),
+                ],
+            }
+        )
         # Since we cannot control the output of scripts and people indeed make
         # mistakes a warning is issued but no exception is raised to the
         # caller.
@@ -707,15 +758,19 @@ class SessionStateReactionToJobResultTests(TestCase):
         # in away which would allow for recovery. Out of all the output only
         # the first record is created and stored properly. The third, proper
         # record is entirely ignored.
-        expected = {'R': [Resource({'attr': 'value-1'})]}
+        expected = {"R": [Resource({"attr": "value-1"})]}
         self.assertEqual(self.session._resource_map, expected)
 
         # Make sure the right warning was logged
         mock_logger.warning.assert_called_once_with(
             "local script %s returned invalid RFC822 data: %s",
-            self.job_R.id, RFC822SyntaxError(None, 3,
-                "Unexpected non-empty line: "
-                "'I-sound-like-a-broken-record\\n'"))
+            self.job_R.id,
+            RFC822SyntaxError(
+                None,
+                3,
+                "Unexpected non-empty line: 'I-sound-like-a-broken-record\\n'",
+            ),
+        )
 
     def test_desire_job_X_updates_state_map(self):
         # This function checks what happens when the job X becomes desired via
@@ -728,15 +783,17 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.assertEqual(self.session.run_list, [self.job_Y, self.job_X])
         # As in the A - R test above this also recomputes the job readiness
         # state. Job Y is now runnable but job X has a PENDING_DEP inhibitor.
-        self.assertEqual(self.job_state('Y').readiness_inhibitor_list, [])
+        self.assertEqual(self.job_state("Y").readiness_inhibitor_list, [])
         # While the A job still cannot run it now has a different inhibitor,
         # one with the PENDING_RESOURCE cause. The inhibitor also properly
         # pinpoints the related job and related expression.
-        self.assertNotEqual(self.job_state('X').readiness_inhibitor_list, [])
-        self.assertEqual(self.job_inhibitor('X', 0).cause,
-                         InhibitionCause.PENDING_DEP)
-        self.assertEqual(self.job_inhibitor('X', 0).related_job, self.job_Y)
-        self.assertFalse(self.job_state('X').can_start())
+        self.assertNotEqual(self.job_state("X").readiness_inhibitor_list, [])
+        self.assertEqual(
+            self.job_inhibitor("X", 0).cause,
+            InhibitionCause.PENDING_DEP,
+        )
+        self.assertEqual(self.job_inhibitor("X", 0).related_job, self.job_Y)
+        self.assertFalse(self.job_state("X").can_start())
 
     def test_desired_job_X_cannot_run_with_failed_job_Y(self):
         # This function checks how SessionState reacts when the desired job X
@@ -744,111 +801,133 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.session.update_desired_job_list([self.job_X])
         # When X is desired, as above, it should be inhibited with PENDING_DEP
         # on Y
-        self.assertNotEqual(self.job_state('X').readiness_inhibitor_list, [])
-        self.assertEqual(self.job_inhibitor('X', 0).cause,
-                         InhibitionCause.PENDING_DEP)
-        self.assertEqual(self.job_inhibitor('X', 0).related_job, self.job_Y)
-        self.assertFalse(self.job_state('X').can_start())
+        self.assertNotEqual(self.job_state("X").readiness_inhibitor_list, [])
+        self.assertEqual(
+            self.job_inhibitor("X", 0).cause,
+            InhibitionCause.PENDING_DEP,
+        )
+        self.assertEqual(self.job_inhibitor("X", 0).related_job, self.job_Y)
+        self.assertFalse(self.job_state("X").can_start())
         # When a failed Y result is presented X should switch to FAILED_DEP
-        result_Y = MemoryJobResult({'outcome': IJobResult.OUTCOME_FAIL})
+        result_Y = MemoryJobResult({"outcome": IJobResult.OUTCOME_FAIL})
         self.session.update_job_result(self.job_Y, result_Y)
         # Now job X should have a FAILED_DEP inhibitor instead of the
         # PENDING_DEP it had before. Everything else should stay as-is.
-        self.assertNotEqual(self.job_state('X').readiness_inhibitor_list, [])
-        self.assertEqual(self.job_inhibitor('X', 0).cause,
-                         InhibitionCause.FAILED_DEP)
-        self.assertEqual(self.job_inhibitor('X', 0).related_job, self.job_Y)
-        self.assertFalse(self.job_state('X').can_start())
+        self.assertNotEqual(self.job_state("X").readiness_inhibitor_list, [])
+        self.assertEqual(
+            self.job_inhibitor("X", 0).cause,
+            InhibitionCause.FAILED_DEP,
+        )
+        self.assertEqual(self.job_inhibitor("X", 0).related_job, self.job_Y)
+        self.assertFalse(self.job_state("X").can_start())
 
     def test_desired_job_X_can_run_with_passing_job_Y(self):
         # A variant of the test case above, simply Y passes this time, making X
         # runnable
         self.session.update_desired_job_list([self.job_X])
-        result_Y = MemoryJobResult({'outcome': IJobResult.OUTCOME_PASS})
+        result_Y = MemoryJobResult({"outcome": IJobResult.OUTCOME_PASS})
         self.session.update_job_result(self.job_Y, result_Y)
         # Now X is runnable
-        self.assertEqual(self.job_state('X').readiness_inhibitor_list, [])
-        self.assertTrue(self.job_state('X').can_start())
+        self.assertEqual(self.job_state("X").readiness_inhibitor_list, [])
+        self.assertTrue(self.job_state("X").can_start())
 
     def test_desired_job_X_cannot_run_with_no_resource_R(self):
         # A variant of the two test cases above, using A-R jobs
         self.session.update_desired_job_list([self.job_A])
-        result_R = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'io_log': [(0, 'stdout', b'attr: wrong value\n')],
-        })
+        result_R = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "io_log": [(0, "stdout", b"attr: wrong value\n")],
+            }
+        )
         self.session.update_job_result(self.job_R, result_R)
         # Now A is inhibited by FAILED_RESOURCE
-        self.assertNotEqual(self.job_state('A').readiness_inhibitor_list, [])
-        self.assertEqual(self.job_inhibitor('A', 0).cause,
-                         InhibitionCause.FAILED_RESOURCE)
-        self.assertEqual(self.job_inhibitor('A', 0).related_job, self.job_R)
-        self.assertEqual(self.job_inhibitor('A', 0).related_expression,
-                         self.job_A_expr)
-        self.assertFalse(self.job_state('A').can_start())
+        self.assertNotEqual(self.job_state("A").readiness_inhibitor_list, [])
+        self.assertEqual(
+            self.job_inhibitor("A", 0).cause, InhibitionCause.FAILED_RESOURCE
+        )
+        self.assertEqual(self.job_inhibitor("A", 0).related_job, self.job_R)
+        self.assertEqual(
+            self.job_inhibitor("A", 0).related_expression,
+            self.job_A_expr,
+        )
+        self.assertFalse(self.job_state("A").can_start())
 
     def test_resource_job_result_overwrites_old_resources(self):
         # This function checks what happens when a JobResult for job R is
         # presented to a session that has some resources from that job already.
-        result_R_old = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'io_log': [(0, 'stdout', b"attr: old value\n")]
-        })
+        result_R_old = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "io_log": [(0, "stdout", b"attr: old value\n")],
+            }
+        )
         self.session.update_job_result(self.job_R, result_R_old)
         # So here the old result is stored into a new 'R' resource
-        expected_before = {'R': [Resource({'attr': 'old value'})]}
+        expected_before = {"R": [Resource({"attr": "old value"})]}
         self.assertEqual(self.session._resource_map, expected_before)
         # Now we present the second result for the same job
-        result_R_new = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'io_log': [(0, 'stdout', b"attr: new value\n")]
-        })
+        result_R_new = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "io_log": [(0, "stdout", b"attr: new value\n")],
+            }
+        )
         self.session.update_job_result(self.job_R, result_R_new)
         # What should happen here is that the R resource is entirely replaced
         # by the data from the new result. The data should not be merged or
         # appended in any way.
-        expected_after = {'R': [Resource({'attr': 'new value'})]}
+        expected_after = {"R": [Resource({"attr": "new value"})]}
         self.assertEqual(self.session._resource_map, expected_after)
 
     def test_get_outcome_stats(self):
-        result_A = MemoryJobResult({'outcome': IJobResult.OUTCOME_PASS})
-        result_R = MemoryJobResult({'outcome': IJobResult.OUTCOME_FAIL})
-        result_Y = MemoryJobResult({'outcome': IJobResult.OUTCOME_FAIL})
+        result_A = MemoryJobResult({"outcome": IJobResult.OUTCOME_PASS})
+        result_R = MemoryJobResult({"outcome": IJobResult.OUTCOME_FAIL})
+        result_Y = MemoryJobResult({"outcome": IJobResult.OUTCOME_FAIL})
         self.session.update_job_result(self.job_A, result_A)
         self.session.update_job_result(self.job_R, result_R)
         self.session.update_job_result(self.job_Y, result_Y)
-        self.assertEqual(self.session.get_outcome_stats(),
-                         {IJobResult.OUTCOME_PASS: 1,
-                          IJobResult.OUTCOME_FAIL: 2})
+        self.assertEqual(
+            self.session.get_outcome_stats(),
+            {IJobResult.OUTCOME_PASS: 1, IJobResult.OUTCOME_FAIL: 2},
+        )
 
     def test_get_certification_status_map(self):
-        result_A = MemoryJobResult({'outcome': IJobResult.OUTCOME_PASS})
+        result_A = MemoryJobResult({"outcome": IJobResult.OUTCOME_PASS})
         self.session.update_job_result(self.job_A, result_A)
-        self.session.job_state_map[
-            self.job_A.id].effective_certification_status = 'foo'
+        self.session.job_state_map[self.job_A.id].effective_certification_status = "foo"
         self.assertEqual(self.session.get_certification_status_map(), {})
-        self.assertEqual(self.session.get_certification_status_map(
-            outcome_filter=(IJobResult.OUTCOME_PASS,),
-            certification_status_filter=('foo',)),
-            {self.job_A.id: self.session.job_state_map[self.job_A.id]})
-        result_Y = MemoryJobResult({'outcome': IJobResult.OUTCOME_FAIL})
-        self.session.job_state_map[
-            self.job_Y.id].effective_certification_status = 'bar'
+        self.assertEqual(
+            self.session.get_certification_status_map(
+                outcome_filter=(IJobResult.OUTCOME_PASS,),
+                certification_status_filter=("foo",),
+            ),
+            {self.job_A.id: self.session.job_state_map[self.job_A.id]},
+        )
+        result_Y = MemoryJobResult({"outcome": IJobResult.OUTCOME_FAIL})
+        self.session.job_state_map[self.job_Y.id].effective_certification_status = "bar"
         self.assertEqual(self.session.get_certification_status_map(), {})
-        self.assertEqual(self.session.get_certification_status_map(
-            outcome_filter=(IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL),
-            certification_status_filter=('foo', 'bar')),
-            {self.job_A.id: self.session.job_state_map[self.job_A.id]})
+        self.assertEqual(
+            self.session.get_certification_status_map(
+                outcome_filter=(IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL),
+                certification_status_filter=("foo", "bar"),
+            ),
+            {self.job_A.id: self.session.job_state_map[self.job_A.id]},
+        )
         self.session.update_job_result(self.job_Y, result_Y)
-        self.assertEqual(self.session.get_certification_status_map(
-            outcome_filter=(IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL),
-            certification_status_filter=('foo', 'bar')),
-            {self.job_A.id: self.session.job_state_map[self.job_A.id],
-             self.job_Y.id: self.session.job_state_map[self.job_Y.id]})
+        self.assertEqual(
+            self.session.get_certification_status_map(
+                outcome_filter=(IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL),
+                certification_status_filter=("foo", "bar"),
+            ),
+            {
+                self.job_A.id: self.session.job_state_map[self.job_A.id],
+                self.job_Y.id: self.session.job_state_map[self.job_Y.id],
+            },
+        )
 
 
 class SessionMetadataTests(TestCase):
-
     def test_smoke(self):
         metadata = SessionMetaData()
         self.assertEqual(metadata.title, None)
@@ -857,7 +936,8 @@ class SessionMetadataTests(TestCase):
 
     def test_initializer(self):
         metadata = SessionMetaData(
-            title="title", flags=['f1', 'f2'], running_job_name='id')
+            title="title", flags=["f1", "f2"], running_job_name="id"
+        )
         self.assertEqual(metadata.title, "title")
         self.assertEqual(metadata.flags, set(["f1", "f2"]))
         self.assertEqual(metadata.running_job_name, "id")
@@ -873,18 +953,18 @@ class SessionMetadataTests(TestCase):
 
     def test_app_blob_default_value(self):
         metadata = SessionMetaData()
-        self.assertIs(metadata.app_blob, b'')
+        self.assertIs(metadata.app_blob, b"")
 
     def test_app_blob_assignment(self):
         metadata = SessionMetaData()
-        metadata.app_blob = b'blob'
-        self.assertEqual(metadata.app_blob, b'blob')
+        metadata.app_blob = b"blob"
+        self.assertEqual(metadata.app_blob, b"blob")
         metadata.app_blob = None
         self.assertEqual(metadata.app_blob, None)
 
     def test_app_blob_kwarg_to_init(self):
-        metadata = SessionMetaData(app_blob=b'blob')
-        self.assertEqual(metadata.app_blob, b'blob')
+        metadata = SessionMetaData(app_blob=b"blob")
+        self.assertEqual(metadata.app_blob, b"blob")
 
     def test_app_id_default_value(self):
         metadata = SessionMetaData()
@@ -892,31 +972,35 @@ class SessionMetadataTests(TestCase):
 
     def test_app_id_assignment(self):
         metadata = SessionMetaData()
-        metadata.app_id = 'com.canonical.certification.plainbox'
+        metadata.app_id = "com.canonical.certification.plainbox"
         self.assertEqual(
-            metadata.app_id, 'com.canonical.certification.plainbox')
+            metadata.app_id,
+            "com.canonical.certification.plainbox",
+        )
         metadata.app_id = None
         self.assertEqual(metadata.app_id, None)
 
     def test_app_id_kwarg_to_init(self):
         metadata = SessionMetaData(
-            app_id='com.canonical.certification.plainbox')
+            app_id="com.canonical.certification.plainbox",
+        )
         self.assertEqual(
-            metadata.app_id, 'com.canonical.certification.plainbox')
+            metadata.app_id,
+            "com.canonical.certification.plainbox",
+        )
 
 
 class SessionDeviceContextTests(SignalTestCase):
-
     def setUp(self):
         self.ctx = SessionDeviceContext()
-        self.provider = mock.Mock(name='provider', spec_set=Provider1)
-        self.unit = mock.Mock(name='unit', spec_set=UnitWithId)
+        self.provider = mock.Mock(name="provider", spec_set=Provider1)
+        self.unit = mock.Mock(name="unit", spec_set=UnitWithId)
         self.unit.provider = self.provider
         self.provider.unit_list = [self.unit]
         self.provider.problem_list = []
-        self.job = mock.Mock(name='job', spec_set=JobDefinition, siblings=None)
+        self.job = mock.Mock(name="job", spec_set=JobDefinition, siblings=None)
         self.job.get_flag_set = mock.Mock(return_value=())
-        self.job.Meta.name = 'job'
+        self.job.Meta.name = "job"
 
     def test_smoke(self):
         """
@@ -1076,7 +1160,9 @@ class SessionDeviceContextTests(SignalTestCase):
         self.ctx.remove_unit(self.unit)
         sig1 = self.assertSignalFired(self.ctx.on_unit_removed, self.unit)
         sig2 = self.assertSignalFired(
-            self.ctx.state.on_unit_removed, self.unit)
+            self.ctx.state.on_unit_removed,
+            self.unit,
+        )
         self.assertSignalOrdering(sig1, sig2)
         self.assertSignalNotFired(self.ctx.state.on_job_removed, self.unit)
 
@@ -1093,7 +1179,9 @@ class SessionDeviceContextTests(SignalTestCase):
         self.ctx.state.remove_unit(self.unit)
         sig1 = self.assertSignalFired(self.ctx.on_unit_removed, self.unit)
         sig2 = self.assertSignalFired(
-            self.ctx.state.on_unit_removed, self.unit)
+            self.ctx.state.on_unit_removed,
+            self.unit,
+        )
         self.assertSignalOrdering(sig1, sig2)
         self.assertSignalNotFired(self.ctx.state.on_job_removed, self.unit)
 

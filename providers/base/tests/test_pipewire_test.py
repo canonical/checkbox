@@ -101,8 +101,9 @@ class VolumeControllerTests(unittest.TestCase):
                                           '1'],
                                          universal_newlines=True)
 
+    @patch("time.sleep")
     @patch("subprocess.check_output")
-    def test_wpctl_output_fail(self, mock_checkout):
+    def test_wpctl_output_fail(self, mock_checkout, _):
         vc = VolumeController(type='input', logger=MagicMock())
         mock_checkout.side_effect = subprocess.CalledProcessError(2, "echo")
         with self.assertRaises(SystemExit) as cm:

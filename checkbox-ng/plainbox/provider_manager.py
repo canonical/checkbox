@@ -64,8 +64,8 @@ from plainbox.impl.secure.origin import UnknownTextSource
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.impl.secure.rfc822 import RFC822SyntaxError
-from plainbox.impl.unit.packaging import PackagingDriverError
-from plainbox.impl.unit.packaging import get_packaging_driver
+from plainbox.impl.unit.packaging_metadata import PackagingDriverError
+from plainbox.impl.unit.packaging_metadata import get_packaging_driver
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.validators import UnitValidationContext
 from plainbox.impl.validation import Issue

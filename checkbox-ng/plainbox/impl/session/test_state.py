@@ -42,7 +42,8 @@ from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.unit.job import JobDefinition
-from plainbox.impl.unit.unit import Unit
+from plainbox.impl.unit.category import CategoryUnit
+
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.vendor import mock
 from plainbox.vendor.morris import SignalTestCase
@@ -142,6 +143,45 @@ class RegressionTests(TestCase):
         ])
         self.assertEqual(state.desired_job_list, [])
         self.assertEqual(state.run_list, [])
+
+    def test_category_outcome_map(self):
+        cat_a = CategoryUnit({"id": "a", "name": "The a category"})
+        job_a = JobDefinition({"id": "a_job", "category_id": "a"})
+        state = SessionState([cat_a, job_a])
+
+        # Test different outcomes for a single category
+        result_pass = MemoryJobResult({"outcome": IJobResult.OUTCOME_PASS})
+        state.update_job_result(job_a, result_pass)
+        self.assertEqual(
+            state.category_outcome_map, {"a": IJobResult.OUTCOME_PASS}
+        )
+
+        result_fail = MemoryJobResult({"outcome": IJobResult.OUTCOME_FAIL})
+        state.update_job_result(job_a, result_fail)
+        self.assertEqual(
+            state.category_outcome_map, {"a": IJobResult.OUTCOME_FAIL}
+        )
+
+        result_skip = MemoryJobResult({"outcome": IJobResult.OUTCOME_SKIP})
+        state.update_job_result(job_a, result_skip)
+        self.assertEqual(
+            state.category_outcome_map, {"a": IJobResult.OUTCOME_SKIP},
+        )
+
+        # Test different outcomes for non valid jobs
+        job_res = JobDefinition(
+            {"id": "resource", "plugin": "resource", "category_id": "a"}
+        )
+        job_b = JobDefinition({"id": "b_job", "category_id": "b"})
+        state = SessionState([cat_a, job_a, job_res, job_b])
+
+        state.update_job_result(job_a, result_pass)
+        self.assertEqual(
+            state.category_outcome_map, {"a": IJobResult.OUTCOME_PASS}
+        )
+
+
+
 
 
 class SessionStateAPITests(TestCase):

@@ -17,3 +17,5 @@ flag_management:
       statuses:
         - type: patch
           informational: true
+        - type: project
+          informational: true

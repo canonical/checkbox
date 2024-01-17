@@ -385,9 +385,9 @@ class GstPipeLineTests(unittest.TestCase):
         mock_checkout.return_value = self.device
         self.assertEqual(PipewireTestError.NO_SPECIFIC_DEVICE,
                          pt.gst_pipeline("pipe", 10, "qoo"))
-
+    @patch("time.sleep")
     @patch("subprocess.check_output")
-    def test_gst_pipeline(self, mock_checkout):
+    def test_gst_pipeline(self, mock_checkout, _):
         pt = PipewireTest()
 
         mock_checkout.return_value = self.device
@@ -485,8 +485,9 @@ class MonitorActivePortTests(unittest.TestCase):
                       }
                      }]"""
 
+    @patch("time.sleep")
     @patch("subprocess.check_output")
-    def test_couldnt_detect_change(self, mock_checkout):
+    def test_couldnt_detect_change(self, mock_checkout, _):
         pt = PipewireTest()
 
         mock_checkout.return_value = self.before_device

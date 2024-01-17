@@ -29,7 +29,7 @@ from checkbox_ng.launcher.subcommands import (
     ResumeInstead,
     IJobResult,
     request_comment,
-    _generate_resume_candidate_description,
+    generate_resume_candidate_description,
 )
 
 
@@ -408,21 +408,21 @@ class TestUtilsFunctions(TestCase):
 
         self.assertEqual(comment, "failure")
 
-    def test__generate_resume_candidate_description_default_time(self):
+    def test_generate_resume_candidate_description_default_time(self):
         candidate_mock = MagicMock()
         candidate_mock.metadata.app_blob = b'{ "testplan_id" : "123" }'
         candidate_mock.metadata.title = "Title"
         candidate_mock.metadata.last_job_start_time = None
         candidate_mock.metadata.running_job_name = "Test"
 
-        description = _generate_resume_candidate_description(candidate_mock)
+        description = generate_resume_candidate_description(candidate_mock)
 
         self.assertIn("Unknown", description)
         self.assertIn("123", description)
         self.assertIn("Title", description)
         self.assertIn("Test", description)
 
-    def test__generate_resume_candidate_description(self):
+    def test_generate_resume_candidate_description(self):
         candidate_mock = MagicMock()
         candidate_mock.metadata.app_blob = b'{ "testplan_id" : "123" }'
         candidate_mock.metadata.title = "Title"
@@ -432,7 +432,7 @@ class TestUtilsFunctions(TestCase):
         candidate_mock.metadata.last_job_start_time = date.timestamp()
         candidate_mock.metadata.running_job_name = "Test"
 
-        description = _generate_resume_candidate_description(candidate_mock)
+        description = generate_resume_candidate_description(candidate_mock)
 
         self.assertIn("2023", description)
         self.assertIn("123", description)

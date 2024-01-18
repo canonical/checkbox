@@ -94,3 +94,11 @@ Conclusion
 ----------
 
 This Canary Testing process, complete from snap building to testing, ensures that every release of Checkbox in the edge channel is thoroughly vetted and stable. 
+
+
+.. toctree::
+   :hidden:
+
+   canary_pipeline
+   validation_pipeline_execution
+   validation_job_example

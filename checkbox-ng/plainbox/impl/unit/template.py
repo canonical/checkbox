@@ -35,8 +35,8 @@ from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import all_units
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit import get_accessed_parameters
-from plainbox.impl.unit.unit import Unit
-from plainbox.impl.unit.unit import UnitValidator
+from plainbox.impl.unit.unit_with_id import UnitWithId
+from plainbox.impl.unit.unit_with_id import UnitWithIdValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import ReferenceConstraint
 from plainbox.impl.unit.validators import UnitReferenceValidator
@@ -50,7 +50,7 @@ __all__ = ['TemplateUnit']
 logger = logging.getLogger("plainbox.unit.template")
 
 
-class TemplateUnitValidator(UnitValidator):
+class TemplateUnitValidator(UnitWithIdValidator):
 
     """Validator for template unit."""
 
@@ -78,7 +78,7 @@ class TemplateUnitValidator(UnitValidator):
                 yield issue
 
 
-class TemplateUnit(Unit):
+class TemplateUnit(UnitWithId):
 
     """
     Template that can instantiate zero or more additional units.
@@ -166,21 +166,9 @@ class TemplateUnit(Unit):
         return "{} <~ {}".format(self.id, self.resource_id)
 
     @property
-    def partial_id(self):
         """
-        Identifier of this job, without the provider name.
 
-        This field should not be used anymore, except for display
         """
-        return self.get_record_value('id', '?')
-
-    @property
-    def id(self):
-        """Identifier of this template unit."""
-        if self.provider:
-            return "{}::{}".format(self.provider.namespace, self.partial_id)
-        else:
-            return self.partial_id
 
     @property
     def resource_partial_id(self):

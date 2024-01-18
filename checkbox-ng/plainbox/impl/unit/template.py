@@ -166,9 +166,13 @@ class TemplateUnit(UnitWithId):
         return "{} <~ {}".format(self.id, self.resource_id)
 
     @property
+    def unit(self):
         """
+        The value of the unit field (overridden)
 
+        The return value is always "template"
         """
+        return "template"
 
     @property
     def resource_partial_id(self):

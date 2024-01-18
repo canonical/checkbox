@@ -79,6 +79,49 @@ class IssueMixIn:
                 '\n'.join(" - {!r}".format(issue) for issue in issue_list))
             return self.fail(msg)
 
+    def assertIssueNotFound(self, issue_list, field=None, kind=None,
+                            severity=None, message=None):
+        """
+        Raise an assertion if no issue matching the provided criteria is found
+
+        :param issue_list:
+            A list of issues to look through
+        :param field:
+            (optional) value that must match the same attribute on the Issue
+        :param kind:
+            (optional) value that must match the same attribute on the Issue
+        :param severity:
+            (optional) value that must match the same attribute on the Issue
+        :param message:
+            (optional) value that must match the same attribute on the Issue
+        :returns:
+            The issue matching those constraints, if found
+        """
+        for issue in issue_list:
+            if field is not None and issue.field is not field:
+                continue
+            if severity is not None and issue.severity is not severity:
+                continue
+            if kind is not None and issue.kind is not kind:
+                continue
+            if message is not None and issue.message != message:
+                continue
+            # return issue
+            return self.fail("Issue matching the given criteria found!")
+            msg = "Issue matching:\n{}\nwas found in:\n{}".format(
+                '\n'.join(
+                    ' * {} is {!r}'.format(issue_attr, value)
+                    for issue_attr, value in
+                    [('field', field),
+                     ('severity', severity),
+                     ('kind', kind),
+                     ('message', message)]
+                    if value is not None),
+                '\n'.join(" - {!r}".format(issue) for issue in issue_list))
+            return self.fail(msg)
+        else:
+            return issue
+
 
 class TestUnitDefinition(TestCase):
 

@@ -34,7 +34,6 @@ class CpuidMainTests(unittest.TestCase):
     @patch("subprocess.check_output")
     @patch("cpuid.CPUID")
     def test_hygon_dhyana_plus(self, cpuid_mock, co_mock, print_mock):
-        #import pdb; pdb.set_trace()
         call_mock = MagicMock()
         call_mock.return_value = [0x900f22, 0x0, 0x0, 0x0]
         cpuid_mock.return_value = call_mock

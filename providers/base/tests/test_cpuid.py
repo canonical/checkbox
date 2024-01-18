@@ -47,10 +47,54 @@ class CpuidMainTests(unittest.TestCase):
     @patch("subprocess.check_output")
     @patch("cpuid.CPUID")
     def test_unknown_cpu(self, cpuid_mock, co_mock):
-        #import pdb; pdb.set_trace()
         call_mock = MagicMock()
         call_mock.return_value = [0xdeadbeef, 0x0, 0x0, 0x0]
         cpuid_mock.return_value = call_mock
         co_mock.return_value = ""
         with self.assertRaises(SystemExit):
             main()
+
+    @patch("builtins.print")
+    @patch("subprocess.check_output")
+    @patch("cpuid.CPUID")
+    def test_raptor_lake(self, cpuid_mock, co_mock, print_mock):
+        call_mock = MagicMock()
+        call_mock.return_value = [0xb0671, 0x0, 0x0, 0x0]
+        cpuid_mock.return_value = call_mock
+        co_mock.return_value = ""
+        main()
+        expected_msg = "CPUID: {} which appears to be a {} processor".format(
+            "0xb0671", "Raptor Lake"
+        )
+        print_mock.assert_called_with(expected_msg)
+
+
+    @patch("builtins.print")
+    @patch("subprocess.check_output")
+    @patch("cpuid.CPUID")
+    def test_emerald_rapids(self, cpuid_mock, co_mock, print_mock):
+        call_mock = MagicMock()
+        call_mock.return_value = [0xc06f2, 0x0, 0x0, 0x0]
+        cpuid_mock.return_value = call_mock
+        co_mock.return_value = ""
+        main()
+        expected_msg = "CPUID: {} which appears to be a {} processor".format(
+            "0xc06f2", "Emerald Rapids"
+        )
+        print_mock.assert_called_with(expected_msg)
+
+
+    @patch("builtins.print")
+    @patch("subprocess.check_output")
+    @patch("cpuid.CPUID")
+    def test_amd_siena_sp6(self, cpuid_mock, co_mock, print_mock):
+        #import pdb; pdb.set_trace()
+        call_mock = MagicMock()
+        call_mock.return_value = [0xaa0f02, 0x0, 0x0, 0x0]
+        cpuid_mock.return_value = call_mock
+        co_mock.return_value = ""
+        main()
+        expected_msg = "CPUID: {} which appears to be a {} processor".format(
+            "0xaa0f02", "AMD Siena SP6"
+        )
+        print_mock.assert_called_with(expected_msg)

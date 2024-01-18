@@ -85,7 +85,8 @@ include:
     cpu/clocktest
     cpu/offlining_test
     cpu/topology
-    cpu/arm_vfp_support_.*
+    cpu/armhf_vfp_support_.*
+    cpu/arm64_vfp_support_.*
     cpu/cstates
     cpu/cstates_results.log
 
@@ -99,6 +100,7 @@ include:
     cpu/maxfreq_test                            certification-status=blocker
     cpu/maxfreq_test-log-attach                 certification-status=non-blocker
     cpu/topology                                certification-status=blocker
-    cpu/arm_vfp_support_.*                      certification-status=non-blocker
+    cpu/armhf_vfp_support_.*                    certification-status=non-blocker
+    cpu/arm64_vfp_support_.*                    certification-status=non-blocker
     cpu/cstates                                 certification-status=non-blocker
     cpu/cstates_results.log                     certification-status=non-blocker

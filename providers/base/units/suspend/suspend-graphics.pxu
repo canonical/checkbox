@@ -304,6 +304,7 @@ _description:
      This test will test display rotation on the {{ vendor }} {{ product }} graphics card after suspend
  STEPS:
      1. Click "Test" to test display rotation. The display will be rotated every 4 seconds.
-     2. Check if all rotations (normal right inverted left) took place without permanent screen corruption
+     2. Try moving the mouse or try opening multiple terminals via ‘Ctrl+Alt+T’ every time the screen automatically turns
+     3. Check if all rotations (normal right inverted left) took place without permanent screen corruption
  VERIFICATION:
      Did the display rotation take place without permanent screen corruption after suspend?

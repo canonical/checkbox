@@ -1,2 +1,3 @@
 # Devices QA team
 contrib/checkbox-provider-ce-oem @canonical/oem-qa
+.github/workflows/tox-contrib-provider-ce-oem.yaml @canonical/oem-qa

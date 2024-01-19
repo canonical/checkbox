@@ -24,11 +24,15 @@ from metabox.core.actions import (
     Put,
     AssertPrinted,
     RunManage,
+    AssertInFile,
+    RunCmd,
 )
 from metabox.core.utils import tag
 from . import units
 
-path = "/home/ubuntu/checkbox/metabox/metabox/metabox-provider/units/packaging.pxu"
+provider_path = "/home/ubuntu/checkbox/metabox/metabox/metabox-provider"
+packaging_pxu_path = f"{provider_path}/untis/packaging.pxu"
+substvar_path = f"{provider_path}/debian/metabox-provider.substvars"
 
 
 @tag("packaging")
@@ -42,9 +46,13 @@ class DebPackagingJammy(Scenario):
     packaging_pxu = read_text(units, "packaging.pxu")
 
     steps = [
-        Put(path, packaging_pxu),
+        Put(provider_path+"units/packaging.pxu", packaging_pxu),
         RunManage(command="packaging"),
         AssertRetCode(0),
+        AssertInFile("dep-pack-gt-20", substvar_path),
+        AssertInFile("rec-pack-gt-20", substvar_path),
+        AssertInFile("sug-pack-gt-20", substvar_path),
+        RunCmd(f"rm -f {substvar_path}"),
     ]
 
 

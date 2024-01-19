@@ -25,7 +25,7 @@ __all__ = [
     "Start", "Expect", "Send", "SelectTestPlan",
     "AssertPrinted", "AssertNotPrinted", "AssertRetCode",
     "AssertAgentActive", "Sleep", "RunCmd", "Signal", "Reboot",
-    "NetUp", "NetDown", "Put", "MkTree", "RunManage"
+    "NetUp", "NetDown", "Put", "MkTree", "RunManage", "AssertInFile"
 ]
 
 
@@ -107,3 +107,7 @@ class MkTree(ActionBase):
 
 class RunManage(ActionBase):
     handler = "run_manage"
+
+
+class AssertInFile(ActionBase):
+    handler = "assert_in_file"

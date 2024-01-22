@@ -21,9 +21,9 @@
 from unittest import TestCase
 import textwrap
 
-from plainbox.impl.unit.packaging import DebianPackagingDriver
-from plainbox.impl.unit.packaging import PackagingDriverBase
-from plainbox.impl.unit.packaging import PackagingMetaDataUnit
+from plainbox.impl.unit.packaging_metadata import DebianPackagingDriver
+from plainbox.impl.unit.packaging_metadata import PackagingDriverBase
+from plainbox.impl.unit.packaging_metadata import PackagingMetaDataUnit
 from plainbox.impl.unit.test_unit import UnitFieldValidationTests
 from plainbox.impl.unit.validators import UnitValidationContext
 from plainbox.impl.validation import Problem

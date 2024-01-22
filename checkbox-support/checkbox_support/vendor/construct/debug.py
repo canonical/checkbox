@@ -22,9 +22,9 @@ class Probe(Construct):
         --------------------------------------------------
         Probe, path is (parsing), into is None
         Stream peek: (hexlified) b'010203'...
-        Container: 
+        Container:
             count = 5
-            items = ListContainer: 
+            items = ListContainer:
                 97
                 98
                 99
@@ -95,11 +95,11 @@ class Probe(Construct):
 class Debugger(Subconstruct):
     r"""
     PDB-based debugger. When an exception occurs in the subcon, a debugger will appear and allow you to debug the error (and even fix it on-the-fly).
-    
+
     :param subcon: Construct instance, subcon to debug
-    
+
     Example::
-    
+
         >>> Debugger(Byte[3]).build([])
 
         --------------------------------------------------

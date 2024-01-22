@@ -58,7 +58,7 @@ class Scenario:
         mode,
         *releases,
         controller_revision="current",
-        agent_revision="current"
+        agent_revision="current",
     ):
         self.mode = mode
         self.releases = releases
@@ -68,11 +68,12 @@ class Scenario:
         self.controller_revision = controller_revision
         self.agent_machine = None
         self.agent_revision = agent_revision
+        self.start_session = True
         self._checks = []
         self._ret_code = None
         self._stdout = ""
         self._stderr = ""
-        self._oudstr_full = ""
+        self._outstr_full = ""
         self._pts = None
 
     def get_output_streams(self):
@@ -86,7 +87,12 @@ class Scenario:
 
     def run(self):
         # Simple scenarios don't need to specify a START step
-        if not any([isinstance(s, Start) for s in self.steps]):
+        # If there's no START step, add one unless the scenario
+        # explicitly says not to start a session
+        if (
+            not any([isinstance(s, Start) for s in self.steps])
+            and self.start_session
+        ):
             self.steps.insert(0, Start())
         for i, step in enumerate(self.steps):
             # Check how to start checkbox, interactively or not
@@ -160,8 +166,8 @@ class Scenario:
     def assertNotEqual(self, first, second):
         self._checks.append(first != second)
 
-    def start(self, cmd='', interactive=False, timeout=0):
-        if self.mode == 'remote':
+    def start(self, cmd="", interactive=False, timeout=0):
+        if self.mode == "remote":
             outcome = self.start_all(interactive=interactive, timeout=timeout)
             if interactive:
                 self._pts = outcome
@@ -230,14 +236,22 @@ class Scenario:
     def run_cmd(self, cmd, env={}, interactive=False, timeout=0, target="all"):
         if self.mode == "remote":
             if target == "controller":
-                self.controller_machine.run_cmd(cmd, env, interactive, timeout)
+                result = self.controller_machine.run_cmd(
+                    cmd, env, interactive, timeout
+                )
             elif target == "agent":
-                self.agent_machine.run_cmd(cmd, env, interactive, timeout)
+                result = self.agent_machine.run_cmd(
+                    cmd, env, interactive, timeout
+                )
             else:
                 self.controller_machine.run_cmd(cmd, env, interactive, timeout)
-                self.agent_machine.run_cmd(cmd, env, interactive, timeout)
+                result = self.agent_machine.run_cmd(
+                    cmd, env, interactive, timeout
+                )
         else:
-            self.local_machine.run_cmd(cmd, env, interactive, timeout)
+            result = self.local_machine.run_cmd(cmd, env, interactive, timeout)
+
+        return result
 
     def reboot(self, timeout=0, target="all"):
         if self.mode == "remote":
@@ -306,17 +320,13 @@ class Scenario:
         cmd_str = shlex.join(cmd)
         self.run_cmd(cmd_str, target=target, timeout=timeout)
 
-    def run_manage(self, command, privileged=False, timeout=0, target="all"):
+    def run_manage(self, args, privileged=False, timeout=0, target="all"):
         """
         Runs the manage.py script with some arguments
         """
         path = "/home/ubuntu/checkbox/metabox/metabox/metabox-provider"
-        cmd = ["manage.py", command, path]
-        if privileged:
-            cmd = ["sudo"] + cmd
-        cmd_str = shlex.join(cmd)
-        cmd_str = f"cd {path}; " + cmd_str
-        self.run_cmd(cmd_str, target=target, timeout=timeout)
+        cmd = f"bash -c 'cd {path} ; python3 manage.py {args}'"
+        self.run_cmd(cmd, target=target, timeout=timeout)
 
     def assert_in_file(self, pattern, path):
         """
@@ -325,10 +335,6 @@ class Scenario:
         :param patter: regular expresion to check against the lines.
         :param path: path to the file
         """
+        result = self.run_cmd(f"cat {path}")
         regex = re.compile(pattern)
-        with open(path, "r") as file:
-            data = file.read()
-            self._checks.append(
-                bool(regex.search(data))
-                or bool(regex.search(data))
-            )
+        self._checks.append(bool(regex.search(result.stdout)))

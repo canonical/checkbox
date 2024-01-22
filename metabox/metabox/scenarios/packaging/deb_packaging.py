@@ -31,7 +31,7 @@ from metabox.core.utils import tag
 from . import units
 
 provider_path = "/home/ubuntu/checkbox/metabox/metabox/metabox-provider"
-packaging_pxu_path = f"{provider_path}/untis/packaging.pxu"
+packaging_pxu_path = f"{provider_path}/units/packaging.pxu"
 substvar_path = f"{provider_path}/debian/metabox-provider.substvars"
 
 
@@ -42,13 +42,13 @@ class DebPackagingJammy(Scenario):
     """
 
     modes = ["local"]
+    start_session = False
     config_override = {"local": {"releases": ["jammy"]}}
     packaging_pxu = read_text(units, "packaging.pxu")
 
     steps = [
-        Put(provider_path+"units/packaging.pxu", packaging_pxu),
-        RunManage(command="packaging"),
-        AssertRetCode(0),
+        Put(f"{provider_path}/units/packaging.pxu", packaging_pxu),
+        RunManage(args="packaging"),
         AssertInFile("dep-pack-gt-20", substvar_path),
         AssertInFile("rec-pack-gt-20", substvar_path),
         AssertInFile("sug-pack-gt-20", substvar_path),
@@ -57,60 +57,41 @@ class DebPackagingJammy(Scenario):
 
 
 @tag("packaging")
-class DebPackagingJammy2(Scenario):
+class DebPackagingFocal(Scenario):
     """
-    Verifies that the deb-packaging test pass on jammy (22.04).
+    Verifies that the deb-packaging test pass on focal (20.04).
     """
 
     modes = ["local"]
-    config_override = {"local": {"releases": ["jammy"]}}
+    start_session = False
+    config_override = {"local": {"releases": ["focal"]}}
     packaging_pxu = read_text(units, "packaging.pxu")
 
     steps = [
-        Put(path, packaging_pxu),
-        Start("run 2021.com.canonical.certification::deb-packaging"),
-        AssertRetCode(0),
-        AssertPrinted("dep-pack-gt-20"),
-        AssertPrinted("rec-pack-gt-20"),
-        AssertPrinted("sug-pack-gt-20"),
+        Put(f"{provider_path}/units/packaging.pxu", packaging_pxu),
+        RunManage(args="packaging"),
+        AssertInFile("dep-pack-le-20", substvar_path),
+        AssertInFile("rec-pack-le-20", substvar_path),
+        AssertInFile("sug-pack-le-20", substvar_path),
+        RunCmd(f"rm -f {substvar_path}"),
     ]
 
 
-# @tag("packaging")
-# class DebPackagingFocal(Scenario):
-#     """
-#     Verifies that the deb-packaging test pass on focal (20.04).
-#     """
+@tag("packaging")
+class DebPackagingBionic(Scenario):
+    """
+    Verifies that the deb-packaging test pass on bionic (18.04).
+    """
 
-#     modes = ["local"]
-#     config_override = {"local": {"releases": ["focal"]}}
-#     packaging_pxu = read_text(units, "packaging.pxu")
+    modes = ["local"]
+    config_override = {"local": {"releases": ["bionic"]}}
+    packaging_pxu = read_text(units, "packaging.pxu")
 
-#     steps = [
-#         Put(path, packaging_pxu),
-#         Start("run 2021.com.canonical.certification::deb-packaging"),
-#         AssertRetCode(0),
-#         AssertPrinted("dep-pack-le-20"),
-#         AssertPrinted("rec-pack-le-20"),
-#         AssertPrinted("sug-pack-le-20"),
-#     ]
-
-
-# @tag("packaging")
-# class DebPackagingBionic(Scenario):
-#     """
-#     Verifies that the deb-packaging test pass on bionic (18.04).
-#     """
-
-#     modes = ["local"]
-#     config_override = {"local": {"releases": ["bionic"]}}
-#     packaging_pxu = read_text(units, "packaging.pxu")
-
-#     steps = [
-#         Put(path, packaging_pxu),
-#         Start("run 2021.com.canonical.certification::deb-packaging"),
-#         AssertRetCode(0),
-#         AssertPrinted("dep-pack-le-20"),
-#         AssertPrinted("rec-pack-le-20"),
-#         AssertPrinted("sug-pack-le-20"),
-#     ]
+    steps = [
+        Put(f"{provider_path}/units/packaging.pxu", packaging_pxu),
+        RunManage(args="packaging"),
+        AssertInFile("dep-pack-le-20", substvar_path),
+        AssertInFile("rec-pack-le-20", substvar_path),
+        AssertInFile("sug-pack-le-20", substvar_path),
+        RunCmd(f"rm -f {substvar_path}"),
+    ]

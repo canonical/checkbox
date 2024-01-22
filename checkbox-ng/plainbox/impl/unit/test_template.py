@@ -456,6 +456,26 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
             issue_list, self.unit_cls.Meta.fields.template_id,
             Problem.wrong, Severity.error, message)
 
+    def test_template_id__unique(self):
+        unit = self.unit_cls({
+            'template-id': 'id'
+        }, provider=self.provider)
+        other_unit = self.unit_cls({
+            'template-id': 'id'
+        }, provider=self.provider)
+        self.provider.unit_list = [unit, other_unit]
+        self.provider.problem_list = []
+        context = UnitValidationContext([self.provider])
+        message_start = (
+            "{} 'id', field 'template-id', clashes with 1 other unit,"
+            " look at: "
+        ).format(unit.tr_unit())
+        issue_list = unit.check(context=context)
+        issue = self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_id,
+            Problem.not_unique, Severity.error)
+        self.assertTrue(issue.message.startswith(message_start))
+
     def test_unit__present(self):
         """
         TemplateUnit.unit always returns "template", the default error for the

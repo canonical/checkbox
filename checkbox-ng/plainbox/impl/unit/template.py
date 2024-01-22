@@ -23,6 +23,7 @@
 """
 import itertools
 import logging
+import string
 
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
@@ -40,8 +41,8 @@ from plainbox.impl.unit.unit_with_id import UnitWithIdValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import ReferenceConstraint
 from plainbox.impl.unit.validators import UnitReferenceValidator
+from plainbox.impl.unit.validators import UniqueValueValidator
 from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
 
 
 __all__ = ['TemplateUnit']
@@ -207,6 +208,28 @@ class TemplateUnit(UnitWithId):
             return resource_partial_id
         else:
             return "{}::{}".format(resource_namespace, resource_partial_id)
+
+    @classmethod
+    def slugify_template_id(cls, _string=None):
+        """
+        Remove unwanted characters from a raw job id string.
+
+        This helps exposing cleaner looking template ids when the id is
+        generated from the id field by removing characters like '{', '}',
+        and ' '.
+        """
+        if _string:
+            valid_chars = frozenset(
+                "-_.:/\\{}{}".format(string.ascii_letters, string.digits)
+            )
+            return "".join(c if c in valid_chars else "" for c in _string)
+
+    @property
+    def template_id(self):
+        template_id = self.get_record_value("template-id")
+        if not template_id:
+            template_id = self.slugify_template_id(self.id)
+        return template_id
 
     @property
     def template_resource(self):
@@ -428,6 +451,7 @@ class TemplateUnit(UnitWithId):
 
             """Symbols for each field that a TemplateUnit can have."""
 
+            template_id = "template-id"
             template_unit = 'template-unit'
             template_resource = 'template-resource'
             template_filter = 'template-filter'
@@ -436,6 +460,17 @@ class TemplateUnit(UnitWithId):
         validator_cls = TemplateUnitValidator
 
         field_validators = {
+            fields.template_id: [
+                concrete_validators.untranslatable,
+                concrete_validators.templateVariant,
+                UniqueValueValidator(),
+                # We want to have bare, namespace-less identifiers
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        "::" not in unit.get_record_value("template-id")),
+                    message=_("identifier cannot define a custom namespace"),
+                    onlyif=lambda unit: unit.get_record_value("template-id")),
+            ],
             fields.template_unit: [
                 concrete_validators.untranslatable,
             ],

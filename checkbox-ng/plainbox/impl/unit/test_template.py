@@ -175,6 +175,54 @@ class TemplateUnitTests(TestCase):
             'template-resource': 'rc'
         }, provider=provider).resource_id, 'namespace::rc')
 
+    def test_slugify(self):
+        self.assertEqual(
+            TemplateUnit.slugify_template_id("stress/benchmark_{disk}"),
+            "stress/benchmark_disk"
+        )
+        self.assertEqual(
+            TemplateUnit.slugify_template_id("ns::stress/benchmark_{disk}"),
+            "ns::stress/benchmark_disk"
+        )
+        self.assertEqual(
+            TemplateUnit.slugify_template_id("suspend_{{ iterations }}_times"),
+            "suspend_iterations_times"
+        )
+        self.assertEqual(TemplateUnit.slugify_template_id(), None)
+
+    def test_template_id(self):
+        self.assertEqual(TemplateUnit({
+            "template-id": "template_id",
+        }).template_id, "template_id")
+
+    def test_template_id__from_job_id(self):
+        self.assertEqual(TemplateUnit({
+            "id": "job_id_{param}",
+        }).template_id, "job_id_param")
+
+    def test_template_id__precedence(self):
+        """Ensure template-id takes precedence over job id."""
+        self.assertEqual(TemplateUnit({
+            "template-id": "template_id",
+            "id": "job_id_{param}",
+        }).template_id, "template_id")
+
+    def test_template_id__from_job_id_jinja2(self):
+        self.assertEqual(TemplateUnit({
+            "template-resource": "resource",
+            "template-engine": "jinja2",
+            "id": "job_id_{{ param }}",
+        }).template_id, "job_id_param")
+
+    def test_template_id__precedence_jinja2(self):
+        """Ensure template-id takes precedence over Jinja2-templated job id."""
+        self.assertEqual(TemplateUnit({
+            "template-id": "template_id",
+            "template-resource": "resource",
+            "template-engine": "jinja2",
+            "id": "job_id_{{ param }}",
+        }).template_id, "template_id")
+
     def test_template_resource__empty(self):
         self.assertEqual(TemplateUnit({}).template_resource, None)
 
@@ -389,6 +437,24 @@ class TemplateUnitJinja2Tests(TestCase):
 class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
 
     unit_cls = TemplateUnit
+
+    def test_template_id__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_template-id': 'template_id'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_id,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_template_id__bare(self):
+        issue_list = self.unit_cls({
+            "template-id": "ns::id"
+        }, provider=self.provider).check()
+        message = ("field 'template-id', identifier cannot define a custom "
+                   "namespace")
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_id,
+            Problem.wrong, Severity.error, message)
 
     def test_unit__present(self):
         """

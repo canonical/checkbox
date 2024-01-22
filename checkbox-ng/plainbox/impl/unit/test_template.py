@@ -450,8 +450,8 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
         issue_list = self.unit_cls({
             "template-id": "ns::id"
         }, provider=self.provider).check()
-        message = ("field 'template-id', identifier cannot define a custom "
-                   "namespace")
+        message = ("template 'ns::id', field 'template-id', identifier cannot "
+                   "define a custom namespace")
         self.assertIssueFound(
             issue_list, self.unit_cls.Meta.fields.template_id,
             Problem.wrong, Severity.error, message)

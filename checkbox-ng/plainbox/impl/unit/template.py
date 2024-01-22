@@ -225,11 +225,27 @@ class TemplateUnit(UnitWithId):
             return "".join(c if c in valid_chars else "" for c in _string)
 
     @property
+    def template_partial_id(self):
+        """
+        Identifier of this template, without the provider namespace.
+
+        If the ``template-id`` field is not present in the unit definition,
+        ``template_partial_id`` is computed from the ``partial_id`` attribute.
+        """
+        template_partial_id = self.get_record_value("template-id")
+        if not template_partial_id:
+            template_partial_id = self.slugify_template_id(self.partial_id)
+        return template_partial_id
+
+    @property
     def template_id(self):
-        template_id = self.get_record_value("template-id")
-        if not template_id:
-            template_id = self.slugify_template_id(self.id)
-        return template_id
+        """Identifier of this template, with the provider namespace."""
+        if self.provider and self.template_partial_id:
+            return "{}::{}".format(self.provider.namespace,
+                                   self.template_partial_id
+                                   )
+        else:
+            return self.template_partial_id
 
     @property
     def template_resource(self):

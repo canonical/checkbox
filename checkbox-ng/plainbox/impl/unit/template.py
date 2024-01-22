@@ -78,6 +78,26 @@ class TemplateUnitValidator(UnitWithIdValidator):
                 self.issue_list.append(issue)
                 yield issue
 
+    def explain(self, unit, field, kind, message):
+        """
+        Lookup an explanatory string for a given issue kind
+
+        :returns:
+            A string (explanation) or None if the issue kind
+            is not known to this method.
+
+        This version overrides the base implementation to use the unit
+        template_id, if it is available, when reporting issues.
+        """
+        if unit.template_partial_id is None:
+            return super().explain(unit, field, kind, message)
+        stock_msg = self._explain_map.get(kind)
+        if stock_msg is None:
+            return None
+        return _("{unit} {id!a}, field {field!a}, {message}").format(
+            unit=unit.tr_unit(), id=unit.template_partial_id, field=str(field),
+            message=message or stock_msg)
+
 
 class TemplateUnit(UnitWithId):
 

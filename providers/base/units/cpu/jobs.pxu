@@ -176,7 +176,7 @@ template-filter: cpuinfo.platform == 'armv7l'
 template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::cpu
-id: cpu/arm_vfp_support_{platform}
+id: cpu/armhf_vfp_support_{platform}
 estimated_duration: 1.0
 user: root
 command:
@@ -192,7 +192,7 @@ template-filter: cpuinfo.platform == 'aarch64'
 template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::cpu
-id: cpu/arm_vfp_support_{platform}
+id: cpu/arm64_vfp_support_{platform}
 estimated_duration: 1.0
 user: root
 command:

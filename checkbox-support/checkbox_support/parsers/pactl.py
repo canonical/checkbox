@@ -170,7 +170,7 @@ class Profile(Node):
             lambda t: t[0].rstrip(':')
         ).setResultsName("profile-name")
         + p.delimitedList(
-            p.Literal("(HDMI)") | p.Literal("(IEC958)") | p.Regex('[^ (\n]+'),
+            p.Literal("(HDMI)") | p.Literal("(IEC958)") | p.Regex(r'[^ (\n]+'),
             ' ', combine=True
         ).setResultsName('profile-label')
         + p.Suppress('(')
@@ -229,7 +229,7 @@ class Port(Node):
         # anything other than a space and '(', delimited by a single
         # whitespace.
         + p.delimitedList(
-            p.Regex('[^ (\n]+'), ' ', combine=True
+            p.Regex(r'[^ (\n]+'), ' ', combine=True
         ).setResultsName('port-label')
         + p.Suppress('(')
         + p.Optional(
@@ -314,10 +314,10 @@ class PortWithProfile(Node):
         + p.Combine(
             p.OneOrMore(
                 ~p.FollowedBy(
-                    p.Regex('\(.+?\)')
+                    p.Regex(r'\(.+?\)')
                     + p.LineEnd()
                 )
-                + p.Regex('[^ \n]+')
+                + p.Regex(r'[^ \n]+')
                 + p.White().suppress()
             ),
             ' '
@@ -384,13 +384,13 @@ class PortWithProfile(Node):
 # Non-collection attributes
 # =========================
 
-AttributeName = p.Regex("[a-zA-Z][^:\n]+").setResultsName("attribute-name")
+AttributeName = p.Regex(r"[a-zA-Z][^:\n]+").setResultsName("attribute-name")
 
 
 ActivePortAttributeValue = (
     p.Combine(
         p.Or([p.Literal('[Out] '), p.Literal('[In] ')]).suppress()
-        + p.Regex("[^\n]*")
+        + p.Regex(r"[^\n]*")
         + p.LineEnd().suppress(),
         adjacent=False
     ).setResultsName("attribute-value")
@@ -402,27 +402,27 @@ VolumeAttributeValue = (
         p.Or([
             p.Or([
                 p.Literal("(invalid)"),
-                p.Regex("([0-9]+: +[0-9]+% ?)+")
+                p.Regex(r"([0-9]+: +[0-9]+% ?)+")
             ]),
             p.Or([
                 p.Literal("(invalid)"),
-                p.Regex("([0-9]+: +[0-9]+% ?)+")
+                p.Regex(r"([0-9]+: +[0-9]+% ?)+")
             ])
             + p.LineEnd()
             + p.Optional(p.White('\t').suppress())
             + p.Or([
                 p.Literal("(invalid)"),
-                p.Regex("([0-9]+: -?([0-9]+\.[0-9]+|inf) dB ?)+"),
+                p.Regex(r"([0-9]+: -?([0-9]+\.[0-9]+|inf) dB ?)+"),
             ]),
             p.Or([
                 p.Literal("(invalid)"),
-                p.Regex("([\w\-]+: [0-9]+ / +[0-9]+%(?: /"
+                p.Regex(r"([\w\-]+: [0-9]+ / +[0-9]+%(?: /"
                         " +-?([0-9]+\.[0-9]+|inf) dB)?,? *)+")
             ])
         ])
         + p.LineEnd()
         + p.Optional(p.White('\t').suppress())
-        + p.Regex("balance -?[0-9]+\.[0-9]+")
+        + p.Regex(r"balance -?[0-9]+\.[0-9]+")
         + p.LineEnd(),
         adjacent=False
     ).setResultsName("attribute-value")
@@ -431,10 +431,10 @@ VolumeAttributeValue = (
 
 BaseVolumeAttributeValue = (
     p.Combine(
-        p.Regex("[0-9]+%")
+        p.Regex(r"[0-9]+%")
         + p.LineEnd()
         + p.Optional(p.White('\t').suppress())
-        + p.Regex("-?[0-9]+\.[0-9]+ dB")
+        + p.Regex(r"-?[0-9]+\.[0-9]+ dB")
         + p.LineEnd(),
         adjacent=False
     ).setResultsName("attribute-value")
@@ -442,7 +442,7 @@ BaseVolumeAttributeValue = (
 
 
 SimpleAttributeValue = (
-    p.Regex("[^\n]*").setResultsName("attribute-value")
+    p.Regex(r"[^\n]*").setResultsName("attribute-value")
     + p.LineEnd().suppress())
 
 # simple values
@@ -565,7 +565,7 @@ class Record(Node):
     __syntax__ = (
         p.LineStart()
         + p.NotAny(p.White(' \t'))
-        + p.Regex("[A-Z][a-zA-Z ]+ #[0-9]+").setResultsName("record-name")
+        + p.Regex(r"[A-Z][a-zA-Z ]+ #[0-9]+").setResultsName("record-name")
         + p.LineEnd().suppress()
         + p.OneOrMore(
             p.Or([

@@ -11,8 +11,8 @@ exception that all the fields starting with the string ``template-`` are
 reserved for the template itself while all the other fields are a definition of
 all the eventual instances of the template.
 
-There is one particular requirement on the job's ``id`` field for the instances
-to be generated. This ``id`` field value must be template-based, for example ::
+There are two requirements for the job's ``id`` field for the instances to
+be generated. It must be unique, and it must be template-based, for example::
 
   unit: template
   template-resource: graphics_card
@@ -32,6 +32,15 @@ Template-Specific Fields
 ------------------------
 
 There are four fields that are specific to the template unit:
+.. _Template template-id field:
+
+``template-id``
+    Unique identifier for this template.
+
+    This field is optional. If absent, a ``template-id`` value will be computed
+    from the ``id`` field. For instance, if the ``id`` field is
+    ``stress/reboot_{iterations}_times``, the computed ``template-id`` field
+    will be ``stress/reboot_iterations_times``.
 
 .. _Template template-unit field:
 

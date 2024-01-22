@@ -247,9 +247,3 @@ id: dependency_installation
 command: dependency_installation.py
 _summary: Verify that all required modules are installed
 _description: Verify that all required modules are installed
-
-plugin: shell
-id: deb-packaging
-command: create_packaging.py
-_summary: Test the packaging meta data for a specific version
-_description: Test the packaging meta data for a specific version

@@ -15,24 +15,24 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from importlib.resources import read_text
+from pathlib import Path
 
 from metabox.core.scenario import Scenario
 from metabox.core.actions import (
-    AssertRetCode,
-    Start,
     Put,
-    AssertPrinted,
     RunManage,
     AssertInFile,
     RunCmd,
 )
 from metabox.core.utils import tag
-from . import units
 
 provider_path = "/home/ubuntu/checkbox/metabox/metabox/metabox-provider"
 packaging_pxu_path = f"{provider_path}/units/packaging.pxu"
 substvar_path = f"{provider_path}/debian/metabox-provider.substvars"
+
+pxu_path = Path(__file__).parent.joinpath("packaging.pxu")
+with open(pxu_path, "r") as file:
+    packaging_pxu = file.read()
 
 
 @tag("packaging")
@@ -42,10 +42,9 @@ class DebPackagingJammy(Scenario):
     """
 
     modes = ["local"]
+    # Run the scenario without starting a session.
     start_session = False
     config_override = {"local": {"releases": ["jammy"]}}
-    packaging_pxu = read_text(units, "packaging.pxu")
-
     steps = [
         Put(f"{provider_path}/units/packaging.pxu", packaging_pxu),
         RunManage(args="packaging"),
@@ -65,8 +64,6 @@ class DebPackagingFocal(Scenario):
     modes = ["local"]
     start_session = False
     config_override = {"local": {"releases": ["focal"]}}
-    packaging_pxu = read_text(units, "packaging.pxu")
-
     steps = [
         Put(f"{provider_path}/units/packaging.pxu", packaging_pxu),
         RunManage(args="packaging"),
@@ -85,8 +82,6 @@ class DebPackagingBionic(Scenario):
 
     modes = ["local"]
     config_override = {"local": {"releases": ["bionic"]}}
-    packaging_pxu = read_text(units, "packaging.pxu")
-
     steps = [
         Put(f"{provider_path}/units/packaging.pxu", packaging_pxu),
         RunManage(args="packaging"),

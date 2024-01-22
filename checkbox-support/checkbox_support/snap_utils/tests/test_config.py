@@ -85,17 +85,17 @@ class TestWriteCheckboxConf(unittest.TestCase):
         m = mock_open()
         with patch('builtins.open', m):
             write_checkbox_conf({'foo': 'bar'})
-        m().write.called_once_with('[environ]\n')
-        m().write.called_once_with('FOO = bar\n')
-        m().write.called_once_with('\n')
+        m().write.assert_called_once_with('[environ]\n')
+        m().write.assert_called_once_with('FOO = bar\n')
+        m().write.assert_called_once_with('\n')
         self.assertEqual(m().write.call_count, 3)
 
     def test_writes_empty(self):
         m = mock_open()
         with patch('builtins.open', m):
             write_checkbox_conf({})
-        m().write.called_once_with('[environ]\n')
-        m().write.called_once_with('\n')
+        m().write.assert_called_once_with('[environ]\n')
+        m().write.assert_called_once_with('\n')
         self.assertEqual(m().write.call_count, 2)
 
 

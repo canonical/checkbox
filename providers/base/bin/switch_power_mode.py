@@ -6,7 +6,6 @@
 #   Bin Li <bin.li@canonical.com>
 
 """ Switching the power mode to check if the power mode can be switched. """
-import os
 from pathlib import Path
 import sys
 import subprocess
@@ -24,15 +23,14 @@ def main():
         result = subprocess.check_output(["powerprofilesctl", "get"], text=True)
         old_profile = result.strip().split()[0]
     except subprocess.CalledProcessError as err:
-        print("Failed to get the current power mode: {}".format(err))
-        return 1
+        raise SystemExit("Failed to get the current power mode.".format(err))
 
     # Read the power mode from /sys/firmware/acpi/platform_profile_choices
     with open(choices_path, "rt", encoding="utf-8") as stream:
         choices = stream.read().strip().split()
         if not choices:
-            print("No power mode to switch.")
-            return
+            raise SystemExit("No power mode to switch.")
+
     print('Power mode choices: {}'.format(choices))
     # Switch the power mode with powerprofilesctl
     for choice in choices:
@@ -43,9 +41,7 @@ def main():
         else:
             value = choice
 
-        os.system("powerprofilesctl set {}".format(value))
-
-        os.system("sleep 1")
+        subprocess.check_call(["powerprofilesctl", "set", value])
 
         with open(profile_path, "rt", encoding="utf-8") as stream:
             current_profile = stream.read().strip().split()
@@ -56,7 +52,7 @@ def main():
             return_value = 1
 
     # Switch back to the original power mode
-    os.system("powerprofilesctl set {}".format(old_profile))
+    subprocess.check_call(["powerprofilesctl", "set", old_profile])
 
     sys.exit(return_value)
 

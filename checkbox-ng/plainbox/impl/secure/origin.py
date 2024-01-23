@@ -25,6 +25,7 @@
 import functools
 import inspect
 import os
+import sys
 
 from plainbox.abc import ITextSource
 from plainbox.i18n import gettext as _
@@ -185,6 +186,19 @@ class Origin:
         """
         # Create an Origin instance that pinpoints the place that called
         # get_caller_origin().
+
+        # This avoids a sideffect of using inspect.stack(0) when the urwid
+        # module is in said stack. The python3-urwid
+        # package is currently partially broken on Ubuntu Noble. inspect.stack
+        # activates a sideffect of the urwid.__init__ module that imports
+        # urwid.display.web. That can not be done because the web module is
+        # missing the _web.js and _web.css. We don't need this part of urwid but
+        # given the chain described it is improted anyway. The following line
+        # will only make the import go through.
+        # See: https://packages.ubuntu.com/noble/amd64/python3-urwid/filelist
+        # FIXME: remove this line once the files are back
+        sys.modules["urwid.display.web"] = {}
+
         caller_frame, filename, lineno = inspect.stack(0)[2 + back][:3]
         try:
             source = PythonFileTextSource(filename)

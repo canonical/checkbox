@@ -12,7 +12,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  tox_test_contrib_ce_oem_provider:
+    name: Test ce-oem provider (from contrib area) with tox
     defaults:
       run:
         working-directory: contrib/checkbox-provider-ce-oem

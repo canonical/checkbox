@@ -86,3 +86,20 @@ class DebPackagingBionic(Scenario):
         AssertInFile("rec-pack-le-20", substvar_path),
         AssertInFile("sug-pack-le-20", substvar_path),
     ]
+
+
+@tag("packaging")
+class DebPackagingXenial(Scenario):
+    """
+    Verifies that the deb-packaging test pass on xenial (16.04).
+    """
+
+    modes = ["local"]
+    config_override = {"local": {"releases": ["xenial"]}}
+    steps = [
+        Put(packaging_pxu_path, packaging_pxu),
+        RunManage(args="packaging"),
+        AssertInFile("dep-pack-le-20", substvar_path),
+        AssertInFile("rec-pack-le-20", substvar_path),
+        AssertInFile("sug-pack-le-20", substvar_path),
+    ]

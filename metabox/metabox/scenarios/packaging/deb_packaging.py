@@ -26,12 +26,12 @@ from metabox.core.actions import (
 )
 from metabox.core.utils import tag
 
-provider_path = "/home/ubuntu/checkbox/metabox/metabox/metabox-provider"
-packaging_pxu_path = f"{provider_path}/units/packaging.pxu"
-substvar_path = f"{provider_path}/debian/metabox-provider.substvars"
+provider_path = Path("/home/ubuntu/checkbox/metabox/metabox/metabox-provider")
+packaging_pxu_path = provider_path / "units/packaging.pxu"
+substvar_path = provider_path / "debian/metabox-provider.substvars"
 
-pxu_path = Path(__file__).parent.joinpath("packaging.pxu")
-with open(pxu_path, "r") as file:
+pxu_path = Path(__file__).parent / "packaging.pxu"
+with pxu_path.open("r") as file:
     packaging_pxu = file.read()
 
 
@@ -46,12 +46,11 @@ class DebPackagingJammy(Scenario):
     start_session = False
     config_override = {"local": {"releases": ["jammy"]}}
     steps = [
-        Put(f"{provider_path}/units/packaging.pxu", packaging_pxu),
+        Put(packaging_pxu_path, packaging_pxu),
         RunManage(args="packaging"),
         AssertInFile("dep-pack-gt-20", substvar_path),
         AssertInFile("rec-pack-gt-20", substvar_path),
         AssertInFile("sug-pack-gt-20", substvar_path),
-        RunCmd(f"rm -f {substvar_path}"),
     ]
 
 
@@ -65,12 +64,11 @@ class DebPackagingFocal(Scenario):
     start_session = False
     config_override = {"local": {"releases": ["focal"]}}
     steps = [
-        Put(f"{provider_path}/units/packaging.pxu", packaging_pxu),
+        Put(packaging_pxu_path, packaging_pxu),
         RunManage(args="packaging"),
         AssertInFile("dep-pack-le-20", substvar_path),
         AssertInFile("rec-pack-le-20", substvar_path),
         AssertInFile("sug-pack-le-20", substvar_path),
-        RunCmd(f"rm -f {substvar_path}"),
     ]
 
 
@@ -83,10 +81,9 @@ class DebPackagingBionic(Scenario):
     modes = ["local"]
     config_override = {"local": {"releases": ["bionic"]}}
     steps = [
-        Put(f"{provider_path}/units/packaging.pxu", packaging_pxu),
+        Put(packaging_pxu_path, packaging_pxu),
         RunManage(args="packaging"),
         AssertInFile("dep-pack-le-20", substvar_path),
         AssertInFile("rec-pack-le-20", substvar_path),
         AssertInFile("sug-pack-le-20", substvar_path),
-        RunCmd(f"rm -f {substvar_path}"),
     ]

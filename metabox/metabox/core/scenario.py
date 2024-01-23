@@ -90,7 +90,7 @@ class Scenario:
         # If there's no START step, add one unless the scenario
         # explicitly says not to start a session
         if (
-            not any([isinstance(s, Start) for s in self.steps])
+            not any(isinstance(s, Start) for s in self.steps)
             and self.start_session
         ):
             self.steps.insert(0, Start())

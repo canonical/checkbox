@@ -22,7 +22,6 @@ from metabox.core.actions import (
     Put,
     RunManage,
     AssertInFile,
-    RunCmd,
 )
 from metabox.core.utils import tag
 

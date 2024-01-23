@@ -22,6 +22,7 @@ This module defines the Scenario class.
 See Scenario class properties and the assert_* functions, as they serve as
 the interface to a Scenario.
 """
+from pathlib import Path
 import re
 import time
 import shlex
@@ -100,7 +101,7 @@ class Scenario:
                 interactive = False
                 # CHECK if any EXPECT/SEND command follows
                 # w/o a new call to START before it
-                for next_step in self.steps[i + 1 :]:
+                for next_step in self.steps[i + 1:]:
                     if isinstance(next_step, Start):
                         break
                     if isinstance(next_step, (Expect, Send, SelectTestPlan)):
@@ -320,7 +321,7 @@ class Scenario:
         cmd_str = shlex.join(cmd)
         self.run_cmd(cmd_str, target=target, timeout=timeout)
 
-    def run_manage(self, args, privileged=False, timeout=0, target="all"):
+    def run_manage(self, args, timeout=0, target="all"):
         """
         Runs the manage.py script with some arguments
         """
@@ -335,6 +336,9 @@ class Scenario:
         :param patter: regular expresion to check against the lines.
         :param path: path to the file
         """
+        if isinstance(path, Path):
+            path = str(path)
+
         result = self.run_cmd(f"cat {path}")
         regex = re.compile(pattern)
         self._checks.append(bool(regex.search(result.stdout)))

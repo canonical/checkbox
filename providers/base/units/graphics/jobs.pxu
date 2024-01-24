@@ -302,7 +302,10 @@ command:
  prime_offload_tester.py -c glxgears -p {pci_device_name} -d {driver} -t 30
 estimated_duration: 30s
 summary:
-     Auto-Test that glxgears works for {vendor} {product}
+    Test that glxgears works for {vendor} {product} (automated)
+description:
+    Run glxgears while offloading rendering to the {vendor} {product} GPU
+    and validate the outcome automatically.
 
 unit: template
 template-resource: graphics_card

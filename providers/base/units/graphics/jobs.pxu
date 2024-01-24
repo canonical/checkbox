@@ -327,7 +327,7 @@ steps:
     1. Click "Test" to execute an OpenGL demo, and will be closed after 30s.
     2. Verify that the animation is not jerky or slow.
 verification:
-    1. Did the 3d animation appear?
+    1. Did the 3D animation appear?
     2. Was the animation free from slowness/jerkiness?
 
 unit: template

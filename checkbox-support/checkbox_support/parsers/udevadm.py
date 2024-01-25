@@ -98,6 +98,7 @@ MD_DEVICE_RE = re.compile(r"MD_DEVICE_\w+_DEV")
 ROOT_MOUNTPOINT = re.compile(
     r'MOUNTPOINT=.*/(writable|hostfs|'
     r'ubuntu-seed|ubuntu-boot|ubuntu-save|data|boot)')
+CAMERA_RE = re.compile(r"Camera", re.I)
 
 
 def slugify(_string):
@@ -457,7 +458,16 @@ class UdevadmDevice(object):
                     return "CARDREADER"
                 if (self.vendor is not None and
                         GENERIC_RE.search(self.vendor) and
-                        not FLASH_DISK_RE.search(self.product)):
+                        self.product is not None and
+                        not FLASH_DISK_RE.search(self.product) and
+                        not CAMERA_RE.search(self.product)):
+                # The condition
+                #     not CAMERA_RE.search(self.product)
+                # is a fix for the bug LP: #2051091,
+                # the usb camera '5986:118c Acer, Inc Integrated Camera
+                # of the system,
+                # CID 202309-32040 Lenovo - ThinkPad P16s Gen 2 AMD
+                # Will be given the category attribut 'CARDREADER' by udev_resource
                     return "CARDREADER"
             # A rare gem, this driver reported by udev is actually an ID_MODEL:
             # E: DRIVER=Realtek PCIe card reader

@@ -20,7 +20,7 @@ info(){
  eval pass${i}=3
 }
 
-steps="Fix_APT_Issues Verify_Config_File Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks Disk_Speed_Check UVT_KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check NVDIMM_Detection"
+steps="Fix_APT_Issues Verify_Config_File Ubuntu_Version Arch EFI_Mode CCS_Version SID_Check Installed_Ram Virtualization_Support NICs_enabled Jumbo_Frames IPERF Network_Subnets LVM_Check Hard_Disks USB_Disks Disk_Speed_Check KVM_Image_Check LXD_Image_Check XDG_Check CPUFreq_Check GPGPU_Check NVDIMM_Detection"
 
 while getopts "i" opt; do
   case $opt in
@@ -384,43 +384,6 @@ fi
 if [ "$all_ok" == "Y" ]; then
     pass
 else
-    fail
-fi
-}
-
-# Check local availability of UVT KVM image or source
-UVT_KVM_Image_Check(){
-echoname "UVT_KVM Image Check"
-if grep "^UVT_IMAGE_OR_SOURCE =" $configfile >/dev/null; then
-    kvmurl=$(grep ^UVT_IMAGE_OR_SOURCE $configfile|awk '{print $3}')
-    echo $kvmurl
-    if [[ "$kvmurl" =~ .*\.img$ ]] ; then
-        /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
-        if [ $? = "0" ]; then
-            echo -e " $kvmurl is a valid image.\n Continuing to use this image"
-            pass
-            return 0
-        else
-            echo -e "$kvmurl is an invalid image. \n"
-            fail
-            return 0
-        fi
-    elif [[ "$kvmurl" =~ ^http ]] ; then
-        if curl --output /dev/null --silent --head -fail "$kvmurl"; then
-            echo -e " This is a valid source $kvmurl.\n Continuing to use this source"
-            pass
-        else
-            echo -e " This is not a valid source $kvmurl.\n Marking as failed"
-            fail
-        fi
-    else
-        echo -e " This is not a valid image or source"
-        echo -e " Leaving configuration but commenting out.\n Trying cloud image."
-        sudo sed -i '/^UVT_IMAGE_OR_SOURCE/ s/^#*/#/' $configfile
-        fail
-    fi
-else
-    echo -e "  UVT_IMAGE_OR_SOURCE is not configured. \n uvt-simplestreams-libvirt will download images from cloud-images.ubuntu by default"
     fail
 fi
 }

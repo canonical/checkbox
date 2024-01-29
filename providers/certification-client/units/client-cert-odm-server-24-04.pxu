@@ -127,3 +127,12 @@ exclude:
     mediacard/msp-.*
     mediacard/xd-.*
     rtc/battery
+
+
+id: client-cert-odm-server-24-04
+_name: DONT USE - server-24-04 - placeholder to establish that total number of tests has not changed
+unit: test plan
+include:
+nested_part:
+    client-cert-odm-server-24-04-manual
+    client-cert-odm-server-24-04-automated

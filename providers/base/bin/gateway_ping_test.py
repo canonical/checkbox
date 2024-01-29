@@ -218,6 +218,7 @@ def ping(host, interface, count, deadline, verbose=False):
                 'pct_loss': int(ping_summary[2])}
     return ping_summary
 
+
 def parse_args(argv):
     default_count = 2
     default_delay = 4

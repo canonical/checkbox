@@ -27,12 +27,93 @@ system booted from the network (test passes) or from a local disk
 Usage:
    check-prerelease.py
 """
-
+import logging
+import os
 import platform
 import shlex
 import sys
 
 from subprocess import CalledProcessError, check_output
+
+
+def get_apt_cache_information(command: str):
+    try:
+        aptinfo = check_output(shlex.split(command), universal_newlines=True)
+        # "apt-cache showpkg" returns an empty string with exit code 0 if
+        # called on a non-existent package.
+        if aptinfo == '':
+            raise CalledProcessError(returncode=None, cmd=None)
+        return aptinfo
+    except CalledProcessError:
+        # "apt-cache show" returns an error status if called on a
+        # non-existent package.
+        logging.error(
+            "* Kernel does not match any installed package!")
+        raise SystemExit(1)
+
+
+def verify_apt_cache_showpkg(kernel_release: str):
+    """Check kernel to see if it's supported for certification
+        by "apt-cache showpkg linux-image-<kernel_release>"
+
+    :returns:
+        True if OK, False if not
+    """
+    command = "apt-cache showpkg linux-image-{}".format(kernel_release)
+    aptinfo = get_apt_cache_information(command)
+    # Exclude kernels that come from obvious PPAs....
+    retval = True
+    if "ppa.launchpad.net" in aptinfo:
+        logging.error("* Kernel appears to have come from a PPA!")
+        retval = False
+
+    # Exclude kernels that don't come from the specific Ubuntu repository
+    target_repo = os.environ.get("KERNEL_REPO", "main")
+    if "{}_binary".format(target_repo) not in aptinfo:
+        logging.error(
+            "* Kernel does not come from the {} Ubuntu repository!".format(
+                target_repo))
+        retval = False
+    return retval
+
+
+def verify_apt_cache_show(kernel_release: str):
+    """Check kernel to see if it's supported for certification
+        by "apt-cache show linux-image-<kernel_release>"
+
+    :returns:
+        True if OK, False if not
+    """
+    command = "apt-cache show linux-image-{}".format(kernel_release)
+    aptinfo = get_apt_cache_information(command)
+    retval = True
+
+    # Exclude 'edge' kernels, which are identified via the 'Source:' line
+    # in the apt-cache show output....
+    for source in ["Source: linux-signed-hwe-edge", "Source: linux-hwe-edge"]:
+        if source in aptinfo:
+            logging.error("* Kernel is an 'edge' kernel!, found '{}'")
+            retval = False
+
+    # Exclude kernels that aren't from the "linux" (or variant, like
+    # "linux-hwe" or "linux-signed") source....
+    if "Source: linux" not in aptinfo:
+        logging.error("* Kernel is not a Canonical kernel!")
+        retval = False
+
+    return retval
+
+
+def verify_not_lowlatency_kernel(kernel_release: str):
+    """Check kernel to see if it's supported for certification
+        by verifying the "lowlatency" term not in kernel string
+
+    :returns:
+        True if OK, False if not
+    """
+    # Exclude low-latency kernels, which are identified via the kernel name
+    # string itself....
+    return False if "lowlatency" in kernel_release else True
 
 
 def check_kernel_status():
@@ -42,57 +123,17 @@ def check_kernel_status():
         True if OK, False if not
     """
     kernel_release = platform.release()
+    logging.info("* Kernel release is {}".format(kernel_release))
 
-    retval = True
-    command = "apt-cache showpkg linux-image-{}".format(kernel_release)
-    aptinfo = check_output(shlex.split(command), universal_newlines=True)
+    is_valid_kernel = True
+    is_valid_kernel &= verify_apt_cache_showpkg(kernel_release)
+    is_valid_kernel &= verify_apt_cache_show(kernel_release)
+    is_valid_kernel &= verify_not_lowlatency_kernel(kernel_release)
 
-    # Exclude kernels that come from obvious PPAs....
-    if "ppa.launchpad.net" in aptinfo:
-        print("* Kernel appears to have come from a PPA!")
-        retval = False
+    if not is_valid_kernel:
+        logging.error("* Kernel is ineligible for certification!")
 
-    # Exclude kernels that don't come from the main repo
-    if "main_binary" not in aptinfo:
-        print("* Kernel does not come from the main Ubuntu repository!")
-        retval = False
-
-    try:
-        command = "apt-cache show linux-image-{}".format(kernel_release)
-        aptinfo = check_output(shlex.split(command), universal_newlines=True)
-    except CalledProcessError:
-        # "apt-cache show" returns an error status if called on a
-        # non-existent package.
-        print("* Kernel does not match any installed package!")
-        aptinfo = ""
-        retval = False
-
-    # Exclude 'edge' kernels, which are identified via the 'Source:' line
-    # in the apt-cache show output....
-    if "Source: linux-signed-hwe-edge" in aptinfo:
-        print("* Kernel is an 'edge' kernel!")
-        retval = False
-    if "Source: linux-hwe-edge" in aptinfo:
-        print("* Kernel is an 'edge' kernel!")
-        retval = False
-
-    # Exclude kernels that aren't from the "linux" (or variant, like
-    # "linux-hwe" or "linux-signed") source....
-    if "Source: linux" not in aptinfo:
-        print("* Kernel is not a Canonical kernel!")
-        retval = False
-
-    # Exclude low-latency kernels, which are identified via the kernel name
-    # string itself....
-    if "lowlatency" in kernel_release:
-        print("* Kernel is a low-latency kernel!")
-        retval = False
-
-    if (not retval):
-        print("* Kernel release is {}".format(kernel_release))
-        print("* Kernel is ineligible for certification!")
-
-    return retval
+    return is_valid_kernel
 
 
 def check_os_status():

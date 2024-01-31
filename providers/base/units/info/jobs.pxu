@@ -199,6 +199,7 @@ _description: Attaches the output of udev_resource.py, for debugging purposes
 id: lsblk_attachment
 estimated_duration: 0.1
 plugin: attachment
+category_id: com.canonical.plainbox::info
 command: lsblk -i -n -P -o KNAME,TYPE,MOUNTPOINT
 requires:
  executable.name == 'lsblk'
@@ -465,7 +466,7 @@ command:
 id: lstopo_verbose_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
-command: lstopo -v 
+command: lstopo -v
 estimated_duration: 0.015
 requires: executable.name == 'lstopo'
 _description: Attaches the system topology as presented by the lstopo command

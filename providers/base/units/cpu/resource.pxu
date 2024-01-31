@@ -1,6 +1,7 @@
 id: cpu_offlining
 estimated_duration: 0.02
 plugin: resource
+category_id: com.canonical.plainbox::cpu
 command:
  if ls /sys/devices/system/cpu/*/online >& /dev/null
  then

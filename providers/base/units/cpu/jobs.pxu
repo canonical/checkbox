@@ -209,6 +209,7 @@ requires:
  executable.name == 'fwts'
  cpuinfo.platform not in ("aarch64", "armv7l", "s390x")
 user: root
+category_id: com.canonical.plainbox::cpu
 _summary:
  Run C-States tests
 _description:
@@ -224,6 +225,7 @@ plugin:shell
 id: after-suspend-cpu/cstates
 depends: com.canonical.certification::suspend/suspend_advanced_auto
 estimated_duration: 10.0
+category_id: com.canonical.plainbox::cpu
 requires:
  executable.name == 'fwts'
  cpuinfo.platform not in ("aarch64", "armv7l", "s390x")

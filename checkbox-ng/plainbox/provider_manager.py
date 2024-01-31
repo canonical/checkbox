@@ -552,7 +552,9 @@ class DevelopCommand(ManageCommand):
     def invoked(self, ns):
         pp_env = os.getenv("PROVIDERPATH")
         try:
-            samefile = os.path.samefile(pp_env, ns.directory)
+            samefile = pp_env is not None and os.path.samefile(
+                pp_env, ns.directory
+            )
         except FileNotFoundError:
             samefile = False
         if pp_env and not samefile:

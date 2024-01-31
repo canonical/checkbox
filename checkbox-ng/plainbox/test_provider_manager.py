@@ -298,7 +298,7 @@ class ProviderManagerToolTests(TestCase):
 
     @mock.patch('plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry')
     @mock.patch('os.getenv')
-    def test_develop__force(self,mock_getenv, mock_path_entry):
+    def test_develop__force(self, mock_getenv, mock_path_entry):
         """
         verify that ``develop --force`` overwrites existing .provider
         file

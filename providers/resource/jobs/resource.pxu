@@ -55,6 +55,7 @@ Depends: iw (>= 5.3)
 id: cpuinfo
 estimated_duration: 0.37
 plugin: resource
+category_id: information_gathering
 user: root
 command: cpuinfo_resource.py
 _summary: Collect information about the CPU
@@ -63,6 +64,7 @@ _description: Gets CPU resource info from /proc/cpuinfo
 id: cdimage
 estimated_duration: 0.61
 plugin: resource
+category_id: information_gathering
 user: root
 command: cdimage_resource.py
 _summary: Collect information about installation media (casper)
@@ -71,6 +73,7 @@ _description: Gets installation info from casper.log and media-info
 id: dpkg
 estimated_duration: 0.19
 plugin: resource
+category_id: information_gathering
 command: dpkg_resource.py
 _summary: Collect information about dpkg version
 _description: Gets info on the version of dpkg installed
@@ -78,6 +81,7 @@ _description: Gets info on the version of dpkg installed
 id: lsb
 estimated_duration: 1.63
 plugin: resource
+category_id: information_gathering
 command: lsb_resource.py
 _description: Generates release info based on /etc/lsb-release
 _summary: Collect information about installed system (lsb-release)
@@ -85,6 +89,7 @@ _summary: Collect information about installed system (lsb-release)
 id: meminfo
 estimated_duration: 0.1
 plugin: resource
+category_id: information_gathering
 command: meminfo_resource.py
 _description: Generates resource info based on /proc/meminfo
 _summary: Collect information about system memory (/proc/meminfo)
@@ -92,6 +97,7 @@ _summary: Collect information about system memory (/proc/meminfo)
 id: module
 estimated_duration: 0.13
 plugin: resource
+category_id: information_gathering
 user: root
 command: module_resource.py
 _description: Generates resources info on running kernel modules
@@ -100,6 +106,7 @@ _summary: Collect information about kernel modules
 id: package
 estimated_duration: 1.16
 plugin: resource
+category_id: information_gathering
 command:
   # shellcheck disable=SC2016
   dpkg-query -W -f='name: ${Package}\nversion: ${Version}\n\n' || true
@@ -109,6 +116,7 @@ _summary: Collect information about installed software packages
 id: executable
 estimated_duration: 0.78
 plugin: resource
+category_id: information_gathering
 _summary: Enumerate available system executables
 _description: Generates a resource for all available executables
 command:
@@ -117,6 +125,7 @@ command:
 id: device
 estimated_duration: 0.48
 plugin: resource
+category_id: information_gathering
 command: udev_resource.py
 _description: Creates resource info from udev
 _summary: Collect information about hardware devices (udev)
@@ -124,6 +133,7 @@ _summary: Collect information about hardware devices (udev)
 id: removable_partition
 estimated_duration: 0.48
 plugin: resource
+category_id: information_gathering
 command: udev_resource.py -f PARTITION || true
 _description: Creates removable partitions info from udev
 _summary: Collect removable partitions info from udev
@@ -131,6 +141,7 @@ _summary: Collect removable partitions info from udev
 id: dmi_present
 estimated_duration: 0.02
 plugin: resource
+category_id: information_gathering
 user: root
 command:
   if [ -d /sys/devices/virtual/dmi ]
@@ -144,6 +155,7 @@ _summary: Resource to detect if dmi data is present
 id: dmi
 estimated_duration: 0.59
 plugin: resource
+category_id: information_gathering
 requires:
   dmi_present.state == 'supported'
 user: root
@@ -153,6 +165,7 @@ _summary: Collect information about hardware devices (DMI)
 id: efi
 estimated_duration: 0.56
 plugin: resource
+category_id: information_gathering
 user: root
 command: efi_resource.py
 _summary: Collect information about the EFI configuration
@@ -160,6 +173,7 @@ _summary: Collect information about the EFI configuration
 id: uname
 estimated_duration: 0.09
 plugin: resource
+category_id: information_gathering
 command: uname_resource.py
 _description: Creates resource info from uname output
 _summary: Collect information about the running kernel
@@ -167,6 +181,7 @@ _summary: Collect information about the running kernel
 id: sleep
 estimated_duration: 0.03
 plugin: resource
+category_id: information_gathering
 command:
   tr ' ' '\n' < /sys/power/state | while IFS= read -r state; do echo "$state: supported"; done
   if [ -e /sys/power/mem_sleep ]; then
@@ -181,6 +196,7 @@ template-resource: device
 template-filter: device.category == 'CDROM'
 id: optical_drive_{name}
 plugin: resource
+category_id: information_gathering
 command: optical_resource.py /dev/{name}
 estimated_duration: 0.5
 _summary: Create resource info for supported optical actions ({name})
@@ -188,6 +204,7 @@ _summary: Create resource info for supported optical actions ({name})
 id: block_device
 estimated_duration: 0.08
 plugin: resource
+category_id: information_gathering
 user: root
 command: block_device_resource.py
 _summary: Create resource info for removable block devices
@@ -196,6 +213,7 @@ id: usb
 template-engine: jinja2
 estimated_duration: 0.33
 plugin: resource
+category_id: information_gathering
 _description: Creates resource info for supported USB versions
 _summary: Collect information about supported types of USB
 command:
@@ -211,6 +229,7 @@ command:
 id: xinput
 estimated_duration: 0.19
 plugin: resource
+category_id: information_gathering
 command: xinput_resource.py
 requires: package.name == "xinput"
 _summary: Creates resource info from xinput output.
@@ -218,6 +237,7 @@ _summary: Creates resource info from xinput output.
 id: environment
 estimated_duration: 0.11
 plugin: resource
+category_id: information_gathering
 _summary: Create resource info for environment variables
 command:
  IFS=$'\n'
@@ -228,12 +248,14 @@ command:
 id: mobilebroadband
 estimated_duration: 0.38
 plugin: resource
+category_id: information_gathering
 _summary: Create resource for mobile broadband devices
 command: mobilebroadband_resource.sh
 
 id: virtualization
 estimated_duration: 0.13
 plugin: resource
+category_id: information_gathering
 requires:
   package.name == "cpu-checker" or executable.name == 'kvm-ok'
 _summary: Resource for hardware virtualization
@@ -248,18 +270,20 @@ command:
 id: IEEE_80211
 estimated_duration: 0.08
 plugin: resource
+category_id: information_gathering
 command: 80211_resource
 _summary: Creates resource info for wifi supported protocols/interfaces
 
 id: wireless_sta_protocol
 plugin: resource
+category_id: information_gathering
 _summary: Resource job to identify Wi-Fi STA supported protocols
 _description:
  Job listing STA supported 802.11 protocols per interfaces.
 command:
  # shellcheck disable=SC2046
  for i in $(iw dev | grep -oP 'Interface\s+\K\w+'); do iw phy phy$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info | grep -q 'VHT' && echo "$i""_ac: supported" || echo "$i""_ac: unsupported"; done
- # MCS 10 and 11 if present support the ax only 1024-QAM 
+ # MCS 10 and 11 if present support the ax only 1024-QAM
  # shellcheck disable=SC2046
  for i in $(iw dev | grep -oP 'Interface\s+\K\w+'); do iw phy phy$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info | grep -q 'MCS 0-11' && echo "$i""_ax: supported" || echo "$i""_ax: unsupported"; done
 estimated_duration: 0.5
@@ -268,6 +292,7 @@ flags: preserve-locale
 id: rtc
 estimated_duration: 0.02
 plugin: resource
+category_id: information_gathering
 command:
   if [ -e /proc/driver/rtc ]
   then
@@ -280,6 +305,7 @@ _summary: Creates resource info for RTC
 id: requirements
 estimated_duration: 0.01
 plugin: resource
+category_id: information_gathering
 command:
  if [ -f "$PLAINBOX_SESSION_SHARE"/requirements_docs.txt ];then
     cat "$PLAINBOX_SESSION_SHARE"/requirements_docs.txt
@@ -315,12 +341,14 @@ _description:
 id: graphics_card
 estimated_duration: 0.05
 plugin: resource
+category_id: information_gathering
 _summary: Generate an entry for each graphics card present in the system.
 command: graphics_card_resource.py
 
 id: fwts
 estimated_duration: 0.5
 plugin: resource
+category_id: information_gathering
 requires: executable.name == "fwts"
 _summary: Generate an entry for each FWTS test available
 command:
@@ -329,6 +357,7 @@ command:
 id: mir
 estimated_duration: 0.5
 plugin: resource
+category_id: information_gathering
 requires: package.name == "mir-test-tools"
 _summary: Generate an entry for each MIR integration tests
 command:
@@ -338,6 +367,7 @@ command:
 id: wifi_interface_mode
 estimated_duration: 0.1
 plugin: resource
+category_id: information_gathering
 command:
  # shellcheck disable=SC2046
  for i in $(iw dev | grep -oP 'Interface\s+\K\w+');
@@ -350,6 +380,7 @@ _summary: Create resource info for supported wifi interface modes
 id: snap
 estimated_duration: 1.1
 plugin: resource
+category_id: information_gathering
 command:
     unset PYTHONUSERBASE
     snapd_resource.py snaps
@@ -359,6 +390,7 @@ _summary: Collect information about installed snap packages
 id: interface
 estimated_duration: 1.1
 plugin: resource
+category_id: information_gathering
 command:
     unset PYTHONUSERBASE
     snapd_resource.py interfaces endpoints
@@ -368,6 +400,7 @@ _summary: Collect information about interfaces
 id: connections
 estimated_duration: 1.1
 plugin: resource
+category_id: information_gathering
 command:
     unset PYTHONUSERBASE
     snapd_resource.py interfaces connections
@@ -379,6 +412,7 @@ _summary: Collect model assertions on the device
 _description:
  Queries the snapd REST API for model assertions present on the device.
 plugin: resource
+category_id: information_gathering
 estimated_duration: 2.0
 command:
   snapd_resource.py assertions model
@@ -388,6 +422,7 @@ _summary: Collect serial assertions on the device
 _description:
  Queries the snapd REST API for serial assertions present on the device.
 plugin: resource
+category_id: information_gathering
 estimated_duration: 2.0
 command:
   snapd_resource.py assertions serial
@@ -399,6 +434,7 @@ _description:
  relies on the user specifying the ports. This is to allow template jobs to
  then be instantiated.
 plugin: resource
+category_id: information_gathering
 estimated_duration: 1.0
 command:
   for i in $SERIAL_PORTS_STATIC; do
@@ -413,6 +449,7 @@ _description:
  device type or owner requirements. This resource detects that state of those
  features so that appropriate tests can be run.
 plugin: resource
+category_id: information_gathering
 estimated_duration: 1.0
 command:
   snapd_resource.py features
@@ -426,6 +463,7 @@ _description:
  responsible for cofiguring an individual interface allowing appropriate tests
  to be run.
 plugin: resource
+category_id: information_gathering
 estimated_duration: 2.0
 user: root
 command:
@@ -449,6 +487,7 @@ _description:
  Apply a simple heuristic to determine the bootloader that is used on the
  device. This can help identify what boot security systems might be used.
 plugin: resource
+category_id: information_gathering
 estimated_duration: 1.0
 user: root
 command:
@@ -457,6 +496,7 @@ command:
 id: nvdimm_resource
 estimated_duration: 0.25
 plugin: resource
+category_id: information_gathering
 user: root
 requires:
   package.name == 'ipmctl' or executable.name == 'ipmctl'
@@ -472,6 +512,7 @@ command:
 id: audio_card
 estimated_duration: 0.05
 plugin: resource
+category_id: information_gathering
 _summary: Collect information about the audio card
 _description: Gets audio resource info from /proc/asound/pcm
 command: audio_card_resource.py
@@ -479,6 +520,7 @@ command: audio_card_resource.py
 id: image_source_and_type
 estimated_duration: 0.05
 plugin: resource
+category_id: information_gathering
 _summary: Collect the source and type of image
 _description:
     Get the source and type of image.

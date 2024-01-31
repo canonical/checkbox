@@ -1,0 +1,3 @@
+unit: category
+id: information_gathering
+_name: Gathers information about the DUT

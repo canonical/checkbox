@@ -269,13 +269,16 @@ class ProviderManagerToolTests(TestCase):
         self.assert_common_sdist(tarball)
 
     @mock.patch('plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry')
-    def test_develop(self, mock_path_entry):
+    @mock.patch('os.getenv')
+    def test_develop(self, mock_getenv, mock_path_entry):
         """
         verify that ``develop`` creates a provider file
         """
         provider_path = os.path.join(self.tmpdir, "checkbox-providers-develop")
         filename = os.path.join(
             provider_path, "com.example.test.provider")
+        # no PROVIDERPATH defined
+        mock_getenv.return_value = provider_path
         mock_path_entry.return_value = provider_path
         content = (
             "[PlainBox Provider]\n"
@@ -288,12 +291,47 @@ class ProviderManagerToolTests(TestCase):
         self.tool.main(["develop"])
         self.assertFileContent(filename, content)
 
+    @mock.patch("plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry")
+    @mock.patch("os.getenv")
+    @mock.patch("os.path.samefile")
+    def test_develop_provider_path(
+        self, mock_samefile, mock_getenv, mock_path_entry
+    ):
+        """
+        verify that ``develop`` creates a provider file
+        """
+        provider_path = os.path.join(self.tmpdir, "checkbox-providers-develop")
+        filename = os.path.join(provider_path, "com.example.test.provider")
+        # PROVIDERPATH defined
+        mock_getenv.return_value = provider_path
+        mock_samefile.side_effect = FileNotFoundError
+        mock_path_entry.return_value = provider_path
+        content = textwrap.dedent(
+            """
+            [PlainBox Provider]
+            description = description
+            gettext_domain = domain
+            location = {}
+            name = com.example:test
+            version = 1.0
+
+            """.format(
+                self.tmpdir
+            )
+        ).lstrip()
+
+        self.tool.main(["develop"])
+        self.assertFileContent(filename, content)
+
     @mock.patch('plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry')
-    def test_develop__force(self, mock_path_entry):
+    @mock.patch('os.getenv')
+    def test_develop__force(self, mock_getenv, mock_path_entry):
         """
         verify that ``develop --force`` overwrites existing .provider
         file
         """
+        # no PROVIDERPATH defined
+        mock_getenv.return_value = None # support running test from venv
         provider_path = os.path.join(self.tmpdir, "checkbox-providers-develop")
         filename = os.path.join(
             provider_path, "com.example.test.provider")
@@ -313,10 +351,12 @@ class ProviderManagerToolTests(TestCase):
         self.assertFileContent(filename, content)
 
     @mock.patch('plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry')
-    def test_develop__uninstall(self, mock_path_entry):
+    @mock.patch('os.getenv')
+    def test_develop__uninstall(self, mock_getenv, mock_path_entry):
         """
         verify that ``develop --uninstall`` works
         """
+        mock_getenv.return_value = None # support running test from venv
         provider_path = os.path.join(self.tmpdir, "checkbox-providers-develop")
         filename = os.path.join(
             provider_path, "com.example.test.provider")

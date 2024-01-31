@@ -291,8 +291,35 @@ class ProviderManagerToolTests(TestCase):
         self.tool.main(["develop"])
         self.assertFileContent(filename, content)
 
+    @mock.patch("plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry")
+    @mock.patch("os.getenv")
+    @mock.patch("os.path.samefile")
+    def test_develop_provider_path(
+        self, mock_samefile, mock_getenv, mock_path_entry
+    ):
+        """
+        verify that ``develop`` creates a provider file
+        """
+        provider_path = os.path.join(self.tmpdir, "checkbox-providers-develop")
+        filename = os.path.join(provider_path, "com.example.test.provider")
         # PROVIDERPATH defined
-        mock_getenv.return_value = "/tmp/com.example.test.provider"
+        mock_getenv.return_value = provider_path
+        mock_samefile.side_effect = FileNotFoundError
+        mock_path_entry.return_value = provider_path
+        content = textwrap.dedent(
+            """
+            [PlainBox Provider]
+            description = description
+            gettext_domain = domain
+            location = {}
+            name = com.example:test
+            version = 1.0
+
+            """.format(
+                self.tmpdir
+            )
+        ).lstrip()
+
         self.tool.main(["develop"])
         self.assertFileContent(filename, content)
 
@@ -319,15 +346,6 @@ class ProviderManagerToolTests(TestCase):
             "\n").format(self.tmpdir)
         os.makedirs(os.path.dirname(filename))
         with open(filename, "wt") as stream:
-            stream.write("should have been overwritten")
-        self.tool.main(["develop", "--force"])
-        self.assertFileContent(filename, content)
-
-        # PROVIDERPATH defined
-        mock_getenv.return_value = "/tmp/com.example.test.provider"
-        filename = "/tmp/com.example.test.provider/com.example.test.provider"
-        os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, "wt+") as stream:
             stream.write("should have been overwritten")
         self.tool.main(["develop", "--force"])
         self.assertFileContent(filename, content)

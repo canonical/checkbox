@@ -563,10 +563,6 @@ class DevelopCommand(ManageCommand):
                     "$PROVIDERPATH is defined, ignoring -d/--directory"
                     " and developing in: %s", pp_env
                 )
-            _logger.warning(
-                "$PROVIDERPATH is defined, ignoring -d/--directory"
-                " and developing in: %s", pp_env
-            )
             ns.directory = pp_env
         pathname = os.path.join(
             ns.directory, "{}.provider".format(

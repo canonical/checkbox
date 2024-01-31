@@ -309,12 +309,18 @@ def main(argv) -> int:
     )
     if args.verbose:
         print(_("Checking connectivity to {0}").format(host))
-    ping_summary = {}
+
     if host:
         ping_summary = ping(
             host, args.interface, args.count, args.deadline, args.verbose
         )
-    if not ping_summary or ping_summary["received"] == 0:
+    else:
+        ping_summary = {
+            "received": 0,
+            "cause": "Unable to find any host to ping",
+        }
+
+    if ping_summary["received"] == 0:
         print(_("No Internet connection"))
         if ping_summary.get("cause"):
             print("Possible cause: {}".format(ping_summary["cause"]))

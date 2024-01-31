@@ -1,5 +1,5 @@
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from gateway_ping_test import main, parse_args
 
 
@@ -78,7 +78,6 @@ class TestMainFunction(unittest.TestCase):
     ):
         with self.assertRaises(SystemExit):
             main(["-c", "10", "-d", "8"])
-
 
     def test_adjust_count_based_on_non_default_deadline(self):
         # Assuming default_delay is 4

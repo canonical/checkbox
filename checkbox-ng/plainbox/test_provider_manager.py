@@ -269,10 +269,13 @@ class ProviderManagerToolTests(TestCase):
         self.assert_common_sdist(tarball)
 
     @mock.patch('plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry')
-    def test_develop(self, mock_path_entry):
+    @mock.patch('os.getenv')
+    def test_develop(self, mock_getenv, mock_path_entry):
         """
         verify that ``develop`` creates a provider file
         """
+        # no PROVIDERPATH defined
+        mock_getenv.return_value = None
         provider_path = os.path.join(self.tmpdir, "checkbox-providers-develop")
         filename = os.path.join(
             provider_path, "com.example.test.provider")
@@ -288,12 +291,20 @@ class ProviderManagerToolTests(TestCase):
         self.tool.main(["develop"])
         self.assertFileContent(filename, content)
 
+        # PROVIDERPATH defined
+        mock_getenv.return_value = "/tmp/com.example.test.provider"
+        self.tool.main(["develop"])
+        self.assertFileContent(filename, content)
+
     @mock.patch('plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry')
-    def test_develop__force(self, mock_path_entry):
+    @mock.patch('os.getenv')
+    def test_develop__force(self,mock_getenv, mock_path_entry):
         """
         verify that ``develop --force`` overwrites existing .provider
         file
         """
+        # no PROVIDERPATH defined
+        mock_getenv.return_value = None # support running test from venv
         provider_path = os.path.join(self.tmpdir, "checkbox-providers-develop")
         filename = os.path.join(
             provider_path, "com.example.test.provider")
@@ -312,11 +323,22 @@ class ProviderManagerToolTests(TestCase):
         self.tool.main(["develop", "--force"])
         self.assertFileContent(filename, content)
 
+        # PROVIDERPATH defined
+        mock_getenv.return_value = "/tmp/com.example.test.provider"
+        filename = "/tmp/com.example.test.provider/com.example.test.provider"
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, "wt+") as stream:
+            stream.write("should have been overwritten")
+        self.tool.main(["develop", "--force"])
+        self.assertFileContent(filename, content)
+
     @mock.patch('plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry')
-    def test_develop__uninstall(self, mock_path_entry):
+    @mock.patch('os.getenv')
+    def test_develop__uninstall(self, mock_getenv, mock_path_entry):
         """
         verify that ``develop --uninstall`` works
         """
+        mock_getenv.return_value = None # support running test from venv
         provider_path = os.path.join(self.tmpdir, "checkbox-providers-develop")
         filename = os.path.join(
             provider_path, "com.example.test.provider")

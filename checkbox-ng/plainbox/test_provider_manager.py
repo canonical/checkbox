@@ -274,11 +274,11 @@ class ProviderManagerToolTests(TestCase):
         """
         verify that ``develop`` creates a provider file
         """
-        # no PROVIDERPATH defined
-        mock_getenv.return_value = None
         provider_path = os.path.join(self.tmpdir, "checkbox-providers-develop")
         filename = os.path.join(
             provider_path, "com.example.test.provider")
+        # no PROVIDERPATH defined
+        mock_getenv.return_value = provider_path
         mock_path_entry.return_value = provider_path
         content = (
             "[PlainBox Provider]\n"

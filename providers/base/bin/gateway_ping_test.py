@@ -219,41 +219,56 @@ def ping(host, interface, count, deadline, verbose=False):
     return ping_summary
 
 
-def main(args):
-    gettext.textdomain("com.canonical.certification.checkbox")
-    gettext.bindtextdomain("com.canonical.certification.checkbox",
-                           os.getenv("CHECKBOX_PROVIDER_LOCALE_DIR", None))
+def parse_args(argv):
     default_count = 2
     default_delay = 4
     route = Route()
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "host", nargs='?', default=route.get_default_gateway(),
-        help=_("host to ping"))
+        "host",
+        nargs="?",
+        default=route.get_default_gateway(),
+        help=_("host to ping"),
+    )
     parser.add_argument(
-        "-c", "--count", default=default_count, type=int,
-        help=_("number of packets to send"))
+        "-c",
+        "--count",
+        default=default_count,
+        type=int,
+        help=_("number of packets to send"),
+    )
     parser.add_argument(
-        "-d", "--deadline", default=default_delay, type=int,
-        help=_("timeout in seconds"))
+        "-d",
+        "--deadline",
+        default=default_delay,
+        type=int,
+        help=_("timeout in seconds"),
+    )
     parser.add_argument(
-        "-t", "--threshold", default=0, type=int,
-        help=_("allowed packet loss percentage (default: %(default)s)"))
+        "-t",
+        "--threshold",
+        default=0,
+        type=int,
+        help=_("allowed packet loss percentage (default: %(default)s)"),
+    )
     parser.add_argument(
-        "-v", "--verbose", action='store_true', help=_("be verbose"))
+        "-v", "--verbose", action="store_true", help=_("be verbose")
+    )
     parser.add_argument(
-        "-I", "--interface", help=_("use specified interface to send packets"))
-    args = parser.parse_args()
+        "-I", "--interface", help=_("use specified interface to send packets")
+    )
+    args = parser.parse_args(argv)
     # Ensure count and deadline make sense. Adjust them if not.
     if args.deadline != default_delay and args.count != default_count:
         # Ensure they're both consistent, and exit with a warning if not,
         # rather than modifying what the user explicitly set.
         if args.deadline <= args.count:
             # FIXME: this cannot ever be translated correctly
-            print(_(
-                "ERROR: not enough time for {0} pings in {1} seconds"
-            ).format(args.count, args.deadline))
-            return 1
+            raise SystemExit(
+                _(
+                    "ERROR: not enough time for {0} pings in {1} seconds"
+                ).format(args.count, args.deadline)
+            )
     elif args.deadline != default_delay:
         # Adjust count according to delay.
         args.count = args.deadline - 1
@@ -261,43 +276,74 @@ def main(args):
             args.count = 1
         if args.verbose:
             # FIXME: this cannot ever be translated correctly
-            print(_(
-                "Adjusting ping count to {0} to fit in {1}-second deadline"
-            ).format(args.count, args.deadline))
+            print(
+                _(
+                    "Adjusting ping count to {0} to fit in {1}-second deadline"
+                ).format(args.count, args.deadline)
+            )
     else:
         # Adjust delay according to count
         args.deadline = args.count + 1
         if args.verbose:
             # FIXME: this cannot ever be translated correctly
-            print(_(
-                "Adjusting deadline to {0} seconds to fit {1} pings"
-            ).format(args.deadline, args.count))
+            print(
+                _("Adjusting deadline to {0} seconds to fit {1} pings").format(
+                    args.deadline, args.count
+                )
+            )
+    return args
+
+
+def main(argv) -> int:
+    gettext.textdomain("com.canonical.certification.checkbox")
+    gettext.bindtextdomain(
+        "com.canonical.certification.checkbox",
+        os.getenv("CHECKBOX_PROVIDER_LOCALE_DIR", None),
+    )
+
+    args = parse_args(argv)
+
     # If given host is not pingable, override with something pingable.
     host = get_host_to_ping(
-        interface=args.interface, verbose=args.verbose, default=args.host)
+        interface=args.interface, verbose=args.verbose, default=args.host
+    )
     if args.verbose:
         print(_("Checking connectivity to {0}").format(host))
-    ping_summary = None
+
     if host:
-        ping_summary = ping(host, args.interface, args.count,
-                            args.deadline, args.verbose)
-    if ping_summary is None or ping_summary['received'] == 0:
+        ping_summary = ping(
+            host, args.interface, args.count, args.deadline, args.verbose
+        )
+    else:
+        ping_summary = {
+            "received": 0,
+            "cause": "Unable to find any host to ping",
+        }
+
+    if ping_summary["received"] == 0:
         print(_("No Internet connection"))
-        if ping_summary.get('cause'):
-            print("Possible cause: {}".format(ping_summary['cause']))
+        if ping_summary.get("cause"):
+            print("Possible cause: {}".format(ping_summary["cause"]))
         return 1
-    elif ping_summary['transmitted'] != ping_summary['received']:
-        print(_("Connection established, but lost {0}% of packets").format(
-            ping_summary['pct_loss']))
-        if ping_summary['pct_loss'] > args.threshold:
-            print(_(
-                "FAIL: {0}% packet loss is higher than {1}% threshold"
-            ).format(ping_summary['pct_loss'], args.threshold))
+    elif ping_summary["transmitted"] != ping_summary["received"]:
+        print(
+            _("Connection established, but lost {0}% of packets").format(
+                ping_summary["pct_loss"]
+            )
+        )
+        if ping_summary["pct_loss"] > args.threshold:
+            print(
+                _(
+                    "FAIL: {0}% packet loss is higher than {1}% threshold"
+                ).format(ping_summary["pct_loss"], args.threshold)
+            )
             return 1
         else:
-            print(_(
-                "PASS: {0}% packet loss is within {1}% threshold"
-            ).format(ping_summary['pct_loss'], args.threshold))
+            print(
+                _("PASS: {0}% packet loss is within {1}% threshold").format(
+                    ping_summary["pct_loss"], args.threshold
+                )
+            )
             return 0
     else:
         print(_("Connection to test host fully established"))

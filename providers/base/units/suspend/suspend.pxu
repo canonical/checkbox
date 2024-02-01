@@ -2201,6 +2201,7 @@ _description:
 id: suspend/oops_after_suspend
 depends: suspend/suspend_advanced_auto
 plugin:shell
+category_id: com.canonical.plainbox::suspend
 estimated_duration: 10.0
 requires: executable.name == 'fwts'
 user: root

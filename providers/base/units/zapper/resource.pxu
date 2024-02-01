@@ -1,5 +1,6 @@
 id: zapper_capabilities
 plugin: resource
+category_id: com.canonical.plainbox::info
 _summary: Get Zapper's setup capabilities
 _description:
  Connect to Zapper and list functions that the current setup (DUT + Zapper) are

@@ -62,6 +62,7 @@ flags: preserve-locale
 id: usb-dwc3/mass-storage-cleanup
 _summary: Cleanup mass storage setup after mass storage device test
 plugin: shell
+category_id: usb-dwc3
 after: usb-dwc3/mass-storage
 command:
   echo "Removing g_mass_storage module..."

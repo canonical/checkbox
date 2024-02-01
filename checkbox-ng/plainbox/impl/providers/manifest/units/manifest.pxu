@@ -1,5 +1,6 @@
 unit: job
 id: collect-manifest
+category_id: com.canonical.plainbox::info
 _summary: Collect the hardware manifest (interactively)
 _description:
  This job interactively asks the user about each manifest entry and stores the
@@ -12,10 +13,11 @@ flags: preserve-locale use-chunked-io
 
 unit: job
 id: manifest
+category_id: com.canonical.plainbox::info
 _summary: Hardware Manifest
 _description:
  This job loads the hardware manifest and exposes it as a resource.
 plugin: resource
-command: plainbox-manifest-resource 
+command: plainbox-manifest-resource
 estimated_duration: 1
 flags: preserve-locale

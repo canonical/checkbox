@@ -37,6 +37,25 @@ from subprocess import CalledProcessError, check_output
 
 
 def get_apt_cache_information(command: str):
+    """ Execute the given apt-cache command and return the information.
+
+    This function runs the specified apt-cache command using the `check_output`
+    function, which returns the information about the Linux kernel package
+    queried by the command.
+
+    :param command: A string representing the apt-cache command to be executed.
+
+    :return:
+        A string containing the information retrieved from the apt-cache
+        command.
+
+    :raises CalledProcessError:
+        If the apt-cache command returns an empty string with exit code 0,
+        indicating a non-existent package.
+    :raises SystemExit:
+        If the apt-cache command returns an error status, indicating that
+        the kernel does not match any installed package.
+    """
     try:
         aptinfo = check_output(shlex.split(command), universal_newlines=True)
         # "apt-cache showpkg" returns an empty string with exit code 0 if
@@ -113,7 +132,10 @@ def verify_not_lowlatency_kernel(kernel_release: str):
     """
     # Exclude low-latency kernels, which are identified via the kernel name
     # string itself....
-    return False if "lowlatency" in kernel_release else True
+    if "lowlatency" in kernel_release:
+        logging.error("* Kernel is a low-latency kernel!")
+        return False
+    return True
 
 
 def check_kernel_status():

@@ -1,5 +1,4 @@
 plugin: user-interact
-template-engine: jinja2
 category_id: strict-confinement-mode
 id: strict-confine/mediacard/sdhc-insert
 flags: also-after-suspend
@@ -30,7 +29,6 @@ _description:
      automatically selected result.
 
 plugin: shell
-template-engine: jinja2
 category_id: strict-confinement-mode
 id: strict-confine/mediacard/sdhc-storage
 estimated_duration: 30.0
@@ -45,7 +43,6 @@ _description:
  test is run. It tests reading and writing to the SDHC card.
 
 plugin: user-interact
-template-engine: jinja2
 category_id: strict-confinement-mode
 id: strict-confine/mediacard/sdhc-remove
 flags: also-after-suspend

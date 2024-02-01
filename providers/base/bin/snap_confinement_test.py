@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-# Copyright 2021 Canonical Ltd.
+# Copyright 2021 - 2024 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
 #    Patrick Liu <patrick.liu@canonical.com>
+#    Patrick Chang <patrick.chang@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -20,6 +21,7 @@
 import argparse
 import json
 import logging
+import os
 import re
 import sys
 from checkbox_support.snap_utils.snapd import Snapd
@@ -95,86 +97,154 @@ def test_system_confinement():
     return sandbox_features_output
 
 
-def test_snaps_confinement():
+class SnapsConfinementVerifier:
     """
     Test the confinement status of all installed snaps.
 
-    A snap confinement should be 'strict', devmode should be False,
-    and should not have a sideloaded revision starts with 'x'.
+    A snap's confinement should be 'strict', devmode should be False,
+    and it should not have a sideloaded revision that starts with 'x'.
 
-    Variables:
-        allowlist_snaps (list): A list of snap names or regex patterns
-            that are exempted from the confinement check. To match the
-            entire snap name, use the pattern "^<snap_name>$". For
-            example, "bugit" matches only "bugit". To match multiple
-            snaps with similar names, use ".*" suffixes. For instance,
-            "checkbox.*" matches all snap names starting with "checkbox".
-            Customize this list to exclude specific snaps from the
-            confinement checks based on their names or patterns.
-    Returns:
-            int: Exit code. 0 if the test passes for all snaps,
-                 otherwise 1.
+    Attributes:
+        _official_allowlist (list): A list of regex patterns exempted from
+            the confinement check. Snaps matching these patterns will be
+            excluded from the test. Customize this list to define specific
+            snaps that should be ignored based on their names or patterns.
+
+        _allowlist_from_config_var (list): A list of snap names
+            from the SNAP_CONFINEMENT_ALLOWLIST environment variable.
+            Snaps matching these patterns will be excluded from the test.
+
+        _desired_attributes (list): A list of attributes of a snap that
+            are of interest for testing. The attributes include "name",
+            "confinement", "devmode", and "revision".
+
+    Methods:
+        _is_snap_in_allow_list(snap_name: str) -> bool:
+            Check if a snap is in the allowlist.
+
+        _is_snap_confinement_not_strict(snap_confinement: str) -> bool:
+            Check if a snap's confinement is not 'strict'.
+
+        _is_snap_devmode(snap_devmode: bool) -> bool:
+            Check if a snap is in devmode.
+
+        _is_snap_sideloaded_revision(snap_revision: str) -> bool:
+            Check if a snap has a sideloaded revision starting with 'x'.
+
+        _extract_attributes_from_snap(target_snap: dict) -> (bool, dict):
+            Extract desired attributes from a snap's information.
+
+        verify_snap() -> int:
+            Perform the snap verification test on all installed snaps.
+            Returns the exit code: 0 if the test passes for all snaps,
+            otherwise 1.
     """
-    allowlist_snaps = [
-        r"^bugit$",
-        r"checkbox.*",
-        r"^mir-test-tools$",
-        r"^graphics-test-tools$",
-    ]
+    def __init__(self) -> None:
+        self._official_allowlist = [
+            r"^bugit$",
+            r"checkbox.*",
+            r"^mir-test-tools$",
+            r"^graphics-test-tools$"
+        ]
+        self._allowlist_from_config_var = [
+            element.strip() for element in os.environ.get(
+                "SNAP_CONFINEMENT_ALLOWLIST", "").split(",")]
+        # Define the attributes of snap we are interested in.
+        self._desired_attributes = [
+            "name", "confinement", "devmode", "revision"]
 
-    data = Snapd().list()
-    exit_code = 0
-    for snap in data:
-        snap_name = snap.get("name")
-        snap_confinement = snap.get("confinement")
-        snap_devmode = snap.get("devmode")
-        snap_revision = snap.get("revision")
-
-        if snap_name is None:
-            logging.error("Snap 'name' not found in the snap data.")
-            exit_code = 1
-            continue  # Skipping following checks if snap_name not found
-
-        if any(
+    def _is_snap_in_allow_list(self, snap_name: str) -> bool:
+        if snap_name in self._allowlist_from_config_var:
+            logging.warning(
+                "This snap is included in the SNAP_CONFINEMENT_ALLOWLIST"
+                " environment variable, a tester defined checkbox config_var.")
+            logging.info('Result: Skip')
+            return True
+        elif any(
             re.match(pattern, snap_name)
-            for pattern in allowlist_snaps
+            for pattern in self._official_allowlist
         ):
-            print("Skipping whitelisted snap: {}".format(snap_name))
-            continue
+            logging.warning(
+                "This snap is officially defined in the allowlist")
+            logging.info('Result: Skip')
+            return True
+        return False
 
+    def _is_snap_confinement_not_strict(self, snap_confinement: str) -> bool:
         if snap_confinement != "strict":
-            exit_code = 1
             logging.error(
-                "Snap '%s' confinement is expected to be 'strict' "
-                "but got '%s'", snap_name, snap_confinement,
-            )
+                "confinement is expected to be 'strict' but got '{}'".format(
+                    snap_confinement))
+            return True
+        return False
 
-        if snap_devmode is not False:
-            exit_code = 1
-            logging.error(
-                "Snap '%s' devmode is expected to be False but "
-                "got '%s'", snap_name, snap_devmode,
-            )
+    def _is_snap_devmode(self, snap_devmode: bool) -> bool:
+        if snap_devmode:
+            logging.error("devmode is expected to be 'False' but got 'True'")
+            return True
+        return False
 
+    def _is_snap_sideloaded_revision(self, snap_revision: str) -> bool:
         if snap_revision and snap_revision.startswith("x"):
-            exit_code = 1
             logging.error(
-                "Snap '%s' has sideloaded revision '%s', which "
-                "is not allowed", snap_name, snap_revision,
+                "sideloaded revision is '{}', which is not allowed".format(
+                    snap_revision))
+            return True
+        return False
+
+    def _extract_attributes_from_snap(self, target_snap: dict) -> (bool, dict):
+        return_dict = {}
+        has_error = False
+        for attr in self._desired_attributes:
+            value = target_snap.get(attr)
+            if value is None:
+                has_error = True
+                logging.error(
+                    "Snap '{}' not found in the snap data.".format(attr))
+                continue
+            return_dict.update({attr: value})
+        return has_error, return_dict
+
+    def verify_snap(self) -> bool:
+        exit_code = 0
+        snaps_information = Snapd().list()
+        for snap_info in snaps_information:
+            tmp_exit_code = 0
+            has_error, snap_dict = self._extract_attributes_from_snap(
+                target_snap=snap_info
             )
-        elif snap_revision is None:
-            exit_code = 1
-            logging.error(
-                "'revision' not found in snap '%s'", snap_name,
-            )
-    return exit_code
+            if has_error:
+                # Mark as fail and skip current snap's checking
+                # if any desired attribute is missing
+                exit_code = 1
+                continue
+
+            logging.info(
+                "=== Checking Snap: {} ===".format(snap_dict.get("name")))
+
+            # Skip if target snap in allow list
+            if self._is_snap_in_allow_list(snap_dict.get("name")):
+                continue
+
+            tmp_exit_code |= self._is_snap_confinement_not_strict(
+                snap_dict.get("confinement"))
+            tmp_exit_code |= self._is_snap_devmode(snap_dict.get("devmode"))
+            tmp_exit_code |= self._is_snap_sideloaded_revision(
+                snap_dict.get("revision"))
+
+            logging.info(
+                "Result: {}".format("Fail" if tmp_exit_code else "Pass"))
+
+            exit_code |= tmp_exit_code
+        return exit_code
 
 
 def main():
-    logging.basicConfig(format='%(levelname)s: %(message)s')
+    logging.basicConfig(
+        format='%(levelname)s: %(message)s', level=logging.INFO)
     sub_commands = {
         "system": test_system_confinement,
-        "snaps": test_snaps_confinement,
+        "snaps": SnapsConfinementVerifier().verify_snap,
     }
     parser = argparse.ArgumentParser()
     parser.add_argument("subcommand", type=str, choices=sub_commands)

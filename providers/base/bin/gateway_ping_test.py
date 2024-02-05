@@ -36,6 +36,9 @@ import struct
 import subprocess
 import sys
 import time
+import json
+
+from contextlib import suppress
 
 
 class Route:
@@ -43,11 +46,36 @@ class Route:
     Gets routing information from the system.
     """
 
+    def __init__(self, interface):
+        self.interface = interface
+
     def _num_to_dotted_quad(self, number):
         """
         Convert long int to dotted quad string
         """
         return socket.inet_ntoa(struct.pack("<L", number))
+
+    def _get_default_gateway_from_ip(self):
+        try:
+            routes = subprocess.check_output(
+                [
+                    "ip",
+                    "-o",
+                    "route",
+                    "show",
+                    "default",
+                    "0.0.0.0/0",
+                    "dev",
+                    self.interface,
+                ],
+                universal_newlines=True,
+            )
+        except subprocess.CalledProcessError:
+            return None
+        for route in routes.splitlines():
+            if route.startswith("default via"):
+                return route.split()[2]
+        return None
 
     def _get_default_gateway_from_proc(self):
         """
@@ -60,21 +88,18 @@ class Route:
         except Exception:
             logging.error(_("Failed to read def gateway from /proc"))
             return None
-        else:
-            h = re.compile(r"\n(?P<interface>\w+)\s+00000000\s+"
-                           r"(?P<def_gateway>[\w]+)\s+")
-            w = h.search(route)
-            if w:
-                if w.group("def_gateway"):
-                    return self._num_to_dotted_quad(
-                        int(w.group("def_gateway"), 16))
-                else:
-                    logging.error(
-                        _("Could not find def gateway info in /proc"))
-                    return None
-            else:
-                logging.error(_("Could not find def gateway info in /proc"))
-                return None
+
+        proc_table_re = re.compile(
+            r"\n(?P<interface>\w+)\s+00000000\s+" r"(?P<def_gateway>[\w]+)\s+"
+        )
+        proc_table_lines = proc_table_re.finditer(route)
+        for proc_table_line in proc_table_lines:
+            def_gateway = proc_table_line.group("def_gateway")
+            interface = proc_table_line.group("interface")
+            if interface == self.interface and def_gateway:
+                return self._num_to_dotted_quad(int(def_gateway, 16))
+        logging.error(_("Could not find def gateway info in /proc"))
+        return None
 
     def _get_default_gateway_from_bin_route(self):
         """
@@ -83,114 +108,221 @@ class Route:
         and is only used if could not get that from /proc
         """
         logging.debug(
-            _("Reading default gateway information from route binary"))
-        routebin = subprocess.getstatusoutput(
-            "export LANGUAGE=C; " "/usr/bin/env route -n")
-        if routebin[0] == 0:
-            h = re.compile(r"\n0.0.0.0\s+(?P<def_gateway>[\w.]+)\s+")
-            w = h.search(routebin[1])
-            if w:
-                def_gateway = w.group("def_gateway")
-                if def_gateway:
-                    return def_gateway
+            _("Reading default gateway information from route binary")
+        )
+        try:
+            routebin = subprocess.check_output(
+                ["/usr/bin/env", "route", "-n"],
+                env={"LANGUAGE": "C"},
+                universal_newlines=True,
+            )
+        except subprocess.CalledProcessError:
+            return None
+        route_line_re = re.compile(
+            r"^0\.0\.0\.0\s+(?P<def_gateway>[\w.]+)(?P<tail>.+)"
+        )
+        route_lines = route_line_re.finditer(routebin)
+        for route_line in route_lines:
+            def_gateway = route_line.group("def_gateway")
+            interface = route_line.rsplit(" ", 1)
+            if interface == self.interface and def_gateway:
+                return def_gateway
         logging.error(_("Could not find default gateway by running route"))
         return None
 
-    def get_hostname(self):
-        return socket.gethostname()
+    def _get_ip_addr_info(self) -> dict:
+        return subprocess.check_output(
+            ["ip", "-o", "addr", "show"], universal_newlines=True
+        )
 
-    def get_default_gateway(self):
-        t1 = self._get_default_gateway_from_proc()
-        if not t1:
-            t1 = self._get_default_gateway_from_bin_route()
-        return t1
+    def get_broadcast(self):
+        # Get list of all IPs from all my interfaces,
+        ip_addr_infos = self._get_ip_addr_info()
+        for addr_info_line in ip_addr_infos.splitlines():
+            # id: if_name inet addr/mask brd broadcast
+            addr_info_fields = addr_info_line.split()
+            if (
+                addr_info_fields[1] == self.interface
+                and addr_info_fields[4] == "brd"
+            ):
+                return addr_info_fields[5]
+        raise ValueError(
+            "Unable to determine broadcast for iface {}".format(self.interface)
+        )
 
-
-def get_host_to_ping(interface=None, verbose=False, default=None):
-    # Get list of all IPs from all my interfaces,
-    interface_list = subprocess.check_output(["ip", "-o", 'addr', 'show'])
-    reg = re.compile(r'\d: (?P<iface>\w+) +inet (?P<address>[\d\.]+)/'
-                     r'(?P<netmask>[\d]+) brd (?P<broadcast>[\d\.]+)')
-    # Will magically exclude lo because it lacks brd field
-    interfaces = reg.findall(interface_list.decode())
-    # ping -b the network on each one (one ping only)
-    # exclude the ones not specified in iface
-    for iface in interfaces:
-        if not interface or iface[0] == interface:
-            # Use check_output even if I'll discard the output
-            # looks cleaner than using .call and redirecting stdout to null
-            try:
-                subprocess.check_output(["ping", "-q", "-c", "1", "-b",
-                                         iface[3]], stderr=subprocess.STDOUT)
-            except subprocess.CalledProcessError:
-                pass
-    # If default host given, ping it as well,
-    # to try to get it into the arp table.
-    # Needed in case it's not responding to broadcasts.
-    if default:
+    def _get_default_gateway_from_networkctl(self):
         try:
-            subprocess.check_output(["ping", "-q", "-c", "1", default],
-                                    stderr=subprocess.STDOUT)
+            network_info = subprocess.check_output(
+                [
+                    "networkctl",
+                    "status",
+                    "--no-pager",
+                    "--no-legend",
+                    self.interface,
+                ],
+                universal_newlines=True,
+            )
         except subprocess.CalledProcessError:
-            pass
-    # Try to get the gateway address for the interface from networkctl
-    cmd = 'networkctl status --no-pager --no-legend {}'.format(interface)
-    try:
-        output = subprocess.check_output(cmd, shell=True)
-        for line in output.decode(sys.stdout.encoding).splitlines():
-            vals = line.strip().split(' ')
-            if len(vals) >= 2:
-                if vals[0] == 'Gateway:':
-                    subprocess.check_output(["ping", "-q", "-c", "1", vals[1]],
-                                            stderr=subprocess.STDOUT)
-                    break
-    except subprocess.CalledProcessError:
-        pass
-    ARP_POPULATE_TRIES = 10
-    num_tries = 0
-    while num_tries < ARP_POPULATE_TRIES:
+            return None
+        for line in network_info.splitlines():
+            line = line.strip()
+            if line.startswith("Gateway:"):
+                return line.split()[-1]
+        return None
+
+    def get_default_gateways(self) -> set:
+        """
+        Use multiple sources to get the default gateway to be robust to
+        possible platform bugs
+        """
+        def_gateways = {
+            self._get_default_gateway_from_ip(),
+            self._get_default_gateway_from_proc(),
+            self._get_default_gateway_from_bin_route(),
+            self._get_default_gateway_from_networkctl(),
+        }
+        def_gateways -= {None}
+        if len(def_gateways) > 1:
+            logging.warning(
+                "Found more than one default gateway for interface {}".format(
+                    self.interface
+                )
+            )
+        return def_gateways
+
+    @classmethod
+    def get_interface_from_ip(cls, ip):
+        # Note: this uses -o instead of -j for xenial/bionic compatibility
+        route_info = subprocess.check_output(
+            ["ip", "route", "get", ip], universal_newlines=True
+        )
+        for line in route_info.splitlines():
+            # ip dev device_name src ...
+            fields = line.split()
+            if len(fields) > 3:
+                return fields[2]
+        raise ValueError(
+            "Unable to determine any device used for {}".format(ip)
+        )
+
+    @classmethod
+    def get_any_interface(cls):
+        route_infos = subprocess.check_output(
+            ["ip", "-o", "route", "show", "default", "0.0.0.0/0"],
+            universal_newlines=True,
+        )
+        for route_info in route_infos.splitlines():
+            route_info_fields = route_info.split()
+            if len(route_info_fields) > 5:
+                return route_info_fields[4]
+        raise ValueError("Unable to determine any valid interface")
+
+    @classmethod
+    def from_ip(cls, ip: str):
+        """
+        Build an instance of Route given an ip, if no ip is provided the best
+        interface that can route to 0.0.0.0/0 is selected (as described by
+        metric)
+        """
+        if ip:
+            interface = Route.get_interface_from_ip(ip)
+            return Route(interface)
+        return Route(Route.get_any_interface())
+
+
+def is_reachable(ip, interface, verbose=False):
+    """
+    Ping an ip once to see if it is reachable
+    """
+    result = ping(ip, interface, 1, 10, verbose)
+    return result["transmitted"] == result["received"] == 1
+
+
+def get_default_gateway_reachable_on(interface, verbose=False):
+    if not interface:
+        raise ValueError("Unable to ping on interface None")
+    route = Route(interface=interface)
+    desired_targets = route.get_default_gateways()
+    for desired_target in desired_targets:
+        if is_reachable(desired_target, interface):
+            return desired_target
+    raise ValueError(
+        "Unable to reach any estimated gateway of interface {}".format(
+            interface
+        ),
+    )
+
+
+def get_any_host_reachable_on(interface, verbose=False):
+    if not interface:
+        raise ValueError("Unable to ping on interface None")
+    route = Route(interface=interface)
+    broadcast = route.get_broadcast()
+    arp_parser_re = re.compile(
+        r"\? \((?P<ip>[\d.]+)\) at (?P<mac>[a-f0-9\:]+) "
+        r"\[ether\] on (?P<iface>[\w\d]+)"
+    )
+    # retry a few times to get something in the arp table
+    for i in range(10):
+        ping(broadcast, interface, 1, 1, broadcast=True, verbose=verbose)
         # Get output from arp -a -n to get known IPs
-        known_ips = subprocess.check_output(["arp", "-a", "-n"])
-        reg = re.compile(r'\? \((?P<ip>[\d.]+)\) at (?P<mac>[a-f0-9\:]+) '
-                         r'\[ether\] on (?P<iface>[\w\d]+)')
-        # Filter (if needed) IPs not on the specified interface
-        pingable_ips = [pingable[0] for pingable in reg.findall(
-                        known_ips.decode()) if not interface or
-                        pingable[2] == interface]
-        # If the default given ip is among the remaining ones,
-        # ping that.
-        if default and default in pingable_ips:
-            if verbose:
-                print(_(
-                    "Desired ip address {0} is reachable, using it"
-                ).format(default))
-            return default
-        # If not, choose another IP.
-        address_to_ping = pingable_ips[0] if len(pingable_ips) else None
-        if verbose:
-            print(_(
-                "Desired ip address {0} is not reachable from {1},"
-                " using {2} instead"
-            ).format(default, interface, address_to_ping))
-        if address_to_ping:
-            return address_to_ping
-        time.sleep(2)
-        num_tries += 1
-    # Wait time expired
+        arp_table = subprocess.check_output(
+            ["arp", "-a", "-n"], universal_newlines=True
+        )
+        hosts_in_arp_table = [
+            arp_entry.group("ip")  # ip
+            for arp_entry in arp_parser_re.finditer(arp_table)
+            if arp_entry.group("iface") == interface
+        ]
+        # we don't know how an ip got in the arp table, lets try to reach them
+        # and return the first that we can acutally reach
+        for host in hosts_in_arp_table:
+            if is_reachable(host, interface):
+                return host
+        # we were unable to get any reachable host in the arp table, this may
+        # be due to a slow network, lets retry in a few seconds
+        time.sleep(5)
+    raise ValueError(
+        "Unable to reach any host on interface {}".format(interface)
+    )
+
+
+def get_host_to_ping(interface: str, target: str = None, verbose=False):
+    # Try to use the provided target if it is reachable
+    if target and is_reachable(target, interface):
+        return target
+    # From here onward, lets try to estimate a reachable target
+    if not interface:
+        route = Route.from_ip(target)
+        interface = route.interface
+
+    # Try first with any default gateway that we can gather on the interface
+    with suppress(ValueError):
+        return get_default_gateway_reachable_on(interface)
+
+    # Try with any host we can find reachable on the interface
+    with suppress(ValueError):
+        return get_any_host_reachable_on(interface)
+
+    # Unable to estimate any host to reach
     return None
 
 
-def ping(host, interface, count, deadline, verbose=False):
-    command = ["ping", str(host),  "-c", str(count), "-w", str(deadline)]
+def ping(host, interface, count, deadline, broadcast=False, verbose=False):
+    command = ["ping", str(host), "-c", str(count), "-w", str(deadline)]
     if interface:
         command.append("-I{}".format(interface))
+    if broadcast:
+        command.append("-b")
     reg = re.compile(
         r"(\d+) packets transmitted, (\d+) received,"
-        r".*([0-9]*\.?[0-9]*.)% packet loss")
-    ping_summary = {'transmitted': 0, 'received': 0, 'pct_loss': 0}
+        r".*([0-9]*\.?[0-9]*.)% packet loss"
+    )
+    ping_summary = {"transmitted": 0, "received": 0, "pct_loss": 0}
     try:
         output = subprocess.check_output(
-            command, universal_newlines=True, stderr=subprocess.PIPE)
+            command, universal_newlines=True, stderr=subprocess.PIPE
+        )
     except OSError as exc:
         if exc.errno == errno.ENOENT:
             # No ping command present;
@@ -200,12 +332,16 @@ def ping(host, interface, count, deadline, verbose=False):
             raise
     except subprocess.CalledProcessError as excp:
         # Ping returned fail exit code
+        # broadcast will always do so
+        if broadcast:
+            return
         print(_("ERROR: ping result: {0}").format(excp))
         if excp.stderr:
             print(excp.stderr)
-            if 'SO_BINDTODEVICE' in excp.stderr:
-                ping_summary['cause'] = (
-                    "Could not bind to the {} interface.".format(interface))
+            if "SO_BINDTODEVICE" in excp.stderr:
+                ping_summary[
+                    "cause"
+                ] = "Could not bind to the {} interface.".format(interface)
     else:
         if verbose:
             print(output)
@@ -213,21 +349,21 @@ def ping(host, interface, count, deadline, verbose=False):
         if received:
             ping_summary = received[0]
             ping_summary = {
-                'transmitted': int(ping_summary[0]),
-                'received': int(ping_summary[1]),
-                'pct_loss': int(ping_summary[2])}
+                "transmitted": int(ping_summary[0]),
+                "received": int(ping_summary[1]),
+                "pct_loss": int(ping_summary[2]),
+            }
     return ping_summary
 
 
 def parse_args(argv):
     default_count = 2
     default_delay = 4
-    route = Route()
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "host",
         nargs="?",
-        default=route.get_default_gateway(),
+        default=None,
         help=_("host to ping"),
     )
     parser.add_argument(
@@ -305,7 +441,7 @@ def main(argv) -> int:
 
     # If given host is not pingable, override with something pingable.
     host = get_host_to_ping(
-        interface=args.interface, verbose=args.verbose, default=args.host
+        interface=args.interface, verbose=args.verbose, target=args.host
     )
     if args.verbose:
         print(_("Checking connectivity to {0}").format(host))

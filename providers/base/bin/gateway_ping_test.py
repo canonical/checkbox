@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2007-2014 Canonical Ltd.
+# Copyright 2007-2023 Canonical Ltd.
 # Written by:
 #   Brendan Donegan <brendan.donegan@canonical.com>
 #   Daniel Manrique <daniel.manrique@canonical.com>
@@ -11,6 +11,7 @@
 #   Marc Tardif <marc.tardif@canonical.com>
 #   Mathieu Trudel-Lapierre <mathieu.trudel-lapierre@canonical.com>
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Massimiliano Girardi <massimiliano.giarardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -36,7 +37,6 @@ import struct
 import subprocess
 import sys
 import time
-import json
 
 from contextlib import suppress
 

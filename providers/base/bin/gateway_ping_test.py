@@ -345,9 +345,9 @@ def ping(host, interface, count, deadline, broadcast=False, verbose=False):
     try:
         received = next(re.finditer(reg, output))
         ping_summary = {
-            "transmitted": int(received[1]),
-            "received": int(received[2]),
-            "pct_loss": int(received[3]),
+            "transmitted": int(received.group(1)),
+            "received": int(received.group(2)),
+            "pct_loss": int(received.group(3)),
         }
     except StopIteration:
         ping_summary[

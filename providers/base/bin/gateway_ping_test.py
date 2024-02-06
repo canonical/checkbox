@@ -235,13 +235,16 @@ class Route:
 
 def is_reachable(ip, interface, verbose=False):
     """
-    Ping an ip once to see if it is reachable
+    Ping an ip to see if it is reachable
     """
     result = ping(ip, interface, 3, 10, verbose)
     return result["transmitted"] >= result["received"] > 0
 
 
-def get_default_gateway_reachable_on(interface, verbose=False):
+def get_default_gateway_reachable_on(interface: str, verbose=False) -> str:
+    """
+    Returns the default gateway of an interface if it is reachable
+    """
     if not interface:
         raise ValueError("Unable to ping on interface None")
     route = Route(interface=interface)
@@ -256,7 +259,10 @@ def get_default_gateway_reachable_on(interface, verbose=False):
     )
 
 
-def get_any_host_reachable_on(interface, verbose=False):
+def get_any_host_reachable_on(interface: str, verbose=False) -> str:
+    """
+    Returns any host that it can reach from a given interface
+    """
     if not interface:
         raise ValueError("Unable to ping on interface None")
     route = Route(interface=interface)
@@ -290,7 +296,18 @@ def get_any_host_reachable_on(interface, verbose=False):
     )
 
 
-def get_host_to_ping(interface: str, target: str = None, verbose=False):
+def get_host_to_ping(
+    interface: str, target: str = None, verbose=False
+) -> "str|None":
+    """
+    Attempts to determine a reachable host to ping on the specified network
+    interface. First it tries to ping the provided target. If no target is
+    specified or the target is not reachable, it then attempts to find a
+    reachable host by trying the default gateway and finally falling back on
+    any host on the network interface.
+
+    @returns: The reachable host if any, else None
+    """
     # Try to use the provided target if it is reachable
     if target and is_reachable(target, interface):
         return target
@@ -311,7 +328,23 @@ def get_host_to_ping(interface: str, target: str = None, verbose=False):
     return None
 
 
-def ping(host, interface, count, deadline, broadcast=False, verbose=False):
+def ping(
+    host: str,
+    interface: "str|None",
+    count: int,
+    deadline: int,
+    broadcast=False,
+    verbose=False,
+):
+    """
+    pings an host via an interface count times within the given deadline.
+    If the interface is None, it will not be used.
+    If the host is a broadcast host, use the broadcast kwarg
+
+    @returns: on success the stats of the ping "transmitted", "received" and
+              "pct_loss"
+    @returns: on failure a dict with a "cause" key, with the failure reason
+    """
     command = ["ping", str(host), "-c", str(count), "-w", str(deadline)]
     if interface:
         command.append("-I{}".format(interface))

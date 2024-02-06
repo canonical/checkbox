@@ -10,6 +10,7 @@ from gateway_ping_test import (
     is_reachable,
     get_default_gateway_reachable_on,
     get_any_host_reachable_on,
+    get_host_to_ping,
 )
 
 
@@ -261,30 +262,83 @@ class TestReachabilityFunctions(unittest.TestCase):
             in str(context.exception)
         )
 
+    @patch("gateway_ping_test.is_reachable", return_value=True)
+    def test_get_host_to_ping_priority_target(self, _):
+        self.assertEqual(get_host_to_ping("eth0", "10.0.0.1"), "10.0.0.1")
+
+    @patch("gateway_ping_test.is_reachable", return_value=False)
+    @patch(
+        "gateway_ping_test.get_default_gateway_reachable_on",
+        return_value="10.0.0.20",
+    )
+    @patch("gateway_ping_test.Route")
+    def test_get_host_to_ping_priority_default_gateway(
+        self, mock_route, mock_default_gateway_rechable_on, _
+    ):
+        # default gateway is on the same interface as the route target
+        # 10.0.0.1 but 10.0.0.1 is not reachable
+        self.assertEqual(get_host_to_ping(None, "10.0.0.1"), "10.0.0.20")
+
+    @patch("gateway_ping_test.is_reachable", return_value=False)
+    @patch(
+        "gateway_ping_test.get_any_host_reachable_on", return_value="10.0.1.2"
+    )
+    @patch(
+        "gateway_ping_test.get_default_gateway_reachable_on",
+        side_effect=ValueError,
+    )
+    @patch("gateway_ping_test.Route")
+    def test_get_host_to_ping_priority_any_route(
+        self,
+        mock_route,
+        mock_default_gateway_rechable_on,
+        mock_get_any_host_reachable_on,
+        _,
+    ):
+        # default gateway is on the same interface as the route target
+        # but both are unreachable, the test should try to get any reachable
+        # tagets on the interface
+        self.assertEqual(get_host_to_ping(None, "10.0.0.1"), "10.0.1.2")
+
+    @patch("gateway_ping_test.is_reachable", return_value=False)
+    @patch(
+        "gateway_ping_test.get_any_host_reachable_on", side_effect=ValueError
+    )
+    @patch(
+        "gateway_ping_test.get_default_gateway_reachable_on",
+        side_effect=ValueError,
+    )
+    @patch("gateway_ping_test.Route")
+    def test_get_host_to_ping_priority_failure(
+        self,
+        mock_route,
+        mock_default_gateway_rechable_on,
+        mock_get_any_host_reachable_on,
+        _,
+    ):
+        # we are unable to reach any target on the interface that should
+        # reach 10.0.0.1
+        self.assertIsNone(get_host_to_ping(None, "10.0.0.1"))
+
 
 class TestPingFunction(unittest.TestCase):
     @patch("subprocess.check_output")
     def test_ping_ok(self, mock_check_output):
-        # Simulate successful ping output
         mock_check_output.return_value = (
             "4 packets transmitted, 4 received, 0% packet loss"
         )
-        # Call ping function
         result = ping("8.8.8.8", "eth0", 4, 5, verbose=True)
-        # Verify the result
         self.assertEqual(result["transmitted"], 4)
         self.assertEqual(result["received"], 4)
         self.assertEqual(result["pct_loss"], 0)
 
     @patch("subprocess.check_output")
     def test_ping_failure(self, mock_check_output):
-        # Simulate a failure scenario with subprocess.CalledProcessError
         mock_check_output.side_effect = MagicMock(
             side_effect=subprocess.CalledProcessError(
                 1, "ping", "ping: unknown host"
             )
         )
-        # Call ping function
         result = ping("invalid.host", None, 4, 5)
         # Since the function does not return a detailed error for general
         # failures, we just check for non-success
@@ -300,7 +354,6 @@ class TestPingFunction(unittest.TestCase):
                 1, "ping", stderr="SO_BINDTODEVICE: Operation not permitted"
             )
         )
-        # Call ping function with broadcast=True
         result = ping("255.255.255.255", None, 4, 5, broadcast=True)
         self.assertIsNone(result)
 

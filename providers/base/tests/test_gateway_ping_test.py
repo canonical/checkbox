@@ -2,7 +2,15 @@ import unittest
 import textwrap
 import subprocess
 from unittest.mock import patch, MagicMock, mock_open
-from gateway_ping_test import main, parse_args, ping, Route, is_reachable
+from gateway_ping_test import (
+    main,
+    parse_args,
+    ping,
+    Route,
+    is_reachable,
+    get_default_gateway_reachable_on,
+    get_any_host_reachable_on,
+)
 
 
 class TestRoute(unittest.TestCase):
@@ -151,20 +159,107 @@ class TestRoute(unittest.TestCase):
 class TestUtilityFunctions(unittest.TestCase):
     @patch("gateway_ping_test.ping")
     def test_is_reachable(self, mock_ping):
-        mock_ping.return_value = {
-            "transmitted" : 3,
-            "received" : 2
-        }
+        mock_ping.return_value = {"transmitted": 3, "received": 2}
         self.assertTrue(is_reachable("10.0.0.1", "eth0"))
 
     @patch("gateway_ping_test.ping")
     def test_is_reachable_false(self, mock_ping):
-        mock_ping.return_value = {
-            "transmitted" : 0,
-            "received" : 0
-        }
+        mock_ping.return_value = {"transmitted": 0, "received": 0}
         self.assertFalse(is_reachable("10.0.0.1", "eth0"))
 
+
+class TestReachabilityFunctions(unittest.TestCase):
+    @patch("gateway_ping_test.Route")
+    @patch("gateway_ping_test.is_reachable", return_value=True)
+    def test_get_default_gateway_reachable_on_gateway_reachable(
+        self, mock_is_reachable, mock_route
+    ):
+        mock_route.return_value.get_default_gateways.return_value = [
+            "192.168.1.1"
+        ]
+        interface = "eth0"
+        result = get_default_gateway_reachable_on(interface)
+        self.assertEqual(result, "192.168.1.1")
+        mock_route.assert_called_once_with(interface=interface)
+        mock_is_reachable.assert_called_once_with("192.168.1.1", interface)
+
+    def test_get_default_gateway_reachable_on_interface_none(self):
+        interface = None
+        with self.assertRaises(ValueError) as context:
+            get_default_gateway_reachable_on(interface)
+        self.assertTrue(
+            "Unable to ping on interface None" in str(context.exception)
+        )
+
+    @patch("gateway_ping_test.Route")
+    @patch("gateway_ping_test.is_reachable", return_value=False)
+    def test_get_default_gateway_reachable_on_no_reachable_gateway(
+        self, mock_is_reachable, mock_route
+    ):
+        mock_route.return_value.get_default_gateways.return_value = [
+            "192.168.1.1",
+            "192.168.1.2",
+        ]
+        interface = "eth0"
+        with self.assertRaises(ValueError) as context:
+            get_default_gateway_reachable_on(interface)
+        self.assertTrue(
+            "Unable to reach any estimated gateway of interface eth0"
+            in str(context.exception)
+        )
+        mock_route.assert_called_once_with(interface=interface)
+        self.assertEqual(
+            mock_is_reachable.call_count, len(["192.168.1.1", "192.168.1.2"])
+        )
+
+    @patch("gateway_ping_test.subprocess.check_output")
+    @patch("gateway_ping_test.ping")
+    @patch("gateway_ping_test.Route")
+    @patch("gateway_ping_test.is_reachable", return_value=True)
+    def test_get_any_host_reachable_on_host_reachable(
+        self, mock_is_reachable, mock_route, mock_ping, mock_subprocess_output
+    ):
+        mock_route.return_value.get_broadcast.return_value = "192.168.1.255"
+        mock_subprocess_output.return_value = (
+            "? (192.168.1.100) at ab:cd:ef:12:34:56 [ether] on eth0\n"
+        )
+        interface = "eth0"
+        expected_host = "192.168.1.100"
+        result = get_any_host_reachable_on(interface)
+        self.assertEqual(result, expected_host)
+
+    def test_get_any_host_reachable_on_interface_none(self):
+        interface = None
+        with self.assertRaises(ValueError) as context:
+            get_any_host_reachable_on(interface)
+        self.assertTrue(
+            "Unable to ping on interface None" in str(context.exception)
+        )
+
+    @patch("gateway_ping_test.subprocess.check_output")
+    @patch("gateway_ping_test.ping")
+    @patch("gateway_ping_test.Route")
+    @patch("gateway_ping_test.is_reachable", return_value=False)
+    @patch("gateway_ping_test.time.sleep")  # Mock sleep to speed up the test
+    def test_get_any_host_reachable_on_no_reachable_host(
+        self,
+        mock_sleep,
+        mock_is_reachable,
+        mock_route,
+        mock_ping,
+        mock_subprocess_output,
+    ):
+        mock_route.return_value.get_broadcast.return_value = "192.168.1.255"
+        mock_subprocess_output.return_value = (
+            "? (192.168.1.100) at ab:cd:ef:12:34:56 [ether] on eth0\n"
+        )
+        interface = "eth0"
+        with self.assertRaises(ValueError) as context:
+            get_any_host_reachable_on(interface)
+        self.assertTrue(
+            "Unable to reach any host on interface eth0"
+            in str(context.exception)
+        )
 
 
 class TestPingFunction(unittest.TestCase):

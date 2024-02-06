@@ -121,7 +121,7 @@ class Route:
             return None
         route_line_re = re.compile(
             r"^0\.0\.0\.0\s+(?P<def_gateway>[\w.]+)(?P<tail>.+)",
-            flags=re.MULTILINE
+            flags=re.MULTILINE,
         )
         route_lines = route_line_re.finditer(routebin)
         for route_line in route_lines:
@@ -143,11 +143,12 @@ class Route:
         for addr_info_line in ip_addr_infos.splitlines():
             # id: if_name inet addr/mask brd broadcast
             addr_info_fields = addr_info_line.split()
-            if (
-                addr_info_fields[1] == self.interface
-                and addr_info_fields[4] == "brd"
-            ):
-                return addr_info_fields[5]
+            with suppress(IndexError):
+                if (
+                    addr_info_fields[1] == self.interface
+                    and addr_info_fields[4] == "brd"
+                ):
+                    return addr_info_fields[5]
         raise ValueError(
             "Unable to determine broadcast for iface {}".format(self.interface)
         )

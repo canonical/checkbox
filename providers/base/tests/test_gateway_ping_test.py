@@ -117,6 +117,84 @@ class TestRoute(unittest.TestCase):
         gateway = Route._get_default_gateway_from_bin_route(self_mock)
         self.assertIsNone(gateway)
 
+    def test_get_broadcast(self):
+        self_mock = MagicMock()
+        self_mock.interface = "enp5s0"
+        self_mock._get_ip_addr_info.return_value = textwrap.dedent(
+            """
+            1: lo    inet 127.0.0.1/8 scope host lo\\ valid_lft forever ...
+            3: wlan0    inet 192.168.1.115/24 brd 192.168.1.255 scope ...
+            4: enp5s0    inet 192.168.1.119/24 brd 192.168.1.255 scope ...
+            """
+        )
+        self.assertEqual(Route.get_broadcast(self_mock), "192.168.1.255")
+
+    def test_get_broadcast_not_found(self):
+        self_mock = MagicMock()
+        self_mock.interface = "eth0"
+        self_mock._get_ip_addr_info.return_value = textwrap.dedent(
+            """
+            1: lo    inet 127.0.0.1/8 scope host lo\\ valid_lft forever ...
+            3: wlan0    inet 192.168.1.115/24 brd 192.168.1.255 scope ...
+            4: enp5s0    inet 192.168.1.119/24 brd 192.168.1.255 scope ...
+            """
+        )
+        with self.assertRaises(ValueError):
+            Route.get_broadcast(self_mock)
+
+    @patch("subprocess.check_output")
+    def test__get_default_gateway_from_networkctl_ok(self, mock_check_output):
+        mock_check_output.return_value = textwrap.dedent(
+            """
+            systemd-networkd is not running, output might be incomplete.
+            Failed to query link bit rates: Could not activate remote peer:
+                activation request failed: unknown unit.
+            Failed to query link DHCP leases: Could not activate remote peer:
+                activation request failed: unknown unit.
+
+            ● 4: enp5s0
+                               Link File: /usr/lib/systemd/network/99-default.link
+                                 Address: 192.168.1.119
+                                          fe80::eb41:84fa:6da5:c815
+                                 Gateway: 192.168.1.1
+
+            feb 00 00:00:00 ... systemd-resolved[1430]: enp5s0: Systemd log line
+            """
+        )
+        def_gateway = Route("enp5s0")._get_default_gateway_from_networkctl()
+        self.assertEqual(def_gateway, "192.168.1.1")
+
+    @patch("subprocess.check_output")
+    def test__get_default_gateway_from_networkctl_no_gateway(
+        self, mock_check_output
+    ):
+        mock_check_output.return_value = textwrap.dedent(
+            """
+            systemd-networkd is not running, output might be incomplete.
+            Failed to query link bit rates: Could not activate remote peer:
+                activation request failed: unknown unit.
+            Failed to query link DHCP leases: Could not activate remote peer:
+                activation request failed: unknown unit.
+
+            ● 4: enp5s0
+                               Link File: /usr/lib/systemd/network/99-default.link
+                                 Address: 192.168.1.119
+                                          fe80::eb41:84fa:6da5:c815
+
+            feb 00 00:00:00 ... systemd-resolved[1430]: enp5s0: Systemd log line
+            """
+        )
+        def_gateway = Route("enp5s0")._get_default_gateway_from_networkctl()
+        self.assertIsNone(def_gateway)
+
+    @patch("subprocess.check_output")
+    def test__get_default_gateway_from_networkctl_failure(
+        self, mock_check_output
+    ):
+        mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
+        def_gateway = Route("enp5s0")._get_default_gateway_from_networkctl()
+        self.assertIsNone(def_gateway)
+
     @patch("subprocess.check_output")
     def test__get_default_gateway_from_bin_route_exception(
         self, mock_check_output

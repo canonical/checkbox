@@ -234,6 +234,45 @@ class TestRoute(unittest.TestCase):
         )
         self.assertTrue(mock_warn.called)
 
+    @patch(
+        "subprocess.check_output",
+        return_value="192.168.1.203 dev enp5s0 src 192.168.1.119 uid 1000",
+    )
+    def test_get_interface_from_ip_ok(self, mock_check_output):
+        self.assertEqual(
+            Route.get_interface_from_ip("192.168.1.203"), "enp5s0"
+        )
+
+    @patch("subprocess.check_output", return_value="")
+    def test_get_interface_from_ip_no_route(self, mock_check_output):
+        with self.assertRaises(ValueError):
+            Route.get_interface_from_ip("192.168.1.203")
+
+    @patch(
+        "subprocess.check_output",
+        return_value="192.168.1.203 dev enp5s0 src 192.168.1.119 uid 1000",
+    )
+    def test_get_any_interface_from_ip_ok(self, mock_check_output):
+        mock_check_output.return_value = textwrap.dedent(
+            """
+            default via 192.168.1.1 dev enp5s0 proto dhcp src 192.168.1.119 metric 100
+            default via 192.168.1.1 dev wlan0 proto dhcp src 192.168.1.115 metric 600
+            """
+        )
+        self.assertEqual(Route.get_any_interface(), "enp5s0")
+
+    @patch("gateway_ping_test.Route.get_interface_from_ip")
+    def test_from_ip(self, mock_get_interface_from_ip):
+        mock_get_interface_from_ip.return_value = "enp6s0"
+        self.assertEqual(Route.from_ip("192.168.3.3").interface, "enp6s0")
+        self.assertTrue(mock_get_interface_from_ip.called)
+
+    @patch("gateway_ping_test.Route.get_any_interface")
+    def test_from_ip_none(self, mock_get_interface_from_ip):
+        mock_get_interface_from_ip.return_value = "enp6s0"
+        self.assertEqual(Route.from_ip(None).interface, "enp6s0")
+        self.assertTrue(mock_get_interface_from_ip.called)
+
 
 class TestUtilityFunctions(unittest.TestCase):
     @patch("gateway_ping_test.ping")

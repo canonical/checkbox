@@ -27,7 +27,6 @@
 
 from gettext import gettext as _
 import argparse
-import errno
 import gettext
 import logging
 import os
@@ -327,36 +326,35 @@ def ping(host, interface, count, deadline, broadcast=False, verbose=False):
         output = subprocess.check_output(
             command, universal_newlines=True, stderr=subprocess.PIPE
         )
-    except OSError as exc:
-        if exc.errno == errno.ENOENT:
-            # No ping command present;
-            # default exception message is informative enough.
-            print(exc)
-        else:
-            raise
-    except subprocess.CalledProcessError as excp:
+    except (OSError, FileNotFoundError) as e:
+        ping_summary["cause"] = str(e)
+        return ping_summary
+    except subprocess.CalledProcessError as e:
         # Ping returned fail exit code
         # broadcast will always do so
         if broadcast:
             return
-        print(_("ERROR: ping result: {0}").format(excp))
-        if excp.stderr:
-            print(excp.stderr)
-            if "SO_BINDTODEVICE" in excp.stderr:
-                ping_summary[
-                    "cause"
-                ] = "Could not bind to the {} interface.".format(interface)
-    else:
-        if verbose:
-            print(output)
-        received = re.findall(reg, output)
-        if received:
-            ping_summary = received[0]
-            ping_summary = {
-                "transmitted": int(ping_summary[0]),
-                "received": int(ping_summary[1]),
-                "pct_loss": int(ping_summary[2]),
-            }
+        ping_summary[
+            "cause"
+        ] = "Failed with exception: {}\nstdout: {}\nstderr: {}".format(
+            str(e), e.stdout, e.stderr
+        )
+        return ping_summary
+    if verbose:
+        print(output)
+    try:
+        received = next(re.finditer(reg, output))
+        ping_summary = {
+            "transmitted": int(received[1]),
+            "received": int(received[2]),
+            "pct_loss": int(received[3]),
+        }
+    except StopIteration:
+        ping_summary[
+            "cause"
+        ] = "Failed to parse the stats from the ping output. Log: {}".format(
+            output
+        )
     return ping_summary
 
 

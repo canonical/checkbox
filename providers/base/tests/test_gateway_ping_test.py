@@ -45,6 +45,15 @@ class TestRoute(unittest.TestCase):
         self_mock.interface = "eth0"
         self.assertIsNone(Route._get_default_gateway_from_ip(self_mock))
 
+    @patch("subprocess.check_output")
+    def test__get_default_gateway_from_ip_crash(
+        self, mock_check_output
+    ):
+        mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
+        self_mock = MagicMock()
+        self_mock.interface = "eth0"
+        self.assertIsNone(Route._get_default_gateway_from_ip(self_mock))
+
     def test__get_default_gateway_from_proc_nominal(self):
         self_mock = MagicMock()
 
@@ -248,10 +257,7 @@ class TestRoute(unittest.TestCase):
         with self.assertRaises(ValueError):
             Route.get_interface_from_ip("192.168.1.203")
 
-    @patch(
-        "subprocess.check_output",
-        return_value="192.168.1.203 dev enp5s0 src 192.168.1.119 uid 1000",
-    )
+    @patch("subprocess.check_output")
     def test_get_any_interface_from_ip_ok(self, mock_check_output):
         mock_check_output.return_value = textwrap.dedent(
             """
@@ -260,6 +266,11 @@ class TestRoute(unittest.TestCase):
             """
         )
         self.assertEqual(Route.get_any_interface(), "enp5s0")
+
+    @patch("subprocess.check_output", return_value="")
+    def test_get_any_interface_from_ip_not_found(self, mock_check_output):
+        with self.assertRaises(ValueError):
+            Route.get_any_interface()
 
     @patch("gateway_ping_test.Route.get_interface_from_ip")
     def test_from_ip(self, mock_get_interface_from_ip):
@@ -448,6 +459,18 @@ class TestPingFunction(unittest.TestCase):
         self.assertEqual(result["transmitted"], 4)
         self.assertEqual(result["received"], 4)
         self.assertEqual(result["pct_loss"], 0)
+
+    @patch("subprocess.check_output")
+    def test_ping_malformed_output(self, mock_check_output):
+        mock_check_output.return_value = "Malformed output"
+        result = ping("8.8.8.8", "eth0", 4, 5, verbose=True)
+        self.assertIn("Failed to parse", result["cause"])
+
+    @patch("subprocess.check_output")
+    def test_ping_no_ping(self, mock_check_output):
+        mock_check_output.side_effect = FileNotFoundError("ping not found")
+        result = ping("8.8.8.8", "eth0", 4, 5, verbose=True)
+        self.assertEqual(result["cause"], str(mock_check_output.side_effect))
 
     @patch("subprocess.check_output")
     def test_ping_failure(self, mock_check_output):

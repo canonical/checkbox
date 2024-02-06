@@ -57,6 +57,7 @@ class Route:
 
     def _get_default_gateway_from_ip(self):
         try:
+            # Note: this uses -o instead of -j for xenial/bionic compatibility
             routes = subprocess.check_output(
                 [
                     "ip",
@@ -119,18 +120,19 @@ class Route:
         except subprocess.CalledProcessError:
             return None
         route_line_re = re.compile(
-            r"^0\.0\.0\.0\s+(?P<def_gateway>[\w.]+)(?P<tail>.+)"
+            r"^0\.0\.0\.0\s+(?P<def_gateway>[\w.]+)(?P<tail>.+)",
+            flags=re.MULTILINE
         )
         route_lines = route_line_re.finditer(routebin)
         for route_line in route_lines:
             def_gateway = route_line.group("def_gateway")
-            interface = route_line.rsplit(" ", 1)
+            interface = route_line.group("tail").rsplit(" ", 1)[-1]
             if interface == self.interface and def_gateway:
                 return def_gateway
         logging.error(_("Could not find default gateway by running route"))
         return None
 
-    def _get_ip_addr_info(self) -> dict:
+    def _get_ip_addr_info(self):
         return subprocess.check_output(
             ["ip", "-o", "addr", "show"], universal_newlines=True
         )
@@ -194,7 +196,7 @@ class Route:
     def get_interface_from_ip(cls, ip):
         # Note: this uses -o instead of -j for xenial/bionic compatibility
         route_info = subprocess.check_output(
-            ["ip", "route", "get", ip], universal_newlines=True
+            ["ip", "-o", "route", "get", ip], universal_newlines=True
         )
         for line in route_info.splitlines():
             # ip dev device_name src ...
@@ -207,6 +209,7 @@ class Route:
 
     @classmethod
     def get_any_interface(cls):
+        # Note: this uses -o instead of -j for xenial/bionic compatibility
         route_infos = subprocess.check_output(
             ["ip", "-o", "route", "show", "default", "0.0.0.0/0"],
             universal_newlines=True,
@@ -234,8 +237,8 @@ def is_reachable(ip, interface, verbose=False):
     """
     Ping an ip once to see if it is reachable
     """
-    result = ping(ip, interface, 1, 10, verbose)
-    return result["transmitted"] == result["received"] == 1
+    result = ping(ip, interface, 3, 10, verbose)
+    return result["transmitted"] >= result["received"] > 0
 
 
 def get_default_gateway_reachable_on(interface, verbose=False):

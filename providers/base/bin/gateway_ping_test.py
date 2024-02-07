@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2007-2023 Canonical Ltd.
+# Copyright 2007-2024 Canonical Ltd.
 # Written by:
 #   Brendan Donegan <brendan.donegan@canonical.com>
 #   Daniel Manrique <daniel.manrique@canonical.com>
@@ -237,11 +237,11 @@ def is_reachable(ip, interface, verbose=False):
     """
     Ping an ip to see if it is reachable
     """
-    result = ping(ip, interface, 3, 10, verbose)
+    result = ping(ip, interface, 3, 10, verbose=verbose)
     return result["transmitted"] >= result["received"] > 0
 
 
-def get_default_gateway_reachable_on(interface: str, verbose=False) -> str:
+def get_default_gateway_reachable_on(interface: str) -> str:
     """
     Returns the default gateway of an interface if it is reachable
     """

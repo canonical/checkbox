@@ -27,6 +27,7 @@ import string
 
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
+from plainbox.impl.decorators import instance_method_lru_cache
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceProgram
@@ -39,10 +40,12 @@ from plainbox.impl.unit import get_accessed_parameters
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.unit_with_id import UnitWithIdValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
+from plainbox.impl.unit.validators import PresentFieldValidator
 from plainbox.impl.unit.validators import ReferenceConstraint
 from plainbox.impl.unit.validators import UnitReferenceValidator
 from plainbox.impl.unit.validators import UniqueValueValidator
 from plainbox.impl.validation import Problem
+from plainbox.impl.validation import Severity
 
 
 __all__ = ['TemplateUnit']
@@ -296,6 +299,40 @@ class TemplateUnit(UnitWithId):
         return self.get_record_value('template-imports')
 
     @property
+    def template_summary(self):
+        """
+        Value of the 'template-summary' field.
+
+        This attribute stores the summary of a template, that is a human
+        readable name for that template.
+        """
+        return self.get_record_value("template-summary")
+
+    @instance_method_lru_cache(maxsize=None)
+    def tr_template_summary(self):
+        """
+        Get the translated version of :meth:`template_summary`.
+        """
+        return self.get_translated_record_value("template-summary")
+
+    @property
+    def template_description(self):
+        """
+        Value of the 'template-description' field.
+
+        This attribute stores the definition of a template which can be used
+        to provide more information about this template.
+        """
+        return self.get_record_value("template-description")
+
+    @instance_method_lru_cache(maxsize=None)
+    def tr_template_description(self):
+        """
+        Get the translated version of :meth:`template_description`.
+        """
+        return self.get_translated_record_value("template-description")
+
+    @property
     def template_unit(self):
         """
         value of the 'template-unit' field.
@@ -488,6 +525,8 @@ class TemplateUnit(UnitWithId):
             """Symbols for each field that a TemplateUnit can have."""
 
             template_id = "template-id"
+            template_summary = "template-summary"
+            template_description = "template-description"
             template_unit = 'template-unit'
             template_resource = 'template-resource'
             template_filter = 'template-filter'
@@ -506,6 +545,23 @@ class TemplateUnit(UnitWithId):
                         "::" not in unit.get_record_value("template-id")),
                     message=_("identifier cannot define a custom namespace"),
                     onlyif=lambda unit: unit.get_record_value("template-id")),
+            ],
+            fields.template_summary: [
+                concrete_validators.translatable,
+                PresentFieldValidator(severity=Severity.advice),
+                CorrectFieldValueValidator(
+                    lambda field: field.count("\n") == 0,
+                    Problem.wrong, Severity.warning,
+                    message=_("please use only one line"),
+                    onlyif=lambda unit: unit.template_summary),
+                CorrectFieldValueValidator(
+                    lambda field: len(field) <= 80,
+                    Problem.wrong, Severity.warning,
+                    message=_("please stay under 80 characters"),
+                    onlyif=lambda unit: unit.template_summary)
+            ],
+            fields.template_description: [
+                concrete_validators.translatable,
             ],
             fields.template_unit: [
                 concrete_validators.untranslatable,

@@ -293,9 +293,11 @@ class Explorer:
 
     def _template_to_obj(self, unit):
         return PlainBoxObject(
-            unit, group=unit.Meta.name, name=unit.id, attrs=OrderedDict((
+            unit, group=unit.Meta.name, name=unit.template_id,
+            attrs=OrderedDict((
                 ('id', unit.id),
                 ('partial_id', unit.partial_id),
+                ('template_id', unit.template_id),
                 ('template_unit', unit.template_unit),
                 ('template_resource', unit.template_resource),
                 ('template_filter', unit.template_filter),

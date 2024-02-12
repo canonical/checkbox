@@ -42,6 +42,14 @@ from plainbox.vendor import mock
 
 class TemplateUnitTests(TestCase):
 
+    def test_id(self):
+        template = TemplateUnit({
+            "template-resource": "resource",
+            "template-id": "check-devices",
+            "id": "check-device-{dev_name}",
+        })
+        self.assertEqual(template.id, "check-device-{dev_name}")
+
     def test_resource_partial_id__empty(self):
         """
         Ensure that ``resource_partial_id`` defaults to None
@@ -166,6 +174,54 @@ class TemplateUnitTests(TestCase):
         self.assertEqual(TemplateUnit({
             'template-resource': 'rc'
         }, provider=provider).resource_id, 'namespace::rc')
+
+    def test_slugify(self):
+        self.assertEqual(
+            TemplateUnit.slugify_template_id("stress/benchmark_{disk}"),
+            "stress/benchmark_disk"
+        )
+        self.assertEqual(
+            TemplateUnit.slugify_template_id("ns::stress/benchmark_{disk}"),
+            "ns::stress/benchmark_disk"
+        )
+        self.assertEqual(
+            TemplateUnit.slugify_template_id("suspend_{{ iterations }}_times"),
+            "suspend_iterations_times"
+        )
+        self.assertEqual(TemplateUnit.slugify_template_id(), None)
+
+    def test_template_id(self):
+        self.assertEqual(TemplateUnit({
+            "template-id": "template_id",
+        }).template_id, "template_id")
+
+    def test_template_id__from_job_id(self):
+        self.assertEqual(TemplateUnit({
+            "id": "job_id_{param}",
+        }).template_id, "job_id_param")
+
+    def test_template_id__precedence(self):
+        """Ensure template-id takes precedence over job id."""
+        self.assertEqual(TemplateUnit({
+            "template-id": "template_id",
+            "id": "job_id_{param}",
+        }).template_id, "template_id")
+
+    def test_template_id__from_job_id_jinja2(self):
+        self.assertEqual(TemplateUnit({
+            "template-resource": "resource",
+            "template-engine": "jinja2",
+            "id": "job_id_{{ param }}",
+        }).template_id, "job_id_param")
+
+    def test_template_id__precedence_jinja2(self):
+        """Ensure template-id takes precedence over Jinja2-templated job id."""
+        self.assertEqual(TemplateUnit({
+            "template-id": "template_id",
+            "template-resource": "resource",
+            "template-engine": "jinja2",
+            "id": "job_id_{{ param }}",
+        }).template_id, "template_id")
 
     def test_template_resource__empty(self):
         self.assertEqual(TemplateUnit({}).template_resource, None)
@@ -351,6 +407,14 @@ class TemplateUnitTests(TestCase):
 
 class TemplateUnitJinja2Tests(TestCase):
 
+    def test_id_jinja2(self):
+        template = TemplateUnit({
+            'template-resource': 'resource',
+            'template-engine': 'jinja2',
+            'id': 'check-device-{{ dev_name }}',
+        })
+        self.assertEqual(template.id, "check-device-{{ dev_name }}")
+
     def test_instantiate_one_jinja2(self):
         template = TemplateUnit({
             'template-resource': 'resource',
@@ -373,6 +437,55 @@ class TemplateUnitJinja2Tests(TestCase):
 class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
 
     unit_cls = TemplateUnit
+
+    def test_template_id__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_template-id': 'template_id'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_id,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_template_id__bare(self):
+        issue_list = self.unit_cls({
+            "template-id": "ns::id"
+        }, provider=self.provider).check()
+        message = ("template 'ns::id', field 'template-id', identifier cannot "
+                   "define a custom namespace")
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_id,
+            Problem.wrong, Severity.error, message)
+
+    def test_template_id__unique(self):
+        unit = self.unit_cls({
+            'template-id': 'id'
+        }, provider=self.provider)
+        other_unit = self.unit_cls({
+            'template-id': 'id'
+        }, provider=self.provider)
+        self.provider.unit_list = [unit, other_unit]
+        self.provider.problem_list = []
+        context = UnitValidationContext([self.provider])
+        message_start = (
+            "{} 'id', field 'template-id', clashes with 1 other unit,"
+            " look at: "
+        ).format(unit.tr_unit())
+        issue_list = unit.check(context=context)
+        issue = self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_id,
+            Problem.not_unique, Severity.error)
+        self.assertTrue(issue.message.startswith(message_start))
+
+    def test_unit__present(self):
+        """
+        TemplateUnit.unit always returns "template", the default error for the
+        base Unit class should never happen.
+        """
+        issue_list = self.unit_cls({
+        }, provider=self.provider).check()
+        message = "field 'unit', unit should explicitly define its type"
+        self.assertIssueNotFound(issue_list, self.unit_cls.Meta.fields.unit,
+                                 Problem.missing, Severity.advice, message)
 
     def test_template_unit__untranslatable(self):
         issue_list = self.unit_cls({

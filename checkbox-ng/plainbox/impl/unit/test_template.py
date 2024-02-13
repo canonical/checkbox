@@ -234,12 +234,24 @@ class TemplateUnitTests(TestCase):
         }).template_description, "description")
 
     def test_tr_template_summary(self):
+        template = TemplateUnit({
+            "_template-summary": "summary",
+        })
+        self.assertEqual(template.tr_template_summary(), "summary")
+
+    def test_translated_template_summary(self):
         """Ensure template_summary is populated with the translated field."""
         self.assertEqual(TemplateUnit({
             "_template-summary": "summary",
         }).template_summary, "summary")
 
     def test_tr_template_description(self):
+        template = TemplateUnit({
+            "_template-description": "description",
+        })
+        self.assertEqual(template.tr_template_description(), "description")
+
+    def test_translated_template_description(self):
         """
         Ensure template_description is populated with the translated field.
         """

@@ -41,6 +41,24 @@ Template-Specific Fields
     ``stress/reboot_{iterations}_times``, the computed ``template-id`` field
     will be ``stress/reboot_iterations_times``.
 
+.. _Template template-summary field:
+
+``template-summary``
+    A human readable name for the template. This value is available for
+    translation into other languages. It must be one line long, ideally it
+    should be short (50-70 characters max).
+
+    This field is optional (Checkbox will only advise you to provide one when
+    running provider validation).
+
+.. _Template template-description field:
+
+``template-description``
+    A long form description of what the template does or the kind of jobs it
+    instantiates. This value is available for translation into other languages.
+
+    This field is optional.
+
 .. _Template template-unit field:
 
 ``template-unit``

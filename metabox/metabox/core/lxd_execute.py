@@ -47,10 +47,12 @@ class InteractiveWebsocket(WebSocketClient):
         self.stdout_lock = threading.Lock()
         self._new_data = False
         self._lookup_by_id = False
+        self._connection_closed = False
 
     def received_message(self, message):
         if len(message.data) == 0:
             self.close()
+            self._connection_closed = True
         if self.verbose:
             raw_msg = self.ansi_escape.sub(
                 "", message.data.decode("utf-8", errors="ignore")
@@ -62,31 +64,36 @@ class InteractiveWebsocket(WebSocketClient):
             self._new_data = True
 
     def expect(self, data, timeout=0):
-        not_found = True
+        found = False
         start_time = time.time()
-        while not_found:
+        if isinstance(data, str):
+            data = data.encode("utf-8")
+        while not found:
             time.sleep(0.1)
-            if type(data) != str:
-                check = data.search(self.stdout_data)
-            else:
-                check = data.encode("utf-8") in self.stdout_data
+            check = data in self.stdout_data
             if check:
+                # truncate the history because subsequent expect should not
+                # re-match the same text
                 with self.stdout_lock:
-                    if type(data) != str:
-                        self.stdout_data = data.split(self.stdout_data)
-                    else:
-                        self.stdout_data = self.stdout_data.split(
-                            data.encode("utf-8"), maxsplit=1
-                        )[-1]
-                not_found = False
-            if timeout and time.time() > start_time + timeout:
-                logger.warning(
-                    "'{}' not found! Timeout is reached (set to {})",
-                    data,
-                    timeout,
+                    self.stdout_data = self.stdout_data.split(
+                        data, maxsplit=1
+                    )[-1]
+                found = True
+            elif timeout and time.time() > start_time + timeout:
+                msg = "'{}' not found! Timeout is reached (set to {})".format(
+                    data, timeout
                 )
-                raise TimeoutError
-        return not_found is False
+                logger.warning(msg)
+                raise TimeoutError(msg)
+            elif self._connection_closed:
+                # this could have been updated from the other thread, lets
+                # check before exiting the loop
+                found = found or data in self.stdout_data
+                break
+        return found
+
+    def expect_not(self, data, timeout=0):
+        return not self.expect(data, timeout)
 
     def select_test_plan(self, data, timeout=0):
         if not self._lookup_by_id:
@@ -199,6 +206,7 @@ def interactive_execute(container, cmd, env={}, verbose=False, timeout=0):
     ws_urls = container.raw_interactive_execute(
         login_shell + env_wrapper(env) + shlex.split(cmd)
     )
+
     base_websocket_url = container.client.websocket_url
     ctl = WebSocketClient(base_websocket_url)
     ctl.resource = ws_urls["control"]

@@ -68,15 +68,28 @@ class InteractiveWebsocket(WebSocketClient):
         start_time = time.time()
         if isinstance(data, str):
             data = data.encode("utf-8")
+
+        try:
+            # custom classes, like _re, provide this functionality and are a
+            # valid input
+            search = data.search
+            split = data.split
+        except AttributeError:
+
+            def search(stream):
+                return data in stream
+
+            split = bytes.split
+
         while not found:
             time.sleep(0.1)
-            check = data in self.stdout_data
+            check = search(self.stdout_data)
             if check:
                 # truncate the history because subsequent expect should not
                 # re-match the same text
                 with self.stdout_lock:
-                    self.stdout_data = self.stdout_data.split(
-                        data, maxsplit=1
+                    self.stdout_data = split(
+                        self.stdout_data, data, maxsplit=1
                     )[-1]
                 found = True
             elif timeout and time.time() > start_time + timeout:

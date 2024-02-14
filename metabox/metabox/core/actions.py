@@ -49,6 +49,10 @@ class Expect(ActionBase):
     handler = 'expect'
 
 
+class ExpectNot(ActionBase):
+    handler = 'expect_not'
+
+
 class Send(ActionBase):
     handler = 'send'
 

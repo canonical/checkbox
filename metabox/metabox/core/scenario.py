@@ -218,6 +218,11 @@ class Scenario:
         outcome = self._pts.expect(data, timeout)
         self._checks.append(outcome)
 
+    def expect_not(self, data, timeout=60):
+        assert self._pts is not None
+        outcome = self._pts.expect_not(data, timeout)
+        self._checks.append(outcome)
+
     def send(self, data):
         assert self._pts is not None
         self._pts.send(data.encode("utf-8"), binary=True)

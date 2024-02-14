@@ -213,6 +213,11 @@ class RemoteSessionAssistant:
             self._current_comments = ""
             self._state = TestsSelected
             return
+        elif response == "quit":
+            self._last_response = response
+            self._state = Idle
+            self.finalize_session()
+            return
         self._last_response = response
         self._state = Running
 

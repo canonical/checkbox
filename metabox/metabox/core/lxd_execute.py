@@ -125,19 +125,19 @@ class InteractiveWebsocket(WebSocketClient):
         max_attemps = 10
         attempt = 0
         still_on_first_screen = True
-        old_stdout_data = b""
+        old_stdout_data = ""
         if len(data) > 67:
             data = data[:67] + "   │\r\n│        " + data[67:]
         while attempt < max_attemps:
             if self._new_data and self.stdout_data:
                 if old_stdout_data == self.stdout_data:
                     break
-                check = data.encode("utf-8") in self.stdout_data
+                check = data in self.stdout_data
                 if not check:
                     self._new_data = False
                     with self.stdout_lock:
                         old_stdout_data = self.stdout_data
-                        self.stdout_data = bytearray()
+                        self.stdout_data = ""
                     stdin_payload = keys.KEY_PAGEDOWN + keys.KEY_SPACE
                     self.send(stdin_payload.encode("utf-8"), binary=True)
                     still_on_first_screen = False
@@ -157,18 +157,18 @@ class InteractiveWebsocket(WebSocketClient):
             self.send(keys.KEY_PAGEDOWN.encode("utf-8"), binary=True)
         while attempt < max_attemps:
             if self._new_data and self.stdout_data:
-                check = data.encode("utf-8") in self.stdout_data
+                check = data in self.stdout_data
                 if not check:
                     self._new_data = False
                     with self.stdout_lock:
-                        self.stdout_data = bytearray()
+                        self.stdout_data = ""
                     stdin_payload = keys.KEY_UP + keys.KEY_SPACE
                     self.send(stdin_payload.encode("utf-8"), binary=True)
                     attempt = 0
                 else:
                     not_found = False
                     with self.stdout_lock:
-                        self.stdout_data = bytearray()
+                        self.stdout_data = ""
                     break
             else:
                 time.sleep(0.1)
@@ -267,7 +267,7 @@ def run_or_raise(container, cmd, env={}, verbose=False, timeout=0):
         + shlex.split(cmd),  # noqa 503
         stdout_handler=on_stdout,
         stderr_handler=on_stderr,
-        stdin_payload=open(__file__),
+        #stdin_payload=open(__file__),
     )
     if timeout and res.exit_code == 137:
         logger.warning("{} Timeout is reached (set to {})", cmd, timeout)

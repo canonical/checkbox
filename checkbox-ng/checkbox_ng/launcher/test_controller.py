@@ -252,6 +252,152 @@ class ControllerTests(TestCase):
 
         self.assertTrue(self_mock.interactively_choose_tp.called)
 
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    def test__run_jobs_description_command_none(self, simple_ui_mock):
+        self_mock = mock.MagicMock()
+        interaction_mock = mock.MagicMock()
+        interaction_mock.kind = "description"
+
+        self_mock.sa.run_job.return_value = [interaction_mock]
+        jobs_repr_mock = {
+            "id": "id_mock",
+            "command": None,
+            "num": 0,
+            "name": "name",
+            "category_name": "category",
+        }
+        simple_ui_mock().wait_for_interaction_prompt.return_value = "skip"
+
+        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    def test__run_jobs_description_skip(self, simple_ui_mock):
+        self_mock = mock.MagicMock()
+        interaction_mock = mock.MagicMock()
+        interaction_mock.kind = "description"
+
+        self_mock.sa.run_job.return_value = [interaction_mock]
+        jobs_repr_mock = {
+            "id": "id_mock",
+            "command": "skip_description",
+            "num": 0,
+            "name": "name",
+            "category_name": "category",
+        }
+        simple_ui_mock().wait_for_interaction_prompt.return_value = "skip"
+
+        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    def test__run_jobs_description_enter(self, simple_ui_mock):
+        self_mock = mock.MagicMock()
+        interaction_mock = mock.MagicMock()
+        interaction_mock.kind = "description"
+
+        self_mock.sa.run_job.return_value = [interaction_mock]
+        jobs_repr_mock = {
+            "id": "id_mock",
+            "command": "skip_description",
+            "num": 0,
+            "name": "name",
+            "category_name": "category",
+        }
+        simple_ui_mock().wait_for_interaction_prompt.return_value = ""
+
+        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    def test__run_jobs_description_quit(self, simple_ui_mock):
+        self_mock = mock.MagicMock()
+        interaction_mock = mock.MagicMock()
+        interaction_mock.kind = "description"
+
+        self_mock.sa.run_job.return_value = [interaction_mock]
+        jobs_repr_mock = {
+            "id": "id_mock",
+            "command": "quit_description",
+            "num": 0,
+            "name": "name",
+            "category_name": "category",
+        }
+        simple_ui_mock().wait_for_interaction_prompt.return_value = "quit"
+
+        with self.assertRaises(SystemExit):
+            RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    def test__run_jobs_steps_run(self, simple_ui_mock):
+        self_mock = mock.MagicMock()
+        interaction_mock = mock.MagicMock()
+        interaction_mock.kind = "steps"
+
+        self_mock.sa.run_job.return_value = [interaction_mock]
+        jobs_repr_mock = {
+            "id": "id_mock",
+            "command": None,
+            "num": 0,
+            "name": "name",
+            "category_name": "category",
+        }
+
+        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    def test__run_jobs_steps_enter(self, simple_ui_mock):
+        self_mock = mock.MagicMock()
+        interaction_mock = mock.MagicMock()
+        interaction_mock.kind = "steps"
+
+        self_mock.sa.run_job.return_value = [interaction_mock]
+        jobs_repr_mock = {
+            "id": "id_mock",
+            "command": "skip_description",
+            "num": 0,
+            "name": "name",
+            "category_name": "category",
+        }
+        simple_ui_mock().wait_for_interaction_prompt.return_value = ""
+
+        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    def test__run_jobs_steps_skip(self, simple_ui_mock):
+        self_mock = mock.MagicMock()
+        interaction_mock = mock.MagicMock()
+        interaction_mock.kind = "steps"
+
+        self_mock.sa.run_job.return_value = [interaction_mock]
+        jobs_repr_mock = {
+            "id": "id_mock",
+            "command": "skip_description",
+            "num": 0,
+            "name": "name",
+            "category_name": "category",
+        }
+        simple_ui_mock().wait_for_interaction_prompt.return_value = "skip"
+
+        RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+
+    @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
+    def test__run_jobs_steps_quit(self, simple_ui_mock):
+        self_mock = mock.MagicMock()
+        interaction_mock = mock.MagicMock()
+        interaction_mock.kind = "steps"
+
+        self_mock.sa.run_job.return_value = [interaction_mock]
+        jobs_repr_mock = {
+            "id": "id_mock",
+            "command": "quit_description",
+            "num": 0,
+            "name": "name",
+            "category_name": "category",
+        }
+        simple_ui_mock().wait_for_interaction_prompt.return_value = "quit"
+
+        with self.assertRaises(SystemExit):
+            RemoteController._run_jobs(self_mock, [jobs_repr_mock])
+
+
 class IsHostnameALoopbackTests(TestCase):
     @mock.patch("socket.gethostbyname")
     @mock.patch("ipaddress.ip_address")

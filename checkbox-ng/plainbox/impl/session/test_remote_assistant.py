@@ -273,6 +273,36 @@ class RemoteAssistantTests(TestCase):
 
         rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
 
+    def test_remember_users_response_quit(self):
+        self_mock = mock.MagicMock()
+        self_mock._state = remote_assistant.Interacting
+
+        remote_assistant.RemoteSessionAssistant.remember_users_response(
+            self_mock, "quit"
+        )
+
+        self.assertEqual(self_mock._state, remote_assistant.Idle)
+        self.assertTrue(self_mock.finalize_session.called)
+
+    def test_remember_users_response_rollback(self):
+        self_mock = mock.MagicMock()
+        self_mock._state = remote_assistant.Interacting
+
+        remote_assistant.RemoteSessionAssistant.remember_users_response(
+            self_mock, "rollback"
+        )
+
+        self.assertEqual(self_mock._state, remote_assistant.TestsSelected)
+
+    def test_remember_users_response_run(self):
+        self_mock = mock.MagicMock()
+        self_mock._state = remote_assistant.Interacting
+
+        remote_assistant.RemoteSessionAssistant.remember_users_response(
+            self_mock, "run"
+        )
+
+        self.assertEqual(self_mock._state, remote_assistant.Running)
 
 class RemoteAssistantFinishJobTests(TestCase):
     def setUp(self):

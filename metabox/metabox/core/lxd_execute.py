@@ -267,7 +267,6 @@ def run_or_raise(container, cmd, env={}, verbose=False, timeout=0):
         + shlex.split(cmd),  # noqa 503
         stdout_handler=on_stdout,
         stderr_handler=on_stderr,
-        #stdin_payload=open(__file__),
     )
     if timeout and res.exit_code == 137:
         logger.warning("{} Timeout is reached (set to {})", cmd, timeout)

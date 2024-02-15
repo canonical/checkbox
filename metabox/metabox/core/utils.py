@@ -42,7 +42,7 @@ class ExecuteResult(NamedTuple):
 class _re:
     def __init__(self, pattern, flags=0):
         self._raw_pattern = pattern
-        self._pattern = re.compile(pattern.encode("utf-8"), flags)
+        self._pattern = re.compile(pattern, flags)
 
     def __repr__(self):
         return f"Regex {self._raw_pattern}"

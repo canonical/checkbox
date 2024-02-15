@@ -79,7 +79,7 @@ class Scenario:
 
     def get_output_streams(self):
         if self._pts:
-            return self._pts.stdout_data_full.decode("utf-8")
+            return self._pts.stdout_data_full
         return self._outstr_full
 
     def has_passed(self):
@@ -148,7 +148,7 @@ class Scenario:
         regex = re.compile(pattern)
         if self._pts:
             found = regex.search(
-                self._pts.stdout_data_full.decode("utf-8", errors="ignore")
+                self._pts.stdout_data_full
             )
         else:
             found = regex.search(self._stdout) or regex.search(self._stderr)

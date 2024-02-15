@@ -103,33 +103,10 @@ class Route:
 
     def _get_default_gateway_from_bin_route(self):
         """
-        Get default gateway from /sbin/route -n
-        Called by get_default_gateway
-        and is only used if could not get that from /proc
+        Return the gateway for the interface associated with this Route object.
         """
-        logging.debug(
-            _("Reading default gateway information from route binary")
-        )
-        try:
-            routebin = subprocess.check_output(
-                ["/usr/bin/env", "route", "-n"],
-                env={"LANGUAGE": "C"},
-                universal_newlines=True,
-            )
-        except subprocess.CalledProcessError:
-            return None
-        route_line_re = re.compile(
-            r"^0\.0\.0\.0\s+(?P<def_gateway>[\w.]+)(?P<tail>.+)",
-            flags=re.MULTILINE,
-        )
-        route_lines = route_line_re.finditer(routebin)
-        for route_line in route_lines:
-            def_gateway = route_line.group("def_gateway")
-            interface = route_line.group("tail").rsplit(" ", 1)[-1]
-            if interface == self.interface and def_gateway:
-                return def_gateway
-        logging.error(_("Could not find default gateway by running route"))
-        return None
+        default_gws = get_default_gateways()
+        return default_gws.get(self.interface)
 
     def _get_ip_addr_info(self):
         return subprocess.check_output(
@@ -425,8 +402,14 @@ def parse_args(argv):
     parser.add_argument(
         "-v", "--verbose", action="store_true", help=_("be verbose")
     )
-    parser.add_argument(
+    iface_mutex_group = parser.add_mutually_exclusive_group()
+    iface_mutex_group.add_argument(
         "-I", "--interface", help=_("use specified interface to send packets")
+    )
+    iface_mutex_group.add_argument(
+        "--any-cable-interface",
+        help=_("use any cable interface to send packets"),
+        action="store_true",
     )
     args = parser.parse_args(argv)
     # Ensure count and deadline make sense. Adjust them if not.
@@ -519,6 +502,42 @@ def main(argv) -> int:
     else:
         print(_("Connection to test host fully established"))
         return 0
+
+
+def get_default_gateways() -> dict[str, str]:
+    """
+    Use `route` program to find default gateways for all interfaces.
+
+    returns a dictionary in a form of {interface_name: gateway}
+    """
+    try:
+        routes = subprocess.check_output(
+            ["route", "-n"], universal_newlines=True
+        )
+    except subprocess.CalledProcessError as exc:
+        logging.debug("Failed to run `route -n `", exc)
+        return {}
+    regex = r"^0\.0\.0\.0\s+(?P<gw>[\w.]+)\s.*\s(?P<interface>[\w.]+)$"
+    matches = re.finditer(regex, routes, re.MULTILINE)
+
+    return {m.group("interface"): m.group("gw") for m in matches}
+
+
+def is_cable_interface(interface: str) -> bool:
+    """
+    Check if the interface is a cable interface.
+    This is a simple heuristic that checks if the interface is named
+    "enX" or "ethX" where X is a number.
+
+    :param interface: the interface name to check
+    :return: True if the interface is a cable interface, False otherwise
+
+    Looking at the `man 7 systemd.net-naming-scheme` we can see that
+    even the `eth` matching may be an overkill.
+    """
+    if not isinstance(interface, str) or not interface:
+        return False
+    return interface.startswith("en") or interface.startswith("eth")
 
 
 if __name__ == "__main__":

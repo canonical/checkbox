@@ -192,8 +192,8 @@ class Route:
             )
         return def_gateways
 
-    @classmethod
-    def get_interface_from_ip(cls, ip):
+    @staticmethod
+    def get_interface_from_ip(ip):
         # Note: this uses -o instead of -j for xenial/bionic compatibility
         route_info = subprocess.check_output(
             ["ip", "-o", "route", "get", ip], universal_newlines=True
@@ -207,8 +207,8 @@ class Route:
             "Unable to determine any device used for {}".format(ip)
         )
 
-    @classmethod
-    def get_any_interface(cls):
+    @staticmethod
+    def get_any_interface():
         # Note: this uses -o instead of -j for xenial/bionic compatibility
         route_infos = subprocess.check_output(
             ["ip", "-o", "route", "show", "default", "0.0.0.0/0"],
@@ -220,8 +220,8 @@ class Route:
                 return route_info_fields[4]
         raise ValueError("Unable to determine any valid interface")
 
-    @classmethod
-    def from_ip(cls, ip: str):
+    @staticmethod
+    def from_ip(ip: str):
         """
         Build an instance of Route given an ip, if no ip is provided the best
         interface that can route to 0.0.0.0/0 is selected (as described by

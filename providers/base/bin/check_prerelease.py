@@ -60,12 +60,13 @@ def get_apt_cache_information(command: str):
         aptinfo = check_output(shlex.split(command), universal_newlines=True)
         # "apt-cache showpkg" returns an empty string with exit code 0 if
         # called on a non-existent package.
-        if aptinfo == '':
-            raise CalledProcessError(returncode=None, cmd=None)
+        if not aptinfo:
+            raise CalledProcessError(returncode=1, cmd=command)
         return aptinfo
-    except CalledProcessError:
+    except CalledProcessError as e:
         # "apt-cache show" returns an error status if called on a
         # non-existent package.
+        logging.error(e)
         logging.error(
             "* Kernel does not match any installed package!")
         raise SystemExit(1)

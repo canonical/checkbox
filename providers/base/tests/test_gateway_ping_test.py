@@ -526,6 +526,15 @@ class TestMainFunction(unittest.TestCase):
 
     @patch("gateway_ping_test.get_host_to_ping")
     @patch("gateway_ping_test.ping")
+    def test_spotty_connection_with_cause(
+        self, mock_ping, mock_get_host_to_ping
+    ):
+        mock_ping.return_value = {"received": 1, "cause": "Test cause"}
+        result = main(["1.1.1.1"])
+        self.assertEqual(result, 1)
+
+    @patch("gateway_ping_test.get_host_to_ping")
+    @patch("gateway_ping_test.ping")
     def test_some_packet_loss(self, mock_ping, mock_get_host_to_ping):
         mock_ping.return_value = {
             "transmitted": 100,

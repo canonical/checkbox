@@ -538,6 +538,17 @@ class TestMainFunction(unittest.TestCase):
         result = main(["1.1.1.1"])
         self.assertEqual(result, 0)
 
+    @patch("gateway_ping_test.is_reachable", return_value=True)
+    @patch("gateway_ping_test.get_default_gateways")
+    @patch("gateway_ping_test.ping")
+    def test_main_any_cable(self, mock_ping, mock_get_default_gateways, _):
+        mock_get_default_gateways.return_value = {
+            "enp5s0": "192.168.1.1",
+            "wlan0": "192.168.1.2",
+        }
+        main(["--any-cable-interface"])
+        mock_ping.assert_called_once_with("192.168.1.1", "enp5s0")
+
 
 class GetDefaultGatewaysTests(unittest.TestCase):
     @patch("subprocess.check_output")

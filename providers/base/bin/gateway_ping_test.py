@@ -401,7 +401,7 @@ def main(argv) -> int:
     if args.any_cable_interface:
         print(_("Looking for all cable interfaces..."))
         all_ifaces = get_default_gateways().keys()
-        args.interfaces = filter(is_cable_interface, all_ifaces)
+        args.interfaces = list(filter(is_cable_interface, all_ifaces))
 
     # If given host is not pingable, override with something pingable.
     host = get_host_to_ping(interface=args.interfaces[0], target=args.host)

@@ -511,7 +511,7 @@ class TestMainFunction(unittest.TestCase):
         self, mock_ping, mock_get_host_to_ping
     ):
         mock_get_host_to_ping.return_value = None
-        mock_ping.return_value = None
+        mock_ping.return_value = {"received": 0}
         result = main(["1.1.1.1"])
         self.assertEqual(result, 1)
 

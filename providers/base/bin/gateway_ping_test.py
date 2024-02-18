@@ -422,7 +422,7 @@ def main(argv) -> int:
             print("Possible cause: {}".format(ping_summary["cause"]))
         return 1
     elif ping_summary["transmitted"] != ping_summary["received"]:
-        print("FAIL: {0}% packet loss.")
+        print(_("FAIL: {0}% packet loss.").format(ping_summary["pct_loss"]))
         return 1
     else:
         print(_("PASS: 0% packet loss").format(host))

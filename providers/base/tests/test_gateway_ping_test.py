@@ -453,7 +453,7 @@ class TestPingFunction(unittest.TestCase):
         mock_check_output.return_value = (
             "4 packets transmitted, 4 received, 0% packet loss"
         )
-        result = ping("8.8.8.8", "eth0", 4, 5, verbose=True)
+        result = ping("8.8.8.8", "eth0")
         self.assertEqual(result["transmitted"], 4)
         self.assertEqual(result["received"], 4)
         self.assertEqual(result["pct_loss"], 0)
@@ -461,13 +461,13 @@ class TestPingFunction(unittest.TestCase):
     @patch("subprocess.check_output")
     def test_ping_malformed_output(self, mock_check_output):
         mock_check_output.return_value = "Malformed output"
-        result = ping("8.8.8.8", "eth0", 4, 5, verbose=True)
+        result = ping("8.8.8.8", "eth0")
         self.assertIn("Failed to parse", result["cause"])
 
     @patch("subprocess.check_output")
     def test_ping_no_ping(self, mock_check_output):
         mock_check_output.side_effect = FileNotFoundError("ping not found")
-        result = ping("8.8.8.8", "eth0", 4, 5, verbose=True)
+        result = ping("8.8.8.8", "eth0")
         self.assertEqual(result["cause"], str(mock_check_output.side_effect))
 
     @patch("subprocess.check_output")
@@ -477,7 +477,7 @@ class TestPingFunction(unittest.TestCase):
                 1, "ping", "ping: unknown host"
             )
         )
-        result = ping("invalid.host", None, 4, 5)
+        result = ping("invalid.host", None)
         # Since the function does not return a detailed error for general
         # failures, we just check for non-success
         self.assertNotEqual(
@@ -492,7 +492,7 @@ class TestPingFunction(unittest.TestCase):
                 1, "ping", stderr="SO_BINDTODEVICE: Operation not permitted"
             )
         )
-        result = ping("255.255.255.255", None, 4, 5, broadcast=True)
+        result = ping("255.255.255.255", None, broadcast=True)
         self.assertIsNone(result)
 
 
@@ -518,28 +518,13 @@ class TestMainFunction(unittest.TestCase):
 
     @patch("gateway_ping_test.get_host_to_ping")
     @patch("gateway_ping_test.ping")
-    def test_packet_loss_within_threshold(
-        self, mock_ping, mock_get_host_to_ping
-    ):
+    def test_some_packet_loss(self, mock_ping, mock_get_host_to_ping):
         mock_ping.return_value = {
             "transmitted": 100,
             "received": 95,
             "pct_loss": 5,
         }
-        result = main(["1.1.1.1", "-t", "10"])
-        self.assertEqual(result, 0)
-
-    @patch("gateway_ping_test.get_host_to_ping")
-    @patch("gateway_ping_test.ping")
-    def test_packet_loss_exceeding_threshold(
-        self, mock_ping, mock_get_host_to_ping
-    ):
-        mock_ping.return_value = {
-            "transmitted": 100,
-            "received": 80,
-            "pct_loss": 20,
-        }
-        result = main(["1.1.1.1", "-t", "10"])
+        result = main(["1.1.1.1"])
         self.assertEqual(result, 1)
 
     @patch("gateway_ping_test.get_host_to_ping")
@@ -552,34 +537,6 @@ class TestMainFunction(unittest.TestCase):
         }
         result = main(["1.1.1.1"])
         self.assertEqual(result, 0)
-
-    @patch("gateway_ping_test.get_host_to_ping")
-    @patch("gateway_ping_test.ping")
-    def test_verbose_output(self, mock_ping, mock_get_host_to_ping):
-        mock_ping.return_value = {
-            "transmitted": 100,
-            "received": 100,
-            "pct_loss": 0,
-        }
-        result = main(["1.1.1.1", "-v"])
-        self.assertEqual(result, 0)
-
-    @patch("gateway_ping_test.get_host_to_ping")
-    @patch("gateway_ping_test.ping")
-    def test_invalid_arguments_count_deadline(
-        self, mock_ping, mock_get_host_to_ping
-    ):
-        with self.assertRaises(SystemExit):
-            main(["-c", "10", "-d", "8"])
-
-    def test_adjust_count_based_on_non_default_deadline(self):
-        # Assuming default_delay is 4
-        args = parse_args(["-d", "1", "-v"])
-        self.assertEqual(
-            args.count,
-            1,
-            "Count should be adjusted based on the non-default deadline",
-        )
 
 
 class GetDefaultGatewaysTests(unittest.TestCase):

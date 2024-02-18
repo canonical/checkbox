@@ -38,7 +38,7 @@ import sys
 import time
 
 from contextlib import suppress
-from typing import Dict
+from typing import Dict, List
 
 
 class Route:
@@ -211,11 +211,11 @@ class Route:
         return Route(Route.get_any_interface())
 
 
-def is_reachable(ip, interface, verbose=False):
+def is_reachable(ip, interface):
     """
     Ping an ip to see if it is reachable
     """
-    result = ping(ip, interface, 3, 10, verbose=verbose)
+    result = ping(ip, interface)
     return result["transmitted"] >= result["received"] > 0
 
 
@@ -237,7 +237,7 @@ def get_default_gateway_reachable_on(interface: str) -> str:
     )
 
 
-def get_any_host_reachable_on(interface: str, verbose=False) -> str:
+def get_any_host_reachable_on(interface: str) -> str:
     """
     Returns any host that it can reach from a given interface
     """
@@ -251,7 +251,7 @@ def get_any_host_reachable_on(interface: str, verbose=False) -> str:
     )
     # retry a few times to get something in the arp table
     for i in range(10):
-        ping(broadcast, interface, 1, 1, broadcast=True, verbose=verbose)
+        ping(broadcast, interface, broadcast=True)
         # Get output from arp -a -n to get known IPs
         arp_table = subprocess.check_output(
             ["arp", "-a", "-n"], universal_newlines=True
@@ -274,9 +274,7 @@ def get_any_host_reachable_on(interface: str, verbose=False) -> str:
     )
 
 
-def get_host_to_ping(
-    interface: str, target: str = None, verbose=False
-) -> "str|None":
+def get_host_to_ping(interface: str, target: str = None) -> "str|None":
     """
     Attempts to determine a reachable host to ping on the specified network
     interface. First it tries to ping the provided target. If no target is
@@ -309,10 +307,7 @@ def get_host_to_ping(
 def ping(
     host: str,
     interface: "str|None",
-    count: int,
-    deadline: int,
     broadcast=False,
-    verbose=False,
 ):
     """
     pings an host via an interface count times within the given deadline.
@@ -323,7 +318,7 @@ def ping(
               "pct_loss"
     @returns: on failure a dict with a "cause" key, with the failure reason
     """
-    command = ["ping", str(host), "-c", str(count), "-w", str(deadline)]
+    command = ["ping", str(host), "-c", "2", "-w", "4"]
     if interface:
         command.append("-I{}".format(interface))
     if broadcast:
@@ -351,8 +346,8 @@ def ping(
             str(e), e.stdout, e.stderr
         )
         return ping_summary
-    if verbose:
-        print(output)
+
+    print(output)
     try:
         received = next(re.finditer(reg, output))
         ping_summary = {
@@ -377,74 +372,21 @@ def parse_args(argv):
         default=None,
         help=_("host to ping"),
     )
-    parser.add_argument(
-        "-c",
-        "--count",
-        default=2,
-        type=int,
-        help=_("number of packets to send"),
-    )
-    parser.add_argument(
-        "-d",
-        "--deadline",
-        default=4,
-        type=int,
-        help=_("timeout in seconds"),
-    )
-    parser.add_argument(
-        "-t",
-        "--threshold",
-        default=0,
-        type=int,
-        help=_("allowed packet loss percentage (default: %(default)s)"),
-    )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help=_("be verbose")
-    )
     iface_mutex_group = parser.add_mutually_exclusive_group()
     iface_mutex_group.add_argument(
-        "-I", "--interface", help=_("use specified interface to send packets")
+        "-I",
+        "--interface",
+        help=_("use specified interface to send packets"),
+        action="append",
+        dest="interfaces",
+        default=[None],
     )
     iface_mutex_group.add_argument(
         "--any-cable-interface",
         help=_("use any cable interface to send packets"),
         action="store_true",
     )
-    args = parser.parse_args(argv)
-    # Ensure count and deadline make sense. Adjust them if not.
-    if args.deadline != default_delay and args.count != default_count:
-        # Ensure they're both consistent, and exit with a warning if not,
-        # rather than modifying what the user explicitly set.
-        if args.deadline <= args.count:
-            # FIXME: this cannot ever be translated correctly
-            raise SystemExit(
-                _(
-                    "ERROR: not enough time for {0} pings in {1} seconds"
-                ).format(args.count, args.deadline)
-            )
-    elif args.deadline != default_delay:
-        # Adjust count according to delay.
-        args.count = args.deadline - 1
-        if args.count < 1:
-            args.count = 1
-        if args.verbose:
-            # FIXME: this cannot ever be translated correctly
-            print(
-                _(
-                    "Adjusting ping count to {0} to fit in {1}-second deadline"
-                ).format(args.count, args.deadline)
-            )
-    else:
-        # Adjust delay according to count
-        args.deadline = args.count + 1
-        if args.verbose:
-            # FIXME: this cannot ever be translated correctly
-            print(
-                _("Adjusting deadline to {0} seconds to fit {1} pings").format(
-                    args.deadline, args.count
-                )
-            )
-    return args
+    return parser.parse_args(argv)
 
 
 def main(argv) -> int:
@@ -456,17 +398,18 @@ def main(argv) -> int:
 
     args = parse_args(argv)
 
+    if args.any_cable_interface:
+        print(_("Looking for all cable interfaces..."))
+        all_ifaces = get_default_gateways().keys()
+        args.interfaces = filter(is_cable_interface, all_ifaces)
+
     # If given host is not pingable, override with something pingable.
-    host = get_host_to_ping(
-        interface=args.interface, verbose=args.verbose, target=args.host
-    )
-    if args.verbose:
-        print(_("Checking connectivity to {0}").format(host))
+    host = get_host_to_ping(interface=args.interfaces[0], target=args.host)
+
+    print(_("Checking connectivity to {0}").format(host))
 
     if host:
-        ping_summary = ping(
-            host, args.interface, args.count, args.deadline, args.verbose
-        )
+        ping_summary = ping(host, args.interfaces[0])
     else:
         ping_summary = {
             "received": 0,
@@ -474,32 +417,15 @@ def main(argv) -> int:
         }
 
     if ping_summary["received"] == 0:
-        print(_("No Internet connection"))
+        print(_("FAIL: All packet loss."))
         if ping_summary.get("cause"):
             print("Possible cause: {}".format(ping_summary["cause"]))
         return 1
     elif ping_summary["transmitted"] != ping_summary["received"]:
-        print(
-            _("Connection established, but lost {0}% of packets").format(
-                ping_summary["pct_loss"]
-            )
-        )
-        if ping_summary["pct_loss"] > args.threshold:
-            print(
-                _(
-                    "FAIL: {0}% packet loss is higher than {1}% threshold"
-                ).format(ping_summary["pct_loss"], args.threshold)
-            )
-            return 1
-        else:
-            print(
-                _("PASS: {0}% packet loss is within {1}% threshold").format(
-                    ping_summary["pct_loss"], args.threshold
-                )
-            )
-            return 0
+        print("FAIL: {0}% packet loss.")
+        return 1
     else:
-        print(_("Connection to test host fully established"))
+        print(_("PASS: 0% packet loss").format(host))
         return 0
 
 

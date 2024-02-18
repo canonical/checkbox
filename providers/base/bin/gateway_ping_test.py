@@ -38,7 +38,7 @@ import sys
 import time
 
 from contextlib import suppress
-from typing import Dict, List
+from typing import Dict
 
 
 class Route:
@@ -429,7 +429,7 @@ def main(argv) -> int:
         return 0
 
 
-def get_default_gateways() -> dict[str, str]:
+def get_default_gateways() -> Dict[str, str]:
     """
     Use `route` program to find default gateways for all interfaces.
 

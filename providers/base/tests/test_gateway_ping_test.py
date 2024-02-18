@@ -517,6 +517,16 @@ class TestMainFunction(unittest.TestCase):
 
     @patch("gateway_ping_test.get_host_to_ping")
     @patch("gateway_ping_test.ping")
+    def test_no_internet_connection_auto_cause(
+        self, mock_ping, mock_get_host_to_ping
+    ):
+        mock_get_host_to_ping.return_value = None
+        mock_ping.return_value = {"received": 0}
+        result = main(["1.1.1.1"])
+        self.assertEqual(result, 1)
+
+    @patch("gateway_ping_test.get_host_to_ping")
+    @patch("gateway_ping_test.ping")
     def test_no_internet_connection_cause(
         self, mock_ping, mock_get_host_to_ping
     ):

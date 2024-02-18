@@ -282,6 +282,14 @@ class TestRoute(unittest.TestCase):
         self.assertEqual(Route.from_ip(None).interface, "enp6s0")
         self.assertTrue(mock_get_interface_from_ip.called)
 
+    @patch("subprocess.check_output", return_value="")
+    def test_get_ip_addr_info(self, mock_check_output):
+        self_mock = MagicMock()
+        self.assertEqual(Route._get_ip_addr_info(self_mock), "")
+        mock_check_output.assert_called_once_with(
+            ["ip", "-o", "addr", "show"], universal_newlines=True
+        )
+
 
 class TestUtilityFunctions(unittest.TestCase):
     @patch("gateway_ping_test.ping")

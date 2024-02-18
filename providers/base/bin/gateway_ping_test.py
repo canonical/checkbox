@@ -38,6 +38,7 @@ import sys
 import time
 
 from contextlib import suppress
+from typing import Dict
 
 
 class Route:

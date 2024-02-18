@@ -529,7 +529,12 @@ class TestMainFunction(unittest.TestCase):
     def test_spotty_connection_with_cause(
         self, mock_ping, mock_get_host_to_ping
     ):
-        mock_ping.return_value = {"received": 1, "cause": "Test cause"}
+        mock_ping.return_value = {
+            "received": 1,
+            "transmitted": 2,
+            "pct_loss": 50,
+            "cause": "Test cause",
+        }
         result = main(["1.1.1.1"])
         self.assertEqual(result, 1)
 

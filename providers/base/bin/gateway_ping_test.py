@@ -370,8 +370,6 @@ def ping(
 
 
 def parse_args(argv):
-    default_count = 2
-    default_delay = 4
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "host",
@@ -382,14 +380,14 @@ def parse_args(argv):
     parser.add_argument(
         "-c",
         "--count",
-        default=default_count,
+        default=2,
         type=int,
         help=_("number of packets to send"),
     )
     parser.add_argument(
         "-d",
         "--deadline",
-        default=default_delay,
+        default=4,
         type=int,
         help=_("timeout in seconds"),
     )

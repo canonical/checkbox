@@ -510,7 +510,7 @@ class TestMainFunction(unittest.TestCase):
     def test_no_internet_connection_no_cause(
         self, mock_ping, mock_get_host_to_ping
     ):
-        mock_get_host_to_ping.return_value = None
+        mock_get_host_to_ping.return_value = "1.1.1.1"
         mock_ping.return_value = {"received": 0}
         result = main(["1.1.1.1"])
         self.assertEqual(result, 1)

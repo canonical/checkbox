@@ -444,7 +444,6 @@ class SessionAssistant:
                     str(exc),
                 )
 
-    @raises(UnexpectedMethodCall)
     def delete_sessions(self, session_ids: "List[str]") -> None:
         """
         Delete session storages.
@@ -460,7 +459,6 @@ class SessionAssistant:
             If the session is not found in the currently selected session
             repository, it is silently ignored.
         """
-        UsageExpectation.of(self).enforce()
         for storage in WellKnownDirsHelper.get_storage_list():
             if storage.id in session_ids:
                 storage.remove()
@@ -1355,6 +1353,11 @@ class SessionAssistant:
         print("Saving manifest to {}".format(manifest))
         with open(manifest, "wt", encoding="UTF-8") as stream:
             json.dump(manifest_cache, stream, sort_keys=True, indent=2)
+
+    def note_metadata_starting_job(self, job, job_state):
+        self._metadata.running_job_name = job["id"]
+        self._metadata.last_job_start_time = time.time()
+        self._manager.checkpoint()
 
     @raises(ValueError, TypeError, UnexpectedMethodCall)
     def run_job(

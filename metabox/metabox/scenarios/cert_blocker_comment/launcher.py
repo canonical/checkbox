@@ -240,6 +240,7 @@ class ManualJobSkippedWhenResumingSession(Scenario):
     added.
     """
 
+    modes = ["local"]
     launcher = textwrap.dedent(
         """
         [launcher]

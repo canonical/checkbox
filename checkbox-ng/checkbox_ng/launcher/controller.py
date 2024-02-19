@@ -304,7 +304,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                     "running": self.wait_and_continue,
                     "finalizing": self.finish_session,
                     "testsselected": partial(
-                        self.run_jobs, resumed_session_info=payload
+                        self.run_jobs, resumed_ongoing_session_info=payload
                     ),
                     "bootstrapping": self.restart,
                     "bootstrapped": partial(
@@ -359,7 +359,6 @@ class RemoteController(ReportsStage, MainLoopStage):
         configuration = dict()
         configuration["launcher"] = self._launcher_text
         configuration["normal_user"] = self._normal_user
-
         try:
             _logger.info("remote: Starting new session.")
             tps = self.sa.start_session(configuration)
@@ -403,6 +402,10 @@ class RemoteController(ReportsStage, MainLoopStage):
         self.select_jobs(self.jobs)
 
     def _resume_session_flow(self, resumable_sessions):
+        """
+        Run the interactive resume menu.
+        Returns True if a session was resumed, False otherwise.
+        """
         entries = [
             (
                 candidate.id,
@@ -414,17 +417,19 @@ class RemoteController(ReportsStage, MainLoopStage):
             # let's loop until someone selects something else than "delete"
             # in other words, after each delete action let's go back to the
             # resume menu
+
             resume_params = ResumeMenu(entries).run()
             if resume_params.action == "delete":
-                self.sa.finalize_session()
-                self.sa.delete_sessions([resume_params.session_id])
-                resumable_sessions = list(self.sa.get_resumable_sessions())
+                self.sa._sa.delete_sessions([resume_params.session_id])
+                self.resume_candidates = list(self.sa.get_resumable_sessions())
+
                 # the entries list is just a copy of the resume_candidates,
                 # and it's not updated when we delete a session, so we need
                 # to update it manually
                 entries = [
                     en for en in entries if en[0] != resume_params.session_id
                 ]
+
                 if not entries:
                     # if everything got deleted let's go back to the test plan
                     # selection menu
@@ -434,7 +439,6 @@ class RemoteController(ReportsStage, MainLoopStage):
 
         if resume_params.session_id:
             self._resume_session(resume_params)
-            self.run_jobs()
             return True
         return False
 
@@ -481,10 +485,9 @@ class RemoteController(ReportsStage, MainLoopStage):
                     result_dict["comments"], "Skipped after resuming execution"
                 )
             result_dict["outcome"] = IJobResult.OUTCOME_SKIP
-
         elif resume_params.action == "rerun":
-            # if we don't call use_job_result it means we'll rerun the job
-            return
+            # if the job outcome is set to none it will be rerun
+            result_dict["outcome"] = None
         self.sa.resume_by_id(resume_params.session_id, result_dict)
 
     def interactively_choose_tp(self, tps):
@@ -499,6 +502,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                 something_got_chosen = self._resume_session_flow(
                     resumable_sessions
                 )
+        self.run_jobs()
 
     def select_tp(self, tp):
         _logger.info("controller: Selected test plan: %s", tp)
@@ -569,7 +573,6 @@ class RemoteController(ReportsStage, MainLoopStage):
                 self.sa.modify_todo_list(chosen_jobs)
             self._save_manifest(interactive=True)
         self.sa.finish_job_selection()
-        self.run_jobs()
 
     def register_arguments(self, parser):
         parser.add_argument("host", help=_("target host"))
@@ -658,9 +661,12 @@ class RemoteController(ReportsStage, MainLoopStage):
             + SimpleUI.C.result(self.sa.get_job_result(job["id"]))
         )
 
-    def run_jobs(self, resumed_session_info=None):
-        if resumed_session_info and resumed_session_info["last_job"]:
-            self._handle_last_job_after_resume(resumed_session_info)
+    def run_jobs(self, resumed_ongoing_session_info=None):
+        if (
+            resumed_ongoing_session_info
+            and resumed_ongoing_session_info["last_job"]
+        ):
+            self._handle_last_job_after_resume(resumed_ongoing_session_info)
         _logger.info("controller: Running jobs.")
         jobs = self.sa.get_session_progress()
         _logger.debug(
@@ -676,7 +682,9 @@ class RemoteController(ReportsStage, MainLoopStage):
         self._run_jobs(jobs_repr, total_num)
         rerun_candidates = self.sa.get_rerun_candidates("manual")
         if rerun_candidates:
-            if self.launcher.get_value("ui", "type") == "interactive":
+            if (
+                self.launcher.get_value("ui", "type") == "interactive"
+            ):
                 while True:
                     if not self._maybe_manual_rerun_jobs():
                         break
@@ -805,6 +813,7 @@ class RemoteController(ReportsStage, MainLoopStage):
     def _run_jobs(self, jobs_repr, total_num=0):
         for job in jobs_repr:
             job_state = self.sa._sa.get_job_state(job["id"])
+            self.sa.note_metadata_starting_job(job, job_state)
             SimpleUI.header(
                 _("Running job {} / {}").format(
                     job["num"], total_num, fill="-"

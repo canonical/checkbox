@@ -175,6 +175,9 @@ class RemoteSessionAssistant:
         self.session_change_lock.acquire(blocking=False)
         self.session_change_lock.release()
 
+    def note_metadata_starting_job(self, job, job_state):
+        self._sa.note_metadata_starting_job(job, job_state)
+
     @property
     def session_change_lock(self):
         return self._session_change_lock
@@ -214,9 +217,7 @@ class RemoteSessionAssistant:
             self._state = TestsSelected
             return
         elif response == "quit":
-            self._last_response = response
-            self._state = Idle
-            self.finalize_session()
+            self.abandon_session()
             return
         self._last_response = response
         self._state = Running
@@ -394,7 +395,7 @@ class RemoteSessionAssistant:
         self._jobs_count = len(self._sa.get_dynamic_todo_list())
         self._state = TestsSelected
 
-    @allowed_when(Interacting)
+    @allowed_when(Interacting, TestsSelected)
     def rerun_job(self, job_id, result):
         self._sa.use_job_result(job_id, result)
         self.session_change_lock.acquire(blocking=False)
@@ -779,6 +780,9 @@ class RemoteSessionAssistant:
 
     def finalize_session(self):
         self._sa.finalize_session()
+        self._reset_sa()
+
+    def abandon_session(self):
         self._reset_sa()
 
     def transmit_input(self, text):

@@ -6,7 +6,7 @@ user: root
 estimated_duration: 20.0
 requires: manifest.has_optee == 'True'
 imports: from com.canonical.plainbox import manifest
-command: 
+command:
     node="$(find /dev -type c -regex '.*/\(tee\|teepriv\)[0-9]')"
     if [[ -n $node ]]; then
       echo -e "\nInfo: Find OP-TEE node in the system!"
@@ -26,7 +26,7 @@ plugin: shell
 user: root
 estimated_duration: 20.0
 environ: OPTEE_TOOL
-command: 
+command:
     if [[ -z "$OPTEE_TOOL" ]]; then
         gadget=$(snap list | awk '$NF == "gadget" {print $1}')
         xtest=$(snap info "$gadget"|grep xtest)
@@ -75,7 +75,7 @@ command:
             exit 1
         else
             echo -e '\nInfo: TA installed SUCCESS!'
-        fi    
+        fi
     fi
 
 id: ce-oem-optee-test-list
@@ -91,14 +91,14 @@ command:
         filepath="$PLAINBOX_PROVIDER_DATA/optee-test.json"
     fi
     parse_optee_test.py "$filepath"
-_summary: Collect the test cases support by OP-TEE test(xtest) 
+_summary: Collect the test cases support by OP-TEE test(xtest)
 
 id: ce-oem-optee-test-list-pkcs11
 estimated_duration: 1
 plugin: resource
 user: root
 environ: OPTEE_CASES
-command: 
+command:
     filepath=""
     if [[ -n "$OPTEE_CASES" ]]; then
         filepath="$OPTEE_CASES"
@@ -106,14 +106,14 @@ command:
         filepath="$PLAINBOX_PROVIDER_DATA/optee-test.json"
     fi
     parse_optee_test.py "$filepath" -p
-_summary: Collect the test cases related with PKCS11 support by OP-TEE test(xtest) 
+_summary: Collect the test cases related with PKCS11 support by OP-TEE test(xtest)
 
 unit: template
 template-resource: ce-oem-optee-test-list
 template-unit: job
 template-engine: jinja2
 id: ce-oem-optee/xtest-{{ suite }}-{{ description }}
-_summary: 
+_summary:
     OP-TEE test by using xtest to test suite {{ suite }} {{ description }}
 plugin: shell
 user: root
@@ -136,16 +136,16 @@ unit: template
 template-resource: ce-oem-optee-test-list-pkcs11
 template-unit: job
 template-engine: jinja2
-id: ce-oem-optee/xtest-{{ suite }}-{{ description }}
-_summary: 
-    OP-TEE test by using xtest to test PKCS11 related {{ suite }} {{ description }}
+id: ce-oem-optee/xtest-pkcs11-{{ description }}
+_summary:
+    OP-TEE test by using xtest to test PKCS11 related {{ description }}
 plugin: shell
 user: root
 category_id: optee
 estimated_duration: 30
 depends: ce-oem-optee/xtest-check
 flags: also-after-suspend
-command: 
+command:
     tool=""
     if [[ -n "$OPTEE_TOOL" ]]; then
         tool="$OPTEE_TOOL"

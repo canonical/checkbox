@@ -52,8 +52,6 @@ include:
     graphics/1_cycle_resolution_.*
     graphics/1_screen-capture-internal_.*
     graphics/1_screen-capture-internal_.*png
-    graphics/1_screenshot_.*
-    1_screenshot_.*
     graphics/screen-capture-internal
     screen-capture-internal.png
     graphics/2_switch_card_.*                              certification-status=blocker

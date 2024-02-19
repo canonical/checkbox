@@ -281,8 +281,7 @@ class RemoteAssistantTests(TestCase):
             self_mock, "quit"
         )
 
-        self.assertEqual(self_mock._state, remote_assistant.Idle)
-        self.assertTrue(self_mock.finalize_session.called)
+        self.assertTrue(self_mock.abandon_session.called)
 
     def test_remember_users_response_rollback(self):
         self_mock = mock.MagicMock()

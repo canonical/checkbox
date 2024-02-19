@@ -511,7 +511,10 @@ class TestMainFunction(unittest.TestCase):
         self, mock_ping, mock_get_host_to_ping
     ):
         mock_get_host_to_ping.return_value = "1.1.1.1"
-        mock_ping.return_value = {"received": 0}
+        mock_ping.return_value = {
+            "received": 0,
+            "transmitted": 0,
+        }
         result = main(["1.1.1.1"])
         self.assertEqual(result, 1)
 
@@ -530,7 +533,11 @@ class TestMainFunction(unittest.TestCase):
     def test_no_internet_connection_cause(
         self, mock_ping, mock_get_host_to_ping
     ):
-        mock_ping.return_value = {"received": 0, "cause": "Test cause"}
+        mock_ping.return_value = {
+            "received": 0,
+            "transmitted": 0,
+            "cause": "Test cause",
+        }
         result = main(["1.1.1.1"])
         self.assertEqual(result, 1)
 
@@ -578,8 +585,25 @@ class TestMainFunction(unittest.TestCase):
             "enp5s0": "192.168.1.1",
             "wlan0": "192.168.1.2",
         }
+        mock_ping.return_value = {
+            "transmitted": 100,
+            "received": 100,
+            "pct_loss": 0,
+        }
         main(["--any-cable-interface"])
         mock_ping.assert_called_once_with("192.168.1.1", "enp5s0")
+
+    @patch("gateway_ping_test.is_reachable", return_value=True)
+    @patch("gateway_ping_test.get_default_gateways")
+    @patch("gateway_ping_test.ping")
+    def test_main_any_cable_no_iface(
+        self, mock_ping, mock_get_default_gateways, _
+    ):
+        mock_get_default_gateways.return_value = {
+            "wlan0": "192.168.1.2",
+        }
+        with self.assertRaises(SystemExit):
+            main(["--any-cable-interface"])
 
 
 class GetDefaultGatewaysTests(unittest.TestCase):

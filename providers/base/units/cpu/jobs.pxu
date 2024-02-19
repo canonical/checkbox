@@ -151,7 +151,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::cpu
 id: cpu/topology
-flags: also-after-suspend-
+flags: also-after-suspend
 estimated_duration: 1.0
 requires: int(cpuinfo.count) > 1 and (cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64')
 command: cpu_topology.py

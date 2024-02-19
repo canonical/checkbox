@@ -371,6 +371,32 @@ class TemplateUnitTests(TestCase):
         self.assertEqual(job.partial_id, 'check-device-sda1')
         self.assertEqual(job.summary, 'Test some device (/sys/something)')
         self.assertEqual(job.plugin, 'shell')
+        self.assertEqual(job.template_id, "check-device-dev_name")
+
+    def test_instantiate_one_with_template_id(self):
+        """
+        Ensure the full template-id (including namespace) is passed down to the
+        instantiated jobs.
+        """
+        provider = mock.Mock(spec=IProvider1)
+        provider.namespace = "namespace"
+        template = TemplateUnit({
+            "template-resource": "resource",
+            "template-id": "origin-template",
+            "id": "check-device-{dev_name}",
+            "summary": "Test {name} ({sys_path})",
+            "plugin": "shell",
+        }, provider=provider)
+        job = template.instantiate_one(Resource({
+            "dev_name": "sda1",
+            "name": "some device",
+            "sys_path": "/sys/something",
+        }))
+        self.assertIsInstance(job, JobDefinition)
+        self.assertEqual(job.partial_id, "check-device-sda1")
+        self.assertEqual(job.summary, "Test some device (/sys/something)")
+        self.assertEqual(job.plugin, "shell")
+        self.assertEqual(job.template_id, "namespace::origin-template")
 
     def test_instantiate_missing_parameter(self):
         """

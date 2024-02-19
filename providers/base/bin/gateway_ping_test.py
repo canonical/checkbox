@@ -38,6 +38,7 @@ import sys
 import time
 
 from contextlib import suppress
+from typing import Dict
 
 
 class Route:
@@ -103,33 +104,10 @@ class Route:
 
     def _get_default_gateway_from_bin_route(self):
         """
-        Get default gateway from /sbin/route -n
-        Called by get_default_gateway
-        and is only used if could not get that from /proc
+        Return the gateway for the interface associated with this Route object.
         """
-        logging.debug(
-            _("Reading default gateway information from route binary")
-        )
-        try:
-            routebin = subprocess.check_output(
-                ["/usr/bin/env", "route", "-n"],
-                env={"LANGUAGE": "C"},
-                universal_newlines=True,
-            )
-        except subprocess.CalledProcessError:
-            return None
-        route_line_re = re.compile(
-            r"^0\.0\.0\.0\s+(?P<def_gateway>[\w.]+)(?P<tail>.+)",
-            flags=re.MULTILINE,
-        )
-        route_lines = route_line_re.finditer(routebin)
-        for route_line in route_lines:
-            def_gateway = route_line.group("def_gateway")
-            interface = route_line.group("tail").rsplit(" ", 1)[-1]
-            if interface == self.interface and def_gateway:
-                return def_gateway
-        logging.error(_("Could not find default gateway by running route"))
-        return None
+        default_gws = get_default_gateways()
+        return default_gws.get(self.interface)
 
     def _get_ip_addr_info(self):
         return subprocess.check_output(
@@ -192,8 +170,8 @@ class Route:
             )
         return def_gateways
 
-    @classmethod
-    def get_interface_from_ip(cls, ip):
+    @staticmethod
+    def get_interface_from_ip(ip):
         # Note: this uses -o instead of -j for xenial/bionic compatibility
         route_info = subprocess.check_output(
             ["ip", "-o", "route", "get", ip], universal_newlines=True
@@ -207,8 +185,8 @@ class Route:
             "Unable to determine any device used for {}".format(ip)
         )
 
-    @classmethod
-    def get_any_interface(cls):
+    @staticmethod
+    def get_any_interface():
         # Note: this uses -o instead of -j for xenial/bionic compatibility
         route_infos = subprocess.check_output(
             ["ip", "-o", "route", "show", "default", "0.0.0.0/0"],
@@ -220,8 +198,8 @@ class Route:
                 return route_info_fields[4]
         raise ValueError("Unable to determine any valid interface")
 
-    @classmethod
-    def from_ip(cls, ip: str):
+    @staticmethod
+    def from_ip(ip: str):
         """
         Build an instance of Route given an ip, if no ip is provided the best
         interface that can route to 0.0.0.0/0 is selected (as described by
@@ -233,11 +211,11 @@ class Route:
         return Route(Route.get_any_interface())
 
 
-def is_reachable(ip, interface, verbose=False):
+def is_reachable(ip, interface):
     """
     Ping an ip to see if it is reachable
     """
-    result = ping(ip, interface, 3, 10, verbose=verbose)
+    result = ping(ip, interface)
     return result["transmitted"] >= result["received"] > 0
 
 
@@ -259,7 +237,7 @@ def get_default_gateway_reachable_on(interface: str) -> str:
     )
 
 
-def get_any_host_reachable_on(interface: str, verbose=False) -> str:
+def get_any_host_reachable_on(interface: str) -> str:
     """
     Returns any host that it can reach from a given interface
     """
@@ -273,7 +251,7 @@ def get_any_host_reachable_on(interface: str, verbose=False) -> str:
     )
     # retry a few times to get something in the arp table
     for i in range(10):
-        ping(broadcast, interface, 1, 1, broadcast=True, verbose=verbose)
+        ping(broadcast, interface, broadcast=True)
         # Get output from arp -a -n to get known IPs
         arp_table = subprocess.check_output(
             ["arp", "-a", "-n"], universal_newlines=True
@@ -296,9 +274,7 @@ def get_any_host_reachable_on(interface: str, verbose=False) -> str:
     )
 
 
-def get_host_to_ping(
-    interface: str, target: str = None, verbose=False
-) -> "str|None":
+def get_host_to_ping(interface: str, target: str = None) -> "str|None":
     """
     Attempts to determine a reachable host to ping on the specified network
     interface. First it tries to ping the provided target. If no target is
@@ -331,10 +307,9 @@ def get_host_to_ping(
 def ping(
     host: str,
     interface: "str|None",
-    count: int,
-    deadline: int,
+    count: int = 2,
+    deadline: int = 4,
     broadcast=False,
-    verbose=False,
 ):
     """
     pings an host via an interface count times within the given deadline.
@@ -373,8 +348,8 @@ def ping(
             str(e), e.stdout, e.stderr
         )
         return ping_summary
-    if verbose:
-        print(output)
+
+    print(output)
     try:
         received = next(re.finditer(reg, output))
         ping_summary = {
@@ -392,8 +367,6 @@ def ping(
 
 
 def parse_args(argv):
-    default_count = 2
-    default_delay = 4
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "host",
@@ -401,68 +374,21 @@ def parse_args(argv):
         default=None,
         help=_("host to ping"),
     )
-    parser.add_argument(
-        "-c",
-        "--count",
-        default=default_count,
-        type=int,
-        help=_("number of packets to send"),
+    iface_mutex_group = parser.add_mutually_exclusive_group()
+    iface_mutex_group.add_argument(
+        "-I",
+        "--interface",
+        help=_("use specified interface to send packets"),
+        action="append",
+        dest="interfaces",
+        default=[None],
     )
-    parser.add_argument(
-        "-d",
-        "--deadline",
-        default=default_delay,
-        type=int,
-        help=_("timeout in seconds"),
+    iface_mutex_group.add_argument(
+        "--any-cable-interface",
+        help=_("use any cable interface to send packets"),
+        action="store_true",
     )
-    parser.add_argument(
-        "-t",
-        "--threshold",
-        default=0,
-        type=int,
-        help=_("allowed packet loss percentage (default: %(default)s)"),
-    )
-    parser.add_argument(
-        "-v", "--verbose", action="store_true", help=_("be verbose")
-    )
-    parser.add_argument(
-        "-I", "--interface", help=_("use specified interface to send packets")
-    )
-    args = parser.parse_args(argv)
-    # Ensure count and deadline make sense. Adjust them if not.
-    if args.deadline != default_delay and args.count != default_count:
-        # Ensure they're both consistent, and exit with a warning if not,
-        # rather than modifying what the user explicitly set.
-        if args.deadline <= args.count:
-            # FIXME: this cannot ever be translated correctly
-            raise SystemExit(
-                _(
-                    "ERROR: not enough time for {0} pings in {1} seconds"
-                ).format(args.count, args.deadline)
-            )
-    elif args.deadline != default_delay:
-        # Adjust count according to delay.
-        args.count = args.deadline - 1
-        if args.count < 1:
-            args.count = 1
-        if args.verbose:
-            # FIXME: this cannot ever be translated correctly
-            print(
-                _(
-                    "Adjusting ping count to {0} to fit in {1}-second deadline"
-                ).format(args.count, args.deadline)
-            )
-    else:
-        # Adjust delay according to count
-        args.deadline = args.count + 1
-        if args.verbose:
-            # FIXME: this cannot ever be translated correctly
-            print(
-                _("Adjusting deadline to {0} seconds to fit {1} pings").format(
-                    args.deadline, args.count
-                )
-            )
-    return args
+    return parser.parse_args(argv)
 
 
 def main(argv) -> int:
@@ -474,17 +400,18 @@ def main(argv) -> int:
 
     args = parse_args(argv)
 
+    if args.any_cable_interface:
+        print(_("Looking for all cable interfaces..."))
+        all_ifaces = get_default_gateways().keys()
+        args.interfaces = list(filter(is_cable_interface, all_ifaces))
+
     # If given host is not pingable, override with something pingable.
-    host = get_host_to_ping(
-        interface=args.interface, verbose=args.verbose, target=args.host
-    )
-    if args.verbose:
-        print(_("Checking connectivity to {0}").format(host))
+    host = get_host_to_ping(interface=args.interfaces[0], target=args.host)
+
+    print(_("Checking connectivity to {0}").format(host))
 
     if host:
-        ping_summary = ping(
-            host, args.interface, args.count, args.deadline, args.verbose
-        )
+        ping_summary = ping(host, args.interfaces[0])
     else:
         ping_summary = {
             "received": 0,
@@ -492,33 +419,52 @@ def main(argv) -> int:
         }
 
     if ping_summary["received"] == 0:
-        print(_("No Internet connection"))
+        print(_("FAIL: All packet loss."))
         if ping_summary.get("cause"):
             print("Possible cause: {}".format(ping_summary["cause"]))
         return 1
     elif ping_summary["transmitted"] != ping_summary["received"]:
-        print(
-            _("Connection established, but lost {0}% of packets").format(
-                ping_summary["pct_loss"]
-            )
-        )
-        if ping_summary["pct_loss"] > args.threshold:
-            print(
-                _(
-                    "FAIL: {0}% packet loss is higher than {1}% threshold"
-                ).format(ping_summary["pct_loss"], args.threshold)
-            )
-            return 1
-        else:
-            print(
-                _("PASS: {0}% packet loss is within {1}% threshold").format(
-                    ping_summary["pct_loss"], args.threshold
-                )
-            )
-            return 0
+        print(_("FAIL: {0}% packet loss.").format(ping_summary["pct_loss"]))
+        return 1
     else:
-        print(_("Connection to test host fully established"))
+        print(_("PASS: 0% packet loss").format(host))
         return 0
+
+
+def get_default_gateways() -> Dict[str, str]:
+    """
+    Use `route` program to find default gateways for all interfaces.
+
+    returns a dictionary in a form of {interface_name: gateway}
+    """
+    try:
+        routes = subprocess.check_output(
+            ["route", "-n"], universal_newlines=True
+        )
+    except subprocess.CalledProcessError as exc:
+        logging.debug("Failed to run `route -n `", exc)
+        return {}
+    regex = r"^0\.0\.0\.0\s+(?P<gw>[\w.]+)\s.*\s(?P<interface>[\w.]+)$"
+    matches = re.finditer(regex, routes, re.MULTILINE)
+
+    return {m.group("interface"): m.group("gw") for m in matches}
+
+
+def is_cable_interface(interface: str) -> bool:
+    """
+    Check if the interface is a cable interface.
+    This is a simple heuristic that checks if the interface is named
+    "enX" or "ethX" where X is a number.
+
+    :param interface: the interface name to check
+    :return: True if the interface is a cable interface, False otherwise
+
+    Looking at the `man 7 systemd.net-naming-scheme` we can see that
+    even the `eth` matching may be an overkill.
+    """
+    if not isinstance(interface, str) or not interface:
+        return False
+    return interface.startswith("en") or interface.startswith("eth")
 
 
 if __name__ == "__main__":

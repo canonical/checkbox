@@ -206,7 +206,7 @@ _summary: Can ping another machine over Ethernet port {interface}
 _description: Check Ethernet works by pinging another machine
 plugin: shell
 command:
-  gateway_ping_test.py -v --interface {interface}
+  gateway_ping_test.py --interface {interface}
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 4.0
 flags: preserve-locale also-after-suspend
@@ -299,7 +299,7 @@ _steps:
  2. Follow the instructions on the screen.
 plugin: user-interact
 command:
- eth_hotplugging.py {{ interface }} && gateway_ping_test.py -v --interface {{ interface }}
+ eth_hotplugging.py {{ interface }} && gateway_ping_test.py --interface {{ interface }}
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 60.0
 user: root

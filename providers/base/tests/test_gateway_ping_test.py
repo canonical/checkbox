@@ -11,6 +11,8 @@ from gateway_ping_test import (
     get_default_gateway_reachable_on,
     get_any_host_reachable_on,
     get_host_to_ping,
+    get_default_gateways,
+    is_cable_interface,
 )
 
 
@@ -46,9 +48,7 @@ class TestRoute(unittest.TestCase):
         self.assertIsNone(Route._get_default_gateway_from_ip(self_mock))
 
     @patch("subprocess.check_output")
-    def test__get_default_gateway_from_ip_crash(
-        self, mock_check_output
-    ):
+    def test__get_default_gateway_from_ip_crash(self, mock_check_output):
         mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
         self_mock = MagicMock()
         self_mock.interface = "eth0"
@@ -92,35 +92,33 @@ class TestRoute(unittest.TestCase):
                 Route._get_default_gateway_from_proc(self_mock),
             )
 
-    @patch("subprocess.check_output")
-    def test__get_default_gateway_from_bin_route_nominal(
-        self, mock_check_output
-    ):
-        mock_check_output.return_value = textwrap.dedent(
-            """
-            Kernel IP routing table
-            Destination Gateway       Genmask  Flags Metric Ref Use Iface
-            0.0.0.0     192.168.1.1   0.0.0.0  UG    100    0   0   enp5s0
-            0.0.0.0     192.168.1.100 0.0.0.0  UG    600    0   0   wlan0
-            """
-        )
+    @patch("gateway_ping_test.get_default_gateways")
+    def test__get_default_gateway_from_bin_route_nominal(self, mock_get_d_gws):
+        mock_get_d_gws.return_value = {
+            "enp5s0": "192.168.1.1",
+            "wlan0": "192.168.1.100",
+        }
         self_mock = MagicMock()
         self_mock.interface = "wlan0"
         gateway = Route._get_default_gateway_from_bin_route(self_mock)
         self.assertEqual(gateway, "192.168.1.100")
 
-    @patch("subprocess.check_output")
+    @patch("gateway_ping_test.get_default_gateways")
     def test__get_default_gateway_from_bin_route_if_not_found(
-        self, mock_check_output
+        self, mock_get_d_gws
     ):
-        mock_check_output.return_value = textwrap.dedent(
-            """
-            Kernel IP routing table
-            Destination Gateway       Genmask  Flags Metric Ref Use Iface
-            0.0.0.0     192.168.1.1   0.0.0.0  UG    100    0   0   enp5s0
-            0.0.0.0     192.168.1.100 0.0.0.0  UG    600    0   0   wlan0
-            """
-        )
+        mock_get_d_gws.return_value = {
+            "enp5s0": "192.168.1.1",
+            "wlan0": "192.168.1.100",
+        }
+        self_mock = MagicMock()
+        self_mock.interface = "enp1s0"
+        gateway = Route._get_default_gateway_from_bin_route(self_mock)
+        self.assertIsNone(gateway)
+
+    @patch("gateway_ping_test.get_default_gateways")
+    def test__get_default_gateway_from_bin_route_empty(self, mock_get_d_gws):
+        mock_get_d_gws.return_value = {}
         self_mock = MagicMock()
         self_mock.interface = "enp1s0"
         gateway = Route._get_default_gateway_from_bin_route(self_mock)
@@ -283,6 +281,14 @@ class TestRoute(unittest.TestCase):
         mock_get_interface_from_ip.return_value = "enp6s0"
         self.assertEqual(Route.from_ip(None).interface, "enp6s0")
         self.assertTrue(mock_get_interface_from_ip.called)
+
+    @patch("subprocess.check_output", return_value="")
+    def test_get_ip_addr_info(self, mock_check_output):
+        self_mock = MagicMock()
+        self.assertEqual(Route._get_ip_addr_info(self_mock), "")
+        mock_check_output.assert_called_once_with(
+            ["ip", "-o", "addr", "show"], universal_newlines=True
+        )
 
 
 class TestUtilityFunctions(unittest.TestCase):
@@ -455,7 +461,7 @@ class TestPingFunction(unittest.TestCase):
         mock_check_output.return_value = (
             "4 packets transmitted, 4 received, 0% packet loss"
         )
-        result = ping("8.8.8.8", "eth0", 4, 5, verbose=True)
+        result = ping("8.8.8.8", "eth0")
         self.assertEqual(result["transmitted"], 4)
         self.assertEqual(result["received"], 4)
         self.assertEqual(result["pct_loss"], 0)
@@ -463,13 +469,13 @@ class TestPingFunction(unittest.TestCase):
     @patch("subprocess.check_output")
     def test_ping_malformed_output(self, mock_check_output):
         mock_check_output.return_value = "Malformed output"
-        result = ping("8.8.8.8", "eth0", 4, 5, verbose=True)
+        result = ping("8.8.8.8", "eth0")
         self.assertIn("Failed to parse", result["cause"])
 
     @patch("subprocess.check_output")
     def test_ping_no_ping(self, mock_check_output):
         mock_check_output.side_effect = FileNotFoundError("ping not found")
-        result = ping("8.8.8.8", "eth0", 4, 5, verbose=True)
+        result = ping("8.8.8.8", "eth0")
         self.assertEqual(result["cause"], str(mock_check_output.side_effect))
 
     @patch("subprocess.check_output")
@@ -479,7 +485,7 @@ class TestPingFunction(unittest.TestCase):
                 1, "ping", "ping: unknown host"
             )
         )
-        result = ping("invalid.host", None, 4, 5)
+        result = ping("invalid.host", None)
         # Since the function does not return a detailed error for general
         # failures, we just check for non-success
         self.assertNotEqual(
@@ -494,7 +500,7 @@ class TestPingFunction(unittest.TestCase):
                 1, "ping", stderr="SO_BINDTODEVICE: Operation not permitted"
             )
         )
-        result = ping("255.255.255.255", None, 4, 5, broadcast=True)
+        result = ping("255.255.255.255", None, broadcast=True)
         self.assertIsNone(result)
 
 
@@ -504,8 +510,18 @@ class TestMainFunction(unittest.TestCase):
     def test_no_internet_connection_no_cause(
         self, mock_ping, mock_get_host_to_ping
     ):
+        mock_get_host_to_ping.return_value = "1.1.1.1"
+        mock_ping.return_value = {"received": 0}
+        result = main(["1.1.1.1"])
+        self.assertEqual(result, 1)
+
+    @patch("gateway_ping_test.get_host_to_ping")
+    @patch("gateway_ping_test.ping")
+    def test_no_internet_connection_auto_cause(
+        self, mock_ping, mock_get_host_to_ping
+    ):
         mock_get_host_to_ping.return_value = None
-        mock_ping.return_value = None
+        mock_ping.return_value = {"received": 0}
         result = main(["1.1.1.1"])
         self.assertEqual(result, 1)
 
@@ -520,28 +536,27 @@ class TestMainFunction(unittest.TestCase):
 
     @patch("gateway_ping_test.get_host_to_ping")
     @patch("gateway_ping_test.ping")
-    def test_packet_loss_within_threshold(
+    def test_spotty_connection_with_cause(
         self, mock_ping, mock_get_host_to_ping
     ):
+        mock_ping.return_value = {
+            "received": 1,
+            "transmitted": 2,
+            "pct_loss": 50,
+            "cause": "Test cause",
+        }
+        result = main(["1.1.1.1"])
+        self.assertEqual(result, 1)
+
+    @patch("gateway_ping_test.get_host_to_ping")
+    @patch("gateway_ping_test.ping")
+    def test_some_packet_loss(self, mock_ping, mock_get_host_to_ping):
         mock_ping.return_value = {
             "transmitted": 100,
             "received": 95,
             "pct_loss": 5,
         }
-        result = main(["1.1.1.1", "-t", "10"])
-        self.assertEqual(result, 0)
-
-    @patch("gateway_ping_test.get_host_to_ping")
-    @patch("gateway_ping_test.ping")
-    def test_packet_loss_exceeding_threshold(
-        self, mock_ping, mock_get_host_to_ping
-    ):
-        mock_ping.return_value = {
-            "transmitted": 100,
-            "received": 80,
-            "pct_loss": 20,
-        }
-        result = main(["1.1.1.1", "-t", "10"])
+        result = main(["1.1.1.1"])
         self.assertEqual(result, 1)
 
     @patch("gateway_ping_test.get_host_to_ping")
@@ -555,30 +570,80 @@ class TestMainFunction(unittest.TestCase):
         result = main(["1.1.1.1"])
         self.assertEqual(result, 0)
 
-    @patch("gateway_ping_test.get_host_to_ping")
+    @patch("gateway_ping_test.is_reachable", return_value=True)
+    @patch("gateway_ping_test.get_default_gateways")
     @patch("gateway_ping_test.ping")
-    def test_verbose_output(self, mock_ping, mock_get_host_to_ping):
-        mock_ping.return_value = {
-            "transmitted": 100,
-            "received": 100,
-            "pct_loss": 0,
+    def test_main_any_cable(self, mock_ping, mock_get_default_gateways, _):
+        mock_get_default_gateways.return_value = {
+            "enp5s0": "192.168.1.1",
+            "wlan0": "192.168.1.2",
         }
-        result = main(["1.1.1.1", "-v"])
-        self.assertEqual(result, 0)
+        main(["--any-cable-interface"])
+        mock_ping.assert_called_once_with("192.168.1.1", "enp5s0")
 
-    @patch("gateway_ping_test.get_host_to_ping")
-    @patch("gateway_ping_test.ping")
-    def test_invalid_arguments_count_deadline(
-        self, mock_ping, mock_get_host_to_ping
-    ):
-        with self.assertRaises(SystemExit):
-            main(["-c", "10", "-d", "8"])
 
-    def test_adjust_count_based_on_non_default_deadline(self):
-        # Assuming default_delay is 4
-        args = parse_args(["-d", "1", "-v"])
-        self.assertEqual(
-            args.count,
-            1,
-            "Count should be adjusted based on the non-default deadline",
+class GetDefaultGatewaysTests(unittest.TestCase):
+    @patch("subprocess.check_output")
+    def test_get_default_gateways_nominal(self, mock_check_output):
+        mock_check_output.return_value = textwrap.dedent(
+            """
+            Kernel IP routing table
+            Destination Gateway       Genmask  Flags Metric Ref Use Iface
+            0.0.0.0     192.168.1.1   0.0.0.0  UG    100    0   0   enp5s0
+            0.0.0.0     192.168.1.100 0.0.0.0  UG    600    0   0   wlan0
+            """
         )
+        gateways = get_default_gateways()
+        self.assertDictEqual(
+            gateways, {"enp5s0": "192.168.1.1", "wlan0": "192.168.1.100"}
+        )
+
+    @patch("subprocess.check_output")
+    def test_get_default_gateways_no_default(self, mock_check_output):
+        mock_check_output.return_value = textwrap.dedent(
+            """
+            Kernel IP routing table
+            Destination Gateway       Genmask  Flags Metric Ref Use Iface
+            192.168.1.0 192.168.1.1   0.0.0.0  UG    100    0   0   enp5s0
+            """
+        )
+        gateways = get_default_gateways()
+        self.assertDictEqual(gateways, {})
+
+    @patch("subprocess.check_output")
+    def test_get_default_gateways_cant_run_route(self, mock_check_output):
+        mock_check_output.side_effect = subprocess.CalledProcessError(1, "")
+        gateways = get_default_gateways()
+        self.assertDictEqual(gateways, {})
+
+
+class IsCableInterfaceTests(unittest.TestCase):
+    def test_is_cable_interface_nominal(self):
+        self.assertTrue(is_cable_interface("eth0"))
+
+    def test_is_cable_interface_nominal_2(self):
+        self.assertTrue(is_cable_interface("enp5s0"))
+
+    def test_is_cable_interface_nominal_3(self):
+        self.assertTrue(is_cable_interface("enp0s25"))
+
+    def test_is_cable_interface_nope(self):
+        self.assertFalse(is_cable_interface("wlan0"))
+
+    def test_is_cable_interface_nope_2(self):
+        self.assertFalse(is_cable_interface("wlp3s0"))
+
+    def test_is_cable_interface_nope_3(self):
+        self.assertFalse(is_cable_interface("wwan0"))
+
+    def test_is_cable_interface_nope_4(self):
+        self.assertFalse(is_cable_interface("tun0"))
+
+    def test_is_cable_interface_nope_5(self):
+        self.assertFalse(is_cable_interface("lo"))
+
+    def test_is_cable_interface_empty(self):
+        self.assertFalse(is_cable_interface(""))
+
+    def test_is_cable_interface_not_string(self):
+        self.assertFalse(is_cable_interface(123))

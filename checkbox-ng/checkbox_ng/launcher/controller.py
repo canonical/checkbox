@@ -380,6 +380,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         else:
             self.interactively_choose_tp(tps)
 
+        self.run_jobs()
+
     def _new_session_flow(self, tps, resumable_sessions):
         tp_info_list = [{"id": tp[0], "name": tp[1]} for tp in tps]
         if not tp_info_list:
@@ -502,7 +504,6 @@ class RemoteController(ReportsStage, MainLoopStage):
                 something_got_chosen = self._resume_session_flow(
                     resumable_sessions
                 )
-        self.run_jobs()
 
     def select_tp(self, tp):
         _logger.info("controller: Selected test plan: %s", tp)

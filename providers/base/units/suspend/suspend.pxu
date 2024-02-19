@@ -1222,28 +1222,6 @@ _description:
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
-id: suspend/screenshot_after_suspend
-estimated_duration: 10.0
-depends: suspend/suspend_advanced_auto
-requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test.py still --device=/dev/external_webcam -f "${PLAINBOX_SESSION_SHARE}"/screenshot_after_suspend.jpg -q 2>&1 | ansi_parser.py
-_description:
- PURPOSE:
-     Take a screengrab of the current screen after suspend (logged on Unity desktop)
- STEPS:
-     1. Take picture using USB webcam
- VERIFICATION:
-     Review attachment manually later
-
-plugin: attachment
-category_id: com.canonical.plainbox::suspend
-id: screenshot_after_suspend.jpg
-depends: suspend/screenshot_after_suspend
-command: cat "${PLAINBOX_SESSION_SHARE}"/screenshot_after_suspend.jpg
-_description: Attaches the screenshot captured in graphics/screenshot.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
 id: suspend/gpu_lockup_after_suspend
 estimated_duration: 10.0
 requires:

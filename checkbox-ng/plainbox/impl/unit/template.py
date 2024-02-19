@@ -416,9 +416,11 @@ class TemplateUnit(UnitWithId):
             key: value for key, value in self._raw_data.items()
             if not key.startswith('template-')
         }
-        # Only keep the template-engine field
+        # Only keep template-engine and template-id fields
         raw_data['template-engine'] = self.template_engine
         data['template-engine'] = raw_data['template-engine']
+        raw_data["template-id"] = self.template_id
+        data["template-id"] = raw_data["template-id"]
         # Override the value of the 'unit' field from 'template-unit' field
         data['unit'] = raw_data['unit'] = self.template_unit
         # XXX: extract raw dictionary from the resource object, there is no

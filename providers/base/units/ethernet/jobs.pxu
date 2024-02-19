@@ -212,6 +212,20 @@ estimated_duration: 4.0
 flags: preserve-locale also-after-suspend
 user: root
 
+id: ethernet/ping-with-any-cable-interface
+_summary: Can ping the gateway with any cable Ethernet interface
+_description: Check any of the cable Ethernet ports available on the system
+ can ping its default gateway.
+category_id: com.canonical.plainbox::ethernet
+estimated_duration: 4.0
+flags: also-after-suspend
+user: root
+plugin: shell
+command:
+  gateway_ping_test.py --any-cable-interface
+requires:
+ device.category == 'NETWORK'
+
 unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN'

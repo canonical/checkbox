@@ -39,7 +39,7 @@ include:
     ethernet/detect
     ethernet/info_automated
     networking/http
-    ethernet/ping_.*
+    ethernet/ping-with-any-cable-interface
     power-management/tickless_idle_.*
     power-management/rtc
     power-management/fwts_wakealarm

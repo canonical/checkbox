@@ -38,7 +38,7 @@ import sys
 import time
 
 from contextlib import suppress
-from typing import Dict
+from typing import Dict, List
 
 
 class Route:
@@ -366,6 +366,36 @@ def ping(
     return ping_summary
 
 
+def perform_ping_test(interfaces: List[str], target=None) -> None:
+    """
+    Perform a ping test on the specified interfaces.
+    If any of the provided interfaces successfully pinged the target host,
+    the function returns 0. Otherwise, it returns 1.
+    """
+    for iface in interfaces:
+        host = get_host_to_ping(iface, target)
+        if not host:
+            print(
+                "Failed to find a host to ping on interface {}".format(iface)
+            )
+            continue
+        print(
+            "Pinging {} with {} interface".format(
+                host, iface or "*unspecified*"
+            )
+        )
+        ping_summary = ping(host, iface)
+        if ping_summary["received"] != ping_summary["transmitted"]:
+            print("FAIL: {0}% packet loss.".format(ping_summary["pct_loss"]))
+            continue
+        if ping_summary["transmitted"] > 0:
+            print(_("PASS: 0% packet loss").format(host))
+            return 0
+    else:
+        print("FAIL: Unable to ping any host with the above interfaces")
+        return 1
+
+
 def parse_args(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -381,7 +411,6 @@ def parse_args(argv):
         help=_("use specified interface to send packets"),
         action="append",
         dest="interfaces",
-        default=[None],
     )
     iface_mutex_group.add_argument(
         "--any-cable-interface",
@@ -404,31 +433,18 @@ def main(argv) -> int:
         print(_("Looking for all cable interfaces..."))
         all_ifaces = get_default_gateways().keys()
         args.interfaces = list(filter(is_cable_interface, all_ifaces))
+        if not args.interfaces:
+            raise SystemExit(
+                "FAIL: Couldn't find any suitable cable interface."
+            )
 
-    # If given host is not pingable, override with something pingable.
-    host = get_host_to_ping(interface=args.interfaces[0], target=args.host)
+    # If no interfaces were specified, use None to let the function
+    # determine the interface to use (this is to make it compliant with
+    # the original implementation)
+    if not args.interfaces:
+        args.interfaces = [None]
 
-    print(_("Checking connectivity to {0}").format(host))
-
-    if host:
-        ping_summary = ping(host, args.interfaces[0])
-    else:
-        ping_summary = {
-            "received": 0,
-            "cause": "Unable to find any host to ping",
-        }
-
-    if ping_summary["received"] == 0:
-        print(_("FAIL: All packet loss."))
-        if ping_summary.get("cause"):
-            print("Possible cause: {}".format(ping_summary["cause"]))
-        return 1
-    elif ping_summary["transmitted"] != ping_summary["received"]:
-        print(_("FAIL: {0}% packet loss.").format(ping_summary["pct_loss"]))
-        return 1
-    else:
-        print(_("PASS: 0% packet loss").format(host))
-        return 0
+    return perform_ping_test(args.interfaces, args.host)
 
 
 def get_default_gateways() -> Dict[str, str]:

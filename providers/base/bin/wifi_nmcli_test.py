@@ -119,7 +119,7 @@ def perform_ping_test(interface):
 
     if target:
         count = 5
-        result = ping(target, interface, count, 10, verbose=True)
+        result = ping(target, interface, count, 10)
         if result['received'] == count:
             return True
 

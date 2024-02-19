@@ -307,6 +307,8 @@ def get_host_to_ping(interface: str, target: str = None) -> "str|None":
 def ping(
     host: str,
     interface: "str|None",
+    count: int = 2,
+    deadline: int = 4,
     broadcast=False,
 ):
     """
@@ -318,7 +320,7 @@ def ping(
               "pct_loss"
     @returns: on failure a dict with a "cause" key, with the failure reason
     """
-    command = ["ping", str(host), "-c", "2", "-w", "4"]
+    command = ["ping", str(host), "-c", str(count), "-w", str(deadline)]
     if interface:
         command.append("-I{}".format(interface))
     if broadcast:

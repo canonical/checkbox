@@ -223,6 +223,42 @@ class TemplateUnitTests(TestCase):
             "id": "job_id_{{ param }}",
         }).template_id, "template_id")
 
+    def test_template_summary(self):
+        self.assertEqual(TemplateUnit({
+            "template-summary": "summary",
+        }).template_summary, "summary")
+
+    def test_template_description(self):
+        self.assertEqual(TemplateUnit({
+            "template-description": "description",
+        }).template_description, "description")
+
+    def test_tr_template_summary(self):
+        template = TemplateUnit({
+            "_template-summary": "summary",
+        })
+        self.assertEqual(template.tr_template_summary(), "summary")
+
+    def test_translated_template_summary(self):
+        """Ensure template_summary is populated with the translated field."""
+        self.assertEqual(TemplateUnit({
+            "_template-summary": "summary",
+        }).template_summary, "summary")
+
+    def test_tr_template_description(self):
+        template = TemplateUnit({
+            "_template-description": "description",
+        })
+        self.assertEqual(template.tr_template_description(), "description")
+
+    def test_translated_template_description(self):
+        """
+        Ensure template_description is populated with the translated field.
+        """
+        self.assertEqual(TemplateUnit({
+            "_template-description": "description",
+        }).template_description, "description")
+
     def test_template_resource__empty(self):
         self.assertEqual(TemplateUnit({}).template_resource, None)
 
@@ -495,6 +531,50 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
         self.assertIssueFound(
             issue_list, self.unit_cls.Meta.fields.template_unit,
             Problem.unexpected_i18n, Severity.warning)
+
+    def test_template_summary__translatable(self):
+        issue_list = self.unit_cls({
+            'template-summary': 'template_summary'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list,
+                              self.unit_cls.Meta.fields.template_summary,
+                              Problem.expected_i18n,
+                              Severity.warning)
+
+    def test_template_summary__present(self):
+        issue_list = self.unit_cls({
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list,
+                              self.unit_cls.Meta.fields.template_summary,
+                              Problem.missing,
+                              Severity.advice)
+
+    def test_template_summary__one_line(self):
+        issue_list = self.unit_cls({
+            'template-summary': 'line1\nline2'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list,
+                              self.unit_cls.Meta.fields.template_summary,
+                              Problem.wrong,
+                              Severity.warning)
+
+    def test_template_summary__short_line(self):
+        issue_list = self.unit_cls({
+            'template-summary': 'x' * 81
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list,
+                              self.unit_cls.Meta.fields.template_summary,
+                              Problem.wrong,
+                              Severity.warning)
+
+    def test_template_description__translatable(self):
+        issue_list = self.unit_cls({
+            'template-description': 'template_description'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list,
+                              self.unit_cls.Meta.fields.template_description,
+                              Problem.expected_i18n,
+                              Severity.warning)
 
     def test_template_resource__untranslatable(self):
         issue_list = self.unit_cls({

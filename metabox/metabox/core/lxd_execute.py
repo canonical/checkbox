@@ -55,8 +55,8 @@ class InteractiveWebsocket(WebSocketClient):
             self.close()
             self._connection_closed = True
         message_data_str = message.data.decode("utf-8", errors="ignore")
+        raw_msg = message_data_str = self.ansi_escape.sub("", message_data_str)
         if self.verbose:
-            raw_msg = self.ansi_escape.sub("", message_data_str)
             logger.trace(raw_msg.rstrip())
         with self.stdout_lock:
             self.stdout_data += message_data_str

@@ -160,7 +160,13 @@ class RemoteAssistantTests(TestCase):
             mock__.side_effect = lambda x: x
             with mock.patch("os.path.exists", os_path_exists_mock):
                 with mock.patch(
-                    "builtins.open", mock.mock_open(read_data="pass")
+                    "builtins.open",
+                    mock.mock_open(
+                        read_data="""{
+                        "outcome" : "pass",
+                        "comments" : "Outcome loaded from file"
+                        }"""
+                    ),
                 ):
                     os_path_exists_mock.return_value = True
                     remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
@@ -168,7 +174,47 @@ class RemoteAssistantTests(TestCase):
         mjr = MemoryJobResult(
             {
                 "outcome": IJobResult.OUTCOME_PASS,
-                "comments": "Automatically passed after resuming execution",
+                "comments": "Outcome loaded from file",
+            }
+        )
+        rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
+
+    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
+    def test_resume_by_id_with_result_file_garbage_outcome(
+        self, mock_load_configs
+    ):
+        rsa = mock.Mock()
+        resumable_session = mock.Mock()
+        resumable_session.id = "session_id"
+        rsa._sa.get_resumable_sessions.return_value = [resumable_session]
+        rsa.get_rerun_candidates.return_value = []
+        rsa._state = remote_assistant.Idle
+
+        mock_meta = mock.Mock()
+        mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+
+        rsa._sa.resume_session.return_value = mock_meta
+        os_path_exists_mock = mock.Mock()
+
+        with mock.patch("plainbox.impl.session.remote_assistant._") as mock__:
+            mock__.side_effect = lambda x: x
+            with mock.patch("os.path.exists", os_path_exists_mock):
+                with mock.patch(
+                    "builtins.open",
+                    mock.mock_open(
+                        read_data="""{
+                        "outcome" : "unknown_value_for_outcome",
+                        "comments" : "Outcome loaded from file"
+                        }"""
+                    ),
+                ):
+                    os_path_exists_mock.return_value = True
+                    remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+
+        mjr = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "comments": "Outcome loaded from file",
             }
         )
         rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)

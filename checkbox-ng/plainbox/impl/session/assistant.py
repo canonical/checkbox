@@ -614,8 +614,8 @@ class SessionAssistant:
         Applications can use sessions' metadata (and the app_blob contained
         in them) to decide which session is the best one to propose resuming.
         """
-        # let's keep resume_candidates, so we don't have to load data again
         UsageExpectation.of(self).enforce()
+        # let's keep resume_candidates, so we don't have to load data again
         self._resume_candidates = {}
         for storage in WellKnownDirsHelper.get_storage_list():
             data = storage.load_checkpoint()

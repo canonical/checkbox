@@ -422,7 +422,7 @@ class RemoteController(ReportsStage, MainLoopStage):
 
             resume_params = ResumeMenu(entries).run()
             if resume_params.action == "delete":
-                self.sa._sa.delete_sessions([resume_params.session_id])
+                self.sa.delete_sessions([resume_params.session_id])
                 self.resume_candidates = list(self.sa.get_resumable_sessions())
 
                 # the entries list is just a copy of the resume_candidates,

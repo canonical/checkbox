@@ -1355,6 +1355,13 @@ class SessionAssistant:
             json.dump(manifest_cache, stream, sort_keys=True, indent=2)
 
     def note_metadata_starting_job(self, job, job_state):
+        """
+        Update the session metadata to make a resumable checkpoint.
+
+        Without the information that this function stores, a session will not
+        be resumable. This also creates a checkpoint so that the information is
+        both in the session and on disk.
+        """
         self._metadata.running_job_name = job["id"]
         self._metadata.last_job_start_time = time.time()
         self._manager.checkpoint()

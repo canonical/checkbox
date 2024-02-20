@@ -303,6 +303,31 @@ class RemoteAssistantTests(TestCase):
 
         self.assertEqual(self_mock._state, remote_assistant.Running)
 
+    def test_note_metadata_starting_job(self):
+        self_mock = mock.MagicMock()
+        remote_assistant.RemoteSessionAssistant.note_metadata_starting_job(
+            self_mock, mock.MagicMock(), mock.MagicMock()
+        )
+        self.assertTrue(self_mock._sa.note_metadata_starting_job.called)
+
+    def test_abandon_session(self):
+        self_mock = mock.MagicMock()
+        remote_assistant.RemoteSessionAssistant.abandon_session(self_mock)
+        self.assertTrue(self_mock._reset_sa.called)
+
+    def test_delete_sessions(self):
+        self_mock = mock.MagicMock()
+        remote_assistant.RemoteSessionAssistant.delete_sessions(self_mock, [])
+        self.assertTrue(self_mock._sa.delete_sessions.called)
+
+    def test_get_resumable_sessions(self):
+        self_mock = mock.MagicMock()
+        remote_assistant.RemoteSessionAssistant.get_resumable_sessions(
+            self_mock
+        )
+        self.assertTrue(self_mock._sa.get_resumable_sessions.called)
+
+
 class RemoteAssistantFinishJobTests(TestCase):
     def setUp(self):
         self.rsa = mock.MagicMock()

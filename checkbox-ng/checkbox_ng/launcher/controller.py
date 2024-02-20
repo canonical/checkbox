@@ -403,7 +403,7 @@ class RemoteController(ReportsStage, MainLoopStage):
             return
         self.select_jobs(self.jobs)
 
-    def _resume_session_flow(self, resumable_sessions):
+    def _resume_session_menu(self, resumable_sessions):
         """
         Run the interactive resume menu.
         Returns True if a session was resumed, False otherwise.
@@ -461,15 +461,15 @@ class RemoteController(ReportsStage, MainLoopStage):
             "comments": resume_params.comments,
         }
         if resume_params.action == "pass":
-            result_dict["outcome"] = IJobResult.OUTCOME_PASS
             result_dict["comments"] = newline_join(
                 result_dict["comments"], "Passed after resuming execution"
             )
 
+            result_dict["outcome"] = IJobResult.OUTCOME_PASS
         elif resume_params.action == "fail":
-            if is_cert_blocker:
-                if not resume_params.comments:
-                    result_dict["comments"] = request_comment("why it failed.")
+            if is_cert_blocker and not resume_params.comments:
+                # cert blockers must be commented when failing
+                result_dict["comments"] = request_comment("why it failed.")
             else:
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Failed after resuming execution"
@@ -477,11 +477,11 @@ class RemoteController(ReportsStage, MainLoopStage):
 
             result_dict["outcome"] = IJobResult.OUTCOME_FAIL
         elif resume_params.action == "skip":
-            if is_cert_blocker:
-                if not resume_params.comments:
-                    result_dict["comments"] = request_comment(
-                        "why you want to skip it."
-                    )
+            if is_cert_blocker and not resume_params.comments:
+                # cert blockers must be commented when skipped
+                result_dict["comments"] = request_comment(
+                    "why you want to skip it."
+                )
             else:
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Skipped after resuming execution"
@@ -501,7 +501,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                 self._new_session_flow(tps, resumable_sessions)
                 something_got_chosen = True
             except ResumeInstead:
-                something_got_chosen = self._resume_session_flow(
+                something_got_chosen = self._resume_session_menu(
                     resumable_sessions
                 )
 
@@ -683,9 +683,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         self._run_jobs(jobs_repr, total_num)
         rerun_candidates = self.sa.get_rerun_candidates("manual")
         if rerun_candidates:
-            if (
-                self.launcher.get_value("ui", "type") == "interactive"
-            ):
+            if self.launcher.get_value("ui", "type") == "interactive":
                 while True:
                     if not self._maybe_manual_rerun_jobs():
                         break

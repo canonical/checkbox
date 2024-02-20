@@ -1138,6 +1138,16 @@ class UdevadmParser(object):
             if "ID_FS_USAGE" in device._environment:
                 if device._environment["ID_FS_USAGE"] != 'filesystem':
                     return True
+                # Some of the MD devices are there only to host "service"
+                # partitions that should not be considered disks when running
+                # Checkbox. For more details see:
+                # https://github.com/canonical/checkbox/issues/980
+                # the following partition names, if found on the dm-* device
+                # will make the dm-* device not to be reported as a disk
+                IGNORED_PARTITIONS = [
+                    "ubuntu-save", "ubuntu-boot", "ubuntu-seed"]
+                if device._environment.get("ID_FS_LABEL") in IGNORED_PARTITIONS:
+                    return True
             return False
 
         # Keep /dev/md* devices (Multiple Disks aka Software RAID)

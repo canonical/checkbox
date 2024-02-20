@@ -6,6 +6,7 @@ from pathlib import PosixPath, Path
 from gpio_control_test import GPIOController
 from gpio_control_test import blinking_test
 from gpio_control_test import dump_gpiochip
+from gpio_control_test import leds_resource
 from gpio_control_test import register_arguments
 
 
@@ -298,6 +299,23 @@ class TestMainFunction(unittest.TestCase):
             str(context.exception), "/sys/kernel/debug/gpio file not exists"
         )
 
+    def test_led_resource(self):
+        mock_args = Mock(
+            return_value=argparse.Namespace(mapping="DL14:5:1 DL14:5:2"))
+        leds_resource(mock_args())
+
+    def test_led_resource_with_unexpected_format(self):
+        mock_args = Mock(
+            return_value=argparse.Namespace(mapping="DL14-5:1"))
+
+        with self.assertRaises(ValueError) as context:
+            leds_resource(mock_args())
+
+        self.assertEqual(
+            str(context.exception),
+            "not enough values to unpack (expected 3, got 2)"
+        )
+
 
 class TestArgumentParser(unittest.TestCase):
 
@@ -323,4 +341,11 @@ class TestArgumentParser(unittest.TestCase):
         args = register_arguments()
 
         self.assertEqual(args.test_func, dump_gpiochip)
+        self.assertEqual(args.debug, False)
+
+    def test_led_resource_parser(self):
+        sys.argv = ["gpio_control_test.py", "led-resource", "DL14:5:1"]
+        args = register_arguments()
+
+        self.assertEqual(args.test_func, leds_resource)
         self.assertEqual(args.debug, False)

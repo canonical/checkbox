@@ -19,7 +19,7 @@ class GPIOController:
         if gpiochip.isnumeric() is False or gpiopin.isnumeric() is False:
             raise ValueError("Invalid GPIO chip or GPIO pin")
 
-        self._gpio_root_node = Path(self.GPIORootPath)
+        self._gpio_root_node = Path(self.GPIO_ROOT_PATH)
         self._gpiochip_mapping = self.get_gpiochip_mapping()
 
         if gpiochip not in self._gpiochip_mapping.keys():
@@ -125,12 +125,12 @@ class GPIOController:
 
     def _export(self, gpio_number: str):
         logging.debug("export GPIO node %s", gpio_number)
-        with Path(self.GPIOExportPath) as gpio_node:
+        with Path(self.GPIO_EXPORT_PATH) as gpio_node:
             self._write_node(gpio_node, gpio_number, False)
 
     def _unexport(self, gpio_number: str):
         logging.debug("unexport GPIO node %s", gpio_number)
-        with Path(self.GPIOUnexportPath) as gpio_node:
+        with Path(self.GPIO_UNEXPORT_PATH) as gpio_node:
             self._write_node(gpio_node, gpio_number, False)
 
     @property
@@ -206,6 +206,15 @@ def dump_gpiochip(args):
         raise FileNotFoundError("{} file not exists".format(str(gpio_debug)))
 
 
+def leds_resource(args):
+    output = ""
+    resource_text = "name: {}\nchip_number: {}\nport: {}\n\n"
+    for led in args.mapping.split():
+        name, chip_number, port = led.split(":")
+        output += resource_text.format(name, chip_number, port)
+    print(output)
+
+
 def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -255,6 +264,15 @@ def register_arguments():
 
     gpio_dump_parser = sub_parsers.add_parser("dump")
     gpio_dump_parser.set_defaults(test_func=dump_gpiochip)
+
+    gpio_args_parser = sub_parsers.add_parser("led-resource")
+    gpio_args_parser.set_defaults(test_func=leds_resource)
+    gpio_args_parser.add_argument(
+        "mapping",
+        help=("Usage of parameter: GPIO_CONTROLLER_LEDS="
+              "{name1}:{controller1}:{port1} "
+              "{name2}:{controller1}:{port2} ..."),
+    )
 
     args = parser.parse_args()
     return args

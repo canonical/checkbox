@@ -444,7 +444,6 @@ class SessionAssistant:
                     str(exc),
                 )
 
-    @raises(UnexpectedMethodCall)
     def delete_sessions(self, session_ids: "List[str]") -> None:
         """
         Delete session storages.
@@ -460,7 +459,6 @@ class SessionAssistant:
             If the session is not found in the currently selected session
             repository, it is silently ignored.
         """
-        UsageExpectation.of(self).enforce()
         for storage in WellKnownDirsHelper.get_storage_list():
             if storage.id in session_ids:
                 storage.remove()
@@ -516,6 +514,7 @@ class SessionAssistant:
             self.select_test_plan: "select the test plan to execute",
             self.get_session_id: "to get the id of currently running session",
             self.hand_pick_jobs: "select jobs to run (w/o a test plan)",
+            self.get_resumable_sessions: "get resume candidates",
             self.finalize_session: "to finalize session",
             self.configure_application_restart: (
                 "configure automatic restart capability"
@@ -1355,6 +1354,18 @@ class SessionAssistant:
         with open(manifest, "wt", encoding="UTF-8") as stream:
             json.dump(manifest_cache, stream, sort_keys=True, indent=2)
 
+    def note_metadata_starting_job(self, job, job_state):
+        """
+        Update the session metadata to make a resumable checkpoint.
+
+        Without the information that this function stores, a session will not
+        be resumable. This also creates a checkpoint so that the information is
+        both in the session and on disk.
+        """
+        self._metadata.running_job_name = job["id"]
+        self._metadata.last_job_start_time = time.time()
+        self._manager.checkpoint()
+
     @raises(ValueError, TypeError, UnexpectedMethodCall)
     def run_job(
         self, job_id: str, ui: "Union[str, IJobRunnerUI]", native: bool
@@ -1909,6 +1920,7 @@ class SessionAssistant:
             self.get_manifest_repr: ("to get participating manifest units"),
             self.run_job: "to run a given job",
             self.use_alternate_selection: "to change the selection",
+            self.get_resumable_sessions: "get resume candidates",
             self.hand_pick_jobs: "to generate new selection and use it",
             self.use_job_result: "to feed job result back to the session",
             # XXX: should this be available right off the bat or should we wait

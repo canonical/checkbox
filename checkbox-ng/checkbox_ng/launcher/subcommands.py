@@ -21,9 +21,9 @@ Definition of sub-command classes for checkbox-cli
 from argparse import ArgumentTypeError
 from argparse import SUPPRESS
 from collections import defaultdict
-from datetime import datetime
 from string import Formatter
 from tempfile import TemporaryDirectory
+import textwrap
 import fnmatch
 import gettext
 import json
@@ -34,7 +34,6 @@ import re
 import shlex
 import sys
 import tarfile
-import textwrap
 import time
 
 from plainbox.abc import IJobResult
@@ -66,7 +65,11 @@ from checkbox_ng.urwid_ui import ManifestBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import ResumeInstead
 from checkbox_ng.urwid_ui import TestPlanBrowser
-from checkbox_ng.utils import newline_join
+from checkbox_ng.utils import (
+    newline_join,
+    generate_resume_candidate_description,
+    request_comment,
+)
 
 _ = gettext.gettext
 
@@ -370,7 +373,7 @@ class Launcher(MainLoopStage, ReportsStage):
         entries = [
             (
                 candidate.id,
-                _generate_resume_candidate_description(candidate),
+                generate_resume_candidate_description(candidate),
             )
             for candidate in resume_candidates
         ]
@@ -1358,54 +1361,3 @@ class Show:
             # provider and service does not have origin
             for k, v in obj.attrs.items():
                 print("{}: {}".format(k, v))
-
-
-def _generate_resume_candidate_description(candidate):
-    template = textwrap.dedent(
-        """
-        Session Title:
-            {session_title}
-
-        Test plan used:
-            {tp_id}
-
-        Last job that was run:
-            {last_job_id}
-
-        Last job was started at:
-            {last_job_start_time}
-        """
-    )
-    app_blob = json.loads(candidate.metadata.app_blob.decode("UTF-8"))
-    session_title = candidate.metadata.title or "Unknown"
-    tp_id = app_blob.get("testplan_id", "Unknown")
-    last_job_id = candidate.metadata.running_job_name or "Unknown"
-    last_job_timestamp = candidate.metadata.last_job_start_time or None
-    if last_job_timestamp:
-        dt = datetime.utcfromtimestamp(last_job_timestamp)
-        last_job_start_time = dt.strftime("%Y-%m-%d %H:%M:%S")
-    else:
-        last_job_start_time = "Unknown"
-    return template.format(
-        session_title=session_title,
-        tp_id=tp_id,
-        last_job_id=last_job_id,
-        last_job_start_time=last_job_start_time,
-    )
-
-
-def request_comment(prompt: str) -> str:
-    """
-    Request a comment from the user.
-    :param prompt: the thing that user has to explain with their comment
-    :return: the comment provided by the user
-    """
-    colorizer = Colorizer()
-    red = colorizer.RED
-    blue = colorizer.BLUE
-    comment = ""
-    while not comment:
-        print(red("This job is required in order to issue a certificate."))
-        print(red("Please add a comment to explain {}.".format(prompt)))
-        comment = input(blue("Please enter your comments:\n"))
-    return comment

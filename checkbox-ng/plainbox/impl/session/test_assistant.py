@@ -129,3 +129,32 @@ class SessionAssistantTests(morris.SignalTestCase):
         self.assertNotIn(
             SessionMetaData.FLAG_BOOTSTRAPPING, self_mock._metadata.flags
         )
+
+    @mock.patch("plainbox.impl.session.assistant.WellKnownDirsHelper")
+    def test_delete_sessions(self, mock_well_known_dirs_helper, _):
+        wkdh = mock_well_known_dirs_helper
+
+        mock_storage_deleted = mock.MagicMock()
+        mock_storage_deleted.id = 1
+
+        mock_storage_not_deleted = mock.MagicMock()
+        mock_storage_not_deleted.id = 2
+
+        wkdh.get_storage_list.return_value = [
+            mock_storage_deleted,
+            mock_storage_not_deleted,
+        ]
+
+        SessionAssistant.delete_sessions(mock.MagicMock(), [1])
+
+        self.assertTrue(mock_storage_deleted.remove.called)
+        self.assertFalse(mock_storage_not_deleted.remove.called)
+
+    def test_note_metadata_starting_job(self, _):
+        self_mock = mock.MagicMock()
+
+        SessionAssistant.note_metadata_starting_job(
+            self_mock, {"id": 123}, mock.MagicMock()
+        )
+
+        self.assertTrue(self_mock._manager.checkpoint.called)

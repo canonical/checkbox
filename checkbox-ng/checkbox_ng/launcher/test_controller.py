@@ -21,6 +21,7 @@ import socket
 
 from unittest import TestCase, mock
 
+from checkbox_ng.urwid_ui import ResumeInstead
 from checkbox_ng.launcher.controller import RemoteController
 from checkbox_ng.launcher.controller import is_hostname_a_loopback
 
@@ -513,6 +514,298 @@ class ControllerTests(TestCase):
         self.assertTrue(resumed)
         self.assertTrue(self_mock._resume_session.called)
 
+    @mock.patch("json.loads")
+    @mock.patch("builtins.open")
+    @mock.patch("checkbox_ng.launcher.controller.IJobResult")
+    @mock.patch(
+        "checkbox_ng.launcher.controller.request_comment",
+        new=mock.MagicMock(),
+    )
+    def test_resume_session_pass(
+        self,
+        mock_IJobResult,
+        mock_open,
+        mock_loads,
+    ):
+        mock_loads.return_value = {"testplan_id": "abc"}
+
+        sa_mock = mock.MagicMock()
+        resume_params = mock.MagicMock(
+            action="pass", session_id="123", comments="Initial comment"
+        )
+        metadata_mock = mock.MagicMock(
+            app_blob=b'{"testplan_id": "abc"}',
+            flags=[],
+            running_job_name="job1",
+        )
+        sa_mock._sa.resume_session.return_value = metadata_mock
+        sa_mock._sa.get_job_state.return_value = mock.MagicMock(
+            effective_certification_status="non-blocker"
+        )
+
+        self_mock = mock.MagicMock(sa=sa_mock)
+
+        RemoteController._resume_session(self_mock, resume_params)
+
+        # Assertions
+        sa_mock._sa.resume_session.assert_called_once_with("123")
+        sa_mock._sa.select_test_plan.assert_called_once_with("abc")
+        sa_mock._sa.bootstrap.assert_called_once()
+        sa_mock.resume_by_id.assert_called_once_with(
+            "123",
+            {
+                "comments": "Initial comment\nPassed after resuming execution",
+                "outcome": mock_IJobResult.OUTCOME_PASS,
+            },
+        )
+
+    @mock.patch("json.loads")
+    @mock.patch("builtins.open")
+    @mock.patch("checkbox_ng.launcher.controller.IJobResult")
+    @mock.patch(
+        "checkbox_ng.launcher.controller.request_comment",
+        new=mock.MagicMock(return_value="comment requested from user"),
+    )
+    def test_resume_session_fail_not_cert_blocker(
+        self,
+        mock_IJobResult,
+        mock_open,
+        mock_loads,
+    ):
+        mock_loads.return_value = {"testplan_id": "abc"}
+
+        sa_mock = mock.MagicMock()
+        resume_params = mock.MagicMock(
+            action="fail", session_id="123", comments="Initial comment"
+        )
+        metadata_mock = mock.MagicMock(
+            app_blob=b'{"testplan_id": "abc"}',
+            flags=[],
+            running_job_name="job1",
+        )
+        sa_mock._sa.resume_session.return_value = metadata_mock
+        sa_mock._sa.get_job_state.return_value = mock.MagicMock(
+            effective_certification_status="non-blocker"
+        )
+
+        self_mock = mock.MagicMock(sa=sa_mock)
+
+        RemoteController._resume_session(self_mock, resume_params)
+
+        # Assertions
+        sa_mock._sa.resume_session.assert_called_once_with("123")
+        sa_mock._sa.select_test_plan.assert_called_once_with("abc")
+        sa_mock._sa.bootstrap.assert_called_once()
+        sa_mock.resume_by_id.assert_called_once_with(
+            "123",
+            {
+                "comments": "Initial comment\nFailed after resuming execution",
+                "outcome": mock_IJobResult.OUTCOME_FAIL,
+            },
+        )
+
+    @mock.patch("json.loads")
+    @mock.patch("builtins.open")
+    @mock.patch("checkbox_ng.launcher.controller.IJobResult")
+    @mock.patch(
+        "checkbox_ng.launcher.controller.request_comment",
+        new=mock.MagicMock(return_value="comment requested from user"),
+    )
+    def test_resume_session_fail_cert_blocker(
+        self,
+        mock_IJobResult,
+        mock_open,
+        mock_loads,
+    ):
+        mock_loads.return_value = {"testplan_id": "abc"}
+
+        sa_mock = mock.MagicMock()
+        resume_params = mock.MagicMock(
+            action="fail", session_id="123", comments=None
+        )
+        metadata_mock = mock.MagicMock(
+            app_blob=b'{"testplan_id": "abc"}',
+            flags=["testplanless"],
+            running_job_name="job1",
+        )
+        sa_mock._sa.resume_session.return_value = metadata_mock
+        sa_mock._sa.get_job_state.return_value = mock.MagicMock(
+            effective_certification_status="blocker"
+        )
+
+        self_mock = mock.MagicMock(sa=sa_mock)
+
+        RemoteController._resume_session(self_mock, resume_params)
+
+        # Assertions
+        sa_mock._sa.resume_session.assert_called_once_with("123")
+        sa_mock.resume_by_id.assert_called_once_with(
+            "123",
+            {
+                "comments": "comment requested from user",
+                "outcome": mock_IJobResult.OUTCOME_FAIL,
+            },
+        )
+
+    @mock.patch("json.loads")
+    @mock.patch("builtins.open")
+    @mock.patch("checkbox_ng.launcher.controller.IJobResult")
+    @mock.patch(
+        "checkbox_ng.launcher.controller.request_comment",
+        new=mock.MagicMock(return_value="comment requested from user"),
+    )
+    def test_resume_session_skip_not_cert_blocker(
+        self,
+        mock_IJobResult,
+        mock_open,
+        mock_loads,
+    ):
+        mock_loads.return_value = {"testplan_id": "abc"}
+
+        sa_mock = mock.MagicMock()
+        resume_params = mock.MagicMock(
+            action="skip", session_id="123", comments="Initial comment"
+        )
+        metadata_mock = mock.MagicMock(
+            app_blob=b'{"testplan_id": "abc"}',
+            flags=[],
+            running_job_name="job1",
+        )
+        sa_mock._sa.resume_session.return_value = metadata_mock
+        sa_mock._sa.get_job_state.return_value = mock.MagicMock(
+            effective_certification_status="non-blocker"
+        )
+
+        self_mock = mock.MagicMock(sa=sa_mock)
+
+        RemoteController._resume_session(self_mock, resume_params)
+
+        # Assertions
+        sa_mock._sa.resume_session.assert_called_once_with("123")
+        sa_mock._sa.select_test_plan.assert_called_once_with("abc")
+        sa_mock._sa.bootstrap.assert_called_once()
+        sa_mock.resume_by_id.assert_called_once_with(
+            "123",
+            {
+                "comments": "Initial comment\nSkipped after resuming execution",
+                "outcome": mock_IJobResult.OUTCOME_SKIP,
+            },
+        )
+
+    @mock.patch("json.loads")
+    @mock.patch("builtins.open")
+    @mock.patch("checkbox_ng.launcher.controller.IJobResult")
+    @mock.patch(
+        "checkbox_ng.launcher.controller.request_comment",
+        new=mock.MagicMock(return_value="comment requested from user"),
+    )
+    def test_resume_session_skip_cert_blocker(
+        self,
+        mock_IJobResult,
+        mock_open,
+        mock_loads,
+    ):
+        mock_loads.return_value = {"testplan_id": "abc"}
+
+        sa_mock = mock.MagicMock()
+        resume_params = mock.MagicMock(
+            action="skip", session_id="123", comments=None
+        )
+        metadata_mock = mock.MagicMock(
+            app_blob=b'{"testplan_id": "abc"}',
+            flags=["testplanless"],
+            running_job_name="job1",
+        )
+        sa_mock._sa.resume_session.return_value = metadata_mock
+        sa_mock._sa.get_job_state.return_value = mock.MagicMock(
+            effective_certification_status="blocker"
+        )
+
+        self_mock = mock.MagicMock(sa=sa_mock)
+
+        RemoteController._resume_session(self_mock, resume_params)
+
+        # Assertions
+        sa_mock._sa.resume_session.assert_called_once_with("123")
+        sa_mock.resume_by_id.assert_called_once_with(
+            "123",
+            {
+                "comments": "comment requested from user",
+                "outcome": mock_IJobResult.OUTCOME_SKIP,
+            },
+        )
+
+    @mock.patch("json.loads")
+    @mock.patch("builtins.open")
+    @mock.patch("checkbox_ng.launcher.controller.IJobResult")
+    @mock.patch(
+        "checkbox_ng.launcher.controller.request_comment",
+        new=mock.MagicMock(return_value="comment requested from user"),
+    )
+    def test_resume_session_rerun(
+        self,
+        mock_IJobResult,
+        mock_open,
+        mock_loads,
+    ):
+        mock_loads.return_value = {"testplan_id": "abc"}
+
+        sa_mock = mock.MagicMock()
+        resume_params = mock.MagicMock(
+            action="rerun", session_id="123", comments=None
+        )
+        metadata_mock = mock.MagicMock(
+            app_blob=b'{"testplan_id": "abc"}',
+            flags=["testplanless"],
+            running_job_name="job1",
+        )
+        sa_mock._sa.resume_session.return_value = metadata_mock
+        sa_mock._sa.get_job_state.return_value = mock.MagicMock(
+            effective_certification_status="blocker"
+        )
+
+        self_mock = mock.MagicMock(sa=sa_mock)
+
+        RemoteController._resume_session(self_mock, resume_params)
+
+        # Assertions
+        sa_mock._sa.resume_session.assert_called_once_with("123")
+        sa_mock.resume_by_id.assert_called_once_with(
+            "123",
+            {
+                "comments": None,
+                "outcome": None,
+            },
+        )
+
+    def test_interactively_choose_tp(self):
+        self_mock = mock.MagicMock()
+
+        # by default always try to start a new session and not resuming
+        RemoteController.interactively_choose_tp(self_mock, [])
+
+        self.assertTrue(self_mock._new_session_flow.called)
+        self.assertFalse(self_mock._resume_session_menu.called)
+
+    def test_interactively_choose_tp_resume(self):
+        self_mock = mock.MagicMock()
+        self_mock._new_session_flow.side_effect = ResumeInstead
+        self_mock._resume_session_menu.return_value = True
+
+        RemoteController.interactively_choose_tp(self_mock, [])
+
+        self.assertTrue(self_mock._new_session_flow.called)
+        self.assertTrue(self_mock._resume_session_menu.called)
+
+    def test_interactively_choose_tp_resume_retry_tp(self):
+        self_mock = mock.MagicMock()
+        self_mock._new_session_flow.side_effect = [ResumeInstead, True]
+        self_mock._resume_session_menu.return_value = True
+
+        RemoteController.interactively_choose_tp(self_mock, [])
+
+        self.assertTrue(self_mock._new_session_flow.called)
+        self.assertTrue(self_mock._resume_session_menu.called)
 
 class IsHostnameALoopbackTests(TestCase):
     @mock.patch("socket.gethostbyname")

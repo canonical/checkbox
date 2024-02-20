@@ -10,9 +10,9 @@ from datetime import datetime
 
 class GPIOController:
 
-    GPIORootPath = "/sys/class/gpio"
-    GPIOExportPath = "{}/export".format(GPIORootPath)
-    GPIOUnexportPath = "{}/unexport".format(GPIORootPath)
+    GPIO_ROOT_PATH = "/sys/class/gpio"
+    GPIO_EXPORT_PATH = "{}/export".format(GPIO_ROOT_PATH)
+    GPIO_UNEXPORT_PATH = "{}/unexport".format(GPIO_ROOT_PATH)
 
     def __init__(self, gpiochip: str, gpiopin: str,
                  direction: int, need_export: bool):

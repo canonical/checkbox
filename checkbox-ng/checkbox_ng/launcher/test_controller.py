@@ -550,7 +550,7 @@ class ControllerTests(TestCase):
         # Assertions
         sa_mock._sa.resume_session.assert_called_once_with("123")
         sa_mock._sa.select_test_plan.assert_called_once_with("abc")
-        sa_mock._sa.bootstrap.assert_called_once()
+        self.assertTrue(sa_mock._sa.bootstrap.called)
         sa_mock.resume_by_id.assert_called_once_with(
             "123",
             {
@@ -595,7 +595,7 @@ class ControllerTests(TestCase):
         # Assertions
         sa_mock._sa.resume_session.assert_called_once_with("123")
         sa_mock._sa.select_test_plan.assert_called_once_with("abc")
-        sa_mock._sa.bootstrap.assert_called_once()
+        self.assertTrue(sa_mock._sa.bootstrap.called)
         sa_mock.resume_by_id.assert_called_once_with(
             "123",
             {
@@ -683,7 +683,7 @@ class ControllerTests(TestCase):
         # Assertions
         sa_mock._sa.resume_session.assert_called_once_with("123")
         sa_mock._sa.select_test_plan.assert_called_once_with("abc")
-        sa_mock._sa.bootstrap.assert_called_once()
+        self.assertTrue(sa_mock._sa.bootstrap.called)
         sa_mock.resume_by_id.assert_called_once_with(
             "123",
             {

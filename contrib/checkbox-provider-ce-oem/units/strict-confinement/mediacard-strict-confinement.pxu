@@ -1,0 +1,65 @@
+plugin: user-interact
+category_id: strict-confinement-mode
+id: strict-confine/mediacard/sdhc-insert
+flags: also-after-suspend
+estimated_duration: 30.0
+command:
+  test-strict-confinement.run-watcher insertion mediacard
+imports:
+  from com.canonical.plainbox import manifest
+  from com.canonical.certification import snap
+  from com.canonical.certification import lsb
+requires:
+  manifest.has_card_reader == 'True'
+  lsb.distributor_id == 'Ubuntu Core'
+  snap.name == 'test-strict-confinement'
+user: root
+_summary: Test that insertion of an SDHC card is detected
+_description:
+    Verify the SDHC card insertion by checking journal log.
+_purpose:
+    This test will check that the systems media card reader can
+    detect the insertion of a UNLOCKED Secure Digital High-Capacity
+    (SDHC) media card
+_steps:
+    1. Commence the test and then insert an UNLOCKED SDHC card into the reader.
+      (Note: this test will time-out after 20 seconds.)
+    2. Do not remove the device after this test.
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+
+plugin: shell
+category_id: strict-confinement-mode
+id: strict-confine/mediacard/sdhc-storage
+estimated_duration: 30.0
+depends: strict-confine/mediacard/sdhc-insert
+user: root
+flags: preserve-cwd reset-locale also-after-suspend
+command: test-strict-confinement.usb-read-write
+_summary: Test reading & writing to a SDHC Card
+_description:
+    This test is automated and executes after the mediacard/sdhc-insert
+    test is run. It tests reading and writing to the SDHC card.
+
+plugin: user-interact
+category_id: strict-confinement-mode
+id: strict-confine/mediacard/sdhc-remove
+flags: also-after-suspend
+estimated_duration: 30.0
+depends: strict-confine/mediacard/sdhc-insert
+command:
+  test-strict-confinement.run-watcher removal mediacard
+user: root
+_summary: Test that removal of an SDHC card is detected
+_description:
+    Verify the SDHC card insertion by checking journal log.
+_purpose:
+    This test will check that the system correctly detects
+    the removal of an SDHC card from the systems card reader.
+_steps:
+    1. Commence the test and then remove the SDHC card from the reader.
+      (Note: this test will time-out after 20 seconds.)
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.

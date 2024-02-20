@@ -1,0 +1,36 @@
+id: dbus-warm-boot
+unit: test plan
+_name: Warm reboot test via dbus
+_description:
+    Warm reboot test by using dbus command.
+    Rely on test-strict-confinement SNAP to test.
+bootstrap_include:
+    com.canonical.certification::reboot-run-generator
+include:
+    dbus-warm-boot-boot
+    dbus-warm-boot-test
+
+
+id: dbus-cold-boot
+unit: test plan
+_name: Cold boot test via dbus
+_description:
+    Cold boot test by using dbus command.
+    Rely on test-strict-confinement SNAP to test.
+bootstrap_include:
+    com.canonical.certification::reboot-run-generator
+include:
+    dbus-cold-boot-boot
+    dbus-cold-boot-test
+
+
+id: strict-confine-mediacard
+unit: test plan
+_name: Test mediacard in strict confinement mode.
+_description:
+    Test mediacard in strict confinement mode.
+    Rely on test-strict-confinement SNAP to test.
+include:
+    strict-confine/mediacard/sdhc-insert
+    strict-confine/mediacard/sdhc-storage
+    strict-confine/mediacard/sdhc-remove

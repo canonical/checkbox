@@ -36,7 +36,7 @@ command:
 unit: template
 template-resource: ce-oem-gpio-buzzer-mapping
 template-unit: job
-id: ce-oem-buzzer/sound-test-{name}
+id: ce-oem-gpio-buzzer/sound-test-{name}
 _summary: To test {name} could be make a sound by GPIO
 _purpose:
     To test {name} could be make a sound by GPIO.
@@ -70,7 +70,7 @@ command:
 unit: template
 template-resource: ce-oem-pwm-buzzer-mapping
 template-unit: job
-id: ce-oem-buzzer/sound-test-{name}
+id: ce-oem-pwm-buzzer/sound-test-{name}
 _summary: To test {name} could be make a sound by PWM
 _purpose:
     To test {name} could be make a sound by PWM.

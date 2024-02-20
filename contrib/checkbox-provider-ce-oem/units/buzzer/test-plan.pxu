@@ -18,7 +18,8 @@ bootstrap_include:
     ce-oem-pwm-buzzer-mapping
 include:
     ce-oem-buzzer/input-pcspkr
-    ce-oem-buzzer/sound-test-.*
+    ce-oem-gpio-buzzer/sound-test-.*
+    ce-oem-pwm-buzzer/sound-test-.*
 
 id: ce-oem-buzzer-automated
 unit: test plan
@@ -35,7 +36,8 @@ bootstrap_include:
     ce-oem-pwm-buzzer-mapping
 include:
     after-suspend-ce-oem-buzzer/input-pcspkr
-    after-suspend-ce-oem-buzzer/sound-test-.*
+    after-suspend-ce-oem-gpio-buzzer/sound-test-.*
+    after-suspend-ce-oem-pwm-buzzer/sound-test-.*
 
 id: after-suspend-ce-oem-buzzer-automated
 unit: test plan

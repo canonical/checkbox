@@ -8,7 +8,7 @@ from pathlib import Path
 from datetime import datetime
 
 
-class GPIOController():
+class GPIOController:
 
     GPIORootPath = "/sys/class/gpio"
     GPIOExportPath = "{}/export".format(GPIORootPath)

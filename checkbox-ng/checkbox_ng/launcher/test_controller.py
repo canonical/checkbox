@@ -151,7 +151,7 @@ class ControllerTests(TestCase):
             "job1": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
             "job2": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
         }
-        self_mock._sa.manager.default_device_context._state._job_state_map = (
+        self_mock.manager.default_device_context._state._job_state_map = (
             mock_job_state_map
         )
         RemoteController.finish_session(self_mock)
@@ -170,12 +170,12 @@ class ControllerTests(TestCase):
             "job2": mock.MagicMock(result=mock.MagicMock(outcome="fail")),
             "job3": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
         }
-        self_mock._sa.manager.default_device_context._state._job_state_map = (
+        self_mock.manager.default_device_context._state._job_state_map = (
             mock_job_state_map
         )
         RemoteController.finish_session(self_mock)
 
-        self.assertTrue(self_mock._has_anything_failed)
+        self.assertTrue(self_mock._sa._has_anything_failed)
 
     def test_finish_session_with_crash(self):
         """
@@ -189,12 +189,12 @@ class ControllerTests(TestCase):
             "job2": mock.MagicMock(result=mock.MagicMock(outcome="crash")),
             "job3": mock.MagicMock(result=mock.MagicMock(outcome="pass")),
         }
-        self_mock._sa.manager.default_device_context._state._job_state_map = (
+        self_mock.manager.default_device_context._state._job_state_map = (
             mock_job_state_map
         )
         RemoteController.finish_session(self_mock)
 
-        self.assertTrue(self_mock._has_anything_failed)
+        self.assertTrue(self_mock._sa._has_anything_failed)
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     @mock.patch("checkbox_ng.launcher.controller.resume_dialog")
@@ -538,8 +538,8 @@ class ControllerTests(TestCase):
             flags=[],
             running_job_name="job1",
         )
-        sa_mock._sa.resume_session.return_value = metadata_mock
-        sa_mock._sa.get_job_state.return_value = mock.MagicMock(
+        sa_mock.resume_session.return_value = metadata_mock
+        sa_mock.get_job_state.return_value = mock.MagicMock(
             effective_certification_status="non-blocker"
         )
 
@@ -548,9 +548,9 @@ class ControllerTests(TestCase):
         RemoteController._resume_session(self_mock, resume_params)
 
         # Assertions
-        sa_mock._sa.resume_session.assert_called_once_with("123")
-        sa_mock._sa.select_test_plan.assert_called_once_with("abc")
-        self.assertTrue(sa_mock._sa.bootstrap.called)
+        sa_mock.resume_session.assert_called_once_with("123")
+        sa_mock.select_test_plan.assert_called_once_with("abc")
+        self.assertTrue(sa_mock.bootstrap.called)
         sa_mock.resume_by_id.assert_called_once_with(
             "123",
             {
@@ -583,8 +583,8 @@ class ControllerTests(TestCase):
             flags=[],
             running_job_name="job1",
         )
-        sa_mock._sa.resume_session.return_value = metadata_mock
-        sa_mock._sa.get_job_state.return_value = mock.MagicMock(
+        sa_mock.resume_session.return_value = metadata_mock
+        sa_mock.get_job_state.return_value = mock.MagicMock(
             effective_certification_status="non-blocker"
         )
 
@@ -593,9 +593,9 @@ class ControllerTests(TestCase):
         RemoteController._resume_session(self_mock, resume_params)
 
         # Assertions
-        sa_mock._sa.resume_session.assert_called_once_with("123")
-        sa_mock._sa.select_test_plan.assert_called_once_with("abc")
-        self.assertTrue(sa_mock._sa.bootstrap.called)
+        sa_mock.resume_session.assert_called_once_with("123")
+        sa_mock.select_test_plan.assert_called_once_with("abc")
+        self.assertTrue(sa_mock.bootstrap.called)
         sa_mock.resume_by_id.assert_called_once_with(
             "123",
             {
@@ -628,8 +628,8 @@ class ControllerTests(TestCase):
             flags=["testplanless"],
             running_job_name="job1",
         )
-        sa_mock._sa.resume_session.return_value = metadata_mock
-        sa_mock._sa.get_job_state.return_value = mock.MagicMock(
+        sa_mock.resume_session.return_value = metadata_mock
+        sa_mock.get_job_state.return_value = mock.MagicMock(
             effective_certification_status="blocker"
         )
 
@@ -638,7 +638,7 @@ class ControllerTests(TestCase):
         RemoteController._resume_session(self_mock, resume_params)
 
         # Assertions
-        sa_mock._sa.resume_session.assert_called_once_with("123")
+        sa_mock.resume_session.assert_called_once_with("123")
         sa_mock.resume_by_id.assert_called_once_with(
             "123",
             {
@@ -671,8 +671,8 @@ class ControllerTests(TestCase):
             flags=[],
             running_job_name="job1",
         )
-        sa_mock._sa.resume_session.return_value = metadata_mock
-        sa_mock._sa.get_job_state.return_value = mock.MagicMock(
+        sa_mock.resume_session.return_value = metadata_mock
+        sa_mock.get_job_state.return_value = mock.MagicMock(
             effective_certification_status="non-blocker"
         )
 
@@ -681,9 +681,9 @@ class ControllerTests(TestCase):
         RemoteController._resume_session(self_mock, resume_params)
 
         # Assertions
-        sa_mock._sa.resume_session.assert_called_once_with("123")
-        sa_mock._sa.select_test_plan.assert_called_once_with("abc")
-        self.assertTrue(sa_mock._sa.bootstrap.called)
+        sa_mock.resume_session.assert_called_once_with("123")
+        sa_mock.select_test_plan.assert_called_once_with("abc")
+        self.assertTrue(sa_mock.bootstrap.called)
         sa_mock.resume_by_id.assert_called_once_with(
             "123",
             {
@@ -716,8 +716,8 @@ class ControllerTests(TestCase):
             flags=["testplanless"],
             running_job_name="job1",
         )
-        sa_mock._sa.resume_session.return_value = metadata_mock
-        sa_mock._sa.get_job_state.return_value = mock.MagicMock(
+        sa_mock.resume_session.return_value = metadata_mock
+        sa_mock.get_job_state.return_value = mock.MagicMock(
             effective_certification_status="blocker"
         )
 
@@ -726,7 +726,7 @@ class ControllerTests(TestCase):
         RemoteController._resume_session(self_mock, resume_params)
 
         # Assertions
-        sa_mock._sa.resume_session.assert_called_once_with("123")
+        sa_mock.resume_session.assert_called_once_with("123")
         sa_mock.resume_by_id.assert_called_once_with(
             "123",
             {
@@ -759,8 +759,8 @@ class ControllerTests(TestCase):
             flags=["testplanless"],
             running_job_name="job1",
         )
-        sa_mock._sa.resume_session.return_value = metadata_mock
-        sa_mock._sa.get_job_state.return_value = mock.MagicMock(
+        sa_mock.resume_session.return_value = metadata_mock
+        sa_mock.get_job_state.return_value = mock.MagicMock(
             effective_certification_status="blocker"
         )
 
@@ -769,7 +769,7 @@ class ControllerTests(TestCase):
         RemoteController._resume_session(self_mock, resume_params)
 
         # Assertions
-        sa_mock._sa.resume_session.assert_called_once_with("123")
+        sa_mock.resume_session.assert_called_once_with("123")
         sa_mock.resume_by_id.assert_called_once_with(
             "123",
             {

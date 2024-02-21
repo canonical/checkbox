@@ -143,7 +143,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant:
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 12
+    REMOTE_API_VERSION = 13
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -348,6 +348,9 @@ class RemoteSessionAssistant:
             response, key=lambda x: x[1]
         )  # sorted by name
         return self._available_testplans
+
+    def select_test_plan(self, test_plan_id):
+        return self._sa.select_test_plan(test_plan_id)
 
     @allowed_when(Started)
     def prepare_bootstrapping(self, test_plan_id):
@@ -635,6 +638,9 @@ class RemoteSessionAssistant:
     def get_job_result(self, job_id):
         return self._sa.get_job_state(job_id).result
 
+    def get_job_state(self, job_id):
+        return self._sa.get_job_state(job_id)
+
     def get_jobs_repr(self, job_ids, offset=0):
         """
         Translate jobs into a {'field': 'val'} representations.
@@ -688,6 +694,12 @@ class RemoteSessionAssistant:
     def get_resumable_sessions(self):
         return self._sa.get_resumable_sessions()
 
+    def resume_session(self, session_id, runner_kwargs={}):
+        return self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
+
+    def bootstrap(self):
+        return self._sa.bootstrap()
+
     def resume_by_id(self, session_id=None, overwrite_result_dict={}):
         _logger.info("resume_by_id: %r", session_id)
         self._launcher = load_configs()
@@ -706,7 +718,7 @@ class RemoteSessionAssistant:
             "stdin": self._pipe_to_subproc,
             "extra_env": self.prepare_extra_env,
         }
-        meta = self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
+        meta = self.resume_session(session_id, runner_kwargs=runner_kwargs)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
         launcher_from_controller = Configuration.from_text(
             app_blob["launcher"], "Remote launcher"

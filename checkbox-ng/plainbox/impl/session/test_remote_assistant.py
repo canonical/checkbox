@@ -75,7 +75,7 @@ class RemoteAssistantTests(TestCase):
         extra_cfg = dict()
         extra_cfg["launcher"] = "test_launcher"
         rsa = mock.Mock()
-        rsa._sa.get_test_plans.return_value = [mock.Mock()]
+        rsa.get_test_plans.return_value = [mock.Mock()]
         rsa._state = remote_assistant.Idle
         with mock.patch("plainbox.impl.config.Configuration.from_text") as cm:
             cm.return_value = Configuration()
@@ -93,7 +93,7 @@ class RemoteAssistantTests(TestCase):
         extra_cfg = dict()
         extra_cfg["launcher"] = "test_launcher"
         rsa = mock.Mock()
-        rsa._sa.get_test_plans.return_value = [mock.Mock()]
+        rsa.get_test_plans.return_value = [mock.Mock()]
         rsa._state = remote_assistant.Idle
         with mock.patch("plainbox.impl.config.Configuration.from_text") as cm:
             cm.return_value = Configuration()
@@ -111,7 +111,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa._sa.resume_session.return_value = mock_meta
+        rsa.resume_session.return_value = mock_meta
         remote_assistant.RemoteSessionAssistant.resume_by_id(rsa, "session_id")
         self.assertEqual(rsa._state, "testsselected")
 
@@ -124,7 +124,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa._sa.resume_session.return_value = mock_meta
+        rsa.resume_session.return_value = mock_meta
         remote_assistant.RemoteSessionAssistant.resume_by_id(rsa, "bad_id")
         self.assertEqual(rsa._state, "idle")
 
@@ -137,7 +137,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa._sa.resume_session.return_value = mock_meta
+        rsa.resume_session.return_value = mock_meta
         remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
         self.assertEqual(rsa._state, "testsselected")
 
@@ -153,7 +153,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa._sa.resume_session.return_value = mock_meta
+        rsa.resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
 
         with mock.patch("plainbox.impl.session.remote_assistant._") as mock__:
@@ -193,7 +193,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa._sa.resume_session.return_value = mock_meta
+        rsa.resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
 
         with mock.patch("plainbox.impl.session.remote_assistant._") as mock__:
@@ -233,10 +233,9 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa._sa.resume_session.return_value = mock_meta
+        rsa.resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
 
-        rsa._sa.get_job = mock.Mock()
         rsa._sa.get_job.return_value.plugin = "shell"
 
         with mock.patch("os.path.exists", os_path_exists_mock):
@@ -268,10 +267,9 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa._sa.resume_session.return_value = mock_meta
+        rsa.resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
 
-        rsa._sa.get_job = mock.Mock()
         rsa._sa.get_job.return_value.plugin = "shell"
 
         with mock.patch("os.path.exists", os_path_exists_mock):
@@ -301,7 +299,7 @@ class RemoteAssistantTests(TestCase):
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
 
-        rsa._sa.resume_session.return_value = mock_meta
+        rsa.resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()
         with mock.patch("plainbox.impl.session.remote_assistant._") as mock__:
             mock__.side_effect = lambda x: x
@@ -377,7 +375,6 @@ class RemoteAssistantTests(TestCase):
 class RemoteAssistantFinishJobTests(TestCase):
     def setUp(self):
         self.rsa = mock.MagicMock()
-        self.rsa._sa = mock.Mock()
         self.rsa._be = None
 
     @mock.patch("plainbox.impl.session.remote_assistant.JobResultBuilder")

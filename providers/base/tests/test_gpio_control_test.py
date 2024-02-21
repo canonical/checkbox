@@ -18,6 +18,7 @@ class TestGPIOController(unittest.TestCase):
     @patch("gpio_control_test.GPIOController._write_node")
     @patch("gpio_control_test.GPIOController._read_node")
     @patch("gpio_control_test.GPIOController._node_exists")
+    @patch("gpio_control_test.time.sleep", new=Mock)
     def test_initial_gpio_controller_success(
             self, mock_path, mock_read, mock_write,
             mock_export, mock_unexport, mock_mapping):

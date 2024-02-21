@@ -86,7 +86,7 @@ class InteractiveCommand:
             self._logger.warning("Broken pipe when sending to the process!")
             if self._pending:
                 self._logger.warning(
-                    "the output before the pipe broke: %s", self.read_all())
+                    "The output before the pipe broke: %s", self.read_all())
             self._close_fds([self._proc.stdin])
             raise
         time.sleep(sleep)

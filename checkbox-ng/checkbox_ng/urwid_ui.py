@@ -766,11 +766,15 @@ class TestPlanBrowser:
                     if filter_str == "":
                         self._update_button_pile(self.controller_list)
                     else:
+                        filter_str = filter_str.lower()
                         self._update_button_pile(
                             [
                                 x
                                 for x in self.controller_list
-                                if filter_str in x.get("name")
+                                if (
+                                    filter_str in x.get("name").lower()
+                                    or filter_str in x.get("id").lower()
+                                )
                             ]
                         )
                 if key in ("esc", "enter"):

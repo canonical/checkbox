@@ -303,7 +303,8 @@ class TestMainFunction(unittest.TestCase):
     def test_led_resource(self):
         mock_args = Mock(
             return_value=argparse.Namespace(mapping="DL14:5:1 DL14:5:2"))
-        leds_resource(mock_args())
+        with redirect_stdout(StringIO()) as stdout:
+            leds_resource(mock_args())
 
     def test_led_resource_with_unexpected_format(self):
         mock_args = Mock(

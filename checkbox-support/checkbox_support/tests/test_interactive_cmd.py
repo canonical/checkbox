@@ -23,12 +23,14 @@ class InteractiveCommandTests(unittest.TestCase):
 
     def test_write_line_nominal(self):
         mock_self = MagicMock()
+        mock_self._proc.stdin.encoding = 'utf-8'
         InteractiveCommand.writeline(mock_self, 'Hello, world!')
         mock_self._proc.stdin.write.assert_called_with(b'Hello, world!\n')
 
     def test_write_line_broken_pipe(self):
         mock_self = MagicMock()
         mock_self._proc.stdin.write.side_effect = BrokenPipeError
+        mock_self._proc.stdin.encoding = 'utf-8'
         mock_self.read_all.return_value = 'my pipe is gonna break'
         with self.assertRaises(BrokenPipeError):
             InteractiveCommand.writeline(mock_self, 'Hello, world!')

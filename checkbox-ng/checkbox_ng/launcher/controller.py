@@ -445,15 +445,15 @@ class RemoteController(ReportsStage, MainLoopStage):
         return False
 
     def _resume_session(self, resume_params):
-        metadata = self.sa._sa.resume_session(resume_params.session_id)
+        metadata = self.sa.resume_session(resume_params.session_id)
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
-            self.sa._sa.select_test_plan(test_plan_id)
-            self.sa._sa.bootstrap()
+            self.sa.select_test_plan(test_plan_id)
+            self.sa.bootstrap()
         last_job = metadata.running_job_name
         is_cert_blocker = (
-            self.sa._sa.get_job_state(last_job).effective_certification_status
+            self.sa.get_job_state(last_job).effective_certification_status
             == "blocker"
         )
         # If we resumed maybe not rerun the same, probably broken job
@@ -811,7 +811,7 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def _run_jobs(self, jobs_repr, total_num=0):
         for job in jobs_repr:
-            job_state = self.sa._sa.get_job_state(job["id"])
+            job_state = self.sa.get_job_state(job["id"])
             self.sa.note_metadata_starting_job(job, job_state)
             SimpleUI.header(
                 _("Running job {} / {}").format(

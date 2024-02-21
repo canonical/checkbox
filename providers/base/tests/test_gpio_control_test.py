@@ -3,6 +3,8 @@ import sys
 import argparse
 from unittest.mock import patch, Mock
 from pathlib import PosixPath, Path
+from io import StringIO
+from contextlib import redirect_stdout
 from gpio_control_test import GPIOController
 from gpio_control_test import blinking_test
 from gpio_control_test import dump_gpiochip

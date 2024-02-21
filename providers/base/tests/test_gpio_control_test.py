@@ -252,7 +252,7 @@ class TestGPIOController(unittest.TestCase):
         mock_mapping.return_value = {"1": "32"}
 
         gpio_controller = GPIOController("1", "1", "out", True)
-        gpio_controller.blinking(1, 0.5)
+        gpio_controller.blinking(0.0001, 0.0001)
         mock_on.assert_called_with()
         mock_off.assert_called_with()
 

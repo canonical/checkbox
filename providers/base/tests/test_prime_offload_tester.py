@@ -39,6 +39,8 @@ class FindCardIdTests(unittest.TestCase):
                                        "0000:00:00.0",
                                        "/sys/kernel/debug/dri"],
                                       universal_newlines=True)
+        # should work with hex vaule
+        self.assertEqual(po.find_card_id("0000:c6:F0.0"), "0")
 
         # error format - with alphabet
         with self.assertRaises(SystemExit):

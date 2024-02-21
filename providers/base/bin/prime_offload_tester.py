@@ -54,7 +54,8 @@ class PrimeOffloader:
         :returns: card id
         :rtype: str
         """
-        if not re.match("[0-9]{4}:[0-9]{2}:[0-9]{2}.[0-9]", pci_name):
+        pci_name_format = "[0-9]{4}:[0-9,a-f]{2}:[0-9,a-f]{2}.[0-9]"
+        if not re.match(pci_name_format, pci_name.lower()):
             raise SystemExit("pci name format error")
 
         try:

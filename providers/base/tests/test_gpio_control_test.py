@@ -284,7 +284,8 @@ class TestMainFunction(unittest.TestCase):
         mock_path.return_value = True
         mock_read.return_value = "mock-string"
 
-        dump_gpiochip(None)
+        with redirect_stdout(StringIO()) as stdout:
+            dump_gpiochip(None)
         mock_path.assert_called_once_with()
         mock_read.assert_called_once_with()
 

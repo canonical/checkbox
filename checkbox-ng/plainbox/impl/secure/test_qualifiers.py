@@ -253,6 +253,10 @@ class FieldQualifierTests(TestCase):
                 getattr(job, self._FIELD))
             self.assertEqual(result, self.matcher.match())
 
+    def test_field_setter(self):
+        self.assertEqual(self.qualifier_e.field, self._FIELD)
+        self.qualifier_e.field = "updated"
+        self.assertEqual(self.qualifier_e.field, "updated")
 
 class RegExpJobQualifierTests(TestCase):
     """
@@ -490,6 +494,13 @@ class FunctionTests(TestCase):
     def setUp(self):
         self.origin = mock.Mock(name='origin', spec_set=Origin)
 
+    def test_select_jobs__empty_qualifier_list(self):
+        """
+        verify that select_jobs() returns an empty list if no qualifiers are
+        passed
+        """
+        self.assertEqual(select_jobs([], []), [])
+
     def test_select_jobs__inclusion(self):
         """
         verify that select_jobs() honors qualifier ordering
@@ -525,3 +536,39 @@ class FunctionTests(TestCase):
             self.assertEqual(
                 select_jobs(job_list, [qual_all, qual_not_c]),
                 [job_a, job_b])
+
+    def test_select_jobs__id_field_qualifier(self):
+        """
+        verify that select_jobs() only returns the job that matches a given
+        FieldQualifier
+        """
+        job_a = JobDefinition({'id': 'a'})
+        job_b = JobDefinition({'id': 'b'})
+        job_c = JobDefinition({'id': 'c'})
+        matcher = OperatorMatcher(operator.eq, "a")
+        qual = FieldQualifier("id", matcher, self.origin, True)
+        job_list = [job_a, job_b, job_c]
+        expected_list = [job_a]
+        self.assertEqual(select_jobs(job_list, [qual]), expected_list)
+
+    def test_select_jobs__template_id_field_qualifier(self):
+        """
+        verify that select_jobs() only returns the jobs that have been
+        instantiated using a given template
+        """
+        job_a = JobDefinition({
+                              "id": "a",
+                              })
+        templated_job_b = JobDefinition({
+                              "id": "b",
+                              "template-id": "test-template",
+                              })
+        templated_job_c = JobDefinition({
+                              "id": "c",
+                              "template-id": "test-template",
+                              })
+        matcher = OperatorMatcher(operator.eq, "test-template")
+        qual = FieldQualifier("id", matcher, self.origin, True)
+        job_list = [job_a, templated_job_b, templated_job_c]
+        expected_list = [templated_job_b, templated_job_c]
+        self.assertEqual(select_jobs(job_list, [qual]), expected_list)

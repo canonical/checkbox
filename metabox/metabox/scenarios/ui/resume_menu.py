@@ -23,7 +23,7 @@ from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
 
 
-@tag("manual", "interact", "resume")
+@tag("manual", "resume")
 class ResumeMenuMultipleDelete(Scenario):
     modes = ["remote"]
     launcher = textwrap.dedent(
@@ -80,7 +80,7 @@ class ResumeMenuMultipleDelete(Scenario):
     ]
 
 
-@tag("manual", "interact", "resume")
+@tag("manual", "resume")
 class ResumeMenuMarkSkip(Scenario):
     modes = ["remote"]
     launcher = textwrap.dedent(
@@ -126,7 +126,7 @@ class ResumeMenuMarkSkip(Scenario):
     ]
 
 
-@tag("manual", "interact", "resume")
+@tag("manual", "resume")
 class ResumeMenuMarkFail(Scenario):
     modes = ["remote"]
     launcher = textwrap.dedent(
@@ -174,7 +174,7 @@ class ResumeMenuMarkFail(Scenario):
         Expect("Result"),
     ]
 
-@tag("manual", "interact", "resume")
+@tag("manual", "resume")
 class ResumeMenuMarkPreCommentFail(Scenario):
     modes = ["remote"]
     launcher = textwrap.dedent(
@@ -221,7 +221,7 @@ class ResumeMenuMarkPreCommentFail(Scenario):
         Expect("Result"),
     ]
 
-@tag("manual", "interact", "resume")
+@tag("manual", "resume")
 class ResumeMenuMarkPassed(Scenario):
     modes = ["remote"]
     launcher = textwrap.dedent(
@@ -259,7 +259,7 @@ class ResumeMenuMarkPassed(Scenario):
         Expect("Result"),
     ]
 
-@tag("manual", "interact", "resume")
+@tag("manual", "resume")
 class ResumeMenuResumeLastJob(Scenario):
     modes = ["remote"]
     launcher = textwrap.dedent(

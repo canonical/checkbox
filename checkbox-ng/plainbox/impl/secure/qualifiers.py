@@ -341,6 +341,10 @@ class FieldQualifier(SimpleQualifier):
         """
         return self._field
 
+    @field.setter
+    def field(self, value):
+        self._field = value
+
     @property
     def matcher(self):
         """
@@ -522,6 +526,12 @@ def select_jobs(job_list, qualifier_list):
                 if job.id == qualifier.matcher.value:
                     _handle_vote(qualifier, job)
                     break
+                elif job.template_id == qualifier.matcher.value:
+                    # the qualifier matches the template id this job has been
+                    # instantiated from, need to get the vote for this job
+                    # based on its template_id field, not its id field
+                    qualifier.field = "template_id"
+                    _handle_vote(qualifier, job)
         else:
             for job in job_list:
                 _handle_vote(qualifier, job)

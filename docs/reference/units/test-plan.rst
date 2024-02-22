@@ -14,17 +14,21 @@ appear in the list, unless they need to be reordered to satisfy dependencies
 which always take priority. It is also possible to :ref:`exclude<Test Plan
 exclude field>` jobs from the selection using the same principles.
 
+Test plans can be :ref:`nested<Test Plan nested_part field>`, so you can
+define several smaller test plans and combine them into a bigger one, which
+helps with maintenance and flexibility.
+
 Test plans can contain additional meta-data which can be used in a graphical
-user interface. You can assign a translatable name and
-description to each test plan. 
+user interface. You can assign a translatable name and description to each
+test plan.
 
 Test plans are also typical units so they can be defined with the familiar
-RFC822-like syntax that is also used for job definitions. They can also be
-multiple test plan definitions per file, just like with all the other units,
-including job definitions.
+:ref:`RFC822-like syntax<rfc822>` that is also used for job definitions. There
+can also be multiple test plan definitions per file, just like with all the
+other units, including job definitions.
 
 Test Plan Fields
------------------
+================
 
 The following fields can be used in a test plan. Note that **not all** fields
 need to be used or even should be used. Please remember that Checkbox needs to
@@ -91,7 +95,7 @@ copy such constructs when working on a new test plan from scratch
     This is the most important field in any test plan. It basically decides
     on which job definitions are selected by (included by) the test plan.
     Separate entries need to be placed on separate lines. White space does not
-    separate entries as the id field may (sic!) actually include spaces.
+    separate entries as the ``id`` field may actually include spaces.
 
     There are several options for selecting test cases:
 
@@ -107,16 +111,16 @@ copy such constructs when working on a new test plan from scratch
       - using the template identifier. This will include all the jobs generated
         by this template.
 
-    Regardless of if you use patterns or literal job identifiers you can use
-    their fully qualified name (the one that includes the namespace they reside
-    in) or an abbreviated form. The abbreviated form is applicable for job
-    definitions that reside in the same namespace (but not necessarily the same
-    provider) as the provider that is defining the test plan.
+    Regardless if you use patterns or literal identifiers, you can use their
+    fully qualified name (the one that includes the :term:`namespace` they
+    reside in) or an abbreviated form. The abbreviated form is applicable for
+    jobs and templates that reside in the same namespace (but not necessarily
+    the same provider) as the provider that is defining the test plan.
 
-    Plainbox will catch incorrect references to unknown jobs so you should
-    be relatively safe. Have a look at the examples section below for examples
-    on how you can refer to jobs from other providers (you simply use their
-    fully qualified name for that)
+    Checkbox will catch incorrect references to unknown jobs so you should
+    be relatively safe. Have a look at the :ref:`test-plan-examples` section
+    below for examples on how you can refer to jobs from other providers
+    (you simply use their fully qualified name for that).
 
 .. _Test Plan mandatory_include field:
 
@@ -129,16 +133,14 @@ copy such constructs when working on a new test plan from scratch
     info about the tested system, as it renders impossible to generate a report
     with no information about system under test.
 
-    For example, session results meant to be sent to the Ubuntu certification
-    website must include the special job: miscellanea/submission-resources
-
-    Example:
+    For example, session results meant to be sent to the Ubuntu :term:`certification
+    website` must include the special job ``miscellanea/submission-resources``::
 
         mandatory_include:
             miscellanea/submission-resources
 
     Note that mandatory jobs will always be run first (along with their
-    dependent jobs)
+    dependent jobs).
 
 .. _Test Plan bootstrap_include field:
 
@@ -148,7 +150,7 @@ copy such constructs when working on a new test plan from scratch
     bootstrapping sections are the ones generating or helping to generate other
     jobs.
 
-    Example:
+    Example::
 
         bootstrap_include:
             graphics/generator_driver_version
@@ -264,8 +266,10 @@ copy such constructs when working on a new test plan from scratch
     mis-estimates from all of the job definitions selected by a particular test
     plan.
 
+.. _test-plan-examples:
+
 Examples
---------
+========
 
 A simple test plan that selects several jobs::
 
@@ -298,7 +302,7 @@ to some of its own definitions::
         multipath-io
         degrade-array-recovery
 
-A test plan that generates jobs using bootstrap_include section::
+A test plan that generates jobs using the ``bootstrap_include`` section::
 
     unit: test plan
     id: test-plan-with-bootstrapping

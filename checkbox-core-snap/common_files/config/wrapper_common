@@ -31,6 +31,7 @@ else
   append_path PYTHONHOME $RUNTIME/usr
   append_path PYTHONPATH $RUNTIME/usr/lib/python3/dist-packages
   append_path PYTHONPATH $RUNTIME/lib/python3*/site-packages
+  append_path PYTHONPATH $RUNTIME/lib/python3*/dist-packages
 fi
 
 # make sure we always know where the content snap is especially for classic

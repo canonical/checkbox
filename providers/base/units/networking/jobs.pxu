@@ -6,6 +6,7 @@ depends: ethernet/detect
 command: gateway_ping_test.py
 estimated_duration: 2.000
 _description: Tests whether the system has a working Internet connection.
+user: root
 
 unit: template
 template-resource: device
@@ -52,6 +53,7 @@ id: networking/ping
 command: gateway_ping_test.py "$CHECKBOX_SERVER"
 _description:
  Automated test case to verify availability of some system on the network using ICMP ECHO packets.
+user: root
 
 plugin: shell
 category_id: com.canonical.plainbox::networking

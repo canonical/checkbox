@@ -551,6 +551,18 @@ class FunctionTests(TestCase):
         expected_list = [job_a]
         self.assertEqual(select_jobs(job_list, [qual]), expected_list)
 
+    def test_select_jobs__id_field_qualifier_twice(self):
+        """
+        verify that select_jobs() only returns the job that matches a given
+        FieldQualifier once, even if it has been added twice
+        """
+        job_a = JobDefinition({'id': 'a'})
+        matcher = OperatorMatcher(operator.eq, "a")
+        qual = FieldQualifier("id", matcher, self.origin, True)
+        job_list = [job_a, job_a]
+        expected_list = [job_a]
+        self.assertEqual(select_jobs(job_list, [qual, qual]), expected_list)
+
     def test_select_jobs__template_id_field_qualifier(self):
         """
         verify that select_jobs() only returns the jobs that have been
@@ -572,3 +584,26 @@ class FunctionTests(TestCase):
         job_list = [job_a, templated_job_b, templated_job_c]
         expected_list = [templated_job_b, templated_job_c]
         self.assertEqual(select_jobs(job_list, [qual]), expected_list)
+
+    def test_select_jobs__excluded_templated_job(self):
+        """
+        verify that if a template id is included in the test plan, jobs that
+        have been instantiated from it can still be excluded from the list of
+        selected jobs
+        """
+        templated_job_a = JobDefinition({
+                              "id": "a",
+                              "template-id": "test-template",
+                              })
+        templated_job_b = JobDefinition({
+                              "id": "b",
+                              "template-id": "test-template",
+                              })
+        matcher_incl = OperatorMatcher(operator.eq, "test-template")
+        matcher_excl = OperatorMatcher(operator.eq, "b")
+        qual_incl = FieldQualifier("id", matcher_incl, self.origin, True)
+        qual_excl = FieldQualifier("id", matcher_excl, self.origin, False)
+        job_list = [templated_job_a, templated_job_b]
+        qualifiers = [qual_incl, qual_excl]
+        expected_list = [templated_job_a]
+        self.assertEqual(select_jobs(job_list, qualifiers), expected_list)

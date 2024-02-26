@@ -354,7 +354,63 @@ class RemoteController(ReportsStage, MainLoopStage):
                 break
         return self._has_anything_failed
 
-    def resume_or_start_new_session(self):
+    def should_start_via_launcher(self):
+        if self.launcher.get_value("test plan", "forced"):
+            tp_unit = self.launcher.get_value("test plan", "unit")
+            if not tp_unit:
+                _logger.error(
+                    _(
+                        "The test plan selection was forced but no unit was provided"
+                    )
+                )
+                raise SystemExit(1)
+            return True
+        return False
+
+    @contextlib.contextmanager
+    def _resumed_session(self, session_id):
+        try:
+            yield self.sa.resume_session(session_id)
+        finally:
+            self.sa.abandon_session()
+
+    def should_start_via_autoresume(self):
+        try:
+            last_abandoned_session = next(self.sa.get_resumable_sessions())
+        except StopIteration:
+            # no session to resume
+            return False
+        # resume session in agent to be able to peek at the latest job run
+        # info
+        with self._resumed_session(last_abandoned_session.id) as metadata:
+            app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
+
+            if not app_blob.get("testplan_id"):
+                self.sa.abandon_session()
+                return False
+
+            self.sa.select_test_plan(app_blob["testplan_id"])
+            self.sa.bootstrap()
+
+            if not metadata.running_job_name:
+                self.sa.abandon_session()
+                return False
+
+            job_state = self.sa.get_job_state(metadata.running_job_name)
+            if job_state.job.plugin != "shell":
+                return False
+        return True
+
+    def automatically_start_via_launcher(self):
+        tp_unit = self.launcher.get_value("test plan", "unit")
+        self.select_tp(tp_unit)
+        self.select_jobs(self.jobs)
+
+    def automatically_resume_last_session(self):
+        last_abandoned_session = next(self.sa.get_resumable_sessions())
+        self.sa.resume_by_id(last_abandoned_session.id)
+
+    def start_session(self):
         _logger.info("controller: Starting new session.")
         configuration = dict()
         configuration["launcher"] = self._launcher_text
@@ -366,17 +422,15 @@ class RemoteController(ReportsStage, MainLoopStage):
                 _logger.warning("Agent is using sideloaded providers")
         except RuntimeError as exc:
             raise SystemExit(exc.args[0]) from exc
-        if self.launcher.get_value("test plan", "forced"):
-            tp_unit = self.launcher.get_value("test plan", "unit")
-            if not tp_unit:
-                _logger.error(
-                    _(
-                        "The test plan selection was forced but no unit was provided"
-                    )
-                )
-                raise SystemExit(1)
-            self.select_tp(tp_unit)
-            self.select_jobs(self.jobs)
+        return tps
+
+    def resume_or_start_new_session(self):
+        tps = self.start_session()
+
+        if self.should_start_via_autoresume():
+            self.automatically_resume_last_session()
+        elif self.should_start_via_launcher():
+            self.automatically_start_via_launcher()
         else:
             self.interactively_choose_tp(tps)
 

@@ -15,13 +15,20 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import textwrap
 
-from metabox.core.actions import AssertPrinted, AssertRetCode
+from metabox.core import keys
+from metabox.core.actions import (
+    AssertPrinted,
+    AssertRetCode,
+    SelectTestPlan,
+    Send,
+    Expect,
+)
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
 
 
-@tag("resume")
-class ResumeAfterCrash(Scenario):
+@tag("resume", "automatic")
+class ResumeAfterCrashAuto(Scenario):
     modes = ["remote"]
     launcher = textwrap.dedent(
         """
@@ -41,4 +48,22 @@ class ResumeAfterCrash(Scenario):
         AssertRetCode(1),
         AssertPrinted("job crashed  : Crash the agent"),
         AssertPrinted("job passed   : Emulate the reboot"),
+    ]
+
+
+@tag("resume", "manual")
+class ResumeAfterCrashManual(Scenario):
+    launcher = "# no launcher"
+    steps = [
+        Expect("Select test plan"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::agent-resume-crash-then-reboot"
+        ),
+        Send(keys.KEY_ENTER),
+        Expect("Press (T) to start"),
+        Send("T"),
+        Expect("Select jobs to re-run"),
+        Send("F"),
+        Expect("job crashed  : Crash the agent"),
+        Expect("job passed   : Emulate the reboot"),
     ]

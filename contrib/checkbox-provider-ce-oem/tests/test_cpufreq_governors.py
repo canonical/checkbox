@@ -1053,7 +1053,7 @@ class TestMainFunction(unittest.TestCase):
         with patch("sys.argv", ["program_name", "--governor", "ondemand"]):
             main()
             mock_test.assert_called_once_with(policy=0)
-            mock_test_instance.print_policy_info.assert_called_once()
+            mock_test_instance.print_policy_info.assert_called_once_with()
             mock_probe_governor.assert_not_called()
             mock_exit.assert_not_called()
 
@@ -1080,7 +1080,7 @@ class TestMainFunction(unittest.TestCase):
         with patch("sys.argv", ["program_name", "--governor", "not_support"]):
             main()
             mock_test.assert_called_once_with(policy=0)
-            mock_test_instance.print_policy_info.assert_called_once()
+            mock_test_instance.print_policy_info.assert_called_once_with()
             mock_probe_governor.assert_called_once_with("not_support")
             mock_exit.assert_called_once_with(1)
 
@@ -1108,7 +1108,7 @@ class TestMainFunction(unittest.TestCase):
         with patch("sys.argv", ["program_name", "--governor", "not_support"]):
             main()
             mock_test.assert_called_once_with(policy=0)
-            mock_test_instance.print_policy_info.assert_called_once()
+            mock_test_instance.print_policy_info.assert_called_once_with()
             mock_probe_governor.assert_called_once_with("not_support")
             mock_exit.assert_called_once_with(1)
 

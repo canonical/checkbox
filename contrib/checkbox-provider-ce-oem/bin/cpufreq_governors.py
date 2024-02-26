@@ -101,7 +101,6 @@ def probe_governor_module(expected_governor):
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
             universal_newlines=True,
-            encoding="utf-8",
         )
         logging.info("Probe module Successfully!")
     except subprocess.CalledProcessError as err:

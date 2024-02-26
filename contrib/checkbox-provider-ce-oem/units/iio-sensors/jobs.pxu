@@ -1,0 +1,35 @@
+id: ce-oem-iio-sensors/resource
+_summary: Generates a IIO sensors mapping for IIO sensor test
+_description:
+    A IIO sensors mapping. By giving an IIO sensors on machnie to generates test jobs.
+    Usage of parameter:
+        IIO_SENSORS=device:sensor_type device:sensor_type ...
+    e.g. IIO_SENSORS=0:pressure 1:accelerometer 2:humidityrelative
+estimated_duration: 0.02
+category_id: iio-sensors
+plugin: resource
+environ: IIO_SENSORS
+command:
+    awk '{
+        split($0, record, " ")
+        for (i in record) {
+            split(record[i], data, ":")
+            printf "INDEX: %s\nSENSOR_TYPE: %s\n\n", data[1], data[2]
+        }
+    }' <<< "$IIO_SENSORS"
+
+unit: template
+template-resource: ce-oem-iio-sensors/resource
+template-unit: job
+id: ce-oem-iio-sensors/check-{SENSOR_TYPE}-{INDEX}
+_summary: To test industrial IO {SENSOR_TYPE}-{INDEX}
+plugin: shell
+user: root
+category_id: iio-sensors
+estimated_duration: 40s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_iio_sensors == 'True'
+flags: also-after-suspend
+command:
+    echo "## Perform the industrial I/O {SENSOR_TYPE}-{INDEX} sensor test"
+    iio_sensor_test.py -t {SENSOR_TYPE} -i {INDEX}

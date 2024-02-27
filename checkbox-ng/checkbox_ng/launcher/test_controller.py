@@ -244,17 +244,35 @@ class ControllerTests(TestCase):
         self.assertTrue(self_mock.abandon.called)
         self.assertTrue(self_mock.resume_or_start_new_session.called)
 
-    @mock.patch("checkbox_ng.launcher.controller._logger")
-    def test_resume_or_start_new_session_interactive(self, _logger_mock):
+    def test_resume_or_start_new_session_interactive(self):
         self_mock = mock.MagicMock()
-        self_mock.sa.sideloaded_providers = True  # trigger the warning
-        # the session is not interactive
+        self_mock.should_start_via_autoresume.return_value = False
+        self_mock.should_start_via_launcher.return_value = False
 
-        test_plans = RemoteController.start_session(self_mock)
+        RemoteController.resume_or_start_new_session(self_mock)
 
-        self.assertTrue(_logger_mock.warning.called)
-        self.assertTrue(self_mock.sa.start_session.called)
-        self.assertEqual(self_mock.sa.start_session.return_value, test_plans)
+        self.assertTrue(self_mock.interactively_choose_tp.called)
+        self.assertTrue(self_mock.run_jobs.called)
+
+    def test_resume_or_start_new_session_auto_last_session(self):
+        self_mock = mock.MagicMock()
+        self_mock.should_start_via_autoresume.return_value = True
+        self_mock.should_start_via_launcher.return_value = False
+
+        RemoteController.resume_or_start_new_session(self_mock)
+
+        self.assertTrue(self_mock.automatically_resume_last_session.called)
+        self.assertTrue(self_mock.run_jobs.called)
+
+    def test_resume_or_start_new_session_auto_launcher(self):
+        self_mock = mock.MagicMock()
+        self_mock.should_start_via_autoresume.return_value = False
+        self_mock.should_start_via_launcher.return_value = True
+
+        RemoteController.resume_or_start_new_session(self_mock)
+
+        self.assertTrue(self_mock.automatically_start_via_launcher.called)
+        self.assertTrue(self_mock.run_jobs.called)
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_command_none(self, simple_ui_mock):
@@ -984,14 +1002,16 @@ class ControllerTests(TestCase):
         self_mock._normal_user = True
         expected_configuration = {
             "launcher": "launcher_example",
-            "normal_user": True
+            "normal_user": True,
         }
 
         self_mock.sa.start_session.return_value = "session_started"
 
         tps = RemoteController.start_session(self_mock)
 
-        self_mock.sa.start_session.assert_called_once_with(expected_configuration)
+        self_mock.sa.start_session.assert_called_once_with(
+            expected_configuration
+        )
         self.assertEqual(tps, "session_started")
 
     def test_start_session_with_sideloaded_providers(self):
@@ -1008,7 +1028,9 @@ class ControllerTests(TestCase):
         self_mock = mock.MagicMock()
         self_mock._launcher_text = "launcher_example"
         self_mock._normal_user = True
-        self_mock.sa.start_session.side_effect = RuntimeError("Failed to start session")
+        self_mock.sa.start_session.side_effect = RuntimeError(
+            "Failed to start session"
+        )
 
         with self.assertRaises(SystemExit) as _:
             RemoteController.start_session(self_mock)

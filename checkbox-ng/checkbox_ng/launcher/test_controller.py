@@ -962,6 +962,22 @@ class ControllerTests(TestCase):
             RemoteController.should_start_via_autoresume(self_mock)
         )
 
+    def test_automatically_start_via_launcher(self):
+        self_mock = mock.MagicMock()
+
+        RemoteController.automatically_start_via_launcher(self_mock)
+
+        self.assertTrue(self_mock.select_tp.called)
+        self.assertTrue(self_mock.select_jobs.called)
+
+    def test_automatically_resume_last_session(self):
+        self_mock = mock.MagicMock()
+
+        RemoteController.automatically_resume_last_session(self_mock)
+
+        self.assertTrue(self_mock.sa.get_resumable_sessions.called)
+        self.assertTrue(self_mock.sa.resume_by_id.called)
+
 
 class IsHostnameALoopbackTests(TestCase):
     @mock.patch("socket.gethostbyname")

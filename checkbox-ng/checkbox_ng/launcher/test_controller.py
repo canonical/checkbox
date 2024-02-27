@@ -978,6 +978,41 @@ class ControllerTests(TestCase):
         self.assertTrue(self_mock.sa.get_resumable_sessions.called)
         self.assertTrue(self_mock.sa.resume_by_id.called)
 
+    def test_start_session_success(self):
+        self_mock = mock.MagicMock()
+        self_mock._launcher_text = "launcher_example"
+        self_mock._normal_user = True
+        expected_configuration = {
+            "launcher": "launcher_example",
+            "normal_user": True
+        }
+
+        self_mock.sa.start_session.return_value = "session_started"
+
+        tps = RemoteController.start_session(self_mock)
+
+        self_mock.sa.start_session.assert_called_once_with(expected_configuration)
+        self.assertEqual(tps, "session_started")
+
+    def test_start_session_with_sideloaded_providers(self):
+        self_mock = mock.MagicMock()
+        self_mock._launcher_text = "launcher_example"
+        self_mock._normal_user = True
+        self_mock.sa.sideloaded_providers = True
+
+        self_mock.sa.start_session.return_value = "session_started"
+
+        RemoteController.start_session(self_mock)
+
+    def test_start_session_runtime_error(self):
+        self_mock = mock.MagicMock()
+        self_mock._launcher_text = "launcher_example"
+        self_mock._normal_user = True
+        self_mock.sa.start_session.side_effect = RuntimeError("Failed to start session")
+
+        with self.assertRaises(SystemExit) as _:
+            RemoteController.start_session(self_mock)
+
 
 class IsHostnameALoopbackTests(TestCase):
     @mock.patch("socket.gethostbyname")

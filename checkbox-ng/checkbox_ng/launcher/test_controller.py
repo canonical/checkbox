@@ -848,7 +848,7 @@ class ControllerTests(TestCase):
         self_mock = mock.MagicMock()
 
         # by default always try to start a new session and not resuming
-        RemoteController.interactively_choose_tp(self_mock, [])
+        RemoteController.interactively_choose_tp(self_mock)
 
         self.assertTrue(self_mock._new_session_flow.called)
         self.assertFalse(self_mock._resume_session_menu.called)
@@ -858,7 +858,7 @@ class ControllerTests(TestCase):
         self_mock._new_session_flow.side_effect = ResumeInstead
         self_mock._resume_session_menu.return_value = True
 
-        RemoteController.interactively_choose_tp(self_mock, [])
+        RemoteController.interactively_choose_tp(self_mock)
 
         self.assertTrue(self_mock._new_session_flow.called)
         self.assertTrue(self_mock._resume_session_menu.called)
@@ -868,7 +868,7 @@ class ControllerTests(TestCase):
         self_mock._new_session_flow.side_effect = [ResumeInstead, True]
         self_mock._resume_session_menu.return_value = True
 
-        RemoteController.interactively_choose_tp(self_mock, [])
+        RemoteController.interactively_choose_tp(self_mock)
 
         self.assertTrue(self_mock._new_session_flow.called)
         self.assertTrue(self_mock._resume_session_menu.called)

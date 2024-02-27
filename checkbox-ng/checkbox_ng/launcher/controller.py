@@ -355,12 +355,19 @@ class RemoteController(ReportsStage, MainLoopStage):
         return self._has_anything_failed
 
     def should_start_via_launcher(self):
+        """
+        Determines if the controller should automatically select a test plan
+        given a launcher. Raises if the launcher tries to skip the test plan
+        selection without providing the test plan that must be automatically
+        selected
+        """
         if self.launcher.get_value("test plan", "forced"):
             tp_unit = self.launcher.get_value("test plan", "unit")
             if not tp_unit:
                 _logger.error(
                     _(
-                        "The test plan selection was forced but no unit was provided"
+                        "The test plan selection was forced but no unit"
+                        " was provided"
                     )
                 )
                 raise SystemExit(1)
@@ -369,12 +376,25 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     @contextlib.contextmanager
     def _resumed_session(self, session_id):
+        """
+        Used to temporarely resume a session to inspect it, abandoning it
+        before exiting the context
+        """
         try:
             yield self.sa.resume_session(session_id)
         finally:
             self.sa.abandon_session()
 
-    def should_start_via_autoresume(self):
+    def should_start_via_autoresume(self) -> bool:
+        """
+        Determines if the controller should automatically resume a previously
+        abandoned session.
+
+        A session is automatically resumed if:
+        - A testplan was selected before abandoning
+        - A job was in progress when the session was abandoned
+        - The ongoing test was shell job
+        """
         try:
             last_abandoned_session = next(self.sa.get_resumable_sessions())
         except StopIteration:
@@ -401,6 +421,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         return True
 
     def automatically_start_via_launcher(self):
+        _ = self.start_session()
         tp_unit = self.launcher.get_value("test plan", "unit")
         self.select_tp(tp_unit)
         self.select_jobs(self.jobs)
@@ -424,14 +445,13 @@ class RemoteController(ReportsStage, MainLoopStage):
         return tps
 
     def resume_or_start_new_session(self):
-        tps = self.start_session()
 
         if self.should_start_via_autoresume():
             self.automatically_resume_last_session()
         elif self.should_start_via_launcher():
             self.automatically_start_via_launcher()
         else:
-            self.interactively_choose_tp(tps)
+            self.interactively_choose_tp()
 
         self.run_jobs()
 
@@ -545,7 +565,8 @@ class RemoteController(ReportsStage, MainLoopStage):
             result_dict["outcome"] = None
         self.sa.resume_by_id(resume_params.session_id, result_dict)
 
-    def interactively_choose_tp(self, tps):
+    def interactively_choose_tp(self):
+        tps = self.start_session()
         _logger.info("controller: Interactively choosing TP.")
         something_got_chosen = False
         while not something_got_chosen:

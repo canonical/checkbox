@@ -243,15 +243,17 @@ class ControllerTests(TestCase):
         self.assertTrue(self_mock.abandon.called)
         self.assertTrue(self_mock.resume_or_start_new_session.called)
 
-    def test_resume_or_start_new_session_interactive(self):
+    @mock.patch("checkbox_ng.launcher.controller._logger")
+    def test_resume_or_start_new_session_interactive(self, _logger_mock):
         self_mock = mock.MagicMock()
         self_mock.sa.sideloaded_providers = True  # trigger the warning
         # the session is not interactive
-        self_mock.launcher.get_value.return_value = False
 
-        RemoteController.resume_or_start_new_session(self_mock)
+        test_plans = RemoteController.start_session(self_mock)
 
-        self.assertTrue(self_mock.interactively_choose_tp.called)
+        self.assertTrue(_logger_mock.warning.called)
+        self.assertTrue(self_mock.sa.start_session.called)
+        self.assertEqual(self_mock.sa.start_session.return_value, test_plans)
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_command_none(self, simple_ui_mock):
@@ -806,6 +808,7 @@ class ControllerTests(TestCase):
 
         self.assertTrue(self_mock._new_session_flow.called)
         self.assertTrue(self_mock._resume_session_menu.called)
+
 
 class IsHostnameALoopbackTests(TestCase):
     @mock.patch("socket.gethostbyname")

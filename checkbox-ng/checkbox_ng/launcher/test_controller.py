@@ -780,6 +780,51 @@ class ControllerTests(TestCase):
             },
         )
 
+    def test_should_start_via_launcher_true(self):
+        self_mock = mock.MagicMock()
+
+        def get_value_mock(top_level, attribute):
+            if top_level == "test plan":
+                if attribute == "forced":
+                    return True
+                elif attribute == "unit":
+                    return "tp_unit_id"
+            return mock.MagicMock()
+
+        self_mock.launcher.get_value = get_value_mock
+
+        self.assertTrue(RemoteController.should_start_via_launcher(self_mock))
+
+    def test_should_start_via_launcher_false(self):
+        self_mock = mock.MagicMock()
+
+        def get_value_mock(top_level, attribute):
+            if top_level == "test plan":
+                if attribute == "forced":
+                    return False
+                elif attribute == "unit":
+                    return "tp_unit_id"
+            return mock.MagicMock()
+
+        self_mock.launcher.get_value = get_value_mock
+
+        self.assertFalse(RemoteController.should_start_via_launcher(self_mock))
+
+    def test_should_start_via_launcher_exit(self):
+        self_mock = mock.MagicMock()
+
+        def get_value_mock(top_level, attribute):
+            if top_level == "test plan":
+                if attribute == "forced":
+                    return True
+                elif attribute == "unit":
+                    return None
+            return mock.MagicMock()
+
+        self_mock.launcher.get_value = get_value_mock
+        with self.assertRaises(SystemExit):
+            RemoteController.should_start_via_launcher(self_mock)
+
     def test_interactively_choose_tp(self):
         self_mock = mock.MagicMock()
 

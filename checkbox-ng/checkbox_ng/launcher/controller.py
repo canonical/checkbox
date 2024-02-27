@@ -41,6 +41,7 @@ from plainbox.abc import IJobResult
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.color import Colorizer
 from plainbox.impl.config import Configuration
+from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.vendor import rpyc
 from checkbox_ng.resume_menu import ResumeMenu
@@ -402,7 +403,12 @@ class RemoteController(ReportsStage, MainLoopStage):
             return False
         # resume session in agent to be able to peek at the latest job run
         # info
-        with self._resumed_session(last_abandoned_session.id) as metadata:
+        # FIXME: IncompatibleJobError is raised if the resume candidate is
+        #        invalid, this is a workaround till get_resumable_sessions is
+        #        fixed
+        with contextlib.suppress(IncompatibleJobError), self._resumed_session(
+            last_abandoned_session.id
+        ) as metadata:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
 
             if not app_blob.get("testplan_id"):
@@ -418,7 +424,9 @@ class RemoteController(ReportsStage, MainLoopStage):
             job_state = self.sa.get_job_state(metadata.running_job_name)
             if job_state.job.plugin != "shell":
                 return False
-        return True
+            return True
+        # last resumable session is incompatible
+        return False
 
     def automatically_start_via_launcher(self):
         _ = self.start_session()
@@ -445,7 +453,6 @@ class RemoteController(ReportsStage, MainLoopStage):
         return tps
 
     def resume_or_start_new_session(self):
-
         if self.should_start_via_autoresume():
             self.automatically_resume_last_session()
         elif self.should_start_via_launcher():

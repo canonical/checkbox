@@ -393,7 +393,6 @@ class RemoteController(ReportsStage, MainLoopStage):
             self.sa.bootstrap()
 
             if not metadata.running_job_name:
-                self.sa.abandon_session()
                 return False
 
             job_state = self.sa.get_job_state(metadata.running_job_name)

@@ -854,6 +854,18 @@ class ControllerTests(TestCase):
         self.assertTrue(self_mock._new_session_flow.called)
         self.assertTrue(self_mock._resume_session_menu.called)
 
+    def test__resumed_session(self):
+        self_mock = mock.MagicMock()
+
+        with RemoteController._resumed_session(
+            self_mock, "session_id"
+        ) as metadata:
+            self.assertEqual(
+                self_mock.sa.resume_session.return_value, metadata
+            )
+        self.assertTrue(self_mock.sa.resume_session.called)
+        self.assertTrue(self_mock.sa.abandon_session.called)
+
 
 class IsHostnameALoopbackTests(TestCase):
     @mock.patch("socket.gethostbyname")

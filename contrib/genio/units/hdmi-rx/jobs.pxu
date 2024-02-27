@@ -21,7 +21,9 @@ plugin: user-interact
 category_id: genio-hdmi-rx
 estimated_duration: 20
 depends: genio-hdmi-rx/module-detect
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
 requires:
     manifest.has_hdmi_rx == "True"
     executable.name == "genio-test-tool.hdmi-rx-tool"
@@ -62,7 +64,9 @@ plugin: shell
 category_id: genio-hdmi-rx
 estimated_duration: 5
 depends: genio-hdmi-rx/module-detect
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
 requires:
     manifest.has_hdmi_rx == "True"
     executable.name == "genio-test-tool.hdmi-rx-tool"
@@ -85,7 +89,9 @@ estimated_duration: 5
 depends:
     genio-hdmi-rx/module-detect
     genio-hdmi-rx/check-hdmi-cable-connection
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
 requires:
     manifest.has_hdmi_rx == "True"
     executable.name == "genio-test-tool.hdmi-rx-tool"
@@ -114,7 +120,9 @@ estimated_duration: 5
 depends:
     genio-hdmi-rx/module-detect
     genio-hdmi-rx/check-hdmi-cable-connection
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
 requires:
     manifest.has_hdmi_rx == "True"
     executable.name == "genio-test-tool.hdmi-rx-tool"
@@ -143,7 +151,9 @@ estimated_duration: 5
 depends:
     genio-hdmi-rx/module-detect
     genio-hdmi-rx/check-hdmi-cable-connection
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
 requires:
     manifest.has_hdmi_rx == "True"
     executable.name == "genio-test-tool.hdmi-rx-tool"
@@ -166,7 +176,9 @@ estimated_duration: 5
 depends:
     genio-hdmi-rx/module-detect
     genio-hdmi-rx/disable-hdmi
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
 requires:
     manifest.has_hdmi_rx == "True"
     executable.name == "genio-test-tool.hdmi-rx-tool"
@@ -207,7 +219,9 @@ plugin: user-interact
 category_id: genio-hdmi-rx
 estimated_duration: 20
 depends: genio-hdmi-rx/module-detect
-imports: from com.canonical.plainbox import manifest
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import executable
 requires:
     manifest.has_hdmi_rx == "True"
     executable.name == "genio-test-tool.hdmi-rx-tool"

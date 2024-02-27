@@ -36,7 +36,7 @@ class ResumeAfterCrashAuto(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::agent-resume-crash-then-reboot
+        unit = 2021.com.canonical.certification::checkbox-crash-then-reboot
         forced = yes
         [test selection]
         forced = yes
@@ -46,24 +46,29 @@ class ResumeAfterCrashAuto(Scenario):
     )
     steps = [
         AssertRetCode(1),
-        AssertPrinted("job crashed  : Crash the agent"),
-        AssertPrinted("job passed   : Emulate the reboot"),
+        AssertPrinted("job crashed"),
+        AssertPrinted("Crash Checkbox"),
+        AssertPrinted("job passed"),
+        AssertPrinted("Emulate the reboot"),
     ]
 
 
 @tag("resume", "manual")
 class ResumeAfterCrashManual(Scenario):
+    modes = ["remote"]
     launcher = "# no launcher"
     steps = [
         Expect("Select test plan"),
         SelectTestPlan(
-            "2021.com.canonical.certification::agent-resume-crash-then-reboot"
+            "2021.com.canonical.certification::checkbox-crash-then-reboot"
         ),
         Send(keys.KEY_ENTER),
         Expect("Press (T) to start"),
         Send("T"),
         Expect("Select jobs to re-run"),
         Send("F"),
-        Expect("job crashed  : Crash the agent"),
-        Expect("job passed   : Emulate the reboot"),
+        Expect("job crashed"),
+        Expect("Crash Checkbox"),
+        Expect("job passed"),
+        Expect("Emulate the reboot"),
     ]

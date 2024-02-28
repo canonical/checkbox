@@ -358,7 +358,7 @@ class RemoteController(ReportsStage, MainLoopStage):
     def should_start_via_launcher(self):
         """
         Determines if the controller should automatically select a test plan
-        given a launcher. Raises if the launcher tries to skip the test plan
+        if given a launcher. Raises if the launcher tries to skip the test plan
         selection without providing the test plan that must be automatically
         selected
         """
@@ -371,7 +371,7 @@ class RemoteController(ReportsStage, MainLoopStage):
     @contextlib.contextmanager
     def _resumed_session(self, session_id):
         """
-        Used to temporarely resume a session to inspect it, abandoning it
+        Used to temporarily resume a session to inspect it, abandoning it
         before exiting the context
         """
         try:

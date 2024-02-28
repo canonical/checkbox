@@ -99,6 +99,7 @@ class MainLoopStage(CheckboxUiStage):
         print(_("ID: {0}").format(job.id))
         print(_("Category: {0}").format(job_state.effective_category_id))
         comments = ""
+        self.sa.note_metadata_starting_job({"id" : job.id}, job_state)
         while True:
             if job.plugin in (
                 "user-interact",
@@ -180,7 +181,7 @@ class MainLoopStage(CheckboxUiStage):
                                 result_builder.comments = comments
                             break
                     elif cmd == "quit":
-                        raise SystemExit()
+                        raise SystemExit("Session saved")
                 else:
                     result_builder = self.sa.run_job(job.id, ui, False)
             else:

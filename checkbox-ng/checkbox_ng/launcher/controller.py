@@ -362,18 +362,11 @@ class RemoteController(ReportsStage, MainLoopStage):
         selection without providing the test plan that must be automatically
         selected
         """
-        if self.launcher.get_value("test plan", "forced"):
-            tp_unit = self.launcher.get_value("test plan", "unit")
-            if not tp_unit:
-                _logger.error(
-                    _(
-                        "The test plan selection was forced but no unit"
-                        " was provided"
-                    )
-                )
-                raise SystemExit(1)
-            return True
-        return False
+        tp_forced = self.launcher.get_value("test plan", "forced")
+        chosen_tp = self.launcher.get_value("test plan", "unit")
+        if tp_forced and not chosen_tp:
+            raise SystemExit("The test plan selection was forced but no unit was provided") # split me into lines
+        return tp_forced
 
     @contextlib.contextmanager
     def _resumed_session(self, session_id):

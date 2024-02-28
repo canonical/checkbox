@@ -15,13 +15,20 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import textwrap
 
-from metabox.core.actions import AssertPrinted, AssertRetCode
+from metabox.core import keys
+from metabox.core.actions import (
+    AssertPrinted,
+    AssertRetCode,
+    SelectTestPlan,
+    Send,
+    Expect,
+)
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
 
 
-@tag("resume")
-class ResumeAfterCrash(Scenario):
+@tag("resume", "automatic")
+class ResumeAfterCrashAuto(Scenario):
     modes = ["remote"]
     launcher = textwrap.dedent(
         """
@@ -29,7 +36,7 @@ class ResumeAfterCrash(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::agent-resume-crash-then-reboot
+        unit = 2021.com.canonical.certification::checkbox-crash-then-reboot
         forced = yes
         [test selection]
         forced = yes
@@ -39,6 +46,29 @@ class ResumeAfterCrash(Scenario):
     )
     steps = [
         AssertRetCode(1),
-        AssertPrinted("job crashed  : Crash the agent"),
-        AssertPrinted("job passed   : Emulate the reboot"),
+        AssertPrinted("job crashed"),
+        AssertPrinted("Crash Checkbox"),
+        AssertPrinted("job passed"),
+        AssertPrinted("Emulate the reboot"),
+    ]
+
+
+@tag("resume", "manual")
+class ResumeAfterCrashManual(Scenario):
+    modes = ["remote"]
+    launcher = "# no launcher"
+    steps = [
+        Expect("Select test plan"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::checkbox-crash-then-reboot"
+        ),
+        Send(keys.KEY_ENTER),
+        Expect("Press (T) to start"),
+        Send("T"),
+        Expect("Select jobs to re-run"),
+        Send("F"),
+        Expect("job crashed"),
+        Expect("Crash Checkbox"),
+        Expect("job passed"),
+        Expect("Emulate the reboot"),
     ]

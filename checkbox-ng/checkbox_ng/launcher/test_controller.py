@@ -20,6 +20,7 @@
 import socket
 
 from unittest import TestCase, mock
+from functools import partial
 
 from checkbox_ng.urwid_ui import ResumeInstead
 from checkbox_ng.launcher.controller import RemoteController
@@ -245,13 +246,33 @@ class ControllerTests(TestCase):
 
     def test_resume_or_start_new_session_interactive(self):
         self_mock = mock.MagicMock()
-        self_mock.sa.sideloaded_providers = True  # trigger the warning
-        # the session is not interactive
-        self_mock.launcher.get_value.return_value = False
+        self_mock.should_start_via_autoresume.return_value = False
+        self_mock.should_start_via_launcher.return_value = False
 
         RemoteController.resume_or_start_new_session(self_mock)
 
         self.assertTrue(self_mock.interactively_choose_tp.called)
+        self.assertTrue(self_mock.run_jobs.called)
+
+    def test_resume_or_start_new_session_auto_last_session(self):
+        self_mock = mock.MagicMock()
+        self_mock.should_start_via_autoresume.return_value = True
+        self_mock.should_start_via_launcher.return_value = False
+
+        RemoteController.resume_or_start_new_session(self_mock)
+
+        self.assertTrue(self_mock.automatically_resume_last_session.called)
+        self.assertTrue(self_mock.run_jobs.called)
+
+    def test_resume_or_start_new_session_auto_launcher(self):
+        self_mock = mock.MagicMock()
+        self_mock.should_start_via_autoresume.return_value = False
+        self_mock.should_start_via_launcher.return_value = True
+
+        RemoteController.resume_or_start_new_session(self_mock)
+
+        self.assertTrue(self_mock.automatically_start_via_launcher.called)
+        self.assertTrue(self_mock.run_jobs.called)
 
     @mock.patch("checkbox_ng.launcher.controller.SimpleUI")
     def test__run_jobs_description_command_none(self, simple_ui_mock):
@@ -778,11 +799,56 @@ class ControllerTests(TestCase):
             },
         )
 
+    def test_should_start_via_launcher_true(self):
+        self_mock = mock.MagicMock()
+
+        def get_value_mock(top_level, attribute):
+            if top_level == "test plan":
+                if attribute == "forced":
+                    return True
+                elif attribute == "unit":
+                    return "tp_unit_id"
+            return mock.MagicMock()
+
+        self_mock.launcher.get_value = get_value_mock
+
+        self.assertTrue(RemoteController.should_start_via_launcher(self_mock))
+
+    def test_should_start_via_launcher_false(self):
+        self_mock = mock.MagicMock()
+
+        def get_value_mock(top_level, attribute):
+            if top_level == "test plan":
+                if attribute == "forced":
+                    return False
+                elif attribute == "unit":
+                    return "tp_unit_id"
+            return mock.MagicMock()
+
+        self_mock.launcher.get_value = get_value_mock
+
+        self.assertFalse(RemoteController.should_start_via_launcher(self_mock))
+
+    def test_should_start_via_launcher_exit(self):
+        self_mock = mock.MagicMock()
+
+        def get_value_mock(top_level, attribute):
+            if top_level == "test plan":
+                if attribute == "forced":
+                    return True
+                elif attribute == "unit":
+                    return None
+            return mock.MagicMock()
+
+        self_mock.launcher.get_value = get_value_mock
+        with self.assertRaises(SystemExit):
+            RemoteController.should_start_via_launcher(self_mock)
+
     def test_interactively_choose_tp(self):
         self_mock = mock.MagicMock()
 
         # by default always try to start a new session and not resuming
-        RemoteController.interactively_choose_tp(self_mock, [])
+        RemoteController.interactively_choose_tp(self_mock)
 
         self.assertTrue(self_mock._new_session_flow.called)
         self.assertFalse(self_mock._resume_session_menu.called)
@@ -792,7 +858,7 @@ class ControllerTests(TestCase):
         self_mock._new_session_flow.side_effect = ResumeInstead
         self_mock._resume_session_menu.return_value = True
 
-        RemoteController.interactively_choose_tp(self_mock, [])
+        RemoteController.interactively_choose_tp(self_mock)
 
         self.assertTrue(self_mock._new_session_flow.called)
         self.assertTrue(self_mock._resume_session_menu.called)
@@ -802,10 +868,173 @@ class ControllerTests(TestCase):
         self_mock._new_session_flow.side_effect = [ResumeInstead, True]
         self_mock._resume_session_menu.return_value = True
 
-        RemoteController.interactively_choose_tp(self_mock, [])
+        RemoteController.interactively_choose_tp(self_mock)
 
         self.assertTrue(self_mock._new_session_flow.called)
         self.assertTrue(self_mock._resume_session_menu.called)
+
+    def test__resumed_session(self):
+        self_mock = mock.MagicMock()
+
+        with RemoteController._resumed_session(
+            self_mock, "session_id"
+        ) as metadata:
+            self.assertEqual(
+                self_mock.sa.resume_session.return_value, metadata
+            )
+        self.assertTrue(self_mock.sa.resume_session.called)
+        self.assertTrue(self_mock.sa.abandon_session.called)
+
+    def test_should_start_via_autoresume_true(self):
+        last_session_mock = mock.MagicMock()
+        self_mock = mock.MagicMock()
+        self_mock.sa.get_resumable_sessions.return_value = iter(
+            [last_session_mock]
+        )
+
+        self_mock._resumed_session = partial(
+            RemoteController._resumed_session, self_mock
+        )
+        metadata = self_mock.sa.resume_session()
+        metadata.app_blob = b"""
+            {
+                "testplan_id" : "testplan_id"
+            }
+        """
+        metadata.running_job_name = "job_id"
+
+        self_mock.sa.get_job_state.return_value.job.plugin = "shell"
+
+        self.assertTrue(
+            RemoteController.should_start_via_autoresume(self_mock)
+        )
+
+        self.assertTrue(self_mock.sa.select_test_plan.called)
+        self.assertTrue(self_mock.sa.bootstrap.called)
+
+    def test_should_start_via_autoresume_no_resumable_sessions(self):
+        self_mock = mock.MagicMock()
+        self_mock.sa.get_resumable_sessions.return_value = iter(
+            []
+        )  # No resumable sessions
+
+        self.assertFalse(
+            RemoteController.should_start_via_autoresume(self_mock)
+        )
+
+    def test_should_start_via_autoresume_no_testplan_id_in_app_blob(self):
+        self_mock = mock.MagicMock()
+        last_session_mock = mock.MagicMock()
+        self_mock.sa.get_resumable_sessions.return_value = iter(
+            [last_session_mock]
+        )
+
+        self_mock._resumed_session = partial(
+            RemoteController._resumed_session, self_mock
+        )
+        metadata = self_mock.sa.resume_session()
+        metadata.app_blob = b"{}"
+
+        self.assertFalse(
+            RemoteController.should_start_via_autoresume(self_mock)
+        )
+        self.assertTrue(self_mock.sa.abandon_session.called)
+
+    def test_should_start_via_autoresume_no_running_job_name(self):
+        self_mock = mock.MagicMock()
+        last_session_mock = mock.MagicMock()
+        self_mock.sa.get_resumable_sessions.return_value = iter(
+            [last_session_mock]
+        )
+
+        self_mock._resumed_session = partial(
+            RemoteController._resumed_session, self_mock
+        )
+        metadata = self_mock.sa.resume_session()
+        metadata.app_blob = b'{"testplan_id" : "testplan_id"}'
+        metadata.running_job_name = ""
+
+        self.assertFalse(
+            RemoteController.should_start_via_autoresume(self_mock)
+        )
+
+    def test_should_start_via_autoresume_job_plugin_not_shell(self):
+        self_mock = mock.MagicMock()
+        last_session_mock = mock.MagicMock()
+        self_mock.sa.get_resumable_sessions.return_value = iter(
+            [last_session_mock]
+        )
+
+        self_mock._resumed_session = partial(
+            RemoteController._resumed_session, self_mock
+        )
+        metadata = self_mock.sa.resume_session()
+        metadata.app_blob = b'{"testplan_id" : "testplan_id"}'
+        metadata.running_job_name = "job_id"
+
+        job_state_mock = mock.MagicMock()
+        job_state_mock.job.plugin = "user-interact"
+        self_mock.sa.get_job_state.return_value = job_state_mock
+
+        self.assertFalse(
+            RemoteController.should_start_via_autoresume(self_mock)
+        )
+
+    def test_automatically_start_via_launcher(self):
+        self_mock = mock.MagicMock()
+
+        RemoteController.automatically_start_via_launcher(self_mock)
+
+        self.assertTrue(self_mock.select_tp.called)
+        self.assertTrue(self_mock.select_jobs.called)
+
+    def test_automatically_resume_last_session(self):
+        self_mock = mock.MagicMock()
+
+        RemoteController.automatically_resume_last_session(self_mock)
+
+        self.assertTrue(self_mock.sa.get_resumable_sessions.called)
+        self.assertTrue(self_mock.sa.resume_by_id.called)
+
+    def test_start_session_success(self):
+        self_mock = mock.MagicMock()
+        self_mock._launcher_text = "launcher_example"
+        self_mock._normal_user = True
+        expected_configuration = {
+            "launcher": "launcher_example",
+            "normal_user": True,
+        }
+
+        self_mock.sa.start_session.return_value = "session_started"
+
+        tps = RemoteController.start_session(self_mock)
+
+        self_mock.sa.start_session.assert_called_once_with(
+            expected_configuration
+        )
+        self.assertEqual(tps, "session_started")
+
+    def test_start_session_with_sideloaded_providers(self):
+        self_mock = mock.MagicMock()
+        self_mock._launcher_text = "launcher_example"
+        self_mock._normal_user = True
+        self_mock.sa.sideloaded_providers = True
+
+        self_mock.sa.start_session.return_value = "session_started"
+
+        RemoteController.start_session(self_mock)
+
+    def test_start_session_runtime_error(self):
+        self_mock = mock.MagicMock()
+        self_mock._launcher_text = "launcher_example"
+        self_mock._normal_user = True
+        self_mock.sa.start_session.side_effect = RuntimeError(
+            "Failed to start session"
+        )
+
+        with self.assertRaises(SystemExit) as _:
+            RemoteController.start_session(self_mock)
+
 
 class IsHostnameALoopbackTests(TestCase):
     @mock.patch("socket.gethostbyname")

@@ -6,7 +6,8 @@ on:
       - '.github/workflows/*'
 
 jobs:
-  build:
+  workflow_validation:
+  name: Workflow validation
     runs-on: ubuntu-latest
     steps:
       - name: Checkout checkbox monorepo

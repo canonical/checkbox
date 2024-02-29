@@ -12,7 +12,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  tox_test_provider_certification_server:
+    name: Test provider-certification-server with tox
     defaults:
       run:
         working-directory: providers/certification-server

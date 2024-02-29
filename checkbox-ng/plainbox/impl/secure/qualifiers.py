@@ -511,8 +511,6 @@ def select_jobs(job_list, qualifier_list):
             included_list.append(job)
         elif vote == IJobQualifier.VOTE_EXCLUDE:
             excluded_set.add(job)
-        elif vote == IJobQualifier.VOTE_IGNORE:
-            pass
 
     for qualifier in flat_qualifier_list:
         if (isinstance(qualifier, FieldQualifier) and

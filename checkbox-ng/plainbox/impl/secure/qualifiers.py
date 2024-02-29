@@ -494,6 +494,9 @@ def select_jobs(job_list, qualifier_list):
     #
     # As a separate feature, we might return a list of qualifiers that never
     # matched anything. That may be helpful for debugging.
+
+    # A list is needed to keep the job ordering, while the sets prevent
+    # duplicates.
     included_list = []
     included_set = set()
     excluded_set = set()

@@ -181,7 +181,7 @@ class MainLoopStage(CheckboxUiStage):
                                 result_builder.comments = comments
                             break
                     elif cmd == "quit":
-                        raise SystemExit("Session saved")
+                        raise SystemExit("Session paused by the user")
                 else:
                     result_builder = self.sa.run_job(job.id, ui, False)
             else:

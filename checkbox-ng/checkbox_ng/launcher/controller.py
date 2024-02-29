@@ -917,7 +917,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                             next_job = True
                         elif cmd == "quit":
                             self.sa.remember_users_response(cmd)
-                            raise SystemExit("Session saved, exiting...")
+                            raise SystemExit("Session paused by the user")
                         self.sa.remember_users_response(cmd)
                         self.wait_for_job(dont_finish=True)
                     elif interaction.kind in "steps":
@@ -932,7 +932,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                             next_job = True
                         elif cmd == "quit":
                             self.sa.remember_users_response(cmd)
-                            raise SystemExit("Session saved, exiting...")
+                            raise SystemExit("Session paused by the user")
                         self.sa.remember_users_response(cmd)
                     elif interaction.kind == "verification":
                         self.wait_for_job(dont_finish=True)

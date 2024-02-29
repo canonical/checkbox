@@ -12,7 +12,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  tox_test_provider_docker:
+    name: Test provider-docker with tox
     defaults:
       run:
         working-directory: providers/docker

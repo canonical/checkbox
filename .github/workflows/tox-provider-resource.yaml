@@ -12,7 +12,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  tox_test_provider_resource:
+    name: Test provider-resource with tox
     defaults:
       run:
         working-directory: providers/resource

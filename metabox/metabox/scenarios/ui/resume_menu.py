@@ -47,7 +47,7 @@ class ResumeMenuMultipleDelete(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Select test plan"),
         SelectTestPlan(
@@ -58,7 +58,7 @@ class ResumeMenuMultipleDelete(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Resume session"),
         # Enter the resume menu
@@ -103,7 +103,7 @@ class ResumeMenuMarkSkip(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Resume session"),
         # Enter the resume menu
@@ -148,7 +148,7 @@ class ResumeMenuMarkFail(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Resume session"),
         # Enter the resume menu
@@ -196,7 +196,7 @@ class ResumeMenuMarkPreCommentFail(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Resume session"),
         # Enter the resume menu
@@ -243,7 +243,7 @@ class ResumeMenuMarkPassed(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Resume session"),
         # Enter the resume menu
@@ -281,7 +281,7 @@ class ResumeMenuResumeLastJob(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Resume session"),
         # Enter the resume menu

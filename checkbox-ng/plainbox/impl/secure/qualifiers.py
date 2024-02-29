@@ -341,6 +341,10 @@ class FieldQualifier(SimpleQualifier):
         """
         return self._field
 
+    @field.setter
+    def field(self, value):
+        self._field = value
+
     @property
     def matcher(self):
         """
@@ -463,7 +467,7 @@ def select_jobs(job_list, qualifier_list):
     # list.  The horizontal axis represents jobs from job list. Dots represent
     # inclusion, X represents exclusion.
     #
-    # The result of the select_job() function is a list of jobs that have at
+    # The result of the select_jobs() function is a list of jobs that have at
     # least one inclusion and no exclusions. The resulting list is ordered by
     # increasing qualifier index.
     #
@@ -476,8 +480,7 @@ def select_jobs(job_list, qualifier_list):
     # another set.
     #
     # The second step filters-out all items from the excluded job set from the
-    # selected job list. For extra efficiency the algorithm operates on
-    # integers representing the index of a particular job in job_list.
+    # selected job list.
     #
     # The final complexity is O(N x M) + O(M), where N is the number of
     # qualifiers (flattened) and M is the number of jobs. The algorithm assumes
@@ -491,10 +494,27 @@ def select_jobs(job_list, qualifier_list):
     #
     # As a separate feature, we might return a list of qualifiers that never
     # matched anything. That may be helpful for debugging.
+
+    # A list is needed to keep the job ordering, while the sets prevent
+    # duplicates.
     included_list = []
-    id_to_index_map = {job.id: index for index, job in enumerate(job_list)}
     included_set = set()
     excluded_set = set()
+
+    def _handle_vote(qualifier, job):
+        """
+        Update list and sets of included/excluded jobs based on their related
+        qualifiers.
+        """
+        vote = qualifier.get_vote(job)
+        if vote == IJobQualifier.VOTE_INCLUDE:
+            if job in included_set:
+                return
+            included_set.add(job)
+            included_list.append(job)
+        elif vote == IJobQualifier.VOTE_EXCLUDE:
+            excluded_set.add(job)
+
     for qualifier in flat_qualifier_list:
         if (isinstance(qualifier, FieldQualifier) and
                 qualifier.field == 'id' and
@@ -503,36 +523,18 @@ def select_jobs(job_list, qualifier_list):
             # optimize the super-common case where a qualifier refers to
             # a specific job by using the id_to_index_map to instantly
             # perform the requested operation on a single job
-            try:
-                j_index = id_to_index_map[qualifier.matcher.value]
-            except KeyError:
-                # The lookup can fail if the pattern is a constant reference to
-                # a generated job that doens't exist yet. To maintain
-                # correctness we should just ignore it, as it would not
-                # match anything yet.
-                continue
-            job = job_list[j_index]
-            vote = qualifier.get_vote(job)
-            if vote == IJobQualifier.VOTE_INCLUDE:
-                if j_index in included_set:
-                    continue
-                included_set.add(j_index)
-                included_list.append(j_index)
-            elif vote == IJobQualifier.VOTE_EXCLUDE:
-                excluded_set.add(j_index)
-            elif vote == IJobQualifier.VOTE_IGNORE:
-                pass
+            for job in job_list:
+                if job.id == qualifier.matcher.value:
+                    _handle_vote(qualifier, job)
+                    break
+                elif job.template_id == qualifier.matcher.value:
+                    # the qualifier matches the template id this job has been
+                    # instantiated from, need to get the vote for this job
+                    # based on its template_id field, not its id field
+                    qualifier.field = "template_id"
+                    _handle_vote(qualifier, job)
         else:
-            for j_index, job in enumerate(job_list):
-                vote = qualifier.get_vote(job)
-                if vote == IJobQualifier.VOTE_INCLUDE:
-                    if j_index in included_set:
-                        continue
-                    included_set.add(j_index)
-                    included_list.append(j_index)
-                elif vote == IJobQualifier.VOTE_EXCLUDE:
-                    excluded_set.add(j_index)
-                elif vote == IJobQualifier.VOTE_IGNORE:
-                    pass
-    return [job_list[index] for index in included_list
-            if index not in excluded_set]
+            for job in job_list:
+                _handle_vote(qualifier, job)
+    return [job for job in included_list
+            if job not in excluded_set]

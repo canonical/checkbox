@@ -1,20 +1,22 @@
-id: agent-crasher
-_summary: Crash the agent
+id: checkbox-crasher
+_summary: Crash Checkbox
 flags: simple
 user: root
 command:
- kill `ps aux|grep run-agent|grep -v 'grep'  | awk '{print $2}'`
+ PID=`ps -o ppid= $$`
+ kill $PID
 
 id: reboot-emulator
 _summary: Emulate the reboot
 flags: simple noreturn
 user: root
 command:
- kill `ps aux|grep run-agent|grep -v 'grep'  | awk '{print $2}'`
+ PID=`ps -o ppid= $$`
+ kill $PID
 
 unit: test plan
-id: agent-resume-crash-then-reboot
-_name: Agent resume after crash then reboot
+id: checkbox-crash-then-reboot
+_name: Checkbox crash then reboot
 include:
- agent-crasher
+ checkbox-crasher
  reboot-emulator

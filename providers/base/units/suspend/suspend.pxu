@@ -5,6 +5,7 @@ depends: ethernet/detect
 estimated_duration: 1.2
 _summary: Record the current network before suspending.
 command: set -o pipefail; gateway_ping_test.py | tee "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt
+user: root
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -401,6 +402,7 @@ estimated_duration: 20.0
 depends: suspend/suspend_advanced_auto suspend/network_before_suspend
 _description: Test the network after resuming.
 command: network_wait.sh; gateway_ping_test.py | diff "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt -
+user: root
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -409,6 +411,7 @@ estimated_duration: 20.0
 depends: suspend/suspend_advanced_auto suspend/network_before_suspend
 _description: Test the network after resuming.
 command: network_wait.sh; gateway_ping_test.py | diff "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt -
+user: root
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend

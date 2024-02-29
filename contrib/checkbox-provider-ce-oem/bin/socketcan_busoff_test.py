@@ -167,7 +167,7 @@ def main():
     logger = init_logger()
     if args.debug:
         logger.setLevel(logging.DEBUG)
-    can_bus_off_test(args.dev, args.timeout)
+    can_bus_off_test(args.device, args.timeout)
 
 
 if __name__ == "__main__":

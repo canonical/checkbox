@@ -292,13 +292,12 @@ class RemoteSessionAssistant:
         session_desc = "remote session"
         session_type = "remote"
 
-        self._launcher = load_configs()
         if configuration["launcher"]:
             launcher_from_controller = Configuration.from_text(
                 configuration["launcher"], "Remote launcher"
             )
-            self._launcher.update_from_another(
-                launcher_from_controller, "Remote launcher"
+            self._launcher = load_configs(
+                parsed_launcher=launcher_from_controller
             )
             session_title = (
                 self._launcher.get_value("launcher", "session_title")
@@ -308,6 +307,8 @@ class RemoteSessionAssistant:
                 self._launcher.get_value("launcher", "session_desc")
                 or session_desc
             )
+        else:
+            self._launcher = load_configs()
 
         self._sa.use_alternate_configuration(self._launcher)
         self._normal_user = self._launcher.get_value("agent", "normal_user")

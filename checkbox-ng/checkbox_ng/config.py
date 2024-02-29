@@ -65,7 +65,7 @@ def _search_configs_by_name(name: str) -> "list[str]":
     return to_r
 
 
-def load_configs(launcher_file=None, cfg=None):
+def load_configs(launcher_file=None, parsed_launcher=None):
     """
     Read a chain of configs/launchers.
 
@@ -84,9 +84,10 @@ def load_configs(launcher_file=None, cfg=None):
         - anything that /etc/xdg/A imports has the lowest possible
             priority
     """
-    assert not (launcher_file and cfg), "config_filename in cfg will be ignored, FIXME"
-    if not cfg:
-        cfg = Configuration()
+    assert not (launcher_file and parsed_launcher), "config_filename in cfg will be ignored, FIXME"
+    cfg = Configuration()
+    if parsed_launcher:
+        cfg.update_from_another(parsed_launcher, "Launcher file")
     if launcher_file:
         # Use the config_filename if it is defined in launcher
         launcher_file_conf = Configuration.from_path(launcher_file)
@@ -126,6 +127,11 @@ def load_configs(launcher_file=None, cfg=None):
         cfg.update_from_another(
             launcher_file_conf,
             "Launcher file: {}".format(launcher_file),
+        )
+    elif parsed_launcher:
+        cfg.update_from_another(
+            parsed_launcher,
+            "Launcher file"
         )
 
     return cfg

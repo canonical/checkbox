@@ -20,12 +20,11 @@ import textwrap
 import metabox.core.keys as keys
 from metabox.core.actions import Expect, Send, Start, SelectTestPlan
 from metabox.core.scenario import Scenario
-from metabox.core.utils import tag
+from metabox.core.utils import tag, _re
 
 
 @tag("manual", "resume")
 class ResumeMenuMultipleDelete(Scenario):
-    modes = ["remote"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -48,7 +47,7 @@ class ResumeMenuMultipleDelete(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Select test plan"),
         SelectTestPlan(
@@ -59,7 +58,7 @@ class ResumeMenuMultipleDelete(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Resume session"),
         # Enter the resume menu
@@ -76,13 +75,12 @@ class ResumeMenuMultipleDelete(Scenario):
         # Now we still have to be able to run test plans
         SelectTestPlan("2021.com.canonical.certification::whoami_as_user_tp "),
         Send(keys.KEY_ENTER),
-        Expect("Results"),
+        Expect(_re("(☑|job passed).*Print who is running the job")),
     ]
 
 
 @tag("manual", "resume")
 class ResumeMenuMarkSkip(Scenario):
-    modes = ["remote"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -105,7 +103,7 @@ class ResumeMenuMarkSkip(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Resume session"),
         # Enter the resume menu
@@ -122,13 +120,12 @@ class ResumeMenuMarkSkip(Scenario):
         Expect("Skipped Jobs"),
         Expect("Finish"),
         Send("f"),
-        Expect("Result"),
+        Expect(_re("(☐|job skipped).*User-interact")),
     ]
 
 
 @tag("manual", "resume")
 class ResumeMenuMarkFail(Scenario):
-    modes = ["remote"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -151,7 +148,7 @@ class ResumeMenuMarkFail(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Resume session"),
         # Enter the resume menu
@@ -171,12 +168,12 @@ class ResumeMenuMarkFail(Scenario):
         Expect("Failed Jobs"),
         Expect("Finish"),
         Send("f"),
-        Expect("Result"),
+        Expect(_re("(☒|job failed).*User-interact")),
     ]
+
 
 @tag("manual", "resume")
 class ResumeMenuMarkPreCommentFail(Scenario):
-    modes = ["remote"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -199,7 +196,7 @@ class ResumeMenuMarkPreCommentFail(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Resume session"),
         # Enter the resume menu
@@ -218,12 +215,12 @@ class ResumeMenuMarkPreCommentFail(Scenario):
         Expect("Failed Jobs"),
         Expect("Finish"),
         Send("f"),
-        Expect("Result"),
+        Expect(_re("(☒|job failed).*User-interact")),
     ]
+
 
 @tag("manual", "resume")
 class ResumeMenuMarkPassed(Scenario):
-    modes = ["remote"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -246,7 +243,7 @@ class ResumeMenuMarkPassed(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Resume session"),
         # Enter the resume menu
@@ -256,12 +253,12 @@ class ResumeMenuMarkPassed(Scenario):
         Expect("last job?"),
         # Select Mark as Pass
         Send("p"),
-        Expect("Result"),
+        Expect(_re("(☑|job passed).*User-interact")),
     ]
+
 
 @tag("manual", "resume")
 class ResumeMenuResumeLastJob(Scenario):
-    modes = ["remote"]
     launcher = textwrap.dedent(
         """
         [launcher]
@@ -284,7 +281,7 @@ class ResumeMenuResumeLastJob(Scenario):
         Send("p" + keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("q" + keys.KEY_ENTER),
-        Expect("Session saved"),
+        Expect("Session paused"),
         Start(),
         Expect("Resume session"),
         # Enter the resume menu
@@ -296,5 +293,5 @@ class ResumeMenuResumeLastJob(Scenario):
         Send("R"),
         Expect("press ENTER to continue"),
         Send(keys.KEY_ENTER),
-        Expect("Result"),
+        Expect(_re("(☑|job passed).*User-interact")),
     ]

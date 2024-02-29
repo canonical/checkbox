@@ -1,6 +1,6 @@
 # This file is part of Checkbox.
 #
-# Copyright 2023 Canonical Ltd.
+# Copyright 2024 Canonical Ltd.
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -13,18 +13,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-import os
 import textwrap
 from importlib.resources import read_text
 
 from metabox.core.actions import (
     AssertPrinted,
-    AssertNotPrinted,
-    Expect,
     Start,
     Put,
-    Send,
-    RunCmd
+    RunCmd,
 )
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
@@ -33,7 +29,49 @@ from .config_files import chains
 
 
 @tag("config-chains")
-class ConfigChainsPriority(Scenario):
+class ConfigChainsPriorityRemote(Scenario):
+    modes = ["remote"]
+    etc_checkbox = read_text(chains, "etc_checkbox.conf")
+    etc_checkbox_includes_includes = read_text(
+        chains, "etc_checkbox_includes_includes.conf"
+    )
+    etc_checkbox_includes = read_text(chains, "etc_checkbox_includes.conf")
+
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::print-env
+        forced = yes
+        [test selection]
+        forced = yes
+        [environment]
+        d = 0
+        c = 0
+        """
+    )
+
+    steps = [
+        Put("/etc/xdg/checkbox.conf", etc_checkbox, target="agent"),
+        Put("/etc/xdg/includes.conf", etc_checkbox_includes, target="agent"),
+        Put(
+            "/etc/xdg/includes_includes.conf",
+            etc_checkbox_includes_includes,
+            target="agent",
+        ),
+        Start(),
+        AssertPrinted("a=0"),
+        AssertPrinted("b=0"),
+        AssertPrinted("c=0"),
+        AssertPrinted("d=0"),
+        AssertPrinted("e=0"),
+    ]
+
+
+@tag("config-chains")
+class ConfigChainsPriorityLocal(Scenario):
     modes = ["local"]
     etc_checkbox = read_text(chains, "etc_checkbox.conf")
     etc_checkbox_includes_includes = read_text(

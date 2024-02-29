@@ -28,7 +28,7 @@ requires:
 id: manifest_test_support
 unit: test plan
 _name: Manifest test support
-_description: 
+_description:
   Test plan used in manifest testing
 include:
     manifest_order_resolution

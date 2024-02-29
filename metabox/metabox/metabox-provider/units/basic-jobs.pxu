@@ -247,3 +247,9 @@ id: dependency_installation
 command: dependency_installation.py
 _summary: Verify that all required modules are installed
 _description: Verify that all required modules are installed
+
+plugin: shell
+id: print-env-variables
+command: env
+_description: Prints all environment variables via env
+_summary: Prints all environment variables via env

@@ -59,3 +59,9 @@ _name: Pass and Crash
 include:
  basic-shell-passing
  basic-shell-crashing
+
+unit: test plan
+id: print-env
+_name: Print env
+include:
+ print-env-variables

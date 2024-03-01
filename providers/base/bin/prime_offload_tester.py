@@ -73,7 +73,7 @@ class PrimeOffloader:
         except subprocess.CalledProcessError as e:
             raise SystemExit(repr(e))
 
-    def find_card_name(self, pci_name: str):
+    def find_card_name(self, pci_name: str) -> str:
         """
         use pci name to find card name by lshw
 

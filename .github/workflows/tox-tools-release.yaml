@@ -13,7 +13,7 @@ on:
 
 jobs:
   tox_test_release_tools:
-  name: Test release tools with tox
+    name: Test release tools with tox
     defaults:
       run:
         working-directory: tools/release

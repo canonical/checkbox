@@ -165,23 +165,12 @@ class PrimeOffloader:
         # check prime-select to make sure system with nv driver.
         # If there is no nv driver, prime offload is fine for other drivers.
         try:
-            ps = subprocess.check_output(["which", "prime-select"],
-                                         universal_newlines=True)
-
-            if 'prime-select' in ps:
-                # prime offload could running on on-demand mode only
-                mode = subprocess.check_output(["prime-select", "query"],
-                                               universal_newlines=True)
-                if "on-demand" not in mode:
-                    raise RuntimeError("System isn't on-demand mode")
-            else:
-                self.logger.info(
-                    "No prime-select, it should be ok to run prime offload")
-                return
-        except subprocess.CalledProcessError:
+            if "on-demand" not in subprocess.check_output(
+                    ["prime-select", "query"], universal_newlines=True):
+                raise SystemExit("System isn't on-demand mode")
+        except subprocess.FileNotFoundError:
             self.logger.info(
                 "No prime-select, it should be ok to run prime offload")
-            return
 
         # prime offload couldn't running on nvlink active or inactive
         # Therefore, only return empty string is supported environment.

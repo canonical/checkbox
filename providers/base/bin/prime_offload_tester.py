@@ -44,7 +44,7 @@ class PrimeOffloader:
     logger = logging.getLogger()
     check_result = False
 
-    def find_card_id(self, pci_name: str):
+    def find_card_id(self, pci_name: str) -> str:
         """
         use pci name to find card id under /sys/kernel/debug/dri
 

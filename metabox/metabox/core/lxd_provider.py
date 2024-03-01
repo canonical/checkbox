@@ -291,12 +291,12 @@ class LxdMachineProvider:
             "type": "disk",
         }
         machine._container.devices.update({self.LXD_MOUNT_DEVICE: disk_config})
-        machine._container.save()
+        machine._container.save(wait=True)
 
     def _unmount_source(self, machine):
         logger.debug("Unmounting dir...")
         del machine._container.devices[self.LXD_MOUNT_DEVICE]
-        machine._container.save()
+        machine._container.save(wait=True)
 
     @contextmanager
     def _mounted_source(self, machine, path):

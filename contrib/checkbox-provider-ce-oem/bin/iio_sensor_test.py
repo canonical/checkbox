@@ -96,21 +96,57 @@ def check_humidity_sensor(index):
                     "{} file not exists".format(str(tmp_node)))
 
 
+def validate_iio_sensor(args):
+    test_funcs = {
+        "pressure": check_pressure_sensor,
+        "accelerometer": check_accelerometer_sensor,
+        "humidityrelative": check_humidity_sensor
+    }
+
+    print("# Perform {} sensor test - index {}".format(args.type, args.index))
+    test_funcs[args.type](args.index)
+    print("# The {} sensor test passed".format(args.type))
+
+
+def dump_sensor_resource(args):
+    output = ""
+    resource_text = "index: {}\nsensor_type: {}\n\n"
+    for sensor in args.mapping.split():
+        index, sensor_type = sensor.split(":")
+        output += resource_text.format(index, sensor_type)
+    print(output)
+
+
 def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description='Industrial IO sensor tests')
-    parser.add_argument(
+
+    sub_parsers = parser.add_subparsers(dest="test_func")
+    sub_parsers.required = True
+
+    iio_test_parser = sub_parsers.add_parser("test")
+    iio_test_parser.add_argument(
         "-t", "--type",
         required=True,
         choices=["pressure", "accelerometer", "humidityrelative"],
         type=str
     )
-    parser.add_argument(
+    iio_test_parser.add_argument(
         "-i", "--index",
         required=True,
         type=str,
     )
+    iio_test_parser.set_defaults(test_func=validate_iio_sensor)
+
+    iio_arg_parser = sub_parsers.add_parser("sensor-resource")
+    iio_arg_parser.add_argument(
+        "mapping",
+        help=("Usage of parameter: IIO_SENSORS="
+              "{index}:{sensor_type} {index}:{sensor_type}")
+    )
+
+    iio_arg_parser.set_defaults(test_func=dump_sensor_resource)
 
     args = parser.parse_args()
     return args
@@ -120,19 +156,7 @@ if __name__ == "__main__":
 
     args = register_arguments()
 
-    test_funcs = {
-        "pressure": check_pressure_sensor,
-        "accelerometer": check_accelerometer_sensor,
-        "humidityrelative": check_humidity_sensor
-    }
-
     try:
-        print("# Perform {} sensor test - index {}".format(
-            args.type, args.index
-        ))
-        test_funcs[args.type](args.index)
-
-        print("# The {} sensor test passed".format(args.type))
-
+        args.test_func(args)
     except Exception as err:
         logging.error(err)

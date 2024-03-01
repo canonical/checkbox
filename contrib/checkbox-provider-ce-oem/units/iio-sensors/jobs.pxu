@@ -10,13 +10,7 @@ category_id: iio-sensors
 plugin: resource
 environ: IIO_SENSORS
 command:
-    awk '{
-        split($0, record, " ")
-        for (i in record) {
-            split(record[i], data, ":")
-            printf "INDEX: %s\nSENSOR_TYPE: %s\n\n", data[1], data[2]
-        }
-    }' <<< "$IIO_SENSORS"
+    iio_sensor_test.py sensor-resource "$IIO_SENSORS"
 
 unit: template
 template-resource: ce-oem-iio-sensors/resource
@@ -32,4 +26,4 @@ requires: manifest.has_iio_sensors == 'True'
 flags: also-after-suspend
 command:
     echo "## Perform the industrial I/O {SENSOR_TYPE}-{INDEX} sensor test"
-    iio_sensor_test.py -t {SENSOR_TYPE} -i {INDEX}
+    iio_sensor_test.py test -t {SENSOR_TYPE} -i {INDEX}

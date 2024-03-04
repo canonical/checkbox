@@ -18,13 +18,23 @@ jobs:
     steps:
     - name: Checkout checkbox monorepo
       uses: actions/checkout@v3
-    - name: Install testflinger
+    - name: info setup
+      run: |
+        echo "Testing testflinger setup"
+    - name: install testflinger
       run: |
         sudo snap install testflinger-cli
-    - name: Test connection to testflinger
+    - name: test installation
       run: |
+        testflinger-cli -h
+    - name: try curl testflinger
+      run: |
+        curl https://testflinger.canonical.com
         nc -vz testflinger.canonical.com 443
+    - name: try list queues
+      run: |
+        testflinger-cli list-queues
     - name: Submit job to testflinger
       run: |
-        JOB_ID=$(testflinger submit -q tools/canary/example_job.yaml)
+        JOB_ID=$(testflinger submit -q example_job.yaml)
         testflinger poll $JOB_ID

@@ -55,7 +55,6 @@ class TestCyclictest(unittest.TestCase):
                                              stderr="",
                                              returncode=0)
         mock_verify.return_value = 0
-        return_code = main()
-        self.assertEqual(return_code, 0)
+        self.assertEqual(main(), 0)
         mock_verify.return_value = 1
         self.assertEqual(main(), 1)

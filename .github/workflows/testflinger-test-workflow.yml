@@ -1,0 +1,30 @@
+name: PR test with testflinger
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - ready_for_review
+      - synchronize
+      - edited
+
+jobs:
+  testflinger-pr-test:
+    runs-on: [self-hosted, testflinger]
+    defaults:
+      run:
+        working-directory: tools/canary/
+    steps:
+    - name: Checkout checkbox monorepo
+      uses: actions/checkout@v3
+    - name: Install testflinger
+      run: |
+        sudo snap install testflinger-cli
+    - name: Test connection to testflinger
+      run: |
+        nc -vz testflinger.canonical.com 443
+    - name: Submit job to testflinger
+      run: |
+        JOB_ID=$(testflinger submit -q tools/canary/example_job.yaml)
+        testflinger poll $JOB_ID

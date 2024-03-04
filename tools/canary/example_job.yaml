@@ -1,0 +1,5 @@
+job_queue: 202201-29865
+test_data:
+  test_cmds: |
+    ssh ubuntu@$DEVICE_IP cat /proc/cpuinfo
+    ssh ubuntu@$DEVICE_IP ifconfig

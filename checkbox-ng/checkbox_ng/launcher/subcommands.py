@@ -25,6 +25,7 @@ from string import Formatter
 from tempfile import TemporaryDirectory
 import textwrap
 import fnmatch
+import contextlib
 import gettext
 import json
 import logging
@@ -38,6 +39,7 @@ import time
 
 from plainbox.abc import IJobResult
 from plainbox.impl.color import Colorizer
+from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.highlevel import Explorer
 from plainbox.impl.result import MemoryJobResult
@@ -340,6 +342,58 @@ class Launcher(MainLoopStage, ReportsStage):
             lambda session_id: [join_cmd(respawn_cmd + [session_id])]
         )
 
+
+    @contextlib.contextmanager
+    def _resumed_session(self, session_id):
+        """
+        Used to temporarily resume a session to inspect it, abandoning it
+        before exiting the context
+        """
+        try:
+            # reload the list of resumable_session in SA
+            list(self.sa.get_resumable_sessions())
+            yield self.sa.resume_session(session_id)
+        finally:
+            self.ctx.reset_sa()
+
+
+    def _should_autoresume_last_run(self, resume_candidates):
+        try:
+            last_abandoned_session = resume_candidates[0]
+        except IndexError:
+            return False
+        with contextlib.suppress(IncompatibleJobError), self._resumed_session(
+            last_abandoned_session.id
+        ) as metadata:
+            app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
+
+            if not app_blob.get("testplan_id"):
+                return False
+
+            self.sa.select_test_plan(app_blob["testplan_id"])
+            self.sa.bootstrap()
+
+            if not metadata.running_job_name:
+                return False
+
+            job_state = self.sa.get_job_state(metadata.running_job_name)
+            if job_state.job.plugin != "shell":
+                return False
+            return True
+        # last resumable session is incompatible
+        return False
+
+
+    def _get_autoresume_outcome_last_job(self, session):
+        with self._resumed_session(session.id) as metadata:
+            app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
+            self.sa.select_test_plan(app_blob["testplan_id"])
+            self.sa.bootstrap()
+            job_state = self.sa.get_job_state(metadata.running_job_name)
+            if "noreturn" in job_state.job.flags:
+                return IJobResult.OUTCOME_PASS
+            return IJobResult.OUTCOME_CRASH
+
     def _auto_resume_session(self, resume_candidates):
         """
         Check if there was a request to auto-resume a session.
@@ -358,12 +412,21 @@ class Launcher(MainLoopStage, ReportsStage):
             ]
             if requested_sessions:
                 # session_ids are unique, so there should be only 1
-                self._resume_session(requested_sessions[0])
+                self._resume_session(
+                    requested_sessions[0].id, IJobResult.OUTCOME_UNDECIDED, []
+                )
                 return True
             else:
                 raise RuntimeError("Requested session is not resumable!")
-        else:
-            return False
+        elif self._should_autoresume_last_run(resume_candidates):
+            last_session = resume_candidates[0]
+            self._resume_session(
+                last_session.id,
+                self._get_autoresume_outcome_last_job(last_session),
+                [],
+            )
+            return True
+        return False
 
     def _manually_resume_session(self, resume_candidates):
         """
@@ -405,7 +468,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 break
 
         if resume_params.session_id:
-            self._resume_session(resume_params)
+            self._resume_session_via_resume_params(resume_params)
             return True
         return False
 
@@ -432,8 +495,26 @@ class Launcher(MainLoopStage, ReportsStage):
                 self._delete_old_sessions(ids)
                 return False
 
-    def _resume_session(self, resume_params):
-        metadata = self.ctx.sa.resume_session(resume_params.session_id)
+    def _resume_session_via_resume_params(self, resume_params):
+        if resume_params.action == "pass":
+            outcome = IJobResult.OUTCOME_PASS
+        elif resume_params.action == "fail":
+            outcome = IJobResult.OUTCOME_FAIL
+        elif resume_params.action == "skip":
+            outcome = IJobResult.OUTCOME_SKIP
+        elif resume_params.action == "rerun":
+            outcome = IJobResult.OUTCOME_UNDECIDED
+        else:
+            raise ValueError(
+                "Unknonw resume_param action {}".format(resume_params.action)
+            )
+        return self._resume_session(
+            resume_params.session_id, outcome, resume_params.comments
+        )
+
+    def _resume_session(self, session_id, outcome, comments=[]):
+        list(self.ctx.sa.get_resumable_sessions())
+        metadata = self.ctx.sa.resume_session(session_id)
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
@@ -445,40 +526,42 @@ class Launcher(MainLoopStage, ReportsStage):
             == "blocker"
         )
         # If we resumed maybe not rerun the same, probably broken job
-        result_dict = {
-            "comments": resume_params.comments,
-        }
-        if resume_params.action == "pass":
-            result_dict["outcome"] = IJobResult.OUTCOME_PASS
+        result_dict = {"comments": comments, "outcome": outcome}
+        if outcome == IJobResult.OUTCOME_PASS:
             result_dict["comments"] = newline_join(
                 result_dict["comments"], "Passed after resuming execution"
             )
 
-        elif resume_params.action == "fail":
-            if is_cert_blocker:
-                if not resume_params.comments:
-                    result_dict["comments"] = request_comment("why it failed")
+        elif outcome == IJobResult.OUTCOME_FAIL:
+            if is_cert_blocker and not comments:
+                result_dict["comments"] = request_comment("why it failed")
             else:
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Failed after resuming execution"
                 )
-
-            result_dict["outcome"] = IJobResult.OUTCOME_FAIL
-        elif resume_params.action == "skip":
-            if is_cert_blocker:
-                if not resume_params.comments:
-                    result_dict["comments"] = request_comment(
-                        "why you want to skip it"
-                    )
+        elif outcome == IJobResult.OUTCOME_SKIP:
+            if is_cert_blocker and not comments:
+                result_dict["comments"] = request_comment(
+                    "why you want to skip it"
+                )
             else:
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Skipped after resuming execution"
                 )
-            result_dict["outcome"] = IJobResult.OUTCOME_SKIP
-
-        elif resume_params.action == "rerun":
+        elif outcome == IJobResult.OUTCOME_CRASH:
+            if is_cert_blocker and not comments:
+                result_dict["comments"] = request_comment("why it failed")
+            else:
+                result_dict["comments"] = newline_join(
+                    result_dict["comments"], "Crashed after resuming execution"
+                )
+        elif outcome == IJobResult.OUTCOME_UNDECIDED:
             # if we don't call use_job_result it means we'll rerun the job
             return
+        else:
+            raise ValueError(
+                "Unsupported outcome for resume {}".format(outcome)
+            )
         result = MemoryJobResult(result_dict)
         self.ctx.sa.use_job_result(last_job, result)
 

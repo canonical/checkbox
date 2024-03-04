@@ -56,6 +56,8 @@ class Context:
     def __init__(self, args, sa):
         self.args = args
         self.sa = sa
+    def reset_sa(self):
+        self.sa = SessionAssistant()
 
 
 def main():

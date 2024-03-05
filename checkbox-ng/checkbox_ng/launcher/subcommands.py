@@ -260,10 +260,8 @@ class Launcher(MainLoopStage, ReportsStage):
                         something_got_chosen = True
                     except ResumeInstead:
                         self.sa.finalize_session()
-                        something_got_chosen = (
-                            self._manually_resume_session(
-                                self.resume_candidates
-                            )
+                        something_got_chosen = self._manually_resume_session(
+                            self.resume_candidates
                         )
 
             if not self.ctx.sa.get_static_todo_list():
@@ -342,7 +340,6 @@ class Launcher(MainLoopStage, ReportsStage):
             lambda session_id: [join_cmd(respawn_cmd + [session_id])]
         )
 
-
     @contextlib.contextmanager
     def _resumed_session(self, session_id):
         """
@@ -397,7 +394,6 @@ class Launcher(MainLoopStage, ReportsStage):
 
             input("\nPress enter to start Checkbox.")
             return False
-
 
     def _auto_resume_session(self, resume_candidates):
         """
@@ -517,7 +513,6 @@ class Launcher(MainLoopStage, ReportsStage):
             resume_params.session_id, outcome, resume_params.comments
         )
 
-
     def _get_autoresume_outcome_last_job(self, metadata):
         """
         Calculates the result of the latest running job given its flags. This
@@ -531,7 +526,9 @@ class Launcher(MainLoopStage, ReportsStage):
             return IJobResult.OUTCOME_PASS
         return IJobResult.OUTCOME_CRASH
 
-    def _resume_session(self, session_id: str, outcome: 'IJobResult|None', comments=[]):
+    def _resume_session(
+        self, session_id: str, outcome: "IJobResult|None", comments=[]
+    ):
         """
         Resumes the session with the given session_id assigning to the latest
         running job the given outcome. If outcome is not provided it will be
@@ -1318,7 +1315,8 @@ class ListBootstrapped:
             attrs["full_id"] = job_unit.id
             attrs["id"] = job_unit.partial_id
             attrs["certification_status"] = self.ctx.sa.get_job_state(
-                                      job).effective_certification_status
+                job
+            ).effective_certification_status
             jobs.append(attrs)
         if ctx.args.format == "?":
             all_keys = set()

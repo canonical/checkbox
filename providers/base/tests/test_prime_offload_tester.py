@@ -214,6 +214,22 @@ class FindCardNameTests(unittest.TestCase):
                                        "-json"],
                                       universal_newlines=True)
 
+    @patch("subprocess.check_output")
+    def test_get_clients(self, mock_check):
+        po = PrimeOffloader()
+        mock_check.return_value = "echo"
+        self.assertEqual(po.get_clients(0), "echo")
+        mock_check.assert_called_with(["cat",
+                                       "/sys/kernel/debug/dri/0/clients"
+                                       ],
+                                      universal_newlines=True)
+
+        # subprocess failed
+        mock_check.side_effect = subprocess.CalledProcessError(-1, "fail")
+        with self.assertRaises(subprocess.CalledProcessError):
+            po.check_nv_offload_env()
+        self.assertEqual(po.get_clients(0), None)
+
 
 class CheckOffloadTests(unittest.TestCase):
     """
@@ -222,90 +238,32 @@ class CheckOffloadTests(unittest.TestCase):
     """
 
     @patch('time.sleep', return_value=None)
-    @patch("subprocess.check_output")
-    def test_offload_succ_check(self, mock_check, mock_sleep):
+    @patch("prime_offload_tester.PrimeOffloader.get_clients")
+    def test_offload_succ_check(self, mock_client, mock_sleep):
         cmd = ["echo"]
-        mock_check.return_value = cmd
+        mock_client.return_value = cmd
         po = PrimeOffloader()
         self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 1),
                          None)
-        self.assertFalse(po.check_result)
-        mock_check.assert_called_with(["cat",
-                                       "/sys/kernel/debug/dri/card_id/clients"
-                                       ],
-                                      universal_newlines=True)
-
-        po = PrimeOffloader()
-        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
-                         None)
-        self.assertFalse(po.check_result)
-        mock_check.assert_called_with(["cat",
-                                       "/sys/kernel/debug/dri/card_id/clients"
-                                       ],
-                                      universal_newlines=True)
-
-        po = PrimeOffloader()
-        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
-                         None)
-        self.assertFalse(po.check_result)
-        mock_check.assert_called_with(["cat",
-                                       "/sys/kernel/debug/dri/card_id/clients"
-                                       ],
-                                      universal_newlines=True)
+        self.assertEqual(po.check_result, False)
 
     @patch('time.sleep', return_value=None)
-    @patch("subprocess.check_output")
-    def test_offload_fail_check(self, mock_check, mock_sleep):
-
-        # cmd isn't showed in debug file system
-        # empty string
+    @patch("prime_offload_tester.PrimeOffloader.get_clients")
+    def test_offload_fail_check(self, mock_client, mock_sleep):
         cmd = ["echo"]
-        mock_check.return_value = ""
+        # get_clients return string that doesn't include cmd
+        mock_client.return_value = ""
         po = PrimeOffloader()
-        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 1),
                          None)
-        self.assertTrue(po.check_result)
-        mock_check.assert_called_with(
-                ["cat",
-                 "/sys/kernel/debug/dri/card_id/clients"
-                 ],
-                universal_newlines=True)
+        self.assertEqual(po.check_result, True)
 
-        # None
-        mock_check.return_value = None
+        # get_clients return None by CalledProcessError
+        mock_client.return_value = None
         po = PrimeOffloader()
-        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
+        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 1),
                          None)
-        self.assertTrue(po.check_result)
-
-        # OS Error
-        # Missing file or permissions
-        mock_check.side_effect = OSError
-        po = PrimeOffloader()
-        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
-                         None)
-        self.assertTrue(po.check_result)
-
-        # no match process
-        mock_check.side_effect = ["xxx",
-                                  "test\ndemo",
-                                  "test\ndemo",
-                                  "test\ndemo",
-                                  "test\ndemo",
-                                  "test\ndemo",
-                                  "test\ndemo",
-                                  "test\ndemo",
-                                  "test\ndemo",
-                                  "test\ndemo"
-                                  ]
-        po = PrimeOffloader()
-        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 0),
-                         None)
-        self.assertTrue(po.check_result)
-        mock_check.assert_called_with(["cat",
-                                       "/sys/kernel/debug/dri/card_id/clients"
-                                       ],
-                                      universal_newlines=True)
+        self.assertEqual(po.check_result, True)
 
 
 class CheckNvOffloadEnvTests(unittest.TestCase):
@@ -315,29 +273,11 @@ class CheckNvOffloadEnvTests(unittest.TestCase):
     """
 
     @patch("subprocess.check_output")
-    def test_no_prime_select_check(self, mock_check):
-        po = PrimeOffloader()
-        # subprocess failed
-        mock_check.side_effect = subprocess.CalledProcessError(-1, "which")
-        self.assertEqual(None, po.check_nv_offload_env())
-        mock_check.assert_called_with(["which",
-                                       "prime-select"
-                                       ],
-                                      universal_newlines=True)
-
-        mock_check.side_effect = ["xxxxx"]
-        self.assertEqual(None, po.check_nv_offload_env())
-        mock_check.assert_called_with(["which",
-                                       "prime-select"
-                                       ],
-                                      universal_newlines=True)
-
-    @patch("subprocess.check_output")
     def test_on_demand_check(self, mock_check):
         po = PrimeOffloader()
         # with nv driver, not on-demand mode
         mock_check.return_value = "prime-select"
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.check_nv_offload_env()
         mock_check.assert_called_with(["prime-select",
                                        "query"],
@@ -348,7 +288,7 @@ class CheckNvOffloadEnvTests(unittest.TestCase):
         po = PrimeOffloader()
         # with nv driver, on-demand mode. This might be NVLINK environment
         mock_check.return_value = "prime-select on-demand"
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.check_nv_offload_env()
         mock_check.assert_called_with(["nvidia-smi",
                                        "nvlink",
@@ -356,8 +296,8 @@ class CheckNvOffloadEnvTests(unittest.TestCase):
                                       universal_newlines=True)
 
         # with nv driver, on-demand mode, nv driver error
-        mock_check.side_effect = ["prime-select", "on-demand", "error"]
-        with self.assertRaises(RuntimeError):
+        mock_check.side_effect = ["on-demand", "error"]
+        with self.assertRaises(SystemExit):
             po.check_nv_offload_env()
         mock_check.assert_called_with(["nvidia-smi",
                                        "nvlink",
@@ -365,14 +305,16 @@ class CheckNvOffloadEnvTests(unittest.TestCase):
                                       universal_newlines=True)
 
         # with nv driver, on-demand mode, no nv driver error
-        mock_check.side_effect = ["prime-select",
-                                  "on-demand",
-                                  ""]
+        mock_check.side_effect = ["on-demand", ""]
         self.assertEqual(None, po.check_nv_offload_env())
         mock_check.assert_called_with(["nvidia-smi",
                                        "nvlink",
                                        "-s"],
                                       universal_newlines=True)
+
+        # No prime-select
+        mock_check.side_effect = FileNotFoundError
+        self.assertEqual(po.check_nv_offload_env(), None)
 
 
 class RunOffloadCmdTests(unittest.TestCase):
@@ -384,20 +326,20 @@ class RunOffloadCmdTests(unittest.TestCase):
     def test_condition_check(self):
         po = PrimeOffloader()
         # no card id
-        po.find_card_id = MagicMock(side_effect=RuntimeError)
-        with self.assertRaises(RuntimeError):
+        po.find_card_id = MagicMock(side_effect=SystemExit)
+        with self.assertRaises(SystemExit):
             po.run_offload_cmd("echo", "0000:00:00.0", "driver", 0)
 
         # no card name
         po.find_card_id = MagicMock(return_value="0")
-        po.find_card_name = MagicMock(side_effect=RuntimeError)
-        with self.assertRaises(RuntimeError):
+        po.find_card_name = MagicMock(side_effect=SystemExit)
+        with self.assertRaises(SystemExit):
             po.run_offload_cmd("echo", "0000:00:00.0", "driver", 0)
 
         # timeout in command
         po.find_card_id = MagicMock(return_value="0")
         po.find_card_name = MagicMock(return_value="Card")
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.run_offload_cmd("timeout 10 echo",
                                "0000:00:00.0",
                                "driver",
@@ -406,8 +348,8 @@ class RunOffloadCmdTests(unittest.TestCase):
         # check_nv_offload_env failed
         po.find_card_id = MagicMock(return_value="0")
         po.find_card_name = MagicMock(return_value="Card")
-        po.check_nv_offload_env = MagicMock(side_effect=RuntimeError)
-        with self.assertRaises(RuntimeError):
+        po.check_nv_offload_env = MagicMock(side_effect=SystemExit)
+        with self.assertRaises(SystemExit):
             po.run_offload_cmd("echo",
                                "0000:00:00.0",
                                "driver",
@@ -434,7 +376,7 @@ class RunOffloadCmdTests(unittest.TestCase):
                                      stdout=subprocess.PIPE,
                                      universal_newlines=True)
         # check check_offload function get correct args
-        po.check_offload.assert_called_with(["echo"], '0', 'Intel', 0)
+        po.check_offload.assert_called_with(["echo"], '0', 'Intel', 20)
 
         # non NV driver with timeout setting
         po.find_card_id = MagicMock(return_value="0")
@@ -473,7 +415,7 @@ class RunOffloadCmdTests(unittest.TestCase):
         po.check_offload = MagicMock(return_value="")
         os.environ.copy = MagicMock(return_value={})
         mock_open.side_effect = subprocess.CalledProcessError(-1, "test")
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.run_offload_cmd("echo", "0000:00:00.0", "nvidia", 1)
         # check run_offload_cmd executing correct command
         mock_open.assert_called_with(["timeout", "1", "echo"],
@@ -491,7 +433,7 @@ class RunOffloadCmdTests(unittest.TestCase):
         os.environ.copy = MagicMock(return_value={})
         po.check_result = True
         mock_open.side_effect = None
-        with self.assertRaises(RuntimeError):
+        with self.assertRaises(SystemExit):
             po.run_offload_cmd("echo", "0000:00:00.0", "nvidia", 1)
         # check run_offload_cmd executing correct command
         mock_open.assert_called_with(["timeout", "1", "echo"],
@@ -511,7 +453,7 @@ class ParseArgsTests(unittest.TestCase):
         self.assertEqual(rv.command, "glxgears")
         self.assertEqual(rv.pci, "0000:00:02.0")
         self.assertEqual(rv.driver, "i915")
-        self.assertEqual(rv.timeout, 0)
+        self.assertEqual(rv.timeout, 20)
 
         # change command
         args = ["-c", "glxgears -fullscreen"]
@@ -519,7 +461,7 @@ class ParseArgsTests(unittest.TestCase):
         self.assertEqual(rv.command, "glxgears -fullscreen")
         self.assertEqual(rv.pci, "0000:00:02.0")
         self.assertEqual(rv.driver, "i915")
-        self.assertEqual(rv.timeout, 0)
+        self.assertEqual(rv.timeout, 20)
 
         # change pci
         args = ["-p", "0000:00:01.0"]
@@ -527,7 +469,7 @@ class ParseArgsTests(unittest.TestCase):
         self.assertEqual(rv.command, "glxgears")
         self.assertEqual(rv.pci, "0000:00:01.0")
         self.assertEqual(rv.driver, "i915")
-        self.assertEqual(rv.timeout, 0)
+        self.assertEqual(rv.timeout, 20)
 
         # change driver
         args = ["-d", "nvidia"]
@@ -535,7 +477,7 @@ class ParseArgsTests(unittest.TestCase):
         self.assertEqual(rv.command, "glxgears")
         self.assertEqual(rv.pci, "0000:00:02.0")
         self.assertEqual(rv.driver, "nvidia")
-        self.assertEqual(rv.timeout, 0)
+        self.assertEqual(rv.timeout, 20)
 
         # change timeout
         args = ["-t", "5"]
@@ -561,19 +503,16 @@ class MainTests(unittest.TestCase):
     @patch("prime_offload_tester.PrimeOffloader.parse_args")
     @patch("prime_offload_tester.PrimeOffloader.run_offload_cmd")
     def test_run_offload_cmd_succ(self, mock_run_offload, mock_parse_args):
-        po = PrimeOffloader()
-        with self.assertRaises(SystemExit) as cm:
-            po.main()
-        self.assertEqual(cm.exception.code, 0)
+        self.assertEqual(PrimeOffloader().main(), None)
 
     @patch("prime_offload_tester.PrimeOffloader.parse_args")
     @patch("prime_offload_tester.PrimeOffloader.run_offload_cmd")
     def test_run_offload_cmd_fail(self, mock_run_offload, mock_parse_args):
         po = PrimeOffloader()
-        mock_run_offload.side_effect = RuntimeError
+        mock_run_offload.side_effect = SystemExit
         with self.assertRaises(SystemExit) as cm:
             po.main()
-        self.assertEqual(cm.exception.code, 1)
+        self.assertNotEqual(cm.exception.code, 0)
 
 
 if __name__ == '__main__':

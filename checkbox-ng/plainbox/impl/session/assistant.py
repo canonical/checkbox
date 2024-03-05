@@ -64,6 +64,7 @@ from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.session.restart import IRestartStrategy
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.restart import RemoteDebRestartStrategy
+from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.transport import OAuthTransport
 from plainbox.impl.transport import TransportError
@@ -526,7 +527,7 @@ class SessionAssistant:
             ),
         }
 
-    @raises(KeyError, UnexpectedMethodCall)
+    @raises(KeyError, UnexpectedMethodCall, IncompatibleJobError)
     def resume_session(
         self, session_id: str, runner_cls=UnifiedRunner, runner_kwargs=dict()
     ) -> "SessionMetaData":
@@ -539,6 +540,8 @@ class SessionAssistant:
             Resumed session metadata.
         :raises KeyError:
             If the session with a given session_id cannot be found.
+        :raises IncompatibleJobError:
+            If the session is incompatible due to a job changing
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
@@ -558,7 +561,7 @@ class SessionAssistant:
                 if resume_candidate.id == session_id:
                     break
             else:
-                raise ValueError("Unknown session {}".format(session_id))
+                raise KeyError("Unknown session {}".format(session_id))
 
         self._manager = SessionManager.load_session(
             all_units, self._resume_candidates[session_id][0]

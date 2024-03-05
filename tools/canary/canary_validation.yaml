@@ -1,8 +1,8 @@
-job_queue: hp-elitebook-850-g7-notebook-pc
+job_queue: 202201-29865
 global_timeout: 3600
 output_timeout: 1800
 provision_data:
-  distro: xenial
+  distro: jammy
 test_data:
   test_cmds: |
     #!/bin/bash
@@ -29,12 +29,12 @@ test_data:
     export PATH=$PATH:hwcert-jenkins-tools/scriptlets
 
     # install checkbox runtime
-    _run_retry sudo snap install checkbox16 --no-wait --channel=latest/edge
+    _run_retry sudo snap install checkbox22 --no-wait --channel=latest/edge
     wait_for_snap_complete
     # Let's list all the installed snaps for future debugging ease
     _run snap list
 
-    _run_retry sudo snap install --devmode --channel=uc16/edge checkbox
+    _run_retry sudo snap install --devmode --channel=uc22/edge checkbox
 
     cat <<EOF > canary.launcher
     # Please keep the indents below, for yaml formatting/templating
@@ -55,5 +55,5 @@ test_data:
     EOF
 
     # run the canary test plan
-    PYTHONUNBUFFERED=1 checkbox-cli control \$DEVICE_IP canary.launcher
-    EXITCODE=\$?
+    PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP canary.launcher
+    EXITCODE=$?

@@ -382,14 +382,12 @@ class Launcher(MainLoopStage, ReportsStage):
                 last_abandoned_session.id,
             )
             _logger.error(str(ije))
-            if os.getenv("SNAP"):
-                _logger.error(
-                    "To resume it revert the latest Checkbox snap refresh"
-                )
-            else:
-                _logger.error(
-                    "To resume it, roll back the relevant provider package first"
-                )
+            _logger.error(
+                "To resume it either revert the latest Checkbox snap refresh"
+            )
+            _logger.error(
+                "or roll back the relevant provider debian package first"
+            )
 
             input("\nPress enter to start Checkbox.")
             return False
@@ -413,18 +411,14 @@ class Launcher(MainLoopStage, ReportsStage):
             if requested_sessions:
                 # session_ids are unique, so there should be only 1
                 self._resume_session(
-                    requested_sessions[0].id, IJobResult.OUTCOME_UNDECIDED, []
+                    requested_sessions[0].id, IJobResult.OUTCOME_UNDECIDED
                 )
                 return True
             else:
                 raise RuntimeError("Requested session is not resumable!")
         elif self._should_autoresume_last_run(resume_candidates):
             last_session = resume_candidates[0]
-            self._resume_session(
-                last_session.id,
-                None,
-                [],
-            )
+            self._resume_session(last_session.id, None)
             return True
         return False
 

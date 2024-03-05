@@ -18,6 +18,7 @@
 
 import datetime
 
+from functools import partial
 from unittest import TestCase
 
 from unittest.mock import patch, Mock, MagicMock
@@ -102,7 +103,7 @@ class TestLauncher(TestCase):
         # the user has selected something from the list, we notice
         self.assertTrue(Launcher._manually_resume_session(self_mock, []))
         # and we try to resume the session
-        self.assertTrue(self_mock._resume_session.called)
+        self.assertTrue(self_mock._resume_session_via_resume_params.called)
 
 
     @patch("checkbox_ng.launcher.subcommands.ResumeMenu")
@@ -117,13 +118,14 @@ class TestLauncher(TestCase):
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
     def test__resume_session_pass(self, memory_job_result_mock):
         self_mock = MagicMock()
+        self_mock._resume_session = partial(Launcher._resume_session, self_mock)
         session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
         session_metadata_mock.flags = ["testplanless"]
 
         resume_params_mock = MagicMock()
         resume_params_mock.action = "pass"
 
-        Launcher._resume_session(self_mock, resume_params_mock)
+        Launcher._resume_session_via_resume_params(self_mock, resume_params_mock)
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
@@ -136,6 +138,7 @@ class TestLauncher(TestCase):
         self, request_comment_mock, memory_job_result_mock
     ):
         self_mock = MagicMock()
+        self_mock._resume_session = partial(Launcher._resume_session, self_mock)
         self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
             "blocker"
         )
@@ -147,7 +150,7 @@ class TestLauncher(TestCase):
         resume_params_mock.action = "fail"
         resume_params_mock.comments = None
 
-        Launcher._resume_session(self_mock, resume_params_mock)
+        Launcher._resume_session_via_resume_params(self_mock, resume_params_mock)
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
@@ -159,6 +162,7 @@ class TestLauncher(TestCase):
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
     def test__resume_session_fail_non_blocker(self, memory_job_result_mock):
         self_mock = MagicMock()
+        self_mock._resume_session = partial(Launcher._resume_session, self_mock)
         self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
             "non-blocker"
         )
@@ -169,7 +173,7 @@ class TestLauncher(TestCase):
         resume_params_mock = MagicMock()
         resume_params_mock.action = "fail"
 
-        Launcher._resume_session(self_mock, resume_params_mock)
+        Launcher._resume_session_via_resume_params(self_mock, resume_params_mock)
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
@@ -182,6 +186,7 @@ class TestLauncher(TestCase):
         self, request_comment_mock, memory_job_result_mock
     ):
         self_mock = MagicMock()
+        self_mock._resume_session = partial(Launcher._resume_session, self_mock)
         self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
             "blocker"
         )
@@ -193,7 +198,7 @@ class TestLauncher(TestCase):
         resume_params_mock.action = "skip"
         resume_params_mock.comments = None
 
-        Launcher._resume_session(self_mock, resume_params_mock)
+        Launcher._resume_session_via_resume_params(self_mock, resume_params_mock)
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
@@ -205,6 +210,7 @@ class TestLauncher(TestCase):
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
     def test__resume_session_skip_non_blocker(self, memory_job_result_mock):
         self_mock = MagicMock()
+        self_mock._resume_session = partial(Launcher._resume_session, self_mock)
         self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
             "non-blocker"
         )
@@ -215,7 +221,7 @@ class TestLauncher(TestCase):
         resume_params_mock = MagicMock()
         resume_params_mock.action = "skip"
 
-        Launcher._resume_session(self_mock, resume_params_mock)
+        Launcher._resume_session_via_resume_params(self_mock, resume_params_mock)
 
         args, _ = memory_job_result_mock.call_args_list[-1]
         result_dict, *_ = args
@@ -225,6 +231,7 @@ class TestLauncher(TestCase):
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
     def test__resume_session_rerun(self, memory_job_result_mock):
         self_mock = MagicMock()
+        self_mock._resume_session = partial(Launcher._resume_session, self_mock)
         self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
             "non-blocker"
         )
@@ -235,7 +242,7 @@ class TestLauncher(TestCase):
         resume_params_mock = MagicMock()
         resume_params_mock.action = "rerun"
 
-        Launcher._resume_session(self_mock, resume_params_mock)
+        Launcher._resume_session_via_resume_params(self_mock, resume_params_mock)
 
         # we don't use job result of rerun jobs
         self.assertFalse(self_mock.ctx.sa.use_job_result.called)
@@ -265,7 +272,7 @@ class TestLauncherReturnCodes(TestCase):
         self.launcher = Launcher()
         self.launcher._maybe_rerun_jobs = Mock(return_value=False)
         self.launcher._auto_resume_session = Mock(return_value=False)
-        self.launcher._resume_session = Mock(return_value=False)
+        self.launcher._resume_session_via_resume_params = Mock(return_value=False)
         self.launcher._start_new_session = Mock()
         self.launcher._pick_jobs_to_run = Mock()
         self.launcher._export_results = Mock()

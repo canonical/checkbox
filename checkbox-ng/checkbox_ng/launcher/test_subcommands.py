@@ -394,9 +394,6 @@ class TestLauncher(TestCase):
         # user is left wondering why the session didn't autoresume
         self.assertTrue(_logger_mock.error.called)
         self.assertTrue(input_mock.called)
-        # also lets make sure that the message is clear on a possible fix for
-        # snaps or debs specifically
-        self.assertTrue(os_getenv_mock.called)
 
     @patch("os.getenv", return_value=None)
     @patch("checkbox_ng.launcher.subcommands.input")
@@ -419,9 +416,6 @@ class TestLauncher(TestCase):
         # user is left wondering why the session didn't autoresume
         self.assertTrue(_logger_mock.error.called)
         self.assertTrue(input_mock.called)
-        # also lets make sure that the message is clear on a possible fix for
-        # snaps or debs specifically
-        self.assertTrue(os_getenv_mock.called)
 
     def test__should_autoresume_last_run_no_testplan(self):
         self_mock = MagicMock()

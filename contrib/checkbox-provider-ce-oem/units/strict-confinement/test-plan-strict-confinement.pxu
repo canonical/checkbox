@@ -5,9 +5,8 @@ _description:
     Warm reboot test by using dbus command.
     Rely on test-strict-confinement SNAP to test.
 bootstrap_include:
-    com.canonical.certification::reboot-run-generator
 include:
-    dbus-warm-boot-boot
+    dbus-warm-boot-reboot
     dbus-warm-boot-test
 
 
@@ -18,9 +17,8 @@ _description:
     Cold boot test by using dbus command.
     Rely on test-strict-confinement SNAP to test.
 bootstrap_include:
-    com.canonical.certification::reboot-run-generator
 include:
-    dbus-cold-boot-boot
+    dbus-cold-boot-reboot
     dbus-cold-boot-test
 
 

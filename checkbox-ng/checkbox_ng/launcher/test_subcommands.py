@@ -27,6 +27,7 @@ from io import StringIO
 from checkbox_ng.launcher.subcommands import (
     Launcher,
     ListBootstrapped,
+    IncompatibleJobError,
     ResumeInstead,
     IJobResult,
     request_comment,
@@ -326,6 +327,116 @@ class TestLauncher(TestCase):
         outcome = Launcher._get_autoresume_outcome_last_job(self_mock, metadata_mock)
 
         self.assertEqual(outcome, IJobResult.OUTCOME_CRASH)
+
+    def test__resumed_session(self):
+        self_mock = MagicMock()
+
+        with Launcher._resumed_session(self_mock, "session_id"):
+            self.assertTrue(self_mock.sa.resume_session.called)
+            self.assertFalse(self_mock.ctx.reset_sa.called)
+        self.assertTrue(self_mock.ctx.reset_sa.called)
+
+    def test__should_autoresume_last_run_no_candidate(self):
+        self_mock = MagicMock()
+
+        self.assertFalse(Launcher._should_autoresume_last_run(self_mock, []))
+
+    @patch("os.getenv", return_value="checkbox22")
+    @patch("checkbox_ng.launcher.subcommands.input")
+    @patch("checkbox_ng.launcher.subcommands._logger")
+    def test__should_autoresume_last_run_incompatible_session_snaps(
+        self,
+        _logger_mock,
+        input_mock,
+        os_getenv_mock
+    ):
+        self_mock = MagicMock()
+        self_mock._resumed_session = partial(Launcher._resumed_session, self_mock)
+        session_mock = MagicMock(id="session_id")
+
+        self_mock.sa.resume_session.side_effect = IncompatibleJobError
+
+        self.assertFalse(Launcher._should_autoresume_last_run(self_mock, [session_mock]))
+        # very important here that we print errors and stop because else the
+        # user is left wondering why the session didn't autoresume
+        self.assertTrue(_logger_mock.error.called)
+        self.assertTrue(input_mock.called)
+        # also lets make sure that the message is clear on a possible fix for
+        # snaps or debs specifically
+        self.assertTrue(os_getenv_mock.called)
+
+    @patch("os.getenv", return_value=None)
+    @patch("checkbox_ng.launcher.subcommands.input")
+    @patch("checkbox_ng.launcher.subcommands._logger")
+    def test__should_autoresume_last_run_incompatible_session_debs(
+        self,
+        _logger_mock,
+        input_mock,
+        os_getenv_mock
+    ):
+        self_mock = MagicMock()
+        self_mock._resumed_session = partial(Launcher._resumed_session, self_mock)
+        session_mock = MagicMock(id="session_id")
+
+        self_mock.sa.resume_session.side_effect = IncompatibleJobError
+
+        self.assertFalse(Launcher._should_autoresume_last_run(self_mock, [session_mock]))
+        # very important here that we print errors and stop because else the
+        # user is left wondering why the session didn't autoresume
+        self.assertTrue(_logger_mock.error.called)
+        self.assertTrue(input_mock.called)
+        # also lets make sure that the message is clear on a possible fix for
+        # snaps or debs specifically
+        self.assertTrue(os_getenv_mock.called)
+
+    def test__should_autoresume_last_run_no_testplan(self):
+        self_mock = MagicMock()
+        self_mock._resumed_session = partial(Launcher._resumed_session, self_mock)
+        session_mock = MagicMock(id="session_id")
+        metadata_mock = MagicMock(app_blob=b'{}')
+        self_mock.sa.resume_session.return_value = metadata_mock
+
+        self.assertFalse(Launcher._should_autoresume_last_run(self_mock, [session_mock]))
+
+    def test__should_autoresume_last_run_no_running_job_name(self):
+        self_mock = MagicMock()
+        self_mock._resumed_session = partial(Launcher._resumed_session, self_mock)
+        session_mock = MagicMock(id="session_id")
+        metadata_mock = MagicMock(
+            app_blob=b'{"testplan_id" : "testplan_id"}',
+            running_job_name=None
+        )
+        self_mock.sa.resume_session.return_value = metadata_mock
+
+        self.assertFalse(Launcher._should_autoresume_last_run(self_mock, [session_mock]))
+
+    def test__should_autoresume_last_run_manual_job(self):
+        self_mock = MagicMock()
+        self_mock._resumed_session = partial(Launcher._resumed_session, self_mock)
+        session_mock = MagicMock(id="session_id")
+        metadata_mock = MagicMock(
+            app_blob=b'{"testplan_id" : "testplan_id"}',
+            running_job_name="running_job_name"
+        )
+        self_mock.sa.resume_session.return_value = metadata_mock
+        job_state_mock = self_mock.sa.get_job_state()
+        job_state_mock.job.plugin = "user-interact"
+
+        self.assertFalse(Launcher._should_autoresume_last_run(self_mock, [session_mock]))
+
+    def test__should_autoresume_last_run_yes(self):
+        self_mock = MagicMock()
+        self_mock._resumed_session = partial(Launcher._resumed_session, self_mock)
+        session_mock = MagicMock(id="session_id")
+        metadata_mock = MagicMock(
+            app_blob=b'{"testplan_id" : "testplan_id"}',
+            running_job_name="running_job_name"
+        )
+        self_mock.sa.resume_session.return_value = metadata_mock
+        job_state_mock = self_mock.sa.get_job_state()
+        job_state_mock.job.plugin = "shell"
+
+        self.assertTrue(Launcher._should_autoresume_last_run(self_mock, [session_mock]))
 
     @patch("checkbox_ng.launcher.subcommands.load_configs")
     @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())

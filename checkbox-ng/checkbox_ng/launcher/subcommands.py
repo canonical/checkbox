@@ -387,7 +387,9 @@ class Launcher(MainLoopStage, ReportsStage):
             )
             _logger.error(str(ije))
             if os.getenv("SNAP"):
-                _logger.error("To resume it revert the latest Checkbox snap refresh")
+                _logger.error(
+                    "To resume it revert the latest Checkbox snap refresh"
+                )
             else:
                 _logger.error(
                     "To resume it, downgrade the relevant provider package first"

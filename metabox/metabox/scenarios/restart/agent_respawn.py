@@ -22,13 +22,14 @@ from metabox.core.actions import (
     SelectTestPlan,
     Send,
     Expect,
+    Start
 )
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
 
 
 @tag("resume", "automatic")
-class ResumeAfterCrashAuto(Scenario):
+class AutoResumeAfterCrashAuto(Scenario):
     modes = ["remote"]
     launcher = textwrap.dedent(
         """
@@ -71,4 +72,33 @@ class ResumeAfterCrashManual(Scenario):
         Expect("Crash Checkbox"),
         Expect("job passed"),
         Expect("Emulate the reboot"),
+    ]
+
+
+@tag("resume", "automatic")
+class AutoResumeAfterCrashAutoLocal(Scenario):
+    modes = ["local"]
+    launcher = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::checkbox-crash-then-reboot
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+        """
+    )
+    steps = [
+        Start(),
+        Start(),
+        Start(),
+        AssertRetCode(1),
+        AssertPrinted("job crashed"),
+        AssertPrinted("Crash Checkbox"),
+        AssertPrinted("job passed"),
+        AssertPrinted("Emulate the reboot"),
     ]

@@ -3,7 +3,7 @@ _summary: Crash Checkbox
 flags: simple
 user: root
 command:
- PID=`ps -o ppid= $$`
+ PID=`pgrep -f checkbox-cli`
  kill $PID
 
 id: reboot-emulator
@@ -11,7 +11,7 @@ _summary: Emulate the reboot
 flags: simple noreturn
 user: root
 command:
- PID=`ps -o ppid= $$`
+ PID=`pgrep -f checkbox-cli`
  kill $PID
 
 unit: test plan

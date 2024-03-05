@@ -7,7 +7,6 @@
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -53,7 +52,6 @@ from subprocess import check_output, CalledProcessError, STDOUT
 
 from plainbox.abc import IJobResult
 from plainbox.abc import ISessionStateController
-from plainbox.configuration import Suspend
 from plainbox.i18n import gettext as _
 from plainbox.impl import get_plainbox_dir
 from plainbox.impl.depmgr import DependencyDuplicateError
@@ -72,6 +70,7 @@ from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.unit.unit import MissingParam
 from plainbox.impl.validation import Severity
+from plainbox.suspend_consts import Suspend
 from plainbox.vendor import morris
 from plainbox.vendor import extcmd
 

@@ -7,7 +7,6 @@
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -33,7 +32,7 @@ import shutil
 from plainbox.abc import IJobResult
 from plainbox.abc import IProvider1
 from plainbox.abc import IProviderBackend1
-from plainbox.configuration import Suspend
+from plainbox.suspend_consts import Suspend
 from plainbox.impl.ctrl import CheckBoxSessionStateController
 from plainbox.impl.ctrl import SymLinkNest
 from plainbox.impl.ctrl import gen_rfc822_records_from_io_log

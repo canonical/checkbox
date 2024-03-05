@@ -182,6 +182,45 @@ class TestLauncher(TestCase):
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
     @patch("checkbox_ng.launcher.subcommands.request_comment")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
+    def test__resume_session_crash_cert_blocker(
+        self, request_comment_mock, memory_job_result_mock
+    ):
+        self_mock = MagicMock()
+        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+            "blocker"
+        )
+
+        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock.flags = ["testplanless"]
+
+        Launcher._resume_session(self_mock, "session_id", IJobResult.OUTCOME_CRASH, None)
+
+        args, _ = memory_job_result_mock.call_args_list[-1]
+        result_dict, *_ = args
+        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_CRASH)
+        # given that no comment was in resume_params, the resume procedure asks for it
+        self.assertTrue(request_comment_mock.called)
+
+    @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
+    @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
+    def test__resume_session_crash_non_blocker(self, memory_job_result_mock):
+        self_mock = MagicMock()
+        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+            "non-blocker"
+        )
+
+        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock.flags = ["testplanless"]
+
+        Launcher._resume_session(self_mock, "session_id", IJobResult.OUTCOME_CRASH, None)
+
+        args, _ = memory_job_result_mock.call_args_list[-1]
+        result_dict, *_ = args
+        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_CRASH)
+
+    @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
+    @patch("checkbox_ng.launcher.subcommands.request_comment")
+    @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
     def test__resume_session_skip_blocker(
         self, request_comment_mock, memory_job_result_mock
     ):
@@ -246,6 +285,47 @@ class TestLauncher(TestCase):
 
         # we don't use job result of rerun jobs
         self.assertFalse(self_mock.ctx.sa.use_job_result.called)
+
+    @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
+    @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
+    def test__resume_session_autocalculate_outcome(self, memory_job_result_mock):
+        self_mock = MagicMock()
+        self_mock.ctx.sa.get_job_state.return_value.effective_certification_status = (
+            "non-blocker"
+        )
+        self_mock._get_autoresume_outcome_last_job.return_value = IJobResult.OUTCOME_CRASH
+
+        session_metadata_mock = self_mock.ctx.sa.resume_session.return_value
+        session_metadata_mock.flags = []
+        session_metadata_mock.app_blob = b'{"testplan_id" : "testplan_id"}'
+
+        Launcher._resume_session(self_mock, "session_id", None, None)
+
+        args, _ = memory_job_result_mock.call_args_list[-1]
+        result_dict, *_ = args
+        self.assertEqual(result_dict["outcome"], IJobResult.OUTCOME_CRASH)
+
+    def test__get_autoresume_outcome_last_job_noreturn(self):
+        self_mock = MagicMock()
+        job_state = self_mock.sa.get_job_state()
+        job_state.job.flags = "noreturn"
+        metadata_mock = MagicMock()
+        metadata_mock.running_job_name = "running_metadata_job_name"
+
+        outcome = Launcher._get_autoresume_outcome_last_job(self_mock, metadata_mock)
+
+        self.assertEqual(outcome, IJobResult.OUTCOME_PASS)
+
+    def test__get_autoresume_outcome_last_job(self):
+        self_mock = MagicMock()
+        job_state = self_mock.sa.get_job_state()
+        job_state.job.flags = ""
+        metadata_mock = MagicMock()
+        metadata_mock.running_job_name = "running_metadata_job_name"
+
+        outcome = Launcher._get_autoresume_outcome_last_job(self_mock, metadata_mock)
+
+        self.assertEqual(outcome, IJobResult.OUTCOME_CRASH)
 
     @patch("checkbox_ng.launcher.subcommands.load_configs")
     @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())

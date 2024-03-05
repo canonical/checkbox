@@ -188,9 +188,11 @@ class SessionAssistant:
         self._job_start_time = None
         # Keep a record of jobs run during bootstrap phase
         self._bootstrap_done_list = []
+        self._resume_candidates = {}
         self._load_providers()
         UsageExpectation.of(self).allowed_calls = {
             self.start_new_session: "create a new session from scratch",
+            self.resume_session: "resume a resume candidate",
             self.get_resumable_sessions: "get resume candidates",
             self.use_alternate_configuration: (
                 "use an alternate configuration system"
@@ -551,6 +553,13 @@ class SessionAssistant:
         all_units = list(
             itertools.chain(*[p.unit_list for p in self._selected_providers])
         )
+        if session_id not in self._resume_candidates:
+            for resume_candidate in self.get_resumable_sessions():
+                if resume_candidate.id == session_id:
+                    break
+            else:
+                raise ValueError("Unknown session {}".format(session_id))
+
         self._manager = SessionManager.load_session(
             all_units, self._resume_candidates[session_id][0]
         )
@@ -616,6 +625,8 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         # let's keep resume_candidates, so we don't have to load data again
+        # also, when this function is called invalidate the cache, as it may
+        # have been modified by some external source
         self._resume_candidates = {}
         for storage in WellKnownDirsHelper.get_storage_list():
             data = storage.load_checkpoint()

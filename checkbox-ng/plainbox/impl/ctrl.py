@@ -53,6 +53,7 @@ from subprocess import check_output, CalledProcessError, STDOUT
 
 from plainbox.abc import IJobResult
 from plainbox.abc import ISessionStateController
+from plainbox.configuration import Suspend
 from plainbox.i18n import gettext as _
 from plainbox.impl import get_plainbox_dir
 from plainbox.impl.depmgr import DependencyDuplicateError
@@ -102,12 +103,14 @@ class CheckBoxSessionStateController(ISessionStateController):
           of resource definitions.
     """
 
-    def get_dependency_set(self, job):
+    def get_dependency_set(self, job, job_list=None):
         """
         Get the set of direct dependencies of a particular job.
 
         :param job:
             A IJobDefinition instance that is to be visited
+        :param job_list:
+            List of jobs to check dependencies from
         :returns:
             set of pairs (dep_type, job_id)
 
@@ -125,14 +128,63 @@ class CheckBoxSessionStateController(ISessionStateController):
             resource_deps = job.get_resource_dependencies()
         except ResourceProgramError:
             resource_deps = ()
+        suspend_job_id_list = [
+            Suspend.AUTO_JOB_ID,
+            Suspend.MANUAL_JOB_ID,
+        ]
+        if job.id in suspend_job_id_list:
+            suspend_deps = self._get_before_suspend_dependency_set(
+                job.id, job_list
+            )
+        else:
+            suspend_deps = set()
         result = set(
             itertools.chain(
                 zip(itertools.repeat(direct), direct_deps),
                 zip(itertools.repeat(resource), resource_deps),
                 zip(itertools.repeat(ordering), after_deps),
+                zip(itertools.repeat(ordering), suspend_deps),
             )
         )
         return result
+
+    def _get_before_suspend_dependency_set(self, suspend_job_id, job_list):
+        """
+        Get the set of after dependencies of a suspend job.
+
+        Jobs that have a ``also-after-suspend[-manual]`` flag should be run
+        before their associated suspend job. Similary, jobs that declare a
+        sibling with a dependency on a suspend job should be run before said
+        suspend job. This function finds these jobs and add them as a
+        dependency for their associated suspend job.
+
+        :param suspend_job_id:
+            The id of a suspend job. One of the following is expected:
+            Suspend.AUTO_JOB_ID or Suspend.MANUAL_JOB_ID.
+        :param job_list:
+            List of jobs to search dependencies on.
+        :returns:
+            A set of job ids that need to be run before the suspend job
+        """
+        suspend_deps = set()
+        expected_flag = ""
+        if suspend_job_id == Suspend.AUTO_JOB_ID:
+            expected_flag = Suspend.AUTO_FLAG
+        elif suspend_job_id == Suspend.MANUAL_JOB_ID:
+            expected_flag = Suspend.MANUAL_FLAG
+        if not expected_flag:
+            return suspend_deps
+        for dep_job in job_list:
+            if dep_job.flags and expected_flag in dep_job.flags:
+                suspend_deps.add(dep_job.id)
+            if dep_job.siblings:
+                for sibling_data in json.loads(dep_job.tr_siblings()):
+                    if (
+                        sibling_data.get("depends")
+                        and suspend_job_id in sibling_data["depends"]
+                    ):
+                        suspend_deps.add(dep_job.id)
+        return suspend_deps
 
     def get_inhibitor_list(self, session_state, job):
         """
@@ -236,7 +288,62 @@ class CheckBoxSessionStateController(ISessionStateController):
                     related_job=dep_job_state.job,
                 )
                 inhibitors.append(inhibitor)
+        if job.id in [Suspend.AUTO_JOB_ID, Suspend.MANUAL_JOB_ID]:
+            for inhibitor in self._get_suspend_inhibitor_list(
+                session_state, job
+            ):
+                inhibitors.append(inhibitor)
         return inhibitors
+
+    def _get_suspend_inhibitor_list(self, session_state, suspend_job):
+        """
+        Get a list of readiness inhibitors that inhibit a suspend job.
+
+        Jobs that have a ``also-after-suspend[-manual]`` flag should be run
+        before their associated suspend job. Similary, jobs that declare a
+        sibling with a dependency on a suspend job should be run before said
+        suspend job. This function finds these jobs and add them as a
+        inhibitor for their associated suspend job.
+
+        :param session_state:
+            A SessionState instance that is used to interrogate the
+            state of the session where it matters for a particular
+            job. Currently this is used to access resources and job
+            results.
+        :param suspend_job:
+            A suspend job.
+        :returns:
+            List of JobReadinessInhibitor
+        """
+        suspend_inhibitors = []
+        expected_flag = ""
+        if suspend_job.id == Suspend.AUTO_JOB_ID:
+            expected_flag = Suspend.AUTO_FLAG
+        elif suspend_job.id == Suspend.MANUAL_JOB_ID:
+            expected_flag = Suspend.MANUAL_FLAG
+        if not expected_flag:
+            return suspend_inhibitors
+        for job_id, job_state in session_state.job_state_map.items():
+            if job_state.job.flags and expected_flag in job_state.job.flags:
+                if job_state.result.outcome == IJobResult.OUTCOME_NONE:
+                    inhibitor = JobReadinessInhibitor(
+                        cause=InhibitionCause.PENDING_DEP,
+                        related_job=job_state.job,
+                    )
+                    suspend_inhibitors.append(inhibitor)
+            if job_state.job.siblings:
+                for sibling_data in json.loads(job_state.job.tr_siblings()):
+                    if (
+                        sibling_data.get("depends")
+                        and suspend_job.id in sibling_data["depends"]
+                    ):
+                        if job_state.result.outcome == IJobResult.OUTCOME_NONE:
+                            inhibitor = JobReadinessInhibitor(
+                                cause=InhibitionCause.PENDING_DEP,
+                                related_job=job_state.job,
+                            )
+                        suspend_inhibitors.append(inhibitor)
+        return suspend_inhibitors
 
     def observe_result(self, session_state, job, result, fake_resources=False):
         """

@@ -438,6 +438,48 @@ class TestLauncher(TestCase):
 
         self.assertTrue(Launcher._should_autoresume_last_run(self_mock, [session_mock]))
 
+    def test__auto_resume_session_from_ctx(self):
+        self_mock = MagicMock()
+        resume_candidate_mock = MagicMock(id="session_to_resume")
+        self_mock.ctx.args.session_id = "session_to_resume"
+
+        self.assertTrue(
+            Launcher._auto_resume_session(self_mock, [resume_candidate_mock])
+        )
+        self.assertTrue(self_mock._resume_session.called)
+
+    def test__auto_resume_session_from_ctx_unknown_session(self):
+        self_mock = MagicMock()
+        resume_candidate_mock = MagicMock(id="some_other_session")
+        self_mock.ctx.args.session_id = "session_to_resume"
+
+        with self.assertRaises(RuntimeError):
+            self.assertTrue(
+                Launcher._auto_resume_session(self_mock, [resume_candidate_mock])
+            )
+
+    def test__auto_resume_session_autoresume(self):
+        self_mock = MagicMock()
+        resume_candidate_mock = MagicMock(id="session_to_resume")
+        self_mock.ctx.args.session_id = None
+        self_mock._should_autoresume_last_run.return_value = True
+
+        self.assertTrue(
+            Launcher._auto_resume_session(self_mock, [resume_candidate_mock])
+        )
+        self.assertTrue(self_mock._resume_session.called)
+
+    def test__auto_resume_session_no_autoresume(self):
+        self_mock = MagicMock()
+        resume_candidate_mock = MagicMock(id="session_to_resume")
+        self_mock.ctx.args.session_id = None
+        self_mock._should_autoresume_last_run.return_value = False
+
+        self.assertFalse(
+            Launcher._auto_resume_session(self_mock, [resume_candidate_mock])
+        )
+        self.assertFalse(self_mock._resume_session.called)
+
     @patch("checkbox_ng.launcher.subcommands.load_configs")
     @patch("checkbox_ng.launcher.subcommands.Colorizer", new=MagicMock())
     def test_invoked_resume(self, load_config_mock):

@@ -158,3 +158,38 @@ class SessionAssistantTests(morris.SignalTestCase):
         )
 
         self.assertTrue(self_mock._manager.checkpoint.called)
+
+    @mock.patch("plainbox.impl.session.assistant.UsageExpectation")
+    def test_resume_session_autoload_session_not_found(
+        self, ue_mock, get_providers_mock
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._resume_candidates = {}
+        self_mock.get_resumable_sessions.return_value = []
+
+        with self.assertRaises(KeyError):
+            SessionAssistant.resume_session(self_mock, "session_id")
+
+    @mock.patch("plainbox.impl.session.assistant.SessionManager")
+    @mock.patch("plainbox.impl.session.assistant.JobRunnerUIDelegate")
+    @mock.patch("plainbox.impl.session.assistant._SilentUI")
+    @mock.patch("plainbox.impl.session.assistant.detect_restart_strategy")
+    @mock.patch("plainbox.impl.session.assistant.UsageExpectation")
+    def test_resume_session_autoload_session_found(
+        self,
+        ue_mock,
+        session_manager_mock,
+        jrd_mock,
+        _sui_mock,
+        detect_restart_strategy_mock,
+        get_providers_mock,
+    ):
+        self_mock = mock.MagicMock()
+        session_mock = mock.MagicMock(id="session_id")
+
+        def get_resumable_sessions():
+            self_mock._resume_candidates = {"session_id": session_mock}
+
+        self_mock.get_resumable_sessions.return_value = [session_mock]
+
+        _ = SessionAssistant.resume_session(self_mock, "session_id")

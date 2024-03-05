@@ -8,7 +8,7 @@ environ: STRESS_BOOT_WAKEUP_DELAY RTC_DEVICE_FILE
 command:
   set -e
   rtcwake -d "${RTC_DEVICE_FILE:-rtc0}" -v -m on -s "${STRESS_BOOT_WAKEUP_DELAY:-120}" &
-  test-strict-confinement.reboot cold
+  test-strict-confinement.cold-boot
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0
@@ -18,7 +18,6 @@ imports:
 requires:
   lsb.distributor_id == 'Ubuntu Core'
   snap.name == 'test-strict-confinement'
-depends: com.canonical.certification::init-boot-loop-data
 
 
 id: dbus-cold-boot-test
@@ -43,7 +42,7 @@ _description: Perform warm reboot of the system via dbus command.
 unit: job
 plugin: shell
 command:
-  test-strict-confinement.reboot warm
+  test-strict-confinement.warm-boot
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 60s
@@ -53,7 +52,6 @@ imports:
 requires:
   lsb.distributor_id == 'Ubuntu Core'
   snap.name == 'test-strict-confinement'
-depends: com.canonical.certification::init-boot-loop-data
 
 
 id: dbus-warm-boot-test

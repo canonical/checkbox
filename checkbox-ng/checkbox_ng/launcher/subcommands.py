@@ -355,32 +355,46 @@ class Launcher(MainLoopStage, ReportsStage):
         finally:
             self.ctx.reset_sa()
 
-
     def _should_autoresume_last_run(self, resume_candidates):
         try:
             last_abandoned_session = resume_candidates[0]
         except IndexError:
             return False
-        with contextlib.suppress(IncompatibleJobError), self._resumed_session(
-            last_abandoned_session.id
-        ) as metadata:
-            app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
+        try:
+            with self._resumed_session(last_abandoned_session.id) as metadata:
+                app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
 
-            if not app_blob.get("testplan_id"):
-                return False
+                if not app_blob.get("testplan_id"):
+                    return False
 
-            self.sa.select_test_plan(app_blob["testplan_id"])
-            self.sa.bootstrap()
+                self.sa.select_test_plan(app_blob["testplan_id"])
+                self.sa.bootstrap()
 
-            if not metadata.running_job_name:
-                return False
+                if not metadata.running_job_name:
+                    return False
 
-            job_state = self.sa.get_job_state(metadata.running_job_name)
-            if job_state.job.plugin != "shell":
-                return False
-            return True
-        # last resumable session is incompatible
-        return False
+                job_state = self.sa.get_job_state(metadata.running_job_name)
+                if job_state.job.plugin != "shell":
+                    return False
+                return True
+        except IncompatibleJobError as ije:
+            # last resumable session is incompatible, produce a helpful log
+            _logger.error(
+                "Checkbox tried to resume last session ({}), but the "
+                "content of Checkbox Providers has changed.".format(
+                    last_abandoned_session.id
+                )
+            )
+            _logger.error(str(ije))
+            if os.getenv("SNAP"):
+                _logger.error("To resume it revert the latest Checkbox snap refresh")
+            else:
+                _logger.error(
+                    "To resume it, downgrade the relevant provider package first"
+                )
+
+            input("\nPress enter to start Checkbox.")
+            return False
 
 
     def _auto_resume_session(self, resume_candidates):
@@ -503,12 +517,24 @@ class Launcher(MainLoopStage, ReportsStage):
 
 
     def _get_autoresume_outcome_last_job(self, metadata):
-            job_state = self.sa.get_job_state(metadata.running_job_name)
-            if "noreturn" in job_state.job.flags:
-                return IJobResult.OUTCOME_PASS
-            return IJobResult.OUTCOME_CRASH
+        """
+        Calculates the result of the latest running job given its flags. This
+        is used to automatically resume a session and assign an outcome to the
+        job that interrupted the session. If the interruption is due to a
+        noreturn job (for example, reboot), the job will be marked as passed,
+        else, if the job made Checkbox crash, it will be marked as crash
+        """
+        job_state = self.sa.get_job_state(metadata.running_job_name)
+        if "noreturn" in job_state.job.flags:
+            return IJobResult.OUTCOME_PASS
+        return IJobResult.OUTCOME_CRASH
 
-    def _resume_session(self, session_id, outcome, comments=[]):
+    def _resume_session(self, session_id: str, outcome: 'IJobResult|None', comments=[]):
+        """
+        Resumes the session with the given session_id assigning to the latest
+        running job the given outcome. If outcome is not provided it will be
+        calculated from the function _get_autoresume_outcome_last_job
+        """
         metadata = self.ctx.sa.resume_session(session_id)
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))

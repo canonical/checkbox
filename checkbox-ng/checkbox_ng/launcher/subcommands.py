@@ -351,7 +351,6 @@ class Launcher(MainLoopStage, ReportsStage):
         """
         try:
             # reload the list of resumable_session in SA
-            list(self.sa.get_resumable_sessions())
             yield self.sa.resume_session(session_id)
         finally:
             self.ctx.reset_sa()
@@ -384,16 +383,6 @@ class Launcher(MainLoopStage, ReportsStage):
         return False
 
 
-    def _get_autoresume_outcome_last_job(self, session):
-        with self._resumed_session(session.id) as metadata:
-            app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
-            self.sa.select_test_plan(app_blob["testplan_id"])
-            self.sa.bootstrap()
-            job_state = self.sa.get_job_state(metadata.running_job_name)
-            if "noreturn" in job_state.job.flags:
-                return IJobResult.OUTCOME_PASS
-            return IJobResult.OUTCOME_CRASH
-
     def _auto_resume_session(self, resume_candidates):
         """
         Check if there was a request to auto-resume a session.
@@ -422,7 +411,7 @@ class Launcher(MainLoopStage, ReportsStage):
             last_session = resume_candidates[0]
             self._resume_session(
                 last_session.id,
-                self._get_autoresume_outcome_last_job(last_session),
+                None,
                 [],
             )
             return True
@@ -512,14 +501,23 @@ class Launcher(MainLoopStage, ReportsStage):
             resume_params.session_id, outcome, resume_params.comments
         )
 
+
+    def _get_autoresume_outcome_last_job(self, metadata):
+            job_state = self.sa.get_job_state(metadata.running_job_name)
+            if "noreturn" in job_state.job.flags:
+                return IJobResult.OUTCOME_PASS
+            return IJobResult.OUTCOME_CRASH
+
     def _resume_session(self, session_id, outcome, comments=[]):
-        list(self.ctx.sa.get_resumable_sessions())
         metadata = self.ctx.sa.resume_session(session_id)
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
             self.ctx.sa.select_test_plan(test_plan_id)
             self.ctx.sa.bootstrap()
+            if outcome is None:
+                outcome = self._get_autoresume_outcome_last_job(metadata)
+
         last_job = metadata.running_job_name
         is_cert_blocker = (
             self.ctx.sa.get_job_state(last_job).effective_certification_status

@@ -26,12 +26,14 @@ Test definitions for plainbox.impl.ctrl module
 
 from subprocess import CalledProcessError
 from unittest import TestCase
+import json
 import os
 import shutil
 
 from plainbox.abc import IJobResult
 from plainbox.abc import IProvider1
 from plainbox.abc import IProviderBackend1
+from plainbox.configuration import Suspend
 from plainbox.impl.ctrl import CheckBoxSessionStateController
 from plainbox.impl.ctrl import SymLinkNest
 from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
@@ -102,6 +104,66 @@ class CheckBoxSessionStateControllerTests(TestCase):
         self.assertEqual(
             self.ctrl.get_dependency_set(job_f),
             {('direct', 'j6'), ('resource', 'j6')})
+        # Job with an "also-after-suspend" flag, meaning this job should be
+        # set to run before the suspend job
+        job_g = JobDefinition({
+            "id": "j7",
+            "flags": Suspend.AUTO_FLAG
+        })
+        suspend_job = JobDefinition({
+            "id": Suspend.AUTO_JOB_ID
+        })
+        self.assertEqual(
+            self.ctrl.get_dependency_set(suspend_job, [job_g]),
+            {("ordering", "j7")}
+        )
+
+    def test_get_before_suspend_dependency_set__not_suspend_job_id(self):
+        self.assertEqual(
+            self.ctrl._get_before_suspend_dependency_set("not-suspend", []),
+            set()
+        )
+
+    def test_get_before_suspend_dependency_set__manual_suspend(self):
+        job1 = JobDefinition({
+            "id": "job1",
+            "flags": Suspend.MANUAL_FLAG
+        })
+        job2 = JobDefinition({
+            "id": "job2",
+        })
+        suspend_job = JobDefinition({
+            "id": Suspend.MANUAL_JOB_ID
+        })
+        self.assertEqual(
+            self.ctrl._get_before_suspend_dependency_set(
+                suspend_job.id,
+                [job1, job2]
+            ),
+            {"job1"}
+        )
+
+    def test_get_before_suspend_dependency_set__sibling(self):
+        job1 = JobDefinition({
+            "id": "job1",
+            "siblings": json.dumps([{
+                "id": "sibling-j1",
+                "depends": Suspend.AUTO_JOB_ID,
+            }])
+        })
+        job2 = JobDefinition({
+            "id": "job2",
+        })
+        suspend_job = JobDefinition({
+            "id": Suspend.AUTO_JOB_ID
+        })
+        self.assertEqual(
+            self.ctrl._get_before_suspend_dependency_set(
+                suspend_job.id,
+                [job1, job2]
+            ),
+            {"job1"}
+        )
 
     def test_get_inhibitor_list_PENDING_RESOURCE(self):
         # verify that jobs that require a resource that hasn't been
@@ -227,6 +289,30 @@ class CheckBoxSessionStateControllerTests(TestCase):
             [JobReadinessInhibitor(
                 InhibitionCause.FAILED_DEP, j2, None)])
 
+    def test_get_inhibitor_list_NOT_FAILED_DEP(self):
+        # verify that jobs that depend on another job that ran but
+        # didn't result in OUTCOME_FAIL produce the NOT_FAILED_DEP
+        # inhibitor.
+        j1 = JobDefinition({
+            'id': 'j1',
+            'salvages': 'j2',
+        })
+        j2 = JobDefinition({
+            'id': 'j2'
+        })
+        session_state = mock.MagicMock(spec=SessionState)
+        session_state.job_state_map = {
+            'j1': mock.Mock(spec_set=JobState),
+            'j2': mock.Mock(spec_set=JobState),
+        }
+        jsm_j2 = session_state.job_state_map['j2']
+        jsm_j2.job = j2
+        jsm_j2.result.outcome = IJobResult.OUTCOME_NONE
+        self.assertEqual(
+            self.ctrl.get_inhibitor_list(session_state, j1),
+            [JobReadinessInhibitor(
+                InhibitionCause.NOT_FAILED_DEP, j2, None)])
+
     def test_get_inhibitor_list_good_dep(self):
         # verify that jobs that depend on another job that ran and has outcome
         # equal to OUTCOME_PASS don't have any inhibitors
@@ -255,6 +341,170 @@ class CheckBoxSessionStateControllerTests(TestCase):
         jsm_j3.result.outcome = IJobResult.OUTCOME_PASS
         self.assertEqual(
             self.ctrl.get_inhibitor_list(session_state, j1), [])
+
+    def test_get_inhibitor_list__suspend_job(self):
+        j1 = JobDefinition({
+            "id": "j1",
+            "flags": Suspend.AUTO_FLAG,
+        })
+        j2 = JobDefinition({
+            "id": "j2",
+        })
+        suspend_job = JobDefinition({
+            "id": Suspend.AUTO_JOB_ID
+        })
+        session_state = mock.MagicMock(spec=SessionState)
+        session_state.job_state_map = {
+            "j1": mock.Mock(spec_set=JobState),
+            "j2": mock.Mock(spec_set=JobState),
+            Suspend.AUTO_JOB_ID: mock.Mock(spec_set=JobState),
+        }
+        jsm_j1 = session_state.job_state_map["j1"]
+        jsm_j1.job = j1
+        jsm_j1.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_j2 = session_state.job_state_map["j2"]
+        jsm_j2.job = j2
+        jsm_j2.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_suspend = session_state.job_state_map[Suspend.AUTO_JOB_ID]
+        jsm_suspend.job = suspend_job
+        jsm_suspend.result.outcome = IJobResult.OUTCOME_NONE
+        self.assertEqual(
+            self.ctrl.get_inhibitor_list(session_state, suspend_job),
+            [JobReadinessInhibitor(InhibitionCause.PENDING_DEP, j1, None)])
+
+    def test_get_suspend_inhibitor_list__not_suspend_job_id(self):
+        j1 = JobDefinition({
+            "id": "not-a-suspend-job"
+        })
+        session_state = mock.MagicMock(spec=SessionState)
+        self.assertEqual(
+            self.ctrl._get_suspend_inhibitor_list(session_state, j1), [])
+
+    def test_get_suspend_inhibitor_list__auto_suspend(self):
+        j1 = JobDefinition({
+            "id": "j1",
+            "flags": Suspend.AUTO_FLAG,
+        })
+        j2 = JobDefinition({
+            "id": "j2",
+        })
+        suspend_job = JobDefinition({
+            "id": Suspend.AUTO_JOB_ID
+        })
+        session_state = mock.MagicMock(spec=SessionState)
+        session_state.job_state_map = {
+            "j1": mock.Mock(spec_set=JobState),
+            "j2": mock.Mock(spec_set=JobState),
+            Suspend.AUTO_JOB_ID: mock.Mock(spec_set=JobState),
+        }
+        jsm_j1 = session_state.job_state_map["j1"]
+        jsm_j1.job = j1
+        jsm_j1.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_j2 = session_state.job_state_map["j2"]
+        jsm_j2.job = j2
+        jsm_j2.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_suspend = session_state.job_state_map[Suspend.AUTO_JOB_ID]
+        jsm_suspend.job = suspend_job
+        jsm_suspend.result.outcome = IJobResult.OUTCOME_NONE
+        self.assertEqual(
+            self.ctrl._get_suspend_inhibitor_list(session_state, suspend_job),
+            [JobReadinessInhibitor(InhibitionCause.PENDING_DEP, j1, None)])
+
+    def test_get_suspend_inhibitor_list__manual_suspend(self):
+        j1 = JobDefinition({
+            "id": "j1",
+            "flags": Suspend.MANUAL_FLAG,
+        })
+        j2 = JobDefinition({
+            "id": "j2",
+        })
+        suspend_job = JobDefinition({
+            "id": Suspend.MANUAL_JOB_ID
+        })
+        session_state = mock.MagicMock(spec=SessionState)
+        session_state.job_state_map = {
+            "j1": mock.Mock(spec_set=JobState),
+            "j2": mock.Mock(spec_set=JobState),
+            Suspend.MANUAL_JOB_ID: mock.Mock(spec_set=JobState),
+        }
+        jsm_j1 = session_state.job_state_map["j1"]
+        jsm_j1.job = j1
+        jsm_j1.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_j2 = session_state.job_state_map["j2"]
+        jsm_j2.job = j2
+        jsm_j2.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_suspend = session_state.job_state_map[Suspend.MANUAL_JOB_ID]
+        jsm_suspend.job = suspend_job
+        jsm_suspend.result.outcome = IJobResult.OUTCOME_NONE
+        self.assertEqual(
+            self.ctrl._get_suspend_inhibitor_list(session_state, suspend_job),
+            [JobReadinessInhibitor(InhibitionCause.PENDING_DEP, j1, None)])
+
+    def test_get_suspend_inhibitor_list__auto_sibling(self):
+        j1 = JobDefinition({
+            "id": "j1",
+            "siblings": json.dumps([{
+                "id": "sibling-j1",
+                "depends": Suspend.AUTO_JOB_ID,
+            }])
+        })
+        j2 = JobDefinition({
+            "id": "j2",
+        })
+        suspend_job = JobDefinition({
+            "id": Suspend.AUTO_JOB_ID
+        })
+        session_state = mock.MagicMock(spec=SessionState)
+        session_state.job_state_map = {
+            "j1": mock.Mock(spec_set=JobState),
+            "j2": mock.Mock(spec_set=JobState),
+            Suspend.AUTO_JOB_ID: mock.Mock(spec_set=JobState),
+        }
+        jsm_j1 = session_state.job_state_map["j1"]
+        jsm_j1.job = j1
+        jsm_j1.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_j2 = session_state.job_state_map["j2"]
+        jsm_j2.job = j2
+        jsm_j2.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_suspend = session_state.job_state_map[Suspend.AUTO_JOB_ID]
+        jsm_suspend.job = suspend_job
+        jsm_suspend.result.outcome = IJobResult.OUTCOME_NONE
+        self.assertEqual(
+            self.ctrl._get_suspend_inhibitor_list(session_state, suspend_job),
+            [JobReadinessInhibitor(InhibitionCause.PENDING_DEP, j1, None)])
+
+    def test_get_suspend_inhibitor_list__manual_sibling(self):
+        j1 = JobDefinition({
+            "id": "j1",
+            "siblings": json.dumps([{
+                "id": "sibling-j1",
+                "depends": Suspend.MANUAL_JOB_ID,
+            }])
+        })
+        j2 = JobDefinition({
+            "id": "j2",
+        })
+        suspend_job = JobDefinition({
+            "id": Suspend.MANUAL_JOB_ID
+        })
+        session_state = mock.MagicMock(spec=SessionState)
+        session_state.job_state_map = {
+            "j1": mock.Mock(spec_set=JobState),
+            "j2": mock.Mock(spec_set=JobState),
+            Suspend.MANUAL_JOB_ID: mock.Mock(spec_set=JobState),
+        }
+        jsm_j1 = session_state.job_state_map["j1"]
+        jsm_j1.job = j1
+        jsm_j1.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_j2 = session_state.job_state_map["j2"]
+        jsm_j2.job = j2
+        jsm_j2.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_suspend = session_state.job_state_map[Suspend.MANUAL_JOB_ID]
+        jsm_suspend.job = suspend_job
+        jsm_suspend.result.outcome = IJobResult.OUTCOME_NONE
+        self.assertEqual(
+            self.ctrl._get_suspend_inhibitor_list(session_state, suspend_job),
+            [JobReadinessInhibitor(InhibitionCause.PENDING_DEP, j1, None)])
 
     def test_observe_result__normal(self):
         job = mock.Mock(spec=JobDefinition)

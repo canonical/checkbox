@@ -219,4 +219,3 @@ if __name__ == "__main__":
     args = register_arguments()
 
     args.test_func(args)
-

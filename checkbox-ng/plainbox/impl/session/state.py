@@ -41,6 +41,7 @@ from plainbox.impl.session.system_information import(
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
+from plainbox.suspend_consts import Suspend
 from plainbox.vendor import morris
 
 
@@ -1091,24 +1092,21 @@ class SessionState:
                         field_offset_map=new_job.field_offset_map),
                     recompute,
                     via)
-        if 'also-after-suspend' in new_job.get_flag_set():
+        if Suspend.AUTO_FLAG in new_job.get_flag_set():
             data = {
                 key: value for key, value in new_job._data.items()
                 if not key.endswith('siblings')
             }
-            data['flags'] = data['flags'].replace('also-after-suspend', '')
-            data['flags'] = data['flags'].replace(
-                'also-after-suspend-manual', '')
+            data['flags'] = data['flags'].replace(Suspend.AUTO_FLAG, '')
+            data['flags'] = data['flags'].replace(Suspend.MANUAL_FLAG, '')
             data['id'] = "after-suspend-{}".format(new_job.partial_id)
             data['_summary'] = "{} after suspend (S3)".format(
                 new_job.summary)
-            provider_id = "com.canonical.certification"
-            suspend_test_id = "suspend/suspend_advanced_auto"
             if new_job.depends:
                 data['depends'] += " {}".format(new_job.id)
             else:
                 data['depends'] = "{}".format(new_job.id)
-            data['depends'] += " {}::{}".format(provider_id, suspend_test_id)
+            data['depends'] += " {}".format(Suspend.AUTO_JOB_ID)
             self._add_job_unit(
                 JobDefinition(
                     data,
@@ -1119,24 +1117,21 @@ class SessionState:
                     field_offset_map=new_job.field_offset_map),
                 recompute,
                 via)
-        if 'also-after-suspend-manual' in new_job.get_flag_set():
+        if Suspend.MANUAL_FLAG in new_job.get_flag_set():
             data = {
                 key: value for key, value in new_job._data.items()
                 if not key.endswith('siblings')
             }
-            data['flags'] = data['flags'].replace('also-after-suspend', '')
-            data['flags'] = data['flags'].replace(
-                'also-after-suspend-manual', '')
+            data['flags'] = data['flags'].replace(Suspend.AUTO_FLAG, '')
+            data['flags'] = data['flags'].replace(Suspend.MANUAL_FLAG, '')
             data['id'] = "after-suspend-manual-{}".format(new_job.partial_id)
             data['_summary'] = "{} after suspend (S3)".format(
                 new_job.summary)
-            provider_id = "com.canonical.certification"
-            suspend_test_id = "suspend/suspend_advanced"
             if new_job.depends:
                 data['depends'] += " {}".format(new_job.id)
             else:
                 data['depends'] = "{}".format(new_job.id)
-            data['depends'] += " {}::{}".format(provider_id, suspend_test_id)
+            data['depends'] += " {}".format(Suspend.MANUAL_JOB_ID)
             self._add_job_unit(
                 JobDefinition(
                     data,

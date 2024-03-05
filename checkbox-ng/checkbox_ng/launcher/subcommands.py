@@ -377,10 +377,9 @@ class Launcher(MainLoopStage, ReportsStage):
         except IncompatibleJobError as ije:
             # last resumable session is incompatible, produce a helpful log
             _logger.error(
-                "Checkbox tried to resume last session ({}), but the "
-                "content of Checkbox Providers has changed.".format(
-                    last_abandoned_session.id
-                )
+                "Checkbox tried to resume last session (%s), but the "
+                "content of Checkbox Providers has changed.",
+                last_abandoned_session.id,
             )
             _logger.error(str(ije))
             if os.getenv("SNAP"):
@@ -389,7 +388,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 )
             else:
                 _logger.error(
-                    "To resume it, downgrade the relevant provider package first"
+                    "To resume it, roll back the relevant provider package first"
                 )
 
             input("\nPress enter to start Checkbox.")
@@ -497,18 +496,12 @@ class Launcher(MainLoopStage, ReportsStage):
                 return False
 
     def _resume_session_via_resume_params(self, resume_params):
-        if resume_params.action == "pass":
-            outcome = IJobResult.OUTCOME_PASS
-        elif resume_params.action == "fail":
-            outcome = IJobResult.OUTCOME_FAIL
-        elif resume_params.action == "skip":
-            outcome = IJobResult.OUTCOME_SKIP
-        elif resume_params.action == "rerun":
-            outcome = IJobResult.OUTCOME_UNDECIDED
-        else:
-            raise ValueError(
-                "Unknonw resume_param action {}".format(resume_params.action)
-            )
+        outcome = {
+            "pass": IJobResult.OUTCOME_PASS,
+            "fail": IJobResult.OUTCOME_FAIL,
+            "skip": IJobResult.OUTCOME_SKIP,
+            "rerun": IJobResult.OUTCOME_UNDECIDED,
+        }[resume_params.action]
         return self._resume_session(
             resume_params.session_id, outcome, resume_params.comments
         )

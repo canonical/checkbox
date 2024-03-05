@@ -1,9 +1,10 @@
 import unittest
 import sys
+import argparse
 from pathlib import Path
 from io import StringIO
 from contextlib import redirect_stdout
-from unittest.mock import patch
+from unittest.mock import patch, Mock
 
 import iio_sensor_test
 
@@ -122,6 +123,54 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
         with redirect_stdout(StringIO()):
             with self.assertRaises(ValueError):
                 iio_sensor_test.check_humidity_sensor("iio_sensor1")
+
+    @patch("iio_sensor_test.check_pressure_sensor")
+    def test_validate_iio_sensor_test(self, mock_func):
+        mock_args = Mock(
+            return_value=argparse.Namespace(
+                type="pressure",
+                index="0")
+        )
+        mock_func.return_value = True
+
+        with redirect_stdout(StringIO()):
+            iio_sensor_test.validate_iio_sensor(mock_args())
+        mock_func.assert_called_once_with(
+            mock_args().index)
+
+    def test_sensor_resource(self):
+        mock_args = Mock(
+            return_value=argparse.Namespace(
+                mapping="0:pressure 1:accelerometer 2:humidityrelative")
+        )
+        with redirect_stdout(StringIO()) as stdout:
+            iio_sensor_test.dump_sensor_resource(mock_args())
+
+        self.assertEqual(
+            stdout.getvalue(),
+            (
+                "index: 0\n"
+                "sensor_type: pressure\n\n"
+                "index: 1\n"
+                "sensor_type: accelerometer\n\n"
+                "index: 2\n"
+                "sensor_type: humidityrelative\n\n\n"
+            )
+        )
+
+    def test_sensor_resource_with_unexpected_format(self):
+        mock_args = Mock(
+            return_value=argparse.Namespace(
+                mapping="0:pressure:error")
+        )
+
+        with self.assertRaises(ValueError) as context:
+            iio_sensor_test.dump_sensor_resource(mock_args())
+
+        self.assertEqual(
+            str(context.exception),
+            "too many values to unpack (expected 2)"
+        )
 
 
 class TestArgumentParser(unittest.TestCase):

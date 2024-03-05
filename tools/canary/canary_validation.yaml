@@ -1,8 +1,8 @@
-job_queue: 202201-29865
+job_queue: 202303-31322
 global_timeout: 3600
 output_timeout: 1800
 provision_data:
-  distro: jammy
+  url: http://10.102.196.9/somerville/Platforms/jellyfish-muk/X96_A00/dell-bto-jammy-jellyfish-muk-X96-20230419-19_A00.iso 
 test_data:
   test_cmds: |
     #!/bin/bash

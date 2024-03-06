@@ -720,9 +720,12 @@ class RemoteSessionAssistant:
         }
         meta = self.resume_session(session_id, runner_kwargs=runner_kwargs)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
-        launcher_from_controller = Configuration.from_text(
-            app_blob["launcher"], "Remote launcher"
-        )
+        if "launcher" in app_blob:
+            launcher_from_controller = Configuration.from_text(
+                app_blob["launcher"], "Remote launcher"
+            )
+        else:
+            launcher_from_controller = Configuration()
         self._launcher.update_from_another(
             launcher_from_controller, "Remote launcher"
         )

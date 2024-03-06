@@ -314,12 +314,15 @@ class CheckBoxSessionStateControllerTests(TestCase):
         jsm_j1 = session_state.job_state_map["j1"]
         jsm_j1.job = j1
         jsm_j1.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_j1.readiness_inhibitor_list = []
         jsm_j2 = session_state.job_state_map["j2"]
         jsm_j2.job = j2
         jsm_j2.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_j2.readiness_inhibitor_list = []
         jsm_suspend = session_state.job_state_map[Suspend.AUTO_JOB_ID]
         jsm_suspend.job = suspend_job
         jsm_suspend.result.outcome = IJobResult.OUTCOME_NONE
+        jsm_suspend.readiness_inhibitor_list = []
         self.assertEqual(
             self.ctrl.get_inhibitor_list(session_state, suspend_job),
             [JobReadinessInhibitor(InhibitionCause.PENDING_DEP, j1, None)])

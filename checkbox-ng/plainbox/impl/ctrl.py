@@ -320,9 +320,19 @@ class CheckBoxSessionStateController(ISessionStateController):
             List of JobReadinessInhibitor
         """
         suspend_inhibitors = []
-        job_list = [state.job for state in session_state.job_state_map.values()]
-        p_suspend_job_id = partial(self._is_job_impacting_suspend, suspend_job.id)
-        suspend_inhibitors_jobs = filter(p_suspend_job_id, job_list)
+        undesired_inhibitor = JobReadinessInhibitor(
+            cause=InhibitionCause.UNDESIRED
+        )
+        # We are only interested in jobs that are actually going to run
+        run_list = [
+            state.job
+            for state in session_state.job_state_map.values()
+            if undesired_inhibitor not in state.readiness_inhibitor_list
+        ]
+        p_suspend_job_id = partial(
+            self._is_job_impacting_suspend, suspend_job.id
+        )
+        suspend_inhibitors_jobs = filter(p_suspend_job_id, run_list)
         for job in suspend_inhibitors_jobs:
             if session_state.job_state_map[job.id].result.outcome == IJobResult.OUTCOME_NONE:
                 inhibitor = JobReadinessInhibitor(

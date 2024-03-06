@@ -231,7 +231,7 @@ class RemoteAssistantTests(TestCase):
         rsa._state = remote_assistant.Idle
 
         mock_meta = mock.Mock()
-        mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+        mock_meta.app_blob = b'{"testplan_id": "tp_id"}'
 
         rsa.resume_session.return_value = mock_meta
         os_path_exists_mock = mock.Mock()

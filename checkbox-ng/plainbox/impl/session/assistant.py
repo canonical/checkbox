@@ -599,6 +599,7 @@ class SessionAssistant:
             ).allowed_calls = self._get_allowed_calls_in_normal_state()
         else:
             UsageExpectation.of(self).allowed_calls = {
+                self.get_resumable_sessions: "to get resume candidates",
                 self.select_test_plan: "to save test plan selection",
                 self.use_alternate_configuration: (
                     "use an alternate configuration system"

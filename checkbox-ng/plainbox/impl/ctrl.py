@@ -48,6 +48,7 @@ import tempfile
 import subprocess
 import sys
 import threading
+from functools import partial
 from subprocess import check_output, CalledProcessError, STDOUT
 
 from plainbox.abc import IJobResult
@@ -165,25 +166,29 @@ class CheckBoxSessionStateController(ISessionStateController):
         :returns:
             A set of job ids that need to be run before the suspend job
         """
-        suspend_deps = set()
-        expected_flag = ""
-        if suspend_job_id == Suspend.AUTO_JOB_ID:
-            expected_flag = Suspend.AUTO_FLAG
-        elif suspend_job_id == Suspend.MANUAL_JOB_ID:
-            expected_flag = Suspend.MANUAL_FLAG
-        if not expected_flag:
-            return suspend_deps
-        for dep_job in job_list:
-            if dep_job.flags and expected_flag in dep_job.flags:
-                suspend_deps.add(dep_job.id)
-            if dep_job.siblings:
-                for sibling_data in json.loads(dep_job.tr_siblings()):
-                    if (
-                        sibling_data.get("depends")
-                        and suspend_job_id in sibling_data["depends"]
-                    ):
-                        suspend_deps.add(dep_job.id)
+        p_suspend_job_id = partial(self._is_job_impacting_suspend, suspend_job_id)
+        suspend_deps_jobs = filter(p_suspend_job_id, job_list)
+        suspend_deps = set(job.id for job in suspend_deps_jobs)
         return suspend_deps
+
+    def _is_job_impacting_suspend(self, suspend_job_id, job):
+        """
+        Check if the ``suspend_job_id`` job needs to be run after a given
+        ``job``. This is the case if the ``job`` has a "also after suspend"
+        flag, or if it defines a sibling that has a dependency on the suspend
+        job.
+        """
+        expected_flag = {
+            Suspend.AUTO_JOB_ID: Suspend.AUTO_FLAG,
+            Suspend.MANUAL_JOB_ID: Suspend.MANUAL_FLAG,
+        }.get(suspend_job_id)
+        if job.flags and expected_flag in job.flags:
+            return True
+        if job.siblings:
+            for sibling_data in json.loads(job.tr_siblings()):
+                if suspend_job_id in sibling_data.get("depends", []):
+                    return True
+        return False
 
     def get_inhibitor_list(self, session_state, job):
         """
@@ -315,33 +320,16 @@ class CheckBoxSessionStateController(ISessionStateController):
             List of JobReadinessInhibitor
         """
         suspend_inhibitors = []
-        expected_flag = ""
-        if suspend_job.id == Suspend.AUTO_JOB_ID:
-            expected_flag = Suspend.AUTO_FLAG
-        elif suspend_job.id == Suspend.MANUAL_JOB_ID:
-            expected_flag = Suspend.MANUAL_FLAG
-        if not expected_flag:
-            return suspend_inhibitors
-        for job_id, job_state in session_state.job_state_map.items():
-            if job_state.job.flags and expected_flag in job_state.job.flags:
-                if job_state.result.outcome == IJobResult.OUTCOME_NONE:
-                    inhibitor = JobReadinessInhibitor(
-                        cause=InhibitionCause.PENDING_DEP,
-                        related_job=job_state.job,
-                    )
-                    suspend_inhibitors.append(inhibitor)
-            if job_state.job.siblings:
-                for sibling_data in json.loads(job_state.job.tr_siblings()):
-                    if (
-                        sibling_data.get("depends")
-                        and suspend_job.id in sibling_data["depends"]
-                    ):
-                        if job_state.result.outcome == IJobResult.OUTCOME_NONE:
-                            inhibitor = JobReadinessInhibitor(
-                                cause=InhibitionCause.PENDING_DEP,
-                                related_job=job_state.job,
-                            )
-                        suspend_inhibitors.append(inhibitor)
+        job_list = [state.job for state in session_state.job_state_map.values()]
+        p_suspend_job_id = partial(self._is_job_impacting_suspend, suspend_job.id)
+        suspend_inhibitors_jobs = filter(p_suspend_job_id, job_list)
+        for job in suspend_inhibitors_jobs:
+            if session_state.job_state_map[job.id].result.outcome == IJobResult.OUTCOME_NONE:
+                inhibitor = JobReadinessInhibitor(
+                    cause=InhibitionCause.PENDING_DEP,
+                    related_job=job,
+                )
+                suspend_inhibitors.append(inhibitor)
         return suspend_inhibitors
 
     def observe_result(self, session_state, job, result, fake_resources=False):

@@ -166,7 +166,9 @@ class CheckBoxSessionStateController(ISessionStateController):
         :returns:
             A set of job ids that need to be run before the suspend job
         """
-        p_suspend_job_id = partial(self._is_job_impacting_suspend, suspend_job_id)
+        p_suspend_job_id = partial(
+            self._is_job_impacting_suspend, suspend_job_id
+        )
         suspend_deps_jobs = filter(p_suspend_job_id, job_list)
         suspend_deps = set(job.id for job in suspend_deps_jobs)
         return suspend_deps
@@ -334,7 +336,10 @@ class CheckBoxSessionStateController(ISessionStateController):
         )
         suspend_inhibitors_jobs = filter(p_suspend_job_id, run_list)
         for job in suspend_inhibitors_jobs:
-            if session_state.job_state_map[job.id].result.outcome == IJobResult.OUTCOME_NONE:
+            if (
+                session_state.job_state_map[job.id].result.outcome
+                == IJobResult.OUTCOME_NONE
+            ):
                 inhibitor = JobReadinessInhibitor(
                     cause=InhibitionCause.PENDING_DEP,
                     related_job=job,

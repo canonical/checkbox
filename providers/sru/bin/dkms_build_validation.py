@@ -23,9 +23,10 @@ import re
 import subprocess
 import sys
 import textwrap
+from typing import Dict, List
 
 
-def run_command(command):
+def run_command(command: str) -> str:
     """Run a shell command and return its output"""
     try:
         result = subprocess.check_output(
@@ -36,41 +37,62 @@ def run_command(command):
         )
         return result.strip()
     except subprocess.CalledProcessError as e:
-        raise Exception(
-            "Command '{0}' failed with error: {1}".format(command, e.output)
+        raise RuntimeError(
+            "Command '{0}' failed with error:\n{1}".format(command, e.output)
         )
 
 
-def parse_version(ver):
-    # Attempt to split the version into its numeric and suffix components
-    match = re.match(r"(\d+\.\d+\.\d+-\d+)", ver)
-    if match:
-        parsed_version = version.parse(match.group(1))
-    else:
-        raise ValueError("Invalid version string: {0}".format(ver))
-
-    return parsed_version
-
-
-def main():
-    ubuntu_release = run_command("lsb_release -r | cut -d ':' -f 2 | xargs")
-    dkms_status = run_command("dkms status")
-
+def parse_dkms_status(dkms_status: str, ubuntu_release: str) -> List[Dict]:
+    """Parse the output of 'dkms status' and return a list of dictionaries"""
     kernel_info = []
     for line in dkms_status.splitlines():
-        # split the line by the : and store each one in a set
         details, status = line.split(": ")
-
         if version.parse(ubuntu_release) >= version.parse("22.04"):
             kernel_ver = details.split(", ")[1]
         else:
             kernel_ver = details.split(", ")[2]
         kernel_info.append({"version": kernel_ver, "status": status})
+    return kernel_info
 
+
+def parse_version(ver: str) -> version.Version:
+    """Parse the version string and return a version object"""
+    match = re.match(r"(\d+\.\d+\.\d+(-\d+)?)", ver)
+    if match:
+        parsed_version = version.parse(match.group(1))
+    else:
+        raise ValueError("Invalid version string: {0}".format(ver))
+    return parsed_version
+
+
+def has_dkms_build_errors(kernel_ver_current: str) -> bool:
+    log_path = "/var/log/apt/term.log"
+    err_msg = "Bad return status for module build on kernel: {}".format(
+        kernel_ver_current
+    )
+    with open(log_path, "r") as f:
+        for line in f.readlines():
+            if err_msg in line:
+                print("Found dkms build error messages in {}".format(log_path))
+                print("\n=== build log ===")
+                result = run_command(
+                    "grep '{}' {} -C 5".format(err_msg, log_path)
+                )
+                print(result)
+                return True
+    return False
+
+
+def main():
+    # Get the kernel version and DKMS status
+    ubuntu_release = run_command("lsb_release -r | cut -d ':' -f 2 | xargs")
+    dkms_status = run_command("dkms status")
+
+    # Parse the DKMS status and sort the kernel versions
+    kernel_info = parse_dkms_status(dkms_status, ubuntu_release)
     sorted_kernel_info = sorted(
         kernel_info, key=lambda x: parse_version(x["version"])
     )
-
     kernel_ver_max = sorted_kernel_info[-1]["version"]
     kernel_ver_min = sorted_kernel_info[0]["version"]
 
@@ -115,17 +137,8 @@ def main():
         print("=== DKMS status ===\n{0}".format(dkms_status))
 
     # Scan the APT log for errors during system update
-    log_path = "/var/log/apt/term.log"
-    err_msg = "Bad return status for module build on kernel: {}".format(
-        kernel_ver_current
-    )
-    with open(log_path, "r") as f:
-        if err_msg in f.read():
-            print("Found dkms build error messages in {}".format(log_path))
-            print("\n=== build log ===")
-            result = run_command("grep '{}' {} -C 5".format(err_msg, log_path))
-            print(result)
-            return 1
+    if has_dkms_build_errors(kernel_ver_current):
+        return 1
 
     return 0
 

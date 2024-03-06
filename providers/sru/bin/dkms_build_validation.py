@@ -18,12 +18,15 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from collections import Counter
+import logging
 from packaging import version
 import re
 import subprocess
 import sys
 import textwrap
 from typing import Dict, List
+
+logger = logging.getLogger("dkms_build_validation")
 
 
 def run_command(command: str) -> str:
@@ -73,12 +76,14 @@ def has_dkms_build_errors(kernel_ver_current: str) -> bool:
     with open(log_path, "r") as f:
         for line in f.readlines():
             if err_msg in line:
-                print("Found dkms build error messages in {}".format(log_path))
-                print("\n=== build log ===")
+                logger.error(
+                    "Found dkms build error messages in {}".format(log_path)
+                )
+                logger.error("\n=== build log ===")
                 result = run_command(
                     "grep '{}' {} -C 5".format(err_msg, log_path)
                 )
-                print(result)
+                logger.error(result)
                 return True
     return False
 
@@ -111,8 +116,8 @@ def main():
                 kernel_ver_max=kernel_ver_max,
             )
         )
-        print(msg)
-        print("=== DKMS status ===\n{0}".format(dkms_status))
+        logger.error(msg)
+        logger.error("=== DKMS status ===\n{0}".format(dkms_status))
         return 1
 
     # Count the occurernces of the latest and the oldest kernel version and
@@ -133,8 +138,8 @@ def main():
                 kernel_ver_max=kernel_ver_max,
             )
         )
-        print(msg)
-        print("=== DKMS status ===\n{0}".format(dkms_status))
+        logger.warning(msg)
+        logger.warning("=== DKMS status ===\n{0}".format(dkms_status))
 
     # Scan the APT log for errors during system update
     if has_dkms_build_errors(kernel_ver_current):

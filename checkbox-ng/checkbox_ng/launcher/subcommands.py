@@ -509,7 +509,7 @@ class Launcher(MainLoopStage, ReportsStage):
         else, if the job made Checkbox crash, it will be marked as crash
         """
         job_state = self.sa.get_job_state(metadata.running_job_name)
-        if "noreturn" in (job_state.job.flags or ""):
+        if "noreturn" in (job_state.job.flags or set()):
             return IJobResult.OUTCOME_PASS
         return IJobResult.OUTCOME_CRASH
 

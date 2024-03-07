@@ -43,8 +43,8 @@ from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.category import CategoryUnit
-
 from plainbox.impl.unit.unit_with_id import UnitWithId
+from plainbox.suspend_consts import Suspend
 from plainbox.vendor import mock
 from plainbox.vendor.morris import SignalTestCase
 
@@ -309,7 +309,7 @@ class SessionStateAPITests(TestCase):
 
     def test_also_after_suspend_flag(self):
         # Define a job
-        job = make_job("A", summary="foo", flags="also-after-suspend")
+        job = make_job("A", summary="foo", flags=Suspend.AUTO_FLAG)
         # Define an empty session
         session = SessionState([])
         # Add the job to the session
@@ -319,12 +319,13 @@ class SessionStateAPITests(TestCase):
         self.assertIn(job, session.job_list)
         self.assertEqual(session.job_list[1].id, "after-suspend-A")
         self.assertEqual(session.job_list[1].summary, "foo after suspend (S3)")
+        expected_depends = "A {}".format(Suspend.AUTO_JOB_ID)
         self.assertEqual(
             session.job_list[1].depends,
-            ("A com.canonical.certification::suspend/suspend_advanced_auto"),
+            (expected_depends),
         )
         sibling = session.job_list[1]
-        self.assertNotIn("also-after-suspend", sibling.get_flag_set())
+        self.assertNotIn(Suspend.AUTO_FLAG, sibling.get_flag_set())
         # Both jobs got added to job state map
         self.assertIs(session.job_state_map[job.id].job, job)
         self.assertIs(session.job_state_map[sibling.id].job, sibling)
@@ -346,7 +347,7 @@ class SessionStateAPITests(TestCase):
 
     def test_also_after_suspend_manual_flag(self):
         # Define a job
-        job = make_job("A", summary="foo", flags="also-after-suspend-manual")
+        job = make_job("A", summary="foo", flags=Suspend.MANUAL_FLAG)
         # Define an empty session
         session = SessionState([])
         # Add the job to the session
@@ -356,12 +357,13 @@ class SessionStateAPITests(TestCase):
         self.assertIn(job, session.job_list)
         self.assertEqual(session.job_list[1].id, "after-suspend-manual-A")
         self.assertEqual(session.job_list[1].summary, "foo after suspend (S3)")
+        expected_depends = "A {}".format(Suspend.MANUAL_JOB_ID)
         self.assertEqual(
             session.job_list[1].depends,
-            "A com.canonical.certification::suspend/suspend_advanced",
+            expected_depends,
         )
         sibling = session.job_list[1]
-        self.assertNotIn("also-after-suspend-manual", sibling.get_flag_set())
+        self.assertNotIn(Suspend.MANUAL_FLAG, sibling.get_flag_set())
         # Both jobs got added to job state map
         self.assertIs(session.job_state_map[job.id].job, job)
         self.assertIs(session.job_state_map[sibling.id].job, sibling)

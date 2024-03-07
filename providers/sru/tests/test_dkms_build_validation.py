@@ -7,6 +7,8 @@ from dkms_build_validation import (
     run_command,
     parse_dkms_status,
     parse_version,
+    check_kernel_version,
+    check_dkms_module_count,
     has_dkms_build_errors,
     main,
 )
@@ -16,9 +18,14 @@ class TestDKMSValidation(unittest.TestCase):
 
     # Example output of `dkms status`
     dkms_status = (
-        "fwts/24.01.00, 6.5.0-15-generic, x86_64: installed\n"
-        "fwts/24.01.00, 6.5.0-17-generic, x86_64: installed"
+        "fwts/24.01.00, 6.5.0-17-generic, x86_64: installed\n"
+        "fwts/24.01.00, 6.5.0-15-generic, x86_64: installed"
     )
+
+    sorted_kernel_info = [
+        {"version": "6.5.0-15-generic", "status": "installed"},
+        {"version": "6.5.0-17-generic", "status": "installed"},
+    ]
 
     @patch("dkms_build_validation.subprocess.check_output")
     def test_run_command(self, mock_check_output):
@@ -42,9 +49,7 @@ class TestDKMSValidation(unittest.TestCase):
         with self.assertRaises(SystemExit):
             run_command(["test_command"])
 
-    @patch("dkms_build_validation.run_command")
-    def test_parse_dkms_status(self, mock_run_command):
-
+    def test_parse_dkms_status(self):
         ubuntu_release = "22.04"
         kernel_info = parse_dkms_status(self.dkms_status, ubuntu_release)
         # Assuming you have a specific expected output for kernel_info
@@ -54,25 +59,24 @@ class TestDKMSValidation(unittest.TestCase):
         ]
         self.assertEqual(kernel_info, expected_kernel_info)
 
-    @patch("dkms_build_validation.run_command")
-    def test_parse_dkms_status_old(self, mock_run_command):
+    def test_parse_dkms_status_old(self):
         old_dkms_status = (
-            "fwts, 24.01.00, 6.5.0-15-generic, x86_64: installed\n"
-            "fwts, 24.01.00, 6.5.0-17-generic, x86_64: installed"
+            "fwts, 24.01.00, 6.5.0-17-generic, x86_64: installed\n"
+            "fwts, 24.01.00, 6.5.0-15-generic, x86_64: installed"
         )
         ubuntu_release = "18.04"
-        kernel_info = parse_dkms_status(old_dkms_status, ubuntu_release)
+        sorted_kernel_info = parse_dkms_status(old_dkms_status, ubuntu_release)
         # Assuming you have a specific expected output for kernel_info
         expected_kernel_info = [
             {"version": "6.5.0-15-generic", "status": "installed"},
             {"version": "6.5.0-17-generic", "status": "installed"},
         ]
-        self.assertEqual(kernel_info, expected_kernel_info)
+        self.assertEqual(sorted_kernel_info, expected_kernel_info)
 
         # Test the old format with a newer Ubuntu release
         ubuntu_release = "22.04"
-        kernel_info = parse_dkms_status(old_dkms_status, ubuntu_release)
-        self.assertNotEqual(kernel_info, expected_kernel_info)
+        sorted_kernel_info = parse_dkms_status(old_dkms_status, ubuntu_release)
+        self.assertNotEqual(sorted_kernel_info, expected_kernel_info)
 
     def test_parse_version(self):
         # Test with a valid version string
@@ -91,8 +95,40 @@ class TestDKMSValidation(unittest.TestCase):
         with self.assertRaises(SystemExit):
             parse_version("Wrong version string")
 
-    @patch("dkms_build_validation.run_command")
-    def test_has_dkms_build_errors(self, mock_run_command):
+    def test_check_kernel_version(self):
+        # Test with a kernel version that matches the latest one
+        self.assertEqual(
+            check_kernel_version(
+                "6.5.0-17-generic", self.sorted_kernel_info, self.dkms_status
+            ),
+            0,
+        )
+
+        # Test with a kernel version that doesn't match the latest one
+        self.assertEqual(
+            check_kernel_version(
+                "6.5.0-18-generic", self.sorted_kernel_info, self.dkms_status
+            ),
+            1,
+        )
+
+    def test_check_dkms_module_count(self):
+        # Test with the same number of modules
+        self.assertEqual(
+            check_dkms_module_count(self.sorted_kernel_info, self.dkms_status),
+            0,
+        )
+
+        # Test with a different number of modules
+        bad_kernel_info = self.sorted_kernel_info + [
+            {"version": "6.5.0-17-generic", "status": "installed"}
+        ]
+        self.assertEqual(
+            check_dkms_module_count(bad_kernel_info, self.dkms_status),
+            1,
+        )
+
+    def test_has_dkms_build_errors(self):
         kernel_ver_current = "6.5.0-17-generic"
 
         # Test with a log file that doesn't contain any errors
@@ -109,44 +145,47 @@ class TestDKMSValidation(unittest.TestCase):
         with patch("builtins.open", mock_open(read_data=data)):
             self.assertEqual(has_dkms_build_errors(kernel_ver_current), True)
 
-    @patch("dkms_build_validation.has_dkms_build_errors")
     @patch("dkms_build_validation.run_command")
-    def test_main_different_kernel(self, mock_run_command, mock_has_err):
-        # Mock the run_command function to return specific values
-        mock_run_command.side_effect = [
-            "22.04",  # lsb_release -r
-            self.dkms_status,  # dkms_status
-            "6.5.0-20-generic",  # uname -r
-        ]
-        mock_has_err.return_value = False
-        self.assertEqual(main(), 1)
-
+    @patch("dkms_build_validation.parse_dkms_status")
+    @patch("dkms_build_validation.check_kernel_version")
+    @patch("dkms_build_validation.check_dkms_module_count")
     @patch("dkms_build_validation.has_dkms_build_errors")
-    @patch("dkms_build_validation.run_command")
-    def test_main_different_kernel_count(self, mock_run_command, mock_has_err):
-        warn_dkms_status = (
-            "fwts/24.01.00, 6.5.0-15-generic, x86_64: installed\n"
-            "fwts_2/24.01.00, 6.5.0-15-generic, x86_64: installed\n"
-            "fwts/24.01.00, 6.5.0-17-generic, x86_64: installed"
-        )
-        # Mock the run_command function to return specific values
-        mock_run_command.side_effect = [
-            "22.04",  # lsb_release -r
-            warn_dkms_status,  # dkms_status
-            "6.5.0-17-generic",  # uname -r
-        ]
-        mock_has_err.return_value = False
-        # The test still passes with a warning
+    def test_main(
+        self, mock_err, mock_count, mock_ver, mock_parse, mock_run_command
+    ):
+        mock_run_command.return_value = "output"
+        mock_parse.return_value = []
+        mock_ver.return_value = 0
+        mock_count.return_value = 0
+        mock_err.return_value = 0
         self.assertEqual(main(), 0)
 
-    @patch("dkms_build_validation.has_dkms_build_errors")
     @patch("dkms_build_validation.run_command")
-    def test_main_fails_with_errors(self, mock_run_command, mock_has_err):
-        # Mock the run_command function to return specific values
-        mock_run_command.side_effect = [
-            "22.04",  # lsb_release -r
-            self.dkms_status,  # dkms_status
-            "6.5.0-17-generic",  # uname -r
-        ]
-        mock_has_err.return_value = True
+    @patch("dkms_build_validation.parse_dkms_status")
+    @patch("dkms_build_validation.check_kernel_version")
+    @patch("dkms_build_validation.check_dkms_module_count")
+    @patch("dkms_build_validation.has_dkms_build_errors")
+    def test_main_different_kernel_version(
+        self, mock_err, mock_count, mock_ver, mock_parse, mock_run_command
+    ):
+        mock_run_command.return_value = "output"
+        mock_parse.return_value = []
+        mock_ver.return_value = 1
+        mock_count.return_value = 0
+        mock_err.return_value = 0
+        self.assertEqual(main(), 1)
+
+    @patch("dkms_build_validation.run_command")
+    @patch("dkms_build_validation.parse_dkms_status")
+    @patch("dkms_build_validation.check_kernel_version")
+    @patch("dkms_build_validation.check_dkms_module_count")
+    @patch("dkms_build_validation.has_dkms_build_errors")
+    def test_main_with_dkms_build_errors(
+        self, mock_err, mock_count, mock_ver, mock_parse, mock_run_command
+    ):
+        mock_run_command.return_value = "output"
+        mock_parse.return_value = []
+        mock_ver.return_value = 0
+        mock_count.return_value = 0
+        mock_err.return_value = 1
         self.assertEqual(main(), 1)

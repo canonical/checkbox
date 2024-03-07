@@ -46,6 +46,16 @@ def run_command(command: List[str]) -> str:
         )
 
 
+def parse_version(ver: str) -> version.Version:
+    """Parse the version string and return a version object"""
+    match = re.match(r"(\d+\.\d+\.\d+(-\d+)?)", ver)
+    if match:
+        parsed_version = version.parse(match.group(1))
+    else:
+        raise SystemExit("Invalid version string: {0}".format(ver))
+    return parsed_version
+
+
 def parse_dkms_status(dkms_status: str, ubuntu_release: str) -> List[Dict]:
     """Parse the output of 'dkms status', the result is a list of dictionaries
     that contain the kernel version parsed the status for each one.
@@ -58,17 +68,63 @@ def parse_dkms_status(dkms_status: str, ubuntu_release: str) -> List[Dict]:
         else:
             kernel_ver = details.split(", ")[2]
         kernel_info.append({"version": kernel_ver, "status": status})
-    return kernel_info
+
+    sorted_kernel_info = sorted(
+        kernel_info, key=lambda x: parse_version(x["version"])
+    )
+    return sorted_kernel_info
 
 
-def parse_version(ver: str) -> version.Version:
-    """Parse the version string and return a version object"""
-    match = re.match(r"(\d+\.\d+\.\d+(-\d+)?)", ver)
-    if match:
-        parsed_version = version.parse(match.group(1))
-    else:
-        raise SystemExit("Invalid version string: {0}".format(ver))
-    return parsed_version
+def check_kernel_version(
+    kernel_ver_current: str, sorted_kernel_info: List[Dict], dkms_status: str
+) -> int:
+    kernel_ver_max = sorted_kernel_info[-1]["version"]
+    if kernel_ver_max != kernel_ver_current:
+        msg = textwrap.dedent(
+            """
+            Current kernel version does not match the latest built DKMS module.
+            Your running kernel: {kernel_ver_current}
+            Latest DKMS module built on kernel: {kernel_ver_max}
+            Maybe the target DKMS was not built,
+            or you are not running the latest available kernel.
+            """.format(
+                kernel_ver_current=kernel_ver_current,
+                kernel_ver_max=kernel_ver_max,
+            )
+        )
+        logger.error(msg)
+        logger.error("=== DKMS status ===\n{0}".format(dkms_status))
+        return 1
+    return 0
+
+
+def check_dkms_module_count(sorted_kernel_info: List[Dict], dkms_status: str):
+    kernel_ver_max = sorted_kernel_info[-1]["version"]
+    kernel_ver_min = sorted_kernel_info[0]["version"]
+
+    version_count = Counter([item["version"] for item in sorted_kernel_info])
+    number_dkms_min = version_count[kernel_ver_min]
+    number_dkms_max = version_count[kernel_ver_max]
+    number_dkms_min = version_count[kernel_ver_min]
+    number_dkms_max = version_count[kernel_ver_max]
+
+    if number_dkms_min != number_dkms_max:
+        msg = textwrap.dedent(
+            """
+            {number_dkms_min}  modules for {kernel_ver_min}
+            {number_dkms_max}  modules for {kernel_ver_max}
+            DKMS module number is inconsistent. Some modules may not be built.
+            """.format(
+                number_dkms_min=number_dkms_min,
+                kernel_ver_min=kernel_ver_min,
+                number_dkms_max=number_dkms_max,
+                kernel_ver_max=kernel_ver_max,
+            )
+        )
+        logger.warning(msg)
+        logger.warning("=== DKMS status ===\n{0}".format(dkms_status))
+        return 1
+    return 0
 
 
 def has_dkms_build_errors(kernel_ver_current: str) -> bool:
@@ -93,53 +149,19 @@ def main():
     ubuntu_release = run_command(["lsb_release", "-r"]).split()[-1]
     dkms_status = run_command(["dkms", "status"])
 
-    # Parse the DKMS status and sort the kernel versions
-    kernel_info = parse_dkms_status(dkms_status, ubuntu_release)
-    sorted_kernel_info = sorted(
-        kernel_info, key=lambda x: parse_version(x["version"])
-    )
-    kernel_ver_max = sorted_kernel_info[-1]["version"]
-    kernel_ver_min = sorted_kernel_info[0]["version"]
+    # Parse and sort the DKMS status and sort the kernel versions
+    sorted_kernel_info = parse_dkms_status(dkms_status, ubuntu_release)
 
     # kernel_ver_max should be the same as kernel_ver_current
-    kernel_ver_current = run_command(["uname", "-r"])
-    if kernel_ver_max != kernel_ver_current:
-        msg = textwrap.dedent(
-            """
-            Current kernel version does not match the latest built DKMS module.
-            Your running kernel: {kernel_ver_current}
-            Latest DKMS module built on kernel: {kernel_ver_max}
-            Maybe the target DKMS was not built,
-            or you are not running the latest available kernel.
-            """.format(
-                kernel_ver_current=kernel_ver_current,
-                kernel_ver_max=kernel_ver_max,
-            )
-        )
-        logger.error(msg)
-        logger.error("=== DKMS status ===\n{0}".format(dkms_status))
+    kernel_ver_current = run_command("uname -r")
+    if check_kernel_version(
+        kernel_ver_current, sorted_kernel_info, dkms_status
+    ):
         return 1
 
     # Count the occurernces of the latest and the oldest kernel version and
     # compare the number of DKMS modules for min and max kernel versions
-    version_count = Counter([item["version"] for item in sorted_kernel_info])
-    number_dkms_min = version_count[kernel_ver_min]
-    number_dkms_max = version_count[kernel_ver_max]
-    if number_dkms_min != number_dkms_max:
-        msg = textwrap.dedent(
-            """
-            {number_dkms_min}  modules for {kernel_ver_min}
-            {number_dkms_max}  modules for {kernel_ver_max}
-            DKMS module number is inconsistent. Some modules may not be built.
-            """.format(
-                number_dkms_min=number_dkms_min,
-                kernel_ver_min=kernel_ver_min,
-                number_dkms_max=number_dkms_max,
-                kernel_ver_max=kernel_ver_max,
-            )
-        )
-        logger.warning(msg)
-        logger.warning("=== DKMS status ===\n{0}".format(dkms_status))
+    check_dkms_module_count(sorted_kernel_info, dkms_status)
 
     # Scan the APT log for errors during system update
     return has_dkms_build_errors(kernel_ver_current)

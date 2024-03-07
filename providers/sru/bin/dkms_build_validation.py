@@ -29,24 +29,27 @@ from typing import Dict, List
 logger = logging.getLogger("dkms_build_validation")
 
 
-def run_command(command: str) -> str:
+def run_command(command: List[str]) -> str:
     """Run a shell command and return its output"""
     try:
         result = subprocess.check_output(
             command,
-            stderr=subprocess.STDOUT,
-            shell=True,
+            stderr=subprocess.PIPE,
             universal_newlines=True,
         )
         return result.strip()
     except subprocess.CalledProcessError as e:
-        raise RuntimeError(
-            "Command '{0}' failed with error:\n{1}".format(command, e.output)
+        raise SystemExit(
+            "Command '{0}' failed with exit code {1}:\n{2}".format(
+                e.cmd, e.returncode, e.stderr
+            )
         )
 
 
 def parse_dkms_status(dkms_status: str, ubuntu_release: str) -> List[Dict]:
-    """Parse the output of 'dkms status' and return a list of dictionaries"""
+    """Parse the output of 'dkms status', the result is a list of dictionaries
+    that contain the kernel version parsed the status for each one.
+    """
     kernel_info = []
     for line in dkms_status.splitlines():
         details, status = line.split(": ")
@@ -64,7 +67,7 @@ def parse_version(ver: str) -> version.Version:
     if match:
         parsed_version = version.parse(match.group(1))
     else:
-        raise ValueError("Invalid version string: {0}".format(ver))
+        raise SystemExit("Invalid version string: {0}".format(ver))
     return parsed_version
 
 
@@ -74,24 +77,21 @@ def has_dkms_build_errors(kernel_ver_current: str) -> bool:
         kernel_ver_current
     )
     with open(log_path, "r") as f:
-        for line in f.readlines():
-            if err_msg in line:
-                logger.error(
-                    "Found dkms build error messages in {}".format(log_path)
-                )
-                logger.error("\n=== build log ===")
-                result = run_command(
-                    "grep '{}' {} -C 5".format(err_msg, log_path)
-                )
-                logger.error(result)
-                return True
-    return False
+        err_lines = [line for line in f.readlines() if err_msg in line]
+        if err_lines:
+            logger.error(
+                "Found dkms build error messages in {}".format(log_path)
+            )
+            logger.error("\n=== build log ===")
+            logger.error("".join(err_lines))
+            return 1
+    return 0
 
 
 def main():
     # Get the kernel version and DKMS status
-    ubuntu_release = run_command("lsb_release -r | cut -d ':' -f 2 | xargs")
-    dkms_status = run_command("dkms status")
+    ubuntu_release = run_command(["lsb_release", "-r"]).split()[-1]
+    dkms_status = run_command(["dkms", "status"])
 
     # Parse the DKMS status and sort the kernel versions
     kernel_info = parse_dkms_status(dkms_status, ubuntu_release)
@@ -102,7 +102,7 @@ def main():
     kernel_ver_min = sorted_kernel_info[0]["version"]
 
     # kernel_ver_max should be the same as kernel_ver_current
-    kernel_ver_current = run_command("uname -r")
+    kernel_ver_current = run_command(["uname", "-r"])
     if kernel_ver_max != kernel_ver_current:
         msg = textwrap.dedent(
             """
@@ -142,10 +142,7 @@ def main():
         logger.warning("=== DKMS status ===\n{0}".format(dkms_status))
 
     # Scan the APT log for errors during system update
-    if has_dkms_build_errors(kernel_ver_current):
-        return 1
-
-    return 0
+    return has_dkms_build_errors(kernel_ver_current)
 
 
 if __name__ == "__main__":

@@ -23,12 +23,11 @@ class TestDKMSValidation(unittest.TestCase):
     @patch("dkms_build_validation.subprocess.check_output")
     def test_run_command(self, mock_check_output):
         mock_check_output.return_value = "output"
-        result = run_command("lsb_release -r")
+        result = run_command(["lsb_release", "-r"])
         self.assertEqual(result, "output")
         mock_check_output.assert_called_once_with(
-            "lsb_release -r",
-            stderr=subprocess.STDOUT,
-            shell=True,
+            ["lsb_release", "-r"],
+            stderr=subprocess.PIPE,
             universal_newlines=True,
         )
 
@@ -36,12 +35,12 @@ class TestDKMSValidation(unittest.TestCase):
     def test_run_command_exception(self, mock_check_output):
         # Simulate a CalledProcessError exception
         mock_check_output.side_effect = subprocess.CalledProcessError(
-            1, "test_command"
+            1, ["test_command"]
         )
 
         # run_command will raise an exception
-        with self.assertRaises(RuntimeError):
-            run_command("test_command")
+        with self.assertRaises(SystemExit):
+            run_command(["test_command"])
 
     @patch("dkms_build_validation.run_command")
     def test_parse_dkms_status(self, mock_run_command):
@@ -89,7 +88,7 @@ class TestDKMSValidation(unittest.TestCase):
         )
 
         # Test with an invalid version string
-        with self.assertRaises(ValueError):
+        with self.assertRaises(SystemExit):
             parse_version("Wrong version string")
 
     @patch("dkms_build_validation.run_command")

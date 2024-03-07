@@ -127,7 +127,7 @@ def check_dkms_module_count(sorted_kernel_info: List[Dict], dkms_status: str):
     return 0
 
 
-def has_dkms_build_errors(kernel_ver_current: str) -> bool:
+def has_dkms_build_errors(kernel_ver_current: str) -> int:
     log_path = "/var/log/apt/term.log"
     err_msg = "Bad return status for module build on kernel: {}".format(
         kernel_ver_current
@@ -153,7 +153,7 @@ def main():
     sorted_kernel_info = parse_dkms_status(dkms_status, ubuntu_release)
 
     # kernel_ver_max should be the same as kernel_ver_current
-    kernel_ver_current = run_command("uname -r")
+    kernel_ver_current = run_command(["uname", "-r"])
     if check_kernel_version(
         kernel_ver_current, sorted_kernel_info, dkms_status
     ):

@@ -1,40 +1,48 @@
-id: ce-oem-rs485-full
+id: ce-oem-serial-full
 unit: test plan
-_name: RS485 remote test
-_description: RS485 remote tests for devices
+_name:  Serial full tests
+_description:
+    Full serial tests for devices
+bootstrap_include:
 include:
 nested_part:
-    ce-oem-rs485-manual
-    ce-oem-rs485-automated
-    after-suspend-ce-oem-rs485-manual
-    after-suspend-ce-oem-rs485-automated
+    ce-oem-serial-automated
 
-id: ce-oem-rs485-manual
+# Currently this testpln is not nested in any testplan
+# It stays here for future testplan refactoring to be nested
+id: ce-oem-serial-automated
 unit: test plan
-_name:  RS485 remote manual tests
-_description: Manual RS485 remote tests for devices
-include:
-
-id: ce-oem-rs485-automated
-unit: test plan
-_name:  RS485 remote auto tests
-_description: Automated RS485 remote tests for devices
+_name: Serial automated tests
+_description:
+    Automated serial tests for devices
+    including before and after suspend
 bootstrap_include:
-    ce-oem-serial/rs485-list
+    ce-oem-serial/serial-list
+    ce-oem-serial/serial-console-list
 include:
-    ce-oem-serial/rs485-remote-.*
+    ce-oem-serial/serial-transmit-data-tests
+    ce-oem-serial/serial-console-tests
 
-id: after-suspend-ce-oem-rs485-manual
+id: before-suspend-ce-oem-serial-automated
 unit: test plan
-_name: After suspend RS485 remote manual tests
-_description: Manual after-suspend RS485 remote tests for devices
-include:
-
-id: after-suspend-ce-oem-rs485-automated
-unit: test plan
-_name:  After suspend RS485 remote auto tests
-_description: Automated after-suspend RS485 remote tests for devices
+_name: Before suspend serial automated tests
+_description:
+    Before suspend automated serial tests for devices
 bootstrap_include:
-    ce-oem-serial/rs485-list
+    ce-oem-serial/serial-list
+    ce-oem-serial/serial-console-list
 include:
-    also-after-suspend-ce-oem-serial/rs485-remote-.*
+    ce-oem-serial/serial-transmit-data-.*
+    ce-oem-serial/serial-console-.*
+
+id: after-suspend-ce-oem-serial-automated
+unit: test plan
+_name: After suspend serial automated tests
+_description:
+    After suspend automated serial tests for devices
+bootstrap_include:
+    ce-oem-serial/serial-list
+    ce-oem-serial/serial-console-list
+include:
+    after-suspend-ce-oem-serial/serial-transmit-data-.*
+    after-suspend-ce-oem-serial/serial-console-.*

@@ -5,19 +5,20 @@
 # Written by:
 #   Rick Wu <rick.wu@canonical.com>
 #   Stanley Huang <stanley.huang@canonical.com>
+#   Vincent Liao <vincent.liao@canonical.com>
 
 """
 Whole idea of this RS485/232/422 remote test script is to connet
-all rs485/232/422 that on DUT to the server(RPi 3). And test the
+all RS232/422/485 that on DUT to the server. And test the
 port on DUT.
 """
 import sys
 import argparse
 import serial
+import serial.rs485
 import time
-import string
-import random
 import logging
+import os
 
 
 def init_logger():
@@ -50,92 +51,103 @@ def init_logger():
     return root_logger
 
 
-def str_generator(size):
-    chars = []
-    chars.extend(string.ascii_uppercase)
-    chars.extend(string.ascii_lowercase)
-    chars.extend(string.digits)
-    chars.extend(string.punctuation)
+class Serial:
+    def __init__(
+        self,
+        node,
+        type,
+        group: list = [],
+        baudrate: int = 115200,
+        bytesize: int = 8,
+        parity: str = "N",
+        stopbits: int = 1,
+        timeout: int = 1,
+    ) -> None:
+        self.node = node
+        self.type = type
+        self.baudrate = baudrate
+        self.bytesize = bytesize
+        self.parity = parity
+        self.stopbits = stopbits
+        self.timeout = timeout
+        self.ser = self.serial_init(node)
+        self.group = []
+        for ser in group:
+            self.group.append(self.serial_init(ser))
 
-    return "".join(random.choices(chars, k=size))
+    def serial_init(self, node: str) -> serial.Serial:
+        """Create a serial.Serial object based on the class variables"""
+        ser = serial.Serial(
+            node,
+            baudrate=self.baudrate,
+            bytesize=self.bytesize,
+            parity=self.parity,
+            stopbits=self.stopbits,
+            timeout=1,
+        )
+        if self.type == "RS485":
+            ser.rs485_mode = serial.rs485.RS485Settings()
+        ser.reset_input_buffer()
+        ser.reset_output_buffer()
+        return ser
+
+    def send(self, data: bytes) -> None:
+        try:
+            self.ser.rts = True
+            self.ser.write(data)
+            self.ser.rts = False
+            logging.info("Sent: {}".format(data.hex()))
+        except Exception:
+            logging.exception("Not able to send data!")
+
+    def recv(self) -> bytes:
+        rcv = ""
+        try:
+            self.ser.rts = False
+            rcv = self.ser.read(8)
+            if rcv:
+                logging.info("Received: {}".format(rcv.hex()))
+        except ValueError:
+            logging.exception("Received unmanageable string format")
+            rcv = "Error format"
+        return rcv
 
 
-def serial_init(device, **kwargs):
-    ser = serial.Serial(
-        device,
-        baudrate=kwargs.get("baudrate", 115200),
-        bytesize=kwargs.get("bytesize", 8),
-        parity=kwargs.get("parity", "N"),
-        stopbits=kwargs.get("stopbits", 1),
-        timeout=1,
-        write_timeout=1,
-        xonxoff=True
-    )
-    return ser
-
-
-def sender(ser, test_str):
-    try:
-        ser.write(test_str.encode("utf-8"))
-        logging.info("Sent: {}".format(test_str))
-    except Exception:
-        logging.error("Not able to send data!")
-
-
-def receiver(ser):
-    """
-    If trying to receive string between two different protocols
-    (e.g. RS485 with RS232). Then it will receive the string
-    that is not able to decode. So we can handle that kind of
-    an exception to filter out the string from the different protocols.
-    """
-    rcv = ""
-    try:
-        rcv = ser.readline().decode("utf-8")
-        if rcv:
-            logging.info("Received: {}".format(rcv))
-    except ValueError:
-        logging.error("Received unmanageable string format")
-        rcv = "Error format"
-    return rcv
-
-
-def server_mode(ser):
+def server_mode(ser: Serial) -> None:
     """
     Running as a server, it will be sniffing for received string.
     And it will send the same string out.
     usage:
     running on port /dev/ttyUSB0 as a server
-    $ sudo ./rs485-remote.py /dev/ttyUSB0 --mode server
+    $ sudo ./serial_test.py /dev/ttyUSB0 --mode server --type USB
     """
-    logging.info("Listening on port {} ...".format(ser._port))
+    logging.info("Listening on port {} ...".format(ser.node))
     while True:
-        re_string = receiver(ser)
-        if re_string:
+        data = ser.recv()
+        if data:
             time.sleep(3)
             logging.info("Send string back ...")
-            sender(ser, re_string)
-            logging.info("Listening on port {} ...".format(ser._port))
-            ser.reset_input_buffer()
+            ser.send(data)
+            logging.info("Listening on port {} ...".format(ser.node))
 
 
-def client_mode(ser, data_length):
+def client_mode(ser: Serial):
     """
     Running as a clinet and it will sending out a string and wait
     the string send back from server. After receive the string,
     it will check the readback is correct or not.
     Usage:
     running on port /dev/ttymxc1 as a client
-    $ sudo ./rs485-remotr.py /dev/ttymxc1 --mode client
+    $ sudo ./serial_test.py /dev/ttymxc1 --mode client --type RS485
     """
-    test_str = "{}-{}".format(ser._port, str_generator(data_length))
-    sender(ser, test_str)
+    data = os.urandom(8)
+    ser.send(data)
     for i in range(1, 6):
         logging.info("Attempting receive string... {} time".format(i))
+        readback = ser.recv()
         time.sleep(3)
-        readback = receiver(ser)
         if readback:
-            if readback == test_str:
+            if readback == data:
                 logging.info("Received string is correct!")
                 raise SystemExit(0)
             else:
@@ -147,7 +159,7 @@ def client_mode(ser, data_length):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('device', help='Serial port device e.g. /dev/ttyS1')
+    parser.add_argument("node", help="Serial port device node e.g. /dev/ttyS1")
     parser.add_argument(
         "--mode",
         choices=["server", "client"],
@@ -155,7 +167,20 @@ def main():
         help="set running mode, one if {server, client}",
         required=True,
     )
-    parser.add_argument("--size", default=16, type=int)
+    parser.add_argument(
+        "--type",
+        type=str,
+        help="The type of serial port (e.g. RS485, RS422, RS232, USB)",
+        default="USB"
+    )
+    parser.add_argument(
+        "--group",
+        type=str,
+        help="The group of serial ports that needed to be bringup also",
+        nargs="?",
+        const="",
+        default="",
+    )
     parser.add_argument("--baudrate", default=115200, type=int)
     parser.add_argument(
         "--bytesize",
@@ -180,8 +205,11 @@ def main():
     )
     args = parser.parse_args()
     init_logger()
-    ser = serial_init(
-        args.device,
+    group = args.group.split() if args.group else []
+    ser = Serial(
+        args.node,
+        args.type,
+        group,
         baudrate=args.baudrate,
         bytesize=args.bytesize,
         parity=args.parity,
@@ -190,8 +218,10 @@ def main():
 
     if args.mode == "server":
         server_mode(ser)
+    elif args.mode == "client":
+        client_mode(ser)
     else:
-        client_mode(ser, args.size)
+        raise SystemExit(1)
 
 
 if __name__ == "__main__":

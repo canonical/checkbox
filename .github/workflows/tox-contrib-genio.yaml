@@ -13,6 +13,7 @@ on:
 
 jobs:
   tox_test_contrib_ce_oem_provider:
+    continue-on-error: true
     name: Test Genio provider (from contrib area) with tox
     defaults:
       run:

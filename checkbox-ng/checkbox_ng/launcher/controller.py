@@ -376,6 +376,13 @@ class RemoteController(ReportsStage, MainLoopStage):
         """
         try:
             yield self.sa.resume_session(session_id)
+        except rpyc.core.vinegar.GenericException as e:
+            # cast back the (custom) remote exception for IncompatibleJobError
+            # (that is of type GenericException due to rpyc)
+            # so that it can be treated as a normal "local" exception"
+            if "plainbox.impl.session.resume.IncompatibleJobError" in str(e):
+                raise IncompatibleJobError(*e.args)
+            raise
         finally:
             self.sa.abandon_session()
 
@@ -405,7 +412,6 @@ class RemoteController(ReportsStage, MainLoopStage):
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
 
             if not app_blob.get("testplan_id"):
-                self.sa.abandon_session()
                 return False
 
             self.sa.select_test_plan(app_blob["testplan_id"])

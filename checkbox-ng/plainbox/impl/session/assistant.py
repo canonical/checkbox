@@ -64,6 +64,7 @@ from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.session.restart import IRestartStrategy
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.restart import RemoteDebRestartStrategy
+from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.transport import OAuthTransport
 from plainbox.impl.transport import TransportError
@@ -188,9 +189,11 @@ class SessionAssistant:
         self._job_start_time = None
         # Keep a record of jobs run during bootstrap phase
         self._bootstrap_done_list = []
+        self._resume_candidates = {}
         self._load_providers()
         UsageExpectation.of(self).allowed_calls = {
             self.start_new_session: "create a new session from scratch",
+            self.resume_session: "resume a resume candidate",
             self.get_resumable_sessions: "get resume candidates",
             self.use_alternate_configuration: (
                 "use an alternate configuration system"
@@ -524,7 +527,7 @@ class SessionAssistant:
             ),
         }
 
-    @raises(KeyError, UnexpectedMethodCall)
+    @raises(KeyError, UnexpectedMethodCall, IncompatibleJobError)
     def resume_session(
         self, session_id: str, runner_cls=UnifiedRunner, runner_kwargs=dict()
     ) -> "SessionMetaData":
@@ -537,6 +540,8 @@ class SessionAssistant:
             Resumed session metadata.
         :raises KeyError:
             If the session with a given session_id cannot be found.
+        :raises IncompatibleJobError:
+            If the session is incompatible due to a job changing
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
@@ -551,6 +556,13 @@ class SessionAssistant:
         all_units = list(
             itertools.chain(*[p.unit_list for p in self._selected_providers])
         )
+        if session_id not in self._resume_candidates:
+            for resume_candidate in self.get_resumable_sessions():
+                if resume_candidate.id == session_id:
+                    break
+            else:
+                raise KeyError("Unknown session {}".format(session_id))
+
         self._manager = SessionManager.load_session(
             all_units, self._resume_candidates[session_id][0]
         )
@@ -587,6 +599,7 @@ class SessionAssistant:
             ).allowed_calls = self._get_allowed_calls_in_normal_state()
         else:
             UsageExpectation.of(self).allowed_calls = {
+                self.get_resumable_sessions: "to get resume candidates",
                 self.select_test_plan: "to save test plan selection",
                 self.use_alternate_configuration: (
                     "use an alternate configuration system"
@@ -616,6 +629,8 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         # let's keep resume_candidates, so we don't have to load data again
+        # also, when this function is called invalidate the cache, as it may
+        # have been modified by some external source
         self._resume_candidates = {}
         for storage in WellKnownDirsHelper.get_storage_list():
             data = storage.load_checkpoint()

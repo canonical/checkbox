@@ -340,12 +340,12 @@ class DependencySolver:
         if visit_list is None:
             visit_list = self._job_list
         for job in visit_list:
-            self._visit(job)
+            self._visit(job=job, visit_list=visit_list)
         logger.debug(_("Done solving"))
         # Return the solution
         return self._solution
 
-    def _visit(self, job, trail=None):
+    def _visit(self, job, visit_list, trail=None):
         """
         Internal method of DependencySolver.
 
@@ -367,7 +367,9 @@ class DependencySolver:
             # If the trail was not specified start a trail for this node
             if trail is None:
                 trail = [job]
-            for dep_type, job_id in job.controller.get_dependency_set(job):
+            for dep_type, job_id in job.controller.get_dependency_set(
+                job, visit_list
+            ):
                 # Dependency is just an id, we need to resolve it
                 # to a job instance. This can fail (missing dependencies)
                 # so let's guard against that.
@@ -383,7 +385,7 @@ class DependencySolver:
                     logger.debug(_("Visiting dependency: %r"), next_job)
                     # Update the trail as we visit that node
                     trail.append(next_job)
-                    self._visit(next_job, trail)
+                    self._visit(next_job, visit_list, trail)
                     trail.pop()
             # We've visited (recursively) all dependencies of this node,
             # let's color it black and append it to the solution list.

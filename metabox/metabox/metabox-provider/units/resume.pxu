@@ -1,17 +1,19 @@
 id: checkbox-crasher
+unit: job
 _summary: Crash Checkbox
-flags: simple
+plugin: shell
 user: root
 command:
- PID=`ps -o ppid= $$`
+ PID=`pgrep -f checkbox-cli`
  kill $PID
 
 id: reboot-emulator
+unit: job
 _summary: Emulate the reboot
 flags: simple noreturn
 user: root
 command:
- PID=`ps -o ppid= $$`
+ PID=`pgrep -f checkbox-cli`
  kill $PID
 
 unit: test plan

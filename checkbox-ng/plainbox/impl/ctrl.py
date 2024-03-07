@@ -7,7 +7,6 @@
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -49,6 +48,7 @@ import tempfile
 import subprocess
 import sys
 import threading
+from functools import partial
 from subprocess import check_output, CalledProcessError, STDOUT
 
 from plainbox.abc import IJobResult
@@ -71,6 +71,7 @@ from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.unit.unit import MissingParam
 from plainbox.impl.validation import Severity
+from plainbox.suspend_consts import Suspend
 from plainbox.vendor import morris
 from plainbox.vendor import extcmd
 
@@ -102,12 +103,14 @@ class CheckBoxSessionStateController(ISessionStateController):
           of resource definitions.
     """
 
-    def get_dependency_set(self, job):
+    def get_dependency_set(self, job, job_list=None):
         """
         Get the set of direct dependencies of a particular job.
 
         :param job:
             A IJobDefinition instance that is to be visited
+        :param job_list:
+            List of jobs to check dependencies from
         :returns:
             set of pairs (dep_type, job_id)
 
@@ -125,14 +128,69 @@ class CheckBoxSessionStateController(ISessionStateController):
             resource_deps = job.get_resource_dependencies()
         except ResourceProgramError:
             resource_deps = ()
+        suspend_job_id_list = [
+            Suspend.AUTO_JOB_ID,
+            Suspend.MANUAL_JOB_ID,
+        ]
+        if job.id in suspend_job_id_list:
+            suspend_deps = self._get_before_suspend_dependency_set(
+                job.id, job_list
+            )
+        else:
+            suspend_deps = set()
         result = set(
             itertools.chain(
                 zip(itertools.repeat(direct), direct_deps),
                 zip(itertools.repeat(resource), resource_deps),
                 zip(itertools.repeat(ordering), after_deps),
+                zip(itertools.repeat(ordering), suspend_deps),
             )
         )
         return result
+
+    def _get_before_suspend_dependency_set(self, suspend_job_id, job_list):
+        """
+        Get the set of after dependencies of a suspend job.
+
+        Jobs that have a ``also-after-suspend[-manual]`` flag should be run
+        before their associated suspend job. Similary, jobs that declare a
+        sibling with a dependency on a suspend job should be run before said
+        suspend job. This function finds these jobs and add them as a
+        dependency for their associated suspend job.
+
+        :param suspend_job_id:
+            The id of a suspend job. One of the following is expected:
+            Suspend.AUTO_JOB_ID or Suspend.MANUAL_JOB_ID.
+        :param job_list:
+            List of jobs to search dependencies on.
+        :returns:
+            A set of job ids that need to be run before the suspend job
+        """
+        p_suspend_job_id = partial(
+            self._is_job_impacting_suspend, suspend_job_id
+        )
+        suspend_deps_jobs = filter(p_suspend_job_id, job_list)
+        suspend_deps = set(job.id for job in suspend_deps_jobs)
+        return suspend_deps
+
+    def _is_job_impacting_suspend(self, suspend_job_id, job):
+        """
+        Check if the ``suspend_job_id`` job needs to be run after a given
+        ``job``. This is the case if the ``job`` has a "also after suspend"
+        flag, or if it defines a sibling that has a dependency on the suspend
+        job.
+        """
+        expected_flag = {
+            Suspend.AUTO_JOB_ID: Suspend.AUTO_FLAG,
+            Suspend.MANUAL_JOB_ID: Suspend.MANUAL_FLAG,
+        }.get(suspend_job_id)
+        if job.flags and expected_flag in job.flags:
+            return True
+        if job.siblings:
+            for sibling_data in json.loads(job.tr_siblings()):
+                if suspend_job_id in sibling_data.get("depends", []):
+                    return True
+        return False
 
     def get_inhibitor_list(self, session_state, job):
         """
@@ -236,7 +294,58 @@ class CheckBoxSessionStateController(ISessionStateController):
                     related_job=dep_job_state.job,
                 )
                 inhibitors.append(inhibitor)
+        if job.id in [Suspend.AUTO_JOB_ID, Suspend.MANUAL_JOB_ID]:
+            for inhibitor in self._get_suspend_inhibitor_list(
+                session_state, job
+            ):
+                inhibitors.append(inhibitor)
         return inhibitors
+
+    def _get_suspend_inhibitor_list(self, session_state, suspend_job):
+        """
+        Get a list of readiness inhibitors that inhibit a suspend job.
+
+        Jobs that have a ``also-after-suspend[-manual]`` flag should be run
+        before their associated suspend job. Similary, jobs that declare a
+        sibling with a dependency on a suspend job should be run before said
+        suspend job. This function finds these jobs and add them as a
+        inhibitor for their associated suspend job.
+
+        :param session_state:
+            A SessionState instance that is used to interrogate the
+            state of the session where it matters for a particular
+            job. Currently this is used to access resources and job
+            results.
+        :param suspend_job:
+            A suspend job.
+        :returns:
+            List of JobReadinessInhibitor
+        """
+        suspend_inhibitors = []
+        undesired_inhibitor = JobReadinessInhibitor(
+            cause=InhibitionCause.UNDESIRED
+        )
+        # We are only interested in jobs that are actually going to run
+        run_list = [
+            state.job
+            for state in session_state.job_state_map.values()
+            if undesired_inhibitor not in state.readiness_inhibitor_list
+        ]
+        p_suspend_job_id = partial(
+            self._is_job_impacting_suspend, suspend_job.id
+        )
+        suspend_inhibitors_jobs = filter(p_suspend_job_id, run_list)
+        for job in suspend_inhibitors_jobs:
+            if (
+                session_state.job_state_map[job.id].result.outcome
+                == IJobResult.OUTCOME_NONE
+            ):
+                inhibitor = JobReadinessInhibitor(
+                    cause=InhibitionCause.PENDING_DEP,
+                    related_job=job,
+                )
+                suspend_inhibitors.append(inhibitor)
+        return suspend_inhibitors
 
     def observe_result(self, session_state, job, result, fake_resources=False):
         """

@@ -34,14 +34,14 @@ def run_command(command: List[str]) -> str:
     try:
         result = subprocess.check_output(
             command,
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,  # We capture stdout and stderr in stdout
             universal_newlines=True,
         )
         return result.strip()
     except subprocess.CalledProcessError as e:
         raise SystemExit(
             "Command '{0}' failed with exit code {1}:\n{2}".format(
-                e.cmd, e.returncode, e.stderr
+                e.cmd, e.returncode, e.stdout
             )
         )
 
@@ -161,7 +161,7 @@ def has_dkms_build_errors(kernel_ver_current: str) -> int:
 
 def main():
     # Get the kernel version and DKMS status
-    ubuntu_release = run_command(["lsb_release", "-r"]).split()[-1]
+    ubuntu_release = run_command(["lsb_release", "-er"]).split()[-1]
     dkms_status = run_command(["dkms", "status"])
 
     # Parse and sort the DKMS status and sort the kernel versions

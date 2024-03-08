@@ -24,7 +24,7 @@ import re
 import subprocess
 import sys
 import textwrap
-from typing import Dict, List
+from typing import Dict, List, Set
 
 logger = logging.getLogger("dkms_build_validation")
 
@@ -127,16 +127,16 @@ def check_dkms_module_count(sorted_kernel_info: List[Dict], dkms_status: str):
     return 0
 
 
-def get_context_lines(
-    log: List[str], line_idx: List[int], context: int = 5
-) -> List[str]:
+def get_context_lines(log: List[str], line_numbers: Set[int]) -> List[str]:
     # Create a set with the indexes of the lines to be printed
     context_lines = set()
+    context = 5
     n_lines = len(log)
-    for i in line_idx:
-        for j in range(i - context, i + context + 1):
-            if 0 <= j < n_lines:
-                context_lines.add(j)
+    for i in line_numbers:
+        min_numbers = max(0, i - context)
+        max_numbers = min(n_lines, i + context + 1)
+        for j in range(min_numbers, max_numbers):
+            context_lines.add(j)
     return [log[i] for i in sorted(context_lines)]
 
 
@@ -147,13 +147,13 @@ def has_dkms_build_errors(kernel_ver_current: str) -> int:
     )
     with open(log_path, "r") as f:
         log = f.readlines()
-        err_line_idx = [i for i, line in enumerate(log) if err_msg in line]
-        if err_line_idx:
+        err_line_numbers = {i for i, line in enumerate(log) if err_msg in line}
+        if err_line_numbers:
             logger.error(
                 "Found dkms build error messages in {}".format(log_path)
             )
             logger.error("\n=== build log ===")
-            err_with_context = get_context_lines(log, err_line_idx, 5)
+            err_with_context = get_context_lines(log, err_line_numbers)
             logger.error("".join(err_with_context))
             return 1
     return 0
@@ -161,7 +161,7 @@ def has_dkms_build_errors(kernel_ver_current: str) -> int:
 
 def main():
     # Get the kernel version and DKMS status
-    ubuntu_release = run_command(["lsb_release", "-er"]).split()[-1]
+    ubuntu_release = run_command(["lsb_release", "-r"]).split()[-1]
     dkms_status = run_command(["dkms", "status"])
 
     # Parse and sort the DKMS status and sort the kernel versions

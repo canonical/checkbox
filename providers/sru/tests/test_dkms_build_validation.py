@@ -129,41 +129,31 @@ class TestDKMSValidation(unittest.TestCase):
             1,
         )
 
-    def test_get_context_lines(self):
-        log = ["L{}".format(i) for i in range(0, 10)]
-        line_idx = [0, 4, 5, 9]
-        context = 1
-        expected_output = ["L0", "L1", "L3", "L4", "L5", "L6", "L8", "L9"]
-        self.assertEqual(
-            get_context_lines(log, line_idx, context), expected_output
-        )
+    def test_get_context_lines_center(self):
+        log = ["L{}".format(i) for i in range(0, 20)]
+        line_idx = {10, 11}
+        expected_output = ["L{}".format(i) for i in range(5, 17)]
+        self.assertEqual(get_context_lines(log, line_idx), expected_output)
 
-    def test_get_context_lines_zero_context(self):
-        log = ["L{}".format(i) for i in range(0, 10)]
-        line_idx = [0, 4, 5, 9]
-        context = 0
-        expected_output = ["L0", "L4", "L5", "L9"]
-        self.assertEqual(
-            get_context_lines(log, line_idx, context), expected_output
-        )
-
-    def test_get_context_lines_zero_context(self):
-        log = ["L{}".format(i) for i in range(0, 10)]
-        line_idx = [0, 4, 5, 9]
-        context = 0
-        expected_output = ["L0", "L4", "L5", "L9"]
-        self.assertEqual(
-            get_context_lines(log, line_idx, context), expected_output
-        )
-
-    def test_get_context_lines_big_context(self):
-        log = ["L{}".format(i) for i in range(0, 5)]
-        line_idx = [0, 4, 5, 9]
-        context = 50
-        expected_output = ["L0", "L1", "L2", "L3", "L4"]
-        self.assertEqual(
-            get_context_lines(log, line_idx, context), expected_output
-        )
+    def test_get_context_lines_edges(self):
+        log = ["L{}".format(i) for i in range(0, 20)]
+        line_idx = {0, 18}
+        expected_output = [
+            "L0",
+            "L1",
+            "L2",
+            "L3",
+            "L4",
+            "L5",
+            "L13",
+            "L14",
+            "L15",
+            "L16",
+            "L17",
+            "L18",
+            "L19",
+        ]
+        self.assertEqual(get_context_lines(log, line_idx), expected_output)
 
     def test_has_dkms_build_errors(self):
         kernel_ver_current = "6.5.0-17-generic"

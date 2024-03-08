@@ -7,7 +7,7 @@ category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/dkms_build_validation
 requires: package.name == 'dkms'
 command:
- dkms_build_validation
+ dkms_build_validation.py
 _summary: Validate the build status of DKMS modules, automatically
 _description:
  Firstly, check the built number of DKMS modules.

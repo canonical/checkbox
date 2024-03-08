@@ -1,0 +1,70 @@
+id: genio-display/boot-logo
+plugin: manual
+category_id: genio-display
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_genio_dsi == "True"
+estimated_duration: 60
+_purpose:
+    This test verifies that boot logo can be shown on built-in DSI display.
+    According to the spec, boot logo should only be shown on DSI display even there's other display connected.
+_steps:
+    1. If your DSI display is not already connected, power device off and connect it then power on
+_verification:
+    For G1200-evk and G700
+        1. Was the boot logo shown on DIS panel correctly?
+    For G350
+        1. No boot logo be shown on DSI panel. (Not supported)
+
+id: genio-display/brightness-dsi
+plugin:user-interact-verify
+category_id: genio-display
+flags: also-after-suspend
+estimated_duration: 3.0
+user: root
+environ: GENIO_DEVICE
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_genio_dsi == "True"
+_summary:
+    Test the brightness of DSI display
+_purpose:
+    This test tests if the brightness of DSI display can be channged to different value
+command:
+    brightness_test.py -p "$GENIO_DEVICE" -d dsi
+_verification:
+    1. Did the screen brightness be changed to different level?
+
+id: genio-display/brightness-edp
+plugin:user-interact-verify
+category_id: genio-display
+flags: also-after-suspend
+estimated_duration: 3.0
+user: root
+environ: GENIO_DEVICE
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_genio_edp == "True" and genio_device_soc.SoC in ['mt8390','mt8395']
+_summary:
+    Test the brightness of eDP display
+_purpose:
+    This test tests if the brightness of eDP display can be channged to different value
+command:
+    brightness_test.py -p "$GENIO_DEVICE" -d edp
+_verification:
+    1. Did the screen brightness be changed to different level?
+
+id: genio-display/brightness-lvds
+plugin:user-interact-verify
+category_id: genio-display
+flags: also-after-suspend
+estimated_duration: 3.0
+user: root
+environ: GENIO_DEVICE
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_genio_lvds == "True"
+_summary:
+    Test the brightness of LVDS display
+_purpose:
+    This test tests if the brightness of LVDS display can be channged to different value
+command:
+    brightness_test.py -p "$GENIO_DEVICE" -d lvds
+_verification:
+    1. Did the screen brightness be changed to different level?

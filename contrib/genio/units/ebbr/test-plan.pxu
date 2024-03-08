@@ -1,0 +1,43 @@
+id: genio-ebbr-full
+unit: test plan
+_name: Genio EBBR tests
+_description: Full Genio EBBR tests for devices
+include:
+nested_part:
+    genio-ebbr-manual
+    genio-ebbr-automated
+
+id: genio-ebbr-manual
+unit: test plan
+_name: Genio EBBR manual tests
+_description: Manual Genio EBBR tests for devices
+include:
+
+id: genio-ebbr-automated
+unit: test plan
+_name: Genio EBBR auto tests
+_description: Automated Genio EBBR tests for devices
+bootstrap_include:
+    fwts_ebbr_resource
+include:
+    genio-ebbr/ebbr-boot
+    genio-ebbr/fwts-ebbr-.*
+
+id: after-suspend-genio-ebbr-full
+unit: test plan
+_name: Genio EBBR tests (after suspend)
+_description: Full after suspend Genio EBBR tests for devices
+include:
+nested_part:
+
+id: after-suspend-genio-ebbr-manual
+unit: test plan
+_name: Genio EBBR manual tests (after suspend)
+_description: Manual after suspend Genio EBBR tests for devices
+include:
+
+id: after-suspend-genio-ebbr-automated
+unit: test plan
+_name: Genio EBBR auto tests (after suspend)
+_description: Automated after suspend Genio EBBR tests for devices
+include:

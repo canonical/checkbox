@@ -1,0 +1,14 @@
+id: genio_device_soc
+plugin: resource
+_summary: Collect and report the type of SoC
+estimated_duration: 0.1
+command:
+    output=$(tr -d '\0' < /proc/device-tree/compatible)
+    # Set comma as delimiter
+    IFS=','
+    read -a output_arr <<< "$output"
+    # Set dash as delimiter
+    IFS='-'
+    read -a s <<< "${output_arr[1]}"
+    echo "SoC: ${s[0]}"
+    echo

@@ -1,0 +1,56 @@
+id: genio-hdmi-rx-full
+unit: test plan
+_name: genio HDMI RX tests
+_description: Full genio HDMI RX tests for devices
+include:
+nested_part:
+    genio-hdmi-rx-manual
+    genio-hdmi-rx-automated
+
+id: genio-hdmi-rx-manual
+unit: test plan
+_name: genio HDMI RX manual tests
+_description: Manual genio HDMI RX tests for devices
+include:
+    genio-hdmi-rx/module-detect
+    genio-hdmi-rx/plug-event-detect
+    genio-hdmi-rx/check-hdmi-cable-connection
+    genio-hdmi-rx/check-video-info
+    genio-hdmi-rx/check-audio-info
+    genio-hdmi-rx/disable-hdmi
+    genio-hdmi-rx/enable-hdmi
+    genio-hdmi-rx/unplug-event-detect
+
+id: genio-hdmi-rx-automated
+unit: test plan
+_name: genio HDMI RX auto tests
+_description: Automated genio HDMI RX tests for devices
+include:
+
+id: after-suspend-genio-hdmi-rx-full
+unit: test plan
+_name: genio HDMI RX tests (after suspend)
+_description: Full after suspend genio HDMI RX tests for devices
+include:
+nested_part:
+    after-suspend-genio-hdmi-rx-manual
+    after-suspend-genio-hdmi-rx-automated
+
+id: after-suspend-genio-hdmi-rx-manual
+unit: test plan
+_name: genio HDMI RX manual tests (after suspend)
+_description: Manual after suspend genio HDMI RX tests for devices
+include:
+    after-suspend-genio-hdmi-rx/plug-event-detect
+    after-suspend-genio-hdmi-rx/check-hdmi-cable-connection
+    after-suspend-genio-hdmi-rx/check-video-info
+    after-suspend-genio-hdmi-rx/check-audio-info
+    after-suspend-genio-hdmi-rx/disable-hdmi
+    after-suspend-genio-hdmi-rx/enable-hdmi
+    after-suspend-genio-hdmi-rx/unplug-event-detect
+
+id: after-suspend-genio-hdmi-rx-automated
+unit: test plan
+_name: genio HDMI RX auto tests (after suspend)
+_description: Automated after suspend genio HDMI RX tests for devices
+include:

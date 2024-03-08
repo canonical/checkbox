@@ -1,0 +1,17 @@
+unit: manifest entry
+id: has_genio_amic
+_name: AMIC (Analog Microphone)
+_prompt: Does this machine have the following audio support?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_dmic
+_name: DMIC (Digital Microphone)
+_prompt: Does this machine have the following audio support?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_pcm
+_name: PCM (Pulse Code Modulation)
+_prompt: Does this machine have the following audio support?
+value-type: bool

@@ -1,0 +1,54 @@
+id: genio-audio-full
+unit: test plan
+_name: Genio Audio test
+_description: Full audio tests for G1200-evk, G700 and G350 platforms
+include:
+nested_part:
+    genio-audio-manual
+    genio-audio-automated
+    after-suspend-genio-audio-manual
+    after-suspend-genio-audio-automated
+
+id: genio-audio-manual
+unit: test plan
+_name: Genio Manual Audio test
+_description: Manual audio test for G1200-evk, G700 and G350 platforms
+include:
+    genio-audio/earphone-playback
+    genio-audio/speaker-playback
+    genio-audio/hdmi-playback
+    genio-audio/type-c-to-dp-playback
+    genio-audio/pcm-playback
+    genio-audio/usb-headset-playback
+    genio-audio/headset-record-headset-playback
+    genio-audio/amic-record-headset-playback
+    genio-audio/dmic-record-headset-playback
+    genio-audio/usb-headset-record-playback
+
+id: genio-audio-automated
+unit: test plan
+_name: Genio Auto Audio test
+_description: Automated audio test for G1200-evk, G700 and G350 platforms
+include:
+
+id: after-suspend-genio-audio-manual
+unit: test plan
+_name: Genio Manual audio test
+_description: Manual after suspend audio test for G1200-evk, G700 and G350 platforms
+include:
+    after-suspend-genio-audio/earphone-playback
+    after-suspend-genio-audio/speaker-playback
+    after-suspend-genio-audio/hdmi-playback
+    after-suspend-genio-audio/type-c-to-dp-playback
+    after-suspend-genio-audio/usb-headset-playback
+    after-suspend-genio-audio/pcm-playback
+    after-suspend-genio-audio/headset-record-headset-playback
+    after-suspend-genio-audio/amic-record-headset-playback
+    after-suspend-genio-audio/dmic-record-headset-playback
+    after-suspend-genio-audio/usb-headset-record-playback
+
+id: after-suspend-genio-audio-automated
+unit: test plan
+_name: Genio Auto Audio test
+_description: Automated after suspend audio test for G1200-evk, G700 and G350 platforms
+include:

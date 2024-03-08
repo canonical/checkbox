@@ -1,4 +1,4 @@
-name: Test provider-ce-oem (from contrib area) with tox
+name: Test provider-genio (from contrib area) with tox
 
 on:
   workflow_dispatch:
@@ -6,10 +6,10 @@ on:
 jobs:
   tox_test_contrib_ce_oem_provider:
     continue-on-error: true
-    name: Test ce-oem provider (from contrib area) with tox
+    name: Test Genio provider (from contrib area) with tox
     defaults:
       run:
-        working-directory: contrib/checkbox-provider-ce-oem
+        working-directory: contrib/genio
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -37,4 +37,4 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: contrib-provider-ce-oem
+          flags: contrib-provider-genio

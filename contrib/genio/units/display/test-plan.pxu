@@ -1,0 +1,58 @@
+id: genio-display-full
+unit: test plan
+_name: Genio Display tests
+_description: Full Genio Display tests for devices
+include:
+nested_part:
+    genio-display-manual
+    genio-display-automated
+
+id: genio-display-manual
+unit: test plan
+_name: Genio Display manual tests
+_description: Manual Genio Display tests for devices
+include:
+    genio-display/boot-logo
+    genio-display/multi-built-in-displays-dsi-and-edp
+    genio-display/multi-built-in-displays-dsi-and-lvds
+    genio-display/hdmi-hotplug
+    genio-display/type-c-to-displayport-hotplug
+    genio-display/type-c-to-displayport-and-hdmi-hotplug
+    genio-display/brightness-dsi
+    genio-display/brightness-edp
+    genio-display/brightness-lvds
+
+id: genio-display-automated
+unit: test plan
+_name: Genio Display auto tests
+_description: Automated Genio Display tests for devices
+include:
+
+id: after-suspend-genio-display-full
+unit: test plan
+_name: Genio Display tests (after suspend)
+_description: Full after suspend Genio Display tests for devices
+include:
+nested_part:
+    after-suspend-genio-display-manual
+    after-suspend-genio-display-automated
+
+id: after-suspend-genio-display-manual
+unit: test plan
+_name: Genio Display manual tests (after suspend)
+_description: Manual after suspend Genio Display tests for devices
+include:
+    after-suspend-genio-display/multi-built-in-displays-dsi-and-edp
+    after-suspend-genio-display/multi-built-in-displays-dsi-and-lvds
+    after-suspend-genio-display/hdmi-hotplug
+    after-suspend-genio-display/type-c-to-displayport-hotplug
+    after-suspend-genio-display/type-c-to-displayport-and-hdmi-hotplug
+    after-suspend-genio-display/brightness-dsi
+    after-suspend-genio-display/brightness-edp
+    after-suspend-genio-display/brightness-lvds
+
+id: after-suspend-genio-display-automated
+unit: test plan
+_name: Genio Display auto tests (after suspend)
+_description: Automated after suspend Genio Display tests for devices
+include:

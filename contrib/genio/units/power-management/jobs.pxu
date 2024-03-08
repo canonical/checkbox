@@ -1,0 +1,162 @@
+id: genio-power-management/pmic-irq
+unit: job
+category_id: genio-power-management
+plugin: manual
+estimated_duration: 60
+_summary: Check the device can be shutdown by pressing the power button 
+_purpose:
+    Check the device can be shut down by pressing the power button
+_steps:
+    1. Power the device off by pressing the power button
+_verification:
+    1. Did the device shutdown successfully?
+
+id: genio-power-management/dvfs-gpufreq-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-unit: job
+category_id: genio-power-management
+plugin: shell
+flags: also-after-suspend
+estimated_duration: 1
+_summary: Check the GPU governors match expectation on SoC {SoC}
+command:
+    dvfs_gpu_check_governors.py {SoC}
+
+id: genio-power-management/clock-manager-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-unit: job
+category_id: genio-power-management
+requires: genio_device_soc.SoC in ['mt8390','mt8395']
+plugin: shell
+user: root
+flags: also-after-suspend
+estimated_duration: 1
+_summary: Check the Clock Manager (Linux CCF) matchs expectation on SoC {SoC}
+command:
+    linux_ccf.py {SoC}
+
+id: genio-power-management/pmic-regulator-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-unit: job
+category_id: genio-power-management
+plugin: shell
+user: root
+flags: also-after-suspend
+estimated_duration: 1
+_summary: Check all regulators' name match expectation on SoC {SoC}
+command:
+    pmic_regulator.py {SoC}
+
+id: genio-power-management/cpu-idle-wfi-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-unit: job
+category_id: genio-power-management
+plugin: shell
+user: root
+flags: also-after-suspend
+estimated_duration: 1
+_summary: Check specific CPU node is WFI and is enabled on SoC {SoC}
+command:
+    cpu_idle.py {SoC} -c 'wfi'
+
+id: genio-power-management/cpu-idle-mcdi-cpu-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-unit: job
+category_id: genio-power-management
+plugin: shell
+user: root
+requires: genio_device_soc.SoC == 'mt8365'
+flags: also-after-suspend
+estimated_duration: 1
+_summary: Check specific CPU is mcdi-cpu and is enabled on SoC {SoC}
+command:
+    cpu_idle.py {SoC} -c 'mcdi-cpu'
+
+id: genio-power-management/cpu-idle-mcdi-cluster-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-unit: job
+category_id: genio-power-management
+plugin: shell
+user: root
+requires: genio_device_soc.SoC == 'mt8365'
+flags: also-after-suspend
+estimated_duration: 1
+_summary: Check specific CPU is mcdi-cluster and is enabled on SoC {SoC}
+command:
+    cpu_idle.py {SoC} -c 'mcdi-cluster'
+
+id: genio-power-management/cpu-idle-dpidle-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-unit: job
+category_id: genio-power-management
+plugin: shell
+user: root
+requires: genio_device_soc.SoC == 'mt8365'
+flags: also-after-suspend
+estimated_duration: 1
+_summary: Check specific CPU is dpidle and is enabled on SoC {SoC}
+command:
+    cpu_idle.py {SoC} -c 'dpidle'
+
+id: genio-power-management/cpu-idle-clusteroff-l-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-unit: job
+category_id: genio-power-management
+plugin: shell
+user: root
+requires: genio_device_soc.SoC in ['mt8390','mt8395']
+flags: also-after-suspend
+estimated_duration: 1
+_summary: Check specific CPU is clusteroff-l and is enabled on SoC {SoC}
+command:
+    cpu_idle.py {SoC} -c 'clusteroff-l'
+
+id: genio-power-management/cpu-idle-clusteroff-b-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-unit: job
+category_id: genio-power-management
+plugin: shell
+user: root
+requires: genio_device_soc.SoC in ['mt8390','mt8395']
+flags: also-after-suspend
+estimated_duration: 1
+_summary: Check specific CPU is clusteroff-b and is enabled on SoC {SoC}
+command:
+    cpu_idle.py {SoC} -c 'clusteroff-b'
+
+id: genio-power-management/cpu-idle-cpuoff-l-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-unit: job
+category_id: genio-power-management
+plugin: shell
+user: root
+requires: genio_device_soc.SoC in ['mt8390','mt8395']
+flags: also-after-suspend
+estimated_duration: 1
+_summary: Check specific CPU is cpuoff-l and is enabled on SoC {SoC}
+command:
+    cpu_idle.py {SoC} -c 'cpuoff-l'
+
+id: genio-power-management/cpu-idle-cpuoff-b-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-unit: job
+category_id: genio-power-management
+plugin: shell
+user: root
+requires: genio_device_soc.SoC in ['mt8390','mt8395']
+flags: also-after-suspend
+estimated_duration: 1
+_summary: Check specific CPU is cpuoff-b and is enabled on SoC {SoC}
+command:
+    cpu_idle.py {SoC} -c 'cpuoff-b'

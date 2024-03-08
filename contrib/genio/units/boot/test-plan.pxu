@@ -1,0 +1,19 @@
+id: genio-boot-automated
+unit: test plan
+_name: Genio Boot auto tests
+_description: Automated Genio Graphic tests for devices
+include:
+    genio-boot/device_name_check
+    genio-boot/verify_boot_partition_.*
+bootstrap_include:
+    genio_boot_storage_device_name
+
+id: after-suspend-genio-boot-automated
+unit: test plan
+_name: Genio Boot auto tests (after suspend)
+_description: Automated Genio Graphic tests for devices
+include:
+    after-suspend-genio-boot/device_name_check
+    after-suspend-genio-boot/verify_boot_partition_.*
+bootstrap_include:
+    genio_boot_storage_device_name

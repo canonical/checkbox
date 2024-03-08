@@ -1,0 +1,57 @@
+id: genio-power-management-full
+unit: test plan
+_name: Genio Power Management test
+_description: Full power management tests for G1200-evk, G700 and G350 platforms
+include:
+nested_part:
+    genio-power-management-manual
+    genio-power-management-automated
+    after-suspend-genio-power-management-manual
+    after-suspend-genio-power-management-automated
+
+id: genio-power-management-manual
+unit: test plan
+_name: Genio Manual Power Management test
+_description: Manual power management test for G1200-evk, G700 and G350 platforms
+include:
+    genio-power-management/pmic-irq
+
+id: genio-power-management-automated
+unit: test plan
+_name: Genio Auto Power Management test
+_description: Automated power management test for G1200-evk, G700 and G350 platforms
+include:
+    genio-power-management/dvfs-gpufreq-.*
+    genio-power-management/clock-manager-.*
+    genio-power-management/pmic-regulator-.*
+    genio-power-management/cpu-idle-wfi-.*
+    genio-power-management/cpu-idle-mcdi-cpu-.*
+    genio-power-management/cpu-idle-mcdi-cluster-.*
+    genio-power-management/cpu-idle-dpidle-.*
+    genio-power-management/cpu-idle-clusteroff-l-.*
+    genio-power-management/cpu-idle-clusteroff-b-.*
+    genio-power-management/cpu-idle-cpuoff-l-.*
+    genio-power-management/cpu-idle-cpuoff-b-.*
+
+id: after-suspend-genio-power-management-manual
+unit: test plan
+_name: Genio Manual power management test
+_description: Manual after suspend power management test for G1200-evk, G700 and G350 platforms
+include:
+
+id: after-suspend-genio-power-management-automated
+unit: test plan
+_name: Genio Auto Power Management test
+_description: Automated after suspend power management test for G1200-evk, G700 and G350 platforms
+include:
+    after-suspend-genio-power-management/dvfs-gpufreq.*
+    after-suspend-genio-power-management/clock-manager-.*
+    after-suspend-genio-power-management/pmic-regulator-.*
+    after-suspend-genio-power-management/cpu-idle-wfi-.*
+    after-suspend-genio-power-management/cpu-idle-mcdi-cpu-.*
+    after-suspend-genio-power-management/cpu-idle-mcdi-cluster-.*
+    after-suspend-genio-power-management/cpu-idle-dpidle-.*
+    after-suspend-genio-power-management/cpu-idle-clusteroff-l-.*
+    after-suspend-genio-power-management/cpu-idle-clusteroff-b-.*
+    after-suspend-genio-power-management/cpu-idle-cpuoff-l-.*
+    after-suspend-genio-power-management/cpu-idle-cpuoff-b-.*

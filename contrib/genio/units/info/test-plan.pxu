@@ -1,0 +1,39 @@
+id: genio-info-full
+unit: test plan
+_name: Genio Information tests
+_description: Full Genio information tests for devices
+include:
+nested_part:
+    genio-info-manual
+    genio-info-automated
+
+id: genio-info-manual
+unit: test plan
+_name: Genio Information manual tests
+_description: Manual Genio information tests for devices
+include:
+
+id: genio-info-automated
+unit: test plan
+_name: Genio Information auto tests
+_description: Automated Genio information tests for devices
+include:
+    genio-info/fw_printenv
+
+id: after-suspend-genio-info-full
+unit: test plan
+_name: Genio Information tests (after suspend)
+_description: Full after suspend Genio information tests for devices
+include:
+
+id: after-suspend-genio-info-manual
+unit: test plan
+_name: Genio Information manual tests (after suspend)
+_description: Manual after suspend Genio information tests for devices
+include:
+
+id: after-suspend-genio-info-automated
+unit: test plan
+_name: Genio Information auto tests (after suspend)
+_description: Automated after suspend Genio information tests for devices
+include:

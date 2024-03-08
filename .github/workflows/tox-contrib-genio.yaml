@@ -1,14 +1,6 @@
 name: Test provider-genio (from contrib area) with tox
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - contrib/genio/**
-  pull_request:
-    branches: [ main ]
-    paths:
-      - contrib/genio/**
   workflow_dispatch:
 
 jobs:

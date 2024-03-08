@@ -127,19 +127,34 @@ def check_dkms_module_count(sorted_kernel_info: List[Dict], dkms_status: str):
     return 0
 
 
+def get_context_lines(
+    log: List[str], line_idx: List[int], context: int = 5
+) -> List[str]:
+    # Create a set with the indexes of the lines to be printed
+    context_lines = set()
+    n_lines = len(log)
+    for i in line_idx:
+        for j in range(i - context, i + context + 1):
+            if 0 <= j < n_lines:
+                context_lines.add(j)
+    return [log[i] for i in sorted(context_lines)]
+
+
 def has_dkms_build_errors(kernel_ver_current: str) -> int:
     log_path = "/var/log/apt/term.log"
     err_msg = "Bad return status for module build on kernel: {}".format(
         kernel_ver_current
     )
     with open(log_path, "r") as f:
-        err_lines = [line for line in f.readlines() if err_msg in line]
-        if err_lines:
+        log = f.readlines()
+        err_line_idx = [i for i, line in enumerate(log) if err_msg in line]
+        if err_line_idx:
             logger.error(
                 "Found dkms build error messages in {}".format(log_path)
             )
             logger.error("\n=== build log ===")
-            logger.error("".join(err_lines))
+            err_with_context = get_context_lines(log, err_line_idx, 5)
+            logger.error("".join(err_with_context))
             return 1
     return 0
 

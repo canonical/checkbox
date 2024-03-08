@@ -9,6 +9,7 @@ from dkms_build_validation import (
     parse_version,
     check_kernel_version,
     check_dkms_module_count,
+    get_context_lines,
     has_dkms_build_errors,
     main,
 )
@@ -126,6 +127,24 @@ class TestDKMSValidation(unittest.TestCase):
         self.assertEqual(
             check_dkms_module_count(bad_kernel_info, self.dkms_status),
             1,
+        )
+
+    def test_get_context_lines(self):
+        log = ["L{}".format(i) for i in range(0, 10)]
+        line_idx = [0, 4, 5, 9]
+        context = 1
+        expected_output = ["L0", "L1", "L3", "L4", "L5", "L6", "L8", "L9"]
+        self.assertEqual(
+            get_context_lines(log, line_idx, context), expected_output
+        )
+
+    def test_get_context_lines_zero_context(self):
+        log = ["L{}".format(i) for i in range(0, 10)]
+        line_idx = [0, 4, 5, 9]
+        context = 0
+        expected_output = ["L0", "L4", "L5", "L9"]
+        self.assertEqual(
+            get_context_lines(log, line_idx, context), expected_output
         )
 
     def test_has_dkms_build_errors(self):

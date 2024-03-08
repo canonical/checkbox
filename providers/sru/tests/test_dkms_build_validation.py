@@ -35,7 +35,7 @@ class TestDKMSValidation(unittest.TestCase):
         self.assertEqual(result, "output")
         mock_check_output.assert_called_once_with(
             ["lsb_release", "-r"],
-            stderr=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
             universal_newlines=True,
         )
 
@@ -143,6 +143,24 @@ class TestDKMSValidation(unittest.TestCase):
         line_idx = [0, 4, 5, 9]
         context = 0
         expected_output = ["L0", "L4", "L5", "L9"]
+        self.assertEqual(
+            get_context_lines(log, line_idx, context), expected_output
+        )
+
+    def test_get_context_lines_zero_context(self):
+        log = ["L{}".format(i) for i in range(0, 10)]
+        line_idx = [0, 4, 5, 9]
+        context = 0
+        expected_output = ["L0", "L4", "L5", "L9"]
+        self.assertEqual(
+            get_context_lines(log, line_idx, context), expected_output
+        )
+
+    def test_get_context_lines_big_context(self):
+        log = ["L{}".format(i) for i in range(0, 5)]
+        line_idx = [0, 4, 5, 9]
+        context = 50
+        expected_output = ["L0", "L1", "L2", "L3", "L4"]
         self.assertEqual(
             get_context_lines(log, line_idx, context), expected_output
         )

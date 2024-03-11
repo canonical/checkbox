@@ -7,7 +7,7 @@ A Checkbox job always receives a finishing status either automatically or
 manually. The following is a description of what each status means and when/how
 it is received.
 
-Passing Jobs
+Passed Jobs
 ------------
 
 The Passing outcome is the marker for a successful run. It can be assigned in
@@ -41,7 +41,7 @@ Every skipped job is either marked by the following symbol ``"  "`` (white
 space) or the text ``job skipped``. Checkbox internally uses the
 ``IJobResult.OUTCOME_SKIP``.
 
-Failing Jobs
+Failed Jobs
 ------------
 
 The Failing outcome is the marker for a failing job run. It can be assigned in
@@ -58,7 +58,7 @@ Every failing job is either marked by the following symbol ``☒`` or the text
 ``job failed``. Checkbox internally uses the ``IJobResult.OUTCOME_FAIL`` object
 to mark these jobs.
 
-Crashing Jobs
+Crashed Jobs
 -------------
 
 The Crashing outcome is the marker for a crashing job. It can only be assigned

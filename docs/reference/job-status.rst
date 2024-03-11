@@ -17,12 +17,12 @@ the following situations:
 - Automated job is marked as ``noreturn`` and the session was interrupted and
   brought back
 - Manual job marked as passed by the user
-- Job explicitly marked as passed by the user when a session was manually brought back after interruption
-  the job as pass
+- Job explicitly marked as passed by the user when a session was manually
+  brought back after interruption
 
-Every passed job is marked by either the following symbol ``☑`` (ballot box with check) or the text
-``job passed``. Checkbox internally uses the ``IJobResult.OUTCOME_PASS`` object
-to mark these jobs.
+Every passed job is marked by either the following symbol ``☑`` (ballot box
+with check) or the text ``job passed``. Checkbox internally uses the
+``IJobResult.OUTCOME_PASS`` object to mark these jobs.
 
 Skipped Jobs
 ------------
@@ -48,15 +48,13 @@ The Failing outcome is the marker for a failing job run. It can be assigned in
 the following situations:
 
 - Automated job returned a non-0 return code
-- Automated job is marked as ``noreturn`` and the session was interrupted and
-  brought back
-- Manual job marked as passed by the user
-- Session was interrupted and when manually brought back, explicitly marking
-  the job as pass
+- Manual job marked as failed by the user
+- Job explicitly marked as failed by the user when a session was manually
+  brought back after interruption
 
-Every failed job is marked by either the following symbol ``☒`` (ballot box with X) or the text
-``job failed``. Checkbox internally uses the ``IJobResult.OUTCOME_FAIL`` object
-to mark these jobs.
+Every failed job is marked by either the following symbol ``☒``
+(ballot box with X) or the text ``job failed``. Checkbox internally
+uses the ``IJobResult.OUTCOME_FAIL`` object to mark these jobs.
 
 Crashed Jobs
 -------------
@@ -68,9 +66,9 @@ to automated job in the following situations:
   Memory Guardian)
 - Job interrupted the testing session without a ``noreturn`` flag
 
-Every crashed job is marked by either the warning marker ``⚠`` or the text
-``job crashed``. Checkbox internally uses the ``IJobResult.OUTCOME_CRASH``
-object to mark these jobs.
+Every crashed job is marked by either the warning marker ``⚠`` (warning sign)
+or the text ``job crashed``. Checkbox internally uses the
+``IJobResult.OUTCOME_CRASH`` object to mark these jobs.
 
 Not Started Jobs
 ----------------
@@ -79,6 +77,6 @@ The Not Started outcome is the marker for a job that can not be started. It is
 assigned only in the situation where a job depends on another job that was
 either skipped or not started itself.
 
-Every not-started job is marked either by the following marker ``☐`` (ballot box) or the
-text ``job cannot be started``. Checkbox internally uses the
+Every not-started job is marked either by the following marker ``☐`` (ballot
+box) or the text ``job cannot be started``. Checkbox internally uses the
 ``IJobResult.OUTCOME_NOT_SUPPORTED`` object to mark these jobs.

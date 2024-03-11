@@ -516,13 +516,12 @@ def select_jobs(job_list, qualifier_list):
             excluded_set.add(job)
 
     for qualifier in flat_qualifier_list:
+        # optimize the super-common case where a qualifier refers to
+        # a specific job
         if (isinstance(qualifier, FieldQualifier) and
                 qualifier.field == 'id' and
                 isinstance(qualifier.matcher, OperatorMatcher) and
                 qualifier.matcher.op == operator.eq):
-            # optimize the super-common case where a qualifier refers to
-            # a specific job by using the id_to_index_map to instantly
-            # perform the requested operation on a single job
             for job in job_list:
                 if job.id == qualifier.matcher.value:
                     _handle_vote(qualifier, job)

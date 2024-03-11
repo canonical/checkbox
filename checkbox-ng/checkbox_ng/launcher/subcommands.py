@@ -1333,6 +1333,48 @@ class ListBootstrapped:
                 print(job_id)
 
 
+class ListTestplan:
+    @property
+    def sa(self):
+        return self.ctx.sa
+
+    def register_arguments(self, parser):
+        parser.description = (
+            "Outputs the list of jobs and templates that will be run by a "
+            "given test plan as JSON. Instantiated jobs are ignored."
+        )
+        parser.add_argument("TEST_PLAN", help=_("test plan id to use"))
+
+    def invoked(self, ctx):
+        self.ctx = ctx
+        self.sa.start_new_session("checkbox-listing-ephemeral")
+        tps = self.sa.get_test_plans()
+        if ctx.args.TEST_PLAN not in tps:
+            raise SystemExit("Test plan not found")
+        self.sa.select_test_plan(ctx.args.TEST_PLAN)
+        self.sa.bootstrap()
+        job_and_template_list = []
+        all_template_map = {
+            unit.template_id: unit
+            for unit in self.sa._context.state.unit_list
+            if unit.unit == "template"
+        }
+        for job in self.sa.get_static_todo_list():
+            job_unit = self.sa.get_job(job)
+            if job_unit.template_id:
+                template_unit = all_template_map[job_unit.template_id]
+                attrs = template_unit._raw_data.copy()
+            else:
+                attrs = job_unit._raw_data.copy()
+                attrs["unit"] = "job"
+            attrs["certification_status"] = self.ctx.sa.get_job_state(
+                job
+            ).effective_certification_status
+            if attrs not in job_and_template_list:
+                job_and_template_list.append(attrs)
+        print(json.dumps(job_and_template_list))
+
+
 class TestPlanExport:
     @property
     def sa(self):

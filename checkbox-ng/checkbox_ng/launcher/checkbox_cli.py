@@ -37,6 +37,7 @@ from checkbox_ng.launcher.subcommands import (
     StartProvider,
     Submit,
     ListBootstrapped,
+    ListTestplan,
     TestPlanExport,
     Show,
 )
@@ -72,6 +73,7 @@ def main():
         "submit": Submit,
         "show": Show,
         "list-bootstrapped": ListBootstrapped,
+        "list-testplan": ListTestplan,
         "merge-reports": MergeReports,
         "merge-submissions": MergeSubmissions,
         "tp-export": TestPlanExport,

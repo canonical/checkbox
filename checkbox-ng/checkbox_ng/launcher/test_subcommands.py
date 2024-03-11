@@ -27,12 +27,14 @@ from io import StringIO
 from checkbox_ng.launcher.subcommands import (
     Launcher,
     ListBootstrapped,
+    ListTestplan,
     IncompatibleJobError,
     ResumeInstead,
     IJobResult,
     request_comment,
     generate_resume_candidate_description,
 )
+from plainbox.impl.unit.template import TemplateUnit
 
 
 class TestLauncher(TestCase):
@@ -677,6 +679,87 @@ class TestLListBootstrapped(TestCase):
             "plugin: shell\n"
             "summary: fake-job2\n"
             "certification blocker: blocker\n\n"
+        )
+        self.launcher.invoked(self.ctx)
+        self.assertEqual(stdout.getvalue(), expected_out)
+
+
+class TestListTestplan(TestCase):
+    maxDiff = None
+    def setUp(self):
+        self.launcher = ListTestplan()
+        self.ctx = Mock()
+        self.ctx.args = Mock(TEST_PLAN="", format="")
+        test_template = TemplateUnit({
+            "template-id": "test-template",
+            "id": "test-{res}",
+        })
+        self.ctx.sa = Mock(
+            start_new_session=Mock(),
+            get_test_plans=Mock(return_value=["test-plan1", "test-plan2"]),
+            select_test_plan=Mock(),
+            bootstrap=Mock(),
+            get_static_todo_list=Mock(return_value=["test-job1", "test-job2"]),
+            get_job=Mock(
+                side_effect=[
+                    Mock(
+                        _raw_data={
+                            "id": "namespace1::test-job1",
+                            "summary": "fake-job1",
+                            "plugin": "manual",
+                            "description": "fake-description1",
+                            "certification_status": "unspecified",
+                        },
+                        id="namespace1::test-job1",
+                        partial_id="test-job1",
+                        template_id="test-template",
+                    ),
+                    Mock(
+                        _raw_data={
+                            "id": "namespace2::test-job2",
+                            "summary": "fake-job2",
+                            "plugin": "shell",
+                            "command": "ls",
+                            "certification_status": "unspecified",
+                        },
+                        id="namespace2::test-job2",
+                        partial_id="test-job2",
+                        template_id=None,
+                    ),
+                ]
+            ),
+            get_job_state=Mock(
+                return_value=Mock(effective_certification_status="blocker")
+            ),
+            get_resumable_sessions=Mock(return_value=[]),
+            get_dynamic_todo_list=Mock(return_value=[]),
+            _context=Mock(
+                state=Mock(
+                    unit_list=[test_template,]
+                ),
+            ),
+        )
+
+    def test_invoke_test_plan_not_found(self):
+        self.ctx.args.TEST_PLAN = "test-plan3"
+
+        with self.assertRaisesRegex(SystemExit, "Test plan not found"):
+            self.launcher.invoked(self.ctx)
+
+    @patch("sys.stdout", new_callable=StringIO)
+    def test_invoke_print_output_standard_format(self, stdout):
+        self.ctx.args.TEST_PLAN = "test-plan1"
+
+        expected_out = (
+            '[{"template-id": "test-template", '
+            '"id": "test-{res}", '
+            '"certification_status": "blocker"}, '
+            '{"id": "namespace2::test-job2", '
+            '"summary": "fake-job2", '
+            '"plugin": "shell", '
+            '"command": "ls", '
+            '"certification_status": "blocker", '
+            '"unit": "job"}]\n'
         )
         self.launcher.invoked(self.ctx)
         self.assertEqual(stdout.getvalue(), expected_out)

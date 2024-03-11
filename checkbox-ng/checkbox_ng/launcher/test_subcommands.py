@@ -685,7 +685,6 @@ class TestLListBootstrapped(TestCase):
 
 
 class TestListTestplan(TestCase):
-    maxDiff = None
     def setUp(self):
         self.launcher = ListTestplan()
         self.ctx = Mock()
@@ -740,6 +739,11 @@ class TestListTestplan(TestCase):
                 ),
             ),
         )
+
+    def test_register_arguments(self):
+        parser_mock = Mock()
+        self.launcher.register_arguments(parser_mock)
+        self.assertTrue(parser_mock.add_argument.called)
 
     def test_invoke_test_plan_not_found(self):
         self.ctx.args.TEST_PLAN = "test-plan3"

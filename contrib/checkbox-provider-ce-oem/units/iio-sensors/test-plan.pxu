@@ -6,35 +6,18 @@ include:
 nested_part:
     ce-oem-iio-sensors-manual
     ce-oem-iio-sensors-automated
-    after-suspend-ce-oem-iio-sensors-manual
-    after-suspend-ce-oem-iio-sensors-automated
 
 id: ce-oem-iio-sensors-manual
 unit: test plan
 _name: Industrial I/O sensor manual tests
-_description: Manual tests for Industrial I/O sensors
+_description: Manual tests for Industrial I/O sensors in before suspend and post suspend stage
 include:
 
 id: ce-oem-iio-sensors-automated
 unit: test plan
 _name: Industrial I/O sensor auto tests
-_description: Automated tests for Industrial I/O sensors
+_description: Automated tests for Industrial I/O sensors in before suspend and post suspend stage
 bootstrap_include:
     ce-oem-iio-sensors/resource
 include:
-    ce-oem-iio-sensors/check-.*-.*
-
-id: after-suspend-ce-oem-iio-sensors-manual
-unit: test plan
-_name: Post suspend Industrial I/O sensor manual tests
-_description: Manual tests for Industrial I/O sensors
-include:
-
-id: after-suspend-ce-oem-iio-sensors-automated
-unit: test plan
-_name: Post suspend Industrial I/O sensor auto tests
-_description: Automated tests for Industrial I/O sensors
-bootstrap_include:
-    ce-oem-iio-sensors/resource
-include:
-    after-suspend-ce-oem-iio-sensors/check-.*-.*
+    ce-oem-iio-sensors/check_sensor_type_index

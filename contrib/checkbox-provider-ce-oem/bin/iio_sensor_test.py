@@ -189,7 +189,7 @@ def dump_sensor_resource(args):
         args (Namespace): the arguments includes type and index of sensor
     """
     output = ""
-    resource_text = "index: {}\nsensor_type: {}\n\n"
+    resource_text = "index: {}\ntype: {}\n\n"
     for sensor in args.mapping.split():
         index, sensor_type = sensor.split(":")
         output += resource_text.format(index, sensor_type)

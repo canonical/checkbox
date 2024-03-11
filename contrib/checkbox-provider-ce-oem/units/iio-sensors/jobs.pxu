@@ -13,10 +13,12 @@ command:
     iio_sensor_test.py sensor-resource "$IIO_SENSORS"
 
 unit: template
+template-engine: jinja2
 template-resource: ce-oem-iio-sensors/resource
 template-unit: job
-id: ce-oem-iio-sensors/check-{sensor_type}-{index}
-_summary: To test industrial IO {sensor_type}-{index}
+template-id: ce-oem-iio-sensors/check_sensor_type_index
+id: ce-oem-iio-sensors/check-{{ type }}-{{ index }}
+_summary: To test industrial IO {{ type }}-{{ index }}
 plugin: shell
 user: root
 category_id: iio-sensors
@@ -25,5 +27,5 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_iio_sensors == 'True'
 flags: also-after-suspend
 command:
-    echo "## Perform the industrial I/O {sensor_type}-{index} sensor test"
-    iio_sensor_test.py test -t {sensor_type} -i {index}
+    echo "## Perform the industrial I/O {{ type }}-{{ index }} sensor test"
+    iio_sensor_test.py test -t {{ type }} -i {{ index }}

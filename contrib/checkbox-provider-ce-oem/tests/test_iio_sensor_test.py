@@ -150,11 +150,11 @@ class TestIndustrialIOSensorTest(unittest.TestCase):
             stdout.getvalue(),
             (
                 "index: 0\n"
-                "sensor_type: pressure\n\n"
+                "type: pressure\n\n"
                 "index: 1\n"
-                "sensor_type: accelerometer\n\n"
+                "type: accelerometer\n\n"
                 "index: 2\n"
-                "sensor_type: humidityrelative\n\n\n"
+                "type: humidityrelative\n\n\n"
             )
         )
 

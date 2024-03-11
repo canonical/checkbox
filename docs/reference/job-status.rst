@@ -10,7 +10,7 @@ it is received.
 Passing Jobs
 ------------
 
-The Passing outcome is the marker for a succesful run. It can be assigned in
+The Passing outcome is the marker for a successful run. It can be assigned in
 the following situations:
 
 - Automated job returned a 0 return code
@@ -64,10 +64,11 @@ Crashing Jobs
 The Crashing outcome is the marker for a crashing job. It can only be assigned
 to automated job in the following situations:
 
-- Job crashed or was forcibly terminated by an external actor (like the OOMK)
+- Job crashed or was forcibly terminated by an external actor (like the Out of
+  Memory Guardian)
 - Job interrupted the testing session without a ``noreturn`` flag
 
-Every crashing job is either merked by the following marker ``⚠`` or the text
+Every crashing job is either marked by the following marker ``⚠`` or the text
 ``job crashed``. Checkbox internally uses the ``IJobResult.OUTCOME_CRASH``
 object to mark these jobs.
 

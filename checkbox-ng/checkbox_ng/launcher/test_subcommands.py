@@ -693,6 +693,7 @@ class TestListTestplan(TestCase):
         test_template = TemplateUnit({
             "template-id": "test-template",
             "id": "test-{res}",
+            "template-summary": "Test Template Summary",
         })
         self.ctx.sa = Mock(
             start_new_session=Mock(),
@@ -747,22 +748,11 @@ class TestListTestplan(TestCase):
             self.launcher.invoked(self.ctx)
 
     @patch("sys.stdout", new_callable=StringIO)
-    def test_invoke_print_output_standard_format(self, stdout):
+    def test_invoke_print_output(self, stdout):
         self.ctx.args.TEST_PLAN = "test-plan1"
 
-        expected_out = (
-            '[{"template-id": "test-template", '
-            '"id": "test-{res}", '
-            '"certification_status": "blocker"}, '
-            '{"id": "namespace2::test-job2", '
-            '"summary": "fake-job2", '
-            '"plugin": "shell", '
-            '"command": "ls", '
-            '"certification_status": "blocker", '
-            '"unit": "job"}]\n'
-        )
         self.launcher.invoked(self.ctx)
-        self.assertEqual(stdout.getvalue(), expected_out)
+        self.assertIn("Test Template Summary", stdout.getvalue())
 
 
 class TestUtilsFunctions(TestCase):

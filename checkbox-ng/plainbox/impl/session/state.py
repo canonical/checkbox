@@ -548,15 +548,9 @@ class SessionDeviceContext:
         self.invalidate_shared(self._CACHE_OVERRIDE_MAP)
 
     def _bulk_override_update(self):
-        # NOTE: there is an O(N) algorithm for that solves this but it is more
-        # complicated than I was able to write without a hard-copy reference
-        # that describes it. I will improve this method once I complete the
-        # required research.
         for job_state in self.state.job_state_map.values():
             job = job_state.job
-            for pattern, override_list in self.override_map.items():
-                if re.match(pattern, job.id):
-                    job_state.apply_overrides(override_list)
+            self._override_update(job)
 
     def _override_update(self, job):
         """

@@ -187,7 +187,11 @@ class TemplateUnit(UnitWithId):
 
     def __str__(self):
         """String representation of Template unit objects."""
-        return "{} <~ {}".format(self.id, self.resource_id)
+        return "{} <~ {}".format(self.template_id, self.resource_id)
+
+    def __repr__(self):
+        return "<TemplateUnit template_id:{!r}>".format(
+            self.template_id)
 
     @property
     def unit(self):

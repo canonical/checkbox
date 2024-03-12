@@ -42,6 +42,25 @@ from plainbox.vendor import mock
 
 class TemplateUnitTests(TestCase):
 
+    def test_str(self):
+        template = TemplateUnit({
+            "template-resource": "resource",
+            "template-id": "check-devices",
+            "id": "check-device-{dev_name}",
+        })
+        self.assertEqual(str(template), "check-devices <~ resource")
+
+    def test_repr(self):
+        template = TemplateUnit({
+            "template-resource": "resource",
+            "template-id": "check-devices",
+            "id": "check-device-{dev_name}",
+        })
+        self.assertEqual(
+            repr(template),
+            "<TemplateUnit template_id:'check-devices'>"
+        )
+
     def test_id(self):
         template = TemplateUnit({
             "template-resource": "resource",

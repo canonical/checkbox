@@ -26,6 +26,7 @@ from doctest import REPORT_NDIFF
 from unittest import TestCase
 from unittest.mock import MagicMock
 from unittest.mock import Mock
+from unittest.mock import patch
 
 from plainbox.abc import IJobResult
 from plainbox.impl.depmgr import DependencyDuplicateError
@@ -48,7 +49,6 @@ from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.category import CategoryUnit
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.suspend_consts import Suspend
-from plainbox.vendor import mock
 from plainbox.vendor.morris import SignalTestCase
 
 
@@ -467,9 +467,9 @@ class SessionStateAPITests(TestCase):
     def test_system_information_collection_called(self):
         getter = SessionState.system_information.__get__
 
-        self_mock = mock.MagicMock()
+        self_mock = MagicMock()
         self_mock._system_information = None
-        with mock.patch(
+        with patch(
             "plainbox.impl.session.state.collect_system_information"
         ) as collect_system_information_mock:
             return_value = getter(self_mock)
@@ -482,15 +482,15 @@ class SessionStateAPITests(TestCase):
         getter = SessionState.system_information.__get__
         setter = SessionState.system_information.__set__
 
-        self_mock = mock.MagicMock()
+        self_mock = MagicMock()
         self_mock._system_information = None
-        with mock.patch(
+        with patch(
             "plainbox.impl.session.state.collect_system_information"
         ) as collect_system_information_mock:
             setter(self_mock, {"inxi": {}})
             self.assertFalse(collect_system_information_mock.called)
 
-        with mock.patch(
+        with patch(
             "plainbox.impl.session.state.collect_system_information"
         ) as collect_system_information_mock:
             return_value = getter(self_mock)
@@ -506,7 +506,7 @@ class SessionStateTrimTests(TestCase):
     def setUp(self):
         self.job_a = make_job("a")
         self.job_b = make_job("b")
-        self.origin = mock.Mock(name="origin", spec_set=Origin)
+        self.origin = Mock(name="origin", spec_set=Origin)
         self.session = SessionState([self.job_a, self.job_b])
 
     def test_trim_does_remove_jobs(self):
@@ -737,7 +737,7 @@ class SessionStateReactionToJobResultTests(TestCase):
             InhibitionCause.UNDESIRED,
         )
 
-    @mock.patch("plainbox.impl.ctrl.logger")
+    @patch("plainbox.impl.ctrl.logger")
     def test_resource_job_with_broken_output(self, mock_logger):
         # This function checks how SessionState parses partially broken
         # resource jobs.  A JobResult with broken output is constructed below.
@@ -998,13 +998,13 @@ class SessionMetadataTests(TestCase):
 class SessionDeviceContextTests(SignalTestCase):
     def setUp(self):
         self.ctx = SessionDeviceContext()
-        self.provider = mock.Mock(name="provider", spec_set=Provider1)
-        self.unit = mock.Mock(name="unit", spec_set=UnitWithId)
+        self.provider = Mock(name="provider", spec_set=Provider1)
+        self.unit = Mock(name="unit", spec_set=UnitWithId)
         self.unit.provider = self.provider
         self.provider.unit_list = [self.unit]
         self.provider.problem_list = []
-        self.job = mock.Mock(name="job", spec_set=JobDefinition, siblings=None)
-        self.job.get_flag_set = mock.Mock(return_value=())
+        self.job = Mock(name="job", spec_set=JobDefinition, siblings=None)
+        self.job.get_flag_set = Mock(return_value=())
         self.job.Meta.name = "job"
 
     def test_smoke(self):

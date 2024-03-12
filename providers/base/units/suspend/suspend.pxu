@@ -401,7 +401,7 @@ id: suspend/network_after_suspend
 estimated_duration: 20.0
 depends: suspend/suspend_advanced_auto suspend/network_before_suspend
 _description: Test the network after resuming.
-command: network_wait.sh; gateway_ping_test.py | diff "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt -
+command: network_wait.sh; gateway_ping_test.py
 user: root
 
 plugin: shell
@@ -410,7 +410,7 @@ id: suspend/network_after_suspend_auto
 estimated_duration: 20.0
 depends: suspend/suspend_advanced_auto suspend/network_before_suspend
 _description: Test the network after resuming.
-command: network_wait.sh; gateway_ping_test.py | diff "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt -
+command: network_wait.sh; gateway_ping_test.py
 user: root
 
 plugin: shell

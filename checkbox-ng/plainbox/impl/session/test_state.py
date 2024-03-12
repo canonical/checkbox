@@ -24,6 +24,8 @@ Test definitions for plainbox.impl.session module
 from doctest import DocTestSuite
 from doctest import REPORT_NDIFF
 from unittest import TestCase
+from unittest.mock import MagicMock
+from unittest.mock import Mock
 
 from plainbox.abc import IJobResult
 from plainbox.impl.depmgr import DependencyDuplicateError
@@ -38,6 +40,7 @@ from plainbox.impl.secure.rfc822 import RFC822SyntaxError
 from plainbox.impl.session import InhibitionCause
 from plainbox.impl.session import SessionState
 from plainbox.impl.session import UndesiredJobReadinessInhibitor
+from plainbox.impl.session.state import JobState
 from plainbox.impl.session.state import SessionDeviceContext
 from plainbox.impl.session.state import SessionMetaData
 from plainbox.impl.testing_utils import make_job
@@ -1218,3 +1221,35 @@ class SessionDeviceContextTests(SignalTestCase):
         sig2 = self.assertSignalFired(self.ctx.state.on_unit_removed, self.job)
         sig3 = self.assertSignalFired(self.ctx.state.on_job_removed, self.job)
         self.assertSignalOrdering(sig1, sig2, sig3)
+
+    def test_override_update(self):
+        """
+        Check that JobState.apply_overrides is called if the override matches a
+        job id or the template_id this job has been instantiated from.
+        """
+        self_mock = MagicMock()
+        self_mock.override_map = {
+            "^test-tpl$": [("certification_status", "blocker")],
+            "^job1$": [("certification_status", "blocker")],
+        }
+        job1 = Mock(id="job1", template_id=None)
+        tpl_job = Mock(id="job2", template_id="test-tpl")
+        SessionDeviceContext._override_update(self_mock, job1)
+        self.assertTrue(
+            self_mock.state.job_state_map[job1.id].apply_overrides.called
+        )
+        SessionDeviceContext._override_update(self_mock, tpl_job)
+        self.assertTrue(
+            self_mock.state.job_state_map[tpl_job.id].apply_overrides.called
+        )
+
+    def test_bulk_override_update(self):
+        self_mock = MagicMock()
+        job_state1 = Mock(spec=JobState)
+        job_state2 = Mock(spec=JobState)
+        self_mock.state.job_state_map = {
+            "job1": job_state1,
+            "job2": job_state2,
+        }
+        SessionDeviceContext._bulk_override_update(self_mock)
+        self_mock._override_update.assert_called_with(job_state2.job)

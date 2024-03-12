@@ -33,12 +33,13 @@ reasons:
 
 - Job with a ``require`` constraint that can not be satisfied
 - Job with a dependency on a job that is skipped itself
-- Job explicitly skipped by the user via the ``launcher``
+- Job is ``manual``, ``user-interact`` or ``user-interact-verify`` but the
+  session is ``silent``
 - Job explicitly skipped by the user via the Ctrl+C menu
 - Job explicitly skipped by the user via the resume screen
 
-Every skipped job is either marked by the following symbol ``"  "`` (white
-space) or the text ``job skipped``. Checkbox internally uses the
+Every skipped job is either marked by the following symbol ``☐`` (ballot
+box) or the text ``job skipped``. Checkbox internally uses the
 ``IJobResult.OUTCOME_SKIP`` to mark these jobs.
 
 Failed Jobs

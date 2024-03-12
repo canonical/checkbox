@@ -559,9 +559,15 @@ class SessionDeviceContext:
                     job_state.apply_overrides(override_list)
 
     def _override_update(self, job):
+        """
+        Apply overrides to job if they are directly related or apply to the
+        template the job was instantiated from.
+        """
         job_state = self.state.job_state_map[job.id]
         for pattern, override_list in self.override_map.items():
-            if re.match(pattern, job.id):
+            if re.match(pattern, job.id) or (
+                job.template_id and re.match(pattern, job.template_id)
+            ):
                 job_state.apply_overrides(override_list)
 
     def _update_mandatory_job_list(self):

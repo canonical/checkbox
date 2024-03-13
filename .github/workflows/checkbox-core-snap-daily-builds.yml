@@ -11,6 +11,7 @@ jobs:
         releases: [16, 18, 20, 22]
         arch: [amd64, arm64, armhf]
     runs-on: [self-hosted, linux, small]
+    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:
       SERIES: series${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}

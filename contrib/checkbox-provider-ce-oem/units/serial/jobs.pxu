@@ -92,4 +92,4 @@ category_id: com.canonical.certification::serial
 estimated_duration: 30
 flags: also-after-suspend
 command:
-    serial_test.py {{ node }} --mode client --type {{ type }} --group "{{ group }}" --baudrate {{ baudrate }}
+    serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }}

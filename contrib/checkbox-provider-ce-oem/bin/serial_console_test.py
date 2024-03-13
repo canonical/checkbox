@@ -28,7 +28,7 @@ def test_serial_console(serial_device, baudrate):
             logger.info("Sending 'Enter Key'...")
             ser.write(os.linesep.encode())
             response = ser.read(size=128).decode()
-            logger.info("Received response:\n'{}'".format(response))
+            logger.info("Received response: '%s'", response)
             # ":~$" is the pattern for the DUT after logging in
             # "login:" is the pattern for the DUT before logging in
             if ":~$" in response or "login:" in response:
@@ -64,4 +64,4 @@ def main():
 
 
 if __name__ == "__main__":
-    SystemExit(main())
+    main()

@@ -201,7 +201,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "Sapphire Rapids":  ['0x806f3', '0x806f6', '0x806f7', '0x806f8'],
         "Skylake":          ['0x406e3', '0x506e3', '0x50654', '0x50652'],
         "Tiger Lake":       ['0x806c1'],
-        "Aderlake":         ['0x906a4', '0x906A3', '0x90675', '0x90672'],
+        "Alder Lake":         ['0x906a4', '0x906A3', '0x90675', '0x90672'],
         "Westmere":         ['0x2065', '0x206c', '0x206f'],
         "Whisky Lake":      ['0x806eb', '0x806ec'],
     }

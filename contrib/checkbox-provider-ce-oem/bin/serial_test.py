@@ -58,9 +58,9 @@ class Serial:
         type,
         group: list = [],
         baudrate: int = 115200,
-        bytesize: int = 8,
+        bytesize: int = serial.EIGHTBITS,
         parity: str = serial.PARITY_NONE,
-        stopbits: int = 1,
+        stopbits: int = serial.STOPBITS_ONE,
         timeout: int = 1,
         data_size: int = 256,
     ) -> None:

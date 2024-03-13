@@ -7,7 +7,7 @@ on:
 jobs:
   ppa_update:
     name: Sync PPA history with monorepo
-    runs-on: [self-hosted, linux, large]
+    runs-on: [self-hosted, linux, small]
     steps:
       - name: Install dependencies
         run: |
@@ -65,6 +65,7 @@ jobs:
             tools/release/lp_update_recipe.py checkbox --recipe ${{ matrix.recipe }} --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $GITHUB_SHA
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
         name: Build and wait result
+        timeout-minutes: 780 # 13hours
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
           PYTHONUNBUFFERED: 1

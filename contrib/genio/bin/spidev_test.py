@@ -43,10 +43,11 @@ def test_spi_content_consistency(platform):
     spi_ret = runcmd([cmd])
     print(spi_ret.stdout)
 
-    packets = spi_ret.stdout.split('\n')
-    if not len(packets):
+    if spi_ret.stdout == "":
         raise SystemExit(
             'ERROR: no any output be reported')
+
+    packets = spi_ret.stdout.split('\n')
     for rx, tx in zip(packets[-2:-1], packets[-3:-2]):
         tx_content = tx.split('|')[2]
         rx_content = rx.split('|')[2]

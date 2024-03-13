@@ -285,7 +285,7 @@ command:
  EOF
  )
  echo "$yml" | {compose_command} -f - pull
- echo "$yml" | {compose_command} -f - create
+ echo "$yml" | {compose_command} -f - up --no-start
  echo "$yml" | {compose_command} -f - start
  ID=$(echo "$yml" | {compose_command} -f - ps -q test)
  [ `docker inspect -f {status} $ID` != running ] && exit 1
@@ -446,11 +446,11 @@ command:
   set -ex
   compose_file={root_dir}/docker-compose-california-0.6.1.yml
   wget https://raw.githubusercontent.com/edgexfoundry/developer-scripts/04c933f2c03bb9b212e1035505fed0a386f4d43e/compose-files/docker-compose-california-0.6.1.yml -O $compose_file
-  for svc in volume config-seed mongo logging notifications metadata data command scheduler export-client export-distro rulesengine device-virtual; do 
+  for svc in volume config-seed mongo logging notifications metadata data command scheduler export-client export-distro rulesengine device-virtual; do
     {compose_command} --file $compose_file up -d $svc
     sleep 60
   done
-  for svc in volume mongo logging notifications metadata data command scheduler export-client export-distro device-virtual; do 
+  for svc in volume mongo logging notifications metadata data command scheduler export-client export-distro device-virtual; do
     status=$(docker inspect -f '{status}' $({compose_command} --file $compose_file ps -q $svc))
     if [ "$status" != "running" ]; then
         echo "service $svc is supposed to be running, but currently has status: $status"

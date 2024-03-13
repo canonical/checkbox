@@ -62,7 +62,7 @@ class Serial:
         parity: str = serial.PARITY_NONE,
         stopbits: int = serial.STOPBITS_ONE,
         timeout: int = 1,
-        data_size: int = 256,
+        data_size: int = 128,
     ) -> None:
         self.node = node
         self.type = type
@@ -131,7 +131,7 @@ def server_mode(ser: Serial) -> None:
             logging.info("Listening on port {} ...".format(ser.node))
 
 
-def client_mode(ser: Serial, data_size: int = 256):
+def client_mode(ser: Serial, data_size: int = 128):
     """
     Running as a clinet and it will sending out a string and wait
     the string send back from server. After receive the string,
@@ -187,21 +187,23 @@ def main():
                         default=115200, type=int)
     parser.add_argument(
         "--bytesize",
-        choices=[5, 6, 7, 8],
+        choices=[serial.FIVEBITS, serial.SIXBITS,
+                 serial.SEVENBITS, serial.EIGHTBITS],
         type=int,
         help="Bytesize",
         default=8,
     )
     parser.add_argument(
         "--parity",
-        choices=["N", "E", "O", "S", "M"],
+        choices=[serial.PARITY_NONE, serial.PARITY_EVEN, serial.PARITY_ODD,
+                 serial.PARITY_MARK, serial.PARITY_SPACE],
         type=lambda c: c.upper(),
         help="Parity",
         default="N",
     )
     parser.add_argument(
         "--stopbits",
-        choices=[1, 2],
+        choices=[serial.STOPBITS_ONE, serial.STOPBITS_TWO],
         type=int,
         help="Stopbits",
         default=1,

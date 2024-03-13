@@ -36,17 +36,18 @@ def test_uart_by_serialcheck(soc):
         38400, 19200, 9600, 4800, 2400, 1200, 600, 300, 110
     ]
 
-    fail = 0
+    fail = False
     for br in available_baudrate:
         print('\n' + '*' * 80)
         print(f'Testing baudrate: {br}\n')
         ret = runcmd([cmd.format(tty_node, file_path, br)])
         print(ret.stdout)
         if ret.returncode != 0 or ret.stdout.split('\n')[-2] != golden_msg:
-            fail = 1
+            fail = True
             print('Fail: the output doesn\'t match the golden sample')
 
-    raise SystemExit(fail)
+    if fail:
+        raise SystemExit(1)
 
 
 def main():

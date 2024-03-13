@@ -43,7 +43,7 @@ def test_spi_content_consistency(platform):
     spi_ret = runcmd([cmd])
     print(spi_ret.stdout)
 
-    if spi_ret.stdout == "":
+    if not spi_ret.stdout:
         raise SystemExit(
             'ERROR: no any output be reported')
 

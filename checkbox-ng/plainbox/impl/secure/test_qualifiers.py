@@ -494,16 +494,16 @@ class FunctionTests(TestCase):
     def setUp(self):
         self.origin = mock.Mock(name='origin', spec_set=Origin)
 
-    def test_select_jobs__empty_qualifier_list(self):
+    def test_select_units__empty_qualifier_list(self):
         """
-        verify that select_jobs() returns an empty list if no qualifiers are
+        verify that select_units() returns an empty list if no qualifiers are
         passed
         """
-        self.assertEqual(select_jobs([], []), [])
+        self.assertEqual(select_units([], []), [])
 
-    def test_select_jobs__inclusion(self):
+    def test_select_units__inclusion(self):
         """
-        verify that select_jobs() honors qualifier ordering
+        verify that select_units() honors qualifier ordering
         """
         job_a = JobDefinition({'id': 'a'})
         job_b = JobDefinition({'id': 'b'})
@@ -514,12 +514,12 @@ class FunctionTests(TestCase):
             # Regardless of how the list of job is ordered the result
             # should be the same, depending on the qualifier list
             self.assertEqual(
-                select_jobs(job_list, [qual_a, qual_c]),
+                select_units(job_list, [qual_a, qual_c]),
                 [job_a, job_c])
 
-    def test_select_jobs__exclusion(self):
+    def test_select_units__exclusion(self):
         """
-        verify that select_jobs() honors qualifier ordering
+        verify that select_units() honors qualifier ordering
         """
         job_a = JobDefinition({'id': 'a'})
         job_b = JobDefinition({'id': 'b'})
@@ -534,12 +534,12 @@ class FunctionTests(TestCase):
             # Regardless of how the list of job is ordered the result
             # should be the same, depending on the qualifier list
             self.assertEqual(
-                select_jobs(job_list, [qual_all, qual_not_c]),
+                select_units(job_list, [qual_all, qual_not_c]),
                 [job_a, job_b])
 
-    def test_select_jobs__id_field_qualifier(self):
+    def test_select_units__id_field_qualifier(self):
         """
-        verify that select_jobs() only returns the job that matches a given
+        verify that select_units() only returns the job that matches a given
         FieldQualifier
         """
         job_a = JobDefinition({'id': 'a'})
@@ -549,11 +549,11 @@ class FunctionTests(TestCase):
         qual = FieldQualifier("id", matcher, self.origin, True)
         job_list = [job_a, job_b, job_c]
         expected_list = [job_a]
-        self.assertEqual(select_jobs(job_list, [qual]), expected_list)
+        self.assertEqual(select_units(job_list, [qual]), expected_list)
 
-    def test_select_jobs__id_field_qualifier_twice(self):
+    def test_select_units__id_field_qualifier_twice(self):
         """
-        verify that select_jobs() only returns the job that matches a given
+        verify that select_units() only returns the job that matches a given
         FieldQualifier once, even if it has been added twice
         """
         job_a = JobDefinition({'id': 'a'})
@@ -561,11 +561,11 @@ class FunctionTests(TestCase):
         qual = FieldQualifier("id", matcher, self.origin, True)
         job_list = [job_a, job_a]
         expected_list = [job_a]
-        self.assertEqual(select_jobs(job_list, [qual, qual]), expected_list)
+        self.assertEqual(select_units(job_list, [qual, qual]), expected_list)
 
-    def test_select_jobs__template_id_field_qualifier(self):
+    def test_select_units__template_id_field_qualifier(self):
         """
-        verify that select_jobs() only returns the jobs that have been
+        verify that select_units() only returns the jobs that have been
         instantiated using a given template
         """
         job_a = JobDefinition({
@@ -583,9 +583,9 @@ class FunctionTests(TestCase):
         qual = FieldQualifier("id", matcher, self.origin, True)
         job_list = [job_a, templated_job_b, templated_job_c]
         expected_list = [templated_job_b, templated_job_c]
-        self.assertEqual(select_jobs(job_list, [qual]), expected_list)
+        self.assertEqual(select_units(job_list, [qual]), expected_list)
 
-    def test_select_jobs__excluded_templated_job(self):
+    def test_select_units__excluded_templated_job(self):
         """
         verify that if a template id is included in the test plan, jobs that
         have been instantiated from it can still be excluded from the list of
@@ -606,4 +606,4 @@ class FunctionTests(TestCase):
         job_list = [templated_job_a, templated_job_b]
         qualifiers = [qual_incl, qual_excl]
         expected_list = [templated_job_a]
-        self.assertEqual(select_jobs(job_list, qualifiers), expected_list)
+        self.assertEqual(select_units(job_list, qualifiers), expected_list)

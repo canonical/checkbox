@@ -32,7 +32,7 @@ from plainbox.impl import deprecated
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyError
 from plainbox.impl.depmgr import DependencySolver
-from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
 from plainbox.impl.session.system_information import(
@@ -568,7 +568,7 @@ class SessionDeviceContext:
         qualifier_list = []
         for test_plan in self._test_plan_list:
             qualifier_list.append(test_plan.get_mandatory_qualifier())
-        mandatory_job_list = select_jobs(
+        mandatory_job_list = select_units(
             self.state.job_list, qualifier_list)
         self.state.update_mandatory_job_list(mandatory_job_list)
         self.state.update_desired_job_list(self.state.desired_job_list)

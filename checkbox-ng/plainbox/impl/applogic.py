@@ -32,12 +32,12 @@ from plainbox.abc import IJobResult
 from plainbox.i18n import gettext as _
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.secure import config
-from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.session import SessionManager
 from plainbox.impl.session.jobs import InhibitionCause
 
 
-# Deprecated, use plainbox.impl.secure.qualifiers.select_jobs() instead
+# Deprecated, use plainbox.impl.secure.qualifiers.select_units() instead
 def get_matching_job_list(job_list, qualifier):
     """
     Get a list of jobs that are designated by the specified qualifier.
@@ -45,7 +45,7 @@ def get_matching_job_list(job_list, qualifier):
     This is intended to be used with :class:`CompositeQualifier`
     but works with any :class:`IJobQualifier` subclass.
     """
-    return select_jobs(job_list, [qualifier])
+    return select_units(job_list, [qualifier])
 
 
 def run_job_if_possible(session, runner, config, job, update=True, ui=None):

@@ -51,7 +51,7 @@ from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.origin import Origin
-from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import JobIdQualifier
 from plainbox.impl.secure.qualifiers import PatternMatcher
@@ -802,7 +802,7 @@ class SessionAssistant:
         # NOTE: there is next-to-none UI here as bootstrap jobs are limited to
         # just resource jobs (including their dependencies) so there should be
         # very little UI required.
-        desired_job_list = select_jobs(
+        desired_job_list = select_units(
             self._context.state.job_list,
             [
                 plan.get_bootstrap_qualifier()
@@ -823,7 +823,7 @@ class SessionAssistant:
             self.use_job_result(job.id, rb.get_result())
         # Perform initial selection -- we want to run everything that is
         # described by the test plan that was selected earlier.
-        desired_job_list = select_jobs(
+        desired_job_list = select_units(
             self._context.state.job_list,
             [plan.get_qualifier() for plan in self._manager.test_plans]
             + self._exclude_qualifiers,
@@ -866,7 +866,7 @@ class SessionAssistant:
                     Origin("hand-pick"),
                 )
             )
-        jobs = select_jobs(self._context.state.job_list, qualifiers)
+        jobs = select_units(self._context.state.job_list, qualifiers)
         self._context.state.update_desired_job_list(jobs)
         self._metadata.flags = {
             SessionMetaData.FLAG_INCOMPLETE,
@@ -891,7 +891,7 @@ class SessionAssistant:
         E.g. to inform the user about the progress
         """
         UsageExpectation.of(self).enforce()
-        desired_job_list = select_jobs(
+        desired_job_list = select_units(
             self._context.state.job_list,
             [
                 plan.get_bootstrap_qualifier()
@@ -926,7 +926,7 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         # Perform initial selection -- we want to run everything that is
         # described by the test plan that was selected earlier.
-        desired_job_list = select_jobs(
+        desired_job_list = select_units(
             self._context.state.job_list,
             [plan.get_qualifier() for plan in self._manager.test_plans]
             + self._exclude_qualifiers
@@ -1029,7 +1029,7 @@ class SessionAssistant:
         reigning job selection.
         """
         UsageExpectation.of(self).enforce()
-        desired_job_list = select_jobs(
+        desired_job_list = select_units(
             self._context.state.job_list,
             [plan.get_qualifier() for plan in self._manager.test_plans],
         )
@@ -1171,7 +1171,7 @@ class SessionAssistant:
         test_plan = self._manager.test_plans[0]
         return [
             job.id
-            for job in select_jobs(
+            for job in select_units(
                 self._context.state.job_list,
                 [test_plan.get_mandatory_qualifier()],
             )

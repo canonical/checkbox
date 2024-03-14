@@ -46,7 +46,7 @@ from plainbox.impl.highlevel import Explorer
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
-from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.storage import WellKnownDirsHelper
@@ -1315,7 +1315,7 @@ class Expand:
         tp = self.sa._context._test_plan_list[0]
         tp_us = TestPlanUnitSupport(tp)
         self.override_list = tp_us.override_list
-        jobs_and_templates_list = select_jobs(
+        jobs_and_templates_list = select_units(
             all_jobs_and_templates,
             [tp.get_mandatory_qualifier()] + [tp.get_qualifier()],
         )

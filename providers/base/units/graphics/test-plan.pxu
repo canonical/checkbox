@@ -41,6 +41,8 @@ include:
  graphics/1_cycle_resolution_.*                 certification-status=non-blocker
  graphics/1_valid_glxgears_.*                   certification-status=blocker
  graphics/2_valid_glxgears_.*                   certification-status=blocker
+ graphics/valid_glxgears                        certification-status=blocker
+ graphics/valid_glxgears_fullscreen             certification-status=blocker
 bootstrap_include:
     graphics_card
 
@@ -83,6 +85,8 @@ include:
  after-suspend-graphics/1_cycle_resolution_.*             certification-status=non-blocker
  after-suspend-graphics/1_valid_glxgears_.*               certification-status=blocker
  after-suspend-graphics/2_valid_glxgears_.*               certification-status=blocker
+ after-suspend-graphics/valid_glxgears                    certification-status=blocker
+ after-suspend-graphics/valid_glxgears_fullscreen         certification-status=blocker
  suspend/1_xrandr_screens_after_suspend.tar.gz_auto
 
 id: graphics-integrated-gpu-cert-full

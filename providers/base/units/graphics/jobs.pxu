@@ -295,7 +295,9 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_auto_glxgears_{product_slug}
 flags: also-after-suspend
-requires: executable.name == 'glxgears'
+requires:
+    executable.name == 'glxgears'
+    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
 user: root
 command:
  # shellcheck disable=SC1091
@@ -313,7 +315,9 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_valid_glxgears_{product_slug}
 flags: also-after-suspend
-requires: executable.name == 'glxgears'
+requires:
+    executable.name == 'glxgears'
+    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
 user: root
 command:
  # shellcheck disable=SC1091
@@ -339,7 +343,9 @@ plugin: shell
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_auto_glxgears_fullscreen_{product_slug}
 flags: also-after-suspend
-requires: executable.name == 'glxgears'
+requires:
+    executable.name == 'glxgears'
+    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
 user: root
 command:
  # shellcheck disable=SC1091
@@ -357,7 +363,9 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_valid_glxgears_fullscreen_{product_slug}
 flags: also-after-suspend
-requires: executable.name == 'glxgears'
+requires:
+    executable.name == 'glxgears'
+    dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
 user: root
 command:
  # shellcheck disable=SC1091
@@ -376,6 +384,48 @@ steps:
 verification:
     1. Did the 3D animation appear?
     2. Was the animation free from slowness/jerkiness?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::graphics
+id: graphics/valid_glxgears
+flags: also-after-suspend
+requires:
+    executable.name == 'glxgears'
+    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving']
+command:
+ glxgears
+ true
+_summary: Test that glxgears works for current video card
+_description:
+ PURPOSE:
+     This test tests the basic 3D capabilities of your current video card
+ STEPS:
+     1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
+     2. Verify that the animation is not jerky or slow.
+ VERIFICATION:
+     1. Did the 3d animation appear?
+     2. Was the animation free from slowness/jerkiness?
+
+plugin: user-interact-verify
+category_id: com.canonical.plainbox::graphics
+id: graphics/valid_glxgears_fullscreen
+flags: also-after-suspend
+requires:
+    executable.name == 'glxgears'
+    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving']
+command:
+ glxgears -fullscreen
+ true
+_summary: Test that glxgears works on fullscreen for current video card
+_description:
+ PURPOSE:
+     This test tests the basic fullscreen 3D capabilities of your current video card
+ STEPS:
+     1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
+     2. Verify that the animation is not jerky or slow.
+ VERIFICATION:
+     1. Did the 3d animation appear?
+     2. Was the animation free from slowness/jerkiness?
 
 unit: template
 template-resource: graphics_card

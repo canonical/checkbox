@@ -37,7 +37,7 @@ def error_handler(node_type, node_path, expect, reality):
         print(
             (
                 f"Failed: "
-                f"the expected {node_type} value of node '{node_path}'"
+                f"the expected {node_type} value of node '{node_path}' "
                 f"should be '{expect}' but got '{reality}'"
             )
         )
@@ -45,7 +45,7 @@ def error_handler(node_type, node_path, expect, reality):
         print(
             (
                 f"Failed: "
-                f"the expected usage value of node '{node_path}'"
+                f"the expected usage value of node '{node_path}' "
                 f"should grater than 0"
             )
         )

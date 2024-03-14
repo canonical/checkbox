@@ -28,6 +28,7 @@ Note: This script uses the LP_CREDENTIALS environment variable
 import sys
 import datetime
 import argparse
+import itertools
 
 from utils import get_launchpad_client
 
@@ -48,11 +49,28 @@ def get_ppa(lp, ppa_name: str, ppa_owner: str):
 
 
 def get_checkbox_packages(ppa):
-    since_date = datetime.datetime.now() - datetime.timedelta(weeks=4)
-    # The time ago is needed because else LP api will choke trying to
-    # return the full history including any published source in the ppa
-    return ppa.getPublishedSources(
-        created_since_date=since_date, source_name="checkbox"
+    """
+    Get all the most recent checkbox packages on the PPA that are still current
+
+    A source package is still current when it has not been superseeded by
+    another. The filtering here is done to avoid copying over outdated
+    packages to the target PPA
+    """
+    # Note: this is not the same as ppa.getPublishedSources(status="Published")
+    #       the reason is that if a package is Published but for a not
+    #       supported distribution, say Lunar, copying it over will trigger an
+    #       error. When a distribution support is dropped, Launchpad will
+    #       automatically stop building for it and start a grace period for
+    #       updates. This ensures there will always be a pocket of Superseeded
+    #       packages between Published packages for unsupported distro and
+    #       current ones
+    all_published_sources = ppa.getPublishedSources(
+        source_name="checkbox", order_by_date=True
+    )
+    # this filters out superseeded packages AND Published packages that are no
+    # longer current (as they are not being built anymore by Launchpad)
+    return itertools.takewhile(
+        lambda x: x.date_superseded is None, all_published_sources
     )
 
 

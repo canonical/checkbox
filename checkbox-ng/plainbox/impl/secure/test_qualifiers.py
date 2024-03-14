@@ -30,7 +30,7 @@ from itertools import permutations
 from unittest import TestCase
 import operator
 
-from plainbox.abc import IJobQualifier
+from plainbox.abc import IUnitQualifier
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.secure.origin import FileTextSource
 from plainbox.impl.secure.origin import Origin
@@ -43,23 +43,23 @@ from plainbox.impl.secure.qualifiers import NonPrimitiveQualifierOrigin
 from plainbox.impl.secure.qualifiers import OperatorMatcher
 from plainbox.impl.secure.qualifiers import PatternMatcher
 from plainbox.impl.secure.qualifiers import RegExpJobQualifier
-from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.secure.qualifiers import SimpleQualifier
 from plainbox.impl.testing_utils import make_job
 from plainbox.vendor import mock
 
 
-class IJobQualifierTests(TestCase):
+class IUnitQualifierTests(TestCase):
     """
-    Test cases for IJobQualifier interface
+    Test cases for IUnitQualifier interface
     """
 
-    def test_IJobQualifier_is_abstract(self):
+    def test_IUnitQualifier_is_abstract(self):
         """
-        Verify that IJobQualifier is an interface and cannot be
+        Verify that IUnitQualifier is an interface and cannot be
         instantiated
         """
-        self.assertRaises(TypeError, IJobQualifier)
+        self.assertRaises(TypeError, IUnitQualifier)
 
 
 class DummySimpleQualifier(SimpleQualifier):
@@ -108,11 +108,11 @@ class SimpleQualifierTests(TestCase):
         the same job returns VOTE_INCLUDE.
         """
         with mock.patch.object(self.obj, 'get_vote') as mock_get_vote:
-            mock_get_vote.return_value = IJobQualifier.VOTE_INCLUDE
+            mock_get_vote.return_value = IUnitQualifier.VOTE_INCLUDE
             self.assertTrue(self.obj.designates(self.job))
-            mock_get_vote.return_value = IJobQualifier.VOTE_EXCLUDE
+            mock_get_vote.return_value = IUnitQualifier.VOTE_EXCLUDE
             self.assertFalse(self.obj.designates(self.job))
-            mock_get_vote.return_value = IJobQualifier.VOTE_IGNORE
+            mock_get_vote.return_value = IUnitQualifier.VOTE_IGNORE
             self.assertFalse(self.obj.designates(self.job))
 
     def test_get_vote__inclusive_matching(self):
@@ -124,7 +124,7 @@ class SimpleQualifierTests(TestCase):
         with mock.patch.object(obj, 'get_simple_match') as mock_gsm:
             mock_gsm.return_value = True
             self.assertEqual(obj.get_vote(self.job),
-                             IJobQualifier.VOTE_INCLUDE)
+                             IUnitQualifier.VOTE_INCLUDE)
 
     def test_get_vote__not_inclusive_matching(self):
         """
@@ -135,7 +135,7 @@ class SimpleQualifierTests(TestCase):
         with mock.patch.object(obj, 'get_simple_match') as mock_gsm:
             mock_gsm.return_value = True
             self.assertEqual(obj.get_vote(self.job),
-                             IJobQualifier.VOTE_EXCLUDE)
+                             IUnitQualifier.VOTE_EXCLUDE)
 
     def test_get_vote__inclusive_nonmatching(self):
         """
@@ -145,7 +145,7 @@ class SimpleQualifierTests(TestCase):
         obj = DummySimpleQualifier(self.origin, inclusive=True)
         with mock.patch.object(obj, 'get_simple_match') as mock_gsm:
             mock_gsm.return_value = False
-            self.assertEqual(obj.get_vote(self.job), IJobQualifier.VOTE_IGNORE)
+            self.assertEqual(obj.get_vote(self.job), IUnitQualifier.VOTE_IGNORE)
 
     def test_get_vote__not_inclusive_nonmatching(self):
         """
@@ -155,7 +155,7 @@ class SimpleQualifierTests(TestCase):
         obj = DummySimpleQualifier(self.origin, inclusive=False)
         with mock.patch.object(obj, 'get_simple_match') as mock_gsm:
             mock_gsm.return_value = False
-            self.assertEqual(obj.get_vote(self.job), IJobQualifier.VOTE_IGNORE)
+            self.assertEqual(obj.get_vote(self.job), IUnitQualifier.VOTE_IGNORE)
 
     def test_get_primitive_qualifiers(self):
         """
@@ -301,19 +301,19 @@ class RegExpJobQualifierTests(TestCase):
         self.assertEqual(
             RegExpJobQualifier("foo", self.origin).get_vote(
                 JobDefinition({'id': 'foo'})),
-            IJobQualifier.VOTE_INCLUDE)
+            IUnitQualifier.VOTE_INCLUDE)
         self.assertEqual(
             RegExpJobQualifier("foo", self.origin, inclusive=False).get_vote(
                 JobDefinition({'id': 'foo'})),
-            IJobQualifier.VOTE_EXCLUDE)
+            IUnitQualifier.VOTE_EXCLUDE)
         self.assertEqual(
             RegExpJobQualifier("foo", self.origin).get_vote(
                 JobDefinition({'id': 'bar'})),
-            IJobQualifier.VOTE_IGNORE)
+            IUnitQualifier.VOTE_IGNORE)
         self.assertEqual(
             RegExpJobQualifier("foo", self.origin, inclusive=False).get_vote(
                 JobDefinition({'id': 'bar'})),
-            IJobQualifier.VOTE_IGNORE)
+            IUnitQualifier.VOTE_IGNORE)
 
 
 class JobIdQualifierTests(TestCase):
@@ -352,19 +352,19 @@ class JobIdQualifierTests(TestCase):
         self.assertEqual(
             JobIdQualifier("foo", self.origin).get_vote(
                 JobDefinition({'id': 'foo'})),
-            IJobQualifier.VOTE_INCLUDE)
+            IUnitQualifier.VOTE_INCLUDE)
         self.assertEqual(
             JobIdQualifier("foo", self.origin, inclusive=False).get_vote(
                 JobDefinition({'id': 'foo'})),
-            IJobQualifier.VOTE_EXCLUDE)
+            IUnitQualifier.VOTE_EXCLUDE)
         self.assertEqual(
             JobIdQualifier("foo", self.origin).get_vote(
                 JobDefinition({'id': 'bar'})),
-            IJobQualifier.VOTE_IGNORE)
+            IUnitQualifier.VOTE_IGNORE)
         self.assertEqual(
             JobIdQualifier("foo", self.origin, inclusive=False).get_vote(
                 JobDefinition({'id': 'bar'})),
-            IJobQualifier.VOTE_IGNORE)
+            IUnitQualifier.VOTE_IGNORE)
 
     def test_smoke(self):
         """
@@ -402,33 +402,33 @@ class CompositeQualifierTests(TestCase):
         # Default is IGNORE
         self.assertEqual(
             CompositeQualifier([]).get_vote(make_job("foo")),
-            IJobQualifier.VOTE_IGNORE)
+            IUnitQualifier.VOTE_IGNORE)
         # Any match is INCLUDE
         self.assertEqual(
             CompositeQualifier([
                 RegExpJobQualifier("foo", self.origin),
             ]).get_vote(make_job("foo")),
-            IJobQualifier.VOTE_INCLUDE)
+            IUnitQualifier.VOTE_INCLUDE)
         # Any negative match is EXCLUDE
         self.assertEqual(
             CompositeQualifier([
                 RegExpJobQualifier("foo", self.origin, inclusive=False),
             ]).get_vote(make_job("foo")),
-            IJobQualifier.VOTE_EXCLUDE)
+            IUnitQualifier.VOTE_EXCLUDE)
         # Negative matches take precedence over positive matches
         self.assertEqual(
             CompositeQualifier([
                 RegExpJobQualifier("foo", self.origin),
                 RegExpJobQualifier("foo", self.origin, inclusive=False),
             ]).get_vote(make_job("foo")),
-            IJobQualifier.VOTE_EXCLUDE)
+            IUnitQualifier.VOTE_EXCLUDE)
         # Unrelated patterns are not affecting the result
         self.assertEqual(
             CompositeQualifier([
                 RegExpJobQualifier("foo", self.origin),
                 RegExpJobQualifier("bar", self.origin),
             ]).get_vote(make_job("foo")),
-            IJobQualifier.VOTE_INCLUDE)
+            IUnitQualifier.VOTE_INCLUDE)
 
     def test_inclusive(self):
         """

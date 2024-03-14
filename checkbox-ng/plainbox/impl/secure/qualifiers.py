@@ -34,7 +34,7 @@ import os
 import re
 import sre_constants
 
-from plainbox.abc import IJobQualifier
+from plainbox.abc import IUnitQualifier
 from plainbox.i18n import gettext as _
 from plainbox.impl import pod
 from plainbox.impl.secure.origin import FileTextSource
@@ -45,7 +45,7 @@ from plainbox.impl.secure.origin import UnknownTextSource
 _logger = logging.getLogger("plainbox.secure.qualifiers")
 
 
-class SimpleQualifier(IJobQualifier):
+class SimpleQualifier(IUnitQualifier):
     """
     Abstract base class that implements common features of simple (non
     composite) qualifiers. This allows two concrete subclasses below to
@@ -111,7 +111,7 @@ class SimpleQualifier(IJobQualifier):
         Return a list of primitives that constitute this qualifier.
 
         :returns:
-            A list of IJobQualifier objects that each is the smallest,
+            A list of IUnitQualifier objects that each is the smallest,
             indivisible entity. Here it just returns a list of one element,
             itself.
 
@@ -381,7 +381,7 @@ class CompositeQualifier(pod.POD):
         return False
 
     def designates(self, job):
-        return self.get_vote(job) == IJobQualifier.VOTE_INCLUDE
+        return self.get_vote(job) == IUnitQualifier.VOTE_INCLUDE
 
     def get_vote(self, job):
         """
@@ -403,7 +403,7 @@ class CompositeQualifier(pod.POD):
                 qualifier.get_vote(job)
                 for qualifier in self.qualifier_list])
         else:
-            return IJobQualifier.VOTE_IGNORE
+            return IUnitQualifier.VOTE_IGNORE
 
     def get_primitive_qualifiers(self):
         return get_flat_primitive_qualifier_list(self.qualifier_list)
@@ -413,12 +413,12 @@ class CompositeQualifier(pod.POD):
         raise NonPrimitiveQualifierOrigin
 
 
-IJobQualifier.register(CompositeQualifier)
+IUnitQualifier.register(CompositeQualifier)
 
 
 class NonPrimitiveQualifierOrigin(Exception):
     """
-    Exception raised when IJobQualifier.origin is meaningless as it is being
+    Exception raised when IUnitQualifier.origin is meaningless as it is being
     requested on a non-primitive qualifier such as the CompositeQualifier
     """
 

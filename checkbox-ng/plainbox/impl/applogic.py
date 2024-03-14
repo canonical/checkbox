@@ -43,7 +43,7 @@ def get_matching_job_list(job_list, qualifier):
     Get a list of jobs that are designated by the specified qualifier.
 
     This is intended to be used with :class:`CompositeQualifier`
-    but works with any :class:`IJobQualifier` subclass.
+    but works with any :class:`IUnitQualifier` subclass.
     """
     return select_units(job_list, [qualifier])
 

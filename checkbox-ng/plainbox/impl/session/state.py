@@ -762,7 +762,7 @@ class SessionState:
         :param qualifier:
             A qualifier that selects jobs to be removed
         :ptype qualifier:
-            IJobQualifier
+            IUnitQualifier
 
         :raises ValueError:
             If any of the jobs selected by the qualifier is on the desired job

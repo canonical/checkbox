@@ -96,7 +96,7 @@ class Serial:
     def send(self, data: bytes) -> None:
         try:
             self.ser.write(data)
-            logging.info("Sent: {}".format(data.hex()))
+            logging.info("Sent: {}".format(data.decode()))
         except Exception:
             logging.exception("Not able to send data!")
 
@@ -106,7 +106,7 @@ class Serial:
             self.ser.rts = False
             rcv = self.ser.read(self.data_size)
             if rcv:
-                logging.info("Received: {}".format(rcv.hex()))
+                logging.info("Received: {}".format(rcv.decode()))
         except Exception:
             logging.exception("Received unmanageable string format")
             raise SystemExit(1)
@@ -157,6 +157,33 @@ def client_mode(ser: Serial, data_size: int = 128):
     raise SystemExit(1)
 
 
+def console_mode(ser: Serial):
+    """
+    Test the serial port when it is in console mode
+    This test requires DUT to loop back it self.
+    For example: connect the serial console port to the USB port via
+    serial to usb dongle
+    """
+    try:
+        # Send 'Enter Key'
+        logging.info("Sending 'Enter Key'...")
+        ser.send(os.linesep.encode())
+        response = ser.recv().decode()
+        # ":~$" is the pattern for the DUT after logging in
+        # "login:" is the pattern for the DUT before logging in
+        if ":~$" in response or "login:" in response:
+            logging.info("[PASS] Serial console test successful.")
+        else:
+            logging.info("[FAIL] Serial console test failed.")
+            logging.info(
+                "Expected response should contain ':~$' or 'login:'"
+            )
+            raise SystemExit(1)
+    except Exception:
+        logging.exception("Caught an exception.")
+        raise SystemExit(1)
+
+
 def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -164,7 +191,7 @@ def main():
     parser.add_argument("node", help="Serial port device node e.g. /dev/ttyS1")
     parser.add_argument(
         "--mode",
-        choices=["server", "client"],
+        choices=["server", "client", "console"],
         type=str,
         help="Running mode",
         required=True,
@@ -238,6 +265,8 @@ def main():
         server_mode(ser)
     elif args.mode == "client":
         client_mode(ser, data_size=args.datasize)
+    elif args.mode == "console":
+        console_mode(ser)
     else:
         raise SystemExit(1)
 

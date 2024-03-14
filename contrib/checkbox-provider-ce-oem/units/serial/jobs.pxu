@@ -15,17 +15,7 @@ command:
     if [ -z "$SERIAL_CONSOLE_PORTS" ]; then
         exit 0
     fi
-    pairs=($SERIAL_CONSOLE_PORTS)
-    for pair in "${pairs[@]}"; do
-        IFS=':' read -r -a pair_array <<< "$pair"
-        type="${pair_array[0]}"
-        node="${pair_array[1]}"
-        baudrate="${pair_array[2]}"
-        echo "type: $type"
-        echo "node: $node"
-        echo "baudrate: $baudrate"
-        echo ""
-    done
+    serial_config_parser.py "$SERIAL_CONSOLE_PORTS"
 
 unit: template
 template-resource: ce-oem-serial/serial-console-list
@@ -33,9 +23,9 @@ template-unit: job
 template-engine: jinja2
 template-id: ce-oem-serial/serial-console-tests
 id: ce-oem-serial/serial-console-{{ type }}-{{ node }}-{{ baudrate }}
-# imports: from com.canonical.plainbox import manifest
-# requires: 
-#     manifest.has_serial_console_loopback == True
+imports: from com.canonical.plainbox import manifest
+requires: 
+    manifest.has_serial_console_loopback == True
 template-summary: To check if the serial ports can work as a console
 _summary: To check if the serial port {{ type }} ({{ node }}) can work as a console
 _purpose: 
@@ -49,7 +39,7 @@ category_id: com.canonical.certification::serial
 estimated_duration: 30
 flags: also-after-suspend
 command:
-    serial_console_test.py -d {{ node }} -b {{ baudrate }}
+    serial_test.py {{ node }} --mode console --type {{ type }} --baudrate {{ baudrate }}
 
 id: ce-oem-serial/serial-list
 _summary:
@@ -76,9 +66,9 @@ template-unit: job
 template-engine: jinja2
 template-id: ce-oem-serial/serial-transmit-data-tests
 id: ce-oem-serial/serial-transmit-data-{{ type }}-{{ node }}-{{ baudrate }}
-# imports: from com.canonical.plainbox import manifest
-# requires: 
-#     manifest.has_serial_ehco_server == True
+imports: from com.canonical.plainbox import manifest
+requires: 
+    manifest.has_serial_ehco_server == True
 template-summary:
     Transmit data via {{ type }} ({{ node }}) with baudate {{ baudrate }}
 _purpose: 

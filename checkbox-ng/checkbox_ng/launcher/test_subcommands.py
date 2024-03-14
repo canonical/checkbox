@@ -24,7 +24,12 @@ from unittest import TestCase
 from unittest.mock import patch, Mock, MagicMock
 
 from io import StringIO
+
+from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.unit.template import TemplateUnit
+
 from checkbox_ng.launcher.subcommands import (
+    Expand,
     Launcher,
     ListBootstrapped,
     IncompatibleJobError,
@@ -680,6 +685,91 @@ class TestLListBootstrapped(TestCase):
         )
         self.launcher.invoked(self.ctx)
         self.assertEqual(stdout.getvalue(), expected_out)
+
+
+class TestExpand(TestCase):
+    def setUp(self):
+        self.launcher = Expand()
+        self.ctx = Mock()
+        self.ctx.args = Mock(TEST_PLAN="", format="")
+        self.ctx.sa = Mock(
+            start_new_session=Mock(),
+            get_test_plans=Mock(return_value=["test-plan1", "test-plan2"]),
+            select_test_plan=Mock(),
+            # get_resumable_sessions=Mock(return_value=[]),
+            _context=Mock(
+                state=Mock(
+                    unit_list=[]
+                ),
+                _test_plan_list=[Mock()],
+            ),
+        )
+
+    def test_register_arguments(self):
+        parser_mock = Mock()
+        self.launcher.register_arguments(parser_mock)
+        self.assertTrue(parser_mock.add_argument.called)
+
+    def test_invoke__test_plan_not_found(self):
+        self.ctx.args.TEST_PLAN = "test-plan3"
+
+        with self.assertRaisesRegex(SystemExit, "Test plan not found"):
+            self.launcher.invoked(self.ctx)
+
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.TestPlanUnitSupport")
+    @patch("checkbox_ng.launcher.subcommands.select_jobs")
+    def test_invoke__text(self, mock_select_jobs, mock_tpus, stdout):
+        template1 = TemplateUnit({
+            "template-id": "test-template",
+            "id": "test-{res}",
+            "template-summary": "Test Template Summary",
+        })
+        job1 = JobDefinition({
+            "id": "job1",
+        })
+        mock_select_jobs.return_value = [job1, template1]
+        self.ctx.args.TEST_PLAN = "test-plan1"
+        self.launcher.invoked(self.ctx)
+        self.assertIn("Template 'test-template'", stdout.getvalue())
+
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.TestPlanUnitSupport")
+    @patch("checkbox_ng.launcher.subcommands.select_jobs")
+    def test_invoke__json(self, mock_select_jobs, mock_tpus, stdout):
+        template1 = TemplateUnit({
+            "template-id": "test-template",
+            "id": "test-{res}",
+            "template-summary": "Test Template Summary",
+        })
+        job1 = JobDefinition({
+            "id": "job1",
+        })
+        mock_select_jobs.return_value = [job1, template1]
+        self.ctx.args.TEST_PLAN = "test-plan1"
+        self.ctx.args.format = "json"
+        self.launcher.invoked(self.ctx)
+        self.assertIn('"template-id": "test-template"', stdout.getvalue())
+
+    def test_get_effective_certificate_status(self):
+        job1 = JobDefinition({
+            "id": "job1",
+        })
+        template1 = TemplateUnit({
+            "template-id": "template1",
+            "id": "job-{res}",
+        })
+        self.launcher.override_list = [
+            ("^job1$", [("certification_status", "blocker"),]),
+        ]
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(job1),
+            "blocker"
+        )
+        self.assertEqual(
+            self.launcher.get_effective_certification_status(template1),
+            "unspecified"
+        )
 
 
 class TestUtilsFunctions(TestCase):

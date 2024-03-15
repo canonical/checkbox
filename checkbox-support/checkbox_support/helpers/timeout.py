@@ -28,7 +28,7 @@ from queue import Queue
 from contextlib import wraps
 
 
-def timeout_run(f, timeout_s, *args, **kwargs):
+def run_with_timeout(f, timeout_s, *args, **kwargs):
     """
     Runs a function with the given args and kwargs. If the function doesn't
     terminate within timeout_s seconds, this raises TimeoutError.
@@ -54,10 +54,14 @@ def timeout_run(f, timeout_s, *args, **kwargs):
 
 
 def timeout(timeout_s):
+    """
+    Lets the decorated function run for up to timeout_s seconds. If the
+    function doesn't terminate within the timeout, raises TimeoutError
+    """
     def timeout_timeout_s(f):
         @wraps(f)
         def _f(*args, **kwargs):
-            return timeout_run(f, timeout_s, *args, **kwargs)
+            return run_with_timeout(f, timeout_s, *args, **kwargs)
 
         return _f
 

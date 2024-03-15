@@ -20,7 +20,7 @@ import time
 
 from unittest import TestCase
 
-from checkbox_support.helpers.timeout import timeout_run, timeout
+from checkbox_support.helpers.timeout import run_with_timeout, timeout
 
 
 class ClassSupport:
@@ -53,26 +53,26 @@ class TestTimeoutExec(TestCase):
     def test_class_field_timeouts(self):
         some = ClassSupport(1)
         with self.assertRaises(TimeoutError):
-            timeout_run(some.heavy_function, 0)
+            run_with_timeout(some.heavy_function, 0)
 
     def test_class_field_ok_return(self):
         some = ClassSupport(0)
         self.assertEqual(
-            timeout_run(some.heavy_function, 10), "ClassSupport return value"
+            run_with_timeout(some.heavy_function, 10), "ClassSupport return value"
         )
 
     def test_function_timeouts(self):
         with self.assertRaises(TimeoutError):
-            timeout_run(heavy_function, 0, 10)
+            run_with_timeout(heavy_function, 0, 10)
 
     def test_function_ok_return(self):
         self.assertEqual(
-            timeout_run(heavy_function, 10, 0), "ClassSupport return value"
+            run_with_timeout(heavy_function, 10, 0), "ClassSupport return value"
         )
 
     def test_function_exception_propagation(self):
         with self.assertRaises(ValueError):
-            timeout_run(some_exception_raiser, 0)
+            run_with_timeout(some_exception_raiser, 0)
 
     def test_function_systemexit_propagation(self):
         with self.assertRaises(SystemExit):
@@ -80,7 +80,7 @@ class TestTimeoutExec(TestCase):
 
     def test_function_args_kwargs_support(self):
         self.assertEqual(
-            timeout_run(
+            run_with_timeout(
                 kwargs_args_support, 1, "first", "second", third="third"
             ),
             ("first", "second", "third"),

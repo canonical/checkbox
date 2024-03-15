@@ -203,3 +203,27 @@ class SessionAssistantTests(morris.SignalTestCase):
             self_mock._context.state.update_desired_job_list.call_count,
             2
         )
+
+    @mock.patch("plainbox.impl.session.state.select_units")
+    def test_hand_pick_jobs(self, mock_su, mock_get_providers):
+        self_mock = mock.MagicMock()
+        SessionAssistant.hand_pick_jobs(self_mock, [])
+        self.assertEqual(
+            self_mock._context.state.update_desired_job_list.call_count,
+            1
+        )
+
+    @mock.patch("plainbox.impl.session.state.select_units")
+    @mock.patch("plainbox.impl.unit.testplan.TestPlanUnit")
+    def test_get_bootstrap_todo_list(
+        self,
+        mock_tpu,
+        mock_su,
+        mock_get_providers
+    ):
+        self_mock = mock.MagicMock()
+        SessionAssistant.get_bootstrap_todo_list(self_mock)
+        self.assertEqual(
+            self_mock._context.state.update_desired_job_list.call_count,
+            1
+        )

@@ -8,6 +8,7 @@ environ: STRESS_BOOT_WAKEUP_DELAY RTC_DEVICE_FILE
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0
+depends: com.canonical.certification::init-boot-loop-data
 imports:
   from com.canonical.certification import snap
   from com.canonical.certification import lsb
@@ -43,6 +44,7 @@ plugin: shell
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 60s
+depends: com.canonical.certification::init-boot-loop-data
 imports:
   from com.canonical.certification import snap
   from com.canonical.certification import lsb

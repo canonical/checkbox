@@ -768,8 +768,18 @@ class RemoteSessionAssistant:
             if the_job.plugin == "shell":
                 if "noreturn" in the_job.get_flag_set():
                     result_dict["outcome"] = IJobResult.OUTCOME_PASS
+                    result_dict["comments"] = (
+                        "Job crashed the machine or the checkbox agent, "
+                        "automatically marking it as passed after resuming "
+                        "the session because it has the noreturn flag"
+                    )
                 else:
                     result_dict["outcome"] = IJobResult.OUTCOME_CRASH
+                    result_dict["comments"] = (
+                        "Job crashed the machine or the checkbox agent, "
+                        "automatically marking it as crashed after resuming "
+                        "the session"
+                    )
 
         result_dict.update(overwrite_result_dict)
         result = MemoryJobResult(result_dict)

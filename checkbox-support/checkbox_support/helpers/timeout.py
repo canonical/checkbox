@@ -22,7 +22,10 @@ checkbox_support.helpers.timeout
 Utility class that provides functionalities connected to placing timeouts on
 functions
 """
-import multiprocessing
+import threading
+
+from queue import Queue
+from contextlib import wraps
 
 
 def timeout_run(f, timeout_s, *args, **kwargs):
@@ -30,10 +33,32 @@ def timeout_run(f, timeout_s, *args, **kwargs):
     Runs a function with the given args and kwargs. If the function doesn't
     terminate within timeout_s seconds, this raises TimeoutError.
     """
-    with multiprocessing.Pool(processes=1) as pool:
-        res = pool.apply_async(f, args, kwargs)
-        pool.close()
+    result_queue = Queue()
+    exception_queue = Queue()
+
+    def _f(*args, **kwargs):
         try:
-            return res.get(timeout_s)
-        except multiprocessing.context.TimeoutError as e:
-            raise TimeoutError from e
+            result_queue.put(f(*args, **kwargs))
+        except BaseException as e:
+            exception_queue.put(e)
+
+    thread = threading.Thread(target=_f, args=args, kwargs=kwargs, daemon=True)
+    thread.start()
+    thread.join(timeout_s)
+
+    if thread.is_alive():
+        raise TimeoutError("Task unable to finish in {}s".format(timeout_s))
+    if not exception_queue.empty():
+        raise exception_queue.get()
+    return result_queue.get()
+
+
+def timeout(timeout_s):
+    def timeout_timeout_s(f):
+        @wraps(f)
+        def _f(*args, **kwargs):
+            return timeout_run(f, timeout_s, *args, **kwargs)
+
+        return _f
+
+    return timeout_timeout_s

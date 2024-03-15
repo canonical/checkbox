@@ -20,7 +20,7 @@ import time
 
 from unittest import TestCase
 
-from checkbox_support.helpers.timeout import timeout_run
+from checkbox_support.helpers.timeout import timeout_run, timeout
 
 
 class ClassSupport:
@@ -41,6 +41,10 @@ def some_exception_raiser():
     raise ValueError("value error!")
 
 
+def system_exit_raiser():
+    raise SystemExit("abc")
+
+
 def kwargs_args_support(first, second, third=3):
     return (first, second, third)
 
@@ -49,7 +53,7 @@ class TestTimeoutExec(TestCase):
     def test_class_field_timeouts(self):
         some = ClassSupport(1)
         with self.assertRaises(TimeoutError):
-            timeout_run(some.heavy_function, 0.1)
+            timeout_run(some.heavy_function, 0)
 
     def test_class_field_ok_return(self):
         some = ClassSupport(0)
@@ -59,7 +63,7 @@ class TestTimeoutExec(TestCase):
 
     def test_function_timeouts(self):
         with self.assertRaises(TimeoutError):
-            timeout_run(heavy_function, 0.1, 10)
+            timeout_run(heavy_function, 0, 10)
 
     def test_function_ok_return(self):
         self.assertEqual(
@@ -68,7 +72,11 @@ class TestTimeoutExec(TestCase):
 
     def test_function_exception_propagation(self):
         with self.assertRaises(ValueError):
-            timeout_run(some_exception_raiser, 0.1)
+            timeout_run(some_exception_raiser, 0)
+
+    def test_function_systemexit_propagation(self):
+        with self.assertRaises(SystemExit):
+            system_exit_raiser()
 
     def test_function_args_kwargs_support(self):
         self.assertEqual(
@@ -77,3 +85,27 @@ class TestTimeoutExec(TestCase):
             ),
             ("first", "second", "third"),
         )
+
+    def test_decorator_test_ok(self):
+        @timeout(1)
+        def f(first, second, third):
+            return (first, second, third)
+
+        self.assertEqual(f(1, 2, 3), (1, 2, 3))
+
+    def test_decorator_test_fail(self):
+        @timeout(0)
+        def f(first, second, third):
+            time.sleep(100)
+            return (first, second, third)
+
+        with self.assertRaises(TimeoutError):
+            f(1, 2, 3)
+
+    def test_decorator_exception(self):
+        @timeout(1)
+        def f(first, second, third):
+            raise ValueError("error with first")
+
+        with self.assertRaises(ValueError):
+            f(1,2,3)

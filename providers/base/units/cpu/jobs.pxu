@@ -56,7 +56,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::cpu
 id: after-suspend-cpu/scaling_test-log-attach
 estimated_duration: 1.0
-after: after-suspend-cpu/scaling_test
+depends: after-suspend-cpu/scaling_test
 command: [[ -e "${PLAINBOX_SESSION_SHARE}"/scaling_test_after_suspend.log ]] && cat "${PLAINBOX_SESSION_SHARE}"/scaling_test_after_suspend.log
 _summary:
  Attach CPU scaling capabilities log
@@ -116,7 +116,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::cpu
 id: after-suspend-cpu/maxfreq_test-log-attach
 estimated_duration: 1.0
-after: after-suspend-cpu/maxfreq_test
+depends: after-suspend-cpu/maxfreq_test
 command: [ -e "$PLAINBOX_SESSION_SHARE"/maxfreq_test.log ] && cat "$PLAINBOX_SESSION_SHARE"/maxfreq_test.log
 _summary:
  Attach CPU max frequency log

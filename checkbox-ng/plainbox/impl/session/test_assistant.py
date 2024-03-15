@@ -199,6 +199,9 @@ class SessionAssistantTests(morris.SignalTestCase):
     def test_bootstrap(self, mock_tpu, mock_su, mock_get_providers):
         self_mock = mock.MagicMock()
         SessionAssistant.bootstrap(self_mock)
+        # Bootstrapping involves updating the list of desired jobs twice:
+        # - one time to get the resource jobs
+        # - one time to generate jobs out of the resource jobs
         self.assertEqual(
             self_mock._context.state.update_desired_job_list.call_count,
             2

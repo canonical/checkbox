@@ -193,3 +193,13 @@ class SessionAssistantTests(morris.SignalTestCase):
         self_mock.get_resumable_sessions.return_value = [session_mock]
 
         _ = SessionAssistant.resume_session(self_mock, "session_id")
+
+    @mock.patch("plainbox.impl.session.state.select_units")
+    @mock.patch("plainbox.impl.unit.testplan.TestPlanUnit")
+    def test_bootstrap(self, mock_tpu, mock_su, mock_get_providers):
+        self_mock = mock.MagicMock()
+        SessionAssistant.bootstrap(self_mock)
+        self.assertEqual(
+            self_mock._context.state.update_desired_job_list.call_count,
+            2
+        )

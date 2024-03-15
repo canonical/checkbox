@@ -250,9 +250,9 @@ class RemoteAssistantTests(TestCase):
             {
                 "outcome": IJobResult.OUTCOME_PASS,
                 "comments": (
-                    "Job crashed the machine or the Checkbox agent, "
-                    "automatically marking it as passed after resuming "
-                    "the session because it has the noreturn flag"
+                    "Job rebooted the machine or the Checkbox agent. "
+                    "Resuming the session and marking it as passed "
+                    "because the job has the `noreturn` flag"
                 ),
             }
         )
@@ -286,9 +286,8 @@ class RemoteAssistantTests(TestCase):
             {
                 "outcome": IJobResult.OUTCOME_CRASH,
                 "comments": (
-                    "Job crashed the machine or the Checkbox agent, "
-                    "automatically marking it as crashed after resuming "
-                    "the session"
+                    "Job rebooted the machine or the Checkbox agent. "
+                    "Resuming the session and marking it as crashed."
                 ),
             }
         )

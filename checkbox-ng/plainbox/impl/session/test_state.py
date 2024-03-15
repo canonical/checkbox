@@ -1251,3 +1251,11 @@ class SessionDeviceContextTests(SignalTestCase):
         }
         SessionDeviceContext._bulk_override_update(self_mock)
         self.assertTrue(self_mock._override_update.called)
+
+    @patch("plainbox.impl.session.state.select_units")
+    @patch("plainbox.impl.unit.testplan.TestPlanUnit.get_mandatory_qualifier")
+    def test_update_mandatory_job_list(self, mock_gmq, mock_su):
+        self_mock = MagicMock()
+        SessionDeviceContext._update_mandatory_job_list(self_mock)
+        self.assertTrue(self_mock.state.update_mandatory_job_list.called)
+        self.assertTrue(self_mock.state.update_desired_job_list.called)

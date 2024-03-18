@@ -119,6 +119,58 @@ class Brightness(object):
         else:
             return 0
 
+    def brightness_test(self, target_interface):
+        # If no backlight interface can be found
+        if len(self.interfaces) == 0:
+            raise SystemExit("ERROR: no brightness interfaces found")
+
+        exit_status = 0
+        find_target_display = False
+        print(f'Available Interfaces: {self.interfaces}')
+        for interface in self.interfaces:
+            if target_interface in interface:
+                find_target_display = True
+                # Get the current brightness which we can restore later
+                original_brightness = self.get_actual_brightness(interface)
+                print(f'Current brightness: {original_brightness}')
+
+                # Get the maximum value for brightness
+                max_brightness = self.get_max_brightness(interface)
+                print(f'Maximum brightness: {max_brightness}\n')
+
+                for m in [0, 0.25, 0.5, 0.75, 1]:
+                    # Set the brightness to half the max value
+                    current_brightness = math.ceil(max_brightness * m)
+                    print(f'Set the brightness as {current_brightness}')
+                    self.write_value(
+                        current_brightness,
+                        os.path.join(interface, 'brightness'))
+
+                    # Check that "actual_brightness" reports the same value we
+                    # set "brightness" to
+                    exit_status += self.was_brightness_applied(interface)
+
+                    # Wait a little bit before going back to the original value
+                    time.sleep(2)
+
+                # Set the brightness back to its original value
+                self.write_value(
+                    original_brightness,
+                    os.path.join(interface, 'brightness'))
+                print(
+                    'Set brightness back to original value:'
+                    f'{original_brightness}'
+                )
+                # Close the loop since the target display has been tested
+                break
+
+        if not find_target_display:
+            raise SystemExit(
+                f"ERROR: no {target_interface} interface be found"
+            )
+        if exit_status:
+            raise SystemExit(exit_status)
+
 
 def main():
     parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
@@ -167,53 +219,7 @@ def main():
             f"ERROR: no suitable interface of {args.display} display")
 
     brightness = Brightness()
-
-    # If no backlight interface can be found
-    if len(brightness.interfaces) == 0:
-        raise SystemExit("ERROR: no brightness interfaces found")
-
-    exit_status = 0
-    find_target_display = False
-    print(f'Available Interfaces: {brightness.interfaces}')
-    for interface in brightness.interfaces:
-        if target_interface in interface:
-            find_target_display = True
-            # Get the current brightness which we can restore later
-            original_brightness = brightness.get_actual_brightness(interface)
-            print(f'Current brightness: {original_brightness}')
-
-            # Get the maximum value for brightness
-            max_brightness = brightness.get_max_brightness(interface)
-            print(f'Maximum brightness: {max_brightness}\n')
-
-            for m in [0, 0.25, 0.5, 0.75, 1]:
-                # Set the brightness to half the max value
-                current_brightness = math.ceil(max_brightness * m)
-                print(f'Set the brightness as {current_brightness}')
-                brightness.write_value(
-                    current_brightness,
-                    os.path.join(interface, 'brightness'))
-
-                # Check that "actual_brightness" reports the same value we
-                # set "brightness" to
-                exit_status += brightness.was_brightness_applied(interface)
-
-                # Wait a little bit before going back to the original value
-                time.sleep(2)
-
-            # Set the brightness back to its original value
-            brightness.write_value(
-                original_brightness,
-                os.path.join(interface, 'brightness'))
-            print(
-                f'Set brightness back to original value: {original_brightness}'
-            )
-            # Close the loop since the target display has been tested
-            break
-
-    if not find_target_display:
-        raise SystemExit(f"ERROR: no {target_interface} interface be found")
-    raise SystemExit(exit_status)
+    brightness.brightness_test(target_interface)
 
 
 if __name__ == '__main__':

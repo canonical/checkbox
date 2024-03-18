@@ -52,7 +52,7 @@ def kwargs_args_support(first, second, third=3):
 class TestTimeoutExec(TestCase):
     def test_class_field_timeouts(self):
         some = ClassSupport(1)
-        with self.assertRaises(TimeoutError):
+        with self.assertRaises(SystemExit):
             run_with_timeout(some.heavy_function, 0)
 
     def test_class_field_ok_return(self):
@@ -62,7 +62,7 @@ class TestTimeoutExec(TestCase):
         )
 
     def test_function_timeouts(self):
-        with self.assertRaises(TimeoutError):
+        with self.assertRaises(SystemExit):
             run_with_timeout(heavy_function, 0, 10)
 
     def test_function_ok_return(self):
@@ -99,7 +99,7 @@ class TestTimeoutExec(TestCase):
             time.sleep(100)
             return (first, second, third)
 
-        with self.assertRaises(TimeoutError):
+        with self.assertRaises(SystemExit):
             f(1, 2, 3)
 
     def test_decorator_exception(self):

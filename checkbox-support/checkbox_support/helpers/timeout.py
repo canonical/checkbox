@@ -31,7 +31,9 @@ from contextlib import wraps
 def run_with_timeout(f, timeout_s, *args, **kwargs):
     """
     Runs a function with the given args and kwargs. If the function doesn't
-    terminate within timeout_s seconds, this raises TimeoutError.
+    terminate within timeout_s seconds, this raises SystemExit because the
+    expiration of the timeout does not terminate the underlying task, therefore
+    the process should exit to reach that goal.
     """
     result_queue = Queue()
     exception_queue = Queue()
@@ -47,7 +49,9 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
     thread.join(timeout_s)
 
     if thread.is_alive():
-        raise TimeoutError("Task unable to finish in {}s".format(timeout_s))
+        raise SystemExit(
+            "Task unable to finish in {}s".format(timeout_s)
+        ) from TimeoutError
     if not exception_queue.empty():
         raise exception_queue.get()
     return result_queue.get()
@@ -58,6 +62,7 @@ def timeout(timeout_s):
     Lets the decorated function run for up to timeout_s seconds. If the
     function doesn't terminate within the timeout, raises TimeoutError
     """
+
     def timeout_timeout_s(f):
         @wraps(f)
         def _f(*args, **kwargs):

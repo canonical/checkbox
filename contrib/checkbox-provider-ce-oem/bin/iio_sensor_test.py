@@ -60,7 +60,7 @@ def _check_node(path):
     """
     iio_node = Path(path)
     if not iio_node.exists():
-        raise FileNotFoundError("{} file not exists".format(str(iio_node)))
+        raise FileNotFoundError("{} file not exists".format(iio_node))
 
     return iio_node
 
@@ -101,7 +101,7 @@ def check_pressure_sensor(index):
         tmp_node = iio_node.joinpath(sub_node)
         _check_node(tmp_node)
         value = tmp_node.read_text().strip("\n")
-        print("the value of {} node is {}".format(str(tmp_node), value))
+        print("the value of {} node is {}".format(tmp_node, value))
         readings.append(value)
 
     if readings and _check_reading(readings):
@@ -128,7 +128,7 @@ def check_accelerometer_sensor(index):
         _check_node(tmp_node)
 
         value = tmp_node.read_text().strip("\n")
-        print("the value of {} node is {}".format(str(tmp_node), value))
+        print("the value of {} node is {}".format(tmp_node, value))
         readings.append(value)
 
     if readings and _check_reading(readings):
@@ -154,7 +154,7 @@ def check_humidity_sensor(index):
         tmp_node = iio_node.joinpath(sub_node)
         _check_node(tmp_node)
         value = tmp_node.read_text().strip("\n")
-        print("the value of {} node is {}".format(str(tmp_node), value))
+        print("the value of {} node is {}".format(tmp_node, value))
         readings.append(value)
 
     if readings and _check_reading(readings):

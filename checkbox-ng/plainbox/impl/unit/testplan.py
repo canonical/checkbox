@@ -843,6 +843,8 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
                     override_list.append((pattern, field_value_list))
 
             V().visit(IncludeStmtList.parse(testplan.include))
+            if testplan.mandatory_include:
+                V().visit(IncludeStmtList.parse(testplan.mandatory_include))
         for tp_unit in testplan.get_nested_part():
             override_list.extend(self._get_inline_overrides(tp_unit))
         return override_list

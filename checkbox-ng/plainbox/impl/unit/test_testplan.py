@@ -508,3 +508,30 @@ class TestNestedTestPlan(TestCase):
         self.assertIsInstance(qual_list[1].matcher, OperatorMatcher)
         self.assertEqual(qual_list[1].matcher.value, 'ns2::Bar')
         self.assertEqual(qual_list[1].inclusive, True)
+
+
+class TestTestPlanUnitSupport(TestCase):
+
+    def setUp(self):
+        self.provider1 = mock.Mock(name='provider1', spec_set=IProvider1)
+        self.provider1.namespace = 'ns1'
+        self.tp1 = TestPlanUnit({
+            "id": "tp1",
+            "unit": "test plan",
+            "name": "An example test plan 1",
+            "mandatory_include": "mandatory_job certification_status=blocker",
+            "include": "job1 certification_status=non-blocker",
+        }, provider=self.provider1)
+        self.provider1.unit_list = []
+        self.tp1.provider_list = [self.provider1,]
+        self.provider1.unit_list.append(self.tp1)
+
+    def test_inline_override(self):
+        support = TestPlanUnitSupport(self.tp1)
+        self.assertEqual(
+            support.override_list,
+            [
+                ("^ns1::job1$", [("certification_status", "non-blocker")]),
+                ("^ns1::mandatory_job$", [("certification_status", "blocker")])
+            ]
+        )

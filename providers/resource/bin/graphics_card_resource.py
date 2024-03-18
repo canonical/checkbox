@@ -105,6 +105,9 @@ def udev_devices(lines):
                 key, value = line.split(":", 1)
                 key = key.strip()
                 record[key] = value.strip()
+                if key == 'path':
+                    v = value.strip().split('/')
+                    record['pci_device_name'] = v[len(v) - 1]
             except ValueError:
                 # If a line has no colon it's suspicious, maybe a
                 # bogus input file. Let's discard it.

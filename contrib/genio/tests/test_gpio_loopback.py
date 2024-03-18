@@ -6,10 +6,8 @@ from gpio_loopback_test import GPIOSysFsController, main
 
 class TestGpioLoopback(unittest.TestCase):
 
-    def setUp(self):
-        self.gpio_controller = GPIOSysFsController()
-
     def test_get_gpio_base_number(self):
+        mock_gpio_controller = MagicMock()
         data = textwrap.dedent(
             """
             gpiochip0: GPIOs 0-31, ID1, ID2:
@@ -22,22 +20,21 @@ class TestGpioLoopback(unittest.TestCase):
         )
         with patch("builtins.open", mock_open(read_data=data)):
             self.assertEqual(
-                self.gpio_controller.get_gpio_base_number(),
+                GPIOSysFsController.get_gpio_base_number(mock_gpio_controller),
                 {
                     "gpiochip0": "0",
                     "gpiochip1": "32",
                 },
             )
 
-    @patch("gpio_loopback_test.GPIOSysFsController.get_gpio_base_number")
-    @patch("gpio_loopback_test.GPIOSysFsController.loopback_test")
     @patch("builtins.print")
-    def test_run_test(self, mock_print, mock_loopback, mock_get_base_number):
-        mock_get_base_number.return_value = {
+    def test_run_test(self, mock_print):
+        mock_gpio_controller = MagicMock()
+        mock_gpio_controller.get_gpio_base_number.return_value = {
             "gpiochip0": "0",
             "gpiochip1": "32",
         }
-        mock_loopback.return_value = True
+        mock_gpio_controller.loopback_test.return_value = True
 
         output_gpio_chip_number = "0"
         input_gpio_chip_number = "1"
@@ -46,7 +43,8 @@ class TestGpioLoopback(unittest.TestCase):
         gpio_output_pin = "1"
         gpio_input_pin = "2"
 
-        self.gpio_controller.run_test(
+        GPIOSysFsController.run_test(
+            mock_gpio_controller,
             output_gpio_chip_number,
             input_gpio_chip_number,
             physical_output_port,
@@ -69,110 +67,124 @@ class TestGpioLoopback(unittest.TestCase):
 
         self.assertEqual(actual_calls, print_calls)
 
-        # SystemExit is raised if the loopback test fails
-        mock_loopback.return_value = False
+    def test_run_test_fail(self):
+        mock_gpio_controller = MagicMock()
+        mock_gpio_controller.get_gpio_base_number.return_value = {
+            "gpiochip0": "0",
+            "gpiochip1": "32",
+        }
+        mock_gpio_controller.loopback_test.return_value = False
+
         with self.assertRaises(SystemExit):
-            self.gpio_controller.run_test(
-                output_gpio_chip_number,
-                input_gpio_chip_number,
-                physical_output_port,
-                physical_input_port,
-                gpio_output_pin,
-                gpio_input_pin,
+            GPIOSysFsController.run_test(
+                mock_gpio_controller, "0", "1", "J1", "J2", "1", "2"
             )
 
     @patch("os.path.exists")
     def test_check_gpio_node(self, mock_exists):
+        mock_gpio_controller = MagicMock()
         mock_exists.return_value = True
-        self.assertTrue(self.gpio_controller.check_gpio_node("test"))
+        self.assertTrue(
+            GPIOSysFsController.check_gpio_node(mock_gpio_controller, "test")
+        )
 
     def test_set_gpio(self):
+        mock_gpio_controller = MagicMock()
+        mock_gpio_controller.ROOT_PATH = "/sys/class/gpio"
         with patch("builtins.open", mock_open()) as mock_file:
-            self.gpio_controller.set_gpio("test", "1")
+            GPIOSysFsController.set_gpio(mock_gpio_controller, "test", "1")
             mock_file.assert_called_once_with(
                 "/sys/class/gpio/gpio{}/value".format("test"), "wt"
             )
             mock_file().write.assert_called_once_with("1\n")
 
     def test_read_gpio(self):
+        mock_gpio_controller = MagicMock()
+        mock_gpio_controller.ROOT_PATH = "/sys/class/gpio"
         with patch("builtins.open", mock_open(read_data="1")) as mock_file:
-            self.assertEqual(self.gpio_controller.read_gpio("test"), "1")
+            self.assertEqual(
+                GPIOSysFsController.read_gpio(mock_gpio_controller, "test"),
+                "1",
+            )
             mock_file.assert_called_once_with(
                 "/sys/class/gpio/gpio{}/value".format("test"), "r"
             )
 
     def test_set_direction(self):
+        mock_gpio_controller = MagicMock()
+        mock_gpio_controller.ROOT_PATH = "/sys/class/gpio"
         with patch("builtins.open", mock_open()) as mock_file:
-            self.gpio_controller.set_direction("test", "out")
+            GPIOSysFsController.set_direction(
+                mock_gpio_controller, "test", "out"
+            )
             mock_file.assert_called_once_with(
                 "/sys/class/gpio/gpio{}/direction".format("test"), "w"
             )
             mock_file().write.assert_called_once_with("out\n")
 
-    @patch("gpio_loopback_test.GPIOSysFsController.check_gpio_node")
-    @patch("gpio_loopback_test.GPIOSysFsController.set_direction")
     @patch("builtins.open")
-    def test_configure_gpio(
-        self, mock_open, mock_set_direction, mock_check_gpio_node
-    ):
-        mock_check_gpio_node.return_value = True
-        self.gpio_controller.configure_gpio("port", "dir")
+    def test_configure_gpio(self, mock_open):
+        mock_gpio_controller = MagicMock()
+        mock_gpio_controller.ROOT_PATH = "/sys/class/gpio"
+        mock_gpio_controller.check_gpio_node.return_value = True
+        GPIOSysFsController.configure_gpio(mock_gpio_controller, "port", "dir")
         mock_open.assert_not_called()
-        mock_set_direction.assert_called_once_with("port", "dir")
+        mock_gpio_controller.set_direction.assert_called_once_with(
+            "port", "dir"
+        )
 
         # If the GPIO node does not exist, it should be created
-        mock_check_gpio_node.side_effect = [False, True]
-        self.gpio_controller.configure_gpio("port", "dir")
+        mock_gpio_controller.check_gpio_node.side_effect = [False, True]
+        GPIOSysFsController.configure_gpio(mock_gpio_controller, "port", "dir")
         mock_open.assert_called_once_with("/sys/class/gpio/export", "w")
         with mock_open() as mock_file:
             mock_file.write.assert_called_once_with("port\n")
-        mock_set_direction.assert_called_with("port", "dir")
+        mock_gpio_controller.set_direction.assert_called_with("port", "dir")
 
-    @patch("gpio_loopback_test.GPIOSysFsController.check_gpio_node")
-    @patch("gpio_loopback_test.GPIOSysFsController.set_direction")
     @patch("builtins.open")
-    def test_configure_fail(
-        self, mock_open, mock_set_direction, mock_check_gpio_node
-    ):
+    def test_configure_fail(self, mock_open):
+        mock_gpio_controller = MagicMock()
         # The test should fail if the GPIO can't be exported
-        mock_check_gpio_node.side_effect = [False, False]
+        mock_gpio_controller.check_gpio_node.side_effect = [False, False]
         with self.assertRaises(SystemExit):
-            self.gpio_controller.configure_gpio("port", "dir")
-        mock_set_direction.assert_not_called()
+            GPIOSysFsController.configure_gpio(
+                mock_gpio_controller, "port", "dir"
+            )
+        mock_gpio_controller.set_direction.assert_not_called()
 
         # The test should fail if the direction can't be set
-        mock_check_gpio_node.side_effect = [True, True]
-        mock_set_direction.side_effect = IOError
+        mock_gpio_controller.check_gpio_node.side_effect = [True, True]
+        mock_gpio_controller.set_direction.side_effect = IOError
         with self.assertRaises(IOError):
-            self.gpio_controller.configure_gpio("port", "dir")
+            GPIOSysFsController.configure_gpio(
+                mock_gpio_controller, "port", "dir"
+            )
 
-    @patch("gpio_loopback_test.GPIOSysFsController.configure_gpio")
-    @patch("gpio_loopback_test.GPIOSysFsController.read_gpio")
-    @patch("gpio_loopback_test.GPIOSysFsController.set_gpio")
     @patch("time.sleep", MagicMock())
-    def test_loopback_test(
-        self, mock_set_gpio, mock_read_gpio, mock_configure_gpio
-    ):
-        mock_read_gpio.side_effect = ["1", "0", "0", "1"]
-        self.assertTrue(self.gpio_controller.loopback_test("1", "34"))
+    def test_loopback_test(self):
+        mock_gpio_controller = MagicMock()
+        mock_gpio_controller.TEST_STATES = [0, 1]
+        mock_gpio_controller.read_gpio.side_effect = ["1", "0", "0", "1"]
+        self.assertTrue(
+            GPIOSysFsController.loopback_test(mock_gpio_controller, "1", "34")
+        )
         # configure_gpio should be called twice, once for each port
-        self.assertEqual(mock_configure_gpio.call_count, 2)
+        self.assertEqual(mock_gpio_controller.configure_gpio.call_count, 2)
         # set_gpio should be called twice, once for each state
-        self.assertEqual(mock_set_gpio.call_count, 2)
+        self.assertEqual(mock_gpio_controller.set_gpio.call_count, 2)
 
-    @patch("gpio_loopback_test.GPIOSysFsController.configure_gpio")
-    @patch("gpio_loopback_test.GPIOSysFsController.read_gpio")
-    @patch("gpio_loopback_test.GPIOSysFsController.set_gpio")
     @patch("time.sleep", MagicMock())
-    def test_loopback_test_fail(
-        self, mock_set_gpio, mock_read_gpio, mock_configure_gpio
-    ):
-        mock_read_gpio.side_effect = ["1", "0", "0", "0"]
-        self.assertFalse(self.gpio_controller.loopback_test("1", "34"))
+    def test_loopback_test_fail(self):
+        mock_gpio_controller = MagicMock()
+        mock_gpio_controller.TEST_STATES = [0, 1]
+        mock_gpio_controller.read_gpio.side_effect = ["1", "0", "0", "0"]
+        self.assertFalse(
+            GPIOSysFsController.loopback_test(mock_gpio_controller, "1", "34")
+        )
         # configure_gpio should be called twice, once for each port
-        self.assertEqual(mock_configure_gpio.call_count, 2)
+        self.assertEqual(mock_gpio_controller.configure_gpio.call_count, 2)
         # set_gpio should be called twice, once for each state
-        self.assertEqual(mock_set_gpio.call_count, 2)
+        self.assertEqual(mock_gpio_controller.set_gpio.call_count, 2)
 
     @patch("gpio_loopback_test.GPIOSysFsController.run_test")
     def test_main(self, mock_run_test):

@@ -101,7 +101,7 @@ def check_pressure_sensor(index):
         tmp_node = iio_node.joinpath(sub_node)
         _check_node(tmp_node)
         value = tmp_node.read_text().strip("\n")
-        print("the value of {} node is {}".format(tmp_node, value))
+        print("The value of {} node is {}".format(tmp_node, value))
         readings.append(value)
 
     if readings and _check_reading(readings):

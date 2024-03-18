@@ -1,9 +1,9 @@
 unit: manifest entry
-id: has_rs485_server
-_name: Has RS485 connect to RS485 test server?
+id: has_serial_ehco_server
+_name: Has the serial ports connetec to the serial echo server?
 value-type: bool
 
 unit: manifest entry
-id: has_rs485
-_name: Does platform supported RS485 serial?
+id: has_serial_console_loopback
+_name: Does serial console port loopback to itself?
 value-type: bool

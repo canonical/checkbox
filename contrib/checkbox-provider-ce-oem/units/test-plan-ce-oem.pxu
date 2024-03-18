@@ -36,7 +36,6 @@ nested_part:
     ce-oem-audio-manual
     ce-oem-otg-manual
     ce-oem-rtc-manual
-    ce-oem-rs485-manual
     ce-oem-eeprom-manual
     ce-oem-led-manual
     ce-oem-caam-manual
@@ -66,7 +65,7 @@ nested_part:
     ce-oem-audio-automated
     ce-oem-otg-automated
     ce-oem-rtc-automated
-    ce-oem-rs485-automated
+    before-suspend-ce-oem-serial-automated
     ce-oem-eeprom-automated
     ce-oem-led-automated
     ce-oem-accelerator-automated
@@ -96,7 +95,6 @@ nested_part:
     after-suspend-ce-oem-audio-manual
     after-suspend-ce-oem-otg-manual
     after-suspend-ce-oem-rtc-manual
-    after-suspend-ce-oem-rs485-manual
     after-suspend-ce-oem-eeprom-manual
     after-suspend-ce-oem-led-manual
     after-suspend-ce-oem-caam-manual
@@ -124,7 +122,7 @@ nested_part:
     after-suspend-ce-oem-audio-automated
     after-suspend-ce-oem-otg-automated
     after-suspend-ce-oem-rtc-automated
-    after-suspend-ce-oem-rs485-automated
+    after-suspend-ce-oem-serial-automated
     after-suspend-ce-oem-eeprom-automated
     after-suspend-ce-oem-led-automated
     after-suspend-ce-oem-accelerator-automated

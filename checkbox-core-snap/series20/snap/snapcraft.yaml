@@ -437,15 +437,7 @@ parts:
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-certification-server --root="$SNAPCRAFT_PART_INSTALL"
     after: [checkbox-provider-certification-client]
 ################################################################################
-  rpi-ppa:
-    plugin: nil
-    override-pull: |
-      sudo add-apt-repository ppa:sylvain-pineau/ppa-rpi
-      sudo apt-get update
-    build-packages:
-      - software-properties-common
   rpi-support-binaries:
-    after: [rpi-ppa]
     plugin: nil
     stage-packages:
       - on armhf:

@@ -57,8 +57,8 @@ environ: STRESS_S3_ITERATIONS STRESS_SUSPEND_REBOOT_ITERATIONS STRESS_SUSPEND_SL
 command:
  echo "reboot_iterations: ${STRESS_SUSPEND_REBOOT_ITERATIONS:-3}"
  echo "s3_iterations: ${STRESS_S3_ITERATIONS:-30}"
- echo "resume_threshold: ${STRESS_SUSPEND_SLEEP_THRESHOLD:-10}"
- echo "sleep_threshold: ${STRESS_SUSPEND_RESUME_THRESHOLD:-5}"
+ echo "resume_threshold: ${STRESS_SUSPEND_RESUME_THRESHOLD:-5}"
+ echo "sleep_threshold: ${STRESS_SUSPEND_SLEEP_THRESHOLD:-10}"
  echo
 estimated_duration: 1s
 

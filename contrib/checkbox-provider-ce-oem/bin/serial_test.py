@@ -153,7 +153,7 @@ def client_mode(ser: Serial, data_size: int = 128):
             else:
                 logging.error("[FAIL] Received string is incorrect!")
                 raise SystemExit(1)
-    logging.info("[FAIL] Not able to receive string!!")
+    logging.error("[FAIL] Not able to receive string!!")
     raise SystemExit(1)
 
 
@@ -174,8 +174,8 @@ def console_mode(ser: Serial):
         if ":~$" in response or "login:" in response:
             logging.info("[PASS] Serial console test successful.")
         else:
-            logging.info("[FAIL] Serial console test failed.")
-            logging.info(
+            logging.error("[FAIL] Serial console test failed.")
+            logging.error(
                 "Expected response should contain ':~$' or 'login:'"
             )
             raise SystemExit(1)

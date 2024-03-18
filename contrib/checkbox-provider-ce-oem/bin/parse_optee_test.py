@@ -26,11 +26,10 @@ def print_test_info(test, xtest):
 
 
 def look_up_xtest():
-    xtest = look_up_gadget()
-    if xtest is not False:
-        pass
-    elif Snapd().list("x-test"):
+    if Snapd().list("x-test"):
         xtest = "x-test.xtest"
+    elif look_up_gadget() is not False:
+        xtest = look_up_gadget()
     else:
         xtest = None
     return xtest

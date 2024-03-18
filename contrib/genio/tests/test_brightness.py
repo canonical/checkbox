@@ -115,7 +115,6 @@ class TestBrightness(unittest.TestCase):
 
     def test_was_brightness_applied(self):
         mock_brightness = MagicMock()
-        mock_brightness = MagicMock()
         mock_brightness.get_actual_brightness.return_value = 100
         mock_brightness.get_last_set_brightness.return_value = 100
         self.assertEqual(
@@ -130,7 +129,6 @@ class TestBrightness(unittest.TestCase):
 
     @patch("time.sleep", MagicMock())
     def test_brightness(self):
-        mock_brightness = MagicMock()
         mock_brightness = MagicMock()
         mock_brightness.interfaces = [
             "/sys/class/backlight/interface1",

@@ -357,6 +357,8 @@ requires: device.category == 'BLUETOOTH'
 estimated_duration: 2.0
 
 id: bluetooth/keyboard
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_bt_adapter == 'True'
 _summary: Bluetooth keyboard works
 _purpose:
  Check if bluetooth keyboard works
@@ -370,6 +372,8 @@ category_id: com.canonical.plainbox::bluetooth
 estimated_duration: 1m
 
 id: bluetooth/keyboard-manual
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_bt_adapter == 'True'
 _summary: Bluetooth keyboard manual test
 _purpose:
  Check bluetooth input device works

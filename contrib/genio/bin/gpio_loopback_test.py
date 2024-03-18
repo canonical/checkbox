@@ -81,8 +81,8 @@ class GPIOSysFsController():
         print("Input Pin Number: {} + Base Number = {}".format(
             gpio_input_pin, input_pin_number))
         print("\n# Start GPIO loopback test")
-        raise SystemExit(
-            not self.loopback_test(output_pin_number, input_pin_number))
+        if not self.loopback_test(output_pin_number, input_pin_number):
+            raise SystemExit("Failed: GPIO loopback test failed")
 
     def check_gpio_node(self, port):
         """Check the GPIO port is exists
@@ -172,7 +172,7 @@ class GPIOSysFsController():
         self.configure_gpio(in_port, "in")
 
         for state in self.TEST_STATES:
-            print("Try to send and receivce {}".format(state))
+            print("Try to send and receive {}".format(state))
             value = self.read_gpio(in_port)
             print("The initial input GPIO {}'s value is {}".format(
                 in_port, value))

@@ -249,7 +249,11 @@ class RemoteAssistantTests(TestCase):
         mjr = MemoryJobResult(
             {
                 "outcome": IJobResult.OUTCOME_PASS,
-                "comments": "Automatically passed after resuming execution",
+                "comments": (
+                    "Job rebooted the machine or the Checkbox agent. "
+                    "Resuming the session and marking it as passed "
+                    "because the job has the `noreturn` flag"
+                ),
             }
         )
 
@@ -281,7 +285,10 @@ class RemoteAssistantTests(TestCase):
         mjr = MemoryJobResult(
             {
                 "outcome": IJobResult.OUTCOME_CRASH,
-                "comments": "Automatically passed after resuming execution",
+                "comments": (
+                    "Job rebooted the machine or the Checkbox agent. "
+                    "Resuming the session and marking it as crashed."
+                ),
             }
         )
 

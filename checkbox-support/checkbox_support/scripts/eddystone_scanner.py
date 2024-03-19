@@ -19,38 +19,40 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import argparse
+import sys
 import time
+import argparse
 
 from checkbox_support.vendor.beacontools import (
-    BeaconScanner, EddystoneURLFrame)
+    BeaconScanner,
+    EddystoneURLFrame,
+)
+from checkbox_support.helpers.timeout import timeout
 from checkbox_support.interactive_cmd import InteractiveCommand
 
 
 def init_bluetooth():
     # Power on the bluetooth controller
-    with InteractiveCommand('bluetoothctl') as btctl:
-        btctl.writeline('power on')
+    with InteractiveCommand("bluetoothctl") as btctl:
+        btctl.writeline("power on")
         time.sleep(3)
-        btctl.writeline('scan on')
+        btctl.writeline("scan on")
         time.sleep(3)
-        btctl.writeline('exit')
+        btctl.writeline("exit")
         btctl.kill()
 
 
 def beacon_scan(hci_device):
     TIMEOUT = 10
 
-    beacon_mac = beacon_rssi = beacon_packet = ''
+    beacon_mac = beacon_rssi = beacon_packet = ""
 
     def callback(bt_addr, rssi, packet, additional_info):
         nonlocal beacon_mac, beacon_rssi, beacon_packet
         beacon_mac, beacon_rssi, beacon_packet = bt_addr, rssi, packet
 
     scanner = BeaconScanner(
-        callback,
-        bt_device_id=hci_device,
-        packet_filter=EddystoneURLFrame
+        callback, bt_device_id=hci_device, packet_filter=EddystoneURLFrame
     )
 
     scanner.start()
@@ -59,27 +61,34 @@ def beacon_scan(hci_device):
         time.sleep(1)
     scanner.stop()
     if beacon_packet:
-        print('Eddystone beacon detected: URL: {} <mac: {}> '
-              '<rssi: {}>'.format(beacon_packet.url, beacon_mac, beacon_rssi))
+        print(
+            "Eddystone beacon detected: URL: {} <mac: {}> "
+            "<rssi: {}>".format(beacon_packet.url, beacon_mac, beacon_rssi)
+        )
         return 0
-    print('No EddyStone URL advertisement detected!')
+    print("No EddyStone URL advertisement detected!")
     return 1
 
 
-def main():
+@timeout(60 * 10)  # 10 minutes timeout
+def main(argv):
     init_bluetooth()
 
     parser = argparse.ArgumentParser(
-        description="Track BLE advertised packets")
-    parser.add_argument("-D", "--device", default='hci0',
-                        help="Select the hciX device to use "
-                             "(default hci0).")
-    args = parser.parse_args()
+        description="Track BLE advertised packets"
+    )
+    parser.add_argument(
+        "-D",
+        "--device",
+        default="hci0",
+        help="Select the hciX device to use " "(default hci0).",
+    )
+    args = parser.parse_args(argv)
 
     try:
-        hci_device = int(args.device.replace('hci', ''))
+        hci_device = int(args.device.replace("hci", ""))
     except ValueError:
-        print('Bad device argument, defaulting to hci0')
+        print("Bad device argument, defaulting to hci0")
         hci_device = 0
 
     # Newer bluetooth controllers and bluez versions allow extended commands
@@ -90,13 +99,16 @@ def main():
     # Try the newest one first, then the older one if that doesn't work
     rc = beacon_scan(hci_device)
     if rc:
-        print('Trying again with older beacontools version...')
+        print("Trying again with older beacontools version...")
         global BeaconScanner, EddystoneURLFrame
         from checkbox_support.vendor.beacontools_2_0_2 import (
-            BeaconScanner, EddystoneURLFrame)
+            BeaconScanner,
+            EddystoneURLFrame,
+        )
+
         rc = beacon_scan(hci_device)
     return rc
 
 
-if __name__ == '__main__':
-    raise SystemExit(main())
+if __name__ == "__main__":
+    raise SystemExit(main(sys.argv[1:]))

@@ -497,7 +497,7 @@ _description: Check NVLINK are supported and NVLINK are connected properly on sy
 
 unit: template
 template-resource: graphics_card
-plugin: shell
+plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_glmark2-es2_{product_slug}
 requires:
@@ -509,3 +509,7 @@ command:
     glmark2-es2 --data-path "$CHECKBOX_RUNTIME"/usr/share/glmark2/
 estimated_duration: 60.5
 _summary: Run OpenGL ES 2.0 X11 benchmark on the {product} video card
+_steps:
+    1. Commence the test to start rendering
+_verification:
+    Did all the videos and images rendered correctly?

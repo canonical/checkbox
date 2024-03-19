@@ -43,6 +43,7 @@ nested_part:
     ce-oem-touchscreen-evdev
     ce-oem-socketcan-manual
     com.canonical.certification::led-indicator-manual
+    ce-oem-iio-sensors-manual
 
 id: ce-oem-automated
 unit: test plan
@@ -74,6 +75,7 @@ nested_part:
     ce-oem-socketcan-stress-automated
     ce-oem-ethernet-tcp-automated
     com.canonical.certification::eeprom-automated
+    before-suspend-ce-oem-iio-sensors-automated
     com.canonical.certification::rtc-automated
 
 id: after-suspend-ce-oem-manual
@@ -102,6 +104,7 @@ nested_part:
     after-suspend-ce-oem-touchscreen-evdev
     after-suspend-ce-oem-socketcan-manual
     com.canonical.certification::after-suspend-led-indicator-manual
+    after-suspend-ce-oem-iio-sensors-manual
 
 id: after-suspend-ce-oem-automated
 unit: test plan
@@ -132,6 +135,7 @@ nested_part:
     after-suspend-ce-oem-ethernet-tcp-automated
     com.canonical.certification::after-suspend-eeprom-automated
     com.canonical.certification::after-suspend-rtc-automated
+    after-suspend-ce-oem-iio-sensors-automated
 
 id: ce-oem-stress
 unit: test plan

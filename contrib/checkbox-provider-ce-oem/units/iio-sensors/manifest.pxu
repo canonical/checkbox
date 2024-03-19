@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_iio_sensors
+_name: Does platform support industrial IO sensor?
+value-type: bool

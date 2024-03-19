@@ -18,8 +18,8 @@ def runcmd(command):
 
 def test_uart_by_serialcheck(soc):
     base_path = os.environ.get('PLAINBOX_SESSION_SHARE', '/tmp')
-    file_path = f'{base_path}/binary'
-    runcmd([f'dd if=/dev/urandom of={file_path} count=1 bs=4096'])
+    file_path = '{}/binary'.format(base_path)
+    runcmd(['dd if=/dev/urandom of={} count=1 bs=4096'.format(file_path)])
 
     golden_msg = (
         'cts: 0 dsr: 0 rng: 0 dcd: 0 rx: 12288'
@@ -39,7 +39,7 @@ def test_uart_by_serialcheck(soc):
     fail = False
     for br in available_baudrate:
         print('\n' + '*' * 80)
-        print(f'Testing baudrate: {br}\n')
+        print('Testing baudrate: {}\n'.format(br))
         ret = runcmd([cmd.format(tty_node, file_path, br)])
         print(ret.stdout)
         if ret.returncode != 0 or ret.stdout.split('\n')[-2] != golden_msg:

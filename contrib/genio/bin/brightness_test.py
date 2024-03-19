@@ -126,22 +126,22 @@ class Brightness(object):
 
         exit_status = 0
         find_target_display = False
-        print(f'Available Interfaces: {self.interfaces}')
+        print('Available Interfaces: {}'.format(self.interfaces))
         for interface in self.interfaces:
             if target_interface in interface:
                 find_target_display = True
                 # Get the current brightness which we can restore later
                 original_brightness = self.get_actual_brightness(interface)
-                print(f'Current brightness: {original_brightness}')
+                print('Current brightness: {}'.format(original_brightness))
 
                 # Get the maximum value for brightness
                 max_brightness = self.get_max_brightness(interface)
-                print(f'Maximum brightness: {max_brightness}\n')
+                print('Maximum brightness: {}\n'.format(max_brightness))
 
                 for m in [0, 0.25, 0.5, 0.75, 1]:
                     # Set the brightness to half the max value
                     current_brightness = math.ceil(max_brightness * m)
-                    print(f'Set the brightness as {current_brightness}')
+                    print('Set the brightness as {}'.format(current_brightness))
                     self.write_value(
                         current_brightness,
                         os.path.join(interface, 'brightness'))
@@ -159,7 +159,7 @@ class Brightness(object):
                     os.path.join(interface, 'brightness'))
                 print(
                     'Set brightness back to original value:'
-                    f'{original_brightness}'
+                    '{}'.format(original_brightness)
                 )
                 # Close the loop since the target display has been tested
                 break
@@ -208,12 +208,12 @@ def main():
               file=sys.stderr)
         exit(1)
 
-    print(f"Test the brightness of '{args.display}' display")
+    print("Test the brightness of '{}' display".format(args.display))
 
     target_interface = ''
     try:
         target_interface = tables[args.platform][args.display]
-        print(f"Interface: {target_interface}\n")
+        print("Interface: {}\n".format(target_interface))
     except KeyError:
         raise SystemExit(
             f"ERROR: no suitable interface of {args.display} display")

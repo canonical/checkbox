@@ -58,8 +58,8 @@ def output_checker(cpu, state, name, disable, usage):
         @param:usage
     '''
     fail = 0
-    print(f'CPU node: cpu/{cpu}/cpuidle/state{state}')
-    print(f'Got name: {name[0]}, disable: {disable[0]}, usage: {usage}')
+    print('CPU node: cpu/{}/cpuidle/state{}'.format(cpu, state))
+    print('Got name: {}, disable: {}, usage: {}'.format(name[0], disable[0], usage))
     if name[0] != name[1]:
         node_path = GENERAL_PATH.format(cpu, state, 'name')
         error_handler('name', node_path, name[0], name[1])

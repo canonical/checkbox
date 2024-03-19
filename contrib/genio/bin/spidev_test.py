@@ -34,12 +34,12 @@ def test_spi_content_consistency(platform):
 
     check_spi_node(spi_path)
 
-    test_bin_path = f'{PLAINBOX_PROVIDER_DATA}/spi/test.bin'
+    test_bin_path = '{}/spi/test.bin'.format(PLAINBOX_PROVIDER_DATA)
     cmd = (
-        f'genio-test-tool.spidev-test -D'
-        f' {spi_path} -s 400000 -i {test_bin_path} -v'
+        'genio-test-tool.spidev-test -D'
+        ' {} -s 400000 -i {} -v'.format(spi_path, test_bin_path)
     )
-    print(f'Run command: {cmd}\n')
+    print('Run command: {}\n'.format(cmd))
     spi_ret = runcmd([cmd])
     print(spi_ret.stdout)
 

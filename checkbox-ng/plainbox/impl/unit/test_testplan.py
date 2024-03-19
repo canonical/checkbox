@@ -513,25 +513,35 @@ class TestNestedTestPlan(TestCase):
 class TestTestPlanUnitSupport(TestCase):
 
     def setUp(self):
-        self.provider1 = mock.Mock(name='provider1', spec_set=IProvider1)
-        self.provider1.namespace = 'ns1'
         self.tp1 = TestPlanUnit({
             "id": "tp1",
             "unit": "test plan",
             "name": "An example test plan 1",
+            "bootstrap_include": "bootstrap_job certification_status=blocker",
             "mandatory_include": "mandatory_job certification_status=blocker",
             "include": "job1 certification_status=non-blocker",
-        }, provider=self.provider1)
-        self.provider1.unit_list = []
-        self.tp1.provider_list = [self.provider1,]
-        self.provider1.unit_list.append(self.tp1)
+        })
+        self.tp2 = TestPlanUnit({
+            "id": "tp1",
+            "unit": "test plan",
+            "name": "An example test plan 2",
+            "include": "job1        certification_status=blocker",
+        })
 
     def test_inline_override(self):
-        support = TestPlanUnitSupport(self.tp1)
+        support_tp1 = TestPlanUnitSupport(self.tp1)
+        support_tp2 = TestPlanUnitSupport(self.tp2)
         self.assertEqual(
-            support.override_list,
+            support_tp1.override_list,
             [
-                ("^ns1::job1$", [("certification_status", "non-blocker")]),
-                ("^ns1::mandatory_job$", [("certification_status", "blocker")])
-            ]
+                ("^bootstrap_job$", [("certification_status", "blocker")]),
+                ("^job1$", [("certification_status", "non-blocker")]),
+                ("^mandatory_job$", [("certification_status", "blocker")]),
+            ],
+        )
+        self.assertEqual(
+            support_tp2.override_list,
+            [
+                ("^job1$", [("certification_status", "blocker")]),
+            ],
         )

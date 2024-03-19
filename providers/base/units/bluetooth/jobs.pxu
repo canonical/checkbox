@@ -104,7 +104,7 @@ requires:
  manifest.has_bt_smart == 'True'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     pipewire_utils.py show -t audio
     pipewire_utils.py gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
@@ -457,7 +457,7 @@ requires:
  manifest.has_bt_smart == 'True'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     pipewire_utils.py show -t audio
     alsa_record_playback.sh
     EXIT_CODE=$?

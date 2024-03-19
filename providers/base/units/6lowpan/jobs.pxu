@@ -7,5 +7,5 @@ command:
     grep -E "$config=(y|m)" /boot/config-"$(uname -r)" || exit 1
  done
 _summary: kernel config options for 6LoWPAN
-_description:
- Checks the kernel config options for 6LoWPAN / IEEE802.15.4 support
+_purpose: Checks the kernel config options for 6LoWPAN / IEEE802.15.4 support
+

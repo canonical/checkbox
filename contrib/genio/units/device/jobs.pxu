@@ -6,9 +6,9 @@ command:
     output=$(tr -d '\0' < /proc/device-tree/compatible)
     # Set comma as delimiter
     IFS=','
-    read -a output_arr <<< "$output"
+    read -ra output_arr <<< "$output"
     # Set dash as delimiter
     IFS='-'
-    read -a s <<< "${output_arr[1]}"
+    read -ra s <<< "${output_arr[1]}"
     echo "SoC: ${s[0]}"
     echo

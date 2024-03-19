@@ -8,8 +8,7 @@ user: root
 _summary: Check the mtk_hdmirx module has been loaded
 command:
     echo "Check the mtk_hdmirx module has been loaded..."
-    lsmod | grep -w mtk_hdmirx
-    if [[ "$?" -ne 0 ]]; then
+    if ! lsmod | grep -w mtk_hdmirx; then
         echo "Failed: The 'mtk_hdmirx' module isn't loaded!"
         exit 1
     fi
@@ -32,13 +31,13 @@ user: root
 command:
     EXIT=0
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log start_observing
+    hdmirx_tool_runner.sh "$temp_log" start_observing
     echo
     expected_events='HDMI_RX_PWR_5V_CHANGE HDMI_RX_PLUG_IN HDMI_RX_TIMING_LOCK HDMI_RX_AUD_LOCK'
     for event in $expected_events
     do
         echo "Checking event: $event..."
-        if [ "$(grep -w $event $temp_log)" == "" ]; then
+        if [ "$(grep -w "$event" "$temp_log")" == "" ]; then
             echo "- FAIL: Unable to find the '$event' event"
             EXIT=1
         else
@@ -74,9 +73,9 @@ flags: also-after-suspend
 user: root
 command:
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log check_cable
+    hdmirx_tool_runner.sh "$temp_log" check_cable
     echo
-    hdmirx_output_checker.sh $temp_log verify_check_cable_output "hdmi connected"
+    hdmirx_output_checker.sh "$temp_log" verify_check_cable_output "hdmi connected"
 _summary: Check the HDMI connection by using hdmi_rx tool 
 _description:
     This test checks the hdmi_rx tool should shows the "hdmi connected" information after
@@ -99,14 +98,14 @@ flags: also-after-suspend
 user: root
 command:
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log check_video_locked
+    hdmirx_tool_runner.sh "$temp_log" check_video_locked
     echo
-    hdmirx_output_checker.sh $temp_log verify_check_video_locked_output "video locked"
+    hdmirx_output_checker.sh "$temp_log" verify_check_video_locked_output "video locked"
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log get_video_info
+    hdmirx_tool_runner.sh "$temp_log" get_video_info
     echo
     expected_values="1920 1080 60"
-    hdmirx_output_checker.sh $temp_log verify_get_video_info_output "${expected_values}"
+    hdmirx_output_checker.sh "$temp_log" verify_get_video_info_output "${expected_values}"
 _summary: Check the event by hdmi_rx tool while plugging the HDMI cable to HDMI RX port
 _description:
     This test checks some video information from hdmi_rx tool should match the expectation.
@@ -130,14 +129,14 @@ flags: also-after-suspend
 user: root
 command:
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log check_audio_locked
+    hdmirx_tool_runner.sh "$temp_log" check_audio_locked
     echo
-    hdmirx_output_checker.sh $temp_log verify_check_audio_locked_output "video locked"
+    hdmirx_output_checker.sh "$temp_log" verify_check_audio_locked_output "video locked"
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log get_audio_info
+    hdmirx_tool_runner.sh "$temp_log" get_audio_info
     echo
     expected_values="24 bits, Channel Number [2], 48.0 kHz"
-    hdmirx_output_checker.sh $temp_log verify_get_audio_info_output "${expected_values}"
+    hdmirx_output_checker.sh "$temp_log" verify_get_audio_info_output "${expected_values}"
 _summary: Check the event by hdmi_rx tool while plugging the HDMI cable to HDMI RX port
 _description:
     This test checks some audio information from hdmi_rx tool should match the expectation.
@@ -161,10 +160,10 @@ flags: also-after-suspend
 user: root
 command:
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log disable_hdmi
-    hdmirx_tool_runner.sh $temp_log check_cable
+    hdmirx_tool_runner.sh "$temp_log" disable_hdmi
+    hdmirx_tool_runner.sh "$temp_log" check_cable
     echo
-    hdmirx_output_checker.sh $temp_log verify_check_cable_output "hdmi disconnected"
+    hdmirx_output_checker.sh "$temp_log" verify_check_cable_output "hdmi disconnected"
 _summary: Disable the HDMI RX functionaliy by hdmi_rx tool
 _description:
     This test will disable the functionaliy of HDMI RX by using hdmi_rx tool and the HDMI RX port still be connected.
@@ -186,30 +185,30 @@ flags: also-after-suspend
 user: root
 command:
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log enable_hdmi
-    hdmirx_tool_runner.sh $temp_log check_cable
+    hdmirx_tool_runner.sh "$temp_log" enable_hdmi
+    hdmirx_tool_runner.sh "$temp_log" check_cable
     echo
-    hdmirx_output_checker.sh $temp_log verify_check_cable_output "hdmi connected"
+    hdmirx_output_checker.sh "$temp_log" verify_check_cable_output "hdmi connected"
     # Verify Video info
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log check_video_locked
+    hdmirx_tool_runner.sh "$temp_log" check_video_locked
     echo
-    hdmirx_output_checker.sh $temp_log verify_check_video_locked_output "video locked"
+    hdmirx_output_checker.sh "$temp_log" verify_check_video_locked_output "video locked"
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log get_video_info
+    hdmirx_tool_runner.sh "$temp_log" get_video_info
     echo
     expected_values="1920 1080 60"
-    hdmirx_output_checker.sh $temp_log verify_get_video_info_output "${expected_values}"
+    hdmirx_output_checker.sh "$temp_log" verify_get_video_info_output "${expected_values}"
     # Verify Audio info
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log check_audio_locked
+    hdmirx_tool_runner.sh "$temp_log" check_audio_locked
     echo
-    hdmirx_output_checker.sh $temp_log verify_check_audio_locked_output "video locked"
+    hdmirx_output_checker.sh "$temp_log" verify_check_audio_locked_output "video locked"
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log get_audio_info
+    hdmirx_tool_runner.sh "$temp_log" get_audio_info
     echo
     expected_values="24 bits, Channel Number [2], 48.0 kHz"
-    hdmirx_output_checker.sh $temp_log verify_get_audio_info_output "${expected_values}"
+    hdmirx_output_checker.sh "$temp_log" verify_get_audio_info_output "${expected_values}"
 _summary: Enable the HDMI RX functionaliy by hdmi_rx tool
 _description:
     This test will enable the functionaliy of HDMI RX by using hdmi_rx tool and the HDMI RX port still be connected.
@@ -230,13 +229,13 @@ user: root
 command:
     EXIT=0
     temp_log=$( mktemp )
-    hdmirx_tool_runner.sh $temp_log start_observing
+    hdmirx_tool_runner.sh "$temp_log" start_observing
     echo
     expected_events='HDMI_RX_AUD_UNLOCK HDMI_RX_TIMING_UNLOCK HDMI_RX_PWR_5V_CHANGE HDMI_RX_PLUG_OUT'
     for event in $expected_events
     do
         echo "Checking event: $event ..."
-        if [ "$(grep -w $event $temp_log)" == "" ]; then
+        if [ "$(grep -w "$event" "$temp_log")" == "" ]; then
             echo "- FAIL: Unable to find the '$event' event"
             EXIT=1
         else

@@ -244,7 +244,6 @@ class TestCpuIdle(unittest.TestCase):
 
     def test_main_cases(self):
         cases = {
-            "wfi": "test_wfi",
             "mcdi-cpu": "test_mcdi_cpu",
             "mcdi-cluster": "test_mcdi_cluster",
             "dpidle": "test_dpidle",
@@ -254,12 +253,18 @@ class TestCpuIdle(unittest.TestCase):
             "cpuoff-b": "test_cpuoff_b",
         }
 
+        args = ["soc", "mt8395", "--case", "wfi"]
+        with patch("cpu_idle.test_wfi") as mock_test:
+            with patch("sys.argv", args):
+                cpu.main()
+            mock_test.assert_called_once_with()
+
         for case, func in cases.items():
             args = ["soc", "mt8395", "--case", case]
             with patch("cpu_idle." + func) as mock_test:
                 with patch("sys.argv", args):
                     cpu.main()
-                mock_test.assert_called_once()
+                mock_test.assert_called_once_with("mt8395")
 
     @patch("cpu_idle.test_wfi", return_value=None)
     def test_main_wrong_soc(self, mock_test_wfi):

@@ -97,7 +97,7 @@ _purpose:
     The resolution of glmark2-es2-wayland is 1920x1080
 command:
     set -e
-    output=$(glmark2-es2-wayland -s 1920x1080 --data-path $SNAP/usr/share/glmark2)
+    output=$(glmark2-es2-wayland -s 1920x1080 --data-path "$SNAP"/usr/share/glmark2)
     echo "$output"
     if ! echo "$output" | grep "GL_VENDOR" | grep -q "ARM"; then
         echo "FAIL: Wrong vendor!"

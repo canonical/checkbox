@@ -53,3 +53,4 @@ class TestDvfsGpuCheckGovernors(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 dvfs.main()
         self.assertEqual(mock_attrs_read.call_count, 1)
+        self.assertEqual(mock_attrs_read.call_count, 1)

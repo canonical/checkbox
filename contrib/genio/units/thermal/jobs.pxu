@@ -40,7 +40,7 @@ command:
     fi
     # Thermal is functional, dump the journal of previous boot
     temp_log=$( mktemp )
-    journalctl -b -1 | tee $temp_log
+    journalctl -b -1 | tee "$temp_log"
     golden_message="reboot: HARDWARE PROTECTION shutdown (Temperature too high)"
     if ! grep -qw "$golden_message" "$temp_log" ; then
         echo "FAIL: no '$golden_message' message be found in journal"

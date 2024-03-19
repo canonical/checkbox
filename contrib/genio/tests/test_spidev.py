@@ -1,3 +1,4 @@
+import subprocess
 import unittest
 from unittest.mock import patch, MagicMock
 import spidev_test as spidev
@@ -12,7 +13,14 @@ class TestSpidev(unittest.TestCase):
         )
         result = spidev.runcmd("echo Hello")
 
-        mock_run.assert_called_once()
+        mock_run.assert_called_once_with(
+            "echo Hello",
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            timeout=1,
+        )
         self.assertEqual(result.stdout, "output")
         self.assertEqual(result.stderr, "error")
         self.assertEqual(result.returncode, 0)

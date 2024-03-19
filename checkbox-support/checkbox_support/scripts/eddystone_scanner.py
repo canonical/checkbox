@@ -22,6 +22,7 @@
 import argparse
 import time
 
+from checkbox_support.helpers.timeout import timeout
 from checkbox_support.vendor.beacontools import (
     BeaconScanner, EddystoneURLFrame)
 from checkbox_support.interactive_cmd import InteractiveCommand
@@ -65,7 +66,7 @@ def beacon_scan(hci_device):
     print('No EddyStone URL advertisement detected!')
     return 1
 
-
+@timeout(60*10) # 10 minutes timeout
 def main():
     init_bluetooth()
 

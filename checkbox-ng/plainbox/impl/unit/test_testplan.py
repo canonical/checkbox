@@ -508,3 +508,40 @@ class TestNestedTestPlan(TestCase):
         self.assertIsInstance(qual_list[1].matcher, OperatorMatcher)
         self.assertEqual(qual_list[1].matcher.value, 'ns2::Bar')
         self.assertEqual(qual_list[1].inclusive, True)
+
+
+class TestTestPlanUnitSupport(TestCase):
+
+    def setUp(self):
+        self.tp1 = TestPlanUnit({
+            "id": "tp1",
+            "unit": "test plan",
+            "name": "An example test plan 1",
+            "bootstrap_include": "bootstrap_job certification_status=blocker",
+            "mandatory_include": "mandatory_job certification_status=blocker",
+            "include": "job1 certification_status=non-blocker",
+        })
+        self.tp2 = TestPlanUnit({
+            "id": "tp1",
+            "unit": "test plan",
+            "name": "An example test plan 2",
+            "include": "job1        certification_status=blocker",
+        })
+
+    def test_inline_override(self):
+        support_tp1 = TestPlanUnitSupport(self.tp1)
+        support_tp2 = TestPlanUnitSupport(self.tp2)
+        self.assertEqual(
+            support_tp1.override_list,
+            [
+                ("^bootstrap_job$", [("certification_status", "blocker")]),
+                ("^job1$", [("certification_status", "non-blocker")]),
+                ("^mandatory_job$", [("certification_status", "blocker")]),
+            ],
+        )
+        self.assertEqual(
+            support_tp2.override_list,
+            [
+                ("^job1$", [("certification_status", "blocker")]),
+            ],
+        )

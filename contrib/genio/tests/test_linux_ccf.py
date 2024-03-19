@@ -32,6 +32,8 @@ class TestLinuxCCF(unittest.TestCase):
             ccf.check_env_variables()
 
     @patch("linux_ccf.runcmd")
+    @patch("linux_ccf.PLAINBOX_PROVIDER_DATA", "/tmp")
+    @patch("linux_ccf.PLAINBOX_SESSION_SHARE", "/share")
     def test_test_linux_ccf(self, mock_runcmd):
         mock_runcmd.side_effect = [
             MagicMock(returncode=0),
@@ -42,7 +44,12 @@ class TestLinuxCCF(unittest.TestCase):
             ),
         ]
         ccf.test_linux_ccf("mt8390")
-        mock_runcmd.assert_called()
+        mock_runcmd.assert_called_with(
+            [
+                "verify-mt8188-ccf.sh -t /tmp/linux-ccf/mt8188-clk.h"
+                " -s /share/clk-summary.txt"
+            ]
+        )
 
     def test_test_linux_ccf_fails_with_mt8365(self):
         with self.assertRaises(SystemExit):

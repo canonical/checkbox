@@ -259,7 +259,7 @@ plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- if check_audio_deamon.sh ; then
+ if check_audio_daemon.sh ; then
    pipewire_utils.py show -t audio
    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
    EXIT_CODE=$?
@@ -293,7 +293,7 @@ plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- if check_audio_deamon.sh ; then
+ if check_audio_daemon.sh ; then
    pipewire_utils.py show -t audio
    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
    EXIT_CODE=$?
@@ -328,7 +328,7 @@ _summary: HDMI audio test
 plugin: user-interact-verify
 estimated_duration: 30.0
 command:
- if check_audio_deamon.sh ; then
+ if check_audio_daemon.sh ; then
    pipewire_utils.py show -t audio
    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
    EXIT_CODE=$?
@@ -364,7 +364,7 @@ plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- if check_audio_deamon.sh ; then
+ if check_audio_daemon.sh ; then
    pipewire_utils.py show -t audio
    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
    EXIT_CODE=$?
@@ -400,7 +400,7 @@ plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- if check_audio_deamon.sh ; then
+ if check_audio_daemon.sh ; then
    pipewire_utils.py show -t audio
    pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
    EXIT_CODE=$?
@@ -435,7 +435,7 @@ requires:
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
- if check_audio_deamon.sh ; then
+ if check_audio_daemon.sh ; then
    pipewire_utils.py show -t audio
    pipewire_utils.py gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
    EXIT_CODE=$?
@@ -470,7 +470,7 @@ requires:
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
- if check_audio_deamon.sh ; then
+ if check_audio_daemon.sh ; then
    pipewire_utils.py show -t audio
    alsa_record_playback.sh
    EXIT_CODE=$?
@@ -544,7 +544,7 @@ requires:
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
- if check_audio_deamon.sh ; then
+ if check_audio_daemon.sh ; then
    pipewire_utils.py show -t audio
    alsa_record_playback.sh
    EXIT_CODE=$?
@@ -576,7 +576,7 @@ requires:
  device.category == 'AUDIO'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     pipewire_utils.py monitor -t 30 -m sinks
   else
     pulse_active_port_change.py sinks
@@ -604,7 +604,7 @@ requires:
  device.category == 'AUDIO'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     pipewire_utils.py monitor -t 30 -m sources
   else
     pulse_active_port_change.py sources
@@ -1193,7 +1193,7 @@ plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- if check_audio_deamon.sh ; then
+ if check_audio_daemon.sh ; then
     pipewire_utils.py show -t audio
     pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
@@ -1227,7 +1227,7 @@ plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- if check_audio_deamon.sh ; then
+ if check_audio_daemon.sh ; then
     pipewire_utils.py show -t audio
     pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
@@ -1261,7 +1261,7 @@ plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- if check_audio_deamon.sh ; then
+ if check_audio_daemon.sh ; then
     pipewire_utils.py show -t audio
     pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
@@ -1295,7 +1295,7 @@ plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- if check_audio_deamon.sh ; then
+ if check_audio_daemon.sh ; then
     pipewire_utils.py show -t audio
     pipewire_utils.py gst -t 2 --device hdmi 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
@@ -1829,7 +1829,7 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
  device.category == 'AUDIO'
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     pipewire_test.py
   else
     audio_test.py
@@ -2545,7 +2545,7 @@ _summary: Multiple monitor audio test
 plugin: user-interact-verify
 estimated_duration: 60.0
 command:
-    if check_audio_deamon.sh ; then
+    if check_audio_daemon.sh ; then
         pipewire_utils.py through -m sink -c "speaker-test -c 2 -l 1 -t wav"
     else
         indexes=$(pacmd list-sinks | grep -e 'index' -e 'available' | grep -B 1 -e 'available: unknown' -e 'available: yes' | grep index | awk '{print $NF}')
@@ -2858,7 +2858,7 @@ requires:
  device.category == 'AUDIO'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     pipewire_utils.py monitor -t 30 -m sinks
   else
     pulse_active_port_change.py sinks
@@ -2894,7 +2894,7 @@ requires:
     package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
     package.name in ['pulseaudio-utils', 'pipewire']
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     pipewire_utils.py show -t audio
     pipewire_utils.py gst -t 2 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
     EXIT_CODE=$?
@@ -2934,7 +2934,7 @@ requires:
  device.category == 'AUDIO'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     pipewire_utils.py monitor -t 30 -m sources
   else
     pulse_active_port_change.py sources
@@ -2971,7 +2971,7 @@ requires:
     package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
     package.name in ['pulseaudio-utils', 'pipewire']
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     pipewire_utils.py show -t audio
     alsa_record_playback.sh
     EXIT_CODE=$?

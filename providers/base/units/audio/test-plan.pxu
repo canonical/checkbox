@@ -8,7 +8,6 @@ include:
 nested_part:
  com.canonical.certification::audio-cert-manual
  com.canonical.certification::audio-cert-automated
-_summary: Execute audio tests and see Monitor / Graphic test plans for hybrid-graphic monitor audio tests.
 
 id: audio-cert-manual
 unit: test plan

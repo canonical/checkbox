@@ -20,9 +20,7 @@ def test_sysfs_attrs_read(soc):
         for node in f.read().strip().split():
             if node not in GOVERNORS:
                 fail = 1
-                print(
-                    f"Failed: found governor '{node}' out of expectation"
-                )
+                print(f"Failed: found governor '{node}' out of expectation")
     return fail
 
 

@@ -1,7 +1,7 @@
 id: acpi/oem_osi
-_summary: test ACPI OEM _OSI strings
+_summary: Test ACPI OEM _OSI strings
 _description:
-  This checks if the depreciated OEM _OSI strings are still used by checking the ACPI DSDT and SSDT tables
+  This checks if the deprecated OEM _OSI strings are still used by checking the ACPI DSDT and SSDT tables
 plugin: shell
 category_id: acpi
 requires:

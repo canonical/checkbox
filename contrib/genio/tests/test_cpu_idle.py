@@ -64,7 +64,7 @@ class TestCpuIdle(unittest.TestCase):
         cpu.error_handler("usage", "path/to/node", "expect", "reality")
         mock_print.assert_called_once_with(
             "Failed: the expected usage value of node 'path/to/node' "
-            "should grater than 0"
+            "should be greater than 0"
         )
 
     def test_output_checker(self):

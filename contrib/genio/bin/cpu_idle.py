@@ -36,7 +36,7 @@ def error_handler(node_type, node_path, expect, reality):
     if node_type == "name" or node_type == "disable":
         print(
             "Failed: the expected {} value of node '{}' should be '{}' but "
-            " got '{}'".format(node_type, node_path, expect, reality)
+            "got '{}'".format(node_type, node_path, expect, reality)
         )
     if node_type == "usage":
         print(

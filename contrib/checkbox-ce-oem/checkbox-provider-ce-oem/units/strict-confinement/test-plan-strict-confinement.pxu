@@ -40,9 +40,21 @@ id: strict-confine-thermal
 unit: test plan
 _name: Test thermal sensor in strict confinement mode.
 _desription:
-    Test thermal sensor in strict ocnfinement mode.
+    Test thermal sensor in strict confinement mode.
     Rely on test-strict-confinment SNAP to test.
 bootstrap_include:
     thermal_zones
 include:
     strict-confine/temperature-test
+
+
+id: strict-confine-timedatectl
+unit: test plan
+_name: Test timedatectl in strict confinement mode.
+_desription:
+    Test timedatectl command in strcit confinement mode.
+    Rely on test-strict-confinment SNAP to test.
+bootstrap_include:
+include:
+    strict-confinement/timedatectl-timezone
+    strict-confinement/timedatectl-ntp

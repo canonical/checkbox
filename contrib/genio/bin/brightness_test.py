@@ -172,7 +172,7 @@ class Brightness(object):
 
         if not find_target_display:
             raise SystemExit(
-                f"ERROR: no {target_interface} interface be found"
+                "ERROR: no {} interface be found".format(target_interface)
             )
         if exit_status:
             raise SystemExit(exit_status)
@@ -223,7 +223,7 @@ def main():
         print("Interface: {}\n".format(target_interface))
     except KeyError:
         raise SystemExit(
-            f"ERROR: no suitable interface of {args.display} display"
+            "ERROR: no suitable interface of {} display".format(args.display)
         )
 
     brightness = Brightness()

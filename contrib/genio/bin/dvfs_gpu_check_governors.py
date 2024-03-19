@@ -3,7 +3,7 @@
 import argparse
 
 GOVERNORS = ["userspace", "powersave", "performance", "simple_ondemand"]
-print(f"Expected Governors: {GOVERNORS}")
+print("Expected Governors: {}".format(GOVERNORS))
 
 
 def test_sysfs_attrs_read(soc):
@@ -12,15 +12,18 @@ def test_sysfs_attrs_read(soc):
     if soc == "mt8365":
         mail_type = "13040000.mali"
     node_path = (
-        f"/sys/devices/platform/soc/{mail_type}/devfreq/{mail_type}/"
-        f"available_governors"
+        "/sys/devices/platform/soc/{}/devfreq/{}/"
+        "available_governors".format(mail_type, mail_type)
     )
 
     with open(node_path) as f:
         for node in f.read().strip().split():
             if node not in GOVERNORS:
                 fail = 1
-                print(f"Failed: found governor '{node}' out of expectation")
+                print(
+                    "Failed: found governor '{}' out of "
+                    "expectation".format(node)
+                )
     return fail
 
 

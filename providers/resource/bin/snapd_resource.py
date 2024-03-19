@@ -16,6 +16,7 @@ from checkbox_support.snap_utils.asserts import serial_to_resource
 from checkbox_support.snap_utils.snapd import Snapd
 from checkbox_support.snap_utils.system import get_kernel_snap
 from checkbox_support.snap_utils.system import get_series
+from checkbox_support.snap_utils.system import on_ubuntucore
 
 from collections import namedtuple
 
@@ -163,30 +164,32 @@ class Interfaces():
         actions[args.action]().invoked()
 
 
-class Features():
+class Features:
 
     def invoked(self):
-        self._detect_kernel_extraction()
+        print("force_kernel_extraction: {}".format(
+                self._has_kernel_extraction_feature()
+            )
+        )
         print()
 
-    def _detect_kernel_extraction(self):
-        '''
+    def _has_kernel_extraction_feature(self):
+        """
         Detect if the kernel extraction feature of snapd is enabled.
 
         This feature is typically enabled when the device is using full disk
         encryption as it ensures that the kernel.img is available to the
         bootloader prior to decrypting the writable partition.
-        '''
-        # UC 20 no longer requires file presence
-        if int(get_series()) >= 20:
-            print('force_kernel_extraction: True')
-            return
+        """
         snap = get_kernel_snap()
-        if snap is not None:
-            feature_f = '/snap/{}/current/meta/force-kernel-extraction'.format(
+        if snap and on_ubuntucore():
+            # UC 20 no longer requires file presence
+            if int(get_series()) >= 20:
+                return True
+            feature_f = "/snap/{}/current/meta/force-kernel-extraction".format(
                 snap)
-            print('force_kernel_extraction: {}'.format(
-                os.path.exists(feature_f)))
+            return os.path.exists(feature_f)
+        return False
 
 
 class SnapdResource():

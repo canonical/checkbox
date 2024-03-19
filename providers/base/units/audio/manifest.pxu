@@ -13,9 +13,12 @@ unit: manifest entry
 id: has_audio_capture
 _name: Audio capture
 value-type: bool
+_summary: Determine if audio capture is available.
 
 unit: manifest entry
 id: has_audio_loopback_connector
 _prompt: Does this device have the following?:
 _name: Audio Loopback Connector
 value-type: bool
+_summary: Check if the device has an Audio Loopback Connector.
+

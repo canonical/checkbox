@@ -2,7 +2,6 @@
 
 import json
 import argparse
-import subprocess as sp
 import shlex
 import re
 from checkbox_support.snap_utils.snapd import Snapd
@@ -37,17 +36,12 @@ def look_up_xtest():
 
 def look_up_gadget():
     gadget = get_gadget_snap()
-    cmd = "snap info {}".format(gadget)
-    gadget_info = sp.run(shlex.split(cmd),
-                         stdout=sp.PIPE,
-                         stderr=sp.PIPE,
-                         text=True,
-                         timeout=10)
-    xtest = "{}.xtest".format(gadget)
-    if re.findall(xtest, gadget_info.stdout):
-        return xtest
-    else:
-        return False
+    xtest = False
+    snap = Snapd().list(gadget)
+    for app in snap["apps"]:
+        if app["name"] == "xtest":
+            xtest = ".".join([app["snap"], app["name"]])
+    return xtest
 
 
 def main():

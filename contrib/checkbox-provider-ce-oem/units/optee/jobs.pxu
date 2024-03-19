@@ -26,7 +26,7 @@ plugin: shell
 user: root
 estimated_duration: 20.0
 command:
-    mapfile -t tool < <(parse_optee_test.py)
+    tool=$(parse_optee_test.py)
     if [[ "$tool" != "None" ]]; then
         echo "Info: Found xtest runnable $tool"
     else
@@ -43,7 +43,7 @@ user: root
 estimated_duration: 20.0
 depends: ce-oem-optee/xtest-check
 command:
-    mapfile -t tool < <(parse_optee_test.py)
+    tool=$(parse_optee_test.py)
     ta_path=""
     if [[ "$tool" == "x-test.xtest" ]]; then
         ta_path="$(find /var/snap -wholename */lib/optee_armtz)"

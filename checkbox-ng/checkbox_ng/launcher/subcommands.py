@@ -19,6 +19,7 @@
 Definition of sub-command classes for checkbox-cli
 """
 from argparse import ArgumentTypeError
+from argparse import RawDescriptionHelpFormatter
 from argparse import SUPPRESS
 from collections import defaultdict
 from string import Formatter
@@ -45,12 +46,14 @@ from plainbox.impl.highlevel import Explorer
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
+from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import SECURE_ID_PATTERN
+from plainbox.impl.unit.testplan import TestPlanUnitSupport
 
 from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
@@ -1265,6 +1268,92 @@ class List:
         elif ctx.args.format:
             print(_("--format applies only to 'all-jobs' group.  Ignoring..."))
         print_objs(ctx.args.GROUP, ctx.sa, ctx.args.attrs)
+
+
+class Expand:
+    def __init__(self):
+        self.override_list = []
+
+    @property
+    def sa(self):
+        return self.ctx.sa
+
+    def register_arguments(self, parser):
+        parser.formatter_class = RawDescriptionHelpFormatter
+        parser.description = (
+            "Expand a given test plan: display all the jobs and templates "
+            "that are defined in this test plan and that would be executed "
+            "if ran. This is useful to visualize the full list of jobs and "
+            "templates for complex test plans that consist of many nested "
+            "parts with different 'include' and 'exclude' sections.\n\n"
+            "NOTE: the elements listed here are not sorted by execution "
+            "order. To see the execution order, please use the "
+            "'list-bootstrapped' command instead."
+        )
+        parser.add_argument("TEST_PLAN", help=_("test-plan id to expand"))
+        parser.add_argument(
+            "-f",
+            "--format",
+            type=str,
+            default="text",
+            help=_("output format: 'text' or 'json' (default: %(default)s)"),
+        )
+
+    def invoked(self, ctx):
+        self.ctx = ctx
+        session_title = "checkbox-expand-{}".format(ctx.args.TEST_PLAN)
+        self.sa.start_new_session(session_title)
+        tps = self.sa.get_test_plans()
+        if ctx.args.TEST_PLAN not in tps:
+            raise SystemExit("Test plan not found")
+        self.sa.select_test_plan(ctx.args.TEST_PLAN)
+        all_jobs_and_templates = [
+            unit
+            for unit in self.sa._context.state.unit_list
+            if unit.unit in ["job", "template"]
+        ]
+        tp = self.sa._context._test_plan_list[0]
+        tp_us = TestPlanUnitSupport(tp)
+        self.override_list = tp_us.override_list
+        jobs_and_templates_list = select_units(
+            all_jobs_and_templates,
+            [tp.get_mandatory_qualifier()] + [tp.get_qualifier()],
+        )
+
+        obj_list = []
+        for unit in jobs_and_templates_list:
+            obj = unit._raw_data.copy()
+            obj["unit"] = unit.unit
+            obj["id"] = unit.id  # To get the fully qualified id
+            obj[
+                "certification-status"
+            ] = self.get_effective_certification_status(unit)
+            if unit.template_id:
+                obj["template-id"] = unit.template_id
+            obj_list.append(obj)
+        obj_list.sort(key=lambda x: x.get("template-id", x["id"]))
+        if ctx.args.format == "json":
+            print(json.dumps(obj_list, sort_keys=True))
+        else:
+            for obj in obj_list:
+                if obj["unit"] == "template":
+                    print("Template '{}'".format(obj["template-id"]))
+                else:
+                    print("Job '{}'".format(obj["id"]))
+
+    def get_effective_certification_status(self, unit):
+        if unit.unit == "template":
+            unit_id = unit.template_id
+        else:
+            unit_id = unit.id
+        for regex, override_field_list in self.override_list:
+            if re.match(regex, unit_id):
+                for field, value in override_field_list:
+                    if field == "certification_status":
+                        return value
+        if hasattr(unit, "certification_status"):
+            return unit.certification_status
+        return "unspecified"
 
 
 class ListBootstrapped:

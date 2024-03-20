@@ -34,7 +34,7 @@ import os
 import re
 import sre_constants
 
-from plainbox.abc import IJobQualifier
+from plainbox.abc import IUnitQualifier
 from plainbox.i18n import gettext as _
 from plainbox.impl import pod
 from plainbox.impl.secure.origin import FileTextSource
@@ -45,7 +45,7 @@ from plainbox.impl.secure.origin import UnknownTextSource
 _logger = logging.getLogger("plainbox.secure.qualifiers")
 
 
-class SimpleQualifier(IJobQualifier):
+class SimpleQualifier(IUnitQualifier):
     """
     Abstract base class that implements common features of simple (non
     composite) qualifiers. This allows two concrete subclasses below to
@@ -111,7 +111,7 @@ class SimpleQualifier(IJobQualifier):
         Return a list of primitives that constitute this qualifier.
 
         :returns:
-            A list of IJobQualifier objects that each is the smallest,
+            A list of IUnitQualifier objects that each is the smallest,
             indivisible entity. Here it just returns a list of one element,
             itself.
 
@@ -381,7 +381,7 @@ class CompositeQualifier(pod.POD):
         return False
 
     def designates(self, job):
-        return self.get_vote(job) == IJobQualifier.VOTE_INCLUDE
+        return self.get_vote(job) == IUnitQualifier.VOTE_INCLUDE
 
     def get_vote(self, job):
         """
@@ -403,7 +403,7 @@ class CompositeQualifier(pod.POD):
                 qualifier.get_vote(job)
                 for qualifier in self.qualifier_list])
         else:
-            return IJobQualifier.VOTE_IGNORE
+            return IUnitQualifier.VOTE_IGNORE
 
     def get_primitive_qualifiers(self):
         return get_flat_primitive_qualifier_list(self.qualifier_list)
@@ -413,12 +413,12 @@ class CompositeQualifier(pod.POD):
         raise NonPrimitiveQualifierOrigin
 
 
-IJobQualifier.register(CompositeQualifier)
+IUnitQualifier.register(CompositeQualifier)
 
 
 class NonPrimitiveQualifierOrigin(Exception):
     """
-    Exception raised when IJobQualifier.origin is meaningless as it is being
+    Exception raised when IUnitQualifier.origin is meaningless as it is being
     requested on a non-primitive qualifier such as the CompositeQualifier
     """
 
@@ -429,26 +429,26 @@ def get_flat_primitive_qualifier_list(qualifier_list):
         for qual in qualifier_list]))
 
 
-def select_jobs(job_list, qualifier_list):
+def select_units(unit_list, qualifier_list):
     """
-    Select desired jobs.
+    Select desired units.
 
-    :param job_list:
-        A list of JobDefinition objects
+    :param unit_list:
+        A list of units (JobDefinition or TemplateUnit)
     :param qualifier_list:
-        A list of IJobQualifier objects.
+        A list of IUnitQualifier objects.
     :returns:
-        A sub-list of JobDefinition objects, selected from job_list.
+        A sub-list of units, selected from unit_list.
     """
     # Flatten the qualifier list, so that we can see the fine structure of
     # composite objects.
     flat_qualifier_list = get_flat_primitive_qualifier_list(qualifier_list)
-    # Short-circuit if there are no jobs to select. Min is used later and this
+    # Short-circuit if there are no units to select. Min is used later and this
     # will allow us to assume that the matrix is not empty.
     if not flat_qualifier_list:
         return []
     # Vote matrix, encodes the vote cast by a particular qualifier for a
-    # particular job. Visually it's a two-dimensional array like this:
+    # particular unit. Visually it's a two-dimensional array like this:
     #
     #   ^
     # q |
@@ -461,13 +461,13 @@ def select_jobs(job_list, qualifier_list):
     # e |          .
     # r |
     #    ------------------->
-    #                    job
+    #                    unit
     #
     # The vertical axis represents qualifiers from the flattened qualifier
-    # list.  The horizontal axis represents jobs from job list. Dots represent
-    # inclusion, X represents exclusion.
+    # list.  The horizontal axis represents units from unit_list. Dots
+    # represent inclusion, X represents exclusion.
     #
-    # The result of the select_jobs() function is a list of jobs that have at
+    # The result of the select_units() function is a list of units that have at
     # least one inclusion and no exclusions. The resulting list is ordered by
     # increasing qualifier index.
     #
@@ -475,45 +475,46 @@ def select_jobs(job_list, qualifier_list):
     #
     # The first step iterates over the vote matrix (row-major, meaning that we
     # visit all columns for each visit of one row) and constructs two
-    # structures: a set of jobs that got VOTE_INCLUDE and a list of those jobs,
-    # in the order of discovery. All VOTE_EXCLUDE votes are collected in
+    # structures: a set of units that got VOTE_INCLUDE and a list of those
+    # units, in the order of discovery. All VOTE_EXCLUDE votes are collected in
     # another set.
     #
-    # The second step filters-out all items from the excluded job set from the
-    # selected job list.
+    # The second step filters-out all items from the excluded unit set from the
+    # selected unit list.
     #
     # The final complexity is O(N x M) + O(M), where N is the number of
-    # qualifiers (flattened) and M is the number of jobs. The algorithm assumes
-    # that set lookup is a O(1) operation which is true enough for python.
+    # qualifiers (flattened) and M is the number of units. The algorithm
+    # assumes that set lookup is a O(1) operation which is true enough for
+    # python.
     #
     # A possible optimization would differentiate qualifiers that may select
-    # more than one job and fall-back to the current implementation while
-    # short-circuiting qualifiers that may select at most one job with a
+    # more than one unit and fall-back to the current implementation while
+    # short-circuiting qualifiers that may select at most one unit with a
     # separate set lookup. That would make the algorithm "mostly" linear in the
     # common case.
     #
     # As a separate feature, we might return a list of qualifiers that never
     # matched anything. That may be helpful for debugging.
 
-    # A list is needed to keep the job ordering, while the sets prevent
+    # A list is needed to keep the unit ordering, while the sets prevent
     # duplicates.
     included_list = []
     included_set = set()
     excluded_set = set()
 
-    def _handle_vote(qualifier, job):
+    def _handle_vote(qualifier, unit):
         """
-        Update list and sets of included/excluded jobs based on their related
+        Update list and sets of included/excluded units based on their related
         qualifiers.
         """
-        vote = qualifier.get_vote(job)
-        if vote == IJobQualifier.VOTE_INCLUDE:
-            if job in included_set:
+        vote = qualifier.get_vote(unit)
+        if vote == IUnitQualifier.VOTE_INCLUDE:
+            if unit in included_set:
                 return
-            included_set.add(job)
-            included_list.append(job)
-        elif vote == IJobQualifier.VOTE_EXCLUDE:
-            excluded_set.add(job)
+            included_set.add(unit)
+            included_list.append(unit)
+        elif vote == IUnitQualifier.VOTE_EXCLUDE:
+            excluded_set.add(unit)
 
     for qualifier in flat_qualifier_list:
         if (isinstance(qualifier, FieldQualifier) and
@@ -521,20 +522,22 @@ def select_jobs(job_list, qualifier_list):
                 isinstance(qualifier.matcher, OperatorMatcher) and
                 qualifier.matcher.op == operator.eq):
             # optimize the super-common case where a qualifier refers to
-            # a specific job by using the id_to_index_map to instantly
-            # perform the requested operation on a single job
-            for job in job_list:
-                if job.id == qualifier.matcher.value:
-                    _handle_vote(qualifier, job)
+            # a specific unit by using the id_to_index_map to instantly
+            # perform the requested operation on a single unit
+            for unit in unit_list:
+                if unit.id == qualifier.matcher.value:
+                    _handle_vote(qualifier, unit)
                     break
-                elif job.template_id == qualifier.matcher.value:
-                    # the qualifier matches the template id this job has been
-                    # instantiated from, need to get the vote for this job
-                    # based on its template_id field, not its id field
+                elif unit.template_id == qualifier.matcher.value:
+                    # the qualifier matches the template id information,
+                    # that is either the template id this job has been
+                    # instantiated from, or the template itself. Need to get
+                    # the vote for this unit based on its template_id field,
+                    # not its id field
                     qualifier.field = "template_id"
-                    _handle_vote(qualifier, job)
+                    _handle_vote(qualifier, unit)
         else:
-            for job in job_list:
-                _handle_vote(qualifier, job)
-    return [job for job in included_list
-            if job not in excluded_set]
+            for unit in unit_list:
+                _handle_vote(qualifier, unit)
+    return [unit for unit in included_list
+            if unit not in excluded_set]

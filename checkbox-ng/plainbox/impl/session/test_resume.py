@@ -31,7 +31,7 @@ import copy
 import gzip
 import json
 
-from plainbox.abc import IJobQualifier
+from plainbox.abc import IUnitQualifier
 from plainbox.abc import IJobResult
 from plainbox.impl.job import JobDefinition
 from plainbox.impl.resource import Resource
@@ -86,13 +86,13 @@ class ResumeDiscardQualifierTests(TestCase):
         # removal)
         self.assertEqual(
             self.obj.get_vote(JobDefinition({'id': 'foo'})),
-            IJobQualifier.VOTE_IGNORE)
+            IUnitQualifier.VOTE_IGNORE)
         self.assertEqual(
             self.obj.get_vote(JobDefinition({'id': 'bar'})),
-            IJobQualifier.VOTE_IGNORE)
+            IUnitQualifier.VOTE_IGNORE)
         self.assertEqual(
             self.obj.get_vote(JobDefinition({'id': 'froz'})),
-            IJobQualifier.VOTE_IGNORE)
+            IUnitQualifier.VOTE_IGNORE)
         # Jobs that are in the retain set are NOT designated
         self.assertEqual(
             self.obj.designates(JobDefinition({'id': 'bar'})), False)
@@ -103,10 +103,10 @@ class ResumeDiscardQualifierTests(TestCase):
         # retain set, ids are matched exactly, not by pattern.
         self.assertEqual(
             self.obj.get_vote(JobDefinition({'id': 'foobar'})),
-            IJobQualifier.VOTE_INCLUDE)
+            IUnitQualifier.VOTE_INCLUDE)
         self.assertEqual(
             self.obj.get_vote(JobDefinition({'id': 'fo'})),
-            IJobQualifier.VOTE_INCLUDE)
+            IUnitQualifier.VOTE_INCLUDE)
 
 
 class SessionResumeExceptionTests(TestCase):

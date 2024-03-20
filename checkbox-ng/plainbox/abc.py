@@ -287,12 +287,12 @@ class IJobResult(metaclass=ABCMeta):
         """
 
 
-class IJobQualifier(metaclass=ABCMeta):
+class IUnitQualifier(metaclass=ABCMeta):
     """
-    An opaque qualifier for a job definition.
+    An opaque qualifier for a unit (job or template).
 
-    This is an abstraction for matching jobs definitions to names, patterns and
-    other means of selecting jobs.
+    This is an abstraction for matching jobs and templates to names, patterns
+    and other means of selecting jobs and templates.
 
     There are two ways to use a qualifier object. The naive, direct, old API
     can simply check if a qualifier designates a particular job (if it selects
@@ -305,15 +305,15 @@ class IJobQualifier(metaclass=ABCMeta):
     expressiveness can be preserved.
 
     :attr VOTE_EXCLUDE:
-        (0) vote indicating that a job should *not* be included for
+        (0) vote indicating that a unit should *not* be included for
         selection. It overwrites any other votes.
 
     :attr VOTE_INCLUDE:
-        (1) vote indicating that a job should be included for selection. It is
+        (1) vote indicating that a unit should be included for selection. It is
         overridden by VOTE_EXCLUDE.
 
     :attr VOTE_IGNORE:
-        (2) vote indicating that a job should neither be included nor excluded
+        (2) vote indicating that a unit should neither be included nor excluded
         for selection. This is a neutral value overridden by all other votes.
     """
 
@@ -326,13 +326,13 @@ class IJobQualifier(metaclass=ABCMeta):
     VOTE_IGNORE = 2
 
     @abstractmethod
-    def get_vote(self, job):
+    def get_vote(self, unit):
         """
         Get one of the :attr:`VOTE_IGNORE`, :attr:`VOTE_INCLUDE`,
         :attr:`VOTE_EXCLUDE` votes that this qualifier associated with the
-        specified job.
+        specified unit.
 
-        :param job:
+        :param unit:
             A IJobDefinition instance that is to be visited
         :returns:
             one of the ``VOTE_xxx`` constants
@@ -346,7 +346,7 @@ class IJobQualifier(metaclass=ABCMeta):
         Return a list of primitives that constitute this qualifier.
 
         :returns:
-            A list of IJobQualifier objects that each is the smallest,
+            A list of IUnitQualifier objects that each is the smallest,
             indivisible entity.
 
         When each vote cast by those qualifiers is applied sequentially to

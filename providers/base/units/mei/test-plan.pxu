@@ -14,7 +14,7 @@ include:
 bootstrap_include:
 
 
-id: intel-mei-automated
+id: mei-automated
 _name: Intel Management Engine Interface tests (automated)
 unit: test plan
 include:

@@ -1,4 +1,4 @@
-id: intel-mei-full
+id: mei-full
 _name: Intel Management Engine Interface tests
 unit: test plan
 include:

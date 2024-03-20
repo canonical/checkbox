@@ -57,8 +57,12 @@ class MEI_INTERFACE():
 
 
 def get_mei_firmware_version():
+    # This is a fixed uuid to connect to MEI
+    # https://github.com/intel/lms/blob/388f115b2aeb3ea11499971c65f828daefd32c47/MEIClient/Include/HECI_if.h#L32
     mei_fw_uuid = "8e6a6715-9abc-4043-88ef-9e39c6f63e0f"
+    # This is a request code for firmware version
     mei_fw_ver_req = 0x000002FF
+    # The length of firmware version is alway 28
     mei_fw_ver_rep_length = 28
     print("Collecting MEI firmware data through MEI interface..\n")
     try:

@@ -59,8 +59,8 @@ id: mei/get-firmware-version
 _summary: Retrieve MEI firmware version by MEI interface
 category_id: mei
 depends:
-    intel-mei/check-module
-    intel-mei/check-device
+    mei/check-module
+    mei/check-device
 user: root
 plugin: shell
 flags: simple

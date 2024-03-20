@@ -9,7 +9,7 @@ command: true
 
 id: mei/ensure-lms-service-running
 _summary: Test that the LMS service is running
-category_id: intel-mei
+category_id: mei
 depends: mei/ensure-lms-installed
 command:
     snap services lms.lms

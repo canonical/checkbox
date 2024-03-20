@@ -161,10 +161,12 @@ requires: device.product == 'Lid Switch'
 _purpose:
     This test will check your lid sensor can detect lid close/open, and DUT will suspend when the lid closed
 _steps:
-    1. Press "Enter" to start the test
-    2. Close the lid (Please close the lid within 10 sec)
+    (Please wait at least 30 seconds after resuming from sleep before running this test. In most cases,
+     systemd will hold off on reacting to lid events in a period of time after system startup or resume.)
+    1. Press "Enter" to start the test.
+    2. Close the lid (Please close the lid within 10 sec).
     3. Wait 5 seconds with the lid closed.
-    5. Open the lid
+    4. Open the lid.
 _verification:
     Did the system suspend when lid closed, and resume back when the lid opened?
 command:

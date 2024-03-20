@@ -1,6 +1,4 @@
 #!/usr/bin/env python3
-# Copyright Canonical 2023
-# run_cyclictest.py
 #
 # Uses the cyclictest binary to run cyclictest and measure process latency.
 # This test needs to run for at least 24 hours in order to provide useful data.

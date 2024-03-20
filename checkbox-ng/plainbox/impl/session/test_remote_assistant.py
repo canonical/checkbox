@@ -229,6 +229,8 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.get_resumable_sessions.return_value = [resumable_session]
         rsa.get_rerun_candidates.return_value = []
         rsa._state = remote_assistant.Idle
+        job_state = rsa._sa.get_job_state.return_value
+        job_state.result.outcome = None
 
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"testplan_id": "tp_id"}'
@@ -267,6 +269,8 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.get_resumable_sessions.return_value = [resumable_session]
         rsa.get_rerun_candidates.return_value = []
         rsa._state = remote_assistant.Idle
+        job_state = rsa._sa.get_job_state.return_value
+        job_state.result.outcome = None
 
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
@@ -295,6 +299,43 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
 
     @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
+    def test_resume_by_id_with_result_no_file_already_set(
+        self, mock_load_configs
+    ):
+        rsa = mock.Mock()
+        resumable_session = mock.Mock()
+        resumable_session.id = "session_id"
+        rsa._sa.get_resumable_sessions.return_value = [resumable_session]
+        rsa.get_rerun_candidates.return_value = []
+        rsa._state = remote_assistant.Idle
+        job_state = rsa._sa.get_job_state.return_value
+        job_state.result.outcome = IJobResult.OUTCOME_PASS
+        job_state.result.comments = None
+
+        mock_meta = mock.Mock()
+        mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'
+
+        rsa.resume_session.return_value = mock_meta
+        os_path_exists_mock = mock.Mock()
+
+        rsa._sa.get_job.return_value.plugin = "shell"
+
+        with mock.patch("os.path.exists", os_path_exists_mock):
+            os_path_exists_mock.return_value = False
+            rsa._sa.get_job.return_value.get_flag_set.return_value = {}
+
+            remote_assistant.RemoteSessionAssistant.resume_by_id(rsa)
+
+        mjr = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "comments": "",
+            }
+        )
+
+        rsa._sa.use_job_result.assert_called_with(rsa._last_job, mjr, True)
+
+    @mock.patch("plainbox.impl.session.remote_assistant.load_configs")
     def test_resume_by_id_with_result_file_not_json(self, mock_load_configs):
         rsa = mock.Mock()
         resumable_session = mock.Mock()
@@ -302,6 +343,8 @@ class RemoteAssistantTests(TestCase):
         rsa._sa.get_resumable_sessions.return_value = [resumable_session]
         rsa.get_rerun_candidates.return_value = []
         rsa._state = remote_assistant.Idle
+        job_state = rsa._sa.get_job_state.return_value
+        job_state.result.outcome = None
 
         mock_meta = mock.Mock()
         mock_meta.app_blob = b'{"launcher": "", "testplan_id": "tp_id"}'

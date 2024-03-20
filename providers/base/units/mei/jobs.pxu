@@ -43,7 +43,7 @@ flags: simple
 command:
     ls /dev/mei* || (echo "No MEI device found"; exit 1)
 
-id: intel-mei/check-module
+id: mei/check-module
 _summary: Detect if the Intel MEI kernel module is loaded
 category_id: intel-mei
 imports: from com.canonical.plainbox import manifest

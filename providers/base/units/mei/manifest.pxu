@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_mei
+_name: Has support for Intel Management Engine Interface (MEI)
+value-type: bool

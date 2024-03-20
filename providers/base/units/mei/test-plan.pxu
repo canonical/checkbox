@@ -7,7 +7,7 @@ nested_part:
     mei-automated
 
 
-id: intel-mei-manual
+id: mei-manual
 _name: Intel Management Engine Interface tests (manual)
 unit: test plan
 include:

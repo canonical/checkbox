@@ -25,7 +25,7 @@ flags: simple
 
 id: mei/get-amt-version
 _summary: Test the AMT version can be retrieved from LMS service
-category_id: intel-mei
+category_id: mei
 depends: mei/ensure-lms-service-running
 command:
     dbus-send --system --print-reply --dest=com.intel.amt.lms /com/intel/amt/lms com.intel.amt.lms.PTHI.GetAMTVersion

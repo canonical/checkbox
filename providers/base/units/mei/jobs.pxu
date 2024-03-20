@@ -55,7 +55,7 @@ flags: simple
 command:
     lsmod | grep mei || (echo "MEI kernel module not found"; exit 1)
 
-id: intel-mei/get-mei-firmware-version
+id: mei/get-firmware-version
 _summary: Retrieve MEI firmware version by MEI interface
 category_id: intel-mei
 depends:

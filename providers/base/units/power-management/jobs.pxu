@@ -189,6 +189,7 @@ _steps:
     4. Open the lid
 _verification:
     Did the system suspend when the lid was closed, and resume back when the lid was opened?
+    (Note: Systemd will hold off on reacting to lid events in a period of time after system startup or resume. So please make sure the system doesn't just resume from a suspend before run the test.)
 command:
     lid_close_suspend_open.sh
 _summary: Test the functionality of the laptop's lid sensor for suspend/resume actions.

@@ -765,7 +765,13 @@ class RemoteSessionAssistant:
                     result_dict["outcome"] = IJobResult.OUTCOME_PASS
         except (json.JSONDecodeError, FileNotFoundError):
             the_job = self._sa.get_job(self._last_job)
-            if the_job.plugin == "shell":
+            job_state = self._sa.get_job_state(the_job.id)
+            # the last running job already had a result
+            if job_state.result.outcome:
+                result_dict["outcome"] = job_state.result.outcome
+                result_dict["comments"] = job_state.result.comments or ""
+            # job didnt have a result, lets automatically calculate it
+            elif the_job.plugin == "shell":
                 if "noreturn" in the_job.get_flag_set():
                     result_dict["outcome"] = IJobResult.OUTCOME_PASS
                     result_dict["comments"] = (

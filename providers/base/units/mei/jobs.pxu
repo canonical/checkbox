@@ -45,7 +45,7 @@ command:
 
 id: mei/check-module
 _summary: Detect if the Intel MEI kernel module is loaded
-category_id: intel-mei
+category_id: mei
 imports: from com.canonical.plainbox import manifest
 requires:
     cpuinfo.platform in ("i386", "x86_64")

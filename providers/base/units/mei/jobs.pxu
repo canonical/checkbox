@@ -1,7 +1,7 @@
 
 id: mei/ensure-lms-installed
 _summary: Ensure the the LMS snap is installed
-category_id: intel-mei
+category_id: mei
 requires:
     snap.name == 'lms'
 flags: fail-on-resource simple

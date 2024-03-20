@@ -18,7 +18,7 @@ id: intel-mei-automated
 _name: Intel Management Engine Interface tests (automated)
 unit: test plan
 include:
-    intel-mei/check-module
-    intel-mei/check-device
-    intel-mei/get-mei-firmware-version
+    mei/check-module
+    mei/check-device
+    mei/get-firmware-version
 bootstrap_include:

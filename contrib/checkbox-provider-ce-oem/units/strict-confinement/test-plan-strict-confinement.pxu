@@ -34,3 +34,15 @@ include:
     strict-confine/mediacard/sdhc-insert
     strict-confine/mediacard/sdhc-storage
     strict-confine/mediacard/sdhc-remove
+
+
+id: strict-confine-thermal
+unit: test plan
+_name: Test thermal sensor in strict confinement mode.
+_desription:
+    Test thermal sensor in strict ocnfinement mode.
+    Rely on test-strict-confinment SNAP to test.
+bootstrap_include:
+    thermal_zones
+include:
+    strict-confine/temperature-test

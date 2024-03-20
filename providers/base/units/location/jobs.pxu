@@ -43,4 +43,3 @@ flags: also-after-suspend
 requires: snap.name == 'locationd'
 estimated_duration: 900
 plugin: manual
-

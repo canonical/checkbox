@@ -10,7 +10,7 @@ requires:
 command: ipmctl show -dimm
 _summary:
  Verify that NVDIMMs are discovered
-_description:
+_purpose:
  This test will probe any installed NVDIMMs and list them and their capacities.
 
 plugin: shell
@@ -25,5 +25,5 @@ requires:
 command: ipmctl show -sensor Health
 _summary:
  Report health state of installed NVDIMM devices
-_description:
+_purpose:
  This test will do a quick health check of installed NVDIMM devices.

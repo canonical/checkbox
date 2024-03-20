@@ -11,8 +11,8 @@ command:
   fi
 _summary:
  Tests the ptrace tracer availability
-_description:
- The test initiates tracing using the ptrace syscall with ptrace_test binary (c source code).
+_purpose:
+ The test initiates tracing using the ptrace syscall with ptrace_test binary (C source code).
 
 id: tracers/ftrace
 plugin: shell
@@ -26,8 +26,8 @@ command:
       exit 1
   fi
 _summary:
- Tests ftrace kernel tracing infrastructure is enable
-_description:
+ Tests if ftrace kernel tracing infrastructure is enabled
+_purpose:
  Check if kernel configuration item CONFIG_FTRACE bool is set to 'y'.
 requires:
   kernel_config_file.detected == 'true'
@@ -45,5 +45,5 @@ command:
   fi
 _summary:
  Tests the tracefs file system availability
-_description:
+_purpose:
  Check if the tracefs is mounted on a system using the mount command.

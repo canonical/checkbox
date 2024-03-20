@@ -7,11 +7,12 @@
 unit: category
 id: stress-tests/suspend
 _name: Suspend (S3) Stress Test
+_summary: Conduct a Suspend (S3) Stress Test.
 
 unit: category
 id: stress-tests/hibernate
 _name: Hibernate (S4) Stress Test
-
+_summary: Perform stress testing on the hibernate functionality.
 
 id: stress_s3_iterations
 category_id: stress-tests/suspend
@@ -24,6 +25,8 @@ command:
  python3 -c 'import platform;print("fwts: {}".format("supported" if platform.machine() in ["x86_64", "i386"] else "unsupported"))'
 estimated_duration: 1s
 flags: preserve-locale
+_summary: Determine if the framework for the S3 stress tests is supported on the platform.
+_purpose: Resource job meant to be used in the S3 stress templates
 
 id: stress_s4_iterations
 category_id: stress-tests/suspend
@@ -36,7 +39,8 @@ command:
  python3 -c 'import platform;print("fwts: {}".format("supported" if platform.machine() in ["x86_64", "i386"] else "unsupported"))'
 estimated_duration: 1s
 flags: preserve-locale
-
+_purpose: Resource job meant to be used in the S4 stress templates.
+_summary: Establish resources for S4 stress templates by checking platform support and setting iterations.
 
 unit: template
 template-resource: stress_s3_iterations
@@ -67,9 +71,9 @@ command:
     rtcwake -v -m mem -s "${STRESS_S3_SLEEP_DELAY:-30}"
  done
  {% endif -%}
-_description:
- PURPOSE:
+_purpose:
     This is an automated stress test that will force the system to suspend/resume for {{ s3_iterations }} cycles.
+_summary: Automated stress test for system suspend/resume for specified cycles.
 
 unit: template
 template-resource: stress_s3_iterations
@@ -83,8 +87,8 @@ after: stress-tests/suspend_{s3_iterations}_cycles
 requires: cpuinfo.platform in ("i386", "x86_64")
 estimated_duration: 1.0
 command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log
-_description:
- Automated check of the {s3_iterations} cycles suspend log for errors detected by fwts.
+_purpose: Automated check of the {s3_iterations} cycles suspend log for errors detected by fwts.
+_summary: Perform an automated check for errors in the suspend log across multiple cycles.
 
 unit: template
 template-resource: stress_s3_iterations
@@ -98,9 +102,8 @@ estimated_duration: 1.0
 after: stress-tests/suspend_{s3_iterations}_cycles
 requires: cpuinfo.platform in ("i386", "x86_64")
 command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_{s3_iterations}_cycles.log
-_description:
- Attaches the log from the {s3_iterations} cycles Suspend/Resume test if it exists
-
+_purpose: Attaches the log from the {s3_iterations} cycles Suspend/Resume test if it exists
+_summary: Attach suspension/resume test log for analysis.
 
 unit: template
 template-resource: stress_s4_iterations
@@ -123,9 +126,9 @@ user: root
 command:
  export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/hibernate_{{ s4_iterations }}_cycles.log -f none -s s4 --s4-device-check --s4-device-check-delay="${STRESS_S4_WAIT_DELAY:-45}" --s4-sleep-delay="${STRESS_S4_SLEEP_DELAY:-120}" --s4-multiple={{ s4_iterations }} -j "$SNAP"/share/fwts
-_description:
- PURPOSE:
+_purpose:
     This is an automated stress test that will force the system to hibernate/resume for {{ s4_iterations }} cycles
+_summary: Automated stress test for system hibernation and resume for a defined number of cycles.
 
 unit: template
 template-resource: stress_s4_iterations
@@ -139,8 +142,8 @@ after: stress-tests/hibernate_{s4_iterations}_cycles
 requires: cpuinfo.platform in ("i386", "x86_64")
 estimated_duration: 1.0
 command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log
-_description:
- Automated check of the {s4_iterations} cycles hibernate log for errors detected by fwts.
+_purpose: Automated check of the {s4_iterations} cycles hibernate log for errors detected by fwts.
+_summary: Automated log check for hibernate error detection.
 
 unit: template
 template-resource: stress_s4_iterations
@@ -154,6 +157,5 @@ estimated_duration: 1.0
 after: stress-tests/hibernate_{s4_iterations}_cycles
 requires: cpuinfo.platform in ("i386", "x86_64")
 command: [ -e "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log ] && cat "$PLAINBOX_SESSION_SHARE"/hibernate_{s4_iterations}_cycles.log
-_description:
- Attaches the log from the {s4_iterations} cycles Hibernate/Resume test if it exists
-
+_purpose: Attaches the log from the {s4_iterations} cycles Hibernate/Resume test if it exists.
+_summary: Attach Hibernate/Resume test log for {s4_iterations} cycles if available.

@@ -29,69 +29,68 @@ category_id: led
 id: led/suspend
 estimated_duration: 30.0
 depends: suspend/suspend_advanced_auto
-_description:
- PURPOSE:
-     Suspend LED verification.
- STEPS:
-     Skip this test if your system does not have a dedicated Suspend LED.
-     1. The Suspend LED should blink or change color while the system is
-     suspended
- VERIFICATION
-     Did the Suspend LED blink or change color while the system was suspended?
+_purpose:
+ Suspend LED verification.
+_steps:
+ Skip this test if your system does not have a dedicated Suspend LED.
+ 1. The Suspend LED should blink or change color while the system is suspended
+_verification:
+ Did the Suspend LED blink or change color while the system was suspended?
+_summary: Verify if the Suspend LED blinks or changes color while the system is suspended.
 
 plugin: manual
 category_id: led
 id: led/battery-charging
 estimated_duration: 120.0
-_description:
- PURPOSE:
-     Validate that the battery light shows charging status
- STEPS:
-     1. Let system run on battery for a while
-     2. Plug in AC plug
- VERIFICATION:
-     Did the battery indicator LED turn orange?
+_purpose:
+    Validate that the battery light shows charging status
+_steps:
+    1. Let system run on battery for a while
+    2. Plug in AC plug
+_verification:
+    Did the battery indicator LED turn orange?
+_summary: Validate battery charging indicator light.
 
 plugin: manual
 category_id: led
 id: led/battery-charged
 estimated_duration: 240.0
-_description:
- PURPOSE:
-     Validate that the battery LED properly displays charged status
- STEPS:
-     1. Let system run on battery for a short time
-     2. Plug in AC
-     3. Let system run on AC
- VERIFICATION:
-     Does the orange battery LED shut off when system is fully charged?
+_purpose:
+    Validate that the battery LED properly displays charged status
+_steps:
+    1. Let system run on battery for a short time
+    2. Plug in AC
+    3. Let system run on AC
+_verification:
+    Does the orange battery LED shut off when the system is fully charged?
+_summary: Validate the correct LED indication for battery charged status.
 
 plugin: manual
 category_id: led
 id: led/battery-low
 estimated_duration: 30.0
-_description:
- PURPOSE:
-     Validate that the battery LED indicated low power
- STEPS:
-     1. Let system run on battery for several hours
-     2. Monitor battery LED carefully
- VERIFICATION:
-     Does the LED light orange when battery is low?
+_purpose:
+ Validate that the battery LED indicates low power
+_steps:
+ 1. Let system run on battery for several hours
+ 2. Monitor battery LED carefully
+_verification:
+ Does the LED light orange when battery is low?
+_summary: Validate the battery LED's low power indication by monitoring its color change after several hours on battery.
 
 plugin: user-interact-verify
 category_id: led
 id: led/hdd
 estimated_duration: 30.0
 command: led_hdd_test.sh
-_description:
- PURPOSE:
-     HDD LED verification
- STEPS:
-     1. Select "Test" to write and read a temporary file for a few seconds
-     2. HDD LED should light when writing to/reading from HDD
- VERIFICATION:
-     Did the HDD LED light?
+_purpose:
+    HDD LED verification
+_steps:
+    1. Select "Test" to write and read a temporary file for a few seconds
+    2. HDD LED should light when writing to/reading from HDD
+_verification:
+    Did the HDD LED light?
+_summary: Verify the HDD LED functionality by writing and reading a temporary file.
 
 plugin: user-interact-verify
 category_id: led
@@ -100,15 +99,16 @@ flags: also-after-suspend
 estimated_duration: 30.0
 command: keyboard_test.py
 _description:
- PURPOSE:
-     Numeric keypad LED verification
- STEPS:
-     1. Press "Block Num" key to toggle numeric keypad LED
-     2. Click on the "Test" button to open a window to verify your typing
-     3. Type using the numeric keypad both when the LED is on and off
- VERIFICATION:
-     1. Numeric keypad LED status should toggle everytime the "Block Num" key is pressed
-     2. Numbers should only be entered in the keyboard verification window when the LED is on
+_purpose:
+ Numeric keypad LED verification
+_steps:
+ 1. Press "Num Lock" key to toggle numeric keypad LED
+ 2. Click on the "Test" button to open a window to verify your typing
+ 3. Type using the numeric keypad both when the LED is on and off
+_verification:
+ 1. Numeric keypad LED status should toggle every time the "Num Lock" key is pressed
+ 2. Numbers should only be entered in the keyboard verification window when the LED is on
+_summary: Verify the function of the numeric keypad LED by toggling and typing with it.
 
 plugin: manual
 category_id: led
@@ -116,43 +116,44 @@ id: led/caps-lock
 flags: also-after-suspend
 estimated_duration: 30.0
 _description:
- PURPOSE:
-     Block cap keys LED verification
- STEPS:
-     1. Press "Block Cap Keys" to activate/deactivate cap keys blocking
-     2. Cap Keys LED should be switched on/off every time the key is pressed
- VERIFICATION:
-     Did the Cap Keys LED light as expected?
+_purpose:
+ Block Caps Lock key LED verification
+_steps:
+ 1. Press "Caps Lock Key" to activate/deactivate caps lock 
+ 2. Caps Lock LED should be switched on/off every time the key is pressed
+_verification:
+ Did the Caps Lock LED light as expected?
+_summary: Verify the functionality of the Caps Lock LED by pressing the Caps Lock key.
 
 plugin: manual
 category_id: led
 id: led/wlan
 depends: keys/wireless
 estimated_duration: 60.0
-_description:
- PURPOSE:
-     WLAN LED verification
- STEPS:
-     1. During the keys/wireless test you should have observed the
-     wireless LED while turning wireless back on.
-     2. WLAN LED should light or change color when wireless is turned on
- VERIFICATION:
-     Did the WLAN LED turn on or change color as expected?
+_purpose:
+    WLAN LED verification
+_steps:
+    1. During the keys/wireless test you should have observed the
+    wireless LED while turning wireless back on.
+    2. WLAN LED should light or change color when wireless is turned on
+_verification:
+    Did the WLAN LED turn on or change color as expected?
+_summary: Verify the functionality of the WLAN LED during the keys/wireless test.
 
 plugin: manual
 category_id: led
 id: led/wlan-disabled
 estimated_duration: 30.0
 depends: keys/wireless
-_description:
- PURPOSE:
+_purpose:
      Validate that WLAN LED shuts off when disabled
- STEPS:
+_steps:
      1. During the keys/wireless test you should have observed the WLAN LED
      while performing that test after turning wireless off.
      2. WLAN LED should turn off or change color when wireless is turned off
- VERIFICATION:
+_verification:
      Did the WLAN LED turn off or change color as expected?
+_summary: Verify the behavior of the WLAN LED when wireless is disabled.
 
 id: led/bluetooth
 _summary: Bluetooth LED behavior
@@ -179,32 +180,34 @@ category_id: led
 id: led/touchpad
 estimated_duration: 30.0
 _description:
- PURPOSE:
-     Touchpad LED verification
- STEPS:
-     1. Click on the touchpad button or press key combination to enable/disable touchpad button
-     2. Slide your finger on the touchpad
- VERIFICATION:
-     1. Touchpad LED status should toggle everytime the button is clicked or the key combination is pressed
-     2. When the LED is on, the mouse pointer should move on touchpad usage
-     3. When the LED is off, the mouse pointer should not move on touchpad usage
+_purpose:
+ Touchpad LED verification
+_steps:
+ 1. Click on the touchpad button or press key combination to enable/disable touchpad button
+ 2. Slide your finger on the touchpad
+_verification:
+ 1. Touchpad LED status should toggle every time the button is clicked or the key combination is pressed
+ 2. When the LED is on, the mouse pointer should move on touchpad usage
+ 3. When the LED is off, the mouse pointer should not move on touchpad usage
+_summary: Verify touchpad LED functionality through manual button clicks or key combinations and observe pointer movements.
 
 plugin: manual
 category_id: led
 id: led/wireless
 estimated_duration: 120.0
 _description:
- PURPOSE:
-     Wireless (WLAN + Bluetooth) LED verification
- STEPS:
-     1. Make sure WLAN connection is established and Bluetooth is enabled.
-     2. WLAN/Bluetooth LED should light
-     3. Switch WLAN and Bluetooth off from a hardware switch (if present)
-     4. Switch them back on
-     5. Switch WLAN and Bluetooth off from the panel applet
-     6. Switch them back on
- VERIFICATION:
-     Did the WLAN/Bluetooth LED light as expected?
+_purpose:
+    Wireless (WLAN + Bluetooth) LED verification
+_steps:
+    1. Make sure WLAN connection is established and Bluetooth is enabled.
+    2. WLAN/Bluetooth LED should light
+    3. Switch WLAN and Bluetooth off from a hardware switch (if present)
+    4. Switch them back on
+    5. Switch WLAN and Bluetooth off from the panel applet
+    6. Switch them back on
+_verification:
+    Did the WLAN/Bluetooth LED light as expected?
+_summary: Verify the WLAN/Bluetooth LED functionality by toggling wireless connections.
 
 plugin: manual
 category_id: led
@@ -212,15 +215,16 @@ id: led/mute
 depends: keys/mute
 estimated_duration: 30.0
 _description:
- PURPOSE:
-     Audio Mute LED verification.
- STEPS:
-     Skip this test if your system does not have a special Audio Mute LED.
-     1. Press the Mute key twice and observe the Audio LED to determine if it
-     either turned off and on or changed colors.
- VERIFICATION:
-     Did the Audio LED turn on and off or change color as expected?
+_purpose:
+    Audio Mute LED verification.
+_steps:
+    Skip this test if your system does not have a special Audio Mute LED.
+    1. Press the Mute key twice and observe the Audio LED to determine if it
+    either turned off and on or changed colors.
+_verification:
+    Did the Audio LED turn on and off or change color as expected?
 flags: also-after-suspend
+_summary: Verify the functionality of the Audio Mute LED.
 
 plugin: manual
 category_id: led
@@ -228,15 +232,16 @@ id: led/microphone-mute
 estimated_duration: 30.0
 depends: keys/microphone-mute
 _description:
- PURPOSE:
-     Microphone Mute LED verification.
- STEPS:
-     Skip this test if your system does not have a special Microphone Mute LED.
-     1. Press the Microphone Mute key twice and observe the Microphone LED to
-     determine if it either turned off and on or changed colors.
- VERIFICATION:
-     Did the Microphone Mute LED turn on and off or change color as expected?
+_purpose:
+    Microphone Mute LED verification.
+_steps:
+    Skip this test if your system does not have a special Microphone Mute LED.
+    1. Press the Microphone Mute key twice and observe the Microphone LED to
+    determine if it either turned off and on or changed colors.
+_verification:
+    Did the Microphone Mute LED turn on and off or change color as expected?
 flags: also-after-suspend
+_summary: Verify the functionality of the Microphone Mute LED.
 
 id: led/serial
 _summary: Serial ports LED behavior
@@ -258,13 +263,14 @@ id: led/fn
 estimated_duration: 30.0
 flags: also-after-suspend
 _purpose:
-     This test will test Fn key LED
+     This test will test the Fn key LED.
 _steps:
-     Skip this test if your system does not have Fn Lock key.
-     1. Press the Fn+Fn Lock key to activate/deactivate Fn keys blocking.
-     2. Fn key LED should be switched on/off every time the key is pressed.
+     Skip this test if your system does not have an Fn Lock key.
+     1. Press the Fn+Fn Lock key to activate/deactivate Fn keys locking.
+     2. The Fn key LED should be switched on/off every time the key is pressed.
 _verification:
     Did the Fn key LED light as expected?
+_summary: Test the Fn key LED functionality by activating/deactivating the Fn keys locking.
 
 id: led-indicator/gpio-leds
 plugin: resource
@@ -273,6 +279,8 @@ _description:
     A LED GPIO number mapping resource that relies on the user specifying in config variable.
     Usage of parameter: GPIO_LEDS={name1}:{port1} {name2}:{port2} ...
     e.g. GPIO_LEDS=dl1:488 dl2:489 dl44:507
+_purpose:
+    To map LED GPIO numbers based on user configuration for device indicator LEDs.
 estimated_duration: 3
 environ: GPIO_LEDS
 command:
@@ -283,6 +291,7 @@ command:
             printf "name: %s\nport: %s\n\n", data[1], data[2]
         }
     }' <<< "$GPIO_LEDS"
+_summary: Gather a list of LED indicators for the device that controls via GPIO, utilizing user-specified GPIO mappings.
 
 unit: template
 template-resource: led-indicator/gpio-leds
@@ -296,8 +305,8 @@ user: root
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_led_indicator == 'True'
 flags: also-after-suspend
-_summary: Check control of {name} LED indecator.
-_description:
+_summary: Check control of {name} LED indicator.
+_purpose:
     Check that {name} LED turns on and off.
 _steps:
     1. Press Enter and observe LED behavior on DUT.
@@ -313,18 +322,18 @@ _description:
     A LED path mapping resource that relies on the user specifying in config variable.
     Usage of parameter: SYS_LEDS={name1}:{path1} {name2}:{path2} ...
     path under "/sys/class/leds/{path}"
-    e.g. SYS_LEDS=DL1:beat-yel-led DL2:shtdwn-grn-led.
-    Note: make sure name of LED not includes symbol ":"
+    e.g., SYS_LEDS=DL1:beat-yel-led DL2:shutdown-grn-led.
+    Note: make sure name of LED does not include symbol ":".
 estimated_duration: 3
 environ: SYS_LEDS
 command:
     awk '{
     split($0, record, " ")
     for (i in record) {
-        # To handle that led path includes symbol ":"
+        # To handle the situation where the LED path includes symbol ":"
         # Get the index of the first match ":" in record[i]
         pos = index(record[i],":");
-        # Split string by matching ":" to get the string before first ":"
+        # Split string by matching ":" to get the string before the first ":"
         printf "name: %s\npath: %s\n\n", substr(record[i],1,pos-1),substr(record[i],pos+1)
         }
     }' <<< "$SYS_LEDS"
@@ -336,7 +345,7 @@ id: led-indicator/sysfs-leds-{name}
 template-id: led-indicator/sysfs-leds-name
 category_id: led
 _summary: Check control of {name} LED.
-_description:
+_purpose:
   Check that {name} LED turns on and off.
 _steps:
     1. Press enter and observe LED behavior on DUT.
@@ -354,11 +363,11 @@ command:
 id: led-indicator/gpio-controller-leds
 plugin: resource
 _summary: Gather a list of LED indicators for the device that controls via GPIO chip.
-_description:
+_purpose:
     A LED GPIO devices mapping resource that relies on the user specifying in config variable.
-    Refer to the /sys/kernel/debug/gpio for the gpiochip number
+    Refer to the /sys/kernel/debug/gpio for the gpiochip number.
     Usage of parameter: GPIO_CONTROLLER_LEDS={name1}:{controller1}:{port1} {name2}:{controller1}:{port2} ...
-    e.g. GPIO_CONTROLLER_LEDS=dl14:3:1 dl15:3:2 dl16:3:3
+    e.g., GPIO_CONTROLLER_LEDS=dl14:3:1 dl15:3:2 dl16:3:3
 estimated_duration: 3
 environ: GPIO_CONTROLLER_LEDS
 command:
@@ -376,8 +385,8 @@ user: root
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_led_indicator == 'True'
 flags: also-after-suspend
-_summary: Check control of {name} LED indecator.
-_description:
+_summary: Check control of {name} LED indicator.
+_purpose:
     Check that {name} LED turns on and off.
 _steps:
     1. Press Enter and observe LED behavior on DUT.

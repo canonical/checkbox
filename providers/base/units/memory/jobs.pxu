@@ -5,9 +5,9 @@ estimated_duration: 5.0
 user: root
 command: memory_compare.py
 _summary:
- Check amount of memory reported by meminfo against DMI
-_description:
- This test checks the amount of memory which is reporting in meminfo against
+ Check the amount of memory reported by meminfo against DMI
+_purpose:
+ This test checks the amount of memory which is reported in meminfo against
  the size of the memory modules detected by DMI.
 
 plugin: shell
@@ -20,7 +20,7 @@ requires:
 command: memory_test.py
 _summary:
  Run memory stress test including swapping to disk
-_description:
+_purpose:
  Test to perform some basic stress and exercise of system memory. This test
  also includes an over-commit function to force swapping to disk, thus SUTs
  should have suitably large swap files for the amount of RAM they have
@@ -38,4 +38,3 @@ _siblings: [
       "command": "meminfo_resource.py | diff $PLAINBOX_SESSION_SHARE/meminfo_before_suspend -",
       "depends": "com.canonical.certification::suspend/suspend_advanced_auto"}
  ]
-

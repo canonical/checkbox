@@ -50,12 +50,13 @@ _purpose:
     Touchpad vertical scroll verification
 _steps:
     1. Select "Test" when ready and place your cursor within the borders of the displayed test window.
-    2. Verify that you can move the vertical slider by moving your finger up and down in the right part of the touchpad.
+    2. Verify that you can move the vertical slider by moving your finger up and down on the right part of the touchpad.
 _verification:
     Could you scroll up and down?
 _siblings:
     [{ "id": "touchpad/vertical-after-suspend",
        "depends": "suspend/suspend_advanced_auto touchpad/vertical" }]
+_summary: Verify the touchpad's vertical scrolling functionality.
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -99,16 +100,18 @@ requires:
     manifest.has_touchpad == 'True'
 estimated_duration: 120.0
 _purpose:
-    Determine that the right click function is working as expected.
+    Determine that the right-click function is working as expected.
 _steps:
-    1. Open a file folder
-    2. Hover cursor over file in folder
-    3. 2-touch tap.
+    1. Open a file folder.
+    2. Hover cursor over file in folder.
+    3. Perform a 2-touch tap.
 _verification:
-    Did the right click pop up menu appear?
+    Did the right-click pop-up menu appear?
 _siblings:
     [{ "id": "touchpad/multitouch-rightclick-after-suspend",
        "depends": "suspend/suspend_advanced_auto touchpad/multitouch-rightclick" }]
+_summary:
+    Test the right-click function of touchpad with a multi-touch gesture.
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -129,6 +132,7 @@ _verification:
 _siblings:
     [{ "id": "touchpad/multitouch-after-suspend",
        "depends": "suspend/suspend_advanced_auto touchpad/multitouch" }]
+_summary: Test the touchpad's 2-finger scroll functionality.
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -142,11 +146,13 @@ _purpose:
     Determine that the drag and drop function is working as expected.
 _steps:
     1. Press 'PrtScn' key to take a screenshot
-    2. Tap 'Files' on dock(launcher bar) to open Home\Pictures folder
+    2. Tap 'Files' on the dock (launcher bar) to open Home\Pictures folder
     3. Double tap and hold the Screenshot* file
-    4. Drag the selected file to the Home folder and remove finger from touchpad.
+    4. Drag the selected file to the Home folder and release the finger from touchpad.
 _verification:
-    Does drag and drop work on Touchpad?
+    Does drag and drop work on the Touchpad?
+_summary:
+    Test the drag and drop functionality on the touchpad.
 
 plugin: manual
 category_id: com.canonical.plainbox::touchpad
@@ -201,6 +207,7 @@ command:
     fi 
 _purpose:
     This test will check if your touchpad was detected as a mouse.
+_summary: Check if the touchpad is recognized as a mouse by the system.
 
 plugin: user-interact
 category_id: com.canonical.plainbox::touchpad
@@ -212,15 +219,17 @@ requires:
 estimated_duration: 12
 command: qmlscene -qt5 --fullscreen "$PLAINBOX_PROVIDER_DATA"/touch_continuous_move_test.qml 2>&1 | grep -o PASS
 _purpose:
-    Touchpad continuous move verification
+    Verify continuous movement of the touchpad
 _steps:
     1. Select "Test" when ready and continuously move your cursor within the borders of the displayed test window.
     You'll need to keep moving your finger on the touchpad for 10 seconds.
 _verification:
-    Did the mouse cursor move without interruption?
+    Does the mouse cursor move without interruption?
 _siblings:
     [{ "id": "touchpad/continuous-move-after-suspend",
        "depends": "suspend/suspend_advanced_auto touchpad/continuous-move" }]
+_summary:
+    Verify that the touchpad supports continuous movement without interruption.
 
 unit: template
 template-resource: device
@@ -237,8 +246,8 @@ imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_touchpad == 'True'
 command: touchpad_confidence_bit.py {product_slug}
-_summary: Touchpad EV_ABS capability check
-_description:
+_summary: Check palm rejection firmware/labeling for touchpads
+_purpose:
     Libinput firmware/labeling palm detection rely on touchpad ABS_MT_TOOL_TYPE
     capability. This test checks touchpad's EV_ABS capability to
     make sure that firmware/labeling bit is set in touchpad firmware.
@@ -252,12 +261,14 @@ requires:
     manifest.has_touchpad == 'True'
 command: qmlscene -qt5 --fullscreen "$PLAINBOX_PROVIDER_DATA"/palm_rejection.qml 2>&1 | grep -o PASS
 _purpose:
-    This test checks if touchpad ignores palm touches
+    This test checks if the touchpad ignores palm touches.
 _steps:
-    Select "Test" and follow the instruction on the screen
+    Select "Test" and follow the instructions on the screen.
 _verification:
-    Cursor should not have moved.
+    The cursor should not have moved.
 _siblings:
     [{ "id": "touchpad/palm-rejection-after-suspend",
        "depends": "suspend/suspend_advanced_auto touchpad/palm-rejection" }]
 estimated_duration: 40
+_summary:
+    Evaluate touchpad's palm rejection feature by ensuring it ignores palm touches.

@@ -22,7 +22,6 @@ requires:
  wireless_sta_protocol.{{ interface }}_ax == 'supported'
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
 
-
 unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
@@ -47,8 +46,6 @@ requires:
  wireless_sta_protocol.{{ interface }}_ac == 'supported'
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
 
-
-
 unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
@@ -57,9 +54,9 @@ template-unit: job
 id: wireless/wireless_connection_open_bg_np_{{ interface }}
 template-id: wireless/wireless_connection_open_bg_np_interface
 _summary:
- Connect to unencrypted 802.11b/g Wi-Fi network on {{ interface }} - netplan
+ Connect to unencrypted 802.11b/g Wi-Fi network on {{ interface }} using netplan
 _purpose:
- Check system can connect to insecure 802.11b/g AP using netplan
+ Check the system can connect to an unsecured 802.11b/g access point using netplan
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
@@ -71,7 +68,6 @@ estimated_duration: 15
 flags: preserve-locale also-after-suspend
 requires:
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
-
 
 unit: template
 template-resource: device
@@ -95,7 +91,6 @@ estimated_duration: 15
 flags: preserve-locale also-after-suspend
 requires:
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
-
 
 unit: template
 template-resource: device
@@ -121,7 +116,6 @@ requires:
  wireless_sta_protocol.{{ interface }}_ax == 'supported'
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
 
-
 unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
@@ -145,7 +139,6 @@ flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ax == 'supported'
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
-
 
 unit: template
 template-resource: device
@@ -171,7 +164,6 @@ requires:
  wireless_sta_protocol.{{ interface }}_ac == 'supported'
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
 
-
 unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
@@ -195,7 +187,6 @@ flags: preserve-locale also-after-suspend
 requires:
  net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
 
-
 unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
@@ -204,9 +195,9 @@ template-unit: job
 id: wireless/wireless_connection_wpa_n_np_{{ interface }}
 template-id: wireless/wireless_connection_wpa_n_np_interface
 _summary:
- Connect to WPA-encrypted 802.11n Wi-Fi network on {{ interface }} - netplan
+ Connect to a WPA-encrypted 802.11n Wi-Fi network on {{ interface }} using netplan
 _purpose:
- Check system can connect to 802.11n AP with wpa security using netplan
+ Check if the system can connect to an 802.11n AP with WPA security using netplan
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"

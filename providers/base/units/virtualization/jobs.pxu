@@ -7,7 +7,7 @@ requires:
  executable.name == 'lxc'
  package.name == 'lxd-installer' or snap.name == 'lxd'
 command: virtualization.py --debug lxdvm
-_description:
+_purpose:
  Verifies that an LXD Virtual Machine can be created and launched
 _summary:
  Verify LXD Virtual Machine launches
@@ -21,7 +21,7 @@ requires:
  executable.name == 'lxc'
  package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
 command: virtualization.py --debug lxd
-_description:
+_purpose:
  Verifies that an LXD container can be created and launched
 _summary:
  Verify LXD container launches

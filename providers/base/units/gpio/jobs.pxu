@@ -18,7 +18,7 @@ flags: preserve-locale also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.gpio_loopback == 'True'
 
-
+```
 # Filtering this job by the same devices as above as uses the same pin 
 # definition file and uses the RPi python module
 unit: template
@@ -37,8 +37,5 @@ estimated_duration: 20.0
 flags: preserve-locale also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.gpio_loopback == 'True'
-# If starting to test confinement then this connection will be requried:
-#requires:
-#  {%- if __on_ubuntucore__ %}
-#  connections.slot == 'snapd:gpio-memory-control' and connections.plug == 'checkbox-plano:gpio-memory-control'
-#  {% endif -%}
+_purpose: Ensure GPIO lines exposed on headers are controllable via /dev/gpiomem using the RPi python module for specific models.
+```

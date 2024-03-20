@@ -3,8 +3,9 @@ id: stress-ng-stressors
 plugin: resource
 _summary: Gather list of test stressors from stress-ng
 _description:
- stress-ng divides tests in to stressors. Get a list of stressors so can divide
- up tests.
+ _purpose: 
+  stress-ng divides tests into stressors. The goal is to get a list of stressors so tests can be divided
+  up accordingly.
 command:
  command -v stress-ng >/dev/null 2>&1 || { >&2 echo "stress-ng command not found"; exit 1; }
  capture-stressor.py
@@ -18,9 +19,9 @@ id: stress/stress-ng-test-for-stressor-{stressor}
 template-id: stress/stress-ng-test-for-stressor-stressor
 category_id: stress-tests
 _summary: Run the stress-ng for stressor {stressor}
-_description:
+_purpose:
  Runs the stressors from stress-ng. Tests run using the
- same number of proccesses as online processors.
+ same number of processes as online processors.
 plugin: shell
 estimated_duration: 30.0
 environ: STRESS_NG_STRESSORS_TIMEOUT

@@ -50,16 +50,18 @@ _steps:
  INSTRUCTIONS FOR ENABLING THE TPM CHIP:
  .
   - Commence the test to restart the machine
-  - Enter BIOS using machine-specific hot-key (typically F1, F2, or delete)
-  - Navigate to TPM menu, the precise location may depend on your BIOS version
-    and the make and model of your DUT. On some models it is under the
+  - Enter BIOS using machine-specific hot-key (typically F1, F2, or Delete)
+  - Navigate to the TPM menu; the precise location may depend on your BIOS version
+    and the make and model of your DUT. On some models, it is under the
     following menu: Security / Security Chip.
   - Change the current setting to Active
   - Save BIOS settings
   - Power the machine off (NOTE: a reboot may not be sufficient)
   - Power the machine back on again
   - Let the machine boot
-  - Restart the testing application
+  - Restart the testing application.
+_verification:
+ Ensure the TPM chip is active by accessing the BIOS setting post-restart and verifying the status.
 plugin: user-interact
 user: root
 command: reboot
@@ -76,18 +78,18 @@ category_id: tpm
 _summary: Clear ownership of the TPM chip
 _purpose:
  This job tries to automatically clear the ownership of an owned TPM chip. It
- uses well-known owner secret (20 bytes of zeros).
+ uses a well-known owner secret (20 bytes of zeros).
  .
- NOTE: The actual TPM chip will be cleared after the machine reboots.  After
- reboot the TPM will be in the default state: unowned, disabled and inactive.
- Subsequent jobs will instruct test operator to enter BIOS and re-enable the
- chip.
+ NOTE: The actual TPM chip will be cleared after the machine reboots. After
+ reboot, the TPM will be in the default state: unowned, disabled, and inactive.
+ Subsequent jobs will instruct the test operator to enter the BIOS and re-enable
+ the chip.
 _steps:
  INSTRUCTIONS FOR CLEARING THE TPM CHIP:
  .
-  - Commence the test to reboot the machine
-  - Let the machine boot
-  - Restart the testing application
+  - Commence the test to reboot the machine.
+  - Let the machine boot.
+  - Restart the testing application.
 plugin: user-interact
 command:
  tpm.clear --log debug --well-known && reboot
@@ -98,7 +100,7 @@ flags: preserve-locale preserve-cwd
 unit: job
 id: action/re-enable-tpm
 category_id: tpm
-_summary: Re-enable TPM chip in BIOS (after clearing ownership)
+_summary: Re-enable TPM chip in BIOS after clearing ownership
 _purpose:
  This job will re-enable the TPM chip in the BIOS after having cleared the ownership.
 _steps:
@@ -108,11 +110,11 @@ _steps:
  INSTRUCTIONS FOR ENABLING THE TPM CHIP:
  .
   - Commence the test to restart the machine
-  - Enter BIOS using machine-specific hot-key (typically F1, F2, or delete)
-  - Navigate to TPM menu, the precise location may depend on your BIOS version
-    and the make and model of your DUT. On some models it is under the
+  - Enter BIOS using machine-specific hot-key (typically F1, F2, or Delete)
+  - Navigate to the TPM menu. The precise location may depend on your BIOS version
+    and the make and model of your DUT. On some models, it is under the
     following menu: Security / Security Chip.
-  - Change the current setting to Active. If it is already in the active state
+  - Change the current setting to Active. If it is already in the active state,
     then set it to Disabled and then back to Active. This might be a bug in the BIOS.
   - Save BIOS settings
   - Power the machine off (NOTE: a reboot may not be sufficient)
@@ -130,9 +132,9 @@ unit: job
 id: action/take-ownership
 category_id: tpm
 _summary: Take ownership of the TPM chip
-_description:
+_purpose:
  This job tries to automatically take the ownership of an unowned TPM chip. It
- uses well-known owner and SRK secretes (20 bytes of zeros).
+ uses well-known owner and SRK secrets (20 bytes of zeros).
 plugin: shell
 command: tpm.takeownership --log debug --owner-well-known --srk-well-known
 requires: sysfs_tpm.owned == "0" and sysfs_tpm.enabled == "1" and sysfs_tpm.active == "1" and sysfs_tpm.temp_deactivated == "0"
@@ -146,7 +148,7 @@ id: query/tpm_version
 category_id: tpm
 _summary: Collect the output of tpm_version
 _description:
- This job collects the output of "tpm_version" for inspection by a
+ _purpose: This job collects the output of "tpm_version" for inspection by a
  Certification engineer.
 plugin: shell
 requires: snap.name == 'tpm'
@@ -158,7 +160,7 @@ unit: job
 id: query/tpm_selftest
 category_id: tpm
 _summary: Collect the output of tpm_selftest
-_description:
+_purpose:
  This job collects the output of "tpm_selftest" for inspection by the
  Certification engineer.
 plugin: shell
@@ -171,7 +173,7 @@ unit: job
 id: query/tpm_setactive-status
 category_id: tpm
 _summary: Collect the output of tpm_setactive --status --well-known
-_description:
+_purpose:
  This simply collects the output of "tpm_setactive --status --well-known" for
  inspection by a Certification engineer.
 plugin: shell
@@ -184,7 +186,7 @@ unit: job
 id: query/tpm_nvinfo
 category_id: tpm
 _summary: Collect the output of tpm_nvinfo
-_description:
+_purpose:
  This simply collects the output of "tpm_nvinfo" for inspection by a
  Certification engineer.
 plugin: shell
@@ -197,7 +199,7 @@ unit: job
 id: query/tpm_restrictpubek-status
 category_id: tpm
 _summary: Collect the output of tpm_restrictpubek --status --well-known
-_description:
+_purpose:
  This simply collects the output of "tpm_restrictpubek --status --well-known"
  for inspection by a Certification engineer.
 plugin: shell
@@ -210,20 +212,20 @@ unit: job
 id: query/tpm_restrictsrk-status
 category_id: tpm
 _summary: Collect the output of tpm_restrictsrk --status --well-known
-_description:
+_purpose:
  This simply collects the output of "tpm_restrictsrk --status --well-known"
  for inspection by a Certification engineer.
 plugin: shell
 requires: snap.name == 'tpm'
-command: tpm.restrictsrk --status --well-known
+command: tpm_restrictsrk --status --well-known
 estimated_duration: 1s
 flags: preserve-locale preserve-cwd
 
 unit: job
 id: query/tpm_setclearable-status
 category_id: tpm
-_summary: Collect the output of tpm_setclearable--status --well-known
-_description:
+_summary: Collect the output of tpm_setclearable --status --well-known
+_purpose:
  This simply collects the output of "tpm_setclearable --status --well-known"
  for inspection by a Certification engineer.
 plugin: shell
@@ -236,7 +238,7 @@ unit: job
 id: query/tpm_setenable-status
 category_id: tpm
 _summary: Collect the output of tpm_setenable --status --well-known
-_description:
+_purpose:
  This simply collects the output of "tpm_setenable --status --well-known"
  for inspection by a Certification engineer.
 plugin: shell
@@ -248,10 +250,9 @@ flags: preserve-locale preserve-cwd
 unit: job
 id: query/tpm_setownable-status
 category_id: tpm
-_summary: Collect the output of tpm_setownable --status --well-known
-_description:
- This simply collects the output of "tpm_setownable --status --well-known"
- for inspection by a Certification engineer.
+_summary: Collect the output of tpm_setownable --status --well-known for inspection.
+_purpose:
+ This simply collects the output of "tpm_setownable --status --well-known" for inspection by a Certification engineer.
 plugin: shell
 requires: snap.name == 'tpm'
 command: tpm.setownable --status --well-known
@@ -262,7 +263,7 @@ unit: job
 id: query/tpm_setpresence -status
 category_id: tpm
 _summary: Collect the output of tpm_setpresence --status --well-known
-_description:
+_purpose:
  This simply collects the output of "tpm_setpresence --status --well-known"
  for inspection by a Certification engineer.
 plugin: shell
@@ -275,7 +276,7 @@ unit: job
 id: query/tpm_getpubek
 category_id: tpm
 _summary: Collect the output of tpm_getpubek --well-known
-_description:
+_purpose:
  This simply collects the output of "tpm_getpubek --well-known"
  for inspection by a Certification engineer.
 plugin: shell

@@ -3,7 +3,7 @@ category_id: qep
 id: qep/qep-devices
 plugin: resource
 _summary: test QEP
-_description: Generates the 4 QEP devices to be used in the template test jobs
+_purpose: Generates the 4 QEP devices to be used in the template test jobs
 command:
     DEVICES="4bc3 4b81 4b82 4b83"
     for d in $DEVICES; do
@@ -36,12 +36,8 @@ id: qep/qep-device-node-for-{qep-device}
 template-id: qep/qep-device-node-for-qep-device
 category_id: qep
 _summary: Verify device directory exists for {qep-device}
-_description:
+_purpose:
  Detects if the device's directory exists.
- First needs to find the PCI ID from lspci
- Then tests if the PCI device directory exists.
- The PCI ID is always ##:##.# (e.g. 18:00.2)
- The PCI device directory is always in the format of 0000:$PCI_ID
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_qep == 'True'

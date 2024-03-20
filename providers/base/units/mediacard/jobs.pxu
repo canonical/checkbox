@@ -13,17 +13,17 @@ imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_card_reader == 'True'
 user: root
-_description:
- PURPOSE:
-     This test will check that the systems media card reader can
+_purpose:
+     This test will check that the system's media card reader can
      detect the insertion of a Multimedia Card (MMC) media
- STEPS:
+_steps:
      1. Commence the test and then insert an MMC card into the reader.
         (Note: this test will time-out after 20 seconds.)
      2. Do not remove the device after this test.
- VERIFICATION:
+_verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
+_summary: Test the system's media card reader for MMC insertion detection.
 
 plugin: shell
 template-engine: jinja2
@@ -39,9 +39,11 @@ command:
  {%- else %}
      removable_storage_test.py -s 67120000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
-_description:
+_purpose:
  This test is automated and executes after the mediacard/mmc-insert
  test is run. It tests reading and writing to the MMC card.
+_summary:
+ Test automated execution for reading and writing to the MMC card.
 
 plugin: user-interact
 template-engine: jinja2
@@ -56,16 +58,16 @@ command:
      removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
-_description:
- PURPOSE:
+_purpose:
      This test will check that the system correctly detects
-     the removal of the MMC card from the systems card reader.
- STEPS:
+     the removal of the MMC card from the system's card reader.
+_steps:
      1. Commence the test and then remove the MMC card from the reader.
-        (Note: this test will time-out after 20 seconds.)
- VERIFICATION:
+        (Note: this test will time out after 20 seconds.)
+_verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
+_summary: Test the detection of MMC card removal from the system's card reader.
 
 plugin: user-interact
 template-engine: jinja2
@@ -83,17 +85,16 @@ requires:
  manifest.has_card_reader == 'True'
 user: root
 _summary: Test that insertion of an SD card is detected
-_description:
- PURPOSE:
-     This test will check that the systems media card reader can
-     detect the insertion of an UNLOCKED Secure Digital (SD) media card
- STEPS:
-     1. Commence the test and then insert an UNLOCKED SD card into the reader.
-        (Note: this test will time-out after 20 seconds.)
-     2. Do not remove the device after this test.
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+ This test will check that the system's media card reader can
+ detect the insertion of an UNLOCKED Secure Digital (SD) media card
+_steps:
+ 1. Commence the test and then insert an UNLOCKED SD card into the reader.
+    (Note: this test will time-out after 20 seconds.)
+ 2. Do not remove the device after this test.
+_verification:
+ The verification of this test is automated. Do not change the
+ automatically selected result.
 
 plugin: shell
 template-engine: jinja2
@@ -109,8 +110,8 @@ command:
  {%- else %}
      removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
-_summary: Test reading & writing to a SD Card
-_description:
+_summary: Test reading & writing to an SD Card
+_purpose:
  This test is automated and executes after the mediacard/sd-insert
  test is run. It tests reading and writing to the SD card.
 
@@ -128,14 +129,13 @@ command:
  {% endif -%}
 user: root
 _summary: Test that removal of an SD card is detected
-_description:
- PURPOSE:
+_purpose:
      This test will check that the system correctly detects
-     the removal of an SD card from the systems card reader.
- STEPS:
+     the removal of an SD card from the system's card reader.
+_steps:
      1. Commence the test and then remove the SD card from the reader.
         (Note: this test will time-out after 20 seconds.)
- VERIFICATION:
+_verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
 
@@ -150,8 +150,9 @@ imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
-_summary: Automated test of SD Card reading & writing (udisk2)
+_summary: Automated test of SD Card reading & writing (udisks2)
 _description:
+_purpose:
  This is a fully automated version of mediacard/sd-automated and assumes that the
  system under test has a memory card device plugged in prior to checkbox execution.
  It is intended for SRU automated testing.
@@ -173,18 +174,17 @@ requires:
  manifest.has_card_reader == 'True'
 user: root
 _summary: Test that insertion of an SDHC card is detected
-_description:
- PURPOSE:
-     This test will check that the systems media card reader can
-     detect the insertion of a UNLOCKED Secure Digital High-Capacity
-     (SDHC) media card
- STEPS:
-     1. Commence the test and then insert an UNLOCKED SDHC card into the reader.
-        (Note: this test will time-out after 20 seconds.)
-     2. Do not remove the device after this test.
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+ This test will check that the system's media card reader can
+ detect the insertion of a UNLOCKED Secure Digital High-Capacity
+ (SDHC) media card
+_steps:
+ 1. Commence the test and then insert an UNLOCKED SDHC card into the reader.
+    (Note: this test will time-out after 20 seconds.)
+ 2. Do not remove the device after this test.
+_verification:
+ The verification of this test is automated. Do not change the
+ automatically selected result.
 
 plugin: shell
 template-engine: jinja2
@@ -220,16 +220,15 @@ command:
  {% endif -%}
 user: root
 _summary: Test that removal of an SDHC card is detected
-_description:
- PURPOSE:
-     This test will check that the system correctly detects
-     the removal of an SDHC card from the systems card reader.
- STEPS:
-     1. Commence the test and then remove the SDHC card from the reader.
-        (Note: this test will time-out after 20 seconds.)
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+ This test will check that the system correctly detects
+ the removal of an SDHC card from the system's card reader.
+_steps:
+ 1. Commence the test and then remove the SDHC card from the reader.
+    (Note: this test will time-out after 20 seconds.)
+_verification:
+ The verification of this test is automated. Do not change the
+ automatically selected result.
 
 plugin: user-interact
 template-engine: jinja2
@@ -246,17 +245,17 @@ imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_card_reader == 'True'
 user: root
-_description:
- PURPOSE:
-     This test will check that the systems media card reader can
-     detect the insertion of a Compact Flash (CF) media card
- STEPS:
-     1. Commence the test and then insert a CF card into the reader.
-        (Note: this test will time-out after 20 seconds.)
-     2. Do not remove the device after this test.
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+ This test will check that the system's media card reader can
+ detect the insertion of a Compact Flash (CF) media card
+_steps:
+ 1. Commence the test and then insert a CF card into the reader.
+    (Note: this test will time-out after 20 seconds.)
+ 2. Do not remove the device after this test.
+_verification:
+ The verification of this test is automated. Do not change the
+ automatically selected result.
+_summary: Verify the system's media card reader can detect a Compact Flash card insertion.
 
 plugin: shell
 template-engine: jinja2
@@ -272,9 +271,10 @@ command:
  {%- else %}
      removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
-_description:
+_purpose:
  This test is automated and executes after the mediacard/cf-insert
  test is run. It tests reading and writing to the CF card.
+_summary: Automate testing for reading and writing to the CF card after mediacard/cf-insert test.
 
 plugin: user-interact
 template-engine: jinja2
@@ -289,16 +289,16 @@ command:
      removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
-_description:
- PURPOSE:
-     This test will check that the system correctly detects
-     the removal of a CF card from the systems card reader.
- STEPS:
-     1. Commence the test and then remove the CF card from the reader.
-        (Note: this test will time-out after 20 seconds.)
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+ This test will check that the system correctly detects
+ the removal of a CF card from the system's card reader.
+_steps:
+ 1. Commence the test and then remove the CF card from the reader.
+    (Note: this test will time-out after 20 seconds.)
+_verification:
+ The verification of this test is automated. Do not change the
+ automatically selected result.
+_summary: Ensure the system detects CF card removal from the card reader correctly.
 
 plugin: user-interact
 template-engine: jinja2
@@ -316,17 +316,16 @@ requires:
  manifest.has_card_reader == 'True'
 user: root
 _summary: Test that insertion of an SDXC card is detected
-_description:
- PURPOSE:
-     This test will check that the systems media card reader can
-     detect the insertion of a Secure Digital Extended Capacity (SDXC) media card
- STEPS:
-     1. Commence the test and then insert an UNLOCKED SDXC card into the reader.
-        (Note: this test will time-out after 20 seconds.)
-     2. Do not remove the device after this test.
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+ This test will check that the system's media card reader can
+ detect the insertion of a Secure Digital Extended Capacity (SDXC) media card
+_steps:
+ 1. Commence the test and then insert an UNLOCKED SDXC card into the reader.
+    (Note: this test will time-out after 20 seconds.)
+ 2. Do not remove the device after this test.
+_verification:
+ The verification of this test is automated. Do not change the
+ automatically selected result.
 
 plugin: shell
 template-engine: jinja2
@@ -342,8 +341,8 @@ command:
  {%- else %}
      removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
-_summary: Test reading & writing to a SDXC Card
-_description:
+_summary: Test reading & writing to an SDXC Card
+_purpose:
  This test is automated and executes after the mediacard/sdxc-insert
  test is run. It tests reading and writing to the SDXC card.
 
@@ -361,16 +360,15 @@ command:
  {% endif -%}
 user: root
 _summary: Test that removal of an SDXC card is detected
-_description:
- PURPOSE:
-     This test will check that the system correctly detects
-     the removal of a SDXC card from the systems card reader.
- STEPS:
-     1. Commence the test and then remove the SDXC card from the reader.
-        (Note: this test will time-out after 20 seconds.)
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+ This test will check that the system correctly detects
+ the removal of a SDXC card from the system's card reader.
+_steps:
+ 1. Commence the test and then remove the SDXC card from the reader.
+    (Note: this test will time-out after 20 seconds.)
+_verification:
+ The verification of this test is automated. Do not change the
+ automatically selected result.
 
 plugin: user-interact
 template-engine: jinja2
@@ -387,17 +385,18 @@ imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_card_reader == 'True'
 user: root
-_description:
- PURPOSE:
-     This test will check that the systems media card reader can
-     detect the insertion of a Memory Stick (MS) media card
- STEPS:
-     1. Commence the test and then insert a MS card into the reader.
-        (Note: this test will time-out after 20 seconds.)
-     2. Do not remove the device after this test.
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+ This test will check that the system's media card reader can
+ detect the insertion of a Memory Stick (MS) media card
+_steps:
+ 1. Commence the test and then insert a MS card into the reader.
+    (Note: this test will time-out after 20 seconds.)
+ 2. Do not remove the device after this test.
+_verification:
+ The verification of this test is automated. Do not change the
+ automatically selected result.
+_summary:
+ Verify the detection of Memory Stick (MS) card insertion by the system's media card reader.
 
 plugin: shell
 template-engine: jinja2
@@ -413,9 +412,10 @@ command:
  {%- else %}
      removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
-_description:
+_purpose:
  This test is automated and executes after the mediacard/ms-insert
  test is run. It tests reading and writing to the MS card.
+_summary: Automated test for reading and writing to the MS card after mediacard/ms-insert test.
 
 plugin: user-interact
 template-engine: jinja2
@@ -431,15 +431,16 @@ command:
  {% endif -%}
 user: root
 _description:
- PURPOSE:
-     This test will check that the system correctly detects
-     the removal of a MS card from the systems card reader.
- STEPS:
-     1. Commence the test and then remove the MS card from the reader.
-        (Note: this test will time-out after 20 seconds.)
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+    This test will check that the system correctly detects
+    the removal of an MS card from the system's card reader.
+_steps:
+    1. Commence the test and then remove the MS card from the reader.
+       (Note: this test will time-out after 20 seconds.)
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+_summary: Test if the system detects the removal of an MS card correctly.
 
 plugin: user-interact
 template-engine: jinja2
@@ -457,16 +458,17 @@ imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_card_reader == 'True'
 _description:
- PURPOSE:
-     This test will check that the systems media card reader can
+_purpose:
+     This test will check that the system's media card reader can
      detect the insertion of a Memory Stick Pro (MSP) media card
- STEPS:
+_steps:
      1. Commence the test and then insert a MSP card into the reader.
         (Note: this test will time-out after 20 seconds.)
      2. Do not remove the device after this test.
- VERIFICATION:
+_verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
+_summary: Verify the system's media card reader can detect a Memory Stick Pro (MSP) card insertion.
 
 plugin: shell
 template-engine: jinja2
@@ -482,9 +484,10 @@ command:
  {%- else %}
      removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
-_description:
+_purpose:
  This test is automated and executes after the mediacard/msp-insert
  test is run. It tests reading and writing to the MSP card.
+_summary: Automated test for reading and writing to the MSP card after mediacard/msp-insert test.
 
 plugin: user-interact
 template-engine: jinja2
@@ -500,15 +503,16 @@ command:
  {% endif -%}
 user: root
 _description:
- PURPOSE:
-     This test will check that the system correctly detects
-     the removal of a MSP card from the systems card reader.
- STEPS:
-     1. Commence the test and remove the MSP card from the reader.
-        (Note: this test will time-out after 20 seconds.)
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+    This test will check that the system correctly detects
+    the removal of a MSP card from the system's card reader.
+_steps:
+    1. Commence the test and remove the MSP card from the reader.
+       (Note: this test will time-out after 20 seconds.)
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+_summary: Ensure MSP card removal is correctly detected by the system.
 
 plugin: user-interact
 template-engine: jinja2
@@ -525,17 +529,17 @@ imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_card_reader == 'True'
 user: root
-_description:
- PURPOSE:
-     This test will check that the systems media card reader can
-     detect the insertion of a Extreme Digital (xD) media card
- STEPS:
-     1. Commence the test and then insert a xD card into the reader.
-        (Note: this test will time-out after 20 seconds.)
-     2. Do not remove the device after this test.
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+ This test will check that the system's media card reader can
+ detect the insertion of an Extreme Digital (xD) media card.
+_steps:
+ 1. Commence the test and then insert an xD card into the reader.
+    (Note: this test will time-out after 20 seconds.)
+ 2. Do not remove the device after this test.
+_verification:
+ The verification of this test is automated. Do not change the
+ automatically selected result.
+_summary: Ensure the system's media card reader detects the insertion of an xD media card.
 
 plugin: shell
 template-engine: jinja2
@@ -551,9 +555,9 @@ command:
  {%- else %}
      removable_storage_test.py -s 268400000 --memorycard sdio usb scsi --auto-reduce-size
  {% endif -%}
-_description:
- This test is automated and executes after the mediacard/xd-insert
- test is run. It tests reading and writing to the xD card.
+_purpose:
+ This test is automated and executes after the mediacard/xd-insert test is run. It tests reading and writing to the xD card.
+_summary: Automated test to verify reading and writing functionality of the xD card after mediacard/xd-insert test.
 
 plugin: user-interact
 template-engine: jinja2
@@ -568,16 +572,16 @@ command:
      removable_storage_watcher.py --memorycard remove sdio usb scsi
  {% endif -%}
 user: root
-_description:
- PURPOSE:
+_purpose:
      This test will check that the system correctly detects
-     the removal of a xD card from the systems card reader.
- STEPS:
+     the removal of a xD card from the system's card reader.
+_steps:
      1. Commence the test and then remove the xD card from the reader.
         (Note: this test will time-out after 20 seconds.)
- VERIFICATION:
+_verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
+_summary: Automated test for detecting the removal of a xD card from the system's card reader.
 
 unit: template
 template-resource: removable_partition
@@ -595,6 +599,6 @@ imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_card_reader == 'True'
 _summary: Automated test of SD Card reading & writing ({symlink_uuid})
-_description:
+_purpose:
  This is a fully automated version of mediacard/sd-automated and assumes that the
  system under test has a memory card device plugged in prior to checkbox execution.

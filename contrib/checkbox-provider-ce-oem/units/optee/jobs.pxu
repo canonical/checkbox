@@ -21,26 +21,18 @@ command:
 
 id: ce-oem-optee/xtest-check
 category_id: optee
-_summary: Check if xtest is in the gedget snap.
+_summary: Check if xtest is in the system.
 plugin: shell
 user: root
 estimated_duration: 20.0
-environ: OPTEE_TOOL
 command:
-    if [[ -z "$OPTEE_TOOL" ]]; then
-        gadget=$(snap list | awk '$NF == "gadget" {print $1}')
-        xtest=$(snap info "$gadget"|grep xtest)
-        if [[ "$xtest" ]]; then
-            echo -e "\nInfo: Gadget snap support xtest command!"
-            echo -e "$xtest"
-            exit 0
-        else
-            echo -e "\nError: Gadget snap not support xtest command!"
-            echo -e "\nError: Please identify the tool name if needed!"
-            exit 1
-        fi
+    tool=$(look_up_xtest.py)
+    exit_status=$?
+    if [[ "$exit_status" -eq 0 ]]; then
+        echo "Info: Found xtest runnable $tool"
     else
-        echo -e "\nInfo: Using $OPTEE_TOOL to excute OP-TEE test"
+        echo "Error: Not able to found xtest runnable tool"
+        exit 1
     fi
 depends: ce-oem-optee/device-node
 
@@ -51,18 +43,13 @@ plugin: shell
 user: root
 estimated_duration: 20.0
 depends: ce-oem-optee/xtest-check
-environ: OPTEE_TOOL
 command:
-    tool=""
+    tool=$(look_up_xtest.py)
     ta_path=""
-    if [[ -n "$OPTEE_TOOL" ]]; then
-        tool="$OPTEE_TOOL"
-        ta_path="/lib/optee_armtz/"
+    if [[ "$tool" == "x-test.xtest" ]]; then
+        ta_path="$(find /var/snap -wholename */lib/optee_armtz)"
     else
-        gadget=$(snap list | awk '$NF == "gadget" {print $1}')
-        # TA will be copied into this path once interface tee-tas connected.
-        # optee-test snap need to be installed in devmode
-        tool="$gadget.xtest"
+        gadget=$(awk -F"." '{ print $1}' <<< "$tool")
         ta_path="/snap/$gadget/current/lib/optee_armtz/"
     fi
     if [[ -z "$(find "$ta_path" -mindepth 1 -type f -o -type d)" ]]; then
@@ -121,16 +108,8 @@ category_id: optee
 estimated_duration: 30
 flags: also-after-suspend
 depends: ce-oem-optee/ta-install
-environ: OPTEE_TOOL
 command:
-    tool=""
-    if [[ -n "$OPTEE_TOOL" ]]; then
-        tool="$OPTEE_TOOL"
-    else
-        gadget=$(snap list | awk '$NF == "gadget" {print $1}')
-        tool="$gadget.xtest"
-    fi
-    "$tool" -t {{ suite }} {{ test_id }}
+    {{ tool }} -t {{ suite }} {{ test_id }}
 
 unit: template
 template-resource: ce-oem-optee-test-list-pkcs11
@@ -146,11 +125,4 @@ estimated_duration: 30
 depends: ce-oem-optee/xtest-check
 flags: also-after-suspend
 command:
-    tool=""
-    if [[ -n "$OPTEE_TOOL" ]]; then
-        tool="$OPTEE_TOOL"
-    else
-        gadget=$(snap list | awk '$NF == "gadget" {print $1}')
-        tool="$gadget.xtest"
-    fi
-    "$tool" -t {{ suite }} {{ test_id }}
+    {{ tool }} -t {{ suite }} {{ test_id }}

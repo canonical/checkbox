@@ -219,6 +219,7 @@ include:
     after-suspend-graphics/1_cycle_resolution_.*             certification-status=non-blocker
     suspend/1_xrandr_screens_after_suspend.tar.gz_auto
     power-management/lid_close_suspend_open                  certification-status=blocker
+    power-management/lid                                     certification-status=blocker
 
 id: after-suspend-graphics-discrete-gpu-cert-full
 unit: test plan
@@ -303,6 +304,7 @@ include:
     suspend/1_rotation_after_suspend_.*_graphics           certification-status=blocker 
     suspend/1_video_after_suspend_.*_graphics              certification-status=blocker
     power-management/lid_close_suspend_open                certification-status=blocker
+    power-management/lid                                   certification-status=blocker
 
 id: after-suspend-graphics-discrete-gpu-cert-blockers
 unit: test plan

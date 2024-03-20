@@ -343,6 +343,9 @@ class TestLauncher(TestCase):
         self_mock = MagicMock()
         job_state = self_mock.sa.get_job_state()
         job_state.job.flags = "noreturn"
+        job_state.result.outcome = None
+        job_state.result.comments = None
+
         metadata_mock = MagicMock()
         metadata_mock.running_job_name = "running_metadata_job_name"
 
@@ -352,10 +355,13 @@ class TestLauncher(TestCase):
 
         self.assertEqual(outcome, IJobResult.OUTCOME_PASS)
 
-    def test__get_autoresume_outcome_last_job(self):
+    def test__get_autoresume_outcome_last_job_crashed(self):
         self_mock = MagicMock()
         job_state = self_mock.sa.get_job_state()
         job_state.job.flags = ""
+        job_state.result.outcome = None
+        job_state.result.comments = None
+
         metadata_mock = MagicMock()
         metadata_mock.running_job_name = "running_metadata_job_name"
 
@@ -364,6 +370,22 @@ class TestLauncher(TestCase):
         )
 
         self.assertEqual(outcome, IJobResult.OUTCOME_CRASH)
+
+    def test__get_autoresume_outcome_last_job_already_set(self):
+        self_mock = MagicMock()
+        job_state = self_mock.sa.get_job_state()
+        job_state.job.flags = ""
+        job_state.result.outcome = IJobResult.OUTCOME_PASS
+        job_state.result.comments = "Pre resume comment"
+
+        metadata_mock = MagicMock()
+        metadata_mock.running_job_name = "running_metadata_job_name"
+
+        outcome = Launcher._get_autoresume_outcome_last_job(
+            self_mock, metadata_mock
+        )
+
+        self.assertEqual(outcome, IJobResult.OUTCOME_PASS)
 
     def test__resumed_session(self):
         self_mock = MagicMock()

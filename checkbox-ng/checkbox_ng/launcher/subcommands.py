@@ -509,10 +509,12 @@ class Launcher(MainLoopStage, ReportsStage):
         is used to automatically resume a session and assign an outcome to the
         job that interrupted the session. If the interruption is due to a
         noreturn job (for example, reboot), the job will be marked as passed,
-        else, if the job made Checkbox crash, it will be marked as crash
+        else, if the job made Checkbox crash, it will be marked as crash.
         """
         job_state = self.sa.get_job_state(metadata.running_job_name)
-        if "noreturn" in (job_state.job.flags or set()):
+        if job_state.result.outcome:
+            return job_state.result.outcome
+        elif "noreturn" in (job_state.job.flags or set()):
             return IJobResult.OUTCOME_PASS
         return IJobResult.OUTCOME_CRASH
 

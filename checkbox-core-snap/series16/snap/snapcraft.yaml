@@ -204,6 +204,7 @@ parts:
       - python3-xlsxwriter
       - python3-setuptools
       - python3-dev
+      - lsb-release
     python-packages:
       - tqdm
     after: [checkbox-support]

@@ -31,7 +31,7 @@ command:
     dbus-send --system --print-reply --dest=com.intel.amt.lms /com/intel/amt/lms com.intel.amt.lms.PTHI.GetAMTVersion
 flags: simple
 
-id: intel-mei/check-device
+id: mei/check-device
 _summary: Detect if the Intel MEI device is available
 category_id: intel-mei
 imports: from com.canonical.plainbox import manifest

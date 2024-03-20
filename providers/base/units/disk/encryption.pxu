@@ -1,4 +1,3 @@
-
 id: disk/encryption/detect
 category_id: com.canonical.plainbox::disk
 plugin: shell
@@ -36,7 +35,6 @@ _steps:
  4. Start or reboot the device.
 _verification:
  Mark this test as "Passed" if the device cannot boot anymore.
-
 category_id: com.canonical.plainbox::disk
 estimated_duration: 45m
 plugin: manual

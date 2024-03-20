@@ -33,7 +33,7 @@ flags: simple
 
 id: mei/check-device
 _summary: Detect if the Intel MEI device is available
-category_id: intel-mei
+category_id: mei
 imports: from com.canonical.plainbox import manifest
 requires:
     cpuinfo.platform in ("i386", "x86_64")

@@ -1320,7 +1320,7 @@ class Expand:
             [tp.get_mandatory_qualifier()] + [tp.get_qualifier()],
         )
 
-        list_obj = []
+        obj_list = []
         for unit in jobs_and_templates_list:
             obj = unit._raw_data.copy()
             obj["unit"] = unit.unit
@@ -1330,11 +1330,12 @@ class Expand:
             ] = self.get_effective_certification_status(unit)
             if unit.template_id:
                 obj["template-id"] = unit.template_id
-            list_obj.append(obj)
+            obj_list.append(obj)
+        obj_list.sort(key=lambda x: x.get("template-id", x["id"]))
         if ctx.args.format == "json":
-            print(json.dumps(list_obj))
+            print(json.dumps(obj_list, sort_keys=True))
         else:
-            for obj in list_obj:
+            for obj in obj_list:
                 if obj["unit"] == "template":
                     print("Template '{}'".format(obj["template-id"]))
                 else:

@@ -106,6 +106,7 @@ nested_part:
     disk-cert-automated
     misc-client-cert-automated
     fingerprint-automated
+    firmware-fwupdmgr-automated
     keys-cert-automated
     led-cert-automated
     mediacard-cert-automated

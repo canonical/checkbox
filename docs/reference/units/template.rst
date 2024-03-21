@@ -48,6 +48,14 @@ Template-Specific Fields
     translation into other languages. It must be one line long, ideally it
     should be short (50-70 characters max).
 
+    Example: if a template has a ``summary`` field is set to:
+
+        *Test serial connection for port {serial_port}*
+
+    then its ``template-summary`` could be:
+
+        *Test serial connection for every serial port on the system*
+
     This field is optional (Checkbox will only advise you to provide one when
     running provider validation).
 

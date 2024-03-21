@@ -22,7 +22,8 @@ from metabox.core.actions import (
     SelectTestPlan,
     Send,
     Expect,
-    Start
+    Start,
+    Signal,
 )
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
@@ -101,4 +102,61 @@ class AutoResumeAfterCrashAutoLocal(Scenario):
         AssertPrinted("Crash Checkbox"),
         AssertPrinted("job passed"),
         AssertPrinted("Emulate the reboot"),
+    ]
+
+
+@tag("resume", "manual")
+class ResumeAfterFinishPreserveOutputLocal(Scenario):
+    modes = ["local"]
+    launcher = "# no launcher"
+    steps = [
+        Start(),
+        Expect("Select test plan"),
+        SelectTestPlan("2021.com.canonical.certification::pass-only-rerun"),
+        Send(keys.KEY_ENTER),
+        Expect("Press (T) to start"),
+        Send("T"),
+        Expect("Select jobs to re-run"),
+        Send(keys.KEY_SPACE),
+        Expect("[X]"),
+        Send("r"),
+        Expect("Select jobs to re-run"),
+        Signal(keys.SIGINT),
+        Start(),
+        Expect("Select jobs to re-run"),
+        Send("f"),
+        Expect("job passed"),
+        Expect("job failed"),
+    ]
+
+@tag("resume", "manual")
+class ResumeAfterFinishPreserveOutputRemote(Scenario):
+    modes = ["remote"]
+    launcher = "# no launcher"
+    steps = [
+        Start(),
+        Expect("Select test plan"),
+        SelectTestPlan("2021.com.canonical.certification::pass-only-rerun"),
+        Send(keys.KEY_ENTER),
+        Expect("Press (T) to start"),
+        Send("T"),
+        Expect("Select jobs to re-run"),
+        Send(keys.KEY_SPACE),
+        Expect("[X]"),
+        Send("r"),
+        Expect("Select jobs to re-run"),
+        Signal(keys.SIGINT),
+        Expect("(X) Nothing"),
+        Send(keys.KEY_DOWN + keys.KEY_SPACE),
+        Expect("(X) Stop"),
+        Send(keys.KEY_DOWN + keys.KEY_SPACE),
+        Expect("(X) Pause"),
+        Send(keys.KEY_DOWN + keys.KEY_SPACE),
+        Expect("(X) Exit"),
+        Send(keys.KEY_ENTER),
+        Start(),
+        Expect("Select jobs to re-run"),
+        Send("f"),
+        Expect("job passed"),
+        Expect("job failed"),
     ]

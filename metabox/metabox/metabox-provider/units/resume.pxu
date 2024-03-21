@@ -16,9 +16,26 @@ command:
  PID=`pgrep -f checkbox-cli`
  kill $PID
 
+id: pass-rerun
+unit: job
+_summary: Test that passes only at the second try
+flags: simple
+command:
+ [ -f $PLAINBOX_SESSION_SHARE/will_pass.txt ] && exit 0
+ echo "will pass next time" > $PLAINBOX_SESSION_SHARE/will_pass.txt
+ exit 1
+
 unit: test plan
 id: checkbox-crash-then-reboot
 _name: Checkbox crash then reboot
 include:
  checkbox-crasher
  reboot-emulator
+
+unit: test plan
+id: pass-only-rerun
+_name: Pass only on rerun
+_summary: Test that passes only at the secont try
+include:
+ pass-rerun
+ basic-shell-failing

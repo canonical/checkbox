@@ -23,12 +23,19 @@ id: disk/encryption/check-fde-tpm
 _summary: Disk decryption after TPM change
 _description:
 _purpose:
- The device partition is encrypted using TPM master key. To ensure the security of the device, it is crucial that the data partition cannot be decrypted—and consequently, the device cannot boot—if PCR7 (Platform Configuration Register 7) is modified. This test verifies the system's resilience against unauthorized modifications by ensuring it cannot boot if the PCR7 value is altered.
+ The device partition is encrypted using TPM master key. To unseal the master
+ key from TPM, PCR7 (Platform Configuration Register 7) needs to be identical
+ to the value it had when the master key was sealed into TPM. Every time the
+ device boots, it checks PCR7 to unseal TPM and retrieves master key from TPM
+ to decrypt its data partition. If TPM PCR7 is modified (e.g. by flashing the
+ BIOS), the device won't be able to get the master key and decrypt its data
+ partition. This test verifies the system's resilience against unauthorized 
+ modifications by ensuring it cannot boot if the PCR7 value is altered.
 _steps:
  NOTE: YOU'LL HAVE TO RE-INSTALL THE IMAGE AFTER THIS TEST.
  1. Install the image and make sure it boots and you can log in.
  2. Ensure the BIOS is set up correctly (e.g., TPM enabled, UEFI boot mode).
- 3. Depending on your project's requirements, choose one of these methods to clean TPM:
+ 3. Depending on the DUT, choose one of these methods to clean TPM:
     a. Turn the device off and upgrade/downgrade the BIOS or modify Secure Boot state.
     b. Clean TPM via BIOS menu.
     c. Install checkbox, execute "checkbox-[project name].checkbox-cli run com.canonical.certification::tpm2.0_3.0.4/tpm2_takeownership".

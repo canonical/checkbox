@@ -93,7 +93,7 @@ _steps:
  8. Click 'Send Files...' and choose a file to send in DUT
 _verification:
  Were files sent to the target device's ~/Downloads folder correctly?
-_summary: Verify the capability to transfer files through a bluetooth connection between DUT and a target device.
+_summary: Verify the capability to transfer files through a Bluetooth connection.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::bluetooth

@@ -162,15 +162,15 @@ depends:
 user: root
 command: hdd_parking.py
 _purpose:
- This test checks that a system's drive protection mechanism works properly.
- Which is also known as free fall sensor checking in terms of laptop PC.
+ This test checks that a system's drive protection mechanism (free fall
+ sensor in laptops) works properly.
 _steps:
  1. Click on Test
  2. Move the system under test around, ensuring it is raised and lowered at some point.
 _verification:
  The verification of this test is automated. Do not change the
  automatically selected result.
-_summary: Evaluate the system's drive protection mechanism, including free fall sensor functionality, through interactive testing.
+_summary: Test the system's hard drive protection mechanism.
 
 unit: template
 template-resource: device

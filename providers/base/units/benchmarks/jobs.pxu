@@ -42,8 +42,8 @@ id: benchmarks/graphics/render-bench
 requires: package.name == 'render-bench'
 command: /usr/bin/time -f "%e Seconds" render_bench > /dev/null 2>&1
 estimated_duration: 52.000
-_purpose: Run Render-Bench XRender/Imlib2 benchmark
-_summary: Execute the Render-Bench XRender/Imlib2 benchmark to assess graphics performance.
+_summary: Run Render-Bench XRender/Imlib2 benchmark
+_purpose: Execute the Render-Bench XRender/Imlib2 benchmark to assess graphics performance.
 
 plugin: shell
 category_id: com.canonical.plainbox::benchmarks
@@ -125,7 +125,7 @@ requires:
 command: gputest_benchmark.py gi --width 1920 --height 1080 -f
 estimated_duration: 75.00
 _purpose: Run GiMark, a geometry instancing test (OpenGL 3.3) Fullscreen 1920x1080 no antialiasing
-_summary: Execute GiMark OpenGL 3.3 benchmark at 1920x1080 fullscreen without antialiasing.
+_summary: Run GiMark OpenGL 3.3 benchmark at 1920x1080 fullscreen without antialiasing.
 
 plugin: shell
 category_id: com.canonical.plainbox::benchmarks
@@ -137,7 +137,7 @@ command: gputest_benchmark.py gi
 estimated_duration: 75.500
 _purpose:
  Run GiMark, a geometry instancing test (OpenGL 3.3) in a windowed 1024x640 resolution without antialiasing.
-_summary: Conduct the GiMark geometry instancing test (OpenGL 3.3) in windowed mode at 1024x640 resolution with no antialiasing.
+_summary: Run GiMark OpenGL 3.3 geometry test at 1024x640 windowed without antialiasing.
 
 plugin: shell
 category_id: com.canonical.plainbox::benchmarks
@@ -148,7 +148,7 @@ requires:
 command: gputest_benchmark.py tess --width 1920 --height 1080 -f
 estimated_duration: 75.000
 _purpose: Run a tessellation test based on TessMark (OpenGL 4.0), fullscreen 1920x1080 with no antialiasing.
-_summary: Execute a TessMark tessellation test in fullscreen 1920x1080 without antialiasing.
+_summary: Run TessMark tessellation test at 1920x1080 fullscreen without antialiasing.
 
 plugin: shell
 category_id: com.canonical.plainbox::benchmarks
@@ -158,4 +158,4 @@ requires:
  cpuinfo.platform == 'x86_64'
 command: gputest_benchmark.py tess
 _purpose: Run a tessellation test based on TessMark (OpenGL 4.0) Windowed 1024x640 no antialiasing
-_summary: Execute a TessMark-based tessellation test in windowed mode at 1024x640 with no antialiasing.
+_summary: Run TessMark tessellation test at 1024x640 windowed without antialiasing.

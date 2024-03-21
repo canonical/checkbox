@@ -59,6 +59,7 @@ unit: template
 template-resource: rtc_list
 template-unit: job
 id: rtc/rtc_alarm_{rtc}
+template-id: rtc/rtc_alarm_rtc
 _summary: Check that RTC alarm of {rtc} works
 plugin: shell
 user: root
@@ -77,6 +78,7 @@ unit: template
 template-resource: rtc_list
 template-unit: job
 id: rtc/rtc_clock_{rtc}
+template-id: rtc/rtc_clock_rtc
 _summary: Check that {rtc} clock is synchronized with system clock
 plugin: shell
 user: root

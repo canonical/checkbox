@@ -16,6 +16,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_scanning_{{ interface }}
+template-id: wireless/wireless_scanning_interface
 user: root
 _summary: Test system can discover Wi-Fi networks on {{ interface }}
 command:
@@ -39,6 +40,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_bg_nm_{{ interface }}
+template-id: wireless/wireless_connection_wpa_bg_nm_interface
 _summary: Connect to WPA-encrypted 802.11b/g Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11b/g AP with wpa security
@@ -62,6 +64,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_bg_nm_{{ interface }}
+template-id: wireless/wireless_connection_open_bg_nm_interface
 _summary: Connect to unencrypted 802.11b/g Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to insecure 802.11b/g AP
@@ -85,6 +88,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_n_nm_{{ interface }}
+template-id: wireless/wireless_connection_wpa_n_nm_interface
 _summary: Connect to WPA-encrypted 802.11n Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11n AP with wpa security
@@ -108,6 +112,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_n_nm_{{ interface }}
+template-id: wireless/wireless_connection_open_n_nm_interface
 _summary: Connect to unencrypted 802.11n Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to insecure 802.11n AP
@@ -131,6 +136,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_ac_nm_{{ interface }}
+template-id: wireless/wireless_connection_wpa_ac_nm_interface
 _summary: Connect to WPA-encrypted 802.11ac Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11ac AP with wpa security
@@ -155,6 +161,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_ac_nm_{{ interface }}
+template-id: wireless/wireless_connection_open_ac_nm_interface
 _summary: Connect to unencrypted 802.11ac Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to insecure 802.11ac AP
@@ -179,6 +186,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_ax_nm_{{ interface }}
+template-id: wireless/wireless_connection_wpa_ax_nm_interface
 _summary: Connect to WPA-encrypted 802.11ax Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11ax AP with wpa security
@@ -203,6 +211,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa3_ax_nm_{{ interface }}
+template-id: wireless/wireless_connection_wpa3_ax_nm_interface
 _summary: Connect to WPA3-encrypted 802.11ax Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11ax AP with wpa3 security
@@ -227,6 +236,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_ax_nm_{{ interface }}
+template-id: wireless/wireless_connection_open_ax_nm_interface
 _summary: Connect to unencrypted 802.11ax Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to insecure 802.11ax AP
@@ -554,6 +564,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 id: wireless/nm_connection_save_{interface}
+template-id: wireless/nm_connection_save_interface
 category_id: com.canonical.plainbox::wireless
 _summary: Save any NetworkManager 802.11 configurations prior to testing
 plugin: shell
@@ -567,6 +578,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 id: wireless/nm_connection_restore_{interface}
+template-id: wireless/nm_connection_restore_interface
 category_id: com.canonical.plainbox::wireless
 _summary: Restore any NetworkManager 802.11 configurations after testing
 plugin: shell
@@ -581,6 +593,7 @@ unit: template
 template-resource: device
 template-filter: device.driver == 'iwlwifi'
 id: wireless/check_iwlwifi_microcode_crash_{interface}
+template-id: wireless/check_iwlwifi_microcode_crash_interface
 _summary: Check there have been no iwlwifi crashes
 plugin: shell
 command: check-iwlwifi-microcode-sw-error.sh

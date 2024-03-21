@@ -248,6 +248,7 @@ template-filter: device.category == 'BLUETOOTH'
 template-engine: jinja2
 template-unit: job
 id: bluetooth4/beacon_notification_{{ path }}
+template-id: bluetooth4/beacon_notification_path
 _summary: Test system can get beacon notifications on the {{ path.split('/')[-1] }} adapter
 environ: ADV_SVC_UUID SVC_UUID MSRMT_UUID
 command:
@@ -267,6 +268,7 @@ template-resource: device
 template-filter: device.category == 'BLUETOOTH'
 template-unit: job
 id: bluetooth4/beacon_eddystone_url_{interface}
+template-id: bluetooth4/beacon_eddystone_url_interface
 _summary: Test system can get beacon EddyStone URL advertisements on the {interface} adapter
 command:
  checkbox-support-eddystone_scanner -D {interface}
@@ -280,6 +282,7 @@ unit: template
 template-resource: bluez-internal-rfcomm-tests
 template-unit: job
 id: bluetooth/bluez-internal-rfcomm-tests_{bluez-internal-rfcomm-test}
+template-id: bluetooth/bluez-internal-rfcomm-tests_bluez-internal-rfcomm-test
 category_id: bluetooth_bluez5_selftests
 _summary: BlueZ-{bluez-internal-rfcomm-test}
 _description:
@@ -296,6 +299,7 @@ unit: template
 template-resource: bluez-internal-hci-tests
 template-unit: job
 id: bluetooth/bluez-internal-hci-tests_{bluez-internal-hci-test}
+template-id: bluetooth/bluez-internal-hci-tests_bluez-internal-hci-test
 category_id: bluetooth_bluez5_selftests
 _summary: BlueZ-{bluez-internal-hci-test}
 _description:
@@ -312,6 +316,7 @@ unit: template
 template-resource: bluez-internal-mgmt-tests
 template-unit: job
 id: bluetooth/bluez-internal-mgmt-tests_{bluez-internal-mgmt-test}
+template-id: bluetooth/bluez-internal-mgmt-tests_bluez-internal-mgmt-test
 category_id: bluetooth_bluez5_selftests
 _summary: BlueZ-{bluez-internal-mgmt-test}
 _description:
@@ -328,6 +333,7 @@ unit: template
 template-resource: bluez-internal-uc-tests
 template-unit: job
 id: bluetooth/bluez-internal-uc-tests_{bluez-internal-uc-test}
+template-id: bluetooth/bluez-internal-uc-tests_bluez-internal-uc-test
 category_id: bluetooth_bluez5_selftests
 _summary: BlueZ-{bluez-internal-uc-test}
 _description:
@@ -344,6 +350,7 @@ unit: template
 template-resource: bluez-internal-bnep-tests
 template-unit: job
 id: bluetooth/bluez-internal-bnep-tests_{bluez-internal-bnep-test}
+template-id: bluetooth/bluez-internal-bnep-tests_bluez-internal-bnep-test
 category_id: bluetooth_bluez5_selftests
 _summary: BlueZ-{bluez-internal-bnep-test}
 _description:

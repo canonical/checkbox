@@ -11,6 +11,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/snap-refresh-{type}-{name}-to-stable-rev
+template-id: snapd/snap-refresh-type-name-to-stable-rev
 _summary: Refresh {name} snap to latest revision in stable channel
 _description:
  This test is currently for SUV process, the snap to be tested is on the beta
@@ -35,6 +36,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/reboot-after-snap-refresh-{type}-{name}-to-stable-rev
+template-id: snapd/reboot-after-snap-refresh-type-name-to-stable-rev
 _summary: Reboot after {name} snap refresh to latest revision in stable channel
 plugin: shell
 flags: noreturn autorestart
@@ -51,6 +53,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/snap-verify-after-refresh-{type}-{name}-to-stable-rev
+template-id: snapd/snap-verify-after-refresh-type-name-to-stable-rev
 _summary: Verify {name} snap revision after refreshing to latest revision in stable channel
 plugin: shell
 estimated_duration: 30s
@@ -65,6 +68,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/snap-revert-{type}-{name}-from-stable-rev
+template-id: snapd/snap-revert-type-name-from-stable-rev
 _summary: Revert {name} snap to original revision from stable channel
 plugin: shell
 estimated_duration: 3m
@@ -79,6 +83,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/reboot-after-snap-revert-{type}-{name}-from-stable-rev
+template-id: snapd/reboot-after-snap-revert-type-name-from-stable-rev
 _summary: Reboot after {name} snap reverting to latest revision in stable channel
 plugin: shell
 flags: noreturn autorestart
@@ -95,6 +100,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/snap-verify-after-revert-{type}-{name}-from-stable-rev
+template-id: snapd/snap-verify-after-revert-type-name-from-stable-rev
 _summary: Verify {name} snap revision after reverting from stable revision
 plugin: shell
 estimated_duration: 3s
@@ -109,6 +115,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/snap-refresh-{type}-{name}-to-base-rev
+template-id: snapd/snap-refresh-type-name-to-base-rev
 _summary: Refresh {name} snap to its base revision
 _description:
  This test is currently for SUV process, the snap to be tested is on the beta
@@ -136,6 +143,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/reboot-after-snap-refresh-{type}-{name}-to-base-rev
+template-id: snapd/reboot-after-snap-refresh-type-name-to-base-rev
 _summary: Reboot after {name} snap refresh to base revision
 plugin: shell
 flags: noreturn autorestart
@@ -152,6 +160,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/snap-verify-after-refresh-{type}-{name}-to-base-rev
+template-id: snapd/snap-verify-after-refresh-type-name-to-base-rev
 _summary: Verify {name} snap revision after refreshing to base revision
 plugin: shell
 estimated_duration: 30s
@@ -166,6 +175,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/snap-revert-{type}-{name}-from-base-rev
+template-id: snapd/snap-revert-type-name-from-base-rev
 _summary: Revert {name} snap from base revision to original revision
 plugin: shell
 estimated_duration: 3m
@@ -180,6 +190,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/reboot-after-snap-revert-{type}-{name}-from-base-rev
+template-id: snapd/reboot-after-snap-revert-type-name-from-base-rev
 _summary: Reboot after {name} snap revert to base revision
 plugin: shell
 flags: noreturn autorestart
@@ -196,6 +207,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/snap-verify-after-revert-{type}-{name}-from-base-rev
+template-id: snapd/snap-verify-after-revert-type-name-from-base-rev
 _summary: Verify {name} snap revision after reverting from base revision
 plugin: shell
 estimated_duration: 3s

@@ -4,6 +4,7 @@ template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD' or 
 plugin: manual
 category_id: com.canonical.plainbox::input
 id: input/pointing_{product_slug}_{category}_{__index__}
+template-id: input/pointing_product_slug_category___index__
 flags: also-after-suspend
 estimated_duration: 30.0
 _summary: Check pointing functionality for {product}
@@ -67,6 +68,7 @@ template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD'
 plugin: manual
 category_id: com.canonical.plainbox::input
 id: input/clicking_{product_slug}_{category}_{__index__}
+template-id: input/clicking_product_slug_category___index__
 estimated_duration: 30.0
 _summary: Check button functionality for {product}
 _purpose:
@@ -86,6 +88,7 @@ plugin: shell
 category_id: com.canonical.plainbox::input
 estimated_duration: 2
 id: input/fixed_screen_orientation_on_{product}_{__index__}
+template-id: input/fixed_screen_orientation_on_product___index__
 flags: also-after-suspend
 user: root
 requires:

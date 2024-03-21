@@ -3,6 +3,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_a_no_sta_{interface}_manual
+template-id: wireless/wifi_ap_open_a_no_sta_interface_manual
 category_id: wifi_ap
 _summary: Create open 802.11a Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
@@ -32,6 +33,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_a_no_sta_{interface}_auto
+template-id: wireless/wifi_ap_open_a_no_sta_interface_auto
 category_id: wifi_ap
 _summary: Create open 802.11a Wi-Fi AP on {interface} with no STA
 plugin: shell
@@ -74,6 +76,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_b_no_sta_{interface}_manual
+template-id: wireless/wifi_ap_open_b_no_sta_interface_manual
 category_id: wifi_ap
 _summary: Create open 802.11b Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
@@ -103,6 +106,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_b_no_sta_{interface}_auto
+template-id: wireless/wifi_ap_open_b_no_sta_interface_auto
 category_id: wifi_ap
 _summary: Create open 802.11b Wi-Fi AP on {interface} with no STA
 plugin: shell
@@ -145,6 +149,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_g_no_sta_{interface}_manual
+template-id: wireless/wifi_ap_open_g_no_sta_interface_manual
 category_id: wifi_ap
 _summary: Create open 802.11g Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
@@ -174,6 +179,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_g_no_sta_{interface}_auto
+template-id: wireless/wifi_ap_open_g_no_sta_interface_auto
 category_id: wifi_ap
 _summary: Create open 802.11g Wi-Fi AP on {interface} with no STA
 plugin: shell
@@ -216,6 +222,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_ad_no_sta_{interface}_manual
+template-id: wireless/wifi_ap_open_ad_no_sta_interface_manual
 category_id: wifi_ap
 _summary: Create open 802.11ad Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
@@ -245,6 +252,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_open_ad_no_sta_{interface}_auto
+template-id: wireless/wifi_ap_open_ad_no_sta_interface_auto
 category_id: wifi_ap
 _summary: Create open 802.11ad Wi-Fi AP on {interface} with no STA
 plugin: shell
@@ -287,6 +295,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_a_no_sta_{interface}_manual
+template-id: wireless/wifi_ap_wpa_a_no_sta_interface_manual
 category_id: wifi_ap
 _summary: Create WPA2 802.11a Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
@@ -317,6 +326,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_a_no_sta_{interface}_auto
+template-id: wireless/wifi_ap_wpa_a_no_sta_interface_auto
 category_id: wifi_ap
 _summary: Create WPA2 802.11a Wi-Fi AP on {interface} with no STA
 plugin: shell
@@ -360,6 +370,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_b_no_sta_{interface}_manual
+template-id: wireless/wifi_ap_wpa_b_no_sta_interface_manual
 category_id: wifi_ap
 _summary: Create WPA2 802.11b Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
@@ -390,6 +401,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_b_no_sta_{interface}_auto
+template-id: wireless/wifi_ap_wpa_b_no_sta_interface_auto
 category_id: wifi_ap
 _summary: Create WPA2 802.11b Wi-Fi AP on {interface} with no STA
 plugin: shell
@@ -433,6 +445,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_g_no_sta_{interface}_manual
+template-id: wireless/wifi_ap_wpa_g_no_sta_interface_manual
 category_id: wifi_ap
 _summary: Create WPA2 802.11g Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
@@ -463,6 +476,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_g_no_sta_{interface}_auto
+template-id: wireless/wifi_ap_wpa_g_no_sta_interface_auto
 category_id: wifi_ap
 _summary: Create WPA2 802.11g Wi-Fi AP on {interface} with no STA
 plugin: shell
@@ -506,6 +520,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_ad_no_sta_{interface}_manual
+template-id: wireless/wifi_ap_wpa_ad_no_sta_interface_manual
 category_id: wifi_ap
 _summary: Create WPA2 802.11ad Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
@@ -536,6 +551,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_ad_no_sta_{interface}_auto
+template-id: wireless/wifi_ap_wpa_ad_no_sta_interface_auto
 category_id: wifi_ap
 _summary: Create WPA2 802.11ad Wi-Fi AP on {interface} with no STA
 plugin: shell
@@ -579,6 +595,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_a_with_sta_{interface}
+template-id: wireless/wifi_ap_wpa_a_with_sta_interface
 category_id: wifi_ap
 _summary: Create WPA2 802.11a Wi-Fi AP on {interface} with active STA (Manual)
 plugin: user-interact-verify
@@ -617,6 +634,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_a_with_sta_{interface}_auto
+template-id: wireless/wifi_ap_wpa_a_with_sta_interface_auto
 category_id: wifi_ap
 _summary: Create WPA2 802.11a Wi-Fi Access Point on {interface} with active STA
 plugin: shell
@@ -665,6 +683,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_b_with_sta_{interface}
+template-id: wireless/wifi_ap_wpa_b_with_sta_interface
 category_id: wifi_ap
 _summary: Create WPA2 802.11b Wi-Fi AP on {interface} with active STA (Manual)
 plugin: user-interact-verify
@@ -703,6 +722,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_b_with_sta_{interface}_auto
+template-id: wireless/wifi_ap_wpa_b_with_sta_interface_auto
 category_id: wifi_ap
 _summary: Create WPA2 802.11b Wi-Fi Access Point on {interface} with active STA
 plugin: shell
@@ -751,6 +771,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_g_with_sta_{interface}
+template-id: wireless/wifi_ap_wpa_g_with_sta_interface
 category_id: wifi_ap
 _summary: Create WPA2 802.11g Wi-Fi AP on {interface} with active STA (Manual)
 plugin: user-interact-verify
@@ -789,6 +810,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_g_with_sta_{interface}_auto
+template-id: wireless/wifi_ap_wpa_g_with_sta_interface_auto
 category_id: wifi_ap
 _summary: Create WPA2 802.11g Wi-Fi Access Point on {interface} with active STA
 plugin: shell
@@ -837,6 +859,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_ad_with_sta_{interface}
+template-id: wireless/wifi_ap_wpa_ad_with_sta_interface
 category_id: wifi_ap
 _summary: Create WPA2 802.11ad Wi-Fi AP on {interface} with active STA (Manual)
 plugin: user-interact-verify
@@ -875,6 +898,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_wpa_ad_with_sta_{interface}_auto
+template-id: wireless/wifi_ap_wpa_ad_with_sta_interface_auto
 category_id: wifi_ap
 _summary: Create WPA2 802.11ad Wi-Fi Access Point on {interface} with active STA
 plugin: shell
@@ -923,6 +947,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_setup_wizard_{interface}_auto
+template-id: wireless/wifi_ap_setup_wizard_interface_auto
 category_id: wifi_ap
 _summary: Create Access Point on {interface} using wifi-ap.setup-wizard
 plugin: shell
@@ -954,6 +979,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_across_reboot_{interface}_setup
+template-id: wireless/wifi_ap_across_reboot_interface_setup
 category_id: wifi_ap
 _summary: Create WPA2 802.11g Wi-Fi AP on {interface} and reboot (setup part)
 plugin: shell
@@ -986,6 +1012,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_across_reboot_{interface}_setup_manual
+template-id: wireless/wifi_ap_across_reboot_interface_setup_manual
 category_id: wifi_ap
 _summary: Create WPA2 AP on {interface} and reboot (setup part, manual resume)
 plugin: user-interact-verify
@@ -1020,6 +1047,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_across_reboot_{interface}_check
+template-id: wireless/wifi_ap_across_reboot_interface_check
 category_id: wifi_ap
 _summary: Create WPA2 802.11g Wi-Fi AP on {interface} and reboot (after reboot part)
 plugin: shell
@@ -1052,6 +1080,7 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wifi_ap_across_reboot_{interface}_check_manual
+template-id: wireless/wifi_ap_across_reboot_interface_check_manual
 category_id: wifi_ap
 _summary: Create WPA2 AP on {interface} (after reboot part, manual resume)
 plugin: shell

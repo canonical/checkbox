@@ -56,6 +56,7 @@ template-filter: lsb.distributor_id == 'Ubuntu Core'
 template-engine: jinja2
 template-unit: job
 id: ubuntucore/os-fail-boot-{{description}}
+template-id: ubuntucore/os-fail-boot-description
 _summary: Automatically rollback after failed boot after upgrade
 _purpose:
  Check system will rollback to original core snap if failed to boot the updated one
@@ -89,6 +90,7 @@ template-filter: lsb.distributor_id == 'Ubuntu Core'
 template-engine: jinja2
 template-unit: job
 id: ubuntucore/os-fail-boot-with-refresh-control-{{description}}
+template-id: ubuntucore/os-fail-boot-with-refresh-control-description
 _summary: Automatically rollback after failed boot after upgrade
 _purpose:
  Check system will rollback to original core snap if failed to boot the updated one
@@ -135,6 +137,7 @@ template-resource: model_assertion
 template-unit: job
 plugin: manual
 id: ubuntucore/kernel-failboot-{kernel}
+template-id: ubuntucore/kernel-failboot-kernel
 _summary: Reboot with failboot kernel to verify system rollback function
 _purpose:
  Check if system will rollback to previous(functional) kernel

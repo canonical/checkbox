@@ -85,6 +85,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'SOCKETCAN'
 id: socketcan/send_packet_local_sff_{interface}
+template-id: socketcan/send_packet_local_sff_interface
 _summary: CAN device support test {interface} (Raw, Local)
 _description:
   Test a CAN device by sending packets using a raw socket, this is only a
@@ -110,6 +111,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'SOCKETCAN'
 id: socketcan/send_packet_local_eff_{interface}
+template-id: socketcan/send_packet_local_eff_interface
 _summary: CAN device support test {interface} (Raw, Local, EFF)
 _description:
   Test a CAN device by sending packets using a raw socket, this is only a
@@ -135,6 +137,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'SOCKETCAN'
 id: socketcan/send_packet_local_fd_{interface}
+template-id: socketcan/send_packet_local_fd_interface
 _summary: CAN device support test {interface} (Raw, Local, FD)
 _description:
   Test a CAN device by sending packets using a raw socket, this is only a
@@ -161,6 +164,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'SOCKETCAN'
 id: socketcan/send_packet_remote_sff_{interface}
+template-id: socketcan/send_packet_remote_sff_interface
 _summary: CAN device support test {interface} (Raw, Remote)
 _description:
   Test a CAN device by sending packets using a raw socket to a remote device.
@@ -189,6 +193,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'SOCKETCAN'
 id: socketcan/send_packet_remote_eff_{interface}
+template-id: socketcan/send_packet_remote_eff_interface
 _summary: CAN device support test {interface} (Raw, Remote, EFF)
 _description:
   Test a CAN device by sending packets using a raw socket to a remote device.
@@ -217,6 +222,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'SOCKETCAN'
 id: socketcan/send_packet_remote_fd_{interface}
+template-id: socketcan/send_packet_remote_fd_interface
 _summary: CAN device support test {interface} (Raw, Remote, FD)
 _description:
   Test a CAN device by sending packets using a raw socket to a remote device.

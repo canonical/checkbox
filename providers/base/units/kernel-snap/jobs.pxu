@@ -18,6 +18,7 @@ unit: template
 template-resource: bootloader
 template-filter: bootloader.booted_kernel_path != 'unknown'
 id: kernel-snap/booted-kernel-matches-current-{name}
+template-id: kernel-snap/booted-kernel-matches-current-name
 category_id: kernel-snap
 _summary: The booted kernel image matches image in current kernel snap
 _description:
@@ -38,6 +39,7 @@ unit: template
 template-resource: bootloader
 template-filter: bootloader.name == 'uboot'
 id: kernel-snap/booted-dtbs-match-current-{name}
+template-id: kernel-snap/booted-dtbs-match-current-name
 requires:
   lsb.description == 'Ubuntu Core 18'
   snap.name == 'snapd' and int(snap.revision) >= 11841

@@ -67,6 +67,7 @@ template-filter: device.category == 'NETWORK'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::mobilebroadband
 id: mobilebroadband/maximum_bandwidth_gsm_device{__index__}_{interface}
+template-id: mobilebroadband/maximum_bandwidth_gsm_device__index___interface
 depends: mobilebroadband/gsm_connection
 estimated_duration: 330.0
 requires:
@@ -90,6 +91,7 @@ template-filter: device.category == 'NETWORK'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::mobilebroadband
 id: mobilebroadband/maximum_bandwidth_cdma_device{__index__}_{interface}
+template-id: mobilebroadband/maximum_bandwidth_cdma_device__index___interface
 depends: mobilebroadband/cdma_connection
 estimated_duration: 330.0
 requires:

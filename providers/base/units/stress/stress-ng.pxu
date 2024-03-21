@@ -15,6 +15,7 @@ unit: template
 template-resource: stress-ng-stressors
 template-unit: job
 id: stress/stress-ng-test-for-stressor-{stressor}
+template-id: stress/stress-ng-test-for-stressor-stressor
 category_id: stress-tests
 _summary: Run the stress-ng for stressor {stressor}
 _description:

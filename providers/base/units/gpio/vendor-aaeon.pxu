@@ -4,6 +4,7 @@ template-resource: dmi
 template-filter: dmi.category == 'SYSTEM' and dmi.vendor == 'AAEON' and dmi.product in ('UPX-TGL01', 'UPN-EHL01')
 template-unit: job
 id: gpio/sysfs_loopback_pairs_{vendor}_{product}
+template-id: gpio/sysfs_loopback_pairs_vendor_product
 _summary: Test GPIO lines exposed on headers can be controlled via sysfs
 plugin: shell
 user: root

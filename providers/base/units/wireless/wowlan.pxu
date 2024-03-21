@@ -2,6 +2,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.mac != 'UNKNOWN'
 id: wireless/wowlan_S5_{interface}_wakeonlan
+template-id: wireless/wowlan_S5_interface_wakeonlan
 _summary: Wake on Wireless LAN (WoWLAN) test from S5 - {interface} - wakeonlan
 _purpose:
  Check that another system can wake up from S5 the SUT using WoWLAN function.
@@ -29,6 +30,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.mac != 'UNKNOWN'
 id: wireless/wowlan_S5_{interface}_etherwake
+template-id: wireless/wowlan_S5_interface_etherwake
 _summary: Wake on Wireless LAN (WoWLAN) test from S5 - {interface} - etherwake
 _purpose:
  Check that another system can wake up from S5 the SUT using WoWLAN function.
@@ -56,6 +58,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.mac != 'UNKNOWN'
 id: wireless/wowlan_S4_{interface}_wakeonlan
+template-id: wireless/wowlan_S4_interface_wakeonlan
 _summary: Wake on Wireless LAN (WoWLAN) test from S4 - {interface} - wakeonlan
 _purpose:
  Check that another system can wake up from S4 the SUT using WoWLAN function.
@@ -84,6 +87,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.mac != 'UNKNOWN'
 id: wireless/wowlan_S4_{interface}_etherwake
+template-id: wireless/wowlan_S4_interface_etherwake
 _summary: Wake on Wireless LAN (WoWLAN) test from S4 - {interface} - etherwake
 _purpose:
  Check that another system can wake up from S4 the SUT using WoWLAN function.
@@ -112,6 +116,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.mac != 'UNKNOWN'
 id: wireless/wowlan_S3_{interface}_wakeonlan
+template-id: wireless/wowlan_S3_interface_wakeonlan
 _summary: Wake on Wireless LAN (WoWLAN) test from S3 - {interface} - wakeonlan
 _purpose:
  Check that another system can wake up from S3 the SUT using WoWLAN function.
@@ -140,6 +145,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.mac != 'UNKNOWN'
 id: wireless/wowlan_S3_{interface}_etherwake
+template-id: wireless/wowlan_S3_interface_etherwake
 _summary: Wake on Wireless LAN (WoWLAN) test from S3 - {interface} - etherwake
 _purpose:
  Check that another system can wake up from S3 the SUT using WoWLAN function.

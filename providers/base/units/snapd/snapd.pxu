@@ -257,6 +257,7 @@ unit: template
 template-resource: com.canonical.certification::model_assertion
 template-unit: job
 id: snappy/test-store-config-{store}
+template-id: snappy/test-store-config-store
 _summary: Test that image is using the correct snappy store configuration.
 _purpose:
  The image can be tied to using a particular store for the OEM. This

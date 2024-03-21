@@ -195,6 +195,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'CDROM'
 id: optical_drive_{name}
+template-id: optical_drive_name
 plugin: resource
 category_id: information_gathering
 command: optical_resource.py /dev/{name}

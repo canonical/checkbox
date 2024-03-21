@@ -29,6 +29,7 @@ template-unit: job
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::camera
 id: camera/display_{name}
+template-id: camera/display_name
 flags: also-after-suspend
 _summary: Webcam video display test for {product_slug}
 estimated_duration: 120.0
@@ -50,6 +51,7 @@ template-unit: job
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::camera
 id: camera/led_{name}
+template-id: camera/led_name
 _summary: Webcam LED test for {product_slug}
 estimated_duration: 120.0
 depends: camera/detect
@@ -72,6 +74,7 @@ template-unit: job
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::camera
 id: camera/still_{name}
+template-id: camera/still_name
 flags: also-after-suspend
 _summary: Webcam still image capture test for {product_slug}
 estimated_duration: 120.0
@@ -93,6 +96,7 @@ template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::camera
 id: camera/multiple-resolution-images_{name}
+template-id: camera/multiple-resolution-images_name
 flags: also-after-suspend
 _summary: Webcam multiple resolution capture test for {product_slug}
 estimated_duration: 1.2
@@ -110,6 +114,7 @@ template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::camera
 id: camera/camera-quality_{name}
+template-id: camera/camera-quality_name
 flags: also-after-suspend
 _summary: Webcam brisque score for {product_slug}
 estimated_duration: 20s
@@ -145,6 +150,7 @@ template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::camera
 id: camera/multiple-resolution-images-rpi_{name}
+template-id: camera/multiple-resolution-images-rpi_name
 _summary: Webcam multiple resolution capture test for Pi Camera
 estimated_duration: 16.0
 depends: camera/detect-rpi
@@ -164,6 +170,7 @@ template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::camera
 id: camera/roundtrip-qrcode_{{ name }}
+template-id: camera/roundtrip-qrcode_name
 _summary: Test video output and camera {{ name }} by displaying and reading a qrcode
 estimated_duration: 5.0
 depends:

@@ -156,6 +156,7 @@ template-unit: job
 requires:
  executable.name == 'dumpimage' or executable.name == 'mokutil'
 id: miscellanea/secure_boot_mode_{gadget}
+template-id: miscellanea/secure_boot_mode_gadget
 _summary: Test that {gadget} Ubuntu Core system booted with Secure Boot active
 _description:
  Test to verify that the system booted with Secure Boot active.
@@ -284,6 +285,7 @@ template-filter: device.category == 'NETWORK'
 plugin: manual
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/pxe_boot_device{__index__}_{interface}
+template-id: miscellanea/pxe_boot_device__index___interface
 _summary: PXE verification test of device {__index__} ({interface})
 estimated_duration: 30.0
 _purpose:
@@ -302,6 +304,7 @@ template-filter: device.category == 'NETWORK'
 plugin: manual
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/remote_shared_ipmi_device{__index__}_{interface}
+template-id: miscellanea/remote_shared_ipmi_device__index___interface
 _summary: Remote Shared IPMI verification test for device {__index__} ({interface})
 estimated_duration: 30.0
 _purpose:

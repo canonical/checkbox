@@ -483,6 +483,7 @@ template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::power-management
 id: power-management/tickless_idle_{kernel}
+template-id: power-management/tickless_idle_kernel
 estimated_duration: 1.0
 requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'pSeries')
 _description: Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple regression check)

@@ -230,6 +230,7 @@ template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::touchpad
 id: touchpad/palm-rejection-firmware-labeling_{product_slug}
+template-id: touchpad/palm-rejection-firmware-labeling_product_slug
 flags: also-after-suspend
 estimated_duration: 5.0
 imports: from com.canonical.plainbox import manifest

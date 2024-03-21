@@ -56,6 +56,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/run_{arch}
+template-id: docker/run_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -67,6 +68,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/interative_{arch}
+template-id: docker/interative_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -78,6 +80,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/diff_{arch}
+template-id: docker/diff_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -93,6 +96,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/copy_{arch}
+template-id: docker/copy_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -112,6 +116,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/inspect_{arch}
+template-id: docker/inspect_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -130,6 +135,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/kill_{arch}
+template-id: docker/kill_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -147,6 +153,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/start-stop_{arch}
+template-id: docker/start-stop_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -166,6 +173,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/build-single_{arch}
+template-id: docker/build-single_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -188,6 +196,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/export-and-import_{arch}
+template-id: docker/export-and-import_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -207,6 +216,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/commit_{arch}
+template-id: docker/commit_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -226,6 +236,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/save-and-load_{arch}
+template-id: docker/save-and-load_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -242,6 +253,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/compose-single_{arch}
+template-id: docker/compose-single_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -268,6 +280,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/compose-and-basic_{arch}
+template-id: docker/compose-and-basic_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -309,6 +322,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/deploy-registry_{arch}
+template-id: docker/deploy-registry_arch
 user: root
 category_id: docker
 requires:
@@ -339,6 +353,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/restart-on-failure_{arch}
+template-id: docker/restart-on-failure_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -366,6 +381,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/restart-always_{arch}
+template-id: docker/restart-always_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -391,6 +407,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/update_{arch}
+template-id: docker/update_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -410,6 +427,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/compose-restart_{arch}
+template-id: docker/compose-restart_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'
@@ -438,6 +456,7 @@ unit: template
 template-resource: docker_resource
 template-unit: job
 id: docker/edgex_compose_{arch}
+template-id: docker/edgex_compose_arch
 user: root
 category_id: docker
 requires: executable.name == 'docker'

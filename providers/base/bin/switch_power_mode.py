@@ -7,54 +7,61 @@
 
 """ Switching the power mode to check if the power mode can be switched. """
 from pathlib import Path
-import sys
 import subprocess
+import contextlib
+
+
+def get_sysfs_content(path):
+    """
+    Reads the content of a sysfs file.
+    Args:
+        path (pathlib.Path): Path to the sysfs file.
+    Raises:
+        SystemExit: If the file could not be read.
+    """
+    with open(path, "rt", encoding="utf-8") as stream:
+        content = stream.read().strip()
+    if not content:
+        raise SystemExit("Failed to read sysfs file: {}".format(path))
+    return content
+
+
+def set_power_profile(profile):
+    """
+    Sets the power profile to the specified value.
+    Args:
+        profile (str): The power profile to set (e.g., "power-saver").
+    Raises:
+        SystemExit: If the power profile could not be set.
+    """
+    profile = "power-saver" if profile == "low-power" else profile
+    try:
+        subprocess.check_call(["powerprofilesctl", "set", profile])
+    except subprocess.CalledProcessError as e:
+        raise SystemExit(f"Failed to set power mode to {profile}.") from e
 
 
 def main():
-    """ main function to switch the power mode. """
+    """main function to switch the power mode."""
     sysfs_root = Path("/sys/firmware/acpi/")
     choices_path = sysfs_root / "platform_profile_choices"
     profile_path = sysfs_root / "platform_profile"
 
-    return_value = 0
+    # use a context manager to ensure the original power mode is restored
+    with contextlib.ExitStack() as stack:
+        # Read the current power mode from /sys/firmware/acpi/platform_profile
+        old_profile = get_sysfs_content(profile_path)
+        stack.callback(set_power_profile, old_profile)
 
-    try:
-        result = subprocess.check_output(["powerprofilesctl", "get"], text=True)
-        old_profile = result.strip().split()[0]
-    except subprocess.CalledProcessError as err:
-        raise SystemExit("Failed to get the current power mode.".format(err))
+        choices = get_sysfs_content(choices_path).split()
 
-    # Read the power mode from /sys/firmware/acpi/platform_profile_choices
-    with open(choices_path, "rt", encoding="utf-8") as stream:
-        choices = stream.read().strip().split()
-        if not choices:
-            raise SystemExit("No power mode to switch.")
-
-    print('Power mode choices: {}'.format(choices))
-    # Switch the power mode with powerprofilesctl
-    for choice in choices:
-        # Convert the power mode, e.g. low-power = power-saver,
-        # balanced and performance keep the same.
-        if choice == "low-power":
-            value = "power-saver"
-        else:
-            value = choice
-
-        subprocess.check_call(["powerprofilesctl", "set", value])
-
-        with open(profile_path, "rt", encoding="utf-8") as stream:
-            current_profile = stream.read().strip().split()
-        if current_profile[0] == choice:
-            print("Switch to {} successfully.".format(value))
-        else:
-            print("Failed to switch to {}.".format(value))
-            return_value = 1
-
-    # Switch back to the original power mode
-    subprocess.check_call(["powerprofilesctl", "set", old_profile])
-
-    sys.exit(return_value)
+        print("Power mode choices: {}".format(choices))
+        for choice in choices:
+            set_power_profile(choice)
+            if get_sysfs_content(profile_path) == choice:
+                print("Switch to {} successfully.".format(choice))
+            else:
+                raise SystemExit("Failed to switch power mode to {}".format(choice))
 
 
 if __name__ == "__main__":

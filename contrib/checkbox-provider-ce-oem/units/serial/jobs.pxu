@@ -25,8 +25,8 @@ template-id: ce-oem-serial/serial-console-tests
 id: ce-oem-serial/serial-console-{{ type }}-{{ node }}-{{ baudrate }}
 imports: from com.canonical.plainbox import manifest
 requires: 
-    manifest.has_serial_console_loopback == True
-template-summary: To check if the serial ports can work as a console
+    manifest.has_serial_console_loopback == 'True'
+_template-summary: To check if the serial ports can work as a console
 _summary: To check if the serial port {{ type }} ({{ node }}) can work as a console
 _purpose: 
     To check the serial port {{ type }} ({{ node }}) can work as a console.
@@ -68,9 +68,9 @@ template-id: ce-oem-serial/serial-transmit-data-tests
 id: ce-oem-serial/serial-transmit-data-{{ type }}-{{ node }}-{{ baudrate }}
 imports: from com.canonical.plainbox import manifest
 requires: 
-    manifest.has_serial_ehco_server == True
-template-summary:
-    Transmit data via {{ type }} ({{ node }}) with baudate {{ baudrate }}
+    manifest.has_serial_ehco_server == 'True'
+_template-summary:
+    Transmit data via serial ports
 _purpose: 
     To check the serial port {{ type }} ({{ node }}) can transmit
     data with baudate {{ baudrate }}

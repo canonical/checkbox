@@ -19,6 +19,8 @@ import serial.rs485
 import time
 import logging
 import os
+import random
+import string
 
 
 def init_logger():
@@ -61,8 +63,8 @@ class Serial:
         bytesize: int = serial.EIGHTBITS,
         parity: str = serial.PARITY_NONE,
         stopbits: int = serial.STOPBITS_ONE,
-        timeout: int = 1,
-        data_size: int = 128,
+        timeout: int = 3,
+        data_size: int = 1024,
     ) -> None:
         self.node = node
         self.type = type
@@ -113,6 +115,12 @@ class Serial:
         return rcv
 
 
+def generate_random_string(length):
+    """Generate random ascii string"""
+    letters = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choice(letters) for _ in range(length))
+
+
 def server_mode(ser: Serial) -> None:
     """
     Running as a server, it will be sniffing for received string.
@@ -131,7 +139,7 @@ def server_mode(ser: Serial) -> None:
             logging.info("Listening on port {} ...".format(ser.node))
 
 
-def client_mode(ser: Serial, data_size: int = 128):
+def client_mode(ser: Serial, data_size: int = 1024):
     """
     Running as a clinet and it will sending out a string and wait
     the string send back from server. After receive the string,
@@ -140,14 +148,14 @@ def client_mode(ser: Serial, data_size: int = 128):
     running on port /dev/ttymxc1 as a client
     $ sudo ./serial_test.py /dev/ttymxc1 --mode client --type RS485
     """
-    data = os.urandom(data_size)
-    ser.send(data)
+    random_string = generate_random_string(data_size)
+    ser.send(random_string.encode())
     for i in range(1, 6):
         logging.info("Attempting receive string... {} time".format(i))
         readback = ser.recv()
         time.sleep(3)
         if readback:
-            if readback == data:
+            if readback.decode() == random_string:
                 logging.info("[PASS] Received string is correct!")
                 raise SystemExit(0)
             else:
@@ -239,13 +247,13 @@ def main():
         "--datasize",
         type=int,
         help="Data size to send and receive",
-        default=128,
+        default=1024,
     )
     parser.add_argument(
         "--timeout",
         type=int,
         help="Timeout to receive",
-        default=1,
+        default=3,
     )
     args = parser.parse_args()
     init_logger()

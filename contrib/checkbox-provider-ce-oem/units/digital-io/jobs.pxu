@@ -21,6 +21,7 @@ command:
 unit: template
 template-resource: ce-oem-digital-io/loopback_mapping_gpio
 template-unit: job
+template-summary: Loopback tests for the DO{DO}-DI{DI} pin control by GPIO
 id: ce-oem-digital-io/loopback_gpio_DO{DO}-DI{DI}
 _summary: To test loopback between DO{DO} and DI{DI}
 plugin: shell
@@ -60,6 +61,7 @@ command:
 unit: template
 template-resource: ce-oem-digital-io/loopback_mapping_serial
 template-unit: job
+template-summary: Loopback tests for the DO{DO}-DI{DI} pin control by serial console
 id: ce-oem-digital-io/loopback_serial_DO{DO}-DI{DI}
 _summary: To test loopback between DO{DO} and DI{DI}
 _description:

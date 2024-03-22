@@ -1,23 +1,23 @@
-name: Test provider-genio (from contrib area) with tox
+name: Test provider-genio with tox
 
 on:
   push:
     branches: [ main ]
     paths:
-      - contrib/genio/**
+      - providers/genio/**
   pull_request:
     branches: [ main ]
     paths:
-      - contrib/genio/**
+      - providers/genio/**
   workflow_dispatch:
 
 jobs:
   tox_test_genio_provider:
     continue-on-error: true
-    name: Test Genio provider (from contrib area) with tox
+    name: Test Genio provider with tox
     defaults:
       run:
-        working-directory: contrib/genio
+        working-directory: providers/genio
     runs-on: ubuntu-20.04
     strategy:
       matrix:
@@ -45,4 +45,4 @@ jobs:
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          flags: provider-base
+          flags: provider-genio

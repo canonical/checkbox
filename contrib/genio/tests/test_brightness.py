@@ -86,6 +86,7 @@ class TestBrightness(unittest.TestCase):
     @patch("brightness_test.glob")
     def test_get_interfaces_from_path(self, mock_glob, mock_isdir):
         mock_brightness = MagicMock()
+        mock_brightness.sysfs_path = "/sys/class/backlight"
         mock_isdir.return_value = True
         mock_glob.return_value = ["/sys/class/backlight/interface1"]
         self.assertEqual(

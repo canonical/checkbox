@@ -63,7 +63,7 @@ class TestGpioLoopback(unittest.TestCase):
             "\n# Start GPIO loopback test",
         ]
 
-        actual_calls = [call.args[0] for call in mock_print.call_args_list]
+        actual_calls = [call[0][0] for call in mock_print.call_args_list]
 
         self.assertEqual(actual_calls, print_calls)
 

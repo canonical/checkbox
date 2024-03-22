@@ -31,7 +31,7 @@ get_current_setting() {
         for i in {0..2}
         do
             # shellcheck disable=SC2027
-            echo "- /sys/class/thermal/thermal_zone0/trip_point_"$i"_temp"
+            echo "- /sys/class/thermal/thermal_zone0/trip_point_""$i""_temp"
             cat /sys/class/thermal/thermal_zone0/trip_point_"$i"_temp
         done
     elif [ "${1}" == "G350" ]; then

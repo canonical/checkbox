@@ -4,7 +4,7 @@ import os
 from argparse import ArgumentParser, RawTextHelpFormatter
 
 
-class GPIOSysFsController():
+class GPIOSysFsController:
 
     TEST_STATES = (0, 1)
     ROOT_PATH = "/sys/class/gpio"
@@ -13,32 +13,31 @@ class GPIOSysFsController():
         pass
 
     def get_gpio_base_number(self):
-        """ Get the base number of GPIO chip
-        """
+        """Get the base number of GPIO chip"""
         print("Get GPIO Chips info")
         with open("/sys/kernel/debug/gpio", "r") as fp:
             value = fp.read().strip()
             print(value)
-            gpiochips = [i for i in value.split('\n') if 'gpiochip' in i]
+            gpiochips = [i for i in value.split("\n") if "gpiochip" in i]
             gpiochip_base_number_dict = {}
             for gc in gpiochips:
-                gc_splits = gc.split(' ')
-                gpiochip = gc_splits[0].replace(':', '')
-                base_number = gc_splits[2].split('-')[0]
+                gc_splits = gc.split(" ")
+                gpiochip = gc_splits[0].replace(":", "")
+                base_number = gc_splits[2].split("-")[0]
                 gpiochip_base_number_dict.update({gpiochip: base_number})
 
-            print('\n\nGPIO chip base number mapping:')
+            print("\n\nGPIO chip base number mapping:")
             print(gpiochip_base_number_dict)
             return gpiochip_base_number_dict
 
     def run_test(
-            self,
-            output_gpio_chip_number,
-            input_gpio_chip_number,
-            physical_output_port,
-            physical_input_port,
-            gpio_output_pin,
-            gpio_input_pin
+        self,
+        output_gpio_chip_number,
+        input_gpio_chip_number,
+        physical_output_port,
+        physical_input_port,
+        gpio_output_pin,
+        gpio_input_pin,
     ):
         """Launch GPIO test
 
@@ -65,21 +64,35 @@ class GPIOSysFsController():
         """
         base_number_mapping = self.get_gpio_base_number()
         output_base_number = int(
-            base_number_mapping['gpiochip{}'.format(output_gpio_chip_number)])
+            base_number_mapping["gpiochip{}".format(output_gpio_chip_number)]
+        )
         input_base_number = int(
-            base_number_mapping['gpiochip{}'.format(input_gpio_chip_number)])
+            base_number_mapping["gpiochip{}".format(input_gpio_chip_number)]
+        )
         output_pin_number = output_base_number + int(gpio_output_pin)
         input_pin_number = input_base_number + int(gpio_input_pin)
         print("\nOutput Base Number: {}".format(output_base_number))
         print("Input Base Number: {}".format(input_base_number))
-        print("Physical output port: {}, GPIO number: {}".format(
-            physical_output_port, gpio_output_pin))
-        print("Physical input port: {}, GPIO number {}".format(
-            physical_input_port, gpio_input_pin))
-        print("Output Pin Number: {} + Base Number = {}".format(
-            gpio_output_pin, output_pin_number))
-        print("Input Pin Number: {} + Base Number = {}".format(
-            gpio_input_pin, input_pin_number))
+        print(
+            "Physical output port: {}, GPIO number: {}".format(
+                physical_output_port, gpio_output_pin
+            )
+        )
+        print(
+            "Physical input port: {}, GPIO number {}".format(
+                physical_input_port, gpio_input_pin
+            )
+        )
+        print(
+            "Output Pin Number: {} + Base Number = {}".format(
+                gpio_output_pin, output_pin_number
+            )
+        )
+        print(
+            "Input Pin Number: {} + Base Number = {}".format(
+                gpio_input_pin, input_pin_number
+            )
+        )
         print("\n# Start GPIO loopback test")
         if not self.loopback_test(output_pin_number, input_pin_number):
             raise SystemExit("Failed: GPIO loopback test failed")
@@ -126,8 +139,7 @@ class GPIOSysFsController():
         """
         print("# Set GPIO {} direction to {}".format(port, value))
         with open(
-            "{}/gpio{}/direction".format(self.ROOT_PATH, port),
-            "w"
+            "{}/gpio{}/direction".format(self.ROOT_PATH, port), "w"
         ) as fp:
             fp.write("{}\n".format(value))
 
@@ -154,8 +166,10 @@ class GPIOSysFsController():
             self.set_direction(port, direction)
         except Exception as err:
             raise IOError(
-                "{} \nError: Failed to configure GPIO {} to {}".format
-                (err, port, direction))
+                "{} \nError: Failed to configure GPIO {} to {}".format(
+                    err, port, direction
+                )
+            )
 
     def loopback_test(self, out_port, in_port):
         """Launch GPIO loopback test
@@ -174,8 +188,11 @@ class GPIOSysFsController():
         for state in self.TEST_STATES:
             print("Try to send and receive {}".format(state))
             value = self.read_gpio(in_port)
-            print("The initial input GPIO {}'s value is {}".format(
-                in_port, value))
+            print(
+                "The initial input GPIO {}'s value is {}".format(
+                    in_port, value
+                )
+            )
 
             self.set_gpio(out_port, state)
             time.sleep(1)
@@ -186,8 +203,10 @@ class GPIOSysFsController():
                 result = False
             else:
                 str_match = "match"
-            print("# Digital state {}. expected: {} real: {}\n".format(
-                str_match, state, real_state)
+            print(
+                "# Digital state {}. expected: {} real: {}\n".format(
+                    str_match, state, real_state
+                )
             )
         return result
 
@@ -195,42 +214,48 @@ class GPIOSysFsController():
 def main():
     parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
     parser.add_argument(
-        "-oc", "--output_gpio_chip_number",
+        "-oc",
+        "--output_gpio_chip_number",
         help="Provide the target gpio chip number for output.",
-        default=0
+        default=0,
     )
     parser.add_argument(
-        "-ic", "--input_gpio_chip_number",
+        "-ic",
+        "--input_gpio_chip_number",
         help="Provide the target gpio chip number for input.",
-        default=0
+        default=0,
     )
     parser.add_argument(
-        "-po", "--physical_output_port",
+        "-po",
+        "--physical_output_port",
         help=(
             "Provide the physical output port number/name."
             " It's used to provide a human readable content only"
-        )
+        ),
     )
     parser.add_argument(
-        "-pi", "--physical_input_port",
+        "-pi",
+        "--physical_input_port",
         help=(
             "Provide the physical input port number/name."
             " It's used to provide a human readable content only"
-        )
+        ),
     )
     parser.add_argument(
-        "-go", "--gpio_output_pin",
+        "-go",
+        "--gpio_output_pin",
         help=(
             "Provide the output gpio pin number. You can get this information"
             " from Schematic or User Guide of the DUT"
-        )
+        ),
     )
     parser.add_argument(
-        "-gi", "--gpio_input_pin",
+        "-gi",
+        "--gpio_input_pin",
         help=(
             "Provide the output gpio pin number. You can get this information"
             " from Schematic or User Guide of the DUT"
-        )
+        ),
     )
     args = parser.parse_args()
 
@@ -241,7 +266,7 @@ def main():
         args.physical_output_port,
         args.physical_input_port,
         args.gpio_output_pin,
-        args.gpio_input_pin
+        args.gpio_input_pin,
     )
 
 

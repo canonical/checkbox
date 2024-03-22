@@ -1,3 +1,4 @@
+import subprocess
 import unittest
 from unittest.mock import patch, MagicMock
 import boot_partition as bp
@@ -15,7 +16,14 @@ class TestBootPartition(unittest.TestCase):
         )
         result = bp.runcmd("echo Hello")
 
-        mock_run.assert_called_once()
+        mock_run.assert_called_once_with(
+            "echo Hello",
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            timeout=1,
+        )
         self.assertEqual(result.stdout, "output")
         self.assertEqual(result.stderr, "error")
         self.assertEqual(result.returncode, 0)
@@ -35,8 +43,8 @@ class TestBootPartition(unittest.TestCase):
     @patch("boot_partition.TestPartedBootDevice.check_partitions")
     def test_check_disk(self, mock_cp, mock_css):
         self.pbd.check_disk()
-        self.pbd.check_sector_size.assert_called_once()
-        self.pbd.check_partitions.assert_called_once()
+        self.pbd.check_sector_size.assert_called_once_with()
+        self.pbd.check_partitions.assert_called_once_with()
 
     @patch("boot_partition.runcmd")
     def test_get_disk_information(self, mock_runcmd):
@@ -172,9 +180,9 @@ class TestBootPartition(unittest.TestCase):
         with patch("sys.argv", args):
             self.pbd.main()
         mock_check_dev.assert_not_called()
-        mock_is_block.assert_called_once()
-        mock_get_disk.assert_called_once()
-        mock_check_disk.assert_called_once()
+        mock_is_block.assert_called_once_with()
+        mock_get_disk.assert_called_once_with()
+        mock_check_disk.assert_called_once_with()
 
     @patch("boot_partition.TestPartedBootDevice.check_device")
     @patch("boot_partition.TestPartedBootDevice.check_is_block_device")
@@ -183,7 +191,7 @@ class TestBootPartition(unittest.TestCase):
         args = ["script_name", "--check_device_name"]
         with patch("sys.argv", args):
             self.pbd.main()
-        mock_check_dev.assert_called_once()
+        mock_check_dev.assert_called_once_with(False)
         mock_is_block.assert_not_called()
 
     @patch("boot_partition.TestPartedBootDevice.check_device")

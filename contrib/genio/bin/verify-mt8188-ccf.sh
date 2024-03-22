@@ -98,7 +98,7 @@ if [ "${NR_MISSING_CLKS}" -ne "0" ]; then
 	printf "[-] Missing clocks: \n"
 	cat missing-clocks.txt
 
-	printf "\n[-] Count missing clocks: "${NR_MISSING_CLKS}"\n"
+	printf "\n[-] Count missing clocks: %s\n" "${NR_MISSING_CLKS}"
 else
 	printf "[-] Success, all clocks are mapped !\n"
 fi

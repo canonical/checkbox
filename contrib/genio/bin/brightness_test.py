@@ -42,12 +42,12 @@ from glob import glob
 
 
 class Brightness(object):
-    def __init__(self, path='/sys/class/backlight'):
+    def __init__(self, path="/sys/class/backlight"):
         self.sysfs_path = path
         self.interfaces = self._get_interfaces_from_path()
 
     def read_value(self, path):
-        '''Read the value from a file'''
+        """Read the value from a file"""
         # See if the source is a file or a file object
         # and act accordingly
         file = path
@@ -55,25 +55,25 @@ class Brightness(object):
             lines_list = []
         else:
             # It's a file
-            if not hasattr(file, 'write'):
-                myfile = open(file, 'r')
+            if not hasattr(file, "write"):
+                myfile = open(file, "r")
                 lines_list = myfile.readlines()
                 myfile.close()
             # It's a file object
             else:
                 lines_list = file.readlines()
 
-        return int(''.join(lines_list).strip())
+        return int("".join(lines_list).strip())
 
     def write_value(self, value, path, test=None):
-        '''Write a value to a file'''
-        value = '%d' % value
+        """Write a value to a file"""
+        value = "%d" % value
         # It's a file
-        if not hasattr(path, 'write'):
+        if not hasattr(path, "write"):
             if test:
-                path = open(path, 'a')
+                path = open(path, "a")
             else:
-                path = open(path, 'w')
+                path = open(path, "w")
             path.write(value)
             path.close()
         # It's a file object
@@ -81,39 +81,42 @@ class Brightness(object):
             path.write(value)
 
     def get_max_brightness(self, path):
-        full_path = os.path.join(path, 'max_brightness')
+        full_path = os.path.join(path, "max_brightness")
 
         return self.read_value(full_path)
 
     def get_actual_brightness(self, path):
-        full_path = os.path.join(path, 'actual_brightness')
+        full_path = os.path.join(path, "actual_brightness")
 
         return self.read_value(full_path)
 
     def get_last_set_brightness(self, path):
-        full_path = os.path.join(path, 'brightness')
+        full_path = os.path.join(path, "brightness")
 
         return self.read_value(full_path)
 
     def _get_interfaces_from_path(self):
-        '''check all the files in a directory looking for quirks'''
+        """check all the files in a directory looking for quirks"""
         interfaces = []
         if os.path.isdir(self.sysfs_path):
-            for d in glob(os.path.join(self.sysfs_path, '*')):
+            for d in glob(os.path.join(self.sysfs_path, "*")):
                 if os.path.isdir(d):
                     interfaces.append(d)
 
         return interfaces
 
     def was_brightness_applied(self, interface):
-        '''See if the selected brightness was applied
+        """See if the selected brightness was applied
 
         Note: this doesn't guarantee that screen brightness
               changed.
-        '''
+        """
         if (
-            abs(self.get_actual_brightness(interface) -
-                self.get_last_set_brightness(interface)) > 1
+            abs(
+                self.get_actual_brightness(interface)
+                - self.get_last_set_brightness(interface)
+            )
+            > 1
         ):
             return 1
         else:
@@ -126,25 +129,28 @@ class Brightness(object):
 
         exit_status = 0
         find_target_display = False
-        print(f'Available Interfaces: {self.interfaces}')
+        print("Available Interfaces: {}".format(self.interfaces))
         for interface in self.interfaces:
             if target_interface in interface:
                 find_target_display = True
                 # Get the current brightness which we can restore later
                 original_brightness = self.get_actual_brightness(interface)
-                print(f'Current brightness: {original_brightness}')
+                print("Current brightness: {}".format(original_brightness))
 
                 # Get the maximum value for brightness
                 max_brightness = self.get_max_brightness(interface)
-                print(f'Maximum brightness: {max_brightness}\n')
+                print("Maximum brightness: {}\n".format(max_brightness))
 
                 for m in [0, 0.25, 0.5, 0.75, 1]:
                     # Set the brightness to half the max value
                     current_brightness = math.ceil(max_brightness * m)
-                    print(f'Set the brightness as {current_brightness}')
+                    print(
+                        "Set the brightness as {}".format(current_brightness)
+                    )
                     self.write_value(
                         current_brightness,
-                        os.path.join(interface, 'brightness'))
+                        os.path.join(interface, "brightness"),
+                    )
 
                     # Check that "actual_brightness" reports the same value we
                     # set "brightness" to
@@ -155,18 +161,18 @@ class Brightness(object):
 
                 # Set the brightness back to its original value
                 self.write_value(
-                    original_brightness,
-                    os.path.join(interface, 'brightness'))
+                    original_brightness, os.path.join(interface, "brightness")
+                )
                 print(
-                    'Set brightness back to original value:'
-                    f'{original_brightness}'
+                    "Set brightness back to original value:"
+                    "{}".format(original_brightness)
                 )
                 # Close the loop since the target display has been tested
                 break
 
         if not find_target_display:
             raise SystemExit(
-                f"ERROR: no {target_interface} interface be found"
+                "ERROR: no {} interface be found".format(target_interface)
             )
         if exit_status:
             raise SystemExit(exit_status)
@@ -175,14 +181,16 @@ class Brightness(object):
 def main():
     parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
     parser.add_argument(
-        "-p", "--platform",
+        "-p",
+        "--platform",
         help="Genio device platform type.",
-        choices=["G1200-evk", "G700", "G350"]
+        choices=["G1200-evk", "G700", "G350"],
     )
     parser.add_argument(
-        "-d", "--display",
+        "-d",
+        "--display",
         choices=["dsi", "edp", "lvds"],
-        help="The type of built-in display"
+        help="The type of built-in display",
     )
 
     args = parser.parse_args()
@@ -204,23 +212,23 @@ def main():
 
     # Make sure that we have root privileges
     if os.geteuid() != 0:
-        print('Error: please run this program as root',
-              file=sys.stderr)
+        print("Error: please run this program as root", file=sys.stderr)
         exit(1)
 
-    print(f"Test the brightness of '{args.display}' display")
+    print("Test the brightness of '{}' display".format(args.display))
 
-    target_interface = ''
+    target_interface = ""
     try:
         target_interface = tables[args.platform][args.display]
-        print(f"Interface: {target_interface}\n")
+        print("Interface: {}\n".format(target_interface))
     except KeyError:
         raise SystemExit(
-            f"ERROR: no suitable interface of {args.display} display")
+            "ERROR: no suitable interface of {} display".format(args.display)
+        )
 
     brightness = Brightness()
     brightness.brightness_test(target_interface)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

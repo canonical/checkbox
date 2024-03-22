@@ -34,13 +34,19 @@ def test_linux_ccf(soc):
         print("mt8365 is not supported")
         exit(1)
 
-    clk_summary_path = f"{PLAINBOX_SESSION_SHARE}/clk-summary.txt"
+    clk_summary_path = "{}/clk-summary.txt".format(PLAINBOX_SESSION_SHARE)
     cat_ret = runcmd(
-        [f"cat /sys/kernel/debug/clk/clk_summary | tee {clk_summary_path}"]
+        [
+            "cat /sys/kernel/debug/clk/clk_summary "
+            "| tee {}".format(clk_summary_path)
+        ]
     )
 
     if cat_ret.returncode:
-        print(f"Failed: unable to dump clk_summary data to {clk_summary_path}")
+        print(
+            "Failed: unable to dump clk_summary data "
+            "to {}".format(clk_summary_path)
+        )
         exit(1)
     print("Dump /sys/kernel/debug/clk/clk_summary:")
     print(cat_ret.stdout)
@@ -49,9 +55,9 @@ def test_linux_ccf(soc):
         verify_ret = runcmd(
             [
                 (
-                    f"verify-mt8188-ccf.sh"
-                    f" -t {PLAINBOX_PROVIDER_DATA}/linux-ccf/mt8188-clk.h"
-                    f" -s {clk_summary_path}"
+                    "verify-mt8188-ccf.sh"
+                    " -t {}/linux-ccf/mt8188-clk.h"
+                    " -s {}".format(PLAINBOX_PROVIDER_DATA, clk_summary_path)
                 )
             ]
         )
@@ -59,21 +65,21 @@ def test_linux_ccf(soc):
         verify_ret = runcmd(
             [
                 (
-                    f"verify-mt8195-ccf.sh"
-                    f" -t {PLAINBOX_PROVIDER_DATA}/linux-ccf/mt8195-clk.h"
-                    f" -s {clk_summary_path}"
+                    "verify-mt8195-ccf.sh"
+                    " -t {}/linux-ccf/mt8195-clk.h"
+                    " -s {}".format(PLAINBOX_PROVIDER_DATA, clk_summary_path)
                 )
             ]
         )
 
     if verify_ret.returncode:
-        print(f"Failed: {verify_ret.stdout}")
+        print("Failed: {}".format(verify_ret.stdout))
         exit(1)
     if (
         verify_ret.stdout.split("\n")[0]
         != "[-] Success, all clocks are mapped !"
     ):
-        print(f"Wrong output: {verify_ret.stdout}")
+        print("Wrong output: {}".format(verify_ret.stdout))
         exit(1)
 
     print("Test Pass")

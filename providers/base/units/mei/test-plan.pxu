@@ -1,0 +1,24 @@
+id: mei-full
+_name: Intel Management Engine Interface tests
+unit: test plan
+include:
+nested_part:
+    mei-manual
+    mei-automated
+
+
+id: mei-manual
+_name: Intel Management Engine Interface tests (manual)
+unit: test plan
+include:
+bootstrap_include:
+
+
+id: mei-automated
+_name: Intel Management Engine Interface tests (automated)
+unit: test plan
+include:
+    mei/check-module
+    mei/check-device
+    mei/get-firmware-version
+bootstrap_include:

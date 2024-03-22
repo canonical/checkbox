@@ -23,9 +23,11 @@
 """
 import itertools
 import logging
+import string
 
 from plainbox.i18n import gettext as _
 from plainbox.i18n import gettext_noop as N_
+from plainbox.impl.decorators import instance_method_lru_cache
 from plainbox.impl.resource import ExpressionFailedError
 from plainbox.impl.resource import Resource
 from plainbox.impl.resource import ResourceProgram
@@ -35,11 +37,13 @@ from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import all_units
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit import get_accessed_parameters
-from plainbox.impl.unit.unit import Unit
-from plainbox.impl.unit.unit import UnitValidator
+from plainbox.impl.unit.unit_with_id import UnitWithId
+from plainbox.impl.unit.unit_with_id import UnitWithIdValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
+from plainbox.impl.unit.validators import PresentFieldValidator
 from plainbox.impl.unit.validators import ReferenceConstraint
 from plainbox.impl.unit.validators import UnitReferenceValidator
+from plainbox.impl.unit.validators import UniqueValueValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
@@ -50,7 +54,7 @@ __all__ = ['TemplateUnit']
 logger = logging.getLogger("plainbox.unit.template")
 
 
-class TemplateUnitValidator(UnitValidator):
+class TemplateUnitValidator(UnitWithIdValidator):
 
     """Validator for template unit."""
 
@@ -77,8 +81,28 @@ class TemplateUnitValidator(UnitValidator):
                 self.issue_list.append(issue)
                 yield issue
 
+    def explain(self, unit, field, kind, message):
+        """
+        Lookup an explanatory string for a given issue kind
 
-class TemplateUnit(Unit):
+        :returns:
+            A string (explanation) or None if the issue kind
+            is not known to this method.
+
+        This version overrides the base implementation to use the unit
+        template_id, if it is available, when reporting issues.
+        """
+        if unit.template_partial_id is None:
+            return super().explain(unit, field, kind, message)
+        stock_msg = self._explain_map.get(kind)
+        if stock_msg is None:
+            return None
+        return _("{unit} {id!a}, field {field!a}, {message}").format(
+            unit=unit.tr_unit(), id=unit.template_partial_id, field=str(field),
+            message=message or stock_msg)
+
+
+class TemplateUnit(UnitWithId):
 
     """
     Template that can instantiate zero or more additional units.
@@ -163,24 +187,20 @@ class TemplateUnit(Unit):
 
     def __str__(self):
         """String representation of Template unit objects."""
-        return "{} <~ {}".format(self.id, self.resource_id)
+        return "{} <~ {}".format(self.template_id, self.resource_id)
+
+    def __repr__(self):
+        return "<TemplateUnit template_id:{!r}>".format(
+            self.template_id)
 
     @property
-    def partial_id(self):
+    def unit(self):
         """
-        Identifier of this job, without the provider name.
+        The value of the unit field (overridden)
 
-        This field should not be used anymore, except for display
+        The return value is always "template"
         """
-        return self.get_record_value('id', '?')
-
-    @property
-    def id(self):
-        """Identifier of this template unit."""
-        if self.provider:
-            return "{}::{}".format(self.provider.namespace, self.partial_id)
-        else:
-            return self.partial_id
+        return "template"
 
     @property
     def resource_partial_id(self):
@@ -216,6 +236,44 @@ class TemplateUnit(Unit):
         else:
             return "{}::{}".format(resource_namespace, resource_partial_id)
 
+    @classmethod
+    def slugify_template_id(cls, _string=None):
+        """
+        Remove unwanted characters from a raw job id string.
+
+        This helps exposing cleaner looking template ids when the id is
+        generated from the id field by removing characters like '{', '}',
+        and ' '.
+        """
+        if _string:
+            valid_chars = frozenset(
+                "-_.:/\\{}{}".format(string.ascii_letters, string.digits)
+            )
+            return "".join(c if c in valid_chars else "" for c in _string)
+
+    @property
+    def template_partial_id(self):
+        """
+        Identifier of this template, without the provider namespace.
+
+        If the ``template-id`` field is not present in the unit definition,
+        ``template_partial_id`` is computed from the ``partial_id`` attribute.
+        """
+        template_partial_id = self.get_record_value("template-id")
+        if not template_partial_id:
+            template_partial_id = self.slugify_template_id(self.partial_id)
+        return template_partial_id
+
+    @property
+    def template_id(self):
+        """Identifier of this template, with the provider namespace."""
+        if self.provider and self.template_partial_id:
+            return "{}::{}".format(self.provider.namespace,
+                                   self.template_partial_id
+                                   )
+        else:
+            return self.template_partial_id
+
     @property
     def template_resource(self):
         """value of the 'template-resource' field."""
@@ -243,6 +301,40 @@ class TemplateUnit(Unit):
         to access resources from any namespace.
         """
         return self.get_record_value('template-imports')
+
+    @property
+    def template_summary(self):
+        """
+        Value of the 'template-summary' field.
+
+        This attribute stores the summary of a template, that is a human
+        readable name for that template.
+        """
+        return self.get_record_value("template-summary")
+
+    @instance_method_lru_cache(maxsize=None)
+    def tr_template_summary(self):
+        """
+        Get the translated version of :meth:`template_summary`.
+        """
+        return self.get_translated_record_value("template-summary")
+
+    @property
+    def template_description(self):
+        """
+        Value of the 'template-description' field.
+
+        This attribute stores the definition of a template which can be used
+        to provide more information about this template.
+        """
+        return self.get_record_value("template-description")
+
+    @instance_method_lru_cache(maxsize=None)
+    def tr_template_description(self):
+        """
+        Get the translated version of :meth:`template_description`.
+        """
+        return self.get_translated_record_value("template-description")
 
     @property
     def template_unit(self):
@@ -365,9 +457,11 @@ class TemplateUnit(Unit):
             key: value for key, value in self._raw_data.items()
             if not key.startswith('template-')
         }
-        # Only keep the template-engine field
+        # Only keep template-engine and template-id fields
         raw_data['template-engine'] = self.template_engine
         data['template-engine'] = raw_data['template-engine']
+        raw_data["template-id"] = self.template_id
+        data["template-id"] = raw_data["template-id"]
         # Override the value of the 'unit' field from 'template-unit' field
         data['unit'] = raw_data['unit'] = self.template_unit
         # XXX: extract raw dictionary from the resource object, there is no
@@ -436,6 +530,9 @@ class TemplateUnit(Unit):
 
             """Symbols for each field that a TemplateUnit can have."""
 
+            template_id = "template-id"
+            template_summary = "template-summary"
+            template_description = "template-description"
             template_unit = 'template-unit'
             template_resource = 'template-resource'
             template_filter = 'template-filter'
@@ -444,6 +541,34 @@ class TemplateUnit(Unit):
         validator_cls = TemplateUnitValidator
 
         field_validators = {
+            fields.template_id: [
+                concrete_validators.untranslatable,
+                concrete_validators.templateVariant,
+                UniqueValueValidator(),
+                # We want to have bare, namespace-less identifiers
+                CorrectFieldValueValidator(
+                    lambda value, unit: (
+                        "::" not in unit.get_record_value("template-id")),
+                    message=_("identifier cannot define a custom namespace"),
+                    onlyif=lambda unit: unit.get_record_value("template-id")),
+            ],
+            fields.template_summary: [
+                concrete_validators.translatable,
+                PresentFieldValidator(severity=Severity.advice),
+                CorrectFieldValueValidator(
+                    lambda field: field.count("\n") == 0,
+                    Problem.wrong, Severity.warning,
+                    message=_("please use only one line"),
+                    onlyif=lambda unit: unit.template_summary),
+                CorrectFieldValueValidator(
+                    lambda field: len(field) <= 80,
+                    Problem.wrong, Severity.warning,
+                    message=_("please stay under 80 characters"),
+                    onlyif=lambda unit: unit.template_summary)
+            ],
+            fields.template_description: [
+                concrete_validators.translatable,
+            ],
             fields.template_unit: [
                 concrete_validators.untranslatable,
             ],

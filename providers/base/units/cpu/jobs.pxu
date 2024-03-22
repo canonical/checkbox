@@ -56,7 +56,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::cpu
 id: after-suspend-cpu/scaling_test-log-attach
 estimated_duration: 1.0
-after: after-suspend-cpu/scaling_test
+depends: after-suspend-cpu/scaling_test
 command: [[ -e "${PLAINBOX_SESSION_SHARE}"/scaling_test_after_suspend.log ]] && cat "${PLAINBOX_SESSION_SHARE}"/scaling_test_after_suspend.log
 _summary:
  Attach CPU scaling capabilities log
@@ -116,7 +116,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::cpu
 id: after-suspend-cpu/maxfreq_test-log-attach
 estimated_duration: 1.0
-after: after-suspend-cpu/maxfreq_test
+depends: after-suspend-cpu/maxfreq_test
 command: [ -e "$PLAINBOX_SESSION_SHARE"/maxfreq_test.log ] && cat "$PLAINBOX_SESSION_SHARE"/maxfreq_test.log
 _summary:
  Attach CPU max frequency log
@@ -151,7 +151,7 @@ _description:
 plugin: shell
 category_id: com.canonical.plainbox::cpu
 id: cpu/topology
-flags: also-after-suspend-
+flags: also-after-suspend
 estimated_duration: 1.0
 requires: int(cpuinfo.count) > 1 and (cpuinfo.platform == 'i386' or cpuinfo.platform == 'x86_64')
 command: cpu_topology.py
@@ -176,7 +176,7 @@ template-filter: cpuinfo.platform == 'armv7l'
 template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::cpu
-id: cpu/arm_vfp_support_{platform}
+id: cpu/armhf_vfp_support_{platform}
 estimated_duration: 1.0
 user: root
 command:
@@ -192,7 +192,7 @@ template-filter: cpuinfo.platform == 'aarch64'
 template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::cpu
-id: cpu/arm_vfp_support_{platform}
+id: cpu/arm64_vfp_support_{platform}
 estimated_duration: 1.0
 user: root
 command:
@@ -209,6 +209,7 @@ requires:
  executable.name == 'fwts'
  cpuinfo.platform not in ("aarch64", "armv7l", "s390x")
 user: root
+category_id: com.canonical.plainbox::cpu
 _summary:
  Run C-States tests
 _description:
@@ -224,6 +225,7 @@ plugin:shell
 id: after-suspend-cpu/cstates
 depends: com.canonical.certification::suspend/suspend_advanced_auto
 estimated_duration: 10.0
+category_id: com.canonical.plainbox::cpu
 requires:
  executable.name == 'fwts'
  cpuinfo.platform not in ("aarch64", "armv7l", "s390x")

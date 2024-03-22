@@ -84,6 +84,9 @@ class InteractiveCommand:
             self._proc.stdin.flush()
         except BrokenPipeError:
             self._logger.warning("Broken pipe when sending to the process!")
+            if self._pending:
+                self._logger.warning(
+                    "The output before the pipe broke: %s", self.read_all())
             self._close_fds([self._proc.stdin])
             raise
         time.sleep(sleep)

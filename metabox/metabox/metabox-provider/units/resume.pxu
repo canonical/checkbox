@@ -1,20 +1,41 @@
-id: agent-crasher
-_summary: Crash the agent
-flags: simple
+id: checkbox-crasher
+unit: job
+_summary: Crash Checkbox
+plugin: shell
 user: root
 command:
- kill `ps aux|grep run-agent|grep -v 'grep'  | awk '{print $2}'`
+ PID=`pgrep -f checkbox-cli`
+ kill $PID
 
 id: reboot-emulator
+unit: job
 _summary: Emulate the reboot
 flags: simple noreturn
 user: root
 command:
- kill `ps aux|grep run-agent|grep -v 'grep'  | awk '{print $2}'`
+ PID=`pgrep -f checkbox-cli`
+ kill $PID
+
+id: pass-rerun
+unit: job
+_summary: Test that passes only at the second try
+flags: simple
+command:
+ [ -f $PLAINBOX_SESSION_SHARE/will_pass.txt ] && exit 0
+ echo "will pass next time" > $PLAINBOX_SESSION_SHARE/will_pass.txt
+ exit 1
 
 unit: test plan
-id: agent-resume-crash-then-reboot
-_name: Agent resume after crash then reboot
+id: checkbox-crash-then-reboot
+_name: Checkbox crash then reboot
 include:
- agent-crasher
+ checkbox-crasher
  reboot-emulator
+
+unit: test plan
+id: pass-only-rerun
+_name: Pass only on rerun
+_summary: Test that passes only at the secont try
+include:
+ pass-rerun
+ basic-shell-failing

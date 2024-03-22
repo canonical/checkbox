@@ -1,0 +1,124 @@
+id: genio-graphic/eglinfo
+category_id: genio-graphic
+plugin: shell
+imports: from com.canonical.certification import package
+requires:
+    package.name == "libmali-mtk-8188" or package.name == "libmali-mtk-8195" or package.name == "libmali-mtk-8365"
+flags: also-after-suspend
+environ: GENIO_GPU_DRIVER_VERSION
+command:
+    OUTPUT=$( mktemp )
+    EXIT=0
+    eglinfo | tee "$OUTPUT"
+    if grep -qw "eglInitialize failed" "$OUTPUT" ; then
+        echo "FAIL: found 'eglInitialize failed' error message"
+        EXIT=1
+    fi
+    if ! grep -qw "EGL client APIs: OpenGL_ES" "$OUTPUT" ; then
+        echo "FAIL: client API is not OpenGL_ES"
+        EXIT=1
+    fi
+    if ! grep -qw "$GENIO_GPU_DRIVER_VERSION" "$OUTPUT" ; then
+        echo "FAIL: version of GPU driver is not '$GENIO_GPU_DRIVER_VERSION'"
+        EXIT=1
+    fi
+    exit $EXIT
+_summary: Check if the EGL API works
+_description:
+    Mali Core should be able to manipulate EGL API.
+    The way to check it is using "eglinfo" command to get related infomation.
+
+id: genio-graphic/rendering-api-vulkan
+category_id: genio-graphic
+plugin: shell
+imports: from com.canonical.certification import package
+requires:
+    package.name == "libmali-mtk-8188" or package.name == "libmali-mtk-8195" or package.name == "libmali-mtk-8365"
+flags: also-after-suspend
+command:
+    OUTPUT=$( mktemp )
+    EXIT=0
+    VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/mali.json vulkaninfo | tee "$OUTPUT"
+    if ! grep -qw "$GENIO_GPU_DRIVER_VERSION" "$OUTPUT" ; then
+        echo "FAIL: version of GPU driver is not '$GENIO_GPU_DRIVER_VERSION'"
+        EXIT=1
+    fi
+    exit $EXIT
+_summary: Check if the Vulkan Rendring API works
+_description:
+    Mali Core should be able to manipulate Vulkan Rendering API.
+    The way to check it is using "vulkaninfo" command to get related infomation.
+
+id: genio-graphic/computation-api-opencl
+category_id: genio-graphic
+plugin: shell
+imports: from com.canonical.certification import package
+requires:
+    package.name == "libmali-mtk-8188" or package.name == "libmali-mtk-8195" or package.name == "libmali-mtk-8365"
+flags: also-after-suspend
+command:
+    OUTPUT=$( mktemp )
+    EXIT=0
+    clinfo | tee "$OUTPUT"
+    if ! grep -qw "$GENIO_GPU_DRIVER_VERSION" "$OUTPUT" ; then
+        echo "FAIL: version of GPU driver is not '$GENIO_GPU_DRIVER_VERSION'"
+        EXIT=1
+    fi
+    exit $EXIT
+_summary: Check if the OpenCL Rendring API works
+_description:
+    Mali Core should be able to manipulate OpenCL Computation API.
+    The way to check it is using "clinfo" command to get related infomation.
+
+id: genio-graphic/set-device-to-performance-mode
+plugin:shell
+category_id: genio-graphic
+flags: also-after-suspend
+estimated_duration: 3.0
+user: root
+environ: GENIO_DEVICE
+_summary:
+    Set device to performance mode before perfoming glmark2-es2-wayland benchmark
+command:
+    set_as_performance_mode.sh "$GENIO_DEVICE" set-to-performance
+
+id: genio-graphic/glmark2-es2-wayland
+plugin: shell
+category_id: genio-graphic
+flags: also-after-suspend
+depends: genio-graphic/set-device-to-performance-mode
+imports: from com.canonical.certification import executable
+requires: executable.name == "glmark2-es2-wayland"
+estimated_duration: 60
+environ: GENIO_GPU_DRIVER_VERSION
+_summary: Run OpenGL ES 2.0 Wayland benchmark on the video card
+_purpose:
+    To test if the score of OpenGL ES 2.0 Wayland benchmark meets the expectation.
+    The resolution of glmark2-es2-wayland is 1920x1080
+command:
+    set -e
+    output=$(glmark2-es2-wayland -s 1920x1080 --data-path $SNAP/usr/share/glmark2)
+    echo "$output"
+    if ! echo "$output" | grep "GL_VENDOR" | grep -q "ARM"; then
+        echo "FAIL: Wrong vendor!"
+        echo "The expected 'GL_VENDOR' is 'ARM'!"
+        exit 1
+    fi
+    if ! echo "$output" | grep "GL_VERSION" | grep -q "$GENIO_GPU_DRIVER_VERSION"; then
+        echo "FAIL: Wrong version!"
+        echo "The expected 'GL_VERSION' should include '$GENIO_GPU_DRIVER_VERSION'"
+        exit 1
+    fi
+
+id: genio-graphic/set-device-back-to-origianl-mode
+plugin:shell
+category_id: genio-graphic
+flags: also-after-suspend
+depends: genio-graphic/set-device-to-performance-mode
+estimated_duration: 3.0
+user: root
+environ: GENIO_DEVICE
+_summary:
+    Set device back to origianl mode
+command:
+    set_as_performance_mode.sh "$GENIO_DEVICE" reset

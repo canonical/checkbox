@@ -1,0 +1,68 @@
+
+id: mei/ensure-lms-installed
+_summary: Ensure the the LMS snap is installed
+category_id: mei
+requires:
+    snap.name == 'lms'
+flags: fail-on-resource simple
+command: true
+
+id: mei/ensure-lms-service-running
+_summary: Test that the LMS service is running
+category_id: mei
+depends: mei/ensure-lms-installed
+command:
+    snap services lms.lms
+flags: simple
+
+id: mei/get-lms-version
+_summary: Test the LMS version can be retrieved from LMS service
+category_id: mei
+depends: mei/ensure-lms-service-running
+command:
+    dbus-send --system --print-reply --dest=com.intel.amt.lms /com/intel/amt/lms com.intel.amt.lms.PTHI.GetLMSVersion
+flags: simple
+
+id: mei/get-amt-version
+_summary: Test the AMT version can be retrieved from LMS service
+category_id: mei
+depends: mei/ensure-lms-service-running
+command:
+    dbus-send --system --print-reply --dest=com.intel.amt.lms /com/intel/amt/lms com.intel.amt.lms.PTHI.GetAMTVersion
+flags: simple
+
+id: mei/check-device
+_summary: Detect if the Intel MEI device is available
+category_id: mei
+imports: from com.canonical.plainbox import manifest
+requires:
+    cpuinfo.platform in ("i386", "x86_64")
+    manifest.has_mei == 'True'
+plugin: shell
+flags: simple
+command:
+    ls /dev/mei* || (echo "No MEI device found"; exit 1)
+
+id: mei/check-module
+_summary: Detect if the Intel MEI kernel module is loaded
+category_id: mei
+imports: from com.canonical.plainbox import manifest
+requires:
+    cpuinfo.platform in ("i386", "x86_64")
+    manifest.has_mei == 'True'
+plugin: shell
+flags: simple
+command:
+    lsmod | grep mei || (echo "MEI kernel module not found"; exit 1)
+
+id: mei/get-firmware-version
+_summary: Retrieve MEI firmware version by MEI interface
+category_id: mei
+depends:
+    mei/check-module
+    mei/check-device
+user: root
+plugin: shell
+flags: simple
+command:
+    mei.py --get-version 2>&1 || (echo "Unable retrieve MEI firmware version"; exit 1)

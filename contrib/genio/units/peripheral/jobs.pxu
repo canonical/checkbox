@@ -1,0 +1,197 @@
+id: gpio_loopback_pin_mapping
+_summary: Generates a GPIO loopback pin mapping for GPIO loopback test
+_description:
+    A GPIO loopback pin mapping. By giving a pair of GPIO pin on machnie to generates test jobs.
+    Usage of parameter:
+        GPIO_LOOPBACK_PIN_MAPPING=output_gpio_chip_number:physical_output_port:gpio_output_pin:input_gpio_chip_number:physical_input_port:gpio_input_pin ...
+    e.g. GPIO_LOOPBACK_PIN_MAPPING=0:J1:21:0:J3:134 1:3:68:2:4:69
+estimated_duration: 0.02
+category_id: genio-peripheral
+plugin: resource
+environ: GPIO_LOOPBACK_PIN_MAPPING
+command:
+    awk '{
+        split($0, record, " ")
+        for (i in record) {
+            split(record[i], data, ":")
+            printf "OUTPUT_GPIO_CHIP_NUMBER: %s\nPHYSICAL_OUTPUT_PORT: %s\nGPIO_OUTPUT_PIN: %s\nINPUT_GPIO_CHIP_NUMBER: %s\nPHYSICAL_INPUT_PORT: %s\nGPIO_INPUT_PIN: %s\n", data[1], data[2], data[3], data[4], data[5], data[6]
+        }
+    }' <<< "$GPIO_LOOPBACK_PIN_MAPPING"
+
+id: genio-peripheral/gpio-loopback-on-phycial-output-{{PHYSICAL_OUTPUT_PORT}}-input-{{PHYSICAL_INPUT_PORT}}
+unit: template
+template-resource: gpio_loopback_pin_mapping
+template-unit: job
+template-engine: jinja2
+_summary: GPIO loopback test on physical port {{PHYSICAL_OUTPUT_PORT}} and {{PHYSICAL_INPUT_PORT}}
+_description:
+    GPIO loopback test between physical output port {{PHYSICAL_INPUT_PORT}}
+    and physical input port {{PHYSICAL_INPUT_PORT}} on outpu GPIO Chip gpiochip{{OUTPUT_GPIO_CHIP_NUMBER}} and input GPIO Chip gpiochip{{INPUT_GPIO_CHIP_NUMBER}}
+plugin: shell
+user: root
+category_id: genio-peripheral
+estimated_duration: 5s
+imports: from com.canonical.plainbox import manifest
+environ: GENIO_DEVICE
+requires:
+    manifest.has_genio_gpio_lookback == "True"
+    {%- if __checkbox_env__.get("GENIO_DEVICE") == "G1200-evk" %}
+    manifest.has_genio_g1200_j34_short == "False"
+    {%- endif %}
+flags: also-after-suspend
+command:
+    echo "## Perform the GPIO loopback test"
+    gpio_loopback_test.py -oc {{OUTPUT_GPIO_CHIP_NUMBER}} -ic {{INPUT_GPIO_CHIP_NUMBER}} -po {{PHYSICAL_OUTPUT_PORT}} -go {{GPIO_OUTPUT_PIN}} -pi {{PHYSICAL_INPUT_PORT}} -gi {{GPIO_INPUT_PIN}}
+
+id: genio-peripheral/spi-test
+template-engine: jinja2
+category_id: genio-peripheral
+estimated_duration: 2s
+plugin: shell
+flags: also-after-suspend
+user: root
+imports: from com.canonical.plainbox import manifest
+environ: GENIO_DEVICE
+requires:
+    manifest.has_genio_spi_lookback == "True"
+    {%- if __checkbox_env__.get("GENIO_DEVICE") == "G1200-evk" %}
+    manifest.has_genio_g1200_j34_short == "False"
+    {%- endif %}
+_summary: Test the SPI bus functionality on Raspberry Pi Hat
+_purpose:
+    Check the SPI devices exist and can be used via spidev_test tool
+_description:
+    This test will check whether the SPI devices path exists,
+    and send a test_string with spidev_test tool to check whether the
+    test_string will be received via the loopback function.
+    Please connect the SPI0_MO (Pin#19) & SPI0_MI (Pin#21) pins with
+    jumper or wire on Raspberry Pi Hat.
+command:
+    spidev_test.py "$GENIO_DEVICE"
+
+id: genio-peripheral/uart1-rpi-hat-loopback-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-filter: genio_device_soc.SoC == "mt8395"
+template-unit: job
+category_id: genio-peripheral
+estimated_duration: 2s
+plugin: shell
+flags: also-after-suspend
+user: root
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_genio_uart_lookback == "True"
+    manifest.has_genio_g1200_j34_short == "False"
+_summary: Test UART1 functionality on Raspberry Pi Hat
+_description:
+    This test will check the UART1 functionality on Raspberry Pi Hat by connecting UTXD (Pin#8) and URXD (Pin#10) with jumper or wire.
+    Please make sure there's no jumper or wire connected on J43 (not short)
+command:
+    serialcheck.py {SoC}
+
+id: genio-peripheral/uart1-j52-loopback-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-filter: genio_device_soc.SoC == "mt8395"
+template-unit: job
+category_id: genio-peripheral
+estimated_duration: 2s
+plugin: shell
+flags: also-after-suspend
+user: root
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_genio_g1200_j34_short == "True"
+    manifest.has_genio_g1200_j52_txd_rxd_connection == "True"
+_summary: Test UART1 functionality on J52
+_description:
+    This test will check the UART1 functionality on J52 by connecting TXD and RXD with jumper or wire.
+    Please make sure there's a jumper or wire connected on J43 (short)
+command:
+    serialcheck.py {SoC}
+
+id: genio-peripheral/uart1-micro-b-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-filter: genio_device_soc.SoC in ["mt8390", "mt8365"]
+template-unit: job
+category_id: genio-peripheral
+estimated_duration: 2s
+plugin: manual
+flags: also-after-suspend
+_summary: Test the functionality of UART1 port by sending and receiving data
+_purpose:
+    To test if the data can be received from Host to this DUT via Micro-B UART1 port.
+_steps:
+    1. Connect the DUT's micro-b UART1 to Host
+    2. On DUT, create a random data called binary which size is 4K for test
+      $ dd if=/dev/urandom of=binary count=1 bs=4096
+    3. Copy the random data to Host
+    4. On DUT, run the following command to be a receiver
+      $ serialcheck -d /dev/ttyS1 -f binary -m r -l 5 -b 921600
+    5. On Host, run the following command to be a sender
+      $ serialcheck -d /dev/ttyUSBx -f binary -m t -l 5 -b 921600
+        - Replace ttyUSBx with the proper usb port number according to the detected one (ttyUSB0, ttyUSB1, ttyUSB2, ...)
+    6. Repeat the step 4 and 5 with the available baud
+        - Available baud: 9600 115200 576000 921600
+_verification:
+    On DUT, the rx data amount should 20480 like the following sample.
+    `cts: 0 dsr: 0 rng: 0 dcd: 0 rx: 20480 tx: 0 frame 0 ovr 0 par: 0 brk: 0 buf_ovrr: 0`
+
+id: genio-peripheral/uart2-rpi-hat-loopback-{{SoC}}
+unit: template
+template-resource: genio_device_soc
+template-filter: genio_device_soc.SoC in ["mt8390", "mt8365"]
+template-unit: job
+template-engine: jinja2
+category_id: genio-peripheral
+estimated_duration: 2s
+plugin: shell
+flags: also-after-suspend
+user: root
+environ: GENIO_DEVICE
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_genio_uart_lookback == "True"
+    {%- if __checkbox_env__.get("GENIO_DEVICE") == "G700" %}
+    manifest.has_genio_g700_j4202_as_rpi_mode == "True" and manifest.has_genio_g700_j4203_as_rpi_mode == "True"
+    {%- endif %}
+_summary: Test UART2 functionality on RPI hat
+_description:
+    This test will check the UART1 functionality on RPI hat by connecting
+    {%- if __checkbox_env__.get("GENIO_DEVICE") == "G700" %} UTXD2 (Pin#8) and URXD2 (Pin#10){%- else %} TXD2 (Pin#8) and RXD2 (Pin#10){%- endif %} with jumper or wire.
+command:
+    serialcheck.py {{SoC}}
+
+id: genio-peripheral/uart2-micro-b-{SoC}
+unit: template
+template-resource: genio_device_soc
+template-filter: genio_device_soc.SoC == "mt8390"
+template-unit: job
+category_id: genio-peripheral
+estimated_duration: 2s
+plugin: manual
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+    manifest.has_genio_g700_j4202_as_rpi_mode == "False"
+    manifest.has_genio_g700_j4203_as_rpi_mode == "False"
+_summary: Test the functionality of Micro-B UART2 port by sending and receiving data
+_purpose:
+    To test if the data can be received from Host to this DUT via Micro-B UART2 port.
+_steps:
+    1. Connect the DUT's Micro-B UART2 to Host via Micro-B to USB cable
+    2. On DUT, create a random data called binary which size is 4K
+      $ dd if=/dev/urandom of=binary count=1 bs=4096
+    3. Copy the random data to Host
+    4. On DUT, run the following command to be a receiver
+      $ serialcheck -d /dev/ttyS1 -f binary -m r -l 5 -b 921600
+    5. On Host, run the following command to be a sender
+      $ serialcheck -d /dev/ttyUSBx -f binary -m t -l 5 -b 921600
+        - Replace ttyUSBx with the proper usb port number according to the detected one (ttyUSB0, ttyUSB1, ttyUSB2, ...)
+    6. Repeat the step 4 and 5 with the available baud
+        - Available baud: 9600 115200 576000 921600
+_verification:
+    On DUT, the rx data amount should 20480 like the following sample.
+    `cts: 0 dsr: 0 rng: 0 dcd: 0 rx: 20480 tx: 0 frame 0 ovr 0 par: 0 brk: 0 buf_ovrr: 0`

@@ -98,6 +98,7 @@ MD_DEVICE_RE = re.compile(r"MD_DEVICE_\w+_DEV")
 ROOT_MOUNTPOINT = re.compile(
     r'MOUNTPOINT=.*/(writable|hostfs|'
     r'ubuntu-seed|ubuntu-boot|ubuntu-save|data|boot)')
+CAMERA_RE = re.compile(r"Camera", re.I)
 
 
 def slugify(_string):
@@ -460,7 +461,16 @@ class UdevadmDevice(object):
                     return "CARDREADER"
                 if (self.vendor is not None and
                         GENERIC_RE.search(self.vendor) and
-                        not FLASH_DISK_RE.search(self.product)):
+                        self.product is not None and
+                        not FLASH_DISK_RE.search(self.product) and
+                        not CAMERA_RE.search(self.product)):
+                # The condition
+                #     not CAMERA_RE.search(self.product)
+                # is a fix for the bug LP: #2051091,
+                # the usb camera '5986:118c Acer, Inc Integrated Camera
+                # of the system,
+                # CID 202309-32040 Lenovo - ThinkPad P16s Gen 2 AMD
+                # Will be given the category attribut 'CARDREADER' by udev_resource
                     return "CARDREADER"
             # A rare gem, this driver reported by udev is actually an ID_MODEL:
             # E: DRIVER=Realtek PCIe card reader
@@ -1130,6 +1140,16 @@ class UdevadmParser(object):
         if '/dev/mapper' in device._environment.get('DEVLINKS', ''):
             if "ID_FS_USAGE" in device._environment:
                 if device._environment["ID_FS_USAGE"] != 'filesystem':
+                    return True
+                # Some of the MD devices are there only to host "service"
+                # partitions that should not be considered disks when running
+                # Checkbox. For more details see:
+                # https://github.com/canonical/checkbox/issues/980
+                # the following partition names, if found on the dm-* device
+                # will make the dm-* device not to be reported as a disk
+                IGNORED_PARTITIONS = [
+                    "ubuntu-save", "ubuntu-boot", "ubuntu-seed"]
+                if device._environment.get("ID_FS_LABEL") in IGNORED_PARTITIONS:
                     return True
             return False
 

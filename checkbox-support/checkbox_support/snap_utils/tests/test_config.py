@@ -85,17 +85,17 @@ class TestWriteCheckboxConf(unittest.TestCase):
         m = mock_open()
         with patch('builtins.open', m):
             write_checkbox_conf({'foo': 'bar'})
-        m().write.called_once_with('[environ]\n')
-        m().write.called_once_with('FOO = bar\n')
-        m().write.called_once_with('\n')
+        m().write.assert_any_call('[environment]\n')
+        m().write.assert_any_call('FOO = bar\n')
+        m().write.assert_any_call('\n')
         self.assertEqual(m().write.call_count, 3)
 
     def test_writes_empty(self):
         m = mock_open()
         with patch('builtins.open', m):
             write_checkbox_conf({})
-        m().write.called_once_with('[environ]\n')
-        m().write.called_once_with('\n')
+        m().write.assert_any_call('[environment]\n')
+        m().write.assert_any_call('\n')
         self.assertEqual(m().write.call_count, 2)
 
 
@@ -124,6 +124,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         self.assertFalse(mock_write.called)
         self.assertFalse(mock_run.called)
 
+    @patch.dict('os.environ', {'SNAP_DATA': 'SNAP_DATA_VALUE'})
     @patch('checkbox_support.snap_utils.config.get_configuration_set')
     @patch('subprocess.check_output')
     @patch('subprocess.run')
@@ -144,7 +145,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         m = mock_open()
         with patch('builtins.open', m):
             refresh_configuration()
-        m.assert_called_with("$SNAP_DATA/checkbox.conf", "wt")
+        m.assert_called_with("SNAP_DATA_VALUE/checkbox.conf", "wt")
         m.return_value.write.assert_has_calls([
             call('[environment]\n'),
             call('FOO = bar\n'),
@@ -153,6 +154,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         self.assertTrue(mock_conf_set.called)
         mock_run.assert_called_once_with(['snapctl', 'set', 'conf.foo=bar'])
 
+    @patch.dict('os.environ', {'SNAP_DATA': 'SNAP_DATA_VALUE'})
     @patch('checkbox_support.snap_utils.config.get_configuration_set')
     @patch('subprocess.check_output')
     @patch('subprocess.run')
@@ -180,7 +182,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         m = mock_open()
         with patch('builtins.open', m):
             refresh_configuration()
-        m.assert_called_with("$SNAP_DATA/checkbox.conf", "wt")
+        m.assert_called_with("SNAP_DATA_VALUE/checkbox.conf", "wt")
         m.return_value.write.assert_has_calls([
             call('[environment]\n'),
             call('FOO = bar\n'),
@@ -188,6 +190,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         ])
         mock_run.assert_called_once_with(['snapctl', 'set', 'conf.foo=bar'])
 
+    @patch.dict('os.environ', {'SNAP_DATA': 'SNAP_DATA_VALUE'})
     @patch('checkbox_support.snap_utils.config.get_configuration_set')
     @patch('subprocess.check_output')
     @patch('subprocess.run')
@@ -216,7 +219,7 @@ class ConfigIntegrationTests(unittest.TestCase):
         m = mock_open()
         with patch('builtins.open', m):
             refresh_configuration()
-        m.assert_called_with("$SNAP_DATA/checkbox.conf", "wt")
+        m.assert_called_with("SNAP_DATA_VALUE/checkbox.conf", "wt")
         m.return_value.write.assert_has_calls([
             call('[environment]\n'),
             call('BIZ = baz\n'),

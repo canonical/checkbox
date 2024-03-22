@@ -231,8 +231,8 @@ def stress_echo_test(interface, can_id, eff_flag, fd_mode, count=30):
             failed_count = 0
             for index, data in enumerate(original_records):
                 # validate data field in CAN packet only
-                if _validate_packet_data(can_socket, data,
-                                         recv_records[index]):
+                if not _validate_packet_data(can_socket, data,
+                                             recv_records[index]):
                     failed_count += 1
 
             if failed_count > 0:

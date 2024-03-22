@@ -37,6 +37,7 @@ from checkbox_ng.launcher.subcommands import (
     StartProvider,
     Submit,
     ListBootstrapped,
+    Expand,
     TestPlanExport,
     Show,
 )
@@ -56,6 +57,8 @@ class Context:
     def __init__(self, args, sa):
         self.args = args
         self.sa = sa
+    def reset_sa(self):
+        self.sa = SessionAssistant()
 
 
 def main():
@@ -70,6 +73,7 @@ def main():
         "submit": Submit,
         "show": Show,
         "list-bootstrapped": ListBootstrapped,
+        "expand": Expand,
         "merge-reports": MergeReports,
         "merge-submissions": MergeSubmissions,
         "tp-export": TestPlanExport,

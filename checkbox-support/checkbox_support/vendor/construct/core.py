@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import struct, io, binascii, itertools, collections, pickle, sys, os, tempfile, hashlib, importlib, imp
+import struct, io, binascii, itertools, collections, pickle, sys, os, tempfile, hashlib, importlib
 
 from checkbox_support.vendor.construct.lib import *
 from checkbox_support.vendor.construct.expr import *
@@ -305,7 +305,7 @@ class Construct(object):
         r"""
         Parse a closed binary file. See parse().
         """
-        with io.open(filename, 'rb') as f:
+        with open(filename, 'rb') as f:
             return self.parse_stream(f, **contextkw)
 
     def _parsereport(self, stream, context, path):
@@ -351,7 +351,7 @@ class Construct(object):
         r"""
         Build an object into a closed binary file. See build().
         """
-        with io.open(filename, 'wb') as f:
+        with open(filename, 'wb') as f:
             self.build_stream(obj, f, **contextkw)
 
     def _build(self, obj, stream, context, path):
@@ -439,7 +439,13 @@ class Construct(object):
                 f.write(source)
 
         modulename = hexlify(hashlib.sha1(source.encode()).digest()).decode()
-        module = imp.new_module(modulename)
+        try:
+            from importlib.util import module_from_spec
+            module_spec = importlib.machinery.ModuleSpec(modulename, None)
+            module = module_from_spec(module_spec)
+        except ImportError:
+            # compatibility with python3.4
+            module = importlib.types.ModuleType(modulename)
         c = compile(source, '', 'exec')
         exec(c, module.__dict__)
 
@@ -801,6 +807,8 @@ class Bytes(Construct):
 
     Parses into a bytes (of given length). Builds into the stream directly (but checks that given object matches specified length). Can also build from an integer for convenience (although BytesInteger should be used instead). Size is the specified length.
 
+    Can also build from a bytearray.
+
     :param length: integer or context lambda
 
     :raises StreamError: requested reading negative amount, could not read enough bytes, requested writing different amount than actual data, or could not write all bytes
@@ -841,6 +849,7 @@ class Bytes(Construct):
     def _build(self, obj, stream, context, path):
         length = self.length(context) if callable(self.length) else self.length
         data = integer2bytes(obj, length) if isinstance(obj, int) else obj
+        data = bytes(data) if type(data) is bytearray else data
         stream_write(stream, data, length, path)
         return data
 
@@ -864,6 +873,8 @@ class GreedyBytes(Construct):
 
     Parses the stream to the end. Builds into the stream directly (without checks). Size is undefined.
 
+    Can also build from a bytearray.
+
     :raises StreamError: stream failed when reading until EOF
     :raises StringError: building from non-bytes value, perhaps unicode
 
@@ -879,8 +890,9 @@ class GreedyBytes(Construct):
         return stream_read_entire(stream, path)
 
     def _build(self, obj, stream, context, path):
-        stream_write(stream, obj, len(obj), path)
-        return obj
+        data = bytes(obj) if type(obj) is bytearray else obj
+        stream_write(stream, data, len(data), path)
+        return data
 
     def _emitparse(self, code):
         return "io.read()"
@@ -981,7 +993,7 @@ class FormatField(Construct):
     Parses into an integer. Builds from an integer into specified byte count and endianness. Size is determined by `struct` module according to specified format string.
 
     :param endianity: string, character like: < > =
-    :param format: string, character like: f d B H L Q b h l q
+    :param format: string, character like: f d B H L Q b h l q e
 
     :raises StreamError: requested reading negative amount, could not read enough bytes, requested writing different amount than actual data, or could not write all bytes
     :raises FormatFieldError: wrong format string, or struct.(un)pack complained about the value
@@ -1551,7 +1563,7 @@ def PascalString(lengthfield, encoding):
     macro = StringEncoded(Prefixed(lengthfield, GreedyBytes), encoding)
     def _emitseq(ksy, bitwise):
         return [
-            dict(id="lengthfield", type=lengthfield._compileprimitivetype(ksy, bitwise)), 
+            dict(id="lengthfield", type=lengthfield._compileprimitivetype(ksy, bitwise)),
             dict(id="data", size="lengthfield", type="str", encoding=encoding),
         ]
     macro._emitseq = _emitseq
@@ -1900,7 +1912,7 @@ class Struct(Construct):
     r"""
     Sequence of usually named constructs, similar to structs in C. The members are parsed and build in the order they are defined. If a member is anonymous (its name is None) then it gets parsed and the value discarded, or it gets build from nothing (from None).
 
-    Some fields do not need to be named, since they are built without value anyway. See: Const Padding Check Error Pass Terminated Seek Tell for examples of such fields. 
+    Some fields do not need to be named, since they are built without value anyway. See: Const Padding Check Error Pass Terminated Seek Tell for examples of such fields.
 
     Operator + can also be used to make Structs (although not recommended).
 
@@ -2954,7 +2966,7 @@ class Numpy(Construct):
     Parses using `numpy.load() <https://docs.scipy.org/doc/numpy/reference/generated/numpy.load.html#numpy.load>`_ and builds using `numpy.save() <https://docs.scipy.org/doc/numpy/reference/generated/numpy.save.html#numpy.save>`_ functions, using Numpy binary protocol. Size is undefined.
 
     :raises ImportError: numpy could not be imported during parsing or building
-    :raises StreamError: requested reading negative amount, could not read enough bytes, requested writing different amount than actual data, or could not write all bytes
+    :raises ValueError: could not read enough bytes, or so
 
     Can propagate numpy.load() and numpy.save() exceptions.
 
@@ -3262,7 +3274,7 @@ class Union(Construct):
 
     Example::
 
-        >>> d = Union(0, 
+        >>> d = Union(0,
         ...     "raw" / Bytes(8),
         ...     "ints" / Int32ub[2],
         ...     "shorts" / Int16ub[4],
@@ -4400,7 +4412,7 @@ class Prefixed(Subconstruct):
 
     def _emitseq(self, ksy, bitwise):
         return [
-            dict(id="lengthfield", type=self.lengthfield._compileprimitivetype(ksy, bitwise)), 
+            dict(id="lengthfield", type=self.lengthfield._compileprimitivetype(ksy, bitwise)),
             dict(id="data", size="lengthfield", type=self.subcon._compileprimitivetype(ksy, bitwise)),
         ]
 
@@ -4442,7 +4454,7 @@ def PrefixedArray(countfield, subcon):
     macro._actualsize = _actualsize
     def _emitseq(ksy, bitwise):
         return [
-            dict(id="countfield", type=countfield._compileprimitivetype(ksy, bitwise)), 
+            dict(id="countfield", type=countfield._compileprimitivetype(ksy, bitwise)),
             dict(id="data", type=subcon._compileprimitivetype(ksy, bitwise), repeat="expr", repeat_expr="countfield"),
         ]
     macro._emitseq = _emitseq

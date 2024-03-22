@@ -51,7 +51,7 @@ from plainbox.impl.result import JobResultBuilder
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import JobRunnerUIDelegate
 from plainbox.impl.secure.origin import Origin
-from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.secure.qualifiers import FieldQualifier
 from plainbox.impl.secure.qualifiers import JobIdQualifier
 from plainbox.impl.secure.qualifiers import PatternMatcher
@@ -64,6 +64,7 @@ from plainbox.impl.session.manager import SessionManager
 from plainbox.impl.session.restart import IRestartStrategy
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.restart import RemoteDebRestartStrategy
+from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.transport import OAuthTransport
 from plainbox.impl.transport import TransportError
@@ -188,9 +189,11 @@ class SessionAssistant:
         self._job_start_time = None
         # Keep a record of jobs run during bootstrap phase
         self._bootstrap_done_list = []
+        self._resume_candidates = {}
         self._load_providers()
         UsageExpectation.of(self).allowed_calls = {
             self.start_new_session: "create a new session from scratch",
+            self.resume_session: "resume a resume candidate",
             self.get_resumable_sessions: "get resume candidates",
             self.use_alternate_configuration: (
                 "use an alternate configuration system"
@@ -444,7 +447,6 @@ class SessionAssistant:
                     str(exc),
                 )
 
-    @raises(UnexpectedMethodCall)
     def delete_sessions(self, session_ids: "List[str]") -> None:
         """
         Delete session storages.
@@ -460,7 +462,6 @@ class SessionAssistant:
             If the session is not found in the currently selected session
             repository, it is silently ignored.
         """
-        UsageExpectation.of(self).enforce()
         for storage in WellKnownDirsHelper.get_storage_list():
             if storage.id in session_ids:
                 storage.remove()
@@ -516,6 +517,7 @@ class SessionAssistant:
             self.select_test_plan: "select the test plan to execute",
             self.get_session_id: "to get the id of currently running session",
             self.hand_pick_jobs: "select jobs to run (w/o a test plan)",
+            self.get_resumable_sessions: "get resume candidates",
             self.finalize_session: "to finalize session",
             self.configure_application_restart: (
                 "configure automatic restart capability"
@@ -525,7 +527,7 @@ class SessionAssistant:
             ),
         }
 
-    @raises(KeyError, UnexpectedMethodCall)
+    @raises(KeyError, UnexpectedMethodCall, IncompatibleJobError)
     def resume_session(
         self, session_id: str, runner_cls=UnifiedRunner, runner_kwargs=dict()
     ) -> "SessionMetaData":
@@ -538,6 +540,8 @@ class SessionAssistant:
             Resumed session metadata.
         :raises KeyError:
             If the session with a given session_id cannot be found.
+        :raises IncompatibleJobError:
+            If the session is incompatible due to a job changing
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.
             It is a bug in your program. The error message will indicate what
@@ -552,6 +556,13 @@ class SessionAssistant:
         all_units = list(
             itertools.chain(*[p.unit_list for p in self._selected_providers])
         )
+        if session_id not in self._resume_candidates:
+            for resume_candidate in self.get_resumable_sessions():
+                if resume_candidate.id == session_id:
+                    break
+            else:
+                raise KeyError("Unknown session {}".format(session_id))
+
         self._manager = SessionManager.load_session(
             all_units, self._resume_candidates[session_id][0]
         )
@@ -588,6 +599,7 @@ class SessionAssistant:
             ).allowed_calls = self._get_allowed_calls_in_normal_state()
         else:
             UsageExpectation.of(self).allowed_calls = {
+                self.get_resumable_sessions: "to get resume candidates",
                 self.select_test_plan: "to save test plan selection",
                 self.use_alternate_configuration: (
                     "use an alternate configuration system"
@@ -617,6 +629,8 @@ class SessionAssistant:
         """
         UsageExpectation.of(self).enforce()
         # let's keep resume_candidates, so we don't have to load data again
+        # also, when this function is called invalidate the cache, as it may
+        # have been modified by some external source
         self._resume_candidates = {}
         for storage in WellKnownDirsHelper.get_storage_list():
             data = storage.load_checkpoint()
@@ -788,7 +802,7 @@ class SessionAssistant:
         # NOTE: there is next-to-none UI here as bootstrap jobs are limited to
         # just resource jobs (including their dependencies) so there should be
         # very little UI required.
-        desired_job_list = select_jobs(
+        desired_job_list = select_units(
             self._context.state.job_list,
             [
                 plan.get_bootstrap_qualifier()
@@ -809,7 +823,7 @@ class SessionAssistant:
             self.use_job_result(job.id, rb.get_result())
         # Perform initial selection -- we want to run everything that is
         # described by the test plan that was selected earlier.
-        desired_job_list = select_jobs(
+        desired_job_list = select_units(
             self._context.state.job_list,
             [plan.get_qualifier() for plan in self._manager.test_plans]
             + self._exclude_qualifiers,
@@ -852,7 +866,7 @@ class SessionAssistant:
                     Origin("hand-pick"),
                 )
             )
-        jobs = select_jobs(self._context.state.job_list, qualifiers)
+        jobs = select_units(self._context.state.job_list, qualifiers)
         self._context.state.update_desired_job_list(jobs)
         self._metadata.flags = {
             SessionMetaData.FLAG_INCOMPLETE,
@@ -877,7 +891,7 @@ class SessionAssistant:
         E.g. to inform the user about the progress
         """
         UsageExpectation.of(self).enforce()
-        desired_job_list = select_jobs(
+        desired_job_list = select_units(
             self._context.state.job_list,
             [
                 plan.get_bootstrap_qualifier()
@@ -912,7 +926,7 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         # Perform initial selection -- we want to run everything that is
         # described by the test plan that was selected earlier.
-        desired_job_list = select_jobs(
+        desired_job_list = select_units(
             self._context.state.job_list,
             [plan.get_qualifier() for plan in self._manager.test_plans]
             + self._exclude_qualifiers
@@ -1015,7 +1029,7 @@ class SessionAssistant:
         reigning job selection.
         """
         UsageExpectation.of(self).enforce()
-        desired_job_list = select_jobs(
+        desired_job_list = select_units(
             self._context.state.job_list,
             [plan.get_qualifier() for plan in self._manager.test_plans],
         )
@@ -1157,7 +1171,7 @@ class SessionAssistant:
         test_plan = self._manager.test_plans[0]
         return [
             job.id
-            for job in select_jobs(
+            for job in select_units(
                 self._context.state.job_list,
                 [test_plan.get_mandatory_qualifier()],
             )
@@ -1354,6 +1368,18 @@ class SessionAssistant:
         print("Saving manifest to {}".format(manifest))
         with open(manifest, "wt", encoding="UTF-8") as stream:
             json.dump(manifest_cache, stream, sort_keys=True, indent=2)
+
+    def note_metadata_starting_job(self, job, job_state):
+        """
+        Update the session metadata to make a resumable checkpoint.
+
+        Without the information that this function stores, a session will not
+        be resumable. This also creates a checkpoint so that the information is
+        both in the session and on disk.
+        """
+        self._metadata.running_job_name = job["id"]
+        self._metadata.last_job_start_time = time.time()
+        self._manager.checkpoint()
 
     @raises(ValueError, TypeError, UnexpectedMethodCall)
     def run_job(
@@ -1909,6 +1935,7 @@ class SessionAssistant:
             self.get_manifest_repr: ("to get participating manifest units"),
             self.run_job: "to run a given job",
             self.use_alternate_selection: "to change the selection",
+            self.get_resumable_sessions: "get resume candidates",
             self.hand_pick_jobs: "to generate new selection and use it",
             self.use_job_result: "to feed job result back to the session",
             # XXX: should this be available right off the bat or should we wait

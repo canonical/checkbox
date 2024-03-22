@@ -204,6 +204,7 @@ parts:
       - python3-xlsxwriter
       - python3-setuptools
       - python3-dev
+      - lsb-release
     python-packages:
       - tqdm
     after: [checkbox-support]
@@ -404,15 +405,7 @@ parts:
       - picamera
     build-environment:
       - READTHEDOCS: 'True'
-  rpi-ppa:
-    plugin: nil
-    override-pull: |
-      sudo add-apt-repository ppa:sylvain-pineau/ppa-rpi
-      sudo apt-get update
-    build-packages:
-      - software-properties-common
   rpi-support-binaries:
-    after: [rpi-ppa]
     plugin: nil
     stage-packages:
       - on armhf:

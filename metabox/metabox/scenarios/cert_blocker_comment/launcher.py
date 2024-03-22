@@ -7,7 +7,6 @@
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -229,52 +228,4 @@ class UserInteractJobSkippedBeforeRun(Scenario):
         Expect('Select jobs to re-run'),
         Send('f' + keys.KEY_ENTER),
         Expect(_re('(☐|job skipped).*User-interact job')),
-    ]
-
-
-@tag("resume")
-class ManualJobSkippedWhenResumingSession(Scenario):
-    """
-    Run a test plan with a manual job set to cert-blocker. Save and quit the
-    session, resume it and make sure it cannot be skipped until a comment is
-    added.
-    """
-
-    modes = ["local"]
-    launcher = textwrap.dedent(
-        """
-        [launcher]
-        launcher_version = 1
-        stock_reports = text
-        [test plan]
-        unit = 2021.com.canonical.certification::cert-blocker-manual-resume
-        [test selection]
-        forced = yes
-        """
-    )
-    steps = [
-        Start(),
-        Expect("Select test plan"),
-        Send(keys.KEY_ENTER),
-        Expect("Pick an action"),
-        Send("p" + keys.KEY_ENTER),
-        Expect("save the session and quit"),
-        Send("q" + keys.KEY_ENTER),
-        Start(),
-        Expect("(R) Resume session"),
-        Send("r"),
-        Expect("blocker-manual-resume"),
-        Send(keys.KEY_ENTER),
-        Send(keys.KEY_DOWN + keys.KEY_ENTER),
-        Expect(
-            "Please add a comment to explain why you want to skip it.",
-            timeout=30,
-        ),
-        Expect("Please enter your comments:"),
-        Send("This is a comment" + keys.KEY_ENTER),
-        Expect("Pick an action"),
-        Send(keys.KEY_ENTER),
-        Expect("Select jobs to re-run"),
-        Send("f" + keys.KEY_ENTER),
-        Expect(_re("(☐|job skipped).*A simple manual job")),
     ]

@@ -26,6 +26,8 @@ jobs:
         with:
           fetch-depth: 0
       - name: Verify Promotion Conditions
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           tools/release/can_promote_edge.py
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import contextlib
 import logging
 import os
 import re
@@ -42,12 +43,120 @@ def init_logger():
     return root_logger
 
 
-class CPUScalingInfo:
-    """A class for gathering CPU scaling information."""
+def with_timeout(timeout=10, interval=0.5):
+    """
+    Decorator to set a timeout for a function's execution.
+
+    This decorator allows you to execute a function with a specified timeout
+    duration. If the function does not return `True` within the given timeout,
+    the wrapper function returns `False`. The wrapper function sleeps for a
+    specified interval between each invocation until the timeout expires.
+
+    Args:
+      - timeout (float, optional): Maximum time duration (in seconds) to wait
+        for the decorated function to return `True`. Defaults to 10 seconds.
+      - interval (float, optional): Time interval (in seconds) between
+        invocations within the timeout duration. Defaults to 0.5 seconds.
+
+    Returns:
+      - bool: Returns `True` if the decorated function returns `True` within
+        the specified timeout; otherwise, returns `False`.
+    """
+    def decorator(func):
+        def func_wrapper(*args, **kwargs):
+            start_time = time.time()
+            while time.time() - start_time < timeout:
+                if func(*args, **kwargs):
+                    return True
+                time.sleep(interval)
+            return False
+
+        return func_wrapper
+
+    return decorator
+
+
+def probe_governor_module(expected_governor):
+    """
+    Attempt to probe and load a specific CPU frequency governor module.
+
+    Args:
+      - expected_governor (str): The name of the CPU frequency governor module
+        to probe and load.
+
+    Raises:
+      - subprocess.CalledProcessError: If the 'modprobe' command encounters an
+        error during the module loading process.
+    """
+    logging.warning(
+        "Seems CPU frequency governors %s are not enable yet.",
+        expected_governor,
+    )
+    module = "cpufreq_{}".format(expected_governor)
+    logging.info("Attempting to probe %s ...", module)
+    cmd = ["modprobe", module]
+    try:
+        subprocess.check_call(
+            cmd,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            universal_newlines=True,
+        )
+        logging.info("Probe module Successfully!")
+    except subprocess.CalledProcessError as err:
+        logging.error(err)
+        logging.error("%s governor not supported", expected_governor)
+        sys.exit(1)
+
+
+def stress_cpus() -> List[subprocess.Popen]:
+    """
+    Stress the CPU cores by running multiple dd processes.
+
+    Returns:
+        subprocess.Popen: A list of Popen objects representing the
+                            dd processes spawned for each CPU core.
+    """
+    cpus_count = cpu_count()
+
+    cmd = ["dd", "if=/dev/zero", "of=/dev/null"]
+    processes = [subprocess.Popen(cmd) for _ in range(cpus_count)]
+    return processes
+
+
+def stop_stress_cpus(processes):
+    """
+    Stop the CPU stress by terminating the specified dd processes.
+
+    Args:
+        processes (List[subprocess.Popen]): A list of Popen objects
+                                            representing the dd processes.
+    """
+    for p in processes:
+        p.terminate()
+        p.wait()
+
+
+@contextlib.contextmanager
+def context_stress_cpus():
+    """
+    Context manager to stress CPU cores using multiple dd processes.
+    """
+    try:
+        logging.info("Stressing CPUs...")
+        processes = stress_cpus()
+        yield
+    finally:
+        logging.info("Stop stressing CPUs...")
+        stop_stress_cpus(processes)
+
+
+class CPUScalingHandler:
+    """A class for getting and setting CPU scaling information."""
 
     def __init__(self, policy=0):
         """
-        Initialize the CPUScalingInfo object.
+        Initialize the CPUScalingHandler object.
 
         Args:
             policy (int): The CPU policy number to be used (default is 0).
@@ -219,6 +328,17 @@ class CPUScalingInfo:
         frequency = self.get_policy_attribute("scaling_max_freq")
         return int(frequency) if frequency else 0
 
+    def get_current_frequency(self) -> int:
+        """
+        Get the current CPU frequency for the current policy.
+
+        Returns:
+            int: The current CPU frequency in kHz.
+        """
+        frequency = self.get_policy_attribute("scaling_cur_freq")
+        logging.debug("Current CPU frequency: %s", frequency)
+        return int(frequency) if frequency else 0
+
     def get_affected_cpus(self) -> List:
         """
         Get the list of affected CPUs for the current policy.
@@ -260,6 +380,60 @@ class CPUScalingInfo:
         """
         return self.set_policy_attribute("scaling_governor", governor)
 
+    @contextlib.contextmanager
+    def context_set_governor(self, governor):
+        """
+        Context manager to temporarily set a CPU frequency governor and
+        then restores the original governor.
+
+        Args:
+        - governor (str): The CPU frequency governor to set within the context.
+
+        Raises:
+        - SystemExit: If setting the governor fails during setup or teardown.
+        """
+        try:
+            if not self.set_policy_attribute("scaling_governor", governor):
+                sys.exit(1)
+            yield
+        finally:
+            logging.debug("-----------------TEARDOWN-----------------")
+            logging.debug(
+                "Restoring original governor to %s",
+                self.original_governor,
+            )
+            if not self.set_policy_attribute(
+                "scaling_governor", self.original_governor
+            ):
+                sys.exit(1)
+
+    @contextlib.contextmanager
+    def context_set_frequency(self, frequency):
+        """
+        Context manager to temporarily set a CPU frequency and
+        then restores the orignal frequency.
+
+        Args:
+        - frequency (str or int): The CPU frequency to set within the context.
+
+        Raises:
+        - SystemExit: If setting the frequency fails during setup or teardown.
+
+        """
+        try:
+            original_frequency = self.get_current_frequency()
+            if not self.set_frequency(frequency):
+                sys.exit(1)
+            yield
+        finally:
+            logging.debug("-----------------TEARDOWN-----------------")
+            logging.debug(
+                "Restoring original frequency to %s",
+                original_frequency,
+            )
+            if not self.set_frequency(original_frequency):
+                sys.exit(1)
+
     def set_frequency(self, frequency) -> bool:
         """
         Set the CPU frequency for the current policy.
@@ -286,33 +460,7 @@ class CPUScalingTest:
             policy (int): The CPU policy number to be used (default is 0).
         """
         self.policy = policy
-        self.info = CPUScalingInfo(policy=self.policy)
-
-    def stress_cpus(self) -> subprocess.Popen:
-        """
-        Stress the CPU cores by running multiple dd processes.
-
-        Returns:
-            subprocess.Popen: A list of Popen objects representing the
-                              dd processes spawned for each CPU core.
-        """
-        cpus_count = cpu_count()
-
-        cmd = ["dd", "if=/dev/zero", "of=/dev/null"]
-        processes = [subprocess.Popen(cmd) for _ in range(cpus_count)]
-        return processes
-
-    def stop_stress_cpus(self, processes):
-        """
-        Stop the CPU stress by terminating the specified dd processes.
-
-        Args:
-            processes (List[subprocess.Popen]): A list of Popen objects
-                                                representing the dd processes.
-        """
-        for p in processes:
-            p.terminate()
-            p.wait()
+        self.handler = CPUScalingHandler(policy=self.policy)
 
     def print_policy_info(self):
         """
@@ -320,26 +468,26 @@ class CPUScalingTest:
         """
         logging.info("## CPUfreq Policy%s Info ##", self.policy)
         logging.info("Affected CPUs:")
-        if not self.info.governors:
+        if not self.handler.governors:
             logging.info("    None")
         else:
-            for cpu in self.info.affected_cpus:
+            for cpu in self.handler.affected_cpus:
                 logging.info("    cpu%s", cpu)
 
         logging.info(
             "Supported CPU Frequencies: %s - %s MHz",
-            self.info.min_freq / 1000,
-            self.info.max_freq / 1000,
+            self.handler.min_freq / 1000,
+            self.handler.max_freq / 1000,
         )
 
         logging.info("Supported Governors:")
-        if not self.info.governors:
+        if not self.handler.governors:
             logging.info("    None")
         else:
-            for governor in self.info.governors:
+            for governor in self.handler.governors:
                 logging.info("    %s", governor)
 
-        logging.info("Current Governor: %s", self.info.original_governor)
+        logging.info("Current Governor: %s", self.handler.original_governor)
 
     def test_driver_detect(self) -> bool:
         """
@@ -353,18 +501,143 @@ class CPUScalingTest:
             bool: True if the drivers are printed successfully,
                   False otherwise.
         """
-        if not self.info.cpu_policies:
+        if not self.handler.cpu_policies:
             return False
         drivers = []
-        for policy in self.info.cpu_policies:
-            driver = self.info.get_scaling_driver(policy)
-            if driver not in drivers:
+        for policy in self.handler.cpu_policies:
+            driver = self.handler.get_scaling_driver(policy)
+            if driver and driver not in drivers:
                 drivers.append(driver)
         if not drivers:
             return False
         else:
             print("scaling_driver: {}".format(" ".join(drivers)))
             return True
+
+    @with_timeout()
+    def is_frequency_equal_to_target(self, target) -> bool:
+        """
+        Check if the current CPU frequency matches the target frequency.
+
+        Args:
+        - target (str or int): The target CPU frequency to compare against.
+
+        Returns:
+        - bool: Returns True if the current frequency matches the target
+                frequency; otherwise, returns False.
+        """
+        curr_freq = self.handler.get_current_frequency()
+        return curr_freq == target
+
+    @with_timeout()
+    def is_frequency_settled_down(self) -> bool:
+        """
+        Check if the current CPU frequency has settled down below the maximum.
+
+        Returns:
+        - bool: Returns True if the current frequency is below the maximum;
+                otherwise, returns False.
+        """
+        curr_freq = self.handler.get_current_frequency()
+        return curr_freq < self.handler.max_freq
+
+    def test_frequency_influence(self, governor, target_freq=None) -> bool:
+        """
+        Test the influence of CPU frequency based on the provided governor.
+
+        This function tests the influence of CPU frequency settings by
+        setting different governors and verifying if the CPU frequency
+        behaves as expected.
+
+        Args:
+        - governor (str): The CPU frequency governor to test.
+        - target_freq (int, optional): The target CPU frequency for the
+                                       'userspace' governor. Defaults to None.
+
+        Returns:
+        - bool: Returns True if all verification checks pass;
+                otherwise, returns False.
+
+        Raises:
+        - SystemExit: If an unsupported governor is provided.
+        """
+        frequencies_mapping = {
+            "performance": (self.handler.max_freq, "Max."),
+            "powersave": (self.handler.min_freq, "Min."),
+            "ondemand": (self.handler.max_freq, "Max."),
+            "conservative": (self.handler.max_freq, "Max."),
+            "schedutil": (self.handler.max_freq, "Max."),
+        }
+        success = True
+        with self.handler.context_set_governor(governor):
+            if governor in ["ondemand", "conservative", "schedutil"]:
+                with context_stress_cpus():
+                    if self.is_frequency_equal_to_target(
+                        target=frequencies_mapping[governor][0]
+                    ):
+                        logging.info(
+                            "Verified current CPU frequency is equal to "
+                            "%s frequency %s MHz",
+                            frequencies_mapping[governor][1],
+                            (frequencies_mapping[governor][0] / 1000),
+                        )
+                    else:
+                        success = False
+                        logging.error(
+                            "Could not verify that cpu frequency is equal to "
+                            "%s frequency %s MHz",
+                            frequencies_mapping[governor][1],
+                            (frequencies_mapping[governor][0] / 1000),
+                        )
+                if self.is_frequency_settled_down():
+                    logging.info(
+                        "Verified current CPU frequency has settled to a "
+                        "lower frequency"
+                    )
+                else:
+                    success = False
+                    logging.error(
+                        "Could not verify that cpu frequency has settled to a "
+                        "lower frequency"
+                    )
+            elif governor == "userspace":
+                with self.handler.context_set_frequency(target_freq):
+                    if self.is_frequency_equal_to_target(
+                        target=target_freq,
+                    ):
+                        logging.info(
+                            "Verified current CPU frequency is equal to "
+                            "frequency %s MHz",
+                            (target_freq / 1000),
+                        )
+                    else:
+                        success = False
+                        logging.error(
+                            "Could not verify that cpu frequency is equal to "
+                            "frequency %s MHz",
+                            (target_freq / 1000),
+                        )
+            elif governor in ["performance", "powersave"]:
+                if self.is_frequency_equal_to_target(
+                    target=frequencies_mapping[governor][0],
+                ):
+                    logging.info(
+                        "Verified current CPU frequency is close to "
+                        "%s frequency %s MHz",
+                        frequencies_mapping[governor][1],
+                        (frequencies_mapping[governor][0] / 1000),
+                    )
+                else:
+                    success = False
+                    logging.error(
+                        "Could not verify that cpu frequency has close to "
+                        "frequency %s MHz",
+                        frequencies_mapping[governor][1],
+                        (frequencies_mapping[governor][0] / 1000),
+                    )
+            else:
+                sys.exit("Governor '{}' not supported".format(governor))
+        return success
 
     def test_userspace(self) -> bool:
         """
@@ -374,54 +647,17 @@ class CPUScalingTest:
             bool: True if the test passes, False otherwise.
         """
         logging.info("-------------------------------------------------")
-        logging.info("Running Userspace Governor Test")
-        success = True
+        logging.info(
+            "Running Userspace Governor Test on CPU policy%s", self.policy
+        )
         governor = "userspace"
-        if governor not in self.info.governors:
-            if not self.probe_governor_module(governor):
-                return False
-
-        logging.info("Setting governor to %s", governor)
-        if not self.info.set_governor(governor):
-            success = False
-
-        # Set freq to minimum, verify
-        frequency = self.info.min_freq
-        logging.info(
-            "Setting CPU frequency to %u MHz", (int(frequency) / 1000)
+        return self.test_frequency_influence(
+            governor,
+            self.handler.max_freq,
+        ) and self.test_frequency_influence(
+            governor,
+            self.handler.min_freq,
         )
-        if not self.info.set_frequency(frequency):
-            success = False
-
-        curr_freq = int(self.info.get_policy_attribute("scaling_cur_freq"))
-        if not curr_freq or (self.info.min_freq != curr_freq):
-            logging.error(
-                "Could not verify that cpu frequency is set to the minimum"
-                " value of %s",
-                self.info.min_freq,
-            )
-            success = False
-
-        # Set freq to maximum, verify
-        frequency = self.info.max_freq
-        logging.info(
-            "Setting CPU frequency to %u MHz", (int(frequency) / 1000)
-        )
-        if not self.info.set_frequency(frequency):
-            success = False
-
-        curr_freq = int(self.info.get_policy_attribute("scaling_cur_freq"))
-        if not curr_freq or (self.info.max_freq != curr_freq):
-            logging.error(
-                "Could not verify that cpu frequency is set to the minimum"
-                " value of %s",
-                self.info.max_freq,
-            )
-            success = False
-
-        if success:
-            logging.info("Userspace Governor Test: PASS")
-        return success
 
     def test_performance(self) -> bool:
         """
@@ -431,36 +667,11 @@ class CPUScalingTest:
             bool: True if the test passes, False otherwise.
         """
         logging.info("-------------------------------------------------")
-        logging.info("Running Performance Governor Test")
-        success = True
-        governor = "performance"
-        if governor not in self.info.governors:
-            if not self.probe_governor_module(governor):
-                return False
-
-        logging.info("Setting governor to %s", governor)
-        if not self.info.set_governor(governor):
-            success = False
-
-        curr_freq = int(self.info.get_policy_attribute("scaling_cur_freq"))
-        logging.debug(
-            "Verifying current CPU frequency %s is close to max frequency",
-            curr_freq,
+        logging.info(
+            "Running Performance Governor Test on CPU policy%s", self.policy
         )
-        if not curr_freq or (
-            float(curr_freq) < 0.99 * float(self.info.max_freq)
-        ):
-            logging.error(
-                "Current cpu frequency of %s is not close enough to the "
-                "maximum value of %s",
-                curr_freq,
-                self.info.max_freq,
-            )
-            success = False
-
-        if success:
-            logging.info("Performance Governor Test: PASS")
-        return success
+        governor = "performance"
+        return self.test_frequency_influence(governor)
 
     def test_powersave(self) -> bool:
         """
@@ -470,36 +681,11 @@ class CPUScalingTest:
             bool: True if the test passes, False otherwise.
         """
         logging.info("-------------------------------------------------")
-        logging.info("Running Powersave Governor Test")
-        success = True
-        governor = "powersave"
-        if governor not in self.info.governors:
-            if not self.probe_governor_module(governor):
-                return False
-
-        logging.info("Setting governor to %s", governor)
-        if not self.info.set_governor(governor):
-            success = False
-
-        curr_freq = int(self.info.get_policy_attribute("scaling_cur_freq"))
-        logging.debug(
-            "Verifying current CPU frequency %s is close to min frequency",
-            curr_freq,
+        logging.info(
+            "Running Powersave Governor Test on CPU policy%s", self.policy
         )
-        if not curr_freq or (
-            float(curr_freq) * 0.99 > float(self.info.min_freq)
-        ):
-            logging.error(
-                "Current cpu frequency of %s is not close enough to the "
-                "minimum value of %s",
-                curr_freq,
-                self.info.min_freq,
-            )
-            success = False
-
-        if success:
-            logging.info("Powersave Governor Test: PASS")
-        return success
+        governor = "powersave"
+        return self.test_frequency_influence(governor)
 
     def test_ondemand(self) -> bool:
         """
@@ -512,62 +698,8 @@ class CPUScalingTest:
         logging.info(
             "Running Ondemand Governor Test on CPU policy%s", self.policy
         )
-        success = True
         governor = "ondemand"
-        if governor not in self.info.governors:
-            if not self.probe_governor_module(governor):
-                return False
-
-        logging.info("Setting governor to %s", governor)
-        if not self.info.set_governor(governor):
-            success = False
-
-        logging.info("Stressing CPUs...")
-        stress_process = self.stress_cpus()
-        time.sleep(5)
-
-        curr_freq = int(self.info.get_policy_attribute("scaling_cur_freq"))
-        logging.debug("Current CPU frequency: %s MHz", (curr_freq / 1000))
-        if (
-            not self.info.max_freq
-            or not curr_freq
-            or (self.info.max_freq != curr_freq)
-        ):
-            logging.error(
-                "Could not verify that cpu frequency has increased to the "
-                "maximum value"
-            )
-            success = False
-        else:
-            logging.info(
-                "Verified current CPU frequency is equal to the max frequency"
-            )
-
-        logging.info("Stop stressing CPUs...")
-        self.stop_stress_cpus(stress_process)
-        time.sleep(8)
-
-        curr_freq = int(self.info.get_policy_attribute("scaling_cur_freq"))
-        logging.debug("Current CPU frequency: %s MHz", (curr_freq / 1000))
-        if (
-            not self.info.min_freq
-            or not curr_freq
-            or (self.info.max_freq <= curr_freq)
-        ):
-            logging.error(
-                "Could not verify that cpu frequency has settled to a "
-                "lower frequency"
-            )
-            success = False
-        else:
-            logging.info(
-                "Verified current CPU frequency has settled to a "
-                "lower frequency"
-            )
-
-        if success:
-            logging.info("Ondemand Governor Test: PASS")
-        return success
+        return self.test_frequency_influence(governor)
 
     def test_conservative(self) -> bool:
         """
@@ -580,62 +712,8 @@ class CPUScalingTest:
         logging.info(
             "Running Conservative Governor Test on CPU policy%s", self.policy
         )
-        success = True
         governor = "conservative"
-        if governor not in self.info.governors:
-            if not self.probe_governor_module(governor):
-                return False
-
-        logging.info("Setting governor to %s", governor)
-        if not self.info.set_governor(governor):
-            success = False
-
-        logging.info("Stressing CPUs...")
-        stress_process = self.stress_cpus()
-        time.sleep(5)
-
-        curr_freq = int(self.info.get_policy_attribute("scaling_cur_freq"))
-        logging.debug("Current CPU frequency: %s MHz", (curr_freq / 1000))
-        if (
-            not self.info.max_freq
-            or not curr_freq
-            or (self.info.max_freq != curr_freq)
-        ):
-            logging.error(
-                "Could not verify that cpu frequency has increased to the "
-                "maximum value"
-            )
-            success = False
-        else:
-            logging.info(
-                "Verified current CPU frequency is equal to the max frequency"
-            )
-
-        logging.info("Stop stressing CPUs...")
-        self.stop_stress_cpus(stress_process)
-        time.sleep(8)
-
-        curr_freq = int(self.info.get_policy_attribute("scaling_cur_freq"))
-        logging.debug("Current CPU frequency: %s MHz", (curr_freq / 1000))
-        if (
-            not self.info.min_freq
-            or not curr_freq
-            or (self.info.max_freq <= curr_freq)
-        ):
-            logging.error(
-                "Could not verify that cpu frequency has settled to a "
-                "lower frequency"
-            )
-            success = False
-        else:
-            logging.info(
-                "Verified current CPU frequency has settled to a "
-                "lower frequency"
-            )
-
-        if success:
-            logging.info("Conservative Governor Test: PASS")
-        return success
+        return self.test_frequency_influence(governor)
 
     def test_schedutil(self) -> bool:
         """
@@ -648,98 +726,8 @@ class CPUScalingTest:
         logging.info(
             "Running Schedutil Governor Test on CPU policy%s", self.policy
         )
-        success = True
         governor = "schedutil"
-        if governor not in self.info.governors:
-            if not self.probe_governor_module(governor):
-                return False
-
-        logging.info("Setting governor to %s", governor)
-        if not self.info.set_governor(governor):
-            success = False
-
-        logging.info("Stressing CPUs...")
-        stress_process = self.stress_cpus()
-        time.sleep(5)
-
-        curr_freq = int(self.info.get_policy_attribute("scaling_cur_freq"))
-        logging.debug("Current CPU frequency: %s MHz", (curr_freq / 1000))
-        if (
-            not self.info.max_freq
-            or not curr_freq
-            or (self.info.max_freq != curr_freq)
-        ):
-            logging.error(
-                "Could not verify that cpu frequency has increased to the "
-                "maximum value"
-            )
-            success = False
-        else:
-            logging.info(
-                "Verified current CPU frequency is equal to the max frequency"
-            )
-
-        logging.info("Stop stressing CPUs...")
-        self.stop_stress_cpus(stress_process)
-        time.sleep(8)
-
-        curr_freq = int(self.info.get_policy_attribute("scaling_cur_freq"))
-        logging.debug("Current CPU frequency: %s MHz", (curr_freq / 1000))
-        if (
-            not self.info.min_freq
-            or not curr_freq
-            or (self.info.max_freq <= curr_freq)
-        ):
-            logging.error(
-                "Could not verify that cpu frequency has settled to a "
-                "lower frequency"
-            )
-            success = False
-        else:
-            logging.info(
-                "Verified current CPU frequency has settled to a "
-                "lower frequency"
-            )
-
-        if success:
-            logging.info("Schedutil Governor Test: PASS")
-        return success
-
-    def restore_governor(self):
-        """
-        Restore the CPU governor to the original value.
-
-        This method sets the CPU governor to the original governor value
-        stored during initialization.
-        """
-        logging.info("-------------------------------------------------")
-        logging.info(
-            "Restoring original governor to %s",
-            self.info.original_governor
-        )
-        self.info.set_governor(self.info.original_governor)
-
-    def probe_governor_module(self, expected_governor):
-        logging.info("Seems CPU frequency governors %s are not"
-                     " enable yet.", expected_governor)
-        module = ("cpufreq_{}".format(expected_governor))
-        logging.info("Attempting to probe %s ...", module)
-        cmd = ["modprobe", module]
-        try:
-            subprocess.run(
-                cmd,
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True,
-                encoding="utf-8"
-            )
-            logging.info("Probe module Successfully!")
-            return True
-        except subprocess.CalledProcessError as err:
-            logging.error(err)
-            logging.error("%s governor not supported", expected_governor)
-            return False
+        return self.test_frequency_influence(governor)
 
 
 def main():
@@ -754,9 +742,6 @@ def main():
         --driver-detect: Print the CPU scaling driver.
         --policy: Run the test on a specific CPU policy (default is policy 0).
         --governor: Run a specific governor test.
-
-    Returns:
-        int: The exit code of the test execution, 0 if successful, 1 otherwise.
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -779,7 +764,7 @@ def main():
         "--policy",
         dest="policy",
         help="Run test on specific policy",
-        default="0",
+        default=0,
     )
     parser.add_argument(
         "--governor",
@@ -792,27 +777,25 @@ def main():
     if args.debug:
         logger.setLevel(logging.DEBUG)
 
-    info = CPUScalingInfo()
+    handler = CPUScalingHandler()
     if args.policy_resource:
-        info.print_policies_list()
-        return 0
+        handler.print_policies_list()
+        sys.exit(0)
 
     test = CPUScalingTest(policy=args.policy)
     if args.driver_detect:
-        return 0 if test.test_driver_detect() else 1
+        sys.exit(0) if test.test_driver_detect() else sys.exit(1)
 
-    exit_code = 0
     try:
         test.print_policy_info()
+        if args.governor not in handler.governors:
+            probe_governor_module(args.governor)
         if not getattr(test, "test_{}".format(args.governor))():
-            exit_code = 1
+            sys.exit(1)
     except AttributeError:
-        logging.exception("Given governor is not supported")
-        return 1
-
-    test.restore_governor()
-    return exit_code
+        logging.error("Given governor is not supported")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

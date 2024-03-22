@@ -1,0 +1,6 @@
+Package: metabox-provider
+Depends: ${plainbox:Depends}
+Recommends: ${plainbox:Recommends}
+Suggests: ${plainbox:Suggests}
+X-Plainbox-Provider: yes
+Description: Metabox provider for testing purposes

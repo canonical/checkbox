@@ -26,6 +26,7 @@ from loguru import logger
 import metabox.core.keys as keys
 from metabox.core.utils import ExecuteResult
 from ws4py.client.threadedclient import WebSocketClient
+from metabox.core.utils import _re
 
 
 base_env = {
@@ -42,51 +43,77 @@ class InteractiveWebsocket(WebSocketClient):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.stdout_data = bytearray()
-        self.stdout_data_full = bytearray()
+        self.stdout_data: str = ""
+        self.stdout_data_full: str = ""
         self.stdout_lock = threading.Lock()
         self._new_data = False
         self._lookup_by_id = False
+        self._connection_closed = False
 
     def received_message(self, message):
         if len(message.data) == 0:
             self.close()
+            self._connection_closed = True
+        message_data_str = message.data.decode("utf-8", errors="ignore")
+        raw_msg = message_data_str = self.ansi_escape.sub("", message_data_str)
         if self.verbose:
-            raw_msg = self.ansi_escape.sub(
-                "", message.data.decode("utf-8", errors="ignore")
-            )
             logger.trace(raw_msg.rstrip())
         with self.stdout_lock:
-            self.stdout_data += message.data
-            self.stdout_data_full += message.data
+            self.stdout_data += message_data_str
+            self.stdout_data_full += message_data_str
             self._new_data = True
 
-    def expect(self, data, timeout=0):
-        not_found = True
-        start_time = time.time()
-        while not_found:
-            time.sleep(0.1)
-            if type(data) != str:
-                check = data.search(self.stdout_data)
-            else:
-                check = data.encode("utf-8") in self.stdout_data
-            if check:
-                with self.stdout_lock:
-                    if type(data) != str:
-                        self.stdout_data = data.split(self.stdout_data)
-                    else:
-                        self.stdout_data = self.stdout_data.split(
-                            data.encode("utf-8"), maxsplit=1
-                        )[-1]
-                not_found = False
-            if timeout and time.time() > start_time + timeout:
-                logger.warning(
-                    "'{}' not found! Timeout is reached (set to {})",
-                    data,
-                    timeout,
+    def get_search_split(self, search_pattern):
+        if isinstance(search_pattern, _re):
+            search = search_pattern.search
+            split_first = search_pattern.split
+        elif isinstance(search_pattern, str):
+
+            def search(buffer):
+                return search_pattern in buffer
+
+            def split_first(buffer):
+                return buffer.split(search_pattern, maxsplit=1)
+
+        else:
+            raise TypeError(
+                "Unsupported search pattern type: {}".format(
+                    type(search_pattern)
                 )
-                raise TimeoutError
-        return not_found is False
+            )
+
+        return (search, split_first)
+
+    def expect(self, pattern, timeout=0):
+        found = False
+        start_time = time.time()
+
+        search, split_first = self.get_search_split(pattern)
+
+        while not found:
+            time.sleep(0.1)
+            check = search(self.stdout_data)
+            if check:
+                # truncate the history because subsequent expect should not
+                # re-match the same text
+                with self.stdout_lock:
+                    self.stdout_data = split_first(self.stdout_data)[-1]
+                found = True
+            elif timeout and time.time() > start_time + timeout:
+                msg = "'{}' not found! Timeout is reached (set to {})".format(
+                    pattern, timeout
+                )
+                logger.warning(msg)
+                raise TimeoutError(msg)
+            elif self._connection_closed:
+                # this could have been updated from the other thread, lets
+                # check before exiting the loop
+                found = found or search(self.stdout_data)
+                break
+        return found
+
+    def expect_not(self, data, timeout=0):
+        return not self.expect(data, timeout)
 
     def select_test_plan(self, data, timeout=0):
         if not self._lookup_by_id:
@@ -98,19 +125,19 @@ class InteractiveWebsocket(WebSocketClient):
         max_attemps = 10
         attempt = 0
         still_on_first_screen = True
-        old_stdout_data = b""
+        old_stdout_data = ""
         if len(data) > 67:
             data = data[:67] + "   │\r\n│        " + data[67:]
         while attempt < max_attemps:
             if self._new_data and self.stdout_data:
                 if old_stdout_data == self.stdout_data:
                     break
-                check = data.encode("utf-8") in self.stdout_data
+                check = data in self.stdout_data
                 if not check:
                     self._new_data = False
                     with self.stdout_lock:
                         old_stdout_data = self.stdout_data
-                        self.stdout_data = bytearray()
+                        self.stdout_data = ""
                     stdin_payload = keys.KEY_PAGEDOWN + keys.KEY_SPACE
                     self.send(stdin_payload.encode("utf-8"), binary=True)
                     still_on_first_screen = False
@@ -130,18 +157,18 @@ class InteractiveWebsocket(WebSocketClient):
             self.send(keys.KEY_PAGEDOWN.encode("utf-8"), binary=True)
         while attempt < max_attemps:
             if self._new_data and self.stdout_data:
-                check = data.encode("utf-8") in self.stdout_data
+                check = data in self.stdout_data
                 if not check:
                     self._new_data = False
                     with self.stdout_lock:
-                        self.stdout_data = bytearray()
+                        self.stdout_data = ""
                     stdin_payload = keys.KEY_UP + keys.KEY_SPACE
                     self.send(stdin_payload.encode("utf-8"), binary=True)
                     attempt = 0
                 else:
                     not_found = False
                     with self.stdout_lock:
-                        self.stdout_data = bytearray()
+                        self.stdout_data = ""
                     break
             else:
                 time.sleep(0.1)
@@ -199,6 +226,7 @@ def interactive_execute(container, cmd, env={}, verbose=False, timeout=0):
     ws_urls = container.raw_interactive_execute(
         login_shell + env_wrapper(env) + shlex.split(cmd)
     )
+
     base_websocket_url = container.client.websocket_url
     ctl = WebSocketClient(base_websocket_url)
     ctl.resource = ws_urls["control"]
@@ -239,7 +267,6 @@ def run_or_raise(container, cmd, env={}, verbose=False, timeout=0):
         + shlex.split(cmd),  # noqa 503
         stdout_handler=on_stdout,
         stderr_handler=on_stderr,
-        stdin_payload=open(__file__),
     )
     if timeout and res.exit_code == 137:
         logger.warning("{} Timeout is reached (set to {})", cmd, timeout)

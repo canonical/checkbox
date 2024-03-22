@@ -10,7 +10,8 @@ jobs:
       matrix:
         releases: [16, 18, 20, 22]
         arch: [amd64, arm64, armhf]
-    runs-on: [self-hosted, linux, large]
+    runs-on: [self-hosted, linux, small]
+    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:
       SERIES: series${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
@@ -38,6 +39,7 @@ jobs:
           echo "Building at: https://git.launchpad.net/~ce-certification-qa/+snap/$SNAPCRAFT_BUILDER_ID"
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
         name: Build the snap
+        timeout-minutes: 600 # 10hours
         with:
           action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
           attempt_delay: 600000 # 10min
@@ -62,6 +64,7 @@ jobs:
           path: checkbox-core-snap/series${{ matrix.releases }}/*.snap
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
         name: Upload the snap to the store
+        timeout-minutes: 600 # 10hours
         with:
           attempt_delay: 600000 # 10min
           attempt_limit: 10

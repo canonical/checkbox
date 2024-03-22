@@ -1057,6 +1057,18 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(len(devices), 93)
         self.assertEqual(self.count(devices, "PARTITION"), 1)
 
+    def test_two_dms_one_with_ubutnu_save(self):
+        """
+        This test checks that udevadm parser properly handles the case
+        where two devices are present in the same udevadm output, but one
+        of them is a for recovery purposes and shouldn't be considered a
+        real device. See:
+        https://github.com/canonical/checkbox/issues/980
+        For details.
+        """
+        devices = self.parse("two_dms_one_with_ubuntu_save")
+        self.assertEqual(len(devices), 1)
+
     def verify_devices(self, devices, expected_device_list):
         """
         Verify we have the expected quantity of each device given in the list,

@@ -42,6 +42,33 @@ from plainbox.vendor import mock
 
 class TemplateUnitTests(TestCase):
 
+    def test_str(self):
+        template = TemplateUnit({
+            "template-resource": "resource",
+            "template-id": "check-devices",
+            "id": "check-device-{dev_name}",
+        })
+        self.assertEqual(str(template), "check-devices <~ resource")
+
+    def test_repr(self):
+        template = TemplateUnit({
+            "template-resource": "resource",
+            "template-id": "check-devices",
+            "id": "check-device-{dev_name}",
+        })
+        self.assertEqual(
+            repr(template),
+            "<TemplateUnit template_id:'check-devices'>"
+        )
+
+    def test_id(self):
+        template = TemplateUnit({
+            "template-resource": "resource",
+            "template-id": "check-devices",
+            "id": "check-device-{dev_name}",
+        })
+        self.assertEqual(template.id, "check-device-{dev_name}")
+
     def test_resource_partial_id__empty(self):
         """
         Ensure that ``resource_partial_id`` defaults to None
@@ -167,6 +194,90 @@ class TemplateUnitTests(TestCase):
             'template-resource': 'rc'
         }, provider=provider).resource_id, 'namespace::rc')
 
+    def test_slugify(self):
+        self.assertEqual(
+            TemplateUnit.slugify_template_id("stress/benchmark_{disk}"),
+            "stress/benchmark_disk"
+        )
+        self.assertEqual(
+            TemplateUnit.slugify_template_id("ns::stress/benchmark_{disk}"),
+            "ns::stress/benchmark_disk"
+        )
+        self.assertEqual(
+            TemplateUnit.slugify_template_id("suspend_{{ iterations }}_times"),
+            "suspend_iterations_times"
+        )
+        self.assertEqual(TemplateUnit.slugify_template_id(), None)
+
+    def test_template_id(self):
+        self.assertEqual(TemplateUnit({
+            "template-id": "template_id",
+        }).template_id, "template_id")
+
+    def test_template_id__from_job_id(self):
+        self.assertEqual(TemplateUnit({
+            "id": "job_id_{param}",
+        }).template_id, "job_id_param")
+
+    def test_template_id__precedence(self):
+        """Ensure template-id takes precedence over job id."""
+        self.assertEqual(TemplateUnit({
+            "template-id": "template_id",
+            "id": "job_id_{param}",
+        }).template_id, "template_id")
+
+    def test_template_id__from_job_id_jinja2(self):
+        self.assertEqual(TemplateUnit({
+            "template-resource": "resource",
+            "template-engine": "jinja2",
+            "id": "job_id_{{ param }}",
+        }).template_id, "job_id_param")
+
+    def test_template_id__precedence_jinja2(self):
+        """Ensure template-id takes precedence over Jinja2-templated job id."""
+        self.assertEqual(TemplateUnit({
+            "template-id": "template_id",
+            "template-resource": "resource",
+            "template-engine": "jinja2",
+            "id": "job_id_{{ param }}",
+        }).template_id, "template_id")
+
+    def test_template_summary(self):
+        self.assertEqual(TemplateUnit({
+            "template-summary": "summary",
+        }).template_summary, "summary")
+
+    def test_template_description(self):
+        self.assertEqual(TemplateUnit({
+            "template-description": "description",
+        }).template_description, "description")
+
+    def test_tr_template_summary(self):
+        template = TemplateUnit({
+            "_template-summary": "summary",
+        })
+        self.assertEqual(template.tr_template_summary(), "summary")
+
+    def test_translated_template_summary(self):
+        """Ensure template_summary is populated with the translated field."""
+        self.assertEqual(TemplateUnit({
+            "_template-summary": "summary",
+        }).template_summary, "summary")
+
+    def test_tr_template_description(self):
+        template = TemplateUnit({
+            "_template-description": "description",
+        })
+        self.assertEqual(template.tr_template_description(), "description")
+
+    def test_translated_template_description(self):
+        """
+        Ensure template_description is populated with the translated field.
+        """
+        self.assertEqual(TemplateUnit({
+            "_template-description": "description",
+        }).template_description, "description")
+
     def test_template_resource__empty(self):
         self.assertEqual(TemplateUnit({}).template_resource, None)
 
@@ -279,6 +390,32 @@ class TemplateUnitTests(TestCase):
         self.assertEqual(job.partial_id, 'check-device-sda1')
         self.assertEqual(job.summary, 'Test some device (/sys/something)')
         self.assertEqual(job.plugin, 'shell')
+        self.assertEqual(job.template_id, "check-device-dev_name")
+
+    def test_instantiate_one_with_template_id(self):
+        """
+        Ensure the full template-id (including namespace) is passed down to the
+        instantiated jobs.
+        """
+        provider = mock.Mock(spec=IProvider1)
+        provider.namespace = "namespace"
+        template = TemplateUnit({
+            "template-resource": "resource",
+            "template-id": "origin-template",
+            "id": "check-device-{dev_name}",
+            "summary": "Test {name} ({sys_path})",
+            "plugin": "shell",
+        }, provider=provider)
+        job = template.instantiate_one(Resource({
+            "dev_name": "sda1",
+            "name": "some device",
+            "sys_path": "/sys/something",
+        }))
+        self.assertIsInstance(job, JobDefinition)
+        self.assertEqual(job.partial_id, "check-device-sda1")
+        self.assertEqual(job.summary, "Test some device (/sys/something)")
+        self.assertEqual(job.plugin, "shell")
+        self.assertEqual(job.template_id, "namespace::origin-template")
 
     def test_instantiate_missing_parameter(self):
         """
@@ -351,6 +488,14 @@ class TemplateUnitTests(TestCase):
 
 class TemplateUnitJinja2Tests(TestCase):
 
+    def test_id_jinja2(self):
+        template = TemplateUnit({
+            'template-resource': 'resource',
+            'template-engine': 'jinja2',
+            'id': 'check-device-{{ dev_name }}',
+        })
+        self.assertEqual(template.id, "check-device-{{ dev_name }}")
+
     def test_instantiate_one_jinja2(self):
         template = TemplateUnit({
             'template-resource': 'resource',
@@ -374,6 +519,55 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
 
     unit_cls = TemplateUnit
 
+    def test_template_id__untranslatable(self):
+        issue_list = self.unit_cls({
+            '_template-id': 'template_id'
+        }, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_id,
+            Problem.unexpected_i18n, Severity.warning)
+
+    def test_template_id__bare(self):
+        issue_list = self.unit_cls({
+            "template-id": "ns::id"
+        }, provider=self.provider).check()
+        message = ("template 'ns::id', field 'template-id', identifier cannot "
+                   "define a custom namespace")
+        self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_id,
+            Problem.wrong, Severity.error, message)
+
+    def test_template_id__unique(self):
+        unit = self.unit_cls({
+            'template-id': 'id'
+        }, provider=self.provider)
+        other_unit = self.unit_cls({
+            'template-id': 'id'
+        }, provider=self.provider)
+        self.provider.unit_list = [unit, other_unit]
+        self.provider.problem_list = []
+        context = UnitValidationContext([self.provider])
+        message_start = (
+            "{} 'id', field 'template-id', clashes with 1 other unit,"
+            " look at: "
+        ).format(unit.tr_unit())
+        issue_list = unit.check(context=context)
+        issue = self.assertIssueFound(
+            issue_list, self.unit_cls.Meta.fields.template_id,
+            Problem.not_unique, Severity.error)
+        self.assertTrue(issue.message.startswith(message_start))
+
+    def test_unit__present(self):
+        """
+        TemplateUnit.unit always returns "template", the default error for the
+        base Unit class should never happen.
+        """
+        issue_list = self.unit_cls({
+        }, provider=self.provider).check()
+        message = "field 'unit', unit should explicitly define its type"
+        self.assertIssueNotFound(issue_list, self.unit_cls.Meta.fields.unit,
+                                 Problem.missing, Severity.advice, message)
+
     def test_template_unit__untranslatable(self):
         issue_list = self.unit_cls({
             # NOTE: the value must be a valid unit!
@@ -382,6 +576,50 @@ class TemplateUnitFieldValidationTests(UnitFieldValidationTests):
         self.assertIssueFound(
             issue_list, self.unit_cls.Meta.fields.template_unit,
             Problem.unexpected_i18n, Severity.warning)
+
+    def test_template_summary__translatable(self):
+        issue_list = self.unit_cls({
+            'template-summary': 'template_summary'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list,
+                              self.unit_cls.Meta.fields.template_summary,
+                              Problem.expected_i18n,
+                              Severity.warning)
+
+    def test_template_summary__present(self):
+        issue_list = self.unit_cls({
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list,
+                              self.unit_cls.Meta.fields.template_summary,
+                              Problem.missing,
+                              Severity.advice)
+
+    def test_template_summary__one_line(self):
+        issue_list = self.unit_cls({
+            'template-summary': 'line1\nline2'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list,
+                              self.unit_cls.Meta.fields.template_summary,
+                              Problem.wrong,
+                              Severity.warning)
+
+    def test_template_summary__short_line(self):
+        issue_list = self.unit_cls({
+            'template-summary': 'x' * 81
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list,
+                              self.unit_cls.Meta.fields.template_summary,
+                              Problem.wrong,
+                              Severity.warning)
+
+    def test_template_description__translatable(self):
+        issue_list = self.unit_cls({
+            'template-description': 'template_description'
+        }, provider=self.provider).check()
+        self.assertIssueFound(issue_list,
+                              self.unit_cls.Meta.fields.template_description,
+                              Problem.expected_i18n,
+                              Severity.warning)
 
     def test_template_resource__untranslatable(self):
         issue_list = self.unit_cls({

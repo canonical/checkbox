@@ -129,3 +129,104 @@ class SessionAssistantTests(morris.SignalTestCase):
         self.assertNotIn(
             SessionMetaData.FLAG_BOOTSTRAPPING, self_mock._metadata.flags
         )
+
+    @mock.patch("plainbox.impl.session.assistant.WellKnownDirsHelper")
+    def test_delete_sessions(self, mock_well_known_dirs_helper, _):
+        wkdh = mock_well_known_dirs_helper
+
+        mock_storage_deleted = mock.MagicMock()
+        mock_storage_deleted.id = 1
+
+        mock_storage_not_deleted = mock.MagicMock()
+        mock_storage_not_deleted.id = 2
+
+        wkdh.get_storage_list.return_value = [
+            mock_storage_deleted,
+            mock_storage_not_deleted,
+        ]
+
+        SessionAssistant.delete_sessions(mock.MagicMock(), [1])
+
+        self.assertTrue(mock_storage_deleted.remove.called)
+        self.assertFalse(mock_storage_not_deleted.remove.called)
+
+    def test_note_metadata_starting_job(self, _):
+        self_mock = mock.MagicMock()
+
+        SessionAssistant.note_metadata_starting_job(
+            self_mock, {"id": 123}, mock.MagicMock()
+        )
+
+        self.assertTrue(self_mock._manager.checkpoint.called)
+
+    @mock.patch("plainbox.impl.session.assistant.UsageExpectation")
+    def test_resume_session_autoload_session_not_found(
+        self, ue_mock, get_providers_mock
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._resume_candidates = {}
+        self_mock.get_resumable_sessions.return_value = []
+
+        with self.assertRaises(KeyError):
+            SessionAssistant.resume_session(self_mock, "session_id")
+
+    @mock.patch("plainbox.impl.session.assistant.SessionManager")
+    @mock.patch("plainbox.impl.session.assistant.JobRunnerUIDelegate")
+    @mock.patch("plainbox.impl.session.assistant._SilentUI")
+    @mock.patch("plainbox.impl.session.assistant.detect_restart_strategy")
+    @mock.patch("plainbox.impl.session.assistant.UsageExpectation")
+    def test_resume_session_autoload_session_found(
+        self,
+        ue_mock,
+        session_manager_mock,
+        jrd_mock,
+        _sui_mock,
+        detect_restart_strategy_mock,
+        get_providers_mock,
+    ):
+        self_mock = mock.MagicMock()
+        session_mock = mock.MagicMock(id="session_id")
+
+        def get_resumable_sessions():
+            self_mock._resume_candidates = {"session_id": session_mock}
+
+        self_mock.get_resumable_sessions.return_value = [session_mock]
+
+        _ = SessionAssistant.resume_session(self_mock, "session_id")
+
+    @mock.patch("plainbox.impl.session.state.select_units")
+    @mock.patch("plainbox.impl.unit.testplan.TestPlanUnit")
+    def test_bootstrap(self, mock_tpu, mock_su, mock_get_providers):
+        self_mock = mock.MagicMock()
+        SessionAssistant.bootstrap(self_mock)
+        # Bootstrapping involves updating the list of desired jobs twice:
+        # - one time to get the resource jobs
+        # - one time to generate jobs out of the resource jobs
+        self.assertEqual(
+            self_mock._context.state.update_desired_job_list.call_count,
+            2
+        )
+
+    @mock.patch("plainbox.impl.session.state.select_units")
+    def test_hand_pick_jobs(self, mock_su, mock_get_providers):
+        self_mock = mock.MagicMock()
+        SessionAssistant.hand_pick_jobs(self_mock, [])
+        self.assertEqual(
+            self_mock._context.state.update_desired_job_list.call_count,
+            1
+        )
+
+    @mock.patch("plainbox.impl.session.state.select_units")
+    @mock.patch("plainbox.impl.unit.testplan.TestPlanUnit")
+    def test_get_bootstrap_todo_list(
+        self,
+        mock_tpu,
+        mock_su,
+        mock_get_providers
+    ):
+        self_mock = mock.MagicMock()
+        SessionAssistant.get_bootstrap_todo_list(self_mock)
+        self.assertEqual(
+            self_mock._context.state.update_desired_job_list.call_count,
+            1
+        )

@@ -285,40 +285,18 @@ class LxdMachineProvider:
 
     def _mount_source(self, machine, path):
         logger.debug("Mounting dir {}", path)
-        output = subprocess.check_output(
-            [
-                "lxc",
-                "config",
-                "device",
-                "add",
-                machine._container.name,
-                self.LXD_MOUNT_DEVICE,
-                "disk",
-                "source={}".format(path),
-                "path={}".format(self.LXD_SOURCE_MOUNT_POINT),
-            ],
-            stderr=subprocess.PIPE,
-            text=True,
-        ).strip()
-        if output:
-            logger.debug(output)
+        disk_config = {
+            "source": path,
+            "path": self.LXD_SOURCE_MOUNT_POINT,
+            "type": "disk",
+        }
+        machine._container.devices.update({self.LXD_MOUNT_DEVICE: disk_config})
+        machine._container.save(wait=True)
 
     def _unmount_source(self, machine):
         logger.debug("Unmounting dir...")
-        output = subprocess.check_output(
-            [
-                "lxc",
-                "config",
-                "device",
-                "remove",
-                machine._container.name,
-                self.LXD_MOUNT_DEVICE,
-            ],
-            stderr=subprocess.PIPE,
-            text=True,
-        ).strip()
-        if output:
-            logger.debug(output)
+        del machine._container.devices[self.LXD_MOUNT_DEVICE]
+        machine._container.save(wait=True)
 
     @contextmanager
     def _mounted_source(self, machine, path):

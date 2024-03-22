@@ -36,7 +36,6 @@ nested_part:
     ce-oem-audio-manual
     ce-oem-otg-manual
     ce-oem-rtc-manual
-    ce-oem-rs485-manual
     ce-oem-eeprom-manual
     ce-oem-led-manual
     ce-oem-caam-manual
@@ -44,6 +43,7 @@ nested_part:
     ce-oem-touchscreen-evdev
     ce-oem-socketcan-manual
     com.canonical.certification::led-indicator-manual
+    ce-oem-iio-sensors-manual
 
 id: ce-oem-automated
 unit: test plan
@@ -66,7 +66,7 @@ nested_part:
     ce-oem-audio-automated
     ce-oem-otg-automated
     ce-oem-rtc-automated
-    ce-oem-rs485-automated
+    before-suspend-ce-oem-serial-automated
     ce-oem-eeprom-automated
     ce-oem-led-automated
     ce-oem-accelerator-automated
@@ -75,6 +75,7 @@ nested_part:
     ce-oem-socketcan-stress-automated
     ce-oem-ethernet-tcp-automated
     com.canonical.certification::eeprom-automated
+    before-suspend-ce-oem-iio-sensors-automated
     com.canonical.certification::rtc-automated
 
 id: after-suspend-ce-oem-manual
@@ -96,7 +97,6 @@ nested_part:
     after-suspend-ce-oem-audio-manual
     after-suspend-ce-oem-otg-manual
     after-suspend-ce-oem-rtc-manual
-    after-suspend-ce-oem-rs485-manual
     after-suspend-ce-oem-eeprom-manual
     after-suspend-ce-oem-led-manual
     after-suspend-ce-oem-caam-manual
@@ -104,6 +104,7 @@ nested_part:
     after-suspend-ce-oem-touchscreen-evdev
     after-suspend-ce-oem-socketcan-manual
     com.canonical.certification::after-suspend-led-indicator-manual
+    after-suspend-ce-oem-iio-sensors-manual
 
 id: after-suspend-ce-oem-automated
 unit: test plan
@@ -124,7 +125,7 @@ nested_part:
     after-suspend-ce-oem-audio-automated
     after-suspend-ce-oem-otg-automated
     after-suspend-ce-oem-rtc-automated
-    after-suspend-ce-oem-rs485-automated
+    after-suspend-ce-oem-serial-automated
     after-suspend-ce-oem-eeprom-automated
     after-suspend-ce-oem-led-automated
     after-suspend-ce-oem-accelerator-automated
@@ -134,6 +135,7 @@ nested_part:
     after-suspend-ce-oem-ethernet-tcp-automated
     com.canonical.certification::after-suspend-eeprom-automated
     com.canonical.certification::after-suspend-rtc-automated
+    after-suspend-ce-oem-iio-sensors-automated
 
 id: ce-oem-stress
 unit: test plan

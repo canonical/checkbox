@@ -36,6 +36,12 @@ override_dh_clean:
 	dh_clean
 	rm -rf plainbox/impl/providers/categories/build
 
+# Override dh_fixperms to ensure inxi is set as an executable (required for bionic builds)
+override_dh_fixperms:
+	dh_fixperms
+	chmod 755 debian/python3-checkbox-ng/usr/lib/python3/dist-packages/plainbox/vendor/inxi
+
+
 # Drop the empty python-3.4 directory
 # Taken from https://wiki.debian.org/Python/LibraryStyleGuide
 override_dh_python3:

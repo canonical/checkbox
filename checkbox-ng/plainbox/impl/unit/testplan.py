@@ -826,23 +826,27 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
         collected into a list of tuples ``(field, value)`` and this list is
         subsequently packed into a tuple ``(pattern, field_value_list)``.
         """
+        class V(Visitor):
+
+            def visit_IncludeStmt_node(self, node: IncludeStmt):
+                if not node.overrides:
+                    return
+                pattern = r"^{}$".format(
+                    testplan.qualify_id(node.pattern.text))
+                field_value_list = [
+                    (override_exp.field.text.replace('-', '_'),
+                     override_exp.value.text)
+                    for override_exp in node.overrides]
+                override_list.append((pattern, field_value_list))
         override_list = []
-        if testplan.include is not None:
-
-            class V(Visitor):
-
-                def visit_IncludeStmt_node(self, node: IncludeStmt):
-                    if not node.overrides:
-                        return
-                    pattern = r"^{}$".format(
-                        testplan.qualify_id(node.pattern.text))
-                    field_value_list = [
-                        (override_exp.field.text.replace('-', '_'),
-                         override_exp.value.text)
-                        for override_exp in node.overrides]
-                    override_list.append((pattern, field_value_list))
-
-            V().visit(IncludeStmtList.parse(testplan.include))
+        include_sections = (
+            testplan.bootstrap_include,
+            testplan.mandatory_include,
+            testplan.include,
+        )
+        for section in include_sections:
+            if section:
+                V().visit(IncludeStmtList.parse(section))
         for tp_unit in testplan.get_nested_part():
             override_list.extend(self._get_inline_overrides(tp_unit))
         return override_list

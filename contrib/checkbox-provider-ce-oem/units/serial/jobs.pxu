@@ -1,36 +1,85 @@
-id: ce-oem-serial/rs485-list
-_summary: Generates a RS485 resource based on user supplied configuration
+id: ce-oem-serial/serial-console-list
+_summary:
+    Generates a serial console resource based on user supplied configuration
 _description:
-    A RS485 resource that relies on the user specifying the number of RS485 port. 
+    A serial console resource that relies on the user
+    specifying the number of serial console port. 
     This is to allow template jobs to then be instantiated.
-    Usage of parameter: {port1} {port2}
-    RS485_PORTS=/dev/ttymxc1 /dev/ttymxc2
+    TYPE:NODE:BAUDRATE
+    SERIAL_CONSOLE_PORTS=USB:/dev/ttyUSB1:115200
 plugin: resource
 estimated_duration: 1.0
+environ:
+    SERIAL_CONSOLE_PORTS
 command:
-    for x in $RS485_PORTS; do
-      echo "RS485: ${x}"
-      echo ""
-    done
+    if [ -z "$SERIAL_CONSOLE_PORTS" ]; then
+        exit 0
+    fi
+    serial_config_parser.py "$SERIAL_CONSOLE_PORTS"
 
 unit: template
-template-resource: ce-oem-serial/rs485-list
+template-resource: ce-oem-serial/serial-console-list
 template-unit: job
-id: ce-oem-serial/rs485-remote-{RS485}
-_summary: To check the port {RS485} can working on RS485 half-duplex mode.
+template-engine: jinja2
+template-id: ce-oem-serial/serial-console-tests
+id: ce-oem-serial/serial-console-{{ type }}-{{ node }}-{{ baudrate }}
+imports: from com.canonical.plainbox import manifest
+requires: 
+    manifest.has_serial_console_loopback == True
+template-summary: To check if the serial ports can work as a console
+_summary: To check if the serial port {{ type }} ({{ node }}) can work as a console
 _purpose: 
-    To check the port {RS485} can send and receive the string with
-    RS485 half-duplex mode.
+    To check the serial port {{ type }} ({{ node }}) can work as a console.
 _description:
-    Have to connect the RS485 A on DUT to RS485 A on RPi 3 server,
-    and RS485 B on DUT to RS485 B on RPi 3 server.
+    Have to connect the serial port back to itself
+    before starting this test
 plugin: shell
 user: root
 category_id: com.canonical.certification::serial
 estimated_duration: 30
 flags: also-after-suspend
-command: serial-remote.py {RS485} --mode client
-requires: 
-    manifest.has_rs485_server == 'True'
-    manifest.has_rs485 == 'True'
+command:
+    serial_test.py {{ node }} --mode console --type {{ type }} --baudrate {{ baudrate }}
+
+id: ce-oem-serial/serial-list
+_summary:
+    Generates a serial resource based on user supplied configuration
+_description:
+    A serial resource that relies on the user
+    specifying the number of serial port. 
+    This is to allow template jobs to then be instantiated.
+    TYPE:NODE:BAUDRATE
+    SERIAL_PORTS="RS485:/dev/ttyS0:9600 RS485:/dev/ttyS1:9600 RS232:/dev/ttyS2:115200"
+plugin: resource
+estimated_duration: 1.0
+environ:
+    SERIAL_PORTS
+command:
+    if [ -z "$SERIAL_PORTS" ]; then
+        exit 0
+    fi
+    serial_config_parser.py "$SERIAL_PORTS"
+
+unit: template
+template-resource: ce-oem-serial/serial-list
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-serial/serial-transmit-data-tests
+id: ce-oem-serial/serial-transmit-data-{{ type }}-{{ node }}-{{ baudrate }}
 imports: from com.canonical.plainbox import manifest
+requires: 
+    manifest.has_serial_ehco_server == True
+template-summary:
+    Transmit data via {{ type }} ({{ node }}) with baudate {{ baudrate }}
+_purpose: 
+    To check the serial port {{ type }} ({{ node }}) can transmit
+    data with baudate {{ baudrate }}
+_description:
+    Have to connect the serial port to serial testing server
+plugin: shell
+user: root
+category_id: com.canonical.certification::serial
+estimated_duration: 30
+flags: also-after-suspend
+command:
+    serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }}

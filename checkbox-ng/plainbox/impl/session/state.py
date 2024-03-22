@@ -32,7 +32,7 @@ from plainbox.impl import deprecated
 from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyError
 from plainbox.impl.depmgr import DependencySolver
-from plainbox.impl.secure.qualifiers import select_jobs
+from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
 from plainbox.impl.session.system_information import(
@@ -41,6 +41,7 @@ from plainbox.impl.session.system_information import(
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit_with_id import UnitWithId
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
+from plainbox.suspend_consts import Suspend
 from plainbox.vendor import morris
 
 
@@ -547,27 +548,27 @@ class SessionDeviceContext:
         self.invalidate_shared(self._CACHE_OVERRIDE_MAP)
 
     def _bulk_override_update(self):
-        # NOTE: there is an O(N) algorithm for that solves this but it is more
-        # complicated than I was able to write without a hard-copy reference
-        # that describes it. I will improve this method once I complete the
-        # required research.
         for job_state in self.state.job_state_map.values():
             job = job_state.job
-            for pattern, override_list in self.override_map.items():
-                if re.match(pattern, job.id):
-                    job_state.apply_overrides(override_list)
+            self._override_update(job)
 
     def _override_update(self, job):
+        """
+        Apply overrides to job if they are directly related or apply to the
+        template the job was instantiated from.
+        """
         job_state = self.state.job_state_map[job.id]
         for pattern, override_list in self.override_map.items():
-            if re.match(pattern, job.id):
+            if re.match(pattern, job.id) or (
+                job.template_id and re.match(pattern, job.template_id)
+            ):
                 job_state.apply_overrides(override_list)
 
     def _update_mandatory_job_list(self):
         qualifier_list = []
         for test_plan in self._test_plan_list:
             qualifier_list.append(test_plan.get_mandatory_qualifier())
-        mandatory_job_list = select_jobs(
+        mandatory_job_list = select_units(
             self.state.job_list, qualifier_list)
         self.state.update_mandatory_job_list(mandatory_job_list)
         self.state.update_desired_job_list(self.state.desired_job_list)
@@ -761,7 +762,7 @@ class SessionState:
         :param qualifier:
             A qualifier that selects jobs to be removed
         :ptype qualifier:
-            IJobQualifier
+            IUnitQualifier
 
         :raises ValueError:
             If any of the jobs selected by the qualifier is on the desired job
@@ -1091,24 +1092,21 @@ class SessionState:
                         field_offset_map=new_job.field_offset_map),
                     recompute,
                     via)
-        if 'also-after-suspend' in new_job.get_flag_set():
+        if Suspend.AUTO_FLAG in new_job.get_flag_set():
             data = {
                 key: value for key, value in new_job._data.items()
                 if not key.endswith('siblings')
             }
-            data['flags'] = data['flags'].replace('also-after-suspend', '')
-            data['flags'] = data['flags'].replace(
-                'also-after-suspend-manual', '')
+            data['flags'] = data['flags'].replace(Suspend.AUTO_FLAG, '')
+            data['flags'] = data['flags'].replace(Suspend.MANUAL_FLAG, '')
             data['id'] = "after-suspend-{}".format(new_job.partial_id)
             data['_summary'] = "{} after suspend (S3)".format(
                 new_job.summary)
-            provider_id = "com.canonical.certification"
-            suspend_test_id = "suspend/suspend_advanced_auto"
             if new_job.depends:
                 data['depends'] += " {}".format(new_job.id)
             else:
                 data['depends'] = "{}".format(new_job.id)
-            data['depends'] += " {}::{}".format(provider_id, suspend_test_id)
+            data['depends'] += " {}".format(Suspend.AUTO_JOB_ID)
             self._add_job_unit(
                 JobDefinition(
                     data,
@@ -1119,24 +1117,21 @@ class SessionState:
                     field_offset_map=new_job.field_offset_map),
                 recompute,
                 via)
-        if 'also-after-suspend-manual' in new_job.get_flag_set():
+        if Suspend.MANUAL_FLAG in new_job.get_flag_set():
             data = {
                 key: value for key, value in new_job._data.items()
                 if not key.endswith('siblings')
             }
-            data['flags'] = data['flags'].replace('also-after-suspend', '')
-            data['flags'] = data['flags'].replace(
-                'also-after-suspend-manual', '')
+            data['flags'] = data['flags'].replace(Suspend.AUTO_FLAG, '')
+            data['flags'] = data['flags'].replace(Suspend.MANUAL_FLAG, '')
             data['id'] = "after-suspend-manual-{}".format(new_job.partial_id)
             data['_summary'] = "{} after suspend (S3)".format(
                 new_job.summary)
-            provider_id = "com.canonical.certification"
-            suspend_test_id = "suspend/suspend_advanced"
             if new_job.depends:
                 data['depends'] += " {}".format(new_job.id)
             else:
                 data['depends'] = "{}".format(new_job.id)
-            data['depends'] += " {}::{}".format(provider_id, suspend_test_id)
+            data['depends'] += " {}".format(Suspend.MANUAL_JOB_ID)
             self._add_job_unit(
                 JobDefinition(
                     data,

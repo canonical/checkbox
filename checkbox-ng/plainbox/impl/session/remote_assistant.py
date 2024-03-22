@@ -143,7 +143,7 @@ class BackgroundExecutor(Thread):
 class RemoteSessionAssistant:
     """Remote execution enabling wrapper for the SessionAssistant"""
 
-    REMOTE_API_VERSION = 12
+    REMOTE_API_VERSION = 13
 
     def __init__(self, cmd_callback):
         _logger.debug("__init__()")
@@ -174,6 +174,9 @@ class RemoteSessionAssistant:
         self._normal_user = ""
         self.session_change_lock.acquire(blocking=False)
         self.session_change_lock.release()
+
+    def note_metadata_starting_job(self, job, job_state):
+        self._sa.note_metadata_starting_job(job, job_state)
 
     @property
     def session_change_lock(self):
@@ -212,6 +215,9 @@ class RemoteSessionAssistant:
             self.session_change_lock.release()
             self._current_comments = ""
             self._state = TestsSelected
+            return
+        elif response == "quit":
+            self.abandon_session()
             return
         self._last_response = response
         self._state = Running
@@ -343,6 +349,9 @@ class RemoteSessionAssistant:
         )  # sorted by name
         return self._available_testplans
 
+    def select_test_plan(self, test_plan_id):
+        return self._sa.select_test_plan(test_plan_id)
+
     @allowed_when(Started)
     def prepare_bootstrapping(self, test_plan_id):
         """Save picked test plan to the app blob."""
@@ -389,7 +398,7 @@ class RemoteSessionAssistant:
         self._jobs_count = len(self._sa.get_dynamic_todo_list())
         self._state = TestsSelected
 
-    @allowed_when(Interacting)
+    @allowed_when(Interacting, TestsSelected)
     def rerun_job(self, job_id, result):
         self._sa.use_job_result(job_id, result)
         self.session_change_lock.acquire(blocking=False)
@@ -629,6 +638,9 @@ class RemoteSessionAssistant:
     def get_job_result(self, job_id):
         return self._sa.get_job_state(job_id).result
 
+    def get_job_state(self, job_id):
+        return self._sa.get_job_state(job_id)
+
     def get_jobs_repr(self, job_ids, offset=0):
         """
         Translate jobs into a {'field': 'val'} representations.
@@ -676,7 +688,19 @@ class RemoteSessionAssistant:
             test_info_list = test_info_list + ((test_info,))
         return json.dumps(test_info_list)
 
-    def resume_by_id(self, session_id=None):
+    def delete_sessions(self, session_list):
+        return self._sa.delete_sessions(session_list)
+
+    def get_resumable_sessions(self):
+        return self._sa.get_resumable_sessions()
+
+    def resume_session(self, session_id, runner_kwargs={}):
+        return self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
+
+    def bootstrap(self):
+        return self._sa.bootstrap()
+
+    def resume_by_id(self, session_id=None, overwrite_result_dict={}):
         _logger.info("resume_by_id: %r", session_id)
         self._launcher = load_configs()
         resume_candidates = list(self._sa.get_resumable_sessions())
@@ -694,12 +718,14 @@ class RemoteSessionAssistant:
             "stdin": self._pipe_to_subproc,
             "extra_env": self.prepare_extra_env,
         }
-        meta = self._sa.resume_session(session_id, runner_kwargs=runner_kwargs)
+        meta = self.resume_session(session_id, runner_kwargs=runner_kwargs)
         app_blob = json.loads(meta.app_blob.decode("UTF-8"))
-        launcher = app_blob["launcher"]
-        launcher_from_controller = Configuration.from_text(
-            app_blob["launcher"], "Remote launcher"
-        )
+        if "launcher" in app_blob:
+            launcher_from_controller = Configuration.from_text(
+                app_blob["launcher"], "Remote launcher"
+            )
+        else:
+            launcher_from_controller = Configuration()
         self._launcher.update_from_another(
             launcher_from_controller, "Remote launcher"
         )
@@ -725,29 +751,42 @@ class RemoteSessionAssistant:
             self._sa._manager.storage.id
         )
         result_path = os.path.join(session_share, "__result")
-        if os.path.exists(result_path):
-            try:
-                with open(result_path, "rt") as f:
-                    result_dict = json.load(f)
-                    # the only really important field in the result is
-                    # 'outcome' so let's make sure it doesn't contain
-                    # anything stupid
-                    if result_dict.get("outcome") not in [
-                        "pass",
-                        "fail",
-                        "skip",
-                    ]:
-                        result_dict["outcome"] = IJobResult.OUTCOME_PASS
-            except json.JSONDecodeError:
-                pass
-        else:
+        try:
+            with open(result_path, "rt") as f:
+                result_dict = json.load(f)
+                # the only really important field in the result is
+                # 'outcome' so let's make sure it doesn't contain
+                # anything stupid
+                if result_dict.get("outcome") not in [
+                    "pass",
+                    "fail",
+                    "skip",
+                ]:
+                    result_dict["outcome"] = IJobResult.OUTCOME_PASS
+        except (json.JSONDecodeError, FileNotFoundError):
             the_job = self._sa.get_job(self._last_job)
-            if the_job.plugin == "shell":
+            job_state = self._sa.get_job_state(the_job.id)
+            # the last running job already had a result
+            if job_state.result.outcome:
+                result_dict["outcome"] = job_state.result.outcome
+                result_dict["comments"] = job_state.result.comments or ""
+            # job didnt have a result, lets automatically calculate it
+            elif the_job.plugin == "shell":
                 if "noreturn" in the_job.get_flag_set():
                     result_dict["outcome"] = IJobResult.OUTCOME_PASS
+                    result_dict["comments"] = (
+                        "Job rebooted the machine or the Checkbox agent. "
+                        "Resuming the session and marking it as passed "
+                        "because the job has the `noreturn` flag"
+                    )
                 else:
                     result_dict["outcome"] = IJobResult.OUTCOME_CRASH
+                    result_dict["comments"] = (
+                        "Job rebooted the machine or the Checkbox agent. "
+                        "Resuming the session and marking it as crashed."
+                    )
 
+        result_dict.update(overwrite_result_dict)
         result = MemoryJobResult(result_dict)
         if self._last_job:
             try:
@@ -770,6 +809,9 @@ class RemoteSessionAssistant:
 
     def finalize_session(self):
         self._sa.finalize_session()
+        self._reset_sa()
+
+    def abandon_session(self):
         self._reset_sa()
 
     def transmit_input(self, text):

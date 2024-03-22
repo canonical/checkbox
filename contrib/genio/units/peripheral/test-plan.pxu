@@ -1,0 +1,57 @@
+id: genio-peripheral-full
+unit: test plan
+_name: Genio Peripheral tests
+_description: Full Genio Peripheral tests for devices
+include:
+nested_part:
+    genio-peripheral-manual
+    genio-peripheral-automated
+
+id: genio-peripheral-manual
+unit: test plan
+_name: Genio Peripheral manual tests
+_description: Manual Genio Peripheral tests for devices
+include:
+    genio-peripheral/uart1-micro-b-.*
+    genio-peripheral/uart2-micro-b-.*
+
+id: genio-peripheral-automated
+unit: test plan
+_name: Genio Peripheral auto tests
+_description: Automated Genio Peripheral tests for devices
+bootstrap_include:
+    gpio_loopback_pin_mapping
+include:
+    genio-peripheral/spi-test
+    genio-peripheral/gpio-loopback-on-phycial-output-.*-input-.*
+    genio-peripheral/uart1-rpi-hat-loopback-.*
+    genio-peripheral/uart1-j52-loopback-.*
+    genio-peripheral/uart2-rpi-hat-loopback-.*
+
+id: after-suspend-genio-peripheral-full
+unit: test plan
+_name: Genio Peripheral tests (after suspend)
+_description: Full after suspend Genio Peripheral tests for devices
+include:
+nested_part:
+
+id: after-suspend-genio-peripheral-manual
+unit: test plan
+_name: Genio Peripheral manual tests (after suspend)
+_description: Manual after suspend Genio Peripheral tests for devices
+include:
+    after-suspend-genio-peripheral/uart1-micro-b-.*
+    after-suspend-genio-peripheral/uart2-micro-b-.*
+
+id: after-suspend-genio-peripheral-automated
+unit: test plan
+_name: Genio Peripheral auto tests (after suspend)
+_description: Automated after suspend Genio Peripheral tests for devices
+bootstrap_include:
+    gpio_loopback_pin_mapping
+include:
+    after-suspend-genio-peripheral/spi-test
+    after-suspend-genio-peripheral/gpio-loopback-on-phycial-output-.*-input-.*
+    after-suspend-genio-peripheral/uart1-rpi-hat-loopback-.*
+    after-suspend-genio-peripheral/uart1-j52-loopback-.*
+    after-suspend-genio-peripheral/uart2-rpi-hat-loopback-.*

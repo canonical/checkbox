@@ -374,6 +374,19 @@ class JobDefinition(UnitWithId, IJobDefinition):
             self.get_record_value(
                 'category_id', 'com.canonical.plainbox::uncategorised'))
 
+    @cached_property
+    def template_id(self):
+        """
+        Fully qualified identifier of the template this job is instantiated
+        from.
+
+        .. note::
+            This field should only be present in jobs instantiated from
+            templates. It should not be used when writing jobs manually.
+            Therefore, it is not described in the user-facing documentation.
+        """
+        return self.get_record_value("template-id")
+
     @propertywithsymbols(symbols=_AutoRetryValues)
     def auto_retry(self):
         """

@@ -12,7 +12,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  tox_test_checkbox_ng:
+    name: Test checkbox-ng with tox
     defaults:
       run:
         working-directory: checkbox-ng

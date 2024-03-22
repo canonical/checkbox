@@ -19,12 +19,14 @@
 Definition of sub-command classes for checkbox-cli
 """
 from argparse import ArgumentTypeError
+from argparse import RawDescriptionHelpFormatter
 from argparse import SUPPRESS
 from collections import defaultdict
-from datetime import datetime
 from string import Formatter
 from tempfile import TemporaryDirectory
+import textwrap
 import fnmatch
+import contextlib
 import gettext
 import json
 import logging
@@ -34,22 +36,24 @@ import re
 import shlex
 import sys
 import tarfile
-import textwrap
 import time
 
 from plainbox.abc import IJobResult
 from plainbox.impl.color import Colorizer
+from plainbox.impl.session.resume import IncompatibleJobError
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.highlevel import Explorer
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.runner import slugify
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
+from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.session.assistant import SA_RESTARTABLE
 from plainbox.impl.session.restart import detect_restart_strategy
 from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import SECURE_ID_PATTERN
+from plainbox.impl.unit.testplan import TestPlanUnitSupport
 
 from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
@@ -66,7 +70,11 @@ from checkbox_ng.urwid_ui import ManifestBrowser
 from checkbox_ng.urwid_ui import ReRunBrowser
 from checkbox_ng.urwid_ui import ResumeInstead
 from checkbox_ng.urwid_ui import TestPlanBrowser
-from checkbox_ng.utils import newline_join
+from checkbox_ng.utils import (
+    newline_join,
+    generate_resume_candidate_description,
+    request_comment,
+)
 
 _ = gettext.gettext
 
@@ -255,10 +263,8 @@ class Launcher(MainLoopStage, ReportsStage):
                         something_got_chosen = True
                     except ResumeInstead:
                         self.sa.finalize_session()
-                        something_got_chosen = (
-                            self._manually_resume_session(
-                                self.resume_candidates
-                            )
+                        something_got_chosen = self._manually_resume_session(
+                            self.resume_candidates
                         )
 
             if not self.ctx.sa.get_static_todo_list():
@@ -337,6 +343,58 @@ class Launcher(MainLoopStage, ReportsStage):
             lambda session_id: [join_cmd(respawn_cmd + [session_id])]
         )
 
+    @contextlib.contextmanager
+    def _resumed_session(self, session_id):
+        """
+        Used to temporarily resume a session to inspect it, abandoning it
+        before exiting the context
+        """
+        try:
+            # reload the list of resumable_session in SA
+            yield self.sa.resume_session(session_id)
+        finally:
+            self.ctx.reset_sa()
+
+    def _should_autoresume_last_run(self, resume_candidates):
+        try:
+            last_abandoned_session = resume_candidates[0]
+        except IndexError:
+            return False
+        try:
+            with self._resumed_session(last_abandoned_session.id) as metadata:
+                app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
+
+                if not app_blob.get("testplan_id"):
+                    return False
+
+                self.sa.select_test_plan(app_blob["testplan_id"])
+                self.sa.bootstrap()
+
+                if not metadata.running_job_name:
+                    return False
+
+                job_state = self.sa.get_job_state(metadata.running_job_name)
+                if job_state.job.plugin != "shell":
+                    return False
+                return True
+        except IncompatibleJobError as ije:
+            # last resumable session is incompatible, produce a helpful log
+            _logger.error(
+                "Checkbox tried to resume last session (%s), but the "
+                "content of Checkbox Providers has changed.",
+                last_abandoned_session.id,
+            )
+            _logger.error(str(ije))
+            _logger.error(
+                "To resume it either revert the latest Checkbox snap refresh"
+            )
+            _logger.error(
+                "or roll back the relevant provider debian package first"
+            )
+
+            input("\nPress enter to start Checkbox.")
+            return False
+
     def _auto_resume_session(self, resume_candidates):
         """
         Check if there was a request to auto-resume a session.
@@ -355,12 +413,17 @@ class Launcher(MainLoopStage, ReportsStage):
             ]
             if requested_sessions:
                 # session_ids are unique, so there should be only 1
-                self._resume_session(requested_sessions[0])
+                self._resume_session(
+                    requested_sessions[0].id, IJobResult.OUTCOME_UNDECIDED
+                )
                 return True
             else:
                 raise RuntimeError("Requested session is not resumable!")
-        else:
-            return False
+        elif self._should_autoresume_last_run(resume_candidates):
+            last_session = resume_candidates[0]
+            self._resume_session(last_session.id, None)
+            return True
+        return False
 
     def _manually_resume_session(self, resume_candidates):
         """
@@ -370,7 +433,7 @@ class Launcher(MainLoopStage, ReportsStage):
         entries = [
             (
                 candidate.id,
-                _generate_resume_candidate_description(candidate),
+                generate_resume_candidate_description(candidate),
             )
             for candidate in resume_candidates
         ]
@@ -402,7 +465,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 break
 
         if resume_params.session_id:
-            self._resume_session(resume_params)
+            self._resume_session_via_resume_params(resume_params)
             return True
         return False
 
@@ -429,53 +492,94 @@ class Launcher(MainLoopStage, ReportsStage):
                 self._delete_old_sessions(ids)
                 return False
 
-    def _resume_session(self, resume_params):
-        metadata = self.ctx.sa.resume_session(resume_params.session_id)
+    def _resume_session_via_resume_params(self, resume_params):
+        outcome = {
+            "pass": IJobResult.OUTCOME_PASS,
+            "fail": IJobResult.OUTCOME_FAIL,
+            "skip": IJobResult.OUTCOME_SKIP,
+            "rerun": IJobResult.OUTCOME_UNDECIDED,
+        }[resume_params.action]
+        return self._resume_session(
+            resume_params.session_id, outcome, resume_params.comments
+        )
+
+    def _get_autoresume_outcome_last_job(self, metadata):
+        """
+        Calculates the result of the latest running job given its flags. This
+        is used to automatically resume a session and assign an outcome to the
+        job that interrupted the session. If the interruption is due to a
+        noreturn job (for example, reboot), the job will be marked as passed,
+        else, if the job made Checkbox crash, it will be marked as crash. If
+        the job has a recorded outcome (so the session was interrupted after
+        assigning the outcome and before starting a new job) it will be used
+        instead.
+        """
+        job_state = self.sa.get_job_state(metadata.running_job_name)
+        if job_state.result.outcome:
+            return job_state.result.outcome
+        elif "noreturn" in (job_state.job.flags or set()):
+            return IJobResult.OUTCOME_PASS
+        return IJobResult.OUTCOME_CRASH
+
+    def _resume_session(
+        self, session_id: str, outcome: "IJobResult|None", comments=[]
+    ):
+        """
+        Resumes the session with the given session_id assigning to the latest
+        running job the given outcome. If outcome is not provided it will be
+        calculated from the function _get_autoresume_outcome_last_job
+        """
+        metadata = self.ctx.sa.resume_session(session_id)
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
             self.ctx.sa.select_test_plan(test_plan_id)
             self.ctx.sa.bootstrap()
+            if outcome is None:
+                outcome = self._get_autoresume_outcome_last_job(metadata)
+
         last_job = metadata.running_job_name
         is_cert_blocker = (
             self.ctx.sa.get_job_state(last_job).effective_certification_status
             == "blocker"
         )
         # If we resumed maybe not rerun the same, probably broken job
-        result_dict = {
-            "comments": resume_params.comments,
-        }
-        if resume_params.action == "pass":
-            result_dict["outcome"] = IJobResult.OUTCOME_PASS
+        result_dict = {"comments": comments, "outcome": outcome}
+        if outcome == IJobResult.OUTCOME_PASS:
             result_dict["comments"] = newline_join(
                 result_dict["comments"], "Passed after resuming execution"
             )
 
-        elif resume_params.action == "fail":
-            if is_cert_blocker:
-                if not resume_params.comments:
-                    result_dict["comments"] = request_comment("why it failed")
+        elif outcome == IJobResult.OUTCOME_FAIL:
+            if is_cert_blocker and not comments:
+                result_dict["comments"] = request_comment("why it failed")
             else:
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Failed after resuming execution"
                 )
-
-            result_dict["outcome"] = IJobResult.OUTCOME_FAIL
-        elif resume_params.action == "skip":
-            if is_cert_blocker:
-                if not resume_params.comments:
-                    result_dict["comments"] = request_comment(
-                        "why you want to skip it"
-                    )
+        elif outcome == IJobResult.OUTCOME_SKIP:
+            if is_cert_blocker and not comments:
+                result_dict["comments"] = request_comment(
+                    "why you want to skip it"
+                )
             else:
                 result_dict["comments"] = newline_join(
                     result_dict["comments"], "Skipped after resuming execution"
                 )
-            result_dict["outcome"] = IJobResult.OUTCOME_SKIP
-
-        elif resume_params.action == "rerun":
+        elif outcome == IJobResult.OUTCOME_CRASH:
+            if is_cert_blocker and not comments:
+                result_dict["comments"] = request_comment("why it failed")
+            else:
+                result_dict["comments"] = newline_join(
+                    result_dict["comments"], "Crashed after resuming execution"
+                )
+        elif outcome == IJobResult.OUTCOME_UNDECIDED:
             # if we don't call use_job_result it means we'll rerun the job
             return
+        else:
+            raise ValueError(
+                "Unsupported outcome for resume {}".format(outcome)
+            )
         result = MemoryJobResult(result_dict)
         self.ctx.sa.use_job_result(last_job, result)
 
@@ -1171,6 +1275,92 @@ class List:
         print_objs(ctx.args.GROUP, ctx.sa, ctx.args.attrs)
 
 
+class Expand:
+    def __init__(self):
+        self.override_list = []
+
+    @property
+    def sa(self):
+        return self.ctx.sa
+
+    def register_arguments(self, parser):
+        parser.formatter_class = RawDescriptionHelpFormatter
+        parser.description = (
+            "Expand a given test plan: display all the jobs and templates "
+            "that are defined in this test plan and that would be executed "
+            "if ran. This is useful to visualize the full list of jobs and "
+            "templates for complex test plans that consist of many nested "
+            "parts with different 'include' and 'exclude' sections.\n\n"
+            "NOTE: the elements listed here are not sorted by execution "
+            "order. To see the execution order, please use the "
+            "'list-bootstrapped' command instead."
+        )
+        parser.add_argument("TEST_PLAN", help=_("test-plan id to expand"))
+        parser.add_argument(
+            "-f",
+            "--format",
+            type=str,
+            default="text",
+            help=_("output format: 'text' or 'json' (default: %(default)s)"),
+        )
+
+    def invoked(self, ctx):
+        self.ctx = ctx
+        session_title = "checkbox-expand-{}".format(ctx.args.TEST_PLAN)
+        self.sa.start_new_session(session_title)
+        tps = self.sa.get_test_plans()
+        if ctx.args.TEST_PLAN not in tps:
+            raise SystemExit("Test plan not found")
+        self.sa.select_test_plan(ctx.args.TEST_PLAN)
+        all_jobs_and_templates = [
+            unit
+            for unit in self.sa._context.state.unit_list
+            if unit.unit in ["job", "template"]
+        ]
+        tp = self.sa._context._test_plan_list[0]
+        tp_us = TestPlanUnitSupport(tp)
+        self.override_list = tp_us.override_list
+        jobs_and_templates_list = select_units(
+            all_jobs_and_templates,
+            [tp.get_mandatory_qualifier()] + [tp.get_qualifier()],
+        )
+
+        obj_list = []
+        for unit in jobs_and_templates_list:
+            obj = unit._raw_data.copy()
+            obj["unit"] = unit.unit
+            obj["id"] = unit.id  # To get the fully qualified id
+            obj[
+                "certification-status"
+            ] = self.get_effective_certification_status(unit)
+            if unit.template_id:
+                obj["template-id"] = unit.template_id
+            obj_list.append(obj)
+        obj_list.sort(key=lambda x: x.get("template-id", x["id"]))
+        if ctx.args.format == "json":
+            print(json.dumps(obj_list, sort_keys=True))
+        else:
+            for obj in obj_list:
+                if obj["unit"] == "template":
+                    print("Template '{}'".format(obj["template-id"]))
+                else:
+                    print("Job '{}'".format(obj["id"]))
+
+    def get_effective_certification_status(self, unit):
+        if unit.unit == "template":
+            unit_id = unit.template_id
+        else:
+            unit_id = unit.id
+        for regex, override_field_list in self.override_list:
+            if re.match(regex, unit_id):
+                for field, value in override_field_list:
+                    if field == "certification_status":
+                        return value
+        if hasattr(unit, "certification_status"):
+            return unit.certification_status
+        return "unspecified"
+
+
 class ListBootstrapped:
     @property
     def sa(self):
@@ -1206,7 +1396,8 @@ class ListBootstrapped:
             attrs["full_id"] = job_unit.id
             attrs["id"] = job_unit.partial_id
             attrs["certification_status"] = self.ctx.sa.get_job_state(
-                                      job).effective_certification_status
+                job
+            ).effective_certification_status
             jobs.append(attrs)
         if ctx.args.format == "?":
             all_keys = set()
@@ -1358,54 +1549,3 @@ class Show:
             # provider and service does not have origin
             for k, v in obj.attrs.items():
                 print("{}: {}".format(k, v))
-
-
-def _generate_resume_candidate_description(candidate):
-    template = textwrap.dedent(
-        """
-        Session Title:
-            {session_title}
-
-        Test plan used:
-            {tp_id}
-
-        Last job that was run:
-            {last_job_id}
-
-        Last job was started at:
-            {last_job_start_time}
-        """
-    )
-    app_blob = json.loads(candidate.metadata.app_blob.decode("UTF-8"))
-    session_title = candidate.metadata.title or "Unknown"
-    tp_id = app_blob.get("testplan_id", "Unknown")
-    last_job_id = candidate.metadata.running_job_name or "Unknown"
-    last_job_timestamp = candidate.metadata.last_job_start_time or None
-    if last_job_timestamp:
-        dt = datetime.utcfromtimestamp(last_job_timestamp)
-        last_job_start_time = dt.strftime("%Y-%m-%d %H:%M:%S")
-    else:
-        last_job_start_time = "Unknown"
-    return template.format(
-        session_title=session_title,
-        tp_id=tp_id,
-        last_job_id=last_job_id,
-        last_job_start_time=last_job_start_time,
-    )
-
-
-def request_comment(prompt: str) -> str:
-    """
-    Request a comment from the user.
-    :param prompt: the thing that user has to explain with their comment
-    :return: the comment provided by the user
-    """
-    colorizer = Colorizer()
-    red = colorizer.RED
-    blue = colorizer.BLUE
-    comment = ""
-    while not comment:
-        print(red("This job is required in order to issue a certificate."))
-        print(red("Please add a comment to explain {}.".format(prompt)))
-        comment = input(blue("Please enter your comments:\n"))
-    return comment

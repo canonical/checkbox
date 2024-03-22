@@ -26,10 +26,10 @@ include:
 
 id: cert-blocker-manual-resume
 unit: test plan
-_name: Manual cert-blocker test
+_name: Manual cert-blocker interact test
 _description:
     Test that a job marked as cert-blocker cannot be skipped without a comment
     when resuming a session
 include:
     stub/split-fields/manual certification-status=blocker
-    stub/split-fields/user-interact
+    stub/split-fields/user-interact certification-status=blocker

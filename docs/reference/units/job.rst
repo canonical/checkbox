@@ -315,11 +315,17 @@ Following fields may be used by the job unit:
 
     .. _also-after-suspend flag:
 
-    ``also-after-suspend``: See :ref:`Job siblings field` below.
+    ``also-after-suspend``:
+        Ensure the test will be run before **and** after suspend by creating
+        a :ref:`sibling<Job siblings field>` that will depend on the automated
+        suspend job. The current job is guaranteed to run before suspend.
 
     .. _also-after-suspend-manual flag:
 
-    ``also-after-suspend-manual``: See :ref:`Job siblings field` below.
+    ``also-after-suspend-manual``:
+        Ensure the test will be run before **and** after suspend by creating
+        a :ref:`sibling<Job siblings field>` that will depend on the manual
+        suspend job. The current job is guaranteed to run before suspend.
 
     Additional flags may be present in job definition; they are ignored.
 
@@ -399,16 +405,20 @@ Following fields may be used by the job unit:
           com.canonical.certification::suspend/suspend_advanced
           foo
 
-.. warning::
-    The curly braces used in this field have to be escaped when used in a
-    template job (python format, Jinja2 templates do not have this issue).
-    The syntax for templates is::
+    .. note::
+        If the sibling definition depends on one of the suspend jobs, Checkbox
+        will make sure the original job runs **before** the suspend job.
 
-            _siblings: [
-                {{ "id": "bar-after-suspend_{interface}",
-                  "_summary": "bar after suspend",
-                  "depends": "suspend/advanced"}}
-                ]
+    .. warning::
+        The curly braces used in this field have to be escaped when used in a
+        template job (python format, Jinja2 templates do not have this issue).
+        The syntax for templates is::
+
+                _siblings: [
+                    {{ "id": "bar-after-suspend_{interface}",
+                      "_summary": "bar after suspend",
+                      "depends": "suspend/advanced"}}
+                    ]
 
 .. _Job imports field:
 

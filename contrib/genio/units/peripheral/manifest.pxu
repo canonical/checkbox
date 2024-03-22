@@ -1,0 +1,41 @@
+unit: manifest entry
+id: has_genio_gpio_lookback
+_prompt: Does this device have the following on Raspberry PI Hat?:
+_name: GPIO Loopback Connector
+value-type: bool
+
+unit: manifest entry
+id: has_genio_spi_lookback
+_prompt: Does this device have the following on Raspberry PI Hat?:
+_name: SPI Loopback Connector
+value-type: bool
+
+unit: manifest entry
+id: has_genio_uart_lookback
+_prompt: Does this device have the following on Raspberry PI Hat?:
+_name: UART Loopback Connector
+value-type: bool
+
+unit: manifest entry
+id: has_genio_g1200_j34_short
+_prompt: G1200-evk Platform Specific:
+_name: Is there a jumper or wire connected on J43 (short J43)?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_g1200_j52_txd_rxd_connection
+_prompt: G1200-evk Platform Specific:
+_name: Is there a jumper or wire connected TXD and RXD on J52?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_g700_j4202_as_rpi_mode
+_prompt: G700 Platform Specific:
+_name: Is J4202 configured as Raspberry PI mode?
+value-type: bool
+
+unit: manifest entry
+id: has_genio_g700_j4203_as_rpi_mode
+_prompt: G700 Platform Specific:
+_name: Is J4203 configured as Raspberry PI mode?
+value-type: bool

@@ -347,4 +347,44 @@ estimated_duration: 10
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_led_indicator == 'True'
 command:
-    led_test.sh -t sysfs -n {path}
+    led_control_test.py -n {path} -d 10
+
+id: led-indicator/gpio-controller-leds
+plugin: resource
+_summary: Gather a list of LED indicators for the device that controls via GPIO chip.
+_description:
+    A LED GPIO devices mapping resource that relies on the user specifying in config variable.
+    Refer to the /sys/kernel/debug/gpio for the gpiochip number
+    Usage of parameter: GPIO_CONTROLLER_LEDS={name1}:{controller1}:{port1} {name2}:{controller1}:{port2} ...
+    e.g. GPIO_CONTROLLER_LEDS=dl14:3:1 dl15:3:2 dl16:3:3
+estimated_duration: 3
+environ: GPIO_CONTROLLER_LEDS
+command:
+    gpio_control_test.py led-resource "$GPIO_CONTROLLER_LEDS"
+
+unit: template
+template-resource: led-indicator/gpio-controller-leds
+template-unit: job
+category_id: led
+id: led-indicator/gpio-controller-leds-{name}
+estimated_duration: 10
+plugin: user-interact-verify
+user: root
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_led_indicator == 'True'
+flags: also-after-suspend
+_summary: Check control of {name} LED indecator.
+_description:
+    Check that {name} LED turns on and off.
+_steps:
+    1. Press Enter and observe LED behavior on DUT.
+_verification:
+    Does the "{name}" LED blink?
+command:
+    if (snap connections | grep "$SNAP_NAME:gpio"); then
+        # the gpio slots has been connected to checkbox, skip the GPIO export steps
+        gpio_control_test.py led -n {name} --gpio-chip {chip_number} --gpio-pin {port}
+    else
+        # the gpio slots has not been connected to checkbox, perform the GPIO export steps during testing
+        gpio_control_test.py led -n {name} --gpio-chip {chip_number} --gpio-pin {port} --need-export
+    fi

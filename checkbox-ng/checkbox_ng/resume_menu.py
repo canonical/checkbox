@@ -184,11 +184,11 @@ class ResumeMenu:
         """Create a view for the action selection menu."""
         self._action_buttons = [
             # label that goes on the button and the action string recorded
-            ("Add comment", "comment"),
-            ("Resume and skip the job", "skip"),
-            ("Mark the job as passed and continue", "pass"),
-            ("Mark the job as failed and continue", "fail"),
-            ("Resume and run the job again.", "rerun"),
+            ("Add comment (C)", "comment"),
+            ("Resume and skip the job (S)", "skip"),
+            ("Mark the job as passed and continue (P)", "pass"),
+            ("Mark the job as failed and continue (F)", "fail"),
+            ("Resume and run the job again. (R)", "rerun"),
         ]
         action_listbox_content = self._ACTION_MENU_STATIC_ELEMENTS + [
             urwid.Button(btn[0]) for btn in self._action_buttons
@@ -257,7 +257,7 @@ class ResumeMenu:
             self.chosen_session = None
 
             raise urwid.ExitMainLoop()
-        elif key in ["d", "D"]:
+        elif key.upper() == "D":
             # user chose to delete the session
             self.chosen_session = self._entries[self.focused_index][0]
             self._chosen_action = "delete"
@@ -269,21 +269,32 @@ class ResumeMenu:
             # user cancelled the action, go back to the session selection
             self.chosen_session = None
             self.loop.widget = self._body
-
+            return
         elif key == "enter":
             # user chose an action, let's record it and exit
             # if the action is "comment" we need to show the comment box
-
             action_index = self._action_menu.base_widget.focus_position - len(
                 self._ACTION_MENU_STATIC_ELEMENTS
             )
             action = self._action_buttons[action_index][1]
 
             self._chosen_action = action
-            if action == "comment":
-                self.loop.widget = self._comment_view
-            else:
-                raise urwid.ExitMainLoop()
+        elif key.upper() == "C":
+            self._chosen_action = "comment"
+            self.loop.widget = self._comment_view
+        elif key.upper() == "S":
+            self._chosen_action = "skip"
+        elif key.upper() == "P":
+            self._chosen_action = "pass"
+        elif key.upper() == "F":
+            self._chosen_action = "fail"
+        elif key.upper() == "R":
+            self._chosen_action = "rerun"
+
+        if self._chosen_action == "comment":
+            self.loop.widget = self._comment_view
+        else:
+            raise urwid.ExitMainLoop()
 
     def _handle_input_on_comment_box(self, key):
         """Handle input on the comment box."""

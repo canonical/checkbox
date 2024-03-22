@@ -253,7 +253,8 @@ _description:
      This test will test display rotation on the {vendor} {product} graphics card
  STEPS:
      1. Click "Test" to test display rotation. The display will be rotated every 4 seconds.
-     2. Check if all rotations (normal right inverted left) took place without permanent screen corruption
+     2. Try moving the mouse or try opening multiple terminals via ‘Ctrl+Alt+T’ every time the screen automatically turns.
+     3. Check if all rotations (normal right inverted left) took place without permanent screen corruption.
  VERIFICATION:
      Did the display rotation take place without permanent screen corruption?
 
@@ -264,7 +265,7 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_gl_support_{product_slug}
 flags: also-after-suspend
 command:
-  "$CHECKBOX_RUNTIME"/usr/lib/nux/unity_support_test -p 2>&1
+  "$CHECKBOX_RUNTIME"/usr/lib/nux/unity_support_test -p 2>&1 | sed -e "s/\x1b\[[0-9;]*m//g"
 estimated_duration: 0.131
 _description: Check that {vendor} {product} hardware is able to run a desktop session (OpenGL)
 _summary: Test OpenGL support for {vendor} {product}
@@ -383,56 +384,6 @@ _summary: Test 3D window movement for {vendor} {product}
 
 unit: template
 template-resource: graphics_card
-plugin: shell
-category_id: com.canonical.plainbox::graphics
-id: graphics/{index}_screenshot_{product_slug}
-requires: package.name == 'fswebcam'
-command: set -o pipefail; camera_test.py still --device=/dev/external_webcam -f "$PLAINBOX_SESSION_SHARE"/screenshot_{index}.jpg -q 2>&1 | ansi_parser.py
-_summary: Test grabbing a screenshot for {vendor} {product}
-_description:
- PURPOSE:
-     Take a screengrab of the current screen (logged on Unity desktop) as produced by the {vendor} {product} graphics card
- STEPS:
-     1. Take picture using USB webcam
- VERIFICATION:
-     Review attachment manually later
-
-unit: template
-template-resource: graphics_card
-plugin: attachment
-category_id: com.canonical.plainbox::graphics
-id: graphics/{index}_screenshot_{product_slug}.jpg
-depends: graphics/{index}_screenshot_{product_slug}
-command: cat "$PLAINBOX_SESSION_SHARE"/screenshot_{index}.jpg
-_description: Attaches the screenshot captured in graphics/screenshot for the {vendor} {product} graphics card.
-_summary: Attach results of screenshot test for {vendor} {product}
-
-unit: template
-template-resource: graphics_card
-plugin: shell
-category_id: com.canonical.plainbox::graphics
-id: graphics/{index}_screenshot_fullscreen_video_{product_slug}
-requires: package.name == 'fswebcam'
-command:
- [ -f "$PLAINBOX_PROVIDER_DATA"/video/Ogg_Theora_Video.ogv ] || {{ echo "Video file not found"; exit 1; }}
- gsettings set org.gnome.totem repeat true
- totem --fullscreen "$PLAINBOX_PROVIDER_DATA"/video/Ogg_Theora_Video.ogv 2>/dev/null &
- set -o pipefail
- sleep 15 && camera_test.py still --device=/dev/external_webcam -f "$PLAINBOX_SESSION_SHARE"/screenshot_fullscreen_video_{index}.jpg -q 2>&1 | ansi_parser.py
- sleep 5 && pkill totem
- gsettings set org.gnome.totem repeat false
-_summary: Test FSV screenshot for {vendor} {product}
-_description:
- PURPOSE:
-     Take a screengrab of the current screen during fullscreen video playback using the {vendor} {product} graphics card
- STEPS:
-     1. Start a fullscreen video playback
-     2. Take picture using USB webcam after a few seconds
- VERIFICATION:
-     Review attachment manually later
-
-unit: template
-template-resource: graphics_card
 plugin: manual
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_switch_card_{product_slug}
@@ -474,15 +425,6 @@ _steps:
 _verification:
      Is the system using the {vendor} {product} card now?
 
-unit: template
-template-resource: graphics_card
-plugin: attachment
-category_id: com.canonical.plainbox::graphics
-id: graphics/{index}_screenshot_fullscreen_video_{product_slug}.jpg
-depends: graphics/{index}_screenshot_fullscreen_video_{product_slug}
-command: cat "$PLAINBOX_SESSION_SHARE"/screenshot_fullscreen_video_{index}.jpg
-_summary: Attach results of FSV screenshot test for {vendor} {product}
-_description: Attaches the screenshot captured in graphics/screenshot_fullscreen_video for the {vendor} {product} graphics card
 
 plugin: shell
 category_id: com.canonical.plainbox::graphics
@@ -555,12 +497,19 @@ _description: Check NVLINK are supported and NVLINK are connected properly on sy
 
 unit: template
 template-resource: graphics_card
-plugin: shell
+plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_glmark2-es2_{product_slug}
 requires:
- executable.name == 'glmark2-es2'
- 'classic' in environment.SNAP_NAME
-command: glmark2-es2 --data-path "$CHECKBOX_RUNTIME"/usr/share/glmark2/
+    executable.name == 'glmark2-es2'
+    'classic' in environment.SNAP_NAME
+environ:
+    CHECKBOX_RUNTIME
+command:
+    glmark2-es2 --data-path "$CHECKBOX_RUNTIME"/usr/share/glmark2/
 estimated_duration: 60.5
 _summary: Run OpenGL ES 2.0 X11 benchmark on the {product} video card
+_steps:
+    1. Commence the test to start rendering
+_verification:
+    Did all the videos and images rendered correctly?

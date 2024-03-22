@@ -713,6 +713,7 @@ class Unit(metaclass=UnitType):
             value is not None
             and self.template_engine == "jinja2"
             and not self.is_parametric
+            and not self.unit == "template"
         ):
             tmp_params = {
                 "__checkbox_env__": self._checkbox_env(),
@@ -755,6 +756,7 @@ class Unit(metaclass=UnitType):
             value is not None
             and self.template_engine == "jinja2"
             and not self.is_parametric
+            and not self.unit == "template"
         ):
             tmp_params = {
                 "__checkbox_env__": self._checkbox_env(),

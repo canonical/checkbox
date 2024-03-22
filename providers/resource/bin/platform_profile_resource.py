@@ -2,7 +2,7 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2023 Canonical Ltd.
+# Copyright 2024 Canonical Ltd.
 #    Authors: Bin Li <bin.li@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
@@ -17,6 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+# pylint: disable=consider-using-f-string
+
+""" Provides a resource to check if platform profiles are supported."""
 from pathlib import Path
 
 

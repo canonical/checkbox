@@ -23,7 +23,7 @@ import sys
 from unittest.mock import MagicMock
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
-from unittest.mock import Mock, patch
+from unittest.mock import patch
 from pipewire_utils import *
 
 
@@ -372,7 +372,8 @@ class GstPipeLineTests(unittest.TestCase):
                      "Route": [{
                          "name": "hdmi_demo_output",
                          "available": "yes",
-                         "description": "hdmi demo output"
+                         "description": "hdmi demo output",
+                         "direction": "Output"
                      }]
                  }
                }
@@ -385,6 +386,7 @@ class GstPipeLineTests(unittest.TestCase):
         mock_checkout.return_value = self.device
         self.assertEqual(PipewireTestError.NO_SPECIFIC_DEVICE,
                          pt.gst_pipeline("pipe", 10, "qoo"))
+
     @patch("time.sleep")
     @patch("subprocess.check_output")
     def test_gst_pipeline(self, mock_checkout, _):
@@ -587,6 +589,7 @@ class ShowDefaultDeviceTests(unittest.TestCase):
                                        "@DEFAULT_AUDIO_SINK@"],
                                       universal_newlines=True)
 
+
 class ArgsParsingTests(unittest.TestCase):
     def test_success(self):
         pt = PipewireTest()
@@ -675,7 +678,7 @@ class FunctionSelectTests(unittest.TestCase):
         self.assertEqual(rv, 55)
 
     @patch("pipewire_utils.PipewireTest.show_default_device", return_value=44)
-    def test_through(self, mock_monitor):
+    def test_show_default_device(self, mock_monitor):
         pt = PipewireTest()
         args = ["show", "-t", "AUDIO"]
         rv = pt.function_select(pt._args_parsing(args))

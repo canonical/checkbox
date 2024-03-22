@@ -248,7 +248,7 @@ class PipewireTest:
                     for route in client["info"]["params"]["Route"]:
                         name = route["name"]
                         available = route["available"]
-                        if (device in name
+                        if (device.lower() in name.lower()
                                 and "output" in route["direction"].lower()
                                 and available in ["unknown", "yes"]):
                             self.logger.info(

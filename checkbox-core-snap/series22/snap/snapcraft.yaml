@@ -340,6 +340,7 @@ parts:
       - wget
       - wmctrl
       - xz-utils
+      - rt-tests # For realtime performance test
       - on armhf:
         - python3-rpi.gpio # only in focal
       - on arm64:

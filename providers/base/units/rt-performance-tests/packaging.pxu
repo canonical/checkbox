@@ -1,0 +1,5 @@
+# For rt-performance-tests/cyclictest_rt_latency
+unit: packaging meta-data
+os-id: ubuntu
+os-version-id: >= 22.04
+Depends: rt-tests

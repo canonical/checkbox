@@ -249,7 +249,7 @@ class PipewireTest:
                         name = route["name"]
                         available = route["available"]
                         if (device in name
-                                and "output" in name
+                                and "output" in route["direction"].lower()
                                 and available in ["unknown", "yes"]):
                             self.logger.info(
                                     "[ Audio sink ]".center(80, '='))
@@ -258,7 +258,7 @@ class PipewireTest:
                                     .format(route["description"],
                                             available))
                             return True
-            raise ValueError('No abailable output device for {}'
+            raise ValueError('No available output device for {}'
                              .format(device))
         except (IndexError, ValueError) as e:
             logging.error(repr(e))

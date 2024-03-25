@@ -15,7 +15,8 @@
     'distro>=1.0',
     'configparser; python_version=="2.7"',
     'requests_unixsocket>=0.1.2; python_version>="3.5"',
-    'importlib_metadata; python_version<"3.8"'
+    'importlib_metadata; python_version<"3.8"',
+    'pyyaml',
   ]
 [metadata]
   long_description={'file' = 'README.md'}

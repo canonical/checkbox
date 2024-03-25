@@ -25,6 +25,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 
 import cv2
+import numpy as np
 
 import camera_quality_test as cqt
 
@@ -72,11 +73,7 @@ class CameraQualityTests(unittest.TestCase):
 
         result = cqt.main(["-d", "video0"])
         self.assertEqual(result, 0)
-        mock_score.assert_called_with("video0", False)
-
-        result = cqt.main(["-d", "video0", "-s"])
-        self.assertEqual(result, 0)
-        mock_score.assert_called_with("video0", True)
+        mock_score.assert_called_with("video0")
 
     @patch("logging.Logger.error", new=MagicMock())
     def test_quality_evaluation(self):
@@ -115,6 +112,7 @@ class CameraQualityTests(unittest.TestCase):
         self.assertRaises(RuntimeError, cqt.get_score_from_device, "video0")
 
     @patch(score_path)
+    @patch("camera_quality_test.save_image", new=MagicMock())
     def test_stable_image_from_cam(self, mock_score):
         """
         The test should pass with a good still image.
@@ -127,6 +125,7 @@ class CameraQualityTests(unittest.TestCase):
         self.assertEqual(cqt.get_score_from_device("video0"), 10)
 
     @patch(score_path)
+    @patch("camera_quality_test.save_image", new=MagicMock())
     def test_unstable_image_from_cam(self, mock_score):
         """
         The test should pass with a good still image.
@@ -139,6 +138,7 @@ class CameraQualityTests(unittest.TestCase):
         self.assertEqual(cqt.get_score_from_device("video0"), 10)
 
     @patch(score_path)
+    @patch("camera_quality_test.save_image", new=MagicMock())
     def test_slow_brisque_calculation(self, mock_score):
         """
         The test should iterate at least two times even if the computation time
@@ -157,15 +157,32 @@ class CameraQualityTests(unittest.TestCase):
             self.assertEqual(mock_score.call_count, 2)
 
     @patch("cv2.imwrite")
-    @patch(score_path)
-    def test_save_image_from_cam(self, mock_score, mock_imwrite):
+    @patch("camera_quality_test.PLAINBOX_SESSION_SHARE", "/tmp")
+    def test_save_image_with_sesion_share_defined(self, mock_imwrite):
         """
         The test should pass with a good still image.
         """
+        # create an empty image
+        img = np.zeros((100, 100, 3))
+        cqt.save_image(img, "video0")
+        mock_imwrite.assert_called_with("/tmp/quality_image_video0.jpg", img)
 
-        self.mock_capture.return_value.isOpened.return_value = True
-        self.mock_capture.return_value.read.return_value = (True, self.img)
-        mock_score.return_value = 10
-
-        cqt.get_score_from_device("video0", True)
-        self.assertTrue(mock_imwrite.called)
+    @patch("cv2.imwrite")
+    @patch("camera_quality_test.PLAINBOX_SESSION_SHARE", "")
+    @patch("camera_quality_test.NamedTemporaryFile")
+    def test_save_image_without_sesion_share_defined(
+        self, mock_tempfile, mock_imwrite
+    ):
+        """
+        The test should pass with a good still image.
+        """
+        # create an empty image
+        img = []
+        mock_tempfile.return_value.__enter__.return_value.name = (
+            "/tmp/quality_image_video0.jpg"
+        )
+        cqt.save_image(img, "video0")
+        mock_tempfile.assert_called_with(
+            prefix="quality_image_video0", suffix=".jpg", delete=False
+        )
+        mock_imwrite.assert_called_with("/tmp/quality_image_video0.jpg", img)

@@ -65,7 +65,8 @@
             "type": "test",
             "project": "certification",
             "duration": {{ job_state.result.execution_duration if job_state.result.execution_duration else 0 }},
-            "plugin": "{{ job_state.job.plugin }}"
+            "plugin": "{{ job_state.job.plugin }}",
+            "template_id": {{ job_state.job.template_id | jsonify | safe }}
         }{%- if not loop.last -%},{%- endif %}
     {%- endfor %}
     ],
@@ -101,7 +102,8 @@
             "outcome": "{{ job_state.result.outcome }}",
             "comments": {{ job_state.result.comments | jsonify | safe }},
             "io_log": {{ job_state.result.io_log_as_text_attachment | jsonify | safe }},
-            "duration": {{ job_state.result.execution_duration if job_state.result.execution_duration else 0}}
+            "duration": {{ job_state.result.execution_duration if job_state.result.execution_duration else 0}},
+            "template_id": {{ job_state.job.template_id | jsonify | safe }}
         }{%- if not loop.last -%},{%- endif %}
     {%- endfor %}
     ],

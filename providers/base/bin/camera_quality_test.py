@@ -30,6 +30,7 @@ import cv2
 import numpy as np
 
 from checkbox_support.vendor.brisque.brisque import BRISQUE
+from checkbox_support.helpers.timeout import timeout
 from tempfile import NamedTemporaryFile
 
 
@@ -157,6 +158,7 @@ def evaluate_score(score: float) -> int:
     return 0
 
 
+@timeout(120)
 def main(argv: list) -> int:
     parser = argparse.ArgumentParser(description="Run the image quality test")
     parser.add_argument(

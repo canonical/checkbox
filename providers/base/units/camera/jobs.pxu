@@ -119,8 +119,7 @@ estimated_duration: 20s
 depends: camera/detect
 requires: lsb.release >= '22.04'
 command:
-  timeout 120 camera_quality_test.py -d {{ name }} ||
-  (>&2 echo "Timeout computing score"; false)
+  camera_quality_test.py -d {{ name }}
 _description:
   Takes a picture and computes the quality based on a No-Reference image
   quality assessment algorithm called BRISQUE. This test will timeout and fail

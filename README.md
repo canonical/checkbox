@@ -40,6 +40,7 @@ Check the [contributing guide] to learn how to:
       ├── certification-client
       ├── certification-server
       ├── docker
+      ├── genio
       ├── gpgpu
       ├── iiotg
       ├── resource

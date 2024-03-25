@@ -15,8 +15,8 @@ from plainbox.provider_manager import setup, N_
 
 setup(
     name="checkbox-provider-genio",
-    namespace="com.canonical.contrib",
+    namespace="com.canonical.certification",
     version="1.0",
-    description=N_("The Genio provider"),
+    description=N_("Checkbox Provider for Genio devices"),
     gettext_domain="checkbox-provider-genio",
 )

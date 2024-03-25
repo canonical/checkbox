@@ -5,20 +5,19 @@ _description: This test will check your system shutdown/booting cycle via dbus c
 unit: job
 plugin: shell
 environ: STRESS_BOOT_WAKEUP_DELAY RTC_DEVICE_FILE
-command:
-  set -e
-  rtcwake -d "${RTC_DEVICE_FILE:-rtc0}" -v -m on -s "${STRESS_BOOT_WAKEUP_DELAY:-120}" &
-  test-strict-confinement.reboot cold
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0
+depends: com.canonical.certification::init-boot-loop-data
 imports:
   from com.canonical.certification import snap
   from com.canonical.certification import lsb
 requires:
   lsb.distributor_id == 'Ubuntu Core'
   snap.name == 'test-strict-confinement'
-depends: com.canonical.certification::init-boot-loop-data
+command:
+  set -e
+  rtcwake -d "${RTC_DEVICE_FILE:-rtc0}" -v -m no -s "${STRESS_BOOT_WAKEUP_DELAY:-120}" && test-strict-confinement.cold-boot || exit 1
 
 
 id: dbus-cold-boot-test
@@ -28,12 +27,12 @@ _description: This is a job to check system bootup without error after cold rebo
 unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
-command:
-  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/cold_reboot" -s -f
 user: root
 flags: preserve-locale
 estimated_duration: 1.0
 depends: dbus-cold-boot-reboot
+command:
+  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/cold_reboot" -s -f
 
 
 id: dbus-warm-boot-reboot
@@ -42,18 +41,18 @@ _summary: Perform warm reboot via dbus
 _description: Perform warm reboot of the system via dbus command.
 unit: job
 plugin: shell
-command:
-  test-strict-confinement.reboot warm
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 60s
+depends: com.canonical.certification::init-boot-loop-data
 imports:
   from com.canonical.certification import snap
   from com.canonical.certification import lsb
 requires:
   lsb.distributor_id == 'Ubuntu Core'
   snap.name == 'test-strict-confinement'
-depends: com.canonical.certification::init-boot-loop-data
+command:
+  test-strict-confinement.warm-boot
 
 
 id: dbus-warm-boot-test
@@ -63,9 +62,9 @@ _description: This is a job to check system bootup without error after warm rebo
 unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
-command:
-  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/warm_reboot" -s -f
 user: root
 flags: preserve-locale
 estimated_duration: 1.0
 depends: dbus-warm-boot-reboot
+command:
+  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/warm_reboot" -s -f

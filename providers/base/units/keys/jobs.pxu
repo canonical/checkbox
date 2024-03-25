@@ -225,16 +225,22 @@ requires:
  manifest.has_special_keys == 'True'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
- package.name == 'pulseaudio-utils'
+ package.name in ['pulseaudio-utils', 'pipewire']
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
 flags: also-after-suspend
 command:
- audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
- audio_settings.py set --device=pci --volume=50
- alsa_record_playback.sh
- EXIT_CODE=$?
- audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
- exit $EXIT_CODE
+  if check_audio_daemon.sh ; then
+    pipewire_utils.py show -t audio
+    alsa_record_playback.sh
+    EXIT_CODE=$?
+  else
+    audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+    audio_settings.py set --device=pci --volume=50
+    alsa_record_playback.sh
+    EXIT_CODE=$?
+    audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
+  fi
+  exit $EXIT_CODE
 _description:
  PURPOSE:
      This test will test the mute key for your microphone

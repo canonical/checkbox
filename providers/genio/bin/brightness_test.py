@@ -1,20 +1,16 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
-#  brightness_test.py
-#
 # This file is part of Checkbox.
 #
-# Copyright 2012-2018 Canonical Ltd.
-#
+# Copyright 2012-2024 Canonical Ltd.
 # Authors:
 #   Alberto Milone <alberto.milone@canonical.com>
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Patrick Chang <patrick.chang@canonical.com>
+#   Fernando Bravo <daniel.manrique@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
 # as published by the Free Software Foundation.
-
 #
 # Checkbox is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
@@ -23,14 +19,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-#
-#
-# Patrick Chang modified this script for specific platform and display purpose.
-#   - I keep the origianl logic of Brightness Class and just modified the main
-#     function in order to get test the specific display. In addition, I divide
-#     the brightness into five parts to have better test coverage.
-#
-#
+
+
+# This script is a modification of the brightness test in the base provider
+# that has been modified to work with the Genio platforms. The original script
+# has also been refactored for better readability and maintainability.
+
 
 import sys
 import os

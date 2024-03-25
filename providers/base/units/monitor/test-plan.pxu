@@ -1,3 +1,92 @@
+id: monitor-gpu-cert-full
+unit: test plan
+_name: Monitor tests (GPU)
+_description:
+ Monitor tests (GPU)
+include:
+bootstrap_include:
+ graphics_card
+nested_part:
+ com.canonical.certification::monitor-gpu-cert-manual
+ com.canonical.certification::monitor-gpu-cert-automated
+
+id: monitor-gpu-cert-automated
+unit: test plan
+_name: Monitor tests (GPU) (Automated)
+_description:
+ Monitor tests (GPU) (Automated)
+include:
+bootstrap_include:
+    graphics_card
+
+id: monitor-gpu-cert-manual
+unit: test plan
+_name: Monitor tests (GPU) (Manual)
+_description:
+ Monitor tests (GPU) (Manual)
+include:
+ monitor/1_powersaving_.*                   certification-status=blocker
+ power-management/light_sensor
+ monitor/1_dim_brightness_.*                certification-status=blocker
+ monitor/1_displayport_.*                   certification-status=blocker
+ audio/1_playback_displayport_.*            certification-status=blocker
+ monitor/1_type-c_displayport_.*            certification-status=blocker
+ audio/1_playback_type-c_displayport_.*     certification-status=blocker
+ monitor/1_type-c_hdmi_.*                   certification-status=blocker
+ audio/1_playback_type-c_hdmi_.*            certification-status=blocker
+ monitor/1_type-c_vga_.*                    certification-status=blocker
+ monitor/1_dvi_.*                           certification-status=blocker
+ monitor/1_hdmi_.*                          certification-status=blocker
+ audio/1_playback_hdmi_.*                   certification-status=blocker
+ monitor/1_thunderbolt3_.*                  certification-status=non-blocker
+ audio/1_playback_thunderbolt3_.*           certification-status=non-blocker
+ thunderbolt3/daisy-chain                   certification-status=non-blocker
+bootstrap_include:
+    graphics_card
+
+id: after-suspend-monitor-gpu-cert-full
+unit: test plan
+_name: Monitor tests (after suspend, GPU)
+_description: Monitor tests (after suspend, GPU)
+include:
+nested_part:
+    after-suspend-monitor-gpu-cert-manual
+    after-suspend-monitor-gpu-cert-automated
+
+id: after-suspend-monitor-gpu-cert-automated
+unit: test plan
+_name: Monitor tests (after suspend, GPU) (Automated)
+_description:
+ Monitor tests (after suspend, GPU) (Automated)
+include:
+bootstrap_include:
+    graphics_card
+
+id: after-suspend-monitor-gpu-cert-manual
+unit: test plan
+_name: Monitor tests (after suspend, GPU) (Manual)
+_description:
+ Monitor tests (after suspend, GPU) (Manual)
+include:
+ after-suspend-monitor/1_powersaving_.*                   certification-status=blocker
+ after-suspend-power-management/light_sensor
+ after-suspend-monitor/1_dim_brightness_.*                certification-status=blocker
+ after-suspend-monitor/1_displayport_.*                   certification-status=blocker
+ after-suspend-audio/1_playback_displayport_.*            certification-status=blocker
+ after-suspend-monitor/1_type-c_displayport_.*            certification-status=blocker
+ after-suspend-audio/1_playback_type-c_displayport_.*     certification-status=blocker
+ after-suspend-monitor/1_type-c_hdmi_.*                   certification-status=blocker
+ after-suspend-audio/1_playback_type-c_hdmi_.*            certification-status=blocker
+ after-suspend-monitor/1_type-c_vga_.*                    certification-status=blocker
+ after-suspend-monitor/1_dvi_.*                           certification-status=blocker
+ after-suspend-monitor/1_hdmi_.*                          certification-status=blocker
+ after-suspend-audio/1_playback_hdmi_.*                   certification-status=blocker
+ after-suspend-monitor/1_thunderbolt3_.*                  certification-status=non-blocker
+ after-suspend-audio/1_playback_thunderbolt3_.*           certification-status=non-blocker
+ after-suspend-thunderbolt3/daisy-chain                   certification-status=non-blocker
+bootstrap_include:
+    graphics_card
+
 id: monitor-integrated-gpu-cert-full
 unit: test plan
 _name: Monitor tests (integrated GPU)

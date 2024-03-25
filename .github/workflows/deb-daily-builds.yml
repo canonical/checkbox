@@ -7,7 +7,7 @@ on:
 jobs:
   ppa_update:
     name: Sync PPA history with monorepo
-    runs-on: [self-hosted, linux, small]
+    runs-on: [self-hosted, linux, large]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     steps:
       - name: Install dependencies

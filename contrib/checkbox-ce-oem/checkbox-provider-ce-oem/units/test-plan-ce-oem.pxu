@@ -80,6 +80,7 @@ nested_part:
     ce-oem-digital-io-automated
     ce-oem-gpio-automated
     com.canonical.certification::rtc-automated
+    com.canonical.certification::led-indicator-auto
 
 id: after-suspend-ce-oem-manual
 unit: test plan
@@ -141,6 +142,7 @@ nested_part:
     com.canonical.certification::after-suspend-rtc-automated
     after-suspend-ce-oem-iio-sensors-automated
     after-suspend-ce-oem-digital-io-automated
+    com.canonical.certification::after-suspend-led-indicator-auto
 
 id: ce-oem-stress
 unit: test plan

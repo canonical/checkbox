@@ -128,6 +128,25 @@ _description:
 
 unit: template
 template-resource: device
+template-filter: device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: attachment
+template-engine: jinja2
+category_id: com.canonical.plainbox::camera
+id: camera/camera-quality-image_{{ name }}
+flags: also-after-suspend
+_summary: Attaches the image used for the BRISQUE score for {{ product_slug }}
+estimated_duration: 1s
+depends: camera/detect
+requires: lsb.release >= '22.04'
+command:
+  [ -f "${PLAINBOX_SESSION_SHARE}"/quality_image_{{ name }}.jpg ] &&
+  cat "${PLAINBOX_SESSION_SHARE}"/quality_image_{{ name }}.jpg
+_description:
+  Attaches the image used for computing the BRISQUE score.
+
+unit: template
+template-resource: device
 template-filter: device.category == 'MMAL' and device.name != ''
 template-unit: job
 plugin: shell

@@ -137,7 +137,7 @@ _name: Automated LED indicator tests for IoT
 _description:
     Automated LED indicator tests for IoT devices
 include:
-    led-indicator/sysfs-leds-.*-auto
+    led-indicator/sysfs-leds-auto
 bootstrap_include:
     led-indicator/sysfs-leds
 
@@ -154,14 +154,4 @@ include:
 bootstrap_include:
     led-indicator/gpio-leds
     led-indicator/gpio-controller-leds
-    led-indicator/sysfs-leds
-
-id: after-suspend-led-indicator-auto
-unit: test plan
-_name: Automated LED indicator tests for IoT (after_suspend)
-_description:
-    Automated LED indicator tests for IoT devices (after_suspend)
-include:
-    after-suspend-led-indicator/sysfs-leds-.*-auto
-bootstrap_include:
     led-indicator/sysfs-leds

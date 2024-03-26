@@ -141,7 +141,6 @@ nested_part:
     com.canonical.certification::after-suspend-rtc-automated
     after-suspend-ce-oem-iio-sensors-automated
     after-suspend-ce-oem-digital-io-automated
-    com.canonical.certification::after-suspend-led-indicator-auto
 
 id: ce-oem-stress
 unit: test plan

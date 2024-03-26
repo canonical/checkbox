@@ -72,4 +72,4 @@ class TestPlatformProfilesSupport(unittest.TestCase):
     def test_main(self, mock_check_platform_profiles):
         """ Test the main function """
         platform_profile_resource.main()
-        mock_check_platform_profiles.assert_called()
+        mock_check_platform_profiles.assert_has_calls([])

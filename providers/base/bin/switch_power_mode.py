@@ -52,7 +52,9 @@ def set_power_profile(profile):
     try:
         subprocess.check_call(["powerprofilesctl", "set", profile])
     except subprocess.CalledProcessError as e:
-        raise SystemExit(f"Failed to set power mode to {profile}.") from e
+        raise SystemExit(
+            "Failed to set power mode to {}.".format(profile)
+        ) from e
 
 
 def main():
@@ -75,7 +77,9 @@ def main():
             if get_sysfs_content(profile_path) == choice:
                 print("Switch to {} successfully.".format(choice))
             else:
-                raise SystemExit("Failed to switch power mode to {}".format(choice))
+                raise SystemExit(
+                    "ERROR: Failed to switch power mode to {}".format(choice)
+                )
 
 
 if __name__ == "__main__":

@@ -31,7 +31,6 @@ import numpy as np
 
 from checkbox_support.vendor.brisque.brisque import BRISQUE
 from checkbox_support.helpers.timeout import timeout
-from tempfile import NamedTemporaryFile
 
 
 THRESHOLD = 60

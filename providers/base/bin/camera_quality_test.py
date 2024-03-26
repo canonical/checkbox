@@ -37,37 +37,30 @@ from tempfile import NamedTemporaryFile
 THRESHOLD = 60
 TIMEOUT = 10
 MIN_INTERVAL = 0.5
-PLAINBOX_SESSION_SHARE = os.environ.get("PLAINBOX_SESSION_SHARE", "")
 
 logger = logging.getLogger("camera_quality_test")
 
 
-def save_image(image: np.ndarray, device: str):
-    """Saves the image to the PLAINBOX_SESSION_SHARE directory if is set,
-    otherwise it saves the image to a temporary file.
+def save_image(image: np.ndarray, device: str, output: str):
+    """Saves the image from a video device to a the output directory.
 
     Args:
         image (np.ndarray): image to save
         device (str): name of the video device
-
+        output (str): output directory
     """
-    if PLAINBOX_SESSION_SHARE:
-        filepath = os.path.join(
-            PLAINBOX_SESSION_SHARE, "quality_image_{}.jpg".format(device)
-        )
-        cv2.imwrite(filepath, image)
-        print("Saved image to {}".format(filepath))
-    else:
-        with NamedTemporaryFile(
-            prefix="quality_image_{}".format(device),
-            suffix=".jpg",
-            delete=False,
-        ) as f:
-            cv2.imwrite(f.name, image)
-            print("Saved image to {}".format(f.name))
+    filepath = os.path.join(output, "quality_image_{}.jpg".format(device))
+    # Check if the output directory exists
+    if not os.path.exists(output):
+        msg = "Output directory does not exist: {}".format(output)
+        raise RuntimeError(msg)
+    if not cv2.imwrite(filepath, image):
+        msg = "Error while saving the image"
+        raise RuntimeError(msg)
+    print("Saved image to {}".format(filepath))
 
 
-def get_score_from_device(device: str, save: bool = False) -> float:
+def get_score_from_device(device: str, output: str = "") -> float:
     """
     "This function calculates the BRISQUE score for images captured by a
     specified device within a given time window. If the score stabilizes
@@ -126,7 +119,8 @@ def get_score_from_device(device: str, save: bool = False) -> float:
         scores.append(score)
         iter_count += 1
 
-    save_image(image, device)
+    if output:
+        save_image(image, device, output)
 
     # Release the video device
     cam.release()
@@ -167,6 +161,7 @@ def main(argv: list) -> int:
     parser.add_argument(
         "-f", "--file", default="", help="Parse a file instead of a device"
     )
+    parser.add_argument("-o", "--output", default="", help="Output directory")
 
     args = parser.parse_args(argv)
 
@@ -175,7 +170,7 @@ def main(argv: list) -> int:
         brisque = BRISQUE()
         score = brisque.score(img)
     else:
-        score = get_score_from_device(args.device)
+        score = get_score_from_device(args.device, args.output)
 
     return evaluate_score(score)
 

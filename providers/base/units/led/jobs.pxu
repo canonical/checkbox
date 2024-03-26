@@ -332,6 +332,7 @@ command:
 unit: template
 template-resource: led-indicator/sysfs-leds
 template-unit: job
+template-id: led-indicator/sysfs-leds-manual
 id: led-indicator/sysfs-leds-{name}-manual
 category_id: led
 _summary: Check control of {name} LED.
@@ -353,6 +354,7 @@ command:
 unit: template
 template-resource: led-indicator/sysfs-leds
 template-unit: job
+template-id: led-indicator/sysfs-leds-auto
 id: led-indicator/sysfs-leds-{name}-auto
 category_id: led
 _summary: Automated check control of {name} LED.

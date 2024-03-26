@@ -282,10 +282,10 @@ _description:
  Job listing STA supported 802.11 protocols per interfaces.
 command:
  # shellcheck disable=SC2046
- for i in $(iw dev | grep -oP 'Interface\s+\K\w+'); do iw phy phy$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info | grep -q 'VHT' && echo "$i""_ac: supported" || echo "$i""_ac: unsupported"; done
+ for i in $(iw dev | grep -oP 'Interface\s+\K\w+'); do iw phy $(iw phy | grep -m 1 -oP '^Wiphy\s+\K\D+')$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info | grep -q 'VHT' && echo "$i""_ac: supported" || echo "$i""_ac: unsupported"; done
  # MCS 10 and 11 if present support the ax only 1024-QAM
  # shellcheck disable=SC2046
- for i in $(iw dev | grep -oP 'Interface\s+\K\w+'); do iw phy phy$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info | grep -q 'MCS 0-11' && echo "$i""_ax: supported" || echo "$i""_ax: unsupported"; done
+ for i in $(iw dev | grep -oP 'Interface\s+\K\w+'); do iw phy $(iw phy | grep -m 1 -oP '^Wiphy\s+\K\D+')$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info | grep -q 'MCS 0-11' && echo "$i""_ax: supported" || echo "$i""_ax: unsupported"; done
 estimated_duration: 0.5
 flags: preserve-locale
 
@@ -371,7 +371,8 @@ category_id: information_gathering
 command:
  # shellcheck disable=SC2046
  for i in $(iw dev | grep -oP 'Interface\s+\K\w+');
- do iw phy phy$(iw dev "$i" info | grep -oP 'wiphy\s+\K\d+') info |
+ do iw phy $(iw phy | grep -m 1 -oP '^Wiphy\s+\K\D+')$(iw dev "$i" info |
+ grep -oP 'wiphy\s+\K\d+') info |
  grep -Pzo '(?s)Supported interface modes:\n\K(\s+\*\s.*?\n)+' |
  sed "s/.*\* \(.*\)/""$i""_\1: supported/" | tr -d '\000';
  done

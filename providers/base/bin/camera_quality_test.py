@@ -22,6 +22,7 @@
 import argparse
 from collections import deque
 import logging
+import os
 import time
 import sys
 
@@ -29,7 +30,8 @@ import cv2
 import numpy as np
 
 from checkbox_support.vendor.brisque.brisque import BRISQUE
-from tempfile import NamedTemporaryFile
+from checkbox_support.helpers.timeout import timeout
+
 
 THRESHOLD = 60
 TIMEOUT = 10
@@ -38,7 +40,26 @@ MIN_INTERVAL = 0.5
 logger = logging.getLogger("camera_quality_test")
 
 
-def get_score_from_device(device: str, save: bool = False) -> float:
+def save_image(image: np.ndarray, device: str, output: str):
+    """Saves the image from a video device to a the output directory.
+
+    Args:
+        image (np.ndarray): image to save
+        device (str): name of the video device
+        output (str): output directory
+    """
+    filepath = os.path.join(output, "quality_image_{}.jpg".format(device))
+    # Check if the output directory exists
+    if not os.path.exists(output):
+        msg = "Output directory does not exist: {}".format(output)
+        raise RuntimeError(msg)
+    if not cv2.imwrite(filepath, image):
+        msg = "Error while saving the image"
+        raise RuntimeError(msg)
+    print("Saved image to {}".format(filepath))
+
+
+def get_score_from_device(device: str, output: str = "") -> float:
     """
     "This function calculates the BRISQUE score for images captured by a
     specified device within a given time window. If the score stabilizes
@@ -48,8 +69,6 @@ def get_score_from_device(device: str, save: bool = False) -> float:
 
     :param device:
         The device to use for the webcam
-    :param save:
-        If True, the image will be saved to a temporary file
     :return:
         The BRISQUE score for the image
     :raises RuntimeError:
@@ -99,15 +118,8 @@ def get_score_from_device(device: str, save: bool = False) -> float:
         scores.append(score)
         iter_count += 1
 
-    # Save the image if requested
-    if save:
-        with NamedTemporaryFile(
-            prefix="camera_test_brisque_{}".format(device),
-            suffix=".jpg",
-            delete=False,
-        ) as f:
-            cv2.imwrite(f.name, image)
-            print("Saved image to {}".format(f.name))
+    if output:
+        save_image(image, device, output)
 
     # Release the video device
     cam.release()
@@ -139,6 +151,7 @@ def evaluate_score(score: float) -> int:
     return 0
 
 
+@timeout(120)
 def main(argv: list) -> int:
     parser = argparse.ArgumentParser(description="Run the image quality test")
     parser.add_argument(
@@ -147,12 +160,8 @@ def main(argv: list) -> int:
     parser.add_argument(
         "-f", "--file", default="", help="Parse a file instead of a device"
     )
-    parser.add_argument(
-        "-s",
-        "--save",
-        action="store_true",
-        help="Keep the image file after the test",
-    )
+    parser.add_argument("-o", "--output", default="", help="Output directory")
+
     args = parser.parse_args(argv)
 
     if args.file:
@@ -160,7 +169,7 @@ def main(argv: list) -> int:
         brisque = BRISQUE()
         score = brisque.score(img)
     else:
-        score = get_score_from_device(args.device, args.save)
+        score = get_score_from_device(args.device, args.output)
 
     return evaluate_score(score)
 

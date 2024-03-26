@@ -114,7 +114,5 @@ _purpose: Attach information about the devices, as reported by the fwupdmgr
 requires:
     executable.name == "fwupdmgr"
 command:
-    snap_var="$SNAP"
     unset SNAP
     fwupdmgr get-devices --json
-    export SNAP="$snap_var"

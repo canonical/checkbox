@@ -119,7 +119,7 @@ estimated_duration: 20s
 depends: camera/detect
 requires: lsb.release >= '22.04'
 command:
-  camera_quality_test.py -d {{ name }}
+  camera_quality_test.py -d {{ name }} -o "${PLAINBOX_SESSION_SHARE}"
 _description:
   Takes a picture and computes the quality based on a No-Reference image
   quality assessment algorithm called BRISQUE. This test will timeout and fail

@@ -152,7 +152,6 @@ requires:
     disk_resource.rotational == 'True'
 depends:
   input/accelerometer
-  disk_resource
 user: root
 command: hdd_parking.py
 _description:

@@ -4,12 +4,13 @@
 #
 # Copyright (C) 2010-2013 by Cloud Computing Center for Mobile Applications
 # Industrial Technology Research Institute
-# Copyright 2016 Canonical Ltd.
+# Copyright 2024 Canonical Ltd.
 #
 # Authors:
 #   Nelson Chu <Nelson.Chu@itri.org.tw>
 #   Jeff Lane <jeff@ubuntu.com>
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,

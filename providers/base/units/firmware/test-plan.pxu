@@ -36,3 +36,28 @@ include:
     firmware/fwts_desktop_diagnosis
     firmware/fwts_desktop_diagnosis_results.log.gz
 
+
+id: firmware-fwupdmgr-full
+unit: test plan
+_name: fwupdmgr test
+_description: Firmware update manager tests
+include:
+nested_part:
+    firmware-fwupdmgr-automated
+    firmware-fwupdmgr-manual
+
+id: firmware-fwupdmgr-automated
+unit: test plan
+_name: Auto fwupdmgr tests
+_description: Automated firmware update manager tests
+bootstrap_include:
+    executable
+    environment
+include:
+    firmware/fwupdmgr_get_devices
+
+id: firmware-fwupdmgr-manual
+unit: test plan
+_name: Manual fwupdmgr tests
+_description: Manual firmware update manager tests
+include:

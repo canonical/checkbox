@@ -31,74 +31,79 @@ disk_resource creates a resource per disk from the output of lsblk.
 - rotational: column ROTA, True for rotational drives like hard disks
 """
 
-import re
-import sys
+import json
 from subprocess import check_output, CalledProcessError
 
-from checkbox_support.parsers.udevadm import find_pkname_is_root_mountpoint
 
-
-def main():
-    """
-    disk_info.
-
-    Uses lsblk to gather information about disks seen by the OS.
-    Outputs kernel name, model and size data
-    """
-    pattern = re.compile(
-        'KNAME="(?P<KNAME>.*)" '
-        'PATH="(?P<PATH>.*)" '
-        'TYPE="(?P<TYPE>.*)" '
-        'SIZE="(?P<SIZE>.*)" '
-        'MODEL="(?P<MODEL>.*)" '
-        'ROTA="(?P<ROTA>.*)" '
-        'MOUNTPOINT="(?P<MOUNTPOINT>.*)"'
-    )
+def get_blockdevices_info() -> dict:
     try:
-        lsblk = check_output(
+        lsblk_out_text = check_output(
             [
                 "lsblk",
+                "--json",
                 "--bytes",
-                "-i",
-                "-n",
-                "-P",
-                "-o",
+                "--ascii",
+                "--noheadings",
+                "--output",
                 "KNAME,PATH,TYPE,SIZE,MODEL,ROTA,MOUNTPOINT",
             ],
             universal_newlines=True,
         )
     except CalledProcessError as e:
-        sys.exit(e)
+        raise SystemExit(str(e))
+    lsblk_out = json.loads(lsblk_out_text)
+    return lsblk_out["blockdevices"]
 
-    disks = 0
-    for line in lsblk.splitlines():
-        m = pattern.match(line)
-        if not m or m.group("TYPE") not in ("disk", "crypt"):
-            continue
-        # Only consider MMC block devices if one of their mounted partitions is
-        # root (/)
-        if m.group("KNAME").startswith(
-            "mmcblk"
-        ) and not find_pkname_is_root_mountpoint(m.group("KNAME"), lsblk):
-            continue
-        # Don't consider any block dev mounted as snapd save partition
-        if "snapd/save" in m.group("MOUNTPOINT"):
-            continue
-        disks += 1
-        model = m.group("MODEL") or "Unknown"
-        rotational = m.group("ROTA") == "1"
-        print("name: {}".format(m.group("KNAME")))
-        print("path: {}".format(m.group("PATH")))
-        print("model: {}".format(model))
-        print("size: {}".format(m.group("SIZE")))
-        print("rotational: {}".format(rotational))
-        print()
 
-    if not disks:
-        raise SystemExit("No disk information discovered.")
+def get_relevant_block_devices(block_devices: list) -> list:
+    """
+    Filters out every block device that we don't usually consider a disk
+    like, for example, loopback devices
+    """
 
-    return 0
+    def include(block_device):
+        if block_device["type"] not in ("disk", "crypt"):
+            return False
+        is_mmcblk = block_device["kname"].startswith("mmcblk")
+        whitelisted_mountpoints = {
+            "/",
+            "/writable",
+            "/hostfs",
+            "/ubuntu-seed",
+            "/ubuntu-boot",
+            "/ubuntu-save",
+            "/data",
+            "/boot",
+        }
+        if is_mmcblk and block_device["mountpoint"] in whitelisted_mountpoints:
+            return False
+        if "snapd/save" in (block_device.get("mountpoint") or ""):
+            return False
+        return True
+
+    return filter(include, block_devices)
+
+
+def print_as_resource(block_device):
+    model = block_device.get("model", "Unknown")
+    rotational = block_device["rota"] == "1"
+    print("name:", block_device["kname"])
+    print("path:", block_device["path"])
+    print("model:", model)
+    print("size:", block_device["size"])
+    print("rotational:", rotational)
+    print()
+
+
+def main():
+    """
+    Uses lsblk to gather information about disks seen by the OS.
+    """
+    block_devices = get_blockdevices_info()
+    relevant_block_devices = get_relevant_block_devices(block_devices)
+    for block_device in relevant_block_devices:
+        print_as_resource(block_device)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

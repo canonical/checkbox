@@ -86,12 +86,11 @@ def get_relevant_block_devices(block_devices: list) -> list:
 
 def print_as_resource(block_device):
     model = block_device.get("model", "Unknown")
-    rotational = block_device["rota"] == "1"
     print("name:", block_device["kname"])
     print("path:", block_device["path"])
     print("model:", model)
     print("size:", block_device["size"])
-    print("rotational:", rotational)
+    print("rotational:", block_device["rota"])
     print()
 
 

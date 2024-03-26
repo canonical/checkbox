@@ -110,6 +110,7 @@ id: firmware/fwupdmgr_get_devices
 plugin: attachment
 category_id: com.canonical.plainbox::firmware
 _summary: Collect the device firmware update information
+_purpose: Attach information about the devices, as reported by the fwupdmgr
 requires:
     executable.name == "fwupdmgr"
 command:

@@ -148,10 +148,14 @@ Switch to performance successfully.
         mock_get_sysfs_content.side_effect = [
             "balanced",
             "low-power balanced performance",
+            "low-power",
+            "low-power",
         ]
         mock_set_power_profile.side_effect = [
-            SystemExit("Failed to switch power mode to low-power."),
-            None,
+            "lower-power",
+            "balanced",
+            "performance",
+            None
         ]
 
         # Call the function and check if SystemExit is raised
@@ -160,11 +164,12 @@ Switch to performance successfully.
 
         # Assertions
         self.assertEqual(
-            cm.exception.code, "Failed to switch power mode to low-power."
+            cm.exception.code, "ERROR: Failed to switch power mode to balanced"
         )
-        expected_output = (
-            "Power mode choices: ['low-power', 'balanced', 'performance']\n"
-        )
+        expected_output = """\
+Power mode choices: ['low-power', 'balanced', 'performance']
+Switch to low-power successfully.
+"""
         self.assertEqual(mock_stdout.getvalue(), expected_output)
 
 

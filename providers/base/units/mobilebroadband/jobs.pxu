@@ -28,7 +28,8 @@ command:
           nmcli con down id "$([ "${GSM_CONN_NAME}" ] && echo "$GSM_CONN_NAME" || echo "MobileBB")"
   fi
   exit $EXIT_CODE
-_description: Creates a mobile broadband connection for a GSM based modem and checks the connection to ensure it's working. 
+_purpose: Creates a mobile broadband connection for a GSM based modem and checks the connection to ensure it's working.
+_summary: Establish and verify GSM mobile broadband connection.
 
 plugin: shell
 category_id: com.canonical.plainbox::mobilebroadband
@@ -59,7 +60,8 @@ command:
           nmcli con down id "$([ "${CDMA_CONN_NAME}" ] && echo "$CDMA_CONN_NAME" || echo "MobileBB")"
   fi
   exit $EXIT_CODE
-_description: Creates a mobile broadband connection for a CDMA based modem and checks the connection to ensure it's working.
+_purpose: Creates a mobile broadband connection for a CDMA based modem and checks the connection to ensure it's working.
+_summary: Ensure a CDMA based modem establishes and maintains a mobile broadband connection.
 
 unit: template
 template-resource: device

@@ -9,8 +9,8 @@ id: sysfs_tpm_count
 category_id: tpm
 plugin: resource
 _summary: Count the number of visible TPM chips in sysfs
-_description:
- This job just counts the number of visible TPM chips in as reported by
+_purpose:
+ This job just counts the number of visible TPM chips in sysfs as reported by
  tpm_sysfs_resource.py tool. The only resource attribute is 'count'
 command: echo "count: $(tpm_sysfs_resource.py | grep -c -F 'x-sysfs-device-name')"
 estimated_duration: 2s
@@ -21,7 +21,7 @@ id: sysfs_tpm
 category_id: tpm
 plugin: resource
 _summary: Collect TPM information from sysfs
-_description:
+_purpose:
  This job collects all the available TPM information from
  /sys/class/tpm/*/device/*.
 command: tpm_sysfs_resource.py
@@ -72,7 +72,7 @@ id: sysfs_dmi
 category_id: tpm
 plugin: resource
 _summary: Collect DMI information from sysfs
-_description:
+_purpose:
  This job collects all the available DMI information from /sys/class/dmi/id/*.
  The main purpose of including this job is to allow the provider to include
  vendor-specific quirks by looking at the sysfs_dmi.bios_vendor attribute.

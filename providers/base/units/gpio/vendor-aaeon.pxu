@@ -1,4 +1,3 @@
-
 unit: template
 template-resource: dmi
 template-filter: dmi.category == 'SYSTEM' and dmi.vendor == 'AAEON' and dmi.product in ('UPX-TGL01', 'UPN-EHL01')

@@ -7,9 +7,9 @@
 unit: job
 id: i2c/i2c-bus-detect
 _summary: Check presence of an I²C bus
-_description:
+_purpose:
   If an expected number of I²C buses is provided, the job will verify the
-  detected number is correct. If the expected number of buses is not provided
+  detected number is correct. If the expected number of buses is not provided,
   the job will pass if at least one I²C bus is detected.
 command:
   if [ -z "${I2C_BUS_NUMBER+x}" ]; then
@@ -28,7 +28,7 @@ imports: from com.canonical.plainbox import manifest
 unit: job
 id: i2c/i2c-device-detect
 _summary: Check if any I²C devices can be detected
-_description:
+_purpose:
   The test will pass if there's at least one I²C device detected on any I²C bus.
 command:
   i2c_driver_test.py device

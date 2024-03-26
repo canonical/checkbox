@@ -29,12 +29,12 @@ category_id: dock
 depends: dock/cold-plug
 plugin: manual
 estimated_duration: 30.00
-_summary: Docking test
+_summary: Test the power button functionality on docking stations.
 _purpose:
-    This test will test the power button on docking station
+    This test will test the power button on the docking station.
 _steps:
     Skip this test if your docking station has no power button.
-    1. press the power button on docking station.
+    1. Press the power button on the docking station.
 _verification:
     Did the power management prompt pop up?
 
@@ -114,14 +114,14 @@ imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_usbc_video == 'True'
 plugin: manual
-_summary: Display connected via DisplayPort using an USB Type-C port
+_summary: Display connected via DisplayPort using a USB Type-C port
 _purpose:
     This test will check the connection of a screen using a "USB Type-C to DisplayPort" adapter.
 _steps:
     1. Connect a display (if not already connected) to the USB Type-C port on
-       your system using a "USB Type-C to DisplayPort" adapter
-    2. Switch display modes between in your Display Settings, check if it can be
-       set to mirrored, extended, displayed on external or onboard only
+       your system using a "USB Type-C to DisplayPort" adapter.
+    2. Switch display modes in your Display Settings, check if it can be
+       set to mirrored, extended, displayed on external or onboard only.
 _verification:
     Was the desktop displayed correctly on the screen connected 
     using a "USB Type-C to DisplayPort" adapter in every mode?
@@ -200,17 +200,18 @@ _steps:
 _verification:
     Was the stretched desktop displayed correctly across all the screens?
 
+
 id: dock/monitor-triple-head
 category_id: dock-display
 depends: dock/cold-plug
 estimated_duration: 120.0
-_summary: Tripple monitors test while docked
+_summary: Triple monitors test while docked
 plugin: manual
 _purpose:
     This test verifies that triple-monitor output works using the dock. You will need three external monitors to perform this test. Depends on the specification of the device to use 4K monitor or FHD monitor.
 _steps:
-    Skip this test if your video card or the dock do not support multiple monitors.
-    1. If your dock provides more than one monitor outputs, connect three monitors
+    Skip this test if your video card or the dock does not support multiple monitors.
+    1. If your dock provides more than one monitor output, connect three monitors
     2. Open the "Displays" tool (open the dash and search for "Displays")
     3. Turn off internal monitor
     4. Configure your output to provide one desktop across all the monitors
@@ -244,7 +245,7 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
 command: cat /proc/asound/cards
-_description: Test to detect audio devices
+_purpose: Test to detect audio devices
 
 id: dock/audio-playback-hdmi
 category_id: dock-audio
@@ -343,7 +344,7 @@ command:
 _purpose:
     Dock USB Type-C HDMI audio interface verification
 _steps:
-    1. Plug an external HDMI device with sound on a USB Type-C port using a "USB Typce-C to HDMI" adapter on Dock  (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    1. Plug an external HDMI device with sound to a USB Type-C port using a "USB Type-C to HDMI" adapter on Dock  (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
     2. Go to the Sound settings and make sure the correct Output is selected
     3. Click the Test button
 _verification:
@@ -377,13 +378,13 @@ command:
  fi
  exit $EXIT_CODE
 _purpose:
-    Dock USB Type-C Displayport audio interface verification
+    Dock USB Type-C DisplayPort audio interface verification
 _steps:
-    1. Plug an external Displayport device with sound on a USB Type-C port using a "USB Typce-C to Displayport" adapter on Dock  (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    1. Plug an external DisplayPort device with sound into a USB Type-C port using a "USB Type-C to DisplayPort" adapter on Dock  (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
     2. Go to the Sound settings and make sure the correct Output is selected
     3. Click the Test button
 _verification:
-    Did you hear the sound from the Displayport device?
+    Did you hear the sound from the DisplayPort device?
 
 id: dock/audio-playback-thunderbolt3
 category_id: dock-audio
@@ -500,10 +501,7 @@ estimated_duration: 2.0
 _summary: Collect audio-related system information
 depends: dock/cold-plug
 command: alsa_info --no-dialog --no-upload --output "${PLAINBOX_SESSION_SHARE}"/alsa_info.log
-_description:
- Collect audio-related system information. This data can be used to
- simulate this computer's audio subsystem and perform more detailed tests
- under a controlled environment.
+_purpose: Collect audio-related system information. This data can be used to simulate this computer's audio subsystem and perform more detailed tests under a controlled environment.
 
 plugin: attachment
 id: dock/audio-alsa-info-attachment
@@ -512,8 +510,7 @@ depends: dock/audio-alsa-info-collect
 estimated_duration: 1.0
 _summary: Attach audio hardware data log to results
 command: [ -e "${PLAINBOX_SESSION_SHARE}"/alsa_info.log ] && cat "${PLAINBOX_SESSION_SHARE}"/alsa_info.log
-_description:
- Attaches the audio hardware data collection log to the results.
+_purpose: Attaches the audio hardware data collection log to the results.
 
 plugin: manual
 id: dock/audio-external-lineout
@@ -522,14 +519,14 @@ depends: dock/cold-plug
 estimated_duration: 30.0
 _summary: Line-out connection test
 _purpose:
-     Check that external line-out connection works correctly
-     (Skip this test if dock does not have a line out connector)
+     Check that the external line-out connection works correctly
+     (Skip this test if the dock does not have a line-out connector)
 _steps:
-     1. Insert cable to speakers (with built-in amplifiers) on the dock's line-out port
+     1. Insert a cable into speakers (with built-in amplifiers) on the dock's line-out port
      2. Open system sound preferences, 'Output' tab, select 'Line-out' on the connector list. Click the Test button
-     3. On the system sound preferences, select 'Internal Audio' on the device list and click 'Test Speakers' to check left and right channel
+     3. In the system sound preferences, select 'Internal Audio' on the device list and click 'Test Speakers' to check the left and right channel
 _verification:
-     1. Do you hear a sound in the speakers? The internal speakers should *not* be muted automatically
+     1. Do you hear sound in the speakers? The internal speakers should *not* be muted automatically
      2. Do you hear the sound coming out on the corresponding channel?
 
 plugin: user-interact-verify
@@ -594,12 +591,13 @@ _verification:
     Verification is automatic, no action is required.
     The test times out after 30 seconds (and fails in that case).
 
+
 id: dock/audio-microphone-plug-detection
 category_id: dock-audio
 plugin: user-interact
 depends: dock/cold-plug
 estimated_duration: 60.0
-_summary: Microphone recognized when plugged to the dock test
+_summary: Microphone recognized when plugged into the dock test
 requires:
  device.category == 'AUDIO'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -610,7 +608,7 @@ command:
     pulse_active_port_change.py sources
   fi
 _purpose:
-    Check that system detects a microphone being plugged in
+    Check that the system detects a microphone being plugged in
     (Skip this test if the dock does not have a microphone connector)
 _steps:
     1. Prepare a microphone with a standard 3.5mm jack
@@ -671,14 +669,13 @@ _steps:
     Skip this test if your dock station does not support MAC address passthrough.
     1. Find Passthrough MAC Address in BIOS setup
     2. Check "Passthrough MAC Address" is enabled
-    2. Connect dock to system
-    3. Boot to OS
-    4. Run "ip a" in terminal to get dock ethernet MAC address
+    3. Connect dock to system
+    4. Boot to OS
+    5. Run "ip a" in terminal to get dock ethernet MAC address
 _verification:
-    1. Is the Passthrough MAC Address the same as MAC address found in step 4?
-    2. If BIOS doesn't have Passthrough MAC Address in BIOS setup, a bug should be filed.
-    3. If dock ethernet MAC address is not the same as BIOS Passthrough MAC Address, a 
-    bug should be filed.
+    1. Is the Passthrough MAC Address the same as the MAC address found in step 5?
+    2. If BIOS doesn't have a Passthrough MAC Address option, a bug should be filed.
+    3. If the dock ethernet MAC address is not the same as the BIOS Passthrough MAC Address, a bug should be filed.
 
 ### USB Tests ###
 
@@ -705,13 +702,13 @@ _summary: USB drive insertion test
 command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB storage device plugged on the dock.
+    a USB storage device plugged into the dock.
     NOTE: Make sure the USB storage device has a partition before starting
     the test.
 _steps:
     1. Click "Test" and insert a USB storage device, preferably a HDD,
-       in one of the dock's port.
-       Although a USB pen drive may be used it might cause performance
+       in one of the dock's ports.
+       Although a USB pen drive may be used, it might cause performance
        related tests to fail. (Note: this test will time-out after 20
        seconds.)
     2. Do not unplug the device after the test.
@@ -782,8 +779,7 @@ user: root
 estimated_duration: 45.0
 _summary: USB drive storage test
 command: removable_storage_test.py -s 268400000 usb
-_description:
- This test is automated and executes after the dock/usb_insert test is run.
+_purpose: This test is automated and executes after the dock/usb_insert test is run.
 
 plugin: shell
 id: dock/usb3-storage-automated
@@ -793,8 +789,8 @@ user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
 command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_description:
- This test is automated and executes after the dock/usb3_insert test is run.
+_purpose:
+ This test is automated and executes after the dock/usb3-insert test is run.
 
 ### USB-C tests ###
 
@@ -821,6 +817,7 @@ _steps:
 _verification:
     The verification of this test is automated. Do not change the
     automatically selected result.
+_summary: Verify system detection of a USB 3 storage device inserted into a USB Type-C connector using a Type-C to Type-A adapter.
 
 plugin: user-interact
 category_id: dock-usb
@@ -844,6 +841,7 @@ _steps:
 _verification:
     The verification of this test is automated. Do not change the
     automatically selected result.
+_summary: Verify system detection of a USB 3 storage device insertion on a dock's USB Type-C port.
 
 plugin: user-interact
 category_id: dock-usb
@@ -857,14 +855,15 @@ estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
      This test will check that the system correctly detects the removal of
-     a USB 3 storage device connected to a USB Type-C port using a "USB Type-C
+     a USB 3.0 storage device connected to a USB Type-C port using a "USB Type-C
      to Type-A" adapter.
 _steps:
-     1. Click "Test" and remove the USB 3 device.
-        (Note: this test will time-out after 20 seconds.)
+     1. Click "Test" and remove the USB 3.0 device.
+        (Note: this test will time out after 20 seconds.)
 _verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
+_summary: Check the system's detection of a USB 3.0 storage device removal through a USB Type-C to Type-A adapter.
 
 plugin: user-interact
 category_id: dock-usb
@@ -881,10 +880,12 @@ _purpose:
      a USB 3 storage device connected to a USB Type-C port.
 _steps:
      1. Click "Test" and remove the USB 3 device.
-        (Note: this test will time-out after 20 seconds.)
+        (Note: this test will time out after 20 seconds.)
 _verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
+_summary:
+     Verify the detection of a USB 3 storage device removal from a USB Type-C port.
 
 plugin: shell
 category_id: dock-usb
@@ -897,9 +898,9 @@ depends: dock/usb-c/c-to-a-adapter/insert
 user: root
 estimated_duration: 45.0
 command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_description:
- This test is automated and executes after the usb-c/c-to-a-adapter/insert test
- is run.
+_purpose:
+ This test is automated and executes after the usb-c/c-to-a-adapter/insert test is run.
+_summary: Automated test for USB-C to A adapter with storage functionality.
 
 plugin: shell
 category_id: dock-usb
@@ -912,9 +913,9 @@ depends: dock/usb-c/insert
 user: root
 estimated_duration: 45.0
 command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_description:
- This test is automated and executes after the usb-c/insert test
- is run.
+_purpose:
+ This test is automated and executes after the usb-c/insert test is run.
+_summary: Automate storage testing after USB-C/insert test completion.
 
 plugin: user-interact
 category_id: dock-usb
@@ -935,11 +936,14 @@ _purpose:
 _steps:
     1. Click "Test" and insert a USB 3 storage device in a USB Type-C port on
        the dock using a "USB Type-C to Type-A" adapter.
-       (Note: this test will time-out after 20 seconds.)
+       (Note: this test will time out after 20 seconds.)
     2. Do not unplug the device after the test.
 _verification:
     The verification of this test is automated. Do not change the
     automatically selected result.
+_summary:
+    Verify correct detection of USB 3 storage device insertion via a Type-C to
+    Type-A adapter on the dock after suspend.
 
 plugin: user-interact
 category_id: dock-usb
@@ -952,18 +956,19 @@ requires:
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
-    This test will check that the system correctly detects the insertion of
-    a USB 3 storage device in a USB Type-C connector on the dock after suspend
-    NOTE: Make sure the USB storage device has a partition before starting
-    the test.
+ This test will check that the system correctly detects the insertion of
+ a USB 3 storage device in a USB Type-C connector on the dock after suspend.
+ NOTE: Make sure the USB storage device has a partition before starting
+ the test.
 _steps:
-    1. Click "Test" and insert a USB 3 storage device in a USB Type-C port
-       on the dock.
-       (Note: this test will time-out after 20 seconds.)
-    2. Do not unplug the device after the test.
+ 1. Click "Test" and insert a USB 3 storage device in a USB Type-C port
+    on the dock.
+    (Note: this test will time-out after 20 seconds.)
+ 2. Do not unplug the device after the test.
 _verification:
-    The verification of this test is automated. Do not change the
-    automatically selected result.
+ The verification of this test is automated. Do not change the
+ automatically selected result.
+_summary: Verify the device detects a USB 3 storage device insertion at a USB Type-C dock port after system suspend.
 
 plugin: user-interact
 category_id: dock-usb
@@ -976,15 +981,17 @@ requires:
 estimated_duration: 10.0
 command: removable_storage_watcher.py -m 500000000 remove usb
 _purpose:
-     This test will check that the system correctly detects the removal of
-     a USB 3 storage device connected to a USB Type-C port using a "USB Type-C
-     to Type-A" adapter after suspend.
+ This test will check that the system correctly detects the removal of
+ a USB 3 storage device connected to a USB Type-C port using a "USB Type-C
+ to Type-A" adapter after suspend.
 _steps:
-     1. Click "Test" and remove the USB 3 device.
-        (Note: this test will time-out after 20 seconds.)
+ 1. Click "Test" and remove the USB 3 device.
+    (Note: this test will time-out after 20 seconds.)
 _verification:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+ The verification of this test is automated. Do not change the
+ automatically selected result.
+_summary:
+ Ensure the system detects USB 3 storage device removal via a "USB Type-C to Type-A" adapter after suspend.
 
 plugin: user-interact
 category_id: dock-usb
@@ -1005,6 +1012,7 @@ _steps:
 _verification:
      The verification of this test is automated. Do not change the
      automatically selected result.
+_summary: Check for system's correct detection of a USB 3 storage device removal after suspend.
 
 plugin: shell
 category_id: dock-usb
@@ -1017,9 +1025,9 @@ depends: dock/usb-c/c-to-a-adapter/insert
 user: root
 estimated_duration: 45.0
 command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_description:
- This test is automated and executes after the usb-c/c-to-a-adapter/insert test
- is run.
+_purpose:
+ This test is automated and executes after the usb-c/c-to-a-adapter/insert test is run.
+_summary: Verify automated execution following the usb-c/c-to-a-adapter/insert test.
 
 plugin: shell
 category_id: dock-usb
@@ -1032,9 +1040,8 @@ depends: dock/usb-c/insert
 user: root
 estimated_duration: 45.0
 command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_description:
- This test is automated and executes after the usb-c/insert test
- is run.
+_purpose: This test is automated and executes after the usb-c/insert test is run.
+_summary: Perform automated USB-C storage test after usb-c/insert test.
 
 ### ACPI ###
 
@@ -1046,10 +1053,11 @@ depends: dock/cold-plug
 estimated_duration: 1.0
 command:
  if [ "$(upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep "state" | awk '{print $2}')" = "discharging" ] ; then exit 1 ; fi
-_description:
+_purpose:
  This test will make sure the laptop is being charged while connected to the dock.
 
 ### Hot Plug ###
+
 
 id: dock/hot-plug
 category_id: dock-hotplug
@@ -1062,7 +1070,7 @@ _steps:
     1. Unplug docking station.
     2. Replug in docking station.
 _verification:
-    Is the system working with problem (e.g. system hang) after docking station hot plugged in?
+    Is the system working without problems (e.g., system hang) after docking station is hot-plugged in?
 
 plugin: user-interact-verify
 category_id: dock-hotplug
@@ -1071,13 +1079,14 @@ depends: dock/hot-plug
 command: network_check.py
 estimated_duration: 10
 _description:
- PURPOSE:
-     This test will check wired connection after hotplug
- STEPS:
-     1. Disable WiFi connection
-     2. Click "Test" to verify that it's possible to establish a HTTP connection
- VERIFICATION:
-     Did a notification show and was the connection correctly established?
+_purpose:
+    This test will check wired connection after hotplug
+_steps:
+    1. Disable WiFi connection
+    2. Click "Test" to verify that it's possible to establish a HTTP connection
+_verification:
+    Did a notification show, and was the connection correctly established?
+_summary: Verify wired connection functionality after hotplug.
 
 plugin: user-interact
 id: dock/hotplug-usb-insert
@@ -1111,13 +1120,13 @@ _summary: USB3 drive insertion test
 command: removable_storage_watcher.py -m 500000000 insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB 3.0 storage device after dock hot plugged in.
+    a USB 3.0 storage device after the dock is hot-plugged in.
     NOTE: Make sure the USB storage device has a partition before starting
     the test.
 _steps:
     1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
-       in one of the dock's USB 3.0 port. Although a USB 3.0 pen drive may
-       be used it might cause performance related tests to fail.
+       in one of the dock's USB 3.0 ports. Although a USB 3.0 pen drive may
+       be used, it might cause performance-related tests to fail.
        (Note: this test will time-out after 20 seconds.)
     2. Do not unplug the device after the test.
 _verification:
@@ -1132,7 +1141,7 @@ user: root
 estimated_duration: 45.0
 _summary: USB drive storage test
 command: removable_storage_test.py -s 268400000 usb
-_description:
+_purpose:
  This test is automated and executes after the dock/usb_insert test is run.
 
 plugin: shell
@@ -1143,7 +1152,7 @@ user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
 command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_description:
+_purpose:
  This test is automated and executes after the dock/usb3_insert test is run.
 
 plugin: user-interact
@@ -1188,7 +1197,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
-_summary: HDMI audio test
+_summary: HDMI audio test via USB Type-C DisplayPort
 plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
@@ -1206,13 +1215,13 @@ command:
  fi
  exit $EXIT_CODE
 _purpose:
-    Dock USB Type-C Displayport audio interface verification
+    Dock USB Type-C DisplayPort audio interface verification
 _steps:
-    1. Plug an external Displayport device with sound on a USB Type-C port using a "USB Typce-C to Displayport" adapter on Dock  (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
+    1. Plug an external DisplayPort device with sound into a USB Type-C port using a "USB Type-C to DisplayPort" adapter on Dock (use only one HDMI/DisplayPort/Thunderbolt interface at a time for this test)
     2. Go to the Sound settings and make sure the correct Output is selected
     3. Click the Test button
 _verification:
-    Did you hear the sound from the Displayport device?
+    Did you hear the sound from the DisplayPort device?
 
 id: dock/hotplug-playback-thumderbolt3
 category_id: dock-hotplug
@@ -1222,7 +1231,7 @@ requires:
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
-_summary: HDMI audio test
+_summary: HDMI audio test for Thunderbolt3 docks
 plugin: user-interact-verify
 flags: also-after-suspend
 estimated_duration: 30.0
@@ -1240,11 +1249,11 @@ command:
  fi
  exit $EXIT_CODE
 _purpose:
-    Dock Thunderbolt3 audio interface verification
+    Verify the Dock Thunderbolt3 audio interface
 _steps:
-    1. Plug an external Thunderbolt3 device with sound (Use only one HDMI/DisplayPort/Thunderbolt3 interface at a time for this test)
-    2. Go to the Sound settings and make sure the correct Output is selected
-    3. Click the Test button
+    1. Plug an external Thunderbolt3 device with audio support (Use only one HDMI/DisplayPort/Thunderbolt3 interface at a time for this test).
+    2. Go to the Sound settings and ensure the correct Output is selected.
+    3. Click the Test button.
 _verification:
     Did you hear the sound from the HDMI device?
 
@@ -1316,7 +1325,9 @@ _steps:
 _verification:
     Did you hear the sound from the HDMI device?
 
+
 ### Network ###
+
 
 plugin: shell
 id: dock/network-before-suspend
@@ -1324,7 +1335,7 @@ category_id: dock-network
 depends: ethernet/detect
 estimated_duration: 1.2
 _summary: Network status before suspend
-_description: Record the current network before suspending.
+_purpose: Record the current network before suspending.
 command: set -o pipefail; gateway_ping_test.py | tee "$PLAINBOX_SESSION_SHARE"/network_before_suspend.txt
 
 plugin: shell
@@ -1335,10 +1346,8 @@ _summary: Audio status before suspend
 requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
-_description: Record mixer settings before suspending.
+_purpose: Record mixer settings before suspending.
 command: audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
-
-
 
 id: dock/networking-gateway-ping-after-suspend
 category_id: dock-network
@@ -1347,24 +1356,24 @@ depends: suspend/suspend_advanced_auto ethernet/detect
 command: gateway_ping_test.py
 estimated_duration: 2.00
 _summary: Network gateway ping after suspend
-_description: Tests whether the system has a working Internet connection.
+_purpose: Tests whether the system has a working Internet connection.
 
 plugin: user-interact
 id: dock/usb-insert-after-suspend
 category_id: dock-usb
 depends: suspend/suspend_advanced_auto
 estimated_duration: 10.0
-_summary: USB drive insertion after resuming
+_summary: Verify that USB drive insertion is detected after system resumes from suspend
 command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB storage device plugged on the dock after suspend.
+    a USB storage device plugged into the dock after resuming from suspend.
     NOTE: Make sure the USB storage device has a partition before starting
     the test.
 _steps:
     1. Click "Test" and insert a USB storage device, preferably a HDD,
-       in one of the dock's port.
-       Although a USB pen drive may be used it might cause performance
+       in one of the dock's ports.
+       Although a USB pen drive may be used, it might cause performance
        related tests to fail. (Note: this test will time-out after 20
        seconds.)
     2. Do not unplug the device after the test.
@@ -1399,10 +1408,10 @@ _purpose:
     NOTE: Make sure the USB storage device has a partition before starting
     the test.
 _steps:
-    1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
-       in one of the dock's USB 3.0 port. Although a USB 3.0 pen drive may
-       be used it might cause performance related tests to fail.
-       (Note: this test will time-out after 20 seconds.)
+    1. Click "Test" and insert a USB 3.0 storage device, preferably an HDD,
+       in one of the dock's USB 3.0 ports. Although a USB 3.0 pen drive may
+       be used, it might cause performance-related tests to fail.
+       (Note: this test will time out after 20 seconds.)
     2. Do not unplug the device after the test.
 _verification:
     The verification of this test is automated. Do not change the
@@ -1442,16 +1451,16 @@ _verification:
     The verification of this test is automated. Do not change the
     automatically selected result.
 
+
 plugin: shell
 id: dock/usb-storage-automated-after-suspend
 category_id: dock-usb
 depends: dock/usb-insert-after-suspend
 user: root
 estimated_duration: 45.0
-_summary: USB drive storage test after resuming
+_summary: USB drive storage test after resuming from suspend
 command: removable_storage_test.py -s 268400000 usb
-_description:
- This test is automated and executes after the dock/usb-insert test is run.
+_purpose: This test is automated and executes after the dock/usb-insert test is run.
 
 plugin: shell
 id: dock/usb3-storage-automated-after-suspend
@@ -1461,22 +1470,21 @@ user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test after resuming
 command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_description:
- This test is automated and executes after the dock/usb3-insert test is run.
+_purpose: This test is automated and executes after the dock/usb3-insert test is run.
 
 plugin: user-interact-verify
 id: dock/usb-HID-after-suspend
 category_id: dock-usb
 depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
-_summary: USB HID device test after resuming
+_summary: USB HID device test after resuming from suspend
 command: keyboard_test.py
 _purpose:
-    This test will check that you can use a USB HID device
+    This test will check that you can use a USB HID device after resuming from suspend.
 _steps:
-    1. Enable either a USB mouse or keyboard
-    2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
-    3. For keyboards, click the Test button to lauch a small tool. Type some text and close the tool.
+    1. Enable either a USB mouse or keyboard.
+    2. For mice, perform actions such as moving the pointer, right and left button clicks, and double-clicks.
+    3. For keyboards, click the Test button to launch a small tool. Type some text and close the tool.
 _verification:
     Did the device work as expected?
 
@@ -1547,13 +1555,13 @@ estimated_duration: 120
 plugin: manual
 _summary: Display connected via DisplayPort using an USB Type-C port after resuming
 _purpose:
-    This test will check the connection of a screen using a "USB Type-C to DisplayPort" adapter after resuming.
+    This test will check the connection of a screen using a "USB Type-C to DisplayPort" adapter after resuming from suspend.
 _steps:
     Skip this test if the dock does not have a USB Type-C port.
     1. Connect a display (if not already connected) to the USB Type-C port on
-       your system using a "USB Type-C to DisplayPort" adapter
-    2. Switch display modes between in your Display Settings, check if it can be
-       set to mirrored, extended, displayed on external or onboard only
+       your system using a "USB Type-C to DisplayPort" adapter.
+    2. Switch display modes within your Display Settings, checking if it can be
+       set to mirrored, extended, displayed on external, or onboard only.
 _verification:
     Was the desktop displayed correctly on the screen connected 
     using a "USB Type-C to DisplayPort" adapter in every mode?
@@ -1563,15 +1571,15 @@ category_id: dock-display
 depends: suspend/suspend_advanced_auto
 estimated_duration: 120
 plugin: manual
-_summary: Display connected via HDMI using an USB Type-C port after resuming
+_summary: Display connected via HDMI using a USB Type-C port after resuming
 _purpose:
     This test will check the connection of a screen using a "USB Type-C to HDMI" adapter after resuming.
 _steps:
     Skip this test if the dock does not have a USB Type-C port.
     1. Connect a display (if not already connected) to the USB Type-C port on
-       your system using a "USB Type-C to HDMI" adapter
-    2. Switch display modes between in your Display Settings, check if it can be
-       set to mirrored, extended, displayed on external or onboard only
+       your system using a "USB Type-C to HDMI" adapter.
+    2. Switch display modes in your Display Settings, checking if it can be
+       set to mirrored, extended, displayed on external or onboard only.
 _verification:
     Was the desktop displayed correctly on the screen connected 
     using a "USB Type-C to HDMI" adapter in every mode?
@@ -1581,15 +1589,15 @@ category_id: dock-display
 depends: suspend/suspend_advanced_auto
 estimated_duration: 120
 plugin: manual
-_summary: Display connected via VGA using an USB Type-C port after resuming
+_summary: Display connected via VGA using a USB Type-C port after resuming
 _purpose:
     This test will check the connection of a screen using a "USB Type-C to VGA" adapter after resuming.
 _steps:
     Skip this test if the dock does not have a USB Type-C port.
     1. Connect a display (if not already connected) to the USB Type-C port on
-       your system using a "USB Type-C to VGA" adapter
-    2. Switch display modes between in your Display Settings, check if it can be
-       set to mirrored, extended, displayed on external or onboard only
+       your system using a "USB Type-C to VGA" adapter.
+    2. Switch display modes within your Display Settings, check if it can be
+       set to mirrored, extended, or displayed on external or onboard only.
 _verification:
     Was the desktop displayed correctly on the screen connected 
     using a "USB Type-C to VGA" adapter in every mode?
@@ -1611,16 +1619,17 @@ _steps:
 _verification:
     Was the stretched desktop displayed correctly across all the screens?
 
+
 id: dock/monitor-triple-head-after-suspend
 category_id: dock-display
 depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
-_summary: Tripple monitors test while docked after suspend
+_summary: Triple monitors test while docked after suspend
 plugin: manual
 _purpose:
     This test verifies that triple-monitor output works using the dock after suspend. You will need three external monitors to perform this test. Depends on the specification of the device to use 4K monitor or FHD monitor.
 _steps:
-    Skip this test if your video card or the dock do not support multiple monitors.
+    Skip this test if your video card or the dock does not support multiple monitors.
     1. If your dock provides more than one monitor outputs, connect three monitors
     2. Open the "Displays" tool (open the dash and search for "Displays")
     3. Turn off internal monitor
@@ -1668,9 +1677,8 @@ command:
     else
         exit 1
     fi
-_description:
- Tests that the systems wireless hardware can connect to a router using WPA
- security and the 802.11b/g protocols after the system has been suspended.
+_purpose: Tests that the system's wireless hardware can connect to a router using WPA security and the 802.11b/g protocols after the system has been suspended.
+_summary: Ensure wireless hardware can connect using WPA and 802.11b/g after suspend.
 
 plugin: shell
 id: dock/wireless-connection-after-suspend-open-bg
@@ -1693,8 +1701,8 @@ command:
     else
         exit 1
     fi
-_description:
- Tests that the systems wireless hardware can connect to a router using no
+_purpose:
+ Tests that the system's wireless hardware can connect to a router using no
  security and the 802.11b/g protocols after the system has been suspended.
 
 plugin: shell
@@ -1718,9 +1726,7 @@ command:
     else
         exit 1
     fi
-_description:
- Tests that the systems wireless hardware can connect to a router using WPA
- security and the 802.11n protocol after the system has been suspended.
+_purpose: Tests that the system's wireless hardware can connect to a router using WPA security and the 802.11n protocol after the system has been suspended.
 
 plugin: shell
 id: dock/wireless-connection-after-suspend-open-n
@@ -1743,8 +1749,8 @@ command:
     else
         exit 1
     fi
-_description:
- Tests that the systems wireless hardware can connect to a router using no
+_purpose:
+ Tests that the system's wireless hardware can connect to a router using no
  security and the 802.11n protocol after the system has been suspended.
 
 plugin: shell
@@ -1769,9 +1775,8 @@ command:
     else
         exit 1
     fi
-_description:
- Tests that the systems wireless hardware can connect to a router using WPA
- security and the 802.11ac protocol after the system has been suspended.
+_purpose:
+ Tests that the systems wireless hardware can connect to a router using WPA security and the 802.11ac protocol after the system has been suspended.
 
 plugin: shell
 id: dock/wireless-connection-after-suspend-open-ac
@@ -1808,7 +1813,7 @@ requires:
  device.category == 'AUDIO'
  package.name == 'alsa-base'
 depends: dock/suspend-undock-resume dock/audio-before-suspend
-_description: Verify that mixer settings after suspend are the same as before suspend.
+_purpose: Verify that mixer settings after suspend are the same as before suspend.
 command:
   audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
@@ -1817,7 +1822,7 @@ plugin: shell
 id: dock/record-playback-after-suspend-undock-resume
 category_id: dock-audio
 estimated_duration: 10.0
-_summary: Record playback after resuming
+_summary: Record playback after resuming from suspend
 depends: dock/suspend-undock-resume
 requires:
  package.name == 'python3-gi'
@@ -1834,8 +1839,8 @@ command:
   else
     audio_test.py
   fi
-_description:
- This will check to make sure that your audio device works properly after a suspend and resume.  This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
+_purpose:
+ This will check to make sure that your audio device works properly after a suspend and resume. This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 
 plugin: user-interact
 id: dock/usb3-insert-after-suspend-undock-resume
@@ -1867,7 +1872,7 @@ user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
 command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_description:
+_purpose:
  This test is automated and executes after the dock/usb3_insert test is run.
 
 plugin: user-interact
@@ -1941,7 +1946,7 @@ command: removable_storage_watcher.py insert firewire
 _purpose:
     This test will check the system can detect the insertion of a FireWire HDD on the dock
 _steps:
-    (Skip this test id there is no FireWire connector on the dock)
+    (Skip this test if there is no FireWire connector on the dock.)
     1. Click 'Test' to begin the test. This test will
        timeout and fail if the insertion has not been detected within 20 seconds.
     2. Plug a FireWire HDD into an available FireWire port.
@@ -1957,7 +1962,7 @@ _summary: FireWire HDD storage test
 depends: dock/cold-plug dock/firewire-insert
 user: root
 command: removable_storage_test.py -s 268400000 firewire
-_description:
+_purpose:
  This is an automated test which performs read/write operations on an attached
  FireWire HDD
 
@@ -1969,9 +1974,9 @@ _summary: FireWire HDD removal test
 depends: dock/firewire-insert
 command: removable_storage_watcher.py remove firewire
 _purpose:
-    This test will check the system can detect the removal of a FireWire HDD
+    This test will check if the system can detect the removal of a FireWire HDD.
 _steps:
-    1. Click 'Test' to begin the test. This test will timeout and fail if
+    1. Click 'Test' to begin the test. This test will time out and fail if
        the removal has not been detected within 20 seconds.
     2. Remove the previously attached FireWire HDD from the FireWire port on
        the dock.
@@ -1987,15 +1992,15 @@ _summary: eSATA HDD insertion test
 depends: dock/cold-plug
 command: removable_storage_watcher.py insert ata_serial_esata
 _purpose:
-    This test will check the system can detect the insertion of an eSATA HDD on the dock
+    This test will check the system can detect the insertion of an eSATA HDD on the dock.
 _steps:
-    (Skip this test if there are no eSATA connectors on the dock)
+    (Skip this test if there are no eSATA connectors on the dock.)
     1. Click 'Test' to begin the test. This test will
        timeout and fail if the insertion has not been detected within 20 seconds.
     2. Plug an eSATA HDD into an available eSATA port on the dock.
 _verification:
     The verification of this test is automated. Do not change the automatically
-    selected result
+    selected result.
 
 plugin: shell
 id: dock/esata-storage-test
@@ -2005,7 +2010,7 @@ _summary: eSATA HDD storage test
 user: root
 depends: dock/esata-insert
 command: removable_storage_test.py -s 268400000 ata_serial_esata
-_description:
+_purpose:
  This is an automated test which performs read/write operations on an attached
  eSATA HDD
 
@@ -2090,9 +2095,9 @@ requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend
 command: removable_storage_test.py -s 268400000 scsi
 _summary: Thunderbolt3 storage test
-_description:
+_purpose:
  This is an automated test which performs read/write operations on an attached
- Thunderbolt HDD
+ Thunderbolt3 HDD
 
 plugin: user-interact
 id: dock/thunderbolt3-remove
@@ -2123,18 +2128,18 @@ estimated_duration: 45.0
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 command: removable_storage_test.py -s 268400000 scsi
-_summary: Daisy-chain testing for Thunderbolt 3 storage and display device
+_summary: Daisy-chain testing for Thunderbolt 3 storage and display devices
 _description:
 _purpose:
      This test will check if your system can support daisy-chaining of a storage
-     and a monitor over Thunderbolt 3 port
+     and a monitor over Thunderbolt 3 ports.
  _steps:
-     1. Connect your Thunderbolt monitor to your systems
+     1. Connect your Thunderbolt monitor to your system.
      2. Connect and mount your Thunderbolt HDD to another Thunderbolt 3 port of the
-        monitor (you can do this with HDD first as well)
-     3. Click 'Test' to perform the storage test on the Thunderbolt HDD
+        monitor (you can do this with the HDD first as well).
+     3. Click 'Test' to perform the storage test on the Thunderbolt HDD.
  _verification:
-     1. The verification for storage is automated, please select the result combine
+     1. The verification for storage is automated; please select the result combined
         with the result for the display.
      2. Was the desktop displayed correctly on the Thunderbolt-connected screen?
 
@@ -2152,7 +2157,7 @@ _steps:
     1. Unplug docking station.
     2. Replug in docking station.
 _verification:
-    Is the system working with problem (e.g. system hang) after docking station hot plugged in?
+    Is the system working without a problem (e.g., system hang) after docking station is hot-plugged in?
 
 plugin: user-interact-verify
 category_id: dock-hotplug
@@ -2161,31 +2166,32 @@ depends: suspend/suspend_advanced_auto
 command: network_check.py
 estimated_duration: 10
 _description:
- PURPOSE:
-     This test will check wired connection after hotplug
- STEPS:
+_purpose:
+     This test will check the wired connection after hotplug
+_steps:
      1. Disable WiFi connection
-     2. Click "Test" to verify that it's possible to establish a HTTP connection
- VERIFICATION:
+     2. Click "Test" to verify that it's possible to establish an HTTP connection
+_verification:
      Did a notification show and was the connection correctly established?
+_summary: Check the wired connection functionality after hotplug following a system suspend.
 
 plugin: user-interact
 id: dock/hotplug-usb-insert-after-suspend
 category_id: dock-hotplug
 depends: dock/hot-plug-after-suspend
 estimated_duration: 10.0
-_summary: USB drive insertion after resuming
+_summary: USB drive insertion after resuming from suspend
 command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB storage device plugged on the dock after suspend.
+    a USB storage device plugged into the dock after suspend.
     NOTE: Make sure the USB storage device has a partition before starting
     the test.
 _steps:
-    1. Click "Test" and insert a USB storage device, preferably a HDD,
-       in one of the dock's port.
-       Although a USB pen drive may be used it might cause performance
-       related tests to fail. (Note: this test will time-out after 20
+    1. Click "Test" and insert a USB storage device, preferably an HDD,
+       in one of the dock's ports.
+       Although a USB pen drive may be used, it might cause performance-
+       related tests to fail. (Note: this test will time out after 20
        seconds.)
     2. Do not unplug the device after the test.
 _verification:
@@ -2214,16 +2220,16 @@ _verification:
     The verification of this test is automated. Do not change the
     automatically selected result.
 
+
 plugin: shell
 id: dock/hotplug-usb-storage-automated-after-suspend
 category_id: dock-hotplug
 depends: dock/hotplug-usb-insert-after-suspend
 user: root
 estimated_duration: 45.0
-_summary: USB drive storage test after resuming
+_summary: USB drive storage test after resuming from suspend
 command: removable_storage_test.py -s 268400000 usb
-_description:
- This test is automated and executes after the dock/usb-insert test is run.
+_purpose: This test is automated and executes after the dock/usb-insert test is run.
 
 plugin: shell
 id: dock/hotplug-usb3-storage-automated-after-suspend
@@ -2233,7 +2239,7 @@ user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
 command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_description:
+_purpose:
  This test is automated and executes after the dock/usb3_insert test is run.
 
 plugin: user-interact
@@ -2294,30 +2300,31 @@ depends: dock/suspend-dock-resume
 command: network_check.py
 estimated_duration: 10
 _description:
- PURPOSE:
-     This test will check wired connection after suspend, undocked, docked, resume.
- STEPS:
-     1. Disable WiFi connection
-     2. Click "Test" to verify that it's possible to establish a HTTP connection
- VERIFICATION:
-     Did a notification show and was the connection correctly established?
+_purpose:
+ This test will check wired connection after suspend, undocked, docked, resume.
+_steps:
+ 1. Disable WiFi connection
+ 2. Click "Test" to verify that it's possible to establish a HTTP connection
+_verification:
+ Did a notification show and was the connection correctly established?
+_summary: Verify wired connection functionality after suspend, undocking, docking, and resuming.
 
 plugin: user-interact
 id: dock/usb-insert-after-suspend-dock-resume
 category_id: suspend-dock-resume
 depends: dock/suspend-dock-resume
 estimated_duration: 10.0
-_summary: USB drive insertion after resuming
+_summary: USB drive insertion after resuming from suspend using a dock
 command: removable_storage_watcher.py insert usb
 _purpose:
     This test will check that the system correctly detects the insertion of
-    a USB storage device plugged on the dock after suspend.
+    a USB storage device plugged into the dock after suspending.
     NOTE: Make sure the USB storage device has a partition before starting
     the test.
 _steps:
-    1. Click "Test" and insert a USB storage device, preferably a HDD,
-       in one of the dock's port.
-       Although a USB pen drive may be used it might cause performance
+    1. Click "Test" and insert a USB storage device, preferably an HDD,
+       in one of the dock's ports.
+       Although a USB pen drive may be used, it might cause performance-
        related tests to fail. (Note: this test will time-out after 20
        seconds.)
     2. Do not unplug the device after the test.
@@ -2338,9 +2345,9 @@ _purpose:
     NOTE: Make sure the USB storage device has a partition before starting
     the test.
 _steps:
-    1. Click "Test" and insert a USB 3.0 storage device, preferably a HDD,
-       in one of the dock's USB 3.0 port. Although a USB 3.0 pen drive may
-       be used it might cause performance related tests to fail.
+    1. Click "Test" and insert a USB 3.0 storage device, preferably a hard disk drive (HDD),
+       in one of the dock's USB 3.0 ports. Although a USB 3.0 pen drive may
+       be used, it might cause performance related tests to fail.
        (Note: this test will time-out after 20 seconds.)
     2. Do not unplug the device after the test.
 _verification:
@@ -2355,8 +2362,7 @@ user: root
 estimated_duration: 45.0
 _summary: USB drive storage test after resuming
 command: removable_storage_test.py -s 268400000 usb
-_description:
- This test is automated and executes after the dock/usb-insert test is run.
+_purpose: This test is automated and executes after the dock/usb-insert test is run.
 
 plugin: shell
 id: dock/usb3-storage-automated-after-suspend-dock-resume
@@ -2366,7 +2372,7 @@ user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
 command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_description:
+_purpose:
  This test is automated and executes after the dock/usb3_insert test is run.
 
 plugin: user-interact
@@ -2438,25 +2444,26 @@ category_id: dock
 plugin: shell
 user: root
 command: mac_passthrough.py
-_description: Check dock MAC address pass-through function, please make sure following items before running this test:
-    1. Pass-through mac address is flashed in BIOS
-    2. MAC address pass-through is enabled in BIOS settings
-    3. Dock is connected
+_purpose: Check dock MAC address pass-through function, please make sure the following items before running this test:
+    1. Pass-through MAC address is flashed in BIOS.
+    2. MAC address pass-through is enabled in BIOS settings.
+    3. Dock is connected.
+_summary: Verify the functionality of dock MAC address pass-through.
 
 id: dock/all-init
 category_id: dock
 plugin: manual
 estimated_duration: 300.00
 _purpose:
-    This test is to setup the initial status for all I/O ports on docking.
+    This test is to set up the initial status for all I/O ports on the docking station.
     Note:
-        Try to meet the limitation in the spec of the dock.
-        If there's no port as description below, you can just skip it.
+        Try to meet the limitations in the spec of the dock.
+        If there's no port as described below, you can just skip it.
 _steps:
     1. If the laptop is currently undocked, dock it now.
-    2. Connect a Ethernet cable to the docking station.
+    2. Connect an Ethernet cable to the docking station.
     3. Connect a DP monitor to the docking station.
-    4. Connect a HDMI monitor to the docking station.
+    4. Connect an HDMI monitor to the docking station.
     5. Connect a Thunderbolt monitor to the docking station.
     6. Connect a Thunderbolt3 storage to the docking station.
     7. Connect a USB Type-C storage to the docking station.
@@ -2464,6 +2471,8 @@ _steps:
     9. Connect a headset to the docking station.
 _verification:
     Mark it Pass if you have connected all I/O ports as mentioned above.
+_summary:
+    Verify the initial setup of all I/O ports on the docking station by connecting various devices and ensure they meet the dock's specification.
 
 id: dock/all-reboot
 category_id: dock
@@ -2481,26 +2490,30 @@ category_id: dock
 plugin: manual
 estimated_duration: 300.00
 _purpose:
-    This test is to check if the device is still working after hotplug.
+    This test checks if the device is still working after hotplug.
 _steps:
     1. Unplug the docking station.
     2. Wait for 30 seconds.
     3. Plug in the docking station.
 _verification:
     Mark it Pass if you have hotplugged the docking station.
+_summary:
+    Verify the device functionality after hotplug actions with the docking station.
 
 id: dock/all-suspend
 category_id: dock
 plugin: manual
 estimated_duration: 300.00
 _purpose:
-    This test is to check if the device is still working after suspend.
+    This test is to check if the device is still functional after suspend.
 _steps:
     1. Suspend the system.
     2. Wait for 30 seconds.
     3. Resume the system.
 _verification:
-    Mark it Pass if you have suspended and resumed the system.
+    Mark it as Pass if you have successfully suspended and resumed the system.
+_summary:
+    Test the system's functionality after suspend and resume.
 
 id: dock/all-poweroff
 category_id: dock
@@ -2509,11 +2522,13 @@ estimated_duration: 300.00
 _purpose:
     This test is to check if the device is still working after power-off.
 _steps:
-    1. Poweroff the system.
+    1. Power off the system.
     2. Wait for 30 seconds.
-    3. Poweron the system.
+    3. Power on the system.
 _verification:
     Mark it Pass if you have powered off and powered on the system.
+_summary:
+    Test device functionality after powering off and on.
 
 id: dock/all-init-monitor-multi-head
 category_id: dock-display
@@ -2563,7 +2578,7 @@ _purpose:
 _steps:
     1. Launch the test to play sound on every monitor.
 _verification:
-    Does every external monitor can play sound?
+    Can every external monitor play sound?
     If no sound output, try:
         1. Go to Settings > Sound > Output > Test > Try Front Left and Front Right.
         2. Repeat Step 1 for each monitor.
@@ -2712,9 +2727,9 @@ _purpose:
     NOTE: Make sure the USB storage device has a partition before starting
     the test.
 _steps:
-    1. Click "Test" and insert a USB 3 storage device in a USB Type-C port
+    1. Click "Test" and insert a USB 3 storage device into a USB Type-C port
        on the dock.
-       (Note: this test will time-out after 20 seconds.)
+       (Note: this test will time out after 20 seconds.)
     2. Do not unplug the device after the test.
 _verification:
     The verification of this test is automated. Do not change the
@@ -2724,6 +2739,8 @@ _siblings:
      {"id": "dock/all-hotplug-usb-c/insert"},
      {"id": "dock/all-suspend-usb-c/insert"},
      {"id": "dock/all-poweroff-usb-c/insert"}]
+_summary:
+    Verify the correct detection of a USB 3 storage device insertion into a USB Type-C port on the dock.
 
 id: dock/all-init-usb-c/storage-automated
 plugin: shell
@@ -2736,7 +2753,7 @@ depends: dock/all-init-usb-c/insert
 user: root
 estimated_duration: 45.0
 command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_description:
+_purpose:
     This test executes automatically after the usb-c/insert test is run.
 _siblings:
     [{"id": "dock/all-reboot-usb-c/storage-automated",
@@ -2747,6 +2764,7 @@ _siblings:
       "depends": "dock/all-suspend-usb-c/insert"},
      {"id": "dock/all-poweroff-usb-c/storage-automated",
       "depends": "dock/all-poweroff-usb-c/insert"}]
+_summary: Automatically test USB-C storage functionality after the usb-c/insert test.
 
 id: dock/all-init-usb-c/remove
 plugin: user-interact
@@ -2776,6 +2794,7 @@ _siblings:
       "depends": "dock/all-suspend-usb-c/insert"},
      {"id": "dock/all-poweroff-usb-c/remove",
       "depends": "dock/all-poweroff-usb-c/insert"}]
+_summary: Check the system's detection of USB 3 storage device removal on a USB Type-C port.
 
 plugin: user-interact
 id: dock/all-init-usb3-insert
@@ -2811,7 +2830,7 @@ user: root
 estimated_duration: 45.0
 _summary: USB3 drive storage test
 command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_description:
+_purpose:
  This test is automated and executes after the dock/usb3_insert test is run.
 _siblings:
     [{"id": "dock/all-reboot-usb3-storage-automated",

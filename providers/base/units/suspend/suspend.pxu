@@ -638,18 +638,6 @@ _description:
  Verify that power mode is changed after resuming from suspend.
 command: power_mode_resource.py | diff "$PLAINBOX_SESSION_SHARE"/power_mode_before_suspend -
 
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/power_mode_after_suspend_auto
-estimated_duration: 1.2
-requires:
-  module.name == 'platform_profile'
-  package.name == 'power-profiles-daemon'
-depends: suspend/suspend_advanced_auto suspend/power_mode_before_suspend
-_description:
- Verify that power mode is changed after resuming from suspend.
-command: power_mode_resource.py | diff "$PLAINBOX_SESSION_SHARE"/power_mode_before_suspend -
-
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/display_after_suspend

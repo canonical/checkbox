@@ -522,7 +522,12 @@ class Launcher(MainLoopStage, ReportsStage):
             return IJobResult.OUTCOME_PASS
         return IJobResult.OUTCOME_CRASH
 
-    def abc(self, app_blob):
+    def load_configs_from_app_blob(self, app_blob):
+        """
+        Load the configs taking into consideration the app_blob. This recovers
+        the original launcher that was provided to the session and loads the
+        configs from disk
+        """
         if "launcher" in app_blob:
             resumed_launcher = Configuration.from_text(
                 app_blob["launcher"], "Resume launcher"
@@ -530,7 +535,6 @@ class Launcher(MainLoopStage, ReportsStage):
         else:
             resumed_launcher = Configuration()
         config = load_configs(cfg=resumed_launcher)
-        breakpoint()
         self.ctx.sa.use_alternate_configuration(config)
 
     def _resume_session(
@@ -545,7 +549,7 @@ class Launcher(MainLoopStage, ReportsStage):
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
-            self.abc(app_blob)
+            self.load_configs_from_app_blob(app_blob)
             self.ctx.sa.select_test_plan(test_plan_id)
             self.ctx.sa.bootstrap()
             if outcome is None:

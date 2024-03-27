@@ -65,6 +65,7 @@ include:
     disk/stats_.*
     disk/read_performance_.*
     disk/storage_device_.*
+    disk/check-software-raid
 bootstrap_include:
     device
 

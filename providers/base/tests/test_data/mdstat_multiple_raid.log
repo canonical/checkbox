@@ -1,0 +1,7 @@
+Personalities : [linear] [raid0] [raid1] [raid5]
+read_ahead 1024 sectors
+md2 : active raid1 sde1[1] sdd1[0]
+      17920384 blocks [2/2] [UU]
+
+md1 : active raid0 sdc1[1] sdb1[0]
+      35840768 blocks 64k chunks

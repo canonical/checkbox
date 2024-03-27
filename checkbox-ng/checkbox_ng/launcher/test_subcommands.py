@@ -42,7 +42,10 @@ from checkbox_ng.launcher.subcommands import (
 
 
 class TestLauncher(TestCase):
-    @mock_open(read_data=textwrap.dedent(
+    @patch(
+        "checkbox_ng.launcher.subcommands.open",
+        new_callable=mock_open,
+        read_data=textwrap.dedent(
             """
             [launcher]
             app_id = "appid"
@@ -50,9 +53,9 @@ class TestLauncher(TestCase):
             session_title = "session_title"
             session_desc = "description"
             """
-        ))
-
-    def test_start_new_session_ok(self):
+        ),
+    )
+    def test_start_new_session_ok(self, _):
         self_mock = MagicMock()
         self_mock.is_interactive = True
         self_mock._interactively_pick_test_plan.return_value = "test plan id"

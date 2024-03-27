@@ -16,12 +16,13 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+import textwrap
 import datetime
 
 from functools import partial
 from unittest import TestCase
 
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, Mock, MagicMock, mock_open
 
 from io import StringIO
 
@@ -41,6 +42,69 @@ from checkbox_ng.launcher.subcommands import (
 
 
 class TestLauncher(TestCase):
+    @patch(
+        "checkbox_ng.launcher.subcommands.open",
+        new_callable=mock_open,
+        read_data=textwrap.dedent(
+            """
+            [launcher]
+            app_id = "appid"
+            app_version = 0
+            session_title = "session_title"
+            session_desc = "description"
+            """
+        ),
+    )
+    def test_start_new_session_ok(self, _):
+        self_mock = MagicMock()
+        self_mock.is_interactive = True
+        self_mock._interactively_pick_test_plan.return_value = "test plan id"
+        self_mock.ctx.args.launcher = "launcher_path.conf"
+        self_mock.ctx.args.message = None
+
+        def configuration_get_value(tl_key, sl_key):
+            configuration = {
+                "launcher": {
+                    "app_id": "appid",
+                    "app_version": 0,
+                    "session_title": "session_title",
+                    "session_desc": "description",
+                },
+                "agent": {"normal_user": "ubuntu"},
+                "test plan": {"forced": False, "unit": "some unit"},
+            }
+            return configuration[tl_key][sl_key]
+
+        self_mock.configuration.get_value = configuration_get_value
+
+        Launcher._start_new_session(self_mock)
+
+    @patch("checkbox_ng.launcher.subcommands.open")
+    def test_start_new_session_ok_no_launcher(self, mock_open):
+        self_mock = MagicMock()
+        self_mock.is_interactive = True
+        self_mock._interactively_pick_test_plan.return_value = "test plan id"
+        self_mock.ctx.args.launcher = "launcher_path.conf"
+        self_mock.ctx.args.message = None
+        mock_open.side_effect = FileNotFoundError
+
+        def configuration_get_value(tl_key, sl_key):
+            configuration = {
+                "launcher": {
+                    "app_id": "appid",
+                    "app_version": 0,
+                    "session_title": "session_title",
+                    "session_desc": "description",
+                },
+                "agent": {"normal_user": "ubuntu"},
+                "test plan": {"forced": False, "unit": "some unit"},
+            }
+            return configuration[tl_key][sl_key]
+
+        self_mock.configuration.get_value = configuration_get_value
+
+        Launcher._start_new_session(self_mock)
+
     @patch("checkbox_ng.launcher.subcommands.detect_restart_strategy")
     @patch("os.getenv")
     @patch("sys.argv")
@@ -115,6 +179,41 @@ class TestLauncher(TestCase):
         resume_menu_mock().run().session_id = ""
 
         self.assertFalse(Launcher._manually_resume_session(self_mock, []))
+
+    @patch("checkbox_ng.launcher.subcommands.Configuration")
+    @patch("checkbox_ng.launcher.subcommands.load_configs")
+    def test_load_configs_from_app_blob(
+        self, load_config_mock, configuration_mock
+    ):
+        self_mock = MagicMock()
+        app_blob = {
+            "launcher": textwrap.dedent(
+                """
+                [launcher]
+                launcher_version = 1
+                """
+            )
+        }
+
+        Launcher.load_configs_from_app_blob(self_mock, app_blob)
+
+        self.assertTrue(configuration_mock.from_text.called)
+        self.assertTrue(load_config_mock.called)
+        self.assertTrue(self_mock.ctx.sa.use_alternate_configuration.called)
+
+    @patch("checkbox_ng.launcher.subcommands.Configuration")
+    @patch("checkbox_ng.launcher.subcommands.load_configs")
+    def test_load_configs_from_app_blob_no_launcher(
+        self, load_config_mock, configuration_mock
+    ):
+        self_mock = MagicMock()
+        app_blob = {}
+
+        Launcher.load_configs_from_app_blob(self_mock, app_blob)
+
+        self.assertFalse(configuration_mock.from_text.called)
+        self.assertTrue(load_config_mock.called)
+        self.assertTrue(self_mock.ctx.sa.use_alternate_configuration.called)
 
     @patch("checkbox_ng.launcher.subcommands.MemoryJobResult")
     @patch("checkbox_ng.launcher.subcommands.newline_join", new=MagicMock())
@@ -720,9 +819,7 @@ class TestExpand(TestCase):
             select_test_plan=Mock(),
             # get_resumable_sessions=Mock(return_value=[]),
             _context=Mock(
-                state=Mock(
-                    unit_list=[]
-                ),
+                state=Mock(unit_list=[]),
                 _test_plan_list=[Mock()],
             ),
         )
@@ -742,14 +839,18 @@ class TestExpand(TestCase):
     @patch("checkbox_ng.launcher.subcommands.TestPlanUnitSupport")
     @patch("checkbox_ng.launcher.subcommands.select_units")
     def test_invoke__text(self, mock_select_units, mock_tpus, stdout):
-        template1 = TemplateUnit({
-            "template-id": "test-template",
-            "id": "test-{res}",
-            "template-summary": "Test Template Summary",
-        })
-        job1 = JobDefinition({
-            "id": "job1",
-        })
+        template1 = TemplateUnit(
+            {
+                "template-id": "test-template",
+                "id": "test-{res}",
+                "template-summary": "Test Template Summary",
+            }
+        )
+        job1 = JobDefinition(
+            {
+                "id": "job1",
+            }
+        )
         mock_select_units.return_value = [job1, template1]
         self.ctx.args.TEST_PLAN = "test-plan1"
         self.launcher.invoked(self.ctx)
@@ -759,14 +860,18 @@ class TestExpand(TestCase):
     @patch("checkbox_ng.launcher.subcommands.TestPlanUnitSupport")
     @patch("checkbox_ng.launcher.subcommands.select_units")
     def test_invoke__json(self, mock_select_units, mock_tpus, stdout):
-        template1 = TemplateUnit({
-            "template-id": "test-template",
-            "id": "test-{res}",
-            "template-summary": "Test Template Summary",
-        })
-        job1 = JobDefinition({
-            "id": "job1",
-        })
+        template1 = TemplateUnit(
+            {
+                "template-id": "test-template",
+                "id": "test-{res}",
+                "template-summary": "Test Template Summary",
+            }
+        )
+        job1 = JobDefinition(
+            {
+                "id": "job1",
+            }
+        )
         mock_select_units.return_value = [job1, template1]
         self.ctx.args.TEST_PLAN = "test-plan1"
         self.ctx.args.format = "json"
@@ -774,23 +879,31 @@ class TestExpand(TestCase):
         self.assertIn('"template-id": "test-template"', stdout.getvalue())
 
     def test_get_effective_certificate_status(self):
-        job1 = JobDefinition({
-            "id": "job1",
-        })
-        template1 = TemplateUnit({
-            "template-id": "template1",
-            "id": "job-{res}",
-        })
+        job1 = JobDefinition(
+            {
+                "id": "job1",
+            }
+        )
+        template1 = TemplateUnit(
+            {
+                "template-id": "template1",
+                "id": "job-{res}",
+            }
+        )
         self.launcher.override_list = [
-            ("^job1$", [("certification_status", "blocker"),]),
+            (
+                "^job1$",
+                [
+                    ("certification_status", "blocker"),
+                ],
+            ),
         ]
         self.assertEqual(
-            self.launcher.get_effective_certification_status(job1),
-            "blocker"
+            self.launcher.get_effective_certification_status(job1), "blocker"
         )
         self.assertEqual(
             self.launcher.get_effective_certification_status(template1),
-            "unspecified"
+            "unspecified",
         )
 
 

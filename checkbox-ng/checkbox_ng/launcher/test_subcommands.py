@@ -79,6 +79,32 @@ class TestLauncher(TestCase):
 
         Launcher._start_new_session(self_mock)
 
+    @patch("checkbox_ng.launcher.subcommands.open")
+    def test_start_new_session_ok_no_launcher(self, mock_open):
+        self_mock = MagicMock()
+        self_mock.is_interactive = True
+        self_mock._interactively_pick_test_plan.return_value = "test plan id"
+        self_mock.ctx.args.launcher = "launcher_path.conf"
+        self_mock.ctx.args.message = None
+        mock_open.side_effect = FileNotFoundError
+
+        def configuration_get_value(tl_key, sl_key):
+            configuration = {
+                "launcher": {
+                    "app_id": "appid",
+                    "app_version": 0,
+                    "session_title": "session_title",
+                    "session_desc": "description",
+                },
+                "agent": {"normal_user": "ubuntu"},
+                "test plan": {"forced": False, "unit": "some unit"},
+            }
+            return configuration[tl_key][sl_key]
+
+        self_mock.configuration.get_value = configuration_get_value
+
+        Launcher._start_new_session(self_mock)
+
     @patch("checkbox_ng.launcher.subcommands.detect_restart_strategy")
     @patch("os.getenv")
     @patch("sys.argv")

@@ -1,0 +1,41 @@
+# follow KEY=value syntax
+WIFI_INTERFACE=wlan0
+# WATCHDOG_KERNEL_MOD=iTCO_wdt
+# ALSADEVICE=hw:CARD=bytrt5660,DEV=0
+OPEN_N_SSID=ubuntu-cert-n-open-tpelab
+OPEN_BG_SSID=ubuntu-cert-bg-open-tpelab
+OPEN_AC_SSID=ubuntu-cert-ac-open-tpelab
+OPEN_AX_SSID=ubuntu-cert-ax-open
+WPA_N_SSID=ubuntu-cert-n-wpa-tpelab
+WPA_BG_SSID=ubuntu-cert-bg-wpa-tpelab
+WPA_AC_SSID=ubuntu-cert-ac-wpa-tpelab
+WPA_AX_SSID=ubuntu-cert-ax-wpa
+WPA_N_PSK=insecure
+WPA_BG_PSK=insecure
+WPA_AC_PSK=insecure
+WPA_AX_PSK=insecure
+BTDEVADDR=C0:B5:D7:C1:74:38
+# obex server in office: C0:B5:D7:C1:74:38
+# obex server in lab: 28:3A:4D:46:79:C0, 7C:B2:7D:4B:14:95
+WWAN_APN=internet
+WWAN_NET_IF=ppp0
+WWAN_CONTROL_IF=ttyACM3
+STRESS_BOOT_ITERATIONS=100
+STRESS_S3_ITERATIONS=100
+STRESS_S4_ITERATIONS=100
+TEST_TARGET_IPERF=10.102.88.25,10.102.182.100,10.102.182.137,10.102.182.101
+# iperf server in office: 10.102.88.25
+# iperf server in lab: 10.102.182.100, 10.102.182.137
+STRESS_S4_WAIT_DELAY=120
+STRESS_S4_SLEEP_DELAY=60
+STRESS_S3_SLEEP_DELAY=60
+STRESS_BOOT_WAKEUP_DELAY=120
+STRESS_S3_WAIT_DELAY=150
+STRESS_BOOT_WAIT_DELAY=150
+WIFI_AP_SETUPTIME=30
+WWAN_SETUPTIME=30
+TPM2TOOLS_TCTI_NAME=device
+TPM2TOOLS_DEVICE_FILE=/dev/tpm0
+MODEL_GRADE=signed
+WATCHDOG_TYPE=wdat_wdt
+WATCHDOG_IDENTITY=wdat_wdt

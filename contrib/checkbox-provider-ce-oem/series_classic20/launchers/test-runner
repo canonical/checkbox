@@ -1,0 +1,9 @@
+#!/usr/bin/env checkbox-cli-wrapper
+[launcher]
+app_id = com.canonical.qa.ceoem:checkbox
+launcher_version = 1
+stock_reports = text, submission_files, certification
+
+[test plan]
+unit = com.canonical.qa.ceoem::ce-oem-iot-server-20-04
+filter = com.canonical.qa.ceoem::ce-oem-iot-server-20-04*

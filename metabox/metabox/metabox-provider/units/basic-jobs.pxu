@@ -30,6 +30,10 @@ flags: simple
 command: echo variables: $Case $CASE $case
 environ: Case CASE case
 
+id: sleep_100ms
+flags: simple
+command: sleep .1
+
 id: stub/manual
 _summary: A simple manual job
 _description:

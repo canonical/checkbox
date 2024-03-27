@@ -107,6 +107,18 @@ _description:
  VERIFICATION:
     Does closing your laptop lid cause your system to suspend?
 
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+id: power-management/switch_power_mode
+estimated_duration: 10.0
+requires:
+  module.name == 'platform_profile'
+  package.name == 'power-profiles-daemon'
+  platform_profile.supported == 'True'
+command: switch_power_mode.py
+_description:
+  This test will check if the power mode could be switched.
+
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::power-management
 id: power-management/lid_close

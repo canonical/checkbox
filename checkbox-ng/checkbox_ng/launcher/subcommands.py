@@ -54,6 +54,7 @@ from plainbox.impl.transport import TransportError
 from plainbox.impl.transport import get_all_transports
 from plainbox.impl.transport import SECURE_ID_PATTERN
 from plainbox.impl.unit.testplan import TestPlanUnitSupport
+from plainbox.impl.config import Configuration
 
 from checkbox_ng.config import load_configs
 from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
@@ -521,6 +522,21 @@ class Launcher(MainLoopStage, ReportsStage):
             return IJobResult.OUTCOME_PASS
         return IJobResult.OUTCOME_CRASH
 
+    def load_configs_from_app_blob(self, app_blob):
+        """
+        Load the configs taking into consideration the app_blob. This recovers
+        the original launcher that was provided to the session and loads the
+        configs from disk
+        """
+        if "launcher" in app_blob:
+            resumed_launcher = Configuration.from_text(
+                app_blob["launcher"], "Resume launcher"
+            )
+        else:
+            resumed_launcher = Configuration()
+        config = load_configs(cfg=resumed_launcher)
+        self.ctx.sa.use_alternate_configuration(config)
+
     def _resume_session(
         self, session_id: str, outcome: "IJobResult|None", comments=[]
     ):
@@ -533,6 +549,7 @@ class Launcher(MainLoopStage, ReportsStage):
         if "testplanless" not in metadata.flags:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
             test_plan_id = app_blob["testplan_id"]
+            self.load_configs_from_app_blob(app_blob)
             self.ctx.sa.select_test_plan(test_plan_id)
             self.ctx.sa.bootstrap()
             if outcome is None:
@@ -629,9 +646,16 @@ class Launcher(MainLoopStage, ReportsStage):
         description = self.ctx.args.message or self.configuration.get_value(
             "launcher", "session_desc"
         )
+        app_blob = {"testplan_id": tp_id, "description": description}
+        if self.ctx.args.launcher:
+            try:
+                with open(self.ctx.args.launcher, "r") as f:
+                    app_blob["launcher"] = f.read()
+            except FileNotFoundError:
+                pass
         self.ctx.sa.update_app_blob(
             json.dumps(
-                {"testplan_id": tp_id, "description": description}
+                app_blob
             ).encode("UTF-8")
         )
         bs_jobs = self.ctx.sa.get_bootstrap_todo_list()

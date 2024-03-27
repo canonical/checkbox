@@ -47,6 +47,16 @@ include:
  config-environ-case
 
 unit: test plan
+id: config-slow-automated
+_name: Checkbox Slow Configuration Test
+include:
+ config-environ-source
+ sleep_100ms
+ config-environ-vars
+ config-environ-case
+
+
+unit: test plan
 id: pass-and-fail
 _name: Pass and Fail
 include:

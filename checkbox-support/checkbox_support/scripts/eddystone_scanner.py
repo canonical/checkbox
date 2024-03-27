@@ -71,7 +71,7 @@ def beacon_scan(hci_device):
 
 
 @timeout(60 * 10)  # 10 minutes timeout
-def main(argv):
+def main(argv=sys.argv[1:]):
     init_bluetooth()
 
     parser = argparse.ArgumentParser(

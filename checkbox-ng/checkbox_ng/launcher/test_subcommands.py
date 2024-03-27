@@ -22,7 +22,7 @@ import datetime
 from functools import partial
 from unittest import TestCase
 
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, Mock, MagicMock, mock_open
 
 from io import StringIO
 
@@ -42,6 +42,40 @@ from checkbox_ng.launcher.subcommands import (
 
 
 class TestLauncher(TestCase):
+    @mock_open(read_data=textwrap.dedent(
+            """
+            [launcher]
+            app_id = "appid"
+            app_version = 0
+            session_title = "session_title"
+            session_desc = "description"
+            """
+        ))
+
+    def test_start_new_session_ok(self):
+        self_mock = MagicMock()
+        self_mock.is_interactive = True
+        self_mock._interactively_pick_test_plan.return_value = "test plan id"
+        self_mock.ctx.args.launcher = "launcher_path.conf"
+        self_mock.ctx.args.message = None
+
+        def configuration_get_value(tl_key, sl_key):
+            configuration = {
+                "launcher": {
+                    "app_id": "appid",
+                    "app_version": 0,
+                    "session_title": "session_title",
+                    "session_desc": "description",
+                },
+                "agent": {"normal_user": "ubuntu"},
+                "test plan": {"forced": False, "unit": "some unit"},
+            }
+            return configuration[tl_key][sl_key]
+
+        self_mock.configuration.get_value = configuration_get_value
+
+        Launcher._start_new_session(self_mock)
+
     @patch("checkbox_ng.launcher.subcommands.detect_restart_strategy")
     @patch("os.getenv")
     @patch("sys.argv")
@@ -144,8 +178,7 @@ class TestLauncher(TestCase):
         self, load_config_mock, configuration_mock
     ):
         self_mock = MagicMock()
-        app_blob = {
-        }
+        app_blob = {}
 
         Launcher.load_configs_from_app_blob(self_mock, app_blob)
 

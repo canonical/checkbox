@@ -54,10 +54,9 @@ class ConfigLoadedAlsoAfterResume(Scenario):
     steps = [
         Start(),
         Expect("source: source"),
-        Signal(keys.SIGINT),
+        Expect("starting to sleep"),
+        Signal(keys.SIGKILL),
         Start(),
         # autoresume
-        Expect("Case"),
-        Expect("CASE"),
-        Expect("case"),
+        Expect("Case CASE case"),
     ]

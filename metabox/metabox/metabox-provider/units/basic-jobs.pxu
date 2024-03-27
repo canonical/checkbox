@@ -30,9 +30,13 @@ flags: simple
 command: echo variables: $Case $CASE $case
 environ: Case CASE case
 
-id: sleep_100ms
+id: sleep_1000s
 flags: simple
-command: sleep .1
+_summary:
+  This job is ment to be killed, so it prints some text and sleeps for a while
+command:
+  echo starting to sleep
+  sleep 1000
 
 id: stub/manual
 _summary: A simple manual job

@@ -51,7 +51,7 @@ id: config-slow-automated
 _name: Checkbox Slow Configuration Test
 include:
  config-environ-source
- sleep_100ms
+ sleep_1000s
  config-environ-vars
  config-environ-case
 

@@ -25,7 +25,7 @@ from metabox.core.actions import Expect, Start, Signal
 
 class ConfigLoadedAlsoAfterResume(Scenario):
     """
-    Check that environment variables are case sensitive
+    Check that configs are loaded also after resume
     """
 
     modes = ["local"]

@@ -35,7 +35,7 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 _summary: Record mixer settings before suspending.
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     wpctl status | sed 's/pid:.*/]/g' > "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
   else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
@@ -443,7 +443,7 @@ requires:
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
       wpctl status | sed 's/pid:.*/]/g' > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   else
       audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
@@ -461,7 +461,7 @@ requires:
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     wpctl status | sed 's/pid:.*/]/g' > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend

@@ -242,15 +242,17 @@ class SnapRefreshRevertTests(unittest.TestCase):
 
     def test_wait_for_snap_change_timeout(self):
         mock_self = MagicMock()
+        mock_self.timeout = -1
         with self.assertRaises(SystemExit):
             snap_update_test.SnapRefreshRevert.wait_for_snap_change(
-                mock_self, change_id=1, type="refresh", timeout=-1
+                mock_self, change_id=1, type="refresh"
             )
 
     @patch("snap_update_test.time.time")
     @patch("snap_update_test.time.sleep")
     def test_wait_for_snap_change_ongoing(self, mock_sleep, mock_time):
         mock_self = MagicMock()
+        mock_self.timeout = 300
         mock_self.snapd.change.side_effect = ["Doing", "Done"]
         mock_time.return_value = 1
         snap_update_test.SnapRefreshRevert.wait_for_snap_change(

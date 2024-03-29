@@ -135,8 +135,9 @@ def load_change_info(path):
 
 
 class SnapRefreshRevert:
-    def __init__(self, name, revision, info_path):
-        self.snapd = Snapd()
+    def __init__(self, name, revision, info_path, timeout):
+        self.timeout = timeout
+        self.snapd = Snapd(task_timeout=self.timeout, verbose=True)
         self.snap_info = SnapInfo(name)
         self.path = info_path
         self.revision = revision
@@ -163,12 +164,6 @@ class SnapRefreshRevert:
             self.name,
             channel=self.snap_info.tracking_channel,
             revision=self.revision,
-            reboot=True,
-        )
-        logger.info(
-            "Refreshing requested (channel %s, revision %s)",
-            self.snap_info.tracking_channel,
-            self.revision,
         )
         data["change_id"] = response["change"]
         save_change_info(self.path, data)
@@ -184,13 +179,12 @@ class SnapRefreshRevert:
             destination_rev,
             original_rev,
         )
-        response = self.snapd.revert(self.name, reboot=True)
-        logger.info("Reverting requested")
+        response = self.snapd.revert(self.name)
         data["change_id"] = response["change"]
         save_change_info(self.path, data)
         logger.info("Waiting for reboot...")
 
-    def wait_for_snap_change(self, change_id, type, timeout=300):
+    def wait_for_snap_change(self, change_id, type):
         start_time = time.time()
         while True:
             result = self.snapd.change(str(change_id))
@@ -214,10 +208,10 @@ class SnapRefreshRevert:
                 )
 
             current_time = time.time()
-            if current_time - start_time >= timeout:
+            if current_time - start_time >= self.timeout:
                 raise SystemExit(
                     "{} snap {} did not complete within {} seconds".format(
-                        self.name, type, timeout
+                        self.name, type, self.timeout
                     )
                 )
             logger.info(
@@ -226,8 +220,8 @@ class SnapRefreshRevert:
             logger.info("Trying again in 10 seconds...")
             time.sleep(10)
 
-    def verify(self, type, timeout=300):
-        logger.info("Beginning verify...")
+    def verify(self, type):
+        print("Beginning verify...")
         if type not in ("refresh", "revert"):
             msg = (
                 "'{}' verification unknown. Can be either 'refresh' "
@@ -236,8 +230,8 @@ class SnapRefreshRevert:
             raise SystemExit(msg)
         data = load_change_info(self.path)
         id = data["change_id"]
-        self.wait_for_snap_change(id, type, timeout)
         logger.info("Checking %s status for snap %s...", type, self.name)
+        self.wait_for_snap_change(id, type)
 
         current_rev = self.snapd.list(self.name)["revision"]
         if type == "refresh":
@@ -295,6 +289,11 @@ def main(args):
         "--revision",
         help="Revision to refresh to",
     )
+    parser.add_argument(
+        "--timeout",
+        default=300,
+        help="Timeout for each task, in seconds (default: %(default)s))",
+    )
 
     args = parser.parse_args(args)
 
@@ -302,7 +301,10 @@ def main(args):
         print_resource_info()
     else:
         test = SnapRefreshRevert(
-            name=args.name, info_path=args.info_path, revision=args.revision
+            name=args.name,
+            info_path=args.info_path,
+            revision=args.revision,
+            timeout=args.timeout,
         )
         if args.refresh:
             test.snap_refresh()

@@ -49,6 +49,20 @@ class TestCheckSoftwareRAID(unittest.TestCase):
 
     @patch("check_software_raid.dump_raid_info")
     @patch("check_software_raid.get_md_stat")
+    def test_check_raid_mode_param_with_redundant_space(
+                    self, mock_get_md, mock_dump_raid):
+
+        mock_get_md.return_value = [
+            {"device": "md2", "mode": "raid1"},
+            {"device": "md1", "mode": "raid0"}
+        ]
+
+        check_software_raid.check_raid_mode_test("  raid1  raid0  ")
+        mock_get_md.assert_called_with()
+        mock_dump_raid.assert_called_with(["md2", "md1"])
+
+    @patch("check_software_raid.dump_raid_info")
+    @patch("check_software_raid.get_md_stat")
     def test_check_raid_mode_is_not_expected(self, mock_get_md, mock_dump_raid):
 
         mock_get_md.return_value = [

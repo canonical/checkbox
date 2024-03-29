@@ -61,16 +61,16 @@ def check_raid_mode_test(modes: str) -> None:
     Raises:
         ValueError: when if RAID modes are not expected
     """
-    expected_modes = modes.split(" ")
+    expected_modes = modes.strip().split()
     cur_raid_stats = get_md_stat()
-
-    dump_raid_info(
-        [stat["device"] for stat in cur_raid_stats]
-    )
 
     active_mode = [stat["mode"] for stat in cur_raid_stats]
     logging.info("Active RAID mode on the system: %s", active_mode)
     logging.info("Expected RAID mode: %s", expected_modes)
+
+    dump_raid_info(
+        [stat["device"] for stat in cur_raid_stats]
+    )
 
     if sorted(expected_modes) == sorted(active_mode):
         logging.info("PASS: RAID mode on the system is expected")

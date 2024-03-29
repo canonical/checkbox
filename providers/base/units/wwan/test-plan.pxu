@@ -4,7 +4,7 @@ _name: Wwan tests
 _description: QA wwan tests for Snappy Ubuntu Core devices
 include:
     # Note this test require snap calling snap support
-    wwan/verify-sim-info-.*
+    wwan/verify-sim-info-manufacturer-model-hw_id
 nested_part:
     wwan-manual
     wwan-automated
@@ -16,8 +16,8 @@ _description: Automated wwan tests for Snappy Ubuntu Core devices
 include:
     # Note these tests require snap calling snap support
     wwan/detect
-    wwan/gsm-connection-.*-auto
-    wwan/check-sim-present-.*-auto
+    wwan/gsm-connection-manufacturer-model-hw_id-auto
+    wwan/check-sim-present-manufacturer-model-hw_id-auto
 bootstrap_include:
     wwan_resource
 

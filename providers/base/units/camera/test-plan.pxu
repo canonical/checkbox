@@ -14,8 +14,8 @@ _name: Camera tests (Manual)
 _description:
  Camera tests (Manual)
 include:
- camera/still_.*                                   certification-status=blocker
- camera/display_.*                                 certification-status=blocker
+ camera/still_name                                   certification-status=blocker
+ camera/display_name                                 certification-status=blocker
 bootstrap_include:
  device
 
@@ -35,8 +35,8 @@ _name: Camera tests (automated)
 _description: Camera tests (automated)
 include:
  camera/detect                                     certification-status=blocker
- camera/multiple-resolution-images_.*              certification-status=blocker
- camera/camera-quality_.*                          certification-status=non-blocker
+ camera/multiple-resolution-images_name              certification-status=blocker
+ camera/camera-quality_name                          certification-status=non-blocker
 bootstrap_include:
  device
 
@@ -46,9 +46,9 @@ _name: Camera tests (certification blockers only)
 _description: Camera tests (certification blockers only)
 include:
  camera/detect                                     certification-status=blocker
- camera/still_.*                                   certification-status=blocker
- camera/display_.*                                 certification-status=blocker
- camera/multiple-resolution-images_.*              certification-status=blocker
+ camera/still_name                                   certification-status=blocker
+ camera/display_name                                 certification-status=blocker
+ camera/multiple-resolution-images_name              certification-status=blocker
 bootstrap_include:
  device
 
@@ -94,8 +94,8 @@ _name: Automated camera tests
 _description: Automated camera tests for Ubuntu Core devices
 estimated_duration: 1h30m
 include:
-    camera/multiple-resolution-images_.*
-    camera/multiple-resolution-images-rpi_.*
-    camera/roundtrip-qrcode_.*
+    camera/multiple-resolution-images_name
+    camera/multiple-resolution-images-rpi_name
+    camera/roundtrip-qrcode_name
 bootstrap_include:
     device

@@ -22,5 +22,5 @@ bootstrap_include:
 include:
     ubuntucore/os-reinstall-mode
     ubuntucore/os-recovery-mode
-    ubuntucore/os-fail-boot-(?!with-refresh-control).*
+    ubuntucore/os-fail-boot-description
     ubuntucore/sshd

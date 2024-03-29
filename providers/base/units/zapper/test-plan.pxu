@@ -15,10 +15,10 @@ include:
   input/zapper-keyboard
   monitor/zapper-edid
   monitor/1_zapper_hdmi_.*
-  usb/zapper-usb-insert-.*
-  usb/zapper-usb-remove-.*
-  usb3/zapper-usb-insert-.*
-  usb3/zapper-usb-remove-.*
+  usb/zapper-usb-insert-port_alias
+  usb/zapper-usb-remove-port_alias
+  usb3/zapper-usb-insert-port_alias
+  usb3/zapper-usb-remove-port_alias
 bootstrap_include:
   zapper_capabilities
   graphics_card

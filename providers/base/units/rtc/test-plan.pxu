@@ -22,8 +22,8 @@ bootstrap_include:
     rtc_list
 include:
     rtc/rtc_number
-    rtc/rtc_alarm_.*
-    rtc/rtc_clock_.*
+    rtc/rtc_alarm_rtc
+    rtc/rtc_clock_rtc
 
 id: after-suspend-rtc-full
 unit: test plan

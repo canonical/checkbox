@@ -12,9 +12,9 @@ nested_part:
     com.canonical.certification::server-miscellaneous
     com.canonical.certification::nvdimm-full
 include:
-    info/hdparm_.*.txt                         certification-status=non-blocker
-    benchmarks/disk/hdparm-read_.*             certification-status=blocker
-    benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker
+    info/hdparm_name.txt                         certification-status=non-blocker
+    benchmarks/disk/hdparm-read_name             certification-status=blocker
+    benchmarks/disk/hdparm-cache-read_name       certification-status=blocker
     miscellanea/oops                           certification-status=non-blocker
     miscellanea/oops_results.log               certification-status=non-blocker
     miscellanea/olog                           certification-status=blocker

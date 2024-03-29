@@ -15,8 +15,8 @@ _description:
  Input tests (Manual)
 include:
     input/accelerometer                        certification-status=blocker
-    input/pointing_.*                          certification-status=blocker
-    input/clicking_.*                          certification-status=blocker
+    input/pointing_product_slug_category___index__                          certification-status=blocker
+    input/clicking_product_slug_category___index__                          certification-status=blocker
     input/keyboard                             certification-status=blocker
 
 id: input-cert-automated
@@ -25,7 +25,7 @@ _name: Input tests (Automated)
 _description:
  Input tests (Automated)
 include:
- input/fixed_screen_orientation_on_.*       certification-status=non-blocker
+ input/fixed_screen_orientation_on_product___index__       certification-status=non-blocker
 bootstrap_include:
  dmi
 
@@ -54,8 +54,8 @@ unit: test plan
 _name: Input tests (certification blockers only)
 _description: Input tests (certification blockers only)
 include:
-    input/pointing_.*                          certification-status=blocker
-    input/clicking_.*                          certification-status=blocker
+    input/pointing_product_slug_category___index__                          certification-status=blocker
+    input/clicking_product_slug_category___index__                          certification-status=blocker
     input/keyboard                             certification-status=blocker
 
 id: after-suspend-input-cert-blockers
@@ -63,5 +63,5 @@ unit: test plan
 _name: Input tests (after suspend, certification blockers only)
 _description: Input tests (after suspend, certification blockers only)
 include:
-    suspend/pointing-after-suspend_.*          certification-status=blocker
-    suspend/clicking-after-suspend_.*          certification-status=blocker
+    suspend/pointing-after-suspend_product_slug_category___index__          certification-status=blocker
+    suspend/clicking-after-suspend_product_slug_category___index__          certification-status=blocker

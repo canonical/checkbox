@@ -21,6 +21,6 @@ unit: test plan
 _name: Automated self tests
 _description: Automated tests to make sure the checkbox snap is setup correctly
 include:
-    self/content-plug-connected-.*
+    self/content-plug-connected-name
 bootstrap_include:
     interface

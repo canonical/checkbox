@@ -35,7 +35,7 @@ include:
  efi_attachment
  info/buildstamp
  info/disk_partitions
- info/hdparm_.*.txt
+ info/hdparm_name.txt
  info/touchpad_driver
  installer_debug.gz
  kernel_cmdline_attachment
@@ -72,7 +72,7 @@ include:
  efi_attachment
  info/buildstamp
  info/disk_partitions
- info/hdparm_.*.txt
+ info/hdparm_name.txt
  info/network-config
  installer_debug.gz
  kernel_cmdline_attachment

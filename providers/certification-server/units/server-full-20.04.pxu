@@ -15,16 +15,16 @@ nested_part:
     com.canonical.certification::nvdimm-full
     com.canonical.certification::server-usb
 include:
-    info/hdparm_.*.txt                         certification-status=non-blocker
-    benchmarks/disk/hdparm-read_.*             certification-status=blocker
-    benchmarks/disk/hdparm-cache-read_.*       certification-status=blocker
+    info/hdparm_name.txt                         certification-status=non-blocker
+    benchmarks/disk/hdparm-read_name             certification-status=blocker
+    benchmarks/disk/hdparm-cache-read_name       certification-status=blocker
     disk/detect                                certification-status=blocker
-    disk/stats_.*                              certification-status=blocker
-    disk/read_performance_.*                   certification-status=blocker
-    disk/smart_.*                              certification-status=non-blocker
-    disk/fstrim_.*                             certification-status=non-blocker
-    disk/disk_stress_ng_.*                     certification-status=blocker
-    disk/disk_cpu_load_.*                      certification-status=non-blocker
+    disk/stats_name                              certification-status=blocker
+    disk/read_performance_name                   certification-status=blocker
+    disk/smart_name                              certification-status=non-blocker
+    disk/fstrim_name                             certification-status=non-blocker
+    disk/disk_stress_ng_name                     certification-status=blocker
+    disk/disk_cpu_load_name                      certification-status=non-blocker
     networking/predictable_names               certification-status=non-blocker
     memory/info                                certification-status=blocker
     stress/memory_stress_ng                    certification-status=blocker

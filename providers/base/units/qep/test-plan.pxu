@@ -21,5 +21,5 @@ unit: test plan
 bootstrap_include:
   qep/qep-devices
 include:
-  qep/qep-device-driver-for-.*
-  qep/qep-device-node-for-.*
+  qep/qep-device-driver-for-qep-device
+  qep/qep-device-node-for-qep-device

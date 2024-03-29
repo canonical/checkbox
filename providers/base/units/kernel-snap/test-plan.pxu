@@ -13,7 +13,7 @@ unit: test plan
 _name: Automated Kernel Snap tests
 _description: Automated Kernel Snap tests for Ubuntu Core devices
 include:
-    kernel-snap/booted-kernel-matches-current-.*
+    kernel-snap/booted-kernel-matches-current-name
 bootstrap_include:
     bootloader
 

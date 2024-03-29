@@ -144,7 +144,7 @@ estimated_duration: 25h
 bootstrap_include:
   reboot-run-generator
 include:
-  warm-boot-loop-.*
+  warm-boot-loop-rebootreboot_id
 mandatory_include:
     com.canonical.plainbox::manifest
     package
@@ -174,7 +174,7 @@ estimated_duration: 42h
 bootstrap_include:
   reboot-run-generator
 include:
-  cold-boot-loop-.*
+  cold-boot-loop-rebootreboot_id
 mandatory_include:
     com.canonical.plainbox::manifest
     package
@@ -204,7 +204,7 @@ estimated_duration: 42h
 bootstrap_include:
   stress_s3_iterations
 include:
-  stress-tests/suspend.*
+  stress-tests/suspend_s3_iterations_cycles
 mandatory_include:
     com.canonical.plainbox::manifest
     package
@@ -233,7 +233,7 @@ estimated_duration: 42h
 bootstrap_include:
   stress_s4_iterations
 include:
-  stress-tests/hibernate.*
+  stress-tests/hibernate_s4_iterations_cycles
 mandatory_include:
     com.canonical.plainbox::manifest
     package
@@ -265,8 +265,8 @@ bootstrap_include:
   stress_suspend_reboot_cycles_iterations
   stress_suspend_reboot_iterations
 include:
-  stress-tests/suspend_cycles.*
-  stress-tests/suspend-.*-cycles.*
+  stress-tests/suspend_cycles_1_rebootsuspend_reboot_id
+  stress-tests/suspend-s3_iterations-cycles-log-check
 mandatory_include:
     com.canonical.plainbox::manifest
     package
@@ -289,8 +289,8 @@ unit: test plan
 _name: Automated stress-ng tests
 _description: Automated stress-ng tests for Snappy Ubuntu Core devices
 include:
-    stress/stress-ng-test-for-stressor-.*
-    disk/disk_stress_ng_.*
+    stress/stress-ng-test-for-stressor-stressor
+    disk/disk_stress_ng_name
 bootstrap_include:
     device
     stress-ng-stressors
@@ -300,7 +300,7 @@ unit: test plan
 _name: Automated iperf3 tests
 _description: Automated iperf3 performance test
 include:
-    ethernet/iperf3_.*
+    ethernet/iperf3_interface
 bootstrap_include:
     device
 

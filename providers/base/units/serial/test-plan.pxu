@@ -19,7 +19,7 @@ unit: test plan
 _name: Automated serial tests
 _description: Automated serial tests for Snappy Ubuntu Core devices
 include:
-    serial/loopback-.*
+    serial/loopback-dev
 bootstrap_include:
     serial_ports_static
 

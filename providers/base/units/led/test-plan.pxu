@@ -23,7 +23,7 @@ _description:
            - led/wireless is redundant given that we have led/wlan and
              led/bluetooth already. (Manual)
 include:
-    camera/led_.*                      certification-status=blocker
+    camera/led_name                      certification-status=blocker
     led/caps-lock                      certification-status=blocker
     led/numeric-keypad                 certification-status=blocker
     led/power                          certification-status=blocker
@@ -67,7 +67,7 @@ unit: test plan
 _name: LED tests (certification blockers only)
 _description: LED tests (certification blockers only)
 include:
-    camera/led_.*                      certification-status=blocker
+    camera/led_name                      certification-status=blocker
     led/caps-lock                      certification-status=blocker
     led/numeric-keypad                 certification-status=blocker
     led/power                          certification-status=blocker
@@ -111,8 +111,8 @@ include:
     led/bluetooth
     led/serial
     led/fn
-    led/sysfs_led_brightness_on_.*
-    led/sysfs_led_brightness_off_.*
+    led/sysfs_led_brightness_on_vendor_product
+    led/sysfs_led_brightness_off_vendor_product
 bootstrap_include:
     dmi
 
@@ -123,9 +123,9 @@ _description:
     Manual LED indicator tests for IoT devices
     Notes: the led-indicator/gpio-leds will be deprecated in next release
 include:
-    led-indicator/gpio-leds-.*
-    led-indicator/gpio-controller-leds-.*
-    led-indicator/sysfs-leds-.*
+    led-indicator/gpio-leds-name
+    led-indicator/gpio-controller-leds-name
+    led-indicator/sysfs-leds-name
 bootstrap_include:
     led-indicator/gpio-leds
     led-indicator/gpio-controller-leds

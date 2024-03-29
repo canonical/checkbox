@@ -12,7 +12,7 @@ unit: test plan
 _name: Networking tests (manual)
 _description: Networking tests (manual)
 include:
-    networking/info_device.*                       certification-status=blocker
+    networking/info_device__index___interface                       certification-status=blocker
 bootstrap_include:
     device
     executable
@@ -40,7 +40,7 @@ _name: Networking tests (certification blockers only)
 _description: Networking tests (certification blockers only)
 include:
     networking/gateway_ping                        certification-status=blocker
-    networking/info_device.*                       certification-status=blocker
+    networking/info_device__index___interface                       certification-status=blocker
     networking/ntp                                 certification-status=blocker
 bootstrap_include:
     device
@@ -67,7 +67,7 @@ _name: Automated networking tests for devices
 _description: Automated networking tests for devices
 include:
   ipv6_detect
-  ipv6_link_local_address_.*
+  ipv6_link_local_address_interface
   networking/predictable_names
 bootstrap_include:
   device

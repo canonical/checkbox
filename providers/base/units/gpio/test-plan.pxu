@@ -27,8 +27,8 @@ bootstrap_include:
     model_assertion
     dmi
 include:
-    gpio/sysfs_loopback_pairs_.*
-    gpio/gpiomem_loopback_pairs_.*
+    gpio/sysfs_loopback_pairs_model
+    gpio/gpiomem_loopback_pairs_model
 
 id: after-suspend-gpio-automated
 unit: test plan

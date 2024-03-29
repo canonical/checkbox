@@ -16,7 +16,7 @@ include:
     meminfo
     mobilebroadband
     module
-    optical_drive_.*
+    optical_drive_name
     package
     rtc
     sleep

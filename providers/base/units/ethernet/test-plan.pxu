@@ -13,7 +13,7 @@ _name: Ethernet tests (manual)
 _description: Ethernet tests (manual)
 include:
     ethernet/detect                                certification-status=blocker
-    ethernet/hotplug-.*                            certification-status=blocker
+    ethernet/hotplug-interface                            certification-status=blocker
 bootstrap_include:
     device
 
@@ -37,7 +37,7 @@ _name: Ethernet tests (certification blockers only)
 _description: Ethernet tests (certification blockers only)
 include:
     ethernet/detect                                certification-status=blocker
-    ethernet/hotplug-.*                            certification-status=blocker
+    ethernet/hotplug-interface                            certification-status=blocker
 bootstrap_include:
     device
 
@@ -56,10 +56,10 @@ unit: test plan
 _name: Manual ethernet tests
 _description: Manual tests for ethernet connections
 include:
-    ethernet/wol_S5_.*
-    ethernet/wol_S4_.*
-    ethernet/wol_S3_.*
-    ethernet/hotplug-.*
+    ethernet/wol_S5_interface
+    ethernet/wol_S4_interface
+    ethernet/wol_S3_interface
+    ethernet/hotplug-interface
 bootstrap_include:
     device
 
@@ -70,7 +70,7 @@ _description: Automated ethernet tests for Ubuntu Core devices
 estimated_duration: 1m
 include:
     ethernet/detect
-    ethernet/ping_.*
+    ethernet/ping_interface
 bootstrap_include:
     device
 
@@ -113,8 +113,8 @@ estimated_duration: 4h
 include:
     ethernet/info_automated_server          certification-status=non-blocker
     ethernet/ethtool_info                   certification-status=non-blocker
-    ethernet/ethertool_check_.*             certification-status=non-blocker
-    ethernet/multi_iperf3_nic_device.*      certification-status=blocker
+    ethernet/ethertool_check_device__index___interface             certification-status=non-blocker
+    ethernet/multi_iperf3_nic_device__index___interface      certification-status=blocker
 bootstrap_include:
     device
     executable
@@ -127,8 +127,8 @@ estimated_duration: 4h
 include:
     ethernet/info_automated_server          certification-status=non-blocker
     ethernet/ethtool_info                   certification-status=non-blocker
-    ethernet/ethertool_check_.*             certification-status=non-blocker
-    ethernet/sru_iperf3_stress_device-.*    certification-status=blocker
+    ethernet/ethertool_check_device__index___interface             certification-status=non-blocker
+    ethernet/sru_iperf3_stress_device-__index___interface    certification-status=blocker
 bootstrap_include:
     device
     executable
@@ -141,8 +141,8 @@ estimated_duration: 4h
 include:
     ethernet/info_automated_server                  certification-status=non-blocker
     ethernet/ethtool_info                           certification-status=non-blocker
-    ethernet/ethertool_check_.*                     certification-status=non-blocker
-    ethernet/multi_iperf3_nic_underspeed_device.*   certification-status=non-blocker
+    ethernet/ethertool_check_device__index___interface                     certification-status=non-blocker
+    ethernet/multi_iperf3_nic_underspeed_device__index___interface   certification-status=non-blocker
 bootstrap_include:
     device
     executable

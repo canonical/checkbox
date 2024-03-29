@@ -23,7 +23,7 @@ include:
     meminfo
     mobilebroadband
     module
-    optical_drive_.*                                       certification-status=blocker
+    optical_drive_name                                       certification-status=blocker
     package
     rtc
     sleep
@@ -107,7 +107,7 @@ include:
     miscellanea/oops_results.log
     ethernet/detect                                        certification-status=blocker
     networking/gateway_ping                                certification-status=blocker
-    networking/info.*                                      certification-status=blocker
+    networking/info_device__index___interface                                      certification-status=blocker
     networking/ntp                                         certification-status=blocker
     power-management/rtc                                   certification-status=blocker
     power-management/tickless_idle                         certification-status=blocker
@@ -229,7 +229,7 @@ include:
     lsmod_attachment
     dkms_info_attachment
     acpi_sleep_attachment
-    info/hdparm_.*.txt
+    info/hdparm_name.txt
     installer_debug.gz
     info/touchpad_driver
     info/disk_partitions

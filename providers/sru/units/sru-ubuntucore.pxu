@@ -28,7 +28,7 @@ include:
     cpu/scaling_test-log-attach
     cpu/offlining_test
     cpu/topology
-    disk/read_performance_.*
+    disk/read_performance_name
 #     graphics/xorg-version
 #     graphics/1_compiz_check_.*
 #     graphics/xorg-failsafe
@@ -40,21 +40,21 @@ include:
     ethernet/info_automated
     networking/http
     ethernet/ping-with-any-cable-interface
-    power-management/tickless_idle_.*
+    power-management/tickless_idle_kernel
     power-management/rtc
     power-management/fwts_wakealarm
     power-management/fwts_wakealarm-log-attach
     usb/detect
     usb/storage-preinserted
-    wireless/wireless_scanning_.*
-    wireless/wireless_connection_wpa_bg_nm_.*
-    wireless/wireless_connection_open_bg_nm_.*
-    wireless/wireless_connection_wpa_n_nm_.*
-    wireless/wireless_connection_open_n_nm_.*
-    wireless/wireless_connection_wpa_ac_nm_.*
-    wireless/wireless_connection_open_ac_nm_.*
+    wireless/wireless_scanning_interface
+    wireless/wireless_connection_wpa_bg_nm_interface
+    wireless/wireless_connection_open_bg_nm_interface
+    wireless/wireless_connection_wpa_n_nm_interface
+    wireless/wireless_connection_open_n_nm_interface
+    wireless/wireless_connection_wpa_ac_nm_interface
+    wireless/wireless_connection_open_ac_nm_interface
 #     suspend/audio_before_suspend
-    bluetooth4/beacon_eddystone_url_.*
+    bluetooth4/beacon_eddystone_url_interface
     cpu/cpuinfo_before_suspend
 #    suspend/network_before_suspend
     memory/meminfo_before_suspend

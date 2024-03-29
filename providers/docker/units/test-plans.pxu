@@ -31,24 +31,24 @@ estimated_duration: 120
 include:
     docker/info
     docker/version
-    docker/run_.*
-    docker/interative_.*
-    docker/diff_.*
-    docker/copy_.*
-    docker/inspect_.*
-    docker/kill_.*
-    docker/build-single_.*
-    docker/start-stop_.*
-    docker/deploy-registry_.*
-    docker/export-and-import_.*
-    docker/save-and-load_.*
-    docker/commit_.*
-    docker/update_.*
-    docker/restart-on-failure_.*
-    docker/restart-always_.*
-    docker/compose-single_.*
-    docker/compose-and-basic_.*
-    docker/compose-restart_.*
+    docker/run_arch
+    docker/interative_arch
+    docker/diff_arch
+    docker/copy_arch
+    docker/inspect_arch
+    docker/kill_arch
+    docker/build-single_arch
+    docker/start-stop_arch
+    docker/deploy-registry_arch
+    docker/export-and-import_arch
+    docker/save-and-load_arch
+    docker/commit_arch
+    docker/update_arch
+    docker/restart-on-failure_arch
+    docker/restart-always_arch
+    docker/compose-single_arch
+    docker/compose-and-basic_arch
+    docker/compose-restart_arch
 bootstrap_include:
     docker_resource
 
@@ -60,6 +60,6 @@ _description:
  Foundry. Note that these tests could be have significant duration.
 estimated_duration: 900
 include:
-    docker/edgex_compose_.*
+    docker/edgex_compose_arch
 bootstrap_include:
     docker_resource

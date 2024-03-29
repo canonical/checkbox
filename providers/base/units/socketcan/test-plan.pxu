@@ -5,7 +5,7 @@ _name: SocketCAN Tests (Automated, Remote)
 _description:
   SocketCAN Tests (Automated, Remote)
 include:
-  socketcan/send_packet_remote_.*
+  socketcan/send_packet_remote_sff_interface
 
 
 id: socketcan-manual-remote
@@ -39,7 +39,7 @@ _name: SocketCAN Tests (Automated, Local)
 _description:
   SocketCAN Tests (Automated, Local)
 include:
-  socketcan/send_packet_local_.*
+  socketcan/send_packet_local_sff_interface
 
 
 id: socketcan-manual-local

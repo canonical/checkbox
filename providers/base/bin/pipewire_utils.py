@@ -24,6 +24,7 @@ import logging
 import time
 import json
 import sys
+import re
 import gi
 gi.require_version('Gst', '1.0')
 gi.require_version('GLib', '2.0')
@@ -67,6 +68,25 @@ class PipewireTest:
 
     """
     logger = logging.getLogger()
+
+    def _run_command(self, cmd: dict, shell=False) -> str:
+        """
+        use subprocess.check_output to execute command
+
+        :param cmd: the command will be executed
+
+        :param shell: enbale shell or not
+
+        :returns: Ouput of command
+        """
+        try:
+            return subprocess.check_output(cmd,
+                                           shell=shell,
+                                           universal_newlines=True)
+
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            raise SystemExit("Running command:{} failed due to {}"
+                             .format(cmd, repr(e)))
 
     def _get_pw_type(self, media_class) -> str:
         """
@@ -452,6 +472,56 @@ class PipewireTest:
         except subprocess.CalledProcessError as e:
             raise RuntimeError("Show default device error {}".format(repr(e)))
 
+    def _sort_and_print(self, lines: list) -> bool:
+        """
+        This method will sort the string array and print the sorted result
+
+        :param lines: the string list you would like to sort and print
+
+        :returns: is sorted and printed or not
+        """
+        if len(lines) > 0:
+            sorted_lines = sorted(lines)
+            for e in sorted_lines:
+                # logger couldn't pipe to file
+                print("{}".format(e))
+            return True
+        else:
+            return False
+
+    def show_current_status(self):
+        """
+        show current pipewire configuration status
+
+        """
+        catalog = [" └─ Clients:", " ├─ Devices:", " ├─ Sinks:",
+                   " ├─ Sink endpoints:", " ├─ Sources:",
+                   " ├─ Source endpoints:", " └─ Streams:",
+                   " └─ Default Configured Node Names:"]
+        cmd = ["wpctl", "status"]
+        output = self._run_command(cmd)
+
+        # remove pid that will be changed after suspend
+        clean_pid = re.sub(", pid:.*", "]", output)
+        # device id and order will be changed after suspend
+        # since kernel 6.5.0.26
+        # Therefore remvoe the device id and sort the lines
+        clean_did = re.sub(" [0-9]+\\. ", "", clean_pid).splitlines()
+        stored_lines = []
+        for line in clean_did:
+            # only sort needed items
+            if line in catalog:
+                # found next catalog, print store_lines
+                if self._sort_and_print(stored_lines):
+                    stored_lines = []
+                # logger couldn't pipe to file
+                print("{}".format(line))
+            else:
+                stored_lines.append(line)
+
+        # print store_lines that hasn't printed
+        self._sort_and_print(stored_lines)
+
     def _args_parsing(self, args=sys.argv[1:]):
         parser = argparse.ArgumentParser(
                 prog="Pipewire validator",
@@ -533,6 +603,11 @@ class PipewireTest:
                 "-t", "--type", type=str, required=True,
                 help="VIDEO or AUDIO")
 
+        # Add parser for show current status function
+        parser_show = subparsers.add_parser(
+                'status',
+                help='show pipewire current status from wpctl status')
+
         return parser.parse_args(args)
 
     def function_select(self, args):
@@ -554,6 +629,9 @@ class PipewireTest:
         elif args.test_type == "show":
             # show_default_device("AUDIO")
             return self.show_default_device(args.type)
+        elif args.test_type == "status":
+            # show_current_status()
+            return self.show_current_status()
 
 
 if __name__ == "__main__":

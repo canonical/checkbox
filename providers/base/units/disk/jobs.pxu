@@ -179,5 +179,6 @@ requires:
   executable.name == 'mdadm'
   manifest.has_md_raid == 'True'
 environ: SOFTWARE_RAID_LEVEL
+user: root
 command: check_software_raid.py --mode "$SOFTWARE_RAID_LEVEL"
 estimated_duration: 10

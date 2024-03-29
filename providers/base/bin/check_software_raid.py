@@ -6,7 +6,11 @@ import argparse
 import shlex
 import subprocess
 from pathlib import Path
-from typing import TypedDict
+
+if sys.version_info >= (3, 8):
+    from typing import TypedDict as TypedDict
+else:
+    from typing import Dict as TypedDict
 
 
 class RAIDStats(TypedDict):

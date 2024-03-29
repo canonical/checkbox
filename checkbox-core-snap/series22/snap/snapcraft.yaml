@@ -134,7 +134,7 @@ parts:
       - libxxhash-dev
       - libmd-dev
       - on amd64: [ libipsec-mb-dev ]
-    after: [version-calculator]
+    after: [fwts]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
   acpi-tools:

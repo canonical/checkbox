@@ -174,9 +174,10 @@ _description:
   Examine the system to detect Software RAID devices are created and the RAID mode are expected
   the SOFTWARE_RAID_LEVEL variable is needed for this tests.
   e.g. SOFTWARE_RAID_LEVEL="raid0 raid1 raid5"
+imports: from com.canonical.plainbox import manifest
 requires:
   executable.name == 'mdadm'
   manifest.has_md_raid == 'True'
 environ: SOFTWARE_RAID_LEVEL
-command: check_software_raid.py "$SOFTWARE_RAID_LEVEL"
+command: check_software_raid.py --mode "$SOFTWARE_RAID_LEVEL"
 estimated_duration: 10

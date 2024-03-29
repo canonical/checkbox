@@ -146,6 +146,20 @@ class SnapRefreshRevertTests(unittest.TestCase):
     def tearDownClass(cls):
         logging.disable(logging.NOTSET)
 
+    @patch("snap_update_test.SnapInfo")
+    @patch("snap_update_test.Snapd")
+    def test_init(self, mock_snapd, mock_snapinfo):
+        srr = snap_update_test.SnapRefreshRevert(
+            name="test",
+            revision="1",
+            info_path="/test",
+            timeout="10",
+        )
+        self.assertEqual(srr.name, "test")
+        self.assertEqual(srr.path, "/tmp")
+        self.assertEqual(srr.revision, "1")
+        self.assertEqual(srr.timeout, "10")
+
     def test_snap_refresh_same_revision(self):
         mock_self = MagicMock()
         mock_self.revision = "1"

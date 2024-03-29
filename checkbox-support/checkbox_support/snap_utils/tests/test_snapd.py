@@ -7,15 +7,15 @@ from checkbox_support.snap_utils.snapd import AsyncException, Snapd
 
 
 class TestSnapd(TestCase):
-    @patch("snapd.time.sleep")
-    @patch("snapd.time.time")
+    @patch("checkbox_support.snap_utils.snapd.time.sleep")
+    @patch("checkbox_support.snap_utils.snapd.time.time")
     def test_poll_change_done(self, mock_time, mock_sleep):
         mock_self = MagicMock()
         mock_self.change.return_value = "Done"
         self.assertTrue(Snapd._poll_change(mock_self, 0))
 
-    @patch("snapd.time.sleep")
-    @patch("snapd.time.time")
+    @patch("checkbox_support.snap_utils.snapd.time.sleep")
+    @patch("checkbox_support.snap_utils.snapd.time.time")
     def test_poll_change_timeout(self, mock_time, mock_sleep):
         mock_time.side_effect = [0, 1]
         mock_self = MagicMock()
@@ -23,8 +23,8 @@ class TestSnapd(TestCase):
         with self.assertRaises(AsyncException):
             Snapd._poll_change(mock_self, 0)
 
-    @patch("snapd.time.sleep")
-    @patch("snapd.time.time")
+    @patch("checkbox_support.snap_utils.snapd.time.sleep")
+    @patch("checkbox_support.snap_utils.snapd.time.time")
     def test_poll_change_doing(self, mock_time, mock_sleep):
         mock_time.return_value = 0
         mock_self = MagicMock()
@@ -52,8 +52,8 @@ class TestSnapd(TestCase):
         message = "(Doing) Test (50.0%)"
         mock_self._info.assert_called_with(message)
 
-    @patch("snapd.time.sleep")
-    @patch("snapd.time.time")
+    @patch("checkbox_support.snap_utils.snapd.time.sleep")
+    @patch("checkbox_support.snap_utils.snapd.time.time")
     def test_poll_change_wait(self, mock_time, mock_sleep):
         mock_time.return_value = 0
         mock_self = MagicMock()
@@ -70,8 +70,8 @@ class TestSnapd(TestCase):
         message = "(Wait) Test"
         mock_self._info.assert_called_with(message)
 
-    @patch("snapd.time.sleep")
-    @patch("snapd.time.time")
+    @patch("checkbox_support.snap_utils.snapd.time.sleep")
+    @patch("checkbox_support.snap_utils.snapd.time.time")
     def test_poll_change_error(self, mock_time, mock_sleep):
         mock_time.return_value = 0
         mock_self = MagicMock()

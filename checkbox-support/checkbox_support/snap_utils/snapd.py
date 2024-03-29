@@ -129,23 +129,25 @@ class Snapd():
                 return None
             raise
 
-    def install(self, snap, channel='stable', revision=None):
-        path = self._snaps + '/' + snap
-        data = {'action': 'install', 'channel': channel}
+    def install(self, snap, channel="stable", revision=None):
+        path = self._snaps + "/" + snap
+        data = {"action": "install", "channel": channel}
         if revision is not None:
-            data['revision'] = revision
+            data["revision"] = revision
         r = self._post(path, json.dumps(data))
-        if r['type'] == 'async' and r['status'] == 'Accepted':
-            self._poll_change(r['change'])
+        if r["type"] == "async" and r["status"] == "Accepted":
+            self._poll_change(r["change"])
+        return r
 
     def remove(self, snap, revision=None):
-        path = self._snaps + '/' + snap
-        data = {'action': 'remove'}
+        path = self._snaps + "/" + snap
+        data = {"action": "remove"}
         if revision is not None:
-            data['revision'] = revision
+            data["revision"] = revision
         r = self._post(path, json.dumps(data))
-        if r['type'] == 'async' and r['status'] == 'Accepted':
-            self._poll_change(r['change'])
+        if r["type"] == "async" and r["status"] == "Accepted":
+            self._poll_change(r["change"])
+        return r
 
     def find(self, search, exact=False):
         if exact:

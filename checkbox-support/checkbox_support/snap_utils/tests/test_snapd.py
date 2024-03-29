@@ -88,3 +88,63 @@ class TestSnapd(TestCase):
         with self.assertRaises(AsyncException):
             Snapd._poll_change(mock_self, 0)
         mock_self._info.assert_called_with(message)
+
+    def test_install_accepted(self):
+        mock_self = MagicMock()
+        mock_self._poll_change = MagicMock()
+        mock_self._post.return_value = {
+            "type": "async",
+            "status": "Accepted",
+            "change": "1",
+        }
+        response = Snapd.install(mock_self, "test")
+        self.assertEqual(response, mock_self._post.return_value)
+        mock_self._poll_change.assert_called_with("1")
+
+    def test_install_other(self):
+        mock_self = MagicMock()
+        mock_self._poll_change = MagicMock()
+        mock_self._post.return_value = {
+            "type": "async",
+            "status": "Other",
+            "change": "1",
+        }
+        response = Snapd.install(mock_self, "test")
+        self.assertEqual(response, mock_self._post.return_value)
+        mock_self._poll_change.assert_not_called()
+
+    def test_install_revision(self):
+        mock_self = MagicMock()
+        Snapd.install(mock_self, "test", revision="1")
+        test_data = {"action": "install", "channel": "stable", "revision": "1"}
+        mock_self._post.assert_called_with(ANY, json.dumps(test_data))
+
+    def test_remove_accepted(self):
+        mock_self = MagicMock()
+        mock_self._poll_change = MagicMock()
+        mock_self._post.return_value = {
+            "type": "async",
+            "status": "Accepted",
+            "change": "1",
+        }
+        response = Snapd.remove(mock_self, "test")
+        self.assertEqual(response, mock_self._post.return_value)
+        mock_self._poll_change.assert_called_with("1")
+
+    def test_remove_other(self):
+        mock_self = MagicMock()
+        mock_self._poll_change = MagicMock()
+        mock_self._post.return_value = {
+            "type": "async",
+            "status": "Other",
+            "change": "1",
+        }
+        response = Snapd.remove(mock_self, "test")
+        self.assertEqual(response, mock_self._post.return_value)
+        mock_self._poll_change.assert_not_called()
+
+    def test_remove_revision(self):
+        mock_self = MagicMock()
+        Snapd.remove(mock_self, "test", revision="1")
+        test_data = {"action": "remove", "revision": "1"}
+        mock_self._post.assert_called_with(ANY, json.dumps(test_data))

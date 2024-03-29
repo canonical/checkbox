@@ -90,7 +90,7 @@ _description: Manual ethernet tests for Ubuntu Core devices
 estimated_duration: 1m
 include:
     after-suspend-ethernet/detect                  certification-status=blocker
-    after-suspend-ethernet/hotplug-.*              certification-status=blocker
+    ethernet/hotplug-interface              certification-status=blocker
 bootstrap_include:
     device
 
@@ -101,7 +101,7 @@ _description: Automated ethernet tests for Ubuntu Core devices
 estimated_duration: 1m
 include:
     after-suspend-ethernet/detect
-    after-suspend-ethernet/ping_.*
+    ethernet/ping_interface
 bootstrap_include:
     device
 

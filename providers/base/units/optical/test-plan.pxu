@@ -49,8 +49,8 @@ _description:
  Optical drive tests (after suspend)
 include:
     optical/detect                                                      certification-status=blocker
-    after-suspend-optical/read_.*                                       certification-status=blocker
-    after-suspend-optical/bluray-read_.*                                certification-status=blocker
+    optical/read_name                                       certification-status=blocker
+    optical/bluray-read_name                                certification-status=blocker
 bootstrap_include:
     device
 
@@ -71,7 +71,7 @@ _name: Optical drive tests (certification blockers only)
 _description: Optical drive tests (certification blockers only)
 include:
     optical/detect                                                      certification-status=blocker
-    after-suspend-optical/read_.*                                       certification-status=blocker
-    after-suspend-optical/bluray-read_.*                                certification-status=blocker
+    optical/read_name                                       certification-status=blocker
+    optical/bluray-read_name                                certification-status=blocker
 bootstrap_include:
     device

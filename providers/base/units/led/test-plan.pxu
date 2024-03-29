@@ -51,7 +51,7 @@ unit: test plan
 _name: LED tests (after suspend)
 _description: LED tests (after suspend)
 include:
-    after-suspend-camera/led_.*                 certification-status=blocker
+    camera/led_name                 certification-status=blocker
     after-suspend-led/caps-lock                 certification-status=blocker
     after-suspend-led/numeric-keypad            certification-status=blocker
     after-suspend-led/power                     certification-status=blocker
@@ -82,7 +82,7 @@ unit: test plan
 _name: LED tests (after suspend, certification blockers only)
 _description: LED tests (after suspend, certification blockers only)
 include:
-    after-suspend-camera/led_.*                 certification-status=blocker
+    camera/led_name                 certification-status=blocker
     suspend/led_after_suspend/caps-lock         certification-status=blocker
     suspend/led_after_suspend/numeric-keypad    certification-status=blocker
     suspend/led_after_suspend/power             certification-status=blocker
@@ -138,9 +138,9 @@ _description:
     Manual LED indicator tests for IoT devices (after_suspend)
     Notes: the led-indicator/gpio-leds will be deprecated in next release
 include:
-    after-suspend-led-indicator/gpio-leds-.*
-    after-suspend-led-indicator/gpio-controller-leds-.*
-    after-suspend-led-indicator/sysfs-leds-.*
+    led-indicator/gpio-leds-name
+    led-indicator/gpio-controller-leds-name
+    led-indicator/sysfs-leds-name
 bootstrap_include:
     led-indicator/gpio-leds
     led-indicator/gpio-controller-leds

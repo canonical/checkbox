@@ -35,7 +35,7 @@ _name: Input tests (Automated)
 _description:
  Input tests (Automated)
 include:
- after-suspend-input/fixed_screen_orientation_on_.*       certification-status=non-blocker
+ input/fixed_screen_orientation_on_product___index__       certification-status=non-blocker
 bootstrap_include:
  dmi
 
@@ -45,8 +45,8 @@ _name: Input tests (after suspend)
 _description: Input tests (after suspend)
 include:
     after-suspend-input/accelerometer                        certification-status=blocker
-    after-suspend-input/pointing_.*                          certification-status=blocker
-    after-suspend-input/clicking_.*                          certification-status=blocker
+    input/pointing_product_slug_category___index__                          certification-status=blocker
+    input/clicking_product_slug_category___index__                          certification-status=blocker
     after-suspend-input/keyboard                             certification-status=blocker
 
 id: input-cert-blockers

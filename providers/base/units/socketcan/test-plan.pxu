@@ -22,7 +22,7 @@ _name: SocketCAN Tests (Automated, Remote, After Suspend)
 _description:
   SocketCAN Tests (Automated, Remote, After Suspend)
 include:
-  after-suspend-socketcan/send_packet_remote_.*
+  socketcan/send_packet_remote_sff_interface
 
 
 id: after-suspend-socketcan-manual-remote
@@ -56,7 +56,7 @@ _name: SocketCAN Tests (Automated, Local, After Suspend)
 _description:
   SocketCAN Tests (Automated, Local, After Suspend)
 include:
-  after-suspend-socketcan/send_packet_local_.*
+  socketcan/send_packet_local_sff_interface
 
 
 id: after-suspend-socketcan-manual-local

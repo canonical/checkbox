@@ -44,4 +44,4 @@ unit: test plan
 _name: Automated serial tests (after suspend)
 _description: Automated serial tests for Snappy Ubuntu Core devices
 include:
-    after-suspend-serial/loopback-.*
+    serial/loopback-dev

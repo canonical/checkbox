@@ -24,8 +24,8 @@ unit: test plan
 _name: Camera tests (after suspend)
 _description: Camera tests (after suspend)
 include:
- after-suspend-camera/still_.*                     certification-status=blocker
- after-suspend-camera/display_.*                   certification-status=blocker
+ camera/still_name                     certification-status=blocker
+ camera/display_name                   certification-status=blocker
 bootstrap_include:
  device
 
@@ -57,8 +57,8 @@ unit: test plan
 _name: Camera tests (after suspend, certification blockers only)
 _description: Camera tests (after suspend, certification blockers only)
 include:
- after-suspend-camera/still_.*                     certification-status=blocker
- after-suspend-camera/display_.*                   certification-status=blocker
+ camera/still_name                     certification-status=blocker
+ camera/display_name                   certification-status=blocker
 bootstrap_include:
  device
 
@@ -68,8 +68,8 @@ _name: Camera tests After Suspend (automated)
 _description: Camera tests After Suspend (automated)
 include:
  after-suspend-camera/detect                                     certification-status=blocker
- after-suspend-camera/multiple-resolution-images_.*              certification-status=blocker
- after-suspend-camera/camera-quality_*                           certification-status=non-blocker
+ camera/multiple-resolution-images_name              certification-status=blocker
+ camera/camera-quality_name                           certification-status=non-blocker
 bootstrap_include:
  device
 

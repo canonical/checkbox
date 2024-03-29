@@ -37,5 +37,5 @@ _description: Automated GPIO tests for Ubuntu Core devices (after suspend)
 bootstrap_include:
     model_assertion
 include:
-    after-suspend-gpio/sysfs_loopback_pairs_.*
-    after-suspend-gpio/gpiomem_loopback_pairs_.*
+    gpio/sysfs_loopback_pairs_model
+    gpio/gpiomem_loopback_pairs_model

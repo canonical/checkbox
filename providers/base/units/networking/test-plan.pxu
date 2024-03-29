@@ -86,7 +86,7 @@ unit: test plan
 _name: Manual networking tests for devices (after suspend)
 _description: Manual networking tests for devices (after suspend)
 include:
-    after-suspend-networking/info_device.*                       certification-status=blocker
+    networking/info_device__index___interface                       certification-status=blocker
 bootstrap_include:
     device
     executable
@@ -97,7 +97,7 @@ _name: Automated networking tests for devices (after suspend)
 _description: Automated networking tests for devices (after suspend)
 include:
   after-suspend-ipv6_detect
-  after-suspend-ipv6_link_local_address_.*
+  ipv6_link_local_address_interface
 bootstrap_include:
   device
 

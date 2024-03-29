@@ -50,10 +50,10 @@ include:
  after-suspend-touchscreen/drag-n-drop                certification-status=blocker
  after-suspend-touchscreen/multitouch-zoom            certification-status=blocker
  after-suspend-touchscreen/multitouch-rotate
- after-suspend-touchscreen/evdev/single-touch-tap-.*  certification-status=blocker
- after-suspend-touchscreen/evdev/2-touch-tap-.*       certification-status=blocker
- after-suspend-touchscreen/evdev/3-touch-tap-.*       certification-status=blocker
- after-suspend-touchscreen/evdev/4-touch-tap-.*       certification-status=blocker
+ touchscreen/evdev/single-touch-tap-product_slug  certification-status=blocker
+ touchscreen/evdev/2-touch-tap-product_slug       certification-status=blocker
+ touchscreen/evdev/3-touch-tap-product_slug       certification-status=blocker
+ touchscreen/evdev/4-touch-tap-product_slug       certification-status=blocker
 bootstrap_include:
  device
 
@@ -83,8 +83,8 @@ _description: Touchscreen tests (after suspend, certification blockers only)
 include:
   after-suspend-touchscreen/drag-n-drop             certification-status=blocker
   after-suspend-touchscreen/multitouch-zoom         certification-status=blocker
-  after-suspend-touchscreen/evdev/3-touch-tap-.*    certification-status=blocker
-  after-suspend-touchscreen/evdev/4-touch-tap-.*    certification-status=blocker
+  touchscreen/evdev/3-touch-tap-product_slug    certification-status=blocker
+  touchscreen/evdev/4-touch-tap-product_slug    certification-status=blocker
 bootstrap_include:
  device
 
@@ -104,6 +104,6 @@ _name: Touchscreen evdev tests (after suspend)
 _description:
  Touchscreen evdev tests
 include:
- after-suspend-touchscreen/evdev.*
+ touchscreen/evdev/single-touch-tap-product_slug
 bootstrap_include:
  device

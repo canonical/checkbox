@@ -48,5 +48,5 @@ bootstrap_include:
     rtc_list
 include:
     after-suspend-rtc/rtc_number
-    after-suspend-rtc/rtc_alarm_.*
-    after-suspend-rtc/rtc_clock_.*
+    rtc/rtc_alarm_rtc
+    rtc/rtc_clock_rtc

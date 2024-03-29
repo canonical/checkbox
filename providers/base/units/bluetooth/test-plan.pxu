@@ -124,17 +124,17 @@ _description:
  Automated tests for bluez
 estimated_duration: 1m
 include:
-    after-suspend-bluetooth/bluez-internal-rfcomm-tests_.*
-    after-suspend-bluetooth/bluez-internal-hci-tests_.*
+    bluetooth/bluez-internal-rfcomm-tests_bluez-internal-rfcomm-test
+    bluetooth/bluez-internal-hci-tests_bluez-internal-hci-test
     # Blacklist all mngt tests since they randomly fail
     # (even with upstream 5.45)
     # Note: The mgmt tests are not that much critical as these just test
     # the management interface.
     # Next line is commented out until upstream fixes the issue
-    # after-suspend-bluetooth/bluez-internal-mgmt-tests_.*
-    after-suspend-bluetooth/bluez-internal-uc-tests_.*
-    after-suspend-bluetooth/bluez-internal-bnep-tests_.*
-    after-suspend-bluetooth4/beacon_eddystone_url_.*
+    # after-suspend-bluetooth/bluez-internal-mgmt-tests_bluez-internal-mgmt-test
+    bluetooth/bluez-internal-uc-tests_bluez-internal-uc-test
+    bluetooth/bluez-internal-bnep-tests_bluez-internal-bnep-test
+    bluetooth4/beacon_eddystone_url_interface
 bootstrap_include:
     device
     bluez-internal-rfcomm-tests
@@ -184,6 +184,6 @@ _description: Automated Bluetooth tests (after suspend)
 include:
     after-suspend-bluetooth/detect-output                  certification-status=blocker
     after-suspend-bluetooth/bluetooth_obex_send            certification-status=blocker
-    after-suspend-bluetooth4/beacon_eddystone_url_.*       certification-status=blocker
+    bluetooth4/beacon_eddystone_url_interface       certification-status=blocker
 bootstrap_include:
     device

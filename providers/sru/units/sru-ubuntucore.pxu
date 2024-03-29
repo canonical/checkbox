@@ -66,15 +66,15 @@ include:
     after-suspend-wifi/wifi_resume_time_auto
     after-suspend-usb/storage-preinserted
     after-suspend-audio/alsa-loopback-automated
-    after-suspend-bluetooth4/beacon_eddystone_url_.*
+    bluetooth4/beacon_eddystone_url_interface
     after-suspend-cpu/cpuinfo_after_suspend
     after-suspend-memory/meminfo_after_suspend
-    after-suspend-wireless/wireless_connection_open_bg_nm_.*
-    after-suspend-wireless/wireless_connection_open_n_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_n_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
-    after-suspend-wireless/wireless_connection_open_ac_nm_.*
+    wireless/wireless_connection_open_bg_nm_interface
+    wireless/wireless_connection_open_n_nm_interface
+    wireless/wireless_connection_wpa_bg_nm_interface
+    wireless/wireless_connection_wpa_n_nm_interface
+    wireless/wireless_connection_wpa_ac_nm_interface
+    wireless/wireless_connection_open_ac_nm_interface
 #     suspend/gpu_lockup_after_suspend
 bootstrap_include:
     device

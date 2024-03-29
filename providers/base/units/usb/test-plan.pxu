@@ -374,7 +374,7 @@ _name: Automated USB tests
 _description: Automated USB tests for Ubuntu Core devices
 include:
     after-suspend-usb/storage-detect
-    after-suspend-usb/storage-preinserted-.*
+    usb/storage-preinserted-symlink_uuid
 bootstrap_include:
     removable_partition
 

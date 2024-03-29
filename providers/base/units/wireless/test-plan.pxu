@@ -52,18 +52,18 @@ _description: Wireless connection tests (after suspend, automated)
 bootstrap_include:
     device
 include:
-    after-suspend-wireless/nm_connection_save_.*
-    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*    certification-status=blocker
-    after-suspend-wireless/wireless_connection_open_bg_nm_.*   certification-status=blocker
-    after-suspend-wireless/wireless_connection_wpa_n_nm_.*     certification-status=blocker
-    after-suspend-wireless/wireless_connection_open_n_nm_.*    certification-status=blocker
-    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*    certification-status=blocker
-    after-suspend-wireless/wireless_connection_open_ac_nm_.*   certification-status=blocker
-    after-suspend-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
-    after-suspend-wireless/wireless_connection_wpa3_ax_nm_.*   certification-status=blocker
-    after-suspend-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
-    after-suspend-wireless/nm_connection_restore_.*
-    after-suspend-wireless/check_iwlwifi_microcode_crash_.*
+    wireless/nm_connection_save_interface
+    wireless/wireless_connection_wpa_bg_nm_interface    certification-status=blocker
+    wireless/wireless_connection_open_bg_nm_interface   certification-status=blocker
+    wireless/wireless_connection_wpa_n_nm_interface     certification-status=blocker
+    wireless/wireless_connection_open_n_nm_interface    certification-status=blocker
+    wireless/wireless_connection_wpa_ac_nm_interface    certification-status=blocker
+    wireless/wireless_connection_open_ac_nm_interface   certification-status=blocker
+    wireless/wireless_connection_wpa_ax_nm_interface    certification-status=blocker
+    wireless/wireless_connection_wpa3_ax_nm_interface   certification-status=blocker
+    wireless/wireless_connection_open_ax_nm_interface   certification-status=blocker
+    wireless/nm_connection_restore_interface
+    wireless/check_iwlwifi_microcode_crash_interface
 
 id: wireless-cert-blockers
 unit: test plan
@@ -93,17 +93,17 @@ _description:
 bootstrap_include:
     device
 include:
-    after-suspend-wireless/nm_connection_save_.*
-    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*    certification-status=blocker
-    after-suspend-wireless/wireless_connection_open_bg_nm_.*   certification-status=blocker
-    after-suspend-wireless/wireless_connection_wpa_n_nm_.*     certification-status=blocker
-    after-suspend-wireless/wireless_connection_open_n_nm_.*    certification-status=blocker
-    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*    certification-status=blocker
-    after-suspend-wireless/wireless_connection_open_ac_nm_.*   certification-status=blocker
-    after-suspend-wireless/wireless_connection_wpa_ax_nm_.*    certification-status=blocker
-    after-suspend-wireless/wireless_connection_wpa3_ax_nm_.*   certification-status=blocker
-    after-suspend-wireless/wireless_connection_open_ax_nm_.*   certification-status=blocker
-    after-suspend-wireless/nm_connection_restore_.*
+    wireless/nm_connection_save_interface
+    wireless/wireless_connection_wpa_bg_nm_interface    certification-status=blocker
+    wireless/wireless_connection_open_bg_nm_interface   certification-status=blocker
+    wireless/wireless_connection_wpa_n_nm_interface     certification-status=blocker
+    wireless/wireless_connection_open_n_nm_interface    certification-status=blocker
+    wireless/wireless_connection_wpa_ac_nm_interface    certification-status=blocker
+    wireless/wireless_connection_open_ac_nm_interface   certification-status=blocker
+    wireless/wireless_connection_wpa_ax_nm_interface    certification-status=blocker
+    wireless/wireless_connection_wpa3_ax_nm_interface   certification-status=blocker
+    wireless/wireless_connection_open_ax_nm_interface   certification-status=blocker
+    wireless/nm_connection_restore_interface
 
 id: wireless-full
 unit: test plan
@@ -241,7 +241,7 @@ _name: QA tests for wifi master mode (after suspend)
 _description:
  System as Access Point tests
 include:
-    after-suspend-wireless/wifi_ap_.*
+    wireless/wifi_ap_open_a_no_sta_interface_manual
 bootstrap_include:
     device
 
@@ -251,10 +251,10 @@ _name: QA tests for wifi master mode (after suspend)
 _description:
  System as Access Point tests
 include:
-    after-suspend-wireless/wifi_ap_open_b_no_sta_.*_manual
-    after-suspend-wireless/wifi_ap_open_g_no_sta_.*_manual
-    after-suspend-wireless/wifi_ap_wpa_b_no_sta_.*_manual
-    after-suspend-wireless/wifi_ap_wpa_g_no_sta_.*_manual
+    wireless/wifi_ap_open_b_no_sta_interface_manual
+    wireless/wifi_ap_open_g_no_sta_interface_manual
+    wireless/wifi_ap_wpa_b_no_sta_interface_manual
+    wireless/wifi_ap_wpa_g_no_sta_interface_manual
     after-suspend-wireless/wifi_ap_wpa_b_with_sta_.*_manual
     after-suspend-wireless/wifi_ap_wpa_g_with_sta_.*_manual
 bootstrap_include:
@@ -268,15 +268,15 @@ _description:
  System as Access Point tests
 include:
     # wifi-ap set (see net-if-management resource)
-    after-suspend-wireless/wifi_ap_open_b_no_sta_.*_auto
-    after-suspend-wireless/wifi_ap_open_g_no_sta_.*_auto
-    after-suspend-wireless/wifi_ap_wpa_b_no_sta_.*_auto
-    after-suspend-wireless/wifi_ap_wpa_g_no_sta_.*_auto
-    after-suspend-wireless/wifi_ap_wpa_b_with_sta_.*_auto
-    after-suspend-wireless/wifi_ap_wpa_g_with_sta_.*_auto
-    after-suspend-wireless/wifi_ap_setup_wizard_.*_auto
+    wireless/wifi_ap_open_b_no_sta_interface_auto
+    wireless/wifi_ap_open_g_no_sta_interface_auto
+    wireless/wifi_ap_wpa_b_no_sta_interface_auto
+    wireless/wifi_ap_wpa_g_no_sta_interface_auto
+    wireless/wifi_ap_wpa_b_with_sta_interface_auto
+    wireless/wifi_ap_wpa_g_with_sta_interface_auto
+    wireless/wifi_ap_setup_wizard_interface_auto
     # NetworkManager set (see net-if-management resource)
-    after-suspend-wireless/nmcli_wifi_ap_.*
+    wireless/nmcli_wifi_ap_bg_interface
 bootstrap_include:
     device
     wifi_interface_mode
@@ -331,26 +331,26 @@ _description:
  Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac, ax
  networks.
 include:
-    after-suspend-wireless/wireless_scanning_.*
-    after-suspend-wireless/wireless_connection_open_ax_nm_.*
-    after-suspend-wireless/wireless_connection_open_ac_nm_.*
-    after-suspend-wireless/wireless_connection_open_bg_nm_.*
-    after-suspend-wireless/wireless_connection_open_n_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_ax_nm_.*
-    after-suspend-wireless/wireless_connection_wpa3_ax_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_n_nm_.*
-    after-suspend-wireless/wireless_connection_open_ax_np_.*
-    after-suspend-wireless/wireless_connection_open_ac_np_.*
-    after-suspend-wireless/wireless_connection_open_bg_np_.*
-    after-suspend-wireless/wireless_connection_open_n_np_.*
-    after-suspend-wireless/wireless_connection_wpa_ax_np_.*
-    after-suspend-wireless/wireless_connection_wpa3_ax_np_.*
-    after-suspend-wireless/wireless_connection_wpa_ac_np_.*
-    after-suspend-wireless/wireless_connection_wpa_bg_np_.*
-    after-suspend-wireless/wireless_connection_wpa_n_np_.*
-    after-suspend-wireless/check_iwlwifi_microcode_crash_.*
+    wireless/wireless_scanning_interface
+    wireless/wireless_connection_open_ax_nm_interface
+    wireless/wireless_connection_open_ac_nm_interface
+    wireless/wireless_connection_open_bg_nm_interface
+    wireless/wireless_connection_open_n_nm_interface
+    wireless/wireless_connection_wpa_ax_nm_interface
+    wireless/wireless_connection_wpa3_ax_nm_interface
+    wireless/wireless_connection_wpa_ac_nm_interface
+    wireless/wireless_connection_wpa_bg_nm_interface
+    wireless/wireless_connection_wpa_n_nm_interface
+    wireless/wireless_connection_open_ax_np_interface
+    wireless/wireless_connection_open_ac_np_interface
+    wireless/wireless_connection_open_bg_np_interface
+    wireless/wireless_connection_open_n_np_interface
+    wireless/wireless_connection_wpa_ax_np_interface
+    wireless/wireless_connection_wpa3_ax_np_interface
+    wireless/wireless_connection_wpa_ac_np_interface
+    wireless/wireless_connection_wpa_bg_np_interface
+    wireless/wireless_connection_wpa_n_np_interface
+    wireless/check_iwlwifi_microcode_crash_interface
 bootstrap_include:
     device
 
@@ -361,24 +361,24 @@ _description:
  Automated connection tests for unencrypted or WPA-encrypted 802.11 bg, n, ac, ax
  networks using netplan.
 include:
-    after-suspend-wireless/wireless_scanning_.*
-    after-suspend-wireless/wireless_connection_open_ax_nm_.*
-    after-suspend-wireless/wireless_connection_open_ac_nm_.*
-    after-suspend-wireless/wireless_connection_open_bg_nm_.*
-    after-suspend-wireless/wireless_connection_open_n_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_ax_nm_.*
-    after-suspend-wireless/wireless_connection_wpa3_ax_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_ac_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_bg_nm_.*
-    after-suspend-wireless/wireless_connection_wpa_n_nm_.*
-    after-suspend-wireless/wireless_connection_open_ax_np_.*
-    after-suspend-wireless/wireless_connection_open_ac_np_.*
-    after-suspend-wireless/wireless_connection_open_bg_np_.*
-    after-suspend-wireless/wireless_connection_open_n_np_.*
-    after-suspend-wireless/wireless_connection_wpa_ax_np_.*
-    after-suspend-wireless/wireless_connection_wpa3_ax_np_.*
-    after-suspend-wireless/wireless_connection_wpa_ac_np_.*
-    after-suspend-wireless/wireless_connection_wpa_bg_np_.*
-    after-suspend-wireless/wireless_connection_wpa_n_np_.*
+    wireless/wireless_scanning_interface
+    wireless/wireless_connection_open_ax_nm_interface
+    wireless/wireless_connection_open_ac_nm_interface
+    wireless/wireless_connection_open_bg_nm_interface
+    wireless/wireless_connection_open_n_nm_interface
+    wireless/wireless_connection_wpa_ax_nm_interface
+    wireless/wireless_connection_wpa3_ax_nm_interface
+    wireless/wireless_connection_wpa_ac_nm_interface
+    wireless/wireless_connection_wpa_bg_nm_interface
+    wireless/wireless_connection_wpa_n_nm_interface
+    wireless/wireless_connection_open_ax_np_interface
+    wireless/wireless_connection_open_ac_np_interface
+    wireless/wireless_connection_open_bg_np_interface
+    wireless/wireless_connection_open_n_np_interface
+    wireless/wireless_connection_wpa_ax_np_interface
+    wireless/wireless_connection_wpa3_ax_np_interface
+    wireless/wireless_connection_wpa_ac_np_interface
+    wireless/wireless_connection_wpa_bg_np_interface
+    wireless/wireless_connection_wpa_n_np_interface
 bootstrap_include:
     device

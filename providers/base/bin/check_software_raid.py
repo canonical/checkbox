@@ -24,16 +24,12 @@ import argparse
 import shlex
 import subprocess
 from pathlib import Path
-
-if sys.version_info >= (3, 8):
-    from typing import TypedDict
-else:
-    from typing_extensions import TypedDict
+from typing import Dict
 
 
-class RAIDStats(TypedDict):
-    device: str
-    mode: str
+class RAIDStats(Dict):
+    device = str
+    mode = str
 
 
 def get_md_stat(filename: str = "/proc/mdstat") -> list:

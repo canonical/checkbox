@@ -156,7 +156,7 @@ class SnapRefreshRevertTests(unittest.TestCase):
             timeout="10",
         )
         self.assertEqual(srr.name, "test")
-        self.assertEqual(srr.path, "/tmp")
+        self.assertEqual(srr.path, "/test")
         self.assertEqual(srr.revision, "1")
         self.assertEqual(srr.timeout, "10")
 

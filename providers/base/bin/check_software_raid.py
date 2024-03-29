@@ -26,9 +26,9 @@ import subprocess
 from pathlib import Path
 
 if sys.version_info >= (3, 8):
-    from typing import TypedDict as TypedDict
+    from typing import TypedDict
 else:
-    from typing import Dict as TypedDict
+    from typing_extensions import TypedDict
 
 
 class RAIDStats(TypedDict):

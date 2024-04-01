@@ -53,7 +53,6 @@ You can do this with those commands:
 snap connect $SNAP_NAME:checkbox-runtime  checkbox22:checkbox-runtime
 snap connect $SNAP_NAME:provider-resource checkbox22:provider-resource
 snap connect $SNAP_NAME:provider-checkbox checkbox22:provider-checkbox
-snap connect $SNAP_NAME:provider-ipdt     checkbox22:provider-ipdt
 snap connect $SNAP_NAME:provider-tpm2     checkbox22:provider-tpm2
 snap connect $SNAP_NAME:provider-certification-client checkbox22:provider-certification-client
     """

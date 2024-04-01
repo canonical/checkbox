@@ -603,9 +603,13 @@ _description:
  VERIFICATION:
      Verify the system is not frozen and the wifi and bluetooth applets are still visible and functional
 
+unit: template
+template-resource: cpuinfo
+template-filter: cpuinfo.type == 'GenuineIntel'
+template-unit: job
 plugin:shell
 category_id: com.canonical.plainbox::stress
-id: stress/s2idle_pm-graph_30
+id: stress/s2idle_pm-graph_30_{model_number}_{model_version}_{model_revision}
 estimated_duration: 10m
 requires: 
  executable.name == 'sleepgraph'
@@ -613,12 +617,18 @@ requires:
 user: root
 _summary: Resume from idle by using Intel pm-graph
 command:
- sleepgraph -m freeze -rtcwake 10 -sync -gzip -multi 30 0 -skiphtml -o "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph/s2idle-"$(date -d today +%Y-%m-%d-%H%M)"
+ if [ ! -f /proc/driver/nvidia/suspend ]; then
+     sleepgraph -m freeze -rtcwake 60 -sync -gzip -multi 30 30 -skiphtml -o "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph/s2idle-"$(date -d today +%Y-%m-%d-%H%M)"
+ else
+     echo "The platform has Nvidia driver loaded, which is not capable of running sleepgraph"
+     exit 1
+ fi
 
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/s2idle_pm-graph_30.tar.xz
 estimated_duration: 1
+depends: stress/s2idle_pm-graph_30
 requires: 
  sleep.mem_sleep == 's2idle'
 after:
@@ -628,9 +638,13 @@ _summary: Attach pm-graph logs (s2idle)
 command:
  tar Jcf "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph_30.tar.xz "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph && cat "$PLAINBOX_SESSION_SHARE"/s2idle_pm-graph_30.tar.xz
 
+unit: template
+template-resource: cpuinfo
+template-filter: cpuinfo.type == 'GenuineIntel'
+template-unit: job
 plugin:shell
 category_id: com.canonical.plainbox::stress
-id: stress/s3_pm-graph_30
+id: stress/s3_pm-graph_30_{model_number}_{model_version}_{model_revision}
 estimated_duration: 10m
 requires:
  executable.name == 'sleepgraph'
@@ -638,12 +652,18 @@ requires:
 user: root
 _summary: Resume from suspend by using Intel pm-graph
 command:
- sleepgraph -m mem -rtcwake 10 -sync -gzip -multi 30 0 -skiphtml -o "$PLAINBOX_SESSION_SHARE"/s3_pm-graph/suspend-"$(date -d today +%Y-%m-%d-%H%M)"
+ if [ ! -f /proc/driver/nvidia/suspend ]; then
+     sleepgraph -m mem -rtcwake 60 -sync -gzip -multi 30 30 -skiphtml -o "$PLAINBOX_SESSION_SHARE"/s3_pm-graph/suspend-"$(date -d today +%Y-%m-%d-%H%M)"
+ else
+     echo "The platform has Nvidia driver loaded, which is not capable of running sleepgraph"
+     exit 1
+ fi
 
 plugin: attachment
 category_id: com.canonical.plainbox::stress
 id: stress/s3_pm-graph_30.tar.xz
 estimated_duration: 1
+depends: stress/s3_pm-graph_30
 requires:
  sleep.mem_sleep == 'deep'
 after:

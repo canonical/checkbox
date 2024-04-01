@@ -309,7 +309,7 @@ unit: test plan
 _name: pm-graph stress test
 _description: pm-graph stress test
 include:
-    stress/s2idle_pm-graph_30
+    stress/s2idle_pm-graph_30_.*
     stress/s2idle_pm-graph_30.tar.xz
-    stress/s3_pm-graph_30
+    stress/s3_pm-graph_30_.*
     stress/s3_pm-graph_30.tar.xz

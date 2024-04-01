@@ -12,7 +12,7 @@ class TestCheckSoftwareRAID(unittest.TestCase):
             {"device": "md126", "mode": "raid0"}
         ]
         raid_data = check_software_raid.get_md_stat(
-            "tests/test_data/mdstat_intel_rst.log"
+            "tests/test_data/mdstat_intel_rst.txt"
         )
         self.assertListEqual(raid_data, expected_data)
 
@@ -23,14 +23,14 @@ class TestCheckSoftwareRAID(unittest.TestCase):
             {"device": "md1", "mode": "raid0"}
         ]
         raid_data = check_software_raid.get_md_stat(
-            "tests/test_data/mdstat_multiple_raid.log"
+            "tests/test_data/mdstat_multiple_raid.txt"
         )
         self.assertListEqual(raid_data, expected_data)
 
     def test_get_md_stat_empty(self):
 
         raid_data = check_software_raid.get_md_stat(
-            "tests/test_data/mdstat_none_raid.log"
+            "tests/test_data/mdstat_none_raid.txt"
         )
         self.assertListEqual(raid_data, [])
 
@@ -74,6 +74,12 @@ class TestCheckSoftwareRAID(unittest.TestCase):
             check_software_raid.check_raid_mode_test("raid1")
             mock_get_md.assert_called_with()
             mock_dump_raid.assert_called_with()
+
+    @patch("subprocess.run")
+    def test_dump_raid_info(self, mock_run):
+
+        check_software_raid.dump_raid_info(["md126", "md127"])
+        self.assertEqual(mock_run.call_count, 2)
 
 
 class TestArgumentParser(unittest.TestCase):

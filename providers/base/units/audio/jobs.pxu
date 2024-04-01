@@ -37,7 +37,9 @@ id: audio/playback_auto
 flags: also-after-suspend
 estimated_duration: 5.0
 depends: audio/list_devices
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_internal_speakers == 'True'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -60,8 +62,6 @@ _purpose:
     This test will check that internal speakers work correctly
 _steps:
     1. Make sure that no external speakers or headphones are connected
-       When testing a desktop, you can skip this test if there is no
-       internal speaker, we will test the external output later
     2. Commence the test to play a brief tone on your audio device
 _verification:
     Did you hear a tone?
@@ -291,7 +291,9 @@ flags: also-after-suspend
 id: audio/playback_headphones
 estimated_duration: 20.0
 depends: audio/list_devices
+imports: from com.canonical.plainbox import manifest
 requires:
+ (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -325,7 +327,9 @@ id: audio/alsa_record_playback_internal
 flags: also-after-suspend
 estimated_duration: 20.0
 depends: audio/playback_auto
+imports: from com.canonical.plainbox import manifest
 requires:
+ (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
@@ -360,7 +364,9 @@ id: audio/alsa_record_playback_external
 flags: also-after-suspend
 estimated_duration: 20.0
 depends: audio/playback_headphones
+imports: from com.canonical.plainbox import manifest
 requires:
+ (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
@@ -505,6 +511,9 @@ id: audio/channels
 flags: also-after-suspend
 estimated_duration:  20.0
 command: speaker-test -c 2 -l 1 -t wav
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_internal_speakers == 'True'
 _purpose:
     Check that the various audio channels are working properly
 _steps:
@@ -535,7 +544,9 @@ category_id: com.canonical.plainbox::audio
 id: audio/external-lineout
 flags: also-after-suspend
 estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_line_out == 'True'
  dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
 _purpose:
       Check that external line out connection works correctly
@@ -554,7 +565,9 @@ category_id: com.canonical.plainbox::audio
 id: audio/external-linein
 flags: also-after-suspend
 estimated_duration: 120.0
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_line_in == 'True'
  dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
  device.category == 'AUDIO'
  package.name == 'alsa-base'
@@ -589,7 +602,9 @@ category_id: com.canonical.plainbox::audio
 id: audio/speaker-headphone-plug-detection
 flags: also-after-suspend
 estimated_duration: 60.0
+imports: from com.canonical.plainbox import manifest
 requires:
+ (manifest.has_line_out == 'True' or manifest.has_headset == 'True')
  device.category == 'AUDIO'
  package.name in ['pulseaudio-utils', 'pipewire']
 command: 
@@ -616,7 +631,9 @@ category_id: com.canonical.plainbox::audio
 id: audio/microphone-plug-detection
 flags: also-after-suspend
 estimated_duration: 60.0
+imports: from com.canonical.plainbox import manifest
 requires:
+ (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
  device.category == 'AUDIO'
  package.name in ['pulseaudio-utils', 'pipewire']
 command: 
@@ -644,7 +661,9 @@ category_id: com.canonical.plainbox::audio
 id: audio/balance_internal_speaker
 estimated_duration: 20.0
 depends: audio/playback_auto
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_internal_speakers == 'True'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -679,7 +698,9 @@ id: audio/balance_headphones
 flags: also-after-suspend
 depends: audio/playback_headphones
 estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
 requires:
+ (manifest.has_line_out == 'True' or manifest.has_headset == 'True')
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'

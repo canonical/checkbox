@@ -4,7 +4,7 @@ description: "Checkbox CE OEM test runner and public providers for 20.04 classic
 confinement: classic
 grade: stable
 
-version: '0.12-focal'
+version: '1.0-focal'
 
 base: core20
 

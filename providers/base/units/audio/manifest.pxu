@@ -6,16 +6,42 @@
 
 unit: manifest entry
 id: has_audio_playback
+_prompt: Does this machine have the following audio features?
 _name: Audio playback
 value-type: bool
 
 unit: manifest entry
 id: has_audio_capture
+_prompt: Does this machine have the following audio features?
 _name: Audio capture
 value-type: bool
 
 unit: manifest entry
 id: has_audio_loopback_connector
-_prompt: Does this device have the following?:
+_prompt: Does this machine have the following audio features?
 _name: Audio Loopback Connector
+value-type: bool
+
+unit: manifest entry
+id: has_line_out
+_name: Line out (Headphones) port
+_prompt: Does this machine have the following audio features?
+value-type: bool
+
+unit: manifest entry
+id: has_line_in
+_name: Line in (Microphone) port
+_prompt: Does this machine have the following audio features?
+value-type: bool
+
+unit: manifest entry
+id: has_headset
+_name: Headset (Headphones + Microphone) port
+_prompt: Does this machine have the following audio features?
+value-type: bool
+
+unit: manifest entry
+id: has_internal_speakers
+_name: Internal speakers
+_prompt: Does this machine have the following audio features?
 value-type: bool

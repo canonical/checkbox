@@ -41,18 +41,16 @@ requires:
     image_source_and_type.type == 'classic'
 environ: WATCHDOG_TYPE
 command:
-    if [[ ! -n "$WATCHDOG_TYPE" ]]; then
+    if [[ -z "$WATCHDOG_TYPE" ]]; then
         >&2 echo "WATCHDOG_TYPE is not available"
         exit 1
     fi
     echo "Trying to probe '$WATCHDOG_TYPE' module"
-    modprobe $WATCHDOG_TYPE
-    if [[ "$?" -ne 0 ]]; then
+    if ! modprobe "$WATCHDOG_TYPE"; then
         >&2 echo "Unable to probe the '$WATCHDOG_TYPE' module"
         exit 1
     fi
-    lsmod | grep -q -i $WATCHDOG_TYPE
-    if [[ "$?" -ne 0 ]]; then
+    if ! lsmod | grep -q -i "$WATCHDOG_TYPE"; then
         >&2 echo "Unable to find the '$WATCHDOG_TYPE' module after probing it"
         exit 1
     fi
@@ -113,7 +111,7 @@ command:
     search_pattern="#RuntimeWatchdogSec=[0-9]*s*"
     for i in {0..1}
     do
-        result=`grep $DEFAULT_WATCHDOG /etc/systemd/system.conf`
+        result=$(grep $DEFAULT_WATCHDOG /etc/systemd/system.conf)
         if [[ -n "$result" && $i -eq 0 ]]; then
             echo "Modifying the watchdog timeout"
             sed -i "s/$search_pattern/RuntimeWatchdogSec=35/g" /etc/systemd/system.conf
@@ -132,7 +130,7 @@ command:
             break
         fi
     done
-    exit $RET
+    exit "$RET"
 
 
 id: watchdog/revert-timeout
@@ -152,7 +150,7 @@ command:
     SET_WATCHDOG="RuntimeWatchdogSec=35"
     for i in {0..1}
     do
-        result=`grep $SET_WATCHDOG /etc/systemd/system.conf`
+        result=$(grep $SET_WATCHDOG /etc/systemd/system.conf)
         if [[ "$result" == "$SET_WATCHDOG" && $i -eq 0 ]]; then
             echo "Modifying the watchdog timeout"
             sed -i "s/$SET_WATCHDOG/#RuntimeWatchdogSec=0/g" /etc/systemd/system.conf
@@ -167,13 +165,13 @@ command:
                 fi
             fi
         else
-            timeout_value=`grep RuntimeWatchdogSec /etc/systemd/system.conf | awk -F '=' {'print $2'}`
+            timeout_value=$(grep RuntimeWatchdogSec /etc/systemd/system.conf | awk -F '=' '{print $2}')
             echo "The watchdog timeout is $timeout_value now, not the value we set in previouse job"
             echo "No need to revert watchdog timeout"
             break
         fi
     done
-    exit $RET
+    exit "$RET"
 
 
 id: watchdog/trigger-system-reset-auto

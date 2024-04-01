@@ -70,18 +70,17 @@ template-resource: device
 template-filter: device.category == 'CAPTURE' and device.name != ''
 template-unit: job
 plugin: user-interact-verify
-template-engine: jinja2
 category_id: com.canonical.plainbox::camera
-id: camera/still_{{ name }}
+id: camera/still_{name}
 flags: also-after-suspend
-_summary: Webcam still image capture test for {{ product_slug }}
+_summary: Webcam still image capture test for {product_slug}
 estimated_duration: 120.0
 depends: camera/detect
 command:
-  camera_test.py still -d /dev/{{ name }}
+  camera_test.py still -d /dev/{name}
 _description:
  PURPOSE:
-     This test will check that the {{ product_slug }} works
+     This test will check that the {product_slug} works
  STEPS:
      1. Click on Test to display a still image from the camera for ten seconds.
  VERIFICATION:
@@ -92,15 +91,14 @@ template-resource: device
 template-filter: device.category == 'CAPTURE' and device.name != ''
 template-unit: job
 plugin: shell
-template-engine: jinja2
 category_id: com.canonical.plainbox::camera
-id: camera/multiple-resolution-images_{{ name }}
+id: camera/multiple-resolution-images_{name}
 flags: also-after-suspend
-_summary: Webcam multiple resolution capture test for {{ product_slug }}
+_summary: Webcam multiple resolution capture test for {product_slug}
 estimated_duration: 1.2
 depends: camera/detect
 command:
-  camera_test.py resolutions -d /dev/{{ name }}
+  camera_test.py resolutions -d /dev/{name}
 _description:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format.
@@ -110,16 +108,15 @@ template-resource: device
 template-filter: device.category == 'CAPTURE' and device.name != ''
 template-unit: job
 plugin: shell
-template-engine: jinja2
 category_id: com.canonical.plainbox::camera
-id: camera/camera-quality_{{ name }}
+id: camera/camera-quality_{name}
 flags: also-after-suspend
-_summary: Webcam brisque score for {{ product_slug }}
+_summary: Webcam brisque score for {product_slug}
 estimated_duration: 20s
 depends: camera/detect
 requires: lsb.release >= '22.04'
 command:
-  camera_quality_test.py -d {{ name }} -o "${PLAINBOX_SESSION_SHARE}"
+  camera_quality_test.py -d {name} -o "$PLAINBOX_SESSION_SHARE"
 _description:
   Takes a picture and computes the quality based on a No-Reference image
   quality assessment algorithm called BRISQUE. This test will timeout and fail
@@ -130,17 +127,16 @@ template-resource: device
 template-filter: device.category == 'CAPTURE' and device.name != ''
 template-unit: job
 plugin: attachment
-template-engine: jinja2
 category_id: com.canonical.plainbox::camera
-id: camera/camera-quality-image_{{ name }}
+id: camera/camera-quality-image_{name}
 flags: also-after-suspend
-_summary: Attaches the image used for the BRISQUE score for {{ product_slug }}
+_summary: Attaches the image used for the BRISQUE score for {product_slug}
 estimated_duration: 1s
 depends: camera/camera-quality_{{ name }}
 requires: lsb.release >= '22.04'
 command:
-  [ -f "${PLAINBOX_SESSION_SHARE}"/quality_image_{{ name }}.jpg ] &&
-  cat "${PLAINBOX_SESSION_SHARE}"/quality_image_{{ name }}.jpg
+  [ -f "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg ] &&
+  cat "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg
 _description:
   Attaches the image used for computing the BRISQUE score.
 

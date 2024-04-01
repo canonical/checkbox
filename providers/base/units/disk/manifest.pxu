@@ -1,4 +1,4 @@
 unit: manifest entry
 id: has_md_raid
-_name: The Multiple devices (Software RAID)
+_name: Software RAID
 value-type: bool

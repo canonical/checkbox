@@ -31,7 +31,6 @@ export LC_ALL=C.UTF-8
 PERL_VERSION=$(perl -e '$^V=~/^v(\d+\.\d+)/;print $1')
 export PERL5LIB="$PERL5LIB:$SNAP/usr/lib/$ARCH/perl/$PERL_VERSION:$SNAP/usr/lib/$ARCH/perl5/$PERL_VERSION:$SNAP/usr/share/perl/$PERL_VERSION:$SNAP/usr/share/perl5"
 export GI_TYPELIB_PATH=$SNAP/usr/lib/girepository-1.0:$SNAP/usr/lib/$ARCH/girepository-1.0
-#export PATH="$PATH:$SNAP/usr/bin:$SNAP/usr/sbin:$SNAP/sbin:/snap/bin:/snap/checkbox-ce-oem/current/usr/bin/:/snap/checkbox-ce-oem/current/usr/sbin"
 export PATH="$PATH:$SNAP/usr/bin:$SNAP/usr/sbin:$SNAP/sbin:/snap/bin"
 export PYTHONPATH="$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH"
 #export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/snap/checkbox-ce-oem/current/usr/lib/aarch64-linux-gnu"

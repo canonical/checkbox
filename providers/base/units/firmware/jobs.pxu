@@ -112,7 +112,6 @@ category_id: com.canonical.plainbox::firmware
 _summary: Collect the device firmware update information
 _purpose: Attach information about the devices, as reported by the fwupdmgr
 requires:
-    executable.name == "fwupdmgr"
+    executable.name in ("fwupdmgr", "fwupd.fwupdmgr")
 command:
-    unset SNAP
-    fwupdmgr get-devices --json
+    get_firmware_info_fwupd.py

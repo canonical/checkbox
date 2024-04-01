@@ -132,7 +132,7 @@ id: camera/camera-quality-image_{name}
 flags: also-after-suspend
 _summary: Attaches the image used for the BRISQUE score for {product_slug}
 estimated_duration: 1s
-depends: camera/camera-quality_{{ name }}
+depends: camera/detect
 requires: lsb.release >= '22.04'
 command:
   [ -f "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg ] &&

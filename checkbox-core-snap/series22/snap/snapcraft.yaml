@@ -341,6 +341,7 @@ parts:
       - wmctrl
       - xz-utils
       - rt-tests # For realtime performance test
+      - mdadm
       - on armhf:
         - python3-rpi.gpio # only in focal
       - on arm64:

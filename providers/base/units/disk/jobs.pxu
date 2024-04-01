@@ -165,3 +165,20 @@ estimated_duration: 1.0
 user: root
 command: nvme get-feature -f 0x0c -H /dev/{name} | grep '(APSTE).*Enabled' && test -e /sys/class/nvme/{name}/power/pm_qos_latency_tolerance_us
 _summary: Check support for Autonomous Power State Transition on {name}
+
+plugin: shell
+category_id: com.canonical.plainbox::disk
+id: disk/check-software-raid
+_summary: Validate the configuration of software RAID devices are expected
+_description:
+  Examine the system to detect Software RAID devices are created and the RAID mode are expected
+  the SOFTWARE_RAID_LEVEL variable is needed for this tests.
+  e.g. SOFTWARE_RAID_LEVEL="raid0 raid1 raid5"
+imports: from com.canonical.plainbox import manifest
+requires:
+  executable.name == 'mdadm'
+  manifest.has_md_raid == 'True'
+environ: SOFTWARE_RAID_LEVEL
+user: root
+command: check_software_raid.py --mode "$SOFTWARE_RAID_LEVEL"
+estimated_duration: 10

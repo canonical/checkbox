@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_md_raid
+_name: Software RAID
+value-type: bool

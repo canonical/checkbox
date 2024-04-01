@@ -130,15 +130,13 @@ plugin: attachment
 category_id: com.canonical.plainbox::camera
 id: camera/camera-quality-image_{name}
 flags: also-after-suspend
-_summary: Attaches the image used for the BRISQUE score for {product_slug}
+_summary: Attach the image used for the BRISQUE score for {product_slug}
 estimated_duration: 1s
-depends: camera/detect
+after: camera/camera-quality_{name}
 requires: lsb.release >= '22.04'
 command:
   [ -f "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg ] &&
   cat "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg
-_description:
-  Attaches the image used for computing the BRISQUE score.
 
 unit: template
 template-resource: device

@@ -37,7 +37,9 @@ id: audio/playback_auto
 flags: also-after-suspend
 estimated_duration: 5.0
 depends: audio/list_devices
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_internal_speakers == 'True'
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -60,8 +62,6 @@ _purpose:
     This test will check that internal speakers work correctly
 _steps:
     1. Make sure that no external speakers or headphones are connected
-       When testing a desktop, you can skip this test if there is no
-       internal speaker, we will test the external output later
     2. Commence the test to play a brief tone on your audio device
 _verification:
     Did you hear a tone?
@@ -291,7 +291,9 @@ flags: also-after-suspend
 id: audio/playback_headphones
 estimated_duration: 20.0
 depends: audio/list_devices
+imports: from com.canonical.plainbox import manifest
 requires:
+ (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
@@ -325,7 +327,9 @@ id: audio/alsa_record_playback_internal
 flags: also-after-suspend
 estimated_duration: 20.0
 depends: audio/playback_auto
+imports: from com.canonical.plainbox import manifest
 requires:
+ (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
@@ -360,7 +364,9 @@ id: audio/alsa_record_playback_external
 flags: also-after-suspend
 estimated_duration: 20.0
 depends: audio/playback_headphones
+imports: from com.canonical.plainbox import manifest
 requires:
+ (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
  device.category == 'AUDIO'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
@@ -505,6 +511,9 @@ id: audio/channels
 flags: also-after-suspend
 estimated_duration:  20.0
 command: speaker-test -c 2 -l 1 -t wav
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_internal_speakers == 'True'
 _purpose:
     Check that the various audio channels are working properly
 _steps:
@@ -535,7 +544,9 @@ category_id: com.canonical.plainbox::audio
 id: audio/external-lineout
 flags: also-after-suspend
 estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_line_out == 'True'
  dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
 _purpose:
       Check that external line out connection works correctly
@@ -554,7 +565,9 @@ category_id: com.canonical.plainbox::audio
 id: audio/external-linein
 flags: also-after-suspend
 estimated_duration: 120.0
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_line_in == 'True'
  dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
  device.category == 'AUDIO'
  package.name == 'alsa-base'
@@ -589,7 +602,9 @@ category_id: com.canonical.plainbox::audio
 id: audio/speaker-headphone-plug-detection
 flags: also-after-suspend
 estimated_duration: 60.0
+imports: from com.canonical.plainbox import manifest
 requires:
+ (manifest.has_line_out == 'True' or manifest.has_headset == 'True')
  device.category == 'AUDIO'
  package.name in ['pulseaudio-utils', 'pipewire']
 command: 
@@ -616,7 +631,9 @@ category_id: com.canonical.plainbox::audio
 id: audio/microphone-plug-detection
 flags: also-after-suspend
 estimated_duration: 60.0
+imports: from com.canonical.plainbox import manifest
 requires:
+ (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
  device.category == 'AUDIO'
  package.name in ['pulseaudio-utils', 'pipewire']
 command: 
@@ -638,76 +655,6 @@ _verification:
      Verification is automatic, no action is required.
      The test times out after 30 seconds (and fails in that case).
 _summary: Ensure that the system can detect when a microphone is plugged in.
-
-plugin: user-interact-verify
-category_id: com.canonical.plainbox::audio
-id: audio/balance_internal_speaker
-estimated_duration: 20.0
-depends: audio/playback_auto
-requires:
- device.category == 'AUDIO'
- package.name == 'alsa-base'
- package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name in ['pulseaudio-utils', 'pipewire']
-command:
-  if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
-    pipewire_utils.py gst -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
-    EXIT_CODE=$?
-  else
-    audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
-    audio_settings.py set --device=pci --volume=50
-    gst_pipeline_test.py -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
-    EXIT_CODE=$?
-    audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
-  fi
-  exit $EXIT_CODE
-_purpose:
-     Check that balance control works correctly on internal speakers
-_steps:
-     1. Check that moving the balance slider from left to right works smoothly
-     2. Commence the test to play an audio tone for 10 seconds.
-     3. Move the balance slider from left to right and back.
-     4. Check that actual speaker audio balance follows your setting.
-_verification:
-     Does the slider move smoothly, as well as being followed by the actual audio output?
-_summary: Test the balance control on internal speakers by playing an audio tone and adjusting the balance slider.
-
-plugin: user-interact-verify
-category_id: com.canonical.plainbox::audio
-id: audio/balance_headphones
-flags: also-after-suspend
-depends: audio/playback_headphones
-estimated_duration: 30.0
-requires:
- device.category == 'AUDIO'
- package.name == 'alsa-base'
- package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
- package.name in ['pulseaudio-utils', 'pipewire']
-command:
-  if check_audio_daemon.sh ; then
-    pipewire_utils.py show -t audio
-    pipewire_utils.py gst -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
-    EXIT_CODE=$?
-  else
-    audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
-    audio_settings.py set --device=pci --volume=50
-    gst_pipeline_test.py -t 10 'audiotestsrc wave=sine freq=512 ! audioconvert ! audioresample ! autoaudiosink'
-    EXIT_CODE=$?
-    audio_settings.py restore --file="$PLAINBOX_SESSION_SHARE"/pulseaudio_settings
-  fi
-  exit $EXIT_CODE
-_description:
-_purpose:
-     Check that balance control works correctly on external headphones
-_steps:
-     1. Check that moving the balance slider from left to right works smoothly.
-     2. Commence the test to play an audio tone for 10 seconds.
-     3. Move the balance slider from left to right and back.
-     4. Check that actual headphone audio balance follows your settings.
-_verification:
-     Does the slider move smoothly, as well as being followed by the settings by the actual audio output?
-_summary: Test for checking balance control functioning on external headphones.
 
 plugin: shell
 category_id: com.canonical.plainbox::audio

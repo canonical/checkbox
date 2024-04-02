@@ -176,10 +176,22 @@ id: power-management/rtc
 flags: also-after-suspend
 requires:
   rtc.state == 'supported'
-  executable.name == 'hwclock'
   cpuinfo.other != 'emulated by qemu'
 user: root
-command: hwclock -r
+environ: RTC_DEVICE_FILE
+command: 
+  if [[ -n "$RTC_DEVICE_FILE" ]]; then
+    rtc_path="/sys/class/rtc/${RTC_DEVICE_FILE/#\/dev\/}"
+  else
+    rtc_path="/sys/class/rtc/rtc0"
+  fi
+  if [[ -f "${rtc_path}/since_epoch" ]]; then
+    rtc_time=$(cat "${rtc_path}/since_epoch")
+    echo "RTC time: ${rtc_time} seconds since epoch."
+  else
+    echo "RTC time information not available."
+    exit 1
+  fi
 estimated_duration: 0.02
 _summary: Test that RTC functions properly (if present)
 _description:

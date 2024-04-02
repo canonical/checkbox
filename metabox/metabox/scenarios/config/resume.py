@@ -20,7 +20,14 @@ import textwrap
 
 from metabox.core import keys
 from metabox.core.scenario import Scenario
-from metabox.core.actions import Expect, Start, Signal
+from metabox.core.actions import (
+    Expect,
+    Start,
+    Signal,
+    SelectTestPlan,
+    Send,
+    Put,
+)
 
 
 class ConfigLoadedAlsoAfterResume(Scenario):
@@ -52,6 +59,61 @@ class ConfigLoadedAlsoAfterResume(Scenario):
         """
     )
     steps = [
+        Start(),
+        Expect("source: source"),
+        Expect("starting to sleep"),
+        Signal(keys.SIGKILL),
+        Start(),
+        # autoresume
+        Expect("Case CASE case"),
+    ]
+
+
+class ConfigLoadedAlsoWhenResumableSessionAvailable(Scenario):
+    """
+    Check that configs are loaded also when a resumable session is available
+    """
+
+    modes = ["local"]
+    config_file = textwrap.dedent(
+        """
+        [launcher]
+        launcher_version = 1
+        stock_reports = text
+        [test plan]
+        unit = 2021.com.canonical.certification::config-automated
+        forced = yes
+        [test selection]
+        forced = yes
+        [ui]
+        type = silent
+        [environment]
+        var1=a
+        var2=b
+        var3=c
+        case=case
+        Case=Case
+        CASE=CASE
+        source=source
+        """
+    )
+    steps = [
+        # generate a resume candidate
+        Start(),
+        Expect("Select test plan"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::cert-blocker-manual-resume"
+        ),
+        Send(keys.KEY_ENTER),
+        Expect("Press (T) to start"),
+        Send("T"),
+        Expect("Pick an action"),
+        Send("p" + keys.KEY_ENTER),
+        Expect("Pick an action"),
+        Send("q" + keys.KEY_ENTER),
+        Expect("Session paused"),
+        # now use a config to test if it is still loaded
+        Put("/etc/xdg/checkbox.conf", config_file),
         Start(),
         Expect("source: source"),
         Expect("starting to sleep"),

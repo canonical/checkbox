@@ -229,7 +229,6 @@ command:
  fi
 estimated_duration: 90.0
 _summary: Test suspend/resume functionality after switching to the {vendor} {product} graphics card.
-_description:
 _purpose:
     This test will check suspend and resume after switching to {vendor} {product} graphics card.
 _steps:
@@ -286,7 +285,6 @@ command:
  set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log -s s3 --s3-hybrid --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 --pm-method=pm-utils | tee "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single_times.log
 estimated_duration: 90.0
 _summary: This test will check hybrid sleep and resume
-_description:
 _purpose:
  This test will check hybrid sleep and resume
 _steps:
@@ -373,7 +371,6 @@ user: root
 depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 command: pm-suspend
-_description:
 _purpose:
  Wake up by USB keyboard
 _steps:
@@ -391,7 +388,6 @@ user: root
 depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 command: pm-suspend
-_description:
 _purpose:
      Wake up by USB mouse
 _steps:
@@ -516,7 +512,6 @@ requires:
  device.category == 'AUDIO'
  package.name == 'pulseaudio-utils'
 command: pulse_active_port_change.py sources
-_description:
 _purpose:
  Check that the system detects a microphone being plugged in after suspend
 _steps:
@@ -626,7 +621,6 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/display_after_suspend
 estimated_duration: 120.0
 depends: suspend/suspend_advanced_auto
-_description:
 _purpose:
     This test will check that the display is correct after suspend and resume
 _steps:
@@ -828,7 +822,6 @@ command:
     else
         exit 1
     fi
-_description:
 _purpose:
     Tests that the systems wireless hardware can connect to a router using WPA
     security and the 802.11n protocols.
@@ -870,7 +863,6 @@ command:
     else
         exit 1
     fi
-_description:
 _purpose:
  Tests that the system's wireless hardware can connect to a router using
  no security and the 802.11n protocol.
@@ -1385,7 +1377,6 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/battery-low
 depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
-_description:
 _purpose:
     Validate that the battery LED indicates low power after resuming from suspend
 _steps:
@@ -1401,7 +1392,6 @@ id: suspend/led_after_suspend/hdd
 depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
 command: led_hdd_test.sh
-_description:
 _purpose:
     Validate that the HDD LED still operates as expected after resuming from suspend
 _steps:
@@ -1433,7 +1423,6 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/caps-lock
 depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
-_description:
 _purpose:
     Validate that the Caps Lock key operates the same before and after resuming from suspend.
 _steps:
@@ -1448,7 +1437,6 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/wlan
 depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
-_description:
 _purpose:
     WLAN LED verification after resuming from suspend
 _steps:
@@ -1479,7 +1467,6 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/bluetooth
 depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
-_description:
 _purpose:
  Validate that the Bluetooth LED turns on and off when BT is enabled/disabled after resuming from suspend
 _steps:
@@ -1512,7 +1499,6 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/led_after_suspend/wireless
 depends: suspend/suspend_advanced_auto
 estimated_duration: 120.0
-_description:
 _purpose:
  Validate Wireless (WLAN + Bluetooth) LED operated the same after resuming from suspend
 _steps:
@@ -1597,7 +1583,6 @@ depends:
 requires:
  usb.usb3 == 'supported'
 command: removable_storage_watcher.py -m 500000000 remove usb
-_description:
 _purpose:
  This test will check that the system correctly detects the removal of
  a USB 3.0 storage device after suspend
@@ -1911,7 +1896,6 @@ id: mediacard/sdxc-remove-after-suspend
 depends: mediacard/sdxc-insert-after-suspend
 estimated_duration: 30.0
 command: removable_storage_watcher.py --memorycard remove sdio usb scsi
-_description:
 _purpose:
  This test will check that the system correctly detects the removal
  of a SDXC card from the system's card reader after the system has been suspended.
@@ -1962,8 +1946,7 @@ id: mediacard/ms-remove-after-suspend
 estimated_duration: 30.0
 depends: mediacard/ms-insert-after-suspend
 command: removable_storage_watcher.py --memorycard remove sdio usb scsi
-_description:
-_purpose
+_purpose:
  This test will check that the system correctly detects the removal
  of a MS card from the system's card reader after the system has been suspended.
 _steps: 
@@ -1984,7 +1967,6 @@ requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
  manifest.has_card_reader == 'True'
 command: removable_storage_watcher.py --memorycard insert sdio usb scsi
-_description:
 _purpose:
  This test will check that the system's media card reader can
  detect the insertion of a MSP card after the system has been suspended
@@ -2099,7 +2081,6 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 depends: suspend/suspend_advanced_auto
 estimated_duration: 30.0
-_description:
 _purpose:
     Check touchscreen tap recognition
 _steps:
@@ -2116,7 +2097,6 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/pointing-after-suspend_{product_slug}_{category}_{__index__}
 template-id: suspend/pointing-after-suspend_product_slug_category___index__
 depends: suspend/suspend_advanced_auto
-_description:
 _purpose:
  This will test your {product} device after suspend.
 _steps:

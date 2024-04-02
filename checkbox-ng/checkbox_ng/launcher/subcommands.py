@@ -253,10 +253,10 @@ class Launcher(MainLoopStage, ReportsStage):
             # replace the previously built SA with the defaults
             self._configure_restart(ctx)
             self._prepare_transports()
-            ctx.sa.use_alternate_configuration(self.configuration)
             self.resume_candidates = list(ctx.sa.get_resumable_sessions())
             if not self._auto_resume_session(self.resume_candidates):
                 something_got_chosen = False
+                ctx.sa.use_alternate_configuration(self.configuration)
                 while not something_got_chosen:
                     try:
                         self._start_new_session()

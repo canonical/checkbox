@@ -33,7 +33,7 @@ bootstrap_include:
     ce-oem-serial/serial-console-list
 include:
     ce-oem-serial/serial-transmit-data-.*
-    ce-oem-serial/serial-console-.*
+    ce-oem-serial/serial-console-(?!list\b).*$
 
 id: after-suspend-ce-oem-serial-automated
 unit: test plan

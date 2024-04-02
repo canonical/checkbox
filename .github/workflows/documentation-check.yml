@@ -13,7 +13,7 @@ concurrency:
 jobs:
   spellcheck:
     name: Spelling check
-    runs-on: [self-hosted, linux, large]
+    runs-on: [self-hosted, linux, jammy, large]
     defaults:
       run:
         working-directory: docs
@@ -39,7 +39,7 @@ jobs:
 
   woke:
     name: Inclusive language check
-    runs-on: [self-hosted, linux, large]
+    runs-on: [self-hosted, linux, jammy, large]
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -54,7 +54,7 @@ jobs:
 
   linkcheck:
     name: Link check
-    runs-on: [self-hosted, linux, large]
+    runs-on: [self-hosted, linux, jammy, large]
     defaults:
       run:
         working-directory: docs

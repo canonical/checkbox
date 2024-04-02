@@ -9,7 +9,7 @@ on:
 
 jobs:
   should-run:
-    runs-on: [self-hosted, linux, large]
+    runs-on: [self-hosted, linux, jammy, large]
     steps:
       - name: Setup the gh repository and install gh
         run: |
@@ -33,7 +33,7 @@ jobs:
 
   release-notes:
     needs: should-run
-    runs-on: [self-hosted, linux, large]
+    runs-on: [self-hosted, linux, jammy, large]
     steps:
       - name: Checkout checkbox monorepo
         uses: actions/checkout@v3
@@ -60,7 +60,7 @@ jobs:
   checkbox_deb_packages:
     needs: should-run
     name: Checkbox Debian packages
-    runs-on: [self-hosted, linux, large]
+    runs-on: [self-hosted, linux, jammy, large]
     steps:
       - name: Install dependencies
         run: |
@@ -79,7 +79,7 @@ jobs:
   checkbox_core_snap:
     needs: should-run
     name: Checkbox core snap packages
-    runs-on: [self-hosted, linux, large]
+    runs-on: [self-hosted, linux, jammy, large]
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
     steps:
@@ -101,7 +101,7 @@ jobs:
   checkbox_snap:
     needs: should-run
     name: Checkbox snap packages
-    runs-on: [self-hosted, linux, large]
+    runs-on: [self-hosted, linux, jammy, large]
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
     steps:

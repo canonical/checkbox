@@ -53,5 +53,6 @@ parts:
       - libc6-dev
     override-build: |
       mkdir -p ${SNAPCRAFT_PART_INSTALL}/usr/bin
-      gcc ${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src/src/input-pcspkr.c -o ${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src/src/beep
-      cp -v ${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src/src/beep ${SNAPCRAFT_PART_INSTALL}/usr/bin/
+      PART_SRC=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src
+      gcc ${PART_SRC}/src/input-pcspkr.c -o ${PART_SRC}/src/beep
+      cp -v ${PART_SRC}/src/beep ${SNAPCRAFT_PART_INSTALL}/usr/bin/

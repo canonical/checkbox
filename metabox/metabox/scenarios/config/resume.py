@@ -81,7 +81,7 @@ class ConfigLoadedAlsoWhenResumableSessionAvailable(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::config-automated
+        unit = 2021.com.canonical.certification::config-slow-automated
         forced = yes
         [test selection]
         forced = yes

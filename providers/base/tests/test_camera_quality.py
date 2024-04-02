@@ -25,6 +25,7 @@ import unittest
 from unittest.mock import patch, MagicMock
 
 import cv2
+import numpy as np
 
 import camera_quality_test as cqt
 
@@ -72,11 +73,7 @@ class CameraQualityTests(unittest.TestCase):
 
         result = cqt.main(["-d", "video0"])
         self.assertEqual(result, 0)
-        mock_score.assert_called_with("video0", False)
-
-        result = cqt.main(["-d", "video0", "-s"])
-        self.assertEqual(result, 0)
-        mock_score.assert_called_with("video0", True)
+        mock_score.assert_called_with("video0", "")
 
     @patch("logging.Logger.error", new=MagicMock())
     def test_quality_evaluation(self):
@@ -102,7 +99,8 @@ class CameraQualityTests(unittest.TestCase):
         """
 
         self.mock_capture.return_value.isOpened.return_value = False
-        self.assertRaises(RuntimeError, cqt.get_score_from_device, "video0")
+        with self.assertRaises(RuntimeError):
+            cqt.get_score_from_device("video0")
 
     def test_image_not_read(self):
         """
@@ -112,9 +110,11 @@ class CameraQualityTests(unittest.TestCase):
         self.mock_capture.return_value.isOpened.return_value = True
         self.mock_capture.return_value.read.return_value = (False, None)
 
-        self.assertRaises(RuntimeError, cqt.get_score_from_device, "video0")
+        with self.assertRaises(RuntimeError):
+            cqt.get_score_from_device("video0")
 
     @patch(score_path)
+    @patch("camera_quality_test.save_image", new=MagicMock())
     def test_stable_image_from_cam(self, mock_score):
         """
         The test should pass with a good still image.
@@ -127,6 +127,7 @@ class CameraQualityTests(unittest.TestCase):
         self.assertEqual(cqt.get_score_from_device("video0"), 10)
 
     @patch(score_path)
+    @patch("camera_quality_test.save_image", new=MagicMock())
     def test_unstable_image_from_cam(self, mock_score):
         """
         The test should pass with a good still image.
@@ -139,6 +140,7 @@ class CameraQualityTests(unittest.TestCase):
         self.assertEqual(cqt.get_score_from_device("video0"), 10)
 
     @patch(score_path)
+    @patch("camera_quality_test.save_image", new=MagicMock())
     def test_slow_brisque_calculation(self, mock_score):
         """
         The test should iterate at least two times even if the computation time
@@ -156,16 +158,51 @@ class CameraQualityTests(unittest.TestCase):
             self.assertEqual(cqt.get_score_from_device("video0"), 10)
             self.assertEqual(mock_score.call_count, 2)
 
-    @patch("cv2.imwrite")
     @patch(score_path)
-    def test_save_image_from_cam(self, mock_score, mock_imwrite):
+    @patch("camera_quality_test.save_image")
+    def test_save_image_is_called(self, mock_score, mock_save_image):
         """
-        The test should pass with a good still image.
+        The test should call the save_image function.
         """
-
         self.mock_capture.return_value.isOpened.return_value = True
         self.mock_capture.return_value.read.return_value = (True, self.img)
         mock_score.return_value = 10
 
-        cqt.get_score_from_device("video0", True)
-        self.assertTrue(mock_imwrite.called)
+        cqt.get_score_from_device("video0", "/tmp")
+        cqt.save_image.assert_called_with(self.img, "video0", "/tmp")
+
+    @patch("cv2.imwrite")
+    @patch("os.path.exists")
+    def test_save_image(self, mock_exists, mock_imwrite):
+        """
+        The test can save the image.
+        """
+        mock_exists.return_value = True
+
+        cqt.save_image(self.img, "video0", "/tmp")
+        mock_imwrite.assert_called_with(
+            "/tmp/quality_image_video0.jpg", self.img
+        )
+
+    @patch("cv2.imwrite")
+    @patch("os.path.exists")
+    def test_save_image_no_output(self, mock_exists, mock_imwrite):
+        """
+        The test should fail if the output directory does not exist.
+        """
+        mock_exists.return_value = False
+
+        with self.assertRaises(RuntimeError):
+            cqt.save_image(self.img, "video0", "/tmp")
+
+    @patch("cv2.imwrite")
+    @patch("os.path.exists")
+    def test_save_image_error(self, mock_exists, mock_imwrite):
+        """
+        The test should fail if the image cannot be saved.
+        """
+        mock_exists.return_value = True
+
+        mock_imwrite.return_value = False
+        with self.assertRaises(RuntimeError):
+            cqt.save_image(self.img, "video0", "/tmp")

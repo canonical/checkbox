@@ -18,7 +18,6 @@ jobs:
       matrix:
         type: [classic, uc]
         releases: [20, 22]
-        arch: [amd64, arm64, armhf]
     runs-on: [self-hosted, linux, large]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:
@@ -28,7 +27,7 @@ jobs:
       # URL to this repo echoed below to help debug builds (does not change if the workflow is re-run)
       # as the run_id will not change
       SNAPCRAFT_BUILDER_ID: checkbox-${{ matrix.type }}${{ matrix.releases }}-${{ github.run_id }}
-    name: Frontend ${{ matrix.type }}${{ matrix.releases }}${{ matrix.arch }}
+    name: Frontend ${{ matrix.type }}${{ matrix.releases }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -52,7 +51,7 @@ jobs:
           with: |
             path: contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
-            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
+            snapcraft-args: remote-build --build-for amd64,arm64,armhf --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
       - uses: actions/upload-artifact@v3
         name: Upload logs on failure
         if: failure()

@@ -16,6 +16,8 @@ jobs:
       matrix:
         type: [classic, uc]
         releases: [20, 22]
+        # arch: [amd64, arm64, armhf]
+        arch: [amd64]
     runs-on: [self-hosted, linux, large]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:
@@ -54,8 +56,7 @@ jobs:
           with: |
             path: contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
-            # snapcraft-args: remote-build --build-for amd64,arm64,armhf --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
-            snapcraft-args: remote-build --build-for amd64 --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
+            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
       - uses: actions/upload-artifact@v3
         name: Upload logs on failure
         if: failure()

@@ -35,8 +35,8 @@ passthrough:
 parts:
   checkbox-provider-ce-oem:
     plugin: dump
-    source: https://github.com/canonical/checkbox-provider-ce-oem.git
-    source-type: git
+    source: ../../checkbox-provider-ce-oem
+    source-type: local
     stage-packages:
       - alsa-utils
       - mtd-utils
@@ -51,7 +51,6 @@ parts:
     override-build: |
       export PYTHONPATH=/snap/checkbox22/current/lib/python3.10/site-packages/
       for path in $(find "/snap/checkbox22/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
-      cd checkbox-provider-ce-oem
       python3 manage.py validate
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-ce-oem --root="$SNAPCRAFT_PART_INSTALL"
@@ -66,13 +65,15 @@ parts:
       - python3-requests-oauthlib
   input-pcspkr:
     plugin: nil
+    after: [checkbox-provider-ce-oem]
     build-packages:
       - gcc
       - libc6-dev
     override-build: |
       mkdir -p ${SNAPCRAFT_PART_INSTALL}/usr/bin
-      gcc ${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src/checkbox-provider-ce-oem/src/input-pcspkr.c -o ${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src/checkbox-provider-ce-oem/src/beep
-      cp -v ${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src/checkbox-provider-ce-oem/src/beep ${SNAPCRAFT_PART_INSTALL}/usr/bin/
+      PART_SRC=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src
+      gcc ${PART_SRC}/src/input-pcspkr.c -o ${PART_SRC}/src/beep
+      cp -v ${PART_SRC}/src/beep ${SNAPCRAFT_PART_INSTALL}/usr/bin/
 
   parts-meta-info:
     plugin: nil

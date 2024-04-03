@@ -48,6 +48,8 @@ def set_power_profile(profile):
     Raises:
         SystemExit: If the power profile could not be set.
     """
+    # In sys file the modes are low-power, balanced, or performance
+    # but powerprofilesctl only accepts power-saver, balanced or performance
     profile = "power-saver" if profile == "low-power" else profile
     try:
         subprocess.check_call(["powerprofilesctl", "set", profile])

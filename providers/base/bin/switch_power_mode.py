@@ -57,6 +57,20 @@ def set_power_profile(profile):
         ) from e
 
 
+@contextlib.contextmanager
+def preserve_power_profile():
+    """
+    Rolls back the power profile to the original before calling
+    """
+    sysfs_root = Path("/sys/firmware/acpi/")
+    profile_path = sysfs_root / "platform_profile"
+    old_profile = get_sysfs_content(profile_path)
+    try:
+        yield
+    finally:
+        set_power_profile(old_profile)
+
+
 def main():
     """main function to switch the power mode."""
     sysfs_root = Path("/sys/firmware/acpi/")
@@ -64,10 +78,7 @@ def main():
     profile_path = sysfs_root / "platform_profile"
 
     # use a context manager to ensure the original power mode is restored
-    with contextlib.ExitStack() as stack:
-        # Read the current power mode from /sys/firmware/acpi/platform_profile
-        old_profile = get_sysfs_content(profile_path)
-        stack.callback(set_power_profile, old_profile)
+    with preserve_power_profile():
 
         choices = get_sysfs_content(choices_path).split()
 

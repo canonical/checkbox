@@ -84,19 +84,18 @@ plugin: shell
 user: root
 category_id: rtc_category
 estimated_duration: 5
+environ:
 command: 
-    rtctime=$(date +"%s" -d "$( hwclock --rtc /dev/{rtc} -u)")
-    rtc_date=$(date -d "@$rtctime")
-    systime=$(date +"%s")
-    systime_date=$(date -d "@$systime")
-    result=$(("$systime" - "$rtctime"))
+    rtc_time=$(cat "/sys/class/rtc/{rtc}/since_epoch")
+    sys_time=$(date +"%s")
+    result=$(("$sys_time" - "$rtc_time"))
     if [[ "$result" -le "5" ]]; then
         echo "{rtc} Clock synchronized with System Clock"
-        echo "$rtc_date"
+        echo "RTC clock= $rtc_time"
     else
         echo "{rtc} Clock not synchronized with System Clock"
-        echo "System clock=" "$systime_date"
-        echo "RTC clock=" "$rtc_date"
+        echo "System clock= $sys_time"
+        echo "RTC clock= $rtc_time"
         exit 1
     fi
 flags: also-after-suspend

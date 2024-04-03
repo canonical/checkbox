@@ -2,7 +2,8 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2023 Canonical Ltd.
+# Copyright 2024 Canonical Ltd.
+#    Authors: Bin Li <bin.li@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -28,10 +29,11 @@ def main():
     sysfs_root = Path("/sys/firmware/acpi/")
     profile_path = sysfs_root / "platform_profile"
 
-    profile = get_sysfs_content(profile_path).split()
-    print(profile[0])
-    # uncomment the following line to change another mode
-    # os.system(f"powerprofilesctl set power-saver")
+    profile = get_sysfs_content(profile_path)
+    print(profile)
+    # uncomment the following lines to set another mode for testing
+    # from switch_power_mode import set_power_profile
+    # set_power_profile("power-saver")
 
 
 if __name__ == "__main__":

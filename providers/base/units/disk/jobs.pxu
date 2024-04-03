@@ -11,6 +11,15 @@ _description:
 command: disk_info.py
 estimated_duration: 0.25
 
+plugin: resource
+id: disk_resource
+requires:
+  executable.name == 'lsblk'
+_summary: Produces a resource per block device in the lsblk output
+_purpose:
+  Creates a resource to easily query the block devices available on the DUT.
+command: disk_resource.py
+
 unit: template
 template-resource: device
 template-filter: device.category == 'DISK' and device.name != ''
@@ -140,7 +149,9 @@ estimated_duration: 60.0
 requires:
     device.category == 'DISK'
     executable.name == 'hdapsd'
-depends: input/accelerometer
+    disk_resource.rotational == 'True'
+depends:
+  input/accelerometer
 user: root
 command: hdd_parking.py
 _description:

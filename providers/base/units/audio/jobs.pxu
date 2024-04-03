@@ -496,6 +496,7 @@ category_id: com.canonical.plainbox::audio
 id: audio/alsa_info_collect
 estimated_duration: 2.0
 command: alsa_info --no-dialog --no-upload --output "${PLAINBOX_SESSION_SHARE}"/alsa_info.log
+user: root
 _purpose:
  Collect audio-related system information. This data can be used to
  simulate this computer's audio subsystem and perform more detailed tests

@@ -63,6 +63,7 @@ estimated_duration: 1.2
 requires:
   module.name == 'platform_profile'
   package.name == 'power-profiles-daemon'
+  platform_profile.supported == 'True'
 _summary: Dumps power_mode info to a file for comparison after suspend
 command: power_mode_resource.py > "$PLAINBOX_SESSION_SHARE"/power_mode_before_suspend
 
@@ -633,6 +634,7 @@ estimated_duration: 1.2
 requires:
   module.name == 'platform_profile'
   package.name == 'power-profiles-daemon'
+  platform_profile.supported == 'True'
 depends: suspend/suspend_advanced_auto suspend/power_mode_before_suspend
 _description:
  Verify that power mode is changed after resuming from suspend.

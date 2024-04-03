@@ -7,7 +7,7 @@ on:
 
 jobs:
   check_for_commits:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, jammy, large]
     name: Check for commits
     outputs:
       new_commit_count: ${{ steps.commit_check.outputs.new_commit_count }}

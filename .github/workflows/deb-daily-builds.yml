@@ -7,7 +7,7 @@ on:
 jobs:
   ppa_update:
     name: Sync PPA history with monorepo
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, jammy, large]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     steps:
       - name: Install dependencies
@@ -30,8 +30,8 @@ jobs:
             tools/release/lp_request_import.py "~checkbox-dev/checkbox/+git/checkbox"
   ppa_build:
     name: Trigger and monitor PPA builds
+    runs-on: [self-hosted, linux, jammy, large]
     needs: ppa_update
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:

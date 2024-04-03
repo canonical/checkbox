@@ -11,7 +11,7 @@ jobs:
       matrix:
         type: [classic, uc]
         releases: [16, 18, 20, 22]
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, jammy, large]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:
       SERIES: series_${{ matrix.type }}${{ matrix.releases }}

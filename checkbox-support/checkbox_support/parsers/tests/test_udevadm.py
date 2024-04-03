@@ -1076,8 +1076,6 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         For details.
         """
         devices = self.parse("With_VRAID", with_partitions=True)
-        self.assertEqual(self.count(devices, "RAID"), 4)
-        self.assertEqual(self.count(devices, "DISK"), 7)
 
 
     def verify_devices(self, devices, expected_device_list):

@@ -1,9 +1,11 @@
 name: checkbox-ce-oem snap edge build
-# testing
+
 on:
   push:
     branches:
       - workflow_checkbox-ce-oem
+    # branches:
+      # - main
     # paths:
     #   - 'contrib/checkbox-ce-oem**'
   workflow_dispatch:
@@ -16,8 +18,7 @@ jobs:
       matrix:
         type: [classic, uc]
         releases: [20, 22]
-        # arch: [amd64, arm64, armhf]
-        arch: [amd64]
+        arch: [amd64, arm64, armhf]
     runs-on: [self-hosted, linux, large]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:
@@ -32,11 +33,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      # - name: Copy over the common files for series ${{ matrix.type }}${{ matrix.releases }}
-      #   run: |
-      #     cd contrib/checkbox-ce-oem/checkbox-ce-oem-snap/
-      #     sudo apt update && sudo apt install -qq -y python3-setuptools-scm
-      #     ./prepare_${{ matrix.type }}.sh $SERIES
       - name: Add LP credentials
         run: |
           mkdir -p ~/.local/share/snapcraft/provider/launchpad/

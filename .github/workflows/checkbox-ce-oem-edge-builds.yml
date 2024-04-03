@@ -28,7 +28,7 @@ jobs:
       # URL to this repo echoed below to help debug builds (does not change if the workflow is re-run)
       # as the run_id will not change
       SNAPCRAFT_BUILDER_ID: checkbox-${{ matrix.type }}${{ matrix.releases }}-${{ github.run_id }}
-    name: Frontend ${{ matrix.type }}${{ matrix.releases }}
+    name: Frontend ${{ matrix.type }}${{ matrix.releases }}${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -78,12 +78,8 @@ jobs:
             do \
               echo "Uploading $snap..." ; \
               if [ ${{ matrix.type }} = 'classic' ]; then \
-                if [ ${{ matrix.releases }} = '22' ]; then \
-                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
-                else \
-                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
-                fi \
+                snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
               else \
-                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge ; \
+                snapcraft upload $snap --release latest/edge ; \
               fi ; \
             done

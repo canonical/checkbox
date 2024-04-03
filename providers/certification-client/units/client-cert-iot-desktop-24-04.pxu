@@ -1,16 +1,16 @@
-id: client-cert-iot-server-24-04
+id: client-cert-iot-desktop-24-04
 _name: IoT Client Certification for 24.04 classic images
 unit: test plan
 _description:
   This is classic 24.04
 include:
 nested_part:
-  client-cert-iot-server-24-04-manual
-  client-cert-iot-server-24-04-automated
+  client-cert-iot-desktop-24-04-manual
+  client-cert-iot-desktop-24-04-automated
 
 
-id: client-cert-iot-server-24-04-manual
-_name: IoT Client Certification for 24.04 classic images (Manual Tests)
+id: client-cert-iot-desktop-24-04-manual
+_name: IoT Client Certification for 24.04 classic desktop images (Manual Tests)
 unit: test plan
 _description:
   This is classic 24.04
@@ -46,6 +46,10 @@ nested_part:
   ethernet-manual
   led-indicator-manual
   led-manual
+  monitor-integrated-gpu-cert-manual
+  graphics-integrated-gpu-cert-manual
+  graphics-discrete-gpu-cert-manual
+  monitor-discrete-gpu-cert-manual
   mediacard-manual
   memory-manual
   networking-manual
@@ -57,6 +61,7 @@ nested_part:
   socketcan-manual-local
   submission-cert-full
   thunderbolt-cert-manual
+  touchscreen-cert-manual
   usb-manual
   usb-c-manual
   usb3-manual
@@ -68,11 +73,16 @@ nested_part:
   after-suspend-bluetooth-cert-manual
   after-suspend-ethernet-manual
   after-suspend-led-indicator-manual
+  after-suspend-graphics-discrete-gpu-cert-manual
+  after-suspend-monitor-discrete-gpu-cert-manual
+  after-suspend-graphics-integrated-gpu-cert-manual
+  after-suspend-monitor-integrated-gpu-cert-manual
   after-suspend-networking-manual
   after-suspend-serial-manual
   after-suspend-socketcan-manual-remote
   after-suspend-socketcan-manual-local
   after-suspend-thunderbolt-cert-manual
+  after-suspend-touchscreen-cert-manual
   after-suspend-usb-manual
   after-suspend-usb-c-manual
   after-suspend-usb3-manual
@@ -80,13 +90,11 @@ nested_part:
   after-suspend-wireless-wifi-master-mode-manual
   after-suspend-wwan-manual
 exclude:
-  bluetooth4/HOGP-mouse
   snappy/os-.*
-  after-suspend-bluetooth4/HOGP-mouse
 
 
-id: client-cert-iot-server-24-04-automated
-_name: IoT Client Certification for 24.04 classic images (Automated Tests)
+id: client-cert-iot-desktop-24-04-automated
+_name: IoT Client Certification for 24.04 classic desktop images (Automated Tests)
 unit: test plan
 _description:
   This is classic 24.04
@@ -121,12 +129,16 @@ nested_part:
   docker-automated
   eeprom-automated
   ethernet-automated
+  graphics-discrete-gpu-cert-automated
+  graphics-integrated-gpu-cert-automated
   gpio-automated
   iot-fwts-automated
   i2c-automated
   mediacard-automated
   memory-automated
   misc-client-cert-automated
+  monitor-discrete-gpu-cert-automated
+  monitor-integrated-gpu-cert-automated
   networking-automated
   power-automated
   rtc-automated
@@ -148,7 +160,11 @@ nested_part:
   after-suspend-bluez-automated
   after-suspend-eeprom-automated
   after-suspend-ethernet-automated
+  after-suspend-graphics-discrete-gpu-cert-automated
+  after-suspend-graphics-integrated-gpu-cert-automated
   after-suspend-gpio-automated
+  after-suspend-monitor-discrete-gpu-cert-automated # not defined
+  after-suspend-monitor-integrated-gpu-cert-automated # not defined
   after-suspend-rtc-automated
   after-suspend-serial-automated
   after-suspend-usb-automated
@@ -156,8 +172,8 @@ nested_part:
   after-suspend-wwan-automated
 
 
-id: client-cert-iot-server-24-04-stress
-_name: IoT Client Certification for 24.04 classic images (Stress Tests)
+id: client-cert-iot-desktop-24-04-stress
+_name: IoT Client Certification for 24.04 classic desktop images (Stress Tests)
 unit: test plan
 _description:
   This is classic 24.04

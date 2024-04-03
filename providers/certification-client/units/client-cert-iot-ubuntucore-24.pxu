@@ -35,25 +35,25 @@ bootstrap_include:
   interface
   net_if_management
 nested_part:
-  submission-cert-full
-  self-manual
-  ubuntucore-manual
   audio-manual
-  bluetooth-manual
+  bluetooth-cert-manual
   camera-manual
   cpu-manual
   disk-manual
   ethernet-manual
+  led-indicator-manual
   led-manual
   mediacard-manual
   memory-manual
-  monitor-manual
   networking-manual
   rtc-manual
+  self-manual
   serial-manual
   snappy-snap-manual
   socketcan-manual-remote
   socketcan-manual-local
+  submission-cert-full
+  ubuntucore-manual
   usb-manual
   usb-c-manual
   usb3-manual
@@ -63,9 +63,9 @@ nested_part:
   wireless-wifi-master-mode-manual
   wwan-manual
   after-suspend-audio-manual
-  after-suspend-bluetooth-manual
+  after-suspend-bluetooth-cert-manual
   after-suspend-ethernet-manual
-  after-suspend-monitor-manual
+  after-suspend-led-indicator-manual
   after-suspend-networking-manual
   after-suspend-serial-manual
   after-suspend-socketcan-manual-remote
@@ -77,6 +77,9 @@ nested_part:
   after-suspend-wireless-manual
   after-suspend-wireless-wifi-master-mode-manual
   after-suspend-wwan-manual
+exclude:
+  bluetooth4/HOGP-mouse
+  after-suspend-bluetooth4/HOGP-mouse
 
 
 id: client-cert-iot-ubuntucore-24-automated
@@ -85,6 +88,10 @@ unit: test plan
 _description:
   This is UC24
 include:
+  disk/encryption/check-fde-tpm
+  disk/encryption/detect
+  image/model-grade
+  miscellanea/secure_boot_mode_.*
 mandatory_include:
   com.canonical.plainbox::manifest
   executable
@@ -105,35 +112,35 @@ bootstrap_include:
   interface
   net_if_management
 nested_part:
-  submission-cert-automated
-  self-automated
-  ubuntucore-automated
-  iot-fwts-automated
   acpi-automated
   audio-automated
+  bluetooth-cert-automated
   bluez-automated
   camera-automated
   cpu-automated
   disk-automated
   docker-automated
+  eeprom-automated
   ethernet-automated
-  i2c-automated
   gpio-automated
-  kernel-security-automated
+  iot-fwts-automated
+  i2c-automated
   kernel-snap-automated
-  location-automated
   mediacard-automated
   memory-automated
-  # monitor-automated
   networking-automated
   power-automated
+  rtc-automated
+  self-automated
   serial-automated
   snappy-snap-automated
   socketcan-auto-local
   socketcan-auto-remote
+  submission-cert-automated
   tpm-cert-automated
-  usb-automated
   thunderbolt-cert-automated
+  ubuntucore-automated
+  usb-automated
   watchdog-automated
   wireless-automated
   wireless-wifi-master-mode-auto
@@ -141,9 +148,10 @@ nested_part:
   zapper-enabled-automated
   after-suspend-audio-automated
   after-suspend-bluez-automated
+  after-suspend-eeprom-automated
   after-suspend-ethernet-automated
   after-suspend-gpio-automated
-  after-suspend-location-automated
+  after-suspend-rtc-automated
   after-suspend-serial-automated
   after-suspend-usb-automated
   after-suspend-wireless-automated

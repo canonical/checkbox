@@ -132,6 +132,7 @@ nested_part:
     suspend-cycles-stress-test
     hibernate-stress-test
     stress-ng-automated
+    stress-iperf3-automated
 
 unit: test plan
 id: warm-boot-stress-test

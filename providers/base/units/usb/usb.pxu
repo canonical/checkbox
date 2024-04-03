@@ -329,6 +329,7 @@ template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::usb
 id: usb/storage-preinserted-{symlink_uuid}
+template-id: usb/storage-preinserted-symlink_uuid
 user: root
 estimated_duration: 45.0
 flags: also-after-suspend reset-locale

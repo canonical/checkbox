@@ -67,6 +67,7 @@ estimated_duration: 180.0
 depends: init-boot-loop-data
 
 id: cold-boot-loop-reboot{reboot_id}
+template-id: cold-boot-loop-rebootreboot_id
 category_id: stress-tests/cold-boot
 _summary: Perform cold reboot {reboot_id}
 _description: Enter sleep mode after a configurable delay.
@@ -99,6 +100,7 @@ estimated_duration: 1.0
 depends: cold-boot-loop-reboot1
 
 id: cold-boot-loop-test{reboot_id}
+template-id: cold-boot-loop-testreboot_id
 category_id: stress-tests/cold-boot
 _summary: Cold boot system configuration test {reboot_id}
 _description: Compare the data after waking up the system with the base data set
@@ -131,6 +133,7 @@ estimated_duration: 60s
 depends: init-boot-loop-data
 
 id: warm-boot-loop-reboot{reboot_id}
+template-id: warm-boot-loop-rebootreboot_id
 category_id: stress-tests/warm-boot
 _summary: Perform warm reboot {reboot_id}
 _description: Perform warm reboot after a configurable delay.
@@ -163,6 +166,7 @@ estimated_duration: 1.0
 depends: warm-boot-loop-reboot1
 
 id: warm-boot-loop-test{reboot_id}
+template-id: warm-boot-loop-testreboot_id
 category_id: stress-tests/warm-boot
 _summary:  Warm boot system configuration test {reboot_id}
 _description: Compare data after warm boot with baseline data set

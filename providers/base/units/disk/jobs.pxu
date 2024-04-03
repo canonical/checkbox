@@ -27,6 +27,7 @@ template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::disk
 id: disk/stats_{name}
+template-id: disk/stats_name
 flags: deprecated also-after-suspend
 user: root
 estimated_duration: 10.0
@@ -49,6 +50,7 @@ template-filter: device.category == 'DISK'
 plugin: shell
 category_id: com.canonical.plainbox::disk
 id: disk/smart_{name}
+template-id: disk/smart_name
 estimated_duration: 180.0
 requires:
  executable.name == 'smartctl'
@@ -66,6 +68,7 @@ template-filter: device.category == 'DISK'
 plugin: shell
 category_id: com.canonical.plainbox::disk
 id: disk/read_performance_{name}
+template-id: disk/read_performance_name
 flags: also-after-suspend
 estimated_duration: 65.0
 requires:
@@ -81,6 +84,7 @@ template-filter: device.category == 'DISK'
 plugin: shell
 category_id: com.canonical.plainbox::disk
 id: disk/storage_device_{name}
+template-id: disk/storage_device_name
 flags: also-after-suspend
 estimated_duration: 375.0
 user: root
@@ -95,6 +99,7 @@ template-filter: device.category == 'DISK'
 plugin: shell
 category_id: com.canonical.plainbox::disk
 id: disk/fstrim_{name}
+template-id: disk/fstrim_name
 estimated_duration: 1.0
 user: root
 requires:
@@ -109,6 +114,7 @@ template-filter: device.category == 'DISK'
 plugin: shell
 category_id: com.canonical.plainbox::disk
 id: disk/disk_stress_ng_{name}
+template-id: disk/disk_stress_ng_name
 estimated_duration: 4560.0
 user: root
 requires:
@@ -132,6 +138,7 @@ template-filter: device.category == 'DISK'
 plugin: shell
 category_id: com.canonical.plainbox::disk
 id: disk/disk_cpu_load_{name}
+template-id: disk/disk_cpu_load_name
 estimated_duration: 15
 user: root
 requires:
@@ -171,6 +178,7 @@ template-filter: device.driver == 'nvme' and device.category == 'OTHER'
 plugin: shell
 category_id: com.canonical.plainbox::disk
 id: disk/apste_support_on_{name}
+template-id: disk/apste_support_on_name
 flags: also-after-suspend
 estimated_duration: 1.0
 user: root

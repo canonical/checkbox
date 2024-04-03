@@ -73,6 +73,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_hdmi_{product_slug}
+template-id: audio/index_playback_hdmi_product_slug
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -109,6 +110,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_displayport_{product_slug}
+template-id: audio/index_playback_displayport_product_slug
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -145,6 +147,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_thunderbolt_{product_slug}
+template-id: audio/index_playback_thunderbolt_product_slug
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
@@ -181,6 +184,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_thunderbolt3_{product_slug}
+template-id: audio/index_playback_thunderbolt3_product_slug
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
@@ -217,6 +221,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_type-c_displayport_{product_slug}
+template-id: audio/index_playback_type-c_displayport_product_slug
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
@@ -253,6 +258,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/{index}_playback_type-c_hdmi_{product_slug}
+template-id: audio/index_playback_type-c_hdmi_product_slug
 imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:

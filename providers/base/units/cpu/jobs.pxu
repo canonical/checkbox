@@ -177,6 +177,7 @@ template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::cpu
 id: cpu/armhf_vfp_support_{platform}
+template-id: cpu/armhf_vfp_support_platform
 estimated_duration: 1.0
 user: root
 command:
@@ -193,6 +194,7 @@ template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::cpu
 id: cpu/arm64_vfp_support_{platform}
+template-id: cpu/arm64_vfp_support_platform
 estimated_duration: 1.0
 user: root
 command:

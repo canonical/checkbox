@@ -23,6 +23,7 @@ unit: template
 template-resource: serial_ports_static
 template-unit: job
 id: serial/loopback-{dev}
+template-id: serial/loopback-dev
 _summary: Serial loopback test of {dev}
 _purpose: Check if serial port is working hardwired
 plugin: shell

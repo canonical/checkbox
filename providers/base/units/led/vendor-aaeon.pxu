@@ -4,6 +4,7 @@ template-resource: dmi
 template-filter: dmi.category == 'SYSTEM' and dmi.vendor == 'AAEON' and dmi.product in ('UPX-TGL01')
 template-unit: job
 id: led/sysfs_led_brightness_on_{vendor}_{product}
+template-id: led/sysfs_led_brightness_on_vendor_product
 plugin: user-interact-verify
 category_id: led
 estimated_duration: 30.0
@@ -23,6 +24,7 @@ template-resource: dmi
 template-filter: dmi.category == 'SYSTEM' and dmi.vendor == 'AAEON' and dmi.product in ('UPX-TGL01')
 template-unit: job
 id: led/sysfs_led_brightness_off_{vendor}_{product}
+template-id: led/sysfs_led_brightness_off_vendor_product
 plugin: user-interact-verify
 category_id: led
 estimated_duration: 30.0

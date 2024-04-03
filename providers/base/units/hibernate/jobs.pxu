@@ -48,6 +48,7 @@ requires:
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::hibernate
 id: power-management/{index}_hibernate_advanced_{vendor_slug}_{product_slug}
+template-id: power-management/index_hibernate_advanced_vendor_slug_product_slug
 user: root
 environ: PLAINBOX_SESSION_SHARE
 estimated_duration: 300.00
@@ -90,6 +91,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
 category_id: com.canonical.plainbox::hibernate
 id: power-management/{index}_hibernate-single-log-attach_{product_slug}
+template-id: power-management/index_hibernate-single-log-attach_product_slug
 depends: power-management/{index}_hibernate_advanced_{vendor_slug}_{product_slug}
 estimated_duration: 0.5
 command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_hibernate-single.log ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_hibernate-single.log

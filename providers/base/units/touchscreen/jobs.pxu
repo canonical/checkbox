@@ -209,6 +209,7 @@ template-unit: job
 plugin: user-interact
 category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/evdev/single-touch-tap-{{ product_slug }}
+template-id: touchscreen/evdev/single-touch-tap-product_slug
 flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
@@ -232,6 +233,7 @@ template-unit: job
 plugin: user-interact
 category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/evdev/2-touch-tap-{{ product_slug }}
+template-id: touchscreen/evdev/2-touch-tap-product_slug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 10.0
@@ -256,6 +258,7 @@ template-unit: job
 plugin: user-interact
 category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/evdev/3-touch-tap-{{ product_slug }}
+template-id: touchscreen/evdev/3-touch-tap-product_slug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 10.0
@@ -280,6 +283,7 @@ template-unit: job
 plugin: user-interact
 category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/evdev/4-touch-tap-{{ product_slug }}
+template-id: touchscreen/evdev/4-touch-tap-product_slug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 10.0

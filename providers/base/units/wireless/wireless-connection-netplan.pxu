@@ -4,6 +4,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_ax_np_{{ interface }}
+template-id: wireless/wireless_connection_open_ax_np_interface
 _summary:
  Connect to unencrypted 802.11ax Wi-Fi network on {{ interface }} - netplan
 _purpose:
@@ -28,6 +29,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_ac_np_{{ interface }}
+template-id: wireless/wireless_connection_open_ac_np_interface
 _summary:
  Connect to unencrypted 802.11ac Wi-Fi network on {{ interface }} - netplan
 _purpose:
@@ -53,6 +55,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_bg_np_{{ interface }}
+template-id: wireless/wireless_connection_open_bg_np_interface
 _summary:
  Connect to unencrypted 802.11b/g Wi-Fi network on {{ interface }} - netplan
 _purpose:
@@ -76,6 +79,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_n_np_{{ interface }}
+template-id: wireless/wireless_connection_open_n_np_interface
 _summary:
  Connect to unencrypted 802.11n Wi-Fi network on {{ interface }} - netplan
 _purpose:
@@ -99,6 +103,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_ax_np_{{ interface }}
+template-id: wireless/wireless_connection_wpa_ax_np_interface
 _summary:
  Connect to WPA-encrypted 802.11ax Wi-Fi network on {{ interface }} - netplan
 _purpose:
@@ -123,6 +128,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa3_ax_np_{{ interface }}
+template-id: wireless/wireless_connection_wpa3_ax_np_interface
 _summary:
  Connect to WPA3-encrypted 802.11ax Wi-Fi network on {{ interface }} - netplan
 _purpose:
@@ -147,6 +153,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_ac_np_{{ interface }}
+template-id: wireless/wireless_connection_wpa_ac_np_interface
 _summary:
  Connect to WPA-encrypted 802.11ac Wi-Fi network on {{ interface }} - netplan
 _purpose:
@@ -171,6 +178,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_bg_np_{{ interface }}
+template-id: wireless/wireless_connection_wpa_bg_np_interface
 _summary:
  Connect to WPA-encrypted 802.11b/g Wi-Fi network on {{ interface }} - netplan
 _purpose:
@@ -194,6 +202,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_n_np_{{ interface }}
+template-id: wireless/wireless_connection_wpa_n_np_interface
 _summary:
  Connect to WPA-encrypted 802.11n Wi-Fi network on {{ interface }} - netplan
 _purpose:

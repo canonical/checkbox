@@ -10,7 +10,7 @@ jobs:
       matrix:
         releases: [16, 18, 20, 22]
         arch: [amd64, arm64, armhf]
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on: ubuntu-latest
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:
       SERIES: series${{ matrix.releases }}

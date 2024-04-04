@@ -12,6 +12,24 @@ on:
 jobs:
   testflinger-pr-test:
     runs-on: [self-hosted, testflinger]
+    strategy:
+      matrix:
+        include:
+          - checkbox_runtime: checkbox16
+            checkbox_data_source: "distro: xenial"
+            checkbox_track: uc16
+            arch: amd64
+            queue: hp-elitebook-850-g7-notebook-pc
+          - checkbox_runtime: checkbox22
+            checkbox_data_source: "distro: jammy"
+            checkbox_track: uc22
+            arch: amd64
+            queue: hp-elitebook-850-g7-notebook-pc
+          - checkbox_runtime: checkbox22
+            checkbox_data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
+            checkbox_track: uc22
+            arch: arm64
+            queue: rpi4b4g
     defaults:
       run:
         working-directory: tools/canary/
@@ -25,8 +43,18 @@ jobs:
       run: |
         nc -vz testflinger.canonical.com 443
     - name: Submit job to testflinger
+      env:
+        CHECKBOX_RUNTIME: ${{ matrix.checkbox_runtime }}
+        CHECKBOX_DATA_SOURCE: ${{ matrix.checkbox_data_source }}
+        CHECKBOX_TRACK: ${{ matrix.checkbox_track }}
+        ARCH: ${{ matrix.arch }}
+        QUEUE: ${{ matrix.queue }}
       run: |
-        JOB_ID=$(testflinger submit -q canary_validation.yaml)
+        # produce job.yaml
+        ./canary.sh
+        cat job.yaml
+        exit 0
+        JOB_ID=$(testflinger submit -q job.yaml)
         echo "JOB_ID: $JOB_ID"
         testflinger poll $JOB_ID
 

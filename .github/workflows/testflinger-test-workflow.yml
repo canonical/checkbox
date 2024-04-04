@@ -26,7 +26,7 @@ jobs:
             arch: amd64
             queue: hp-elitebook-850-g7-notebook-pc
           - checkbox_runtime: checkbox22
-            checkbox_data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
+            data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
             checkbox_track: uc22
             arch: arm64
             queue: rpi4b4g
@@ -45,7 +45,7 @@ jobs:
     - name: Submit job to testflinger
       env:
         CHECKBOX_RUNTIME: ${{ matrix.checkbox_runtime }}
-        CHECKBOX_DATA_SOURCE: ${{ matrix.checkbox_data_source }}
+        DATA_SOURCE: ${{ matrix.data_source }}
         CHECKBOX_TRACK: ${{ matrix.checkbox_track }}
         ARCH: ${{ matrix.arch }}
         QUEUE: ${{ matrix.queue }}

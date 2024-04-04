@@ -3,7 +3,7 @@ set -e
 set -x
 
 [ -z "$QUEUE" ] && echo "Missing queue" && exit 1
-[ -z "$PROVISION_DATA_SOURCE" ] && echo "Missing provision data" && exit 1
+[ -z "$DATA_SOURCE" ] && echo "Missing provision data" && exit 1
 [ -z "$CHECKBOX_RUNTIME" ] && echo "Missing checkbox runtime snap name" && exit 1
 [ -z "$CHECKBOX_TRACK" ] && echo "Missing frontend snap channel name" && exit 1
 

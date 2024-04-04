@@ -78,5 +78,3 @@ cat > job.yaml <<EOF
             PYTHONUNBUFFERED=1 checkbox-cli control \$DEVICE_IP canary.launcher
             EXITCODE=\$?
 EOF
-
-cat job.yaml

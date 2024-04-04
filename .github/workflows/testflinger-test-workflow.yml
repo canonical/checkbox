@@ -52,9 +52,8 @@ jobs:
         QUEUE: ${{ matrix.queue }}
       run: |
         # produce job.yaml
-        ./canary.sh
+        ./make_canary_job_yaml.sh
         cat job.yaml
-        exit 0
         JOB_ID=$(testflinger submit -q job.yaml)
         echo "JOB_ID: $JOB_ID"
         testflinger poll $JOB_ID

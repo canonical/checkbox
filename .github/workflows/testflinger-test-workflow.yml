@@ -17,12 +17,12 @@ jobs:
       matrix:
         include:
           - checkbox_runtime: checkbox16
-            checkbox_data_source: "distro: xenial"
+            data_source: "distro: xenial"
             checkbox_track: uc16
             arch: amd64
             queue: hp-elitebook-850-g7-notebook-pc
           - checkbox_runtime: checkbox22
-            checkbox_data_source: "distro: jammy"
+            data_source: "distro: jammy"
             checkbox_track: uc22
             arch: amd64
             queue: hp-elitebook-850-g7-notebook-pc

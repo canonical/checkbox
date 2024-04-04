@@ -2,10 +2,26 @@
 set -e
 set -x
 
-[ -z "$QUEUE" ] && echo "Missing queue" && exit 1
-[ -z "$DATA_SOURCE" ] && echo "Missing provision data" && exit 1
-[ -z "$CHECKBOX_RUNTIME" ] && echo "Missing checkbox runtime snap name" && exit 1
-[ -z "$CHECKBOX_TRACK" ] && echo "Missing frontend snap channel name" && exit 1
+if [ -z "$QUEUE" ]; then
+  echo "Missing queue";
+  exit 1
+fi
+if [ -z "$DATA_SOURCE" ]; then
+  echo "Missing provision data";
+  exit 1
+fi
+if [ -z "$CHECKBOX_RUNTIME" ]; then
+  echo "Missing checkbox runtime snap name";
+  exit 1
+fi
+if [ -z "$CHECKBOX_TRACK" ]; then
+  echo "Missing frontend snap channel name";
+  exit 1
+fi
+if [ ! -f canary.launcher ]; then
+  echo "Missing canary launcher";
+  exit 1
+fi
 
 
 cat > job.yaml <<EOF

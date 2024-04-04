@@ -1,0 +1,14 @@
+# Please keep the indents below, for yaml formatting/templating
+            [launcher]
+            launcher_version = 1
+            stock_reports = certification
+
+            [test plan]
+            unit = com.canonical.certification::canary
+            forced = yes
+
+            [test selection]
+            forced = true
+
+            [ui]
+            type = silent

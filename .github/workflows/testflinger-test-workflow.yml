@@ -13,6 +13,7 @@ jobs:
   testflinger-pr-test:
     runs-on: [self-hosted, testflinger]
     strategy:
+      fail-fast: false
       matrix:
         include:
           - checkbox_runtime: checkbox16

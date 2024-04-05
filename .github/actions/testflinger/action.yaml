@@ -34,13 +34,17 @@ runs:
     - name: Prepare job
       shell: bash
       run: |
-        echo "{
-          'job_queue' : ${{ inputs.job_queue }},
-          'global_timeout': ${{ inputs.global_timeout }},
-          'output_timeout': ${{ inputs.output_timeout }},
-          'provision_data': ${{ inputs.provision_data }},
-          'test_data': { 'test_cmds': ${{ inputs.test_cmds }} }
-        }" > job.yaml
+        sudo apt install -y yq
+        echo "
+          job_queue : ${{ inputs.job_queue }}
+          global_timeout: ${{ inputs.global_timeout }}
+          output_timeout: ${{ inputs.output_timeout }}
+          provision_data:
+            ${{ inputs.provision_data }}
+          test_data:
+            test_cmds: |
+              ${{ inputs.test_cmds }}
+        " | yq > job.yaml
         cat job.yaml
 
     - name: Submit job to testflinger

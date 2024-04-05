@@ -86,7 +86,7 @@ jobs:
       run: |
         nc -vz testflinger.canonical.com 443
     - name: Submit job to testflinger
-      uses: .github/actions/testflinger.yaml
+      uses: canonical/checkbox/.github/actions/testflinger.yaml
       with:
         job_queue: ${{ matrix.queue }}
         provision_data: ${{ matrix.data_source }}

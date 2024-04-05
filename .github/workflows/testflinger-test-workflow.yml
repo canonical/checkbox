@@ -73,20 +73,11 @@ jobs:
 
               [ui]
               type = silent
-    defaults:
-      run:
-        working-directory: tools/canary/
     steps:
     - name: Checkout checkbox monorepo
       uses: actions/checkout@v3
-    - name: Install testflinger
-      run: |
-        sudo snap install testflinger-cli
-    - name: Test testflinger connection
-      run: |
-        nc -vz testflinger.canonical.com 443
     - name: Submit job to testflinger
-      uses: canonical/checkbox/.github/actions/testflinger.yaml
+      uses: .github/actions/testflinger.yaml
       with:
         job_queue: ${{ matrix.queue }}
         provision_data: ${{ matrix.data_source }}

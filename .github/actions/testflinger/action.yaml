@@ -25,6 +25,7 @@ runs:
       shell: bash
       run: |
         sudo snap install testflinger-cli
+        sudo snap install yq
 
     - name: Test testflinger connection
       shell: bash
@@ -34,7 +35,6 @@ runs:
     - name: Prepare job
       shell: bash
       run: |
-        sudo apt install -y yq
         echo "
           job_queue : ${{ inputs.job_queue }}
           global_timeout: ${{ inputs.global_timeout }}

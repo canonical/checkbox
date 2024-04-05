@@ -35,9 +35,7 @@ runs:
 
     - name: Prepare job
       shell: bash
-      env:
-        TEST_CMDS_ENV: ${{ inputs.test_cmds }}
-      run:
+      run: |
         cat > job_template.yaml <<'EOF'
           job_queue : ${{ inputs.job_queue }}
           global_timeout: ${{ inputs.global_timeout }}

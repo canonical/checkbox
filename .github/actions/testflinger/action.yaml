@@ -26,6 +26,7 @@ runs:
       run: |
         sudo snap install testflinger-cli
         sudo snap install yq
+        sudo apt-get install jq
 
     - name: Test testflinger connection
       shell: bash

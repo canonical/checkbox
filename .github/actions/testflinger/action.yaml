@@ -50,12 +50,13 @@ runs:
         yq -o=json job_template.yaml >> job.json
 
         cat > payload.txt <<'EOF'
-${{ inputs.test_cmds }}
+          ${{ inputs.test_cmds }}
         EOF
 
         cat payload.txt | base64 -w 0 | jq --arg value $(cat -) '.test_data.test_cmds = ($value | @base64d)' job_template.json > job.json
         yq -o=yaml job.json > job.yaml
         cat job.yaml
+
     - name: Submit job to testflinger
       shell: bash
       run: |

@@ -77,7 +77,7 @@ jobs:
     - name: Checkout checkbox monorepo
       uses: actions/checkout@v3
     - name: Submit job to testflinger
-      uses: .github/actions/testflinger.yaml
+      uses: ./.github/actions/testflinger.yaml
       with:
         job_queue: ${{ matrix.queue }}
         provision_data: ${{ matrix.data_source }}

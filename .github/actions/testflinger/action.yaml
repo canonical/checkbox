@@ -26,7 +26,7 @@ runs:
       run: |
         sudo snap install testflinger-cli
         sudo snap install yq
-        sudo apt-get install jq
+        sudo apt-get install -y jq
 
     - name: Test testflinger connection
       shell: bash
@@ -51,7 +51,7 @@ runs:
         # easier to template in provision data this way
         yq -o=json job_template.yaml >> job_template.json
 
-        echo $TEST_CMD | base64 -w 0 | jq --arg value $(cat -) '.test_data.test_cmds = ($value | @base64d)' job_template.json > job.json
+        echo "$TEST_CMD" | base64 -w 0 | jq --arg value $(cat -) '.test_data.test_cmds = ($value | @base64d)' job_template.json > job.json
         yq -o=yaml job.json > job.yaml
         cat job.yaml
 

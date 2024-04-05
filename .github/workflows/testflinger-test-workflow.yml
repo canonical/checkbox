@@ -21,16 +21,58 @@ jobs:
             checkbox_track: uc16
             arch: amd64
             queue: hp-elitebook-850-g7-notebook-pc
+            launcher: |
+              [launcher]
+              launcher_version = 1
+              stock_reports = certification
+
+              [test plan]
+              unit = com.canonical.certification::canary
+              forced = yes
+
+              [test selection]
+              forced = true
+
+              [ui]
+              type = silent
           - checkbox_runtime: checkbox22
             data_source: "distro: jammy"
             checkbox_track: uc22
             arch: amd64
             queue: hp-elitebook-850-g7-notebook-pc
+            launcher: |
+              [launcher]
+              launcher_version = 1
+              stock_reports = certification
+
+              [test plan]
+              unit = com.canonical.certification::canary
+              forced = yes
+
+              [test selection]
+              forced = true
+
+              [ui]
+              type = silent
           - checkbox_runtime: checkbox22
             data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
             checkbox_track: uc22
             arch: arm64
             queue: rpi4b4g
+            launcher: |
+              [launcher]
+              launcher_version = 1
+              stock_reports = certification
+
+              [test plan]
+              unit = com.canonical.certification::canary
+              forced = yes
+
+              [test selection]
+              forced = true
+
+              [ui]
+              type = silent
     defaults:
       run:
         working-directory: tools/canary/
@@ -44,20 +86,53 @@ jobs:
       run: |
         nc -vz testflinger.canonical.com 443
     - name: Submit job to testflinger
-      env:
-        CHECKBOX_RUNTIME: ${{ matrix.checkbox_runtime }}
-        DATA_SOURCE: ${{ matrix.data_source }}
-        CHECKBOX_TRACK: ${{ matrix.checkbox_track }}
-        ARCH: ${{ matrix.arch }}
-        QUEUE: ${{ matrix.queue }}
-      run: |
-        # produce job.yaml
-        ./make_canary_job_yaml.sh
-        cat job.yaml
-        JOB_ID=$(testflinger submit -q job.yaml)
-        echo "JOB_ID: $JOB_ID"
-        testflinger poll $JOB_ID
+      uses: .github/actions/testflinger.yaml
+      with:
+        job_queue: ${{ matrix.queue }}
+        provision_data: ${{ matrix.data_source }}
+        test_cmds: |
+            #!/bin/bash
 
-        TEST_STATUS=$(testflinger results $JOB_ID | jq -er .test_status)
-        echo "Test exit status: $TEST_STATUS"
-        exit $TEST_STATUS
+            # the machine running this script is the test controller
+            # it runs on any device that consumes the jobs on given queue name, for instance "202111-29636"
+            # the controller has a 1:1 relationship with the DUT (device under test)
+            # to run anything on the DUT, the controller ssh's into the DUT and runs the commands there
+            # and then in the end runs checkbox to run the actual testing session
+            # the checkbox run is a typical remote session where the machine running this script is the
+            # Checkbox Controller and the DUT is the Checkbox Agent
+
+            set -x
+            set -e
+
+            # prepare Controller Machine
+            sudo add-apt-repository -y ppa:checkbox-dev/edge
+            sudo apt-get -qq update
+            sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install -y python-cheetah git checkbox-ng
+
+            # get the tools necessary to prepare the target device for testing
+            git -C hwcert-jenkins-tools pull -q || (rm -rf hwcert-jenkins-tools && git clone https://github.com/canonical/hwcert-jenkins-tools.git)
+
+            export PATH=$PATH:hwcert-jenkins-tools/scriptlets
+
+            # install checkbox runtime
+            _run_retry sudo snap install ${{ matrix.checkbox_runtime }} --no-wait --channel=latest/edge
+            wait_for_snap_complete
+            # Let's list all the installed snaps for future debugging ease
+            _run snap list
+
+            _run_retry sudo snap install --devmode --channel=${{ matrix.checkbox_track }}/edge checkbox
+
+            cat <<EOF > canary.launcher
+              ${{ matrix.launcher }}
+            EOF
+
+            echo "Installing checkbox in agent container"
+            CHECKBOX_VERSION=$(_run checkbox.checkbox-cli --version)
+            git clone --filter=tree:0 https://github.com/canonical/checkbox.git > /dev/null
+            hwcert-jenkins-tools/version-published/checkout_to_version.py ~/checkbox "$CHECKBOX_VERSION"
+            (cd checkbox/checkbox-ng; sudo python3 setup.py install > /dev/null)
+            sudo rm -rf checkbox
+
+            # run the canary test plan
+            PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP canary.launcher
+            EXITCODE=$?

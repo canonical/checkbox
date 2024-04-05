@@ -82,48 +82,48 @@ jobs:
         job_queue: ${{ matrix.queue }}
         provision_data: ${{ matrix.data_source }}
         test_cmds: |
-            #!/bin/bash
+                #!/bin/bash
 
-            # the machine running this script is the test controller
-            # it runs on any device that consumes the jobs on given queue name, for instance "202111-29636"
-            # the controller has a 1:1 relationship with the DUT (device under test)
-            # to run anything on the DUT, the controller ssh's into the DUT and runs the commands there
-            # and then in the end runs checkbox to run the actual testing session
-            # the checkbox run is a typical remote session where the machine running this script is the
-            # Checkbox Controller and the DUT is the Checkbox Agent
+                # the machine running this script is the test controller
+                # it runs on any device that consumes the jobs on given queue name, for instance "202111-29636"
+                # the controller has a 1:1 relationship with the DUT (device under test)
+                # to run anything on the DUT, the controller ssh's into the DUT and runs the commands there
+                # and then in the end runs checkbox to run the actual testing session
+                # the checkbox run is a typical remote session where the machine running this script is the
+                # Checkbox Controller and the DUT is the Checkbox Agent
 
-            set -x
-            set -e
+                set -x
+                set -e
 
-            # prepare Controller Machine
-            sudo add-apt-repository -y ppa:checkbox-dev/edge
-            sudo apt-get -qq update
-            sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install -y python-cheetah git checkbox-ng
+                # prepare Controller Machine
+                sudo add-apt-repository -y ppa:checkbox-dev/edge
+                sudo apt-get -qq update
+                sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install -y python-cheetah git checkbox-ng
 
-            # get the tools necessary to prepare the target device for testing
-            git -C hwcert-jenkins-tools pull -q || (rm -rf hwcert-jenkins-tools && git clone https://github.com/canonical/hwcert-jenkins-tools.git)
+                # get the tools necessary to prepare the target device for testing
+                git -C hwcert-jenkins-tools pull -q || (rm -rf hwcert-jenkins-tools && git clone https://github.com/canonical/hwcert-jenkins-tools.git)
 
-            export PATH=$PATH:hwcert-jenkins-tools/scriptlets
+                export PATH=$PATH:hwcert-jenkins-tools/scriptlets
 
-            # install checkbox runtime
-            _run_retry sudo snap install ${{ matrix.checkbox_runtime }} --no-wait --channel=latest/edge
-            wait_for_snap_complete
-            # Let's list all the installed snaps for future debugging ease
-            _run snap list
+                # install checkbox runtime
+                _run_retry sudo snap install ${{ matrix.checkbox_runtime }} --no-wait --channel=latest/edge
+                wait_for_snap_complete
+                # Let's list all the installed snaps for future debugging ease
+                _run snap list
 
-            _run_retry sudo snap install --devmode --channel=${{ matrix.checkbox_track }}/edge checkbox
+                _run_retry sudo snap install --devmode --channel=${{ matrix.checkbox_track }}/edge checkbox
 
-            cat <<EOF > canary.launcher
-              ${{ matrix.launcher }}
-            EOF
+                cat <<EOF > canary.launcher
+                  ${{ matrix.launcher }}
+                EOF
 
-            echo "Installing checkbox in agent container"
-            CHECKBOX_VERSION=$(_run checkbox.checkbox-cli --version)
-            git clone --filter=tree:0 https://github.com/canonical/checkbox.git > /dev/null
-            hwcert-jenkins-tools/version-published/checkout_to_version.py ~/checkbox "$CHECKBOX_VERSION"
-            (cd checkbox/checkbox-ng; sudo python3 setup.py install > /dev/null)
-            sudo rm -rf checkbox
+                echo "Installing checkbox in agent container"
+                CHECKBOX_VERSION=$(_run checkbox.checkbox-cli --version)
+                git clone --filter=tree:0 https://github.com/canonical/checkbox.git > /dev/null
+                hwcert-jenkins-tools/version-published/checkout_to_version.py ~/checkbox "$CHECKBOX_VERSION"
+                (cd checkbox/checkbox-ng; sudo python3 setup.py install > /dev/null)
+                sudo rm -rf checkbox
 
-            # run the canary test plan
-            PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP canary.launcher
-            EXITCODE=$?
+                # run the canary test plan
+                PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP canary.launcher
+                EXITCODE=$?

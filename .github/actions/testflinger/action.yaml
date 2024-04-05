@@ -47,7 +47,7 @@ runs:
               payload
         EOF
         # easier to template in provision data this way
-        yq -o=json job.yaml >> job.json
+        yq -o=json job_template.yaml >> job.json
 
         cat > payload.txt <<'EOF'
 ${{ inputs.test_cmds }}

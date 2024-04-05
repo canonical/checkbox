@@ -22,14 +22,17 @@ runs:
   using: "composite"
   steps:
     - name: Install testflinger
+      shell: bash
       run: |
         sudo snap install testflinger-cli
 
     - name: Test testflinger connection
+      shell: bash
       run: |
         nc -vz testflinger.canonical.com 443
 
     - name: Prepare job
+      shell: bash
       run: |
         apt install yq
         echo "{
@@ -42,13 +45,14 @@ runs:
         cat job.yaml | yq
 
     - name: Submit job to testflinger
-      id: submit_job
+      shell: bash
       run: |
         JOB_ID=$(testflinger submit -q job.yaml)
         echo "JOB_ID: $JOB_ID"
         echo "::set-output name=job_id::$JOB_ID"
 
     - name: Poll job status and process results
+      shell: bash
       run: |
         echo $JOB_ID
         exit 0

@@ -56,17 +56,17 @@ runs:
         cat job.yaml
 
     - name: Submit job to testflinger
+      id: submit_job
       shell: bash
       run: |
         JOB_ID=$(testflinger submit -q job.yaml)
         echo "JOB_ID: $JOB_ID"
-        echo "::set-output name=job_id::$JOB_ID"
+        echo "job_id=$JOB_ID" >> $GITHUB_OUTPUT
 
     - name: Poll job status and process results
       shell: bash
       run: |
         echo $JOB_ID
-        exit 0
         JOB_ID=${{ steps.submit_job.outputs.job_id }}
         testflinger poll $JOB_ID
 

@@ -29,7 +29,7 @@ cat > job.yaml <<EOF
     global_timeout: 3600
     output_timeout: 1800
     provision_data:
-      $PROVISION_DATA_SOURCE
+      $DATA_SOURCE
     test_data:
       test_cmds: |
             #!/bin/bash

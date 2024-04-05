@@ -34,7 +34,7 @@ runs:
     - name: Prepare job
       shell: bash
       run: |
-        apt install yq
+        apt install -y yq
         echo "{
           'job_queue' : ${{ inputs.job_queue }},
           'global_timeout': ${{ inputs.global_timeout }},

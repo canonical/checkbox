@@ -35,6 +35,8 @@ runs:
 
     - name: Prepare job
       shell: bash
+      env:
+        TEST_CMDS_ENV: ${{ inputs.test_cmds }}
       run:
         cat > job_template.yaml <<'EOF'
           job_queue : ${{ inputs.job_queue }}
@@ -49,8 +51,8 @@ runs:
         # easier to template in provision data this way
         yq -o=json job.yaml >> job.json
 
-        cat > payload.txt <<'EOF'
-          ${{ inputs.test_cmds }}
+        cat > payload.txt <<EOF
+          $TEST_CMDS_ENV
         EOF
 
         cat payload.txt | base64 -w 0 | jq --arg value $(cat -) '.test_data.test_cmds = ($value | @base64d)' job_template.json > job.json

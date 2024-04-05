@@ -36,7 +36,8 @@ runs:
     - name: Prepare job
       shell: bash
       env:
-        TEST_CMDS_ENV: ${{ inputs.test_cmds }}
+        TEST_CMDS_ENV: |
+          ${{ inputs.test_cmds }}
       run: |
         cat > job_template.yaml <<'EOF'
           job_queue : ${{ inputs.job_queue }}

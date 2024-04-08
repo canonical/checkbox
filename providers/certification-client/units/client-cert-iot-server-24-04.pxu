@@ -127,6 +127,7 @@ nested_part:
   mediacard-automated
   memory-automated
   misc-client-cert-automated
+  monitor-manual
   networking-automated
   power-automated
   rtc-automated
@@ -149,6 +150,7 @@ nested_part:
   after-suspend-eeprom-automated
   after-suspend-ethernet-automated
   after-suspend-gpio-automated
+  after-suspend-monitor-manual
   after-suspend-rtc-automated
   after-suspend-serial-automated
   after-suspend-usb-automated

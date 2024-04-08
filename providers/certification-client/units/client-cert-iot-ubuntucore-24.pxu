@@ -128,6 +128,7 @@ nested_part:
   kernel-snap-automated
   mediacard-automated
   memory-automated
+  monitor-manual
   networking-automated
   power-automated
   rtc-automated
@@ -151,6 +152,7 @@ nested_part:
   after-suspend-eeprom-automated
   after-suspend-ethernet-automated
   after-suspend-gpio-automated
+  after-suspend-monitor-manual
   after-suspend-rtc-automated
   after-suspend-serial-automated
   after-suspend-usb-automated

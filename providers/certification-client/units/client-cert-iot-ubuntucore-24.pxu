@@ -45,6 +45,7 @@ nested_part:
   led-manual
   mediacard-manual
   memory-manual
+  monitor-manual
   networking-manual
   rtc-manual
   self-manual
@@ -66,6 +67,7 @@ nested_part:
   after-suspend-bluetooth-cert-manual
   after-suspend-ethernet-manual
   after-suspend-led-indicator-manual
+  after-suspend-monitor-manual
   after-suspend-networking-manual
   after-suspend-serial-manual
   after-suspend-socketcan-manual-remote
@@ -128,7 +130,6 @@ nested_part:
   kernel-snap-automated
   mediacard-automated
   memory-automated
-  monitor-manual
   networking-automated
   power-automated
   rtc-automated
@@ -152,7 +153,6 @@ nested_part:
   after-suspend-eeprom-automated
   after-suspend-ethernet-automated
   after-suspend-gpio-automated
-  after-suspend-monitor-manual
   after-suspend-rtc-automated
   after-suspend-serial-automated
   after-suspend-usb-automated

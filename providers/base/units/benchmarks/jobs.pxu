@@ -4,6 +4,7 @@ template-filter: device.category == 'DISK'
 plugin: shell
 category_id: com.canonical.plainbox::benchmarks
 id: benchmarks/disk/hdparm-read_{name}
+template-id: benchmarks/disk/hdparm-read_name
 flags: also-after-suspend
 estimated_duration: 15.0
 user: root
@@ -17,6 +18,7 @@ template-filter: device.category == 'DISK'
 plugin: shell
 category_id: com.canonical.plainbox::benchmarks
 id: benchmarks/disk/hdparm-cache-read_{name}
+template-id: benchmarks/disk/hdparm-cache-read_name
 flags: also-after-suspend
 estimated_duration: 10.0
 user: root

@@ -4,6 +4,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_before_suspend_{product_slug}_auto
+template-id: suspend/index_resolution_before_suspend_product_slug_auto
 after: graphics/{index}_auto_switch_card_{product_slug}
 estimated_duration: 1.2
 _description: Record the current resolution before suspending.
@@ -18,6 +19,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend_after_switch_to_card_{product_slug}_auto
+template-id: suspend/index_suspend_after_switch_to_card_product_slug_auto
 requires:
  sleep.mem == 'supported'
  rtc.state == 'supported'
@@ -39,6 +41,7 @@ template-engine: jinja2
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_resolution_after_suspend_{{ product_slug }}_auto
+template-id: suspend/index_resolution_after_suspend_product_slug_auto
 estimated_duration: 1.2
 depends:
  suspend/{{ index }}_resolution_before_suspend_{{ product_slug }}_auto
@@ -60,6 +63,7 @@ template-engine: jinja2
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_display_after_suspend_{{ product_slug }}_graphics
+template-id: suspend/index_display_after_suspend_product_slug_graphics
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -82,6 +86,7 @@ template-engine: jinja2
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_cycle_resolutions_after_suspend_{{ product_slug }}_graphics
+template-id: suspend/index_cycle_resolutions_after_suspend_product_slug_graphics
 requires: package.name == 'xorg'
 depends:
  {%- if gpu_count > "1" %}
@@ -113,6 +118,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz_auto
+template-id: suspend/index_xrandr_screens_after_suspend.tar.gz_auto
 depends: after-suspend-graphics/{index}_cycle_resolution_{product_slug}
 command: [ -f "$PLAINBOX_SESSION_SHARE"/xrandr_screens_{index}_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/xrandr_screens_{index}_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
@@ -124,6 +130,7 @@ template-engine: jinja2
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_gl_support_after_suspend_{{ product_slug }}_auto
+template-id: suspend/index_gl_support_after_suspend_product_slug_auto
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -145,6 +152,7 @@ template-engine: jinja2
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_glxgears_after_suspend_{{ product_slug }}_graphics
+template-id: suspend/index_glxgears_after_suspend_product_slug_graphics
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -172,6 +180,7 @@ unit: template
 template-resource: graphics_card
 template-engine: jinja2
 id: suspend/{{ index }}_video_after_suspend_{{ product_slug }}_graphics
+template-id: suspend/index_video_after_suspend_product_slug_graphics
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -203,6 +212,7 @@ template-engine: jinja2
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_driver_version_after_suspend_{{ product_slug }}_auto
+template-id: suspend/index_driver_version_after_suspend_product_slug_auto
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -229,6 +239,7 @@ template-engine: jinja2
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_suspend-single-log-attach_{{ product_slug }}_auto
+template-id: suspend/index_suspend-single-log-attach_product_slug_auto
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -246,6 +257,7 @@ template-engine: jinja2
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_suspend-time-check_{{ product_slug }}_auto
+template-id: suspend/index_suspend-time-check_product_slug_auto
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto
@@ -260,6 +272,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: power-management/{index}_suspend_30_times_on_{product_slug}
+template-id: power-management/index_suspend_30_times_on_product_slug
 plugin: shell
 category_id: com.canonical.plainbox::stress
 estimated_duration: 5400.0
@@ -287,6 +300,7 @@ template-engine: jinja2
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{{ index }}_rotation_after_suspend_{{ product_slug }}_graphics
+template-id: suspend/index_rotation_after_suspend_product_slug_graphics
 depends:
  {%- if gpu_count > "1" %}
   suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto

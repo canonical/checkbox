@@ -14,6 +14,7 @@ template-filter: device.category == 'NETWORK'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::networking
 id: networking/info_device{__index__}_{interface}
+template-id: networking/info_device__index___interface
 flags: also-after-suspend
 _summary: Network Information of device {__index__} ({interface})
 estimated_duration: 1.0

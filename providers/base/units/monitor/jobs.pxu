@@ -2,6 +2,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_vga_{product_slug}
+template-id: monitor/index_vga_product_slug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_vga == 'True'
 flags: also-after-suspend
@@ -21,6 +22,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_dvi_{product_slug}
+template-id: monitor/index_dvi_product_slug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_dvi == 'True'
 flags: also-after-suspend
@@ -40,6 +42,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_displayport_{product_slug}
+template-id: monitor/index_displayport_product_slug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_dp == 'True'
 flags: also-after-suspend
@@ -59,6 +62,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_hdmi_{product_slug}
+template-id: monitor/index_hdmi_product_slug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hdmi == 'True'
 flags: also-after-suspend
@@ -78,6 +82,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_svideo_{product_slug}
+template-id: monitor/index_svideo_product_slug
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
@@ -95,6 +100,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_rca_{product_slug}
+template-id: monitor/index_rca_product_slug
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
@@ -112,6 +118,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_multi-head_{product_slug}
+template-id: monitor/index_multi-head_product_slug
 requires: dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower', 'Space-saving', 'Mini PC']
 flags: also-after-suspend
 plugin: manual
@@ -132,6 +139,7 @@ template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 flags: also-after-suspend
 id: monitor/{index}_powersaving_{product_slug}
+template-id: monitor/index_powersaving_product_slug
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::monitor
 command:
@@ -149,6 +157,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_dim_brightness_{product_slug}
+template-id: monitor/index_dim_brightness_product_slug
 requires: dmi.product in ['Notebook','Laptop','Portable','All In One','All-In-One','AIO','Convertible']
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::monitor
@@ -169,6 +178,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_thunderbolt_{product_slug}
+template-id: monitor/index_thunderbolt_product_slug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 flags: also-after-suspend
@@ -191,6 +201,7 @@ unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 id: monitor/{index}_thunderbolt3_{product_slug}
+template-id: monitor/index_thunderbolt3_product_slug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend
@@ -212,6 +223,7 @@ _verification:
 unit: template
 template-resource: graphics_card
 id: monitor/{index}_type-c_displayport_{product_slug}
+template-id: monitor/index_type-c_displayport_product_slug
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -235,6 +247,7 @@ _verification:
 unit: template
 template-resource: graphics_card
 id: monitor/{index}_type-c_hdmi_{product_slug}
+template-id: monitor/index_type-c_hdmi_product_slug
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -258,6 +271,7 @@ _verification:
 unit: template
 template-resource: graphics_card
 id: monitor/{index}_type-c_vga_{product_slug}
+template-id: monitor/index_type-c_vga_product_slug
 template-filter: graphics_card.prime_gpu_offload == 'Off'
 imports: from com.canonical.plainbox import manifest
 requires:

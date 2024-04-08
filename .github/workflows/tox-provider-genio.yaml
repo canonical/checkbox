@@ -1,0 +1,48 @@
+name: Test provider-genio with tox
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - providers/genio/**
+  pull_request:
+    branches: [ main ]
+    paths:
+      - providers/genio/**
+  workflow_dispatch:
+
+jobs:
+  tox_test_genio_provider:
+    continue-on-error: true
+    name: Test Genio provider with tox
+    defaults:
+      run:
+        working-directory: providers/genio
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        python: ["3.5", "3.6", "3.8", "3.10"]
+        include:
+          - python: "3.5"
+            tox_env_name: "py35"
+          - python: "3.6"
+            tox_env_name: "py36"
+          - python: "3.8"
+            tox_env_name: "py38"
+          - python: "3.10"
+            tox_env_name: "py310"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install tox
+        run: pip install tox
+      - name: Run tox
+        run: tox -e${{ matrix.tox_env_name }}
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: provider-genio

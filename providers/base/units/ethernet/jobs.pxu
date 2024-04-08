@@ -60,6 +60,7 @@ template-filter: device.category == 'NETWORK'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/multi_nic_device{__index__}_{interface}
+template-id: ethernet/multi_nic_device__index___interface
 _summary: Multi-NIC Iperf stress testing for NIC {interface}
 estimated_duration: 7400.0
 requires:
@@ -79,6 +80,7 @@ template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/multi_iperf3_nic_device{__index__}_{interface}
+template-id: ethernet/multi_iperf3_nic_device__index___interface
 _summary: Multi-NIC Iperf3 stress testing for NIC {interface}
 estimated_duration: 7400.0
 requires:
@@ -98,6 +100,7 @@ template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/sru_iperf3_stress_device-{__index__}_{interface}
+template-id: ethernet/sru_iperf3_stress_device-__index___interface
 _summary: Multi-NIC Iperf3 SRU testing for NIC {interface}
 estimated_duration: 1200.0
 requires:
@@ -118,6 +121,7 @@ template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/multi_iperf3_nic_underspeed_device{__index__}_{interface}
+template-id: ethernet/multi_iperf3_nic_underspeed_device__index___interface
 _summary: Underspeed Enabled Multi-NIC Iperf3 stress testing for NIC {interface}
 estimated_duration: 7400.0
 requires:
@@ -137,6 +141,7 @@ template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/ethertool_check_device{__index__}_{interface}
+template-id: ethernet/ethertool_check_device__index___interface
 _summary: ethtool check for NIC {interface}
 estimated_duration: 330.0
 requires:
@@ -152,6 +157,7 @@ template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/ethertool_eee_check_device_{interface}
+template-id: ethernet/ethertool_eee_check_device_interface
 _summary: Check ethtool EEE status for NIC {interface}
 estimated_duration: 330.0
 requires:
@@ -167,6 +173,7 @@ template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/maximum_bandwidth_device{__index__}_{interface}
+template-id: ethernet/maximum_bandwidth_device__index___interface
 _summary: Maximum bandwidth test of device {__index__} ({interface})
 estimated_duration: 330.0
 requires:
@@ -190,6 +197,7 @@ template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
 id: ethernet/stress_performance_device{__index__}_{interface}
+template-id: ethernet/stress_performance_device__index___interface
 _summary: Stress and performance test of ethernet device {__index__} ({interface})
 estimated_duration: 330.0
 requires:
@@ -202,6 +210,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 id: ethernet/ping_{interface}
+template-id: ethernet/ping_interface
 _summary: Can ping another machine over Ethernet port {interface}
 _description: Check Ethernet works by pinging another machine
 plugin: shell
@@ -230,6 +239,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN'
 id: ethernet/wol_S5_{interface}
+template-id: ethernet/wol_S5_interface
 _summary: Wake on LAN (WOL) test from S5 - {interface}
 _purpose:
  Check that another system can wake up from S5 the SUT using ethernet port {interface} WOL function.
@@ -254,6 +264,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN'
 id: ethernet/wol_S4_{interface}
+template-id: ethernet/wol_S4_interface
 _summary: Wake on LAN (WOL) test from S4 - {interface}
 _purpose:
  Check that another system can wake up from S4 the SUT using ethernet port {interface} WOL function.
@@ -279,6 +290,7 @@ unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN' and device.interface != 'UNKNOWN'
 id: ethernet/wol_S3_{interface}
+template-id: ethernet/wol_S3_interface
 _summary: Wake on LAN (WOL) test from S3 - {interface}
 _purpose:
  Check that another system can wake up from S3 the SUT using ethernet port {interface} WOL function.
@@ -305,6 +317,7 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 id: ethernet/hotplug-{{ interface }}
+template-id: ethernet/hotplug-interface
 _summary: Ensure hotplugging works on port {{ interface }}
 _purpose:
  Check that hotplugging works on port {{ interface }}
@@ -324,6 +337,7 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 template-unit: job
 id: ethernet/iperf3_{interface}
+template-id: ethernet/iperf3_interface
 plugin: shell
 _summary: Iperf3 stress testing for {interface}
 category_id: com.canonical.plainbox::ethernet
@@ -342,6 +356,7 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 template-unit: job
 id: ethernet/iperf3_reverse_{interface}
+template-id: ethernet/iperf3_reverse_interface
 plugin: shell
 _summary: Iperf3 stress testing for {interface} (reverse)
 category_id: com.canonical.plainbox::ethernet
@@ -361,6 +376,7 @@ template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: ethernet/check-{{ interface }}-static-configuration
+template-id: ethernet/check-interface-static-configuration
 _summary: Check that {{ interface }} has a static configuration
 _description:
  This job is intended to be used on particular devices where an interface has
@@ -387,6 +403,7 @@ template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: ethernet/check-{{ interface }}-static-configuration-np
+template-id: ethernet/check-interface-static-configuration-np
 _summary: Check that {{ interface }} has a static configuration
 _description:
  This job is intended to be used on particular devices where an interface has

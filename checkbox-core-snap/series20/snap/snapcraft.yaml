@@ -337,6 +337,7 @@ parts:
       - wget
       - wmctrl
       - xz-utils
+      - mdadm
       - on armhf:
         - python3-rpi.gpio # only in focal
       - on arm64:

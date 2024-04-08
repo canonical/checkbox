@@ -12,3 +12,8 @@ Depends: uuid-runtime
 unit: packaging meta-data
 os-id: debian
 Depends: python3-psutil
+
+# This is for disk/check-software-raid
+unit: packaging meta-data
+os-id: debian
+Depends: mdadm

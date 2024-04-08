@@ -1,0 +1,58 @@
+name: checkbox-ce-oem
+summary: Checkbox CE OEM and public providers
+description: "Checkbox CE OEM and public providers"
+confinement: strict
+grade: stable
+
+version: '1.0-focal'
+
+base: core20
+
+slots:
+  provider-ce-oem:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-ce-oem
+
+parts:
+  checkbox-provider-ce-oem:
+    plugin: dump
+    source: ../../checkbox-provider-ce-oem
+    source-type: local
+    stage-packages:
+      - alsa-utils
+      - mtd-utils
+      - u-boot-tools
+      - v4l-utils
+      - device-tree-compiler
+      - linuxptp
+      - snmp
+    override-prime: |
+      snapcraftctl prime
+      rm lib/systemd/system/alsa-utils.service
+    override-build: |
+      export PYTHONPATH=/snap/checkbox20/current/lib/python3.8/site-packages/
+      for path in $(find "/snap/checkbox20/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-ce-oem --root="$SNAPCRAFT_PART_INSTALL"
+    build-snaps:
+      - checkbox20
+    build-packages:
+      - python3-dev
+      - python3-jinja2
+      - python3-packaging
+      - python3-urwid
+      - python3-xlsxwriter
+      - python3-requests-oauthlib
+  input-pcspkr:
+    plugin: nil
+    after: [checkbox-provider-ce-oem]
+    build-packages:
+      - gcc
+      - libc6-dev
+    override-build: |
+      mkdir -p ${SNAPCRAFT_PART_INSTALL}/usr/bin
+      PART_SRC=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src
+      gcc ${PART_SRC}/src/input-pcspkr.c -o ${PART_SRC}/src/beep
+      cp -v ${PART_SRC}/src/beep ${SNAPCRAFT_PART_INSTALL}/usr/bin/

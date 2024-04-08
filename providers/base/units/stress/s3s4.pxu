@@ -46,6 +46,7 @@ plugin: shell
 flags: preserve-locale
 category_id: stress-tests/suspend
 id: stress-tests/suspend_{{ s3_iterations }}_cycles
+template-id: stress-tests/suspend_s3_iterations_cycles
 imports:
   from com.canonical.certification import sleep
   from com.canonical.certification import rtc
@@ -77,6 +78,7 @@ plugin: shell
 flags: preserve-locale
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-log-check
+template-id: stress-tests/suspend-s3_iterations-cycles-log-check
 after: stress-tests/suspend_{s3_iterations}_cycles
 requires: cpuinfo.platform in ("i386", "x86_64")
 estimated_duration: 1.0
@@ -91,6 +93,7 @@ plugin: attachment
 flags: preserve-locale
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-log-attach
+template-id: stress-tests/suspend-s3_iterations-cycles-log-attach
 estimated_duration: 1.0
 after: stress-tests/suspend_{s3_iterations}_cycles
 requires: cpuinfo.platform in ("i386", "x86_64")
@@ -107,6 +110,7 @@ plugin: shell
 flags: preserve-locale
 category_id: stress-tests/hibernate
 id: stress-tests/hibernate_{{ s4_iterations }}_cycles
+template-id: stress-tests/hibernate_s4_iterations_cycles
 imports:
   from com.canonical.certification import sleep
   from com.canonical.certification import rtc
@@ -130,6 +134,7 @@ plugin: shell
 flags: preserve-locale
 category_id: stress-tests/hibernate
 id: stress-tests/hibernate-{s4_iterations}-cycles-log-check
+template-id: stress-tests/hibernate-s4_iterations-cycles-log-check
 after: stress-tests/hibernate_{s4_iterations}_cycles
 requires: cpuinfo.platform in ("i386", "x86_64")
 estimated_duration: 1.0
@@ -144,6 +149,7 @@ plugin: attachment
 flags: preserve-locale
 category_id: stress-tests/hibernate
 id: stress-tests/hibernate-{s4_iterations}-cycles-log-attach
+template-id: stress-tests/hibernate-s4_iterations-cycles-log-attach
 estimated_duration: 1.0
 after: stress-tests/hibernate_{s4_iterations}_cycles
 requires: cpuinfo.platform in ("i386", "x86_64")

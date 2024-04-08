@@ -13,6 +13,7 @@ template-filter: device.category == 'CDROM'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::optical
 id: optical/read_{name}
+template-id: optical/read_name
 estimated_duration: 120.0
 user: root
 command: optical_read_test.py /dev/{name}
@@ -33,6 +34,7 @@ template-filter: device.category == 'CDROM'
 plugin: shell
 category_id: com.canonical.plainbox::optical
 id: optical/read-automated_{name}
+template-id: optical/read-automated_name
 estimated_duration: 120.0
 user: root
 command: optical_read_test.py /dev/{name}
@@ -47,6 +49,7 @@ template-filter: device.category == 'CDROM'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::optical
 id: optical/cdrom-write_{name}
+template-id: optical/cdrom-write_name
 estimated_duration: 120.0
 requires:
  optical_drive_{name}.cd_write == 'supported'
@@ -69,6 +72,7 @@ template-filter: device.category == 'CDROM'
 plugin: shell
 category_id: com.canonical.plainbox::optical
 id: optical/cdrom-write-automated_{name}
+template-id: optical/cdrom-write-automated_name
 estimated_duration: 120.0
 requires:
  optical_drive_{name}.cd_write == 'supported'
@@ -83,6 +87,7 @@ template-filter: device.category == 'CDROM'
 plugin: manual
 category_id: com.canonical.plainbox::optical
 id: optical/cdrom-audio-playback_{name}
+template-id: optical/cdrom-audio-playback_name
 depends: optical/read_{name}
 estimated_duration: 120.0
 _description:
@@ -107,6 +112,7 @@ template-filter: device.category == 'CDROM'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::optical
 id: optical/dvd-write_{name}
+template-id: optical/dvd-write_name
 requires:
  optical_drive_{name}.dvd_write == 'supported'
 estimated_duration: 120.0
@@ -129,6 +135,7 @@ template-filter: device.category == 'CDROM'
 plugin: shell
 category_id: com.canonical.plainbox::optical
 id: optical/dvd-write-automated_{name}
+template-id: optical/dvd-write-automated_name
 estimated_duration: 120.0
 requires:
  optical_drive_{name}.dvd_write == 'supported'
@@ -160,6 +167,7 @@ template-filter: device.category == 'CDROM'
 plugin: user-interact
 category_id: com.canonical.plainbox::optical
 id: optical/bluray-read_{name}
+template-id: optical/bluray-read_name
 estimated_duration: 120.0
 requires:
  optical_drive_{name}.bd_read == "supported"
@@ -182,6 +190,7 @@ template-filter: device.category == 'CDROM'
 plugin: user-interact
 category_id: com.canonical.plainbox::optical
 id: optical/bluray-write_{name}
+template-id: optical/bluray-write_name
 requires:
  optical_drive_{name}.bd_write == "supported"
  package.name == "growisofs"

@@ -9,13 +9,13 @@ on:
       - edited
 jobs:
   validate_title:
-    runs-on: [self-hosted, linux, large]
+    runs-on: ubuntu-latest
     steps:
     - name: Checking the presence of the Traceability Marker in the PR title
       env:
         PR_TITLE: ${{ github.event.pull_request.title }}
       run: |
-        if echo "$PR_TITLE" | grep -iqP "\((infra|bugfix|new|breaking)\)$"; then
+        if echo "$PR_TITLE" | grep -iqP " \((infra|bugfix|new|breaking)\)$"; then
           echo "PR title contains the traceability marker"
           exit 0
         else

@@ -1,0 +1,85 @@
+id: ce-oem-digital-io/loopback_mapping_gpio
+_summary: Generates a digital I/O loopback ports mapping for digital I/O loopback test
+_description:
+    A digital I/O loopback ports mapping. By giving a pair of digital I/O port on machnie to generates test jobs.
+    Usage of parameter:
+        DIGITAL_IO_LOOPBACK_GPIO=do_port:do_gpio_pin:di_port:di_gpio_pin do_port:do_gpio_pin:di_port:di_gpio_pin ...
+    e.g. DIGITAL_IO_LOOPBACK_GPIO=1:733:2:765 3:734:4:766
+estimated_duration: 0.02
+category_id: digital-io
+plugin: resource
+environ: DIGITAL_IO_LOOPBACK_GPIO
+command:
+    awk '{
+        split($0, record, " ")
+        for (i in record) {
+            split(record[i], data, ":")
+            printf "DO: %s\nDO_GPIO: %s\nDI: %s\nDI_GPIO: %s\n\n", data[1], data[2], data[3], data[4]
+        }
+    }' <<< "$DIGITAL_IO_LOOPBACK_GPIO"
+
+unit: template
+template-resource: ce-oem-digital-io/loopback_mapping_gpio
+template-unit: job
+_template-summary: Loopback tests for the DO{DO}-DI{DI} pin control by GPIO
+id: ce-oem-digital-io/loopback_gpio_DO{DO}-DI{DI}
+_summary: To test loopback between DO{DO} and DI{DI}
+plugin: shell
+user: root
+category_id: digital-io
+estimated_duration: 40s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_digital_io == 'True'
+flags: also-after-suspend
+command:
+    echo "## Perform the digital I/O loopback test"
+    echo "DO{DO} gpio pin is {DO_GPIO}"
+    echo "DI{DI} gpio pin is {DI_GPIO}"
+    digital_io_loopback_test.py -o {DO_GPIO} -i {DI_GPIO}
+
+
+id: ce-oem-digital-io/loopback_mapping_serial
+_summary: Generates a digital I/O loopback ports mapping for digital I/O loopback test
+_description:
+    A digital I/O loopback ports mapping. By giving a pair of digital I/O port on machnie to generates test jobs.
+    Usage of parameter:
+        DIGITAL_IO_LOOPBACK_SERIAL=do_port:do_byte_pin:di_port:di_byte_pin do_port:do_byte_pin:di_port:di_byte_pin ...
+    e.g. DIGITAL_IO_LOOPBACK_SERIAL=1:2:1:6 2:3:2:7 3:4:3:8 4:5:4:9
+estimated_duration: 0.02
+category_id: digital-io
+plugin: resource
+environ: DIGITAL_IO_LOOPBACK_SERIAL
+command:
+    awk '{
+        split($0, record, " ")
+        for (i in record) {
+            split(record[i], data, ":")
+            printf "DO: %s\nDO_REGISTER_BYTE: %s\nDI: %s\nDI_REGISTER_BYTE: %s\n\n", data[1], data[2], data[3], data[4]
+        }
+    }' <<< "$DIGITAL_IO_LOOPBACK_SERIAL"
+
+unit: template
+template-resource: ce-oem-digital-io/loopback_mapping_serial
+template-unit: job
+_template-summary: Loopback tests for the DO{DO}-DI{DI} pin control by serial console
+id: ce-oem-digital-io/loopback_serial_DO{DO}-DI{DI}
+_summary: To test loopback between DO{DO} and DI{DI}
+_description:
+    The scripts will connect to the Digital IO controller via serial console
+    the serial console port is defined in variable DIGITAL_IO_CONSOLE
+plugin: shell
+user: root
+category_id: digital-io
+estimated_duration: 40s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_digital_io == 'True'
+flags: also-after-suspend
+command:
+    if [[ -z "$DIGITAL_IO_CONSOLE" ]]; then
+        echo "DIGITAL_IO_CONSOLE variable is not defined"
+        exit 1
+    fi
+    echo "## Perform the digital I/O loopback test"
+    echo "DO{DO} register byte is {DO_REGISTER_BYTE}"
+    echo "DI{DI} register byte is {DI_REGISTER_BYTE}"
+    digital_io_loopback_serial_test.py -o {DO_REGISTER_BYTE} -i {DI_REGISTER_BYTE} -s "$DIGITAL_IO_CONSOLE"

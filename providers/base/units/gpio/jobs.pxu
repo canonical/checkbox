@@ -6,6 +6,7 @@ template-resource: com.canonical.certification::model_assertion
 template-filter: model_assertion.model in ("pi2", "pi3", "ubuntu-core-18-pi2", "ubuntu-core-18-pi3")
 template-unit: job
 id: gpio/sysfs_loopback_pairs_{model}
+template-id: gpio/sysfs_loopback_pairs_model
 _summary: Test GPIO lines exposed on headers can be controlled via sysfs
 plugin: shell
 user: root
@@ -25,6 +26,7 @@ template-resource: com.canonical.certification::model_assertion
 template-filter: model_assertion.model in ("pi2", "pi3", "ubuntu-core-18-pi2", "ubuntu-core-18-pi3")
 template-unit: job
 id: gpio/gpiomem_loopback_pairs_{model}
+template-id: gpio/gpiomem_loopback_pairs_model
 _summary: Test GPIO lines exposed on headers can be controlled via /dev/gpiomem
 plugin: shell
 user: root

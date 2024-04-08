@@ -12,6 +12,7 @@ template-resource: zapper_capabilities
 template-filter: zapper_capabilities.capability == 'USB hotplug' and zapper_capabilities.usb_version == '2'
 category_id: com.canonical.plainbox::usb
 id: usb/zapper-usb-insert-{{ port_alias }}
+template-id: usb/zapper-usb-insert-port_alias
 template-engine: jinja2
 _summary: Zapper-driven USB insertion test on port {{ port_alias }}
 requires: usb.usb2 == 'supported'
@@ -31,6 +32,7 @@ template-resource: zapper_capabilities
 template-filter: zapper_capabilities.capability == 'USB hotplug' and zapper_capabilities.usb_version == '3'
 category_id: com.canonical.plainbox::usb
 id: usb3/zapper-usb-insert-{{ port_alias }}
+template-id: usb3/zapper-usb-insert-port_alias
 template-engine: jinja2
 _summary: Zapper-driven USB 3.0 insertion test on port {{ port_alias }}
 requires: usb.usb3 == 'supported'
@@ -50,6 +52,7 @@ template-resource: zapper_capabilities
 template-filter: zapper_capabilities.capability == 'USB hotplug' and zapper_capabilities.usb_version == '2'
 category_id: com.canonical.plainbox::usb
 id: usb/zapper-usb-remove-{{ port_alias }}
+template-id: usb/zapper-usb-remove-port_alias
 template-engine: jinja2
 _summary: Zapper-driven USB removal test on port {{ port_alias }}
 requires: usb.usb2 == 'supported'
@@ -69,6 +72,7 @@ template-resource: zapper_capabilities
 template-filter: zapper_capabilities.capability == 'USB hotplug' and zapper_capabilities.usb_version == '3'
 category_id: com.canonical.plainbox::usb
 id: usb3/zapper-usb-remove-{{ port_alias }}
+template-id: usb3/zapper-usb-remove-port_alias
 template-engine: jinja2
 _summary: Zapper-driven USB 3.0 removal test on port {{ port_alias }}
 requires: usb.usb3 == 'supported'

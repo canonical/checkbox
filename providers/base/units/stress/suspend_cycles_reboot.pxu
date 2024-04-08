@@ -87,6 +87,7 @@ template-engine: jinja2
 plugin: shell
 category_id: stress-tests/suspend
 id: stress-tests/suspend_cycles_1_reboot{{suspend_reboot_id}}
+template-id: stress-tests/suspend_cycles_1_rebootsuspend_reboot_id
 imports:
   from com.canonical.certification import sleep
   from com.canonical.certification import rtc
@@ -109,6 +110,7 @@ template-engine: jinja2
 plugin: shell
 category_id: stress-tests/suspend
 id: stress-tests/suspend_cycles_{{suspend_id}}_reboot{{suspend_reboot_id}}
+template-id: stress-tests/suspend_cycles_suspend_id_rebootsuspend_reboot_id
 imports:
   from com.canonical.certification import sleep
   from com.canonical.certification import rtc
@@ -131,6 +133,7 @@ template-engine: jinja2
 plugin: shell
 category_id: stress-tests/suspend
 id: stress-tests/suspend_cycles_reboot{{suspend_reboot_id}}
+template-id: stress-tests/suspend_cycles_rebootsuspend_reboot_id
 imports:
   from com.canonical.certification import sleep
   from com.canonical.certification import rtc
@@ -152,6 +155,7 @@ template-unit: job
 plugin: shell
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-log-check
+template-id: stress-tests/suspend-s3_iterations-cycles-with-reboot-reboot_iterations-log-check
 requires: cpuinfo.platform in ("i386", "x86_64")
 estimated_duration: 1.0
 command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
@@ -165,6 +169,7 @@ template-unit: job
 plugin: shell
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-time-check
+template-id: stress-tests/suspend-s3_iterations-cycles-with-reboot-reboot_iterations-time-check
 requires: cpuinfo.platform in ("i386", "x86_64")
 estimated_duration: 1.0
 command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log --s {sleep_threshold} --r {resume_threshold}
@@ -178,6 +183,7 @@ template-unit: job
 plugin: attachment
 category_id: stress-tests/suspend
 id: stress-tests/suspend-{s3_iterations}-cycles-with-reboot-{reboot_iterations}-log-attach
+template-id: stress-tests/suspend-s3_iterations-cycles-with-reboot-reboot_iterations-log-attach
 estimated_duration: 1.0
 command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_cycles_with_reboot_total.log
 summary:

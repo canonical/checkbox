@@ -5,6 +5,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/nmcli_wifi_ap_bg_{{ interface }}
+template-id: wireless/nmcli_wifi_ap_bg_interface
 _summary: Create 802.11b/g Wi-Fi AP on {{ interface }} using NetworkManager
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
@@ -28,6 +29,7 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/nmcli_wifi_ap_a_{{ interface }}
+template-id: wireless/nmcli_wifi_ap_a_interface
 _summary: Create 802.11a Wi-Fi AP on {{ interface }} using NetworkManager
 command:
   net_driver_info.py "$NET_DRIVER_INFO"

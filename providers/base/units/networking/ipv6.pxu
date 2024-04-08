@@ -18,6 +18,7 @@ template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 template-unit: job
 depends: ipv6_detect
 id: ipv6_link_local_address_{interface}
+template-id: ipv6_link_local_address_interface
 _summary: Test that {interface} has an IPv6 link local address
 plugin: shell
 category_id: com.canonical.plainbox::networking

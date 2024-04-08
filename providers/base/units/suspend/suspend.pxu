@@ -20,6 +20,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_before_suspend_{product_slug}
+template-id: suspend/index_resolution_before_suspend_product_slug
 depends: graphics/{index}_switch_card_{product_slug}
 estimated_duration: 1.2
 _summary: Record the current resolution before suspending.
@@ -35,7 +36,7 @@ requires:
  package.name in ['pulseaudio-utils', 'pipewire']
 _summary: Record mixer settings before suspending.
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     wpctl status | sed 's/pid:.*/]/g' > "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
   else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
@@ -61,6 +62,7 @@ template-filter: device.category == 'NETWORK'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/iperf_before_suspend_ether_auto_device{__index__}_{interface}
+template-id: suspend/iperf_before_suspend_ether_auto_device__index___interface
 depends: ethernet/detect
 estimated_duration: 20.0
 requires:
@@ -210,6 +212,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend_after_switch_to_card_{product_slug}
+template-id: suspend/index_suspend_after_switch_to_card_product_slug
 requires:
  sleep.mem == 'supported'
  rtc.state == 'supported'
@@ -277,6 +280,7 @@ template-resource: graphics_card
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_hybrid_sleep_{product_slug}
+template-id: suspend/index_hybrid_sleep_product_slug
 user: root
 command:
  if [[ -v SNAP ]]; then
@@ -317,6 +321,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-single-log-attach_{product_slug}
+template-id: suspend/index_suspend-single-log-attach_product_slug
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single.log
 _summary: Attaches the log from the single suspend/resume test
@@ -326,6 +331,7 @@ template-resource: graphics_card
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_hybrid-sleep-single-log-check
+template-id: suspend/index_hybrid-sleep-single-log-check
 depends: suspend/{index}_hybrid_sleep_{product_slug}
 estimated_duration: 1.2
 command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log ] && sleep_test_log_check.py -v --ignore-warning -t all "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log
@@ -336,6 +342,7 @@ template-resource: graphics_card
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_hybrid-sleep-single-log-attach_{product_slug}
+template-id: suspend/index_hybrid-sleep-single-log-attach_product_slug
 depends: suspend/{index}_hybrid_sleep_{product_slug}
 command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_hybrid_sleep_single.log
 _summary: Attaches the log from the single hybrid sleep/resume test
@@ -355,6 +362,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_suspend-time-check_{product_slug}
+template-id: suspend/index_suspend-time-check_product_slug
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 estimated_duration: 1.2
 command: [ -e "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/{index}_suspend_single_times.log
@@ -427,6 +435,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_resolution_after_suspend_{product_slug}
+template-id: suspend/index_resolution_after_suspend_product_slug
 estimated_duration: 1.2
 depends: suspend/{index}_resolution_before_suspend_{product_slug}
 _description: Test to see that we have the same resolution after resuming as before.
@@ -443,7 +452,7 @@ requires:
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
       wpctl status | sed 's/pid:.*/]/g' > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   else
       audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
@@ -461,7 +470,7 @@ requires:
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
-  if check_audio_deamon.sh ; then
+  if check_audio_daemon.sh ; then
     wpctl status | sed 's/pid:.*/]/g' > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
@@ -619,6 +628,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_display_after_suspend_{product_slug}
+template-id: suspend/index_display_after_suspend_product_slug
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 _summary: Test display function after suspend for {vendor} {product}
 _description:
@@ -635,6 +645,7 @@ template-filter: device.category == 'NETWORK'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/iperf_after_suspend_ether_auto_device{__index__}_{interface}
+template-id: suspend/iperf_after_suspend_ether_auto_device__index___interface
 depends: suspend/suspend_advanced_auto
 estimated_duration: 30.0
 requires:
@@ -651,6 +662,7 @@ template-filter: device.category == 'WIRELESS'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/iperf_after_suspend_wifi_auto_device{__index__}_{interface}
+template-id: suspend/iperf_after_suspend_wifi_auto_device__index___interface
 depends: suspend/suspend_advanced_auto
 estimated_duration: 30.0
 requires:
@@ -1130,6 +1142,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
+template-id: suspend/index_cycle_resolutions_after_suspend_product_slug
 requires: package.name == 'xorg'
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 estimated_duration: 120.0
@@ -1178,6 +1191,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: attachment
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_xrandr_screens_after_suspend.tar.gz
+template-id: suspend/index_xrandr_screens_after_suspend.tar.gz
 depends: suspend/{index}_cycle_resolutions_after_suspend_{product_slug}
 command: [ -f "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz ] && cat "$PLAINBOX_SESSION_SHARE"/{index}_xrandr_screens_after_suspend.tgz
 _description: This attaches screenshots from the suspend/cycle_resolutions_after_suspend test to the results submission.
@@ -2050,6 +2064,7 @@ template-filter: device.category == 'MOUSE' or device.category == 'TOUCHPAD' or 
 plugin: manual
 category_id: com.canonical.plainbox::suspend
 id: suspend/pointing-after-suspend_{product_slug}_{category}_{__index__}
+template-id: suspend/pointing-after-suspend_product_slug_category___index__
 depends: suspend/suspend_advanced_auto
 _description:
  PURPOSE:
@@ -2066,6 +2081,7 @@ plugin: manual
 category_id: com.canonical.plainbox::suspend
 estimated_duration: 30.0
 id: suspend/clicking-after-suspend_{product_slug}_{category}_{__index__}
+template-id: suspend/clicking-after-suspend_product_slug_category___index__
 depends: suspend/suspend_advanced_auto
 _summary: Check post suspend button functionality for {product}
 _description:
@@ -2085,6 +2101,7 @@ template-filter: graphics_card.prime_gpu_offload == 'Off'
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_gl_support_after_suspend_{product_slug}
+template-id: suspend/index_gl_support_after_suspend_product_slug
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 requires: package.name == 'nux-tools'
 command: /usr/lib/nux/unity_support_test -p 2>&1
@@ -2107,6 +2124,7 @@ template-resource: graphics_card
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend
 id: suspend/{index}_glxgears_after_suspend_{product_slug}
+template-id: suspend/index_glxgears_after_suspend_product_slug
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 requires: executable.name == 'glxgears'
 command: glxgears; true
@@ -2143,6 +2161,7 @@ _description:
 unit: template
 template-resource: graphics_card
 id: suspend/{index}_video_after_suspend_{product_slug}
+template-id: suspend/index_video_after_suspend_product_slug
 depends: suspend/{index}_suspend_after_switch_to_card_{product_slug}
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::suspend

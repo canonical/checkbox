@@ -30,6 +30,7 @@ unit: template
 template-resource: wwan_resource
 template-unit: job
 id: wwan/gsm-connection-{manufacturer}-{model}-{hw_id}-auto
+template-id: wwan/gsm-connection-manufacturer-model-hw_id-auto
 _summary:  Verify a GSM broadband modem can create a data connection
 _description:
  Any modems discovered by the resource job that list GSM support
@@ -58,6 +59,7 @@ unit: template
 template-resource: wwan_resource
 template-unit: job
 id: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
+template-id: wwan/check-sim-present-manufacturer-model-hw_id-auto
 _summary:  Check if a SIM card is present in a slot connected to the modem
 _description:
  Check if a SIM card is present in a slot connected to the modem
@@ -77,6 +79,7 @@ unit: template
 template-resource: wwan_resource
 template-unit: job
 id: wwan/verify-sim-info-{manufacturer}-{model}-{hw_id}
+template-id: wwan/verify-sim-info-manufacturer-model-hw_id
 depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 _summary: Verify that the information retrieved from a SIM card is valid
 _description:

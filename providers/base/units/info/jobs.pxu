@@ -255,6 +255,7 @@ template-filter: device.category == 'DISK'
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/hdparm_{name}.txt
+template-id: info/hdparm_name.txt
 estimated_duration: 1.0
 requires:
  executable.name == 'hdparm'

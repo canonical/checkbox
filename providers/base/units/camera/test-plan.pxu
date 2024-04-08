@@ -37,6 +37,7 @@ include:
  camera/detect                                     certification-status=blocker
  camera/multiple-resolution-images_name              certification-status=blocker
  camera/camera-quality_name                          certification-status=non-blocker
+ camera/camera-quality-image_name                    certification-status=non-blocker
 bootstrap_include:
  device
 
@@ -69,7 +70,8 @@ _description: Camera tests After Suspend (automated)
 include:
  after-suspend-camera/detect                                     certification-status=blocker
  camera/multiple-resolution-images_name              certification-status=blocker
- camera/camera-quality_name                           certification-status=non-blocker
+ camera/camera-quality_name                          certification-status=non-blocker
+ after-suspend-camera/camera-quality-image_name      certification-status=non-blocker 
 bootstrap_include:
  device
 

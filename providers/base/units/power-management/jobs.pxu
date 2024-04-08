@@ -107,6 +107,18 @@ _description:
  VERIFICATION:
     Does closing your laptop lid cause your system to suspend?
 
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+id: power-management/switch_power_mode
+estimated_duration: 10.0
+requires:
+  module.name == 'platform_profile'
+  package.name == 'power-profiles-daemon'
+  platform_profile.supported == 'True'
+command: switch_power_mode.py
+_description:
+  This test will check if the power mode could be switched.
+
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::power-management
 id: power-management/lid_close
@@ -176,10 +188,22 @@ id: power-management/rtc
 flags: also-after-suspend
 requires:
   rtc.state == 'supported'
-  executable.name == 'hwclock'
   cpuinfo.other != 'emulated by qemu'
 user: root
-command: hwclock -r
+environ: RTC_DEVICE_FILE
+command: 
+  if [[ -n "$RTC_DEVICE_FILE" ]]; then
+    rtc_path="/sys/class/rtc/${RTC_DEVICE_FILE/#\/dev\/}"
+  else
+    rtc_path="/sys/class/rtc/rtc0"
+  fi
+  if [[ -f "${rtc_path}/since_epoch" ]]; then
+    rtc_time=$(cat "${rtc_path}/since_epoch")
+    echo "RTC time: ${rtc_time} seconds since epoch."
+  else
+    echo "RTC time information not available."
+    exit 1
+  fi
 estimated_duration: 0.02
 _summary: Test that RTC functions properly (if present)
 _description:
@@ -483,6 +507,7 @@ template-unit: job
 plugin: shell
 category_id: com.canonical.plainbox::power-management
 id: power-management/tickless_idle_{kernel}
+template-id: power-management/tickless_idle_kernel
 estimated_duration: 1.0
 requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'pSeries')
 _description: Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple regression check)

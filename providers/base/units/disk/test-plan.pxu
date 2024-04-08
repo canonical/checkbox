@@ -18,6 +18,7 @@ include:
     benchmarks/disk/hdparm-read_name
     benchmarks/disk/hdparm-cache-read_name
     disk/apste_support_on_name
+    disk/check-software-raid
 
 id: after-suspend-disk-cert-automated
 unit: test plan
@@ -65,6 +66,7 @@ include:
     disk/stats_name
     disk/read_performance_name
     disk/storage_device_name
+    disk/check-software-raid
 bootstrap_include:
     device
 

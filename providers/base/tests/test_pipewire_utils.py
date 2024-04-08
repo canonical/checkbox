@@ -20,11 +20,10 @@
 
 import unittest
 import sys
-from unittest.mock import MagicMock, patch, call
+from unittest.mock import MagicMock, patch
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
 from pipewire_utils import *
-from io import StringIO
 
 
 class GetPwTypeTests(unittest.TestCase):

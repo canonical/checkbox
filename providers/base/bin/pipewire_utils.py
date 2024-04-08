@@ -24,6 +24,7 @@ import logging
 import time
 import json
 import sys
+import re
 import gi
 gi.require_version('Gst', '1.0')
 gi.require_version('GLib', '2.0')
@@ -75,7 +76,7 @@ class PipewireTest:
         :param media_class: sink(s) or source(s)
         :type media_class: str
 
-        :returns: "Ouput", "Input" or "UNKNOWN CLASS"
+        :returns: "Output", "Input" or "UNKNOWN CLASS"
         :"rtype": str
         """
         if media_class.lower() in ["sink", "sinks"]:
@@ -182,7 +183,7 @@ class PipewireTest:
         :type media_class: str
 
         :param device: device type, such as hdmi, usb and bluez etc.
-        :type devide: str
+        :type device: str
         """
         mclass = self.generate_pw_media_class(media_type, media_class)
         if mclass in ["UNKNOWN CLASS", "UNKNOWN TYPE"]:
@@ -254,7 +255,7 @@ class PipewireTest:
                             self.logger.info(
                                     "[ Audio sink ]".center(80, '='))
                             self.logger.info(
-                                    "Device: [{}] availavle: [{}]"
+                                    "Device: [{}] available: [{}]"
                                     .format(route["description"],
                                             available))
                             return True
@@ -275,7 +276,7 @@ class PipewireTest:
         :type timeout: int
 
         :param device: device type, such as hdmi etc.
-        :type devide: str
+        :type device: str
         """
         if device:
             if not self._check_state(device):
@@ -408,7 +409,7 @@ class PipewireTest:
         """
         Get node description from the output of wpctl inspect
 
-        :param properties: output of wpctl inxpect
+        :param properties: output of wpctl inspect
         :type properties: str
 
         :returns: the node description
@@ -451,6 +452,50 @@ class PipewireTest:
                              " please change them before testing")
         except subprocess.CalledProcessError as e:
             raise RuntimeError("Show default device error {}".format(repr(e)))
+
+    def _sort_wpctl_status(self, lines: list) -> list:
+        """
+        This method will sort wpctl status for sub-items under catalog only
+
+        :param lines: the wpctl status you would like to sort
+
+        :returns: sorted wpctl status
+        """
+        catalog = [" └─ Clients:", " ├─ Devices:", " ├─ Sinks:",
+                   " ├─ Sink endpoints:", " ├─ Sources:",
+                   " ├─ Source endpoints:", " └─ Streams:",
+                   " └─ Default Configured Node Names:"]
+        sorted_lines = []
+        sub_items = []
+        for line in lines:
+            clean_line = re.sub(", pid:.*| [0-9]+\\. ", "", line)
+            # only sort needed items
+            if clean_line in catalog:
+                # found next catalog, append sorted sub_items
+                [sorted_lines.append(item) for item in sorted(sub_items)]
+                # clean up after append
+                sub_items = []
+                sorted_lines.append(clean_line)
+            else:
+                sub_items.append(clean_line)
+        [sorted_lines.append(item) for item in sorted(sub_items)]
+        return sorted_lines
+
+    def compare_wpctl_status(self, status_1: str, status_2: str):
+        """
+        This method will sort wpctl status for sub-items under catalog only
+
+        :param status_1: path to first wpctl status
+
+        :param status_2: path to second wpctl status
+        """
+        with open(status_1, 'r') as s1, open(status_2, 'r') as s2:
+            sorted_status_1 = self._sort_wpctl_status(s1.readlines())
+            sorted_status_2 = self._sort_wpctl_status(s2.readlines())
+            delta = set(sorted_status_2) - set(sorted_status_1)
+            if len(delta):
+                self.logger.info(''.join(delta))
+                raise SystemExit("Status not match !!!")
 
     def _args_parsing(self, args=sys.argv[1:]):
         parser = argparse.ArgumentParser(
@@ -533,6 +578,16 @@ class PipewireTest:
                 "-t", "--type", type=str, required=True,
                 help="VIDEO or AUDIO")
 
+        # Add parser for compare wpctl status function
+        parser_compare = subparsers.add_parser(
+                'compare_wpctl_status', help='compare wpctl status')
+        parser_compare.add_argument(
+                "-s1", "--status_1", type=str, required=True,
+                help="path to first output of wpctl status")
+        parser_compare.add_argument(
+                "-s2", "--status_2", type=str, required=True,
+                help="path to second output of wpctl status")
+
         return parser.parse_args(args)
 
     def function_select(self, args):
@@ -554,6 +609,9 @@ class PipewireTest:
         elif args.test_type == "show":
             # show_default_device("AUDIO")
             return self.show_default_device(args.type)
+        elif args.test_type == "compare_wpctl_status":
+            # compare_wpctl_status(STATUS_1, STATUS_2)
+            return self.compare_wpctl_status(args.status_1, args.status_2)
 
 
 if __name__ == "__main__":

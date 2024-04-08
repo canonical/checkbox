@@ -356,7 +356,9 @@ class RunTestTests(unittest.TestCase):
         mock_peak.return_value = [5035]
         self.assertEqual(0, run_test(process_arguments(["--debug"])))
 
+    @patch("pipewire_test.FileDumper.write_to_file")
     @patch("pipewire_test.VolumeController._wpctl_output")
-    def test_with_spectrum(self, mock_wpctl):
+    def test_with_spectrum(self, mock_wpctl, mock_fd):
+        mock_fd.return_value = True
         self.assertEqual(1,
                          run_test(process_arguments(["-u", "8", "--quiet"])))

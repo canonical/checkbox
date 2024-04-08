@@ -20,10 +20,9 @@
 
 import unittest
 import sys
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
-from unittest.mock import patch
 from pipewire_utils import *
 
 
@@ -590,6 +589,242 @@ class ShowDefaultDeviceTests(unittest.TestCase):
                                       universal_newlines=True)
 
 
+class SortWpctlStatusTests(unittest.TestCase):
+
+    status = """
+PipeWire 'pipewire-0' [0.3.79, u@u-Precision-5550, cookie:2611513056]
+ └─ Clients:
+      31. pipewire                        [0.3.79, u@u-Precision-5550, pid:135]
+      33. WirePlumber                     [0.3.79, u@u-Precision-5550, pid:135]
+      34. WirePlumber [export]            [0.3.79, u@u-Precision-5550, pid:135]
+      48. GNOME Volume Control Media Keys [0.3.79, u@u-Precision-5550, pid:222]
+      49. gnome-shell                     [0.3.79, u@u-Precision-5550, pid:197]
+      50. GNOME Shell Volume Control      [0.3.79, u@u-Precision-5550, pid:197]
+      51. xdg-desktop-portal              [0.3.79, u@u-Precision-5550, pid:215]
+      52. Terminal                        [0.3.79, u@u-Precision-5550, pid:282]
+      53. Mutter                          [0.3.79, u@u-Precision-5550, pid:197]
+      67. wpctl                           [0.3.79, u@u-Precision-5550, pid:159]
+
+Audio
+ ├─ Devices:
+ │      40. Built-in Audio                      [alsa]
+ │      54. G435 Bluetooth Gaming Headset       [bluez5]
+ │
+ ├─ Sinks:
+ │  *   59. G435 Bluetooth Gaming Headset       [vol: 0.62]
+ │      62. Built-in Audio Analog Stereo        [vol: 0.50]
+ │
+ ├─ Sink endpoints:
+ │
+ ├─ Sources:
+ │  *   47. Built-in Audio Analog Stereo        [vol: 0.10]
+ │
+ ├─ Source endpoints:
+ │
+ └─ Streams:
+
+Video
+ ├─ Devices:
+ │
+ ├─ Sinks:
+ │
+ ├─ Sink endpoints:
+ │
+ ├─ Sources:
+ │
+ ├─ Source endpoints:
+ │
+ └─ Streams:
+
+Settings
+ └─ Default Configured Node Names:
+         0. Audio/Sink    Headphone_Jack_SA1023_2206153136-00.iec958-stereo
+         1. Audio/Source  Headphone_Jack_SA1023_2206153136-00.mono-fallback.2
+"""
+
+    status_sorted = """
+PipeWire 'pipewire-0' [0.3.79, u@u-Precision-5550, cookie:2611513056]
+ └─ Clients:
+
+     GNOME Shell Volume Control      [0.3.79, u@u-Precision-5550
+     GNOME Volume Control Media Keys [0.3.79, u@u-Precision-5550
+     Mutter                          [0.3.79, u@u-Precision-5550
+     Terminal                        [0.3.79, u@u-Precision-5550
+     WirePlumber                     [0.3.79, u@u-Precision-5550
+     WirePlumber [export]            [0.3.79, u@u-Precision-5550
+     gnome-shell                     [0.3.79, u@u-Precision-5550
+     pipewire                        [0.3.79, u@u-Precision-5550
+     wpctl                           [0.3.79, u@u-Precision-5550
+     xdg-desktop-portal              [0.3.79, u@u-Precision-5550
+Audio
+ ├─ Devices:
+ │
+ │     Built-in Audio                      [alsa]
+ │     G435 Bluetooth Gaming Headset       [bluez5]
+ ├─ Sinks:
+ │
+ │     Built-in Audio Analog Stereo        [vol: 0.50]
+ │  *  G435 Bluetooth Gaming Headset       [vol: 0.62]
+ ├─ Sink endpoints:
+ │
+ ├─ Sources:
+ │
+ │  *  Built-in Audio Analog Stereo        [vol: 0.10]
+ ├─ Source endpoints:
+ │
+ └─ Streams:
+
+Video
+ ├─ Devices:
+ │
+ ├─ Sinks:
+ │
+ ├─ Sink endpoints:
+ │
+ ├─ Sources:
+ │
+ ├─ Source endpoints:
+ │
+ └─ Streams:
+
+Settings
+ └─ Default Configured Node Names:
+        Audio/Sink    Headphone_Jack_SA1023_2206153136-00.iec958-stereo
+        Audio/Source  Headphone_Jack_SA1023_2206153136-00.mono-fallback.2
+"""
+
+    def test_sort(self):
+        pt = PipewireTest()
+        rv = pt._sort_wpctl_status(self.status.splitlines())
+        self.assertEqual(rv, self.status_sorted.splitlines())
+
+
+class CompareWpctlStatusTests(unittest.TestCase):
+
+    status_sorted = """
+PipeWire 'pipewire-0' [0.3.79, u@u-Precision-5550, cookie:2611513056]
+ └─ Clients:
+
+     GNOME Shell Volume Control      [0.3.79, u@u-Precision-5550]
+     GNOME Volume Control Media Keys [0.3.79, u@u-Precision-5550]
+     Mutter                          [0.3.79, u@u-Precision-5550]
+     Terminal                        [0.3.79, u@u-Precision-5550]
+     WirePlumber                     [0.3.79, u@u-Precision-5550]
+     WirePlumber [export]            [0.3.79, u@u-Precision-5550]
+     gnome-shell                     [0.3.79, u@u-Precision-5550]
+     pipewire                        [0.3.79, u@u-Precision-5550]
+     wpctl                           [0.3.79, u@u-Precision-5550]
+     xdg-desktop-portal              [0.3.79, u@u-Precision-5550]
+Audio
+ ├─ Devices:
+ │
+ │     Built-in Audio                      [alsa]
+ │     G435 Bluetooth Gaming Headset       [bluez5]
+ ├─ Sinks:
+ │
+ │     Built-in Audio Analog Stereo        [vol: 0.50]
+ │  *  G435 Bluetooth Gaming Headset       [vol: 0.62]
+ ├─ Sink endpoints:
+ │
+ ├─ Sources:
+ │
+ │  *  Built-in Audio Analog Stereo        [vol: 0.10]
+ ├─ Source endpoints:
+ │
+ └─ Streams:
+
+Video
+ ├─ Devices:
+ │
+ ├─ Sinks:
+ │
+ ├─ Sink endpoints:
+ │
+ ├─ Sources:
+ │
+ ├─ Source endpoints:
+ │
+ └─ Streams:
+
+Settings
+ └─ Default Configured Node Names:
+        Audio/Sink    Headphone_Jack_SA1023_2206153136-00.iec958-stereo
+        Audio/Source  Headphone_Jack_SA1023_2206153136-00.mono-fallback.2
+"""
+
+    status_sorted_not_match = """
+PipeWire 'pipewire-0' [0.3.79, u@u-Precision-5550, cookie:2611513056]
+ └─ Clients:
+
+     GNOME Shell Volume Control      [0.3.79, u@u-Precision-5550]
+     GNOME Volume Control Media Keys [0.3.79, u@u-Precision-5550]
+     Mutter                          [0.3.79, u@u-Precision-5550]
+     Terminal                        [0.3.79, u@u-Precision-5550]
+     WirePlumber                     [0.3.79, u@u-Precision-5550]
+     WirePlumber [export]            [0.3.79, u@u-Precision-5550]
+     gnome-shell                     [0.3.79, u@u-Precision-5550]
+     pipewire                        [0.3.79, u@u-Precision-5550]
+     wpctl                           [0.3.79, u@u-Precision-5550]
+     zdg-desktop-portal              [0.3.79, u@u-Precision-5550]
+Audio
+ ├─ Devices:
+ │
+ │     Built-in Audio                      [alsa]
+ │     G435 Bluetooth Gaming Headset       [bluez5]
+ ├─ Sinks:
+ │
+ │     Built-in Audio Analog Stereo        [vol: 0.50]
+ │  *  G435 Bluetooth Gaming Headset       [vol: 0.62]
+ ├─ Sink endpoints:
+ │
+ ├─ Sources:
+ │
+ │  *  Built-in Audio Analog Stereo        [vol: 0.10]
+ ├─ Source endpoints:
+ │
+ └─ Streams:
+
+Video
+ ├─ Devices:
+ │
+ ├─ Sinks:
+ │
+ ├─ Sink endpoints:
+ │
+ ├─ Sources:
+ │
+ ├─ Source endpoints:
+ │
+ └─ Streams:
+
+Settings
+ └─ Default Configured Node Names:
+        Audio/Sink    Headphone_Jack_SA1023_2206153136-00.iec958-stereo
+        Audio/Source  Headphone_Jack_SA1023_2206153136-00.mono-fallback.2
+"""
+
+    status_sorted_list = status_sorted.splitlines()
+    status_sorted_not_match_list = status_sorted_not_match.splitlines()
+
+    @patch("builtins.open", read_data=[])
+    @patch("pipewire_utils.PipewireTest._sort_wpctl_status")
+    def test_match(self, mock_wp_status, mock_open):
+        pt = PipewireTest()
+        mock_wp_status.side_effect = [self.status_sorted_list,
+                                      self.status_sorted_list]
+        rv = pt.compare_wpctl_status("s1", "s2")
+        self.assertEqual(rv, None)
+
+    @patch("builtins.open", read_data=[])
+    @patch("pipewire_utils.PipewireTest._sort_wpctl_status")
+    def test_not_match(self, mock_wp_status, mock_open):
+        pt = PipewireTest()
+        mock_wp_status.side_effect = [self.status_sorted_list,
+                                      self.status_sorted_not_match_list]
+        with self.assertRaises(SystemExit):
+            pt.compare_wpctl_status("s1", "s2")
+
+
 class ArgsParsingTests(unittest.TestCase):
     def test_success(self):
         pt = PipewireTest()
@@ -638,6 +873,11 @@ class ArgsParsingTests(unittest.TestCase):
         rv = pt._args_parsing(args)
         self.assertEqual(rv.type, "AUDIO")
 
+        args = ["compare_wpctl_status", "-s1", "s1", "-s2", "s2"]
+        rv = pt._args_parsing(args)
+        self.assertEqual(rv.status_1, "s1")
+        self.assertEqual(rv.status_2, "s2")
+
 
 class FunctionSelectTests(unittest.TestCase):
 
@@ -671,15 +911,22 @@ class FunctionSelectTests(unittest.TestCase):
         self.assertEqual(rv, 66)
 
     @patch("pipewire_utils.PipewireTest.go_through_ports", return_value=55)
-    def test_through(self, mock_monitor):
+    def test_through(self, mock_through):
         pt = PipewireTest()
         args = ["through", "-c", "echo", "-m", "mode"]
         rv = pt.function_select(pt._args_parsing(args))
         self.assertEqual(rv, 55)
 
     @patch("pipewire_utils.PipewireTest.show_default_device", return_value=44)
-    def test_show_default_device(self, mock_monitor):
+    def test_show_default_device(self, mock_show):
         pt = PipewireTest()
         args = ["show", "-t", "AUDIO"]
         rv = pt.function_select(pt._args_parsing(args))
         self.assertEqual(rv, 44)
+
+    @patch("pipewire_utils.PipewireTest.compare_wpctl_status", return_value=0)
+    def test_show_current_status(self, mock_status):
+        pt = PipewireTest()
+        args = ["compare_wpctl_status", "-s1", "s1", "-s2", "s2"]
+        rv = pt.function_select(pt._args_parsing(args))
+        self.assertEqual(rv, 0)

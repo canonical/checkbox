@@ -597,7 +597,7 @@ class ProviderContentLoader:
             or (self.provider.data_dir and filename.startswith(self.provider.data_dir))
             or (self.provider.bin_dir and filename.startswith(self.provider.bin_dir))
             or (self.provider.locale_dir and filename.startswith(self.provider.locale_dir))):
-            logger.warn("Skipped file: %s", filename)
+            logger.warning("Skipped file: %s", filename)
 
     def _load_file(self, filename, text, plugin_kwargs):
         # NOTE: text is lazy, call str() or iter() to see the real content This
@@ -1116,7 +1116,7 @@ class IQNValidator(PatternValidator):
 
     def __init__(self):
         super(IQNValidator, self).__init__(
-            "^([0-9]{4}\.)?[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*$")
+            r"^([0-9]{4}\.)?[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*$")
 
     def __call__(self, variable, new_value):
         if super(IQNValidator, self).__call__(variable, new_value):
@@ -1136,11 +1136,11 @@ class ProviderNameValidator(PatternValidator):
     """
 
     _PATTERN = (
-        "^"
-        "(([0-9]{4}\.)?[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*)"
-        "|"
-        "([a-z0-9-]+)"
-        "$"
+        r"^"
+        r"(([0-9]{4}\.)?[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*)"
+        r"|"
+        r"([a-z0-9-]+)"
+        r"$"
     )
 
     def __init__(self):
@@ -1160,34 +1160,34 @@ class VersionValidator(PatternValidator):
     """
 
     _PATTERN = (
-        "v?"
-        "(?:"
-        "(?:(?P<epoch>[0-9]+)!)?"                           # epoch
-        "(?P<release>[0-9]+(?:\.[0-9]+)*)"                  # release segment
-        "(?P<pre>"                                          # pre-release
-        "[-_\.]?"
-        "(?P<pre_l>(a|b|c|rc|alpha|beta|pre|preview))"
-        "[-_\.]?"
-        "(?P<pre_n>[0-9]+)?"
-        ")?"
-        "(?P<post>"                                         # post release
-        "(?:-(?P<post_n1>[0-9]+))"
-        "|"
-        "(?:"
-        "[-_\.]?"
-        "(?P<post_l>post|rev|r)"
-        "[-_\.]?"
-        "(?P<post_n2>[0-9]+)?"
-        ")"
-        ")?"
-        "(?P<dev>"                                          # dev release
-        "[-_\.]?"
-        "(?P<dev_l>dev)"
-        "[-_\.]?"
-        "(?P<dev_n>[0-9]+)?"
-        ")?"
-        ")"
-        "(?:\+(?P<local>[a-z0-9]+(?:[-_\.][a-z0-9]+)*))?"   # local version
+        r"v?"
+        r"(?:"
+        r"(?:(?P<epoch>[0-9]+)!)?"                           # epoch
+        r"(?P<release>[0-9]+(?:\.[0-9]+)*)"                  # release segment
+        r"(?P<pre>"                                          # pre-release
+        r"[-_\.]?"
+        r"(?P<pre_l>(a|b|c|rc|alpha|beta|pre|preview))"
+        r"[-_\.]?"
+        r"(?P<pre_n>[0-9]+)?"
+        r")?"
+        r"(?P<post>"                                         # post release
+        r"(?:-(?P<post_n1>[0-9]+))"
+        r"|"
+        r"(?:"
+        r"[-_\.]?"
+        r"(?P<post_l>post|rev|r)"
+        r"[-_\.]?"
+        r"(?P<post_n2>[0-9]+)?"
+        r")"
+        r")?"
+        r"(?P<dev>"                                          # dev release
+        r"[-_\.]?"
+        r"(?P<dev_l>dev)"
+        r"[-_\.]?"
+        r"(?P<dev_n>[0-9]+)?"
+        r")?"
+        r")"
+        r"(?:\+(?P<local>[a-z0-9]+(?:[-_\.][a-z0-9]+)*))?"   # local version
     )
 
     def __init__(self):

@@ -78,7 +78,7 @@ def json_load_ordered_dict(text):
 
 def highlight_keys(text):
     """A filter for rendering keys as bold html text."""
-    return re.sub('(\w+:\s)', r'<b>\1</b>', text)
+    return re.sub(r'(\w+:\s)', r'<b>\1</b>', text)
 
 
 class Jinja2SessionStateExporter(SessionStateExporterBase):

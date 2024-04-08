@@ -155,7 +155,7 @@ class RegExpJobQualifier(SimpleQualifier):
             # XXX: This is a bit crazy but this lets us have identical error
             # messages across python3.2 all the way to 3.5. I really really
             # wish there was a better way at fixing this.
-            exc.args = (re.sub(" at position \d+", "", exc.args[0]), )
+            exc.args = (re.sub(r" at position \d+", "", exc.args[0]), )
             raise exc
         self._pattern_text = pattern
 

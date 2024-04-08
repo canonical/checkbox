@@ -239,30 +239,30 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         if resource in data['attachment_map']:
             lspci = data['attachment_map'][resource]
             content = standard_b64decode(lspci.encode()).decode("UTF-8")
-            match = re.search('ISA bridge.*?:\s(?P<chipset>.*?)\sLPC', content)
+            match = re.search(r'ISA bridge.*?:\s(?P<chipset>.*?)\sLPC', content)
             if match:
                 hw_info['chipset'] = match.group('chipset')
             match = re.search(
-                'Audio device.*?:\s(?P<audio>.*?)\s\[\w+:\w+]', content)
+                r'Audio device.*?:\s(?P<audio>.*?)\s\[\w+:\w+]', content)
             if match:
                 hw_info['audio'] = match.group('audio')
             match = re.search(
-                'Ethernet controller.*?:\s(?P<nic>.*?)\s\[\w+:\w+]', content)
+                r'Ethernet controller.*?:\s(?P<nic>.*?)\s\[\w+:\w+]', content)
             if match:
                 hw_info['nic'] = match.group('nic')
             match = re.search(
-                'Network controller.*?:\s(?P<wireless>.*?)\s\[\w+:\w+]',
+                r'Network controller.*?:\s(?P<wireless>.*?)\s\[\w+:\w+]',
                 content)
             if match:
                 hw_info['wireless'] = match.group('wireless')
             for i, match in enumerate(re.finditer(
-                'VGA compatible controller.*?:\s(?P<video>.*?)\s\[\w+:\w+]',
+                r'VGA compatible controller.*?:\s(?P<video>.*?)\s\[\w+:\w+]',
                 content), start=1
             ):
                 hw_info['video{}'.format(i)] = match.group('video')
             vram = 0
             for match in re.finditer(
-                    'Memory.+ prefetchable\) \[size=(?P<vram>\d+)M\]',
+                    r'Memory.+ prefetchable\) \[size=(?P<vram>\d+)M\]',
                     content):
                 vram += int(match.group('vram'))
             if vram:

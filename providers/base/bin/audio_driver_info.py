@@ -24,9 +24,9 @@ from checkbox_support.parsers.modinfo import ModinfoParser
 
 TYPES = ("source", "sink")
 
-entries_regex = re.compile("index.*?(?=device.icon_name)", re.DOTALL)
-driver_regex = re.compile("(?<=driver_name = )\"(.*)\"")
-name_regex = re.compile("(?<=name:).*")
+entries_regex = re.compile(r"index.*?(?=device.icon_name)", re.DOTALL)
+driver_regex = re.compile(r"(?<=driver_name = )\"(.*)\"")
+name_regex = re.compile(r"(?<=name:).*")
 
 
 class PacmdAudioDevice():

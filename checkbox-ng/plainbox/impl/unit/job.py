@@ -432,7 +432,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             return value
         elif value is None:
             return None
-        match = re.match('^(\d+h)?[ :]*(\d+m)?[ :]*(\d+s)?$', value)
+        match = re.match(r'^(\d+h)?[ :]*(\d+m)?[ :]*(\d+s)?$', value)
         if match:
             g_hours = match.group(1)
             if g_hours:
@@ -532,7 +532,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         Return a set of requested environment variables
         """
         if self.environ is not None:
-            return {variable for variable in re.split('[\s,]+', self.environ)}
+            return {variable for variable in re.split(r'[\s,]+', self.environ)}
         else:
             return set()
 
@@ -542,7 +542,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         Return a set of flags associated with this job
         """
         if self.flags is not None:
-            return {flag for flag in re.split('[\s,]+', self.flags)}
+            return {flag for flag in re.split(r'[\s,]+', self.flags)}
         else:
             return set()
 

@@ -131,7 +131,7 @@ class ExporterUnit(UnitWithId):
                 concrete_validators.present,
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
-                    lambda extension: re.search("^[\w\.\-]+$", extension),
+                    lambda extension: re.search(r"^[\w\.\-]+$", extension),
                     Problem.syntax_error, Severity.error),
             ],
             fields.options: [

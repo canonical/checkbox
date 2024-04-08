@@ -352,7 +352,7 @@ class SessionAssistant:
 
         :param ctrl_setup_list:
             An iterable with tuples, where each tuple represents a class of
-            controller to instantiate, together with \*args and \*\*kwargs to
+            controller to instantiate, together with *args and **kwargs to
             use when calling its __init__.
         :raises UnexpectedMethodCall:
             If the call is made at an unexpected time. Do not catch this error.

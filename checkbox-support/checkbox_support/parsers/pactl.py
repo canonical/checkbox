@@ -417,7 +417,7 @@ VolumeAttributeValue = (
             p.Or([
                 p.Literal("(invalid)"),
                 p.Regex(r"([\w\-]+: [0-9]+ / +[0-9]+%(?: /"
-                        " +-?([0-9]+\.[0-9]+|inf) dB)?,? *)+")
+                        r" +-?([0-9]+\.[0-9]+|inf) dB)?,? *)+")
             ])
         ])
         + p.LineEnd()

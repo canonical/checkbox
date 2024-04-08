@@ -46,7 +46,7 @@ def normalize_rfc822_value(value):
     # values, so let's run those operations only on multi-line values
     if value.count('\n') > 1:
         # Remove the multi-line dot marker
-        value = re.sub('^(\s*)\.$', '\\1', value, flags=re.M)
+        value = re.sub(r'^(\s*)\.$', '\\1', value, flags=re.M)
         # Remove consistent indentation
         value = textwrap.dedent(value)
     # Strip the remaining whitespace

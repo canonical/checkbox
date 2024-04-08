@@ -999,7 +999,7 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     @classmethod
     def _rewrite_pathname(cls, pathname, location):
         return re.sub(
-            '.*\/\.cache\/plainbox\/sessions/[^//]+', location, pathname)
+            r'.*\/\.cache\/plainbox\/sessions/[^//]+', location, pathname)
 
     @classmethod
     def _build_IOLogRecord(cls, record_repr):

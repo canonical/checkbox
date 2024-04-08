@@ -225,7 +225,7 @@ class TestPlanUnit(UnitWithId):
         value = self.get_record_value('estimated_duration')
         if value is None:
             return None
-        match = re.match('^(\d+h)?[ :]*(\d+m)?[ :]*(\d+s)?$', value)
+        match = re.match(r'^(\d+h)?[ :]*(\d+m)?[ :]*(\d+s)?$', value)
         if match:
             g_hours = match.group(1)
             if g_hours:

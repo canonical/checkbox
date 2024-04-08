@@ -57,13 +57,13 @@ logger = logging.getLogger("plainbox.result")
 # NOTE: we don't want to match certain control characters (newlines, carriage
 # returns, tabs or vertical tabs).
 CONTROL_CODE_RE_STR = re.compile(
-    "(?![\n\r\t\v])[\u0000-\u001F]|[\u007F-\u009F]")
+    r"(?![\n\r\t\v])[\u0000-\u001F]|[\u007F-\u009F]")
 
 # Regular expression that matches ANSI Escape Sequences (e.g. arrow keys)
 # For more info, see <http://stackoverflow.com/a/33925425>
 #
 # We use this to sanitize comments entered during testing
-ANSI_ESCAPE_SEQ_RE_STR = re.compile("(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]")
+ANSI_ESCAPE_SEQ_RE_STR = re.compile(r"(\x9B|\x1B\[)[0-?]*[ -\/]*[@-~]")
 
 # Tuple representing entries in the JobResult.io_log
 # Each entry has three fields:
@@ -353,7 +353,7 @@ class _JobResultBase(IJobResult):
     def comments(self):
         """
         Get the comments of the test operator.
-        
+
         The comments are sanitized to remove control characters that would
         cause problems when parsing the submission file.
         """

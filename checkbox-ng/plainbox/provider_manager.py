@@ -249,7 +249,7 @@ class InstallCommand(ManageCommand):
                 for src, dest in sorted(layout.items())
             )
         return re.sub(
-            '@LAYOUT\[(\w+)]@',
+            r'@LAYOUT\[(\w+)]@',
             lambda m: format_layout(self._INSTALL_LAYOUT[m.group(1)]),
             super().get_command_epilog())
 

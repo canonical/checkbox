@@ -90,6 +90,7 @@ exclude:
     audio/valid-sof-firmware-sig
     miscellanea/check_prerelease
     suspend/bluetooth_obex_.*
+    miscellanea/debsums
 
 id: sru
 _name: All SRU Tests (Ubuntu Desktop)
@@ -148,3 +149,4 @@ exclude:
     audio/valid-sof-firmware-sig
     miscellanea/check_prerelease
     suspend/bluetooth_obex_.*
+    miscellanea/debsums

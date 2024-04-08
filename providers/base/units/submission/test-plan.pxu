@@ -24,3 +24,4 @@ mandatory_include:
     # Meta-job to include required resources, don't remove.
     miscellanea/submission-resources
     info/systemd-analyze                  certification-status=non-blocker
+    info/systemd-analyze-critical-chain   certification-status=non-blocker

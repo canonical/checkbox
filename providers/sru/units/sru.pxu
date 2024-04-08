@@ -29,6 +29,7 @@ include:
     recovery_info_attachment
     miscellanea/submission-resources
     info/systemd-analyze
+    info/systemd-analyze-critical-chain
     net_if_management_attachment
     audio/alsa_record_playback_automated
     install/apt-get-gets-updates
@@ -107,6 +108,7 @@ include:
     recovery_info_attachment
     miscellanea/submission-resources
     info/systemd-analyze
+    info/systemd-analyze-critical-chain
     net_if_management_attachment
     audio/alsa_record_playback_automated
     graphics/xorg-version

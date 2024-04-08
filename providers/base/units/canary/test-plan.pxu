@@ -54,6 +54,7 @@ include:
  com.canonical.certification::lsb
  com.canonical.certification::miscellanea/submission-resources
  com.canonical.certification::info/systemd-analyze
+ com.canonical.certification::info/systemd-analyze-critical-chain
  com.canonical.certification::firmware/fwts_desktop_diagnosis
  com.canonical.certification::firmware/fwts_desktop_diagnosis_results.log.gz
  com.canonical.certification::acpi/oem_osi

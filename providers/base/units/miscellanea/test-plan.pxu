@@ -92,4 +92,5 @@ mandatory_include:
     miscellanea/apport-directory               certification-status=non-blocker
     miscellanea/ipmi_test                      certification-status=blocker
     info/systemd-analyze                       certification-status=non-blocker
+    info/systemd-analyze-critical-chain        certification-status=non-blocker
 include:

@@ -464,6 +464,19 @@ command:
  timeout 60 systemctl is-system-running --wait > /dev/null
  systemd-analyze
 
+plugin: shell
+category_id: com.canonical.plainbox::info
+id: info/systemd-analyze-critical-chain
+estimated_duration: 0.2
+_summary: Print the tree of the time-critical chain of SystemD
+_purpose:
+ This job prints a tree of the time-critical chain of SystemD units.
+command:
+ # Wait for boot to complete
+ # https://github.com/systemd/systemd/pull/9796
+ timeout 60 systemctl is-system-running --wait > /dev/null
+ systemd-analyze critical-chain
+
 id: lstopo_verbose_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info

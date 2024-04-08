@@ -69,25 +69,6 @@ class PipewireTest:
     """
     logger = logging.getLogger()
 
-    def _run_command(self, cmd: dict, shell=False) -> str:
-        """
-        use subprocess.check_output to execute command
-
-        :param cmd: the command will be executed
-
-        :param shell: enbale shell or not
-
-        :returns: Ouput of command
-        """
-        try:
-            return subprocess.check_output(cmd,
-                                           shell=shell,
-                                           universal_newlines=True)
-
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            raise SystemExit("Running command:{} failed due to {}"
-                             .format(cmd, repr(e)))
-
     def _get_pw_type(self, media_class) -> str:
         """
         convert sink to Output and source to Input
@@ -472,55 +453,49 @@ class PipewireTest:
         except subprocess.CalledProcessError as e:
             raise RuntimeError("Show default device error {}".format(repr(e)))
 
-    def _sort_and_print(self, lines: list) -> bool:
+    def _sort_wpctl_status(self, lines: list) -> list:
         """
-        This method will sort the string array and print the sorted result
+        This method will sort wpctl status for sub-items under catalog only
 
-        :param lines: the string list you would like to sort and print
+        :param lines: the wpctl status you would like to sort
 
-        :returns: is sorted and printed or not
-        """
-        if len(lines) > 0:
-            sorted_lines = sorted(lines)
-            for e in sorted_lines:
-                # logger couldn't pipe to file
-                print("{}".format(e))
-            return True
-        else:
-            return False
-
-    def show_current_status(self):
-        """
-        show current pipewire configuration status
-
+        :returns: sorted wpctl status
         """
         catalog = [" └─ Clients:", " ├─ Devices:", " ├─ Sinks:",
                    " ├─ Sink endpoints:", " ├─ Sources:",
                    " ├─ Source endpoints:", " └─ Streams:",
                    " └─ Default Configured Node Names:"]
-        cmd = ["wpctl", "status"]
-        output = self._run_command(cmd)
-
-        # remove pid that will be changed after suspend
-        clean_pid = re.sub(", pid:.*", "]", output)
-        # device id and order will be changed after suspend
-        # since kernel 6.5.0.26
-        # Therefore remvoe the device id and sort the lines
-        clean_did = re.sub(" [0-9]+\\. ", "", clean_pid).splitlines()
-        stored_lines = []
-        for line in clean_did:
+        storted_lines = []
+        sub_items = []
+        for line in lines:
+            clean_line = re.sub(", pid:.*| [0-9]+\\. ", "", line)
             # only sort needed items
-            if line in catalog:
-                # found next catalog, print store_lines
-                if self._sort_and_print(stored_lines):
-                    stored_lines = []
-                # logger couldn't pipe to file
-                print("{}".format(line))
+            if clean_line in catalog:
+                # found next catalog, append sorted sub_items
+                [storted_lines.append(item) for item in sorted(sub_items)]
+                # clean up after append
+                sub_items = []
+                storted_lines.append(clean_line)
             else:
-                stored_lines.append(line)
+                sub_items.append(clean_line)
+        [storted_lines.append(item) for item in sorted(sub_items)]
+        return storted_lines
 
-        # print store_lines that hasn't printed
-        self._sort_and_print(stored_lines)
+    def compare_wpctl_status(self, status_1: str, status_2: str):
+        """
+        This method will sort wpctl status for sub-items under catalog only
+
+        :param status_1: path to first wpctl status
+
+        :param status_2: path to second wpctl status
+        """
+        with open(status_1, 'r') as s1, open(status_2, 'r') as s2:
+            sorted_status_1 = self._sort_wpctl_status(s1.readlines())
+            sorted_status_2 = self._sort_wpctl_status(s2.readlines())
+            delta = set(sorted_status_2) - set(sorted_status_1)
+            if len(delta):
+                self.logger.info(''.join(delta))
+                raise SystemExit("Status not match !!!")
 
     def _args_parsing(self, args=sys.argv[1:]):
         parser = argparse.ArgumentParser(
@@ -603,10 +578,15 @@ class PipewireTest:
                 "-t", "--type", type=str, required=True,
                 help="VIDEO or AUDIO")
 
-        # Add parser for show current status function
-        parser_show = subparsers.add_parser(
-                'status',
-                help='show pipewire current status from wpctl status')
+        # Add parser for compare wpctl status function
+        parser_compare = subparsers.add_parser(
+                'compare_wpctl_status', help='compare wpctl status')
+        parser_compare.add_argument(
+                "-s1", "--status_1", type=str, required=True,
+                help="path to first output of wpctl status")
+        parser_compare.add_argument(
+                "-s2", "--status_2", type=str, required=True,
+                help="path to second output of wpctl status")
 
         return parser.parse_args(args)
 
@@ -629,9 +609,9 @@ class PipewireTest:
         elif args.test_type == "show":
             # show_default_device("AUDIO")
             return self.show_default_device(args.type)
-        elif args.test_type == "status":
-            # show_current_status()
-            return self.show_current_status()
+        elif args.test_type == "compare_wpctl_status":
+            # compare_wpctl_status(STATUS_1, STATUS_2)
+            return self.compare_wpctl_status(args.status_1, args.status_2)
 
 
 if __name__ == "__main__":

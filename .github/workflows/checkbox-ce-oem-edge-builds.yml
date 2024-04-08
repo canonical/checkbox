@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'contrib/checkbox-ce-oem**'
+      - 'contrib/checkbox-ce-oem/**'
   workflow_dispatch:
   workflow_call:
 

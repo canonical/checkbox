@@ -76,7 +76,7 @@ class PipewireTest:
         :param media_class: sink(s) or source(s)
         :type media_class: str
 
-        :returns: "Ouput", "Input" or "UNKNOWN CLASS"
+        :returns: "Output", "Input" or "UNKNOWN CLASS"
         :"rtype": str
         """
         if media_class.lower() in ["sink", "sinks"]:
@@ -183,7 +183,7 @@ class PipewireTest:
         :type media_class: str
 
         :param device: device type, such as hdmi, usb and bluez etc.
-        :type devide: str
+        :type device: str
         """
         mclass = self.generate_pw_media_class(media_type, media_class)
         if mclass in ["UNKNOWN CLASS", "UNKNOWN TYPE"]:
@@ -255,7 +255,7 @@ class PipewireTest:
                             self.logger.info(
                                     "[ Audio sink ]".center(80, '='))
                             self.logger.info(
-                                    "Device: [{}] availavle: [{}]"
+                                    "Device: [{}] available: [{}]"
                                     .format(route["description"],
                                             available))
                             return True
@@ -276,7 +276,7 @@ class PipewireTest:
         :type timeout: int
 
         :param device: device type, such as hdmi etc.
-        :type devide: str
+        :type device: str
         """
         if device:
             if not self._check_state(device):
@@ -409,7 +409,7 @@ class PipewireTest:
         """
         Get node description from the output of wpctl inspect
 
-        :param properties: output of wpctl inxpect
+        :param properties: output of wpctl inspect
         :type properties: str
 
         :returns: the node description

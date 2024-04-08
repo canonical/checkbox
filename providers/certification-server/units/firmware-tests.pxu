@@ -11,9 +11,9 @@ nested_part:
     com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
 include:
-    miscellanea/ipmi_test
-    miscellanea/bmc_info
-    firmware/fwts_server
+    miscellanea/ipmi_test                   certification-status=blocker
+    miscellanea/bmc_info                    certification-status=blocker
+    firmware/fwts_server                    certification-status=non-blocker
     firmware/fwts_server_results.log.gz
     memory/info
     miscellanea/oops                        certification-status=non-blocker

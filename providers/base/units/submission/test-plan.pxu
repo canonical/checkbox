@@ -23,4 +23,4 @@ include:
 mandatory_include:
     # Meta-job to include required resources, don't remove.
     miscellanea/submission-resources
-    info/systemd-analyze
+    info/systemd-analyze                  certification-status=non-blocker

@@ -465,21 +465,21 @@ class PipewireTest:
                    " ├─ Sink endpoints:", " ├─ Sources:",
                    " ├─ Source endpoints:", " └─ Streams:",
                    " └─ Default Configured Node Names:"]
-        storted_lines = []
+        sorted_lines = []
         sub_items = []
         for line in lines:
             clean_line = re.sub(", pid:.*| [0-9]+\\. ", "", line)
             # only sort needed items
             if clean_line in catalog:
                 # found next catalog, append sorted sub_items
-                [storted_lines.append(item) for item in sorted(sub_items)]
+                [sorted_lines.append(item) for item in sorted(sub_items)]
                 # clean up after append
                 sub_items = []
-                storted_lines.append(clean_line)
+                sorted_lines.append(clean_line)
             else:
                 sub_items.append(clean_line)
-        [storted_lines.append(item) for item in sorted(sub_items)]
-        return storted_lines
+        [sorted_lines.append(item) for item in sorted(sub_items)]
+        return sorted_lines
 
     def compare_wpctl_status(self, status_1: str, status_2: str):
         """

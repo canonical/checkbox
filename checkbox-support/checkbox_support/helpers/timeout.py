@@ -22,10 +22,30 @@ checkbox_support.helpers.timeout
 Utility class that provides functionalities connected to placing timeouts on
 functions
 """
-import threading
+import os
+import signal
+import psutil
+import multiprocessing
 
-from queue import Queue
-from contextlib import wraps
+from contextlib import wraps, suppress
+
+
+def kill_proc_tree(pid):
+    """
+    Best effort kill a process tree (including grandchildren)
+    """
+    process = psutil.Process(pid)
+    children = process.children(recursive=True)
+    for p in children:
+        with suppress(psutil.NoSuchProcess):
+            p.send_signal(signal.SIGTERM)
+    gone, alive = psutil.wait_procs(children, timeout=1)  # s
+    alive += process.children(recursive=True)
+    process.send_signal(signal.SIGKILL)
+    for p in alive:
+        with suppress(psutil.NoSuchProcess):
+            p.send_signal(signal.SIGKILL)
+    return psutil.wait_procs(alive, timeout=1)  # s
 
 
 def run_with_timeout(f, timeout_s, *args, **kwargs):
@@ -35,8 +55,8 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
     expiration of the timeout does not terminate the underlying task, therefore
     the process should exit to reach that goal.
     """
-    result_queue = Queue()
-    exception_queue = Queue()
+    result_queue = multiprocessing.Queue()
+    exception_queue = multiprocessing.Queue()
 
     def _f(*args, **kwargs):
         try:
@@ -44,11 +64,17 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
         except BaseException as e:
             exception_queue.put(e)
 
-    thread = threading.Thread(target=_f, args=args, kwargs=kwargs, daemon=True)
-    thread.start()
-    thread.join(timeout_s)
+    process = multiprocessing.Process(
+        target=_f, args=args, kwargs=kwargs, daemon=True
+    )
+    process.start()
+    process.join(timeout_s)
 
-    if thread.is_alive():
+    if process.is_alive():
+        # we must kill the full process tree to not leave any process orphaned
+        import subprocess
+        subprocess.run(["kill", "-9", "-{}".format(process.pid)])
+        #kill_proc_tree(process.pid)
         raise SystemExit(
             "Task unable to finish in {}s".format(timeout_s)
         ) from TimeoutError
@@ -71,3 +97,14 @@ def timeout(timeout_s):
         return _f
 
     return timeout_timeout_s
+
+
+@timeout(1)
+def main():
+    import subprocess
+
+    subprocess.check_call(["sleep", "10000"])
+
+
+if __name__ == "__main__":
+    main()

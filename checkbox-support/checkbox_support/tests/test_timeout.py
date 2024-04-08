@@ -72,7 +72,7 @@ class TestTimeoutExec(TestCase):
 
     def test_function_exception_propagation(self):
         with self.assertRaises(ValueError):
-            run_with_timeout(some_exception_raiser, 0)
+            run_with_timeout(some_exception_raiser, 1)
 
     def test_function_systemexit_propagation(self):
         with self.assertRaises(SystemExit):

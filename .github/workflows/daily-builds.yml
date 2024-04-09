@@ -17,8 +17,11 @@ jobs:
           fetch-depth: 0
       - name: Check for commits
         id: commit_check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          commit_count=$(git log --since="24 hours ago" --oneline -- checkbox-ng checkbox-support providers checkbox-core-snap checkbox-snap | wc -l)
+          export LAST_PASS_DAILY_BUILD=`gh api repos/canonical/checkbox/actions/runs --paginate --jq '.workflow_runs[] | select(.path = ".github/workflows/daily-builds.yml") | select(.conclusion = "success") | .run_started_at | .[:-1]' | head -1`
+          commit_count=$(git log --since="$LAST_PASS_DAILY_BUILD" --oneline -- checkbox-ng checkbox-support providers checkbox-core-snap checkbox-snap | wc -l)
           echo "new_commit_count=$commit_count" | tee $GITHUB_OUTPUT
 
   checkbox-core-snap-daily:

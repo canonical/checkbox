@@ -6,10 +6,16 @@ In this folder you can find the schema for the submission.json that's sent to ce
 
 `schema.json` contains the schema that was generated using ~2000 latest (at the time of writing) submissions uploaded to C3.
 
+This json file is referenced by the `docs/reference/submission-schema.rst` file, which is used to generate the 
+[submission schema reference documentation](https://checkbox.readthedocs.io/en/latest/reference/submission-schema.html).
+Changes in the schema are reflected after successful documentation build.
+
 ## Generating schema from scratch
 
 The `schema.json` can be generated using a existing submission tarballs.
 Follow the steps below to generate a fresh `schema.json`
+
+> As of Checkbox v4.0.0, the schema file needs manual clean-up and updates after generation. Ensure to compare the generated schema with the existing one to ensure that the changes are correct.
 
 ### Obtaining submission tarballs
 

@@ -358,7 +358,7 @@ summary:
 description:
     Run glxgears in full screen mode while offloading rendering to the {vendor}
     {product} GPU and validate the outcome automatically.
-    Test will cover all devices with integrated display, such as laptop and AIO.
+    This test covers all devices with an integrated display, such as laptops and all-in-one (AIO) devices.
 
 unit: template
 template-resource: graphics_card

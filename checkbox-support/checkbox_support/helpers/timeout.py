@@ -22,36 +22,40 @@ checkbox_support.helpers.timeout
 Utility class that provides functionalities connected to placing timeouts on
 functions
 """
-import threading
+import os
+import subprocess
+import multiprocessing
 
-from queue import Queue
 from contextlib import wraps
 
 
 def run_with_timeout(f, timeout_s, *args, **kwargs):
     """
     Runs a function with the given args and kwargs. If the function doesn't
-    terminate within timeout_s seconds, this raises SystemExit because the
-    expiration of the timeout does not terminate the underlying task, therefore
-    the process should exit to reach that goal.
+    terminate within timeout_s seconds, this raises TimeoutError the function
+    and any process it may have started.
+
+    Note: the function, *args and **kwargs must be picklable to use this.
     """
-    result_queue = Queue()
-    exception_queue = Queue()
+    result_queue = multiprocessing.Queue()
+    exception_queue = multiprocessing.Queue()
 
     def _f(*args, **kwargs):
+        os.setsid()
         try:
             result_queue.put(f(*args, **kwargs))
         except BaseException as e:
             exception_queue.put(e)
 
-    thread = threading.Thread(target=_f, args=args, kwargs=kwargs, daemon=True)
-    thread.start()
-    thread.join(timeout_s)
+    process = multiprocessing.Process(
+        target=_f, args=args, kwargs=kwargs, daemon=True
+    )
+    process.start()
+    process.join(timeout_s)
 
-    if thread.is_alive():
-        raise SystemExit(
-            "Task unable to finish in {}s".format(timeout_s)
-        ) from TimeoutError
+    if process.is_alive():
+        subprocess.run("kill -9 -- -{}".format(process.pid), shell=True)
+        raise TimeoutError("Task unable to finish in {}s".format(timeout_s))
     if not exception_queue.empty():
         raise exception_queue.get()
     return result_queue.get()

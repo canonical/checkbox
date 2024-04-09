@@ -329,7 +329,7 @@ summary:
 description:
     Run glxgears while offloading rendering to the {vendor} {product} GPU
     and ask tester to validate the outcome.
-    Test will cover all devices with integrated display, such as laptop and AIO.
+    This test covers all devices with an integrated display, such as laptops and all-in-one (AIO) devices.
 purpose:
     This test tests the basic 3D capabilities of your {vendor} {product} video card
 steps:

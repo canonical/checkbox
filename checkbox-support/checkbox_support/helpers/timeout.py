@@ -75,14 +75,3 @@ def timeout(timeout_s):
         return _f
 
     return timeout_timeout_s
-
-
-@timeout(1)
-def main():
-    import subprocess
-
-    subprocess.check_call(["sleep", "10000"])
-
-
-if __name__ == "__main__":
-    main()

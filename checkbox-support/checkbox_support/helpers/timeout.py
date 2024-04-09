@@ -32,9 +32,10 @@ from contextlib import wraps
 def run_with_timeout(f, timeout_s, *args, **kwargs):
     """
     Runs a function with the given args and kwargs. If the function doesn't
-    terminate within timeout_s seconds, this raises SystemExit because the
-    expiration of the timeout does not terminate the underlying task, therefore
-    the process should exit to reach that goal.
+    terminate within timeout_s seconds, this raises TimeoutError the function
+    and any process it may have started.
+
+    Note: the function, *args and **kwargs must be picklable to use this.
     """
     result_queue = multiprocessing.Queue()
     exception_queue = multiprocessing.Queue()
@@ -54,9 +55,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
 
     if process.is_alive():
         subprocess.run("kill -9 -- -{}".format(process.pid), shell=True)
-        raise SystemExit(
-            "Task unable to finish in {}s".format(timeout_s)
-        ) from TimeoutError
+        raise TimeoutError("Task unable to finish in {}s".format(timeout_s))
     if not exception_queue.empty():
         raise exception_queue.get()
     return result_queue.get()

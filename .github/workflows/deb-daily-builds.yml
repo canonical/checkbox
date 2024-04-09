@@ -32,6 +32,7 @@ jobs:
     name: Trigger and monitor PPA builds
     runs-on: [self-hosted, linux, jammy, large]
     needs: ppa_update
+    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     strategy:
       fail-fast: false
       matrix:

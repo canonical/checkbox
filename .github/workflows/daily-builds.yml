@@ -20,6 +20,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # get the last daily build that passed by
+          # 1. getting all workflows that are daily builds (path == ...)
+          # 2. removing those that did not result in success
+          # 3. selecting the date/time they started at (format: %Y-%m-%dT%H:%M:%sZ)
+          # 4. removing the Z postfix from the date to make it usable by git directly
           export LAST_PASS_DAILY_BUILD=`gh api repos/canonical/checkbox/actions/runs --paginate --jq '.workflow_runs[] | select(.path == ".github/workflows/daily-builds.yml") | select(.conclusion == "success") | .run_started_at | .[:-1]' | head -1`
           commit_count=$(git log --since="$LAST_PASS_DAILY_BUILD" --oneline -- checkbox-ng checkbox-support providers checkbox-core-snap checkbox-snap | wc -l)
           echo "new_commit_count=$commit_count" | tee $GITHUB_OUTPUT

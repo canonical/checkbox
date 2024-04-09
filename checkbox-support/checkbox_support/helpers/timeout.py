@@ -53,7 +53,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
     process.join(timeout_s)
 
     if process.is_alive():
-        subprocess.run(["kill", "-9", "-{}".format(os.getsid(process.pid))])
+        subprocess.run("bash -c 'kill -9 -- -{}'".format(process.pid), shell=True)
         raise SystemExit(
             "Task unable to finish in {}s".format(timeout_s)
         ) from TimeoutError

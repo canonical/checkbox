@@ -3,7 +3,6 @@
   build-backend = "setuptools.build_meta"
 [project]
   name = "metabox"
-  #url="https://launchpad.net/checkbox-ng/"
   authors = [
       {name = 'Maciej Kisielewski', email='maciej.kisielewski@canonical.com'},
       {name = 'Sylvain Pineau', email = 'sylvain.pineau@canonical.com'}
@@ -15,9 +14,7 @@
     "pyyaml",
     "urllib3 >= 1.26.0, < 2.0.0",
   ]
-  #test_suite='checkbox_ng.tests.test_suite'
   license={"text" = "GPLv3"}
-  #platforms=["POSIX"]
   description="Checkbox Integration Testing Tool"
   version='1.0'
 [tool.setuptools_scm]

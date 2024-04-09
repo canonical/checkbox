@@ -18,26 +18,6 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from setuptools import find_packages, setup
+from setuptools import setup
 
-setup(
-    name="metabox",
-    version="0.3",
-    packages=find_packages(),
-    install_requires=[
-        "importlib-resources",
-        "loguru",
-        "pylxd",
-        "pyyaml",
-        "urllib3 >= 1.26.0, < 2.0.0",
-    ],
-    entry_points={
-        "console_scripts": [
-            "metabox = metabox.main:main",
-        ]
-    },
-    include_package_data=True,
-    package_data={
-        "": ["metabox/metabox-provider/*"],
-    },
-)
+setup()

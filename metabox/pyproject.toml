@@ -1,0 +1,25 @@
+[build-system]
+  requires = ["setuptools>=42", "setuptools_scm[toml]>=3.4"]
+  build-backend = "setuptools.build_meta"
+[project]
+  name = "metabox"
+  authors = [
+      {name = 'Maciej Kisielewski', email='maciej.kisielewski@canonical.com'},
+      {name = 'Sylvain Pineau', email = 'sylvain.pineau@canonical.com'}
+  ]
+  dependencies = [
+    "importlib-resources",
+    "loguru",
+    "pylxd",
+    "pyyaml",
+    "urllib3 >= 1.26.0, < 2.0.0",
+  ]
+  license={"text" = "GPLv3"}
+  description="Checkbox Integration Testing Tool"
+  version='1.0'
+[tool.setuptools_scm]
+  root=".."
+[tool.setuptools.packages.find]
+  exclude = ["debian*"]
+[project.scripts]
+  metabox = "metabox.main:main"

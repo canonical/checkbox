@@ -10,6 +10,7 @@ Restart=always
 RestartSec=1
 TimeoutStopSec=30
 Type=simple
+OOMPolicy=continue
 
 [Install]
 WantedBy=multi-user.target

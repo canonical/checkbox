@@ -37,7 +37,7 @@ requires:
 _summary: Record mixer settings before suspending.
 command:
   if check_audio_daemon.sh ; then
-    wpctl status | sed 's/pid:.*/]/g' > "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
+    wpctl status > "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
   else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
   fi
@@ -453,11 +453,12 @@ depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
   if check_audio_daemon.sh ; then
-      wpctl status | sed 's/pid:.*/]/g' > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+      wpctl status > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+      pipewire_utils.py compare_wpctl_status -s1 "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend -s2 "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   else
       audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+      diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   fi
-  diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend
@@ -471,11 +472,12 @@ depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
 command:
   if check_audio_daemon.sh ; then
-    wpctl status | sed 's/pid:.*/]/g' > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+    wpctl status > "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+    pipewire_utils.py compare_wpctl_status -s1 "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend -s2 "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   else
     audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
+    diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
   fi
-  diff "$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend "$PLAINBOX_SESSION_SHARE"/audio_settings_after_suspend
 
 plugin: user-interact
 category_id: com.canonical.plainbox::suspend

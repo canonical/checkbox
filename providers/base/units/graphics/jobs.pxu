@@ -308,6 +308,7 @@ summary:
 description:
     Run glxgears while offloading rendering to the {vendor} {product} GPU
     and validate the outcome automatically.
+    Test will cover all devices with integrated display, such as laptop and AIO.
 
 unit: template
 template-resource: graphics_card
@@ -328,6 +329,7 @@ summary:
 description:
     Run glxgears while offloading rendering to the {vendor} {product} GPU
     and ask tester to validate the outcome.
+    Test will cover all devices with integrated display, such as laptop and AIO.
 purpose:
     This test tests the basic 3D capabilities of your {vendor} {product} video card
 steps:
@@ -356,6 +358,7 @@ summary:
 description:
     Run glxgears in full screen mode while offloading rendering to the {vendor}
     {product} GPU and validate the outcome automatically.
+    Test will cover all devices with integrated display, such as laptop and AIO.
 
 unit: template
 template-resource: graphics_card
@@ -376,6 +379,7 @@ summary:
 description:
     Run glxgears in full screen mode while offloading rendering to the {vendor}
     {product} GPU and as the tester to validate the outcome.
+    Test will cover all devices with integrated display, such as laptop and AIO.
 purpose:
     This test tests the basic fullscreen 3D capabilities of your {vendor} {product} video card
 steps:
@@ -395,14 +399,17 @@ requires:
 command:
  glxgears
  true
-_summary: Test that glxgears works for current video card
-_description:
- PURPOSE:
+summary:
+    Test that glxgears works for current video card
+description:
+    Run glxgears and as the tester to validate the outcome.
+    Test will cover all devices without integrated display, such as Desktop.
+purpose:
      This test tests the basic 3D capabilities of your current video card
- STEPS:
+steps:
      1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
      2. Verify that the animation is not jerky or slow.
- VERIFICATION:
+verification:
      1. Did the 3d animation appear?
      2. Was the animation free from slowness/jerkiness?
 
@@ -416,14 +423,17 @@ requires:
 command:
  glxgears -fullscreen
  true
-_summary: Test that glxgears works on fullscreen for current video card
-_description:
- PURPOSE:
+summary:
+    Test that glxgears works in full screen mode for current video card
+description:
+    Run glxgears in full screen mode and as the tester to validate the outcome.
+    Test will cover all devices without integrated display, such as Desktop.
+purpose:
      This test tests the basic fullscreen 3D capabilities of your current video card
- STEPS:
+steps:
      1. Click "Test" to execute an OpenGL demo. Press ESC at any time to close.
      2. Verify that the animation is not jerky or slow.
- VERIFICATION:
+verification:
      1. Did the 3d animation appear?
      2. Was the animation free from slowness/jerkiness?
 

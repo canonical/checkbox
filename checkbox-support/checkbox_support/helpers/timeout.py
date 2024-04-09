@@ -23,29 +23,10 @@ Utility class that provides functionalities connected to placing timeouts on
 functions
 """
 import os
-import signal
-import psutil
+import subprocess
 import multiprocessing
 
-from contextlib import wraps, suppress
-
-
-def kill_proc_tree(pid):
-    """
-    Best effort kill a process tree (including grandchildren)
-    """
-    process = psutil.Process(pid)
-    children = process.children(recursive=True)
-    for p in children:
-        with suppress(psutil.NoSuchProcess):
-            p.send_signal(signal.SIGTERM)
-    gone, alive = psutil.wait_procs(children, timeout=1)  # s
-    alive += process.children(recursive=True)
-    process.send_signal(signal.SIGKILL)
-    for p in alive:
-        with suppress(psutil.NoSuchProcess):
-            p.send_signal(signal.SIGKILL)
-    return psutil.wait_procs(alive, timeout=1)  # s
+from contextlib import wraps
 
 
 def run_with_timeout(f, timeout_s, *args, **kwargs):
@@ -59,6 +40,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
     exception_queue = multiprocessing.Queue()
 
     def _f(*args, **kwargs):
+        os.setsid()
         try:
             result_queue.put(f(*args, **kwargs))
         except BaseException as e:
@@ -71,10 +53,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
     process.join(timeout_s)
 
     if process.is_alive():
-        # we must kill the full process tree to not leave any process orphaned
-        import subprocess
-        subprocess.run(["kill", "-9", "-{}".format(process.pid)])
-        #kill_proc_tree(process.pid)
+        subprocess.run(["kill", "-9", "-{}".format(os.getsid(process.pid))])
         raise SystemExit(
             "Task unable to finish in {}s".format(timeout_s)
         ) from TimeoutError

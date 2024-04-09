@@ -17,6 +17,8 @@
   license={"text" = "GPLv3"}
   description="Checkbox Integration Testing Tool"
   version='1.0'
+[tool.black]
+  line-length = 79
 [tool.setuptools_scm]
   root=".."
 [tool.setuptools.packages.find]

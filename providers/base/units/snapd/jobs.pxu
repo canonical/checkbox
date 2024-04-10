@@ -39,6 +39,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/log-attach-after-snap-refresh-{type}-{name}-to-stable-rev
+template-id: snapd/log-attach-after-snap-refresh-type-name-to-stable-rev
 _summary: Attach logs after refreshing {name} snap to latest revision in stable channel
 plugin: attachment
 estimated_duration: 1s
@@ -87,6 +88,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/log-attach-after-snap-revert-{type}-{name}-from-stable-rev
+template-id: snapd/log-attach-after-snap-revert-type-name-from-stable-rev
 _summary: Attach logs after reverting {name} snap to latest revision in stable channel
 plugin: attachment
 estimated_duration: 1s
@@ -148,6 +150,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/log-attach-after-snap-refresh-{type}-{name}-to-base-rev
+template-id: snapd/log-attach-after-snap-refresh-type-name-to-base-rev
 _summary: Attach logs after refreshing {name} snap to base revision
 plugin: attachment
 estimated_duration: 1s
@@ -196,6 +199,7 @@ unit: template
 template-resource: snap_revision_info
 template-unit: job
 id: snapd/log-attach-after-snap-revert-{type}-{name}-from-base-rev
+template-id: snapd/log-attach-after-snap-revert-type-name-from-base-rev
 _summary: Attach logs after reverting {name} snap to base revision
 plugin: attachment
 estimated_duration: 1s

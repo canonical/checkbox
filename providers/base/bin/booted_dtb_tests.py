@@ -27,46 +27,56 @@ from checkbox_support.snap_utils.system import get_kernel_snap
 
 
 if len(sys.argv) != 2:
-    raise SystemExit('ERROR: please specify the bootloader')
+    raise SystemExit("ERROR: please specify the bootloader")
 
-dtb_dir = '/var/lib/snapd/hostfs/boot/{}'.format(sys.argv[1])
-print('Bootloader DTB location: {}'.format(dtb_dir))
+dtb_dir = "/var/lib/snapd/hostfs/boot/{}".format(sys.argv[1])
+print("Bootloader DTB location: {}".format(dtb_dir))
 
 kernel = get_kernel_snap()
 if kernel is None:
-    raise SystemExit('ERROR: failed to get kernel snap')
-snap_dtbs = '/snap/{}/current/dtbs'.format(kernel)
-print('Kernel snap DTB location: {}'.format(
-    snap_dtbs), end='\n\n', flush=True)
+    raise SystemExit("ERROR: failed to get kernel snap")
+snap_dtbs = "/snap/{}/current/dtbs".format(kernel)
+print("Kernel snap DTB location: {}".format(snap_dtbs), end="\n\n", flush=True)
 
 snap_files = []
-for (dirpath, dirs, files) in walk(snap_dtbs):
+for dirpath, dirs, files in walk(snap_dtbs):
     if dirpath == snap_dtbs:
         snap_files.extend(files)
     else:
-        snap_files.extend([join(relpath(dirpath, snap_dtbs), f)
-                           for f in files])
+        snap_files.extend(
+            [join(relpath(dirpath, snap_dtbs), f) for f in files]
+        )
 
 match, mismatch, errors = filecmp.cmpfiles(
-    snap_dtbs, dtb_dir, snap_files, shallow=True)
+    snap_dtbs, dtb_dir, snap_files, shallow=True
+)
 
 if match:
-    print('{} matching DTB files found'.format(
-        len(match)), end='\n\n', flush=True)
+    print(
+        "{} matching DTB files found".format(len(match)),
+        end="\n\n",
+        flush=True,
+    )
 
 if mismatch:
-    print('FAIL: DTB files shipped in kernel snap with mismatched versions'
-          ' in bootloader dir:', file=sys.stderr)
+    print(
+        "FAIL: DTB files shipped in kernel snap with mismatched versions"
+        " in bootloader dir:",
+        file=sys.stderr,
+    )
     for f in mismatch:
         print(f, file=sys.stderr)
-    print('', file=sys.stderr, flush=True)
+    print("", file=sys.stderr, flush=True)
 
 if errors:
-    print('FAIL: DTB files shipped in kernel snap which could not be'
-          ' found in bootloader dir:', file=sys.stderr)
+    print(
+        "FAIL: DTB files shipped in kernel snap which could not be"
+        " found in bootloader dir:",
+        file=sys.stderr,
+    )
     for f in errors:
         print(f, file=sys.stderr)
-    print('', file=sys.stderr, flush=True)
+    print("", file=sys.stderr, flush=True)
 
 if mismatch or errors:
-    raise SystemExit('Comparison failed')
+    raise SystemExit("Comparison failed")

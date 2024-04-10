@@ -50,8 +50,7 @@ def get_md_stat(filename: str = "/proc/mdstat") -> list:
         find_result = re.search(pattern, tmp_data)
         if find_result:
             raid_node = RAIDStats(
-                device=find_result.groups()[0],
-                mode=find_result.groups()[1]
+                device=find_result.groups()[0], mode=find_result.groups()[1]
             )
             raid_stats.append(raid_node)
 
@@ -86,9 +85,7 @@ def check_raid_mode_test(modes: str) -> None:
     logging.info("Active RAID mode on the system: %s", active_mode)
     logging.info("Expected RAID mode: %s", expected_modes)
 
-    dump_raid_info(
-        [stat["device"] for stat in cur_raid_stats]
-    )
+    dump_raid_info([stat["device"] for stat in cur_raid_stats])
 
     if sorted(expected_modes) == sorted(active_mode):
         logging.info("PASS: RAID mode on the system is expected")
@@ -99,7 +96,8 @@ def check_raid_mode_test(modes: str) -> None:
 def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='Check RAID stats and compare mode is expected')
+        description="Check RAID stats and compare mode is expected",
+    )
     parser.add_argument(
         "--mode",
         required=True,

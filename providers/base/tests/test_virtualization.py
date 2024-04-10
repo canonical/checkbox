@@ -98,7 +98,6 @@ class TestLXDTest_vm(TestCase):
         self.assertTrue(logging_mock.debug.called)
         self.assertTrue(command_result)
 
-
     @patch("virtualization.logging")
     def test_cleanup(self, logging_mock):
         self_mock = MagicMock()

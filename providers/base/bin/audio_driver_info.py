@@ -29,7 +29,7 @@ driver_regex = re.compile(r"(?<=driver_name = )\"(.*)\"")
 name_regex = re.compile(r"(?<=name:).*")
 
 
-class PacmdAudioDevice():
+class PacmdAudioDevice:
     """
     Class representing an audio device with information gathered from pacmd
     """
@@ -49,7 +49,7 @@ class PacmdAudioDevice():
         return retstr
 
     def _modinfo_parser(self, driver):
-        cmd = ['/sbin/modinfo', driver]
+        cmd = ["/sbin/modinfo", driver]
         try:
             stream = check_output(cmd, stderr=STDOUT, universal_newlines=True)
         except CalledProcessError as err:
@@ -68,13 +68,13 @@ class PacmdAudioDevice():
     def _find_driver_ver(self):
         # try the version field first, then vermagic second, some audio
         # drivers don't report version if the driver is in-tree
-        if self._modinfo['version']:
-            return self._modinfo['version']
+        if self._modinfo["version"]:
+            return self._modinfo["version"]
         else:
             # vermagic will look like this (below) and we only care about the
             # first part:
             # "3.2.0-29-generic SMP mod_unload modversions"
-            return self._modinfo['vermagic'].split()[0]
+            return self._modinfo["vermagic"].split()[0]
 
 
 def list_device_info():
@@ -85,12 +85,14 @@ def list_device_info():
     retval = 0
     for vtype in TYPES:
         try:
-            pacmd_entries = check_output(["pacmd", "list-%ss" % vtype],
-                                         universal_newlines=True)
+            pacmd_entries = check_output(
+                ["pacmd", "list-%ss" % vtype], universal_newlines=True
+            )
         except Exception as e:
             print(
                 "Error when running pacmd list-%ss: %s" % (vtype, e),
-                file=sys.stderr)
+                file=sys.stderr,
+            )
             return 1
 
         entries = entries_regex.findall(pacmd_entries)
@@ -99,9 +101,12 @@ def list_device_info():
             if name_match:
                 name = name_match.group().strip()
             else:
-                print("Unable to determine device bus information from the"
-                      " pacmd list-%ss output\npacmd output was: %s" %
-                      (vtype, pacmd_entries), file=sys.stderr)
+                print(
+                    "Unable to determine device bus information from the"
+                    " pacmd list-%ss output\npacmd output was: %s"
+                    % (vtype, pacmd_entries),
+                    file=sys.stderr,
+                )
                 return 1
 
             driver_name = driver_regex.findall(entry)

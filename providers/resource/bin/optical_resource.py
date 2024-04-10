@@ -48,27 +48,35 @@ from argparse import ArgumentParser
 from collections import OrderedDict
 from subprocess import check_output, CalledProcessError
 
-CAP_MAP = OrderedDict([('ID_CDROM_CD=1', 'cd_read'),
-                       ('ID_CDROM_CD_R=1', 'cd_write'),
-                       ('ID_CDROM_CD_RW=1', 'cd_rewrite'),
-                       ('ID_CDROM_DVD=1', 'dvd_read'),
-                       ('ID_CDROM_DVD_R=1', 'dvd_write'),
-                       ('ID_CDROM_DVD_RW=1', 'dvd_rewrite'),
-                       ('ID_CDROM_BD=1', 'bd_read'),
-                       ('ID_CDROM_BD_R=1', 'bd_write'),
-                       ('ID_CDROM_BD_RE=1', 'bd_rewrite')])
+CAP_MAP = OrderedDict(
+    [
+        ("ID_CDROM_CD=1", "cd_read"),
+        ("ID_CDROM_CD_R=1", "cd_write"),
+        ("ID_CDROM_CD_RW=1", "cd_rewrite"),
+        ("ID_CDROM_DVD=1", "dvd_read"),
+        ("ID_CDROM_DVD_R=1", "dvd_write"),
+        ("ID_CDROM_DVD_RW=1", "dvd_rewrite"),
+        ("ID_CDROM_BD=1", "bd_read"),
+        ("ID_CDROM_BD_R=1", "bd_write"),
+        ("ID_CDROM_BD_RE=1", "bd_rewrite"),
+    ]
+)
 
 
 def main():
-    parser = ArgumentParser("Shows which capabilities are supported "
-                            "by the specified optical device.")
-    parser.add_argument("device",
-                        help="The optical device to get capabilities for")
+    parser = ArgumentParser(
+        "Shows which capabilities are supported "
+        "by the specified optical device."
+    )
+    parser.add_argument(
+        "device", help="The optical device to get capabilities for"
+    )
     args = parser.parse_args()
 
     try:
-        cdrom_id = check_output(['/lib/udev/cdrom_id', args.device],
-                                universal_newlines=True).split('\n')
+        cdrom_id = check_output(
+            ["/lib/udev/cdrom_id", args.device], universal_newlines=True
+        ).split("\n")
     except CalledProcessError:
         return 1
     if cdrom_id:

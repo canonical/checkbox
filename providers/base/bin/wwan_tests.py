@@ -20,27 +20,28 @@ TEST_IP = "8.8.8.8"
 GSM_CON_ID = "GSMCONN"
 
 
-DBUS_PROPERTIES = 'org.freedesktop.DBus.Properties'
-DBUS_OBJECTMANAGER = 'org.freedesktop.DBus.ObjectManager'
+DBUS_PROPERTIES = "org.freedesktop.DBus.Properties"
+DBUS_OBJECTMANAGER = "org.freedesktop.DBus.ObjectManager"
 
-DBUS_MM1_SERVICE = 'org.freedesktop.ModemManager1'
-DBUS_MM1_PATH = '/org/freedesktop/ModemManager1'
-DBUS_MM1_IF = 'org.freedesktop.ModemManager1'
-DBUS_MM1_IF_MODEM = 'org.freedesktop.ModemManager1.Modem'
-DBUS_MM1_IF_MODEM_SIMPLE = 'org.freedesktop.ModemManager1.Modem.Simple'
-DBUS_MM1_IF_MODEM_3GPP = 'org.freedesktop.ModemManager1.Modem.Modem3gpp'
-DBUS_MM1_IF_MODEM_CDMA = 'org.freedesktop.ModemManager1.Modem.ModemCdma'
-DBUS_MM1_IF_SIM = 'org.freedesktop.ModemManager1.Sim'
+DBUS_MM1_SERVICE = "org.freedesktop.ModemManager1"
+DBUS_MM1_PATH = "/org/freedesktop/ModemManager1"
+DBUS_MM1_IF = "org.freedesktop.ModemManager1"
+DBUS_MM1_IF_MODEM = "org.freedesktop.ModemManager1.Modem"
+DBUS_MM1_IF_MODEM_SIMPLE = "org.freedesktop.ModemManager1.Modem.Simple"
+DBUS_MM1_IF_MODEM_3GPP = "org.freedesktop.ModemManager1.Modem.Modem3gpp"
+DBUS_MM1_IF_MODEM_CDMA = "org.freedesktop.ModemManager1.Modem.ModemCdma"
+DBUS_MM1_IF_SIM = "org.freedesktop.ModemManager1.Sim"
 
 MMModemCapability = {
-    'MM_MODEM_CAPABILITY_NONE': 0,
-    'MM_MODEM_CAPABILITY_POTS': 1 << 0,
-    'MM_MODEM_CAPABILITY_CDMA_EVDO': 1 << 1,
-    'MM_MODEM_CAPABILITY_GSM_UMTS': 1 << 2,
-    'MM_MODEM_CAPABILITY_LTE': 1 << 3,
-    'MM_MODEM_CAPABILITY_LTE_ADVANCED': 1 << 4,
-    'MM_MODEM_CAPABILITY_IRIDIUM': 1 << 5,
-    'MM_MODEM_CAPABILITY_ANY': 0xFFFFFFFF}
+    "MM_MODEM_CAPABILITY_NONE": 0,
+    "MM_MODEM_CAPABILITY_POTS": 1 << 0,
+    "MM_MODEM_CAPABILITY_CDMA_EVDO": 1 << 1,
+    "MM_MODEM_CAPABILITY_GSM_UMTS": 1 << 2,
+    "MM_MODEM_CAPABILITY_LTE": 1 << 3,
+    "MM_MODEM_CAPABILITY_LTE_ADVANCED": 1 << 4,
+    "MM_MODEM_CAPABILITY_IRIDIUM": 1 << 5,
+    "MM_MODEM_CAPABILITY_ANY": 0xFFFFFFFF,
+}
 
 
 def print_head(txt):
@@ -49,26 +50,30 @@ def print_head(txt):
 
 def print_cmd(cmd):
     if isinstance(cmd, list):
-        print("+", *cmd, sep=' ', flush=True)
+        print("+", *cmd, sep=" ", flush=True)
     else:
         print("+", cmd, flush=True)
 
 
-class MMDbus():
+class MMDbus:
     def __init__(self):
         self._bus = dbus.SystemBus()
         self._modems = []
         try:
-            manager_proxy = self._bus.get_object(DBUS_MM1_SERVICE,
-                                                 DBUS_MM1_PATH)
+            manager_proxy = self._bus.get_object(
+                DBUS_MM1_SERVICE, DBUS_MM1_PATH
+            )
             om = dbus.Interface(manager_proxy, DBUS_OBJECTMANAGER)
             self._modems = om.GetManagedObjects()
         except dbus.exceptions.DBusException as excp:
-            if (excp.get_dbus_name() ==
-                    "org.freedesktop.DBus.Error.ServiceUnknown"):
+            if (
+                excp.get_dbus_name()
+                == "org.freedesktop.DBus.Error.ServiceUnknown"
+            ):
                 logging.error(excp.get_dbus_message())
                 logging.error(
-                    "Note: wwan_tests.py requires ModemManager >=1.0")
+                    "Note: wwan_tests.py requires ModemManager >=1.0"
+                )
             else:
                 logging.error(excp.get_dbus_message())
             return
@@ -97,7 +102,7 @@ class MMDbus():
 
     def get_rat_support(self, mm_id):
         pi = self._modem_props_iface(mm_id)
-        return pi.Get(DBUS_MM1_IF_MODEM, 'CurrentCapabilities')
+        return pi.Get(DBUS_MM1_IF_MODEM, "CurrentCapabilities")
 
     def get_equipment_id(self, mm_id):
         pi = self._modem_props_iface(mm_id)
@@ -105,89 +110,89 @@ class MMDbus():
 
     def get_manufacturer(self, mm_id):
         pi = self._modem_props_iface(mm_id)
-        return pi.Get(DBUS_MM1_IF_MODEM, 'Manufacturer')
+        return pi.Get(DBUS_MM1_IF_MODEM, "Manufacturer")
 
     def get_model_name(self, mm_id):
         pi = self._modem_props_iface(mm_id)
-        return pi.Get(DBUS_MM1_IF_MODEM, 'Model')
+        return pi.Get(DBUS_MM1_IF_MODEM, "Model")
 
     def sim_present(self, mm_id):
         pi = self._modem_props_iface(mm_id)
-        if pi.Get(DBUS_MM1_IF_MODEM, 'Sim') != '/':
+        if pi.Get(DBUS_MM1_IF_MODEM, "Sim") != "/":
             return True
         return False
 
     def _get_sim_pi(self, mm_id):
         pi = self._modem_props_iface(mm_id)
-        sim_path = pi.Get(DBUS_MM1_IF_MODEM, 'Sim')
-        if sim_path != '/':
+        sim_path = pi.Get(DBUS_MM1_IF_MODEM, "Sim")
+        if sim_path != "/":
             sim_proxy = self._bus.get_object(DBUS_MM1_SERVICE, sim_path)
             return dbus.Interface(sim_proxy, dbus_interface=DBUS_PROPERTIES)
 
     def get_sim_operatorname(self, mm_id):
         sim_pi = self._get_sim_pi(mm_id)
         if sim_pi is None:
-            return 'No card'
-        return sim_pi.Get(DBUS_MM1_IF_SIM, 'OperatorName')
+            return "No card"
+        return sim_pi.Get(DBUS_MM1_IF_SIM, "OperatorName")
 
     def get_sim_operatoridentifier(self, mm_id):
         sim_pi = self._get_sim_pi(mm_id)
         if sim_pi is None:
-            return 'No card'
-        return sim_pi.Get(DBUS_MM1_IF_SIM, 'OperatorIdentifier')
+            return "No card"
+        return sim_pi.Get(DBUS_MM1_IF_SIM, "OperatorIdentifier")
 
     def get_sim_imsi(self, mm_id):
         sim_pi = self._get_sim_pi(mm_id)
         if sim_pi is None:
-            return 'No card'
-        return sim_pi.Get(DBUS_MM1_IF_SIM, 'Imsi')
+            return "No card"
+        return sim_pi.Get(DBUS_MM1_IF_SIM, "Imsi")
 
     def get_sim_simidentifier(self, mm_id):
         sim_pi = self._get_sim_pi(mm_id)
         if sim_pi is None:
-            return 'No card'
-        return sim_pi.Get(DBUS_MM1_IF_SIM, 'SimIdentifier')
+            return "No card"
+        return sim_pi.Get(DBUS_MM1_IF_SIM, "SimIdentifier")
 
 
 def _value_from_table(item, item_id, key):
-    if item == 'modem':
-        flag = '-m'
-    if item == 'sim':
-        flag = '-i'
-    proc = subprocess.Popen(['mmcli', flag, str(item_id)],
-                            stdout=subprocess.PIPE)
+    if item == "modem":
+        flag = "-m"
+    if item == "sim":
+        flag = "-i"
+    proc = subprocess.Popen(
+        ["mmcli", flag, str(item_id)], stdout=subprocess.PIPE
+    )
     while True:
         line = proc.stdout.readline().decode(sys.stdout.encoding)
-        if line == '':
+        if line == "":
             break
         if key in line:
-            chars = ' |\'\n\t'
+            chars = " |'\n\t"
             for c in chars:
                 if c in line:
-                    line = line.replace(c, '')
-            value = line.split(':', 1)[1]
+                    line = line.replace(c, "")
+            value = line.split(":", 1)[1]
             return value
 
 
-class MMCLI():
+class MMCLI:
     def __init__(self):
         self._modem_ids = []
         try:
-            proc = subprocess.Popen(['mmcli', '-L'],
-                                    stdout=subprocess.PIPE)
+            proc = subprocess.Popen(["mmcli", "-L"], stdout=subprocess.PIPE)
             while True:
                 line = proc.stdout.readline().decode(sys.stdout.encoding)
-                if line == '':
+                if line == "":
                     break
-                if '/org/freedesktop/ModemManager1/Modem' in line:
+                if "/org/freedesktop/ModemManager1/Modem" in line:
                     path = line.strip().split()[0]
                     self._modem_ids.append(int(os.path.basename(path)))
         except OSError:
             logging.error("mmcli not found")
 
     def _get_sim_id(self, mm_id):
-        sim_value = _value_from_table('modem', mm_id, 'SIM')
-        if sim_value == 'none':
+        sim_value = _value_from_table("modem", mm_id, "SIM")
+        if sim_value == "none":
             return None
         else:
             return int(os.path.basename(sim_value))
@@ -201,13 +206,13 @@ class MMCLI():
                 return mm_id
 
     def get_equipment_id(self, mm_id):
-        return _value_from_table('modem', mm_id, 'equipment id')
+        return _value_from_table("modem", mm_id, "equipment id")
 
     def get_manufacturer(self, mm_id):
-        return _value_from_table('modem', mm_id, 'manufacturer')
+        return _value_from_table("modem", mm_id, "manufacturer")
 
     def get_model_name(self, mm_id):
-        return _value_from_table('modem', mm_id, 'model')
+        return _value_from_table("modem", mm_id, "model")
 
     def get_primary_port(self, mm_id):
         return _value_from_table("modem", mm_id, "primary port")
@@ -220,35 +225,43 @@ class MMCLI():
     def get_sim_operatorname(self, mm_id):
         sim_id = self._get_sim_id(mm_id)
         if sim_id is None:
-            return 'No card'
-        return _value_from_table('sim', sim_id, 'operator name')
+            return "No card"
+        return _value_from_table("sim", sim_id, "operator name")
 
     def get_sim_imsi(self, mm_id):
         sim_id = self._get_sim_id(mm_id)
         if sim_id is None:
-            return 'No card'
-        return _value_from_table('sim', sim_id, 'imsi')
+            return "No card"
+        return _value_from_table("sim", sim_id, "imsi")
 
     def get_sim_operatoridentifier(self, mm_id):
         sim_id = self._get_sim_id(mm_id)
         if sim_id is None:
-            return 'No card'
-        return _value_from_table('sim', sim_id, 'operator id')
+            return "No card"
+        return _value_from_table("sim", sim_id, "operator id")
 
     def get_sim_simidentifier(self, mm_id):
         sim_id = self._get_sim_id(mm_id)
         if sim_id is None:
-            return 'No card'
-        return _value_from_table('sim', sim_id, '   id')
+            return "No card"
+        return _value_from_table("sim", sim_id, "   id")
 
 
 def _create_3gpp_connection(wwan_if, apn):
     print_head("Creating 3GPP Connection")
-    cmd = ["nmcli", "c", "add",
-           "con-name", GSM_CON_ID,
-           "type", "gsm",
-           "ifname", wwan_if,
-           "apn", apn]
+    cmd = [
+        "nmcli",
+        "c",
+        "add",
+        "con-name",
+        GSM_CON_ID,
+        "type",
+        "gsm",
+        "ifname",
+        wwan_if,
+        "apn",
+        apn,
+    ]
     print_cmd(cmd)
     subprocess.check_call(cmd)
     print()
@@ -295,18 +308,27 @@ def _ping_test(if_name):
     return ret_code
 
 
-class ThreeGppConnection():
+class ThreeGppConnection:
 
     def invoked(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument('hw_id',  type=str,
-                            help='The hardware ID of the modem')
-        parser.add_argument('wwan_net_if', type=str,
-                            help='The network interface used when connected')
-        parser.add_argument('apn', type=str,
-                            help='The APN for data connection')
-        parser.add_argument('wwan_setup_time', type=int, default=30,
-                            help='delay before ping test')
+        parser.add_argument(
+            "hw_id", type=str, help="The hardware ID of the modem"
+        )
+        parser.add_argument(
+            "wwan_net_if",
+            type=str,
+            help="The network interface used when connected",
+        )
+        parser.add_argument(
+            "apn", type=str, help="The APN for data connection"
+        )
+        parser.add_argument(
+            "wwan_setup_time",
+            type=int,
+            default=30,
+            help="delay before ping test",
+        )
         args = parser.parse_args(sys.argv[2:])
 
         mm = MMCLI()
@@ -326,12 +348,15 @@ class ThreeGppConnection():
         sys.exit(ret_code)
 
 
-class CountModems():
+class CountModems:
 
     def invoked(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument('--use-cli', action='store_true',
-                            help="Use mmcli for all calls rather than dbus")
+        parser.add_argument(
+            "--use-cli",
+            action="store_true",
+            help="Use mmcli for all calls rather than dbus",
+        )
         args = parser.parse_args(sys.argv[2:])
         if args.use_cli:
             mm = MMCLI()
@@ -340,12 +365,15 @@ class CountModems():
         print(len(mm.get_modem_ids()))
 
 
-class Resources():
+class Resources:
 
     def invoked(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument('--use-cli', action='store_true',
-                            help="Use mmcli for all calls rather than dbus")
+        parser.add_argument(
+            "--use-cli",
+            action="store_true",
+            help="Use mmcli for all calls rather than dbus",
+        )
         args = parser.parse_args(sys.argv[2:])
         if args.use_cli:
             mm = MMCLI()
@@ -359,15 +387,21 @@ class Resources():
             print()
 
 
-class SimPresent():
+class SimPresent:
 
     def invoked(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument('hw_id',  type=str,
-                            help='The hardware ID of the modem whose attached'
-                            'SIM we want to query')
-        parser.add_argument('--use-cli', action='store_true',
-                            help="Use mmcli for all calls rather than dbus")
+        parser.add_argument(
+            "hw_id",
+            type=str,
+            help="The hardware ID of the modem whose attached"
+            "SIM we want to query",
+        )
+        parser.add_argument(
+            "--use-cli",
+            action="store_true",
+            help="Use mmcli for all calls rather than dbus",
+        )
         args = parser.parse_args(sys.argv[2:])
         if args.use_cli:
             mm = MMCLI()
@@ -378,15 +412,21 @@ class SimPresent():
             sys.exit(1)
 
 
-class SimInfo():
+class SimInfo:
 
     def invoked(self):
         parser = argparse.ArgumentParser()
-        parser.add_argument('hw_id',  type=str,
-                            help='The hardware ID of the modem whose attached'
-                            'SIM we want to query')
-        parser.add_argument('--use-cli', action='store_true',
-                            help="Use mmcli for all calls rather than dbus")
+        parser.add_argument(
+            "hw_id",
+            type=str,
+            help="The hardware ID of the modem whose attached"
+            "SIM we want to query",
+        )
+        parser.add_argument(
+            "--use-cli",
+            action="store_true",
+            help="Use mmcli for all calls rather than dbus",
+        )
         args = parser.parse_args(sys.argv[2:])
         if args.use_cli:
             mm = MMCLI()
@@ -399,18 +439,18 @@ class SimInfo():
         print("ICCID: {}".format(mm.get_sim_simidentifier(mm_id)))
 
 
-class WWANTests():
+class WWANTests:
 
     def main(self):
         sub_commands = {
-            'count': CountModems,
-            'resources': Resources,
-            '3gpp-connection': ThreeGppConnection,
-            'sim-present': SimPresent,
-            'sim-info': SimInfo
+            "count": CountModems,
+            "resources": Resources,
+            "3gpp-connection": ThreeGppConnection,
+            "sim-present": SimPresent,
+            "sim-info": SimInfo,
         }
         parser = argparse.ArgumentParser()
-        parser.add_argument('subcommand', type=str, choices=sub_commands)
+        parser.add_argument("subcommand", type=str, choices=sub_commands)
         args = parser.parse_args(sys.argv[1:2])
         sub_commands[args.subcommand]().invoked()
 

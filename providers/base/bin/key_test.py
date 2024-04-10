@@ -108,8 +108,8 @@ class Reporter(object):
         index = 0
         length = len(raw_bytes)
         while index < length:
-            if (index + 1 < length and raw_bytes[index] == 0xE0):
-                code = ((raw_bytes[index] << 8) | raw_bytes[index + 1])
+            if index + 1 < length and raw_bytes[index] == 0xE0:
+                code = (raw_bytes[index] << 8) | raw_bytes[index + 1]
                 index += 2
             else:
                 code = raw_bytes[0]
@@ -122,14 +122,18 @@ class Reporter(object):
         index = 0
         length = len(raw_bytes)
         while index < length:
-            if (index + 2 < length and (raw_bytes[index] & 0x7f) == 0 and
-                    (raw_bytes[index + 1] & 0x80) != 0 and
-                    (raw_bytes[index + 2] & 0x80) != 0):
-                code = (((raw_bytes[index + 1] & 0x7f) << 7) |
-                        (raw_bytes[2] & 0x7f))
+            if (
+                index + 2 < length
+                and (raw_bytes[index] & 0x7F) == 0
+                and (raw_bytes[index + 1] & 0x80) != 0
+                and (raw_bytes[index + 2] & 0x80) != 0
+            ):
+                code = ((raw_bytes[index + 1] & 0x7F) << 7) | (
+                    raw_bytes[2] & 0x7F
+                )
                 index += 3
             else:
-                code = (raw_bytes[0] & 0x7f)
+                code = raw_bytes[0] & 0x7F
                 index += 1
 
             yield code
@@ -184,10 +188,15 @@ class CLIReporter(Reporter):
         super(CLIReporter, self).__init__(*args, **kwargs)
 
         self.show_text(_("Please press each key on your keyboard."))
-        self.show_text(_("I will exit automatically once all keys "
-                         "have been pressed."))
-        self.show_text(_("If your keyboard lacks one or more keys, "
-                         "press its number to skip testing that key."))
+        self.show_text(
+            _("I will exit automatically once all keys " "have been pressed.")
+        )
+        self.show_text(
+            _(
+                "If your keyboard lacks one or more keys, "
+                "press its number to skip testing that key."
+            )
+        )
         self.show_text(_("You can also close me by pressing ESC or Ctrl+C."))
 
         self.show_keys()
@@ -200,13 +209,15 @@ class CLIReporter(Reporter):
         self.show_text("---")
         for index, key in enumerate(self.keys):
             self.show_text(
-                "%(number)d - %(key)s - %(status)s" %
-                {"number": index + 1, "key": key.name, "status": key.status})
+                "%(number)d - %(key)s - %(status)s"
+                % {"number": index + 1, "key": key.name, "status": key.status}
+            )
 
     def found_key(self, key):
         super(CLIReporter, self).found_key(key)
         self.show_text(
-            _("%(key_name)s key has been pressed" % {'key_name': key.name}))
+            _("%(key_name)s key has been pressed" % {"key_name": key.name})
+        )
 
         self.show_keys()
         if self.required_keys_tested:
@@ -223,7 +234,7 @@ class GtkReporter(Reporter):
     def __init__(self, *args, **kwargs):
         super(GtkReporter, self).__init__(*args, **kwargs)
 
-        gi.require_version('Gdk', '3.0')
+        gi.require_version("Gdk", "3.0")
         gi.require_version("Gtk", "3.0")
         from gi.repository import Gdk, Gtk
 
@@ -248,7 +259,8 @@ class GtkReporter(Reporter):
         window.connect("delete_event", lambda w, e: self.quit())
         window.connect(
             "key-release-event",
-            lambda w, k: k.keyval == Gdk.KEY_Escape and self.quit())
+            lambda w, k: k.keyval == Gdk.KEY_Escape and self.quit(),
+        )
         window.show()
 
         # Add common widgets to the window.
@@ -273,9 +285,13 @@ class GtkReporter(Reporter):
             button.connect("clicked", self.on_skip, key)
 
         self.show_text(_("Please press each key on your keyboard."))
-        self.show_text(_("If a key is not present in your keyboard, "
-                         "press the 'Skip' button below it to remove it "
-                         "from the test."))
+        self.show_text(
+            _(
+                "If a key is not present in your keyboard, "
+                "press the 'Skip' button below it to remove it "
+                "from the test."
+            )
+        )
 
     def _add_button(self, context, label, use_underline=False):
         button = self.button_factory(label=label, use_underline=use_underline)
@@ -325,7 +341,8 @@ class GtkReporter(Reporter):
     def found_key(self, key):
         super(GtkReporter, self).found_key(key)
         self.icons[key].set_from_icon_name(
-            self.ICON_TESTED, size=self.ICON_SIZE)
+            self.ICON_TESTED, size=self.ICON_SIZE
+        )
 
         self.check_keys()
 
@@ -357,13 +374,19 @@ Hint to find codes:
   The showkey command can show keycodes and scancodes.
 """
     parser = OptionParser(usage=usage)
-    parser.add_option("-i", "--interface",
-                      default="auto",
-                      help="Interface to use: cli, gtk or auto")
-    parser.add_option("-s", "--scancodes",
-                      default=False,
-                      action="store_true",
-                      help="Test for scancodes instead of keycodes.")
+    parser.add_option(
+        "-i",
+        "--interface",
+        default="auto",
+        help="Interface to use: cli, gtk or auto",
+    )
+    parser.add_option(
+        "-s",
+        "--scancodes",
+        default=False,
+        action="store_true",
+        help="Test for scancodes instead of keycodes.",
+    )
     (options, args) = parser.parse_args(args)
 
     # Get reporter factory from options or environment.

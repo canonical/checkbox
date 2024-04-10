@@ -28,8 +28,8 @@ class UdevDevicesTests(unittest.TestCase):
         record = udev_devices(self.record_line)
         record_list = list(record)
         self.assertEqual(len(record_list), 1)
-        self.assertEqual(record_list[0]['pci_device_name'], "0000:01:00.0")
+        self.assertEqual(record_list[0]["pci_device_name"], "0000:01:00.0")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

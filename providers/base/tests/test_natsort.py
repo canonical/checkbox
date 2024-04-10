@@ -24,19 +24,39 @@ class TestSortingOfNetworkSpeeds(unittest.TestCase):
 
     def test_sortspeeds(self):
         # Input taken from cloaker's ens1f0, a Mellanox ConnectX-5 Ex
-        input = ['1000baseKX/Full', '10000baseKR/Full', '40000baseKR4/Full',
-                 '40000baseCR4/Full', '40000baseSR4/Full',
-                 '40000baseLR4/Full', '25000baseCR/Full', '25000baseKR/Full',
-                 '25000baseSR/Full', '50000baseCR2/Full', '50000baseKR2/Full',
-                 '100000baseKR4/Full', '100000baseSR4/Full',
-                 '100000baseCR4/Full', '100000baseLR4_ER4/Full']
-        expected_output = ['1000baseKX/Full', '10000baseKR/Full',
-                           '25000baseCR/Full', '25000baseKR/Full',
-                           '25000baseSR/Full', '40000baseCR4/Full',
-                           '40000baseKR4/Full', '40000baseLR4/Full',
-                           '40000baseSR4/Full', '50000baseCR2/Full',
-                           '50000baseKR2/Full', '100000baseCR4/Full',
-                           '100000baseKR4/Full', '100000baseLR4_ER4/Full',
-                           '100000baseSR4/Full']
+        input = [
+            "1000baseKX/Full",
+            "10000baseKR/Full",
+            "40000baseKR4/Full",
+            "40000baseCR4/Full",
+            "40000baseSR4/Full",
+            "40000baseLR4/Full",
+            "25000baseCR/Full",
+            "25000baseKR/Full",
+            "25000baseSR/Full",
+            "50000baseCR2/Full",
+            "50000baseKR2/Full",
+            "100000baseKR4/Full",
+            "100000baseSR4/Full",
+            "100000baseCR4/Full",
+            "100000baseLR4_ER4/Full",
+        ]
+        expected_output = [
+            "1000baseKX/Full",
+            "10000baseKR/Full",
+            "25000baseCR/Full",
+            "25000baseKR/Full",
+            "25000baseSR/Full",
+            "40000baseCR4/Full",
+            "40000baseKR4/Full",
+            "40000baseLR4/Full",
+            "40000baseSR4/Full",
+            "50000baseCR2/Full",
+            "50000baseKR2/Full",
+            "100000baseCR4/Full",
+            "100000baseKR4/Full",
+            "100000baseLR4_ER4/Full",
+            "100000baseSR4/Full",
+        ]
         output = natsorted(input)
         self.assertEqual(expected_output, output)

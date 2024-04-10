@@ -21,6 +21,7 @@
 import unittest
 import sys
 from unittest.mock import MagicMock, patch
+
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
 from pipewire_utils import *
@@ -32,24 +33,17 @@ class GetPwTypeTests(unittest.TestCase):
         pt = PipewireTest()
 
         # return Output
-        self.assertEqual("Output",
-                         pt._get_pw_type("sinks"))
-        self.assertEqual("Output",
-                         pt._get_pw_type("Sinks"))
-        self.assertEqual("Output",
-                         pt._get_pw_type("Sink"))
+        self.assertEqual("Output", pt._get_pw_type("sinks"))
+        self.assertEqual("Output", pt._get_pw_type("Sinks"))
+        self.assertEqual("Output", pt._get_pw_type("Sink"))
 
         # return Input
-        self.assertEqual("Input",
-                         pt._get_pw_type("sources"))
-        self.assertEqual("Input",
-                         pt._get_pw_type("Sources"))
-        self.assertEqual("Input",
-                         pt._get_pw_type("Source"))
+        self.assertEqual("Input", pt._get_pw_type("sources"))
+        self.assertEqual("Input", pt._get_pw_type("Sources"))
+        self.assertEqual("Input", pt._get_pw_type("Source"))
 
         # return UNKNOWN CLASS
-        self.assertEqual("UNKNOWN CLASS",
-                         pt._get_pw_type("xxxx"))
+        self.assertEqual("UNKNOWN CLASS", pt._get_pw_type("xxxx"))
 
 
 class GeneratePwMediaClassTests(unittest.TestCase):
@@ -58,52 +52,72 @@ class GeneratePwMediaClassTests(unittest.TestCase):
         pt = PipewireTest()
 
         # return Audio/Sink
-        self.assertEqual("Audio/Sink",
-                         pt.generate_pw_media_class("audio", "sink"))
-        self.assertEqual("Audio/Sink",
-                         pt.generate_pw_media_class("audio", "Sink"))
-        self.assertEqual("Audio/Sink",
-                         pt.generate_pw_media_class("Audio", "sink"))
-        self.assertEqual("Audio/Sink",
-                         pt.generate_pw_media_class("Audio", "Sink"))
-        self.assertEqual("Audio/Sink",
-                         pt.generate_pw_media_class("Audio", "Sinks"))
+        self.assertEqual(
+            "Audio/Sink", pt.generate_pw_media_class("audio", "sink")
+        )
+        self.assertEqual(
+            "Audio/Sink", pt.generate_pw_media_class("audio", "Sink")
+        )
+        self.assertEqual(
+            "Audio/Sink", pt.generate_pw_media_class("Audio", "sink")
+        )
+        self.assertEqual(
+            "Audio/Sink", pt.generate_pw_media_class("Audio", "Sink")
+        )
+        self.assertEqual(
+            "Audio/Sink", pt.generate_pw_media_class("Audio", "Sinks")
+        )
 
         # return Audio/Source
-        self.assertEqual("Audio/Source",
-                         pt.generate_pw_media_class("audio", "source"))
-        self.assertEqual("Audio/Source",
-                         pt.generate_pw_media_class("audio", "Source"))
-        self.assertEqual("Audio/Source",
-                         pt.generate_pw_media_class("Audio", "source"))
-        self.assertEqual("Audio/Source",
-                         pt.generate_pw_media_class("Audio", "Source"))
-        self.assertEqual("Audio/Source",
-                         pt.generate_pw_media_class("Audio", "Sources"))
+        self.assertEqual(
+            "Audio/Source", pt.generate_pw_media_class("audio", "source")
+        )
+        self.assertEqual(
+            "Audio/Source", pt.generate_pw_media_class("audio", "Source")
+        )
+        self.assertEqual(
+            "Audio/Source", pt.generate_pw_media_class("Audio", "source")
+        )
+        self.assertEqual(
+            "Audio/Source", pt.generate_pw_media_class("Audio", "Source")
+        )
+        self.assertEqual(
+            "Audio/Source", pt.generate_pw_media_class("Audio", "Sources")
+        )
 
         # return Video/Sink
-        self.assertEqual("Video/Sink",
-                         pt.generate_pw_media_class("video", "sink"))
-        self.assertEqual("Video/Sink",
-                         pt.generate_pw_media_class("video", "Sink"))
-        self.assertEqual("Video/Sink",
-                         pt.generate_pw_media_class("Video", "sink"))
-        self.assertEqual("Video/Sink",
-                         pt.generate_pw_media_class("Video", "Sink"))
-        self.assertEqual("Video/Sink",
-                         pt.generate_pw_media_class("Video", "Sinks"))
+        self.assertEqual(
+            "Video/Sink", pt.generate_pw_media_class("video", "sink")
+        )
+        self.assertEqual(
+            "Video/Sink", pt.generate_pw_media_class("video", "Sink")
+        )
+        self.assertEqual(
+            "Video/Sink", pt.generate_pw_media_class("Video", "sink")
+        )
+        self.assertEqual(
+            "Video/Sink", pt.generate_pw_media_class("Video", "Sink")
+        )
+        self.assertEqual(
+            "Video/Sink", pt.generate_pw_media_class("Video", "Sinks")
+        )
 
         # return Video/Source
-        self.assertEqual("Video/Source",
-                         pt.generate_pw_media_class("video", "source"))
-        self.assertEqual("Video/Source",
-                         pt.generate_pw_media_class("video", "Source"))
-        self.assertEqual("Video/Source",
-                         pt.generate_pw_media_class("Video", "source"))
-        self.assertEqual("Video/Source",
-                         pt.generate_pw_media_class("Video", "Source"))
-        self.assertEqual("Video/Source",
-                         pt.generate_pw_media_class("Video", "Sources"))
+        self.assertEqual(
+            "Video/Source", pt.generate_pw_media_class("video", "source")
+        )
+        self.assertEqual(
+            "Video/Source", pt.generate_pw_media_class("video", "Source")
+        )
+        self.assertEqual(
+            "Video/Source", pt.generate_pw_media_class("Video", "source")
+        )
+        self.assertEqual(
+            "Video/Source", pt.generate_pw_media_class("Video", "Source")
+        )
+        self.assertEqual(
+            "Video/Source", pt.generate_pw_media_class("Video", "Sources")
+        )
 
     def test_fail(self):
         pt = PipewireTest()
@@ -111,12 +125,12 @@ class GeneratePwMediaClassTests(unittest.TestCase):
         # return UNKNOWN TYPE
         wrong_type1 = "videog"
         wrong_type2 = "xxxx"
-        self.assertEqual("UNKNOWN TYPE",
-                         pt.generate_pw_media_class(wrong_type1,
-                                                    "source"))
-        self.assertEqual("UNKNOWN TYPE",
-                         pt.generate_pw_media_class(wrong_type2,
-                                                    "sources"))
+        self.assertEqual(
+            "UNKNOWN TYPE", pt.generate_pw_media_class(wrong_type1, "source")
+        )
+        self.assertEqual(
+            "UNKNOWN TYPE", pt.generate_pw_media_class(wrong_type2, "sources")
+        )
 
         # example code for testing log output in python 3.10 and above
         # with self.assertLogs("root", level="INFO") as cm:
@@ -138,12 +152,12 @@ class GeneratePwMediaClassTests(unittest.TestCase):
         # return UNKNOWN CLASS
         wrong_class1 = "sourceg"
         wrong_class2 = "sinkf"
-        self.assertEqual("UNKNOWN CLASS",
-                         pt.generate_pw_media_class("video",
-                                                    wrong_class1))
-        self.assertEqual("UNKNOWN CLASS",
-                         pt.generate_pw_media_class("video",
-                                                    wrong_class2))
+        self.assertEqual(
+            "UNKNOWN CLASS", pt.generate_pw_media_class("video", wrong_class1)
+        )
+        self.assertEqual(
+            "UNKNOWN CLASS", pt.generate_pw_media_class("video", wrong_class2)
+        )
 
 
 class DetectDeviceTests(unittest.TestCase):
@@ -225,13 +239,15 @@ class DetectDeviceTests(unittest.TestCase):
 
         # detect audio sink succ
         mock_checkout.return_value = self.sink_audio_node
-        self.assertEqual(PipewireTestError.NO_ERROR,
-                         pt.detect_device("audio", "sink"))
+        self.assertEqual(
+            PipewireTestError.NO_ERROR, pt.detect_device("audio", "sink")
+        )
 
         # detect audio source succ
         mock_checkout.return_value = self.source_audio_node
-        self.assertEqual(PipewireTestError.NO_ERROR,
-                         pt.detect_device("audio", "source"))
+        self.assertEqual(
+            PipewireTestError.NO_ERROR, pt.detect_device("audio", "source")
+        )
 
     @patch("subprocess.check_output")
     def test_fail(self, mock_checkout):
@@ -239,18 +255,21 @@ class DetectDeviceTests(unittest.TestCase):
 
         # detect audio sink fail
         mock_checkout.return_value = self.source_audio_node
-        self.assertEqual(PipewireTestError.NOT_DETECTED,
-                         pt.detect_device("audio", "sink"))
+        self.assertEqual(
+            PipewireTestError.NOT_DETECTED, pt.detect_device("audio", "sink")
+        )
 
         # detect audio source fail
         mock_checkout.return_value = self.sink_audio_node
-        self.assertEqual(PipewireTestError.NOT_DETECTED,
-                         pt.detect_device("audio", "source"))
+        self.assertEqual(
+            PipewireTestError.NOT_DETECTED, pt.detect_device("audio", "source")
+        )
 
         # wrong media class
         mock_checkout.return_value = self.sink_audio_node
-        self.assertEqual(PipewireTestError.NOT_DETECTED,
-                         pt.detect_device("xxx", "ooo"))
+        self.assertEqual(
+            PipewireTestError.NOT_DETECTED, pt.detect_device("xxx", "ooo")
+        )
 
 
 class SelectDeviceTests(unittest.TestCase):
@@ -297,22 +316,30 @@ class SelectDeviceTests(unittest.TestCase):
         pt = PipewireTest()
 
         mock_checkout.return_value = "xxxx"
-        self.assertEqual(PipewireTestError.NO_AVAILABLE_PORT,
-                         pt.select_device("video", "sink", "hdmi"))
+        self.assertEqual(
+            PipewireTestError.NO_AVAILABLE_PORT,
+            pt.select_device("video", "sink", "hdmi"),
+        )
 
     @patch("subprocess.check_output")
     def test_no_available_node(self, mock_checkout):
         pt = PipewireTest()
 
         # parameters error
-        self.assertEqual(PipewireTestError.NO_AVAILABLE_PORT,
-                         pt.select_device("xxx", "sink", "hdmi"))
-        self.assertEqual(PipewireTestError.NO_AVAILABLE_PORT,
-                         pt.select_device("video", "xxx", "hdmi"))
+        self.assertEqual(
+            PipewireTestError.NO_AVAILABLE_PORT,
+            pt.select_device("xxx", "sink", "hdmi"),
+        )
+        self.assertEqual(
+            PipewireTestError.NO_AVAILABLE_PORT,
+            pt.select_device("video", "xxx", "hdmi"),
+        )
 
         mock_checkout.return_value = self.sink_audio_node
-        self.assertEqual(PipewireTestError.NO_AVAILABLE_PORT,
-                         pt.select_device("video", "sink", "hdmi"))
+        self.assertEqual(
+            PipewireTestError.NO_AVAILABLE_PORT,
+            pt.select_device("video", "sink", "hdmi"),
+        )
 
     @patch("builtins.input")
     @patch("subprocess.check_output")
@@ -320,8 +347,10 @@ class SelectDeviceTests(unittest.TestCase):
         mock_checkout.return_value = self.sink_audio_node
         mock_input.side_effect = ["t", 29]
         pt = PipewireTest()
-        self.assertEqual(PipewireTestError.NO_ERROR,
-                         pt.select_device("audio", "sink", "hdmi"))
+        self.assertEqual(
+            PipewireTestError.NO_ERROR,
+            pt.select_device("audio", "sink", "hdmi"),
+        )
 
     @patch("builtins.input")
     @patch("subprocess.check_output")
@@ -329,8 +358,10 @@ class SelectDeviceTests(unittest.TestCase):
         mock_checkout.return_value = self.sink_audio_node
         mock_input.side_effect = ["t", "-1"]
         pt = PipewireTest()
-        self.assertEqual(PipewireTestError.NO_ERROR,
-                         pt.select_device("audio", "sink", "hdmi"))
+        self.assertEqual(
+            PipewireTestError.NO_ERROR,
+            pt.select_device("audio", "sink", "hdmi"),
+        )
 
 
 class GstPipeLineTests(unittest.TestCase):
@@ -383,8 +414,10 @@ class GstPipeLineTests(unittest.TestCase):
         pt = PipewireTest()
 
         mock_checkout.return_value = self.device
-        self.assertEqual(PipewireTestError.NO_SPECIFIC_DEVICE,
-                         pt.gst_pipeline("pipe", 10, "qoo"))
+        self.assertEqual(
+            PipewireTestError.NO_SPECIFIC_DEVICE,
+            pt.gst_pipeline("pipe", 10, "qoo"),
+        )
 
     @patch("time.sleep")
     @patch("subprocess.check_output")
@@ -392,10 +425,16 @@ class GstPipeLineTests(unittest.TestCase):
         pt = PipewireTest()
 
         mock_checkout.return_value = self.device
-        self.assertEqual(PipewireTestError.NO_ERROR,
-                         pt.gst_pipeline("audiotestsrc wave=sine freq=512"
-                                         " ! audioconvert ! audioresample"
-                                         " ! autoaudiosink", 2, "hdmi"))
+        self.assertEqual(
+            PipewireTestError.NO_ERROR,
+            pt.gst_pipeline(
+                "audiotestsrc wave=sine freq=512"
+                " ! audioconvert ! audioresample"
+                " ! autoaudiosink",
+                2,
+                "hdmi",
+            ),
+        )
 
 
 class MonitorActivePortTests(unittest.TestCase):
@@ -492,16 +531,20 @@ class MonitorActivePortTests(unittest.TestCase):
         pt = PipewireTest()
 
         mock_checkout.return_value = self.before_device
-        self.assertEqual(PipewireTestError.NO_CHANGE_DETECTED,
-                         pt.monitor_active_port_change(2, "sink"))
+        self.assertEqual(
+            PipewireTestError.NO_CHANGE_DETECTED,
+            pt.monitor_active_port_change(2, "sink"),
+        )
 
     @patch("subprocess.check_output")
     def test_could_detect_change(self, mock_checkout):
         pt = PipewireTest()
 
         mock_checkout.side_effect = [self.before_device, self.after_device]
-        self.assertEqual(PipewireTestError.NO_ERROR,
-                         pt.monitor_active_port_change(2, "sink"))
+        self.assertEqual(
+            PipewireTestError.NO_ERROR,
+            pt.monitor_active_port_change(2, "sink"),
+        )
 
 
 class GoThroughPortTests(unittest.TestCase):
@@ -570,23 +613,29 @@ class ShowDefaultDeviceTests(unittest.TestCase):
     def test_video_sink_not_call(self, mock_check):
         pt = PipewireTest()
 
-        mock_check.side_effect = ["node.description=xxx",
-                                  "node.description=ooo"]
+        mock_check.side_effect = [
+            "node.description=xxx",
+            "node.description=ooo",
+        ]
         pt.show_default_device("VIDEO")
-        mock_check.assert_called_with(["wpctl", "inspect",
-                                       "@DEFAULT_VIDEO_SOURCE@"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            ["wpctl", "inspect", "@DEFAULT_VIDEO_SOURCE@"],
+            universal_newlines=True,
+        )
 
     @patch("subprocess.check_output")
     def test_audio(self, mock_check):
         pt = PipewireTest()
 
-        mock_check.side_effect = ["node.description=xxx",
-                                  "node.description=ooo"]
+        mock_check.side_effect = [
+            "node.description=xxx",
+            "node.description=ooo",
+        ]
         pt.show_default_device("AUDIO")
-        mock_check.assert_called_with(["wpctl", "inspect",
-                                       "@DEFAULT_AUDIO_SINK@"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            ["wpctl", "inspect", "@DEFAULT_AUDIO_SINK@"],
+            universal_newlines=True,
+        )
 
 
 class SortWpctlStatusTests(unittest.TestCase):
@@ -810,8 +859,10 @@ Settings
     @patch("pipewire_utils.PipewireTest._sort_wpctl_status")
     def test_match(self, mock_wp_status, mock_open):
         pt = PipewireTest()
-        mock_wp_status.side_effect = [self.status_sorted_list,
-                                      self.status_sorted_list]
+        mock_wp_status.side_effect = [
+            self.status_sorted_list,
+            self.status_sorted_list,
+        ]
         rv = pt.compare_wpctl_status("s1", "s2")
         self.assertEqual(rv, None)
 
@@ -819,8 +870,10 @@ Settings
     @patch("pipewire_utils.PipewireTest._sort_wpctl_status")
     def test_not_match(self, mock_wp_status, mock_open):
         pt = PipewireTest()
-        mock_wp_status.side_effect = [self.status_sorted_list,
-                                      self.status_sorted_not_match_list]
+        mock_wp_status.side_effect = [
+            self.status_sorted_list,
+            self.status_sorted_not_match_list,
+        ]
         with self.assertRaises(SystemExit):
             pt.compare_wpctl_status("s1", "s2")
 
@@ -902,8 +955,10 @@ class FunctionSelectTests(unittest.TestCase):
         rv = pt.function_select(pt._args_parsing(args))
         self.assertEqual(rv, 77)
 
-    @patch("pipewire_utils.PipewireTest.monitor_active_port_change",
-           return_value=66)
+    @patch(
+        "pipewire_utils.PipewireTest.monitor_active_port_change",
+        return_value=66,
+    )
     def test_monitor(self, mock_monitor):
         pt = PipewireTest()
         args = ["monitor", "-t", "30", "-m", "mode"]

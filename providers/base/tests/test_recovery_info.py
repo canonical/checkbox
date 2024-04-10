@@ -26,10 +26,9 @@ import recovery_info
 
 
 class FunctionTests(unittest.TestCase):
-
     """Tests for several functions."""
 
-    @mock.patch('subprocess.check_output')
+    @mock.patch("subprocess.check_output")
     def test_get_recovery_package(self, mock_subprocess_check_output):
         """Smoke test for get_recovery_package()."""
         mock_subprocess_check_output.return_value = """\
@@ -40,47 +39,51 @@ dell-recovery:
      1.11
         500 https://archive/cesg-mirror/ test/public amd64 Packages
 """
-        self.assertEqual(recovery_info.get_recovery_package(),
-                         "dell-recovery_1.11")
+        self.assertEqual(
+            recovery_info.get_recovery_package(), "dell-recovery_1.11"
+        )
 
-    @mock.patch('subprocess.check_output')
+    @mock.patch("subprocess.check_output")
     def test_get_recovery_partition(self, mock_subprocess_check_output):
         """Smoke test for get_recovery_partition()."""
         mock_subprocess_check_output.return_value = (
-            b'TYPE FSTYPE NAME LABEL\n'
-            b'disk linux_raid_member sda fx:2x250GB\n'
-            b'raid1 bcache md127 \n'
-            b'disk ext4 bcache0 Ultra\n'
-            b'disk linux_raid_member sdb fx:2x250GB\n'
-            b'raid1 bcache md127 \n'
-            b'disk ext4 bcache0 Ultra\n'
-            b'disk  sdc \n'
-            b'part btrfs sdc1 vol1\n'
-            b'disk  sdd \n'
-            b'part ntfs sdd1 Windows\x208.1\n'
-            b'part  sdd2 \n'
-            b'part ext4 sdd5 Utopic\n'
-            b'part swap sdd6 \n'
-            b'disk bcache sde \n'
-            b'disk ext4 bcache0 Ultra\n'
-            b'disk  sdf \n'
-            b'part ntfs sda3 RECOVERY\n')
-        self.assertEqual(recovery_info.get_recovery_partition(),
-                         ("DELL", "/dev/sda3"))
+            b"TYPE FSTYPE NAME LABEL\n"
+            b"disk linux_raid_member sda fx:2x250GB\n"
+            b"raid1 bcache md127 \n"
+            b"disk ext4 bcache0 Ultra\n"
+            b"disk linux_raid_member sdb fx:2x250GB\n"
+            b"raid1 bcache md127 \n"
+            b"disk ext4 bcache0 Ultra\n"
+            b"disk  sdc \n"
+            b"part btrfs sdc1 vol1\n"
+            b"disk  sdd \n"
+            b"part ntfs sdd1 Windows\x208.1\n"
+            b"part  sdd2 \n"
+            b"part ext4 sdd5 Utopic\n"
+            b"part swap sdd6 \n"
+            b"disk bcache sde \n"
+            b"disk ext4 bcache0 Ultra\n"
+            b"disk  sdf \n"
+            b"part ntfs sda3 RECOVERY\n"
+        )
+        self.assertEqual(
+            recovery_info.get_recovery_partition(), ("DELL", "/dev/sda3")
+        )
 
     def test_lsblk_unescape(self):
         """Smoke tests for lsblk_unescape()."""
-        self.assertEqual(recovery_info.lsblk_unescape(
-            'Windows\\x208.1'), 'Windows 8.1')
-        self.assertEqual(recovery_info.lsblk_unescape(
-            'Windows XP'), 'Windows XP')
+        self.assertEqual(
+            recovery_info.lsblk_unescape("Windows\\x208.1"), "Windows 8.1"
+        )
+        self.assertEqual(
+            recovery_info.lsblk_unescape("Windows XP"), "Windows XP"
+        )
 
 
 class MountedPartitionTests(unittest.TestCase):
-
     """Unittest of MountedPartition."""
 
-    @mock.patch('subprocess.check_output')
+    @mock.patch("subprocess.check_output")
     def test_with_of_MountedPartition(self, mock_subprocess_check_output):
         """Test mount point."""
         test_dir = ""
@@ -88,36 +91,41 @@ class MountedPartitionTests(unittest.TestCase):
             test_dir = tmp
             self.assertTrue(os.path.exists(test_dir))
             mock_subprocess_check_output.assert_has_calls(
-                [mock.call(['mount', '/dev/test', test_dir],
-                           universal_newlines=True)])
+                [
+                    mock.call(
+                        ["mount", "/dev/test", test_dir],
+                        universal_newlines=True,
+                    )
+                ]
+            )
         self.assertFalse(os.path.exists(test_dir))
         mock_subprocess_check_output.assert_has_calls(
-            [mock.call(['umount', test_dir],
-                       universal_newlines=True)])
+            [mock.call(["umount", test_dir], universal_newlines=True)]
+        )
 
 
 @patch("builtins.print", new=MagicMock())
 class RecoveryInfoTests(unittest.TestCase):
-
     """Tests for RecoveryInfo."""
 
-    @mock.patch('recovery_info.get_recovery_package')
-    @mock.patch('recovery_info.get_recovery_partition')
-    def test_smoke(self, mock_get_recovery_partition,
-                   mock_get_recovery_package):
+    @mock.patch("recovery_info.get_recovery_package")
+    @mock.patch("recovery_info.get_recovery_partition")
+    def test_smoke(
+        self, mock_get_recovery_partition, mock_get_recovery_package
+    ):
         """Smoke tests for running recovery_info."""
         mock_get_recovery_partition.return_value = ("DELL", "/dev/sda3")
         mock_get_recovery_package.return_value = "dell-recovery_1.11"
 
         testargs = ["recovery_info.py"]
-        with patch.object(sys, 'argv', testargs):
+        with patch.object(sys, "argv", testargs):
             self.assertIsNone(recovery_info.RecoveryInfo().main())
 
         testargs = ["recovery_info.py", "checktype", "HP"]
-        with patch.object(sys, 'argv', testargs):
+        with patch.object(sys, "argv", testargs):
             with self.assertRaises(SystemExit):
                 recovery_info.RecoveryInfo().main()
 
         testargs = ["recovery_info.py", "checktype", "DELL"]
-        with patch.object(sys, 'argv', testargs):
+        with patch.object(sys, "argv", testargs):
             self.assertIsNone(recovery_info.RecoveryInfo().main())

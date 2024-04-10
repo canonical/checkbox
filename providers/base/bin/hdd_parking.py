@@ -46,8 +46,11 @@ TIMEOUT = 15.0
 def hdaps_test(run_time):
     try:
         hdapsd = Popen(
-            ['/usr/sbin/hdapsd'], stdout=PIPE, stderr=PIPE,
-            universal_newlines=True)
+            ["/usr/sbin/hdapsd"],
+            stdout=PIPE,
+            stderr=PIPE,
+            universal_newlines=True,
+        )
     except OSError as err:
         print("Unable to start hdapsd: {}".format(err))
         return 1
@@ -56,21 +59,28 @@ def hdaps_test(run_time):
     # Look for parking message in hdapsd output.
     stdout = hdapsd.communicate()[0]
     print(stdout)
-    for line in stdout.split('\n'):
-        if line.endswith('parking'):
+    for line in stdout.split("\n"):
+        if line.endswith("parking"):
             return 0
     return 1
 
 
 def main():
     # First establish the driver used
-    parser = ArgumentParser("Tests a systems HDD protection capabilities. "
-                            "Requires the system to be moved by the tester.")
-    parser.add_argument('-t', '--timeout',
-                        default=TIMEOUT,
-                        help='The time allowed before the test fails.')
-    print('Starting HDD protection test - move the system around on '
-          'all axis. No particular force should be required.')
+    parser = ArgumentParser(
+        "Tests a systems HDD protection capabilities. "
+        "Requires the system to be moved by the tester."
+    )
+    parser.add_argument(
+        "-t",
+        "--timeout",
+        default=TIMEOUT,
+        help="The time allowed before the test fails.",
+    )
+    print(
+        "Starting HDD protection test - move the system around on "
+        "all axis. No particular force should be required."
+    )
     return hdaps_test(parser.parse_args().timeout)
 
 

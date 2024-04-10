@@ -40,8 +40,9 @@ def get_recovery_package():
         string of package_version or None
     """
     for pkg in RECOVERY_PACKAGES:
-        output = subprocess.check_output(["apt-cache", "policy", pkg],
-                                         universal_newlines=True)
+        output = subprocess.check_output(
+            ["apt-cache", "policy", pkg], universal_newlines=True
+        )
         for line in output.split("\n"):
             if line.startswith("  Installed:"):
                 ver = line.split(": ")[1]
@@ -49,21 +50,24 @@ def get_recovery_package():
     return None
 
 
-RECOVERY_LABELS = {"HP_TOOLS": "HP",
-                   "PQSERVICE": "UBUNTU",
-                   "BACKUP": "TEST",
-                   "INSTALL": "DELL",
-                   "OS": "DELL",
-                   "RECOVERY": "DELL"}
+RECOVERY_LABELS = {
+    "HP_TOOLS": "HP",
+    "PQSERVICE": "UBUNTU",
+    "BACKUP": "TEST",
+    "INSTALL": "DELL",
+    "OS": "DELL",
+    "RECOVERY": "DELL",
+}
 
 
-_escape_pattern = re.compile(r'\\x([0-9a-fA-F][0-9a-fA-F])')
+_escape_pattern = re.compile(r"\\x([0-9a-fA-F][0-9a-fA-F])")
 
 
 def lsblk_unescape(label):
     """Un-escape text escaping done by lsblk(8)."""
     return _escape_pattern.sub(
-        lambda match: chr(int(match.group(1), 16)), label)
+        lambda match: chr(int(match.group(1), 16)), label
+    )
 
 
 def get_recovery_partition():
@@ -76,26 +80,25 @@ def get_recovery_partition():
     Use lsblk(8) to inspect available block devices looking
     for a partition with FAT or NTFS and a well-known label.
     """
-    cmd = ['lsblk', '-o', 'TYPE,FSTYPE,NAME,LABEL', '--raw']
+    cmd = ["lsblk", "-o", "TYPE,FSTYPE,NAME,LABEL", "--raw"]
     for line in subprocess.check_output(cmd).splitlines()[1:]:
-        type, fstype, name, label = line.split(b' ', 3)
+        type, fstype, name, label = line.split(b" ", 3)
         # Skip everything but partitions
-        if type != b'part':
+        if type != b"part":
             continue
         # Skip everything but FAT and NTFS
-        if fstype != b'vfat' and fstype != b'ntfs':
+        if fstype != b"vfat" and fstype != b"ntfs":
             continue
-        label = lsblk_unescape(label.decode('utf-8'))
+        label = lsblk_unescape(label.decode("utf-8"))
         recovery_type = RECOVERY_LABELS.get(label)
         # Skip unknown labels
         if recovery_type is None:
             continue
-        recovery_partition = '/dev/{}'.format(name.decode('utf-8'))
+        recovery_partition = "/dev/{}".format(name.decode("utf-8"))
         return (recovery_type, recovery_partition)
 
 
 class MountedPartition(object):
-
     """
     Mount Manager to mount partition on tempdir.
 
@@ -130,13 +133,13 @@ class MountedPartition(object):
 
         Unmount and remove the mntdir.
         """
-        subprocess.check_output(["umount", self.mntdir],
-                                universal_newlines=True)
+        subprocess.check_output(
+            ["umount", self.mntdir], universal_newlines=True
+        )
         os.rmdir(self.mntdir)
 
 
-class RecoveryInfo():
-
+class RecoveryInfo:
     """
     Inspect the recovery partition.
 
@@ -158,31 +161,33 @@ class RecoveryInfo():
         (recovery_type, recovery_partition) = partition
 
         subcommand = sys.argv[1]
-        sub_commands = ('version', 'file', 'checktype')
+        sub_commands = ("version", "file", "checktype")
         if subcommand not in sub_commands:
             raise SystemExit("ERROR: unexpected subcommand")
 
         if subcommand == "checktype":
             if len(sys.argv) != 3:
                 raise SystemExit(
-                    "ERROR: recovery_info.py checktype EXPECTED_TYPE")
+                    "ERROR: recovery_info.py checktype EXPECTED_TYPE"
+                )
             expected_type = sys.argv[2]
             if recovery_type != expected_type:
-                raise SystemExit("FAIL: expected {}, found {}".format(
-                    expected_type, recovery_type))
+                raise SystemExit(
+                    "FAIL: expected {}, found {}".format(
+                        expected_type, recovery_type
+                    )
+                )
 
         if subcommand == "file":
             if len(sys.argv) != 3:
-                raise SystemExit(
-                    "ERROR: recovery_info.py file FILE")
+                raise SystemExit("ERROR: recovery_info.py file FILE")
             file = sys.argv[2]
             with MountedPartition(recovery_partition) as mnt:
-                return subprocess.call([
-                    'cat', '--', os.path.join(mnt, file)])
+                return subprocess.call(["cat", "--", os.path.join(mnt, file)])
 
         if subcommand == "version":
             if os.path.isfile("/etc/buildstamp"):
-                with open('/etc/buildstamp', 'rt', encoding='UTF-8') as stream:
+                with open("/etc/buildstamp", "rt", encoding="UTF-8") as stream:
                     data = stream.readlines()
                     print("image_version: {}".format(data[1].strip()))
 
@@ -202,5 +207,5 @@ class RecoveryInfo():
                     print("bto_version: {}".format(bto_version))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     RecoveryInfo().main()

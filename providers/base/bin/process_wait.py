@@ -17,7 +17,8 @@ def process_pids(process, *options):
 
     # Exclude this process and the pgrep process
     subprocess = Popen(
-        command, stdout=PIPE, shell=True, universal_newlines=True)
+        command, stdout=PIPE, shell=True, universal_newlines=True
+    )
     exclude_pids = [os.getpid(), os.getppid(), subprocess.pid]
 
     pids_string = subprocess.communicate()[0]
@@ -37,17 +38,23 @@ def main(args):
     usage = "Usage: %prog PROCESS [PROCESS...]"
     parser = OptionParser(usage=usage)
     parser.add_option(
-        "-s", "--sleep",
+        "-s",
+        "--sleep",
         type="int",
         default=default_sleep,
-        help="Number of seconds to sleep between checks.")
+        help="Number of seconds to sleep between checks.",
+    )
     parser.add_option(
-        "-t", "--timeout",
+        "-t",
+        "--timeout",
         type="int",
-        help="Number of seconds to timeout from sleeping.")
+        help="Number of seconds to timeout from sleeping.",
+    )
     parser.add_option(
-        "-u", "--uid",
-        help="Effective user name or id of the running processes")
+        "-u",
+        "--uid",
+        help="Effective user name or id of the running processes",
+    )
     (options, processes) = parser.parse_args(args)
 
     process_args = []

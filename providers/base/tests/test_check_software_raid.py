@@ -8,9 +8,7 @@ class TestCheckSoftwareRAID(unittest.TestCase):
 
     def test_get_md_stat_intel_raid(self):
 
-        expected_data = [
-            {"device": "md126", "mode": "raid0"}
-        ]
+        expected_data = [{"device": "md126", "mode": "raid0"}]
         raid_data = check_software_raid.get_md_stat(
             "tests/test_data/mdstat_intel_rst.txt"
         )
@@ -20,7 +18,7 @@ class TestCheckSoftwareRAID(unittest.TestCase):
 
         expected_data = [
             {"device": "md2", "mode": "raid1"},
-            {"device": "md1", "mode": "raid0"}
+            {"device": "md1", "mode": "raid0"},
         ]
         raid_data = check_software_raid.get_md_stat(
             "tests/test_data/mdstat_multiple_raid.txt"
@@ -40,7 +38,7 @@ class TestCheckSoftwareRAID(unittest.TestCase):
 
         mock_get_md.return_value = [
             {"device": "md2", "mode": "raid1"},
-            {"device": "md1", "mode": "raid0"}
+            {"device": "md1", "mode": "raid0"},
         ]
 
         check_software_raid.check_raid_mode_test("raid1 raid0")
@@ -50,11 +48,12 @@ class TestCheckSoftwareRAID(unittest.TestCase):
     @patch("check_software_raid.dump_raid_info")
     @patch("check_software_raid.get_md_stat")
     def test_check_raid_mode_param_with_redundant_space(
-                    self, mock_get_md, mock_dump_raid):
+        self, mock_get_md, mock_dump_raid
+    ):
 
         mock_get_md.return_value = [
             {"device": "md2", "mode": "raid1"},
-            {"device": "md1", "mode": "raid0"}
+            {"device": "md1", "mode": "raid0"},
         ]
 
         check_software_raid.check_raid_mode_test("  raid1  raid0  ")
@@ -63,11 +62,13 @@ class TestCheckSoftwareRAID(unittest.TestCase):
 
     @patch("check_software_raid.dump_raid_info")
     @patch("check_software_raid.get_md_stat")
-    def test_check_raid_mode_is_not_expected(self, mock_get_md, mock_dump_raid):
+    def test_check_raid_mode_is_not_expected(
+        self, mock_get_md, mock_dump_raid
+    ):
 
         mock_get_md.return_value = [
             {"device": "md2", "mode": "raid1"},
-            {"device": "md1", "mode": "raid0"}
+            {"device": "md1", "mode": "raid0"},
         ]
 
         with self.assertRaises(ValueError):

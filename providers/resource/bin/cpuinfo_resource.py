@@ -31,21 +31,23 @@ FREQUENCY_FILENAME = "/sys/devices/system/cpu/cpu0/cpufreq/cpuinfo_max_freq"
 
 # Filename where available frequency governors are stored.
 GOVERNORS_FILENAME = (
-    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors")
+    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_available_governors"
+)
 
 # Files for indicating system lpi(low power idle) residency
 SYSLPICHECK_FILENAMES = (
     "/sys/devices/system/cpu/cpuidle/low_power_idle_system_residency_us",
-    "/sys/kernel/debug/pmc_core/slp_s0_residency_usec")
+    "/sys/kernel/debug/pmc_core/slp_s0_residency_usec",
+)
 
 # Files for indicating Intel CPU lpi(low power idle) residency
 CPULPICHECK_FILENAMES = (
     "/sys/devices/system/cpu/cpuidle/low_power_idle_cpu_residency_us",
-    "/sys/kernel/debug/pmc_core/package_cstate_show")
+    "/sys/kernel/debug/pmc_core/package_cstate_show",
+)
 
 # Filename for cpufreq driver.
-CPUFREQ_DRIVER_FILENAME = (
-    "/sys/devices/system/cpu/cpu0/cpufreq/scaling_driver")
+CPUFREQ_DRIVER_FILENAME = "/sys/devices/system/cpu/cpu0/cpufreq/scaling_driver"
 
 
 class CpuinfoResult:

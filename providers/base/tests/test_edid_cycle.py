@@ -1,4 +1,5 @@
 """This module provides test cases for the edid_cycle module."""
+
 import unittest
 import textwrap
 from pathlib import Path

@@ -17,12 +17,12 @@ def main():
     args = parse_args()
 
     if not os.path.isfile(args.input_log_filename):
-        sys.stderr.write('Log file {0!r} not found\n'
-                         .format(args.input_log_filename))
+        sys.stderr.write(
+            "Log file {0!r} not found\n".format(args.input_log_filename)
+        )
         sys.exit(NOT_FOUND)
 
-    LoggingConfiguration.set(args.log_level,
-                             args.output_log_filename)
+    LoggingConfiguration.set(args.log_level, args.output_log_filename)
     parser = Parser(args.input_log_filename)
     results = parser.parse()
 
@@ -36,16 +36,19 @@ class Parser(object):
     """
     Reboot test log file parser
     """
-    is_logging_line = (re.compile(
-        r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}').search)
-    is_getting_info_line = (re.compile('Gathering hardware information...$')
-                            .search)
-    is_executing_line = (re.compile("Executing: '(?P<command>.*)'...$")
-                         .search)
-    is_output_line = re.compile('Output:$').search
-    is_field_line = (re.compile('^- (?P<field>returncode|stdout|stderr):$')
-                     .match)
-    is_test_complete_line = re.compile('test complete$').search
+
+    is_logging_line = re.compile(
+        r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}"
+    ).search
+    is_getting_info_line = re.compile(
+        "Gathering hardware information...$"
+    ).search
+    is_executing_line = re.compile("Executing: '(?P<command>.*)'...$").search
+    is_output_line = re.compile("Output:$").search
+    is_field_line = re.compile(
+        "^- (?P<field>returncode|stdout|stderr):$"
+    ).match
+    is_test_complete_line = re.compile("test complete$").search
 
     def __init__(self, filename):
         self.filename = filename
@@ -76,7 +79,7 @@ class Parser(object):
 
             match = self.is_executing_line(line)
             if match:
-                command = match.group('command')
+                command = match.group("command")
                 command_output = self._parse_command_output(iterator)
 
                 if command_output is not None:
@@ -103,10 +106,7 @@ class Parser(object):
             if self.is_output_line(line):
                 command_output = {}
                 break
-            if (
-                self.is_executing_line(line) or
-                self.is_getting_info_line(line)
-            ):
+            if self.is_executing_line(line) or self.is_getting_info_line(line):
                 # Skip commands with no output
                 iterator.unnext(line)
                 return None
@@ -115,7 +115,7 @@ class Parser(object):
         for line in iterator:
             match = self.is_field_line(line)
             if match:
-                field = match.group('field')
+                field = match.group("field")
                 value = self._parse_command_output_field(iterator)
                 command_output[field] = value
             # Exit when all command output fields
@@ -134,16 +134,13 @@ class Parser(object):
         # for the field value
         value = []
         for line in iterator:
-            if (
-                self.is_logging_line(line) or
-                self.is_field_line(line)
-            ):
+            if self.is_logging_line(line) or self.is_field_line(line):
                 iterator.unnext(line)
                 break
 
             value.append(line)
 
-        value = ''.join(value)
+        value = "".join(value)
         return value
 
 
@@ -182,15 +179,16 @@ class LoggingConfiguration(object):
         # Log to sys.stderr using log level passed through command line
         if log_level != logging.NOTSET:
             log_handler = logging.StreamHandler()
-            formatter = logging.Formatter('%(levelname)-8s %(message)s')
+            formatter = logging.Formatter("%(levelname)-8s %(message)s")
             log_handler.setFormatter(formatter)
             log_handler.setLevel(log_level)
             logger.addHandler(log_handler)
 
         # Log to rotating file using DEBUG log level
-        log_handler = logging.FileHandler(log_filename, mode='w')
-        formatter = logging.Formatter('%(asctime)s %(levelname)-8s '
-                                      '%(message)s')
+        log_handler = logging.FileHandler(log_filename, mode="w")
+        formatter = logging.Formatter(
+            "%(asctime)s %(levelname)-8s " "%(message)s"
+        )
         log_handler.setFormatter(formatter)
         log_handler.setLevel(logging.DEBUG)
         logger.addHandler(log_handler)
@@ -209,33 +207,41 @@ def compare_results(results):
             result_output = result[command]
 
             error_messages = []
-            fields = (set(baseline_output.keys()) |
-                      set(result_output.keys()))
+            fields = set(baseline_output.keys()) | set(result_output.keys())
             for field in fields:
-                baseline_field = baseline_output.get(field, '')
-                result_field = result_output.get(field, '')
+                baseline_field = baseline_output.get(field, "")
+                result_field = result_output.get(field, "")
 
                 if baseline_field != result_field:
                     differ = difflib.Differ()
 
-                    message = ["** {field!r} field doesn't match:"
-                               .format(field=field)]
-                    comparison = differ.compare(baseline_field.splitlines(),
-                                                result_field.splitlines())
+                    message = [
+                        "** {field!r} field doesn't match:".format(field=field)
+                    ]
+                    comparison = differ.compare(
+                        baseline_field.splitlines(), result_field.splitlines()
+                    )
                     message.extend(list(comparison))
-                    error_messages.append('\n'.join(message))
+                    error_messages.append("\n".join(message))
 
             if not error_messages:
-                logging.debug('[Iteration {0}] {1}...\t[OK]'
-                              .format(index + 1, command))
+                logging.debug(
+                    "[Iteration {0}] {1}...\t[OK]".format(index + 1, command)
+                )
             else:
                 success = False
-                if command.startswith('fwts'):
-                    logging.error('[Iteration {0}] {1}...\t[FAIL]'
-                                  .format(index + 1, command))
+                if command.startswith("fwts"):
+                    logging.error(
+                        "[Iteration {0}] {1}...\t[FAIL]".format(
+                            index + 1, command
+                        )
+                    )
                 else:
-                    logging.error('[Iteration {0}] {1}...\t[FAIL]\n'
-                                  .format(index + 1, command))
+                    logging.error(
+                        "[Iteration {0}] {1}...\t[FAIL]\n".format(
+                            index + 1, command
+                        )
+                    )
                     for message in error_messages:
                         logging.error(message)
 
@@ -246,26 +252,37 @@ def parse_args():
     """
     Parse command-line arguments
     """
-    parser = ArgumentParser(description=('Check power management '
-                                         'test case results'))
-    parser.add_argument('input_log_filename', metavar='log_filename',
-                        help=('Path to the input log file '
-                              'on which to perform the check'))
-    parser.add_argument('output_log_filename', metavar='log_filename',
-                        help=('Path to the output log file '
-                              'for the results of the check'))
-    log_levels = ['notset', 'debug', 'info', 'warning', 'error', 'critical']
-    parser.add_argument('--log-level', dest='log_level', default='info',
-                        choices=log_levels,
-                        help=('Log level. '
-                              'One of {0} or {1} (%(default)s by default)'
-                              .format(', '.join(log_levels[:-1]),
-                                      log_levels[-1])))
+    parser = ArgumentParser(
+        description=("Check power management " "test case results")
+    )
+    parser.add_argument(
+        "input_log_filename",
+        metavar="log_filename",
+        help=("Path to the input log file " "on which to perform the check"),
+    )
+    parser.add_argument(
+        "output_log_filename",
+        metavar="log_filename",
+        help=("Path to the output log file " "for the results of the check"),
+    )
+    log_levels = ["notset", "debug", "info", "warning", "error", "critical"]
+    parser.add_argument(
+        "--log-level",
+        dest="log_level",
+        default="info",
+        choices=log_levels,
+        help=(
+            "Log level. "
+            "One of {0} or {1} (%(default)s by default)".format(
+                ", ".join(log_levels[:-1]), log_levels[-1]
+            )
+        ),
+    )
     args = parser.parse_args()
     args.log_level = getattr(logging, args.log_level.upper())
 
     return args
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

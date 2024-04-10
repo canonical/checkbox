@@ -27,9 +27,10 @@ import os
 import time
 import subprocess
 import warnings
+
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-gi.require_version('Gdk', '3.0')
+gi.require_version("Gdk", "3.0")
 from gi.repository import Gdk  # noqa: E402
 
 
@@ -38,16 +39,18 @@ def main():
     screen = Gdk.Screen.get_default()
     output = screen.get_monitor_plug_name(screen.get_primary_monitor())
     print("Using output: {}".format(output))
-    for rotation in ['right', 'inverted', 'left', 'normal']:
-        if os.getenv('XDG_SESSION_TYPE') == 'wayland':
+    for rotation in ["right", "inverted", "left", "normal"]:
+        if os.getenv("XDG_SESSION_TYPE") == "wayland":
             subprocess.check_call(
-                ['gnome-randr', 'modify', output, '--rotate', rotation])
+                ["gnome-randr", "modify", output, "--rotate", rotation]
+            )
         else:
             print("setting rotation to {}".format(rotation))
             subprocess.check_call(
-                ['xrandr', '--output', output, '--rotation', rotation])
+                ["xrandr", "--output", output, "--rotation", rotation]
+            )
         time.sleep(8)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     exit(main())

@@ -28,7 +28,6 @@ import dkms_info
 
 @patch("logging.Logger.info", new=MagicMock())
 class SystemInfoTests(unittest.TestCase):
-
     """Tests for System Information Parsing and Collection."""
 
     _proc_modules = """\
@@ -49,33 +48,44 @@ usb:v1D6Bp0003d0319dc09dsc00dp03ic09isc00ip00in00
         dkms_info.get_system_module_list.cache_clear()
         dkms_info.get_system_modaliases.cache_clear()
 
-    @mock.patch('io.open', mock.mock_open(read_data=_proc_modules))
+    @mock.patch("io.open", mock.mock_open(read_data=_proc_modules))
     def test_get_module_list__calls_and_parses_lsmod(self):
         """Ensure that get_module_list() parses lsmod output."""
         # NOTE: Return value was loaded from my system running kernel 4.0.
         # The first few and last rows to be precise.
         modules = dkms_info.get_system_module_list()
-        self.assertEqual(modules, [
-            'xt_REDIRECT', 'nf_nat_redirect', 'xt_hl', 'hid_generic',
-            'usbhid', 'hid', 'overlay'])
+        self.assertEqual(
+            modules,
+            [
+                "xt_REDIRECT",
+                "nf_nat_redirect",
+                "xt_hl",
+                "hid_generic",
+                "usbhid",
+                "hid",
+                "overlay",
+            ],
+        )
 
-    @mock.patch('io.open', mock.mock_open(read_data=_proc_modules))
+    @mock.patch("io.open", mock.mock_open(read_data=_proc_modules))
     def test_get_module_list_is_cached(self):
         """Ensure that get_module_list() cache works."""
         modules1 = dkms_info.get_system_module_list()
         modules2 = dkms_info.get_system_module_list()
-        self.assertIn('xt_REDIRECT', modules1)
-        self.assertIn('overlay', modules2)
+        self.assertIn("xt_REDIRECT", modules1)
+        self.assertIn("overlay", modules2)
         self.assertEqual(modules1, modules2)
 
-    @mock.patch('os.walk')
-    @mock.patch('io.open', mock.mock_open(read_data=_modalias))
+    @mock.patch("os.walk")
+    @mock.patch("io.open", mock.mock_open(read_data=_modalias))
     def test_get_system_modalias(self, mock_os_walk):
         """test_get_system_modalias."""
         mock_os_walk.return_value = [
-            ("/sys/devices/pci0000:00/0000:00:14.0/usb2/2-0:1.0/modalias",
-             ["driver", "subsystem"],
-             ["modalias", "uevent"]),
+            (
+                "/sys/devices/pci0000:00/0000:00:14.0/usb2/2-0:1.0/modalias",
+                ["driver", "subsystem"],
+                ["modalias", "uevent"],
+            ),
         ]
 
         """fetch hw_modaliases from machine and check modalis types."""
@@ -83,46 +93,55 @@ usb:v1D6Bp0003d0319dc09dsc00dp03ic09isc00ip00in00
         self.assertEqual(len(modaliases), 1)
         self.assertIn("usb", modaliases)
 
-    @mock.patch('os.uname')
-    @mock.patch('os.walk')
+    @mock.patch("os.uname")
+    @mock.patch("os.walk")
     def test_get_installed_dkms_modules(self, mock_os_walk, mock_os_uname):
         """test_get_installed_dkms_modules."""
         mock_os_walk.return_value = [
-            ("/var/lib/dkms/hello/0.1",
-             ["3.19.0-15-generic", "build", "source"],
-             []),
+            (
+                "/var/lib/dkms/hello/0.1",
+                ["3.19.0-15-generic", "build", "source"],
+                [],
+            ),
         ]
         o = mock.Mock()
         o.release = "3.19.0-15-generic"
         mock_os_uname.return_value = o
-        self.assertEqual([['hello', '0.1']],
-                         dkms_info.get_installed_dkms_modules())
+        self.assertEqual(
+            [["hello", "0.1"]], dkms_info.get_installed_dkms_modules()
+        )
 
-    @mock.patch('dkms_info.get_system_modaliases')
+    @mock.patch("dkms_info.get_system_modaliases")
     def test_match_patterns(self, mock_get_system_modaliases):
         """Test of match_patterns."""
         mock_get_system_modaliases.return_value = {
-            "pci": ["v0000168Cd00000036sv0000103Csd0000217Fbc02sc80i00",
-                    "v00008086d00008C26sv0000103Csd000022D9bc0Csc03i20"],
-            "usb": ["v8087p8000d0005dc09dsc00dp01ic09isc00ip00in00",
-                    "v1D6Bp0002d0319dc09dsc00dp00ic09isc00ip00in00"],
+            "pci": [
+                "v0000168Cd00000036sv0000103Csd0000217Fbc02sc80i00",
+                "v00008086d00008C26sv0000103Csd000022D9bc0Csc03i20",
+            ],
+            "usb": [
+                "v8087p8000d0005dc09dsc00dp01ic09isc00ip00in00",
+                "v1D6Bp0002d0319dc09dsc00dp00ic09isc00ip00in00",
+            ],
         }
-        pkg_modalieses = ["pci:v00008086d00008C26sv*sd*bc*sc*i*",
-                          "usb:v07B4p010Ad0102dc*dsc*dp*ic*isc*ip*in*",
-                          "oemalias:test"]
+        pkg_modalieses = [
+            "pci:v00008086d00008C26sv*sd*bc*sc*i*",
+            "usb:v07B4p010Ad0102dc*dsc*dp*ic*isc*ip*in*",
+            "oemalias:test",
+        ]
         matched_modalieses = dkms_info.match_patterns(tuple(pkg_modalieses))
         # match_patterns
-        self.assertIn("pci:v00008086d00008C26sv*sd*bc*sc*i*",
-                      matched_modalieses)
-        self.assertIn("oemalias:test",
-                      matched_modalieses)
-        self.assertNotIn("usb:v07B4p010Ad0102dc*dsc*dp*ic*isc*ip*in*",
-                         matched_modalieses)
+        self.assertIn(
+            "pci:v00008086d00008C26sv*sd*bc*sc*i*", matched_modalieses
+        )
+        self.assertIn("oemalias:test", matched_modalieses)
+        self.assertNotIn(
+            "usb:v07B4p010Ad0102dc*dsc*dp*ic*isc*ip*in*", matched_modalieses
+        )
 
 
 @patch("logging.Logger.info", new=MagicMock())
 class DebianPackageHandlerTest(unittest.TestCase):
-
     """Test of DebianPackageHandler."""
 
     _var_lib_dpkg_status = """\
@@ -145,17 +164,22 @@ Status: install ok installed
 
 """
 
-    @mock.patch('io.open', mock.mock_open(read_data=_var_lib_dpkg_status))
-    @mock.patch('dkms_info.get_system_modaliases')
+    @mock.patch("io.open", mock.mock_open(read_data=_var_lib_dpkg_status))
+    @mock.patch("dkms_info.get_system_modaliases")
     def test_get_pkgs(self, mock_get_system_modaliases):
         """Test of test_get_pkgs."""
         mock_get_system_modaliases.return_value = {
-            "pci": ["v0000168Cd00000036sv0000103Csd0000217Fbc02sc80i00",
-                    "v00008086d00008C26sv0000103Csd000022D9bc0Csc03i20"],
-            "usb": ["v8087p8000d0005dc09dsc00dp01ic09isc00ip00in00",
-                    "v1D6Bp0002d0319dc09dsc00dp00ic09isc00ip00in00"],
+            "pci": [
+                "v0000168Cd00000036sv0000103Csd0000217Fbc02sc80i00",
+                "v00008086d00008C26sv0000103Csd000022D9bc0Csc03i20",
+            ],
+            "usb": [
+                "v8087p8000d0005dc09dsc00dp01ic09isc00ip00in00",
+                "v1D6Bp0002d0319dc09dsc00dp00ic09isc00ip00in00",
+            ],
         }
 
         self.pkg_handler = dkms_info.DebianPackageHandler(
-            file_object=io.StringIO(self._var_lib_dpkg_status))
+            file_object=io.StringIO(self._var_lib_dpkg_status)
+        )
         self.assertEqual(len(self.pkg_handler.pkgs), 2)

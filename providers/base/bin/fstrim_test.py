@@ -33,10 +33,7 @@ import logging
 import shlex
 import sys
 from argparse import ArgumentParser
-from subprocess import (
-    PIPE,
-    Popen
-)
+from subprocess import PIPE, Popen
 from checkbox_support.disk_support import Disk
 
 
@@ -61,8 +58,9 @@ def run_fstrim(device):
         command = "fstrim -v {}".format(mount_point)
         triminfo = Popen(shlex.split(command), stdout=PIPE)
         lsbinfo_bytes = triminfo.communicate()[0]
-        lsbinfo = lsbinfo_bytes.decode(encoding="utf-8",
-                                       errors="ignore").rstrip()
+        lsbinfo = lsbinfo_bytes.decode(
+            encoding="utf-8", errors="ignore"
+        ).rstrip()
         logging.info(lsbinfo)
         retval = triminfo.returncode
     else:
@@ -72,8 +70,11 @@ def run_fstrim(device):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('--device-file', default="sda",
-                        help='The file within /dev that maps to the device')
+    parser.add_argument(
+        "--device-file",
+        default="sda",
+        help="The file within /dev that maps to the device",
+    )
     args = parser.parse_args()
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
@@ -82,5 +83,5 @@ def main():
     return retval
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

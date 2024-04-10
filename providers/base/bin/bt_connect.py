@@ -29,7 +29,7 @@ from argparse import ArgumentParser
 
 
 def unpair_all(devices, manager):
-    """ Unpairing paired devices and scanning again for rerun jobs."""
+    """Unpairing paired devices and scanning again for rerun jobs."""
     for dev in devices:
         try:
             print("INFO: Unpairing", dev)
@@ -39,8 +39,9 @@ def unpair_all(devices, manager):
     else:
         # print(flush=True) to bypass plainbox output buffer,
         # see LP: #1569808 for more details.
-        print("Please reset the device to pairing mode in 13 seconds",
-              flush=True)
+        print(
+            "Please reset the device to pairing mode in 13 seconds", flush=True
+        )
         time.sleep(13)
         print("INFO: Re-scaning for devices in pairing mode", flush=True)
         manager.scan()
@@ -48,17 +49,29 @@ def unpair_all(devices, manager):
 
 def main():
     """Add argument parser here and do most of the job."""
-    parser = ArgumentParser(description=("Bluetooth auto paring and connect. "
-                                         "Please select one option."))
+    parser = ArgumentParser(
+        description=(
+            "Bluetooth auto paring and connect. " "Please select one option."
+        )
+    )
     group = parser.add_mutually_exclusive_group(required=True)
-    group.add_argument("--mac", type=str,
-                       help="Pair with a given MAC, not using scan result,")
-    group.add_argument("--mouse", action="store_const",
-                       const="input-mouse", dest="target",
-                       help="List and pair with mouse devices")
-    group.add_argument("--keyboard", action="store_const",
-                       const="input-keyboard", dest="target",
-                       help="List and pair with keyboard devices")
+    group.add_argument(
+        "--mac", type=str, help="Pair with a given MAC, not using scan result,"
+    )
+    group.add_argument(
+        "--mouse",
+        action="store_const",
+        const="input-mouse",
+        dest="target",
+        help="List and pair with mouse devices",
+    )
+    group.add_argument(
+        "--keyboard",
+        action="store_const",
+        const="input-keyboard",
+        dest="target",
+        help="List and pair with keyboard devices",
+    )
     args = parser.parse_args()
 
     manager = bt_helper.BtManager()
@@ -69,9 +82,12 @@ def main():
     if args.mac:
         # TODO check MAC format
         print("INFO: Trying to pair with {}".format(args.mac))
-        device = list(manager.get_bt_devices(filters={'Address': args.mac}))
-        paired_device = list(manager.get_bt_devices(
-            filters={'Address': args.mac, 'Paired': True}))
+        device = list(manager.get_bt_devices(filters={"Address": args.mac}))
+        paired_device = list(
+            manager.get_bt_devices(
+                filters={"Address": args.mac, "Paired": True}
+            )
+        )
         if not device:
             print("ERROR: No pairable device found, terminating")
             return 1
@@ -90,18 +106,26 @@ def main():
     else:
         print("INFO: Listing targeting devices")
         # Listing device based on RSSI
-        paired_targets = list(manager.get_bt_devices(category=bt_helper.BT_ANY,
-                              filters={'Paired': True, 'Icon': args.target}))
+        paired_targets = list(
+            manager.get_bt_devices(
+                category=bt_helper.BT_ANY,
+                filters={"Paired": True, "Icon": args.target},
+            )
+        )
         if not paired_targets:
             print("INFO: No paired targeting devices found")
             manager.scan()
         else:
             unpair_all(paired_targets, manager)
 
-        target_devices = sorted(manager.get_bt_devices(
-            category=bt_helper.BT_ANY, filters={
-             'Paired': False, 'Icon': args.target}),
-             key=lambda x: int(x.rssi or -255), reverse=True)
+        target_devices = sorted(
+            manager.get_bt_devices(
+                category=bt_helper.BT_ANY,
+                filters={"Paired": False, "Icon": args.target},
+            ),
+            key=lambda x: int(x.rssi or -255),
+            reverse=True,
+        )
         if not target_devices:
             print("ERROR: No target devices found, terminating")
             return 1
@@ -115,7 +139,7 @@ def main():
             print("Which one would you like to connect to? (0 to exit)")
             num = input()
             # TODO: enter as default to 1st device
-            if num == '0':
+            if num == "0":
                 return 1
             chosen = num.isnumeric() and int(num) in devices.keys()
         print("INFO: {} chosen.".format(devices[int(num)]))

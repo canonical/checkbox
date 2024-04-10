@@ -40,20 +40,20 @@ class LshwJsonResult:
     # jlane LP:1525009
     # Discovered the case can change, my x86 systems used "System Memory"
     # Failing ARM system used "System memory"
-    desc_regex = re.compile('System Memory', re.IGNORECASE)
+    desc_regex = re.compile("System Memory", re.IGNORECASE)
 
     def addHardware(self, hardware):
-        if self.desc_regex.match(str(hardware.get('description', 0))):
-            self.memory_reported += int(hardware.get('size', 0))
-        elif 'bank' in hardware['id']:
-            self.banks_reported += int(hardware.get('size', 0))
+        if self.desc_regex.match(str(hardware.get("description", 0))):
+            self.memory_reported += int(hardware.get("size", 0))
+        elif "bank" in hardware["id"]:
+            self.banks_reported += int(hardware.get("size", 0))
 
 
 def get_installed_memory_size():
     try:
-        output = check_output(['lshw', '-json'],
-                              universal_newlines=True,
-                              stderr=PIPE)
+        output = check_output(
+            ["lshw", "-json"], universal_newlines=True, stderr=PIPE
+        )
     except CalledProcessError:
         return 0
     lshw = LshwJsonParser(output)
@@ -71,11 +71,11 @@ class MeminfoResult:
     memtotal = 0
 
     def setMemory(self, memory):
-        self.memtotal = memory['total']
+        self.memtotal = memory["total"]
 
 
 def get_visible_memory_size():
-    parser = MeminfoParser(open('/proc/meminfo'))
+    parser = MeminfoParser(open("/proc/meminfo"))
     result = MeminfoResult()
     parser.run(result)
 
@@ -106,31 +106,42 @@ def main():
         percentage = difference / installed_memory * 100
     except ZeroDivisionError:
         print("Results:")
-        print("\t/proc/meminfo reports:\t{}".format(visible_memory),
-              file=sys.stderr)
-        print("\tlshw reports:\t{}".format(installed_memory),
-              file=sys.stderr)
-        print("\nFAIL: Either lshw or /proc/meminfo returned a memory size "
-              "of 0 kB", file=sys.stderr)
+        print(
+            "\t/proc/meminfo reports:\t{}".format(visible_memory),
+            file=sys.stderr,
+        )
+        print("\tlshw reports:\t{}".format(installed_memory), file=sys.stderr)
+        print(
+            "\nFAIL: Either lshw or /proc/meminfo returned a memory size "
+            "of 0 kB",
+            file=sys.stderr,
+        )
         return 1
 
     if percentage <= threshold:
         print("Results:")
         print("\t/proc/meminfo reports:\t{}".format(visible_memory))
         print("\tlshw reports:\t{}".format(installed_memory))
-        print("\nPASS: Meminfo reports %s less than lshw, a "
-              "difference of %.2f%%. This is less than the "
-              "%d%% variance allowed." % (difference, percentage, threshold))
+        print(
+            "\nPASS: Meminfo reports %s less than lshw, a "
+            "difference of %.2f%%. This is less than the "
+            "%d%% variance allowed." % (difference, percentage, threshold)
+        )
         return 0
     else:
         print("Results:", file=sys.stderr)
-        print("\t/proc/meminfo reports:\t{}".format(visible_memory),
-              file=sys.stderr)
+        print(
+            "\t/proc/meminfo reports:\t{}".format(visible_memory),
+            file=sys.stderr,
+        )
         print("\tlshw reports:\t{}".format(installed_memory), file=sys.stderr)
-        print("\nFAIL: Meminfo reports %d less than lshw, "
-              "a difference of %.2f%%. Only a variance of %d%% in "
-              "reported memory is allowed." %
-              (difference, percentage, threshold), file=sys.stderr)
+        print(
+            "\nFAIL: Meminfo reports %d less than lshw, "
+            "a difference of %.2f%%. Only a variance of %d%% in "
+            "reported memory is allowed."
+            % (difference, percentage, threshold),
+            file=sys.stderr,
+        )
         return 1
 
 

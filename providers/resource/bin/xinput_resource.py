@@ -25,7 +25,7 @@ from argparse import ArgumentParser
 from checkbox_support.parsers.xinput import (
     IXinputResult,
     XinputParser,
-    )
+)
 
 
 # Command to retrieve xinput information.
@@ -49,8 +49,9 @@ class XinputResult(IXinputResult):
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument("filename", nargs='?',
-                        help="Optional filename containing xinput data")
+    parser.add_argument(
+        "filename", nargs="?", help="Optional filename containing xinput data"
+    )
     args = parser.parse_args()
 
     if args.filename:

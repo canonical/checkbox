@@ -116,6 +116,14 @@ class MMDbus:
         pi = self._modem_props_iface(mm_id)
         return pi.Get(DBUS_MM1_IF_MODEM, "Model")
 
+    def get_firmware_revision(self, mm_id):
+        pi = self._modem_props_iface(mm_id)
+        return pi.Get(DBUS_MM1_IF_MODEM, 'Revision').replace("\r\n", " ")
+
+    def get_hardware_revision(self, mm_id):
+        pi = self._modem_props_iface(mm_id)
+        return pi.Get(DBUS_MM1_IF_MODEM, 'HardwareRevision')
+
     def sim_present(self, mm_id):
         pi = self._modem_props_iface(mm_id)
         if pi.Get(DBUS_MM1_IF_MODEM, "Sim") != "/":
@@ -216,6 +224,12 @@ class MMCLI:
 
     def get_primary_port(self, mm_id):
         return _value_from_table("modem", mm_id, "primary port")
+
+    def get_firmware_revision(self, mm_id):
+        return _value_from_table('modem', mm_id, 'firmware revision')
+
+    def get_hardware_revision(self, mm_id):
+        return _value_from_table('modem', mm_id, 'h/w revision')
 
     def sim_present(self, mm_id):
         if self._get_sim_id(mm_id) is None:
@@ -384,6 +398,8 @@ class Resources:
             print("hw_id: {}".format(mm.get_equipment_id(m)))
             print("manufacturer: {}".format(mm.get_manufacturer(m)))
             print("model: {}".format(mm.get_model_name(m)))
+            print("firmware_revision: {}".format(mm.get_firmware_revision(m)))
+            print("hardware_revision: {}".format(mm.get_hardware_revision(m)))
             print()
 
 

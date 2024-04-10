@@ -1,0 +1,81 @@
+name: checkbox
+summary: Checkbox test runner
+description: |
+  Checkbox is a flexible test automation software.
+  It’s the main tool used in Ubuntu Certification program.
+adopt-info: version-calculator
+grade: devel
+confinement: classic
+
+base: core24
+build-base: devel
+
+apps:
+  checkbox-cli:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper
+  test-runner:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner
+  sru:
+    command-chain: [bin/wrapper_local]
+    command: bin/sru
+  client-cert-iot-server:
+    command-chain: [bin/wrapper_local]
+    command: bin/client-cert-iot-server
+  odm-certification:
+    command-chain: [bin/wrapper_local]
+    command: bin/odm-certification-app
+  configure:
+    command: bin/configure
+  agent:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper run-agent
+    daemon: simple
+    restart-condition: always
+    restart-delay: 1s
+  shell:
+    command-chain: [bin/wrapper_local]
+    command: bin/shell-wrapper
+
+passthrough:
+  hooks:
+    configure:
+      command-chain: [bin/wrapper_local]
+
+parts:
+  version-calculator:
+    plugin: dump
+    source: .
+    override-pull: |
+      snapcraftctl pull
+      # version.txt created by prepare.sh
+      export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
+      [ $version ] || exit 1
+      snapcraftctl set-version $version
+    stage:
+      - version.txt
+  launchers:
+    plugin: dump
+    source: launchers/
+    build-attributes: [no-patchelf]
+    organize:
+      '*': bin/
+  config-variables:
+    plugin: dump
+    source: .
+    build-attributes: [no-patchelf]
+    stage: [config_vars]
+  workaround-automated-review-issue:
+    plugin: nil
+    override-build: |
+      # This is a workaround for an upstream bug in the automated snap review tool
+      # remove this once this issue is resolved:
+      # https://bugs.launchpad.net/review-tools/+bug/2049093
+      # Note: this cats /dev/urandom because the squashfs will collapse any
+      #       predictable output to less than the desired size making this
+      #       ineffective
+      echo "This file is a workaround for a bug in the automated snap review tool" > $SNAPCRAFT_PART_INSTALL/size_workaround
+      echo "this only contains random bytes to pad the snap to 16kb" >> $SNAPCRAFT_PART_INSTALL/size_workaround
+      echo "see: https://bugs.launchpad.net/review-tools/+bug/2049093" >>  $SNAPCRAFT_PART_INSTALL/size_workaround
+      head -c 16384 /dev/urandom >> $SNAPCRAFT_PART_INSTALL/size_workaround

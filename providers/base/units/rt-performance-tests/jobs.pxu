@@ -1,7 +1,13 @@
 id: rt-performance-tests/cyclictest_rt_latency
 category_id: rt-performance-tests
+estimated_duration: 24h
 _summary:
     Run cyclictest to test scheduling latency. Default run time is 24 hours.
+_purpose:
+    This test executes the cyclictest command for a long period of time to 
+    evaluate the system's ability to maintain scheduling latency. It checks
+    that the maximum latency did not exceed the threshold and that there are no
+    overflows (scheduling misses) for each thread.
 plugin: shell
 requires:
     package.name == 'rt-tests'
@@ -13,8 +19,14 @@ command:
 
 id: rt-performance-tests/cyclictest_rt
 category_id: rt-performance-tests
+estimated_duration: 60s
 _summary:
-    Run cyclictest to ensure that real time test can be executed.
+    A short-duration cyclictest to validate the system's real-time capabilities.
+_purpose:
+    This test runs for 60 seconds to provide a rapid assessment of the system's
+    real-time performance. It uses the cyclictest tool to measure the scheduling
+    latency and overflow occurrences. The goal is to ensure that basic real-time
+    functions can be executed without latency spikes.
 plugin: shell
 requires:
     package.name == 'rt-tests'

@@ -179,8 +179,8 @@ def main():
             if b"glxgears" not in app:
                 continue
             GlxWindows[i].id = str(
-                re.match(b"^(0x\w+)", app).group(0), "utf-8"
-            )  # noqa: W605
+                re.match(b"^(0x\w+)", app).group(0), "utf-8"  # noqa: W605
+            )
             break
         if hasattr(GlxWindows[i], "id"):
             rotator = RotateGlxThread(GlxWindows[i].id, i + 1)

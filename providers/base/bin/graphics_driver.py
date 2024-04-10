@@ -295,7 +295,7 @@ class XorgLog(object):
         excludes = set(
             [
                 "warning, (EE) error, (NI) not implemented, (??) unknown.",
-                'The directory "/usr/share/fonts/X11/cyrillic" does not exist.',
+                'The directory "/usr/share/fonts/X11/cyrillic" does not exist.',  # noqa: E501
                 'The directory "/usr/share/fonts/X11/100dpi/" does not exist.',
                 'The directory "/usr/share/fonts/X11/75dpi/" does not exist.',
                 'The directory "/usr/share/fonts/X11/100dpi" does not exist.',

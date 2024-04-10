@@ -84,7 +84,7 @@ class StressNg:
         time_str = time.strftime("%d %b %H:%M", time.gmtime())
         if len(self.stressors) == 1:
             print(
-                "{}: Running stress-ng {} stressor for {:.0f} seconds...".format(
+                "{}: Running stress-ng {} stressor for {:.0f} seconds...".format(  # noqa: E501
                     time_str, self.stressors[0], self.sng_timeout
                 )
             )

@@ -4089,7 +4089,7 @@ class Component:
         )
 
     def dump_comp_info(self, pref, comp_filter=""):
-        """Prints out all nested components (filtered by name set to 'filter')"""
+        """Prints out all nested components (filtered by name set to 'filter')"""  # noqa: E501
         for comp in self.components:
             if comp.name in comp_filter:
                 continue

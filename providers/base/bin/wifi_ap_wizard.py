@@ -48,7 +48,7 @@ def main():
             ("How many host do you want your DHCP pool to hold to", "100"),
             ("Do you want to enable connection sharing?", "y"),
             (
-                "Which network interface you want to use for connection sharing?",
+                "Which network interface you want to use for connection sharing?",  # noqa: E501
                 shared_iface,
             ),
             ("Do you want to enable the AP now?", "y"),

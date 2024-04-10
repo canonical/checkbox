@@ -297,7 +297,7 @@ class PrimeOffloader:
             "--timeout",
             type=int,
             default=20,
-            help="executing command duration in second (default: %(default)s).",
+            help="executing command duration in second (default: %(default)s).",  # noqa: E501
         )
         return parser.parse_args(args)
 

@@ -848,7 +848,7 @@ def main():
                         min_space = HumanReadableBytes("1MiB")
                         if smallest_freespace < min_space:
                             sys.exit(
-                                "Not enough space. {} is required on {}".format(
+                                "Not enough space. {} is required on {}".format(  # noqa: E501
                                     min_space, smallest_partition
                                 )
                             )

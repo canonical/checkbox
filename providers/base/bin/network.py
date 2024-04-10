@@ -300,7 +300,7 @@ class IPerfPerformanceTest(object):
             # time without timeout to catch devices that slow down, and also
             # not prematurely end iperf on low-bandwidth devices.
             self.timeout = 1080 * int(self.data_size)
-            cmd = "timeout -k 1 {} {} -b {}M -c {} -n {}G -i 1 -f m -P {}".format(
+            cmd = "timeout -k 1 {} {} -b {}M -c {} -n {}G -i 1 -f m -P {}".format(  # noqa: E501
                 self.timeout,
                 self.executable,
                 thread_bit_rate,

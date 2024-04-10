@@ -20,4 +20,4 @@ requires:
     package.name == 'rt-tests'
 user: root
 command:
-    run_cyclictest.py --duration 1
+    run_cyclictest.py --duration 60

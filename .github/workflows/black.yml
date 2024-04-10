@@ -14,4 +14,4 @@ jobs:
       - uses: actions/checkout@v3
       - uses: psf/black@stable
         with:
-          options: "--check --diff --line-length 79"
+          options: "--check --diff --line-length 79 --extend-exclude '/vendor/'"

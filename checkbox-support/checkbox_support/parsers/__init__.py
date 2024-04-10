@@ -40,17 +40,17 @@ from checkbox_support.parsers import pci_config
 from checkbox_support.parsers import udevadm
 
 AVAILABLE_PARSERS = {
-    'bto': image_info.parse_bto_attachment_output,
-    'buildstamp': image_info.parse_buildstamp_attachment_output,
-    'dkms-info': dkms_info.parse_dkms_info,
-    'dmidecode': dmidecode.parse_dmidecode_output,
-    'kernelcmdline': kernel_cmdline.parse_kernel_cmdline,
-    'modinfo': modinfo.parse_modinfo_attachment_output,
-    'modprobe': modprobe.parse_modprobe_d_output,
-    'pactl-list': pactl.parse_pactl_output,
-    'pci-subsys-id': pci_config.parse_pci_subsys_id,
-    'recovery-info': image_info.parse_recovery_info_attachment_output,
-    'udevadm': udevadm.parse_udevadm_output,
+    "bto": image_info.parse_bto_attachment_output,
+    "buildstamp": image_info.parse_buildstamp_attachment_output,
+    "dkms-info": dkms_info.parse_dkms_info,
+    "dmidecode": dmidecode.parse_dmidecode_output,
+    "kernelcmdline": kernel_cmdline.parse_kernel_cmdline,
+    "modinfo": modinfo.parse_modinfo_attachment_output,
+    "modprobe": modprobe.parse_modprobe_d_output,
+    "pactl-list": pactl.parse_pactl_output,
+    "pci-subsys-id": pci_config.parse_pci_subsys_id,
+    "recovery-info": image_info.parse_recovery_info_attachment_output,
+    "udevadm": udevadm.parse_udevadm_output,
 }
 PARSER_LIST = sorted(list(AVAILABLE_PARSERS.keys()))
 Pattern = type(re.compile(""))
@@ -59,19 +59,24 @@ Pattern = type(re.compile(""))
 def main():
     """Entry point to the program."""
     arg_parser = ArgumentParser(
-        description="parse stdin with the specified parser")
+        description="parse stdin with the specified parser"
+    )
     arg_parser.add_argument(
-        "parser_name", metavar="PARSER-NAME",
-        choices=['?'] + PARSER_LIST,
-        help="Name of the parser to use")
+        "parser_name",
+        metavar="PARSER-NAME",
+        choices=["?"] + PARSER_LIST,
+        help="Name of the parser to use",
+    )
     args = arg_parser.parse_args()
-    if args.parser_name == '?':
+    if args.parser_name == "?":
         print("The following parsers are available:")
         print("\n".join(PARSER_LIST))
         raise SystemExit()
     parser = AVAILABLE_PARSERS[args.parser_name]
     stdin = sys.stdin
-    with io.TextIOWrapper(sys.stdin.buffer, encoding='utf-8', errors='ignore') as stdin:
+    with io.TextIOWrapper(
+        sys.stdin.buffer, encoding="utf-8", errors="ignore"
+    ) as stdin:
         try:
             text = stdin.read()
             print(run_parsing(parser, text))
@@ -85,7 +90,8 @@ def run_parsing(parser_fn, text):
     try:
         ast = parser_fn(text)
         return json.dumps(
-            ast, indent=4, sort_keys=True, default=_json_fallback)
+            ast, indent=4, sort_keys=True, default=_json_fallback
+        )
     except Exception as exc:
         msg = "Failed to parse the text: {}".format(str(exc))
         raise SystemExit(msg) from exc
@@ -107,5 +113,4 @@ def _json_fallback(obj):
         return obj.__dict__
     if hasattr(obj, "__slots__"):
         return {slot: getattr(obj, slot) for slot in obj.__slots__}
-    raise NotImplementedError(
-        "unable to json-ify {!r}".format(obj.__class__))
+    raise NotImplementedError("unable to json-ify {!r}".format(obj.__class__))

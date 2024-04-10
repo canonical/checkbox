@@ -53,15 +53,19 @@ class TestCputableParser(TestCase):
         self.assertEqual(result.device, None)
 
     def test_product(self):
-        result = self.getResult("""
+        result = self.getResult(
+            """
 Foo Bar
-""")
+"""
+        )
         self.assertEqual(result.device.vendor, None)
         self.assertEqual(result.device.product, "Foo Bar")
 
     def test_vendor_product(self):
-        result = self.getResult("""
+        result = self.getResult(
+            """
 Product by Vendor
-""")
+"""
+        )
         self.assertEqual(result.device.vendor, "Vendor")
         self.assertEqual(result.device.product, "Product")

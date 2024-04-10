@@ -26,15 +26,14 @@ from checkbox_support.lib.dmi import DmiDevice
 HANDLE_RE = re.compile(
     r"^Handle (?P<handle>0x[%s]{4}), "
     r"DMI type (?P<type>\d+), "
-    r"(?P<size>\d+) bytes$"
-    % hexdigits)
+    r"(?P<size>\d+) bytes$" % hexdigits
+)
 KEY_VALUE_RE = re.compile(
-    r"^\t(?P<key>[%s][^:]+):( (?P<value>.+))?$"
-    % ascii_uppercase)
+    r"^\t(?P<key>[%s][^:]+):( (?P<value>.+))?$" % ascii_uppercase
+)
 
 
-class DmiResult():
-
+class DmiResult:
     """A simple class to store DMI devices."""
 
     def __init__(self):
@@ -105,8 +104,13 @@ class DmidecodeParser(object):
             category = Dmi.type_names[type_index]
             category = category.upper().split(" ")[-1]
             if category not in (
-                    "BOARD", "BIOS", "CHASSIS", "DEVICE", "PROCESSOR",
-                    "SYSTEM"):
+                "BOARD",
+                "BIOS",
+                "CHASSIS",
+                "DEVICE",
+                "PROCESSOR",
+                "SYSTEM",
+            ):
                 continue
 
             # Parse attributes
@@ -123,8 +127,12 @@ class DmidecodeParser(object):
                 key = self._parseKey(match.group("key"))
                 if not key:
                     # If not, then use the "raw" DMI key.
-                    key = match.group("key").lower().replace(
-                        " ", "_").replace("-", "_")
+                    key = (
+                        match.group("key")
+                        .lower()
+                        .replace(" ", "_")
+                        .replace("-", "_")
+                    )
 
                 key = "%s_%s" % (category.lower(), key)
                 value = self._parseValue(match.group("value"))

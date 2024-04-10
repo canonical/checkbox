@@ -19,37 +19,39 @@ from unittest.mock import MagicMock, patch
 
 from checkbox_support.interactive_cmd import InteractiveCommand
 
+
 class InteractiveCommandTests(unittest.TestCase):
 
-    @patch('sys.stdin')
+    @patch("sys.stdin")
     def test_write_line_nominal(self, mock_stdin):
         mock_self = MagicMock()
-        mock_stdin.encoding = 'utf-8'
-        InteractiveCommand.writeline(mock_self, 'Hello, world!')
-        mock_self._proc.stdin.write.assert_called_with(b'Hello, world!\n')
+        mock_stdin.encoding = "utf-8"
+        InteractiveCommand.writeline(mock_self, "Hello, world!")
+        mock_self._proc.stdin.write.assert_called_with(b"Hello, world!\n")
 
-    @patch('sys.stdin')
+    @patch("sys.stdin")
     def test_write_line_broken_pipe_with_pending(self, mock_stdin):
         mock_self = MagicMock()
         mock_self._proc.stdin.write.side_effect = BrokenPipeError
-        mock_stdin.encoding = 'utf-8'
-        mock_self.read_all.return_value = 'my pipe is gonna break'
+        mock_stdin.encoding = "utf-8"
+        mock_self.read_all.return_value = "my pipe is gonna break"
         with self.assertRaises(BrokenPipeError):
-            InteractiveCommand.writeline(mock_self, 'Hello, world!')
+            InteractiveCommand.writeline(mock_self, "Hello, world!")
         mock_self._logger.warning.assert_called_with(
-            "The output before the pipe broke: %s",
-            "my pipe is gonna break")
-        mock_self._proc.stdin.write.assert_called_with(b'Hello, world!\n')
+            "The output before the pipe broke: %s", "my pipe is gonna break"
+        )
+        mock_self._proc.stdin.write.assert_called_with(b"Hello, world!\n")
 
-    @patch('sys.stdin')
+    @patch("sys.stdin")
     def test_write_line_broken_pipe_without_pending(self, mock_stdin):
         mock_self = MagicMock()
         mock_self._proc.stdin.write.side_effect = BrokenPipeError
         mock_self._pending = 0
-        mock_stdin.encoding = 'utf-8'
-        mock_self.read_all.return_value = ''
+        mock_stdin.encoding = "utf-8"
+        mock_self.read_all.return_value = ""
         with self.assertRaises(BrokenPipeError):
-            InteractiveCommand.writeline(mock_self, 'Hello, world!')
+            InteractiveCommand.writeline(mock_self, "Hello, world!")
         mock_self._logger.warning.assert_called_with(
-            "Broken pipe when sending to the process!")
-        mock_self._proc.stdin.write.assert_called_with(b'Hello, world!\n')    
+            "Broken pipe when sending to the process!"
+        )
+        mock_self._proc.stdin.write.assert_called_with(b"Hello, world!\n")

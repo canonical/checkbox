@@ -42,16 +42,17 @@ def load_unit_tests():
     # Discover all unit tests. By simple convention those are kept in
     # python modules that start with the word 'test_' .
     start_dir = os.path.dirname(getabsfile(checkbox_support))
-    top_level_dir = os.path.normpath(os.path.join(start_dir, '..'))
+    top_level_dir = os.path.normpath(os.path.join(start_dir, ".."))
     test_suite = TestSuite()
     for path in os.listdir(start_dir):
         # skip tests that come from a vendorized code
-        if path in ('__pycache__', 'vendor'):
+        if path in ("__pycache__", "vendor"):
             continue
         path = os.path.join(start_dir, path)
         if os.path.isdir(path):
             test_suite.addTests(
-                defaultTestLoader.discover(path, top_level_dir=top_level_dir))
+                defaultTestLoader.discover(path, top_level_dir=top_level_dir)
+            )
     return test_suite
 
 

@@ -19,15 +19,19 @@
 import argparse
 from checkbox_support.parsers import sysfs_usb
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-s', '--short', action='store_true',
-        help="Print output in a short form")
+        "-s",
+        "--short",
+        action="store_true",
+        help="Print output in a short form",
+    )
     parser.add_argument(
-        '-l', '--long', action='store_true',
-        help="Use the new output format")
-    parser.add_argument('-f', '--file', help="Path to the usb.ids file")
+        "-l", "--long", action="store_true", help="Use the new output format"
+    )
+    parser.add_argument("-f", "--file", help="Path to the usb.ids file")
     args = parser.parse_args()
 
     usb_ids = sysfs_usb.UsbIds(args.file)
@@ -39,5 +43,6 @@ def main():
         else:
             print(dev.to_legacy_str())
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

@@ -17,7 +17,7 @@
 import io
 
 
-class KernelCmdlineResult():
+class KernelCmdlineResult:
 
     def __init__(self):
         self.flags = []
@@ -31,7 +31,6 @@ class KernelCmdlineResult():
 
 
 class KernelCmdlineParser(object):
-
     """Parser for kernel cmdline information."""
 
     def __init__(self, stream):
@@ -45,9 +44,9 @@ class KernelCmdlineParser(object):
         """
         line = self.stream.readline().strip()
         for entry in line.split():
-            if '=' in entry:
-                for name in entry.split('=')[:-1]:
-                    result.addParam(name, entry.split('=')[-1])
+            if "=" in entry:
+                for name in entry.split("=")[:-1]:
+                    result.addParam(name, entry.split("=")[-1])
                 continue
             result.addFlag(entry)
 

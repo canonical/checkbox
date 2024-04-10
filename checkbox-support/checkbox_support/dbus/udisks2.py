@@ -39,8 +39,13 @@ from dbus.exceptions import DBusException
 
 from checkbox_support.dbus import drop_dbus_type
 
-__all__ = ['UDisks2Observer', 'UDisks2Model', 'Signal', 'is_udisks2_supported',
-           'lookup_udev_device']
+__all__ = [
+    "UDisks2Observer",
+    "UDisks2Model",
+    "Signal",
+    "is_udisks2_supported",
+    "lookup_udev_device",
+]
 
 
 def is_udisks2_supported(system_bus):
@@ -75,11 +80,11 @@ def map_udisks1_connection_bus(udisks1_connection_bus):
     Incorrect values raise LookupError
     """
     return {
-        'ata_serial_esata': '',  # gone from udisks2
-        'firewire': 'ieee1394',  # renamed
-        'scsi': '',              # gone from udisks2
-        'sdio': 'sdio',          # as-is
-        'usb': 'usb',            # as-is
+        "ata_serial_esata": "",  # gone from udisks2
+        "firewire": "ieee1394",  # renamed
+        "scsi": "",  # gone from udisks2
+        "sdio": "sdio",  # as-is
+        "usb": "usb",  # as-is
     }[udisks1_connection_bus]
 
 
@@ -104,7 +109,7 @@ def lookup_udev_device(udisks2_object, udev_devices):
     except KeyError:
         raise ValueError("udisks2_object must be a block device")
     else:
-        block_dev = block_props['Device']
+        block_dev = block_props["Device"]
     for udev_device in udev_devices:
         if udev_device.get_device_file() == block_dev:
             return udev_device
@@ -266,8 +271,13 @@ class UDisks2Observer:
         """
 
     @Signal.define
-    def on_properties_changed(self, interface_name, changed_properties,
-                              invalidated_properties, sender=None):
+    def on_properties_changed(
+        self,
+        interface_name,
+        changed_properties,
+        invalidated_properties,
+        sender=None,
+    ):
         """
         Signal fired when one or more property changes value or becomes
         invalidated.
@@ -300,12 +310,14 @@ class UDisks2Observer:
         # activation if udisksd is not running for any reason
         logging.debug("Accessing main UDisks2 object")
         self._udisks2_obj = bus.get_object(
-            "org.freedesktop.UDisks2", "/org/freedesktop/UDisks2")
+            "org.freedesktop.UDisks2", "/org/freedesktop/UDisks2"
+        )
         # Now extract the standard ObjectManager interface so that we can
         # observe and iterate the collection of objects that UDisks2 provides.
         logging.debug("Accessing ObjectManager interface on UDisks2 object")
         self._udisks2_obj_manager = Interface(
-            self._udisks2_obj, OBJECT_MANAGER_INTERFACE)
+            self._udisks2_obj, OBJECT_MANAGER_INTERFACE
+        )
         # Connect to the PropertiesChanged signal. Here unlike before we want
         # to listen to all signals, regardless of who was sending them in the
         # first place.
@@ -317,7 +329,8 @@ class UDisks2Observer:
             # Use the sender_keyword keyword argument to indicate that we wish
             # to know the sender of each signal. For consistency with other
             # signals we choose to use the 'object_path' keyword argument.
-            sender_keyword='sender')
+            sender_keyword="sender",
+        )
 
     def _get_initial_objects(self):
         """
@@ -336,10 +349,12 @@ class UDisks2Observer:
         # Connect our internal handles to the DBus signal handlers
         logging.debug("Setting up DBus signal handler for InterfacesAdded")
         self._udisks2_obj_manager.connect_to_signal(
-            "InterfacesAdded", self._on_interfaces_added)
+            "InterfacesAdded", self._on_interfaces_added
+        )
         logging.debug("Setting up DBus signal handler for InterfacesRemoved")
         self._udisks2_obj_manager.connect_to_signal(
-            "InterfacesRemoved", self._on_interfaces_removed)
+            "InterfacesRemoved", self._on_interfaces_removed
+        )
 
     def _on_interfaces_added(self, object_path, interfaces_and_properties):
         """
@@ -351,8 +366,12 @@ class UDisks2Observer:
         object_path = drop_dbus_type(object_path)
         interfaces_and_properties = drop_dbus_type(interfaces_and_properties)
         # Log what's going on
-        logging.debug("The object %r has gained the following interfaces and "
-                      "properties: %r", object_path, interfaces_and_properties)
+        logging.debug(
+            "The object %r has gained the following interfaces and "
+            "properties: %r",
+            object_path,
+            interfaces_and_properties,
+        )
         # Call the signal handler
         self.on_interfaces_added(object_path, interfaces_and_properties)
 
@@ -366,13 +385,21 @@ class UDisks2Observer:
         object_path = drop_dbus_type(object_path)
         interfaces = drop_dbus_type(interfaces)
         # Log what's going on
-        logging.debug("The object %r has lost the following interfaces: %r",
-                      object_path, interfaces)
+        logging.debug(
+            "The object %r has lost the following interfaces: %r",
+            object_path,
+            interfaces,
+        )
         # Call the signal handler
         self.on_interfaces_removed(object_path, interfaces)
 
-    def _on_properties_changed(self, interface_name, changed_properties,
-                               invalidated_properties, sender=None):
+    def _on_properties_changed(
+        self,
+        interface_name,
+        changed_properties,
+        invalidated_properties,
+        sender=None,
+    ):
         """
         Internal callback that is called by DBus
 
@@ -384,14 +411,19 @@ class UDisks2Observer:
         invalidated_properties = drop_dbus_type(invalidated_properties)
         sender = drop_dbus_type(sender)
         # Log what's going on
-        logging.debug("Some object with the interface %r has changed "
-                      "properties: %r and invalidated properties %r "
-                      "(sender: %s)",
-                      interface_name, changed_properties,
-                      invalidated_properties, sender)
+        logging.debug(
+            "Some object with the interface %r has changed "
+            "properties: %r and invalidated properties %r "
+            "(sender: %s)",
+            interface_name,
+            changed_properties,
+            invalidated_properties,
+            sender,
+        )
         # Call the signal handler
-        self.on_properties_changed(interface_name, changed_properties,
-                                   invalidated_properties, sender)
+        self.on_properties_changed(
+            interface_name, changed_properties, invalidated_properties, sender
+        )
 
 
 class UDisks2Model:
@@ -419,9 +451,11 @@ class UDisks2Model:
         self._observer.on_initial_objects.connect(self._on_initial_objects)
         self._observer.on_interfaces_added.connect(self._on_interfaces_added)
         self._observer.on_interfaces_removed.connect(
-            self._on_interfaces_removed)
+            self._on_interfaces_removed
+        )
         self._observer.on_properties_changed.connect(
-            self._on_properties_changed)
+            self._on_properties_changed
+        )
 
     @Signal.define
     def on_change(self):
@@ -471,11 +505,17 @@ class UDisks2Model:
         # Fire the change signal
         self.on_change()
 
-    def _on_properties_changed(self, interface_name, changed_properties,
-                               invalidated_properties, sender=None):
+    def _on_properties_changed(
+        self,
+        interface_name,
+        changed_properties,
+        invalidated_properties,
+        sender=None,
+    ):
         # XXX: This is a workaround the fact that we cannot
         # properly track changes to all properties :-(
         self._managed_objects = drop_dbus_type(
-            self._observer._udisks2_obj_manager.GetManagedObjects())
+            self._observer._udisks2_obj_manager.GetManagedObjects()
+        )
         # Fire the change signal()
         self.on_change()

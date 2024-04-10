@@ -41,13 +41,14 @@ PCI_RE = re.compile(
     r"sd(?P<subproduct_id>[%(hex)s]{8})"
     r"bc(?P<class>[%(hex)s]{2})"
     r"sc(?P<subclass>[%(hex)s]{2})"
-    r"i(?P<interface>[%(hex)s]{2})"
-    % {"hex": string.hexdigits})
+    r"i(?P<interface>[%(hex)s]{2})" % {"hex": string.hexdigits}
+)
 PNP_RE = re.compile(
     r"^acpi:"
     r"(?P<vendor_name>[%(upper)s]{3})"
     r"(?P<product_id>[%(hex)s]{4}):"
-    % {"upper": string.ascii_uppercase, "hex": string.hexdigits})
+    % {"upper": string.ascii_uppercase, "hex": string.hexdigits}
+)
 USB_RE = re.compile(
     r"^usb:"
     r"v(?P<vendor_id>[%(hex)s]{4})"
@@ -58,54 +59,49 @@ USB_RE = re.compile(
     r"dp(?P<protocol>[%(hex)s]{2})"
     r"ic(?P<interface_class>[%(hex)s]{2})"
     r"isc(?P<interface_subclass>[%(hex)s]{2})"
-    r"ip(?P<interface_protocol>[%(hex)s]{2})"
-    % {"hex": string.hexdigits})
-USB_SYSFS_CONFIG_RE = re.compile(
-    r"usb.*?:\d+\.\d+$")
+    r"ip(?P<interface_protocol>[%(hex)s]{2})" % {"hex": string.hexdigits}
+)
+USB_SYSFS_CONFIG_RE = re.compile(r"usb.*?:\d+\.\d+$")
 SCSI_RE = re.compile(
-    r"^scsi:"
-    r"t-0x(?P<type>[%(hex)s]{2})"
-    % {"hex": string.hexdigits})
-PLATFORM_RE = re.compile(
-    r"^platform:"
-    r"(?P<module_name>.*)")
+    r"^scsi:" r"t-0x(?P<type>[%(hex)s]{2})" % {"hex": string.hexdigits}
+)
+PLATFORM_RE = re.compile(r"^platform:" r"(?P<module_name>.*)")
 INPUT_RE = re.compile(
     r"^input:"
     r"b(?P<bus_type>[%(hex)s]{4})"
     r"v(?P<vendor_id>[%(hex)s]{4})"
     r"p(?P<product_id>[%(hex)s]{4})"
-    r"e(?P<version>[%(hex)s]{4})"
-    % {"hex": string.hexdigits})
+    r"e(?P<version>[%(hex)s]{4})" % {"hex": string.hexdigits}
+)
 HID_RE = re.compile(
     r"^hid:"
     r"b(?P<bus_type>[%(hex)s]{4})"
     r"g(?P<group>[%(hex)s]{4})"
     r"v(?P<vendor_id>[%(hex)s]{8})"
-    r"p(?P<product_id>[%(hex)s]{8})"
-    % {"hex": string.hexdigits})
-INPUT_SYSFS_ID = re.compile(
-    r"/input/input\d+$")
+    r"p(?P<product_id>[%(hex)s]{8})" % {"hex": string.hexdigits}
+)
+INPUT_SYSFS_ID = re.compile(r"/input/input\d+$")
 OPENFIRMWARE_RE = re.compile(
-    r"^of:"
-    r"N(?P<name>.*?)"
-    r"T(?P<type>.*?)"
-    r"C(?P<compatible>.*?)")
+    r"^of:" r"N(?P<name>.*?)" r"T(?P<type>.*?)" r"C(?P<compatible>.*?)"
+)
 CARD_READER_RE = re.compile(r"SD|MMC|CF|MS(?!ata)|SM|xD|Card", re.I)
 GENERIC_RE = re.compile(r"Generic", re.I)
 FLASH_RE = re.compile(r"Flash", re.I)
 FLASH_DISK_RE = re.compile(r"Mass|Storage|Disk", re.I)
 MD_DEVICE_RE = re.compile(r"MD_DEVICE_\w+_DEV")
 ROOT_MOUNTPOINT = re.compile(
-    r'MOUNTPOINT=.*/(writable|hostfs|'
-    r'ubuntu-seed|ubuntu-boot|ubuntu-save|data|boot)')
+    r"MOUNTPOINT=.*/(writable|hostfs|"
+    r"ubuntu-seed|ubuntu-boot|ubuntu-save|data|boot)"
+)
 CAMERA_RE = re.compile(r"Camera", re.I)
 
 
 def slugify(_string):
     """Transform any string to one that can be used in job IDs."""
     valid_chars = frozenset(
-        "-_.{}{}".format(string.ascii_letters, string.digits))
-    return ''.join(c if c in valid_chars else '_' for c in _string)
+        "-_.{}{}".format(string.ascii_letters, string.digits)
+    )
+    return "".join(c if c in valid_chars else "_" for c in _string)
 
 
 def find_pkname_is_root_mountpoint(devname, lsblk=None):
@@ -116,14 +112,12 @@ def find_pkname_is_root_mountpoint(devname, lsblk=None):
         except AttributeError:
             pass
         for line in lsblk.splitlines():
-            if (
-                line.endswith('MOUNTPOINT="/"') and
-                line.startswith('KNAME="{}'.format(devname))
+            if line.endswith('MOUNTPOINT="/"') and line.startswith(
+                'KNAME="{}'.format(devname)
             ):
                 return True
-            if (
-                ROOT_MOUNTPOINT.search(line) and
-                line.startswith('KNAME="{}'.format(devname))
+            if ROOT_MOUNTPOINT.search(line) and line.startswith(
+                'KNAME="{}'.format(devname)
             ):
                 return True
     return False
@@ -149,10 +143,19 @@ class UdevadmDevice(object):
         "_vendor_id",
         "_subvendor_id",
         "_vendor_slug",
-        "_symlinks")
+        "_symlinks",
+    )
 
-    def __init__(self, environment, name, lsblk=None, list_partitions=False,
-                 bits=None, stack=[], symlinks=None):
+    def __init__(
+        self,
+        environment,
+        name,
+        lsblk=None,
+        list_partitions=False,
+        bits=None,
+        stack=[],
+        symlinks=None,
+    ):
         self._environment = environment
         self._name = name
         self._lsblk = lsblk
@@ -178,9 +181,9 @@ class UdevadmDevice(object):
     def __repr__(self):
         vid = int(self.vendor_id) if self.vendor_id else 0
         pid = int(self.product_id) if self.product_id else 0
-        return("<{}: bus: {} id [{:x}:{:x}] {}>".format(
-            type(self).__name__, self.bus, vid, pid,
-            self.product))
+        return "<{}: bus: {} id [{:x}:{:x}] {}>".format(
+            type(self).__name__, self.bus, vid, pid, self.product
+        )
 
     @property
     def name(self):
@@ -192,8 +195,9 @@ class UdevadmDevice(object):
         if self._bus is not None:
             return self._bus
         # Change the bus from 'acpi' to 'pnp' for some devices
-        if PNP_RE.match(self._environment.get("MODALIAS", "")) \
-           and self._raw_path.endswith(":00"):
+        if PNP_RE.match(
+            self._environment.get("MODALIAS", "")
+        ) and self._raw_path.endswith(":00"):
             return "pnp"
 
         # Change the bus from 'block' to parent
@@ -201,20 +205,21 @@ class UdevadmDevice(object):
             return self._stack[-1]._environment.get("SUBSYSTEM")
 
         if (
-            self._list_partitions and
-            self._environment.get("DEVTYPE") == "partition" and self._stack
+            self._list_partitions
+            and self._environment.get("DEVTYPE") == "partition"
+            and self._stack
         ):
             if CARD_READER_RE.search(self._environment.get("ID_MODEL", "")):
-                return 'mediacard'
-            elif any(d.bus == 'mmc' for d in self._stack):
-                return 'mediacard'
-            elif any(d.bus == 'usb' for d in self._stack):
+                return "mediacard"
+            elif any(d.bus == "mmc" for d in self._stack):
+                return "mediacard"
+            elif any(d.bus == "usb" for d in self._stack):
                 for d in self._stack:
                     # Report the current usb hub version
-                    if d._environment.get("ID_MODEL_ID") == '0003':
-                        return 'usb3'
+                    if d._environment.get("ID_MODEL_ID") == "0003":
+                        return "usb3"
                 else:
-                    return 'usb'
+                    return "usb"
             else:
                 return self._stack[-2]._environment.get("SUBSYSTEM")
 
@@ -222,14 +227,13 @@ class UdevadmDevice(object):
         if bus == "pnp":
             return None
 
-        if bus == 'input' and any(d.bus == 'usb' for d in self._stack):
-            bus = 'usb'
+        if bus == "input" and any(d.bus == "usb" for d in self._stack):
+            bus = "usb"
 
         # Only keep one device per udev path
-        if (
-            bus == 'bluetooth' and
-            [d for d in reversed(self._stack) if d.category == "BLUETOOTH"]
-        ):
+        if bus == "bluetooth" and [
+            d for d in reversed(self._stack) if d.category == "BLUETOOTH"
+        ]:
             return None
 
         return bus
@@ -251,19 +255,23 @@ class UdevadmDevice(object):
                     return "WWAN"
             # Ralink and realtek SDIO wireless
             if "INTERFACE" in self._environment:
-                if (self.driver and
-                    self.driver.startswith('rt') and
-                    (self._environment["INTERFACE"].startswith('ra') or
-                     self._environment["INTERFACE"].startswith('wlan')
-                     )):
+                if (
+                    self.driver
+                    and self.driver.startswith("rt")
+                    and (
+                        self._environment["INTERFACE"].startswith("ra")
+                        or self._environment["INTERFACE"].startswith("wlan")
+                    )
+                ):
                     return "WIRELESS"
                 # generic CAN device will be named as 'can$n'
                 # LLCE CAN device will be named as 'llcecan$n'
-                if (re.search(r"^(llce){0,1}can[0-9]+$",
-                              self._environment["INTERFACE"])):
+                if re.search(
+                    r"^(llce){0,1}can[0-9]+$", self._environment["INTERFACE"]
+                ):
                     return "SOCKETCAN"
             if "ID_MODEL" in self._environment:
-                if (self._environment["ID_MODEL"].startswith('XClarity')):
+                if self._environment["ID_MODEL"].startswith("XClarity"):
                     return "BMC_NETWORK"
             if self._stack:
                 parent = self._stack[-1]
@@ -312,15 +320,24 @@ class UdevadmDevice(object):
                 # to correctly identify them special heuristics are needed,
                 # these are encapsulated in the known_to_be_video_device method
                 # (further below).
-                if (subclass_id == Pci.CLASS_DISPLAY_VGA or
-                    subclass_id == Pci.CLASS_DISPLAY_3D or
-                    (subclass_id == Pci.CLASS_DISPLAY_OTHER
-                     and known_to_be_video_device(
-                         self.vendor_id, self.product_id, class_id,
-                         subclass_id))):
+                if (
+                    subclass_id == Pci.CLASS_DISPLAY_VGA
+                    or subclass_id == Pci.CLASS_DISPLAY_3D
+                    or (
+                        subclass_id == Pci.CLASS_DISPLAY_OTHER
+                        and known_to_be_video_device(
+                            self.vendor_id,
+                            self.product_id,
+                            class_id,
+                            subclass_id,
+                        )
+                    )
+                ):
                     return "VIDEO"
-            if class_id == Pci.BASE_CLASS_SERIAL \
-               and subclass_id == Pci.CLASS_SERIAL_USB:
+            if (
+                class_id == Pci.BASE_CLASS_SERIAL
+                and subclass_id == Pci.CLASS_SERIAL_USB
+            ):
                 return "USB"
             if class_id == Pci.BASE_CLASS_STORAGE:
                 if subclass_id == Pci.CLASS_STORAGE_SCSI:
@@ -331,30 +348,42 @@ class UdevadmDevice(object):
                     return "FLOPPY"
                 if subclass_id == Pci.CLASS_STORAGE_RAID:
                     return "RAID"
-            if class_id == Pci.BASE_CLASS_COMMUNICATION \
-               and subclass_id == Pci.CLASS_COMMUNICATION_MODEM:
+            if (
+                class_id == Pci.BASE_CLASS_COMMUNICATION
+                and subclass_id == Pci.CLASS_COMMUNICATION_MODEM
+            ):
                 return "MODEM"
-            if class_id == Pci.BASE_CLASS_INPUT \
-               and subclass_id == Pci.CLASS_INPUT_SCANNER:
+            if (
+                class_id == Pci.BASE_CLASS_INPUT
+                and subclass_id == Pci.CLASS_INPUT_SCANNER
+            ):
                 return "SCANNER"
             if class_id == Pci.BASE_CLASS_MULTIMEDIA:
-                if subclass_id == Pci.CLASS_MULTIMEDIA_AUDIO \
-                   or subclass_id == Pci.CLASS_MULTIMEDIA_AUDIO_DEVICE:
+                if (
+                    subclass_id == Pci.CLASS_MULTIMEDIA_AUDIO
+                    or subclass_id == Pci.CLASS_MULTIMEDIA_AUDIO_DEVICE
+                ):
                     return "AUDIO"
-            if class_id == Pci.BASE_CLASS_SERIAL \
-               and subclass_id == Pci.CLASS_SERIAL_FIREWIRE:
+            if (
+                class_id == Pci.BASE_CLASS_SERIAL
+                and subclass_id == Pci.CLASS_SERIAL_FIREWIRE
+            ):
                 return "FIREWIRE"
-            if class_id == Pci.BASE_CLASS_WIRELESS \
-               and subclass_id == Pci.CLASS_WIRELESS_BLUETOOTH:
+            if (
+                class_id == Pci.BASE_CLASS_WIRELESS
+                and subclass_id == Pci.CLASS_WIRELESS_BLUETOOTH
+            ):
                 return "BLUETOOTH"
-            if class_id == Pci.BASE_CLASS_BRIDGE \
-               and (subclass_id == Pci.CLASS_BRIDGE_PCMCIA
-                    or subclass_id == Pci.CLASS_BRIDGE_CARDBUS):
+            if class_id == Pci.BASE_CLASS_BRIDGE and (
+                subclass_id == Pci.CLASS_BRIDGE_PCMCIA
+                or subclass_id == Pci.CLASS_BRIDGE_CARDBUS
+            ):
                 return "SOCKET"
 
         if "TYPE" in self._environment and "INTERFACE" in self._environment:
             interface_class, interface_subclass, interface_protocol = (
-                int(i) for i in self._environment["INTERFACE"].split("/"))
+                int(i) for i in self._environment["INTERFACE"].split("/")
+            )
             if interface_class == Usb.BASE_CLASS_AUDIO:
                 return "AUDIO"
             if interface_class == Usb.BASE_CLASS_PRINTER:
@@ -369,8 +398,11 @@ class UdevadmDevice(object):
                     return "BLUETOOTH"
                 else:
                     return "WIRELESS"
-            if (interface_class, interface_subclass, interface_protocol) ==\
-               (255, 255, 255) and self.driver == "btusb":
+            if (interface_class, interface_subclass, interface_protocol) == (
+                255,
+                255,
+                255,
+            ) and self.driver == "btusb":
                 # This heuristic accounts for bluetooth devices which usually
                 # have INTERFACE=224/*/1, however in the "field" we've run
                 # across a few (Mediatek combo cards) that have unknown
@@ -384,11 +416,11 @@ class UdevadmDevice(object):
                 # devices.  See http://pad.lv/1210405
                 return "BLUETOOTH"
 
-        if 'ID_INPUT_KEYBOARD' in self._environment:
+        if "ID_INPUT_KEYBOARD" in self._environment:
             return "KEYBOARD"
-        if 'ID_INPUT_TOUCHPAD' in self._environment:
+        if "ID_INPUT_TOUCHPAD" in self._environment:
             return "TOUCHPAD"
-        if 'ID_INPUT_TOUCHSCREEN' in self._environment:
+        if "ID_INPUT_TOUCHSCREEN" in self._environment:
             return "TOUCHSCREEN"
         if "ID_INPUT_ACCELEROMETER" in self._environment:
             return "ACCELEROMETER"
@@ -400,14 +432,16 @@ class UdevadmDevice(object):
                 if self.vendor_id == 0:
                     return "OTHER"
                 # Avoid identifying media/hot keys as pure capture devices
-                if not (test_bit(Input.KEY_PLAYPAUSE, bitmask, self._bits) or
-                        test_bit(Input.KEY_PLAY, bitmask, self._bits) or
-                        test_bit(Input.KEY_WLAN, bitmask, self._bits)):
+                if not (
+                    test_bit(Input.KEY_PLAYPAUSE, bitmask, self._bits)
+                    or test_bit(Input.KEY_PLAY, bitmask, self._bits)
+                    or test_bit(Input.KEY_WLAN, bitmask, self._bits)
+                ):
                     # Consider a device with both camera and mouse properties
                     # as a KVM hardware device ("keyboard, video and mouse")
                     if test_bit(Input.BTN_MOUSE, bitmask, self._bits):
                         return "KVM"
-        if 'ID_INPUT_MOUSE' in self._environment:
+        if "ID_INPUT_MOUSE" in self._environment:
             return "MOUSE"
 
         if self.driver:
@@ -421,9 +455,8 @@ class UdevadmDevice(object):
             # tests on them (e.g on a pandaboard) only devices with the udev
             # property MMC_TYPE == MMC are accepted.
             if self.driver.startswith("mmc"):
-                if (
-                    self._mmc_type == 'MMC' and
-                    find_pkname_is_root_mountpoint(self.name, self._lsblk)
+                if self._mmc_type == "MMC" and find_pkname_is_root_mountpoint(
+                    self.name, self._lsblk
                 ):
                     return "DISK"
                 else:
@@ -435,11 +468,19 @@ class UdevadmDevice(object):
             # See http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=702145
             if self.driver.startswith("rtsx"):
                 return "CARDREADER"
-            if ((self._environment.get("DEVTYPE") not in ("disk", "partition")
-                    or 'ID_DRIVE_FLASH_SD' in self._environment
-                    or ('ID_MODEL' in self._environment
-                        and self._environment['ID_MODEL'] == 'Card_Reader'))
-                    and self.driver == "sd" and self.product):
+            if (
+                (
+                    self._environment.get("DEVTYPE")
+                    not in ("disk", "partition")
+                    or "ID_DRIVE_FLASH_SD" in self._environment
+                    or (
+                        "ID_MODEL" in self._environment
+                        and self._environment["ID_MODEL"] == "Card_Reader"
+                    )
+                )
+                and self.driver == "sd"
+                and self.product
+            ):
                 # The condition:
                 #     'ID_MODEL' in self._environment
                 #     and
@@ -452,26 +493,31 @@ class UdevadmDevice(object):
                 # will be given the category attribute 'DISK' by udev_resource
                 if any(FLASH_RE.search(k) for k in self._environment.keys()):
                     return "CARDREADER"
-            if any(d.bus == 'usb' for d in self._stack):
-                if (self.product is not None and self.bus != "hidraw" and
-                        CARD_READER_RE.search(self.product)):
+            if any(d.bus == "usb" for d in self._stack):
+                if (
+                    self.product is not None
+                    and self.bus != "hidraw"
+                    and CARD_READER_RE.search(self.product)
+                ):
                     return "CARDREADER"
-                if (self.vendor is not None and
-                        GENERIC_RE.search(self.vendor) and
-                        self.product is not None and
-                        not FLASH_DISK_RE.search(self.product) and
-                        not CAMERA_RE.search(self.product)):
-                # The condition
-                #     not CAMERA_RE.search(self.product)
-                # is a fix for the bug LP: #2051091,
-                # the usb camera '5986:118c Acer, Inc Integrated Camera
-                # of the system,
-                # CID 202309-32040 Lenovo - ThinkPad P16s Gen 2 AMD
-                # Will be given the category attribut 'CARDREADER' by udev_resource
+                if (
+                    self.vendor is not None
+                    and GENERIC_RE.search(self.vendor)
+                    and self.product is not None
+                    and not FLASH_DISK_RE.search(self.product)
+                    and not CAMERA_RE.search(self.product)
+                ):
+                    # The condition
+                    #     not CAMERA_RE.search(self.product)
+                    # is a fix for the bug LP: #2051091,
+                    # the usb camera '5986:118c Acer, Inc Integrated Camera
+                    # of the system,
+                    # CID 202309-32040 Lenovo - ThinkPad P16s Gen 2 AMD
+                    # Will be given the category attribut 'CARDREADER' by udev_resource
                     return "CARDREADER"
             # A rare gem, this driver reported by udev is actually an ID_MODEL:
             # E: DRIVER=Realtek PCIe card reader
-            if re.search(r'card.*reader', self.driver, re.I):
+            if re.search(r"card.*reader", self.driver, re.I):
                 return "CARDREADER"
 
         if "ID_TYPE" in self._environment:
@@ -481,10 +527,10 @@ class UdevadmDevice(object):
             if (
                 id_type == "disk"
                 and not any(d.category == "CARDREADER" for d in self._stack)
-                and not any(d.bus == 'usb' for d in self._stack)
+                and not any(d.bus == "usb" for d in self._stack)
             ):
                 return "DISK"
-            if not any(d.bus == 'usb' for d in self._stack):
+            if not any(d.bus == "usb" for d in self._stack):
                 if id_type == "video":
                     return "VIDEO"
 
@@ -495,30 +541,30 @@ class UdevadmDevice(object):
                     return "CDROM"
                 if "ID_DRIVE_FLOPPY" in self._environment:
                     return "FLOPPY"
-                if self.driver == 'virtio_blk' and self.bus == 'virtio':
+                if self.driver == "virtio_blk" and self.bus == "virtio":
                     # A QEMU/KVM virtual disk, but should be treated
                     # as DISK nonetheless
                     return "DISK"
-                if self.driver == 'nvme' and self.bus in ('pci', 'nvme'):
+                if self.driver == "nvme" and self.bus in ("pci", "nvme"):
                     # NVMe device in PCIe bus, this should also be
                     # treated as DISK as it presents block devices
                     # we need to test, and is a valid disk device
                     # we need to report.
                     return "DISK"
-                if '/dev/mapper' in self._environment.get('DEVLINKS', ''):
+                if "/dev/mapper" in self._environment.get("DEVLINKS", ""):
                     if "ID_FS_USAGE" in self._environment:
-                        if self._environment["ID_FS_USAGE"] == 'filesystem':
+                        if self._environment["ID_FS_USAGE"] == "filesystem":
                             return "DISK"
                     else:
                         return "DISK"
-                if '/dev/md' in self._environment.get('DEVNAME', ''):
+                if "/dev/md" in self._environment.get("DEVNAME", ""):
                     return "DISK"
-                if self.bus == 'mtd':
+                if self.bus == "mtd":
                     return "DISK"
-                if self.driver == 'dasd-eckd':
+                if self.driver == "dasd-eckd":
                     # IBM s390x DASD device types
                     return "DISK"
-                if self.driver == 'nd_pmem':
+                if self.driver == "nd_pmem":
                     # NVDIMM devices
                     return "DISK"
             if devtype == "scsi_device":
@@ -526,9 +572,8 @@ class UdevadmDevice(object):
                 type = int(match.group("type"), 16) if match else -1
 
                 # Check FLASH drives, see /lib/udev/rules.d/80-udisks.rules
-                if (
-                    type in (0, 7, 14)
-                    and not any(d.driver == "rts_pstor" for d in self._stack)
+                if type in (0, 7, 14) and not any(
+                    d.driver == "rts_pstor" for d in self._stack
                 ):
                     return "DISK"
                 if type == 1:
@@ -546,7 +591,7 @@ class UdevadmDevice(object):
                     parent = self._stack[-1]
                     if find_pkname_is_root_mountpoint(self.name, self._lsblk):
                         return
-                    if parent.category != 'DISK':
+                    if parent.category != "DISK":
                         return "PARTITION"
 
         if "DRIVER" in self._environment:
@@ -554,8 +599,11 @@ class UdevadmDevice(object):
                 return "FLOPPY"
 
         if "DEVLINKS" in self._environment:
-            if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
-                    if i in self._environment["DEVLINKS"]]:
+            if [
+                i
+                for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
+                if i in self._environment["DEVLINKS"]
+            ]:
                 return "CANBUS"
 
         # Some audio and serial devices have a product but no vendor
@@ -579,10 +627,15 @@ class UdevadmDevice(object):
                 # Ignore Mediatek v4l2 encoder, decoder, jpeg codec and
                 # image processor 3
                 # Ignore Intel image process uint 6th generation (IPU6)
-                drivers_blocklist = ('bcm2835-codec', 'bcm2835-isp',
-                                     'mtk-vcodec-enc', 'mtk-vcodec-dec',
-                                     'mtk-jpeg', 'mtk-mdp3',
-                                     'intel-ipu6-isys')
+                drivers_blocklist = (
+                    "bcm2835-codec",
+                    "bcm2835-isp",
+                    "mtk-vcodec-enc",
+                    "mtk-vcodec-dec",
+                    "mtk-jpeg",
+                    "mtk-mdp3",
+                    "intel-ipu6-isys",
+                )
                 if self.driver not in drivers_blocklist:
                     return "CAPTURE"
             # special device for PiCamera
@@ -591,11 +644,13 @@ class UdevadmDevice(object):
             if self._environment["SUBSYSTEM"] == "watchdog":
                 return "WATCHDOG"
 
-        if ('RFKILL_TYPE' in self._environment and
-                'RFKILL_NAME' in self._environment):
-            if self._environment["RFKILL_TYPE"] == 'bluetooth':
-                if self._environment["RFKILL_NAME"].startswith('hci'):
-                    return 'BLUETOOTH'
+        if (
+            "RFKILL_TYPE" in self._environment
+            and "RFKILL_NAME" in self._environment
+        ):
+            if self._environment["RFKILL_TYPE"] == "bluetooth":
+                if self._environment["RFKILL_NAME"].startswith("hci"):
+                    return "BLUETOOTH"
 
         if "/dev/dri/card" in self._environment.get("DEVNAME", ""):
             return "DRI"
@@ -604,9 +659,11 @@ class UdevadmDevice(object):
         # IDs, but had no other category, are lumped together in OTHER.
         # A few devices may have no self.product but carry PRODUCT data in
         # their environment.
-        if ((self.product or self._environment.get("PRODUCT")) and
-                None not in (self.vendor_id, self.product_id) and
-                self.driver != 'uvcvideo'):
+        if (
+            (self.product or self._environment.get("PRODUCT"))
+            and None not in (self.vendor_id, self.product_id)
+            and self.driver != "uvcvideo"
+        ):
             return "OTHER"
 
         # Limbo of devices I couldn't otherwise categorize. In practice
@@ -635,7 +692,7 @@ class UdevadmDevice(object):
             parent = self._stack[-1]
             if "DRIVER" in parent._environment:
                 return parent._environment["DRIVER"]
-            if self.bus == 'nvme' and parent._stack:
+            if self.bus == "nvme" and parent._stack:
                 parent = parent._stack[-1]
                 if "DRIVER" in parent._environment:
                     return parent._environment["DRIVER"]
@@ -645,16 +702,15 @@ class UdevadmDevice(object):
     def path(self):
         devpath = self._environment.get("DEVPATH")
         if (
-            (self._environment.get("DEVTYPE") == "disk" and self._stack) or
-            "IFINDEX" in self._environment
-        ):
+            self._environment.get("DEVTYPE") == "disk" and self._stack
+        ) or "IFINDEX" in self._environment:
             devpath = re.sub(r"/[^/]+/[^/]+$", "", devpath)
         return devpath
 
     @property
     def _raw_path(self):
-        """ Returns the raw device path, this is used internally by
-            UdevadmParser only
+        """Returns the raw device path, this is used internally by
+        UdevadmParser only
         """
         return self._environment.get("DEVPATH")
 
@@ -702,21 +758,27 @@ class UdevadmDevice(object):
         if match:
             return int(match.group("product_id"), 16)
         # disk
-        if (self.driver == "nvme" and self.bus in ('pci', 'misc')
-                and self._stack):
+        if (
+            self.driver == "nvme"
+            and self.bus in ("pci", "misc")
+            and self._stack
+        ):
             parent = self._stack[-1]
             return parent.product_id
-        elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
+        elif self.driver == "nvme" and self.bus == "nvme" and self._stack:
             parent = self._stack[-2]
             return parent.product_id
         # tpu
-        if self.bus == 'apex' and self._stack:
+        if self.bus == "apex" and self._stack:
             parent = self._stack[-1]
             return parent.product_id
         # canbus
         if "DEVLINKS" in self._environment:
-            if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
-                    if i in self._environment["DEVLINKS"]]:
+            if [
+                i
+                for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
+                if i in self._environment["DEVLINKS"]
+            ]:
                 if "ID_MODEL_ID" in self._environment:
                     return int(self._environment["ID_MODEL_ID"], 16)
         if "SUBSYSTEM" in self._environment:
@@ -761,21 +823,27 @@ class UdevadmDevice(object):
                 vendor_id = 9
             return vendor_id
         # disk
-        if (self.driver == "nvme" and self.bus in ('pci', 'misc')
-                and self._stack):
+        if (
+            self.driver == "nvme"
+            and self.bus in ("pci", "misc")
+            and self._stack
+        ):
             parent = self._stack[-1]
             return parent.vendor_id
-        elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
+        elif self.driver == "nvme" and self.bus == "nvme" and self._stack:
             parent = self._stack[-2]
             return parent.vendor_id
         # tpu
-        if self.bus == 'apex' and self._stack:
+        if self.bus == "apex" and self._stack:
             parent = self._stack[-1]
             return parent.vendor_id
         # canbus
         if "DEVLINKS" in self._environment:
-            if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
-                    if i in self._environment["DEVLINKS"]]:
+            if [
+                i
+                for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
+                if i in self._environment["DEVLINKS"]
+            ]:
                 if "ID_VENDOR_ID" in self._environment:
                     return int(self._environment["ID_VENDOR_ID"], 16)
         if "SUBSYSTEM" in self._environment:
@@ -801,11 +869,14 @@ class UdevadmDevice(object):
             pci_subsys_id = self._environment["PCI_SUBSYS_ID"]
             subproduct_id = pci_subsys_id.split(":")[1]
             return int(subproduct_id, 16)
-        if (self.driver == "nvme" and self.bus in ('pci', 'misc')
-                and self._stack):
+        if (
+            self.driver == "nvme"
+            and self.bus in ("pci", "misc")
+            and self._stack
+        ):
             parent = self._stack[-1]
             return parent.subproduct_id
-        elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
+        elif self.driver == "nvme" and self.bus == "nvme" and self._stack:
             parent = self._stack[-2]
             return parent.subproduct_id
         return None
@@ -822,11 +893,14 @@ class UdevadmDevice(object):
             pci_subsys_id = self._environment["PCI_SUBSYS_ID"]
             subvendor_id = pci_subsys_id.split(":")[0]
             return int(subvendor_id, 16)
-        if (self.driver == "nvme" and self.bus in ('pci', 'misc')
-                and self._stack):
+        if (
+            self.driver == "nvme"
+            and self.bus in ("pci", "misc")
+            and self._stack
+        ):
             parent = self._stack[-1]
             return parent.subvendor_id
-        elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
+        elif self.driver == "nvme" and self.bus == "nvme" and self._stack:
             parent = self._stack[-2]
             return parent.subvendor_id
         return None
@@ -864,24 +938,31 @@ class UdevadmDevice(object):
             for device in reversed(self._stack):
                 if device._environment.get("ID_BUS") == "usb":
                     return decode_id(device._environment["ID_MODEL_ENC"])
-        elif (self._environment.get("DEVTYPE") == "disk" and
-                "ID_MODEL_ENC" in self._environment):
+        elif (
+            self._environment.get("DEVTYPE") == "disk"
+            and "ID_MODEL_ENC" in self._environment
+        ):
             return decode_id(self._environment["ID_MODEL_ENC"])
-        elif self.driver == "nvme" and self.bus in ('pci', 'misc'):
+        elif self.driver == "nvme" and self.bus in ("pci", "misc"):
             return self.name
-        elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
+        elif self.driver == "nvme" and self.bus == "nvme" and self._stack:
             parent = self._stack[-2]
             if parent.product:
                 return parent.product
             else:
                 return self.name
-        elif (self._environment.get("DEVTYPE") == "disk" and
-                self.driver == 'virtio_blk' and self.bus == 'virtio'):
+        elif (
+            self._environment.get("DEVTYPE") == "disk"
+            and self.driver == "virtio_blk"
+            and self.bus == "virtio"
+        ):
             return self.name
-        elif (self._list_partitions and
-                self._environment.get("DEVTYPE") == "partition"):
+        elif (
+            self._list_partitions
+            and self._environment.get("DEVTYPE") == "partition"
+        ):
             return self.name
-        elif '/dev/md' in self._environment.get('DEVNAME', ''):
+        elif "/dev/md" in self._environment.get("DEVNAME", ""):
             if "MD_NAME" in self._environment:
                 return self._environment.get("MD_NAME")
             # if there's MD_LEVEL in the env and it's not a container it's an
@@ -911,14 +992,15 @@ class UdevadmDevice(object):
                     return self._environment["ID_V4L_PRODUCT"]
 
         # bluetooth (if USB base class is vendor specific)
-        if self.bus == 'bluetooth':
+        if self.bus == "bluetooth":
             vendor_specific = False
             # Check parent device modalias
             if self._stack:
                 parent = self._stack[-1]
                 if "MODALIAS" in parent._environment:
                     match = USB_RE.match(
-                        parent._environment.get("MODALIAS", ""))
+                        parent._environment.get("MODALIAS", "")
+                    )
                     if match:
                         if int(match.group("class"), 16) == 0xFF:
                             vendor_specific = True
@@ -931,12 +1013,14 @@ class UdevadmDevice(object):
             for device in reversed(self._stack):
                 # wireless (SoC)
                 match = PLATFORM_RE.match(
-                    device._environment.get("MODALIAS", ""))
+                    device._environment.get("MODALIAS", "")
+                )
                 if match:
                     return match.group("module_name")
                 # Network (Open Firmware)
                 match = OPENFIRMWARE_RE.match(
-                    device._environment.get("MODALIAS", ""))
+                    device._environment.get("MODALIAS", "")
+                )
                 if match:
                     return match.group("name")
 
@@ -944,7 +1028,7 @@ class UdevadmDevice(object):
             if "ID_MODEL_ENC" in self._environment:
                 return decode_id(self._environment["ID_MODEL_ENC"])
 
-        if self.driver == 'mmcblk':
+        if self.driver == "mmcblk":
             # Check parent device for MMC name
             if self._stack:
                 parent = self._stack[-1]
@@ -956,8 +1040,11 @@ class UdevadmDevice(object):
                 return self._environment[element].strip('"')
 
         if "DEVLINKS" in self._environment:
-            if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
-                    if i in self._environment["DEVLINKS"]]:
+            if [
+                i
+                for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
+                if i in self._environment["DEVLINKS"]
+            ]:
                 if "ID_MODEL_ENC" in self._environment:
                     return decode_id(self._environment["ID_MODEL_ENC"])
             if "/dev/mapper" in self._environment["DEVLINKS"]:
@@ -993,20 +1080,25 @@ class UdevadmDevice(object):
             for device in reversed(self._stack):
                 if device._environment.get("ID_BUS") == "usb":
                     return decode_id(device._environment["ID_VENDOR_ENC"])
-        elif (self._environment.get("DEVTYPE") == "disk" and
-                "ID_VENDOR_ENC" in self._environment):
+        elif (
+            self._environment.get("DEVTYPE") == "disk"
+            and "ID_VENDOR_ENC" in self._environment
+        ):
             return decode_id(self._environment["ID_VENDOR_ENC"])
 
         if "ID_VENDOR_FROM_DATABASE" in self._environment:
             return self._environment["ID_VENDOR_FROM_DATABASE"]
-        if (self.driver == "nvme" and self.bus in ('pci', 'misc')
-                and self._stack):
+        if (
+            self.driver == "nvme"
+            and self.bus in ("pci", "misc")
+            and self._stack
+        ):
             parent = self._stack[-1]
             return parent.vendor
-        elif self.driver == "nvme" and self.bus == 'nvme' and self._stack:
+        elif self.driver == "nvme" and self.bus == "nvme" and self._stack:
             parent = self._stack[-2]
             return parent.vendor
-        elif '/dev/md' in self._environment.get('DEVNAME', ''):
+        elif "/dev/md" in self._environment.get("DEVNAME", ""):
             if "MD_LEVEL" in self._environment:
                 return self._environment.get("MD_LEVEL")
         if "SUBSYSTEM" in self._environment:
@@ -1020,14 +1112,15 @@ class UdevadmDevice(object):
                     return decode_id(self._environment["ID_VENDOR_ENC"])
 
         # bluetooth (if USB base class is vendor specific)
-        if self.bus == 'bluetooth':
+        if self.bus == "bluetooth":
             vendor_specific = False
             # Check parent device modalias
             if self._stack:
                 parent = self._stack[-1]
                 if "MODALIAS" in parent._environment:
                     match = USB_RE.match(
-                        parent._environment.get("MODALIAS", ""))
+                        parent._environment.get("MODALIAS", "")
+                    )
                     if match:
                         if int(match.group("class"), 16) == 0xFF:
                             vendor_specific = True
@@ -1041,8 +1134,11 @@ class UdevadmDevice(object):
                 return decode_id(self._environment["ID_VENDOR_ENC"])
 
         if "DEVLINKS" in self._environment:
-            if [i for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
-                    if i in self._environment["DEVLINKS"]]:
+            if [
+                i
+                for i in ("canbus", "CANBus_HID", "USB_CAN_FD")
+                if i in self._environment["DEVLINKS"]
+            ]:
                 if "ID_VENDOR_ENC" in self._environment:
                     return decode_id(self._environment["ID_VENDOR_ENC"])
 
@@ -1056,12 +1152,17 @@ class UdevadmDevice(object):
     def interface(self):
         if self._interface is not None:
             return self._interface
-        if self.category in ("INFINIBAND", "NETWORK", "SOCKETCAN", "WIRELESS",
-                             "WWAN"):
+        if self.category in (
+            "INFINIBAND",
+            "NETWORK",
+            "SOCKETCAN",
+            "WIRELESS",
+            "WWAN",
+        ):
             if "INTERFACE" in self._environment:
                 return self._environment["INTERFACE"]
             else:
-                return 'UNKNOWN'
+                return "UNKNOWN"
         if "RFKILL_NAME" in self._environment:
             return self._environment["RFKILL_NAME"]
         return None
@@ -1073,9 +1174,11 @@ class UdevadmDevice(object):
         if self.category in ("INFINIBAND", "NETWORK", "WIRELESS", "WWAN"):
             if "ID_NET_NAME_MAC" in self._environment:
                 mac = self._environment["ID_NET_NAME_MAC"][3:]
-                return ':'.join([mac[i:i+2] for i in range(0, len(mac), 2)])
+                return ":".join(
+                    [mac[i : i + 2] for i in range(0, len(mac), 2)]
+                )
             else:
-                return 'UNKNOWN'
+                return "UNKNOWN"
         return None
 
     @mac.setter
@@ -1087,10 +1190,23 @@ class UdevadmDevice(object):
         self._interface = value
 
     def as_json(self):
-        attributes = ("path", "bus", "category", "driver", "product_id",
-                      "vendor_id", "subproduct_id", "subvendor_id", "product",
-                      "vendor", "interface", "mac", "name", "product_slug",
-                      "vendor_slug")
+        attributes = (
+            "path",
+            "bus",
+            "category",
+            "driver",
+            "product_id",
+            "vendor_id",
+            "subproduct_id",
+            "subvendor_id",
+            "product",
+            "vendor",
+            "interface",
+            "mac",
+            "name",
+            "product_slug",
+            "vendor_slug",
+        )
 
         return {a: getattr(self, a) for a in attributes if getattr(self, a)}
 
@@ -1098,7 +1214,7 @@ class UdevadmDevice(object):
     def symlink_uuid(self):
         if self.category == "PARTITION":
             for link in self._symlinks:
-                if 'by-uuid' in link:
+                if "by-uuid" in link:
                     return link
         return None
 
@@ -1106,8 +1222,8 @@ class UdevadmDevice(object):
     def symlink_v4l_by_id(self):
         if self.category == "CAPTURE":
             for link in self._symlinks:
-                if 'v4l/by-id/' in link:
-                    return link.replace('v4l/by-id/', '')
+                if "v4l/by-id/" in link:
+                    return link.replace("v4l/by-id/", "")
         return None
 
 
@@ -1116,8 +1232,9 @@ class UdevadmParser(object):
 
     device_factory = UdevadmDevice
 
-    def __init__(self, stream_or_string, lsblk=None, list_partitions=False,
-                 bits=None):
+    def __init__(
+        self, stream_or_string, lsblk=None, list_partitions=False, bits=None
+    ):
         self.stream_or_string = stream_or_string
         self.lsblk = lsblk
         self.list_partitions = list_partitions
@@ -1134,9 +1251,9 @@ class UdevadmParser(object):
             return False
 
         # Keep /dev/mapper devices (non swap)
-        if '/dev/mapper' in device._environment.get('DEVLINKS', ''):
+        if "/dev/mapper" in device._environment.get("DEVLINKS", ""):
             if "ID_FS_USAGE" in device._environment:
-                if device._environment["ID_FS_USAGE"] != 'filesystem':
+                if device._environment["ID_FS_USAGE"] != "filesystem":
                     return True
                 # Some of the MD devices are there only to host "service"
                 # partitions that should not be considered disks when running
@@ -1145,13 +1262,19 @@ class UdevadmParser(object):
                 # the following partition names, if found on the dm-* device
                 # will make the dm-* device not to be reported as a disk
                 IGNORED_PARTITIONS = [
-                    "ubuntu-save", "ubuntu-boot", "ubuntu-seed"]
-                if device._environment.get("ID_FS_LABEL") in IGNORED_PARTITIONS:
+                    "ubuntu-save",
+                    "ubuntu-boot",
+                    "ubuntu-seed",
+                ]
+                if (
+                    device._environment.get("ID_FS_LABEL")
+                    in IGNORED_PARTITIONS
+                ):
                     return True
             return False
 
         # Keep /dev/md* devices (Multiple Disks aka Software RAID)
-        if '/dev/md' in device._environment.get('DEVNAME', ''):
+        if "/dev/md" in device._environment.get("DEVNAME", ""):
             return False
 
         # Do not ignore PiCamera
@@ -1178,17 +1301,21 @@ class UdevadmParser(object):
         # Do not ignore nvme devices on the pci bus, these are to be treated
         # as disks (categorization is done elsewhere). Note that the *parent*
         # device will have no category, though it's not ignored per se.
-        if device.bus in ('pci', 'nvme') and device.driver == 'nvme':
+        if device.bus in ("pci", "nvme") and device.driver == "nvme":
             return False
         # Do not ignore eMMC drives (pad.lv/1522768)
-        if ("ID_PART_TABLE_TYPE" in device._environment and
-            device.driver == 'mmcblk' and
-                device._mmc_type == 'MMC'):
+        if (
+            "ID_PART_TABLE_TYPE" in device._environment
+            and device.driver == "mmcblk"
+            and device._mmc_type == "MMC"
+        ):
             return False
         # Do not ignore QEMU/KVM virtio disks
-        if ("DEVTYPE" in device._environment and
-            device.bus == "virtio" and
-                device.driver == "virtio_blk"):
+        if (
+            "DEVTYPE" in device._environment
+            and device.bus == "virtio"
+            and device.driver == "virtio_blk"
+        ):
             return False
         # Do not ignore MTD disks
         if device.category == "DISK" and device.bus == "mtd":
@@ -1204,21 +1331,27 @@ class UdevadmParser(object):
             return False
 
         # Ignore devices without product AND vendor information
-        if (device.product is None and device.product_id is None and
-                device.vendor is None and device.vendor_id is None):
+        if (
+            device.product is None
+            and device.product_id is None
+            and device.vendor is None
+            and device.vendor_id is None
+        ):
             return True
 
         # Ignore invalid subsystem information
-        if ((device.subproduct_id is None
-                and device.subvendor_id is not None)
-            or (device.subproduct_id is not None
-                and device.subvendor_id is None)):
+        if (
+            device.subproduct_id is None and device.subvendor_id is not None
+        ) or (
+            device.subproduct_id is not None and device.subvendor_id is None
+        ):
             return True
 
         # Ignore FLOPPY, DISK and CDROM devices without a DEVNAME
         # (See pad.lv/1539041)
-        if ((device.category in ('CDROM', 'DISK', 'FLOPPY')) and
-                "DEVNAME" not in device._environment):
+        if (
+            device.category in ("CDROM", "DISK", "FLOPPY")
+        ) and "DEVNAME" not in device._environment:
             return True
 
         # Ignore ACPI devices
@@ -1227,9 +1360,11 @@ class UdevadmParser(object):
 
         # Ignore virtual devices created by Cisco CIMC manager
         # See pad.lv/1585802
-        if (device.product == "Virtual FDD/HDD" or
-                device.product == "Virtual Floppy" or
-                device.product == "Virtual CD/DVD"):
+        if (
+            device.product == "Virtual FDD/HDD"
+            or device.product == "Virtual Floppy"
+            or device.product == "Virtual CD/DVD"
+        ):
             return True
 
         return False
@@ -1248,7 +1383,7 @@ class UdevadmParser(object):
             output = self.stream_or_string
         else:
             output = self.stream_or_string.read()
-        output = output.replace('\r', '')  # Just in case...
+        output = output.replace("\r", "")  # Just in case...
         for record in re.split("\n{2,}", output):
             record = record.strip()
             if not record:
@@ -1281,7 +1416,8 @@ class UdevadmParser(object):
                     key_match = multi_pattern.match(value)
                     if not key_match:
                         raise Exception(
-                            "Device property not supported: %s" % value)
+                            "Device property not supported: %s" % value
+                        )
                     element = key_match.group("key")
                     environment[element] = key_match.group("value")
 
@@ -1295,27 +1431,42 @@ class UdevadmParser(object):
             environment.setdefault("DEVPATH", path)
 
             device = self.device_factory(
-                environment, name, self.lsblk, self.list_partitions, self.bits,
-                list(stack), symlinks)
+                environment,
+                name,
+                self.lsblk,
+                self.list_partitions,
+                self.bits,
+                list(stack),
+                symlinks,
+            )
             if not self._ignoreDevice(device):
                 if device._raw_path in self.devices:
-                    if self.devices[device._raw_path].category == 'CARDREADER':
+                    if self.devices[device._raw_path].category == "CARDREADER":
                         [
-                            setattr(self.devices[device._raw_path],
-                                    device_key, getattr(device, device_key))
+                            setattr(
+                                self.devices[device._raw_path],
+                                device_key,
+                                getattr(device, device_key),
+                            )
                             for device_key in (
-                                "product", "vendor", "product_id", "vendor_id")
+                                "product",
+                                "vendor",
+                                "product_id",
+                                "vendor_id",
+                            )
                             if getattr(device, device_key) is not None
                         ]
                     elif device.category != "OTHER":
                         self.devices[device._raw_path] = device
-                elif device.category == 'BLUETOOTH':
+                elif device.category == "BLUETOOTH":
                     usb_interface_path = USB_SYSFS_CONFIG_RE.sub(
-                        '', device._raw_path)
+                        "", device._raw_path
+                    )
                     if not [
-                        d for d in self.devices.values()
-                        if d.category == 'BLUETOOTH' and
-                        usb_interface_path in d._raw_path
+                        d
+                        for d in self.devices.values()
+                        if d.category == "BLUETOOTH"
+                        and usb_interface_path in d._raw_path
                     ]:
                         self.devices[device._raw_path] = device
                 else:
@@ -1324,24 +1475,28 @@ class UdevadmParser(object):
 
         dev_mapper_devices = []
         for d in self.devices.values():
-            if d.category == 'DISK':
-                if '/dev/mapper' in d._environment.get('DEVLINKS', ''):
+            if d.category == "DISK":
+                if "/dev/mapper" in d._environment.get("DEVLINKS", ""):
                     if "ID_FS_USAGE" in d._environment:
-                        if d._environment["ID_FS_USAGE"] == 'filesystem':
+                        if d._environment["ID_FS_USAGE"] == "filesystem":
                             dev_mapper_devices.append(d)
                     else:
                         dev_mapper_devices.append(d)
 
         md_devices = []
         for d in self.devices.values():
-            if '/dev/md' in d._environment.get('DEVNAME', ''):
+            if "/dev/md" in d._environment.get("DEVNAME", ""):
                 md_devices.extend(
-                    [v.replace('/dev/', '') for k, v in d._environment.items()
-                     if MD_DEVICE_RE.match(k)])
+                    [
+                        v.replace("/dev/", "")
+                        for k, v in d._environment.items()
+                        if MD_DEVICE_RE.match(k)
+                    ]
+                )
 
         HID_devices_path_list = []
         for d in self.devices.values():
-            if d._environment.get("SUBSYSTEM") == 'input':
+            if d._environment.get("SUBSYSTEM") == "input":
                 if d._stack:
                     parent = d._stack[-1]
                     HID_devices_path_list.append(parent._raw_path)
@@ -1359,22 +1514,35 @@ class UdevadmParser(object):
                     d.category = "VIDEO"
 
         for device in list(self.devices.values()):
-            if device.category == 'HIDRAW' and device._stack:
+            if device.category == "HIDRAW" and device._stack:
                 for parent in (device._stack[-1], device._stack[-2]):
                     if parent._raw_path in HID_devices_path_list:
                         self.devices.pop(device._raw_path, None)
-            elif device.category in ("INFINIBAND", "NETWORK", "SOCKETCAN",
-                                     "WIRELESS", "WWAN", "OTHER"):
+            elif device.category in (
+                "INFINIBAND",
+                "NETWORK",
+                "SOCKETCAN",
+                "WIRELESS",
+                "WWAN",
+                "OTHER",
+            ):
                 dev_interface = [
-                    d for d in self.devices.values()
-                    if d.category in ("INFINIBAND", "NETWORK", "SOCKETCAN",
-                                      "WIRELESS", "WWAN") and
-                    device._raw_path != d._raw_path and
-                    device._raw_path + '/' in d._raw_path
+                    d
+                    for d in self.devices.values()
+                    if d.category
+                    in (
+                        "INFINIBAND",
+                        "NETWORK",
+                        "SOCKETCAN",
+                        "WIRELESS",
+                        "WWAN",
+                    )
+                    and device._raw_path != d._raw_path
+                    and device._raw_path + "/" in d._raw_path
                 ]
                 if dev_interface:
                     dev_interface = dev_interface.pop()
-                    if dev_interface.interface == 'UNKNOWN':
+                    if dev_interface.interface == "UNKNOWN":
                         continue
                     dev_interface.bus = device.bus
                     dev_interface.product_id = device.product_id
@@ -1382,24 +1550,26 @@ class UdevadmParser(object):
                     dev_interface.subproduct_id = device.subproduct_id
                     dev_interface.subvendor_id = device.subvendor_id
                     self.devices.pop(device._raw_path, None)
-            elif device.category == 'BLUETOOTH':
+            elif device.category == "BLUETOOTH":
                 dev_interface = [
-                    d for d in self.devices.values()
-                    if d.category == 'BLUETOOTH' and
-                    device._raw_path != d._raw_path and
-                    device._raw_path + '/' in d._raw_path
+                    d
+                    for d in self.devices.values()
+                    if d.category == "BLUETOOTH"
+                    and device._raw_path != d._raw_path
+                    and device._raw_path + "/" in d._raw_path
                 ]
                 if dev_interface:
                     dev_interface = dev_interface.pop()
                     device.interface = dev_interface.interface
                     self.devices.pop(dev_interface._raw_path, None)
-            elif device.category == 'CAPTURE':
+            elif device.category == "CAPTURE":
                 meta_capture_device = [
-                    d for d in self.devices.values()
-                    if d.category == 'CAPTURE' and
-                    device._raw_path != d._raw_path and
-                    device._environment["MINOR"] < d._environment["MINOR"] and
-                    os.path.dirname(device._raw_path) in d._raw_path
+                    d
+                    for d in self.devices.values()
+                    if d.category == "CAPTURE"
+                    and device._raw_path != d._raw_path
+                    and device._environment["MINOR"] < d._environment["MINOR"]
+                    and os.path.dirname(device._raw_path) in d._raw_path
                 ]
                 if meta_capture_device:
                     meta_device = meta_capture_device.pop()
@@ -1407,16 +1577,17 @@ class UdevadmParser(object):
                 # A second iteration to filter out devices with the same v4l
                 # symlink
                 meta_capture_device = [
-                    d for d in self.devices.values()
-                    if d.category == 'CAPTURE' and
-                    device._raw_path != d._raw_path and
-                    device._environment["MINOR"] < d._environment["MINOR"] and
-                    device.symlink_v4l_by_id == d.symlink_v4l_by_id
+                    d
+                    for d in self.devices.values()
+                    if d.category == "CAPTURE"
+                    and device._raw_path != d._raw_path
+                    and device._environment["MINOR"] < d._environment["MINOR"]
+                    and device.symlink_v4l_by_id == d.symlink_v4l_by_id
                 ]
                 if meta_capture_device:
                     meta_device = meta_capture_device.pop()
                     self.devices.pop(meta_device._raw_path, None)
-            elif device.category == 'DISK':
+            elif device.category == "DISK":
                 # If dev/mapper list devices then they take precedence over the
                 # other block devices
                 if dev_mapper_devices:
@@ -1427,7 +1598,7 @@ class UdevadmParser(object):
                 if md_devices:
                     if device.name in md_devices:
                         self.devices.pop(device._raw_path, None)
-            elif device.category == 'CDROM':
+            elif device.category == "CDROM":
                 # Remove Virtal CDROM devices
                 if not [k for k in device._environment if "ID_CDROM_" in k]:
                     self.devices.pop(device._raw_path, None)
@@ -1460,7 +1631,7 @@ def known_to_be_video_device(vendor_id, product_id, pci_class, pci_subclass):
         # older GPUs have subdevices with OTHER which are uninteresting. If
         # Intel, we only consider OTHER devices as VIDEO if they are in this
         # explicit list
-        return product_id in [0x0152, 0x0412, 0x0402, 0xa780]
+        return product_id in [0x0152, 0x0412, 0x0402, 0xA780]
 
 
 def parse_udevadm_output(output, lsblk=None, list_partitions=False, bits=None):
@@ -1473,8 +1644,9 @@ def parse_udevadm_output(output, lsblk=None, list_partitions=False, bits=None):
     if lsblk is None:
         try:
             lsblk = check_output(
-                ['lsblk', '-i', '-n', '-P', '-o', 'KNAME,TYPE,MOUNTPOINT'],
-                universal_newlines=True)
+                ["lsblk", "-i", "-n", "-P", "-o", "KNAME,TYPE,MOUNTPOINT"],
+                universal_newlines=True,
+            )
         except CalledProcessError:
-            lsblk = ''
+            lsblk = ""
     return UdevadmParser(output, lsblk, list_partitions, bits).run()

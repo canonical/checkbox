@@ -17,8 +17,7 @@
 import io
 
 
-class ModinfoResult():
-
+class ModinfoResult:
     """
     A simple class to hold results for the MultipleModinfoParser.
 
@@ -38,8 +37,7 @@ class ModinfoResult():
         self.mod_data[module] = data
 
 
-class MultipleModinfoParser():
-
+class MultipleModinfoParser:
     """
     Parser for the modinfo_attachment.
 
@@ -109,7 +107,6 @@ class MultipleModinfoParser():
 
 
 class ModinfoParser(object):
-
     """
     Parser for modinfo information.
 
@@ -137,18 +134,20 @@ class ModinfoParser(object):
 
         The stream should be a string.
         """
-        self._modinfo = {'alias': [],
-                         'author': '',
-                         'depends': [],
-                         'description': '',
-                         'filename': '',
-                         'firmware': [],
-                         'intree': '',
-                         'license': '',
-                         'parm': [],
-                         'srcversion': '',
-                         'vermagic': '',
-                         'version': ''}
+        self._modinfo = {
+            "alias": [],
+            "author": "",
+            "depends": [],
+            "description": "",
+            "filename": "",
+            "firmware": [],
+            "intree": "",
+            "license": "",
+            "parm": [],
+            "srcversion": "",
+            "vermagic": "",
+            "version": "",
+        }
         self._get_info(stream)
 
     def _get_info(self, stream):
@@ -156,7 +155,7 @@ class ModinfoParser(object):
             # At this point, stream should be the stdout from the modinfo
             # command, in a list.
             try:
-                key, data = line.split(':', 1)
+                key, data = line.split(":", 1)
             except ValueError:
                 # Most likely this will be caused by a blank line in the
                 # stream, so we just ignore it and move on.
@@ -166,7 +165,12 @@ class ModinfoParser(object):
                 data = data.strip()
                 # First, we need to handle alias, parm, firmware, and depends
                 # because there can be multiple lines of output for these.
-                if key in ('alias', 'depend', 'firmware', 'parm',):
+                if key in (
+                    "alias",
+                    "depend",
+                    "firmware",
+                    "parm",
+                ):
                     self._modinfo[key].append(data)
                 else:
                     self._modinfo[key] = data

@@ -22,8 +22,10 @@ from __future__ import unicode_literals
 from io import StringIO
 from unittest import TestCase
 
-from checkbox_support.parsers.pci_config import (PciSubsystemIdParser,
-                                                 PciSubsystemIdResult)
+from checkbox_support.parsers.pci_config import (
+    PciSubsystemIdParser,
+    PciSubsystemIdResult,
+)
 
 INPUT1 = """\
 00:00.0 Host bridge: Intel Corporation Haswell-ULT DRAM Controller (rev 09)
@@ -102,7 +104,6 @@ INPUT8 = """\
 
 
 class TestPciSubsystemIdParser(TestCase):
-
     """Tests for the PCI subsystem ID parser."""
 
     def _parse_helper(self, input_stream):

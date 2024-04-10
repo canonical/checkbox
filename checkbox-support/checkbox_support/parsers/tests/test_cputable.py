@@ -67,10 +67,12 @@ class TestCputableParser(TestCase):
         self.assertEqual(result.cpus, [])
 
     def test_i386(self):
-        result = self.getResult("""
+        result = self.getResult(
+            """
 # <Debian name>	<GNU name>	<config.guess regex>	<Bits>	<Endianness>
 i386		i686		(i[3456]86|pentium)	32	little
-""")
+"""
+        )
         debian_cpu = result.getByDebianName("i386")
         self.assertNotEqual(debian_cpu, None)
         gnu_cpu = result.getByGnuName("i686")

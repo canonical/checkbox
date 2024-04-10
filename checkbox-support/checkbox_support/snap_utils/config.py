@@ -15,8 +15,11 @@ import sys
 
 def get_snapctl_config():
     """Query snapctl for config file variables"""
-    out = sp.check_output(['snapctl', 'get', 'conf']).decode(
-        sys.stdout.encoding).strip()
+    out = (
+        sp.check_output(["snapctl", "get", "conf"])
+        .decode(sys.stdout.encoding)
+        .strip()
+    )
     if out:
         return json.loads(out)
     return {}
@@ -37,16 +40,16 @@ def get_configuration_set():
     config_set = dict()
     key_re = re.compile(r"^(?:[A-Z0-9]+_?)*[A-Z](?:_?[A-Z0-9])*$")
     try:
-        for line in open(config_set_path, 'rt').readlines():
+        for line in open(config_set_path, "rt").readlines():
             line = line.strip()
-            if not line or line.startswith('#'):
+            if not line or line.startswith("#"):
                 continue
-            k, _, v = line.partition('=')
+            k, _, v = line.partition("=")
             if not key_re.match(k):
                 raise ValueError("%s is not a valid configuration key" % k)
             # snapd accepts lowercase and dashes only for config names
             # so let's "mangle" the names to match the requirement
-            k = k.replace('_', '-').lower()
+            k = k.replace("_", "-").lower()
             config_set[k] = v
     except FileNotFoundError:
         # silently ignore missing config_vars
@@ -58,16 +61,16 @@ def write_checkbox_conf(configuration):
     """Write checkbox.conf in $SNAP_DATA dir."""
     config = configparser.ConfigParser()
     config.optionxform = str
-    config.add_section('environment')
+    config.add_section("environment")
     for key in sorted(configuration.keys()):
         val = str(configuration[key])
         # unmangle the key
-        key = key.replace('-', '_').upper()
-        config.set('environment', key, val)
+        key = key.replace("-", "_").upper()
+        config.set("environment", key, val)
 
     checkbox_conf_path = os.path.expandvars("$SNAP_DATA/checkbox.conf")
     os.makedirs(os.path.dirname(checkbox_conf_path), exist_ok=True)
-    with open(checkbox_conf_path, 'wt') as stream:
+    with open(checkbox_conf_path, "wt") as stream:
         config.write(stream)
 
 
@@ -77,9 +80,9 @@ def print_checkbox_conf():
     config = configparser.ConfigParser()
     config.optionxform = str
     config.read(checkbox_conf_path)
-    if config.has_section('environment'):
-        for key in config['environment']:
-            print('{}={}'.format(key, config['environment'][key]))
+    if config.has_section("environment"):
+        for key in config["environment"]:
+            print("{}={}".format(key, config["environment"][key]))
 
 
 def refresh_configuration():
@@ -113,7 +116,6 @@ def update_configuration(updated_entries):
     for k, v in updated_entries.items():
         if not key_re.match(k):
             raise ValueError("'%s' is not a valid key" % k)
-        vars_to_set.append('conf.{}={}'.format(
-            k.replace('_', '-').lower(), v))
-    sp.run(['snapctl', 'set'] + sorted(vars_to_set))
+        vars_to_set.append("conf.{}={}".format(k.replace("_", "-").lower(), v))
+    sp.run(["snapctl", "set"] + sorted(vars_to_set))
     write_checkbox_conf(get_snapctl_config())

@@ -17,6 +17,7 @@ id: rt-performance-tests-automated
 _name: Realtime Performance Tests (Automated)
 unit: test plan
 include:
+    rt-performance-tests/cyclictest_rt
 bootstrap_include:
 
 id: rt-performance-tests-stress

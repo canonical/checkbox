@@ -9,3 +9,15 @@ user: root
 environ: CYCLICTEST_DURATION
 command:
     run_cyclictest.py --duration "${CYCLICTEST_DURATION:-86400}"
+
+
+id: rt-performance-tests/cyclictest_rt
+category_id: rt-performance-tests
+_summary:
+    Run cyclictest to ensure that real time test can be executed.
+plugin: shell
+requires:
+    package.name == 'rt-tests'
+user: root
+command:
+    run_cyclictest.py --duration 1

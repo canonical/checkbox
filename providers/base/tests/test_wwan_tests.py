@@ -1,8 +1,11 @@
 import unittest
 import sys
-from unittest.mock import patch, call, Mock
+from unittest.mock import patch, call, Mock, MagicMock
 from io import StringIO
 from contextlib import redirect_stdout
+
+# Mock the dbus module due to is is not available on CI testing environment
+sys.modules["dbus"] = MagicMock()
 
 import wwan_tests
 

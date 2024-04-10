@@ -1,0 +1,39 @@
+id: sru-rt
+_name: All SRU Tests (Ubuntu Real-time)
+unit: test plan
+_description:
+    This test plan contains tests that are useful for validating a Stable
+    Release Update (SRU) on Ubuntu Certified systems.  This test plan is not
+    recommended for, nor will it be accepted for self-testing purposes.
+include:
+    # Following jobs all run first before the nested parts
+    # Please keep it short and avoid jobs triggering suspend or reboots
+    # Whenever possible prefer the use of nested parts instead
+    audio/alsa_record_playback_automated
+    recovery_info_attachment
+    miscellanea/submission-resources
+    info/systemd-analyze
+    info/systemd-analyze-critical-chain
+    net_if_management_attachment
+    install/apt-get-gets-updates
+    miscellanea/dkms_build_validation
+    networking/http
+    networking/gateway_ping
+    thunderbolt3/storage-preinserted
+nested_part:
+    sru
+    rt-performance-tests-automated
+bootstrap_include:
+    device
+    graphics_card
+    net_if_management
+exclude:
+    cpu/clocktest
+    disk/stats_.*
+    disk/storage_device_.*
+    installer_debug.gz
+    stress/memory_stress_ng
+    audio/valid-sof-firmware-sig
+    miscellanea/check_prerelease
+    suspend/bluetooth_obex_.*
+    miscellanea/debsums

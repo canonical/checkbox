@@ -20,7 +20,11 @@ import time
 
 from unittest import TestCase
 
-from checkbox_support.helpers.timeout import run_with_timeout, timeout
+from checkbox_support.helpers.timeout import (
+    run_with_timeout,
+    timeout,
+    fake_run_with_timeout,
+)
 
 
 class ClassSupport:
@@ -58,7 +62,8 @@ class TestTimeoutExec(TestCase):
     def test_class_field_ok_return(self):
         some = ClassSupport(0)
         self.assertEqual(
-            run_with_timeout(some.heavy_function, 10), "ClassSupport return value"
+            run_with_timeout(some.heavy_function, 10),
+            "ClassSupport return value",
         )
 
     def test_function_timeouts(self):
@@ -67,7 +72,8 @@ class TestTimeoutExec(TestCase):
 
     def test_function_ok_return(self):
         self.assertEqual(
-            run_with_timeout(heavy_function, 10, 0), "ClassSupport return value"
+            run_with_timeout(heavy_function, 10, 0),
+            "ClassSupport return value",
         )
 
     def test_function_exception_propagation(self):
@@ -108,4 +114,12 @@ class TestTimeoutExec(TestCase):
             raise ValueError("error with first")
 
         with self.assertRaises(ValueError):
-            f(1,2,3)
+            f(1, 2, 3)
+
+    def test_identity(self):
+        def k(*args, **kwargs):
+            return (args, kwargs)
+
+        self.assertEqual(
+            k(1, 2, 3, abc=10), fake_run_with_timeout(k, 100, 1, 2, 3, abc=10)
+        )

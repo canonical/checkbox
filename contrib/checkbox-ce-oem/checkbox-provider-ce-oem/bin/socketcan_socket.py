@@ -38,7 +38,7 @@ def init_logger():
     return root_logger
 
 
-class CANSocket():
+class CANSocket:
 
     # struct module format strings for CAN packets
     # Normal format:
@@ -61,17 +61,17 @@ class CANSocket():
     CANFD_MTU = struct.Struct(FD_FORMAT).size
 
     # Socket options from <linux/can/raw.h>
-    CAN_RAW_FILTER = 1         # set 0 .. n can_filter(s)
-    CAN_RAW_ERR_FILTER = 2     # set filter for error frames
-    CAN_RAW_LOOPBACK = 3       # local loopback (default:on)
+    CAN_RAW_FILTER = 1  # set 0 .. n can_filter(s)
+    CAN_RAW_ERR_FILTER = 2  # set filter for error frames
+    CAN_RAW_LOOPBACK = 3  # local loopback (default:on)
     CAN_RAW_RECV_OWN_MSGS = 4  # receive my own msgs (default:off)
-    CAN_RAW_FD_FRAMES = 5      # allow CAN FD frames (default:off)
-    CAN_RAW_JOIN_FILTERS = 6   # all filters must match to trigger
+    CAN_RAW_FD_FRAMES = 5  # allow CAN FD frames (default:off)
+    CAN_RAW_JOIN_FILTERS = 6  # all filters must match to trigger
 
     def __init__(self, interface=None, fdmode=False, verbose=False):
-        self.sock = socket.socket(socket.PF_CAN,  # protocol family
-                                  socket.SOCK_RAW,
-                                  socket.CAN_RAW)
+        self.sock = socket.socket(
+            socket.PF_CAN, socket.SOCK_RAW, socket.CAN_RAW  # protocol family
+        )
         self._fdmode = fdmode
         self._verbose = verbose
         if interface is not None:
@@ -89,11 +89,11 @@ class CANSocket():
     def _bind(self, interface):
         self.sock.bind((interface,))
         if self._fdmode:  # default is off
-            self.sock.setsockopt(
-                socket.SOL_CAN_RAW, self.CAN_RAW_FD_FRAMES, 1)
+            self.sock.setsockopt(socket.SOL_CAN_RAW, self.CAN_RAW_FD_FRAMES, 1)
 
     def struct_packet(
-            self, can_id, data, id_flag=0, fd_flag=0, fd_frame=False):
+        self, can_id, data, id_flag=0, fd_flag=0, fd_frame=False
+    ):
         """
         Generate CAN frame binary data
 
@@ -110,19 +110,10 @@ class CANSocket():
         can_id = can_id | id_flag
         if fd_frame:
             can_packet = struct.pack(
-                self.FD_FORMAT,
-                can_id,
-                len(data),
-                fd_flag,
-                data
+                self.FD_FORMAT, can_id, len(data), fd_flag, data
             )
         else:
-            can_packet = struct.pack(
-                self.FORMAT,
-                can_id,
-                len(data),
-                data
-            )
+            can_packet = struct.pack(self.FORMAT, can_id, len(data), data)
 
         return can_packet
 
@@ -132,20 +123,20 @@ class CANSocket():
         if nbytes == self.CANFD_MTU:
             logging.debug("Got CAN FD frame..")
             can_id, length, fd_flags, data = struct.unpack(
-                    self.FD_FORMAT, can_packet)
+                self.FD_FORMAT, can_packet
+            )
         elif nbytes == self.CAN_MTU:
             logging.debug("Got Classical CAN frame..")
-            can_id, length, data = struct.unpack(
-                    self.FORMAT, can_packet)
+            can_id, length, data = struct.unpack(self.FORMAT, can_packet)
         else:
             logging.error("Got an unexpected data with length %s", nbytes)
             return (None, None)
 
         can_id &= socket.CAN_EFF_MASK
         if can_id and data[:length] and self._verbose:
-            logging.debug('CAN packet data')
-            logging.debug('  ID  : %s', '{:x}'.format(can_id))
-            logging.debug('  Data: %s', data[:length].hex())
+            logging.debug("CAN packet data")
+            logging.debug("  ID  : %s", "{:x}".format(can_id))
+            logging.debug("  Data: %s", data[:length].hex())
 
         return (can_id, data[:length])
 
@@ -168,10 +159,9 @@ class CANSocket():
         except OSError as e:
             logging.error(e)
             if e.errno == 90:
-                raise SystemExit(
-                    'ERROR: interface does not support FD Mode')
+                raise SystemExit("ERROR: interface does not support FD Mode")
             else:
-                raise SystemExit('ERROR: OSError on attempt to send')
+                raise SystemExit("ERROR: OSError on attempt to send")
 
     def recv(self, timeout=None):
         """
@@ -196,10 +186,9 @@ class CANSocket():
         except OSError as e:
             logging.error(e)
             if e.errno == 90:
-                raise SystemExit(
-                    'ERROR: interface does not support FD Mode')
+                raise SystemExit("ERROR: interface does not support FD Mode")
             else:
-                raise SystemExit('ERROR: OSError on attempt to receive')
+                raise SystemExit("ERROR: OSError on attempt to receive")
 
 
 class CANLinkState(Enum):
@@ -208,6 +197,7 @@ class CANLinkState(Enum):
     Reference link:
     https://github.com/torvalds/linux/blob/master/include/uapi/linux/can/netlink.h#L69
     """
+
     ERROR_ACTIVE = "ERROR-ACTIVE"
     ERROR_WARNING = "ERROR-WARNING"
     ERROR_PASSIVE = "ERROR-PASSIVE"
@@ -217,10 +207,11 @@ class CANLinkState(Enum):
     MAX = "MAX"
 
 
-class CANLinkInfo():
+class CANLinkInfo:
     """
     CAN Link Information
     """
+
     def __init__(self, dev):
         self._can_dev = dev
         self._can_raw_data = None
@@ -232,7 +223,7 @@ class CANLinkInfo():
         ret = subprocess.run(
             "ip -d -j link show {}".format(self._can_dev),
             shell=True,
-            capture_output=True
+            capture_output=True,
         )
         try:
             json_data = json.loads(ret.stdout.decode("utf-8").strip("\n"))
@@ -289,15 +280,15 @@ class CANLinkInfo():
         cmd_str = ""
         for key, value in bittiming.items():
             if key in supported_attributes:
-                cmd_str = "{} {} {}".format(cmd_str,
-                                            key.replace("_", "-"),
-                                            value)
+                cmd_str = "{} {} {}".format(
+                    cmd_str, key.replace("_", "-"), value
+                )
 
         for key, value in data_bittiming.items():
             if key in supported_attributes:
-                cmd_str = "{} d{} {}".format(cmd_str,
-                                             key.replace("_", "-"),
-                                             value)
+                cmd_str = "{} d{} {}".format(
+                    cmd_str, key.replace("_", "-"), value
+                )
         mtu = 16
         if fd:
             mtu = 72
@@ -329,8 +320,7 @@ class CANLinkInfo():
         Disable CAN Link
         """
         logging.debug("disable CAN %s device", self._can_dev)
-        subprocess.run(
-            "ip link set {} down".format(self._can_dev), shell=True)
+        subprocess.run("ip link set {} down".format(self._can_dev), shell=True)
 
 
 @contextlib.contextmanager
@@ -351,13 +341,13 @@ def prepare_can_link(can_dev, fd_mode=False):
                 bittiming={"bitrate": 1000000},
                 data_bittiming={"bitrate": 2000000},
                 restart_ms=30000,
-                fd=fd_mode
+                fd=fd_mode,
             )
         else:
             can_link.configure(
                 bittiming={"bitrate": 1000000},
                 data_bittiming={},
-                restart_ms=30000
+                restart_ms=30000,
             )
 
         can_link.enable_link()
@@ -371,12 +361,11 @@ def prepare_can_link(can_dev, fd_mode=False):
                 bittiming=original_bitrate,
                 data_bittiming=original_dbitrate,
                 restart_ms=original_restart_ms,
-                fd=fd_mode
+                fd=fd_mode,
             )
         else:
             can_link.configure(
-                bittiming=original_bitrate,
-                restart_ms=original_restart_ms
+                bittiming=original_bitrate, restart_ms=original_restart_ms
             )
 
         if original_op_state == "UP":

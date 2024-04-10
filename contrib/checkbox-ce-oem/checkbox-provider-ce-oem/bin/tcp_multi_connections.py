@@ -27,8 +27,9 @@ class StatusEnum(Enum):
 
 def generate_random_string(length):
     letters_and_digits = string.ascii_letters + string.digits
-    random_string = ''.join(
-        random.choice(letters_and_digits) for _ in range(length))
+    random_string = "".join(
+        random.choice(letters_and_digits) for _ in range(length)
+    )
     return random_string
 
 
@@ -36,58 +37,60 @@ def sorting_data(dict_status):
     list_times = []
     fail_records = []
     for value in dict_status.values():
-        list_times.append(value.get('time'))
-        if not value.get('status'):
+        list_times.append(value.get("time"))
+        if not value.get("status"):
             fail_records.append(value)
     return list_times, fail_records
 
 
 def format_output(port, message="", dict_status={}):
     result = {
-        'port': port,
-        'status': StatusEnum.SUCCESS,
-        'message': None,
-        'fail': None,
-        'port_period': None,
-        'avg_period': None,
-        'max_period': None,
-        'min_period': None,
+        "port": port,
+        "status": StatusEnum.SUCCESS,
+        "message": None,
+        "fail": None,
+        "port_period": None,
+        "avg_period": None,
+        "max_period": None,
+        "min_period": None,
     }
     times = records = None
     if message:
-        result['status'] = StatusEnum.ERROR
-        result['message'] = message
+        result["status"] = StatusEnum.ERROR
+        result["message"] = message
     elif dict_status:
         times, records = sorting_data(dict_status)
         if records:
-            result['fail'] = records
-            result['status'] = StatusEnum.FAIL
-            result['message'] = "Received payload incorrect!"
+            result["fail"] = records
+            result["status"] = StatusEnum.FAIL
+            result["message"] = "Received payload incorrect!"
         else:
-            result['message'] = "Received payload correct!"
-        result['port_period'] = sum(times, timedelta())
-        result['avg_period'] = result['port_period']/len(times)
-        result['max_period'] = max(times)
-        result['min_period'] = min(times)
+            result["message"] = "Received payload correct!"
+        result["port_period"] = sum(times, timedelta())
+        result["avg_period"] = result["port_period"] / len(times)
+        result["max_period"] = max(times)
+        result["min_period"] = min(times)
     return result
 
 
 def check_result(results):
     final = 0
     for port in results:
-        if port['status'] == StatusEnum.FAIL:
+        if port["status"] == StatusEnum.FAIL:
+            final = 1
+            logging.error("Fail on port %s: %s", port["port"], port["message"])
+            logging.error("Detail:")
+            for value in port["fail"]:
+                logging.error(
+                    "Period: %s, Status: %s", value["time"], value["status"]
+                )
+        elif port["status"] == StatusEnum.ERROR:
             final = 1
             logging.error(
-                "Fail on port %s: %s",
-                port['port'], port['message'])
-            logging.error("Detail:")
-            for value in port['fail']:
-                logging.error("Period: %s, Status: %s",
-                              value['time'], value['status'])
-        elif port['status'] == StatusEnum.ERROR:
-            final = 1
-            logging.error("Not able to connect on port %s."
-                          "%s", port['port'], port['message'])
+                "Not able to connect on port %s." "%s",
+                port["port"],
+                port["message"],
+            )
     if final:
         raise RuntimeError("TCP payload test fail!")
     else:
@@ -137,8 +140,9 @@ def handle_port(port):
                 except Exception as e:
                     logging.error("Error handling connection: %s", str(e))
     except Exception as e:
-        logging.error("%s: An unexpected error occurred for port %s",
-                      str(e), port)
+        logging.error(
+            "%s: An unexpected error occurred for port %s", str(e), port
+        )
 
 
 def client(host, start_port, end_port, payload, start_time, results):
@@ -156,19 +160,18 @@ def client(host, start_port, end_port, payload, start_time, results):
     threads = []
     payload = generate_random_string(payload * 1024)
     for port in range(start_port, end_port + 1):
-        thread = threading.Thread(target=send_payload,
-                                  args=(host,
-                                        port,
-                                        payload,
-                                        start_time,
-                                        results))
+        thread = threading.Thread(
+            target=send_payload,
+            args=(host, port, payload, start_time, results),
+        )
         threads.append(thread)
         thread.start()
     # Wait for all client threads to finish
     for thread in threads:
         thread.join()
-    logging.info("Running TCP multi-connections in %s",
-                 (datetime.now() - start_time))
+    logging.info(
+        "Running TCP multi-connections in %s", (datetime.now() - start_time)
+    )
     check_result(results)
 
 
@@ -190,8 +193,9 @@ def send_payload(host, port, payload, start_time, results):
             server_host = (host, port)
             with socket.create_connection(server_host) as client_socket:
                 # Set send buffer size to 4096
-                client_socket.setsockopt(socket.SOL_SOCKET,
-                                         socket.SO_SNDBUF, 4096)
+                client_socket.setsockopt(
+                    socket.SOL_SOCKET, socket.SO_SNDBUF, 4096
+                )
                 logging.info("Connect to port %s", port)
                 # Sleep until start time)
                 start_time = start_time - datetime.now()
@@ -215,11 +219,9 @@ def send_payload(host, port, payload, start_time, results):
                             break
                     single_end = datetime.now() - single_start
                     if received_data != payload:
-                        status_all[x] = {'time': single_end,
-                                         'status': False}
+                        status_all[x] = {"time": single_end, "status": False}
                     else:
-                        status_all[x] = {'time': single_end,
-                                         'status': True}
+                        status_all[x] = {"time": single_end, "status": True}
                 logging.info("Received payload from %s.", server_host)
                 client_socket.close()
                 break
@@ -267,29 +269,56 @@ if __name__ == "__main__":
     """
 
     parser = argparse.ArgumentParser(
-        description="Client-server with payload check on multiple ports")
+        description="Client-server with payload check on multiple ports"
+    )
 
-    subparsers = parser.add_subparsers(dest="mode",
-                                       help="Run as server or client")
+    subparsers = parser.add_subparsers(
+        dest="mode", help="Run as server or client"
+    )
 
     # Subparser for the server command
     server_parser = subparsers.add_parser("server", help="Run as server")
-    server_parser.add_argument("-p", "--port",
-                               type=int, default=1024,
-                               help="Starting port for the server")
-    server_parser.add_argument("-e", "--end-port", type=int, default=1223,
-                               help="Ending port for the server")
+    server_parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        default=1024,
+        help="Starting port for the server",
+    )
+    server_parser.add_argument(
+        "-e",
+        "--end-port",
+        type=int,
+        default=1223,
+        help="Ending port for the server",
+    )
 
     # Subparser for the client command
     client_parser = subparsers.add_parser("client", help="Run as client")
-    client_parser.add_argument("-H", "--host", required=True,
-                               help="Server host (client mode)")
-    client_parser.add_argument("-p", "--port", type=int, default=1024,
-                               help="Starting port for the client")
-    client_parser.add_argument("-P", "--payload", type=int, default=64,
-                               help="Payload size in KB (client mode)")
-    client_parser.add_argument("-e", "--end-port", type=int, default=1223,
-                               help="Ending port for the client")
+    client_parser.add_argument(
+        "-H", "--host", required=True, help="Server host (client mode)"
+    )
+    client_parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        default=1024,
+        help="Starting port for the client",
+    )
+    client_parser.add_argument(
+        "-P",
+        "--payload",
+        type=int,
+        default=64,
+        help="Payload size in KB (client mode)",
+    )
+    client_parser.add_argument(
+        "-e",
+        "--end-port",
+        type=int,
+        default=1223,
+        help="Ending port for the client",
+    )
     args = parser.parse_args()
 
     results = []
@@ -300,5 +329,11 @@ if __name__ == "__main__":
     if args.mode == "server":
         server(args.port, args.end_port)
     elif args.mode == "client":
-        client(args.host, args.port, args.end_port,
-               args.payload, start_time, results)
+        client(
+            args.host,
+            args.port,
+            args.end_port,
+            args.payload,
+            start_time,
+            results,
+        )

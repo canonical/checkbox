@@ -41,10 +41,11 @@ from evdev.evtest import print_event
 def register_arguments():
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("name", help='Touch device product name')
-    parser.add_argument("--timeout", type=int, default=10, help='timeout')
+    parser.add_argument("name", help="Touch device product name")
+    parser.add_argument("--timeout", type=int, default=10, help="timeout")
     parser.add_argument(
-        "--xfingers", "-x", type=int, default=1, help="X-fingers tap event")
+        "--xfingers", "-x", type=int, default=1, help="X-fingers tap event"
+    )
 
     return parser.parse_args()
 
@@ -59,14 +60,16 @@ def filter_touchscreen_event(events):
             ABS_MT_SLOT: False,
             ABS_MT_TRACKING_ID: False,
             ABS_MT_POSITION_X: False,
-            ABS_MT_POSITION_Y: False
+            ABS_MT_POSITION_Y: False,
         },
-        "mt_slots": []
+        "mt_slots": [],
     }
     filter_events = []
     for ev in events:
-        if ev.type in touch_events_state.keys() and \
-           ev.code in touch_events_state.get(ev.type, {}).keys():
+        if (
+            ev.type in touch_events_state.keys()
+            and ev.code in touch_events_state.get(ev.type, {}).keys()
+        ):
             touch_events_state[ev.type][ev.code] = True
             if ev.code == ABS_MT_SLOT:
                 touch_events_state["mt_slots"].append(ev.value)
@@ -88,20 +91,23 @@ def check_single_touch_event(detect_state):
         ABS_MT_POSITION_Y
     """
     result = False
-    if len(detect_state["mt_slots"]) == 1 and \
-       detect_state["mt_slots"][0] == 0:
+    if len(detect_state["mt_slots"]) == 1 and detect_state["mt_slots"][0] == 0:
         expect_slot = True
     else:
         expect_slot = False
 
-    if detect_state[EV_ABS][ABS_MT_TRACKING_ID] and \
-            detect_state[EV_ABS][ABS_MT_POSITION_X] and \
-            detect_state[EV_ABS][ABS_MT_POSITION_Y] and \
-            (expect_slot or len(detect_state["mt_slots"]) == 0):
+    if (
+        detect_state[EV_ABS][ABS_MT_TRACKING_ID]
+        and detect_state[EV_ABS][ABS_MT_POSITION_X]
+        and detect_state[EV_ABS][ABS_MT_POSITION_Y]
+        and (expect_slot or len(detect_state["mt_slots"]) == 0)
+    ):
         result = True
-    elif detect_state[EV_KEY][BTN_TOUCH] and \
-            detect_state[EV_ABS][ABS_X] and \
-            detect_state[EV_ABS][ABS_Y]:
+    elif (
+        detect_state[EV_KEY][BTN_TOUCH]
+        and detect_state[EV_ABS][ABS_X]
+        and detect_state[EV_ABS][ABS_Y]
+    ):
         result = True
     else:
         print("\n#### Touch events are not expected")
@@ -124,11 +130,13 @@ def check_multiple_touch_event(detect_state, slot_num):
         if slot == (slot_num - 1):
             expect_slot = True
 
-    if detect_state[EV_ABS][ABS_MT_SLOT] and \
-            detect_state[EV_ABS][ABS_MT_TRACKING_ID] and \
-            detect_state[EV_ABS][ABS_MT_POSITION_X] and \
-            detect_state[EV_ABS][ABS_MT_POSITION_Y] and \
-            expect_slot:
+    if (
+        detect_state[EV_ABS][ABS_MT_SLOT]
+        and detect_state[EV_ABS][ABS_MT_TRACKING_ID]
+        and detect_state[EV_ABS][ABS_MT_POSITION_X]
+        and detect_state[EV_ABS][ABS_MT_POSITION_Y]
+        and expect_slot
+    ):
         result = True
     else:
         print("\n#### Touch events are not expected")
@@ -183,8 +191,12 @@ def main():
     result = False
     event_queue = queue.SimpleQueue()
     proc = threading.Thread(
-            target=capture_events,
-            args=(device, event_queue,))
+        target=capture_events,
+        args=(
+            device,
+            event_queue,
+        ),
+    )
     proc.daemon = True
     proc.start()
 
@@ -210,8 +222,9 @@ def main():
 
             if result:
                 print(
-                    ("\n#### {} touch event "
-                     "detected seccessfully").format(expected_tap)
+                    ("\n#### {} touch event " "detected seccessfully").format(
+                        expected_tap
+                    )
                 )
                 break
             events = []

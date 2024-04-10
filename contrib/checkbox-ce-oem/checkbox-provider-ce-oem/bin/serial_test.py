@@ -118,7 +118,7 @@ class Serial:
 def generate_random_string(length):
     """Generate random ascii string"""
     letters = string.ascii_letters + string.digits + string.punctuation
-    return ''.join(random.choice(letters) for _ in range(length))
+    return "".join(random.choice(letters) for _ in range(length))
 
 
 def server_mode(ser: Serial) -> None:
@@ -183,9 +183,7 @@ def console_mode(ser: Serial):
             logging.info("[PASS] Serial console test successful.")
         else:
             logging.error("[FAIL] Serial console test failed.")
-            logging.error(
-                "Expected response should contain ':~$' or 'login:'"
-            )
+            logging.error("Expected response should contain ':~$' or 'login:'")
             raise SystemExit(1)
     except Exception:
         logging.exception("Caught an exception.")
@@ -208,7 +206,7 @@ def main():
         "--type",
         type=str,
         help="The type of serial port (e.g. RS485, RS422, RS232, USB)",
-        default="USB"
+        default="USB",
     )
     parser.add_argument(
         "--group",
@@ -217,21 +215,33 @@ def main():
         nargs="*",
         default=[],
     )
-    parser.add_argument("--baudrate",
-                        help="Baud rate for the serial ports",
-                        default=115200, type=int)
+    parser.add_argument(
+        "--baudrate",
+        help="Baud rate for the serial ports",
+        default=115200,
+        type=int,
+    )
     parser.add_argument(
         "--bytesize",
-        choices=[serial.FIVEBITS, serial.SIXBITS,
-                 serial.SEVENBITS, serial.EIGHTBITS],
+        choices=[
+            serial.FIVEBITS,
+            serial.SIXBITS,
+            serial.SEVENBITS,
+            serial.EIGHTBITS,
+        ],
         type=int,
         help="Bytesize",
         default=8,
     )
     parser.add_argument(
         "--parity",
-        choices=[serial.PARITY_NONE, serial.PARITY_EVEN, serial.PARITY_ODD,
-                 serial.PARITY_MARK, serial.PARITY_SPACE],
+        choices=[
+            serial.PARITY_NONE,
+            serial.PARITY_EVEN,
+            serial.PARITY_ODD,
+            serial.PARITY_MARK,
+            serial.PARITY_SPACE,
+        ],
         type=lambda c: c.upper(),
         help="Parity",
         default="N",

@@ -1,10 +1,10 @@
 import unittest
 import sys
 from unittest.mock import patch, MagicMock
+
 sys.modules["systemd"] = MagicMock()
 sys.modules["serial_test"] = MagicMock()
-sys.modules["serial_test"].client_mode = MagicMock(
-                                    side_effect=SystemExit(0))
+sys.modules["serial_test"].client_mode = MagicMock(side_effect=SystemExit(0))
 import rpmsg_tests
 
 
@@ -86,16 +86,14 @@ class RpmsgTests(unittest.TestCase):
         """
         RPMSG TTY test is not supported for TI
         """
-        with self.assertRaisesRegex(
-                SystemExit, "Unsupported method for TI."):
+        with self.assertRaisesRegex(SystemExit, "Unsupported method for TI."):
             rpmsg_tests.rpmsg_tty_test_supported("ti")
 
     def test_rpmsg_test_supported_with_other(self):
         """
         RPMSG TTY test is not supported for Other SoC
         """
-        with self.assertRaisesRegex(
-                SystemExit, "Unexpected CPU type."):
+        with self.assertRaisesRegex(SystemExit, "Unexpected CPU type."):
             rpmsg_tests.rpmsg_tty_test_supported("mtk")
 
     @patch("rpmsg_tests.check_rpmsg_tty_devices")
@@ -104,13 +102,11 @@ class RpmsgTests(unittest.TestCase):
         No RPMSG TTY devices found and raise SystemExit
         """
         mock_check_rpmsg_tty_devices.return_value = []
-        with self.assertRaisesRegex(
-                SystemExit, "No RPMSG TTY devices found."):
+        with self.assertRaisesRegex(SystemExit, "No RPMSG TTY devices found."):
             rpmsg_tests.serial_tty_test("imx", 64)
 
     @patch("rpmsg_tests.check_rpmsg_tty_devices")
-    def test_rpmsg_test_passed(self,
-                               mock_check_rpmsg_tty_devices):
+    def test_rpmsg_test_passed(self, mock_check_rpmsg_tty_devices):
         """
         String-ECHO test passed through RPMSG TTY device
         """

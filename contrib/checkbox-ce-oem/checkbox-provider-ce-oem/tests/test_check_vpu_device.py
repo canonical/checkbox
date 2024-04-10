@@ -7,6 +7,7 @@ class VPUDeviceCheckTests(unittest.TestCase):
     """
     Unit tests for Check VPU device test scripts
     """
+
     @mock.patch("pathlib.Path.read_text")
     @mock.patch("pathlib.Path.is_file")
     def test_soc_family_available(self, mock_is_file, mock_read_text):
@@ -21,7 +22,8 @@ class VPUDeviceCheckTests(unittest.TestCase):
 
         self.assertEqual(
             "INFO:root:SoC family is {}".format(expected_soc_family),
-            lc.output[-1])
+            lc.output[-1],
+        )
         self.assertEqual(soc_family, expected_soc_family)
 
     @mock.patch("pathlib.Path.is_file")
@@ -46,8 +48,8 @@ class VPUDeviceCheckTests(unittest.TestCase):
             soc_id = check_vpu_device.get_soc_id()
 
         self.assertEqual(
-            "INFO:root:SoC ID is {}".format(expected_soc_id),
-            lc.output[-1])
+            "INFO:root:SoC ID is {}".format(expected_soc_id), lc.output[-1]
+        )
         self.assertEqual(soc_id, expected_soc_id)
 
     @mock.patch("pathlib.Path.is_file")
@@ -106,7 +108,7 @@ class VPUDeviceCheckTests(unittest.TestCase):
         expected_devices = ["ion", "mxc_hantro", "mxc_hantro_h1"]
         self.assertListEqual(
             check_vpu_device.determine_expected_imx_vpu("i.MX8MM", "5.4"),
-            expected_devices
+            expected_devices,
         )
 
     def test_imx8ml_vpus_515(self):
@@ -116,7 +118,7 @@ class VPUDeviceCheckTests(unittest.TestCase):
         expected_devices = ["mxc_hantro", "mxc_hantro_h1"]
         self.assertListEqual(
             check_vpu_device.determine_expected_imx_vpu("i.MX8ML", "5.15"),
-            expected_devices
+            expected_devices,
         )
 
     def test_imx8mq_vpus(self):
@@ -126,7 +128,7 @@ class VPUDeviceCheckTests(unittest.TestCase):
         expected_devices = ["ion", "mxc_hantro"]
         self.assertListEqual(
             check_vpu_device.determine_expected_imx_vpu("i.MX8MQ", "5.4"),
-            expected_devices
+            expected_devices,
         )
 
     def test_imx8mp_vpus(self):
@@ -136,7 +138,7 @@ class VPUDeviceCheckTests(unittest.TestCase):
         expected_devices = ["ion", "mxc_hantro", "mxc_hantro_vc8000e"]
         self.assertListEqual(
             check_vpu_device.determine_expected_imx_vpu("i.MX8MP", "5.4"),
-            expected_devices
+            expected_devices,
         )
 
     def test_imx_chip_mismatch(self):
@@ -144,8 +146,7 @@ class VPUDeviceCheckTests(unittest.TestCase):
         Checking i.MX chip mismatch
         """
         with self.assertRaisesRegex(
-            SystemExit,
-            "Supported VPU devices for i.MX8MX is not defined"
+            SystemExit, "Supported VPU devices for i.MX8MX is not defined"
         ):
             check_vpu_device.determine_expected_imx_vpu("i.MX8MX", "5.4")
 
@@ -154,18 +155,13 @@ class VPUDeviceCheckTests(unittest.TestCase):
     @mock.patch("check_vpu_device.get_kernel_version")
     @mock.patch("check_vpu_device.determine_expected_imx_vpu")
     def test_imx8mm_vpu_device_exist(
-            self,
-            mock_expected_imx_vpu,
-            mock_kernel_ver,
-            mock_soc_id,
-            mock_listdir):
+        self, mock_expected_imx_vpu, mock_kernel_ver, mock_soc_id, mock_listdir
+    ):
         """
         Checking i.MX8MM VPU device is available
         """
         prefix = "INFO:root:The {} device is available"
-        expected_imx_vpus = [
-            "ion", "mxc_hantro", "mxc_hantro_h1"
-        ]
+        expected_imx_vpus = ["ion", "mxc_hantro", "mxc_hantro_h1"]
 
         mock_expected_imx_vpu.return_value = expected_imx_vpus
         mock_kernel_ver.return_value = "5.4"
@@ -180,8 +176,7 @@ class VPUDeviceCheckTests(unittest.TestCase):
             check_vpu_device.check_imx_vpu_devices()
 
         for index, value in enumerate(expected_imx_vpus):
-            self.assertEqual(
-                prefix.format(value), lc.output[index])
+            self.assertEqual(prefix.format(value), lc.output[index])
         self.assertIn("# VPU devices check: Passed", lc.output[-1])
 
     @mock.patch("pathlib.Path.iterdir")
@@ -189,31 +184,31 @@ class VPUDeviceCheckTests(unittest.TestCase):
     @mock.patch("check_vpu_device.get_kernel_version")
     @mock.patch("check_vpu_device.determine_expected_imx_vpu")
     def test_imx8mm_vpu_device_not_exist(
-            self,
-            mock_expected_imx_vpu,
-            mock_kernel_ver,
-            mock_soc_id,
-            mock_listdir):
+        self, mock_expected_imx_vpu, mock_kernel_ver, mock_soc_id, mock_listdir
+    ):
         """
         Checking i.MX8MM VPU device is exists
         """
         mock_kernel_ver.return_value = "5.4"
         mock_soc_id.return_value = "i.MX8MM"
         mock_expected_imx_vpu.return_value = [
-            "ion", "mxc_hantro", "mxc_hantro_h1"
+            "ion",
+            "mxc_hantro",
+            "mxc_hantro_h1",
         ]
         mock_result = [mock.Mock(), mock.Mock()]
         mock_result[0].name = "ion"
         mock_result[1].name = "mxc_hantro"
         mock_listdir.return_value = mock_result
 
-        with self.assertRaises(SystemExit), \
-             self.assertLogs(level="ERROR") as lc:
+        with self.assertRaises(SystemExit), self.assertLogs(
+            level="ERROR"
+        ) as lc:
 
             check_vpu_device.check_imx_vpu_devices()
         self.assertEqual(
-            "ERROR:root:The mxc_hantro_h1 device is not exists!",
-            lc.output[-1])
+            "ERROR:root:The mxc_hantro_h1 device is not exists!", lc.output[-1]
+        )
 
     @mock.patch("check_vpu_device.get_v4l2_devices")
     def test_mtk_vpu_devices(self, mock_v4l2_devices):
@@ -224,13 +219,9 @@ class VPUDeviceCheckTests(unittest.TestCase):
             "mtk-vcodec-dec",
             "15050000.camsv video stream",
             "mtk-mdp:m2m",
-            "mtk-vcodec-enc"
-        ]
-        expected_devices = [
-            "mtk-vcodec-dec",
             "mtk-vcodec-enc",
-            "mtk-mdp:m2m"
         ]
+        expected_devices = ["mtk-vcodec-dec", "mtk-vcodec-enc", "mtk-mdp:m2m"]
         prefix = "INFO:root:VPU {} device detected"
 
         with self.assertLogs() as lc:
@@ -240,8 +231,8 @@ class VPUDeviceCheckTests(unittest.TestCase):
             self.assertEqual(prefix.format(dev), lc.output[index])
 
         self.assertEqual(
-            "INFO:root:# VPU devices check: Passed",
-            lc.output[-1])
+            "INFO:root:# VPU devices check: Passed", lc.output[-1]
+        )
 
     @mock.patch("check_vpu_device.get_v4l2_devices")
     def test_mtk_vpu_devices_mismatch(self, mock_v4l2_devices):
@@ -251,11 +242,8 @@ class VPUDeviceCheckTests(unittest.TestCase):
         mock_v4l2_devices.return_value = [
             "mtk-vcodec-dec",
             "15050000.camsv video stream",
-            "mtk-vcodec-enc"
+            "mtk-vcodec-enc",
         ]
 
-        with self.assertRaisesRegex(
-            SystemExit,
-            "# VPU devices check: Failed"
-        ):
+        with self.assertRaisesRegex(SystemExit, "# VPU devices check: Failed"):
             check_vpu_device.check_mtk_vpu_devices()

@@ -75,9 +75,7 @@ class RunManualplan(Scenario):
         Send(keys.KEY_ENTER),
         Expect("Pick an action"),
         Send("p" + keys.KEY_ENTER),
-        Expect(
-            "A simple user interaction and verification job"
-        ),
+        Expect("A simple user interaction and verification job"),
     ]
 
 

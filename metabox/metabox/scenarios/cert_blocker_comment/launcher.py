@@ -31,8 +31,9 @@ class ManualJobFailed(Scenario):
     entered.
     """
 
-    modes = ['local']
-    launcher = textwrap.dedent("""
+    modes = ["local"]
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -41,20 +42,21 @@ class ManualJobFailed(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """)
+        """
+    )
     steps = [
         Start(),
-        Expect('Pick an action'),
-        Send('f' + keys.KEY_ENTER),
-        Expect('Please add a comment to explain why it failed.', timeout=30),
-        Send('c' + keys.KEY_ENTER),
-        Expect('Please enter your comments:'),
-        Send('This is a comment' + keys.KEY_ENTER),
-        Expect('Pick an action'),
-        Send('f' + keys.KEY_ENTER),
-        Expect('Select jobs to re-run'),
-        Send('f' + keys.KEY_ENTER),
-        Expect(_re('(☒|job failed).*A simple manual job')),
+        Expect("Pick an action"),
+        Send("f" + keys.KEY_ENTER),
+        Expect("Please add a comment to explain why it failed.", timeout=30),
+        Send("c" + keys.KEY_ENTER),
+        Expect("Please enter your comments:"),
+        Send("This is a comment" + keys.KEY_ENTER),
+        Expect("Pick an action"),
+        Send("f" + keys.KEY_ENTER),
+        Expect("Select jobs to re-run"),
+        Send("f" + keys.KEY_ENTER),
+        Expect(_re("(☒|job failed).*A simple manual job")),
     ]
 
 
@@ -64,8 +66,9 @@ class ManualJobSkipped(Scenario):
     "blocker" and make sure it can only be skipped if a comment is entered.
     """
 
-    modes = ['local']
-    launcher = textwrap.dedent("""
+    modes = ["local"]
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -74,20 +77,24 @@ class ManualJobSkipped(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """)
+        """
+    )
     steps = [
         Start(),
-        Expect('Pick an action'),
-        Send('s' + keys.KEY_ENTER),
-        Expect('Please add a comment to explain why you want to skip it.', timeout=30),
-        Send('c' + keys.KEY_ENTER),
-        Expect('Please enter your comments:'),
-        Send('This is a comment' + keys.KEY_ENTER),
-        Expect('Pick an action'),
-        Send('s' + keys.KEY_ENTER),
-        Expect('Select jobs to re-run'),
-        Send('f' + keys.KEY_ENTER),
-        Expect(_re('(☐|job skipped).*A simple manual job')),
+        Expect("Pick an action"),
+        Send("s" + keys.KEY_ENTER),
+        Expect(
+            "Please add a comment to explain why you want to skip it.",
+            timeout=30,
+        ),
+        Send("c" + keys.KEY_ENTER),
+        Expect("Please enter your comments:"),
+        Send("This is a comment" + keys.KEY_ENTER),
+        Expect("Pick an action"),
+        Send("s" + keys.KEY_ENTER),
+        Expect("Select jobs to re-run"),
+        Send("f" + keys.KEY_ENTER),
+        Expect(_re("(☐|job skipped).*A simple manual job")),
     ]
 
 
@@ -98,8 +105,9 @@ class UserInteractVerifyJobFailed(Scenario):
     is entered.
     """
 
-    modes = ['local']
-    launcher = textwrap.dedent("""
+    modes = ["local"]
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -108,22 +116,23 @@ class UserInteractVerifyJobFailed(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """)
+        """
+    )
     steps = [
         Start(),
-        Expect('Pick an action'),
+        Expect("Pick an action"),
         Send(keys.KEY_ENTER),
-        Expect('job needs verification', timeout=30),
-        Send('f' + keys.KEY_ENTER),
-        Expect('Please add a comment to explain why it failed.', timeout=30),
-        Send('c' + keys.KEY_ENTER),
-        Expect('Please enter your comments:'),
-        Send('This is a comment' + keys.KEY_ENTER),
-        Expect('Pick an action'),
-        Send('f' + keys.KEY_ENTER),
-        Expect('Select jobs to re-run'),
-        Send('f' + keys.KEY_ENTER),
-        Expect(_re('(☒|job failed).*user interaction and verification job')),
+        Expect("job needs verification", timeout=30),
+        Send("f" + keys.KEY_ENTER),
+        Expect("Please add a comment to explain why it failed.", timeout=30),
+        Send("c" + keys.KEY_ENTER),
+        Expect("Please enter your comments:"),
+        Send("This is a comment" + keys.KEY_ENTER),
+        Expect("Pick an action"),
+        Send("f" + keys.KEY_ENTER),
+        Expect("Select jobs to re-run"),
+        Send("f" + keys.KEY_ENTER),
+        Expect(_re("(☒|job failed).*user interaction and verification job")),
     ]
 
 
@@ -134,8 +143,9 @@ class UserInteractVerifyJobSkippedAfterRun(Scenario):
     entered after actually running it.
     """
 
-    modes = ['local']
-    launcher = textwrap.dedent("""
+    modes = ["local"]
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -144,22 +154,26 @@ class UserInteractVerifyJobSkippedAfterRun(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """)
+        """
+    )
     steps = [
         Start(),
-        Expect('Pick an action'),
+        Expect("Pick an action"),
         Send(keys.KEY_ENTER),
-        Expect('job needs verification', timeout=30),
-        Send('s' + keys.KEY_ENTER),
-        Expect('Please add a comment to explain why you want to skip it.', timeout=30),
-        Send('c' + keys.KEY_ENTER),
-        Expect('Please enter your comments:'),
-        Send('This is a comment' + keys.KEY_ENTER),
-        Expect('Pick an action'),
-        Send('s' + keys.KEY_ENTER),
-        Expect('Select jobs to re-run'),
-        Send('f' + keys.KEY_ENTER),
-        Expect(_re('(☐|job skipped).*user interaction and verification job')),
+        Expect("job needs verification", timeout=30),
+        Send("s" + keys.KEY_ENTER),
+        Expect(
+            "Please add a comment to explain why you want to skip it.",
+            timeout=30,
+        ),
+        Send("c" + keys.KEY_ENTER),
+        Expect("Please enter your comments:"),
+        Send("This is a comment" + keys.KEY_ENTER),
+        Expect("Pick an action"),
+        Send("s" + keys.KEY_ENTER),
+        Expect("Select jobs to re-run"),
+        Send("f" + keys.KEY_ENTER),
+        Expect(_re("(☐|job skipped).*user interaction and verification job")),
     ]
 
 
@@ -170,8 +184,9 @@ class UserInteractVerifyJobSkippedBeforeRun(Scenario):
     entered before actually running it.
     """
 
-    modes = ['local']
-    launcher = textwrap.dedent("""
+    modes = ["local"]
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -180,20 +195,24 @@ class UserInteractVerifyJobSkippedBeforeRun(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """)
+        """
+    )
     steps = [
         Start(),
-        Expect('Pick an action'),
-        Send('s' + keys.KEY_ENTER),
-        Expect('Please add a comment to explain why you want to skip it.', timeout=30),
-        Send('c' + keys.KEY_ENTER),
-        Expect('Please enter your comments:'),
-        Send('This is a comment' + keys.KEY_ENTER),
-        Expect('Pick an action'),
-        Send('s' + keys.KEY_ENTER),
-        Expect('Select jobs to re-run'),
-        Send('f' + keys.KEY_ENTER),
-        Expect(_re('(☐|job skipped).*user interaction and verification job')),
+        Expect("Pick an action"),
+        Send("s" + keys.KEY_ENTER),
+        Expect(
+            "Please add a comment to explain why you want to skip it.",
+            timeout=30,
+        ),
+        Send("c" + keys.KEY_ENTER),
+        Expect("Please enter your comments:"),
+        Send("This is a comment" + keys.KEY_ENTER),
+        Expect("Pick an action"),
+        Send("s" + keys.KEY_ENTER),
+        Expect("Select jobs to re-run"),
+        Send("f" + keys.KEY_ENTER),
+        Expect(_re("(☐|job skipped).*user interaction and verification job")),
     ]
 
 
@@ -204,8 +223,9 @@ class UserInteractJobSkippedBeforeRun(Scenario):
     before actually running it.
     """
 
-    modes = ['local']
-    launcher = textwrap.dedent("""
+    modes = ["local"]
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -214,18 +234,22 @@ class UserInteractJobSkippedBeforeRun(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """)
+        """
+    )
     steps = [
         Start(),
-        Expect('Pick an action'),
-        Send('s' + keys.KEY_ENTER),
-        Expect('Please add a comment to explain why you want to skip it.', timeout=30),
-        Send('c' + keys.KEY_ENTER),
-        Expect('Please enter your comments:'),
-        Send('This is a comment' + keys.KEY_ENTER),
-        Expect('Pick an action'),
-        Send('s' + keys.KEY_ENTER),
-        Expect('Select jobs to re-run'),
-        Send('f' + keys.KEY_ENTER),
-        Expect(_re('(☐|job skipped).*User-interact job')),
+        Expect("Pick an action"),
+        Send("s" + keys.KEY_ENTER),
+        Expect(
+            "Please add a comment to explain why you want to skip it.",
+            timeout=30,
+        ),
+        Send("c" + keys.KEY_ENTER),
+        Expect("Please enter your comments:"),
+        Send("This is a comment" + keys.KEY_ENTER),
+        Expect("Pick an action"),
+        Send("s" + keys.KEY_ENTER),
+        Expect("Select jobs to re-run"),
+        Send("f" + keys.KEY_ENTER),
+        Expect(_re("(☐|job skipped).*User-interact job")),
     ]

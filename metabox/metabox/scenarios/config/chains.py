@@ -24,7 +24,7 @@ from metabox.core.actions import (
     Start,
     Put,
     Send,
-    RunCmd
+    RunCmd,
 )
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag

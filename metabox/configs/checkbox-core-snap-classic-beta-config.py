@@ -1,20 +1,20 @@
 configuration = {
-    'local': {
-        'origin': 'classic-snap',
-        'checkbox_core_snap': {'risk': 'beta'},
-        'checkbox_snap': {'risk': 'stable'},
-        'releases': ['bionic', 'focal'],
+    "local": {
+        "origin": "classic-snap",
+        "checkbox_core_snap": {"risk": "beta"},
+        "checkbox_snap": {"risk": "stable"},
+        "releases": ["bionic", "focal"],
     },
-    'controller': {
-        'origin': 'classic-snap',
-        'checkbox_core_snap': {'risk': 'beta'},
-        'checkbox_snap': {'risk': 'stable'},
-        'releases': ['focal'],
+    "controller": {
+        "origin": "classic-snap",
+        "checkbox_core_snap": {"risk": "beta"},
+        "checkbox_snap": {"risk": "stable"},
+        "releases": ["focal"],
     },
-    'agent': {
-        'origin': 'classic-snap',
-        'checkbox_core_snap': {'risk': 'beta'},
-        'checkbox_snap': {'risk': 'stable'},
-        'releases': ['bionic', 'focal'],
+    "agent": {
+        "origin": "classic-snap",
+        "checkbox_core_snap": {"risk": "beta"},
+        "checkbox_snap": {"risk": "stable"},
+        "releases": ["bionic", "focal"],
     },
 }

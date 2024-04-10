@@ -26,7 +26,9 @@ import os
 import subprocess
 import multiprocessing
 
+from functools import partial
 from contextlib import wraps
+from unittest.mock import patch
 
 
 def run_with_timeout(f, timeout_s, *args, **kwargs):
@@ -75,3 +77,14 @@ def timeout(timeout_s):
         return _f
 
     return timeout_timeout_s
+
+
+def fake_run_with_timeout(f, timeout_s, *args, **kwargs):
+    return f(*args, **kwargs)
+
+
+mock_timeout = partial(
+    patch,
+    "checkbox_support.helpers.timeout.run_with_timeout",
+    new=fake_run_with_timeout,
+)

@@ -1,0 +1,13 @@
+# Format providers using black
+bb3a1bea6f1b899307a18ff1c4410744ff66fc7b
+# Format metabox using black
+2a7e8325d85ba090274ada39c47dc53b81233cea
+# Format miscelanneous code using black
+1a876c78c5b205fb9cb150529cba8b1e09388f0d
+# Format providers in contrib area using black
+e59d3dc070a621885e844cd01cfcb17ba332722b
+# Format checkbox-support using black
+123db4adb3bd490b16c91fb0c820723c0d8281c8
+# Format checkbox-ng using black
+b71817cf287faeba84be2a905712e843110206e4
+

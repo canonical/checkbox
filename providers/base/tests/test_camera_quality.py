@@ -27,6 +27,7 @@ from unittest.mock import patch, MagicMock
 import cv2
 import numpy as np
 
+from checkbox_support.helpers.timeout import mock_timeout
 import camera_quality_test as cqt
 
 
@@ -39,6 +40,7 @@ score_path = "checkbox_support.vendor.brisque.brisque.BRISQUE.score"
 @patch("camera_quality_test.TIMEOUT", new=0.05)
 @patch("camera_quality_test.MIN_INTERVAL", new=0.01)
 @patch("builtins.print", new=MagicMock())
+@mock_timeout()
 class CameraQualityTests(unittest.TestCase):
     """This class provides test cases for the camera_quality_test module."""
 

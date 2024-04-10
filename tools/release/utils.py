@@ -2,6 +2,7 @@
 This module contains various shared utils function used in
 multiple release scripts
 """
+
 import os
 import datetime
 
@@ -33,17 +34,21 @@ class LPObject(Entry):
     Documentation: https://launchpad.net/+apidoc/devel.html
     """
 
+
 LPBuild = LPObject
+
 
 class LPSourceBuild(LPBuild):
     """
     Documentation: https://api.launchpad.net/devel/#source_package_recipe_build
     """
 
+
 class LPBinaryBuild(LPBuild):
     """
     Documentation: https://api.launchpad.net/devel/#build
     """
+
 
 class LPSourcePackageRecipe(LPObject):
     """
@@ -87,6 +92,7 @@ def get_source_build_recipe(project_name: str, recipe_name: str):
             f'{project} does not have a "{recipe_name}" recipe '
             f"(possible recipes: {all_recipe_names})"
         )
+
 
 def get_date_utc_now():
     return datetime.datetime.now(tz=datetime.timezone.utc)

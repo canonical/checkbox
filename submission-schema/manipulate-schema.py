@@ -8,7 +8,10 @@ from typing import Dict, Any, List, Union
 
 
 def modify_definition(
-    schema: Dict[str, Any], definition_key: str, replacement: str, new_name: str
+    schema: Dict[str, Any],
+    definition_key: str,
+    replacement: str,
+    new_name: str,
 ) -> Dict[str, Any]:
     if new_name and definition_key in schema["definitions"]:
         schema["definitions"][new_name] = schema["definitions"][definition_key]
@@ -38,7 +41,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Collapse or rename a type definition in a JSON schema."
     )
-    parser.add_argument("schema", type=str, help="Path to the JSON schema file.")
+    parser.add_argument(
+        "schema", type=str, help="Path to the JSON schema file."
+    )
     parser.add_argument(
         "definition",
         type=str,

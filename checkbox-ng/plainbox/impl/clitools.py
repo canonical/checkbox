@@ -123,7 +123,8 @@ class CommandBase(metaclass=abc.ABCMeta):
         """
         if self.__class__.__doc__ is not None:
             return inspect.cleandoc(
-                dgettext(self.get_gettext_domain(), self.__class__.__doc__))
+                dgettext(self.get_gettext_domain(), self.__class__.__doc__)
+            )
 
     def get_command_help(self):
         """
@@ -168,9 +169,11 @@ class CommandBase(metaclass=abc.ABCMeta):
         except AttributeError:
             pass
         try:
-            return '\n'.join(
-                self.get_localized_docstring().splitlines()[1:]
-            ).split('@EPILOG@', 1)[0].strip()
+            return (
+                "\n".join(self.get_localized_docstring().splitlines()[1:])
+                .split("@EPILOG@", 1)[0]
+                .strip()
+            )
         except (AttributeError, IndexError, ValueError):
             pass
 
@@ -194,9 +197,11 @@ class CommandBase(metaclass=abc.ABCMeta):
         except AttributeError:
             pass
         try:
-            return '\n'.join(
-                self.get_localized_docstring().splitlines()[1:]
-            ).split('@EPILOG@', 1)[1].strip()
+            return (
+                "\n".join(self.get_localized_docstring().splitlines()[1:])
+                .split("@EPILOG@", 1)[1]
+                .strip()
+            )
         except (AttributeError, IndexError, ValueError):
             pass
 
@@ -234,8 +239,12 @@ class CommandBase(metaclass=abc.ABCMeta):
         epilog = self.get_command_epilog()
         name = self.get_command_name()
         parser = subparsers.add_parser(
-            name, help=help, description=description, epilog=epilog,
-            formatter_class=argparse.RawDescriptionHelpFormatter)
+            name,
+            help=help,
+            description=description,
+            epilog=epilog,
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+        )
         parser.set_defaults(command=self)
         return parser
 
@@ -284,7 +293,8 @@ class ToolBase(metaclass=abc.ABCMeta):
         adjust_logging(
             level=os.getenv("PLAINBOX_LOG_LEVEL", "DEBUG"),
             trace_list=os.getenv("PLAINBOX_TRACE", "").split(","),
-            debug_console=os.getenv("PLAINBOX_DEBUG", "") == "console")
+            debug_console=os.getenv("PLAINBOX_DEBUG", "") == "console",
+        )
         logger.debug(_("Activated early logging via environment variables"))
 
     def main(self, argv=None):
@@ -302,7 +312,8 @@ class ToolBase(metaclass=abc.ABCMeta):
             logger.debug(_("Parsing command line arguments (early mode)"))
             early_ns = self._early_parser.parse_args(argv)
             logger.debug(
-                _("Command line parsed to (early mode): %r"), early_ns)
+                _("Command line parsed to (early mode): %r"), early_ns
+            )
             logger.debug(_("Tool initialization (late mode)"))
             self.late_init(early_ns)
             # Construct the full command line argument parser
@@ -412,8 +423,10 @@ class ToolBase(metaclass=abc.ABCMeta):
         Initialize with early command line arguments being already parsed
         """
         adjust_logging(
-            level=early_ns.log_level, trace_list=early_ns.trace,
-            debug_console=early_ns.debug_console)
+            level=early_ns.log_level,
+            trace_list=early_ns.trace,
+            debug_console=early_ns.debug_console,
+        )
 
     def final_init(self, ns):
         """
@@ -451,13 +464,16 @@ class ToolBase(metaclass=abc.ABCMeta):
             argparse.ArgumentParser instance.
         """
         parser = argparse.ArgumentParser(
-            prog=self.get_exec_name(),
-            formatter_class=LegacyHelpFormatter)
+            prog=self.get_exec_name(), formatter_class=LegacyHelpFormatter
+        )
         # NOTE: help= is provided explicitly as argparse doesn't wrap
         # everything with _() correctly (depending on version)
         parser.add_argument(
-            "--version", action="version", version=self.get_exec_version(),
-            help=_("show program's version number and exit"))
+            "--version",
+            action="version",
+            version=self.get_exec_version(),
+            help=_("show program's version number and exit"),
+        )
         return parser
 
     def construct_parser(self, early_ns=None):
@@ -480,61 +496,76 @@ class ToolBase(metaclass=abc.ABCMeta):
             argcomplete.autocomplete(parser)
 
     def add_early_parser_arguments(self, parser):
-        group = parser.add_argument_group(
-            title=_("logging and debugging"))
+        group = parser.add_argument_group(title=_("logging and debugging"))
         # Add the --log-level argument
         group.add_argument(
-            "-l", "--log-level",
+            "-l",
+            "--log-level",
             action="store",
-            choices=('DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'),
+            choices=("DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"),
             default=None,
-            help=argparse.SUPPRESS)
+            help=argparse.SUPPRESS,
+        )
         # Add the --verbose argument
         group.add_argument(
-            "-v", "--verbose",
+            "-v",
+            "--verbose",
             dest="log_level",
             action="store_const",
             const="INFO",
             # TRANSLATORS: please keep --log-level=INFO untranslated
-            help=_("be more verbose (same as --log-level=INFO)"))
+            help=_("be more verbose (same as --log-level=INFO)"),
+        )
         # Add the --debug flag
         group.add_argument(
-            "-D", "--debug",
+            "-D",
+            "--debug",
             dest="log_level",
             action="store_const",
             const="DEBUG",
             # TRANSLATORS: please keep DEBUG untranslated
-            help=_("enable DEBUG messages on the root logger"))
+            help=_("enable DEBUG messages on the root logger"),
+        )
         # Add the --debug flag
         group.add_argument(
-            "-C", "--debug-console",
+            "-C",
+            "--debug-console",
             action="store_true",
             # TRANSLATORS: please keep DEBUG untranslated
-            help=_("display DEBUG messages in the console"))
+            help=_("display DEBUG messages in the console"),
+        )
         # Add the --trace flag
         group.add_argument(
-            "-T", "--trace",
+            "-T",
+            "--trace",
             metavar=_("LOGGER"),
             action="append",
             default=[],
             # TRANSLATORS: please keep DEBUG untranslated
-            help=_("enable DEBUG messages on the specified logger "
-                   "(can be used multiple times)"))
+            help=_(
+                "enable DEBUG messages on the specified logger "
+                "(can be used multiple times)"
+            ),
+        )
         # Add the --pdb flag
         group.add_argument(
-            "-P", "--pdb",
+            "-P",
+            "--pdb",
             action="store_true",
             default=False,
             # TRANSLATORS: please keep pdb untranslated
-            help=_("jump into pdb (python debugger) when a command crashes"))
+            help=_("jump into pdb (python debugger) when a command crashes"),
+        )
         # Add the --debug-interrupt flag
         group.add_argument(
-            "-I", "--debug-interrupt",
+            "-I",
+            "--debug-interrupt",
             action="store_true",
             default=False,
             # TRANSLATORS: please keep SIGINT/KeyboardInterrupt and --pdb
             # untranslated
-            help=_("crash on SIGINT/KeyboardInterrupt, useful with --pdb"))
+            help=_("crash on SIGINT/KeyboardInterrupt, useful with --pdb"),
+        )
 
     def dispatch_command(self, ns):
         # Argh the horrror!
@@ -549,8 +580,10 @@ class ToolBase(metaclass=abc.ABCMeta):
         # To compensate, on python3.3 and beyond, when the user just runs
         # plainbox without specifying the command, we manually, explicitly do
         # what python3.2 did: call parser.error(_('too few arguments'))
-        if (sys.version_info[:2] >= (3, 3)
-                and getattr(ns, "command", None) is None):
+        if (
+            sys.version_info[:2] >= (3, 3)
+            and getattr(ns, "command", None) is None
+        ):
             self._parser.error(argparse._("too few arguments"))
         else:
             return ns.command.invoked(ns)
@@ -572,31 +605,34 @@ class ToolBase(metaclass=abc.ABCMeta):
             # For all other exceptions (and I mean all), do a few checks
             # and perform actions depending on the command line arguments
             # By default we want to re-raise the exception
-            action = 'raise'
+            action = "raise"
             # We want to ignore IOErrors that are really EPIPE
             if isinstance(exc, IOError):
                 if exc.errno == errno.EPIPE:
-                    action = 'ignore'
+                    action = "ignore"
             # We want to ignore KeyboardInterrupt unless --debug-interrupt
             # was passed on command line
             elif isinstance(exc, KeyboardInterrupt):
                 if ns.debug_interrupt:
-                    action = 'debug'
+                    action = "debug"
                 else:
-                    action = 'ignore'
+                    action = "ignore"
             else:
                 # For all other execptions, debug if requested
                 if ns.pdb:
-                    action = 'debug'
+                    action = "debug"
             logger.debug(_("action for exception %r is %s"), exc, action)
-            if action == 'ignore':
+            if action == "ignore":
                 return 0
-            elif action == 'raise':
+            elif action == "raise":
                 logging.getLogger("plainbox.crashes").fatal(
                     _("Executable %r invoked with %r has crashed"),
-                    self.get_exec_name(), ns, exc_info=1)
+                    self.get_exec_name(),
+                    ns,
+                    exc_info=1,
+                )
                 raise
-            elif action == 'debug':
+            elif action == "debug":
                 logger.error(_("caught runaway exception: %r"), exc)
                 logger.error(_("starting debugger..."))
                 pdb.post_mortem()
@@ -637,7 +673,7 @@ class LazyLoadingToolMixIn(metaclass=abc.ABCMeta):
     def add_subcommands(
         self,
         subparsers: argparse._SubParsersAction,
-        early_ns: "Maybe[argparse.Namespace]"=None,
+        early_ns: "Maybe[argparse.Namespace]" = None,
     ) -> None:
         """
         Add top-level subcommands to the argument parser.
@@ -659,11 +695,11 @@ class LazyLoadingToolMixIn(metaclass=abc.ABCMeta):
             self.add_subcommands_with_hints(subparsers, early_ns.rest)
         else:
             self.add_subcommands_without_hints(
-                subparsers, self.get_command_collection())
+                subparsers, self.get_command_collection()
+            )
 
     def add_subcommands_with_hints(
-        self, subparsers: argparse._SubParsersAction,
-        hint_list: "List[str]"
+        self, subparsers: argparse._SubParsersAction, hint_list: "List[str]"
     ) -> None:
         """
         Add top-level subcommands to the argument parser, using a list of
@@ -692,11 +728,12 @@ class LazyLoadingToolMixIn(metaclass=abc.ABCMeta):
             :meth:`get_command_collection()`
         """
         logger.debug(
-            _("Trying to load exactly the right command: %r"), hint_list)
+            _("Trying to load exactly the right command: %r"), hint_list
+        )
         command_collection = self.get_command_collection()
         for hint in hint_list:
             # Skip all the things that look like additional options
-            if hint.startswith('-'):
+            if hint.startswith("-"):
                 continue
             # Break on the first hint that we can load
             try:
@@ -708,15 +745,17 @@ class LazyLoadingToolMixIn(metaclass=abc.ABCMeta):
                 logger.debug("Registering single command %r", command)
                 start = now()
                 command.register_parser(subparsers)
-                logger.debug(_("Cost of registering guessed command: %f"),
-                             now() - start)
+                logger.debug(
+                    _("Cost of registering guessed command: %f"), now() - start
+                )
                 break
         else:
             logger.debug("Falling back to loading all commands")
             self.add_subcommands_without_hints(subparsers, command_collection)
 
     def add_subcommands_without_hints(
-        self, subparsers: argparse._SubParsersAction,
+        self,
+        subparsers: argparse._SubParsersAction,
         command_collection: IPlugInCollection,
     ) -> None:
         """
@@ -740,14 +779,15 @@ class LazyLoadingToolMixIn(metaclass=abc.ABCMeta):
         command_collection.load()
         logger.debug(
             _("Cost of loading all top-level commands: %f"),
-            command_collection.get_total_time())
+            command_collection.get_total_time(),
+        )
         start = now()
         for command in command_collection.get_all_plugin_objects():
             logger.debug("Registering command %r", command)
             command.register_parser(subparsers)
         logger.debug(
-            _("Cost of registering all top-level commands: %f"),
-            now() - start)
+            _("Cost of registering all top-level commands: %f"), now() - start
+        )
 
 
 class SingleCommandToolMixIn:
@@ -803,7 +843,7 @@ class SingleCommandToolMixIn:
         cmd.register_arguments(parser)
 
 
-def autopager(pager_list=['sensible-pager', 'less', 'more']):
+def autopager(pager_list=["sensible-pager", "less", "more"]):
     """
     Enable automatic pager
 
@@ -841,7 +881,7 @@ def autopager(pager_list=['sensible-pager', 'less', 'more']):
         return
     # Check if the user has a PAGER set, if so, consider that the prime
     # candidate for the effective pager.
-    pager = os.getenv('PAGER')
+    pager = os.getenv("PAGER")
     if pager is not None:
         pager_list = [pager] + pager_list
     # Find the best pager based on user preferences and built-in knowledge
@@ -896,4 +936,6 @@ def find_exec(name_list):
                 return (name, pathname)
     raise LookupError(
         _("Unable to find any of the executables {}").format(
-            ", ".join(name_list)))
+            ", ".join(name_list)
+        )
+    )

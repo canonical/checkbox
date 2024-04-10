@@ -37,8 +37,9 @@ class SessionStorageTests(TestCase):
         session_prefix = "test_storage-"
         storage = SessionStorage(session_prefix)
         session_id = storage.id
-        self.assertEqual(storage.location,
-                         WellKnownDirsHelper.session_dir(session_id))
+        self.assertEqual(
+            storage.location, WellKnownDirsHelper.session_dir(session_id)
+        )
 
     def test_create_remove(self):
         session_prefix = "test_storage-"
@@ -48,9 +49,10 @@ class SessionStorageTests(TestCase):
         # The location should have been created
         self.assertTrue(os.path.exists(storage.location))
         # And it should be in the directory we indicated
-        self.assertEqual(os.path.dirname(storage.location),
-                         os.path.dirname(WellKnownDirsHelper.session_dir(
-                             session_id)))
+        self.assertEqual(
+            os.path.dirname(storage.location),
+            os.path.dirname(WellKnownDirsHelper.session_dir(session_id)),
+        )
         # Remove the storage now
         storage.remove()
         # And make sure the storage is gone
@@ -61,7 +63,7 @@ class SessionStorageTests(TestCase):
         # Create a new storage in the specified directory
         storage = SessionStorage.create(session_prefix)
         # Save some checkpoint data
-        data_out = b'some data'
+        data_out = b"some data"
         storage.save_checkpoint(data_out)
         # Load it back
         data_in = storage.load_checkpoint()

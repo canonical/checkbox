@@ -53,16 +53,16 @@ class SessionInvocation:
         self.provider_loader = provider_loader
 
     def run(self):
-        cmd = getattr(self.ns, 'session_cmd', self.ns.default_session_cmd)
-        if cmd == 'list':
+        cmd = getattr(self.ns, "session_cmd", self.ns.default_session_cmd)
+        if cmd == "list":
             self.list_sessions()
-        elif cmd == 'remove':
+        elif cmd == "remove":
             self.remove_session()
-        elif cmd == 'show':
+        elif cmd == "show":
             self.show_session()
-        elif cmd == 'archive':
+        elif cmd == "archive":
             self.archive_session()
-        elif cmd == 'export':
+        elif cmd == "export":
             self.export_session()
 
     def list_sessions(self):
@@ -74,9 +74,14 @@ class SessionInvocation:
             data = storage.load_checkpoint()
             if len(data) > 0:
                 metadata = SessionPeekHelper().peek(data)
-                print(_("session {0} app:{1}, flags:{2!r}, title:{3!r}")
-                      .format(storage.id, metadata.app_id,
-                              sorted(metadata.flags), metadata.title))
+                print(
+                    _("session {0} app:{1}, flags:{2!r}, title:{3!r}").format(
+                        storage.id,
+                        metadata.app_id,
+                        sorted(metadata.flags),
+                        metadata.title,
+                    )
+                )
             else:
                 print(_("session {0} (not saved yet)").format(storage.id))
         if not self.ns.only_ids and storage is None:
@@ -104,13 +109,20 @@ class SessionInvocation:
                     continue
                 metadata = SessionPeekHelper().peek(data)
                 print(_("application ID: {0!r}").format(metadata.app_id))
-                print(_("application-specific blob: {0}").format(
-                    b64encode(metadata.app_blob).decode('ASCII')
-                    if metadata.app_blob is not None else None))
+                print(
+                    _("application-specific blob: {0}").format(
+                        b64encode(metadata.app_blob).decode("ASCII")
+                        if metadata.app_blob is not None
+                        else None
+                    )
+                )
                 print(_("session title: {0!r}").format(metadata.title))
                 print(_("session flags: {0!r}").format(sorted(metadata.flags)))
-                print(_("current job ID: {0!r}").format(
-                    metadata.running_job_name))
+                print(
+                    _("current job ID: {0!r}").format(
+                        metadata.running_job_name
+                    )
+                )
                 print(_("data size: {0}").format(len(data)))
                 if self.ns.resume:
                     print(_("Resuming session {0} ...").format(storage.id))
@@ -123,7 +135,8 @@ class SessionInvocation:
 
     def resume_session(self, storage):
         return SessionManager.load_session(
-            self._get_all_units(), storage, flags=self.ns.flag)
+            self._get_all_units(), storage, flags=self.ns.flag
+        )
 
     def archive_session(self):
         session_id = self.ns.session_id
@@ -133,16 +146,18 @@ class SessionInvocation:
         else:
             print(_("Archiving session..."))
             archive = make_archive(
-                self.ns.archive, 'gztar',
+                self.ns.archive,
+                "gztar",
                 os.path.dirname(storage.location),
-                os.path.basename(storage.location))
+                os.path.basename(storage.location),
+            )
             print(_("Created archive: {0}").format(archive))
 
     def export_session(self):
-        if self.ns.output_format == _('?'):
+        if self.ns.output_format == _("?"):
             self._print_output_format_list()
             return 0
-        elif self.ns.output_options == _('?'):
+        elif self.ns.output_options == _("?"):
             self._print_output_option_list()
             return 0
         storage = self._lookup_storage(self.ns.session_id)
@@ -151,7 +166,8 @@ class SessionInvocation:
         else:
             print(_("Exporting session..."))
             manager = SessionManager.load_session(
-                self._get_all_units(), storage, flags=self.ns.flag)
+                self._get_all_units(), storage, flags=self.ns.flag
+            )
             exporter = self._create_exporter(manager)
             # Get a stream with exported session data.
             exported_stream = io.BytesIO()
@@ -162,33 +178,43 @@ class SessionInvocation:
                 # This requires a bit more finesse, as exporters output bytes
                 # and stdout needs a string.
                 translating_stream = ByteStringStreamTranslator(
-                    self.ns.output_file, "utf-8")
+                    self.ns.output_file, "utf-8"
+                )
                 copyfileobj(exported_stream, translating_stream)
             else:
-                print(_("Saving results to {}").format(
-                    self.ns.output_file.name))
+                print(
+                    _("Saving results to {}").format(self.ns.output_file.name)
+                )
                 copyfileobj(exported_stream, self.ns.output_file)
             if self.ns.output_file is not sys.stdout:
                 self.ns.output_file.close()
 
     def _get_all_units(self):
         return list(
-            itertools.chain(*[p.unit_list for p in self.provider_loader()]))
+            itertools.chain(*[p.unit_list for p in self.provider_loader()])
+        )
 
     def _print_output_format_list(self):
-        print(_("Available output formats: {}").format(
-            ', '.join(get_all_exporter_names())))
+        print(
+            _("Available output formats: {}").format(
+                ", ".join(get_all_exporter_names())
+            )
+        )
 
     def _print_output_option_list(self):
         print(_("Each format may support a different set of options"))
         with SessionManager.get_throwaway_manager() as manager:
             for name, exporter in manager.exporter_map.items():
-                print("{}: {}".format(
-                    name, ", ".join(exporter.exporter_cls.supported_option_list)))
+                print(
+                    "{}: {}".format(
+                        name,
+                        ", ".join(exporter.exporter_cls.supported_option_list),
+                    )
+                )
 
     def _create_exporter(self, manager):
         if self.ns.output_options:
-            option_list = self.ns.output_options.split(',')
+            option_list = self.ns.output_options.split(",")
         else:
             option_list = None
         return manager.create_exporter(self.ns.output_format, option_list)

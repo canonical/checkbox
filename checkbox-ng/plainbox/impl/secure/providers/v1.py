@@ -32,7 +32,8 @@ from plainbox.abc import IProvider1
 from plainbox.i18n import gettext as _
 from plainbox.impl.secure.config import Config, Variable
 from plainbox.impl.secure.config import (
-    ValidationError as ConfigValidationError)
+    ValidationError as ConfigValidationError,
+)
 from plainbox.impl.secure.config import IValidator
 from plainbox.impl.secure.config import NotEmptyValidator
 from plainbox.impl.secure.config import NotUnsetValidator
@@ -72,16 +73,29 @@ class ProviderContentPlugIn(PlugIn):
         The list of loaded units
     """
 
-    def __init__(self, filename, text, load_time, provider, *,
-                 validate=False, validation_kwargs=None,
-                 check=True, context=None):
+    def __init__(
+        self,
+        filename,
+        text,
+        load_time,
+        provider,
+        *,
+        validate=False,
+        validation_kwargs=None,
+        check=True,
+        context=None
+    ):
         start_time = now()
         try:
             # Inspect the file
             inspect_result = self.inspect(
-                filename, text, provider,
-                validate, validation_kwargs or {},  # legacy validation
-                check, context  # modern validation
+                filename,
+                text,
+                provider,
+                validate,
+                validation_kwargs or {},  # legacy validation
+                check,
+                context,  # modern validation
             )
         except PlugInError as exc:
             raise exc
@@ -91,12 +105,20 @@ class ProviderContentPlugIn(PlugIn):
         super().__init__(filename, inspect_result, load_time, wrap_time)
         self.unit_list = []
         # And load all of the content from that file
-        self.unit_list.extend(self.discover_units(
-            inspect_result, filename, text, provider))
+        self.unit_list.extend(
+            self.discover_units(inspect_result, filename, text, provider)
+        )
 
-    def inspect(self, filename: str, text: str, provider: "Provider1",
-                validate: bool, validation_kwargs: "Dict[str, Any]", check:
-                bool, context: "???") -> "Any":
+    def inspect(
+        self,
+        filename: str,
+        text: str,
+        provider: "Provider1",
+        validate: bool,
+        validation_kwargs: "Dict[str, Any]",
+        check: bool,
+        context: "???",
+    ) -> "Any":
         """
         Interpret and wrap the content of the filename as whatever is
         appropriate. The return value of this class becomes the
@@ -108,8 +130,11 @@ class ProviderContentPlugIn(PlugIn):
         """
 
     def discover_units(
-        self, inspect_result: "Any", filename: str, text: str,
-        provider: "Provider1"
+        self,
+        inspect_result: "Any",
+        filename: str,
+        text: str,
+        provider: "Provider1",
     ) -> "Iterable[Unit]":
         """
         Discover all units that were loaded by this plug-in
@@ -127,13 +152,17 @@ class ProviderContentPlugIn(PlugIn):
     def make_file_unit(self, filename, provider, role=None, base=None):
         if role is None or base is None:
             role, base, plugin_cls = provider.classify(filename)
-        return FileUnit({
-            'unit': FileUnit.Meta.name,
-            'path': filename,
-            'base': base,
-            'role': role,
-        }, origin=Origin(FileTextSource(filename)), provider=provider,
-            virtual=True)
+        return FileUnit(
+            {
+                "unit": FileUnit.Meta.name,
+                "path": filename,
+                "base": base,
+                "role": role,
+            },
+            origin=Origin(FileTextSource(filename)),
+            provider=provider,
+            virtual=True,
+        )
 
 
 class UnitPlugIn(ProviderContentPlugIn):
@@ -143,8 +172,14 @@ class UnitPlugIn(ProviderContentPlugIn):
     """
 
     def inspect(
-        self, filename: str, text: str, provider: "Provider1", validate: bool,
-        validation_kwargs: "Dict[str, Any]", check: bool, context: "???"
+        self,
+        filename: str,
+        text: str,
+        provider: "Provider1",
+        validate: bool,
+        validation_kwargs: "Dict[str, Any]",
+        check: bool,
+        context: "???",
     ) -> "Any":
         """
         Load all units from their PXU representation.
@@ -174,44 +209,56 @@ class UnitPlugIn(ProviderContentPlugIn):
         logger.debug(_("Loading units from %r..."), filename)
         try:
             records = load_rfc822_records(
-                text, source=FileTextSource(filename))
+                text, source=FileTextSource(filename)
+            )
         except RFC822SyntaxError as exc:
             raise PlugInError(
                 _("Cannot load job definitions from {!r}: {}").format(
-                    filename, exc))
+                    filename, exc
+                )
+            )
         unit_list = []
         for record in records:
-            unit_name = record.data.get('unit', 'job')
+            unit_name = record.data.get("unit", "job")
             try:
                 unit_cls = self._get_unit_cls(unit_name)
             except KeyError:
                 raise PlugInError(
-                    _("Unknown unit type: {!r}").format(unit_name))
+                    _("Unknown unit type: {!r}").format(unit_name)
+                )
             try:
                 unit = unit_cls.from_rfc822_record(record, provider)
             except ValueError as exc:
                 raise PlugInError(
                     _("Cannot define unit from record {!r}: {}").format(
-                        record, exc))
+                        record, exc
+                    )
+                )
             if check:
                 for issue in unit.check(context=context, live=True):
                     if issue.severity is Severity.error:
                         raise PlugInError(
-                            _("Problem in unit definition, {}").format(issue))
+                            _("Problem in unit definition, {}").format(issue)
+                        )
             if validate:
                 try:
                     unit.validate(**validation_kwargs)
                 except ValidationError as exc:
                     raise PlugInError(
                         _("Problem in unit definition, field {}: {}").format(
-                            exc.field, exc.problem))
+                            exc.field, exc.problem
+                        )
+                    )
             unit_list.append(unit)
             logger.debug(_("Loaded %r"), unit)
         return unit_list
 
     def discover_units(
-        self, inspect_result: "List[Unit]", filename: str, text: str,
-        provider: "Provider1"
+        self,
+        inspect_result: "List[Unit]",
+        filename: str,
+        text: str,
+        provider: "Provider1",
     ) -> "Iterable[Unit]":
         for unit in inspect_result:
             yield unit
@@ -288,7 +335,8 @@ class ProviderContentEnumerator:
                 dir_list.append(provider.locale_dir)
         # Find all the files that belong to a provider
         self._content_collection = LazyFsPlugInCollection(
-            dir_list, ext=None, recursive=True)
+            dir_list, ext=None, recursive=True
+        )
 
     @property
     def content_collection(self) -> "IPlugInCollection":
@@ -327,8 +375,9 @@ class ProviderContentClassifier:
         This class is automatically instantiated by :class:`Provider1`. The
         :meth:`classify` method is exposed as :meth:`Provider1.classify()`.
     """
-    LEGAL_SET = frozenset(['COPYING', 'COPYING.LESSER', 'LICENSE'])
-    DOC_SET = frozenset(['README', 'README.md', 'README.rst', 'README.txt'])
+
+    LEGAL_SET = frozenset(["COPYING", "COPYING.LESSER", "LICENSE"])
+    DOC_SET = frozenset(["README", "README.md", "README.rst", "README.txt"])
 
     def __init__(self, provider: "Provider1"):
         """
@@ -370,7 +419,7 @@ class ProviderContentClassifier:
 
     @property
     def classify_fn_list(
-        self
+        self,
     ) -> "List[Callable[[str], Tuple[Symbol, str, type]]]":
         """
         List of functions that aid in the classification process.
@@ -380,7 +429,7 @@ class ProviderContentClassifier:
         return self._classify_fn_list
 
     def _get_classify_fn_list(
-        self
+        self,
     ) -> "List[Callable[[str], Tuple[Symbol, str, type]]]":
         """
         Get a list of function that can classify any file reachable from our
@@ -423,9 +472,9 @@ class ProviderContentClassifier:
 
     def _get_EXECUTABLES(self):
         assert self.provider.src_dir is not None
-        hint_file = os.path.join(self.provider.src_dir, 'EXECUTABLES')
+        hint_file = os.path.join(self.provider.src_dir, "EXECUTABLES")
         if os.path.isfile(hint_file):
-            with open(hint_file, "rt", encoding='UTF-8') as stream:
+            with open(hint_file, "rt", encoding="UTF-8") as stream:
                 return frozenset(line.strip() for line in stream)
         else:
             return frozenset()
@@ -440,80 +489,104 @@ class ProviderContentClassifier:
         return self._EXECUTABLES
 
     def _classify_pxu_jobs(self, filename: str):
-        """ classify certain files in jobs_dir as unit source"""
+        """classify certain files in jobs_dir as unit source"""
         if filename.startswith(self.provider.jobs_dir):
             ext = os.path.splitext(filename)[1]
             if ext in (".txt", ".in", ".pxu"):
-                return (FileRole.unit_source, self.provider.jobs_dir,
-                        UnitPlugIn)
+                return (
+                    FileRole.unit_source,
+                    self.provider.jobs_dir,
+                    UnitPlugIn,
+                )
 
     def _classify_pxu_units(self, filename: str):
-        """ classify certain files in units_dir as unit source"""
+        """classify certain files in units_dir as unit source"""
         if filename.startswith(self.provider.units_dir):
             ext = os.path.splitext(filename)[1]
             # TODO: later on just let .pxu files in the units_dir
             if ext in (".txt", ".txt.in", ".pxu"):
-                return (FileRole.unit_source, self.provider.units_dir,
-                        UnitPlugIn)
+                return (
+                    FileRole.unit_source,
+                    self.provider.units_dir,
+                    UnitPlugIn,
+                )
 
     def _classify_data(self, filename: str):
-        """ classify files in data_dir as data """
+        """classify files in data_dir as data"""
         if filename.startswith(self.provider.data_dir):
-            return (FileRole.data, self.provider.data_dir,
-                    ProviderContentPlugIn)
+            return (
+                FileRole.data,
+                self.provider.data_dir,
+                ProviderContentPlugIn,
+            )
 
     def _classify_exec(self, filename: str):
-        """ classify files in bin_dir as scripts/executables """
-        if (filename.startswith(self.provider.bin_dir) and
-                os.access(filename, os.F_OK | os.X_OK)):
-            with open(filename, 'rb') as stream:
+        """classify files in bin_dir as scripts/executables"""
+        if filename.startswith(self.provider.bin_dir) and os.access(
+            filename, os.F_OK | os.X_OK
+        ):
+            with open(filename, "rb") as stream:
                 chunk = stream.read(2)
-            role = FileRole.script if chunk == b'#!' else FileRole.binary
+            role = FileRole.script if chunk == b"#!" else FileRole.binary
             return (role, self.provider.bin_dir, ProviderContentPlugIn)
 
     def _classify_built_exec(self, filename: str):
-        """ classify files in build_bin_dir as scripts/executables """
-        if (filename.startswith(self.provider.build_bin_dir) and
-                os.access(filename, os.F_OK | os.X_OK) and
-                os.path.basename(filename) in self.EXECUTABLES):
-            with open(filename, 'rb') as stream:
+        """classify files in build_bin_dir as scripts/executables"""
+        if (
+            filename.startswith(self.provider.build_bin_dir)
+            and os.access(filename, os.F_OK | os.X_OK)
+            and os.path.basename(filename) in self.EXECUTABLES
+        ):
+            with open(filename, "rb") as stream:
                 chunk = stream.read(2)
-            role = FileRole.script if chunk == b'#!' else FileRole.binary
+            role = FileRole.script if chunk == b"#!" else FileRole.binary
             return (role, self.provider.build_bin_dir, ProviderContentPlugIn)
 
     def _classify_built_i18n(self, filename: str):
-        """ classify files in build_mo_dir as i18n """
-        if (filename.startswith(self.provider.build_mo_dir) and
-                os.path.splitext(filename)[1] == '.mo'):
-            return (FileRole.i18n, self.provider.build_bin_dir,
-                    ProviderContentPlugIn)
+        """classify files in build_mo_dir as i18n"""
+        if (
+            filename.startswith(self.provider.build_mo_dir)
+            and os.path.splitext(filename)[1] == ".mo"
+        ):
+            return (
+                FileRole.i18n,
+                self.provider.build_bin_dir,
+                ProviderContentPlugIn,
+            )
 
     def _classify_build(self, filename: str):
-        """ classify anything in build_dir as a build artefact """
+        """classify anything in build_dir as a build artefact"""
         if filename.startswith(self.provider.build_dir):
             return (FileRole.build, self.provider.build_dir, None)
 
     def _classify_legal(self, filename: str):
-        """ classify file as a legal document """
+        """classify file as a legal document"""
         if os.path.basename(filename) in self.LEGAL_SET:
-            return (FileRole.legal, self.provider.base_dir,
-                    ProviderContentPlugIn)
+            return (
+                FileRole.legal,
+                self.provider.base_dir,
+                ProviderContentPlugIn,
+            )
 
     def _classify_docs(self, filename: str):
-        """ classify certain files as documentation """
+        """classify certain files as documentation"""
         if os.path.basename(filename) in self.DOC_SET:
-            return (FileRole.docs, self.provider.base_dir,
-                    ProviderContentPlugIn)
+            return (
+                FileRole.docs,
+                self.provider.base_dir,
+                ProviderContentPlugIn,
+            )
 
     def _classify_manage_py(self, filename: str):
-        """ classify the manage.py file """
-        if os.path.join(self.provider.base_dir, 'manage.py') == filename:
+        """classify the manage.py file"""
+        if os.path.join(self.provider.base_dir, "manage.py") == filename:
             return (FileRole.manage_py, self.provider.base_dir, None)
 
     def _classify_po(self, filename: str):
-        if (os.path.dirname(filename) == self.provider.po_dir and
-                (os.path.splitext(filename)[1] in ('.po', '.pot') or
-                 os.path.basename(filename) == 'POTFILES.in')):
+        if os.path.dirname(filename) == self.provider.po_dir and (
+            os.path.splitext(filename)[1] in (".po", ".pot")
+            or os.path.basename(filename) == "POTFILES.in"
+        ):
             return (FileRole.src, self.provider.base_dir, None)
 
     def _classify_src(self, filename: str):
@@ -521,18 +594,18 @@ class ProviderContentClassifier:
             return (FileRole.src, self.provider.base_dir, None)
 
     def _classify_vcs(self, filename: str):
-        if os.path.basename(filename) in ('.gitignore', '.bzrignore'):
+        if os.path.basename(filename) in (".gitignore", ".bzrignore"):
             return (FileRole.vcs, self.provider.base_dir, None)
         head = filename
         # NOTE: first condition is for correct cases, the rest are for broken
         # cases that may be caused if we get passed some garbage argument.
-        while head != self.provider.base_dir and head != '' and head != '/':
+        while head != self.provider.base_dir and head != "" and head != "/":
             head, tail = os.path.split(head)
-            if tail in ('.git', '.bzr'):
+            if tail in (".git", ".bzr"):
                 return (FileRole.vcs, self.provider.base_dir, None)
 
     def _classify_unknown(self, filename: str):
-        """ classify anything as an unknown file """
+        """classify anything as an unknown file"""
         return (FileRole.unknown, self.provider.base_dir, None)
 
 
@@ -592,11 +665,28 @@ class ProviderContentLoader:
         Do not print warning for all skipped files, do it only for file that is located
         inside a official provider folder (bin, data, units, ..).
         """
-        if ((self.provider.units_dir and filename.startswith(self.provider.units_dir))
-            or (self.provider.jobs_dir and filename.startswith(self.provider.jobs_dir))
-            or (self.provider.data_dir and filename.startswith(self.provider.data_dir))
-            or (self.provider.bin_dir and filename.startswith(self.provider.bin_dir))
-            or (self.provider.locale_dir and filename.startswith(self.provider.locale_dir))):
+        if (
+            (
+                self.provider.units_dir
+                and filename.startswith(self.provider.units_dir)
+            )
+            or (
+                self.provider.jobs_dir
+                and filename.startswith(self.provider.jobs_dir)
+            )
+            or (
+                self.provider.data_dir
+                and filename.startswith(self.provider.data_dir)
+            )
+            or (
+                self.provider.bin_dir
+                and filename.startswith(self.provider.bin_dir)
+            )
+            or (
+                self.provider.locale_dir
+                and filename.startswith(self.provider.locale_dir)
+            )
+        ):
             logger.warning("Skipped file: %s", filename)
 
     def _load_file(self, filename, text, plugin_kwargs):
@@ -609,15 +699,16 @@ class ProviderContentLoader:
             return
         try:
             plugin = plugin_cls(
-                filename, text, 0, self.provider, **plugin_kwargs)
+                filename, text, 0, self.provider, **plugin_kwargs
+            )
         except PlugInError as exc:
             self.problem_list.append(exc)
         else:
             self.unit_list.extend(plugin.unit_list)
             for unit in plugin.unit_list:
-                if hasattr(unit.Meta.fields, 'id'):
+                if hasattr(unit.Meta.fields, "id"):
                     self.id_map[unit.id].append(unit)
-                if hasattr(unit.Meta.fields, 'path'):
+                if hasattr(unit.Meta.fields, "path"):
                     self.path_map[unit.path].append(unit)
 
 
@@ -633,11 +724,27 @@ class Provider1(IProvider1):
     number of fields involved in basic initialization.
     """
 
-    def __init__(self, name, namespace, version, description, secure,
-                 gettext_domain, units_dir, jobs_dir, data_dir, bin_dir,
-                 locale_dir, base_dir, *, validate=False,
-                 validation_kwargs=None, check=True, context=None,
-                 sideloaded=False):
+    def __init__(
+        self,
+        name,
+        namespace,
+        version,
+        description,
+        secure,
+        gettext_domain,
+        units_dir,
+        jobs_dir,
+        data_dir,
+        bin_dir,
+        locale_dir,
+        base_dir,
+        *,
+        validate=False,
+        validation_kwargs=None,
+        check=True,
+        context=None,
+        sideloaded=False
+    ):
         """
         Initialize a provider with a set of meta-data and directories.
 
@@ -698,7 +805,7 @@ class Provider1(IProvider1):
         """
         # Meta-data
         if namespace is None:
-            namespace = name.split(':', 1)[0]
+            namespace = name.split(":", 1)[0]
             self._has_dedicated_namespace = False
         else:
             self._has_dedicated_namespace = True
@@ -720,10 +827,10 @@ class Provider1(IProvider1):
         self._classifier = ProviderContentClassifier(self)
         self._loader = ProviderContentLoader(self)
         self._load_kwargs = {
-            'validate': validate,
-            'validation_kwargs': validation_kwargs,
-            'check': check,
-            'context': context,
+            "validate": validate,
+            "validation_kwargs": validation_kwargs,
+            "check": check,
+            "context": context,
         }
         self._sideloaded = sideloaded
         # Setup provider specific i18n
@@ -742,9 +849,17 @@ class Provider1(IProvider1):
             gettext.bindtextdomain(self._gettext_domain, self._locale_dir)
 
     @classmethod
-    def from_definition(cls, definition, secure, *,
-                        validate=False, validation_kwargs=None, check=True,
-                        context=None, sideloaded=False):
+    def from_definition(
+        cls,
+        definition,
+        secure,
+        *,
+        validate=False,
+        validation_kwargs=None,
+        check=True,
+        context=None,
+        sideloaded=False
+    ):
         """
         Initialize a provider from Provider1Definition object
 
@@ -774,14 +889,24 @@ class Provider1(IProvider1):
         logger.debug("Loading provider from definition %r", definition)
         # Initialize the provider object
         return cls(
-            definition.name, definition.namespace or None, definition.version,
-            definition.description, secure,
+            definition.name,
+            definition.namespace or None,
+            definition.version,
+            definition.description,
+            secure,
             definition.effective_gettext_domain,
-            definition.effective_units_dir, definition.effective_jobs_dir,
-            definition.effective_data_dir, definition.effective_bin_dir,
-            definition.effective_locale_dir, definition.location or None,
-            validate=validate, validation_kwargs=validation_kwargs,
-            check=check, context=context, sideloaded=sideloaded)
+            definition.effective_units_dir,
+            definition.effective_jobs_dir,
+            definition.effective_data_dir,
+            definition.effective_bin_dir,
+            definition.effective_locale_dir,
+            definition.location or None,
+            validate=validate,
+            validation_kwargs=validation_kwargs,
+            check=check,
+            context=context,
+            sideloaded=sideloaded,
+        )
 
     def __repr__(self):
         return "<{} name:{!r}>".format(self.__class__.__name__, self.name)
@@ -896,7 +1021,7 @@ class Provider1(IProvider1):
         This value may be None. It depends on location/base_dir being set.
         """
         if self.base_dir is not None:
-            return os.path.join(self.base_dir, 'build')
+            return os.path.join(self.base_dir, "build")
 
     @property
     def build_bin_dir(self):
@@ -906,7 +1031,7 @@ class Provider1(IProvider1):
         This value may be None. It depends on location/base_dir being set.
         """
         if self.base_dir is not None:
-            return os.path.join(self.base_dir, 'build', 'bin')
+            return os.path.join(self.base_dir, "build", "bin")
 
     @property
     def build_mo_dir(self):
@@ -916,7 +1041,7 @@ class Provider1(IProvider1):
         This value may be None. It depends on location/base_dir being set.
         """
         if self.base_dir is not None:
-            return os.path.join(self.base_dir, 'build', 'mo')
+            return os.path.join(self.base_dir, "build", "mo")
 
     @property
     def src_dir(self):
@@ -926,7 +1051,7 @@ class Provider1(IProvider1):
         This value may be None. It depends on location/base_dir set.
         """
         if self.base_dir is not None:
-            return os.path.join(self.base_dir, 'src')
+            return os.path.join(self.base_dir, "src")
 
     @property
     def po_dir(self):
@@ -936,7 +1061,7 @@ class Provider1(IProvider1):
         This value may be None. It depends on location/base_dir set.
         """
         if self.base_dir is not None:
-            return os.path.join(self.base_dir, 'po')
+            return os.path.join(self.base_dir, "po")
 
     @property
     def CHECKBOX_SHARE(self):
@@ -1003,8 +1128,9 @@ class Provider1(IProvider1):
         A sorted list of loaded job definition units.
         """
         return sorted(
-            (unit for unit in self.unit_list if unit.Meta.name == 'job'),
-            key=lambda unit: unit.id)
+            (unit for unit in self.unit_list if unit.Meta.name == "job"),
+            key=lambda unit: unit.id,
+        )
 
     @property
     def executable_list(self):
@@ -1012,9 +1138,11 @@ class Provider1(IProvider1):
         List of all the executables
         """
         return sorted(
-            unit.path for unit in self.unit_list
-            if unit.Meta.name == 'file' and
-            unit.role in (FileRole.script, FileRole.binary))
+            unit.path
+            for unit in self.unit_list
+            if unit.Meta.name == "file"
+            and unit.role in (FileRole.script, FileRole.binary)
+        )
 
     @property
     def problem_list(self):
@@ -1116,14 +1244,15 @@ class IQNValidator(PatternValidator):
 
     def __init__(self):
         super(IQNValidator, self).__init__(
-            r"^([0-9]{4}\.)?[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*$")
+            r"^([0-9]{4}\.)?[a-z][a-z0-9-]*(\.[a-z][a-z0-9-]*)+:[a-z][a-z0-9-]*$"
+        )
 
     def __call__(self, variable, new_value):
         if super(IQNValidator, self).__call__(variable, new_value):
             return _("must look like RFC3720 IQN")
 
-class ProviderNameValidator(PatternValidator):
 
+class ProviderNameValidator(PatternValidator):
     """
     Validator for the provider name.
 
@@ -1162,15 +1291,15 @@ class VersionValidator(PatternValidator):
     _PATTERN = (
         r"v?"
         r"(?:"
-        r"(?:(?P<epoch>[0-9]+)!)?"                           # epoch
-        r"(?P<release>[0-9]+(?:\.[0-9]+)*)"                  # release segment
-        r"(?P<pre>"                                          # pre-release
+        r"(?:(?P<epoch>[0-9]+)!)?"  # epoch
+        r"(?P<release>[0-9]+(?:\.[0-9]+)*)"  # release segment
+        r"(?P<pre>"  # pre-release
         r"[-_\.]?"
         r"(?P<pre_l>(a|b|c|rc|alpha|beta|pre|preview))"
         r"[-_\.]?"
         r"(?P<pre_n>[0-9]+)?"
         r")?"
-        r"(?P<post>"                                         # post release
+        r"(?P<post>"  # post release
         r"(?:-(?P<post_n1>[0-9]+))"
         r"|"
         r"(?:"
@@ -1180,14 +1309,14 @@ class VersionValidator(PatternValidator):
         r"(?P<post_n2>[0-9]+)?"
         r")"
         r")?"
-        r"(?P<dev>"                                          # dev release
+        r"(?P<dev>"  # dev release
         r"[-_\.]?"
         r"(?P<dev_l>dev)"
         r"[-_\.]?"
         r"(?P<dev_n>[0-9]+)?"
         r")?"
         r")"
-        r"(?:\+(?P<local>[a-z0-9]+(?:[-_\.][a-z0-9]+)*))?"   # local version
+        r"(?:\+(?P<local>[a-z0-9]+(?:[-_\.][a-z0-9]+)*))?"  # local version
     )
 
     def __init__(self):
@@ -1235,65 +1364,70 @@ class Provider1Definition(Config):
     # NOTE: See the implementation note in :class:`Provider1PluginIn` to
     # understand the effect of this flag.
     relocatable = Variable(
-        section='PlainBox Provider',
+        section="PlainBox Provider",
         help_text=_("Flag indicating if the provider is relocatable"),
         kind=bool,
     )
 
     location = Variable(
-        section='PlainBox Provider',
+        section="PlainBox Provider",
         help_text=_("Base directory with provider data"),
         validator_list=[
             # NOTE: it *can* be unset!
             NotEmptyValidator(),
             AbsolutePathValidator(),
             ExistingDirectoryValidator(),
-        ])
+        ],
+    )
 
     name = Variable(
-        section='PlainBox Provider',
+        section="PlainBox Provider",
         help_text=_("Name of the provider"),
         validator_list=[
             NotUnsetValidator(),
             NotEmptyValidator(),
             ProviderNameValidator(),
-        ])
+        ],
+    )
 
     namespace = Variable(
-        section='PlainBox Provider',
+        section="PlainBox Provider",
         help_text=_("Namespace of the provider"),
         validator_list=[
             # NOTE: it *can* be unset, then name must be IQN
             NotEmptyValidator(),
-        ])
+        ],
+    )
 
     @property
     def name_without_colon(self):
-        if ':' in self.name:
-            return self.name.replace(':', '.')
+        if ":" in self.name:
+            return self.name.replace(":", ".")
         else:
             return self.name
 
     version = Variable(
-        section='PlainBox Provider',
+        section="PlainBox Provider",
         help_text=_("Version of the provider"),
         validator_list=[
             NotUnsetValidator(),
             NotEmptyValidator(),
             VersionValidator(),
-        ])
+        ],
+    )
 
     description = Variable(
-        section='PlainBox Provider',
-        help_text=_("Description of the provider"))
+        section="PlainBox Provider", help_text=_("Description of the provider")
+    )
 
     gettext_domain = Variable(
-        section='PlainBox Provider',
+        section="PlainBox Provider",
         help_text=_("Name of the gettext domain for translations"),
         validator_list=[
             # NOTE: it *can* be unset!
             PatternValidator("[a-z0-9_-]+"),
-        ])
+        ],
+    )
 
     @property
     def effective_gettext_domain(self):
@@ -1307,14 +1441,15 @@ class Provider1Definition(Config):
             return self.gettext_domain
 
     units_dir = Variable(
-        section='PlainBox Provider',
+        section="PlainBox Provider",
         help_text=_("Pathname of the directory with unit definitions"),
         validator_list=[
             # NOTE: it *can* be unset
             NotEmptyValidator(),
             AbsolutePathValidator(),
             ExistingDirectoryValidator(),
-        ])
+        ],
+    )
 
     @property
     def implicit_units_dir(self):
@@ -1343,14 +1478,15 @@ class Provider1Definition(Config):
             return implicit
 
     jobs_dir = Variable(
-        section='PlainBox Provider',
+        section="PlainBox Provider",
         help_text=_("Pathname of the directory with job definitions"),
         validator_list=[
             # NOTE: it *can* be unset
             NotEmptyValidator(),
             AbsolutePathValidator(),
             ExistingDirectoryValidator(),
-        ])
+        ],
+    )
 
     @property
     def implicit_jobs_dir(self):
@@ -1379,14 +1515,15 @@ class Provider1Definition(Config):
             return implicit
 
     data_dir = Variable(
-        section='PlainBox Provider',
+        section="PlainBox Provider",
         help_text=_("Pathname of the directory with provider data"),
         validator_list=[
             # NOTE: it *can* be unset
             NotEmptyValidator(),
             AbsolutePathValidator(),
             ExistingDirectoryValidator(),
-        ])
+        ],
+    )
 
     @property
     def implicit_data_dir(self):
@@ -1415,14 +1552,15 @@ class Provider1Definition(Config):
             return implicit
 
     bin_dir = Variable(
-        section='PlainBox Provider',
+        section="PlainBox Provider",
         help_text=_("Pathname of the directory with provider executables"),
         validator_list=[
             # NOTE: it *can* be unset
             NotEmptyValidator(),
             AbsolutePathValidator(),
             ExistingDirectoryValidator(),
-        ])
+        ],
+    )
 
     @property
     def implicit_bin_dir(self):
@@ -1451,14 +1589,15 @@ class Provider1Definition(Config):
             return implicit
 
     locale_dir = Variable(
-        section='PlainBox Provider',
+        section="PlainBox Provider",
         help_text=_("Pathname of the directory with locale data"),
         validator_list=[
             # NOTE: it *can* be unset
             NotEmptyValidator(),
             AbsolutePathValidator(),
             ExistingDirectoryValidator(),
-        ])
+        ],
+    )
 
     @property
     def implicit_locale_dir(self):
@@ -1524,8 +1663,17 @@ class Provider1PlugIn(PlugIn):
     files
     """
 
-    def __init__(self, filename, definition_text, load_time, *, validate=None,
-                 validation_kwargs=None, check=None, context=None):
+    def __init__(
+        self,
+        filename,
+        definition_text,
+        load_time,
+        *,
+        validate=None,
+        validation_kwargs=None,
+        check=None,
+        context=None
+    ):
         """
         Initialize the plug-in with the specified name and external object
         """
@@ -1552,19 +1700,27 @@ class Provider1PlugIn(PlugIn):
             exc = definition.problem_list[0]
             raise PlugInError(
                 _("Problem in provider definition, field {!a}: {}").format(
-                    exc.variable.name, exc.message))
+                    exc.variable.name, exc.message
+                )
+            )
         # Get the secure flag
         secure = os.path.dirname(filename) in get_secure_PROVIDERPATH_list()
         # Initialize the provider object
         provider = Provider1.from_definition(
-            definition, secure, validate=validate,
-            validation_kwargs=validation_kwargs, check=check, context=context)
+            definition,
+            secure,
+            validate=validate,
+            validation_kwargs=validation_kwargs,
+            check=check,
+            context=context,
+        )
         wrap_time = now() - start
         super().__init__(provider.name, provider, load_time, wrap_time)
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(
-            type(self).__name__, self.plugin_name)
+            type(self).__name__, self.plugin_name
+        )
 
 
 def get_secure_PROVIDERPATH_list():
@@ -1583,11 +1739,15 @@ def get_secure_PROVIDERPATH_list():
     if snap_app_path:
         snap_providers_path = os.path.join(snap_app_path, "providers")
         if snap_app_path and os.path.exists(snap_providers_path):
-            return [os.path.join(snap_providers_path, provider) for provider
-                    in os.listdir(snap_providers_path)]
+            return [
+                os.path.join(snap_providers_path, provider)
+                for provider in os.listdir(snap_providers_path)
+            ]
     else:
-        return ["/usr/local/share/plainbox-providers-1",
-                "/usr/share/plainbox-providers-1"]
+        return [
+            "/usr/local/share/plainbox-providers-1",
+            "/usr/share/plainbox-providers-1",
+        ]
     return []
 
 
@@ -1609,8 +1769,9 @@ class SecureProvider1PlugInCollection(FsPlugInCollection):
 
     def __init__(self, **kwargs):
         dir_list = get_secure_PROVIDERPATH_list()
-        super().__init__(dir_list, '.provider', wrapper=Provider1PlugIn,
-                         **kwargs)
+        super().__init__(
+            dir_list, ".provider", wrapper=Provider1PlugIn, **kwargs
+        )
 
 
 # Collection of all providers

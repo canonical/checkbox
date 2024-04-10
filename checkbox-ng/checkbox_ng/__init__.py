@@ -33,5 +33,6 @@ try:
     __version__ = version(__package__)
 except PackageNotFoundError:
     import logging
-    logging.error('Failed to retrieve checkbox-ng version')
-    __version__ = 'unknown'
+
+    logging.error("Failed to retrieve checkbox-ng version")
+    __version__ = "unknown"

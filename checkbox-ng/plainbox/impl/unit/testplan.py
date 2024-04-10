@@ -60,7 +60,7 @@ from plainbox.impl.xparsers import WordList
 logger = logging.getLogger("plainbox.unit.testplan")
 
 
-__all__ = ['TestPlanUnit']
+__all__ = ["TestPlanUnit"]
 
 
 class NoBaseIncludeValidator(FieldValidatorBase):
@@ -71,22 +71,27 @@ class NoBaseIncludeValidator(FieldValidatorBase):
 
     def check_in_context(self, parent, unit, field, context):
         for issue in self._check_test_plan_in_context(
-                parent, unit, field, context):
+            parent, unit, field, context
+        ):
             yield issue
 
     def _check_test_plan_in_context(self, parent, unit, field, context):
         included_job_id = []
         id_map = context.compute_shared(
-            "field_value_map[id]", compute_value_map, context, 'id')
-        warning = _("selector {!a} will select a job already matched by the "
-                    "'include' field patterns")
+            "field_value_map[id]", compute_value_map, context, "id"
+        )
+        warning = _(
+            "selector {!a} will select a job already matched by the "
+            "'include' field patterns"
+        )
         qual_gen = unit._gen_qualifiers(
-            'include', getattr(unit, 'include'), True)
+            "include", getattr(unit, "include"), True
+        )
         # Build the list of all jobs already included with the normal include
         # field
         for qual in qual_gen:
             assert isinstance(qual, FieldQualifier)
-            if qual.field != 'id':
+            if qual.field != "id":
                 continue
             if isinstance(qual.matcher, PatternMatcher):
                 for an_id in id_map:
@@ -104,27 +109,34 @@ class NoBaseIncludeValidator(FieldValidatorBase):
         # Now check that mandatory field patterns do not select a job already
         # included with normal include.
         qual_gen = unit._gen_qualifiers(
-            str(field), getattr(unit, str(field)), True)
+            str(field), getattr(unit, str(field)), True
+        )
         for qual in qual_gen:
             assert isinstance(qual, FieldQualifier)
-            if qual.field != 'id':
+            if qual.field != "id":
                 continue
             if isinstance(qual.matcher, PatternMatcher):
                 for an_id in included_job_id:
                     if qual.matcher.match(an_id):
                         yield parent.warning(
-                            unit, field, Problem.bad_reference,
+                            unit,
+                            field,
+                            Problem.bad_reference,
                             warning.format(qual.matcher.pattern_text),
-                            origin=qual.origin)
+                            origin=qual.origin,
+                        )
                         break
             elif isinstance(qual.matcher, OperatorMatcher):
                 assert qual.matcher.op is operator.eq
                 target_id = qual.matcher.value
                 if target_id in included_job_id:
                     yield parent.warning(
-                        unit, field, Problem.bad_reference,
+                        unit,
+                        field,
+                        Problem.bad_reference,
                         warning.format(target_id),
-                        origin=qual.origin)
+                        origin=qual.origin,
+                    )
             else:
                 raise NotImplementedError
 
@@ -155,7 +167,7 @@ class TestPlanUnit(UnitWithId):
             This value is not translated, see :meth:`tr_name()` for
             a translated equivalent.
         """
-        return self.get_record_value('name')
+        return self.get_record_value("name")
 
     @cached_property
     def description(self):
@@ -166,39 +178,39 @@ class TestPlanUnit(UnitWithId):
             This value is not translated, see :meth:`tr_name()` for
             a translated equivalent.
         """
-        return self.get_record_value('description')
+        return self.get_record_value("description")
 
     @cached_property
     def include(self):
-        return self.get_record_value('include')
+        return self.get_record_value("include")
 
     @cached_property
     def mandatory_include(self):
-        return self.get_record_value('mandatory_include')
+        return self.get_record_value("mandatory_include")
 
     @cached_property
     def bootstrap_include(self):
-        return self.get_record_value('bootstrap_include')
+        return self.get_record_value("bootstrap_include")
 
     @cached_property
     def exclude(self):
-        return self.get_record_value('exclude')
+        return self.get_record_value("exclude")
 
     @cached_property
     def nested_part(self):
-        return self.get_record_value('nested_part')
+        return self.get_record_value("nested_part")
 
     @cached_property
     def icon(self):
-        return self.get_record_value('icon')
+        return self.get_record_value("icon")
 
     @cached_property
     def category_overrides(self):
-        return self.get_record_value('category_overrides')
+        return self.get_record_value("category_overrides")
 
     @cached_property
     def certification_status_overrides(self):
-        return self.get_record_value('certification_status_overrides')
+        return self.get_record_value("certification_status_overrides")
 
     @property
     def provider_list(self):
@@ -222,26 +234,26 @@ class TestPlanUnit(UnitWithId):
         unknown. Fractional numbers are allowed and indicate fractions of a
         second.
         """
-        value = self.get_record_value('estimated_duration')
+        value = self.get_record_value("estimated_duration")
         if value is None:
             return None
-        match = re.match(r'^(\d+h)?[ :]*(\d+m)?[ :]*(\d+s)?$', value)
+        match = re.match(r"^(\d+h)?[ :]*(\d+m)?[ :]*(\d+s)?$", value)
         if match:
             g_hours = match.group(1)
             if g_hours:
-                assert g_hours.endswith('h')
+                assert g_hours.endswith("h")
                 hours = int(g_hours[:-1])
             else:
                 hours = 0
             g_minutes = match.group(2)
             if g_minutes:
-                assert g_minutes.endswith('m')
+                assert g_minutes.endswith("m")
                 minutes = int(g_minutes[:-1])
             else:
                 minutes = 0
             g_seconds = match.group(3)
             if g_seconds:
-                assert g_seconds.endswith('s')
+                assert g_seconds.endswith("s")
                 seconds = int(g_seconds[:-1])
             else:
                 seconds = 0
@@ -254,14 +266,14 @@ class TestPlanUnit(UnitWithId):
         """
         Get the translated version of :meth:`summary`
         """
-        return self.get_translated_record_value('name')
+        return self.get_translated_record_value("name")
 
     @instance_method_lru_cache(maxsize=None)
     def tr_description(self):
         """
         Get the translated version of :meth:`description`
         """
-        return self.get_translated_record_value('description')
+        return self.get_translated_record_value("description")
 
     @instance_method_lru_cache(maxsize=None)
     def get_bootstrap_job_ids(self):
@@ -275,8 +287,9 @@ class TestPlanUnit(UnitWithId):
                     job_ids.append(self.qualify_id(node.text))
 
                 def visit_Error_node(visitor, node: Error):
-                    logger.warning(_(
-                        "unable to parse bootstrap_include: %s"), node.msg)
+                    logger.warning(
+                        _("unable to parse bootstrap_include: %s"), node.msg
+                    )
 
             V().visit(WordList.parse(self.bootstrap_include))
         for tp_unit in self.get_nested_part():
@@ -289,6 +302,7 @@ class TestPlanUnit(UnitWithId):
         nested_parts = []
         if self.nested_part is not None:
             from plainbox.impl.session import SessionManager
+
             with SessionManager.get_throwaway_manager(self.provider_list) as m:
                 context = m.default_device_context
                 testplan_ids = []
@@ -299,16 +313,20 @@ class TestPlanUnit(UnitWithId):
                         testplan_ids.append(self.qualify_id(node.text))
 
                     def visit_Error_node(visitor, node: Error):
-                        logger.warning(_(
-                            "unable to parse nested_part: %s"), node.msg)
+                        logger.warning(
+                            _("unable to parse nested_part: %s"), node.msg
+                        )
 
                 V().visit(WordList.parse(self.nested_part))
                 for tp_id in testplan_ids:
                     try:
-                        nested_parts.append(context.get_unit(tp_id, 'test plan'))
+                        nested_parts.append(
+                            context.get_unit(tp_id, "test plan")
+                        )
                     except KeyError:
-                        logger.warning(_(
-                            "unable to find nested part: %s"), tp_id)
+                        logger.warning(
+                            _("unable to find nested part: %s"), tp_id
+                        )
         return nested_parts
 
     @instance_method_lru_cache(maxsize=None)
@@ -321,8 +339,8 @@ class TestPlanUnit(UnitWithId):
             the include and exclude fields.
         """
         qual_list = []
-        qual_list.extend(self._gen_qualifiers('include', self.include, True))
-        qual_list.extend(self._gen_qualifiers('exclude', self.exclude, False))
+        qual_list.extend(self._gen_qualifiers("include", self.include, True))
+        qual_list.extend(self._gen_qualifiers("exclude", self.exclude, False))
         qual_list.extend([self.get_bootstrap_qualifier(excluding=True)])
         for tp_unit in self.get_nested_part():
             qual_list.extend([tp_unit.get_qualifier()])
@@ -339,7 +357,8 @@ class TestPlanUnit(UnitWithId):
         """
         qual_list = []
         qual_list.extend(
-            self._gen_qualifiers('include', self.mandatory_include, True))
+            self._gen_qualifiers("include", self.mandatory_include, True)
+        )
         for tp_unit in self.get_nested_part():
             qual_list.extend([tp_unit.get_mandatory_qualifier()])
         return CompositeQualifier(qual_list)
@@ -352,10 +371,17 @@ class TestPlanUnit(UnitWithId):
         qual_list = []
         if self.bootstrap_include is not None:
             field_origin = self.origin.just_line().with_offset(
-                self.field_offset_map['bootstrap_include'])
-            qual_list = [FieldQualifier(
-                'id', OperatorMatcher(operator.eq, target_id), field_origin,
-                not excluding) for target_id in self.get_bootstrap_job_ids()]
+                self.field_offset_map["bootstrap_include"]
+            )
+            qual_list = [
+                FieldQualifier(
+                    "id",
+                    OperatorMatcher(operator.eq, target_id),
+                    field_origin,
+                    not excluding,
+                )
+                for target_id in self.get_bootstrap_job_ids()
+            ]
         for tp_unit in self.get_nested_part():
             qual_list.extend([tp_unit.get_bootstrap_qualifier(excluding)])
         return CompositeQualifier(qual_list)
@@ -363,7 +389,8 @@ class TestPlanUnit(UnitWithId):
     def _gen_qualifiers(self, field_name, field_value, inclusive):
         if field_value is not None:
             field_origin = self.origin.just_line().with_offset(
-                self.field_offset_map[field_name])
+                self.field_offset_map[field_name]
+            )
             matchers_gen = self.parse_matchers(field_value)
             for lineno_offset, matcher_field, matcher, error in matchers_gen:
                 if error is not None:
@@ -422,27 +449,31 @@ class TestPlanUnit(UnitWithId):
                 elif isinstance(node.pattern, RePattern):
                     text = node.pattern.text
                     # Ensure that pattern is surrounded by ^ and $
-                    if text.startswith('^') and text.endswith('$'):
-                        target_id_pattern = '^{}$'.format(
-                            outer_self.qualify_id(text[1:-1]))
-                    elif text.startswith('^'):
-                        target_id_pattern = '^{}$'.format(
-                            outer_self.qualify_id(text[1:]))
-                    elif text.endswith('$'):
-                        target_id_pattern = '^{}$'.format(
-                            outer_self.qualify_id(text[:-1]))
+                    if text.startswith("^") and text.endswith("$"):
+                        target_id_pattern = "^{}$".format(
+                            outer_self.qualify_id(text[1:-1])
+                        )
+                    elif text.startswith("^"):
+                        target_id_pattern = "^{}$".format(
+                            outer_self.qualify_id(text[1:])
+                        )
+                    elif text.endswith("$"):
+                        target_id_pattern = "^{}$".format(
+                            outer_self.qualify_id(text[:-1])
+                        )
                     else:
-                        target_id_pattern = '^{}$'.format(
-                            outer_self.qualify_id(text))
+                        target_id_pattern = "^{}$".format(
+                            outer_self.qualify_id(text)
+                        )
                     matcher = PatternMatcher(target_id_pattern)
                     error = None
-                result = (node.lineno, 'id', matcher, error)
+                result = (node.lineno, "id", matcher, error)
                 self.results.append(result)
 
             def visit_Error_node(self, node: Error):
                 # we're just faking an exception object here
                 error = ValueError(node.msg)
-                result = (node.lineno, 'id', None, error)
+                result = (node.lineno, "id", None, error)
                 self.results.append(result)
 
         visitor = IncludeStmtVisitor()
@@ -479,9 +510,11 @@ class TestPlanUnit(UnitWithId):
             def visit_FieldOverride_node(self, node: FieldOverride):
                 category_id = outer_self.qualify_id(node.value.text)
                 regexp_pattern = r"^{}$".format(
-                    outer_self.qualify_id(node.pattern.text))
+                    outer_self.qualify_id(node.pattern.text)
+                )
                 self.override_list.append(
-                    (node.lineno, category_id, regexp_pattern))
+                    (node.lineno, category_id, regexp_pattern)
+                )
 
             def visit_Error_node(self, node: Error):
                 raise ValueError(node.msg)
@@ -504,7 +537,8 @@ class TestPlanUnit(UnitWithId):
         effective_map = {job.id: job.category_id for job in job_list}
         if self.category_overrides is not None:
             overrides_gen = self.parse_category_overrides(
-                self.category_overrides)
+                self.category_overrides
+            )
             for lineno_offset, category_id, pattern in overrides_gen:
                 for job in job_list:
                     if re.match(pattern, job.id):
@@ -523,41 +557,43 @@ class TestPlanUnit(UnitWithId):
         """
         if self.category_overrides is not None:
             overrides_gen = self.parse_category_overrides(
-                self.category_overrides)
+                self.category_overrides
+            )
             for lineno_offset, category_id, pattern in overrides_gen:
                 if re.match(pattern, job.id):
                     return category_id
         return job.category_id
 
     def qualify_pattern(self, pattern):
-        """ qualify bare pattern (without ^ and $) """
-        if pattern.startswith('^') and pattern.endswith('$'):
-            return '^{}$'.format(self.qualify_id(pattern[1:-1]))
-        elif pattern.startswith('^'):
-            return '^{}$'.format(self.qualify_id(pattern[1:]))
-        elif pattern.endswith('$'):
-            return '^{}$'.format(self.qualify_id(pattern[:-1]))
+        """qualify bare pattern (without ^ and $)"""
+        if pattern.startswith("^") and pattern.endswith("$"):
+            return "^{}$".format(self.qualify_id(pattern[1:-1]))
+        elif pattern.startswith("^"):
+            return "^{}$".format(self.qualify_id(pattern[1:]))
+        elif pattern.endswith("$"):
+            return "^{}$".format(self.qualify_id(pattern[:-1]))
         else:
-            return '^{}$'.format(self.qualify_id(pattern))
+            return "^{}$".format(self.qualify_id(pattern))
 
     class Meta:
 
-        name = 'test plan'
+        name = "test plan"
 
         class fields(SymbolDef):
             """
             Symbols for each field that a TestPlan can have
             """
-            name = 'name'
-            description = 'description'
-            include = 'include'
-            mandatory_include = 'mandatory_include'
-            bootstrap_include = 'bootstrap_include'
-            exclude = 'exclude'
-            nested_part = 'nested_part'
-            estimated_duration = 'estimated_duration'
-            icon = 'icon'
-            category_overrides = 'category-overrides'
+
+            name = "name"
+            description = "description"
+            include = "include"
+            mandatory_include = "mandatory_include"
+            bootstrap_include = "bootstrap_include"
+            exclude = "exclude"
+            nested_part = "nested_part"
+            estimated_duration = "estimated_duration"
+            icon = "icon"
+            category_overrides = "category-overrides"
 
         field_validators = {
             fields.name: [
@@ -584,12 +620,18 @@ class TestPlanUnit(UnitWithId):
                     lambda unit: unit.get_bootstrap_job_ids(),
                     constraints=[
                         ReferenceConstraint(
-                            lambda referrer, referee: referee.unit == 'job',
-                            message=_("the referenced unit is not a job")),
+                            lambda referrer, referee: referee.unit == "job",
+                            message=_("the referenced unit is not a job"),
+                        ),
                         ReferenceConstraint(
                             lambda referrer, referee: referee.automated,
-                            message=_("only automated jobs are allowed "
-                                      "in bootstrapping_include"))])
+                            message=_(
+                                "only automated jobs are allowed "
+                                "in bootstrapping_include"
+                            ),
+                        ),
+                    ],
+                ),
             ],
             fields.estimated_duration: [
                 concrete_validators.untranslatable,
@@ -668,10 +710,8 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
 
     def _get_qualifier(self, testplan):
         qual_list = []
-        qual_list.extend(
-            self._get_qualifier_for(testplan, 'include', True))
-        qual_list.extend(
-            self._get_qualifier_for(testplan, 'exclude', False))
+        qual_list.extend(self._get_qualifier_for(testplan, "include", True))
+        qual_list.extend(self._get_qualifier_for(testplan, "exclude", False))
         return CompositeQualifier(qual_list)
 
     def _get_qualifier_for(self, testplan, field_name, inclusive):
@@ -679,13 +719,15 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
         if field_value is None:
             return []
         field_origin = testplan.origin.just_line().with_offset(
-            testplan.field_offset_map[field_name])
+            testplan.field_offset_map[field_name]
+        )
         matchers_gen = self._get_matchers(testplan, field_value)
         results = []
         for lineno_offset, matcher_field, matcher in matchers_gen:
             offset = field_origin.with_offset(lineno_offset)
             results.append(
-                FieldQualifier(matcher_field, matcher, offset, inclusive))
+                FieldQualifier(matcher_field, matcher, offset, inclusive)
+            )
         return results
 
     def _get_matchers(self, testplan, text):
@@ -726,7 +768,7 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
                 elif isinstance(node.pattern, RePattern):
                     pattern = testplan.qualify_pattern(node.pattern.text)
                     matcher = PatternMatcher(pattern)
-                result = (node.lineno, 'id', matcher)
+                result = (node.lineno, "id", matcher)
                 results.append(result)
 
         V().visit(IncludeStmtList.parse(text, 0))
@@ -755,13 +797,16 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
         for pattern, field, value in self._get_category_overrides(testplan):
             override_map[pattern].append((field, value))
         for pattern, field, value in self._get_blocker_status_overrides(
-                testplan):
+            testplan
+        ):
             override_map[pattern].append((field, value))
-        return sorted((key, field_value_list)
-                      for key, field_value_list in override_map.items())
+        return sorted(
+            (key, field_value_list)
+            for key, field_value_list in override_map.items()
+        )
 
     def _get_category_overrides(
-            self, testplan: TestPlanUnit
+        self, testplan: TestPlanUnit
     ) -> "List[Tuple[str, str, str]]]":
         """
         Look at the category overrides and collect refined data about what
@@ -780,8 +825,9 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
             def visit_FieldOverride_node(self, node: FieldOverride):
                 category_id = testplan.qualify_id(node.value.text)
                 pattern = r"^{}$".format(
-                    testplan.qualify_id(node.pattern.text))
-                override_list.append((pattern, 'category_id', category_id))
+                    testplan.qualify_id(node.pattern.text)
+                )
+                override_list.append((pattern, "category_id", category_id))
 
         V().visit(OverrideFieldList.parse(testplan.category_overrides))
         for tp_unit in testplan.get_nested_part():
@@ -789,7 +835,7 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
         return override_list
 
     def _get_blocker_status_overrides(
-            self, testplan: TestPlanUnit
+        self, testplan: TestPlanUnit
     ) -> "List[Tuple[str, str, str]]]":
         """
         Look at the certification blocker status overrides and collect refined
@@ -807,18 +853,23 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
                 def visit_FieldOverride_node(self, node: FieldOverride):
                     blocker_status = node.value.text
                     pattern = r"^{}$".format(
-                        testplan.qualify_id(node.pattern.text))
+                        testplan.qualify_id(node.pattern.text)
+                    )
                     override_list.append(
-                        (pattern, 'certification_status', blocker_status))
+                        (pattern, "certification_status", blocker_status)
+                    )
 
-            V().visit(OverrideFieldList.parse(
-                testplan.certification_status_overrides))
+            V().visit(
+                OverrideFieldList.parse(
+                    testplan.certification_status_overrides
+                )
+            )
         for tp_unit in testplan.get_nested_part():
             override_list.extend(self._get_blocker_status_overrides(tp_unit))
         return override_list
 
     def _get_inline_overrides(
-            self, testplan: TestPlanUnit
+        self, testplan: TestPlanUnit
     ) -> "List[Tuple[str, List[Tuple[str, str]]]]":
         """
         Look at the include field of a test plan and collect all of the in-line
@@ -826,18 +877,24 @@ PatternMatcher('^job-[x-z]$'), inclusive=False)])
         collected into a list of tuples ``(field, value)`` and this list is
         subsequently packed into a tuple ``(pattern, field_value_list)``.
         """
+
         class V(Visitor):
 
             def visit_IncludeStmt_node(self, node: IncludeStmt):
                 if not node.overrides:
                     return
                 pattern = r"^{}$".format(
-                    testplan.qualify_id(node.pattern.text))
+                    testplan.qualify_id(node.pattern.text)
+                )
                 field_value_list = [
-                    (override_exp.field.text.replace('-', '_'),
-                     override_exp.value.text)
-                    for override_exp in node.overrides]
+                    (
+                        override_exp.field.text.replace("-", "_"),
+                        override_exp.value.text,
+                    )
+                    for override_exp in node.overrides
+                ]
                 override_list.append((pattern, field_value_list))
+
         override_list = []
         include_sections = (
             testplan.bootstrap_include,

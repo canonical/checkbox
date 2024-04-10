@@ -40,12 +40,11 @@ logger = getLogger("plainbox.depmgr")
 
 
 class DependencyError(Exception, metaclass=ABCMeta):
-
-    """ Exception raised when a dependency error is detected. """
+    """Exception raised when a dependency error is detected."""
 
     @abstractproperty
     def affected_job(self):
-        """ job that is affected by the dependency error. """
+        """job that is affected by the dependency error."""
 
     @abstractproperty
     def affecting_job(self):
@@ -61,7 +60,6 @@ class DependencyError(Exception, metaclass=ABCMeta):
 
 
 class DependencyUnknownError(DependencyError):
-
     """
     Exception raised when an unknown job is mentioned.
 
@@ -72,7 +70,7 @@ class DependencyUnknownError(DependencyError):
     """
 
     def __init__(self, job):
-        """ Initialize a new DependencyUnknownError with a given job. """
+        """Initialize a new DependencyUnknownError with a given job."""
         self.job = job
 
     @property
@@ -93,27 +91,26 @@ class DependencyUnknownError(DependencyError):
         """
 
     def __str__(self):
-        """ Get a printable description of an error. """
+        """Get a printable description of an error."""
         return _("unknown job referenced: {!a}").format(self.job.id)
 
     def __repr__(self):
-        """ Get a debugging representation of an error. """
+        """Get a debugging representation of an error."""
         return "<{} job:{!r}>".format(self.__class__.__name__, self.job)
 
     def __eq__(self, other):
-        """ Check if one error is equal to another. """
+        """Check if one error is equal to another."""
         if not isinstance(other, DependencyUnknownError):
             return NotImplemented
         return self.job == other.job
 
     def __hash__(self):
-        """ Calculate the hash of an error. """
+        """Calculate the hash of an error."""
         return hash((self.job,))
 
 
 class DependencyCycleError(DependencyError):
-
-    """ Exception raised when a cyclic dependency is detected. """
+    """Exception raised when a cyclic dependency is detected."""
 
     def __init__(self, job_list):
         """
@@ -149,26 +146,27 @@ class DependencyCycleError(DependencyError):
         return self.affected_job
 
     def __str__(self):
-        """ Get a printable description of an error. """
+        """Get a printable description of an error."""
         return _("dependency cycle detected: {}").format(
-            " -> ".join([job.id for job in self.job_list]))
+            " -> ".join([job.id for job in self.job_list])
+        )
 
     def __repr__(self):
-        """ Get a debugging representation of an error. """
+        """Get a debugging representation of an error."""
         return "<{} job_list:{!r}>".format(
-            self.__class__.__name__, self.job_list)
+            self.__class__.__name__, self.job_list
+        )
 
 
 class DependencyMissingError(DependencyError):
-
-    """ Exception raised when a job has an unsatisfied dependency.  """
+    """Exception raised when a job has an unsatisfied dependency."""
 
     DEP_TYPE_RESOURCE = "resource"
     DEP_TYPE_DIRECT = "direct"
     DEP_TYPE_ORDERING = "ordering"
 
     def __init__(self, job, missing_job_id, dep_type):
-        """ Initialize a new error with given data. """
+        """Initialize a new error with given data."""
         self.job = job
         self.missing_job_id = missing_job_id
         self.dep_type = dep_type
@@ -192,35 +190,40 @@ class DependencyMissingError(DependencyError):
         """
 
     def __str__(self):
-        """ Get a printable description of an error. """
+        """Get a printable description of an error."""
         return _("missing dependency: {!r} ({})").format(
-            self.missing_job_id, self.dep_type)
+            self.missing_job_id, self.dep_type
+        )
 
     def __repr__(self):
-        """ Get a debugging representation of an error. """
+        """Get a debugging representation of an error."""
         return "<{} job:{!r} missing_job_id:{!r} dep_type:{!r}>".format(
             self.__class__.__name__,
-            self.job, self.missing_job_id, self.dep_type)
+            self.job,
+            self.missing_job_id,
+            self.dep_type,
+        )
 
     def __eq__(self, other):
-        """ Check if one error is equal to another. """
+        """Check if one error is equal to another."""
         if not isinstance(other, DependencyMissingError):
             return NotImplemented
-        return (self.job == other.job
-                and self.missing_job_id == other.missing_job_id
-                and self.dep_type == other.dep_type)
+        return (
+            self.job == other.job
+            and self.missing_job_id == other.missing_job_id
+            and self.dep_type == other.dep_type
+        )
 
     def __hash__(self):
-        """ Calculate the hash of an error. """
+        """Calculate the hash of an error."""
         return hash((self.job, self.missing_job_id, self.dep_type))
 
 
 class DependencyDuplicateError(DependencyError):
-
-    """ Exception raised when two jobs have the same id.  """
+    """Exception raised when two jobs have the same id."""
 
     def __init__(self, job, duplicate_job):
-        """ Initialize a new error with given data. """
+        """Initialize a new error with given data."""
         assert job.id == duplicate_job.id
         self.job = job
         self.duplicate_job = duplicate_job
@@ -245,17 +248,17 @@ class DependencyDuplicateError(DependencyError):
         return self.duplicate_job
 
     def __str__(self):
-        """ Get a printable description of an error. """
+        """Get a printable description of an error."""
         return _("duplicate job id: {!r}").format(self.affected_job.id)
 
     def __repr__(self):
-        """ Get a debugging representation of an error. """
+        """Get a debugging representation of an error."""
         return "<{} job:{!r} duplicate_job:{!r}>".format(
-            self.__class__.__name__, self.job, self.duplicate_job)
+            self.__class__.__name__, self.job, self.duplicate_job
+        )
 
 
 class Color(enum.Enum):
-
     """
     Three classic colors for recursive graph visitor.
 
@@ -268,13 +271,12 @@ class Color(enum.Enum):
         For nodes that have been visited and are complete.
     """
 
-    WHITE = 'white'
-    GRAY = 'gray'
-    BLACK = 'black'
+    WHITE = "white"
+    GRAY = "gray"
+    BLACK = "black"
 
 
 class DependencySolver:
-
     """
     Dependency solver for Jobs.
 
@@ -376,8 +378,9 @@ class DependencySolver:
                 try:
                     next_job = self._job_map[job_id]
                 except KeyError:
-                    logger.debug(_("Found missing dependency: %r from %r"),
-                                 job_id, job)
+                    logger.debug(
+                        _("Found missing dependency: %r from %r"), job_id, job
+                    )
                     raise DependencyMissingError(job, job_id, dep_type)
                 else:
                     # For each dependency that we visit let's reuse the trail
@@ -397,7 +400,7 @@ class DependencySolver:
             # so we've found a dependency loop. We need to cut the initial
             # part of the trail so that we only report the part that actually
             # forms a loop
-            trail = trail[trail.index(job):]
+            trail = trail[trail.index(job) :]
             logger.debug(_("Found dependency cycle: %r"), trail)
             raise DependencyCycleError(trail)
         else:

@@ -49,7 +49,7 @@ N_("Exporters Provider")
 class DevelopCommandExt(DevelopCommand):
     __doc__ = DevelopCommand.__doc__
 
-    name = 'develop'
+    name = "develop"
 
     def invoked(self, ns):
         print(_("The Exporters provider is special"))
@@ -60,7 +60,7 @@ class DevelopCommandExt(DevelopCommand):
 class InstallCommandExt(InstallCommand):
     __doc__ = InstallCommand.__doc__
 
-    name = 'install'
+    name = "install"
 
     def invoked(self, ns):
         print(_("The Exporters provider is special"))
@@ -70,10 +70,11 @@ class InstallCommandExt(InstallCommand):
 if __name__ == "__main__":
     if exporters_def.effective_locale_dir:
         bindtextdomain(
-            exporters_def.gettext_domain, exporters_def.effective_locale_dir)
+            exporters_def.gettext_domain, exporters_def.effective_locale_dir
+        )
     setup(
         name=exporters_def.name,
         version=exporters_def.version,
         description=exporters_def.description,
-        gettext_domain=exporters_def.gettext_domain
+        gettext_domain=exporters_def.gettext_domain,
     )

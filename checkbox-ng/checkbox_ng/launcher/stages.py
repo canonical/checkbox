@@ -99,7 +99,7 @@ class MainLoopStage(CheckboxUiStage):
         print(_("ID: {0}").format(job.id))
         print(_("Category: {0}").format(job_state.effective_category_id))
         comments = ""
-        self.sa.note_metadata_starting_job({"id" : job.id}, job_state)
+        self.sa.note_metadata_starting_job({"id": job.id}, job_state)
         while True:
             if job.plugin in (
                 "user-interact",

@@ -28,11 +28,10 @@ from plainbox.impl.unit.validators import MemberOfFieldValidator
 logger = logging.getLogger("plainbox.unit.manifest")
 
 
-__all__ = ('ManifestEntryUnit', )
+__all__ = ("ManifestEntryUnit",)
 
 
 class ManifestEntryUnit(UnitWithId):
-
     """
     Unit representing a single entry in a hardware specification manifest.
 
@@ -43,20 +42,20 @@ class ManifestEntryUnit(UnitWithId):
 
     @property
     def name(self):
-        """ Name of the entry. """
-        return self.get_record_value('name')
+        """Name of the entry."""
+        return self.get_record_value("name")
 
     def tr_name(self):
-        """ Name of the entry (translated). """
-        return self.get_translated_record_value('name')
+        """Name of the entry (translated)."""
+        return self.get_translated_record_value("name")
 
     def prompt(self):
-        """ Prompt presented when a human is asked for the value. """
-        return self.get_record_value('prompt')
+        """Prompt presented when a human is asked for the value."""
+        return self.get_record_value("prompt")
 
     def tr_prompt(self):
-        """ Prompt presented (translated). """
-        return self.get_translated_record_value('prompt')
+        """Prompt presented (translated)."""
+        return self.get_translated_record_value("prompt")
 
     @property
     def value_type(self):
@@ -67,7 +66,7 @@ class ManifestEntryUnit(UnitWithId):
         only ``"natural"`` and ``"bool"`` are supported. This value is loaded
         from the ``value-type`` field.
         """
-        return self.get_record_value('value-type')
+        return self.get_record_value("value-type")
 
     @property
     def value_unit(self):
@@ -77,7 +76,7 @@ class ManifestEntryUnit(UnitWithId):
         Typically this will be the unit in which the quantity is measured, e.g.
         "Mbit", "GB". This value is loaded from the ``value-unit`` field.
         """
-        return self.get_record_value('value-unit')
+        return self.get_record_value("value-unit")
 
     @property
     def resource_key(self):
@@ -87,21 +86,20 @@ class ManifestEntryUnit(UnitWithId):
         This value is loaded from the ``resource-key`` field. It defaults to
         the partial identifier of the unit.
         """
-        return self.get_record_value('resource-key', self.partial_id)
+        return self.get_record_value("resource-key", self.partial_id)
 
     class Meta:
 
-        name = 'manifest entry'
+        name = "manifest entry"
 
         class fields(SymbolDef):
+            """Symbols for each field that a ManifestEntry can have."""
 
-            """ Symbols for each field that a ManifestEntry can have. """
-
-            name = 'name'
-            prompt = 'prompt'
-            value_type = 'value-type'
-            value_unit = 'value-unit'
-            resource_key = 'resource-key'
+            name = "name"
+            prompt = "prompt"
+            value_type = "value-type"
+            value_unit = "value-unit"
+            resource_key = "resource-key"
 
         field_validators = {
             fields.name: [
@@ -115,12 +113,10 @@ class ManifestEntryUnit(UnitWithId):
             fields.value_type: [
                 concrete_validators.untranslatable,
                 concrete_validators.present,
-                MemberOfFieldValidator(['bool', 'natural']),
+                MemberOfFieldValidator(["bool", "natural"]),
             ],
             fields.value_unit: [
                 # OPTIONAL
             ],
-            fields.resource_key: [
-                concrete_validators.untranslatable
-            ]
+            fields.resource_key: [concrete_validators.untranslatable],
         }

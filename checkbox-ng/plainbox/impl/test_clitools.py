@@ -50,6 +50,7 @@ class TestCommandBase(TestCase):
         """
         verify various modes of CommandBase.get_command_name()
         """
+
         # If class has a name attribute, just use it
         class TheFooCmd(DummyCommand):
             name = "foo"
@@ -72,6 +73,7 @@ class TestCommandBase(TestCase):
         """
         verify various modes of CommandBase.get_command_help()
         """
+
         # If class has a help attribute, just use it
         class Foo(DummyCommand):
             help = "help text"
@@ -98,6 +100,7 @@ class TestCommandBase(TestCase):
         """
         verify various modes of CommandBase.get_command_description()
         """
+
         # If class has a description attribute, just use it
         class Foo(DummyCommand):
             description = "description"
@@ -139,6 +142,7 @@ class TestCommandBase(TestCase):
         """
         verify various modes of CommandBase.get_command_epilog()
         """
+
         # If class has a epilog attribute, just use it
         class Foo(DummyCommand):
             epilog = "epilog"

@@ -65,7 +65,8 @@ class PlugInTests(TestCase):
         self.assertEqual(PlugIn(self.NAME, self.OBJ).plugin_load_time, 0)
         self.assertEqual(
             PlugIn(self.NAME, self.OBJ, self.LOAD_TIME).plugin_load_time,
-            self.LOAD_TIME)
+            self.LOAD_TIME,
+        )
 
     def test_plugin_wrap_time(self):
         """
@@ -140,7 +141,8 @@ class PlugInCollectionBaseTests(TestCase):
         """
         with self.col.fake_plugins([self.plug1]):
             self.assertEqual(
-                self.col.get_by_name(self.plug1.plugin_name), self.plug1)
+                self.col.get_by_name(self.plug1.plugin_name), self.plug1
+            )
 
     def test_get_by_name__missing(self):
         """
@@ -157,7 +159,8 @@ class PlugInCollectionBaseTests(TestCase):
         with self.col.fake_plugins([self.plug1, self.plug2]):
             self.assertEqual(
                 self.col.get_all_names(),
-                [self.plug1.plugin_name, self.plug2.plugin_name])
+                [self.plug1.plugin_name, self.plug2.plugin_name],
+            )
 
     def test_get_all_plugins(self):
         """
@@ -165,7 +168,8 @@ class PlugInCollectionBaseTests(TestCase):
         """
         with self.col.fake_plugins([self.plug1, self.plug2]):
             self.assertEqual(
-                self.col.get_all_plugins(), [self.plug1, self.plug2])
+                self.col.get_all_plugins(), [self.plug1, self.plug2]
+            )
 
     def test_get_all_plugin_objects(self):
         """
@@ -174,7 +178,8 @@ class PlugInCollectionBaseTests(TestCase):
         with self.col.fake_plugins([self.plug1, self.plug2]):
             self.assertEqual(
                 self.col.get_all_plugin_objects(),
-                [self.plug1.plugin_object, self.plug2.plugin_object])
+                [self.plug1.plugin_object, self.plug2.plugin_object],
+            )
 
     def test_get_items(self):
         """
@@ -183,8 +188,11 @@ class PlugInCollectionBaseTests(TestCase):
         with self.col.fake_plugins([self.plug1, self.plug2]):
             self.assertEqual(
                 self.col.get_all_items(),
-                [(self.plug1.plugin_name, self.plug1),
-                 (self.plug2.plugin_name, self.plug2)])
+                [
+                    (self.plug1.plugin_name, self.plug1),
+                    (self.plug2.plugin_name, self.plug2),
+                ],
+            )
 
     def test_problem_list(self):
         """
@@ -208,9 +216,15 @@ class PlugInCollectionBaseTests(TestCase):
         with self.col.fake_plugins(fake_plugins):
             # ensure that we don't have canaries here
             self.assertEqual(self.col._loaded, True)
-            self.assertEqual(self.col._plugins, collections.OrderedDict([
-                (self.plug1.plugin_name, self.plug1),
-                (self.plug2.plugin_name, self.plug2)]))
+            self.assertEqual(
+                self.col._plugins,
+                collections.OrderedDict(
+                    [
+                        (self.plug1.plugin_name, self.plug1),
+                        (self.plug2.plugin_name, self.plug2),
+                    ]
+                ),
+            )
             self.assertEqual(self.col._problem_list, [])
         # ensure that we see canaries outside of the context manager
         self.assertEqual(self.col._loaded, canary)
@@ -235,9 +249,15 @@ class PlugInCollectionBaseTests(TestCase):
         with self.col.fake_plugins(fake_plugins, fake_problems):
             # ensure that we don't have canaries here
             self.assertEqual(self.col._loaded, True)
-            self.assertEqual(self.col._plugins, collections.OrderedDict([
-                (self.plug1.plugin_name, self.plug1),
-                (self.plug2.plugin_name, self.plug2)]))
+            self.assertEqual(
+                self.col._plugins,
+                collections.OrderedDict(
+                    [
+                        (self.plug1.plugin_name, self.plug1),
+                        (self.plug2.plugin_name, self.plug2),
+                    ]
+                ),
+            )
             self.assertEqual(self.col._problem_list, fake_problems)
         # ensure that we see canaries outside of the context manager
         self.assertEqual(self.col._loaded, canary)
@@ -250,14 +270,15 @@ class PlugInCollectionBaseTests(TestCase):
         """
         self.col.wrap_and_add_plugin("new-name", "new-obj", self.LOAD_TIME)
         self.assertIn("new-name", self.col._plugins)
+        self.assertEqual(self.col._plugins["new-name"].plugin_name, "new-name")
         self.assertEqual(
-            self.col._plugins["new-name"].plugin_name, "new-name")
+            self.col._plugins["new-name"].plugin_object, "new-obj"
+        )
         self.assertEqual(
-            self.col._plugins["new-name"].plugin_object, "new-obj")
-        self.assertEqual(
-            self.col._plugins["new-name"].plugin_load_time, self.LOAD_TIME)
+            self.col._plugins["new-name"].plugin_load_time, self.LOAD_TIME
+        )
 
-    @mock.patch('plainbox.impl.secure.plugins.logger')
+    @mock.patch("plainbox.impl.secure.plugins.logger")
     def test_wrap_and_add_plugin__problem(self, mock_logger):
         """
         verify that PlugInCollectionBase.wrap_and_add_plugin() works when a
@@ -266,25 +287,30 @@ class PlugInCollectionBaseTests(TestCase):
         with mock.patch.object(self.col, "_wrapper") as mock_wrapper:
             mock_wrapper.side_effect = PlugInError
             self.col.wrap_and_add_plugin("new-name", "new-obj", self.LOAD_TIME)
-            mock_wrapper.assert_called_with("new-name", "new-obj",
-                                            self.LOAD_TIME)
+            mock_wrapper.assert_called_with(
+                "new-name", "new-obj", self.LOAD_TIME
+            )
         self.assertIsInstance(self.col.problem_list[0], PlugInError)
         self.assertNotIn("new-name", self.col._plugins)
         mock_logger.warning.assert_called_once_with(
-            "Unable to prepare plugin %s: %s", "new-name", PlugInError())
+            "Unable to prepare plugin %s: %s", "new-name", PlugInError()
+        )
 
     def test_extra_wrapper_args(self):
         """
         verify that PlugInCollectionBase passes extra arguments to the wrapper
         """
+
         class TestPlugIn(PlugIn):
 
             def __init__(self, name, obj, load_time, *args, **kwargs):
                 super().__init__(name, obj, load_time)
                 self.args = args
                 self.kwargs = kwargs
+
         col = DummyPlugInCollection(
-            False, TestPlugIn, 1, 2, 3, some="argument")
+            False, TestPlugIn, 1, 2, 3, some="argument"
+        )
         col.wrap_and_add_plugin("name", "obj", self.LOAD_TIME)
         self.assertEqual(col._plugins["name"].args, (1, 2, 3))
         self.assertEqual(col._plugins["name"].kwargs, {"some": "argument"})
@@ -317,7 +343,7 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         # Ensure that the wrapper is :class:`PlugIn`
         self.assertEqual(self.col._wrapper, PlugIn)
 
-    @mock.patch('pkg_resources.iter_entry_points')
+    @mock.patch("pkg_resources.iter_entry_points")
     def test_load(self, mock_iter):
         # Create a mocked entry point
         mock_ep1 = mock.Mock()
@@ -337,8 +363,8 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         mock_ep1.load.assert_called_with()
         mock_ep2.load.assert_called_with()
 
-    @mock.patch('plainbox.impl.secure.plugins.logger')
-    @mock.patch('pkg_resources.iter_entry_points')
+    @mock.patch("plainbox.impl.secure.plugins.logger")
+    @mock.patch("pkg_resources.iter_entry_points")
     def test_load_failing(self, mock_iter, mock_logger):
         # Create a mocked entry point
         mock_ep1 = mock.Mock()
@@ -359,7 +385,8 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         mock_ep2.load.assert_called_with()
         # Ensure that an exception was logged
         mock_logger.exception.assert_called_with(
-            "Unable to import %s", mock_ep2)
+            "Unable to import %s", mock_ep2
+        )
         # Ensure that the error was collected
         self.assertIsInstance(self.col.problem_list[0], ImportError)
 
@@ -395,44 +422,46 @@ class FsPlugInCollectionTests(TestCase):
         # Ensure that the wrapper is :class:`PlugIn`
         self.assertEqual(self.col._wrapper, PlugIn)
 
-    @mock.patch('plainbox.impl.secure.plugins.logger')
-    @mock.patch('builtins.open')
-    @mock.patch('os.path.isfile')
-    @mock.patch('os.listdir')
+    @mock.patch("plainbox.impl.secure.plugins.logger")
+    @mock.patch("builtins.open")
+    @mock.patch("os.path.isfile")
+    @mock.patch("os.listdir")
     def test_load(self, mock_listdir, mock_isfile, mock_open, mock_logger):
         # Mock a bit of filesystem access methods to make some plugins show up
         def fake_listdir(path):
             if path == self._P1:
                 return [
                     # A regular plugin
-                    'foo.plugin',
+                    "foo.plugin",
                     # Another regular plugin
-                    'bar.plugin',
+                    "bar.plugin",
                     # Unrelated file, not a plugin
-                    'unrelated.txt',
+                    "unrelated.txt",
                     # A directory that looks like a plugin
-                    'dir.bad.plugin',
+                    "dir.bad.plugin",
                     # A plugin without read permissions
-                    'noperm.plugin']
+                    "noperm.plugin",
+                ]
             else:
                 raise OSError("There is nothing in {}".format(path))
 
         def fake_isfile(path):
-            return not os.path.basename(path).startswith('dir.')
+            return not os.path.basename(path).startswith("dir.")
 
         def fake_open(path, encoding=None, mode=None):
-            m = mock.MagicMock(name='opened file {!r}'.format(path))
+            m = mock.MagicMock(name="opened file {!r}".format(path))
             m.__enter__.return_value = m
-            if path == os.path.join(self._P1, 'foo.plugin'):
+            if path == os.path.join(self._P1, "foo.plugin"):
                 m.read.return_value = "foo"
                 return m
-            elif path == os.path.join(self._P1, 'bar.plugin'):
+            elif path == os.path.join(self._P1, "bar.plugin"):
                 m.read.return_value = "bar"
                 return m
-            elif path == os.path.join(self._P1, 'noperm.plugin'):
+            elif path == os.path.join(self._P1, "noperm.plugin"):
                 raise OSError("You cannot open this file")
             else:
                 raise IOError("Unexpected file: {}".format(path))
+
         mock_listdir.side_effect = fake_listdir
         mock_isfile.side_effect = fake_isfile
         mock_open.side_effect = fake_open
@@ -442,45 +471,56 @@ class FsPlugInCollectionTests(TestCase):
         self.col.load()
         # Ensure that we actually tried to look at the filesytstem
         self.assertEqual(
-            mock_listdir.call_args_list, [
-                ((self._P1, ), {}),
-                ((self._P2, ), {})
-            ])
+            mock_listdir.call_args_list, [((self._P1,), {}), ((self._P2,), {})]
+        )
         # Ensure that we actually tried to check if things are files
         self.assertEqual(
-            mock_isfile.call_args_list, [
-                ((os.path.join(self._P1, 'foo.plugin'),), {}),
-                ((os.path.join(self._P1, 'bar.plugin'),), {}),
-                ((os.path.join(self._P1, 'dir.bad.plugin'),), {}),
-                ((os.path.join(self._P1, 'noperm.plugin'),), {}),
-            ])
+            mock_isfile.call_args_list,
+            [
+                ((os.path.join(self._P1, "foo.plugin"),), {}),
+                ((os.path.join(self._P1, "bar.plugin"),), {}),
+                ((os.path.join(self._P1, "dir.bad.plugin"),), {}),
+                ((os.path.join(self._P1, "noperm.plugin"),), {}),
+            ],
+        )
         # Ensure that we actually tried to open some files
         self.assertEqual(
-            mock_open.call_args_list, [
-                ((os.path.join(self._P1, 'bar.plugin'),),
-                 {'encoding': 'UTF-8'}),
-                ((os.path.join(self._P1, 'foo.plugin'),),
-                 {'encoding': 'UTF-8'}),
-                ((os.path.join(self._P1, 'noperm.plugin'),),
-                 {'encoding': 'UTF-8'}),
-            ])
+            mock_open.call_args_list,
+            [
+                (
+                    (os.path.join(self._P1, "bar.plugin"),),
+                    {"encoding": "UTF-8"},
+                ),
+                (
+                    (os.path.join(self._P1, "foo.plugin"),),
+                    {"encoding": "UTF-8"},
+                ),
+                (
+                    (os.path.join(self._P1, "noperm.plugin"),),
+                    {"encoding": "UTF-8"},
+                ),
+            ],
+        )
         # Ensure that an exception was logged
         mock_logger.error.assert_called_with(
-            'Unable to load %r: %s',
-            '/system/providers/noperm.plugin',
-            'You cannot open this file')
+            "Unable to load %r: %s",
+            "/system/providers/noperm.plugin",
+            "You cannot open this file",
+        )
         # Ensure that all of the errors are collected
         # Using repr() since OSError seems hard to compare correctly
         self.assertEqual(
             repr(self.col.problem_list[0]),
-            repr(OSError('You cannot open this file')))
+            repr(OSError("You cannot open this file")),
+        )
 
-    @mock.patch('plainbox.impl.secure.plugins.logger')
-    @mock.patch('builtins.open')
-    @mock.patch('os.path.isfile')
-    @mock.patch('os.listdir')
-    def test_load__two_extensions(self, mock_listdir, mock_isfile, mock_open,
-                                  mock_logger):
+    @mock.patch("plainbox.impl.secure.plugins.logger")
+    @mock.patch("builtins.open")
+    @mock.patch("os.path.isfile")
+    @mock.patch("os.listdir")
+    def test_load__two_extensions(
+        self, mock_listdir, mock_isfile, mock_open, mock_logger
+    ):
         """
         verify that FsPlugInCollection works with multiple extensions
         """
@@ -488,10 +528,11 @@ class FsPlugInCollectionTests(TestCase):
         mock_isfile.return_value = True
 
         def fake_open(path, encoding=None, mode=None):
-            m = mock.MagicMock(name='opened file {!r}'.format(path))
+            m = mock.MagicMock(name="opened file {!r}".format(path))
             m.read.return_value = "text"
             m.__enter__.return_value = m
             return m
+
         mock_open.side_effect = fake_open
         # Create a collection that looks for both extensions
         col = FsPlugInCollection([self._P1], (".txt", ".txt.in"))
@@ -499,33 +540,42 @@ class FsPlugInCollectionTests(TestCase):
         col.load()
         # Ensure that we actually tried to look at the filesystem
         self.assertEqual(
-            mock_listdir.call_args_list, [
-                ((self._P1, ), {}),
-            ])
+            mock_listdir.call_args_list,
+            [
+                ((self._P1,), {}),
+            ],
+        )
         # Ensure that we actually tried to check if things are files
         self.assertEqual(
-            mock_isfile.call_args_list, [
-                ((os.path.join(self._P1, 'foo.txt'),), {}),
-                ((os.path.join(self._P1, 'bar.txt.in'),), {}),
-            ])
+            mock_isfile.call_args_list,
+            [
+                ((os.path.join(self._P1, "foo.txt"),), {}),
+                ((os.path.join(self._P1, "bar.txt.in"),), {}),
+            ],
+        )
         # Ensure that we actually tried to open some files
         self.assertEqual(
-            mock_open.call_args_list, [
-                ((os.path.join(self._P1, 'bar.txt.in'),),
-                 {'encoding': 'UTF-8'}),
-                ((os.path.join(self._P1, 'foo.txt'),),
-                 {'encoding': 'UTF-8'}),
-            ])
+            mock_open.call_args_list,
+            [
+                (
+                    (os.path.join(self._P1, "bar.txt.in"),),
+                    {"encoding": "UTF-8"},
+                ),
+                ((os.path.join(self._P1, "foo.txt"),), {"encoding": "UTF-8"}),
+            ],
+        )
         # Ensure that no exception was logged
         self.assertEqual(mock_logger.error.mock_calls, [])
         # Ensure that everything was okay
         self.assertEqual(col.problem_list, [])
         # Ensure that both files got added
         self.assertEqual(
-            col.get_by_name(
-                os.path.join(self._P1, "foo.txt")
-            ).plugin_object, "text")
+            col.get_by_name(os.path.join(self._P1, "foo.txt")).plugin_object,
+            "text",
+        )
         self.assertEqual(
             col.get_by_name(
                 os.path.join(self._P1, "bar.txt.in")
-            ).plugin_object, "text")
+            ).plugin_object,
+            "text",
+        )

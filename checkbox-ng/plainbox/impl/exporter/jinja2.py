@@ -34,6 +34,7 @@ from packaging import version
 import jinja2
 from jinja2 import Environment
 from jinja2 import FileSystemLoader
+
 try:
     from jinja2 import escape
     from jinja2.filters import environmentfilter as pass_environment
@@ -51,7 +52,7 @@ from plainbox.impl.unit.exporter import ExporterError
 
 
 #: Name-space prefix for Canonical Certification
-CERTIFICATION_NS = 'com.canonical.certification::'
+CERTIFICATION_NS = "com.canonical.certification::"
 
 
 @pass_environment
@@ -67,29 +68,33 @@ def do_strip_ns(_environment, unit_id, ns=CERTIFICATION_NS):
 
 def do_is_name(text):
     """A filter for checking if something is equal to "name"."""
-    return text == 'name'
+    return text == "name"
 
 
 def json_load_ordered_dict(text):
     """Render json dict in Jinja templates but keep keys ordering."""
-    return json.loads(
-        text, object_pairs_hook=OrderedDict)
+    return json.loads(text, object_pairs_hook=OrderedDict)
 
 
 def highlight_keys(text):
     """A filter for rendering keys as bold html text."""
-    return re.sub(r'(\w+:\s)', r'<b>\1</b>', text)
+    return re.sub(r"(\w+:\s)", r"<b>\1</b>", text)
 
 
 class Jinja2SessionStateExporter(SessionStateExporterBase):
-
     """Session state exporter that renders output using jinja2 template."""
 
-    supported_option_list = ('without-session-desc')
+    supported_option_list = "without-session-desc"
 
-    def __init__(self, option_list=None, system_id="", timestamp=None,
-                 client_version=None, client_name='plainbox',
-                 exporter_unit=None):
+    def __init__(
+        self,
+        option_list=None,
+        system_id="",
+        timestamp=None,
+        client_version=None,
+        client_name="plainbox",
+        exporter_unit=None,
+    ):
         """
         Initialize a new Jinja2SessionStateExporter with given arguments.
         """
@@ -97,8 +102,9 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         self._unit = exporter_unit
         self._system_id = system_id
         # Generate a time-stamp if needed
-        self._timestamp = (
-            timestamp or datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S"))
+        self._timestamp = timestamp or datetime.utcnow().strftime(
+            "%Y-%m-%dT%H:%M:%S"
+        )
         # Use current version unless told otherwise
         self._client_version = client_version or get_version_string()
         # Remember client name
@@ -116,15 +122,17 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         if "extra_paths" in self.data:
             paths.extend(self.data["extra_paths"])
         self.option_list = tuple(exporter_unit.option_list or ()) + tuple(
-                option_list or ())
+            option_list or ()
+        )
         loader = FileSystemLoader(paths)
         # For jinja2 version > 2.9.0 autoescape functionality is built-in,
         # no need to add extensions
-        if version.parse(jinja2.__version__) >= version.parse('2.9.0'):
+        if version.parse(jinja2.__version__) >= version.parse("2.9.0"):
             env = Environment(loader=loader)
         else:
             env = Environment(
-                loader=loader, extensions=['jinja2.ext.autoescape'])
+                loader=loader, extensions=["jinja2.ext.autoescape"]
+            )
         self.customize_environment(env)
 
         def include_file(name):
@@ -132,7 +140,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             # templates without parsing them.
             return Markup(loader.get_source(env, name)[0])
 
-        env.globals['include_file'] = include_file
+        env.globals["include_file"] = include_file
         self.template = env.get_template(exporter_unit.template)
 
     @property
@@ -148,11 +156,11 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
     def customize_environment(self, env):
         """Register filters and tests custom to the JSON exporter."""
         env.autoescape = True
-        env.filters['jsonify'] = json.dumps
-        env.filters['strip_ns'] = do_strip_ns
-        env.filters['json_load_ordered_dict'] = json_load_ordered_dict
-        env.filters['highlight_keys'] = highlight_keys
-        env.tests['is_name'] = do_is_name
+        env.filters["jsonify"] = json.dumps
+        env.filters["strip_ns"] = do_strip_ns
+        env.filters["json_load_ordered_dict"] = json_load_ordered_dict
+        env.filters["highlight_keys"] = highlight_keys
+        env.tests["is_name"] = do_is_name
 
     def dump(self, data, stream):
         """
@@ -164,7 +172,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             Byte stream to write to.
 
         """
-        self.template.stream(data).dump(stream, encoding='utf-8')
+        self.template.stream(data).dump(stream, encoding="utf-8")
 
     def dump_from_session_manager(self, session_manager, stream):
         """
@@ -184,14 +192,14 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         except ValueError:
             app_blob_data = {}
         data = {
-            'OUTCOME_METADATA_MAP': OUTCOME_METADATA_MAP,
-            'client_name': self._client_name,
-            'client_version': self._client_version,
-            'manager': session_manager,
-            'app_blob': app_blob_data,
-            'options': self.option_list,
-            'system_id': self._system_id,
-            'timestamp': self._timestamp,
+            "OUTCOME_METADATA_MAP": OUTCOME_METADATA_MAP,
+            "client_name": self._client_name,
+            "client_version": self._client_version,
+            "manager": session_manager,
+            "app_blob": app_blob_data,
+            "options": self.option_list,
+            "system_id": self._system_id,
+            "timestamp": self._timestamp,
         }
         data.update(self.data)
         self.dump(data, stream)
@@ -209,14 +217,14 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
 
         """
         data = {
-            'OUTCOME_METADATA_MAP': OUTCOME_METADATA_MAP,
-            'client_name': self._client_name,
-            'client_version': self._client_version,
-            'manager_list': session_manager_list,
-            'app_blob': {},
-            'options': self.option_list,
-            'system_id': self._system_id,
-            'timestamp': self._timestamp,
+            "OUTCOME_METADATA_MAP": OUTCOME_METADATA_MAP,
+            "client_name": self._client_name,
+            "client_version": self._client_version,
+            "manager_list": session_manager_list,
+            "app_blob": {},
+            "options": self.option_list,
+            "system_id": self._system_id,
+            "timestamp": self._timestamp,
         }
         data.update(self.data)
         self.dump(data, stream)
@@ -224,8 +232,8 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
     def get_session_data_subset(self, session_manager):
         """Compute a subset of session data."""
         return {
-            'manager': session_manager,
-            'options': self.option_list,
+            "manager": session_manager,
+            "options": self.option_list,
         }
 
     def validate(self, stream):
@@ -233,7 +241,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         pos = stream.tell()
         stream.seek(0)
         validator_fun = {
-            'json': self.validate_json,
+            "json": self.validate_json,
         }.get(self.unit.file_extension, lambda *_: [])
         problems = validator_fun(stream)
         # XXX: in case of problems we don't really need to .seek() back
@@ -251,7 +259,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         try:
             # manually reading the stream to ensure decoding
             raw = stream.read()
-            s = raw.decode('utf-8') if type(raw) == bytes else raw
+            s = raw.decode("utf-8") if type(raw) == bytes else raw
             json.loads(s)
             return []
         except Exception as exc:

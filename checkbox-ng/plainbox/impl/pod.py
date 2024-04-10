@@ -66,16 +66,24 @@ from textwrap import dedent
 from plainbox.i18n import gettext as _
 from plainbox.vendor import morris
 
-__all__ = ('POD', 'PODBase', 'podify', 'Field', 'MANDATORY', 'UNSET',
-           'read_only_assign_filter', 'type_convert_assign_filter',
-           'type_check_assign_filter', 'modify_field_docstring')
+__all__ = (
+    "POD",
+    "PODBase",
+    "podify",
+    "Field",
+    "MANDATORY",
+    "UNSET",
+    "read_only_assign_filter",
+    "type_convert_assign_filter",
+    "type_check_assign_filter",
+    "modify_field_docstring",
+)
 
 
 _logger = getLogger("plainbox.pod")
 
 
 class _Singleton:
-
     """A simple object()-like singleton that has a more useful repr()."""
 
     def __repr__(self):
@@ -83,7 +91,6 @@ class _Singleton:
 
 
 class MANDATORY(_Singleton):
-
     """
     Class for the special MANDATORY object.
 
@@ -100,7 +107,6 @@ MANDATORY = MANDATORY()
 
 
 class UNSET(_Singleton):
-
     """
     Class of the special UNSET object.
 
@@ -117,7 +123,6 @@ UNSET = UNSET()
 
 
 class Field:
-
     """
     A field in a plain-old-data class.
 
@@ -201,8 +206,16 @@ class Field:
 
     _counter = 0
 
-    def __init__(self, doc=None, type=None, initial=None, initial_fn=None,
-                 notify=False, notify_fn=None, assign_filter_list=None):
+    def __init__(
+        self,
+        doc=None,
+        type=None,
+        initial=None,
+        initial_fn=None,
+        notify=False,
+        notify_fn=None,
+        assign_filter_list=None,
+    ):
         """Initialize (define) a new POD field."""
         self.__doc__ = dedent(doc) if doc is not None else None
         self.type = type
@@ -216,12 +229,13 @@ class Field:
         self.signal_name = None  # ditto
         doc_extra = []
         for fn in self.assign_filter_list or ():
-            if hasattr(fn, 'field_docstring_ext'):
+            if hasattr(fn, "field_docstring_ext"):
                 doc_extra.append(fn.field_docstring_ext.format(field=self))
         if doc_extra:
             self.__doc__ += (
-                '\n\nSide effects of assign filters:\n'
-                + '\n'.join('  - {}'.format(extra) for extra in doc_extra))
+                "\n\nSide effects of assign filters:\n"
+                + "\n".join("  - {}".format(extra) for extra in doc_extra)
+            )
         self.counter = self.__class__._counter
         self.__class__._counter += 1
 
@@ -253,10 +267,12 @@ class Field:
             core automatically creates signals that have consistent names of
             ``on_{field}_changed()``.
         """
+
         def decorator(fn):
             self.notify = True
             self.notify_fn = fn
             return fn
+
         return decorator
 
     def __repr__(self):
@@ -299,9 +315,13 @@ class Field:
         assert self.signal_name is not None
         if not hasattr(cls, self.signal_name):
             signal_def = morris.signal(
-                self.notify_fn if self.notify_fn is not None
-                else self.on_changed,
-                signal_name='{}.{}'.format(cls.__name__, self.signal_name))
+                (
+                    self.notify_fn
+                    if self.notify_fn is not None
+                    else self.on_changed
+                ),
+                signal_name="{}.{}".format(cls.__name__, self.signal_name),
+            )
             setattr(cls, self.signal_name, signal_def)
 
     def __get__(self, instance: object, owner: type) -> "Any":
@@ -356,17 +376,22 @@ class Field:
         :param new:
             The new value of the field
         """
-        _logger.debug("<%s %s>.%s(%r, %r)", pod.__class__.__name__, id(pod),
-                      self.signal_name, old, new)
+        _logger.debug(
+            "<%s %s>.%s(%r, %r)",
+            pod.__class__.__name__,
+            id(pod),
+            self.signal_name,
+            old,
+            new,
+        )
 
 
 @total_ordering
 class PODBase:
-
     """Base class for POD-like classes."""
 
     field_list = []
-    namedtuple_cls = namedtuple('PODBase', '')
+    namedtuple_cls = namedtuple("PODBase", "")
 
     def __init__(self, *args, **kwargs):
         """
@@ -405,7 +430,8 @@ class PODBase:
                 raise TypeError("no such field: {}".format(field_name))
             if getattr(self, field.instance_attr) is not UNSET:
                 raise TypeError(
-                    "field initialized twice: {}".format(field_name))
+                    "field initialized twice: {}".format(field_name)
+                )
             setattr(self, field_name, field_value)
         # Initialize remaining fields using their default initializers
         for field in field_list:
@@ -413,7 +439,8 @@ class PODBase:
                 continue
             if field.is_mandatory:
                 raise TypeError(
-                    "mandatory argument missing: {}".format(field.name))
+                    "mandatory argument missing: {}".format(field.name)
+                )
             if field.initial_fn is not None:
                 field_value = field.initial_fn()
             else:
@@ -424,9 +451,13 @@ class PODBase:
         """Get a debugging representation of a POD object."""
         return "{}({})".format(
             self.__class__.__name__,
-            ', '.join([
-                '{}={!r}'.format(field.name, getattr(self, field.name))
-                for field in self.__class__.field_list]))
+            ", ".join(
+                [
+                    "{}={!r}".format(field.name, getattr(self, field.name))
+                    for field in self.__class__.field_list
+                ]
+            ),
+        )
 
     def __eq__(self, other: "POD") -> bool:
         """
@@ -457,10 +488,9 @@ class PODBase:
         Order of elements in the tuple corresponds to the order of field
         declarations.
         """
-        return self.__class__.namedtuple_cls(*[
-            getattr(self, field.name)
-            for field in self.__class__.field_list
-        ])
+        return self.__class__.namedtuple_cls(
+            *[getattr(self, field.name) for field in self.__class__.field_list]
+        )
 
     def as_dict(self) -> dict:
         """
@@ -477,7 +507,6 @@ class PODBase:
 
 
 class _FieldCollection:
-
     """
     Support class for constructing POD meta-data information.
 
@@ -568,12 +597,16 @@ class _FieldCollection:
             self.field_origin_map[field_name] = base_cls_name
             self.field_list.append(field)
         else:
-            raise TypeError("field {1}.{0} clashes with {2}.{0}".format(
-                field_name, base_cls_name, self.field_origin_map[field_name]))
+            raise TypeError(
+                "field {1}.{0} clashes with {2}.{0}".format(
+                    field_name,
+                    base_cls_name,
+                    self.field_origin_map[field_name],
+                )
+            )
 
 
 class PODMeta(type):
-
     """
     Meta-class for all POD classes.
 
@@ -586,8 +619,8 @@ class PODMeta(type):
         fc = _FieldCollection()
         fc.inspect_base_classes(bases)
         fc.inspect_namespace(namespace, name)
-        namespace['field_list'] = fc.field_list
-        namespace['namedtuple_cls'] = fc.get_namedtuple_cls(name)
+        namespace["field_list"] = fc.field_list
+        namespace["namedtuple_cls"] = fc.get_namedtuple_cls(name)
         cls = super().__new__(mcls, name, bases, namespace)
         for field in fc.field_list:
             field.alter_cls(cls)
@@ -626,7 +659,6 @@ def podify(cls):
 
 @total_ordering
 class POD(PODBase, metaclass=PODMeta):
-
     """
     Base class that removes boilerplate from plain-old-data classes.
 
@@ -674,15 +706,18 @@ def modify_field_docstring(field_docstring_ext: str):
         ...         raise ValueError("value cannot be even")
         ...     return new
     """
+
     def decorator(fn):
         fn.field_docstring_ext = field_docstring_ext
         return fn
+
     return decorator
 
 
 @modify_field_docstring("constant (read-only after initialization)")
 def read_only_assign_filter(
-        instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
+    instance: POD, field: Field, old: "Any", new: "Any"
+) -> "Any":
     """
     An assign filter that makes a field read-only.
 
@@ -704,18 +739,20 @@ def read_only_assign_filter(
     """
     if old is UNSET:
         return new
-    raise AttributeError(_(
-        "{}.{} is read-only"
-    ).format(instance.__class__.__name__, field.name))
+    raise AttributeError(
+        _("{}.{} is read-only").format(instance.__class__.__name__, field.name)
+    )
 
 
 const = read_only_assign_filter
 
 
 @modify_field_docstring(
-    "type-converted (value must be convertible to {field.type.__name__})")
+    "type-converted (value must be convertible to {field.type.__name__})"
+)
 def type_convert_assign_filter(
-        instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
+    instance: POD, field: Field, old: "Any", new: "Any"
+) -> "Any":
     """
     An assign filter that converts the value to the field type.
 
@@ -738,9 +775,11 @@ def type_convert_assign_filter(
 
 
 @modify_field_docstring(
-    "type-checked (value must be of type {field.type.__name__})")
+    "type-checked (value must be of type {field.type.__name__})"
+)
 def type_check_assign_filter(
-        instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
+    instance: POD, field: Field, old: "Any", new: "Any"
+) -> "Any":
     """
     An assign filter that type-checks the value according to the field type.
 
@@ -761,17 +800,22 @@ def type_check_assign_filter(
     """
     if isinstance(new, field.type):
         return new
-    raise TypeError("{}.{} requires objects of type {}".format(
-        instance.__class__.__name__, field.name, field.type.__name__))
+    raise TypeError(
+        "{}.{} requires objects of type {}".format(
+            instance.__class__.__name__, field.name, field.type.__name__
+        )
+    )
 
 
 typed = type_check_assign_filter
 
 
 @modify_field_docstring(
-    "unset or type-checked (value must be of type {field.type.__name__})")
+    "unset or type-checked (value must be of type {field.type.__name__})"
+)
 def unset_or_type_check_assign_filter(
-        instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
+    instance: POD, field: Field, old: "Any", new: "Any"
+) -> "Any":
     """
     An assign filter that type-checks the value according to the field type.
 
@@ -802,7 +846,6 @@ unset_or_typed = unset_or_type_check_assign_filter
 
 
 class sequence_type_check_assign_filter:
-
     """
     Assign filter for typed sequences.
 
@@ -822,10 +865,11 @@ class sequence_type_check_assign_filter:
     @property
     def field_docstring_ext(self) -> str:
         return "type-checked sequence (items must be of type {})".format(
-            self.item_type.__name__)
+            self.item_type.__name__
+        )
 
     def __call__(
-            self, instance: POD, field: Field, old: "Any", new: "Any"
+        self, instance: POD, field: Field, old: "Any", new: "Any"
     ) -> "Any":
         """
         An assign filter that type-checks the value of all sequence elements.
@@ -847,8 +891,11 @@ class sequence_type_check_assign_filter:
             if not isinstance(item, self.item_type):
                 raise TypeError(
                     "{}.{} requires all sequence elements of type {}".format(
-                        instance.__class__.__name__, field.name,
-                        self.item_type.__name__))
+                        instance.__class__.__name__,
+                        field.name,
+                        self.item_type.__name__,
+                    )
+                )
         return new
 
 
@@ -856,7 +903,6 @@ typed.sequence = sequence_type_check_assign_filter
 
 
 class unset_or_sequence_type_check_assign_filter(typed.sequence):
-
     """
     Assign filter for typed sequences.
 
@@ -874,7 +920,7 @@ class unset_or_sequence_type_check_assign_filter(typed.sequence):
         ).format(self.item_type.__name__)
 
     def __call__(
-            self, instance: POD, field: Field, old: "Any", new: "Any"
+        self, instance: POD, field: Field, old: "Any", new: "Any"
     ) -> "Any":
         """
         An assign filter that type-checks the value of all sequence elements.
@@ -906,7 +952,8 @@ unset_or_typed.sequence = unset_or_sequence_type_check_assign_filter
 
 @modify_field_docstring("unique elements (sequence elements cannot repeat)")
 def unique_elements_assign_filter(
-        instance: POD, field: Field, old: "Any", new: "Any") -> "Any":
+    instance: POD, field: Field, old: "Any", new: "Any"
+) -> "Any":
     """
     An assign filter that ensures a sequence has non-repeating items.
 
@@ -929,5 +976,6 @@ def unique_elements_assign_filter(
             raise ValueError("Duplicate element: {!r}".format(item))
         seen.add(item)
     return new
+
 
 unique = unique_elements_assign_filter

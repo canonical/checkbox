@@ -136,7 +136,7 @@ class LegacyHelpFormatter(argparse.HelpFormatter):
 
     def _format_usage(self, usage, actions, groups, prefix):
         if prefix is None:
-            prefix = argparse._('usage: ')
+            prefix = argparse._("usage: ")
 
         # if usage is specified, use that
         if usage is not None:
@@ -144,11 +144,11 @@ class LegacyHelpFormatter(argparse.HelpFormatter):
 
         # if no optionals or positionals are available, usage is just prog
         elif usage is None and not actions:
-            usage = '%(prog)s' % dict(prog=self._prog)
+            usage = "%(prog)s" % dict(prog=self._prog)
 
         # if optionals and positionals are available, calculate usage
         elif usage is None:
-            prog = '%(prog)s' % dict(prog=self._prog)
+            prog = "%(prog)s" % dict(prog=self._prog)
 
             # split optionals from positionals
             optionals = []
@@ -162,20 +162,20 @@ class LegacyHelpFormatter(argparse.HelpFormatter):
             # build full usage string
             format = self._format_actions_usage
             action_usage = format(optionals + positionals, groups)
-            usage = ' '.join([s for s in [prog, action_usage] if s])
+            usage = " ".join([s for s in [prog, action_usage] if s])
 
             # wrap the usage parts if it's too long
             text_width = self._width - self._current_indent
             if len(prefix) + len(usage) > text_width:
 
                 # break usage into wrappable parts
-                part_regexp = r'\(.*?\)+|\[.*?\]+|\S+'
+                part_regexp = r"\(.*?\)+|\[.*?\]+|\S+"
                 opt_usage = format(optionals, groups)
                 pos_usage = format(positionals, groups)
                 opt_parts = argparse._re.findall(part_regexp, opt_usage)
                 pos_parts = argparse._re.findall(part_regexp, pos_usage)
-                assert ' '.join(opt_parts) == opt_usage
-                assert ' '.join(pos_parts) == pos_usage
+                assert " ".join(opt_parts) == opt_usage
+                assert " ".join(pos_parts) == pos_usage
 
                 # helper for wrapping lines
                 def get_lines(parts, indent, prefix=None):
@@ -187,20 +187,20 @@ class LegacyHelpFormatter(argparse.HelpFormatter):
                         line_len = len(indent) - 1
                     for part in parts:
                         if line_len + 1 + len(part) > text_width:
-                            lines.append(indent + ' '.join(line))
+                            lines.append(indent + " ".join(line))
                             line = []
                             line_len = len(indent) - 1
                         line.append(part)
                         line_len += len(part) + 1
                     if line:
-                        lines.append(indent + ' '.join(line))
+                        lines.append(indent + " ".join(line))
                     if prefix is not None:
-                        lines[0] = lines[0][len(indent):]
+                        lines[0] = lines[0][len(indent) :]
                     return lines
 
                 # if prog is short, follow it with optionals or positionals
                 if len(prefix) + len(prog) <= 0.75 * text_width:
-                    indent = ' ' * (len(prefix) + len(prog) + 1)
+                    indent = " " * (len(prefix) + len(prog) + 1)
                     if opt_parts:
                         lines = get_lines([prog] + opt_parts, indent, prefix)
                         lines.extend(get_lines(pos_parts, indent))
@@ -211,7 +211,7 @@ class LegacyHelpFormatter(argparse.HelpFormatter):
 
                 # if prog is long, put it on its own line
                 else:
-                    indent = ' ' * len(prefix)
+                    indent = " " * len(prefix)
                     parts = opt_parts + pos_parts
                     lines = get_lines(parts, indent)
                     if len(lines) > 1:
@@ -221,7 +221,7 @@ class LegacyHelpFormatter(argparse.HelpFormatter):
                     lines = [prog] + lines
 
                 # join lines into usage
-                usage = '\n'.join(lines)
+                usage = "\n".join(lines)
 
         # prefix with 'usage:'
-        return '%s%s\n\n' % (prefix, usage)
+        return "%s%s\n\n" % (prefix, usage)

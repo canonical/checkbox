@@ -130,11 +130,10 @@ from plainbox.impl.unit.unit import Unit
 _logger = logging.getLogger("plainbox.unit.packaging")
 
 
-__all__ = ('PackagingMetaDataUnit', 'get_packaging_driver', 'get_os_release')
+__all__ = ("PackagingMetaDataUnit", "get_packaging_driver", "get_os_release")
 
 
 class PackagingMetaDataUnit(Unit):
-
     """
     Unit representing a dependency between some unit and system packaging.
 
@@ -169,20 +168,18 @@ class PackagingMetaDataUnit(Unit):
         """Package suggestions"""
         return self.get_record_value(self.Meta.fields.Suggests)
 
-
     class Meta:
 
-        name = 'packaging meta-data'
+        name = "packaging meta-data"
 
         class fields(SymbolDef):
-
             """Symbols for each field of a packaging meta-data unit."""
 
-            os_id = 'os-id'
-            os_version_id = 'os-version-id'
-            Depends = 'Depends'
-            Recommends = 'Recommends'
-            Suggests = 'Suggests'
+            os_id = "os-id"
+            os_version_id = "os-version-id"
+            Depends = "Depends"
+            Recommends = "Recommends"
+            Suggests = "Suggests"
 
         field_validators = {
             fields.os_id: [
@@ -205,7 +202,7 @@ class PackagingMetaDataUnit(Unit):
 
     def __str__(self):
         parts = [_("Operating System: {}").format(self.os_id)]
-        if self.os_id == 'debian' or self.os_id == 'ubuntu':
+        if self.os_id == "debian" or self.os_id == "ubuntu":
             if self.Depends:
                 parts.append(_("Depends: {}").format(self.Depends))
             if self.Recommends:
@@ -214,30 +211,26 @@ class PackagingMetaDataUnit(Unit):
                 parts.append(_("Suggests: {}").format(self.Suggests))
         else:
             parts.append("...")
-        return ', '.join(parts)
+        return ", ".join(parts)
 
 
 class PackagingDriverError(Exception):
-
     """Base for all packaging driver exceptions."""
 
 
 class NoPackagingDetected(PackagingDriverError):
-
     """Exception raised when packaging cannot be found."""
 
 
 class NoApplicableBinaryPackages(PackagingDriverError):
-
     """Exception raised when no applicable binary packages are found."""
 
 
 class IPackagingDriver(metaclass=abc.ABCMeta):
-
     """Interface for all packaging drivers."""
 
     @abc.abstractmethod
-    def __init__(self, os_release: 'Dict[str, str]'):
+    def __init__(self, os_release: "Dict[str, str]"):
         """
         Initialize the packaging driver.
 
@@ -253,7 +246,7 @@ class IPackagingDriver(metaclass=abc.ABCMeta):
         """
 
     @abc.abstractmethod
-    def inspect_provider(self, provider: 'Provider1') -> None:
+    def inspect_provider(self, provider: "Provider1") -> None:
         """
         Inspect a provider looking for packaging meta-data.
 
@@ -324,10 +317,9 @@ class IPackagingDriver(metaclass=abc.ABCMeta):
 
 
 class PackagingDriverBase(IPackagingDriver):
-
     """Base implementation of a packaging driver."""
 
-    def __init__(self, os_release: 'Dict[str, str]'):
+    def __init__(self, os_release: "Dict[str, str]"):
         self.os_release = os_release
 
     def is_applicable(self, unit: Unit) -> bool:
@@ -339,16 +331,20 @@ class PackagingDriverBase(IPackagingDriver):
             _logger.debug(_("Strategy successful: ID and Version ID match"))
             return True
         if self._is_id_match(unit):
-            _logger.debug(_("Strategy successful: ID match, no Version ID required"))
+            _logger.debug(
+                _("Strategy successful: ID match, no Version ID required")
+            )
             return True
         if self._is_id_like_match(unit):
-            _logger.debug(_("Strategy successful: ID_LIKE match, no Version ID required"))
+            _logger.debug(
+                _("Strategy successful: ID_LIKE match, no Version ID required")
+            )
             return True
 
         _logger.debug(_("All strategies unsuccessful"))
         return False
 
-    def inspect_provider(self, provider: 'Provider1') -> None:
+    def inspect_provider(self, provider: "Provider1") -> None:
         for unit in provider.unit_list:
             if self.is_applicable(unit):
                 self.collect(unit)
@@ -357,24 +353,26 @@ class PackagingDriverBase(IPackagingDriver):
         if not unit.os_version_id:
             return False
         return (
-            'ID' in self.os_release and
-            unit.os_id == self.os_release['ID'] and
-            'VERSION_ID' in self.os_release and
-            self._compare_versions(unit.os_version_id, self.os_release['VERSION_ID'])
+            "ID" in self.os_release
+            and unit.os_id == self.os_release["ID"]
+            and "VERSION_ID" in self.os_release
+            and self._compare_versions(
+                unit.os_version_id, self.os_release["VERSION_ID"]
+            )
         )
 
     def _is_id_match(self, unit):
         return (
-            'ID' in self.os_release and
-            unit.os_id == self.os_release['ID'] and
-            unit.os_version_id is None
+            "ID" in self.os_release
+            and unit.os_id == self.os_release["ID"]
+            and unit.os_version_id is None
         )
 
     def _is_id_like_match(self, unit):
         return (
-            'ID_LIKE' in self.os_release and
-            unit.os_id == self.os_release['ID_LIKE'] and
-            unit.os_version_id is None
+            "ID_LIKE" in self.os_release
+            and unit.os_id == self.os_release["ID_LIKE"]
+            and unit.os_version_id is None
         )
 
     @staticmethod
@@ -394,12 +392,12 @@ class PackagingDriverBase(IPackagingDriver):
         # Default to '==' if no operator is provided
         operators = {
             None: operator.eq,
-            '==': operator.eq,
-            '>=': operator.ge,
-            '<=': operator.le,
-            '>': operator.gt,
-            '<': operator.lt,
-            '!=': operator.ne
+            "==": operator.eq,
+            ">=": operator.ge,
+            "<=": operator.le,
+            ">": operator.gt,
+            "<": operator.lt,
+            "!=": operator.ne,
         }
 
         system_ver = version.parse(system_version)
@@ -409,7 +407,6 @@ class PackagingDriverBase(IPackagingDriver):
 
 
 class NullPackagingDriver(PackagingDriverBase):
-
     """
     Null implementation of a packaging driver.
 
@@ -434,7 +431,6 @@ NULL_DRIVER = NullPackagingDriver({})
 
 
 class DebianPackagingDriver(PackagingDriverBase):
-
     """
     Debian implementation of a packaging driver.
 
@@ -446,7 +442,7 @@ class DebianPackagingDriver(PackagingDriverBase):
     packaging meta-data units present in the provider.
     """
 
-    def __init__(self, os_release: 'Dict[str, str]'):
+    def __init__(self, os_release: "Dict[str, str]"):
         super().__init__(os_release)
         self._depends = []
         self._suggests = []
@@ -457,10 +453,13 @@ class DebianPackagingDriver(PackagingDriverBase):
         self._pkg_list.extend(self._gen_provider_packages())
         if self._pkg_list:
             return
-        raise NoApplicableBinaryPackages(_(
-            "There are no applicable binary packages.\n"
-            "Add 'X-Plainbox-Provider: yes' to each binary package that "
-            "contains a provider"))
+        raise NoApplicableBinaryPackages(
+            _(
+                "There are no applicable binary packages.\n"
+                "Add 'X-Plainbox-Provider: yes' to each binary package that "
+                "contains a provider"
+            )
+        )
 
     def modify_packaging_tree(self) -> None:
         for pkg in self._pkg_list:
@@ -468,64 +467,79 @@ class DebianPackagingDriver(PackagingDriverBase):
 
     def collect(self, unit: Unit) -> None:
         def rel_list(field):
-            relations = unit.get_record_value(field, '').replace('\n', ' ')
+            relations = unit.get_record_value(field, "").replace("\n", " ")
             return (
                 rel.strip()
-                for rel in re.split(', *', relations)
+                for rel in re.split(", *", relations)
                 if rel.strip()
             )
-        self._depends.extend(rel_list('Depends'))
-        self._suggests.extend(rel_list('Suggests'))
-        self._recommends.extend(rel_list('Recommends'))
+
+        self._depends.extend(rel_list("Depends"))
+        self._suggests.extend(rel_list("Suggests"))
+        self._recommends.extend(rel_list("Recommends"))
 
     def _write_pkg_substvars(self, pkg):
-        fname = 'debian/{}.substvars'.format(pkg)
+        fname = "debian/{}.substvars".format(pkg)
         _logger.info(_("Writing %s"), fname)
         # NOTE: we're appending to that file
-        with open(fname, 'at', encoding='UTF-8') as stream:
+        with open(fname, "at", encoding="UTF-8") as stream:
             if self._depends:
-                print('plainbox:Depends={}'.format(
-                    ', '.join(self._depends)), file=stream)
+                print(
+                    "plainbox:Depends={}".format(", ".join(self._depends)),
+                    file=stream,
+                )
             if self._suggests:
-                print('plainbox:Suggests={}'.format(
-                    ', '.join(self._suggests)), file=stream)
+                print(
+                    "plainbox:Suggests={}".format(", ".join(self._suggests)),
+                    file=stream,
+                )
             if self._recommends:
-                print('plainbox:Recommends={}'.format(
-                    ', '.join(self._recommends)), file=stream)
+                print(
+                    "plainbox:Recommends={}".format(
+                        ", ".join(self._recommends)
+                    ),
+                    file=stream,
+                )
 
     def _gen_provider_packages(self):
         try:
             _logger.info(_("Loading debian/control"))
-            with open('debian/control', 'rt', encoding='UTF-8') as stream:
+            with open("debian/control", "rt", encoding="UTF-8") as stream:
                 from debian.deb822 import Deb822
+
                 for para in Deb822.iter_paragraphs(stream.readlines()):
-                    if 'Package' not in para:
+                    if "Package" not in para:
                         continue
-                    if para.get('X-Plainbox-Provider') != 'yes':
+                    if para.get("X-Plainbox-Provider") != "yes":
                         continue
-                    pkg = para['Package']
+                    pkg = para["Package"]
                     _logger.info(_("Found binary provider package: %s"), pkg)
                     yield pkg
         except OSError as exc:
             if exc.errno == errno.ENOENT:
-                raise NoPackagingDetected(_(
-                    "There is no appropriate packaging in this directory.\n"
-                    "The file debian/control could not be found"))
+                raise NoPackagingDetected(
+                    _(
+                        "There is no appropriate packaging in this directory.\n"
+                        "The file debian/control could not be found"
+                    )
+                )
 
 
 def get_packaging_driver() -> IPackagingDriver:
     """Get the packaging driver appropriate for the current platform."""
     if sys.platform.startswith("linux"):
         os_release = get_os_release()
-        if (os_release.get('ID') == 'debian' or
-                os_release.get('ID_LIKE') == 'debian'):
+        if (
+            os_release.get("ID") == "debian"
+            or os_release.get("ID_LIKE") == "debian"
+        ):
             _logger.info(_("Using Debian packaging driver"))
             return DebianPackagingDriver(os_release)
     _logger.info(_("Using null packaging driver"))
     return NULL_DRIVER
 
 
-def get_os_release(path='/etc/os-release'):
+def get_os_release(path="/etc/os-release"):
     """
     Read and parse os-release(5) data
 
@@ -534,9 +548,10 @@ def get_os_release(path='/etc/os-release'):
     :returns:
         A dictionary with parsed data
     """
-    with open(path, 'rt', encoding='UTF-8') as stream:
+    with open(path, "rt", encoding="UTF-8") as stream:
         return {
             key: value
             for key, value in (
-                entry.split('=', 1) for entry in shlex.split(stream.read()))
+                entry.split("=", 1) for entry in shlex.split(stream.read())
+            )
         }

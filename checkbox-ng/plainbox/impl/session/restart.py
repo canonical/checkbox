@@ -33,12 +33,15 @@ from plainbox.impl.unit.unit import on_ubuntucore
 
 
 class IRestartStrategy(metaclass=abc.ABCMeta):
-
     """Interface for managing application restarts."""
 
     @abc.abstractmethod
-    def prime_application_restart(self, app_id: str,
-                                  session_id: str, cmd: str,) -> None:
+    def prime_application_restart(
+        self,
+        app_id: str,
+        session_id: str,
+        cmd: str,
+    ) -> None:
         """
         Configure the system to restart the testing application.
 
@@ -61,7 +64,6 @@ class IRestartStrategy(metaclass=abc.ABCMeta):
 
 
 class XDGRestartStrategy(IRestartStrategy):
-
     """
     Restart strategy implemented with the XDG auto-start mechanism.
 
@@ -69,14 +71,15 @@ class XDGRestartStrategy(IRestartStrategy):
     """
 
     def __init__(
-        self, *,
-        app_name: str=None,
-        app_generic_name: str=None,
-        app_comment: str=None,
-        app_icon: str=None,
-        app_terminal: bool=False,
-        app_categories: str=None,
-        app_startup_notify: bool=False
+        self,
+        *,
+        app_name: str = None,
+        app_generic_name: str = None,
+        app_comment: str = None,
+        app_icon: str = None,
+        app_terminal: bool = False,
+        app_categories: str = None,
+        app_startup_notify: bool = False
     ):
         """
         Initialize the XDG resume strategy.
@@ -86,39 +89,47 @@ class XDGRestartStrategy(IRestartStrategy):
         """
         self.config = config = PlainBoxConfigParser()
         self.app_terminal = app_terminal
-        section = 'Desktop Entry'
+        section = "Desktop Entry"
         config.add_section(section)
-        config.set(section, 'Type', 'Application')
-        config.set(section, 'Version', '1.0')
-        config.set(section, 'Name',
-                   app_name or 'Resume Testing Session')
-        config.set(section, 'GenericName',
-                   app_generic_name or 'Resume Testing Session')
-        config.set(section, 'Comment',
-                   app_comment or 'Automatically resume the testing session')
-        config.set(section, 'Terminal', 'true' if app_terminal else 'false')
+        config.set(section, "Type", "Application")
+        config.set(section, "Version", "1.0")
+        config.set(section, "Name", app_name or "Resume Testing Session")
+        config.set(
+            section,
+            "GenericName",
+            app_generic_name or "Resume Testing Session",
+        )
+        config.set(
+            section,
+            "Comment",
+            app_comment or "Automatically resume the testing session",
+        )
+        config.set(section, "Terminal", "true" if app_terminal else "false")
         if app_icon:
-            config.set(section, 'Icon', app_icon)
-        config.set(section, 'Categories', app_categories or 'System')
-        config.set(section, 'StartupNotify',
-                   'true' if app_startup_notify else 'false')
+            config.set(section, "Icon", app_icon)
+        config.set(section, "Categories", app_categories or "System")
+        config.set(
+            section, "StartupNotify", "true" if app_startup_notify else "false"
+        )
 
     def get_desktop_filename(self, app_id: str) -> str:
         # TODO: use correct xdg lookup mechanism
         return os.path.expandvars(
-            "$HOME/.config/autostart/{}.desktop".format(app_id))
+            "$HOME/.config/autostart/{}.desktop".format(app_id)
+        )
 
-    def prime_application_restart(self, app_id: str,
-                                  session_id: str, cmd: str) -> None:
+    def prime_application_restart(
+        self, app_id: str, session_id: str, cmd: str
+    ) -> None:
         filename = self.get_desktop_filename(app_id)
         # Prefix the command with sh -c to comply with the Exec spec
         # See https://askubuntu.com/a/1242773/32239
         cmd = "sh -c " + cmd
         if self.app_terminal:
-            cmd += ';$SHELL'
-        self.config.set('Desktop Entry', 'Exec', cmd)
+            cmd += ";$SHELL"
+        self.config.set("Desktop Entry", "Exec", cmd)
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        with open(filename, 'wt') as stream:
+        with open(filename, "wt") as stream:
             self.config.write(stream, space_around_delimiters=False)
 
     def diffuse_application_restart(self, app_id: str) -> None:
@@ -133,7 +144,6 @@ class XDGRestartStrategy(IRestartStrategy):
 
 
 class SnappyRestartStrategy(IRestartStrategy):
-
     """
     Restart strategy based on systemd calling snappy wrappers.
     """
@@ -143,56 +153,63 @@ class SnappyRestartStrategy(IRestartStrategy):
     def __init__(self):
         self.config = config = PlainBoxConfigParser()
 
-        section = 'Unit'
+        section = "Unit"
         config.add_section(section)
-        config.set(section, 'Description', 'Plainbox Resume Wrapper')
-        config.set(section, 'After', 'ubuntu-snappy.frameworks.target')
-        config.set(section, 'Requires', 'ubuntu-snappy.frameworks.target')
-        config.set(section, 'X-Snappy', 'yes')
+        config.set(section, "Description", "Plainbox Resume Wrapper")
+        config.set(section, "After", "ubuntu-snappy.frameworks.target")
+        config.set(section, "Requires", "ubuntu-snappy.frameworks.target")
+        config.set(section, "X-Snappy", "yes")
 
-        section = 'Service'
+        section = "Service"
         config.add_section(section)
-        config.set(section, 'Type', 'oneshot')
-        config.set(section, 'StandardOutput', 'tty')
-        config.set(section, 'StandardError', 'tty')
-        config.set(section, 'TTYPath', '/dev/console')
-        if os.getenv('USER'):
-            config.set(section, 'User', os.getenv('USER'))
+        config.set(section, "Type", "oneshot")
+        config.set(section, "StandardOutput", "tty")
+        config.set(section, "StandardError", "tty")
+        config.set(section, "TTYPath", "/dev/console")
+        if os.getenv("USER"):
+            config.set(section, "User", os.getenv("USER"))
 
-        section = 'Install'
+        section = "Install"
         config.add_section(section)
-        config.set(section, 'WantedBy', 'multi-user.target')
+        config.set(section, "WantedBy", "multi-user.target")
 
     def get_autostart_config_filename(self) -> str:
         return os.path.abspath(
-            os.path.join(os.sep, "etc", "systemd", "system",
-                         self.service_name))
+            os.path.join(os.sep, "etc", "systemd", "system", self.service_name)
+        )
 
-    def prime_application_restart(self, app_id: str, session_id: str,
-                                  cmd: str,) -> None:
+    def prime_application_restart(
+        self,
+        app_id: str,
+        session_id: str,
+        cmd: str,
+    ) -> None:
         """
         In this stategy plainbox will create and enable a systemd unit that
         will be run when the OS resumes.
         """
         cmd = shlex.split(cmd)[0]
-        snap_name = os.getenv('SNAP_NAME')
-        base_dir = 'snap'
+        snap_name = os.getenv("SNAP_NAME")
+        base_dir = "snap"
         if os.getenv("SNAP_APP_PATH"):
-            base_dir = 'apps'
+            base_dir = "apps"
         # NOTE: This implies that any snap wishing to include a Checkbox
         # application to be autostarted creates snapcraft binary
         # called "checkbox-cli"
-        binary_name = '/{}/bin/{}.checkbox-cli'.format(base_dir, snap_name)
-        self.config.set('Service', 'ExecStart', '{} {}'.format(
-                            binary_name, ' '.join(cmd.split()[1:])))
+        binary_name = "/{}/bin/{}.checkbox-cli".format(base_dir, snap_name)
+        self.config.set(
+            "Service",
+            "ExecStart",
+            "{} {}".format(binary_name, " ".join(cmd.split()[1:])),
+        )
         filename = self.get_autostart_config_filename()
         os.makedirs(os.path.dirname(filename), exist_ok=True)
-        stream = tempfile.NamedTemporaryFile('wt', delete=False)
+        stream = tempfile.NamedTemporaryFile("wt", delete=False)
         self.config.write(stream, space_around_delimiters=False)
         stream.close()
-        subprocess.call(['sudo', 'cp', stream.name, filename])
+        subprocess.call(["sudo", "cp", stream.name, filename])
         os.unlink(stream.name)
-        subprocess.call(['sudo', 'systemctl', 'enable', self.service_name])
+        subprocess.call(["sudo", "systemctl", "enable", self.service_name])
 
     def diffuse_application_restart(self, app_id: str) -> None:
         """
@@ -200,12 +217,11 @@ class SnappyRestartStrategy(IRestartStrategy):
         the session after an OS reboot.
         """
         filename = self.get_autostart_config_filename()
-        subprocess.call(['sudo', 'systemctl', 'disable', self.service_name])
-        subprocess.call(['sudo', 'rm', filename])
+        subprocess.call(["sudo", "systemctl", "disable", self.service_name])
+        subprocess.call(["sudo", "rm", filename])
 
 
 class RemoteSnappyRestartStrategy(IRestartStrategy):
-
     """
     Remote Restart strategy for checkbox snaps.
     """
@@ -216,13 +232,14 @@ class RemoteSnappyRestartStrategy(IRestartStrategy):
 
     def get_session_resume_filename(self) -> str:
         if self.debug:
-            return '/tmp/session_resume'
-        snap_data = os.getenv('SNAP_DATA')
-        return os.path.join(snap_data, 'session_resume')
+            return "/tmp/session_resume"
+        snap_data = os.getenv("SNAP_DATA")
+        return os.path.join(snap_data, "session_resume")
 
-    def prime_application_restart(self, app_id: str,
-                                  session_id: str, cmd: str) -> None:
-        with open(self.session_resume_filename, 'wt') as f:
+    def prime_application_restart(
+        self, app_id: str, session_id: str, cmd: str
+    ) -> None:
+        with open(self.session_resume_filename, "wt") as f:
             f.write(session_id)
             os.fsync(f.fileno())
 
@@ -237,7 +254,6 @@ class RemoteSnappyRestartStrategy(IRestartStrategy):
 
 
 class RemoteDebRestartStrategy(RemoteSnappyRestartStrategy):
-
     """
     Remote Restart strategy for checkbox installed from deb packages.
     """
@@ -246,20 +262,23 @@ class RemoteDebRestartStrategy(RemoteSnappyRestartStrategy):
 
     def get_session_resume_filename(self) -> str:
         if self.debug:
-            return '/tmp/session_resume'
-        cache_dir = os.getenv('XDG_CACHE_HOME', '/var/cache')
-        return os.path.join(cache_dir, 'session_resume')
+            return "/tmp/session_resume"
+        cache_dir = os.getenv("XDG_CACHE_HOME", "/var/cache")
+        return os.path.join(cache_dir, "session_resume")
 
-    def prime_application_restart(self, app_id: str,
-                                  session_id: str, cmd: str) -> None:
-        with open(self.session_resume_filename, 'wt') as f:
+    def prime_application_restart(
+        self, app_id: str, session_id: str, cmd: str
+    ) -> None:
+        with open(self.session_resume_filename, "wt") as f:
             f.write(session_id)
             os.fsync(f.fileno())
         if cmd == self.service_name:
-            subprocess.call(['systemctl', 'disable', self.service_name])
+            subprocess.call(["systemctl", "disable", self.service_name])
 
 
-def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy:
+def detect_restart_strategy(
+    session=None, session_type=None
+) -> IRestartStrategy:
     """
     Detect the restart strategy for the current environment.
     :param session:
@@ -269,20 +288,21 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
     :raises LookupError:
         When no such object can be found.
     """
-    if session_type == 'remote':
+    if session_type == "remote":
         try:
             env = os.environ
             env["SYSTEMD_IGNORE_CHROOT"] = "1"
             subprocess.run(
-                ['systemctl', 'is-active', '--quiet', 'checkbox-ng.service'],
+                ["systemctl", "is-active", "--quiet", "checkbox-ng.service"],
                 env=env,  # http://pad.lv/2003955
-                check=True)
+                check=True,
+            )
             return RemoteDebRestartStrategy()
         except subprocess.CalledProcessError:
-                pass
+            pass
 
     # XXX: RemoteSnappyRestartStrategy debug
-    remote_restart_stragegy_debug = os.getenv('REMOTE_RESTART_DEBUG')
+    remote_restart_stragegy_debug = os.getenv("REMOTE_RESTART_DEBUG")
     if remote_restart_stragegy_debug:
         return RemoteSnappyRestartStrategy(debug=True)
     # If we are running as a confined Snappy app this variable will have been
@@ -290,8 +310,9 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
     if on_ubuntucore():
         try:
             agent_status = subprocess.check_output(
-                ['snapctl', 'get', 'agent'], universal_newlines=True).rstrip()
-            if agent_status == 'disabled':
+                ["snapctl", "get", "agent"], universal_newlines=True
+            ).rstrip()
+            if agent_status == "disabled":
                 return SnappyRestartStrategy()
             else:
                 return RemoteSnappyRestartStrategy()
@@ -301,7 +322,8 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
     try:
         if session:
             app_blob = json.loads(
-                session._context.state.metadata.app_blob.decode('UTF-8'))
+                session._context.state.metadata.app_blob.decode("UTF-8")
+            )
             session_type = app_blob.get("type")
         else:
             session_type = None
@@ -309,14 +331,14 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
         session_type = None
 
     # Classic snaps
-    snap_data = os.getenv('SNAP_DATA')
+    snap_data = os.getenv("SNAP_DATA")
     if snap_data:
-        if session_type == 'remote':
+        if session_type == "remote":
             try:
                 agent_status = subprocess.check_output(
-                    ['snapctl', 'get', 'agent'],
-                    universal_newlines=True).rstrip()
-                if agent_status == 'enabled':
+                    ["snapctl", "get", "agent"], universal_newlines=True
+                ).rstrip()
+                if agent_status == "enabled":
                     return RemoteSnappyRestartStrategy()
             except subprocess.CalledProcessError:
                 pass
@@ -324,11 +346,11 @@ def detect_restart_strategy(session=None, session_type=None) -> IRestartStrategy
         else:
             return SnappyRestartStrategy()
 
-    if os.path.isdir('/etc/xdg/autostart'):
+    if os.path.isdir("/etc/xdg/autostart"):
         # NOTE: Assume this is a terminal application
         return XDGRestartStrategy(app_terminal=True)
 
-    raise LookupError("Unable to find appropriate strategy.""")
+    raise LookupError("Unable to find appropriate strategy." "")
 
 
 def get_strategy_by_name(name: str) -> type:
@@ -343,6 +365,6 @@ def get_strategy_by_name(name: str) -> type:
         When there's no strategy associated with that name.
     """
     return {
-        'XDG': XDGRestartStrategy,
-        'Snappy': SnappyRestartStrategy,
+        "XDG": XDGRestartStrategy,
+        "Snappy": SnappyRestartStrategy,
     }[name]

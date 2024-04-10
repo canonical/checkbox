@@ -186,9 +186,7 @@ class TestCollectionOutput(TestCase):
         collection_output = CollectionOutput.from_dict(input_dict)
         self.assertEqual(collection_output.tool_version, "1.0")
         self.assertTrue(isinstance(collection_output.outputs, OutputSuccess))
-        self.assertEqual(
-            collection_output.outputs.payload, {"key": "value"}
-        )
+        self.assertEqual(collection_output.outputs.payload, {"key": "value"})
         self.assertEqual(collection_output.outputs.stderr, "")
         self.assertTrue(collection_output.success)
 
@@ -222,32 +220,39 @@ class TestCollectorMeta(TestCase):
 
     def test_meta_register(self):
         with self._preserve_collectors():
+
             class WillRegister(metaclass=CollectorMeta):
                 COLLECTOR_NAME = "will_register"
+
             self.assertIn("will_register", CollectorMeta.collectors)
 
     def test_meta_no_register(self):
         with self._preserve_collectors():
             collectors_count = len(CollectorMeta.collectors)
-            class WontRegister(metaclass=CollectorMeta):
-                ...
+
+            class WontRegister(metaclass=CollectorMeta): ...
+
             after_wont_register_count = len(CollectorMeta.collectors)
             self.assertEqual(collectors_count, after_wont_register_count)
 
     def test_meta_no_duplicates(self):
         with self._preserve_collectors():
+
             class WillRegister(metaclass=CollectorMeta):
                 COLLECTOR_NAME = "will_register"
+
             self.assertIn("will_register", CollectorMeta.collectors)
 
             with self.assertRaises(ValueError):
+
                 class WillError(metaclass=CollectorMeta):
                     COLLECTOR_NAME = "will_register"
 
     def test_meta_inheritance(self):
         with self._preserve_collectors():
-            class WontRegister(metaclass=CollectorMeta):
-                ...
+
+            class WontRegister(metaclass=CollectorMeta): ...
+
             class WillRegister(WontRegister):
                 COLLECTOR_NAME = "will_register"
 

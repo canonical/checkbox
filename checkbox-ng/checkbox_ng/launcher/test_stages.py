@@ -57,7 +57,7 @@ class TestMainLoopStage(TestCase):
         # Sequence of user actions: first "comment", then "skip"
         ui_mock.wait_for_interaction_prompt.side_effect = ["comment", "skip"]
         # Simulate user entering a comment after being prompted
-        with mock.patch('builtins.input', return_value="Test comment"):
+        with mock.patch("builtins.input", return_value="Test comment"):
             result_builder = MainLoopStage._run_single_job_with_ui_loop(
                 self_mock, job_mock, ui_mock
             )

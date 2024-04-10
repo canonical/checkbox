@@ -62,8 +62,8 @@ class IQNValidatorTests(TestCase):
 
     def test_bad_values_dont(self):
         self.assertEqual(
-            self.validator(self.variable, ""),
-            "must look like RFC3720 IQN")
+            self.validator(self.variable, ""), "must look like RFC3720 IQN"
+        )
 
 
 class VersionValidatorTests(TestCase):
@@ -92,7 +92,8 @@ class VersionValidatorTests(TestCase):
         version = "FOOBAR"
         self.assertEqual(
             self.validator(self.variable, version),
-            "must be a PEP440 compatible version")
+            "must be a PEP440 compatible version",
+        )
 
 
 class ExistingDirectoryValidatorTests(TestCase):
@@ -103,18 +104,18 @@ class ExistingDirectoryValidatorTests(TestCase):
         self.validator = ExistingDirectoryValidator()
         self.variable = None
 
-    @mock.patch('os.path.isdir')
+    @mock.patch("os.path.isdir")
     def test_existing_directories_work(self, mock_isdir):
         mock_isdir.return_value = True
         self.assertEqual(self.validator(self.variable, self._PATH), None)
         mock_isdir.assert_called_with(self._PATH)
 
-    @mock.patch('os.path.isdir')
+    @mock.patch("os.path.isdir")
     def test_missing_directories_dont(self, mock_isdir):
         mock_isdir.return_value = False
         self.assertEqual(
-            self.validator(self.variable, self._PATH),
-            "no such directory")
+            self.validator(self.variable, self._PATH), "no such directory"
+        )
         mock_isdir.assert_called_with(self._PATH)
 
 
@@ -125,12 +126,12 @@ class AbsolutePathValidatorTests(TestCase):
         self.variable = None
 
     def test_absolute_values_work(self):
-        self.assertEqual(self.validator(self.variable, '/path'), None)
+        self.assertEqual(self.validator(self.variable, "/path"), None)
 
     def test_relative_values_dont(self):
         self.assertEqual(
-            self.validator(self.variable, 'path'),
-            "cannot be relative")
+            self.validator(self.variable, "path"), "cannot be relative"
+        )
 
 
 class Provider1DefinitionTests(TestCase):
@@ -142,7 +143,7 @@ class Provider1DefinitionTests(TestCase):
         provider would look like.
         """
         def_ = Provider1Definition()
-        with mock.patch('os.path.isdir') as mock_isdir:
+        with mock.patch("os.path.isdir") as mock_isdir:
             # Mock os.path.isdir so that we can validate all of the directory
             # variables.
             mock_isdir.return_value = True
@@ -177,8 +178,7 @@ class Provider1DefinitionTests(TestCase):
         def_ = Provider1Definition()
         def_.name = "org.example:smoke-test"
         self.assertEqual(def_.name, "org.example:smoke-test")
-        self.assertEqual(
-            def_.name_without_colon, "org.example.smoke-test")
+        self.assertEqual(def_.name_without_colon, "org.example.smoke-test")
 
     def test_definition_with_location(self):
         """
@@ -188,7 +188,7 @@ class Provider1DefinitionTests(TestCase):
         would look like.
         """
         def_ = Provider1Definition()
-        with mock.patch('os.path.isdir') as mock_isdir:
+        with mock.patch("os.path.isdir") as mock_isdir:
             # Mock os.path.isdir so that we can validate all of the directory
             # variables.
             mock_isdir.return_value = True
@@ -226,7 +226,7 @@ class Provider1DefinitionTests(TestCase):
         """
         def_ = Provider1Definition()
         with self.assertRaises(ValidationError) as boom:
-            def_.location = ''
+            def_.location = ""
         self.assertEqual(str(boom.exception), "cannot be empty")
 
     def test_init_validation__location_relative(self):
@@ -236,7 +236,7 @@ class Provider1DefinitionTests(TestCase):
         """
         def_ = Provider1Definition()
         with self.assertRaises(ValidationError) as boom:
-            def_.location = 'some/place'
+            def_.location = "some/place"
         self.assertEqual(str(boom.exception), "cannot be relative")
 
     def test_init_validation__location_doesnt_exist(self):
@@ -246,9 +246,9 @@ class Provider1DefinitionTests(TestCase):
         """
         def_ = Provider1Definition()
         with self.assertRaises(ValidationError) as boom:
-            with mock.patch('os.path.isdir') as mock_isdir:
+            with mock.patch("os.path.isdir") as mock_isdir:
                 mock_isdir.return_value = False
-                def_.location = '/some/place'
+                def_.location = "/some/place"
         self.assertEqual(str(boom.exception), "no such directory")
 
     def test_init_validation__no_name(self):
@@ -284,8 +284,10 @@ class Provider1DefinitionTests(TestCase):
         verify that Provider1Definition allows typical values for 'name' field
         """
         def_ = Provider1Definition()
-        for name in ('org.example:tests',
-                     'com.canonical.certification:usb-testing'):
+        for name in (
+            "org.example:tests",
+            "com.canonical.certification:usb-testing",
+        ):
             def_.name = name
             self.assertEqual(def_.name, name)
 
@@ -306,7 +308,7 @@ class Provider1DefinitionTests(TestCase):
         """
         def_ = Provider1Definition()
         with self.assertRaises(ValidationError) as boom:
-            def_.version = ''
+            def_.version = ""
         self.assertEqual(str(boom.exception), "cannot be empty")
 
     def test_init_validation__incorrect_looking_version(self):
@@ -318,15 +320,15 @@ class Provider1DefinitionTests(TestCase):
         with self.assertRaises(ValidationError) as boom:
             def_.version = "FOOBAR+git4654654654"
         self.assertEqual(
-            str(boom.exception),
-            "must be a PEP440 compatible version")
+            str(boom.exception), "must be a PEP440 compatible version"
+        )
 
     def test_init_validation__typical_version(self):
         """
         verify that Provider1Definition allows typical values for the 'version'
         field
         """
-        for ver in ('0.7.1', '0.7', '0', '2014.4', '12.04.5', '2014.4+bzr46'):
+        for ver in ("0.7.1", "0.7", "0", "2014.4", "12.04.5", "2014.4+bzr46"):
             def_ = Provider1Definition()
             def_.version = ver
             self.assertEqual(def_.version, ver)
@@ -355,9 +357,12 @@ class Provider1DefinitionTests(TestCase):
         verify that Provider1Definition allows 'gettext_domain' field to have
         typical values
         """
-        for gettext_domain in ("plainbox", "checkbox",
-                               "2014_com_canonical_provider_name",
-                               "2014-com-canonical-provider-name"):
+        for gettext_domain in (
+            "plainbox",
+            "checkbox",
+            "2014_com_canonical_provider_name",
+            "2014-com-canonical-provider-name",
+        ):
             def_ = Provider1Definition()
             def_.gettext_domain = gettext_domain
             self.assertEqual(def_.gettext_domain, gettext_domain)
@@ -367,8 +372,13 @@ class Provider1DefinitionTests(TestCase):
         verify that Provider1Definition allows 'jobs_dir', 'data_dir',
         'bin_dir' and 'locale_dir'  fields to be unset
         """
-        for attr in ('units_dir', 'jobs_dir', 'data_dir', 'bin_dir',
-                     'locale_dir'):
+        for attr in (
+            "units_dir",
+            "jobs_dir",
+            "data_dir",
+            "bin_dir",
+            "locale_dir",
+        ):
             def_ = Provider1Definition()
             setattr(def_, attr, Unset)
             self.assertEqual(getattr(def_, attr), Unset)
@@ -378,11 +388,16 @@ class Provider1DefinitionTests(TestCase):
         verify that Provider1Definition ensures that 'jobs_dir',
         'data_dir', 'bin_dir' and 'locale_dir' fields are not empty
         """
-        for attr in ('units_dir', 'jobs_dir', 'data_dir', 'bin_dir',
-                     'locale_dir'):
+        for attr in (
+            "units_dir",
+            "jobs_dir",
+            "data_dir",
+            "bin_dir",
+            "locale_dir",
+        ):
             def_ = Provider1Definition()
             with self.assertRaises(ValidationError) as boom:
-                setattr(def_, attr, '')
+                setattr(def_, attr, "")
             self.assertEqual(str(boom.exception), "cannot be empty")
 
     def test_init_validation__foo_dir_relative(self):
@@ -391,11 +406,16 @@ class Provider1DefinitionTests(TestCase):
         'data_dir', 'bin_dir' and 'locale_dir' fields are not a relative
         pathname
         """
-        for attr in ('units_dir', 'jobs_dir', 'data_dir', 'bin_dir',
-                     'locale_dir'):
+        for attr in (
+            "units_dir",
+            "jobs_dir",
+            "data_dir",
+            "bin_dir",
+            "locale_dir",
+        ):
             def_ = Provider1Definition()
             with self.assertRaises(ValidationError) as boom:
-                setattr(def_, attr, 'some/place')
+                setattr(def_, attr, "some/place")
             self.assertEqual(str(boom.exception), "cannot be relative")
 
     def test_init_validation__foo_dir_doesnt_exist(self):
@@ -404,13 +424,18 @@ class Provider1DefinitionTests(TestCase):
         'data_dir', 'bin_dir' and 'locale_dir' fields are not pointing to a
         non-existing directory
         """
-        for attr in ('units_dir', 'jobs_dir', 'data_dir', 'bin_dir',
-                     'locale_dir'):
+        for attr in (
+            "units_dir",
+            "jobs_dir",
+            "data_dir",
+            "bin_dir",
+            "locale_dir",
+        ):
             def_ = Provider1Definition()
             with self.assertRaises(ValidationError) as boom:
-                with mock.patch('os.path.isdir') as mock_isdir:
+                with mock.patch("os.path.isdir") as mock_isdir:
                     mock_isdir.return_value = False
-                    setattr(def_, attr, '/some/place')
+                    setattr(def_, attr, "/some/place")
             self.assertEqual(str(boom.exception), "no such directory")
 
 
@@ -424,9 +449,7 @@ class Provider1PlugInTests(TestCase):
         "gettext_domain = domain\n"
     )
 
-    DEF_TEXT_w_location = DEF_TEXT + (
-        "location = /some/directory\n"
-    )
+    DEF_TEXT_w_location = DEF_TEXT + ("location = /some/directory\n")
 
     DEF_TEXT_w_dirs = DEF_TEXT + (
         "units_dir = /some/directory/units\n"
@@ -439,25 +462,28 @@ class Provider1PlugInTests(TestCase):
     LOAD_TIME = 42
 
     def setUp(self):
-        with mock.patch('os.path.isdir') as mock_isdir:
+        with mock.patch("os.path.isdir") as mock_isdir:
             # Mock os.path.isdir so that we can validate location
             mock_isdir.return_value = True
             self.plugin = Provider1PlugIn(
-                "a.provider", self.DEF_TEXT, self.LOAD_TIME)
+                "a.provider", self.DEF_TEXT, self.LOAD_TIME
+            )
             self.plugin_w_location = Provider1PlugIn(
-                "a.provider", self.DEF_TEXT_w_location, self.LOAD_TIME)
+                "a.provider", self.DEF_TEXT_w_location, self.LOAD_TIME
+            )
             self.plugin_w_dirs = Provider1PlugIn(
-                "a.provider", self.DEF_TEXT_w_dirs, self.LOAD_TIME)
+                "a.provider", self.DEF_TEXT_w_dirs, self.LOAD_TIME
+            )
             # Mock os.path.isdir so that none of the sub-directories of the
             # location directory seem to exist. This is essential for
             # Provider1.from_definition()'s special behavior.
             mock_isdir.side_effect = lambda dn: dn == "/some/directory"
             self.plugin_w_location_w_no_dirs = Provider1PlugIn(
-                "a.provider", self.DEF_TEXT_w_location, self.LOAD_TIME)
+                "a.provider", self.DEF_TEXT_w_location, self.LOAD_TIME
+            )
 
     def test_plugin_name(self):
-        self.assertEqual(
-            self.plugin.plugin_name, "org.example:smoke-test")
+        self.assertEqual(self.plugin.plugin_name, "org.example:smoke-test")
 
     def test_plugin_object(self):
         self.assertIsInstance(self.plugin.plugin_object, Provider1)
@@ -547,14 +573,17 @@ class UnitPlugInTests(TestCase):
     def setUp(self):
         self.provider = mock.Mock(name="provider", spec=Provider1)
         self.provider.classify.return_value = (
-            mock.Mock("role"), mock.Mock("base"), mock.Mock("plugin_cls"))
+            mock.Mock("role"),
+            mock.Mock("base"),
+            mock.Mock("plugin_cls"),
+        )
         self.provider.namespace = "com.canonical.plainbox"
         self.plugin = UnitPlugIn(
-            "/path/to/jobs.txt", (
-                "id: test/job\n"
-                "plugin: shell\n"
-                "command: true\n"),
-            self.LOAD_TIME, self.provider)
+            "/path/to/jobs.txt",
+            ("id: test/job\n" "plugin: shell\n" "command: true\n"),
+            self.LOAD_TIME,
+            self.provider,
+        )
 
     def test_plugin_name(self):
         """
@@ -585,7 +614,8 @@ class UnitPlugInTests(TestCase):
         self.assertEqual(job.plugin, "shell")
         self.assertEqual(job.command, "true")
         self.assertEqual(
-            job.origin, Origin(FileTextSource("/path/to/jobs.txt"), 1, 3))
+            job.origin, Origin(FileTextSource("/path/to/jobs.txt"), 1, 3)
+        )
 
     def test_job_provider(self):
         """
@@ -602,11 +632,15 @@ class UnitPlugInTests(TestCase):
         # The pattern is purposefully invalid
         with self.assertRaises(PlugInError) as boom:
             UnitPlugIn(
-                "/path/to/jobs.txt", "broken", self.LOAD_TIME, self.provider)
+                "/path/to/jobs.txt", "broken", self.LOAD_TIME, self.provider
+            )
         self.assertEqual(
             str(boom.exception),
-            ("Cannot load job definitions from '/path/to/jobs.txt': "
-             "Unexpected non-empty line: 'broken' (line 1)"))
+            (
+                "Cannot load job definitions from '/path/to/jobs.txt': "
+                "Unexpected non-empty line: 'broken' (line 1)"
+            ),
+        )
 
 
 class Provider1Tests(TestCase):
@@ -628,12 +662,22 @@ class Provider1Tests(TestCase):
 
     def setUp(self):
         self.provider = Provider1(
-            self.NAME, self.NAMESPACE, self.VERSION, self.DESCRIPTION,
-            self.SECURE, self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR,
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            self.LOCALE_DIR,
+            self.BASE_DIR,
             # We are using dummy job definitions so let's not shout about those
             # being invalid in each test
-            validate=False)
+            validate=False,
+        )
         self.fake_context = self.provider.fake([])
         self.fake_context.__enter__()
 
@@ -641,9 +685,7 @@ class Provider1Tests(TestCase):
         self.fake_context.__exit__(None, None, None)
 
     def test_repr(self):
-        self.assertEqual(
-            repr(self.provider),
-            "<Provider1 name:'name'>")
+        self.assertEqual(repr(self.provider), "<Provider1 name:'name'>")
 
     def test_name(self):
         """
@@ -743,24 +785,31 @@ class Provider1Tests(TestCase):
         """
         # Create unsorted job definitions that define a1, a2, a3 and a4
         fake_content = [
-            PlugIn(self.JOBS_DIR + "/path/to/jobs1.txt", (
-                "id: a2\n"
-                "plugin: shell\n"
-                "command: true\n"
-                "\n"
-                "id: a1\n"
-                "plugin: shell\n"
-                "command: true\n"
-            )),
-            PlugIn(self.JOBS_DIR + "/path/to/jobs2.txt", (
-                "id: a3\n"
-                "plugin: shell\n"
-                "command: true\n"
-                "\n"
-                "id: a4\n"
-                "plugin: shell\n"
-                "command: true\n"
-            ))]
+            PlugIn(
+                self.JOBS_DIR + "/path/to/jobs1.txt",
+                (
+                    "id: a2\n"
+                    "plugin: shell\n"
+                    "command: true\n"
+                    "\n"
+                    "id: a1\n"
+                    "plugin: shell\n"
+                    "command: true\n"
+                ),
+            ),
+            PlugIn(
+                self.JOBS_DIR + "/path/to/jobs2.txt",
+                (
+                    "id: a3\n"
+                    "plugin: shell\n"
+                    "command: true\n"
+                    "\n"
+                    "id: a4\n"
+                    "plugin: shell\n"
+                    "command: true\n"
+                ),
+            ),
+        ]
         fake_problems = [IOError("first problem"), OSError("second problem")]
         with self.provider.fake(fake_content, fake_problems):
             job_list = self.provider.job_list
@@ -824,11 +873,22 @@ class Provider1Tests(TestCase):
         circumstances
         """
         Provider1(
-            self.NAME, self.NAMESPACE, self.VERSION, self.DESCRIPTION,
-            self.SECURE, self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
-            self.DATA_DIR, self.BIN_DIR, self.LOCALE_DIR, self.BASE_DIR)
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            self.LOCALE_DIR,
+            self.BASE_DIR,
+        )
         mock_gettext.bindtextdomain.assert_called_once_with(
-            self.GETTEXT_DOMAIN, self.LOCALE_DIR)
+            self.GETTEXT_DOMAIN, self.LOCALE_DIR
+        )
 
     @mock.patch("plainbox.impl.secure.providers.v1.gettext")
     def test_init_bindtextdomain__not_called(self, mock_gettext):
@@ -837,8 +897,17 @@ class Provider1Tests(TestCase):
         circumstances
         """
         Provider1(
-            self.NAME, self.NAMESPACE, self.VERSION, self.DESCRIPTION,
-            self.SECURE, self.GETTEXT_DOMAIN, self.UNITS_DIR, self.JOBS_DIR,
-            self.DATA_DIR, self.BIN_DIR, locale_dir=None,
-            base_dir=self.BASE_DIR)
+            self.NAME,
+            self.NAMESPACE,
+            self.VERSION,
+            self.DESCRIPTION,
+            self.SECURE,
+            self.GETTEXT_DOMAIN,
+            self.UNITS_DIR,
+            self.JOBS_DIR,
+            self.DATA_DIR,
+            self.BIN_DIR,
+            locale_dir=None,
+            base_dir=self.BASE_DIR,
+        )
         self.assertEqual(mock_gettext.bindtextdomain.call_args_list, [])

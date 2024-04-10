@@ -41,6 +41,7 @@ class classproperty:
     """
     Class property.
     """
+
     # I wish it was in the standard library or that the composition worked
 
     def __init__(self, func):
@@ -69,19 +70,19 @@ class SessionStateExporterBase(ISessionStateExporter):
     user interface from becoming annoying.
     """
 
-    OPTION_WITH_IO_LOG = 'with-io-log'
-    OPTION_SQUASH_IO_LOG = 'squash-io-log'
-    OPTION_FLATTEN_IO_LOG = 'flatten-io-log'
-    OPTION_WITH_RUN_LIST = 'with-run-list'
-    OPTION_WITH_JOB_LIST = 'with-job-list'
-    OPTION_WITH_DESIRED_JOB_LIST = 'with-job-list'
-    OPTION_WITH_RESOURCE_MAP = 'with-resource-map'
-    OPTION_WITH_JOB_DEFS = 'with-job-defs'
-    OPTION_WITH_ATTACHMENTS = 'with-attachments'
-    OPTION_WITH_COMMENTS = 'with-comments'
-    OPTION_WITH_JOB_HASH = 'with-job-hash'
-    OPTION_WITH_CATEGORY_MAP = 'with-category-map'
-    OPTION_WITH_CERTIFICATION_STATUS = 'with-certification-status'
+    OPTION_WITH_IO_LOG = "with-io-log"
+    OPTION_SQUASH_IO_LOG = "squash-io-log"
+    OPTION_FLATTEN_IO_LOG = "flatten-io-log"
+    OPTION_WITH_RUN_LIST = "with-run-list"
+    OPTION_WITH_JOB_LIST = "with-job-list"
+    OPTION_WITH_DESIRED_JOB_LIST = "with-job-list"
+    OPTION_WITH_RESOURCE_MAP = "with-resource-map"
+    OPTION_WITH_JOB_DEFS = "with-job-defs"
+    OPTION_WITH_ATTACHMENTS = "with-attachments"
+    OPTION_WITH_COMMENTS = "with-comments"
+    OPTION_WITH_JOB_HASH = "with-job-hash"
+    OPTION_WITH_CATEGORY_MAP = "with-category-map"
+    OPTION_WITH_CERTIFICATION_STATUS = "with-certification-status"
 
     SUPPORTED_OPTION_LIST = (
         OPTION_WITH_IO_LOG,
@@ -148,9 +149,13 @@ class SessionStateExporterBase(ISessionStateExporter):
         Users who only are about whether an option is set, regardless of
         the value assigned to it, can use this API.
         """
-        return sorted([
-            option for option in self._option_dict.keys()
-            if self._option_dict[option]])
+        return sorted(
+            [
+                option
+                for option in self._option_dict.keys()
+                if self._option_dict[option]
+            ]
+        )
 
     @_option_list.setter
     def _option_list(self, value):
@@ -189,8 +194,12 @@ class SessionStateExporterBase(ISessionStateExporter):
         This method takes session manager instance, extracts session
         information from it, and dumps it to a stream.
         """
-        self.dump(self.get_session_data_subset(
-            self._trim_session_manager(session_manager)), stream)
+        self.dump(
+            self.get_session_data_subset(
+                self._trim_session_manager(session_manager)
+            ),
+            stream,
+        )
 
     def get_session_data_subset(self, session_manager):
         """
@@ -203,82 +212,88 @@ class SessionStateExporterBase(ISessionStateExporter):
         Special care must be taken when processing io_log (and in the future,
         attachments) as those can be arbitrarily large.
         """
-        data = {
-            'result_map': {}
-        }
+        data = {"result_map": {}}
         session = session_manager.state
         if self.OPTION_WITH_JOB_LIST in self._option_list:
-            data['job_list'] = [job.id for job in session.job_list]
+            data["job_list"] = [job.id for job in session.job_list]
         if self.OPTION_WITH_RUN_LIST in self._option_list:
-            data['run_list'] = [job.id for job in session.run_list]
+            data["run_list"] = [job.id for job in session.run_list]
         if self.OPTION_WITH_DESIRED_JOB_LIST in self._option_list:
-            data['desired_job_list'] = [job.id
-                                        for job in session.desired_job_list]
+            data["desired_job_list"] = [
+                job.id for job in session.desired_job_list
+            ]
         if self.OPTION_WITH_RESOURCE_MAP in self._option_list:
-            data['resource_map'] = {
+            data["resource_map"] = {
                 # TODO: there is no method to get all data from a Resource
                 # instance and there probably should be. Or just let there be
                 # a way to promote _data to a less hidden-but-non-conflicting
                 # property.
                 resource_name: [
                     object.__getattribute__(resource, "_data")
-                    for resource in resource_list]
+                    for resource in resource_list
+                ]
                 # TODO: turn session._resource_map to a public property
-                for resource_name, resource_list
-                in session._resource_map.items()
+                for resource_name, resource_list in session._resource_map.items()
             }
         if self.OPTION_WITH_ATTACHMENTS in self._option_list:
-            data['attachment_map'] = {}
+            data["attachment_map"] = {}
         if self.OPTION_WITH_CATEGORY_MAP in self._option_list:
-            wanted_category_ids = frozenset({
-                job_state.effective_category_id
-                for job_state in session.job_state_map.values()
-            })
-            data['category_map'] = {
+            wanted_category_ids = frozenset(
+                {
+                    job_state.effective_category_id
+                    for job_state in session.job_state_map.values()
+                }
+            )
+            data["category_map"] = {
                 unit.id: unit.tr_name()
                 for unit in session.unit_list
-                if unit.Meta.name == 'category'
+                if unit.Meta.name == "category"
                 and unit.id in wanted_category_ids
             }
             # Inject the special, built-in 'uncategorized' category, if any
             # job needs it
-            UNCATEGORISED = 'com.canonical.plainbox::uncategorised'
+            UNCATEGORISED = "com.canonical.plainbox::uncategorised"
             if UNCATEGORISED in wanted_category_ids:
-                data['category_map'][UNCATEGORISED] = _("Uncategorised")
+                data["category_map"][UNCATEGORISED] = _("Uncategorised")
         for job_id, job_state in session.job_state_map.items():
             if job_state.result.outcome is None:
                 continue
-            data['result_map'][job_id] = OrderedDict()
-            data['result_map'][job_id]['summary'] = job_state.job.tr_summary()
-            data['result_map'][job_id]['category_id'] = \
-                job_state.effective_category_id
-            data['result_map'][job_id]['outcome'] = job_state.result.outcome
+            data["result_map"][job_id] = OrderedDict()
+            data["result_map"][job_id]["summary"] = job_state.job.tr_summary()
+            data["result_map"][job_id][
+                "category_id"
+            ] = job_state.effective_category_id
+            data["result_map"][job_id]["outcome"] = job_state.result.outcome
             if job_state.result.execution_duration:
-                data['result_map'][job_id]['execution_duration'] = \
-                    job_state.result.execution_duration
+                data["result_map"][job_id][
+                    "execution_duration"
+                ] = job_state.result.execution_duration
             if self.OPTION_WITH_COMMENTS in self._option_list:
-                data['result_map'][job_id]['comments'] = \
-                    job_state.result.comments
+                data["result_map"][job_id][
+                    "comments"
+                ] = job_state.result.comments
 
             # Add Job hash if requested
             if self.OPTION_WITH_JOB_HASH in self._option_list:
-                data['result_map'][job_id]['hash'] = job_state.job.checksum
+                data["result_map"][job_id]["hash"] = job_state.job.checksum
 
             # Add Job definitions if requested
             if self.OPTION_WITH_JOB_DEFS in self._option_list:
-                for prop in ('plugin',
-                             'requires',
-                             'depends',
-                             'command',
-                             'description',
-                             ):
+                for prop in (
+                    "plugin",
+                    "requires",
+                    "depends",
+                    "command",
+                    "description",
+                ):
                     if not getattr(job_state.job, prop):
                         continue
-                    data['result_map'][job_id][prop] = getattr(
-                        job_state.job, prop)
+                    data["result_map"][job_id][prop] = getattr(
+                        job_state.job, prop
+                    )
 
             # Add Attachments if requested
-            if job_state.job.plugin == 'attachment':
+            if job_state.job.plugin == "attachment":
                 if self.OPTION_WITH_ATTACHMENTS in self._option_list:
                     self._build_attachment_map(data, job_id, job_state)
                 continue  # Don't add attachments IO logs to the result_map
@@ -289,50 +304,63 @@ class SessionStateExporterBase(ISessionStateExporter):
                 # saved, discarding stream name and the relative timestamp.
                 if self.OPTION_SQUASH_IO_LOG in self._option_list:
                     io_log_data = self._squash_io_log(
-                        job_state.result.get_io_log())
+                        job_state.result.get_io_log()
+                    )
                 elif self.OPTION_FLATTEN_IO_LOG in self._option_list:
                     io_log_data = self._flatten_io_log(
-                        job_state.result.get_io_log())
+                        job_state.result.get_io_log()
+                    )
                 else:
                     io_log_data = self._io_log(job_state.result.get_io_log())
-                data['result_map'][job_id]['io_log'] = io_log_data
+                data["result_map"][job_id]["io_log"] = io_log_data
 
             # Add certification status if requested
             if self.OPTION_WITH_CERTIFICATION_STATUS in self._option_list:
-                data['result_map'][job_id]['certification_status'] = (
-                    job_state.effective_certification_status)
+                data["result_map"][job_id][
+                    "certification_status"
+                ] = job_state.effective_certification_status
         return data
 
     def _build_attachment_map(self, data, job_id, job_state):
-        raw_bytes = b''.join(
-            (record[2] for record in
-             job_state.result.get_io_log()
-             if record[1] == 'stdout'))
-        data['attachment_map'][job_id] = \
-            base64.standard_b64encode(raw_bytes).decode('ASCII')
+        raw_bytes = b"".join(
+            (
+                record[2]
+                for record in job_state.result.get_io_log()
+                if record[1] == "stdout"
+            )
+        )
+        data["attachment_map"][job_id] = base64.standard_b64encode(
+            raw_bytes
+        ).decode("ASCII")
 
     @classmethod
     def _squash_io_log(cls, io_log):
         # Squash the IO log by discarding everything except for the 'data'
         # portion. The actual data is escaped with base64.
         return [
-            base64.standard_b64encode(record.data).decode('ASCII')
-            for record in io_log]
+            base64.standard_b64encode(record.data).decode("ASCII")
+            for record in io_log
+        ]
 
     @classmethod
     def _flatten_io_log(cls, io_log):
         # Similar to squash but also coalesce all records into one big base64
         # string (there are no arrays / lists anymore)
         return base64.standard_b64encode(
-            b''.join([record.data for record in io_log])
-        ).decode('ASCII')
+            b"".join([record.data for record in io_log])
+        ).decode("ASCII")
 
     @classmethod
     def _io_log(cls, io_log):
         # Return the raw io log, but escape the data portion with base64
-        return [(record.delay, record.stream_name,
-                 base64.standard_b64encode(record.data).decode('ASCII'))
-                for record in io_log]
+        return [
+            (
+                record.delay,
+                record.stream_name,
+                base64.standard_b64encode(record.data).decode("ASCII"),
+            )
+            for record in io_log
+        ]
 
     @staticmethod
     def _trim_session_manager(session_manager):
@@ -343,13 +371,16 @@ class SessionStateExporterBase(ISessionStateExporter):
         jobs_to_remove = []
         for job_id, job_state in session_manager.state.job_state_map.items():
             # remove skipped salvage jobs
-            if (job_state.job.salvages is not None and
-                    job_state.result.outcome == 'not-supported'):
+            if (
+                job_state.job.salvages is not None
+                and job_state.result.outcome == "not-supported"
+            ):
                 jobs_to_remove.append(job_id)
                 continue
         for job_id in jobs_to_remove:
             session_manager.state.run_list.remove(
-                session_manager.state.job_state_map[job_id].job)
+                session_manager.state.job_state_map[job_id].job
+            )
             del session_manager.state.job_state_map[job_id]
         return session_manager
 
@@ -383,18 +414,25 @@ class ByteStringStreamTranslator(RawIOBase):
         self.encoding = encoding
 
     def write(self, data):
-        """ Writes to the stream, takes bytes and decodes them per the
-            object's specified encoding prior to writing.
-            :param data: the chunk of data to write.
+        """Writes to the stream, takes bytes and decodes them per the
+        object's specified encoding prior to writing.
+        :param data: the chunk of data to write.
         """
-        if (self.dest_stream.encoding and
-                self.dest_stream.encoding.lower() != self.encoding.lower()):
+        if (
+            self.dest_stream.encoding
+            and self.dest_stream.encoding.lower() != self.encoding.lower()
+        ):
             logger.warning(
-                _("Incorrect stream encoding. Got %s, expected %s. "
-                  " some characters won't be printed"),
-                self.dest_stream.encoding, self.encoding)
+                _(
+                    "Incorrect stream encoding. Got %s, expected %s. "
+                    " some characters won't be printed"
+                ),
+                self.dest_stream.encoding,
+                self.encoding,
+            )
             # fall back to ASCII encoding
-            return self.dest_stream.write(data.decode(
-                'ascii', errors='ignore'))
+            return self.dest_stream.write(
+                data.decode("ascii", errors="ignore")
+            )
 
         return self.dest_stream.write(data.decode(self.encoding))

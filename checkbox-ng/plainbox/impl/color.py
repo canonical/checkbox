@@ -34,6 +34,7 @@ class ansi_on:
         """
         Foreground color attributes
         """
+
         BLACK = 30
         RED = 31
         GREEN = 32
@@ -49,6 +50,7 @@ class ansi_on:
         """
         Background color attributes
         """
+
         BLACK = 40
         RED = 41
         GREEN = 42
@@ -64,6 +66,7 @@ class ansi_on:
         """
         Style attributes
         """
+
         BRIGHT = 1
         DIM = 2
         NORMAL = 22
@@ -84,8 +87,8 @@ class ansi_off:
 
 # Convert from numbers to full escape sequences
 for obj_on, obj_off in zip(
-        (ansi_on.f, ansi_on.b, ansi_on.s),
-        (ansi_off.f, ansi_off.b, ansi_off.s)):
+    (ansi_on.f, ansi_on.b, ansi_on.s), (ansi_off.f, ansi_off.b, ansi_off.s)
+):
     for name in [name for name in dir(obj_on) if name.isupper()]:
         setattr(obj_on, name, "\033[%sm" % getattr(obj_on, name))
         setattr(obj_off, name, "")
@@ -134,10 +137,9 @@ class Colorizer:
         return self.c is ansi_on
 
     def result(self, result):
-        return self.custom(
-            result.tr_outcome(), result.outcome_color_ansi())
+        return self.custom(result.tr_outcome(), result.outcome_color_ansi())
 
-    def header(self, text, color_name='WHITE', bright=True, fill='='):
+    def header(self, text, color_name="WHITE", bright=True, fill="="):
         return self("[ {} ]".format(text).center(80, fill), color_name, bright)
 
     def f(self, color_name):
@@ -150,10 +152,14 @@ class Colorizer:
         return getattr(self.c.s, style_name.upper())
 
     def __call__(self, text, color_name="WHITE", bright=True):
-        return ''.join([
-            self.f(color_name),
-            self.c.s.BRIGHT if bright else '', str(text),
-            self.c.s.RESET_ALL])
+        return "".join(
+            [
+                self.f(color_name),
+                self.c.s.BRIGHT if bright else "",
+                str(text),
+                self.c.s.RESET_ALL,
+            ]
+        )
 
     def custom(self, text, ansi_code):
         """
@@ -173,10 +179,9 @@ class Colorizer:
             done to ensure that any custom styling is not permantently enabled
             if colors are to be disabled.
         """
-        return ''.join([
-            ansi_code if self.is_enabled else "",
-            text,
-            self.c.s.RESET_ALL])
+        return "".join(
+            [ansi_code if self.is_enabled else "", text, self.c.s.RESET_ALL]
+        )
 
     def BLACK(self, text, bright=True):
         return self(text, "BLACK", bright)
@@ -204,7 +209,6 @@ class Colorizer:
 
 
 class CanonicalColors:
-
     """
     Canonical Color Palette.
 
@@ -270,23 +274,23 @@ class CanonicalColors:
     """
 
     #: Ubuntu orange color
-    ubuntu_orange = (0xdd, 0x48, 0x14)
+    ubuntu_orange = (0xDD, 0x48, 0x14)
     #: White color
-    white = (0xff, 0xff, 0xff)
+    white = (0xFF, 0xFF, 0xFF)
     #: Black color
     black = (0x00, 0x00, 0x00)
     #: Light aubergine color
-    light_aubergine = (0x77, 0x21, 0x6f)
+    light_aubergine = (0x77, 0x21, 0x6F)
     #: Mid aubergine color
-    mid_aubergine = (0x5e, 0x27, 0x50)
+    mid_aubergine = (0x5E, 0x27, 0x50)
     #: Dark aubergine color
-    dark_aubergine = (0x2c, 0x00, 0x1e)
+    dark_aubergine = (0x2C, 0x00, 0x1E)
     #: Warm grey color
-    warm_grey = (0xae, 0xa7, 0x9f)
+    warm_grey = (0xAE, 0xA7, 0x9F)
     #: Cool grey color
     cool_grey = (0x33, 0x33, 0x33)
     #: Color for small grey dots
-    small_dot_grey = (0xae, 0xa7, 0x9f)
+    small_dot_grey = (0xAE, 0xA7, 0x9F)
     #: Canonical aubergine color
     canonical_aubergine = (0x77, 0x29, 0x53)
     #: Text gray color

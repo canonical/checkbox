@@ -23,9 +23,11 @@ class DeprecatedTests(TestCase):
     @mock.patch("warnings.warn")
     def test_parse_warning(self, warn_mock):
         import plainbox.impl.commands.parse
+
         self.assertTrue(warn_mock.called)
 
     @mock.patch("warnings.warn")
     def test_session_warning(self, warn_mock):
         import plainbox.impl.commands.session
+
         self.assertTrue(warn_mock.called)

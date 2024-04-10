@@ -44,35 +44,36 @@ from plainbox.vendor import mock
 class DecoratorTests(TestCase):
 
     def setUp(self):
-        self.symbols = mock.Mock(name='symbols')
+        self.symbols = mock.Mock(name="symbols")
 
         class C:
 
             @propertywithsymbols(symbols=self.symbols)
             def prop(self):
                 """a docstring"""
-                return 'prop'
+                return "prop"
+
         self.C = C
 
     def test_propertywithsymbols__fget_works(self):
-        self.assertEqual(self.C().prop, 'prop')
+        self.assertEqual(self.C().prop, "prop")
 
     def test_propertywithsmybols__symbols_works(self):
         self.assertIs(self.C.prop.symbols, self.symbols)
 
     def test_propertywithsymbols__inherits_doc_from_fget(self):
-        self.assertEqual(self.C.prop.__doc__, 'a docstring')
+        self.assertEqual(self.C.prop.__doc__, "a docstring")
 
     def test_propertywithsymbols__honors_doc_argument(self):
 
         class C:
 
-            @propertywithsymbols(doc='different', symbols=self.symbols)
+            @propertywithsymbols(doc="different", symbols=self.symbols)
             def prop(self):
                 """a docstring"""
-                return 'prop'
+                return "prop"
 
-        self.assertEqual(C.prop.__doc__, 'different')
+        self.assertEqual(C.prop.__doc__, "different")
 
 
 class TestJobDefinitionDefinition(TestCase):
@@ -81,41 +82,44 @@ class TestJobDefinitionDefinition(TestCase):
         """
         Ensure that get_raw_record_value() works okay
         """
-        job1 = JobDefinition({'key': 'value'}, raw_data={'key': 'raw-value'})
-        job2 = JobDefinition({'_key': 'value'}, raw_data={'_key': 'raw-value'})
-        self.assertEqual(job1.get_raw_record_value('key'), 'raw-value')
-        self.assertEqual(job2.get_raw_record_value('key'), 'raw-value')
+        job1 = JobDefinition({"key": "value"}, raw_data={"key": "raw-value"})
+        job2 = JobDefinition({"_key": "value"}, raw_data={"_key": "raw-value"})
+        self.assertEqual(job1.get_raw_record_value("key"), "raw-value")
+        self.assertEqual(job2.get_raw_record_value("key"), "raw-value")
 
     def test_get_record_value(self):
         """
         Ensure that get_record_value() works okay
         """
-        job1 = JobDefinition({'key': 'value'}, raw_data={'key': 'raw-value'})
-        job2 = JobDefinition({'_key': 'value'}, raw_data={'_key': 'raw-value'})
-        self.assertEqual(job1.get_record_value('key'), 'value')
-        self.assertEqual(job2.get_record_value('key'), 'value')
+        job1 = JobDefinition({"key": "value"}, raw_data={"key": "raw-value"})
+        job2 = JobDefinition({"_key": "value"}, raw_data={"_key": "raw-value"})
+        self.assertEqual(job1.get_record_value("key"), "value")
+        self.assertEqual(job2.get_record_value("key"), "value")
 
     def test_properties(self):
         """
         Ensure that properties are looked up in the non-raw copy of the data
         """
-        job = JobDefinition({
-            'plugin': 'plugin-value',
-            'command': 'command-value',
-            'environ': 'environ-value',
-            'user': 'user-value',
-            'shell': 'shell-value',
-            'flags': 'flags-value',
-            'category_id': 'category_id-value',
-        }, raw_data={
-            'plugin': 'plugin-raw',
-            'command': 'command-raw',
-            'environ': 'environ-raw',
-            'user': 'user-raw',
-            'shell': 'shell-raw',
-            'flags': 'flags-raw',
-            'category_id': 'category_id-raw',
-        })
+        job = JobDefinition(
+            {
+                "plugin": "plugin-value",
+                "command": "command-value",
+                "environ": "environ-value",
+                "user": "user-value",
+                "shell": "shell-value",
+                "flags": "flags-value",
+                "category_id": "category_id-value",
+            },
+            raw_data={
+                "plugin": "plugin-raw",
+                "command": "command-raw",
+                "environ": "environ-raw",
+                "user": "user-raw",
+                "shell": "shell-raw",
+                "flags": "flags-raw",
+                "category_id": "category_id-raw",
+            },
+        )
         self.assertEqual(job.plugin, "plugin-value")
         self.assertEqual(job.command, "command-value")
         self.assertEqual(job.environ, "environ-value")
@@ -133,75 +137,81 @@ class TestJobDefinitionDefinition(TestCase):
         self.assertEqual(job.command, None)
         self.assertEqual(job.environ, None)
         self.assertEqual(job.user, None)
-        self.assertEqual(job.shell, 'bash')
+        self.assertEqual(job.shell, "bash")
         self.assertEqual(job.flags, None)
-        self.assertEqual(job.category_id,
-                         'com.canonical.plainbox::uncategorised')
+        self.assertEqual(
+            job.category_id, "com.canonical.plainbox::uncategorised"
+        )
 
     def test_checksum_smoke(self):
-        job1 = JobDefinition({'plugin': 'plugin', 'user': 'root'})
-        identical_to_job1 = JobDefinition({'plugin': 'plugin', 'user': 'root'})
+        job1 = JobDefinition({"plugin": "plugin", "user": "root"})
+        identical_to_job1 = JobDefinition({"plugin": "plugin", "user": "root"})
         # Two distinct but identical jobs have the same checksum
         self.assertEqual(job1.checksum, identical_to_job1.checksum)
-        job2 = JobDefinition({'plugin': 'plugin', 'user': 'anonymous'})
+        job2 = JobDefinition({"plugin": "plugin", "user": "anonymous"})
         # Two jobs with different definitions have different checksum
         self.assertNotEqual(job1.checksum, job2.checksum)
         # The checksum is stable and does not change over time
         self.assertEqual(
             job1.checksum,
-            "c47cc3719061e4df0010d061e6f20d3d046071fd467d02d093a03068d2f33400")
+            "c47cc3719061e4df0010d061e6f20d3d046071fd467d02d093a03068d2f33400",
+        )
 
     def test_get_environ_settings(self):
         job1 = JobDefinition({})
         self.assertEqual(job1.get_environ_settings(), set())
-        job2 = JobDefinition({'environ': 'a b c'})
-        self.assertEqual(job2.get_environ_settings(), set(['a', 'b', 'c']))
-        job3 = JobDefinition({'environ': 'a,b,c'})
-        self.assertEqual(job3.get_environ_settings(), set(['a', 'b', 'c']))
+        job2 = JobDefinition({"environ": "a b c"})
+        self.assertEqual(job2.get_environ_settings(), set(["a", "b", "c"]))
+        job3 = JobDefinition({"environ": "a,b,c"})
+        self.assertEqual(job3.get_environ_settings(), set(["a", "b", "c"]))
 
     def test_get_flag_set(self):
         job1 = JobDefinition({})
         self.assertEqual(job1.get_flag_set(), set())
-        job2 = JobDefinition({'flags': 'a b c'})
-        self.assertEqual(job2.get_flag_set(), set(['a', 'b', 'c']))
-        job3 = JobDefinition({'flags': 'a,b,c'})
-        self.assertEqual(job3.get_flag_set(), set(['a', 'b', 'c']))
+        job2 = JobDefinition({"flags": "a b c"})
+        self.assertEqual(job2.get_flag_set(), set(["a", "b", "c"]))
+        job3 = JobDefinition({"flags": "a,b,c"})
+        self.assertEqual(job3.get_flag_set(), set(["a", "b", "c"]))
 
 
 class JobDefinitionParsingTests(TestCaseWithParameters):
 
-    parameter_names = ('glue',)
+    parameter_names = ("glue",)
     parameter_values = (
-        ('commas',),
-        ('spaces',),
-        ('tabs',),
-        ('newlines',),
-        ('spaces_and_commas',),
-        ('multiple_spaces',),
-        ('multiple_commas',)
+        ("commas",),
+        ("spaces",),
+        ("tabs",),
+        ("newlines",),
+        ("spaces_and_commas",),
+        ("multiple_spaces",),
+        ("multiple_commas",),
     )
     parameters_keymap = {
-        'commas': ',',
-        'spaces': ' ',
-        'tabs': '\t',
-        'newlines': '\n',
-        'spaces_and_commas': ', ',
-        'multiple_spaces': '   ',
-        'multiple_commas': ',,,,'
+        "commas": ",",
+        "spaces": " ",
+        "tabs": "\t",
+        "newlines": "\n",
+        "spaces_and_commas": ", ",
+        "multiple_spaces": "   ",
+        "multiple_commas": ",,,,",
     }
 
     def test_environ_parsing_with_various_separators(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin',
-            'environ': self.parameters_keymap[
-                self.parameters.glue].join(['foo', 'bar', 'froz'])})
-        expected = set({'foo', 'bar', 'froz'})
+        job = JobDefinition(
+            {
+                "id": "id",
+                "plugin": "plugin",
+                "environ": self.parameters_keymap[self.parameters.glue].join(
+                    ["foo", "bar", "froz"]
+                ),
+            }
+        )
+        expected = set({"foo", "bar", "froz"})
         observed = job.get_environ_settings()
         self.assertEqual(expected, observed)
 
     def test_environ_parsing_empty(self):
-        job = JobDefinition({'plugin': 'plugin'})
+        job = JobDefinition({"plugin": "plugin"})
         expected = set()
         observed = job.get_environ_settings()
         self.assertEqual(expected, observed)
@@ -217,151 +227,235 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         pass
 
     def test_name__untranslatable(self):
-        issue_list = self.unit_cls({
-            '_name': 'name'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
-                              Problem.unexpected_i18n, Severity.warning)
+        issue_list = self.unit_cls(
+            {"_name": "name"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.name,
+            Problem.unexpected_i18n,
+            Severity.warning,
+        )
 
     def test_name__template_variant(self):
-        issue_list = self.unit_cls({
-            'name': 'name'
-        }, parameters={}, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
-                              Problem.constant, Severity.error)
+        issue_list = self.unit_cls(
+            {"name": "name"}, parameters={}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.name,
+            Problem.constant,
+            Severity.error,
+        )
 
     def test_name__deprecated(self):
-        issue_list = self.unit_cls({
-            'name': 'name'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
-                              Problem.deprecated, Severity.advice)
+        issue_list = self.unit_cls(
+            {"name": "name"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.name,
+            Problem.deprecated,
+            Severity.advice,
+        )
 
     def test_summary__translatable(self):
-        issue_list = self.unit_cls({
-            'summary': 'summary'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.summary,
-                              Problem.expected_i18n, Severity.warning)
+        issue_list = self.unit_cls(
+            {"summary": "summary"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.summary,
+            Problem.expected_i18n,
+            Severity.warning,
+        )
 
     def test_summary__template_variant(self):
-        issue_list = self.unit_cls({
-            'summary': 'summary'
-        }, provider=self.provider, parameters={}).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.summary,
-                              Problem.constant, Severity.error)
+        issue_list = self.unit_cls(
+            {"summary": "summary"}, provider=self.provider, parameters={}
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.summary,
+            Problem.constant,
+            Severity.error,
+        )
 
     def test_summary__present(self):
-        issue_list = self.unit_cls({
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.summary,
-                              Problem.missing, Severity.advice)
+        issue_list = self.unit_cls({}, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.summary,
+            Problem.missing,
+            Severity.advice,
+        )
 
     def test_summary__one_line(self):
-        issue_list = self.unit_cls({
-            'summary': 'line1\nline2'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.summary,
-                              Problem.wrong, Severity.warning)
+        issue_list = self.unit_cls(
+            {"summary": "line1\nline2"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.summary,
+            Problem.wrong,
+            Severity.warning,
+        )
 
     def test_summary__short_line(self):
-        issue_list = self.unit_cls({
-            'summary': 'x' * 81
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.summary,
-                              Problem.wrong, Severity.warning)
+        issue_list = self.unit_cls(
+            {"summary": "x" * 81}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.summary,
+            Problem.wrong,
+            Severity.warning,
+        )
 
     def test_plugin__untranslatable(self):
-        issue_list = self.unit_cls({
-            '_plugin': 'plugin'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
-                              Problem.unexpected_i18n, Severity.warning)
+        issue_list = self.unit_cls(
+            {"_plugin": "plugin"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.plugin,
+            Problem.unexpected_i18n,
+            Severity.warning,
+        )
 
     def test_plugin__template_invarinat(self):
-        issue_list = self.unit_cls({
-            'plugin': '{attr}'
-        }, parameters={'attr': 'plugin'}, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
-                              Problem.variable, Severity.error)
+        issue_list = self.unit_cls(
+            {"plugin": "{attr}"},
+            parameters={"attr": "plugin"},
+            provider=self.provider,
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.plugin,
+            Problem.variable,
+            Severity.error,
+        )
 
     def test_plugin__correct(self):
-        issue_list = self.unit_cls({
-            'plugin': 'foo'
-        }, provider=self.provider).check()
-        message = ("field 'plugin', valid values are: attachment,"
-                   " manual, resource, shell, user-interact,"
-                   " user-interact-verify, user-verify")
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
-                              Problem.wrong, Severity.error, message)
+        issue_list = self.unit_cls(
+            {"plugin": "foo"}, provider=self.provider
+        ).check()
+        message = (
+            "field 'plugin', valid values are: attachment,"
+            " manual, resource, shell, user-interact,"
+            " user-interact-verify, user-verify"
+        )
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.plugin,
+            Problem.wrong,
+            Severity.error,
+            message,
+        )
 
     def test_plugin__not_user_verify(self):
-        issue_list = self.unit_cls({
-            'plugin': 'user-verify'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"plugin": "user-verify"}, provider=self.provider
+        ).check()
         message = "field 'plugin', please migrate to user-interact-verify"
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.plugin,
-                              Problem.deprecated, Severity.advice, message)
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.plugin,
+            Problem.deprecated,
+            Severity.advice,
+            message,
+        )
 
     def test_command__untranslatable(self):
-        issue_list = self.unit_cls({
-            '_command': 'command'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.command,
-                              Problem.unexpected_i18n, Severity.warning)
+        issue_list = self.unit_cls(
+            {"_command": "command"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.command,
+            Problem.unexpected_i18n,
+            Severity.warning,
+        )
 
     def test_command__present__on_non_manual(self):
         for plugin in self.unit_cls.plugin.symbols.get_all_symbols():
-            if plugin == 'manual':
+            if plugin == "manual":
                 continue
             # TODO: switch to subTest() once we depend on python3.4
-            issue_list = self.unit_cls({
-                'plugin': plugin,
-            }, provider=self.provider).check()
+            issue_list = self.unit_cls(
+                {
+                    "plugin": plugin,
+                },
+                provider=self.provider,
+            ).check()
             self.assertIssueFound(
-                issue_list, self.unit_cls.Meta.fields.command,
-                Problem.missing, Severity.error)
+                issue_list,
+                self.unit_cls.Meta.fields.command,
+                Problem.missing,
+                Severity.error,
+            )
 
     def test_command__useless__on_manual(self):
-        issue_list = self.unit_cls({
-            'plugin': 'manual',
-            'command': 'command'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"plugin": "manual", "command": "command"}, provider=self.provider
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.command,
-            Problem.useless, Severity.warning)
+            issue_list,
+            self.unit_cls.Meta.fields.command,
+            Problem.useless,
+            Severity.warning,
+        )
 
     def test_command__not_using_CHECKBOX_SHARE(self):
-        issue_list = self.unit_cls({
-            'command': '$CHECKBOX_SHARE'
-        }, provider=self.provider).check()
-        message = ("field 'command', please use PLAINBOX_PROVIDER_DATA"
-                   " instead of CHECKBOX_SHARE")
+        issue_list = self.unit_cls(
+            {"command": "$CHECKBOX_SHARE"}, provider=self.provider
+        ).check()
+        message = (
+            "field 'command', please use PLAINBOX_PROVIDER_DATA"
+            " instead of CHECKBOX_SHARE"
+        )
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.command,
-            Problem.deprecated, Severity.advice, message)
+            issue_list,
+            self.unit_cls.Meta.fields.command,
+            Problem.deprecated,
+            Severity.advice,
+            message,
+        )
 
     def test_command__not_using_CHECKBOX_DATA(self):
-        issue_list = self.unit_cls({
-            'command': '$CHECKBOX_DATA'
-        }, provider=self.provider).check()
-        message = ("field 'command', please use PLAINBOX_SESSION_SHARE"
-                   " instead of CHECKBOX_DATA")
+        issue_list = self.unit_cls(
+            {"command": "$CHECKBOX_DATA"}, provider=self.provider
+        ).check()
+        message = (
+            "field 'command', please use PLAINBOX_SESSION_SHARE"
+            " instead of CHECKBOX_DATA"
+        )
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.command,
-            Problem.deprecated, Severity.advice, message)
+            issue_list,
+            self.unit_cls.Meta.fields.command,
+            Problem.deprecated,
+            Severity.advice,
+            message,
+        )
 
     def test_command__has_valid_syntax(self):
-        issue_list = self.unit_cls({
-            'command': """# Echo a few numbers
+        issue_list = self.unit_cls(
+            {
+                "command": """# Echo a few numbers
             for i in 1 2 "3; do
                 echo $i
             done"""
-        }, provider=self.provider).check()
-        message = ("field 'command', No closing quotation, near '2'")
+            },
+            provider=self.provider,
+        ).check()
+        message = "field 'command', No closing quotation, near '2'"
         issue = self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.command,
-            Problem.syntax_error, Severity.error, message)
+            issue_list,
+            self.unit_cls.Meta.fields.command,
+            Problem.syntax_error,
+            Severity.error,
+            message,
+        )
         # Make sure the offset was good too. Since offset is dependant on the
         # place where we instantiate the unit in the self.unit_cls({}) line
         # above let's just ensure that the reported error is at a +3 offset
@@ -369,360 +463,496 @@ class JobDefinitionFieldValidationTests(UnitWithIdFieldValidationTests):
         # is on line reading 'for i in 1 2 "3; do' but shlex will actually only
         # report it at the end of the input which is the line with 'done'
         self.assertEqual(
-            issue.origin.line_start,
-            issue.unit.origin.line_start + 3)
+            issue.origin.line_start, issue.unit.origin.line_start + 3
+        )
 
     def test_description__translatable(self):
-        issue_list = self.unit_cls({
-            'description': 'description'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"description": "description"}, provider=self.provider
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.description,
-            Problem.expected_i18n, Severity.warning)
+            issue_list,
+            self.unit_cls.Meta.fields.description,
+            Problem.expected_i18n,
+            Severity.warning,
+        )
 
     def test_description__template_variant(self):
-        issue_list = self.unit_cls({
-            'description': 'description'
-        }, parameters={}, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"description": "description"},
+            parameters={},
+            provider=self.provider,
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.description,
-            Problem.constant, Severity.error)
+            issue_list,
+            self.unit_cls.Meta.fields.description,
+            Problem.constant,
+            Severity.error,
+        )
 
     def test_description__present__on_manual(self):
-        message = ("field 'description', manual jobs must have a description"
-                   " field, or a set of purpose, steps, and verification"
-                   " fields")
-        issue_list = self.unit_cls({
-            'plugin': 'manual'
-        }, provider=self.provider).check()
+        message = (
+            "field 'description', manual jobs must have a description"
+            " field, or a set of purpose, steps, and verification"
+            " fields"
+        )
+        issue_list = self.unit_cls(
+            {"plugin": "manual"}, provider=self.provider
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.description,
-            Problem.missing, Severity.error, message)
+            issue_list,
+            self.unit_cls.Meta.fields.description,
+            Problem.missing,
+            Severity.error,
+            message,
+        )
 
     def test_user__untranslatable(self):
-        issue_list = self.unit_cls({
-            '_user': 'user'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.user,
-                              Problem.unexpected_i18n, Severity.warning)
+        issue_list = self.unit_cls(
+            {"_user": "user"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.user,
+            Problem.unexpected_i18n,
+            Severity.warning,
+        )
 
     def test_user__template_invarinat(self):
-        issue_list = self.unit_cls({
-            'user': '{attr}'
-        }, parameters={'attr': 'user'}, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.user,
-                              Problem.variable, Severity.error)
+        issue_list = self.unit_cls(
+            {"user": "{attr}"},
+            parameters={"attr": "user"},
+            provider=self.provider,
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.user,
+            Problem.variable,
+            Severity.error,
+        )
 
     def test_user__defined_but_not_root(self):
         message = "field 'user', user can only be 'root'"
-        issue_list = self.unit_cls({
-            'user': 'user'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.user,
-                              Problem.wrong, Severity.error, message)
+        issue_list = self.unit_cls(
+            {"user": "user"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.user,
+            Problem.wrong,
+            Severity.error,
+            message,
+        )
 
     def test_user__useless_without_command(self):
         message = "field 'user', user without a command makes no sense"
-        issue_list = self.unit_cls({
-            'user': 'user'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.user,
-                              Problem.useless, Severity.warning, message)
+        issue_list = self.unit_cls(
+            {"user": "user"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.user,
+            Problem.useless,
+            Severity.warning,
+            message,
+        )
 
     def test_environ__untranslatable(self):
-        issue_list = self.unit_cls({'_environ': 'environ'}).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.environ,
-                              Problem.unexpected_i18n, Severity.warning)
+        issue_list = self.unit_cls({"_environ": "environ"}).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.environ,
+            Problem.unexpected_i18n,
+            Severity.warning,
+        )
 
     def test_environ__useless_without_command(self):
         message = "field 'environ', environ without a command makes no sense"
-        issue_list = self.unit_cls({
-            'environ': 'environ'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.environ,
-                              Problem.useless, Severity.warning, message)
+        issue_list = self.unit_cls(
+            {"environ": "environ"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.environ,
+            Problem.useless,
+            Severity.warning,
+            message,
+        )
 
     def test_estimated_duration__untranslatable(self):
-        issue_list = self.unit_cls({
-            '_estimated_duration': 'estimated_duration'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"_estimated_duration": "estimated_duration"},
+            provider=self.provider,
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.estimated_duration,
-            Problem.unexpected_i18n, Severity.warning)
+            issue_list,
+            self.unit_cls.Meta.fields.estimated_duration,
+            Problem.unexpected_i18n,
+            Severity.warning,
+        )
 
     def test_estimated_duration__template_invarinat(self):
-        issue_list = self.unit_cls({
-            'estimated_duration': '{attr}'
-        }, parameters={'attr': 'value'}, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"estimated_duration": "{attr}"},
+            parameters={"attr": "value"},
+            provider=self.provider,
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.estimated_duration,
-            Problem.variable, Severity.error)
+            issue_list,
+            self.unit_cls.Meta.fields.estimated_duration,
+            Problem.variable,
+            Severity.error,
+        )
 
     def test_estimated_duration__positive(self):
-        issue_list = self.unit_cls({
-            'estimated_duration': '0'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"estimated_duration": "0"}, provider=self.provider
+        ).check()
         message = "field 'estimated_duration', value must be a positive number"
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.estimated_duration,
-            Problem.wrong, Severity.error, message)
+            issue_list,
+            self.unit_cls.Meta.fields.estimated_duration,
+            Problem.wrong,
+            Severity.error,
+            message,
+        )
 
     def test_depends__untranslatable(self):
-        issue_list = self.unit_cls({
-            '_depends': 'depends'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"_depends": "depends"}, provider=self.provider
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.depends,
-            Problem.unexpected_i18n, Severity.warning)
+            issue_list,
+            self.unit_cls.Meta.fields.depends,
+            Problem.unexpected_i18n,
+            Severity.warning,
+        )
 
     def test_depends__refers_to_other_units(self):
-        unit = self.unit_cls({
-            'depends': 'some-unit'
-        }, provider=self.provider)
+        unit = self.unit_cls({"depends": "some-unit"}, provider=self.provider)
         message = "field 'depends', unit 'ns::some-unit' is not available"
         self.provider.unit_list = [unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.depends,
-            Problem.bad_reference, Severity.error, message)
+            issue_list,
+            self.unit_cls.Meta.fields.depends,
+            Problem.bad_reference,
+            Severity.error,
+            message,
+        )
 
     def test_depends__refers_to_other_jobs(self):
-        other_unit = UnitWithId({
-            'id': 'some-unit'
-        }, provider=self.provider)
-        unit = self.unit_cls({
-            'depends': 'some-unit'
-        }, provider=self.provider)
+        other_unit = UnitWithId({"id": "some-unit"}, provider=self.provider)
+        unit = self.unit_cls({"depends": "some-unit"}, provider=self.provider)
         message = "field 'depends', the referenced unit is not a job"
         self.provider.unit_list = [unit, other_unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.depends,
-            Problem.bad_reference, Severity.error, message)
+            issue_list,
+            self.unit_cls.Meta.fields.depends,
+            Problem.bad_reference,
+            Severity.error,
+            message,
+        )
 
     def test_after__untranslatable(self):
-        issue_list = self.unit_cls({
-            '_after': 'after'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"_after": "after"}, provider=self.provider
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.after,
-            Problem.unexpected_i18n, Severity.warning)
+            issue_list,
+            self.unit_cls.Meta.fields.after,
+            Problem.unexpected_i18n,
+            Severity.warning,
+        )
 
     def test_after__refers_to_other_units(self):
-        unit = self.unit_cls({
-            'after': 'some-unit'
-        }, provider=self.provider)
+        unit = self.unit_cls({"after": "some-unit"}, provider=self.provider)
         message = "field 'after', unit 'ns::some-unit' is not available"
         self.provider.unit_list = [unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.after,
-            Problem.bad_reference, Severity.error, message)
+            issue_list,
+            self.unit_cls.Meta.fields.after,
+            Problem.bad_reference,
+            Severity.error,
+            message,
+        )
 
     def test_after__refers_to_other_jobs(self):
-        other_unit = UnitWithId({
-            'id': 'some-unit'
-        }, provider=self.provider)
-        unit = self.unit_cls({
-            'after': 'some-unit'
-        }, provider=self.provider)
+        other_unit = UnitWithId({"id": "some-unit"}, provider=self.provider)
+        unit = self.unit_cls({"after": "some-unit"}, provider=self.provider)
         message = "field 'after', the referenced unit is not a job"
         self.provider.unit_list = [unit, other_unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.after,
-            Problem.bad_reference, Severity.error, message)
+            issue_list,
+            self.unit_cls.Meta.fields.after,
+            Problem.bad_reference,
+            Severity.error,
+            message,
+        )
 
     def test_requires__untranslatable(self):
-        issue_list = self.unit_cls({
-            '_requires': 'requires'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"_requires": "requires"}, provider=self.provider
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.requires,
-            Problem.unexpected_i18n, Severity.warning)
+            issue_list,
+            self.unit_cls.Meta.fields.requires,
+            Problem.unexpected_i18n,
+            Severity.warning,
+        )
 
     def test_requires__refers_to_other_units(self):
-        unit = self.unit_cls({
-            'requires': 'some_unit.attr == "value"'
-        }, provider=self.provider)
+        unit = self.unit_cls(
+            {"requires": 'some_unit.attr == "value"'}, provider=self.provider
+        )
         message = "field 'requires', unit 'ns::some_unit' is not available"
         self.provider.unit_list = [unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.requires,
-            Problem.bad_reference, Severity.error, message)
+            issue_list,
+            self.unit_cls.Meta.fields.requires,
+            Problem.bad_reference,
+            Severity.error,
+            message,
+        )
 
     def test_requires__refers_to_other_jobs(self):
-        other_unit = UnitWithId({
-            'id': 'some_unit'
-        }, provider=self.provider)
-        unit = self.unit_cls({
-            'requires': 'some_unit.attr == "value"'
-        }, provider=self.provider)
+        other_unit = UnitWithId({"id": "some_unit"}, provider=self.provider)
+        unit = self.unit_cls(
+            {"requires": 'some_unit.attr == "value"'}, provider=self.provider
+        )
         message = "field 'requires', the referenced unit is not a job"
         self.provider.unit_list = [unit, other_unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.requires,
-            Problem.bad_reference, Severity.error, message)
+            issue_list,
+            self.unit_cls.Meta.fields.requires,
+            Problem.bad_reference,
+            Severity.error,
+            message,
+        )
 
     def test_requires__refers_to_other_resource_jobs(self):
-        other_unit = JobDefinition({
-            'id': 'some_unit', 'plugin': 'shell'
-        }, provider=self.provider)
-        unit = self.unit_cls({
-            'requires': 'some_unit.attr == "value"'
-        }, provider=self.provider)
+        other_unit = JobDefinition(
+            {"id": "some_unit", "plugin": "shell"}, provider=self.provider
+        )
+        unit = self.unit_cls(
+            {"requires": 'some_unit.attr == "value"'}, provider=self.provider
+        )
         message = "field 'requires', the referenced job is not a resource job"
         self.provider.unit_list = [unit, other_unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.requires,
-            Problem.bad_reference, Severity.error, message)
+            issue_list,
+            self.unit_cls.Meta.fields.requires,
+            Problem.bad_reference,
+            Severity.error,
+            message,
+        )
 
     def test_shell__untranslatable(self):
-        issue_list = self.unit_cls({
-            '_shell': 'shell'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.shell,
-                              Problem.unexpected_i18n, Severity.warning)
+        issue_list = self.unit_cls(
+            {"_shell": "shell"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.shell,
+            Problem.unexpected_i18n,
+            Severity.warning,
+        )
 
     def test_shell__template_invarinat(self):
-        issue_list = self.unit_cls({
-            'shell': '{attr}'
-        }, parameters={'attr': 'shell'}, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.shell,
-                              Problem.variable, Severity.error)
+        issue_list = self.unit_cls(
+            {"shell": "{attr}"},
+            parameters={"attr": "shell"},
+            provider=self.provider,
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.shell,
+            Problem.variable,
+            Severity.error,
+        )
 
     def test_shell__defined_but_invalid(self):
         message = "field 'shell', only /bin/sh and /bin/bash are allowed"
-        issue_list = self.unit_cls({'shell': 'shell'},).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.shell,
-                              Problem.wrong, Severity.error, message)
+        issue_list = self.unit_cls(
+            {"shell": "shell"},
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.shell,
+            Problem.wrong,
+            Severity.error,
+            message,
+        )
 
     def test_category_id__untranslatable(self):
-        issue_list = self.unit_cls({
-            '_category_id': 'category_id'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"_category_id": "category_id"}, provider=self.provider
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.category_id,
-            Problem.unexpected_i18n, Severity.warning)
+            issue_list,
+            self.unit_cls.Meta.fields.category_id,
+            Problem.unexpected_i18n,
+            Severity.warning,
+        )
 
     def test_category_id__template_invarinat(self):
-        issue_list = self.unit_cls({
-            'category_id': '{attr}'
-        }, parameters={'attr': 'category_id'}, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"category_id": "{attr}"},
+            parameters={"attr": "category_id"},
+            provider=self.provider,
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.category_id,
-            Problem.variable, Severity.error)
+            issue_list,
+            self.unit_cls.Meta.fields.category_id,
+            Problem.variable,
+            Severity.error,
+        )
 
     def test_category_id__refers_to_other_units(self):
-        unit = self.unit_cls({
-            'category_id': 'some-unit'
-        }, provider=self.provider)
+        unit = self.unit_cls(
+            {"category_id": "some-unit"}, provider=self.provider
+        )
         message = "field 'category_id', unit 'ns::some-unit' is not available"
         self.provider.unit_list = [unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.category_id,
-            Problem.bad_reference, Severity.error, message)
+            issue_list,
+            self.unit_cls.Meta.fields.category_id,
+            Problem.bad_reference,
+            Severity.error,
+            message,
+        )
 
     def test_category_id__refers_to_other_jobs(self):
-        other_unit = UnitWithId({
-            'id': 'some-unit'
-        }, provider=self.provider)
-        unit = self.unit_cls({
-            'category_id': 'some-unit'
-        }, provider=self.provider)
+        other_unit = UnitWithId({"id": "some-unit"}, provider=self.provider)
+        unit = self.unit_cls(
+            {"category_id": "some-unit"}, provider=self.provider
+        )
         message = "field 'category_id', the referenced unit is not a category"
         self.provider.unit_list = [unit, other_unit]
         context = UnitValidationContext([self.provider])
         issue_list = unit.check(context=context)
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.category_id,
-            Problem.bad_reference, Severity.error, message)
+            issue_list,
+            self.unit_cls.Meta.fields.category_id,
+            Problem.bad_reference,
+            Severity.error,
+            message,
+        )
 
     def test_siblings__valid_json(self):
-        issue_list = self.unit_cls({
-            '_siblings': 'foo'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"_siblings": "foo"}, provider=self.provider
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.siblings,
-            Problem.syntax_error, Severity.error)
+            issue_list,
+            self.unit_cls.Meta.fields.siblings,
+            Problem.syntax_error,
+            Severity.error,
+        )
 
     def test_siblings__is_list(self):
-        issue_list = self.unit_cls({
-            '_siblings': '{"foo": "bar"}'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"_siblings": '{"foo": "bar"}'}, provider=self.provider
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.siblings,
-            Problem.syntax_error, Severity.error)
+            issue_list,
+            self.unit_cls.Meta.fields.siblings,
+            Problem.syntax_error,
+            Severity.error,
+        )
 
     def test_siblings__is_list_of_dicts(self):
-        issue_list = self.unit_cls({
-            '_siblings': '[1,2,3]'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"_siblings": "[1,2,3]"}, provider=self.provider
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.siblings,
-            Problem.syntax_error, Severity.error)
+            issue_list,
+            self.unit_cls.Meta.fields.siblings,
+            Problem.syntax_error,
+            Severity.error,
+        )
 
     def test_siblings__override_only_JobDefinition_fields(self):
-        issue_list = self.unit_cls({
-            '_siblings': '[{"id": "bar", "foo": "bar"}]'
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls(
+            {"_siblings": '[{"id": "bar", "foo": "bar"}]'},
+            provider=self.provider,
+        ).check()
         self.assertIssueFound(
-            issue_list, self.unit_cls.Meta.fields.siblings,
-            Problem.bad_reference, Severity.error)
+            issue_list,
+            self.unit_cls.Meta.fields.siblings,
+            Problem.bad_reference,
+            Severity.error,
+        )
 
 
 class TestJobDefinition(TestCase):
 
     def setUp(self):
-        self._full_record = RFC822Record({
-            'plugin': 'plugin',
-            'id': 'id',
-            'summary': 'summary-value',
-            'requires': 'requires',
-            'command': 'command',
-            'description': 'description-value'
-        }, Origin(FileTextSource('file.txt'), 1, 5))
-        self._full_gettext_record = RFC822Record({
-            '_plugin': 'plugin',
-            '_id': 'id',
-            '_summary': 'summary-value',
-            '_requires': 'requires',
-            '_command': 'command',
-            '_description': 'description-value',
-            '_siblings': '[{"id": "foo", "depends": "bar"}]'
-        }, Origin(FileTextSource('file.txt.in'), 1, 5))
-        self._min_record = RFC822Record({
-            'plugin': 'plugin',
-            'id': 'id',
-        }, Origin(FileTextSource('file.txt'), 1, 2))
-        self._split_description_record = RFC822Record({
-            'id': 'id',
-            'purpose': 'purpose-value',
-            'steps': 'steps-value',
-            'verification': 'verification-value'
-        }, Origin(FileTextSource('file.txt'), 1, 1))
+        self._full_record = RFC822Record(
+            {
+                "plugin": "plugin",
+                "id": "id",
+                "summary": "summary-value",
+                "requires": "requires",
+                "command": "command",
+                "description": "description-value",
+            },
+            Origin(FileTextSource("file.txt"), 1, 5),
+        )
+        self._full_gettext_record = RFC822Record(
+            {
+                "_plugin": "plugin",
+                "_id": "id",
+                "_summary": "summary-value",
+                "_requires": "requires",
+                "_command": "command",
+                "_description": "description-value",
+                "_siblings": '[{"id": "foo", "depends": "bar"}]',
+            },
+            Origin(FileTextSource("file.txt.in"), 1, 5),
+        )
+        self._min_record = RFC822Record(
+            {
+                "plugin": "plugin",
+                "id": "id",
+            },
+            Origin(FileTextSource("file.txt"), 1, 2),
+        )
+        self._split_description_record = RFC822Record(
+            {
+                "id": "id",
+                "purpose": "purpose-value",
+                "steps": "steps-value",
+                "verification": "verification-value",
+            },
+            Origin(FileTextSource("file.txt"), 1, 1),
+        )
 
     def test_instantiate_template(self):
-        data = mock.Mock(name='data')
-        raw_data = mock.Mock(name='raw_data')
-        origin = mock.Mock(name='origin')
-        provider = mock.Mock(name='provider')
-        parameters = mock.Mock(name='parameters')
-        field_offset_map = mock.Mock(name='field_offset_map')
+        data = mock.Mock(name="data")
+        raw_data = mock.Mock(name="raw_data")
+        origin = mock.Mock(name="origin")
+        provider = mock.Mock(name="provider")
+        parameters = mock.Mock(name="parameters")
+        field_offset_map = mock.Mock(name="field_offset_map")
         unit = JobDefinition.instantiate_template(
-            data, raw_data, origin, provider, parameters, field_offset_map)
+            data, raw_data, origin, provider, parameters, field_offset_map
+        )
         self.assertIs(unit._data, data)
         self.assertIs(unit._raw_data, raw_data)
         self.assertIs(unit._origin, origin)
@@ -764,8 +994,10 @@ class TestJobDefinition(TestCase):
 
     def test_description_combining(self):
         job = JobDefinition(self._split_description_record.data)
-        expected = ("PURPOSE:\npurpose-value\nSTEPS:\nsteps-value\n"
-                    "VERIFICATION:\nverification-value")
+        expected = (
+            "PURPOSE:\npurpose-value\nSTEPS:\nsteps-value\n"
+            "VERIFICATION:\nverification-value"
+        )
         self.assertEqual(job.description, expected)
 
     def test_from_rfc822_record_full_record(self):
@@ -811,133 +1043,139 @@ class TestJobDefinition(TestCase):
         self.assertNotEqual(hash(job1), hash(job3))
 
     def test_dependency_parsing_empty(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin'})
+        job = JobDefinition({"id": "id", "plugin": "plugin"})
         expected = set()
         observed = job.get_direct_dependencies()
         self.assertEqual(expected, observed)
 
     def test_dependency_parsing_single_word(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin',
-            'depends': 'word'})
-        expected = set(['word'])
+        job = JobDefinition(
+            {"id": "id", "plugin": "plugin", "depends": "word"}
+        )
+        expected = set(["word"])
         observed = job.get_direct_dependencies()
         self.assertEqual(expected, observed)
 
     def test_environ_parsing_empty(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin'})
+        job = JobDefinition({"id": "id", "plugin": "plugin"})
         expected = set()
         observed = job.get_environ_settings()
         self.assertEqual(expected, observed)
 
     def test_dependency_parsing_quoted_word(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin',
-            'depends': '"quoted word"'})
-        expected = set(['quoted word'])
+        job = JobDefinition(
+            {"id": "id", "plugin": "plugin", "depends": '"quoted word"'}
+        )
+        expected = set(["quoted word"])
         observed = job.get_direct_dependencies()
         self.assertEqual(expected, observed)
 
     def test_environ_parsing_single_word(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin',
-            'environ': 'word'})
-        expected = set(['word'])
+        job = JobDefinition(
+            {"id": "id", "plugin": "plugin", "environ": "word"}
+        )
+        expected = set(["word"])
         observed = job.get_environ_settings()
         self.assertEqual(expected, observed)
 
     def test_resource_parsing_empty(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin'})
+        job = JobDefinition({"id": "id", "plugin": "plugin"})
         expected = set()
         observed = job.get_resource_dependencies()
         self.assertEqual(expected, observed)
 
     def test_resource_parsing_typical(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin',
-            'requires': 'foo.bar == 10'})
-        expected = set(['foo'])
+        job = JobDefinition(
+            {"id": "id", "plugin": "plugin", "requires": "foo.bar == 10"}
+        )
+        expected = set(["foo"])
         observed = job.get_resource_dependencies()
         self.assertEqual(expected, observed)
 
     def test_resource_parsing_many(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin',
-            'requires': (
-                "foo.bar == 10\n"
-                "froz.bot == 10\n")})
-        expected = set(['foo', 'froz'])
+        job = JobDefinition(
+            {
+                "id": "id",
+                "plugin": "plugin",
+                "requires": ("foo.bar == 10\n" "froz.bot == 10\n"),
+            }
+        )
+        expected = set(["foo", "froz"])
         observed = job.get_resource_dependencies()
         self.assertEqual(expected, observed)
 
     def test_checksum_smoke(self):
-        job1 = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin'
-        })
-        identical_to_job1 = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin'
-        })
+        job1 = JobDefinition({"id": "id", "plugin": "plugin"})
+        identical_to_job1 = JobDefinition({"id": "id", "plugin": "plugin"})
         # Two distinct but identical jobs have the same checksum
         self.assertEqual(job1.checksum, identical_to_job1.checksum)
-        job2 = JobDefinition({
-            'id': 'other id',
-            'plugin': 'plugin'
-        })
+        job2 = JobDefinition({"id": "other id", "plugin": "plugin"})
         # Two jobs with different definitions have different checksum
         self.assertNotEqual(job1.checksum, job2.checksum)
         # The checksum is stable and does not change over time
         self.assertEqual(
             job1.checksum,
-            "cd21b33e6a2f4d1291977b60d922bbd276775adce73fca8c69b4821c96d7314a")
+            "cd21b33e6a2f4d1291977b60d922bbd276775adce73fca8c69b4821c96d7314a",
+        )
 
     def test_estimated_duration(self):
         self.assertEqual(JobDefinition({}).estimated_duration, None)
-        self.assertEqual(JobDefinition(
-            {'estimated_duration': 'foo'}).estimated_duration, None)
-        self.assertEqual(JobDefinition(
-            {'estimated_duration': '123.5'}).estimated_duration,
-            123.5)
-        self.assertEqual(JobDefinition(
-            {'estimated_duration': '5s'}).estimated_duration, 5)
-        self.assertEqual(JobDefinition(
-            {'estimated_duration': '1m 5s'}).estimated_duration, 65)
-        self.assertEqual(JobDefinition(
-            {'estimated_duration': '1h 1m 5s'}).estimated_duration, 3665)
-        self.assertEqual(JobDefinition(
-            {'estimated_duration': '1h'}).estimated_duration, 3600)
-        self.assertEqual(JobDefinition(
-            {'estimated_duration': '2m'}).estimated_duration, 120)
-        self.assertEqual(JobDefinition(
-            {'estimated_duration': '1h 1s'}).estimated_duration, 3601)
-        self.assertEqual(JobDefinition(
-            {'estimated_duration': '1m:5s'}).estimated_duration, 65)
-        self.assertEqual(JobDefinition(
-            {'estimated_duration': '1h:1m:5s'}).estimated_duration, 3665)
-        self.assertEqual(JobDefinition(
-            {'estimated_duration': '1h:1s'}).estimated_duration, 3601)
+        self.assertEqual(
+            JobDefinition({"estimated_duration": "foo"}).estimated_duration,
+            None,
+        )
+        self.assertEqual(
+            JobDefinition({"estimated_duration": "123.5"}).estimated_duration,
+            123.5,
+        )
+        self.assertEqual(
+            JobDefinition({"estimated_duration": "5s"}).estimated_duration, 5
+        )
+        self.assertEqual(
+            JobDefinition({"estimated_duration": "1m 5s"}).estimated_duration,
+            65,
+        )
+        self.assertEqual(
+            JobDefinition(
+                {"estimated_duration": "1h 1m 5s"}
+            ).estimated_duration,
+            3665,
+        )
+        self.assertEqual(
+            JobDefinition({"estimated_duration": "1h"}).estimated_duration,
+            3600,
+        )
+        self.assertEqual(
+            JobDefinition({"estimated_duration": "2m"}).estimated_duration, 120
+        )
+        self.assertEqual(
+            JobDefinition({"estimated_duration": "1h 1s"}).estimated_duration,
+            3601,
+        )
+        self.assertEqual(
+            JobDefinition({"estimated_duration": "1m:5s"}).estimated_duration,
+            65,
+        )
+        self.assertEqual(
+            JobDefinition(
+                {"estimated_duration": "1h:1m:5s"}
+            ).estimated_duration,
+            3665,
+        )
+        self.assertEqual(
+            JobDefinition({"estimated_duration": "1h:1s"}).estimated_duration,
+            3601,
+        )
 
     def test_summary(self):
         job1 = JobDefinition({})
         self.assertEqual(job1.summary, None)
-        job2 = JobDefinition({'name': 'name'})
-        self.assertEqual(job2.summary, 'name')
-        job3 = JobDefinition({'summary': 'summary'})
-        self.assertEqual(job3.summary, 'summary')
-        job4 = JobDefinition({'summary': 'summary', 'name': 'name'})
-        self.assertEqual(job4.summary, 'summary')
+        job2 = JobDefinition({"name": "name"})
+        self.assertEqual(job2.summary, "name")
+        job3 = JobDefinition({"summary": "summary"})
+        self.assertEqual(job3.summary, "summary")
+        job4 = JobDefinition({"summary": "summary", "name": "name"})
+        self.assertEqual(job4.summary, "summary")
 
     def test_tr_summary(self):
         """
@@ -947,7 +1185,7 @@ class TestJobDefinition(TestCase):
         with mock.patch.object(job, "get_translated_record_value") as mgtrv:
             retval = job.tr_summary()
         # Ensure that get_translated_record_value() was called
-        mgtrv.assert_called_once_with('summary', job.partial_id)
+        mgtrv.assert_called_once_with("summary", job.partial_id)
         # Ensure tr_summary() returned its return value
         self.assertEqual(retval, mgtrv())
 
@@ -956,8 +1194,8 @@ class TestJobDefinition(TestCase):
         Verify that Provider1.tr_summary() falls back to job.id, if summary is
         not defined
         """
-        job = JobDefinition({'id': 'id'})
-        self.assertEqual(job.tr_summary(), 'id')
+        job = JobDefinition({"id": "id"})
+        self.assertEqual(job.tr_summary(), "id")
 
     def test_tr_description(self):
         """
@@ -967,7 +1205,7 @@ class TestJobDefinition(TestCase):
         with mock.patch.object(job, "get_translated_record_value") as mgtrv:
             retval = job.tr_description()
         # Ensure that get_translated_record_value() was called
-        mgtrv.assert_called_once_with('description')
+        mgtrv.assert_called_once_with("description")
         # Ensure tr_description() returned its return value
         self.assertEqual(retval, mgtrv())
 
@@ -979,30 +1217,33 @@ class TestJobDefinition(TestCase):
 
         def side_effect(arg):
             return {
-                'description': None,
-                'PURPOSE': 'TR_PURPOSE',
-                'STEPS': 'TR_STEPS',
-                'VERIFICATION': 'TR_VERIFICATION',
-                'purpose': 'tr_purpose_value',
-                'steps': 'tr_steps_value',
-                'verification': 'tr_verification_value'
+                "description": None,
+                "PURPOSE": "TR_PURPOSE",
+                "STEPS": "TR_STEPS",
+                "VERIFICATION": "TR_VERIFICATION",
+                "purpose": "tr_purpose_value",
+                "steps": "tr_steps_value",
+                "verification": "tr_verification_value",
             }[arg]
+
         with mock.patch.object(job, "get_translated_record_value") as mgtrv:
             mgtrv.side_effect = side_effect
-            with mock.patch('plainbox.impl.unit.job._') as mock_gettext:
+            with mock.patch("plainbox.impl.unit.job._") as mock_gettext:
                 mock_gettext.side_effect = side_effect
                 retval = job.tr_description()
-        mgtrv.assert_any_call('description')
-        mgtrv.assert_any_call('purpose')
-        mgtrv.assert_any_call('steps')
-        mgtrv.assert_any_call('verification')
+        mgtrv.assert_any_call("description")
+        mgtrv.assert_any_call("purpose")
+        mgtrv.assert_any_call("steps")
+        mgtrv.assert_any_call("verification")
         self.assertEqual(mgtrv.call_count, 4)
-        mock_gettext.assert_any_call('PURPOSE')
-        mock_gettext.assert_any_call('STEPS')
-        mock_gettext.assert_any_call('VERIFICATION')
+        mock_gettext.assert_any_call("PURPOSE")
+        mock_gettext.assert_any_call("STEPS")
+        mock_gettext.assert_any_call("VERIFICATION")
         self.assertEqual(mock_gettext.call_count, 3)
-        expected = ("TR_PURPOSE:\ntr_purpose_value\nTR_STEPS:\n"
-                    "tr_steps_value\nTR_VERIFICATION:\ntr_verification_value")
+        expected = (
+            "TR_PURPOSE:\ntr_purpose_value\nTR_STEPS:\n"
+            "tr_steps_value\nTR_VERIFICATION:\ntr_verification_value"
+        )
         self.assertEqual(retval, expected)
 
     def test_tr_purpose(self):
@@ -1013,7 +1254,7 @@ class TestJobDefinition(TestCase):
         with mock.patch.object(job, "get_translated_record_value") as mgtrv:
             retval = job.tr_purpose()
         # Ensure that get_translated_record_value() was called
-        mgtrv.assert_called_once_with('purpose')
+        mgtrv.assert_called_once_with("purpose")
         # Ensure tr_purpose() returned its return value
         self.assertEqual(retval, mgtrv())
 
@@ -1025,7 +1266,7 @@ class TestJobDefinition(TestCase):
         with mock.patch.object(job, "get_translated_record_value") as mgtrv:
             retval = job.tr_steps()
         # Ensure that get_translated_record_value() was called
-        mgtrv.assert_called_once_with('steps')
+        mgtrv.assert_called_once_with("steps")
         # Ensure tr_steps() returned its return value
         self.assertEqual(retval, mgtrv())
 
@@ -1037,43 +1278,51 @@ class TestJobDefinition(TestCase):
         with mock.patch.object(job, "get_translated_record_value") as mgtrv:
             retval = job.tr_verification()
         # Ensure that get_translated_record_value() was called
-        mgtrv.assert_called_once_with('verification')
+        mgtrv.assert_called_once_with("verification")
         # Ensure tr_verification() returned its return value
         self.assertEqual(retval, mgtrv())
 
     def test_imports(self):
         job1 = JobDefinition({})
         self.assertEqual(job1.imports, None)
-        job2 = JobDefinition({'imports': 'imports'})
-        self.assertEqual(job2.imports, 'imports')
+        job2 = JobDefinition({"imports": "imports"})
+        self.assertEqual(job2.imports, "imports")
 
     def test_get_imported_jobs(self):
         job1 = JobDefinition({})
         self.assertEqual(list(job1.get_imported_jobs()), [])
-        job2 = JobDefinition({
-            'imports': 'from com.canonical.certification import package'
-        })
-        self.assertEqual(list(job2.get_imported_jobs()), [
-            ('com.canonical.certification::package', 'package')
-        ])
-        job3 = JobDefinition({
-            'imports': ('from com.canonical.certification'
-                        ' import package as pkg')
-        })
-        self.assertEqual(list(job3.get_imported_jobs()), [
-            ('com.canonical.certification::package', 'pkg')
-        ])
+        job2 = JobDefinition(
+            {"imports": "from com.canonical.certification import package"}
+        )
+        self.assertEqual(
+            list(job2.get_imported_jobs()),
+            [("com.canonical.certification::package", "package")],
+        )
+        job3 = JobDefinition(
+            {
+                "imports": (
+                    "from com.canonical.certification" " import package as pkg"
+                )
+            }
+        )
+        self.assertEqual(
+            list(job3.get_imported_jobs()),
+            [("com.canonical.certification::package", "pkg")],
+        )
 
     def test_get_resource_program_using_imports(self):
-        job = JobDefinition({
-            'imports': ('from com.canonical.certification'
-                        ' import package as pkg'),
-            'requires': 'pkg.name == "checkbox"',
-        })
+        job = JobDefinition(
+            {
+                "imports": (
+                    "from com.canonical.certification" " import package as pkg"
+                ),
+                "requires": 'pkg.name == "checkbox"',
+            }
+        )
         prog = job.get_resource_program()
         self.assertEqual(
-            prog.required_resources,
-            {'com.canonical.certification::package'})
+            prog.required_resources, {"com.canonical.certification::package"}
+        )
 
 
 class TestJobDefinitionStartup(TestCaseWithParameters):
@@ -1084,30 +1333,28 @@ class TestJobDefinitionStartup(TestCaseWithParameters):
     which operates on the whole class.
     """
 
-    parameter_names = ('plugin',)
+    parameter_names = ("plugin",)
     parameter_values = (
-        ('shell',),
-        ('attachment',),
-        ('resource',),
-        ('manual',),
-        ('user-interact',),
-        ('user-verify',),
-        ('user-interact-verify',)
+        ("shell",),
+        ("attachment",),
+        ("resource",),
+        ("manual",),
+        ("user-interact",),
+        ("user-verify",),
+        ("user-interact-verify",),
     )
     parameters_keymap = {
-        'shell': False,
-        'attachment': False,
-        'resource': False,
-        'manual': True,
-        'user-interact': True,
-        'user-verify': False,
-        'user-interact-verify': True,
+        "shell": False,
+        "attachment": False,
+        "resource": False,
+        "manual": True,
+        "user-interact": True,
+        "user-verify": False,
+        "user-interact-verify": True,
     }
 
     def test_startup_user_interaction_required(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': self.parameters.plugin})
+        job = JobDefinition({"id": "id", "plugin": self.parameters.plugin})
         expected = self.parameters_keymap[self.parameters.plugin]
         observed = job.startup_user_interaction_required
         self.assertEqual(expected, observed)
@@ -1115,62 +1362,75 @@ class TestJobDefinitionStartup(TestCaseWithParameters):
 
 class JobParsingTests(TestCaseWithParameters):
 
-    parameter_names = ('glue',)
+    parameter_names = ("glue",)
     parameter_values = (
-        ('commas',),
-        ('spaces',),
-        ('tabs',),
-        ('newlines',),
-        ('spaces_and_commas',),
-        ('multiple_spaces',),
-        ('multiple_commas',)
+        ("commas",),
+        ("spaces",),
+        ("tabs",),
+        ("newlines",),
+        ("spaces_and_commas",),
+        ("multiple_spaces",),
+        ("multiple_commas",),
     )
     parameters_keymap = {
-        'commas': ',',
-        'spaces': ' ',
-        'tabs': '\t',
-        'newlines': '\n',
-        'spaces_and_commas': ', ',
-        'multiple_spaces': '   ',
-        'multiple_commas': ',,,,'
+        "commas": ",",
+        "spaces": " ",
+        "tabs": "\t",
+        "newlines": "\n",
+        "spaces_and_commas": ", ",
+        "multiple_spaces": "   ",
+        "multiple_commas": ",,,,",
     }
 
     def test_environ_parsing_with_various_separators(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin',
-            'environ': self.parameters_keymap[
-                self.parameters.glue].join(['foo', 'bar', 'froz'])})
-        expected = set({'foo', 'bar', 'froz'})
+        job = JobDefinition(
+            {
+                "id": "id",
+                "plugin": "plugin",
+                "environ": self.parameters_keymap[self.parameters.glue].join(
+                    ["foo", "bar", "froz"]
+                ),
+            }
+        )
+        expected = set({"foo", "bar", "froz"})
         observed = job.get_environ_settings()
         self.assertEqual(expected, observed)
 
     def test_dependency_parsing_with_various_separators(self):
-        job = JobDefinition({
-            'id': 'id',
-            'plugin': 'plugin',
-            'depends': self.parameters_keymap[
-                self.parameters.glue].join(['foo', 'bar', 'froz'])})
-        expected = set({'foo', 'bar', 'froz'})
+        job = JobDefinition(
+            {
+                "id": "id",
+                "plugin": "plugin",
+                "depends": self.parameters_keymap[self.parameters.glue].join(
+                    ["foo", "bar", "froz"]
+                ),
+            }
+        )
+        expected = set({"foo", "bar", "froz"})
         observed = job.get_direct_dependencies()
         self.assertEqual(expected, observed)
 
 
 class RegressionTests(TestCase):
-
-    """ Regression tests. """
+    """Regression tests."""
 
     def test_1444242(self):
-        """ Regression test for http://pad.lv/1444242/. """
-        provider = mock.Mock(spec_set=Provider1, name='provider')
-        provider.namespace = 'com.canonical.certification'
-        job = JobDefinition({
-            'id': 'audio/playback_thunderbolt',
-            'imports': 'from com.canonical.plainbox import manifest',
-            'requires': (
-                "device.category == 'AUDIO'\n"
-                "manifest.has_thunderbolt == 'True'\n"),
-        }, provider=provider)
+        """Regression test for http://pad.lv/1444242/."""
+        provider = mock.Mock(spec_set=Provider1, name="provider")
+        provider.namespace = "com.canonical.certification"
+        job = JobDefinition(
+            {
+                "id": "audio/playback_thunderbolt",
+                "imports": "from com.canonical.plainbox import manifest",
+                "requires": (
+                    "device.category == 'AUDIO'\n"
+                    "manifest.has_thunderbolt == 'True'\n"
+                ),
+            },
+            provider=provider,
+        )
         prog = job.get_resource_program()
-        self.assertEqual(prog.expression_list[-1].resource_id_list,
-                         ['com.canonical.plainbox::manifest'])
+        self.assertEqual(
+            prog.expression_list[-1].resource_id_list,
+            ["com.canonical.plainbox::manifest"],
+        )

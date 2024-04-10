@@ -39,17 +39,17 @@ from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
 __all__ = [
-    'CorrectFieldValueValidator',
-    'DeprecatedFieldValidator',
-    'FieldValidatorBase',
-    'IFieldValidator',
-    'PresentFieldValidator',
-    'TemplateInvariantFieldValidator',
-    'TemplateVariantFieldValidator',
-    'TranslatableFieldValidator',
-    'UniqueValueValidator',
-    'UnitReferenceValidator',
-    'UntranslatableFieldValidator',
+    "CorrectFieldValueValidator",
+    "DeprecatedFieldValidator",
+    "FieldValidatorBase",
+    "IFieldValidator",
+    "PresentFieldValidator",
+    "TemplateInvariantFieldValidator",
+    "TemplateVariantFieldValidator",
+    "TranslatableFieldValidator",
+    "UniqueValueValidator",
+    "UnitReferenceValidator",
+    "UntranslatableFieldValidator",
 ]
 
 
@@ -65,7 +65,7 @@ def field2prop(field):
     :returns:
         Name of the property to access on the unit.
     """
-    return str(field).replace('-', '_')
+    return str(field).replace("-", "_")
 
 
 class UnitValidationContext(pod.POD):
@@ -80,12 +80,18 @@ class UnitValidationContext(pod.POD):
     """
 
     provider_list = pod.Field(
-        "list of all the providers", list, pod.MANDATORY,
-        assign_filter_list=[pod.typed, pod.typed.sequence(IProvider1)])
+        "list of all the providers",
+        list,
+        pod.MANDATORY,
+        assign_filter_list=[pod.typed, pod.typed.sequence(IProvider1)],
+    )
 
     shared_cache = pod.Field(
-        "cached computations", dict, initial_fn=dict,
-        assign_filter_list=[pod.typed])
+        "cached computations",
+        dict,
+        initial_fn=dict,
+        assign_filter_list=[pod.typed],
+    )
 
     def compute_shared(self, cache_key, func, *args, **kwargs):
         """
@@ -135,8 +141,13 @@ class UnitFieldIssue(Issue):
             " unit={!r}, field={!r})"
         ).format(
             self.__class__.__name__,
-            self.message, self.severity, self.kind, self.origin,
-            self.unit, self.field)
+            self.message,
+            self.severity,
+            self.kind,
+            self.origin,
+            self.unit,
+            self.field,
+        )
 
 
 class MultiUnitFieldIssue(Issue):
@@ -160,8 +171,13 @@ class MultiUnitFieldIssue(Issue):
             " unit_list={!r}, field={!r})"
         ).format(
             self.__class__.__name__,
-            self.message, self.severity, self.kind, self.origin,
-            self.unit_list, self.field)
+            self.message,
+            self.severity,
+            self.kind,
+            self.origin,
+            self.unit_list,
+            self.field,
+        )
 
 
 class IFieldValidator(metaclass=abc.ABCMeta):
@@ -245,11 +261,13 @@ class CorrectFieldValueValidator(FieldValidatorBase):
     a field-property) matches a predefined criteria. The criteria can
     be specified externally which makes this validator very flexible.
     """
+
     default_severity = Severity.error
     default_kind = Problem.wrong
 
-    def __init__(self, correct_fn, kind=None, severity=None, message=None,
-                 onlyif=None):
+    def __init__(
+        self, correct_fn, kind=None, severity=None, message=None, onlyif=None
+    ):
         """
         correct_fn:
             A function that checks if the value is correct or not. If it
@@ -295,13 +313,14 @@ class CorrectFieldValueValidator(FieldValidatorBase):
                 is_correct = self.correct_fn(value)
         except Exception as exc:
             yield parent.report_issue(
-                unit, field, self.kind, self.severity,
-                self.message or str(exc))
+                unit, field, self.kind, self.severity, self.message or str(exc)
+            )
         else:
             # Report an issue if the correctness check failed
             if not is_correct:
                 yield parent.report_issue(
-                    unit, field, self.kind, self.severity, self.message)
+                    unit, field, self.kind, self.severity, self.message
+                )
 
 
 class PresentFieldValidator(CorrectFieldValueValidator):
@@ -312,6 +331,7 @@ class PresentFieldValidator(CorrectFieldValueValidator):
     a field-property) is not None. It is useful for simple checks for required
     fields.
     """
+
     default_kind = Problem.missing
 
     def __init__(self, kind=None, severity=None, message=None, onlyif=None):
@@ -329,7 +349,10 @@ class PresentFieldValidator(CorrectFieldValueValidator):
             issue if the validation fails. By default it is derived from the
             specified issue ``kind`` by :meth:`UnitValidator.explain()`.
         """
-        def correct_fn(value): return value is not None
+
+        def correct_fn(value):
+            return value is not None
+
         super().__init__(correct_fn, kind, severity, message, onlyif)
 
 
@@ -360,15 +383,24 @@ class UselessFieldValidator(CorrectFieldValueValidator):
             issue if the validation fails. By default it is derived from the
             specified issue ``kind`` by :meth:`UnitValidator.explain()`.
         """
-        def correct_fn(value): return value is None
+
+        def correct_fn(value):
+            return value is None
+
         super().__init__(correct_fn, kind, severity, message, onlyif)
 
 
 class MemberOfFieldValidator(CorrectFieldValueValidator):
     """Validator ensuring the value is a member of a given set."""
 
-    def __init__(self, possible_values, kind=None, severity=None, message=None,
-                 onlyif=None):
+    def __init__(
+        self,
+        possible_values,
+        kind=None,
+        severity=None,
+        message=None,
+        onlyif=None,
+    ):
         """
         possible_values:
             Iterable with values that the membership will be testsed against.
@@ -387,10 +419,14 @@ class MemberOfFieldValidator(CorrectFieldValueValidator):
             argument.  If it returns True then the validator proceeds to
             perform its check.
         """
-        def correct_fn(value): return value in possible_values
+
+        def correct_fn(value):
+            return value in possible_values
+
         if not message:
-            message = _('valid values are: {}').format(
-                ', '.join(str(val) for val in sorted(possible_values)))
+            message = _("valid values are: {}").format(
+                ", ".join(str(val) for val in sorted(possible_values))
+            )
         super().__init__(correct_fn, kind, severity, message, onlyif)
 
 
@@ -404,7 +440,8 @@ class DeprecatedFieldValidator(FieldValidatorBase):
         # still check that the field is not being used.
         if unit.get_record_value(field) is not None:
             yield parent.report_issue(
-                unit, field, Problem.deprecated, Severity.advice, self.message)
+                unit, field, Problem.deprecated, Severity.advice, self.message
+            )
 
 
 class TranslatableFieldValidator(FieldValidatorBase):
@@ -420,9 +457,11 @@ class TranslatableFieldValidator(FieldValidatorBase):
     """
 
     def check(self, parent, unit, field):
-        if (unit.virtual is False and
-                unit.get_record_value(field) is not None and not
-                unit.is_translatable_field(field)):
+        if (
+            unit.virtual is False
+            and unit.get_record_value(field) is not None
+            and not unit.is_translatable_field(field)
+        ):
             yield parent.warning(unit, field, Problem.expected_i18n)
 
 
@@ -439,8 +478,7 @@ class UntranslatableFieldValidator(FieldValidatorBase):
     """
 
     def check(self, parent, unit, field):
-        if (unit.get_record_value(field) and
-                unit.is_translatable_field(field)):
+        if unit.get_record_value(field) and unit.is_translatable_field(field):
             yield parent.warning(unit, field, Problem.unexpected_i18n)
 
 
@@ -456,9 +494,10 @@ class TemplateInvariantFieldValidator(FieldValidatorBase):
             # No value? No problem!
             if value is None:
                 return
-            if unit.template_engine == 'jinja2':
+            if unit.template_engine == "jinja2":
                 param_set = get_accessed_parameters(
-                    value, template_engine='jinja2')
+                    value, template_engine="jinja2"
+                )
             else:
                 param_set = get_accessed_parameters(value)
             # Invariant fields cannot depend on any parameters
@@ -480,15 +519,17 @@ class TemplateVariantFieldValidator(FieldValidatorBase):
             value = unit._data.get(field)
             # No value? No problem!
             if value is not None:
-                if unit.template_engine == 'jinja2':
+                if unit.template_engine == "jinja2":
                     param_set = get_accessed_parameters(
-                        value, template_engine='jinja2')
+                        value, template_engine="jinja2"
+                    )
                 else:
                     param_set = get_accessed_parameters(value)
                 # Variant fields must depend on some parameters
                 if len(param_set) == 0:
                     yield parent.error(
-                        unit, field, Problem.constant, self.message)
+                        unit, field, Problem.constant, self.message
+                    )
                 # Each parameter must be present in the unit
                 for param_name in param_set:
                     if param_name not in unit.parameters:
@@ -496,7 +537,8 @@ class TemplateVariantFieldValidator(FieldValidatorBase):
                             "reference to unknown parameter {!r}"
                         ).format(param_name)
                         yield parent.error(
-                            unit, field, Problem.unknown_param, message)
+                            unit, field, Problem.unknown_param, message
+                        )
 
 
 class ShellProgramValidator(FieldValidatorBase):
@@ -512,7 +554,7 @@ class ShellProgramValidator(FieldValidatorBase):
         # Look up the value
         value = getattr(unit, field2prop(field))
         if value is not None:
-            if '<<' in value:
+            if "<<" in value:
                 # TODO: implement heredoc-aware shlex parser
                 # and use it to validate the input
                 pass
@@ -525,13 +567,20 @@ class ShellProgramValidator(FieldValidatorBase):
                 except ValueError as exc:
                     if token is not None:
                         yield parent.error(
-                            unit, field, Problem.syntax_error,
+                            unit,
+                            field,
+                            Problem.syntax_error,
                             "{}, near {!r}".format(exc, token),
-                            offset=lex.lineno - 1)
+                            offset=lex.lineno - 1,
+                        )
                     else:
                         yield parent.error(
-                            unit, field, Problem.syntax_error, str(exc),
-                            offset=lex.lineno - 1)
+                            unit,
+                            field,
+                            Problem.syntax_error,
+                            str(exc),
+                            offset=lex.lineno - 1,
+                        )
 
 
 def compute_value_map(context, field):
@@ -548,7 +597,8 @@ def compute_value_map(context, field):
     """
     value_map = {}
     all_units = itertools.chain(
-        *(provider.unit_list for provider in context.provider_list))
+        *(provider.unit_list for provider in context.provider_list)
+    )
     for unit in all_units:
         try:
             value = getattr(unit, field2prop(field))
@@ -578,7 +628,10 @@ class UniqueValueValidator(FieldValidatorBase):
     def check_in_context(self, parent, unit, field, context):
         value_map = context.compute_shared(
             "field_value_map[{}]".format(field),
-            compute_value_map, context, field)
+            compute_value_map,
+            context,
+            field,
+        )
         value = getattr(unit, field2prop(field))
         units_with_this_value = value_map[value]
         n = len(units_with_this_value)
@@ -587,19 +640,29 @@ class UniqueValueValidator(FieldValidatorBase):
             unit_list = list(units_with_this_value)
             unit_list = sorted(
                 unit_list,
-                key=lambda a_unit: 0 if a_unit is unit
-                else unit_list.index(a_unit) + 1)
+                key=lambda a_unit: (
+                    0 if a_unit is unit else unit_list.index(a_unit) + 1
+                ),
+            )
             yield parent.error(
-                unit_list, field, Problem.not_unique, ngettext(
+                unit_list,
+                field,
+                Problem.not_unique,
+                ngettext(
                     "clashes with {0} other unit",
-                    "clashes with {0} other units", n - 1
-                ).format(n - 1) + ', look at: ' + ', '.join(
+                    "clashes with {0} other units",
+                    n - 1,
+                ).format(n - 1)
+                + ", look at: "
+                + ", ".join(
                     # XXX: the relative_to is a hack, ideally we would
                     # allow the UI to see the fine structure of the error
                     # message and pass appropriate path to relative_to()
                     str(other_unit.origin.relative_to(os.getcwd()))
                     for other_unit in units_with_this_value
-                    if other_unit is not unit))
+                    if other_unit is not unit
+                ),
+            )
 
 
 class ReferenceConstraint:
@@ -644,7 +707,8 @@ class UnitReferenceValidator(FieldValidatorBase):
 
     def check_in_context(self, parent, unit, field, context):
         id_map = context.compute_shared(
-            "field_value_map[id]", compute_value_map, context, 'id')
+            "field_value_map[id]", compute_value_map, context, "id"
+        )
         try:
             value_list = self.get_references_fn(unit)
         except Exception as exc:
@@ -660,10 +724,12 @@ class UnitReferenceValidator(FieldValidatorBase):
             except KeyError:
                 # zero is wrong, broken reference
                 yield parent.error(
-                    unit, field, Problem.bad_reference,
-                    self.message or _(
-                        "unit {!a} is not available"
-                    ).format(unit_id))
+                    unit,
+                    field,
+                    Problem.bad_reference,
+                    self.message
+                    or _("unit {!a} is not available").format(unit_id),
+                )
                 continue
             n = len(units_with_this_id)
             if n == 1:
@@ -671,25 +737,36 @@ class UnitReferenceValidator(FieldValidatorBase):
                 referrer = unit
                 referee = units_with_this_id[0]
                 for constraint in self.constraints:
-                    if constraint.onlyif is not None and not constraint.onlyif(
-                            referrer, referee):
+                    if (
+                        constraint.onlyif is not None
+                        and not constraint.onlyif(referrer, referee)
+                    ):
                         continue
                     if not constraint.constraint_fn(referrer, referee):
                         yield parent.error(
-                            unit, field, Problem.bad_reference,
-                            self.message or constraint.message or
-                            _("referee constraint failed"))
+                            unit,
+                            field,
+                            Problem.bad_reference,
+                            self.message
+                            or constraint.message
+                            or _("referee constraint failed"),
+                        )
             elif n > 1:
                 # more than one is also good, which one are we targeting?
                 yield parent.error(
-                    unit, field, Problem.bad_reference,
-                    self.message or _(
-                        "multiple units with id {!a}: {}"
-                    ).format(
-                        unit_id, ', '.join(
+                    unit,
+                    field,
+                    Problem.bad_reference,
+                    self.message
+                    or _("multiple units with id {!a}: {}").format(
+                        unit_id,
+                        ", ".join(
                             # XXX: the relative_to is a hack, ideally we would
                             # allow the UI to see the fine structure of the
                             # error message and pass appropriate path to
                             # relative_to()
                             str(other_unit.origin.relative_to(os.getcwd()))
-                            for other_unit in units_with_this_id)))
+                            for other_unit in units_with_this_id
+                        ),
+                    ),
+                )

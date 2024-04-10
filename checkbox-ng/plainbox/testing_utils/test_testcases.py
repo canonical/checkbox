@@ -34,7 +34,7 @@ from plainbox.testing_utils.testcases import TestCaseWithParameters
 class TestParameterTests(TestCase):
 
     def test_smoke(self):
-        names = ('foo', 'bar')
+        names = ("foo", "bar")
         values = (1, 2)
         params = TestCaseParameters(names, values)
         self.assertEqual(params.foo, 1)
@@ -46,39 +46,44 @@ class TestParameterTests(TestCase):
 
     def test_eq(self):
         # Equal names and values
-        self.assertEqual(TestCaseParameters(('a', 'b'), (1, 2)),
-                         TestCaseParameters(('a', 'b'), (1, 2)))
+        self.assertEqual(
+            TestCaseParameters(("a", "b"), (1, 2)),
+            TestCaseParameters(("a", "b"), (1, 2)),
+        )
         # Different values
-        self.assertNotEqual(TestCaseParameters(('a', 'b'), (1, 2)),
-                            TestCaseParameters(('a', 'c'), (1, 2)))
+        self.assertNotEqual(
+            TestCaseParameters(("a", "b"), (1, 2)),
+            TestCaseParameters(("a", "c"), (1, 2)),
+        )
         # Different names
-        self.assertNotEqual(TestCaseParameters(('a', 'b'), (1, 2)),
-                            TestCaseParameters(('a', 'b'), (1, 3)))
+        self.assertNotEqual(
+            TestCaseParameters(("a", "b"), (1, 2)),
+            TestCaseParameters(("a", "b"), (1, 3)),
+        )
 
 
 class TestCaseWithParametersTests(TestCase):
 
     class UpperTests(TestCaseWithParameters):
 
-        parameter_names = ('original', 'upper')
+        parameter_names = ("original", "upper")
 
         parameter_values = (
-            ('lower', 'LOWER'),
-            ('typo', 'TYPo'),  # broken on purpose
-            ('mIxEd CaSe', 'MIXED CASE'),
+            ("lower", "LOWER"),
+            ("typo", "TYPo"),  # broken on purpose
+            ("mIxEd CaSe", "MIXED CASE"),
         )
 
         def test_str_upper(self):
             self.assertEqual(
-                self.parameters.original.upper(),
-                self.parameters.upper)
+                self.parameters.original.upper(), self.parameters.upper
+            )
 
     def setUp(self):
-        self.test_case = self.UpperTests('test_str_upper')
+        self.test_case = self.UpperTests("test_str_upper")
         self.parametrized_test_case = self.test_case._parametrize(
-            TestCaseParameters(
-                self.UpperTests.parameter_names,
-                ('foo', 'FOO')))
+            TestCaseParameters(self.UpperTests.parameter_names, ("foo", "FOO"))
+        )
 
     def test_smoke(self):
         result = TestResult()
@@ -109,57 +114,65 @@ class TestCaseWithParametersTests(TestCase):
         TestCaseWithParameters.countTestCases() should work when
         get_paremeter_values() reteurns a generator.
         """
+
         class RegressionTest(TestCaseWithParameters):
 
-            parameter_names = ('name1',)
+            parameter_names = ("name1",)
 
             def get_parameter_values(self):
-                yield ('value1', )
-                yield ('value2', )
+                yield ("value1",)
+                yield ("value2",)
 
         self.assertEqual(RegressionTest().countTestCases(), 2)
 
     def test_id(self):
         self.assertIn(
-            "test_str_upper [<unparameterized>]",
-            self.test_case.id())
+            "test_str_upper [<unparameterized>]", self.test_case.id()
+        )
         self.assertIn(
             "test_str_upper [original: foo, upper: FOO]",
-            self.parametrized_test_case.id())
+            self.parametrized_test_case.id(),
+        )
 
     def test_str(self):
+        self.assertIn("[<unparameterized>]", str(self.test_case))
         self.assertIn(
-            "[<unparameterized>]",  str(self.test_case))
-        self.assertIn(
-            "[original: foo, upper: FOO]", str(self.parametrized_test_case))
+            "[original: foo, upper: FOO]", str(self.parametrized_test_case)
+        )
 
     def test_repr(self):
-        self.assertIn(
-            "parameters=None>", repr(self.test_case))
+        self.assertIn("parameters=None>", repr(self.test_case))
         self.assertIn(
             "parameters=<TestCaseParameters original: foo, upper: FOO>>",
-            repr(self.parametrized_test_case))
+            repr(self.parametrized_test_case),
+        )
 
     def test_eq(self):
         self.assertEqual(self.test_case, self.test_case)
         self.assertNotEqual(self.test_case, self.parametrized_test_case)
-        self.assertNotEqual(self.test_case, 'foo')
+        self.assertNotEqual(self.test_case, "foo")
 
     def test_hash(self):
         case1 = TestCaseWithParameters()
         case2 = TestCaseWithParameters()
         self.assertEqual(hash(case1), hash(case2))
         case1_param = case1._parametrize(
-            TestCaseParameters(('name', ), ('value', )))
+            TestCaseParameters(("name",), ("value",))
+        )
         self.assertNotEqual(case1, case1_param)
 
     def test_run_spots_common_mistake(self):
         with self.assertRaises(RuntimeError) as boom:
+
             class UpperTests(TestCaseWithParameters):
-                parameter_names = ('param1',)
-                parameter_values = (('value1', 'value2'),)
+                parameter_names = ("param1",)
+                parameter_values = (("value1", "value2"),)
+
             UpperTests().run()
         self.assertEqual(
             str(boom.exception),
-            ("incorrect get_parameter_values() or parameter_values for"
-             " iteration 0. Expected to see 1 item but saw 2 instead"))
+            (
+                "incorrect get_parameter_values() or parameter_values for"
+                " iteration 0. Expected to see 1 item but saw 2 instead"
+            ),
+        )

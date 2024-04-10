@@ -34,7 +34,7 @@ from plainbox.impl.unit.unit import UnitValidator
 from plainbox.impl.unit.validators import CorrectFieldValueValidator
 from plainbox.impl.unit.validators import UniqueValueValidator
 
-__all__ = ['UnitWithId']
+__all__ = ["UnitWithId"]
 
 
 logger = logging.getLogger("plainbox.unit.unit_with_id")
@@ -64,8 +64,11 @@ class UnitWithIdValidator(UnitValidator):
         if stock_msg is None:
             return None
         return _("{unit} {id!a}, field {field!a}, {message}").format(
-            unit=unit.tr_unit(), id=unit.partial_id, field=str(field),
-            message=message or stock_msg)
+            unit=unit.tr_unit(),
+            id=unit.partial_id,
+            field=str(field),
+            message=message or stock_msg,
+        )
 
 
 class UnitWithId(Unit):
@@ -83,7 +86,7 @@ class UnitWithId(Unit):
         """
         Identifier of this unit, without the provider namespace
         """
-        return self.get_record_value('id')
+        return self.get_record_value("id")
 
     @cached_property
     def id(self):
@@ -102,10 +105,10 @@ class UnitWithId(Unit):
 
     class Meta:
 
-        name = N_('unit-with-id')
+        name = N_("unit-with-id")
 
         class fields(SymbolDef):
-            id = 'id'
+            id = "id"
 
         validator_cls = UnitWithIdValidator
 
@@ -118,8 +121,10 @@ class UnitWithId(Unit):
                 # We want to have bare, namespace-less identifiers
                 CorrectFieldValueValidator(
                     lambda value, unit: (
-                        "::" not in unit.get_record_value('id')),
+                        "::" not in unit.get_record_value("id")
+                    ),
                     message=_("identifier cannot define a custom namespace"),
-                    onlyif=lambda unit: unit.get_record_value('id')),
+                    onlyif=lambda unit: unit.get_record_value("id"),
+                ),
             ]
         }

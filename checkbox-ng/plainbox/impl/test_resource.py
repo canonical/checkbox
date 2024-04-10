@@ -46,26 +46,42 @@ class ExpressionFailedTests(TestCase):
         expression = ResourceExpression('resource.attr == "value"')
         exc = ExpressionFailedError(expression)
         self.assertIs(exc.expression, expression)
-        self.assertEqual(str(exc), (
-            "expression 'resource.attr == \"value\"' evaluated to a non-true"
-            " result"))
-        self.assertEqual(repr(exc), (
-            "<ExpressionFailedError expression:<ResourceExpression"
-            " text:'resource.attr == \"value\"'>>"))
+        self.assertEqual(
+            str(exc),
+            (
+                "expression 'resource.attr == \"value\"' evaluated to a non-true"
+                " result"
+            ),
+        )
+        self.assertEqual(
+            repr(exc),
+            (
+                "<ExpressionFailedError expression:<ResourceExpression"
+                " text:'resource.attr == \"value\"'>>"
+            ),
+        )
 
 
 class ExpressionCannotEvaluateErrorTests(TestCase):
 
     def test_smoke(self):
         expression = ResourceExpression('resource.attr == "value"')
-        exc = ExpressionCannotEvaluateError(expression, 'resource')
+        exc = ExpressionCannotEvaluateError(expression, "resource")
         self.assertIs(exc.expression, expression)
-        self.assertEqual(str(exc), (
-            "expression 'resource.attr == \"value\"' needs unavailable"
-            " resource 'resource'"))
-        self.assertEqual(repr(exc), (
-            "<ExpressionCannotEvaluateError expression:<ResourceExpression"
-            " text:'resource.attr == \"value\"'>>"))
+        self.assertEqual(
+            str(exc),
+            (
+                "expression 'resource.attr == \"value\"' needs unavailable"
+                " resource 'resource'"
+            ),
+        )
+        self.assertEqual(
+            repr(exc),
+            (
+                "<ExpressionCannotEvaluateError expression:<ResourceExpression"
+                " text:'resource.attr == \"value\"'>>"
+            ),
+        )
 
 
 class ResourceTests(TestCase):
@@ -73,8 +89,8 @@ class ResourceTests(TestCase):
     def test_init(self):
         res = Resource()
         self.assertEqual(self._get_private_data(res), {})
-        res = Resource({'attr': 'value'})
-        self.assertEqual(self._get_private_data(res), {'attr': 'value'})
+        res = Resource({"attr": "value"})
+        self.assertEqual(self._get_private_data(res), {"attr": "value"})
 
     def test_private_data_is_somewhat_protected(self):
         res = Resource()
@@ -85,71 +101,73 @@ class ResourceTests(TestCase):
         res = Resource()
         data = self._get_private_data(res)
         self.assertEqual(data, {})
-        data['attr'] = 'value'
-        self.assertEqual(res.attr, 'value')
+        data["attr"] = "value"
+        self.assertEqual(res.attr, "value")
 
     def test_getattr(self):
         res = Resource()
-        self.assertEqual(getattr(res, 'attr'), '')
-        res = Resource({'attr': 'value'})
-        self.assertEqual(getattr(res, 'attr'), 'value')
+        self.assertEqual(getattr(res, "attr"), "")
+        res = Resource({"attr": "value"})
+        self.assertEqual(getattr(res, "attr"), "value")
 
     def test_getitem(self):
         res = Resource()
         self.assertRaises(KeyError, lambda res: res["attr"], res)
-        res = Resource({'attr': 'value'})
-        self.assertEqual(res['attr'], 'value')
+        res = Resource({"attr": "value"})
+        self.assertEqual(res["attr"], "value")
 
     def test_setattr(self):
         res = Resource()
-        res.attr = 'value'
-        self.assertEqual(res.attr, 'value')
-        res.attr = 'other value'
-        self.assertEqual(res.attr, 'other value')
+        res.attr = "value"
+        self.assertEqual(res.attr, "value")
+        res.attr = "other value"
+        self.assertEqual(res.attr, "other value")
 
     def test_setitem(self):
         res = Resource()
-        res['attr'] = 'value'
-        self.assertEqual(res['attr'], 'value')
-        res['attr'] = 'other value'
-        self.assertEqual(res['attr'], 'other value')
+        res["attr"] = "value"
+        self.assertEqual(res["attr"], "value")
+        res["attr"] = "other value"
+        self.assertEqual(res["attr"], "other value")
 
     def test_delattr(self):
         res = Resource()
         self.assertRaises(AttributeError, delattr, res, "attr")
-        res = Resource({'attr': 'value'})
+        res = Resource({"attr": "value"})
         del res.attr
-        self.assertEqual(getattr(res, 'attr'), '')
-        self.assertEqual(res.attr, '')
+        self.assertEqual(getattr(res, "attr"), "")
+        self.assertEqual(res.attr, "")
 
     def test_delitem(self):
         res = Resource()
         with self.assertRaises(KeyError):
             del res["attr"]
-        res = Resource({'attr': 'value'})
-        del res['attr']
-        self.assertRaises(KeyError, lambda res: res['attr'], res)
+        res = Resource({"attr": "value"})
+        del res["attr"]
+        self.assertRaises(KeyError, lambda res: res["attr"], res)
 
     def test_repr(self):
         self.assertEqual(repr(Resource()), "Resource({})")
-        self.assertEqual(repr(Resource({'attr': 'value'})),
-                         "Resource({'attr': 'value'})")
+        self.assertEqual(
+            repr(Resource({"attr": "value"})), "Resource({'attr': 'value'})"
+        )
 
     def test_eq(self):
         self.assertEqual(Resource(), Resource())
-        self.assertEqual(Resource({'attr': 'value'}),
-                         Resource({'attr': 'value'}))
+        self.assertEqual(
+            Resource({"attr": "value"}), Resource({"attr": "value"})
+        )
         self.assertFalse(Resource() == object())
 
     def test_ne(self):
-        self.assertNotEqual(Resource({'attr': 'value'}),
-                            Resource({'attr': 'other value'}))
-        self.assertNotEqual(Resource({'attr': 'value'}),
-                            Resource())
+        self.assertNotEqual(
+            Resource({"attr": "value"}), Resource({"attr": "other value"})
+        )
+        self.assertNotEqual(Resource({"attr": "value"}), Resource())
         self.assertTrue(Resource() != object())
 
     def _get_private_data(self, res):
-        return object.__getattribute__(res, '_data')
+        return object.__getattribute__(res, "_data")
 
 
 class FakeResourceTests(TestCase):
@@ -159,14 +177,14 @@ class FakeResourceTests(TestCase):
         Verify that any accessed attribute / item resolves to its name
         """
         resource = FakeResource()
-        self.assertEqual(resource.foo, 'foo')
-        self.assertEqual(resource['bar'], 'bar')
+        self.assertEqual(resource.foo, "foo")
+        self.assertEqual(resource["bar"], "bar")
 
     def test_set_membership(self):
         """
         Verify that any item is present
         """
-        self.assertTrue('foo' in FakeResource())
+        self.assertTrue("foo" in FakeResource())
 
     def test_tracking_support(self):
         """
@@ -174,9 +192,9 @@ class FakeResourceTests(TestCase):
         """
         accessed = set()
         resource = FakeResource(accessed)
-        self.assertEqual(resource.foo, 'foo')
-        self.assertEqual(resource['bar'], 'bar')
-        self.assertEqual(accessed, {'foo', 'bar'})
+        self.assertEqual(resource.foo, "foo")
+        self.assertEqual(resource["bar"], "bar")
+        self.assertEqual(accessed, {"foo", "bar"})
 
 
 class ResourceProgramErrorTests(TestCase):
@@ -184,7 +202,8 @@ class ResourceProgramErrorTests(TestCase):
     def test_none(self):
         exc = NoResourcesReferenced()
         self.assertEqual(
-            str(exc), "expression did not reference any resources")
+            str(exc), "expression did not reference any resources"
+        )
 
 
 class CodeNotAllowedTests(TestCase):
@@ -209,8 +228,8 @@ class ResourceNodeVisitorTests(TestCase):
         visitor = ResourceNodeVisitor()
         node = ast.parse("package.name == 'fwts' and package.version == '1.2'")
         visitor.visit(node)
-        self.assertEqual(visitor.ids_seen_set, {'package'})
-        self.assertEqual(visitor.ids_seen_list, ['package'])
+        self.assertEqual(visitor.ids_seen_set, {"package"})
+        self.assertEqual(visitor.ids_seen_list, ["package"])
 
     def test_name_assignment_disallowed(self):
         visitor = ResourceNodeVisitor()
@@ -291,8 +310,7 @@ class ResourceExpressionTests(TestCase):
         text = "package.name == 'fwts'"
         expr = ResourceExpression(text, "com.canonical")
         self.assertEqual(expr.text, text)
-        self.assertEqual(expr.resource_id_list,
-                         ["com.canonical::package"])
+        self.assertEqual(expr.resource_id_list, ["com.canonical::package"])
         self.assertEqual(expr.implicit_namespace, "com.canonical")
 
     def test_imports_support(self):
@@ -306,11 +324,12 @@ class ResourceExpressionTests(TestCase):
         self.assertEqual(expr2.resource_id_list, ["com.example::package"])
         self.assertEqual(expr2.implicit_namespace, "com.example")
         expr3 = ResourceExpression(
-            text, "com.example", imports=[
-                ('com.canonical::package', 'package')])
+            text,
+            "com.example",
+            imports=[("com.canonical::package", "package")],
+        )
         self.assertEqual(expr3.text, text)
-        self.assertEqual(expr3.resource_id_list,
-                         ["com.canonical::package"])
+        self.assertEqual(expr3.resource_id_list, ["com.canonical::package"])
         self.assertEqual(expr3.implicit_namespace, "com.example")
 
     def test_smoke_bad(self):
@@ -324,71 +343,79 @@ class ResourceExpressionTests(TestCase):
 
     def test_compound_expression_and_passing(self):
         resource_map = {
-            'a': [Resource({'foo': 1})],
-            'b': [Resource({'bar': 2})]
+            "a": [Resource({"foo": 1})],
+            "b": [Resource({"bar": 2})],
         }
         expr = ResourceExpression("a.foo == 1 and b.bar == 2")
-        self.assertTrue(expr.evaluate(
-            resource_map['a'],
-            resource_map['b'],
-            resource_map=resource_map))
+        self.assertTrue(
+            expr.evaluate(
+                resource_map["a"], resource_map["b"], resource_map=resource_map
+            )
+        )
 
     def test_compound_expression_and_failing(self):
         resource_map = {
-            'a': [Resource({'foo': 1})],
-            'b': [Resource({'bar': 3})]
+            "a": [Resource({"foo": 1})],
+            "b": [Resource({"bar": 3})],
         }
         expr = ResourceExpression("a.foo == 1 and b.bar == 2")
-        self.assertFalse(expr.evaluate(
-            resource_map['a'],
-            resource_map['b'],
-            resource_map=resource_map))
+        self.assertFalse(
+            expr.evaluate(
+                resource_map["a"], resource_map["b"], resource_map=resource_map
+            )
+        )
 
     def test_compound_expression_or_passing(self):
         resource_map = {
-            'a': [Resource({'foo': 1})],
-            'b': [Resource({'bar': 3})]
+            "a": [Resource({"foo": 1})],
+            "b": [Resource({"bar": 3})],
         }
         expr = ResourceExpression("a.foo == 1 or b.bar == 2")
-        self.assertTrue(expr.evaluate(
-            resource_map['a'],
-            resource_map['b'],
-            resource_map=resource_map))
+        self.assertTrue(
+            expr.evaluate(
+                resource_map["a"], resource_map["b"], resource_map=resource_map
+            )
+        )
 
     def test_compound_expression_or_failing(self):
         resource_map = {
-            'a': [Resource({'foo': 2})],
-            'b': [Resource({'bar': 3})]
+            "a": [Resource({"foo": 2})],
+            "b": [Resource({"bar": 3})],
         }
         expr = ResourceExpression("a.foo == 1 and b.bar == 2")
-        self.assertFalse(expr.evaluate(
-            resource_map['a'],
-            resource_map['b'],
-            resource_map=resource_map))
+        self.assertFalse(
+            expr.evaluate(
+                resource_map["a"], resource_map["b"], resource_map=resource_map
+            )
+        )
 
     def test_compound_many_subexpressions_passing(self):
         resource_map = {
-            'a': [Resource({'foo': 1}), Resource({'foo': 2})],
-            'b': [Resource({'bar': 3}), Resource({'bar': 4})]
+            "a": [Resource({"foo": 1}), Resource({"foo": 2})],
+            "b": [Resource({"bar": 3}), Resource({"bar": 4})],
         }
         expr = ResourceExpression(
-            "a.foo == 3 and b.bar == 3 and a.foo == 2 or b.bar == 4")
-        self.assertTrue(expr.evaluate(
-            resource_map['a'],
-            resource_map['b'],
-            resource_map=resource_map))
+            "a.foo == 3 and b.bar == 3 and a.foo == 2 or b.bar == 4"
+        )
+        self.assertTrue(
+            expr.evaluate(
+                resource_map["a"], resource_map["b"], resource_map=resource_map
+            )
+        )
 
     def test_compound_many_subexpressions_failing(self):
         resource_map = {
-            'a': [Resource({'foo': 1}), Resource({'foo': 2})],
-            'b': [Resource({'bar': 3}), Resource({'bar': 4})]
+            "a": [Resource({"foo": 1}), Resource({"foo": 2})],
+            "b": [Resource({"bar": 3}), Resource({"bar": 4})],
         }
         expr = ResourceExpression(
-            "a.foo == 3 or b.bar == 3 and a.foo == 2 and b.bar == 1")
-        self.assertFalse(expr.evaluate(
-            resource_map['a'],
-            resource_map['b'],
-            resource_map=resource_map))
+            "a.foo == 3 or b.bar == 3 and a.foo == 2 and b.bar == 1"
+        )
+        self.assertFalse(
+            expr.evaluate(
+                resource_map["a"], resource_map["b"], resource_map=resource_map
+            )
+        )
 
     def test_evaluate_no_namespaces(self):
         self.assertFalse(ResourceExpression("whatever").evaluate([]))
@@ -397,14 +424,14 @@ class ResourceExpressionTests(TestCase):
         # NOTE: the actual expr.resource_id_list is irrelevant for this test
         expr = ResourceExpression("obj.a == 2")
         self.assertTrue(
-            expr.evaluate([
-                Resource({'a': 1}), Resource({'a': 2})]))
+            expr.evaluate([Resource({"a": 1}), Resource({"a": 2})])
+        )
         self.assertTrue(
-            expr.evaluate([
-                Resource({'a': 2}), Resource({'a': 1})]))
+            expr.evaluate([Resource({"a": 2}), Resource({"a": 1})])
+        )
         self.assertFalse(
-            expr.evaluate([
-                Resource({'a': 1}), Resource({'a': 3})]))
+            expr.evaluate([Resource({"a": 1}), Resource({"a": 3})])
+        )
 
     def test_evaluate_exception(self):
         # NOTE: the actual expr.resource_id_list is irrelevant for this test
@@ -413,7 +440,7 @@ class ResourceExpressionTests(TestCase):
 
     def test_evaluate_checks_resource_type(self):
         expr = ResourceExpression("obj.a == 2")
-        self.assertRaises(TypeError, expr.evaluate, [{'a': 2}])
+        self.assertRaises(TypeError, expr.evaluate, [{"a": 2}])
 
     # `and`ed expressions evaluate different objects
     #
@@ -421,23 +448,27 @@ class ResourceExpressionTests(TestCase):
     @expectedFailure
     def test_evaluate_same_object(self):
         resource_map = {
-            'a': [Resource({'foo': 1, 'baz': 'b'}), Resource({'foo': 2, 'baz': 'a'})],
+            "a": [
+                Resource({"foo": 1, "baz": "b"}),
+                Resource({"foo": 2, "baz": "a"}),
+            ],
         }
         expr = ResourceExpression("a.foo == 1 and a.baz != 'b'")
-        self.assertFalse(expr.evaluate(
-            resource_map['a'],
-            resource_map=resource_map
-        ))
+        self.assertFalse(
+            expr.evaluate(resource_map["a"], resource_map=resource_map)
+        )
 
     def test_evaluate_same_object_parens(self):
         resource_map = {
-            'a': [Resource({'foo': 1, 'baz': 'b'}), Resource({'foo': 2, 'baz': 'a'})],
+            "a": [
+                Resource({"foo": 1, "baz": "b"}),
+                Resource({"foo": 2, "baz": "a"}),
+            ],
         }
         expr = ResourceExpression("(a.foo == 1) and a.baz != 'b'")
-        self.assertFalse(expr.evaluate(
-            resource_map['a'],
-            resource_map=resource_map
-        ))
+        self.assertFalse(
+            expr.evaluate(resource_map["a"], resource_map=resource_map)
+        )
 
 
 class ResourceProgramTests(TestCase):
@@ -447,71 +478,75 @@ class ResourceProgramTests(TestCase):
         self.prog = ResourceProgram(
             "\n"  # empty lines are ignored
             "package.name == 'fwts'\n"
-            "platform.arch in ('i386', 'amd64')")
+            "platform.arch in ('i386', 'amd64')"
+        )
 
     def test_expressions(self):
         self.assertEqual(len(self.prog.expression_list), 2)
-        self.assertEqual(self.prog.expression_list[0].text,
-                         "package.name == 'fwts'")
-        self.assertEqual(self.prog.expression_list[0].resource_id_list,
-                         ["package"])
-        self.assertEqual(self.prog.expression_list[1].text,
-                         "platform.arch in ('i386', 'amd64')")
-        self.assertEqual(self.prog.expression_list[1].resource_id_list,
-                         ["platform"])
+        self.assertEqual(
+            self.prog.expression_list[0].text, "package.name == 'fwts'"
+        )
+        self.assertEqual(
+            self.prog.expression_list[0].resource_id_list, ["package"]
+        )
+        self.assertEqual(
+            self.prog.expression_list[1].text,
+            "platform.arch in ('i386', 'amd64')",
+        )
+        self.assertEqual(
+            self.prog.expression_list[1].resource_id_list, ["platform"]
+        )
 
     def test_required_resources(self):
-        self.assertEqual(self.prog.required_resources,
-                         set(('package', 'platform')))
+        self.assertEqual(
+            self.prog.required_resources, set(("package", "platform"))
+        )
 
     def test_evaluate_failure_not_true(self):
         resource_map = {
-            'package': [
-                Resource({'name': 'plainbox'}),
+            "package": [
+                Resource({"name": "plainbox"}),
             ],
-            'platform': [
-                Resource({'arch': 'i386'})]
+            "platform": [Resource({"arch": "i386"})],
         }
         with self.assertRaises(ExpressionFailedError) as call:
             self.prog.evaluate_or_raise(resource_map)
-        self.assertEqual(call.exception.expression.text,
-                         "package.name == 'fwts'")
+        self.assertEqual(
+            call.exception.expression.text, "package.name == 'fwts'"
+        )
 
     def test_evaluate_without_no_match(self):
-        resource_map = {
-            'package': [],
-            'platform': []
-        }
+        resource_map = {"package": [], "platform": []}
         with self.assertRaises(ExpressionFailedError) as call:
             self.prog.evaluate_or_raise(resource_map)
-        self.assertEqual(call.exception.expression.text,
-                         "package.name == 'fwts'")
+        self.assertEqual(
+            call.exception.expression.text, "package.name == 'fwts'"
+        )
 
     def test_evaluate_failure_no_resource(self):
-        resource_map = {
-            'platform': [
-                Resource({'arch': 'i386'})]
-        }
+        resource_map = {"platform": [Resource({"arch": "i386"})]}
         with self.assertRaises(ExpressionCannotEvaluateError) as call:
             self.prog.evaluate_or_raise(resource_map)
-        self.assertEqual(call.exception.expression.text,
-                         "package.name == 'fwts'")
+        self.assertEqual(
+            call.exception.expression.text, "package.name == 'fwts'"
+        )
 
     def test_evaluate_success(self):
         resource_map = {
-            'package': [
-                Resource({'name': 'plainbox'}),
-                Resource({'name': 'fwts'})],
-            'platform': [
-                Resource({'arch': 'i386'})]
+            "package": [
+                Resource({"name": "plainbox"}),
+                Resource({"name": "fwts"}),
+            ],
+            "platform": [Resource({"arch": "i386"})],
         }
         self.assertTrue(self.prog.evaluate_or_raise(resource_map))
 
     def test_namespace_support(self):
         prog = ResourceProgram(
-            "package.name == 'fwts'\n"
-            "platform.arch in ('i386', 'amd64')",
-            implicit_namespace="com.canonical")
+            "package.name == 'fwts'\n" "platform.arch in ('i386', 'amd64')",
+            implicit_namespace="com.canonical",
+        )
         self.assertEqual(
             prog.required_resources,
-            {'com.canonical::package', 'com.canonical::platform'})
+            {"com.canonical::package", "com.canonical::platform"},
+        )

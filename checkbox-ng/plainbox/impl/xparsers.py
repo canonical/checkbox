@@ -61,14 +61,14 @@ from plainbox.impl import pod
 from plainbox.impl.xscanners import WordScanner
 
 __all__ = [
-    'Comment',
-    'Node',
-    'Re',
-    'ReErr',
-    'ReFixed',
-    'ReOk',
-    'RePattern',
-    'Visitor',
+    "Comment",
+    "Node",
+    "Re",
+    "ReErr",
+    "ReFixed",
+    "ReOk",
+    "RePattern",
+    "Visitor",
 ]
 
 Pattern = type(re.compile(""))
@@ -77,15 +77,15 @@ afn_typed_const = (pod.typed, pod.const)
 
 
 def F(doc, type, initial_fn=None):
-    """ shortcut for creating fields """
+    """shortcut for creating fields"""
     if type is list:
         return pod.Field(
-            doc, type, initial_fn=type,
-            assign_filter_list=afn_typed_const)
+            doc, type, initial_fn=type, assign_filter_list=afn_typed_const
+        )
     else:
         return pod.Field(
-            doc, type, pod.MANDATORY,
-            assign_filter_list=afn_typed_const)
+            doc, type, pod.MANDATORY, assign_filter_list=afn_typed_const
+        )
 
 
 @pod.modify_field_docstring("not negative")
@@ -93,29 +93,43 @@ def not_negative(
     instance: pod.POD, field: pod.Field, old: "Any", new: "Any"
 ) -> "Any":
     if new < 0:
-        raise ValueError("{}.{} cannot be negative".format(
-            instance.__class__.__name__, field.name, field.type.__name__))
+        raise ValueError(
+            "{}.{} cannot be negative".format(
+                instance.__class__.__name__, field.name, field.type.__name__
+            )
+        )
     return new
 
 
 class Node(pod.POD):
-    """ base node type """
+    """base node type"""
+
     lineno = pod.Field(
-        "Line number (1-based)", int, 0,
-        assign_filter_list=[pod.typed, not_negative, pod.const])
+        "Line number (1-based)",
+        int,
+        0,
+        assign_filter_list=[pod.typed, not_negative, pod.const],
+    )
     col_offset = pod.Field(
-        "Column offset (0-based)", int, 0,
-        assign_filter_list=[pod.typed, not_negative, pod.const])
+        "Column offset (0-based)",
+        int,
+        0,
+        assign_filter_list=[pod.typed, not_negative, pod.const],
+    )
 
     def __repr__(self):
         return "{}({})".format(
             self.__class__.__name__,
-            ', '.join([
-                '{}={!r}'.format(field.name, getattr(self, field.name))
-                for field in self.__class__.field_list
-                if field.name not in ('lineno', 'col_offset')]))
+            ", ".join(
+                [
+                    "{}={!r}".format(field.name, getattr(self, field.name))
+                    for field in self.__class__.field_list
+                    if field.name not in ("lineno", "col_offset")
+                ]
+            ),
+        )
 
-    def visit(self, visitor: 'Visitor'):
+    def visit(self, visitor: "Visitor"):
         """
         Visit all of the sub-nodes reachable from this node
 
@@ -172,7 +186,7 @@ class Visitor:
     """
 
     def generic_visit(self, node: Node) -> None:
-        """ visit method called on nodes without a dedicated visit method"""
+        """visit method called on nodes without a dedicated visit method"""
         # XXX: I don't love the way this works, perhaps we should be less smart
         # and just require implicit hints as to where to go? Perhaps children
         # should be something that any node can carry?
@@ -180,9 +194,9 @@ class Visitor:
             self.visit(child_node)
 
     def visit(self, node: Node) -> "Any":
-        """ visit the specified node """
+        """visit the specified node"""
         node_name = node.__class__.__name__
-        visit_meth_name = 'visit_{}_node'.format(node_name)
+        visit_meth_name = "visit_{}_node".format(node_name)
         if hasattr(self, visit_meth_name):
             visit_meth = getattr(self, visit_meth_name)
             return visit_meth(node)
@@ -191,11 +205,12 @@ class Visitor:
 
 
 class Re(Node):
-    """ node representing a regular expression """
+    """node representing a regular expression"""
+
     text = F("Text of the regular expression (perhaps invalid)", str)
 
     @staticmethod
-    def parse(text: str, lineno: int=0, col_offset: int=0) -> "Re":
+    def parse(text: str, lineno: int = 0, col_offset: int = 0) -> "Re":
         """
         Parse a bit of text and return a concrete subclass of ``Re``
 
@@ -230,25 +245,25 @@ class Re(Node):
             # XXX: This is a bit crazy but this lets us have identical error
             # messages across python3.2 all the way to 3.5. I really really
             # wish there was a better way at fixing this.
-            exc.args = (re.sub(r" at position \d+", "", exc.args[0]), )
+            exc.args = (re.sub(r" at position \d+", "", exc.args[0]),)
             return ReErr(lineno, col_offset, text, exc)
         else:
             # Check if the AST of this regular expression is composed
             # of just a flat list of 'literal' nodes. In other words,
             # check if it is a simple string match in disguise
-            if ((sys.version_info[:2] >= (3, 5) and
-                    all(t == sre_constants.LITERAL for t, rest in pyre_ast)) or
-                    all(t == 'literal' for t, rest in pyre_ast)):
+            if (
+                sys.version_info[:2] >= (3, 5)
+                and all(t == sre_constants.LITERAL for t, rest in pyre_ast)
+            ) or all(t == "literal" for t, rest in pyre_ast):
                 return ReFixed(lineno, col_offset, text)
             else:
                 # NOTE: we might save time by calling some internal function to
                 # convert pyre_ast to the pattern object.
-                return RePattern(
-                    lineno, col_offset, text, re.compile(text))
+                return RePattern(lineno, col_offset, text, re.compile(text))
 
 
 class ReOk(Re):
-    """ node representing a correct regular expression """
+    """node representing a correct regular expression"""
 
     @abc.abstractmethod
     def match(self, text: str) -> bool:
@@ -274,14 +289,15 @@ class ReOk(Re):
 
 
 class ReFixed(ReOk):
-    """ node representing a trivial regular expression (fixed string)"""
+    """node representing a trivial regular expression (fixed string)"""
 
     def match(self, text: str) -> bool:
         return text == self.text
 
 
 class RePattern(ReOk):
-    """ node representing a regular expression pattern """
+    """node representing a regular expression pattern"""
+
     re = F("regular expression object", Pattern)
 
     def match(self, text: str) -> bool:
@@ -289,34 +305,38 @@ class RePattern(ReOk):
 
 
 class ReErr(Re):
-    """ node representing an incorrect regular expression """
+    """node representing an incorrect regular expression"""
+
     exc = F("exception describing the problem", Exception)
 
 
 class Comment(Node):
-    """ node representing single comment """
+    """node representing single comment"""
+
     comment = F("comment text, including any comment markers", str)
 
 
 class Error(Node):
-    """ node representing a syntax error """
+    """node representing a syntax error"""
+
     msg = F("message", str)
 
 
 class Text(Node):
-    """ node representing a bit of text """
+    """node representing a bit of text"""
+
     text = F("text", str)
 
 
 class FieldOverride(Node):
-    """ node representing a single override statement """
+    """node representing a single override statement"""
 
     value = F("value to apply (override value)", Text)
     pattern = F("pattern that selects things to override", Re)
 
     @staticmethod
     def parse(
-        text: str, lineno: int=1, col_offset: int=0
+        text: str, lineno: int = 1, col_offset: int = 0
     ) -> "Union[FieldOverride, Error]":
         """
         Parse a single test plan field override line
@@ -365,9 +385,12 @@ class FieldOverride(Node):
         scanner = WordScanner(text)
         # 'APPLY' ...
         token, lexeme = scanner.get_token()
-        if token != scanner.TokenEnum.WORD or lexeme != 'apply':
-            return Error(lineno, col_offset,
-                         _("expected {!a} near {!r}").format('apply', lexeme))
+        if token != scanner.TokenEnum.WORD or lexeme != "apply":
+            return Error(
+                lineno,
+                col_offset,
+                _("expected {!a} near {!r}").format("apply", lexeme),
+            )
         # 'APPLY' VALUE ...
         token, lexeme = scanner.get_token()
         if token != scanner.TokenEnum.WORD:
@@ -375,9 +398,12 @@ class FieldOverride(Node):
         value = Text(lineno, col_offset, lexeme)
         # 'APPLY' VALUE 'TO' ...
         token, lexeme = scanner.get_token()
-        if token != scanner.TokenEnum.WORD or lexeme != 'to':
-            return Error(lineno, col_offset,
-                         _("expected {!a} near {!r}").format('to', lexeme))
+        if token != scanner.TokenEnum.WORD or lexeme != "to":
+            return Error(
+                lineno,
+                col_offset,
+                _("expected {!a} near {!r}").format("to", lexeme),
+            )
         # 'APPLY' VALUE 'TO' PATTERN...
         token, lexeme = scanner.get_token()
         if token != scanner.TokenEnum.WORD:
@@ -386,21 +412,27 @@ class FieldOverride(Node):
         # 'APPLY' VALUE 'TO' PATTERN <EOF>
         token, lexeme = scanner.get_token()
         if token != scanner.TokenEnum.EOF:
-            return Error(lineno, col_offset,
-                         _("unexpected garbage: {!r}").format(lexeme))
+            return Error(
+                lineno,
+                col_offset,
+                _("unexpected garbage: {!r}").format(lexeme),
+            )
         return FieldOverride(lineno, col_offset, value, pattern)
 
 
 class OverrideFieldList(Node):
-    """ node representing a whole plainbox field override list"""
+    """node representing a whole plainbox field override list"""
 
-    entries = pod.Field("a list of comments and patterns", list,
-                        initial_fn=list, assign_filter_list=[
-                            pod.typed, pod.typed.sequence(Node), pod.const])
+    entries = pod.Field(
+        "a list of comments and patterns",
+        list,
+        initial_fn=list,
+        assign_filter_list=[pod.typed, pod.typed.sequence(Node), pod.const],
+    )
 
     @staticmethod
     def parse(
-        text: str, lineno: int=1, col_offset: int=0
+        text: str, lineno: int = 1, col_offset: int = 0
     ) -> "OverrideFieldList":
         entries = []
         initial_lineno = lineno
@@ -411,25 +443,30 @@ class OverrideFieldList(Node):
 
 
 class OverrideExpression(Node):
-    """ node representing a single override statement """
+    """node representing a single override statement"""
 
     field = F("field to override", Text)
     value = F("value to apply", Text)
 
 
 class IncludeStmt(Node):
-    """ node representing a single include statement """
+    """node representing a single include statement"""
 
     pattern = F("the pattern used for selecting jobs", Re)
-    overrides = pod.Field("list of overrides to apply", list, initial_fn=list,
-                          assign_filter_list=[
-                              pod.typed,
-                              pod.typed.sequence(OverrideExpression),
-                              pod.const])
+    overrides = pod.Field(
+        "list of overrides to apply",
+        list,
+        initial_fn=list,
+        assign_filter_list=[
+            pod.typed,
+            pod.typed.sequence(OverrideExpression),
+            pod.const,
+        ],
+    )
 
     @staticmethod
     def parse(
-        text: str, lineno: int=1, col_offset: int=0
+        text: str, lineno: int = 1, col_offset: int = 0
     ) -> "Union[IncludeStmt, Error]":
         """
         Parse a single test plan include line
@@ -536,15 +573,18 @@ class IncludeStmt(Node):
 
 
 class IncludeStmtList(Node):
-    """ node representing a list of include statements"""
+    """node representing a list of include statements"""
 
-    entries = pod.Field("a list of include statements", list,
-                        initial_fn=list, assign_filter_list=[
-                            pod.typed, pod.typed.sequence(Node), pod.const])
+    entries = pod.Field(
+        "a list of include statements",
+        list,
+        initial_fn=list,
+        assign_filter_list=[pod.typed, pod.typed.sequence(Node), pod.const],
+    )
 
     @staticmethod
     def parse(
-        text: str, lineno: int=1, col_offset: int=0
+        text: str, lineno: int = 1, col_offset: int = 0
     ) -> "IncludeStmtList":
         """
         Parse a multi-line ``include`` field.
@@ -579,17 +619,17 @@ class IncludeStmtList(Node):
 
 
 class WordList(Node):
-    """ node representing a list of words"""
+    """node representing a list of words"""
 
-    entries = pod.Field("a list of words", list, initial_fn=list,
-                        assign_filter_list=[pod.typed,
-                                            pod.typed.sequence(Node),
-                                            pod.const])
+    entries = pod.Field(
+        "a list of words",
+        list,
+        initial_fn=list,
+        assign_filter_list=[pod.typed, pod.typed.sequence(Node), pod.const],
+    )
 
     @staticmethod
-    def parse(
-        text: str, lineno: int=1, col_offset: int=0
-    ) -> "WordList":
+    def parse(text: str, lineno: int = 1, col_offset: int = 0) -> "WordList":
         """
         Parse a list of words.
 
@@ -634,6 +674,10 @@ class WordList(Node):
                 entries.append(Text(lineno, col_offset, lexeme))
             else:
                 entries.append(
-                    Error(lineno, col_offset,
-                          "Unexpected input: {!r}".format(lexeme)))
+                    Error(
+                        lineno,
+                        col_offset,
+                        "Unexpected input: {!r}".format(lexeme),
+                    )
+                )
         return WordList(lineno, col_offset, entries)

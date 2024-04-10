@@ -123,18 +123,18 @@ class Explorer:
     """
 
     OBJECT_TYPES = [
-            'category',
-            'exporter',
-            'job',
-            'manifest entry',
-            'packaging meta-data',
-            'template',
-            'test plan',
-            'file',
-            'provider',
-            'storage',
-            'service',
-            'all-jobs'
+        "category",
+        "exporter",
+        "job",
+        "manifest entry",
+        "packaging meta-data",
+        "template",
+        "test plan",
+        "file",
+        "provider",
+        "storage",
+        "service",
+        "all-jobs",
     ]
 
     def __init__(self, provider_list=None):
@@ -168,30 +168,34 @@ class Explorer:
                     - all storages
         """
         service_obj = PlainBoxObject(
-            self,
-            name='service object',
-            group="service")
+            self, name="service object", group="service"
+        )
         # Milk each provider for jobs and test plans
         for provider in self.provider_list:
             provider_obj = PlainBoxObject(
                 provider,
                 group="provider",
                 name=provider.name,
-                attrs=OrderedDict((
-                    ('broken_i18n',
-                     provider.description == provider.tr_description()),
-                    ('name', provider.name),
-                    ('namespace', provider.namespace),
-                    ('version', provider.version),
-                    ('description', provider.description),
-                    ('tr_description', provider.tr_description()),
-                    ('jobs_dir', provider.jobs_dir),
-                    ('units_dir', provider.units_dir),
-                    ('data_dir', provider.data_dir),
-                    ('locale_dir', provider.locale_dir),
-                    ('gettext_domain', provider.gettext_domain),
-                    ('base_dir', provider.base_dir),
-                )))
+                attrs=OrderedDict(
+                    (
+                        (
+                            "broken_i18n",
+                            provider.description == provider.tr_description(),
+                        ),
+                        ("name", provider.name),
+                        ("namespace", provider.namespace),
+                        ("version", provider.version),
+                        ("description", provider.description),
+                        ("tr_description", provider.tr_description()),
+                        ("jobs_dir", provider.jobs_dir),
+                        ("units_dir", provider.units_dir),
+                        ("data_dir", provider.data_dir),
+                        ("locale_dir", provider.locale_dir),
+                        ("gettext_domain", provider.gettext_domain),
+                        ("base_dir", provider.base_dir),
+                    )
+                ),
+            )
             for unit in provider.unit_list:
                 provider_obj.children.append(self._unit_to_obj(unit))
             service_obj.children.append(provider_obj)
@@ -200,135 +204,191 @@ class Explorer:
                 storage,
                 group="storage",
                 name=storage.location,
-                attrs=OrderedDict((
-                    ('location', storage.location),
-                    ('session_file', storage.session_file),
-                )))
+                attrs=OrderedDict(
+                    (
+                        ("location", storage.location),
+                        ("session_file", storage.session_file),
+                    )
+                ),
+            )
             service_obj.children.append(storage_obj)
         return service_obj
 
     def _unit_to_obj(self, unit):
         # Yes, this should be moved to member methods
-        if unit.Meta.name == 'test plan':
+        if unit.Meta.name == "test plan":
             return self._test_plan_to_obj(unit)
-        elif unit.Meta.name == 'job':
+        elif unit.Meta.name == "job":
             return self._job_to_obj(unit)
-        elif unit.Meta.name == 'category':
+        elif unit.Meta.name == "category":
             return self._category_to_obj(unit)
-        elif unit.Meta.name == 'file':
+        elif unit.Meta.name == "file":
             return self._file_to_obj(unit)
-        elif unit.Meta.name == 'template':
+        elif unit.Meta.name == "template":
             return self._template_to_obj(unit)
-        elif unit.Meta.name == 'manifest entry':
+        elif unit.Meta.name == "manifest entry":
             return self._manifest_entry_to_obj(unit)
-        elif unit.Meta.name == 'packaging meta-data':
+        elif unit.Meta.name == "packaging meta-data":
             return self._packaging_meta_data_to_obj(unit)
-        elif unit.Meta.name == 'exporter':
+        elif unit.Meta.name == "exporter":
             return self._exporter_entry_to_obj(unit)
         else:
             raise NotImplementedError(unit.Meta.name)
 
     def _job_to_obj(self, unit):
         return PlainBoxObject(
-            unit, group=unit.Meta.name, name=unit.id, attrs=OrderedDict((
-                ('broken_i18n',
-                 unit.summary == unit.tr_summary()
-                 or unit.description == unit.tr_description()),
-                ('id', unit.id),
-                ('partial_id', unit.partial_id),
-                ('summary', unit.summary),
-                ('tr_summary', unit.tr_summary()),
-                ('raw_summary', unit.get_raw_record_value('summary')),
-                ('description', unit.description),
-                ('raw_description',
-                 unit.get_raw_record_value('description')),
-                ('tr_description', unit.tr_description()),
-                ('plugin', unit.plugin),
-                ('command', unit.command),
-                ('user', unit.user),
-                ('environ', unit.environ),
-                ('estimated_duration', unit.estimated_duration),
-                ('depends', unit.depends),
-                ('requires', unit.requires),
-                ('origin', str(unit.origin)),
-            )))
+            unit,
+            group=unit.Meta.name,
+            name=unit.id,
+            attrs=OrderedDict(
+                (
+                    (
+                        "broken_i18n",
+                        unit.summary == unit.tr_summary()
+                        or unit.description == unit.tr_description(),
+                    ),
+                    ("id", unit.id),
+                    ("partial_id", unit.partial_id),
+                    ("summary", unit.summary),
+                    ("tr_summary", unit.tr_summary()),
+                    ("raw_summary", unit.get_raw_record_value("summary")),
+                    ("description", unit.description),
+                    (
+                        "raw_description",
+                        unit.get_raw_record_value("description"),
+                    ),
+                    ("tr_description", unit.tr_description()),
+                    ("plugin", unit.plugin),
+                    ("command", unit.command),
+                    ("user", unit.user),
+                    ("environ", unit.environ),
+                    ("estimated_duration", unit.estimated_duration),
+                    ("depends", unit.depends),
+                    ("requires", unit.requires),
+                    ("origin", str(unit.origin)),
+                )
+            ),
+        )
 
     def _test_plan_to_obj(self, unit):
         return PlainBoxObject(
-            unit, group=unit.Meta.name, name=unit.id, attrs=OrderedDict((
-                ('broken_i18n',
-                 unit.name == unit.tr_name()
-                 or unit.description == unit.tr_description()),
-                ('id', unit.id),
-                ('include', unit.include),
-                ('exclude', unit.exclude),
-                ('name', unit.name),
-                ('tr_name', unit.tr_name()),
-                ('description', unit.description),
-                ('tr_description', unit.tr_description()),
-                ('estimated_duration', unit.estimated_duration),
-                ('icon', unit.icon),
-                ('category_overrides', unit.category_overrides),
-                ('virtual', unit.virtual),
-                ('origin', str(unit.origin)),
-            )))
+            unit,
+            group=unit.Meta.name,
+            name=unit.id,
+            attrs=OrderedDict(
+                (
+                    (
+                        "broken_i18n",
+                        unit.name == unit.tr_name()
+                        or unit.description == unit.tr_description(),
+                    ),
+                    ("id", unit.id),
+                    ("include", unit.include),
+                    ("exclude", unit.exclude),
+                    ("name", unit.name),
+                    ("tr_name", unit.tr_name()),
+                    ("description", unit.description),
+                    ("tr_description", unit.tr_description()),
+                    ("estimated_duration", unit.estimated_duration),
+                    ("icon", unit.icon),
+                    ("category_overrides", unit.category_overrides),
+                    ("virtual", unit.virtual),
+                    ("origin", str(unit.origin)),
+                )
+            ),
+        )
 
     def _category_to_obj(self, unit):
         return PlainBoxObject(
-            unit, group=unit.Meta.name, name=unit.id, attrs=OrderedDict((
-                ('broken_i18n', unit.name == unit.tr_name()),
-                ('id', unit.id),
-                ('name', unit.name),
-                ('tr_name', unit.tr_name()),
-                ('origin', str(unit.origin)),
-            )))
+            unit,
+            group=unit.Meta.name,
+            name=unit.id,
+            attrs=OrderedDict(
+                (
+                    ("broken_i18n", unit.name == unit.tr_name()),
+                    ("id", unit.id),
+                    ("name", unit.name),
+                    ("tr_name", unit.tr_name()),
+                    ("origin", str(unit.origin)),
+                )
+            ),
+        )
 
     def _file_to_obj(self, unit):
         return PlainBoxObject(
-            unit, group=unit.Meta.name, name=unit.path, attrs=OrderedDict((
-                ('path', unit.path),
-                ('role', str(unit.role)),
-                ('origin', str(unit.origin)),
-            )))
+            unit,
+            group=unit.Meta.name,
+            name=unit.path,
+            attrs=OrderedDict(
+                (
+                    ("path", unit.path),
+                    ("role", str(unit.role)),
+                    ("origin", str(unit.origin)),
+                )
+            ),
+        )
 
     def _template_to_obj(self, unit):
         return PlainBoxObject(
-            unit, group=unit.Meta.name, name=unit.template_id,
-            attrs=OrderedDict((
-                ('id', unit.id),
-                ('partial_id', unit.partial_id),
-                ('template_id', unit.template_id),
-                ('template_unit', unit.template_unit),
-                ('template_resource', unit.template_resource),
-                ('template_filter', unit.template_filter),
-                ('template_imports', unit.template_imports),
-                ('origin', str(unit.origin)),
-            )))
+            unit,
+            group=unit.Meta.name,
+            name=unit.template_id,
+            attrs=OrderedDict(
+                (
+                    ("id", unit.id),
+                    ("partial_id", unit.partial_id),
+                    ("template_id", unit.template_id),
+                    ("template_unit", unit.template_unit),
+                    ("template_resource", unit.template_resource),
+                    ("template_filter", unit.template_filter),
+                    ("template_imports", unit.template_imports),
+                    ("origin", str(unit.origin)),
+                )
+            ),
+        )
 
     def _manifest_entry_to_obj(self, unit):
         return PlainBoxObject(
-            unit, group=unit.Meta.name, name=unit.id, attrs=OrderedDict((
-                ('id', unit.id),
-                ('name', unit.name),
-                ('tr_name', unit.tr_name()),
-                ('value_type', unit.value_type),
-                ('value_unit', unit.value_unit),
-                ('resource_key', unit.resource_key),
-                ('origin', str(unit.origin)),
-            )))
+            unit,
+            group=unit.Meta.name,
+            name=unit.id,
+            attrs=OrderedDict(
+                (
+                    ("id", unit.id),
+                    ("name", unit.name),
+                    ("tr_name", unit.tr_name()),
+                    ("value_type", unit.value_type),
+                    ("value_unit", unit.value_unit),
+                    ("resource_key", unit.resource_key),
+                    ("origin", str(unit.origin)),
+                )
+            ),
+        )
 
     def _packaging_meta_data_to_obj(self, unit):
         return PlainBoxObject(
-            unit, group=unit.Meta.name, name=unit.os_id, attrs=OrderedDict((
-                ('os_id', unit.os_id),
-                ('os_version_id', unit.os_version_id),
-                ('origin', str(unit.origin)),
-            )))
+            unit,
+            group=unit.Meta.name,
+            name=unit.os_id,
+            attrs=OrderedDict(
+                (
+                    ("os_id", unit.os_id),
+                    ("os_version_id", unit.os_version_id),
+                    ("origin", str(unit.origin)),
+                )
+            ),
+        )
 
     def _exporter_entry_to_obj(self, unit):
         return PlainBoxObject(
-            unit, group=unit.Meta.name, name=unit.id, attrs=OrderedDict((
-                ('id', unit.id),
-                ('summary', unit.summary),
-                ('tr_summary', unit.tr_summary()),
-            )))
+            unit,
+            group=unit.Meta.name,
+            name=unit.id,
+            attrs=OrderedDict(
+                (
+                    ("id", unit.id),
+                    ("summary", unit.summary),
+                    ("tr_summary", unit.tr_summary()),
+                )
+            ),
+        )

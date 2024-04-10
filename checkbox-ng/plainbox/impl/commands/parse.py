@@ -24,10 +24,12 @@ import warnings
 
 warnings.warn(
     "Use either plainbox.impl.commands.cmd_parse or .inv_parse instead",
-    PendingDeprecationWarning, stacklevel=2)
+    PendingDeprecationWarning,
+    stacklevel=2,
+)
 
 
-__all__ = ['ParseInvocation', 'ParseCommand']
+__all__ = ["ParseInvocation", "ParseCommand"]
 
 from plainbox.impl.commands.inv_parse import ParseInvocation
 from plainbox.impl.commands.cmd_parse import ParseCommand

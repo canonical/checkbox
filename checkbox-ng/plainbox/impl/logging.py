@@ -26,7 +26,7 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-__all__ = ['setup_logging', 'adjust_logging']
+__all__ = ["setup_logging", "adjust_logging"]
 
 import logging
 import logging.config
@@ -57,7 +57,7 @@ class ANSIFormatter(logging.Formatter):
     python formatting syntax) inside format descriptions.
     """
 
-    def __init__(self, fmt=None, datefmt=None, style='%'):
+    def __init__(self, fmt=None, datefmt=None, style="%"):
         if fmt is not None:
             fmt = fmt.format(ansi=ansi)
         super(ANSIFormatter, self).__init__(fmt, datefmt, style)
@@ -84,7 +84,7 @@ class LoggingHelper:
     Helper class that manages logging subsystem
     """
 
-    def setup_logging(self, config_dict = dict()):
+    def setup_logging(self, config_dict=dict()):
         # Ensure that the logging directory exists. This is important
         # because we're about to open some files there. If it can't be created
         # we fall back to a console-only config.
@@ -96,11 +96,18 @@ class LoggingHelper:
                 os.makedirs(self.log_dir, exist_ok=True)
             except OSError as error:
                 if not config_dict.get(
-                        'silence_eperm_on_logdir_warning', False):
+                    "silence_eperm_on_logdir_warning", False
+                ):
                     logger.warning(
-                        _("Unable to create log directory: %s"), self.log_dir)
-                    logger.warning(_("Reason: %s. All logs will go to "
-                                    "console instead."), error)
+                        _("Unable to create log directory: %s"), self.log_dir
+                    )
+                    logger.warning(
+                        _(
+                            "Reason: %s. All logs will go to "
+                            "console instead."
+                        ),
+                        error,
+                    )
                 config_dict = self.DEFAULT_CONSOLE_ONLY_CONFIG
         # Apply the selected configuration. This overrides anything currently
         # defined for all of the logging subsystem in this python runtime
@@ -118,7 +125,7 @@ class LoggingHelper:
             for name in trace_list:
                 logging.getLogger(name).setLevel(logging.DEBUG)
                 logger.debug(_("Enabled debugging on logger %r"), name)
-        if debug_console and (level == 'DEBUG' or trace_list):
+        if debug_console and (level == "DEBUG" or trace_list):
             # Enable DEBUG logging to console if explicitly requested
             logging.config.dictConfig(self.DEBUG_CONSOLE_CONFIG)
 
@@ -127,9 +134,10 @@ class LoggingHelper:
         """
         directory with all of the log files
         """
-        xdg_cache_home = os.environ.get('XDG_CACHE_HOME') or \
-            os.path.join(os.path.expanduser('~'), '.cache')
-        return os.path.join(xdg_cache_home, 'plainbox', 'logs')
+        xdg_cache_home = os.environ.get("XDG_CACHE_HOME") or os.path.join(
+            os.path.expanduser("~"), ".cache"
+        )
+        return os.path.join(xdg_cache_home, "plainbox", "logs")
 
     @property
     def DEFAULT_FORMATTERS(self):

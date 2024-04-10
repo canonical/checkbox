@@ -74,6 +74,7 @@ class ConfigMetaData:
         A list of config files (pathnames) to read on call to
         :meth:`Config.read`
     """
+
     variable_list = []
     section_list = []
     parametric_section_list = []
@@ -119,8 +120,16 @@ class Variable(INameTracking):
 
     _KIND_CHOICE = (bool, int, float, str, list)
 
-    def __init__(self, name=None, *, section='DEFAULT', kind=str,
-                 default=Unset, validator_list=None, help_text=None):
+    def __init__(
+        self,
+        name=None,
+        *,
+        section="DEFAULT",
+        kind=str,
+        default=Unset,
+        validator_list=None,
+        help_text=None
+    ):
         # Ensure kind is correct
         if kind not in self._KIND_CHOICE:
             raise ValueError(_("unsupported kind"))
@@ -167,8 +176,9 @@ class Variable(INameTracking):
             #
             # If the value _is_ unset and the validator doesn't claim to
             # support it then just skip it.
-            if value is Unset and not getattr(validator, 'understands_Unset',
-                                              False):
+            if value is Unset and not getattr(
+                validator, "understands_Unset", False
+            ):
                 continue
             message = validator(self, value)
             if message is not None:
@@ -336,6 +346,7 @@ class ParametricSection(Section):
             {'baz': {'othervar': 'otherval'}}
         ]
     """
+
     def __init__(self, name=None, *, help_text=None):
         super().__init__(name, help_text=help_text)
 
@@ -356,14 +367,15 @@ class ConfigMeta(type):
         variable_list = []
         section_list = []
         parametric_section_list = []
-        if 'Meta' in namespace:
-            if hasattr(namespace['Meta'], 'variable_list'):
-                variable_list = namespace['Meta'].variable_list[:]
-            if hasattr(namespace['Meta'], 'section_list'):
-                section_list = namespace['Meta'].section_list[:]
-            if hasattr(namespace['Meta'], 'parametric_section_list'):
-                parametric_section_list = (
-                    namespace['Meta'].parametric_section_list[:])
+        if "Meta" in namespace:
+            if hasattr(namespace["Meta"], "variable_list"):
+                variable_list = namespace["Meta"].variable_list[:]
+            if hasattr(namespace["Meta"], "section_list"):
+                section_list = namespace["Meta"].section_list[:]
+            if hasattr(namespace["Meta"], "parametric_section_list"):
+                parametric_section_list = namespace[
+                    "Meta"
+                ].parametric_section_list[:]
         # Discover all Variable and Section instances
         # defined in the class namespace
         for attr_name, attr_value in namespace.items():
@@ -382,18 +394,19 @@ class ConfigMeta(type):
         Meta_name = "Meta"
         Meta_bases = (ConfigMetaData,)
         Meta_ns = {
-            'variable_list': variable_list,
-            'section_list': section_list,
-            'parametric_section_list': parametric_section_list
+            "variable_list": variable_list,
+            "section_list": section_list,
+            "parametric_section_list": parametric_section_list,
         }
-        if 'Meta' in namespace:
-            user_Meta_cls = namespace['Meta']
+        if "Meta" in namespace:
+            user_Meta_cls = namespace["Meta"]
             if not isinstance(user_Meta_cls, type):
                 raise TypeError("Meta must be a class")
             Meta_bases = (user_Meta_cls, ConfigMetaData)
         # Create a new type for the Meta class
-        namespace['Meta'] = type.__new__(
-            type(ConfigMetaData), Meta_name, Meta_bases, Meta_ns)
+        namespace["Meta"] = type.__new__(
+            type(ConfigMetaData), Meta_name, Meta_bases, Meta_ns
+        )
         # Create a new type for the Config subclass
         return type.__new__(mcls, name, bases, namespace)
 
@@ -433,21 +446,31 @@ class PlainBoxConfigParser(configparser.ConfigParser):
             d = self._delimiters[0]
         if self._defaults:
             self._write_section(
-                fp, self.default_section, sorted(self._defaults.items()), d)
+                fp, self.default_section, sorted(self._defaults.items()), d
+            )
         for section in self._sections:
             self._write_section(
-                fp, section, sorted(self._sections[section].items()), d)
+                fp, section, sorted(self._sections[section].items()), d
+            )
 
-    def getlist(self, section, option, *, raw=False, vars=None,
-                fallback=configparser._UNSET, **kwargs):
-        return self._get(section, self._convert_to_list, option,  **kwargs)
+    def getlist(
+        self,
+        section,
+        option,
+        *,
+        raw=False,
+        vars=None,
+        fallback=configparser._UNSET,
+        **kwargs
+    ):
+        return self._get(section, self._convert_to_list, option, **kwargs)
 
     def _convert_to_list(self, value):
         """Return list extracted from value.
 
         The ``value`` is split using ',' and ' ' as delimiters.
         """
-        return shlex.split(value.replace(',', ' '))
+        return shlex.split(value.replace(",", " "))
 
 
 class Config(metaclass=ConfigMeta):
@@ -518,17 +541,19 @@ class Config(metaclass=ConfigMeta):
         methods.  By using this function one can obtain a ConfigParser-like
         object and work with it directly.
         """
-        parser = PlainBoxConfigParser(allow_no_value=True, delimiters=('='))
+        parser = PlainBoxConfigParser(allow_no_value=True, delimiters=("="))
         # Write all variables that we know about
         for variable in self.Meta.variable_list:
-            if (not parser.has_section(variable.section) and
-                    variable.section != "DEFAULT"):
+            if (
+                not parser.has_section(variable.section)
+                and variable.section != "DEFAULT"
+            ):
                 parser.add_section(variable.section)
             value = variable.__get__(self, self.__class__)
             # Except Unset, we don't want that to convert to 'unset'
             if value is not Unset:
                 if variable.kind == list:
-                    value = ', '.join(value)
+                    value = ", ".join(value)
                 parser.set(variable.section, variable.name, str(value))
         # Write all sections that we know about
         for section in self.Meta.section_list:
@@ -538,7 +563,7 @@ class Config(metaclass=ConfigMeta):
                 parser.set(section.name, name, str(value))
         for psection in self.Meta.parametric_section_list:
             for name, sec in psection.__get__(self, self.__class__).items():
-                section_name = '{}:{}'.format(psection.name, name)
+                section_name = "{}:{}".format(psection.name, name)
                 if not parser.has_section(section_name):
                     parser.add_section(section_name)
                 for k, v in sec.items():
@@ -573,7 +598,7 @@ class Config(metaclass=ConfigMeta):
             This method resets :attr:`_problem_list`
             and :attr:`_filename_list`.
         """
-        parser = PlainBoxConfigParser(allow_no_value=True, delimiters=('='))
+        parser = PlainBoxConfigParser(allow_no_value=True, delimiters=("="))
         if reset:
             # Reset filename list and problem list
             self._filename_list = []
@@ -630,7 +655,7 @@ class Config(metaclass=ConfigMeta):
             This method resets :attr:`_problem_list`
             and :attr:`_filename_list`.
         """
-        parser = PlainBoxConfigParser(allow_no_value=True, delimiters=('='))
+        parser = PlainBoxConfigParser(allow_no_value=True, delimiters=("="))
         # Reset filename list and problem list
         self._filename_list = []
         self._problem_list = []
@@ -649,14 +674,15 @@ class Config(metaclass=ConfigMeta):
             bool: parser.getboolean,
             int: parser.getint,
             float: parser.getfloat,
-            list: parser.getlist
+            list: parser.getlist,
         }
         # Load all variables that we know about
         for variable in self.Meta.variable_list:
             # Access the variable in the configuration file
             try:
                 value = reader_fn[variable.kind](
-                    variable.section, variable.name)
+                    variable.section, variable.name
+                )
             except (configparser.NoSectionError, configparser.NoOptionError):
                 value = variable.default
             # Try to assign it
@@ -675,11 +701,14 @@ class Config(metaclass=ConfigMeta):
             section.__set__(self, value)
         # Load all parametric sections
         for parametric_section in self.Meta.parametric_section_list:
-            matching_keys = [k for k in parser.keys() if k.startswith(
-                parametric_section.name + ':')]
+            matching_keys = [
+                k
+                for k in parser.keys()
+                if k.startswith(parametric_section.name + ":")
+            ]
             value = dict()
             for key in matching_keys:
-                param = key[len(parametric_section.name) + 1:]
+                param = key[len(parametric_section.name) + 1 :]
                 value[param] = dict(parser.items(key))
             parametric_section.__set__(self, value)
 
@@ -774,7 +803,7 @@ def KindValidator(variable, new_value):
             int: _("expected an integer"),
             float: _("expected a floating point number"),
             str: _("expected a string"),
-            list: _("expected a list of strings")
+            list: _("expected a list of strings"),
         }[variable.kind]
 
 
@@ -809,7 +838,8 @@ class ChoiceValidator(IValidator):
     def __call__(self, variable, new_value):
         if new_value not in self.choice_list:
             return _("{} must be one of {}. Got '{}'").format(
-                variable.name, ", ".join(self.choice_list), new_value)
+                variable.name, ", ".join(self.choice_list), new_value
+            )
 
     def __eq__(self, other):
         if isinstance(other, ChoiceValidator):
@@ -827,7 +857,8 @@ class SubsetValidator(IValidator):
     def __call__(self, variable, subset):
         if not set(subset).issubset(self.superset):
             return _("{} must be a subset of {}. Got {}").format(
-                variable.name, self.superset, set(subset))
+                variable.name, self.superset, set(subset)
+            )
 
     def __eq__(self, other):
         if isinstance(other, SubsetValidator):
@@ -840,9 +871,10 @@ class OneOrTheOtherValidator(IValidator):
     """
     A validator ensuring that values only from one or the other set are used.
     """
+
     def __init__(self, a_set, b_set):
         # the sets have to be disjoint
-        assert(not a_set & b_set)
+        assert not a_set & b_set
         self.a_set = set(a_set)
         self.b_set = set(b_set)
 
@@ -850,8 +882,11 @@ class OneOrTheOtherValidator(IValidator):
         has_common_with_a = bool(self.a_set & set(values))
         has_common_with_b = bool(self.b_set & set(values))
         if has_common_with_a and has_common_with_b:
-            return _('{} can only use values from {} or from {}'.format(
-                variable.name, self.a_set, self.b_set))
+            return _(
+                "{} can only use values from {} or from {}".format(
+                    variable.name, self.a_set, self.b_set
+                )
+            )
 
     def __eq__(self, other):
         if isinstance(other, OneOrTheOtherValidator):

@@ -98,7 +98,6 @@ logger = logging.getLogger("plainbox.session.suspend")
 
 
 class SessionSuspendHelper1:
-
     """
     Helper class for computing binary representation of a session.
 
@@ -134,7 +133,7 @@ class SessionSuspendHelper1:
             ensure_ascii=False,
             sort_keys=True,
             indent=None,
-            separators=(',', ':')
+            separators=(",", ":"),
         ).encode("UTF-8")
         # NOTE: gzip.compress is not deterministic on python3.2
         return gzip.compress(data)
@@ -205,12 +204,8 @@ class SessionSuspendHelper1:
                 state.job.id: [self._repr_JobResult(state.result, session_dir)]
                 for state in obj.job_state_map.values()
             },
-            "desired_job_list": [
-                job.id for job in obj.desired_job_list
-            ],
-            "mandatory_job_list": [
-                job.id for job in obj.mandatory_job_list
-            ],
+            "desired_job_list": [job.id for job in obj.desired_job_list],
+            "mandatory_job_list": [job.id for job in obj.mandatory_job_list],
             "metadata": self._repr_SessionMetaData(obj.metadata, session_dir),
         }
 
@@ -241,7 +236,7 @@ class SessionSuspendHelper1:
         return {
             "title": obj.title,
             "flags": list(sorted(obj.flags)),
-            "running_job_name": obj.running_job_name
+            "running_job_name": obj.running_job_name,
         }
 
     def _repr_JobResult(self, obj, session_dir):
@@ -252,7 +247,8 @@ class SessionSuspendHelper1:
             return self._repr_MemoryJobResult(obj, session_dir)
         else:
             raise TypeError(
-                "_repr_JobResult() supports DiskJobResult or MemoryJobResult")
+                "_repr_JobResult() supports DiskJobResult or MemoryJobResult"
+            )
 
     def _repr_JobResultBase(self, obj, session_dir):
         """
@@ -305,10 +301,13 @@ class SessionSuspendHelper1:
         """
         assert isinstance(obj, MemoryJobResult)
         result = self._repr_JobResultBase(obj, session_dir)
-        result.update({
-            "io_log": [self._repr_IOLogRecord(record)
-                       for record in obj.io_log],
-        })
+        result.update(
+            {
+                "io_log": [
+                    self._repr_IOLogRecord(record) for record in obj.io_log
+                ],
+            }
+        )
         return result
 
     def _repr_DiskJobResult(self, obj, session_dir):
@@ -328,9 +327,11 @@ class SessionSuspendHelper1:
         """
         assert isinstance(obj, DiskJobResult)
         result = self._repr_JobResultBase(obj, session_dir)
-        result.update({
-            "io_log_filename": obj.io_log_filename,
-        })
+        result.update(
+            {
+                "io_log_filename": obj.io_log_filename,
+            }
+        )
         return result
 
     def _repr_IOLogRecord(self, obj):
@@ -350,12 +351,14 @@ class SessionSuspendHelper1:
         * data, base64 encoded ASCII string, computed from
           :attr:`~plainbox.impl.result.IOLogRecord.data`
         """
-        return [obj[0], obj[1],
-                base64.standard_b64encode(obj[2]).decode("ASCII")]
+        return [
+            obj[0],
+            obj[1],
+            base64.standard_b64encode(obj[2]).decode("ASCII"),
+        ]
 
 
 class SessionSuspendHelper2(SessionSuspendHelper1):
-
     """
     Helper class for computing binary representation of a session.
 
@@ -397,18 +400,18 @@ class SessionSuspendHelper2(SessionSuspendHelper1):
                 This field may be null.
         """
         data = super(SessionSuspendHelper2, self)._repr_SessionMetaData(
-            obj, session_dir)
+            obj, session_dir
+        )
         if obj.app_blob is None:
-            data['app_blob'] = None
+            data["app_blob"] = None
         else:
-            data['app_blob'] = base64.standard_b64encode(
-                obj.app_blob
-            ).decode("ASCII")
+            data["app_blob"] = base64.standard_b64encode(obj.app_blob).decode(
+                "ASCII"
+            )
         return data
 
 
 class SessionSuspendHelper3(SessionSuspendHelper2):
-
     """
     Helper class for computing binary representation of a session.
 
@@ -454,13 +457,13 @@ class SessionSuspendHelper3(SessionSuspendHelper2):
                 Thirs field may be null.
         """
         data = super(SessionSuspendHelper3, self)._repr_SessionMetaData(
-            obj, session_dir)
-        data['app_id'] = obj.app_id
+            obj, session_dir
+        )
+        data["app_id"] = obj.app_id
         return data
 
 
 class SessionSuspendHelper4(SessionSuspendHelper3):
-
     """
     Helper class for computing binary representation of a session.
 
@@ -520,23 +523,20 @@ class SessionSuspendHelper4(SessionSuspendHelper3):
                 if not state.result.is_hollow or state.job.id in id_run_list
             },
             "results": {
-                state.job.id: [self._repr_JobResult(result, session_dir)
-                               for result in state.result_history]
+                state.job.id: [
+                    self._repr_JobResult(result, session_dir)
+                    for result in state.result_history
+                ]
                 for state in obj.job_state_map.values()
                 if len(state.result_history) > 0
             },
-            "desired_job_list": [
-                job.id for job in obj.desired_job_list
-            ],
-            "mandatory_job_list": [
-                job.id for job in obj.mandatory_job_list
-            ],
+            "desired_job_list": [job.id for job in obj.desired_job_list],
+            "mandatory_job_list": [job.id for job in obj.mandatory_job_list],
             "metadata": self._repr_SessionMetaData(obj.metadata, session_dir),
         }
 
 
 class SessionSuspendHelper5(SessionSuspendHelper4):
-
     """
     Helper class for computing binary representation of a session.
 
@@ -568,12 +568,12 @@ class SessionSuspendHelper5(SessionSuspendHelper4):
         result = super()._repr_DiskJobResult(obj, session_dir)
         if session_dir is not None:
             result["io_log_filename"] = os.path.relpath(
-                obj.io_log_filename, session_dir)
+                obj.io_log_filename, session_dir
+            )
         return result
 
 
 class SessionSuspendHelper6(SessionSuspendHelper5):
-
     """
     Helper class for computing binary representation of a session.
 
@@ -639,27 +639,27 @@ class SessionSuspendHelper6(SessionSuspendHelper5):
                 if not state.result.is_hollow or state.job.id in id_run_list
             },
             "results": {
-                state.job.id: [self._repr_JobResult(result, session_dir)
-                               for result in state.result_history]
+                state.job.id: [
+                    self._repr_JobResult(result, session_dir)
+                    for result in state.result_history
+                ]
                 for state in obj.job_state_map.values()
                 if len(state.result_history) > 0
             },
-            "desired_job_list": [
-                job.id for job in obj.desired_job_list
-            ],
-            "mandatory_job_list": [
-                job.id for job in obj.mandatory_job_list
-            ],
+            "desired_job_list": [job.id for job in obj.desired_job_list],
+            "mandatory_job_list": [job.id for job in obj.mandatory_job_list],
             "metadata": self._repr_SessionMetaData(obj.metadata, session_dir),
         }
+
 
 class SessionSuspendHelper7(SessionSuspendHelper6):
     VERSION = 7
 
     def _repr_SessionMetaData(self, obj, session_dir):
         data = super()._repr_SessionMetaData(obj, session_dir)
-        data['last_job_start_time'] = obj.last_job_start_time
+        data["last_job_start_time"] = obj.last_job_start_time
         return data
+
 
 class SessionSuspendHelper8(SessionSuspendHelper7):
     VERSION = 8
@@ -671,6 +671,7 @@ class SessionSuspendHelper8(SessionSuspendHelper7):
             for (tool_name, tool_output) in obj.system_information.items()
         }
         return data
+
 
 # Alias for the most recent version
 SessionSuspendHelper = SessionSuspendHelper8

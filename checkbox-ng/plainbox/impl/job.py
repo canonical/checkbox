@@ -30,4 +30,4 @@ Job Tree Builder.
 
 from plainbox.impl.unit.job import JobDefinition
 
-__all__ = ('JobDefinition', )
+__all__ = ("JobDefinition",)

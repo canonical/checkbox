@@ -197,26 +197,26 @@ class IJobResult(metaclass=ABCMeta):
     # visible, job outcomes. They can be provided by either automated or manual
     # "classifier" - a script or a person that clicks a "pass" or "fail"
     # button.
-    OUTCOME_PASS = 'pass'
-    OUTCOME_FAIL = 'fail'
+    OUTCOME_PASS = "pass"
+    OUTCOME_FAIL = "fail"
     # The skip outcome is used when the operator selected a job but then
     # skipped it. This is typically used for a manual job that is tedious or
     # was selected by accident.
-    OUTCOME_SKIP = 'skip'
+    OUTCOME_SKIP = "skip"
     # The not supported outcome is used when a job was about to run but a
     # dependency or resource requirement prevent it from running.  XXX: perhaps
     # this should be called "not available", not supported has the "unsupported
     # code" feeling associated with it.
-    OUTCOME_NOT_SUPPORTED = 'not-supported'
+    OUTCOME_NOT_SUPPORTED = "not-supported"
     # A temporary state that should be removed later on, used to indicate that
     # job runner is not implemented but the job "ran" so to speak.
-    OUTCOME_NOT_IMPLEMENTED = 'not-implemented'
+    OUTCOME_NOT_IMPLEMENTED = "not-implemented"
     # A temporary state before the user decides on the outcome of a manual
     # job or any other job that requires manual verification
-    OUTCOME_UNDECIDED = 'undecided'
+    OUTCOME_UNDECIDED = "undecided"
     # A kind of failed that indicates the underlying test misbehaved. Currently
     # it is only used when the test program is killed by a signal.
-    OUTCOME_CRASH = 'crash'
+    OUTCOME_CRASH = "crash"
 
     @abstractproperty
     def outcome(self):
@@ -681,11 +681,11 @@ class IProvider1(IProviderBackend1):
 
     @abstractproperty
     def name(self):
-       """
-       name of this provider
+        """
+        name of this provider
 
-       This name should be dbus-friendly. It should not be localizable.
-       """
+        This name should be dbus-friendly. It should not be localizable.
+        """
 
     @abstractproperty
     def namespace(self):

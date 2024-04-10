@@ -46,17 +46,17 @@ import logging
 import os
 
 from plainbox.impl.providers.embedded_providers import (
-    EmbeddedProvider1PlugInCollection)
+    EmbeddedProvider1PlugInCollection,
+)
 
 logger = logging.getLogger("plainbox.providers.__init__")
 
 
 class ProviderNotFound(LookupError):
+    """Exception used to report that a provider cannot be located."""
 
-    """ Exception used to report that a provider cannot be located. """
 
-
-def get_providers(*, only_secure: bool=False) -> 'List[Provider1]':
+def get_providers(*, only_secure: bool = False) -> "List[Provider1]":
     """
     Find and load all providers that are available.
 
@@ -75,12 +75,13 @@ def get_providers(*, only_secure: bool=False) -> 'List[Provider1]':
     you want to load only them, use the `only_secure` option.
     """
     from plainbox.impl.providers import special
+
     if only_secure:
         from plainbox.impl.secure.providers.v1 import all_providers
     else:
         from plainbox.impl.providers.v1 import all_providers
     all_providers.load()
-    std_providers= [
+    std_providers = [
         special.get_manifest(),
         special.get_exporters(),
         special.get_categories(),
@@ -90,8 +91,10 @@ def get_providers(*, only_secure: bool=False) -> 'List[Provider1]':
 
     def qualified_name(provider):
         return "{}:{}".format(provider.namespace, provider.name)
-    sideload_path = os.path.expandvars(os.path.join(
-        '/var', 'tmp', 'checkbox-providers'))
+
+    sideload_path = os.path.expandvars(
+        os.path.join("/var", "tmp", "checkbox-providers")
+    )
     embedded_providers = EmbeddedProvider1PlugInCollection(sideload_path)
     loaded_provs = embedded_providers.get_all_plugin_objects()
     for p in loaded_provs:
@@ -104,7 +107,11 @@ def get_providers(*, only_secure: bool=False) -> 'List[Provider1]':
             continue
         loaded_provs.append(std_prov)
     if not loaded_provs:
-        message = '\n'.join(( _("No providers found! Paths searched:"),
-            *all_providers.provider_search_paths))
+        message = "\n".join(
+            (
+                _("No providers found! Paths searched:"),
+                *all_providers.provider_search_paths,
+            )
+        )
         raise SystemExit(message)
     return loaded_provs

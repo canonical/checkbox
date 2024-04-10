@@ -48,7 +48,8 @@ def get_categories_def():
     categories_def.secure = False
     categories_def.gettext_domain = "plainbox-provider-categories"
     categories_def.location = os.path.join(
-        get_plainbox_dir(), "impl/providers/categories")
+        get_plainbox_dir(), "impl/providers/categories"
+    )
     return categories_def
 
 
@@ -68,12 +69,14 @@ def get_manifest_def():
     manifest_def.secure = False
     manifest_def.gettext_domain = "plainbox-provider-manifest"
     manifest_def.location = os.path.join(
-        get_plainbox_dir(), "impl/providers/manifest")
+        get_plainbox_dir(), "impl/providers/manifest"
+    )
     return manifest_def
 
 
 def get_manifest():
     return Provider1.from_definition(get_manifest_def(), secure=False)
+
 
 def get_exporters_def():
     """
@@ -87,7 +90,8 @@ def get_exporters_def():
     exporters_def.secure = False
     exporters_def.gettext_domain = "plainbox-provider-exporters"
     exporters_def.location = os.path.join(
-        get_plainbox_dir(), "impl/providers/exporters")
+        get_plainbox_dir(), "impl/providers/exporters"
+    )
     return exporters_def
 
 

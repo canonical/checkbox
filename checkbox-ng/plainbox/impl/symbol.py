@@ -30,7 +30,7 @@ Applications can use Symbol class directly or use the SymbolDef helper to
 quickly construct symbols without syntax overhead.
 """
 
-__all__ = ['Symbol', 'SymbolDef']
+__all__ = ["Symbol", "SymbolDef"]
 
 import functools
 import inspect
@@ -126,7 +126,7 @@ class SymbolDefNs:
     :class:`Symbol` and added to the namespace.
     """
 
-    PASSTHRU = frozenset(('__name__', '__qualname__', '__doc__', '__module__'))
+    PASSTHRU = frozenset(("__name__", "__qualname__", "__doc__", "__module__"))
 
     def __init__(self, allow_outer=None):
         self.data = {}
@@ -149,7 +149,7 @@ class SymbolDefNs:
             raise KeyError(name)
         elif name in self.data:
             return self.data[name]
-        elif name == 'Symbol':
+        elif name == "Symbol":
             return Symbol
         else:
             symbol = Symbol(name)
@@ -171,7 +171,7 @@ class SymbolDefMeta(type):
 
     def __new__(mcls, name, bases, ns, allow_outer=None):
         classdict = ns.data
-        classdict['get_all_symbols'] = classmethod(mcls.get_all_symbols)
+        classdict["get_all_symbols"] = classmethod(mcls.get_all_symbols)
         return type.__new__(mcls, name, bases, classdict)
 
     def __init__(mcls, name, bases, ns, allow_outer=None):
@@ -188,10 +188,13 @@ class SymbolDefMeta(type):
         # carries which holds all values. I don't know if we should have that
         # as symbols are not 'bound' to any 'container' like enumeration values
         # are.
-        return [value for name, kind, defcls, value
-                in inspect.classify_class_attrs(cls)
-                if name != '__locals__' and kind == 'data'
-                and isinstance(value, Symbol)]
+        return [
+            value
+            for name, kind, defcls, value in inspect.classify_class_attrs(cls)
+            if name != "__locals__"
+            and kind == "data"
+            and isinstance(value, Symbol)
+        ]
 
 
 class SymbolDef(metaclass=SymbolDefMeta):

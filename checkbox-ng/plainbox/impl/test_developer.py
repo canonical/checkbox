@@ -35,7 +35,6 @@ class _Foo:
 
 
 class UnexpectedMethodCallTests(unittest.TestCase):
-
     """Tests for the UnexpectedMethodCall class."""
 
     def test_ancestry(self):
@@ -44,7 +43,6 @@ class UnexpectedMethodCallTests(unittest.TestCase):
 
 
 class UsageExpectationTests(unittest.TestCase):
-
     """Tests for the UsageExpectation class."""
 
     def test_of(self):
@@ -62,15 +60,15 @@ class UsageExpectationTests(unittest.TestCase):
     def test_enforce(self):
         """Check that .enforce() works and produces useful messages."""
         foo = _Foo()
-        UsageExpectation.of(foo).allowed_calls = {
-            foo.m1: "call m1 now"
-        }
+        UsageExpectation.of(foo).allowed_calls = {foo.m1: "call m1 now"}
         # Nothing should happen here
         foo.m1()
         # Exception should be raised here
         with self.assertRaises(UnexpectedMethodCall) as boom:
             foo.m2()
-        self.assertEqual(str(boom.exception), """
+        self.assertEqual(
+            str(boom.exception),
+            """
 Uh, oh...
 
 You are not expected to call _Foo.m2() at this time.
@@ -85,4 +83,5 @@ The set of allowed calls, at this time, is:
 
 Refer to the documentation of _Foo for details.
     TIP: python -m pydoc plainbox.impl.test_developer._Foo
-""")
+""",
+        )

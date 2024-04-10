@@ -51,7 +51,7 @@ class DevelopCommandExt(DevelopCommand):
 
     __doc__ = DevelopCommand.__doc__
 
-    name = 'develop'
+    name = "develop"
 
     def invoked(self, ns):
         print(_("The Manifest provider is special"))
@@ -63,7 +63,7 @@ class InstallCommandExt(InstallCommand):
 
     __doc__ = InstallCommand.__doc__
 
-    name = 'install'
+    name = "install"
 
     def invoked(self, ns):
         print(_("The Manifest provider is special"))
@@ -73,10 +73,11 @@ class InstallCommandExt(InstallCommand):
 if __name__ == "__main__":
     if manifest_def.effective_locale_dir:
         bindtextdomain(
-            manifest_def.gettext_domain, manifest_def.effective_locale_dir)
+            manifest_def.gettext_domain, manifest_def.effective_locale_dir
+        )
     setup(
         name=manifest_def.name,
         version=manifest_def.version,
         description=manifest_def.description,
-        gettext_domain=manifest_def.gettext_domain
+        gettext_domain=manifest_def.gettext_domain,
     )

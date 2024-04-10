@@ -2,6 +2,7 @@
 This modules has utilities to handle information about users available in the
 system.
 """
+
 import logging
 import pwd
 

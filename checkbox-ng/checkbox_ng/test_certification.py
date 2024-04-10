@@ -50,19 +50,21 @@ class SubmissionServiceTransportTests(TestCase):
     valid_option_string = "secure_id={}".format(valid_secure_id)
 
     def setUp(self):
-        self.sample_archive = BytesIO(resource_string(
-            "plainbox", "test-data/tar-exporter/example-data.tar.xz"
-        ))
-        self.patcher = mock.patch('requests.post')
+        self.sample_archive = BytesIO(
+            resource_string(
+                "plainbox", "test-data/tar-exporter/example-data.tar.xz"
+            )
+        )
+        self.patcher = mock.patch("requests.post")
         self.mock_requests = self.patcher.start()
 
     def test_parameter_parsing(self):
         # Makes sense since I'm overriding the base class's constructor.
         transport = SubmissionServiceTransport(
-            self.valid_url, self.valid_option_string)
+            self.valid_url, self.valid_option_string
+        )
         self.assertEqual(self.valid_url, transport.url)
-        self.assertEqual(self.valid_secure_id,
-                         transport.options['secure_id'])
+        self.assertEqual(self.valid_secure_id, transport.options["secure_id"])
 
     def test_invalid_length_secure_id_are_rejected(self):
         length = 14
@@ -78,32 +80,33 @@ class SubmissionServiceTransportTests(TestCase):
 
     def test_invalid_url(self):
         transport = SubmissionServiceTransport(
-            self.invalid_url, self.valid_option_string)
+            self.invalid_url, self.valid_option_string
+        )
         dummy_data = BytesIO(b"some data to send")
         requests.post.side_effect = InvalidSchema
 
         with self.assertRaises(TransportError):
             result = transport.send(dummy_data)
             self.assertIsNotNone(result)
-        requests.post.assert_called_with(
-            self.invalid_url, data=dummy_data)
+        requests.post.assert_called_with(self.invalid_url, data=dummy_data)
 
-    @mock.patch('checkbox_ng.certification.logger')
+    @mock.patch("checkbox_ng.certification.logger")
     def test_valid_url_cant_connect(self, mock_logger):
         transport = SubmissionServiceTransport(
-            self.unreachable_url, self.valid_option_string)
+            self.unreachable_url, self.valid_option_string
+        )
         dummy_data = BytesIO(b"some data to send")
         requests.post.side_effect = ConnectionError
         with self.assertRaises(TransportError):
             result = transport.send(dummy_data)
             self.assertIsNotNone(result)
-        requests.post.assert_called_with(self.unreachable_url,
-                                         data=dummy_data)
+        requests.post.assert_called_with(self.unreachable_url, data=dummy_data)
 
     def test_send_success(self):
         transport = SubmissionServiceTransport(
-            self.valid_url, self.valid_option_string)
-        requests.post.return_value = MagicMock(name='response')
+            self.valid_url, self.valid_option_string
+        )
+        requests.post.return_value = MagicMock(name="response")
         requests.post.return_value.status_code = 200
         requests.post.return_value.text = '{"id": 768}'
         result = transport.send(self.sample_archive)
@@ -111,15 +114,17 @@ class SubmissionServiceTransportTests(TestCase):
 
     def test_send_failure(self):
         transport = SubmissionServiceTransport(
-            self.valid_url, self.valid_option_string)
-        requests.post.return_value = MagicMock(name='response')
+            self.valid_url, self.valid_option_string
+        )
+        requests.post.return_value = MagicMock(name="response")
         requests.post.return_value.status_code = 412
-        requests.post.return_value.text = 'Some error'
+        requests.post.return_value.text = "Some error"
         # Oops, raise_for_status doesn't get fooled by my mocking,
         # so I have to mock *that* method as well..
         response = requests.Response()
         error = HTTPError(response=response)
         requests.post.return_value.raise_for_status = MagicMock(
-            side_effect=error)
+            side_effect=error
+        )
         with self.assertRaises(TransportError):
             transport.send(self.sample_archive)

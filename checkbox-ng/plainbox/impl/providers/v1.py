@@ -24,8 +24,12 @@ Most of the implementation is available in
 :mod:`plainbox.impl.secure.providers.v1`
 """
 
-__all__ = ['Provider1', 'InsecureProvider1PlugInCollection', 'all_providers',
-           'get_insecure_PROVIDERPATH_list', ]
+__all__ = [
+    "Provider1",
+    "InsecureProvider1PlugInCollection",
+    "all_providers",
+    "get_insecure_PROVIDERPATH_list",
+]
 
 import logging
 import os
@@ -47,7 +51,8 @@ def get_user_PROVIDERPATH_entry():
         `$XDG_DATA_HOME/plainbox-providers-1`
     """
     XDG_DATA_HOME = os.getenv(
-        'XDG_DATA_HOME', os.path.expanduser("~/.local/share/"))
+        "XDG_DATA_HOME", os.path.expanduser("~/.local/share/")
+    )
     return os.path.join(XDG_DATA_HOME, "plainbox-providers-1")
 
 
@@ -67,7 +72,9 @@ def get_insecure_PROVIDERPATH_list():
         * `/var/tmp/checkbox-providers-develop`
     """
     return get_secure_PROVIDERPATH_list() + [
-        get_user_PROVIDERPATH_entry(), get_universal_PROVIDERPATH_entry()]
+        get_user_PROVIDERPATH_entry(),
+        get_universal_PROVIDERPATH_entry(),
+    ]
 
 
 def get_universal_PROVIDERPATH_entry():
@@ -78,7 +85,7 @@ def get_universal_PROVIDERPATH_entry():
     :returns:
         `/var/tmp/checkbox-providers-develop`
     """
-    return '/var/tmp/checkbox-providers-develop'
+    return "/var/tmp/checkbox-providers-develop"
 
 
 class InsecureProvider1PlugInCollection(FsPlugInCollection):
@@ -96,8 +103,11 @@ class InsecureProvider1PlugInCollection(FsPlugInCollection):
 
     def __init__(self, **kwargs):
         super().__init__(
-            self.provider_search_paths, '.provider',
-            wrapper=Provider1PlugIn, **kwargs)
+            self.provider_search_paths,
+            ".provider",
+            wrapper=Provider1PlugIn,
+            **kwargs
+        )
 
     @property
     def provider_search_paths(self):
@@ -105,9 +115,13 @@ class InsecureProvider1PlugInCollection(FsPlugInCollection):
         if PROVIDERPATH is None:
             dir_list = get_insecure_PROVIDERPATH_list()
         else:
-            logger.warning((
-                "$PROVIDERPATH is defined, so following provider sources are "
-                "ignored %s ") % get_insecure_PROVIDERPATH_list())
+            logger.warning(
+                (
+                    "$PROVIDERPATH is defined, so following provider sources are "
+                    "ignored %s "
+                )
+                % get_insecure_PROVIDERPATH_list()
+            )
             dir_list = PROVIDERPATH.split(os.path.pathsep)
         return dir_list
 

@@ -365,7 +365,9 @@ class RemoteController(ReportsStage, MainLoopStage):
         tp_forced = self.launcher.get_value("test plan", "forced")
         chosen_tp = self.launcher.get_value("test plan", "unit")
         if tp_forced and not chosen_tp:
-            raise SystemExit("The test plan selection was forced but no unit was provided") # split me into lines
+            raise SystemExit(
+                "The test plan selection was forced but no unit was provided"
+            )  # split me into lines
         return tp_forced
 
     @contextlib.contextmanager

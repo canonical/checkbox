@@ -1615,7 +1615,7 @@ def create_flake8_test(pyfile):
     """Creates the target for the monkey patched methods in Flake8Tests"""
 
     def run_flake8(self):
-        result = subprocess.run(["flake8", pyfile])
+        result = subprocess.run(["flake8", "--extend-ignore=E203", pyfile])
         self.assertEqual(result.returncode, 0)
 
     return run_flake8

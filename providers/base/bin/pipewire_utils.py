@@ -21,6 +21,7 @@ from enum import IntEnum
 import subprocess
 import argparse
 import logging
+import difflib
 import time
 import json
 import sys
@@ -490,12 +491,22 @@ class PipewireTest:
         :param status_2: path to second wpctl status
         """
         with open(status_1, 'r') as s1, open(status_2, 'r') as s2:
-            sorted_status_1 = self._sort_wpctl_status(s1.readlines())
-            sorted_status_2 = self._sort_wpctl_status(s2.readlines())
-            delta = set(sorted_status_2) - set(sorted_status_1)
-            if len(delta):
-                self.logger.info(''.join(delta))
-                raise SystemExit("Status not match !!!")
+            status_1 = s1.readlines()
+            status_2 = s2.readlines()
+            sorted_status_1 = self._sort_wpctl_status(status_1)
+            sorted_status_2 = self._sort_wpctl_status(status_2)
+            delta = difflib.unified_diff(sorted_status_1, sorted_status_2, n=0)
+            diff = ''.join(delta)
+            if diff:
+                self.logger.info("The first status:\n")
+                self.logger.info(''.join(status_1))
+                self.logger.info("And the second status:\n")
+                self.logger.info(''.join(status_2))
+                self.logger.info(
+                    "Differ in the following lines (after sorting):"
+                )
+                self.logger.info(diff)
+                raise SystemExit("The two status don't match !!!")
 
     def _args_parsing(self, args=sys.argv[1:]):
         parser = argparse.ArgumentParser(

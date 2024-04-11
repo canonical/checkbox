@@ -221,7 +221,10 @@ class UdevadmDevice(object):
                 else:
                     return "usb"
             else:
-                return self._stack[-2]._environment.get("SUBSYSTEM")
+                if len(self._stack)>=2:
+                    return self._stack[-2]._environment.get("SUBSYSTEM")
+                else:
+                    return self._stack[0]._environment.get("SUBSYSTEM")
 
         bus = self._environment.get("SUBSYSTEM")
         if bus == "pnp":

@@ -82,6 +82,18 @@ class TestMMCli(unittest.TestCase):
 
 class TestResources(unittest.TestCase):
 
+    def _sorted_resouce_data(self, data):
+        resources = data.strip("\n").split("\n\n")
+        for index in range(len(resources)):
+            tmp_dict = {}
+            for dt in resources[index].split("\n"):
+                k, v = dt.split(":", 1)
+                tmp_dict.update({k: v.strip()})
+
+            resources[index] = tmp_dict
+
+        return resources
+
     @patch("wwan_tests.MMCLI.__init__")
     @patch("wwan_tests.MMCLI.get_hardware_revision")
     @patch("wwan_tests.MMCLI.get_firmware_revision")
@@ -128,14 +140,13 @@ class TestResources(unittest.TestCase):
         mock_get_firmware_revision.assert_has_calls(calls)
         mock_get_hardware_revision.assert_has_calls(calls)
 
-        expected_info = []
-        for i in range(2):
-            expected_info.append("\n".join(
-                ["{}: {}".format(k, v[i]) for k, v in values.items()]
-            ))
-        expected_info = "{}\n\n".format("\n\n".join(expected_info))
+        resps = self._sorted_resouce_data(stdout.getvalue())
+        self.assertEqual(len(resps), 2)
 
-        self.assertEqual(expected_info, stdout.getvalue())
+        for i in range(2):
+            self.assertEqual(set(resps[i].keys()), set(values.keys()))
+            for key in values.keys():
+                self.assertEqual(str(values[key][i]), resps[i][key])
 
     @patch("wwan_tests.MMDbus.__init__")
     @patch("wwan_tests.MMDbus.get_hardware_revision")
@@ -183,10 +194,10 @@ class TestResources(unittest.TestCase):
         mock_get_firmware_revision.assert_has_calls(calls)
         mock_get_hardware_revision.assert_has_calls(calls)
 
-        expected_info = []
+        resps = self._sorted_resouce_data(stdout.getvalue())
+        self.assertEqual(len(resps), 2)
+
         for i in range(2):
-            expected_info.append("\n".join(
-                ["{}: {}".format(k, v[i]) for k, v in values.items()]
-            ))
-        expected_info = "{}\n\n".format("\n\n".join(expected_info))
-        self.assertEqual(expected_info, stdout.getvalue())
+            self.assertEqual(set(resps[i].keys()), set(values.keys()))
+            for key in values.keys():
+                self.assertEqual(str(values[key][i]), resps[i][key])

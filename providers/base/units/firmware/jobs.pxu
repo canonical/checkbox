@@ -107,3 +107,13 @@ plugin: attachment
 depends: firmware/fwts_dump
 command:
   [ -f "$PLAINBOX_SESSION_SHARE/acpidump.log" ] && gzip -c "$PLAINBOX_SESSION_SHARE/acpidump.log"
+
+id: firmware/fwupdmgr_get_devices
+plugin: attachment
+category_id: com.canonical.plainbox::firmware
+_summary: Collect the device firmware update information
+_purpose: Attach information about the devices, as reported by the fwupdmgr
+requires:
+    executable.name in ("fwupdmgr", "fwupd.fwupdmgr")
+command:
+    get_firmware_info_fwupd.py

@@ -68,14 +68,14 @@ from plainbox.impl.session.state import SessionState
 from plainbox.impl.session.storage import SessionStorage
 
 __all__ = (
-    'JobReadinessInhibitor',
-    'JobState',
-    'SessionManager',
-    'SessionMetaData',
-    'SessionPeekHelper',
-    'SessionResumeError',
-    'SessionState',
-    'SessionStorage',
-    'UndesiredJobReadinessInhibitor',
-    'InhibitionCause',
+    "JobReadinessInhibitor",
+    "JobState",
+    "SessionManager",
+    "SessionMetaData",
+    "SessionPeekHelper",
+    "SessionResumeError",
+    "SessionState",
+    "SessionStorage",
+    "UndesiredJobReadinessInhibitor",
+    "InhibitionCause",
 )

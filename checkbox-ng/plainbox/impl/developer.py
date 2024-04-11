@@ -22,18 +22,16 @@ import inspect
 import logging
 import warnings
 
-__all__ = ('UsageExpectation',)
+__all__ = ("UsageExpectation",)
 
 _logger = logging.getLogger("plainbox.developer")
 
 
 class OffByOneBackWarning(UserWarning):
-
     """Warning on incorrect use of UsageExpectations(self).enforce(back=2)."""
 
 
 class DeveloperError(Exception):
-
     """
     Exception raised when program flow is incorrect.
 
@@ -68,7 +66,6 @@ Refer to the documentation of {cls_name} for details.
 
 
 class UnexpectedMethodCall(DeveloperError):
-
     """
     Developer error reported when an unexpected method call is made.
 
@@ -103,14 +100,16 @@ class UnexpectedMethodCall(DeveloperError):
             cls_module=self.cls.__module__,
             cls_name=self.cls.__name__,
             fn_name=self.fn_name,
-            allowed_calls='\n'.join(
-                ' - call {}.{}() to {}.'.format(
-                    self.cls.__name__, allowed_fn_name, why)
-                for allowed_fn_name, why in self.allowed_pairs))
+            allowed_calls="\n".join(
+                " - call {}.{}() to {}.".format(
+                    self.cls.__name__, allowed_fn_name, why
+                )
+                for allowed_fn_name, why in self.allowed_pairs
+            ),
+        )
 
 
 class UsageExpectation:
-
     """
     Class representing API usage expectation at any given time.
 
@@ -182,8 +181,11 @@ class UsageExpectation:
         # optimized values (for computing what is really allowed) must be
         # obtained each time we are about to check, in enforce()
         allowed_code = frozenset(
-            func.__wrapped__.__code__
-            if hasattr(func, '__wrapped__') else func.__code__
+            (
+                func.__wrapped__.__code__
+                if hasattr(func, "__wrapped__")
+                else func.__code__
+            )
             for func in self.allowed_calls
         )
         caller_frame = inspect.stack(0)[back][0]
@@ -192,32 +194,39 @@ class UsageExpectation:
         else:
             alt_caller_frame = None
         _logger.debug("Caller code: %r", caller_frame.f_code)
-        _logger.debug("Alternate code: %r",
-                      alt_caller_frame.f_code if alt_caller_frame else None)
+        _logger.debug(
+            "Alternate code: %r",
+            alt_caller_frame.f_code if alt_caller_frame else None,
+        )
         _logger.debug("Allowed code: %r", allowed_code)
         try:
             if caller_frame.f_code in allowed_code:
                 return
             # This can be removed later, it allows the caller to make an
             # off-by-one mistake and go away with it.
-            if (alt_caller_frame is not None and
-                    alt_caller_frame.f_code in allowed_code):
+            if (
+                alt_caller_frame is not None
+                and alt_caller_frame.f_code in allowed_code
+            ):
                 warnings.warn(
                     "Please back={}. Properly constructed decorators are"
                     " automatically handled and do not require the use of the"
-                    " back argument.".format(back - 1), OffByOneBackWarning,
-                    back)
+                    " back argument.".format(back - 1),
+                    OffByOneBackWarning,
+                    back,
+                )
                 return
             fn_name = caller_frame.f_code.co_name
             allowed_undecorated_calls = {
-                func.__wrapped__ if hasattr(func, '__wrapped__') else func: msg
+                func.__wrapped__ if hasattr(func, "__wrapped__") else func: msg
                 for func, msg in self.allowed_calls.items()
             }
             allowed_pairs = tuple(
                 (fn.__code__.co_name, why)
                 for fn, why in sorted(
                     allowed_undecorated_calls.items(),
-                    key=lambda fn_why: fn_why[0].__code__.co_name)
+                    key=lambda fn_why: fn_why[0].__code__.co_name,
+                )
             )
             raise UnexpectedMethodCall(self.cls, fn_name, allowed_pairs)
         finally:

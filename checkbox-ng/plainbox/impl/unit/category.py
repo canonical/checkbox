@@ -35,7 +35,7 @@ from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit_with_id import UnitWithId
 
-__all__ = ['CategoryUnit']
+__all__ = ["CategoryUnit"]
 
 logger = logging.getLogger("plainbox.unit.category")
 
@@ -49,8 +49,9 @@ class CategoryUnit(UnitWithId):
     """
 
     @classmethod
-    def instantiate_template(cls, data, raw_data, origin, provider,
-                             parameters, field_offset_map):
+    def instantiate_template(
+        cls, data, raw_data, origin, provider, parameters, field_offset_map
+    ):
         """
         Instantiate this unit from a template.
 
@@ -63,10 +64,12 @@ class CategoryUnit(UnitWithId):
         # This assertion is a low-cost trick to ensure that we override this
         # method in all of the subclasses to ensure that the initializer is
         # called with correctly-ordered arguments.
-        assert cls is CategoryUnit, \
-            "{}.instantiate_template() not customized".format(cls.__name__)
-        return cls(data, raw_data, origin, provider, parameters,
-                   field_offset_map)
+        assert (
+            cls is CategoryUnit
+        ), "{}.instantiate_template() not customized".format(cls.__name__)
+        return cls(
+            data, raw_data, origin, provider, parameters, field_offset_map
+        )
 
     def __str__(self):
         """
@@ -82,7 +85,7 @@ class CategoryUnit(UnitWithId):
         """
         Name of the category
         """
-        return self.get_record_value('name')
+        return self.get_record_value("name")
 
     def tr_name(self):
         """
@@ -92,13 +95,14 @@ class CategoryUnit(UnitWithId):
 
     class Meta:
 
-        name = N_('category')
+        name = N_("category")
 
         class fields(SymbolDef):
             """
             Symbols for each field that a JobDefinition can have
             """
-            name = 'name'
+
+            name = "name"
 
         field_validators = {
             fields.name: [

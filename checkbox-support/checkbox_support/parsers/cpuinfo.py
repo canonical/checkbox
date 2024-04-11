@@ -42,9 +42,9 @@ class CpuinfoParser(object):
                 key, value = line.split(":", 1)
                 key, value = key.strip(), value.strip()
                 # lp:1564595 - cpuinfo is different for s390x
-                if key == '# processors':
+                if key == "# processors":
                     count += int(value)
-                elif key == 'processor':
+                elif key == "processor":
                     count += 1
 
                 # Handle bogomips on sparc
@@ -52,7 +52,7 @@ class CpuinfoParser(object):
                     key = "bogomips"
 
                 # Handle version on ppc
-                if self.machine[:3] == "ppc" and key == 'revision':
+                if self.machine[:3] == "ppc" and key == "revision":
                     value, version_value = value.split("(", 1)
                     attributes["version"] = version_value[:-1]
 
@@ -81,11 +81,18 @@ class CpuinfoParser(object):
             "cache": -1,
             "bogomips": -1,
             "speed": -1,
-            "other": ""}
+            "other": "",
+        }
 
         # Conversion table
         platform_to_conversion = {
-            ("i386", "i486", "i586", "i686", "x86_64",): {
+            (
+                "i386",
+                "i486",
+                "i586",
+                "i686",
+                "x86_64",
+            ): {
                 "type": "vendor_id",
                 "model": "model name",
                 "model_number": "cpu family",
@@ -93,45 +100,66 @@ class CpuinfoParser(object):
                 "model_revision": "stepping",
                 "cache": "cache size",
                 "other": "flags",
-                "speed": "cpu MHz"},
-            ("alpha", "alphaev6",): {
+                "speed": "cpu MHz",
+            },
+            (
+                "alpha",
+                "alphaev6",
+            ): {
                 "count": "cpus detected",
                 "type": "cpu",
                 "model": "cpu model",
                 "model_number": "cpu variation",
-                "model_version": ("system type", "system variation",),
+                "model_version": (
+                    "system type",
+                    "system variation",
+                ),
                 "model_revision": "cpu revision",
                 "other": "platform string",
-                "speed": "cycle frequency [Hz]"},
-            ("armv7l","aarch64"): {
+                "speed": "cycle frequency [Hz]",
+            },
+            ("armv7l", "aarch64"): {
                 "type": "Hardware",
                 "model": "Processor",
                 "model_number": "CPU variant",
                 "model_version": "CPU architecture",
                 "model_revision": "CPU revision",
                 "other": "Features",
-                "bogomips": "BogoMIPS"},
+                "bogomips": "BogoMIPS",
+            },
             ("ia64",): {
                 "type": "vendor",
                 "model": "family",
                 "model_version": "archrev",
                 "model_revision": "revision",
                 "other": "features",
-                "speed": "cpu mhz"},
-            ("ppc64", "ppc64le", "ppc64el", "ppc",): {
+                "speed": "cpu mhz",
+            },
+            (
+                "ppc64",
+                "ppc64le",
+                "ppc64el",
+                "ppc",
+            ): {
                 "type": "platform",
                 "model": "cpu",
                 "model_number": "model",
                 "model_version": "version",
                 "model_revision": "revision",
                 "other": "firmware",
-                "speed": "clock"},
-            ("sparc64", "sparc",): {
+                "speed": "clock",
+            },
+            (
+                "sparc64",
+                "sparc",
+            ): {
                 "count": "ncpus probed",
                 "type": "type",
                 "model": "cpu",
                 "model_version": "type",
-                "speed": "bogomips"}}
+                "speed": "bogomips",
+            },
+        }
 
         for key in processor:
             if attributes.get(key):
@@ -141,8 +169,9 @@ class CpuinfoParser(object):
             if machine in platform:
                 for pkey, ckey in conversion.items():
                     if isinstance(ckey, (list, tuple)):
-                        processor[pkey] = "/".join([attributes[k]
-                                                    for k in ckey])
+                        processor[pkey] = "/".join(
+                            [attributes[k] for k in ckey]
+                        )
                     elif ckey in attributes:
                         processor[pkey] = attributes[ckey]
 
@@ -178,8 +207,10 @@ class CpuinfoParser(object):
         processor["bogomips"] = int(round(float(processor["bogomips"])))
 
         # Adjust other for ppc.  Firmware is empty for VM.
-        if machine[:3] == "ppc" and processor["model_number"][13:-1] == \
-                "emulated by qemu":
+        if (
+            machine[:3] == "ppc"
+            and processor["model_number"][13:-1] == "emulated by qemu"
+        ):
             processor["other"] = processor["model_number"][13:-1]
 
         # Adjust count

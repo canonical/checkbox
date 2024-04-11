@@ -34,7 +34,7 @@ from plainbox.impl.unit.validators import MemberOfFieldValidator
 from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
-__all__ = ['FileRole', 'FileUnit']
+__all__ = ["FileRole", "FileUnit"]
 
 
 logger = logging.getLogger("plainbox.unit.file")
@@ -48,19 +48,20 @@ class FileRole(SymbolDef):
     of the following roles. It is possible that the set of roles is not
     exhaustive and new roles will be added in the futurte.
     """
-    unit_source = 'unit-source'
-    script = 'script'  # architecture independent executable
-    binary = 'binary'  # architecture dependent executable
-    data = 'data'  # data file
-    i18n = 'i18n'  # translation catalog
-    manage_py = 'manage.py'  # management script
-    legal = 'legal'  # license & copyright
-    docs = 'docs'  # documentation
-    unknown = 'unknown'  # unknown / unclassified
-    build = 'build'  # build artefact
-    invalid = 'invalid'  # invalid file that will never be used
-    vcs = 'vcs'  # version control system data
-    src = 'src'  # source
+
+    unit_source = "unit-source"
+    script = "script"  # architecture independent executable
+    binary = "binary"  # architecture dependent executable
+    data = "data"  # data file
+    i18n = "i18n"  # translation catalog
+    manage_py = "manage.py"  # management script
+    legal = "legal"  # license & copyright
+    docs = "docs"  # documentation
+    unknown = "unknown"  # unknown / unclassified
+    build = "build"  # build artefact
+    invalid = "invalid"  # invalid file that will never be used
+    vcs = "vcs"  # version control system data
+    src = "src"  # source
 
 
 class FileUnitValidator(UnitValidator):
@@ -109,18 +110,18 @@ class FileUnit(Unit):
         Typically you may wish to construct a relative path, using some other
         directory as the base directory, depending on context.
         """
-        return self.get_record_value('path')
+        return self.get_record_value("path")
 
     @propertywithsymbols(symbols=FileRole)
     def role(self):
         """
         Role of the file within the provider
         """
-        return self.get_record_value('role')
+        return self.get_record_value("role")
 
     class Meta:
 
-        name = N_('file')
+        name = N_("file")
 
         validator_cls = FileUnitValidator
 
@@ -128,9 +129,10 @@ class FileUnit(Unit):
             """
             Symbols for each field that a FileUnit can have
             """
-            path = 'path'
-            role = 'role'
-            base = 'base'
+
+            path = "path"
+            role = "role"
+            base = "base"
 
         field_validators = {
             fields.role: [MemberOfFieldValidator(FileRole.get_all_symbols())]

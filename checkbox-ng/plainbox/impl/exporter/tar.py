@@ -53,8 +53,8 @@ class TARSessionStateExporter(SessionStateExporterBase):
 
         """
         preset = None
-        mem_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
-        mem_mib = mem_bytes/(1024.**2)
+        mem_bytes = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")
+        mem_mib = mem_bytes / (1024.0**2)
         # On systems with less than 1GiB of RAM, create the submission tarball
         # without any compression level (i.e preset=0).
         # See https://docs.python.org/3/library/lzma.html
@@ -64,12 +64,13 @@ class TARSessionStateExporter(SessionStateExporterBase):
             preset = 0
 
         job_state_map = manager.default_device_context.state.job_state_map
-        with tarfile.TarFile.open(None, 'w:xz', stream, preset=preset) as tar:
-            for fmt in ('html', 'json', 'junit'):
+        with tarfile.TarFile.open(None, "w:xz", stream, preset=preset) as tar:
+            for fmt in ("html", "json", "junit"):
                 unit = self._get_all_exporter_units()[
-                    'com.canonical.plainbox::{}'.format(fmt)]
+                    "com.canonical.plainbox::{}".format(fmt)
+                ]
                 exporter = Jinja2SessionStateExporter(exporter_unit=unit)
-                with SpooledTemporaryFile(max_size=102400, mode='w+b') as _s:
+                with SpooledTemporaryFile(max_size=102400, mode="w+b") as _s:
                     exporter.dump_from_session_manager(manager, _s)
                     tarinfo = tarfile.TarInfo(name="submission.{}".format(fmt))
                     tarinfo.size = _s.tell()
@@ -82,17 +83,20 @@ class TARSessionStateExporter(SessionStateExporterBase):
                     recordname = job_state.result.io_log_filename
                 except AttributeError:
                     continue
-                for stdstream in ('stdout', 'stderr'):
-                    filename = recordname.replace('record.gz', stdstream)
-                    folder = 'test_output'
-                    if job_state.job.plugin == 'attachment':
-                        folder = 'attachment_files'
+                for stdstream in ("stdout", "stderr"):
+                    filename = recordname.replace("record.gz", stdstream)
+                    folder = "test_output"
+                    if job_state.job.plugin == "attachment":
+                        folder = "attachment_files"
                     if os.path.exists(filename) and os.path.getsize(filename):
                         arcname = os.path.basename(filename)
-                        if stdstream == 'stdout':
+                        if stdstream == "stdout":
                             arcname = os.path.splitext(arcname)[0]
-                        tar.add(filename, os.path.join(folder, arcname),
-                                recursive=False)
+                        tar.add(
+                            filename,
+                            os.path.join(folder, arcname),
+                            recursive=False,
+                        )
 
     def dump(self, session, stream):
         pass
@@ -101,6 +105,6 @@ class TARSessionStateExporter(SessionStateExporterBase):
         exporter_map = {}
         for provider in get_providers():
             for unit in provider.unit_list:
-                if unit.Meta.name == 'exporter':
+                if unit.Meta.name == "exporter":
                     exporter_map[unit.id] = ExporterUnitSupport(unit)
         return exporter_map

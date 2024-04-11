@@ -23,8 +23,10 @@ from plainbox.impl.xscanners import WordScanner
 
 def load_tests(loader, tests, ignore):
     tests.addTests(
-        doctest.DocTestSuite('plainbox.impl.xscanners',
-                             optionflags=doctest.REPORT_NDIFF))
+        doctest.DocTestSuite(
+            "plainbox.impl.xscanners", optionflags=doctest.REPORT_NDIFF
+        )
+    )
     return tests
 
 
@@ -32,23 +34,20 @@ class WordScannerTests(unittest.TestCase):
 
     def test_comments_newline1(self):
         self.assertEqual(
-            WordScanner('# comment\n').get_token(),
-            (WordScanner.TokenEnum.EOF, ''))
+            WordScanner("# comment\n").get_token(),
+            (WordScanner.TokenEnum.EOF, ""),
+        )
 
     def test_comments_newline2(self):
-        scanner = WordScanner('before# comment\nafter')
+        scanner = WordScanner("before# comment\nafter")
         self.assertEqual(
-            scanner.get_token(),
-            (WordScanner.TokenEnum.WORD, 'before'))
+            scanner.get_token(), (WordScanner.TokenEnum.WORD, "before")
+        )
         self.assertEqual(
-            scanner.get_token(),
-            (WordScanner.TokenEnum.WORD, 'after'))
-        self.assertEqual(
-            scanner.get_token(),
-            (WordScanner.TokenEnum.EOF, ''))
+            scanner.get_token(), (WordScanner.TokenEnum.WORD, "after")
+        )
+        self.assertEqual(scanner.get_token(), (WordScanner.TokenEnum.EOF, ""))
 
     def test_comments_eof(self):
-        scanner = WordScanner('# comment')
-        self.assertEqual(
-            scanner.get_token(),
-            (WordScanner.TokenEnum.EOF, ''))
+        scanner = WordScanner("# comment")
+        self.assertEqual(scanner.get_token(), (WordScanner.TokenEnum.EOF, ""))

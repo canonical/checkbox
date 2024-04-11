@@ -85,10 +85,12 @@ def _textwrap_indent(text, prefix, predicate=None):
     consist solely of whitespace characters.
     """
     if predicate is None:
+
         def predicate(line):
             return line.strip()
 
     def prefixed_lines():
         for line in text.splitlines(True):
             yield (prefix + line if predicate(line) else line)
-    return ''.join(prefixed_lines())
+
+    return "".join(prefixed_lines())

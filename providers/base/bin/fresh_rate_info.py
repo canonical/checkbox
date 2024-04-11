@@ -32,46 +32,50 @@ import subprocess
 
 
 def xrandr_paser(data=None):
-
-    '''return an array(xrandrs)'''
+    """return an array(xrandrs)"""
 
     resolution = None
     xrandrs = list()
-    for line in str(data).split('\n'):
-        for match in re.finditer(r'(.+) connected (\d+x\d+)\+', line):
+    for line in str(data).split("\n"):
+        for match in re.finditer(r"(.+) connected (\d+x\d+)\+", line):
             connector = match.group(1)
             resolution = match.group(2)
             break
         if resolution is None:
             continue
-        for match in re.finditer(r'{0}\s+(.+)\*'.format(resolution),
-                                 line):
+        for match in re.finditer(r"{0}\s+(.+)\*".format(resolution), line):
             refresh_rate = match.group(1)
-            xrandr = {'connector': connector,
-                      'resolution': resolution,
-                      'refresh_rate': refresh_rate}
+            xrandr = {
+                "connector": connector,
+                "resolution": resolution,
+                "refresh_rate": refresh_rate,
+            }
             xrandrs.append(xrandr)
 
     return xrandrs
 
 
 def main():
-
-    '''main function'''
+    """main function"""
 
     try:
-        data = subprocess.check_output(['xrandr', '--current'],
-                                       universal_newlines=True)
+        data = subprocess.check_output(
+            ["xrandr", "--current"], universal_newlines=True
+        )
     except subprocess.CalledProcessError as exc:
         return exc.returncode
 
     xrandrs = xrandr_paser(data)
     for xrandr in xrandrs:
         output_str = "Connector({0}):\t Resolution: {1} \t RefreshRate: {2}"
-        print(output_str.format(xrandr['connector'],
-                                xrandr['resolution'],
-                                xrandr['refresh_rate']))
+        print(
+            output_str.format(
+                xrandr["connector"],
+                xrandr["resolution"],
+                xrandr["refresh_rate"],
+            )
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

@@ -54,10 +54,12 @@ def at_most_one_context_filter(
     instance: pod.POD, field: pod.Field, old: "Any", new: "Any"
 ):
     if len(new) > 1:
-        raise ValueError(_(
-            "session manager currently doesn't support sessions"
-            " involving multiple devices (a.k.a multi-node testing)"
-        ))
+        raise ValueError(
+            _(
+                "session manager currently doesn't support sessions"
+                " involving multiple devices (a.k.a multi-node testing)"
+            )
+        )
     return new
 
 
@@ -86,14 +88,19 @@ class SessionManager(pod.POD):
         type=list,
         initial=pod.MANDATORY,
         assign_filter_list=[
-            pod.typed, pod.typed.sequence(SessionDeviceContext),
-            pod.const, at_most_one_context_filter])
+            pod.typed,
+            pod.typed.sequence(SessionDeviceContext),
+            pod.const,
+            at_most_one_context_filter,
+        ],
+    )
 
     storage = pod.Field(
         doc="A SesssionStorage instance",
         type=SessionStorage,
         initial=pod.MANDATORY,
-        assign_filter_list=[pod.typed, pod.const])
+        assign_filter_list=[pod.typed, pod.const],
+    )
 
     _throwaway_managers = dict()
 
@@ -118,7 +125,11 @@ class SessionManager(pod.POD):
         notify=True,
         notify_fn=_on_test_plans_changed,
         assign_filter_list=[
-            pod.typed, pod.typed.sequence(TestPlanUnit), pod.unique])
+            pod.typed,
+            pod.typed.sequence(TestPlanUnit),
+            pod.unique,
+        ],
+    )
 
     @property
     def default_device_context(self):
@@ -134,8 +145,11 @@ class SessionManager(pod.POD):
             present in the session. This is never the case for applications
             using the single-device APIs.
         """
-        return (self.device_context_list[0]
-                if len(self.device_context_list) > 0 else None)
+        return (
+            self.device_context_list[0]
+            if len(self.device_context_list) > 0
+            else None
+        )
 
     @property
     def state(self):
@@ -147,7 +161,7 @@ class SessionManager(pod.POD):
             return self.default_device_context.state
 
     @classmethod
-    def create(cls, prefix='pbox-'):
+    def create(cls, prefix="pbox-"):
         """
         Create an empty session manager.
 
@@ -274,12 +288,17 @@ class SessionManager(pod.POD):
         """
         logger.debug("SessionManager.checkpoint()")
         data = SessionSuspendHelper().suspend(
-            self.state, self.storage.location)
+            self.state, self.storage.location
+        )
         logger.debug(
             ngettext(
                 "Saving %d byte of checkpoint data to %r",
-                "Saving %d bytes of checkpoint data to %r", len(data)
-            ), len(data), self.storage.location)
+                "Saving %d bytes of checkpoint data to %r",
+                len(data),
+            ),
+            len(data),
+            self.storage.location,
+        )
         try:
             self.storage.save_checkpoint(data)
         except LockedStorageError:
@@ -309,12 +328,17 @@ class SessionManager(pod.POD):
 
         This method fires the :meth:`on_device_context_added()` signal
         """
-        if any(other_context.device == context.device
-               for other_context in self.device_context_list):
+        if any(
+            other_context.device == context.device
+            for other_context in self.device_context_list
+        ):
             raise ValueError(
-                _("attmpting to add a context for device {} which is"
-                  " already represented in this session"
-                  " manager").format(context.device))
+                _(
+                    "attmpting to add a context for device {} which is"
+                    " already represented in this session"
+                    " manager"
+                ).format(context.device)
+            )
         if len(self.device_context_list) > 0:
             self._too_many_device_context_objects()
         self.device_context_list.append(context)
@@ -341,9 +365,12 @@ class SessionManager(pod.POD):
         This method fires the :meth:`on_device_context_removed()` signal
         """
         if context not in self.device_context_list:
-            raise ValueError(_(
-                "attempting to remove a device context not present in this"
-                " session manager"))
+            raise ValueError(
+                _(
+                    "attempting to remove a device context not present in this"
+                    " session manager"
+                )
+            )
         self.device_context_list.remove(context)
         self.on_device_context_removed(context)
 
@@ -353,8 +380,8 @@ class SessionManager(pod.POD):
         Signal fired when a session device context object is added
         """
         logger.debug(
-            _("Device context %s added to session manager %s"),
-            context, self)
+            _("Device context %s added to session manager %s"), context, self
+        )
         self._propagate_test_plans()
 
     @morris.signal
@@ -364,14 +391,18 @@ class SessionManager(pod.POD):
         """
         logger.debug(
             _("Device context %s removed from session manager %s"),
-            context, self)
+            context,
+            self,
+        )
         self._propagate_test_plans()
 
     def _too_many_device_context_objects(self):
-        raise ValueError(_(
-            "session manager currently doesn't support sessions"
-            " involving multiple devices (a.k.a multi-node testing)"
-        ))
+        raise ValueError(
+            _(
+                "session manager currently doesn't support sessions"
+                " involving multiple devices (a.k.a multi-node testing)"
+            )
+        )
 
     def _propagate_test_plans(self):
         logger.debug(_("Propagating test plans to all devices"))
@@ -381,22 +412,22 @@ class SessionManager(pod.POD):
 
     @property
     def exporter_map(self):
-        """ Map from exporter id to the corresponding exporter unit. """
+        """Map from exporter id to the corresponding exporter unit."""
         exporter_map = OrderedDict()
         for unit in self.state.unit_list:
-            if unit.Meta.name == 'exporter':
+            if unit.Meta.name == "exporter":
                 support = unit.support
                 if support:
                     exporter_map[unit.id] = support
         # Patch exporter map to expose short names
         legacy_mapping = {
-            'com.canonical.plainbox::global': 'global',
-            'com.canonical.plainbox::html': 'html',
-            'com.canonical.plainbox::json': 'json',
-            'com.canonical.plainbox::junit': 'junit',
-            'com.canonical.plainbox::tar': 'tar',
-            'com.canonical.plainbox::text': 'text',
-            'com.canonical.plainbox::xlsx': 'xlsx'
+            "com.canonical.plainbox::global": "global",
+            "com.canonical.plainbox::html": "html",
+            "com.canonical.plainbox::json": "json",
+            "com.canonical.plainbox::junit": "junit",
+            "com.canonical.plainbox::tar": "tar",
+            "com.canonical.plainbox::text": "text",
+            "com.canonical.plainbox::xlsx": "xlsx",
         }
         for new_id, legacy_id in legacy_mapping.items():
             if new_id in exporter_map:
@@ -434,12 +465,14 @@ class SessionManager(pod.POD):
         if not strict:
             # In non-strict mode silently discard unsupported options.
             supported_options = frozenset(
-                exporter_support.exporter_cls.supported_option_list)
+                exporter_support.exporter_cls.supported_option_list
+            )
             option_list = [
                 item for item in option_list if item in supported_options
             ]
         return exporter_support.exporter_cls(
-            option_list, exporter_unit=exporter_support)
+            option_list, exporter_unit=exporter_support
+        )
 
     @classmethod
     @contextlib.contextmanager
@@ -459,7 +492,7 @@ class SessionManager(pod.POD):
         not really meant for running jobs but can be useful to access exporters
         and other objects stored in providers.
         """
-        key = hash(frozenset(provider_list)) if provider_list else ''
+        key = hash(frozenset(provider_list)) if provider_list else ""
         if not cls._throwaway_managers.get(key):
             # for safety let's create more persistent tempdir than
             # the TemporaryDirectory context_manager

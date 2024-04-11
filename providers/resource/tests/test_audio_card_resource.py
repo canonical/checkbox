@@ -28,10 +28,21 @@ class GetAudioCardsTests(unittest.TestCase):
         with patch("os.path.exists") as mock_path:
             mock_path.return_value = True
             test_input = "00-00: HDA Analog (*) : : playback 1\n00-01: HDA Digital (*) : : capture 1s"
-            expected_audio_card1 = {'card': '00', 'device': '00', 'name': 'HDA Analog (*)', 'playback': True, 'capture': False}
-            expected_audio_card2 = {'card': '00', 'device': '01', 'name': 'HDA Digital (*)', 'playback': False, 'capture': True}
+            expected_audio_card1 = {
+                "card": "00",
+                "device": "00",
+                "name": "HDA Analog (*)",
+                "playback": True,
+                "capture": False,
+            }
+            expected_audio_card2 = {
+                "card": "00",
+                "device": "01",
+                "name": "HDA Digital (*)",
+                "playback": False,
+                "capture": True,
+            }
             with patch("builtins.open", new=mock_open(read_data=test_input)):
                 audio_cards = get_audio_cards()
                 self.assertEqual(audio_cards[0], expected_audio_card1)
                 self.assertEqual(audio_cards[1], expected_audio_card2)
-

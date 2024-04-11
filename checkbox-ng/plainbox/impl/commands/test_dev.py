@@ -34,7 +34,7 @@ from plainbox.vendor import mock
 class TestDevCommand(TestCase):
 
     def setUp(self):
-        self.parser = argparse.ArgumentParser(prog='test')
+        self.parser = argparse.ArgumentParser(prog="test")
         self.subparsers = self.parser.add_subparsers()
         self.provider_loader = lambda: [mock.Mock()]
         self.config_loader = lambda: mock.Mock()
@@ -47,16 +47,18 @@ class TestDevCommand(TestCase):
 
     def test_register_parser(self):
         DevCommand(self.provider_loader, self.config_loader).register_parser(
-            self.subparsers)
+            self.subparsers
+        )
         with TestIO() as io:
             self.parser.print_help()
         self.assertIn("development commands", io.stdout)
         with TestIO() as io:
             with self.assertRaises(SystemExit):
-                self.parser.parse_args(['dev', '--help'])
+                self.parser.parse_args(["dev", "--help"])
         self.maxDiff = None
         self.assertEqual(
-            io.stdout, cleandoc(
+            io.stdout,
+            cleandoc(
                 """
                 usage: plainbox dev <subcommand> ...
 
@@ -66,5 +68,9 @@ class TestDevCommand(TestCase):
 
                 {}:
                   -h, --help  show this help message and exit
-                """.format(optionals_section))
-            + "\n")
+                """.format(
+                    optionals_section
+                )
+            )
+            + "\n",
+        )

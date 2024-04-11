@@ -74,43 +74,50 @@ class ResumeDiscardQualifierTests(TestCase):
 
     def setUp(self):
         # The initializer accepts a collection of job IDs to retain
-        self.obj = ResumeDiscardQualifier({'foo', 'bar', 'froz'})
+        self.obj = ResumeDiscardQualifier({"foo", "bar", "froz"})
 
     def test_init(self):
         self.assertEqual(
-            self.obj._retain_id_set, frozenset(['foo', 'bar', 'froz']))
+            self.obj._retain_id_set, frozenset(["foo", "bar", "froz"])
+        )
 
     def test_get_simple_match(self):
         # Direct hits return the IGNORE vote as those jobs are not to be
         # removed. Everything else should return VOTE_INCLUDE (include for
         # removal)
         self.assertEqual(
-            self.obj.get_vote(JobDefinition({'id': 'foo'})),
-            IUnitQualifier.VOTE_IGNORE)
+            self.obj.get_vote(JobDefinition({"id": "foo"})),
+            IUnitQualifier.VOTE_IGNORE,
+        )
         self.assertEqual(
-            self.obj.get_vote(JobDefinition({'id': 'bar'})),
-            IUnitQualifier.VOTE_IGNORE)
+            self.obj.get_vote(JobDefinition({"id": "bar"})),
+            IUnitQualifier.VOTE_IGNORE,
+        )
         self.assertEqual(
-            self.obj.get_vote(JobDefinition({'id': 'froz'})),
-            IUnitQualifier.VOTE_IGNORE)
+            self.obj.get_vote(JobDefinition({"id": "froz"})),
+            IUnitQualifier.VOTE_IGNORE,
+        )
         # Jobs that are in the retain set are NOT designated
         self.assertEqual(
-            self.obj.designates(JobDefinition({'id': 'bar'})), False)
+            self.obj.designates(JobDefinition({"id": "bar"})), False
+        )
         self.assertEqual(
-            self.obj.designates(JobDefinition({'id': 'foo'})), False)
+            self.obj.designates(JobDefinition({"id": "foo"})), False
+        )
         # Jobs that are not on the retain list are INCLUDED and marked for
         # removal. This includes jobs that are substrings of strings in the
         # retain set, ids are matched exactly, not by pattern.
         self.assertEqual(
-            self.obj.get_vote(JobDefinition({'id': 'foobar'})),
-            IUnitQualifier.VOTE_INCLUDE)
+            self.obj.get_vote(JobDefinition({"id": "foobar"})),
+            IUnitQualifier.VOTE_INCLUDE,
+        )
         self.assertEqual(
-            self.obj.get_vote(JobDefinition({'id': 'fo'})),
-            IUnitQualifier.VOTE_INCLUDE)
+            self.obj.get_vote(JobDefinition({"id": "fo"})),
+            IUnitQualifier.VOTE_INCLUDE,
+        )
 
 
 class SessionResumeExceptionTests(TestCase):
-
     """
     Tests for the various exceptions defined in the resume module
     """
@@ -119,186 +126,256 @@ class SessionResumeExceptionTests(TestCase):
         """
         verify that all three exception classes inherit from the common base
         """
-        self.assertTrue(issubclass(
-            CorruptedSessionError, SessionResumeError))
-        self.assertTrue(issubclass(
-            IncompatibleSessionError, SessionResumeError))
-        self.assertTrue(issubclass(
-            IncompatibleJobError, SessionResumeError))
+        self.assertTrue(issubclass(CorruptedSessionError, SessionResumeError))
+        self.assertTrue(
+            issubclass(IncompatibleSessionError, SessionResumeError)
+        )
+        self.assertTrue(issubclass(IncompatibleJobError, SessionResumeError))
 
 
 class SessionResumeHelperTests(TestCase):
 
     def test_resume_dispatch_v1(self):
         helper1 = SessionResumeHelper1
-        with mock.patch.object(helper1, 'resume_json'):
+        with mock.patch.object(helper1, "resume_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"flags":[],"running_job_name":null,'
-                b'"title":null},"results":{}},"version":1}')
+                b'"title":null},"results":{}},"version":1}'
+            )
             SessionResumeHelper([], None, None).resume(data)
             helper1.resume_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 1}, None)
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 1,
+                },
+                None,
+            )
 
     def test_resume_dispatch_v2(self):
         helper2 = SessionResumeHelper2
-        with mock.patch.object(helper2, 'resume_json'):
+        with mock.patch.object(helper2, "resume_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"flags":[],"running_job_name":null,'
-                b'"title":null},"results":{}},"version":2}')
+                b'"title":null},"results":{}},"version":2}'
+            )
             SessionResumeHelper([], None, None).resume(data)
             helper2.resume_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 2}, None)
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 2,
+                },
+                None,
+            )
 
     def test_resume_dispatch_v3(self):
         helper3 = SessionResumeHelper3
-        with mock.patch.object(helper3, 'resume_json'):
+        with mock.patch.object(helper3, "resume_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"app_id":null,"flags":[],'
                 b'"running_job_name":null,"title":null'
-                b'},"results":{}},"version":3}')
+                b'},"results":{}},"version":3}'
+            )
             SessionResumeHelper([], None, None).resume(data)
             helper3.resume_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'app_id': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 3}, None)
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "app_id": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 3,
+                },
+                None,
+            )
 
     def test_resume_dispatch_v4(self):
         helper4 = SessionResumeHelper4
-        with mock.patch.object(helper4, 'resume_json'):
+        with mock.patch.object(helper4, "resume_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"app_id":null,"flags":[],'
                 b'"running_job_name":null,"title":null'
-                b'},"results":{}},"version":4}')
+                b'},"results":{}},"version":4}'
+            )
             SessionResumeHelper([], None, None).resume(data)
             helper4.resume_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'app_id': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 4}, None)
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "app_id": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 4,
+                },
+                None,
+            )
 
     def test_resume_dispatch_v5(self):
         helper5 = SessionResumeHelper5
-        with mock.patch.object(helper5, 'resume_json'):
+        with mock.patch.object(helper5, "resume_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"app_id":null,"flags":[],'
                 b'"running_job_name":null,"title":null'
-                b'},"results":{}},"version":5}')
+                b'},"results":{}},"version":5}'
+            )
             SessionResumeHelper([], None, None).resume(data)
             helper5.resume_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'app_id': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 5}, None)
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "app_id": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 5,
+                },
+                None,
+            )
 
     def test_resume_dispatch_v6(self):
         helper6 = SessionResumeHelper6
-        with mock.patch.object(helper6, 'resume_json'):
+        with mock.patch.object(helper6, "resume_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"app_id":null,"custom_joblist":false,"flags":[],'
                 b'"rejected_jobs":[],"running_job_name":null,"title":null'
-                b'},"results":{}},"version":6}')
+                b'},"results":{}},"version":6}'
+            )
             SessionResumeHelper([], None, None).resume(data)
             helper6.resume_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'app_id': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': [],
-                                          'custom_joblist': False,
-                                          'rejected_jobs': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 6}, None)
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "app_id": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                            "custom_joblist": False,
+                            "rejected_jobs": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 6,
+                },
+                None,
+            )
 
     def test_resume_dispatch_v7(self):
         helper7 = SessionResumeHelper7
-        with mock.patch.object(helper7, 'resume_json'):
+        with mock.patch.object(helper7, "resume_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"app_id":null,"custom_joblist":false,"flags":[],'
                 b'"rejected_jobs":[],"running_job_name":null,"title":null,'
                 b'"last_job_start_time": null'
-                b'},"results":{}},"version":7}')
+                b'},"results":{}},"version":7}'
+            )
             SessionResumeHelper([], None, None).resume(data)
             helper7.resume_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'last_job_start_time': None,
-                                          'app_id': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': [],
-                                          'custom_joblist': False,
-                                          'rejected_jobs': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 7}, None)
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "last_job_start_time": None,
+                            "app_id": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                            "custom_joblist": False,
+                            "rejected_jobs": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 7,
+                },
+                None,
+            )
 
     def test_resume_dispatch_v8(self):
         helper8 = SessionResumeHelper8
-        with mock.patch.object(helper8, 'resume_json'):
+        with mock.patch.object(helper8, "resume_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"app_id":null,"custom_joblist":false,"flags":[],'
                 b'"rejected_jobs":[],"running_job_name":null,"title":null,'
                 b'"last_job_start_time": null'
-                b'},"results":{}},"version":8, "system_information" : {}}')
+                b'},"results":{}},"version":8, "system_information" : {}}'
+            )
             SessionResumeHelper([], None, None).resume(data)
             helper8.resume_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'last_job_start_time': None,
-                                          'app_id': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': [],
-                                          'custom_joblist': False,
-                                          'rejected_jobs': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 8,
-                 'system_information' : {}}, None)
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "last_job_start_time": None,
+                            "app_id": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                            "custom_joblist": False,
+                            "rejected_jobs": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 8,
+                    "system_information": {},
+                },
+                None,
+            )
 
     def test_resume_dispatch_v9(self):
-        data = gzip.compress(
-            b'{"version":9}')
+        data = gzip.compress(b'{"version":9}')
         with self.assertRaises(IncompatibleSessionError) as boom:
             SessionResumeHelper([], None, None).resume(data)
         self.assertEqual(str(boom.exception), "Unsupported version 9")
@@ -308,162 +385,225 @@ class SessionPeekHelperTests(TestCase):
 
     def test_peek_dispatch_v1(self):
         helper1 = SessionPeekHelper1
-        with mock.patch.object(helper1, 'peek_json'):
+        with mock.patch.object(helper1, "peek_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"flags":[],"running_job_name":null,'
-                b'"title":null},"results":{}},"version":1}')
+                b'"title":null},"results":{}},"version":1}'
+            )
             SessionPeekHelper().peek(data)
             helper1.peek_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 1})
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 1,
+                }
+            )
 
     def test_peek_dispatch_v2(self):
         helper2 = SessionPeekHelper2
-        with mock.patch.object(helper2, 'peek_json'):
+        with mock.patch.object(helper2, "peek_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"flags":[],"running_job_name":null,'
-                b'"title":null},"results":{}},"version":2}')
+                b'"title":null},"results":{}},"version":2}'
+            )
             SessionPeekHelper().peek(data)
             helper2.peek_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 2})
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 2,
+                }
+            )
 
     def test_peek_dispatch_v3(self):
         helper3 = SessionPeekHelper3
-        with mock.patch.object(helper3, 'peek_json'):
+        with mock.patch.object(helper3, "peek_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"flags":[],"running_job_name":null,'
-                b'"title":null},"results":{}},"version":3}')
+                b'"title":null},"results":{}},"version":3}'
+            )
             SessionPeekHelper().peek(data)
             helper3.peek_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 3})
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 3,
+                }
+            )
 
     def test_peek_dispatch_v4(self):
         helper4 = SessionPeekHelper4
-        with mock.patch.object(helper4, 'peek_json'):
+        with mock.patch.object(helper4, "peek_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"flags":[],"running_job_name":null,'
-                b'"title":null},"results":{}},"version":4}')
+                b'"title":null},"results":{}},"version":4}'
+            )
             SessionPeekHelper().peek(data)
             helper4.peek_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 4})
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 4,
+                }
+            )
 
     def test_peek_dispatch_v5(self):
         helper5 = SessionPeekHelper5
-        with mock.patch.object(helper5, 'peek_json'):
+        with mock.patch.object(helper5, "peek_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"flags":[],"running_job_name":null,'
-                b'"title":null},"results":{}},"version":5}')
+                b'"title":null},"results":{}},"version":5}'
+            )
             SessionPeekHelper().peek(data)
             helper5.peek_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 5})
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 5,
+                }
+            )
 
     def test_peek_dispatch_v6(self):
         helper6 = SessionPeekHelper6
-        with mock.patch.object(helper6, 'peek_json'):
+        with mock.patch.object(helper6, "peek_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"flags":[],"running_job_name":null,'
-                b'"title":null},"results":{}},"version":6}')
+                b'"title":null},"results":{}},"version":6}'
+            )
             SessionPeekHelper().peek(data)
             helper6.peek_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 6})
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 6,
+                }
+            )
 
     def test_peek_dispatch_v7(self):
         helper7 = SessionPeekHelper7
-        with mock.patch.object(helper7, 'peek_json'):
+        with mock.patch.object(helper7, "peek_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"flags":[],"running_job_name":null,'
                 b'"title":null, "last_job_start_time": null},'
-                b'"results":{}},"version":7}')
+                b'"results":{}},"version":7}'
+            )
             SessionPeekHelper().peek(data)
             helper7.peek_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'last_job_start_time': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 7})
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "last_job_start_time": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 7,
+                }
+            )
 
     def test_peek_dispatch_v8(self):
         helper8 = SessionPeekHelper8
-        with mock.patch.object(helper8, 'peek_json'):
+        with mock.patch.object(helper8, "peek_json"):
             data = gzip.compress(
                 b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
                 b'{"app_blob":null,"flags":[],"running_job_name":null,'
                 b'"title":null, "last_job_start_time": null},'
-                b'"results":{}},"version":8, "system_information" : {}}')
+                b'"results":{}},"version":8, "system_information" : {}}'
+            )
             SessionPeekHelper().peek(data)
             helper8.peek_json.assert_called_once_with(
-                {'session': {'jobs': {},
-                             'metadata': {'title': None,
-                                          'last_job_start_time': None,
-                                          'running_job_name': None,
-                                          'app_blob': None,
-                                          'flags': []},
-                             'desired_job_list': [],
-                             'results': {}},
-                 'version': 8,
-                 'system_information' : {}})
+                {
+                    "session": {
+                        "jobs": {},
+                        "metadata": {
+                            "title": None,
+                            "last_job_start_time": None,
+                            "running_job_name": None,
+                            "app_blob": None,
+                            "flags": [],
+                        },
+                        "desired_job_list": [],
+                        "results": {},
+                    },
+                    "version": 8,
+                    "system_information": {},
+                }
+            )
 
     def test_peek_dispatch_v9(self):
-        data = gzip.compress(
-            b'{"version":9}')
+        data = gzip.compress(b'{"version":9}')
         with self.assertRaises(IncompatibleSessionError) as boom:
             SessionPeekHelper().peek(data)
         self.assertEqual(str(boom.exception), "Unsupported version 9")
 
-class SessionResumeTests(TestCase):
 
+class SessionResumeTests(TestCase):
     """
     Tests for :class:`~plainbox.impl.session.resume.SessionResumeHelper`
     """
@@ -488,7 +628,7 @@ class SessionResumeTests(TestCase):
         """
         # This is just a sanity check that b"\xff" is not a valid UTF-8 string
         with self.assertRaises(UnicodeDecodeError):
-            b"\xff".decode('UTF-8')
+            b"\xff".decode("UTF-8")
         data = gzip.compress(b"\xff")
         with self.assertRaises(CorruptedSessionError) as boom:
             SessionResumeHelper([], None, None).resume(data)
@@ -504,6 +644,7 @@ class SessionResumeTests(TestCase):
         with self.assertRaises(CorruptedSessionError) as boom:
             SessionResumeHelper([], None, None).resume(data)
         self.assertIsInstance(boom.exception.__context__, ValueError)
+
 
 class SessionStateResumeHelper8Tests(TestCase):
     def test_calls_restore_SessionState_system_information(self):
@@ -529,11 +670,12 @@ class SessionStateResumeHelper8Tests(TestCase):
             "plainbox.impl.session.resume.SessionResumeHelper7._build_SessionState"
         ):
             session_resume_helper = SessionResumeHelper8([], None, None)
-            session_state = session_resume_helper._build_SessionState({
-                "system_information" : {}
-            })
+            session_state = session_resume_helper._build_SessionState(
+                {"system_information": {}}
+            )
         self.assertNotEqual(session_state.system_information, None)
         self.assertFalse(collect_mock.called)
+
 
 class SessionStateResumeTests(TestCaseWithParameters):
     """
@@ -543,10 +685,15 @@ class SessionStateResumeTests(TestCaseWithParameters):
     handle resuming SessionState inside _build_SessionState() method.
     """
 
-    parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,), (SessionResumeHelper6,))
+    parameter_names = ("resume_cls",)
+    parameter_values = (
+        (SessionResumeHelper1,),
+        (SessionResumeHelper2,),
+        (SessionResumeHelper3,),
+        (SessionResumeHelper4,),
+        (SessionResumeHelper5,),
+        (SessionResumeHelper6,),
+    )
 
     def setUp(self):
         self.session_repr = {}
@@ -556,10 +703,11 @@ class SessionStateResumeTests(TestCaseWithParameters):
         """
         verify that _build_SessionState() gets called
         """
-        with mock.patch.object(self.helper, attribute='_build_SessionState'):
+        with mock.patch.object(self.helper, attribute="_build_SessionState"):
             self.helper._build_SessionState(self.session_repr)
             self.helper._build_SessionState.assert_called_once_with(
-                self.session_repr)
+                self.session_repr
+            )
 
     def test_calls_restore_SessionState_jobs_and_results(self):
         """
@@ -567,14 +715,17 @@ class SessionStateResumeTests(TestCaseWithParameters):
         _build_SessionState().
         """
         mpo = mock.patch.object
-        with mpo(self.helper, '_restore_SessionState_jobs_and_results'), \
-                mpo(self.helper, '_restore_SessionState_metadata'), \
-                mpo(self.helper, '_restore_SessionState_job_list'), \
-                mpo(self.helper, '_restore_SessionState_mandatory_job_list'), \
-                mpo(self.helper, '_restore_SessionState_desired_job_list'):
+        with mpo(self.helper, "_restore_SessionState_jobs_and_results"), mpo(
+            self.helper, "_restore_SessionState_metadata"
+        ), mpo(self.helper, "_restore_SessionState_job_list"), mpo(
+            self.helper, "_restore_SessionState_mandatory_job_list"
+        ), mpo(
+            self.helper, "_restore_SessionState_desired_job_list"
+        ):
             session = self.helper._build_SessionState(self.session_repr)
-            self.helper._restore_SessionState_jobs_and_results. \
-                assert_called_once_with(session, self.session_repr)
+            self.helper._restore_SessionState_jobs_and_results.assert_called_once_with(
+                session, self.session_repr
+            )
 
     def test_calls_restore_SessionState_metadata(self):
         """
@@ -582,14 +733,17 @@ class SessionStateResumeTests(TestCaseWithParameters):
         _build_SessionState().
         """
         mpo = mock.patch.object
-        with mpo(self.helper, '_restore_SessionState_jobs_and_results'), \
-                mpo(self.helper, '_restore_SessionState_metadata'), \
-                mpo(self.helper, '_restore_SessionState_job_list'), \
-                mpo(self.helper, '_restore_SessionState_mandatory_job_list'), \
-                mpo(self.helper, '_restore_SessionState_desired_job_list'):
+        with mpo(self.helper, "_restore_SessionState_jobs_and_results"), mpo(
+            self.helper, "_restore_SessionState_metadata"
+        ), mpo(self.helper, "_restore_SessionState_job_list"), mpo(
+            self.helper, "_restore_SessionState_mandatory_job_list"
+        ), mpo(
+            self.helper, "_restore_SessionState_desired_job_list"
+        ):
             session = self.helper._build_SessionState(self.session_repr)
-            self.helper._restore_SessionState_metadata. \
-                assert_called_once_with(session.metadata, self.session_repr)
+            self.helper._restore_SessionState_metadata.assert_called_once_with(
+                session.metadata, self.session_repr
+            )
 
     def test_calls_restore_SessionState_desired_job_list(self):
         """
@@ -597,14 +751,17 @@ class SessionStateResumeTests(TestCaseWithParameters):
         _build_SessionState().
         """
         mpo = mock.patch.object
-        with mpo(self.helper, '_restore_SessionState_jobs_and_results'), \
-                mpo(self.helper, '_restore_SessionState_metadata'), \
-                mpo(self.helper, '_restore_SessionState_job_list'), \
-                mpo(self.helper, '_restore_SessionState_mandatory_job_list'), \
-                mpo(self.helper, '_restore_SessionState_desired_job_list'):
+        with mpo(self.helper, "_restore_SessionState_jobs_and_results"), mpo(
+            self.helper, "_restore_SessionState_metadata"
+        ), mpo(self.helper, "_restore_SessionState_job_list"), mpo(
+            self.helper, "_restore_SessionState_mandatory_job_list"
+        ), mpo(
+            self.helper, "_restore_SessionState_desired_job_list"
+        ):
             session = self.helper._build_SessionState(self.session_repr)
-            self.helper._restore_SessionState_desired_job_list. \
-                assert_called_once_with(session, self.session_repr)
+            self.helper._restore_SessionState_desired_job_list.assert_called_once_with(
+                session, self.session_repr
+            )
 
     def test_calls_restore_SessionState_job_list(self):
         """
@@ -612,14 +769,17 @@ class SessionStateResumeTests(TestCaseWithParameters):
         _build_SessionState().
         """
         mpo = mock.patch.object
-        with mpo(self.helper, '_restore_SessionState_jobs_and_results'), \
-                mpo(self.helper, '_restore_SessionState_metadata'), \
-                mpo(self.helper, '_restore_SessionState_job_list'), \
-                mpo(self.helper, '_restore_SessionState_mandatory_job_list'), \
-                mpo(self.helper, '_restore_SessionState_desired_job_list'):
+        with mpo(self.helper, "_restore_SessionState_jobs_and_results"), mpo(
+            self.helper, "_restore_SessionState_metadata"
+        ), mpo(self.helper, "_restore_SessionState_job_list"), mpo(
+            self.helper, "_restore_SessionState_mandatory_job_list"
+        ), mpo(
+            self.helper, "_restore_SessionState_desired_job_list"
+        ):
             session = self.helper._build_SessionState(self.session_repr)
             self.helper._restore_SessionState_job_list.assert_called_once_with(
-                session, self.session_repr)
+                session, self.session_repr
+            )
 
 
 class IOLogRecordResumeTests(TestCaseWithParameters):
@@ -630,10 +790,15 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
     handle resuming IOLogRecord objects
     """
 
-    parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,), (SessionResumeHelper6,))
+    parameter_names = ("resume_cls",)
+    parameter_values = (
+        (SessionResumeHelper1,),
+        (SessionResumeHelper2,),
+        (SessionResumeHelper3,),
+        (SessionResumeHelper4,),
+        (SessionResumeHelper5,),
+        (SessionResumeHelper6,),
+    )
 
     def test_build_IOLogRecord_missing_delay(self):
         """
@@ -647,14 +812,14 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
         verify that _build_IOLogRecord() checks that ``delay`` is float
         """
         with self.assertRaises(CorruptedSessionError):
-            self.parameters.resume_cls._build_IOLogRecord([0, 'stdout', ''])
+            self.parameters.resume_cls._build_IOLogRecord([0, "stdout", ""])
 
     def test_build_IOLogRecord_negative_delay(self):
         """
         verify that _build_IOLogRecord() checks for negative ``delay``
         """
         with self.assertRaises(CorruptedSessionError):
-            self.parameters.resume_cls._build_IOLogRecord([-1.0, 'stdout', ''])
+            self.parameters.resume_cls._build_IOLogRecord([-1.0, "stdout", ""])
 
     def test_build_IOLogRecord_missing_stream_name(self):
         """
@@ -683,7 +848,7 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
         verify that _build_IOLogRecord() checks for missing ``data``
         """
         with self.assertRaises(CorruptedSessionError):
-            self.parameters.resume_cls._build_IOLogRecord([0.0, 'stdout'])
+            self.parameters.resume_cls._build_IOLogRecord([0.0, "stdout"])
 
     def test_build_IOLogRecord_non_ascii_data(self):
         """
@@ -691,7 +856,8 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             self.parameters.resume_cls._build_IOLogRecord(
-                [0.0, 'stdout', '\uFFFD'])
+                [0.0, "stdout", "\uFFFD"]
+            )
         self.assertIsInstance(boom.exception.__context__, UnicodeEncodeError)
 
     def test_build_IOLogRecord_non_base64_ascii_data(self):
@@ -700,7 +866,8 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             self.parameters.resume_cls._build_IOLogRecord(
-                [0.0, 'stdout', '==broken'])
+                [0.0, "stdout", "==broken"]
+            )
         # base64.standard_b64decode() raises binascii.Error
         self.assertIsInstance(boom.exception.__context__, binascii.Error)
 
@@ -710,9 +877,10 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
         with all the values in order
         """
         record = self.parameters.resume_cls._build_IOLogRecord(
-            [1.5, 'stderr', 'dGhpcyB3b3Jrcw=='])
+            [1.5, "stderr", "dGhpcyB3b3Jrcw=="]
+        )
         self.assertAlmostEqual(record.delay, 1.5)
-        self.assertEqual(record.stream_name, 'stderr')
+        self.assertEqual(record.stream_name, "stderr")
         self.assertEqual(record.data, b"this works")
 
 
@@ -732,10 +900,11 @@ class JobResultResumeMixIn:
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            del obj_repr['outcome']
+            del obj_repr["outcome"]
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
-            str(boom.exception), "Missing value for key 'outcome'")
+            str(boom.exception), "Missing value for key 'outcome'"
+        )
 
     def test_build_JobResult_checks_type_of_outcome(self):
         """
@@ -743,11 +912,12 @@ class JobResultResumeMixIn:
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['outcome'] = 42
+            obj_repr["outcome"] = 42
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'outcome' is of incorrect type int")
+            "Value of key 'outcome' is of incorrect type int",
+        )
 
     def test_build_JobResult_checks_value_of_outcome(self):
         """
@@ -756,13 +926,16 @@ class JobResultResumeMixIn:
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['outcome'] = 'maybe'
+            obj_repr["outcome"] = "maybe"
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
-            str(boom.exception), (
+            str(boom.exception),
+            (
                 "Value for key 'outcome' not in allowed set ['crash', 'fail',"
                 " None, 'not-implemented', 'not-supported', 'pass', 'skip', "
-                "'undecided']"))
+                "'undecided']"
+            ),
+        )
 
     def test_build_JobResult_allows_none_outcome(self):
         """
@@ -770,7 +943,7 @@ class JobResultResumeMixIn:
         be None
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['outcome'] = None
+        obj_repr["outcome"] = None
         obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(obj.outcome, None)
 
@@ -779,9 +952,9 @@ class JobResultResumeMixIn:
         verify that _build_JobResult() restores the value of ``outcome``
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['outcome'] = 'fail'
+        obj_repr["outcome"] = "fail"
         obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
-        self.assertEqual(obj.outcome, 'fail')
+        self.assertEqual(obj.outcome, "fail")
 
     def test_build_JobResult_checks_for_missing_comments(self):
         """
@@ -789,10 +962,11 @@ class JobResultResumeMixIn:
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            del obj_repr['comments']
+            del obj_repr["comments"]
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
-            str(boom.exception), "Missing value for key 'comments'")
+            str(boom.exception), "Missing value for key 'comments'"
+        )
 
     def test_build_JobResult_checks_type_of_comments(self):
         """
@@ -800,11 +974,12 @@ class JobResultResumeMixIn:
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['comments'] = False
+            obj_repr["comments"] = False
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'comments' is of incorrect type bool")
+            "Value of key 'comments' is of incorrect type bool",
+        )
 
     def test_build_JobResult_allows_for_none_comments(self):
         """
@@ -812,7 +987,7 @@ class JobResultResumeMixIn:
         to be None
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['comments'] = None
+        obj_repr["comments"] = None
         obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(obj.comments, None)
 
@@ -821,9 +996,9 @@ class JobResultResumeMixIn:
         verify that _build_JobResult() restores the value of ``comments``
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['comments'] = 'this is a comment'
+        obj_repr["comments"] = "this is a comment"
         obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
-        self.assertEqual(obj.comments, 'this is a comment')
+        self.assertEqual(obj.comments, "this is a comment")
 
     def test_build_JobResult_checks_for_missing_return_code(self):
         """
@@ -831,10 +1006,11 @@ class JobResultResumeMixIn:
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            del obj_repr['return_code']
+            del obj_repr["return_code"]
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
-            str(boom.exception), "Missing value for key 'return_code'")
+            str(boom.exception), "Missing value for key 'return_code'"
+        )
 
     def test_build_JobResult_checks_type_of_return_code(self):
         """
@@ -842,11 +1018,12 @@ class JobResultResumeMixIn:
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['return_code'] = "text"
+            obj_repr["return_code"] = "text"
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'return_code' is of incorrect type str")
+            "Value of key 'return_code' is of incorrect type str",
+        )
 
     def test_build_JobResult_allows_for_none_return_code(self):
         """
@@ -854,7 +1031,7 @@ class JobResultResumeMixIn:
         to be None
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['return_code'] = None
+        obj_repr["return_code"] = None
         obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(obj.return_code, None)
 
@@ -863,7 +1040,7 @@ class JobResultResumeMixIn:
         verify that _build_JobResult() restores the value of ``return_code``
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['return_code'] = 42
+        obj_repr["return_code"] = 42
         obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(obj.return_code, 42)
 
@@ -874,10 +1051,11 @@ class JobResultResumeMixIn:
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            del obj_repr['execution_duration']
+            del obj_repr["execution_duration"]
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
-            str(boom.exception), "Missing value for key 'execution_duration'")
+            str(boom.exception), "Missing value for key 'execution_duration'"
+        )
 
     def test_build_JobResult_checks_type_of_execution_duration(self):
         """
@@ -886,11 +1064,12 @@ class JobResultResumeMixIn:
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['execution_duration'] = "text"
+            obj_repr["execution_duration"] = "text"
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'execution_duration' is of incorrect type str")
+            "Value of key 'execution_duration' is of incorrect type str",
+        )
 
     def test_build_JobResult_allows_for_none_execution_duration(self):
         """
@@ -898,7 +1077,7 @@ class JobResultResumeMixIn:
         ``execution_duration`` to be None
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['execution_duration'] = None
+        obj_repr["execution_duration"] = None
         obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(obj.execution_duration, None)
 
@@ -908,7 +1087,7 @@ class JobResultResumeMixIn:
         ``execution_duration``
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['execution_duration'] = 5.1
+        obj_repr["execution_duration"] = 5.1
         obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertAlmostEqual(obj.execution_duration, 5.1)
 
@@ -921,21 +1100,27 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
     handle recreating MemoryJobResult form their representations
     """
 
-    parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,), (SessionResumeHelper6,))
+    parameter_names = ("resume_cls",)
+    parameter_values = (
+        (SessionResumeHelper1,),
+        (SessionResumeHelper2,),
+        (SessionResumeHelper3,),
+        (SessionResumeHelper4,),
+        (SessionResumeHelper5,),
+        (SessionResumeHelper6,),
+    )
     good_repr = {
-        'outcome': "pass",
-        'comments': None,
-        'return_code': None,
-        'execution_duration': None,
-        'io_log': []
+        "outcome": "pass",
+        "comments": None,
+        "return_code": None,
+        "execution_duration": None,
+        "io_log": [],
     }
 
     def test_build_JobResult_restores_MemoryJobResult_representations(self):
         obj = self.parameters.resume_cls._build_JobResult(
-            self.good_repr, 0, None)
+            self.good_repr, 0, None
+        )
         self.assertIsInstance(obj, MemoryJobResult)
 
     def test_build_JobResult_checks_for_missing_io_log(self):
@@ -944,10 +1129,9 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            del obj_repr['io_log']
+            del obj_repr["io_log"]
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
-        self.assertEqual(
-            str(boom.exception), "Missing value for key 'io_log'")
+        self.assertEqual(str(boom.exception), "Missing value for key 'io_log'")
 
     def test_build_JobResult_checks_type_of_io_log(self):
         """
@@ -956,11 +1140,12 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['io_log'] = "text"
+            obj_repr["io_log"] = "text"
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'io_log' is of incorrect type str")
+            "Value of key 'io_log' is of incorrect type str",
+        )
 
     def test_build_JobResult_checks_for_none_io_log(self):
         """
@@ -969,11 +1154,11 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['io_log'] = None
+            obj_repr["io_log"] = None
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
-            str(boom.exception),
-            "Value of key 'io_log' cannot be None")
+            str(boom.exception), "Value of key 'io_log' cannot be None"
+        )
 
     def test_build_JobResult_restores_io_log(self):
         """
@@ -981,37 +1166,41 @@ class MemoryJobResultResumeTests(JobResultResumeMixIn, TestCaseWithParameters):
         is restored for MemoryJobResult representations
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['io_log'] = [[0.0, 'stdout', '']]
+        obj_repr["io_log"] = [[0.0, "stdout", ""]]
         obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         # NOTE: MemoryJobResult.io_log is a property that converts
         # whatever was stored to IOLogRecord and returns a _tuple_
         # so the original list is not visible
-        self.assertEqual(obj.io_log, tuple([
-            IOLogRecord(0.0, 'stdout', b'')
-        ]))
+        self.assertEqual(obj.io_log, tuple([IOLogRecord(0.0, "stdout", b"")]))
 
 
-class DiskJobResultResumeTestsCommon(JobResultResumeMixIn,
-                                     TestCaseWithParameters):
+class DiskJobResultResumeTestsCommon(
+    JobResultResumeMixIn, TestCaseWithParameters
+):
+    """Tests for common behavior of DiskJobResult resume for all formats."""
 
-    """ Tests for common behavior of DiskJobResult resume for all formats.  """
-
-    parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,), (SessionResumeHelper6,))
+    parameter_names = ("resume_cls",)
+    parameter_values = (
+        (SessionResumeHelper1,),
+        (SessionResumeHelper2,),
+        (SessionResumeHelper3,),
+        (SessionResumeHelper4,),
+        (SessionResumeHelper5,),
+        (SessionResumeHelper6,),
+    )
     good_repr = {
-        'outcome': "pass",
-        'comments': None,
-        'return_code': None,
-        'execution_duration': None,
+        "outcome": "pass",
+        "comments": None,
+        "return_code": None,
+        "execution_duration": None,
         # NOTE: path is absolute (realistic data required by most of tests)
-        'io_log_filename': "/file.txt"
+        "io_log_filename": "/file.txt",
     }
 
     def test_build_JobResult_restores_DiskJobResult_representations(self):
         obj = self.parameters.resume_cls._build_JobResult(
-            self.good_repr, 0, None)
+            self.good_repr, 0, None
+        )
         self.assertIsInstance(obj, DiskJobResult)
 
     def test_build_JobResult_does_not_check_for_missing_io_log_filename(self):
@@ -1022,13 +1211,12 @@ class DiskJobResultResumeTestsCommon(JobResultResumeMixIn,
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            del obj_repr['io_log_filename']
+            del obj_repr["io_log_filename"]
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         # NOTE: the error message explicitly talks about 'io_log', not
         # about 'io_log_filename' because we're hitting the other path
         # of the restore function
-        self.assertEqual(
-            str(boom.exception), "Missing value for key 'io_log'")
+        self.assertEqual(str(boom.exception), "Missing value for key 'io_log'")
 
     def test_build_JobResult_checks_type_of_io_log_filename(self):
         """
@@ -1037,11 +1225,12 @@ class DiskJobResultResumeTestsCommon(JobResultResumeMixIn,
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['io_log_filename'] = False
+            obj_repr["io_log_filename"] = False
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'io_log_filename' is of incorrect type bool")
+            "Value of key 'io_log_filename' is of incorrect type bool",
+        )
 
     def test_build_JobResult_checks_for_none_io_log_filename(self):
         """
@@ -1050,87 +1239,94 @@ class DiskJobResultResumeTestsCommon(JobResultResumeMixIn,
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['io_log_filename'] = None
+            obj_repr["io_log_filename"] = None
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'io_log_filename' cannot be None")
+            "Value of key 'io_log_filename' cannot be None",
+        )
 
 
 class DiskJobResultResumeTests1to4(TestCaseWithParameters):
+    """Tests for behavior of DiskJobResult resume for formats 1 to 4."""
 
-    """ Tests for behavior of DiskJobResult resume for formats 1 to 4. """
-
-    parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,))
+    parameter_names = ("resume_cls",)
+    parameter_values = (
+        (SessionResumeHelper1,),
+        (SessionResumeHelper2,),
+        (SessionResumeHelper3,),
+        (SessionResumeHelper4,),
+    )
     good_repr = {
-        'outcome': "pass",
-        'comments': None,
-        'return_code': None,
-        'execution_duration': None,
-        'io_log_filename': "/file.txt"
+        "outcome": "pass",
+        "comments": None,
+        "return_code": None,
+        "execution_duration": None,
+        "io_log_filename": "/file.txt",
     }
 
     def test_build_JobResult_restores_io_log_filename(self):
-        """ _build_JobResult() accepts relative paths without location. """
+        """_build_JobResult() accepts relative paths without location."""
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['io_log_filename'] = "some-file.txt"
+        obj_repr["io_log_filename"] = "some-file.txt"
         obj = self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
         self.assertEqual(obj.io_log_filename, "some-file.txt")
 
     def test_build_JobResult_restores_relative_io_log_filename(self):
-        """ _build_JobResult() ignores location for relative paths. """
+        """_build_JobResult() ignores location for relative paths."""
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['io_log_filename'] = "some-file.txt"
+        obj_repr["io_log_filename"] = "some-file.txt"
         obj = self.parameters.resume_cls._build_JobResult(
-            obj_repr, 0, '/path/to')
+            obj_repr, 0, "/path/to"
+        )
         self.assertEqual(obj.io_log_filename, "some-file.txt")
 
     def test_build_JobResult_restores_absolute_io_log_filename(self):
-        """ _build_JobResult() preserves absolute paths. """
+        """_build_JobResult() preserves absolute paths."""
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['io_log_filename'] = "/some-file.txt"
+        obj_repr["io_log_filename"] = "/some-file.txt"
         obj = self.parameters.resume_cls._build_JobResult(
-            obj_repr, 0, '/path/to')
+            obj_repr, 0, "/path/to"
+        )
         self.assertEqual(obj.io_log_filename, "/some-file.txt")
 
 
 class DiskJobResultResumeTests5(TestCaseWithParameters):
+    """Tests for behavior of DiskJobResult resume for format 5."""
 
-    """ Tests for behavior of DiskJobResult resume for format 5. """
-
-    parameter_names = ('resume_cls',)
+    parameter_names = ("resume_cls",)
     parameter_values = ((SessionResumeHelper6,),)
     good_repr = {
-        'outcome': "pass",
-        'comments': None,
-        'return_code': None,
-        'execution_duration': None,
-        'io_log_filename': "/file.txt"
+        "outcome": "pass",
+        "comments": None,
+        "return_code": None,
+        "execution_duration": None,
+        "io_log_filename": "/file.txt",
     }
 
     def test_build_JobResult_restores_io_log_filename(self):
-        """ _build_JobResult() rejects relative paths without location. """
+        """_build_JobResult() rejects relative paths without location."""
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['io_log_filename'] = "some-file.txt"
+        obj_repr["io_log_filename"] = "some-file.txt"
         with self.assertRaisesRegex(ValueError, "Location "):
             self.parameters.resume_cls._build_JobResult(obj_repr, 0, None)
 
     def test_build_JobResult_restores_relative_io_log_filename(self):
-        """ _build_JobResult() uses location for relative paths. """
+        """_build_JobResult() uses location for relative paths."""
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['io_log_filename'] = "some-file.txt"
+        obj_repr["io_log_filename"] = "some-file.txt"
         obj = self.parameters.resume_cls._build_JobResult(
-            obj_repr, 0, '/path/to')
+            obj_repr, 0, "/path/to"
+        )
         self.assertEqual(obj.io_log_filename, "/path/to/some-file.txt")
 
     def test_build_JobResult_restores_absolute_io_log_filename(self):
-        """ _build_JobResult() preserves absolute paths. """
+        """_build_JobResult() preserves absolute paths."""
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['io_log_filename'] = "/some-file.txt"
+        obj_repr["io_log_filename"] = "/some-file.txt"
         obj = self.parameters.resume_cls._build_JobResult(
-            obj_repr, 0, '/path/to')
+            obj_repr, 0, "/path/to"
+        )
         self.assertEqual(obj.io_log_filename, "/some-file.txt")
 
 
@@ -1142,22 +1338,26 @@ class DesiredJobListResumeTests(TestCaseWithParameters):
     handle recreating SessionState.desired_job_list form its representation
     """
 
-    parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,), (SessionResumeHelper6,))
+    parameter_names = ("resume_cls",)
+    parameter_values = (
+        (SessionResumeHelper1,),
+        (SessionResumeHelper2,),
+        (SessionResumeHelper3,),
+        (SessionResumeHelper4,),
+        (SessionResumeHelper5,),
+        (SessionResumeHelper6,),
+    )
 
     def setUp(self):
         # All of the tests need a SessionState object and some jobs to work
         # with. Actual values don't matter much.
-        self.job_a = make_job(id='a')
-        self.job_b = make_job(id='b')
+        self.job_a = make_job(id="a")
+        self.job_b = make_job(id="b")
         self.session = SessionState([self.job_a, self.job_b])
-        self.good_repr = {
-            "desired_job_list": ['a', 'b']
-        }
+        self.good_repr = {"desired_job_list": ["a", "b"]}
         self.resume_fn = (
-            self.parameters.resume_cls._restore_SessionState_desired_job_list)
+            self.parameters.resume_cls._restore_SessionState_desired_job_list
+        )
 
     def test_restore_SessionState_desired_job_list_checks_for_repr_type(self):
         """
@@ -1166,11 +1366,12 @@ class DesiredJobListResumeTests(TestCaseWithParameters):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['desired_job_list'] = 1
+            obj_repr["desired_job_list"] = 1
             self.resume_fn(self.session, obj_repr)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'desired_job_list' is of incorrect type int")
+            "Value of key 'desired_job_list' is of incorrect type int",
+        )
 
     def test_restore_SessionState_desired_job_list_checks_job_id_type(self):
         """
@@ -1179,7 +1380,7 @@ class DesiredJobListResumeTests(TestCaseWithParameters):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['desired_job_list'] = [1]
+            obj_repr["desired_job_list"] = [1]
             self.resume_fn(self.session, obj_repr)
         self.assertEqual(str(boom.exception), "Each job id must be a string")
 
@@ -1190,24 +1391,24 @@ class DesiredJobListResumeTests(TestCaseWithParameters):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['desired_job_list'] = ['bogus']
+            obj_repr["desired_job_list"] = ["bogus"]
             self.resume_fn(self.session, obj_repr)
         self.assertEqual(
             str(boom.exception),
-            "'desired_job_list' refers to unknown job 'bogus'")
+            "'desired_job_list' refers to unknown job 'bogus'",
+        )
 
     def test_restore_SessionState_desired_job_list_works(self):
         """
         verify that _restore_SessionState_desired_job_list() actually
         restores desired_job_list on the session
         """
-        self.assertEqual(
-            self.session.desired_job_list, [])
+        self.assertEqual(self.session.desired_job_list, [])
         self.resume_fn(self.session, self.good_repr)
         # Good representation has two jobs, 'a' and 'b', in that order
         self.assertEqual(
-            self.session.desired_job_list,
-            [self.job_a, self.job_b])
+            self.session.desired_job_list, [self.job_a, self.job_b]
+        )
 
 
 class SessionMetaDataResumeTests(TestCaseWithParameters):
@@ -1218,13 +1419,13 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
     handle recreating SessionMetaData form its representation
     """
 
-    parameter_names = ('format',)
+    parameter_names = ("format",)
     parameter_values = ((1,), (2,), (3,))
     good_repr_v1 = {
         "metadata": {
             "title": "some title",
             "flags": ["flag1", "flag2"],
-            "running_job_name": "job1"
+            "running_job_name": "job1",
         }
     }
     good_repr_v2 = {
@@ -1244,11 +1445,7 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
             "app_id": None,
         }
     }
-    good_repr_map = {
-        1: good_repr_v1,
-        2: good_repr_v2,
-        3: good_repr_v3
-    }
+    good_repr_map = {1: good_repr_v1, 2: good_repr_v2, 3: good_repr_v3}
     resume_cls_map = {
         1: SessionResumeHelper1,
         2: SessionResumeHelper2,
@@ -1259,11 +1456,11 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
         # All of the tests need a SessionState object
         self.session = SessionState([])
         self.good_repr = copy.deepcopy(
-            self.good_repr_map[self.parameters.format])
-        self.resume_fn = (
-            self.resume_cls_map[
-                self.parameters.format
-            ]._restore_SessionState_metadata)
+            self.good_repr_map[self.parameters.format]
+        )
+        self.resume_fn = self.resume_cls_map[
+            self.parameters.format
+        ]._restore_SessionState_metadata
 
     def test_restore_SessionState_metadata_cheks_for_representation_type(self):
         """
@@ -1271,11 +1468,12 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
         the representation object
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            self.good_repr['metadata'] = 1
+            self.good_repr["metadata"] = 1
             self.resume_fn(self.session.metadata, self.good_repr)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'metadata' is of incorrect type int")
+            "Value of key 'metadata' is of incorrect type int",
+        )
 
     def test_restore_SessionState_metadata_checks_title_type(self):
         """
@@ -1283,18 +1481,19 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
         the ``title`` field.
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            self.good_repr['metadata']['title'] = 1
+            self.good_repr["metadata"]["title"] = 1
             self.resume_fn(self.session.metadata, self.good_repr)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'title' is of incorrect type int")
+            "Value of key 'title' is of incorrect type int",
+        )
 
     def test_restore_SessionState_metadata_allows_for_none_title(self):
         """
         verify that _restore_SessionState_metadata() allows for
         ``title`` to be None
         """
-        self.good_repr['metadata']['title'] = None
+        self.good_repr["metadata"]["title"] = None
         self.resume_fn(self.session.metadata, self.good_repr)
         self.assertEqual(self.session.metadata.title, None)
 
@@ -1302,7 +1501,7 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
         """
         verify that _restore_SessionState_metadata() restores ``title``
         """
-        self.good_repr['metadata']['title'] = "a title"
+        self.good_repr["metadata"]["title"] = "a title"
         self.resume_fn(self.session.metadata, self.good_repr)
         self.assertEqual(self.session.metadata.title, "a title")
 
@@ -1312,11 +1511,12 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
         the ``flags`` field.
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            self.good_repr['metadata']['flags'] = 1
+            self.good_repr["metadata"]["flags"] = 1
             self.resume_fn(self.session.metadata, self.good_repr)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'flags' is of incorrect type int")
+            "Value of key 'flags' is of incorrect type int",
+        )
 
     def test_restore_SessionState_metadata_cheks_if_flags_are_none(self):
         """
@@ -1324,11 +1524,11 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
         ``flags`` are None
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            self.good_repr['metadata']['flags'] = None
+            self.good_repr["metadata"]["flags"] = None
             self.resume_fn(self.session.metadata, self.good_repr)
         self.assertEqual(
-            str(boom.exception),
-            "Value of key 'flags' cannot be None")
+            str(boom.exception), "Value of key 'flags' cannot be None"
+        )
 
     def test_restore_SessionState_metadata_checks_type_of_each_flag(self):
         """
@@ -1336,19 +1536,17 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
         value of ``flags``
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            self.good_repr['metadata']['flags'] = [1]
+            self.good_repr["metadata"]["flags"] = [1]
             self.resume_fn(self.session.metadata, self.good_repr)
-        self.assertEqual(
-            str(boom.exception),
-            "Each flag must be a string")
+        self.assertEqual(str(boom.exception), "Each flag must be a string")
 
     def test_restore_SessionState_metadata_restores_flags(self):
         """
         verify that _restore_SessionState_metadata() restores ``flags``
         """
-        self.good_repr['metadata']['flags'] = ["flag1", "flag2"]
+        self.good_repr["metadata"]["flags"] = ["flag1", "flag2"]
         self.resume_fn(self.session.metadata, self.good_repr)
-        self.assertEqual(self.session.metadata.flags, set(['flag1', 'flag2']))
+        self.assertEqual(self.session.metadata.flags, set(["flag1", "flag2"]))
 
     def test_restore_SessionState_metadata_checks_running_job_name_type(self):
         """
@@ -1356,18 +1554,19 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
         ``running_job_name``.
         """
         with self.assertRaises(CorruptedSessionError) as boom:
-            self.good_repr['metadata']['running_job_name'] = 1
+            self.good_repr["metadata"]["running_job_name"] = 1
             self.resume_fn(self.session.metadata, self.good_repr)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'running_job_name' is of incorrect type int")
+            "Value of key 'running_job_name' is of incorrect type int",
+        )
 
     def test_restore_SessionState_metadata_allows__none_running_job_name(self):
         """
         verify that _restore_SessionState_metadata() allows for
         ``running_job_name`` to be None
         """
-        self.good_repr['metadata']['running_job_name'] = None
+        self.good_repr["metadata"]["running_job_name"] = None
         self.resume_fn(self.session.metadata, self.good_repr)
         self.assertEqual(self.session.metadata.running_job_name, None)
 
@@ -1376,7 +1575,7 @@ class SessionMetaDataResumeTests(TestCaseWithParameters):
         verify that _restore_SessionState_metadata() restores
         the value of ``running_job_name``
         """
-        self.good_repr['metadata']['running_job_name'] = "a job"
+        self.good_repr["metadata"]["running_job_name"] = "a job"
         self.resume_fn(self.session.metadata, self.good_repr)
         self.assertEqual(self.session.metadata.running_job_name, "a job")
 
@@ -1395,7 +1594,7 @@ class SessionMetaDataResumeTests2(TestCase):
                 "title": "some title",
                 "flags": ["flag1", "flag2"],
                 "running_job_name": "job1",
-                "app_blob": "YmxvYg=="  # this is b'blob', encoded
+                "app_blob": "YmxvYg==",  # this is b'blob', encoded
             }
         }
         self.resume_fn = SessionResumeHelper2._restore_SessionState_metadata
@@ -1407,11 +1606,12 @@ class SessionMetaDataResumeTests2(TestCase):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['metadata']['app_blob'] = 1
+            obj_repr["metadata"]["app_blob"] = 1
             self.resume_fn(self.session.metadata, obj_repr)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'app_blob' is of incorrect type int")
+            "Value of key 'app_blob' is of incorrect type int",
+        )
 
     def test_restore_SessionState_metadata_allows_for_none_app_blob(self):
         """
@@ -1419,7 +1619,7 @@ class SessionMetaDataResumeTests2(TestCase):
         ``app_blob`` to be None
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['metadata']['app_blob'] = None
+        obj_repr["metadata"]["app_blob"] = None
         self.resume_fn(self.session.metadata, obj_repr)
         self.assertEqual(self.session.metadata.app_blob, None)
 
@@ -1428,7 +1628,7 @@ class SessionMetaDataResumeTests2(TestCase):
         verify that _restore_SessionState_metadata() restores ``app_blob``
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['metadata']['app_blob'] = "YmxvYg=="
+        obj_repr["metadata"]["app_blob"] = "YmxvYg=="
         self.resume_fn(self.session.metadata, obj_repr)
         self.assertEqual(self.session.metadata.app_blob, b"blob")
 
@@ -1439,7 +1639,7 @@ class SessionMetaDataResumeTests2(TestCase):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['metadata']['app_blob'] = '\uFFFD'
+            obj_repr["metadata"]["app_blob"] = "\uFFFD"
             self.resume_fn(self.session.metadata, obj_repr)
         self.assertEqual(str(boom.exception), "app_blob is not ASCII")
         self.assertIsInstance(boom.exception.__context__, UnicodeEncodeError)
@@ -1451,7 +1651,7 @@ class SessionMetaDataResumeTests2(TestCase):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['metadata']['app_blob'] = '==broken'
+            obj_repr["metadata"]["app_blob"] = "==broken"
             self.resume_fn(self.session.metadata, obj_repr)
         self.assertEqual(str(boom.exception), "Cannot base64 decode app_blob")
         # base64.standard_b64decode() raises binascii.Error
@@ -1473,7 +1673,7 @@ class SessionMetaDataResumeTest3(SessionMetaDataResumeTests2):
                 "flags": ["flag1", "flag2"],
                 "running_job_name": "job1",
                 "app_blob": "YmxvYg==",  # this is b'blob', encoded
-                "app_id": "id"
+                "app_id": "id",
             }
         }
         self.resume_fn = SessionResumeHelper3._restore_SessionState_metadata
@@ -1485,11 +1685,12 @@ class SessionMetaDataResumeTest3(SessionMetaDataResumeTests2):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr['metadata']['app_id'] = 1
+            obj_repr["metadata"]["app_id"] = 1
             self.resume_fn(self.session.metadata, obj_repr)
         self.assertEqual(
             str(boom.exception),
-            "Value of key 'app_id' is of incorrect type int")
+            "Value of key 'app_id' is of incorrect type int",
+        )
 
     def test_restore_SessionState_metadata_allows_for_none_app_id(self):
         """
@@ -1497,7 +1698,7 @@ class SessionMetaDataResumeTest3(SessionMetaDataResumeTests2):
         ``app_id`` to be None
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['metadata']['app_id'] = None
+        obj_repr["metadata"]["app_id"] = None
         self.resume_fn(self.session.metadata, obj_repr)
         self.assertEqual(self.session.metadata.app_id, None)
 
@@ -1506,7 +1707,7 @@ class SessionMetaDataResumeTest3(SessionMetaDataResumeTests2):
         verify that _restore_SessionState_metadata() restores ``app_id``
         """
         obj_repr = copy.copy(self.good_repr)
-        obj_repr['metadata']['app_id'] = "id"
+        obj_repr["metadata"]["app_id"] = "id"
         self.resume_fn(self.session.metadata, obj_repr)
         self.assertEqual(self.session.metadata.app_id, "id")
 
@@ -1519,25 +1720,30 @@ class ProcessJobTests(TestCaseWithParameters):
     handle processing jobs using _process_job() method
     """
 
-    parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,), (SessionResumeHelper6,))
+    parameter_names = ("resume_cls",)
+    parameter_values = (
+        (SessionResumeHelper1,),
+        (SessionResumeHelper2,),
+        (SessionResumeHelper3,),
+        (SessionResumeHelper4,),
+        (SessionResumeHelper5,),
+        (SessionResumeHelper6,),
+    )
 
     def setUp(self):
-        self.job_id = 'job'
+        self.job_id = "job"
         self.job = make_job(id=self.job_id)
-        self.jobs_repr = {
-            self.job_id: self.job.checksum
-        }
+        self.jobs_repr = {self.job_id: self.job.checksum}
         self.results_repr = {
-            self.job_id: [{
-                'outcome': 'fail',
-                'comments': None,
-                'execution_duration': None,
-                'return_code': None,
-                'io_log': [],
-            }]
+            self.job_id: [
+                {
+                    "outcome": "fail",
+                    "comments": None,
+                    "execution_duration": None,
+                    "return_code": None,
+                    "io_log": [],
+                }
+            ]
         }
         self.helper = self.parameters.resume_cls([self.job], None, None)
         # This object is artificial and would be constructed internally
@@ -1553,9 +1759,11 @@ class ProcessJobTests(TestCaseWithParameters):
             # Pass a job id of the wrong type
             job_id = 1
             self.helper._process_job(
-                self.session, self.jobs_repr, self.results_repr, job_id)
+                self.session, self.jobs_repr, self.results_repr, job_id
+            )
         self.assertEqual(
-            str(boom.exception), "Value of object is of incorrect type int")
+            str(boom.exception), "Value of object is of incorrect type int"
+        )
 
     def test_process_job_checks_for_missing_checksum(self):
         """
@@ -1565,7 +1773,8 @@ class ProcessJobTests(TestCaseWithParameters):
             # Pass a jobs_repr that has no checksums (for any job)
             jobs_repr = {}
             self.helper._process_job(
-                self.session, jobs_repr, self.results_repr, self.job_id)
+                self.session, jobs_repr, self.results_repr, self.job_id
+            )
         self.assertEqual(str(boom.exception), "Missing value for key 'job'")
 
     def test_process_job_checks_if_job_is_known(self):
@@ -1576,8 +1785,9 @@ class ProcessJobTests(TestCaseWithParameters):
             # Pass a session that does not know about any jobs
             session = SessionState([])
             self.helper._process_job(
-                session, self.jobs_repr, self.results_repr, self.job_id)
-        self.assertEqual(boom.exception.args[0], 'job')
+                session, self.jobs_repr, self.results_repr, self.job_id
+            )
+        self.assertEqual(boom.exception.args[0], "job")
 
     def test_process_job_checks_if_job_checksum_matches(self):
         """
@@ -1586,11 +1796,13 @@ class ProcessJobTests(TestCaseWithParameters):
         """
         with self.assertRaises(IncompatibleJobError) as boom:
             # Pass a jobs_repr with a bad checksum
-            jobs_repr = {self.job_id: 'bad-checksum'}
+            jobs_repr = {self.job_id: "bad-checksum"}
             self.helper._process_job(
-                self.session, jobs_repr, self.results_repr, self.job_id)
+                self.session, jobs_repr, self.results_repr, self.job_id
+            )
         self.assertEqual(
-            str(boom.exception), "Definition of job 'job' has changed")
+            str(boom.exception), "Definition of job 'job' has changed"
+        )
 
     def test_process_job_handles_ignores_empty_results(self):
         """
@@ -1598,54 +1810,64 @@ class ProcessJobTests(TestCaseWithParameters):
         for a particular job
         """
         self.assertEqual(
-            self.session.job_state_map[self.job_id].result.outcome, None)
-        results_repr = {
-            self.job_id: []
-        }
+            self.session.job_state_map[self.job_id].result.outcome, None
+        )
+        results_repr = {self.job_id: []}
         self.helper._process_job(
-            self.session, self.jobs_repr, results_repr, self.job_id)
+            self.session, self.jobs_repr, results_repr, self.job_id
+        )
         self.assertEqual(
-            self.session.job_state_map[self.job_id].result.outcome, None)
+            self.session.job_state_map[self.job_id].result.outcome, None
+        )
 
     def test_process_job_handles_only_result_back_to_the_session(self):
         """
         verify that _process_job() passes the only result to the session
         """
         self.assertEqual(
-            self.session.job_state_map[self.job_id].result.outcome, None)
+            self.session.job_state_map[self.job_id].result.outcome, None
+        )
         self.helper._process_job(
-            self.session, self.jobs_repr, self.results_repr, self.job_id)
+            self.session, self.jobs_repr, self.results_repr, self.job_id
+        )
         # The result in self.results_repr is a failure so we should see it here
         self.assertEqual(
-            self.session.job_state_map[self.job_id].result.outcome, "fail")
+            self.session.job_state_map[self.job_id].result.outcome, "fail"
+        )
 
     def test_process_job_handles_last_result_back_to_the_session(self):
         """
         verify that _process_job() passes last of the results to the session
         """
         self.assertEqual(
-            self.session.job_state_map[self.job_id].result.outcome, None)
+            self.session.job_state_map[self.job_id].result.outcome, None
+        )
         results_repr = {
-            self.job_id: [{
-                'outcome': 'fail',
-                'comments': None,
-                'execution_duration': None,
-                'return_code': None,
-                'io_log': [],
-            }, {
-                'outcome': 'pass',
-                'comments': None,
-                'execution_duration': None,
-                'return_code': None,
-                'io_log': [],
-            }]
+            self.job_id: [
+                {
+                    "outcome": "fail",
+                    "comments": None,
+                    "execution_duration": None,
+                    "return_code": None,
+                    "io_log": [],
+                },
+                {
+                    "outcome": "pass",
+                    "comments": None,
+                    "execution_duration": None,
+                    "return_code": None,
+                    "io_log": [],
+                },
+            ]
         }
         self.helper._process_job(
-            self.session, self.jobs_repr, results_repr, self.job_id)
+            self.session, self.jobs_repr, results_repr, self.job_id
+        )
         # results_repr has two entries: [fail, pass] so we should see
         # the passing entry only
         self.assertEqual(
-            self.session.job_state_map[self.job_id].result.outcome, "pass")
+            self.session.job_state_map[self.job_id].result.outcome, "pass"
+        )
 
     def test_process_job_checks_results_repr_is_a_list(self):
         """
@@ -1655,10 +1877,11 @@ class ProcessJobTests(TestCaseWithParameters):
         with self.assertRaises(CorruptedSessionError) as boom:
             results_repr = {self.job_id: 1}
             self.helper._process_job(
-                self.session, self.jobs_repr, results_repr, self.job_id)
+                self.session, self.jobs_repr, results_repr, self.job_id
+            )
         self.assertEqual(
-            str(boom.exception),
-            "Value of key 'job' is of incorrect type int")
+            str(boom.exception), "Value of key 'job' is of incorrect type int"
+        )
 
     def test_process_job_checks_results_repr_values_are_dicts(self):
         """
@@ -1668,10 +1891,11 @@ class ProcessJobTests(TestCaseWithParameters):
         with self.assertRaises(CorruptedSessionError) as boom:
             results_repr = {self.job_id: [1]}
             self.helper._process_job(
-                self.session, self.jobs_repr, results_repr, self.job_id)
+                self.session, self.jobs_repr, results_repr, self.job_id
+            )
         self.assertEqual(
-            str(boom.exception),
-            "Value of object is of incorrect type int")
+            str(boom.exception), "Value of object is of incorrect type int"
+        )
 
 
 class JobPluginSpecificTests(TestCaseWithParameters):
@@ -1683,10 +1907,15 @@ class JobPluginSpecificTests(TestCaseWithParameters):
     plugin-specific test such as for resource jobs
     """
 
-    parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,), (SessionResumeHelper6,))
+    parameter_names = ("resume_cls",)
+    parameter_values = (
+        (SessionResumeHelper1,),
+        (SessionResumeHelper2,),
+        (SessionResumeHelper3,),
+        (SessionResumeHelper4,),
+        (SessionResumeHelper5,),
+        (SessionResumeHelper6,),
+    )
 
     def test_process_job_restores_resources(self):
         """
@@ -1696,25 +1925,29 @@ class JobPluginSpecificTests(TestCaseWithParameters):
         # resource job, representation of the job (checksum)
         # and representation of a single result, which has a single line
         # that defines a 'key': 'value' resource record.
-        job_id = 'resource'
-        job = make_job(id=job_id, plugin='resource')
-        jobs_repr = {
-            job_id: job.checksum
-        }
+        job_id = "resource"
+        job = make_job(id=job_id, plugin="resource")
+        jobs_repr = {job_id: job.checksum}
         results_repr = {
-            job_id: [{
-                'outcome': IJobResult.OUTCOME_PASS,
-                'comments': None,
-                'execution_duration': None,
-                'return_code': None,
-                'io_log': [
-                    # A bit convoluted but this is how we encode each chunk
-                    # of IOLogRecord
-                    [0.0, 'stdout', base64.standard_b64encode(
-                        b'key: value'
-                    ).decode('ASCII')]
-                ],
-            }]
+            job_id: [
+                {
+                    "outcome": IJobResult.OUTCOME_PASS,
+                    "comments": None,
+                    "execution_duration": None,
+                    "return_code": None,
+                    "io_log": [
+                        # A bit convoluted but this is how we encode each chunk
+                        # of IOLogRecord
+                        [
+                            0.0,
+                            "stdout",
+                            base64.standard_b64encode(b"key: value").decode(
+                                "ASCII"
+                            ),
+                        ]
+                    ],
+                }
+            ]
         }
         helper = self.parameters.resume_cls([job], None, None)
         session = SessionState([job])
@@ -1726,8 +1959,8 @@ class JobPluginSpecificTests(TestCaseWithParameters):
         self.assertIn(job_id, session.resource_map)
         # And that it looks right
         self.assertEqual(
-            session.resource_map[job_id],
-            [Resource({'key': 'value'})])
+            session.resource_map[job_id], [Resource({"key": "value"})]
+        )
 
 
 class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
@@ -1739,10 +1972,15 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
     method.
     """
 
-    parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,), (SessionResumeHelper6,))
+    parameter_names = ("resume_cls",)
+    parameter_values = (
+        (SessionResumeHelper1,),
+        (SessionResumeHelper2,),
+        (SessionResumeHelper3,),
+        (SessionResumeHelper4,),
+        (SessionResumeHelper5,),
+        (SessionResumeHelper6,),
+    )
 
     def test_empty_session(self):
         """
@@ -1751,10 +1989,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         to do sanity checking on the 'easy' parts of the code before
         testing specific cases in the rest of the code.
         """
-        session_repr = {
-            'jobs': {},
-            'results': {}
-        }
+        session_repr = {"jobs": {}, "results": {}}
         helper = self.parameters.resume_cls([], None, None)
         session = SessionState([])
         helper._restore_SessionState_jobs_and_results(session, session_repr)
@@ -1768,20 +2003,22 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         faced with a representation of a simple session (no generated jobs
         or anything "exotic").
         """
-        job = make_job(id='job')
+        job = make_job(id="job")
         session_repr = {
-            'jobs': {
+            "jobs": {
                 job.id: job.checksum,
             },
-            'results': {
-                job.id: [{
-                    'outcome': 'pass',
-                    'comments': None,
-                    'execution_duration': None,
-                    'return_code': None,
-                    'io_log': [],
-                }]
-            }
+            "results": {
+                job.id: [
+                    {
+                        "outcome": "pass",
+                        "comments": None,
+                        "execution_duration": None,
+                        "return_code": None,
+                        "io_log": [],
+                    }
+                ]
+            },
         }
         helper = self.parameters.resume_cls([], None, None)
         session = SessionState([job])
@@ -1792,8 +2029,7 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         self.assertEqual(session.resource_map, {})
         # The result was restored correctly. This is just a smoke test
         # as specific tests for restoring results are written elsewhere
-        self.assertEqual(
-            session.job_state_map[job.id].result.outcome, 'pass')
+        self.assertEqual(session.job_state_map[job.id].result.outcome, "pass")
 
     def test_unknown_jobs_get_reported(self):
         """
@@ -1801,20 +2037,18 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         all unresolved jobs (as CorruptedSessionError exception)
         """
         session_repr = {
-            'jobs': {
-                'job-id': 'job-checksum',
+            "jobs": {
+                "job-id": "job-checksum",
             },
-            'results': {
-                'job-id': []
-            }
+            "results": {"job-id": []},
         }
         helper = self.parameters.resume_cls([], None, None)
         session = SessionState([])
         with self.assertRaises(CorruptedSessionError) as boom:
             helper._restore_SessionState_jobs_and_results(
-                session, session_repr)
-        self.assertEqual(
-            str(boom.exception), "Unknown jobs remaining: job-id")
+                session, session_repr
+            )
+        self.assertEqual(str(boom.exception), "Unknown jobs remaining: job-id")
 
 
 class SessionJobListResumeTests(TestCaseWithParameters):
@@ -1826,27 +2060,28 @@ class SessionJobListResumeTests(TestCaseWithParameters):
     method.
     """
 
-    parameter_names = ('resume_cls',)
-    parameter_values = ((SessionResumeHelper1,), (SessionResumeHelper2,),
-                        (SessionResumeHelper3,), (SessionResumeHelper4,),
-                        (SessionResumeHelper5,), (SessionResumeHelper6,))
+    parameter_names = ("resume_cls",)
+    parameter_values = (
+        (SessionResumeHelper1,),
+        (SessionResumeHelper2,),
+        (SessionResumeHelper3,),
+        (SessionResumeHelper4,),
+        (SessionResumeHelper5,),
+        (SessionResumeHelper6,),
+    )
 
     def test_simple_session(self):
         """
         verify that _restore_SessionState_job_list() does restore job_list
         """
-        job_a = make_job(id='a')
-        job_b = make_job(id='b')
+        job_a = make_job(id="a")
+        job_b = make_job(id="b")
         session_repr = {
-            'jobs': {
-                job_a.id: job_a.checksum
-            },
-            'desired_job_list': [
-                job_a.id
-            ],
-            'results': {
+            "jobs": {job_a.id: job_a.checksum},
+            "desired_job_list": [job_a.id],
+            "results": {
                 job_a.id: [],
-            }
+            },
         }
         helper = self.parameters.resume_cls([job_a, job_b], None, None)
         session = SessionState([job_a, job_b])
@@ -1866,22 +2101,23 @@ class RegressionTests(TestCase):
         # - desired job list: [a]
         # - run list [a_dep, a] (computed)
         # - job_repr: []  # assume a_dep is not there
-        job_a = make_job(id='a', depends='a_dep')
-        job_a_dep = make_job(id='a_dep')
-        job_unrelated = make_job('unrelated')
+        job_a = make_job(id="a", depends="a_dep")
+        job_a_dep = make_job(id="a_dep")
+        job_unrelated = make_job("unrelated")
         session_repr = {
-            'version': 4,
-            'session': {
-                'jobs': {},  # nothing ran yet
-                'desired_job_list': [job_a.id],  # we want a to run
-                'mandatory_job_list': [],
-                'results': {},  # nothing ran yet
+            "version": 4,
+            "session": {
+                "jobs": {},  # nothing ran yet
+                "desired_job_list": [job_a.id],  # we want a to run
+                "mandatory_job_list": [],
+                "results": {},  # nothing ran yet
             },
         }
-        helper = SessionResumeHelper4([job_a, job_a_dep, job_unrelated],
-                                      None, None)
+        helper = SessionResumeHelper4(
+            [job_a, job_a_dep, job_unrelated], None, None
+        )
         # Mock away meta-data restore code as we're not testing that
-        with mock.patch.object(helper, '_restore_SessionState_metadata'):
+        with mock.patch.object(helper, "_restore_SessionState_metadata"):
             session = helper.resume_json(session_repr)
         # Both job_a and job_a_dep are there but job_unrelated is now gone
         self.assertEqual(session.job_list, [job_a, job_a_dep])
@@ -1894,22 +2130,22 @@ class RegressionTests(TestCase):
         # - job repr: a => a.checksum
         # - desired job list, run list: [a]
         # - results: (empty), no a there at all
-        job_a = make_job(id='a')
+        job_a = make_job(id="a")
         session_repr = {
-            'version': 4,
-            'session': {
-                'jobs': {
+            "version": 4,
+            "session": {
+                "jobs": {
                     # a is about to run so it's mentioned in the checksum map
                     job_a.id: job_a.checksum
                 },
-                'desired_job_list': [job_a.id],  # we want to run a
-                'mandatory_job_list': [],
-                'results': {},  # nothing ran yet
-            }
+                "desired_job_list": [job_a.id],  # we want to run a
+                "mandatory_job_list": [],
+                "results": {},  # nothing ran yet
+            },
         }
         helper = SessionResumeHelper4([job_a], None, None)
         # Mock away meta-data restore code as we're not testing that
-        with mock.patch.object(helper, '_restore_SessionState_metadata'):
+        with mock.patch.object(helper, "_restore_SessionState_metadata"):
             session = helper.resume_json(session_repr)
         # Both job_a has a default hollow result
         self.assertTrue(session.job_state_map[job_a.id].result.is_hollow)

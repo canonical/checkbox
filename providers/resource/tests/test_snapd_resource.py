@@ -35,10 +35,7 @@ class FeaturesTests(TestCase):
         mock_on_ubuntucore,
         mock_kernel_snap,
     ):
-        self.assertEqual(
-            self.features._has_kernel_extraction_feature(),
-            False
-        )
+        self.assertEqual(self.features._has_kernel_extraction_feature(), False)
 
     @patch("snapd_resource.get_kernel_snap", return_value="")
     @patch("snapd_resource.on_ubuntucore", return_value=True)
@@ -47,10 +44,7 @@ class FeaturesTests(TestCase):
         mock_on_ubuntucore,
         mock_kernel_snap,
     ):
-        self.assertEqual(
-            self.features._has_kernel_extraction_feature(),
-            False
-        )
+        self.assertEqual(self.features._has_kernel_extraction_feature(), False)
 
     @patch("snapd_resource.get_kernel_snap", return_value="test-snap")
     @patch("snapd_resource.on_ubuntucore", return_value=True)
@@ -61,10 +55,7 @@ class FeaturesTests(TestCase):
         mock_on_ubuntucore,
         mock_kernel_snap,
     ):
-        self.assertEqual(
-            self.features._has_kernel_extraction_feature(),
-            True
-        )
+        self.assertEqual(self.features._has_kernel_extraction_feature(), True)
 
     @patch("snapd_resource.get_kernel_snap", return_value="test-snap")
     @patch("snapd_resource.on_ubuntucore", return_value=True)
@@ -77,10 +68,7 @@ class FeaturesTests(TestCase):
         mock_on_ubuntucore,
         mock_kernel_snap,
     ):
-        self.assertEqual(
-            self.features._has_kernel_extraction_feature(),
-            True
-        )
+        self.assertEqual(self.features._has_kernel_extraction_feature(), True)
 
     @patch("snapd_resource.get_kernel_snap", return_value="test-snap")
     @patch("snapd_resource.on_ubuntucore", return_value=True)
@@ -93,16 +81,12 @@ class FeaturesTests(TestCase):
         mock_on_ubuntucore,
         mock_kernel_snap,
     ):
-        self.assertEqual(
-            self.features._has_kernel_extraction_feature(),
-            False
-        )
+        self.assertEqual(self.features._has_kernel_extraction_feature(), False)
 
     @patch("sys.stdout", new_callable=StringIO)
     def test_invoked(self, mock_stdout):
         self.features._has_kernel_extraction_feature = Mock(return_value=True)
         self.features.invoked()
         self.assertIn(
-            "force_kernel_extraction: True\n\n",
-            mock_stdout.getvalue()
+            "force_kernel_extraction: True\n\n", mock_stdout.getvalue()
         )

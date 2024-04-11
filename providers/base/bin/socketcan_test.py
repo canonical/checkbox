@@ -28,7 +28,7 @@ import threading
 import time
 
 
-class CANSocket():
+class CANSocket:
 
     # struct module format strings for CAN packets
     # Normal format:
@@ -51,17 +51,17 @@ class CANSocket():
     CANFD_MTU = struct.Struct(FD_FORMAT).size
 
     # Socket options from <linux/can/raw.h>
-    CAN_RAW_FILTER = 1         # set 0 .. n can_filter(s)
-    CAN_RAW_ERR_FILTER = 2     # set filter for error frames
-    CAN_RAW_LOOPBACK = 3       # local loopback (default:on)
+    CAN_RAW_FILTER = 1  # set 0 .. n can_filter(s)
+    CAN_RAW_ERR_FILTER = 2  # set filter for error frames
+    CAN_RAW_LOOPBACK = 3  # local loopback (default:on)
     CAN_RAW_RECV_OWN_MSGS = 4  # receive my own msgs (default:off)
-    CAN_RAW_FD_FRAMES = 5      # allow CAN FD frames (default:off)
-    CAN_RAW_JOIN_FILTERS = 6   # all filters must match to trigger
+    CAN_RAW_FD_FRAMES = 5  # allow CAN FD frames (default:off)
+    CAN_RAW_JOIN_FILTERS = 6  # all filters must match to trigger
 
     def __init__(self, interface=None, fdmode=False, loopback=True):
-        self.sock = socket.socket(socket.PF_CAN,  # protocol family
-                                  socket.SOCK_RAW,
-                                  socket.CAN_RAW)
+        self.sock = socket.socket(
+            socket.PF_CAN, socket.SOCK_RAW, socket.CAN_RAW  # protocol family
+        )
         self._fdmode = fdmode
         self._loopback = loopback
         if interface is not None:
@@ -86,8 +86,9 @@ class CANSocket():
     def send(self, can_id, data, id_flags=0, fd_flags=0):
         can_id = can_id | id_flags
         if self._fdmode:
-            can_pkt = struct.pack(self.FD_FORMAT, can_id, len(data), fd_flags,
-                                  data)
+            can_pkt = struct.pack(
+                self.FD_FORMAT, can_id, len(data), fd_flags, data
+            )
         else:
             can_pkt = struct.pack(self.FORMAT, can_id, len(data), data)
         self.sock.send(can_pkt)
@@ -96,8 +97,9 @@ class CANSocket():
         can_pkt = self.sock.recv(self.CANFD_MTU)
         nbytes = len(can_pkt)
         if nbytes == self.CANFD_MTU:
-            can_id, length, fd_flags, data = struct.unpack(self.FD_FORMAT,
-                                                           can_pkt)
+            can_id, length, fd_flags, data = struct.unpack(
+                self.FD_FORMAT, can_pkt
+            )
         else:
             can_id, length, data = struct.unpack(self.FORMAT, can_pkt)
         can_id &= socket.CAN_EFF_MASK
@@ -106,13 +108,13 @@ class CANSocket():
 
 def echo_test(args):
     # ID conversion and size check
-    print('Using source ID: {}'.format(args.can_id))
+    print("Using source ID: {}".format(args.can_id))
     can_id_i = int(args.can_id, 16)
     if can_id_i > 2047 and not args.effid:
-        raise SystemExit('ERROR: CAN ID to high for SFF')
+        raise SystemExit("ERROR: CAN ID to high for SFF")
     id_flags = 0
     if args.effid:
-        print('Setting EFF CAN ID flag')
+        print("Setting EFF CAN ID flag")
         id_flags = ctypes.c_ulong(socket.CAN_EFF_FLAG).value
 
     # Whether to enable local loopback, required for local only test
@@ -124,7 +126,7 @@ def echo_test(args):
     if args.fdmode:
         data_size = 64
     data_b = os.urandom(data_size)
-    print('Sending data: {}'.format(data_b.hex()))
+    print("Sending data: {}".format(data_b.hex()))
 
     recv_id_i = None
     recv_data_b = None
@@ -132,9 +134,10 @@ def echo_test(args):
     def receive():
         nonlocal recv_id_i
         nonlocal recv_data_b
-        print('Opening read socket on {}'.format(args.interface))
-        with CANSocket(args.interface, fdmode=args.fdmode,
-                       loopback=loopback) as recv_s:
+        print("Opening read socket on {}".format(args.interface))
+        with CANSocket(
+            args.interface, fdmode=args.fdmode, loopback=loopback
+        ) as recv_s:
             recv_id_i, recv_data_b = recv_s.recv()
 
     # Create a receive thread
@@ -142,54 +145,71 @@ def echo_test(args):
     recv_t.start()
     time.sleep(1)
 
-    print('Opening send socket on {}'.format(args.interface))
+    print("Opening send socket on {}".format(args.interface))
     # Open socket, will raise OSError on failure
-    with CANSocket(args.interface, fdmode=args.fdmode,
-                   loopback=loopback) as send_s:
-        print('Sending data...', flush=True)
+    with CANSocket(
+        args.interface, fdmode=args.fdmode, loopback=loopback
+    ) as send_s:
+        print("Sending data...", flush=True)
         try:
             send_s.send(can_id_i, data_b, id_flags=id_flags)
         except OSError as e:
             print(e, file=sys.stderr)
             if e.errno == 90:
-                raise SystemExit('ERROR: interface does not support FD Mode')
+                raise SystemExit("ERROR: interface does not support FD Mode")
             else:
-                raise SystemExit('ERROR: OSError on attempt to send')
+                raise SystemExit("ERROR: OSError on attempt to send")
 
     recv_t.join(10)
     if recv_t.is_alive():
-        raise SystemExit('ERROR: Timeout waiting to receive data')
+        raise SystemExit("ERROR: Timeout waiting to receive data")
 
-    print('Received packet')
-    print('  ID  : {:x}'.format(recv_id_i))
-    print('  Data: {}'.format(recv_data_b.hex()))
+    print("Received packet")
+    print("  ID  : {:x}".format(recv_id_i))
+    print("  Data: {}".format(recv_data_b.hex()))
     if recv_id_i != can_id_i or recv_data_b != data_b:
-        raise SystemExit('ERROR: ID/Data received does not match sent')
+        raise SystemExit("ERROR: ID/Data received does not match sent")
 
-    print('\nPASSED')
+    print("\nPASSED")
 
 
 def main():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='SocketCAN Tests',
-        epilog=textwrap.dedent('''
+        description="SocketCAN Tests",
+        epilog=textwrap.dedent(
+            """
         Examples:
             socketcan_test.py can0 123
             socketcan_test.py can0 212 --remote
             socketcan_test.py can0 FA123 --effid
-            socketcan_test.py can0 E407DB --effid --fdmode''').lstrip())
-    parser.add_argument('interface', type=str, help='Interface name e.g. can0')
-    parser.add_argument('can_id', type=str, help=textwrap.dedent('''
+            socketcan_test.py can0 E407DB --effid --fdmode"""
+        ).lstrip(),
+    )
+    parser.add_argument("interface", type=str, help="Interface name e.g. can0")
+    parser.add_argument(
+        "can_id",
+        type=str,
+        help=textwrap.dedent(
+            """
         CAN ID of source in Hex, max of 11 bits using Standard Frame
         Format (SFF). Specifying use of Extended Frame Format (EFF)
-        allows the use of up to 29 bit IDs.''').lstrip())
-    parser.add_argument('--remote', action='store_true',
-                        help='Expect a remote device to echo the test packet')
-    parser.add_argument('--effid', action='store_true',
-                        help='Use EFF ID (CAN 2.0 B)')
-    parser.add_argument('--fdmode', action='store_true',
-                        help='Attempt to send 64 bytes of data i.e. FD mode')
+        allows the use of up to 29 bit IDs."""
+        ).lstrip(),
+    )
+    parser.add_argument(
+        "--remote",
+        action="store_true",
+        help="Expect a remote device to echo the test packet",
+    )
+    parser.add_argument(
+        "--effid", action="store_true", help="Use EFF ID (CAN 2.0 B)"
+    )
+    parser.add_argument(
+        "--fdmode",
+        action="store_true",
+        help="Attempt to send 64 bytes of data i.e. FD mode",
+    )
     parser.set_defaults(func=echo_test)
 
     args = parser.parse_args()

@@ -42,63 +42,78 @@ from plainbox.impl.unit.job import JobDefinition
 
 
 class HTMLExporterTests(TestCase):
-
     """Tests for Jinja2SessionStateExporter using the HTML template."""
 
     def setUp(self):
         self.exporter_unit = self._get_all_exporter_units()[
-            'com.canonical.plainbox::html']
+            "com.canonical.plainbox::html"
+        ]
         self.resource_map = {
-            'com.canonical.certification::lsb': [
-                Resource({'description': 'Ubuntu 14.04 LTS'})],
-            'com.canonical.certification::package': [
-                Resource({'name': 'plainbox', 'version': '1.0'}),
-                Resource({'name': 'fwts', 'version': '0.15.2'})],
-        }
-        self.job1 = JobDefinition({'id': 'job_id1', '_summary': 'job 1'})
-        self.job2 = JobDefinition({'id': 'job_id2', '_summary': 'job 2'})
-        self.job3 = JobDefinition({'id': 'job_id3', '_summary': 'job 3'})
-        self.res1 = JobDefinition({'id': 'lsb', 'plugin': 'resource',
-                                   '_summary': 'lsb'})
-        self.res2 = JobDefinition({'id': 'package', 'plugin': 'resource',
-                                   '_summary': 'package'})
-        self.result_fail = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_FAIL, 'return_code': 1,
-            'io_log': [(0, 'stderr', b'FATAL ERROR\n')],
-        })
-        self.result_pass = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS, 'return_code': 0,
-            'io_log': [(0, 'stdout', b'foo\n')],
-            'comments': 'blah blah'
-        })
-        self.result_skip = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_SKIP,
-            'comments': 'No such device'
-        })
-        self.attachment = JobDefinition({
-            'id': 'dmesg_attachment',
-            'plugin': 'attachment'})
-        self.attachment_result = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'io_log': [(0, 'stdout', b'bar\n')],
-            'return_code': 0
-        })
-        self.res1_result = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'io_log': [(0, 'stdout', b'description: Ubuntu 14.04 LTS\n')],
-            'return_code': 0
-        })
-        self.res2_result = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'io_log': [
-                (0, 'stdout', b"name: plainbox\n"),
-                (1, 'stdout', b"version: 1.0\n"),
-                (2, 'stdout', b"\n"),
-                (3, 'stdout', b"name: fwts\n"),
-                (4, 'stdout', b"version: 0.15.2\n"),
+            "com.canonical.certification::lsb": [
+                Resource({"description": "Ubuntu 14.04 LTS"})
             ],
-            'return_code': 0
-        })
+            "com.canonical.certification::package": [
+                Resource({"name": "plainbox", "version": "1.0"}),
+                Resource({"name": "fwts", "version": "0.15.2"}),
+            ],
+        }
+        self.job1 = JobDefinition({"id": "job_id1", "_summary": "job 1"})
+        self.job2 = JobDefinition({"id": "job_id2", "_summary": "job 2"})
+        self.job3 = JobDefinition({"id": "job_id3", "_summary": "job 3"})
+        self.res1 = JobDefinition(
+            {"id": "lsb", "plugin": "resource", "_summary": "lsb"}
+        )
+        self.res2 = JobDefinition(
+            {"id": "package", "plugin": "resource", "_summary": "package"}
+        )
+        self.result_fail = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_FAIL,
+                "return_code": 1,
+                "io_log": [(0, "stderr", b"FATAL ERROR\n")],
+            }
+        )
+        self.result_pass = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "return_code": 0,
+                "io_log": [(0, "stdout", b"foo\n")],
+                "comments": "blah blah",
+            }
+        )
+        self.result_skip = MemoryJobResult(
+            {"outcome": IJobResult.OUTCOME_SKIP, "comments": "No such device"}
+        )
+        self.attachment = JobDefinition(
+            {"id": "dmesg_attachment", "plugin": "attachment"}
+        )
+        self.attachment_result = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "io_log": [(0, "stdout", b"bar\n")],
+                "return_code": 0,
+            }
+        )
+        self.res1_result = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "io_log": [(0, "stdout", b"description: Ubuntu 14.04 LTS\n")],
+                "return_code": 0,
+            }
+        )
+        self.res2_result = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "io_log": [
+                    (0, "stdout", b"name: plainbox\n"),
+                    (1, "stdout", b"version: 1.0\n"),
+                    (2, "stdout", b"\n"),
+                    (3, "stdout", b"name: fwts\n"),
+                    (4, "stdout", b"version: 0.15.2\n"),
+                ],
+                "return_code": 0,
+            }
+        )
         self.session_manager = SessionManager.create()
         self.session_manager.add_local_device_context()
         self.session_state = self.session_manager.default_device_context.state
@@ -117,15 +132,17 @@ class HTMLExporterTests(TestCase):
         session_state.update_job_result(self.res1, self.res1_result)
         session_state.update_job_result(self.res2, self.res2_result)
         session_state.update_job_result(
-            self.attachment, self.attachment_result)
+            self.attachment, self.attachment_result
+        )
         for resource_id, resource_list in self.resource_map.items():
             session_state.set_resource_list(resource_id, resource_list)
 
     def tearDown(self):
         self.session_manager.destroy()
 
-    def _get_session_manager(self, job1_cert_status, job2_cert_status,
-                             job3_cert_status):
+    def _get_session_manager(
+        self, job1_cert_status, job2_cert_status, job3_cert_status
+    ):
         session_state = self.session_manager.default_device_context.state
         job1_state = session_state.job_state_map[self.job1.id]
         job2_state = session_state.job_state_map[self.job2.id]
@@ -139,26 +156,30 @@ class HTMLExporterTests(TestCase):
         exporter_map = {}
         for provider in get_providers():
             for unit in provider.unit_list:
-                if unit.Meta.name == 'exporter':
+                if unit.Meta.name == "exporter":
                     exporter_map[unit.id] = ExporterUnitSupport(unit)
         return exporter_map
 
     def prepare_manager_without_certification_status(self):
         return self._get_session_manager(
-            'unspecified', 'unspecified', 'unspecified')
+            "unspecified", "unspecified", "unspecified"
+        )
 
     def prepare_manager_with_certification_blocker(self):
         return self._get_session_manager(
-            'blocker', 'unspecified', 'unspecified')
+            "blocker", "unspecified", "unspecified"
+        )
 
     def prepare_manager_with_certification_non_blocker(self):
         return self._get_session_manager(
-            'non-blocker', 'unspecified', 'unspecified')
+            "non-blocker", "unspecified", "unspecified"
+        )
 
     def prepare_manager_with_both_certification_status(self):
         self.session_state.update_job_result(self.job2, self.result_fail)
         return self._get_session_manager(
-            'blocker', 'non-blocker', 'unspecified')
+            "blocker", "non-blocker", "unspecified"
+        )
 
     def test_perfect_match_without_certification_status(self):
         """
@@ -169,15 +190,17 @@ class HTMLExporterTests(TestCase):
             system_id="",
             timestamp="2012-12-21T12:00:00",
             client_version="Checkbox 1.0",
-            exporter_unit=self.exporter_unit)
+            exporter_unit=self.exporter_unit,
+        )
         stream = io.BytesIO()
         exporter.dump_from_session_manager(
-            self.prepare_manager_without_certification_status(), stream)
+            self.prepare_manager_without_certification_status(), stream
+        )
         actual_result = stream.getvalue()  # This is bytes
         self.assertIsInstance(actual_result, bytes)
         expected_result = resource_string(
             "plainbox",
-            "test-data/html-exporter/without_certification_status.html"
+            "test-data/html-exporter/without_certification_status.html",
         )  # unintuitively, resource_string returns bytes
         self.assertEqual(actual_result, expected_result)
 
@@ -190,15 +213,17 @@ class HTMLExporterTests(TestCase):
             system_id="",
             timestamp="2012-12-21T12:00:00",
             client_version="Checkbox 1.0",
-            exporter_unit=self.exporter_unit)
+            exporter_unit=self.exporter_unit,
+        )
         stream = io.BytesIO()
         exporter.dump_from_session_manager(
-            self.prepare_manager_with_certification_blocker(), stream)
+            self.prepare_manager_with_certification_blocker(), stream
+        )
         actual_result = stream.getvalue()  # This is bytes
         self.assertIsInstance(actual_result, bytes)
         expected_result = resource_string(
             "plainbox",
-            "test-data/html-exporter/with_certification_blocker.html"
+            "test-data/html-exporter/with_certification_blocker.html",
         )  # unintuitively, resource_string returns bytes
         self.assertEqual(actual_result, expected_result)
 
@@ -211,15 +236,17 @@ class HTMLExporterTests(TestCase):
             system_id="",
             timestamp="2012-12-21T12:00:00",
             client_version="Checkbox 1.0",
-            exporter_unit=self.exporter_unit)
+            exporter_unit=self.exporter_unit,
+        )
         stream = io.BytesIO()
         exporter.dump_from_session_manager(
-            self.prepare_manager_with_certification_non_blocker(), stream)
+            self.prepare_manager_with_certification_non_blocker(), stream
+        )
         actual_result = stream.getvalue()  # This is bytes
         self.assertIsInstance(actual_result, bytes)
         expected_result = resource_string(
             "plainbox",
-            "test-data/html-exporter/with_certification_non_blocker.html"
+            "test-data/html-exporter/with_certification_non_blocker.html",
         )  # unintuitively, resource_string returns bytes
         self.assertEqual(actual_result, expected_result)
 
@@ -232,14 +259,16 @@ class HTMLExporterTests(TestCase):
             system_id="",
             timestamp="2012-12-21T12:00:00",
             client_version="Checkbox 1.0",
-            exporter_unit=self.exporter_unit)
+            exporter_unit=self.exporter_unit,
+        )
         stream = io.BytesIO()
         exporter.dump_from_session_manager(
-            self.prepare_manager_with_both_certification_status(), stream)
+            self.prepare_manager_with_both_certification_status(), stream
+        )
         actual_result = stream.getvalue()  # This is bytes
         self.assertIsInstance(actual_result, bytes)
         expected_result = resource_string(
             "plainbox",
-            "test-data/html-exporter/with_both_certification_status.html"
+            "test-data/html-exporter/with_both_certification_status.html",
         )  # unintuitively, resource_string returns bytes
         self.assertEqual(actual_result, expected_result)

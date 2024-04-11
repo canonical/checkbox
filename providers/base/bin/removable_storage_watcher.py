@@ -10,29 +10,31 @@ import sys
 import threading
 
 import gi
-gi.require_version('GUdev', '1.0')
+
+gi.require_version("GUdev", "1.0")
 from gi.repository import GObject, GUdev  # noqa: E402
 
-from checkbox_support.dbus import connect_to_system_bus         # noqa: E402
-from checkbox_support.dbus.udisks2 import UDisks2Model          # noqa: E402
-from checkbox_support.dbus.udisks2 import UDisks2Observer       # noqa: E402
+from checkbox_support.dbus import connect_to_system_bus  # noqa: E402
+from checkbox_support.dbus.udisks2 import UDisks2Model  # noqa: E402
+from checkbox_support.dbus.udisks2 import UDisks2Observer  # noqa: E402
 from checkbox_support.dbus.udisks2 import is_udisks2_supported  # noqa: E402
-from checkbox_support.dbus.udisks2 import lookup_udev_device    # noqa: E402
-from checkbox_support.dbus.udisks2 import (                     # noqa: E402
-    map_udisks1_connection_bus)  # noqa: E402
+from checkbox_support.dbus.udisks2 import lookup_udev_device  # noqa: E402
+from checkbox_support.dbus.udisks2 import (  # noqa: E402
+    map_udisks1_connection_bus,
+)  # noqa: E402
 from checkbox_support.heuristics.udisks2 import is_memory_card  # noqa: E402
-from checkbox_support.parsers.udevadm import CARD_READER_RE     # noqa: E402
-from checkbox_support.parsers.udevadm import GENERIC_RE         # noqa: E402
-from checkbox_support.parsers.udevadm import FLASH_RE           # noqa: E402
-from checkbox_support.scripts.zapper_proxy import (             # noqa: E402
-    zapper_run)
-from checkbox_support.udev import get_interconnect_speed        # noqa: E402
-from checkbox_support.udev import get_udev_block_devices        # noqa: E402
+from checkbox_support.parsers.udevadm import CARD_READER_RE  # noqa: E402
+from checkbox_support.parsers.udevadm import GENERIC_RE  # noqa: E402
+from checkbox_support.parsers.udevadm import FLASH_RE  # noqa: E402
+from checkbox_support.scripts.zapper_proxy import zapper_run  # noqa: E402
+from checkbox_support.udev import get_interconnect_speed  # noqa: E402
+from checkbox_support.udev import get_udev_block_devices  # noqa: E402
 
 # Record representing properties of a UDisks1 Drive object needed by the
 # UDisks1 version of the watcher implementation
 UDisks1DriveProperties = collections.namedtuple(
-    'UDisks1DriveProperties', 'file bus speed model vendor media')
+    "UDisks1DriveProperties", "file bus speed model vendor media"
+)
 
 # Delta record that encapsulates difference:
 # delta_dir -- directon of the difference, either DELTA_DIR_PLUS or
@@ -43,21 +45,21 @@ DeltaRecord = collections.namedtuple("DeltaRecord", "delta_dir value")
 
 # Delta value for representing interface changes
 InterfaceDelta = collections.namedtuple(
-    "InterfaceDelta",
-    "delta_type object_path iface_name")
+    "InterfaceDelta", "delta_type object_path iface_name"
+)
 
 # Delta value for representing property changes
 PropertyDelta = collections.namedtuple(
-    "PropertyDelta",
-    "delta_type object_path iface_name prop_name prop_value")
+    "PropertyDelta", "delta_type object_path iface_name prop_name prop_value"
+)
 
 # Tokens that encode additions and removals
-DELTA_DIR_PLUS = '+'
-DELTA_DIR_MINUS = '-'
+DELTA_DIR_PLUS = "+"
+DELTA_DIR_MINUS = "-"
 
 # Tokens that encode interface and property deltas
-DELTA_TYPE_IFACE = 'i'
-DELTA_TYPE_PROP = 'p'
+DELTA_TYPE_IFACE = "i"
+DELTA_TYPE_PROP = "p"
 
 
 def format_bytes(size):
@@ -76,8 +78,9 @@ def format_bytes(size):
 
 class UDisks1StorageDeviceListener:
 
-    def __init__(self, system_bus, loop, action, devices, minimum_speed,
-                 memorycard):
+    def __init__(
+        self, system_bus, loop, action, devices, minimum_speed, memorycard
+    ):
         self._action = action
         self._devices = devices
         self._minimum_speed = minimum_speed
@@ -88,27 +91,30 @@ class UDisks1StorageDeviceListener:
         self._change_cache = []
 
     def check(self, timeout):
-        udisks = 'org.freedesktop.UDisks'
-        if self._action == 'insert':
-            signal = 'DeviceAdded'
+        udisks = "org.freedesktop.UDisks"
+        if self._action == "insert":
+            signal = "DeviceAdded"
             logging.debug("Adding signal listener for %s.%s", udisks, signal)
-            self._bus.add_signal_receiver(self.add_detected,
-                                          signal_name=signal,
-                                          dbus_interface=udisks)
-        elif self._action == 'remove':
-            signal = 'DeviceRemoved'
+            self._bus.add_signal_receiver(
+                self.add_detected, signal_name=signal, dbus_interface=udisks
+            )
+        elif self._action == "remove":
+            signal = "DeviceRemoved"
             logging.debug("Adding signal listener for %s.%s", udisks, signal)
-            self._bus.add_signal_receiver(self.remove_detected,
-                                          signal_name=signal,
-                                          dbus_interface=udisks)
+            self._bus.add_signal_receiver(
+                self.remove_detected, signal_name=signal, dbus_interface=udisks
+            )
 
         self._starting_devices = self.get_existing_devices()
-        logging.debug("Starting with the following devices: %r",
-                      self._starting_devices)
+        logging.debug(
+            "Starting with the following devices: %r", self._starting_devices
+        )
 
         def timeout_callback():
-            print("%s seconds have expired "
-                  "waiting for the device to be inserted." % timeout)
+            print(
+                "%s seconds have expired "
+                "waiting for the device to be inserted." % timeout
+            )
             self._error = True
             self._loop.quit()
 
@@ -124,71 +130,98 @@ class UDisks1StorageDeviceListener:
         # Filter the applicable bus types, as provided on the command line
         # (values of self._devices can be 'usb', 'firewire', etc)
         desired_bus_devices = [
-            device
-            for device in changed_devices
-            if device.bus in self._devices]
+            device for device in changed_devices if device.bus in self._devices
+        ]
         logging.debug("Desired bus devices: %s", desired_bus_devices)
         for dev in desired_bus_devices:
             if self._memorycard:
                 if (
-                    dev.bus != 'sdio' and
-                    not FLASH_RE.search(dev.media) and
-                    not CARD_READER_RE.search(dev.model) and
-                    not GENERIC_RE.search(dev.vendor)
+                    dev.bus != "sdio"
+                    and not FLASH_RE.search(dev.media)
+                    and not CARD_READER_RE.search(dev.model)
+                    and not GENERIC_RE.search(dev.vendor)
                 ):
                     logging.debug(
                         "The device does not seem to be a memory"
                         " card (bus: %r, model: %r), skipping",
-                        dev.bus, dev.model)
+                        dev.bus,
+                        dev.model,
+                    )
                     return
-                print(message % {'bus': 'memory card', 'file': dev.file})
+                print(message % {"bus": "memory card", "file": dev.file})
             else:
                 if (
-                    FLASH_RE.search(dev.media) or
-                    CARD_READER_RE.search(dev.model) or
-                    GENERIC_RE.search(dev.vendor)
+                    FLASH_RE.search(dev.media)
+                    or CARD_READER_RE.search(dev.model)
+                    or GENERIC_RE.search(dev.vendor)
                 ):
-                    logging.debug("The device seems to be a memory"
-                                  " card (bus: %r (model: %r), skipping",
-                                  dev.bus, dev.model)
+                    logging.debug(
+                        "The device seems to be a memory"
+                        " card (bus: %r (model: %r), skipping",
+                        dev.bus,
+                        dev.model,
+                    )
                     return
-                print(message % {'bus': dev.bus, 'file': dev.file})
+                print(message % {"bus": dev.bus, "file": dev.file})
             if self._minimum_speed:
                 if dev.speed >= self._minimum_speed:
-                    print("with speed of %(speed)s bits/s "
-                          "higher than %(min_speed)s bits/s" %
-                          {'speed': dev.speed,
-                           'min_speed': self._minimum_speed})
+                    print(
+                        "with speed of %(speed)s bits/s "
+                        "higher than %(min_speed)s bits/s"
+                        % {
+                            "speed": dev.speed,
+                            "min_speed": self._minimum_speed,
+                        }
+                    )
                 else:
-                    print("ERROR: speed of %(speed)s bits/s lower "
-                          "than %(min_speed)s bits/s" %
-                          {'speed': dev.speed,
-                           'min_speed': self._minimum_speed})
+                    print(
+                        "ERROR: speed of %(speed)s bits/s lower "
+                        "than %(min_speed)s bits/s"
+                        % {
+                            "speed": dev.speed,
+                            "min_speed": self._minimum_speed,
+                        }
+                    )
                     self._error = True
             logging.debug("Device matches requirements, exiting event loop")
             self._loop.quit()
 
-    def job_change_detected(self, devices, job_in_progress, job_id,
-                            job_num_tasks, job_cur_task_id,
-                            job_cur_task_percentage):
-        logging.debug("UDisks1 reports a job change has been detected:"
-                      " devices: %s, job_in_progress: %s, job_id: %s,"
-                      " job_num_tasks: %s, job_cur_task_id: %s,"
-                      " job_cur_task_percentage: %s",
-                      devices, job_in_progress, job_id, job_num_tasks,
-                      job_cur_task_id, job_cur_task_percentage)
+    def job_change_detected(
+        self,
+        devices,
+        job_in_progress,
+        job_id,
+        job_num_tasks,
+        job_cur_task_id,
+        job_cur_task_percentage,
+    ):
+        logging.debug(
+            "UDisks1 reports a job change has been detected:"
+            " devices: %s, job_in_progress: %s, job_id: %s,"
+            " job_num_tasks: %s, job_cur_task_id: %s,"
+            " job_cur_task_percentage: %s",
+            devices,
+            job_in_progress,
+            job_id,
+            job_num_tasks,
+            job_cur_task_id,
+            job_cur_task_percentage,
+        )
         if job_id == "FilesystemMount":
             if devices in self._change_cache:
-                logging.debug("Ignoring filesystem mount,"
-                              " the device is present in change cache")
+                logging.debug(
+                    "Ignoring filesystem mount,"
+                    " the device is present in change cache"
+                )
                 return
             logging.debug("Adding devices to change cache: %r", devices)
             self._change_cache.append(devices)
             logging.debug("Starting devices were: %s", self._starting_devices)
             current_devices = self.get_existing_devices()
             logging.debug("Current devices are: %s", current_devices)
-            inserted_devices = list(set(current_devices) -
-                                    set(self._starting_devices))
+            inserted_devices = list(
+                set(current_devices) - set(self._starting_devices)
+            )
             logging.debug("Computed inserted devices: %s", inserted_devices)
             if self._memorycard:
                 message = "Expected memory card device %(file)s inserted"
@@ -200,54 +233,65 @@ class UDisks1StorageDeviceListener:
         logging.debug("UDisks1 reports device has been added: %s", added_path)
         logging.debug("Resetting change_cache to []")
         self._change_cache = []
-        signal_name = 'DeviceJobChanged'
-        dbus_interface = 'org.freedesktop.UDisks'
-        logging.debug("Adding signal listener for %s.%s",
-                      dbus_interface, signal_name)
-        self._bus.add_signal_receiver(self.job_change_detected,
-                                      signal_name=signal_name,
-                                      dbus_interface=dbus_interface)
+        signal_name = "DeviceJobChanged"
+        dbus_interface = "org.freedesktop.UDisks"
+        logging.debug(
+            "Adding signal listener for %s.%s", dbus_interface, signal_name
+        )
+        self._bus.add_signal_receiver(
+            self.job_change_detected,
+            signal_name=signal_name,
+            dbus_interface=dbus_interface,
+        )
 
     def remove_detected(self, removed_path):
-        logging.debug("UDisks1 reports device has been removed: %s",
-                      removed_path)
+        logging.debug(
+            "UDisks1 reports device has been removed: %s", removed_path
+        )
 
         logging.debug("Starting devices were: %s", self._starting_devices)
         current_devices = self.get_existing_devices()
         logging.debug("Current devices are: %s", current_devices)
-        removed_devices = list(set(self._starting_devices) -
-                               set(current_devices))
+        removed_devices = list(
+            set(self._starting_devices) - set(current_devices)
+        )
         logging.debug("Computed removed devices: %s", removed_devices)
         self.verify_device_change(
             removed_devices,
-            message="Removable %(bus)s device %(file)s has been removed")
+            message="Removable %(bus)s device %(file)s has been removed",
+        )
 
     def get_existing_devices(self):
         logging.debug("Getting existing devices from UDisks1")
-        ud_manager_obj = self._bus.get_object("org.freedesktop.UDisks",
-                                              "/org/freedesktop/UDisks")
-        ud_manager = dbus.Interface(ud_manager_obj, 'org.freedesktop.UDisks')
+        ud_manager_obj = self._bus.get_object(
+            "org.freedesktop.UDisks", "/org/freedesktop/UDisks"
+        )
+        ud_manager = dbus.Interface(ud_manager_obj, "org.freedesktop.UDisks")
         existing_devices = []
         for dev in ud_manager.EnumerateDevices():
             try:
-                device_obj = self._bus.get_object("org.freedesktop.UDisks",
-                                                  dev)
-                device_props = dbus.Interface(device_obj,
-                                              dbus.PROPERTIES_IFACE)
-                udisks = 'org.freedesktop.UDisks.Device'
+                device_obj = self._bus.get_object(
+                    "org.freedesktop.UDisks", dev
+                )
+                device_props = dbus.Interface(
+                    device_obj, dbus.PROPERTIES_IFACE
+                )
+                udisks = "org.freedesktop.UDisks.Device"
                 _device_file = device_props.Get(udisks, "DeviceFile")
                 _bus = device_props.Get(udisks, "DriveConnectionInterface")
                 _speed = device_props.Get(udisks, "DriveConnectionSpeed")
-                _parent_model = ''
-                _parent_media = ''
-                _parent_vendor = ''
+                _parent_model = ""
+                _parent_media = ""
+                _parent_vendor = ""
 
                 if device_props.Get(udisks, "DeviceIsPartition"):
                     parent_obj = self._bus.get_object(
                         "org.freedesktop.UDisks",
-                        device_props.Get(udisks, "PartitionSlave"))
+                        device_props.Get(udisks, "PartitionSlave"),
+                    )
                     parent_props = dbus.Interface(
-                        parent_obj, dbus.PROPERTIES_IFACE)
+                        parent_obj, dbus.PROPERTIES_IFACE
+                    )
                     _parent_model = parent_props.Get(udisks, "DriveModel")
                     _parent_vendor = parent_props.Get(udisks, "DriveVendor")
                     _parent_media = parent_props.Get(udisks, "DriveMedia")
@@ -259,7 +303,8 @@ class UDisks1StorageDeviceListener:
                         speed=int(_speed),
                         model=str(_parent_model),
                         vendor=str(_parent_vendor),
-                        media=str(_parent_media))
+                        media=str(_parent_media),
+                    )
                     existing_devices.append(device)
 
             except dbus.DBusException:
@@ -304,25 +349,35 @@ def udisks2_objects_delta(old, new):
                 # Report each ADDED interface
                 assert iface_name in new_object
                 delta_value = InterfaceDelta(
-                    DELTA_TYPE_IFACE, object_path, iface_name)
+                    DELTA_TYPE_IFACE, object_path, iface_name
+                )
                 yield DeltaRecord(DELTA_DIR_PLUS, delta_value)
                 # Report all properties ADDED on that interface
                 for prop_name, prop_value in new_object[iface_name].items():
-                    delta_value = PropertyDelta(DELTA_TYPE_PROP, object_path,
-                                                iface_name, prop_name,
-                                                prop_value)
+                    delta_value = PropertyDelta(
+                        DELTA_TYPE_PROP,
+                        object_path,
+                        iface_name,
+                        prop_name,
+                        prop_value,
+                    )
                     yield DeltaRecord(DELTA_DIR_PLUS, delta_value)
             elif iface_name not in new_object and iface_name in old_object:
                 # Report each REMOVED interface
                 assert iface_name in old_object
                 delta_value = InterfaceDelta(
-                    DELTA_TYPE_IFACE, object_path, iface_name)
+                    DELTA_TYPE_IFACE, object_path, iface_name
+                )
                 yield DeltaRecord(DELTA_DIR_MINUS, delta_value)
                 # Report all properties REMOVED on that interface
                 for prop_name, prop_value in old_object[iface_name].items():
-                    delta_value = PropertyDelta(DELTA_TYPE_PROP, object_path,
-                                                iface_name, prop_name,
-                                                prop_value)
+                    delta_value = PropertyDelta(
+                        DELTA_TYPE_PROP,
+                        object_path,
+                        iface_name,
+                        prop_name,
+                        prop_value,
+                    )
                     yield DeltaRecord(DELTA_DIR_MINUS, delta_value)
             else:
                 # Analyze properties of each interface that existed both in old
@@ -339,26 +394,48 @@ def udisks2_objects_delta(old, new):
                     if prop_name not in old_props and prop_name in new_props:
                         # Report each ADDED property
                         delta_value = PropertyDelta(
-                            DELTA_TYPE_PROP, object_path, iface_name,
-                            prop_name, new_props[prop_name])
+                            DELTA_TYPE_PROP,
+                            object_path,
+                            iface_name,
+                            prop_name,
+                            new_props[prop_name],
+                        )
                         yield DeltaRecord(DELTA_DIR_PLUS, delta_value)
                     elif prop_name not in new_props and prop_name in old_props:
                         # Report each REMOVED property
                         delta_value = PropertyDelta(
-                            DELTA_TYPE_PROP, object_path, iface_name,
-                            prop_name, old_props[prop_name])
+                            DELTA_TYPE_PROP,
+                            object_path,
+                            iface_name,
+                            prop_name,
+                            old_props[prop_name],
+                        )
                         yield DeltaRecord(DELTA_DIR_MINUS, delta_value)
                     else:
                         old_value = old_props[prop_name]
                         new_value = new_props[prop_name]
                         if old_value != new_value:
                             # Report each changed property
-                            yield DeltaRecord(DELTA_DIR_MINUS, PropertyDelta(
-                                DELTA_TYPE_PROP, object_path, iface_name,
-                                prop_name, old_value))
-                            yield DeltaRecord(DELTA_DIR_PLUS, PropertyDelta(
-                                DELTA_TYPE_PROP, object_path, iface_name,
-                                prop_name, new_value))
+                            yield DeltaRecord(
+                                DELTA_DIR_MINUS,
+                                PropertyDelta(
+                                    DELTA_TYPE_PROP,
+                                    object_path,
+                                    iface_name,
+                                    prop_name,
+                                    old_value,
+                                ),
+                            )
+                            yield DeltaRecord(
+                                DELTA_DIR_PLUS,
+                                PropertyDelta(
+                                    DELTA_TYPE_PROP,
+                                    object_path,
+                                    iface_name,
+                                    prop_name,
+                                    new_value,
+                                ),
+                            )
 
 
 class UDisks2StorageDeviceListener:
@@ -421,15 +498,24 @@ class UDisks2StorageDeviceListener:
     # Name of the DBus property provided by the "Drive" interface above
     UDISKS2_DRIVE_PROPERTY_CONNECTION_BUS = "ConnectionBus"
 
-    def __init__(self, system_bus, loop, action, devices, minimum_speed,
-                 memorycard, unmounted=False):
+    def __init__(
+        self,
+        system_bus,
+        loop,
+        action,
+        devices,
+        minimum_speed,
+        memorycard,
+        unmounted=False,
+    ):
         # Store the desired minimum speed of the device in Mbit/s. The argument
         # is passed as the number of bits per second so let's fix that.
-        self._desired_minimum_speed = minimum_speed / 10 ** 6
+        self._desired_minimum_speed = minimum_speed / 10**6
         # Compute the allowed UDisks2.Drive.ConnectionBus value based on the
         # legacy arguments passed from the command line.
-        self._desired_connection_buses = set([
-            map_udisks1_connection_bus(device) for device in devices])
+        self._desired_connection_buses = set(
+            [map_udisks1_connection_bus(device) for device in devices]
+        )
         # Check if we are explicitly looking for memory cards
         self._desired_memory_card = memorycard
         # Store information whether we also want detected, but unmounted
@@ -482,9 +568,11 @@ class UDisks2StorageDeviceListener:
         for udev_device in self._reference_udev_devices:
             interconnect_speed = get_interconnect_speed(udev_device)
             if interconnect_speed:
-                logging.debug(" - %s (USB %dMBit/s)",
-                              udev_device.get_device_file(),
-                              interconnect_speed)
+                logging.debug(
+                    " - %s (USB %dMBit/s)",
+                    udev_device.get_device_file(),
+                    interconnect_speed,
+                )
             else:
                 logging.debug(" - %s", udev_device.get_device_file())
 
@@ -515,7 +603,8 @@ class UDisks2StorageDeviceListener:
         self._ignored_objects = set()
         # Get the reference snapshot of available udev devices
         self._reference_udev_devices = get_udev_block_devices(
-            self._udev_client)
+            self._udev_client
+        )
         self._dump_reference_udev_devices()
         # Start the loop and wait. The loop will exit either when:
         # 1) A proper device has been detected (either insertion or removal)
@@ -548,8 +637,11 @@ class UDisks2StorageDeviceListener:
         # If the changes are what we wanted stop the loop
         matching_devices = self._get_matching_devices(delta_records)
         if matching_devices:
-            print("Expected device manipulation complete: {}".format(
-                ', '.join(matching_devices)))
+            print(
+                "Expected device manipulation complete: {}".format(
+                    ", ".join(matching_devices)
+                )
+            )
             # And call it a day
             self._loop.quit()
 
@@ -575,9 +667,9 @@ class UDisks2StorageDeviceListener:
             # Skip objects we already ignored and complained about before
             if object_path in self._ignored_objects:
                 continue
-            needs = set(('block-fs', 'partition', 'non-empty'))
+            needs = set(("block-fs", "partition", "non-empty"))
             if not self._allow_unmounted:
-                needs.add('mounted')
+                needs.add("mounted")
 
             # As a special exception when the ConnectionBus is allowed to be
             # empty, as is the case with eSATA devices, do not require the
@@ -593,62 +685,70 @@ class UDisks2StorageDeviceListener:
                 # For devices with empty "ConnectionBus" property, don't
                 # require the device to be mounted
                 if (
-                    record.value.iface_name ==
-                    "org.freedesktop.UDisks2.Drive" and
-                    record.value.delta_type == DELTA_TYPE_PROP and
-                    record.value.prop_name == "ConnectionBus" and
-                    record.value.prop_value == ""
+                    record.value.iface_name == "org.freedesktop.UDisks2.Drive"
+                    and record.value.delta_type == DELTA_TYPE_PROP
+                    and record.value.prop_name == "ConnectionBus"
+                    and record.value.prop_value == ""
                 ):
-                    needs.remove('mounted')
+                    needs.remove("mounted")
                 # Detect block devices designated for filesystems
                 if (
-                    record.value.iface_name ==
-                    "org.freedesktop.UDisks2.Block" and
-                    record.value.delta_type == DELTA_TYPE_PROP and
-                    record.value.prop_name == "IdUsage" and
-                    record.value.prop_value == "filesystem"
+                    record.value.iface_name == "org.freedesktop.UDisks2.Block"
+                    and record.value.delta_type == DELTA_TYPE_PROP
+                    and record.value.prop_name == "IdUsage"
+                    and record.value.prop_value == "filesystem"
                 ):
-                    found.add('block-fs')
+                    found.add("block-fs")
                 # Memorize the block device path
                 elif (
-                    record.value.iface_name ==
-                    "org.freedesktop.UDisks2.Block" and
-                    record.value.delta_type == DELTA_TYPE_PROP and
-                    record.value.prop_name == "PreferredDevice"
+                    record.value.iface_name == "org.freedesktop.UDisks2.Block"
+                    and record.value.delta_type == DELTA_TYPE_PROP
+                    and record.value.prop_name == "PreferredDevice"
                 ):
                     object_block_device = record.value.prop_value
                 # Ensure the device is a partition
-                elif (record.value.iface_name ==
-                      "org.freedesktop.UDisks2.Partition" and
-                      record.value.delta_type == DELTA_TYPE_IFACE):
-                    found.add('partition')
+                elif (
+                    record.value.iface_name
+                    == "org.freedesktop.UDisks2.Partition"
+                    and record.value.delta_type == DELTA_TYPE_IFACE
+                ):
+                    found.add("partition")
                 # Ensure the device is not empty
-                elif (record.value.iface_name ==
-                      "org.freedesktop.UDisks2.Block" and
-                      record.value.delta_type == DELTA_TYPE_PROP and
-                      record.value.prop_name == "Size" and
-                      record.value.prop_value > 0):
-                    found.add('non-empty')
+                elif (
+                    record.value.iface_name == "org.freedesktop.UDisks2.Block"
+                    and record.value.delta_type == DELTA_TYPE_PROP
+                    and record.value.prop_name == "Size"
+                    and record.value.prop_value > 0
+                ):
+                    found.add("non-empty")
                 # Ensure the filesystem is mounted
-                elif (record.value.iface_name ==
-                      "org.freedesktop.UDisks2.Filesystem" and
-                      record.value.delta_type == DELTA_TYPE_PROP and
-                      record.value.prop_name == "MountPoints" and
-                      record.value.prop_value != []):
-                    found.add('mounted')
+                elif (
+                    record.value.iface_name
+                    == "org.freedesktop.UDisks2.Filesystem"
+                    and record.value.delta_type == DELTA_TYPE_PROP
+                    and record.value.prop_name == "MountPoints"
+                    and record.value.prop_value != []
+                ):
+                    found.add("mounted")
                     # On some systems partition are reported as mounted
                     # filesystems, without 'partition' record
-                    if set(['partition']).issubset(needs):
-                        needs.remove('partition')
+                    if set(["partition"]).issubset(needs):
+                        needs.remove("partition")
                 # Finally memorize the drive the block device belongs to
-                elif (record.value.iface_name ==
-                      "org.freedesktop.UDisks2.Block" and
-                      record.value.delta_type == DELTA_TYPE_PROP and
-                      record.value.prop_name == "Drive"):
+                elif (
+                    record.value.iface_name == "org.freedesktop.UDisks2.Block"
+                    and record.value.delta_type == DELTA_TYPE_PROP
+                    and record.value.prop_name == "Drive"
+                ):
                     drive_object_path = record.value.prop_value
-            logging.debug("Finished analyzing %s, found: %s, needs: %s"
-                          " drive_object_path: %s", object_path, found, needs,
-                          drive_object_path)
+            logging.debug(
+                "Finished analyzing %s, found: %s, needs: %s"
+                " drive_object_path: %s",
+                object_path,
+                found,
+                needs,
+                drive_object_path,
+            )
             if not needs.issubset(found) or drive_object_path is None:
                 continue
             # We've found our candidate, let's look at the drive it belongs
@@ -664,37 +764,46 @@ class UDisks2StorageDeviceListener:
                     drive_object = self._reference_objects[drive_object_path]
                 except KeyError:
                     logging.error(
-                        "A block device belongs to a drive we could not find")
+                        "A block device belongs to a drive we could not find"
+                    )
                     logging.error("missing drive: %r", drive_object_path)
                     continue
             try:
                 drive_props = drive_object["org.freedesktop.UDisks2.Drive"]
             except KeyError:
                 logging.error(
-                    "A block device belongs to an object that is not a Drive")
+                    "A block device belongs to an object that is not a Drive"
+                )
                 logging.error("strange object: %r", drive_object_path)
                 continue
             # Ensure the drive is on the appropriate bus
             connection_bus = drive_props["ConnectionBus"]
             if connection_bus not in self._desired_connection_buses:
-                logging.warning("The object %r belongs to drive %r that"
-                                " is attached to the bus %r but but we are"
-                                " looking for one of %r so it cannot match",
-                                object_block_device, drive_object_path,
-                                connection_bus,
-                                ", ".join(self._desired_connection_buses))
+                logging.warning(
+                    "The object %r belongs to drive %r that"
+                    " is attached to the bus %r but but we are"
+                    " looking for one of %r so it cannot match",
+                    object_block_device,
+                    drive_object_path,
+                    connection_bus,
+                    ", ".join(self._desired_connection_buses),
+                )
                 # Ignore this object so that we don't spam the user twice
                 self._ignored_objects.add(object_path)
                 continue
             # Ensure it is a media card reader if this was explicitly requested
             drive_is_reader = is_memory_card(
-                drive_props['Vendor'], drive_props['Model'],
-                drive_props['Media'])
+                drive_props["Vendor"],
+                drive_props["Model"],
+                drive_props["Media"],
+            )
             if self._desired_memory_card and not drive_is_reader:
                 logging.warning(
                     "The object %s belongs to drive %s that does not seem to"
-                    " be a media reader", object_block_device,
-                    drive_object_path)
+                    " be a media reader",
+                    object_block_device,
+                    drive_object_path,
+                )
                 # Ignore this object so that we don't spam the user twice
                 self._ignored_objects.add(object_path)
                 continue
@@ -727,11 +836,14 @@ class UDisks2StorageDeviceListener:
                     # Try to locate the corresponding udev device among the
                     # collection we've selected. Use the drive object as the
                     # key -- this looks for the drive, not partition objects!
-                    udev_device = lookup_udev_device(udisks2_object,
-                                                     udev_devices)
+                    udev_device = lookup_udev_device(
+                        udisks2_object, udev_devices
+                    )
                 except LookupError:
-                    logging.error("Unable to map UDisks2 object %s to udev",
-                                  object_block_device)
+                    logging.error(
+                        "Unable to map UDisks2 object %s to udev",
+                        object_block_device,
+                    )
                     # Ignore this object so that we don't spam the user twice
                     self._ignored_objects.add(object_path)
                     continue
@@ -739,8 +851,11 @@ class UDisks2StorageDeviceListener:
                 # Now that we know the speed of the interconnect we can try to
                 # validate it against our desired speed.
                 if interconnect_speed is None:
-                    logging.warning("Unable to determine interconnect speed of"
-                                    " device %s", object_block_device)
+                    logging.warning(
+                        "Unable to determine interconnect speed of"
+                        " device %s",
+                        object_block_device,
+                    )
                     # Ignore this object so that we don't spam the user twice
                     self._ignored_objects.add(object_path)
                     continue
@@ -748,15 +863,21 @@ class UDisks2StorageDeviceListener:
                     logging.warning(
                         "Device %s is connected via an interconnect that has"
                         " the speed of %dMbit/s but the required speed was"
-                        " %dMbit/s", object_block_device, interconnect_speed,
-                        self._desired_minimum_speed)
+                        " %dMbit/s",
+                        object_block_device,
+                        interconnect_speed,
+                        self._desired_minimum_speed,
+                    )
                     # Ignore this object so that we don't spam the user twice
                     self._ignored_objects.add(object_path)
                     continue
                 else:
-                    logging.info("Device %s is connected via an USB"
-                                 " interconnect with the speed of %dMbit/s",
-                                 object_block_device, interconnect_speed)
+                    logging.info(
+                        "Device %s is connected via an USB"
+                        " interconnect with the speed of %dMbit/s",
+                        object_block_device,
+                        interconnect_speed,
+                    )
             # Yay, success
             results.add(object_block_device)
         return results
@@ -781,9 +902,11 @@ class UDisks2StorageDeviceListener:
         called whenever _on_change() gets called. Only visible in verbose mode
         """
         # Filter out anything but interface changes
-        flat_records = [record
-                        for record in delta_records
-                        if record.value.delta_type == DELTA_TYPE_IFACE]
+        flat_records = [
+            record
+            for record in delta_records
+            if record.value.delta_type == DELTA_TYPE_IFACE
+        ]
         # Group changes by DBus object path
         grouped_records = collections.defaultdict(list)
         for record in flat_records:
@@ -801,10 +924,15 @@ class UDisks2StorageDeviceListener:
         for object_path in sorted(grouped_records.keys()):
             records_for_object = sorted(
                 grouped_records[object_path],
-                key=lambda record: record.value.iface_name)
+                key=lambda record: record.value.iface_name,
+            )
             # Skip any job objects as they just add noise
-            if any((record.value.iface_name == "org.freedesktop.UDisks2.Job"
-                    for record in records_for_object)):
+            if any(
+                (
+                    record.value.iface_name == "org.freedesktop.UDisks2.Job"
+                    for record in records_for_object
+                )
+            ):
                 continue
             logging.info("For object %s", object_path)
             for record in records_for_object:
@@ -825,64 +953,106 @@ class UDisks2StorageDeviceListener:
                 # interface change
                 if iface_name == "org.freedesktop.UDisks2.Drive":
                     logging.info("\t * %s a drive", action)
-                    logging.info("\t   vendor and name: %r %r",
-                                 props['Vendor'], props['Model'])
-                    logging.info("\t   bus: %s", props['ConnectionBus'])
-                    logging.info("\t   size: %s", format_bytes(props['Size']))
-                    logging.info("\t   is media card: %s", is_memory_card(
-                        props['Vendor'], props['Model'], props['Media']))
-                    logging.info("\t   current media: %s",
-                                 props['Media'] or "???" if
-                                 props['MediaAvailable'] else "N/A")
+                    logging.info(
+                        "\t   vendor and name: %r %r",
+                        props["Vendor"],
+                        props["Model"],
+                    )
+                    logging.info("\t   bus: %s", props["ConnectionBus"])
+                    logging.info("\t   size: %s", format_bytes(props["Size"]))
+                    logging.info(
+                        "\t   is media card: %s",
+                        is_memory_card(
+                            props["Vendor"], props["Model"], props["Media"]
+                        ),
+                    )
+                    logging.info(
+                        "\t   current media: %s",
+                        (
+                            props["Media"] or "???"
+                            if props["MediaAvailable"]
+                            else "N/A"
+                        ),
+                    )
                 elif iface_name == "org.freedesktop.UDisks2.Block":
                     logging.info("\t * %s block device", action)
-                    logging.info("\t   from drive: %s", props['Drive'])
-                    logging.info("\t   having device: %s", props['Device'])
-                    logging.info("\t   having usage, type and version:"
-                                 " %s %s %s", props['IdUsage'],
-                                 props['IdType'], props['IdVersion'])
-                    logging.info("\t   having label: %s", props['IdLabel'])
+                    logging.info("\t   from drive: %s", props["Drive"])
+                    logging.info("\t   having device: %s", props["Device"])
+                    logging.info(
+                        "\t   having usage, type and version:" " %s %s %s",
+                        props["IdUsage"],
+                        props["IdType"],
+                        props["IdVersion"],
+                    )
+                    logging.info("\t   having label: %s", props["IdLabel"])
                 elif iface_name == "org.freedesktop.UDisks2.PartitionTable":
                     logging.info("\t * %s partition table", action)
-                    logging.info("\t   having type: %r", props['Type'])
+                    logging.info("\t   having type: %r", props["Type"])
                 elif iface_name == "org.freedesktop.UDisks2.Partition":
                     logging.info("\t * %s partition", action)
-                    logging.info("\t   from partition table: %s",
-                                 props['Table'])
-                    logging.info("\t   having size: %s",
-                                 format_bytes(props['Size']))
-                    logging.info("\t   having name: %r", props['Name'])
+                    logging.info(
+                        "\t   from partition table: %s", props["Table"]
+                    )
+                    logging.info(
+                        "\t   having size: %s", format_bytes(props["Size"])
+                    )
+                    logging.info("\t   having name: %r", props["Name"])
                 elif iface_name == "org.freedesktop.UDisks2.Filesystem":
                     logging.info("\t * %s file system", action)
-                    logging.info("\t   having mount points: %r",
-                                 props['MountPoints'])
+                    logging.info(
+                        "\t   having mount points: %r", props["MountPoints"]
+                    )
 
 
 def main():
     description = "Wait for the specified device to be inserted or removed."
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('action', choices=['insert', 'remove'])
+    parser.add_argument("action", choices=["insert", "remove"])
     parser.add_argument(
-        'device', choices=['usb', 'sdio', 'firewire', 'scsi',
-                           'ata_serial_esata'], nargs="+")
-    memorycard_help = ("Memory cards devices on bus other than sdio require "
-                       "this parameter to identify them as such")
-    parser.add_argument('--memorycard', action="store_true",
-                        help=memorycard_help)
-    parser.add_argument('--timeout', type=int, default=20)
-    min_speed_help = ("Will only accept a device if its connection speed "
-                      "attribute is higher than this value "
-                      "(in bits/s)")
-    parser.add_argument('--minimum_speed', '-m', help=min_speed_help,
-                        type=int, default=0)
-    parser.add_argument('--verbose', action='store_const', const=logging.INFO,
-                        dest='logging_level', help="Enable verbose output")
-    parser.add_argument('--debug', action='store_const', const=logging.DEBUG,
-                        dest='logging_level', help="Enable debugging")
-    parser.add_argument('--unmounted', action='store_true',
-                        help="Don't require drive being automounted")
-    parser.add_argument('--zapper-usb-address', type=str,
-                        help="Zapper's USB switch address to use")
+        "device",
+        choices=["usb", "sdio", "firewire", "scsi", "ata_serial_esata"],
+        nargs="+",
+    )
+    memorycard_help = (
+        "Memory cards devices on bus other than sdio require "
+        "this parameter to identify them as such"
+    )
+    parser.add_argument(
+        "--memorycard", action="store_true", help=memorycard_help
+    )
+    parser.add_argument("--timeout", type=int, default=20)
+    min_speed_help = (
+        "Will only accept a device if its connection speed "
+        "attribute is higher than this value "
+        "(in bits/s)"
+    )
+    parser.add_argument(
+        "--minimum_speed", "-m", help=min_speed_help, type=int, default=0
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_const",
+        const=logging.INFO,
+        dest="logging_level",
+        help="Enable verbose output",
+    )
+    parser.add_argument(
+        "--debug",
+        action="store_const",
+        const=logging.DEBUG,
+        dest="logging_level",
+        help="Enable debugging",
+    )
+    parser.add_argument(
+        "--unmounted",
+        action="store_true",
+        help="Don't require drive being automounted",
+    )
+    parser.add_argument(
+        "--zapper-usb-address",
+        type=str,
+        help="Zapper's USB switch address to use",
+    )
     parser.set_defaults(logging_level=logging.WARNING)
     args = parser.parse_args()
 
@@ -892,7 +1062,8 @@ def main():
     # configuration and I didn't want to do it now.
     logging.basicConfig(
         level=args.logging_level,
-        format='[%(asctime)s] %(levelname)s:%(name)s:%(message)s')
+        format="[%(asctime)s] %(levelname)s:%(name)s:%(message)s",
+    )
 
     # Connect to the system bus, we also get the event
     # loop as we need it to start listening for signals.
@@ -904,34 +1075,45 @@ def main():
         # command line and the explicit system_bus, loop objects.
         logging.debug("Using UDisks2 interface")
         listener = UDisks2StorageDeviceListener(
-            system_bus, loop,
-            args.action, args.device, args.minimum_speed, args.memorycard,
-            args.unmounted)
+            system_bus,
+            loop,
+            args.action,
+            args.device,
+            args.minimum_speed,
+            args.memorycard,
+            args.unmounted,
+        )
     else:
         # Construct the listener with all of the arguments provided on the
         # command line and the explicit system_bus, loop objects.
         logging.debug("Using UDisks1 interface")
         listener = UDisks1StorageDeviceListener(
-            system_bus, loop,
-            args.action, args.device, args.minimum_speed, args.memorycard)
+            system_bus,
+            loop,
+            args.action,
+            args.device,
+            args.minimum_speed,
+            args.memorycard,
+        )
     # Run the actual listener and wait till it either times out of discovers
     # the appropriate media changes
     if args.zapper_usb_address:
-        zapper_host = os.environ.get('ZAPPER_HOST')
+        zapper_host = os.environ.get("ZAPPER_HOST")
         if not zapper_host:
-            raise SystemExit(
-                "ZAPPER_HOST environment variable not found!")
+            raise SystemExit("ZAPPER_HOST environment variable not found!")
         usb_address = args.zapper_usb_address
         delay = 5  # in seconds
 
         def do_the_insert():
             logging.info("Calling zapper to connect the USB device")
-            zapper_run(zapper_host, "typecmux_set_state", usb_address, 'DUT')
+            zapper_run(zapper_host, "typecmux_set_state", usb_address, "DUT")
+
         insert_timer = threading.Timer(delay, do_the_insert)
 
         def do_the_remove():
             logging.info("Calling zapper to disconnect the USB device")
-            zapper_run(zapper_host, "typecmux_set_state", usb_address, 'OFF')
+            zapper_run(zapper_host, "typecmux_set_state", usb_address, "OFF")
+
         remove_timer = threading.Timer(delay, do_the_remove)
         if args.action == "insert":
             logging.info("Starting timer for delayed insertion")

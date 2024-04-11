@@ -47,49 +47,28 @@ class NormalizationTests(TestCase):
         self.assertEqual(n(" foo"), "foo")
         self.assertEqual(n("foo "), "foo")
         self.assertEqual(n(" foo "), "foo")
-        self.assertEqual(n("  foo\n"
-                           "  bar\n"),
-                         ("foo\n"
-                          "bar"))
+        self.assertEqual(n("  foo\n" "  bar\n"), ("foo\n" "bar"))
 
     def test_dot_handling(self):
         n = normalize_rfc822_value
         # single leading dot is stripped
-        self.assertEqual(n("foo\n"
-                           ".\n"
-                           "bar\n"),
-                         ("foo\n"
-                          "\n"
-                          "bar"))
+        self.assertEqual(n("foo\n" ".\n" "bar\n"), ("foo\n" "\n" "bar"))
         # the dot is stripped even if whitespace is present
-        self.assertEqual(n("  foo\n"
-                           "  .\n"
-                           "  bar\n"),
-                         ("foo\n"
-                          "\n"
-                          "bar"))
+        self.assertEqual(n("  foo\n" "  .\n" "  bar\n"), ("foo\n" "\n" "bar"))
         # Two dots don't invoke the special behaviour though
-        self.assertEqual(n("  foo\n"
-                           "  ..\n"
-                           "  bar\n"),
-                         ("foo\n"
-                          "..\n"
-                          "bar"))
+        self.assertEqual(
+            n("  foo\n" "  ..\n" "  bar\n"), ("foo\n" "..\n" "bar")
+        )
         # Regardless of whitespace
-        self.assertEqual(n("foo\n"
-                           "..\n"
-                           "bar\n"),
-                         ("foo\n"
-                          "..\n"
-                          "bar"))
+        self.assertEqual(n("foo\n" "..\n" "bar\n"), ("foo\n" "..\n" "bar"))
 
 
 class RFC822RecordTests(TestCase):
 
     def setUp(self):
-        self.raw_data = {'key': ' value'}
-        self.data = {'key': 'value'}
-        self.origin = Origin(FileTextSource('file.txt'), 1, 1)
+        self.raw_data = {"key": " value"}
+        self.data = {"key": "value"}
+        self.origin = Origin(FileTextSource("file.txt"), 1, 1)
         self.record = RFC822Record(self.data, self.origin, self.raw_data)
 
     def test_raw_data(self):
@@ -103,7 +82,7 @@ class RFC822RecordTests(TestCase):
 
     def test_equality(self):
         # Equality is compared by normalized data, the raw data doesn't count
-        other_raw_data = {'key': 'value '}
+        other_raw_data = {"key": "value "}
         # This other raw data is actually different to the one we're going to
         # test against
         self.assertNotEqual(other_raw_data, self.raw_data)
@@ -117,7 +96,7 @@ class RFC822RecordTests(TestCase):
         self.assertEqual(other_record.origin, self.record.origin)
         # Let's look at the whole object, they should be equal
         self.assertTrue(other_record == self.record)
-        self.assertTrue(not(other_record != self.record))
+        self.assertTrue(not (other_record != self.record))
 
 
 class RFC822ParserTests(TestCase):
@@ -135,9 +114,7 @@ class RFC822ParserTests(TestCase):
         stream, is parsed the same way as regular streams are, that is, that
         newlines are preserved.
         """
-        text = ("key:\n"
-                " line1\n"
-                " line2\n")
+        text = "key:\n" " line1\n" " line2\n"
         records_str = type(self).loader(text)
         with StringIO(text) as stream:
             records_stream = type(self).loader(stream)
@@ -146,33 +123,33 @@ class RFC822ParserTests(TestCase):
     def test_preserves_whitespace1(self):
         with StringIO("key: value ") as stream:
             records = type(self).loader(stream)
-        self.assertEqual(records[0].data, {'key': 'value'})
-        self.assertEqual(records[0].raw_data, {'key': 'value '})
+        self.assertEqual(records[0].data, {"key": "value"})
+        self.assertEqual(records[0].raw_data, {"key": "value "})
 
     def test_preserves_whitespace2(self):
         with StringIO("key:\n value ") as stream:
             records = type(self).loader(stream)
-        self.assertEqual(records[0].data, {'key': 'value'})
-        self.assertEqual(records[0].raw_data, {'key': 'value '})
+        self.assertEqual(records[0].data, {"key": "value"})
+        self.assertEqual(records[0].raw_data, {"key": "value "})
 
     def test_strips_newlines1(self):
         with StringIO("key: value \n") as stream:
             records = type(self).loader(stream)
-        self.assertEqual(records[0].data, {'key': 'value'})
-        self.assertEqual(records[0].raw_data, {'key': 'value \n'})
+        self.assertEqual(records[0].data, {"key": "value"})
+        self.assertEqual(records[0].raw_data, {"key": "value \n"})
 
     def test_strips_newlines2(self):
         with StringIO("key:\n value \n") as stream:
             records = type(self).loader(stream)
-        self.assertEqual(records[0].data, {'key': 'value'})
-        self.assertEqual(records[0].raw_data, {'key': 'value \n'})
+        self.assertEqual(records[0].data, {"key": "value"})
+        self.assertEqual(records[0].raw_data, {"key": "value \n"})
 
     def test_single_record(self):
         with StringIO("key:value") as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': 'value'})
-        self.assertEqual(records[0].raw_data, {'key': 'value'})
+        self.assertEqual(records[0].data, {"key": "value"})
+        self.assertEqual(records[0].raw_data, {"key": "value"})
 
     def test_comments(self):
         """
@@ -187,8 +164,8 @@ class RFC822ParserTests(TestCase):
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': 'multi-line value'})
-        self.assertEqual(records[0].raw_data, {'key': 'multi-line value\n'})
+        self.assertEqual(records[0].data, {"key": "multi-line value"})
+        self.assertEqual(records[0].raw_data, {"key": "multi-line value\n"})
 
     def test_dot_escape(self):
         """
@@ -196,32 +173,16 @@ class RFC822ParserTests(TestCase):
 
         This part of the code is now handled by another layer.
         """
-        text = (
-            "key: something\n"
-            " .\n"
-            " .this\n"
-            " ..should\n"
-            " ...work\n"
-        )
-        expected_value = (
-            "something\n"
-            "\n"
-            ".this\n"
-            "..should\n"
-            "...work"
-        )
+        text = "key: something\n" " .\n" " .this\n" " ..should\n" " ...work\n"
+        expected_value = "something\n" "\n" ".this\n" "..should\n" "...work"
         expected_raw_value = (
-            "something\n"
-            ".\n"
-            ".this\n"
-            "..should\n"
-            "...work\n"
+            "something\n" ".\n" ".this\n" "..should\n" "...work\n"
         )
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': expected_value})
-        self.assertEqual(records[0].raw_data, {'key': expected_raw_value})
+        self.assertEqual(records[0].data, {"key": expected_value})
+        self.assertEqual(records[0].raw_data, {"key": expected_raw_value})
 
     def test_many_newlines(self):
         text = (
@@ -241,73 +202,44 @@ class RFC822ParserTests(TestCase):
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 3)
-        self.assertEqual(records[0].data, {'key1': 'value1'})
-        self.assertEqual(records[1].data, {'key2': 'value2'})
-        self.assertEqual(records[2].data, {'key3': 'value3'})
-        self.assertEqual(records[0].raw_data, {'key1': 'value1\n'})
-        self.assertEqual(records[1].raw_data, {'key2': 'value2\n'})
-        self.assertEqual(records[2].raw_data, {'key3': 'value3\n'})
+        self.assertEqual(records[0].data, {"key1": "value1"})
+        self.assertEqual(records[1].data, {"key2": "value2"})
+        self.assertEqual(records[2].data, {"key3": "value3"})
+        self.assertEqual(records[0].raw_data, {"key1": "value1\n"})
+        self.assertEqual(records[1].raw_data, {"key2": "value2\n"})
+        self.assertEqual(records[2].raw_data, {"key3": "value3\n"})
 
     def test_many_records(self):
-        text = (
-            "key1:value1\n"
-            "\n"
-            "key2:value2\n"
-            "\n"
-            "key3:value3\n"
-        )
+        text = "key1:value1\n" "\n" "key2:value2\n" "\n" "key3:value3\n"
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 3)
-        self.assertEqual(records[0].data, {'key1': 'value1'})
-        self.assertEqual(records[1].data, {'key2': 'value2'})
-        self.assertEqual(records[2].data, {'key3': 'value3'})
-        self.assertEqual(records[0].raw_data, {'key1': 'value1\n'})
-        self.assertEqual(records[1].raw_data, {'key2': 'value2\n'})
-        self.assertEqual(records[2].raw_data, {'key3': 'value3\n'})
+        self.assertEqual(records[0].data, {"key1": "value1"})
+        self.assertEqual(records[1].data, {"key2": "value2"})
+        self.assertEqual(records[2].data, {"key3": "value3"})
+        self.assertEqual(records[0].raw_data, {"key1": "value1\n"})
+        self.assertEqual(records[1].raw_data, {"key2": "value2\n"})
+        self.assertEqual(records[2].raw_data, {"key3": "value3\n"})
 
     def test_multiline_value(self):
-        text = (
-            "key:\n"
-            " longer\n"
-            " value\n"
-        )
-        expected_value = (
-            "longer\n"
-            "value"
-        )
-        expected_raw_value = (
-            "longer\n"
-            "value\n"
-        )
+        text = "key:\n" " longer\n" " value\n"
+        expected_value = "longer\n" "value"
+        expected_raw_value = "longer\n" "value\n"
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': expected_value})
-        self.assertEqual(records[0].raw_data, {'key': expected_raw_value})
+        self.assertEqual(records[0].data, {"key": expected_value})
+        self.assertEqual(records[0].raw_data, {"key": expected_raw_value})
 
     def test_multiline_value_with_space(self):
-        text = (
-            "key:\n"
-            " longer\n"
-            " .\n"
-            " value\n"
-        )
-        expected_value = (
-            "longer\n"
-            "\n"
-            "value"
-        )
-        expected_raw_value = (
-            "longer\n"
-            ".\n"
-            "value\n"
-        )
+        text = "key:\n" " longer\n" " .\n" " value\n"
+        expected_value = "longer\n" "\n" "value"
+        expected_raw_value = "longer\n" ".\n" "value\n"
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': expected_value})
-        self.assertEqual(records[0].raw_data, {'key': expected_raw_value})
+        self.assertEqual(records[0].data, {"key": expected_value})
+        self.assertEqual(records[0].raw_data, {"key": expected_raw_value})
 
     def test_multiline_value_with_space__deep_indent(self):
         """
@@ -315,28 +247,15 @@ class RFC822ParserTests(TestCase):
         spaces are used (more than one that is typically removed). The raw
         value should have just the one space removed
         """
-        text = (
-            "key:\n"
-            "       longer\n"
-            "       .\n"
-            "       value\n"
-        )
-        expected_value = (
-            "longer\n"
-            "\n"
-            "value"
-        )
+        text = "key:\n" "       longer\n" "       .\n" "       value\n"
+        expected_value = "longer\n" "\n" "value"
         # HINT: exactly as the original above but one space shorter
-        expected_raw_value = (
-            "      longer\n"
-            "      .\n"
-            "      value\n"
-        )
+        expected_raw_value = "      longer\n" "      .\n" "      value\n"
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': expected_value})
-        self.assertEqual(records[0].raw_data, {'key': expected_raw_value})
+        self.assertEqual(records[0].data, {"key": expected_value})
+        self.assertEqual(records[0].raw_data, {"key": expected_raw_value})
 
     def test_multiline_value_with_period(self):
         """
@@ -344,27 +263,14 @@ class RFC822ParserTests(TestCase):
 
         This part of the code is now handled by another layer.
         """
-        text = (
-            "key:\n"
-            " longer\n"
-            " ..\n"
-            " value\n"
-        )
-        expected_value = (
-            "longer\n"
-            "..\n"
-            "value"
-        )
-        expected_raw_value = (
-            "longer\n"
-            "..\n"
-            "value\n"
-        )
+        text = "key:\n" " longer\n" " ..\n" " value\n"
+        expected_value = "longer\n" "..\n" "value"
+        expected_raw_value = "longer\n" "..\n" "value\n"
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': expected_value})
-        self.assertEqual(records[0].raw_data, {'key': expected_raw_value})
+        self.assertEqual(records[0].data, {"key": expected_value})
+        self.assertEqual(records[0].raw_data, {"key": expected_raw_value})
 
     def test_many_multiline_values(self):
         text = (
@@ -376,57 +282,27 @@ class RFC822ParserTests(TestCase):
             " longer\n"
             " value 2\n"
         )
-        expected_value1 = (
-            "initial\n"
-            "longer\n"
-            "value 1"
-        )
-        expected_value2 = (
-            "longer\n"
-            "value 2"
-        )
-        expected_raw_value1 = (
-            "initial\n"
-            "longer\n"
-            "value 1\n"
-        )
-        expected_raw_value2 = (
-            "longer\n"
-            "value 2\n"
-        )
+        expected_value1 = "initial\n" "longer\n" "value 1"
+        expected_value2 = "longer\n" "value 2"
+        expected_raw_value1 = "initial\n" "longer\n" "value 1\n"
+        expected_raw_value2 = "longer\n" "value 2\n"
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 2)
-        self.assertEqual(records[0].data, {'key1': expected_value1})
-        self.assertEqual(records[1].data, {'key2': expected_value2})
-        self.assertEqual(records[0].raw_data, {'key1': expected_raw_value1})
-        self.assertEqual(records[1].raw_data, {'key2': expected_raw_value2})
+        self.assertEqual(records[0].data, {"key1": expected_value1})
+        self.assertEqual(records[1].data, {"key2": expected_value2})
+        self.assertEqual(records[0].raw_data, {"key1": expected_raw_value1})
+        self.assertEqual(records[1].raw_data, {"key2": expected_raw_value2})
 
     def test_proper_parsing_nested_multiline(self):
-        text = (
-            "key:\n"
-            " nested: stuff\n"
-            " even:\n"
-            "  more\n"
-            "  text\n"
-        )
-        expected_value = (
-            "nested: stuff\n"
-            "even:\n"
-            " more\n"
-            " text"
-        )
-        expected_raw_value = (
-            "nested: stuff\n"
-            "even:\n"
-            " more\n"
-            " text\n"
-        )
+        text = "key:\n" " nested: stuff\n" " even:\n" "  more\n" "  text\n"
+        expected_value = "nested: stuff\n" "even:\n" " more\n" " text"
+        expected_raw_value = "nested: stuff\n" "even:\n" " more\n" " text\n"
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': expected_value})
-        self.assertEqual(records[0].raw_data, {'key': expected_raw_value})
+        self.assertEqual(records[0].data, {"key": expected_value})
+        self.assertEqual(records[0].raw_data, {"key": expected_raw_value})
 
     def test_proper_parsing_nested_multiline__deep_indent(self):
         text = (
@@ -436,12 +312,7 @@ class RFC822ParserTests(TestCase):
             "           more\n"
             "           text\n"
         )
-        expected_value = (
-            "nested: stuff\n"
-            "even:\n"
-            "   more\n"
-            "   text"
-        )
+        expected_value = "nested: stuff\n" "even:\n" "   more\n" "   text"
         # HINT: exactly as the original above but one space shorter
         expected_raw_value = (
             "       nested: stuff\n"
@@ -452,27 +323,24 @@ class RFC822ParserTests(TestCase):
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': expected_value})
-        self.assertEqual(records[0].raw_data, {'key': expected_raw_value})
+        self.assertEqual(records[0].data, {"key": expected_value})
+        self.assertEqual(records[0].raw_data, {"key": expected_raw_value})
 
     def test_irrelevant_whitespace(self):
         text = "key :  value  "
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': 'value'})
-        self.assertEqual(records[0].raw_data, {'key': 'value  '})
+        self.assertEqual(records[0].data, {"key": "value"})
+        self.assertEqual(records[0].raw_data, {"key": "value  "})
 
     def test_relevant_whitespace(self):
-        text = (
-            "key:\n"
-            " value\n"
-        )
+        text = "key:\n" " value\n"
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': 'value'})
-        self.assertEqual(records[0].raw_data, {'key': 'value\n'})
+        self.assertEqual(records[0].data, {"key": "value"})
+        self.assertEqual(records[0].raw_data, {"key": "value\n"})
 
     def test_bad_multiline(self):
         text = " extra value"
@@ -487,8 +355,8 @@ class RFC822ParserTests(TestCase):
             with self.assertRaises(RFC822SyntaxError) as call:
                 type(self).loader(stream)
         self.assertEqual(
-            call.exception.msg,
-            "Unexpected non-empty line: 'garbage'")
+            call.exception.msg, "Unexpected non-empty line: 'garbage'"
+        )
 
     def test_syntax_error(self):
         text = "key1 = value1"
@@ -496,20 +364,21 @@ class RFC822ParserTests(TestCase):
             with self.assertRaises(RFC822SyntaxError) as call:
                 type(self).loader(stream)
         self.assertEqual(
-            call.exception.msg,
-            "Unexpected non-empty line: 'key1 = value1'")
+            call.exception.msg, "Unexpected non-empty line: 'key1 = value1'"
+        )
 
     def test_duplicate_error(self):
-        text = (
-            "key1: value1\n"
-            "key1: value2\n"
-        )
+        text = "key1: value1\n" "key1: value2\n"
         with StringIO(text) as stream:
             with self.assertRaises(RFC822SyntaxError) as call:
                 type(self).loader(stream)
-            self.assertEqual(call.exception.msg, (
-                "Job has a duplicate key 'key1' with old value 'value1\\n'"
-                " and new value 'value2\\n'"))
+            self.assertEqual(
+                call.exception.msg,
+                (
+                    "Job has a duplicate key 'key1' with old value 'value1\\n'"
+                    " and new value 'value2\\n'"
+                ),
+            )
 
     def test_origin_from_stream_is_Unknown(self):
         """
@@ -521,7 +390,7 @@ class RFC822ParserTests(TestCase):
         with StringIO("key:value") as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': 'value'})
+        self.assertEqual(records[0].data, {"key": "value"})
         self.assertEqual(records[0].origin, expected_origin)
 
     def test_origin_from_filename_is_filename(self):
@@ -530,19 +399,18 @@ class RFC822ParserTests(TestCase):
         # We're faking the name by using a StringIO subclass with a
         # name property, which is how rfc822 gets that data.
         expected_origin = Origin(FileTextSource("file.txt"), 1, 1)
-        with NamedStringIO("key:value",
-                           fake_filename="file.txt") as stream:
+        with NamedStringIO("key:value", fake_filename="file.txt") as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 1)
-        self.assertEqual(records[0].data, {'key': 'value'})
+        self.assertEqual(records[0].data, {"key": "value"})
         self.assertEqual(records[0].origin, expected_origin)
 
     def test_field_offset_map_is_computed(self):
         text = (
             "a: value-a\n"  # offset 0
             "b: value-b\n"  # offset 1
-            "# comment\n"   # offset 2
-            "c:\n"          # offset 3
+            "# comment\n"  # offset 2
+            "c:\n"  # offset 3
             " value-c.1\n"  # offset 4
             " value-c.2\n"  # offset 5
             "\n"
@@ -551,37 +419,50 @@ class RFC822ParserTests(TestCase):
         with StringIO(text) as stream:
             records = type(self).loader(stream)
         self.assertEqual(len(records), 2)
-        self.assertEqual(records[0].data, {
-            'a': 'value-a',
-            'b': 'value-b',
-            'c': 'value-c.1\nvalue-c.2',
-        })
-        self.assertEqual(records[0].field_offset_map, {
-            'a': 0,
-            'b': 1,
-            'c': 4,
-        })
-        self.assertEqual(records[1].data, {
-            'd': 'value-d',
-        })
-        self.assertEqual(records[1].field_offset_map, {
-            'd': 0,
-        })
+        self.assertEqual(
+            records[0].data,
+            {
+                "a": "value-a",
+                "b": "value-b",
+                "c": "value-c.1\nvalue-c.2",
+            },
+        )
+        self.assertEqual(
+            records[0].field_offset_map,
+            {
+                "a": 0,
+                "b": 1,
+                "c": 4,
+            },
+        )
+        self.assertEqual(
+            records[1].data,
+            {
+                "d": "value-d",
+            },
+        )
+        self.assertEqual(
+            records[1].field_offset_map,
+            {
+                "d": 0,
+            },
+        )
 
 
 class NamedStringIO(StringIO):
     """
-     Subclass of StringIO with a name attribute.
-     Use only for testing purposes, it's not guaranteed to be 100%
-     compatible with StringIO.
+    Subclass of StringIO with a name attribute.
+    Use only for testing purposes, it's not guaranteed to be 100%
+    compatible with StringIO.
     """
+
     def __init__(self, string, fake_filename=None):
         super(NamedStringIO, self).__init__(string)
         self._fake_filename = fake_filename
 
     @property
     def name(self):
-        return(self._fake_filename)
+        return self._fake_filename
 
 
 class RFC822WriterTests(TestCase):
@@ -591,53 +472,42 @@ class RFC822WriterTests(TestCase):
 
     def test_single_record(self):
         with StringIO() as stream:
-            RFC822Record({'key': 'value'}).dump(stream)
+            RFC822Record({"key": "value"}).dump(stream)
             self.assertEqual(stream.getvalue(), "key: value\n\n")
 
     def test_multiple_record(self):
         with StringIO() as stream:
-            RFC822Record({'key1': 'value1', 'key2': 'value2'}).dump(stream)
+            RFC822Record({"key1": "value1", "key2": "value2"}).dump(stream)
             self.assertIn(
-                stream.getvalue(), (
+                stream.getvalue(),
+                (
                     "key1: value1\nkey2: value2\n\n",
-                    "key2: value2\nkey1: value1\n\n"))
+                    "key2: value2\nkey1: value1\n\n",
+                ),
+            )
 
     def test_multiline_value(self):
-        text = (
-            "key:\n"
-            " longer\n"
-            " value\n\n"
-        )
+        text = "key:\n" " longer\n" " value\n\n"
         with StringIO() as stream:
-            RFC822Record({'key': 'longer\nvalue'}).dump(stream)
+            RFC822Record({"key": "longer\nvalue"}).dump(stream)
             self.assertEqual(stream.getvalue(), text)
 
     def test_multiline_value_with_space(self):
-        text = (
-            "key:\n"
-            " longer\n"
-            " .\n"
-            " value\n\n"
-        )
+        text = "key:\n" " longer\n" " .\n" " value\n\n"
         with StringIO() as stream:
-            RFC822Record({'key': 'longer\n\nvalue'}).dump(stream)
+            RFC822Record({"key": "longer\n\nvalue"}).dump(stream)
             self.assertEqual(stream.getvalue(), text)
 
     def test_multiline_value_with_period(self):
-        text = (
-            "key:\n"
-            " longer\n"
-            " ..\n"
-            " value\n\n"
-        )
+        text = "key:\n" " longer\n" " ..\n" " value\n\n"
         with StringIO() as stream:
-            RFC822Record({'key': 'longer\n.\nvalue'}).dump(stream)
+            RFC822Record({"key": "longer\n.\nvalue"}).dump(stream)
             self.assertEqual(stream.getvalue(), text)
 
     def test_type_error(self):
         with StringIO() as stream:
             with self.assertRaises(AttributeError):
-                RFC822Record(['key', 'value']).dump(stream)
+                RFC822Record(["key", "value"]).dump(stream)
 
 
 class RFC822SyntaxErrorTests(TestCase):
@@ -651,4 +521,5 @@ class RFC822SyntaxErrorTests(TestCase):
         """
         self.assertEqual(
             hash(RFC822SyntaxError("file.txt", 10, "msg")),
-            hash(RFC822SyntaxError("file.txt", 10, "msg")))
+            hash(RFC822SyntaxError("file.txt", 10, "msg")),
+        )

@@ -57,8 +57,9 @@ from plainbox.impl.providers.v1 import InsecureProvider1PlugInCollection
 from plainbox.impl.providers.v1 import get_user_PROVIDERPATH_entry
 from plainbox.impl.resource import Resource
 from plainbox.impl.secure.config import Unset
-from plainbox.impl.secure.config import ValidationError \
-    as ConfigValidationError
+from plainbox.impl.secure.config import (
+    ValidationError as ConfigValidationError,
+)
 from plainbox.impl.secure.origin import Origin
 from plainbox.impl.secure.origin import UnknownTextSource
 from plainbox.impl.secure.providers.v1 import Provider1
@@ -74,7 +75,7 @@ from plainbox.impl.validation import Severity
 from plainbox.impl.validation import ValidationError as UnitValidationError
 
 
-__all__ = ['setup', 'manage_py_extension']
+__all__ = ["setup", "manage_py_extension"]
 
 
 _logger = logging.getLogger("plainbox.provider_manager")
@@ -123,7 +124,8 @@ class ManageCommand(CommandBase):
     # Pay extra attention to whitespace.  It must be correctly preserved or the
     # result won't work. In particular the leading whitespace *must* be
     # preserved and *must* have the same length on each line.
-    N_("""
+    N_(
+        """
     install this provider in the system
 
     This command installs the provider to the specified prefix.
@@ -172,86 +174,121 @@ class ManageCommand(CommandBase):
 
     This layout is perfect for Click and Snappy environments where /prefix is
     effectively variable.
-    """))
+    """
+    )
+)
 class InstallCommand(ManageCommand):
 
     # Template of the location= entry
     _LOCATION_TEMPLATE = os.path.join(
-        '{prefix}', 'lib', 'plainbox-providers-1',
-        '{provider.name}')
+        "{prefix}", "lib", "plainbox-providers-1", "{provider.name}"
+    )
 
     # Templates for various installation layouts
     _INSTALL_LAYOUT = {
-        'unix': {
-            'bin': os.path.join(
-                '{prefix}', 'lib', '{provider.name}', 'bin'),
-            'build/mo': os.path.join('{prefix}', 'share', 'locale'),
-            'data': os.path.join(
-                '{prefix}', 'share', '{provider.name}', 'data'),
-            'jobs': os.path.join(
-                '{prefix}', 'share', '{provider.name}', 'jobs'),
-            'units': os.path.join(
-                '{prefix}', 'share', '{provider.name}', 'units'),
-            'po': None,
-            'provider': os.path.join(
-                '{prefix}', 'share', 'plainbox-providers-1',
-                '{provider.name_without_colon}.provider'),
+        "unix": {
+            "bin": os.path.join("{prefix}", "lib", "{provider.name}", "bin"),
+            "build/mo": os.path.join("{prefix}", "share", "locale"),
+            "data": os.path.join(
+                "{prefix}", "share", "{provider.name}", "data"
+            ),
+            "jobs": os.path.join(
+                "{prefix}", "share", "{provider.name}", "jobs"
+            ),
+            "units": os.path.join(
+                "{prefix}", "share", "{provider.name}", "units"
+            ),
+            "po": None,
+            "provider": os.path.join(
+                "{prefix}",
+                "share",
+                "plainbox-providers-1",
+                "{provider.name_without_colon}.provider",
+            ),
         },
-        'flat': {
-            'bin': os.path.join(
-                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
-                'bin'),
-            'build/mo': os.path.join(
-                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
-                'locale'),
-            'data': os.path.join(
-                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
-                'data'),
-            'jobs': os.path.join(
-                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
-                'jobs'),
-            'units': os.path.join(
-                '{prefix}', 'lib', 'plainbox-providers-1', '{provider.name}',
-                'units'),
-            'po': None,
-            'provider': os.path.join(
-                '{prefix}', 'share', 'plainbox-providers-1',
-                '{provider.name_without_colon}.provider'),
+        "flat": {
+            "bin": os.path.join(
+                "{prefix}",
+                "lib",
+                "plainbox-providers-1",
+                "{provider.name}",
+                "bin",
+            ),
+            "build/mo": os.path.join(
+                "{prefix}",
+                "lib",
+                "plainbox-providers-1",
+                "{provider.name}",
+                "locale",
+            ),
+            "data": os.path.join(
+                "{prefix}",
+                "lib",
+                "plainbox-providers-1",
+                "{provider.name}",
+                "data",
+            ),
+            "jobs": os.path.join(
+                "{prefix}",
+                "lib",
+                "plainbox-providers-1",
+                "{provider.name}",
+                "jobs",
+            ),
+            "units": os.path.join(
+                "{prefix}",
+                "lib",
+                "plainbox-providers-1",
+                "{provider.name}",
+                "units",
+            ),
+            "po": None,
+            "provider": os.path.join(
+                "{prefix}",
+                "share",
+                "plainbox-providers-1",
+                "{provider.name_without_colon}.provider",
+            ),
         },
-        'relocatable': {
-            'bin': os.path.join('{prefix}', 'bin'),
-            'build/mo': os.path.join('{prefix}', 'locale'),
-            'data': os.path.join('{prefix}', 'data'),
-            'jobs': os.path.join('{prefix}', 'jobs'),
-            'units': os.path.join('{prefix}', 'units'),
-            'po': None,
-            'provider': os.path.join(
-                '{prefix}', '{provider.name_without_colon}.provider'),
+        "relocatable": {
+            "bin": os.path.join("{prefix}", "bin"),
+            "build/mo": os.path.join("{prefix}", "locale"),
+            "data": os.path.join("{prefix}", "data"),
+            "jobs": os.path.join("{prefix}", "jobs"),
+            "units": os.path.join("{prefix}", "units"),
+            "po": None,
+            "provider": os.path.join(
+                "{prefix}", "{provider.name_without_colon}.provider"
+            ),
         },
     }
 
     # Mapping from directory name to .provider entry name
     _DEF_MAP = {
-        'bin': 'bin_dir',
-        'build/mo': 'locale_dir',
-        'data': 'data_dir',
-        'jobs': 'jobs_dir',
-        'units': 'units_dir'
+        "bin": "bin_dir",
+        "build/mo": "locale_dir",
+        "data": "data_dir",
+        "jobs": "jobs_dir",
+        "units": "units_dir",
     }
 
     def get_command_epilog(self):
         def format_layout(layout):
-            return '\n'.join(
+            return "\n".join(
                 # TRANSLATORS: not installed as in 'will not be installed'
-                '    * {:10} => {}'.format(src, _("not installed"))
-                if dest is None else
-                '    * {:10} => {}'.format(src, dest)
+                (
+                    "    * {:10} => {}".format(src, _("not installed"))
+                    if dest is None
+                    else "    * {:10} => {}".format(src, dest)
+                )
                 for src, dest in sorted(layout.items())
             )
+
         return re.sub(
-            r'@LAYOUT\[(\w+)]@',
+            r"@LAYOUT\[(\w+)]@",
             lambda m: format_layout(self._INSTALL_LAYOUT[m.group(1)]),
-            super().get_command_epilog())
+            super().get_command_epilog(),
+        )
 
     def register_parser(self, subparsers):
         """
@@ -267,17 +304,23 @@ class InstallCommand(ManageCommand):
         """
         parser = self.add_subcommand(subparsers)
         parser.add_argument(
-            "--prefix", default="/usr/local", help=_("installation prefix"))
+            "--prefix", default="/usr/local", help=_("installation prefix")
+        )
         parser.add_argument(
-            '--layout',
-            default='flat',
+            "--layout",
+            default="flat",
             choices=sorted(self._INSTALL_LAYOUT.keys()),
             # TRANSLATORS: don't translate %(defaults)s
-            help=_("installation directory layout (default: %(default)s)"))
+            help=_("installation directory layout (default: %(default)s)"),
+        )
         parser.add_argument(
-            "--root", default="",
-            help=_("install everything relative to this alternate root"
-                   " directory"))
+            "--root",
+            default="",
+            help=_(
+                "install everything relative to this alternate root"
+                " directory"
+            ),
+        )
         parser.set_defaults(command=self)
 
     def invoked(self, ns):
@@ -301,17 +344,21 @@ class InstallCommand(ManageCommand):
 
     def _write_provider_file(self, root, prefix, layout, provider):
         self._write_to_file(
-            root, self._INSTALL_LAYOUT[layout]['provider'].format(
-                prefix=prefix, provider=self.definition),
+            root,
+            self._INSTALL_LAYOUT[layout]["provider"].format(
+                prefix=prefix, provider=self.definition
+            ),
             lambda stream: self._get_provider_config_obj(
-                layout, prefix, provider).write(stream))
+                layout, prefix, provider
+            ).write(stream),
+        )
 
     def _copy_all_executables(self, root, prefix, layout, provider):
         executable_list = provider.executable_list
         if not executable_list:
             return
         dest_map = self._get_dest_map(layout, prefix)
-        dest_bin_dir = root + dest_map['bin']
+        dest_bin_dir = root + dest_map["bin"]
         try:
             os.makedirs(dest_bin_dir, exist_ok=True)
         except IOError:
@@ -324,7 +371,7 @@ class InstallCommand(ManageCommand):
         assert os.path.isabs(self.definition.location)
         for src_name, dst_name in dest_map.items():
             # the bin/ directory is handled by _copy_all_executables()
-            if src_name == 'bin':
+            if src_name == "bin":
                 continue
             assert not os.path.isabs(src_name)
             assert os.path.isabs(dst_name)
@@ -345,7 +392,8 @@ class InstallCommand(ManageCommand):
         dir_layout = self._INSTALL_LAYOUT[layout]
         return {
             src_name: dest_name_template.format(
-                prefix=prefix, provider=self.definition)
+                prefix=prefix, provider=self.definition
+            )
             for src_name, dest_name_template in dir_layout.items()
             if dest_name_template is not None
         }
@@ -354,29 +402,34 @@ class InstallCommand(ManageCommand):
         dest_map = self._get_dest_map(layout, prefix)
         # Create the .provider file config object
         config_obj = self.definition.get_parser_obj()
-        section = 'PlainBox Provider'
-        if layout == 'flat':
+        section = "PlainBox Provider"
+        if layout == "flat":
             # Treat the flat layout specially, just as it used to behave before
             # additional layouts were added. In this mode only the location
             # field is defined.
             config_obj.set(
-                section, 'location', self._LOCATION_TEMPLATE.format(
-                    prefix=prefix, provider=self.definition))
-        elif layout == 'relocatable':
+                section,
+                "location",
+                self._LOCATION_TEMPLATE.format(
+                    prefix=prefix, provider=self.definition
+                ),
+            )
+        elif layout == "relocatable":
             # The relocatable layout is also special, it just has the flag set
             # and everything else is derived from the location of the .provider
             # file itself.
-            config_obj.set(section, 'relocatable', "True")
-            config_obj.remove_option(section, 'location')
+            config_obj.set(section, "relocatable", "True")
+            config_obj.remove_option(section, "location")
         else:
             # In non-flat layouts don't store location as everything is
             # explicit
-            config_obj.remove_option(section, 'location')
+            config_obj.remove_option(section, "location")
             for src_name, key_id in self._DEF_MAP.items():
                 # We should emit each foo_dir key only if the corresponding
                 # directory actually exists
                 should_emit_key = os.path.exists(
-                    os.path.join(self.definition.location, src_name))
+                    os.path.join(self.definition.location, src_name)
+                )
                 if should_emit_key:
                     config_obj.set(section, key_id, dest_map[src_name])
             # NOTE: Handle bin_dir specially:
@@ -384,7 +437,7 @@ class InstallCommand(ManageCommand):
             # counting those from build/bin) should trigger bin_dir to be
             # listed since we will create/copy files there anyway.
             if provider.executable_list != []:
-                config_obj.set(section, 'bin_dir', dest_map['bin'])
+                config_obj.set(section, "bin_dir", dest_map["bin"])
         return config_obj
 
     def _write_to_file(self, root, pathname, callback):
@@ -392,7 +445,7 @@ class InstallCommand(ManageCommand):
             os.makedirs(root + os.path.dirname(pathname), exist_ok=True)
         except IOError:
             pass
-        with open(root + pathname, 'wt', encoding='UTF-8') as stream:
+        with open(root + pathname, "wt", encoding="UTF-8") as stream:
             callback(stream)
 
 
@@ -405,7 +458,8 @@ class InstallCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_("""
+    N_(
+        """
     create a source tarball
 
     This commands creates a source distribution (tarball) of all of the
@@ -426,13 +480,24 @@ class InstallCommand(ManageCommand):
     - the po directory, and everything in it
 
     Any of the missing items are silently ignored.
-    """))
+    """
+    )
+)
 class SourceDistributionCommand(ManageCommand):
 
     name = "sdist"
 
-    _INCLUDED_ITEMS = ['manage.py', 'README.md', 'units', 'jobs', 'COPYING',
-                       'bin', 'src', 'data', 'po']
+    _INCLUDED_ITEMS = [
+        "manage.py",
+        "README.md",
+        "units",
+        "jobs",
+        "COPYING",
+        "bin",
+        "src",
+        "data",
+        "po",
+    ]
 
     def register_parser(self, subparsers):
         """
@@ -455,13 +520,14 @@ class SourceDistributionCommand(ManageCommand):
     @property
     def toplevel_name(self):
         return "{}-{}".format(
-            self.definition.name.replace(":", "."),
-            self.definition.version)
+            self.definition.name.replace(":", "."), self.definition.version
+        )
 
     @property
     def tarball_name(self):
         return os.path.join(
-            self.dist_dir, "{}.tar.gz".format(self.toplevel_name))
+            self.dist_dir, "{}.tar.gz".format(self.toplevel_name)
+        )
 
     def invoked(self, ns):
         """
@@ -486,9 +552,12 @@ class SourceDistributionCommand(ManageCommand):
                 if os.path.exists(src_name):
                     tarball.add(src_name, dst_name)
         subprocess.call(
-            'gpg --armor --sign --detach-sig {}.tar.gz'.format(
-                self.toplevel_name),
-            shell=True, cwd=self.dist_dir)
+            "gpg --armor --sign --detach-sig {}.tar.gz".format(
+                self.toplevel_name
+            ),
+            shell=True,
+            cwd=self.dist_dir,
+        )
 
 
 @docstring(
@@ -500,7 +569,8 @@ class SourceDistributionCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_("""
+    N_(
+        """
     install/remove this provider, only for development
 
     This commands creates or removes the ``.provider`` file describing the
@@ -519,7 +589,9 @@ class SourceDistributionCommand(ManageCommand):
 
     Note that the full path of the source directory is placed in the generated
     file so you will need to re-run develop if you move this directory around.
-    """))
+    """
+    )
+)
 class DevelopCommand(ManageCommand):
 
     def register_parser(self, subparsers):
@@ -536,18 +608,29 @@ class DevelopCommand(ManageCommand):
         """
         parser = self.add_subcommand(subparsers)
         parser.add_argument(
-            "-u", "--uninstall", default=False, action="store_true",
+            "-u",
+            "--uninstall",
+            default=False,
+            action="store_true",
             # TRANSLATORS: don't translate the extension name
-            help=_("remove the generated .provider file"))
+            help=_("remove the generated .provider file"),
+        )
         parser.add_argument(
-            "-f", "--force", default=False, action="store_true",
-            help=_("overwrite existing provider files"))
+            "-f",
+            "--force",
+            default=False,
+            action="store_true",
+            help=_("overwrite existing provider files"),
+        )
         # this is done here so the mock can work in the UT
         path = plainbox.impl.providers.v1.get_universal_PROVIDERPATH_entry()
         parser.add_argument(
-            "-d", "--directory", action="store",
+            "-d",
+            "--directory",
+            action="store",
             default=path,
-            help=_("directory to use (defaults to user's home provider path)"))
+            help=_("directory to use (defaults to user's home provider path)"),
+        )
 
     def invoked(self, ns):
         pp_env = os.getenv("PROVIDERPATH")
@@ -561,12 +644,14 @@ class DevelopCommand(ManageCommand):
             if not samefile:
                 _logger.warning(
                     "$PROVIDERPATH is defined, ignoring -d/--directory"
-                    " and developing in: %s", pp_env
+                    " and developing in: %s",
+                    pp_env,
                 )
             ns.directory = pp_env
         pathname = os.path.join(
-            ns.directory, "{}.provider".format(
-                self.definition.name.replace(':', '.')))
+            ns.directory,
+            "{}.provider".format(self.definition.name.replace(":", ".")),
+        )
         if ns.uninstall:
             if os.path.isfile(pathname):
                 _logger.info(_("Removing provider file: %s"), pathname)
@@ -578,7 +663,7 @@ class DevelopCommand(ManageCommand):
             else:
                 _logger.info(_("Creating provider file: %s"), pathname)
                 os.makedirs(os.path.dirname(pathname), exist_ok=True)
-                with open(pathname, 'wt', encoding='UTF-8') as stream:
+                with open(pathname, "wt", encoding="UTF-8") as stream:
                     self.definition.write(stream)
 
 
@@ -591,7 +676,8 @@ class DevelopCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_("""
+    N_(
+        """
     build provider specific executables from source
 
     This command builds provider specific executables from source code.
@@ -614,7 +700,9 @@ class DevelopCommand(ManageCommand):
     'build/bin' subdirectory (which is created automatically). The relative
     path of the 'src/' directory is available as the $PLAINBOX_SRC_DIR
     environment variable.
-    """))
+    """
+    )
+)
 class BuildCommand(ManageCommand):
 
     SUPPORTS_KEYWORDS = True
@@ -656,8 +744,10 @@ class BuildCommand(ManageCommand):
         # Compute the score of each buildsystem
         buildsystem_score = [
             (buildsystem, buildsystem.probe(self.src_dir))
-            for buildsystem in [buildsystem_cls() for buildsystem_cls in
-                                all_buildsystems.get_all_plugin_objects()]
+            for buildsystem in [
+                buildsystem_cls()
+                for buildsystem_cls in all_buildsystems.get_all_plugin_objects()
+            ]
         ]
         # Sort scores
         buildsystem_score.sort(key=lambda pair: pair[1])
@@ -677,14 +767,14 @@ class BuildCommand(ManageCommand):
         """
         absolute path of the src/ subdirectory
         """
-        return os.path.join(self.definition.location, 'src')
+        return os.path.join(self.definition.location, "src")
 
     @property
     def build_bin_dir(self):
         """
         absolute path of the build/bin subdirectory
         """
-        return os.path.join(self.definition.location, 'build', 'bin')
+        return os.path.join(self.definition.location, "build", "bin")
 
     def register_parser(self, subparsers):
         """
@@ -723,10 +813,12 @@ class BuildCommand(ManageCommand):
             os.makedirs(self.build_bin_dir)
         # Execute the build command
         env = dict(os.environ)
-        env['PLAINBOX_SRC_DIR'] = os.path.relpath(
-            self.src_dir, self.build_bin_dir)
+        env["PLAINBOX_SRC_DIR"] = os.path.relpath(
+            self.src_dir, self.build_bin_dir
+        )
         retval = subprocess.call(
-            self.build_cmd, shell=True, cwd=self.build_bin_dir, env=env)
+            self.build_cmd, shell=True, cwd=self.build_bin_dir, env=env
+        )
         # Pass the exit code along
         return retval
 
@@ -740,7 +832,8 @@ class BuildCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_("""
+    N_(
+        """
     clean build results
 
     This command complements the build command and is intended to clean-up
@@ -763,7 +856,9 @@ class BuildCommand(ManageCommand):
     setup(
        clean_cmd='rm -rf build/bin'
     )
-    """))
+    """
+    )
+)
 class CleanCommand(ManageCommand):
 
     SUPPORTS_KEYWORDS = True
@@ -794,7 +889,7 @@ class CleanCommand(ManageCommand):
         """
         absolute path of the src/ subdirectory
         """
-        return os.path.join(self.definition.location, 'src')
+        return os.path.join(self.definition.location, "src")
 
     def register_parser(self, subparsers):
         """
@@ -826,10 +921,12 @@ class CleanCommand(ManageCommand):
         """
         # Execute the clean command
         env = dict(os.environ)
-        env['PLAINBOX_SRC_DIR'] = os.path.relpath(
-            self.src_dir, self.definition.location)
+        env["PLAINBOX_SRC_DIR"] = os.path.relpath(
+            self.src_dir, self.definition.location
+        )
         retval = subprocess.call(
-            self.clean_cmd, shell=True, env=env, cwd=self.definition.location)
+            self.clean_cmd, shell=True, env=env, cwd=self.definition.location
+        )
         # Pass the exit code along
         return retval
 
@@ -843,14 +940,17 @@ class CleanCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_("""
+    N_(
+        """
     display basic information about this provider
 
     This command displays various essential facts about the provider associated
     with the ``manage.py`` script. Displayed data includes provider name and
     other meta-data, all of the jobs and test plans, with their precise
     locations.
-    """))
+    """
+    )
+)
 class InfoCommand(ManageCommand):
 
     def register_parser(self, subparsers):
@@ -877,8 +977,12 @@ class InfoCommand(ManageCommand):
             print("\t" + _("namespace: {}").format(provider.namespace))
         else:
             # TRANSLATORS: {} is the namespace of the test provider
-            print("\t" + _("namespace: {} (derived from name)").format(
-                provider.namespace))
+            print(
+                "\t"
+                + _("namespace: {} (derived from name)").format(
+                    provider.namespace
+                )
+            )
         # TRANSLATORS: {} is the name of the test provider
         print("\t" + _("description: {}").format(provider.tr_description()))
         # TRANSLATORS: {} is the version of the test provider
@@ -887,15 +991,21 @@ class InfoCommand(ManageCommand):
         print("\t" + _("gettext domain: {}").format(provider.gettext_domain))
         unit_list, problem_list = provider.unit_list, provider.problem_list
         print(_("[Job Definitions]"))
-        self._display_units((
-            unit for unit in unit_list if unit.Meta.name == 'job'))
+        self._display_units(
+            (unit for unit in unit_list if unit.Meta.name == "job")
+        )
         print(_("[Test Plans]"))
-        self._display_units((
-            unit for unit in unit_list if unit.Meta.name == 'test plan'))
+        self._display_units(
+            (unit for unit in unit_list if unit.Meta.name == "test plan")
+        )
         print(_("[Other Units]"))
-        self._display_units((
-            unit for unit in unit_list
-            if unit.Meta.name not in ('job', 'test plan')))
+        self._display_units(
+            (
+                unit
+                for unit in unit_list
+                if unit.Meta.name not in ("job", "test plan")
+            )
+        )
         if problem_list:
             print("\t" + _("Some units could not be parsed correctly"))
             # TRANSLATORS: please don't translate `manage.py validate`
@@ -909,16 +1019,24 @@ class InfoCommand(ManageCommand):
             # TRANSLATORS: the fields are as follows:
             # 0: unit representation
             # 1: pathname of the file the job is defined in
-            if unit.Meta.name == 'file':
-                print("\t" + _("{0} {1}, role {2}").format(
-                    unit.tr_unit(),
-                    unit.origin.relative_to(self.definition.location),
-                    unit.role))
+            if unit.Meta.name == "file":
+                print(
+                    "\t"
+                    + _("{0} {1}, role {2}").format(
+                        unit.tr_unit(),
+                        unit.origin.relative_to(self.definition.location),
+                        unit.role,
+                    )
+                )
             else:
-                print("\t" + _("{0} {1}, from {2}").format(
-                    unit.tr_unit(),
-                    unit.id if isinstance(unit, UnitWithId) else unit,
-                    unit.origin.relative_to(self.definition.location)))
+                print(
+                    "\t"
+                    + _("{0} {1}, from {2}").format(
+                        unit.tr_unit(),
+                        unit.id if isinstance(unit, UnitWithId) else unit,
+                        unit.origin.relative_to(self.definition.location),
+                    )
+                )
 
 
 @docstring(
@@ -930,7 +1048,8 @@ class InfoCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_("""
+    N_(
+        """
     perform various static analysis and validation
 
     This command inspects all of the jobs defined in the provider associated
@@ -946,7 +1065,9 @@ class InfoCommand(ManageCommand):
 
     The exit code can be used to determine if there were any failures. If you
     have any, ``manage.py validate`` is something that could run in a CI loop.
-    """))
+    """
+    )
+)
 class ValidateCommand(ManageCommand):
 
     SUPPORTS_KEYWORDS = True
@@ -959,11 +1080,11 @@ class ValidateCommand(ManageCommand):
 
     @property
     def strict(self):
-        return self._keywords.get('strict', True) is True
+        return self._keywords.get("strict", True) is True
 
     @property
     def deprecated(self):
-        return self._keywords.get('deprecated', True) is True
+        return self._keywords.get("deprecated", True) is True
 
     def register_parser(self, subparsers):
         """
@@ -981,23 +1102,41 @@ class ValidateCommand(ManageCommand):
         parser.set_defaults(
             new_validation_core=True,
             deprecated=self.deprecated,
-            strict=self.strict)
+            strict=self.strict,
+        )
         group = parser.add_argument_group(title=_("validation options"))
         group.add_argument(
-            '-s', '--strict', action='store_true',
-            help=_("Be strict about correctness"))
+            "-s",
+            "--strict",
+            action="store_true",
+            help=_("Be strict about correctness"),
+        )
         group.add_argument(
-            '-d', '--deprecated', action='store_true',
-            help=_("Report deprecated syntax and features"))
+            "-d",
+            "--deprecated",
+            action="store_true",
+            help=_("Report deprecated syntax and features"),
+        )
         group.add_argument(
-            '-l', '--loose', dest='strict', action='store_false',
-            help=_("Be loose about correctness"))
+            "-l",
+            "--loose",
+            dest="strict",
+            action="store_false",
+            help=_("Be loose about correctness"),
+        )
         group.add_argument(
-            '-L', '--legacy', dest='deprecated', action='store_false',
-            help=_("Support deprecated syntax and features"))
+            "-L",
+            "--legacy",
+            dest="deprecated",
+            action="store_false",
+            help=_("Support deprecated syntax and features"),
+        )
         group.add_argument(
-            '-N', '--new-validation-core', action='store_true',
-            help=argparse.SUPPRESS)
+            "-N",
+            "--new-validation-core",
+            action="store_true",
+            help=argparse.SUPPRESS,
+        )
 
     def invoked(self, ns):
         if ns.new_validation_core:
@@ -1029,23 +1168,32 @@ class ValidateCommand(ManageCommand):
                     # as $field.symbols, though as of this writing that is only
                     # true for the 'plugin' field.
                     field_prop = getattr(JobDefinition, str(error.field))
-                    if (error.problem == Problem.wrong
-                            and hasattr(field_prop, "get_all_symbols")):
+                    if error.problem == Problem.wrong and hasattr(
+                        field_prop, "get_all_symbols"
+                    ):
                         symbol_list = field_prop.get_all_symbols()
                         problem_text = _("allowed values are: {0}").format(
-                            ', '.join(str(symbol) for symbol in symbol_list))
+                            ", ".join(str(symbol) for symbol in symbol_list)
+                        )
                 # TRANSLATORS: fields are as follows:
                 # 0: filename with job definition
                 # 1: unit type name
                 # 2: unit identifier
                 # 3: field name
                 # 4: explanation of the problem
-                print(_("{0}: {1} {2!a}, field {3!a}: {4}").format(
-                    origin.relative_to(self.definition.location),
-                    unit.get_unit_type(),
-                    unit.id if isinstance(unit, (UnitWithId, JobDefinition))
-                    else unit,
-                    str(error.field), problem_text))
+                print(
+                    _("{0}: {1} {2!a}, field {3!a}: {4}").format(
+                        origin.relative_to(self.definition.location),
+                        unit.get_unit_type(),
+                        (
+                            unit.id
+                            if isinstance(unit, (UnitWithId, JobDefinition))
+                            else unit
+                        ),
+                        str(error.field),
+                        problem_text,
+                    )
+                )
             else:
                 print(str(error))
         if validation_problem_list or load_problem_list:
@@ -1058,13 +1206,21 @@ class ValidateCommand(ManageCommand):
         if problem_list:
             for exc in problem_list:
                 if isinstance(exc, RFC822SyntaxError):
-                    print("{}:{}: {}".format(
-                        os.path.relpath(exc.filename, provider.base_dir),
-                        exc.lineno, exc.msg))
+                    print(
+                        "{}:{}: {}".format(
+                            os.path.relpath(exc.filename, provider.base_dir),
+                            exc.lineno,
+                            exc.msg,
+                        )
+                    )
                 else:
                     print("{}".format(exc))
-            print(_("NOTE: subsequent units from problematic"
-                    " files are ignored"))
+            print(
+                _(
+                    "NOTE: subsequent units from problematic"
+                    " files are ignored"
+                )
+            )
         return unit_list, problem_list
 
     def validate_units(self, unit_list, ns):
@@ -1081,7 +1237,8 @@ class ValidateCommand(ManageCommand):
         provider = self.get_provider()
         _logger.info(_("Loading other providers..."))
         all_providers = InsecureProvider1PlugInCollection(
-            validate=False, check=False)
+            validate=False, check=False
+        )
         all_providers.load()
         provider_list = all_providers.get_all_plugin_objects()
         if all(p.name != provider.name for p in provider_list):
@@ -1121,18 +1278,22 @@ class ValidateCommand(ManageCommand):
             else:
                 hidden += 1
         if hidden > 0:
-            print(ngettext(
-                "NOTE: {0} advice was hidden",
-                "NOTE: {0} advices where hidden",
-                hidden
-            ).format(hidden))
-            print(_(
-                "Run 'manage.py validate --strict --deprecated' for details"
-            ))
+            print(
+                ngettext(
+                    "NOTE: {0} advice was hidden",
+                    "NOTE: {0} advices where hidden",
+                    hidden,
+                ).format(hidden)
+            )
+            print(
+                _("Run 'manage.py validate --strict --deprecated' for details")
+            )
         if failed:
-            print(_(
-                "Validation of provider {0} has failed"
-            ).format(provider.name))
+            print(
+                _("Validation of provider {0} has failed").format(
+                    provider.name
+                )
+            )
             return 1
         else:
             print(_("The provider seems to be valid"))
@@ -1146,9 +1307,9 @@ class ValidateCommand(ManageCommand):
             for exc in exc_list:
                 yield exc2issue(exc)
         if exc_list:
-            print(_(
-                "NOTE: subsequent units from problematic files are ignored"
-            ))
+            print(
+                _("NOTE: subsequent units from problematic files are ignored")
+            )
 
     def validate_units_in_context(self, context, unit_list):
         for unit in unit_list:
@@ -1164,8 +1325,9 @@ class ValidateCommand(ManageCommand):
         providers and let us validate them and handle the errors explicitly.
         """
         # NOTE: don't check or validate, we want to do that manually
-        return Provider1.from_definition(self.definition, secure=False,
-                                         validate=False, check=False)
+        return Provider1.from_definition(
+            self.definition, secure=False, validate=False, check=False
+        )
 
 
 def exc2issue(exc):
@@ -1184,12 +1346,18 @@ def exc2issue(exc):
     """
     if isinstance(exc, RFC822SyntaxError):
         return Issue(
-            exc.msg, Severity.error, Problem.syntax_error,
-            Origin(exc.filename, exc.lineno, exc.lineno))
+            exc.msg,
+            Severity.error,
+            Problem.syntax_error,
+            Origin(exc.filename, exc.lineno, exc.lineno),
+        )
     else:
         return Issue(
-            str(exc), Severity.error, Problem.unknown,
-            Origin(UnknownTextSource()))
+            str(exc),
+            Severity.error,
+            Problem.unknown,
+            Origin(UnknownTextSource()),
+        )
 
 
 @docstring(
@@ -1201,12 +1369,15 @@ def exc2issue(exc):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_("""
+    N_(
+        """
     update, merge and build translation catalogs
 
     This command exposes facilities for updating, merging and building
     message translation catalogs.
-    """))
+    """
+    )
+)
 class I18NCommand(ManageCommand):
 
     def register_parser(self, subparsers):
@@ -1223,18 +1394,31 @@ class I18NCommand(ManageCommand):
         """
         parser = self.add_subcommand(subparsers)
         parser.add_argument(
-            "-n", "--dry-run", default=False, action="store_true",
-            help=_("don't actually do anything"))
+            "-n",
+            "--dry-run",
+            default=False,
+            action="store_true",
+            help=_("don't actually do anything"),
+        )
         group = parser.add_argument_group(title=_("actions to perform"))
         group.add_argument(
-            "--dont-update-pot", default=False, action="store_true",
-            help=_("do not update the translation template"))
+            "--dont-update-pot",
+            default=False,
+            action="store_true",
+            help=_("do not update the translation template"),
+        )
         group.add_argument(
-            "--dont-merge-po", default=False, action="store_true",
-            help=_("do not merge translation files with the template"))
+            "--dont-merge-po",
+            default=False,
+            action="store_true",
+            help=_("do not merge translation files with the template"),
+        )
         group.add_argument(
-            "--dont-build-mo", default=False, action="store_true",
-            help=_("do not build binary translation files"))
+            "--dont-build-mo",
+            default=False,
+            action="store_true",
+            help=_("do not build binary translation files"),
+        )
 
     def invoked(self, ns):
         if self.definition.gettext_domain is Unset:
@@ -1256,52 +1440,72 @@ class I18NCommand(ManageCommand):
 
     @property
     def po_dir(self):
-        return os.path.join(self.definition.location, 'po')
+        return os.path.join(self.definition.location, "po")
 
     def mo_dir(self, lang):
         return os.path.join(
-            self.definition.location, 'build', 'mo', lang, 'LC_MESSAGES')
+            self.definition.location, "build", "mo", lang, "LC_MESSAGES"
+        )
 
     def _update_pot(self, dry_run):
-        self._cmd([
-            'intltool-update',
-            '--gettext-package={}'.format(self.definition.gettext_domain),
-            '--pot',
-        ], self.po_dir, dry_run)
+        self._cmd(
+            [
+                "intltool-update",
+                "--gettext-package={}".format(self.definition.gettext_domain),
+                "--pot",
+            ],
+            self.po_dir,
+            dry_run,
+        )
 
         if not self.get_provider().data_dir:
             return
 
     def _merge_po(self, dry_run):
         for item in os.listdir(self.po_dir):
-            if not item.endswith('.po'):
+            if not item.endswith(".po"):
                 continue
             lang = os.path.splitext(item)[0]
             mo_dir = self.mo_dir(lang)
             os.makedirs(mo_dir, exist_ok=True)
-            self._cmd([
-                'intltool-update',
-                '--gettext-package={}'.format(self.definition.gettext_domain),
-                '--dist', lang
-            ], self.po_dir, dry_run)
+            self._cmd(
+                [
+                    "intltool-update",
+                    "--gettext-package={}".format(
+                        self.definition.gettext_domain
+                    ),
+                    "--dist",
+                    lang,
+                ],
+                self.po_dir,
+                dry_run,
+            )
 
     def _build_mo(self, dry_run):
         for item in os.listdir(self.po_dir):
-            if not item.endswith('.po'):
+            if not item.endswith(".po"):
                 continue
             lang = os.path.splitext(item)[0]
             mo_dir = self.mo_dir(lang)
             os.makedirs(mo_dir, exist_ok=True)
-            self._cmd([
-                'msgfmt',
-                '{}/{}.po'.format(os.path.relpath(self.po_dir), lang),
-                '-o', os.path.relpath('{}/{}.mo'.format(
-                    mo_dir, self.definition.gettext_domain))
-            ], None, dry_run)
+            self._cmd(
+                [
+                    "msgfmt",
+                    "{}/{}.po".format(os.path.relpath(self.po_dir), lang),
+                    "-o",
+                    os.path.relpath(
+                        "{}/{}.mo".format(
+                            mo_dir, self.definition.gettext_domain
+                        )
+                    ),
+                ],
+                None,
+                dry_run,
+            )
 
     def _cmd(self, cmd, cwd, dry_run):
         if cwd is not None:
-            print('(', 'cd', os.path.relpath(cwd), '&&', " ".join(cmd), ')')
+            print("(", "cd", os.path.relpath(cwd), "&&", " ".join(cmd), ")")
         else:
             print(" ".join(cmd))
         if not dry_run:
@@ -1319,13 +1523,16 @@ class I18NCommand(ManageCommand):
     # It must be correctly preserved or the result won't work. In particular
     # the leading whitespace *must* be preserved and *must* have the same
     # length on each line.
-    N_("""
+    N_(
+        """
     generate packaging meta-data
 
     This command should not be invoked manually. It is applicable for package
     maintainers to allow them to extract packaging meta-data applicable for
     the current operating system from within the provider itself.
-    """))
+    """
+    )
+)
 class PackagingCommand(ManageCommand):
 
     def register_parser(self, subparsers):
@@ -1352,6 +1559,7 @@ class InlineShellcheckTests(unittest.TestCase):
     this class will have member functions monkey patched in to place that
     represent an individual test case for each pxu file job command.
     """
+
     pass
 
 
@@ -1360,10 +1568,12 @@ def create_inline_shellcheck_test(command):
 
     def run_inline_shellcheck(self):
         result = subprocess.run(
-            ['shellcheck', '-', '--shell=bash'],
+            ["shellcheck", "-", "--shell=bash"],
             input=command,
-            universal_newlines=True)
+            universal_newlines=True,
+        )
         self.assertEqual(result.returncode, 0)
+
     return run_inline_shellcheck
 
 
@@ -1375,6 +1585,7 @@ class ShellcheckTests(unittest.TestCase):
     this class will have member functions monkey patched in to place that
     represent an individual test case for each file.
     """
+
     pass
 
 
@@ -1382,8 +1593,9 @@ def create_shellcheck_test(shellfile):
     """Creates the target for the monkey patched methods in ShellcheckTests"""
 
     def run_shellcheck(self):
-        result = subprocess.run(['shellcheck', shellfile])
+        result = subprocess.run(["shellcheck", shellfile])
         self.assertEqual(result.returncode, 0)
+
     return run_shellcheck
 
 
@@ -1395,6 +1607,7 @@ class Flake8Tests(unittest.TestCase):
     this class will have member functions monkey patched in to place that
     represent an individual test case for each file.
     """
+
     pass
 
 
@@ -1402,8 +1615,9 @@ def create_flake8_test(pyfile):
     """Creates the target for the monkey patched methods in Flake8Tests"""
 
     def run_flake8(self):
-        result = subprocess.run(['flake8', pyfile])
+        result = subprocess.run(["flake8", "--extend-ignore=E203", pyfile])
         self.assertEqual(result.returncode, 0)
+
     return run_flake8
 
 
@@ -1413,12 +1627,12 @@ class TestCommand(ManageCommand):
     @property
     def tests_dir(self):
         """location of the unit tests"""
-        return os.path.join(self.definition.location, 'tests')
+        return os.path.join(self.definition.location, "tests")
 
     @property
     def scripts_dir(self):
         """location of the scripts that will be tested"""
-        return os.path.join(self.definition.location, 'bin')
+        return os.path.join(self.definition.location, "bin")
 
     def register_parser(self, subparsers):
         """
@@ -1435,17 +1649,26 @@ class TestCommand(ManageCommand):
         parser = self.add_subcommand(subparsers)
         group = parser.add_argument_group(title=_("test options"))
         group.add_argument(
-            '-i', '--inline', action='store_true',
-            help=_("Only job inline commands"))
+            "-i",
+            "--inline",
+            action="store_true",
+            help=_("Only job inline commands"),
+        )
         group.add_argument(
-            '-f', '--flake8', action='store_true',
-            help=_("Only Flake8"))
+            "-f", "--flake8", action="store_true", help=_("Only Flake8")
+        )
         group.add_argument(
-            '-s', '--shellcheck', action='store_true',
-            help=_("Only ShellCheck"))
+            "-s",
+            "--shellcheck",
+            action="store_true",
+            help=_("Only ShellCheck"),
+        )
         group.add_argument(
-            '-u', '--unittest', action='store_true',
-            help=_("Only unittest from tests/ dir"))
+            "-u",
+            "--unittest",
+            action="store_true",
+            help=_("Only unittest from tests/ dir"),
+        )
 
     def invoked(self, ns):
         sys.path.insert(0, self.scripts_dir)
@@ -1455,53 +1678,62 @@ class TestCommand(ManageCommand):
         # create unittest for each bin/*.sh file
         for file in glob.glob(self.scripts_dir + "/*.sh"):
             test_method = create_shellcheck_test(file)
-            test_method.__name__ = 'test_shellcheck_{}'.format(file)
+            test_method.__name__ = "test_shellcheck_{}".format(file)
             setattr(ShellcheckTests, test_method.__name__, test_method)
 
         shellcheck_suite = defaultTestLoader.loadTestsFromTestCase(
-            ShellcheckTests)
+            ShellcheckTests
+        )
 
         # create unittest for each bin/*.py file
         for file in glob.glob(self.scripts_dir + "/*.py"):
             test_method = create_flake8_test(file)
-            test_method.__name__ = 'test_flake8_{}'.format(file)
+            test_method.__name__ = "test_flake8_{}".format(file)
             setattr(Flake8Tests, test_method.__name__, test_method)
 
-        flake8_suite = defaultTestLoader.loadTestsFromTestCase(
-            Flake8Tests)
+        flake8_suite = defaultTestLoader.loadTestsFromTestCase(Flake8Tests)
 
         # create unittest for each job unit command
         unit_list = provider.unit_list
         for unit in unit_list:
-            if unit.Meta.name == 'template':
+            if unit.Meta.name == "template":
                 unit._fake_resources = True
                 accessed_parameters = unit.get_accessed_parameters(
-                    force=True, template_engine=unit.template_engine)
-                resource = Resource({
-                    key: key.upper()
-                    for key in set(
-                        itertools.chain(*accessed_parameters.values()))
-                })
+                    force=True, template_engine=unit.template_engine
+                )
+                resource = Resource(
+                    {
+                        key: key.upper()
+                        for key in set(
+                            itertools.chain(*accessed_parameters.values())
+                        )
+                    }
+                )
                 command = unit.instantiate_one(resource).command
                 if command:
                     test_method = create_inline_shellcheck_test(command)
-                    test_method.__name__ = 'test_job_command_{}_{}'.format(
+                    test_method.__name__ = "test_job_command_{}_{}".format(
                         unit.origin.relative_to(self.definition.location),
-                        unit.partial_id)
+                        unit.partial_id,
+                    )
                     setattr(
                         InlineShellcheckTests,
-                        test_method.__name__, test_method)
-            elif unit.Meta.name == 'job' and unit.command:
+                        test_method.__name__,
+                        test_method,
+                    )
+            elif unit.Meta.name == "job" and unit.command:
                 test_method = create_inline_shellcheck_test(unit.command)
-                test_method.__name__ = 'test_job_command_{}_{}'.format(
+                test_method.__name__ = "test_job_command_{}_{}".format(
                     unit.origin.relative_to(self.definition.location),
-                    unit.partial_id)
+                    unit.partial_id,
+                )
                 setattr(
-                    InlineShellcheckTests,
-                    test_method.__name__, test_method)
+                    InlineShellcheckTests, test_method.__name__, test_method
+                )
 
         inline_shellcheck_suite = defaultTestLoader.loadTestsFromTestCase(
-            InlineShellcheckTests)
+            InlineShellcheckTests
+        )
 
         # find tests defined in tests/
         if os.path.exists(self.tests_dir):
@@ -1518,12 +1750,16 @@ class TestCommand(ManageCommand):
         elif ns.shellcheck:
             result = runner.run(unittest.TestSuite([shellcheck_suite]))
         else:
-            result = runner.run(unittest.TestSuite([
-                inline_shellcheck_suite,
-                shellcheck_suite,
-                flake8_suite,
-                tests_dir_suite
-            ]))
+            result = runner.run(
+                unittest.TestSuite(
+                    [
+                        inline_shellcheck_suite,
+                        shellcheck_suite,
+                        flake8_suite,
+                        tests_dir_suite,
+                    ]
+                )
+            )
         if not result.wasSuccessful():
             return 1
 
@@ -1605,11 +1841,18 @@ class ProviderManagerTool(ToolBase):
             prog=self.get_exec_name(),
             # TRANSLATORS: please keep 'manage.py', '--help', '--version'
             # untranslated. Translate only '[options]'
-            usage=_("{} [--help] [--version] [options]".format(
-                self.get_exec_name())))
+            usage=_(
+                "{} [--help] [--version] [options]".format(
+                    self.get_exec_name()
+                )
+            ),
+        )
         parser.add_argument(
-            "--version", action="version", version=self.get_exec_version(),
-            help=_("show program's version number and exit"))
+            "--version",
+            action="version",
+            version=self.get_exec_version(),
+            help=_("show program's version number and exit"),
+        )
         return parser
 
     @classmethod
@@ -1631,7 +1874,7 @@ class ProviderManagerTool(ToolBase):
         Add top-level subcommands to the argument parser.
         """
         for cmd_cls in self._SUB_COMMANDS:
-            if getattr(cmd_cls, 'SUPPORTS_KEYWORDS', False):
+            if getattr(cmd_cls, "SUPPORTS_KEYWORDS", False):
                 cmd = cmd_cls(self.definition, self._keywords)
             else:
                 cmd = cmd_cls(self.definition)
@@ -1680,21 +1923,24 @@ def setup(**kwargs):
             gettext translation domain for job definition strings, optional
     """
     config = LoggingHelper().DEFAULT_CONFIG.copy()
-    config['silence_eperm_on_logdir_warning'] = True
+    config["silence_eperm_on_logdir_warning"] = True
     setup_logging(config)
-    manage_py = inspect.stack()[1][0].f_globals['__file__']
+    manage_py = inspect.stack()[1][0].f_globals["__file__"]
     location = os.path.dirname(os.path.abspath(manage_py))
     definition = Provider1Definition()
     try:
         definition.location = location
-        definition.name = kwargs.get('name', None)
-        definition.namespace = kwargs.get('namespace', Unset)
-        definition.version = kwargs.get('version', None)
-        definition.description = kwargs.get('description', None)
-        definition.gettext_domain = kwargs.get('gettext_domain', Unset)
+        definition.name = kwargs.get("name", None)
+        definition.namespace = kwargs.get("namespace", Unset)
+        definition.version = kwargs.get("version", None)
+        definition.description = kwargs.get("description", None)
+        definition.gettext_domain = kwargs.get("gettext_domain", Unset)
     except ConfigValidationError as exc:
-        raise SystemExit(_("{}: bad value of {!r}, {}").format(
-            manage_py, exc.variable.name, exc.message))
+        raise SystemExit(
+            _("{}: bad value of {!r}, {}").format(
+                manage_py, exc.variable.name, exc.message
+            )
+        )
     else:
         raise SystemExit(ProviderManagerTool(definition, kwargs).main())
 

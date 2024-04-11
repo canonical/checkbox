@@ -43,10 +43,14 @@ present = PresentFieldValidator()
 
 oneLine = CorrectFieldValueValidator(
     lambda field: field is not None and field.count("\n") == 0,
-    Problem.wrong, Severity.warning,
-    message=_("please use only one line"))
+    Problem.wrong,
+    Severity.warning,
+    message=_("please use only one line"),
+)
 
 shortValue = CorrectFieldValueValidator(
     lambda field: field is not None and len(field) <= 80,
-    Problem.wrong, Severity.warning,
-    message=_("please stay under 80 characters"))
+    Problem.wrong,
+    Severity.warning,
+    message=_("please stay under 80 characters"),
+)

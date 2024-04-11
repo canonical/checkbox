@@ -24,20 +24,26 @@ def main():
         now_ifaces = get_ifaces()
         # check if something disappeared
         if not starting_ifaces == now_ifaces & starting_ifaces:
-            raise SystemExit("Interface(s) disappeared: {}".format(
-                ", ".join(list(starting_ifaces - now_ifaces))))
+            raise SystemExit(
+                "Interface(s) disappeared: {}".format(
+                    ", ".join(list(starting_ifaces - now_ifaces))
+                )
+            )
         new_ifaces = now_ifaces - starting_ifaces
         if new_ifaces:
             print()
-            print("New interface(s) detected: {}".format(
-                ", ".join(list(new_ifaces))))
+            print(
+                "New interface(s) detected: {}".format(
+                    ", ".join(list(new_ifaces))
+                )
+            )
             return
         time.sleep(1)
-        print('.', end='', flush=True)
+        print(".", end="", flush=True)
         attempts -= 1
     print()
     raise SystemExit("Failed to detect new network interface")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

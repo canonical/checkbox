@@ -26,7 +26,7 @@ IIO_PATH = "/sys/bus/iio/devices/iio:device"
 pressure_nodes = [
     "in_pressure_input",
     "in_pressure_oversampling_ratio",
-    "in_pressure_sampling_frequency"
+    "in_pressure_sampling_frequency",
 ]
 accelerometer_nodes = [
     "in_accel_sampling_frequency",
@@ -36,7 +36,7 @@ accelerometer_nodes = [
     "in_accel_y_calibbias",
     "in_accel_y_raw",
     "in_accel_z_calibbias",
-    "in_accel_z_raw"
+    "in_accel_z_raw",
 ]
 humidity_nodes = [
     "in_humidityrelative_integration_time",
@@ -173,7 +173,7 @@ def validate_iio_sensor(args):
     test_funcs = {
         "pressure": check_pressure_sensor,
         "accelerometer": check_accelerometer_sensor,
-        "humidityrelative": check_humidity_sensor
+        "humidityrelative": check_humidity_sensor,
     }
 
     print("# Perform {} sensor test - index {}".format(args.type, args.index))
@@ -199,20 +199,23 @@ def dump_sensor_resource(args):
 def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='Industrial IO sensor tests')
+        description="Industrial IO sensor tests",
+    )
 
     sub_parsers = parser.add_subparsers(dest="test_func")
     sub_parsers.required = True
 
     iio_test_parser = sub_parsers.add_parser("test")
     iio_test_parser.add_argument(
-        "-t", "--type",
+        "-t",
+        "--type",
         required=True,
         choices=["pressure", "accelerometer", "humidityrelative"],
-        type=str
+        type=str,
     )
     iio_test_parser.add_argument(
-        "-i", "--index",
+        "-i",
+        "--index",
         required=True,
         type=str,
     )
@@ -221,8 +224,10 @@ def register_arguments():
     iio_arg_parser = sub_parsers.add_parser("sensor-resource")
     iio_arg_parser.add_argument(
         "mapping",
-        help=("Usage of parameter: IIO_SENSORS="
-              "{index}:{sensor_type} {index}:{sensor_type}")
+        help=(
+            "Usage of parameter: IIO_SENSORS="
+            "{index}:{sensor_type} {index}:{sensor_type}"
+        ),
     )
 
     iio_arg_parser.set_defaults(test_func=dump_sensor_resource)

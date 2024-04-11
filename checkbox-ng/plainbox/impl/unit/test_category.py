@@ -39,27 +39,31 @@ from plainbox.vendor import mock
 class CategoryUnitTests(TestCase):
 
     def setUp(self):
-        self._record = RFC822Record({
-            'id': 'id',
-            'name': 'name',
-        }, Origin(FileTextSource('file.txt'), 1, 2))
-        self._gettext_record = RFC822Record({
-            '_id': 'id',
-            '_name': 'name'
-        }, Origin(FileTextSource('file.txt.in'), 1, 2))
+        self._record = RFC822Record(
+            {
+                "id": "id",
+                "name": "name",
+            },
+            Origin(FileTextSource("file.txt"), 1, 2),
+        )
+        self._gettext_record = RFC822Record(
+            {"_id": "id", "_name": "name"},
+            Origin(FileTextSource("file.txt.in"), 1, 2),
+        )
 
     def tearDown(self):
         warnings.resetwarnings()
 
     def test_instantiate_template(self):
-        data = mock.Mock(name='data')
-        raw_data = mock.Mock(name='raw_data')
-        origin = mock.Mock(name='origin')
-        provider = mock.Mock(name='provider')
-        parameters = mock.Mock(name='parameters')
-        field_offset_map = mock.Mock(name='field_offset_map')
+        data = mock.Mock(name="data")
+        raw_data = mock.Mock(name="raw_data")
+        origin = mock.Mock(name="origin")
+        provider = mock.Mock(name="provider")
+        parameters = mock.Mock(name="parameters")
+        field_offset_map = mock.Mock(name="field_offset_map")
         unit = CategoryUnit.instantiate_template(
-            data, raw_data, origin, provider, parameters, field_offset_map)
+            data, raw_data, origin, provider, parameters, field_offset_map
+        )
         self.assertIs(unit._data, data)
         self.assertIs(unit._raw_data, raw_data)
         self.assertIs(unit._origin, origin)
@@ -113,35 +117,54 @@ class CategoryUnitFieldValidationTests(UnitWithIdFieldValidationTests):
     unit_cls = CategoryUnit
 
     def test_name__translatable(self):
-        issue_list = self.unit_cls({
-            'name': 'name'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
-                              Problem.expected_i18n, Severity.warning)
+        issue_list = self.unit_cls(
+            {"name": "name"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.name,
+            Problem.expected_i18n,
+            Severity.warning,
+        )
 
     def test_name__template_variant(self):
-        issue_list = self.unit_cls({
-            'name': 'name'
-        }, provider=self.provider, parameters={}).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
-                              Problem.constant, Severity.error)
+        issue_list = self.unit_cls(
+            {"name": "name"}, provider=self.provider, parameters={}
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.name,
+            Problem.constant,
+            Severity.error,
+        )
 
     def test_name__present(self):
-        issue_list = self.unit_cls({
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
-                              Problem.missing, Severity.error)
+        issue_list = self.unit_cls({}, provider=self.provider).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.name,
+            Problem.missing,
+            Severity.error,
+        )
 
     def test_name__one_line(self):
-        issue_list = self.unit_cls({
-            'name': 'line1\nline2'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
-                              Problem.wrong, Severity.warning)
+        issue_list = self.unit_cls(
+            {"name": "line1\nline2"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.name,
+            Problem.wrong,
+            Severity.warning,
+        )
 
     def test_name__short_line(self):
-        issue_list = self.unit_cls({
-            'name': 'x' * 81
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.name,
-                              Problem.wrong, Severity.warning)
+        issue_list = self.unit_cls(
+            {"name": "x" * 81}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.name,
+            Problem.wrong,
+            Severity.warning,
+        )

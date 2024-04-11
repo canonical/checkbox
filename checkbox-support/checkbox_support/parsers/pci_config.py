@@ -18,8 +18,7 @@ import io
 import re
 
 
-class PciSubsystemIdResult():
-
+class PciSubsystemIdResult:
     """Simple class to hold PCI Subsystem ID parsing results."""
 
     def __init__(self):
@@ -29,8 +28,7 @@ class PciSubsystemIdResult():
         self.pci_subsystem_id = pci_subsys_id
 
 
-class PciSubsystemIdParser():
-
+class PciSubsystemIdParser:
     """
     Parser for lspci subsystem ID for devices.
 
@@ -39,8 +37,8 @@ class PciSubsystemIdParser():
     for the first device.
     """
 
-    bdf_re = re.compile(r'[0-9a-fA-F]{2}:[0-9a-fA-F]{2}.[0-0a-fA-F] .*$')
-    config_re = re.compile(r'([0-9a-fA-F]{2}): (([0-9a-fA-F]{2} ).+)$')
+    bdf_re = re.compile(r"[0-9a-fA-F]{2}:[0-9a-fA-F]{2}.[0-0a-fA-F] .*$")
+    config_re = re.compile(r"([0-9a-fA-F]{2}): (([0-9a-fA-F]{2} ).+)$")
 
     def __init__(self, stream):
         self.stream = stream

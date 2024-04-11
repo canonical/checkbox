@@ -37,11 +37,10 @@ from plainbox.impl.validation import Severity
 logger = logging.getLogger("plainbox.unit.exporter")
 
 
-__all__ = ('ExporterUnit', )
+__all__ = ("ExporterUnit",)
 
 
 class ExporterUnit(UnitWithId):
-
     """
     Unit representing a session exporter.
 
@@ -54,7 +53,8 @@ class ExporterUnit(UnitWithId):
 
     def __repr__(self):
         return "<ExporterUnit id:{!r} entry_point:{!r}>".format(
-            self.id, self.entry_point)
+            self.id, self.entry_point
+        )
 
     @property
     def support(self):
@@ -72,45 +72,44 @@ class ExporterUnit(UnitWithId):
             This value is not translated, see :meth:`tr_summary()` for
             a translated equivalent.
         """
-        return self.get_record_value('summary', '')
+        return self.get_record_value("summary", "")
 
     def tr_summary(self):
         """Get the translated version of :meth:`summary`."""
-        return self.get_translated_record_value('summary', '')
+        return self.get_translated_record_value("summary", "")
 
     @property
     def entry_point(self):
         """Exporter EntryPoint to call."""
-        return self.get_record_value('entry_point')
+        return self.get_record_value("entry_point")
 
     @property
     def file_extension(self):
         """Filename extension when the exporter stream is saved to a file."""
-        return self.get_record_value('file_extension')
+        return self.get_record_value("file_extension")
 
     @property
     def options(self):
         """Configuration options to send to the exporter class."""
-        return self.get_record_value('options')
+        return self.get_record_value("options")
 
     @property
     def data(self):
         """Data to send to the exporter class."""
-        return self.get_record_value('data')
+        return self.get_record_value("data")
 
     class Meta:
 
-        name = 'exporter'
+        name = "exporter"
 
         class fields(SymbolDef):
-
             """Symbols for each field that an Exporter can have."""
 
-            summary = 'summary'
-            entry_point = 'entry_point'
-            file_extension = 'file_extension'
-            options = 'options'
-            data = 'data'
+            summary = "summary"
+            entry_point = "entry_point"
+            file_extension = "file_extension"
+            options = "options"
+            data = "data"
 
         field_validators = {
             fields.summary: [
@@ -124,15 +123,20 @@ class ExporterUnit(UnitWithId):
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda entry_point: pkg_resources.load_entry_point(
-                        'checkbox-ng', 'plainbox.exporter', entry_point),
-                    Problem.wrong, Severity.error),
+                        "checkbox-ng", "plainbox.exporter", entry_point
+                    ),
+                    Problem.wrong,
+                    Severity.error,
+                ),
             ],
             fields.file_extension: [
                 concrete_validators.present,
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda extension: re.search(r"^[\w\.\-]+$", extension),
-                    Problem.syntax_error, Severity.error),
+                    Problem.syntax_error,
+                    Severity.error,
+                ),
             ],
             fields.options: [
                 concrete_validators.untranslatable,
@@ -141,21 +145,27 @@ class ExporterUnit(UnitWithId):
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: json.loads(value),
-                    Problem.syntax_error, Severity.error,
-                    onlyif=lambda unit: unit.data),
+                    Problem.syntax_error,
+                    Severity.error,
+                    onlyif=lambda unit: unit.data,
+                ),
                 CorrectFieldValueValidator(
-                    lambda value, unit: os.path.isfile(os.path.join(
-                        unit.provider.data_dir,
-                        json.loads(value)['template'])),
-                    Problem.wrong, Severity.error,
+                    lambda value, unit: os.path.isfile(
+                        os.path.join(
+                            unit.provider.data_dir,
+                            json.loads(value)["template"],
+                        )
+                    ),
+                    Problem.wrong,
+                    Severity.error,
                     message=_("Jinja2 template not found"),
-                    onlyif=lambda unit: unit.entry_point == 'jinja2'),
+                    onlyif=lambda unit: unit.entry_point == "jinja2",
+                ),
             ],
         }
 
 
-class ExporterUnitSupport():
-
+class ExporterUnitSupport:
     """
     Helper class that distills exporter data into more usable form.
 
@@ -173,8 +183,8 @@ class ExporterUnitSupport():
         self._option_list = self._get_option_list(exporter)
         self.file_extension = exporter.file_extension
         self.summary = exporter.tr_summary()
-        if exporter.entry_point == 'jinja2':
-            self._template = self._data['template']
+        if exporter.entry_point == "jinja2":
+            self._template = self._data["template"]
 
     @property
     def data(self):
@@ -202,17 +212,20 @@ class ExporterUnitSupport():
     def _get_option_list(self, exporter):
         """Option list to send to the exporter class."""
         if exporter.options:
-            return re.split(r'[;,\s]+', exporter.options)
+            return re.split(r"[;,\s]+", exporter.options)
         else:
             return []
 
     def _get_exporter_cls(self, exporter):
         """Return the exporter class."""
         return pkg_resources.load_entry_point(
-            'checkbox-ng', 'plainbox.exporter', exporter.entry_point)
+            "checkbox-ng", "plainbox.exporter", exporter.entry_point
+        )
+
 
 class ExporterError(Exception):
     """
     Exception raised by exporters when they detect problems.
     """
+
     pass

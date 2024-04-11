@@ -34,7 +34,7 @@ def load_unit_tests():
     """
     # Discover all unit tests. By simple convention those are kept in
     # python modules that start with the word 'test_' .
-    start_dir = os.path.normpath(os.path.join(get_plainbox_dir(), '..'))
+    start_dir = os.path.normpath(os.path.join(get_plainbox_dir(), ".."))
     return defaultTestLoader.discover(start_dir)
 
 

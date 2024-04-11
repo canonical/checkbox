@@ -33,7 +33,6 @@ from plainbox.impl.secure.rfc822 import load_rfc822_records
 
 
 class DebianPackagingDriverTests(TestCase):
-
     """Tests for the DebianPackagingDriver class."""
 
     empty_driver = DebianPackagingDriver({})

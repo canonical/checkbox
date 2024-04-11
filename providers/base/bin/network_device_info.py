@@ -32,14 +32,14 @@ from checkbox_support.parsers.modinfo import ModinfoParser
 from checkbox_support.parsers.udevadm import UdevadmParser
 
 
-class Utils():
+class Utils:
 
-    sys_path = '/sys/class/net'
+    sys_path = "/sys/class/net"
 
     @staticmethod
     def get_ethtool_info(interface, key):
         """Return ethtool information identified by key"""
-        cmd = ['ethtool', interface]
+        cmd = ["ethtool", interface]
         try:
             output = check_output(cmd, stderr=STDOUT, universal_newlines=True)
         except CalledProcessError:
@@ -55,23 +55,27 @@ class Utils():
                 label_start = line.find(key)
                 data_start = label_start + len(key)
                 output_line = True
-            if (output_line is True and line[label_start] != ' ' and
-                    key not in line):
+            if (
+                output_line is True
+                and line[label_start] != " "
+                and key not in line
+            ):
                 output_line = False
             if output_line:
                 data.append(line[data_start:].strip())
                 if len(data) == 0:
                     data.append("Not reported")
-            result = ("\n" + "".join(["\t" + item + "\n"
-                                      for item in natsorted(data)]))
+            result = "\n" + "".join(
+                ["\t" + item + "\n" for item in natsorted(data)]
+            )
         result = result.rstrip()
         return result
 
     @classmethod
     def is_iface_connected(cls, iface):
         try:
-            carrier_file = os.path.join(cls.sys_path, iface, 'carrier')
-            return int(open(carrier_file, 'r').read()) == 1
+            carrier_file = os.path.join(cls.sys_path, iface, "carrier")
+            return int(open(carrier_file, "r").read()) == 1
         except Exception:
             pass
         return False
@@ -81,50 +85,65 @@ class Utils():
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
 
-            buffer = struct.pack('256s', interface[:15].encode())
+            buffer = struct.pack("256s", interface[:15].encode())
             # retrieve the IP address associated with a network interface.
             data = fcntl.ioctl(s.fileno(), 0x8915, buffer)
             ipv4_addr = socket.inet_ntoa(data[20:24])
         except OSError as e:
-            print("OSError: failed to get the IPv4 address for %s: %s" %
-                  (interface, repr(e)), file=sys.stderr)
+            print(
+                "OSError: failed to get the IPv4 address for %s: %s"
+                % (interface, repr(e)),
+                file=sys.stderr,
+            )
             ipv4_addr = "***NOT CONFIGURED***"
         finally:
             return ipv4_addr
 
     @staticmethod
     def get_ipv6_address(interface):
-        cmd = ['/sbin/ip', '-6', '-o', 'addr', 'show', 'dev', interface,
-               'scope', 'link']
+        cmd = [
+            "/sbin/ip",
+            "-6",
+            "-o",
+            "addr",
+            "show",
+            "dev",
+            interface,
+            "scope",
+            "link",
+        ]
         proc = check_output(cmd, universal_newlines=True)
         try:
             # If it failed at split(), it means there is no output from cmd.
             ipv6_addr = proc.split()[3].strip()
         except IndexError as e:
-            print("IndexError: failed to get the IPv6 address for %s: %s" %
-                  (interface, repr(e)), file=sys.stderr)
+            print(
+                "IndexError: failed to get the IPv6 address for %s: %s"
+                % (interface, repr(e)),
+                file=sys.stderr,
+            )
             ipv6_addr = "***NOT CONFIGURED***"
         return ipv6_addr
 
     @classmethod
     def get_mac_address(cls, interface):
-        address_file = os.path.join(cls.sys_path, interface, 'address')
+        address_file = os.path.join(cls.sys_path, interface, "address")
         try:
-            return open(address_file, 'r').read().strip()
+            return open(address_file, "r").read().strip()
         except IOError:
-            return 'UNKNOWN'
+            return "UNKNOWN"
 
     @classmethod
     def get_speed(cls, interface):
-        speed_file = os.path.join(cls.sys_path, interface, 'speed')
+        speed_file = os.path.join(cls.sys_path, interface, "speed")
         try:
-            return open(speed_file, 'r').read().strip()
+            return open(speed_file, "r").read().strip()
         except IOError:
-            return 'UNKNOWN'
+            return "UNKNOWN"
 
     @staticmethod
     def get_driver_version(driver):
-        cmd = ['/sbin/modinfo', driver]
+        cmd = ["/sbin/modinfo", driver]
         try:
             output = check_output(cmd, stderr=STDOUT, universal_newlines=True)
         except CalledProcessError:
@@ -136,18 +155,18 @@ class Utils():
 
         # try the version field first, then vermagic second, some audio
         # drivers don't report version if the driver is in-tree
-        version = modinfo.get('version')
+        version = modinfo.get("version")
 
-        if version is None or version == 'in-tree':
+        if version is None or version == "in-tree":
             # vermagic will look like this (below) and we only care about the
             # first part:
             # "3.2.0-29-generic SMP mod_unload modversions"
-            version = modinfo.get('vermagic').split()[0]
+            version = modinfo.get("vermagic").split()[0]
 
         return version
 
 
-class NetworkDeviceInfo():
+class NetworkDeviceInfo:
 
     def __init__(self):
         self._category = None
@@ -174,8 +193,8 @@ class NetworkDeviceInfo():
         for key, val in vars(self).items():
             if val is not None:
                 # leading _ removed, remaining ones spaces
-                pretty_key = key.lstrip('_').replace('_', ' ').title()
-                ret += '{}: {}\n'.format(pretty_key, val)
+                pretty_key = key.lstrip("_").replace("_", " ").title()
+                ret += "{}: {}\n".format(pretty_key, val)
         return ret
 
     @property
@@ -261,19 +280,22 @@ class NetworkDeviceInfo():
         if self.interface is None:
             return
         self._mac = Utils.get_mac_address(self.interface)
-        self._supported_modes = (Utils.get_ethtool_info(
-            self.interface, "Supported link modes:"))
-        self._advertised_modes = (Utils.get_ethtool_info(
-            self.interface, "Advertised link modes:"))
+        self._supported_modes = Utils.get_ethtool_info(
+            self.interface, "Supported link modes:"
+        )
+        self._advertised_modes = Utils.get_ethtool_info(
+            self.interface, "Advertised link modes:"
+        )
         if Utils.is_iface_connected(self.interface):
-            self._carrier_status = 'Connected'
+            self._carrier_status = "Connected"
             self._ipv4 = Utils.get_ipv4_address(self.interface)
             self._ipv6 = Utils.get_ipv6_address(self.interface)
             self._speed = Utils.get_speed(self.interface)
-            self._partner_modes = (Utils.get_ethtool_info(
-                self.interface, "Link partner advertised link modes:"))
+            self._partner_modes = Utils.get_ethtool_info(
+                self.interface, "Link partner advertised link modes:"
+            )
         else:
-            self._carrier_status = 'Disconnected'
+            self._carrier_status = "Disconnected"
 
     def _driver_populate(self):
         """Get extra attributes based on driver"""
@@ -282,14 +304,16 @@ class NetworkDeviceInfo():
         self._driver_version = Utils.get_driver_version(self.driver)
 
 
-class NMDevices():
+class NMDevices:
     # This example lists basic information about network interfaces known to NM
-    devtypes = {1: "Ethernet",
-                2: "WiFi",
-                5: "Bluetooth",
-                6: "OLPC",
-                7: "WiMAX",
-                8: "Modem"}
+    devtypes = {
+        1: "Ethernet",
+        2: "WiFi",
+        5: "Bluetooth",
+        6: "OLPC",
+        7: "WiMAX",
+        8: "Modem",
+    }
 
     def __init__(self, category="NETWORK"):
         self.category = category
@@ -301,22 +325,26 @@ class NMDevices():
 
     def _collect_devices(self):
         import dbus
+
         bus = dbus.SystemBus()
-        proxy = bus.get_object("org.freedesktop.NetworkManager",
-                               "/org/freedesktop/NetworkManager")
+        proxy = bus.get_object(
+            "org.freedesktop.NetworkManager", "/org/freedesktop/NetworkManager"
+        )
         manager = dbus.Interface(proxy, "org.freedesktop.NetworkManager")
         self._devices = manager.GetDevices()
 
     def devices(self):
         """Convert to list of NetworkDevice with NM derived attrs set"""
         import dbus
+
         for d in self._devices:
             bus = dbus.SystemBus()
             dev_proxy = bus.get_object("org.freedesktop.NetworkManager", d)
-            prop_iface = dbus.Interface(dev_proxy,
-                                        "org.freedesktop.DBus.Properties")
+            prop_iface = dbus.Interface(
+                dev_proxy, "org.freedesktop.DBus.Properties"
+            )
             props = prop_iface.GetAll("org.freedesktop.NetworkManager.Device")
-            devtype = self.devtypes.get(props.get('DeviceType'))
+            devtype = self.devtypes.get(props.get("DeviceType"))
             if devtype is None:
                 continue
             nd = NetworkDeviceInfo()
@@ -330,15 +358,15 @@ class NMDevices():
                     nd.category = self.category
                 else:
                     continue
-            nd.interface = props.get('Interface')
-            nd.driver = props.get('Driver')
-            nd.firmware_missing = props.get('FirmwareMissing')
+            nd.interface = props.get("Interface")
+            nd.driver = props.get("Driver")
+            nd.firmware_missing = props.get("FirmwareMissing")
             yield nd
 
 
-class UdevDevices():
+class UdevDevices:
 
-    def __init__(self, category='NETWORK'):
+    def __init__(self, category="NETWORK"):
         self.category = category
         self._devices = []
         self._collect_devices()
@@ -347,54 +375,73 @@ class UdevDevices():
         return len(self._devices)
 
     def _collect_devices(self):
-        cmd = ['udevadm', 'info', '--export-db']
+        cmd = ["udevadm", "info", "--export-db"]
         try:
-            output = check_output(cmd).decode(sys.stdout.encoding,
-                                              errors='ignore')
+            output = check_output(cmd).decode(
+                sys.stdout.encoding, errors="ignore"
+            )
         except CalledProcessError as err:
             sys.stderr.write(err)
             return
         udev = UdevadmParser(output)
         for device in udev.run():
-            if (device.category == self.category and
-                    device.interface != 'UNKNOWN'):
+            if (
+                device.category == self.category
+                and device.interface != "UNKNOWN"
+            ):
                 self._devices.append(device)
 
     def devices(self):
         """Convert to list of NetworkDevice with UDev derived attrs set"""
         for device in self._devices:
             nd = NetworkDeviceInfo()
-            nd.category = getattr(device, 'category', None)
-            nd.interface = getattr(device, 'interface', None)
-            nd.product = getattr(device, 'product', None)
-            nd.vendor = getattr(device, 'vendor', None)
-            nd.driver = getattr(device, 'driver', None)
-            nd.path = getattr(device, 'path', None)
-            vid = getattr(device, 'vendor_id', None)
-            pid = getattr(device, 'product_id', None)
+            nd.category = getattr(device, "category", None)
+            nd.interface = getattr(device, "interface", None)
+            nd.product = getattr(device, "product", None)
+            nd.vendor = getattr(device, "vendor", None)
+            nd.driver = getattr(device, "driver", None)
+            nd.path = getattr(device, "path", None)
+            vid = getattr(device, "vendor_id", None)
+            pid = getattr(device, "product_id", None)
             if vid and pid:
-                nd.id = '[{0:04x}:{1:04x}]'.format(vid, pid)
-            svid = getattr(device, 'subvendor_id', None)
-            spid = getattr(device, 'subproduct_id', None)
+                nd.id = "[{0:04x}:{1:04x}]".format(vid, pid)
+            svid = getattr(device, "subvendor_id", None)
+            spid = getattr(device, "subproduct_id", None)
             if svid and spid:
-                nd.subsystem_id = '[{0:04x}:{1:04x}]'.format(svid, spid)
+                nd.subsystem_id = "[{0:04x}:{1:04x}]".format(svid, spid)
             yield nd
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
-        description='Gather information about network devices')
-    parser.add_argument('action', choices=('detect', 'info'),
-                        help='Detect mode or just report info')
-    parser.add_argument('category', choices=('NETWORK', 'WIRELESS'),
-                        help='Either ethernet or WLAN devices')
-    parser.add_argument('--no-nm', action='store_true',
-                        help='Don\'t attempt to get info from network manager')
-    parser.add_argument('--interface',
-                        help='Restrict info action to specified interface')
-    parser.add_argument('--fail-on-disconnected', action='store_true',
-                        help=('Script will exit with a non-zero return code if'
-                              ' any interface is not connected'))
+        description="Gather information about network devices"
+    )
+    parser.add_argument(
+        "action",
+        choices=("detect", "info"),
+        help="Detect mode or just report info",
+    )
+    parser.add_argument(
+        "category",
+        choices=("NETWORK", "WIRELESS"),
+        help="Either ethernet or WLAN devices",
+    )
+    parser.add_argument(
+        "--no-nm",
+        action="store_true",
+        help="Don't attempt to get info from network manager",
+    )
+    parser.add_argument(
+        "--interface", help="Restrict info action to specified interface"
+    )
+    parser.add_argument(
+        "--fail-on-disconnected",
+        action="store_true",
+        help=(
+            "Script will exit with a non-zero return code if"
+            " any interface is not connected"
+        ),
+    )
     args = parser.parse_args()
 
     udev = UdevDevices(args.category)
@@ -402,18 +449,18 @@ if __name__ == "__main__":
 
     # The detect action should indicate presence of a device belonging to the
     # category and cause the job to fail if none present
-    if args.action == 'detect':
+    if args.action == "detect":
         if len(udev) == 0:
-            raise SystemExit('No devices detected by udev')
+            raise SystemExit("No devices detected by udev")
         else:
-            print("[ Devices found by udev ]".center(80, '-'))
+            print("[ Devices found by udev ]".center(80, "-"))
             for device in udev.devices():
                 print(device)
 
     # The info action should just gather infomation about any ethernet devices
     # found and report for inclusion in e.g. an attachment job and include
     # NetworkManager as a source if desired
-    if args.action == 'info':
+    if args.action == "info":
         # If interface has been specified
         if args.interface:
             for device in udev.devices():
@@ -422,7 +469,7 @@ if __name__ == "__main__":
             sys.exit(0)
 
         # Report udev detected devices first
-        print("[ Devices found by udev ]".center(80, '-'))
+        print("[ Devices found by udev ]".center(80, "-"))
         for device in udev.devices():
             print(device)
             if device.carrier_status == "Disconnected":
@@ -432,7 +479,7 @@ if __name__ == "__main__":
         # skipped as doesn't make sense for server installs
         if not args.no_nm:
             nm = NMDevices(args.category)
-            print("[ Devices found by Network Manager ]".center(80, '-'))
+            print("[ Devices found by Network Manager ]".center(80, "-"))
             for device in nm.devices():
                 print(device)
 

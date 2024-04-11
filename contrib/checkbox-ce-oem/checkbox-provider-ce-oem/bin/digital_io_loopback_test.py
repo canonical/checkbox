@@ -4,7 +4,7 @@ import os
 from argparse import ArgumentParser, RawTextHelpFormatter
 
 
-class DigitalIOSysFsController():
+class DigitalIOSysFsController:
 
     TEST_STATES = (0, 1)
     ROOT_PATH = "/sys/class/gpio"
@@ -67,8 +67,7 @@ class DigitalIOSysFsController():
         """
         print("# Set GPIO {} direction to {}".format(port, value))
         with open(
-            "{}/gpio{}/direction".format(self.ROOT_PATH, port),
-            "w"
+            "{}/gpio{}/direction".format(self.ROOT_PATH, port), "w"
         ) as fp:
             fp.write("{}\n".format(value))
 
@@ -95,8 +94,10 @@ class DigitalIOSysFsController():
             self.set_direction(port, direction)
         except Exception as err:
             raise IOError(
-                "{} \nError: Failed to configure GPIO {} to {}".format
-                (err, port, direction))
+                "{} \nError: Failed to configure GPIO {} to {}".format(
+                    err, port, direction
+                )
+            )
 
     def loopback_test(self, out_port, in_port):
         """Launch GPIO loopback test
@@ -125,8 +126,10 @@ class DigitalIOSysFsController():
                 result = False
             else:
                 str_match = "match"
-            print("# Digital state {}. expected: {} real: {}\n".format(
-                str_match, state, real_state)
+            print(
+                "# Digital state {}. expected: {} real: {}\n".format(
+                    str_match, state, real_state
+                )
             )
         return result
 
@@ -134,12 +137,10 @@ class DigitalIOSysFsController():
 def main():
     parser = ArgumentParser(formatter_class=RawTextHelpFormatter)
     parser.add_argument(
-        "-o", "--do_pin",
-        help="Provide the gpio pin of digital output port."
+        "-o", "--do_pin", help="Provide the gpio pin of digital output port."
     )
     parser.add_argument(
-        "-i", "--di_pin",
-        help="Provide the gpio pin of digital input port."
+        "-i", "--di_pin", help="Provide the gpio pin of digital input port."
     )
     args = parser.parse_args()
 

@@ -9,7 +9,7 @@ from pathlib import Path
 from datetime import datetime
 
 
-class SysFsLEDController():
+class SysFsLEDController:
 
     SysFsLEDPath = "/sys/class/leds"
 
@@ -64,7 +64,8 @@ class SysFsLEDController():
         node.write_text(value)
         if check and self._read_node(node) != value:
             raise ValueError(
-                "Unable to change the value of {} file".format(str(node)))
+                "Unable to change the value of {} file".format(str(node))
+            )
 
     @property
     def brightness(self):
@@ -85,9 +86,9 @@ class SysFsLEDController():
 
     @trigger.setter
     def trigger(self, value):
-        logging.debug("set trigger action to {} for {} LED".format(
-            value, self.led_name
-        ))
+        logging.debug(
+            "set trigger action to {} for {} LED".format(value, self.led_name)
+        )
         # The read value from trigger node is all supported trigger type
         # So skip the check
         self._write_node(self.trigger_node, value, False)
@@ -120,32 +121,13 @@ class SysFsLEDController():
 def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='LED Tests')
-    parser.add_argument(
-        "-n", "--name",
-        required=True,
-        type=str
+        description="LED Tests",
     )
-    parser.add_argument(
-        "-d", "--duration",
-        type=int,
-        default=5
-    )
-    parser.add_argument(
-        "-i", "--interval",
-        type=int,
-        default=0.5
-    )
-    parser.add_argument(
-        "--on-value",
-        type=int,
-        default="0"
-    )
-    parser.add_argument(
-        "--off-value",
-        type=int,
-        default="0"
-    )
+    parser.add_argument("-n", "--name", required=True, type=str)
+    parser.add_argument("-d", "--duration", type=int, default=5)
+    parser.add_argument("-i", "--interval", type=int, default=0.5)
+    parser.add_argument("--on-value", type=int, default="0")
+    parser.add_argument("--off-value", type=int, default="0")
     parser.add_argument(
         "--debug",
         action="store_true",
@@ -185,10 +167,17 @@ if __name__ == "__main__":
         root_logger.setLevel(logging.DEBUG)
 
     logging.info("# Start LED testing")
-    logging.info(("# Set the %s LED blinking around %d seconds"
-                  "with %f seconds blink interval"),
-                 args.name, args.duration, args.interval)
+    logging.info(
+        (
+            "# Set the %s LED blinking around %d seconds"
+            "with %f seconds blink interval"
+        ),
+        args.name,
+        args.duration,
+        args.interval,
+    )
 
-    with SysFsLEDController(args.name, str(args.on_value),
-                            str(args.off_value)) as led_controller:
+    with SysFsLEDController(
+        args.name, str(args.on_value), str(args.off_value)
+    ) as led_controller:
         led_controller.blinking(args.duration, args.interval)

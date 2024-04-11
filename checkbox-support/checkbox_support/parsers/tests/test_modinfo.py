@@ -25,7 +25,7 @@ from unittest import TestCase
 from checkbox_support.parsers.modinfo import (
     ModinfoParser,
     MultipleModinfoParser,
-    ModinfoResult
+    ModinfoResult,
 )
 
 
@@ -104,7 +104,6 @@ vermagic:       3.13.0-48-generic SMP mod_unload modversions
 
 
 class TestModinfoParser(TestCase):
-
     """Tests for the "single" modinfo parser."""
 
     def test_good_parse(self):
@@ -114,24 +113,28 @@ class TestModinfoParser(TestCase):
         result = parser.get_all()
 
         expected = {
-            'firmware':       [],
-            'filename':       "/lib/modules/3.13.0-48-generic/kernel/drivers/media/usb/uvc/uvcvideo.ko",
-            'version':        "1.1.1",
-            'license':        "GPL",
-            'description':    "USB Video Class driver",
-            'author':         "Laurent Pinchart &lt;laurent.pinchart@ideasonboard.com&gt;",
-            'srcversion':     "92BBF15FFC6F4BABEA6EB29",
-            'alias':          ["usb:v*p*d*dc*dsc*dp*ic0Eisc01ip00in*",
-                               "usb:v0416pA91Ad*dc*dsc*dp*ic0Eisc01ip00in*"],
-            'depends':        "videodev,videobuf2-core,videobuf2-vmalloc",
-            'intree':         "Y",
-            'vermagic':       "3.13.0-48-generic SMP mod_unload modversions",
-            'signer':         "Magrathea: Glacier signing key",
-            'sig_key':        "4E:B2:DE:24:99:17:CB:F3:9C:B8:56:92:E5:4C:EB:AD:E5:94:D6:80",
-            'sig_hashalgo':   "sha512",
-            'parm':           ["clock:Video buffers timestamp clock",
-                               "nodrop:Don't drop incomplete frames (uint)"]
-            }
+            "firmware": [],
+            "filename": "/lib/modules/3.13.0-48-generic/kernel/drivers/media/usb/uvc/uvcvideo.ko",
+            "version": "1.1.1",
+            "license": "GPL",
+            "description": "USB Video Class driver",
+            "author": "Laurent Pinchart &lt;laurent.pinchart@ideasonboard.com&gt;",
+            "srcversion": "92BBF15FFC6F4BABEA6EB29",
+            "alias": [
+                "usb:v*p*d*dc*dsc*dp*ic0Eisc01ip00in*",
+                "usb:v0416pA91Ad*dc*dsc*dp*ic0Eisc01ip00in*",
+            ],
+            "depends": "videodev,videobuf2-core,videobuf2-vmalloc",
+            "intree": "Y",
+            "vermagic": "3.13.0-48-generic SMP mod_unload modversions",
+            "signer": "Magrathea: Glacier signing key",
+            "sig_key": "4E:B2:DE:24:99:17:CB:F3:9C:B8:56:92:E5:4C:EB:AD:E5:94:D6:80",
+            "sig_hashalgo": "sha512",
+            "parm": [
+                "clock:Video buffers timestamp clock",
+                "nodrop:Don't drop incomplete frames (uint)",
+            ],
+        }
         self.assertDictEqual(result, expected)
 
     def test_bogus_parse(self):
@@ -143,7 +146,6 @@ class TestModinfoParser(TestCase):
 
 
 class testMultipleModinfoParser(TestCase):
-
     """Tests for the multiple modinfo parser."""
 
     def test_good_parse(self):
@@ -159,10 +161,10 @@ class testMultipleModinfoParser(TestCase):
         parser.run(result)
 
         self.assertEqual(2, len(result.mod_data))
-        self.assertIn('uvcvideo', result.mod_data)
-        self.assertEqual('1.1.1', result.mod_data['uvcvideo']['version'])
-        self.assertIn('ccm', result.mod_data)
-        self.assertEqual(['crypto-ccm'], result.mod_data['ccm']['alias'])
+        self.assertIn("uvcvideo", result.mod_data)
+        self.assertEqual("1.1.1", result.mod_data["uvcvideo"]["version"])
+        self.assertIn("ccm", result.mod_data)
+        self.assertEqual(["crypto-ccm"], result.mod_data["ccm"]["alias"])
 
     def test_name_only_parse(self):
         """

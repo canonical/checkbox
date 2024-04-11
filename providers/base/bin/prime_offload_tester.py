@@ -57,15 +57,16 @@ class PrimeOffloader:
             raise SystemExit("pci name format error")
 
         try:
-            cmd = ["grep",
-                   "-lr",
-                   "--include=name",
-                   pci_name,
-                   "/sys/kernel/debug/dri"]
+            cmd = [
+                "grep",
+                "-lr",
+                "--include=name",
+                pci_name,
+                "/sys/kernel/debug/dri",
+            ]
 
-            card_path = subprocess.check_output(cmd,
-                                                universal_newlines=True)
-            return card_path.split('/')[5]
+            card_path = subprocess.check_output(cmd, universal_newlines=True)
+            return card_path.split("/")[5]
         except IndexError as e:
             raise SystemExit("return value format error {}".format(repr(e)))
         except subprocess.CalledProcessError as e:
@@ -81,12 +82,11 @@ class PrimeOffloader:
         """
         cmd = ["lshw", "-c", "display", "-json"]
         try:
-            card_infos = subprocess.check_output(cmd,
-                                                 universal_newlines=True)
+            card_infos = subprocess.check_output(cmd, universal_newlines=True)
             infos = json.loads(card_infos)
             for info in infos:
-                if pci_name in info['businfo']:
-                    return info['product']
+                if pci_name in info["businfo"]:
+                    return info["product"]
             raise SystemExit("Card name not found")
         except (KeyError, TypeError, json.decoder.JSONDecodeError) as e:
             raise SystemExit("return value format error {}".format(e))
@@ -108,18 +108,22 @@ class PrimeOffloader:
 
         :param cmd: command that running under prime offload
         """
-        read_clients_cmd = ["cat",
-                            "/sys/kernel/debug/dri/{}/clients"
-                            .format(card_id)]
+        read_clients_cmd = [
+            "cat",
+            "/sys/kernel/debug/dri/{}/clients".format(card_id),
+        ]
         try:
-            return subprocess.check_output(read_clients_cmd,
-                                           universal_newlines=True)
+            return subprocess.check_output(
+                read_clients_cmd, universal_newlines=True
+            )
         except subprocess.CalledProcessError:
-            self.logger.info("Couldn't get clients on specific GPU{}"
-                             .format(card_id))
+            self.logger.info(
+                "Couldn't get clients on specific GPU{}".format(card_id)
+            )
 
-    def check_offload(self, cmd: list, card_id: str,
-                      card_name: str, timeout: str):
+    def check_offload(
+        self, cmd: list, card_id: str, card_name: str, timeout: str
+    ):
         """
         Use to check provided command is executed on specific GPU.
 
@@ -159,23 +163,27 @@ class PrimeOffloader:
         # If there is no nv driver, prime offload is fine for other drivers.
         try:
             if "on-demand" not in subprocess.check_output(
-                    ["prime-select", "query"], universal_newlines=True):
+                ["prime-select", "query"], universal_newlines=True
+            ):
                 raise SystemExit("System isn't on-demand mode")
 
             # prime offload couldn't running on nvlink active or inactive
             # Therefore, only return empty string is supported environment.
-            nvlink = subprocess.check_output(["nvidia-smi", "nvlink", "-s"],
-                                             universal_newlines=True)
+            nvlink = subprocess.check_output(
+                ["nvidia-smi", "nvlink", "-s"], universal_newlines=True
+            )
             if nvlink:
-                if 'error' in nvlink.lower():
+                if "error" in nvlink.lower():
                     raise SystemExit("nvidia driver error")
                 raise SystemExit("NVLINK detected")
         except FileNotFoundError:
             self.logger.info(
-                "No prime-select, it should be ok to run prime offload")
+                "No prime-select, it should be ok to run prime offload"
+            )
 
-    def run_offload_cmd(self, cmd: str, pci_name: str,
-                        driver: str, timeout: int):
+    def run_offload_cmd(
+        self, cmd: str, pci_name: str, driver: str, timeout: int
+    ):
         """
         run offload command and check it runs on correct GPU
 
@@ -202,17 +210,21 @@ class PrimeOffloader:
         else:
             # if timeout <=0 will make check_offload failed.
             # Set the timeout to the default value
-            log_str = ("Timeout {}s is invalid,"
-                       " remove the timeout setting"
-                       " and change check_offload to run 20s".format(timeout))
+            log_str = (
+                "Timeout {}s is invalid,"
+                " remove the timeout setting"
+                " and change check_offload to run 20s".format(timeout)
+            )
             self.logger.info(log_str)
             timeout = 20
             offload_cmd = cmd
 
         env = os.environ.copy()
-        if driver in ('nvidia', 'pcieport'):
-            offload_env = {"__NV_PRIME_RENDER_OFFLOAD": "1",
-                           "__GLX_VENDOR_LIBRARY_NAME": "nvidia"}
+        if driver in ("nvidia", "pcieport"):
+            offload_env = {
+                "__NV_PRIME_RENDER_OFFLOAD": "1",
+                "__GLX_VENDOR_LIBRARY_NAME": "nvidia",
+            }
         else:
             offload_env = {"DRI_PRIME": "pci-{}".format(dri_pci_name_format)}
 
@@ -223,15 +235,17 @@ class PrimeOffloader:
         self.check_nv_offload_env()
 
         # use other thread to check offload is correctly or not
-        check_thread = threading.Thread(target=self.check_offload,
-                                        args=(cmd, card_id,
-                                              card_name,
-                                              timeout))
+        check_thread = threading.Thread(
+            target=self.check_offload, args=(cmd, card_id, card_name, timeout)
+        )
         check_thread.start()
         try:
-            with subprocess.Popen(offload_cmd, env=env,
-                                  stdout=subprocess.PIPE,
-                                  universal_newlines=True) as offload:
+            with subprocess.Popen(
+                offload_cmd,
+                env=env,
+                stdout=subprocess.PIPE,
+                universal_newlines=True,
+            ) as offload:
 
                 self.logger.info("offload command:[{}]".format(offload_cmd))
 
@@ -258,20 +272,32 @@ class PrimeOffloader:
         )
 
         parser.add_argument(
-            "-c", "--command", type=str, default='glxgears',
-            help='command to offload to specific GPU (default: %(default)s)'
+            "-c",
+            "--command",
+            type=str,
+            default="glxgears",
+            help="command to offload to specific GPU (default: %(default)s)",
         )
         parser.add_argument(
-            "-p", "--pci", type=str, default='0000:00:02.0',
-            help='pci name in NNNN:NN:NN.N format (default: %(default)s)'
+            "-p",
+            "--pci",
+            type=str,
+            default="0000:00:02.0",
+            help="pci name in NNNN:NN:NN.N format (default: %(default)s)",
         )
         parser.add_argument(
-            "-d", "--driver", type=str, default='i915',
-            help='Type of GPU driver (default: %(default)s)'
+            "-d",
+            "--driver",
+            type=str,
+            default="i915",
+            help="Type of GPU driver (default: %(default)s)",
         )
         parser.add_argument(
-            "-t", "--timeout", type=int, default=20,
-            help='executing command duration in second (default: %(default)s).'
+            "-t",
+            "--timeout",
+            type=int,
+            default=20,
+            help="executing command duration in second (default: %(default)s).",  # noqa: E501
         )
         return parser.parse_args(args)
 
@@ -279,7 +305,7 @@ class PrimeOffloader:
         args = self.parse_args()
 
         # create self.logger.formatter
-        log_formatter = logging.Formatter(fmt='%(message)s')
+        log_formatter = logging.Formatter(fmt="%(message)s")
 
         # create logger
         self.logger.setLevel(logging.INFO)
@@ -292,10 +318,7 @@ class PrimeOffloader:
         self.logger.addHandler(console_handler)
 
         # run_offload_cmd("glxgears", "0000:00:02.0", "i915", 0)
-        self.run_offload_cmd(args.command,
-                             args.pci,
-                             args.driver,
-                             args.timeout)
+        self.run_offload_cmd(args.command, args.pci, args.driver, args.timeout)
 
 
 if __name__ == "__main__":

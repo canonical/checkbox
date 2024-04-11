@@ -38,8 +38,9 @@ class IssueMixIn:
     Mix in for TestCase to work with issues and issue lists
     """
 
-    def assertIssueFound(self, issue_list, field=None, kind=None,
-                         severity=None, message=None):
+    def assertIssueFound(
+        self, issue_list, field=None, kind=None, severity=None, message=None
+    ):
         """
         Raise an assertion unless an issue with the required fields is found
 
@@ -68,19 +69,23 @@ class IssueMixIn:
             return issue
         else:
             msg = "no issue matching:\n{}\nwas found in:\n{}".format(
-                '\n'.join(
-                    ' * {} is {!r}'.format(issue_attr, value)
-                    for issue_attr, value in
-                    [('field', field),
-                     ('severity', severity),
-                     ('kind', kind),
-                     ('message', message)]
-                    if value is not None),
-                '\n'.join(" - {!r}".format(issue) for issue in issue_list))
+                "\n".join(
+                    " * {} is {!r}".format(issue_attr, value)
+                    for issue_attr, value in [
+                        ("field", field),
+                        ("severity", severity),
+                        ("kind", kind),
+                        ("message", message),
+                    ]
+                    if value is not None
+                ),
+                "\n".join(" - {!r}".format(issue) for issue in issue_list),
+            )
             return self.fail(msg)
 
-    def assertIssueNotFound(self, issue_list, field=None, kind=None,
-                            severity=None, message=None):
+    def assertIssueNotFound(
+        self, issue_list, field=None, kind=None, severity=None, message=None
+    ):
         """
         Raise an assertion if no issue matching the provided criteria is found
 
@@ -109,15 +114,18 @@ class IssueMixIn:
             # return issue
             return self.fail("Issue matching the given criteria found!")
             msg = "Issue matching:\n{}\nwas found in:\n{}".format(
-                '\n'.join(
-                    ' * {} is {!r}'.format(issue_attr, value)
-                    for issue_attr, value in
-                    [('field', field),
-                     ('severity', severity),
-                     ('kind', kind),
-                     ('message', message)]
-                    if value is not None),
-                '\n'.join(" - {!r}".format(issue) for issue in issue_list))
+                "\n".join(
+                    " * {} is {!r}".format(issue_attr, value)
+                    for issue_attr, value in [
+                        ("field", field),
+                        ("severity", severity),
+                        ("kind", kind),
+                        ("message", message),
+                    ]
+                    if value is not None
+                ),
+                "\n".join(" - {!r}".format(issue) for issue in issue_list),
+            )
             return self.fail(msg)
         else:
             return issue
@@ -126,14 +134,15 @@ class IssueMixIn:
 class TestUnitDefinition(TestCase):
 
     def test_instantiate_template(self):
-        data = mock.Mock(name='data')
-        raw_data = mock.Mock(name='raw_data')
-        origin = mock.Mock(name='origin')
-        provider = mock.Mock(name='provider')
-        parameters = mock.Mock(name='parameters')
-        field_offset_map = mock.Mock(name='field_offset_map')
+        data = mock.Mock(name="data")
+        raw_data = mock.Mock(name="raw_data")
+        origin = mock.Mock(name="origin")
+        provider = mock.Mock(name="provider")
+        parameters = mock.Mock(name="parameters")
+        field_offset_map = mock.Mock(name="field_offset_map")
         unit = Unit.instantiate_template(
-            data, raw_data, origin, provider, parameters, field_offset_map)
+            data, raw_data, origin, provider, parameters, field_offset_map
+        )
         self.assertIs(unit._data, data)
         self.assertIs(unit._raw_data, raw_data)
         self.assertIs(unit._origin, origin)
@@ -145,49 +154,61 @@ class TestUnitDefinition(TestCase):
         """
         Ensure that get_raw_record_value() works okay
         """
-        unit1 = Unit({'key': 'value'}, {'key': 'raw-value'})
-        unit2 = Unit({'_key': 'value'}, {'_key': 'raw-value'})
-        unit3 = Unit({'key': '{param}'}, {'key': 'raw-{param}'},
-                     parameters={'param': 'value'})
-        unit4 = Unit({'key': '{missing_param}'},
-                     {'key': 'raw-{missing_param}'},
-                     parameters={'param': 'value'})
+        unit1 = Unit({"key": "value"}, {"key": "raw-value"})
+        unit2 = Unit({"_key": "value"}, {"_key": "raw-value"})
+        unit3 = Unit(
+            {"key": "{param}"},
+            {"key": "raw-{param}"},
+            parameters={"param": "value"},
+        )
+        unit4 = Unit(
+            {"key": "{missing_param}"},
+            {"key": "raw-{missing_param}"},
+            parameters={"param": "value"},
+        )
         unit5 = Unit({})
-        unit6 = Unit({}, parameters={'param': 'value'})
-        self.assertEqual(unit1.get_raw_record_value('key'), 'raw-value')
-        self.assertEqual(unit2.get_raw_record_value('key'), 'raw-value')
-        self.assertEqual(unit3.get_raw_record_value('key'), 'raw-value')
+        unit6 = Unit({}, parameters={"param": "value"})
+        self.assertEqual(unit1.get_raw_record_value("key"), "raw-value")
+        self.assertEqual(unit2.get_raw_record_value("key"), "raw-value")
+        self.assertEqual(unit3.get_raw_record_value("key"), "raw-value")
         with self.assertRaises(KeyError):
-            unit4.get_raw_record_value('key')
-        self.assertEqual(unit5.get_raw_record_value('key'), None)
+            unit4.get_raw_record_value("key")
+        self.assertEqual(unit5.get_raw_record_value("key"), None)
         self.assertEqual(
-            unit5.get_raw_record_value('key', 'default'), 'default')
-        self.assertEqual(unit6.get_raw_record_value('key'), None)
+            unit5.get_raw_record_value("key", "default"), "default"
+        )
+        self.assertEqual(unit6.get_raw_record_value("key"), None)
         self.assertEqual(
-            unit6.get_raw_record_value('key', 'default'), 'default')
+            unit6.get_raw_record_value("key", "default"), "default"
+        )
 
     def test_get_record_value(self):
         """
         Ensure that get_record_value() works okay
         """
-        unit1 = Unit({'key': 'value'}, {'key': 'raw-value'})
-        unit2 = Unit({'_key': 'value'}, {'_key': 'raw-value'})
-        unit3 = Unit({'key': '{param}'}, {'key': 'raw-{param}'},
-                     parameters={'param': 'value'})
-        unit4 = Unit({'key': '{missing_param}'},
-                     {'key': 'raw-{missing_param}'},
-                     parameters={'param': 'value'})
+        unit1 = Unit({"key": "value"}, {"key": "raw-value"})
+        unit2 = Unit({"_key": "value"}, {"_key": "raw-value"})
+        unit3 = Unit(
+            {"key": "{param}"},
+            {"key": "raw-{param}"},
+            parameters={"param": "value"},
+        )
+        unit4 = Unit(
+            {"key": "{missing_param}"},
+            {"key": "raw-{missing_param}"},
+            parameters={"param": "value"},
+        )
         unit5 = Unit({})
-        unit6 = Unit({}, parameters={'param': 'value'})
-        self.assertEqual(unit1.get_record_value('key'), 'value')
-        self.assertEqual(unit2.get_record_value('key'), 'value')
-        self.assertEqual(unit3.get_record_value('key'), 'value')
+        unit6 = Unit({}, parameters={"param": "value"})
+        self.assertEqual(unit1.get_record_value("key"), "value")
+        self.assertEqual(unit2.get_record_value("key"), "value")
+        self.assertEqual(unit3.get_record_value("key"), "value")
         with self.assertRaises(MissingParam):
-            unit4.get_record_value('key')
-        self.assertEqual(unit5.get_record_value('key'), None)
-        self.assertEqual(unit5.get_record_value('key', 'default'), 'default')
-        self.assertEqual(unit6.get_record_value('key'), None)
-        self.assertEqual(unit6.get_record_value('key', 'default'), 'default')
+            unit4.get_record_value("key")
+        self.assertEqual(unit5.get_record_value("key"), None)
+        self.assertEqual(unit5.get_record_value("key", "default"), "default")
+        self.assertEqual(unit6.get_record_value("key"), None)
+        self.assertEqual(unit6.get_record_value("key", "default"), "default")
 
     def test_get_translated_data__typical(self):
         """
@@ -195,7 +216,7 @@ class TestUnitDefinition(TestCase):
         """
         unit = Unit({})
         with mock.patch.object(unit, "_provider") as mock_provider:
-            retval = unit.get_translated_data('foo')
+            retval = unit.get_translated_data("foo")
         mock_provider.get_translated_data.assert_called_with("foo")
         self.assertEqual(retval, mock_provider.get_translated_data())
 
@@ -205,7 +226,7 @@ class TestUnitDefinition(TestCase):
         """
         unit = Unit({})
         unit._provider = None
-        self.assertEqual(unit.get_translated_data('foo'), 'foo')
+        self.assertEqual(unit.get_translated_data("foo"), "foo")
 
     def test_get_translated_data__empty_msgid(self):
         """
@@ -213,7 +234,7 @@ class TestUnitDefinition(TestCase):
         """
         unit = Unit({})
         with mock.patch.object(unit, "_provider"):
-            self.assertEqual(unit.get_translated_data(''), '')
+            self.assertEqual(unit.get_translated_data(""), "")
 
     def test_get_translated_data__None_msgid(self):
         """
@@ -223,14 +244,14 @@ class TestUnitDefinition(TestCase):
         with mock.patch.object(unit, "_provider"):
             self.assertEqual(unit.get_translated_data(None), None)
 
-    @mock.patch('plainbox.impl.unit.unit.normalize_rfc822_value')
+    @mock.patch("plainbox.impl.unit.unit.normalize_rfc822_value")
     def test_get_normalized_translated_data__typical(self, mock_norm):
         """
         verify the runtime behavior of get_normalized_translated_data()
         """
         unit = Unit({})
         with mock.patch.object(unit, "get_translated_data") as mock_tr:
-            retval = unit.get_normalized_translated_data('foo')
+            retval = unit.get_normalized_translated_data("foo")
         # get_translated_data('foo') was called
         mock_tr.assert_called_with("foo")
         # normalize_rfc822_value(x) was called
@@ -238,7 +259,7 @@ class TestUnitDefinition(TestCase):
         # return value was returned
         self.assertEqual(retval, mock_norm())
 
-    @mock.patch('plainbox.impl.unit.unit.normalize_rfc822_value')
+    @mock.patch("plainbox.impl.unit.unit.normalize_rfc822_value")
     def test_get_normalized_translated_data__no_translation(self, mock_norm):
         """
         verify the runtime behavior of get_normalized_translated_data()
@@ -246,108 +267,123 @@ class TestUnitDefinition(TestCase):
         unit = Unit({})
         with mock.patch.object(unit, "get_translated_data") as mock_tr:
             mock_tr.return_value = None
-            retval = unit.get_normalized_translated_data('foo')
+            retval = unit.get_normalized_translated_data("foo")
         # get_translated_data('foo') was called
         mock_tr.assert_called_with("foo")
         # normalize_rfc822_value(x) was NOT called
         self.assertEqual(mock_norm.call_count, 0)
         # return value was returned
-        self.assertEqual(retval, 'foo')
+        self.assertEqual(retval, "foo")
 
     def test_checksum_smoke(self):
-        unit1 = Unit({'plugin': 'plugin', 'user': 'root'})
-        identical_to_unit1 = Unit({'plugin': 'plugin', 'user': 'root'})
+        unit1 = Unit({"plugin": "plugin", "user": "root"})
+        identical_to_unit1 = Unit({"plugin": "plugin", "user": "root"})
         # Two distinct but identical units have the same checksum
         self.assertEqual(unit1.checksum, identical_to_unit1.checksum)
-        unit2 = Unit({'plugin': 'plugin', 'user': 'anonymous'})
+        unit2 = Unit({"plugin": "plugin", "user": "anonymous"})
         # Two units with different definitions have different checksum
         self.assertNotEqual(unit1.checksum, unit2.checksum)
         # The checksum is stable and does not change over time
         self.assertEqual(
             unit1.checksum,
-            "c47cc3719061e4df0010d061e6f20d3d046071fd467d02d093a03068d2f33400")
-        unit3 = Unit({'plugin': 'plugin', 'user': 'anonymous'},
-                     parameters={'param': 'value'})
+            "c47cc3719061e4df0010d061e6f20d3d046071fd467d02d093a03068d2f33400",
+        )
+        unit3 = Unit(
+            {"plugin": "plugin", "user": "anonymous"},
+            parameters={"param": "value"},
+        )
         # Units with identical data but different parameters have different
         # checksums
         self.assertNotEqual(unit2.checksum, unit3.checksum)
         # The checksum is stable and does not change over time
         self.assertEqual(
             unit3.checksum,
-            "5558e5231fb192e8126ed69d950972fa878375d1364a221ed6550852e7d5cde0")
+            "5558e5231fb192e8126ed69d950972fa878375d1364a221ed6550852e7d5cde0",
+        )
 
     def test_comparison(self):
         # Ensure that units with equal data are equal
         self.assertEqual(Unit({}), Unit({}))
         # Ensure that units with equal data and equal parameters are equal
         self.assertEqual(
-            Unit({}, parameters={'param': 'value'}),
-            Unit({}, parameters={'param': 'value'}))
+            Unit({}, parameters={"param": "value"}),
+            Unit({}, parameters={"param": "value"}),
+        )
         # Ensure that units with equal data but different origin are still
         # equal
         self.assertEqual(
-            Unit({}, origin=mock.Mock()),
-            Unit({}, origin=mock.Mock()))
+            Unit({}, origin=mock.Mock()), Unit({}, origin=mock.Mock())
+        )
         # Ensure that units with equal data but different provider are still
         # equal
-        self.assertEqual(
-            Unit({}, provider=None), Unit({}, provider=None))
+        self.assertEqual(Unit({}, provider=None), Unit({}, provider=None))
         # Ensure that units with equal data but different raw data are still
         # equal
         self.assertEqual(
-            Unit({}, raw_data={'key': 'raw-value-1'}),
-            Unit({}, raw_data={'key': 'raw-value-2'}))
+            Unit({}, raw_data={"key": "raw-value-1"}),
+            Unit({}, raw_data={"key": "raw-value-2"}),
+        )
         # Ensure that units with different data are not equal
         self.assertNotEqual(
-            Unit({'key': 'value'}), Unit({'key': 'other-value'}))
+            Unit({"key": "value"}), Unit({"key": "other-value"})
+        )
         # Ensure that units with equal data but different parameters are not
         # equal
         self.assertNotEqual(
-            Unit({}, parameters={'param': 'value1'}),
-            Unit({}, parameters={'param': 'value2'}))
+            Unit({}, parameters={"param": "value1"}),
+            Unit({}, parameters={"param": "value2"}),
+        )
 
     def test_get_accessed_parameters(self):
         # There are no accessed parameters if the unit is not parameterized
+        self.assertEqual(Unit({}).get_accessed_parameters(), {})
         self.assertEqual(
-            Unit({}).get_accessed_parameters(), {})
+            Unit({"field": "value"}).get_accessed_parameters(),
+            {"field": frozenset()},
+        )
         self.assertEqual(
-            Unit({'field': 'value'}).get_accessed_parameters(),
-            {'field': frozenset()})
-        self.assertEqual(
-            Unit({'field': '{param}'}).get_accessed_parameters(),
-            {'field': frozenset()})
+            Unit({"field": "{param}"}).get_accessed_parameters(),
+            {"field": frozenset()},
+        )
         # As soon as we enable parameters we get them exposed
         self.assertEqual(
-            Unit({}, parameters={'param': 'value'}).get_accessed_parameters(),
-            {})
+            Unit({}, parameters={"param": "value"}).get_accessed_parameters(),
+            {},
+        )
         self.assertEqual(
-            Unit({
-                'field': 'value'}, parameters={'param': 'value'}
-            ).get_accessed_parameters(), {'field': frozenset()})
+            Unit(
+                {"field": "value"}, parameters={"param": "value"}
+            ).get_accessed_parameters(),
+            {"field": frozenset()},
+        )
         self.assertEqual(
-            Unit({
-                'field': '{param}'}, parameters={'param': 'value'}
-            ).get_accessed_parameters(), {'field': frozenset(['param'])})
+            Unit(
+                {"field": "{param}"}, parameters={"param": "value"}
+            ).get_accessed_parameters(),
+            {"field": frozenset(["param"])},
+        )
         # We can always use force=True to pretend any unit is parametric
         self.assertEqual(Unit({}).get_accessed_parameters(force=True), {})
         self.assertEqual(
-            Unit({'field': 'value'}).get_accessed_parameters(force=True),
-            {'field': frozenset()})
+            Unit({"field": "value"}).get_accessed_parameters(force=True),
+            {"field": frozenset()},
+        )
         self.assertEqual(
-            Unit({'field': '{param}'}).get_accessed_parameters(force=True),
-            {'field': frozenset(['param'])})
+            Unit({"field": "{param}"}).get_accessed_parameters(force=True),
+            {"field": frozenset(["param"])},
+        )
 
     def test_qualify_id__with_provider(self):
         provider = mock.Mock(spec_set=IProvider1)
-        provider.namespace = 'ns'
+        provider.namespace = "ns"
         unit = Unit({}, provider=provider)
-        self.assertEqual(unit.qualify_id('id'), 'ns::id')
-        self.assertEqual(unit.qualify_id('some-ns::id'), 'some-ns::id')
+        self.assertEqual(unit.qualify_id("id"), "ns::id")
+        self.assertEqual(unit.qualify_id("some-ns::id"), "some-ns::id")
 
     def test_qualify_id__without_provider(self):
         unit = Unit({})
-        self.assertEqual(unit.qualify_id('id'), 'id')
-        self.assertEqual(unit.qualify_id('some-ns::id'), 'some-ns::id')
+        self.assertEqual(unit.qualify_id("id"), "id")
+        self.assertEqual(unit.qualify_id("some-ns::id"), "some-ns::id")
 
 
 class UnitFieldValidationTests(TestCase, IssueMixIn):
@@ -356,25 +392,39 @@ class UnitFieldValidationTests(TestCase, IssueMixIn):
 
     def setUp(self):
         self.provider = mock.Mock(spec_set=IProvider1)
-        self.provider.namespace = 'ns'
+        self.provider.namespace = "ns"
 
     def test_unit__untranslatable(self):
-        issue_list = self.unit_cls({
-            '_unit': 'unit'
-        }, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.unit,
-                              Problem.unexpected_i18n, Severity.warning)
+        issue_list = self.unit_cls(
+            {"_unit": "unit"}, provider=self.provider
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.unit,
+            Problem.unexpected_i18n,
+            Severity.warning,
+        )
 
     def test_unit__template_invariant(self):
-        issue_list = self.unit_cls({
-            'unit': '{attr}'
-        }, parameters={'attr': 'unit'}, provider=self.provider).check()
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.unit,
-                              Problem.variable, Severity.error)
+        issue_list = self.unit_cls(
+            {"unit": "{attr}"},
+            parameters={"attr": "unit"},
+            provider=self.provider,
+        ).check()
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.unit,
+            Problem.variable,
+            Severity.error,
+        )
 
     def test_unit__present(self):
-        issue_list = self.unit_cls({
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls({}, provider=self.provider).check()
         message = "field 'unit', unit should explicitly define its type"
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.unit,
-                              Problem.missing, Severity.advice, message)
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.unit,
+            Problem.missing,
+            Severity.advice,
+            message,
+        )

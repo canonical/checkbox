@@ -22,10 +22,24 @@ This module defines the Actions classes.
 """
 
 __all__ = [
-    "Start", "Expect", "Send", "SelectTestPlan",
-    "AssertPrinted", "AssertNotPrinted", "AssertRetCode",
-    "AssertAgentActive", "Sleep", "RunCmd", "Signal", "Reboot",
-    "NetUp", "NetDown", "Put", "MkTree", "RunManage", "AssertInFile"
+    "Start",
+    "Expect",
+    "Send",
+    "SelectTestPlan",
+    "AssertPrinted",
+    "AssertNotPrinted",
+    "AssertRetCode",
+    "AssertAgentActive",
+    "Sleep",
+    "RunCmd",
+    "Signal",
+    "Reboot",
+    "NetUp",
+    "NetDown",
+    "Put",
+    "MkTree",
+    "RunManage",
+    "AssertInFile",
 ]
 
 
@@ -37,72 +51,72 @@ class ActionBase:
         self.kwargs = kwargs
 
     def __call__(self, scn):
-        assert(self.handler is not None)
+        assert self.handler is not None
         getattr(scn, self.handler)(*self.args, **self.kwargs)
 
 
 class Start(ActionBase):
-    handler = 'start'
+    handler = "start"
 
 
 class Expect(ActionBase):
-    handler = 'expect'
+    handler = "expect"
 
 
 class ExpectNot(ActionBase):
-    handler = 'expect_not'
+    handler = "expect_not"
 
 
 class Send(ActionBase):
-    handler = 'send'
+    handler = "send"
 
 
 class SelectTestPlan(ActionBase):
-    handler = 'select_test_plan'
+    handler = "select_test_plan"
 
 
 class AssertPrinted(ActionBase):
-    handler = 'assert_printed'
+    handler = "assert_printed"
 
 
 class AssertNotPrinted(ActionBase):
-    handler = 'assert_not_printed'
+    handler = "assert_not_printed"
 
 
 class AssertRetCode(ActionBase):
-    handler = 'assert_ret_code'
+    handler = "assert_ret_code"
 
 
 class AssertAgentActive(ActionBase):
-    handler = 'is_agent_active'
+    handler = "is_agent_active"
 
 
 class Sleep(ActionBase):
-    handler = 'sleep'
+    handler = "sleep"
 
 
 class RunCmd(ActionBase):
-    handler = 'run_cmd'
+    handler = "run_cmd"
 
 
 class Signal(ActionBase):
-    handler = 'signal'
+    handler = "signal"
 
 
 class Reboot(ActionBase):
-    handler = 'reboot'
+    handler = "reboot"
 
 
 class NetUp(ActionBase):
-    handler = 'switch_on_networking'
+    handler = "switch_on_networking"
 
 
 class NetDown(ActionBase):
-    handler = 'switch_off_networking'
+    handler = "switch_off_networking"
 
 
 class Put(ActionBase):
-    handler = 'put'
+    handler = "put"
 
 
 class MkTree(ActionBase):

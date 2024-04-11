@@ -37,9 +37,11 @@ class ImageCheckerTest(unittest.TestCase):
     def test_get_source(self, mock_get_type, mock_exists):
         # Test when it is core image
         mock_get_type.return_value = "core"
-        mock_oem_info = ("Sun, 20 June 1999 66:66:66 +7777\n"
-                         "Somethingcool\n"
-                         "iot-vincent-core-24-x24-2023-10-31-24\n")
+        mock_oem_info = (
+            "Sun, 20 June 1999 66:66:66 +7777\n"
+            "Somethingcool\n"
+            "iot-vincent-core-24-x24-2023-10-31-24\n"
+        )
         with patch("builtins.open", mock_open(read_data=mock_oem_info)):
             self.assertEqual(get_source(), "oem")
 

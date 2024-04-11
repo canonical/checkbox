@@ -26,8 +26,22 @@ import logging
 
 from dbus import SystemBus
 from dbus.mainloop.glib import DBusGMainLoop
-from dbus import (Array, Boolean, Byte, Dictionary, Double, Int16, Int32,
-                  Int64, ObjectPath, String, Struct, UInt16, UInt32, UInt64)
+from dbus import (
+    Array,
+    Boolean,
+    Byte,
+    Dictionary,
+    Double,
+    Int16,
+    Int32,
+    Int64,
+    ObjectPath,
+    String,
+    Struct,
+    UInt16,
+    UInt32,
+    UInt64,
+)
 from gi.repository import GObject
 
 
@@ -72,12 +86,15 @@ def drop_dbus_type(value):
     elif isinstance(value, (Struct, Array)):
         return [drop_dbus_type(item) for item in value]
     elif isinstance(value, (Dictionary)):
-        return {drop_dbus_type(dict_key): drop_dbus_type(dict_value)
-                for dict_key, dict_value in value.items()}
+        return {
+            drop_dbus_type(dict_key): drop_dbus_type(dict_value)
+            for dict_key, dict_value in value.items()
+        }
     elif isinstance(value, (String, ObjectPath)):
         return str(value)
-    elif isinstance(value, (Byte, UInt16, UInt32, UInt64,
-                            Int16, Int32, Int64)):
+    elif isinstance(
+        value, (Byte, UInt16, UInt32, UInt64, Int16, Int32, Int64)
+    ):
         return int(value)
     elif isinstance(value, Boolean):
         return bool(value)

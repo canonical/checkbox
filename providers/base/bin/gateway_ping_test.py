@@ -342,10 +342,10 @@ def ping(
         # broadcast will always do so
         if broadcast:
             return
-        ping_summary[
-            "cause"
-        ] = "Failed with exception: {}\nstdout: {}\nstderr: {}".format(
-            str(e), e.stdout, e.stderr
+        ping_summary["cause"] = (
+            "Failed with exception: {}\nstdout: {}\nstderr: {}".format(
+                str(e), e.stdout, e.stderr
+            )
         )
         return ping_summary
 
@@ -358,10 +358,10 @@ def ping(
             "pct_loss": int(received.group(3)),
         }
     except StopIteration:
-        ping_summary[
-            "cause"
-        ] = "Failed to parse the stats from the ping output. Log: {}".format(
-            output
+        ping_summary["cause"] = (
+            "Failed to parse the stats from the ping output. Log: {}".format(
+                output
+            )
         )
     return ping_summary
 

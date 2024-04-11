@@ -204,9 +204,9 @@ def main():
             "hash_sha256",
             "skcipher_cbc_aes",
             "aead_gcm_aes",
-            "rng_stdrng"
+            "rng_stdrng",
         ],
-        help='AF_ALG type and algorithm',
+        help="AF_ALG type and algorithm",
     )
     args = parser.parse_args()
     crypto_test = LinuxKernelCryptoAPI()

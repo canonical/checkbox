@@ -36,8 +36,11 @@ def main():
         print("Zapper Bluetooth address is {}".format(zapper_addr))
         retry_count = 5
         for i in range(1, retry_count + 1):
-            print("Discovering Bluetooth devices (try {}/{})".format(
-                i, retry_count))
+            print(
+                "Discovering Bluetooth devices (try {}/{})".format(
+                    i, retry_count
+                )
+            )
             devices = bluetooth.discover_devices()
             print("Devices found: {}".format(devices))
             if zapper_addr in devices:
@@ -47,8 +50,11 @@ def main():
             raise SystemExit("Zapper not found")
 
         for i in range(1, retry_count + 1):
-            print("Trying to connect to Zapper (try {}/{})".format(
-                i, retry_count))
+            print(
+                "Trying to connect to Zapper (try {}/{})".format(
+                    i, retry_count
+                )
+            )
             socket = bluetooth.BluetoothSocket(bluetooth.L2CAP)
             try:
                 socket.connect((zapper_addr, 25))  # 25 - A2DP port

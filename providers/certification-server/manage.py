@@ -34,14 +34,16 @@ class SourceDistributionCommandExt(SourceDistributionCommand):
     # Overridden version of SourceDistributionCommand that handles launcher/
     __doc__ = SourceDistributionCommand.__doc__
     _INCLUDED_ITEMS = SourceDistributionCommand._INCLUDED_ITEMS + [
-        'COPYING', 'launcher']
+        "COPYING",
+        "launcher",
+    ]
 
 
 @manage_py_extension
 class InstallCommandExt(InstallCommand):
     # Overridden version of InstallCommand that handles launcher/
     __doc__ = InstallCommand.__doc__
-    name = 'install'
+    name = "install"
 
     def invoked(self, ns):
         super().invoked(ns)
@@ -49,26 +51,28 @@ class InstallCommandExt(InstallCommand):
 
     @property
     def launcher_dir(self):
-        return os.path.join(self.definition.location, 'launcher')
+        return os.path.join(self.definition.location, "launcher")
 
     def _copy_launcher(self, ns):
         for name in os.listdir(self.launcher_dir):
             src_file = os.path.join(self.launcher_dir, name)
-            if os.path.isfile(src_file) and name.endswith('.desktop'):
+            if os.path.isfile(src_file) and name.endswith(".desktop"):
                 self._copy_desktop_file(ns, src_file)
             elif os.path.isfile(src_file) and os.access(src_file, os.X_OK):
                 self._copy_executable(ns, src_file)
             else:
-                _logger.warning(_("unexpected file: %s"), os.path.relpath(
-                    src_file, self.definition.location))
+                _logger.warning(
+                    _("unexpected file: %s"),
+                    os.path.relpath(src_file, self.definition.location),
+                )
 
     def _copy_desktop_file(self, ns, src_file):
-        destdir = ns.root + os.path.join(ns.prefix, 'share', 'applications')
+        destdir = ns.root + os.path.join(ns.prefix, "share", "applications")
         os.makedirs(destdir, exist_ok=True)
         shutil.copy(src_file, destdir)
 
     def _copy_executable(self, ns, src_file):
-        destdir = ns.root + os.path.join(ns.prefix, 'bin')
+        destdir = ns.root + os.path.join(ns.prefix, "bin")
         os.makedirs(destdir, exist_ok=True)
         shutil.copy(src_file, destdir)
 
@@ -78,10 +82,11 @@ class InstallCommandExt(InstallCommand):
 
 
 setup(
-    name='checkbox-provider-certification-server',
-    namespace='com.canonical.certification',
+    name="checkbox-provider-certification-server",
+    namespace="com.canonical.certification",
     version=plainbox.__version__,
     description=N_("Server Certification provider"),
     gettext_domain="checkbox-provider-certification-server",
-    strict=False, deprecated=False,
+    strict=False,
+    deprecated=False,
 )

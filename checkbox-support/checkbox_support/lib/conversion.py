@@ -20,14 +20,17 @@ from datetime import datetime, timedelta
 from checkbox_support.lib.tz import tzutc
 
 
-DATETIME_RE = re.compile(r"""
+DATETIME_RE = re.compile(
+    r"""
     ^(?P<year>\d\d\d\d)-?(?P<month>\d\d)-?(?P<day>\d\d)
     T(?P<hour>\d\d):?(?P<minute>\d\d):?(?P<second>\d\d)
     (?:\.(?P<second_fraction>\d{0,6}))?
     (?P<tz>
         (?:(?P<tz_sign>[-+])(?P<tz_hour>\d\d):(?P<tz_minute>\d\d))
         | Z)?$
-    """, re.VERBOSE)
+    """,
+    re.VERBOSE,
+)
 
 TYPE_FORMATS = (
     (r"(yes|true)", lambda v: True),
@@ -37,10 +40,12 @@ TYPE_FORMATS = (
     (r"(-?\d+) ?([kmgt]?b?)", lambda v: int(v.group(1))),
     (r"(-?\d+\.\d+) ?([kmgt]?b?)", lambda v: float(v.group(1))),
     (r"(-?\d+) ?([kmgt]?hz)", lambda v: int(v.group(1))),
-    (r"(-?\d+\.\d+) ?([kmgt]?hz)", lambda v: float(v.group(1))))
+    (r"(-?\d+\.\d+) ?([kmgt]?hz)", lambda v: float(v.group(1))),
+)
 TYPE_FORMATS = tuple(
     (re.compile(r"^%s$" % pattern, re.IGNORECASE), format)
-    for pattern, format in TYPE_FORMATS)
+    for pattern, format in TYPE_FORMATS
+)
 
 TYPE_MULTIPLIERS = (
     (r"b", 1),
@@ -52,10 +57,12 @@ TYPE_MULTIPLIERS = (
     (r"khz?", 1024),
     (r"mhz?", 1024 * 1024),
     (r"ghz?", 1024 * 1024 * 1024),
-    (r"thz?", 1024 * 1024 * 1024 * 1024))
+    (r"thz?", 1024 * 1024 * 1024 * 1024),
+)
 TYPE_MULTIPLIERS = tuple(
     (re.compile(r"^%s$" % pattern, re.IGNORECASE), multiplier)
-    for pattern, multiplier in TYPE_MULTIPLIERS)
+    for pattern, multiplier in TYPE_MULTIPLIERS
+)
 
 
 def datetime_to_string(dt):
@@ -82,15 +89,15 @@ def string_to_datetime(string):
 
     time_parts = match.groupdict()
 
-    year = int(time_parts['year'])
-    month = int(time_parts['month'])
-    day = int(time_parts['day'])
-    hour = int(time_parts['hour'])
-    minute = int(time_parts['minute'])
-    second = int(time_parts['second'])
-    second_fraction = time_parts['second_fraction']
+    year = int(time_parts["year"])
+    month = int(time_parts["month"])
+    day = int(time_parts["day"])
+    hour = int(time_parts["hour"])
+    minute = int(time_parts["minute"])
+    second = int(time_parts["second"])
+    second_fraction = time_parts["second_fraction"]
     if second_fraction is not None:
-        milliseconds = second_fraction + '0' * (6 - len(second_fraction))
+        milliseconds = second_fraction + "0" * (6 - len(second_fraction))
         milliseconds = int(milliseconds)
     else:
         milliseconds = 0
@@ -104,14 +111,15 @@ def string_to_datetime(string):
         milliseconds = 999999
 
     dt = datetime(
-        year, month, day, hour, minute, second, milliseconds, tzinfo=tzutc)
+        year, month, day, hour, minute, second, milliseconds, tzinfo=tzutc
+    )
 
-    tz_sign = time_parts['tz_sign']
-    tz_hour = time_parts['tz_hour']
-    tz_minute = time_parts['tz_minute']
-    if tz_sign in ('-', '+'):
+    tz_sign = time_parts["tz_sign"]
+    tz_hour = time_parts["tz_hour"]
+    tz_minute = time_parts["tz_minute"]
+    if tz_sign in ("-", "+"):
         delta = timedelta(hours=int(tz_hour), minutes=int(tz_minute))
-        if tz_sign == '-':
+        if tz_sign == "-":
             dt = dt + delta
         else:
             dt = dt - delta

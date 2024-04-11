@@ -58,7 +58,7 @@ class TestCaseParameters:
     accessed as self.parameters.foo and self.parameters.bar respectively.
     """
 
-    __slots__ = ('_names', '_values')
+    __slots__ = ("_names", "_values")
 
     def __init__(self, names, values):
         """
@@ -71,8 +71,7 @@ class TestCaseParameters:
     def __eq__(self, other):
         if not isinstance(other, TestCaseParameters):
             return NotImplemented
-        return (self._names == other._names
-                and self._values == other._values)
+        return self._names == other._names and self._values == other._values
 
     def __getattr__(self, attr):
         try:
@@ -83,9 +82,12 @@ class TestCaseParameters:
             raise AttributeError(attr)
 
     def __str__(self):
-        return ", ".join([
-            "{}: {}".format(name, value)
-            for name, value in zip(self._names, self._values)])
+        return ", ".join(
+            [
+                "{}: {}".format(name, value)
+                for name, value in zip(self._names, self._values)
+            ]
+        )
 
     def __repr__(self):
         return "<{} {}>".format(self.__class__.__name__, str(self))
@@ -228,10 +230,12 @@ class TestCaseWithParameters(TestCase):
         # For each list of parameter values:
         for iteration_index, values in enumerate(self.get_parameter_values()):
             if len(values) != len(names):
-                raise RuntimeError((
-                    "incorrect get_parameter_values() or parameter_values for"
-                    " iteration {}. Expected to see {} item but saw {} instead"
-                ).format(iteration_index, len(names), len(values)))
+                raise RuntimeError(
+                    (
+                        "incorrect get_parameter_values() or parameter_values for"
+                        " iteration {}. Expected to see {} item but saw {} instead"
+                    ).format(iteration_index, len(names), len(values))
+                )
             # Construct the parameter placeholder
             parameters = TestCaseParameters(names, values)
             # Construct a parametrized version of this test case
@@ -249,11 +253,12 @@ class TestCaseWithParameters(TestCase):
         """
         if self.parameters is None:
             return "{}.{} [<unparameterized>]".format(
-                strclass(self.__class__), self._testMethodName)
+                strclass(self.__class__), self._testMethodName
+            )
         else:
             return "{}.{} [{}]".format(
-                strclass(self.__class__), self._testMethodName,
-                self.parameters)
+                strclass(self.__class__), self._testMethodName, self.parameters
+            )
 
     def __str__(self):
         """
@@ -266,11 +271,12 @@ class TestCaseWithParameters(TestCase):
         """
         if self.parameters is None:
             return "{} [<unparameterized>]".format(
-                super(TestCaseWithParameters, self).__str__())
+                super(TestCaseWithParameters, self).__str__()
+            )
         else:
             return "{} [{}]".format(
-                super(TestCaseWithParameters, self).__str__(),
-                self.parameters)
+                super(TestCaseWithParameters, self).__str__(), self.parameters
+            )
 
     def __repr__(self):
         """
@@ -279,8 +285,8 @@ class TestCaseWithParameters(TestCase):
         This version displays the value of the parameters attribute
         """
         return "<{} testMethod={} parameters={!r}>".format(
-            strclass(self.__class__), self._testMethodName,
-            self.parameters)
+            strclass(self.__class__), self._testMethodName, self.parameters
+        )
 
     def __eq__(self, other):
         """
@@ -290,8 +296,10 @@ class TestCaseWithParameters(TestCase):
         """
         if not isinstance(other, TestCaseWithParameters):
             return NotImplemented
-        return (self._testMethodName == other._testMethodName
-                and self._parameters == other.parameters)
+        return (
+            self._testMethodName == other._testMethodName
+            and self._parameters == other.parameters
+        )
 
     def __hash__(self):
         """

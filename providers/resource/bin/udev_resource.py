@@ -25,15 +25,49 @@ from subprocess import check_output, CalledProcessError
 
 from checkbox_support.parsers.udevadm import UdevadmParser
 
-categories = ("ACCELEROMETER", "AUDIO", "BLUETOOTH", "CAPTURE", "CARDREADER",
-              "CDROM", "DISK", "KEYBOARD", "INFINIBAND", "MMAL", "MOUSE",
-              "NETWORK", "TPU", "OTHER", "PARTITION", "TOUCHPAD",
-              "TOUCHSCREEN", "USB", "VIDEO", "WATCHDOG", "WIRELESS", "WWAN")
+categories = (
+    "ACCELEROMETER",
+    "AUDIO",
+    "BLUETOOTH",
+    "CAPTURE",
+    "CARDREADER",
+    "CDROM",
+    "DISK",
+    "KEYBOARD",
+    "INFINIBAND",
+    "MMAL",
+    "MOUSE",
+    "NETWORK",
+    "TPU",
+    "OTHER",
+    "PARTITION",
+    "TOUCHPAD",
+    "TOUCHSCREEN",
+    "USB",
+    "VIDEO",
+    "WATCHDOG",
+    "WIRELESS",
+    "WWAN",
+)
 
-attributes = ("path", "name", "bus", "category", "driver", "product_id",
-              "vendor_id", "subproduct_id", "subvendor_id", "product",
-              "vendor", "interface", "mac", "product_slug", "vendor_slug",
-              "symlink_uuid")
+attributes = (
+    "path",
+    "name",
+    "bus",
+    "category",
+    "driver",
+    "product_id",
+    "vendor_id",
+    "subproduct_id",
+    "subvendor_id",
+    "product",
+    "vendor",
+    "interface",
+    "mac",
+    "product_slug",
+    "vendor_slug",
+    "symlink_uuid",
+)
 
 
 def dump_udev_db(udev):
@@ -74,13 +108,11 @@ def display_by_categories(udev, categories, short=False):
             pid = device.product_id if device.product_id else 0
             if not p:
                 p = getattr(device, "interface", "Unknow product")
-            data[c].append(
-                "{} {} [{:04x}:{:04x}]".format(v, p, vid, pid))
+            data[c].append("{} {} [{:04x}:{:04x}]".format(v, p, vid, pid))
     for c, devices in data.items():
         if short:
             for d in devices:
-                print("{}".format(
-                    d.replace('None ', '').replace(' None', '')))
+                print("{}".format(d.replace("None ", "").replace(" None", "")))
         else:
             print("{} ({}):".format(c, len(devices)))
             for d in devices:
@@ -91,27 +123,53 @@ def display_by_categories(udev, categories, short=False):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-c", "--command", action='store', type=str,
-                        default="udevadm info --export-db",
-                        help="""Command to execute to get udevadm information.
-                              Only change it if you know what you're doing.""")
-    parser.add_argument("-d", "--lsblkcommand", action='store', type=str,
-                        default="lsblk -i -n -P -o KNAME,TYPE,MOUNTPOINT",
-                        help="""Command to execute to get lsblk information.
-                              Only change it if you know what you're doing.""")
-    parser.add_argument('-l', '--list', nargs='+', choices=categories,
-                        metavar=("CATEGORY"), default=(),
-                        help="""List devices found under the requested
+    parser.add_argument(
+        "-c",
+        "--command",
+        action="store",
+        type=str,
+        default="udevadm info --export-db",
+        help="""Command to execute to get udevadm information.
+                              Only change it if you know what you're doing.""",
+    )
+    parser.add_argument(
+        "-d",
+        "--lsblkcommand",
+        action="store",
+        type=str,
+        default="lsblk -i -n -P -o KNAME,TYPE,MOUNTPOINT",
+        help="""Command to execute to get lsblk information.
+                              Only change it if you know what you're doing.""",
+    )
+    parser.add_argument(
+        "-l",
+        "--list",
+        nargs="+",
+        choices=categories,
+        metavar=("CATEGORY"),
+        default=(),
+        help="""List devices found under the requested
                         categories.
                         Acceptable categories to list are:
-                        {}""".format(', '.join(categories)))
-    parser.add_argument('-f', '--filter', nargs='+', choices=categories,
-                        metavar=("CATEGORY"), default=(),
-                        help="""Filter devices found under the requested
+                        {}""".format(
+            ", ".join(categories)
+        ),
+    )
+    parser.add_argument(
+        "-f",
+        "--filter",
+        nargs="+",
+        choices=categories,
+        metavar=("CATEGORY"),
+        default=(),
+        help="""Filter devices found under the requested
                         categories.
                         Acceptable categories to list are:
-                        {}""".format(', '.join(categories)))
-    parser.add_argument('-s', '--short', action='store_true')
+                        {}""".format(
+            ", ".join(categories)
+        ),
+    )
+    parser.add_argument("-s", "--short", action="store_true")
     args = parser.parse_args()
     try:
         output = check_output(shlex.split(args.command))
@@ -120,10 +178,10 @@ def main():
         raise SystemExit(exc)
     # Set the error policy to 'ignore' in order to let tests depending on this
     # resource to properly match udev properties
-    output = output.decode("UTF-8", errors='ignore')
-    lsblk = lsblk.decode("UTF-8", errors='ignore')
+    output = output.decode("UTF-8", errors="ignore")
+    lsblk = lsblk.decode("UTF-8", errors="ignore")
     list_partitions = False
-    if 'PARTITION' in args.list or 'PARTITION' in args.filter:
+    if "PARTITION" in args.list or "PARTITION" in args.filter:
         list_partitions = True
     udev = UdevadmParser(output, lsblk=lsblk, list_partitions=list_partitions)
     if args.list:

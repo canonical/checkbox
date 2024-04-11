@@ -119,9 +119,9 @@ class TestLauncher(TestCase):
         abspath_mock.return_value = "launcher_path"
 
         Launcher._configure_restart(tested_self, ctx_mock)
-        (
-            get_restart_cmd_f,
-        ) = ctx_mock.sa.configure_application_restart.call_args[0]
+        (get_restart_cmd_f,) = (
+            ctx_mock.sa.configure_application_restart.call_args[0]
+        )
         restart_cmd = get_restart_cmd_f("session_id")
         self.assertEqual(
             restart_cmd,
@@ -142,9 +142,9 @@ class TestLauncher(TestCase):
         abspath_mock.return_value = "launcher_path"
 
         Launcher._configure_restart(tested_self, ctx_mock)
-        (
-            get_restart_cmd_f,
-        ) = ctx_mock.sa.configure_application_restart.call_args[0]
+        (get_restart_cmd_f,) = (
+            ctx_mock.sa.configure_application_restart.call_args[0]
+        )
         restart_cmd = get_restart_cmd_f("session_id")
         self.assertEqual(
             restart_cmd,

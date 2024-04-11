@@ -32,12 +32,12 @@ from glob import glob
 
 
 class Brightness(object):
-    def __init__(self, path='/sys/class/backlight'):
+    def __init__(self, path="/sys/class/backlight"):
         self.sysfs_path = path
         self.interfaces = self._get_interfaces_from_path()
 
     def read_value(self, path):
-        '''Read the value from a file'''
+        """Read the value from a file"""
         # See if the source is a file or a file object
         # and act accordingly
         file = path
@@ -45,25 +45,25 @@ class Brightness(object):
             lines_list = []
         else:
             # It's a file
-            if not hasattr(file, 'write'):
-                myfile = open(file, 'r')
+            if not hasattr(file, "write"):
+                myfile = open(file, "r")
                 lines_list = myfile.readlines()
                 myfile.close()
             # It's a file object
             else:
                 lines_list = file.readlines()
 
-        return int(''.join(lines_list).strip())
+        return int("".join(lines_list).strip())
 
     def write_value(self, value, path, test=None):
-        '''Write a value to a file'''
-        value = '%d' % value
+        """Write a value to a file"""
+        value = "%d" % value
         # It's a file
-        if not hasattr(path, 'write'):
+        if not hasattr(path, "write"):
             if test:
-                path = open(path, 'a')
+                path = open(path, "a")
             else:
-                path = open(path, 'w')
+                path = open(path, "w")
             path.write(value)
             path.close()
         # It's a file object
@@ -71,39 +71,42 @@ class Brightness(object):
             path.write(value)
 
     def get_max_brightness(self, path):
-        full_path = os.path.join(path, 'max_brightness')
+        full_path = os.path.join(path, "max_brightness")
 
         return self.read_value(full_path)
 
     def get_actual_brightness(self, path):
-        full_path = os.path.join(path, 'actual_brightness')
+        full_path = os.path.join(path, "actual_brightness")
 
         return self.read_value(full_path)
 
     def get_last_set_brightness(self, path):
-        full_path = os.path.join(path, 'brightness')
+        full_path = os.path.join(path, "brightness")
 
         return self.read_value(full_path)
 
     def _get_interfaces_from_path(self):
-        '''check all the files in a directory looking for quirks'''
+        """check all the files in a directory looking for quirks"""
         interfaces = []
         if os.path.isdir(self.sysfs_path):
-            for d in glob(os.path.join(self.sysfs_path, '*')):
+            for d in glob(os.path.join(self.sysfs_path, "*")):
                 if os.path.isdir(d):
                     interfaces.append(d)
 
         return interfaces
 
     def was_brightness_applied(self, interface):
-        '''See if the selected brightness was applied
+        """See if the selected brightness was applied
 
         Note: this doesn't guarantee that screen brightness
               changed.
-        '''
+        """
         if (
-            abs(self.get_actual_brightness(interface) -
-                self.get_last_set_brightness(interface)) > 1
+            abs(
+                self.get_actual_brightness(interface)
+                - self.get_last_set_brightness(interface)
+            )
+            > 1
         ):
             return 1
         else:
@@ -115,8 +118,7 @@ def main():
 
     # Make sure that we have root privileges
     if os.geteuid() != 0:
-        print('Error: please run this program as root',
-              file=sys.stderr)
+        print("Error: please run this program as root", file=sys.stderr)
         exit(1)
 
     # If no backlight interface can be found
@@ -134,8 +136,8 @@ def main():
 
         # Set the brightness to half the max value
         brightness.write_value(
-            max_brightness / 2,
-            os.path.join(interface, 'brightness'))
+            max_brightness / 2, os.path.join(interface, "brightness")
+        )
 
         # Check that "actual_brightness" reports the same value we
         # set "brightness" to
@@ -146,11 +148,11 @@ def main():
 
         # Set the brightness back to its original value
         brightness.write_value(
-            current_brightness,
-            os.path.join(interface, 'brightness'))
+            current_brightness, os.path.join(interface, "brightness")
+        )
 
     exit(exit_status)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

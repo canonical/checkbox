@@ -151,7 +151,7 @@ class TestMonitorRetryBuilds(unittest.TestCase):
         # here but inject our test values
         build_status_evolution = [
             "Successfully built",
-            None # this may be possible for pending builds
+            None,  # this may be possible for pending builds
         ]
 
         def lp_refresh_side_effect():

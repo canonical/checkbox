@@ -38,40 +38,49 @@ def main():
     Uses lsblk to gather information about disks seen by the OS.
     Outputs kernel name, model and size data
     """
-    pattern = re.compile('KNAME="(?P<KNAME>.*)" '
-                         'TYPE="(?P<TYPE>.*)" '
-                         'SIZE="(?P<SIZE>.*)" '
-                         'MODEL="(?P<MODEL>.*)" '
-                         'MOUNTPOINT="(?P<MOUNTPOINT>.*)"')
+    pattern = re.compile(
+        'KNAME="(?P<KNAME>.*)" '
+        'TYPE="(?P<TYPE>.*)" '
+        'SIZE="(?P<SIZE>.*)" '
+        'MODEL="(?P<MODEL>.*)" '
+        'MOUNTPOINT="(?P<MOUNTPOINT>.*)"'
+    )
     try:
-        lsblk = check_output(["lsblk", "-i", "-n", "-P", "-o",
-                              "KNAME,TYPE,SIZE,MODEL,MOUNTPOINT"],
-                             universal_newlines=True)
+        lsblk = check_output(
+            [
+                "lsblk",
+                "-i",
+                "-n",
+                "-P",
+                "-o",
+                "KNAME,TYPE,SIZE,MODEL,MOUNTPOINT",
+            ],
+            universal_newlines=True,
+        )
     except CalledProcessError as e:
         sys.exit(e)
 
     disks = 0
     for line in lsblk.splitlines():
         m = pattern.match(line)
-        if not m or m.group('TYPE') not in ('disk', 'crypt'):
+        if not m or m.group("TYPE") not in ("disk", "crypt"):
             continue
         # Only consider MMC block devices if one of their mounted partitions is
         # root (/)
-        if (
-            m.group('KNAME').startswith('mmcblk') and not
-            find_pkname_is_root_mountpoint(m.group('KNAME'), lsblk)
-        ):
+        if m.group("KNAME").startswith(
+            "mmcblk"
+        ) and not find_pkname_is_root_mountpoint(m.group("KNAME"), lsblk):
             continue
         # Don't consider any block dev mounted as snapd save partition
-        if 'snapd/save' in m.group('MOUNTPOINT'):
+        if "snapd/save" in m.group("MOUNTPOINT"):
             continue
         disks += 1
-        model = m.group('MODEL')
+        model = m.group("MODEL")
         if not model:
-            model = 'Unknown'
-        print("Name: /dev/{}".format(m.group('KNAME')))
-        print("\t{:7}\t{}".format('Model:', model))
-        print("\t{:7}\t{}".format('Size:', m.group('SIZE')))
+            model = "Unknown"
+        print("Name: /dev/{}".format(m.group("KNAME")))
+        print("\t{:7}\t{}".format("Model:", model))
+        print("\t{:7}\t{}".format("Size:", m.group("SIZE")))
 
     if not disks:
         print("No disk information discovered.")
@@ -80,5 +89,5 @@ def main():
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

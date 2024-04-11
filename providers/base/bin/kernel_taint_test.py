@@ -45,17 +45,18 @@ def find_taints(taint_file):
         taints = int(f.read())
     except OSError:
         raise SystemExit(
-            "Kernel taint file ({}) not found!".format(taint_file))
+            "Kernel taint file ({}) not found!".format(taint_file)
+        )
     print("Kernel taint value is {}".format(taints))
     return taints
 
 
 def get_modules():
-    lsmod_output = check_output('lsmod', universal_newlines=True).split('\n')
+    lsmod_output = check_output("lsmod", universal_newlines=True).split("\n")
     # get only the module names
     modules = []
     for line in lsmod_output:
-        if line and 'Module' not in line:
+        if line and "Module" not in line:
             modules.append(line.split()[0])
     return modules
 
@@ -64,9 +65,8 @@ def process_out_of_tree_modules(modules):
     mod_list = []
     modules = remove_ignored_modules(modules)
     for mod in modules:
-        cmd = 'modinfo -F intree %s' % mod
-        if not check_output(shlex.split(cmd),
-                            universal_newlines=True):
+        cmd = "modinfo -F intree %s" % mod
+        if not check_output(shlex.split(cmd), universal_newlines=True):
             mod_list.append(mod)
     return mod_list
 
@@ -75,9 +75,10 @@ def process_GPL_incompatible_modules(modules):
     mod_list = []
     modules = remove_ignored_modules(modules)
     for mod in modules:
-        cmd = 'modinfo -F license %s' % mod
-        license = check_output(shlex.split(cmd),
-                               universal_newlines=True).strip()
+        cmd = "modinfo -F license %s" % mod
+        license = check_output(
+            shlex.split(cmd), universal_newlines=True
+        ).strip()
         if "GPL" not in license and "MIT" not in license:
             mod_list.append((mod, license))
     return mod_list
@@ -85,15 +86,17 @@ def process_GPL_incompatible_modules(modules):
 
 def remove_ignored_modules(modules):
     # Remove modules we know will fail, but accept
-    ignored_modules = ['icp',
-                       'spl',
-                       'zavl',
-                       'zcommon',
-                       'zfs',
-                       'zlua',
-                       'znvpair',
-                       'zunicode',
-                       'zzstd']
+    ignored_modules = [
+        "icp",
+        "spl",
+        "zavl",
+        "zcommon",
+        "zfs",
+        "zlua",
+        "znvpair",
+        "zunicode",
+        "zzstd",
+    ]
     for ignore_mod in ignored_modules:
         try:
             modules.remove(ignore_mod)
@@ -105,35 +108,39 @@ def remove_ignored_modules(modules):
 def main():
     """Print out the tainted state code and its meaning(s)."""
     parser = ArgumentParser()
-    parser.add_argument('--taint-file',
-                        default="/proc/sys/kernel/tainted",
-                        help='The file that holds the taint information')
+    parser.add_argument(
+        "--taint-file",
+        default="/proc/sys/kernel/tainted",
+        help="The file that holds the taint information",
+    )
     args = parser.parse_args()
     taints = find_taints(args.taint_file)
 
     # Below meaning strings are taken from
     # https://www.kernel.org/doc/html/latest/admin-guide/tainted-kernels.html
-    taint_meanings = ["proprietary module was loaded",
-                      "module was force loaded",
-                      "SMP kernel oops on an officially SMP incapable CPU",
-                      "module was force unloaded",
-                      "processor reported a Machine Check Exception (MCE)",
-                      "bad page referenced or some unexpected page flags",
-                      "taint requested by userspace application",
-                      "kernel died recently, i.e. there was an OOPS or BUG",
-                      "ACPI table overridden by user",
-                      "kernel issued warning",
-                      "staging driver was loaded",
-                      "workaround for bug in platform firmware applied",
-                      "externally-built ('out-of-tree') module was loaded",
-                      "unsigned module was loaded",
-                      "soft lockup occurred",
-                      "kernel has been live patched",
-                      "auxiliary taint, defined for and used by distros",
-                      "kernel was built with the struct randomization plugin"]
+    taint_meanings = [
+        "proprietary module was loaded",
+        "module was force loaded",
+        "SMP kernel oops on an officially SMP incapable CPU",
+        "module was force unloaded",
+        "processor reported a Machine Check Exception (MCE)",
+        "bad page referenced or some unexpected page flags",
+        "taint requested by userspace application",
+        "kernel died recently, i.e. there was an OOPS or BUG",
+        "ACPI table overridden by user",
+        "kernel issued warning",
+        "staging driver was loaded",
+        "workaround for bug in platform firmware applied",
+        "externally-built ('out-of-tree') module was loaded",
+        "unsigned module was loaded",
+        "soft lockup occurred",
+        "kernel has been live patched",
+        "auxiliary taint, defined for and used by distros",
+        "kernel was built with the struct randomization plugin",
+    ]
     count = 0
-    for i in range(max_taints+1):
-        if (taints & (2 ** i)):
+    for i in range(max_taints + 1):
+        if taints & (2**i):
             modules = get_modules()
             print("Taint bit value: {} ({})".format(i, taint_meanings[i]))
             if i == 0:  # List GPL incompatible modules and licenses
@@ -144,8 +151,10 @@ def main():
                         print("     %s: %s" % (mod[0], mod[1]))
                     count += 1
                 else:
-                    print("*   Proprietary modules found, "
-                          "but they are expected and OK")
+                    print(
+                        "*   Proprietary modules found, "
+                        "but they are expected and OK"
+                    )
             elif i == 11:
                 print("*   Firmware workarounds are expected and OK")
             elif i == 12:  # List out-of-tree modules
@@ -156,8 +165,10 @@ def main():
                         print("     %s" % mod)
                     count += 1
                 else:
-                    print("*   Out of Tree modules found, "
-                          "but they are expected and OK")
+                    print(
+                        "*   Out of Tree modules found, "
+                        "but they are expected and OK"
+                    )
             else:
                 count += 1
 
@@ -170,5 +181,5 @@ def main():
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

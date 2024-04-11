@@ -36,18 +36,19 @@ def check_log(logfile):
         SystemExit if the pattern (or logfile) was not found
     """
     try:
-        with open(logfile, encoding='utf-8', errors='ignore') as f:
+        with open(logfile, encoding="utf-8", errors="ignore") as f:
             log = f.read()
-            print(re.sub('^.*?>> ', '', log, flags=re.M))
+            print(re.sub("^.*?>> ", "", log, flags=re.M))
             # Try to find the score in the log file,
             # otherwise something went wrong...
-            if not re.search('Benchmark_Score', log):
+            if not re.search("Benchmark_Score", log):
                 print("=" * 70)
                 raise SystemExit(
-                    'Benchmark score not found. '
-                    'This means the benchmark could not be run. '
-                    'Check the above output for error messages, '
-                    'these will show the reason for the failure.')
+                    "Benchmark score not found. "
+                    "This means the benchmark could not be run. "
+                    "Check the above output for error messages, "
+                    "these will show the reason for the failure."
+                )
     except EnvironmentError as error:
         raise SystemExit(error)
     return False
@@ -55,50 +56,54 @@ def check_log(logfile):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('test', metavar='TEST', help='test type',
-                        choices=['fur', 'gi', 'tess'])
-    parser.add_argument('--width',
-                        help='window width', default=1024, type=int)
-    parser.add_argument('--height',
-                        help='window height', default=640, type=int)
-    parser.add_argument('-f', '--fullscreen', action='store_true')
-    parser.add_argument('-d', '--duration', default=60, type=int,
-                        help='duration in s')
     parser.add_argument(
-        '-p', '--path', help='GpuTest archive path',
-        default='/opt/gputest-0.2.0/GpuTest_Linux_x64_20121111.zip'
+        "test", metavar="TEST", help="test type", choices=["fur", "gi", "tess"]
+    )
+    parser.add_argument("--width", help="window width", default=1024, type=int)
+    parser.add_argument(
+        "--height", help="window height", default=640, type=int
+    )
+    parser.add_argument("-f", "--fullscreen", action="store_true")
+    parser.add_argument(
+        "-d", "--duration", default=60, type=int, help="duration in s"
+    )
+    parser.add_argument(
+        "-p",
+        "--path",
+        help="GpuTest archive path",
+        default="/opt/gputest-0.2.0/GpuTest_Linux_x64_20121111.zip",
     )
     args = parser.parse_args()
 
     # Unzip the archive in a temporary directory, GpuTest creates the log file
     # in the same place Gputest.exe is. A user-writable location is needed.
     with TemporaryDirectory() as scratch_dir:
-        with ZipFile(args.path, 'r') as z:
+        with ZipFile(args.path, "r") as z:
             z.extractall(path=scratch_dir)
-        dirname = os.path.join(scratch_dir, 'GpuTest_Linux_x64')
-        launcher = os.path.join(dirname, 'GpuTest.exe')
-        logfile = os.path.join(dirname, '_geeks3d_gputest_log.txt')
+        dirname = os.path.join(scratch_dir, "GpuTest_Linux_x64")
+        launcher = os.path.join(dirname, "GpuTest.exe")
+        logfile = os.path.join(dirname, "_geeks3d_gputest_log.txt")
         os.chmod(launcher, 0o755)
         os.unlink(logfile)
 
         timeout_params = [
-            'timeout',
-            '-k',
+            "timeout",
+            "-k",
             # Adds 16 s for the Warm-up phase before sending the KILL signal
             # See TIMEOUT(1)
-            '{}'.format(args.duration + 16),
+            "{}".format(args.duration + 16),
             # Adds 15 s for the Warm-up phase before sending the TERM signal
-            '{}'.format(args.duration + 15),
-            launcher
+            "{}".format(args.duration + 15),
+            launcher,
         ]
         cmd_params = [
-            '/test={}'.format(args.test),
-            '/width={}'.format(args.width),
-            '/height={}'.format(args.height),
-            '/benchmark_duration_ms={}'.format(args.duration * 1000)
+            "/test={}".format(args.test),
+            "/width={}".format(args.width),
+            "/height={}".format(args.height),
+            "/benchmark_duration_ms={}".format(args.duration * 1000),
         ]
         if args.fullscreen:
-            cmd_params = cmd_params + ['/fullscreen']
+            cmd_params = cmd_params + ["/fullscreen"]
 
         try:
             check_output(timeout_params + cmd_params, cwd=dirname)

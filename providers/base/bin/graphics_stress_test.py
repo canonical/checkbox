@@ -37,15 +37,16 @@ from checkbox_support.contrib import xrandr
 
 class VtWrapper(object):
     """docstring for VtWrapper"""
+
     def __init__(self):
         self.x_vt = self._get_x_vt()
 
     def _get_x_vt(self):
-        '''Get the vt where X lives'''
+        """Get the vt where X lives"""
         vt = 0
-        proc = Popen(['ps', 'aux'], stdout=PIPE, universal_newlines=True)
-        proc_output = proc.communicate()[0].split('\n')
-        proc_line = re.compile(r'.*tty(\d+).+/usr/bin/X.*')
+        proc = Popen(["ps", "aux"], stdout=PIPE, universal_newlines=True)
+        proc_output = proc.communicate()[0].split("\n")
+        proc_line = re.compile(r".*tty(\d+).+/usr/bin/X.*")
         for line in proc_output:
             match = proc_line.match(line)
             if match:
@@ -53,7 +54,7 @@ class VtWrapper(object):
         return int(vt)
 
     def set_vt(self, vt):
-        retcode = call(['chvt', '%d' % vt])
+        retcode = call(["chvt", "%d" % vt])
         return retcode
 
 
@@ -62,13 +63,13 @@ class SuspendWrapper(object):
         pass
 
     def can_we_sleep(self, mode):
-        '''
+        """
         Test to see if S3 state is available to us.  /proc/acpi/* is old
         and will be deprecated, using /sys/power to maintine usefulness for
         future kernels.
 
-        '''
-        states_fh = open('/sys/power/state', 'r')
+        """
+        states_fh = open("/sys/power/state", "r")
         try:
             states = states_fh.read().split()
         finally:
@@ -81,7 +82,7 @@ class SuspendWrapper(object):
 
     def get_current_time(self):
         cur_time = 0
-        time_fh = open('/sys/class/rtc/rtc0/since_epoch', 'r')
+        time_fh = open("/sys/class/rtc/rtc0/since_epoch", "r")
         try:
             cur_time = int(time_fh.read())
         finally:
@@ -89,7 +90,7 @@ class SuspendWrapper(object):
         return cur_time
 
     def set_wake_time(self, time):
-        '''
+        """
         Get the current epoch time from /sys/class/rtc/rtc0/since_epoch
         then add time and write our new wake_alarm time to
         /sys/class/rtc/rtc0/wakealarm.
@@ -98,37 +99,37 @@ class SuspendWrapper(object):
         worry about whether or not we're using UTC or local time for both the
         hardware and system clocks.
 
-        '''
+        """
         cur_time = self.get_current_time()
-        logging.debug('Current epoch time: %s' % cur_time)
+        logging.debug("Current epoch time: %s" % cur_time)
 
-        wakealarm_fh = open('/sys/class/rtc/rtc0/wakealarm', 'w')
+        wakealarm_fh = open("/sys/class/rtc/rtc0/wakealarm", "w")
 
         try:
-            wakealarm_fh.write('0\n')
+            wakealarm_fh.write("0\n")
             wakealarm_fh.flush()
 
-            wakealarm_fh.write('+%s\n' % time)
+            wakealarm_fh.write("+%s\n" % time)
             wakealarm_fh.flush()
         finally:
             wakealarm_fh.close()
 
-        logging.debug('Wake alarm in %s seconds' % time)
+        logging.debug("Wake alarm in %s seconds" % time)
 
     def do_suspend(self, mode):
-        '''
+        """
         Suspend the system and hope it wakes up.
         Previously tried writing new state to /sys/power/state but that
         seems to put the system into an uncrecoverable S3 state.  So far,
         pm-suspend seems to be the most reliable way to go.
 
-        '''
-        if mode == 'mem':
-            status = call('/usr/sbin/pm-suspend')
-        elif mode == 'disk':
-            status = call('/usr/sbin/pm-hibernate')
+        """
+        if mode == "mem":
+            status = call("/usr/sbin/pm-suspend")
+        elif mode == "disk":
+            status = call("/usr/sbin/pm-hibernate")
         else:
-            logging.debug('Unknown sleep state passed')
+            logging.debug("Unknown sleep state passed")
             status == 1
 
         return status
@@ -137,10 +138,12 @@ class SuspendWrapper(object):
 class RotationWrapper(object):
 
     def __init__(self):
-        self._rotations = {'normal': xrandr.RR_ROTATE_0,
-                           'right': xrandr.RR_ROTATE_90,
-                           'inverted': xrandr.RR_ROTATE_180,
-                           'left': xrandr.RR_ROTATE_270}
+        self._rotations = {
+            "normal": xrandr.RR_ROTATE_0,
+            "right": xrandr.RR_ROTATE_90,
+            "inverted": xrandr.RR_ROTATE_180,
+            "left": xrandr.RR_ROTATE_270,
+        }
 
     def _rotate_screen(self, rotation):
         # Refresh the screen. Required by NVIDIA
@@ -149,7 +152,7 @@ class RotationWrapper(object):
         return screen.apply_config()
 
     def do_rotation_cycle(self):
-        '''Cycle through all possible rotations'''
+        """Cycle through all possible rotations"""
         rots_statuses = {}
 
         for rot in self._rotations:
@@ -159,7 +162,7 @@ class RotationWrapper(object):
                 status = 1
                 error = err
             else:
-                error = 'N/A'
+                error = "N/A"
             # Collect the status and the error message
             rots_statuses[rot] = (status, error)
             time.sleep(4)
@@ -175,8 +178,10 @@ class RotationWrapper(object):
             status = rots_statuses.get(elem)[0]
             error = rots_statuses.get(elem)[1]
             if status != 0:
-                logging.error('Error: rotation "%s" failed with status %d: %s.'
-                              % (elem, status, error))
+                logging.error(
+                    'Error: rotation "%s" failed with status %d: %s.'
+                    % (elem, status, error)
+                )
                 result = 1
         return result
 
@@ -187,35 +192,38 @@ class RenderCheckWrapper(object):
     def __init__(self, temp_dir=None):
         self._temp_dir = temp_dir
 
-    def _print_test_info(self, suites='all', iteration=1, show_errors=False):
-        '''Print the output of the test suite'''
+    def _print_test_info(self, suites="all", iteration=1, show_errors=False):
+        """Print the output of the test suite"""
 
-        main_command = 'rendercheck'
+        main_command = "rendercheck"
         passed = 0
         total = 0
 
         if self._temp_dir:
             # Use the specified path
-            temp_file = tempfile.NamedTemporaryFile(dir=self._temp_dir,
-                                                    delete=False)
+            temp_file = tempfile.NamedTemporaryFile(
+                dir=self._temp_dir, delete=False
+            )
         else:
             # Use /tmp
             temp_file = tempfile.NamedTemporaryFile(delete=False)
 
         if suites == all:
-            full_command = [main_command, '-f', 'a8r8g8b8']
+            full_command = [main_command, "-f", "a8r8g8b8"]
         else:
-            full_command = [main_command, '-t', suites, '-f', 'a8r8g8b8']
+            full_command = [main_command, "-t", suites, "-f", "a8r8g8b8"]
 
         try:
             # Let's dump the output into file as it can be very large
             # and we don't want to store it in memory
-            process = Popen(full_command, stdout=temp_file,
-                            universal_newlines=True)
+            process = Popen(
+                full_command, stdout=temp_file, universal_newlines=True
+            )
         except OSError as exc:
             if exc.errno == errno.ENOENT:
-                logging.error('Error: please make sure that rendercheck '
-                              'is installed.')
+                logging.error(
+                    "Error: please make sure that rendercheck " "is installed."
+                )
                 exit(1)
             else:
                 raise
@@ -225,8 +233,8 @@ class RenderCheckWrapper(object):
         temp_file.close()
 
         # Read values from the file
-        errors = re.compile('.*test error.*')
-        results = re.compile('(.+) tests passed of (.+) total.*')
+        errors = re.compile(".*test error.*")
+        results = re.compile("(.+) tests passed of (.+) total.*")
 
         first_error = True
         with open(temp_file.name) as temp_handle:
@@ -236,18 +244,19 @@ class RenderCheckWrapper(object):
                 if match_output:
                     passed = int(match_output.group(1).strip())
                     total = int(match_output.group(2).strip())
-                    logging.info('Results:')
+                    logging.info("Results:")
                     logging.info(
-                        '    %d tests passed out of %d.' % (passed, total))
+                        "    %d tests passed out of %d." % (passed, total)
+                    )
                 if show_errors and match_errors:
                     error = match_errors.group(0).strip()
                     if first_error:
                         logging.debug(
-                            'Rendercheck %s suite errors '
-                            'from iteration %d:'
-                            % (suites, iteration))
+                            "Rendercheck %s suite errors "
+                            "from iteration %d:" % (suites, iteration)
+                        )
                         first_error = False
-                    logging.debug('    %s' % error)
+                    logging.debug("    %s" % error)
 
         # Remove the file
         os.unlink(temp_file.name)
@@ -259,16 +268,17 @@ class RenderCheckWrapper(object):
         for suite in suites:
             for it in range(iterations):
                 logging.info(
-                    'Iteration %d of Rendercheck %s suite...'
-                    % (it + 1, suite))
+                    "Iteration %d of Rendercheck %s suite..." % (it + 1, suite)
+                )
                 (status, passed, total) = self._print_test_info(
-                    suites=suite, iteration=it + 1, show_errors=show_errors)
+                    suites=suite, iteration=it + 1, show_errors=show_errors
+                )
                 if status != 0:
                     # Make sure to catch a non-zero exit status
                     logging.info(
-                        'Iteration %d of Rendercheck %s suite '
-                        'exited with status %d.'
-                        % (it + 1, suite, status))
+                        "Iteration %d of Rendercheck %s suite "
+                        "exited with status %d." % (it + 1, suite, status)
+                    )
                     exit_status = status
                 it += 1
 
@@ -279,22 +289,27 @@ class RenderCheckWrapper(object):
         return exit_status
 
     def get_suites_list(self):
-        '''Return a list of the available test suites'''
+        """Return a list of the available test suites"""
         try:
-            process = Popen(['rendercheck', '--help'], stdout=PIPE,
-                            stderr=PIPE, universal_newlines=True)
+            process = Popen(
+                ["rendercheck", "--help"],
+                stdout=PIPE,
+                stderr=PIPE,
+                universal_newlines=True,
+            )
         except OSError as exc:
             if exc.errno == errno.ENOENT:
-                logging.error('Error: please make sure that rendercheck '
-                              'is installed.')
+                logging.error(
+                    "Error: please make sure that rendercheck " "is installed."
+                )
                 exit(1)
             else:
                 raise
 
-        proc = process.communicate()[1].split('\n')
+        proc = process.communicate()[1].split("\n")
         found = False
-        tests_pattern = re.compile('.*Available tests: *(.+).*')
-        temp_line = ''
+        tests_pattern = re.compile(".*Available tests: *(.+).*")
+        temp_line = ""
         tests = []
         for line in proc:
             if found:
@@ -304,7 +319,7 @@ class RenderCheckWrapper(object):
                 first_line = match.group(1).strip().lower()
                 found = True
                 temp_line += first_line
-        for elem in temp_line.split(','):
+        for elem in temp_line.split(","):
             test = elem.strip()
             if elem:
                 tests.append(test)
@@ -314,36 +329,50 @@ class RenderCheckWrapper(object):
 def main():
     # Make sure that we have root privileges
     if os.geteuid() != 0:
-        print('Error: please run this program as root',
-              file=sys.stderr)
+        print("Error: please run this program as root", file=sys.stderr)
         exit(1)
 
-    usage = 'Usage: %prog [OPTIONS]'
+    usage = "Usage: %prog [OPTIONS]"
     parser = ArgumentParser(usage)
-    parser.add_argument('-i', '--iterations',
-                        type=int,
-                        default=10,
-                        help='The number of times to run the test. \
-                              Default is 10')
-    parser.add_argument('-d', '--debug',
-                        action='store_true',
-                        help='Choose this to add verbose output \
-                              for debug purposes')
-    parser.add_argument('-b', '--blacklist',
-                        nargs='+',
-                        help='Name(s) of rendercheck test(s) to blacklist.')
-    parser.add_argument('-o', '--output',
-                        default='',
-                        help='The path to the log which will be dumped. \
-                              Default is stdout')
-    parser.add_argument('-tp', '--temp',
-                        default='',
-                        help='The path where to store temporary files. \
-                              Default is /tmp')
+    parser.add_argument(
+        "-i",
+        "--iterations",
+        type=int,
+        default=10,
+        help="The number of times to run the test. \
+                              Default is 10",
+    )
+    parser.add_argument(
+        "-d",
+        "--debug",
+        action="store_true",
+        help="Choose this to add verbose output \
+                              for debug purposes",
+    )
+    parser.add_argument(
+        "-b",
+        "--blacklist",
+        nargs="+",
+        help="Name(s) of rendercheck test(s) to blacklist.",
+    )
+    parser.add_argument(
+        "-o",
+        "--output",
+        default="",
+        help="The path to the log which will be dumped. \
+                              Default is stdout",
+    )
+    parser.add_argument(
+        "-tp",
+        "--temp",
+        default="",
+        help="The path where to store temporary files. \
+                              Default is /tmp",
+    )
     args = parser.parse_args()
 
     # Set up logging to console
-    format = '%(message)s'
+    format = "%(message)s"
 
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(logging.Formatter(format))
@@ -400,74 +429,75 @@ def main():
     vt_wrap = VtWrapper()
     target_vt = 10
     if vt_wrap.x_vt != target_vt:
-        logging.info('== Vt switch test ==')
+        logging.info("== Vt switch test ==")
         for it in range(args.iterations):
-            logging.info('Iteration %d...', it)
+            logging.info("Iteration %d...", it)
             retcode = vt_wrap.set_vt(target_vt)
             if retcode != 0:
                 logging.error(
-                    'Error: switching to tty%d failed with code %d '
-                    'on iteration %d' % (target_vt, retcode, it))
+                    "Error: switching to tty%d failed with code %d "
+                    "on iteration %d" % (target_vt, retcode, it)
+                )
                 status = 1
             else:
-                logging.info('Switching to tty%d: passed' % (target_vt))
+                logging.info("Switching to tty%d: passed" % (target_vt))
             time.sleep(2)
             retcode = vt_wrap.set_vt(vt_wrap.x_vt)
             if retcode != 0:
                 logging.error(
-                    'Error: switching to tty%d failed with code %d '
-                    'on iteration %d' % (vt_wrap.x_vt, retcode, it))
+                    "Error: switching to tty%d failed with code %d "
+                    "on iteration %d" % (vt_wrap.x_vt, retcode, it)
+                )
             else:
-                logging.info('Switching to tty%d: passed' % (vt_wrap.x_vt))
+                logging.info("Switching to tty%d: passed" % (vt_wrap.x_vt))
                 status = 1
     else:
-        logging.error('Error: please run X on a tty other than 10')
+        logging.error("Error: please run X on a tty other than 10")
 
     # Call sleep x times
-    logging.info('== Sleep test ==')
+    logging.info("== Sleep test ==")
     sleep_test = SuspendWrapper()
-    sleep_mode = 'mem'
+    sleep_mode = "mem"
     # See if we can sleep
     if sleep_test.can_we_sleep(sleep_mode):
         for it in range(args.iterations):
             # Run the test
-            logging.info('Iteration %d...', it + 1)
+            logging.info("Iteration %d...", it + 1)
             # Set wake time
             sleep_test.set_wake_time(20)
             # Suspend to RAM
             if sleep_test.do_suspend(sleep_mode) == 0:
-                logging.info('Passed')
+                logging.info("Passed")
             else:
-                logging.error('Failed')
+                logging.error("Failed")
                 status = 1
     else:
         # Skip the test
-        logging.info('Skipped (the system does not seem to support S3')
+        logging.info("Skipped (the system does not seem to support S3")
 
     # Rotate the screen x times
     # The app already rotates the screen 5 times
-    logging.info('== Rotation test ==')
+    logging.info("== Rotation test ==")
     rotation_test = RotationWrapper()
 
     for it in range(args.iterations):
-        logging.info('Iteration %d...', it + 1)
+        logging.info("Iteration %d...", it + 1)
         if rotation_test.do_rotation_cycle() == 0:
-            logging.info('Passed')
+            logging.info("Passed")
         else:
-            logging.error('Failed')
+            logging.error("Failed")
             status = 1
 
     # Call rendercheck x times
-    logging.info('== Rendercheck test ==')
-    if rendercheck.run_test(tests, args.iterations,
-                            args.debug) == 0:
-        logging.info('Passed')
+    logging.info("== Rendercheck test ==")
+    if rendercheck.run_test(tests, args.iterations, args.debug) == 0:
+        logging.info("Passed")
     else:
-        logging.error('Failed')
+        logging.error("Failed")
         status = 1
 
     return status
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     exit(main())

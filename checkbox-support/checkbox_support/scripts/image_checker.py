@@ -35,7 +35,7 @@ def get_source():
     else:
         is_oem_source = exists("/var/lib/ubuntu_dist_channel")
 
-    return 'oem' if is_oem_source else "stock"
+    return "oem" if is_oem_source else "stock"
 
 
 def main():

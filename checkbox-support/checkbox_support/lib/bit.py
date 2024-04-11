@@ -30,7 +30,7 @@ def get_bitcount(bitmask):
     for value in bitmask:
         while value:
             bitcount += 1
-            value &= (value - 1)
+            value &= value - 1
     return bitcount
 
 

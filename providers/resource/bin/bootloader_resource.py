@@ -31,17 +31,17 @@ from checkbox_support.snap_utils.system import on_ubuntucore
 # name = [root dir, config file]
 if on_ubuntucore() and int(get_series()) >= 20:
     bootloaders = {
-        'uboot': ['/boot/uboot', 'boot.sel'],
-        'grub': ['/boot/grub', 'grub.cfg'],
-        'androidboot': ['/boot/androidboot', 'androidboot.env'],
-        'lk': ['/dev/disk/by-partlabel', 'snapbootsel']
+        "uboot": ["/boot/uboot", "boot.sel"],
+        "grub": ["/boot/grub", "grub.cfg"],
+        "androidboot": ["/boot/androidboot", "androidboot.env"],
+        "lk": ["/dev/disk/by-partlabel", "snapbootsel"],
     }
 else:
     bootloaders = {
-        'uboot': ['/boot/uboot', 'uboot.env'],
-        'grub': ['/boot/grub', 'grub.cfg'],
-        'androidboot': ['/boot/androidboot', 'androidboot.env'],
-        'lk': ['/dev/disk/by-partlabel', 'snapbootsel']
+        "uboot": ["/boot/uboot", "uboot.env"],
+        "grub": ["/boot/grub", "grub.cfg"],
+        "androidboot": ["/boot/androidboot", "androidboot.env"],
+        "lk": ["/dev/disk/by-partlabel", "snapbootsel"],
     }
 
 
@@ -50,7 +50,7 @@ def detect_bootloader():
         path = os.path.join(add_hostfs_prefix(config[0]), config[1])
         if os.path.exists(path):
             return name
-    return 'unknown'
+    return "unknown"
 
 
 def booted_kernel_location(bl_name):
@@ -62,42 +62,43 @@ def booted_kernel_location(bl_name):
 
     If either is not indentifiable currently use value 'unknown'.
     """
-    if bl_name == 'grub':
+    if bl_name == "grub":
         if on_ubuntucore() and int(get_series()) >= 20:
-            symlink = '/boot/grub/kernel.efi'
+            symlink = "/boot/grub/kernel.efi"
             prefixed = add_hostfs_prefix(symlink)
             path = os.path.realpath(prefixed)
             if symlink != prefixed:
-                path = path[len(prefixed.rsplit(symlink, 1)[0]):]
-            return (path, 'fs')
+                path = path[len(prefixed.rsplit(symlink, 1)[0]) :]
+            return (path, "fs")
 
         # The BOOT_IMAGE kernmel cmdline parameter is tricky to decipher. It
         # can be an absolute path or refer or contain a variable expanded by
         # ... initramfs? Tested on fortknox, vasteras projects.
-        with open('/proc/cmdline', 'r') as f:
+        with open("/proc/cmdline", "r") as f:
             cmdline = f.readline()
         result = parse_kernel_cmdline(cmdline)
-        grub_path = result.params.get('BOOT_IMAGE')
+        grub_path = result.params.get("BOOT_IMAGE")
         if grub_path:
             if os.path.isabs(grub_path):
-                return (grub_path, 'fs')
+                return (grub_path, "fs")
             with contextlib.suppress(ValueError):
                 # if we know where the parameter is referencing,
                 # replace it
-                if re.search(r'\(hd\d,gpt\d\)', grub_path, re.M):
+                if re.search(r"\(hd\d,gpt\d\)", grub_path, re.M):
                     path = os.path.join(
-                        '/boot/efi', grub_path[grub_path.index(')')+2:])
-                    return (path, 'fs')
-        return ('unknown', 'fs')
-    elif bl_name == 'lk':
-        return (get_lk_bootimg_path(), 'raw')
-    return ('unknown', 'unknown')  # bl_name in ('uboot', 'androidboot')
+                        "/boot/efi", grub_path[grub_path.index(")") + 2 :]
+                    )
+                    return (path, "fs")
+        return ("unknown", "fs")
+    elif bl_name == "lk":
+        return (get_lk_bootimg_path(), "raw")
+    return ("unknown", "unknown")  # bl_name in ('uboot', 'androidboot')
 
 
 if __name__ == "__main__":
     bl_name = detect_bootloader()
-    print('name: {}'.format(bl_name))
+    print("name: {}".format(bl_name))
     path, type = booted_kernel_location(bl_name)
-    print('booted_kernel_path: {}'.format(path))
-    print('booted_kernel_partition_type: {}'.format(type))
+    print("booted_kernel_path: {}".format(path))
+    print("booted_kernel_partition_type: {}".format(type))
     print()

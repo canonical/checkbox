@@ -56,7 +56,7 @@ def check_match_drivers(crypto_info, algo_key, driver_pattern):
 
     print(
         "\n# Checking drivers match to '{}' pattern: ".format(driver_pattern),
-        end=""
+        end="",
     )
     if match_drivers:
         print("Passed")
@@ -73,7 +73,7 @@ def check_crypto_driver_priority(crypto_type, crypto_name, driver_pattern):
         "\n# Checking AF_ALG {} type with {} algorithm is supported: ".format(
             crypto_type, crypto_name
         ),
-        end=""
+        end="",
     )
 
     if check_algo_support(crypto_info, algo_key) is False:
@@ -97,7 +97,7 @@ def check_crypto_driver_priority(crypto_type, crypto_name, driver_pattern):
         return False
 
 
-class TestCryptoDriver():
+class TestCryptoDriver:
 
     @staticmethod
     def check_caam_drivers(crypto_profiles):
@@ -106,7 +106,7 @@ class TestCryptoDriver():
             ("hash", "sha256", "caam"),
             ("skcipher", "cbc(aes)", "caam"),
             ("aead", "gcm(aes)", "caam"),
-            ("rng", "stdrng", "caam")
+            ("rng", "stdrng", "caam"),
         ]
 
         check_profiles = crypto_profiles if crypto_profiles else check_list
@@ -140,7 +140,7 @@ class TestCryptoDriver():
         check_list = [
             ("ahash", "sha256", "sa2ul"),
             ("skcipher", "cbc(aes)", "sa2ul"),
-            ("aead", "authenc(hmac(sha256),cbc(aes))", "sa2ul")
+            ("aead", "authenc(hmac(sha256),cbc(aes))", "sa2ul"),
         ]
 
         check_profiles = crypto_profiles if crypto_profiles else check_list
@@ -161,7 +161,7 @@ def main():
         "--type",
         choices=["caam", "sa2ul", "mcrc"],
         required=True,
-        help="Validate specific crypto driver module"
+        help="Validate specific crypto driver module",
     )
     parser.add_argument(
         "-p",
@@ -172,7 +172,7 @@ def main():
             "format: '[('crypto_type', 'crypto_name', 'driver_pattern') ...]'"
             "e.g. '[('aead', 'gcm(aes)', 'caam'), ('rng', 'stdrng', 'caam')]'"
         ),
-        default="[]"
+        default="[]",
     )
     args = parser.parse_args()
     func = getattr(TestCryptoDriver, "check_{}_drivers".format(args.type))

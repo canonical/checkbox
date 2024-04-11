@@ -33,13 +33,30 @@ def run_it(duration):
     # interrupted
     test_timeout = duration + 1
 
-    cmd = ["chrt", "-f", "99", "cyclictest", "-a2-3", "-t2", "-m", "-p99",
-           "-i250", "-h700", "-q", "-D", str(duration)]
+    cmd = [
+        "chrt",
+        "-f",
+        "99",
+        "cyclictest",
+        "-a2-3",
+        "-t2",
+        "-m",
+        "-p99",
+        "-i250",
+        "-h700",
+        "-q",
+        "-D",
+        str(duration),
+    ]
 
     try:
         result = subprocess.run(
-                cmd, capture_output=True, text=True, timeout=test_timeout,
-                check=True)
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=test_timeout,
+            check=True,
+        )
     except Exception as err:
         raise SystemExit(err)
 
@@ -106,9 +123,13 @@ def verify_cyclictest_results(result):
             latencies = line.split(":")[1].split()
             for latency in latencies:
                 if int(latency) > max_latency:
-                    print("Test fails.\tLatency : " + latency +
-                          "\t-- Maximum Latency value of: " +
-                          str(max_latency) + " exceeded.")
+                    print(
+                        "Test fails.\tLatency : "
+                        + latency
+                        + "\t-- Maximum Latency value of: "
+                        + str(max_latency)
+                        + " exceeded."
+                    )
                     return_code = 1
                 else:
                     print("Test passes.\tLatency : " + latency + " -- OK.")
@@ -117,8 +138,11 @@ def verify_cyclictest_results(result):
             overflows = line.split(":")[1].split()
             for overflow in overflows:
                 if int(overflow) > 0:
-                    print("Test fails.\tOverflow: " + overflow +
-                          " -- 0 Overflows expected.")
+                    print(
+                        "Test fails.\tOverflow: "
+                        + overflow
+                        + " -- 0 Overflows expected."
+                    )
                     return_code = 1
                 else:
                     print("Test passes.\tOverflow: " + overflow + " -- OK.")

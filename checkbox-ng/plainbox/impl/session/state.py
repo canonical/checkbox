@@ -35,8 +35,8 @@ from plainbox.impl.depmgr import DependencySolver
 from plainbox.impl.secure.qualifiers import select_units
 from plainbox.impl.session.jobs import JobState
 from plainbox.impl.session.jobs import UndesiredJobReadinessInhibitor
-from plainbox.impl.session.system_information import(
-    collect as collect_system_information
+from plainbox.impl.session.system_information import (
+    collect as collect_system_information,
 )
 from plainbox.impl.unit.job import JobDefinition
 from plainbox.impl.unit.unit_with_id import UnitWithId
@@ -49,7 +49,6 @@ logger = logging.getLogger("plainbox.session.state")
 
 
 class SessionMetaData:
-
     """
     Class representing non-critical state of the session.
 
@@ -78,8 +77,15 @@ class SessionMetaData:
     # and is not following any test plan
     FLAG_TESTPLANLESS = "testplanless"
 
-    def __init__(self, title=None, flags=None, running_job_name=None,
-                 app_blob=b'', app_id=None, custom_joblist=False):
+    def __init__(
+        self,
+        title=None,
+        flags=None,
+        running_job_name=None,
+        app_blob=b"",
+        app_id=None,
+        custom_joblist=False,
+    ):
         """Initialize a new session state meta-data object."""
         if flags is None:
             flags = []
@@ -95,8 +101,11 @@ class SessionMetaData:
     def __repr__(self):
         """Get the representation of the session state meta-data."""
         return "<{} title:{!r} flags:{!r} running_job_name:{!r}>".format(
-            self.__class__.__name__, self.title, self.flags,
-            self.running_job_name)
+            self.__class__.__name__,
+            self.title,
+            self.flags,
+            self.running_job_name,
+        )
 
     @property
     def title(self):
@@ -223,7 +232,6 @@ class SessionMetaData:
 
 
 class SessionDeviceContext:
-
     """
     Session context specific to a given device.
 
@@ -253,8 +261,9 @@ class SessionDeviceContext:
         and also exposes some legacy API for computing the run list and the
         desired job list
     """
+
     # Cache key that stores the map of field overrides
-    _CACHE_OVERRIDE_MAP = 'override_map'
+    _CACHE_OVERRIDE_MAP = "override_map"
 
     def __init__(self, state=None):
         """
@@ -285,14 +294,18 @@ class SessionDeviceContext:
             # If we do have an existing state object then our lists must be
             # obtained / derived from the state object's data
             self._unit_list = state.unit_list
-            self._provider_list = list({
-                unit.provider for unit in self._unit_list
-            })
+            self._provider_list = list(
+                {unit.provider for unit in self._unit_list}
+            )
             self._state = state
-            self._unit_id_map = {unit.id: unit for unit in state.unit_list if
-                                 isinstance(unit, UnitWithId)}
+            self._unit_id_map = {
+                unit.id: unit
+                for unit in state.unit_list
+                if isinstance(unit, UnitWithId)
+            }
             self._already_added_checksums = set(
-                [unit.checksum for unit in self.unit_list])
+                [unit.checksum for unit in self.unit_list]
+            )
 
         self._test_plan_list = []
         # Connect SessionState's signals to fire our signals. This
@@ -367,7 +380,8 @@ class SessionDeviceContext:
             no longer accurate.
         """
         return self.compute_shared(
-            self._CACHE_OVERRIDE_MAP, self._compute_override_map)
+            self._CACHE_OVERRIDE_MAP, self._compute_override_map
+        )
 
     def set_test_plan_list(self, test_plan_list: "List[TestPlanUnit]"):
         """
@@ -411,8 +425,11 @@ class SessionDeviceContext:
         """
         if provider in self._provider_list:
             raise ValueError(
-                _("attempting to add the same provider twice: %s"
-                  % provider.name))
+                _(
+                    "attempting to add the same provider twice: %s"
+                    % provider.name
+                )
+            )
         self._provider_list.append(provider)
         self.on_provider_added(provider)
         if add_units:
@@ -436,7 +453,8 @@ class SessionDeviceContext:
         """
         if unit.checksum in self._already_added_checksums:
             raise ValueError(
-                _("attempting to add the same unit twice: %s" % unit.id))
+                _("attempting to add the same unit twice: %s" % unit.id)
+            )
         self._already_added_checksums.add(unit.checksum)
         self.state.add_unit(unit, recompute)
         # NOTE: no need to fire the on_unit_added() signal because the state
@@ -453,7 +471,8 @@ class SessionDeviceContext:
         """
         if unit not in self._unit_list:
             raise ValueError(
-                _("attempting to remove unit not in this context"))
+                _("attempting to remove unit not in this context")
+            )
         self._already_added_checksums.remove(unit.checksum)
         self.state.remove_unit(unit)
         # NOTE: no need to fire the on_unit_removed() signal because the state
@@ -488,7 +507,7 @@ class SessionDeviceContext:
     def on_unit_added(self, unit):
         """Signal sent whenever a unit is added to the context."""
         logger.debug(_("Unit %s added to context %s"), unit, self)
-        if unit.Meta.name == 'job':
+        if unit.Meta.name == "job":
             self.on_job_added(unit)
         if isinstance(unit, UnitWithId):
             self._unit_id_map[unit.id] = unit
@@ -568,14 +587,12 @@ class SessionDeviceContext:
         qualifier_list = []
         for test_plan in self._test_plan_list:
             qualifier_list.append(test_plan.get_mandatory_qualifier())
-        mandatory_job_list = select_units(
-            self.state.job_list, qualifier_list)
+        mandatory_job_list = select_units(self.state.job_list, qualifier_list)
         self.state.update_mandatory_job_list(mandatory_job_list)
         self.state.update_desired_job_list(self.state.desired_job_list)
 
 
 class SessionState:
-
     """
     Class representing all state needed during a single program session.
 
@@ -708,8 +725,9 @@ class SessionState:
         session knows about.
         """
         # Start by making a copy of job_list as we may modify it below
-        job_list = [unit for unit in unit_list
-                    if isinstance(unit, JobDefinition)]
+        job_list = [
+            unit for unit in unit_list if isinstance(unit, JobDefinition)
+        ]
         while True:
             try:
                 # Construct a solver with the job list as passed by the caller.
@@ -742,8 +760,7 @@ class SessionState:
                 break
         self._job_list = job_list
         self._unit_list = unit_list
-        self._job_state_map = {job.id: JobState(job)
-                               for job in self._job_list}
+        self._job_state_map = {job.id: JobState(job) for job in self._job_list}
         self._desired_job_list = []
         self._mandatory_job_list = []
         self._run_list = []
@@ -777,25 +794,31 @@ class SessionState:
         # job and can do efficient operations later.
         #
         # The whole function should be O(N), where N is len(job_list)
-        remove_flags = [
-            qualifier.designates(job) for job in self._job_list]
+        remove_flags = [qualifier.designates(job) for job in self._job_list]
         # Build a list of (job, should_remove) flags, we'll be using this list
         # a few times below.
         job_and_flag_list = list(zip(self._job_list, remove_flags))
         # Build a set of ids of jobs that we'll be removing
-        remove_job_id_set = frozenset([
-            job.id for job, should_remove in job_and_flag_list
-            if should_remove is True])
+        remove_job_id_set = frozenset(
+            [
+                job.id
+                for job, should_remove in job_and_flag_list
+                if should_remove is True
+            ]
+        )
         # Build a set of ids of jobs that are on the run list
         run_list_id_set = frozenset([job.id for job in self.run_list])
         # Check if this is safe to do. None of the jobs may be in the run list
         # (or the desired job list which is always a subset of run list)
         unremovable_job_id_set = remove_job_id_set.intersection(
-            run_list_id_set)
+            run_list_id_set
+        )
         if unremovable_job_id_set:
             raise ValueError(
                 _("cannot remove jobs that are on the run list: {}").format(
-                    ', '.join(sorted(unremovable_job_id_set))))
+                    ", ".join(sorted(unremovable_job_id_set))
+                )
+            )
         # Remove job state and resources (if present) for all the jobs we're
         # about to remove. Note that while each job has a state object not all
         # jobs generated resources so that removal is conditional.
@@ -806,12 +829,16 @@ class SessionState:
                     del self._resource_map[job.id]
         # Compute a list of jobs to retain
         retain_list = [
-            job for job, should_remove in job_and_flag_list
-            if should_remove is False]
+            job
+            for job, should_remove in job_and_flag_list
+            if should_remove is False
+        ]
         # And a list of jobs to remove
         remove_list = [
-            job for job, should_remove in job_and_flag_list
-            if should_remove is True]
+            job
+            for job, should_remove in job_and_flag_list
+            if should_remove is True
+        ]
         # Replace job list with the filtered list
         self._job_list = retain_list
         if remove_list:
@@ -831,7 +858,7 @@ class SessionState:
 
     @system_information.setter
     def system_information(self, value):
-        #TODO: check if system_information was already set
+        # TODO: check if system_information was already set
         self._system_information = value
 
     def update_mandatory_job_list(self, mandatory_job_list):
@@ -845,8 +872,9 @@ class SessionState:
         """
         self._mandatory_job_list = mandatory_job_list
 
-    def update_desired_job_list(self, desired_job_list,
-                                include_mandatory=True):
+    def update_desired_job_list(
+        self, desired_job_list, include_mandatory=True
+    ):
         """
         Update the set of desired jobs (that ought to run).
 
@@ -881,7 +909,8 @@ class SessionState:
             # resources or runtime complexity.
             try:
                 self._run_list = DependencySolver.resolve_dependencies(
-                    job_list, self._desired_job_list)
+                    job_list, self._desired_job_list
+                )
             except DependencyError as exc:
                 # When a dependency error is detected remove the affected job
                 # form _desired_job_list and try again.
@@ -964,10 +993,11 @@ class SessionState:
         the IO log.
         """
         job.controller.observe_result(
-            self, job, result, fake_resources=self._fake_resources)
+            self, job, result, fake_resources=self._fake_resources
+        )
         self._recompute_job_readiness()
 
-    @deprecated('0.9', 'use the add_unit() method instead')
+    @deprecated("0.9", "use the add_unit() method instead")
     def add_job(self, new_job, recompute=True):
         """
         Add a new job to the session.
@@ -1038,7 +1068,7 @@ class SessionState:
             you want to add a lot of units consider setting that to False and
             only recompute at the last call.
         """
-        if new_unit.Meta.name == 'job':
+        if new_unit.Meta.name == "job":
             return self._add_job_unit(new_unit, recompute, via)
         else:
             return self._add_other_unit(new_unit)
@@ -1078,8 +1108,9 @@ class SessionState:
         if new_job.siblings:
             for overrides in json.loads(new_job.tr_siblings()):
                 data = {
-                    key: value for key, value in new_job._data.items()
-                    if not key.endswith('siblings')
+                    key: value
+                    for key, value in new_job._data.items()
+                    if not key.endswith("siblings")
                 }
                 data.update(overrides)
                 self._add_job_unit(
@@ -1089,24 +1120,26 @@ class SessionState:
                         provider=new_job.provider,
                         controller=new_job.controller,
                         parameters=new_job.parameters,
-                        field_offset_map=new_job.field_offset_map),
+                        field_offset_map=new_job.field_offset_map,
+                    ),
                     recompute,
-                    via)
+                    via,
+                )
         if Suspend.AUTO_FLAG in new_job.get_flag_set():
             data = {
-                key: value for key, value in new_job._data.items()
-                if not key.endswith('siblings')
+                key: value
+                for key, value in new_job._data.items()
+                if not key.endswith("siblings")
             }
-            data['flags'] = data['flags'].replace(Suspend.AUTO_FLAG, '')
-            data['flags'] = data['flags'].replace(Suspend.MANUAL_FLAG, '')
-            data['id'] = "after-suspend-{}".format(new_job.partial_id)
-            data['_summary'] = "{} after suspend (S3)".format(
-                new_job.summary)
+            data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
+            data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
+            data["id"] = "after-suspend-{}".format(new_job.partial_id)
+            data["_summary"] = "{} after suspend (S3)".format(new_job.summary)
             if new_job.depends:
-                data['depends'] += " {}".format(new_job.id)
+                data["depends"] += " {}".format(new_job.id)
             else:
-                data['depends'] = "{}".format(new_job.id)
-            data['depends'] += " {}".format(Suspend.AUTO_JOB_ID)
+                data["depends"] = "{}".format(new_job.id)
+            data["depends"] += " {}".format(Suspend.AUTO_JOB_ID)
             self._add_job_unit(
                 JobDefinition(
                     data,
@@ -1114,24 +1147,26 @@ class SessionState:
                     provider=new_job.provider,
                     controller=new_job.controller,
                     parameters=new_job.parameters,
-                    field_offset_map=new_job.field_offset_map),
+                    field_offset_map=new_job.field_offset_map,
+                ),
                 recompute,
-                via)
+                via,
+            )
         if Suspend.MANUAL_FLAG in new_job.get_flag_set():
             data = {
-                key: value for key, value in new_job._data.items()
-                if not key.endswith('siblings')
+                key: value
+                for key, value in new_job._data.items()
+                if not key.endswith("siblings")
             }
-            data['flags'] = data['flags'].replace(Suspend.AUTO_FLAG, '')
-            data['flags'] = data['flags'].replace(Suspend.MANUAL_FLAG, '')
-            data['id'] = "after-suspend-manual-{}".format(new_job.partial_id)
-            data['_summary'] = "{} after suspend (S3)".format(
-                new_job.summary)
+            data["flags"] = data["flags"].replace(Suspend.AUTO_FLAG, "")
+            data["flags"] = data["flags"].replace(Suspend.MANUAL_FLAG, "")
+            data["id"] = "after-suspend-manual-{}".format(new_job.partial_id)
+            data["_summary"] = "{} after suspend (S3)".format(new_job.summary)
             if new_job.depends:
-                data['depends'] += " {}".format(new_job.id)
+                data["depends"] += " {}".format(new_job.id)
             else:
-                data['depends'] = "{}".format(new_job.id)
-            data['depends'] += " {}".format(Suspend.MANUAL_JOB_ID)
+                data["depends"] = "{}".format(new_job.id)
+            data["depends"] += " {}".format(Suspend.MANUAL_JOB_ID)
             self._add_job_unit(
                 JobDefinition(
                     data,
@@ -1139,9 +1174,11 @@ class SessionState:
                     provider=new_job.provider,
                     controller=new_job.controller,
                     parameters=new_job.parameters,
-                    field_offset_map=new_job.field_offset_map),
+                    field_offset_map=new_job.field_offset_map,
+                ),
                 recompute,
-                via)
+                via,
+            )
 
     def remove_unit(self, unit, *, recompute=True):
         """
@@ -1164,7 +1201,7 @@ class SessionState:
         """
         self._unit_list.remove(unit)
         self.on_unit_removed(unit)
-        if unit.Meta.name == 'job':
+        if unit.Meta.name == "job":
             self._job_list.remove(unit)
             del self._job_state_map[unit.id]
             try:
@@ -1274,8 +1311,10 @@ class SessionState:
         """
         stats = collections.defaultdict(int)
         for job_id, job_state in self.job_state_map.items():
-            if (not job_state.result.outcome or
-                    job_state.job.plugin in ("resource", "attachment")):
+            if not job_state.result.outcome or job_state.job.plugin in (
+                "resource",
+                "attachment",
+            ):
                 continue
             stats[job_state.result.outcome] += 1
         return stats
@@ -1283,16 +1322,17 @@ class SessionState:
     @property
     def category_map(self):
         """Map from category id to their corresponding translated names."""
-        wanted_category_ids = frozenset({
-            job_state.effective_category_id
-            for job_state in self.job_state_map.values()
-            if job_state.result.outcome != None
-        })
+        wanted_category_ids = frozenset(
+            {
+                job_state.effective_category_id
+                for job_state in self.job_state_map.values()
+                if job_state.result.outcome != None
+            }
+        )
         return {
             unit.id: unit.tr_name()
             for unit in self.unit_list
-            if unit.Meta.name == 'category'
-            and unit.id in wanted_category_ids
+            if unit.Meta.name == "category" and unit.id in wanted_category_ids
         }
 
     @property
@@ -1304,27 +1344,30 @@ class SessionState:
         Meant to be used to generate the HTML reports where resources and
         attachments are presented in different sections.
         """
-        wanted_category_ids = frozenset({
-            job_state.effective_category_id
-            for job_state in self.job_state_map.values()
-            if job_state.result.outcome != None and
-            job_state.job.plugin not in ("resource", "attachment")
-        })
+        wanted_category_ids = frozenset(
+            {
+                job_state.effective_category_id
+                for job_state in self.job_state_map.values()
+                if job_state.result.outcome != None
+                and job_state.job.plugin not in ("resource", "attachment")
+            }
+        )
         return {
             unit.id: unit.tr_name()
             for unit in self.unit_list
-            if unit.Meta.name == 'category'
-            and unit.id in wanted_category_ids
+            if unit.Meta.name == "category" and unit.id in wanted_category_ids
         }
 
     @property
     def category_outcome_map(self):
         """Map from category id to their corresponding global outcome."""
-        wanted_category_ids = frozenset({
-            job_state.effective_category_id
-            for job_state in self.job_state_map.values()
-            if job_state.result.outcome != None
-        })
+        wanted_category_ids = frozenset(
+            {
+                job_state.effective_category_id
+                for job_state in self.job_state_map.values()
+                if job_state.result.outcome != None
+            }
+        )
         tmp_result_map = {}
         for job_state in self.job_state_map.values():
             if job_state.job.plugin in ("resource", "attachment"):
@@ -1337,17 +1380,18 @@ class SessionState:
             if category not in tmp_result_map:
                 tmp_result_map[category] = IJobResult.OUTCOME_SKIP
             if child_status in (
-                IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH
+                IJobResult.OUTCOME_FAIL,
+                IJobResult.OUTCOME_CRASH,
             ):
                 tmp_result_map[category] = IJobResult.OUTCOME_FAIL
             elif (
-                child_status == IJobResult.OUTCOME_PASS and
-                tmp_result_map[category] != IJobResult.OUTCOME_FAIL
+                child_status == IJobResult.OUTCOME_PASS
+                and tmp_result_map[category] != IJobResult.OUTCOME_FAIL
             ):
                 tmp_result_map[category] = IJobResult.OUTCOME_PASS
-            elif (
-                tmp_result_map[category] not in
-                (IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL)
+            elif tmp_result_map[category] not in (
+                IJobResult.OUTCOME_PASS,
+                IJobResult.OUTCOME_FAIL,
             ):
                 tmp_result_map[category] = IJobResult.OUTCOME_SKIP
         return tmp_result_map
@@ -1357,24 +1401,25 @@ class SessionState:
         global_outcome = IJobResult.OUTCOME_SKIP
         for job_state in self.job_state_map.values():
             if (
-                job_state.job.plugin != "resource" or
-                not job_state.result.outcome
+                job_state.job.plugin != "resource"
+                or not job_state.result.outcome
             ):
                 continue
             # Generate categories status
             child_status = job_state.result.outcome
             if child_status in (
-                IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH
+                IJobResult.OUTCOME_FAIL,
+                IJobResult.OUTCOME_CRASH,
             ):
                 global_outcome = IJobResult.OUTCOME_FAIL
             elif (
-                child_status == IJobResult.OUTCOME_PASS and
-                global_outcome != IJobResult.OUTCOME_FAIL
+                child_status == IJobResult.OUTCOME_PASS
+                and global_outcome != IJobResult.OUTCOME_FAIL
             ):
                 global_outcome = IJobResult.OUTCOME_PASS
-            elif (
-                global_outcome not in
-                (IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL)
+            elif global_outcome not in (
+                IJobResult.OUTCOME_PASS,
+                IJobResult.OUTCOME_FAIL,
             ):
                 global_outcome = IJobResult.OUTCOME_SKIP
         return global_outcome
@@ -1384,31 +1429,33 @@ class SessionState:
         global_outcome = IJobResult.OUTCOME_SKIP
         for job_state in self.job_state_map.values():
             if (
-                job_state.job.plugin != "attachment" or
-                not job_state.result.outcome
+                job_state.job.plugin != "attachment"
+                or not job_state.result.outcome
             ):
                 continue
             # Generate categories status
             child_status = job_state.result.outcome
             if child_status in (
-                IJobResult.OUTCOME_FAIL, IJobResult.OUTCOME_CRASH
+                IJobResult.OUTCOME_FAIL,
+                IJobResult.OUTCOME_CRASH,
             ):
                 global_outcome = IJobResult.OUTCOME_FAIL
             elif (
-                child_status == IJobResult.OUTCOME_PASS and
-                global_outcome != IJobResult.OUTCOME_FAIL
+                child_status == IJobResult.OUTCOME_PASS
+                and global_outcome != IJobResult.OUTCOME_FAIL
             ):
                 global_outcome = IJobResult.OUTCOME_PASS
-            elif (
-                global_outcome not in
-                (IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL)
+            elif global_outcome not in (
+                IJobResult.OUTCOME_PASS,
+                IJobResult.OUTCOME_FAIL,
             ):
                 global_outcome = IJobResult.OUTCOME_SKIP
         return global_outcome
 
     def get_certification_status_map(
-            self, outcome_filter=(IJobResult.OUTCOME_FAIL,),
-            certification_status_filter=('blocker',)
+        self,
+        outcome_filter=(IJobResult.OUTCOME_FAIL,),
+        certification_status_filter=("blocker",),
     ):
         """
         Get a map of jobs that have a specific certification blocker status.
@@ -1427,9 +1474,11 @@ class SessionState:
         return {
             job_id: job_state
             for job_id, job_state in self.job_state_map.items()
-            if (job_state.result.outcome in outcome_filter and
-                job_state.effective_certification_status in
-                certification_status_filter)
+            if (
+                job_state.result.outcome in outcome_filter
+                and job_state.effective_certification_status
+                in certification_status_filter
+            )
         }
 
     @property
@@ -1450,7 +1499,8 @@ class SessionState:
         # (the UI can safely use the readiness state of all jobs)
         for job_state in self._job_state_map.values():
             job_state.readiness_inhibitor_list = [
-                UndesiredJobReadinessInhibitor]
+                UndesiredJobReadinessInhibitor
+            ]
         # Take advantage of the fact that run_list is topologically sorted and
         # do a single O(N) pass over _run_list. All "current/update" state is
         # computed before it needs to be observed (thanks to the ordering)
@@ -1459,7 +1509,8 @@ class SessionState:
             # Remove the undesired inhibitor as we want to run this job
             try:
                 job_state.readiness_inhibitor_list.remove(
-                    UndesiredJobReadinessInhibitor)
+                    UndesiredJobReadinessInhibitor
+                )
             except ValueError:
                 pass
             # Ask the job controller about inhibitors affecting this job

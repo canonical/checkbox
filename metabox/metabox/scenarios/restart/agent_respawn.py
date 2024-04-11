@@ -129,6 +129,7 @@ class ResumeAfterFinishPreserveOutputLocal(Scenario):
         Expect("job failed"),
     ]
 
+
 @tag("resume", "manual")
 class ResumeAfterFinishPreserveOutputRemote(Scenario):
     modes = ["remote"]

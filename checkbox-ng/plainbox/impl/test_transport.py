@@ -45,10 +45,12 @@ class TransportBaseTests(TestCase):
         transport = self.TestTransport(test_url, test_opt_string)
 
         self.assertEqual(test_url, transport.url)
-        self.assertEqual(sorted(['secure_id', 'arbitrary_param']),
-                         sorted(transport.options.keys()))
-        self.assertEqual("abcdefg000123", transport.options['secure_id'])
-        self.assertEqual("whatever", transport.options['arbitrary_param'])
+        self.assertEqual(
+            sorted(["secure_id", "arbitrary_param"]),
+            sorted(transport.options.keys()),
+        )
+        self.assertEqual("abcdefg000123", transport.options["secure_id"])
+        self.assertEqual("whatever", transport.options["arbitrary_param"])
 
     def test_invalid_option_string_behavior(self):
         test_opt_string = "Something nonsensical"
@@ -64,5 +66,5 @@ class TransportBaseTests(TestCase):
     def test_double_equals_behavior(self):
         test_opt_string = "this=contains=equal"
         transport = self.TestTransport("", test_opt_string)
-        self.assertEqual(['this'], list(transport.options.keys()))
-        self.assertEqual("contains=equal", transport.options['this'])
+        self.assertEqual(["this"], list(transport.options.keys()))
+        self.assertEqual("contains=equal", transport.options["this"])

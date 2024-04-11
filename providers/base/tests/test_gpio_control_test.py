@@ -22,8 +22,14 @@ class TestGPIOController(unittest.TestCase):
     @patch("gpio_control_test.GPIOController._node_exists")
     @patch("gpio_control_test.time.sleep", new=Mock)
     def test_initial_gpio_controller_success(
-            self, mock_path, mock_read, mock_write,
-            mock_export, mock_unexport, mock_mapping):
+        self,
+        mock_path,
+        mock_read,
+        mock_write,
+        mock_export,
+        mock_unexport,
+        mock_mapping,
+    ):
         mock_path.return_value = True
         mock_read.side_effect = ["32", "16", "0", "in"]
         mock_mapping.return_value = {"1": "32"}
@@ -31,17 +37,21 @@ class TestGPIOController(unittest.TestCase):
         with GPIOController("1", "1", "in", True) as gpio_controller:
             mock_path.assert_called_with(gpio_controller.gpio_node)
             mock_read.assert_called_with(
-                gpio_controller.gpio_node.joinpath("direction"))
+                gpio_controller.gpio_node.joinpath("direction")
+            )
             mock_write.assert_called_with(
-                gpio_controller.gpio_node.joinpath("direction"), "in")
+                gpio_controller.gpio_node.joinpath("direction"), "in"
+            )
             self.assertIsInstance(gpio_controller.gpio_chip_node, PosixPath)
             self.assertEqual(gpio_controller.gpio_chip_node.name, "gpiochip32")
             self.assertDictEqual(
                 gpio_controller.gpiochip_info,
-                {"base": "32", "ngpio": "16", "offset": "1"})
+                {"base": "32", "ngpio": "16", "offset": "1"},
+            )
             self.assertDictEqual(
                 gpio_controller.initial_state,
-                {"value": "0", "direction": "in", "number": "32"})
+                {"value": "0", "direction": "in", "number": "32"},
+            )
 
     def test_initial_gpio_controller_with_invalid_gpiochip(self):
         with self.assertRaises(ValueError):
@@ -49,8 +59,9 @@ class TestGPIOController(unittest.TestCase):
                 gpio_controller.gpio_chip_node
 
     @patch("gpio_control_test.GPIOController.get_gpiochip_mapping")
-    def test_initial_gpio_controller_with_notexist_gpiochip(self,
-                                                            mock_mapping):
+    def test_initial_gpio_controller_with_notexist_gpiochip(
+        self, mock_mapping
+    ):
         mock_mapping.return_value = {"0": "32"}
         with self.assertRaises(KeyError):
             GPIOController("1", "1", "in", True)
@@ -64,7 +75,8 @@ class TestGPIOController(unittest.TestCase):
     @patch("gpio_control_test.GPIOController._read_node")
     @patch("gpio_control_test.GPIOController._node_exists")
     def test_initial_gpio_controller_with_notexist_gpiopin(
-                        self, mock_path, mock_read, mock_mapping):
+        self, mock_path, mock_read, mock_mapping
+    ):
         mock_read.side_effect = ["32", "16", "0", "in"]
         mock_mapping.return_value = {"0": "32"}
         with self.assertRaises(ValueError):
@@ -78,8 +90,14 @@ class TestGPIOController(unittest.TestCase):
     @patch("gpio_control_test.GPIOController._read_node")
     @patch("gpio_control_test.GPIOController._node_exists")
     def test_initial_gpiopin_exceeds_maximum(
-            self, mock_path, mock_read, mock_write,
-            mock_export, mock_unexport, mock_mapping):
+        self,
+        mock_path,
+        mock_read,
+        mock_write,
+        mock_export,
+        mock_unexport,
+        mock_mapping,
+    ):
         mock_path.return_value = True
         mock_read.side_effect = ["32", "16", "0", "in"]
         mock_mapping.return_value = {"1": "32"}
@@ -88,25 +106,26 @@ class TestGPIOController(unittest.TestCase):
             with GPIOController("1", "18", "in", True) as gpio_controller:
                 mock_path.assert_called_with(gpio_controller.gpio_node)
                 mock_read.assert_called_with(
-                    gpio_controller.gpio_node.joinpath("direction"))
+                    gpio_controller.gpio_node.joinpath("direction")
+                )
 
     @patch("pathlib.Path.glob")
     def test_get_gpiochip_mapping(self, mock_glob):
         expected_data = {"0": "32", "1": "96"}
         mock_glob.return_value = [
             "/sys/class/gpio/gpiochip32/device/gpiochip0",
-            "/sys/class/gpio/gpiochip96/device/gpiochip1"
+            "/sys/class/gpio/gpiochip96/device/gpiochip1",
         ]
 
         gpio_conn = GPIOController("0", "1", "out", True)
-        self.assertDictEqual(gpio_conn.get_gpiochip_mapping(),
-                             expected_data)
+        self.assertDictEqual(gpio_conn.get_gpiochip_mapping(), expected_data)
 
     @patch("gpio_control_test.GPIOController.get_gpiochip_mapping")
     @patch("gpio_control_test.GPIOController._read_node")
     @patch("gpio_control_test.GPIOController._node_exists")
     def test_setup_failed_by_ngpio_not_available(
-            self, mock_path, mock_read, mock_mapping):
+        self, mock_path, mock_read, mock_mapping
+    ):
         mock_mapping.return_value = {"0": "32"}
         mock_path.side_effect = [True, False]
         mock_read.return_value = "32"
@@ -119,7 +138,8 @@ class TestGPIOController(unittest.TestCase):
     @patch("gpio_control_test.GPIOController._read_node")
     @patch("gpio_control_test.GPIOController._node_exists")
     def test_setup_failed_gpionode_not_available(
-                        self, mock_path, mock_read, mock_mapping):
+        self, mock_path, mock_read, mock_mapping
+    ):
         mock_mapping.return_value = {"0": "32"}
         mock_path.side_effect = [True, True, False]
         mock_read.side_effect = ["32", "16"]
@@ -148,14 +168,16 @@ class TestGPIOController(unittest.TestCase):
         gpio_controller = GPIOController("1", "1", "in", True)
         self.assertEqual(
             expected_result,
-            gpio_controller._read_node(gpio_controller.gpio_chip_node))
+            gpio_controller._read_node(gpio_controller.gpio_chip_node),
+        )
 
     @patch("gpio_control_test.GPIOController.get_gpiochip_mapping")
     @patch("pathlib.Path.write_text")
     @patch("pathlib.Path.read_text")
     @patch("pathlib.Path.exists")
-    def test_write_failed(self, mock_path, mock_read,
-                          mock_write, mock_mapping):
+    def test_write_failed(
+        self, mock_path, mock_read, mock_write, mock_mapping
+    ):
         read_value = "33"
         write_value = "22"
 
@@ -171,8 +193,9 @@ class TestGPIOController(unittest.TestCase):
     @patch("pathlib.Path.write_text")
     @patch("pathlib.Path.read_text")
     @patch("pathlib.Path.exists")
-    def test_write_passed(self, mock_path,
-                          mock_read, mock_write, mock_mapping):
+    def test_write_passed(
+        self, mock_path, mock_read, mock_write, mock_mapping
+    ):
         read_value = "33"
         write_value = "33"
         mock_path.return_value = True
@@ -195,7 +218,8 @@ class TestGPIOController(unittest.TestCase):
         gpio_controller = GPIOController("1", "1", "out", True)
         gpio_controller._export(gpio_no)
         mock_write.assert_called_once_with(
-            PosixPath('/sys/class/gpio/export'), gpio_no, False)
+            PosixPath("/sys/class/gpio/export"), gpio_no, False
+        )
 
     @patch("gpio_control_test.GPIOController.get_gpiochip_mapping")
     @patch("gpio_control_test.GPIOController._write_node")
@@ -206,7 +230,8 @@ class TestGPIOController(unittest.TestCase):
         gpio_controller = GPIOController("1", "1", "out", True)
         gpio_controller._unexport(gpio_no)
         mock_write.assert_called_once_with(
-            PosixPath('/sys/class/gpio/unexport'), gpio_no, False)
+            PosixPath("/sys/class/gpio/unexport"), gpio_no, False
+        )
 
     @patch("gpio_control_test.GPIOController.get_gpiochip_mapping")
     @patch("gpio_control_test.GPIOController._read_node")
@@ -267,19 +292,27 @@ class TestMainFunction(unittest.TestCase):
     @patch("gpio_control_test.GPIOController._node_exists")
     @patch("gpio_control_test.GPIOController.get_gpiochip_mapping")
     @patch("gpio_control_test.GPIOController.blinking")
-    def test_blinking_test(self, mock_blinking, mock_mapping,
-                           mock_path, mock_read, mock_write):
+    def test_blinking_test(
+        self, mock_blinking, mock_mapping, mock_path, mock_read, mock_write
+    ):
         mock_args = Mock(
             return_value=argparse.Namespace(
-                name="fake-node", duration=5, interval=0.5,
-                gpio_chip="1", gpio_pin="1", need_export=False))
+                name="fake-node",
+                duration=5,
+                interval=0.5,
+                gpio_chip="1",
+                gpio_pin="1",
+                need_export=False,
+            )
+        )
         mock_mapping.return_value = {"1": "32"}
         mock_path.return_value = True
         mock_read.side_effect = ["32", "16", "1", "out"]
 
         blinking_test(mock_args())
         mock_blinking.assert_called_once_with(
-            mock_args().duration, mock_args().interval)
+            mock_args().duration, mock_args().interval
+        )
 
     @patch("pathlib.Path.read_text")
     @patch("pathlib.Path.exists")
@@ -305,20 +338,20 @@ class TestMainFunction(unittest.TestCase):
 
     def test_led_resource(self):
         mock_args = Mock(
-            return_value=argparse.Namespace(mapping="DL14:5:1 DL14:5:2"))
+            return_value=argparse.Namespace(mapping="DL14:5:1 DL14:5:2")
+        )
         with redirect_stdout(StringIO()) as stdout:
             leds_resource(mock_args())
 
     def test_led_resource_with_unexpected_format(self):
-        mock_args = Mock(
-            return_value=argparse.Namespace(mapping="DL14-5:1"))
+        mock_args = Mock(return_value=argparse.Namespace(mapping="DL14-5:1"))
 
         with self.assertRaises(ValueError) as context:
             leds_resource(mock_args())
 
         self.assertEqual(
             str(context.exception),
-            "not enough values to unpack (expected 3, got 2)"
+            "not enough values to unpack (expected 3, got 2)",
         )
 
 
@@ -326,10 +359,20 @@ class TestArgumentParser(unittest.TestCase):
 
     def test_led_parser(self):
         sys.argv = [
-            "gpio_control_test.py", "--debug", "led", "-n", "fake-led",
-            "--gpio-chip", "3", "--gpio-pin", "5", "--need-export",
-            "-d", "30", "-i", "2"
-
+            "gpio_control_test.py",
+            "--debug",
+            "led",
+            "-n",
+            "fake-led",
+            "--gpio-chip",
+            "3",
+            "--gpio-pin",
+            "5",
+            "--need-export",
+            "-d",
+            "30",
+            "-i",
+            "2",
         ]
         args = register_arguments()
 

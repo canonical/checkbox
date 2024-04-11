@@ -57,7 +57,8 @@ logger = logging.getLogger("plainbox.result")
 # NOTE: we don't want to match certain control characters (newlines, carriage
 # returns, tabs or vertical tabs).
 CONTROL_CODE_RE_STR = re.compile(
-    r"(?![\n\r\t\v])[\u0000-\u001F]|[\u007F-\u009F]")
+    r"(?![\n\r\t\v])[\u0000-\u001F]|[\u007F-\u009F]"
+)
 
 # Regular expression that matches ANSI Escape Sequences (e.g. arrow keys)
 # For more info, see <http://stackoverflow.com/a/33925425>
@@ -108,13 +109,17 @@ IOLogRecord = namedtuple("IOLogRecord", "delay stream_name data".split())
 #   hexr_mapping - a string that needs to be used in the XML report for the
 #   Canonical Certification web application.
 OutcomeMetadata = namedtuple(
-    "OutcomeMetadata", ("value unicode_sigil tr_outcome tr_label color_ansi"
-                        " color_hex hexr_mapping"))
+    "OutcomeMetadata",
+    (
+        "value unicode_sigil tr_outcome tr_label color_ansi"
+        " color_hex hexr_mapping"
+    ),
+)
 
 OUTCOME_METADATA_MAP = {
     IJobResult.OUTCOME_NONE: OutcomeMetadata(
         value=IJobResult.OUTCOME_NONE,
-        unicode_sigil=' ',
+        unicode_sigil=" ",
         tr_outcome=C_("textual outcome", "job didn't run"),
         tr_label=C_("chart label", "not started"),
         color_ansi="",
@@ -123,7 +128,7 @@ OUTCOME_METADATA_MAP = {
     ),
     IJobResult.OUTCOME_PASS: OutcomeMetadata(
         value=IJobResult.OUTCOME_PASS,
-        unicode_sigil='☑ ',
+        unicode_sigil="☑ ",
         tr_outcome=C_("textual outcome", "job passed"),
         tr_label=C_("chart label", "passed"),
         color_ansi="\033[32;1m",
@@ -132,7 +137,7 @@ OUTCOME_METADATA_MAP = {
     ),
     IJobResult.OUTCOME_FAIL: OutcomeMetadata(
         value=IJobResult.OUTCOME_FAIL,
-        unicode_sigil='☒ ',
+        unicode_sigil="☒ ",
         tr_outcome=C_("textual outcome", "job failed"),
         tr_label=C_("chart label", "failed"),
         color_ansi="\033[31;1m",
@@ -141,7 +146,7 @@ OUTCOME_METADATA_MAP = {
     ),
     IJobResult.OUTCOME_SKIP: OutcomeMetadata(
         value=IJobResult.OUTCOME_SKIP,
-        unicode_sigil='☐ ',
+        unicode_sigil="☐ ",
         tr_outcome=C_("textual outcome", "job skipped"),
         tr_label=C_("chart label", "skipped"),
         color_ansi="\033[33;1m",
@@ -150,7 +155,7 @@ OUTCOME_METADATA_MAP = {
     ),
     IJobResult.OUTCOME_NOT_SUPPORTED: OutcomeMetadata(
         value=IJobResult.OUTCOME_NOT_SUPPORTED,
-        unicode_sigil='☐ ',
+        unicode_sigil="☐ ",
         tr_outcome=C_("textual outcome", "job cannot be started"),
         tr_label=C_("chart label", "not supported"),
         color_ansi="\033[33;1m",
@@ -159,7 +164,7 @@ OUTCOME_METADATA_MAP = {
     ),
     IJobResult.OUTCOME_NOT_IMPLEMENTED: OutcomeMetadata(
         value=IJobResult.OUTCOME_NOT_IMPLEMENTED,
-        unicode_sigil='-',
+        unicode_sigil="-",
         tr_outcome=C_("textual outcome", "job is not implemented"),
         tr_label=C_("chart label", "not implemented"),
         color_ansi="\033[31;1m",
@@ -168,7 +173,7 @@ OUTCOME_METADATA_MAP = {
     ),
     IJobResult.OUTCOME_UNDECIDED: OutcomeMetadata(
         value=IJobResult.OUTCOME_UNDECIDED,
-        unicode_sigil='⁇ ',
+        unicode_sigil="⁇ ",
         tr_outcome=C_("textual outcome", "job needs verification"),
         tr_label=C_("chart label", "undecided"),
         color_ansi="\033[35;1m",
@@ -177,7 +182,7 @@ OUTCOME_METADATA_MAP = {
     ),
     IJobResult.OUTCOME_CRASH: OutcomeMetadata(
         value=IJobResult.OUTCOME_CRASH,
-        unicode_sigil='⚠ ',
+        unicode_sigil="⚠ ",
         tr_outcome=C_("textual outcome", "job crashed"),
         tr_label=C_("chart label", "crashed"),
         color_ansi="\033[41;37;1m",
@@ -208,28 +213,47 @@ def outcome_meta(outcome):
 
 
 class JobResultBuilder(pod.POD):
-
     """A builder for job result objects."""
 
     outcome = pod.Field(
-        'outcome of a test',
-        str, pod.UNSET, assign_filter_list=[pod.unset_or_typed])
+        "outcome of a test",
+        str,
+        pod.UNSET,
+        assign_filter_list=[pod.unset_or_typed],
+    )
     execution_duration = pod.Field(
-        'time of test execution',
-        float, pod.UNSET, assign_filter_list=[pod.unset_or_typed])
+        "time of test execution",
+        float,
+        pod.UNSET,
+        assign_filter_list=[pod.unset_or_typed],
+    )
     comments = pod.Field(
-        'comments from the test operator',
-        str, pod.UNSET, assign_filter_list=[pod.unset_or_typed])
+        "comments from the test operator",
+        str,
+        pod.UNSET,
+        assign_filter_list=[pod.unset_or_typed],
+    )
     return_code = pod.Field(
-        'return code from the (optional) test process',
-        int, pod.UNSET, assign_filter_list=[pod.unset_or_typed])
+        "return code from the (optional) test process",
+        int,
+        pod.UNSET,
+        assign_filter_list=[pod.unset_or_typed],
+    )
     io_log = pod.Field(
-        'history of the I/O log of the (optional) test process',
-        list, pod.UNSET, assign_filter_list=[
-            pod.unset_or_typed, pod.unset_or_typed.sequence(tuple)])
+        "history of the I/O log of the (optional) test process",
+        list,
+        pod.UNSET,
+        assign_filter_list=[
+            pod.unset_or_typed,
+            pod.unset_or_typed.sequence(tuple),
+        ],
+    )
     io_log_filename = pod.Field(
-        'path to a structured I/O log file of the (optional) test process',
-        str, pod.UNSET, assign_filter_list=[pod.unset_or_typed])
+        "path to a structured I/O log file of the (optional) test process",
+        str,
+        pod.UNSET,
+        assign_filter_list=[pod.unset_or_typed],
+    )
 
     def add_comment(self, comment):
         """
@@ -240,7 +264,7 @@ class JobResultBuilder(pod.POD):
         if self.comments is pod.UNSET:
             self.comments = comment
         else:
-            self.comments += '\n' + comment
+            self.comments += "\n" + comment
 
     @raises(ValueError)
     def get_result(self):
@@ -254,7 +278,8 @@ class JobResultBuilder(pod.POD):
         """
         if not (self.io_log_filename is pod.UNSET or self.io_log is pod.UNSET):
             raise ValueError(
-                "you can use only io_log or io_log_filename at a time")
+                "you can use only io_log or io_log_filename at a time"
+            )
         if self.io_log_filename is not pod.UNSET:
             cls = DiskJobResult
         else:
@@ -263,7 +288,6 @@ class JobResultBuilder(pod.POD):
 
 
 class _JobResultBase(IJobResult):
-
     """
     Base class for :`IJobResult` implementations.
 
@@ -283,8 +307,10 @@ class _JobResultBase(IJobResult):
         # __eq__() below as various types of IJobResult are constructed and
         # compared with default entries that should not compare differently.
         self._data = {
-            key: value for key, value in data.items()
-            if value is not None and value != []}
+            key: value
+            for key, value in data.items()
+            if value is not None and value != []
+        }
 
     def get_builder(self, **kwargs):
         """Create a new job result builder from the data in this result."""
@@ -303,9 +329,14 @@ class _JobResultBase(IJobResult):
 
     def __repr__(self):
         return "<{}>".format(
-            ' '.join([self.__class__.__name__] + [
-                "{}:{!r}".format(key, self._data[key])
-                for key in sorted(self._data.keys())]))
+            " ".join(
+                [self.__class__.__name__]
+                + [
+                    "{}:{!r}".format(key, self._data[key])
+                    for key in sorted(self._data.keys())
+                ]
+            )
+        )
 
     @property
     def outcome(self):
@@ -316,7 +347,7 @@ class _JobResultBase(IJobResult):
         successes.  There are several other types of outcome that all basically
         mean that the job did not run for some particular reason.
         """
-        return self._data.get('outcome', self.OUTCOME_NONE)
+        return self._data.get("outcome", self.OUTCOME_NONE)
 
     def tr_outcome(self):
         """Get the translated value of the outcome."""
@@ -342,12 +373,12 @@ class _JobResultBase(IJobResult):
     @property
     def execution_duration(self):
         """The amount of time in seconds it took to run this job."""
-        return self._data.get('execution_duration')
+        return self._data.get("execution_duration")
 
     @execution_duration.setter
     def execution_duration(self, duration):
         """Set correct amount of time in seconds it took to rut this job."""
-        self._data['execution_duration'] = duration
+        self._data["execution_duration"] = duration
 
     @property
     def comments(self):
@@ -357,15 +388,15 @@ class _JobResultBase(IJobResult):
         The comments are sanitized to remove control characters that would
         cause problems when parsing the submission file.
         """
-        comments = self._data.get('comments')
+        comments = self._data.get("comments")
         if comments:
-            comments = ANSI_ESCAPE_SEQ_RE_STR.sub('', comments)
+            comments = ANSI_ESCAPE_SEQ_RE_STR.sub("", comments)
         return comments
 
     @property
     def return_code(self):
         """return code of the command associated with the job, if any."""
-        return self._data.get('return_code')
+        return self._data.get("return_code")
 
     @property
     def io_log(self):
@@ -397,11 +428,14 @@ class _JobResultBase(IJobResult):
         >>> result.io_log_as_flat_text
         '�'
         """
-        return ''.join(
-            CONTROL_CODE_RE_STR.sub('', text_chunk)
+        return "".join(
+            CONTROL_CODE_RE_STR.sub("", text_chunk)
             for text_chunk in codecs.iterdecode(
                 (record.data for record in self.get_io_log()),
-                'UTF-8', 'replace'))
+                "UTF-8",
+                "replace",
+            )
+        )
 
     @property
     def io_log_as_text_attachment(self):
@@ -421,13 +455,19 @@ class _JobResultBase(IJobResult):
             an empty string otherwise.
         """
         try:
-            return ''.join(
-                CONTROL_CODE_RE_STR.sub('', text_chunk)
+            return "".join(
+                CONTROL_CODE_RE_STR.sub("", text_chunk)
                 for text_chunk in codecs.iterdecode(
-                    (record.data for record in self.get_io_log()
-                        if record[1] == 'stdout'), 'UTF-8'))
+                    (
+                        record.data
+                        for record in self.get_io_log()
+                        if record[1] == "stdout"
+                    ),
+                    "UTF-8",
+                )
+            )
         except UnicodeDecodeError:
-            return ''
+            return ""
 
     @property
     def img_type(self):
@@ -437,8 +477,8 @@ class _JobResultBase(IJobResult):
         try:
             io_log_filename = self.io_log_filename
         except AttributeError:
-            return ''
-        filename = io_log_filename.replace('record.gz', 'stdout')
+            return ""
+        filename = io_log_filename.replace("record.gz", "stdout")
         return imghdr.what(filename)
 
     @property
@@ -446,11 +486,11 @@ class _JobResultBase(IJobResult):
         try:
             io_log_filename = self.io_log_filename
         except AttributeError:
-            return ''
-        filename = io_log_filename.replace('record.gz', 'stdout')
+            return ""
+        filename = io_log_filename.replace("record.gz", "stdout")
         with open(filename, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read())
-        return encoded_string.decode('ASCII')
+        return encoded_string.decode("ASCII")
 
     @property
     def is_hollow(self):
@@ -469,7 +509,6 @@ class _JobResultBase(IJobResult):
 
 
 class MemoryJobResult(_JobResultBase):
-
     """
     A :class:`IJobResult` that keeps IO logs in memory.
 
@@ -478,7 +517,7 @@ class MemoryJobResult(_JobResultBase):
     """
 
     def get_io_log(self):
-        io_log_data = self._data.get('io_log', ())
+        io_log_data = self._data.get("io_log", ())
         for entry in io_log_data:
             if isinstance(entry, IOLogRecord):
                 yield entry
@@ -487,11 +526,11 @@ class MemoryJobResult(_JobResultBase):
             else:
                 raise TypeError(
                     "each item in io_log must be either a tuple"
-                    " or special the IOLogRecord tuple")
+                    " or special the IOLogRecord tuple"
+                )
 
 
 class DiskJobResult(_JobResultBase):
-
     """
     A :class:`IJobResult` that keeps IO logs on disk.
 
@@ -510,13 +549,13 @@ class DiskJobResult(_JobResultBase):
     def get_io_log(self):
         record_path = self.io_log_filename
         if record_path:
-            with gzip.GzipFile(record_path, mode='rb') as gzip_stream, \
-                    io.TextIOWrapper(gzip_stream, encoding='UTF-8') as stream:
+            with gzip.GzipFile(
+                record_path, mode="rb"
+            ) as gzip_stream, io.TextIOWrapper(
+                gzip_stream, encoding="UTF-8"
+            ) as stream:
                 for record in IOLogRecordReader(stream):
-                    record = IOLogRecord(
-                        record[0],
-                        record[1],
-                        record.data)
+                    record = IOLogRecord(record[0], record[1], record.data)
                     yield record
 
     @property
@@ -525,12 +564,13 @@ class DiskJobResult(_JobResultBase):
         logger.info(
             # TRANSLATORS: please keep DiskJobResult.io_log untranslated
             _("Expensive DiskJobResult.io_log property access from %s:%d"),
-            filename, lineno)
+            filename,
+            lineno,
+        )
         return super(DiskJobResult, self).io_log
 
 
 class IOLogRecordWriter:
-
     """Class for writing :class:`IOLogRecord` instances to a text stream."""
 
     def __init__(self, stream):
@@ -541,19 +581,24 @@ class IOLogRecordWriter:
 
     def write_record(self, record):
         """Write an :class:`IOLogRecord` to the stream."""
-        text = json.dumps([
-            record[0], record[1],
-            base64.standard_b64encode(record[2]).decode("ASCII")],
-            check_circular=False, ensure_ascii=True, indent=None,
-            separators=(',', ':'))
+        text = json.dumps(
+            [
+                record[0],
+                record[1],
+                base64.standard_b64encode(record[2]).decode("ASCII"),
+            ],
+            check_circular=False,
+            ensure_ascii=True,
+            indent=None,
+            separators=(",", ":"),
+        )
         logger.debug(_("Encoded %r into string %r"), record, text)
         assert "\n" not in text
         self.stream.write(text)
-        self.stream.write('\n')
+        self.stream.write("\n")
 
 
 class IOLogRecordReader:
-
     """Class for streaming :class`IOLogRecord` instances from a text stream."""
 
     def __init__(self, stream):
@@ -577,8 +622,10 @@ class IOLogRecordReader:
             return
         data = json.loads(text)
         return IOLogRecord(
-            data[0], data[1],
-            base64.standard_b64decode(data[2].encode("ASCII")))
+            data[0],
+            data[1],
+            base64.standard_b64decode(data[2].encode("ASCII")),
+        )
 
     def __iter__(self):
         """

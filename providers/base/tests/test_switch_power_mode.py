@@ -28,7 +28,8 @@ from switch_power_mode import get_sysfs_content, set_power_profile, main
 
 
 class TestSwitchPowerMode(unittest.TestCase):
-    """ Tests for the switch_power_mode module. """
+    """Tests for the switch_power_mode module."""
+
     @patch("builtins.open")  # Mock the open function
     def test_get_sysfs_content_success(self, mock_open):
         """
@@ -59,7 +60,7 @@ class TestSwitchPowerMode(unittest.TestCase):
 
         self.assertEqual(
             str(cm.exception),
-            "Failed to read sysfs file: /fake/path/power_profile"
+            "Failed to read sysfs file: /fake/path/power_profile",
         )
         mock_open.assert_called_once_with(
             Path("/fake/path/power_profile"), "rt", encoding="utf-8"
@@ -100,8 +101,7 @@ class TestSwitchPowerMode(unittest.TestCase):
             set_power_profile("performance")
 
         self.assertEqual(
-            str(cm.exception),
-            "Failed to set power mode to performance."
+            str(cm.exception), "Failed to set power mode to performance."
         )
         mock_check_call.assert_called_once_with(
             ["powerprofilesctl", "set", "performance"]
@@ -140,8 +140,9 @@ Switch to performance successfully.
     @patch("sys.stdout", new_callable=io.StringIO)
     @patch("switch_power_mode.get_sysfs_content")
     @patch("switch_power_mode.set_power_profile")
-    def test_main_failure(self, mock_set_power_profile,
-                          mock_get_sysfs_content, mock_stdout):
+    def test_main_failure(
+        self, mock_set_power_profile, mock_get_sysfs_content, mock_stdout
+    ):
         """
         Tests failed execution of the main function.
         """
@@ -155,7 +156,7 @@ Switch to performance successfully.
             "lower-power",
             "balanced",
             "performance",
-            None
+            None,
         ]
 
         # Call the function and check if SystemExit is raised

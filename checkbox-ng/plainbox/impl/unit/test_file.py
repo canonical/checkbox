@@ -41,8 +41,12 @@ class FileUnitFieldValidationTests(UnitFieldValidationTests):
 
         This version has a different message and the same semantics as before
         """
-        issue_list = self.unit_cls({
-        }, provider=self.provider).check()
+        issue_list = self.unit_cls({}, provider=self.provider).check()
         message = "unit should explicitly define its type"
-        self.assertIssueFound(issue_list, self.unit_cls.Meta.fields.unit,
-                              Problem.missing, Severity.advice, message)
+        self.assertIssueFound(
+            issue_list,
+            self.unit_cls.Meta.fields.unit,
+            Problem.missing,
+            Severity.advice,
+            message,
+        )

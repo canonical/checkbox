@@ -18,12 +18,7 @@
 import textwrap
 
 import metabox.core.keys as keys
-from metabox.core.actions import (
-    Expect,
-    Send,
-    Start,
-    ExpectNot
-)
+from metabox.core.actions import Expect, Send, Start, ExpectNot
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
 
@@ -51,5 +46,5 @@ class ManualInteractQuit(Scenario):
         Send("q" + keys.KEY_ENTER),
         # if q is pressed, checkbox should exit instead of going ahead printing
         # results
-        ExpectNot("Results")
+        ExpectNot("Results"),
     ]

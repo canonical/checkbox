@@ -9,12 +9,12 @@ import shutil
 from argparse import ArgumentParser
 from subprocess import Popen, PIPE, SubprocessError
 
-DEFAULT_DIR = '/tmp/checkbox.optical'
-DEFAULT_DEVICE_DIR = 'device'
-DEFAULT_IMAGE_DIR = 'image'
+DEFAULT_DIR = "/tmp/checkbox.optical"
+DEFAULT_DEVICE_DIR = "device"
+DEFAULT_IMAGE_DIR = "image"
 
 
-CDROM_ID = '/lib/udev/cdrom_id'
+CDROM_ID = "/lib/udev/cdrom_id"
 
 
 def _command(command, shell=True):
@@ -60,21 +60,26 @@ def read_test(device):
         mount = _command("mount -o ro %s %s" % (device, device_dir))
         mount.communicate()
         if mount.returncode != 0:
-            print("Unable to mount %s to %s" %
-                  (device, device_dir), file=sys.stderr)
+            print(
+                "Unable to mount %s to %s" % (device, device_dir),
+                file=sys.stderr,
+            )
             return False
 
         file_copy = _command("cp -dpR %s %s" % (device_dir, image_dir))
         file_copy.communicate()
         if file_copy.returncode != 0:
-            print("Failed to copy files from %s to %s" %
-                  (device_dir, image_dir), file=sys.stderr)
+            print(
+                "Failed to copy files from %s to %s" % (device_dir, image_dir),
+                file=sys.stderr,
+            )
             return False
         if compare_tree(device_dir, image_dir):
             passed = True
     except (SubprocessError, OSError):
-        print("File Comparison failed while testing %s" % device,
-              file=sys.stderr)
+        print(
+            "File Comparison failed while testing %s" % device, file=sys.stderr
+        )
         passed = False
     finally:
         _command("umount %s" % device_dir).communicate(3)
@@ -99,9 +104,14 @@ def main():
     return_values = []
 
     parser = ArgumentParser()
-    parser.add_argument("device", nargs='+',
-                        help=('Specify an optical device or list of devices '
-                              'such as /dev/cdrom'))
+    parser.add_argument(
+        "device",
+        nargs="+",
+        help=(
+            "Specify an optical device or list of devices "
+            "such as /dev/cdrom"
+        ),
+    )
     args = parser.parse_args()
 
     if os.geteuid() != 0:
@@ -113,11 +123,11 @@ def main():
         if not capabilities:
             print("Unable to get capabilities of %s" % device, file=sys.stderr)
             return 1
-        for capability in capabilities.decode().split('\n'):
-            if capability[:3] == 'ID_':
+        for capability in capabilities.decode().split("\n"):
+            if capability[:3] == "ID_":
                 cap = capability[3:-2]
-                if cap == 'CDROM' or cap == 'CDROM_DVD':
-                    tests.append('read')
+                if cap == "CDROM" or cap == "CDROM_DVD":
+                    tests.append("read")
 
         for test in set(tests):
             print("Testing %s on %s ... " % (test, device), file=sys.stdout)

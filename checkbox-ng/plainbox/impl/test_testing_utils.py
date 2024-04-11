@@ -39,9 +39,11 @@ class SuppressWarningTests(TestCase):
         """
         suppress_warnings() hides all warnings
         """
+
         @suppress_warnings
         def func():
             warn("this is a warning!")
+
         with catch_warnings(record=True) as warning_list:
             func()
         self.assertEqual(warning_list, [])
@@ -50,11 +52,13 @@ class SuppressWarningTests(TestCase):
         """
         suppress_warnings() does not clobber function name and docstring
         """
+
         @suppress_warnings
         def func_with_name():
             """and docstring"""
-        self.assertEqual(func_with_name.__name__, 'func_with_name')
-        self.assertEqual(func_with_name.__doc__, 'and docstring')
+
+        self.assertEqual(func_with_name.__name__, "func_with_name")
+        self.assertEqual(func_with_name.__doc__, "and docstring")
 
 
 class MakeJobTests(TestCase):
@@ -63,7 +67,7 @@ class MakeJobTests(TestCase):
     """
 
     def setUp(self):
-        self.job = make_job('job')
+        self.job = make_job("job")
 
     def test_origin_is_set(self):
         """
@@ -85,4 +89,5 @@ class MakeJobTests(TestCase):
         """
         self.assertEqual(
             os.path.basename(self.job.origin.source.filename),
-            "test_testing_utils.py")
+            "test_testing_utils.py",
+        )

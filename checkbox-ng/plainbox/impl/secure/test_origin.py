@@ -120,23 +120,24 @@ class FileTextSourceTests(TestCase):
         """
         self.assertEqual(
             repr(self.src),
-            "{}({!r})".format(self._CLS.__name__, self._FILENAME))
+            "{}({!r})".format(self._CLS.__name__, self._FILENAME),
+        )
 
     def test_eq(self):
         """
         verify that FileTextSource compares equal to other instances with the
         same filename and unequal to instances with different filenames.
         """
-        self.assertTrue(self._CLS('foo') == self._CLS('foo'))
-        self.assertTrue(self._CLS('foo') != self._CLS('bar'))
+        self.assertTrue(self._CLS("foo") == self._CLS("foo"))
+        self.assertTrue(self._CLS("foo") != self._CLS("bar"))
 
     def test_eq_others(self):
         """
         verify instances of FileTextSource are unequal to instances of other
         classes
         """
-        self.assertTrue(self._CLS('foo') != object())
-        self.assertFalse(self._CLS('foo') == object())
+        self.assertTrue(self._CLS("foo") != object())
+        self.assertFalse(self._CLS("foo") == object())
 
     def test_gt(self):
         """
@@ -161,7 +162,8 @@ class FileTextSourceTests(TestCase):
         """
         self.assertEqual(
             self._CLS("/path/to/file.txt").relative_to("/path/to"),
-            self._CLS("file.txt"))
+            self._CLS("file.txt"),
+        )
 
 
 class PythonFileTextSourceTests(FileTextSourceTests):
@@ -193,8 +195,10 @@ class OriginTests(TestCase):
         """
         verify that Origin.__repr__() works
         """
-        expected = ("<Origin source:FileTextSource('file.txt')"
-                    " line_start:10 line_end:12>")
+        expected = (
+            "<Origin source:FileTextSource('file.txt')"
+            " line_start:10 line_end:12>"
+        )
         observed = repr(self.origin)
         self.assertEqual(expected, observed)
 
@@ -231,23 +235,31 @@ class OriginTests(TestCase):
         attributes
         """
         origin1 = Origin(
-            self.origin.source, self.origin.line_start, self.origin.line_end)
+            self.origin.source, self.origin.line_start, self.origin.line_end
+        )
         origin2 = Origin(
-            self.origin.source, self.origin.line_start, self.origin.line_end)
+            self.origin.source, self.origin.line_start, self.origin.line_end
+        )
         self.assertTrue(origin1 == origin2)
         origin_other1 = Origin(
-            self.origin.source, self.origin.line_start + 1,
-            self.origin.line_end)
+            self.origin.source,
+            self.origin.line_start + 1,
+            self.origin.line_end,
+        )
         self.assertTrue(origin1 != origin_other1)
         self.assertFalse(origin1 == origin_other1)
         origin_other2 = Origin(
-            self.origin.source, self.origin.line_start,
-            self.origin.line_end + 1)
+            self.origin.source,
+            self.origin.line_start,
+            self.origin.line_end + 1,
+        )
         self.assertTrue(origin1 != origin_other2)
         self.assertFalse(origin1 == origin_other2)
         origin_other3 = Origin(
-            FileTextSource("unrelated"), self.origin.line_start,
-            self.origin.line_end)
+            FileTextSource("unrelated"),
+            self.origin.line_start,
+            self.origin.line_end,
+        )
         self.assertTrue(origin1 != origin_other3)
         self.assertFalse(origin1 == origin_other3)
 
@@ -265,17 +277,20 @@ class OriginTests(TestCase):
         components
         """
         self.assertTrue(
-            Origin(FileTextSource('file.txt'), 1, 1) <
-            Origin(FileTextSource('file.txt'), 1, 2) <
-            Origin(FileTextSource('file.txt'), 1, 3))
+            Origin(FileTextSource("file.txt"), 1, 1)
+            < Origin(FileTextSource("file.txt"), 1, 2)
+            < Origin(FileTextSource("file.txt"), 1, 3)
+        )
         self.assertTrue(
-            Origin(FileTextSource('file.txt'), 1, 10) <
-            Origin(FileTextSource('file.txt'), 2, 10) <
-            Origin(FileTextSource('file.txt'), 3, 10))
+            Origin(FileTextSource("file.txt"), 1, 10)
+            < Origin(FileTextSource("file.txt"), 2, 10)
+            < Origin(FileTextSource("file.txt"), 3, 10)
+        )
         self.assertTrue(
-            Origin(FileTextSource('file1.txt'), 1, 10) <
-            Origin(FileTextSource('file2.txt'), 1, 10) <
-            Origin(FileTextSource('file3.txt'), 1, 10))
+            Origin(FileTextSource("file1.txt"), 1, 10)
+            < Origin(FileTextSource("file2.txt"), 1, 10)
+            < Origin(FileTextSource("file3.txt"), 1, 10)
+        )
 
     def test_gt_other(self):
         """
@@ -292,7 +307,8 @@ class OriginTests(TestCase):
         origin.source attribute.
         """
         self.assertIsInstance(
-            Origin.get_caller_origin().source, PythonFileTextSource)
+            Origin.get_caller_origin().source, PythonFileTextSource
+        )
 
     def test_origin_source_filename_is_correct(self):
         """
@@ -303,7 +319,8 @@ class OriginTests(TestCase):
         # instead of at whatever ends up calling the test method
         self.assertEqual(
             os.path.basename(Origin.get_caller_origin(-1).source.filename),
-            "test_origin.py")
+            "test_origin.py",
+        )
 
     def test_relative_to(self):
         """
@@ -314,10 +331,11 @@ class OriginTests(TestCase):
         self.assertIs(origin.relative_to("/some/path"), origin)
         # otherwise the source is replaced and a new origin is returned
         self.assertEqual(
-            Origin(
-                FileTextSource("/some/path/file.txt"), 1, 2
-            ).relative_to("/some/path"),
-            Origin(FileTextSource("file.txt"), 1, 2))
+            Origin(FileTextSource("/some/path/file.txt"), 1, 2).relative_to(
+                "/some/path"
+            ),
+            Origin(FileTextSource("file.txt"), 1, 2),
+        )
 
     def test_with_offset(self):
         """
@@ -355,19 +373,22 @@ class CommandLineTextSourceTests(TestCase):
     def test_str(self):
         self.assertEqual(
             str(CommandLineTextSource("--foo", "value")),
-            "command line argument --foo='value'")
+            "command line argument --foo='value'",
+        )
         self.assertEqual(
             str(CommandLineTextSource(None, "value")),
-            "command line argument 'value'")
+            "command line argument 'value'",
+        )
 
     def test_repr(self):
         self.assertEqual(
             repr(CommandLineTextSource("--foo", "value")),
-            "<CommandLineTextSource arg_name:'--foo' arg_value:'value'>")
+            "<CommandLineTextSource arg_name:'--foo' arg_value:'value'>",
+        )
 
     def test_relative_to(self):
         src = CommandLineTextSource("--foo", "value")
-        self.assertIs(src.relative_to('path'), src)
+        self.assertIs(src.relative_to("path"), src)
 
     def test_eq(self):
         src1 = CommandLineTextSource("--foo", "value")

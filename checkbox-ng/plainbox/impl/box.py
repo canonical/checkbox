@@ -46,12 +46,27 @@ class PlainBoxTool(LazyLoadingToolMixIn, PlainBoxToolBase):
 
     def get_command_collection(self):
         p = "plainbox.impl.commands."
-        return LazyPlugInCollection(collections.OrderedDict([
-            ('session', (p + "cmd_session:SessionCommand",
-                         self._load_providers)),
-            ('dev', (p + "dev:DevCommand", self._load_providers,
-                     self._load_config)),
-        ]))
+        return LazyPlugInCollection(
+            collections.OrderedDict(
+                [
+                    (
+                        "session",
+                        (
+                            p + "cmd_session:SessionCommand",
+                            self._load_providers,
+                        ),
+                    ),
+                    (
+                        "dev",
+                        (
+                            p + "dev:DevCommand",
+                            self._load_providers,
+                            self._load_config,
+                        ),
+                    ),
+                ]
+            )
+        )
 
     @classmethod
     def get_exec_name(cls):
@@ -72,8 +87,9 @@ class PlainBoxTool(LazyLoadingToolMixIn, PlainBoxToolBase):
         parser.prog = self.get_exec_name()
         # TRANSLATORS: '--help' and '--version' are not translatable,
         # but '[options]' and '<command>' are.
-        parser.usage = _("{0} [--help] [--version] | [options] <command>"
-                         " ...").format(self.get_exec_name())
+        parser.usage = _(
+            "{0} [--help] [--version] | [options] <command>" " ..."
+        ).format(self.get_exec_name())
         return parser
 
     @classmethod

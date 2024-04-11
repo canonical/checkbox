@@ -19,9 +19,10 @@
 import dbus
 import gi
 from dbus.mainloop.glib import DBusGMainLoop
-gi.require_version('GLib', '2.0')
+
+gi.require_version("GLib", "2.0")
 from gi.repository import GObject  # noqa: E402
-from gi.repository import GLib     # noqa: E402
+from gi.repository import GLib  # noqa: E402
 
 
 def filter_cb(bus, message):

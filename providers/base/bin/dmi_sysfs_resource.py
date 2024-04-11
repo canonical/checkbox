@@ -25,7 +25,7 @@ numbers.
 
 
 def main():
-    sysfs_root = '/sys/class/dmi/id/'
+    sysfs_root = "/sys/class/dmi/id/"
     if not os.path.isdir(sysfs_root):
         return
     for dmi_attr in sorted(os.listdir(sysfs_root)):
@@ -34,7 +34,7 @@ def main():
             continue
         if not os.access(dmi_filename, os.R_OK):
             continue
-        with open(dmi_filename, 'rt', encoding='utf-8') as stream:
+        with open(dmi_filename, "rt", encoding="utf-8") as stream:
             dmi_data = stream.read().strip()
         print("{}: {}".format(dmi_attr, dmi_data))
 

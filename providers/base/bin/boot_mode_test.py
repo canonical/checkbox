@@ -32,9 +32,9 @@ def do_tests(check):
     :returns:
         return code from requested check.
     """
-    if check == 'efi':
+    if check == "efi":
         return efi_boot_check()
-    elif check == 'reboot_firmware':
+    elif check == "reboot_firmware":
         return reboot_to_firmware_check()
     else:
         return secure_boot_check()
@@ -64,8 +64,10 @@ def reboot_to_firmware_check():
         1 if the feature is NOT supported (fail)
     """
     osis_dir = "/sys/firmware/efi/efivars/"
-    osis_var = osis_dir + \
-        "OsIndicationsSupported-8be4df61-93ca-11d2-aa0d-00e098032b8c"
+    osis_var = (
+        osis_dir
+        + "OsIndicationsSupported-8be4df61-93ca-11d2-aa0d-00e098032b8c"
+    )
     if os.path.isdir(osis_dir):
         if os.path.isfile(osis_var):
             with open(osis_var) as fh:
@@ -110,8 +112,10 @@ def secure_boot_check():
                 logging.info("PASS: System booted with Secure Boot active.")
                 return 0
             else:
-                logging.error("FAIL: System booted with "
-                              "Secure Boot available but inactive.")
+                logging.error(
+                    "FAIL: System booted with "
+                    "Secure Boot available but inactive."
+                )
                 return 1
         else:
             # NOTE: Normally, lack of sb_var indicates that the system
@@ -120,8 +124,9 @@ def secure_boot_check():
             # no system slips through because it supports Secure Boot but
             # does not create the sb_var when SB is inactive or has never
             # been activated.
-            logging.error("FAIL: System does not appear to support "
-                          "Secure Boot.")
+            logging.error(
+                "FAIL: System does not appear to support " "Secure Boot."
+            )
             return 1
     else:
         logging.info("FAIL: System did NOT boot in EFI mode.")
@@ -130,15 +135,17 @@ def secure_boot_check():
 
 def main():
     parser = ArgumentParser()
-    parser.add_argument('check',
-                        choices=['efi', 'secureboot', 'reboot_firmware'],
-                        help='The type of check to perform')
+    parser.add_argument(
+        "check",
+        choices=["efi", "secureboot", "reboot_firmware"],
+        help="The type of check to perform",
+    )
     args = parser.parse_args()
 
-    FORMAT = '%(levelname)s: %(message)s'
+    FORMAT = "%(levelname)s: %(message)s"
     logging.basicConfig(level=logging.INFO, format=FORMAT)
     return do_tests(args.check)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

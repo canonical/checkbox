@@ -12,23 +12,25 @@ class TouchpadDevices:
         self._collect_devices()
 
     def _collect_devices(self):
-        cmd = ['udevadm', 'info', '--export-db']
+        cmd = ["udevadm", "info", "--export-db"]
         try:
-            output = check_output(cmd).decode(sys.stdout.encoding,
-                                              errors='ignore')
+            output = check_output(cmd).decode(
+                sys.stdout.encoding, errors="ignore"
+            )
         except CalledProcessError as err:
             sys.stderr.write(err)
             return
         udev = UdevadmParser(output)
         for device in udev.run():
-            if getattr(device, 'category') == 'TOUCHPAD':
-                self.devices[getattr(device, 'product_slug')
-                             ] = getattr(device, 'path')
+            if getattr(device, "category") == "TOUCHPAD":
+                self.devices[getattr(device, "product_slug")] = getattr(
+                    device, "path"
+                )
 
 
 def main():
     if len(sys.argv) != 2:
-        raise SystemExit('ERROR: expected a product slug')
+        raise SystemExit("ERROR: expected a product slug")
     product_slug = sys.argv[1]
 
     path = TouchpadDevices().devices[product_slug]

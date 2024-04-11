@@ -586,7 +586,8 @@ class SessionStateTrimTests(TestCase):
         with self.assertRaises(ValueError) as boom:
             self.session.trim_job_list(JobIdQualifier("a", self.origin))
             self.assertEqual(
-                str(boom.exception), "cannot remove jobs that are on the run list: a"
+                str(boom.exception),
+                "cannot remove jobs that are on the run list: a",
             )
 
 
@@ -900,7 +901,9 @@ class SessionStateReactionToJobResultTests(TestCase):
     def test_get_certification_status_map(self):
         result_A = MemoryJobResult({"outcome": IJobResult.OUTCOME_PASS})
         self.session.update_job_result(self.job_A, result_A)
-        self.session.job_state_map[self.job_A.id].effective_certification_status = "foo"
+        self.session.job_state_map[
+            self.job_A.id
+        ].effective_certification_status = "foo"
         self.assertEqual(self.session.get_certification_status_map(), {})
         self.assertEqual(
             self.session.get_certification_status_map(
@@ -910,11 +913,16 @@ class SessionStateReactionToJobResultTests(TestCase):
             {self.job_A.id: self.session.job_state_map[self.job_A.id]},
         )
         result_Y = MemoryJobResult({"outcome": IJobResult.OUTCOME_FAIL})
-        self.session.job_state_map[self.job_Y.id].effective_certification_status = "bar"
+        self.session.job_state_map[
+            self.job_Y.id
+        ].effective_certification_status = "bar"
         self.assertEqual(self.session.get_certification_status_map(), {})
         self.assertEqual(
             self.session.get_certification_status_map(
-                outcome_filter=(IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL),
+                outcome_filter=(
+                    IJobResult.OUTCOME_PASS,
+                    IJobResult.OUTCOME_FAIL,
+                ),
                 certification_status_filter=("foo", "bar"),
             ),
             {self.job_A.id: self.session.job_state_map[self.job_A.id]},
@@ -922,7 +930,10 @@ class SessionStateReactionToJobResultTests(TestCase):
         self.session.update_job_result(self.job_Y, result_Y)
         self.assertEqual(
             self.session.get_certification_status_map(
-                outcome_filter=(IJobResult.OUTCOME_PASS, IJobResult.OUTCOME_FAIL),
+                outcome_filter=(
+                    IJobResult.OUTCOME_PASS,
+                    IJobResult.OUTCOME_FAIL,
+                ),
                 certification_status_filter=("foo", "bar"),
             ),
             {

@@ -17,19 +17,21 @@ from unittest.mock import patch, mock_open
 
 from network import IPerfPerformanceTest
 
+
 class IPerfPerfomanceTestTests(unittest.TestCase):
 
     def test_find_numa_reports_node(self):
-        with patch('builtins.open', mock_open(read_data="1")) as mo:
+        with patch("builtins.open", mock_open(read_data="1")) as mo:
             returned = IPerfPerformanceTest.find_numa(None, "device")
             self.assertEqual(returned, 1)
 
     def test_find_numa_minus_one_from_sysfs(self):
-        with patch('builtins.open', mock_open(read_data="-1")) as mo:
+        with patch("builtins.open", mock_open(read_data="-1")) as mo:
             returned = IPerfPerformanceTest.find_numa(None, "device")
             self.assertEqual(returned, -1)
+
     def test_find_numa_numa_node_not_found(self):
-        with patch('builtins.open', mock_open()) as mo:
+        with patch("builtins.open", mock_open()) as mo:
             mo.side_effect = FileNotFoundError
             returned = IPerfPerformanceTest.find_numa(None, "device")
             self.assertEqual(returned, -1)

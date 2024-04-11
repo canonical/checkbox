@@ -29,7 +29,7 @@ def main():
     bt_adapter_not_found = True
     for dev in manager.get_bt_adapters():
         bt_adapter_not_found = False
-        print(dev._if.object_path.split('/')[-1])
+        print(dev._if.object_path.split("/")[-1])
     return bt_adapter_not_found
 
 

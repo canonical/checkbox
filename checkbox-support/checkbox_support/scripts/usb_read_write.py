@@ -32,27 +32,27 @@ import errno
 import contextlib
 
 
-PLAINBOX_SESSION_SHARE = os.environ.get('PLAINBOX_SESSION_SHARE', '')
+PLAINBOX_SESSION_SHARE = os.environ.get("PLAINBOX_SESSION_SHARE", "")
 FOLDER_TO_MOUNT = tempfile.mkdtemp()
 REPETITION_NUM = 5  # number to repeat the read/write test units.
 # Prepare a random file which size is RANDOM_FILE_SIZE.
 RANDOM_FILE_SIZE = 104857600  # 100 MiB
-mem_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
-mem_mib = mem_bytes/(1024.**2)
+mem_bytes = os.sysconf("SC_PAGE_SIZE") * os.sysconf("SC_PHYS_PAGES")
+mem_mib = mem_bytes / (1024.0**2)
 # On systems with less than 1 GiB of RAM, only generate a 20 MiB file
 if mem_mib < 1200:
     RANDOM_FILE_SIZE = 20971520
 USB_INSERT_INFO = "usb_insert_info"
 
-log_path = os.path.join(PLAINBOX_SESSION_SHARE, 'usb-rw.log')
+log_path = os.path.join(PLAINBOX_SESSION_SHARE, "usb-rw.log")
 logging.basicConfig(level=logging.DEBUG, filename=log_path)
 ch = logging.StreamHandler(sys.stdout)
 ch.setFormatter(logging.Formatter("%(levelname)s:%(message)s"))
-log = logging.getLogger('')
+log = logging.getLogger("")
 log.addHandler(ch)
 
 
-class RandomData():
+class RandomData:
     """
     Class to create data files.
 
@@ -67,14 +67,14 @@ class RandomData():
             an integer to decide the size of the generated random file in byte.
         """
         self.tfile = tempfile.NamedTemporaryFile(delete=False)
-        self.path = ''
-        self.name = ''
+        self.path = ""
+        self.name = ""
         self.path, self.name = os.path.split(self.tfile.name)
         self._write_test_data_file(size)
 
     def _generate_test_data(self):
         seed = "104872948765827105728492766217823438120"
-        phrase = '''
+        phrase = """
         Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam
         nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
         volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation
@@ -83,19 +83,19 @@ class RandomData():
         molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero
         eros et accumsan et iusto odio dignissim qui blandit praesent luptatum
         zzril delenit augue duis dolore te feugait nulla facilisi.
-        '''
-        words = phrase.replace('\n', '').split()
+        """
+        words = phrase.replace("\n", "").split()
         word_deque = collections.deque(words)
         seed_deque = collections.deque(seed)
         while True:
-            yield ' '.join(list(word_deque))
+            yield " ".join(list(word_deque))
             word_deque.rotate(int(seed_deque[0]))
             seed_deque.rotate(1)
 
     def _write_test_data_file(self, size):
         data = self._generate_test_data()
         while os.path.getsize(self.tfile.name) < size:
-            self.tfile.write(next(data).encode('UTF-8'))
+            self.tfile.write(next(data).encode("UTF-8"))
         self.tfile.close()
         return self
 
@@ -119,9 +119,11 @@ def get_partition_info():
             file_lines = file_usb_insert_info.readlines()
     except OSError as e:
         if e.errno == errno.ENOENT:
-            logging.error("%s info file was not found. \
+            logging.error(
+                "%s info file was not found. \
                            Did the insertion test was run successfully?"
-                          % USB_INSERT_INFO)
+                % USB_INSERT_INFO
+            )
         sys.exit(1)
     # TODO: need to be smarter
     if len(file_lines) == 1:
@@ -137,7 +139,7 @@ def run_read_write_test():
     # random file as a benchmark, a "source" file
     with gen_random_file() as random_file:
         # initialize the necessary tasks before performing read/write test
-        partitions = os.environ.get('USB_RWTEST_PARTITIONS', '').split()
+        partitions = os.environ.get("USB_RWTEST_PARTITIONS", "").split()
         if not partitions:
             partitions = [get_partition_info()]
         for partition in partitions:
@@ -167,22 +169,25 @@ def mount_usb_storage(partition):
         device_to_mount = os.path.join("/dev", partition)
         # use pipe so I could hide message like
         # "umount: /tmp/tmpjzwb6lys: not mounted"
-        subprocess.call(['umount', FOLDER_TO_MOUNT], stderr=subprocess.PIPE)
+        subprocess.call(["umount", FOLDER_TO_MOUNT], stderr=subprocess.PIPE)
         # mount the target device/partition
         # if the return code of the shell command is non-zero,
         # means something wrong.
         # quit this script and return a non-zero value to plainbox
-        if subprocess.call(['mount', device_to_mount, FOLDER_TO_MOUNT]):
-            logging.error("mount %s on %s failed."
-                          % (device_to_mount, FOLDER_TO_MOUNT))
+        if subprocess.call(["mount", device_to_mount, FOLDER_TO_MOUNT]):
+            logging.error(
+                "mount %s on %s failed." % (device_to_mount, FOLDER_TO_MOUNT)
+            )
             sys.exit(1)
         else:
-            logging.debug("mount %s on %s successfully."
-                          % (device_to_mount, FOLDER_TO_MOUNT))
+            logging.debug(
+                "mount %s on %s successfully."
+                % (device_to_mount, FOLDER_TO_MOUNT)
+            )
         yield
     finally:
         logging.info("context manager exit: unmount USB storage")
-        if subprocess.call(['umount', FOLDER_TO_MOUNT]):
+        if subprocess.call(["umount", FOLDER_TO_MOUNT]):
             logging.warning("umount %s failed." % FOLDER_TO_MOUNT)
         else:
             logging.info("umount %s successfully." % FOLDER_TO_MOUNT)
@@ -196,7 +201,7 @@ def read_test(random_file):
     read_test_list = []
     for idx in range(REPETITION_NUM):
         read_test_list.append(read_test_unit(random_file, str(idx)))
-    print('PASS: all reading tests passed.')
+    print("PASS: all reading tests passed.")
 
 
 def read_test_unit(random_source_file, idx=""):
@@ -208,30 +213,41 @@ def read_test_unit(random_source_file, idx=""):
           It is an int string, "1", "2", "3", ......etc.
     """
     # access the temporary file
-    path_random_file = os.path.join(
-        FOLDER_TO_MOUNT, os.path.basename(random_source_file.tfile.name)) + idx
+    path_random_file = (
+        os.path.join(
+            FOLDER_TO_MOUNT, os.path.basename(random_source_file.tfile.name)
+        )
+        + idx
+    )
     # get the md5sum of the temp random files to compare
-    process = subprocess.Popen(['md5sum', path_random_file],
-                               stdout=subprocess.PIPE)
+    process = subprocess.Popen(
+        ["md5sum", path_random_file], stdout=subprocess.PIPE
+    )
     tfile_md5sum = process.communicate()[0].decode().split(" ")[0]
     # get the md5sum of the source random file
-    process = subprocess.Popen(['md5sum', random_source_file.tfile.name],
-                               stdout=subprocess.PIPE)
+    process = subprocess.Popen(
+        ["md5sum", random_source_file.tfile.name], stdout=subprocess.PIPE
+    )
     source_md5sum = process.communicate()[0].decode().split(" ")[0]
     logging.debug("%s %s (verified)" % (tfile_md5sum, path_random_file))
-    logging.debug("%s %s (source)"
-                  % (source_md5sum, random_source_file.tfile.name))
+    logging.debug(
+        "%s %s (source)" % (source_md5sum, random_source_file.tfile.name)
+    )
     # Clean the target file
     os.remove(path_random_file)
     # verify the md5sum
     if tfile_md5sum == source_md5sum:
-        print("PASS: READING TEST: %s passes md5sum comparison."
-              % path_random_file)
+        print(
+            "PASS: READING TEST: %s passes md5sum comparison."
+            % path_random_file
+        )
     else:
         # failed in the reading test
         # tell plainbox the failure code
-        logging.warning("FAIL: READING TEST: %s failed in md5sum comparison."
-                        % path_random_file)
+        logging.warning(
+            "FAIL: READING TEST: %s failed in md5sum comparison."
+            % path_random_file
+        )
         sys.exit(1)
 
 
@@ -243,11 +259,14 @@ def write_test(random_file):
     write_speed_list = []
     for idx in range(REPETITION_NUM):
         write_speed_list.append(write_test_unit(random_file, str(idx)))
-    average_speed = sum(write_speed_list)/REPETITION_NUM
-    file_size_in_mb = RANDOM_FILE_SIZE / (1024*1024)
-    print("Average writing speed is: {:.3f} MB/s "
-          "({}x{} MB files were written)".format(
-              average_speed, REPETITION_NUM, file_size_in_mb))
+    average_speed = sum(write_speed_list) / REPETITION_NUM
+    file_size_in_mb = RANDOM_FILE_SIZE / (1024 * 1024)
+    print(
+        "Average writing speed is: {:.3f} MB/s "
+        "({}x{} MB files were written)".format(
+            average_speed, REPETITION_NUM, file_size_in_mb
+        )
+    )
 
 
 def write_test_unit(random_file, idx=""):
@@ -258,13 +277,22 @@ def write_test_unit(random_file, idx=""):
     :return: a float in MB/s to denote writing speed
     """
     # Clear dmesg so we can check for I/O errors later
-    subprocess.check_output(['dmesg', '-C'])
-    target_file = os.path.join(
-        FOLDER_TO_MOUNT, os.path.basename(random_file.tfile.name)) + idx
-    process = subprocess.Popen([
-        'dd', 'if=' + random_file.tfile.name, 'of=' + target_file, 'bs=1M',
-        'oflag=sync'],
-        stderr=subprocess.STDOUT, stdout=subprocess.PIPE)
+    subprocess.check_output(["dmesg", "-C"])
+    target_file = (
+        os.path.join(FOLDER_TO_MOUNT, os.path.basename(random_file.tfile.name))
+        + idx
+    )
+    process = subprocess.Popen(
+        [
+            "dd",
+            "if=" + random_file.tfile.name,
+            "of=" + target_file,
+            "bs=1M",
+            "oflag=sync",
+        ],
+        stderr=subprocess.STDOUT,
+        stdout=subprocess.PIPE,
+    )
     logging.debug("Apply command: %s" % process.args)
     # will get something like
     # ['2048+1 records in', '2048+1 records out',
@@ -280,14 +308,14 @@ def write_test_unit(random_file, idx=""):
         # (20 MB) copied, 99.647 s, 200 kB/s', '']
         print("ERROR: {}".format(list_dd_message))
         sys.exit(1)
-    dmesg = subprocess.run(['dmesg'], stdout=subprocess.PIPE)
+    dmesg = subprocess.run(["dmesg"], stdout=subprocess.PIPE)
     # lp:1852510 - check there weren't any i/o errors sent to dmesg when the
     # test files were sync'ed to the disk
-    if 'I/O error' in dmesg.stdout.decode():
+    if "I/O error" in dmesg.stdout.decode():
         print("ERROR: I/O errors found in dmesg")
         sys.exit(1)
     else:
-        logging.debug('No I/O errors found in dmesg')
+        logging.debug("No I/O errors found in dmesg")
     print("PASS: WRITING TEST: %s" % target_file)
     return dd_speed
 
@@ -309,8 +337,10 @@ def gen_random_file():
         try:
             os.rmdir(FOLDER_TO_MOUNT)
         except OSError:
-            logging.warning("Failed to remove %s (mount folder not empty)."
-                            % FOLDER_TO_MOUNT)
+            logging.warning(
+                "Failed to remove %s (mount folder not empty)."
+                % FOLDER_TO_MOUNT
+            )
         # delete the random file (source file of a writing test)
         os.unlink(random_file.tfile.name)
 
@@ -324,25 +354,29 @@ def get_md5sum(file_to_check):
     """
     try:
         # return the md5sum of the temp file
-        process = subprocess.Popen(['md5sum', file_to_check],
-                                   stdout=subprocess.PIPE)
+        process = subprocess.Popen(
+            ["md5sum", file_to_check], stdout=subprocess.PIPE
+        )
         # something like
         # (b'07bc8f96b7c7dba2c1f3eb2f7dd50541  /tmp/tmp9jnuv329\n', None)
         # will be returned by communicate() in this case
         md5sum = process.communicate()[0].decode().split(" ")[0]
         if md5sum:
-            logging.debug("MD5SUM of %s: %s"
-                          % (file_to_check, md5sum))
+            logging.debug("MD5SUM of %s: %s" % (file_to_check, md5sum))
             return md5sum
         else:
-            logging.error("Could not found file to check its MD5SUM. \
-                           Check the folder permission?")
+            logging.error(
+                "Could not found file to check its MD5SUM. \
+                           Check the folder permission?"
+            )
             sys.exit(1)
     except OSError as e:
         if e.errno == errno.ENOENT:
-            logging.error("%s info file was not found. \
+            logging.error(
+                "%s info file was not found. \
                            Did the insertion test was run successfully?"
-                          % USB_INSERT_INFO)
+                % USB_INSERT_INFO
+            )
             sys.exit(1)
 
 

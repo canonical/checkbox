@@ -25,7 +25,10 @@ import os
 import re
 import unittest
 
-from checkbox_support.scripts.audio_settings import _guess_hdmi_profile, volume_pattern
+from checkbox_support.scripts.audio_settings import (
+    _guess_hdmi_profile,
+    volume_pattern,
+)
 from checkbox_support.parsers.tests.test_pactl import PactlDataMixIn
 
 
@@ -48,7 +51,8 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
         """
         self.assertEqual(
             _guess_hdmi_profile(self.get_text("desktop-precise-xps1340")),
-            ('0', 'output:hdmi-stereo'))
+            ("0", "output:hdmi-stereo"),
+        )
 
     def test_desktop_precise_radeon_not_available(self):
         """
@@ -71,7 +75,8 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
         """
         self.assertEqual(
             _guess_hdmi_profile(self.get_text("desktop-precise-radeon")),
-            (None, None))
+            (None, None),
+        )
 
     def test_desktop_precise_radeon_available(self):
         """
@@ -93,9 +98,11 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
                     Part of profile(s): output:hdmi-stereo
         """
         self.assertEqual(
-            _guess_hdmi_profile(self.get_text(
-                "desktop-precise-radeon-hdmi-available")),
-            ('0', 'output:hdmi-stereo'))
+            _guess_hdmi_profile(
+                self.get_text("desktop-precise-radeon-hdmi-available")
+            ),
+            ("0", "output:hdmi-stereo"),
+        )
 
     def test_desktop_raring_t430s_not_available(self):
         """
@@ -124,7 +131,8 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
         """
         self.assertEqual(
             _guess_hdmi_profile(self.get_text("desktop-raring-t430s")),
-            (None, None))
+            (None, None),
+        )
 
     def test_desktop_raring_t430s_available(self):
         """
@@ -152,9 +160,11 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
                     Part of profile(s): output:hdmi-stereo-extra2, output:hdmi-stereo-extra2+input:analog-stereo, output:hdmi-surround-extra2, output:hdmi-surround-extra2+input:analog-stereo
         """
         self.assertEqual(
-            _guess_hdmi_profile(self.get_text(
-                "desktop-raring-t430s-dp-available")),
-            ('2', 'output:hdmi-stereo'))
+            _guess_hdmi_profile(
+                self.get_text("desktop-raring-t430s-dp-available")
+            ),
+            ("2", "output:hdmi-stereo"),
+        )
 
     def test_desktop_bionic_x13(self):
         """
@@ -169,7 +179,8 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
         """
         self.assertEqual(
             _guess_hdmi_profile(self.get_text("desktop-bionic-x13")),
-            ('0', 'Hdmi2'))
+            ("0", "Hdmi2"),
+        )
 
     def test_displayport_monitor_hifi(self):
         """
@@ -177,7 +188,8 @@ class SetProfileTest(unittest.TestCase, PactlDataMixIn):
         """
         self.assertEqual(
             _guess_hdmi_profile(self.get_text("displayport-monitor-hifi")),
-            ('0', 'HiFi'))
+            ("0", "HiFi"),
+        )
 
 
 class RegexTest(unittest.TestCase):

@@ -78,12 +78,10 @@ def class_with_syntax(cls):
     Helps to setup the `Syntax` attribute using the special `__syntax__`
     attribute. It also calls from_tokens() with the appropriate class.
     """
-    if hasattr(cls, '__syntax__'):
+    if hasattr(cls, "__syntax__"):
         cls.Syntax = (
-            cls.__syntax__
-        ).setParseAction(
-            cls.from_tokens
-        ).parseWithTabs()
+            (cls.__syntax__).setParseAction(cls.from_tokens).parseWithTabs()
+        )
     return cls
 
 
@@ -108,9 +106,14 @@ class Node:
 
     def __repr__(self):
         return "{}({})".format(
-            type(self).__name__, ", ".join([
-                "{}={!r}".format(attr, getattr(self, attr))
-                for attr in self.__fragments__]))
+            type(self).__name__,
+            ", ".join(
+                [
+                    "{}={!r}".format(attr, getattr(self, attr))
+                    for attr in self.__fragments__
+                ]
+            ),
+        )
 
     @classmethod
     def from_tokens(cls, tokens):
@@ -132,23 +135,22 @@ class Property(Node):
     A list of properties is a possible syntax for Attribute value.
     """
 
-    __fragments__ = {
-        'name': 'property-name',
-        'value': 'property-value'
-    }
+    __fragments__ = {"name": "property-name", "value": "property-value"}
 
     __syntax__ = (
         p.Word(p.alphanums + "-_.").setResultsName("property-name")
-        + p.Suppress('=')
-        + p.Or([
-            p.Suppress('"')
-            + p.Empty().setParseAction(
-                lambda t: " "
-            ).setResultsName("property-value")
-            + p.Suppress('"'),
-            p.QuotedString('"').setResultsName("property-value")
-        ])
-    ).setResultsName('property')
+        + p.Suppress("=")
+        + p.Or(
+            [
+                p.Suppress('"')
+                + p.Empty()
+                .setParseAction(lambda t: " ")
+                .setResultsName("property-value")
+                + p.Suppress('"'),
+                p.QuotedString('"').setResultsName("property-value"),
+            ]
+        )
+    ).setResultsName("property")
 
 
 @class_with_syntax
@@ -158,45 +160,48 @@ class Profile(Node):
     """
 
     __fragments__ = {
-        'name': 'profile-name',
-        'label': 'profile-label',
-        'sink_cnt': 'profile-sink-count',
-        'source_cnt': 'profile-source-count',
-        'priority': 'profile-priority',
+        "name": "profile-name",
+        "label": "profile-label",
+        "sink_cnt": "profile-sink-count",
+        "source_cnt": "profile-source-count",
+        "priority": "profile-priority",
     }
 
     __syntax__ = (
-        p.Word(p.alphanums + "+-:").setParseAction(
-            lambda t: t[0].rstrip(':')
-        ).setResultsName("profile-name")
+        p.Word(p.alphanums + "+-:")
+        .setParseAction(lambda t: t[0].rstrip(":"))
+        .setResultsName("profile-name")
         + p.delimitedList(
-            p.Literal("(HDMI)") | p.Literal("(IEC958)") | p.Regex(r'[^ (\n]+'),
-            ' ', combine=True
-        ).setResultsName('profile-label')
-        + p.Suppress('(')
-        + p.Keyword('sinks').suppress()
-        + p.Suppress(':')
-        + p.Word(p.nums).setParseAction(
-            lambda t: int(t[0])
-        ).setResultsName('profile-sink-count')
-        + p.Suppress(',')
-        + p.Keyword('sources').suppress()
-        + p.Suppress(':')
-        + p.Word(p.nums).setParseAction(
-            lambda t: int(t[0])
-        ).setResultsName('profile-source-count')
-        + p.Suppress(',')
-        + p.Keyword('priority').suppress()
-        + p.MatchFirst([
-            p.Suppress('.'),
-            # Merged on 2013-06-03 (YYYY-MM-DD)
-            # http://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/src/utils/pactl.c?id=83c3cf0a65fb05900f81bd2dbb38e6956eb23935
-            p.Suppress(':'),
-        ])
-        + p.Word(p.nums).setParseAction(
-            lambda t: int(t[0])
-        ).setResultsName('profile-priority')
-        + p.Suppress(')')
+            p.Literal("(HDMI)") | p.Literal("(IEC958)") | p.Regex(r"[^ (\n]+"),
+            " ",
+            combine=True,
+        ).setResultsName("profile-label")
+        + p.Suppress("(")
+        + p.Keyword("sinks").suppress()
+        + p.Suppress(":")
+        + p.Word(p.nums)
+        .setParseAction(lambda t: int(t[0]))
+        .setResultsName("profile-sink-count")
+        + p.Suppress(",")
+        + p.Keyword("sources").suppress()
+        + p.Suppress(":")
+        + p.Word(p.nums)
+        .setParseAction(lambda t: int(t[0]))
+        .setResultsName("profile-source-count")
+        + p.Suppress(",")
+        + p.Keyword("priority").suppress()
+        + p.MatchFirst(
+            [
+                p.Suppress("."),
+                # Merged on 2013-06-03 (YYYY-MM-DD)
+                # http://cgit.freedesktop.org/pulseaudio/pulseaudio/commit/src/utils/pactl.c?id=83c3cf0a65fb05900f81bd2dbb38e6956eb23935
+                p.Suppress(":"),
+            ]
+        )
+        + p.Word(p.nums)
+        .setParseAction(lambda t: int(t[0]))
+        .setResultsName("profile-priority")
+        + p.Suppress(")")
     ).setResultsName("profile")
 
 
@@ -207,19 +212,21 @@ class Port(Node):
     """
 
     __fragments__ = {
-        'name': 'port-name',
-        'label': 'port-label',
-        'priority': 'port-priority',
-        'availability': lambda t: t["port-availability"][0]
-        if isinstance(t["port-availability"], p.ParseResults)
-        else t["port-availability"],
+        "name": "port-name",
+        "label": "port-label",
+        "priority": "port-priority",
+        "availability": lambda t: (
+            t["port-availability"][0]
+            if isinstance(t["port-availability"], p.ParseResults)
+            else t["port-availability"]
+        ),
     }
 
     __syntax__ = (
-        p.Optional('[Out] ').suppress()
-        + p.Optional('[In] ').suppress()
-        + p.Word(p.alphanums + " -;").setResultsName('port-name')
-        + p.Suppress(':')
+        p.Optional("[Out] ").suppress()
+        + p.Optional("[In] ").suppress()
+        + p.Word(p.alphanums + " -;").setResultsName("port-name")
+        + p.Suppress(":")
         # This part was very tricky to write. The label is basically
         # arbitrary localized Unicode text.  We want to grab all of it in
         # one go but without consuming the upcoming '(' character or the
@@ -229,33 +236,35 @@ class Port(Node):
         # anything other than a space and '(', delimited by a single
         # whitespace.
         + p.delimitedList(
-            p.Regex(r'[^ (\n]+'), ' ', combine=True
-        ).setResultsName('port-label')
-        + p.Suppress('(')
+            p.Regex(r"[^ (\n]+"), " ", combine=True
+        ).setResultsName("port-label")
+        + p.Suppress("(")
         + p.Optional(
-            p.Keyword('type').suppress()
-            + p.Suppress(':')
+            p.Keyword("type").suppress()
+            + p.Suppress(":")
             + p.Word(p.alphanums).suppress()
-            + p.Suppress(',')
+            + p.Suppress(",")
         )
-        + p.Keyword('priority').suppress()
-        + p.Suppress(':')
-        + p.Word(p.nums).setParseAction(
-            lambda t: int(t[0])
-        ).setResultsName('port-priority')
+        + p.Keyword("priority").suppress()
+        + p.Suppress(":")
+        + p.Word(p.nums)
+        .setParseAction(lambda t: int(t[0]))
+        .setResultsName("port-priority")
         + p.Optional(
-            p.Suppress(',')
-            + p.Keyword('availability group').suppress()
-            + p.Suppress(':')
+            p.Suppress(",")
+            + p.Keyword("availability group").suppress()
+            + p.Suppress(":")
             + p.Word(p.alphanums + " -;").suppress()
         )
-        + p.MatchFirst([
-            p.Suppress(',') + p.Literal('not available'),
-            p.Suppress(',') + p.Literal('available'),
-            p.Suppress(',') + p.Literal('availability unknown'),
-            p.Empty().setParseAction(lambda t: '')
-        ]).setResultsName('port-availability')
-        + p.Suppress(')')
+        + p.MatchFirst(
+            [
+                p.Suppress(",") + p.Literal("not available"),
+                p.Suppress(",") + p.Literal("available"),
+                p.Suppress(",") + p.Literal("availability unknown"),
+                p.Empty().setParseAction(lambda t: ""),
+            ]
+        ).setResultsName("port-availability")
+        + p.Suppress(")")
     ).setResultsName("port")
 
 
@@ -263,15 +272,14 @@ class Port(Node):
 # Shared Attributes
 # =================
 
-PropertyAttributeValue = (
-    p.Group(
-        p.OneOrMore(
-            p.LineStart().suppress()
-            + p.Optional(p.White('\t')).suppress()
-            + p.Optional(Property.Syntax)
-            + p.LineEnd().suppress()
-        )
-    ).setResultsName("attribute-value"))
+PropertyAttributeValue = p.Group(
+    p.OneOrMore(
+        p.LineStart().suppress()
+        + p.Optional(p.White("\t")).suppress()
+        + p.Optional(Property.Syntax)
+        + p.LineEnd().suppress()
+    )
+).setResultsName("attribute-value")
 
 
 @class_with_syntax
@@ -283,27 +291,34 @@ class PortWithProfile(Node):
     here, only priority. Priority does not have a colon before the actual
     number. This port is followed by profile assignment.
     """
+
     __fragments__ = {
-        'name': 'port-name',
-        'label': 'port-label',
-        'priority': 'port-priority',
-        'latency_offset': lambda t: t["port-latency-offset"][0]
-        if isinstance(t["port-latency-offset"], p.ParseResults)
-        else t["port-latency-offset"],
-        'availability': lambda t: t["port-availability"][0]
-        if isinstance(t["port-availability"], p.ParseResults)
-        else t["port-availability"],
-        'properties': lambda t: t["port-properties"].asList()[0]
-        if any(isinstance(i, list) for i in t["port-properties"].asList())
-        else t["port-properties"].asList(),
-        'profile_list': lambda t: t["port-profile-list"].asList(),
+        "name": "port-name",
+        "label": "port-label",
+        "priority": "port-priority",
+        "latency_offset": lambda t: (
+            t["port-latency-offset"][0]
+            if isinstance(t["port-latency-offset"], p.ParseResults)
+            else t["port-latency-offset"]
+        ),
+        "availability": lambda t: (
+            t["port-availability"][0]
+            if isinstance(t["port-availability"], p.ParseResults)
+            else t["port-availability"]
+        ),
+        "properties": lambda t: (
+            t["port-properties"].asList()[0]
+            if any(isinstance(i, list) for i in t["port-properties"].asList())
+            else t["port-properties"].asList()
+        ),
+        "profile_list": lambda t: t["port-profile-list"].asList(),
     }
 
     __syntax__ = (
-        p.Optional('[Out] ').suppress()
-        + p.Optional('[In] ').suppress()
-        + p.Word(p.alphanums + " -;").setResultsName('port-name')
-        + p.Suppress(':')
+        p.Optional("[Out] ").suppress()
+        + p.Optional("[In] ").suppress()
+        + p.Word(p.alphanums + " -;").setResultsName("port-name")
+        + p.Suppress(":")
         # This part was very tricky to write. The label is basically arbitrary
         # localized Unicode text. We want to grab all of it in one go but
         # without consuming the upcoming and latest '(' character or the space
@@ -313,70 +328,72 @@ class PortWithProfile(Node):
         # other than a space and '(', delimited by a single whitespace.
         + p.Combine(
             p.OneOrMore(
-                ~p.FollowedBy(
-                    p.Regex(r'\(.+?\)')
-                    + p.LineEnd()
-                )
-                + p.Regex(r'[^ \n]+')
+                ~p.FollowedBy(p.Regex(r"\(.+?\)") + p.LineEnd())
+                + p.Regex(r"[^ \n]+")
                 + p.White().suppress()
             ),
-            ' '
-        ).setResultsName('port-label')
-        + p.Suppress('(')
+            " ",
+        ).setResultsName("port-label")
+        + p.Suppress("(")
         + p.Optional(
-            p.Keyword('type').suppress()
-            + p.Suppress(':')
+            p.Keyword("type").suppress()
+            + p.Suppress(":")
             + p.Word(p.alphanums).suppress()
-            + p.Suppress(',')
+            + p.Suppress(",")
         )
-        + p.Keyword('priority').suppress()
+        + p.Keyword("priority").suppress()
+        + p.Optional(p.Suppress(":"))
+        + p.Word(p.nums)
+        .setParseAction(lambda t: int(t[0]))
+        .setResultsName("port-priority")
         + p.Optional(
-            p.Suppress(':')
+            p.MatchFirst(
+                [
+                    p.Suppress(",")
+                    + p.Keyword("latency offset:").suppress()
+                    + p.Word(p.nums).setParseAction(lambda t: int(t[0]))
+                    + p.Literal("usec").suppress(),
+                    p.Empty().setParseAction(lambda t: ""),
+                ]
+            ).setResultsName("port-latency-offset")
         )
-        + p.Word(p.nums).setParseAction(
-            lambda t: int(t[0])
-        ).setResultsName('port-priority')
         + p.Optional(
-            p.MatchFirst([
-                p.Suppress(',') + p.Keyword('latency offset:').suppress()
-                + p.Word(p.nums).setParseAction(lambda t: int(t[0]))
-                + p.Literal("usec").suppress(),
-                p.Empty().setParseAction(lambda t: '')
-            ]).setResultsName('port-latency-offset')
-        )
-        + p.Optional(
-            p.Suppress(',')
-            + p.Keyword('availability group').suppress()
-            + p.Suppress(':')
+            p.Suppress(",")
+            + p.Keyword("availability group").suppress()
+            + p.Suppress(":")
             + p.Word(p.alphanums + " -;").suppress()
         )
         + p.Optional(
-            p.MatchFirst([
-                p.Suppress(',') + p.Literal('not available'),
-                p.Suppress(',') + p.Literal('available'),
-                p.Suppress(',') + p.Literal('availability unknown'),
-                p.Empty().setParseAction(lambda t: '')
-            ]).setResultsName('port-availability')
+            p.MatchFirst(
+                [
+                    p.Suppress(",") + p.Literal("not available"),
+                    p.Suppress(",") + p.Literal("available"),
+                    p.Suppress(",") + p.Literal("availability unknown"),
+                    p.Empty().setParseAction(lambda t: ""),
+                ]
+            ).setResultsName("port-availability")
         )
-        + p.Suppress(')')
+        + p.Suppress(")")
         + p.LineEnd().suppress()
         + p.Optional(
-            p.MatchFirst([
-                p.LineStart().suppress()
-                + p.NotAny(p.White(' '))
-                + p.White('\t').suppress()
-                + p.Keyword('Properties:').suppress()
-                + p.LineEnd().suppress()
-                + PropertyAttributeValue,
-                p.Empty().setParseAction(lambda t: [])
-            ]).setResultsName('port-properties')
+            p.MatchFirst(
+                [
+                    p.LineStart().suppress()
+                    + p.NotAny(p.White(" "))
+                    + p.White("\t").suppress()
+                    + p.Keyword("Properties:").suppress()
+                    + p.LineEnd().suppress()
+                    + PropertyAttributeValue,
+                    p.Empty().setParseAction(lambda t: []),
+                ]
+            ).setResultsName("port-properties")
         )
-        + p.White('\t', max=3).suppress()
+        + p.White("\t", max=3).suppress()
         + p.Literal("Part of profile(s)").suppress()
         + p.Suppress(":")
-        + p.delimitedList(
-            p.Word(p.alphanums + "+-:"), ", "
-        ).setResultsName("port-profile-list")
+        + p.delimitedList(p.Word(p.alphanums + "+-:"), ", ").setResultsName(
+            "port-profile-list"
+        )
     ).setResultsName("port")
 
 
@@ -387,87 +404,86 @@ class PortWithProfile(Node):
 AttributeName = p.Regex(r"[a-zA-Z][^:\n]+").setResultsName("attribute-name")
 
 
-ActivePortAttributeValue = (
-    p.Combine(
-        p.Or([p.Literal('[Out] '), p.Literal('[In] ')]).suppress()
-        + p.Regex(r"[^\n]*")
-        + p.LineEnd().suppress(),
-        adjacent=False
-    ).setResultsName("attribute-value")
-)
+ActivePortAttributeValue = p.Combine(
+    p.Or([p.Literal("[Out] "), p.Literal("[In] ")]).suppress()
+    + p.Regex(r"[^\n]*")
+    + p.LineEnd().suppress(),
+    adjacent=False,
+).setResultsName("attribute-value")
 
 
-VolumeAttributeValue = (
-    p.Combine(
-        p.Or([
-            p.Or([
-                p.Literal("(invalid)"),
-                p.Regex(r"([0-9]+: +[0-9]+% ?)+")
-            ]),
-            p.Or([
-                p.Literal("(invalid)"),
-                p.Regex(r"([0-9]+: +[0-9]+% ?)+")
-            ])
+VolumeAttributeValue = p.Combine(
+    p.Or(
+        [
+            p.Or([p.Literal("(invalid)"), p.Regex(r"([0-9]+: +[0-9]+% ?)+")]),
+            p.Or([p.Literal("(invalid)"), p.Regex(r"([0-9]+: +[0-9]+% ?)+")])
             + p.LineEnd()
-            + p.Optional(p.White('\t').suppress())
-            + p.Or([
-                p.Literal("(invalid)"),
-                p.Regex(r"([0-9]+: -?([0-9]+\.[0-9]+|inf) dB ?)+"),
-            ]),
-            p.Or([
-                p.Literal("(invalid)"),
-                p.Regex(r"([\w\-]+: [0-9]+ / +[0-9]+%(?: /"
-                        r" +-?([0-9]+\.[0-9]+|inf) dB)?,? *)+")
-            ])
-        ])
-        + p.LineEnd()
-        + p.Optional(p.White('\t').suppress())
-        + p.Regex(r"balance -?[0-9]+\.[0-9]+")
-        + p.LineEnd(),
-        adjacent=False
-    ).setResultsName("attribute-value")
-)
+            + p.Optional(p.White("\t").suppress())
+            + p.Or(
+                [
+                    p.Literal("(invalid)"),
+                    p.Regex(r"([0-9]+: -?([0-9]+\.[0-9]+|inf) dB ?)+"),
+                ]
+            ),
+            p.Or(
+                [
+                    p.Literal("(invalid)"),
+                    p.Regex(
+                        r"([\w\-]+: [0-9]+ / +[0-9]+%(?: /"
+                        r" +-?([0-9]+\.[0-9]+|inf) dB)?,? *)+"
+                    ),
+                ]
+            ),
+        ]
+    )
+    + p.LineEnd()
+    + p.Optional(p.White("\t").suppress())
+    + p.Regex(r"balance -?[0-9]+\.[0-9]+")
+    + p.LineEnd(),
+    adjacent=False,
+).setResultsName("attribute-value")
 
 
-BaseVolumeAttributeValue = (
-    p.Combine(
-        p.Regex(r"[0-9]+%")
-        + p.LineEnd()
-        + p.Optional(p.White('\t').suppress())
-        + p.Regex(r"-?[0-9]+\.[0-9]+ dB")
-        + p.LineEnd(),
-        adjacent=False
-    ).setResultsName("attribute-value")
-)
+BaseVolumeAttributeValue = p.Combine(
+    p.Regex(r"[0-9]+%")
+    + p.LineEnd()
+    + p.Optional(p.White("\t").suppress())
+    + p.Regex(r"-?[0-9]+\.[0-9]+ dB")
+    + p.LineEnd(),
+    adjacent=False,
+).setResultsName("attribute-value")
 
 
 SimpleAttributeValue = (
     p.Regex(r"[^\n]*").setResultsName("attribute-value")
-    + p.LineEnd().suppress())
+    + p.LineEnd().suppress()
+)
 
 # simple values
-GenericSimpleAttributeValue = p.MatchFirst([
-    ActivePortAttributeValue,
-    VolumeAttributeValue,
-    BaseVolumeAttributeValue,
-    SimpleAttributeValue,
-])
+GenericSimpleAttributeValue = p.MatchFirst(
+    [
+        ActivePortAttributeValue,
+        VolumeAttributeValue,
+        BaseVolumeAttributeValue,
+        SimpleAttributeValue,
+    ]
+)
 
 
 @class_with_syntax
 class GenericSimpleAttribute(Node):
 
     __fragments__ = {
-        'name': 'attribute-name',
-        'value': 'attribute-value',
+        "name": "attribute-name",
+        "value": "attribute-value",
     }
 
     __syntax__ = (
         p.LineStart().suppress()
-        + p.NotAny(p.White(' '))
-        + p.Optional(p.White('\t')).suppress()
+        + p.NotAny(p.White(" "))
+        + p.Optional(p.White("\t")).suppress()
         + AttributeName
-        + p.Literal(':').suppress()
+        + p.Literal(":").suppress()
         + GenericSimpleAttributeValue
     ).setResultsName("attribute")
 
@@ -476,66 +492,68 @@ class GenericSimpleAttribute(Node):
 # Collection Attributes
 # =====================
 
-PortsAttributeValue = (
-    p.Group(
-        p.OneOrMore(
-            p.LineStart().suppress()
-            + p.Optional(p.White('\t')).suppress()
-            + Port.Syntax
-            + p.LineEnd().suppress())
-    ).setResultsName("attribute-value"))
+PortsAttributeValue = p.Group(
+    p.OneOrMore(
+        p.LineStart().suppress()
+        + p.Optional(p.White("\t")).suppress()
+        + Port.Syntax
+        + p.LineEnd().suppress()
+    )
+).setResultsName("attribute-value")
 
-PortsWithProfilesAttributeValue = (
-    p.Group(
-        p.OneOrMore(
-            p.LineStart().suppress()
-            + p.Optional(p.White('\t')).suppress()
-            + PortWithProfile.Syntax
-            + p.LineEnd().suppress())
-    ).setResultsName("attribute-value"))
+PortsWithProfilesAttributeValue = p.Group(
+    p.OneOrMore(
+        p.LineStart().suppress()
+        + p.Optional(p.White("\t")).suppress()
+        + PortWithProfile.Syntax
+        + p.LineEnd().suppress()
+    )
+).setResultsName("attribute-value")
 
-FormatsAttributeValue = (
-    p.Group(
-        p.OneOrMore(
-            p.LineStart().suppress()
-            + p.Optional(p.White('\t')).suppress()
-            + p.Word(p.alphas)
-            + p.LineEnd().suppress())
-    ).setResultsName("attribute-value"))
+FormatsAttributeValue = p.Group(
+    p.OneOrMore(
+        p.LineStart().suppress()
+        + p.Optional(p.White("\t")).suppress()
+        + p.Word(p.alphas)
+        + p.LineEnd().suppress()
+    )
+).setResultsName("attribute-value")
 
-ProfilesAttributeValue = (
-    p.Group(
-        p.OneOrMore(
-            p.LineStart().suppress()
-            + p.Optional(p.White('\t')).suppress()
-            + Profile.Syntax
-            + p.LineEnd().suppress())
-    ).setResultsName("attribute-value"))
+ProfilesAttributeValue = p.Group(
+    p.OneOrMore(
+        p.LineStart().suppress()
+        + p.Optional(p.White("\t")).suppress()
+        + Profile.Syntax
+        + p.LineEnd().suppress()
+    )
+).setResultsName("attribute-value")
 
 
-GenericListAttributeValue = p.MatchFirst([
-    PortsAttributeValue,
-    PropertyAttributeValue,
-    PortsWithProfilesAttributeValue,
-    ProfilesAttributeValue,
-    FormatsAttributeValue,
-])
+GenericListAttributeValue = p.MatchFirst(
+    [
+        PortsAttributeValue,
+        PropertyAttributeValue,
+        PortsWithProfilesAttributeValue,
+        ProfilesAttributeValue,
+        FormatsAttributeValue,
+    ]
+)
 
 
 @class_with_syntax
 class GenericListAttribute(Node):
 
     __fragments__ = {
-        'name': 'attribute-name',
-        'value': lambda t: t['attribute-value'].asList()
+        "name": "attribute-name",
+        "value": lambda t: t["attribute-value"].asList(),
     }
 
     __syntax__ = (
         p.LineStart().suppress()
-        + p.NotAny(p.White(' '))
-        + p.Optional(p.White('\t')).suppress()
+        + p.NotAny(p.White(" "))
+        + p.Optional(p.White("\t")).suppress()
         + AttributeName
-        + p.Literal(':').suppress()
+        + p.Literal(":").suppress()
         + p.LineEnd().suppress()
         + GenericListAttributeValue
     ).setResultsName("attribute")
@@ -555,38 +573,45 @@ class Record(Node):
     """
 
     __fragments__ = {
-        'name': 'record-name',
-        'attribute_list': lambda t: t['record-attributes'].asList(),
-        'attribute_map': lambda t: OrderedDict(
-            (attr.name, attr)
-            for attr in t['record-attributes'].asList()),
+        "name": "record-name",
+        "attribute_list": lambda t: t["record-attributes"].asList(),
+        "attribute_map": lambda t: OrderedDict(
+            (attr.name, attr) for attr in t["record-attributes"].asList()
+        ),
     }
 
     __syntax__ = (
         p.LineStart()
-        + p.NotAny(p.White(' \t'))
+        + p.NotAny(p.White(" \t"))
         + p.Regex(r"[A-Z][a-zA-Z ]+ #[0-9]+").setResultsName("record-name")
         + p.LineEnd().suppress()
         + p.OneOrMore(
-            p.Or([
-                GenericListAttribute.Syntax,
-                GenericSimpleAttribute.Syntax,
-            ])
+            p.Or(
+                [
+                    GenericListAttribute.Syntax,
+                    GenericSimpleAttribute.Syntax,
+                ]
+            )
         ).setResultsName("record-attributes")
     ).setResultsName("record")
 
     def as_json(self):
         return {
-            'name': self.name,
-            'attribute_list': self.attribute_list,
+            "name": self.name,
+            "attribute_list": self.attribute_list,
         }
 
     def __repr__(self):
         # Custom __repr__ that skips attribute_map
         return "{}({})".format(
-            type(self).__name__, ", ".join([
-                "{}={!r}".format(attr, getattr(self, attr))
-                for attr in ['name', 'attribute_list']]))
+            type(self).__name__,
+            ", ".join(
+                [
+                    "{}={!r}".format(attr, getattr(self, attr))
+                    for attr in ["name", "attribute_list"]
+                ]
+            ),
+        )
 
 
 @class_with_syntax
@@ -597,7 +622,7 @@ class Document(Node):
     """
 
     __fragments__ = {
-        'record_list': lambda t: t['record-list'].asList(),
+        "record_list": lambda t: t["record-list"].asList(),
     }
 
     __syntax__ = (

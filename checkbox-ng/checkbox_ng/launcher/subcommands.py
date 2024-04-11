@@ -653,11 +653,7 @@ class Launcher(MainLoopStage, ReportsStage):
                     app_blob["launcher"] = f.read()
             except FileNotFoundError:
                 pass
-        self.ctx.sa.update_app_blob(
-            json.dumps(
-                app_blob
-            ).encode("UTF-8")
-        )
+        self.ctx.sa.update_app_blob(json.dumps(app_blob).encode("UTF-8"))
         bs_jobs = self.ctx.sa.get_bootstrap_todo_list()
         self._run_bootstrap_jobs(bs_jobs)
         self.ctx.sa.finish_bootstrap()
@@ -1354,9 +1350,9 @@ class Expand:
             obj = unit._raw_data.copy()
             obj["unit"] = unit.unit
             obj["id"] = unit.id  # To get the fully qualified id
-            obj[
-                "certification-status"
-            ] = self.get_effective_certification_status(unit)
+            obj["certification-status"] = (
+                self.get_effective_certification_status(unit)
+            )
             if unit.template_id:
                 obj["template-id"] = unit.template_id
             obj_list.append(obj)

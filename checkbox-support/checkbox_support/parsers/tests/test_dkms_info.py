@@ -95,7 +95,6 @@ DKMS4 = """\
 
 
 class TestDkmsInfoParser(TestCase):
-
     """
     Tests for the DKMS information parser.
 
@@ -143,10 +142,12 @@ class TestDkmsInfoParser(TestCase):
         self.parser.run(result)
         self.assertIn("oem-audio-hda-daily-dkms", result.dkms_info)
         self.assertEqual(
-            result.dkms_info["oem-audio-hda-daily-dkms"]['dkms-status'],
-            'dkms')
+            result.dkms_info["oem-audio-hda-daily-dkms"]["dkms-status"], "dkms"
+        )
         self.assertIn("oem-guestsession-workaround-1324327", result.dkms_info)
         self.assertEqual(
-            result.dkms_info["oem-guestsession-workaround-1324327"]
-            ['dkms-status'],
-            'non-dkms')
+            result.dkms_info["oem-guestsession-workaround-1324327"][
+                "dkms-status"
+            ],
+            "non-dkms",
+        )

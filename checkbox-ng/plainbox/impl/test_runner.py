@@ -57,17 +57,18 @@ class IOLogGeneratorTests(TestCase):
         # Calling on_begin() resets internal state
         builder.on_begin(None, None)
         builder.on_new_record.connect(
-            lambda record: setattr(self, 'last_record', record))
+            lambda record: setattr(self, "last_record", record)
+        )
         # Calling on_line generates records
-        builder.on_line('stdout', b'text\n')
-        self.assertEqual(self.last_record.stream_name, 'stdout')
-        self.assertEqual(self.last_record.data, b'text\n')
-        builder.on_line('stdout', b'different text\n')
-        self.assertEqual(self.last_record.stream_name, 'stdout')
-        self.assertEqual(self.last_record.data, b'different text\n')
-        builder.on_line('stderr', b'error message\n')
-        self.assertEqual(self.last_record.stream_name, 'stderr')
-        self.assertEqual(self.last_record.data, b'error message\n')
+        builder.on_line("stdout", b"text\n")
+        self.assertEqual(self.last_record.stream_name, "stdout")
+        self.assertEqual(self.last_record.data, b"text\n")
+        builder.on_line("stdout", b"different text\n")
+        self.assertEqual(self.last_record.stream_name, "stdout")
+        self.assertEqual(self.last_record.data, b"different text\n")
+        builder.on_line("stderr", b"error message\n")
+        self.assertEqual(self.last_record.stream_name, "stderr")
+        self.assertEqual(self.last_record.data, b"error message\n")
 
 
 class FallbackCommandOutputPrinterTests(TestCase):
@@ -76,31 +77,34 @@ class FallbackCommandOutputPrinterTests(TestCase):
         with TestIO(combined=False) as io:
             obj = FallbackCommandOutputPrinter("example")
             # Whatever gets printed by the job...
-            obj.on_line('stdout', b'line 1\n')
-            obj.on_line('stderr', b'line 1\n')
-            obj.on_line('stdout', b'line 2\n')
-            obj.on_line('stdout', b'line 3\n')
-            obj.on_line('stderr', b'line 2\n')
+            obj.on_line("stdout", b"line 1\n")
+            obj.on_line("stderr", b"line 1\n")
+            obj.on_line("stdout", b"line 2\n")
+            obj.on_line("stdout", b"line 3\n")
+            obj.on_line("stderr", b"line 2\n")
         # Gets printed to stdout _only_, stderr is combined with stdout here
-        self.assertEqual(io.stdout, (
-            "(job example, <stdout:00001>) line 1\n"
-            "(job example, <stderr:00001>) line 1\n"
-            "(job example, <stdout:00002>) line 2\n"
-            "(job example, <stdout:00003>) line 3\n"
-            "(job example, <stderr:00002>) line 2\n"
-        ))
+        self.assertEqual(
+            io.stdout,
+            (
+                "(job example, <stdout:00001>) line 1\n"
+                "(job example, <stderr:00001>) line 1\n"
+                "(job example, <stdout:00002>) line 2\n"
+                "(job example, <stdout:00003>) line 3\n"
+                "(job example, <stderr:00002>) line 2\n"
+            ),
+        )
 
 
 class CommandOutputWriterTests(TestCase):
 
     def assertFileContentsEqual(self, pathname, contents):
-        with open(pathname, 'rb') as stream:
+        with open(pathname, "rb") as stream:
             self.assertEqual(stream.read(), contents)
 
     def test_smoke(self):
         with TemporaryDirectory() as scratch_dir:
-            stdout = os.path.join(scratch_dir,  "stdout")
-            stderr = os.path.join(scratch_dir,  "stderr")
+            stdout = os.path.join(scratch_dir, "stdout")
+            stderr = os.path.join(scratch_dir, "stderr")
             writer = CommandOutputWriter(stdout, stderr)
             # Initially nothing is created
             self.assertFalse(os.path.exists(stdout))
@@ -110,10 +114,10 @@ class CommandOutputWriterTests(TestCase):
             self.assertTrue(os.path.exists(stdout))
             self.assertTrue(os.path.exists(stderr))
             # Each line simply gets saved
-            writer.on_line('stdout', b'text\n')
-            writer.on_line('stderr', b'error\n')
+            writer.on_line("stdout", b"text\n")
+            writer.on_line("stderr", b"error\n")
             # (but it may not be on disk yet because of buffering)
             # After the command is done the logs are left on disk
             writer.on_end(None)
-            self.assertFileContentsEqual(stdout, b'text\n')
-            self.assertFileContentsEqual(stderr, b'error\n')
+            self.assertFileContentsEqual(stdout, b"text\n")
+            self.assertFileContentsEqual(stderr, b"error\n")

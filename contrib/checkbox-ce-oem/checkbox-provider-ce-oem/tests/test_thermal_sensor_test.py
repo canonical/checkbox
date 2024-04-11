@@ -8,6 +8,7 @@ class ThermalMonitorTest(unittest.TestCase):
     """
     Unit tests for thermal_monitor_test scripts
     """
+
     @mock.patch("pathlib.Path.read_text")
     @mock.patch("pathlib.Path.exists")
     def test_thermal_node_available(self, mock_file, mock_text):
@@ -23,10 +24,12 @@ class ThermalMonitorTest(unittest.TestCase):
         thermal_node = thermal_sensor_test.ThermalMonitor("fake-thermal")
         self.assertListEqual(
             [
-                thermal_node.name, thermal_node.type,
-                thermal_node.mode, thermal_node.temperature
+                thermal_node.name,
+                thermal_node.type,
+                thermal_node.mode,
+                thermal_node.temperature,
             ],
-            expected_result
+            expected_result,
         )
 
     @mock.patch("pathlib.Path.exists")
@@ -44,13 +47,16 @@ class ThermalMonitorTest(unittest.TestCase):
     @mock.patch("pathlib.Path.exists")
     @mock.patch("subprocess.Popen")
     def test_thermal_monitor_test_passed(
-            self, mock_popen, mock_file, mock_text, mock_check_temp):
+        self, mock_popen, mock_file, mock_text, mock_check_temp
+    ):
         """
         Checking Thermal temperature has been altered
         """
         mock_args = mock.Mock(
             return_value=argparse.Namespace(
-                name="fake-thermal", duration=30, extra_commands="stress-ng"))
+                name="fake-thermal", duration=30, extra_commands="stress-ng"
+            )
+        )
         mock_text.side_effect = ["30000", "30000", "31000"]
         mock_check_temp.return_value = True
 
@@ -58,7 +64,7 @@ class ThermalMonitorTest(unittest.TestCase):
             thermal_sensor_test.thermal_monitor_test(mock_args())
             self.assertIn(
                 "# The temperature of fake-thermal thermal has been altered",
-                lc.output[-1]
+                lc.output[-1],
             )
 
     @mock.patch("thermal_sensor_test.check_temperature")
@@ -66,10 +72,13 @@ class ThermalMonitorTest(unittest.TestCase):
     @mock.patch("pathlib.Path.exists")
     @mock.patch("subprocess.Popen")
     def test_thermal_monitor_with_fixed_temperature(
-                    self, mock_popen, mock_file, mock_text, mock_check_temp):
+        self, mock_popen, mock_file, mock_text, mock_check_temp
+    ):
         mock_args = mock.Mock(
             return_value=argparse.Namespace(
-                name="fake-thermal", duration=2, extra_commands="stress-ng"))
+                name="fake-thermal", duration=2, extra_commands="stress-ng"
+            )
+        )
         mock_text.return_value = "30000"
         mock_check_temp.return_value = False
 

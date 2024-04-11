@@ -82,7 +82,9 @@ class Runner:
                 revisions = self._get_revisions_jobs()
                 for controller_revision, agent_revision in revisions:
                     controller_config["revision"] = controller_revision
-                    self.combo.add(MachineConfig("controller", controller_config))
+                    self.combo.add(
+                        MachineConfig("controller", controller_config)
+                    )
                     agent_config["revision"] = agent_revision
                     self.combo.add(MachineConfig("agent", agent_config))
             elif v.mode == "local":
@@ -143,7 +145,7 @@ class Runner:
             mode_to_role = {
                 "remote": "controller",
                 "local": "local",
-                "agent": "agent"
+                "agent": "agent",
             }
             role = mode_to_role[mode]
             if role not in self.config:
@@ -259,7 +261,9 @@ class Runner:
         total = len(self.scn_variants)
         for idx, scn in enumerate(self.scn_variants, 1):
             if scn.mode == "remote":
-                scn.controller_machine = self._load("controller", scn.releases[0])
+                scn.controller_machine = self._load(
+                    "controller", scn.releases[0]
+                )
                 scn.agent_machine = self._load("agent", scn.releases[1])
                 scn.controller_machine.rollback_to("provisioned")
                 scn.agent_machine.rollback_to("provisioned")

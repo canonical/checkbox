@@ -15,9 +15,11 @@ from argparse import ArgumentParser
 
 try:
     import gi
-    gi.require_version('GLib', '2.0')
+
+    gi.require_version("GLib", "2.0")
     gi.require_version("Gtk", "3.0")
     from gi.repository import Gtk, GObject, GLib
+
     GLib.threads_init()
     GObject.threads_init()
     gtk_found = True
@@ -37,13 +39,14 @@ def main():
     # Verify that script is run as root
     if os.getuid():
         sys.stderr.write(
-            'This script needs superuser permissions to run correctly\n')
+            "This script needs superuser permissions to run correctly\n"
+        )
         return 1
 
     configure_logging(args.log_level, args.output)
 
     # Select interface based on graphich capabilities available
-    if 'DISPLAY' in os.environ and gtk_found:
+    if "DISPLAY" in os.environ and gtk_found:
         factory = GtkApplication
     else:
         factory = CliApplication
@@ -56,6 +59,7 @@ class Application:
     """
     Network restart application
     """
+
     def __init__(self, address, times):
         self.address = address
         self.times = times
@@ -67,10 +71,10 @@ class Application:
         and use ping to verify
         """
         networking = Networking(self.address)
-        logging.info('Initial connectivity check')
+        logging.info("Initial connectivity check")
         success = ping(self.address)
         if not success:
-            raise PingError(self.address, 'Some interface is down')
+            raise PingError(self.address, "Some interface is down")
 
         for i in range(self.times):
             if self.return_code:
@@ -78,12 +82,12 @@ class Application:
             if self.progress_cb:
                 fraction = float(i) / self.times
                 self.progress_cb(fraction)
-            logging.info('Iteration {0}/{1}...'.format(i + 1, self.times))
+            logging.info("Iteration {0}/{1}...".format(i + 1, self.times))
             networking.restart()
         else:
             if self.progress_cb:
                 self.progress_cb(1.0)
-            logging.info('Test successful')
+            logging.info("Test successful")
 
         return self.return_code
 
@@ -97,8 +101,9 @@ class GtkApplication(Application):
         Application.__init__(self, address, times)
 
         dialog = Gtk.Dialog(
-            title='Network restart',
-            buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL))
+            title="Network restart",
+            buttons=(Gtk.STOCK_CANCEL, Gtk.ResponseType.CANCEL),
+        )
         dialog.set_default_size(300, 100)
 
         alignment = Gtk.Alignment()
@@ -111,13 +116,13 @@ class GtkApplication(Application):
         content_area = dialog.get_content_area()
         content_area.pack_start(alignment, expand=True, fill=True, padding=0)
 
-        dialog.connect('response', self.response_cb)
+        dialog.connect("response", self.response_cb)
         dialog.show_all()
 
         # Add new logger handler to write info logs to progress bar
         logger = logging.getLogger()
         stream = ProgressBarWriter(progress_bar)
-        formatter = logging.Formatter('%(message)s')
+        formatter = logging.Formatter("%(message)s")
         log_handler = logging.StreamHandler(stream)
         log_handler.setLevel(logging.INFO)
         log_handler.setFormatter(formatter)
@@ -134,7 +139,7 @@ class GtkApplication(Application):
         when cancel or close button are closed
         """
         self.return_code = response_id
-        logging.info('Test cancelled')
+        logging.info("Test cancelled")
         Gtk.main_quit()
 
     def progress_cb(self, fraction):
@@ -150,8 +155,11 @@ class GtkApplication(Application):
         try:
             Application.run(self)
         except PingError as exception:
-            logging.error('Failed to ping {0!r}\n{1}'
-                          .format(exception.address, exception.reason))
+            logging.error(
+                "Failed to ping {0!r}\n{1}".format(
+                    exception.address, exception.reason
+                )
+            )
             self.return_code = -1
         except CalledProcessError:
             self.return_code = -1
@@ -173,11 +181,12 @@ class ProgressBarWriter:
     """
     Write logs to a progress bar
     """
+
     def __init__(self, progressbar):
         self.progressbar = progressbar
 
     def write(self, message):
-        if message == '\n':
+        if message == "\n":
             return
         GLib.idle_add(self.progressbar.set_text, message)
 
@@ -186,11 +195,14 @@ def ping(address):
     """
     Send ping to a given address
     """
-    logging.info('Pinging {0!r}...'.format(address))
+    logging.info("Pinging {0!r}...".format(address))
     try:
         check_call(
-            'ping -c 1 -w 5 {0}'.format(address),
-            stdout=open(os.devnull, 'w'), stderr=STDOUT, shell=True)
+            "ping -c 1 -w 5 {0}".format(address),
+            stdout=open(os.devnull, "w"),
+            stderr=STDOUT,
+            shell=True,
+        )
     except CalledProcessError:
         return False
 
@@ -201,6 +213,7 @@ class Networking:
     """
     Networking abstraction to start/stop all interfaces
     """
+
     def __init__(self, address):
         self.address = address
         self.interfaces = self._get_interfaces()
@@ -209,11 +222,13 @@ class Networking:
         """
         Get all network interfaces
         """
-        output = check_output(['/sbin/ifconfig', '-s', '-a'])
+        output = check_output(["/sbin/ifconfig", "-s", "-a"])
         lines = output.splitlines()[1:]
-        interfaces = (
-            [interface for interface in
-                [line.split()[0] for line in lines] if interface != 'lo'])
+        interfaces = [
+            interface
+            for interface in [line.split()[0] for line in lines]
+            if interface != "lo"
+        ]
         return interfaces
 
     def restart(self):
@@ -227,63 +242,63 @@ class Networking:
         """
         Start networking
         """
-        logging.info('Bringing all interfaces up...')
+        logging.info("Bringing all interfaces up...")
         for interface in self.interfaces:
             try:
-                check_output(['/sbin/ifconfig', interface, 'up'])
+                check_output(["/sbin/ifconfig", interface, "up"])
             except CalledProcessError:
-                logging.error('Unable to bring up interface {0!r}'
-                              .format(interface))
+                logging.error(
+                    "Unable to bring up interface {0!r}".format(interface)
+                )
                 raise
 
-        logging.info('Starting network manager...')
+        logging.info("Starting network manager...")
         try:
-            check_output(['/sbin/start', 'network-manager'])
+            check_output(["/sbin/start", "network-manager"])
         except CalledProcessError:
-            logging.error('Unable to start network manager')
+            logging.error("Unable to start network manager")
             raise
 
         # Verify that network interface is up
         for timeout in [2, 4, 8, 16, 32, 64]:
-            logging.debug('Waiting ({0} seconds)...'.format(timeout))
+            logging.debug("Waiting ({0} seconds)...".format(timeout))
             time.sleep(timeout)
             success = ping(self.address)
             if success:
                 break
         else:
-            raise PingError(self.address,
-                            'Some interface is still down')
+            raise PingError(self.address, "Some interface is still down")
 
     def _stop(self):
         """
         Stop network manager
         """
-        logging.info('Stopping network manager...')
+        logging.info("Stopping network manager...")
         try:
-            check_output(['/sbin/stop', 'network-manager'])
+            check_output(["/sbin/stop", "network-manager"])
         except CalledProcessError:
-            logging.error('Unable to stop network manager')
+            logging.error("Unable to stop network manager")
             raise
 
-        logging.info('Bringing all interfaces down...')
+        logging.info("Bringing all interfaces down...")
         for interface in self.interfaces:
             try:
-                check_output(['/sbin/ifconfig', interface, 'down'])
+                check_output(["/sbin/ifconfig", interface, "down"])
             except CalledProcessError:
-                logging.error('Unable to bring down interface {0!r}'
-                              .format(interface))
+                logging.error(
+                    "Unable to bring down interface {0!r}".format(interface)
+                )
                 raise
 
         # Verify that network interface is down
         for timeout in [2, 4, 8]:
-            logging.debug('Waiting ({0} seconds)...'.format(timeout))
+            logging.debug("Waiting ({0} seconds)...".format(timeout))
             time.sleep(timeout)
             success = ping(self.address)
             if not success:
                 break
         else:
-            raise PingError(self.address,
-                            'Some interface is still up')
+            raise PingError(self.address, "Some interface is still up")
 
 
 def parse_args():
@@ -291,27 +306,47 @@ def parse_args():
     Parse command line options
     """
     parser = ArgumentParser(
-        'Reboot networking interface and verify that is up again afterwards')
+        "Reboot networking interface and verify that is up again afterwards"
+    )
     parser.add_argument(
-        '-a', '--address', default='ubuntu.com',
-        help=('Address to ping to verify that network connection is up '
-              "('%(default)s' by default)"))
-    parser.add_argument('-o', '--output',
-                        default='/var/log',
-                        help='The path to the log directory. \
-                              Default is /var/log')
+        "-a",
+        "--address",
+        default="ubuntu.com",
+        help=(
+            "Address to ping to verify that network connection is up "
+            "('%(default)s' by default)"
+        ),
+    )
     parser.add_argument(
-        '-t', '--times',
-        type=int, default=1,
-        help=('Number of times that the network interface has to be restarted '
-              '(%(default)s by default)'))
-    log_levels = ['notset', 'debug', 'info', 'warning', 'error', 'critical']
+        "-o",
+        "--output",
+        default="/var/log",
+        help="The path to the log directory. \
+                              Default is /var/log",
+    )
     parser.add_argument(
-        '--log-level', dest='log_level_str', default='notset',
+        "-t",
+        "--times",
+        type=int,
+        default=1,
+        help=(
+            "Number of times that the network interface has to be restarted "
+            "(%(default)s by default)"
+        ),
+    )
+    log_levels = ["notset", "debug", "info", "warning", "error", "critical"]
+    parser.add_argument(
+        "--log-level",
+        dest="log_level_str",
+        default="notset",
         choices=log_levels,
-        help=('Log level. '
-              'One of {0} or {1} (%(default)s by default)'
-              .format(', '.join(log_levels[:-1]), log_levels[-1])))
+        help=(
+            "Log level. "
+            "One of {0} or {1} (%(default)s by default)".format(
+                ", ".join(log_levels[:-1]), log_levels[-1]
+            )
+        ),
+    )
     args = parser.parse_args()
     args.log_level = getattr(logging, args.log_level_str.upper())
     return args
@@ -327,7 +362,7 @@ def configure_logging(log_level, output):
     # Log to sys.stderr using log level passed through command line
     if log_level != logging.NOTSET:
         log_handler = logging.StreamHandler()
-        formatter = logging.Formatter('%(levelname)-8s %(message)s')
+        formatter = logging.Formatter("%(levelname)-8s %(message)s")
         log_handler.setFormatter(formatter)
         log_handler.setLevel(log_level)
         logger.addHandler(log_handler)
@@ -335,11 +370,13 @@ def configure_logging(log_level, output):
     # Log to rotating file using DEBUG log level
     log_filename = os.path.join(
         output,
-        '{0}.log'.format(os.path.splitext(os.path.basename(__file__))[0]))
+        "{0}.log".format(os.path.splitext(os.path.basename(__file__))[0]),
+    )
     rollover = os.path.exists(log_filename)
-    log_handler = logging.handlers.RotatingFileHandler(log_filename, mode='a+',
-                                                       backupCount=3)
-    formatter = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
+    log_handler = logging.handlers.RotatingFileHandler(
+        log_filename, mode="a+", backupCount=3
+    )
+    formatter = logging.Formatter("%(asctime)s %(levelname)-8s %(message)s")
     log_handler.setFormatter(formatter)
     log_handler.setLevel(logging.DEBUG)
     logger.addHandler(log_handler)
@@ -347,10 +384,13 @@ def configure_logging(log_level, output):
         log_handler.doRollover()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     try:
         sys.exit(main())
     except PingError as exception:
-        logging.error('Failed to ping {0!r}\n{1}'
-                      .format(exception.address, exception.reason))
+        logging.error(
+            "Failed to ping {0!r}\n{1}".format(
+                exception.address, exception.reason
+            )
+        )
         sys.exit(1)

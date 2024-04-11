@@ -26,7 +26,7 @@ import os
 import yaml
 
 
-class Netplan():
+class Netplan:
 
     def __init__(self, prefix="/"):
         self.prefix = prefix
@@ -34,7 +34,7 @@ class Netplan():
 
     @property
     def network(self):
-        return self.config['network']
+        return self.config["network"]
 
     @property
     def interfaces(self):
@@ -55,27 +55,27 @@ class Netplan():
 
     @property
     def ethernets(self):
-        return self.network['ethernets']
+        return self.network["ethernets"]
 
     @property
     def wifis(self):
-        return self.network['wifis']
+        return self.network["wifis"]
 
     @property
     def bridges(self):
-        return self.network['bridges']
+        return self.network["bridges"]
 
     @property
     def bonds(self):
-        return self.network['bonds']
+        return self.network["bonds"]
 
     @property
     def vlans(self):
-        return self.network['vlans']
+        return self.network["vlans"]
 
     @property
     def renderer(self):
-        return self.network['renderer']
+        return self.network["renderer"]
 
     def parse(self, data=None):
         """
@@ -83,25 +83,27 @@ class Netplan():
         system's entire configuration, so that it can later be interrogated.
         Returns a dict that contains the entire, collated and merged YAML.
         """
-        self.config['network'] = {
-            'ethernets': {},
-            'wifis': {},
-            'bridges': {},
-            'bonds': {},
-            'vlans': {},
-            'renderer': None
+        self.config["network"] = {
+            "ethernets": {},
+            "wifis": {},
+            "bridges": {},
+            "bonds": {},
+            "vlans": {},
+            "renderer": None,
         }
 
         if data is None:
             # /run/netplan shadows /etc/netplan/, which shadows /lib/netplan
             names_to_paths = {}
-            for yaml_dir in ['lib', 'etc', 'run']:
-                for yaml_file in glob.glob(os.path.join(
-                        self.prefix, yaml_dir, 'netplan', '*.yaml')):
+            for yaml_dir in ["lib", "etc", "run"]:
+                for yaml_file in glob.glob(
+                    os.path.join(self.prefix, yaml_dir, "netplan", "*.yaml")
+                ):
                     names_to_paths[os.path.basename(yaml_file)] = yaml_file
 
-            files = [names_to_paths[name]
-                     for name in sorted(names_to_paths.keys())]
+            files = [
+                names_to_paths[name] for name in sorted(names_to_paths.keys())
+            ]
 
             for yaml_file in files:
                 with open(yaml_file) as f:
@@ -133,32 +135,38 @@ class Netplan():
             yaml_data = yaml.safe_load(yaml_stream)
             network = None
             if yaml_data is not None:
-                network = yaml_data.get('network')
+                network = yaml_data.get("network")
             if network:
-                if 'ethernets' in network:
+                if "ethernets" in network:
                     new = self._merge_interface_config(
-                        self.ethernets, network.get('ethernets'))
+                        self.ethernets, network.get("ethernets")
+                    )
                     new_interfaces |= new
-                if 'wifis' in network:
+                if "wifis" in network:
                     new = self._merge_interface_config(
-                        self.wifis, network.get('wifis'))
+                        self.wifis, network.get("wifis")
+                    )
                     new_interfaces |= new
-                if 'bridges' in network:
+                if "bridges" in network:
                     new = self._merge_interface_config(
-                        self.bridges, network.get('bridges'))
+                        self.bridges, network.get("bridges")
+                    )
                     new_interfaces |= new
-                if 'bonds' in network:
+                if "bonds" in network:
                     new = self._merge_interface_config(
-                        self.bonds, network.get('bonds'))
+                        self.bonds, network.get("bonds")
+                    )
                     new_interfaces |= new
-                if 'vlans' in network:
+                if "vlans" in network:
                     new = self._merge_interface_config(
-                        self.vlans, network.get('vlans'))
+                        self.vlans, network.get("vlans")
+                    )
                     new_interfaces |= new
-                if 'renderer' in network:
-                    self.config['network']['renderer'] = network.get(
-                        'renderer')
+                if "renderer" in network:
+                    self.config["network"]["renderer"] = network.get(
+                        "renderer"
+                    )
             return new_interfaces
         except (IOError, yaml.YAMLError):
-            logging.error('Error while loading yaml')
+            logging.error("Error while loading yaml")
             self.config = {}

@@ -193,7 +193,9 @@ class SnapRefreshRevertTests(unittest.TestCase):
     def test_verify_invalid(self):
         mock_self = MagicMock()
         with self.assertRaises(SystemExit):
-            snap_update_test.SnapRefreshRevert.verify(mock_self, type="invalid")
+            snap_update_test.SnapRefreshRevert.verify(
+                mock_self, type="invalid"
+            )
 
     @patch("snap_update_test.load_change_info")
     def test_verify_refresh_wrong_revision(self, mock_load_change):
@@ -204,7 +206,9 @@ class SnapRefreshRevertTests(unittest.TestCase):
         }
         mock_self.snapd.list.return_value = {"revision": "2"}
         with self.assertRaises(SystemExit):
-            snap_update_test.SnapRefreshRevert.verify(mock_self, type="refresh")
+            snap_update_test.SnapRefreshRevert.verify(
+                mock_self, type="refresh"
+            )
 
     @patch("snap_update_test.load_change_info")
     def test_verify_refresh_expected_revision(self, mock_load_change):

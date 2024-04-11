@@ -22,7 +22,8 @@ CPUTABLE_RE = re.compile(
     r"\s+(?P<gnu_name>\S+)"
     r"\s+(?P<regex>\S+)"
     r"\s+(?P<bits>\d+)"
-    r"\s+(?P<endianness>big|little)")
+    r"\s+(?P<endianness>big|little)"
+)
 
 
 class CputableParser(object):

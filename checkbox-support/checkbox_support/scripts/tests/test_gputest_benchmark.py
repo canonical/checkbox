@@ -34,7 +34,7 @@ class LogParserTest(unittest.TestCase):
 
     def setUp(self):
         self.logfile = NamedTemporaryFile(delete=False)
-        self.devnull = open(os.devnull, 'w')
+        self.devnull = open(os.devnull, "w")
         self.addCleanup(self.devnull.close)
 
     def test_logfile_not_found(self):
@@ -44,39 +44,47 @@ class LogParserTest(unittest.TestCase):
         self.assertEqual(
             "[Errno 2] No such file or directory: "
             "'{}'".format(self.logfile.name),
-            str(cm.exception))
+            str(cm.exception),
+        )
 
     def test_logfile_with_score(self):
-        with open(self.logfile.name, 'wt') as f:
-            f.write('FurMark : init OK.\n')
-            f.write('[Benchmark_Score] - module: FurMark - Score: 8 points'
-                    '(800x600 windowed, duration:2000 ms).')
-        with patch('sys.stdout', self.devnull):
+        with open(self.logfile.name, "wt") as f:
+            f.write("FurMark : init OK.\n")
+            f.write(
+                "[Benchmark_Score] - module: FurMark - Score: 8 points"
+                "(800x600 windowed, duration:2000 ms)."
+            )
+        with patch("sys.stdout", self.devnull):
             self.assertFalse(check_log(self.logfile.name))
         os.unlink(self.logfile.name)
 
     def test_logfile_without_score(self):
-        with open(self.logfile.name, 'wt') as f:
-            f.write('FurMark : init OK.\n')
-            f.write('[No_Score] - module: FurMark - Score: _ points'
-                    '(800x600 windowed, duration:2000 ms).')
-        with patch('sys.stdout', self.devnull):
+        with open(self.logfile.name, "wt") as f:
+            f.write("FurMark : init OK.\n")
+            f.write(
+                "[No_Score] - module: FurMark - Score: _ points"
+                "(800x600 windowed, duration:2000 ms)."
+            )
+        with patch("sys.stdout", self.devnull):
             with self.assertRaises(SystemExit) as cm:
                 check_log(self.logfile.name)
             self.assertEqual(
                 "Benchmark score not found. This means the benchmark could "
                 "not be run. Check the above output for error messages, "
                 "these will show the reason for the failure.",
-                str(cm.exception))
+                str(cm.exception),
+            )
         os.unlink(self.logfile.name)
 
     def test_logfile_with_encoding_error(self):
-        with open(self.logfile.name, 'wb') as f:
-            f.write(b'\x80abc\n')
-            f.write(b'FurMark : init OK.\n')
-            f.write(b'[Benchmark_Score] - module: FurMark - Score: 116 points'
-                    b'(800x600 windowed, duration:2000 ms).')
-        with patch('sys.stdout', self.devnull):
+        with open(self.logfile.name, "wb") as f:
+            f.write(b"\x80abc\n")
+            f.write(b"FurMark : init OK.\n")
+            f.write(
+                b"[Benchmark_Score] - module: FurMark - Score: 116 points"
+                b"(800x600 windowed, duration:2000 ms)."
+            )
+        with patch("sys.stdout", self.devnull):
             self.assertFalse(check_log(self.logfile.name))
         os.unlink(self.logfile.name)
 

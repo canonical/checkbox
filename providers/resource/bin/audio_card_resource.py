@@ -21,37 +21,40 @@
 def get_audio_cards():
     """Retrieve audio card information."""
     audio_cards = []
-    PCM_FILE = '/proc/asound/pcm'
+    PCM_FILE = "/proc/asound/pcm"
     try:
-        with open(PCM_FILE, 'r') as f:
+        with open(PCM_FILE, "r") as f:
             data = f.readlines()
     except OSError:
-        print('Failed to access {}'.format(PCM_FILE))
+        print("Failed to access {}".format(PCM_FILE))
         return []
 
     for line in data:
-        info = [device_line.strip() for device_line in line.split(':')]
-        ids = info[0].split('-')
+        info = [device_line.strip() for device_line in line.split(":")]
+        ids = info[0].split("-")
         card_id = ids[0]
         device_id = ids[1]
         device_name = info[1]
         capabilities = info[3:]
-        playback = has_capability('playback', capabilities)
-        capture = has_capability('capture', capabilities)
-        audio_cards.append({
-                            'card': card_id,
-                            'device': device_id,
-                            'name': device_name,
-                            'playback': playback,
-                            'capture': capture
-                        })
+        playback = has_capability("playback", capabilities)
+        capture = has_capability("capture", capabilities)
+        audio_cards.append(
+            {
+                "card": card_id,
+                "device": device_id,
+                "name": device_name,
+                "playback": playback,
+                "capture": capture,
+            }
+        )
 
     return audio_cards
 
 
 def has_capability(capability_prefix: str, capabilities: list) -> bool:
-    return any(capability.startswith(capability_prefix)
-               for capability in capabilities)
+    return any(
+        capability.startswith(capability_prefix) for capability in capabilities
+    )
 
 
 def print_audio_cards(cards):

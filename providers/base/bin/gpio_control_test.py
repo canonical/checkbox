@@ -14,8 +14,9 @@ class GPIOController:
     GPIO_EXPORT_PATH = "{}/export".format(GPIO_ROOT_PATH)
     GPIO_UNEXPORT_PATH = "{}/unexport".format(GPIO_ROOT_PATH)
 
-    def __init__(self, gpiochip: str, gpiopin: str,
-                 direction: int, need_export: bool):
+    def __init__(
+        self, gpiochip: str, gpiopin: str, direction: int, need_export: bool
+    ):
         if gpiochip.isnumeric() is False or gpiopin.isnumeric() is False:
             raise ValueError("Invalid GPIO chip or GPIO pin")
 
@@ -26,15 +27,13 @@ class GPIOController:
             raise KeyError("GPIO chip number {} is incorrect".format(gpiochip))
 
         self.gpio_chip_node = self._gpio_root_node.joinpath(
-                                    "gpiochip{}".format(
-                                        self._gpiochip_mapping.get(gpiochip)))
+            "gpiochip{}".format(self._gpiochip_mapping.get(gpiochip))
+        )
         self.gpio_node = self.value_node = None
         self.gpiochip_info = {"base": None, "ngpio": None, "offset": gpiopin}
         self._direction = direction
         self._need_export = need_export
-        self.initial_state = {
-            "value": None, "direction": None, "number": None
-        }
+        self.initial_state = {"value": None, "direction": None, "number": None}
 
     def __enter__(self):
         self.setup()
@@ -50,16 +49,18 @@ class GPIOController:
         if int(pin) > int(ngpio):
             raise IndexError(
                 "GPIO pin '{}' greater than ngpio value '{}'".format(
-                    pin, ngpio))
+                    pin, ngpio
+                )
+            )
 
     def get_gpiochip_mapping(self):
         mapping = {}
-        nodes = sorted(
-                    self._gpio_root_node.glob("gpiochip*/device/gpiochip*"))
+        nodes = sorted(self._gpio_root_node.glob("gpiochip*/device/gpiochip*"))
         for node in nodes:
             match = re.search(
                 r"/sys/class/gpio/gpiochip([0-9]+)/device/gpiochip([0-9]+)",
-                str(node))
+                str(node),
+            )
             if match:
                 mapping.update({match.groups()[1]: match.groups()[0]})
         return mapping
@@ -70,19 +71,24 @@ class GPIOController:
             with self.gpio_chip_node.joinpath(key) as gpio_node:
                 if self._node_exists(gpio_node) is False:
                     raise FileNotFoundError(
-                        "{} file not exists".format(str(gpio_node)))
+                        "{} file not exists".format(str(gpio_node))
+                    )
                 self.gpiochip_info[key] = self._read_node(gpio_node)
 
         self.check_gpio_offset(
             self.gpiochip_info["offset"], self.gpiochip_info["ngpio"]
         )
 
-        self.initial_state["number"] = str((
-            int(self.gpiochip_info["base"]) +
-            int(self.gpiochip_info["offset"]) - 1
-        ))
+        self.initial_state["number"] = str(
+            (
+                int(self.gpiochip_info["base"])
+                + int(self.gpiochip_info["offset"])
+                - 1
+            )
+        )
         self.gpio_node = self._gpio_root_node.joinpath(
-                "gpio{}".format(self.initial_state["number"]))
+            "gpio{}".format(self.initial_state["number"])
+        )
 
         # Export GPIO node if needed
         if self._need_export:
@@ -91,7 +97,8 @@ class GPIOController:
 
         if self._node_exists(self.gpio_node) is False:
             raise FileNotFoundError(
-                        "{} file not exists".format(str(self.gpio_node)))
+                "{} file not exists".format(str(self.gpio_node))
+            )
 
         # Store the initial state for GPIO
         self.initial_state["value"] = self.value
@@ -121,7 +128,8 @@ class GPIOController:
         node.write_text(value)
         if check and self._read_node(node) != value:
             raise ValueError(
-                "Unable to change the value of {} file".format(str(node)))
+                "Unable to change the value of {} file".format(str(node))
+            )
 
     def _export(self, gpio_number: str):
         logging.debug("export GPIO node %s", gpio_number)
@@ -142,12 +150,13 @@ class GPIOController:
     def direction(self, value: str):
         if value not in ["in", "out"]:
             raise ValueError(
-                "The {} is not allowed for direction".format(value))
+                "The {} is not allowed for direction".format(value)
+            )
 
         with self.gpio_node.joinpath("direction") as gpio_node:
-            logging.debug("set direction to {} for {}".format(
-                value, gpio_node.name
-            ))
+            logging.debug(
+                "set direction to {} for {}".format(value, gpio_node.name)
+            )
             self._write_node(gpio_node, value)
 
     @property
@@ -158,13 +167,12 @@ class GPIOController:
     @value.setter
     def value(self, value: str):
         if value not in ["1", "0"]:
-            raise ValueError(
-                "The {} is not allowed for value".format(value))
+            raise ValueError("The {} is not allowed for value".format(value))
 
         with self.gpio_node.joinpath("value") as gpio_node:
-            logging.debug("set value to {} for {}".format(
-                value, gpio_node.name
-            ))
+            logging.debug(
+                "set value to {} for {}".format(value, gpio_node.name)
+            )
             self._write_node(gpio_node, value)
 
     def on(self):
@@ -177,7 +185,8 @@ class GPIOController:
 
     def blinking(self, duration=10, interval=1):
         logging.debug(
-            "set GPIO{} LED blinking".format(self.initial_state["number"]))
+            "set GPIO{} LED blinking".format(self.initial_state["number"])
+        )
         start_time = datetime.now()
         while (datetime.now() - start_time).total_seconds() <= duration:
             self.on()
@@ -188,11 +197,15 @@ class GPIOController:
 
 def blinking_test(args):
 
-    with GPIOController(args.gpio_chip, args.gpio_pin,
-                        "out", args.need_export) as led_controller:
-        logging.info(("# Set the {} LED blinking around {} seconds "
-                     "with {} seconds blink interval").format(
-                        args.name, args.duration, args.interval))
+    with GPIOController(
+        args.gpio_chip, args.gpio_pin, "out", args.need_export
+    ) as led_controller:
+        logging.info(
+            (
+                "# Set the {} LED blinking around {} seconds "
+                "with {} seconds blink interval"
+            ).format(args.name, args.duration, args.interval)
+        )
         led_controller.blinking(args.duration, args.interval)
 
 
@@ -218,47 +231,27 @@ def leds_resource(args):
 def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='GPIO Control Tests')
+        description="GPIO Control Tests",
+    )
     parser.add_argument(
         "--debug",
         action="store_true",
         help="Turn on debug level output for extra info during test run.",
     )
 
-    sub_parsers = parser.add_subparsers(help="GPIO test type",
-                                        dest="test_func")
+    sub_parsers = parser.add_subparsers(
+        help="GPIO test type", dest="test_func"
+    )
     sub_parsers.required = True
 
     gpio_led_parser = sub_parsers.add_parser("led")
+    gpio_led_parser.add_argument("-n", "--name", required=True, type=str)
+    gpio_led_parser.add_argument("-d", "--duration", type=int, default=5)
+    gpio_led_parser.add_argument("-i", "--interval", type=int, default=0.5)
+    gpio_led_parser.add_argument("--gpio-chip", type=str, required=True)
+    gpio_led_parser.add_argument("--gpio-pin", type=str, required=True)
     gpio_led_parser.add_argument(
-        "-n", "--name",
-        required=True,
-        type=str
-    )
-    gpio_led_parser.add_argument(
-        "-d", "--duration",
-        type=int,
-        default=5
-    )
-    gpio_led_parser.add_argument(
-        "-i", "--interval",
-        type=int,
-        default=0.5
-    )
-    gpio_led_parser.add_argument(
-        "--gpio-chip",
-        type=str,
-        required=True
-    )
-    gpio_led_parser.add_argument(
-        "--gpio-pin",
-        type=str,
-        required=True
-    )
-    gpio_led_parser.add_argument(
-        "--need-export",
-        action="store_true",
-        default=False
+        "--need-export", action="store_true", default=False
     )
     gpio_led_parser.set_defaults(test_func=blinking_test)
 
@@ -269,9 +262,11 @@ def register_arguments():
     gpio_args_parser.set_defaults(test_func=leds_resource)
     gpio_args_parser.add_argument(
         "mapping",
-        help=("Usage of parameter: GPIO_CONTROLLER_LEDS="
-              "{name1}:{controller1}:{port1} "
-              "{name2}:{controller1}:{port2} ..."),
+        help=(
+            "Usage of parameter: GPIO_CONTROLLER_LEDS="
+            "{name1}:{controller1}:{port1} "
+            "{name2}:{controller1}:{port2} ..."
+        ),
     )
 
     args = parser.parse_args()

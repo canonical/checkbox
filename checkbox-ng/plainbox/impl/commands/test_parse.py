@@ -57,13 +57,15 @@ positional arguments:
   -h, --help   show this help message and exit
 
 Example: LANG=C pactl list | plainbox dev parse pactl-list
-""".format(optionals_section)
+""".format(
+        optionals_section
+    )
 
     maxDiff = None
 
     def test_register_parser(self):
         # Create an argument parser
-        parser = argparse.ArgumentParser(prog='test')
+        parser = argparse.ArgumentParser(prog="test")
         # Add subparsers to it
         subparsers = parser.add_subparsers()
         # Register the ParseCommand into subparsers
@@ -79,9 +81,9 @@ Example: LANG=C pactl list | plainbox dev parse pactl-list
             # With a trap for SystemExit exception
             with self.assertRaises(SystemExit):
                 # Run the 'parse --help' command
-                parser.parse_args(['parse', '--help'])
+                parser.parse_args(["parse", "--help"])
         # Ensure that a detailed help message was printed
-        self.assertEqual(io.stdout, cleandoc(self._help) + '\n')
+        self.assertEqual(io.stdout, cleandoc(self._help) + "\n")
 
     @mock.patch("plainbox.impl.commands.inv_parse.ParseInvocation")
     def test_invoked(self, patched_ParseInvocation):
@@ -93,7 +95,7 @@ Example: LANG=C pactl list | plainbox dev parse pactl-list
         # With temporary override to use the fake parser
         with all_parsers.fake_plugins([mock_parser]):
             # Set the name of the expected parser to 'foo'
-            self.ns.parser_name = 'foo'
+            self.ns.parser_name = "foo"
             # And invoke the ParseCommand
             retval = ParseCommand().invoked(self.ns)
         # Ensure that ParseInvocation was called with the fake parser
@@ -102,7 +104,8 @@ Example: LANG=C pactl list | plainbox dev parse pactl-list
         # was returned by ParseInvocation.run()
         self.assertEqual(
             retval,
-            patched_ParseInvocation(self.ns.parser_name).run.return_value)
+            patched_ParseInvocation(self.ns.parser_name).run.return_value,
+        )
 
     def test_invoked_question_mark(self):
         # Make a fake ParserPlugIn
@@ -114,17 +117,21 @@ Example: LANG=C pactl list | plainbox dev parse pactl-list
         # With temporary override to use the fake parser
         with all_parsers.fake_plugins([mock_parser]):
             # Set the name of the expected parser to '?'
-            self.ns.parser_name = '?'
+            self.ns.parser_name = "?"
             # With IO capture helper
             with TestIO() as io:
                 # And invoke the ParseCommand
                 retval = ParseCommand().invoked(self.ns)
         # Ensure that a list of parsers was printed
         self.assertEqual(
-            io.stdout, cleandoc(
+            io.stdout,
+            cleandoc(
                 """
                 The following parsers are available:
                   foo: summary of foo
-                """) + '\n')
+                """
+            )
+            + "\n",
+        )
         # Ensure that the return code was 0
         self.assertEqual(retval, 0)

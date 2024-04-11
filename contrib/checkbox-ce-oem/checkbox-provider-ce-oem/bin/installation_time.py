@@ -45,9 +45,7 @@ def find_finished_time(log, action):
                 pattern_2 = r"(\d+)min (\d+)\.\d+s\."
                 pattern_3 = r"(\d+)min \d+ms\."
                 if re.search(pattern_1, line):
-                    time_sec = int(
-                        re.search(pattern_1, line).groups()[0]
-                    )
+                    time_sec = int(re.search(pattern_1, line).groups()[0])
                 elif re.search(pattern_2, line):
                     min, sec = re.search(pattern_2, line).groups()
                     time_sec = int(min[0]) * 60 + int(sec[0])

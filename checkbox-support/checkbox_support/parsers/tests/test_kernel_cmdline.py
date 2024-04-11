@@ -29,18 +29,18 @@ class TestKernelCmdlineParser(TestCase):
 
     def test_parser_CL1(self):
         result = parse_kernel_cmdline(CL1)
-        expected_flags = ['ro']
+        expected_flags = ["ro"]
         self.assertListEqual(result.flags, expected_flags)
         expected_params = {
-            'BOOT_IMAGE': '(hd1,gpt1)/EFI/ubuntu/pc-kernel_x1/kernel.img',
-            'root': "writable",
-            'LABEL': "writable",
-            'snap_core': "core_1.snap",
-            'snap_kernel': "pc-kernel_1.snap",
-            'net.ifnames': "0",
-            'init': "/lib/systemd/systemd",
-            'console': "tty1",
-            'panic': "-1",
-            'pci': "nomsi"
+            "BOOT_IMAGE": "(hd1,gpt1)/EFI/ubuntu/pc-kernel_x1/kernel.img",
+            "root": "writable",
+            "LABEL": "writable",
+            "snap_core": "core_1.snap",
+            "snap_kernel": "pc-kernel_1.snap",
+            "net.ifnames": "0",
+            "init": "/lib/systemd/systemd",
+            "console": "tty1",
+            "panic": "-1",
+            "pci": "nomsi",
         }
         self.assertDictEqual(result.params, expected_params)

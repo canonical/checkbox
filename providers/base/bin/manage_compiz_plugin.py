@@ -35,21 +35,28 @@ import time
 KEY = "/org/compiz/profiles/unity/plugins/core/active-plugins"
 
 gettext.textdomain("com.canonical.certification.checkbox")
-gettext.bindtextdomain("com.canonical.certification.checkbox",
-                       os.getenv("CHECKBOX_PROVIDER_LOCALE_DIR", None))
+gettext.bindtextdomain(
+    "com.canonical.certification.checkbox",
+    os.getenv("CHECKBOX_PROVIDER_LOCALE_DIR", None),
+)
 
 plugins = eval(subprocess.check_output(["dconf", "read", KEY]))
 
 parser = argparse.ArgumentParser(
     description=_("enable/disable compiz plugins"),
-    epilog=_("Available plugins: {}").format(plugins))
-parser.add_argument("plugin", type=str, help=_('Name of plugin to control'))
-parser.add_argument("action", type=str, choices=['enable', 'disable'],
-                    help=_("What to do with the plugin"))
+    epilog=_("Available plugins: {}").format(plugins),
+)
+parser.add_argument("plugin", type=str, help=_("Name of plugin to control"))
+parser.add_argument(
+    "action",
+    type=str,
+    choices=["enable", "disable"],
+    help=_("What to do with the plugin"),
+)
 
 args = parser.parse_args()
 
-if args.action == 'enable':
+if args.action == "enable":
     if args.plugin in plugins:
         raise SystemExit(_("Plugin {} already enabled").format(args.plugin))
     plugins.append(args.plugin)

@@ -56,10 +56,12 @@ class DependencyCycleErrorTests(TestCase):
         self.assertEqual(expected, observed)
 
     def test_repr(self):
-        expected = ("<DependencyCycleError job_list:["
-                    "<JobDefinition id:'A' plugin:'dummy'>, "
-                    "<JobDefinition id:'B' plugin:'dummy'>, "
-                    "<JobDefinition id:'A' plugin:'dummy'>]>")
+        expected = (
+            "<DependencyCycleError job_list:["
+            "<JobDefinition id:'A' plugin:'dummy'>, "
+            "<JobDefinition id:'B' plugin:'dummy'>, "
+            "<JobDefinition id:'A' plugin:'dummy'>]>"
+        )
         observed = repr(self.exc)
         self.assertEqual(expected, observed)
 
@@ -69,9 +71,11 @@ class DependencyMissingErrorTests(TestCase):
     def setUp(self):
         self.A = make_job("A")
         self.exc_direct = DependencyMissingError(
-            self.A, 'B', DependencyMissingError.DEP_TYPE_DIRECT)
+            self.A, "B", DependencyMissingError.DEP_TYPE_DIRECT
+        )
         self.exc_resource = DependencyMissingError(
-            self.A, 'B', DependencyMissingError.DEP_TYPE_RESOURCE)
+            self.A, "B", DependencyMissingError.DEP_TYPE_RESOURCE
+        )
 
     def test_job(self):
         self.assertIs(self.exc_direct.job, self.A)
@@ -86,8 +90,8 @@ class DependencyMissingErrorTests(TestCase):
         self.assertIs(self.exc_resource.affecting_job, None)
 
     def test_missing_job_id(self):
-        self.assertEqual(self.exc_direct.missing_job_id, 'B')
-        self.assertEqual(self.exc_resource.missing_job_id, 'B')
+        self.assertEqual(self.exc_direct.missing_job_id, "B")
+        self.assertEqual(self.exc_resource.missing_job_id, "B")
 
     def test_str_direct(self):
         expected = "missing dependency: 'B' (direct)"
@@ -100,18 +104,22 @@ class DependencyMissingErrorTests(TestCase):
         self.assertEqual(expected, observed)
 
     def test_repr_direct(self):
-        expected = ("<DependencyMissingError "
-                    "job:<JobDefinition id:'A' plugin:'dummy'> "
-                    "missing_job_id:'B' "
-                    "dep_type:'direct'>")
+        expected = (
+            "<DependencyMissingError "
+            "job:<JobDefinition id:'A' plugin:'dummy'> "
+            "missing_job_id:'B' "
+            "dep_type:'direct'>"
+        )
         observed = repr(self.exc_direct)
         self.assertEqual(expected, observed)
 
     def test_repr_resource(self):
-        expected = ("<DependencyMissingError "
-                    "job:<JobDefinition id:'A' plugin:'dummy'> "
-                    "missing_job_id:'B' "
-                    "dep_type:'resource'>")
+        expected = (
+            "<DependencyMissingError "
+            "job:<JobDefinition id:'A' plugin:'dummy'> "
+            "missing_job_id:'B' "
+            "dep_type:'resource'>"
+        )
         observed = repr(self.exc_resource)
         self.assertEqual(expected, observed)
 
@@ -141,9 +149,11 @@ class DependencyDuplicateErrorTests(TestCase):
         self.assertEqual(expected, observed)
 
     def test_repr(self):
-        expected = ("<DependencyDuplicateError "
-                    "job:<JobDefinition id:'A' plugin:'dummy'> "
-                    "duplicate_job:<JobDefinition id:'A' plugin:'dummy'>>")
+        expected = (
+            "<DependencyDuplicateError "
+            "job:<JobDefinition id:'A' plugin:'dummy'> "
+            "duplicate_job:<JobDefinition id:'A' plugin:'dummy'>>"
+        )
         observed = repr(self.exc)
         self.assertEqual(expected, observed)
 
@@ -151,15 +161,15 @@ class DependencyDuplicateErrorTests(TestCase):
 class DependencySolverInternalsTests(TestCase):
 
     def test_get_job_map_produces_map(self):
-        A = make_job('A')
-        B = make_job('B')
-        expected = {'A': A, 'B': B}
+        A = make_job("A")
+        B = make_job("B")
+        expected = {"A": A, "B": B}
         observed = DependencySolver._get_job_map([A, B])
         self.assertEqual(expected, observed)
 
     def test_get_job_map_find_duplicates(self):
-        A = make_job('A')
-        another_A = make_job('A')
+        A = make_job("A")
+        another_A = make_job("A")
         with self.assertRaises(DependencyDuplicateError) as call:
             DependencySolver._get_job_map([A, another_A])
         self.assertIs(call.exception.job, A)
@@ -176,9 +186,9 @@ class TestDependencySolver(TestCase):
     def test_direct_deps(self):
         # This tests the following simple job chain
         # A -> B -> C
-        A = make_job(id='A', depends='B')
-        B = make_job(id='B', depends='C')
-        C = make_job(id='C')
+        A = make_job(id="A", depends="B")
+        B = make_job(id="B", depends="C")
+        C = make_job(id="C")
         job_list = [A, B, C]
         expected = [C, B, A]
         observed = DependencySolver.resolve_dependencies(job_list)
@@ -188,10 +198,12 @@ class TestDependencySolver(TestCase):
         # This tests two independent job chains
         # A1 -> B1
         # A2 -> B2
-        A1 = make_job(id='A1', depends='B1')
-        B1 = make_job(id='B1',)
-        A2 = make_job(id='A2', depends='B2')
-        B2 = make_job(id='B2')
+        A1 = make_job(id="A1", depends="B1")
+        B1 = make_job(
+            id="B1",
+        )
+        A2 = make_job(id="A2", depends="B2")
+        B2 = make_job(id="B2")
         job_list = [A1, B1, A2, B2]
         expected = [B1, A1, B2, A2]
         observed = DependencySolver.resolve_dependencies(job_list)
@@ -202,8 +214,8 @@ class TestDependencySolver(TestCase):
         # A
         # B -> A
         # A will be visited twice
-        A = make_job(id='A')
-        B = make_job(id='B', depends='A')
+        A = make_job(id="A")
+        B = make_job(id="B", depends="A")
         job_list = [A, B]
         expected = [A, B]
         observed = DependencySolver.resolve_dependencies(job_list)
@@ -212,16 +224,16 @@ class TestDependencySolver(TestCase):
     def test_resource_deps(self):
         # This tests resource deps
         # A ~> R
-        A = make_job(id='A', requires='R.foo == "bar"')
-        R = make_job(id='R', plugin='resource')
+        A = make_job(id="A", requires='R.foo == "bar"')
+        R = make_job(id="R", plugin="resource")
         job_list = [A, R]
         expected = [R, A]
         observed = DependencySolver.resolve_dependencies(job_list)
         self.assertEqual(expected, observed)
 
     def test_duplicate_error(self):
-        A = make_job('A')
-        another_A = make_job('A')
+        A = make_job("A")
+        another_A = make_job("A")
         job_list = [A, another_A]
         with self.assertRaises(DependencyDuplicateError) as call:
             DependencySolver.resolve_dependencies(job_list)
@@ -231,31 +243,33 @@ class TestDependencySolver(TestCase):
     def test_missing_direct_dependency(self):
         # This tests missing dependencies
         # A -> (inexisting B)
-        A = make_job(id='A', depends='B')
+        A = make_job(id="A", depends="B")
         job_list = [A]
         with self.assertRaises(DependencyMissingError) as call:
             DependencySolver.resolve_dependencies(job_list)
         self.assertIs(call.exception.job, A)
-        self.assertEqual(call.exception.missing_job_id, 'B')
-        self.assertEqual(call.exception.dep_type,
-                         call.exception.DEP_TYPE_DIRECT)
+        self.assertEqual(call.exception.missing_job_id, "B")
+        self.assertEqual(
+            call.exception.dep_type, call.exception.DEP_TYPE_DIRECT
+        )
 
     def test_missing_resource_dependency(self):
         # This tests missing resource dependencies
         # A ~> (inexisting R)
-        A = make_job(id='A', requires='R.attr == "value"')
+        A = make_job(id="A", requires='R.attr == "value"')
         job_list = [A]
         with self.assertRaises(DependencyMissingError) as call:
             DependencySolver.resolve_dependencies(job_list)
         self.assertIs(call.exception.job, A)
-        self.assertEqual(call.exception.missing_job_id, 'R')
-        self.assertEqual(call.exception.dep_type,
-                         call.exception.DEP_TYPE_RESOURCE)
+        self.assertEqual(call.exception.missing_job_id, "R")
+        self.assertEqual(
+            call.exception.dep_type, call.exception.DEP_TYPE_RESOURCE
+        )
 
     def test_dependency_cycle_self(self):
         # This tests dependency loops
         # A -> A
-        A = make_job(id='A', depends='A')
+        A = make_job(id="A", depends="A")
         job_list = [A]
         with self.assertRaises(DependencyCycleError) as call:
             DependencySolver.resolve_dependencies(job_list)
@@ -264,8 +278,8 @@ class TestDependencySolver(TestCase):
     def test_dependency_cycle_simple(self):
         # This tests dependency loops
         # A -> B -> A
-        A = make_job(id='A', depends='B')
-        B = make_job(id='B', depends='A')
+        A = make_job(id="A", depends="B")
+        B = make_job(id="B", depends="A")
         job_list = [A, B]
         with self.assertRaises(DependencyCycleError) as call:
             DependencySolver.resolve_dependencies(job_list)
@@ -274,10 +288,10 @@ class TestDependencySolver(TestCase):
     def test_dependency_cycle_longer(self):
         # This tests dependency loops
         # A -> B -> C -> D -> B
-        A = make_job(id='A', depends='B')
-        B = make_job(id='B', depends='C')
-        C = make_job(id='C', depends='D')
-        D = make_job(id='D', depends='B')
+        A = make_job(id="A", depends="B")
+        B = make_job(id="B", depends="C")
+        C = make_job(id="C", depends="D")
+        D = make_job(id="D", depends="B")
         job_list = [A, B, C, D]
         with self.assertRaises(DependencyCycleError) as call:
             DependencySolver.resolve_dependencies(job_list)
@@ -286,8 +300,8 @@ class TestDependencySolver(TestCase):
     def test_dependency_cycle_via_resource(self):
         # This tests dependency loops
         # A -> R -> A
-        A = make_job(id='A', requires='R.key == "value"')
-        R = make_job(id='R', depends='A', plugin="resource")
+        A = make_job(id="A", requires='R.key == "value"')
+        R = make_job(id="R", depends="A", plugin="resource")
         job_list = [A, R]
         with self.assertRaises(DependencyCycleError) as call:
             DependencySolver.resolve_dependencies(job_list)

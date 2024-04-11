@@ -39,10 +39,15 @@ def get_disk_from_string(string):
     type_regex = r"(?P<type>Binary-\d+)"
     date_regex = r"(?P<date>[^\)]+)"
 
-    string_regex = (r"%s %s [_\"]%s[_\"] - %s %s (%s )?\(%s\)"
-                    % (distributor_regex, release_regex, codename_regex,
-                       official_regex, architecture_regex, type_regex,
-                       date_regex))
+    string_regex = r"%s %s [_\"]%s[_\"] - %s %s (%s )?\(%s\)" % (
+        distributor_regex,
+        release_regex,
+        codename_regex,
+        official_regex,
+        architecture_regex,
+        type_regex,
+        date_regex,
+    )
 
     disk = {}
     match = re.match(string_regex, string)

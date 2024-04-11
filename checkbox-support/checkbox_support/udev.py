@@ -47,7 +47,7 @@ def get_interconnect_speed(device):
         #
         # Here we use get_sysfs_attr_as_int that does it all for us, returning
         # 0 if anything is wrong.
-        device_speed = device.get_sysfs_attr_as_int('speed')
+        device_speed = device.get_sysfs_attr_as_int("speed")
         if device_speed != 0:  # Empty values get truncated to 0
             # As USB devices can be connected via any number of hubs we
             # carefully use the smallest number that is encountered but it
@@ -80,13 +80,15 @@ def get_udev_block_devices(udev_client):
     # setup an enumerator so that we can list devices
     enumerator = GUdev.Enumerator(client=udev_client)
     # Iterate over block devices only
-    enumerator.add_match_subsystem('block')
+    enumerator.add_match_subsystem("block")
     # Convert the enumerator into a plain list and filter-away all
     # devices deemed virtual by the heuristic.
     devices = [
-        device for device in enumerator.execute()
-        if device.get_device_file() is not None and
-        not is_virtual_device(device.get_device_file())]
+        device
+        for device in enumerator.execute()
+        if device.get_device_file() is not None
+        and not is_virtual_device(device.get_device_file())
+    ]
     # Sort the list, this is not needed but makes various debugging dumps
     # look better.
     devices.sort(key=lambda device: device.get_device_file())
@@ -100,11 +102,13 @@ def get_udev_xhci_devices(udev_client):
     # setup an enumerator so that we can list devices
     enumerator = GUdev.Enumerator(client=udev_client)
     # Iterate over pci devices only
-    enumerator.add_match_subsystem('pci')
+    enumerator.add_match_subsystem("pci")
     devices = [
-        device for device in enumerator.execute()
-        if (device.get_driver() == 'xhci_hcd')]
+        device
+        for device in enumerator.execute()
+        if (device.get_driver() == "xhci_hcd")
+    ]
     # Sort the list, this is not needed but makes various debugging dumps
     # look better.
-    devices.sort(key=lambda device: device.get_property('PCI_SLOT_NAME'))
+    devices.sort(key=lambda device: device.get_property("PCI_SLOT_NAME"))
     return devices

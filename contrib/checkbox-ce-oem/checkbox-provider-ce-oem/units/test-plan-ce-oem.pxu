@@ -78,6 +78,7 @@ nested_part:
     com.canonical.certification::eeprom-automated
     before-suspend-ce-oem-iio-sensors-automated
     ce-oem-digital-io-automated
+    ce-oem-gpio-automated
     com.canonical.certification::rtc-automated
 
 id: after-suspend-ce-oem-manual

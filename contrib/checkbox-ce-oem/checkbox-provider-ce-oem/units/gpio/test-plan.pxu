@@ -1,0 +1,25 @@
+id: ce-oem-gpio-full
+unit: test plan
+_name: GPIO tests
+_description: Full GPIO tests for devices
+include:
+nested_part:
+    ce-oem-gpio-manual
+    ce-oem-gpio-automated
+
+id: ce-oem-gpio-manual
+unit: test plan
+_name: GPIO manual tests
+_description: Manual GPIO tests for devices
+include:
+
+id: ce-oem-gpio-automated
+unit: test plan
+_name: GPIO auto tests
+_description: Automated GPIO tests for devices
+bootstrap_include:
+    ce-oem-gpio-gadget-slots
+include:
+    ce-oem-gpio/check-slots
+    ce-oem-gpio/connect-slots
+    ce-oem-gpio/node-export-test

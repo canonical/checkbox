@@ -8,6 +8,8 @@ its providers and its documentation.
 ## General recommendations
 
 - The codebase uses [black] for formatting, with `line-length` set to `79`.
+- Install [black] inside your virtual environment using pip instead of using
+Debian packages from apt, as the versions in pip are more up-to-date.
 - Use `git config blame.ignoreRevsFile .git-blame-ignore-revs` if you want to
 [ignore commits related to black formatting].
 - Setup your editor of choice to run [autopep8] on save. This helps keep

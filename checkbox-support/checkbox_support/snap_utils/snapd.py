@@ -89,8 +89,27 @@ class Snapd():
                 abort_result = self._abort_change(change_id)
                 raise AsyncException(status, abort_result)
             for task in self.tasks(change_id):
-                if task['status'] == 'Doing':
-                    self._info(task['summary'])
+                if task["status"] == "Doing":
+                    if task["progress"]["label"]:
+                        done = task["progress"]["done"]
+                        total = task["progress"]["total"]
+                        total_progress = done / total * 100
+                        message = "({}) {} ({:.1f}%)".format(
+                            task["status"], task["summary"], total_progress
+                        )
+                    else:
+                        message = "({}) {}".format(
+                            task["status"], task["summary"]
+                        )
+                    self._info(message)
+                elif task["status"] == "Wait":
+                    message = "({}) {}".format(task["status"], task["summary"])
+                    self._info(message)
+                    return
+                elif task["status"] == "Error":
+                    message = "({}) {}".format(task["status"], task["summary"])
+                    self._info(message)
+                    raise AsyncException(task.get("log"))
             time.sleep(self._poll_interval)
 
     def _abort_change(self, change_id):
@@ -110,23 +129,25 @@ class Snapd():
                 return None
             raise
 
-    def install(self, snap, channel='stable', revision=None):
-        path = self._snaps + '/' + snap
-        data = {'action': 'install', 'channel': channel}
+    def install(self, snap, channel="stable", revision=None):
+        path = self._snaps + "/" + snap
+        data = {"action": "install", "channel": channel}
         if revision is not None:
-            data['revision'] = revision
+            data["revision"] = revision
         r = self._post(path, json.dumps(data))
-        if r['type'] == 'async' and r['status'] == 'Accepted':
-            self._poll_change(r['change'])
+        if r["type"] == "async" and r["status"] == "Accepted":
+            self._poll_change(r["change"])
+        return r
 
     def remove(self, snap, revision=None):
-        path = self._snaps + '/' + snap
-        data = {'action': 'remove'}
+        path = self._snaps + "/" + snap
+        data = {"action": "remove"}
         if revision is not None:
-            data['revision'] = revision
+            data["revision"] = revision
         r = self._post(path, json.dumps(data))
-        if r['type'] == 'async' and r['status'] == 'Accepted':
-            self._poll_change(r['change'])
+        if r["type"] == "async" and r["status"] == "Accepted":
+            self._poll_change(r["change"])
+        return r
 
     def find(self, search, exact=False):
         if exact:

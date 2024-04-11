@@ -146,6 +146,20 @@ class SnapRefreshRevertTests(unittest.TestCase):
     def tearDownClass(cls):
         logging.disable(logging.NOTSET)
 
+    @patch("snap_update_test.SnapInfo")
+    @patch("snap_update_test.Snapd")
+    def test_init(self, mock_snapd, mock_snapinfo):
+        srr = snap_update_test.SnapRefreshRevert(
+            name="test",
+            revision="1",
+            info_path="/test",
+            timeout="10",
+        )
+        self.assertEqual(srr.name, "test")
+        self.assertEqual(srr.path, "/test")
+        self.assertEqual(srr.revision, "1")
+        self.assertEqual(srr.timeout, "10")
+
     def test_snap_refresh_same_revision(self):
         mock_self = MagicMock()
         mock_self.revision = "1"
@@ -242,15 +256,17 @@ class SnapRefreshRevertTests(unittest.TestCase):
 
     def test_wait_for_snap_change_timeout(self):
         mock_self = MagicMock()
+        mock_self.timeout = -1
         with self.assertRaises(SystemExit):
             snap_update_test.SnapRefreshRevert.wait_for_snap_change(
-                mock_self, change_id=1, type="refresh", timeout=-1
+                mock_self, change_id=1, type="refresh"
             )
 
     @patch("snap_update_test.time.time")
     @patch("snap_update_test.time.sleep")
     def test_wait_for_snap_change_ongoing(self, mock_sleep, mock_time):
         mock_self = MagicMock()
+        mock_self.timeout = 300
         mock_self.snapd.change.side_effect = ["Doing", "Done"]
         mock_time.return_value = 1
         snap_update_test.SnapRefreshRevert.wait_for_snap_change(

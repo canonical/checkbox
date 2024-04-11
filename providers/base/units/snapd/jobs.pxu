@@ -22,6 +22,7 @@ plugin: shell
 estimated_duration: 1m
 category_id: snapd
 user: root
+flags: noreturn
 imports:
  from com.canonical.certification import snap_revision_info
  from com.canonical.plainbox import manifest
@@ -30,24 +31,25 @@ requires:
  manifest.need_{type}_snap_update_test == "True"
 command:
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
- snap_update_test.py --refresh --revision {stable_rev} --info-path "$path" {name}
+ logpath="$PLAINBOX_SESSION_SHARE/snap-refresh-{type}-{name}-to-stable-rev.log"
+ snap_update_test.py --refresh --revision {stable_rev} --info-path "$path" {name} | tee "$logpath"
+ reboot
 
 unit: template
 template-resource: snap_revision_info
 template-unit: job
-id: snapd/reboot-after-snap-refresh-{type}-{name}-to-stable-rev
-template-id: snapd/reboot-after-snap-refresh-type-name-to-stable-rev
-_summary: Reboot after {name} snap refresh to latest revision in stable channel
-plugin: shell
-flags: noreturn autorestart
-estimated_duration: 3m
+id: snapd/log-attach-after-snap-refresh-{type}-{name}-to-stable-rev
+template-id: snapd/log-attach-after-snap-refresh-type-name-to-stable-rev
+_summary: Attach logs after refreshing {name} snap to latest revision in stable channel
+plugin: attachment
+estimated_duration: 1s
 category_id: snapd
-user: root
-depends: snapd/snap-refresh-{type}-{name}-to-stable-rev
+after: snapd/snap-refresh-{type}-{name}-to-stable-rev
 command:
- echo "Waiting 90s for any snap operation to finish before rebooting..."
- sleep 90
- reboot
+ logpath="$PLAINBOX_SESSION_SHARE/snap-refresh-{type}-{name}-to-stable-rev.log"
+ if [ -f "$logpath" ]; then
+   cat "$logpath"
+ fi
 
 unit: template
 template-resource: snap_revision_info
@@ -71,30 +73,32 @@ id: snapd/snap-revert-{type}-{name}-from-stable-rev
 template-id: snapd/snap-revert-type-name-from-stable-rev
 _summary: Revert {name} snap to original revision from stable channel
 plugin: shell
+flags: noreturn
 estimated_duration: 3m
 category_id: snapd
 user: root
 depends: snapd/snap-verify-after-refresh-{type}-{name}-to-stable-rev
 command:
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
- snap_update_test.py --revert --info-path "$path" {name}
+ logpath="$PLAINBOX_SESSION_SHARE/snap-revert-{type}-{name}-from-stable-rev.log"
+ snap_update_test.py --revert --info-path "$path" {name} | tee "$logpath"
+ reboot
 
 unit: template
 template-resource: snap_revision_info
 template-unit: job
-id: snapd/reboot-after-snap-revert-{type}-{name}-from-stable-rev
-template-id: snapd/reboot-after-snap-revert-type-name-from-stable-rev
-_summary: Reboot after {name} snap reverting to latest revision in stable channel
-plugin: shell
-flags: noreturn autorestart
-estimated_duration: 3m
+id: snapd/log-attach-after-snap-revert-{type}-{name}-from-stable-rev
+template-id: snapd/log-attach-after-snap-revert-type-name-from-stable-rev
+_summary: Attach logs after reverting {name} snap to latest revision in stable channel
+plugin: attachment
+estimated_duration: 1s
 category_id: snapd
-user: root
-depends: snapd/snap-revert-{type}-{name}-from-stable-rev
+after: snapd/snap-revert-{type}-{name}-from-stable-rev
 command:
- echo "Waiting 90s for any snap operation to finish before rebooting..."
- sleep 90
- reboot
+ logpath="$PLAINBOX_SESSION_SHARE/snap-revert-{type}-{name}-from-stable-rev.log"
+ if [ -f "$logpath" ]; then
+   cat "$logpath"
+ fi
 
 unit: template
 template-resource: snap_revision_info
@@ -106,7 +110,7 @@ plugin: shell
 estimated_duration: 3s
 category_id: snapd
 user: root
-depends: snapd/reboot-after-snap-revert-{type}-{name}-from-stable-rev
+depends: snapd/snap-revert-{type}-{name}-from-stable-rev
 command:
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
  snap_update_test.py --verify-revert --info-path "$path" {name}
@@ -129,6 +133,7 @@ plugin: shell
 estimated_duration: 3m
 category_id: snapd
 user: root
+flags: noreturn
 imports:
  from com.canonical.certification import snap_revision_info
  from com.canonical.plainbox import manifest
@@ -137,24 +142,25 @@ requires:
  manifest.need_{type}_snap_update_test == "True"
 command:
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
- snap_update_test.py --refresh --revision {base_rev} --info-path "$path" {name}
+ logpath="$PLAINBOX_SESSION_SHARE/snap-refresh-{type}-{name}-to-base-rev.log"
+ snap_update_test.py --refresh --revision {base_rev} --info-path "$path" {name} | tee "$logpath"
+ reboot
 
 unit: template
 template-resource: snap_revision_info
 template-unit: job
-id: snapd/reboot-after-snap-refresh-{type}-{name}-to-base-rev
-template-id: snapd/reboot-after-snap-refresh-type-name-to-base-rev
-_summary: Reboot after {name} snap refresh to base revision
-plugin: shell
-flags: noreturn autorestart
-estimated_duration: 3m
+id: snapd/log-attach-after-snap-refresh-{type}-{name}-to-base-rev
+template-id: snapd/log-attach-after-snap-refresh-type-name-to-base-rev
+_summary: Attach logs after refreshing {name} snap to base revision
+plugin: attachment
+estimated_duration: 1s
 category_id: snapd
-user: root
-depends: snapd/snap-refresh-{type}-{name}-to-base-rev
+after: snapd/snap-refresh-{type}-{name}-to-base-rev
 command:
- echo "Waiting 90s for any snap operation to finish before rebooting..."
- sleep 90
- reboot
+ logpath="$PLAINBOX_SESSION_SHARE/snap-refresh-{type}-{name}-to-base-rev.log"
+ if [ -f "$logpath" ]; then
+   cat "$logpath"
+ fi
 
 unit: template
 template-resource: snap_revision_info
@@ -166,7 +172,7 @@ plugin: shell
 estimated_duration: 30s
 category_id: snapd
 user: root
-depends: snapd/reboot-after-snap-refresh-{type}-{name}-to-base-rev
+depends: snapd/snap-refresh-{type}-{name}-to-base-rev
 command:
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
  snap_update_test.py --verify-refresh --info-path "$path" {name}
@@ -178,30 +184,33 @@ id: snapd/snap-revert-{type}-{name}-from-base-rev
 template-id: snapd/snap-revert-type-name-from-base-rev
 _summary: Revert {name} snap from base revision to original revision
 plugin: shell
+flags: noreturn
 estimated_duration: 3m
 category_id: snapd
 user: root
 depends: snapd/snap-verify-after-refresh-{type}-{name}-to-base-rev
 command:
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
- snap_update_test.py --revert --info-path "$path" {name}
+ logpath="$PLAINBOX_SESSION_SHARE/snap-revert-{type}-{name}-from-base-rev.log"
+ snap_update_test.py --revert --info-path "$path" {name} | tee "$logpath"
+ reboot
 
 unit: template
 template-resource: snap_revision_info
 template-unit: job
-id: snapd/reboot-after-snap-revert-{type}-{name}-from-base-rev
-template-id: snapd/reboot-after-snap-revert-type-name-from-base-rev
-_summary: Reboot after {name} snap revert to base revision
-plugin: shell
-flags: noreturn autorestart
-estimated_duration: 3m
+id: snapd/log-attach-after-snap-revert-{type}-{name}-from-base-rev
+template-id: snapd/log-attach-after-snap-revert-type-name-from-base-rev
+_summary: Attach logs after reverting {name} snap to base revision
+plugin: attachment
+estimated_duration: 1s
 category_id: snapd
 user: root
-depends: snapd/snap-revert-{type}-{name}-from-base-rev
+after: snapd/snap-revert-{type}-{name}-from-base-rev
 command:
- echo "Waiting 90s for any snap operation to finish before rebooting..."
- sleep 90
- reboot
+ logpath="$PLAINBOX_SESSION_SHARE/snap-revert-{type}-{name}-from-base-rev.log"
+ if [ -f "$logpath" ]; then
+   cat "$logpath"
+ fi
 
 unit: template
 template-resource: snap_revision_info
@@ -213,7 +222,7 @@ plugin: shell
 estimated_duration: 3s
 category_id: snapd
 user: root
-depends: snapd/reboot-after-snap-revert-{type}-{name}-from-base-rev
+depends: snapd/snap-revert-{type}-{name}-from-base-rev
 command:
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
  snap_update_test.py --verify-revert --info-path "$path" {name}

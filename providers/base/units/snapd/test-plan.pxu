@@ -110,44 +110,44 @@ include:
     # Gadget-related tests
     ######################
     snapd/snap-refresh-gadget-.*-base-rev
-    snapd/reboot-after-snap-refresh-gadget-.*-base-rev
+    snapd/log-attach-after-snap-refresh-gadget-.*-base-rev
     snapd/snap-verify-after-refresh-gadget-.*-base-rev
     snapd/snap-revert-gadget-.*-base-rev
-    snapd/reboot-after-snap-revert-gadget-.*-base-rev
+    snapd/log-attach-after-snap-revert-gadget-.*-base-rev
     snapd/snap-verify-after-revert-gadget-.*-base-rev
     snapd/snap-refresh-gadget-.*-stable-rev
-    snapd/reboot-after-snap-refresh-gadget-.*-stable-rev
+    snapd/log-attach-after-snap-refresh-gadget-.*-stable-rev
     snapd/snap-verify-after-refresh-gadget-.*-stable-rev
     snapd/snap-revert-gadget-.*-stable-rev
-    snapd/reboot-after-snap-revert-gadget-.*-stable-rev
+    snapd/log-attach-after-snap-revert-gadget-.*-stable-rev
     snapd/snap-verify-after-revert-gadget-.*-stable-rev
     #####################
     # Snapd-related tests
     #####################
     snapd/snap-refresh-snapd-.*-base-rev
-    snapd/reboot-after-snap-refresh-snapd-.*-base-rev
+    snapd/log-attach-after-snap-refresh-snapd-.*-base-rev
     snapd/snap-verify-after-refresh-snapd-.*-base-rev
     snapd/snap-revert-snapd-.*-base-rev
-    snapd/reboot-after-snap-revert-snapd-.*-base-rev
+    snapd/log-attach-after-snap-revert-snapd-.*-base-rev
     snapd/snap-verify-after-revert-snapd-.*-base-rev
     snapd/snap-refresh-snapd-.*-stable-rev
-    snapd/reboot-after-snap-refresh-snapd-.*-stable-rev
+    snapd/log-attach-after-snap-refresh-snapd-.*-stable-rev
     snapd/snap-verify-after-refresh-snapd-.*-stable-rev
     snapd/snap-revert-snapd-.*-stable-rev
-    snapd/reboot-after-snap-revert-snapd-.*-stable-rev
+    snapd/log-attach-after-snap-revert-snapd-.*-stable-rev
     snapd/snap-verify-after-revert-snapd-.*-stable-rev
     ######################
     # Kernel-related tests
     ######################
     snapd/snap-refresh-kernel-.*-base-rev
-    snapd/reboot-after-snap-refresh-kernel-.*-base-rev
+    snapd/log-attach-after-snap-refresh-kernel-.*-base-rev
     snapd/snap-verify-after-refresh-kernel-.*-base-rev
     snapd/snap-revert-kernel-.*-base-rev
-    snapd/reboot-after-snap-revert-kernel-.*-base-rev
+    snapd/log-attach-after-snap-revert-kernel-.*-base-rev
     snapd/snap-verify-after-revert-kernel-.*-base-rev
     snapd/snap-refresh-kernel-.*-stable-rev
-    snapd/reboot-after-snap-refresh-kernel-.*-stable-rev
+    snapd/log-attach-after-snap-refresh-kernel-.*-stable-rev
     snapd/snap-verify-after-refresh-kernel-.*-stable-rev
     snapd/snap-revert-kernel-.*-stable-rev
-    snapd/reboot-after-snap-revert-kernel-.*-stable-rev
+    snapd/log-attach-after-snap-revert-kernel-.*-stable-rev
     snapd/snap-verify-after-revert-kernel-.*-stable-rev

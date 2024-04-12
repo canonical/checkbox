@@ -213,6 +213,16 @@ class Snapd:
         if r["type"] == "async" and r["status"] == "Accepted":
             self._poll_change(r["change"])
 
+    def disconnect(self, slot_snap, slot_slot, plug_snap, plug_plug):
+        data = {
+            "action": "disconnect",
+            "slots": [{"snap": slot_snap, "slot": slot_slot}],
+            "plugs": [{"snap": plug_snap, "plug": plug_plug}],
+        }
+        r = self._post(self._interfaces, json.dumps(data))
+        if r["type"] == "async" and r["status"] == "Accepted":
+            self._poll_change(r["change"])
+
     def get_assertions(self, assertion_type):
         path = self._assertions + "/" + assertion_type
         return self._get(path, decode=False)

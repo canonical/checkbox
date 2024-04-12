@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import argparse
 import os
+from contextlib import contextmanager
+# from checkbox_support.snap_utils.snapd import Snapd
 from checkbox_support.snap_utils.snapd import Snapd
 from checkbox_support.snap_utils.system import get_gadget_snap
 import requests
@@ -25,10 +27,7 @@ def list_gpio_slots(snapd, gadget_name):
     for slots in snapd.interfaces()["slots"]:
         if slots["interface"] == "gpio" and slots["snap"] == gadget_name:
             gpio_slot[slots["slot"]] = {"number": slots["attrs"]["number"]}
-    if gpio_slot:
-        return gpio_slot
-    else:
-        raise SystemExit("Error: Can not find any GPIO slot")
+    return gpio_slot
 
 
 def parse_config(config):
@@ -88,51 +87,99 @@ def check_gpio_list(gpio_list, config):
         SystemExit: If any expected GPIO slot is not defined in the gadget
         snap.
     """
-    expect_port = parse_config(config)
-    for gpio in gpio_list.values():
-        if gpio["number"] in expect_port:
-            expect_port.remove(gpio["number"])
-    if expect_port:
-        for gpio_slot in expect_port:
-            print(
-                "Error: Slot of GPIO {} is not defined in gadget snap".format(
-                    gpio_slot)
-            )
-        raise SystemExit(1)
+    if gpio_list:
+        expect_port = parse_config(config)
+        for gpio in gpio_list.values():
+            if gpio["number"] in expect_port:
+                expect_port.remove(gpio["number"])
+        if expect_port:
+            for gpio_slot in expect_port:
+                print(
+                    "Error: Slot of GPIO {} is not defined in gadget snap".
+                    format(gpio_slot)
+                )
+            raise SystemExit(1)
+        else:
+            print("All expected GPIO slots have been defined in gadget snap.")
     else:
-        print("All expected GPIO slots have been defined in gadget snap.")
+        raise SystemExit("Error: No any GPIO slots existed!")
 
 
-def connect_gpio(gpio_slots, gadget_name):
+@contextmanager
+def interface_test(gpio_slot, gadget_name, timeout=60):
+    snap = os.environ['SNAP_NAME']
+    timeout = int(os.environ.get('SNAPD_TASK_TIMEOUT', timeout))
+    try:
+        connect_interface(gadget_name,
+                          gpio_slot,
+                          snap,
+                          timeout)
+        yield
+    finally:
+        disconnect_interface(gadget_name,
+                             gpio_slot,
+                             snap,
+                             timeout)
+
+
+def connect_interface(gadget_name,
+                      gpio_slot,
+                      snap,
+                      timeout):
     """
     Connect GPIO plugs of checkbox to GPIO slots of gadget snap.
 
     Args:
-        gpio_slots: A dictionary containing GPIO slot information.
+        gpio_slot: A GPIO slot information.
         gadget_name: The name of the gadget snap.
 
     Raises:
         SystemExit: If failed to connect any GPIO.
     """
 
-    exit_code = 0
     # Get the snap name of checkbox
-    snap = os.environ['SNAP_NAME']
-    timeout = int(os.environ.get('SNAPD_TASK_TIMEOUT', 60))
-    for gpio_num in gpio_slots.keys():
-        print("Attempting connect gpio to {}:{}".format(gadget_name, gpio_num))
-        try:
-            Snapd(task_timeout=timeout).connect(
-                gadget_name,
-                gpio_num,
-                snap,
-                "gpio"
-                )
-            print("Success")
-        except requests.HTTPError:
-            print("Failed to connect {}".format(gpio_num))
-            exit_code = 1
-    if exit_code == 1:
+    print("Attempting connect GPIO to {}:{}".format(gadget_name, gpio_slot))
+    try:
+        Snapd(task_timeout=timeout).connect(
+            gadget_name,
+            gpio_slot,
+            snap,
+            "gpio"
+            )
+        print("Success")
+    except requests.HTTPError:
+        print("Failed to connect {}".format(gpio_slot))
+        raise SystemExit(1)
+
+
+def disconnect_interface(gadget_name,
+                         gpio_slot,
+                         snap,
+                         timeout):
+    """
+    Connect GPIO plugs of checkbox to GPIO slots of gadget snap.
+
+    Args:
+        gpio_slot: A GPIO slot information.
+        gadget_name: The name of the gadget snap.
+
+    Raises:
+        SystemExit: If failed to connect any GPIO.
+    """
+
+    # Get the snap name of checkbox
+    print("Attempting disconnect GPIO slot {}:{}".
+          format(gadget_name, gpio_slot))
+    try:
+        Snapd(task_timeout=timeout).disconnect(
+            gadget_name,
+            gpio_slot,
+            snap,
+            "gpio"
+            )
+        print("Success")
+    except requests.HTTPError:
+        print("Failed to disconnect {}".format(gpio_slot))
         raise SystemExit(1)
 
 
@@ -158,7 +205,7 @@ def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(
         dest='action',
-        help="Action in check-gpio, check-node, connect and dump",
+        help="Action in check-gpio, check-node and dump",
         )
     check_gpio_subparser = subparsers.add_parser("check-gpio")
     check_gpio_subparser.add_argument(
@@ -176,9 +223,12 @@ def main():
         required=True,
         help="GPIO number to check if node exported",
         )
-    subparsers.add_parser(
-        "connect",
-        help="Connect checkbox GPIO plug and gadget GPIO slots "
+    check_node_subparser.add_argument(
+        "-s",
+        "--slot",
+        type=str,
+        required=True,
+        help="GPIO slot to connect.",
         )
     subparsers.add_parser(
         "dump",
@@ -190,8 +240,6 @@ def main():
     gpio_slots = list_gpio_slots(snapd, gadget_name)
     if args.action == "check-gpio":
         check_gpio_list(gpio_slots, args.config)
-    if args.action == "connect":
-        connect_gpio(gpio_slots, gadget_name)
     if args.action == "dump":
         for x in gpio_slots:
             print(
@@ -200,7 +248,8 @@ def main():
                 )
             )
     if args.action == "check-node":
-        check_node(args.num)
+        with interface_test(args.slot, gadget_name):
+            check_node(args.num)
 
 
 if __name__ == "__main__":

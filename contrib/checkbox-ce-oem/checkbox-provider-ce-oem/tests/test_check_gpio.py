@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch, MagicMock, call
 import requests
 import check_gpio
+import os
 
 
 class TestCheckGpio(unittest.TestCase):
@@ -65,12 +66,11 @@ class TestCheckGpio(unittest.TestCase):
                  "attrs": {}},
             ]
         }
-        expected_result = "Error: Can not find any GPIO slot"
-        with self.assertRaises(SystemExit) as err:
-            check_gpio.list_gpio_slots(snapd_mock, gadget_name)
-        self.assertEqual(err.exception.args[0], expected_result)
+        expected_result = {}
+        self.assertEqual(check_gpio.list_gpio_slots(snapd_mock, gadget_name),
+                         expected_result)
 
-    @patch('builtins.print')  # Mock print function to prevent actual printing
+    @patch('builtins.print')
     def test_check_gpio_list_all_defined(self, mock_print):
         gpio_list = {
             1: {"number": 499},
@@ -85,7 +85,7 @@ class TestCheckGpio(unittest.TestCase):
         mock_print.assert_called_with(
             "All expected GPIO slots have been defined in gadget snap.")
 
-    @patch('builtins.print')  # Mock print function to prevent actual printing
+    @patch('builtins.print')
     def test_check_gpio_list_missing(self, mock_print):
         gpio_list = {
             1: {"number": 499},
@@ -105,65 +105,91 @@ class TestCheckGpio(unittest.TestCase):
         # Assert that SystemExit is raised with exit code 1
         self.assertEqual(context.exception.code, 1)
 
-    @patch('check_gpio.os.environ')
+    @patch('builtins.print')
     @patch('check_gpio.Snapd')
-    def test_connect_gpio_success(self, mock_snapd, mock_environ):
-        mock_environ.__getitem__.side_effect = lambda x: {
-            'SNAP_NAME': 'checkbox_snap',
-            'SNAPD_TASK_TIMEOUT': '30'
-        }[x]
+    def test_connect_interface_success(self, mock_snapd, mock_print):
         mock_snapd.return_value.connect.side_effect = None
-
-        gpio_slots = {
-            "gpio-499": {"number": 499},
-            "gpio-500": {"number": 500}
-        }
+        gpio_slot = "gpio-499"
         gadget_name = "gadget_snap"
+        snap = "checkbox_snap"
+        timeout = 30
+        check_gpio.connect_interface(gadget_name,
+                                     gpio_slot,
+                                     snap,
+                                     timeout)
 
-        check_gpio.connect_gpio(gpio_slots, gadget_name)
-
-        # Assert that connect is called for each GPIO slot
         expected_calls = [call(gadget_name,
-                               'gpio-499',
-                               'checkbox_snap',
-                               'gpio'),
-                          call(gadget_name,
-                               'gpio-500',
-                               'checkbox_snap',
-                               'gpio')
-                          ]
-        mock_snapd.return_value.connect.assert_has_calls(expected_calls)
-
-    @patch('check_gpio.os.environ')
-    @patch('check_gpio.Snapd')
-    def test_connect_gpio_fail(self, mock_snapd, mock_environ):
-        mock_environ.__getitem__.side_effect = lambda x: {
-            'SNAP_NAME': 'checkbox_snap',
-            'SNAPD_TASK_TIMEOUT': '30'
-        }[x]
-        mock_snapd.return_value.connect.side_effect = requests.HTTPError
-
-        gpio_slots = {
-            "gpio-499": {"number": 499},
-            "gpio-500": {"number": 500}
-        }
-        gadget_name = "gadget_snap"
-        with self.assertRaises(SystemExit) as err:
-            check_gpio.connect_gpio(gpio_slots, gadget_name)
-
-        # Assert that connect is called for each GPIO slot
-        expected_calls = [call(gadget_name,
-                               'gpio-499',
-                               'checkbox_snap',
-                               'gpio'),
-                          call(gadget_name,
-                               'gpio-500',
-                               'checkbox_snap',
+                               gpio_slot,
+                               snap,
                                'gpio')]
         mock_snapd.return_value.connect.assert_has_calls(expected_calls)
+        mock_print.assert_called_with("Success")
+
+    @patch('builtins.print')
+    @patch('check_gpio.Snapd')
+    def test_connect_interface_fail(self, mock_snapd, mock_print):
+        mock_snapd.return_value.connect.side_effect = requests.HTTPError
+        gpio_slot = "gpio-499"
+        gadget_name = "gadget_snap"
+        snap = "checkbox_snap"
+        timeout = 30
+        with self.assertRaises(SystemExit) as err:
+            check_gpio.connect_interface(gadget_name,
+                                         gpio_slot,
+                                         snap,
+                                         timeout)
+
+        expected_calls = [call(gadget_name,
+                               gpio_slot,
+                               snap,
+                               'gpio')]
+        mock_snapd.return_value.connect.assert_has_calls(expected_calls)
+        mock_print.assert_called_with("Failed to connect gpio-499")
         self.assertEqual(err.exception.code, 1)
 
-    @patch('builtins.print')  # Mock print function to prevent actual printing
+    @patch('builtins.print')
+    @patch('check_gpio.Snapd')
+    def test_disconnect_interface_success(self, mock_snapd, mock_print):
+        mock_snapd.return_value.disconnect.side_effect = None
+        gpio_slot = "gpio-499"
+        gadget_name = "gadget_snap"
+        snap = "checkbox_snap"
+        timeout = 30
+        check_gpio.disconnect_interface(gadget_name,
+                                        gpio_slot,
+                                        snap,
+                                        timeout)
+
+        expected_calls = [call(gadget_name,
+                               gpio_slot,
+                               snap,
+                               'gpio')]
+        mock_snapd.return_value.disconnect.assert_has_calls(expected_calls)
+        mock_print.assert_called_with("Success")
+
+    @patch('builtins.print')
+    @patch('check_gpio.Snapd')
+    def test_disconnect_interface_fail(self, mock_snapd, mock_print):
+        mock_snapd.return_value.disconnect.side_effect = requests.HTTPError
+        gpio_slot = "gpio-499"
+        gadget_name = "gadget_snap"
+        snap = "checkbox_snap"
+        timeout = 30
+        with self.assertRaises(SystemExit) as err:
+            check_gpio.disconnect_interface(gadget_name,
+                                            gpio_slot,
+                                            snap,
+                                            timeout)
+
+        expected_calls = [call(gadget_name,
+                               gpio_slot,
+                               snap,
+                               'gpio')]
+        mock_snapd.return_value.disconnect.assert_has_calls(expected_calls)
+        mock_print.assert_called_with("Failed to disconnect gpio-499")
+        self.assertEqual(err.exception.code, 1)
+
+    @patch('builtins.print')
     def test_check_node_exists(self, mock_print):
         # Mocking os.path.exists to return True
         with patch('os.path.exists', return_value=True):
@@ -179,6 +205,27 @@ class TestCheckGpio(unittest.TestCase):
         # Assert that SystemExit is raised with the correct message
         self.assertEqual(context.exception.args[0],
                          "GPIO node of 499 not exist!")
+
+    @patch.dict(os.environ, {'SNAP_NAME': 'checkbox_snap'})
+    @patch.dict(os.environ, {'SNAPD_TASK_TIMEOUT': '30'})
+    @patch('check_gpio.connect_interface')
+    @patch('check_gpio.disconnect_interface')
+    def test_interface_test(self,
+                            mock_disconnect,
+                            mock_connect):
+        gadget_name = "gadget"
+        gpio_slot = "gpio-499"
+        mock_connect.side_effect = None
+        mock_disconnect.side_effect = None
+        with check_gpio.interface_test(gpio_slot, gadget_name):
+            mock_connect.assert_called_once_with(gadget_name,
+                                                 gpio_slot,
+                                                 'checkbox_snap',
+                                                 30)
+        mock_disconnect.assert_called_once_with(gadget_name,
+                                                gpio_slot,
+                                                'checkbox_snap',
+                                                30)
 
 
 if __name__ == '__main__':

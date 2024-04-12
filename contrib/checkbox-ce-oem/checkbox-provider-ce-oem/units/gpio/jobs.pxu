@@ -12,15 +12,6 @@ _description:
     Sprate by comma, and also colon to define a range of ports
 command: check_gpio.py check-gpio -c $EXPECTED_GADGET_GPIO
 
-id: ce-oem-gpio/connect-slots
-category_id: com.canonical.certification::gpio
-plugin: shell
-user: root
-estimated_duration: 5
-_summary: Connect all GPIO slots with checkbox.
-_purpose: Check if GPIO slots can connect with checkbox plug.
-command: check_gpio.py connect
-
 id: ce-oem-gpio-gadget-slots
 _summary: Generates a GPIO list that defined in the gadget snap
 _description:
@@ -43,4 +34,4 @@ user: root
 category_id: com.canonical.certification::gpio
 estimated_duration: 5s
 flags: also-after-suspend
-command: check_gpio.py check-node -n {gpio_number}
+command: check_gpio.py check-node -n {gpio_number} -s {slot}

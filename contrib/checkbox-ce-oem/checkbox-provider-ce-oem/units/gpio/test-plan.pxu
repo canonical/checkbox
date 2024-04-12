@@ -21,5 +21,4 @@ bootstrap_include:
     ce-oem-gpio-gadget-slots
 include:
     ce-oem-gpio/check-slots
-    ce-oem-gpio/connect-slots
     ce-oem-gpio/node-export-test

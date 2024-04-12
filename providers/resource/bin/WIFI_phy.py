@@ -73,7 +73,7 @@ def create_phy_interface_mapping(phy_interface):
     """
     phy_interface_mapping = {}
     for phy, interface in phy_interface:
-        cmd = f"iw {phy} info"
+        cmd = "iw {} info".format(phy)
         phy_info_output = check_output(cmd, shell=True,
                                        universal_newlines=True)
         bands = parse_phy_info_output(phy_info_output)
@@ -98,9 +98,9 @@ def main():
     # Print interface summary with detailed information on separate lines
     for interface, content in phy_interface_mapping.items():
         for freq, ret in content["FREQ_Supported"].items():
-            print(f"{interface}_{freq}: {ret}")
+            print("{}_{}: {}".format(interface, freq, ret))
         for sta, ret in content["STA_Supported"].items():
-            print(f"{interface}_{sta.lower()}: {ret}")
+            print("{}_{}: {}".format(interface, sta.lower(), ret))
 
 
 if __name__ == "__main__":

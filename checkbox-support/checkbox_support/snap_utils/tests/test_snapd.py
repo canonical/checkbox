@@ -149,7 +149,7 @@ class TestSnapd(TestCase):
         test_data = {"action": "remove", "revision": "1"}
         mock_self._post.assert_called_with(ANY, json.dumps(test_data))
 
-    def test_disconnect(self):
+    def test_disconnect_success(self):
         mock_self = MagicMock()
         mock_self._poll_change = MagicMock()
         mock_self._post.return_value = {
@@ -157,19 +157,46 @@ class TestSnapd(TestCase):
             "status": "Accepted",
             "change": "1",
         }
-        slot_snap = 'test_slot_snap'
-        slot_slot = 'test_slot'
-        plug_snap = 'test_plug_snap'
-        plug_plug = 'test_plug'
+        slot_snap = "test_slot_snap"
+        slot_slot = "test_slot"
+        plug_snap = "test_plug_snap"
+        plug_plug = "test_plug"
 
         Snapd.disconnect(mock_self, slot_snap, slot_slot, plug_snap, plug_plug)
         mock_self._post.assert_called_once_with(
             mock_self._interfaces,
-            json.dumps({
-                "action": "disconnect",
-                "slots": [{"snap": slot_snap, "slot": slot_slot}],
-                "plugs": [{"snap": plug_snap, "plug": plug_plug}],
-            })
+            json.dumps(
+                {
+                    "action": "disconnect",
+                    "slots": [{"snap": slot_snap, "slot": slot_slot}],
+                    "plugs": [{"snap": plug_snap, "plug": plug_plug}],
+                }
+            ),
         )
-
         mock_self._poll_change.assert_called_with("1")
+
+    def test_disconnect_fail(self):
+        mock_self = MagicMock()
+        mock_self._poll_change = MagicMock()
+        mock_self._post.return_value = {
+            "type": "async",
+            "status": "Not_Accepted",
+            "change": "1",
+        }
+        slot_snap = "test_slot_snap"
+        slot_slot = "test_slot"
+        plug_snap = "test_plug_snap"
+        plug_plug = "test_plug"
+
+        Snapd.disconnect(mock_self, slot_snap, slot_slot, plug_snap, plug_plug)
+        mock_self._post.assert_called_once_with(
+            mock_self._interfaces,
+            json.dumps(
+                {
+                    "action": "disconnect",
+                    "slots": [{"snap": slot_snap, "slot": slot_slot}],
+                    "plugs": [{"snap": plug_snap, "plug": plug_plug}],
+                }
+            ),
+        )
+        mock_self._poll_change.assert_not_called()

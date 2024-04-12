@@ -6,7 +6,7 @@ from subprocess import check_output
 
 def parse_iw_dev_output():
     """
-    Parses the output of 'iw dev' to extract PHY and interface mappings.
+    Parses the output of "iw dev" to extract PHY and interface mappings.
     """
     cmd = "iw dev"
     output = check_output(cmd, shell=True, universal_newlines=True)
@@ -17,7 +17,7 @@ def parse_iw_dev_output():
 
 def parse_phy_info_output(output):
     """
-    Parses the output of 'iw phy info' to extract bands and STA support.
+    Parses the output of "iw phy info" to extract bands and STA support.
     """
     bands_data = output.split("Supported commands:")[0]
     bands = {}
@@ -32,8 +32,11 @@ def parse_phy_info_output(output):
                 freqs_raw = band_content.split("Frequencies:")[1]
                 freq_ptn = r"(\d+ MHz.*)"
                 freq_compile = re.compile(freq_ptn)
-                freqs = [freq for freq in freq_compile.findall(freqs_raw)
-                         if "disabled" not in freq]
+                freqs = [
+                    freq
+                    for freq in freq_compile.findall(freqs_raw)
+                    if "disabled" not in freq
+                ]
                 bands[band_num] = freqs
     return bands
 
@@ -46,9 +49,10 @@ def check_sta_support(phy_info_output):
     # Supported STAs and their keywords
     supported_stas = {"BE": "EHT", "AX": "HE RX MCS", "AC": "VHT RX MCS"}
 
-    sta_supported = {sta: "supported" if sta_keyword in phy_info_output
-                     else "unsupported"
-                     for sta, sta_keyword in supported_stas.items()}
+    sta_supported = {
+        sta: "supported" if sta_keyword in phy_info_output else "unsupported"
+        for sta, sta_keyword in supported_stas.items()
+    }
     return sta_supported
 
 
@@ -60,8 +64,11 @@ def check_freq_support(bands):
     supported_freqs = {"2.4GHz": "1", "5GHz": "2", "6GHz": "4"}
 
     freq_supported = {
-        freq: "supported"
-        if band in bands and len(bands[band]) > 0 else "unsupported"
+        freq: (
+            "supported"
+            if band in bands and len(bands[band]) > 0
+            else "unsupported"
+        )
         for freq, band in supported_freqs.items()
     }
     return freq_supported
@@ -74,8 +81,9 @@ def create_phy_interface_mapping(phy_interface):
     phy_interface_mapping = {}
     for phy, interface in phy_interface:
         cmd = "iw {} info".format(phy)
-        phy_info_output = check_output(cmd, shell=True,
-                                       universal_newlines=True)
+        phy_info_output = check_output(
+            cmd, shell=True, universal_newlines=True
+        )
         bands = parse_phy_info_output(phy_info_output)
         freq_supported = check_freq_support(bands)
         sta_supported = check_sta_support(phy_info_output)
@@ -83,13 +91,13 @@ def create_phy_interface_mapping(phy_interface):
             "PHY": phy,
             "Bands": bands,
             "FREQ_Supported": freq_supported,
-            "STA_Supported": sta_supported
+            "STA_Supported": sta_supported,
         }
     return phy_interface_mapping
 
 
 def main():
-    # Read and parse 'iw dev' output
+    # Read and parse "iw dev" output
     phy_interface = parse_iw_dev_output()
 
     # Create mapping with interface, PHY, bands, and supported STAs

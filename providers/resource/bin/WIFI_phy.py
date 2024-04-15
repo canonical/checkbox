@@ -1,10 +1,29 @@
 #!/usr/bin/env python3
 
+# This file is part of Checkbox.
+#
+# Copyright 2024 Canonical Ltd.
+# Written by:
+#   Isaac Yang <isaac.yang@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox. If not, see <http://www.gnu.org/licenses/>
+
 import re
 from subprocess import check_output
+from typing import Dict, List, Tuple
 
 
-def parse_iw_dev_output():
+def parse_iw_dev_output() -> List[Tuple[str, str]]:
     """
     Parses the output of "iw dev" to extract PHY and interface mappings.
     """
@@ -15,7 +34,7 @@ def parse_iw_dev_output():
     return iw_dev_compile.findall(output)
 
 
-def parse_phy_info_output(output):
+def parse_phy_info_output(output: str) -> Dict[str, List[str]]:
     """
     Parses the output of "iw phy info" to extract bands and STA support.
     """
@@ -41,7 +60,7 @@ def parse_phy_info_output(output):
     return bands
 
 
-def check_sta_support(phy_info_output):
+def check_sta_support(phy_info_output: str) -> Dict[str, str]:
     """
     Checks if supported STAs (BE, AX, AC) are present based on keywords in
     the output.
@@ -56,7 +75,7 @@ def check_sta_support(phy_info_output):
     return sta_supported
 
 
-def check_freq_support(bands):
+def check_freq_support(bands: Dict[str, List[str]]) -> Dict[str, str]:
     """
     Checks if supported frequency (2.4GHz, 5GHz, 6GHz) are present based on
     band number
@@ -74,7 +93,7 @@ def check_freq_support(bands):
     return freq_supported
 
 
-def create_phy_interface_mapping(phy_interface):
+def create_phy_interface_mapping(phy_interface: List[Tuple[str, str]]) -> Dict:
     """
     Creates a mapping between interfaces and their PHY, bands, and STA support.
     """

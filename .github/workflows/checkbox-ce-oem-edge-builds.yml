@@ -1,11 +1,6 @@
 name: checkbox-ce-oem snap edge build
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'contrib/checkbox-ce-oem/**'
   workflow_dispatch:
   workflow_call:
 

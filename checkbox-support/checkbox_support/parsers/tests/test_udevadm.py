@@ -1140,7 +1140,6 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         """
         devices = self.parse("With_VRAID", with_partitions=True)
 
-
     def verify_devices(self, devices, expected_device_list):
         """
         Verify we have the expected quantity of each device given in the list,

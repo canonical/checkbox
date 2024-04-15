@@ -33,8 +33,8 @@ def get_fwupdmgr_services_versions():
         list: fwupd client and daemon versions
     """
     fwupd_vers = subprocess.run(
-        shlex.split("fwupdmgr --version --json"),
-        capture_output=True)
+        shlex.split("fwupdmgr --version --json"), capture_output=True
+    )
     fwupd_vers = json.loads(fwupd_vers.stdout).get("Versions", [])
 
     return fwupd_vers
@@ -49,8 +49,10 @@ def get_fwupd_runtime_version():
     runtime_ver = ()
 
     for ver in get_fwupdmgr_services_versions():
-        if (ver.get("Type") == "runtime" and
-                ver.get("AppstreamId") == "org.freedesktop.fwupd"):
+        if (
+            ver.get("Type") == "runtime"
+            and ver.get("AppstreamId") == "org.freedesktop.fwupd"
+        ):
             runtime_ver = tuple(map(int, ver.get("Version").split(".")))
 
     return runtime_ver

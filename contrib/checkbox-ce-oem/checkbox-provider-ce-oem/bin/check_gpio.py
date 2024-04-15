@@ -2,6 +2,7 @@
 import argparse
 import os
 from contextlib import contextmanager
+
 # from checkbox_support.snap_utils.snapd import Snapd
 from checkbox_support.snap_utils.snapd import Snapd
 from checkbox_support.snap_utils.system import get_gadget_snap
@@ -61,13 +62,15 @@ def parse_config(config):
                     start_port = int(start_port)
                     end_port = int(end_port)
                     if start_port > end_port:
-                        raise ValueError("Invalid port range: {}".
-                                         format(port_list))
+                        raise ValueError(
+                            "Invalid port range: {}".format(port_list)
+                        )
                     for range_port in range(start_port, end_port + 1):
                         expect_port.append(range_port)
                 except ValueError:
-                    raise ValueError("Invalid port range: {}".
-                                     format(port_list))
+                    raise ValueError(
+                        "Invalid port range: {}".format(port_list)
+                    )
     else:
         raise ValueError("Error: Config is empty!")
     return expect_port
@@ -95,8 +98,9 @@ def check_gpio_list(gpio_list, config):
         if expect_port:
             for gpio_slot in expect_port:
                 print(
-                    "Error: Slot of GPIO {} is not defined in gadget snap".
-                    format(gpio_slot)
+                    "Error: Slot of GPIO {} is not defined in gadget snap".format(
+                        gpio_slot
+                    )
                 )
             raise SystemExit(1)
         else:
@@ -107,25 +111,16 @@ def check_gpio_list(gpio_list, config):
 
 @contextmanager
 def interface_test(gpio_slot, gadget_name, timeout=60):
-    snap = os.environ['SNAP_NAME']
-    timeout = int(os.environ.get('SNAPD_TASK_TIMEOUT', timeout))
+    snap = os.environ["SNAP_NAME"]
+    timeout = int(os.environ.get("SNAPD_TASK_TIMEOUT", timeout))
     try:
-        connect_interface(gadget_name,
-                          gpio_slot,
-                          snap,
-                          timeout)
+        connect_interface(gadget_name, gpio_slot, snap, timeout)
         yield
     finally:
-        disconnect_interface(gadget_name,
-                             gpio_slot,
-                             snap,
-                             timeout)
+        disconnect_interface(gadget_name, gpio_slot, snap, timeout)
 
 
-def connect_interface(gadget_name,
-                      gpio_slot,
-                      snap,
-                      timeout):
+def connect_interface(gadget_name, gpio_slot, snap, timeout):
     """
     Connect GPIO plugs of checkbox to GPIO slots of gadget snap.
 
@@ -141,21 +136,15 @@ def connect_interface(gadget_name,
     print("Attempting connect GPIO to {}:{}".format(gadget_name, gpio_slot))
     try:
         Snapd(task_timeout=timeout).connect(
-            gadget_name,
-            gpio_slot,
-            snap,
-            "gpio"
-            )
+            gadget_name, gpio_slot, snap, "gpio"
+        )
         print("Success")
     except requests.HTTPError:
         print("Failed to connect {}".format(gpio_slot))
         raise SystemExit(1)
 
 
-def disconnect_interface(gadget_name,
-                         gpio_slot,
-                         snap,
-                         timeout):
+def disconnect_interface(gadget_name, gpio_slot, snap, timeout):
     """
     Connect GPIO plugs of checkbox to GPIO slots of gadget snap.
 
@@ -168,15 +157,13 @@ def disconnect_interface(gadget_name,
     """
 
     # Get the snap name of checkbox
-    print("Attempting disconnect GPIO slot {}:{}".
-          format(gadget_name, gpio_slot))
+    print(
+        "Attempting disconnect GPIO slot {}:{}".format(gadget_name, gpio_slot)
+    )
     try:
         Snapd(task_timeout=timeout).disconnect(
-            gadget_name,
-            gpio_slot,
-            snap,
-            "gpio"
-            )
+            gadget_name, gpio_slot, snap, "gpio"
+        )
         print("Success")
     except requests.HTTPError:
         print("Failed to disconnect {}".format(gpio_slot))
@@ -204,9 +191,9 @@ def check_node(num):
 def main():
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(
-        dest='action',
+        dest="action",
         help="Action in check-gpio, check-node and dump",
-        )
+    )
     check_gpio_subparser = subparsers.add_parser("check-gpio")
     check_gpio_subparser.add_argument(
         "-c",
@@ -214,7 +201,7 @@ def main():
         required=True,
         help="Checkbox config include expected GPIO\
              e.g. 499:500:501:502",
-       )
+    )
     check_node_subparser = subparsers.add_parser("check-node")
     check_node_subparser.add_argument(
         "-n",
@@ -222,18 +209,15 @@ def main():
         type=int,
         required=True,
         help="GPIO number to check if node exported",
-        )
+    )
     check_node_subparser.add_argument(
         "-s",
         "--slot",
         type=str,
         required=True,
         help="GPIO slot to connect.",
-        )
-    subparsers.add_parser(
-        "dump",
-        help="Dump GPIO slots from gadget"
-        )
+    )
+    subparsers.add_parser("dump", help="Dump GPIO slots from gadget")
     args = parser.parse_args()
     snapd = Snapd()
     gadget_name = get_gadget_snap()

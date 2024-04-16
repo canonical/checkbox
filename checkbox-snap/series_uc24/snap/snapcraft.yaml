@@ -14,39 +14,30 @@ plugs:
   checkbox-runtime:
     interface: content
     target: $SNAP/checkbox-runtime
-    default-provider: checkbox24
   provider-resource:
     interface: content
     target: $SNAP/providers/checkbox-provider-resource
-    default-provider: checkbox24
   provider-checkbox:
     interface: content
     target: $SNAP/providers/checkbox-provider-checkbox
-    default-provider: checkbox24
   provider-docker:
     interface: content
     target: $SNAP/providers/checkbox-provider-docker
-    default-provider: checkbox24
   provider-tpm2:
     interface: content
     target: $SNAP/providers/checkbox-provider-tpm2
-    default-provider: checkbox24
   provider-sru:
     interface: content
     target: $SNAP/providers/checkbox-provider-sru
-    default-provider: checkbox24
   provider-gpgpu:
     interface: content
     target: $SNAP/providers/checkbox-provider-gpgpu
-    default-provider: checkbox24
   provider-certification-client:
     interface: content
     target: $SNAP/providers/checkbox-provider-certification-client
-    default-provider: checkbox24
   provider-certification-server:
     interface: content
     target: $SNAP/providers/checkbox-provider-certification-server
-    default-provider: checkbox24
 
 apps:
   checkbox-cli:
@@ -126,3 +117,7 @@ parts:
       echo "this only contains random bytes to pad the snap to 16kb" >> $SNAPCRAFT_PART_INSTALL/size_workaround
       echo "see: https://bugs.launchpad.net/review-tools/+bug/2049093" >>  $SNAPCRAFT_PART_INSTALL/size_workaround
       head -c 16384 /dev/urandom >> $SNAPCRAFT_PART_INSTALL/size_workaround
+  install_perl:
+    plugin: nil
+    stage-packages:
+      - perl

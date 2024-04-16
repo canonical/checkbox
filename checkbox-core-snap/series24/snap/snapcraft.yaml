@@ -144,6 +144,7 @@ parts:
       - zlib1g-dev
       - build-essential
     stage-packages:
+      - perl
       - python3-markupsafe
       - python3-jinja2
       - python3-packaging

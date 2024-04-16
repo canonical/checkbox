@@ -877,6 +877,23 @@ Settings
         with self.assertRaises(SystemExit):
             pt.compare_wpctl_status("s1", "s2")
 
+    @patch("builtins.open", read_data=[])
+    @patch("pipewire_utils.PipewireTest._sort_wpctl_status")
+    def test_missing_lines(self, mock_wp_status, mock_open):
+        pt = PipewireTest()
+        sorted_list_1 = [
+            "│     HD-Audio Generic HDMI / DisplayPort 1 Output [vol: 1.00]",
+            "│     HD-Audio Generic HDMI / DisplayPort 2 Output [vol: 0.74]",
+            "│     HD-Audio Generic HDMI / DisplayPort 3 Output [vol: 1.00]",
+        ]
+        sorted_list_2 = [
+            "│     HD-Audio Generic HDMI / DisplayPort 1 Output [vol: 1.00]",
+            "│     HD-Audio Generic HDMI / DisplayPort 2 Output [vol: 0.74]",
+        ]
+        mock_wp_status.side_effect = [sorted_list_1, sorted_list_2]
+        with self.assertRaises(SystemExit):
+            pt.compare_wpctl_status("s1", "s2")
+
 
 class ArgsParsingTests(unittest.TestCase):
     def test_success(self):

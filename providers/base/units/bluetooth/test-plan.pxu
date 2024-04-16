@@ -78,6 +78,7 @@ include:
     bluetooth/bluez-internal-uc-tests_.*
     bluetooth/bluez-internal-bnep-tests_.*
     bluetooth4/beacon_eddystone_url_.*
+    bluetooth/bluetooth_obex_send
 bootstrap_include:
     device
     bluez-internal-rfcomm-tests
@@ -135,6 +136,7 @@ include:
     after-suspend-bluetooth/bluez-internal-uc-tests_.*
     after-suspend-bluetooth/bluez-internal-bnep-tests_.*
     after-suspend-bluetooth4/beacon_eddystone_url_.*
+    after-suspend-bluetooth/bluetooth_obex_send
 bootstrap_include:
     device
     bluez-internal-rfcomm-tests

@@ -54,7 +54,6 @@ logger = getLogger("plainbox.transport")
 
 
 class TransportError(Exception):
-
     """
     Base class for any problems related to transports.
 
@@ -65,7 +64,6 @@ class TransportError(Exception):
 
 
 class TransportBase(ISessionStateTransport):
-
     """
     Base class for transports that send test data somewhere.
 
@@ -101,8 +99,10 @@ class TransportBase(ISessionStateTransport):
             return
         if "=" in option_string:
             self.options = {
-                option: value for (option, value) in
-                [pair.split("=", 1) for pair in option_string.split(",")]
+                option: value
+                for (option, value) in [
+                    pair.split("=", 1) for pair in option_string.split(",")
+                ]
             }
         if not self.options:
             raise ValueError(_("No valid options in option string"))
@@ -112,7 +112,6 @@ SECURE_ID_PATTERN = r"^[a-zA-Z0-9]{15,}$"
 
 
 class InvalidSecureIDError(ValueError):
-
     """Exception raised when the secure ID is formatted incorrectly."""
 
     def __init__(self, value):
@@ -131,7 +130,7 @@ def oauth_available():
 class NoOauthTransport:
     def __init__(self, **args):
         raise NotImplementedError(
-            'This platform does not support the OAuth transport.'
+            "This platform does not support the OAuth transport."
         )
 
 
@@ -139,34 +138,35 @@ class _OAuthTransport(TransportBase):
     def __init__(self, where, options, transport_details):
         """Initialize the OAuth Transport."""
         super().__init__(where, options)
-        self.oauth_creds = transport_details.get('oauth_creds', {})
-        self.uploader_email = transport_details['uploader_email']
+        self.oauth_creds = transport_details.get("oauth_creds", {})
+        self.uploader_email = transport_details["uploader_email"]
 
     def send(self, data, config=None, session_state=None):
         headers = {}
         if self.oauth_creds:
             client = oauth1.Client(
-                client_key=self.oauth_creds['consumer_key'],
-                client_secret=self.oauth_creds['consumer_secret'],
-                resource_owner_key=self.oauth_creds['token_key'],
-                resource_owner_secret=self.oauth_creds['token_secret'],
+                client_key=self.oauth_creds["consumer_key"],
+                client_secret=self.oauth_creds["consumer_secret"],
+                resource_owner_key=self.oauth_creds["token_key"],
+                resource_owner_secret=self.oauth_creds["token_secret"],
                 signature_method=oauth1.SIGNATURE_HMAC,
-                realm='Checkbox',
+                realm="Checkbox",
             )
             # The uri is unchanged from self.url, it's the headers we're
             # interested in.
-            uri, headers, body = client.sign(self.url, 'POST')
+            uri, headers, body = client.sign(self.url, "POST")
         form_payload = dict(data=data)
         form_data = dict(uploader_email=self.uploader_email)
         try:
             response = requests.post(
-                self.url, files=form_payload, data=form_data, headers=headers)
+                self.url, files=form_payload, data=form_data, headers=headers
+            )
         except requests.exceptions.Timeout as exc:
-            raise TransportError('Request to timed out: {}'.format(exc))
+            raise TransportError("Request to timed out: {}".format(exc))
         except requests.exceptions.InvalidSchema as exc:
-            raise TransportError('Invalid destination URL: {0}'.format(exc))
+            raise TransportError("Invalid destination URL: {0}".format(exc))
         except requests.exceptions.ConnectionError as exc:
-            raise TransportError('Unable to connect: {0}'.format(exc))
+            raise TransportError("Unable to connect: {0}".format(exc))
         if response is not None:
             try:
                 # This will raise HTTPError for status != 20x
@@ -174,19 +174,18 @@ class _OAuthTransport(TransportBase):
             except requests.exceptions.RequestException as exc:
                 raise TransportError(str(exc))
 
-        return dict(message='Upload successful.', status=response.status_code)
+        return dict(message="Upload successful.", status=response.status_code)
 
 
 class StreamTransport(TransportBase):
-
     """Transport for printing data to a stream (stdout or stderr)."""
 
     def __init__(self, stream, options=None):
-        self._stdout = TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-        self._stderr = TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+        self._stdout = TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+        self._stderr = TextIOWrapper(sys.stderr.buffer, encoding="utf-8")
         url, self._stream = {
-            'stdout': ('python://stdout', self._stdout),
-            'stderr': ('python://stderr', self._stderr)
+            "stdout": ("python://stdout", self._stdout),
+            "stderr": ("python://stderr", self._stderr),
         }[stream]
         super().__init__(url, options)
 
@@ -207,7 +206,8 @@ class StreamTransport(TransportBase):
             Empty dictionary
         """
         translating_stream = ByteStringStreamTranslator(
-            self._stream, self._stream.encoding)
+            self._stream, self._stream.encoding
+        )
         copyfileobj(data, translating_stream, -1)
         self._stream.flush()
         return {}
@@ -236,9 +236,10 @@ class FileTransport(TransportBase):
         :raises OSError:
             When there was IO related error.
         """
-        with open(self._path, 'wb') as f:
+        with open(self._path, "wb") as f:
             copyfileobj(data, f)
-        return {'url': 'file://{}'.format(self._path)}
+        return {"url": "file://{}".format(self._path)}
+
 
 if oauth_available():
     OAuthTransport = _OAuthTransport
@@ -253,7 +254,7 @@ def get_all_transports():
     Returns a map of transports (mapping from name to transport class)
     """
     transport_map = OrderedDict()
-    iterator = pkg_resources.iter_entry_points('plainbox.transport')
+    iterator = pkg_resources.iter_entry_points("plainbox.transport")
     for entry_point in sorted(iterator, key=lambda ep: ep.name):
         try:
             transport_cls = entry_point.load()

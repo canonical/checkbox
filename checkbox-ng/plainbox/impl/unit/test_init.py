@@ -31,14 +31,15 @@ from plainbox.impl.unit import get_accessed_parameters
 class FunctionTests(TestCase):
 
     def test_get_accessed_parameters(self):
-        self.assertEqual(
-            get_accessed_parameters("some text"), frozenset())
+        self.assertEqual(get_accessed_parameters("some text"), frozenset())
         self.assertEqual(
             get_accessed_parameters("some {parametric} text"),
-            frozenset(['parametric']))
+            frozenset(["parametric"]),
+        )
         self.assertEqual(
-            get_accessed_parameters("some {} text"),
-            frozenset(['']))
+            get_accessed_parameters("some {} text"), frozenset([""])
+        )
         self.assertEqual(
             get_accessed_parameters("some {1} {2} {3} text"),
-            frozenset(['1', '2', '3']))
+            frozenset(["1", "2", "3"]),
+        )

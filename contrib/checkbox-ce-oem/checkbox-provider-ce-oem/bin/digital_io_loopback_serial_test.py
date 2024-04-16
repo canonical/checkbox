@@ -18,7 +18,7 @@ def calculate_crc(*data):
     return crc_sum
 
 
-class DigitalIOSerialController():
+class DigitalIOSerialController:
 
     TEST_STATES = (0, 1)
     # DIGITAL_IN_PINS = [6, 7, 8, 9]
@@ -75,8 +75,7 @@ class DigitalIOSerialController():
             N/A
         """
         print("\n# Write {} to register byte {}..".format(value, pin_num))
-        msg = self.generate_message(
-                  self.PREFIX_BYTE, pin_num, value)
+        msg = self.generate_message(self.PREFIX_BYTE, pin_num, value)
         self.conn.write(msg)
         resp = self.conn.read(16)
         print(resp)
@@ -93,7 +92,8 @@ class DigitalIOSerialController():
         """
         print(
             "# Digital I/O loopback test. out:{}, in:{}".format(
-                out_port, in_port)
+                out_port, in_port
+            )
         )
         raise SystemExit(not self.loopback_test(out_port, in_port))
 
@@ -122,8 +122,10 @@ class DigitalIOSerialController():
                 result = False
             else:
                 str_match = "match"
-            print("# Digital state {}. expected: {} real: {}\n".format(
-                str_match, state, real_state)
+            print(
+                "# Digital state {}. expected: {} real: {}\n".format(
+                    str_match, state, real_state
+                )
             )
         return result
 
@@ -131,21 +133,24 @@ class DigitalIOSerialController():
 def main():
     parser = ArgumentParser()
     parser.add_argument(
-        "-o", "--do_byte",
+        "-o",
+        "--do_byte",
         type=int,
         required=True,
-        help="Provide the register byte of digital output port."
+        help="Provide the register byte of digital output port.",
     )
     parser.add_argument(
-        "-i", "--di_byte",
+        "-i",
+        "--di_byte",
         type=int,
         required=True,
-        help="Provide the register byte of digital input port."
+        help="Provide the register byte of digital input port.",
     )
     parser.add_argument(
-        "-s", "--serial_port",
+        "-s",
+        "--serial_port",
         required=True,
-        help="Provide the serial console port to communicate with."
+        help="Provide the serial console port to communicate with.",
     )
     args = parser.parse_args()
 

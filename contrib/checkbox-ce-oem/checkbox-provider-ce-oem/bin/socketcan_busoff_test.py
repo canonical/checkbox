@@ -94,9 +94,9 @@ def can_bus_off_test(can_dev, timeout):
             [
                 CANLinkState.ERROR_ACTIVE,
                 CANLinkState.ERROR_PASSIVE,
-                CANLinkState.ERROR_WARNING
+                CANLinkState.ERROR_WARNING,
             ],
-            timeout
+            timeout,
         )
 
         if expected_state:
@@ -106,10 +106,7 @@ def can_bus_off_test(can_dev, timeout):
 
             can_socket = CANSocket(can_dev, False)
             can_pkt = can_socket.struct_packet(
-                222,
-                os.urandom(8),
-                0,
-                fd_frame=False
+                222, os.urandom(8), 0, fd_frame=False
             )
             for _ in range(10):
                 can_socket.send(can_pkt, timeout=5)
@@ -125,9 +122,9 @@ def can_bus_off_test(can_dev, timeout):
                     [
                         CANLinkState.ERROR_ACTIVE,
                         CANLinkState.ERROR_PASSIVE,
-                        CANLinkState.ERROR_WARNING
+                        CANLinkState.ERROR_WARNING,
                     ],
-                    timeout
+                    timeout,
                 ):
                     logging.info("CAN state is recovered from BUS-OFF state")
             else:
@@ -139,17 +136,12 @@ def can_bus_off_test(can_dev, timeout):
 def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='SocketCAN BUS-OFF Tests')
-    parser.add_argument(
-        "-d", "--device",
-        required=True,
-        help="CAN network interface"
+        description="SocketCAN BUS-OFF Tests",
     )
     parser.add_argument(
-        "-t", "--timeout",
-        type=int,
-        default=60
+        "-d", "--device", required=True, help="CAN network interface"
     )
+    parser.add_argument("-t", "--timeout", type=int, default=60)
     parser.add_argument(
         "--debug",
         action="store_true",

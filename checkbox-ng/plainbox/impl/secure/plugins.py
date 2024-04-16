@@ -115,6 +115,7 @@ class PlugInError(Exception):
     Exception that may be raised by PlugIn.__init__() to signal it cannot
     be fully loaded and should not be added to any collection.
     """
+
     def __eq__(self, other):
         if isinstance(other, PlugInError):
             return True
@@ -132,8 +133,13 @@ class PlugIn(IPlugIn):
     and some arbitrary external object.
     """
 
-    def __init__(self, name: str, obj: object, load_time: float=0,
-                 wrap_time: float=0):
+    def __init__(
+        self,
+        name: str,
+        obj: object,
+        load_time: float = 0,
+        wrap_time: float = 0,
+    ):
         """
         Initialize the plug-in with the specified name and external object
 
@@ -153,7 +159,8 @@ class PlugIn(IPlugIn):
 
     def __repr__(self):
         return "<{!s} plugin_name:{!r}>".format(
-            type(self).__name__, self.plugin_name)
+            type(self).__name__, self.plugin_name
+        )
 
     @property
     def plugin_name(self) -> str:
@@ -282,8 +289,9 @@ class PlugInCollectionBase(IPlugInCollection):
     PlugInCollection implemenetations.
     """
 
-    def __init__(self, load=False, wrapper=PlugIn, *wrapper_args,
-                 **wrapper_kwargs):
+    def __init__(
+        self, load=False, wrapper=PlugIn, *wrapper_args, **wrapper_kwargs
+    ):
         """
         Initialize a collection of plug-ins
 
@@ -377,10 +385,9 @@ class PlugInCollectionBase(IPlugInCollection):
         old_problem_list = self._problem_list
         old_plugins = self._plugins
         self._loaded = True
-        self._plugins = collections.OrderedDict([
-            (plugin.plugin_name, plugin)
-            for plugin in plugins
-        ])
+        self._plugins = collections.OrderedDict(
+            [(plugin.plugin_name, plugin) for plugin in plugins]
+        )
         if problem_list is None:
             problem_list = []
         self._problem_list = problem_list
@@ -410,11 +417,16 @@ class PlugInCollectionBase(IPlugInCollection):
         """
         try:
             wrapper = self._wrapper(
-                plugin_name, plugin_obj, plugin_load_time,
-                *self._wrapper_args, **self._wrapper_kwargs)
+                plugin_name,
+                plugin_obj,
+                plugin_load_time,
+                *self._wrapper_args,
+                **self._wrapper_kwargs
+            )
         except PlugInError as exc:
             logger.warning(
-                _("Unable to prepare plugin %s: %s"), plugin_name, exc)
+                _("Unable to prepare plugin %s: %s"), plugin_name, exc
+            )
             self._problem_list.append(exc)
         else:
             self._plugins[plugin_name] = wrapper
@@ -430,7 +442,8 @@ class PlugInCollectionBase(IPlugInCollection):
         """
         if self._loaded is False:
             raise AttributeError(
-                _("discovery_time is meaningful after calling load()"))
+                _("discovery_time is meaningful after calling load()")
+            )
         return self._discovery_time
 
     def get_total_time(self) -> float:
@@ -443,9 +456,13 @@ class PlugInCollectionBase(IPlugInCollection):
             overhead of this class but is representative of the load times of
             pluggable code.
         """
-        return sum(
-            plugin.plugin_load_time + plugin.plugin_wrap_time
-            for plugin in self._plugins.values()) + self.discovery_time
+        return (
+            sum(
+                plugin.plugin_load_time + plugin.plugin_wrap_time
+                for plugin in self._plugins.values()
+            )
+            + self.discovery_time
+        )
 
 
 class PkgResourcesPlugInCollection(PlugInCollectionBase):
@@ -458,8 +475,14 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
     may be adjusted if required.
     """
 
-    def __init__(self, namespace, load=False, wrapper=PlugIn, *wrapper_args,
-                 **wrapper_kwargs):
+    def __init__(
+        self,
+        namespace,
+        load=False,
+        wrapper=PlugIn,
+        *wrapper_args,
+        **wrapper_kwargs
+    ):
         """
         Initialize a collection of plug-ins from the specified name-space.
 
@@ -503,7 +526,8 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
                 self._problem_list.append(exc)
             else:
                 self.wrap_and_add_plugin(
-                    entry_point.name, obj, now() - start_time)
+                    entry_point.name, obj, now() - start_time
+                )
         self._loaded = True
 
     def _get_entry_points(self):
@@ -528,8 +552,16 @@ class FsPlugInCollection(PlugInCollectionBase):
     each plugin is the text read from the plugin file.
     """
 
-    def __init__(self, dir_list, ext, recursive=False, load=False,
-                 wrapper=PlugIn, *wrapper_args, **wrapper_kwargs):
+    def __init__(
+        self,
+        dir_list,
+        ext,
+        recursive=False,
+        load=False,
+        wrapper=PlugIn,
+        *wrapper_args,
+        **wrapper_kwargs
+    ):
         """
         Initialize a collection of plug-ins from the specified name-space.
 
@@ -549,8 +581,9 @@ class FsPlugInCollection(PlugInCollectionBase):
         :param wrapper_kwargs:
             additional keyword arguments passed to each instantiated wrapper
         """
-        if (not isinstance(dir_list, list) or
-                not all(isinstance(item, str) for item in dir_list)):
+        if not isinstance(dir_list, list) or not all(
+            isinstance(item, str) for item in dir_list
+        ):
             raise TypeError("dir_list needs to be List[str]")
         self._dir_list = dir_list
         self._ext = ext
@@ -582,7 +615,7 @@ class FsPlugInCollection(PlugInCollectionBase):
                 self.wrap_and_add_plugin(filename, text, now() - start_time)
 
     def _get_file_text(self, filename):
-        with open(filename, encoding='UTF-8') as stream:
+        with open(filename, encoding="UTF-8") as stream:
             return stream.read()
 
     def _get_plugin_files(self):
@@ -595,10 +628,14 @@ class FsPlugInCollection(PlugInCollectionBase):
             if self._recursive:
                 entries = []
                 for base_dir, dirs, files in os.walk(dirname):
-                    entries.extend([
-                        os.path.relpath(
-                            os.path.join(base_dir, filename), dirname)
-                        for filename in files])
+                    entries.extend(
+                        [
+                            os.path.relpath(
+                                os.path.join(base_dir, filename), dirname
+                            )
+                            for filename in files
+                        ]
+                    )
             else:
                 # List all files in each path component
                 try:
@@ -642,8 +679,10 @@ class LazyFileContent:
 
     def __repr__(self):
         return "<{} name:{!r}{}>".format(
-            self.__class__.__name__, self.name,
-            ' (pending)' if self._text is None else ' (loaded)')
+            self.__class__.__name__,
+            self.name,
+            " (pending)" if self._text is None else " (loaded)",
+        )
 
     def __str__(self):
         self._ensure_loaded()
@@ -659,7 +698,7 @@ class LazyFileContent:
 
     def _ensure_loaded(self):
         if self._text is None:
-            with open(self.name, encoding='UTF-8') as stream:
+            with open(self.name, encoding="UTF-8") as stream:
                 self._text = stream.read()
 
 
@@ -689,8 +728,14 @@ class LazyPlugInCollection(PlugInCollectionBase):
     default that is :class:`PlugIn` but it may be adjusted if required.
     """
 
-    def __init__(self, mapping, load=False, wrapper=PlugIn,
-                 *wrapper_args, **wrapper_kwargs):
+    def __init__(
+        self,
+        mapping,
+        load=False,
+        wrapper=PlugIn,
+        *wrapper_args,
+        **wrapper_kwargs
+    ):
         """
         Initialize a collection of plug-ins from the specified mapping of
         callbacks.
@@ -752,11 +797,11 @@ class LazyPlugInCollection(PlugInCollectionBase):
             callable_obj = discovery_data
             args = None
         if isinstance(callable_obj, str):
-            logger.debug(_("Importing %s"),  callable_obj)
+            logger.debug(_("Importing %s"), callable_obj)
             callable_obj = getattr(
-                __import__(
-                    callable_obj.split(':', 1)[0], fromlist=[1]),
-                callable_obj.split(':', 1)[1])
+                __import__(callable_obj.split(":", 1)[0], fromlist=[1]),
+                callable_obj.split(":", 1)[1],
+            )
         logger.debug(_("Calling %r with %r"), callable_obj, args)
         if args is None:
             return callable_obj

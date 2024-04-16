@@ -28,10 +28,11 @@ import time
 
 class FanMonitor:
     """Device that reports fan RPM or something correlating to that."""
+
     def __init__(self):
         """Use heuristics to find something that we can read."""
         self.hwmons = []
-        self._fan_paths = glob.glob('/sys/class/hwmon/hwmon*/fan*_input')
+        self._fan_paths = glob.glob("/sys/class/hwmon/hwmon*/fan*_input")
         # All entries (except name) under /sys/class/hwmon/hwmon/* are optional
         # and should only be created in a given driver if the chip has
         # the feature.
@@ -39,36 +40,37 @@ class FanMonitor:
         # fan_input only. If there is any driver has different implementation
         # then may need to check other entries in the future.
         for i in self._fan_paths:
-            device = os.path.join(os.path.dirname(i), 'device')
+            device = os.path.join(os.path.dirname(i), "device")
             device_path = os.path.realpath(device)
             # Get the class of pci device of hwmon whether is GPU.
             if "pci" in device_path:
-                pci_class_path = os.path.join(device, 'class')
+                pci_class_path = os.path.join(device, "class")
                 try:
-                    with open(pci_class_path, 'r') as _file:
+                    with open(pci_class_path, "r") as _file:
                         pci_class = _file.read().splitlines()
                         pci_device_class = (
-                            int(pci_class[0], base=16) >> 16) & 0xff
+                            int(pci_class[0], base=16) >> 16
+                        ) & 0xFF
                         """Make sure the fan is not on graphic card"""
                         if pci_device_class == 3:
                             continue
                 except OSError:
-                    print('Not able to access {}'.format(pci_class_path))
+                    print("Not able to access {}".format(pci_class_path))
                     continue
             self.hwmons.append(i)
         if not self.hwmons:
-            print('Fan monitoring interface not found in SysFS')
+            print("Fan monitoring interface not found in SysFS")
             raise SystemExit(0)
 
     def get_rpm(self):
         result = {}
         for p in self.hwmons:
             try:
-                with open(p, 'rt') as f:
-                    fan_mon_name = os.path.relpath(p, '/sys/class/hwmon')
+                with open(p, "rt") as f:
+                    fan_mon_name = os.path.relpath(p, "/sys/class/hwmon")
                     result[fan_mon_name] = int(f.read())
             except OSError:
-                print('Fan SysFS node disappeared ({})'.format(p))
+                print("Fan SysFS node disappeared ({})".format(p))
         return result
 
     def get_average_rpm(self, period):
@@ -97,7 +99,8 @@ class Stressor:
         """Start stress processes in the background."""
         for n in range(self._thread_count):
             self._procs.append(
-                multiprocessing.Process(target=self._stress_fun))
+                multiprocessing.Process(target=self._stress_fun)
+            )
             self._procs[-1].start()
 
     def stop(self):
@@ -149,7 +152,7 @@ def main():
     rpm_dropped_during_cooling = False
     for fan_mon in sorted(baseline_rpm.keys()):
         if baseline_rpm[fan_mon]:
-            stress_delta = (stress_rpm[fan_mon] / baseline_rpm[fan_mon])
+            stress_delta = stress_rpm[fan_mon] / baseline_rpm[fan_mon]
         else:
             stress_delta = 999 if stress_rpm[fan_mon] > 0 else 0
         # if any of the fans raised rpms - similar to any()
@@ -158,13 +161,15 @@ def main():
             #      we may want to introduce a threshold later on
             rpm_rose_during_stress = stress_delta > 0
         if not rpm_dropped_during_cooling:
-            rpm_dropped_during_cooling = (
-                end_rpm[fan_mon] < stress_rpm[fan_mon])
+            rpm_dropped_during_cooling = end_rpm[fan_mon] < stress_rpm[fan_mon]
 
         print("{} RPM:".format(fan_mon))
         print("    baseline      : {:.2f}".format(baseline_rpm[fan_mon]))
-        print("    during stress : {:.2f} ({:.2f}% of baseline)".format(
-            stress_rpm[fan_mon], stress_delta * 100))
+        print(
+            "    during stress : {:.2f} ({:.2f}% of baseline)".format(
+                stress_rpm[fan_mon], stress_delta * 100
+            )
+        )
         print("    after stress  : {:.2f}".format(end_rpm[fan_mon]))
     if not had_a_fan_spinning:
         print("The system had no fans spinning during the test")
@@ -182,5 +187,5 @@ def main():
         raise SystemExit("Fans did not react to stress expectedly")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -25,7 +25,6 @@ from metabox.core.actions import (
     Put,
     Send,
     MkTree,
-
 )
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
@@ -33,6 +32,7 @@ from metabox.core.utils import tag
 from .config_files import test_manifest
 
 conf_wrong = read_text(test_manifest, "wrong.json")
+
 
 @tag("manifest", "normal_user")
 class ManifestLauncherAuto(Scenario):
@@ -42,7 +42,8 @@ class ManifestLauncherAuto(Scenario):
     tests selection was skipped or not
     """
 
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         [test plan]
@@ -53,9 +54,11 @@ class ManifestLauncherAuto(Scenario):
         forced = yes
         [manifest]
         2021.com.canonical.certification::manifest_location = 0
-    """)
+    """
+    )
 
     steps = [AssertPrinted(".*Outcome: job passed.*")]
+
 
 @tag("manifest", "normal_user")
 class ManifestLauncherManual(Scenario):
@@ -65,7 +68,8 @@ class ManifestLauncherManual(Scenario):
     tests selection was skipped or not
     """
 
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         [test plan]
@@ -74,7 +78,8 @@ class ManifestLauncherManual(Scenario):
         unit = 2021.com.canonical.certification::manifest_test_support
         [manifest]
         2021.com.canonical.certification::manifest_location = 0
-    """)
+    """
+    )
 
     steps = [
         Expect("tests to run on your system"),
@@ -83,8 +88,9 @@ class ManifestLauncherManual(Scenario):
         Send("T"),
         Expect("job passed"),
         Expect("job passed"),
-        Expect("Test the resolution order of the manifest")
+        Expect("Test the resolution order of the manifest"),
     ]
+
 
 @tag("manifest", "normal_user")
 class ManifestConfigCacheAuto(Scenario):
@@ -95,7 +101,8 @@ class ManifestConfigCacheAuto(Scenario):
 
     conf_correct = read_text(test_manifest, "correct.json")
 
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         [test plan]
@@ -104,7 +111,8 @@ class ManifestConfigCacheAuto(Scenario):
         forced = yes
         [test selection]
         forced = yes
-    """)
+    """
+    )
 
     steps = [
         MkTree("/var/tmp/checkbox-ng"),
@@ -112,6 +120,7 @@ class ManifestConfigCacheAuto(Scenario):
         Start(),
         AssertPrinted(".*Outcome: job passed.*"),
     ]
+
 
 @tag("manifest", "normal_user")
 class ManifestConfigCacheManual(Scenario):
@@ -122,14 +131,16 @@ class ManifestConfigCacheManual(Scenario):
 
     conf_correct = read_text(test_manifest, "correct.json")
 
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         [test plan]
         # filtering to avoid the test being out of bound
         forced = yes
         unit = 2021.com.canonical.certification::manifest_test_support
-    """)
+    """
+    )
 
     steps = [
         MkTree("/var/tmp/checkbox-ng"),
@@ -141,8 +152,9 @@ class ManifestConfigCacheManual(Scenario):
         Send("T"),
         Expect("job passed"),
         Expect("job passed"),
-        Expect("Test the resolution order of the manifest")
+        Expect("Test the resolution order of the manifest"),
     ]
+
 
 @tag("manifest", "normal_user")
 class ManifestConfigPrecedenceAuto(Scenario):
@@ -154,7 +166,8 @@ class ManifestConfigPrecedenceAuto(Scenario):
 
     conf_wrong = read_text(test_manifest, "wrong.json")
 
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         [test plan]
@@ -165,14 +178,16 @@ class ManifestConfigPrecedenceAuto(Scenario):
         forced = yes
         [manifest]
         2021.com.canonical.certification::manifest_location = 0
-    """)
+    """
+    )
 
     steps = [
         MkTree("/var/tmp/checkbox-ng"),
         Put("/var/tmp/checkbox-ng/machine-manifest.json", conf_wrong),
         Start(),
-        AssertPrinted(".*Outcome: job passed.*")
+        AssertPrinted(".*Outcome: job passed.*"),
     ]
+
 
 @tag("manifest", "normal_user")
 class ManifestConfigPrecedenceManual(Scenario):
@@ -184,7 +199,8 @@ class ManifestConfigPrecedenceManual(Scenario):
 
     conf_wrong = read_text(test_manifest, "wrong.json")
 
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         [test plan]
@@ -193,7 +209,8 @@ class ManifestConfigPrecedenceManual(Scenario):
         unit = 2021.com.canonical.certification::manifest_test_support
         [manifest]
         2021.com.canonical.certification::manifest_location = 0
-    """)
+    """
+    )
 
     steps = [
         MkTree("/var/tmp/checkbox-ng"),
@@ -205,5 +222,5 @@ class ManifestConfigPrecedenceManual(Scenario):
         Send("T"),
         Expect("job passed"),
         Expect("job passed"),
-        Expect("Test the resolution order of the manifest")
+        Expect("Test the resolution order of the manifest"),
     ]

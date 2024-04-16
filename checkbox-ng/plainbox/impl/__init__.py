@@ -40,7 +40,7 @@ def _get_doc_margin(doc):
     """
     Find minimum indentation of any non-blank lines after first line.
     """
-    lines = doc.expandtabs().split('\n')
+    lines = doc.expandtabs().split("\n")
     margin = sys.maxsize
     for line in lines[1:]:
         content = len(line.lstrip())
@@ -76,6 +76,7 @@ def public(import_path, introduced=None, deprecated=None):
     by import_path. It can be a module name or a module name and a function
     name, when separated by a colon.
     """
+
     # Create a forwarding decorator for the shim function. The shim argument is
     # the actual empty function from the public module that serves as
     # documentation carrier.
@@ -87,49 +88,67 @@ def public(import_path, introduced=None, deprecated=None):
         except ValueError:
             module_name, func_name = import_path, shim.__name__
         # Import the module with the implementation and extract the function
-        module = __import__(module_name, fromlist=[''])
+        module = __import__(module_name, fromlist=[""])
         try:
             impl = getattr(module, func_name)
         except AttributeError:
             raise NotImplementedError(
-                "%s.%s does not exist" % (module_name, func_name))
+                "%s.%s does not exist" % (module_name, func_name)
+            )
 
         @wraps(shim)
         def call_impl(*args, **kwargs):
             return impl(*args, **kwargs)
+
         # Document the public nature of the function
-        call_impl.__doc__ += "\n".join([
-            "",
-            "    This function is a part of the public API",
-            "    The private implementation is in {}:{}".format(
-                import_path, shim.__name__)
-        ])
+        call_impl.__doc__ += "\n".join(
+            [
+                "",
+                "    This function is a part of the public API",
+                "    The private implementation is in {}:{}".format(
+                    import_path, shim.__name__
+                ),
+            ]
+        )
         if introduced is None:
-            call_impl.__doc__ += "\n".join([
-                "",
-                "    This function was introduced in the initial version of"
-                " plainbox",
-            ])
+            call_impl.__doc__ += "\n".join(
+                [
+                    "",
+                    "    This function was introduced in the initial version of"
+                    " plainbox",
+                ]
+            )
         else:
-            call_impl.__doc__ += "\n".join([
-                "",
-                "    This function was introduced in version: {}".format(
-                    introduced)
-            ])
+            call_impl.__doc__ += "\n".join(
+                [
+                    "",
+                    "    This function was introduced in version: {}".format(
+                        introduced
+                    ),
+                ]
+            )
         # Document deprecation status, if any
         if deprecated is not None:
-            call_impl.__doc__ += "\n".join([
-                "    warn:",
-                "        This function is deprecated",
-                "        It will be removed in version: {}".format(deprecated),
-            ])
+            call_impl.__doc__ += "\n".join(
+                [
+                    "    warn:",
+                    "        This function is deprecated",
+                    "        It will be removed in version: {}".format(
+                        deprecated
+                    ),
+                ]
+            )
         # Add implementation docs, if any
         if impl.__doc__ is not None:
-            call_impl.__doc__ += "\n".join([
-                "    Additional documentation from the private"
-                " implementation:"])
+            call_impl.__doc__ += "\n".join(
+                [
+                    "    Additional documentation from the private"
+                    " implementation:"
+                ]
+            )
             call_impl.__doc__ += impl.__doc__
         return call_impl
+
     return decorator
 
 
@@ -161,22 +180,25 @@ def deprecated(version, explanation=None):
         The @deprecated decorator with deprecation information
         """
         msg = "{0} is deprecated since version {1}".format(
-            func.__name__, version)
+            func.__name__, version
+        )
         if func.__doc__ is None:
-            func.__doc__ = ''
-            indent = 4 * ' '
+            func.__doc__ = ""
+            indent = 4 * " "
         else:
-            indent = _get_doc_margin(func.__doc__) * ' '
-            func.__doc__ += indent + '\n'
-        func.__doc__ += indent + '.. deprecated:: {}'.format(version)
+            indent = _get_doc_margin(func.__doc__) * " "
+            func.__doc__ += indent + "\n"
+        func.__doc__ += indent + ".. deprecated:: {}".format(version)
         if explanation is not None:
             func.__doc__ += _textwrap_indent(
-                textwrap.dedent(explanation), prefix=indent * 2)
+                textwrap.dedent(explanation), prefix=indent * 2
+            )
 
         @wraps(func)
         def wrapper(*args, **kwargs):
             warn(DeprecationWarning(msg), stacklevel=2)
             return func(*args, **kwargs)
+
         return wrapper
 
     return decorator

@@ -181,10 +181,8 @@ class TestMainFunction(unittest.TestCase):
 
         # Mocking other functions to return specific values
         mock_device_state.return_value = "internal"
-        mock_usb_support.side_effect = (
-            lambda name, version: "supported"
-            if version == 3.00
-            else "unsupported"
+        mock_usb_support.side_effect = lambda name, version: (
+            "supported" if version == 3.00 else "unsupported"
         )
         mock_device_rotation.return_value = "yes"
         mock_smart_support.return_value = "True"

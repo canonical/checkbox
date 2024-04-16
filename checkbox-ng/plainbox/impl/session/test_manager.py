@@ -43,7 +43,8 @@ class SessionManagerTests(SignalTestCase):
         self.state = mock.Mock(name="state", spec=SessionState)
         self.context = mock.Mock(name="context", spec=SessionDeviceContext)
         self.context2 = mock.Mock(
-            name='context2', spec_set=SessionDeviceContext)
+            name="context2", spec_set=SessionDeviceContext
+        )
         self.context_list = [self.context]  # NOTE: just the first context
         self.manager = SessionManager(self.context_list, self.storage)
 
@@ -94,18 +95,20 @@ class SessionManagerTests(SignalTestCase):
             # call the suspend() method and that the session state parameter
             # was passed to it.
             helper_cls().suspend.assert_called_with(
-                self.context.state, self.storage.location)
+                self.context.state, self.storage.location
+            )
         # Ensure that save_checkpoint() was called on the storage object with
         # the return value of what the suspend helper produced.
         self.storage.save_checkpoint.assert_called_with(
-            helper_cls().suspend(self.context.state))
+            helper_cls().suspend(self.context.state)
+        )
 
     def test_load_session(self):
         """
         verify that SessionManager.load_session() correctly delegates the task
         to various other objects
         """
-        job = mock.Mock(name='job', spec_set=JobDefinition)
+        job = mock.Mock(name="job", spec_set=JobDefinition)
         unit_list = [job]
         flags = None
         helper_name = "plainbox.impl.session.manager.SessionResumeHelper"
@@ -115,7 +118,7 @@ class SessionManagerTests(SignalTestCase):
             helper_cls().resume.return_value = resumed_state
             # NOTE: mock away _propagate_test_plans() so that we don't get
             # unwanted side effects we're not testing here.
-            with mock.patch.object(SessionManager, '_propagate_test_plans'):
+            with mock.patch.object(SessionManager, "_propagate_test_plans"):
                 manager = SessionManager.load_session(unit_list, self.storage)
         # Ensure that the storage object was used to load the session snapshot
         self.storage.load_checkpoint.assert_called_with()
@@ -124,83 +127,94 @@ class SessionManagerTests(SignalTestCase):
         helper_cls.assert_called_with(unit_list, flags, self.storage.location)
         # Ensure that the helper instance was asked to recreate session state
         helper_cls().resume.assert_called_with(
-            self.storage.load_checkpoint(), None)
+            self.storage.load_checkpoint(), None
+        )
         # Ensure that the resulting manager has correct data inside
         self.assertEqual(manager.state, helper_cls().resume())
         self.assertEqual(manager.storage, self.storage)
 
     @mock.patch.multiple(
-        "plainbox.impl.session.manager", spec_set=True,
-        SessionStorage=mock.DEFAULT)
+        "plainbox.impl.session.manager",
+        spec_set=True,
+        SessionStorage=mock.DEFAULT,
+    )
     def test_create(self, **mocks):
         """
         verify that SessionManager.create() correctly sets up
         storage repository and creates session directories
         """
-        mocks['SessionStorage'].create.return_value = mock.MagicMock(
-            spec_set=SessionStorage)
+        mocks["SessionStorage"].create.return_value = mock.MagicMock(
+            spec_set=SessionStorage
+        )
         # Create the new manager
         manager = SessionManager.create()
         # Ensure that a storage was created, with repository location and
         # without legacy mode turned on
-        mocks['SessionStorage'].create.assert_called_with('pbox-')
-        storage = mocks['SessionStorage'].create()
+        mocks["SessionStorage"].create.assert_called_with("pbox-")
+        storage = mocks["SessionStorage"].create()
         # Ensure that the resulting manager has correct data inside
         self.assertEqual(manager.device_context_list, [])
         self.assertEqual(manager.storage, storage)
 
     @mock.patch.multiple(
-        "plainbox.impl.session.manager", spec_set=True,
+        "plainbox.impl.session.manager",
+        spec_set=True,
         SessionState=mock.DEFAULT,
-        SessionStorage=mock.DEFAULT)
+        SessionStorage=mock.DEFAULT,
+    )
     def test_create_with_unit_list(self, **mocks):
         """
         verify that SessionManager.create_with_unit_list() correctly sets up
         storage repository and creates session directories
         """
-        mocks['SessionStorage'].create.return_value = mock.MagicMock(
-            spec_set=SessionStorage)
+        mocks["SessionStorage"].create.return_value = mock.MagicMock(
+            spec_set=SessionStorage
+        )
         # Mock unit list
-        unit_list = mock.Mock(name='unit_list')
+        unit_list = mock.Mock(name="unit_list")
         # Create the new manager
         manager = SessionManager.create_with_unit_list(unit_list)
         # Ensure that a state object was created
-        mocks['SessionState'].assert_called_with(unit_list)
-        state = mocks['SessionState']()
+        mocks["SessionState"].assert_called_with(unit_list)
+        state = mocks["SessionState"]()
         # Ensure that a storage was created, with repository location and
         # without legacy mode turned on
-        mocks['SessionStorage'].create.assert_called_with()
-        storage = mocks['SessionStorage'].create()
+        mocks["SessionStorage"].create.assert_called_with()
+        storage = mocks["SessionStorage"].create()
         # Ensure that the resulting manager has correct data inside
         self.assertEqual(manager.state, state)
         self.assertEqual(manager.storage, storage)
 
     @mock.patch.multiple(
-        "plainbox.impl.session.manager", spec_set=True,
+        "plainbox.impl.session.manager",
+        spec_set=True,
         SessionState=mock.DEFAULT,
         SessionStorage=mock.DEFAULT,
-        SessionDeviceContext=mock.DEFAULT)
+        SessionDeviceContext=mock.DEFAULT,
+    )
     def test_create_with_state(self, **mocks):
         """
         verify that SessionManager.create_with_state() correctly sets up
         storage repository and creates session directories
         """
-        mocks['SessionStorage'].create.return_value = mock.MagicMock(
-            spec_set=SessionStorage)
+        mocks["SessionStorage"].create.return_value = mock.MagicMock(
+            spec_set=SessionStorage
+        )
         # Mock an empty list of units in teh session state object
         self.state.unit_list = []
         # Create the new manager
         manager = SessionManager.create_with_state(self.state)
         # Ensure that a storage was created, with repository location and
         # without legacy mode turned on
-        mocks['SessionStorage'].create.assert_called_with()
-        storage = mocks['SessionStorage'].create()
+        mocks["SessionStorage"].create.assert_called_with()
+        storage = mocks["SessionStorage"].create()
         # Ensure that the device context was created with the right state
         # object
-        mocks['SessionDeviceContext'].assert_called_with(self.state)
+        mocks["SessionDeviceContext"].assert_called_with(self.state)
         # Ensure that the resulting manager has correct data inside
         self.assertEqual(
-            manager.device_context_list, [mocks['SessionDeviceContext']()])
+            manager.device_context_list, [mocks["SessionDeviceContext"]()]
+        )
         # self.assertEqual(manager.state, self.state)
         self.assertEqual(manager.storage, storage)
 

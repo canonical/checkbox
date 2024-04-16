@@ -64,19 +64,21 @@ class BaseJobResultTestsTestsMixIn:
     def setUp(self):
         self.helper = self.HELPER_CLS()
         self.empty_result = self.TESTED_CLS({})
-        self.typical_result = self.TESTED_CLS({
-            "outcome": self.TESTED_CLS.OUTCOME_PASS,
-            "execution_duration": 42.5,
-            "comments": "the screen was corrupted",
-            "return_code": 1,
-            # NOTE: those are actually specific to TESTED_CLS but it is
-            # a simple hack that gets the job done
-            "io_log_filename": "/path/to/log.txt",
-            "io_log": [
-                (0, 'stdout', b'first part\n'),
-                (0.1, 'stdout', b'second part\n'),
-            ]
-        })
+        self.typical_result = self.TESTED_CLS(
+            {
+                "outcome": self.TESTED_CLS.OUTCOME_PASS,
+                "execution_duration": 42.5,
+                "comments": "the screen was corrupted",
+                "return_code": 1,
+                # NOTE: those are actually specific to TESTED_CLS but it is
+                # a simple hack that gets the job done
+                "io_log_filename": "/path/to/log.txt",
+                "io_log": [
+                    (0, "stdout", b"first part\n"),
+                    (0.1, "stdout", b"second part\n"),
+                ],
+            }
+        )
         self.session_dir = None
 
     def test_repr_xxxJobResult_outcome(self):
@@ -84,28 +86,28 @@ class BaseJobResultTestsTestsMixIn:
         verify that DiskJobResult.outcome is serialized correctly
         """
         data = self.repr_method(self.typical_result, self.session_dir)
-        self.assertEqual(data['outcome'], DiskJobResult.OUTCOME_PASS)
+        self.assertEqual(data["outcome"], DiskJobResult.OUTCOME_PASS)
 
     def test_repr_xxxJobResult_execution_duration(self):
         """
         verify that DiskJobResult.execution_duration is serialized correctly
         """
         data = self.repr_method(self.typical_result, self.session_dir)
-        self.assertAlmostEqual(data['execution_duration'], 42.5)
+        self.assertAlmostEqual(data["execution_duration"], 42.5)
 
     def test_repr_xxxJobResult_comments(self):
         """
         verify that DiskJobResult.comments is serialized correctly
         """
         data = self.repr_method(self.typical_result, self.session_dir)
-        self.assertEqual(data['comments'], "the screen was corrupted")
+        self.assertEqual(data["comments"], "the screen was corrupted")
 
     def test_repr_xxxJobResult_return_code(self):
         """
         verify that DiskJobResult.return_code is serialized correctly
         """
         data = self.repr_method(self.typical_result, self.session_dir)
-        self.assertEqual(data['return_code'], 1)
+        self.assertEqual(data["return_code"], 1)
 
 
 class SuspendMemoryJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
@@ -125,24 +127,31 @@ class SuspendMemoryJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
         verify that the representation of an empty MemoryJobResult is okay
         """
         data = self.repr_method(self.empty_result, self.session_dir)
-        self.assertEqual(data, {
-            "outcome": None,
-            "execution_duration": None,
-            "comments": None,
-            "return_code": None,
-            "io_log": [],
-        })
+        self.assertEqual(
+            data,
+            {
+                "outcome": None,
+                "execution_duration": None,
+                "comments": None,
+                "return_code": None,
+                "io_log": [],
+            },
+        )
 
     def test_repr_MemoryJobResult_io_log(self):
         """
         verify that MemoryJobResult.io_log is serialized correctly
         """
         data = self.helper._repr_MemoryJobResult(
-            self.typical_result, self.session_dir)
-        self.assertEqual(data['io_log'], [
-            [0, 'stdout', 'Zmlyc3QgcGFydAo='],
-            [0.1, 'stdout', 'c2Vjb25kIHBhcnQK'],
-        ])
+            self.typical_result, self.session_dir
+        )
+        self.assertEqual(
+            data["io_log"],
+            [
+                [0, "stdout", "Zmlyc3QgcGFydAo="],
+                [0.1, "stdout", "c2Vjb25kIHBhcnQK"],
+            ],
+        )
 
 
 class SuspendDiskJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
@@ -162,21 +171,25 @@ class SuspendDiskJobResultTests(BaseJobResultTestsTestsMixIn, TestCase):
         verify that the representation of an empty DiskJobResult is okay
         """
         data = self.repr_method(self.empty_result, self.session_dir)
-        self.assertEqual(data, {
-            "outcome": None,
-            "execution_duration": None,
-            "comments": None,
-            "return_code": None,
-            "io_log_filename": None,
-        })
+        self.assertEqual(
+            data,
+            {
+                "outcome": None,
+                "execution_duration": None,
+                "comments": None,
+                "return_code": None,
+                "io_log_filename": None,
+            },
+        )
 
     def test_repr_DiskJobResult_io_log_filename(self):
         """
         verify that DiskJobResult.io_log_filename is serialized correctly
         """
         data = self.helper._repr_DiskJobResult(
-            self.typical_result, self.session_dir)
-        self.assertEqual(data['io_log_filename'], "/path/to/log.txt")
+            self.typical_result, self.session_dir
+        )
+        self.assertEqual(data["io_log_filename"], "/path/to/log.txt")
 
 
 class Suspend5DiskJobResultTests(SuspendDiskJobResultTests):
@@ -188,16 +201,14 @@ class Suspend5DiskJobResultTests(SuspendDiskJobResultTests):
     HELPER_CLS = SessionSuspendHelper5
 
     def test_repr_DiskJobResult_io_log_filename__no_session_dir(self):
-        """ io_log_filename is absolute in session_dir is not used.  """
-        data = self.helper._repr_DiskJobResult(
-            self.typical_result, None)
-        self.assertEqual(data['io_log_filename'], "/path/to/log.txt")
+        """io_log_filename is absolute in session_dir is not used."""
+        data = self.helper._repr_DiskJobResult(self.typical_result, None)
+        self.assertEqual(data["io_log_filename"], "/path/to/log.txt")
 
     def test_repr_DiskJobResult_io_log_filename__session_dir(self):
-        """ io_log_filename is relative if session_dir is used. """
-        data = self.helper._repr_DiskJobResult(
-            self.typical_result, "/path/to")
-        self.assertEqual(data['io_log_filename'], "log.txt")
+        """io_log_filename is relative if session_dir is used."""
+        data = self.helper._repr_DiskJobResult(self.typical_result, "/path/to")
+        self.assertEqual(data["io_log_filename"], "log.txt")
 
 
 class SessionSuspendHelper1Tests(TestCase):
@@ -223,11 +234,12 @@ class SessionSuspendHelper1Tests(TestCase):
         calls _repr_MemoryJobResult
         """
         mpo = mock.patch.object
-        with mpo(self.helper, '_repr_MemoryJobResult'):
+        with mpo(self.helper, "_repr_MemoryJobResult"):
             result = MemoryJobResult({})
             self.helper._repr_JobResult(result, self.session_dir)
             self.helper._repr_MemoryJobResult.assert_called_once_with(
-                result, None)
+                result, None
+            )
 
     def test_repr_JobResult_with_DiskJobResult(self):
         """
@@ -235,11 +247,12 @@ class SessionSuspendHelper1Tests(TestCase):
         calls _repr_DiskJobResult
         """
         mpo = mock.patch.object
-        with mpo(self.helper, '_repr_DiskJobResult'):
+        with mpo(self.helper, "_repr_DiskJobResult"):
             result = DiskJobResult({})
             self.helper._repr_JobResult(result, self.session_dir)
             self.helper._repr_DiskJobResult.assert_called_once_with(
-                result, None)
+                result, None
+            )
 
     def test_repr_JobResult_with_junk(self):
         """
@@ -255,46 +268,55 @@ class SessionSuspendHelper1Tests(TestCase):
         """
         # all defaults with empty values
         data = self.helper._repr_SessionMetaData(
-            SessionMetaData(), self.session_dir)
-        self.assertEqual(data, {
-            'title': None,
-            'flags': [],
-            'running_job_name': None
-        })
+            SessionMetaData(), self.session_dir
+        )
+        self.assertEqual(
+            data, {"title": None, "flags": [], "running_job_name": None}
+        )
 
     def test_repr_SessionMetaData_typical_metadata(self):
         """
         verify that representation of typical SessionMetaData is okay
         """
         # no surprises here, just the same data copied over
-        data = self.helper._repr_SessionMetaData(SessionMetaData(
-            title='USB Testing session',
-            flags=['incomplete'],
-            running_job_name='usb/detect'
-        ), self.session_dir)
-        self.assertEqual(data, {
-            'title': 'USB Testing session',
-            'flags': ['incomplete'],
-            'running_job_name': 'usb/detect',
-        })
+        data = self.helper._repr_SessionMetaData(
+            SessionMetaData(
+                title="USB Testing session",
+                flags=["incomplete"],
+                running_job_name="usb/detect",
+            ),
+            self.session_dir,
+        )
+        self.assertEqual(
+            data,
+            {
+                "title": "USB Testing session",
+                "flags": ["incomplete"],
+                "running_job_name": "usb/detect",
+            },
+        )
 
     def test_repr_SessionState_empty_session(self):
         """
         verify that representation of empty SessionState is okay
         """
         data = self.helper._repr_SessionState(
-            SessionState([]), self.session_dir)
-        self.assertEqual(data, {
-            'jobs': {},
-            'results': {},
-            'desired_job_list': [],
-            'mandatory_job_list': [],
-            'metadata': {
-                'title': None,
-                'flags': [],
-                'running_job_name': None,
+            SessionState([]), self.session_dir
+        )
+        self.assertEqual(
+            data,
+            {
+                "jobs": {},
+                "results": {},
+                "desired_job_list": [],
+                "mandatory_job_list": [],
+                "metadata": {
+                    "title": None,
+                    "flags": [],
+                    "running_job_name": None,
+                },
             },
-        })
+        )
 
     def test_json_repr_has_version_field(self):
         """
@@ -308,7 +330,7 @@ class SessionSuspendHelper1Tests(TestCase):
         verify what the version field is
         """
         data = self.helper._json_repr(SessionState([]), self.session_dir)
-        self.assertEqual(data['version'], 1)
+        self.assertEqual(data["version"], 1)
 
     def test_json_repr_stores_session_state(self):
         """
@@ -333,11 +355,15 @@ class SessionSuspendHelper1Tests(TestCase):
         # In the meantime we can only test that we got bytes out
         self.assertIsInstance(data, bytes)
         # And that we can gzip uncompress them and get what we expected
-        self.assertEqual(gzip.decompress(data), (
-            b'{"session":{"desired_job_list":[],"jobs":{},'
-            b'"mandatory_job_list":[],"metadata":'
-            b'{"flags":[],"running_job_name":null,"title":null},"results":{}'
-            b'},"version":1}'))
+        self.assertEqual(
+            gzip.decompress(data),
+            (
+                b'{"session":{"desired_job_list":[],"jobs":{},'
+                b'"mandatory_job_list":[],"metadata":'
+                b'{"flags":[],"running_job_name":null,"title":null},"results":{}'
+                b'},"version":1}'
+            ),
+        )
 
 
 class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
@@ -354,7 +380,7 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
         verify what the version field is
         """
         data = self.helper._json_repr(SessionState([]), self.session_dir)
-        self.assertEqual(data['version'], 2)
+        self.assertEqual(data["version"], 2)
 
     def test_repr_SessionMetaData_empty_metadata(self):
         """
@@ -362,57 +388,70 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
         """
         # all defaults with empty values
         data = self.helper._repr_SessionMetaData(
-            SessionMetaData(), self.session_dir)
-        self.assertEqual(data, {
-            'title': None,
-            'flags': [],
-            'running_job_name': None,
-            'app_blob': ''
-        })
+            SessionMetaData(), self.session_dir
+        )
+        self.assertEqual(
+            data,
+            {
+                "title": None,
+                "flags": [],
+                "running_job_name": None,
+                "app_blob": "",
+            },
+        )
 
     def test_repr_SessionMetaData_typical_metadata(self):
         """
         verify that representation of typical SessionMetaData is okay
         """
         # no surprises here, just the same data copied over
-        data = self.helper._repr_SessionMetaData(SessionMetaData(
-            title='USB Testing session',
-            flags=['incomplete'],
-            running_job_name='usb/detect',
-            app_blob=b'blob',
-        ), self.session_dir)
-        self.assertEqual(data, {
-            'title': 'USB Testing session',
-            'flags': ['incomplete'],
-            'running_job_name': 'usb/detect',
-            'app_blob': 'YmxvYg==',
-        })
+        data = self.helper._repr_SessionMetaData(
+            SessionMetaData(
+                title="USB Testing session",
+                flags=["incomplete"],
+                running_job_name="usb/detect",
+                app_blob=b"blob",
+            ),
+            self.session_dir,
+        )
+        self.assertEqual(
+            data,
+            {
+                "title": "USB Testing session",
+                "flags": ["incomplete"],
+                "running_job_name": "usb/detect",
+                "app_blob": "YmxvYg==",
+            },
+        )
 
     def test_repr_SessionState_empty_session(self):
         """
         verify that representation of empty SessionState is okay
         """
         data = self.helper._repr_SessionState(
-            SessionState([]), self.session_dir)
-        self.assertEqual(data, {
-            'jobs': {},
-            'results': {},
-            'desired_job_list': [],
-            'mandatory_job_list': [],
-            'metadata': {
-                'title': None,
-                'flags': [],
-                'running_job_name': None,
-                'app_blob': '',
+            SessionState([]), self.session_dir
+        )
+        self.assertEqual(
+            data,
+            {
+                "jobs": {},
+                "results": {},
+                "desired_job_list": [],
+                "mandatory_job_list": [],
+                "metadata": {
+                    "title": None,
+                    "flags": [],
+                    "running_job_name": None,
+                    "app_blob": "",
+                },
             },
-        })
+        )
 
     def test_suspend(self):
         """
         verify that the suspend() method returns gzipped JSON representation
         """
-        data = self.helper.suspend(
-            SessionState([]), self.session_dir)
+        data = self.helper.suspend(SessionState([]), self.session_dir)
         # XXX: we cannot really test what the compressed data looks like
         # because apparently python3.2 gzip output is non-deterministic.
         # It seems to be an instance of the gzip bug that was fixed a few
@@ -424,11 +463,15 @@ class SessionSuspendHelper2Tests(SessionSuspendHelper1Tests):
         # In the meantime we can only test that we got bytes out
         self.assertIsInstance(data, bytes)
         # And that we can gzip uncompress them and get what we expected
-        self.assertEqual(gzip.decompress(data), (
-            b'{"session":{"desired_job_list":[],"jobs":{},'
-            b'"mandatory_job_list":[],"metadata":'
-            b'{"app_blob":"","flags":[],"running_job_name":null,"title":null'
-            b'},"results":{}},"version":2}'))
+        self.assertEqual(
+            gzip.decompress(data),
+            (
+                b'{"session":{"desired_job_list":[],"jobs":{},'
+                b'"mandatory_job_list":[],"metadata":'
+                b'{"app_blob":"","flags":[],"running_job_name":null,"title":null'
+                b'},"results":{}},"version":2}'
+            ),
+        )
 
 
 class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
@@ -445,7 +488,7 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
         verify what the version field is
         """
         data = self.helper._json_repr(SessionState([]), self.session_dir)
-        self.assertEqual(data['version'], 3)
+        self.assertEqual(data["version"], 3)
 
     def test_repr_SessionMetaData_empty_metadata(self):
         """
@@ -453,54 +496,68 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
         """
         # all defaults with empty values
         data = self.helper._repr_SessionMetaData(
-            SessionMetaData(), self.session_dir)
-        self.assertEqual(data, {
-            'title': None,
-            'flags': [],
-            'running_job_name': None,
-            'app_blob': '',
-            'app_id': None
-        })
+            SessionMetaData(), self.session_dir
+        )
+        self.assertEqual(
+            data,
+            {
+                "title": None,
+                "flags": [],
+                "running_job_name": None,
+                "app_blob": "",
+                "app_id": None,
+            },
+        )
 
     def test_repr_SessionMetaData_typical_metadata(self):
         """
         verify that representation of typical SessionMetaData is okay
         """
         # no surprises here, just the same data copied over
-        data = self.helper._repr_SessionMetaData(SessionMetaData(
-            title='USB Testing session',
-            flags=['incomplete'],
-            running_job_name='usb/detect',
-            app_blob=b'blob',
-            app_id='com.canonical.certification.plainbox',
-        ), self.session_dir)
-        self.assertEqual(data, {
-            'title': 'USB Testing session',
-            'flags': ['incomplete'],
-            'running_job_name': 'usb/detect',
-            'app_blob': 'YmxvYg==',
-            'app_id': 'com.canonical.certification.plainbox'
-        })
+        data = self.helper._repr_SessionMetaData(
+            SessionMetaData(
+                title="USB Testing session",
+                flags=["incomplete"],
+                running_job_name="usb/detect",
+                app_blob=b"blob",
+                app_id="com.canonical.certification.plainbox",
+            ),
+            self.session_dir,
+        )
+        self.assertEqual(
+            data,
+            {
+                "title": "USB Testing session",
+                "flags": ["incomplete"],
+                "running_job_name": "usb/detect",
+                "app_blob": "YmxvYg==",
+                "app_id": "com.canonical.certification.plainbox",
+            },
+        )
 
     def test_repr_SessionState_empty_session(self):
         """
         verify that representation of empty SessionState is okay
         """
         data = self.helper._repr_SessionState(
-            SessionState([]), self.session_dir)
-        self.assertEqual(data, {
-            'jobs': {},
-            'results': {},
-            'desired_job_list': [],
-            'mandatory_job_list': [],
-            'metadata': {
-                'title': None,
-                'flags': [],
-                'running_job_name': None,
-                'app_blob': '',
-                'app_id': None,
+            SessionState([]), self.session_dir
+        )
+        self.assertEqual(
+            data,
+            {
+                "jobs": {},
+                "results": {},
+                "desired_job_list": [],
+                "mandatory_job_list": [],
+                "metadata": {
+                    "title": None,
+                    "flags": [],
+                    "running_job_name": None,
+                    "app_blob": "",
+                    "app_id": None,
+                },
             },
-        })
+        )
 
     def test_suspend(self):
         """
@@ -518,12 +575,16 @@ class SessionSuspendHelper3Tests(SessionSuspendHelper2Tests):
         # In the meantime we can only test that we got bytes out
         self.assertIsInstance(data, bytes)
         # And that we can gzip uncompress them and get what we expected
-        self.assertEqual(gzip.decompress(data), (
-            b'{"session":{"desired_job_list":[],"jobs":{},'
-            b'"mandatory_job_list":[],"metadata":'
-            b'{"app_blob":"","app_id":null,"flags":[],'
-            b'"running_job_name":null,"title":null},"results":{}},'
-            b'"version":3}'))
+        self.assertEqual(
+            gzip.decompress(data),
+            (
+                b'{"session":{"desired_job_list":[],"jobs":{},'
+                b'"mandatory_job_list":[],"metadata":'
+                b'{"app_blob":"","app_id":null,"flags":[],'
+                b'"running_job_name":null,"title":null},"results":{}},'
+                b'"version":3}'
+            ),
+        )
 
 
 class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
@@ -540,7 +601,7 @@ class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
         verify what the version field is
         """
         data = self.helper._json_repr(SessionState([]), self.session_dir)
-        self.assertEqual(data['version'], 4)
+        self.assertEqual(data["version"], 4)
 
     def test_repr_SessionState_typical_session(self):
         """
@@ -550,50 +611,63 @@ class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
         should not be mentioned. Their results (empty results) should be
         ignored.
         """
-        used_job = JobDefinition({
-            "plugin": "shell",
-            "id": "used",
-            "command": "echo 'hello world'",
-        })
-        unused_job = JobDefinition({
-            "plugin": "shell",
-            "id": "unused",
-            "command": "echo 'hello world'",
-        })
-        used_result = MemoryJobResult({
-            "io_log": [
-                (0.0, "stdout", b'hello world\n'),
-            ],
-            'outcome': IJobResult.OUTCOME_PASS
-        })
+        used_job = JobDefinition(
+            {
+                "plugin": "shell",
+                "id": "used",
+                "command": "echo 'hello world'",
+            }
+        )
+        unused_job = JobDefinition(
+            {
+                "plugin": "shell",
+                "id": "unused",
+                "command": "echo 'hello world'",
+            }
+        )
+        used_result = MemoryJobResult(
+            {
+                "io_log": [
+                    (0.0, "stdout", b"hello world\n"),
+                ],
+                "outcome": IJobResult.OUTCOME_PASS,
+            }
+        )
         session_state = SessionState([used_job, unused_job])
         session_state.update_desired_job_list([used_job])
         session_state.update_job_result(used_job, used_result)
         data = self.helper._repr_SessionState(session_state, self.session_dir)
-        self.assertEqual(data, {
-            'jobs': {
-                'used': ('8c393c19fdfde1b6afc5b79d0a1617ecf7531cd832a16450dc'
-                         '2f3f50d329d373')
+        self.assertEqual(
+            data,
+            {
+                "jobs": {
+                    "used": (
+                        "8c393c19fdfde1b6afc5b79d0a1617ecf7531cd832a16450dc"
+                        "2f3f50d329d373"
+                    )
+                },
+                "results": {
+                    "used": [
+                        {
+                            "comments": None,
+                            "execution_duration": None,
+                            "io_log": [[0.0, "stdout", "aGVsbG8gd29ybGQK"]],
+                            "outcome": "pass",
+                            "return_code": None,
+                        }
+                    ]
+                },
+                "desired_job_list": ["used"],
+                "mandatory_job_list": [],
+                "metadata": {
+                    "title": None,
+                    "flags": [],
+                    "running_job_name": None,
+                    "app_blob": "",
+                    "app_id": None,
+                },
             },
-            'results': {
-                'used': [{
-                    'comments': None,
-                    'execution_duration': None,
-                    'io_log': [[0.0, 'stdout', 'aGVsbG8gd29ybGQK']],
-                    'outcome': 'pass',
-                    'return_code': None
-                }]
-            },
-            'desired_job_list': ['used'],
-            'mandatory_job_list': [],
-            'metadata': {
-                'title': None,
-                'flags': [],
-                'running_job_name': None,
-                'app_blob': '',
-                'app_id': None,
-            },
-        })
+        )
 
     def test_suspend(self):
         """
@@ -611,12 +685,16 @@ class SessionSuspendHelper4Tests(SessionSuspendHelper3Tests):
         # In the meantime we can only test that we got bytes out
         self.assertIsInstance(data, bytes)
         # And that we can gzip uncompress them and get what we expected
-        self.assertEqual(gzip.decompress(data), (
-            b'{"session":{"desired_job_list":[],"jobs":{},'
-            b'"mandatory_job_list":[],"metadata":'
-            b'{"app_blob":"","app_id":null,"flags":[],'
-            b'"running_job_name":null,"title":null},"results":{}},'
-            b'"version":4}'))
+        self.assertEqual(
+            gzip.decompress(data),
+            (
+                b'{"session":{"desired_job_list":[],"jobs":{},'
+                b'"mandatory_job_list":[],"metadata":'
+                b'{"app_blob":"","app_id":null,"flags":[],'
+                b'"running_job_name":null,"title":null},"results":{}},'
+                b'"version":4}'
+            ),
+        )
 
 
 class SessionSuspendHelper5Tests(SessionSuspendHelper4Tests):
@@ -633,7 +711,7 @@ class SessionSuspendHelper5Tests(SessionSuspendHelper4Tests):
         verify what the version field is
         """
         data = self.helper._json_repr(SessionState([]), self.session_dir)
-        self.assertEqual(data['version'], 5)
+        self.assertEqual(data["version"], 5)
 
     def test_suspend(self):
         """
@@ -651,12 +729,16 @@ class SessionSuspendHelper5Tests(SessionSuspendHelper4Tests):
         # In the meantime we can only test that we got bytes out
         self.assertIsInstance(data, bytes)
         # And that we can gzip uncompress them and get what we expected
-        self.assertEqual(gzip.decompress(data), (
-            b'{"session":{"desired_job_list":[],"jobs":{},'
-            b'"mandatory_job_list":[],"metadata":'
-            b'{"app_blob":"","app_id":null,"flags":[],'
-            b'"running_job_name":null,"title":null},"results":{}},'
-            b'"version":5}'))
+        self.assertEqual(
+            gzip.decompress(data),
+            (
+                b'{"session":{"desired_job_list":[],"jobs":{},'
+                b'"mandatory_job_list":[],"metadata":'
+                b'{"app_blob":"","app_id":null,"flags":[],'
+                b'"running_job_name":null,"title":null},"results":{}},'
+                b'"version":5}'
+            ),
+        )
 
 
 class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
@@ -673,7 +755,7 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
         verify what the version field is
         """
         data = self.helper._json_repr(SessionState([]), self.session_dir)
-        self.assertEqual(data['version'], 6)
+        self.assertEqual(data["version"], 6)
 
     def test_suspend(self):
         """
@@ -691,13 +773,17 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
         # In the meantime we can only test that we got bytes out
         self.assertIsInstance(data, bytes)
         # And that we can gzip uncompress them and get what we expected
-        self.assertEqual(gzip.decompress(data), (
-            b'{"session":{"desired_job_list":[],"jobs":{},'
-            b'"mandatory_job_list":[],"metadata":'
-            b'{"app_blob":"","app_id":null,"custom_joblist":false,"flags":[],'
-            b'"rejected_jobs":[],'
-            b'"running_job_name":null,"title":null},"results":{}},'
-            b'"version":6}'))
+        self.assertEqual(
+            gzip.decompress(data),
+            (
+                b'{"session":{"desired_job_list":[],"jobs":{},'
+                b'"mandatory_job_list":[],"metadata":'
+                b'{"app_blob":"","app_id":null,"custom_joblist":false,"flags":[],'
+                b'"rejected_jobs":[],'
+                b'"running_job_name":null,"title":null},"results":{}},'
+                b'"version":6}'
+            ),
+        )
 
     def test_repr_SessionState_typical_session(self):
         """
@@ -707,74 +793,91 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
         should not be mentioned. Their results (empty results) should be
         ignored.
         """
-        used_job = JobDefinition({
-            "plugin": "shell",
-            "id": "used",
-            "command": "echo 'hello world'",
-        })
-        unused_job = JobDefinition({
-            "plugin": "shell",
-            "id": "unused",
-            "command": "echo 'hello world'",
-        })
-        used_result = MemoryJobResult({
-            "io_log": [
-                (0.0, "stdout", b'hello world\n'),
-            ],
-            'outcome': IJobResult.OUTCOME_PASS
-        })
+        used_job = JobDefinition(
+            {
+                "plugin": "shell",
+                "id": "used",
+                "command": "echo 'hello world'",
+            }
+        )
+        unused_job = JobDefinition(
+            {
+                "plugin": "shell",
+                "id": "unused",
+                "command": "echo 'hello world'",
+            }
+        )
+        used_result = MemoryJobResult(
+            {
+                "io_log": [
+                    (0.0, "stdout", b"hello world\n"),
+                ],
+                "outcome": IJobResult.OUTCOME_PASS,
+            }
+        )
         session_state = SessionState([used_job, unused_job])
         session_state.update_desired_job_list([used_job])
         session_state.update_job_result(used_job, used_result)
         data = self.helper._repr_SessionState(session_state, self.session_dir)
-        self.assertEqual(data, {
-            'jobs': {
-                'used': ('8c393c19fdfde1b6afc5b79d0a1617ecf7531cd832a16450dc'
-                         '2f3f50d329d373')
+        self.assertEqual(
+            data,
+            {
+                "jobs": {
+                    "used": (
+                        "8c393c19fdfde1b6afc5b79d0a1617ecf7531cd832a16450dc"
+                        "2f3f50d329d373"
+                    )
+                },
+                "results": {
+                    "used": [
+                        {
+                            "comments": None,
+                            "execution_duration": None,
+                            "io_log": [[0.0, "stdout", "aGVsbG8gd29ybGQK"]],
+                            "outcome": "pass",
+                            "return_code": None,
+                        }
+                    ]
+                },
+                "desired_job_list": ["used"],
+                "mandatory_job_list": [],
+                "metadata": {
+                    "title": None,
+                    "flags": [],
+                    "running_job_name": None,
+                    "app_blob": "",
+                    "app_id": None,
+                    "custom_joblist": False,
+                    "rejected_jobs": [],
+                },
             },
-            'results': {
-                'used': [{
-                    'comments': None,
-                    'execution_duration': None,
-                    'io_log': [[0.0, 'stdout', 'aGVsbG8gd29ybGQK']],
-                    'outcome': 'pass',
-                    'return_code': None
-                }]
-            },
-            'desired_job_list': ['used'],
-            'mandatory_job_list': [],
-            'metadata': {
-                'title': None,
-                'flags': [],
-                'running_job_name': None,
-                'app_blob': '',
-                'app_id': None,
-                'custom_joblist': False,
-                'rejected_jobs': []
-            },
-        })
+        )
 
     def test_repr_SessionState_empty_session(self):
         """
         verify that representation of empty SessionState is okay
         """
         data = self.helper._repr_SessionState(
-            SessionState([]), self.session_dir)
-        self.assertEqual(data, {
-            'jobs': {},
-            'results': {},
-            'desired_job_list': [],
-            'mandatory_job_list': [],
-            'metadata': {
-                'title': None,
-                'flags': [],
-                'running_job_name': None,
-                'app_blob': '',
-                'app_id': None,
-                'custom_joblist': False,
-                'rejected_jobs': []
+            SessionState([]), self.session_dir
+        )
+        self.assertEqual(
+            data,
+            {
+                "jobs": {},
+                "results": {},
+                "desired_job_list": [],
+                "mandatory_job_list": [],
+                "metadata": {
+                    "title": None,
+                    "flags": [],
+                    "running_job_name": None,
+                    "app_blob": "",
+                    "app_id": None,
+                    "custom_joblist": False,
+                    "rejected_jobs": [],
+                },
             },
-        })
+        )
 
     def test_repr_SessionMetaData_empty_metadata(self):
         """
@@ -782,39 +885,49 @@ class SessionSuspendHelper6Tests(SessionSuspendHelper5Tests):
         """
         # all defaults with empty values
         data = self.helper._repr_SessionMetaData(
-            SessionMetaData(), self.session_dir)
+            SessionMetaData(), self.session_dir
+        )
         print(data)
-        self.assertEqual(data, {
-            'title': None,
-            'flags': [],
-            'running_job_name': None,
-            'app_blob': '',
-            'app_id': None,
-            'custom_joblist': False,
-            'rejected_jobs': []
-        })
+        self.assertEqual(
+            data,
+            {
+                "title": None,
+                "flags": [],
+                "running_job_name": None,
+                "app_blob": "",
+                "app_id": None,
+                "custom_joblist": False,
+                "rejected_jobs": [],
+            },
+        )
 
     def test_repr_SessionMetaData_typical_metadata(self):
         """
         verify that representation of typical SessionMetaData is okay
         """
         # no surprises here, just the same data copied over
-        data = self.helper._repr_SessionMetaData(SessionMetaData(
-            title='USB Testing session',
-            flags=['incomplete'],
-            running_job_name='usb/detect',
-            app_blob=b'blob',
-            app_id='com.canonical.certification.plainbox',
-        ), self.session_dir)
-        self.assertEqual(data, {
-            'title': 'USB Testing session',
-            'flags': ['incomplete'],
-            'running_job_name': 'usb/detect',
-            'app_blob': 'YmxvYg==',
-            'app_id': 'com.canonical.certification.plainbox',
-            'custom_joblist': False,
-            'rejected_jobs': []
-        })
+        data = self.helper._repr_SessionMetaData(
+            SessionMetaData(
+                title="USB Testing session",
+                flags=["incomplete"],
+                running_job_name="usb/detect",
+                app_blob=b"blob",
+                app_id="com.canonical.certification.plainbox",
+            ),
+            self.session_dir,
+        )
+        self.assertEqual(
+            data,
+            {
+                "title": "USB Testing session",
+                "flags": ["incomplete"],
+                "running_job_name": "usb/detect",
+                "app_blob": "YmxvYg==",
+                "app_id": "com.canonical.certification.plainbox",
+                "custom_joblist": False,
+                "rejected_jobs": [],
+            },
+        )
 
 
 class RegressionTests(TestCase):
@@ -828,8 +941,8 @@ class RegressionTests(TestCase):
         # - desired job list: [a]
         # - run list [a_dep, a] (computed)
         # - job_repr: {a_dep: checksum}
-        job_a = make_job(id='a', depends='a_dep')
-        job_a_dep = make_job(id='a_dep')
+        job_a = make_job(id="a", depends="a_dep")
+        job_a_dep = make_job(id="a_dep")
         state = SessionState([job_a, job_a_dep])
         state.update_desired_job_list([job_a])
         self.assertEqual(state.run_list, [job_a_dep, job_a])
@@ -837,17 +950,17 @@ class RegressionTests(TestCase):
         helper = SessionSuspendHelper4()
         session_dir = None
         # Mock away the meta-data as we're not testing that
-        with mock.patch.object(helper, '_repr_SessionMetaData') as m:
-            m.return_value = 'mocked'
+        with mock.patch.object(helper, "_repr_SessionMetaData") as m:
+            m.return_value = "mocked"
             actual = helper._repr_SessionState(state, session_dir)
         expected = {
-            'jobs': {
+            "jobs": {
                 job_a_dep.id: job_a_dep.checksum,
                 job_a.id: job_a.checksum,
             },
-            'desired_job_list': [job_a.id],
-            'mandatory_job_list': [],
-            'results': {},
-            'metadata': 'mocked'
+            "desired_job_list": [job_a.id],
+            "mandatory_job_list": [],
+            "results": {},
+            "metadata": "mocked",
         }
         self.assertEqual(expected, actual)

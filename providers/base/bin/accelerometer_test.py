@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-'''
+"""
 script to test accerometer functionality
 
 Copyright (C) 2012 Canonical Ltd.
@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 The purpose of this script is to simply interact with an onboard
 accelerometer, and check to be sure that the x, y, z axis respond
 to physical movement of hardware.
-'''
+"""
 
 from argparse import ArgumentParser
 import gi
@@ -32,12 +32,13 @@ import re
 import sys
 import threading
 import time
-gi.require_version('Gdk', '3.0')
-gi.require_version('GLib', '2.0')
+
+gi.require_version("Gdk", "3.0")
+gi.require_version("GLib", "2.0")
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gdk, GLib, Gtk                    # noqa: E402
-from subprocess import Popen, PIPE, check_output, STDOUT    # noqa: E402
-from subprocess import CalledProcessError                   # noqa: E402
+from gi.repository import Gdk, GLib, Gtk  # noqa: E402
+from subprocess import Popen, PIPE, check_output, STDOUT  # noqa: E402
+from subprocess import CalledProcessError  # noqa: E402
 from checkbox_support.parsers.modinfo import ModinfoParser  # noqa: E402
 
 handler = logging.StreamHandler()
@@ -77,19 +78,25 @@ class AccelerometerUI(Gtk.Window):
         w_table.attach(Gtk.Label(message), 0, 0, 4, 1)
 
         w_table.attach(self.up_icon, 2, 2, 1, 1)
-        w_table.attach_next_to(self.debug_label, self.up_icon,
-                               Gtk.PositionType.BOTTOM, 1, 1)
-        w_table.attach_next_to(self.down_icon, self.debug_label,
-                               Gtk.PositionType.BOTTOM, 1, 1)
-        w_table.attach_next_to(self.left_icon, self.debug_label,
-                               Gtk.PositionType.LEFT, 1, 1)
-        w_table.attach_next_to(self.right_icon, self.debug_label,
-                               Gtk.PositionType.RIGHT, 1, 1)
+        w_table.attach_next_to(
+            self.debug_label, self.up_icon, Gtk.PositionType.BOTTOM, 1, 1
+        )
+        w_table.attach_next_to(
+            self.down_icon, self.debug_label, Gtk.PositionType.BOTTOM, 1, 1
+        )
+        w_table.attach_next_to(
+            self.left_icon, self.debug_label, Gtk.PositionType.LEFT, 1, 1
+        )
+        w_table.attach_next_to(
+            self.right_icon, self.debug_label, Gtk.PositionType.RIGHT, 1, 1
+        )
 
     def update_axis_icon(self, direction):
         """Change desired directional icon to checkmark"""
-        exec('self.%s_icon.set_from_stock' % (direction) +
-             '(Gtk.STOCK_YES, size=Gtk.IconSize.BUTTON)')
+        exec(
+            "self.%s_icon.set_from_stock" % (direction)
+            + "(Gtk.STOCK_YES, size=Gtk.IconSize.BUTTON)"
+        )
 
     def update_debug_label(self, text):
         """Update axis information in center of UI"""
@@ -139,8 +146,9 @@ class AxisData(threading.Thread):
     def grab_current_readings(self):
         """Search device path and return axis tuple"""
         time.sleep(0.5)  # Sleep to accomodate slower processors
-        data_file = os.path.join("/sys", self.device_path,
-                                 "device", "position")
+        data_file = os.path.join(
+            "/sys", self.device_path, "device", "position"
+        )
 
         # Try and retrieve positional data from kernel
         try:
@@ -226,17 +234,22 @@ def insert_supported_module(oem_module):
     """Try and insert supported module to see if we get any init errors"""
     try:
         stream = check_output(
-            ['modinfo', oem_module], stderr=STDOUT, universal_newlines=True)
+            ["modinfo", oem_module], stderr=STDOUT, universal_newlines=True
+        )
     except CalledProcessError as err:
         print("Error accessing modinfo for %s: " % oem_module, file=sys.stderr)
         print(err.output, file=sys.stderr)
         return err.returncode
 
     parser = ModinfoParser(stream)
-    module = os.path.basename(parser.get_field('filename'))
+    module = os.path.basename(parser.get_field("filename"))
 
-    insmod_output = Popen(['insmod %s' % module], stderr=PIPE,
-                          shell=True, universal_newlines=True)
+    insmod_output = Popen(
+        ["insmod %s" % module],
+        stderr=PIPE,
+        shell=True,
+        universal_newlines=True,
+    )
 
     error = insmod_output.stderr.read()
     if "Permission denied" in error:
@@ -248,13 +261,17 @@ def insert_supported_module(oem_module):
 def check_module_status():
     """Looks to see if it can determine the hardware manufacturer
     and report corresponding accelerometer driver status"""
-    oem_driver_pool = {"hewlett-packard": "hp_accel",
-                       "toshiba": "hp_accel",
-                       "ibm": "hdaps", "lenovo": "hdaps"}
+    oem_driver_pool = {
+        "hewlett-packard": "hp_accel",
+        "toshiba": "hp_accel",
+        "ibm": "hdaps",
+        "lenovo": "hdaps",
+    }
 
     oem_module = None
-    dmi_info = Popen(['dmidecode'], stdout=PIPE, stderr=PIPE,
-                     universal_newlines=True)
+    dmi_info = Popen(
+        ["dmidecode"], stdout=PIPE, stderr=PIPE, universal_newlines=True
+    )
 
     output, error = dmi_info.communicate()
 
@@ -281,7 +298,7 @@ def check_module_status():
         if insert_supported_module(oem_module) is not None:
             logging.error("Failed module insertion")
         # Check dmesg status for supported module
-        driver_status = Popen(['dmesg'], stdout=PIPE, universal_newlines=True)
+        driver_status = Popen(["dmesg"], stdout=PIPE, universal_newlines=True)
         module_regex = oem_module + ".*"
         kernel_notes = re.findall(module_regex, driver_status.stdout.read())
         # Report ALL findings, it's useful to note it the driver failed init
@@ -320,12 +337,20 @@ def main():
 
     parser = ArgumentParser(description="Tests accelerometer functionality")
 
-    parser.add_argument('-m', '--manual', default=False,
-                        action='store_true',
-                        help="For manual test with visual notification")
-    parser.add_argument('-a', '--automated', default=True,
-                        action='store_true',
-                        help="For automated test using defined parameters")
+    parser.add_argument(
+        "-m",
+        "--manual",
+        default=False,
+        action="store_true",
+        help="For manual test with visual notification",
+    )
+    parser.add_argument(
+        "-a",
+        "--automated",
+        default=True,
+        action="store_true",
+        help="For automated test using defined parameters",
+    )
 
     args = parser.parse_args()
 
@@ -350,5 +375,5 @@ def main():
         time.sleep(5)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

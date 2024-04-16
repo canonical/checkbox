@@ -15,11 +15,12 @@ import tempfile
 import time
 
 import gi
-gi.require_version('GUdev', '1.0')
-from gi.repository import GUdev                                 # noqa: E402
 
-from checkbox_support.dbus import connect_to_system_bus         # noqa: E402
-from checkbox_support.dbus.udisks2 import (                     # noqa: E402
+gi.require_version("GUdev", "1.0")
+from gi.repository import GUdev  # noqa: E402
+
+from checkbox_support.dbus import connect_to_system_bus  # noqa: E402
+from checkbox_support.dbus.udisks2 import (  # noqa: E402
     UDISKS2_BLOCK_INTERFACE,
     UDISKS2_DRIVE_INTERFACE,
     UDISKS2_FILESYSTEM_INTERFACE,
@@ -28,22 +29,25 @@ from checkbox_support.dbus.udisks2 import (                     # noqa: E402
     UDisks2Observer,
     is_udisks2_supported,
     lookup_udev_device,
-    map_udisks1_connection_bus)
+    map_udisks1_connection_bus,
+)
 from checkbox_support.heuristics.udisks2 import is_memory_card  # noqa: E402
-from checkbox_support.helpers.human_readable_bytes import (     # noqa: E402
-    HumanReadableBytes)
-from checkbox_support.parsers.udevadm import (                  # noqa: E402
+from checkbox_support.helpers.human_readable_bytes import (  # noqa: E402
+    HumanReadableBytes,
+)
+from checkbox_support.parsers.udevadm import (  # noqa: E402
     CARD_READER_RE,
     GENERIC_RE,
     FLASH_RE,
-    find_pkname_is_root_mountpoint)                             # noqa: E402
-from checkbox_support.udev import get_interconnect_speed        # noqa: E402
-from checkbox_support.udev import get_udev_block_devices        # noqa: E402
-from checkbox_support.udev import get_udev_xhci_devices         # noqa: E402
+    find_pkname_is_root_mountpoint,
+)  # noqa: E402
+from checkbox_support.udev import get_interconnect_speed  # noqa: E402
+from checkbox_support.udev import get_udev_block_devices  # noqa: E402
+from checkbox_support.udev import get_udev_xhci_devices  # noqa: E402
 
 
-class ActionTimer():
-    '''Class to implement a simple timer'''
+class ActionTimer:
+    """Class to implement a simple timer"""
 
     def __enter__(self):
         self.start = time.time()
@@ -54,19 +58,19 @@ class ActionTimer():
         self.interval = self.stop - self.start
 
 
-class RandomData():
-    '''Class to create data files'''
+class RandomData:
+    """Class to create data files"""
 
     def __init__(self, size):
         self.tfile = tempfile.NamedTemporaryFile(delete=False)
-        self.path = ''
-        self.name = ''
+        self.path = ""
+        self.name = ""
         self.path, self.name = os.path.split(self.tfile.name)
         self._write_test_data_file(size)
 
     def _generate_test_data(self):
         seed = "104872948765827105728492766217823438120"
-        phrase = '''
+        phrase = """
         Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam
         nonummy nibh euismod tincidunt ut laoreet dolore magna aliquam erat
         volutpat. Ut wisi enim ad minim veniam, quis nostrud exerci tation
@@ -75,26 +79,26 @@ class RandomData():
         molestie consequat, vel illum dolore eu feugiat nulla facilisis at vero
         eros et accumsan et iusto odio dignissim qui blandit praesent luptatum
         zzril delenit augue duis dolore te feugait nulla facilisi.
-        '''
-        words = phrase.replace('\n', '').split()
+        """
+        words = phrase.replace("\n", "").split()
         word_deque = collections.deque(words)
         seed_deque = collections.deque(seed)
         while True:
-            yield ' '.join(list(word_deque))
+            yield " ".join(list(word_deque))
             word_deque.rotate(int(seed_deque[0]))
             seed_deque.rotate(1)
 
     def _write_test_data_file(self, size):
         data = self._generate_test_data()
         while os.path.getsize(self.tfile.name) < size:
-            self.tfile.write(next(data).encode('UTF-8'))
+            self.tfile.write(next(data).encode("UTF-8"))
         return self
 
 
 def md5_hash_file(path):
     md5 = hashlib.md5()
     try:
-        with open(path, 'rb') as stream:
+        with open(path, "rb") as stream:
             while True:
                 data = stream.read(8192)
                 if not data:
@@ -113,7 +117,7 @@ def on_ubuntucore():
     """
     snap = os.getenv("SNAP")
     if snap:
-        with open(os.path.join(snap, 'meta/snap.yaml')) as f:
+        with open(os.path.join(snap, "meta/snap.yaml")) as f:
             for line in f.readlines():
                 if line == "confinement: classic\n":
                     return False
@@ -121,26 +125,26 @@ def on_ubuntucore():
     return False
 
 
-class DiskTest():
-    ''' Class to contain various methods for testing removable disks '''
+class DiskTest:
+    """Class to contain various methods for testing removable disks"""
 
     def __init__(self, device, memorycard, lsblkcommand):
-        self.rem_disks = {}     # mounted before the script running
+        self.rem_disks = {}  # mounted before the script running
         self.rem_disks_nm = {}  # not mounted before the script running
         self.rem_disks_memory_cards = {}
         self.rem_disks_memory_cards_nm = {}
         self.rem_disks_speed = {}
         # LP: #1313581, TODO: extend to be rem_disks_driver
         self.rem_disks_xhci = {}
-        self.data = ''
-        self.lsblk = ''
+        self.data = ""
+        self.lsblk = ""
         self.device = device
         self.memorycard = memorycard
         self._run_lsblk(lsblkcommand)
         self._probe_disks()
 
     def read_file(self, source):
-        with open(source, 'rb') as infile:
+        with open(source, "rb") as infile:
             try:
                 self.data = infile.read()
             except IOError as exc:
@@ -151,7 +155,7 @@ class DiskTest():
 
     def write_file(self, data, dest):
         try:
-            outfile = open(dest, 'wb', 0)
+            outfile = open(dest, "wb", 0)
         except OSError as exc:
             logging.error("Unable to open %s for writing.", dest)
             logging.error("  %s", exc)
@@ -176,19 +180,22 @@ class DiskTest():
 
     def _find_parent(self, device):
         if self.lsblk:
-            pattern = re.compile('KNAME="(?P<KNAME>.*)" '
-                                 'TYPE="(?P<TYPE>.*)" '
-                                 'MOUNTPOINT="(?P<MOUNTPOINT>.*)"')
+            pattern = re.compile(
+                'KNAME="(?P<KNAME>.*)" '
+                'TYPE="(?P<TYPE>.*)" '
+                'MOUNTPOINT="(?P<MOUNTPOINT>.*)"'
+            )
             for line in self.lsblk.splitlines():
                 m = pattern.match(line)
-                if m and device.startswith(m.group('KNAME')):
-                    return m.group('KNAME')
+                if m and device.startswith(m.group("KNAME")):
+                    return m.group("KNAME")
         return False
 
     def _run_lsblk(self, lsblkcommand):
         try:
-            self.lsblk = subprocess.check_output(shlex.split(lsblkcommand),
-                                                 universal_newlines=True)
+            self.lsblk = subprocess.check_output(
+                shlex.split(lsblkcommand), universal_newlines=True
+            )
         except subprocess.CalledProcessError as exc:
             raise SystemExit(exc)
 
@@ -212,86 +219,102 @@ class DiskTest():
         # First we will build up a db of udisks info by scraping the output
         # of the dump command
         # TODO: remove the snap prefix when the alias becomes available
-        proc = subprocess.Popen(['udisks2.udisksctl', 'dump'],
-                                stdout=subprocess.PIPE)
+        proc = subprocess.Popen(
+            ["udisks2.udisksctl", "dump"], stdout=subprocess.PIPE
+        )
         udisks_devices = {}
         current_bd = None
         current_interface = None
         while True:
             line = proc.stdout.readline().decode(sys.stdout.encoding)
-            if line == '':
+            if line == "":
                 break
-            if line == '\n':
+            if line == "\n":
                 current_bd = None
                 current_interface = None
-            if line.startswith('/org/freedesktop/UDisks2/'):
+            if line.startswith("/org/freedesktop/UDisks2/"):
                 path = line.strip()
-                current_bd = os.path.basename(path).rstrip(':')
+                current_bd = os.path.basename(path).rstrip(":")
                 udisks_devices[current_bd] = {}
                 continue
             if current_bd is None:
                 continue
-            if line.startswith('  org.freedesktop'):
-                current_interface = line.strip().rstrip(':')
+            if line.startswith("  org.freedesktop"):
+                current_interface = line.strip().rstrip(":")
                 udisks_devices[current_bd][current_interface] = {}
                 continue
             if current_interface is None:
                 continue
-            entry = ''.join(c for c in line if c not in '\n\t\' ')
-            wanted_keys = ('Device:', 'Drive:', 'MountPoints:', 'Vendor:',
-                           'ConnectionBus:', 'Model:', 'Media:',)
+            entry = "".join(c for c in line if c not in "\n\t' ")
+            wanted_keys = (
+                "Device:",
+                "Drive:",
+                "MountPoints:",
+                "Vendor:",
+                "ConnectionBus:",
+                "Model:",
+                "Media:",
+            )
             for key in wanted_keys:
                 if entry.startswith(key):
-                    udisks_devices[current_bd][current_interface][key] = (
-                        entry[len(key):])
+                    udisks_devices[current_bd][current_interface][key] = entry[
+                        len(key) :
+                    ]
 
         # Now use the populated udisks structure to fill out the API used by
         # other _probe disks functions
         for device, interfaces in udisks_devices.items():
             # iterate over udisks objects that have both filesystem and
             # block device interfaces
-            if (UDISKS2_FILESYSTEM_INTERFACE in interfaces and
-                    UDISKS2_BLOCK_INTERFACE in interfaces):
+            if (
+                UDISKS2_FILESYSTEM_INTERFACE in interfaces
+                and UDISKS2_BLOCK_INTERFACE in interfaces
+            ):
                 # To be an IO candidate there must be a drive object
-                drive = interfaces[UDISKS2_BLOCK_INTERFACE].get('Drive:')
-                if drive is None or drive == '/':
+                drive = interfaces[UDISKS2_BLOCK_INTERFACE].get("Drive:")
+                if drive is None or drive == "/":
                     continue
                 drive_object = udisks_devices[os.path.basename(drive)]
 
                 # Get the connection bus property from the drive interface of
                 # the drive object. This is required to filter out the devices
                 # we don't want to look at now.
-                connection_bus = (
-                    drive_object[UDISKS2_DRIVE_INTERFACE]['ConnectionBus:'])
-                desired_connection_buses = set([
-                    map_udisks1_connection_bus(device)
-                    for device in self.device])
+                connection_bus = drive_object[UDISKS2_DRIVE_INTERFACE][
+                    "ConnectionBus:"
+                ]
+                desired_connection_buses = set(
+                    [
+                        map_udisks1_connection_bus(device)
+                        for device in self.device
+                    ]
+                )
                 # Skip devices that are attached to undesired connection buses
                 if connection_bus not in desired_connection_buses:
                     continue
 
-                dev_file = (
-                    interfaces[UDISKS2_BLOCK_INTERFACE].get('Device:'))
+                dev_file = interfaces[UDISKS2_BLOCK_INTERFACE].get("Device:")
 
-                parent = self._find_parent(dev_file.replace('/dev/', ''))
-                if (parent and
-                        find_pkname_is_root_mountpoint(parent, self.lsblk)):
+                parent = self._find_parent(dev_file.replace("/dev/", ""))
+                if parent and find_pkname_is_root_mountpoint(
+                    parent, self.lsblk
+                ):
                     continue
 
                 # XXX: we actually only scrape the first one currently
-                mount_point = (
-                    interfaces[UDISKS2_FILESYSTEM_INTERFACE].get(
-                        'MountPoints:'))
-                if mount_point == '':
+                mount_point = interfaces[UDISKS2_FILESYSTEM_INTERFACE].get(
+                    "MountPoints:"
+                )
+                if mount_point == "":
                     mount_point = None
 
                 # We need to skip-non memory cards if we look for memory cards
                 # and vice-versa so let's inspect the drive and use heuristics
                 # to detect memory cards (a memory card reader actually) now.
                 if self.memorycard != is_memory_card(
-                        drive_object[UDISKS2_DRIVE_INTERFACE]['Vendor:'],
-                        drive_object[UDISKS2_DRIVE_INTERFACE]['Model:'],
-                        drive_object[UDISKS2_DRIVE_INTERFACE]['Media:']):
+                    drive_object[UDISKS2_DRIVE_INTERFACE]["Vendor:"],
+                    drive_object[UDISKS2_DRIVE_INTERFACE]["Model:"],
+                    drive_object[UDISKS2_DRIVE_INTERFACE]["Media:"],
+                ):
                     continue
 
                 if mount_point is None:
@@ -308,10 +331,12 @@ class DiskTest():
                 for udev_device in udev_devices:
                     if udev_device.get_device_file() == dev_file:
                         interconnect_speed = get_interconnect_speed(
-                            udev_device)
+                            udev_device
+                        )
                         if interconnect_speed:
                             self.rem_disks_speed[dev_file] = (
-                                interconnect_speed * 10 ** 6)
+                                interconnect_speed * 10**6
+                            )
                         else:
                             self.rem_disks_speed[dev_file] = None
 
@@ -337,10 +362,13 @@ class DiskTest():
             have both the filesystem and block device interfaces
             """
             for udisks2_object_path, interfaces in udisks2_objects.items():
-                if (UDISKS2_FILESYSTEM_INTERFACE in interfaces and
-                        UDISKS2_BLOCK_INTERFACE in interfaces and
-                        UDISKS2_LOOP_INTERFACE not in interfaces):
+                if (
+                    UDISKS2_FILESYSTEM_INTERFACE in interfaces
+                    and UDISKS2_BLOCK_INTERFACE in interfaces
+                    and UDISKS2_LOOP_INTERFACE not in interfaces
+                ):
                     yield udisks2_object_path
+
         # We need to know about all IO candidates,
         # let's iterate over all the block devices reported by udisks2
         for udisks2_object_path in iter_filesystems_on_block_devices():
@@ -348,15 +376,17 @@ class DiskTest():
             udisks2_object = udisks2_objects[udisks2_object_path]
             # Find the path of the udisks2 object that represents the drive
             # this object is a part of
-            drive_object_path = (
-                udisks2_object[UDISKS2_BLOCK_INTERFACE]['Drive'])
+            drive_object_path = udisks2_object[UDISKS2_BLOCK_INTERFACE][
+                "Drive"
+            ]
             # Lookup the drive object, if any. This can fail when
             try:
                 drive_object = udisks2_objects[drive_object_path]
             except KeyError:
                 logging.error(
                     "Unable to locate drive associated with %s",
-                    udisks2_object_path)
+                    udisks2_object_path,
+                )
                 continue
             else:
                 drive_props = drive_object[UDISKS2_DRIVE_INTERFACE]
@@ -364,9 +394,9 @@ class DiskTest():
             # drive object. This is required to filter out the devices we don't
             # want to look at now.
             connection_bus = drive_props["ConnectionBus"]
-            desired_connection_buses = set([
-                map_udisks1_connection_bus(device)
-                for device in self.device])
+            desired_connection_buses = set(
+                [map_udisks1_connection_bus(device) for device in self.device]
+            )
             # Skip devices that are attached to undesired connection buses
             if connection_bus not in desired_connection_buses:
                 continue
@@ -376,30 +406,33 @@ class DiskTest():
             except LookupError:
                 logging.error(
                     "Unable to locate udev object that corresponds to: %s",
-                    udisks2_object_path)
+                    udisks2_object_path,
+                )
                 continue
             # Get the block device pathname,
             # to avoid the confusion, this is something like /dev/sdbX
             dev_file = udev_device.get_device_file()
-            parent = self._find_parent(dev_file.replace('/dev/', ''))
+            parent = self._find_parent(dev_file.replace("/dev/", ""))
             if parent and find_pkname_is_root_mountpoint(parent, self.lsblk):
                 continue
             # Get the list of mount points of this block device
-            mount_points = (
-                udisks2_object[UDISKS2_FILESYSTEM_INTERFACE]['MountPoints'])
+            mount_points = udisks2_object[UDISKS2_FILESYSTEM_INTERFACE][
+                "MountPoints"
+            ]
             # Get the speed of the interconnect that is associated with the
             # block device we're looking at. This is purely informational but
             # it is a part of the required API
             interconnect_speed = get_interconnect_speed(udev_device)
             if interconnect_speed:
-                self.rem_disks_speed[dev_file] = (
-                    interconnect_speed * 10 ** 6)
+                self.rem_disks_speed[dev_file] = interconnect_speed * 10**6
             else:
                 self.rem_disks_speed[dev_file] = None
             # Ensure it is a media card reader if this was explicitly requested
             drive_is_reader = is_memory_card(
-                drive_props['Vendor'], drive_props['Model'],
-                drive_props['Media'])
+                drive_props["Vendor"],
+                drive_props["Model"],
+                drive_props["Media"],
+            )
             if self.memorycard and not drive_is_reader:
                 continue
             # The if/else test below simply distributes the mount_point to the
@@ -419,44 +452,53 @@ class DiskTest():
         Internal method used to probe / discover available disks using udisks1
         dbus interface using the provided dbus bus (presumably the system bus)
         """
-        ud_manager_obj = bus.get_object("org.freedesktop.UDisks",
-                                        "/org/freedesktop/UDisks")
-        ud_manager = dbus.Interface(ud_manager_obj, 'org.freedesktop.UDisks')
+        ud_manager_obj = bus.get_object(
+            "org.freedesktop.UDisks", "/org/freedesktop/UDisks"
+        )
+        ud_manager = dbus.Interface(ud_manager_obj, "org.freedesktop.UDisks")
         for dev in ud_manager.EnumerateDevices():
             device_obj = bus.get_object("org.freedesktop.UDisks", dev)
             device_props = dbus.Interface(device_obj, dbus.PROPERTIES_IFACE)
-            udisks = 'org.freedesktop.UDisks.Device'
+            udisks = "org.freedesktop.UDisks.Device"
             if not device_props.Get(udisks, "DeviceIsDrive"):
                 dev_bus = device_props.Get(udisks, "DriveConnectionInterface")
                 if dev_bus in self.device:
-                    parent_model = parent_vendor = ''
+                    parent_model = parent_vendor = ""
                     if device_props.Get(udisks, "DeviceIsPartition"):
                         parent_obj = bus.get_object(
                             "org.freedesktop.UDisks",
-                            device_props.Get(udisks, "PartitionSlave"))
+                            device_props.Get(udisks, "PartitionSlave"),
+                        )
                         parent_props = dbus.Interface(
-                            parent_obj, dbus.PROPERTIES_IFACE)
+                            parent_obj, dbus.PROPERTIES_IFACE
+                        )
                         parent_model = parent_props.Get(udisks, "DriveModel")
                         parent_vendor = parent_props.Get(udisks, "DriveVendor")
                         parent_media = parent_props.Get(udisks, "DriveMedia")
                     if self.memorycard:
-                        if (dev_bus != 'sdio' and not
-                                FLASH_RE.search(parent_media) and not
-                                CARD_READER_RE.search(parent_model) and not
-                                GENERIC_RE.search(parent_vendor)):
+                        if (
+                            dev_bus != "sdio"
+                            and not FLASH_RE.search(parent_media)
+                            and not CARD_READER_RE.search(parent_model)
+                            and not GENERIC_RE.search(parent_vendor)
+                        ):
                             continue
                     else:
-                        if (FLASH_RE.search(parent_media) or
-                                CARD_READER_RE.search(parent_model) or
-                                GENERIC_RE.search(parent_vendor)):
+                        if (
+                            FLASH_RE.search(parent_media)
+                            or CARD_READER_RE.search(parent_model)
+                            or GENERIC_RE.search(parent_vendor)
+                        ):
                             continue
                     dev_file = str(device_props.Get(udisks, "DeviceFile"))
-                    dev_speed = str(device_props.Get(udisks,
-                                                     "DriveConnectionSpeed"))
+                    dev_speed = str(
+                        device_props.Get(udisks, "DriveConnectionSpeed")
+                    )
                     self.rem_disks_speed[dev_file] = dev_speed
                     if len(device_props.Get(udisks, "DeviceMountPaths")) > 0:
-                        devPath = str(device_props.Get(udisks,
-                                                       "DeviceMountPaths")[0])
+                        devPath = str(
+                            device_props.Get(udisks, "DeviceMountPaths")[0]
+                        )
                         self.rem_disks[dev_file] = devPath
                         self.rem_disks_memory_cards[dev_file] = devPath
                     else:
@@ -480,22 +522,27 @@ class DiskTest():
         if platform.machine() in ("aarch64", "armv7l"):
             enumerator = GUdev.Enumerator(client=udev_client)
             udev_devices_xhci = [
-                device for device in enumerator.execute()
-                if (device.get_driver() == 'xhci-hcd' or
-                    device.get_driver() == 'xhci_hcd')]
+                device
+                for device in enumerator.execute()
+                if (
+                    device.get_driver() == "xhci-hcd"
+                    or device.get_driver() == "xhci_hcd"
+                )
+            ]
         for udev_device_xhci in udev_devices_xhci:
-            pci_slot_name = udev_device_xhci.get_property('PCI_SLOT_NAME')
-            xhci_devpath = udev_device_xhci.get_property('DEVPATH')
+            pci_slot_name = udev_device_xhci.get_property("PCI_SLOT_NAME")
+            xhci_devpath = udev_device_xhci.get_property("DEVPATH")
             for udev_device in udev_devices:
-                devpath = udev_device.get_property('DEVPATH')
-                if (self._compare_pci_slot_from_devpath(devpath,
-                                                        pci_slot_name)):
+                devpath = udev_device.get_property("DEVPATH")
+                if self._compare_pci_slot_from_devpath(devpath, pci_slot_name):
                     self.rem_disks_xhci[
-                        udev_device.get_property('DEVNAME')] = 'xhci'
+                        udev_device.get_property("DEVNAME")
+                    ] = "xhci"
                 if platform.machine() in ("aarch64", "armv7l"):
                     if xhci_devpath in devpath:
                         self.rem_disks_xhci[
-                            udev_device.get_property('DEVNAME')] = 'xhci'
+                            udev_device.get_property("DEVNAME")
+                        ] = "xhci"
         return self.rem_disks_xhci
 
     def mount(self):
@@ -517,7 +564,7 @@ class DiskTest():
             return count
 
     def _mount(self, dev_file, mount_point):
-        return subprocess.call(['mount', dev_file, mount_point])
+        return subprocess.call(["mount", dev_file, mount_point])
 
     def umount(self):
         errors = 0
@@ -526,13 +573,14 @@ class DiskTest():
                 continue
             if self._umount(disk) != 0:
                 errors += 1
-                logging.error("can't umount %s on %s",
-                              disk, self.rem_disks_nm[disk])
+                logging.error(
+                    "can't umount %s on %s", disk, self.rem_disks_nm[disk]
+                )
         return errors
 
     def _umount(self, mount_point):
         # '-l': lazy umount, dealing problem of unable to umount the device.
-        return subprocess.call(['umount', '-l', mount_point])
+        return subprocess.call(["umount", "-l", mount_point])
 
     def clean_tmp_dir(self):
         for disk in self.rem_disks_nm:
@@ -545,12 +593,12 @@ class DiskTest():
         # LP: #1334991
         # a smarter parser to get and validate a pci slot name from DEVPATH
         # then compare this pci slot name to the other
-        dl = devpath.split('/')
+        dl = devpath.split("/")
         s = set([x for x in dl if dl.count(x) > 1])
         if (
-            (pci_slot_name in dl) and
-            (dl.index(pci_slot_name) < dl.index('block')) and
-            (not (pci_slot_name in s))
+            (pci_slot_name in dl)
+            and (dl.index(pci_slot_name) < dl.index("block"))
+            and (not (pci_slot_name in s))
         ):
             # 1. there is such pci_slot_name
             # 2. sysfs topology looks like
@@ -563,71 +611,120 @@ class DiskTest():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('device',
-                        choices=['usb', 'firewire', 'sdio',
-                                 'scsi', 'ata_serial_esata'],
-                        nargs='+',
-                        help=("The type of removable media "
-                              "(usb, firewire, sdio, scsi or ata_serial_esata)"
-                              "to test."))
-    parser.add_argument('-l', '--list',
-                        action='store_true',
-                        default=False,
-                        help="List the removable devices and mounting status")
-    parser.add_argument('-m', '--min-speed',
-                        action='store',
-                        default=0,
-                        type=int,
-                        help="Minimum speed a device must support to be "
-                             "considered eligible for being tested (bits/s)")
-    parser.add_argument('-p', '--pass-speed',
-                        action='store',
-                        default=0,
-                        type=int,
-                        help="Minimum average throughput from all eligible"
-                             "devices for the test to pass (MB/s)")
-    parser.add_argument('-i', '--iterations',
-                        action='store',
-                        default='1',
-                        type=int,
-                        help=("The number of test cycles to run. One cycle is"
-                              "comprised of generating --count data files of "
-                              "--size bytes and writing them to each device."))
-    parser.add_argument('-c', '--count',
-                        action='store',
-                        default='1',
-                        type=int,
-                        help='The number of random data files to generate')
-    parser.add_argument('-s', '--size',
-                        action='store',
-                        type=HumanReadableBytes,
-                        default='1MiB',
-                        help=("The size of the test data file to use. "
-                              "You may use SI or IEC suffixes like: 'K', 'M',"
-                              "'G', 'T', 'Ki', 'Mi', 'Gi', 'Ti', etc. Default"
-                              " is %(default)s"))
-    parser.add_argument('--auto-reduce-size',
-                        action='store_true',
-                        default=False,
-                        help=("Automatically reduce size to fit in the target"
-                              "filesystem. Reducing until fits in 1MiB"))
-    parser.add_argument('-n', '--skip-not-mount',
-                        action='store_true',
-                        default=False,
-                        help=("skip the removable devices "
-                              "which haven't been mounted before the test."))
-    parser.add_argument('--memorycard', action="store_true",
-                        help=("Memory cards devices on bus other than sdio "
-                              "require this parameter to identify "
-                              "them as such"))
-    parser.add_argument('--driver',
-                        choices=['xhci_hcd'],
-                        help=("Detect the driver of the host controller."
-                              "Only xhci_hcd for usb3 is supported so far."))
-    parser.add_argument("--lsblkcommand", action='store', type=str,
-                        default="lsblk -i -n -P -e 7 -o KNAME,TYPE,MOUNTPOINT",
-                        help=("Command to execute to get lsblk information. "
-                              "Only change it if you know what you're doing."))
+    parser.add_argument(
+        "device",
+        choices=["usb", "firewire", "sdio", "scsi", "ata_serial_esata"],
+        nargs="+",
+        help=(
+            "The type of removable media "
+            "(usb, firewire, sdio, scsi or ata_serial_esata)"
+            "to test."
+        ),
+    )
+    parser.add_argument(
+        "-l",
+        "--list",
+        action="store_true",
+        default=False,
+        help="List the removable devices and mounting status",
+    )
+    parser.add_argument(
+        "-m",
+        "--min-speed",
+        action="store",
+        default=0,
+        type=int,
+        help="Minimum speed a device must support to be "
+        "considered eligible for being tested (bits/s)",
+    )
+    parser.add_argument(
+        "-p",
+        "--pass-speed",
+        action="store",
+        default=0,
+        type=int,
+        help="Minimum average throughput from all eligible"
+        "devices for the test to pass (MB/s)",
+    )
+    parser.add_argument(
+        "-i",
+        "--iterations",
+        action="store",
+        default="1",
+        type=int,
+        help=(
+            "The number of test cycles to run. One cycle is"
+            "comprised of generating --count data files of "
+            "--size bytes and writing them to each device."
+        ),
+    )
+    parser.add_argument(
+        "-c",
+        "--count",
+        action="store",
+        default="1",
+        type=int,
+        help="The number of random data files to generate",
+    )
+    parser.add_argument(
+        "-s",
+        "--size",
+        action="store",
+        type=HumanReadableBytes,
+        default="1MiB",
+        help=(
+            "The size of the test data file to use. "
+            "You may use SI or IEC suffixes like: 'K', 'M',"
+            "'G', 'T', 'Ki', 'Mi', 'Gi', 'Ti', etc. Default"
+            " is %(default)s"
+        ),
+    )
+    parser.add_argument(
+        "--auto-reduce-size",
+        action="store_true",
+        default=False,
+        help=(
+            "Automatically reduce size to fit in the target"
+            "filesystem. Reducing until fits in 1MiB"
+        ),
+    )
+    parser.add_argument(
+        "-n",
+        "--skip-not-mount",
+        action="store_true",
+        default=False,
+        help=(
+            "skip the removable devices "
+            "which haven't been mounted before the test."
+        ),
+    )
+    parser.add_argument(
+        "--memorycard",
+        action="store_true",
+        help=(
+            "Memory cards devices on bus other than sdio "
+            "require this parameter to identify "
+            "them as such"
+        ),
+    )
+    parser.add_argument(
+        "--driver",
+        choices=["xhci_hcd"],
+        help=(
+            "Detect the driver of the host controller."
+            "Only xhci_hcd for usb3 is supported so far."
+        ),
+    )
+    parser.add_argument(
+        "--lsblkcommand",
+        action="store",
+        type=str,
+        default="lsblk -i -n -P -e 7 -o KNAME,TYPE,MOUNTPOINT",
+        help=(
+            "Command to execute to get lsblk information. "
+            "Only change it if you know what you're doing."
+        ),
+    )
 
     args = parser.parse_args()
 
@@ -642,7 +739,7 @@ def main():
     # If we do have removable drives attached and mounted
     if len(test.rem_disks) > 0 or len(test.rem_disks_nm) > 0:
         if args.list:  # Simply output a list of drives detected
-            print('-' * 20)
+            print("-" * 20)
             print("Removable devices currently mounted:")
             if args.memorycard:
                 if len(test.rem_disks_memory_cards) > 0:
@@ -671,7 +768,7 @@ def main():
                 else:
                     print("None")
 
-            print('-' * 20)
+            print("-" * 20)
 
             return 0
 
@@ -683,39 +780,55 @@ def main():
                 errors_mount = test.mount()
 
                 if errors_mount > 0:
-                    print("There're total %d device(s) failed at mounting."
-                          % errors_mount)
+                    print(
+                        "There're total %d device(s) failed at mounting."
+                        % errors_mount
+                    )
                     errors += errors_mount
 
-                disks_all = dict(list(test.rem_disks.items()) +
-                                 list(test.rem_disks_nm.items()))
+                disks_all = dict(
+                    list(test.rem_disks.items())
+                    + list(test.rem_disks_nm.items())
+                )
 
             if len(disks_all) > 0:
-                print("Found the following mounted %s partitions:"
-                      % ', '.join(args.device))
+                print(
+                    "Found the following mounted %s partitions:"
+                    % ", ".join(args.device)
+                )
 
                 for disk, mount_point in disks_all.items():
                     supported_speed = test.rem_disks_speed[disk]
-                    print("    %s : %s : %s bits/s" %
-                          (disk, mount_point, supported_speed),
-                          end="")
-                    if (args.min_speed and
-                            int(args.min_speed) > int(supported_speed)):
-                        print(" (Will not test it, speed is below %s bits/s)" %
-                              args.min_speed, end="")
+                    print(
+                        "    %s : %s : %s bits/s"
+                        % (disk, mount_point, supported_speed),
+                        end="",
+                    )
+                    if args.min_speed and int(args.min_speed) > int(
+                        supported_speed
+                    ):
+                        print(
+                            " (Will not test it, speed is below %s bits/s)"
+                            % args.min_speed,
+                            end="",
+                        )
 
                     print("")
 
-                print('-' * 20)
+                print("-" * 20)
 
-                disks_eligible = {disk: disks_all[disk] for disk in disks_all
-                                  if not args.min_speed or
-                                  int(test.rem_disks_speed[disk]) >=
-                                  int(args.min_speed)}
+                disks_eligible = {
+                    disk: disks_all[disk]
+                    for disk in disks_all
+                    if not args.min_speed
+                    or int(test.rem_disks_speed[disk]) >= int(args.min_speed)
+                }
                 if len(disks_eligible) == 0:
                     logging.error(
                         "No %s disks with speed higher than %s bits/s",
-                        args.device, args.min_speed)
+                        args.device,
+                        args.min_speed,
+                    )
                     return 1
                 write_sizes = []
                 test_files = {}
@@ -724,39 +837,56 @@ def main():
                     stat = os.statvfs(path)
                     disks_freespace[disk] = stat.f_bfree * stat.f_bsize
                 smallest_freespace = min(disks_freespace.values())
-                smallest_partition = [d for d, v in disks_freespace.items() if
-                                      v == smallest_freespace][0]
+                smallest_partition = [
+                    d
+                    for d, v in disks_freespace.items()
+                    if v == smallest_freespace
+                ][0]
                 desired_size = args.size
                 if desired_size > smallest_freespace:
                     if args.auto_reduce_size:
                         min_space = HumanReadableBytes("1MiB")
                         if smallest_freespace < min_space:
-                            sys.exit("Not enough space. {} is required on {}"
-                                     .format(min_space, smallest_partition))
+                            sys.exit(
+                                "Not enough space. {} is required on {}".format(  # noqa: E501
+                                    min_space, smallest_partition
+                                )
+                            )
                         new_size = HumanReadableBytes(
-                            int(0.8 * smallest_freespace))
-                        logging.warning("Automatically reducing test data size"
-                                        ". {} requested. Reducing to {}."
-                                        .format(desired_size, new_size))
+                            int(0.8 * smallest_freespace)
+                        )
+                        logging.warning(
+                            "Automatically reducing test data size"
+                            ". {} requested. Reducing to {}.".format(
+                                desired_size, new_size
+                            )
+                        )
                         desired_size = new_size
                     else:
-                        sys.exit("Not enough space. {} is required on {}"
-                                 .format(desired_size, smallest_partition))
+                        sys.exit(
+                            "Not enough space. {} is required on {}".format(
+                                desired_size, smallest_partition
+                            )
+                        )
                 # Generate our data file(s)
                 for count in range(args.count):
                     test_files[count] = RandomData(desired_size)
-                    write_sizes.append(os.path.getsize(
-                        test_files[count].tfile.name))
+                    write_sizes.append(
+                        os.path.getsize(test_files[count].tfile.name)
+                    )
                     total_write_size = sum(write_sizes)
 
                 try:
                     # Clear dmesg so we can check for I/O errors later
-                    subprocess.check_output(['dmesg', '-C'])
+                    subprocess.check_output(["dmesg", "-C"])
                     for disk, mount_point in disks_eligible.items():
-                        print("%s (Total Data Size / iteration: %0.4f MB):" %
-                              (disk, (total_write_size / 1024 / 1024)))
+                        print(
+                            "%s (Total Data Size / iteration: %0.4f MB):"
+                            % (disk, (total_write_size / 1024 / 1024))
+                        )
                         iteration_write_size = (
-                            total_write_size * args.iterations) / 1024 / 1024
+                            (total_write_size * args.iterations) / 1024 / 1024
+                        )
                         iteration_write_times = []
                         for iteration in range(args.iterations):
                             target_file_list = []
@@ -765,19 +895,24 @@ def main():
                                 parent_file = test_files[file_index].tfile.name
                                 parent_hash = md5_hash_file(parent_file)
                                 target_filename = (
-                                    test_files[file_index].name +
-                                    '.%s' % iteration)
+                                    test_files[file_index].name
+                                    + ".%s" % iteration
+                                )
                                 target_path = mount_point
-                                target_file = os.path.join(target_path,
-                                                           target_filename)
+                                target_file = os.path.join(
+                                    target_path, target_filename
+                                )
                                 target_file_list.append(target_file)
                                 test.read_file(parent_file)
                                 with ActionTimer() as timer:
-                                    if not test.write_file(test.data,
-                                                           target_file):
+                                    if not test.write_file(
+                                        test.data, target_file
+                                    ):
                                         logging.error(
                                             "Failed to copy %s to %s",
-                                            parent_file, target_file)
+                                            parent_file,
+                                            target_file,
+                                        )
                                         errors += 1
                                         continue
                                 write_times.append(timer.interval)
@@ -786,65 +921,84 @@ def main():
                                     logging.warning(
                                         "[Iteration %s] Parent and Child"
                                         " copy hashes mismatch on %s!",
-                                        iteration, target_file)
+                                        iteration,
+                                        target_file,
+                                    )
                                     logging.warning(
-                                        "\tParent hash: %s", parent_hash)
+                                        "\tParent hash: %s", parent_hash
+                                    )
                                     logging.warning(
-                                        "\tChild hash: %s", child_hash)
+                                        "\tChild hash: %s", child_hash
+                                    )
                                     errors += 1
                             for file in target_file_list:
                                 test.clean_up(file)
                             total_write_time = sum(write_times)
                             # avg_write_time = total_write_time / args.count
                             try:
-                                avg_write_speed = ((
-                                    total_write_size / total_write_time) /
-                                    1024 / 1024)
+                                avg_write_speed = (
+                                    (total_write_size / total_write_time)
+                                    / 1024
+                                    / 1024
+                                )
                             except ZeroDivisionError:
                                 avg_write_speed = 0.00
                             finally:
                                 iteration_write_times.append(total_write_time)
-                                print("\t[Iteration %s] Average Speed: %0.4f"
-                                      % (iteration, avg_write_speed))
+                                print(
+                                    "\t[Iteration %s] Average Speed: %0.4f"
+                                    % (iteration, avg_write_speed)
+                                )
                         for iteration in range(args.iterations):
                             iteration_write_time = sum(iteration_write_times)
                         print("\tSummary:")
-                        print("\t\tTotal Data Attempted: %0.4f MB"
-                              % iteration_write_size)
-                        print("\t\tTotal Time to write: %0.4f secs"
-                              % iteration_write_time)
-                        print("\t\tAverage Write Time: %0.4f secs" %
-                              (iteration_write_time / args.iterations))
+                        print(
+                            "\t\tTotal Data Attempted: %0.4f MB"
+                            % iteration_write_size
+                        )
+                        print(
+                            "\t\tTotal Time to write: %0.4f secs"
+                            % iteration_write_time
+                        )
+                        print(
+                            "\t\tAverage Write Time: %0.4f secs"
+                            % (iteration_write_time / args.iterations)
+                        )
                         try:
-                            avg_write_speed = (iteration_write_size /
-                                               iteration_write_time)
+                            avg_write_speed = (
+                                iteration_write_size / iteration_write_time
+                            )
                         except ZeroDivisionError:
                             avg_write_speed = 0.00
                         finally:
-                            print("\t\tAverage Write Speed: %0.4f MB/s" %
-                                  avg_write_speed)
+                            print(
+                                "\t\tAverage Write Speed: %0.4f MB/s"
+                                % avg_write_speed
+                            )
                 finally:
                     for key in range(args.count):
                         test.clean_up(test_files[key].tfile.name)
-                    if (len(test.rem_disks_nm) > 0):
+                    if len(test.rem_disks_nm) > 0:
                         if test.umount() != 0:
                             errors += 1
                         test.clean_tmp_dir()
-                    dmesg = subprocess.run(['dmesg'], stdout=subprocess.PIPE)
-                    if 'I/O error' in dmesg.stdout.decode():
+                    dmesg = subprocess.run(["dmesg"], stdout=subprocess.PIPE)
+                    if "I/O error" in dmesg.stdout.decode():
                         logging.error("I/O errors found in dmesg")
                         errors += 1
 
                 if errors > 0:
                     logging.warning(
                         "Completed %s test iterations, but there were"
-                        " errors", args.count)
+                        " errors",
+                        args.count,
+                    )
                     return 1
                 else:
                     # LP: 1313581
                     # Try to figure out whether the disk
                     # is SuperSpeed USB and using xhci_hcd driver.
-                    if (args.driver == 'xhci_hcd'):
+                    if args.driver == "xhci_hcd":
                         # The speed reported by udisks is sometimes
                         # less than 5G bits/s, for example,
                         # it may be 705032705 bits/s
@@ -862,7 +1016,7 @@ def main():
                         # 2. int from _probe_disks_udisks1.
                         # This is really a mess. : (
                         print("\t\t--------------------------------")
-                        if (500000000 < int(test.rem_disks_speed[disk])):
+                        if 500000000 < int(test.rem_disks_speed[disk]):
                             print("\t\tDevice Detected: SuperSpeed USB")
                             # Unlike rem_disks_speed,
                             # which must has the connect speed
@@ -871,29 +1025,44 @@ def main():
                             # controller drivers.
                             # This will raise KeyError for no
                             # associated disk device was found.
-                            if test.get_disks_xhci().get(disk, '') != 'xhci':
+                            if test.get_disks_xhci().get(disk, "") != "xhci":
                                 raise SystemExit(
-                                    "\t\tDisk does not use xhci_hcd.")
+                                    "\t\tDisk does not use xhci_hcd."
+                                )
                             print("\t\tDriver Detected: xhci_hcd")
                         else:
                             # Give it a hint for the detection failure.
                             # LP: #1362902
-                            print(("\t\tNo SuperSpeed USB using xhci_hcd "
-                                   "was detected correctly."))
-                            print(("\t\tHint: please use dmesg to check "
-                                   "the system status again."))
+                            print(
+                                (
+                                    "\t\tNo SuperSpeed USB using xhci_hcd "
+                                    "was detected correctly."
+                                )
+                            )
+                            print(
+                                (
+                                    "\t\tHint: please use dmesg to check "
+                                    "the system status again."
+                                )
+                            )
                             return 1
                     # Pass is not assured
-                    if (not args.pass_speed or
-                            avg_write_speed >= args.pass_speed):
+                    if (
+                        not args.pass_speed
+                        or avg_write_speed >= args.pass_speed
+                    ):
                         return 0
                     else:
-                        print("FAIL: Average speed was lower than desired "
-                              "pass speed of %s MB/s" % args.pass_speed)
+                        print(
+                            "FAIL: Average speed was lower than desired "
+                            "pass speed of %s MB/s" % args.pass_speed
+                        )
                         return 1
             else:
-                logging.error("No device being mounted successfully "
-                              "for testing, aborting")
+                logging.error(
+                    "No device being mounted successfully "
+                    "for testing, aborting"
+                )
                 return 1
 
     else:  # If we don't have removable drives attached and mounted
@@ -901,5 +1070,5 @@ def main():
         return 1
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

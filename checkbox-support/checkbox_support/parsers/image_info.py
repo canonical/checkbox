@@ -31,8 +31,7 @@ from xml.dom import minidom
 from xml.parsers.expat import ExpatError
 
 
-class ImageInfoResult():
-
+class ImageInfoResult:
     """
     A simple class to hold image information results.
 
@@ -46,15 +45,14 @@ class ImageInfoResult():
 
     def addBuildstampInfo(self, data):
         """Add the given buildstamp."""
-        self.image_info['buildstamp'] = data
+        self.image_info["buildstamp"] = data
 
     def addImageVersionInfo(self, key, data):
         """Add image version data under the given key."""
         self.image_info[key] = data
 
 
-class BtoInfoResult():
-
+class BtoInfoResult:
     """A simple class to hold BTO information results."""
 
     def __init__(self):
@@ -65,8 +63,7 @@ class BtoInfoResult():
         self.bto_info[key] = data
 
 
-class BuildstampParser():
-
+class BuildstampParser:
     """
     Parser for the info/buildstamp attachment.
 
@@ -85,7 +82,7 @@ class BuildstampParser():
         for index, line in enumerate(self.stream):
             if index == 1:
                 buildstamp = line
-            if index >= 2 and line.strip() != '':
+            if index >= 2 and line.strip() != "":
                 # It contains more than 2 non-blank
                 # lines, so exit right now,
                 # this attachment looks bogus.
@@ -94,8 +91,7 @@ class BuildstampParser():
             result.addBuildstampInfo(buildstamp.strip())
 
 
-class RecoveryInfoParser():
-
+class RecoveryInfoParser:
     """
     Parser for recovery_info.
 
@@ -121,8 +117,7 @@ class RecoveryInfoParser():
                     result.addImageVersionInfo(key, value)
 
 
-class BtoParser():
-
+class BtoParser:
     """Parser for Dell bto.xml data file."""
 
     def __init__(self, stream):
@@ -148,11 +143,20 @@ class BtoParser():
         except ExpatError:
             # Bogus data, give up silently
             return
-        for key in ['iso', 'generator', 'bootstrap',
-                    'ubiquity', 'base', 'driver']:
+        for key in [
+            "iso",
+            "generator",
+            "bootstrap",
+            "ubiquity",
+            "base",
+            "driver",
+        ]:
             elems = bto_dom.getElementsByTagName(key)
-            items = [item.firstChild.data for item in elems
-                     if hasattr(item.firstChild, 'data')]
+            items = [
+                item.firstChild.data
+                for item in elems
+                if hasattr(item.firstChild, "data")
+            ]
             if len(items) == 1:
                 result.addBtoInfo(key, items[0])
             elif len(items) > 1:
@@ -165,7 +169,7 @@ def parse_buildstamp_attachment_output(output):
     parser = BuildstampParser(stream)
     result = ImageInfoResult()
     parser.run(result)
-    return result.image_info['buildstamp']
+    return result.image_info["buildstamp"]
 
 
 def parse_bto_attachment_output(output):
@@ -184,6 +188,8 @@ def parse_recovery_info_attachment_output(output):
     result = ImageInfoResult()
     parser.run(result)
 
-    return {k: result.image_info[k]
-            for k in result.image_info.keys()
-            if k in ("bto_version", "image_version")}
+    return {
+        k: result.image_info[k]
+        for k in result.image_info.keys()
+        if k in ("bto_version", "image_version")
+    }

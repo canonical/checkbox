@@ -40,7 +40,7 @@ from plainbox.impl.runner import slugify
 logger = logging.getLogger("plainbox.session.storage")
 
 
-class WellKnownDirsHelper():
+class WellKnownDirsHelper:
     """
     Helper class that knows about well known directories and paths.
 
@@ -50,7 +50,7 @@ class WellKnownDirsHelper():
     directory structure and ensure permissions are correct.
     """
 
-    base_of_everything = '/var/tmp/checkbox-ng'
+    base_of_everything = "/var/tmp/checkbox-ng"
 
     @classmethod
     def populate_base(cls):
@@ -83,9 +83,11 @@ class WellKnownDirsHelper():
 
     @classmethod
     def _session_directories(cls, session_id):
-        return [cls.session_dir(session_id),
-                cls.session_share(session_id),
-                cls.io_logs(session_id)]
+        return [
+            cls.session_dir(session_id),
+            cls.session_share(session_id),
+            cls.io_logs(session_id),
+        ]
 
     @classmethod
     def session_repository(cls):
@@ -93,8 +95,9 @@ class WellKnownDirsHelper():
 
     @classmethod
     def session_dir(cls, session_id):
-        return os.path.join(cls.session_repository(),
-                            "{}.{}".format(session_id, "session"))
+        return os.path.join(
+            cls.session_repository(), "{}.{}".format(session_id, "session")
+        )
 
     @classmethod
     def io_logs(cls, session_id):
@@ -124,9 +127,11 @@ class WellKnownDirsHelper():
         logger.debug(_("Enumerating sessions in %s"), repo)
         try:
             # Try to enumerate the directory
-            item_list = sorted(os.listdir(repo),
-                               key=lambda x: os.stat(os.path.join(
-                                   repo, x)).st_mtime, reverse=True)
+            item_list = sorted(
+                os.listdir(repo),
+                key=lambda x: os.stat(os.path.join(repo, x)).st_mtime,
+                reverse=True,
+            )
         except OSError as exc:
             # If the directory does not exist,
             # silently return empty collection
@@ -141,8 +146,11 @@ class WellKnownDirsHelper():
             # Make sure not to follow any symlinks here
             stat_result = os.lstat(pathname)
             # Consider non-hidden directories that end with the word .session
-            if (not item.startswith(".") and item.endswith(".session")
-                    and stat.S_ISDIR(stat_result.st_mode)):
+            if (
+                not item.startswith(".")
+                and item.endswith(".session")
+                and stat.S_ISDIR(stat_result.st_mode)
+            ):
                 logger.debug(_("Found possible session in %r"), pathname)
                 session = SessionStorage(os.path.splitext(item)[0])
                 session_list.append(session)
@@ -172,9 +180,9 @@ class SessionStorage:
     :class:`SessionResumeHelper`.
     """
 
-    _SESSION_FILE = 'session'
+    _SESSION_FILE = "session"
 
-    _SESSION_FILE_NEXT = 'session.next'
+    _SESSION_FILE_NEXT = "session.next"
 
     def __init__(self, id):
         """
@@ -187,7 +195,8 @@ class SessionStorage:
 
     def __repr__(self):
         return "<{} location:{!r}>".format(
-            self.__class__.__name__, self.location)
+            self.__class__.__name__, self.location
+        )
 
     @property
     def location(self):
@@ -211,7 +220,7 @@ class SessionStorage:
         return os.path.join(self.location, self._SESSION_FILE)
 
     @classmethod
-    def create(cls, prefix='pbox-'):
+    def create(cls, prefix="pbox-"):
         """
         Create a new :class:`SessionStorage` in a subdirectory of the base
         directory. The directory structure will be created if it does not exist
@@ -225,12 +234,14 @@ class SessionStorage:
 
         isoformat = "%Y-%m-%dT%H.%M.%S"
         timestamp = datetime.datetime.utcnow().strftime(isoformat)
-        session_id = "{prefix}{timestamp}".format(prefix=slugify(prefix),
-                                                  timestamp=timestamp)
+        session_id = "{prefix}{timestamp}".format(
+            prefix=slugify(prefix), timestamp=timestamp
+        )
         uniq = 1
         while os.path.exists(WellKnownDirsHelper.session_dir(session_id)):
             session_id = "{prefix}{timestamp}_({uniq})".format(
-                prefix=slugify(prefix), timestamp=timestamp, uniq=uniq)
+                prefix=slugify(prefix), timestamp=timestamp, uniq=uniq
+            )
             uniq += 1
         session_dir = WellKnownDirsHelper.populate_session(session_id)
 
@@ -246,6 +257,7 @@ class SessionStorage:
 
         def error_handler(function, path, excinfo):
             logger.warning(_("Cannot remove %s"), path)
+
         shutil.rmtree(self.location, onerror=error_handler)
 
     def load_checkpoint(self):
@@ -263,7 +275,8 @@ class SessionStorage:
         try:
             # Open the current session file in the location directory
             session_fd = os.open(
-                self._SESSION_FILE, os.O_RDONLY, dir_fd=location_fd)
+                self._SESSION_FILE, os.O_RDONLY, dir_fd=location_fd
+            )
             # Stat the file to know how much to read
             session_stat = os.fstat(session_fd)
             try:
@@ -277,7 +290,7 @@ class SessionStorage:
         except IOError as exc:
             if exc.errno == errno.ENOENT:
                 # Treat lack of 'session' file as an empty file
-                return b''
+                return b""
             raise
         else:
             return data
@@ -309,15 +322,21 @@ class SessionStorage:
         """
         if not isinstance(data, bytes):
             raise TypeError("data must be bytes")
-        logger.debug(ngettext(
-            "Saving %d byte of data (%s)",
-            "Saving %d bytes of data (%s)",
-            len(data)), len(data), "UNIX, python 3.3 or newer")
+        logger.debug(
+            ngettext(
+                "Saving %d byte of data (%s)",
+                "Saving %d bytes of data (%s)",
+                len(data),
+            ),
+            len(data),
+            "UNIX, python 3.3 or newer",
+        )
         # Open the location directory, we need to fsync that later
         # XXX: this may fail, maybe we should keep the fd open all the time?
         location_fd = os.open(self.location, os.O_DIRECTORY)
         logger.debug(
-            _("Opened %r as descriptor %d"), self.location, location_fd)
+            _("Opened %r as descriptor %d"), self.location, location_fd
+        )
         try:
             # Open the "next" file in the location_directory
             #
@@ -337,13 +356,17 @@ class SessionStorage:
             try:
                 next_session_fd = os.open(
                     self._SESSION_FILE_NEXT,
-                    os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o644,
-                    dir_fd=location_fd)
+                    os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                    0o644,
+                    dir_fd=location_fd,
+                )
             except FileExistsError:
                 raise LockedStorageError()
             logger.debug(
                 _("Opened next session file %s as descriptor %d"),
-                self._SESSION_FILE_NEXT, next_session_fd)
+                self._SESSION_FILE_NEXT,
+                next_session_fd,
+            )
             try:
                 # Write session data to disk
                 #
@@ -352,10 +375,15 @@ class SessionStorage:
                 # get a partial write _or_ we run out of disk space, raise an
                 # explicit IOError.
                 num_written = os.write(next_session_fd, data)
-                logger.debug(ngettext(
-                    "Wrote %d byte of data to descriptor %d",
-                    "Wrote %d bytes of data to descriptor %d", num_written),
-                    num_written, next_session_fd)
+                logger.debug(
+                    ngettext(
+                        "Wrote %d byte of data to descriptor %d",
+                        "Wrote %d bytes of data to descriptor %d",
+                        num_written,
+                    ),
+                    num_written,
+                    next_session_fd,
+                )
                 if num_written != len(data):
                     raise IOError(_("partial write?"))
             except Exception as exc:
@@ -373,12 +401,17 @@ class SessionStorage:
                 # may crash the machine soon after this method exits.
                 logger.debug(
                     # TRANSLATORS: please don't translate fsync()
-                    _("Calling fsync() on descriptor %d"), next_session_fd)
+                    _("Calling fsync() on descriptor %d"),
+                    next_session_fd,
+                )
                 try:
                     os.fsync(next_session_fd)
                 except OSError as exc:
-                    logger.warning(_("Cannot synchronize file %r: %s"),
-                                   self._SESSION_FILE_NEXT, exc)
+                    logger.warning(
+                        _("Cannot synchronize file %r: %s"),
+                        self._SESSION_FILE_NEXT,
+                        exc,
+                    )
             finally:
                 # Close the new session file
                 logger.debug(_("Closing descriptor %d"), next_session_fd)
@@ -389,17 +422,26 @@ class SessionStorage:
             # location (directory) is being moved
             logger.debug(
                 _("Renaming %r to %r"),
-                self._SESSION_FILE_NEXT, self._SESSION_FILE)
+                self._SESSION_FILE_NEXT,
+                self._SESSION_FILE,
+            )
             try:
-                os.rename(self._SESSION_FILE_NEXT, self._SESSION_FILE,
-                          src_dir_fd=location_fd, dst_dir_fd=location_fd)
+                os.rename(
+                    self._SESSION_FILE_NEXT,
+                    self._SESSION_FILE,
+                    src_dir_fd=location_fd,
+                    dst_dir_fd=location_fd,
+                )
             except Exception as exc:
                 # Same as above, if we fail we need to unlink the next file
                 # otherwise any other attempts will not be able to open() it
                 # with O_EXCL flag.
                 logger.warning(
                     _("Unable to rename/overwrite %r to %r: %r"),
-                    self._SESSION_FILE_NEXT, self._SESSION_FILE, exc)
+                    self._SESSION_FILE_NEXT,
+                    self._SESSION_FILE,
+                    exc,
+                )
                 # TRANSLATORS: unlinking as in deleting a file
                 logger.warning(_("Unlinking %r"), self._SESSION_FILE_NEXT)
                 os.unlink(self._SESSION_FILE_NEXT, dir_fd=location_fd)
@@ -414,8 +456,11 @@ class SessionStorage:
             try:
                 os.fsync(location_fd)
             except OSError as exc:
-                logger.warning(_("Cannot synchronize directory %r: %s"),
-                               self.location, exc)
+                logger.warning(
+                    _("Cannot synchronize directory %r: %s"),
+                    self.location,
+                    exc,
+                )
         finally:
             # Close the location directory
             logger.debug(_("Closing descriptor %d"), location_fd)
@@ -431,9 +476,12 @@ class SessionStorage:
         for atomic rename.
         """
         _next_session_pathname = os.path.join(
-            self.location, self._SESSION_FILE_NEXT)
+            self.location, self._SESSION_FILE_NEXT
+        )
         logger.debug(
             # TRANSLATORS: unlinking as in deleting a file
             # Please keep the 'next' string untranslated
-            _("Forcibly unlinking 'next' file %r"), _next_session_pathname)
+            _("Forcibly unlinking 'next' file %r"),
+            _next_session_pathname,
+        )
         os.unlink(_next_session_pathname)

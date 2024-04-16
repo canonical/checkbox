@@ -40,8 +40,7 @@ class RemoteAssistantTests(TestCase):
         allowed_when = remote_assistant.RemoteSessionAssistant.allowed_when
 
         @allowed_when(remote_assistant.Idle)
-        def allowed(self, *args):
-            ...
+        def allowed(self, *args): ...
 
         self_mock._state = remote_assistant.Idle
         allowed(self_mock)
@@ -51,8 +50,7 @@ class RemoteAssistantTests(TestCase):
         allowed_when = remote_assistant.RemoteSessionAssistant.allowed_when
 
         @allowed_when(remote_assistant.Idle)
-        def not_allowed(self, *args):
-            ...
+        def not_allowed(self, *args): ...
 
         self_mock._state = remote_assistant.Started
         with self.assertRaises(AssertionError):

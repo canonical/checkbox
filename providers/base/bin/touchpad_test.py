@@ -6,11 +6,12 @@ import gettext
 from time import sleep
 
 from gettext import gettext as _
-gi.require_version('Gdk', '3.0')
-gi.require_version('Gio', '2.0')
+
+gi.require_version("Gdk", "3.0")
+gi.require_version("Gio", "2.0")
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gio, Gtk, Gdk  # noqa: E402
-from optparse import OptionParser        # noqa: E402
+from optparse import OptionParser  # noqa: E402
 
 
 EXIT_WITH_FAILURE = 1
@@ -57,7 +58,8 @@ class GtkScroller(object):
         window = Gtk.Window()
         window.set_type_hint(Gdk.WindowType.TOPLEVEL)
         window.add_events(
-            Gdk.EventMask.SCROLL_MASK | Gdk.EventMask.SMOOTH_SCROLL_MASK)
+            Gdk.EventMask.SCROLL_MASK | Gdk.EventMask.SMOOTH_SCROLL_MASK
+        )
         window.set_size_request(200, 100)
         window.set_resizable(False)
         window.set_title(_("Type Text"))
@@ -79,12 +81,14 @@ class GtkScroller(object):
         for direction in self.directions:
             self._add_label(button_hbox, direction.name)
             self.icons[direction] = self._add_image(
-                validation_hbox, self.ICON_UNTESTED)
+                validation_hbox, self.ICON_UNTESTED
+            )
 
         self.show_text(
-            _("Please move the mouse cursor to this window.") +
-            "\n" +
-            _("Then scroll in each direction on your touchpad."))
+            _("Please move the mouse cursor to this window.")
+            + "\n"
+            + _("Then scroll in each direction on your touchpad.")
+        )
 
     def _add_button(self, context, label):
         button = self.button_factory.new_with_mnemonic(label)
@@ -126,32 +130,36 @@ class GtkScroller(object):
     def run(self):
         # Save touchpad settings.
         self.saved_edge_scrolling_enabled = self.touchpad_settings.get_boolean(
-            "edge-scrolling-enabled")
+            "edge-scrolling-enabled"
+        )
         self.saved_two_finger_enabled = self.touchpad_settings.get_boolean(
-            "two-finger-scrolling-enabled")
+            "two-finger-scrolling-enabled"
+        )
 
         # Set touchpad settings.
         if self.edge_scroll:
+            self.touchpad_settings.set_boolean("edge-scrolling-enabled", True)
             self.touchpad_settings.set_boolean(
-                "edge-scrolling-enabled", True)
-            self.touchpad_settings.set_boolean(
-                "two-finger-scrolling-enabled", False)
+                "two-finger-scrolling-enabled", False
+            )
         else:
             self.touchpad_settings.set_boolean(
-                "two-finger-scrolling-enabled", True)
-            self.touchpad_settings.set_boolean(
-                "edge-scrolling-enabled", False)
+                "two-finger-scrolling-enabled", True
+            )
+            self.touchpad_settings.set_boolean("edge-scrolling-enabled", False)
         Gtk.main()
 
     def quit(self):
         # Reset touchpad settings.
         self.touchpad_settings.set_boolean(
-            "two-finger-scrolling-enabled", self.saved_two_finger_enabled)
+            "two-finger-scrolling-enabled", self.saved_two_finger_enabled
+        )
         # GNOME does not like when both settings are set at the same time, so
         # waiting a bit.
         sleep(0.1)
         self.touchpad_settings.set_boolean(
-            "edge-scrolling-enabled", self.saved_edge_scrolling_enabled)
+            "edge-scrolling-enabled", self.saved_edge_scrolling_enabled
+        )
         Gtk.main_quit()
 
     def show_text(self, text, widget=None):
@@ -162,13 +170,15 @@ class GtkScroller(object):
     def found_direction(self, direction):
         direction.tested = True
         self.icons[direction].set_from_icon_name(
-            self.ICON_TESTED, size=self.ICON_SIZE)
+            self.ICON_TESTED, size=self.ICON_SIZE
+        )
         self.check_directions()
 
     def check_directions(self):
         if all([direction.tested for direction in self.directions]):
             self.show_text(
-                _("All required directions have been tested!"), self.status)
+                _("All required directions have been tested!"), self.status
+            )
             self.exit_code = EXIT_WITH_SUCCESS
             self.exit_button.grab_focus()
 
@@ -201,8 +211,12 @@ def main(args):
 
     usage = """Usage: %prog DIRECTION... [--edge-scroll]"""
     parser = OptionParser(usage=usage)
-    parser.add_option("--edge-scroll", action="store_true", default=False,
-                      help="Force touchpad to use edge scrolling only")
+    parser.add_option(
+        "--edge-scroll",
+        action="store_true",
+        default=False,
+        help="Force touchpad to use edge scrolling only",
+    )
     (options, args) = parser.parse_args(args)
 
     if not args:

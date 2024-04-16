@@ -56,7 +56,7 @@ from plainbox.impl.xparsers import Text
 from plainbox.impl.xparsers import Visitor
 from plainbox.impl.xparsers import WordList
 
-__all__ = ['JobDefinition', 'propertywithsymbols']
+__all__ = ["JobDefinition", "propertywithsymbols"]
 
 
 logger = logging.getLogger("plainbox.unit.job")
@@ -67,8 +67,9 @@ class propertywithsymbols(property):
     A property that also keeps a group of symbols around
     """
 
-    def __init__(self, fget=None, fset=None, fdel=None, doc=None,
-                 symbols=None):
+    def __init__(
+        self, fget=None, fset=None, fdel=None, doc=None, symbols=None
+    ):
         """
         Initializes the property with the specified values
         """
@@ -94,21 +95,26 @@ class propertywithsymbols(property):
         function.
         """
         return propertywithsymbols(
-            fget, self.fset, self.fdel, self.__doc__ or fget.__doc__,
-            symbols=self.symbols)
+            fget,
+            self.fset,
+            self.fdel,
+            self.__doc__ or fget.__doc__,
+            symbols=self.symbols,
+        )
 
 
 class _PluginValues(SymbolDef):
     """
     Symbols for each value of the JobDefinition.plugin field
     """
-    attachment = 'attachment'
-    resource = 'resource'
-    manual = 'manual'
+
+    attachment = "attachment"
+    resource = "resource"
+    manual = "manual"
     user_verify = "user-verify"
     user_interact = "user-interact"
     user_interact_verify = "user-interact-verify"
-    shell = 'shell'
+    shell = "shell"
 
 
 supported_plugins = [str(s) for s in _PluginValues.get_all_symbols()]
@@ -138,10 +144,12 @@ class _CertificationStatusValues(SymbolDef):
         process to succeed. The term *blocker* was chosen to disambiguate the
         meaning of the two concepts.
     """
-    unspecified = 'unspecified'
-    not_part_of_certification = 'not-part-of-certification'
-    non_blocker = 'non-blocker'
-    blocker = 'blocker'
+
+    unspecified = "unspecified"
+    not_part_of_certification = "not-part-of-certification"
+    non_blocker = "non-blocker"
+    blocker = "blocker"
+
 
 class _AutoRetryValues(SymbolDef):
     """
@@ -153,8 +161,9 @@ class _AutoRetryValues(SymbolDef):
         This means that even if automatic retries are enabled in the launcher,
         this specific job will not be automatically retried.
     """
-    unspecified = 'unspecified'
-    no = 'no'
+
+    unspecified = "unspecified"
+    no = "no"
 
 
 class JobDefinition(UnitWithId, IJobDefinition):
@@ -165,8 +174,16 @@ class JobDefinition(UnitWithId, IJobDefinition):
     definition
     """
 
-    def __init__(self, data, origin=None, provider=None, controller=None,
-                 raw_data=None, parameters=None, field_offset_map=None):
+    def __init__(
+        self,
+        data,
+        origin=None,
+        provider=None,
+        controller=None,
+        raw_data=None,
+        parameters=None,
+        field_offset_map=None,
+    ):
         """
         Initialize a new JobDefinition instance.
 
@@ -202,22 +219,29 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         if origin is None:
             origin = Origin.get_caller_origin()
-        super().__init__(data, raw_data=raw_data, origin=origin,
-                         provider=provider, parameters=parameters,
-                         field_offset_map=field_offset_map)
+        super().__init__(
+            data,
+            raw_data=raw_data,
+            origin=origin,
+            provider=provider,
+            parameters=parameters,
+            field_offset_map=field_offset_map,
+        )
         # NOTE: controllers cannot be customized for instantiated templates so
         # I wonder if we should start hard-coding it in. Nothing seems to be
         # using custom controller functionality anymore.
         if controller is None:
             # XXX: moved here because of cyclic imports
             from plainbox.impl.ctrl import checkbox_session_state_ctrl
+
             controller = checkbox_session_state_ctrl
         self._resource_program = None
         self._controller = controller
 
     @classmethod
-    def instantiate_template(cls, data, raw_data, origin, provider,
-                             parameters, field_offset_map):
+    def instantiate_template(
+        cls, data, raw_data, origin, provider, parameters, field_offset_map
+    ):
         """
         Instantiate this unit from a template.
 
@@ -230,17 +254,26 @@ class JobDefinition(UnitWithId, IJobDefinition):
         # This assertion is a low-cost trick to ensure that we override this
         # method in all of the subclasses to ensure that the initializer is
         # called with correctly-ordered arguments.
-        assert cls is JobDefinition, \
-            "{}.instantiate_template() not customized".format(cls.__name__)
-        return cls(data, origin, provider, None, raw_data, parameters,
-                   field_offset_map)
+        assert (
+            cls is JobDefinition
+        ), "{}.instantiate_template() not customized".format(cls.__name__)
+        return cls(
+            data,
+            origin,
+            provider,
+            None,
+            raw_data,
+            parameters,
+            field_offset_map,
+        )
 
     def __str__(self):
         return self.summary
 
     def __repr__(self):
         return "<JobDefinition id:{!r} plugin:{!r}>".format(
-            self.id, self.plugin)
+            self.id, self.plugin
+        )
 
     @property
     def unit(self):
@@ -249,11 +282,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
 
         The return value is always 'job'
         """
-        return 'job'
+        return "job"
 
     @cached_property
     def name(self):
-        return self.get_record_value('name')
+        return self.get_record_value("name")
 
     @cached_property
     def partial_id(self):
@@ -262,18 +295,18 @@ class JobDefinition(UnitWithId, IJobDefinition):
 
         This field should not be used anymore, except for display
         """
-        return self.get_record_value('id', self.get_record_value('name'))
+        return self.get_record_value("id", self.get_record_value("name"))
 
     @propertywithsymbols(symbols=_PluginValues)
     def plugin(self):
-        plugin = self.get_record_value('plugin')
-        if plugin is None and 'simple' in self.get_flag_set():
-            plugin = 'shell'
+        plugin = self.get_record_value("plugin")
+        if plugin is None and "simple" in self.get_flag_set():
+            plugin = "shell"
         return plugin
 
     @cached_property
     def summary(self):
-        return self.get_record_value('summary', self.partial_id)
+        return self.get_record_value("summary", self.partial_id)
 
     @cached_property
     def description(self):
@@ -281,14 +314,14 @@ class JobDefinition(UnitWithId, IJobDefinition):
         # purpose/steps/verification fields. To keep backwards compability
         # description will be generated by combining new ones if description
         # field is missing
-        description = self.get_record_value('description')
+        description = self.get_record_value("description")
         if description is None:
             # try combining purpose/steps/verification fields
             description = ""
-            for stage in ['purpose', 'steps', 'verification']:
+            for stage in ["purpose", "steps", "verification"]:
                 stage_value = self.get_record_value(stage)
                 if stage_value is not None:
-                    description += stage.upper() + ':\n' + stage_value + '\n'
+                    description += stage.upper() + ":\n" + stage_value + "\n"
             description = description.strip()
             if not description:
                 # combining new description yielded empty string
@@ -297,51 +330,51 @@ class JobDefinition(UnitWithId, IJobDefinition):
 
     @cached_property
     def purpose(self):
-        return self.get_record_value('purpose')
+        return self.get_record_value("purpose")
 
     @cached_property
     def steps(self):
-        return self.get_record_value('steps')
+        return self.get_record_value("steps")
 
     @cached_property
     def verification(self):
-        return self.get_record_value('verification')
+        return self.get_record_value("verification")
 
     @cached_property
     def requires(self):
-        return self.get_record_value('requires')
+        return self.get_record_value("requires")
 
     @cached_property
     def depends(self):
-        return self.get_record_value('depends')
+        return self.get_record_value("depends")
 
     @cached_property
     def after(self):
-        return self.get_record_value('after')
+        return self.get_record_value("after")
 
     @cached_property
     def salvages(self):
-        return self.get_record_value('salvages')
+        return self.get_record_value("salvages")
 
     @cached_property
     def command(self):
-        return self.get_record_value('command')
+        return self.get_record_value("command")
 
     @cached_property
     def environ(self):
-        return self.get_record_value('environ')
+        return self.get_record_value("environ")
 
     @cached_property
     def user(self):
-        return self.get_record_value('user')
+        return self.get_record_value("user")
 
     @cached_property
     def flags(self):
-        return self.get_record_value('flags')
+        return self.get_record_value("flags")
 
     @cached_property
     def siblings(self):
-        return self.get_record_value('siblings')
+        return self.get_record_value("siblings")
 
     @cached_property
     def shell(self):
@@ -350,11 +383,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
 
         Defaults to 'bash' for checkbox compatibility.
         """
-        return self.get_record_value('shell', 'bash')
+        return self.get_record_value("shell", "bash")
 
     @cached_property
     def imports(self):
-        return self.get_record_value('imports')
+        return self.get_record_value("imports")
 
     @cached_property
     def category_id(self):
@@ -372,7 +405,9 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         return self.qualify_id(
             self.get_record_value(
-                'category_id', 'com.canonical.plainbox::uncategorised'))
+                "category_id", "com.canonical.plainbox::uncategorised"
+            )
+        )
 
     @cached_property
     def template_id(self):
@@ -400,7 +435,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             plan.  You should, instead, consider the effective auto-retry
             value that can be obtained from :class:`JobState`.
         """
-        return self.get_record_value('auto-retry', 'unspecified')
+        return self.get_record_value("auto-retry", "unspecified")
 
     @propertywithsymbols(symbols=_CertificationStatusValues)
     def certification_status(self):
@@ -415,7 +450,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             plan.  You should, instead, consider the effective certification
             status that can be obtained from :class:`JobState`.
         """
-        return self.get_record_value('certification-status', 'unspecified')
+        return self.get_record_value("certification-status", "unspecified")
 
     @cached_property
     def estimated_duration(self):
@@ -426,29 +461,29 @@ class JobDefinition(UnitWithId, IJobDefinition):
         unknown. Fractional numbers are allowed and indicate fractions of a
         second.
         """
-        value = self.get_record_value('estimated_duration')
+        value = self.get_record_value("estimated_duration")
         # NOTE: Some tests do that, I'd rather not change them now
         if isinstance(value, (int, float)):
             return value
         elif value is None:
             return None
-        match = re.match(r'^(\d+h)?[ :]*(\d+m)?[ :]*(\d+s)?$', value)
+        match = re.match(r"^(\d+h)?[ :]*(\d+m)?[ :]*(\d+s)?$", value)
         if match:
             g_hours = match.group(1)
             if g_hours:
-                assert g_hours.endswith('h')
+                assert g_hours.endswith("h")
                 hours = int(g_hours[:-1])
             else:
                 hours = 0
             g_minutes = match.group(2)
             if g_minutes:
-                assert g_minutes.endswith('m')
+                assert g_minutes.endswith("m")
                 minutes = int(g_minutes[:-1])
             else:
                 minutes = 0
             g_seconds = match.group(3)
             if g_seconds:
-                assert g_seconds.endswith('s')
+                assert g_seconds.endswith("s")
                 seconds = int(g_seconds[:-1])
             else:
                 seconds = 0
@@ -471,27 +506,28 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         Get the translated version of :meth:`summary`
         """
-        return self.get_translated_record_value('summary', self.partial_id)
+        return self.get_translated_record_value("summary", self.partial_id)
 
     @instance_method_lru_cache(maxsize=None)
     def tr_description(self):
         """
         Get the translated version of :meth:`description`
         """
-        tr_description = self.get_translated_record_value('description')
+        tr_description = self.get_translated_record_value("description")
         if tr_description is None:
             # try combining purpose/steps/verification fields
             tr_stages = {
-                'purpose': _('PURPOSE'),
-                'steps': _('STEPS'),
-                'verification': _('VERIFICATION')
+                "purpose": _("PURPOSE"),
+                "steps": _("STEPS"),
+                "verification": _("VERIFICATION"),
             }
             tr_description = ""
-            for stage in ['purpose', 'steps', 'verification']:
+            for stage in ["purpose", "steps", "verification"]:
                 stage_value = self.get_translated_record_value(stage)
                 if stage_value is not None:
-                    tr_description += (tr_stages[stage] + ':\n' +
-                                       stage_value + '\n')
+                    tr_description += (
+                        tr_stages[stage] + ":\n" + stage_value + "\n"
+                    )
             tr_description = tr_description.strip()
             if not tr_description:
                 # combining new description yielded empty string
@@ -503,28 +539,28 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         Get the translated version of :meth:`purpose`
         """
-        return self.get_translated_record_value('purpose')
+        return self.get_translated_record_value("purpose")
 
     @instance_method_lru_cache(maxsize=None)
     def tr_steps(self):
         """
         Get the translated version of :meth:`steps`
         """
-        return self.get_translated_record_value('steps')
+        return self.get_translated_record_value("steps")
 
     @instance_method_lru_cache(maxsize=None)
     def tr_verification(self):
         """
         Get the translated version of :meth:`verification`
         """
-        return self.get_translated_record_value('verification')
+        return self.get_translated_record_value("verification")
 
     @instance_method_lru_cache(maxsize=None)
     def tr_siblings(self):
         """
         Get the translated version of :meth:`siblings`
         """
-        return self.get_translated_record_value('siblings')
+        return self.get_translated_record_value("siblings")
 
     @instance_method_lru_cache(maxsize=None)
     def get_environ_settings(self):
@@ -532,7 +568,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         Return a set of requested environment variables
         """
         if self.environ is not None:
-            return {variable for variable in re.split(r'[\s,]+', self.environ)}
+            return {variable for variable in re.split(r"[\s,]+", self.environ)}
         else:
             return set()
 
@@ -542,7 +578,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         Return a set of flags associated with this job
         """
         if self.flags is not None:
-            return {flag for flag in re.split(r'[\s,]+', self.flags)}
+            return {flag for flag in re.split(r"[\s,]+", self.flags)}
         else:
             return set()
 
@@ -568,7 +604,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         Whether the job is fully automated and runs without any
         intervention from the user
         """
-        return self.plugin in ['shell', 'resource', 'attachment']
+        return self.plugin in ["shell", "resource", "attachment"]
 
     @cached_property
     def startup_user_interaction_required(self):
@@ -581,8 +617,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         The test operator may select to skip certain tests, in that case the
         outcome is skip.
         """
-        return self.plugin in ['manual', 'user-interact',
-                               'user-interact-verify']
+        return self.plugin in [
+            "manual",
+            "user-interact",
+            "user-interact-verify",
+        ]
 
     def get_resource_program(self):
         """
@@ -606,7 +645,8 @@ class JobDefinition(UnitWithId, IJobDefinition):
             else:
                 imports = None
             self._resource_program = ResourceProgram(
-                self.requires, implicit_namespace, imports)
+                self.requires, implicit_namespace, imports
+            )
         return self._resource_program
 
     def get_direct_dependencies(self):
@@ -678,7 +718,6 @@ class JobDefinition(UnitWithId, IJobDefinition):
         V().visit(WordList.parse(self.salvages))
         return deps
 
-
     def get_resource_dependencies(self):
         """
         Compute and return a set of resource dependencies
@@ -710,48 +749,56 @@ class JobDefinition(UnitWithId, IJobDefinition):
         # Strip the trailing newlines form all the raw values coming from the
         # RFC822 parser. We don't need them and they don't match gettext keys
         # (xgettext strips out those newlines)
-        return cls(record.data, record.origin, provider=provider, raw_data={
-            key: value.rstrip('\n')
-            for key, value in record.raw_data.items()
-        }, field_offset_map=record.field_offset_map)
+        return cls(
+            record.data,
+            record.origin,
+            provider=provider,
+            raw_data={
+                key: value.rstrip("\n")
+                for key, value in record.raw_data.items()
+            },
+            field_offset_map=record.field_offset_map,
+        )
 
     class Meta:
 
-        name = N_('job')
+        name = N_("job")
 
         class fields(SymbolDef):
             """
             Symbols for each field that a JobDefinition can have
             """
-            name = 'name'
-            summary = 'summary'
-            plugin = 'plugin'
-            command = 'command'
-            description = 'description'
-            user = 'user'
-            environ = 'environ'
-            estimated_duration = 'estimated_duration'
-            depends = 'depends'
-            after = 'after'
-            salvages = 'salvages'
-            requires = 'requires'
-            shell = 'shell'
-            imports = 'imports'
-            flags = 'flags'
-            category_id = 'category_id'
-            purpose = 'purpose'
-            steps = 'steps'
-            verification = 'verification'
-            certification_status = 'certification_status'
-            siblings = 'siblings'
-            auto_retry = 'auto_retry'
+
+            name = "name"
+            summary = "summary"
+            plugin = "plugin"
+            command = "command"
+            description = "description"
+            user = "user"
+            environ = "environ"
+            estimated_duration = "estimated_duration"
+            depends = "depends"
+            after = "after"
+            salvages = "salvages"
+            requires = "requires"
+            shell = "shell"
+            imports = "imports"
+            flags = "flags"
+            category_id = "category_id"
+            purpose = "purpose"
+            steps = "steps"
+            verification = "verification"
+            certification_status = "certification_status"
+            siblings = "siblings"
+            auto_retry = "auto_retry"
 
         field_validators = {
             fields.name: [
                 concrete_validators.untranslatable,
                 concrete_validators.templateVariant,
                 DeprecatedFieldValidator(
-                    _("use 'id' and 'summary' instead of 'name'")),
+                    _("use 'id' and 'summary' instead of 'name'")
+                ),
             ],
             # NOTE: 'id' validators are "inherited" so we don't have it here
             fields.summary: [
@@ -767,34 +814,46 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.present,
                 MemberOfFieldValidator(_PluginValues.get_all_symbols()),
                 CorrectFieldValueValidator(
-                    lambda plugin: plugin != 'user-verify',
-                    Problem.deprecated, Severity.advice,
-                    message=_("please migrate to user-interact-verify")),
+                    lambda plugin: plugin != "user-verify",
+                    Problem.deprecated,
+                    Severity.advice,
+                    message=_("please migrate to user-interact-verify"),
+                ),
             ],
             fields.command: [
                 concrete_validators.untranslatable,
                 # All jobs except for manual must have a command
                 PresentFieldValidator(
                     message=_("command is mandatory for non-manual jobs"),
-                    onlyif=lambda unit: unit.plugin != 'manual'),
+                    onlyif=lambda unit: unit.plugin != "manual",
+                ),
                 # Manual jobs cannot have a command
                 UselessFieldValidator(
                     message=_("command on a manual job makes no sense"),
-                    onlyif=lambda unit: unit.plugin == 'manual'),
+                    onlyif=lambda unit: unit.plugin == "manual",
+                ),
                 # We don't want to refer to CHECKBOX_SHARE anymore
                 CorrectFieldValueValidator(
                     lambda command: "CHECKBOX_SHARE" not in command,
-                    Problem.deprecated, Severity.advice,
-                    message=_("please use PLAINBOX_PROVIDER_DATA"
-                              " instead of CHECKBOX_SHARE"),
-                    onlyif=lambda unit: unit.command is not None),
+                    Problem.deprecated,
+                    Severity.advice,
+                    message=_(
+                        "please use PLAINBOX_PROVIDER_DATA"
+                        " instead of CHECKBOX_SHARE"
+                    ),
+                    onlyif=lambda unit: unit.command is not None,
+                ),
                 # We don't want to refer to CHECKBOX_DATA anymore
                 CorrectFieldValueValidator(
                     lambda command: "CHECKBOX_DATA" not in command,
-                    Problem.deprecated, Severity.advice,
-                    message=_("please use PLAINBOX_SESSION_SHARE"
-                              " instead of CHECKBOX_DATA"),
-                    onlyif=lambda unit: unit.command is not None),
+                    Problem.deprecated,
+                    Severity.advice,
+                    message=_(
+                        "please use PLAINBOX_SESSION_SHARE"
+                        " instead of CHECKBOX_DATA"
+                    ),
+                    onlyif=lambda unit: unit.command is not None,
+                ),
                 # We want to catch silly mistakes that shlex can detect
                 ShellProgramValidator(),
             ],
@@ -803,13 +862,16 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.templateVariant,
                 # Description is mandatory for manual jobs
                 PresentFieldValidator(
-                    message=_("manual jobs must have a description field, or a"
-                              " set of purpose, steps, and verification "
-                              "fields"),
-                    onlyif=lambda unit: unit.plugin == 'manual' and
-                    unit.purpose is None and unit.steps is None and
-                    unit.verification is None
+                    message=_(
+                        "manual jobs must have a description field, or a"
+                        " set of purpose, steps, and verification "
+                        "fields"
                     ),
+                    onlyif=lambda unit: unit.plugin == "manual"
+                    and unit.purpose is None
+                    and unit.steps is None
+                    and unit.verification is None,
+                ),
                 # Description or a set of purpose, steps and verification
                 # fields is recommended for all other jobs
             ],
@@ -828,18 +890,21 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 # User should be either None or 'root'
                 CorrectFieldValueValidator(
                     message=_("user can only be 'root'"),
-                    correct_fn=lambda user: user in (None, 'root')),
+                    correct_fn=lambda user: user in (None, "root"),
+                ),
                 # User is useless without a command to run
                 UselessFieldValidator(
                     message=_("user without a command makes no sense"),
-                    onlyif=lambda unit: unit.command is None)
+                    onlyif=lambda unit: unit.command is None,
+                ),
             ],
             fields.environ: [
                 concrete_validators.untranslatable,
                 # Environ is useless without a command to run
                 UselessFieldValidator(
                     message=_("environ without a command makes no sense"),
-                    onlyif=lambda unit: unit.command is None),
+                    onlyif=lambda unit: unit.command is None,
+                ),
             ],
             fields.estimated_duration: [
                 concrete_validators.untranslatable,
@@ -848,19 +913,26 @@ class JobDefinition(UnitWithId, IJobDefinition):
                     lambda duration: float(duration) > 0,
                     message="value must be a positive number",
                     onlyif=lambda unit: (
-                        unit.get_record_value('estimated_duration'))),
+                        unit.get_record_value("estimated_duration")
+                    ),
+                ),
             ],
             fields.depends: [
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
-                        unit.get_direct_dependencies() is not None)),
+                        unit.get_direct_dependencies() is not None
+                    )
+                ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_direct_dependencies(),
                     constraints=[
                         ReferenceConstraint(
-                            lambda referrer, referee: referee.unit == 'job',
-                            message=_("the referenced unit is not a job"))])
+                            lambda referrer, referee: referee.unit == "job",
+                            message=_("the referenced unit is not a job"),
+                        )
+                    ],
+                ),
                 # TODO: should not refer to deprecated jobs,
                 #       onlyif job itself is not deprecated
             ],
@@ -868,33 +940,45 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
-                        unit.get_after_dependencies() is not None)),
+                        unit.get_after_dependencies() is not None
+                    )
+                ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_after_dependencies(),
                     constraints=[
                         ReferenceConstraint(
-                            lambda referrer, referee: referee.unit == 'job',
-                            message=_("the referenced unit is not a job"))])
+                            lambda referrer, referee: referee.unit == "job",
+                            message=_("the referenced unit is not a job"),
+                        )
+                    ],
+                ),
             ],
             fields.requires: [
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: unit.get_resource_program(),
-                    onlyif=lambda unit: unit.requires is not None),
+                    onlyif=lambda unit: unit.requires is not None,
+                ),
                 UnitReferenceValidator(
                     lambda unit: unit.get_resource_dependencies(),
                     constraints=[
                         ReferenceConstraint(
-                            lambda referrer, referee: referee.unit == 'job',
-                            message=_("the referenced unit is not a job")),
+                            lambda referrer, referee: referee.unit == "job",
+                            message=_("the referenced unit is not a job"),
+                        ),
                         ReferenceConstraint(
                             lambda referrer, referee: (
-                                referee.plugin == 'resource'),
+                                referee.plugin == "resource"
+                            ),
                             onlyif=lambda referrer, referee: (
-                                referee.unit == 'job'),
+                                referee.unit == "job"
+                            ),
                             message=_(
-                                "the referenced job is not a resource job")),
-                    ]),
+                                "the referenced job is not a resource job"
+                            ),
+                        ),
+                    ],
+                ),
                 # TODO: should not refer to deprecated jobs,
                 #       onlyif job itself is not deprecated
             ],
@@ -903,23 +987,30 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.templateInvariant,
                 # Shell should be only '/bin/sh', or None (which gives bash)
                 MemberOfFieldValidator(
-                    ['/bin/sh', '/bin/bash', 'bash'],
-                    message=_("only /bin/sh and /bin/bash are allowed")),
+                    ["/bin/sh", "/bin/bash", "bash"],
+                    message=_("only /bin/sh and /bin/bash are allowed"),
+                ),
             ],
             fields.imports: [
                 concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
-                        list(unit.get_imported_jobs()) is not None)),
+                        list(unit.get_imported_jobs()) is not None
+                    )
+                ),
                 UnitReferenceValidator(
                     lambda unit: [
                         job_id
-                        for job_id, identifier in unit.get_imported_jobs()],
+                        for job_id, identifier in unit.get_imported_jobs()
+                    ],
                     constraints=[
                         ReferenceConstraint(
-                            lambda referrer, referee: referee.unit == 'job',
-                            message=_("the referenced unit is not a job"))]),
+                            lambda referrer, referee: referee.unit == "job",
+                            message=_("the referenced unit is not a job"),
+                        )
+                    ],
+                ),
                 # TODO: should not refer to deprecated jobs,
                 #       onlyif job itself is not deprecated
             ],
@@ -928,13 +1019,17 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.templateInvariant,
                 UnitReferenceValidator(
                     lambda unit: (
-                        [unit.get_category_id()] if unit.category_id else ()),
+                        [unit.get_category_id()] if unit.category_id else ()
+                    ),
                     constraints=[
                         ReferenceConstraint(
                             lambda referrer, referee: (
-                                referee.unit == 'category'),
-                            message=_(
-                                "the referenced unit is not a category"))]),
+                                referee.unit == "category"
+                            ),
+                            message=_("the referenced unit is not a category"),
+                        )
+                    ],
+                ),
                 # TODO: should not refer to deprecated categories,
                 #       onlyif job itself is not deprecated
             ],
@@ -946,35 +1041,52 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
                 MemberOfFieldValidator(
-                    _CertificationStatusValues.get_all_symbols()),
+                    _CertificationStatusValues.get_all_symbols()
+                ),
             ],
             fields.siblings: [
                 concrete_validators.translatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: json.loads(value),
-                    Problem.syntax_error, Severity.error,
-                    onlyif=lambda unit: unit.siblings),
+                    Problem.syntax_error,
+                    Severity.error,
+                    onlyif=lambda unit: unit.siblings,
+                ),
                 CorrectFieldValueValidator(
                     lambda value, unit: type(json.loads(value)) is list,
-                    Problem.syntax_error, Severity.error,
-                    onlyif=lambda unit: unit.siblings),
+                    Problem.syntax_error,
+                    Severity.error,
+                    onlyif=lambda unit: unit.siblings,
+                ),
                 CorrectFieldValueValidator(
                     lambda value, unit: all(
-                        [type(s) is dict for s in json.loads(value)]),
-                    Problem.syntax_error, Severity.error,
-                    onlyif=lambda unit: unit.siblings),
+                        [type(s) is dict for s in json.loads(value)]
+                    ),
+                    Problem.syntax_error,
+                    Severity.error,
+                    onlyif=lambda unit: unit.siblings,
+                ),
                 CorrectFieldValueValidator(
                     lambda value, unit: all(
-                        [all([hasattr(JobDefinition, k.lstrip('_'))
-                         for k in s.keys()]) for s in json.loads(value)]),
-                    Problem.bad_reference, Severity.error,
-                    message=_('unknown override job field'),
-                    onlyif=lambda unit: unit.siblings),
+                        [
+                            all(
+                                [
+                                    hasattr(JobDefinition, k.lstrip("_"))
+                                    for k in s.keys()
+                                ]
+                            )
+                            for s in json.loads(value)
+                        ]
+                    ),
+                    Problem.bad_reference,
+                    Severity.error,
+                    message=_("unknown override job field"),
+                    onlyif=lambda unit: unit.siblings,
+                ),
             ],
             fields.auto_retry: [
                 concrete_validators.untranslatable,
                 concrete_validators.templateInvariant,
-                MemberOfFieldValidator(
-                    _AutoRetryValues.get_all_symbols()),
+                MemberOfFieldValidator(_AutoRetryValues.get_all_symbols()),
             ],
         }

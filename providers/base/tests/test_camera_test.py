@@ -28,82 +28,92 @@ from camera_test import CameraTest, v4l2_capability
 @patch("builtins.print", new=MagicMock())
 class CameraTestTests(unittest.TestCase):
     """This class provides test cases for the CameraTest class."""
+
     def setUp(self):
         self.camera_instance = CameraTest(None)
 
-    @patch('camera_test.CameraTest._supported_resolutions_to_string')
-    @patch('camera_test.CameraTest._get_supported_resolutions')
+    @patch("camera_test.CameraTest._supported_resolutions_to_string")
+    @patch("camera_test.CameraTest._get_supported_resolutions")
     def test_detect_and_show_camera_info_with_single_planar_capture_capability(
         self,
         mock_get_supported_resolutions,
-        mock_supported_resolutions_to_string
+        mock_supported_resolutions_to_string,
     ):
         """Test camera device supports the single planar capture capabilitiy"""
-        mock_get_supported_resolutions.return_value = [{
-            'description': 'fake',
-            'pixelformat': 'fake',
-            'resolutions': [[123, 987]]
-        }]
+        mock_get_supported_resolutions.return_value = [
+            {
+                "description": "fake",
+                "pixelformat": "fake",
+                "resolutions": [[123, 987]],
+            }
+        ]
         mock_supported_resolutions_to_string.return_value = "Resolutions: fake"
 
-        fake_device = '/dev/video0'
+        fake_device = "/dev/video0"
         fake_v4l2_capability = v4l2_capability()
-        fake_v4l2_capability.card = b'fake card'
-        fake_v4l2_capability.driver = b'fake driver'
+        fake_v4l2_capability.card = b"fake card"
+        fake_v4l2_capability.driver = b"fake driver"
         fake_v4l2_capability.version = 123
         fake_v4l2_capability.capabilities = 0x1
         result = self.camera_instance._detect_and_show_camera_info(
-            fake_device, fake_v4l2_capability)
+            fake_device, fake_v4l2_capability
+        )
         self.assertEqual(0, result)
 
-    @patch('camera_test.CameraTest._supported_resolutions_to_string')
-    @patch('camera_test.CameraTest._get_supported_resolutions')
+    @patch("camera_test.CameraTest._supported_resolutions_to_string")
+    @patch("camera_test.CameraTest._get_supported_resolutions")
     def test_detect_and_show_camera_info_with_multi_planar_capture_capability(
         self,
         mock_get_supported_resolutions,
-        mock_supported_resolutions_to_string
+        mock_supported_resolutions_to_string,
     ):
         """Test camera device supports the multi planar capture capabilitiy"""
-        mock_get_supported_resolutions.return_value = [{
-            'description': 'fake',
-            'pixelformat': 'fake',
-            'resolutions': [[123, 987]]
-        }]
+        mock_get_supported_resolutions.return_value = [
+            {
+                "description": "fake",
+                "pixelformat": "fake",
+                "resolutions": [[123, 987]],
+            }
+        ]
         mock_supported_resolutions_to_string.return_value = "Resolutions: fake"
 
-        fake_device = '/dev/video0'
+        fake_device = "/dev/video0"
         fake_v4l2_capability = v4l2_capability()
-        fake_v4l2_capability.card = b'fake card'
-        fake_v4l2_capability.driver = b'fake driver'
+        fake_v4l2_capability.card = b"fake card"
+        fake_v4l2_capability.driver = b"fake driver"
         fake_v4l2_capability.version = 123
         fake_v4l2_capability.capabilities = 0x00001000
         result = self.camera_instance._detect_and_show_camera_info(
-            fake_device, fake_v4l2_capability)
+            fake_device, fake_v4l2_capability
+        )
         self.assertEqual(0, result)
 
-    @patch('camera_test.CameraTest._supported_resolutions_to_string')
-    @patch('camera_test.CameraTest._get_supported_resolutions')
+    @patch("camera_test.CameraTest._supported_resolutions_to_string")
+    @patch("camera_test.CameraTest._get_supported_resolutions")
     def test_detect_and_show_camera_info_without_capture_capability(
         self,
         mock_get_supported_resolutions,
-        mock_supported_resolutions_to_string
+        mock_supported_resolutions_to_string,
     ):
         """Test camera device doesn't support the capture capabilitiy"""
-        mock_get_supported_resolutions.return_value = [{
-            'description': 'YUYV',
-            'pixelformat': 'YUYV',
-            'resolutions': [[640, 480]]
-        }]
+        mock_get_supported_resolutions.return_value = [
+            {
+                "description": "YUYV",
+                "pixelformat": "YUYV",
+                "resolutions": [[640, 480]],
+            }
+        ]
         mock_supported_resolutions_to_string.return_value = "Resolutions: fake"
 
-        fake_device = '/dev/video0'
+        fake_device = "/dev/video0"
         fake_v4l2_capability = v4l2_capability()
-        fake_v4l2_capability.card = b'fake card'
-        fake_v4l2_capability.driver = b'fake driver'
+        fake_v4l2_capability.card = b"fake card"
+        fake_v4l2_capability.driver = b"fake driver"
         fake_v4l2_capability.version = 123
         fake_v4l2_capability.capabilities = 0x000010000
         result = self.camera_instance._detect_and_show_camera_info(
-            fake_device, fake_v4l2_capability)
+            fake_device, fake_v4l2_capability
+        )
         self.assertEqual(1, result)
 
     def tearDown(self):

@@ -43,6 +43,10 @@
     'Topic :: Utilities',
   ]
   dynamic = ["version"]
+[tool.black]
+  line-length = 79
+  # Exclude vendorized code (e.g. the stuff in plainbox/vendor/)
+  extend-exclude = "/vendor/"
 [tool.setuptools_scm]
   root=".."
 [tool.setuptools.packages.find]

@@ -25,25 +25,26 @@ from metabox.core.scenario import Scenario
 
 class UrwidTestPlanSelection(Scenario):
 
-    modes = ['local']
+    modes = ["local"]
     steps = [
-        Expect('Select test plan'),
-        #SelectTestPlan('com.canonical.certification::stress-pm-graph'),
-        #SelectTestPlan(
+        Expect("Select test plan"),
+        # SelectTestPlan('com.canonical.certification::stress-pm-graph'),
+        # SelectTestPlan(
         #    'com.canonical.certification::'
         #    'after-suspend-graphics-discrete-gpu-cert-automated'),
         SelectTestPlan(
-            'com.canonical.certification::client-cert-desktop-18-04'),
+            "com.canonical.certification::client-cert-desktop-18-04"
+        ),
         Send(keys.KEY_ENTER),
-        Expect('Choose tests to run on your system:'),
-        Send('d' + keys.KEY_ENTER),
-        Expect('Choose tests to run on your system:'),
-        #Send(keys.KEY_DOWN * 18 + keys.KEY_SPACE + 't'),
-        #Expect('System Manifest:'),
-        #Send('y' * 11 + 't'),
-        Send('t'),
-        #Expect('Pick an action'),
-        #Send('s' + keys.KEY_ENTER),
-        #Expect('Finish'),
-        #Send('f' + keys.KEY_ENTER),
+        Expect("Choose tests to run on your system:"),
+        Send("d" + keys.KEY_ENTER),
+        Expect("Choose tests to run on your system:"),
+        # Send(keys.KEY_DOWN * 18 + keys.KEY_SPACE + 't'),
+        # Expect('System Manifest:'),
+        # Send('y' * 11 + 't'),
+        Send("t"),
+        # Expect('Pick an action'),
+        # Send('s' + keys.KEY_ENTER),
+        # Expect('Finish'),
+        # Send('f' + keys.KEY_ENTER),
     ]

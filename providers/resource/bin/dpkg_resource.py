@@ -23,7 +23,7 @@ import sys
 from subprocess import (
     Popen,
     PIPE,
-    )
+)
 
 
 # Command to retrieve dpkg information.
@@ -35,7 +35,8 @@ def get_dpkg():
     output = Popen(COMMAND, stdout=PIPE, shell=True).communicate()[0]
     match = re.search(
         r"(?P<version>[\d\.]+) \((?P<architecture>.*)\)",
-        output.decode(encoding="utf-8"))
+        output.decode(encoding="utf-8"),
+    )
     if match:
         dpkg["version"] = match.group("version")
         dpkg["architecture"] = match.group("architecture")

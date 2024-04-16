@@ -11,9 +11,9 @@ from argparse import ArgumentParser
 DEFAULT_MEI_NODE = "mei0"
 
 
-class MEI_INTERFACE():
+class MEI_INTERFACE:
 
-    IOCTL_MEI_CONNECT_CLIENT = 0xc0104801
+    IOCTL_MEI_CONNECT_CLIENT = 0xC0104801
 
     def __init__(self):
         self._mei_obj = None
@@ -37,9 +37,9 @@ class MEI_INTERFACE():
     def connect(self, str_uuid):
         obj_uuid = uuid.UUID(str_uuid)
         array_data = array.array("b", obj_uuid.bytes_le)
-        fcntl.ioctl(self._mei_obj,
-                    self.IOCTL_MEI_CONNECT_CLIENT,
-                    array_data, 1)
+        fcntl.ioctl(
+            self._mei_obj, self.IOCTL_MEI_CONNECT_CLIENT, array_data, 1
+        )
         max_length, version = struct.unpack("<IB", array_data.tobytes()[:5])
         return max_length, version
 
@@ -73,14 +73,17 @@ def get_mei_firmware_version():
         raw_fw_ver = mei_interface.read(mei_fw_ver_rep_length)
 
         str_ver = struct.unpack("4BH2B2HH2B2HH2B2H", raw_fw_ver)
-        str_ver = "%d.%d.%d.%d" % (str_ver[5],
-                                   str_ver[4],
-                                   str_ver[8],
-                                   str_ver[7])
+        str_ver = "%d.%d.%d.%d" % (
+            str_ver[5],
+            str_ver[4],
+            str_ver[8],
+            str_ver[7],
+        )
         print("MEI firmware version: {}".format(str_ver))
     except Exception as err:
-        err_msg = ("Unable to retrieve MEI firmware version"
-                   " due to {}".format(err))
+        err_msg = (
+            "Unable to retrieve MEI firmware version" " due to {}".format(err)
+        )
         raise SystemExit(err_msg)
     finally:
         if mei_interface._mei_obj is not None:
@@ -88,12 +91,15 @@ def get_mei_firmware_version():
 
 
 if __name__ == "__main__":
-    parser = ArgumentParser(prog="MEI Testing Tool",
-                            description="This is a tool to help you perform"
-                                        " the MEI testing")
-    parser.add_argument("--get-version",
-                        action="store_true",
-                        help="Get the MEI version via MEI interface")
+    parser = ArgumentParser(
+        prog="MEI Testing Tool",
+        description="This is a tool to help you perform" " the MEI testing",
+    )
+    parser.add_argument(
+        "--get-version",
+        action="store_true",
+        help="Get the MEI version via MEI interface",
+    )
     args = parser.parse_args()
     if args.get_version:
         get_mei_firmware_version()

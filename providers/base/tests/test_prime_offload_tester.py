@@ -33,12 +33,16 @@ class FindCardIdTests(unittest.TestCase):
         # correct format
         mock_check.return_value = "/sys/kernel/debug/dri/0/name"
         self.assertEqual(po.find_card_id("0000:00:00.0"), "0")
-        mock_check.assert_called_with(["grep",
-                                       "-lr",
-                                       "--include=name",
-                                       "0000:00:00.0",
-                                       "/sys/kernel/debug/dri"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            [
+                "grep",
+                "-lr",
+                "--include=name",
+                "0000:00:00.0",
+                "/sys/kernel/debug/dri",
+            ],
+            universal_newlines=True,
+        )
         # should work with hex vaule
         self.assertEqual(po.find_card_id("0000:c6:F0.0"), "0")
 
@@ -57,23 +61,31 @@ class FindCardIdTests(unittest.TestCase):
         mock_check.return_value = ""
         with self.assertRaises(SystemExit):
             po.find_card_id("0000:00:00.0")
-        mock_check.assert_called_with(["grep",
-                                       "-lr",
-                                       "--include=name",
-                                       "0000:00:00.0",
-                                       "/sys/kernel/debug/dri"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            [
+                "grep",
+                "-lr",
+                "--include=name",
+                "0000:00:00.0",
+                "/sys/kernel/debug/dri",
+            ],
+            universal_newlines=True,
+        )
 
         # subprocess error
         mock_check.side_effect = subprocess.CalledProcessError(-1, "test")
         with self.assertRaises(SystemExit):
             po.find_card_id("0000:00:00.0")
-        mock_check.assert_called_with(["grep",
-                                       "-lr",
-                                       "--include=name",
-                                       "0000:00:00.0",
-                                       "/sys/kernel/debug/dri"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            [
+                "grep",
+                "-lr",
+                "--include=name",
+                "0000:00:00.0",
+                "/sys/kernel/debug/dri",
+            ],
+            universal_newlines=True,
+        )
 
 
 class FindCardNameTests(unittest.TestCase):
@@ -153,13 +165,13 @@ class FindCardNameTests(unittest.TestCase):
     def test_name_found_check(self, mock_check):
         po = PrimeOffloader()
         mock_check.return_value = self.lshw_output
-        self.assertEqual(po.find_card_name("0000:00:02.0"),
-                         "TigerLake-LP GT2 [Iris Xe Graphics]")
-        mock_check.assert_called_with(["lshw",
-                                       "-c",
-                                       "display",
-                                       "-json"],
-                                      universal_newlines=True)
+        self.assertEqual(
+            po.find_card_name("0000:00:02.0"),
+            "TigerLake-LP GT2 [Iris Xe Graphics]",
+        )
+        mock_check.assert_called_with(
+            ["lshw", "-c", "display", "-json"], universal_newlines=True
+        )
 
     @patch("subprocess.check_output")
     def test_name_not_found_check(self, mock_check):
@@ -168,61 +180,50 @@ class FindCardNameTests(unittest.TestCase):
         mock_check.return_value = self.lshw_output
         with self.assertRaises(SystemExit):
             po.find_card_name("0000:00:00.0")
-        mock_check.assert_called_with(["lshw",
-                                       "-c",
-                                       "display",
-                                       "-json"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            ["lshw", "-c", "display", "-json"], universal_newlines=True
+        )
 
         # no businfo in lshw output
         mock_check.return_value = self.lshw_output_err
         with self.assertRaises(SystemExit):
             po.find_card_name("0000:00:00.0")
-        mock_check.assert_called_with(["lshw",
-                                       "-c",
-                                       "display",
-                                       "-json"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            ["lshw", "-c", "display", "-json"], universal_newlines=True
+        )
 
         # empty string
         mock_check.return_value = ""
         with self.assertRaises(SystemExit):
             po.find_card_name("0000:00:00.0")
-        mock_check.assert_called_with(["lshw",
-                                       "-c",
-                                       "display",
-                                       "-json"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            ["lshw", "-c", "display", "-json"], universal_newlines=True
+        )
 
         # None
         mock_check.return_value = None
         with self.assertRaises(SystemExit):
             po.find_card_name("0000:00:00.0")
-        mock_check.assert_called_with(["lshw",
-                                       "-c",
-                                       "display",
-                                       "-json"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            ["lshw", "-c", "display", "-json"], universal_newlines=True
+        )
 
         # subprocess error
         mock_check.side_effect = subprocess.CalledProcessError(-1, "test")
         with self.assertRaises(SystemExit):
             po.find_card_name("0000:00:00.0")
-        mock_check.assert_called_with(["lshw",
-                                       "-c",
-                                       "display",
-                                       "-json"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            ["lshw", "-c", "display", "-json"], universal_newlines=True
+        )
 
     @patch("subprocess.check_output")
     def test_get_clients(self, mock_check):
         po = PrimeOffloader()
         mock_check.return_value = "echo"
         self.assertEqual(po.get_clients(0), "echo")
-        mock_check.assert_called_with(["cat",
-                                       "/sys/kernel/debug/dri/0/clients"
-                                       ],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            ["cat", "/sys/kernel/debug/dri/0/clients"], universal_newlines=True
+        )
 
         # subprocess failed
         mock_check.side_effect = subprocess.CalledProcessError(-1, "fail")
@@ -237,32 +238,35 @@ class CheckOffloadTests(unittest.TestCase):
     debug file system
     """
 
-    @patch('time.sleep', return_value=None)
+    @patch("time.sleep", return_value=None)
     @patch("prime_offload_tester.PrimeOffloader.get_clients")
     def test_offload_succ_check(self, mock_client, mock_sleep):
         cmd = ["echo"]
         mock_client.return_value = cmd
         po = PrimeOffloader()
-        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 1),
-                         None)
+        self.assertEqual(
+            po.check_offload(cmd, "card_id", "card_name", 1), None
+        )
         self.assertEqual(po.check_result, False)
 
-    @patch('time.sleep', return_value=None)
+    @patch("time.sleep", return_value=None)
     @patch("prime_offload_tester.PrimeOffloader.get_clients")
     def test_offload_fail_check(self, mock_client, mock_sleep):
         cmd = ["echo"]
         # get_clients return string that doesn't include cmd
         mock_client.return_value = ""
         po = PrimeOffloader()
-        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 1),
-                         None)
+        self.assertEqual(
+            po.check_offload(cmd, "card_id", "card_name", 1), None
+        )
         self.assertEqual(po.check_result, True)
 
         # get_clients return None by CalledProcessError
         mock_client.return_value = None
         po = PrimeOffloader()
-        self.assertEqual(po.check_offload(cmd, "card_id", "card_name", 1),
-                         None)
+        self.assertEqual(
+            po.check_offload(cmd, "card_id", "card_name", 1), None
+        )
         self.assertEqual(po.check_result, True)
 
 
@@ -279,9 +283,9 @@ class CheckNvOffloadEnvTests(unittest.TestCase):
         mock_check.return_value = "prime-select"
         with self.assertRaises(SystemExit):
             po.check_nv_offload_env()
-        mock_check.assert_called_with(["prime-select",
-                                       "query"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            ["prime-select", "query"], universal_newlines=True
+        )
 
     @patch("subprocess.check_output")
     def test_nvlink_check(self, mock_check):
@@ -290,27 +294,24 @@ class CheckNvOffloadEnvTests(unittest.TestCase):
         mock_check.return_value = "prime-select on-demand"
         with self.assertRaises(SystemExit):
             po.check_nv_offload_env()
-        mock_check.assert_called_with(["nvidia-smi",
-                                       "nvlink",
-                                       "-s"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            ["nvidia-smi", "nvlink", "-s"], universal_newlines=True
+        )
 
         # with nv driver, on-demand mode, nv driver error
         mock_check.side_effect = ["on-demand", "error"]
         with self.assertRaises(SystemExit):
             po.check_nv_offload_env()
-        mock_check.assert_called_with(["nvidia-smi",
-                                       "nvlink",
-                                       "-s"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            ["nvidia-smi", "nvlink", "-s"], universal_newlines=True
+        )
 
         # with nv driver, on-demand mode, no nv driver error
         mock_check.side_effect = ["on-demand", ""]
         self.assertEqual(None, po.check_nv_offload_env())
-        mock_check.assert_called_with(["nvidia-smi",
-                                       "nvlink",
-                                       "-s"],
-                                      universal_newlines=True)
+        mock_check.assert_called_with(
+            ["nvidia-smi", "nvlink", "-s"], universal_newlines=True
+        )
 
         # No prime-select
         mock_check.side_effect = FileNotFoundError
@@ -340,27 +341,23 @@ class RunOffloadCmdTests(unittest.TestCase):
         po.find_card_id = MagicMock(return_value="0")
         po.find_card_name = MagicMock(return_value="Card")
         with self.assertRaises(SystemExit):
-            po.run_offload_cmd("timeout 10 echo",
-                               "0000:00:00.0",
-                               "driver",
-                               0)
+            po.run_offload_cmd("timeout 10 echo", "0000:00:00.0", "driver", 0)
 
         # check_nv_offload_env failed
         po.find_card_id = MagicMock(return_value="0")
         po.find_card_name = MagicMock(return_value="Card")
         po.check_nv_offload_env = MagicMock(side_effect=SystemExit)
         with self.assertRaises(SystemExit):
-            po.run_offload_cmd("echo",
-                               "0000:00:00.0",
-                               "driver",
-                               0)
+            po.run_offload_cmd("echo", "0000:00:00.0", "driver", 0)
 
-    @patch('time.sleep', return_value=None)
+    @patch("time.sleep", return_value=None)
     @patch("subprocess.Popen")
     def test_offload_cmd_check(self, mock_open, mock_sleep):
-        nv_env = {'__NV_PRIME_RENDER_OFFLOAD': '1',
-                  '__GLX_VENDOR_LIBRARY_NAME': 'nvidia'}
-        o_env = {'DRI_PRIME': 'pci-0000_00_00_0'}
+        nv_env = {
+            "__NV_PRIME_RENDER_OFFLOAD": "1",
+            "__GLX_VENDOR_LIBRARY_NAME": "nvidia",
+        }
+        o_env = {"DRI_PRIME": "pci-0000_00_00_0"}
 
         # non NV driver
         po = PrimeOffloader()
@@ -371,12 +368,14 @@ class RunOffloadCmdTests(unittest.TestCase):
         os.environ.copy = MagicMock(return_value={})
         po.run_offload_cmd("echo", "0000:00:00.0", "xxx", 0)
         # check run_offload_cmd executing correct command
-        mock_open.assert_called_with(["echo"],
-                                     env=o_env,
-                                     stdout=subprocess.PIPE,
-                                     universal_newlines=True)
+        mock_open.assert_called_with(
+            ["echo"],
+            env=o_env,
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+        )
         # check check_offload function get correct args
-        po.check_offload.assert_called_with(["echo"], '0', 'Intel', 20)
+        po.check_offload.assert_called_with(["echo"], "0", "Intel", 20)
 
         # non NV driver with timeout setting
         po.find_card_id = MagicMock(return_value="0")
@@ -386,12 +385,14 @@ class RunOffloadCmdTests(unittest.TestCase):
         os.environ.copy = MagicMock(return_value={})
         po.run_offload_cmd("echo", "0000:00:00.0", "xxx", 1)
         # check run_offload_cmd executing correct command
-        mock_open.assert_called_with(["timeout", "1", "echo"],
-                                     env=o_env,
-                                     stdout=subprocess.PIPE,
-                                     universal_newlines=True)
+        mock_open.assert_called_with(
+            ["timeout", "1", "echo"],
+            env=o_env,
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+        )
         # check check_offload function get correct args
-        po.check_offload.assert_called_with(["echo"], '0', 'Intel', 1)
+        po.check_offload.assert_called_with(["echo"], "0", "Intel", 1)
 
         # NV driver
         po.find_card_id = MagicMock(return_value="0")
@@ -401,12 +402,14 @@ class RunOffloadCmdTests(unittest.TestCase):
         os.environ.copy = MagicMock(return_value={})
         po.run_offload_cmd("echo", "0000:00:00.0", "nvidia", 1)
         # check run_offload_cmd executing correct command
-        mock_open.assert_called_with(["timeout", "1", "echo"],
-                                     env=nv_env,
-                                     stdout=subprocess.PIPE,
-                                     universal_newlines=True)
+        mock_open.assert_called_with(
+            ["timeout", "1", "echo"],
+            env=nv_env,
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+        )
         # check check_offload function get correct args
-        po.check_offload.assert_called_with(["echo"], '0', 'NV', 1)
+        po.check_offload.assert_called_with(["echo"], "0", "NV", 1)
 
         # subprocess error
         po.find_card_id = MagicMock(return_value="0")
@@ -418,12 +421,14 @@ class RunOffloadCmdTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             po.run_offload_cmd("echo", "0000:00:00.0", "nvidia", 1)
         # check run_offload_cmd executing correct command
-        mock_open.assert_called_with(["timeout", "1", "echo"],
-                                     env=nv_env,
-                                     stdout=subprocess.PIPE,
-                                     universal_newlines=True)
+        mock_open.assert_called_with(
+            ["timeout", "1", "echo"],
+            env=nv_env,
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+        )
         # check check_offload function get correct args
-        po.check_offload.assert_called_with(["echo"], '0', 'NV', 1)
+        po.check_offload.assert_called_with(["echo"], "0", "NV", 1)
 
         # check offload failed
         po.find_card_id = MagicMock(return_value="0")
@@ -436,12 +441,14 @@ class RunOffloadCmdTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             po.run_offload_cmd("echo", "0000:00:00.0", "nvidia", 1)
         # check run_offload_cmd executing correct command
-        mock_open.assert_called_with(["timeout", "1", "echo"],
-                                     env=nv_env,
-                                     stdout=subprocess.PIPE,
-                                     universal_newlines=True)
+        mock_open.assert_called_with(
+            ["timeout", "1", "echo"],
+            env=nv_env,
+            stdout=subprocess.PIPE,
+            universal_newlines=True,
+        )
         # check check_offload function get correct args
-        po.check_offload.assert_called_with(["echo"], '0', 'NV', 1)
+        po.check_offload.assert_called_with(["echo"], "0", "NV", 1)
 
 
 class ParseArgsTests(unittest.TestCase):
@@ -488,10 +495,16 @@ class ParseArgsTests(unittest.TestCase):
         self.assertEqual(rv.timeout, 5)
 
         # change all
-        args = ["-c", "glxgears -fullscreen",
-                "-p", "0000:00:01.0",
-                "-d", "nvidia",
-                "-t", "5"]
+        args = [
+            "-c",
+            "glxgears -fullscreen",
+            "-p",
+            "0000:00:01.0",
+            "-d",
+            "nvidia",
+            "-t",
+            "5",
+        ]
         rv = po.parse_args(args)
         self.assertEqual(rv.command, "glxgears -fullscreen")
         self.assertEqual(rv.pci, "0000:00:01.0")
@@ -515,5 +528,5 @@ class MainTests(unittest.TestCase):
         self.assertNotEqual(cm.exception.code, 0)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

@@ -18,8 +18,7 @@ import io
 import json
 
 
-class DkmsInfoResult():
-
+class DkmsInfoResult:
     """A simple class to hold results for the DkmsInfoParser."""
 
     def __init__(self):
@@ -30,7 +29,6 @@ class DkmsInfoResult():
 
 
 class DkmsInfoParser(object):
-
     """
     Parser for output from the dkms_info script.
 
@@ -78,8 +76,8 @@ class DkmsInfoParser(object):
                     # Validate that it contains at least
                     # modaliases and version, otherwise it's probably
                     # incomplete and useless information
-                    if 'modaliases' in data and 'version' in data:
-                        resdict = {'dkms-status': kind}
+                    if "modaliases" in data and "version" in data:
+                        resdict = {"dkms-status": kind}
                         resdict.update(data)
                         result.addDkmsInfo(package, resdict)
             except AttributeError:
@@ -88,11 +86,12 @@ class DkmsInfoParser(object):
                     for data in elements:
                         # Validate that it contains a dkms_name, dkms_ver,
                         # and pkg_name.
-                        if all(k in data for k in ('dkms_name',
-                                                   'dkms_ver',
-                                                   'pkg_name')):
-                            package = data['pkg_name']
-                            resdict = {'dkms-status': kind}
+                        if all(
+                            k in data
+                            for k in ("dkms_name", "dkms_ver", "pkg_name")
+                        ):
+                            package = data["pkg_name"]
+                            resdict = {"dkms-status": kind}
                             resdict.update(data)
                             result.addDkmsInfo(package, resdict)
                 except TypeError:

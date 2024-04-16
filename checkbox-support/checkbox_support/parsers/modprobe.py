@@ -19,8 +19,7 @@ import re
 from collections import defaultdict
 
 
-class ModprobeResult():
-
+class ModprobeResult:
     """
     A simple class to hold results for the ModprobeParser.
 
@@ -35,7 +34,6 @@ class ModprobeResult():
 
 
 class ModprobeParser(object):
-
     """Parser for module configuration from /etc/modprobe.d."""
 
     def __init__(self, stream):
@@ -50,12 +48,12 @@ class ModprobeParser(object):
         for each set of  of module, option_string parameters.
         """
         mod_options = defaultdict(set)
-        optregex = re.compile(r'^options\s+(?P<module>.+?)\s+(?P<options>.+)$')
+        optregex = re.compile(r"^options\s+(?P<module>.+?)\s+(?P<options>.+)$")
         for line in self.stream.readlines():
             opt_matches = re.match(optregex, line)
             if opt_matches:
-                module = opt_matches.group('module')
-                options = opt_matches.group('options')
+                module = opt_matches.group("module")
+                options = opt_matches.group("options")
                 for option in options.split():
                     mod_options[module].add(option)
         for module, options in mod_options.items():

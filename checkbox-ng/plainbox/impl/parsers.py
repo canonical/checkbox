@@ -111,7 +111,7 @@ class ParserPlugIn(IParser, PlugIn):
         This value is computed from the docstring of the wrapped function.
         In fact, it is the fist line of the docstring.
         """
-        return inspect.getdoc(self.parser_fn).split('\n', 1)[0]
+        return inspect.getdoc(self.parser_fn).split("\n", 1)[0]
 
     def parse_text_to_json(self, text):
         """
@@ -123,8 +123,9 @@ class ParserPlugIn(IParser, PlugIn):
         """
         ast = self.parse_text_to_ast(text)
         if ast is not None:
-            return json.dumps(ast, indent=4, sort_keys=True,
-                              default=self._to_json)
+            return json.dumps(
+                ast, indent=4, sort_keys=True, default=self._to_json
+            )
 
     def parse_text_to_ast(self, text):
         """
@@ -160,9 +161,11 @@ class ParserPlugIn(IParser, PlugIn):
             return {slot: getattr(obj, slot) for slot in obj.__slots__}
         else:
             raise NotImplementedError(
-                "unable to json-ify {!r}".format(obj.__class__))
+                "unable to json-ify {!r}".format(obj.__class__)
+            )
 
 
 # Collection of all parsers
 all_parsers = PkgResourcesPlugInCollection(
-    'plainbox.parsers', wrapper=ParserPlugIn)
+    "plainbox.parsers", wrapper=ParserPlugIn
+)

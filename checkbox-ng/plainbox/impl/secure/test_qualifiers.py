@@ -77,9 +77,9 @@ class SimpleQualifierTests(TestCase):
     """
 
     def setUp(self):
-        self.origin = mock.Mock(name='origin', spec_set=Origin)
+        self.origin = mock.Mock(name="origin", spec_set=Origin)
         self.obj = DummySimpleQualifier(self.origin)
-        self.job = JobDefinition({'id': "dummy"})
+        self.job = JobDefinition({"id": "dummy"})
 
     def test_init(self):
         """
@@ -107,7 +107,7 @@ class SimpleQualifierTests(TestCase):
         verify that SimpleQualifier.designates returns True iff get_vote() for
         the same job returns VOTE_INCLUDE.
         """
-        with mock.patch.object(self.obj, 'get_vote') as mock_get_vote:
+        with mock.patch.object(self.obj, "get_vote") as mock_get_vote:
             mock_get_vote.return_value = IUnitQualifier.VOTE_INCLUDE
             self.assertTrue(self.obj.designates(self.job))
             mock_get_vote.return_value = IUnitQualifier.VOTE_EXCLUDE
@@ -121,10 +121,11 @@ class SimpleQualifierTests(TestCase):
         inclusive qualifier that matches a job
         """
         obj = DummySimpleQualifier(self.origin, inclusive=True)
-        with mock.patch.object(obj, 'get_simple_match') as mock_gsm:
+        with mock.patch.object(obj, "get_simple_match") as mock_gsm:
             mock_gsm.return_value = True
-            self.assertEqual(obj.get_vote(self.job),
-                             IUnitQualifier.VOTE_INCLUDE)
+            self.assertEqual(
+                obj.get_vote(self.job), IUnitQualifier.VOTE_INCLUDE
+            )
 
     def test_get_vote__not_inclusive_matching(self):
         """
@@ -132,10 +133,11 @@ class SimpleQualifierTests(TestCase):
         non-inclusive qualifier that matches a job
         """
         obj = DummySimpleQualifier(self.origin, inclusive=False)
-        with mock.patch.object(obj, 'get_simple_match') as mock_gsm:
+        with mock.patch.object(obj, "get_simple_match") as mock_gsm:
             mock_gsm.return_value = True
-            self.assertEqual(obj.get_vote(self.job),
-                             IUnitQualifier.VOTE_EXCLUDE)
+            self.assertEqual(
+                obj.get_vote(self.job), IUnitQualifier.VOTE_EXCLUDE
+            )
 
     def test_get_vote__inclusive_nonmatching(self):
         """
@@ -143,9 +145,11 @@ class SimpleQualifierTests(TestCase):
         inclusive qualifier that does not match a job
         """
         obj = DummySimpleQualifier(self.origin, inclusive=True)
-        with mock.patch.object(obj, 'get_simple_match') as mock_gsm:
+        with mock.patch.object(obj, "get_simple_match") as mock_gsm:
             mock_gsm.return_value = False
-            self.assertEqual(obj.get_vote(self.job), IUnitQualifier.VOTE_IGNORE)
+            self.assertEqual(
+                obj.get_vote(self.job), IUnitQualifier.VOTE_IGNORE
+            )
 
     def test_get_vote__not_inclusive_nonmatching(self):
         """
@@ -153,9 +157,11 @@ class SimpleQualifierTests(TestCase):
         non-inclusive qualifier that does not match a job
         """
         obj = DummySimpleQualifier(self.origin, inclusive=False)
-        with mock.patch.object(obj, 'get_simple_match') as mock_gsm:
+        with mock.patch.object(obj, "get_simple_match") as mock_gsm:
             mock_gsm.return_value = False
-            self.assertEqual(obj.get_vote(self.job), IUnitQualifier.VOTE_IGNORE)
+            self.assertEqual(
+                obj.get_vote(self.job), IUnitQualifier.VOTE_IGNORE
+            )
 
     def test_get_primitive_qualifiers(self):
         """
@@ -163,7 +169,8 @@ class SimpleQualifierTests(TestCase):
         with itself
         """
         return self.assertEqual(
-            self.obj.get_primitive_qualifiers(), [self.obj])
+            self.obj.get_primitive_qualifiers(), [self.obj]
+        )
 
 
 class OperatorMatcherTests(TestCase):
@@ -179,7 +186,8 @@ class OperatorMatcherTests(TestCase):
     def test_repr(self):
         self.assertEqual(
             repr(OperatorMatcher(operator.eq, "foo")),
-            "OperatorMatcher(<built-in function eq>, 'foo')")
+            "OperatorMatcher(<built-in function eq>, 'foo')",
+        )
 
 
 class PatternMatcherTests(TestCase):
@@ -194,7 +202,8 @@ class PatternMatcherTests(TestCase):
 
     def test_repr(self):
         self.assertEqual(
-            repr(PatternMatcher("text")), "PatternMatcher('text')")
+            repr(PatternMatcher("text")), "PatternMatcher('text')"
+        )
 
 
 class FieldQualifierTests(TestCase):
@@ -205,12 +214,14 @@ class FieldQualifierTests(TestCase):
     _FIELD = "field"
 
     def setUp(self):
-        self.matcher = mock.Mock(name='matcher', spec_set=IMatcher)
-        self.origin = mock.Mock(name='origin', spec_set=Origin)
+        self.matcher = mock.Mock(name="matcher", spec_set=IMatcher)
+        self.origin = mock.Mock(name="origin", spec_set=Origin)
         self.qualifier_i = FieldQualifier(
-            self._FIELD, self.matcher, self.origin, True)
+            self._FIELD, self.matcher, self.origin, True
+        )
         self.qualifier_e = FieldQualifier(
-            self._FIELD, self.matcher, self.origin, False)
+            self._FIELD, self.matcher, self.origin, False
+        )
 
     def test_init(self):
         """
@@ -235,11 +246,15 @@ class FieldQualifierTests(TestCase):
         self.assertEqual(
             repr(self.qualifier_i),
             "FieldQualifier({!r}, {!r}, inclusive=True)".format(
-                self._FIELD, self.matcher))
+                self._FIELD, self.matcher
+            ),
+        )
         self.assertEqual(
             repr(self.qualifier_e),
             "FieldQualifier({!r}, {!r}, inclusive=False)".format(
-                self._FIELD, self.matcher))
+                self._FIELD, self.matcher
+            ),
+        )
 
     def test_get_simple_match(self):
         """
@@ -250,7 +265,8 @@ class FieldQualifierTests(TestCase):
             self.matcher.reset_mock()
             result = qualifier.get_simple_match(job)
             self.matcher.match.assert_called_once_with(
-                getattr(job, self._FIELD))
+                getattr(job, self._FIELD)
+            )
             self.assertEqual(result, self.matcher.match())
 
     def test_field_setter(self):
@@ -258,13 +274,14 @@ class FieldQualifierTests(TestCase):
         self.qualifier_e.field = "updated"
         self.assertEqual(self.qualifier_e.field, "updated")
 
+
 class RegExpJobQualifierTests(TestCase):
     """
     Test cases for RegExpJobQualifier class
     """
 
     def setUp(self):
-        self.origin = mock.Mock(name='origin', spec_set=Origin)
+        self.origin = mock.Mock(name="origin", spec_set=Origin)
         self.qualifier = RegExpJobQualifier("f.*", self.origin)
 
     def test_init(self):
@@ -292,7 +309,8 @@ class RegExpJobQualifierTests(TestCase):
         verify that RegExpJobQualifier.__repr__() works as expected
         """
         self.assertEqual(
-            repr(self.qualifier), "RegExpJobQualifier('f.*', inclusive=True)")
+            repr(self.qualifier), "RegExpJobQualifier('f.*', inclusive=True)"
+        )
 
     def test_get_vote(self):
         """
@@ -300,20 +318,28 @@ class RegExpJobQualifierTests(TestCase):
         """
         self.assertEqual(
             RegExpJobQualifier("foo", self.origin).get_vote(
-                JobDefinition({'id': 'foo'})),
-            IUnitQualifier.VOTE_INCLUDE)
+                JobDefinition({"id": "foo"})
+            ),
+            IUnitQualifier.VOTE_INCLUDE,
+        )
         self.assertEqual(
             RegExpJobQualifier("foo", self.origin, inclusive=False).get_vote(
-                JobDefinition({'id': 'foo'})),
-            IUnitQualifier.VOTE_EXCLUDE)
+                JobDefinition({"id": "foo"})
+            ),
+            IUnitQualifier.VOTE_EXCLUDE,
+        )
         self.assertEqual(
             RegExpJobQualifier("foo", self.origin).get_vote(
-                JobDefinition({'id': 'bar'})),
-            IUnitQualifier.VOTE_IGNORE)
+                JobDefinition({"id": "bar"})
+            ),
+            IUnitQualifier.VOTE_IGNORE,
+        )
         self.assertEqual(
             RegExpJobQualifier("foo", self.origin, inclusive=False).get_vote(
-                JobDefinition({'id': 'bar'})),
-            IUnitQualifier.VOTE_IGNORE)
+                JobDefinition({"id": "bar"})
+            ),
+            IUnitQualifier.VOTE_IGNORE,
+        )
 
 
 class JobIdQualifierTests(TestCase):
@@ -322,7 +348,7 @@ class JobIdQualifierTests(TestCase):
     """
 
     def setUp(self):
-        self.origin = mock.Mock(name='origin', spec_set=Origin)
+        self.origin = mock.Mock(name="origin", spec_set=Origin)
         self.qualifier = JobIdQualifier("foo", self.origin)
 
     def test_init(self):
@@ -343,7 +369,8 @@ class JobIdQualifierTests(TestCase):
         verify that JobIdQualifier.__repr__() works as expected
         """
         self.assertEqual(
-            repr(self.qualifier), "JobIdQualifier('foo', inclusive=True)")
+            repr(self.qualifier), "JobIdQualifier('foo', inclusive=True)"
+        )
 
     def test_get_vote(self):
         """
@@ -351,33 +378,45 @@ class JobIdQualifierTests(TestCase):
         """
         self.assertEqual(
             JobIdQualifier("foo", self.origin).get_vote(
-                JobDefinition({'id': 'foo'})),
-            IUnitQualifier.VOTE_INCLUDE)
+                JobDefinition({"id": "foo"})
+            ),
+            IUnitQualifier.VOTE_INCLUDE,
+        )
         self.assertEqual(
             JobIdQualifier("foo", self.origin, inclusive=False).get_vote(
-                JobDefinition({'id': 'foo'})),
-            IUnitQualifier.VOTE_EXCLUDE)
+                JobDefinition({"id": "foo"})
+            ),
+            IUnitQualifier.VOTE_EXCLUDE,
+        )
         self.assertEqual(
             JobIdQualifier("foo", self.origin).get_vote(
-                JobDefinition({'id': 'bar'})),
-            IUnitQualifier.VOTE_IGNORE)
+                JobDefinition({"id": "bar"})
+            ),
+            IUnitQualifier.VOTE_IGNORE,
+        )
         self.assertEqual(
             JobIdQualifier("foo", self.origin, inclusive=False).get_vote(
-                JobDefinition({'id': 'bar'})),
-            IUnitQualifier.VOTE_IGNORE)
+                JobDefinition({"id": "bar"})
+            ),
+            IUnitQualifier.VOTE_IGNORE,
+        )
 
     def test_smoke(self):
         """
         various smoke tests that check if JobIdQualifier.designates() works
         """
         self.assertTrue(
-            JobIdQualifier('name', self.origin).designates(make_job('name')))
+            JobIdQualifier("name", self.origin).designates(make_job("name"))
+        )
         self.assertFalse(
-            JobIdQualifier('nam', self.origin).designates(make_job('name')))
+            JobIdQualifier("nam", self.origin).designates(make_job("name"))
+        )
         self.assertFalse(
-            JobIdQualifier('.*', self.origin).designates(make_job('name')))
+            JobIdQualifier(".*", self.origin).designates(make_job("name"))
+        )
         self.assertFalse(
-            JobIdQualifier('*', self.origin).designates(make_job('name')))
+            JobIdQualifier("*", self.origin).designates(make_job("name"))
+        )
 
 
 class CompositeQualifierTests(TestCase):
@@ -386,7 +425,7 @@ class CompositeQualifierTests(TestCase):
     """
 
     def setUp(self):
-        self.origin = mock.Mock(name='origin', spec_set=Origin)
+        self.origin = mock.Mock(name="origin", spec_set=Origin)
 
     def test_empty(self):
         """
@@ -402,65 +441,91 @@ class CompositeQualifierTests(TestCase):
         # Default is IGNORE
         self.assertEqual(
             CompositeQualifier([]).get_vote(make_job("foo")),
-            IUnitQualifier.VOTE_IGNORE)
+            IUnitQualifier.VOTE_IGNORE,
+        )
         # Any match is INCLUDE
         self.assertEqual(
-            CompositeQualifier([
-                RegExpJobQualifier("foo", self.origin),
-            ]).get_vote(make_job("foo")),
-            IUnitQualifier.VOTE_INCLUDE)
+            CompositeQualifier(
+                [
+                    RegExpJobQualifier("foo", self.origin),
+                ]
+            ).get_vote(make_job("foo")),
+            IUnitQualifier.VOTE_INCLUDE,
+        )
         # Any negative match is EXCLUDE
         self.assertEqual(
-            CompositeQualifier([
-                RegExpJobQualifier("foo", self.origin, inclusive=False),
-            ]).get_vote(make_job("foo")),
-            IUnitQualifier.VOTE_EXCLUDE)
+            CompositeQualifier(
+                [
+                    RegExpJobQualifier("foo", self.origin, inclusive=False),
+                ]
+            ).get_vote(make_job("foo")),
+            IUnitQualifier.VOTE_EXCLUDE,
+        )
         # Negative matches take precedence over positive matches
         self.assertEqual(
-            CompositeQualifier([
-                RegExpJobQualifier("foo", self.origin),
-                RegExpJobQualifier("foo", self.origin, inclusive=False),
-            ]).get_vote(make_job("foo")),
-            IUnitQualifier.VOTE_EXCLUDE)
+            CompositeQualifier(
+                [
+                    RegExpJobQualifier("foo", self.origin),
+                    RegExpJobQualifier("foo", self.origin, inclusive=False),
+                ]
+            ).get_vote(make_job("foo")),
+            IUnitQualifier.VOTE_EXCLUDE,
+        )
         # Unrelated patterns are not affecting the result
         self.assertEqual(
-            CompositeQualifier([
-                RegExpJobQualifier("foo", self.origin),
-                RegExpJobQualifier("bar", self.origin),
-            ]).get_vote(make_job("foo")),
-            IUnitQualifier.VOTE_INCLUDE)
+            CompositeQualifier(
+                [
+                    RegExpJobQualifier("foo", self.origin),
+                    RegExpJobQualifier("bar", self.origin),
+                ]
+            ).get_vote(make_job("foo")),
+            IUnitQualifier.VOTE_INCLUDE,
+        )
 
     def test_inclusive(self):
         """
         verify that inclusive selection works
         """
         self.assertTrue(
-            CompositeQualifier([
-                RegExpJobQualifier('foo', self.origin),
-            ]).designates(make_job("foo")))
+            CompositeQualifier(
+                [
+                    RegExpJobQualifier("foo", self.origin),
+                ]
+            ).designates(make_job("foo"))
+        )
         self.assertFalse(
-            CompositeQualifier([
-                RegExpJobQualifier('foo', self.origin),
-            ]).designates(make_job("bar")))
+            CompositeQualifier(
+                [
+                    RegExpJobQualifier("foo", self.origin),
+                ]
+            ).designates(make_job("bar"))
+        )
 
     def test_exclusive(self):
         """
         verify that non-inclusive selection works
         """
         self.assertFalse(
-            CompositeQualifier([
-                RegExpJobQualifier('foo', self.origin, inclusive=False)
-            ]).designates(make_job("foo")))
+            CompositeQualifier(
+                [RegExpJobQualifier("foo", self.origin, inclusive=False)]
+            ).designates(make_job("foo"))
+        )
         self.assertFalse(
-            CompositeQualifier([
-                RegExpJobQualifier(".*", self.origin),
-                RegExpJobQualifier('foo', self.origin, inclusive=False)
-            ]).designates(make_job("foo")))
+            CompositeQualifier(
+                [
+                    RegExpJobQualifier(".*", self.origin),
+                    RegExpJobQualifier("foo", self.origin, inclusive=False),
+                ]
+            ).designates(make_job("foo"))
+        )
         self.assertTrue(
-            CompositeQualifier([
-                RegExpJobQualifier(".*", self.origin),
-                RegExpJobQualifier('foo', self.origin, inclusive=False)
-            ]).designates(make_job("bar")))
+            CompositeQualifier(
+                [
+                    RegExpJobQualifier(".*", self.origin),
+                    RegExpJobQualifier("foo", self.origin, inclusive=False),
+                ]
+            ).designates(make_job("bar"))
+        )
 
     def test_is_primitive(self):
         """
@@ -479,8 +544,8 @@ class CompositeQualifierTests(TestCase):
         # we expect to see them flattened
         expected = [q1, q2, q3]
         # from a nested structure like this
-        measured = CompositeQualifier([
-            CompositeQualifier([q1, q2]), q3]
+        measured = CompositeQualifier(
+            [CompositeQualifier([q1, q2]), q3]
         ).get_primitive_qualifiers()
         self.assertEqual(expected, measured)
 
@@ -492,7 +557,7 @@ class CompositeQualifierTests(TestCase):
 class FunctionTests(TestCase):
 
     def setUp(self):
-        self.origin = mock.Mock(name='origin', spec_set=Origin)
+        self.origin = mock.Mock(name="origin", spec_set=Origin)
 
     def test_select_units__empty_qualifier_list(self):
         """
@@ -505,46 +570,48 @@ class FunctionTests(TestCase):
         """
         verify that select_units() honors qualifier ordering
         """
-        job_a = JobDefinition({'id': 'a'})
-        job_b = JobDefinition({'id': 'b'})
-        job_c = JobDefinition({'id': 'c'})
+        job_a = JobDefinition({"id": "a"})
+        job_b = JobDefinition({"id": "b"})
+        job_c = JobDefinition({"id": "c"})
         qual_a = JobIdQualifier("a", self.origin)
         qual_c = JobIdQualifier("c", self.origin)
         for job_list in permutations([job_a, job_b, job_c], 3):
             # Regardless of how the list of job is ordered the result
             # should be the same, depending on the qualifier list
             self.assertEqual(
-                select_units(job_list, [qual_a, qual_c]),
-                [job_a, job_c])
+                select_units(job_list, [qual_a, qual_c]), [job_a, job_c]
+            )
 
     def test_select_units__exclusion(self):
         """
         verify that select_units() honors qualifier ordering
         """
-        job_a = JobDefinition({'id': 'a'})
-        job_b = JobDefinition({'id': 'b'})
-        job_c = JobDefinition({'id': 'c'})
-        qual_all = CompositeQualifier([
-            JobIdQualifier("a", self.origin),
-            JobIdQualifier("b", self.origin),
-            JobIdQualifier("c", self.origin),
-        ])
+        job_a = JobDefinition({"id": "a"})
+        job_b = JobDefinition({"id": "b"})
+        job_c = JobDefinition({"id": "c"})
+        qual_all = CompositeQualifier(
+            [
+                JobIdQualifier("a", self.origin),
+                JobIdQualifier("b", self.origin),
+                JobIdQualifier("c", self.origin),
+            ]
+        )
         qual_not_c = JobIdQualifier("c", self.origin, inclusive=False)
         for job_list in permutations([job_a, job_b, job_c], 3):
             # Regardless of how the list of job is ordered the result
             # should be the same, depending on the qualifier list
             self.assertEqual(
-                select_units(job_list, [qual_all, qual_not_c]),
-                [job_a, job_b])
+                select_units(job_list, [qual_all, qual_not_c]), [job_a, job_b]
+            )
 
     def test_select_units__id_field_qualifier(self):
         """
         verify that select_units() only returns the job that matches a given
         FieldQualifier
         """
-        job_a = JobDefinition({'id': 'a'})
-        job_b = JobDefinition({'id': 'b'})
-        job_c = JobDefinition({'id': 'c'})
+        job_a = JobDefinition({"id": "a"})
+        job_b = JobDefinition({"id": "b"})
+        job_c = JobDefinition({"id": "c"})
         matcher = OperatorMatcher(operator.eq, "a")
         qual = FieldQualifier("id", matcher, self.origin, True)
         job_list = [job_a, job_b, job_c]
@@ -556,7 +623,7 @@ class FunctionTests(TestCase):
         verify that select_units() only returns the job that matches a given
         FieldQualifier once, even if it has been added twice
         """
-        job_a = JobDefinition({'id': 'a'})
+        job_a = JobDefinition({"id": "a"})
         matcher = OperatorMatcher(operator.eq, "a")
         qual = FieldQualifier("id", matcher, self.origin, True)
         job_list = [job_a, job_a]
@@ -568,17 +635,23 @@ class FunctionTests(TestCase):
         verify that select_units() only returns the jobs that have been
         instantiated using a given template
         """
-        job_a = JobDefinition({
-                              "id": "a",
-                              })
-        templated_job_b = JobDefinition({
-                              "id": "b",
-                              "template-id": "test-template",
-                              })
-        templated_job_c = JobDefinition({
-                              "id": "c",
-                              "template-id": "test-template",
-                              })
+        job_a = JobDefinition(
+            {
+                "id": "a",
+            }
+        )
+        templated_job_b = JobDefinition(
+            {
+                "id": "b",
+                "template-id": "test-template",
+            }
+        )
+        templated_job_c = JobDefinition(
+            {
+                "id": "c",
+                "template-id": "test-template",
+            }
+        )
         matcher = OperatorMatcher(operator.eq, "test-template")
         qual = FieldQualifier("id", matcher, self.origin, True)
         job_list = [job_a, templated_job_b, templated_job_c]
@@ -591,14 +664,18 @@ class FunctionTests(TestCase):
         have been instantiated from it can still be excluded from the list of
         selected jobs
         """
-        templated_job_a = JobDefinition({
-                              "id": "a",
-                              "template-id": "test-template",
-                              })
-        templated_job_b = JobDefinition({
-                              "id": "b",
-                              "template-id": "test-template",
-                              })
+        templated_job_a = JobDefinition(
+            {
+                "id": "a",
+                "template-id": "test-template",
+            }
+        )
+        templated_job_b = JobDefinition(
+            {
+                "id": "b",
+                "template-id": "test-template",
+            }
+        )
         matcher_incl = OperatorMatcher(operator.eq, "test-template")
         matcher_excl = OperatorMatcher(operator.eq, "b")
         qual_incl = FieldQualifier("id", matcher_incl, self.origin, True)

@@ -62,10 +62,7 @@ extensions = [
     "youtube-links",
 ]
 
-myst_enable_extensions = [
-    "substitution",
-    "deflist"
-]
+myst_enable_extensions = ["substitution", "deflist"]
 
 myst_enable_extensions = ["substitution", "deflist"]
 
@@ -82,8 +79,8 @@ source_suffix = {
 
 # Links to ignore when checking links
 linkcheck_ignore = [
-    'http://127.0.0.1:8000',
-    'https://github.com/canonical/hwcert-jenkins-jobs',
+    "http://127.0.0.1:8000",
+    "https://github.com/canonical/hwcert-jenkins-jobs",
 ]
 
 # -- Options for HTML output -------------------------------------------------
@@ -160,9 +157,8 @@ html_theme_options = {
 
 html_static_path = [".sphinx/_static"]
 html_css_files = [
-    'checkbox-doc.css'
-    'custom.css',
-    'github_issue_links.css',
+    "checkbox-doc.css" "custom.css",
+    "github_issue_links.css",
 ]
 html_js_files = [
     "github_issue_links.js",

@@ -31,6 +31,7 @@ class HumanReadableBytes(int):
     16 MiB. Suffixes may be one of both, SI or IEC.
     When printed, it also reduces itself to human-readable form.
     """
+
     def __new__(cls, x=0, *args):
         if isinstance(x, int) or x.isnumeric():
             return super().__new__(cls, x, *args)
@@ -50,16 +51,16 @@ class HumanReadableBytes(int):
             When suffix is not recognized or text could not have been parsed
         """
         suffixes = {}
-        si_suffixes = '', 'k', 'm', 'g', 't', 'p', 'e', 'z', 'y'
+        si_suffixes = "", "k", "m", "g", "t", "p", "e", "z", "y"
         for power, suf in enumerate(si_suffixes):
-            suffixes[suf] = 1000 ** power
-            suffixes[suf+'b'] = 1000 ** power
-        iec_suffixes = '', 'ki', 'mi', 'gi', 'ti', 'pi', 'ei', 'zi', 'yi'
+            suffixes[suf] = 1000**power
+            suffixes[suf + "b"] = 1000**power
+        iec_suffixes = "", "ki", "mi", "gi", "ti", "pi", "ei", "zi", "yi"
         for power, suf in enumerate(iec_suffixes):
-            suffixes[suf] = 1024 ** power
-            suffixes[suf+'b'] = 1024 ** power
+            suffixes[suf] = 1024**power
+            suffixes[suf + "b"] = 1024**power
         num = ""
-        while s and (s[0].isdigit() or s[0] == '-'):
+        while s and (s[0].isdigit() or s[0] == "-"):
             num += s[0]
             s = s[1:]
         s = s.strip()
@@ -74,8 +75,17 @@ class HumanReadableBytes(int):
         my_bytes = float(self)
         if self == 0:
             return "0B"
-        suffixes = ["B", "KiB", "MiB", "GiB", "TiB",
-                    "PiB", "EiB", "ZiB", "YiB"]
+        suffixes = [
+            "B",
+            "KiB",
+            "MiB",
+            "GiB",
+            "TiB",
+            "PiB",
+            "EiB",
+            "ZiB",
+            "YiB",
+        ]
         sign = copysign(1, my_bytes)
         my_bytes = abs(my_bytes)
         # my_bytes' base-1024 logarithm.
@@ -84,7 +94,7 @@ class HumanReadableBytes(int):
             suffix = suffixes[int(exponent)]
         except IndexError:
             return "(Number too large)"
-        scalar = my_bytes / (1024**int(exponent))
+        scalar = my_bytes / (1024 ** int(exponent))
         if scalar - trunc(scalar) < sys.float_info.epsilon:
             return "{:.0f}{}".format(sign * scalar, suffix)
         else:

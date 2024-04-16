@@ -37,7 +37,7 @@ from subprocess import CalledProcessError, check_output
 
 
 def get_apt_cache_information(command: str):
-    """ Execute the given apt-cache command and return the information.
+    """Execute the given apt-cache command and return the information.
 
     This function runs the specified apt-cache command using the `check_output`
     function, which returns the information about the Linux kernel package
@@ -67,8 +67,7 @@ def get_apt_cache_information(command: str):
         # "apt-cache show" returns an error status if called on a
         # non-existent package.
         logging.error(e)
-        logging.error(
-            "* Kernel does not match any installed package!")
+        logging.error("* Kernel does not match any installed package!")
         raise SystemExit(1)
 
 
@@ -92,7 +91,9 @@ def verify_apt_cache_showpkg(kernel_release: str):
     if "{}_binary".format(target_repo) not in aptinfo:
         logging.error(
             "* Kernel does not come from the {} Ubuntu repository!".format(
-                target_repo))
+                target_repo
+            )
+        )
         retval = False
     return retval
 
@@ -190,15 +191,15 @@ def main():
     """Check to see if the machine is running pre-release kernel or OS."""
 
     retval = 0
-    if (not check_kernel_status()):
+    if not check_kernel_status():
         retval = 1
-    if (not check_os_status()):
+    if not check_os_status():
         retval += 2
-    if (retval == 0):
+    if retval == 0:
         print("** All OK; production kernel and OS.")
-    elif (retval == 1):
+    elif retval == 1:
         print("** Test FAILS; running ineligible kernel!")
-    elif (retval == 2):
+    elif retval == 2:
         print("** Test FAILS; running pre-release or non-LTS OS!")
     else:
         print("** Test FAILS; running pre-release OS with ineligible kernel!")
@@ -206,5 +207,5 @@ def main():
     return retval
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

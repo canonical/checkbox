@@ -48,14 +48,13 @@ from plainbox.impl.validation import Problem
 from plainbox.impl.validation import Severity
 
 
-__all__ = ['TemplateUnit']
+__all__ = ["TemplateUnit"]
 
 
 logger = logging.getLogger("plainbox.unit.template")
 
 
 class TemplateUnitValidator(UnitWithIdValidator):
-
     """Validator for template unit."""
 
     def check(self, unit):
@@ -64,16 +63,23 @@ class TemplateUnitValidator(UnitWithIdValidator):
         # Apart from all the per-field checks, ensure that the unit,
         # if instantiated with fake resource, produces a valid target unit
         accessed_parameters = unit.get_accessed_parameters(
-            force=True, template_engine=unit.template_engine)
-        resource = Resource({
-            key: key.upper()
-            for key in set(itertools.chain(*accessed_parameters.values()))
-        })
+            force=True, template_engine=unit.template_engine
+        )
+        resource = Resource(
+            {
+                key: key.upper()
+                for key in set(itertools.chain(*accessed_parameters.values()))
+            }
+        )
         try:
             new_unit = unit.instantiate_one(resource)
         except Exception as exc:
-            self.error(unit, unit.Meta.fields.template_unit, Problem.wrong,
-                       _("unable to instantiate template: {}").format(exc))
+            self.error(
+                unit,
+                unit.Meta.fields.template_unit,
+                Problem.wrong,
+                _("unable to instantiate template: {}").format(exc),
+            )
         else:
             # TODO: we may need some origin translation to correlate issues
             # back to the template.
@@ -98,12 +104,14 @@ class TemplateUnitValidator(UnitWithIdValidator):
         if stock_msg is None:
             return None
         return _("{unit} {id!a}, field {field!a}, {message}").format(
-            unit=unit.tr_unit(), id=unit.template_partial_id, field=str(field),
-            message=message or stock_msg)
+            unit=unit.tr_unit(),
+            id=unit.template_partial_id,
+            field=str(field),
+            message=message or stock_msg,
+        )
 
 
 class TemplateUnit(UnitWithId):
-
     """
     Template that can instantiate zero or more additional units.
 
@@ -126,8 +134,15 @@ class TemplateUnit(UnitWithId):
         :meth:`get_filter_program()`
     """
 
-    def __init__(self, data, origin=None, provider=None, raw_data=None,
-                 parameters=None, field_offset_map=None):
+    def __init__(
+        self,
+        data,
+        origin=None,
+        provider=None,
+        raw_data=None,
+        parameters=None,
+        field_offset_map=None,
+    ):
         """
         Initialize a new TemplateUnit instance.
 
@@ -161,13 +176,15 @@ class TemplateUnit(UnitWithId):
         if origin is None:
             origin = Origin.get_caller_origin()
         super().__init__(
-            data, raw_data, origin, provider, parameters, field_offset_map)
+            data, raw_data, origin, provider, parameters, field_offset_map
+        )
         self._filter_program = None
         self._fake_resources = False
 
     @classmethod
-    def instantiate_template(cls, data, raw_data, origin, provider, parameters,
-                             field_offset_map):
+    def instantiate_template(
+        cls, data, raw_data, origin, provider, parameters, field_offset_map
+    ):
         """
         Instantiate this unit from a template.
 
@@ -180,18 +197,19 @@ class TemplateUnit(UnitWithId):
         # This assertion is a low-cost trick to ensure that we override this
         # method in all of the subclasses to ensure that the initializer is
         # called with correctly-ordered arguments.
-        assert cls is TemplateUnit, \
-            "{}.instantiate_template() not customized".format(cls.__name__)
-        return cls(data, raw_data, origin, provider, parameters,
-                   field_offset_map)
+        assert (
+            cls is TemplateUnit
+        ), "{}.instantiate_template() not customized".format(cls.__name__)
+        return cls(
+            data, raw_data, origin, provider, parameters, field_offset_map
+        )
 
     def __str__(self):
         """String representation of Template unit objects."""
         return "{} <~ {}".format(self.template_id, self.resource_id)
 
     def __repr__(self):
-        return "<TemplateUnit template_id:{!r}>".format(
-            self.template_id)
+        return "<TemplateUnit template_id:{!r}>".format(self.template_id)
 
     @property
     def unit(self):
@@ -268,16 +286,16 @@ class TemplateUnit(UnitWithId):
     def template_id(self):
         """Identifier of this template, with the provider namespace."""
         if self.provider and self.template_partial_id:
-            return "{}::{}".format(self.provider.namespace,
-                                   self.template_partial_id
-                                   )
+            return "{}::{}".format(
+                self.provider.namespace, self.template_partial_id
+            )
         else:
             return self.template_partial_id
 
     @property
     def template_resource(self):
         """value of the 'template-resource' field."""
-        return self.get_record_value('template-resource')
+        return self.get_record_value("template-resource")
 
     @property
     def template_filter(self):
@@ -289,7 +307,7 @@ class TemplateUnit(UnitWithId):
         the actual resource program call :meth:`get_filter_program()`. In both
         cases the value can be None.
         """
-        return self.get_record_value('template-filter')
+        return self.get_record_value("template-filter")
 
     @property
     def template_imports(self):
@@ -300,7 +318,7 @@ class TemplateUnit(UnitWithId):
         to the template itself. In other words, it allows the template
         to access resources from any namespace.
         """
-        return self.get_record_value('template-imports')
+        return self.get_record_value("template-imports")
 
     @property
     def template_summary(self):
@@ -345,7 +363,7 @@ class TemplateUnit(UnitWithId):
         to instantiate. It defaults to 'job' for backwards compatibility and
         simplicity.
         """
-        return self.get_record_value('template-unit', 'job')
+        return self.get_record_value("template-unit", "job")
 
     def get_imported_jobs(self):
         """
@@ -373,8 +391,10 @@ class TemplateUnit(UnitWithId):
         """
         if self.template_filter is not None and self._filter_program is None:
             self._filter_program = ResourceProgram(
-                self.template_filter, self.resource_namespace,
-                self.get_imported_jobs())
+                self.template_filter,
+                self.resource_namespace,
+                self.get_imported_jobs(),
+            )
         return self._filter_program
 
     def get_target_unit_cls(self):
@@ -416,9 +436,11 @@ class TemplateUnit(UnitWithId):
         for resource in resource_list:
             if self.should_instantiate(resource):
                 index += 1
-                resources.append(self.instantiate_one(resource,
-                                                      unit_cls_hint=unit_cls,
-                                                      index=index))
+                resources.append(
+                    self.instantiate_one(
+                        resource, unit_cls_hint=unit_cls, index=index
+                    )
+                )
         return resources
 
     def instantiate_one(self, resource, unit_cls_hint=None, index=0):
@@ -450,26 +472,35 @@ class TemplateUnit(UnitWithId):
         # Filter out template- data fields as they are not relevant to the
         # target unit.
         data = {
-            key: value for key, value in self._data.items()
-            if not key.startswith('template-')
+            key: value
+            for key, value in self._data.items()
+            if not key.startswith("template-")
         }
         raw_data = {
-            key: value for key, value in self._raw_data.items()
-            if not key.startswith('template-')
+            key: value
+            for key, value in self._raw_data.items()
+            if not key.startswith("template-")
         }
         # Only keep template-engine and template-id fields
-        raw_data['template-engine'] = self.template_engine
-        data['template-engine'] = raw_data['template-engine']
+        raw_data["template-engine"] = self.template_engine
+        data["template-engine"] = raw_data["template-engine"]
         raw_data["template-id"] = self.template_id
         data["template-id"] = raw_data["template-id"]
         # Override the value of the 'unit' field from 'template-unit' field
-        data['unit'] = raw_data['unit'] = self.template_unit
+        data["unit"] = raw_data["unit"] = self.template_unit
         # XXX: extract raw dictionary from the resource object, there is no
         # normal API for that due to the way resource objects work.
-        parameters = dict(object.__getattribute__(resource, '_data'))
-        accessed_parameters = set(itertools.chain(*{get_accessed_parameters(
-            value, template_engine=self.template_engine)
-            for value in data.values()}))
+        parameters = dict(object.__getattribute__(resource, "_data"))
+        accessed_parameters = set(
+            itertools.chain(
+                *{
+                    get_accessed_parameters(
+                        value, template_engine=self.template_engine
+                    )
+                    for value in data.values()
+                }
+            )
+        )
         # Recreate the parameters with only the subset that will actually be
         # used by the template. Doing this filter can prevent exceptions like
         # DependencyDuplicateError where an unused resource property can differ
@@ -477,20 +508,26 @@ class TemplateUnit(UnitWithId):
         # mismatches.
         # See https://bugs.launchpad.net/bugs/1561821
         parameters = {
-            k: v for k, v in parameters.items() if k in accessed_parameters}
+            k: v for k, v in parameters.items() if k in accessed_parameters
+        }
         if self._fake_resources:
             parameters = {k: k.upper() for k in accessed_parameters}
             for k in parameters:
-                if k.endswith('_slug'):
-                    parameters[k] = k.replace('_slug', '').upper()
-            if 'index' in parameters:
-                parameters['index'] = index
+                if k.endswith("_slug"):
+                    parameters[k] = k.replace("_slug", "").upper()
+            if "index" in parameters:
+                parameters["index"] = index
         # Add the special __index__ to the resource namespace variables
-        parameters['__index__'] = index
+        parameters["__index__"] = index
         # Instantiate the class using the instantiation API
         return unit_cls.instantiate_template(
-            data, raw_data, self.origin, self.provider, parameters,
-            self.field_offset_map)
+            data,
+            raw_data,
+            self.origin,
+            self.provider,
+            parameters,
+            self.field_offset_map,
+        )
 
     def should_instantiate(self, resource):
         """
@@ -516,27 +553,24 @@ class TemplateUnit(UnitWithId):
             # evaluate_or_raise() is {str: List[Resource]} but we are being
             # called with Resource. The reason for that is that we wish to get
             # per-resource answer not an aggregate 'yes' or 'no'.
-            return program.evaluate_or_raise({
-                self.resource_id: [resource]
-            })
+            return program.evaluate_or_raise({self.resource_id: [resource]})
         except ExpressionFailedError:
             return False
 
     class Meta:
 
-        name = N_('template')
+        name = N_("template")
 
         class fields(SymbolDef):
-
             """Symbols for each field that a TemplateUnit can have."""
 
             template_id = "template-id"
             template_summary = "template-summary"
             template_description = "template-description"
-            template_unit = 'template-unit'
-            template_resource = 'template-resource'
-            template_filter = 'template-filter'
-            template_imports = 'template-imports'
+            template_unit = "template-unit"
+            template_resource = "template-resource"
+            template_filter = "template-filter"
+            template_imports = "template-imports"
 
         validator_cls = TemplateUnitValidator
 
@@ -548,23 +582,29 @@ class TemplateUnit(UnitWithId):
                 # We want to have bare, namespace-less identifiers
                 CorrectFieldValueValidator(
                     lambda value, unit: (
-                        "::" not in unit.get_record_value("template-id")),
+                        "::" not in unit.get_record_value("template-id")
+                    ),
                     message=_("identifier cannot define a custom namespace"),
-                    onlyif=lambda unit: unit.get_record_value("template-id")),
+                    onlyif=lambda unit: unit.get_record_value("template-id"),
+                ),
             ],
             fields.template_summary: [
                 concrete_validators.translatable,
                 PresentFieldValidator(severity=Severity.advice),
                 CorrectFieldValueValidator(
                     lambda field: field.count("\n") == 0,
-                    Problem.wrong, Severity.warning,
+                    Problem.wrong,
+                    Severity.warning,
                     message=_("please use only one line"),
-                    onlyif=lambda unit: unit.template_summary),
+                    onlyif=lambda unit: unit.template_summary,
+                ),
                 CorrectFieldValueValidator(
                     lambda field: len(field) <= 80,
-                    Problem.wrong, Severity.warning,
+                    Problem.wrong,
+                    Severity.warning,
                     message=_("please stay under 80 characters"),
-                    onlyif=lambda unit: unit.template_summary)
+                    onlyif=lambda unit: unit.template_summary,
+                ),
             ],
             fields.template_description: [
                 concrete_validators.translatable,
@@ -577,19 +617,26 @@ class TemplateUnit(UnitWithId):
                 concrete_validators.present,
                 UnitReferenceValidator(
                     lambda unit: (
-                        [unit.resource_id] if unit.resource_id else []),
+                        [unit.resource_id] if unit.resource_id else []
+                    ),
                     constraints=[
                         ReferenceConstraint(
-                            lambda referrer, referee: referee.unit == 'job',
-                            message=_("the referenced unit is not a job")),
+                            lambda referrer, referee: referee.unit == "job",
+                            message=_("the referenced unit is not a job"),
+                        ),
                         ReferenceConstraint(
                             lambda referrer, referee: (
-                                referee.plugin == 'resource'),
+                                referee.plugin == "resource"
+                            ),
                             onlyif=lambda referrer, referee: (
-                                referee.unit == 'job'),
+                                referee.unit == "job"
+                            ),
                             message=_(
-                                "the referenced job is not a resource job")),
-                    ]),
+                                "the referenced job is not a resource job"
+                            ),
+                        ),
+                    ],
+                ),
                 # TODO: should not refer to deprecated job,
                 #       onlyif job itself is not deprecated
             ],
@@ -598,18 +645,23 @@ class TemplateUnit(UnitWithId):
                 # All templates need a valid (or empty) template filter
                 CorrectFieldValueValidator(
                     lambda value, unit: unit.get_filter_program(),
-                    onlyif=lambda unit: unit.template_filter is not None),
+                    onlyif=lambda unit: unit.template_filter is not None,
+                ),
                 # TODO: must refer to the same job as template-resource
             ],
             fields.template_imports: [
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
                     lambda value, unit: (
-                        list(unit.get_imported_jobs()) is not None)),
+                        list(unit.get_imported_jobs()) is not None
+                    )
+                ),
                 CorrectFieldValueValidator(
                     lambda value, unit: (
-                        len(list(unit.get_imported_jobs())) in (0, 1)),
-                    message=_("at most one import statement is allowed")),
+                        len(list(unit.get_imported_jobs())) in (0, 1)
+                    ),
+                    message=_("at most one import statement is allowed"),
+                ),
                 # TODO: must refer to known or possibly-known job
                 # TODO: should not refer to deprecated jobs,
                 #       onlyif job itself is not deprecated

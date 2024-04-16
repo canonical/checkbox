@@ -24,12 +24,14 @@ def check_muted():
     retval = 0
     for vtype in TYPES:
         try:
-            pacmd_entries = check_output(["pacmd", "list-%ss" % vtype],
-                                         universal_newlines=True)
+            pacmd_entries = check_output(
+                ["pacmd", "list-%ss" % vtype], universal_newlines=True
+            )
         except Exception as e:
             print(
                 "Error when running pacmd list-%ss: %s" % (vtype, e),
-                file=sys.stderr)
+                file=sys.stderr,
+            )
             return 1
 
         active_entry_match = active_entries_regex.search(pacmd_entries)
@@ -38,8 +40,10 @@ def check_muted():
         else:
             print(
                 "Unable to find a %s active_entry in the pacmd list-%ss"
-                " output\npacmd output was: %s" %
-                (vtype, vtype, pacmd_entries), file=sys.stderr)
+                " output\npacmd output was: %s"
+                % (vtype, vtype, pacmd_entries),
+                file=sys.stderr,
+            )
             return 1
 
         name_match = name_regex.search(active_entry)
@@ -48,8 +52,10 @@ def check_muted():
         else:
             print(
                 "Unable to determine device bus information from the"
-                " pacmd list-%ss output\npacmd output was: %s" %
-                (vtype, pacmd_entries), file=sys.stderr)
+                " pacmd list-%ss output\npacmd output was: %s"
+                % (vtype, pacmd_entries),
+                file=sys.stderr,
+            )
             return 1
 
         muted_match = muted_regex.search(active_entry)
@@ -63,8 +69,10 @@ def check_muted():
         else:
             print(
                 "Unable to find mute information in the pacmd list-%ss"
-                " output for device %s\npacmd output was: %s" %
-                (vtype, name, pacmd_entries), file=sys.stderr)
+                " output for device %s\npacmd output was: %s"
+                % (vtype, name, pacmd_entries),
+                file=sys.stderr,
+            )
             return 1
     return retval
 
@@ -78,12 +86,14 @@ def check_volume(minvol, maxvol):
     retval = 0
     for vtype in TYPES:
         try:
-            pacmd_entries = check_output(["pacmd", "list-%ss" % vtype],
-                                         universal_newlines=True)
+            pacmd_entries = check_output(
+                ["pacmd", "list-%ss" % vtype], universal_newlines=True
+            )
         except Exception as e:
             print(
                 "Error when running pacmd list-%ss: %s" % (vtype, e),
-                file=sys.stderr)
+                file=sys.stderr,
+            )
             return 1
 
         entries = entries_regex.findall(pacmd_entries)
@@ -95,8 +105,10 @@ def check_volume(minvol, maxvol):
             else:
                 print(
                     "Unable to determine device bus information from the"
-                    " pacmd list-%ss output\npacmd output was: %s" %
-                    (vtype, pacmd_entries), file=sys.stderr)
+                    " pacmd list-%ss output\npacmd output was: %s"
+                    % (vtype, pacmd_entries),
+                    file=sys.stderr,
+                )
                 return 1
 
             volume_match = volume_regex.search(entry)
@@ -105,38 +117,52 @@ def check_volume(minvol, maxvol):
                 if volume > maxvol:
                     print(
                         "FAIL: Volume of %d is greater than"
-                        " maximum of %d for %s %s" %
-                        (volume, maxvol, name, vtype))
+                        " maximum of %d for %s %s"
+                        % (volume, maxvol, name, vtype)
+                    )
                     retval = 1
                 elif volume < minvol:
                     print(
                         "FAIL: Volume of %d is less than"
-                        " minimum of %d for %s %s" %
-                        (volume, minvol, name, vtype))
+                        " minimum of %d for %s %s"
+                        % (volume, minvol, name, vtype)
+                    )
                     retval = 1
                 else:
                     print(
-                        "PASS: Volume is %d for %s %s" %
-                        (volume, name, vtype))
+                        "PASS: Volume is %d for %s %s" % (volume, name, vtype)
+                    )
             else:
                 print(
                     "Unable to find volume information in the pacmd"
                     "  list-%ss output for device %s.\npacmd output "
-                    "was: %s" % (vtype, name, pacmd_entries), file=sys.stderr)
+                    "was: %s" % (vtype, name, pacmd_entries),
+                    file=sys.stderr,
+                )
                 return 1
     return retval
 
 
 def main():
     parser = ArgumentParser("Check the audio volume")
-    parser.add_argument("-n", "--minvol", type=int, required=True,
-                        help="""The minimum volume for a check_volume call.
+    parser.add_argument(
+        "-n",
+        "--minvol",
+        type=int,
+        required=True,
+        help="""The minimum volume for a check_volume call.
                                 Volume must be greater than this number to
-                                be considered a pass.""")
-    parser.add_argument("-x", "--maxvol", type=int, required=True,
-                        help="""The maximum volume for a check_volume call.
+                                be considered a pass.""",
+    )
+    parser.add_argument(
+        "-x",
+        "--maxvol",
+        type=int,
+        required=True,
+        help="""The maximum volume for a check_volume call.
                                 Volume must be less than this number to
-                                be considered a pass.""")
+                                be considered a pass.""",
+    )
     args = parser.parse_args()
 
     check_muted_retval = check_muted()

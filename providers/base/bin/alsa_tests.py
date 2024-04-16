@@ -26,9 +26,10 @@ def fft(x):
         return x
     even = fft(x[0::2])
     odd = fft(x[1::2])
-    T = [cmath.exp(-2j*cmath.pi*k/N) * odd[k] for k in range(N//2)]
-    return ([even[k] + T[k] for k in range(N//2)] +
-            [even[k] - T[k] for k in range(N//2)])
+    T = [cmath.exp(-2j * cmath.pi * k / N) * odd[k] for k in range(N // 2)]
+    return [even[k] + T[k] for k in range(N // 2)] + [
+        even[k] - T[k] for k in range(N // 2)
+    ]
 
 
 def sine(freq, length, period_len, amplitude=0.5):
@@ -43,7 +44,8 @@ def sine(freq, length, period_len, amplitude=0.5):
         sample = []
         for i in range(period_len):
             sample.append(
-                amplitude * math.sin(2 * math.pi * ((t + i) / (RATE / freq))))
+                amplitude * math.sin(2 * math.pi * ((t + i) / (RATE / freq)))
+            )
         yield sample
         t += period_len
 
@@ -53,7 +55,7 @@ class Player:
         if not device:
             available_pcms = alsaaudio.pcms(alsaaudio.PCM_PLAYBACK)
             if not available_pcms:
-                raise SystemExit('No PCMs detected')
+                raise SystemExit("No PCMs detected")
             self.pcm = alsaaudio.PCM(device=available_pcms[0])
         else:
             self.pcm = alsaaudio.PCM(device=device)
@@ -62,10 +64,10 @@ class Player:
         self.pcm.setperiodsize(PERIOD)
 
     def play(self, chunk):
-        assert (len(chunk) == PERIOD)
+        assert len(chunk) == PERIOD
         # alsa expects bytes, so we need to repack the list of floats into a
         # bytes sequence
-        buff = b''.join([struct.pack("<f", x) for x in chunk])
+        buff = b"".join([struct.pack("<f", x) for x in chunk])
         self.pcm.write(buff)
 
     @contextlib.contextmanager
@@ -139,7 +141,7 @@ def loopback_test(seconds, device, freq=455.5):
     samples = samples[0:real_len]
 
     Y = fft(samples)
-    freqs = [abs(y) for y in Y[:int(RATE/2)]]
+    freqs = [abs(y) for y in Y[: int(RATE / 2)]]
     dominant = freqs.index(max(freqs)) / real_seconds
     print("Dominant frequency is {}, expected {}".format(dominant, freq))
 
@@ -152,22 +154,22 @@ def loopback_test(seconds, device, freq=455.5):
 
 def main():
     actions = {
-        'playback': playback_test,
-        'loopback': loopback_test,
+        "playback": playback_test,
+        "loopback": loopback_test,
     }
-    parser = argparse.ArgumentParser(description='Sound testing using ALSA')
-    parser.add_argument('action', metavar='ACTION', choices=actions.keys())
-    parser.add_argument('--duration', type=int, default=5)
-    parser.add_argument('--device', type=str)
+    parser = argparse.ArgumentParser(description="Sound testing using ALSA")
+    parser.add_argument("action", metavar="ACTION", choices=actions.keys())
+    parser.add_argument("--duration", type=int, default=5)
+    parser.add_argument("--device", type=str)
     args = parser.parse_args()
     if args.device:
         device = args.device
-    elif 'ALSADEVICE' in os.environ:
-        device = os.environ['ALSADEVICE']
+    elif "ALSADEVICE" in os.environ:
+        device = os.environ["ALSADEVICE"]
     else:
         device = None
-    return (actions[args.action](args.duration, device))
+    return actions[args.action](args.duration, device)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

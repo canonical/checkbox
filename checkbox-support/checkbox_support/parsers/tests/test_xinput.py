@@ -33,7 +33,7 @@ from checkbox_support.parsers.xinput import (
     LIST_VALUE_RE,
     IXinputResult,
     XinputParser,
-    )
+)
 
 
 class TestDeviceRe(TestCase):
@@ -41,7 +41,8 @@ class TestDeviceRe(TestCase):
     def test_string(self):
         match = DEVICE_RE.match(
             """⎡ Virtual core pointer                      """
-            """id=2    [master pointer  (3)]""")
+            """id=2    [master pointer  (3)]"""
+        )
         self.assertTrue(match)
         self.assertEqual(match.group("name"), "Virtual core pointer")
         self.assertEqual(match.group("id"), "2")
@@ -68,7 +69,8 @@ class TestListValueRe(TestCase):
 
     def test_string(self):
         elements = LIST_VALUE_RE.split(
-            """"Button Horiz Wheel Right" None None""")[1::2]
+            """"Button Horiz Wheel Right" None None"""
+        )[1::2]
         self.assertTrue(elements)
         self.assertEqual(len(elements), 3)
         self.assertEqual(elements[0], '"Button Horiz Wheel Right"')
@@ -113,13 +115,17 @@ class TestXinputParser(TestCase):
         """The toshiba xinput contains a multitouch touchpad device."""
         result = self.getResult("xinput_toshiba.txt")
         devices = [
-            device for device in result.devices.values()
-            if device["name"] == "AlpsPS/2 ALPS DualPoint TouchPad"]
+            device
+            for device in result.devices.values()
+            if device["name"] == "AlpsPS/2 ALPS DualPoint TouchPad"
+        ]
         self.assertEqual(len(devices), 1)
 
         classes = [
-            cls for cls in devices[0]["classes"]
-            if cls["device_class"] == "XITouchClass"]
+            cls
+            for cls in devices[0]["classes"]
+            if cls["device_class"] == "XITouchClass"
+        ]
         self.assertEqual(len(classes), 1)
         self.assertEqual(classes[0]["touch_mode"], "dependent")
 
@@ -127,12 +133,16 @@ class TestXinputParser(TestCase):
         """The quantal xinput contains a multitouch touchscreen device."""
         result = self.getResult("xinput_quantal.txt")
         devices = [
-            device for device in result.devices.values()
-            if device["name"] == "Quanta OpticalTouchScreen"]
+            device
+            for device in result.devices.values()
+            if device["name"] == "Quanta OpticalTouchScreen"
+        ]
         self.assertEqual(len(devices), 1)
 
         classes = [
-            cls for cls in devices[0]["classes"]
-            if cls["device_class"] == "XITouchClass"]
+            cls
+            for cls in devices[0]["classes"]
+            if cls["device_class"] == "XITouchClass"
+        ]
         self.assertEqual(len(classes), 1)
         self.assertEqual(classes[0]["touch_mode"], "direct")

@@ -27,10 +27,10 @@ from checkbox_support.parsers.udevadm import UdevadmParser
 import net_if_management
 
 # create a session dir for logging to be written to
-os.environ['PLAINBOX_SESSION_SHARE'] = tempfile.mkdtemp(prefix='cbox-test')
+os.environ["PLAINBOX_SESSION_SHARE"] = tempfile.mkdtemp(prefix="cbox-test")
 
 
-class NetIfMngrTest():
+class NetIfMngrTest:
 
     has_netplan = True
     has_nm = True
@@ -40,9 +40,10 @@ class NetIfMngrTest():
     def get_text(filename):
         full_path = os.path.join(
             os.path.dirname(os.path.realpath(__file__)),
-            'test_net_if_management_data',
-            filename)
-        with open(full_path, 'rt', encoding='UTF-8') as stream:
+            "test_net_if_management_data",
+            filename,
+        )
+        with open(full_path, "rt", encoding="UTF-8") as stream:
             return stream.read()
 
     def get_results(self):
@@ -50,78 +51,80 @@ class NetIfMngrTest():
             self.has_netplan = False
         if self.nm_device_state is None:
             self.has_nm = False
-        return net_if_management.identify_managers(self.interfaces,
-                                                   self.has_netplan,
-                                                   self.netplan_yaml,
-                                                   self.has_nm,
-                                                   self.nm_device_state,
-                                                   self.has_wifiap)
+        return net_if_management.identify_managers(
+            self.interfaces,
+            self.has_netplan,
+            self.netplan_yaml,
+            self.has_nm,
+            self.nm_device_state,
+            self.has_wifiap,
+        )
 
 
 class Test_CARA_T(unittest.TestCase, NetIfMngrTest):
     # the interfaces we interested in (as provided by the udev parser)
-    interfaces = ['eth0', 'eth1', 'wlan0']
+    interfaces = ["eth0", "eth1", "wlan0"]
 
     # the combined netplan configuration
-    netplan_yaml = NetIfMngrTest.get_text('CARA_T_netplan.yaml')
+    netplan_yaml = NetIfMngrTest.get_text("CARA_T_netplan.yaml")
 
     # capture output of `sudo nmcli -t -f DEVICE,STATE d`
     # or None if no NM available
-    nm_device_state = NetIfMngrTest.get_text('CARA_T_nmcli.txt')
+    nm_device_state = NetIfMngrTest.get_text("CARA_T_nmcli.txt")
 
     def test(self):
         self.has_wifiap = True
         res = self.get_results()
-        self.assertEqual(res['eth0']['manager'].value, 'NetworkManager')
-        self.assertEqual(res['eth0']['mastermode'].value, 'not-applicable')
-        self.assertEqual(res['eth1']['manager'].value, 'NetworkManager')
-        self.assertEqual(res['eth1']['mastermode'].value, 'not-applicable')
-        self.assertEqual(res['wlan0']['manager'].value, 'NetworkManager')
-        self.assertEqual(res['wlan0']['mastermode'].value, 'wifi-ap')
+        self.assertEqual(res["eth0"]["manager"].value, "NetworkManager")
+        self.assertEqual(res["eth0"]["mastermode"].value, "not-applicable")
+        self.assertEqual(res["eth1"]["manager"].value, "NetworkManager")
+        self.assertEqual(res["eth1"]["mastermode"].value, "not-applicable")
+        self.assertEqual(res["wlan0"]["manager"].value, "NetworkManager")
+        self.assertEqual(res["wlan0"]["mastermode"].value, "wifi-ap")
 
 
 class Test_XENIAL_DESKTOP(unittest.TestCase, NetIfMngrTest):
     # the interfaces we interested in (as provided by the udev parser)
-    interfaces = ['eth0', 'wlan0']
+    interfaces = ["eth0", "wlan0"]
 
     # the combined netplan configuration or `None` if netplan not installed
     netplan_yaml = None
 
     # capture output of `sudo nmcli -t -f DEVICE,STATE d`
     # or None if NM is not installed
-    nm_device_state = NetIfMngrTest.get_text('XENIAL_DESKTOP_nmcli.txt')
+    nm_device_state = NetIfMngrTest.get_text("XENIAL_DESKTOP_nmcli.txt")
 
     def test(self):
         res = self.get_results()
-        self.assertEqual(res['eth0']['manager'].value, 'NetworkManager')
-        self.assertEqual(res['eth0']['mastermode'].value, 'not-applicable')
-        self.assertEqual(res['wlan0']['manager'].value, 'NetworkManager')
-        self.assertEqual(res['wlan0']['mastermode'].value, 'NetworkManager')
+        self.assertEqual(res["eth0"]["manager"].value, "NetworkManager")
+        self.assertEqual(res["eth0"]["mastermode"].value, "not-applicable")
+        self.assertEqual(res["wlan0"]["manager"].value, "NetworkManager")
+        self.assertEqual(res["wlan0"]["mastermode"].value, "NetworkManager")
 
 
 class Test_CASCADE_500(unittest.TestCase, NetIfMngrTest):
     # the interfaces we interested in (as provided by the udev parser)
-    interfaces = ['eth0', 'wlan0']
+    interfaces = ["eth0", "wlan0"]
 
     # the combined netplan configuration or `None` if netplan not installed
-    netplan_yaml = NetIfMngrTest.get_text('CASCADE_500_netplan.yaml')
+    netplan_yaml = NetIfMngrTest.get_text("CASCADE_500_netplan.yaml")
 
     # capture output of `sudo nmcli -t -f DEVICE,STATE d`
     # or None if NM is not installed
-    nm_device_state = NetIfMngrTest.get_text('CASCADE_500_nmcli.txt')
+    nm_device_state = NetIfMngrTest.get_text("CASCADE_500_nmcli.txt")
 
     def test(self):
         res = self.get_results()
-        self.assertEqual(res['eth0']['manager'].value, 'NetworkManager')
-        self.assertEqual(res['wlan0']['manager'].value, 'NetworkManager')
+        self.assertEqual(res["eth0"]["manager"].value, "NetworkManager")
+        self.assertEqual(res["wlan0"]["manager"].value, "NetworkManager")
 
 
 class Test_RPI2_UC16_CCONF(unittest.TestCase, NetIfMngrTest):
     # the interfaces we interested in (as provided by the udev parser)
-    interfaces = ['eth0']
+    interfaces = ["eth0"]
 
     # the combined netplan configuration or `None` if netplan not installed
-    netplan_yaml = NetIfMngrTest.get_text('RPI2_UC16_CCONF_netplan.yaml')
+    netplan_yaml = NetIfMngrTest.get_text("RPI2_UC16_CCONF_netplan.yaml")
 
     # capture output of `sudo nmcli -t -f DEVICE,STATE d`
     # or None if NM is not installed
@@ -129,16 +132,16 @@ class Test_RPI2_UC16_CCONF(unittest.TestCase, NetIfMngrTest):
 
     def test(self):
         res = self.get_results()
-        self.assertEqual(res['eth0']['manager'].value, 'networkd')
-        self.assertEqual(res['eth0']['mastermode'].value, 'not-applicable')
+        self.assertEqual(res["eth0"]["manager"].value, "networkd")
+        self.assertEqual(res["eth0"]["mastermode"].value, "not-applicable")
 
 
 class Test_RPI3B_UC16_CLOUDINIT(unittest.TestCase, NetIfMngrTest):
     # the interfaces we interested in (as provided by the udev parser)
-    interfaces = ['eth0', 'wlan0']
+    interfaces = ["eth0", "wlan0"]
 
     # the combined netplan configuration or `None` if netplan not installed
-    netplan_yaml = NetIfMngrTest.get_text('RPI3B_UC16_CLOUDINIT_netplan.yaml')
+    netplan_yaml = NetIfMngrTest.get_text("RPI3B_UC16_CLOUDINIT_netplan.yaml")
 
     # capture output of `sudo nmcli -t -f DEVICE,STATE d`
     # or None if NM is not installed
@@ -146,7 +149,7 @@ class Test_RPI3B_UC16_CLOUDINIT(unittest.TestCase, NetIfMngrTest):
 
     def test(self):
         res = self.get_results()
-        self.assertEqual(res['eth0']['manager'].value, 'networkd')
-        self.assertEqual(res['eth0']['mastermode'].value, 'not-applicable')
-        self.assertEqual(res['wlan0']['manager'].value, 'networkd')
-        self.assertEqual(res['wlan0']['mastermode'].value, 'unspecified')
+        self.assertEqual(res["eth0"]["manager"].value, "networkd")
+        self.assertEqual(res["eth0"]["mastermode"].value, "not-applicable")
+        self.assertEqual(res["wlan0"]["manager"].value, "networkd")
+        self.assertEqual(res["wlan0"]["mastermode"].value, "unspecified")

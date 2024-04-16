@@ -32,7 +32,6 @@ from plainbox.vendor import morris
 
 @mock.patch("plainbox.impl.session.assistant.get_providers")
 class SessionAssistantTests(morris.SignalTestCase):
-
     """Tests for the SessionAssitant class."""
 
     APP_ID = "app-id"
@@ -203,8 +202,7 @@ class SessionAssistantTests(morris.SignalTestCase):
         # - one time to get the resource jobs
         # - one time to generate jobs out of the resource jobs
         self.assertEqual(
-            self_mock._context.state.update_desired_job_list.call_count,
-            2
+            self_mock._context.state.update_desired_job_list.call_count, 2
         )
 
     @mock.patch("plainbox.impl.session.state.select_units")
@@ -212,21 +210,16 @@ class SessionAssistantTests(morris.SignalTestCase):
         self_mock = mock.MagicMock()
         SessionAssistant.hand_pick_jobs(self_mock, [])
         self.assertEqual(
-            self_mock._context.state.update_desired_job_list.call_count,
-            1
+            self_mock._context.state.update_desired_job_list.call_count, 1
         )
 
     @mock.patch("plainbox.impl.session.state.select_units")
     @mock.patch("plainbox.impl.unit.testplan.TestPlanUnit")
     def test_get_bootstrap_todo_list(
-        self,
-        mock_tpu,
-        mock_su,
-        mock_get_providers
+        self, mock_tpu, mock_su, mock_get_providers
     ):
         self_mock = mock.MagicMock()
         SessionAssistant.get_bootstrap_todo_list(self_mock)
         self.assertEqual(
-            self_mock._context.state.update_desired_job_list.call_count,
-            1
+            self_mock._context.state.update_desired_job_list.call_count, 1
         )

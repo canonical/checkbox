@@ -35,7 +35,7 @@ class CpuidMainTests(unittest.TestCase):
     @patch("cpuid.CPUID")
     def test_hygon_dhyana_plus(self, cpuid_mock, co_mock, print_mock):
         call_mock = MagicMock()
-        call_mock.return_value = [0x900f22, 0x0, 0x0, 0x0]
+        call_mock.return_value = [0x900F22, 0x0, 0x0, 0x0]
         cpuid_mock.return_value = call_mock
         co_mock.return_value = ""
         main()
@@ -48,7 +48,7 @@ class CpuidMainTests(unittest.TestCase):
     @patch("cpuid.CPUID")
     def test_unknown_cpu(self, cpuid_mock, co_mock):
         call_mock = MagicMock()
-        call_mock.return_value = [0xdeadbeef, 0x0, 0x0, 0x0]
+        call_mock.return_value = [0xDEADBEEF, 0x0, 0x0, 0x0]
         cpuid_mock.return_value = call_mock
         co_mock.return_value = ""
         with self.assertRaises(SystemExit):
@@ -59,7 +59,7 @@ class CpuidMainTests(unittest.TestCase):
     @patch("cpuid.CPUID")
     def test_raptor_lake(self, cpuid_mock, co_mock, print_mock):
         call_mock = MagicMock()
-        call_mock.return_value = [0xb0671, 0x0, 0x0, 0x0]
+        call_mock.return_value = [0xB0671, 0x0, 0x0, 0x0]
         cpuid_mock.return_value = call_mock
         co_mock.return_value = ""
         main()
@@ -68,13 +68,12 @@ class CpuidMainTests(unittest.TestCase):
         )
         print_mock.assert_called_with(expected_msg)
 
-
     @patch("builtins.print")
     @patch("subprocess.check_output")
     @patch("cpuid.CPUID")
     def test_emerald_rapids(self, cpuid_mock, co_mock, print_mock):
         call_mock = MagicMock()
-        call_mock.return_value = [0xc06f2, 0x0, 0x0, 0x0]
+        call_mock.return_value = [0xC06F2, 0x0, 0x0, 0x0]
         cpuid_mock.return_value = call_mock
         co_mock.return_value = ""
         main()
@@ -83,14 +82,13 @@ class CpuidMainTests(unittest.TestCase):
         )
         print_mock.assert_called_with(expected_msg)
 
-
     @patch("builtins.print")
     @patch("subprocess.check_output")
     @patch("cpuid.CPUID")
     def test_amd_siena_sp6(self, cpuid_mock, co_mock, print_mock):
-        #import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         call_mock = MagicMock()
-        call_mock.return_value = [0xaa0f02, 0x0, 0x0, 0x0]
+        call_mock.return_value = [0xAA0F02, 0x0, 0x0, 0x0]
         cpuid_mock.return_value = call_mock
         co_mock.return_value = ""
         main()

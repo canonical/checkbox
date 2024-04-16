@@ -15,15 +15,12 @@ def print_data(key, value):
 def run_cmd(option):
     cmd = "lshw -C " + option
     out = check_output(shlex.split(cmd), universal_newlines=True)
-    return out.split('\n')
+    return out.split("\n")
 
 
 def main():
-    keys = {'Manufacturer': 'vendor',
-            'Model': 'product',
-            'Version': 'version'}
-    lshw_classes = {'system': 'System',
-                    'bus': 'Mainboard'}
+    keys = {"Manufacturer": "vendor", "Model": "product", "Version": "version"}
+    lshw_classes = {"system": "System", "bus": "Mainboard"}
 
     for lshw_class in lshw_classes:
         output = run_cmd(lshw_class)
@@ -31,7 +28,7 @@ def main():
         for key in keys:
             for line in output:
                 if keys[key] in line:
-                    data[key] = line.split(':')[1].strip()
+                    data[key] = line.split(":")[1].strip()
                     break
                 else:
                     data[key] = "NOT FOUND"

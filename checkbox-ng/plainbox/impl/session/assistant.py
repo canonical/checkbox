@@ -101,7 +101,6 @@ def get_known_sa_api_versions():
 
 
 class SessionAssistant:
-
     """
     Assisting class to simplify common testing scenarios.
 
@@ -594,9 +593,9 @@ class SessionAssistant:
         self.session_available(self._manager.storage.id)
         _logger.info("Session resumed: %s", session_id)
         if SessionMetaData.FLAG_TESTPLANLESS in self._metadata.flags:
-            UsageExpectation.of(
-                self
-            ).allowed_calls = self._get_allowed_calls_in_normal_state()
+            UsageExpectation.of(self).allowed_calls = (
+                self._get_allowed_calls_in_normal_state()
+            )
         else:
             UsageExpectation.of(self).allowed_calls = {
                 self.get_resumable_sessions: "to get resume candidates",
@@ -648,9 +647,9 @@ class SessionAssistant:
                     metadata.app_id == self._app_id
                     and SessionMetaData.FLAG_INCOMPLETE in metadata.flags
                 ):
-                    self._resume_candidates[
-                        storage.id
-                    ] = InternalResumeCandidate(storage, metadata)
+                    self._resume_candidates[storage.id] = (
+                        InternalResumeCandidate(storage, metadata)
+                    )
                     UsageExpectation.of(self).allowed_calls[
                         self.resume_session
                     ] = "resume session"
@@ -831,9 +830,9 @@ class SessionAssistant:
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are
         # available now.
-        UsageExpectation.of(
-            self
-        ).allowed_calls = self._get_allowed_calls_in_normal_state()
+        UsageExpectation.of(self).allowed_calls = (
+            self._get_allowed_calls_in_normal_state()
+        )
         self._metadata.flags = {SessionMetaData.FLAG_INCOMPLETE}
         self._manager.checkpoint()
 
@@ -872,9 +871,9 @@ class SessionAssistant:
             SessionMetaData.FLAG_INCOMPLETE,
             SessionMetaData.FLAG_TESTPLANLESS,
         }
-        UsageExpectation.of(
-            self
-        ).allowed_calls = self._get_allowed_calls_in_normal_state()
+        UsageExpectation.of(self).allowed_calls = (
+            self._get_allowed_calls_in_normal_state()
+        )
 
     @raises(UnexpectedMethodCall)
     def get_bootstrap_todo_list(self):
@@ -939,9 +938,9 @@ class SessionAssistant:
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are
         # available now.
-        UsageExpectation.of(
-            self
-        ).allowed_calls = self._get_allowed_calls_in_normal_state()
+        UsageExpectation.of(self).allowed_calls = (
+            self._get_allowed_calls_in_normal_state()
+        )
         self._metadata.flags = {SessionMetaData.FLAG_INCOMPLETE}
         self._manager.checkpoint()
         # No bootstrap is done update the cache of jobs that were run

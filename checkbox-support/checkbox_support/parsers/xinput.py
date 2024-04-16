@@ -22,24 +22,22 @@ import re
 # Device string to match:
 #   ⎡ Virtual core pointer                      id=2    [master pointer  (3)]
 DEVICE_RE = re.compile(
-    r""".+?(?P<name>[%s].+?) *\sid=(?P<id>\d+)"""
-    % ascii_uppercase)
+    r""".+?(?P<name>[%s].+?) *\sid=(?P<id>\d+)""" % ascii_uppercase
+)
 
 # Attribute string to match:
 #   Buttons supported: 12
 ATTRIBUTE_RE = re.compile(
-    r"""(?P<key>[%s].+?): (?P<value>.+)"""
-    % ascii_letters)
+    r"""(?P<key>[%s].+?): (?P<value>.+)""" % ascii_letters
+)
 
 # Class string to match:
 #   12. Type: XIButtonClass
-CLASS_VALUE_RE = re.compile(
-    r"""\d+\. Type: (?P<class>.+)""")
+CLASS_VALUE_RE = re.compile(r"""\d+\. Type: (?P<class>.+)""")
 
 # List string to split:
 #   "Button Horiz Wheel Right" None None
-LIST_VALUE_RE = re.compile(
-    r"""((?:[^ "]|"[^"]*")+)""")
+LIST_VALUE_RE = re.compile(r"""((?:[^ "]|"[^"]*")+)""")
 
 
 class IXinputResult(object):
@@ -67,7 +65,7 @@ class XinputParser(object):
         "Keycodes supported": "keycodes_supported",
         "Touch mode": "touch_mode",
         "Max number of touches": "max_touch",
-        }
+    }
 
     def __init__(self, stream):
         """
@@ -152,7 +150,7 @@ class XinputParser(object):
             device = {
                 "id": int(match.group("id")),
                 "name": match.group("name"),
-                }
+            }
             result.addXinputDevice(device)
 
             # Parse device classes

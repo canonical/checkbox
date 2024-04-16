@@ -29,11 +29,11 @@ from checkbox_support.parsers.image_info import (
     RecoveryInfoParser,
     BtoParser,
     BtoInfoResult,
-    ImageInfoResult)
+    ImageInfoResult,
+)
 
 
 class TestBuildstampParser(TestCase):
-
     """Tests for Buildstamp parser class."""
 
     def _bogus_test(self, string):
@@ -70,18 +70,21 @@ class TestBuildstampParser(TestCase):
 
     def test_two_lines_good(self):
         """A three-line attachment is good, check expected value."""
-        stream = StringIO("kakaduplum Tue, 12 May 2015 06:46:55 +0000\n"
-                          "somerville-trusty-amd64-osp1-20150512-0")
+        stream = StringIO(
+            "kakaduplum Tue, 12 May 2015 06:46:55 +0000\n"
+            "somerville-trusty-amd64-osp1-20150512-0"
+        )
         self.parser = BuildstampParser(stream)
         result = ImageInfoResult()
         self.parser.run(result)
         self.assertIn("buildstamp", result.image_info)
-        self.assertEqual("somerville-trusty-amd64-osp1-20150512-0",
-                         result.image_info["buildstamp"])
+        self.assertEqual(
+            "somerville-trusty-amd64-osp1-20150512-0",
+            result.image_info["buildstamp"],
+        )
 
 
 class TestRecoveryInfoParser(TestCase):
-
     """Tests for Recovery Info parser class."""
 
     def _result_for(self, string):
@@ -115,23 +118,30 @@ class TestRecoveryInfoParser(TestCase):
         result = self._result_for(
             "image_version: somerville-trusty-amd64-osp1-20150512-0\n"
             "bto_version: "
-            "A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso")
+            "A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso"
+        )
         self.assertIn("image_version", result.image_info)
-        self.assertEqual("somerville-trusty-amd64-osp1-20150512-0",
-                         result.image_info["image_version"])
+        self.assertEqual(
+            "somerville-trusty-amd64-osp1-20150512-0",
+            result.image_info["image_version"],
+        )
         self.assertIn("bto_version", result.image_info)
         self.assertEqual(
             "A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso",
-            result.image_info["bto_version"])
+            result.image_info["bto_version"],
+        )
 
     def test_good_partial_data_image(self):
         """A good attachment with only image_version, check expected value."""
         result = self._result_for(
             "image_version: somerville-trusty-amd64-osp1-20150512-0\n"
-            "bogus: chogus.iso")
+            "bogus: chogus.iso"
+        )
         self.assertIn("image_version", result.image_info)
-        self.assertEqual("somerville-trusty-amd64-osp1-20150512-0",
-                         result.image_info["image_version"])
+        self.assertEqual(
+            "somerville-trusty-amd64-osp1-20150512-0",
+            result.image_info["image_version"],
+        )
         self.assertNotIn("bto_version", result.image_info)
 
     def test_good_partial_data_bto(self):
@@ -139,12 +149,14 @@ class TestRecoveryInfoParser(TestCase):
         result = self._result_for(
             "bogus: bogon\n"
             "bto_version: "
-            "A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso")
+            "A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso"
+        )
         self.assertNotIn("image_version", result.image_info)
         self.assertIn("bto_version", result.image_info)
         self.assertEqual(
             "A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso",
-            result.image_info["bto_version"])
+            result.image_info["bto_version"],
+        )
 
 
 BTO1 = """\
@@ -203,7 +215,6 @@ BTO3 = """\
 
 
 class TestBtoParser(TestCase):
-
     """Tests for BTO data parser class."""
 
     def _result_for(self, string):
@@ -228,20 +239,25 @@ class TestBtoParser(TestCase):
         """A xml with mix of keys we want and empty values, partial result."""
         result = self._result_for(BTO3)
         self.assertDictEqual(
-            {'generator': '1.24.3~somerville11',
-             'driver': ['boo.deb', 'choo.deb']},
-            result.bto_info)
+            {
+                "generator": "1.24.3~somerville11",
+                "driver": ["boo.deb", "choo.deb"],
+            },
+            result.bto_info,
+        )
 
     def test_good_data(self):
         """A good and complete xml, check expected value."""
         result = self._result_for(BTO1)
         expected_dict = {
-            'base': 'somerville-trusty-amd64-osp1-iso-20150512-0.iso',
-            'bootstrap': '1.36~somerville3',
-            'driver': [
-                'libcuda1-346_346.59-0ubuntu1somerville1_amd64.deb',
-                'nvidia-libopencl1-346_346.59-0ubuntu1somerville1_amd64.deb'],
-            'generator': '1.24.3~somerville11',
-            'iso': 'A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso',
-            'ubiquity': '2.18.8.8kittyhawk1somerville3'}
+            "base": "somerville-trusty-amd64-osp1-iso-20150512-0.iso",
+            "bootstrap": "1.36~somerville3",
+            "driver": [
+                "libcuda1-346_346.59-0ubuntu1somerville1_amd64.deb",
+                "nvidia-libopencl1-346_346.59-0ubuntu1somerville1_amd64.deb",
+            ],
+            "generator": "1.24.3~somerville11",
+            "iso": "A00_dell-bto-trusty-miramar-15-17-X01-iso-20150521-0.iso",
+            "ubiquity": "2.18.8.8kittyhawk1somerville3",
+        }
         self.assertDictEqual(expected_dict, result.bto_info)

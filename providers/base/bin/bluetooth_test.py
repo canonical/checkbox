@@ -47,7 +47,7 @@ OBEX_RESPONSE_CODE = {
     0x54: "Gateway Timeout",
     0x55: "HTTP version not supported",
     0x60: "Database Full",
-    0x61: "Database Locked"
+    0x61: "Database Locked",
 }
 
 
@@ -61,8 +61,8 @@ class ObexFTPTest:
     def _error_helper(self, pattern, **extra):
         # obexftp 0.23 version returns 255 on success, see:
         # http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=549623
-        if 'exception' in extra:
-            exception = extra.get('exception')
+        if "exception" in extra:
+            exception = extra.get("exception")
             if re.search(pattern, exception.output):
                 logging.info("PASS")
                 return 0
@@ -71,8 +71,8 @@ class ObexFTPTest:
                 if exception.returncode in OBEX_RESPONSE_CODE:
                     logging.error(OBEX_RESPONSE_CODE.get(exception.returncode))
                 return exception.returncode
-        elif 'output' in extra:
-            output = extra.get('output')
+        elif "output" in extra:
+            output = extra.get("output")
             if re.search(pattern, output):
                 logging.info("PASS")
                 return 0
@@ -82,13 +82,15 @@ class ObexFTPTest:
 
     def _run_command(self, command, expected_pattern, cwd=None):
         try:
-            output = check_output(command, stderr=STDOUT,
-                                  universal_newlines=True, cwd=cwd)
+            output = check_output(
+                command, stderr=STDOUT, universal_newlines=True, cwd=cwd
+            )
             return self._error_helper(expected_pattern, output=output)
         except OSError as e:
             logging.error(e)
-            logging.error("Binary not found, "
-                          "maybe obexftp is not installed")
+            logging.error(
+                "Binary not found, " "maybe obexftp is not installed"
+            )
         except CalledProcessError as e:
             return self._error_helper(expected_pattern, exception=e)
         finally:
@@ -97,52 +99,59 @@ class ObexFTPTest:
             time.sleep(5)
 
     def send(self):
-        logging.info("[ Send test ]".center(80, '='))
+        logging.info("[ Send test ]".center(80, "="))
         logging.info("Using {} as a test file".format(self._filename))
         logging.info("Sending {} to {}".format(self._file, self._btaddr))
-        return self._run_command(["obexput", "-b", self._btaddr, self._file],
-                                 "Sending.*?done")
+        return self._run_command(
+            ["obexput", "-b", self._btaddr, self._file], "Sending.*?done"
+        )
 
     def browse(self):
-        logging.info("[ Browse test ]".center(80, '='))
+        logging.info("[ Browse test ]".center(80, "="))
         logging.info("Checking {} for {}".format(self._btaddr, self._file))
         logging.info("Will check for a filesize of {}".format(self._filesize))
-        return self._run_command(["obexftp", "-b", self._btaddr, "-l"],
-                                 '{}.*?size="{}"'.format(self._filename,
-                                                         self._filesize))
+        return self._run_command(
+            ["obexftp", "-b", self._btaddr, "-l"],
+            '{}.*?size="{}"'.format(self._filename, self._filesize),
+        )
 
     def remove(self):
-        logging.info("[ Remove test ]".center(80, '='))
-        logging.info("Removing {} from {}".format(self._filename,
-                                                  self._btaddr))
+        logging.info("[ Remove test ]".center(80, "="))
+        logging.info(
+            "Removing {} from {}".format(self._filename, self._btaddr)
+        )
         return self._run_command(
-            ["obexrm", "-b", self._btaddr, self._filename],
-            "Sending.*?done")
+            ["obexrm", "-b", self._btaddr, self._filename], "Sending.*?done"
+        )
 
     def get(self):
         with TemporaryDirectory() as tmpdirname:
-            logging.info("[ Get test ]".center(80, '='))
-            logging.info("Getting file {} from {}".format(self._filename,
-                                                          self._btaddr))
+            logging.info("[ Get test ]".center(80, "="))
+            logging.info(
+                "Getting file {} from {}".format(self._filename, self._btaddr)
+            )
             # Dont trust "get" returncode, it's always 0...
             return self._run_command(
                 ["obexget", "-b", self._btaddr, self._filename],
-                "Receiving.*?done", cwd=tmpdirname)
+                "Receiving.*?done",
+                cwd=tmpdirname,
+            )
 
 
 def main():
     description = "Bluetooth tests using ObexFTP"
     parser = argparse.ArgumentParser(description=description)
-    parser.add_argument('file', type=argparse.FileType('rb'))
-    parser.add_argument('btaddr', help='bluetooth mac address')
-    parser.add_argument('action', choices=['send', 'browse', 'remove', 'get'])
+    parser.add_argument("file", type=argparse.FileType("rb"))
+    parser.add_argument("btaddr", help="bluetooth mac address")
+    parser.add_argument("action", choices=["send", "browse", "remove", "get"])
     args = parser.parse_args()
     args.file.close()
     # Configure logging as requested
     logging.basicConfig(
         level=logging.INFO,
         stream=sys.stdout,
-        format='%(levelname)s: %(message)s')
+        format="%(levelname)s: %(message)s",
+    )
     return getattr(ObexFTPTest(args.file.name, args.btaddr), args.action)()
 
 

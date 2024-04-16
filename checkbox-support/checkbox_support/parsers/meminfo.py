@@ -25,9 +25,7 @@ class MeminfoParser(object):
 
     def run(self, result):
         key_value_pattern = re.compile(r"(?P<key>.*):\s+(?P<value>.*)")
-        meminfo_map = {
-            "MemTotal": "total",
-            "SwapTotal": "swap"}
+        meminfo_map = {"MemTotal": "total", "SwapTotal": "swap"}
 
         meminfo = {}
         for line in self.stream.readlines():

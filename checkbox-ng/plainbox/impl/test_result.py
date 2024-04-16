@@ -41,8 +41,10 @@ from plainbox.vendor import mock
 
 def load_tests(loader, tests, ignore):
     tests.addTests(
-        doctest.DocTestSuite('plainbox.impl.result',
-                             optionflags=doctest.REPORT_NDIFF))
+        doctest.DocTestSuite(
+            "plainbox.impl.result", optionflags=doctest.REPORT_NDIFF
+        )
+    )
     return tests
 
 
@@ -53,8 +55,9 @@ class CommonTestsMixIn:
         self.assertIsNone(result.comments)
 
     def test_append_comments_with_invalid_chars(self):
-        result = self.result_cls({'comments': '\x1b\x5b\x36\x7e'})
+        result = self.result_cls({"comments": "\x1b\x5b\x36\x7e"})
         self.assertEqual(result.comments, "")
+
 
 class DiskJobResultTests(TestCase, CommonTestsMixIn):
 
@@ -66,7 +69,7 @@ class DiskJobResultTests(TestCase, CommonTestsMixIn):
     def tearDown(self):
         self.scratch_dir.cleanup()
 
-    @mock.patch('plainbox.impl.result.logger')
+    @mock.patch("plainbox.impl.result.logger")
     def test_smoke(self, mock_logger):
         result = DiskJobResult({})
         self.assertEqual(str(result), "None")
@@ -77,16 +80,18 @@ class DiskJobResultTests(TestCase, CommonTestsMixIn):
         self.assertIsNone(result.return_code)
         self.assertTrue(result.is_hollow)
 
-    @mock.patch('plainbox.impl.result.logger')
+    @mock.patch("plainbox.impl.result.logger")
     def test_everything(self, mock_logger):
-        result = DiskJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'comments': "it said blah",
-            'io_log_filename': make_io_log([
-                (0, 'stdout', b'blah\n')
-            ], self.scratch_dir.name),
-            'return_code': 0
-        })
+        result = DiskJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "comments": "it said blah",
+                "io_log_filename": make_io_log(
+                    [(0, "stdout", b"blah\n")], self.scratch_dir.name
+                ),
+                "return_code": 0,
+            }
+        )
         self.assertEqual(str(result), "pass")
         # This result contains a random vale of io_log_filename so direct repr
         # comparison is not feasable. All we want to check here is that it
@@ -96,19 +101,21 @@ class DiskJobResultTests(TestCase, CommonTestsMixIn):
         self.assertIn("outcome:'pass'", repr(result))
         self.assertEqual(result.outcome, IJobResult.OUTCOME_PASS)
         self.assertEqual(result.comments, "it said blah")
-        self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
-        self.assertEqual(result.io_log_as_flat_text, 'blah\n')
+        self.assertEqual(result.io_log, ((0, "stdout", b"blah\n"),))
+        self.assertEqual(result.io_log_as_flat_text, "blah\n")
         self.assertEqual(result.return_code, 0)
         self.assertFalse(result.is_hollow)
 
     def test_io_log_as_text_attachment(self):
-        result = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'comments': "it said blah",
-            'io_log': [(0, 'stdout', b'\x80\x456')],
-            'return_code': 0
-        })
-        self.assertEqual(result.io_log_as_text_attachment, '')
+        result = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "comments": "it said blah",
+                "io_log": [(0, "stdout", b"\x80\x456")],
+                "return_code": 0,
+            }
+        )
+        self.assertEqual(result.io_log_as_text_attachment, "")
 
 
 class MemoryJobResultTests(TestCase, CommonTestsMixIn):
@@ -126,37 +133,44 @@ class MemoryJobResultTests(TestCase, CommonTestsMixIn):
         self.assertTrue(result.is_hollow)
 
     def test_everything(self):
-        result = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'comments': "it said blah",
-            'io_log': [(0, 'stdout', b'blah\n')],
-            'return_code': 0
-        })
+        result = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "comments": "it said blah",
+                "io_log": [(0, "stdout", b"blah\n")],
+                "return_code": 0,
+            }
+        )
         self.assertEqual(str(result), "pass")
         self.assertEqual(
-            repr(result), (
+            repr(result),
+            (
                 "<MemoryJobResult comments:'it said blah' io_log:[(0, 'stdout'"
-                ", b'blah\\n')] outcome:'pass' return_code:0>"))
+                ", b'blah\\n')] outcome:'pass' return_code:0>"
+            ),
+        )
         self.assertEqual(result.outcome, IJobResult.OUTCOME_PASS)
         self.assertEqual(result.comments, "it said blah")
-        self.assertEqual(result.io_log, ((0, 'stdout', b'blah\n'),))
-        self.assertEqual(result.io_log_as_flat_text, 'blah\n')
+        self.assertEqual(result.io_log, ((0, "stdout", b"blah\n"),))
+        self.assertEqual(result.io_log_as_flat_text, "blah\n")
         self.assertEqual(result.return_code, 0)
         self.assertFalse(result.is_hollow)
 
     def test_io_log_as_text_attachment(self):
-        result = MemoryJobResult({
-            'outcome': IJobResult.OUTCOME_PASS,
-            'comments': "it said foo",
-            'io_log': [(0, 'stdout', b'foo')],
-            'return_code': 0
-        })
-        self.assertEqual(result.io_log_as_text_attachment, 'foo')
+        result = MemoryJobResult(
+            {
+                "outcome": IJobResult.OUTCOME_PASS,
+                "comments": "it said foo",
+                "io_log": [(0, "stdout", b"foo")],
+                "return_code": 0,
+            }
+        )
+        self.assertEqual(result.io_log_as_text_attachment, "foo")
 
 
 class IOLogRecordWriterTests(TestCase):
 
-    _RECORD = IOLogRecord(0.123, 'stdout', b'some\ndata')
+    _RECORD = IOLogRecord(0.123, "stdout", b"some\ndata")
     _TEXT = '[0.123,"stdout","c29tZQpkYXRh"]\n'
 
     def test_smoke_write(self):
@@ -193,16 +207,18 @@ class JobResultBuildeTests(TestCase):
 
     def test_smoke_memory(self):
         builder = JobResultBuilder()
-        builder.comments = 'it works'
+        builder.comments = "it works"
         builder.execution_duration = 0.1
-        builder.io_log = [(0, 'stdout', b'ok\n')]
-        builder.outcome = 'pass'
+        builder.io_log = [(0, "stdout", b"ok\n")]
+        builder.outcome = "pass"
         builder.return_code = 0
         result = builder.get_result()
         self.assertEqual(result.comments, "it works")
         self.assertEqual(result.execution_duration, 0.1)
-        self.assertEqual(result.io_log, (
-            IOLogRecord(delay=0, stream_name='stdout', data=b'ok\n'),))
+        self.assertEqual(
+            result.io_log,
+            (IOLogRecord(delay=0, stream_name="stdout", data=b"ok\n"),),
+        )
         self.assertEqual(result.outcome, "pass")
         self.assertEqual(result.return_code, 0)
         # Sanity check: the builder we can re-create is identical
@@ -211,15 +227,15 @@ class JobResultBuildeTests(TestCase):
 
     def test_smoke_disk(self):
         builder = JobResultBuilder()
-        builder.comments = 'it works'
+        builder.comments = "it works"
         builder.execution_duration = 0.1
-        builder.io_log_filename = 'log'
-        builder.outcome = 'pass'
+        builder.io_log_filename = "log"
+        builder.outcome = "pass"
         builder.return_code = 0
         result = builder.get_result()
         self.assertEqual(result.comments, "it works")
         self.assertEqual(result.execution_duration, 0.1)
-        self.assertEqual(result.io_log_filename, 'log')
+        self.assertEqual(result.io_log_filename, "log")
         self.assertEqual(result.outcome, "pass")
         self.assertEqual(result.return_code, 0)
         # Sanity check: the builder we can re-create is identical
@@ -228,18 +244,18 @@ class JobResultBuildeTests(TestCase):
 
     def test_io_log_clash(self):
         builder = JobResultBuilder()
-        builder.io_log = [(0, 'stout', b'hi')]
-        builder.io_log_filename = 'log'
+        builder.io_log = [(0, "stout", b"hi")]
+        builder.io_log_filename = "log"
         with self.assertRaises(ValueError):
             builder.get_result()
 
     def test_add_comment(self):
         builder = JobResultBuilder()
-        builder.add_comment('first comment')  # ;-)
-        self.assertEqual(builder.comments, 'first comment')
-        builder.add_comment('second comment')
-        self.assertEqual(builder.comments, 'first comment\nsecond comment')
+        builder.add_comment("first comment")  # ;-)
+        self.assertEqual(builder.comments, "first comment")
+        builder.add_comment("second comment")
+        self.assertEqual(builder.comments, "first comment\nsecond comment")
 
     def test_get_builder_kwargs(self):
-        result = JobResultBuilder(outcome='pass').get_result()
-        self.assertEqual(result.get_builder(outcome='fail').outcome, 'fail')
+        result = JobResultBuilder(outcome="pass").get_result()
+        self.assertEqual(result.get_builder(outcome="fail").outcome, "fail")

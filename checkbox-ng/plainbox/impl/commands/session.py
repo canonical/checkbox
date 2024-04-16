@@ -23,10 +23,12 @@ import warnings
 
 warnings.warn(
     "Use either plainbox.impl.commands.cmd_session or .inv_session instead",
-    PendingDeprecationWarning, stacklevel=2)
+    PendingDeprecationWarning,
+    stacklevel=2,
+)
 
 
-__all__ = ['SessionInvocation', 'SessionCommand']
+__all__ = ["SessionInvocation", "SessionCommand"]
 
 from plainbox.impl.commands.inv_session import SessionInvocation
 from plainbox.impl.commands.cmd_session import SessionCommand

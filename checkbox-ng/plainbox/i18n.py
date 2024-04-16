@@ -33,16 +33,16 @@ import random
 import re
 
 __all__ = [
-    'bindtextdomain',
-    'dgettext',
-    'dngettext',
-    'gettext',
-    'ngettext',
-    'pdgettext',
-    'pdngettext',
-    'pgettext',
-    'pngettext',
-    'textdomain',
+    "bindtextdomain",
+    "dgettext",
+    "dngettext",
+    "gettext",
+    "ngettext",
+    "pdgettext",
+    "pdngettext",
+    "pgettext",
+    "pngettext",
+    "textdomain",
 ]
 
 _logger = logging.getLogger("plainbox.i18n")
@@ -254,12 +254,17 @@ class NoOpTranslator(ITranslator):
 class LoremIpsumTranslator(NoOpTranslator):
 
     LOREM_IPSUM = {
-        "ch": ('', """小經 施消 了稱 能文 安種 之用 無心 友市 景內 語格。坡對
+        "ch": (
+            "",
+            """小經 施消 了稱 能文 安種 之用 無心 友市 景內 語格。坡對
                轉醫 題苦 們會員！ 我親就 藝了參 間通。 有發 轉前 藥想
                亞沒，通須 應管、打者 小成 公出？ 般記 中成化 他四華 分國越
                分位離，更為者 文難 我如 我布？經動 著為 安經， 們天然 我親 唱顯
-               不；得當 出一來得金 著作 到到 操弟 人望！去指 在格據！"""),
-        "kr": (' ' """말을 하고 곁에서 일 말려가고 그걸로 하다 같은 없네
+               不；得當 出一來得金 著作 到到 操弟 人望！去指 在格據！""",
+        ),
+        "kr": (
+            " "
+            """말을 하고 곁에서 일 말려가고 그걸로 하다 같은 없네
                앉은 뿌리치더니 동소문 일 보지 재우쳤다 분량 말을 가지고
                김첨지의 시작하였다 내리는 나를 김첨지는 좁쌀 준 반가운지
                김첨지는 놓치겠구먼 늦추잡았다 인력거 속 생각하게 돈을 시체를
@@ -268,13 +273,19 @@ class LoremIpsumTranslator(NoOpTranslator):
                돈의 라고 어이 없지만 받아야 아내의 시작하였다 차도 왜
                사용자로부터 추어탕을 처음 보라 출판사 차원 따라서 펴서 풀이
                사람은 근심과 초조해온다 트고 제 창을 내리었다 인력거하고
-               같으면 큰 이놈아 어린애 그 넘어 울었다V"""),
-        "he": (' ', """תורת קרימינולוגיה אל אתה הטבע לחיבור אם אחר מדע חינוך
+               같으면 큰 이놈아 어린애 그 넘어 울었다V"""
+        ),
+        "he": (
+            " ",
+            """תורת קרימינולוגיה אל אתה הטבע לחיבור אם אחר מדע חינוך
                ממונרכיה גם פנאי אחרים המקובל את אתה תנך אחרים לטיפול של את
                תיאטרון ואלקטרוניקה מתן דת והנדסה שימושיים סדר בה סרבול
                אינטרנט שתי ב אנא תוכל לערך רוסית כדי את תוכל כניסה המלחמה
-               עוד מה מיזמי אודות ומהימנה"""),
-        "ar": (' ', """ دار أن منتصف أوراقهم الرئيسية هو الا الحرب الجبهة لان
+               עוד מה מיזמי אודות ומהימנה""",
+        ),
+        "ar": (
+            " ",
+            """ دار أن منتصف أوراقهم الرئيسية هو الا الحرب الجبهة لان
                مع تنفّس للصين لإنعدام نتيجة الثقيلة أي شيء عقبت وأزيز لألمانيا
                وفي كل حدى إختار المنتصرة أي به، بغزو بالسيطرة أن  جدول
                بالفشل إيطاليا قام كل هنا؟ فرنسا الهجوم هذه مع حقول
@@ -283,21 +294,30 @@ class LoremIpsumTranslator(NoOpTranslator):
                فعل فاتّبع الشّعبين المعركة، ما  الى ما يطول المشتّتون وكسبت
                وإيطالي ذات أم تلك ثم القصف قبضتهم قد وأزيز إستمات ونستون غزو
                الأرض الأولية عن بين بـ دفّة كانت النفط لمّ تلك فهرست الأرض
-               الإتفاقية مع"""),
-        "ru": (' ', """Магна азжюывырит мэль ут нам ыт видырэр такематыш кибо
+               الإتفاقية مع""",
+        ),
+        "ru": (
+            " ",
+            """Магна азжюывырит мэль ут нам ыт видырэр такематыш кибо
                ыррор ут квюо Вяш аппарэат пондэрюм интылльэгэбат эи про ед
                еллум дикунт Квюо экз льаборэж нужквюам анкилльаы мэль омйттам
                мэнандря ед Мэль эи рэктэквуэ консэквюат контынтёонэж ты ёужто
                фэугяат вивэндюм шэа Атквюе трётанё эю квуй омнеж латины экз
-               вимi"""),
-        "jp": ('', """戸ぶだ の意 化巡奇 供 クソリヤ 無断 ヨサリヲ 念休ばイ
+               вимi""",
+        ),
+        "jp": (
+            "",
+            """戸ぶだ の意 化巡奇 供 クソリヤ 無断 ヨサリヲ 念休ばイ
                例会 コトヤ 耕智う ばっゃ 佐告決う で打表 ぞ ぼび情記ト レ表関銀
                ロモア ニ次川 よ全子 コロフ ソ政象 住岳ぴ 読ワ 一針 ヘ断
                首画リ のぽ せ足 決属 術こ てラ 領 技 けリぴ 分率ぴ きぜっ
                物味ドン おぎ一田ぴ ぶの謙 調ヲ星度 レぼむ囲 舗双脈 鶴挑げ
                ほぶ。無無 ツ縄第が 本公作 ゅゃふ く質失フ 米上議 ア記治 えれ本
-               意つん ぎレ局 総ケ盛 載テ コ部止 メツ輪 帰歴 就些ル っき"""),
-        "pl": (' ', """
+               意つん ぎレ局 総ケ盛 載テ コ部止 メツ輪 帰歴 就些ル っき""",
+        ),
+        "pl": (
+            " ",
+            """
                litwo ojczyzno moja ty jesteś jak zdrowie ile cię stracił
                dziś piękność widziana więc wszyscy dokoła brali stronę kusego
                albo sam wewnątrz siebie czuł się położył co by stary
@@ -316,7 +336,8 @@ class LoremIpsumTranslator(NoOpTranslator):
                całe wesoło lecz go grzecznie na złość rejentowi że u
                wieczerzy będzie jego upadkiem domy i bagnami skradał się tłocz
                i jak bawić się nie było bo tak na jutro solwuję i przepraszał
-               sędziego sędzia sam na początek dać małą kiedy"""),
+               sędziego sędzia sam na początek dać małą kiedy""",
+        ),
     }
 
     def __init__(self, kind):
@@ -329,9 +350,10 @@ class LoremIpsumTranslator(NoOpTranslator):
 
     def _get_ipsum(self, text):
         return re.sub(
-            '(%[sdr]|{[^}]*}|[a-zA-Z]+)',
+            "(%[sdr]|{[^}]*}|[a-zA-Z]+)",
             lambda match: self._tr_word(match.group(1)),
-            text)
+            text,
+        )
 
     def _tr_word(self, word):
         if re.search("(%[sdr])|({[^}]*})", word):
@@ -383,9 +405,7 @@ class GettextTranslator(ITranslator):
     def __init__(self, domain, locale_dir=None):
         self._domain = domain
         self._translations = {}
-        self._locale_dir_map = {
-            domain: locale_dir
-        }
+        self._locale_dir_map = {domain: locale_dir}
 
     def _get_translation(self, domain):
         try:
@@ -393,7 +413,8 @@ class GettextTranslator(ITranslator):
         except KeyError:
             try:
                 translation = gettext_module.translation(
-                    domain, self._locale_dir_map.get(domain))
+                    domain, self._locale_dir_map.get(domain)
+                )
             except IOError:
                 translation = gettext_module.NullTranslations()
             self._translations[domain] = translation
@@ -466,7 +487,8 @@ class GettextTranslator(ITranslator):
         effective_msgid1 = self._contextualize(msgctxt, msgid1)
         effective_msgid2 = self._contextualize(msgctxt, msgid2)
         msgstr = self._get_translation(domain).ngettext(
-            effective_msgid1, effective_msgid2, n)
+            effective_msgid1, effective_msgid2, n
+        )
         # If we got the untranslated version then we want to just return msgid1
         # or msgid2 back, without msgctxt prepended in front.
         if msgstr == effective_msgid1:
@@ -527,6 +549,7 @@ def docstring(docstring):
         class Foo:
             pass
     """
+
     def decorator(cls_or_func):
         try:
             cls_or_func.__doc__ = docstring
@@ -534,9 +557,9 @@ def docstring(docstring):
         except AttributeError:
             assert isinstance(cls_or_func, type)
             return type(
-                cls_or_func.__name__,
-                (cls_or_func,),
-                {'__doc__': docstring})
+                cls_or_func.__name__, (cls_or_func,), {"__doc__": docstring}
+            )
+
     return decorator
 
 
@@ -561,7 +584,8 @@ def gettext_noop(msgid):
 try:
     _translator = {
         "gettext": GettextTranslator(
-            "plainbox", os.getenv("PLAINBOX_LOCALE_DIR", None)),
+            "plainbox", os.getenv("PLAINBOX_LOCALE_DIR", None)
+        ),
         "no-op": NoOpTranslator(),
         "lorem-ipsum-ar": LoremIpsumTranslator("ar"),
         "lorem-ipsum-ch": LoremIpsumTranslator("ch"),
@@ -573,7 +597,8 @@ try:
     }[os.getenv("PLAINBOX_I18N_MODE", "gettext")]
 except KeyError as exc:
     raise RuntimeError(
-        "Unsupported PLAINBOX_I18N_MODE: {!r}".format(exc.args[0]))
+        "Unsupported PLAINBOX_I18N_MODE: {!r}".format(exc.args[0])
+    )
 
 
 # This is the public API of this module

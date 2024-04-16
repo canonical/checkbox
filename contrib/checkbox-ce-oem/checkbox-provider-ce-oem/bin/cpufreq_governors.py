@@ -62,6 +62,7 @@ def with_timeout(timeout=10, interval=0.5):
       - bool: Returns `True` if the decorated function returns `True` within
         the specified timeout; otherwise, returns `False`.
     """
+
     def decorator(func):
         def func_wrapper(*args, **kwargs):
             start_time = time.time()

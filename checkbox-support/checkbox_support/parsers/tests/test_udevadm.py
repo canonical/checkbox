@@ -30,16 +30,16 @@ class UdevadmDataMixIn(object):
     """
 
     def get_text(self, name):
-        resource = 'parsers/tests/udevadm_data/{}.txt'.format(name)
-        filename = resource_filename('checkbox_support', resource)
-        with open(filename, 'rt', encoding='UTF-8') as stream:
+        resource = "parsers/tests/udevadm_data/{}.txt".format(name)
+        filename = resource_filename("checkbox_support", resource)
+        with open(filename, "rt", encoding="UTF-8") as stream:
             return stream.read()
 
     def get_lsblk(self, name):
-        resource = 'parsers/tests/udevadm_data/{}.lsblk'.format(name)
-        filename = resource_filename('checkbox_support', resource)
+        resource = "parsers/tests/udevadm_data/{}.lsblk".format(name)
+        filename = resource_filename("checkbox_support", resource)
         try:
-            with open(filename, 'rt', encoding='UTF-8') as stream:
+            with open(filename, "rt", encoding="UTF-8") as stream:
                 return stream.read()
         except (IOError, OSError):
             return None
@@ -57,17 +57,20 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         for i,j in enumerate(devices):
             print(i, j.category, [getattr(j, a) for a in attributes])
         """
-        lsblk = ''
+        lsblk = ""
         if with_lsblk:
             lsblk = self.get_lsblk(name)
         return parse_udevadm_output(
-            self.get_text(name), lsblk, with_partitions, 64)
+            self.get_text(name), lsblk, with_partitions, 64
+        )
 
     def count(self, devices, category):
         return len([d for d in devices if d.category == category])
 
     def test_openfirmware_network(self):
-        stream = StringIO(dedent("""
+        stream = StringIO(
+            dedent(
+                """
             P: /devices/soc.0/ffe64000.ethernet
             E: DEVPATH=/devices/soc.0/ffe64000.ethernet
             E: DRIVER=XXXXX
@@ -85,7 +88,9 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
             E: INTERFACE=eth1
             E: SUBSYSTEM=net
             E: UDEV_LOG=3
-            """))
+            """
+            )
+        )
         parser = UdevadmParser(stream)
         devices = parser.run()
         self.assertEqual(devices[0].category, "NETWORK")
@@ -191,7 +196,7 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = self.parse("DELL_VOSTRO3460_FINGERPRINT")
         self.assertEqual(len(devices), 79)
         self.assertEqual(devices[35].category, "OTHER")
-        self.assertEqual(devices[35].vendor_id, 0x0138a)
+        self.assertEqual(devices[35].vendor_id, 0x0138A)
         self.assertEqual(devices[35].product_id, 0x0011)
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "AUDIO"), 2)
@@ -213,10 +218,20 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
     def test_DELL_VOSTROV131(self):
         devices = self.parse("DELL_VOSTROV131")
         expected_devices = [
-            ("RTL8111/8168 PCI Express Gigabit Ethernet controller",
-             "NETWORK", "pci", 0x10EC, 0x8168),
-            ("AR9285 Wireless Network Adapter (PCI-Express)",
-             "WIRELESS", "pci", 0x168C, 0x002B)
+            (
+                "RTL8111/8168 PCI Express Gigabit Ethernet controller",
+                "NETWORK",
+                "pci",
+                0x10EC,
+                0x8168,
+            ),
+            (
+                "AR9285 Wireless Network Adapter (PCI-Express)",
+                "WIRELESS",
+                "pci",
+                0x168C,
+                0x002B,
+            ),
         ]
         self.assertEqual(len(devices), 65)
         self.assertEqual(self.count(devices, "VIDEO"), 1)
@@ -259,13 +274,11 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_DELL_INSPIRON_7737_NVIDIA(self):
         devices = self.parse("DELL_INSPIRON_7737_NVIDIA")
-        expected_devices = [(None,
-                             "WIRELESS", "pci", 0x8086, 0x08b1),
-                            (None,
-                             "VIDEO", "pci", 0x10de, 0x0fe4),
-                            (None,
-                             "VIDEO", "pci", 0x8086, 0x0a16)
-                            ]
+        expected_devices = [
+            (None, "WIRELESS", "pci", 0x8086, 0x08B1),
+            (None, "VIDEO", "pci", 0x10DE, 0x0FE4),
+            (None, "VIDEO", "pci", 0x8086, 0x0A16),
+        ]
         # The first video device is an NVIDIA GPU, which is too new
         # to have a  device name. The second one is the built-in Haswell
         # GPU.
@@ -281,13 +294,11 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_DELL_INSPIRON_3048_AMD(self):
         devices = self.parse("DELL_INSPIRON_3048")
-        expected_devices = [(None,
-                             "WIRELESS", "pci", 0x168c, 0x0036),
-                            (None,
-                             "VIDEO", "pci", 0x1002, 0x6664),
-                            (None,
-                             "VIDEO", "pci", 0x8086, 0x0402)
-                            ]
+        expected_devices = [
+            (None, "WIRELESS", "pci", 0x168C, 0x0036),
+            (None, "VIDEO", "pci", 0x1002, 0x6664),
+            (None, "VIDEO", "pci", 0x8086, 0x0402),
+        ]
         # The first video device is an AMD GPU, which is too new
         # to have a  device name. The second one is the built-in Haswell
         # GPU.
@@ -302,9 +313,16 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_DELL_POWEREDGE_R820_NVME(self):
         devices = self.parse("DELL_POWEREDGE_R820_NVME")
-        expected_devices = [("NetXtreme BCM5720 Gigabit Ethernet PCIe",
-                             "NETWORK", "pci", 0x14E4, 0x165F, 4),
-                            ]
+        expected_devices = [
+            (
+                "NetXtreme BCM5720 Gigabit Ethernet PCIe",
+                "NETWORK",
+                "pci",
+                0x14E4,
+                0x165F,
+                4,
+            ),
+        ]
         self.assertEqual(len(devices), 257)
         self.assertEqual(self.count(devices, "NETWORK"), 4)
         self.assertEqual(self.count(devices, "AUDIO"), 0)
@@ -444,11 +462,16 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_HP_PROBOOK6550B_ACCELEROMETER(self):
         devices = self.parse("HP_PROBOOK6550B_ACCELEROMETER")
-        expected_devices = [("Centrino Advanced-N 6200",
-                             "WIRELESS", "pci", 0x8086, 0x4239),
-                            ("82577LC Gigabit Network Connection",
-                             "NETWORK", "pci", 0x8086, 0x10EB)
-                            ]
+        expected_devices = [
+            ("Centrino Advanced-N 6200", "WIRELESS", "pci", 0x8086, 0x4239),
+            (
+                "82577LC Gigabit Network Connection",
+                "NETWORK",
+                "pci",
+                0x8086,
+                0x10EB,
+            ),
+        ]
         self.assertEqual(len(devices), 82)
         # Check the accelerometer device category/product
         self.assertEqual(devices[80].product, "ST LIS3LV02DL Accelerometer")
@@ -512,19 +535,25 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
         # System has two CPUs, AMD Richland [Radeon HD 8650G] and
         # Sun PRO [Radeon HD 8570A/8570M]
-        expected_devices = [(None, "VIDEO", "pci", 0x1002, 0x990b),
-                            (None, "VIDEO", "pci", 0x1002, 0x6663)]
+        expected_devices = [
+            (None, "VIDEO", "pci", 0x1002, 0x990B),
+            (None, "VIDEO", "pci", 0x1002, 0x6663),
+        ]
         self.verify_devices(devices, expected_devices)
 
     def test_LENOVO_T430S(self):
         devices = self.parse("LENOVO_T430S")
-        expected_devices = [("Centrino Ultimate-N 6300",
-                             "WIRELESS", "pci", 0x8086, 0x4238),
-                            ("82579LM Gigabit Network Connection",
-                             "NETWORK", "pci", 0x8086, 0x1502),
-                            ("H5321 gw",
-                             "WWAN", "usb", 0x0bdb, 0x1926)
-                            ]
+        expected_devices = [
+            ("Centrino Ultimate-N 6300", "WIRELESS", "pci", 0x8086, 0x4238),
+            (
+                "82579LM Gigabit Network Connection",
+                "NETWORK",
+                "pci",
+                0x8086,
+                0x1502,
+            ),
+            ("H5321 gw", "WWAN", "usb", 0x0BDB, 0x1926),
+        ]
         self.assertEqual(len(devices), 115)
         # Check that the Thinkpad hotkeys are not a CAPTURE device
         self.assertEqual(devices[113].product, "ThinkPad Extra Buttons")
@@ -533,8 +562,8 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         # proper vendor/product names
         self.assertEqual(devices[59].product, "H5321 gw")
         self.assertEqual(
-            devices[59].vendor,
-            "Ericsson Business Mobile Networks BV")
+            devices[59].vendor, "Ericsson Business Mobile Networks BV"
+        )
         self.assertEqual(devices[59].category, "WWAN")
         self.assertEqual(self.count(devices, "VIDEO"), 1)
         self.assertEqual(self.count(devices, "AUDIO"), 9)
@@ -639,11 +668,22 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def test_LENOVO_T420(self):
         devices = self.parse("LENOVO_T420")
-        expected_devices = [("Centrino Advanced-N 6205 [Taylor Peak]",
-                             "WIRELESS", "pci", 0x8086, 0x85),
-                            ("82579LM Gigabit Network Connection",
-                             "NETWORK", "pci", 0x8086, 0x1502)
-                            ]
+        expected_devices = [
+            (
+                "Centrino Advanced-N 6205 [Taylor Peak]",
+                "WIRELESS",
+                "pci",
+                0x8086,
+                0x85,
+            ),
+            (
+                "82579LM Gigabit Network Connection",
+                "NETWORK",
+                "pci",
+                0x8086,
+                0x1502,
+            ),
+        ]
         self.assertEqual(len(devices), 69)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
         self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
@@ -654,10 +694,15 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = self.parse("HP_ENVY_15_MEDIATEK_BT")
         expected_devices = [
             (None, "WIRELESS", "pci", 0x14C3, 0x7630),
-            ("RTL8111/8168B PCI Express Gigabit "
-             "Ethernet controller", "NETWORK", "pci",
-             0x10EC, 0x8168),
-            (None, "BLUETOOTH", "usb", 0x0e8d, 0x763f)]
+            (
+                "RTL8111/8168B PCI Express Gigabit " "Ethernet controller",
+                "NETWORK",
+                "pci",
+                0x10EC,
+                0x8168,
+            ),
+            (None, "BLUETOOTH", "usb", 0x0E8D, 0x763F),
+        ]
         self.assertEqual(len(devices), 66)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
         self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
@@ -668,10 +713,15 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = self.parse("HP_PAVILION14_NOTEBOOK_MEDIATEK_BT")
         expected_devices = [
             (None, "WIRELESS", "pci", 0x14C3, 0x7630),
-            ("RTL8101E/RTL8102E PCI Express Fast "
-             "Ethernet controller", "NETWORK", "pci",
-             0x10EC, 0x8136),
-            (None, "BLUETOOTH", "usb", 0x0e8d, 0x763f)]
+            (
+                "RTL8101E/RTL8102E PCI Express Fast " "Ethernet controller",
+                "NETWORK",
+                "pci",
+                0x10EC,
+                0x8136,
+            ),
+            (None, "BLUETOOTH", "usb", 0x0E8D, 0x763F),
+        ]
         self.assertEqual(len(devices), 70)
         self.verify_devices(devices, expected_devices)
         self.assertEqual(self.count(devices, "WIRELESS"), 1)
@@ -832,9 +882,14 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         # Graphics Controller Second one is NVidia  GF119 [GeForce GT 620 OEM]
         expected_devices = [
             (None, "VIDEO", "pci", 0x8086, 0x0152),
-            (None, "VIDEO", "pci", 0x10de, 0x1049),
-            ("RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller",
-             "NETWORK", "pci", 0x10EC, 0x8168),
+            (None, "VIDEO", "pci", 0x10DE, 0x1049),
+            (
+                "RTL8111/8168/8411 PCI Express Gigabit Ethernet Controller",
+                "NETWORK",
+                "pci",
+                0x10EC,
+                0x8168,
+            ),
         ]
         self.verify_devices(devices, expected_devices)
 
@@ -962,19 +1017,27 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "WATCHDOG"), 1)
 
     def test_SHUTTLE_DH170_WITH_USB_DISK(self):
-        """ DH170 with USB stick comparing pre and post reboot. """
-        devices_pre = self.parse("SHUTTLE_DH170_WITH_USB_DISK",
-                                 with_partitions=True, with_lsblk=False)
+        """DH170 with USB stick comparing pre and post reboot."""
+        devices_pre = self.parse(
+            "SHUTTLE_DH170_WITH_USB_DISK",
+            with_partitions=True,
+            with_lsblk=False,
+        )
         self.assertEqual(len(devices_pre), 70)
         self.assertEqual(self.count(devices_pre, "PARTITION"), 1)
-        devices_post = self.parse("SHUTTLE_DH170_WITH_USB_DISK_REBOOTED",
-                                  with_partitions=True, with_lsblk=False)
+        devices_post = self.parse(
+            "SHUTTLE_DH170_WITH_USB_DISK_REBOOTED",
+            with_partitions=True,
+            with_lsblk=False,
+        )
         self.assertEqual(len(devices_post), 70)
         self.assertEqual(self.count(devices_post, "PARTITION"), 1)
         # Pre and post have same number of deviecs and partitions
         self.assertEqual(len(devices_pre), len(devices_post))
-        self.assertEqual(self.count(devices_pre, "PARTITION"),
-                         self.count(devices_post, "PARTITION"))
+        self.assertEqual(
+            self.count(devices_pre, "PARTITION"),
+            self.count(devices_post, "PARTITION"),
+        )
         symlink_pre = symlink_post = ""
         for d in devices_pre:
             if d.category == "PARTITION":
@@ -1069,6 +1132,14 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = self.parse("two_dms_one_with_ubuntu_save")
         self.assertEqual(len(devices), 1)
 
+    def test_VRAID_machine(self):
+        """
+        The machine with VRAID will have the different _stack length.
+        See: https://github.com/canonical/checkbox/issues/482
+        For details.
+        """
+        devices = self.parse("With_VRAID", with_partitions=True)
+
     def verify_devices(self, devices, expected_device_list):
         """
         Verify we have the expected quantity of each device given in the list,
@@ -1096,39 +1167,58 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
             # Find indices of devices that match this expected device by
             # product and vendor ID
-            indices = [idx for idx, elem in enumerate(devices)
-                       if elem.product_id == device[4] and
-                       elem.vendor_id == device[3]]
+            indices = [
+                idx
+                for idx, elem in enumerate(devices)
+                if elem.product_id == device[4] and elem.vendor_id == device[3]
+            ]
             # If we have a name to match, eliminate everyhing without
             # that name (as they are bogus, uninteresting devices)
             if device[0] is not None:
-                indices = [idx for idx in indices
-                           if devices[idx].product == device[0]]
+                indices = [
+                    idx for idx in indices if devices[idx].product == device[0]
+                ]
             # Here, devices that matched the one I'm looking for will be
             # pointed to in indices. These indices refer to the devices
             # list.
 
             # Now I can do my validation checks.
             # Do we have expected number of devices?
-            self.assertEqual(len(indices), quantity,
-                             "{} items of {} (id {}:{}) found".format(
-                                 len(indices),
-                                 device[0],
-                                 device[3],
-                                 device[4]))
+            self.assertEqual(
+                len(indices),
+                quantity,
+                "{} items of {} (id {}:{}) found".format(
+                    len(indices), device[0], device[3], device[4]
+                ),
+            )
             # For specific attribute checks, we will use only the first device.
             # If there were multiple devices found, they are all identical
             if device[0] is not None:
-                self.assertEqual(devices[indices[0]].product, device[0],
-                                 "Bad product name for {}".format(device[0]))
-            self.assertEqual(devices[indices[0]].category, device[1],
-                             "Bad category for {}".format(device[0]))
-            self.assertEqual(devices[indices[0]].bus, device[2],
-                             "Bad bus for {}".format(device[0]))
-            self.assertEqual(devices[indices[0]].vendor_id, device[3],
-                             "Bad vendor_id for {}".format(device[0]))
-            self.assertEqual(devices[indices[0]].product_id, device[4],
-                             "Bad product_id for {}".format(device[0]))
+                self.assertEqual(
+                    devices[indices[0]].product,
+                    device[0],
+                    "Bad product name for {}".format(device[0]),
+                )
+            self.assertEqual(
+                devices[indices[0]].category,
+                device[1],
+                "Bad category for {}".format(device[0]),
+            )
+            self.assertEqual(
+                devices[indices[0]].bus,
+                device[2],
+                "Bad bus for {}".format(device[0]),
+            )
+            self.assertEqual(
+                devices[indices[0]].vendor_id,
+                device[3],
+                "Bad vendor_id for {}".format(device[0]),
+            )
+            self.assertEqual(
+                devices[indices[0]].product_id,
+                device[4],
+                "Bad product_id for {}".format(device[0]),
+            )
 
 
 class TestDecodeId(TestCase):

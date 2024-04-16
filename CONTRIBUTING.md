@@ -7,6 +7,11 @@ its providers and its documentation.
 
 ## General recommendations
 
+- The codebase uses [black] for formatting, with `line-length` set to `79`.
+- Install [black] inside your virtual environment using pip instead of using
+Debian packages from apt, as the versions in pip are more up-to-date.
+- Use `git config blame.ignoreRevsFile .git-blame-ignore-revs` if you want to
+[ignore commits related to black formatting].
 - Setup your editor of choice to run [autopep8] on save. This helps keep
 everything passing [flake8].
 - The code doesn’t have to be pylint-clean, but
@@ -385,6 +390,8 @@ review of the source files.
 Once all is good, you can submit your documentation change like any other
 changes using a pull request.
 
+[black]: https://black.readthedocs.io/
+[ignore commits related to black formatting]: https://black.readthedocs.io/en/stable/guides/introducing_black_to_your_project.html#avoiding-ruining-git-blame
 [autopep8]: https://pypi.org/project/autopep8/
 [flake8]: https://flake8.pycqa.org/en/latest/
 [pylint]: https://www.pylint.org/

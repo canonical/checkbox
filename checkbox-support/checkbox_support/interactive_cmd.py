@@ -14,21 +14,27 @@ import time
 
 
 class InteractiveCommand:
-    def __init__(self, args, log_level=logging.WARNING, log_name=None,
-                 ignore_eperm=False, shell=True):
+    def __init__(
+        self,
+        args,
+        log_level=logging.WARNING,
+        log_name=None,
+        ignore_eperm=False,
+        shell=True,
+    ):
         self._args = args
         self._ignore_eperm = ignore_eperm
         self._shell = shell
         self._is_running = False
         self._pending = 0
         logger_name = log_name or self._args.split()[0]
-        self._logger = logging.getLogger('iCMD:{}'.format(logger_name))
+        self._logger = logging.getLogger("iCMD:{}".format(logger_name))
         self._logger.setLevel(log_level)
         ch = logging.StreamHandler()
         ch.setLevel(log_level)
         formatter = logging.Formatter(
-            ("%(asctime)s - %(name)s - %(levelname)s -"
-             " %(message)s"))
+            ("%(asctime)s - %(name)s - %(levelname)s -" " %(message)s")
+        )
         ch.setFormatter(formatter)
         self._logger.addHandler(ch)
 
@@ -47,8 +53,12 @@ class InteractiveCommand:
     def start(self):
         self._logger.info("Starting command. Args: %s" % self._args)
         self._proc = subprocess.Popen(
-            self._args, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT, shell=self._shell)
+            self._args,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=self._shell,
+        )
         self._is_running = True
         self._poller = select.poll()
         self._logger.debug("Registering poller")
@@ -77,16 +87,17 @@ class InteractiveCommand:
         self._logger.info("Writing to process: %s" % line)
         if not self._is_running:
             self._logger.warning("Process is not running!")
-            raise Exception('Process is not running')
+            raise Exception("Process is not running")
         try:
-            self._proc.stdin.write((line + '\n').encode(sys.stdin.encoding))
+            self._proc.stdin.write((line + "\n").encode(sys.stdin.encoding))
             self._logger.debug("Flushing...")
             self._proc.stdin.flush()
         except BrokenPipeError:
             self._logger.warning("Broken pipe when sending to the process!")
             if self._pending:
                 self._logger.warning(
-                    "The output before the pipe broke: %s", self.read_all())
+                    "The output before the pipe broke: %s", self.read_all()
+                )
             self._close_fds([self._proc.stdin])
             raise
         time.sleep(sleep)
@@ -107,7 +118,7 @@ class InteractiveCommand:
         self._logger.info("Waiting until matched. Pattern: %s" % pattern)
         assert timeout >= 0, "cannot wait until past times"
         deadline = time.time() + timeout
-        output = ''
+        output = ""
         while timeout > 0:
             self.wait_for_output(timeout)
             output += self.read_all()
@@ -124,11 +135,11 @@ class InteractiveCommand:
         self._logger.info("Reading all")
         if not self._pending:
             self._logger.debug("Nothing to read")
-            return ''
+            return ""
         else:
             raw = self._proc.stdout.read(self._pending)
             self._pending = 0
-            decoded = raw.decode(sys.stdout.encoding, errors='ignore')
+            decoded = raw.decode(sys.stdout.encoding, errors="ignore")
             self._logger.debug("Read %s bytes. : %s" % (len(raw), decoded))
             return decoded
 

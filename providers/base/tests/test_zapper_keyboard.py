@@ -1,4 +1,5 @@
 """This module provides test cases for the zapper_keyboard_test module."""
+
 import os
 import struct
 import threading
@@ -103,7 +104,9 @@ class KeyboardListenerTests(unittest.TestCase):
         listener = zapper_keyboard_test.KeyboardListener(event_file_path, None)
 
         assert listener._keep_running
-        mock_open.assert_called_with(event_file_path, os.O_RDONLY | os.O_NONBLOCK)
+        mock_open.assert_called_with(
+            event_file_path, os.O_RDONLY | os.O_NONBLOCK
+        )
 
     @patch("os.read")
     @patch("os.open")
@@ -126,7 +129,9 @@ class KeyboardListenerTests(unittest.TestCase):
 
         listener._read_keyboard_events()
 
-        mock_read.assert_called_with(mock_open.return_value, listener.EVENT_BIN_SIZE)
+        mock_read.assert_called_with(
+            mock_open.return_value, listener.EVENT_BIN_SIZE
+        )
         callback.assert_called_with((value, code))
 
     @patch("os.open", Mock())

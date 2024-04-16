@@ -44,13 +44,12 @@ class AppThread(threading.Thread):
     def run(self):
         proc = Popen(self._appname, stdout=PIPE, stderr=PIPE)
         self.pid = proc.pid
-        print('  Starting "%s", PID: %d' %
-              (self._appname, self.pid))
+        print('  Starting "%s", PID: %d' % (self._appname, self.pid))
         self.stdout, self.stderr = proc.communicate()
 
 
 def open_close_process(app, timeout):
-    '''Open and close a process after a timeout'''
+    """Open and close a process after a timeout"""
     status = 0
     # Start the process in a separate thread
     app_thread = AppThread(app)
@@ -67,7 +66,7 @@ def open_close_process(app, timeout):
     os.kill(pid, SIGTERM)
 
     if app_thread.stderr:
-        print('Errors:\n%s' % app_thread.stderr, file=sys.stderr)
+        print("Errors:\n%s" % app_thread.stderr, file=sys.stderr)
         status = 1
 
     time.sleep(timeout)
@@ -76,7 +75,7 @@ def open_close_process(app, timeout):
 
 
 def open_close_multi_process(app, timeout, apps_num):
-    '''Open and close multiple processes after a timeout'''
+    """Open and close multiple processes after a timeout"""
     status = 0
     threads = []
 
@@ -96,7 +95,7 @@ def open_close_multi_process(app, timeout, apps_num):
         print('  Killing "%s", PID: %d' % (app, thread.pid))
         os.kill(thread.pid, SIGTERM)
         if thread.stderr:
-            print('Errors:\n%s' % thread.stderr, file=sys.stderr)
+            print("Errors:\n%s" % thread.stderr, file=sys.stderr)
             status = 1
 
     time.sleep(timeout)
@@ -105,7 +104,7 @@ def open_close_multi_process(app, timeout, apps_num):
 
 
 def open_suspend_close_process(app, timeout):
-    '''Open, suspend and close a process after a timeout'''
+    """Open, suspend and close a process after a timeout"""
     status = 0
     # Start the process in a separate thread
     app_thread = AppThread(app)
@@ -132,7 +131,7 @@ def open_suspend_close_process(app, timeout):
     os.kill(pid, SIGTERM)
 
     if app_thread.stderr:
-        print('Errors:\n%s' % app_thread.stderr, file=sys.stderr)
+        print("Errors:\n%s" % app_thread.stderr, file=sys.stderr)
         status = 1
 
     time.sleep(timeout)
@@ -154,10 +153,10 @@ def move_window(app, timeout):
 
     time.sleep(3)
 
-    window_list = check_output(['wmctrl', '-l'], universal_newlines=True)
-    window_id = ''
+    window_list = check_output(["wmctrl", "-l"], universal_newlines=True)
+    window_id = ""
 
-    for line in window_list.split('\n'):
+    for line in window_list.split("\n"):
         if app in line:
             window_id = line.split()[0]
 
@@ -169,60 +168,64 @@ def move_window(app, timeout):
         geom = screen.get_monitor_geometry(screen.get_primary_monitor())
 
         # Find out the window information from xwininfo
-        win_x = ''
-        win_y = ''
-        win_width = ''
-        win_height = ''
+        win_x = ""
+        win_y = ""
+        win_width = ""
+        win_height = ""
 
-        for line in check_output(['xwininfo', '-name', app],
-                                 universal_newlines=True).split('\n'):
-            if 'Absolute upper-left X' in line:
-                win_x = line.split(': ')[-1].strip()
-            elif 'Absolute upper-left Y' in line:
-                win_y = line.split(': ')[-1].strip()
-            elif 'Width' in line:
-                win_width = line.split(': ')[-1].strip()
-            elif 'Height' in line:
-                win_height = line.split(': ')[-1].strip()
+        for line in check_output(
+            ["xwininfo", "-name", app], universal_newlines=True
+        ).split("\n"):
+            if "Absolute upper-left X" in line:
+                win_x = line.split(": ")[-1].strip()
+            elif "Absolute upper-left Y" in line:
+                win_y = line.split(": ")[-1].strip()
+            elif "Width" in line:
+                win_width = line.split(": ")[-1].strip()
+            elif "Height" in line:
+                win_height = line.split(": ")[-1].strip()
 
         move_line = ["0", win_x, win_y, win_width, win_height]
 
-        directions = {'RIGHT': geom.width,
-                      'DOWN': geom.height,
-                      'LEFT': win_x,
-                      'UP': win_y,
-                      'STOP': None}
-        current = 'RIGHT'
+        directions = {
+            "RIGHT": geom.width,
+            "DOWN": geom.height,
+            "LEFT": win_x,
+            "UP": win_y,
+            "STOP": None,
+        }
+        current = "RIGHT"
 
-        while current != 'STOP':
-            if current == 'RIGHT':
+        while current != "STOP":
+            if current == "RIGHT":
                 # Check if top right corner of window reached top right point
                 if int(move_line[1]) + int(win_width) != directions[current]:
                     new_x = int(move_line[1]) + 1
                     move_line[1] = str(new_x)
                 else:
-                    current = 'DOWN'
-            elif current == 'DOWN':
+                    current = "DOWN"
+            elif current == "DOWN":
                 if int(move_line[2]) + int(win_height) != directions[current]:
                     new_y = int(move_line[2]) + 1
                     move_line[2] = str(new_y)
                 else:
-                    current = 'LEFT'
-            elif current == 'LEFT':
+                    current = "LEFT"
+            elif current == "LEFT":
                 if int(move_line[1]) != int(directions[current]):
                     new_x = int(move_line[1]) - 1
                     move_line[1] = str(new_x)
                 else:
-                    current = 'UP'
-            elif current == 'UP':
+                    current = "UP"
+            elif current == "UP":
                 if int(move_line[2]) != int(directions[current]):
                     new_y = int(move_line[2]) - 1
                     move_line[2] = str(new_y)
                 else:
-                    current = 'STOP'
+                    current = "STOP"
 
-            check_call(['wmctrl', '-i', '-r', window_id,
-                        '-e', ','.join(move_line)])
+            check_call(
+                ["wmctrl", "-i", "-r", window_id, "-e", ",".join(move_line)]
+            )
 
         os.kill(pid, SIGTERM)
     else:
@@ -234,87 +237,107 @@ def move_window(app, timeout):
 
 def print_open_close(iterations, timeout, *args):
     status = 0
-    print('Opening and closing a 3D window')
+    print("Opening and closing a 3D window")
     for it in range(iterations):
-        print('Iteration %d of %d:' % (it + 1, iterations))
-        exit_status = open_close_process('glxgears', timeout)
+        print("Iteration %d of %d:" % (it + 1, iterations))
+        exit_status = open_close_process("glxgears", timeout)
         if exit_status != 0:
             status = 1
-    print('')
+    print("")
     return status
 
 
 def print_suspend_resume(iterations, timeout, *args):
     status = 0
-    print('Opening, suspending, resuming and closing a 3D window')
+    print("Opening, suspending, resuming and closing a 3D window")
     for it in range(iterations):
-        print('Iteration %d of %d:' % (it + 1, iterations))
-        exit_status = open_suspend_close_process('glxgears', timeout)
+        print("Iteration %d of %d:" % (it + 1, iterations))
+        exit_status = open_suspend_close_process("glxgears", timeout)
         if exit_status != 0:
             status = 1
-    print('')
+    print("")
     return status
 
 
 def print_open_close_multi(iterations, timeout, windows_number):
     status = 0
-    print('Opening and closing %d 3D windows at the same time'
-          % windows_number)
+    print(
+        "Opening and closing %d 3D windows at the same time" % windows_number
+    )
     for it in range(iterations):
-        print('Iteration %d of %d:' % (it + 1, iterations))
-        exit_status = open_close_multi_process('glxgears',
-                                               timeout,
-                                               windows_number)
+        print("Iteration %d of %d:" % (it + 1, iterations))
+        exit_status = open_close_multi_process(
+            "glxgears", timeout, windows_number
+        )
         if exit_status != 0:
             status = 1
-    print('')
+    print("")
     return status
 
 
 def print_move_window(iterations, timeout, *args):
     status = 0
-    print('Moving a 3D window across the screen')
+    print("Moving a 3D window across the screen")
 
     for it in range(iterations):
-        print('Iteration %d of %d:' % (it + 1, iterations))
-        status = move_window('glxgears', timeout)
+        print("Iteration %d of %d:" % (it + 1, iterations))
+        status = move_window("glxgears", timeout)
 
-    print('')
+    print("")
     return status
 
 
 def main():
-    tests = {'open-close': print_open_close,
-             'suspend-resume': print_suspend_resume,
-             'open-close-multi': print_open_close_multi,
-             'move': print_move_window}
+    tests = {
+        "open-close": print_open_close,
+        "suspend-resume": print_suspend_resume,
+        "open-close-multi": print_open_close_multi,
+        "move": print_move_window,
+    }
 
     parser = ArgumentParser(
-        description='Script that performs window operation')
-    parser.add_argument('-t', '--test',
-                        default='all',
-                        help='The name of the test to run. \
+        description="Script that performs window operation"
+    )
+    parser.add_argument(
+        "-t",
+        "--test",
+        default="all",
+        help="The name of the test to run. \
                               Available tests: \
                               %s, all. \
-                              Default is all' % (', '.join(tests)))
-    parser.add_argument('-i', '--iterations',
-                        type=int,
-                        default=1,
-                        help='The number of times to run the test. \
-                              Default is 1')
-    parser.add_argument('-a', '--application',
-                        default='glxgears',
-                        help='The 3D application to launch. \
-                              Default is "glxgears"')
-    parser.add_argument('-to', '--timeout',
-                        type=int,
-                        default=3,
-                        help='The time in seconds between each test. \
-                              Default is 3')
-    parser.add_argument('-w', '--windows-number',
-                        type=int,
-                        default=4,
-                        help='The number of windows to open.')
+                              Default is all"
+        % (", ".join(tests)),
+    )
+    parser.add_argument(
+        "-i",
+        "--iterations",
+        type=int,
+        default=1,
+        help="The number of times to run the test. \
+                              Default is 1",
+    )
+    parser.add_argument(
+        "-a",
+        "--application",
+        default="glxgears",
+        help='The 3D application to launch. \
+                              Default is "glxgears"',
+    )
+    parser.add_argument(
+        "-to",
+        "--timeout",
+        type=int,
+        default=3,
+        help="The time in seconds between each test. \
+                              Default is 3",
+    )
+    parser.add_argument(
+        "-w",
+        "--windows-number",
+        type=int,
+        default=4,
+        help="The number of windows to open.",
+    )
 
     args = parser.parse_args()
 
@@ -325,19 +348,22 @@ def main():
     if test:
         status = test(args.iterations, args.timeout, args.windows_number)
     else:
-        if args.test == 'all':
+        if args.test == "all":
             for test in tests:
-                exit_status = tests[test](args.iterations, args.timeout,
-                                          args.windows_number)
+                exit_status = tests[test](
+                    args.iterations, args.timeout, args.windows_number
+                )
                 if exit_status != 0:
                     status = exit_status
         else:
-            parser.error('-t or --test can only be used with one '
-                         'of the following tests: '
-                         '%s, all' % (', '.join(tests)))
+            parser.error(
+                "-t or --test can only be used with one "
+                "of the following tests: "
+                "%s, all" % (", ".join(tests))
+            )
 
     return status
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     exit(main())

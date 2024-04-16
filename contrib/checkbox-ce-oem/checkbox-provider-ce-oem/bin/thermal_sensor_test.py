@@ -40,7 +40,7 @@ def init_logger():
     return root_logger
 
 
-class ThermalMonitor():
+class ThermalMonitor:
 
     def __init__(self, name):
         self._name = name
@@ -78,24 +78,30 @@ class ThermalMonitor():
 
 def check_temperature(current, initial):
     logging.info("Initial value: %s, current value: %s", initial, current)
-    return (int(current) != 0 and current != initial)
+    return int(current) != 0 and current != initial
 
 
 def thermal_monitor_test(args):
     logging.info(
         "# Monitor the temperature of %s thermal around %s seconds",
-        args.name, args.duration)
+        args.name,
+        args.duration,
+    )
 
     if args.extra_commands == "stress-ng":
-        cmd = ("stress-ng --cpu 0 --io 4 --vm 2 "
-               "--vm-bytes 128M --timeout {}s").format(args.duration)
+        cmd = (
+            "stress-ng --cpu 0 --io 4 --vm 2 " "--vm-bytes 128M --timeout {}s"
+        ).format(args.duration)
     else:
         cmd = args.extra_commands
 
     thermal_op = ThermalMonitor(args.name)
     if thermal_op.mode == "disabled":
-        raise SystemExit("Error: The {}-{} thermal is disabled".format(
-                                            thermal_op.name, thermal_op.type))
+        raise SystemExit(
+            "Error: The {}-{} thermal is disabled".format(
+                thermal_op.name, thermal_op.type
+            )
+        )
     initial_value = thermal_op.temperature
 
     result = False
@@ -112,8 +118,8 @@ def thermal_monitor_test(args):
         result = check_temperature(cur_temp, initial_value)
         if result:
             logging.info(
-                "# The temperature of %s thermal has been altered",
-                args.name)
+                "# The temperature of %s thermal has been altered", args.name
+            )
             break
         time.sleep(1)
     if proc and proc.poll() is None:
@@ -123,7 +129,9 @@ def thermal_monitor_test(args):
     if result is False:
         logging.error(
             "# The temperature of the %s thermal remains consistently at %s",
-            args.name, initial_value)
+            args.name,
+            initial_value,
+        )
         raise SystemExit(1)
 
 
@@ -131,41 +139,45 @@ def dump_thermal_zones(args):
 
     for thermal in sorted(Path("/sys/class/thermal").glob("thermal_zone*")):
         node = ThermalMonitor(thermal.name)
-        print("name: {}\nmode: {}\ntype: {}\n".format(
-                    node.name, node.mode, node.type))
+        print(
+            "name: {}\nmode: {}\ntype: {}\n".format(
+                node.name, node.mode, node.type
+            )
+        )
 
 
 def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description='Thermal temperature Tests')
+        description="Thermal temperature Tests",
+    )
     parser.add_argument(
         "--debug",
         action="store_true",
-        help="Turn on debug level output for extra info during test run."
+        help="Turn on debug level output for extra info during test run.",
     )
 
     sub_parsers = parser.add_subparsers(
-        help="Thermal test type", dest="test_type", required=True)
+        help="Thermal test type", dest="test_type", required=True
+    )
 
     monitor_parser = sub_parsers.add_parser("monitor")
+    monitor_parser.add_argument("-n", "--name", required=True, type=str)
     monitor_parser.add_argument(
-        "-n", "--name",
-        required=True,
-        type=str
-    )
-    monitor_parser.add_argument(
-        "-d", "--duration",
+        "-d",
+        "--duration",
         type=int,
         default=60,
-        help="the time period to monitor thermal temperature"
+        help="the time period to monitor thermal temperature",
     )
     monitor_parser.add_argument(
         "--extra-commands",
         type=str,
         default="stress-ng",
-        help=("the command is for increase the system loading, "
-              "will apply stress-ng by default")
+        help=(
+            "the command is for increase the system loading, "
+            "will apply stress-ng by default"
+        ),
     )
     monitor_parser.set_defaults(test_type=thermal_monitor_test)
 

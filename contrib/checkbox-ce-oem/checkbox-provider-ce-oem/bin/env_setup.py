@@ -58,28 +58,29 @@ def get_config(config_file, config_path):
     if not config_path:
         logging.info("Config path not provided. Using default config.")
     # Check if the path exists and has a .json extension
-    elif os.path.exists(config_path) and config_path.lower().endswith('.json'):
+    elif os.path.exists(config_path) and config_path.lower().endswith(".json"):
         try:
             with open(config_path) as file:
                 return json.load(file)
         except FileNotFoundError:
-            logging.warning("Config file %s not found. Using default config.",
-                            config_path)
+            logging.warning(
+                "Config file %s not found. Using default config.", config_path
+            )
         except json.JSONDecodeError as e:
-            logging.warning("Error decoding JSON in %s: %s. Using default "
-                            "config.",
-                            config_path, e)
+            logging.warning(
+                "Error decoding JSON in %s: %s. Using default " "config.",
+                config_path,
+                e,
+            )
     else:
-        logging.warning("Invalid config path: %s. Using default config.",
-                        config_path)
+        logging.warning(
+            "Invalid config path: %s. Using default config.", config_path
+        )
 
     return config_file
 
 
-def connect_interfaces(snapd,
-                       plug_snap,
-                       expect_plugs,
-                       snap_plugs):
+def connect_interfaces(snapd, plug_snap, expect_plugs, snap_plugs):
     """
     Connect expected plugs to a specific snap.
 
@@ -99,29 +100,32 @@ def connect_interfaces(snapd,
     status = True
     for plug in expect_plugs.keys():
         if plug in snap_plugs:
-            (slot_snap, slot_plug), = expect_plugs[plug].items()
-            if slot_snap == 'gadget':
+            ((slot_snap, slot_plug),) = expect_plugs[plug].items()
+            if slot_snap == "gadget":
                 slot_snap = get_gadget_snap()
             try:
-                logging.info("Attempting to connect interface "
-                             "\"%s:%s\" \"%s:%s\"",
-                             plug_snap, plug, slot_snap, slot_plug
-                             )
-                snapd.connect(slot_snap,
-                              slot_plug,
-                              plug_snap,
-                              plug)
+                logging.info(
+                    "Attempting to connect interface " '"%s:%s" "%s:%s"',
+                    plug_snap,
+                    plug,
+                    slot_snap,
+                    slot_plug,
+                )
+                snapd.connect(slot_snap, slot_plug, plug_snap, plug)
             except Exception as err:
                 status = False
-                logging.error("Not able to connect plug \"%s:%s\" "
-                              "to slot \"%s:%s\".",
-                              plug_snap, plug, slot_snap, slot_plug
-                              )
+                logging.error(
+                    'Not able to connect plug "%s:%s" ' 'to slot "%s:%s".',
+                    plug_snap,
+                    plug,
+                    slot_snap,
+                    slot_plug,
+                )
                 logging.error(err)
         else:
-            logging.error("Expect plug \"%s\" not in the snap \"%s\".",
-                          plug, plug_snap
-                          )
+            logging.error(
+                'Expect plug "%s" not in the snap "%s".', plug, plug_snap
+            )
             status = False
     return status
 
@@ -158,10 +162,13 @@ def main():
     """
     parser = argparse.ArgumentParser(
         description="This is a script to install and connect expected plugs "
-                    "for target snanp.")
-    parser.add_argument('--file',
-                        default=None,
-                        help="The path with file name of the config file")
+        "for target snanp."
+    )
+    parser.add_argument(
+        "--file",
+        default=None,
+        help="The path with file name of the config file",
+    )
     args = parser.parse_args()
     status = True
     snapd = Snapd()
@@ -170,21 +177,18 @@ def main():
         logging.info("Attempting to install %s snap", plug_snap)
         if not snapd.list(plug_snap):
             try:
-                snapd.install(plug_snap,
-                              channel=config_file[plug_snap]['channel'])
+                snapd.install(
+                    plug_snap, channel=config_file[plug_snap]["channel"]
+                )
             except Exception as err:
                 logging.error(err)
                 status = False
                 continue
         else:
-            logging.info("{} is already installed."
-                         .format(plug_snap))
+            logging.info("{} is already installed.".format(plug_snap))
         snap_plugs = get_snap_plugs(snapd, plug_snap)
-        expect_plugs = config_file[plug_snap]['plugs']
-        status = connect_interfaces(snapd,
-                                    plug_snap,
-                                    expect_plugs,
-                                    snap_plugs)
+        expect_plugs = config_file[plug_snap]["plugs"]
+        status = connect_interfaces(snapd, plug_snap, expect_plugs, snap_plugs)
     if status:
         logging.info("Environment setup finished.")
     else:

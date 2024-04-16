@@ -276,9 +276,9 @@ class RemoteSessionAssistant:
                 extra_env["XAUTHORITY"] = p_environ["XAUTHORITY"]
                 extra_env["XDG_SESSION_TYPE"] = p_environ["XDG_SESSION_TYPE"]
                 extra_env["XDG_RUNTIME_DIR"] = "/run/user/{}".format(uid)
-                extra_env[
-                    "DBUS_SESSION_BUS_ADDRESS"
-                ] = "unix:path=/run/user/{}/bus".format(uid)
+                extra_env["DBUS_SESSION_BUS_ADDRESS"] = (
+                    "unix:path=/run/user/{}/bus".format(uid)
+                )
             if "WAYLAND_DISPLAY" in p_environ:
                 extra_env["WAYLAND_DISPLAY"] = p_environ["WAYLAND_DISPLAY"]
 

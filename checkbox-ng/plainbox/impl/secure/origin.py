@@ -37,10 +37,11 @@ class OriginMode(SymbolDef):
     A symbol definition (which will become an enumeration in the near future)
     that describes all the possible "modes" an :class:`Origin` can operate in.
     """
+
     # NOTE: this should be an enumeration
-    whole_file = 'whole-file'
-    single_line = 'single-line'
-    line_range = 'line-range'
+    whole_file = "whole-file"
+    single_line = "single-line"
+    line_range = "line-range"
 
 
 @functools.total_ordering
@@ -65,7 +66,7 @@ class Origin:
         The number of the line where the record ends
     """
 
-    __slots__ = ['source', 'line_start', 'line_end']
+    __slots__ = ["source", "line_start", "line_end"]
 
     def __init__(self, source, line_start=None, line_end=None):
         self.source = source
@@ -94,7 +95,10 @@ class Origin:
     def __repr__(self):
         return "<{} source:{!r} line_start:{} line_end:{}>".format(
             self.__class__.__name__,
-            self.source, self.line_start, self.line_end)
+            self.source,
+            self.line_start,
+            self.line_end,
+        )
 
     def __str__(self):
         mode = self.mode()
@@ -104,7 +108,8 @@ class Origin:
             return "{}:{}".format(self.source, self.line_start)
         elif mode is OriginMode.line_range:
             return "{}:{}-{}".format(
-                self.source, self.line_start, self.line_end)
+                self.source, self.line_start, self.line_end
+            )
         else:
             raise NotImplementedError
 
@@ -141,8 +146,9 @@ class Origin:
         if mode is OriginMode.whole_file:
             return self
         elif mode is OriginMode.single_line or mode is OriginMode.line_range:
-            return Origin(self.source,
-                          self.line_start + offset, self.line_end + offset)
+            return Origin(
+                self.source, self.line_start + offset, self.line_end + offset
+            )
         else:
             raise NotImplementedError
 
@@ -167,15 +173,21 @@ class Origin:
 
     def __eq__(self, other):
         if isinstance(other, Origin):
-            return ((self.source, self.line_start, self.line_end) ==
-                    (other.source, other.line_start, other.line_end))
+            return (self.source, self.line_start, self.line_end) == (
+                other.source,
+                other.line_start,
+                other.line_end,
+            )
         else:
             return NotImplemented
 
     def __gt__(self, other):
         if isinstance(other, Origin):
-            return ((self.source, self.line_start, self.line_end) >
-                    (other.source, other.line_start, other.line_end))
+            return (self.source, self.line_start, self.line_end) > (
+                other.source,
+                other.line_start,
+                other.line_end,
+            )
         else:
             return NotImplemented
 
@@ -264,8 +276,7 @@ class FileTextSource(ITextSource):
         return self.filename
 
     def __repr__(self):
-        return "{}({!r})".format(
-            self.__class__.__name__, self.filename)
+        return "{}({!r})".format(self.__class__.__name__, self.filename)
 
     def __eq__(self, other):
         if isinstance(other, FileTextSource):
@@ -360,18 +371,22 @@ class CommandLineTextSource(ITextSource):
     def __str__(self):
         if self.arg_name is not None:
             return _("command line argument {}={!a}").format(
-                self.arg_name, self.arg_value)
+                self.arg_name, self.arg_value
+            )
         else:
             return _("command line argument {!a}").format(self.arg_value)
 
     def __repr__(self):
         return "<{} arg_name:{!r} arg_value:{!r}>".format(
-            self.__class__.__name__, self.arg_name, self.arg_value)
+            self.__class__.__name__, self.arg_name, self.arg_value
+        )
 
     def __eq__(self, other):
         if isinstance(other, CommandLineTextSource):
-            return (self.arg_name == other.arg_name and
-                    self.arg_value == other.arg_value)
+            return (
+                self.arg_name == other.arg_name
+                and self.arg_value == other.arg_value
+            )
         return NotImplemented
 
     def __gt__(self, other):

@@ -27,10 +27,11 @@ import json
 import sys
 import re
 import gi
-gi.require_version('Gst', '1.0')
-gi.require_version('GLib', '2.0')
-from gi.repository import Gst        # noqa: E402
-from gi.repository import GLib       # noqa: E402
+
+gi.require_version("Gst", "1.0")
+gi.require_version("GLib", "2.0")
+from gi.repository import Gst  # noqa: E402
+from gi.repository import GLib  # noqa: E402
 
 
 class PipewireTestError(IntEnum):
@@ -55,6 +56,7 @@ class PipewireTestError(IntEnum):
     :attr NO_CHANGE_DETECTED: couldn't detect audio setting is changed
     :type NO_CHANGE_DETECTED: int
     """
+
     NO_ERROR = 0
     NOT_DETECTED = -1
     NO_AVAILABLE_PORT = -2
@@ -68,6 +70,7 @@ class PipewireTest:
     A class used to test pipewire functions
 
     """
+
     logger = logging.getLogger()
 
     def _get_pw_type(self, media_class) -> str:
@@ -98,9 +101,9 @@ class PipewireTest:
         :returns: pw-dump in dict data structure
         :"rtype": dict
         """
-        pw_dump = subprocess.check_output("pw-dump {}".format(p_type),
-                                          shell=True,
-                                          universal_newlines=True)
+        pw_dump = subprocess.check_output(
+            "pw-dump {}".format(p_type), shell=True, universal_newlines=True
+        )
         try:
             return json.loads(pw_dump)
         except (json.decoder.JSONDecodeError, TypeError):
@@ -161,10 +164,12 @@ class PipewireTest:
         for client in clients:
             props = client["info"]["props"]
             if mclass == props.get("media.class"):
-                self.logger.info("device id:[{}] media.class:[{}]"
-                                 " node.name:[{}]"
-                                 .format(client["id"], mclass,
-                                         props.get("node.name")))
+                self.logger.info(
+                    "device id:[{}] media.class:[{}]"
+                    " node.name:[{}]".format(
+                        client["id"], mclass, props.get("node.name")
+                    )
+                )
                 detected_flag = True
         if detected_flag:
             return PipewireTestError.NO_ERROR
@@ -195,9 +200,8 @@ class PipewireTest:
         for client in clients:
             props = client["info"]["props"]
             name = props.get("node.name")
-            if (mclass == props.get("media.class")
-                    and device in name):
-                available_nodes[client["id"]] = (client)
+            if mclass == props.get("media.class") and device in name:
+                available_nodes[client["id"]] = client
 
         if len(available_nodes) < 1:
             self.logger.error("No available {} found".format(mclass))
@@ -206,14 +210,15 @@ class PipewireTest:
         for i in available_nodes:
             n = available_nodes[i]
             desc = n["info"]["props"].get("node.description")
-            self.logger.info("Id:[{}], device:[{}]"
-                             .format(n["id"], desc))
+            self.logger.info("Id:[{}], device:[{}]".format(n["id"], desc))
 
         chosen = False
         node_id = None
         while not chosen:
-            self.logger.info("Which {} would you like to test?"
-                             " -1 means don't change".format(mclass))
+            self.logger.info(
+                "Which {} would you like to test?"
+                " -1 means don't change".format(mclass)
+            )
             self.logger.info("    {} id:".format(mclass))
             node_id = input()
             try:
@@ -222,13 +227,13 @@ class PipewireTest:
                 chosen = False
             if chosen:
                 cmd = "wpctl set-default {}".format(node_id)
-                subprocess.check_output(cmd, shell=True,
-                                        universal_newlines=True)
+                subprocess.check_output(
+                    cmd, shell=True, universal_newlines=True
+                )
             elif node_id == "-1":
                 chosen = True
             else:
-                self.logger.info("    [{}] isn't existed!"
-                                 .format(node_id))
+                self.logger.info("    [{}] isn't existed!".format(node_id))
         return PipewireTestError.NO_ERROR
 
     def _check_state(self, device) -> bool:
@@ -250,18 +255,21 @@ class PipewireTest:
                     for route in client["info"]["params"]["Route"]:
                         name = route["name"]
                         available = route["available"]
-                        if (device.lower() in name.lower()
-                                and "output" in route["direction"].lower()
-                                and available in ["unknown", "yes"]):
+                        if (
+                            device.lower() in name.lower()
+                            and "output" in route["direction"].lower()
+                            and available in ["unknown", "yes"]
+                        ):
+                            self.logger.info("[ Audio sink ]".center(80, "="))
                             self.logger.info(
-                                    "[ Audio sink ]".center(80, '='))
-                            self.logger.info(
-                                    "Device: [{}] available: [{}]"
-                                    .format(route["description"],
-                                            available))
+                                "Device: [{}] available: [{}]".format(
+                                    route["description"], available
+                                )
+                            )
                             return True
-            raise ValueError('No available output device for {}'
-                             .format(device))
+            raise ValueError(
+                "No available output device for {}".format(device)
+            )
         except (IndexError, ValueError) as e:
             logging.error(repr(e))
             return False
@@ -285,13 +293,15 @@ class PipewireTest:
 
         Gst.init(None)
         try:
-            self.logger.info("Attempting to initialize Gstreamer pipeline: {}"
-                             .format(pipe))
+            self.logger.info(
+                "Attempting to initialize Gstreamer pipeline: {}".format(pipe)
+            )
             element = Gst.parse_launch(pipe)
         except GLib.GError as error:
             self.logger.info("Specified pipeline couldn't be processed.")
-            self.logger.info("Error when processing pipeline: {}"
-                             .format(error))
+            self.logger.info(
+                "Error when processing pipeline: {}".format(error)
+            )
             # Exit harmlessly
             return PipewireTestError.PIPELINE_PROCESS_FAIL
         self.logger.info("Pipeline initialized, now starting playback.")
@@ -325,8 +335,13 @@ class PipewireTest:
             if active_ports:
                 for p in active_ports:
                     if p["direction"] == self._get_pw_type(mode):
-                        cfg.add(("{} #{}".format(mode, client["id"]),
-                                p["name"], p["available"]))
+                        cfg.add(
+                            (
+                                "{} #{}".format(mode, client["id"]),
+                                p["name"],
+                                p["available"],
+                            )
+                        )
         return cfg
 
     def monitor_active_port_change(self, timeout, mode) -> int:
@@ -346,8 +361,9 @@ class PipewireTest:
         """
         initial_cfg = self._get_audio_config(mode)
         self.logger.info("Starting with config: {}".format(initial_cfg))
-        self.logger.info("You have {} seconds to plug the item in"
-                         .format(timeout))
+        self.logger.info(
+            "You have {} seconds to plug the item in".format(timeout)
+        )
 
         for _ in range(int(timeout)):
             new_cfg = self._get_audio_config(mode)
@@ -381,28 +397,34 @@ class PipewireTest:
             if ports:
                 for p in ports:
                     chosen = None
-                    if (p["direction"] == self._get_pw_type(mode)
-                            and p["available"] in ["yes", "unknown"]):
+                    if p["direction"] == self._get_pw_type(mode) and p[
+                        "available"
+                    ] in ["yes", "unknown"]:
                         while chosen != "yes":
-                            self.logger.info("Please select [{}] for "
-                                             "testing (if selected, "
-                                             "please enter 'yes')"
-                                             .format(p["description"]))
+                            self.logger.info(
+                                "Please select [{}] for "
+                                "testing (if selected, "
+                                "please enter 'yes')".format(p["description"])
+                            )
 
                             chosen = input()
                         checked = None
                         while checked != "yes":
-                            with subprocess.Popen(cmd, shell=True,
-                                                  stdout=subprocess.PIPE,
-                                                  universal_newlines=True
-                                                  ) as p:
+                            with subprocess.Popen(
+                                cmd,
+                                shell=True,
+                                stdout=subprocess.PIPE,
+                                universal_newlines=True,
+                            ) as p:
                                 while p.poll() is None:
                                     line = p.stdout.readline().strip()
                                     self.logger.info(line)
                                 p.kill()
-                            self.logger.info("Is working ?  "
-                                             "please enter 'yes' "
-                                             "to leave")
+                            self.logger.info(
+                                "Is working ?  "
+                                "please enter 'yes' "
+                                "to leave"
+                            )
 
                             checked = input()
 
@@ -433,24 +455,32 @@ class PipewireTest:
         device_type = device_type.upper()
         if device_type not in ["AUDIO", "VIDEO"]:
             raise ValueError("Only support 'video' and 'audio'")
-        sink_cmd = ["wpctl",
-                    "inspect",
-                    "@DEFAULT_{}_SINK@".format(device_type)]
-        source_cmd = ["wpctl",
-                      "inspect",
-                      "@DEFAULT_{}_SOURCE@".format(device_type)]
+        sink_cmd = [
+            "wpctl",
+            "inspect",
+            "@DEFAULT_{}_SINK@".format(device_type),
+        ]
+        source_cmd = [
+            "wpctl",
+            "inspect",
+            "@DEFAULT_{}_SOURCE@".format(device_type),
+        ]
         self.logger.info("Default input device:")
         try:
-            source = subprocess.check_output(source_cmd,
-                                             universal_newlines=True)
+            source = subprocess.check_output(
+                source_cmd, universal_newlines=True
+            )
             self.logger.info(self._get_node_description(source))
             if device_type == "AUDIO":
                 self.logger.info("Default output device:")
-                sink = subprocess.check_output(sink_cmd,
-                                               universal_newlines=True)
+                sink = subprocess.check_output(
+                    sink_cmd, universal_newlines=True
+                )
                 self.logger.info(self._get_node_description(sink))
-            self.logger.info("If these are not you would like to test,"
-                             " please change them before testing")
+            self.logger.info(
+                "If these are not you would like to test,"
+                " please change them before testing"
+            )
         except subprocess.CalledProcessError as e:
             raise RuntimeError("Show default device error {}".format(repr(e)))
 
@@ -462,10 +492,16 @@ class PipewireTest:
 
         :returns: sorted wpctl status
         """
-        catalog = [" └─ Clients:", " ├─ Devices:", " ├─ Sinks:",
-                   " ├─ Sink endpoints:", " ├─ Sources:",
-                   " ├─ Source endpoints:", " └─ Streams:",
-                   " └─ Default Configured Node Names:"]
+        catalog = [
+            " └─ Clients:",
+            " ├─ Devices:",
+            " ├─ Sinks:",
+            " ├─ Sink endpoints:",
+            " ├─ Sources:",
+            " ├─ Source endpoints:",
+            " └─ Streams:",
+            " └─ Default Configured Node Names:",
+        ]
         sorted_lines = []
         sub_items = []
         for line in lines:
@@ -490,18 +526,18 @@ class PipewireTest:
 
         :param status_2: path to second wpctl status
         """
-        with open(status_1, 'r') as s1, open(status_2, 'r') as s2:
+        with open(status_1, "r") as s1, open(status_2, "r") as s2:
             status_1 = s1.readlines()
             status_2 = s2.readlines()
             sorted_status_1 = self._sort_wpctl_status(status_1)
             sorted_status_2 = self._sort_wpctl_status(status_2)
             delta = difflib.unified_diff(sorted_status_1, sorted_status_2, n=0)
-            diff = ''.join(delta)
+            diff = "".join(delta)
             if diff:
                 self.logger.info("The first status:\n")
-                self.logger.info(''.join(status_1))
+                self.logger.info("".join(status_1))
                 self.logger.info("And the second status:\n")
-                self.logger.info(''.join(status_2))
+                self.logger.info("".join(status_2))
                 self.logger.info(
                     "Differ in the following lines (after sorting):"
                 )
@@ -510,105 +546,147 @@ class PipewireTest:
 
     def _args_parsing(self, args=sys.argv[1:]):
         parser = argparse.ArgumentParser(
-                prog="Pipewire validator",
-                description="using for pipewire to valid system functions")
+            prog="Pipewire validator",
+            description="using for pipewire to valid system functions",
+        )
 
-        subparsers = parser.add_subparsers(dest='test_type')
+        subparsers = parser.add_subparsers(dest="test_type")
         subparsers.required = True
 
         # Add parser for detecting audio/video function
         parser_detect = subparsers.add_parser(
-                'detect', help='Detect audio/video devices on this system')
+            "detect", help="Detect audio/video devices on this system"
+        )
         parser_detect.add_argument(
-                "-t", "--type", type=str, default="Audio",
-                help="device type such as Audio "
-                "or Video (default: %(default)s)"
-                )
+            "-t",
+            "--type",
+            type=str,
+            default="Audio",
+            help="device type such as Audio "
+            "or Video (default: %(default)s)",
+        )
         parser_detect.add_argument(
-                "-c", "--clazz", type=str, default="Sink",
-                help="device type such as Sink or "
-                "Source (default: %(default)s)"
-                )
+            "-c",
+            "--clazz",
+            type=str,
+            default="Sink",
+            help="device type such as Sink or "
+            "Source (default: %(default)s)",
+        )
 
         # Add parser for selecting audio/video function
         parser_select = subparsers.add_parser(
-                'select', help='Select audio/video devices on this system')
+            "select", help="Select audio/video devices on this system"
+        )
         parser_select.add_argument(
-                "-t", "--type", type=str, default="Audio",
-                help="device type such as Audio "
-                "or Video (default: %(default)s)"
-                )
+            "-t",
+            "--type",
+            type=str,
+            default="Audio",
+            help="device type such as Audio "
+            "or Video (default: %(default)s)",
+        )
         parser_select.add_argument(
-                "-c", "--clazz", type=str, default="Sink",
-                help="device type such as Sink or "
-                "Source (default: %(default)s)"
-                )
+            "-c",
+            "--clazz",
+            type=str,
+            default="Sink",
+            help="device type such as Sink or "
+            "Source (default: %(default)s)",
+        )
         parser_select.add_argument(
-                "-d", "--device", type=str, default="",
-                help="device type such as hdmi or "
-                "bluz (default: %(default)s)"
-                )
+            "-d",
+            "--device",
+            type=str,
+            default="",
+            help="device type such as hdmi or " "bluz (default: %(default)s)",
+        )
 
         # Add parser for gst pipeline function(Audio only)
         parser_gst = subparsers.add_parser(
-                'gst', help='Simple GStreamer pipeline player')
+            "gst", help="Simple GStreamer pipeline player"
+        )
         parser_gst.add_argument(
-                "PIPELINE",
-                help="Quoted GStreamer pipeline to launch")
+            "PIPELINE", help="Quoted GStreamer pipeline to launch"
+        )
         parser_gst.add_argument(
-                "-t", "--timeout", type=int, required=True,
-                help="Timeout for running the pipeline")
+            "-t",
+            "--timeout",
+            type=int,
+            required=True,
+            help="Timeout for running the pipeline",
+        )
         parser_gst.add_argument(
-                "-d", "--device", type=str,
-                help="Device to check for status")
+            "-d", "--device", type=str, help="Device to check for status"
+        )
 
         # Add parser for monitor function(Audio only)
         parser_monitor = subparsers.add_parser(
-                'monitor', help='Monitoring Audio active port changing')
+            "monitor", help="Monitoring Audio active port changing"
+        )
         parser_monitor.add_argument(
-                "-t", "--timeout", type=int, required=True,
-                help="Timeout after which the script fails")
+            "-t",
+            "--timeout",
+            type=int,
+            required=True,
+            help="Timeout after which the script fails",
+        )
         parser_monitor.add_argument(
-                "-m", "--mode", type=str,
-                help="Monitor either sinks or sources")
+            "-m", "--mode", type=str, help="Monitor either sinks or sources"
+        )
 
         # Add parser for go through function
         parser_through = subparsers.add_parser(
-                'through', help='Go through available ports for testing')
+            "through", help="Go through available ports for testing"
+        )
         parser_through.add_argument(
-                "-c", "--command", type=str, required=True,
-                help="command for testing")
+            "-c",
+            "--command",
+            type=str,
+            required=True,
+            help="command for testing",
+        )
         parser_through.add_argument(
-                "-m", "--mode", type=str,
-                help="Either sinks or sources")
+            "-m", "--mode", type=str, help="Either sinks or sources"
+        )
 
         # Add parser for show default device function
         parser_show = subparsers.add_parser(
-                'show', help='show the default device')
+            "show", help="show the default device"
+        )
         parser_show.add_argument(
-                "-t", "--type", type=str, required=True,
-                help="VIDEO or AUDIO")
+            "-t", "--type", type=str, required=True, help="VIDEO or AUDIO"
+        )
 
         # Add parser for compare wpctl status function
         parser_compare = subparsers.add_parser(
-                'compare_wpctl_status', help='compare wpctl status')
+            "compare_wpctl_status", help="compare wpctl status"
+        )
         parser_compare.add_argument(
-                "-s1", "--status_1", type=str, required=True,
-                help="path to first output of wpctl status")
+            "-s1",
+            "--status_1",
+            type=str,
+            required=True,
+            help="path to first output of wpctl status",
+        )
         parser_compare.add_argument(
-                "-s2", "--status_2", type=str, required=True,
-                help="path to second output of wpctl status")
+            "-s2",
+            "--status_2",
+            type=str,
+            required=True,
+            help="path to second output of wpctl status",
+        )
 
         return parser.parse_args(args)
 
     def function_select(self, args):
-        if args.test_type == 'detect':
+        if args.test_type == "detect":
             # detect_device("audio", "sink")
             return self.detect_device(args.type, args.clazz)
-        elif args.test_type == 'select':
+        elif args.test_type == "select":
             # select_device("audio", "sink", "hdmi")
             return self.select_device(args.type, args.clazz, args.device)
-        elif args.test_type == 'gst':
+        elif args.test_type == "gst":
             # gst_pipeline(PIPELINE, "30", "hdmi")
             return self.gst_pipeline(args.PIPELINE, args.timeout, args.device)
         elif args.test_type == "monitor":
@@ -629,7 +707,7 @@ if __name__ == "__main__":
     pw = PipewireTest()
 
     # create logger formatter
-    log_formatter = logging.Formatter(fmt='%(message)s')
+    log_formatter = logging.Formatter(fmt="%(message)s")
 
     # set log level
     pw.logger.setLevel(logging.INFO)

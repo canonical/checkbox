@@ -30,7 +30,7 @@ class ParseInvocation:
     Invocation of the 'parse' command
     """
 
-    def __init__(self, parser, encoding='UTF-8'):
+    def __init__(self, parser, encoding="UTF-8"):
         self.parser = parser
         self.encoding = encoding
 
@@ -39,9 +39,11 @@ class ParseInvocation:
         # stdin unfortunately has when piped to. Using the embedded 'buffer'
         # attribute of sys.stdin we can construct a TextIOWrapper with
         # different, arbitrary encoding.
-        if (isinstance(sys.stdin, io.TextIOWrapper)
-                and sys.stdin.encoding != self.encoding):
-            with io.TextIOWrapper(sys.stdin.buffer, encoding='UTF-8') as stdin:
+        if (
+            isinstance(sys.stdin, io.TextIOWrapper)
+            and sys.stdin.encoding != self.encoding
+        ):
+            with io.TextIOWrapper(sys.stdin.buffer, encoding="UTF-8") as stdin:
                 text = self._do_read(stdin)
         else:
             text = self._do_read(sys.stdin)
@@ -61,6 +63,8 @@ class ParseInvocation:
         try:
             return stream.read()
         except UnicodeEncodeError:
-            print(_("Unable to decode input stream, must be valid UTF-8"),
-                  file=sys.stderr)
+            print(
+                _("Unable to decode input stream, must be valid UTF-8"),
+                file=sys.stderr,
+            )
             return None

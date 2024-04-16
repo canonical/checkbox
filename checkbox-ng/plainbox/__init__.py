@@ -36,19 +36,21 @@ try:
     __version__ = version("checkbox-ng")
 except PackageNotFoundError:
     import logging
-    logging.error('Failed to retrieve checkbox-ng version')
-    __version__ = 'unknown'
+
+    logging.error("Failed to retrieve checkbox-ng version")
+    __version__ = "unknown"
 
 
 def get_version_string():
     import os
-    version_string = ''
-    if os.environ.get('SNAP_NAME'):
-        version_string = '{} {} ({})'.format(
-            os.environ['SNAP_NAME'],
-            os.environ.get('SNAP_VERSION', 'unknown_version'),
-            os.environ.get('SNAP_REVISION', 'unknown_revision')
+
+    version_string = ""
+    if os.environ.get("SNAP_NAME"):
+        version_string = "{} {} ({})".format(
+            os.environ["SNAP_NAME"],
+            os.environ.get("SNAP_VERSION", "unknown_version"),
+            os.environ.get("SNAP_REVISION", "unknown_revision"),
         )
     else:
-        version_string = '{} {}'.format('Checkbox', __version__)
+        version_string = "{} {}".format("Checkbox", __version__)
     return version_string

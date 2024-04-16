@@ -72,21 +72,21 @@ TPM2_ALG_ECB = 0x0044
 # TPM2_ALG_SYMCIPHER
 
 TPM2_CAP = {
-    'assymetric': set(),
-    'symmetric': set(),
-    'hash': set(),
-    'keyed_hash': set(),
-    'mask_generation_functions': set(),
-    'signature_schemes': set(),
-    'assymetric_encryption_scheme': set(),
-    'key_derivation_functions': set(),
-    'aes_modes': set(),
-    'pcr_banks': set(),
+    "assymetric": set(),
+    "symmetric": set(),
+    "hash": set(),
+    "keyed_hash": set(),
+    "mask_generation_functions": set(),
+    "signature_schemes": set(),
+    "assymetric_encryption_scheme": set(),
+    "key_derivation_functions": set(),
+    "aes_modes": set(),
+    "pcr_banks": set(),
 }
 
 try:
-    algs_caps = subprocess.check_output(['tpm2_getcap', 'algorithms'])
-    pcrs_caps = subprocess.check_output(['tpm2_getcap', 'pcrs'])
+    algs_caps = subprocess.check_output(["tpm2_getcap", "algorithms"])
+    pcrs_caps = subprocess.check_output(["tpm2_getcap", "pcrs"])
 except (subprocess.CalledProcessError, FileNotFoundError):
     raise SystemExit(
         "Please make sure you have installed tpm-tools and tpm chip."
@@ -98,111 +98,136 @@ pcrs_list = yaml.load(pcrs_caps, Loader=yaml.FullLoader)
 
 for alg, prop in algs_list.items():
     # Assymetric
-    if prop['value'] in (TPM2_ALG_RSA, TPM2_ALG_ECC):
-        TPM2_CAP['assymetric'].add(alg)
+    if prop["value"] in (TPM2_ALG_RSA, TPM2_ALG_ECC):
+        TPM2_CAP["assymetric"].add(alg)
 
     # Symmetric
-    if prop['value'] in (
-        TPM2_ALG_TDES, TPM2_ALG_AES, TPM2_ALG_CAMELLIA, TPM2_ALG_SYMCIPHER
+    if prop["value"] in (
+        TPM2_ALG_TDES,
+        TPM2_ALG_AES,
+        TPM2_ALG_CAMELLIA,
+        TPM2_ALG_SYMCIPHER,
     ):
-        TPM2_CAP['symmetric'].add(alg)
+        TPM2_CAP["symmetric"].add(alg)
 
     # Hash
-    if prop['value'] in (
-        TPM2_ALG_SHA1, TPM2_ALG_SHA256, TPM2_ALG_SHA384, TPM2_ALG_SHA512,
-        TPM2_ALG_SM3_256, TPM2_ALG_SHA3_256, TPM2_ALG_SHA3_384,
-        TPM2_ALG_SHA3_512
+    if prop["value"] in (
+        TPM2_ALG_SHA1,
+        TPM2_ALG_SHA256,
+        TPM2_ALG_SHA384,
+        TPM2_ALG_SHA512,
+        TPM2_ALG_SM3_256,
+        TPM2_ALG_SHA3_256,
+        TPM2_ALG_SHA3_384,
+        TPM2_ALG_SHA3_512,
     ):
-        TPM2_CAP['hash'].add(alg)
+        TPM2_CAP["hash"].add(alg)
 
     # Keyed hash
-    if prop['value'] in (
-        TPM2_ALG_HMAC, TPM2_ALG_XOR, TPM2_ALG_CMAC, TPM2_ALG_KEYEDHASH
+    if prop["value"] in (
+        TPM2_ALG_HMAC,
+        TPM2_ALG_XOR,
+        TPM2_ALG_CMAC,
+        TPM2_ALG_KEYEDHASH,
     ):
-        TPM2_CAP['keyed_hash'].add(alg)
+        TPM2_CAP["keyed_hash"].add(alg)
 
     # Mask Generation Functions
-    if prop['value'] in (TPM2_ALG_MGF1,):
-        TPM2_CAP['mask_generation_functions'].add(alg)
+    if prop["value"] in (TPM2_ALG_MGF1,):
+        TPM2_CAP["mask_generation_functions"].add(alg)
 
     # Signature Schemes
-    if prop['value'] in (
-        TPM2_ALG_RSASSA, TPM2_ALG_RSAPSS, TPM2_ALG_ECDSA, TPM2_ALG_ECDAA,
-        TPM2_ALG_ECSCHNORR, TPM2_ALG_SM2, TPM2_ALG_SM4
+    if prop["value"] in (
+        TPM2_ALG_RSASSA,
+        TPM2_ALG_RSAPSS,
+        TPM2_ALG_ECDSA,
+        TPM2_ALG_ECDAA,
+        TPM2_ALG_ECSCHNORR,
+        TPM2_ALG_SM2,
+        TPM2_ALG_SM4,
     ):
-        TPM2_CAP['signature_schemes'].add(alg)
+        TPM2_CAP["signature_schemes"].add(alg)
 
     # Assymetric Encryption Scheme
-    if prop['value'] in (TPM2_ALG_OAEP, TPM2_ALG_RSAES, TPM2_ALG_ECDH):
-        TPM2_CAP['assymetric_encryption_scheme'].add(alg)
+    if prop["value"] in (TPM2_ALG_OAEP, TPM2_ALG_RSAES, TPM2_ALG_ECDH):
+        TPM2_CAP["assymetric_encryption_scheme"].add(alg)
 
     # Key derivation functions
-    if prop['value'] in (
-        TPM2_ALG_KDF1_SP800_56A, TPM2_ALG_KDF2, TPM2_ALG_KDF1_SP800_108,
-        TPM2_ALG_ECMQV
+    if prop["value"] in (
+        TPM2_ALG_KDF1_SP800_56A,
+        TPM2_ALG_KDF2,
+        TPM2_ALG_KDF1_SP800_108,
+        TPM2_ALG_ECMQV,
     ):
-        TPM2_CAP['key_derivation_functions'].add(alg)
+        TPM2_CAP["key_derivation_functions"].add(alg)
 
     # AES Modes
-    if prop['value'] in (
-        TPM2_ALG_CTR, TPM2_ALG_OFB, TPM2_ALG_CBC, TPM2_ALG_CFB, TPM2_ALG_ECB
+    if prop["value"] in (
+        TPM2_ALG_CTR,
+        TPM2_ALG_OFB,
+        TPM2_ALG_CBC,
+        TPM2_ALG_CFB,
+        TPM2_ALG_ECB,
     ):
-        TPM2_CAP['aes_modes'].add(alg)
+        TPM2_CAP["aes_modes"].add(alg)
 
-if 'aes' in TPM2_CAP['symmetric']:
-    for alg_type in ('aes', 'aes128', 'aes192', 'aes256'):
+if "aes" in TPM2_CAP["symmetric"]:
+    for alg_type in ("aes", "aes128", "aes192", "aes256"):
         try:
             subprocess.check_call(
-                ['tpm2_testparms', alg_type], stderr=subprocess.DEVNULL)
-            TPM2_CAP['symmetric'].add(alg_type)
+                ["tpm2_testparms", alg_type], stderr=subprocess.DEVNULL
+            )
+            TPM2_CAP["symmetric"].add(alg_type)
         except subprocess.CalledProcessError:
             try:
-                TPM2_CAP['symmetric'].remove(alg_type)
+                TPM2_CAP["symmetric"].remove(alg_type)
             except KeyError:
                 pass
 
-if 'ecc' in TPM2_CAP['assymetric']:
-    for alg_type in ('ecc', 'ecc192', 'ecc224', 'ecc256', 'ecc384', 'ecc521'):
+if "ecc" in TPM2_CAP["assymetric"]:
+    for alg_type in ("ecc", "ecc192", "ecc224", "ecc256", "ecc384", "ecc521"):
         try:
             subprocess.check_call(
-                ['tpm2_testparms', alg_type], stderr=subprocess.DEVNULL)
-            TPM2_CAP['assymetric'].add(alg_type)
+                ["tpm2_testparms", alg_type], stderr=subprocess.DEVNULL
+            )
+            TPM2_CAP["assymetric"].add(alg_type)
         except subprocess.CalledProcessError:
             try:
-                TPM2_CAP['assymetric'].remove(alg_type)
+                TPM2_CAP["assymetric"].remove(alg_type)
             except KeyError:
                 pass
 
-if 'rsa' in TPM2_CAP['assymetric']:
-    for alg_type in ('rsa', 'rsa1024', 'rsa2048', 'rsa4096'):
+if "rsa" in TPM2_CAP["assymetric"]:
+    for alg_type in ("rsa", "rsa1024", "rsa2048", "rsa4096"):
         try:
             subprocess.check_call(
-                ['tpm2_testparms', alg_type], stderr=subprocess.DEVNULL)
-            TPM2_CAP['assymetric'].add(alg_type)
+                ["tpm2_testparms", alg_type], stderr=subprocess.DEVNULL
+            )
+            TPM2_CAP["assymetric"].add(alg_type)
         except subprocess.CalledProcessError:
             try:
-                TPM2_CAP['assymetric'].remove(alg_type)
+                TPM2_CAP["assymetric"].remove(alg_type)
             except KeyError:
                 pass
 
-for pcr in pcrs_list['selected-pcrs']:
+for pcr in pcrs_list["selected-pcrs"]:
     for pcr_bank, pcr_ids in pcr.items():
         if set(range(24)).issubset(set(pcr_ids)):
-            TPM2_CAP['pcr_banks'].add(pcr_bank)
+            TPM2_CAP["pcr_banks"].add(pcr_bank)
 
 if len(sys.argv) == 1:
     # with no args print as resource unit
     for k, v in TPM2_CAP.items():
-        print("{}: {}".format(k, ' '.join(sorted(v))))
+        print("{}: {}".format(k, " ".join(sorted(v))))
     sys.exit(0)
 
 if len(sys.argv) != 3:
-    raise SystemExit('ERROR: use [capability] [supported-values] to test')
+    raise SystemExit("ERROR: use [capability] [supported-values] to test")
 
 try:
     if sys.argv[2] in TPM2_CAP[sys.argv[1]]:
-        print('{} supports {}'.format(*sys.argv[-2:]))
+        print("{} supports {}".format(*sys.argv[-2:]))
     else:
-        raise SystemExit('{} does not support {}'.format(*sys.argv[-2:]))
+        raise SystemExit("{} does not support {}".format(*sys.argv[-2:]))
 except KeyError:
     raise SystemExit('Unknown capability "{}"'.format(sys.argv[1]))

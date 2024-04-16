@@ -57,10 +57,12 @@ class ActionUI:
     def run(self):
         long_hint = "\n".join(
             "  {accel} => {label}".format(
-                accel=self.C.BLUE(action.accel) if action.accel else ' ',
-                label=action.label)
-            for action in self.action_list)
-        short_hint = ''.join(action.accel for action in self.action_list)
+                accel=self.C.BLUE(action.accel) if action.accel else " ",
+                label=action.label,
+            )
+            for action in self.action_list
+        )
+        short_hint = "".join(action.accel for action in self.action_list)
         while True:
             try:
                 print(self.C.BLUE(self.prompt))
@@ -127,10 +129,7 @@ class SilentUI(IJobRunnerUI):
 
 class NormalUI(IJobRunnerUI):
 
-    STREAM_MAP = {
-        'stdout': sys.stdout,
-        'stderr': sys.stderr
-    }
+    STREAM_MAP = {"stdout": sys.stdout, "stderr": sys.stderr}
 
     def __init__(self, color, show_cmd_output=True):
         self.show_cmd_output = show_cmd_output
@@ -138,7 +137,7 @@ class NormalUI(IJobRunnerUI):
         self._color = color
 
     def considering_job(self, job, job_state):
-        print(self.C.header(job.tr_summary(), fill='-'))
+        print(self.C.header(job.tr_summary(), fill="-"))
         print(_("ID: {0}").format(job.id))
         print(_("Category: {0}").format(job_state.effective_category_id))
 
@@ -146,19 +145,21 @@ class NormalUI(IJobRunnerUI):
         pass
 
     def wait_for_interaction_prompt(self, job):
-        return self.pick_action_cmd([
-            Action('', _("press ENTER to continue"), 'run'),
-            Action('c', _('add a comment'), 'comment'),
-            Action('s', _("skip this job"), 'skip'),
-            Action('q', _("save the session and quit"), 'quit')
-        ])
+        return self.pick_action_cmd(
+            [
+                Action("", _("press ENTER to continue"), "run"),
+                Action("c", _("add a comment"), "comment"),
+                Action("s", _("skip this job"), "skip"),
+                Action("q", _("save the session and quit"), "quit"),
+            ]
+        )
 
     def started_running(self, job, job_state):
         pass
 
     def about_to_execute_program(self, args, kwargs):
         if self.show_cmd_output:
-            print(self.C.BLACK("... 8< -".ljust(80, '-')))
+            print(self.C.BLACK("... 8< -".ljust(80, "-")))
         else:
             print(self.C.BLACK("(" + _("Command output hidden") + ")"))
 
@@ -166,17 +167,12 @@ class NormalUI(IJobRunnerUI):
         if not self.show_cmd_output:
             return
         stream = self.STREAM_MAP[stream_name]
-        stream = {
-            'stdout': sys.stdout,
-            'stderr': sys.stderr
-        }[stream_name]
+        stream = {"stdout": sys.stdout, "stderr": sys.stderr}[stream_name]
         try:
-            if stream_name == 'stdout':
-                print(self.C.GREEN(line.decode("UTF-8")),
-                      end='', file=stream)
-            elif stream_name == 'stderr':
-                print(self.C.RED(line.decode("UTF-8")),
-                      end='', file=stream)
+            if stream_name == "stdout":
+                print(self.C.GREEN(line.decode("UTF-8")), end="", file=stream)
+            elif stream_name == "stderr":
+                print(self.C.RED(line.decode("UTF-8")), end="", file=stream)
         except UnicodeDecodeError:
             self.show_cmd_output = False
             print(self.C.BLACK("(" + _("Hiding binary test output") + ")"))
@@ -184,7 +180,7 @@ class NormalUI(IJobRunnerUI):
 
     def finished_executing_program(self, returncode):
         if self.show_cmd_output:
-            print(self.C.BLACK("- >8 ---".rjust(80, '-')))
+            print(self.C.BLACK("- >8 ---".rjust(80, "-")))
 
     def finished_running(self, job, state, result):
         pass
@@ -231,8 +227,11 @@ class NormalUI(IJobRunnerUI):
         return ActionUI(action_list, prompt, self._color).run()
 
     def noreturn_job(self):
-        print(self.C.RED(_("Waiting for the system to shut down or"
-                           " reboot...")))
+        print(
+            self.C.RED(
+                _("Waiting for the system to shut down or" " reboot...")
+            )
+        )
 
 
 class ReRunJob(Exception):
@@ -243,6 +242,6 @@ class ReRunJob(Exception):
 
 
 def seconds_to_human_duration(seconds: float) -> str:
-    """ Convert ammount of seconds to human readable duration string. """
+    """Convert ammount of seconds to human readable duration string."""
     delta = datetime.timedelta(seconds=round(seconds))
     return str(delta)

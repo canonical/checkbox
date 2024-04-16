@@ -45,13 +45,14 @@ blacklist my-module  # And a module blacklist. BTW, inline comments are
 """
 
 
-class ModprobeResult():
+class ModprobeResult:
 
     def __init__(self):
         self.mod_options = {}
 
     def addModprobeInfo(self, module, options):
         self.mod_options[module] = options
+
 
 class TestModprobeParser(TestCase):
 
@@ -66,7 +67,7 @@ class TestModprobeParser(TestCase):
         result = ModprobeResult()
         self.parser.run(result)
         self.assertIn("bogus_mod", result.mod_options)
-        self.assertEqual(result.mod_options['bogus_mod'], "param=1")
+        self.assertEqual(result.mod_options["bogus_mod"], "param=1")
 
     def test_nice_input(self):
         """
@@ -102,8 +103,11 @@ class TestModprobeParser(TestCase):
         # Ensure each expected param appears, but only once
         # since the parser should squash dupes
         for param in ["param=1", "setting=pakistan"]:
-            self.assertEqual(1, result.mod_options['bogus_mod'].count(param),
-                    result.mod_options['bogus_mod'])
+            self.assertEqual(
+                1,
+                result.mod_options["bogus_mod"].count(param),
+                result.mod_options["bogus_mod"],
+            )
 
     def _multiple_modules(self, data):
         """
@@ -119,4 +123,4 @@ class TestModprobeParser(TestCase):
         self.parser.run(result)
         self.assertIn("bogus_mod", result.mod_options)
         self.assertIn("phony_mod", result.mod_options)
-        self.assertEqual(result.mod_options['phony_mod'], "chop=450")
+        self.assertEqual(result.mod_options["phony_mod"], "chop=450")

@@ -1,0 +1,36 @@
+name: checkbox-ce-oem daily builds
+
+on:
+  schedule:
+    - cron: '00 21 * * *'
+  workflow_dispatch:
+
+jobs:
+  check_for_commits:
+    runs-on: [self-hosted, linux, jammy, large]
+    name: Check for commits
+    outputs:
+      new_commit_count: ${{ steps.commit_check.outputs.new_commit_count }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Check for commits
+        id: commit_check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # get the last daily build that passed by
+          # 1. getting all workflows that are daily builds (path == ...)
+          # 2. removing those that did not result in success
+          # 3. selecting the date/time they started at (format: %Y-%m-%dT%H:%M:%sZ)
+          # 4. removing the Z postfix from the date to make it usable by git directly
+          export LAST_PASS_DAILY_BUILD=`gh api repos/canonical/checkbox/actions/runs --paginate --jq '.workflow_runs[] | select(.path == ".github/workflows/checkbox-ce-oem-daily-build.yml") | select(.conclusion == "success") | .run_started_at | .[:-1]' | head -1`
+          commit_count=$(git log --since="$LAST_PASS_DAILY_BUILD" --oneline -- contrib/checkbox-ce-oem | wc -l)
+          echo "new_commit_count=$commit_count" | tee $GITHUB_OUTPUT
+
+  checkbox-ce-oem-snap-daily:
+    needs: check_for_commits
+    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
+    uses: ./.github/workflows/checkbox-ce-oem-edge-builds.yml
+    secrets: inherit

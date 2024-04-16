@@ -24,36 +24,37 @@ from checkbox_support.lib.conversion import string_to_type
 # http://www.dmtf.org/standards/smbios.
 class Dmi:
     chassis = (
-        ("Undefined",             "unknown"),  # 0x00
-        ("Other",                 "unknown"),
-        ("Unknown",               "unknown"),
-        ("Desktop",               "desktop"),
-        ("Low Profile Desktop",   "desktop"),
-        ("Pizza Box",             "server"),
-        ("Mini Tower",            "desktop"),
-        ("Tower",                 "desktop"),
-        ("Portable",              "laptop"),
-        ("Laptop",                "laptop"),
-        ("Notebook",              "laptop"),
-        ("Hand Held",             "handheld"),
-        ("Docking Station",       "laptop"),
-        ("All In One",            "unknown"),
-        ("Sub Notebook",          "laptop"),
-        ("Space-saving",          "desktop"),
-        ("Lunch Box",             "unknown"),
-        ("Main Server Chassis",   "server"),
-        ("Expansion Chassis",     "unknown"),
-        ("Sub Chassis",           "unknown"),
+        ("Undefined", "unknown"),  # 0x00
+        ("Other", "unknown"),
+        ("Unknown", "unknown"),
+        ("Desktop", "desktop"),
+        ("Low Profile Desktop", "desktop"),
+        ("Pizza Box", "server"),
+        ("Mini Tower", "desktop"),
+        ("Tower", "desktop"),
+        ("Portable", "laptop"),
+        ("Laptop", "laptop"),
+        ("Notebook", "laptop"),
+        ("Hand Held", "handheld"),
+        ("Docking Station", "laptop"),
+        ("All In One", "unknown"),
+        ("Sub Notebook", "laptop"),
+        ("Space-saving", "desktop"),
+        ("Lunch Box", "unknown"),
+        ("Main Server Chassis", "server"),
+        ("Expansion Chassis", "unknown"),
+        ("Sub Chassis", "unknown"),
         ("Bus Expansion Chassis", "unknown"),
-        ("Peripheral Chassis",    "unknown"),
-        ("RAID Chassis",          "unknown"),
-        ("Rack Mount Chassis",    "unknown"),
-        ("Sealed-case PC",        "unknown"),
-        ("Multi-system",          "unknown"),
-        ("CompactPCI",            "unknonw"),
-        ("AdvancedTCA",           "unknown"),
-        ("Blade",                 "server"),
-        ("Blade Enclosure",       "unknown"))
+        ("Peripheral Chassis", "unknown"),
+        ("RAID Chassis", "unknown"),
+        ("Rack Mount Chassis", "unknown"),
+        ("Sealed-case PC", "unknown"),
+        ("Multi-system", "unknown"),
+        ("CompactPCI", "unknonw"),
+        ("AdvancedTCA", "unknown"),
+        ("Blade", "server"),
+        ("Blade Enclosure", "unknown"),
+    )
 
     chassis_names = tuple(c[0] for c in chassis)
     chassis_types = tuple(c[1] for c in chassis)
@@ -100,7 +101,7 @@ class Dmi:
         "Memory Channel",
         "IPMI Device",
         "Power Supply",
-        )
+    )
 
 
 class DmiDevice:
@@ -125,7 +126,7 @@ class DmiDevice:
         "Uknown",
         "Unknow",
         "xxxxxxxxxxxxxx",
-        )
+    )
     _vendor_blacklist = (
         "<BAD INDEX>",
         "Not Available",
@@ -139,7 +140,7 @@ class DmiDevice:
         "To Be Filled By O.E.M. by More String",
         "Unknow",  # XXX This is correct mispelling
         "Unknown",
-        )
+    )
     _serial_blacklist = (
         "0",
         "00000000",
@@ -167,7 +168,7 @@ class DmiDevice:
         "System Version",
         "Unknown",
         "x.x",
-        )
+    )
 
     def __init__(self, attributes, category):
         self._attributes = attributes
@@ -262,5 +263,9 @@ class DmiDevice:
         but with the prefix ("self.category.lower()_") removed.
         """
         # Note a dict comprehension is not used out of fear of python 2.x.
-        return dict([(k.replace("%s_" % self.category.lower(), "", 1), v)
-                    for k, v in self._attributes.items()])
+        return dict(
+            [
+                (k.replace("%s_" % self.category.lower(), "", 1), v)
+                for k, v in self._attributes.items()
+            ]
+        )

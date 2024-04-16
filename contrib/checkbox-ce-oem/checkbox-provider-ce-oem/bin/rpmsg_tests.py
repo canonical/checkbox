@@ -178,8 +178,9 @@ def pingpong_test(cpu_type):
     try:
         subprocess.run(
             "lsmod | grep {} && modprobe -r {}".format(
-                kernel_module, kernel_module),
-            shell=True
+                kernel_module, kernel_module
+            ),
+            shell=True,
         )
     except subprocess.CalledProcessError:
         pass
@@ -229,7 +230,9 @@ def pingpong_test(cpu_type):
     if len(pingpong_events) != expected_count:
         logging.info(
             "ping-pong count is not match. expected %s, actual: %s",
-            expected_count, len(pingpong_events))
+            expected_count,
+            len(pingpong_events),
+        )
         raise SystemExit("The ping-pong message is not match.")
     else:
         logging.info("ping-pong logs count is match")
@@ -313,11 +316,13 @@ def serial_tty_test(cpu_type, data_size):
 
 
 def main():
-    parser = argparse.ArgumentParser(description='RPMSG related test')
-    parser.add_argument('--type',
-                        help='RPMSG tests',
-                        required=True,
-                        choices=["detect", "pingpong", "serial-tty"])
+    parser = argparse.ArgumentParser(description="RPMSG related test")
+    parser.add_argument(
+        "--type",
+        help="RPMSG tests",
+        required=True,
+        choices=["detect", "pingpong", "serial-tty"],
+    )
     args = parser.parse_args()
     init_logger()
 

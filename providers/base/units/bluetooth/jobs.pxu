@@ -423,9 +423,10 @@ category_id: com.canonical.plainbox::bluetooth
 id: bluetooth/bluetooth_obex_send
 depends: bluetooth/detect-output
 estimated_duration: 10.0
+environ: BTDEVADDR PLAINBOX_PROVIDER_DATA
 requires:
- package.name == 'bluez'
- executable.name == 'obexftp'
+ package.name == 'bluez' or snap.name == 'bluez'
+ executable.name == 'obexftp' and executable.name == 'hcitool'
  device.category == 'BLUETOOTH'
 command:
   if [ -z "$BTDEVADDR" ]
@@ -436,7 +437,7 @@ command:
   for bt in $(echo "${BTDEVADDR}" | cut -d = -f 2 | sed s/,/\\n/g)
   do
     echo "Host:[${bt}]"
-    if echo 'u' | sudo -S l2ping -c 5 -t 5 "${bt}"
+    if hcitool inq | grep -q "${bt}"
         then
         echo "Get available BTDEVADDR:[${bt}]"
         set -o pipefail

@@ -29,17 +29,17 @@ from gi.repository import GObject
 logger = logging.getLogger(__file__)
 logger.addHandler(logging.StreamHandler())
 
-IFACE = 'org.bluez.Adapter1'
-ADAPTER_IFACE = 'org.bluez.Adapter1'
-DEVICE_IFACE = 'org.bluez.Device1'
-AGENT_IFACE = 'org.bluez.Agent1'
+IFACE = "org.bluez.Adapter1"
+ADAPTER_IFACE = "org.bluez.Adapter1"
+DEVICE_IFACE = "org.bluez.Device1"
+AGENT_IFACE = "org.bluez.Agent1"
 
 dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
 # To get additional Bluetoot CoDs, check
 # https://www.bluetooth.com/specifications/assigned-numbers/baseband
 BT_ANY = 0
-BT_KEYBOARD = int('0x2540', 16)
+BT_KEYBOARD = int("0x2540", 16)
 
 
 class BtException(Exception):
@@ -47,29 +47,31 @@ class BtException(Exception):
 
 
 class BtManager:
-    """ Main point of contact with dbus factoring bt objects. """
+    """Main point of contact with dbus factoring bt objects."""
+
     def __init__(self, verbose=False):
         if verbose:
             logger.setLevel(logging.DEBUG)
         self._bus = dbus.SystemBus()
-        self._bt_root = self._bus.get_object('org.bluez', '/')
+        self._bt_root = self._bus.get_object("org.bluez", "/")
         self._manager = dbus.Interface(
-            self._bt_root, 'org.freedesktop.DBus.ObjectManager')
+            self._bt_root, "org.freedesktop.DBus.ObjectManager"
+        )
         self._main_loop = GObject.MainLoop()
         self._register_agent()
 
     def _register_agent(self):
         path = "/bt_helper/agent"
         BtAgent(self._bus, path)
-        obj = self._bus.get_object('org.bluez', "/org/bluez")
+        obj = self._bus.get_object("org.bluez", "/org/bluez")
         agent_manager = dbus.Interface(obj, "org.bluez.AgentManager1")
-        agent_manager.RegisterAgent(path, 'NoInputNoOutput')
+        agent_manager.RegisterAgent(path, "NoInputNoOutput")
         logger.info("Agent registered")
 
     def _get_objects_by_iface(self, iface_name):
         for path, ifaces in self._manager.GetManagedObjects().items():
             if ifaces.get(iface_name):
-                yield self._bus.get_object('org.bluez', path)
+                yield self._bus.get_object("org.bluez", path)
 
     def get_bt_adapters(self):
         """Yield BtAdapter objects for each BT adapter found."""
@@ -92,7 +94,7 @@ class BtManager:
             obj = self.get_object_by_path(device.object_path)[DEVICE_IFACE]
             try:
                 if category != BT_ANY:
-                    if obj['Class'] != category:
+                    if obj["Class"] != category:
                         continue
                 rejected = False
                 for filter in filters:
@@ -103,19 +105,24 @@ class BtManager:
                     continue
                 yield BtDevice(dbus.Interface(device, DEVICE_IFACE), self)
             except KeyError as exc:
-                logger.info('Property %s not found on device %s',
-                            exc, device.object_path)
+                logger.info(
+                    "Property %s not found on device %s",
+                    exc,
+                    device.object_path,
+                )
                 continue
 
     def get_prop_iface(self, obj):
-        return dbus.Interface(self._bus.get_object(
-            'org.bluez', obj.object_path), 'org.freedesktop.DBus.Properties')
+        return dbus.Interface(
+            self._bus.get_object("org.bluez", obj.object_path),
+            "org.freedesktop.DBus.Properties",
+        )
 
     def get_object_by_path(self, path):
         return self._manager.GetManagedObjects()[path]
 
     def get_proxy_by_path(self, path):
-        return self._bus.get_object('org.bluez', path)
+        return self._bus.get_object("org.bluez", path)
 
     def wait(self):
         self._main_loop.run()
@@ -132,13 +139,15 @@ class BtManager:
         self._bus.add_signal_receiver(
             interfaces_added,
             dbus_interface="org.freedesktop.DBus.ObjectManager",
-            signal_name="InterfacesAdded")
+            signal_name="InterfacesAdded",
+        )
         self._bus.add_signal_receiver(
             properties_changed,
             dbus_interface="org.freedesktop.DBus.Properties",
             signal_name="PropertiesChanged",
             arg0="org.bluez.Device1",
-            path_keyword="path")
+            path_keyword="path",
+        )
         for adapter in self._get_objects_by_iface(ADAPTER_IFACE):
             try:
                 dbus.Interface(adapter, ADAPTER_IFACE).StopDiscovery()
@@ -171,25 +180,28 @@ class BtAdapter:
 
     def ensure_powered(self):
         """Turn the adapter on, and do nothing if already on."""
-        powered = self._prop_if.Get(IFACE, 'Powered')
-        logger.info('Powering on {}'.format(
-            self._if.object_path.split('/')[-1]))
+        powered = self._prop_if.Get(IFACE, "Powered")
+        logger.info(
+            "Powering on {}".format(self._if.object_path.split("/")[-1])
+        )
         if powered:
-            logger.info('Device already powered')
+            logger.info("Device already powered")
             return
         try:
-            self.set_bool_prop('Powered', True)
-            logger.info('Powered on')
+            self.set_bool_prop("Powered", True)
+            logger.info("Powered on")
         except Exception as exc:
-            logging.error('Failed to power on - {}'.format(
-                exc.get_dbus_message()))
+            logging.error(
+                "Failed to power on - {}".format(exc.get_dbus_message())
+            )
 
 
 class BtDevice:
     def __init__(self, dbus_iface, bt_mgr):
         self._if = dbus_iface
-        self._obj = bt_mgr.get_object_by_path(
-            self._if.object_path)[DEVICE_IFACE]
+        self._obj = bt_mgr.get_object_by_path(self._if.object_path)[
+            DEVICE_IFACE
+        ]
         self._bt_mgr = bt_mgr
         self._prop_if = bt_mgr.get_prop_iface(dbus_iface)
         self._pair_outcome = None
@@ -207,42 +219,44 @@ class BtDevice:
         is paired, error occured or default timeout elapsed (whichever comes
         first).
         """
-        self._prop_if.Set(DEVICE_IFACE, 'Trusted', True)
+        self._prop_if.Set(DEVICE_IFACE, "Trusted", True)
         self._if.Pair(
-            reply_handler=self._pair_ok, error_handler=self._pair_error)
+            reply_handler=self._pair_ok, error_handler=self._pair_error
+        )
         self._bt_mgr.wait()
         if self._pair_outcome:
             raise BtException(self._pair_outcome)
         try:
             self._if.Connect()
         except dbus.exceptions.DBusException as exc:
-            logging.error('Failed to connect - {}'.format(
-                exc.get_dbus_message()))
+            logging.error(
+                "Failed to connect - {}".format(exc.get_dbus_message())
+            )
 
     def unpair(self):
         self._if.Disconnect()
-        adapter = self._bt_mgr.get_proxy_by_path(self._obj['Adapter'])
+        adapter = self._bt_mgr.get_proxy_by_path(self._obj["Adapter"])
         dbus.Interface(adapter, ADAPTER_IFACE).RemoveDevice(self._if)
 
     @property
     def name(self):
-        return self._obj.get('Name', '<Unnamed>')
+        return self._obj.get("Name", "<Unnamed>")
 
     @property
     def address(self):
-        return self._obj['Address']
+        return self._obj["Address"]
 
     @property
     def rssi(self):
-        return self._obj.get('RSSI', None)
+        return self._obj.get("RSSI", None)
 
     def _pair_ok(self):
-        logger.info('%s successfully paired', self.name)
+        logger.info("%s successfully paired", self.name)
         self._pair_outcome = None
         self._bt_mgr.quit_loop()
 
     def _pair_error(self, error):
-        logger.warning('Pairing of %s device failed. %s', self.name, error)
+        logger.warning("Pairing of %s device failed. %s", self.name, error)
         self._pair_outcome = error
         self._bt_mgr.quit_loop()
 
@@ -253,6 +267,7 @@ class Rejected(dbus.DBusException):
 
 class BtAgent(dbus.service.Object):
     """Agent authenticating everything that is possible."""
+
     @dbus.service.method(AGENT_IFACE, in_signature="os", out_signature="")
     def AuthorizeService(self, device, uuid):
         logger.info("AuthorizeService (%s, %s)", device, uuid)
@@ -270,14 +285,21 @@ class BtAgent(dbus.service.Object):
 
     @dbus.service.method(AGENT_IFACE, in_signature="ouq", out_signature="")
     def DisplayPasskey(self, device, passkey, entered):
-        print("DisplayPasskey (%s, %06u entered %u)" %
-              (device, passkey, entered), flush=True)
+        print(
+            "DisplayPasskey (%s, %06u entered %u)"
+            % (device, passkey, entered),
+            flush=True,
+        )
 
     @dbus.service.method(AGENT_IFACE, in_signature="os", out_signature="")
     def DisplayPinCode(self, device, pincode):
         logger.info("DisplayPinCode (%s, %s)", device, pincode)
-        print('Type following pin on your device: {} and press ENTER'.format(
-            pincode), flush=True)
+        print(
+            "Type following pin on your device: {} and press ENTER".format(
+                pincode
+            ),
+            flush=True,
+        )
 
     @dbus.service.method(AGENT_IFACE, in_signature="ou", out_signature="")
     def RequestConfirmation(self, device, passkey):
@@ -293,8 +315,8 @@ class BtAgent(dbus.service.Object):
 
 
 def properties_changed(interface, changed, invalidated, path):
-    logger.info('Property changed for device @ %s. Change: %s', path, changed)
+    logger.info("Property changed for device @ %s. Change: %s", path, changed)
 
 
 def interfaces_added(path, interfaces):
-    logger.info('Added new bt interfaces: %s @ %s', interfaces, path)
+    logger.info("Added new bt interfaces: %s @ %s", interfaces, path)

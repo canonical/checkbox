@@ -7,7 +7,7 @@
 import re
 
 
-_find_unsafe = re.compile(r'[^\w@%+=:,./-]', re.ASCII).search
+_find_unsafe = re.compile(r"[^\w@%+=:,./-]", re.ASCII).search
 
 
 def quote(s):

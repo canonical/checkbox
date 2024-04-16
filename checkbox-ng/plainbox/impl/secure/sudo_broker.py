@@ -45,8 +45,10 @@ def is_passwordless_sudo():
         # to a normal user for jobs not requiring root, so let's see if sudo
         # actually works.
         try:
-            check_call(['sudo', '-A', '-k', 'true'], stdout=DEVNULL, stderr=DEVNULL)
-        except (SubprocessError, OSError)  as exc:
+            check_call(
+                ["sudo", "-A", "-k", "true"], stdout=DEVNULL, stderr=DEVNULL
+            )
+        except (SubprocessError, OSError) as exc:
             logger.error(_("Unable to run sudo %s"), exc)
             raise SystemExit(1)
         return True
@@ -56,15 +58,24 @@ def is_passwordless_sudo():
     # succeed. If the pass is required, it'll return 1 and not ask for pass,
     # as the askpass program is not provided
     try:
-        check_call(['sudo', '-A', '-k', 'true'], stdout=DEVNULL, stderr=DEVNULL)
+        check_call(
+            ["sudo", "-A", "-k", "true"], stdout=DEVNULL, stderr=DEVNULL
+        )
     except CalledProcessError:
         return False
     return True
 
 
 def validate_pass(password):
-    cmd = ['sudo', '--prompt=', '--reset-timestamp', '--stdin',
-           '--user', 'root', 'true']
+    cmd = [
+        "sudo",
+        "--prompt=",
+        "--reset-timestamp",
+        "--stdin",
+        "--user",
+        "root",
+        "true",
+    ]
     r, w = os.pipe()
     os.write(w, password + b"\n")
     os.close(w)
@@ -95,12 +106,13 @@ class SudoPasswordProvider:
             return self._sudo_password
         pass_is_correct = False
         while not pass_is_correct:
-            prompt = 'Enter sudo password:\n'
+            prompt = "Enter sudo password:\n"
             password = getpass.getpass(prompt).encode(sys.stdin.encoding)
             pass_is_correct = validate_pass(password)
             if not pass_is_correct:
-                print('Sorry, try again.')
+                print("Sorry, try again.")
         self._sudo_password = password
         return password
+
 
 sudo_password_provider = SudoPasswordProvider()

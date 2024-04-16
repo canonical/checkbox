@@ -19,7 +19,7 @@
 from enum import Enum, unique
 
 
-__all__ = ['WordScanner']
+__all__ = ["WordScanner"]
 
 
 class ScannerBase:
@@ -53,7 +53,7 @@ class ScannerBase:
             stack.append(state)
             state = self._next_state_for(state, char)
         if state is self.STATE_ERROR:
-            while (not state.is_accepting and state is not self.STATE_BAD):
+            while not state.is_accepting and state is not self.STATE_BAD:
                 state = stack.pop()
                 lexeme = lexeme[:-1]
                 self._rollback()
@@ -79,7 +79,7 @@ class ScannerBase:
         else:
             # NOTE: this solves a lot of problems
             self._pos = self._text_len + 1
-            return '\0'
+            return "\0"
 
     def _next_state_for(self, state, char):
         raise NotImplementedError
@@ -87,7 +87,8 @@ class ScannerBase:
 
 @unique
 class WordScannerToken(Enum):
-    """ Token kind produced by :class:`WordScanner` """
+    """Token kind produced by :class:`WordScanner`"""
+
     INVALID = -1
     EOF = 0
     WORD = 1
@@ -103,7 +104,8 @@ class WordScannerToken(Enum):
 
 @unique
 class WordScannerState(Enum):
-    """ State of the :class:`WordScanner` """
+    """State of the :class:`WordScanner`"""
+
     BAD = -1  # the bad state, used only once as a canary
     START = 0  # the initial state
     EOF = 1  # state for end-of-input
@@ -122,7 +124,7 @@ class WordScannerState(Enum):
         return self in WordScannerState._ACCEPTING
 
     def modify_lexeme(self, lexeme):
-        """ Get the value of a given lexeme """
+        """Get the value of a given lexeme"""
         if self is WordScannerState.QUOTED_WORD_END:
             return lexeme[1:-1]
         else:
@@ -130,16 +132,22 @@ class WordScannerState(Enum):
 
     @property
     def token(self):
-        """ Get the token corresponding to this state """
+        """Get the token corresponding to this state"""
         return WordScannerState._TOKEN_MAP.get(self, WordScannerToken.INVALID)
 
+
 # Inject some helper attributes into WordScannerState
-WordScannerState._ACCEPTING = frozenset([
-    WordScannerState.EOF, WordScannerState.BARE_WORD,
-    WordScannerState.QUOTED_WORD_END, WordScannerState.SPACE,
-    WordScannerState.COMMENT_END, WordScannerState.COMMA,
-    WordScannerState.EQUALS
-])
+WordScannerState._ACCEPTING = frozenset(
+    [
+        WordScannerState.EOF,
+        WordScannerState.BARE_WORD,
+        WordScannerState.QUOTED_WORD_END,
+        WordScannerState.SPACE,
+        WordScannerState.COMMENT_END,
+        WordScannerState.COMMA,
+        WordScannerState.EQUALS,
+    ]
+)
 WordScannerState._TOKEN_MAP = {
     WordScannerState.EOF: WordScannerToken.EOF,
     WordScannerState.BARE_WORD: WordScannerToken.WORD,
@@ -221,6 +229,7 @@ class WordScanner(ScannerBase):
         WORD   'v1, k2=v2'
 
     """
+
     STATE_ERROR = WordScannerState.ERROR
     STATE_START = WordScannerState.START
     STATE_BAD = WordScannerState.BAD
@@ -240,15 +249,15 @@ class WordScanner(ScannerBase):
         if state is WordScannerState.START:
             if char.isspace():
                 return WordScannerState.SPACE
-            elif char == '\0':
+            elif char == "\0":
                 return WordScannerState.EOF
-            elif char == '#':
+            elif char == "#":
                 return WordScannerState.COMMENT_INNER
             elif char == '"':
                 return WordScannerState.QUOTED_WORD_INNER
-            elif char == ',':
+            elif char == ",":
                 return WordScannerState.COMMA
-            elif char == '=':
+            elif char == "=":
                 return WordScannerState.EQUALS
             else:
                 return WordScannerState.BARE_WORD
@@ -256,23 +265,23 @@ class WordScanner(ScannerBase):
             if char.isspace():
                 return WordScannerState.SPACE
         elif state is WordScannerState.BARE_WORD:
-            if char.isspace() or char in '\0#,=':
+            if char.isspace() or char in "\0#,=":
                 return WordScannerState.ERROR
             else:
                 return WordScannerState.BARE_WORD
         elif state is WordScannerState.COMMENT_INNER:
-            if char == '\n' or char == '\0':
+            if char == "\n" or char == "\0":
                 return WordScannerState.COMMENT_END
             else:
                 return WordScannerState.COMMENT_INNER
         elif state is WordScannerState.QUOTED_WORD_INNER:
             if char == '"':
                 return WordScannerState.QUOTED_WORD_END
-            if char == '\x00':
+            if char == "\x00":
                 return WordScannerState.ERROR
             else:
                 return WordScannerState.QUOTED_WORD_INNER
-            if char.isspace() or char == '\0' or char == '#':
+            if char.isspace() or char == "\0" or char == "#":
                 return WordScannerState.ERROR
             else:
                 return WordScannerState.WORD

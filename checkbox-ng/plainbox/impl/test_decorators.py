@@ -34,39 +34,51 @@ class RaisesTests(unittest.TestCase):
         @raises(ValueError, IOError)
         def func():
             pass
-        self.assertEqual(
-            func.__annotations__['raise'], (ValueError, IOError))
+
+        self.assertEqual(func.__annotations__["raise"], (ValueError, IOError))
 
     def test_adds_annotation_to_methods(self):
         class C:
             @raises(ValueError, IOError)
             def meth(self):
                 pass
+
         self.assertEqual(
-            C.meth.__annotations__['raise'], (ValueError, IOError))
+            C.meth.__annotations__["raise"], (ValueError, IOError)
+        )
 
     @unittest.skipIf(
-        sys.version_info[0:2] < (3, 4), "assertLogs not supported")
+        sys.version_info[0:2] < (3, 4), "assertLogs not supported"
+    )
     def test_logs_and_forwards_unknown_exceptions(self):
         @raises(ValueError)
         def func():
             raise KeyError
-        with self.assertLogs('plainbox.bug', level='ERROR') as cm:
+
+        with self.assertLogs("plainbox.bug", level="ERROR") as cm:
             with self.assertRaises(KeyError):
                 func()
-        self.assertEqual(cm.output, [(
-            'ERROR:plainbox.bug:'
-            'Undeclared exception KeyError raised from func')])
+        self.assertEqual(
+            cm.output,
+            [
+                (
+                    "ERROR:plainbox.bug:"
+                    "Undeclared exception KeyError raised from func"
+                )
+            ],
+        )
 
     def test_forwards_known_exceptions(self):
         @raises(ValueError)
         def func():
             raise ValueError
+
         with self.assertRaises(ValueError):
             func()
 
     def test_enforces_documentation(self):
         with self.assertRaises(UndocumentedException):
+
             @raises(ValueError)
             def func():
                 """

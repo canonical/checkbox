@@ -44,9 +44,9 @@ logger = logging.getLogger("plainbox.secure.rfc822")
 def normalize_rfc822_value(value):
     # multi-line markers and consistent indentation happens only on multi-line
     # values, so let's run those operations only on multi-line values
-    if value.count('\n') > 1:
+    if value.count("\n") > 1:
         # Remove the multi-line dot marker
-        value = re.sub(r'^(\s*)\.$', '\\1', value, flags=re.M)
+        value = re.sub(r"^(\s*)\.$", "\\1", value, flags=re.M)
         # Remove consistent indentation
         value = textwrap.dedent(value)
     # Strip the remaining whitespace
@@ -70,8 +70,9 @@ class RFC822Record:
     file/stream where it was parsed from).
     """
 
-    def __init__(self, data, origin=None, raw_data=None,
-                 field_offset_map=None):
+    def __init__(
+        self, data, origin=None, raw_data=None, field_offset_map=None
+    ):
         """
         Initialize a new record.
 
@@ -97,7 +98,8 @@ class RFC822Record:
 
     def __repr__(self):
         return "<{} data:{!r} origin:{!r}>".format(
-            self.__class__.__name__, self._data, self._origin)
+            self.__class__.__name__, self._data, self._origin
+        )
 
     def __eq__(self, other):
         if isinstance(other, RFC822Record):
@@ -157,6 +159,7 @@ class RFC822Record:
         """
         Dump this record to a stream
         """
+
         def _dump_part(stream, key, values):
             stream.write("{}:\n".format(key))
             for value in values:
@@ -166,6 +169,7 @@ class RFC822Record:
                     stream.write(" ..\n")
                 else:
                     stream.write(" {}\n".format(value))
+
         for key, value in self.data.items():
             if isinstance(value, (list, tuple)):
                 _dump_part(stream, key, value)
@@ -191,18 +195,25 @@ class RFC822SyntaxError(SyntaxError):
 
     def __repr__(self):
         return "{}({!r}, {!r}, {!r})".format(
-            self.__class__.__name__, self.filename, self.lineno, self.msg)
+            self.__class__.__name__, self.filename, self.lineno, self.msg
+        )
 
     def __eq__(self, other):
         if isinstance(other, RFC822SyntaxError):
-            return ((self.filename, self.lineno, self.msg) ==
-                    (other.filename, other.lineno, other.msg))
+            return (self.filename, self.lineno, self.msg) == (
+                other.filename,
+                other.lineno,
+                other.msg,
+            )
         return NotImplemented
 
     def __ne__(self, other):
         if isinstance(other, RFC822SyntaxError):
-            return ((self.filename, self.lineno, self.msg) !=
-                    (other.filename, other.lineno, other.msg))
+            return (self.filename, self.lineno, self.msg) != (
+                other.filename,
+                other.lineno,
+                other.msg,
+            )
         return NotImplemented
 
     def __hash__(self):
@@ -307,7 +318,7 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
         """
         nonlocal key
         if key is not None:
-            raw_value = ''.join(value_list)
+            raw_value = "".join(value_list)
             normalized_value = normalize_rfc822_value(raw_value)
             record.raw_data[key] = raw_value
             record.data[key] = normalized_value
@@ -384,10 +395,12 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
             value = value.lstrip()
             # Check if the key already exist in this message
             if key in record.data:
-                raise _syntax_error(_(
-                    "Job has a duplicate key {!r} "
-                    "with old value {!r} and new value {!r}"
-                ).format(key, record.raw_data[key], value))
+                raise _syntax_error(
+                    _(
+                        "Job has a duplicate key {!r} "
+                        "with old value {!r} and new value {!r}"
+                    ).format(key, record.raw_data[key], value)
+                )
             if value.strip() != "":
                 # Construct initial value list out of the (only) value that we
                 # have so far. Additional multi-line values will just append to
@@ -411,7 +424,8 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
         # Treat all other lines as syntax errors
         else:
             raise _syntax_error(
-                _("Unexpected non-empty line: {!r}").format(line))
+                _("Unexpected non-empty line: {!r}").format(line)
+            )
     # Make sure to commit the last key from the record
     _commit_key_value_if_needed()
     # Once we've seen the whole file return the last record, if any

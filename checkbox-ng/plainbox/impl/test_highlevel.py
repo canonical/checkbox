@@ -24,17 +24,21 @@ from plainbox.impl.unit.template import TemplateUnit
 
 class TestExplorer(TestCase):
     def test_template_to_obj__without_template_id(self):
-        template = TemplateUnit({
-            "id": "id",
-        })
+        template = TemplateUnit(
+            {
+                "id": "id",
+            }
+        )
         explorer = Explorer()
         obj = explorer._template_to_obj(template)
         self.assertEqual(obj.name, "id")
 
     def test_template_to_obj__with_template_id(self):
-        template = TemplateUnit({
-            "template-id": "template-id",
-        })
+        template = TemplateUnit(
+            {
+                "template-id": "template-id",
+            }
+        )
         explorer = Explorer()
         obj = explorer._template_to_obj(template)
         self.assertEqual(obj.name, "template-id")

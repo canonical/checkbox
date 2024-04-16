@@ -33,16 +33,15 @@ import sys
 from glob import glob
 
 
-def get_color_depth(log_dir='/var/log/'):
-
-    '''Return color depth and pixmap format'''
+def get_color_depth(log_dir="/var/log/"):
+    """Return color depth and pixmap format"""
 
     # find the most recent X.org log
     depth = 8
     pixmap_format = 8
     log = None
     max_time = 0
-    for log in glob(os.path.join(log_dir, 'Xorg.*.log')):
+    for log in glob(os.path.join(log_dir, "Xorg.*.log")):
         mtime = os.stat(log).st_mtime
         if mtime > max_time:
             max_time = mtime
@@ -52,9 +51,10 @@ def get_color_depth(log_dir='/var/log/'):
         pixmap_format = 0
         return (depth, pixmap_format)
 
-    with open(current_log, 'rb') as stream:
-        for match in re.finditer(r'Depth (\d+) pixmap format is (\d+) bpp',
-                                 str(stream.read())):
+    with open(current_log, "rb") as stream:
+        for match in re.finditer(
+            r"Depth (\d+) pixmap format is (\d+) bpp", str(stream.read())
+        ):
             depth = int(match.group(1))
             pixmap_format = int(match.group(2))
 
@@ -62,16 +62,16 @@ def get_color_depth(log_dir='/var/log/'):
 
 
 def main():
-
-    '''main function'''
+    """main function"""
 
     depth, pixmap_format = get_color_depth()
-    print('Color Depth: {0}\nPixmap Format: {1} bpp'.format(depth,
-                                                            pixmap_format))
+    print(
+        "Color Depth: {0}\nPixmap Format: {1} bpp".format(depth, pixmap_format)
+    )
     if depth == 8:
         return 1
     return 0
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

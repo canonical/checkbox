@@ -103,7 +103,6 @@ class TestDmidecodeArtificialParser(TestCase, TestDmiMixin):
 
 
 class TestDmidecodeRealParser(TestCase):
-
     """
     Test class for real data.
 
@@ -142,15 +141,23 @@ class TestDmidecodeRealParser(TestCase):
         # Note that in here, we lose the "mapping several possible
         # DMI keys to a single well-known key" functionality, but it
         # makes it possible to access any item from dmi parsing.
-        expected_attrs = ['version', 'rom_size', 'vendor', 'firmware_revision',
-                          'release_date', 'address', 'bios_revision',
-                          'runtime_size']
-        self.assertEqual(sorted(expected_attrs),
-                         sorted(device.raw_attributes.keys()))
-        self.assertEqual(device.raw_attributes['firmware_revision'], "1.7")
-        self.assertEqual(device.raw_attributes['bios_revision'], "2.1")
-        self.assertEqual(device.raw_attributes['address'], "0xE0000")
-        self.assertEqual(device.raw_attributes['release_date'], "07/23/2013")
+        expected_attrs = [
+            "version",
+            "rom_size",
+            "vendor",
+            "firmware_revision",
+            "release_date",
+            "address",
+            "bios_revision",
+            "runtime_size",
+        ]
+        self.assertEqual(
+            sorted(expected_attrs), sorted(device.raw_attributes.keys())
+        )
+        self.assertEqual(device.raw_attributes["firmware_revision"], "1.7")
+        self.assertEqual(device.raw_attributes["bios_revision"], "2.1")
+        self.assertEqual(device.raw_attributes["address"], "0xE0000")
+        self.assertEqual(device.raw_attributes["release_date"], "07/23/2013")
 
     def test_system(self):
         """Test data, including raw attributes, from real SYSTEM dump."""
@@ -161,16 +168,18 @@ class TestDmidecodeRealParser(TestCase):
         self.assertEqual(device.vendor, "LENOVO")
         self.assertEqual(device.serial, "PF04B4D")
         self.assertEqual(device.sku, "LENOVO_MT_20AM")
-        self.assertEqual(device.raw_attributes['uuid'],
-                         "170AFF01-52A1-11CB-A7A6-EB7272884401")
+        self.assertEqual(
+            device.raw_attributes["uuid"],
+            "170AFF01-52A1-11CB-A7A6-EB7272884401",
+        )
 
 
 class TestLenovoSystemX(TestCase):
 
     def parse(self):
-        resource = 'parsers/tests/dmidecode_data/LENOVO_SYSTEMX.txt'
-        filename = resource_filename('checkbox_support', resource)
-        with open(filename, 'rt', encoding='UTF-8') as stream:
+        resource = "parsers/tests/dmidecode_data/LENOVO_SYSTEMX.txt"
+        filename = resource_filename("checkbox_support", resource)
+        with open(filename, "rt", encoding="UTF-8") as stream:
             parser = DmidecodeParser(stream)
             result = DmiResult()
             parser.run(result)
@@ -181,12 +190,13 @@ class TestLenovoSystemX(TestCase):
         dmi_device = result.getDevice("SYSTEM")
         self.assertTrue(dmi_device)
         correct_values = {
-            'vendor': 'LENOVO',
-            'name': 'System x3550 M5: -[5463AC1]-',
-            'version': '07',
-            'serial': '06EEEAR',
-            'uuid': '7b75005c-d029-11e4-9aa6-40f2e9b938a0',
-            'wake_up_type': 'Power Switch',
-            'sku': '(none)',
-            'family': 'System X'}
+            "vendor": "LENOVO",
+            "name": "System x3550 M5: -[5463AC1]-",
+            "version": "07",
+            "serial": "06EEEAR",
+            "uuid": "7b75005c-d029-11e4-9aa6-40f2e9b938a0",
+            "wake_up_type": "Power Switch",
+            "sku": "(none)",
+            "family": "System X",
+        }
         self.assertDictEqual(dmi_device.raw_attributes, correct_values)

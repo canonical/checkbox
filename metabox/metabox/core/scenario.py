@@ -101,7 +101,7 @@ class Scenario:
                 interactive = False
                 # CHECK if any EXPECT/SEND command follows
                 # w/o a new call to START before it
-                for next_step in self.steps[i + 1:]:
+                for next_step in self.steps[i + 1 :]:
                     if isinstance(next_step, Start):
                         break
                     if isinstance(next_step, (Expect, Send, SelectTestPlan)):
@@ -147,9 +147,7 @@ class Scenario:
         """
         regex = re.compile(pattern)
         if self._pts:
-            found = regex.search(
-                self._pts.stdout_data_full
-            )
+            found = regex.search(self._pts.stdout_data_full)
         else:
             found = regex.search(self._stdout) or regex.search(self._stderr)
         self._checks.append(not found)

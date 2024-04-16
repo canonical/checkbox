@@ -128,6 +128,7 @@ class DaemonNormalUserDoesntExist(Scenario):
         AssertPrinted("User 'testuser' doesn't exist!"),
     ]
 
+
 @tag("daemon", "agent", "normal_user")
 class NewNameForDaemonWorks(Scenario):
     modes = ["remote"]
@@ -150,6 +151,7 @@ class NewNameForDaemonWorks(Scenario):
         AssertPrinted("User 'testuser' doesn't exist!"),
     ]
 
+
 @tag("daemon", "agent", "normal_user")
 class DeprecatedDaemon(Scenario):
     modes = ["remote"]
@@ -169,6 +171,7 @@ class DeprecatedDaemon(Scenario):
     )
     steps = [
         Start(),
-        AssertPrinted("Config: daemon section name is deprecated. Use agent instead."),
+        AssertPrinted(
+            "Config: daemon section name is deprecated. Use agent instead."
+        ),
     ]
-

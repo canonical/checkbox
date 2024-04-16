@@ -28,7 +28,9 @@ class CheckboxConfEnvvarCaseSensitive(Scenario):
     """
     Check that environment variables are case sensitive
     """
-    launcher = textwrap.dedent("""
+
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -41,7 +43,8 @@ class CheckboxConfEnvvarCaseSensitive(Scenario):
         CASE = CASE
         Case = Case
         case = case
-        """)
+        """
+    )
     steps = [
         AssertPrinted("CASE"),
         AssertPrinted("Case"),
@@ -54,8 +57,10 @@ class CheckboxConfXDG(Scenario):
     Check that environment variables are read from the XDG directory when
     nothing else is available.
     """
+
     checkbox_conf = read_text(environment, "checkbox_etc_xdg.conf")
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -64,7 +69,8 @@ class CheckboxConfXDG(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """)
+        """
+    )
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf),
         Start(),
@@ -77,9 +83,11 @@ class CheckboxConfLocalHome(Scenario):
     Check that environment variables are read from the $HOME directory when
     nothing else is available.
     """
+
     modes = ["local"]
     checkbox_conf = read_text(environment, "checkbox_home_dir.conf")
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -88,7 +96,8 @@ class CheckboxConfLocalHome(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """)
+        """
+    )
     steps = [
         MkTree("/home/ubuntu/.config/"),
         Put("/home/ubuntu/.config/checkbox.conf", checkbox_conf),
@@ -102,9 +111,11 @@ class CheckboxConfRemoteHome(Scenario):
     Check that environment variables are read from the $HOME directory when
     nothing else is available.
     """
+
     modes = ["remote"]
     checkbox_conf = read_text(environment, "checkbox_home_dir.conf")
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -113,7 +124,8 @@ class CheckboxConfRemoteHome(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """)
+        """
+    )
     steps = [
         MkTree("/root/.config/", privileged=True),
         Put("/root/.config/checkbox.conf", checkbox_conf),
@@ -127,9 +139,11 @@ class CheckboxConfSnap(Scenario):
     Check that environment variables are read from the $SNAP_DATA directory when
     nothing else is available.
     """
+
     origins = ["snap", "classic-snap"]
     checkbox_conf = read_text(environment, "checkbox_snap_dir.conf")
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -138,7 +152,8 @@ class CheckboxConfSnap(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """)
+        """
+    )
     steps = [
         MkTree("/var/snap/checkbox/current/"),
         Put("/var/snap/checkbox/current/checkbox.conf", checkbox_conf),
@@ -152,7 +167,9 @@ class CheckboxConfLauncher(Scenario):
     Check that environment variables are read from the launcher when nothing
     else is available.
     """
-    launcher = textwrap.dedent("""
+
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -163,7 +180,8 @@ class CheckboxConfLauncher(Scenario):
         forced = yes
         [environment]
         source = LAUNCHER
-        """)
+        """
+    )
     steps = [
         AssertPrinted("source: LAUNCHER"),
     ]
@@ -174,10 +192,12 @@ class CheckboxConfLocalHomePrecedence(Scenario):
     Check that the environment variables defined in the ~/.config/ directory
     take precedence over the ones defined in /etc/xdg/.
     """
+
     modes = ["local"]
     checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
     checkbox_conf_home = read_text(environment, "checkbox_home_dir.conf")
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -186,7 +206,8 @@ class CheckboxConfLocalHomePrecedence(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        """)
+        """
+    )
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg),
         MkTree("/home/ubuntu/.config/"),
@@ -201,9 +222,11 @@ class CheckboxConfLauncherPrecedence(Scenario):
     Check that the environment variables defined in the launcher take precedence
     over the ones defined in /etc/xdg/.
     """
+
     modes = ["remote"]
     checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -214,7 +237,8 @@ class CheckboxConfLauncherPrecedence(Scenario):
         forced = yes
         [environment]
         source = REMOTE LAUNCHER
-        """)
+        """
+    )
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg),
         Start(),
@@ -238,10 +262,12 @@ class CheckboxConfLocalResolutionOrder(Scenario):
     var3 XDG
     --------------------->
     """
+
     modes = ["local"]
     checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
     checkbox_conf_home = read_text(environment, "checkbox_home_dir.conf")
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -252,7 +278,8 @@ class CheckboxConfLocalResolutionOrder(Scenario):
         forced = yes
         [environment]
         var1 = LAUNCHER
-        """)
+        """
+    )
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg),
         MkTree("/home/ubuntu/.config/"),
@@ -273,10 +300,12 @@ class CheckboxConfRemoteAgentResolutionOrder(Scenario):
     This scenario sets 3 environment variables in different config locations
     and checks the resolution order is as defined.
     """
+
     modes = ["remote"]
     checkbox_conf_xdg = read_text(environment, "checkbox_etc_xdg.conf")
     checkbox_conf_home = read_text(environment, "checkbox_home_dir.conf")
-    launcher = textwrap.dedent("""
+    launcher = textwrap.dedent(
+        """
         [launcher]
         launcher_version = 1
         stock_reports = text
@@ -292,9 +321,7 @@ class CheckboxConfRemoteAgentResolutionOrder(Scenario):
     steps = [
         Put("/etc/xdg/checkbox.conf", checkbox_conf_xdg, target="agent"),
         MkTree("/root/.config", privileged=True),
-        Put(
-            "/root/.config/checkbox.conf", checkbox_conf_home, target="agent"
-        ),
+        Put("/root/.config/checkbox.conf", checkbox_conf_home, target="agent"),
         Start(),
         AssertPrinted("variables: HOME LAUNCHER XDG"),
     ]

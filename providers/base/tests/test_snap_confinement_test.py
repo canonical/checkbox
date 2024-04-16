@@ -18,7 +18,7 @@ class TestSnapsConfinementVerifier(unittest.TestCase):
 
     def test_snap_in_allow_list_from_config_var(self):
         with patch.dict(
-            'os.environ', {"SNAP_CONFINEMENT_ALLOWLIST": "sp1, sp2"}
+            "os.environ", {"SNAP_CONFINEMENT_ALLOWLIST": "sp1, sp2"}
         ):
             verifier = SnapsConfinementVerifier()
             result = verifier._is_snap_in_allow_list("sp2")
@@ -73,25 +73,29 @@ class TestSnapsConfinementVerifier(unittest.TestCase):
         mock_snapd_list.return_value = []
         self.assertEqual(0, self.verifier.verify_snap())
 
-    @patch("snap_confinement_test.SnapsConfinementVerifier._extract_attributes_from_snap")   # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._extract_attributes_from_snap"
+    )  # noqa E501
     @patch("snap_confinement_test.Snapd.list")
     def test_verify_snap_fail_without_desired_attribute_in_a_snap(
-        self,
-        mock_snapd_list,
-        mock_extract_attributes_from_snap
+        self, mock_snapd_list, mock_extract_attributes_from_snap
     ):
         mock_snapd_list.return_value = [{"foo": "bar"}]
         mock_extract_attributes_from_snap.return_value = (True, {})
         self.assertEqual(1, self.verifier.verify_snap())
 
-    @patch("snap_confinement_test.SnapsConfinementVerifier._is_snap_in_allow_list")   # noqa E501
-    @patch("snap_confinement_test.SnapsConfinementVerifier._extract_attributes_from_snap")   # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._is_snap_in_allow_list"
+    )  # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._extract_attributes_from_snap"
+    )  # noqa E501
     @patch("snap_confinement_test.Snapd.list")
     def test_verify_snap_pass_if_snap_in_allow_list(
         self,
         mock_snapd_list,
         mock_extract_attributes_from_snap,
-        mock_is_snap_in_allow_list
+        mock_is_snap_in_allow_list,
     ):
         snap_info = {"name": "foo"}
         mock_snapd_list.return_value = [snap_info]
@@ -99,14 +103,25 @@ class TestSnapsConfinementVerifier(unittest.TestCase):
         mock_is_snap_in_allow_list.return_value = True
         result = self.verifier.verify_snap()
         mock_is_snap_in_allow_list.assert_called_once_with(
-            snap_info.get("name"))
+            snap_info.get("name")
+        )
         self.assertEqual(0, result)
 
-    @patch("snap_confinement_test.SnapsConfinementVerifier._is_snap_sideloaded_revision")   # noqa E501
-    @patch("snap_confinement_test.SnapsConfinementVerifier._is_snap_devmode")   # noqa E501
-    @patch("snap_confinement_test.SnapsConfinementVerifier._is_snap_confinement_not_strict")   # noqa E501
-    @patch("snap_confinement_test.SnapsConfinementVerifier._is_snap_in_allow_list")   # noqa E501
-    @patch("snap_confinement_test.SnapsConfinementVerifier._extract_attributes_from_snap")   # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._is_snap_sideloaded_revision"
+    )  # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._is_snap_devmode"
+    )  # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._is_snap_confinement_not_strict"
+    )  # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._is_snap_in_allow_list"
+    )  # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._extract_attributes_from_snap"
+    )  # noqa E501
     @patch("snap_confinement_test.Snapd.list")
     def test_verify_snap_success(
         self,
@@ -124,7 +139,7 @@ class TestSnapsConfinementVerifier(unittest.TestCase):
             "name": "foo-snap",
             "devmode": False,
             "confinement": "strict",
-            "revision": "999"
+            "revision": "999",
         }
         mock_snapd_list.return_value = [snap_info]
         mock_extract_attributes_from_snap.return_value = (False, snap_info)
@@ -138,20 +153,32 @@ class TestSnapsConfinementVerifier(unittest.TestCase):
             target_snap=snap_info
         )
         mock_is_snap_in_allow_list.assert_called_once_with(
-            snap_info.get("name"))
+            snap_info.get("name")
+        )
         mock_is_snap_confinement_not_strict.assert_called_once_with(
-            snap_info.get("confinement"))
-        mock_is_snap_devmode.assert_called_once_with(
-            snap_info.get("devmode"))
+            snap_info.get("confinement")
+        )
+        mock_is_snap_devmode.assert_called_once_with(snap_info.get("devmode"))
         mock_is_snap_sideloaded_revision.assert_called_once_with(
-            snap_info.get("revision"))
+            snap_info.get("revision")
+        )
         self.assertEqual(0, result)
 
-    @patch("snap_confinement_test.SnapsConfinementVerifier._is_snap_sideloaded_revision")   # noqa E501
-    @patch("snap_confinement_test.SnapsConfinementVerifier._is_snap_devmode")   # noqa E501
-    @patch("snap_confinement_test.SnapsConfinementVerifier._is_snap_confinement_not_strict")   # noqa E501
-    @patch("snap_confinement_test.SnapsConfinementVerifier._is_snap_in_allow_list")   # noqa E501
-    @patch("snap_confinement_test.SnapsConfinementVerifier._extract_attributes_from_snap")   # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._is_snap_sideloaded_revision"
+    )  # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._is_snap_devmode"
+    )  # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._is_snap_confinement_not_strict"
+    )  # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._is_snap_in_allow_list"
+    )  # noqa E501
+    @patch(
+        "snap_confinement_test.SnapsConfinementVerifier._extract_attributes_from_snap"
+    )  # noqa E501
     @patch("snap_confinement_test.Snapd.list")
     def test_verify_snap_fail_to_match_pass_criteria(
         self,
@@ -170,7 +197,7 @@ class TestSnapsConfinementVerifier(unittest.TestCase):
             "name": "foo-snap",
             "devmode": True,
             "confinement": "not-strict",
-            "revision": "999"
+            "revision": "999",
         }
         mock_snapd_list.return_value = [snap_info]
         mock_extract_attributes_from_snap.return_value = (False, snap_info)
@@ -183,43 +210,39 @@ class TestSnapsConfinementVerifier(unittest.TestCase):
             target_snap=snap_info
         )
         mock_is_snap_in_allow_list.assert_called_once_with(
-            snap_info.get("name"))
+            snap_info.get("name")
+        )
         mock_is_snap_confinement_not_strict.assert_called_once_with(
-            snap_info.get("confinement"))
-        mock_is_snap_devmode.assert_called_once_with(
-            snap_info.get("devmode"))
+            snap_info.get("confinement")
+        )
+        mock_is_snap_devmode.assert_called_once_with(snap_info.get("devmode"))
         mock_is_snap_sideloaded_revision.assert_called_once_with(
-            snap_info.get("revision"))
+            snap_info.get("revision")
+        )
         self.assertEqual(1, result)
 
 
 class TestMainFunction(unittest.TestCase):
-    @patch('snap_confinement_test.test_system_confinement')
-    @patch('snap_confinement_test.SnapsConfinementVerifier.verify_snap')
-    @patch('snap_confinement_test.argparse.ArgumentParser')
+    @patch("snap_confinement_test.test_system_confinement")
+    @patch("snap_confinement_test.SnapsConfinementVerifier.verify_snap")
+    @patch("snap_confinement_test.argparse.ArgumentParser")
     def test_main_execute_snaps_command(
-        self,
-        mock_arg_parser,
-        mock_verify_snap,
-        mock_test_system_confinement
+        self, mock_arg_parser, mock_verify_snap, mock_test_system_confinement
     ):
-        mock_args = MagicMock(subcommand='snaps')
+        mock_args = MagicMock(subcommand="snaps")
         mock_arg_parser.return_value.parse_args.return_value = mock_args
         result = main()
         mock_verify_snap.assert_called_once_with()
         mock_test_system_confinement.assert_not_called()
         self.assertEqual(result, mock_verify_snap.return_value)
 
-    @patch('snap_confinement_test.test_system_confinement')
-    @patch('snap_confinement_test.SnapsConfinementVerifier.verify_snap')
-    @patch('snap_confinement_test.argparse.ArgumentParser')
+    @patch("snap_confinement_test.test_system_confinement")
+    @patch("snap_confinement_test.SnapsConfinementVerifier.verify_snap")
+    @patch("snap_confinement_test.argparse.ArgumentParser")
     def test_main_execute_system_command(
-        self,
-        mock_arg_parser,
-        mock_verify_snap,
-        mock_test_system_confinement
+        self, mock_arg_parser, mock_verify_snap, mock_test_system_confinement
     ):
-        mock_args = MagicMock(subcommand='system')
+        mock_args = MagicMock(subcommand="system")
         mock_arg_parser.return_value.parse_args.return_value = mock_args
         result = main()
         mock_test_system_confinement.assert_called_once_with()
@@ -227,5 +250,5 @@ class TestMainFunction(unittest.TestCase):
         self.assertEqual(result, mock_test_system_confinement.return_value)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

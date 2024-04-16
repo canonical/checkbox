@@ -38,8 +38,9 @@ def print_cmd(cmd):
 
 # Configuration file path
 if "SNAP_USER_DATA" in os.environ:
-    TMP_PATH = os.path.join(os.environ["SNAP_USER_DATA"],
-                            "WIFI-TEST-NETPLAN-CREATED-BY-CHECKBOX")
+    TMP_PATH = os.path.join(
+        os.environ["SNAP_USER_DATA"], "WIFI-TEST-NETPLAN-CREATED-BY-CHECKBOX"
+    )
 else:
     TMP_PATH = os.path.join("/tmp", "WIFI-TEST-NETPLAN-CREATED-BY-CHECKBOX")
 
@@ -54,9 +55,9 @@ def netplan_config_backup():
         shutil.rmtree(TMP_PATH)
     for basedir in NETPLAN_CFG_PATHS:
         print("Checking in {}".format(basedir))
-        files = glob.glob(os.path.join(basedir, '*.yaml'))
+        files = glob.glob(os.path.join(basedir, "*.yaml"))
         if files:
-            backup_loc = os.path.join(TMP_PATH, *basedir.split('/'))
+            backup_loc = os.path.join(TMP_PATH, *basedir.split("/"))
             os.makedirs(backup_loc)
             for f in files:
                 print(" ", f)
@@ -70,7 +71,7 @@ def netplan_config_wipe():
     #  (ethernets, bridges) which could be dangerous
     for basedir in NETPLAN_CFG_PATHS:
         print("Wiping {}".format(basedir))
-        files = glob.glob(os.path.join(basedir, '*.yaml'))
+        files = glob.glob(os.path.join(basedir, "*.yaml"))
         for f in files:
             print(" ", f)
             os.remove(f)
@@ -94,7 +95,7 @@ def netplan_config_restore():
     if files:
         print("Restoring:")
         for f in files:
-            restore_loc = f[len(TMP_PATH):]
+            restore_loc = f[len(TMP_PATH) :]
             print(" ", restore_loc)
             try:
                 shutil.move(f, restore_loc)
@@ -163,8 +164,9 @@ def generate_test_config(interface, ssid, psk, address, dhcp):
         password = "password: " + psk
     else:
         password = ""
-    return textwrap.dedent(np_cfg.format(interface, ssid, password,
-                                         address, dhcp))
+    return textwrap.dedent(
+        np_cfg.format(interface, ssid, password, address, dhcp)
+    )
 
 
 def write_test_config(config):
@@ -185,9 +187,9 @@ def netplan_apply_config():
     print_cmd(cmd)
     # Make sure the python env used by netplan is from the base snap
     env = os.environ
-    env.pop('PYTHONHOME', None)
-    env.pop('PYTHONPATH', None)
-    env.pop('PYTHONUSERBASE', None)
+    env.pop("PYTHONHOME", None)
+    env.pop("PYTHONPATH", None)
+    env.pop("PYTHONUSERBASE", None)
     retcode = sp.call(cmd, shell=True, env=env)
     if retcode != 0:
         print("ERROR: failed netplan apply call")
@@ -198,10 +200,10 @@ def netplan_apply_config():
 
 
 def _get_networkctl_state(interface):
-    cmd = 'networkctl status --no-pager --no-legend {}'.format(interface)
+    cmd = "networkctl status --no-pager --no-legend {}".format(interface)
     output = sp.check_output(cmd, shell=True)
     for line in output.decode(sys.stdout.encoding).splitlines():
-        key, val = line.strip().split(':', maxsplit=1)
+        key, val = line.strip().split(":", maxsplit=1)
         if key == "State":
             return val
 
@@ -229,14 +231,14 @@ def wait_for_routable(interface, max_wait=30):
 
 
 def print_address_info(interface):
-    cmd = 'ip address show dev {}'.format(interface)
+    cmd = "ip address show dev {}".format(interface)
     print_cmd(cmd)
     sp.call(cmd, shell=True)
     print()
 
 
 def print_route_info():
-    cmd = 'ip route'
+    cmd = "ip route"
     print_cmd(cmd)
     sp.call(cmd, shell=True)
     print()
@@ -244,20 +246,20 @@ def print_route_info():
 
 def perform_ping_test(interface):
     target = None
-    cmd = 'networkctl status --no-pager --no-legend {}'.format(interface)
+    cmd = "networkctl status --no-pager --no-legend {}".format(interface)
     print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
     for line in output.decode(sys.stdout.encoding).splitlines():
-        vals = line.strip().split(' ')
+        vals = line.strip().split(" ")
         if len(vals) >= 2:
-            if vals[0] == 'Gateway:':
+            if vals[0] == "Gateway:":
                 target = vals[1]
-                print('Got gateway address: {}'.format(target))
+                print("Got gateway address: {}".format(target))
 
     if target:
         count = 5
         result = ping(target, interface, count, 10)
-        if result['received'] == count:
+        if result["received"] == count:
             return True
 
     return False
@@ -265,11 +267,13 @@ def perform_ping_test(interface):
 
 def print_journal_entries(start):
     print_head("Journal Entries")
-    cmd = ('journalctl -q --no-pager '
-           '-u systemd-networkd.service '
-           '-u wpa_supplicant.service '
-           ' -u netplan-* '
-           '--since "{}" '.format(start.strftime('%Y-%m-%d %H:%M:%S')))
+    cmd = (
+        "journalctl -q --no-pager "
+        "-u systemd-networkd.service "
+        "-u wpa_supplicant.service "
+        " -u netplan-* "
+        '--since "{}" '.format(start.strftime("%Y-%m-%d %H:%M:%S"))
+    )
     print_cmd(cmd)
     sp.call(cmd, shell=True)
 
@@ -277,30 +281,52 @@ def print_journal_entries(start):
 def main():
     # Read arguments
     parser = argparse.ArgumentParser(
-        description=("This script will test wireless network with netplan"
-                     " in client mode."))
+        description=(
+            "This script will test wireless network with netplan"
+            " in client mode."
+        )
+    )
     parser.add_argument(
-        "-i", "--interface", type=str, help=(
-            "The interface which will be tested, default is wlan0"),
-        default="wlan0")
+        "-i",
+        "--interface",
+        type=str,
+        help=("The interface which will be tested, default is wlan0"),
+        default="wlan0",
+    )
     parser.add_argument(
-        "-s", "--ssid", type=str, help=(
-            "SSID of target network, this is required argument"),
-        required=True)
+        "-s",
+        "--ssid",
+        type=str,
+        help=("SSID of target network, this is required argument"),
+        required=True,
+    )
     parser.add_argument(
-        "-k", "--psk", type=str, help=(
+        "-k",
+        "--psk",
+        type=str,
+        help=(
             "Pre-shared key of target network, this is optional argument,"
-            " only for PSK protected network"))
+            " only for PSK protected network"
+        ),
+    )
     ip_method = parser.add_mutually_exclusive_group(required=True)
     ip_method.add_argument(
-        "-d", "--dhcp", action='store_true', help=(
-            "Enable DHCP for IPv4"),
-        default=False)
+        "-d",
+        "--dhcp",
+        action="store_true",
+        help=("Enable DHCP for IPv4"),
+        default=False,
+    )
     ip_method.add_argument(
-        "-a", "--address", type=str, help=(
+        "-a",
+        "--address",
+        type=str,
+        help=(
             "Set ip address and netmask for the test interface,"
-            " example: 192.168.1.1/24"),
-        default="")
+            " example: 192.168.1.1/24"
+        ),
+        default="",
+    )
     args = parser.parse_args()
 
     start_time = datetime.datetime.now()

@@ -70,6 +70,7 @@ class TestIOTest(TestCase):
     def test_argparse_is_supported(self):
         with TestIO() as io:
             import argparse
+
             self.assertIs(argparse._sys, sys)
             self.assertIs(argparse._sys.stdout, io._fake_stdout)
             self.assertIs(argparse._sys.stderr, io._fake_stderr)

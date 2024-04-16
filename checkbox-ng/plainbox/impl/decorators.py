@@ -22,22 +22,25 @@
 import functools
 import logging
 
-__all__ = ['raises']
+__all__ = ["raises"]
 
 _bug_logger = logging.getLogger("plainbox.bug")
 
 
 def instance_method_lru_cache(*cache_args, **cache_kwargs):
-    '''
+    """
     Just like functools.lru_cache, but a new cache is created for each instance
     of the class that owns the method this is applied to.
     See https://gist.github.com/z0u/9df24dda2b1fe0613a85e7349d5f7d62
-    '''
+    """
+
     def cache_decorator(func):
         @functools.wraps(func)
         def cache_factory(self, *args, **kwargs):
             # Wrap the function in a cache by calling the decorator
-            instance_cache = functools.lru_cache(*cache_args, **cache_kwargs)(func)
+            instance_cache = functools.lru_cache(*cache_args, **cache_kwargs)(
+                func
+            )
             # Bind the decorated function to the instance to make it a method
             instance_cache = instance_cache.__get__(self, self.__class__)
             setattr(self, func.__name__, instance_cache)
@@ -45,7 +48,9 @@ def instance_method_lru_cache(*cache_args, **cache_kwargs):
             # call will go directly to the instance cache and not via this
             # decorator.
             return instance_cache(*args, **kwargs)
+
         return cache_factory
+
     return cache_decorator
 
 
@@ -55,6 +60,7 @@ class cached_property(object):
     property cached on the instance.
     See https://goo.gl/QgJYks (django cached_property)
     """
+
     def __init__(self, func):
         self.func = func
 
@@ -92,7 +98,8 @@ class UndocumentedException(TypeError):
             self.func,
             self.func.__code__.co_filename,
             self.func.__code__.co_firstlineno,
-            self.exc_cls.__name__)
+            self.exc_cls.__name__,
+        )
 
 
 def raises(*exc_cls_list: BaseException):
@@ -119,14 +126,16 @@ def raises(*exc_cls_list: BaseException):
        valued) which contains the list of exceptions that may be raised.
     """
     for exc_cls in exc_cls_list:
-        if not isinstance(exc_cls, type) or not issubclass(exc_cls, BaseException):
+        if not isinstance(exc_cls, type) or not issubclass(
+            exc_cls, BaseException
+        ):
             raise TypeError("All arguments must be exceptions")
 
     def decorator(func):
         # Enforce documentation of all the exceptions
         if func.__doc__ is not None:
             for exc_cls in exc_cls_list:
-                if ':raises {}:'.format(exc_cls.__name__) not in func.__doc__:
+                if ":raises {}:".format(exc_cls.__name__) not in func.__doc__:
                     raise UndocumentedException(func, exc_cls)
 
         # Wrap in detector function
@@ -138,13 +147,18 @@ def raises(*exc_cls_list: BaseException):
                 if not isinstance(exc, exc_cls_list):
                     _bug_logger.error(
                         "Undeclared exception %s raised from %s",
-                        exc.__class__.__name__, func.__name__)
+                        exc.__class__.__name__,
+                        func.__name__,
+                    )
                 raise exc
+
         # Annotate the function and the wrapper
-        wrapper.__annotations__['raise'] = exc_cls_list
-        func.__annotations__['raise'] = exc_cls_list
+        wrapper.__annotations__["raise"] = exc_cls_list
+        func.__annotations__["raise"] = exc_cls_list
         return wrapper
+
     return decorator
+
 
 # Annotate thyself
 raises = raises(TypeError)(raises)

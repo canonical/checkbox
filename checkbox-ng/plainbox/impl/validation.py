@@ -38,28 +38,30 @@ class Problem(SymbolDef):
     """
     Symbols for each possible problem that a field value may have
     """
-    missing = 'missing'
-    wrong = 'wrong'
-    useless = 'useless'
-    deprecated = 'deprecated'
-    constant = 'constant'
-    variable = 'variable'
-    unknown_param = 'unknown_param'
-    syntax_error = 'syntax_error'
-    unknown = 'unknown'
-    not_unique = 'not_unique'
-    expected_i18n = 'expected_i18n'
-    unexpected_i18n = 'unexpected_i18n'
-    bad_reference = 'bad_reference'
+
+    missing = "missing"
+    wrong = "wrong"
+    useless = "useless"
+    deprecated = "deprecated"
+    constant = "constant"
+    variable = "variable"
+    unknown_param = "unknown_param"
+    syntax_error = "syntax_error"
+    unknown = "unknown"
+    not_unique = "not_unique"
+    expected_i18n = "expected_i18n"
+    unexpected_i18n = "unexpected_i18n"
+    bad_reference = "bad_reference"
 
 
 class Severity(SymbolDef, allow_outer={"N_"}):
     """
     Symbols for class:`Issue` severity
     """
-    error = N_('error')
-    warning = N_('warning')
-    advice = N_('advice')
+
+    error = N_("error")
+    warning = N_("warning")
+    advice = N_("advice")
 
 
 class Issue:
@@ -88,26 +90,38 @@ class Issue:
         if self.origin is not None:
             severity = _(str(self.severity))
             if self.severity == Severity.error:
-                severity = (ansi.f.RED + ansi.s.BRIGHT + _(str(self.severity))
-                            + ansi.s.RESET_ALL)
+                severity = (
+                    ansi.f.RED
+                    + ansi.s.BRIGHT
+                    + _(str(self.severity))
+                    + ansi.s.RESET_ALL
+                )
             if self.severity == Severity.warning:
-                severity = (ansi.f.YELLOW + _(str(self.severity))
-                            + ansi.s.RESET_ALL)
+                severity = (
+                    ansi.f.YELLOW + _(str(self.severity)) + ansi.s.RESET_ALL
+                )
             if self.severity == Severity.advice:
-                severity = (ansi.f.BLUE + _(str(self.severity))
-                            + ansi.s.RESET_ALL)
+                severity = (
+                    ansi.f.BLUE + _(str(self.severity)) + ansi.s.RESET_ALL
+                )
             return "{severity}: {origin}: {message}".format(
-                origin=self.origin, severity=severity,
-                message=self.message)
+                origin=self.origin, severity=severity, message=self.message
+            )
         else:
             return "{severity}: {message}".format(
-                severity=_(str(self.severity)), message=self.message)
+                severity=_(str(self.severity)), message=self.message
+            )
 
     def __repr__(self):
         return (
             "{}(message={!r}, severity={!r}, kind={!r}, origin={!r})"
-        ).format(self.__class__.__name__, self.message,
-                 self.severity, self.kind, self.origin)
+        ).format(
+            self.__class__.__name__,
+            self.message,
+            self.severity,
+            self.kind,
+            self.origin,
+        )
 
     def relative_to(self, base_dir):
         other = copy.copy(self)

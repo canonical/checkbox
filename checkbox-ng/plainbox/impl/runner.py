@@ -66,7 +66,6 @@ def slugify(_string):
 
 
 class IOLogRecordGenerator(extcmd.DelegateBase):
-
     """Delegate for extcmd that generates io_log entries."""
 
     def on_begin(self, args, kwargs):
@@ -105,7 +104,6 @@ class IOLogRecordGenerator(extcmd.DelegateBase):
 
 
 class CommandOutputWriter(extcmd.DelegateBase):
-
     """
     Delegate for extcmd that writes output to a file on disk.
 
@@ -163,7 +161,6 @@ class CommandOutputWriter(extcmd.DelegateBase):
 
 
 class FallbackCommandOutputPrinter(extcmd.DelegateBase):
-
     """
     Delegate for extcmd that prints all output to stdout.
 
@@ -202,7 +199,6 @@ class FallbackCommandOutputPrinter(extcmd.DelegateBase):
 
 
 class JobRunnerUIDelegate(extcmd.DelegateBase):
-
     """
     Delegate for extcmd that delegates extcmd events to IJobRunnerUI.
 

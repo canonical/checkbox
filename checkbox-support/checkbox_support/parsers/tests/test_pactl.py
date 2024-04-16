@@ -54,15 +54,16 @@ class ParsingMixIn(object):
         try:
             return self.parse(syntax, text)
         except p.ParseBaseException as exc:
-            if hasattr(exc, 'col') and hasattr(exc, 'lineno'):
+            if hasattr(exc, "col") and hasattr(exc, "lineno"):
                 lineno = exc.lineno
                 col = exc.col
             else:
                 lineno = p.lineno(exc.loc, text)
                 col = p.col(exc.loc, text)
             print()
-            print("Parse error on line {} column {}: {}".format(
-                lineno, col, exc))
+            print(
+                "Parse error on line {} column {}: {}".format(lineno, col, exc)
+            )
             self._show_text(text, lineno, col, context=3)
             raise
 
@@ -76,8 +77,8 @@ class ParsingMixIn(object):
         lines = text.splitlines(True)
         if hl_line is not None and hl_col is not None and context is not None:
             window = slice(
-                max(0, hl_line - context),
-                min(hl_line + context, len(lines)))
+                max(0, hl_line - context), min(hl_line + context, len(lines))
+            )
         else:
             window = slice(0, len(lines))
         lines = lines[window]
@@ -88,32 +89,38 @@ class ParsingMixIn(object):
 
         def print_col_ruler():
             for ndigit in range(col_lines_needed, -1, -1):
-                print(" " * (line_cols_needed + 2), end='')
+                print(" " * (line_cols_needed + 2), end="")
                 print_it = False
                 for colno in range(1, num_cols + 1):
-                    digit = (colno // 10 ** ndigit) % 10
+                    digit = (colno // 10**ndigit) % 10
                     if digit > 0:
                         print_it = True
-                    print(digit if print_it else ' ', end='')
+                    print(digit if print_it else " ", end="")
                 print("")
             print(" " * (line_cols_needed + 1) + "+-" + "-" * num_cols)
+
         print_col_ruler()
         for lineno, line in enumerate(lines, window.start + 1):
-            print(("{:" + str(line_cols_needed) + "d} |").format(lineno),
-                  end='')
+            print(
+                ("{:" + str(line_cols_needed) + "d} |").format(lineno), end=""
+            )
             for c in line:
                 if c.isprintable():
-                    print(c, end='')
-                elif c == '\t':
-                    print('\x1B[33mT\x1B[0m', end='')
-                elif c == '\n':
-                    print('\x1B[32;1m\\n\x1B[0m', end='')
+                    print(c, end="")
+                elif c == "\t":
+                    print("\x1B[33mT\x1B[0m", end="")
+                elif c == "\n":
+                    print("\x1B[32;1m\\n\x1B[0m", end="")
                 else:
-                    print('\x1B[33m%r\x1B[0m' % c, end='')
+                    print("\x1B[33m%r\x1B[0m" % c, end="")
             print()
             if lineno == hl_line:
-                print('\x1B[37;1m' + '_' * (line_cols_needed + 1) +
-                      hl_col * '_' + '^\x1B[0m')
+                print(
+                    "\x1B[37;1m"
+                    + "_" * (line_cols_needed + 1)
+                    + hl_col * "_"
+                    + "^\x1B[0m"
+                )
 
 
 class PactlDataMixIn(object):
@@ -122,9 +129,9 @@ class PactlDataMixIn(object):
     """
 
     def get_text(self, name):
-        resource = 'parsers/tests/pactl_data/{}.txt'.format(name)
-        filename = resource_filename('checkbox_support', resource)
-        with open(filename, 'rt', encoding='UTF-8') as stream:
+        resource = "parsers/tests/pactl_data/{}.txt".format(name)
+        filename = resource_filename("checkbox_support", resource)
+        with open(filename, "rt", encoding="UTF-8") as stream:
             return stream.read()
 
 
@@ -139,171 +146,226 @@ class PropertyTests(ParsingTestCase):
     def test_smoke(self):
         prop = self.assertParses(
             pactl.Property.Syntax, 'device.vendor.name = "Intel Corporation"'
-        )['property']
-        self.assertEqual(prop.name, 'device.vendor.name')
-        self.assertEqual(prop.value, 'Intel Corporation')
+        )["property"]
+        self.assertEqual(prop.name, "device.vendor.name")
+        self.assertEqual(prop.value, "Intel Corporation")
 
     def test_underscore(self):
         prop = self.assertParses(
             pactl.Property.Syntax, 'alsa.resolution_bits = "16"'
-        )['property']
-        self.assertEqual(prop.name, 'alsa.resolution_bits')
-        self.assertEqual(prop.value, '16')
+        )["property"]
+        self.assertEqual(prop.name, "alsa.resolution_bits")
+        self.assertEqual(prop.value, "16")
 
     def test_dash(self):
         prop = self.assertParses(
             pactl.Property.Syntax, 'module-udev-detect.discovered = "1"'
-        )['property']
-        self.assertEqual(prop.name, 'module-udev-detect.discovered')
-        self.assertEqual(prop.value, '1')
+        )["property"]
+        self.assertEqual(prop.name, "module-udev-detect.discovered")
+        self.assertEqual(prop.value, "1")
 
 
 class PortTests(ParsingTestCase):
 
     def test_port(self):
         port = self.assertParses(
-            pactl.Port.Syntax, (
-                'hdmi-output-1: HDMI / DisplayPort 2 (priority: '
-                '5800, available)')
-        )['port']
-        self.assertEqual(port.name, 'hdmi-output-1')
-        self.assertEqual(port.label, 'HDMI / DisplayPort 2')
+            pactl.Port.Syntax,
+            (
+                "hdmi-output-1: HDMI / DisplayPort 2 (priority: "
+                "5800, available)"
+            ),
+        )["port"]
+        self.assertEqual(port.name, "hdmi-output-1")
+        self.assertEqual(port.label, "HDMI / DisplayPort 2")
         self.assertEqual(port.priority, 5800)
-        self.assertEqual(port.availability, 'available')
+        self.assertEqual(port.availability, "available")
 
     def test_port_not_available(self):
         port = self.assertParses(
-            pactl.Port.Syntax, (
-                'analog-output-headphones: Słuchawki (priority: 9000, '
-                'not available)')
-        )['port']
-        self.assertEqual(port.name, 'analog-output-headphones')
-        self.assertEqual(port.label, 'Słuchawki')
+            pactl.Port.Syntax,
+            (
+                "analog-output-headphones: Słuchawki (priority: 9000, "
+                "not available)"
+            ),
+        )["port"]
+        self.assertEqual(port.name, "analog-output-headphones")
+        self.assertEqual(port.label, "Słuchawki")
         self.assertEqual(port.priority, 9000)
-        self.assertEqual(port.availability, 'not available')
+        self.assertEqual(port.availability, "not available")
 
     def test_port_no_availability_info(self):
         port = self.assertParses(
-            pactl.Port.Syntax, (
-                'analog-output: Wyjście analogowe (priority: 9900)')
-        )['port']
-        self.assertEqual(port.name, 'analog-output')
-        self.assertEqual(port.label, 'Wyjście analogowe')
+            pactl.Port.Syntax,
+            ("analog-output: Wyjście analogowe (priority: 9900)"),
+        )["port"]
+        self.assertEqual(port.name, "analog-output")
+        self.assertEqual(port.label, "Wyjście analogowe")
         self.assertEqual(port.priority, 9900)
-        self.assertEqual(port.availability, '')
+        self.assertEqual(port.availability, "")
 
     def test_DMIC_port_with_blank_space(self):
         port = self.assertParses(
-            pactl.Port.Syntax, (
-                '[In] Headset Microphone: Headset Microphone '
-                '(priority: 100, not available)')
-        )['port']
-        self.assertEqual(port.name, 'Headset Microphone')
-        self.assertEqual(port.label, 'Headset Microphone')
+            pactl.Port.Syntax,
+            (
+                "[In] Headset Microphone: Headset Microphone "
+                "(priority: 100, not available)"
+            ),
+        )["port"]
+        self.assertEqual(port.name, "Headset Microphone")
+        self.assertEqual(port.label, "Headset Microphone")
         self.assertEqual(port.priority, 100)
-        self.assertEqual(port.availability, 'not available')
+        self.assertEqual(port.availability, "not available")
 
     def test_port_with_availability_unknown(self):
         port = self.assertParses(
-            pactl.Port.Syntax, (
-                'analog-input-internal-mic: Internal Microphone '
-                '(type: Mic, priority: 8900, availability unknown)')
-        )['port']
-        self.assertEqual(port.name, 'analog-input-internal-mic')
-        self.assertEqual(port.label, 'Internal Microphone')
+            pactl.Port.Syntax,
+            (
+                "analog-input-internal-mic: Internal Microphone "
+                "(type: Mic, priority: 8900, availability unknown)"
+            ),
+        )["port"]
+        self.assertEqual(port.name, "analog-input-internal-mic")
+        self.assertEqual(port.label, "Internal Microphone")
         self.assertEqual(port.priority, 8900)
-        self.assertEqual(port.availability, 'availability unknown')
+        self.assertEqual(port.availability, "availability unknown")
 
     def test_port_with_availability_group(self):
         port = self.assertParses(
-            pactl.Port.Syntax, (
-                'analog-input-headphone-mic: Microphone '
-                '(type: Mic, priority: 8700, availability group: Legacy 2, not available)')
-        )['port']
-        self.assertEqual(port.name, 'analog-input-headphone-mic')
-        self.assertEqual(port.label, 'Microphone')
+            pactl.Port.Syntax,
+            (
+                "analog-input-headphone-mic: Microphone "
+                "(type: Mic, priority: 8700, availability group: Legacy 2, not available)"
+            ),
+        )["port"]
+        self.assertEqual(port.name, "analog-input-headphone-mic")
+        self.assertEqual(port.label, "Microphone")
         self.assertEqual(port.priority, 8700)
-        self.assertEqual(port.availability, 'not available')
+        self.assertEqual(port.availability, "not available")
 
     def test_port_with_availability_unknown(self):
         port = self.assertParses(
-            pactl.Port.Syntax, (
-                'analog-input-internal-mic: Internal Microphone '
-                '(type: Mic, priority: 8900, availability unknown)')
-        )['port']
-        self.assertEqual(port.name, 'analog-input-internal-mic')
-        self.assertEqual(port.label, 'Internal Microphone')
+            pactl.Port.Syntax,
+            (
+                "analog-input-internal-mic: Internal Microphone "
+                "(type: Mic, priority: 8900, availability unknown)"
+            ),
+        )["port"]
+        self.assertEqual(port.name, "analog-input-internal-mic")
+        self.assertEqual(port.label, "Internal Microphone")
         self.assertEqual(port.priority, 8900)
-        self.assertEqual(port.availability, 'availability unknown')
+        self.assertEqual(port.availability, "availability unknown")
 
     def test_chinese_label(self):
         port = self.assertParses(
-            pactl.Port.Syntax, (
-                'analog-output;output-amplifier-on: 模拟输出 / 均衡器 '
-                '(priority: 9910)')
-        )['port']
-        self.assertEqual(port.name, 'analog-output;output-amplifier-on')
-        self.assertEqual(port.label, '模拟输出 / 均衡器')
+            pactl.Port.Syntax,
+            (
+                "analog-output;output-amplifier-on: 模拟输出 / 均衡器 "
+                "(priority: 9910)"
+            ),
+        )["port"]
+        self.assertEqual(port.name, "analog-output;output-amplifier-on")
+        self.assertEqual(port.label, "模拟输出 / 均衡器")
         self.assertEqual(port.priority, 9910)
-        self.assertEqual(port.availability, '')
+        self.assertEqual(port.availability, "")
 
 
 class ProfileTests(ParsingTestCase):
 
     def test_smoke(self):
         profiles = (
-            ('input:analog-stereo: Wejście Analogowe stereo (sinks: 0, '
-             'sources: 1, priority. 60)'),
-            'off: Wyłącz (sinks: 0, sources: 0, priority. 0)',
-            ('output:analog-stereo+input:analog-stereo: Analogowy dupleks '
-             'stereo (sinks: 1, sources: 1, priority. 6060)'),
-            ('output:analog-stereo: Wyjście Analogowe stereo (sinks: 1, '
-             'sources: 0, priority. 6000)'),
-            ('output:analog-surround-40+input:analog-stereo: Wyjście '
-             'Analogowe surround 4.0 + Wejście Analogowe stereo (sinks: 1, '
-             'sources: 1, priority. 760)'),
-            ('output:analog-surround-40: Wyjście Analogowe surround 4.0 '
-             '(sinks: 1, sources: 0, priority. 700)'),
-            ('output:analog-surround-41+input:analog-stereo: Wyjście '
-             'Analogowe surround 4.1 + Wejście Analogowe stereo (sinks: '
-             '1, sources: 1, priority. 860)'),
-            ('output:analog-surround-41: Wyjście Analogowe surround 4.1 '
-             '(sinks: 1, sources: 0, priority. 800)'),
-            ('output:analog-surround-50+input:analog-stereo: Wyjście '
-             'Analogowe surround 5.0 + Wejście Analogowe stereo (sinks: 1, '
-             'sources: 1, priority. 760)'),
-            ('output:analog-surround-50: Wyjście Analogowe surround 5.0 '
-             '(sinks: 1, sources: 0, priority. 700)'),
-            ('output:analog-surround-51+input:analog-stereo: Wyjście '
-             'Analogowe surround 5.1 + Wejście Analogowe stereo (sinks: 1, '
-             'sources: 1, priority. 860)'),
-            ('output:analog-surround-51: Wyjście Analogowe surround 5.1 '
-             '(sinks: 1, sources: 0, priority. 800)'),
-            ('output:analog-surround-71+input:analog-stereo: Wyjście Analog '
-             'Surround 7.1 + Wejście Analogowe stereo (sinks: 1, sources: '
-             '1, priority. 760)'),
-            ('output:analog-surround-71: Wyjście Analog Surround 7.1 (sinks: '
-             '1, sources: 0, priority. 700)'),
-            ('output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) '
-             '(sinks: 1, sources: 0, priority. 5200)'),
-            ('output:hdmi-stereo-extra2: Wyjście Digital Stereo (HDMI) '
-             '(sinks: 1, sources: 0, priority. 5200)'),
-            ('output:hdmi-stereo: Wyjście Digital Stereo (HDMI) (sinks: '
-             '1, sources: 0, priority. 5400)'),
-            ('output:hdmi-surround-extra2: Wyjście Digital Surround 5.1 '
-             '(HDMI) (sinks: 1, sources: 0, priority. 100)'),
-            ('output:hdmi-surround: Wyjście Digital Surround 5.1 (HDMI) '
-             '(sinks: 1, sources: 0, priority. 300)'),
-            ('output:iec958-stereo+input:analog-stereo: Wyjście Cyfrowe '
-             'stereo (IEC958) + Wejście Analogowe stereo (sinks: 1, '
-             'sources: 1, priority. 5560)'),
-            ('output:iec958-stereo: Wyjście Cyfrowe stereo (IEC958) '
-             '(sinks: 1, sources: 0, priority. 5500)'),
+            (
+                "input:analog-stereo: Wejście Analogowe stereo (sinks: 0, "
+                "sources: 1, priority. 60)"
+            ),
+            "off: Wyłącz (sinks: 0, sources: 0, priority. 0)",
+            (
+                "output:analog-stereo+input:analog-stereo: Analogowy dupleks "
+                "stereo (sinks: 1, sources: 1, priority. 6060)"
+            ),
+            (
+                "output:analog-stereo: Wyjście Analogowe stereo (sinks: 1, "
+                "sources: 0, priority. 6000)"
+            ),
+            (
+                "output:analog-surround-40+input:analog-stereo: Wyjście "
+                "Analogowe surround 4.0 + Wejście Analogowe stereo (sinks: 1, "
+                "sources: 1, priority. 760)"
+            ),
+            (
+                "output:analog-surround-40: Wyjście Analogowe surround 4.0 "
+                "(sinks: 1, sources: 0, priority. 700)"
+            ),
+            (
+                "output:analog-surround-41+input:analog-stereo: Wyjście "
+                "Analogowe surround 4.1 + Wejście Analogowe stereo (sinks: "
+                "1, sources: 1, priority. 860)"
+            ),
+            (
+                "output:analog-surround-41: Wyjście Analogowe surround 4.1 "
+                "(sinks: 1, sources: 0, priority. 800)"
+            ),
+            (
+                "output:analog-surround-50+input:analog-stereo: Wyjście "
+                "Analogowe surround 5.0 + Wejście Analogowe stereo (sinks: 1, "
+                "sources: 1, priority. 760)"
+            ),
+            (
+                "output:analog-surround-50: Wyjście Analogowe surround 5.0 "
+                "(sinks: 1, sources: 0, priority. 700)"
+            ),
+            (
+                "output:analog-surround-51+input:analog-stereo: Wyjście "
+                "Analogowe surround 5.1 + Wejście Analogowe stereo (sinks: 1, "
+                "sources: 1, priority. 860)"
+            ),
+            (
+                "output:analog-surround-51: Wyjście Analogowe surround 5.1 "
+                "(sinks: 1, sources: 0, priority. 800)"
+            ),
+            (
+                "output:analog-surround-71+input:analog-stereo: Wyjście Analog "
+                "Surround 7.1 + Wejście Analogowe stereo (sinks: 1, sources: "
+                "1, priority. 760)"
+            ),
+            (
+                "output:analog-surround-71: Wyjście Analog Surround 7.1 (sinks: "
+                "1, sources: 0, priority. 700)"
+            ),
+            (
+                "output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) "
+                "(sinks: 1, sources: 0, priority. 5200)"
+            ),
+            (
+                "output:hdmi-stereo-extra2: Wyjście Digital Stereo (HDMI) "
+                "(sinks: 1, sources: 0, priority. 5200)"
+            ),
+            (
+                "output:hdmi-stereo: Wyjście Digital Stereo (HDMI) (sinks: "
+                "1, sources: 0, priority. 5400)"
+            ),
+            (
+                "output:hdmi-surround-extra2: Wyjście Digital Surround 5.1 "
+                "(HDMI) (sinks: 1, sources: 0, priority. 100)"
+            ),
+            (
+                "output:hdmi-surround: Wyjście Digital Surround 5.1 (HDMI) "
+                "(sinks: 1, sources: 0, priority. 300)"
+            ),
+            (
+                "output:iec958-stereo+input:analog-stereo: Wyjście Cyfrowe "
+                "stereo (IEC958) + Wejście Analogowe stereo (sinks: 1, "
+                "sources: 1, priority. 5560)"
+            ),
+            (
+                "output:iec958-stereo: Wyjście Cyfrowe stereo (IEC958) "
+                "(sinks: 1, sources: 0, priority. 5500)"
+            ),
         )
         for profile_text in profiles:
             profile = self.assertParses(
-                pactl.Profile.Syntax, profile_text,
-            )['profile']
+                pactl.Profile.Syntax,
+                profile_text,
+            )["profile"]
             self.assertNotEqual(profile.name, "")
             self.assertNotEqual(profile.label, "")
             self.assertNotEqual(profile.sink_cnt, "")
@@ -314,9 +376,9 @@ class ProfileTests(ParsingTestCase):
         # '(' before 'sinks'
         profile = self.assertParses(
             pactl.Profile.Syntax,
-            'output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) '
-            '(sinks: 1, sources: 0, priority. 5200)'
-        )['profile']
+            "output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) "
+            "(sinks: 1, sources: 0, priority. 5200)",
+        )["profile"]
         self.assertEqual(profile.name, "output:hdmi-stereo-extra1")
         self.assertEqual(profile.label, "Wyjście Digital Stereo (HDMI)")
         self.assertEqual(profile.sink_cnt, 1)
@@ -328,9 +390,9 @@ class ProfileTests(ParsingTestCase):
         # '(' before 'sinks'
         profile = self.assertParses(
             pactl.Profile.Syntax,
-            'output:iec958-stereo: Wyjście Cyfrowe stereo (IEC958) '
-            '(sinks: 1, sources: 0, priority. 5500)'
-        )['profile']
+            "output:iec958-stereo: Wyjście Cyfrowe stereo (IEC958) "
+            "(sinks: 1, sources: 0, priority. 5500)",
+        )["profile"]
         self.assertEqual(profile.name, "output:iec958-stereo")
         self.assertEqual(profile.label, "Wyjście Cyfrowe stereo (IEC958)")
         self.assertEqual(profile.sink_cnt, 1)
@@ -342,9 +404,9 @@ class ProfileTests(ParsingTestCase):
         # This checks that : can be parsed correctly after priority
         profile = self.assertParses(
             pactl.Profile.Syntax,
-            'output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) '
-            '(sinks: 1, sources: 0, priority: 5800)'
-        )['profile']
+            "output:hdmi-stereo-extra1: Wyjście Digital Stereo (HDMI) "
+            "(sinks: 1, sources: 0, priority: 5800)",
+        )["profile"]
         self.assertEqual(profile.priority, 5800)
 
 
@@ -353,258 +415,298 @@ class AttributeTests(ParsingTestCase):
     def test_simple(self):
         attr = self.assertParses(
             pactl.GenericSimpleAttribute.Syntax,
-            'Sample Specification: s16le 2ch 44100Hz'
-        )['attribute']
-        self.assertEqual(attr.name, 'Sample Specification')
-        self.assertEqual(attr.value, 's16le 2ch 44100Hz')
+            "Sample Specification: s16le 2ch 44100Hz",
+        )["attribute"]
+        self.assertEqual(attr.name, "Sample Specification")
+        self.assertEqual(attr.value, "s16le 2ch 44100Hz")
 
     def test_leading_space(self):
         with self.assertRaises(p.ParseBaseException):
-            self.parse(pactl.GenericSimpleAttribute.Syntax, ' attr: value')
+            self.parse(pactl.GenericSimpleAttribute.Syntax, " attr: value")
 
     def test_empty_value(self):
         attr = self.assertParses(
-            pactl.GenericSimpleAttribute.Syntax, 'Argument:'
-        )['attribute']
-        self.assertEqual(attr.name, 'Argument')
-        self.assertEqual(attr.value, '')
+            pactl.GenericSimpleAttribute.Syntax, "Argument:"
+        )["attribute"]
+        self.assertEqual(attr.name, "Argument")
+        self.assertEqual(attr.value, "")
 
     def test_properties(self):
         attr = self.assertParses(
-            pactl.GenericListAttribute.Syntax, (
-                'Properties:\n'
+            pactl.GenericListAttribute.Syntax,
+            (
+                "Properties:\n"
                 '\talsa.resolution_bits = "16"\n'
-                '\tdevice.api = "alsa"\n')
-        )['attribute']
-        self.assertEqual(attr.name, 'Properties')
+                '\tdevice.api = "alsa"\n'
+            ),
+        )["attribute"]
+        self.assertEqual(attr.name, "Properties")
         self.assertIsInstance(attr.value, list)
         self.assertIsInstance(attr.value[0], pactl.Property)
         self.assertIsInstance(attr.value[1], pactl.Property)
-        self.assertEqual(attr.value[0].name, 'alsa.resolution_bits')
-        self.assertEqual(attr.value[0].value, '16')
-        self.assertEqual(attr.value[1].name, 'device.api')
-        self.assertEqual(attr.value[1].value, 'alsa')
+        self.assertEqual(attr.value[0].name, "alsa.resolution_bits")
+        self.assertEqual(attr.value[0].value, "16")
+        self.assertEqual(attr.value[1].name, "device.api")
+        self.assertEqual(attr.value[1].value, "alsa")
 
     def test_volume(self):
         # NOTE: both of those are a bit odd as they use spaces for the extra
         # indent. Most of the typical output uses tabs. Localized values have
         # incorrect, inconsistent, amount of space indents
         attr = self.assertParses(
-            pactl.GenericSimpleAttribute.Syntax, (
-                'Volume: 0:  60% 1:  60%\n'
-                '        0: -13.40 dB 1: -13.40 dB\n'
-                '        balance 0.00\n')
-        )['attribute']
-        self.assertEqual(attr.name, 'Volume')
-        self.assertEqual(attr.value, (
-            '0:  60% 1:  60%\n'
-            '0: -13.40 dB 1: -13.40 dB\n'
-            'balance 0.00\n'))
+            pactl.GenericSimpleAttribute.Syntax,
+            (
+                "Volume: 0:  60% 1:  60%\n"
+                "        0: -13.40 dB 1: -13.40 dB\n"
+                "        balance 0.00\n"
+            ),
+        )["attribute"]
+        self.assertEqual(attr.name, "Volume")
+        self.assertEqual(
+            attr.value,
+            (
+                "0:  60% 1:  60%\n"
+                "0: -13.40 dB 1: -13.40 dB\n"
+                "balance 0.00\n"
+            ),
+        )
 
     def test_volume_variant1(self):
         # pactl Volume properties differ with recent PulseAudio versions
         attr = self.assertParses(
-            pactl.GenericSimpleAttribute.Syntax, (
-                'Volume: front-left: 52428 /  80% / -5.81 dB,   '
-                'front-right: 52428 /  80% / -5.81 dB\n'
-                '         balance 0.00\n')
-        )['attribute']
-        self.assertEqual(attr.name, 'Volume')
-        self.assertEqual(attr.value, (
-            'front-left: 52428 /  80% / -5.81 dB,   '
-            'front-right: 52428 /  80% / -5.81 dB\n'
-            'balance 0.00\n'))
+            pactl.GenericSimpleAttribute.Syntax,
+            (
+                "Volume: front-left: 52428 /  80% / -5.81 dB,   "
+                "front-right: 52428 /  80% / -5.81 dB\n"
+                "         balance 0.00\n"
+            ),
+        )["attribute"]
+        self.assertEqual(attr.name, "Volume")
+        self.assertEqual(
+            attr.value,
+            (
+                "front-left: 52428 /  80% / -5.81 dB,   "
+                "front-right: 52428 /  80% / -5.81 dB\n"
+                "balance 0.00\n"
+            ),
+        )
 
     def test_inf_volume(self):
         # LP: 1350168
         attr = self.assertParses(
-            pactl.GenericSimpleAttribute.Syntax, (
-                '\tVolume: 0:   0% 1:   0%\n'
-                '\t        0: -inf dB 1: -inf dB\n'
-                '\t        balance 0.00\n')
-        )['attribute']
-        self.assertEqual(attr.name, 'Volume')
-        self.assertEqual(attr.value, (
-            '0:   0% 1:   0%\n'
-            '0: -inf dB 1: -inf dB\n'
-            'balance 0.00\n'))
+            pactl.GenericSimpleAttribute.Syntax,
+            (
+                "\tVolume: 0:   0% 1:   0%\n"
+                "\t        0: -inf dB 1: -inf dB\n"
+                "\t        balance 0.00\n"
+            ),
+        )["attribute"]
+        self.assertEqual(attr.name, "Volume")
+        self.assertEqual(
+            attr.value,
+            ("0:   0% 1:   0%\n" "0: -inf dB 1: -inf dB\n" "balance 0.00\n"),
+        )
 
     def test_volume_with_tabs(self):
         attr = self.assertParses(
-            pactl.GenericSimpleAttribute.Syntax, (
-                '\tVolume: 0:  60% 1:  60%\n'
-                '\t        0: -13.40 dB 1: -13.40 dB\n'
-                '\t        balance 0.00\n')
-        )['attribute']
-        self.assertEqual(attr.name, 'Volume')
-        self.assertEqual(attr.value, (
-            '0:  60% 1:  60%\n'
-            '0: -13.40 dB 1: -13.40 dB\n'
-            'balance 0.00\n'))
+            pactl.GenericSimpleAttribute.Syntax,
+            (
+                "\tVolume: 0:  60% 1:  60%\n"
+                "\t        0: -13.40 dB 1: -13.40 dB\n"
+                "\t        balance 0.00\n"
+            ),
+        )["attribute"]
+        self.assertEqual(attr.name, "Volume")
+        self.assertEqual(
+            attr.value,
+            (
+                "0:  60% 1:  60%\n"
+                "0: -13.40 dB 1: -13.40 dB\n"
+                "balance 0.00\n"
+            ),
+        )
 
     def test_base_volume(self):
         attr = self.assertParses(
-            pactl.GenericSimpleAttribute.Syntax, (
-                'Base Volume: 100%\n'
-                '             0.00 dB\n')
-        )['attribute']
-        self.assertEqual(attr.name, 'Base Volume')
-        self.assertEqual(attr.value, '100%\n0.00 dB\n')
+            pactl.GenericSimpleAttribute.Syntax,
+            ("Base Volume: 100%\n" "             0.00 dB\n"),
+        )["attribute"]
+        self.assertEqual(attr.name, "Base Volume")
+        self.assertEqual(attr.value, "100%\n0.00 dB\n")
 
     def test_one_port(self):
         attr = self.assertParses(
-            pactl.GenericListAttribute.Syntax, (
-                'Ports:\n'
-                '\thdmi-output-1: HDMI / DisplayPort 2 (priority: 5800, '
-                'available)\n')
-        )['attribute']
-        self.assertEqual(attr.name, 'Ports')
-        self.assertEqual(attr.value[0].name, 'hdmi-output-1')
-        self.assertEqual(attr.value[0].label, 'HDMI / DisplayPort 2')
+            pactl.GenericListAttribute.Syntax,
+            (
+                "Ports:\n"
+                "\thdmi-output-1: HDMI / DisplayPort 2 (priority: 5800, "
+                "available)\n"
+            ),
+        )["attribute"]
+        self.assertEqual(attr.name, "Ports")
+        self.assertEqual(attr.value[0].name, "hdmi-output-1")
+        self.assertEqual(attr.value[0].label, "HDMI / DisplayPort 2")
         self.assertEqual(attr.value[0].priority, 5800)
-        self.assertEqual(attr.value[0].availability, 'available')
+        self.assertEqual(attr.value[0].availability, "available")
 
     def test_active_port_with_prefix(self):
         attr = self.assertParses(
-            pactl.GenericSimpleAttribute.Syntax, (
-                'Active Port: [In] Dmic')
-        )['attribute']
-        self.assertEqual(attr.name, 'Active Port')
-        self.assertEqual(attr.value, 'Dmic')
+            pactl.GenericSimpleAttribute.Syntax, ("Active Port: [In] Dmic")
+        )["attribute"]
+        self.assertEqual(attr.name, "Active Port")
+        self.assertEqual(attr.value, "Dmic")
 
     def test_many_ports(self):
         attr = self.assertParses(
-            pactl.GenericListAttribute.Syntax, (
-                'Ports:\n'
-                '\tanalog-output: Wyjście analogowe (priority: 9900)\n'
-                '\tanalog-output-headphones: Słuchawki (priority: 9000, '
-                'not available)\n')
-        )['attribute']
-        self.assertEqual(attr.name, 'Ports')
-        self.assertEqual(attr.value[0].name, 'analog-output')
-        self.assertEqual(attr.value[0].label, 'Wyjście analogowe')
+            pactl.GenericListAttribute.Syntax,
+            (
+                "Ports:\n"
+                "\tanalog-output: Wyjście analogowe (priority: 9900)\n"
+                "\tanalog-output-headphones: Słuchawki (priority: 9000, "
+                "not available)\n"
+            ),
+        )["attribute"]
+        self.assertEqual(attr.name, "Ports")
+        self.assertEqual(attr.value[0].name, "analog-output")
+        self.assertEqual(attr.value[0].label, "Wyjście analogowe")
         self.assertEqual(attr.value[0].priority, 9900)
-        self.assertEqual(attr.value[0].availability, '')
-        self.assertEqual(attr.value[1].name, 'analog-output-headphones')
-        self.assertEqual(attr.value[1].label, 'Słuchawki')
+        self.assertEqual(attr.value[0].availability, "")
+        self.assertEqual(attr.value[1].name, "analog-output-headphones")
+        self.assertEqual(attr.value[1].label, "Słuchawki")
         self.assertEqual(attr.value[1].priority, 9000)
-        self.assertEqual(attr.value[1].availability, 'not available')
+        self.assertEqual(attr.value[1].availability, "not available")
 
     def test_chinese_ports(self):
         attr = self.assertParses(
-            pactl.GenericListAttribute.Syntax, (
-                'Ports:\n'
-                '\tanalog-output;output-amplifier-on: 模拟输出 / 均衡器 '
-                '(priority: 9910)\n'
-                '\tanalog-output;output-amplifier-off: 模拟输出 / 无均衡器 '
-                '(priority: 9900)\n'
-                '\tanalog-output-mono;output-amplifier-on: 模拟单声道输出 / 均衡器 '
-                '(priority: 5010)\n'
-                '\tanalog-output-mono;output-amplifier-off: 模拟单声道输出 / 无均衡器 '
-                '(priority: 5000)\n')
-        )['attribute']
-        self.assertEqual(attr.name, 'Ports')
+            pactl.GenericListAttribute.Syntax,
+            (
+                "Ports:\n"
+                "\tanalog-output;output-amplifier-on: 模拟输出 / 均衡器 "
+                "(priority: 9910)\n"
+                "\tanalog-output;output-amplifier-off: 模拟输出 / 无均衡器 "
+                "(priority: 9900)\n"
+                "\tanalog-output-mono;output-amplifier-on: 模拟单声道输出 / 均衡器 "
+                "(priority: 5010)\n"
+                "\tanalog-output-mono;output-amplifier-off: 模拟单声道输出 / 无均衡器 "
+                "(priority: 5000)\n"
+            ),
+        )["attribute"]
+        self.assertEqual(attr.name, "Ports")
         self.assertEqual(len(attr.value), 4)
         self.assertEqual(
-            attr.value[1].name, 'analog-output;output-amplifier-off')
-        self.assertEqual(attr.value[1].label, '模拟输出 / 无均衡器')
+            attr.value[1].name, "analog-output;output-amplifier-off"
+        )
+        self.assertEqual(attr.value[1].label, "模拟输出 / 无均衡器")
 
     def test_with_profile_association(self):
         attr = self.assertParses(
-            pactl.GenericListAttribute.Syntax, (
-                'Ports:\n'
-                '\tanalog-output-speaker: Głośniki (priority 10000)\n'
-                '\t\tPart of profile(s): output:analog-stereo, '
-                'output:analog-stereo+input:analog-stereo\n'
-            )
-        )['attribute']
-        self.assertEqual(attr.name, 'Ports')
-        self.assertEqual(attr.value[0].name, 'analog-output-speaker')
-        self.assertEqual(attr.value[0].label, 'Głośniki')
+            pactl.GenericListAttribute.Syntax,
+            (
+                "Ports:\n"
+                "\tanalog-output-speaker: Głośniki (priority 10000)\n"
+                "\t\tPart of profile(s): output:analog-stereo, "
+                "output:analog-stereo+input:analog-stereo\n"
+            ),
+        )["attribute"]
+        self.assertEqual(attr.name, "Ports")
+        self.assertEqual(attr.value[0].name, "analog-output-speaker")
+        self.assertEqual(attr.value[0].label, "Głośniki")
         self.assertEqual(attr.value[0].priority, 10000)
         self.assertEqual(
             attr.value[0].profile_list,
-            ['output:analog-stereo',
-             'output:analog-stereo+input:analog-stereo'])
+            [
+                "output:analog-stereo",
+                "output:analog-stereo+input:analog-stereo",
+            ],
+        )
 
     def test_with_ports_properties(self):
         attr = self.assertParses(
-            pactl.GenericListAttribute.Syntax, (
-                'Ports:\n'
-                '\tanalog-input-microphone-internal: Internal Microphone '
-                '(priority: 98903, latency offset: 982 usec)\n'
-                '\t\tProperties:\n'
+            pactl.GenericListAttribute.Syntax,
+            (
+                "Ports:\n"
+                "\tanalog-input-microphone-internal: Internal Microphone "
+                "(priority: 98903, latency offset: 982 usec)\n"
+                "\t\tProperties:\n"
                 '\t\t\tdevice.icon_name = "audio-input-microphone"\n'
                 '\t\t\tdevice.display_name = "Microphone"\n'
-                '\t\tPart of profile(s): input:analog-stereo\n'
-            )
-        )['attribute']
-        self.assertEqual(attr.name, 'Ports')
+                "\t\tPart of profile(s): input:analog-stereo\n"
+            ),
+        )["attribute"]
+        self.assertEqual(attr.name, "Ports")
         self.assertEqual(attr.value[0].latency_offset, 982)
-        self.assertEqual(attr.value[0].properties[0].name, 'device.icon_name')
+        self.assertEqual(attr.value[0].properties[0].name, "device.icon_name")
         self.assertEqual(
-            attr.value[0].properties[0].value, 'audio-input-microphone')
+            attr.value[0].properties[0].value, "audio-input-microphone"
+        )
         self.assertEqual(
-            attr.value[0].properties[1].name, 'device.display_name')
-        self.assertEqual(attr.value[0].properties[1].value, 'Microphone')
+            attr.value[0].properties[1].name, "device.display_name"
+        )
+        self.assertEqual(attr.value[0].properties[1].value, "Microphone")
 
     def test_SPDIF_in_port_label(self):
         # This checks that '(S/PDIF)' does not confuse the parser to parse
         # '(' before port properties
         attr = self.assertParses(
-            pactl.GenericListAttribute.Syntax, (
-                'Ports:\n'
-                '\tiec958-stereo-input: Digital Input (S/PDIF) (priority: 0, '
-                'latency offset: 0 usec)\n'
-                '\t\tPart of profile(s): input:iec958-stereo\n'
-            )
-        )['attribute']
-        self.assertEqual(attr.name, 'Ports')
-        self.assertEqual(attr.value[0].name, 'iec958-stereo-input')
-        self.assertEqual(attr.value[0].label, 'Digital Input (S/PDIF)')
+            pactl.GenericListAttribute.Syntax,
+            (
+                "Ports:\n"
+                "\tiec958-stereo-input: Digital Input (S/PDIF) (priority: 0, "
+                "latency offset: 0 usec)\n"
+                "\t\tPart of profile(s): input:iec958-stereo\n"
+            ),
+        )["attribute"]
+        self.assertEqual(attr.name, "Ports")
+        self.assertEqual(attr.value[0].name, "iec958-stereo-input")
+        self.assertEqual(attr.value[0].label, "Digital Input (S/PDIF)")
         self.assertEqual(attr.value[0].priority, 0)
         self.assertEqual(attr.value[0].latency_offset, 0)
-        self.assertEqual(attr.value[0].profile_list, ['input:iec958-stereo'])
+        self.assertEqual(attr.value[0].profile_list, ["input:iec958-stereo"])
 
     def test_profiles(self):
         attr = self.assertParses(
-            pactl.GenericListAttribute.Syntax, (
-                'Profiles:\n'
-                '\toutput:analog-stereo: Wyjście Analogowe stereo (sinks: 1, '
-                'sources: 0, priority. 6000)\n'
-                '\toutput:analog-stereo+input:analog-stereo: Analogowy '
-                'dupleks stereo (sinks: 1, sources: 1, priority. 6060)\n'
-                '\toutput:hdmi-stereo: Wyjście Digital Stereo (HDMI) (sinks: '
-                '1, sources: 0, priority. 5400)\n'
-                '\toutput:hdmi-stereo+input:analog-stereo: Wyjście Digital '
-                'Stereo (HDMI) + Wejście Analogowe stereo (sinks: 1, sources: '
-                '1, priority. 5460)\n'
-                '\toutput:hdmi-surround: Wyjście Digital Surround 5.1 (HDMI) '
-                '(sinks: 1, sources: 0, priority. 300)\n'
-                '\toutput:hdmi-surround+input:analog-stereo: Wyjście Digital '
-                'Surround 5.1 (HDMI) + Wejście Analogowe stereo (sinks: 1, '
-                'sources: 1, priority. 360)\n'
-                '\tinput:analog-stereo: Wejście Analogowe stereo (sinks: 0, '
-                'sources: 1, priority. 60)\n'
-                '\toff: Wyłącz (sinks: 0, sources: 0, priority. 0)\n'
-            )
-        )['attribute']
-        self.assertEqual(attr.name, 'Profiles')
-        self.assertEqual(attr.value[0].name, 'output:analog-stereo')
-        self.assertEqual(attr.value[0].label, 'Wyjście Analogowe stereo')
+            pactl.GenericListAttribute.Syntax,
+            (
+                "Profiles:\n"
+                "\toutput:analog-stereo: Wyjście Analogowe stereo (sinks: 1, "
+                "sources: 0, priority. 6000)\n"
+                "\toutput:analog-stereo+input:analog-stereo: Analogowy "
+                "dupleks stereo (sinks: 1, sources: 1, priority. 6060)\n"
+                "\toutput:hdmi-stereo: Wyjście Digital Stereo (HDMI) (sinks: "
+                "1, sources: 0, priority. 5400)\n"
+                "\toutput:hdmi-stereo+input:analog-stereo: Wyjście Digital "
+                "Stereo (HDMI) + Wejście Analogowe stereo (sinks: 1, sources: "
+                "1, priority. 5460)\n"
+                "\toutput:hdmi-surround: Wyjście Digital Surround 5.1 (HDMI) "
+                "(sinks: 1, sources: 0, priority. 300)\n"
+                "\toutput:hdmi-surround+input:analog-stereo: Wyjście Digital "
+                "Surround 5.1 (HDMI) + Wejście Analogowe stereo (sinks: 1, "
+                "sources: 1, priority. 360)\n"
+                "\tinput:analog-stereo: Wejście Analogowe stereo (sinks: 0, "
+                "sources: 1, priority. 60)\n"
+                "\toff: Wyłącz (sinks: 0, sources: 0, priority. 0)\n"
+            ),
+        )["attribute"]
+        self.assertEqual(attr.name, "Profiles")
+        self.assertEqual(attr.value[0].name, "output:analog-stereo")
+        self.assertEqual(attr.value[0].label, "Wyjście Analogowe stereo")
         self.assertEqual(attr.value[0].priority, 6000)
-        self.assertEqual(attr.value[-3].label,
-                         ('Wyjście Digital Surround 5.1 (HDMI) + Wejście '
-                          'Analogowe stereo'))
+        self.assertEqual(
+            attr.value[-3].label,
+            (
+                "Wyjście Digital Surround 5.1 (HDMI) + Wejście "
+                "Analogowe stereo"
+            ),
+        )
         self.assertEqual(attr.value[-3].priority, 360)
-        self.assertEqual(attr.value[-1].name, 'off')
+        self.assertEqual(attr.value[-1].name, "off")
 
     def test_format(self):
         attr = self.assertParses(
-            pactl.GenericListAttribute.Syntax, 'Formats:\n' '\tpcm\n'
-        )['attribute']
-        self.assertEqual(attr.name, 'Formats')
-        self.assertEqual(attr.value, ['pcm'])
+            pactl.GenericListAttribute.Syntax, "Formats:\n" "\tpcm\n"
+        )["attribute"]
+        self.assertEqual(attr.name, "Formats")
+        self.assertEqual(attr.value, ["pcm"])
 
 
 class RecordTests(ParsingTestCase, PactlDataMixIn):
@@ -612,92 +714,102 @@ class RecordTests(ParsingTestCase, PactlDataMixIn):
     def test_sinks(self):
         record = self.assertParses(
             pactl.Record.Syntax, self.get_text("sinks-desktop-precise-0")
-        )['record']
+        )["record"]
         self.assertEqual(record.name, "Sink #0")
         self.assertEqual(record.attribute_list[0].name, "State")
-        self.assertIs(record.attribute_map['State'], record.attribute_list[0])
+        self.assertIs(record.attribute_map["State"], record.attribute_list[0])
         # Probe some random things
         self.assertEqual(
-            record.attribute_map['Ports'].value[0].name, "hdmi-output-1")
+            record.attribute_map["Ports"].value[0].name, "hdmi-output-1"
+        )
         self.assertEqual(
-            record.attribute_map['Properties'].value[2].value, "sound")
-        self.assertEqual(
-            record.attribute_map['Formats'].value, ['pcm'])
+            record.attribute_map["Properties"].value[2].value, "sound"
+        )
+        self.assertEqual(record.attribute_map["Formats"].value, ["pcm"])
 
     def test_DMIC_sinks(self):
         record = self.assertParses(
             pactl.Record.Syntax, self.get_text("sinks-desktop-bionic-x13")
-        )['record']
+        )["record"]
         self.assertEqual(record.name, "Sink #42")
         self.assertEqual(record.attribute_list[0].name, "State")
-        self.assertIs(record.attribute_map['State'], record.attribute_list[0])
+        self.assertIs(record.attribute_map["State"], record.attribute_list[0])
         # Probe some random things
+        self.assertEqual(record.attribute_map["Ports"].value[0].name, "HDMI2")
         self.assertEqual(
-            record.attribute_map['Ports'].value[0].name, "HDMI2")
-        self.assertEqual(
-            record.attribute_map['Properties'].value[2].value, "sound")
-        self.assertEqual(
-            record.attribute_map['Formats'].value, ['pcm'])
+            record.attribute_map["Properties"].value[2].value, "sound"
+        )
+        self.assertEqual(record.attribute_map["Formats"].value, ["pcm"])
 
     def test_sinks_p16gen1(self):
         record = self.assertParses(
             pactl.Record.Syntax, self.get_text("sinks-desktop-jammy-p16gen1")
-        )['record']
+        )["record"]
         self.assertEqual(record.name, "Sink #4")
         self.assertEqual(record.attribute_list[0].name, "State")
-        self.assertIs(record.attribute_map['State'], record.attribute_list[0])
+        self.assertIs(record.attribute_map["State"], record.attribute_list[0])
         # Probe some random things
         self.assertEqual(
-            record.attribute_map['Ports'].value[0].name, "Speaker")
+            record.attribute_map["Ports"].value[0].name, "Speaker"
+        )
         self.assertEqual(
-            record.attribute_map['Ports'].value[0].availability, "availability unknown")
+            record.attribute_map["Ports"].value[0].availability,
+            "availability unknown",
+        )
         self.assertEqual(
-            record.attribute_map['Ports'].value[1].name, "Headphones")
+            record.attribute_map["Ports"].value[1].name, "Headphones"
+        )
         self.assertEqual(
-            record.attribute_map['Properties'].value[2].value, "sound")
-        self.assertEqual(
-            record.attribute_map['Formats'].value, ['pcm'])
+            record.attribute_map["Properties"].value[2].value, "sound"
+        )
+        self.assertEqual(record.attribute_map["Formats"].value, ["pcm"])
 
     def test_sinks_latitude3540(self):
         record = self.assertParses(
-            pactl.Record.Syntax, self.get_text(
-                "sinks-desktop-jammy-latitude3540")
-        )['record']
+            pactl.Record.Syntax,
+            self.get_text("sinks-desktop-jammy-latitude3540"),
+        )["record"]
         self.assertEqual(record.name, "Sink #4")
         self.assertEqual(record.attribute_list[0].name, "State")
-        self.assertIs(record.attribute_map['State'], record.attribute_list[0])
+        self.assertIs(record.attribute_map["State"], record.attribute_list[0])
         # Probe some random things
         self.assertEqual(
-            record.attribute_map['Ports'].value[0].name, "Speaker")
+            record.attribute_map["Ports"].value[0].name, "Speaker"
+        )
         self.assertEqual(
-            record.attribute_map['Ports'].value[0].availability, "availability unknown")
+            record.attribute_map["Ports"].value[0].availability,
+            "availability unknown",
+        )
         self.assertEqual(
-            record.attribute_map['Ports'].value[1].name, "Headphones")
-        self.assertEqual(
-            record.attribute_map['Ports'].value[1].priority, 200)
-        self.assertEqual(
-            record.attribute_map['Formats'].value, ['pcm'])
+            record.attribute_map["Ports"].value[1].name, "Headphones"
+        )
+        self.assertEqual(record.attribute_map["Ports"].value[1].priority, 200)
+        self.assertEqual(record.attribute_map["Formats"].value, ["pcm"])
 
     def test_modules(self):
         record = self.assertParses(
             pactl.Record.Syntax, self.get_text("modules-desktop-precise-0")
-        )['record']
+        )["record"]
         self.assertEqual(record.name, "Module #0")
         self.assertEqual(record.attribute_list[0].name, "Name")
-        self.assertEqual(record.attribute_list[0].value,
-                         "module-device-restore")
+        self.assertEqual(
+            record.attribute_list[0].value, "module-device-restore"
+        )
         self.assertEqual(record.attribute_list[1].name, "Argument")
         self.assertEqual(record.attribute_list[1].value, "")
         self.assertEqual(record.attribute_list[2].name, "Usage counter")
         self.assertEqual(record.attribute_list[2].value, "n/a")
         self.assertEqual(record.attribute_list[3].name, "Properties")
-        self.assertEqual(record.attribute_list[3].value[0].name,
-                         "module.author")
-        self.assertEqual(record.attribute_list[3].value[0].value,
-                         "Lennart Poettering")
+        self.assertEqual(
+            record.attribute_list[3].value[0].name, "module.author"
+        )
+        self.assertEqual(
+            record.attribute_list[3].value[0].value, "Lennart Poettering"
+        )
         # Skip the second property because it's pretty long
-        self.assertEqual(record.attribute_list[3].value[2].name,
-                         "module.version")
+        self.assertEqual(
+            record.attribute_list[3].value[2].name, "module.version"
+        )
         self.assertEqual(record.attribute_list[3].value[2].value, "1.1")
 
 
@@ -710,7 +822,8 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
         self.assertEqual(len(document.record_list), 24)
         self.assertEqual(document.record_list[0].name, "Module #0")
         self.assertEqual(
-            document.record_list[0].attribute_map['Argument'].value, "")
+            document.record_list[0].attribute_map["Argument"].value, ""
+        )
         self.assertEqual(document.record_list[23].name, "Module #23")
 
     def test_pactl_list_sinks(self):
@@ -727,7 +840,8 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
 
     def test_pactl_list_sinks_latitude3540(self):
         document = self.assertParses(
-            pactl.Document.Syntax, self.get_text("sinks-desktop-jammy-latitude3540")
+            pactl.Document.Syntax,
+            self.get_text("sinks-desktop-jammy-latitude3540"),
         )[0]
         self.assertEqual(len(document.record_list), 1)
 
@@ -757,7 +871,8 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
 
     def test_pactl_list_cards_latitude3540(self):
         document = self.assertParses(
-            pactl.Document.Syntax, self.get_text("cards-desktop-jammy-latitude3540")
+            pactl.Document.Syntax,
+            self.get_text("cards-desktop-jammy-latitude3540"),
         )[0]
         self.assertEqual(len(document.record_list), 2)
 
@@ -787,7 +902,8 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
         self.assertEqual(document.record_list[27].name, "Sink #0")
         self.assertEqual(
             document.record_list[27].attribute_list[14].value[0].name,
-            "Speaker")
+            "Speaker",
+        )
 
     def test_pactl_list(self):
         document = self.assertParses(
@@ -795,8 +911,8 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
         )[0]
         for i in range(24):
             self.assertEqual(
-                document.record_list[i].name,
-                "Module #{}".format(i))
+                document.record_list[i].name, "Module #{}".format(i)
+            )
         self.assertEqual(document.record_list[24].name, "Sink #0")
         self.assertEqual(document.record_list[25].name, "Source #0")
         self.assertEqual(document.record_list[26].name, "Source #1")
@@ -820,8 +936,8 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
 
     def test_pactl_list_negative_balance_focal(self):
         document = self.assertParses(
-            pactl.Document.Syntax, self.get_text(
-                "desktop-focal-vostro5590"))[0]
+            pactl.Document.Syntax, self.get_text("desktop-focal-vostro5590")
+        )[0]
 
     def test_pactl_list_bt_volume_trusty(self):
         document = self.assertParses(
@@ -829,8 +945,8 @@ class DocumentTests(ParsingTestCase, PactlDataMixIn):
         )[0]
         for i in range(26):
             self.assertEqual(
-                document.record_list[i].name,
-                "Module #{}".format(i))
+                document.record_list[i].name, "Module #{}".format(i)
+            )
         self.assertEqual(document.record_list[26].name, "Sink #1")
         self.assertEqual(document.record_list[27].name, "Sink #2")
         self.assertEqual(document.record_list[28].name, "Sink #3")

@@ -24,10 +24,11 @@ import platform_profile_resource
 
 
 class TestPlatformProfilesSupport(unittest.TestCase):
-    """ Test the platform profile support """
+    """Test the platform profile support"""
+
     @patch("builtins.print")
     def test_supported(self, mock_print):
-        """ Test the function when all paths exist"""
+        """Test the function when all paths exist"""
         with patch("pathlib.Path.exists") as mock_exists:
             # All paths exist
             mock_exists.side_effect = [True, True, True]
@@ -37,7 +38,7 @@ class TestPlatformProfilesSupport(unittest.TestCase):
 
     @patch("builtins.print")
     def test_unsupported(self, mock_print):
-        """ Test the function when some paths do not exist"""
+        """Test the function when some paths do not exist"""
         with patch("pathlib.Path.exists") as mock_exists:
             # First scenario: None of the paths exist
             mock_exists.side_effect = [False, False, False]
@@ -70,6 +71,6 @@ class TestPlatformProfilesSupport(unittest.TestCase):
 
     @patch("platform_profile_resource.check_platform_profiles")
     def test_main(self, mock_check_platform_profiles):
-        """ Test the main function """
+        """Test the main function"""
         platform_profile_resource.main()
         mock_check_platform_profiles.assert_has_calls([])

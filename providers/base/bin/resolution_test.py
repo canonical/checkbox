@@ -4,7 +4,8 @@ import gi
 import sys
 
 from argparse import ArgumentParser
-gi.require_version('Gdk', '3.0')
+
+gi.require_version("Gdk", "3.0")
 from gi.repository import Gdk  # noqa: E402
 
 
@@ -13,8 +14,8 @@ def check_resolution():
     n = screen.get_n_monitors()
     for i in range(n):
         geom = screen.get_monitor_geometry(i)
-        print('Monitor %d:' % (i + 1))
-        print('  %d x %d' % (geom.width, geom.height))
+        print("Monitor %d:" % (i + 1))
+        print("  %d x %d" % (geom.width, geom.height))
 
 
 def compare_resolution(min_h, min_v):
@@ -32,12 +33,14 @@ def main():
         "--horizontal",
         type=int,
         default=0,
-        help="Minimum acceptable horizontal resolution.")
+        help="Minimum acceptable horizontal resolution.",
+    )
     parser.add_argument(
         "--vertical",
         type=int,
         default=0,
-        help="Minimum acceptable vertical resolution.")
+        help="Minimum acceptable vertical resolution.",
+    )
     args = parser.parse_args()
 
     if (args.horizontal > 0) and (args.vertical > 0):

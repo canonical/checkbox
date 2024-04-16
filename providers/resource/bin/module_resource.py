@@ -46,7 +46,8 @@ def get_module(line):
         "instances": int(instances),
         "dependencies": dependencies.replace(",", " ").strip(),
         "state": state,
-        "offset": int(offset, 16)}
+        "offset": int(offset, 16),
+    }
 
 
 def get_modules(filename):

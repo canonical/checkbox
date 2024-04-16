@@ -56,8 +56,7 @@ def get_system_module_list():
     """
     _logger.info("Looking at inserted kernel modules")
     modules = []
-    with io.open("/proc/modules", 'rt',
-                 encoding='UTF-8') as stream:
+    with io.open("/proc/modules", "rt", encoding="UTF-8") as stream:
         for line in stream.readlines():
             modules.append(line.split()[0].strip())
     return modules
@@ -79,13 +78,15 @@ def get_system_modaliases():
     name = "modalias"
     for root, dirs, files in os.walk("/sys/devices/"):
         if name in files:
-            with io.open(os.path.join(root, name), 'rt',
-                         encoding='UTF-8') as stream:
+            with io.open(
+                os.path.join(root, name), "rt", encoding="UTF-8"
+            ) as stream:
                 data = stream.read().strip()
                 pattern_array = data.split(":", 1)
                 if len(pattern_array) < 2:
                     _logger.warning(
-                        "skip pattern {}, not a valid modalias".format(data))
+                        "skip pattern {}, not a valid modalias".format(data)
+                    )
                     continue
                 (modalias_type, modalias_string) = pattern_array
 
@@ -112,7 +113,7 @@ def get_installed_dkms_modules():
     path = "/var/lib/dkms/"
     for root, dirs, files in os.walk(path):
         if os.uname().release in dirs:
-            dkms = root[len(path):].split("/")
+            dkms = root[len(path) :].split("/")
             if len(dkms) != 2:
                 continue
             _dkmses.append(dkms)
@@ -154,7 +155,6 @@ def match_patterns(patterns):
 
 
 class DkmsPackage(object):
-
     """
     Handle DKMS type device package, DKMS is a kernel module framework.
 
@@ -196,10 +196,11 @@ class DkmsPackage(object):
         for fn in os.listdir(dpkg_info_root):
             if not fn.endswith(".list"):
                 continue
-            with io.open(os.path.join(dpkg_info_root, fn), 'rt',
-                         encoding='UTF-8') as stream:
+            with io.open(
+                os.path.join(dpkg_info_root, fn), "rt", encoding="UTF-8"
+            ) as stream:
                 if path in stream.read():
-                    return fn[:-len(".list")]
+                    return fn[: -len(".list")]
         return None
 
     def _list_modules(self):
@@ -214,7 +215,8 @@ class DkmsPackage(object):
             List of kernel modules
         """
         path = "/var/lib/dkms/{}/{}/{}/{}/module".format(
-            self.dkms_name, self.dkms_ver, self.kernel_ver, self.arch)
+            self.dkms_name, self.dkms_ver, self.kernel_ver, self.arch
+        )
         _logger.info("Looking for kernel modules in %s", path)
         result = []
         for module_file in os.listdir(path):
@@ -239,14 +241,15 @@ class DkmsPackage(object):
                 continue
             _logger.info("Inspecting module %s", m)
 
-            output = subprocess.check_output(["modinfo", m],
-                                             universal_newlines=True)
+            output = subprocess.check_output(
+                ["modinfo", m], universal_newlines=True
+            )
             aliases = []
             for line in output.splitlines():
                 if not line.startswith("alias:"):
                     continue
 
-                key, value = line.split(':', 1)
+                key, value = line.split(":", 1)
                 aliases.append(value.strip())
 
             install_mods[m] = match_patterns(tuple(aliases))
@@ -271,7 +274,6 @@ def _headers_to_dist(pkg_str):
 
 
 class DebianPackageHandler(object):
-
     """Use rtf822(email) to handle the package information from file_object."""
 
     def __init__(self, extra_pkgs=[], file_object=None):
@@ -283,8 +285,9 @@ class DebianPackageHandler(object):
            where stored system package information
         """
         if file_object is None:
-            file_object = io.open('/var/lib/dpkg/status', 'rt',
-                                  encoding='UTF-8')
+            file_object = io.open(
+                "/var/lib/dpkg/status", "rt", encoding="UTF-8"
+            )
         self._file_object = file_object
         self.extra_pkgs = extra_pkgs
         self.pkgs = self._get_device_pkgs()
@@ -297,7 +300,7 @@ class DebianPackageHandler(object):
            A generator of debian package.
         """
         _logger.info("Loading information about all packages")
-        for pkg_str in self._file_object.read().split('\n\n'):
+        for pkg_str in self._file_object.read().split("\n\n"):
             yield pkg_str
 
     def _get_device_pkgs(self):
@@ -321,31 +324,38 @@ class DebianPackageHandler(object):
                     continue
                 pstr = "Package: {}".format(pkg.pkg_name)
                 if pstr in pkg_str:
-                    _logger.info("Gathering information of package, {}".format(
-                        pkg.pkg_name))
+                    _logger.info(
+                        "Gathering information of package, {}".format(
+                            pkg.pkg_name
+                        )
+                    )
                     pkg.pkg = _headers_to_dist(pkg_str)
                     break
             else:
                 if "Modaliases:" in pkg_str:
                     pkg = _headers_to_dist(pkg_str)
 
-                    (modalias_header, pattern_str) = \
-                        pkg['modaliases'].strip(")").split("(")
-                    patterns = pattern_str.split(', ')
+                    (modalias_header, pattern_str) = (
+                        pkg["modaliases"].strip(")").split("(")
+                    )
+                    patterns = pattern_str.split(", ")
                     patterns.sort()
-                    pkg['match_patterns'] = match_patterns(tuple(patterns))
+                    pkg["match_patterns"] = match_patterns(tuple(patterns))
 
-                    dpkgf = "/var/lib/dpkg/info/{}.list".format(pkg['package'])
-                    with io.open(dpkgf, 'rt', encoding='UTF-8') as stream:
+                    dpkgf = "/var/lib/dpkg/info/{}.list".format(pkg["package"])
+                    with io.open(dpkgf, "rt", encoding="UTF-8") as stream:
                         if "/dkms.conf" in stream.read():
-                            pkg['unused_dkms'] = True
-                    result[pkg['package']] = pkg
+                            pkg["unused_dkms"] = True
+                    result[pkg["package"]] = pkg
         return result
 
     def to_json(self):
         return json.dumps(
             {"dkms": self.extra_pkgs, "non-dkms": self.pkgs},
-            default=lambda o: o.__dict__, sort_keys=True, indent=4)
+            default=lambda o: o.__dict__,
+            sort_keys=True,
+            indent=4,
+        )
 
     def to_outline(self):
         result = ""
@@ -353,10 +363,8 @@ class DebianPackageHandler(object):
             if pkg.pkg is None:
                 continue
             result = "{}\n{}_{}: {}".format(
-                result,
-                pkg.pkg_name,
-                pkg.pkg["version"],
-                pkg.install_mods)
+                result, pkg.pkg_name, pkg.pkg["version"], pkg.install_mods
+            )
         for pkg_name, pkg in self.pkgs.items():
             extra_str = ""
             if "unused_dkms" in pkg:
@@ -366,12 +374,12 @@ class DebianPackageHandler(object):
                 extra_str,
                 pkg_name,
                 pkg["version"],
-                pkg['match_patterns'])
+                pkg["match_patterns"],
+            )
         return result
 
 
-class DeviceInfo():
-
+class DeviceInfo:
     """
     Implementation of the dkms-info command.
 
@@ -395,28 +403,35 @@ class DeviceInfo():
         """Invoke dkms-info."""
         parser = argparse.ArgumentParser()
         parser.add_argument(
-            '--format', default="onelines",
+            "--format",
+            default="onelines",
             choices=["summary", "json"],
-            help=("Choose output format type: "
-                  "summary (one line per packages) "
-                  "or json (json format, fully information)"))
+            help=(
+                "Choose output format type: "
+                "summary (one line per packages) "
+                "or json (json format, fully information)"
+            ),
+        )
         parser.add_argument(
-            '--output', default=None,
-            help=("Output filename to store the output date"))
+            "--output",
+            default=None,
+            help=("Output filename to store the output date"),
+        )
         args = parser.parse_args()
 
         logging.basicConfig(
-            level=logging.INFO, format='[%(relativeCreated)06dms] %(message)s')
+            level=logging.INFO, format="[%(relativeCreated)06dms] %(message)s"
+        )
         _logger.info("Started")
 
         dkms_pkgs = []
-        for (dkms_name, dkms_ver) in get_installed_dkms_modules():
+        for dkms_name, dkms_ver in get_installed_dkms_modules():
             dkms_pkg = DkmsPackage(dkms_name, dkms_ver)
             dkms_pkgs.append(dkms_pkg)
 
         output = sys.stdout
         if args.output is not None:
-            output = open(args.output, 'wt', encoding='UTF-8')
+            output = open(args.output, "wt", encoding="UTF-8")
 
         pkg_handler = DebianPackageHandler(extra_pkgs=dkms_pkgs)
         if args.format == "summary":
@@ -426,5 +441,5 @@ class DeviceInfo():
         _logger.info("Data collected")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     DeviceInfo().main()

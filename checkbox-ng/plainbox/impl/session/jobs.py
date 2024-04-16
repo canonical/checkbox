@@ -41,7 +41,6 @@ logger = logging.getLogger("plainbox.session.jobs")
 
 
 class InhibitionCause(IntEnum):
-
     """
     There are four possible not-ready causes.
 
@@ -71,7 +70,8 @@ class InhibitionCause(IntEnum):
 
 
 def cause_convert_assign_filter(
-        instance: pod.POD, field: pod.Field, old: "Any", new: "Any") -> "Any":
+    instance: pod.POD, field: pod.Field, old: "Any", new: "Any"
+) -> "Any":
     """
     Assign filter for for JobReadinessInhibitor.cause.
 
@@ -85,7 +85,6 @@ def cause_convert_assign_filter(
 
 
 class JobReadinessInhibitor(pod.POD):
-
     """
     Class representing the cause of a job not being ready to execute.
 
@@ -149,18 +148,23 @@ class JobReadinessInhibitor(pod.POD):
         doc="cause (constant) of the inhibitor",
         type=InhibitionCause,
         initial=pod.MANDATORY,
-        assign_filter_list=[cause_convert_assign_filter,
-                            pod.read_only_assign_filter])
+        assign_filter_list=[
+            cause_convert_assign_filter,
+            pod.read_only_assign_filter,
+        ],
+    )
 
     related_job = pod.Field(
         doc="an (optional) job reference",
         type=JobDefinition,
-        assign_filter_list=[pod.read_only_assign_filter])
+        assign_filter_list=[pod.read_only_assign_filter],
+    )
 
     related_expression = pod.Field(
         doc="an (optional) resource expression reference",
         type=ResourceExpression,
-        assign_filter_list=[pod.read_only_assign_filter])
+        assign_filter_list=[pod.read_only_assign_filter],
+    )
 
     def __init__(self, cause, related_job=None, related_expression=None):
         """
@@ -171,27 +175,41 @@ class JobReadinessInhibitor(pod.POD):
         necessary as well. A ValueError is raised when this is violated.
         """
         super().__init__(cause, related_job, related_expression)
-        if (self.cause != InhibitionCause.UNDESIRED and
-                self.related_job is None):
+        if (
+            self.cause != InhibitionCause.UNDESIRED
+            and self.related_job is None
+        ):
             raise ValueError(
                 # TRANSLATORS: please don't translate related_job, None and
                 # cause
                 _("related_job must not be None when cause is {}").format(
-                    self.cause.name))
-        if (self.cause in (InhibitionCause.PENDING_RESOURCE,
-                           InhibitionCause.FAILED_RESOURCE) and
-                self.related_expression is None):
-            raise ValueError(_(
-                # TRANSLATORS: please don't translate related_expression, None
-                # and cause.
-                "related_expression must not be None when cause is {}"
-            ).format(self.cause.name))
+                    self.cause.name
+                )
+            )
+        if (
+            self.cause
+            in (
+                InhibitionCause.PENDING_RESOURCE,
+                InhibitionCause.FAILED_RESOURCE,
+            )
+            and self.related_expression is None
+        ):
+            raise ValueError(
+                _(
+                    # TRANSLATORS: please don't translate related_expression, None
+                    # and cause.
+                    "related_expression must not be None when cause is {}"
+                ).format(self.cause.name)
+            )
 
     def __repr__(self):
         """Get a custom debugging representation of an inhibitor."""
         return "<{} cause:{} related_job:{!r} related_expression:{!r}>".format(
-            self.__class__.__name__, self.cause.name, self.related_job,
-            self.related_expression)
+            self.__class__.__name__,
+            self.cause.name,
+            self.related_job,
+            self.related_expression,
+        )
 
     def __str__(self):
         """Get a human-readable text representation of an inhibitor."""
@@ -200,10 +218,12 @@ class JobReadinessInhibitor(pod.POD):
             return _("undesired")
         elif self.cause == InhibitionCause.PENDING_DEP:
             return _("required dependency {!r} did not run yet").format(
-                self.related_job.id)
+                self.related_job.id
+            )
         elif self.cause == InhibitionCause.FAILED_DEP:
             return _("required dependency {!r} has failed").format(
-                self.related_job.id)
+                self.related_job.id
+            )
         elif self.cause == InhibitionCause.PENDING_RESOURCE:
             return _(
                 "resource expression {!r} could not be evaluated because"
@@ -211,24 +231,26 @@ class JobReadinessInhibitor(pod.POD):
             ).format(self.related_expression.text)
         elif self.cause == InhibitionCause.FAILED_RESOURCE:
             return _("resource expression {!r} evaluates to false").format(
-                self.related_expression.text)
+                self.related_expression.text
+            )
         elif self.cause == InhibitionCause.NOT_FAILED_DEP:
             return _("required dependency {!r} did not fail").format(
-                self.related_job.id)
+                self.related_job.id
+            )
         raise NotImplementedError("Unknown inhibitor {}".format(self.cause))
 
 
 # A global instance of :class:`JobReadinessInhibitor` with the UNDESIRED cause.
 # This is used a lot and it makes no sense to instantiate all the time.
 UndesiredJobReadinessInhibitor = JobReadinessInhibitor(
-    InhibitionCause.UNDESIRED)
+    InhibitionCause.UNDESIRED
+)
 
 
 JOB_VALUE = object()
 
 
 class OverridableJobField(pod.Field):
-
     """
     A custom Field for modeling job values that can be overridden.
 
@@ -240,11 +262,18 @@ class OverridableJobField(pod.Field):
     per-job value but can be also overridden in a session state context.
     """
 
-    def __init__(self, job_field, doc=None, type=None, notify=False,
-                 assign_filter_list=None):
+    def __init__(
+        self,
+        job_field,
+        doc=None,
+        type=None,
+        notify=False,
+        assign_filter_list=None,
+    ):
         """Initialize a new overridable job field."""
         super().__init__(
-            doc, type, JOB_VALUE, None, notify, assign_filter_list)
+            doc, type, JOB_VALUE, None, notify, assign_filter_list
+        )
         self.job_field = job_field
 
     def __get__(self, instance, owner):
@@ -270,7 +299,6 @@ def job_assign_filter(instance, field, old_value, new_value):
 
 
 class JobState(pod.POD):
-
     """
     Class representing the state of a job in a session.
 
@@ -290,43 +318,53 @@ class JobState(pod.POD):
         doc="the job associated with this state",
         type=JobDefinition,
         initial=pod.MANDATORY,
-        assign_filter_list=[job_assign_filter])
+        assign_filter_list=[job_assign_filter],
+    )
 
     readiness_inhibitor_list = pod.Field(
         doc="the list of readiness inhibitors of the associated job",
         type="List[JobReadinessInhibitor]",
-        initial_fn=lambda: [UndesiredJobReadinessInhibitor])
+        initial_fn=lambda: [UndesiredJobReadinessInhibitor],
+    )
 
     result = pod.Field(
         doc="the result of running the associated job",
         type=IJobResult,
         initial_fn=lambda: MemoryJobResult({}),
-        notify=True)
+        notify=True,
+    )
 
     result_history = pod.Field(
         doc="a tuple of result_history of the associated job",
-        type=tuple, initial=(), notify=True,
-        assign_filter_list=[pod.typed, pod.typed.sequence(IJobResult)])
+        type=tuple,
+        initial=(),
+        notify=True,
+        assign_filter_list=[pod.typed, pod.typed.sequence(IJobResult)],
+    )
 
     effective_category_id = OverridableJobField(
         job_field="category_id",
         doc="the effective categorization of this test in a session",
-        type=str)
+        type=str,
+    )
 
     effective_certification_status = OverridableJobField(
         job_field="certification_status",
         doc="the effective certification status of this job",
-        type=str)
+        type=str,
+    )
 
     effective_auto_retry = OverridableJobField(
         job_field="auto_retry",
         doc="the ability to automatically retry this job if it fails",
-        type=str)
+        type=str,
+    )
 
     attempts = pod.Field(
         doc="number of attempts remaining (in auto-retry mode)",
         type=int,
-        initial_fn=lambda: 3)
+        initial_fn=lambda: 3,
+    )
 
     # NOTE: the `result` property just exposes the last result from the
     # `result_history` tuple above. The API is used everywhere so it should not
@@ -350,7 +388,8 @@ class JobState(pod.POD):
         if new.is_hollow:
             return
         logger.debug(
-            "Appending result %r to history: %r", new, self.result_history)
+            "Appending result %r to history: %r", new, self.result_history
+        )
         self.result_history += (new,)
 
     def can_start(self):
@@ -361,8 +400,13 @@ class JobState(pod.POD):
         """Get a human readable description of the current readiness state."""
         if self.readiness_inhibitor_list:
             return _("job cannot be started: {}").format(
-                ", ".join((str(inhibitor)
-                           for inhibitor in self.readiness_inhibitor_list)))
+                ", ".join(
+                    (
+                        str(inhibitor)
+                        for inhibitor in self.readiness_inhibitor_list
+                    )
+                )
+            )
         else:
             return _("job can be started")
 
@@ -408,9 +452,9 @@ class JobState(pod.POD):
             'blocker'
         """
         for field, value in override_list:
-            effective_field = 'effective_{}'.format(field)
+            effective_field = "effective_{}".format(field)
             effective_field_obj = getattr(self.__class__, effective_field)
             if not isinstance(effective_field_obj, OverridableJobField):
-                raise ValueError(_('{!r} is not overridable').format(field))
+                raise ValueError(_("{!r} is not overridable").format(field))
             setattr(self, effective_field, value)
         logger.debug("Applied overrides %r to job %r", override_list, self.job)

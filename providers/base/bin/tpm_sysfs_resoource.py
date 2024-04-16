@@ -26,9 +26,9 @@ import os
 
 def main():
     # This is found on 4.2 kernels
-    sysfs_root_tpm = '/sys/class/tpm/'
+    sysfs_root_tpm = "/sys/class/tpm/"
     # This is found on 3.19 kernels
-    sysfs_root_misc = '/sys/class/misc/'
+    sysfs_root_misc = "/sys/class/misc/"
     if os.path.isdir(sysfs_root_tpm):
         sysfs_root = sysfs_root_tpm
     elif os.path.isdir(sysfs_root_misc):
@@ -36,20 +36,20 @@ def main():
     else:
         return
     for tpm_id in sorted(os.listdir(sysfs_root)):
-        if sysfs_root == sysfs_root_misc and not tpm_id.startswith('tpm'):
+        if sysfs_root == sysfs_root_misc and not tpm_id.startswith("tpm"):
             continue
         print("x-sysfs-device-name: {}".format(tpm_id))
-        tpm_dirname = os.path.join(sysfs_root, tpm_id, 'device')
+        tpm_dirname = os.path.join(sysfs_root, tpm_id, "device")
         for tpm_attr in sorted(os.listdir(tpm_dirname)):
             tpm_filename = os.path.join(tpm_dirname, tpm_attr)
             if not os.path.isfile(tpm_filename):
                 continue
             if not os.access(tpm_filename, os.R_OK):
                 continue
-            with open(tpm_filename, 'rt', encoding='utf-8') as stream:
+            with open(tpm_filename, "rt", encoding="utf-8") as stream:
                 tpm_data = stream.read()
             tpm_data = tpm_data.rstrip()
-            if '\n' in tpm_data:
+            if "\n" in tpm_data:
                 print("{}:".format(tpm_attr))
                 for tpm_data_chunk in tpm_data.splitlines():
                     print(" {}".format(tpm_data_chunk))

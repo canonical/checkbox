@@ -35,7 +35,7 @@ def load_unit_tests():
     # Discover all unit tests. By simple convention those are kept in
     # python modules that start with the word 'test_' .
     start_dir = get_plainbox_dir()
-    top_level_dir = os.path.normpath(os.path.join(start_dir, '..'))
+    top_level_dir = os.path.normpath(os.path.join(start_dir, ".."))
     return defaultTestLoader.discover(start_dir, top_level_dir=top_level_dir)
 
 
@@ -46,7 +46,8 @@ def load_integration_tests():
     # Discover all integration tests. By simple convention those are kept in
     # python modules that start with the word 'integration_' .
     return defaultTestLoader.discover(
-        get_plainbox_dir(), pattern="integration_*.py")
+        get_plainbox_dir(), pattern="integration_*.py"
+    )
 
 
 def test_suite():

@@ -52,11 +52,13 @@ class ExpressionFailedError(Exception):
 
     def __str__(self):
         return _("expression {!r} evaluated to a non-true result").format(
-            self.expression.text)
+            self.expression.text
+        )
 
     def __repr__(self):
         return "<{} expression:{!r}>".format(
-            self.__class__.__name__, self.expression)
+            self.__class__.__name__, self.expression
+        )
 
 
 class ExpressionCannotEvaluateError(ExpressionFailedError):
@@ -75,7 +77,8 @@ class ExpressionCannotEvaluateError(ExpressionFailedError):
 
     def __str__(self):
         return _("expression {!r} needs unavailable resource {!r}").format(
-            self.expression.text, self.resource_id)
+            self.expression.text, self.resource_id
+        )
 
 
 class Resource:
@@ -87,36 +90,36 @@ class Resource:
     script is converted to a new Resource object
     """
 
-    __slots__ = ('_data')
+    __slots__ = "_data"
 
     def __init__(self, data=None):
         if data is None:
             data = {}
-        object.__setattr__(self, '_data', data)
+        object.__setattr__(self, "_data", data)
 
     def __iter__(self):
-        data = object.__getattribute__(self, '_data')
+        data = object.__getattribute__(self, "_data")
         return iter(data)
 
     def __setattr__(self, attr, value):
         if attr.startswith("_"):
             raise AttributeError(attr)
-        data = object.__getattribute__(self, '_data')
+        data = object.__getattribute__(self, "_data")
         data[attr] = value
 
     def __delattr__(self, attr):
-        data = object.__getattribute__(self, '_data')
+        data = object.__getattribute__(self, "_data")
         if attr in data:
             del data[attr]
         else:
             raise AttributeError(attr)
 
     def __getattr__(self, attr):
-        data = object.__getattribute__(self, '_data')
+        data = object.__getattribute__(self, "_data")
         if attr in data:
             return data[attr]
         else:
-            return ''
+            return ""
 
     def __getattribute__(self, attr):
         if attr != "_data":
@@ -125,34 +128,34 @@ class Resource:
             raise AttributeError("don't poke at _data")
 
     def __getitem__(self, item):
-        data = object.__getattribute__(self, '_data')
+        data = object.__getattribute__(self, "_data")
         return data[item]
 
     def __setitem__(self, item, value):
-        data = object.__getattribute__(self, '_data')
+        data = object.__getattribute__(self, "_data")
         data[item] = value
 
     def __delitem__(self, item):
-        data = object.__getattribute__(self, '_data')
+        data = object.__getattribute__(self, "_data")
         del data[item]
 
     def __repr__(self):
-        data = object.__getattribute__(self, '_data')
+        data = object.__getattribute__(self, "_data")
         return "Resource({!r})".format(data)
 
     def __eq__(self, other):
         if not isinstance(other, Resource):
             return False
-        return (
-            object.__getattribute__(self, '_data')
-            == object.__getattribute__(other, '_data'))
+        return object.__getattribute__(
+            self, "_data"
+        ) == object.__getattribute__(other, "_data")
 
     def __ne__(self, other):
         if not isinstance(other, Resource):
             return True
-        return (
-            object.__getattribute__(self, '_data')
-            != object.__getattribute__(other, '_data'))
+        return object.__getattribute__(
+            self, "_data"
+        ) != object.__getattribute__(other, "_data")
 
 
 class FakeResource:
@@ -212,7 +215,8 @@ class ResourceProgram:
         for line in program_text.splitlines():
             if line.strip() != "":
                 self._expression_list.append(
-                    ResourceExpression(line, implicit_namespace, imports))
+                    ResourceExpression(line, implicit_namespace, imports)
+                )
 
     @property
     def expression_list(self):
@@ -250,13 +254,17 @@ class ResourceProgram:
             for resource_id in expression.resource_id_list:
                 if resource_id not in resource_map:
                     raise ExpressionCannotEvaluateError(
-                        expression, resource_id)
+                        expression, resource_id
+                    )
         # Then evaluate all expressions
         for expression in self._expression_list:
-            result = expression.evaluate(*[
-                resource_map[resource_id]
-                for resource_id in expression.resource_id_list
-            ], resource_map = resource_map)
+            result = expression.evaluate(
+                *[
+                    resource_map[resource_id]
+                    for resource_id in expression.resource_id_list
+                ],
+                resource_map=resource_map
+            )
             if not result:
                 raise ExpressionFailedError(expression)
         return True
@@ -286,7 +294,8 @@ class CodeNotAllowed(ResourceProgramError):
 
     def __str__(self):
         return _("this kind of python code is not allowed: {}").format(
-            ast.dump(self.node))
+            ast.dump(self.node)
+        )
 
 
 class ResourceNodeVisitor(ast.NodeVisitor):
@@ -352,10 +361,10 @@ class ResourceNodeVisitor(ast.NodeVisitor):
 
     # Allowed function calls
     _allowed_call_func_list = (
-        'len',
-        'bool',
-        'int',
-        'float',
+        "len",
+        "bool",
+        "int",
+        "float",
     )
 
     # A tuple of allowed types of ast.Node that are white-listed by
@@ -363,10 +372,8 @@ class ResourceNodeVisitor(ast.NodeVisitor):
     _allowed_node_cls_list = (
         # Allowed statements (ast.stmt sub-classes)
         ast.Expr,  # expressions
-
         # Allowed 'mod's (ast.mod sub-classes)
         ast.Module,
-
         # Allowed expressions (ast.expr sub-classes)
         ast.Attribute,  # attribute access
         ast.BinOp,  # binary operators
@@ -378,13 +385,10 @@ class ResourceNodeVisitor(ast.NodeVisitor):
         ast.Str,  # strings
         ast.Tuple,  # tuples
         ast.UnaryOp,  # unary operators
-
         # Allow all comparison operators
         ast.cmpop,  # this allows ast.Eq, ast.Gt and so on
-
         # Allow all boolean operators
         ast.boolop,  # this allows ast.And, ast.Or
-
         # Allowed expression context (ast.expr_context)
         ast.Load,  # allow all loads
     )
@@ -440,7 +444,7 @@ class ResourceNodeVisitor(ast.NodeVisitor):
         self._check_node(node)
         if isinstance(node.value, ast.Name):
             self.visit_Name(node.value)
-            if node.value.id == 'manifest':
+            if node.value.id == "manifest":
                 if node.attr not in self._manifest_attr_seen_list:
                     self._manifest_attr_seen_list.append(node.attr)
 
@@ -554,8 +558,11 @@ class ResourceExpression:
             else:
                 self._resource_id_list.append(resource_alias)
         self._text = text
-        self._lambda = eval("lambda {}: {}".format(
-            ', '.join(self._resource_alias_list), self._text))
+        self._lambda = eval(
+            "lambda {}: {}".format(
+                ", ".join(self._resource_alias_list), self._text
+            )
+        )
 
     def __str__(self):
         return self._text
@@ -590,9 +597,11 @@ class ResourceExpression:
         job identifier.
         """
         return [
-            "{}::{}".format(self._implicit_namespace, resource_id)
-            if "::" not in resource_id and self._implicit_namespace
-            else resource_id
+            (
+                "{}::{}".format(self._implicit_namespace, resource_id)
+                if "::" not in resource_id and self._implicit_namespace
+                else resource_id
+            )
             for resource_id in self._resource_id_list
         ]
 
@@ -636,14 +645,14 @@ class ResourceExpression:
         # if parenthesis are used in the expression then there's a high chance
         # we'll break the syntax with a bruteforce split on operator. Let's
         # not do a split on exprs with parenthesis
-        if not '(' in self._text:
-            or_pos = self._text.rfind(' or ')
+        if not "(" in self._text:
+            or_pos = self._text.rfind(" or ")
             if or_pos > 0:
-                lhs, rhs = self._split_and_evaluate(' or ', resource_map)
+                lhs, rhs = self._split_and_evaluate(" or ", resource_map)
                 return lhs or rhs
-            and_pos = self._text.rfind(' and ')
+            and_pos = self._text.rfind(" and ")
             if and_pos > 0:
-                lhs, rhs = self._split_and_evaluate(' and ', resource_map)
+                lhs, rhs = self._split_and_evaluate(" and ", resource_map)
                 return lhs and rhs
 
         # there are no conjuctions, so let's do a simple evaluation
@@ -651,7 +660,8 @@ class ResourceExpression:
             for resource in resource_list:
                 if not isinstance(resource, Resource):
                     raise TypeError(
-                        "Each resource must be a Resource instance")
+                        "Each resource must be a Resource instance"
+                    )
         # Try each resource in sequence.
         for resource_pack in itertools.product(*resource_list_list):
             # Attempt to evaluate the code with the current resource
@@ -663,15 +673,24 @@ class ResourceExpression:
                 # XXX: it would be interesting to see if we have exceptions and
                 # why they happen.  We could do deeper validation this way.
                 logger.debug(
-                    _("Exception in requirement expression %r (with %s=%r):"
-                      " %r"),
-                    self._text, self._resource_id_list, resource_pack, exc)
+                    _(
+                        "Exception in requirement expression %r (with %s=%r):"
+                        " %r"
+                    ),
+                    self._text,
+                    self._resource_id_list,
+                    resource_pack,
+                    exc,
+                )
                 continue
             # Treat any true result as a success
             if result:
                 logger.debug(
                     _("Requirement %r matched (with %s=%r)"),
-                      self._text, self._resource_id_list, resource_pack)
+                    self._text,
+                    self._resource_id_list,
+                    resource_pack,
+                )
                 return True
         # If we get here then the expression did not match. It's pointless (as
         # python returns None implicitly) but it's more explicit on the
@@ -681,20 +700,25 @@ class ResourceExpression:
     def _split_and_evaluate(self, operator, resource_map):
         head, tail = self._text.rsplit(operator, 1)
         head_expr = ResourceExpression(
-            head, self._implicit_namespace, self._imports)
+            head, self._implicit_namespace, self._imports
+        )
         new_res_list = [
-            resource_map[rid] for rid in head_expr.resource_id_list]
+            resource_map[rid] for rid in head_expr.resource_id_list
+        ]
         head_result = head_expr.evaluate(
-            *new_res_list, resource_map = resource_map)
+            *new_res_list, resource_map=resource_map
+        )
         tail = tail.strip()
         tail_expr = ResourceExpression(
-            tail, self._implicit_namespace, self._imports)
+            tail, self._implicit_namespace, self._imports
+        )
         new_res_list = [
-            resource_map[rid] for rid in tail_expr.resource_id_list]
+            resource_map[rid] for rid in tail_expr.resource_id_list
+        ]
         tail_result = tail_expr.evaluate(
-            *new_res_list, resource_map = resource_map)
+            *new_res_list, resource_map=resource_map
+        )
         return (head_result, tail_result)
-
 
     @classmethod
     def _analyze(cls, text):
@@ -740,9 +764,11 @@ class ResourceExpression:
             raise NoResourcesReferenced()
         else:
             return [
-                "{}::{}".format(self._implicit_namespace, manifest_id)
-                if "::" not in manifest_id and self._implicit_namespace
-                else manifest_id
+                (
+                    "{}::{}".format(self._implicit_namespace, manifest_id)
+                    if "::" not in manifest_id and self._implicit_namespace
+                    else manifest_id
+                )
                 for manifest_id in list(visitor.manifest_attr_seen_list)
             ]
 
@@ -765,31 +791,49 @@ def parse_imports_stmt(imports):
         parts = line.split()
         if len(parts) not in (4, 6):
             raise ValueError(
-                _("unable to parse imports statement {0!r}: expected"
-                  " exactly four or six tokens").format(line))
+                _(
+                    "unable to parse imports statement {0!r}: expected"
+                    " exactly four or six tokens"
+                ).format(line)
+            )
         if parts[0] != "from":
             raise ValueError(
-                _("unable to parse imports statement {0!r}: expected"
-                  " 'from' keyword").format(line))
+                _(
+                    "unable to parse imports statement {0!r}: expected"
+                    " 'from' keyword"
+                ).format(line)
+            )
         namespace = parts[1]
         if "::" in namespace:
             raise ValueError(
-                _("unable to parse imports statement {0!r}: expected"
-                  " a namespace, not fully qualified job identifier"))
+                _(
+                    "unable to parse imports statement {0!r}: expected"
+                    " a namespace, not fully qualified job identifier"
+                )
+            )
         if parts[2] != "import":
             raise ValueError(
-                _("unable to parse imports statement {0!r}: expected"
-                  " 'import' keyword").format(line))
+                _(
+                    "unable to parse imports statement {0!r}: expected"
+                    " 'import' keyword"
+                ).format(line)
+            )
         job_id = effective_id = parts[3]
         if "::" in job_id:
             raise ValueError(
-                _("unable to parse imports statement {0!r}: expected"
-                  " a partial job identifier, not a fully qualified job"
-                  " identifier").format(line))
+                _(
+                    "unable to parse imports statement {0!r}: expected"
+                    " a partial job identifier, not a fully qualified job"
+                    " identifier"
+                ).format(line)
+            )
         if len(parts) == 6:
             if parts[4] != "as":
                 raise ValueError(
-                    _("unable to parse imports statement {0!r}: expected"
-                      " 'as' keyword").format(line))
+                    _(
+                        "unable to parse imports statement {0!r}: expected"
+                        " 'as' keyword"
+                    ).format(line)
+                )
             effective_id = parts[5]
         yield ("{}::{}".format(namespace, job_id), effective_id)

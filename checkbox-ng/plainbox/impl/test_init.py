@@ -38,10 +38,11 @@ class MiscTests(TestCase):
                 "the first line is ignored\n"
                 "  subsequent lines"
                 "    get counted"
-                "  though"),
-            2)
-        self.assertEqual(
-            _get_doc_margin("what if there is no margin?"), 0)
+                "  though"
+            ),
+            2,
+        )
+        self.assertEqual(_get_doc_margin("what if there is no margin?"), 0)
 
 
 class DeprecatedDecoratorTests(TestCase):
@@ -51,9 +52,11 @@ class DeprecatedDecoratorTests(TestCase):
 
     def assertWarns(self, warning, callable, *args, **kwds):
         with warnings.catch_warnings(record=True) as warning_list:
-            warnings.simplefilter('always')
+            warnings.simplefilter("always")
             result = callable(*args, **kwds)
-            self.assertTrue(any(item.category == warning for item in warning_list))
+            self.assertTrue(
+                any(item.category == warning for item in warning_list)
+            )
             return result, warning_list
 
     def test_func_deprecation_warning(self):
@@ -61,6 +64,7 @@ class DeprecatedDecoratorTests(TestCase):
         Ensure that @deprecated decorator makes functions emit deprecation
         warnings on call.
         """
+
         @deprecated("0.6")
         def func():
             return "value"
@@ -71,8 +75,10 @@ class DeprecatedDecoratorTests(TestCase):
         )
         self.assertEqual(result, "value")
         # NOTE: we need to use str() as warnings API is a bit silly there
-        self.assertEqual(str(warning_list[0].message),
-                         'func is deprecated since version 0.6')
+        self.assertEqual(
+            str(warning_list[0].message),
+            "func is deprecated since version 0.6",
+        )
 
     def test_func_docstring(self):
         """
@@ -87,7 +93,7 @@ class DeprecatedDecoratorTests(TestCase):
 
         @deprecated("0.6")
         def func2():
-            """ blah """
+            """blah"""
 
         self.assertIn(".. deprecated:: 0.6", func1.__doc__)
         self.assertIn(".. deprecated:: 0.6", func2.__doc__)
@@ -98,9 +104,12 @@ class DeprecatedDecoratorTests(TestCase):
         Ensure that we provide a helpful message when a common mistake is made
         """
         with self.assertRaises(SyntaxError) as boom:
+
             @deprecated
             def func():
                 pass
+
         self.assertEqual(
             str(boom.exception),
-            "@deprecated() must be called with a parameter")
+            "@deprecated() must be called with a parameter",
+        )

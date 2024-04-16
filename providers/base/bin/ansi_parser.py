@@ -55,7 +55,7 @@ def parse_buffer(input):
                 row -= len(output)
             elif ch in "K":
                 if escape == "1":
-                    output[row] = " " * (col + 1) + output[row][col + 1:]
+                    output[row] = " " * (col + 1) + output[row][col + 1 :]
                 elif escape == "2":
                     output[row] = ""
                 else:
@@ -104,7 +104,7 @@ def parse_buffer(input):
             ch = "?"
         if len(output[row]) < col:
             output[row] += " " * (col - len(output[row]))
-        output[row] = output[row][:col] + ch + output[row][col + 1:]
+        output[row] = output[row][:col] + ch + output[row][col + 1 :]
         col += 1
 
     return "\n".join(output)
@@ -129,9 +129,11 @@ def main(args):
     usage = "Usage: %prog [OPTIONS] [FILE...]"
     parser = OptionParser(usage=usage)
     parser.add_option(
-        "-o", "--output",
+        "-o",
+        "--output",
         metavar="FILE",
-        help="File where to output the result.")
+        help="File where to output the result.",
+    )
     (options, args) = parser.parse_args(args)
 
     # Write to stdout

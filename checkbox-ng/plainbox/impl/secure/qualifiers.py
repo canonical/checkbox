@@ -52,13 +52,19 @@ class SimpleQualifier(IUnitQualifier):
     have share some code.
     """
 
-    def __init__(self,  origin, inclusive=True):
+    def __init__(self, origin, inclusive=True):
         if origin is not None and not isinstance(origin, Origin):
-            raise TypeError(_('argument {!a}, expected {}, got {}').format(
-                'origin', Origin, type(origin)))
+            raise TypeError(
+                _("argument {!a}, expected {}, got {}").format(
+                    "origin", Origin, type(origin)
+                )
+            )
         if not isinstance(inclusive, bool):
-            raise TypeError(_('argument {!a}, expected {}, got {}').format(
-                'inclusive', bool, type(inclusive)))
+            raise TypeError(
+                _("argument {!a}, expected {}, got {}").format(
+                    "inclusive", bool, type(inclusive)
+                )
+            )
         self._inclusive = inclusive
         self._origin = origin
 
@@ -155,7 +161,7 @@ class RegExpJobQualifier(SimpleQualifier):
             # XXX: This is a bit crazy but this lets us have identical error
             # messages across python3.2 all the way to 3.5. I really really
             # wish there was a better way at fixing this.
-            exc.args = (re.sub(r" at position \d+", "", exc.args[0]), )
+            exc.args = (re.sub(r" at position \d+", "", exc.args[0]),)
             raise exc
         self._pattern_text = pattern
 
@@ -177,7 +183,8 @@ class RegExpJobQualifier(SimpleQualifier):
 
     def __repr__(self):
         return "{0}({1!r}, inclusive={2})".format(
-            self.__class__.__name__, self._pattern_text, self._inclusive)
+            self.__class__.__name__, self._pattern_text, self._inclusive
+        )
 
 
 class JobIdQualifier(SimpleQualifier):
@@ -207,7 +214,8 @@ class JobIdQualifier(SimpleQualifier):
 
     def __repr__(self):
         return "{0}({1!r}, inclusive={2})".format(
-            self.__class__.__name__, self._id, self._inclusive)
+            self.__class__.__name__, self._id, self._inclusive
+        )
 
 
 class IMatcher(metaclass=abc.ABCMeta):
@@ -261,7 +269,8 @@ class OperatorMatcher(IMatcher):
 
     def __repr__(self):
         return "{0}({1!r}, {2!r})".format(
-            self.__class__.__name__, self._op, self._value)
+            self.__class__.__name__, self._op, self._value
+        )
 
     def __eq__(self, other):
         if isinstance(other, OperatorMatcher):
@@ -297,8 +306,7 @@ class PatternMatcher(IMatcher):
         return self._pattern.match(value) is not None
 
     def __repr__(self):
-        return "{0}({1!r})".format(
-            self.__class__.__name__, self._pattern_text)
+        return "{0}({1!r})".format(self.__class__.__name__, self._pattern_text)
 
     def __eq__(self, other):
         if isinstance(other, PatternMatcher):
@@ -364,8 +372,11 @@ class FieldQualifier(SimpleQualifier):
 
     def __repr__(self):
         return "{0}({1!r}, {2!r}, inclusive={3})".format(
-            self.__class__.__name__, self._field, self._matcher,
-            self._inclusive)
+            self.__class__.__name__,
+            self._field,
+            self._matcher,
+            self._inclusive,
+        )
 
 
 class CompositeQualifier(pod.POD):
@@ -399,9 +410,9 @@ class CompositeQualifier(pod.POD):
         .. versionadded: 0.5
         """
         if self.qualifier_list:
-            return min([
-                qualifier.get_vote(job)
-                for qualifier in self.qualifier_list])
+            return min(
+                [qualifier.get_vote(job) for qualifier in self.qualifier_list]
+            )
         else:
             return IUnitQualifier.VOTE_IGNORE
 
@@ -424,9 +435,11 @@ class NonPrimitiveQualifierOrigin(Exception):
 
 
 def get_flat_primitive_qualifier_list(qualifier_list):
-    return list(itertools.chain(*[
-        qual.get_primitive_qualifiers()
-        for qual in qualifier_list]))
+    return list(
+        itertools.chain(
+            *[qual.get_primitive_qualifiers() for qual in qualifier_list]
+        )
+    )
 
 
 def select_units(unit_list, qualifier_list):
@@ -517,10 +530,12 @@ def select_units(unit_list, qualifier_list):
             excluded_set.add(unit)
 
     for qualifier in flat_qualifier_list:
-        if (isinstance(qualifier, FieldQualifier) and
-                qualifier.field == 'id' and
-                isinstance(qualifier.matcher, OperatorMatcher) and
-                qualifier.matcher.op == operator.eq):
+        if (
+            isinstance(qualifier, FieldQualifier)
+            and qualifier.field == "id"
+            and isinstance(qualifier.matcher, OperatorMatcher)
+            and qualifier.matcher.op == operator.eq
+        ):
             # optimize the super-common case where a qualifier refers to
             # a specific unit by using the id_to_index_map to instantly
             # perform the requested operation on a single unit
@@ -539,5 +554,4 @@ def select_units(unit_list, qualifier_list):
         else:
             for unit in unit_list:
                 _handle_vote(qualifier, unit)
-    return [unit for unit in included_list
-            if unit not in excluded_set]
+    return [unit for unit in included_list if unit not in excluded_set]

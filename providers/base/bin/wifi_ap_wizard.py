@@ -17,8 +17,12 @@ class InteractiveCommandWithShell(InteractiveCommand):
     # this class won't be needed
     def start(self):
         self._proc = subprocess.Popen(
-            self._args, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT, shell=True)
+            self._args,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=True,
+        )
         self._is_running = True
         self._poller = select.poll()
         self._poller.register(self._proc.stdout, select.POLLIN)
@@ -27,22 +31,27 @@ class InteractiveCommandWithShell(InteractiveCommand):
 def main():
     if len(sys.argv) < 3:
         raise SystemExit(
-            'Usage: wifi_ap_wizard.py WLAN_INTERFACE SHARED_INTERFACE')
+            "Usage: wifi_ap_wizard.py WLAN_INTERFACE SHARED_INTERFACE"
+        )
     wlan_iface = sys.argv[1]
     shared_iface = sys.argv[2]
 
-    with InteractiveCommandWithShell('wifi-ap.setup-wizard') as wizard:
+    with InteractiveCommandWithShell("wifi-ap.setup-wizard") as wizard:
         steps = [
-            ('Which SSID you want to use for the access point',
-                'Ubuntu_Wizard'),
-            ('Do you want to protect your network with a WPA2 password', 'y'),
-            ('Please enter the WPA2 passphrase', 'Test1234'),
-            ('Insert the Access Point IP address', '192.168.42.1'),
-            ('How many host do you want your DHCP pool to hold to', '100'),
-            ('Do you want to enable connection sharing?', 'y'),
-            ('Which network interface you want to use for connection sharing?',
-                shared_iface),
-            ('Do you want to enable the AP now?', 'y'),
+            (
+                "Which SSID you want to use for the access point",
+                "Ubuntu_Wizard",
+            ),
+            ("Do you want to protect your network with a WPA2 password", "y"),
+            ("Please enter the WPA2 passphrase", "Test1234"),
+            ("Insert the Access Point IP address", "192.168.42.1"),
+            ("How many host do you want your DHCP pool to hold to", "100"),
+            ("Do you want to enable connection sharing?", "y"),
+            (
+                "Which network interface you want to use for connection sharing?",  # noqa: E501
+                shared_iface,
+            ),
+            ("Do you want to enable the AP now?", "y"),
         ]
         iface_choice_prompt = "Which wireless interface"
         wizard.wait_for_output()
@@ -62,5 +71,5 @@ def main():
             wizard.writeline(response)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

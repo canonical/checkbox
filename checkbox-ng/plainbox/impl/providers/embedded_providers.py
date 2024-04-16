@@ -32,8 +32,17 @@ class ManagePyProvider1PlugIn(Provider1PlugIn):
     Provider1PlugIn that is built from manage.py file.
     """
 
-    def __init__(self, filename, file_contents, load_time, *, validate=None,
-                 validation_kwargs=None, check=None, context=None):
+    def __init__(
+        self,
+        filename,
+        file_contents,
+        load_time,
+        *,
+        validate=None,
+        validation_kwargs=None,
+        check=None,
+        context=None
+    ):
         """
         Initialize plug-in and create provider from definition extracted
         from manage.py pointed by `filename`
@@ -47,9 +56,10 @@ class ManagePyProvider1PlugIn(Provider1PlugIn):
             setup_kwargs.append(kwargs)
 
         from plainbox import provider_manager
+
         provider_manager.setup = fake_setup
 
-        loader = SourceFileLoader('manage', filename)
+        loader = SourceFileLoader("manage", filename)
         loader.load_module()
         location = os.path.dirname(os.path.abspath(filename))
         if len(setup_kwargs) < 1:
@@ -60,16 +70,22 @@ class ManagePyProvider1PlugIn(Provider1PlugIn):
             setup_kwargs = setup_kwargs.pop()
             definition = Provider1Definition()
             definition.location = location
-            definition.name = setup_kwargs.get('name', None)
-            definition.namespace = setup_kwargs.get('namespace', Unset)
-            definition.version = setup_kwargs.get('version', None)
-            definition.description = setup_kwargs.get('description', None)
+            definition.name = setup_kwargs.get("name", None)
+            definition.namespace = setup_kwargs.get("namespace", Unset)
+            definition.version = setup_kwargs.get("version", None)
+            definition.description = setup_kwargs.get("description", None)
             definition.gettext_domain = setup_kwargs.get(
-                'gettext_domain', Unset)
+                "gettext_domain", Unset
+            )
         self._provider = Provider1.from_definition(
-            definition, secure=False, validate=validate,
-            validation_kwargs=validation_kwargs, check=check, context=context,
-            sideloaded=True)
+            definition,
+            secure=False,
+            validate=validate,
+            validation_kwargs=validation_kwargs,
+            check=check,
+            context=context,
+            sideloaded=True,
+        )
         self._wrap_time = now() - start_time
 
     @property
@@ -108,6 +124,7 @@ class EmbeddedProvider1PlugInCollection(FsPlugInCollection):
     A collection of v1 provider plugins loaded from 'manage.py'  files.
 
     """
+
     def __init__(self, path, **kwargs):
         """
         Initiates collection with all providers loaded from manage.py files
@@ -115,5 +132,10 @@ class EmbeddedProvider1PlugInCollection(FsPlugInCollection):
         """
         # get all manage.py files to load providers from
         super().__init__(
-            [path], 'manage.py', recursive=True, load=True,
-            wrapper=ManagePyProvider1PlugIn, **kwargs)
+            [path],
+            "manage.py",
+            recursive=True,
+            load=True,
+            wrapper=ManagePyProvider1PlugIn,
+            **kwargs
+        )

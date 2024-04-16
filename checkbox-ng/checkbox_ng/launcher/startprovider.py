@@ -84,7 +84,8 @@ class File:
     def instantiate(self, root, **kwargs):
         if self.parent:
             filename = os.path.join(
-                root, self.parent, self.name.format(**kwargs))
+                root, self.parent, self.name.format(**kwargs)
+            )
         else:
             filename = os.path.join(root, self.name.format(**kwargs))
         if os.path.exists(filename):
@@ -135,7 +136,8 @@ class Skeleton(Directory):
         super().instantiate(root, **kwargs)
         for thing in self.things:
             thing.instantiate(
-                os.path.join(root, self.name.format(**kwargs)), **kwargs)
+                os.path.join(root, self.name.format(**kwargs)), **kwargs
+            )
 
 
 class EmptyProviderSkeleton(Skeleton):
@@ -143,7 +145,11 @@ class EmptyProviderSkeleton(Skeleton):
 
     things = []
 
-    things.append(File("manage.py", executable=True, full_text="""
+    things.append(
+        File(
+            "manage.py",
+            executable=True,
+            full_text="""
         #!/usr/bin/env python3
         from plainbox.provider_manager import setup, N_
 
@@ -165,7 +171,9 @@ class EmptyProviderSkeleton(Skeleton):
             description=N_("The {name} provider"),
             gettext_domain="{gettext_domain}",
         )
-        """))
+        """,
+        )
+    )
 
 
 class ProviderSkeleton(EmptyProviderSkeleton):
@@ -189,7 +197,10 @@ class ProviderSkeleton(EmptyProviderSkeleton):
     po_dir = Directory("po")
     things.append(po_dir)
 
-    things.append(File("README.md", full_text="""
+    things.append(
+        File(
+            "README.md",
+            full_text="""
         Skeleton for a new PlainBox provider
         ====================================
 
@@ -236,11 +247,17 @@ class ProviderSkeleton(EmptyProviderSkeleton):
         If you find bugs or would like to see additional features developed
         you can file bugs on the parent project page:
         https://bugs.launchpad.net/checkbox/+filebug
-        """))
+        """,
+        )
+    )
 
     with units_dir as parent:
 
-        things.append(File("examples-trivial.pxu", parent, full_text="""
+        things.append(
+            File(
+                "examples-trivial.pxu",
+                parent,
+                full_text="""
             # Two example jobs, both using the 'shell' "plugin". See the
             # documentation for examples of other test cases including
             # interactive tests, "resource" tests and a few other types.
@@ -288,9 +305,15 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             estimated_duration: 0.01
             command: false
             flags: preserve-locale
-            """))
+            """,
+            )
+        )
 
-        things.append(File("examples-normal.pxu", parent, full_text="""
+        things.append(
+            File(
+                "examples-normal.pxu",
+                parent,
+                full_text="""
             unit: test plan
             id: normal
             _name: Examples - normal
@@ -351,9 +374,15 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             estimated_duration: 0.01
             command: cat /proc/cpuinfo
             flags: preserve-locale
-            """))
+            """,
+            )
+        )
 
-        things.append(File("examples-intermediate.pxu", parent, full_text="""
+        things.append(
+            File(
+                "examples-intermediate.pxu",
+                parent,
+                full_text="""
             unit: test plan
             id: intermediate
             _name: Examples - intermediate
@@ -467,21 +496,33 @@ class ProviderSkeleton(EmptyProviderSkeleton):
             requires:
                 detected_device.type == "WEBCAM"
             estimated_duration: 30
-            """))
+            """,
+            )
+        )
 
     with po_dir as parent:
 
-        things.append(File("POTFILES.in", parent, full_text="""
+        things.append(
+            File(
+                "POTFILES.in",
+                parent,
+                full_text="""
             [encoding: UTF-8]
             [type: gettext/rfc822deb] jobs/examples-trivial.txt
             [type: gettext/rfc822deb] jobs/examples-normal.txt
             [type: gettext/rfc822deb] jobs/examples-intermediate.txt
             manage.py
-        """))
+        """,
+            )
+        )
 
     with data_dir as parent:
 
-        things.append(File("README.md", parent, full_text="""
+        things.append(
+            File(
+                "README.md",
+                parent,
+                full_text="""
             Container for arbitrary data needed by tests
             ============================================
 
@@ -491,13 +532,19 @@ class ProviderSkeleton(EmptyProviderSkeleton):
 
             You should delete this file as anything here is automatically
             distributed in the source tarball or installed.
-            """))
+            """,
+            )
+        )
 
         things.append(File("example.dat", parent, full_text="DATA"))
 
     with bin_dir as parent:
 
-        things.append(File("README.md", parent, full_text="""
+        things.append(
+            File(
+                "README.md",
+                parent,
+                full_text="""
             Container for arbitrary executables needed by tests
             ===================================================
 
@@ -507,12 +554,21 @@ class ProviderSkeleton(EmptyProviderSkeleton):
 
             You should delete this file as anything here is automatically
             distributed in the source tarball or installed.
-            """))
+            """,
+            )
+        )
 
-        things.append(File("custom-executable", parent, True, full_text="""
+        things.append(
+            File(
+                "custom-executable",
+                parent,
+                True,
+                full_text="""
             #!/bin/sh
             echo "Custom script executed"
-            """))
+            """,
+            )
+        )
 
     things.append(File(".gitignore", full_text="dist/*.tar.gz\nbuild/mo/*\n"))
 

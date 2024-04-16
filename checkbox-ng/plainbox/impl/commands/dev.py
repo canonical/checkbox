@@ -48,8 +48,10 @@ class DevCommand(PlainBoxCommand):
 
     def register_parser(self, subparsers):
         parser = subparsers.add_parser(
-            "dev", help=_("development commands"),
+            "dev",
+            help=_("development commands"),
             prog="plainbox dev",
-            usage=_("plainbox dev <subcommand> ..."))
+            usage=_("plainbox dev <subcommand> ..."),
+        )
         subdev = parser.add_subparsers()
         ParseCommand().register_parser(subdev)

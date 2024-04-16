@@ -27,9 +27,7 @@ class TestCanPromoteEdge(unittest.TestCase):
             _ = can_promote_edge.get_latest_ok_head(builds)
 
     @patch("subprocess.check_output")
-    def test_betaccessful_daily_ok(
-        self, check_output_mock
-    ):
+    def test_betaccessful_daily_ok(self, check_output_mock):
         check_output_mock.side_effect = [
             '[{"headSha" : "correct_hash", "conclusion" : "success"}]',
             "correct_hash",
@@ -38,9 +36,7 @@ class TestCanPromoteEdge(unittest.TestCase):
         can_promote_edge.main()
 
     @patch("subprocess.check_output")
-    def test_beta_matches_successful_daily_fail(
-        self, check_output_mock
-    ):
+    def test_beta_matches_successful_daily_fail(self, check_output_mock):
         check_output_mock.side_effect = [
             '[{"headSha" : "correct_hash", "conclusion" : "success"}]',
             "stale_hash",

@@ -47,7 +47,7 @@ class SubmissionServiceTransport(TransportBase):
      - Payload can be in:
         * LZMA compressed tarball that includes a submission.json and results
           from checkbox.
-   """
+    """
 
     def __init__(self, where, options):
         """
@@ -57,7 +57,7 @@ class SubmissionServiceTransport(TransportBase):
         a 15-character (or longer)  alphanumeric ID for the system.
         """
         super().__init__(where, options)
-        self._secure_id = self.options.get('secure_id')
+        self._secure_id = self.options.get("secure_id")
         if self._secure_id is not None:
             self._validate_secure_id(self._secure_id)
 
@@ -91,19 +91,19 @@ class SubmissionServiceTransport(TransportBase):
         if secure_id is None:
             raise InvalidSecureIDError(_("Secure ID not specified"))
         self._validate_secure_id(secure_id)
-        logger.debug(
-            _("Sending to %s, Secure ID is %s"), self.url, secure_id)
+        logger.debug(_("Sending to %s, Secure ID is %s"), self.url, secure_id)
         try:
             response = requests.post(self.url, data=data)
         except requests.exceptions.Timeout as exc:
             raise TransportError(
-                _("Request to {0} timed out: {1}").format(self.url, exc))
+                _("Request to {0} timed out: {1}").format(self.url, exc)
+            )
         except requests.exceptions.InvalidSchema as exc:
-            raise TransportError(
-                _("Invalid destination URL: {0}").format(exc))
+            raise TransportError(_("Invalid destination URL: {0}").format(exc))
         except requests.exceptions.ConnectionError as exc:
             raise TransportError(
-                _("Unable to connect to {0}: {1}").format(self.url, exc))
+                _("Unable to connect to {0}: {1}").format(self.url, exc)
+            )
         if response is not None:
             try:
                 # This will raise HTTPError for status != 20x
@@ -121,8 +121,10 @@ class SubmissionServiceTransport(TransportBase):
 
     def _validate_secure_id(self, secure_id):
         if not re.match(SECURE_ID_PATTERN, secure_id):
-            message = _((
-                "{} is not a valid secure_id. secure_id must be a "
-                "15-character (or more) alphanumeric string"
-            ).format(secure_id))
+            message = _(
+                (
+                    "{} is not a valid secure_id. secure_id must be a "
+                    "15-character (or more) alphanumeric string"
+                ).format(secure_id)
+            )
             raise InvalidSecureIDError(message)

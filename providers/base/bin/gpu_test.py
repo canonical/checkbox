@@ -29,10 +29,11 @@ import re
 import subprocess
 import sys
 import time
-gi.require_version('Gio', '2.0')
+
+gi.require_version("Gio", "2.0")
 from gi.repository import Gio  # noqa: E402
-from math import cos, sin      # noqa: E402
-from threading import Thread   # noqa: E402
+from math import cos, sin  # noqa: E402
+from threading import Thread  # noqa: E402
 
 
 class GlxThread(Thread):
@@ -46,15 +47,16 @@ class GlxThread(Thread):
             self.process = subprocess.Popen(
                 ["glxgears", "-geometry", "400x400"],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT)
+                stderr=subprocess.STDOUT,
+            )
             self.process.communicate()
         except (subprocess.CalledProcessError, FileNotFoundError) as er:
             print("WARNING: Unable to start glxgears (%s)" % er)
 
     def terminate(self):
-        if not hasattr(self, 'id'):
+        if not hasattr(self, "id"):
             print("WARNING: Attempted to terminate non-existing window.")
-        if hasattr(self, 'process'):
+        if hasattr(self, "process"):
             self.process.terminate()
 
 
@@ -76,8 +78,8 @@ class RotateGlxThread(Thread):
                 y = int(200 * self.offset + 100 * cos(j * 0.2))
                 coords = "%s,%s" % (x, y)
                 subprocess.call(
-                    'wmctrl -i -r %s -e 0,%s,-1,-1' % (self.id, coords),
-                    shell=True
+                    "wmctrl -i -r %s -e 0,%s,-1,-1" % (self.id, coords),
+                    shell=True,
                 )
                 time.sleep(0.002 * self.offset)
                 if self.cancel:
@@ -102,12 +104,13 @@ class ChangeWorkspace(Thread):
             for i in range(self.hsize):
                 for j in range(self.vsize):
                     subprocess.call(
-                        'wmctrl -o %s,%s' % (self.xsize * j, self.ysize * i),
-                        shell=True)
+                        "wmctrl -o %s,%s" % (self.xsize * j, self.ysize * i),
+                        shell=True,
+                    )
                     time.sleep(0.5)
                     if self.cancel:
                         # Switch back to workspace #1
-                        subprocess.call('wmctrl -o 0,0', shell=True)
+                        subprocess.call("wmctrl -o 0,0", shell=True)
                         return
 
 
@@ -118,18 +121,20 @@ class Html5VideoThread(Thread):
 
     @property
     def html5_path(self):
-        if os.getenv('PLAINBOX_PROVIDER_DATA'):
+        if os.getenv("PLAINBOX_PROVIDER_DATA"):
             return os.path.join(
-                os.getenv('PLAINBOX_PROVIDER_DATA'),
-                'websites/html5_video.html')
+                os.getenv("PLAINBOX_PROVIDER_DATA"),
+                "websites/html5_video.html",
+            )
 
     def run(self):
         if self.html5_path and os.path.isfile(self.html5_path):
             subprocess.call(
-                'firefox %s' % self.html5_path,
-                stdout=open(os.devnull, 'w'),
+                "firefox %s" % self.html5_path,
+                stdout=open(os.devnull, "w"),
                 stderr=subprocess.STDOUT,
-                shell=True)
+                shell=True,
+            )
         else:
             print("WARNING: unable to start html5 video playback.")
             print("WARNING: test results may be invalid.")
@@ -141,8 +146,8 @@ class Html5VideoThread(Thread):
 
 def check_gpu(log=None):
     if not log:
-        log = subprocess.check_output(['dmesg'], universal_newlines=True)
-    if re.findall(r'gpu\s+hung', log, flags=re.I):
+        log = subprocess.check_output(["dmesg"], universal_newlines=True)
+    if re.findall(r"gpu\s+hung", log, flags=re.I):
         print("GPU hung Detected")
         return 1
 
@@ -165,16 +170,17 @@ def main():
         time.sleep(5)
         try:
             windows = subprocess.check_output(
-                        'wmctrl -l | grep glxgears',
-                        shell=True)
+                "wmctrl -l | grep glxgears", shell=True
+            )
         except subprocess.CalledProcessError as er:
             print("WARNING: Got an exception %s" % er)
             windows = ""
         for app in sorted(windows.splitlines(), reverse=True):
-            if b'glxgears' not in app:
+            if b"glxgears" not in app:
                 continue
             GlxWindows[i].id = str(
-                re.match(b'^(0x\w+)', app).group(0), 'utf-8')  # noqa: W605
+                re.match(b"^(0x\w+)", app).group(0), "utf-8"  # noqa: W605
+            )
             break
         if hasattr(GlxWindows[i], "id"):
             rotator = RotateGlxThread(GlxWindows[i].id, i + 1)
@@ -187,8 +193,7 @@ def main():
     hsize_ori = vsize_ori = None
     if source.lookup("org.compiz.core", True):
         settings = Gio.Settings(
-            "org.compiz.core",
-            "/org/compiz/profiles/unity/plugins/core/"
+            "org.compiz.core", "/org/compiz/profiles/unity/plugins/core/"
         )
         hsize_ori = settings.get_int("hsize")
         vsize_ori = settings.get_int("vsize")
@@ -196,17 +201,25 @@ def main():
         settings.set_int("vsize", vsize)
         time.sleep(5)
     else:
-        hsize = int(subprocess.check_output(
-            'gconftool --get /apps/compiz-1/general/screen0/options/hsize',
-            shell=True))
-        vsize = int(subprocess.check_output(
-            'gconftool --get /apps/compiz-1/general/screen0/options/vsize',
-            shell=True))
+        hsize = int(
+            subprocess.check_output(
+                "gconftool --get /apps/compiz-1/general/screen0/options/hsize",
+                shell=True,
+            )
+        )
+        vsize = int(
+            subprocess.check_output(
+                "gconftool --get /apps/compiz-1/general/screen0/options/vsize",
+                shell=True,
+            )
+        )
     (x_res, y_res) = re.search(
-        b'DG:\s+(\d+)x(\d+)',  # noqa: W605
-        subprocess.check_output('wmctrl -d', shell=True)).groups()
+        b"DG:\s+(\d+)x(\d+)",  # noqa: W605
+        subprocess.check_output("wmctrl -d", shell=True),
+    ).groups()
     DesktopSwitch = ChangeWorkspace(
-        hsize, vsize, int(x_res) // hsize, int(y_res) // vsize)
+        hsize, vsize, int(x_res) // hsize, int(y_res) // vsize
+    )
     DesktopSwitch.start()
 
     time.sleep(35)
@@ -223,12 +236,12 @@ def main():
 
     if source.lookup("org.compiz.core", True):
         settings = Gio.Settings(
-            "org.compiz.core",
-            "/org/compiz/profiles/unity/plugins/core/")
+            "org.compiz.core", "/org/compiz/profiles/unity/plugins/core/"
+        )
         settings.set_int("hsize", hsize_ori)
         settings.set_int("vsize", vsize_ori)
         Gio.Settings.sync()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

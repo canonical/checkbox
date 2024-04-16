@@ -35,11 +35,12 @@ def optionals_section():
         # If anything goes south we need to guess the string basing on the
         # pythoon version
         import sys
+
         vi = sys.version_info
         if vi.major >= 3 and vi.minor >= 10:
-            return 'options'
+            return "options"
         else:
-            return 'optional arguments'
+            return "optional arguments"
 
 
 optionals_section = optionals_section()

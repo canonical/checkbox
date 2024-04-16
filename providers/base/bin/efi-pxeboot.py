@@ -43,10 +43,10 @@ def discover_data():
         boot_entries, boot_order, boot_current
     """
     command = "efibootmgr -v"
-    bootinfo_bytes = (Popen(shlex.split(command), stdout=PIPE)
-                      .communicate()[0])
-    bootinfo = (bootinfo_bytes.decode(encoding="utf-8", errors="ignore")
-                .splitlines())
+    bootinfo_bytes = Popen(shlex.split(command), stdout=PIPE).communicate()[0]
+    bootinfo = bootinfo_bytes.decode(
+        encoding="utf-8", errors="ignore"
+    ).splitlines()
     boot_entries = {}
     boot_order = []
     boot_current = ""
@@ -93,15 +93,29 @@ def is_pxe_booted(boot_entries, boot_order, boot_current):
         # problem, but warn of it anyhow....
         desc2 = boot_entries[boot_order[0]]
         print("The description of Boot{} is '{}'".format(boot_order[0], desc2))
-        print("WARNING: The system is booted using Boot{}, but the first".
-              format(boot_current))
+        print(
+            "WARNING: The system is booted using Boot{}, but the first".format(
+                boot_current
+            )
+        )
         print("boot item is Boot{}!".format(boot_order[0]))
-    if "Network" in desc or "PXE" in desc or "NIC" in desc \
-            or "Ethernet" in desc or "IP4" in desc or "IP6" in desc:
+    if (
+        "Network" in desc
+        or "PXE" in desc
+        or "NIC" in desc
+        or "Ethernet" in desc
+        or "IP4" in desc
+        or "IP6" in desc
+    ):
         # These strings are present in network-boot descriptions.
         print("The system seems to have PXE-booted; all OK.")
-    elif "ubuntu" in desc or "grub" in desc or "shim" in desc or "rEFInd" \
-            or "refind_" in desc:
+    elif (
+        "ubuntu" in desc
+        or "grub" in desc
+        or "shim" in desc
+        or "rEFInd"
+        or "refind_" in desc
+    ):
         # This string indicates a boot directly from the normal Ubuntu GRUB
         # or rEFInd installation on the hard disk.
         print("FAIL: The system has booted directly from the hard disk!")
@@ -109,8 +123,10 @@ def is_pxe_booted(boot_entries, boot_order, boot_current):
     elif "SATA" in desc or "Sata" in desc or "Hard Drive" in desc:
         # These strings indicate booting with a "generic" disk entry (one
         # that uses the fallback filename, EFI/BOOT/bootx64.efi or similar).
-        print("The system seems to have booted from a disk with the fallback "
-              "boot loader!")
+        print(
+            "The system seems to have booted from a disk with the fallback "
+            "boot loader!"
+        )
         retval = 1
     else:
         # Probably a rare description. Call it an error so we can flag it and
@@ -133,23 +149,29 @@ def main():
     retval = 0
     boot_entries, boot_order, boot_current = discover_data()
     if boot_entries == {}:
-        print("No EFI boot entries are available. This may indicate a "
-              "firmware problem.")
+        print(
+            "No EFI boot entries are available. This may indicate a "
+            "firmware problem."
+        )
         retval = 2
     if boot_order == []:
-        print("The EFI BootOrder variable is not available. This may "
-              "indicate a firmware")
+        print(
+            "The EFI BootOrder variable is not available. This may "
+            "indicate a firmware"
+        )
         print("problem.")
         retval = 3
     if boot_current == "":
-        print("FAIL: The EFI BootCurrent variable is missing. This may "
-              "indicate a firmware")
+        print(
+            "FAIL: The EFI BootCurrent variable is missing. This may "
+            "indicate a firmware"
+        )
         print("problem.")
         retval = 4
-    if (retval == 0):
+    if retval == 0:
         retval = is_pxe_booted(boot_entries, boot_order, boot_current)
     return retval
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     sys.exit(main())

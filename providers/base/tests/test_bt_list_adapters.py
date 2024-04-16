@@ -58,7 +58,9 @@ class BTTests(unittest.TestCase):
     @patch("bt_list_adapters.get_bluetooth_devices")
     @patch("bt_list_adapters.Path.iterdir")
     @patch("sys.stdout", new_callable=StringIO)
-    def test_main_no_rfkill_path(self, mock_stdout, mock_path, mock_bt_devices):
+    def test_main_no_rfkill_path(
+        self, mock_stdout, mock_path, mock_bt_devices
+    ):
         mock_path.side_effect = FileNotFoundError
         mock_bt_devices.return_value = []
         with self.assertRaises(SystemExit):

@@ -58,13 +58,14 @@ class AudioPlugDetection:
         self.mode = mode
         # get the un-localized environment
         env = dict(os.environb)
-        env[b'LANG'] = b''
-        env[b'LANGUAGE'] = b''
-        env[b'LC_ALL'] = b'C.UTF-8'
+        env[b"LANG"] = b""
+        env[b"LANGUAGE"] = b""
+        env[b"LC_ALL"] = b"C.UTF-8"
         if in_classic_snap():
-            prp = '/run/user/{}/snap.{}/../pulse'.format(
-                os.geteuid(), os.getenv('SNAP_NAME'))
-            env[b'PULSE_RUNTIME_PATH'] = prp
+            prp = "/run/user/{}/snap.{}/../pulse".format(
+                os.geteuid(), os.getenv("SNAP_NAME")
+            )
+            env[b"PULSE_RUNTIME_PATH"] = prp
         self.unlocalized_env = env
         # set SIGALRM handler
         signal.signal(signal.SIGALRM, self.on_timeout)
@@ -72,7 +73,9 @@ class AudioPlugDetection:
     def get_sound_config(self):
         text = subprocess.check_output(
             ["pactl", "list", self.mode],  # either 'sources' or 'sinks'
-            env=self.unlocalized_env, universal_newlines=True)
+            env=self.unlocalized_env,
+            universal_newlines=True,
+        )
         doc = parse_pactl_output(text)
         cfg = set()
         for record in doc.record_list:
@@ -102,22 +105,29 @@ class AudioPlugDetection:
         parser = argparse.ArgumentParser(
             description=__doc__.split("")[0],
             epilog=__doc__.split("")[1],
-            formatter_class=argparse.RawDescriptionHelpFormatter)
+            formatter_class=argparse.RawDescriptionHelpFormatter,
+        )
         parser.add_argument(
-            'mode', choices=['sinks', 'sources'],
-            help='Monitor either sinks or sources')
+            "mode",
+            choices=["sinks", "sources"],
+            help="Monitor either sinks or sources",
+        )
         parser.add_argument(
-            '-t', '--timeout', type=int, default=30,
-            help='Timeout after which the script fails')
+            "-t",
+            "--timeout",
+            type=int,
+            default=30,
+            help="Timeout after which the script fails",
+        )
         ns = parser.parse_args()
         return cls(ns.timeout, ns.mode).run()
 
     def run(self):
         found = False
-        if self.mode == 'sinks':
+        if self.mode == "sinks":
             look_for = "Event 'change' on sink #"
             look_for2 = "Event 'change' on server #"
-        elif self.mode == 'sources':
+        elif self.mode == "sources":
             look_for = "Event 'change' on source #"
             look_for2 = "Event 'change' on server #"
         else:
@@ -125,8 +135,10 @@ class AudioPlugDetection:
         # Get the initial / baseline configuration
         initial_cfg = self.get_sound_config()
         print("Starting with config: {}".format(initial_cfg))
-        print("You have {} seconds to plug the item in".format(
-            self.timeout), flush=True)
+        print(
+            "You have {} seconds to plug the item in".format(self.timeout),
+            flush=True,
+        )
         # Start the timer
         signal.alarm(self.timeout)
         # run subscribe in a pty as it doesn't fflush() after every event
@@ -134,7 +146,7 @@ class AudioPlugDetection:
         if pid == 0:
             os.execlpe("pactl", "pactl", "subscribe", self.unlocalized_env)
         else:
-            child_stream = os.fdopen(master_fd, "rt", encoding='UTF-8')
+            child_stream = os.fdopen(master_fd, "rt", encoding="UTF-8")
             try:
                 for line in child_stream:
                     if line.startswith(look_for) or line.startswith(look_for2):

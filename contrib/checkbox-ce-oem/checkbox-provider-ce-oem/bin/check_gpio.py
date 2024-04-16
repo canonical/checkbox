@@ -25,9 +25,9 @@ def list_gpio_slots(snapd, gadget_name):
 
     # Go through whole response of "Snapd.interface()", and parser out
     # the interfaces that is GPIO and define by gadget snap.
-    for slots in snapd.interfaces()["slots"]:
-        if slots["interface"] == "gpio" and slots["snap"] == gadget_name:
-            gpio_slot[slots["slot"]] = {"number": slots["attrs"]["number"]}
+    for slot in snapd.interfaces()["slots"]:
+        if slot["interface"] == "gpio" and slot["snap"] == gadget_name:
+            gpio_slot[slot["slot"]] = {"number": slot["attrs"]["number"]}
     return gpio_slot
 
 
@@ -51,28 +51,25 @@ def parse_config(config):
     """
 
     expect_port = []
-    if config:
-        for port_list in config.split(","):
-            if ":" not in port_list:
-                expect_port.append(int(port_list))
-            else:
-                start_port = port_list.split(":")[0]
-                end_port = port_list.split(":")[1]
-                try:
-                    start_port = int(start_port)
-                    end_port = int(end_port)
-                    if start_port > end_port:
-                        raise ValueError(
-                            "Invalid port range: {}".format(port_list)
-                        )
-                    for range_port in range(start_port, end_port + 1):
-                        expect_port.append(range_port)
-                except ValueError:
+    if not config:
+        raise ValueError("Error: Config is empty!")
+    for port_list in config.split(","):
+        if ":" not in port_list:
+            expect_port.append(int(port_list))
+        else:
+            start_port = port_list.split(":")[0]
+            end_port = port_list.split(":")[1]
+            try:
+                start_port = int(start_port)
+                end_port = int(end_port)
+                if start_port > end_port:
                     raise ValueError(
                         "Invalid port range: {}".format(port_list)
                     )
-    else:
-        raise ValueError("Error: Config is empty!")
+                for range_port in range(start_port, end_port + 1):
+                    expect_port.append(range_port)
+            except ValueError:
+                raise ValueError("Invalid port range: {}".format(port_list))
     return expect_port
 
 
@@ -90,23 +87,22 @@ def check_gpio_list(gpio_list, config):
         SystemExit: If any expected GPIO slot is not defined in the gadget
         snap.
     """
-    if gpio_list:
-        expect_port = parse_config(config)
-        for gpio in gpio_list.values():
-            if gpio["number"] in expect_port:
-                expect_port.remove(gpio["number"])
-        if expect_port:
-            for gpio_slot in expect_port:
-                print(
-                    "Error: Slot of GPIO {} is not defined in gadget snap".format(
-                        gpio_slot
-                    )
-                )
-            raise SystemExit(1)
-        else:
-            print("All expected GPIO slots have been defined in gadget snap.")
-    else:
+    if not gpio_list:
         raise SystemExit("Error: No any GPIO slots existed!")
+    expect_port = parse_config(config)
+    for gpio in gpio_list.values():
+        if gpio["number"] in expect_port:
+            expect_port.remove(gpio["number"])
+    if expect_port:
+        for gpio_slot in expect_port:
+            print(
+                "Error: Slot of GPIO {} is not defined in gadget snap".format(
+                    gpio_slot
+                )
+            )
+        raise SystemExit(1)
+    else:
+        print("All expected GPIO slots have been defined in gadget snap.")
 
 
 @contextmanager

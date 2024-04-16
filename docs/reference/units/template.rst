@@ -34,7 +34,8 @@ Template-Specific Fields
 .. _Template template-id field:
 
 ``template-id``
-    Unique identifier for this template.
+    Unique identifier for this template. Should contain characters in
+    ``[a-z0-9/-]``.
 
     This field is optional. If absent, a ``template-id`` value will be computed
     from the ``id`` field. For instance, if the ``id`` field is

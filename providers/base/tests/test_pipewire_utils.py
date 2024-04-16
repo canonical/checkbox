@@ -877,7 +877,6 @@ Settings
         with self.assertRaises(SystemExit):
             pt.compare_wpctl_status("s1", "s2")
 
-
     @patch("builtins.open", read_data=[])
     @patch("pipewire_utils.PipewireTest._sort_wpctl_status")
     def test_missing_lines(self, mock_wp_status, mock_open):
@@ -894,6 +893,7 @@ Settings
         mock_wp_status.side_effect = [sorted_list_1, sorted_list_2]
         with self.assertRaises(SystemExit):
             pt.compare_wpctl_status("s1", "s2")
+
 
 class ArgsParsingTests(unittest.TestCase):
     def test_success(self):

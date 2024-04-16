@@ -26,7 +26,7 @@ Following fields may be used by the job unit:
 ``id``:
     (mandatory) - A name for the job. Should be unique, an error will
     be generated if there are duplicates. Should contain characters in
-    [a-z0-9/-].
+    ``[a-z0-9/-]``.
     This field used to be called ``name``. That name is now deprecated. For
     backwards compatibility it is still recognized and used if ``id`` is
     missing.

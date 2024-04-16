@@ -5,12 +5,12 @@ user: root
 estimated_duration: 5
 environ: EXPECTED_GADGET_GPIO
 _summary: Check gadget snap defined GPIO slots.
-_purpose: Check if expected GPIO slots been defined in gadget snap.
+_purpose: Check if expected GPIO slots been defined in gadget snap
 _description:
     Use checkbox config EXPECTED_GADGET_GPIO to define the expected GPIO.
     Usage EXPECTED_GADGET_GPIO=499,500:502
     Sprate by comma, and also colon to define a range of ports
-command: check_gpio.py check-gpio -c $EXPECTED_GADGET_GPIO
+command: check_gpio.py check-gpio -c "$EXPECTED_GADGET_GPIO"
 
 id: ce-oem-gpio-gadget-slots
 _summary: Generates a GPIO list that defined in the gadget snap

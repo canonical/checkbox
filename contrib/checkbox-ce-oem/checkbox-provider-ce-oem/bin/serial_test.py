@@ -105,7 +105,6 @@ class Serial:
     def recv(self) -> bytes:
         rcv = ""
         try:
-            self.ser.rts = False
             rcv = self.ser.read(self.data_size)
             if rcv:
                 logging.info("Received: {}".format(rcv.decode()))

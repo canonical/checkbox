@@ -116,9 +116,9 @@ def main():
                 print("watchdog.service unit does not report as active")
                 watchdog_config_ready = False
             if watchdog_config_ready:
-                print("watchdog.service active")
+                print("watchdog.service is active")
 
-    raise SystemExit(not watchdog_config_ready)
+    return not watchdog_config_ready
 
 
 if __name__ == "__main__":

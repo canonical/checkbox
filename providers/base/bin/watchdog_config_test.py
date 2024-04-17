@@ -17,12 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-'''
+"""
 Watchdog implementation on both classic and core image no longer rely
 on watchdogd service since 20.04, with this change watchdog/systemd-config
 tests only systemd configuration on 20.04 and later series while keeping
 the original test for prior releases
-'''
+"""
 
 import subprocess
 import argparse
@@ -34,8 +34,8 @@ from checkbox_support.snap_utils.system import get_series
 
 def watchdog_argparse():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-t', '--check_time', action='store_true')
-    parser.add_argument('-s', '--check_service', action='store_true')
+    parser.add_argument("-t", "--check_time", action="store_true")
+    parser.add_argument("-s", "--check_service", action="store_true")
 
     return parser.parse_args()
 

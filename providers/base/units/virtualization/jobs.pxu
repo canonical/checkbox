@@ -5,7 +5,7 @@ environ: LXD_TEMPLATE KVM_IMAGE
 estimated_duration: 60.0
 requires:
  executable.name == 'lxc'
- snap.name == 'lxd'
+ package.name == 'lxd-installer' or snap.name == 'lxd'
 command: virtualization.py --debug lxdvm
 _description:
  Verifies that an LXD Virtual Machine can be created and launched
@@ -19,7 +19,7 @@ environ: LXD_TEMPLATE LXD_ROOTFS
 estimated_duration: 30.0
 requires:
  executable.name == 'lxc'
- package.name == 'lxd' or snap.name == 'lxd'
+ package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
 command: virtualization.py --debug lxd
 _description:
  Verifies that an LXD container can be created and launched

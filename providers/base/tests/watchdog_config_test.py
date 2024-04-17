@@ -29,6 +29,7 @@ import argparse
 
 from checkbox_support.snap_utils.system import on_ubuntucore
 from checkbox_support.snap_utils.system import get_series
+from yaml import parse
 
 
 def watchdog_argparse():
@@ -95,8 +96,8 @@ def main():
         else:
             if is_systemd_wdt_configured:
                 print(
-                    "systemd watchdog should not be enabled but "
-                    "reset timeout: {}".format(runtime_watchdog_usec)
+                    "systemd watchdog should not be enabled but reset timeout: "
+                    "{}".format(runtime_watchdog_usec)
                 )
                 watchdog_config_ready = False
             if watchdog_config_ready:

@@ -19,6 +19,7 @@ _summary: Compare the MD5 checksum to golden reference under {{ decoder_plugin }
 plugin: shell
 category_id: gstreamer
 estimated_duration: 1s
+imports: from com.canonical.plainbox import manifest
 requires: manifest.has_gstreamer == 'True'
 flags: also-after-suspend
 environ: GST_LAUNCH_BIN

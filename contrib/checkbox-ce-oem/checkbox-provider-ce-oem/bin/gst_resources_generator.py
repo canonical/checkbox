@@ -83,7 +83,7 @@ class GstResources:
         self._args = args
         self._resource_items = []
 
-    def _gst_v4l2_video_decoder_md5_checksum_comparison_helper(
+    def _v4l2_video_decoder_md5_checksum_comparison_helper(
         self,
         decoder_plugin: str,
         width: dict,
@@ -122,17 +122,19 @@ class GstResources:
         self, scenario_data: List[Dict]
     ) -> None:
         for item in scenario_data:
-            self._resource_items.extend([
-                self._gst_v4l2_video_decoder_md5_checksum_comparison_helper(
-                    decoder_plugin=item["decoder_plugin"],
-                    width=resolution["width"],
-                    height=resolution["height"],
-                    color_space=color_space,
-                    source_format=item["source_format"],
-                )
-                for resolution in item["resolutions"]
-                for color_space in item["color_spaces"]
-            ])
+            self._resource_items.extend(
+                [
+                    self._v4l2_video_decoder_md5_checksum_comparison_helper(
+                        decoder_plugin=item["decoder_plugin"],
+                        width=resolution["width"],
+                        height=resolution["height"],
+                        color_space=color_space,
+                        source_format=item["source_format"],
+                    )
+                    for resolution in item["resolutions"]
+                    for color_space in item["color_spaces"]
+                ]
+            )
 
     def main(self):
         for scenario in self._scenarios:

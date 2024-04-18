@@ -8,7 +8,7 @@ from gst_v4l2_video_decoder_md5_checksum_comparison import (
     build_gst_command,
     extract_the_md5_checksum,
     get_md5_checksum_from_command,
-    validate_video_decoder_md5_checksum
+    validate_video_decoder_md5_checksum,
 )
 
 
@@ -64,13 +64,15 @@ Execution ended after 0:00:00.768310428
 Setting pipeline to NULL ...
 Freeing pipeline ...
 """
-        expected_output = "\n".join([
-            "00402d37c1a1c9a887cf8c06e1046489",
-            "52e92b8dbafc0ed038e89d0196326c57",
-            "6f9edba153b10ffc17a14ac0b8eade4f",
-            "2981ace12393b0e89b1e0a44698c5df8",
-            "6286c1207577e76dc690715669a4d890\n",
-        ])
+        expected_output = "\n".join(
+            [
+                "00402d37c1a1c9a887cf8c06e1046489",
+                "52e92b8dbafc0ed038e89d0196326c57",
+                "6f9edba153b10ffc17a14ac0b8eade4f",
+                "2981ace12393b0e89b1e0a44698c5df8",
+                "6286c1207577e76dc690715669a4d890\n",
+            ]
+        )
         actual_output = extract_the_md5_checksum(input_str)
         self.assertEqual(actual_output, expected_output)
 
@@ -100,17 +102,14 @@ class TestGetMD5ChecksumFromCommand(unittest.TestCase):
     )
     @patch("subprocess.run")
     def test_get_md5_checksum_from_command_success(
-        self,
-        mock_subprocess_run,
-        mock_extract_the_md5_checksum
+        self, mock_subprocess_run, mock_extract_the_md5_checksum
     ):
         cmd = "123 success command"
         expected_md5_checksum = "fake md5 12345abcf35"
         mock_extract_the_md5_checksum.return_value = expected_md5_checksum
 
         mock_subprocess_run.return_value = MagicMock(
-            returncode=0,
-            stdout="0:00:00.000000000 = fake md5 12345abcf35"
+            returncode=0, stdout="0:00:00.000000000 = fake md5 12345abcf35"
         )
 
         md5_checksum = get_md5_checksum_from_command(cmd)
@@ -121,8 +120,11 @@ class TestGetMD5ChecksumFromCommand(unittest.TestCase):
         )
         mock_subprocess_run.assert_called_once_with(
             ["123", "success", "command"],
-            check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            encoding="utf-8", timeout=30
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            timeout=30,
         )
 
     @patch("subprocess.run")
@@ -138,8 +140,11 @@ class TestGetMD5ChecksumFromCommand(unittest.TestCase):
         self.assertEqual(cm.exception.code, 100)
         mock_subprocess_run.assert_called_once_with(
             ["Failure", "Command"],
-            check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            encoding="utf-8", timeout=30
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            encoding="utf-8",
+            timeout=30,
         )
 
 
@@ -158,8 +163,7 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
 
     @patch("os.path.exists")
     @patch(
-        "gst_v4l2_video_decoder_md5_checksum_comparison."
-        "build_gst_command"
+        "gst_v4l2_video_decoder_md5_checksum_comparison." "build_gst_command"
     )
     @patch(
         "gst_v4l2_video_decoder_md5_checksum_comparison."
@@ -168,21 +172,25 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
     @patch(
         "builtins.open",
         new_callable=mock_open,
-        read_data="golden_md5_checksum"
+        read_data="golden_md5_checksum",
     )
     def test_validate_video_decoder_md5_checksum_success(
         self,
         mock_open,
         mock_get_md5_checksum_from_command,
         mock_build_gst_command,
-        mock_os_path_exists
+        mock_os_path_exists,
     ):
-        args = type("", (), {
-            "golden_sample_path": "golden_sample.mp4",
-            "golden_sample_md5_checksum_path": "my_test.md5",
-            "decoder_plugin": "fake_decoder",
-            "color_space": "NN"
-        })()
+        args = type(
+            "",
+            (),
+            {
+                "golden_sample_path": "golden_sample.mp4",
+                "golden_sample_md5_checksum_path": "my_test.md5",
+                "decoder_plugin": "fake_decoder",
+                "color_space": "NN",
+            },
+        )()
 
         mock_os_path_exists.side_effect = [True, True]
         mock_get_md5_checksum_from_command.return_value = "golden_md5_checksum"
@@ -190,15 +198,15 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
 
         validate_video_decoder_md5_checksum(args)
 
-        mock_os_path_exists.assert_has_calls([
-            call("golden_sample.mp4"),
-            call("my_test.md5")
-        ])
+        mock_os_path_exists.assert_has_calls(
+            [call("golden_sample.mp4"), call("my_test.md5")]
+        )
         mock_get_md5_checksum_from_command.assert_called_once_with(
             "my testing command"
         )
         mock_open.assert_called_once_with(
-            "my_test.md5", mode="r", encoding="UTF-8")
+            "my_test.md5", mode="r", encoding="UTF-8"
+        )
 
     @patch("os.path.exists")
     @patch(
@@ -210,15 +218,19 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
         self,
         mock_open,
         mock_get_md5_checksum_from_command,
-        mock_os_path_exists
+        mock_os_path_exists,
     ):
         # Arrange
-        args = type("", (), {
-            "golden_sample_path": "non_exist_golden_sample.mp4",
-            "golden_sample_md5_checksum_path": "golden_sample.md5",
-            "decoder_plugin": "fake_decoder",
-            "color_space": "NN"
-        })()
+        args = type(
+            "",
+            (),
+            {
+                "golden_sample_path": "non_exist_golden_sample.mp4",
+                "golden_sample_md5_checksum_path": "golden_sample.md5",
+                "decoder_plugin": "fake_decoder",
+                "color_space": "NN",
+            },
+        )()
 
         mock_os_path_exists.side_effect = [False]
 
@@ -227,11 +239,11 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
             validate_video_decoder_md5_checksum(args)
         self.assertEqual(
             cm.exception.code,
-            "Golden Sample 'non_exist_golden_sample.mp4' doesn't exist"
+            "Golden Sample 'non_exist_golden_sample.mp4' doesn't exist",
         )
-        mock_os_path_exists.assert_has_calls([
-            call("non_exist_golden_sample.mp4")
-        ])
+        mock_os_path_exists.assert_has_calls(
+            [call("non_exist_golden_sample.mp4")]
+        )
         mock_get_md5_checksum_from_command.assert_not_called()
         mock_open.assert_not_called()
 
@@ -245,14 +257,18 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
         self,
         mock_open,
         mock_get_md5_checksum_from_command,
-        mock_os_path_exists
+        mock_os_path_exists,
     ):
-        args = type("", (), {
-            "golden_sample_path": "golden_sample.mp4",
-            "golden_sample_md5_checksum_path": "non_exist_golden_sample.md5",
-            "decoder_plugin": "fake_decoder",
-            "color_space": "NN"
-        })()
+        args = type(
+            "",
+            (),
+            {
+                "golden_sample_path": "golden_sample.mp4",
+                "golden_sample_md5_checksum_path": "non_exist_golden_sample.md5",
+                "decoder_plugin": "fake_decoder",
+                "color_space": "NN",
+            },
+        )()
 
         mock_os_path_exists.side_effect = [True, False]
 
@@ -260,20 +276,20 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
             validate_video_decoder_md5_checksum(args)
         self.assertEqual(
             cm.exception.code,
-            ("Golden Sample's MD5 checksum 'non_exist_golden_sample.md5'"
-             " doesn't exist")
+            (
+                "Golden Sample's MD5 checksum 'non_exist_golden_sample.md5'"
+                " doesn't exist"
+            ),
         )
-        mock_os_path_exists.assert_has_calls([
-            call("golden_sample.mp4"),
-            call("non_exist_golden_sample.md5")
-        ])
+        mock_os_path_exists.assert_has_calls(
+            [call("golden_sample.mp4"), call("non_exist_golden_sample.md5")]
+        )
         mock_get_md5_checksum_from_command.assert_not_called()
         mock_open.assert_not_called()
 
     @patch("os.path.exists")
     @patch(
-        "gst_v4l2_video_decoder_md5_checksum_comparison."
-        "build_gst_command"
+        "gst_v4l2_video_decoder_md5_checksum_comparison." "build_gst_command"
     )
     @patch(
         "gst_v4l2_video_decoder_md5_checksum_comparison."
@@ -282,21 +298,25 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
     @patch(
         "builtins.open",
         new_callable=mock_open,
-        read_data="different_golden_md5_checksum"
+        read_data="different_golden_md5_checksum",
     )
     def test_validate_video_decoder_md5_checksum_failure(
         self,
         mock_open,
         mock_get_md5_checksum_from_command,
         mock_build_gst_command,
-        mock_os_path_exists
+        mock_os_path_exists,
     ):
-        args = type("", (), {
-            "golden_sample_path": "golden_sample.mp4",
-            "golden_sample_md5_checksum_path": "golden_sample.md5",
-            "decoder_plugin": "fake_decoder",
-            "color_space": "NN"
-        })()
+        args = type(
+            "",
+            (),
+            {
+                "golden_sample_path": "golden_sample.mp4",
+                "golden_sample_md5_checksum_path": "golden_sample.md5",
+                "decoder_plugin": "fake_decoder",
+                "color_space": "NN",
+            },
+        )()
 
         mock_os_path_exists.side_effect = [True, True]
         mock_get_md5_checksum_from_command.return_value = "md5_checksum"
@@ -307,19 +327,16 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
             validate_video_decoder_md5_checksum(args)
         self.assertEqual(
             cm.exception.code,
-            "Failed. MD5 checksum is not same as Golden Sample"
+            "Failed. MD5 checksum is not same as Golden Sample",
         )
-        mock_os_path_exists.assert_has_calls([
-            call("golden_sample.mp4"),
-            call("golden_sample.md5")
-        ])
+        mock_os_path_exists.assert_has_calls(
+            [call("golden_sample.mp4"), call("golden_sample.md5")]
+        )
         mock_get_md5_checksum_from_command.assert_called_once_with(
             "my testing command"
         )
         mock_open.assert_called_once_with(
-            "golden_sample.md5",
-            mode="r",
-            encoding="UTF-8"
+            "golden_sample.md5", mode="r", encoding="UTF-8"
         )
 
 

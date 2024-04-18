@@ -189,7 +189,8 @@
                     "$ref": "#/definitions/Plugin"
                 },
                 "template_id": {
-                    "type": "string"
+                    "type": "string",
+                    "description": "If the job is instantiated from a template, this field points to its origin template."
                 }
             },
             "required": [

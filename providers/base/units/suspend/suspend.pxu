@@ -1952,7 +1952,7 @@ _purpose:
 _steps: 
  1. Click "Test" and remove the MS card from the reader.
     (Note: this test will time-out after 20 seconds.)
-_verification
+_verification:
  The verification of this test is automated. Do not change the
  automatically selected result.
 _summary: Verify the system detects the removal of a MS card after suspension.

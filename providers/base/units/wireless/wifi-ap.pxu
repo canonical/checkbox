@@ -563,7 +563,6 @@ _steps:
 _verification:
   Was the client able to connect?
 flags: preserve-locale also-after-suspend
-_summary: Ensure a WPA2 802.11ad Wi-Fi Access Point can be established on {interface} without any connected stations.
 
 unit: template
 template-resource: device
@@ -784,7 +783,6 @@ command:
  fi
 user: root
 flags: preserve-locale also-after-suspend
-_summary: Ensure the creation and detection of a WPA2 802.11b Wi-Fi Access Point on the specified interface with an active STA connection.
 
 unit: template
 template-resource: device

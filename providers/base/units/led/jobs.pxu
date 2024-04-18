@@ -291,7 +291,6 @@ command:
             printf "name: %s\nport: %s\n\n", data[1], data[2]
         }
     }' <<< "$GPIO_LEDS"
-_summary: Gather a list of LED indicators for the device that controls via GPIO, utilizing user-specified GPIO mappings.
 
 unit: template
 template-resource: led-indicator/gpio-leds

@@ -17,8 +17,6 @@ _description:
  Optical drive tests (Manual)
 include:
  optical/detect                                 certification-status=blocker
- optical/read_.*                                certification-status=blocker
- optical/bluray-read_.*                         certification-status=blocker
 bootstrap_include:
     device
 
@@ -29,6 +27,7 @@ _description:
  Optical drive tests (Automated)
 include:
  optical/detect                                 certification-status=blocker
+ optical/read-automated_.*                      certification-status=blocker
 bootstrap_include:
     device
 
@@ -39,6 +38,7 @@ _description:
  Optical drive tests after suspend (Automated)
 include:
  after-suspend-optical/detect                    certification-status=blocker
+ after-suspend-optical/read-automated_.*         certification-status=blocker
 bootstrap_include:
     device
 
@@ -49,8 +49,6 @@ _description:
  Optical drive tests (after suspend)
 include:
     optical/detect                                                      certification-status=blocker
-    after-suspend-optical/read_.*                                       certification-status=blocker
-    after-suspend-optical/bluray-read_.*                                certification-status=blocker
 bootstrap_include:
     device
 
@@ -60,8 +58,6 @@ _name: Optical drive tests (certification blockers only)
 _description: Optical drive tests (certification blockers only)
 include:
     optical/detect                                 certification-status=blocker
-    optical/read_.*                                certification-status=blocker
-    optical/bluray-read_.*                         certification-status=blocker
 bootstrap_include:
     device
 
@@ -71,7 +67,5 @@ _name: Optical drive tests (certification blockers only)
 _description: Optical drive tests (certification blockers only)
 include:
     optical/detect                                                      certification-status=blocker
-    after-suspend-optical/read_.*                                       certification-status=blocker
-    after-suspend-optical/bluray-read_.*                                certification-status=blocker
 bootstrap_include:
     device

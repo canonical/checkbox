@@ -36,13 +36,17 @@ plugin: shell
 category_id: com.canonical.plainbox::optical
 id: optical/read-automated_{name}
 template-id: optical/read-automated_name
+flags: also-after-suspend
 estimated_duration: 120.0
 user: root
 command: optical_read_test.py /dev/{name}
 _summary:
  Tests read functionality of optical drive {name}
 _purpose:
- This is an automated version of optical/read. It assumes you have already inserted a data CD into your optical drive prior to running Checkbox.
+ This is an automated version of optical/read. It assumes you have already inserted a data CD or Blu-Ray disc into your optical drive prior to running Checkbox.
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_dvd_bluray_inserted == 'True'
 
 unit: template
 template-resource: device

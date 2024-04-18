@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_dvd_bluray_inserted
+_name: DVD or Bluray disc inserted
+value-type: bool

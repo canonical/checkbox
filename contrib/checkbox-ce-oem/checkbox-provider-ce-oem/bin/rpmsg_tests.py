@@ -214,7 +214,6 @@ class RpmsgPingPongTest:
                 target=self.monitor_journal_pingpong_logs
             )
             thread.start()
-            time.sleep(3)
             logging.info("# probe pingpong module with '%s'", self.probe_cmd)
 
             subprocess.Popen(shlex.split(self.probe_cmd))

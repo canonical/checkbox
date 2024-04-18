@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_gstreamer
+_name: Does platform support Gstreamer?
+value-type: bool

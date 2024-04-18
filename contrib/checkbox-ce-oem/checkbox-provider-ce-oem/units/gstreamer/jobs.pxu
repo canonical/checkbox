@@ -1,0 +1,26 @@
+id: ce-oem-gstreamer/resource-gst_v4l2_video_decoder_md5_checksum_comparison
+_summary: Generates mappings for gst_v4l2_video_decoder_md5_checksum_comparison
+_description:
+    Generate resource for gst_v4l2_video_decoder_md5_checksum_comparison scenario.
+estimated_duration: 0.02
+category_id: gstreamer
+plugin: resource
+environ: GSTREAMER_JSON_CONFIG_NAME GSTREAMER_TESTING_DATA PLAINBOX_PROVIDER_DATA
+command:
+    gst_resources_generator.py "$GSTREAMER_JSON_CONFIG_NAME" -gtdp "$GSTREAMER_TESTING_DATA"
+
+unit: template
+template-engine: jinja2
+template-resource: ce-oem-gstreamer/resource-gst_v4l2_video_decoder_md5_checksum_comparison
+template-unit: job
+template-id: ce-oem-gstreamer/gst_v4l2_video_decoder_md5_checksum_comparison
+id: ce-oem-gstreamer/gst_v4l2_video_decoder_md5_checksum_comparison-{{ decoder_plugin }}-{{ width }}x{{ height }}-{{ color_space }}
+_summary: Compare the MD5 checksum to golden reference under {{ decoder_plugin }} {{ width }}x{{ height }} {{ color_space }}
+plugin: shell
+category_id: gstreamer
+estimated_duration: 1s
+requires: manifest.has_gstreamer == 'True'
+flags: also-after-suspend
+environ: GST_LAUNCH_BIN
+command:
+    gst_v4l2_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}}

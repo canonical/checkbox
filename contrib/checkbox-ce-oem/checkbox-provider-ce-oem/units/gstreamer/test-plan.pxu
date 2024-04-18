@@ -1,0 +1,23 @@
+id: ce-oem-gstreamer-full
+unit: test plan
+_name: Gstreamer tests
+_description: Full tests for Gstreamer
+include:
+nested_part:
+    ce-oem-gstreamer-manual
+    ce-oem-gstreamer-automated
+
+id: ce-oem-gstreamer-manual
+unit: test plan
+_name: Gstreamer manual tests
+_description: Manual tests for Gstreamer in before suspend and post suspend stage
+include:
+
+id: ce-oem-gstreamer-automated
+unit: test plan
+_name: Gstreamer auto tests
+_description: Automated tests for Gstreamer in before suspend and post suspend stage
+bootstrap_include:
+    ce-oem-gstreamer/resource-gst_v4l2_video_decoder_md5_checksum_comparison
+include:
+    ce-oem-gstreamer/gst_v4l2_video_decoder_md5_checksum_comparison

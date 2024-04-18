@@ -1,0 +1,3 @@
+unit: category
+id: gstreamer
+_name: Gstreamer tests

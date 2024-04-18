@@ -29,6 +29,7 @@ Describe your changes here:
 
 - What's the problem solved (briefly, since the issue is where this is elaborated in more detail).
 - Introduce your implementation approach in a way that helps reviewing it well.
+- Alert the reviewer of any changes that involve data persistence: present examples of file format changes as part of the PR description (e.g. new fields of data stored in unit or submission output).
 -->
 
 ## Resolved issues
@@ -46,6 +47,7 @@ Please make sure that...
   - Documentation in the repository, including contribution guidelines.
   - Process documentation outside the repository.
 - Tests are included for the changed functionality in this PR. If to be merged without tests, please elaborate why.
+- When breaking changes and other key changes are introduced, the PR having been merged should be broadcast (in demo sessions, IM, Discourse) with relevant references to documentation. This is an opportunity to gather feedback and confirm that the changes and how they are documented are understood.
 -->
 
 ## Tests
@@ -55,4 +57,3 @@ Please make sure that...
 - Please provide a list of what tests were run and on what platform/configuration.
 - Remember to check the test coverage of your PR as described in CONTRIBUTING.md
 -->
-

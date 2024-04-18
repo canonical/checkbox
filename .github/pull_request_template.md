@@ -47,7 +47,7 @@ Please make sure that...
   - Documentation in the repository, including contribution guidelines.
   - Process documentation outside the repository.
 - Tests are included for the changed functionality in this PR. If to be merged without tests, please elaborate why.
-- When breaking changes and other key changes are introduced, the PR having been merged should be broadcast (in demo sessions, IM, Discourse) with relevant references to documentation. This is an opportunity to gather feedback and confirm that the changes and how they are documentated are understood.
+- When breaking changes and other key changes are introduced, the PR having been merged should be broadcast (in demo sessions, IM, Discourse) with relevant references to documentation. This is an opportunity to gather feedback and confirm that the changes and how they are documented are understood.
 -->
 
 ## Tests

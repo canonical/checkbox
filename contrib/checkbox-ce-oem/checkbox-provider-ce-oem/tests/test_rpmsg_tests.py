@@ -110,7 +110,7 @@ class TestRpmsgPingPong(unittest.TestCase):
             "modprobe imx_rpmsg_pingpong",
             r"get .* \(src: (\w*)\)",
             r"rpmsg.*: goodbye!",
-            51
+            51,
         )
         mock_pingpong.assert_called_with()
 
@@ -123,9 +123,9 @@ class TestRpmsgPingPong(unittest.TestCase):
         mock_init.assert_called_with(
             "rpmsg_client_sample",
             "modprobe rpmsg_client_sample count=100",
-            r".*ti.ipc4.ping-pong.*src: (\w*)\)",
+            r".*ti.ipc4.ping-pong.*\(src: (\w*)\)",
             r"rpmsg.*: goodbye!",
-            100
+            100,
         )
         mock_pingpong.assert_called_with()
 
@@ -145,8 +145,9 @@ class TestRpmsgSerialTty(unittest.TestCase):
     @patch("serial_test.client_mode")
     @patch("serial_test.Serial")
     @patch("rpmsg_tests.check_rpmsg_tty_devices")
-    def test_no_rpmsg_devices(self, mock_check_rpmsg_tty_devices,
-                              mock_serial, mock_client_mode):
+    def test_no_rpmsg_devices(
+        self, mock_check_rpmsg_tty_devices, mock_serial, mock_client_mode
+    ):
         """
         No RPMSG TTY devices found and raise SystemExit
         """
@@ -160,8 +161,9 @@ class TestRpmsgSerialTty(unittest.TestCase):
     @patch("serial_test.client_mode")
     @patch("serial_test.Serial")
     @patch("rpmsg_tests.check_rpmsg_tty_devices")
-    def test_rpmsg_tty_test_passed(self, mock_check_rpmsg_tty_devices,
-                                   mock_serial, mock_client_mode):
+    def test_rpmsg_tty_test_passed(
+        self, mock_check_rpmsg_tty_devices, mock_serial, mock_client_mode
+    ):
         """
         String-ECHO test passed through RPMSG TTY device
         """
@@ -172,14 +174,16 @@ class TestRpmsgSerialTty(unittest.TestCase):
 
         rpmsg_tests.serial_tty_test("imx", 64)
         mock_serial.assert_called_with(
-            tty_device, "rpmsg-tty", [], 115200, 8, "N", 1, 3, 1024)
+            tty_device, "rpmsg-tty", [], 115200, 8, "N", 1, 3, 1024
+        )
         mock_client_mode.assert_called_with(serial_dev, 64)
 
     @patch("rpmsg_tests.serial_tty_test")
     @patch("rpmsg_tests.pingpong_test")
     @patch("rpmsg_tests.check_rpmsg_device")
-    def test_launch_check_rpmsg_device(self, mock_check_rpmsg,
-                                       mock_pingpong, mock_stty):
+    def test_launch_check_rpmsg_device(
+        self, mock_check_rpmsg, mock_pingpong, mock_stty
+    ):
 
         mock_args = Mock(return_value=argparse.Namespace(type="detect"))
         rpmsg_tests.main(mock_args())
@@ -191,8 +195,9 @@ class TestRpmsgSerialTty(unittest.TestCase):
     @patch("rpmsg_tests.check_rpmsg_device")
     @patch("rpmsg_tests.detect_arm_processor_type")
     @patch("rpmsg_tests.pingpong_test")
-    def test_launch_pingpong_test(self, mock_pingpong, mock_detect_arch,
-                                  mock_check_rpmsg, mock_stty):
+    def test_launch_pingpong_test(
+        self, mock_pingpong, mock_detect_arch, mock_check_rpmsg, mock_stty
+    ):
 
         mock_args = Mock(return_value=argparse.Namespace(type="pingpong"))
         mock_detect_arch.return_value = "imx"
@@ -206,8 +211,9 @@ class TestRpmsgSerialTty(unittest.TestCase):
     @patch("rpmsg_tests.pingpong_test")
     @patch("rpmsg_tests.detect_arm_processor_type")
     @patch("rpmsg_tests.serial_tty_test")
-    def test_launch_serial_tty_test(self, mock_stty, mock_detect_arch,
-                                    mock_pingpong, mock_check_rpmsg):
+    def test_launch_serial_tty_test(
+        self, mock_stty, mock_detect_arch, mock_pingpong, mock_check_rpmsg
+    ):
 
         mock_args = Mock(return_value=argparse.Namespace(type="serial-tty"))
         mock_detect_arch.return_value = "imx"

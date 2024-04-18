@@ -4,11 +4,14 @@ import argparse
 import datetime
 import os
 import sys
+import time
 import re
 import subprocess
+import shlex
 import select
 import logging
 import concurrent.futures
+import threading
 from systemd import journal
 from pathlib import Path
 import serial_test
@@ -122,52 +125,63 @@ def detect_arm_processor_type():
     return arm_cpu_type
 
 
-class RpmsgPingPongTest():
+class RpmsgPingPongTest:
 
-    def __init__(self, kernel_module, probe_cmd, pingpong_event_pattern,
-                 pingpong_end_pattern, expected_count):
+    def __init__(
+        self,
+        kernel_module,
+        probe_cmd,
+        pingpong_event_pattern,
+        pingpong_end_pattern,
+        expected_count,
+    ):
         self.kernel_module = kernel_module
         self.probe_cmd = probe_cmd
         self.pingpong_event_pattern = pingpong_event_pattern
         self.pingpong_end_pattern = pingpong_end_pattern
         self.expected_count = expected_count
+        self._init_logger()
 
-    def lookup_pingpong_logs(self, log_reader):
+    def _init_logger(self):
+        self.log_reader = journal.Reader()
+        self.log_reader.this_boot()
+        self.log_reader.seek_tail()
+        self.log_reader.get_previous()
+
+        self._poller = select.poll()
+        self._poller.register(self.log_reader, self.log_reader.get_events())
+
+    def lookup_pingpong_logs(self):
         keep_looking = True
-        for entry in log_reader:
+        for entry in self.log_reader:
             logging.info(entry["MESSAGE"])
             if entry["MESSAGE"] == "":
                 continue
 
             if re.search(self.pingpong_end_pattern, entry["MESSAGE"]):
                 keep_looking = False
+                break
             else:
                 result = re.search(
-                    self.pingpong_event_pattern, entry["MESSAGE"])
+                    self.pingpong_event_pattern, entry["MESSAGE"]
+                )
                 if result and result.groups()[0] in self.rpmsg_channels:
                     self.pingpong_events.append(entry["MESSAGE"])
 
         return keep_looking
 
     def monitor_journal_pingpong_logs(self):
-        log_reader = journal.Reader()
-        log_reader.seek_tail()
-        log_reader.get_previous()
-
-        poll = select.poll()
-        poll.register(log_reader, log_reader.get_events())
 
         start_time = datetime.datetime.now()
         logging.info("# start time: %s", start_time)
 
         self.pingpong_events = []
 
-        while poll.poll():
-            if log_reader.process() != journal.APPEND:
-                continue
+        while self._poller.poll(1000):
+            if self.log_reader.process() == journal.APPEND:
+                if self.lookup_pingpong_logs() is False:
+                    return self.pingpong_events
 
-            if self.lookup_pingpong_logs(log_reader) is False:
-                return self.pingpong_events
             cur_time = datetime.datetime.now()
             if (cur_time - start_time).total_seconds() > 60:
                 return self.pingpong_events
@@ -180,12 +194,14 @@ class RpmsgPingPongTest():
             SystemExit: if ping pong event count is not expected
         """
 
-        logging.info("## Probe pingpong kernel module")
+        logging.info("# Start ping pong test")
         # Unload module is needed
         try:
+            logging.info("# Unload pingpong kernel module if needed")
             subprocess.run(
                 "lsmod | grep {} && modprobe -r {}".format(
-                    self.kernel_module, self.kernel_module),
+                    self.kernel_module, self.kernel_module
+                ),
                 shell=True,
             )
         except subprocess.CalledProcessError:
@@ -194,22 +210,27 @@ class RpmsgPingPongTest():
         self.rpmsg_channels = get_rpmsg_channel()
 
         try:
-            with concurrent.futures.ThreadPoolExecutor() as executor:
-                future = executor.submit(
-                    self.monitor_journal_pingpong_logs)
-                logging.info(
-                    "# probe pingpong module with '%s'", self.probe_cmd)
-                subprocess.run(self.probe_cmd, shell=True)
-                pingpong_events = future.result()
+            thread = threading.Thread(
+                target=self.monitor_journal_pingpong_logs
+            )
+            thread.start()
+            time.sleep(3)
+            logging.info("# probe pingpong module with '%s'", self.probe_cmd)
+
+            subprocess.Popen(shlex.split(self.probe_cmd))
+            thread.join()
+
+            self._poller.unregister(self.log_reader)
+            self.log_reader.close()
         except subprocess.CalledProcessError:
             pass
 
-        logging.info("## Check Ping pong test is finish")
-        if len(pingpong_events) != self.expected_count:
+        logging.info("# check Ping pong records")
+        if len(self.pingpong_events) != self.expected_count:
             logging.info(
                 "ping-pong count is not match. expected %s, actual: %s",
                 self.expected_count,
-                len(pingpong_events),
+                len(self.pingpong_events),
             )
             raise SystemExit("The ping-pong message is not match.")
         else:
@@ -230,15 +251,15 @@ def pingpong_test(cpu_type):
             "modprobe imx_rpmsg_pingpong",
             r"get .* \(src: (\w*)\)",
             r"rpmsg.*: goodbye!",
-            51
+            51,
         )
     elif cpu_type == "ti":
         test_obj = RpmsgPingPongTest(
             "rpmsg_client_sample",
             "modprobe rpmsg_client_sample count=100",
-            r".*ti.ipc4.ping-pong.*src: (\w*)\)",
+            r".*ti.ipc4.ping-pong.*\(src: (\w*)\)",
             r"rpmsg.*: goodbye!",
-            100
+            100,
         )
     else:
         raise SystemExit("Unexpected CPU type.")
@@ -319,7 +340,8 @@ def serial_tty_test(cpu_type, data_size):
     rpmsg_devs = check_rpmsg_tty_devices(path_obj, check_pattern, probe_cmd)
     if rpmsg_devs:
         serial_dev = serial_test.Serial(
-            str(rpmsg_devs[0]), "rpmsg-tty", [], 115200, 8, "N", 1, 3, 1024)
+            str(rpmsg_devs[0]), "rpmsg-tty", [], 115200, 8, "N", 1, 3, 1024
+        )
         serial_test.client_mode(serial_dev, data_size)
     else:
         raise SystemExit("No RPMSG TTY devices found.")

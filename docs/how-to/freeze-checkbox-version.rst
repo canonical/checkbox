@@ -176,41 +176,40 @@ On Ubuntu 23.10 and earlier the included version of apt did not automatically
 detect snapshot support, so snapshots should not be enabled unless you have
 added ``[snapshot=yes]`` to the relevant source.
 
-Stopping the updates (18.04 or earlier)
----------------------------------------
+SUsing snapshots for 18.04 or earlier
+-------------------------------------
 
-The Ubuntu snapshot service is not available for versions earlier than 18.04. In
-that case, there is no possibility of selecting a specific release of Checkbox,
-but it is still possible to freeze the currently installed version by stopping
-automatic updates when running ``apt upgrade``.
+The Ubuntu snapshot service is available for 18.04 (bionic) and 16.04 (xenial)
+but the apt version included does not support the ``--snapshot`` option. In this
+case, it is required to set up manually the URL in your sources to point to a
+specific snapshot. This option is also possible for later versions of Ubuntu.
 
-Remove the PPA repository
--------------------------
+Set manually the URL to the snapshot
+------------------------------------
 
-To disable all the updates from the PPA repository,  we can remove the
-repository from our sources file.
+To set the URL to point to a specific snapshot, you have to edit:
+``/etc/apt/sources.list.d/checkbox-dev-ubuntu-{ppa-name}-{ubuntu-version}.list``
+and change the URL:
 
-.. code-block:: bash
+* ``ppa.launchpadcontent.net``  ->  ``snapshot.ppa.launchpadcontent.net`` 
+* Append the timestamp to the end of the URL
 
-   # Remove the PPA repository for Checkbox
-   $ sudo add-apt-repository --remove ppa:checkbox-dev/beta
-   
-   # Add the PPA repository again to upgrade it 
-   $ sudo add-apt-repository ppa:checkbox-dev/beta
-
-Set specific packages on hold
------------------------------
-
-It is also possible to set some packages on hold so they are not upgraded
-automatically by setting them on hold using ``apt-mark``
+For example: 
 
 .. code-block:: bash
 
-   # Hold the updates of checkbox-ng
-   $ sudo apt-mark hold checkbox-ng
-   
-   # Hold the updates of checkbox-ng
-   $ sudo apt-mark unhold checkbox-ng
+   # In “/etc/apt/sources.list.d/checkbox-dev-ubuntu-beta-bionic.list”
+   deb https://ppa.launchpadcontent.net/checkbox-dev/beta/ubuntu bionic main
+
+Should be changed to:
+
+.. code-block:: bash
+
+   # In “/etc/apt/sources.list.d/checkbox-dev-ubuntu-beta-bionic.list”
+   deb https://snapshot.ppa.launchpadcontent.net/checkbox-dev/beta/ubuntu/20240416T000000Z bionic main
+
+To revert to the latest version, you can remove ``snapshot`` part and the
+timestamp from the URL.
 
 
 See also

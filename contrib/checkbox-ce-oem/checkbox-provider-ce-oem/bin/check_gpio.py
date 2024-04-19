@@ -1,15 +1,35 @@
 #!/usr/bin/env python3
+# This file is part of Checkbox.
+#
+# Copyright 2024 Canonical Ltd.
+# Written by:
+#   Rick Wu <rick.wu@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox. If not, see <http://www.gnu.org/licenses/>
+
 import argparse
 import os
 from contextlib import contextmanager
 
-# from checkbox_support.snap_utils.snapd import Snapd
 from checkbox_support.snap_utils.snapd import Snapd
 from checkbox_support.snap_utils.system import get_gadget_snap
 import requests
+from typing import Dict, List
 
 
-def list_gpio_slots(snapd, gadget_name):
+def list_gpio_slots(
+    snapd: object, gadget_name: str
+) -> Dict[str, Dict[str, int]]:
     """
     List GPIO slots defined by a gadget snap.
 
@@ -31,7 +51,7 @@ def list_gpio_slots(snapd, gadget_name):
     return gpio_slot
 
 
-def parse_config(config):
+def parse_config(config: str) -> List[int]:
     """
     Parse a configuration string containing port numbers or ranges
     of port numbers.
@@ -73,7 +93,7 @@ def parse_config(config):
     return expect_port
 
 
-def check_gpio_list(gpio_list, config):
+def check_gpio_list(gpio_list: Dict[int, Dict[str, int]], config: str) -> None:
     """
     Check if all expected GPIO numbers are defined in the gadget snap.
 
@@ -106,7 +126,9 @@ def check_gpio_list(gpio_list, config):
 
 
 @contextmanager
-def interface_test(gpio_slot, gadget_name, timeout=60):
+def interface_test(
+    gpio_slot: str, gadget_name: str, timeout: int = 60
+) -> None:
     snap = os.environ["SNAP_NAME"]
     timeout = int(os.environ.get("SNAPD_TASK_TIMEOUT", timeout))
     try:
@@ -116,7 +138,9 @@ def interface_test(gpio_slot, gadget_name, timeout=60):
         disconnect_interface(gadget_name, gpio_slot, snap, timeout)
 
 
-def connect_interface(gadget_name, gpio_slot, snap, timeout):
+def connect_interface(
+    gadget_name: str, gpio_slot: str, snap: str, timeout: int
+) -> None:
     """
     Connect GPIO plugs of checkbox to GPIO slots of gadget snap.
 
@@ -140,7 +164,9 @@ def connect_interface(gadget_name, gpio_slot, snap, timeout):
         raise SystemExit(1)
 
 
-def disconnect_interface(gadget_name, gpio_slot, snap, timeout):
+def disconnect_interface(
+    gadget_name: str, gpio_slot: str, snap: str, timeout: int
+) -> None:
     """
     Connect GPIO plugs of checkbox to GPIO slots of gadget snap.
 
@@ -166,7 +192,7 @@ def disconnect_interface(gadget_name, gpio_slot, snap, timeout):
         raise SystemExit(1)
 
 
-def check_node(num):
+def check_node(num: int) -> None:
     """
     Check if a GPIO node is exported.
 

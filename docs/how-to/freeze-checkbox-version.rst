@@ -6,7 +6,7 @@ How to freeze Checkbox Snaps
 ============================
 
 
-Snaps update automatically, and by default, the snapd daemon checks for updates
+Snaps update automatically, and by default, the Snapd daemon checks for updates
 4 times a day. The ``snap refresh --hold`` command holds snap updates for
 individual snaps, or for all snaps on the system, either indefinitely or for a
 specified period of time.
@@ -58,7 +58,7 @@ snapshot service. This service allows you to see and use the Ubuntu archive, as
 well as all PPAs (both private and public), as it was at any specified date and
 time, for any time and date after 1 March 2023.
 
-Snapshots are supported in Ubuntu 23.10 onwards, and also on updated
+Snapshots are supported in Ubuntu 23.10 or later, and also on updated
 installations of Ubuntu 20.04 LTS (with ``apt`` 2.0.10) and Ubuntu 22.04
 LTS(with ``apt`` 2.4.11).
 
@@ -93,7 +93,7 @@ For Ubuntu 23.10 and earlier
 On Ubuntu 23.10 and earlier, edit
 ``/etc/apt/sources.list.d/checkbox-dev-ubuntu-{ppa-name}-{ubuntu-version}.list``
 and add ``[snapshot=yes]`` into the standard prefix. You also need to modify the
-PPA url to include the tilde before checkbox-dev so it points to the correct
+PPA URL to include the tilde before checkbox-dev so it points to the correct
 snapshot URL. For example:
 
 .. code-block::
@@ -176,10 +176,10 @@ On Ubuntu 23.10 and earlier the included version of apt did not automatically
 detect snapshot support, so snapshots should not be enabled unless you have
 added ``[snapshot=yes]`` to the relevant source.
 
-SUsing snapshots for 18.04 or earlier
--------------------------------------
+Using snapshots for 18.04 or earlier
+------------------------------------
 
-The Ubuntu snapshot service is available for 18.04 (bionic) and 16.04 (xenial)
+The Ubuntu snapshot service is available for 18.04 (Bionic) and 16.04 (Xenial)
 but the apt version included does not support the ``--snapshot`` option. In this
 case, it is required to set up manually the URL in your sources to point to a
 specific snapshot. This option is also possible for later versions of Ubuntu.

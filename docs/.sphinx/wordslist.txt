@@ -18,6 +18,7 @@ Configs
 cpu
 ctrl
 de
+dev
 debhelper
 defs
 desc
@@ -69,6 +70,8 @@ pdf
 Permalink
 plainbox
 Plainbox
+PPA
+PPAs
 pre
 prepending
 pxu
@@ -84,6 +87,7 @@ SIGINT
 snapcraft
 Snapcraft
 Snapcraft
+Snapd
 SRU
 SRU
 SSID
@@ -106,8 +110,10 @@ ubuntu
 UI
 unary
 unselect
+URI
 whitespace
 Wi
+Xenial
 xlsx
 XSLX
 xz

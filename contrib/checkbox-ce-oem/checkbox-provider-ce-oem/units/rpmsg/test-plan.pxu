@@ -20,3 +20,4 @@ _description: Automated RPMSG framework tests
 include:
     ce-oem-rpmsg/detect-device
     ce-oem-rpmsg/serial-tty
+    ce-oem-rpmsg/pingpong

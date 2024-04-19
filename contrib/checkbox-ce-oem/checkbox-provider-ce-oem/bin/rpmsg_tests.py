@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import datetime
 import os
 import sys
 import time
@@ -10,7 +9,6 @@ import subprocess
 import shlex
 import select
 import logging
-import concurrent.futures
 import threading
 from systemd import journal
 from pathlib import Path
@@ -172,7 +170,7 @@ class RpmsgPingPongTest:
 
     def monitor_journal_pingpong_logs(self):
 
-        start_time = datetime.datetime.now()
+        start_time = time.time()
         logging.info("# start time: %s", start_time)
 
         self.pingpong_events = []
@@ -182,8 +180,8 @@ class RpmsgPingPongTest:
                 if self.lookup_pingpong_logs() is False:
                     return self.pingpong_events
 
-            cur_time = datetime.datetime.now()
-            if (cur_time - start_time).total_seconds() > 60:
+            cur_time = time.time()
+            if (cur_time - start_time) > 60:
                 return self.pingpong_events
 
     def pingpong_test(self):

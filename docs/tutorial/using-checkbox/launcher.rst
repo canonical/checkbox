@@ -222,7 +222,7 @@ in it:
     forced = yes
 
     [environment]
-    TUTO = tutorial
+    TUTORIAL = tutorial
 
 Now, run Checkbox without any argument:
 

@@ -21,35 +21,12 @@ import argparse
 import os
 import json
 import logging
-from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, List
 
 logging.basicConfig(level=logging.INFO)
 
 
-def load_json_config(file_path: str) -> Dict:
-    """
-    Reads a JSON file from the specified file path.
-
-    :param file_path:
-        The path to the JSON file.
-    :returns:
-        dict: The loaded configuration dictionary.
-    :raises FileNotFoundError:
-    """
-    file_path = Path(file_path)
-    if not file_path.exists():
-        raise FileNotFoundError(
-            "The file '{}' does not exist.".format(file_path)
-        )
-
-    with file_path.open("r") as f:
-        data = json.load(f)
-
-    return data
-
-
-def register_arguments():
+def register_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=(
@@ -60,9 +37,16 @@ def register_arguments():
     )
 
     parser.add_argument(
-        "gst_conf_name",
+        "gst_conf_file",
         type=str,
-        help="Path of the specified test configuration file.",
+        help=(
+            "Path of the specified test configuration file. "
+            "When only the file name is provided, such as genio-1200, it will"
+            " default to searching for the genio-1200.json file within the "
+            "gstreamer-test-confs folder under the environment variable "
+            "PLAINBOX_PROVIDER_DATA path. When a complete path is specified, "
+            "the file will be opened according to the specified path."
+        )
     )
 
     parser.add_argument(
@@ -77,20 +61,37 @@ def register_arguments():
 
 
 class GstResources:
-    def __init__(self, args: Any, scenarios: dict):
-        self._scenarios = scenarios
-        self._current_scenario_name = ""
+    def __init__(self, args: argparse.Namespace) -> None:
         self._args = args
+        try:
+            conf_path = self._args.gst_conf_file
+            # If the path is not full path, find and use the config under
+            # default path. All gstreamer related configs should be put into
+            # gstreamer-test-confs direcotry by design
+            if not os.path.exists(conf_path):
+                conf_path = os.path.join(
+                    os.environ["PLAINBOX_PROVIDER_DATA"],
+                    "gstreamer-test-confs",
+                    "{}.json".format(
+                        self._args.gst_conf_file)
+                )
+            with open(conf_path, 'r') as file:
+                self._scenarios = json.load(file)
+                self._conf_name = os.path.split(
+                    conf_path)[1].replace(".json", "")
+        except Exception as e:
+            raise SystemExit("{}".format(e))
+        self._current_scenario_name = ""
         self._resource_items = []
 
     def _v4l2_video_decoder_md5_checksum_comparison_helper(
         self,
         decoder_plugin: str,
-        width: dict,
-        height: dict,
+        width: str,
+        height: str,
         color_space: str,
         source_format: str,
-    ) -> dict:
+    ) -> Dict:
         """
         Generate a resource item dictionary for
         gst_v4l2_video_decoder_md5_checksum_comparison scenario
@@ -102,7 +103,7 @@ class GstResources:
         golden_md5_checkum_file = "{}/{}/golden_md5_checksum/{}/{}.md5".format(
             self._args.gst_testing_data_path,
             self._current_scenario_name,
-            self._args.gst_conf_name,
+            self._conf_name,
             name,
         )
 
@@ -157,19 +158,8 @@ class GstResources:
 
 
 def main() -> None:
-    try:
-        data_dir = os.environ["PLAINBOX_PROVIDER_DATA"]
-    except KeyError:
-        raise SystemExit("PLAINBOX_PROVIDER_DATA variable not set")
     args = register_arguments()
-
-    # All gstreamer related configs should be put into gstreamer-test-confs
-    # direcotry by design
-    conf_path = os.path.join(
-        data_dir, "gstreamer-test-confs", "{}.json".format(args.gst_conf_name)
-    )
-    scenarios = load_json_config(file_path=conf_path)
-    GstResources(args, scenarios).main()
+    GstResources(args).main()
 
 
 if __name__ == "__main__":

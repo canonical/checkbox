@@ -1,0 +1,503 @@
+name: checkbox24
+summary: Checkbox runtime and public providers
+description: "Checkbox runtime and public providers"
+grade: devel
+confinement: strict
+
+adopt-info: version-calculator
+
+base: core24
+build-base: devel
+
+# Don't forget to add a new slot if a new provider part is added in the parts
+# section below.
+slots:
+  provider-resource:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-resource
+  provider-checkbox:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-base
+  provider-docker:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-docker
+  provider-tpm2:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-tpm2
+  provider-iiotg:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-iiotg
+  provider-engineering-tests:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-engineering-tests
+  provider-sru:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-sru
+  provider-gpgpu:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-gpgpu
+  provider-certification-client:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-certification-client
+  provider-certification-server:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-certification-server
+  provider-tutorial:
+    interface: content
+    read:
+      - $SNAP/providers/checkbox-provider-tutorial
+  checkbox-runtime:
+    interface: content
+    read:
+      - /
+
+package-repositories:
+  - type: apt
+    ppa: checkbox-dev/stable
+
+parts:
+  version-calculator:
+    plugin: dump
+    source: .
+    override-pull: |
+      craftctl default
+      # version.txt created by prepare.sh
+      export version=`cat $CRAFT_PART_SRC/version.txt`
+      [ $version ] || exit 1
+      craftctl set version=$version
+    stage:
+      - version.txt
+################################################################################
+  fwts:
+    plugin: nil
+    stage-packages:
+      - fwts
+    after: [version-calculator]
+################################################################################
+  stress-ng:
+    plugin: nil
+    stage-packages:
+      - stress-ng
+    after: [fwts]
+################################################################################
+  acpi-tools:
+    plugin: nil
+    stage-packages:
+      - acpica-tools
+    after: [stress-ng]
+################################################################################
+  checkbox-support:
+    plugin: python
+    source: checkbox-support
+    source-type: local
+    stage-packages:
+      # actual requirements
+      - python3-bluez
+      - python3-pyparsing
+      - python3-requests-unixsocket
+      - python3-systemd
+      # added to stage python:
+      - libpython3-stdlib
+      - libpython3.12-stdlib
+      - libpython3.12-minimal
+      - python3-pip
+      - python3-setuptools
+      - python3-wheel
+      - python3-venv
+      - python3-minimal
+      - python3-pkg-resources
+      - python3.12-minimal
+    build-packages:
+      - libbluetooth-dev
+      - python3-dev
+    python-packages:
+      - pynmea2
+    after: [acpi-tools]
+    stage:
+      - -pyvenv.cfg
+      - -bin/activate*
+      - -**/RECORD
+      - -**/__pycache__
+      - -debian
+    build-environment:
+      - C_INCLUDE_PATH: /usr/include/python3.12
+      - PYTHONPATH: $CRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
+      - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $CRAFT_STAGE/version.txt)"
+    override-build: |
+      craftctl default
+################################################################################
+  checkbox-ng:
+    plugin: python
+    source: checkbox-ng
+    source-type: local
+    build-packages:
+      - zlib1g-dev
+      - build-essential
+    stage-packages:
+      - perl
+      - python3-markupsafe
+      - python3-jinja2
+      - python3-packaging
+      - python3-padme
+      - python3-requests-oauthlib
+      - python3-urwid
+      - python3-xlsxwriter
+      # added to stage python:
+      - libpython3-stdlib
+      - libpython3.12-stdlib
+      - libpython3.12-minimal
+      - python3-pip
+      - python3-setuptools
+      - python3-wheel
+      - python3-venv
+      - python3-minimal
+      - python3-pkg-resources
+      - python3.12-minimal
+    python-packages:
+      - tqdm
+      - picamera # p-p-c dep that wouldnt install in another part
+    after: [checkbox-support]
+    stage:
+      - -pyvenv.cfg
+      - -bin/activate*
+      - -**/RECORD
+      - -**/__pycache__
+      - -debian
+    build-environment:
+      - PYTHONPATH: $CRAFT_PART_INSTALL/usr/lib/python3/dist-packages:${PYTHONPATH:-}
+      - READTHEDOCS: 'True' # simplifies picamera install
+      - SETUPTOOLS_SCM_PRETEND_VERSION: "$(cat $CRAFT_STAGE/version.txt)"
+    override-build: |
+      craftctl default
+################################################################################
+  checkbox-provider-resource:
+    plugin: dump
+    source: providers/resource
+    source-type: local
+    stage-packages:
+      - cpu-checker
+      - dpkg
+      - dmidecode
+      - libjson-xs-perl
+      - pciutils
+      - python3-requests-unixsocket
+      - smartmontools
+    build-environment:
+      - PYTHONPYCACHEPREFIX: "/tmp"
+    override-build: |
+      cd src && autoreconf -i && cd -
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-resource --root="$CRAFT_PART_INSTALL"
+    build-packages:
+      - autoconf
+      - automake
+      - libnl-3-dev
+      - libnl-genl-3-dev
+      - pkg-config
+    after: [checkbox-ng]
+################################################################################
+  checkbox-provider-base:
+    plugin: dump
+    source: providers/base
+    source-type: local
+    build-environment:
+      - PYTHONPYCACHEPREFIX: "/tmp"
+    override-build: |
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-base --root="$CRAFT_PART_INSTALL"
+    override-prime: |
+      craftctl default
+      # needed because else this will trigger the store autoreviewer and be autorejected
+      # cleaning this bit should not cause any issue but if it does do not only remove this line
+      # contact also the store/update the package because else this will always trigger
+      # a manual review
+      [ -f usr/lib/x86_64-linux-gnu/libamdhip64.so.5.2.* ] && execstack --clear-execstack usr/lib/x86_64-linux-gnu/libamdhip64.so.5.2.* || true
+    stage-packages:
+      - execstack # needed to clear the execstack
+      - python3-opencv
+      - bc
+      - bonnie++
+      - cryptsetup-bin
+      - dbus
+      - debsums
+      - dmidecode
+      - dmsetup
+      - efibootmgr
+      - ethtool
+      - freeipmi-tools
+      - fswebcam
+      - gir1.2-cheese-3.0
+      - gir1.2-clutter-1.0
+      - gir1.2-gst-plugins-base-1.0
+      - gir1.2-gudev-1.0
+      - glmark2-es2
+      - gnome-screenshot
+      - gstreamer1.0-tools
+      - gstreamer1.0-pulseaudio
+      - on amd64: [hdapsd] # optional as not available for arm
+      - hdparm
+      - i2c-tools
+      - ipmitool
+      - iperf
+      - iperf3
+      - iw
+      - jq
+      - kmod
+      - libasound2
+      - libcap2-bin
+      - libfdt1
+      - libsvm3
+      - lsb-release
+      - lshw
+      - mesa-utils
+      - mokutil
+      - net-tools
+      - nmap
+      - nux-tools
+      - nvme-cli
+      - obexftp
+      - parted
+      - pciutils
+      - pulseaudio-utils
+      - pyotherside-doc
+      - pyotherside-tests
+      - qml-module-io-thp-pyotherside
+      - qml6-module-io-thp-pyotherside
+      - python3-dbus
+      - python3-evdev
+      - python3-gi
+      - python3-natsort
+      - python3-pil
+      - python3-psutil
+      - python3-pyqrcode
+      - python3-serial
+      - python3-yaml
+      - python3-zbar
+      - qml-module-qtquick-controls
+      - qml-module-qtquick-layouts
+      - qmlscene
+      - smartmontools
+      - usbutils
+      - util-linux
+      - uuid-runtime
+      - wget
+      - wmctrl
+      - xz-utils
+      - rt-tests # For realtime performance test
+      - mdadm
+      - on armhf:
+        - python3-rpi.gpio # only in focal
+      - on arm64:
+        - python3-rpi.gpio # only in focal
+    build-packages:
+      - libasound2-dev
+      - libcap-dev
+    organize:
+      usr/lib/lib*.so*: usr/lib/$CRAFT_ARCH_TRIPLET/
+    after: [checkbox-provider-resource]
+################################################################################
+  checkbox-provider-docker:
+    plugin: dump
+    source: providers/docker
+    source-type: local
+    build-environment:
+      - PYTHONPYCACHEPREFIX: "/tmp"
+    override-build: |
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-docker --root="$CRAFT_PART_INSTALL"
+    stage-packages:
+      - apache2-utils
+    after: [checkbox-provider-base]
+################################################################################
+  checkbox-provider-tpm2:
+    plugin: dump
+    source: providers/tpm2
+    source-type: local
+    build-environment:
+      - PYTHONPYCACHEPREFIX: "/tmp"
+    override-build: |
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-tpm2 --root="$CRAFT_PART_INSTALL"
+    stage-packages:
+      - clevis-tpm2
+    after: [checkbox-provider-docker]
+################################################################################
+  checkbox-provider-iiotg:
+    plugin: dump
+    source: providers/iiotg
+    source-type: local
+    build-environment:
+      - PYTHONPYCACHEPREFIX: "/tmp"
+    override-build: |
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-iiotg --root="$CRAFT_PART_INSTALL"
+    after: [checkbox-provider-tpm2]
+################################################################################
+  checkbox-provider-sru:
+    plugin: dump
+    source: providers/sru
+    source-type: local
+    build-environment:
+      - PYTHONPYCACHEPREFIX: "/tmp"
+    override-build: |
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-sru --root="$CRAFT_PART_INSTALL"
+    after: [checkbox-provider-iiotg]
+################################################################################
+  checkbox-provider-gpgpu:
+    plugin: dump
+    source: providers/gpgpu
+    source-type: local
+    build-environment:
+      - PYTHONPYCACHEPREFIX: "/tmp"
+    override-build: |
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-gpgpu --root="$CRAFT_PART_INSTALL"
+    after: [checkbox-provider-sru]
+################################################################################
+  checkbox-provider-certification-client:
+    plugin: dump
+    source: providers/certification-client
+    source-type: local
+    build-environment:
+      - PYTHONPYCACHEPREFIX: "/tmp"
+    override-build: |
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-certification-client --root="$CRAFT_PART_INSTALL"
+    after: [checkbox-provider-gpgpu]
+################################################################################
+  checkbox-provider-certification-server:
+    plugin: dump
+    source: providers/certification-server
+    source-type: local
+    build-environment:
+      - PYTHONPYCACHEPREFIX: "/tmp"
+    override-build: |
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-certification-server --root="$CRAFT_PART_INSTALL"
+    after: [checkbox-provider-certification-client]
+################################################################################
+  checkbox-provider-tutorial:
+    plugin: dump
+    source: providers/tutorial
+    source-type: local
+    build-environment:
+      - PYTHONPYCACHEPREFIX: "/tmp"
+    override-build: |
+      export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
+      for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-tutorial --root="$CRAFT_PART_INSTALL"
+    after: [checkbox-provider-base]
+################################################################################
+  gnome-randr:
+    source: https://github.com/maxwellainatchi/gnome-randr-rust.git
+    plugin: rust
+    build-packages:
+      - libdbus-1-dev
+    after: [rust-deps]
+################################################################################
+  rust-deps:
+    plugin: nil
+    build-packages:
+      - wget
+    override-pull: |
+      # Do not use rustup to work around https://forum.snapcraft.io/t/armhf-builds-on-launchpad-timing-out/31008
+      REQUIRED_RUST_VERSION=nightly
+      ROOT=https://static.rust-lang.org/dist/rust-$REQUIRED_RUST_VERSION
+      if [ $CRAFT_TARGET_ARCH = "amd64" ]; then
+        BINARIES_SUFFIX=x86_64-unknown-linux-gnu
+      elif [ $CRAFT_TARGET_ARCH = "armhf" ]; then
+        BINARIES_SUFFIX=armv7-unknown-linux-gnueabihf
+      elif [ $CRAFT_TARGET_ARCH = "arm64" ]; then
+        BINARIES_SUFFIX=aarch64-unknown-linux-gnu
+      fi
+      wget -O - $ROOT-$BINARIES_SUFFIX.tar.gz | tar -x -z --strip-components=1
+      ./install.sh --prefix=/usr --destdir=$CRAFT_STAGE
+################################################################################
+  rpi-support-binaries:
+    plugin: nil
+    stage-packages:
+      - on armhf:
+        - libraspberrypi0
+      - on arm64:
+        - libraspberrypi0
+    organize:
+      usr/lib/lib*.so: usr/lib/$CRAFT_ARCH_TRIPLET/
+################################################################################
+  lk-boot-env:
+    plugin: nil
+    source: .
+    override-pull: |
+      craftctl default
+      wget https://raw.githubusercontent.com/snapcore/snapd/master/include/lk/snappy_boot_common.h
+      wget https://raw.githubusercontent.com/snapcore/snapd/master/include/lk/snappy_boot_v2.h
+      wget https://raw.githubusercontent.com/kubiko/dragonboard-gadget/20-lk/snap-boot-sel/lk-boot-env.c
+    build-packages:
+      - wget
+      - on amd64 to armhf:
+        - gcc-arm-linux-gnueabihf:amd64
+      - on amd64 to arm64:
+        - gcc-aarch64-linux-gnu:amd64
+    override-build: |
+      mkdir -p ${CRAFT_PART_INSTALL}/bin
+      if [ "${CRAFT_ARCH_TRIPLET}" = "arm-linux-gnueabihf" ]; then
+          arm-linux-gnueabihf-gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${CRAFT_PART_INSTALL}/bin/lk-boot-env
+      elif [ "${CRAFT_ARCH_TRIPLET}" = "aarch64-linux-gnu" ]; then
+          aarch64-linux-gnu-gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${CRAFT_PART_INSTALL}/bin/lk-boot-env
+      else
+          # native build
+          gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${CRAFT_PART_INSTALL}/bin/lk-boot-env
+      fi
+################################################################################
+  parts-meta-info:
+    plugin: nil
+    build-environment:
+      - RUNTIME_VERSION: "$(cat $CRAFT_STAGE/version.txt)"
+    override-build: |
+      craftctl default
+      echo "checkbox-runtime:" >> $CRAFT_PART_INSTALL/parts_meta_info
+      echo "$RUNTIME_VERSION" >> $CRAFT_PART_INSTALL/parts_meta_info
+    after: [checkbox-provider-certification-server]
+################################################################################
+  common-config:
+    plugin: dump
+    source: config/

@@ -25,6 +25,7 @@ else
   append_path LD_LIBRARY_PATH $RUNTIME/lib
   append_path LD_LIBRARY_PATH $RUNTIME/lib/$ARCH
   append_path LD_LIBRARY_PATH $RUNTIME/usr/lib/$ARCH
+  append_path LD_LIBRARY_PATH $RUNTIME/usr/lib/$ARCH/fwts
   append_path LD_LIBRARY_PATH $RUNTIME/usr/lib/$ARCH/blas
   append_path LD_LIBRARY_PATH $RUNTIME/usr/lib/$ARCH/lapack
   append_path LD_LIBRARY_PATH $RUNTIME/lib/fwts

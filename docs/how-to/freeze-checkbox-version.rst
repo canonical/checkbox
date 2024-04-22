@@ -80,7 +80,7 @@ and add a tilde before checkbox-dev.
 
 For example:
 
-.. code-block::
+.. code-block:: text
 
    # In “/etc/apt/sources.list.d/checkbox-dev-ubuntu-beta-noble.list”
    Types: deb
@@ -98,7 +98,7 @@ and add ``[snapshot=yes]`` into the standard prefix. You also need to modify the
 PPA URL to include the tilde before checkbox-dev so it points to the correct
 snapshot URL. For example:
 
-.. code-block::
+.. code-block:: text
 
    # In “/etc/apt/sources.list.d/checkbox-dev-ubuntu-beta-jammy.list”
    deb [snapshot=yes] https://ppa.launchpadcontent.net/~checkbox-dev/beta/ubuntu jammy main

@@ -50,11 +50,11 @@ snap.
 How to freeze Checkbox Debs
 ============================
 
-Using Ubuntu snapshot service (20.04 or later)
+Using Ubuntu Snapshot Service (20.04 or later)
 ----------------------------------------------
 
 To freeze the Checkbox version of a deb package we will make use of the Ubuntu
-snapshot service. This service allows you to see and use the Ubuntu archive, as
+Snapshot Service. This service allows you to see and use the Ubuntu archive, as
 well as all PPAs (both private and public), as it was at any specified date and
 time, for any time and date after 1 March 2023.
 
@@ -62,17 +62,17 @@ Snapshots are supported in Ubuntu 23.10 or later, and also on updated
 installations of Ubuntu 20.04 LTS (with ``apt`` 2.0.10) and Ubuntu 22.04
 LTS(with ``apt`` 2.4.11).
 
-Enable the snapshot Service
+Enable the snapshot service
 ```````````````````````````
 
 For Ubuntu 24.04
 ''''''''''''''''
 
-The apt included in Ubuntu 24.04 and later automatically detects when snapshots
+The ``apt`` included in Ubuntu 24.04 and later automatically detects when snapshots
 are supported for a repository and are enabled by default.
 
 Nevertheless, for PPAs in Launchpad it is sometimes necessary to modify the URI
-field to match the URL of the snapshot. In the case of checkbox, you have to
+field to match the URL of the snapshot. In the case of Checkbox, you have to
 edit
 ``/etc/apt/sources.list.d/checkbox-dev-ubuntu-{ppa-name}-{ubuntu-version}.list``
 and add a tilde before checkbox-dev.
@@ -90,6 +90,7 @@ For example:
 
 For Ubuntu 23.10 and earlier
 ''''''''''''''''''''''''''''
+
 On Ubuntu 23.10 and earlier, edit
 ``/etc/apt/sources.list.d/checkbox-dev-ubuntu-{ppa-name}-{ubuntu-version}.list``
 and add ``[snapshot=yes]`` into the standard prefix. You also need to modify the
@@ -102,14 +103,14 @@ snapshot URL. For example:
    deb [snapshot=yes] https://ppa.launchpadcontent.net/~checkbox-dev/beta/ubuntu jammy main
 
 
-Use a Snapshot ID with apt Commands
+Use a Snapshot ID with apt commands
 ```````````````````````````````````
 The Ubuntu snapshot service uses a Snapshot ID to indicate the desired date and
 the UTC time of the snapshot in the format ``YYYYMMDDTHHMMSSZ``. For example,
 ``20230302T030400Z`` would be 03:04 UTC on 2 March 2023.
 
 Once snapshots are enabled for a repository, it is possible to pass a specific
-Snapshot ID to most apt or apt-get commands with ``--snapshot [Snapshot ID]`` or
+Snapshot ID to most ``apt`` or ``apt-get`` commands with ``--snapshot [Snapshot ID]`` or
 ``-S [Snapshot ID]``, for example:
 
 .. code-block:: bash
@@ -179,12 +180,12 @@ added ``[snapshot=yes]`` to the relevant source.
 Using snapshots for 18.04 or earlier
 ------------------------------------
 
-The Ubuntu snapshot service is available for 18.04 (Bionic) and 16.04 (Xenial)
+The Ubuntu Snapshot Service is available for 18.04 (Bionic) and 16.04 (Xenial)
 but the apt version included does not support the ``--snapshot`` option. In this
 case, it is required to set up manually the URL in your sources to point to a
 specific snapshot. This option is also possible for later versions of Ubuntu.
 
-Set manually the URL to the snapshot
+Manually set the URL to the snapshot
 ------------------------------------
 
 To set the URL to point to a specific snapshot, you have to edit:
@@ -196,14 +197,14 @@ and change the URL:
 
 For example: 
 
-.. code-block:: bash
+.. code-block::
 
    # In “/etc/apt/sources.list.d/checkbox-dev-ubuntu-beta-bionic.list”
    deb https://ppa.launchpadcontent.net/checkbox-dev/beta/ubuntu bionic main
 
 Should be changed to:
 
-.. code-block:: bash
+.. code-block::
 
    # In “/etc/apt/sources.list.d/checkbox-dev-ubuntu-beta-bionic.list”
    deb https://snapshot.ppa.launchpadcontent.net/checkbox-dev/beta/ubuntu/20240416T000000Z bionic main

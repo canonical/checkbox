@@ -11,7 +11,7 @@ Snaps update automatically, and by default, the Snapd daemon checks for updates
 individual snaps, or for all snaps on the system, either indefinitely or for a
 specified period of time.
 
-.. code-block:: bash
+.. code-block:: console
 
    $ snap refresh --hold=<duration> <snap1> <snap2>...
 
@@ -22,14 +22,14 @@ To postpone the Checkbox snaps updates indefinitely, we can use
 ``--hold=forever``. Here is how you can stop the Checkbox snap automatic updates
 and freeze it in the current version:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ snap refresh --hold=forever checkbox checkbox22
 
 To check which snaps are being held, you can look for ``held`` in the ``notes``
 column when running ``snap list``:
 
-.. code-block::
+.. code-block:: console
 
    $ snap list
    Name        Version        Rev    Tracking       Publisher            Notes
@@ -39,7 +39,7 @@ column when running ``snap list``:
 To remove the hold, just run the ``snap refresh --unhold`` command for each
 snap.
 
-.. code-block::
+.. code-block:: console
 
    $ snap refresh --hold=forever checkbox checkbox22
    $ snap list
@@ -53,10 +53,11 @@ How to freeze Checkbox Debs
 Using Ubuntu Snapshot Service (20.04 or later)
 ----------------------------------------------
 
-To freeze the Checkbox version of a deb package we will make use of the Ubuntu
-Snapshot Service. This service allows you to see and use the Ubuntu archive, as
-well as all PPAs (both private and public), as it was at any specified date and
-time, for any time and date after 1 March 2023.
+To freeze the Checkbox version of a deb package we will make use of the `Ubuntu
+Snapshot Service <https://snapshot.ubuntu.com/>`_. This service allows you to
+see and use the Ubuntu archive, as well as all PPAs (both private and public),
+as it was at any specified date and time, for any time and date after 1 March
+2023.
 
 Snapshots are supported in Ubuntu 23.10 or later, and also on updated
 installations of Ubuntu 20.04 LTS (with ``apt`` 2.0.10) and Ubuntu 22.04
@@ -113,7 +114,7 @@ Once snapshots are enabled for a repository, it is possible to pass a specific
 Snapshot ID to most ``apt`` or ``apt-get`` commands with ``--snapshot [Snapshot ID]`` or
 ``-S [Snapshot ID]``, for example:
 
-.. code-block:: bash
+.. code-block:: console
 
    $ apt update --snapshot 20240416T000000Z
    $ apt policy checkbox-ng -S 20240416T000000Z
@@ -130,7 +131,7 @@ commands of a PPA repository. To do this, the specific Snapshot ID (e.g.
 For Ubuntu 24.04
 ''''''''''''''''
 
-.. code-block::
+.. code-block:: text
    
    # In “/etc/apt/sources.list.d/checkbox-dev-ubuntu-beta-noble.list”
    Types: deb
@@ -143,7 +144,7 @@ For Ubuntu 24.04
 For Ubuntu 23.10 and earlier
 ''''''''''''''''''''''''''''
 
-.. code-block::
+.. code-block:: text
 
    # In “/etc/apt/sources.list.d/checkbox-dev-ubuntu-beta-jammy.list”
    deb [snapshot=20240416T000000Z] https://ppa.launchpadcontent.net/~checkbox-dev/beta/ubuntu jammy main
@@ -159,7 +160,7 @@ For Ubuntu 24.04 and later, snapshots are enabled automatically for supported
 repositories. If you want to disable them for the Checkbox repository, edit the
 sources file To include ``Snapshot: no``.
 
-.. code-block::
+.. code-block:: text
 
    # In “/etc/apt/sources.list.d/checkbox-dev-ubuntu-beta-noble.list”
    Types: deb
@@ -197,14 +198,14 @@ and change the URL:
 
 For example: 
 
-.. code-block::
+.. code-block:: text
 
    # In “/etc/apt/sources.list.d/checkbox-dev-ubuntu-beta-bionic.list”
    deb https://ppa.launchpadcontent.net/checkbox-dev/beta/ubuntu bionic main
 
 Should be changed to:
 
-.. code-block::
+.. code-block:: text
 
    # In “/etc/apt/sources.list.d/checkbox-dev-ubuntu-beta-bionic.list”
    deb https://snapshot.ppa.launchpadcontent.net/checkbox-dev/beta/ubuntu/20240416T000000Z bionic main

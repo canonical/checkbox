@@ -20,7 +20,6 @@
 import argparse
 import os
 from contextlib import contextmanager
-
 from checkbox_support.snap_utils.snapd import Snapd
 from checkbox_support.snap_utils.system import get_gadget_snap
 import requests

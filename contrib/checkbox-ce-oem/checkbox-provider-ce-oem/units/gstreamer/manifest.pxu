@@ -1,4 +1,5 @@
 unit: manifest entry
-id: has_gstreamer
-_name: Does platform support Gstreamer?
+id: has_hardware_video_decoder
+_prompt: Does this machine have the following Gstreamer's Hardware Decoder and Encoder?
+_name: Hardware Video Decoder
 value-type: bool

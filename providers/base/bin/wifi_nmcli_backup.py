@@ -14,7 +14,7 @@ import sys
 
 try:
     from distutils.version import LooseVersion as version_parser
-except ModuleNotFoundError: # noqa: F821
+except ModuleNotFoundError:  # noqa: F821
     from packaging import version
 
     version_parser = version.parse

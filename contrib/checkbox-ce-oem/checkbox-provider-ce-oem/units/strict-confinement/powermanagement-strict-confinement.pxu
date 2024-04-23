@@ -17,7 +17,7 @@ requires:
   snap.name == 'test-strict-confinement'
 command:
   set -e
-  rtcwake -d "${RTC_DEVICE_FILE:-rtc0}" -v -m no -s "${STRESS_BOOT_WAKEUP_DELAY:-120}" && test-strict-confinement.cold-boot || exit 1
+  rtcwake -d "${RTC_DEVICE_FILE:-rtc0}" -v -m no -s "${STRESS_BOOT_WAKEUP_DELAY:-120}" && test-strict-confinement.cold-boot
 
 
 id: dbus-cold-boot-test

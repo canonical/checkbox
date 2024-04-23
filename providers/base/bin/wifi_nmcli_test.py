@@ -17,14 +17,10 @@ import subprocess as sp
 import sys
 import time
 
+from packaging import version as version_parser
+
 from gateway_ping_test import ping
 
-try:
-    from distutils.version import LooseVersion as version_parser
-except ModuleNotFoundError:  # noqa: F821
-    from packaging import version
-
-    version_parser = version.parse
 
 print = functools.partial(print, flush=True)
 
@@ -32,10 +28,10 @@ print = functools.partial(print, flush=True)
 def legacy_nmcli():
     cmd = "nmcli -v"
     output = sp.check_output(cmd, shell=True)
-    version = version_parser(output.strip().split()[-1].decode())
+    version = version_parser.parse(output.strip().split()[-1].decode())
     # check if using the 16.04 nmcli because of this bug
     # https://bugs.launchpad.net/plano/+bug/1896806
-    return version < version_parser("1.9.9")
+    return version < version_parser.parse("1.9.9")
 
 
 def print_head(txt):

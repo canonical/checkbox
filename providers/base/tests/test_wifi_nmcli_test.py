@@ -23,16 +23,16 @@ from wifi_nmcli_test import legacy_nmcli
 
 
 class WifiNmcliBackupTests(unittest.TestCase):
-    @patch("wifi_nmcli_backup.sp")
+    @patch("wifi_nmcli_test.sp")
     def test_legacy_nmcli_true(self, subprocess_mock):
         subprocess_mock.check_output.return_value = (
-            "nmcli tool, version 1.9.8-5"
+            b"nmcli tool, version 1.9.8-5"
         )
         self.assertTrue(legacy_nmcli())
 
-    @patch("wifi_nmcli_backup.sp")
+    @patch("wifi_nmcli_test.sp")
     def test_legacy_nmcli_false(self, subprocess_mock):
         subprocess_mock.check_output.return_value = (
-            "nmcli tool, version 1.46.0-2"
+            b"nmcli tool, version 1.46.0-2"
         )
         self.assertFalse(legacy_nmcli())

@@ -64,6 +64,7 @@ def get_modules():
 def process_out_of_tree_modules(modules):
     mod_list = []
     modules = remove_ignored_modules(modules)
+    modules = remove_nvidia_modules(modules)
     for mod in modules:
         cmd = "modinfo -F intree %s" % mod
         if not check_output(shlex.split(cmd), universal_newlines=True):
@@ -74,6 +75,7 @@ def process_out_of_tree_modules(modules):
 def process_GPL_incompatible_modules(modules):
     mod_list = []
     modules = remove_ignored_modules(modules)
+    modules = remove_nvidia_modules(modules)
     for mod in modules:
         cmd = "modinfo -F license %s" % mod
         license = check_output(
@@ -104,6 +106,22 @@ def remove_ignored_modules(modules):
             pass
     return modules
 
+def remove_nvidia_modules(modules):
+    # Remove nvidia modules from fail list and warn in output
+    ignored_nvidia_modules = [
+        "nvidia",
+        "nvidia_modeset",
+        "nvidia_drm",
+        "nvidia_uvm",
+    ]
+    for ignore_mod in ignored_nvidia_modules:
+        if ignore_mod in modules:
+            modules.remove(ignore_mod)
+            print(
+                "*   Proprietary module found: {}, "
+                "but they are expected and OK".format(ignore_mod)
+            )
+    return modules
 
 def main():
     """Print out the tainted state code and its meaning(s)."""

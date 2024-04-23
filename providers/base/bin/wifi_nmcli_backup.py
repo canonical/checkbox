@@ -16,6 +16,7 @@ try:
     from distutils.version import LooseVersion as version_parser
 except ModuleNotFoundError:
     from packaging import version
+
     version_parser = version.parse
 
 NM_CON_DIR = "/etc/NetworkManager/system-connections"

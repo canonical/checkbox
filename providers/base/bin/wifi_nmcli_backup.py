@@ -12,7 +12,8 @@ import shutil
 import subprocess as sp
 import sys
 
-from distutils.version import LooseVersion
+from packaging import version as version_parser
+
 
 NM_CON_DIR = "/etc/NetworkManager/system-connections"
 SAVE_DIR = os.path.join(
@@ -25,12 +26,10 @@ SAVE_DIR = os.path.join(
 def legacy_nmcli():
     cmd = "nmcli -v"
     output = sp.check_output(cmd, shell=True)
-    version = LooseVersion(output.strip().split()[-1].decode())
+    version = version_parser.parse(output.strip().split()[-1].decode())
     # check if using an earlier nmcli version with different api
     # nmcli in cosmic is 1.12.4, bionic is 1.10
-    if version < LooseVersion("1.12.0"):
-        return True
-    return False
+    return version < version_parser.parse("1.12.0")
 
 
 # Creation of keyfile names can be found in:

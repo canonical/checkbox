@@ -1378,7 +1378,7 @@ class Expand:
                         return value
         if hasattr(unit, "certification_status"):
             return unit.certification_status
-        return "unspecified"
+        return "non-blocker"
 
 
 class ListBootstrapped:

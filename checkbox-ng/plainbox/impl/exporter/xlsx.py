@@ -752,7 +752,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                 cert_status = ""
                 if "certification_status" in result_map[job]:
                     cert_status = result_map[job]["certification_status"]
-                    if cert_status == "unspecified":
+                    if cert_status == "non-blocker":
                         cert_status = ""
                 self.worksheet3.write(
                     self._lineno,
@@ -931,7 +931,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
                     certification_status = (
                         job_state.effective_certification_status
                     )
-                    if certification_status == "unspecified":
+                    if certification_status == "non-blocker":
                         certification_status = ""
                     description = job_state.job.description
                     if not description:

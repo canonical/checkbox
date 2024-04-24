@@ -29,7 +29,6 @@ from plainbox.impl.unit.category import CategoryUnit
 class XLSXSessionStateExporterTests(TestCase):
     def test_write_job(self):
         self_mock = MagicMock()
-        # tree = {"Uncategorised": {"job1": {}}}
         tree = {"job1": {}}
         result_map = {
             "job1": OrderedDict(
@@ -51,10 +50,11 @@ class XLSXSessionStateExporterTests(TestCase):
             },
         }
         XLSXSessionStateExporter._write_job(self_mock, tree, result_map, 2)
-        # self_mock.worksheet3.write.assert_called()
         self_mock.worksheet3.write.assert_any_call(ANY, ANY, "", ANY)
-        # self_mock.worksheet3.write.assert_called_with(ANY, ANY, "", ANY)
-        # self.assertEqual(self_mock.worksheet3.write.call_count, 2)
+
+        tree = {"Uncategorised": {"job1": {}}}
+        XLSXSessionStateExporter._write_job(self_mock, tree, result_map, 2)
+        self.assertTrue(self_mock._write_job.called)
 
     def test_category_map(self):
         self_mock = MagicMock()

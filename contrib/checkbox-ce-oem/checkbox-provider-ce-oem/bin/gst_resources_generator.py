@@ -76,9 +76,9 @@ class GstResources:
                 )
             with open(conf_path, "r") as file:
                 self._scenarios = json.load(file)
-                self._conf_name = os.path.split(conf_path)[1].replace(
-                    ".json", ""
-                )
+            self._conf_name = os.path.split(conf_path)[1].replace(
+                ".json", ""
+            )
         except Exception as e:
             raise SystemExit("{}".format(e))
         self._current_scenario_name = ""

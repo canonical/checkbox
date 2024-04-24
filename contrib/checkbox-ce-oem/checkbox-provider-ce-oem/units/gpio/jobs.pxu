@@ -1,0 +1,37 @@
+id: ce-oem-gpio/check-slots
+category_id: com.canonical.certification::gpio
+plugin: shell
+user: root
+estimated_duration: 5
+environ: EXPECTED_GADGET_GPIO
+_summary: Check gadget snap defined GPIO slots.
+_purpose: Check if expected GPIO slots been defined in gadget snap
+_description:
+    Use checkbox config EXPECTED_GADGET_GPIO to define the expected GPIO.
+    Usage EXPECTED_GADGET_GPIO=499,500:502
+    Sprate by comma, and also colon to define a range of ports
+command: check_gpio.py check-gpio -c "$EXPECTED_GADGET_GPIO"
+
+id: ce-oem-gpio-gadget-slots
+_summary: Generates a GPIO list that defined in the gadget snap
+_description:
+    Generates a GPIO list that is defined in the gadget snap.
+    This GPIO list will be used to check if the GPIO nodes have
+    been exported after connecting the interfaces.
+estimated_duration: 0.02
+category_id: com.canonical.certification::gpio
+plugin: resource
+command: check_gpio.py dump
+
+unit: template
+template-resource: ce-oem-gpio-gadget-slots
+template-unit: job
+template-id: ce-oem-gpio/node-export-test
+id: ce-oem-gpio/node-export-test-{slot}
+_summary: To test node of GPIO {gpio_number} been exported
+plugin: shell
+user: root
+category_id: com.canonical.certification::gpio
+estimated_duration: 5s
+flags: also-after-suspend
+command: check_gpio.py check-node -n {gpio_number} -s {slot}

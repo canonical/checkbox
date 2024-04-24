@@ -877,24 +877,23 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
             )
         self.worksheet3.autofilter(5, max_level, self._lineno, max_level + 3)
 
-    def write_tp_export(self, data):
-        def _category_map(state):
-            """Map from category id to their corresponding translated names."""
-            wanted_category_ids = frozenset(
-                {
-                    job_state.effective_category_id
-                    for job_state in state.job_state_map.values()
-                    if job_state.job in state.run_list
-                    and job_state.job.plugin not in ("resource", "attachment")
-                }
-            )
-            return {
-                unit.id: unit.tr_name()
-                for unit in state.unit_list
-                if unit.Meta.name == "category"
-                and unit.id in wanted_category_ids
+    def _category_map(self, state):
+        """Map from category id to their corresponding translated names."""
+        wanted_category_ids = frozenset(
+            {
+                job_state.effective_category_id
+                for job_state in state.job_state_map.values()
+                if job_state.job in state.run_list
+                and job_state.job.plugin not in ("resource", "attachment")
             }
+        )
+        return {
+            unit.id: unit.tr_name()
+            for unit in state.unit_list
+            if unit.Meta.name == "category" and unit.id in wanted_category_ids
+        }
 
+    def write_tp_export(self, data):
         self.worksheet4.set_header(
             "&C{}".format(data["manager"].test_plans[0])
         )
@@ -912,7 +911,7 @@ class XLSXSessionStateExporter(SessionStateExporterBase):
         self.worksheet4.repeat_rows(0)
         self._lineno = 0
         state = data["manager"].default_device_context.state
-        cat_map = _category_map(state)
+        cat_map = self._category_map(state)
         run_list_ids = [job.id for job in state.run_list]
         for cat_id in sorted(cat_map, key=lambda x: cat_map[x].casefold()):
             self._lineno += 1

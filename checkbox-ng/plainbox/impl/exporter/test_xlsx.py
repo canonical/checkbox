@@ -21,6 +21,9 @@ from unittest import TestCase
 from unittest.mock import MagicMock, ANY
 
 from plainbox.impl.exporter.xlsx import XLSXSessionStateExporter
+from plainbox.impl.session import SessionState
+from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.unit.category import CategoryUnit
 
 
 class XLSXSessionStateExporterTests(TestCase):
@@ -52,3 +55,47 @@ class XLSXSessionStateExporterTests(TestCase):
         self_mock.worksheet3.write.assert_any_call(ANY, ANY, "", ANY)
         # self_mock.worksheet3.write.assert_called_with(ANY, ANY, "", ANY)
         # self.assertEqual(self_mock.worksheet3.write.call_count, 2)
+
+    def test_category_map(self):
+        self_mock = MagicMock()
+        A = JobDefinition({"id": "A", "category_id": "test"})
+        B = JobDefinition({"id": "B", "certification-status": "blocker"})
+        job_list = [A, B]
+        unit = MagicMock(name="unit", spec_set=CategoryUnit)
+        unit.id = "test"
+        unit.tr_name.return_value = "Test"
+        unit.Meta.name = "category"
+
+        state = SessionState(job_list)
+        state.update_desired_job_list(job_list)
+        state.unit_list.append(unit)
+
+        self.assertEqual(
+            XLSXSessionStateExporter._category_map(self_mock, state),
+            {"test": "Test"},
+        )
+
+    def test_write_tp_export(self):
+        self_mock = MagicMock()
+        self_mock._category_map.return_value = {
+            "com.canonical.plainbox::uncategorised": "test"
+        }
+        data = MagicMock()
+        A = JobDefinition({"id": "A"})
+        B = JobDefinition({"id": "B", "certification-status": "blocker"})
+        job_list = [A, B]
+        unit = MagicMock(name="unit", spec_set=CategoryUnit)
+        unit.Meta.name = "category"
+
+        state = SessionState(job_list)
+        state.update_desired_job_list(job_list)
+        state.unit_list.append(unit)
+
+        data["manager"].default_device_context.state = state
+        XLSXSessionStateExporter.write_tp_export(self_mock, data)
+        self_mock.worksheet4.write_row.assert_any_call(
+            ANY, 0, ["A", "", "A"], ANY
+        )
+        self_mock.worksheet4.write_row.assert_any_call(
+            ANY, 0, ["B", "blocker", "B"], ANY
+        )

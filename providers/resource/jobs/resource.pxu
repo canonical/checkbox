@@ -302,7 +302,7 @@ command:
       echo "state: unsupported"
   fi
   # even with RTC being available to the system, the wakealarm may not be
-  if [ -e /sys/class/rtc/rtc*/wakealarm ]
+  if [ -e /sys/class/rtc/rtc0/wakealarm ]
   then
       echo "wakealarm: supported"
   else

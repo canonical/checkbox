@@ -383,6 +383,7 @@ command:
  dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
 user: root
 flags: preserve-locale noreturn autorestart
+environ: COLD_REBOOT_DELAY
 estimated_duration: 300
 
 id: power-management/post-cold-reboot

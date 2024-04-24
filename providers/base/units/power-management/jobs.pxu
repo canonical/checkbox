@@ -372,9 +372,11 @@ _summary: Cold reboot
 _description: This tests powers off the system and then powers it on using RTC
 unit: job
 plugin: shell
-requires: rtc.state == 'supported'
+requires:
+ rtc.state == 'supported'
+ rtc.wakealarm == 'supported'
 command:
- rtcwake --mode no -s 120
+ rtcwake --mode no -s "${COLD_REBOOT_DELAY:-120}"
  sleep 5
  rtcwake -m show
  sleep 5

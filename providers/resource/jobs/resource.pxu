@@ -301,6 +301,13 @@ command:
   else
       echo "state: unsupported"
   fi
+  # even with RTC being available to the system, the wakealarm may not be
+  if [ -e /sys/class/rtc/rtc*/wakealarm ]
+  then
+      echo "wakealarm: supported"
+  else
+      echo "wakealarm: unsupported"
+  fi
 _summary: Creates resource info for RTC
 
 id: requirements

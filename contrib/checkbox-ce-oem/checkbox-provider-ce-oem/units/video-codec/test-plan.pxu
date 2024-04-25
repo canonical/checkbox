@@ -1,0 +1,23 @@
+id: ce-oem-video-codec-full
+unit: test plan
+_name: Video Codec tests
+_description: Full tests for Video Codec
+include:
+nested_part:
+    ce-oem-video-codec-manual
+    ce-oem-video-codec-automated
+
+id: ce-oem-video-codec-manual
+unit: test plan
+_name: Video Codec manual tests
+_description: Manual tests for Video Codec in before suspend and post suspend stage
+include:
+
+id: ce-oem-video-codec-automated
+unit: test plan
+_name: Video Codec auto tests
+_description: Automated tests for Video Codec in before suspend and post suspend stage
+bootstrap_include:
+    ce-oem-video-codec/resource-gst_v4l2_video_decoder_md5_checksum_comparison
+include:
+    ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison

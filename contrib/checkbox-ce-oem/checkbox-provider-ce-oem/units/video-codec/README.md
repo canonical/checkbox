@@ -1,10 +1,10 @@
-# Readme for Gstreamer-Related Jobs
+# Readme for Video Codec Jobs
 
-This readme provides an overview of the different gstreamer tests available in this project
+This readme provides an overview of the different video codec tests available in this project
 
 ## Usage
 
-Before starting the testing, please read the [OQ013 - Gstreamer Testing Document](https://docs.google.com/document/d/1yuAdse3u64QZGCL2VQ4_PpuPIC0i1yXqHxKI6660WFg/edit?usp=sharing) to understand the overall testing process and the scenarios that interest you.
+Before starting the testing, please read the [OQ013 - Video Codec Testing Document](https://docs.google.com/document/d/1yuAdse3u64QZGCL2VQ4_PpuPIC0i1yXqHxKI6660WFg/edit?usp=sharing) to understand the overall testing process and the scenarios that interest you.
 
 ## Scenarios
 

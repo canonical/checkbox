@@ -1,0 +1,28 @@
+id: ce-oem-video-codec/resource-gst_v4l2_video_decoder_md5_checksum_comparison
+_summary: Generates mappings for gst_v4l2_video_decoder_md5_checksum_comparison
+_description:
+    Generate resource for gst_v4l2_video_decoder_md5_checksum_comparison scenario.
+estimated_duration: 0.02
+category_id: video-codec
+plugin: resource
+environ: VIDEO_CODEC_JSON_CONFIG_NAME VIDEO_CODEC_TESTING_DATA PLAINBOX_PROVIDER_DATA
+command:
+    gst_resources_generator.py "$VIDEO_CODEC_JSON_CONFIG_NAME" -gtdp "$VIDEO_CODEC_TESTING_DATA"
+
+unit: template
+template-engine: jinja2
+template-resource: ce-oem-video-codec/resource-gst_v4l2_video_decoder_md5_checksum_comparison
+template-unit: job
+template-id: ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison
+id: ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison-{{ decoder_plugin }}-{{ width }}x{{ height }}-{{ color_space }}
+_summary: MD5 checksum comparison {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }}
+_description: Compare the MD5 checksum to golden reference by decoding the {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }} video via gstreamer
+plugin: shell
+category_id: video-codec
+estimated_duration: 1s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_video_codec == 'True'
+flags: also-after-suspend
+environ: GST_LAUNCH_BIN
+command:
+    gst_v4l2_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}}

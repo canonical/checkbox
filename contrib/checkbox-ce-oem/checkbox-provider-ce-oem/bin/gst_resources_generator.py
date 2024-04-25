@@ -37,13 +37,13 @@ def register_arguments() -> argparse.Namespace:
     )
 
     parser.add_argument(
-        "gst_conf_file",
+        "video_codec_conf_file",
         type=str,
         help=(
             "Path of the specified test configuration file. "
             "When only the file name is provided, such as genio-1200, it will"
             " default to searching for the genio-1200.json file within the "
-            "gstreamer-test-confs folder under the environment variable "
+            "video-codec-test-confs folder under the environment variable "
             "PLAINBOX_PROVIDER_DATA path. When a complete path is specified, "
             "the file will be opened according to the specified path."
         ),
@@ -51,7 +51,7 @@ def register_arguments() -> argparse.Namespace:
 
     parser.add_argument(
         "-gtdp",
-        "--gst_testing_data_path",
+        "--video_codec_testing_data_path",
         type=str,
         help="Path of the testing data.",
     )
@@ -64,21 +64,19 @@ class GstResources:
     def __init__(self, args: argparse.Namespace) -> None:
         self._args = args
         try:
-            conf_path = self._args.gst_conf_file
+            conf_path = self._args.video_codec_conf_file
             # If the path is not full path, find and use the config under
             # default path. All gstreamer related configs should be put into
-            # gstreamer-test-confs direcotry by design
+            # video-codec-test-confs direcotry by design
             if not os.path.exists(conf_path):
                 conf_path = os.path.join(
                     os.environ["PLAINBOX_PROVIDER_DATA"],
-                    "gstreamer-test-confs",
-                    "{}.json".format(self._args.gst_conf_file),
+                    "video-codec-test-confs",
+                    "{}.json".format(self._args.video_codec_conf_file),
                 )
             with open(conf_path, "r") as file:
                 self._scenarios = json.load(file)
-            self._conf_name = os.path.split(conf_path)[1].replace(
-                ".json", ""
-            )
+            self._conf_name = os.path.split(conf_path)[1].replace(".json", "")
         except Exception as e:
             raise SystemExit("{}".format(e))
         self._current_scenario_name = ""
@@ -98,10 +96,10 @@ class GstResources:
         """
         name = "{}x{}-{}-{}".format(width, height, decoder_plugin, color_space)
         golden_sample_file = "{}/video_golden_samples/{}.{}".format(
-            self._args.gst_testing_data_path, name, source_format
+            self._args.video_codec_testing_data_path, name, source_format
         )
         golden_md5_checkum_file = "{}/{}/golden_md5_checksum/{}/{}.md5".format(
-            self._args.gst_testing_data_path,
+            self._args.video_codec_testing_data_path,
             self._current_scenario_name,
             self._conf_name,
             name,

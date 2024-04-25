@@ -1,5 +1,0 @@
-unit: manifest entry
-id: has_video_codec
-_prompt: Does this machine have the following Gstreamer's Hardware Decoder and Encoder?
-_name: Hardware Video Decoder
-value-type: bool

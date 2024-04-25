@@ -1,4 +1,16 @@
-#! /usr/bin/bash
+#!/usr/bin/bash
+
+holdoff_timeout_usec=$(gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1 -p | grep HoldoffTimeoutUSec | awk '{print $5}' | awk -F\; '{print $1}')
+holdoff_timeout_sec=$(echo "scale=0; $holdoff_timeout_usec / 1000000" | bc)
+
+if [ "$holdoff_timeout_sec" -ne 0 ]; then
+    while (journalctl --since "$holdoff_timeout_sec seconds ago" -b 0 -r | grep "suspend exit" >/dev/null 2>&1)
+    do
+        echo "The system just resume from suspend, please wait for $holdoff_timeout_sec seconds and continue the test"
+        sleep 1
+    done
+fi
+
 prev_suspend_number=$(cat /sys/power/suspend_stats/success)
 echo "Number of successful suspends until now: $prev_suspend_number"
 echo "Please close the lid and wait for 5 sec to make it suspend~"

@@ -33,6 +33,9 @@ import logging
 
 from plainbox.i18n import gettext as _
 
+from plainbox.impl import new_resource
+
+
 logger = logging.getLogger("plainbox.resource")
 
 
@@ -194,6 +197,9 @@ class FakeResource:
         return True
 
 
+log = open("time_print", "a")
+
+
 class ResourceProgram:
     """
     Class for storing and executing resource programs.
@@ -212,8 +218,13 @@ class ResourceProgram:
         SyntaxError
         """
         self._expression_list = []
+        self._expression_parsed_list = []
+        self._expression_text_list = []
+        self._implicit_namespace = implicit_namespace
         for line in program_text.splitlines():
             if line.strip() != "":
+                self._expression_parsed_list.append(ast.parse(line, mode='eval'))
+                self._expression_text_list.append(line)
                 self._expression_list.append(
                     ResourceExpression(line, implicit_namespace, imports)
                 )
@@ -236,7 +247,7 @@ class ResourceProgram:
                 ids.add(resource_id)
         return ids
 
-    def evaluate_or_raise(self, resource_map):
+    def _og_evaluate_or_raise(self, resource_map):
         """
         Evaluate the program with the given map of resources.
 
@@ -268,6 +279,73 @@ class ResourceProgram:
             if not result:
                 raise ExpressionFailedError(expression)
         return True
+
+    def _new_evaluate_or_raise(self, resource_map):
+        no_brainrot_keys = {
+            # removing all namespaces
+            x.rsplit(":")[-1]: [
+                new_resource.HD(object.__getattribute__(xx, "_data"))
+                for xx in y
+            ]
+            for (x, y) in resource_map.items()
+            if y
+        }
+        import time
+
+        start_time = time.time()
+        if not self._expression_parsed_list:
+            return True
+
+        to_ret = all(
+            new_resource.evaluate_lazy(
+                new_resource.act_eval(etl, no_brainrot_keys)
+            )
+            for etl in self._expression_parsed_list
+        )
+        print(
+            "New:",
+            (time.time() - start_time) * 1000,
+            "ms",
+            file=log,
+            flush=True,
+        )
+        return to_ret
+
+    def filter(self, resource_map):
+        no_brainrot_keys = {
+            # removing all namespaces
+            x.rsplit(":")[-1]: [
+                new_resource.HD(object.__getattribute__(xx, "_data"))
+                for xx in y
+            ]
+            for (x, y) in resource_map.items()
+            if y
+        }
+        if not self._expression_parsed_list:
+            return resource_map
+        to_ret = (
+            new_resource.evaluate(
+                new_resource.prepare_eval_parse(etl, no_brainrot_keys)
+            )
+            for etl in self._expression_parsed_list
+        )
+        import functools
+        return functools.reduce(new_resource.namespace_union, to_ret)
+
+    def evaluate_or_raise(self, resource_map):
+        import time
+
+        start = time.time()
+        og_result = self._og_evaluate_or_raise(resource_map)
+        end_og = time.time()
+        og_time = (end_og - start) * 1000
+        print(",".join(self._expression_text_list), file=log, flush=True)
+        print("Og:", og_time, "ms", file=log, flush=True)
+        new_result = self._new_evaluate_or_raise(resource_map)
+        full_end = time.time()
+        if bool(og_result) != bool(new_result):
+            breakpoint()
+        return og_result
 
 
 class ResourceProgramError(Exception):

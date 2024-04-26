@@ -9,9 +9,10 @@ get_active_interfaces() {
 disable_net() {
     local target_interface=$1
     local default_net_state=$2
+    parent_eth=$(grep -oP "(?<=$target_interface@)\w+" "$default_net_state")
     # Disable all network interfaces that are not under test
     while IFS= read -r line; do
-        if [[ "$line" != *"$target_interface"* ]]; then
+        if [[ "$line" != *"$target_interface"* ]] && [[ "$line" != "$parent_eth" ]]; then
             echo "Attempting to disable $line"
             ip link set down dev "$line"
             sleep 3

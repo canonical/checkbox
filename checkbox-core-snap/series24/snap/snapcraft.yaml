@@ -226,13 +226,12 @@ parts:
       # cleaning this bit should not cause any issue but if it does do not only remove this line
       # contact also the store/update the package because else this will always trigger
       # a manual review
-      export LIBAMDHIP64=$(find usr/lib -name "libamdhip64.so.5*")
-      for libamd_path in $LIBAMDHIP64; do
-        execstack --clear-execstack "$libamd_path"
-      done
+      for libamd_path in $(find .. -name "libamdhip64.so.5*"); do
+        echo "Clearing execstack on $libamd_path";
+        execstack --clear-execstack "$libamd_path" || exit 1
+      done;
       craftctl default
     stage-packages:
-      - execstack # needed to clear the execstack
       - python3-opencv
       - bc
       - bonnie++
@@ -309,6 +308,7 @@ parts:
       - on arm64:
         - python3-rpi.gpio # only in focal
     build-packages:
+      - execstack # needed to clear the execstack
       - libasound2-dev
       - libcap-dev
     organize:

@@ -19,7 +19,7 @@ jobs:
             tag: X64
     runs-on:
       group: "Canonical self-hosted runners"
-      lables:
+      labels:
         - self-hosted
         - linux
         - jammy

@@ -54,7 +54,9 @@ id: usb/insert
 flags: also-after-suspend fail-on-resource
 template-engine: jinja2
 requires:
+ {%- if not __on_ubuntucore__ %}
  package.name == 'udisks2' or snap.name == 'udisks2'
+ {% endif -%}
 _summary: USB 2.0 storage device insertion detected
 _purpose:
  Check system can detect USB 2.0 storage when inserted.

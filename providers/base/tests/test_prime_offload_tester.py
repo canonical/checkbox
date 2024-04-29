@@ -249,9 +249,10 @@ class CheckOffloadTests(unittest.TestCase):
         )
         self.assertEqual(po.check_result, False)
 
+    @patch("time.time", side_effect=[1,2,3,4])
     @patch("time.sleep", return_value=None)
     @patch("prime_offload_tester.PrimeOffloader.get_clients")
-    def test_offload_fail_check(self, mock_client, mock_sleep):
+    def test_offload_fail_check(self, mock_client, mock_sleep, mock_time):
         cmd = ["echo"]
         # get_clients return string that doesn't include cmd
         mock_client.return_value = ""

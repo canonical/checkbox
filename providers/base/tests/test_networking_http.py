@@ -35,7 +35,15 @@ class NetworkingHTTPTests(TestCase):
 
     @patch("networking_http.subprocess.run")
     @patch("networking_http.time.sleep")
-    def test_http_connect(self, mock_sleep, mock_run):
+    def test_http_connect_success(self, mock_sleep, mock_run):
+        """
+        Test that `http_connect` returns safely if the wget command returns 0
+        """
+        self.assertEqual(networking_http.http_connect("test", 3), None)
+
+    @patch("networking_http.subprocess.run")
+    @patch("networking_http.time.sleep")
+    def test_http_connect_failure(self, mock_sleep, mock_run):
         """
         Test that if set to 3 retries, the connection command (wget, run
         through subprocess.run) will be called 3 times

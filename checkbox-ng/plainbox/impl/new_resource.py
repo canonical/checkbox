@@ -1,4 +1,3 @@
-import os
 import ast
 import operator
 import itertools
@@ -7,47 +6,17 @@ import functools
 from copy import copy
 
 
-class HashableDict(dict):
-    def __hash__(self):
-        return hash(frozenset(self.items()))
-
-
-HD = HashableDict
-
-
-class Constraint:
-    def __init__(self, left_getter, operator, right_getter):
-        if isinstance(left_getter, NamespacedGetter) and isinstance(
-            right_getter, NamespacedGetter
-        ):
-            raise ValueError(
-                "Unsupported comparison of namespaces with operands {} and {}".format(
-                    left_getter, right_getter
-                )
-            )
-        self.left_getter = left_getter
-        self.operator = operator
-        self.right_getter = right_getter
-        try:
-            self.namespace = self.left_getter.namespace
-        except AttributeError:
-            self.namespace = self.right_getter.namespace
-
-    @classmethod
-    def parse_from_ast(cls, parsed): ...
-
-
 class ValueGetter:
     """
-    A value getter is a getter that returns a value
+    A value getter is a function that returns a value
     that is independent from variables in any namespace
     """
 
 
 class NamespacedGetter:
     """
-    A namespaced getter is a getter who's return value
-    is dependent on the current namespace
+    A namespaced getter is a function that returns a value
+    dependent on the current namespace
     """
 
     def __init__(self, namespace):
@@ -74,15 +43,16 @@ class CallGetter(NamespacedGetter):
                 arg_ns = arg.namespace
                 if namespace and arg_ns != namespace:
                     raise ValueError(
-                        "Mixed namespaces in function call are not supported ({} != {})".format(
-                            namespace, arg_ns
-                        )
+                        "Function call can access at most one namespace "
+                        "({} != {})".format(namespace, arg_ns)
                     )
                 namespace = arg_ns
             except AttributeError:
-                ...
+                pass
         if namespace is None:
-            raise ValueError("Function call with no namespace are unsupported")
+            raise ValueError(
+                "Function calls with no namespace are unsupported"
+            )
         return namespace
 
     def __init__(self, parsed_ast):
@@ -102,7 +72,7 @@ class CallGetter(NamespacedGetter):
 
     def __str__(self):
         args = ",".join(str(x) for x in self.args)
-        return f"{self.function_name}({args})"
+        return "{}({})".format(self.function_name, args)
 
 
 class AttributeGetter(NamespacedGetter):
@@ -118,7 +88,7 @@ class AttributeGetter(NamespacedGetter):
             return None
 
     def __str__(self):
-        return f"{self.namespace}.{self.variable}"
+        return "{}.{}".format(self.namespace, self.variable)
 
 
 class ConstantGetter(ValueGetter):
@@ -136,7 +106,7 @@ class ConstantGetter(ValueGetter):
         return cls(parsed_ast.operand)
 
     def __str__(self):
-        return f"{self.value}"
+        return str(self.value)
 
 
 class ListGetter(ConstantGetter):
@@ -154,6 +124,9 @@ class ListGetter(ConstantGetter):
 
 
 def getter_from_ast(parsed_ast):
+    """
+    Rappresents a way to get a value
+    """
     getters = {
         ast.Call: CallGetter,
         ast.Attribute: AttributeGetter,
@@ -169,7 +142,28 @@ def getter_from_ast(parsed_ast):
     return getter(parsed_ast)
 
 
-class CompareConstraint(Constraint):
+class Constraint:
+    """
+    Rappresents a filter to be applied on a namespace
+    """
+
+    def __init__(self, left_getter, operator, right_getter):
+        if isinstance(left_getter, NamespacedGetter) and isinstance(
+            right_getter, NamespacedGetter
+        ):
+            raise ValueError(
+                "Unsupported comparison of namespaces with operands {} and {}".format(
+                    left_getter, right_getter
+                )
+            )
+        self.left_getter = left_getter
+        self.operator = operator
+        self.right_getter = right_getter
+        try:
+            self.namespace = self.left_getter.namespace
+        except AttributeError:
+            self.namespace = self.right_getter.namespace
+
     @classmethod
     def parse_from_ast(cls, parsed_ast):
         assert len(parsed_ast.ops) == 1
@@ -217,7 +211,14 @@ class CompareConstraint(Constraint):
         return namespaces
 
 
-class CompareConstraintExplainer(CompareConstraint):
+class ConstraintExplainer(Constraint):
+    def pretty_print(self, namespaces, namespace, max_namespace_items):
+        namespaces[namespace] = list(namespaces[namespace])
+        for filtered in namespaces[namespace][:max_namespace_items]:
+            print("   ", filtered)
+        if len(namespaces[namespace]) > max_namespace_items:
+            print("    [...]")
+
     def filtered(self, namespaces, max_namespace_items=5):
         namespace = self.left_getter.namespace
         print(
@@ -228,26 +229,25 @@ class CompareConstraintExplainer(CompareConstraint):
         )
         print("Filtering:", namespace)
         print("  Pre filter: ")
-        namespaces[namespace] = list(namespaces[namespace])
-        for filtered in namespaces[namespace][:max_namespace_items]:
-            print("   ", filtered)
-        if len(namespaces[namespace]) > max_namespace_items:
-            print("    [...]")
+        self.pretty_print(namespaces, namespace, max_namespace_items)
+
         namespaces = super().filtered(namespaces)
+
         print("  Post filter: ")
-        namespaces[namespace] = list(namespaces[namespace])
-        for filtered in namespaces[namespace][:max_namespace_items]:
-            print("   ", filtered)
-        if len(namespaces[namespace]) > max_namespace_items:
-            print("    [...]")
+        self.pretty_print(namespaces, namespace, max_namespace_items)
+
         return namespaces
+
+
+def dct_hash(dict_obj):
+    return hash(frozenset(dict_obj.items()))
 
 
 def chain_uniq(*iterators):
     to_return = itertools.chain(*iterators)
     already_returned = set()
     for item in to_return:
-        h_item = hash(item)
+        h_item = dct_hash(item)
         if h_item not in already_returned:
             already_returned.add(h_item)
             yield item
@@ -271,10 +271,32 @@ def duplicate_namespace(namespace, count):
     return namespaces
 
 
-def eval_bool_op(bool_op, namespace):
+@functools.singledispatch
+def _prepare_filter(ast_item: ast.AST, namespace, constraint_class):
+    """
+    This function edits the namespace in place replacing each value
+    with an iterator that returns only the values that were in the original
+    namespace that match the parsed expression.
+
+    Warning: This edits the input namespace in place
+
+    Ex.
+    input_namespace = { 'a' : [{'v' : 1}, {'v' : 2}] }
+    parsed_expr ~= 'a.v > 1'
+    output_namespace = {'a' : (x for x in input_namespace['a'] if x['v'] > 1) }
+    """
+    raise NotImplementedError(
+        "Unsupported ast item: {}".format(ast.dump(ast_item))
+    )
+
+
+@_prepare_filter.register(ast.BoolOp)
+def _prepare_boolop(bool_op, namespace, constraint_class):
     if isinstance(bool_op.op, ast.And):
         return functools.reduce(
-            lambda ns, constraint: _act_eval(constraint, ns),
+            lambda ns, constraint: _prepare_filter(
+                constraint, ns, constraint_class
+            ),
             bool_op.values,
             namespace,
         )
@@ -284,43 +306,57 @@ def eval_bool_op(bool_op, namespace):
         )
         ns_constraint = zip(duplicated_namespaces, bool_op.values)
         filtered_namespaces = (
-            _act_eval(constraint, namespace)
+            _prepare_filter(constraint, namespace, constraint_class)
             for namespace, constraint in ns_constraint
         )
         return functools.reduce(namespace_union, filtered_namespaces)
-    raise ValueError("Unsupported bool operator {}".format(namespace))
+    raise ValueError("Unsupported boolean operator: {}".format(bool_op.op))
 
-if os.getenv("RESEXPR_EXPLAIN") == "1":
-    CC = CompareConstraintExplainer
-else:
-    CC = CompareConstraint
 
-def _act_eval(parsed_expr, namespace):
-    to_eval = [parsed_expr]
+@_prepare_filter.register(ast.Expression)
+def _prepare_expression(ast_item, namespace, constraint_class):
+    return _prepare_filter(ast_item.body, namespace, constraint_class)
 
-    while to_eval:
-        curr = to_eval.pop()
-        if isinstance(curr, ast.Expression):
-            to_eval.append(curr.body)
-        elif isinstance(curr, ast.Compare):  # assume compare is a leaf
-            cc = CC.parse_from_ast(curr)
-            return cc.filtered(namespace)
-        elif isinstance(curr, ast.BoolOp):
-            return eval_bool_op(curr, namespace)
-        else:
-            breakpoint()
-    ...
 
-def act_eval(parsed_expr, namespace):
-    return _act_eval(parsed_expr, copy(namespace))
+@_prepare_filter.register(ast.Compare)
+def _prepare_compare(ast_item, namespace, constraint_class):
+    return constraint_class.parse_from_ast(ast_item).filtered(namespace)
 
-def prepare_eval_parse(expr, namespace):
+
+def prepare(parsed_expr: ast.AST, namespace, explain=False):
+    """
+    This function returns a namespace with the same keys and values that are
+    iterators that returns only the values that were in the original namespace
+    that match the parsed expression.
+
+    Ex.
+    input_namespace = { 'a' : [{'v' : 1}, {'v' : 2}] }
+    parsed_expr ~= 'a.v > 1'
+    output_namespace = {'a' : (x for x in input_namespace['a'] if x['v'] > 1) }
+    """
+    if explain:
+        CC = ConstraintExplainer
+    else:
+        CC = Constraint
+    return _prepare_filter(parsed_expr, copy(namespace), CC)
+
+
+def parse_prepare(expr: str, namespace, explain=False):
+    if explain:
+        CC = Constraint
+    else:
+        CC = ConstraintExplainer
     parsed_expr = ast.parse(expr, mode="eval")
-    #print(ast.dump(parsed_expr))
-    return act_eval(parsed_expr, copy(namespace))
+    # print(ast.dump(parsed_expr))
+    return _prepare_filter(parsed_expr, copy(namespace), CC)
 
 
-def evaluate_lazy(namespace):
+def evaluate_lazy(namespace) -> bool:
+    """
+    This returns the truth value of a prepared namespace.
+    Returns True if all values iterator contain at least one item
+    """
+
     def any_next(iterable):
         try:
             next(iterable)
@@ -328,15 +364,11 @@ def evaluate_lazy(namespace):
         except StopIteration:
             return False
 
-    """any_next_ns = {
-        namespace_name: any_next(zz)
-        for (namespace_name, zz) in namespace.items()
-    }"""
     return all(any_next(iter(v)) for v in namespace.values())
 
 
 def evaluate(namespace):
     return {
-        namespace_name: list(x for x in zz)
-        for (namespace_name, zz) in namespace.items()
+        namespace_name: list(values_iterator)
+        for (namespace_name, values_iterator) in namespace.items()
     }

@@ -8,6 +8,7 @@ if [ "$architecture" = "x86_64" ] || [ "$architecture" = "i386" ]; then
     export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/fwts"
     set -o pipefail
     checkbox-support-fwts_test -f none -s s3 --s3-device-check --s3-device-check-delay="${STRESS_S3_WAIT_DELAY:-45}" --s3-sleep-delay="${STRESS_S3_SLEEP_DELAY:-30}"
+    rm /tmp/fwts_results.log
 else
     rtcwake -v -m mem -s "${STRESS_S3_SLEEP_DELAY:-30}"
 fi

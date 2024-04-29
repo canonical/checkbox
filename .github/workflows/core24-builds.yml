@@ -9,7 +9,6 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [classic, uc]
         releases: [24]
         arch: [amd64, arm64]
         tag: [X64, ARM64]
@@ -19,6 +18,8 @@ jobs:
           - arch: arm64
             tag: X64
     runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
         - self-hosted
         - linux
         - jammy
@@ -54,7 +55,7 @@ jobs:
           with: |
             path: checkbox-core-snap/series${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()
         with:
@@ -63,10 +64,10 @@ jobs:
             /home/runner/.cache/snapcraft/log/
             /home/runner/.local/state/snapcraft/log/
             checkbox-core-snap/series${{ matrix.releases }}/checkbox*.txt
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload the snap as artifact
         with:
-          name: series${{ matrix.releases }}
+          name: checkbox${{ matrix.releases }}_${{ matrix.arch }}
           path: checkbox-core-snap/series${{ matrix.releases }}/*.snap
       - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
         name: Upload the snap to the store

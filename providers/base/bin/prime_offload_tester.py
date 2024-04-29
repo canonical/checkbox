@@ -122,17 +122,13 @@ class PrimeOffloader:
             )
 
     def check_offload(
-        self, cmd: list, card_id: str, card_name: str, timeout: str
+        self, cmd: list, card_id: str, card_name: str, timeout: int
     ):
         """
-        Use to check provided command is executed on specific GPU.
-
-        :param cmd: command that running under prime offload
-
+        Check provided command is executed on specific GPU.
+        :param cmd: command to check if it's running on specific GPU
         :param card_id: card id of dri device
-
         :param card_name: card name of dri device
-
         :param timeout: timeout for offloaded command
         """
         delay = timeout / 10

@@ -20,7 +20,7 @@ from cpuid import cpuid_to_human_friendly, main
 
 class CpuidTests(unittest.TestCase):
     def test_hygon_dhyana_plus(self):
-        self.assertEquals(
+        self.assertEqual(
             cpuid_to_human_friendly("0x900f22"), "Hygon Dhyana Plus"
         )
 

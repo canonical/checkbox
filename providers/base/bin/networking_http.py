@@ -38,14 +38,13 @@ class HTTPConnection:
     def http_connect(self):
         if self.current_run > self.max_retries:
             raise SystemExit("Failed to connect to {}!".format(self.url))
-        try:
-            timeout = self.current_run * 10
-            msg = "Trying to connect to {} (timeout: {}s, tentative {}/{})"
-            print(
-                msg.format(
-                    self.url, timeout, self.current_run, self.max_retries
-                )
+        timeout = self.current_run * 10
+        print(
+            "Trying to connect to {} (timeout: {}s, tentative {}/{})".format(
+                self.url, timeout, self.current_run, self.max_retries
             )
+        )
+        try:
             subprocess.run(
                 [
                     "wget",

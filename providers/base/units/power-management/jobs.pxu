@@ -372,15 +372,18 @@ _summary: Cold reboot
 _description: This tests powers off the system and then powers it on using RTC
 unit: job
 plugin: shell
-requires: rtc.state == 'supported'
+requires:
+ rtc.state == 'supported'
+ rtc.wakealarm == 'supported'
 command:
- rtcwake --mode no -s 120
+ rtcwake --mode no -s "${COLD_REBOOT_DELAY:-120}"
  sleep 5
  rtcwake -m show
  sleep 5
  dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
 user: root
 flags: preserve-locale noreturn autorestart
+environ: COLD_REBOOT_DELAY
 estimated_duration: 300
 
 id: power-management/post-cold-reboot

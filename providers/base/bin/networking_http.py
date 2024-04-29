@@ -20,60 +20,64 @@
 #
 
 import argparse
+import random
 import subprocess
 import sys
+import time
 
 
-class HTTPConnection:
-    def __init__(self, url, max_retries: int = 3):
-        """
-        A class that will try to connect to `url` up to `max_retries` times
-        using `wget`. Each time connection fails, the timeout parameter of
-        wget raises (10s the first time, 20s the second time, then 30s...)
-        """
-        self.url = url
-        self.max_retries = max_retries
-        self.current_run = 1
-
-    def http_connect(self):
-        if self.current_run > self.max_retries:
-            raise SystemExit("Failed to connect to {}!".format(self.url))
-        timeout = self.current_run * 10
+def http_connect(
+    url, max_attempts: int = 5, initial_delay=1, backoff_factor=2, max_delay=60
+):
+    """
+    Use `wget` to try to connect to `url`. If attempt fails, the next one is
+    made after adding a random delay calculated using a backoff and a jitter
+    (with a maximum delay of 60 seconds).
+    """
+    for attempt in range(1, max_attempts + 1):
         print(
-            "Trying to connect to {} (timeout: {}s, tentative {}/{})".format(
-                self.url, timeout, self.current_run, self.max_retries
+            "Trying to connect to {} (attempt {}/{})".format(
+                url, attempt, max_attempts
             )
         )
         try:
             subprocess.run(
                 [
                     "wget",
-                    "--timeout",
-                    str(timeout),
                     "-SO",
                     "/dev/null",
-                    self.url,
+                    url,
                 ],
                 check=True,
             )
+            return
         except subprocess.CalledProcessError as exc:
-            print(exc)
+            print("Attempt {} failed: {}".format(attempt, exc))
             print()
-            self.current_run += 1
-            self.http_connect()
+            delay = min(initial_delay * (backoff_factor**attempt), max_delay)
+            jitter = random.uniform(
+                0, delay * 0.5
+            )  # Jitter: up to 50% of the delay
+            final_delay = delay + jitter
+            print(
+                "Waiting for {:.2f} seconds before retrying...".format(
+                    final_delay
+                )
+            )
+            time.sleep(final_delay)
+    raise SystemExit("Failed to connect to {}!".format(url))
 
 
 def main(args):
     parser = argparse.ArgumentParser()
     parser.add_argument("url", help="URL to try to connect to")
     parser.add_argument(
-        "--retries",
-        default="3",
-        help="Number of connection tentatives to try (default %(default)s)",
+        "--attempts",
+        default="5",
+        help="Number of connection attempts (default %(default)s)",
     )
     args = parser.parse_args(args)
-    connection_test = HTTPConnection(args.url, int(args.retries))
-    connection_test.http_connect()
+    http_connect(args.url, int(args.attempts))
 
 
 if __name__ == "__main__":

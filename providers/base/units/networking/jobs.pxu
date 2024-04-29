@@ -59,7 +59,8 @@ user: root
 plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/http
-command: wget -SO /dev/null http://"$TRANSFER_SERVER"
+environ: TRANSFER_SERVER
+command: networking_http.py http://"$TRANSFER_SERVER"
 _description:
  Automated test case to make sure that it's possible to download files through HTTP
 

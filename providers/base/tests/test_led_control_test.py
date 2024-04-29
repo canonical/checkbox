@@ -1,5 +1,6 @@
 import sys
 import unittest
+from datetime import datetime
 from unittest.mock import patch, Mock
 from pathlib import PosixPath, Path
 from led_control_test import SysFsLEDController
@@ -132,9 +133,17 @@ class TestSysFsLEDController(unittest.TestCase):
         self.led_controller._get_initial_state()
         self.assertEqual(expected_data, self.led_controller.initial_state)
 
+    @patch("time.sleep", return_value=0)
+    @patch("led_control_test.datetime")
     @patch("led_control_test.SysFsLEDController.off")
     @patch("led_control_test.SysFsLEDController.on")
-    def test_blinking_test(self, mock_on, mock_off):
+    def test_blinking_test(self, mock_on, mock_off, mock_datetime, mock_sleep):
+        mock_datetime.now = Mock()
+        mock_datetime.now.side_effect = [
+            datetime(2020, 1, 1, 0, 0, 0),
+            datetime(2020, 1, 1, 0, 0, 1),
+            datetime(2020, 1, 1, 0, 0, 2),
+        ]
 
         self.led_controller.blinking(1, 0.5)
         mock_on.assert_called_with()

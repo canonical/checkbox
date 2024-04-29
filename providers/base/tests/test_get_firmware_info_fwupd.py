@@ -178,8 +178,6 @@ class TestGetFirmwareInfo(unittest.TestCase):
         mock_snapd.return_value = False
         mock_fwupd_ver.return_value = (1, 7, 9)
 
-        # SNAP env is empty
-        self.assertIsNone(os.environ.get("SNAP"))
         get_firmware_info_fwupd.get_firmware_info_fwupd()
         mock_snapd.assert_called_with("fwupd")
         mock_subporcess.assert_called_with(

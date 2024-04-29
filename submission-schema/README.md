@@ -15,7 +15,7 @@ Changes in the schema are reflected after successful documentation build.
 The `schema.json` can be generated using a existing submission tarballs.
 Follow the steps below to generate a fresh `schema.json`
 
-> As of Checkbox v4.0.0, the schema file needs manual clean-up and updates after generation. Ensure to compare the generated schema with the existing one to ensure that the changes are correct.
+> The schema generator is really a utility that helps (helped) create a _starting point_ for the submission JSON schema, and is not for continued use more so than diagnostic purposes (using it serves the purpose of comparing actual submission data against the schema in use, but it is not for example intended to be used regularly to update the canonical schema.json in this directory).
 
 ### Obtaining submission tarballs
 

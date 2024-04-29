@@ -1,4 +1,5 @@
 import ast
+import typing
 import operator
 import itertools
 import functools
@@ -323,7 +324,7 @@ def _prepare_compare(ast_item, namespace, constraint_class):
     return constraint_class.parse_from_ast(ast_item).filtered(namespace)
 
 
-def prepare(parsed_expr: ast.AST, namespace, explain=False):
+def prepare(expr: typing.Union[ast.AST, str], namespace, explain=False):
     """
     This function returns a namespace with the same keys and values that are
     iterators that returns only the values that were in the original namespace
@@ -333,22 +334,28 @@ def prepare(parsed_expr: ast.AST, namespace, explain=False):
     input_namespace = { 'a' : [{'v' : 1}, {'v' : 2}] }
     parsed_expr ~= 'a.v > 1'
     output_namespace = {'a' : (x for x in input_namespace['a'] if x['v'] > 1) }
+
+    When explain is True, the evaluating the resource expression will explain
+    what each constraint did to the namespace affected
+
+    Ex.
+    Expression: namespace.a In() [1, 2]
+    Filtering: namespace
+      Pre filter:
+        {'a': '1'}
+        {'a': '2'}
+        {'a': '3'}
+      Post filter:
+        {'a': '1'}
+        {'a': '2'}
     """
     if explain:
         CC = ConstraintExplainer
     else:
         CC = Constraint
-    return _prepare_filter(parsed_expr, copy(namespace), CC)
-
-
-def parse_prepare(expr: str, namespace, explain=False):
-    if explain:
-        CC = Constraint
-    else:
-        CC = ConstraintExplainer
-    parsed_expr = ast.parse(expr, mode="eval")
-    # print(ast.dump(parsed_expr))
-    return _prepare_filter(parsed_expr, copy(namespace), CC)
+    if isinstance(expr, str):
+        expr = ast.parse(expr, mode="eval")
+    return _prepare_filter(expr, copy(namespace), CC)
 
 
 def evaluate_lazy(namespace) -> bool:

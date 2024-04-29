@@ -1,7 +1,7 @@
 from plainbox.impl.new_resource import (
-    parse_prepare,
+    prepare,
     evaluate,
-    evaluate_lazy,
+    evaluate_lazy
 )
 from unittest import TestCase
 
@@ -13,10 +13,10 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": [{"a": 1, "b": 2}]}
         result_bool = True
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
-        evaluated = evaluate_lazy(parse_prepare(expr, namespace))
+        evaluated = evaluate_lazy(prepare(expr, namespace))
         self.assertEqual(evaluated, result_bool)
 
     def test_equal_false(self):
@@ -25,10 +25,10 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": []}
         result_bool = False
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
-        evaluated = evaluate_lazy(parse_prepare(expr, namespace))
+        evaluated = evaluate_lazy(prepare(expr, namespace))
         self.assertEqual(evaluated, result_bool)
 
     def test_and_true(self):
@@ -37,10 +37,10 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": [{"a": 1, "b": 2}]}
         result_bool = True
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
-        evaluated = evaluate_lazy(parse_prepare(expr, namespace))
+        evaluated = evaluate_lazy(prepare(expr, namespace))
         self.assertEqual(evaluated, result_bool)
 
     def test_and_false(self):
@@ -49,10 +49,10 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": []}
         result_bool = False
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
-        evaluated = evaluate_lazy(parse_prepare(expr, namespace))
+        evaluated = evaluate_lazy(prepare(expr, namespace))
         self.assertEqual(evaluated, result_bool)
 
     def test_or_true(self):
@@ -61,10 +61,10 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": [{"a": 1, "b": 2}, {"a": 2, "b": 2}]}
         result_bool = True
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
-        evaluated = evaluate_lazy(parse_prepare(expr, namespace))
+        evaluated = evaluate_lazy(prepare(expr, namespace))
         self.assertEqual(evaluated, result_bool)
 
     def test_or_true_regression(self):
@@ -73,10 +73,10 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": [{"a": 1, "b": 2}]}
         result_bool = True
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
-        evaluated = evaluate_lazy(parse_prepare(expr, namespace))
+        evaluated = evaluate_lazy(prepare(expr, namespace))
         self.assertEqual(evaluated, result_bool)
 
     def test_or_false(self):
@@ -85,10 +85,10 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": []}
         result_bool = False
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
-        evaluated = evaluate_lazy(parse_prepare(expr, namespace))
+        evaluated = evaluate_lazy(prepare(expr, namespace))
         self.assertEqual(evaluated, result_bool)
 
     def test_gt_true(self):
@@ -97,10 +97,10 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": [{"a": 2, "b": 2}]}
         result_bool = True
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
-        evaluated = evaluate_lazy(parse_prepare(expr, namespace))
+        evaluated = evaluate_lazy(prepare(expr, namespace))
         self.assertEqual(evaluated, result_bool)
 
     def test_gt_false(self):
@@ -109,10 +109,10 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": []}
         result_bool = False
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
-        evaluated = evaluate_lazy(parse_prepare(expr, namespace))
+        evaluated = evaluate_lazy(prepare(expr, namespace))
         self.assertEqual(evaluated, result_bool)
 
     def test_gte(self):
@@ -122,7 +122,7 @@ class TestEvaluateEndToEnd(TestCase):
         }
         result = {"namespace": [{"a": 1, "b": 2}, {"a": 2, "b": 2}]}
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
     def test_cast_int(self):
@@ -132,7 +132,7 @@ class TestEvaluateEndToEnd(TestCase):
         }
         result = {"namespace": [{"a": "1", "b": "2"}]}
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
     def test_cast_float(self):
@@ -142,7 +142,7 @@ class TestEvaluateEndToEnd(TestCase):
         }
         result = {"namespace": [{"a": "1", "b": "2"}]}
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
     def test_in(self):
@@ -150,7 +150,7 @@ class TestEvaluateEndToEnd(TestCase):
         namespace = {"namespace": [{"a":"1"}, {"a":"2"}, {"a":"3"}]}
         result = {"namespace": [{"a":"1"}, {"a":"2"}]}
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace))
         self.assertEqual(evaluated, result)
 
     def test_in_tuple(self):
@@ -158,7 +158,7 @@ class TestEvaluateEndToEnd(TestCase):
         namespace = {"namespace": [{"a":"1"}, {"a":"2"}, {"a":"3"}]}
         result = {"namespace": [{"a":"1"}, {"a":"2"}]}
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
     def test_neq_true(self):
@@ -166,7 +166,7 @@ class TestEvaluateEndToEnd(TestCase):
         namespace = {"namespace": [{"a":"1"}, {"a":"2"}, {"a":"3"}]}
         result = {"namespace": [{"a":"2"}, {"a":"3"}]}
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
     def test_neq_false(self):
@@ -176,7 +176,7 @@ class TestEvaluateEndToEnd(TestCase):
         namespace = {"namespace": [{"a":"1"}, {"a":"2"}]}
         result = {"namespace": []}
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
     def test_multiple_or(self):
@@ -184,5 +184,5 @@ class TestEvaluateEndToEnd(TestCase):
         namespace = {"namespace": [dict(a="1"), {"a":"2"}, {"a":"3"}]}
         result = {"namespace": [{"a":"1"}, {"a":"2"}, {"a":"3"}]}
 
-        evaluated = evaluate(parse_prepare(expr, namespace))
+        evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)

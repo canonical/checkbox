@@ -131,6 +131,7 @@ _description: Attaches info on system memory as seen in /proc/meminfo.
 id: modprobe_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
+user: root
 command: find /etc/modprobe.* -name \*.conf -exec cat {} +
 estimated_duration: 0.015
 _description: Attaches the contents of the various modprobe conf files.
@@ -161,6 +162,7 @@ _summary: Attach the contents of /etc/modules
 id: sysctl_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
+user: root
 command: find /etc/sysctl.* -name \*.conf -exec cat {} +
 estimated_duration: 0.014
 _description: Attaches the contents of various sysctl config files.

@@ -4,11 +4,16 @@ holdoff_timeout_usec=$(gdbus introspect --system --dest org.freedesktop.login1 -
 holdoff_timeout_sec=$(echo "scale=0; $holdoff_timeout_usec / 1000000" | bc)
 
 if [ "$holdoff_timeout_sec" -ne 0 ]; then
+    if (journalctl --since "$holdoff_timeout_sec seconds ago" -b 0 -r | grep "suspend exit" >/dev/null 2>&1); then
+        echo "The system just resume from suspend, the lid event will be hold off on in $holdoff_timeout_sec seconds"
+        echo "Please wait for the new prompt before starting the test."
+    fi
     while (journalctl --since "$holdoff_timeout_sec seconds ago" -b 0 -r | grep "suspend exit" >/dev/null 2>&1)
     do
-        echo "The system just resume from suspend, please wait for $holdoff_timeout_sec seconds and continue the test"
-        sleep 1
+        echo "waiting... "
+        sleep 3
     done
+    echo ""
 fi
 
 prev_suspend_number=$(cat /sys/power/suspend_stats/success)

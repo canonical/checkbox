@@ -3,7 +3,7 @@
 import sys
 import re
 import argparse
-import datetime
+import time
 import logging
 import select
 from collections import OrderedDict

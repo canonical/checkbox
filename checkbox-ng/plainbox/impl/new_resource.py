@@ -3,6 +3,7 @@ import typing
 import operator
 import itertools
 import functools
+import contextlib
 
 from copy import copy
 
@@ -245,6 +246,7 @@ def dct_hash(dict_obj):
 
 
 def chain_uniq(*iterators):
+    iterators = tuple(x for x in iterators if x)
     to_return = itertools.chain(*iterators)
     already_returned = set()
     for item in to_return:
@@ -254,22 +256,102 @@ def chain_uniq(*iterators):
             yield item
 
 
-def namespace_union(ns1, ns2):
-    return {
-        namespace_name: chain_uniq(ns1[namespace_name], ns2[namespace_name])
-        for namespace_name in (ns1.keys() | ns2.keys())
-    }
+class Namespace:
+    DEFAULT_NAMESPACE = "com.canonical.plainbox"
+
+    def __init__(self, implicit_namespace, namespace):
+        self.implicit_namespace = implicit_namespace
+        self.namespace = namespace
+
+    def __contains__(self, key):
+        with contextlib.suppress(KeyError):
+            _ = self[key]
+            return True
+        return False
+
+    def __getitem__(self, key):
+        """
+        Namespaces keys are themselves namespaced. The priority of resolution
+        is:
+        1. key is in the namespace
+        2. implicit_namespace::key is in the namespace
+        3. DEFAULT_NAMESPACE::key is in the namespace (for example: manifest)
+        """
+        try:
+            return self.namespace[key]
+        except KeyError:
+            with contextlib.suppress(KeyError):
+                return self.namespace[
+                    "{}::{}".format(self.implicit_namespace, key)
+                ]
+            with contextlib.suppress(KeyError):
+                return self.namespace[
+                    "{}::{}".format(self.DEFAULT_NAMESPACE, key)
+                ]
+            raise
+
+    def __setitem__(self, key, value):
+        if key in self.namespace:
+            self.namespace[key] = value
+            return
+
+        implicit_namespaced_name = "{}::{}".format(
+            self.implicit_namespace, key
+        )
+        if implicit_namespaced_name in self:
+            self.namespace[implicit_namespaced_name] = value
+            return
+
+        builtin_namespaced_name = "{}::{}".format(self.DEFAULT_NAMESPACE, key)
+        if builtin_namespaced_name in self:
+            self.namespace[builtin_namespaced_name] = value
+            return
+
+        self.namespace[key] = value
+
+    def items(self):
+        return self.namespace.items()
+
+    def keys(self):
+        return self.namespace.keys()
+
+    def values(self):
+        return self.namespace.values()
+
+    def get(self, key, default=None):
+        with contextlib.suppress(KeyError):
+            return self[key]
+        return default
+
+    def namespace_union(self, other: "Self"):
+        return Namespace(
+            self.implicit_namespace,
+            {
+                namespace_name: chain_uniq(
+                    self.get(namespace_name),
+                    other.get(namespace_name),
+                )
+                for namespace_name in (self.keys() | other.keys())
+            },
+        )
+
+    def duplicate_namespace(self, count: int):
+        duplicated_namespace = {
+            x: itertools.tee(y, count) for (x, y) in self.items()
+        }
+        namespaces = [
+            Namespace(
+                self.implicit_namespace,
+                {
+                    key: duplicated_namespace[key][i]
+                    for key in duplicated_namespace
+                },
+            )
+            for i in range(count)
+        ]
+        return namespaces
 
 
-def duplicate_namespace(namespace, count):
-    duplicated_namespace = {
-        x: itertools.tee(y, count) for (x, y) in namespace.items()
-    }
-    namespaces = [
-        {key: duplicated_namespace[key][i] for key in duplicated_namespace}
-        for i in range(count)
-    ]
-    return namespaces
 
 
 @functools.singledispatch
@@ -302,15 +384,15 @@ def _prepare_boolop(bool_op, namespace, constraint_class):
             namespace,
         )
     elif isinstance(bool_op.op, ast.Or):
-        duplicated_namespaces = duplicate_namespace(
-            namespace, len(bool_op.values)
+        duplicated_namespaces = namespace.duplicate_namespace(
+            len(bool_op.values)
         )
         ns_constraint = zip(duplicated_namespaces, bool_op.values)
         filtered_namespaces = (
             _prepare_filter(constraint, namespace, constraint_class)
             for namespace, constraint in ns_constraint
         )
-        return functools.reduce(namespace_union, filtered_namespaces)
+        return functools.reduce(Namespace.namespace_union, filtered_namespaces)
     raise ValueError("Unsupported boolean operator: {}".format(bool_op.op))
 
 
@@ -324,7 +406,12 @@ def _prepare_compare(ast_item, namespace, constraint_class):
     return constraint_class.parse_from_ast(ast_item).filtered(namespace)
 
 
-def prepare(expr: typing.Union[ast.AST, str], namespace, explain=False):
+def prepare(
+    expr: typing.Union[ast.AST, str],
+    namespace: dict,
+    implicit_namespace: str = "",
+    explain=False,
+):
     """
     This function returns a namespace with the same keys and values that are
     iterators that returns only the values that were in the original namespace
@@ -355,7 +442,9 @@ def prepare(expr: typing.Union[ast.AST, str], namespace, explain=False):
         CC = Constraint
     if isinstance(expr, str):
         expr = ast.parse(expr, mode="eval")
-    return _prepare_filter(expr, copy(namespace), CC)
+    return _prepare_filter(
+        expr, Namespace(implicit_namespace, copy(namespace)), CC
+    )
 
 
 def evaluate_lazy(namespace) -> bool:

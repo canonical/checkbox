@@ -1,8 +1,4 @@
-from plainbox.impl.new_resource import (
-    prepare,
-    evaluate,
-    evaluate_lazy
-)
+from plainbox.impl.new_resource import prepare, evaluate, evaluate_lazy
 from unittest import TestCase
 
 
@@ -147,24 +143,24 @@ class TestEvaluateEndToEnd(TestCase):
 
     def test_in(self):
         expr = "namespace.a in ['1', '2']"
-        namespace = {"namespace": [{"a":"1"}, {"a":"2"}, {"a":"3"}]}
-        result = {"namespace": [{"a":"1"}, {"a":"2"}]}
+        namespace = {"namespace": [{"a": "1"}, {"a": "2"}, {"a": "3"}]}
+        result = {"namespace": [{"a": "1"}, {"a": "2"}]}
 
         evaluated = evaluate(prepare(expr, namespace))
         self.assertEqual(evaluated, result)
 
     def test_in_tuple(self):
         expr = "namespace.a in ('1', '2')"
-        namespace = {"namespace": [{"a":"1"}, {"a":"2"}, {"a":"3"}]}
-        result = {"namespace": [{"a":"1"}, {"a":"2"}]}
+        namespace = {"namespace": [{"a": "1"}, {"a": "2"}, {"a": "3"}]}
+        result = {"namespace": [{"a": "1"}, {"a": "2"}]}
 
         evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
 
     def test_neq_true(self):
         expr = "namespace.a != '1'"
-        namespace = {"namespace": [{"a":"1"}, {"a":"2"}, {"a":"3"}]}
-        result = {"namespace": [{"a":"2"}, {"a":"3"}]}
+        namespace = {"namespace": [{"a": "1"}, {"a": "2"}, {"a": "3"}]}
+        result = {"namespace": [{"a": "2"}, {"a": "3"}]}
 
         evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
@@ -173,7 +169,7 @@ class TestEvaluateEndToEnd(TestCase):
         expr = (
             "namespace.a != '1' and namespace.a != '2' and namespace.a != '3'"
         )
-        namespace = {"namespace": [{"a":"1"}, {"a":"2"}]}
+        namespace = {"namespace": [{"a": "1"}, {"a": "2"}]}
         result = {"namespace": []}
 
         evaluated = evaluate(prepare(expr, namespace, explain=True))
@@ -181,8 +177,75 @@ class TestEvaluateEndToEnd(TestCase):
 
     def test_multiple_or(self):
         expr = "namespace.a == '1' or namespace.a == '2' or namespace.a == '3'"
-        namespace = {"namespace": [dict(a="1"), {"a":"2"}, {"a":"3"}]}
-        result = {"namespace": [{"a":"1"}, {"a":"2"}, {"a":"3"}]}
+        namespace = {"namespace": [dict(a="1"), {"a": "2"}, {"a": "3"}]}
+        result = {"namespace": [{"a": "1"}, {"a": "2"}, {"a": "3"}]}
 
         evaluated = evaluate(prepare(expr, namespace, explain=True))
         self.assertEqual(evaluated, result)
+
+    def test_implicit_namespace_eq(self):
+        expr = "(namespace.a == 3)"
+        namespace = {
+            "com.canonical.certification::namespace": [
+                {"a": 1, "b": 2},
+                {"a": 2, "b": 2},
+            ]
+        }
+        result = {"com.canonical.certification::namespace": []}
+        result_bool = False
+
+        evaluated = evaluate(
+            prepare(
+                expr,
+                namespace,
+                explain=True,
+                implicit_namespace="com.canonical.certification",
+            )
+        )
+        self.assertEqual(evaluated, result)
+
+        evaluated = evaluate_lazy(
+            prepare(
+                expr,
+                namespace,
+                implicit_namespace="com.canonical.certification",
+            )
+        )
+        self.assertEqual(evaluated, result_bool)
+
+    def test_default_namespace_eq(self):
+        expr = "manifest.has_usbc == 'True'"
+        namespace = {
+            "com.canonical.certification::namespace": [
+                {"a": 1, "b": 2},
+                {"a": 2, "b": 2},
+            ],
+            "com.canonical.plainbox::manifest": [{"has_usbc": "True"}],
+        }
+        result = {
+            "com.canonical.certification::namespace": [
+                {"a": 1, "b": 2},
+                {"a": 2, "b": 2},
+            ],
+            "com.canonical.plainbox::manifest": [{"has_usbc": "True"}],
+        }
+        result_bool = True
+
+        evaluated = evaluate(
+            prepare(
+                expr,
+                namespace,
+                explain=True,
+                implicit_namespace="com.canonical.certification",
+            )
+        )
+        self.assertEqual(evaluated, result)
+
+        evaluated = evaluate_lazy(
+            prepare(
+                expr,
+                namespace,
+                implicit_namespace="com.canonical.certification",
+            )
+        )
+        self.assertEqual(evaluated, result_bool)

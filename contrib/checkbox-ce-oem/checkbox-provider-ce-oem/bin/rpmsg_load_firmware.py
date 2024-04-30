@@ -99,7 +99,7 @@ class RpmsgLoadFirmwareTest:
         return keep_looking
 
     def _monitor_journal_logs(self, lookup_func):
-        start_time = datetime.datetime.now()
+        start_time = time.time()
         logging.info("# start time: %s", start_time)
 
         while self._poller.poll(1000):

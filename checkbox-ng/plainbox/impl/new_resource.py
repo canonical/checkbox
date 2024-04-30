@@ -352,8 +352,6 @@ class Namespace:
         return namespaces
 
 
-
-
 @functools.singledispatch
 def _prepare_filter(ast_item: ast.AST, namespace, constraint_class):
     """
@@ -447,11 +445,23 @@ def prepare(
     )
 
 
-def evaluate_lazy(namespace) -> bool:
+def evaluate_lazy(
+    expr: typing.Union[ast.AST, str],
+    namespace: dict,
+    implicit_namespace: str = "",
+    explain=False,
+) -> bool:
     """
     This returns the truth value of a prepared namespace.
-    Returns True if all values iterator contain at least one item
+    Returns a namespace where each value is True if any resource matched the
+    expression
+
+    To get a True/False answer one can simply use:
+        all(evaluate_lazy(...).values())
     """
+    namespace = prepare(
+        expr, namespace, implicit_namespace=implicit_namespace, explain=explain
+    )
 
     def any_next(iterable):
         try:
@@ -460,10 +470,18 @@ def evaluate_lazy(namespace) -> bool:
         except StopIteration:
             return False
 
-    return all(any_next(iter(v)) for v in namespace.values())
+    return {x: any_next(iter(v)) for (x, v) in namespace.items()}
 
 
-def evaluate(namespace):
+def evaluate(
+    expr: typing.Union[ast.AST, str],
+    namespace: dict,
+    implicit_namespace: str = "",
+    explain=False,
+):
+    namespace = prepare(
+        expr, namespace, implicit_namespace=implicit_namespace, explain=explain
+    )
     return {
         namespace_name: list(values_iterator)
         for (namespace_name, values_iterator) in namespace.items()

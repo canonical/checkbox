@@ -111,8 +111,8 @@ class RpmsgLoadFirmwareTest:
                     if lookup_func(entry) is False:
                         return self.expected_events
 
-            cur_time = datetime.datetime.now()
-            if (cur_time - start_time).total_seconds() > 60:
+            cur_time = time.time()
+            if (cur_time - start_time) > 60:
                 return self.expected_events
 
 

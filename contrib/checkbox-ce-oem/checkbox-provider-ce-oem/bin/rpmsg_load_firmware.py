@@ -103,13 +103,14 @@ class RpmsgLoadFirmwareTest:
         logging.info("# start time: %s", start_time)
 
         while self._poller.poll(1000):
-            if self.log_reader.process() == journal.APPEND:
-                for entry in self.log_reader:
-                    logging.debug(entry["MESSAGE"])
-                    if entry["MESSAGE"] == "":
-                        continue
-                    if lookup_func(entry) is False:
-                        return self.expected_events
+            if self.log_reader.process() != journal.APPEND:
+                continue
+            for entry in self.log_reader:
+                logging.debug(entry["MESSAGE"])
+                if entry["MESSAGE"] == "":
+                    continue
+                if lookup_func(entry) is False:
+                    return self.expected_events
 
             cur_time = time.time()
             if (cur_time - start_time) > 60:

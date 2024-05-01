@@ -7,6 +7,8 @@ from unittest.mock import patch, call, Mock
 
 import edid_cycle
 
+from checkbox_support.helpers.display_info import Mode
+
 
 class ZapperEdidCycleTests(unittest.TestCase):
     """This class provides test cases for the edid_cycle module."""
@@ -29,8 +31,8 @@ class ZapperEdidCycleTests(unittest.TestCase):
         disconnected_output = "Monitors: 0"
         connected_output = textwrap.dedent(
             """
-            Monitors: 1
-             0: +HDMI-1 1920/576x1080/324+800+1080 HDMI-1
+            HDMI-1-0 connected 1920x1080+1920+0 (normal) 576mm x 324mm
+                1920x1080     49.88*+
             """
         )
 
@@ -40,7 +42,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
         ]
 
         port = edid_cycle.discover_video_output_device("zapper-ip")
-        self.assertEqual(port, "HDMI-1")
+        self.assertEqual(port, "HDMI-1-0")
 
     @patch("time.sleep", new=Mock)
     @patch("edid_cycle.zapper_run", new=Mock)
@@ -92,6 +94,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
                 HDMI-1 TSB PI-KVM Video 0x88888800
 
             HDMI-1 TSB PI-KVM Video
+                3840x2160@120.000  3840x2160       120.00* [x1.00]
             """
         )
 
@@ -358,3 +361,31 @@ class ZapperEdidCycleTests(unittest.TestCase):
 
         mock_test_edid.side_effect = AssertionError("Mismatch")
         self.assertTrue(edid_cycle.main(args))
+
+class GetActiveDevicesTests(unittest.TestCase):
+
+
+    @patch("edid_cycle.get_display_modes")
+    def test_get_active_devices_happy(self, mock_get_display_info):
+        """
+        Test if the function returns the active devices.
+        """
+        mock_get_display_info.return_value = {
+            "HDMI-1": [],
+            "HDMI-2": [Mode("1920x1080", 60.00, False, True)],
+            # The next one has a preferred mode, but not active
+            "HDMI-3": [Mode("1920x1080", 60.00, True, False)],
+            "HDMI-4": [],
+        }
+
+        active_devices = edid_cycle.get_active_devices()
+        self.assertEqual(active_devices, {"HDMI-2"})
+
+    @patch("edid_cycle.get_display_modes")
+    def test_get_active_devices_empty(self, mock_get_display_info):
+        """
+        Test if the function returns an empty set when no active devices.
+        """
+        mock_get_display_info.return_value = dict()
+        active_devices = edid_cycle.get_active_devices()
+        self.assertEqual(active_devices, set())

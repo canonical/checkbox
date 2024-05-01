@@ -12,12 +12,27 @@ import re
 import subprocess
 import time
 
+from checkbox_support.helpers.display_info import get_display_modes
 from checkbox_support.scripts.zapper_proxy import zapper_run  # noqa: E402
+
 
 EDID_FILES = list(
     pathlib.Path(os.getenv("PLAINBOX_PROVIDER_DATA", ".")).glob("edids/*.edid")
 )
 
+def get_active_devices():
+    """
+    Get the list of active video ouput devices.
+
+    The pattern we're looking for is <port-type>-<port-index>
+    for instance HDMI-1 or DP-5.
+    """
+    active = set()
+
+    for output, modes in get_display_modes().items():
+        if any(mode.is_current for mode in modes):
+            active.add(output)
+    return active
 
 def discover_video_output_device(zapper_host):
     """
@@ -29,29 +44,6 @@ def discover_video_output_device(zapper_host):
     :return: Video Output Port, i.e. `HDMI-1`
     :raises IOError: cannot discover the video port under test
     """
-
-    def get_active_devices():
-        """
-        Get the list of active video ouput devices.
-
-        The pattern we're looking for is <port-type>-<port-index>
-        for instance HDMI-1 or DP-5.
-        """
-        if os.getenv("XDG_SESSION_TYPE") == "wayland":
-            command = ["gnome-randr", "query"]
-            pattern = r"^\b\w+-\d+\b"
-        else:
-            command = ["xrandr", "--listactivemonitors"]
-            pattern = r"\b\w+-\d+$"
-
-        xrandr_output = subprocess.check_output(
-            command,
-            universal_newlines=True,
-            encoding="utf-8",
-            stderr=subprocess.DEVNULL,
-        )
-
-        return set(re.findall(pattern, xrandr_output, re.MULTILINE))
 
     _clear_edid(zapper_host)
 

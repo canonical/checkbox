@@ -273,7 +273,7 @@ class ConstraintExplainer(Constraint):
         try:
             # note [...] if we are truncating to max_namespace_items
             next(printable)
-            filtered_list.append(ConstraintExplainer.MORE)
+            filtered_list.append(ConstraintExplanation.MORE)
         except StopIteration:
             pass
         return filtered_list
@@ -309,18 +309,14 @@ class ConstraintExplainer(Constraint):
         return namespaces
 
 
-def dct_hash(dict_obj):
-    return hash(frozenset(dict_obj.items()))
-
 
 def chain_uniq(*iterators):
     iterators = tuple(x for x in iterators if x)
     to_return = itertools.chain(*iterators)
     already_returned = set()
     for item in to_return:
-        h_item = dct_hash(item)
-        if h_item not in already_returned:
-            already_returned.add(h_item)
+        if item not in already_returned:
+            already_returned.add(item)
             yield item
 
 

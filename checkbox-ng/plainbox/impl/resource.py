@@ -161,6 +161,10 @@ class Resource:
             self, "_data"
         ) != object.__getattribute__(other, "_data")
 
+    def __hash__(self):
+        data = object.__getattribute__(self, "_data")
+        return hash(frozenset(data.items()))
+
 
 class FakeResource:
     """
@@ -283,7 +287,10 @@ class ResourceProgram:
     def _new_evaluate_or_raise(self, resource_map):
         if not self._expression_parsed_list:
             return True
-
+        # avoid explaining when not in debug as it is a bit slower
+        explain_function = (
+            logger.debug if logger.level <= logging.DEBUG else None
+        )
         to_ret = all(
             resource_map
             and all(
@@ -291,7 +298,7 @@ class ResourceProgram:
                     etl,
                     resource_map,
                     implicit_namespace=self._implicit_namespace,
-                    explain=True,
+                    explain_callback=explain_function,
                 ).values()
             )
             for etl in self._expression_parsed_list
@@ -302,12 +309,16 @@ class ResourceProgram:
     def filter(self, resource_map, implicit_namespace):
         if not self._expression_parsed_list:
             return resource_map
+        # avoid explaining when not in debug as it is a bit slower
+        explain_function = (
+            logger.debug if logger.level <= logging.DEBUG else None
+        )
         to_ret = (
             new_resource.evaluate(
                 etl,
                 resource_map,
-                explain=True,
                 implicit_namespace=implicit_namespace,
+                explain_callback=explain_function,
             )
             for etl in self._expression_parsed_list
         )

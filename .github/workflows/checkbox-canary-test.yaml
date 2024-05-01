@@ -76,7 +76,7 @@ jobs:
     - name: Submit job to testflinger
       uses: canonical/certification-github-workflows/.github/actions/fling-test@testflinger-action-incremental
       with:
-        yaml: |
+        job: |
           job_queue : ${{ matrix.queue }}
           global_timeout: 3600
           output_timeout: 1800

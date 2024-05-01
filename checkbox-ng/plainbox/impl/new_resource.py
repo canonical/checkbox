@@ -115,6 +115,31 @@ class ConstantGetter(ValueGetter):
         return str(self.value)
 
 
+class NamedConstant(ConstantGetter):
+    constants = {
+        "DESKTOP_PC_PRODUCT": [
+            "Desktop",
+            "Low Profile Desktop",
+            "Tower",
+            "Mini Tower",
+            "Space-saving",
+            "All In One",
+            "All-In-One",
+            "AIO",
+        ]
+    }
+
+    def __init__(self, parsed_ast):
+        self.name = parsed_ast.id
+        try:
+            self.value = self.constants[self.name]
+        except KeyError:
+            raise NameError from KeyError
+
+    def __str__(self):
+        return "{} ({})".format(self.name, self.value)
+
+
 class ListGetter(ConstantGetter):
     def __init__(self, parsed_ast):
         values_getters = [getter_from_ast(value) for value in parsed_ast.elts]
@@ -140,11 +165,14 @@ def getter_from_ast(parsed_ast):
         ast.List: ListGetter,
         ast.Tuple: ListGetter,
         ast.UnaryOp: ConstantGetter.from_unary_op,
+        ast.Name: NamedConstant,
     }
     try:
         getter = getters[type(parsed_ast)]
     except KeyError:
-        raise ValueError("Unsupported name/value {}".format(parsed_ast))
+        raise ValueError(
+            "Unsupported name/value {}".format(ast.dump(parsed_ast))
+        )
     return getter(parsed_ast)
 
 
@@ -307,7 +335,6 @@ class ConstraintExplainer(Constraint):
         )
 
         return namespaces
-
 
 
 def chain_uniq(*iterators):

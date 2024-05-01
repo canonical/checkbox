@@ -1,11 +1,14 @@
 from plainbox.impl.new_resource import evaluate, evaluate_lazy, UnknownResource
 from unittest import TestCase
 
+
 class HashableDict(dict):
     def __hash__(self):
         return hash(frozenset(self.items()))
 
+
 HD = HashableDict
+
 
 class TestEvaluateEndToEnd(TestCase):
     def test_equal_true(self):
@@ -31,7 +34,6 @@ class TestEvaluateEndToEnd(TestCase):
 
         evaluated = all(evaluate_lazy(expr, namespace).values())
         self.assertEqual(evaluated, result_bool)
-
 
     def test_equal_false(self):
         expr = "(namespace.a == 3)"
@@ -161,7 +163,9 @@ class TestEvaluateEndToEnd(TestCase):
 
     def test_in(self):
         expr = "namespace.a in ['1', '2']"
-        namespace = {"namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]}
+        namespace = {
+            "namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]
+        }
         result = {"namespace": [HD({"a": "1"}), HD({"a": "2"})]}
 
         evaluated = evaluate(expr, namespace)
@@ -169,7 +173,9 @@ class TestEvaluateEndToEnd(TestCase):
 
     def test_in_tuple(self):
         expr = "namespace.a in ('1', '2')"
-        namespace = {"namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]}
+        namespace = {
+            "namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]
+        }
         result = {"namespace": [HD({"a": "1"}), HD({"a": "2"})]}
 
         evaluated = evaluate(expr, namespace, explain_callback=print)
@@ -177,7 +183,9 @@ class TestEvaluateEndToEnd(TestCase):
 
     def test_neq_true(self):
         expr = "namespace.a != '1'"
-        namespace = {"namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]}
+        namespace = {
+            "namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]
+        }
         result = {"namespace": [HD({"a": "2"}), HD({"a": "3"})]}
 
         evaluated = evaluate(expr, namespace, explain_callback=print)
@@ -195,8 +203,12 @@ class TestEvaluateEndToEnd(TestCase):
 
     def test_multiple_or(self):
         expr = "namespace.a == '1' or namespace.a == '2' or namespace.a == '3'"
-        namespace = {"namespace": [HD({"a":"1"}), HD({"a": "2"}), HD({"a": "3"})]}
-        result = {"namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]}
+        namespace = {
+            "namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]
+        }
+        result = {
+            "namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]
+        }
 
         evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
@@ -276,6 +288,18 @@ class TestEvaluateEndToEnd(TestCase):
             )
 
         with self.assertRaises(UnknownResource):
-            self.assertFalse(
-                all(evaluate_lazy(expr, namespace).values())
-            )
+            all(evaluate_lazy(expr, namespace).values())
+
+    def test_const_fetching(self):
+        expr = "dmi.product in DESKTOP_PC_PRODUCT"
+        namespace = {
+            "dmi": [HD({"product": "All In One"}), HD({"product": "Laptop"})]
+        }
+        result = {"dmi": [HD({"product": "All In One"})]}
+
+        self.assertEqual(
+            evaluate(expr, namespace, explain_callback=print),
+            result,
+        )
+
+        self.assertTrue(all(evaluate_lazy(expr, namespace).values()))

@@ -20,6 +20,19 @@ class TestEvaluateEndToEnd(TestCase):
         evaluated = all(evaluate_lazy(expr, namespace).values())
         self.assertEqual(evaluated, result_bool)
 
+    def test_commutative(self):
+        expr = "(1 == namespace.a)"
+        namespace = {"namespace": [HD({"a": 1, "b": 2}), HD({"a": 2, "b": 2})]}
+        result = {"namespace": [HD({"a": 1, "b": 2})]}
+        result_bool = True
+
+        evaluated = evaluate(expr, namespace, explain_callback=print)
+        self.assertEqual(evaluated, result)
+
+        evaluated = all(evaluate_lazy(expr, namespace).values())
+        self.assertEqual(evaluated, result_bool)
+
+
     def test_equal_false(self):
         expr = "(namespace.a == 3)"
         namespace = {"namespace": [HD({"a": 1, "b": 2}), HD({"a": 2, "b": 2})]}

@@ -279,7 +279,7 @@ class ConstraintExplainer(Constraint):
         return filtered_list
 
     def filtered(self, namespaces, max_namespace_items=5):
-        namespace = self.left_getter.namespace
+        namespace = self.namespace
         expression = " ".join(
             str(x)
             for x in (

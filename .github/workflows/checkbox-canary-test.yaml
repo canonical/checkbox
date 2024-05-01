@@ -73,6 +73,7 @@ jobs:
     steps:
     - name: Checkout checkbox monorepo
       uses: actions/checkout@v3
+
     - name: Submit job to testflinger
       uses: canonical/certification-github-workflows/.github/actions/fling-test@testflinger-action-incremental
       with:
@@ -116,7 +117,7 @@ jobs:
               _run_retry sudo snap install --devmode --channel=${{ matrix.checkbox_track }}/edge checkbox
 
               cat <<EOF > canary.launcher
-              ${{ matrix.launcher }}
+              ${{ toJson( matrix.launcher ) }}
               EOF
 
               echo "Installing checkbox in agent container"

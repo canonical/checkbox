@@ -482,8 +482,13 @@ category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 60
 id: miscellanea/debsums
 user: root
-requires: executable.name == 'debsums'
-command: debsums -c
+requires:
+ executable.name == 'debsums'
+ lsb.distributor_id != 'Ubuntu Core'
+command:
+ echo "Checking the MD5 sums of files installed with Debian packages."
+ echo "All files that have changed contents will be printed below."
+ debsums -c
 _summary: Check the MD5 sums of installed Debian packages
 _description: Verify installed Debian package files against MD5 checksum lists from /var/lib/dpkg/info/*.md5sums.
 

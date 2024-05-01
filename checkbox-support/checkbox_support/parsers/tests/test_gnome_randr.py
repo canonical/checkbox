@@ -31,7 +31,7 @@ class TestGnomeRandrParser(unittest.TestCase):
         """
         )
         expected = {
-            "DP-1 Dell Monitor XYZ123": [
+            "DP-1": [
                 Mode("2560x1440", 59.95, True, True),
                 Mode("1920x1080", 59.94, False, False),
             ]
@@ -48,8 +48,8 @@ class TestGnomeRandrParser(unittest.TestCase):
         """
         )
         expected = {
-            "HDMI-1 Samsung ABC123": [Mode("1920x1080", 60.00, True, True)],
-            "DP-2 LG Monitor DEF456": [Mode("1280x720", 60.00, False, False)],
+            "HDMI-1": [Mode("1920x1080", 60.00, True, True)],
+            "DP-2": [Mode("1280x720", 60.00, False, False)],
         }
         self.assertEqual(parse_gnome_randr_output(output), expected)
 
@@ -61,23 +61,23 @@ class TestGnomeRandrParser(unittest.TestCase):
     def test_incorrect_format(self):
         output = dedent(
             """
-        DP-1 Corrupted data
-          1920x1080@60.000 Not a Mode [x1.00]
-        """
+            DP-1 Corrupted data
+                1920x1080@60.000 Not a Mode [x1.00]
+            """
         )
-        expected = {"DP-1 Corrupted data": []}
+        expected = {"DP-1": []}
         self.assertEqual(parse_gnome_randr_output(output), expected)
 
     def test_modes_with_varied_refresh_rate_flags(self):
         output = dedent(
             """
-        DP-3 Test Monitor ABC123
-          1920x1080@60.000 1920x1080 60.00* [x1.00]
-          1920x1080@60.000 1920x1080 60.00+ [x1.00]
-        """
+            DP-3 Test Monitor ABC123
+                1920x1080@60.000 1920x1080 60.00* [x1.00]
+                1920x1080@60.000 1920x1080 60.00+ [x1.00]
+            """
         )
         expected = {
-            "DP-3 Test Monitor ABC123": [
+            "DP-3": [
                 Mode("1920x1080", 60.00, False, True),
                 Mode("1920x1080", 60.00, True, False),
             ]

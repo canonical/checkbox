@@ -82,7 +82,7 @@ def parse_gnome_randr_output(output):
     for line in output.split("\n"):
         line_type, data = parse_line(line)
         if line_type == "output":
-            current_output = data
+            current_output = data.split(" ")[0]
             if current_output:
                 # there is an output, so let's force creating a new list
                 output_dict[current_output] = []

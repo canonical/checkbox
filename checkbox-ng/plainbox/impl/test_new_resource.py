@@ -1,4 +1,4 @@
-from plainbox.impl.new_resource import evaluate, evaluate_lazy
+from plainbox.impl.new_resource import evaluate, evaluate_lazy, UnknownResource
 from unittest import TestCase
 
 
@@ -246,3 +246,18 @@ class TestEvaluateEndToEnd(TestCase):
             ).values()
         )
         self.assertEqual(evaluated, result_bool)
+
+    def test_empty_resource_false(self):
+        expr = "namespace.tmp == 1"
+        namespace = {}
+
+        with self.assertRaises(UnknownResource):
+            _ = evaluate(
+                expr,
+                namespace,
+            )
+
+        with self.assertRaises(UnknownResource):
+            self.assertFalse(
+                all(evaluate_lazy(expr, namespace).values())
+            )

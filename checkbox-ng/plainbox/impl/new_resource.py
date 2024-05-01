@@ -7,6 +7,7 @@ import contextlib
 
 from copy import copy
 
+class UnknownResource(KeyError):...
 
 class ValueGetter:
     """
@@ -207,8 +208,6 @@ class Constraint:
         )
 
     def filtered(self, namespaces):
-        if self.namespace not in namespaces:
-            return namespaces
         namespaces[self.namespace] = self._filtered(namespaces[self.namespace])
         return namespaces
 
@@ -279,7 +278,7 @@ class Namespace:
         """
         try:
             return self.namespace[key]
-        except KeyError:
+        except KeyError as e:
             with contextlib.suppress(KeyError):
                 return self.namespace[
                     "{}::{}".format(self.implicit_namespace, key)
@@ -288,7 +287,7 @@ class Namespace:
                 return self.namespace[
                     "{}::{}".format(self.DEFAULT_NAMESPACE, key)
                 ]
-            raise
+            raise UnknownResource from e
 
     def __setitem__(self, key, value):
         if key in self.namespace:
@@ -350,6 +349,9 @@ class Namespace:
             for i in range(count)
         ]
         return namespaces
+
+
+namespace_union = Namespace.namespace_union
 
 
 @functools.singledispatch

@@ -1,4 +1,4 @@
-name: PR test with testflinger
+name: Fling a checkbox job with Testflinger
 
 on:
     push:
@@ -15,5 +15,6 @@ jobs:
       uses: canonical/certification-github-workflows/.github/actions/fling-test@testflinger-action-incremental
       with:
         job_queue: rpi4b1g-001
-        test_cmds: |
+        test_data: |
+          test_cmds: |
             ls -alR

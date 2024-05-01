@@ -14,7 +14,9 @@ jobs:
     - name: Submit job to testflinger
       uses: canonical/certification-github-workflows/.github/actions/fling-test@testflinger-action-incremental
       with:
-        job_queue: rpi4b1g-001
-        test_data: |
-          test_cmds: |
-            ls -alR
+        server: testflinger-staging.canonical.com
+        yaml: |
+          job_queue: rpi4b1g-001
+          test_data:
+            test_cmds: |
+              ls -alR --ignore ".*"

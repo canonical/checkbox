@@ -453,7 +453,12 @@ class TemplateUnit(UnitWithId):
         else:
             filtered = res_map
         if sum(len(v) for v in filtered.values()) != index:
-            breakpoint()
+            logger.error("Resource expression evaluated to a different result")
+            logger.error(
+                "Report this: {}".format(
+                    self.filter_program._expression_text_list
+                )
+            )
         assert len(filtered.keys()) == 1
 
         for idx, val in enumerate(filtered[list(filtered.keys())[0]]):

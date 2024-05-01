@@ -326,7 +326,7 @@ class ResourceProgram:
             new_result = False
         if bool(legacy_result) != bool(new_result):
             logger.error("Resource expression evaluated to a different result")
-            logger.error("Report this: {}".format(self._expression_list))
+            logger.error("Report this: {}".format(self._expression_text_list))
         if not legacy_result:
             raise error
         return legacy_result

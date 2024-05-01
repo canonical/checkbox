@@ -1,0 +1,20 @@
+name: PR test with testflinger
+
+on:
+    push:
+        branches: [test-action-fling-test]
+    workflow_dispatch:
+
+jobs:
+  testflinger-pr-test:
+    runs-on: [self-hosted, testflinger]
+    steps:
+    - name: Checkout checkbox monorepo
+      uses: actions/checkout@v3
+    - name: Submit job to testflinger
+      uses: canonical/certification-github-workflows/fling-test@testflinger-actiion-incremental
+      uses: ./.github/actions/testflinger
+      with:
+        job_queue: rpi4b1g-001
+        test_cmds: |
+            ls -alR

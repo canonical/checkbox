@@ -9,7 +9,7 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": [{"a": 1, "b": 2}]}
         result_bool = True
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
         evaluated = all(evaluate_lazy(expr, namespace).values())
@@ -21,7 +21,7 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": []}
         result_bool = False
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
         evaluated = all(evaluate_lazy(expr, namespace).values())
@@ -33,7 +33,7 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": [{"a": 1, "b": 2}]}
         result_bool = True
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
         evaluated = all(evaluate_lazy(expr, namespace).values())
@@ -45,7 +45,7 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": []}
         result_bool = False
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
         evaluated = all(evaluate_lazy(expr, namespace).values())
@@ -57,7 +57,7 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": [{"a": 1, "b": 2}, {"a": 2, "b": 2}]}
         result_bool = True
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
         evaluated = all(evaluate_lazy(expr, namespace).values())
@@ -69,7 +69,7 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": [{"a": 1, "b": 2}]}
         result_bool = True
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
         evaluated = all(evaluate_lazy(expr, namespace).values())
@@ -81,7 +81,7 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": []}
         result_bool = False
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
         evaluated = all(evaluate_lazy(expr, namespace).values())
@@ -93,7 +93,7 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": [{"a": 2, "b": 2}]}
         result_bool = True
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
         evaluated = all(evaluate_lazy(expr, namespace).values())
@@ -105,7 +105,7 @@ class TestEvaluateEndToEnd(TestCase):
         result = {"namespace": []}
         result_bool = False
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
         evaluated = all(evaluate_lazy(expr, namespace).values())
@@ -118,7 +118,7 @@ class TestEvaluateEndToEnd(TestCase):
         }
         result = {"namespace": [{"a": 1, "b": 2}, {"a": 2, "b": 2}]}
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
     def test_cast_int(self):
@@ -128,7 +128,7 @@ class TestEvaluateEndToEnd(TestCase):
         }
         result = {"namespace": [{"a": "1", "b": "2"}]}
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
     def test_cast_float(self):
@@ -138,7 +138,7 @@ class TestEvaluateEndToEnd(TestCase):
         }
         result = {"namespace": [{"a": "1", "b": "2"}]}
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
     def test_in(self):
@@ -154,7 +154,7 @@ class TestEvaluateEndToEnd(TestCase):
         namespace = {"namespace": [{"a": "1"}, {"a": "2"}, {"a": "3"}]}
         result = {"namespace": [{"a": "1"}, {"a": "2"}]}
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
     def test_neq_true(self):
@@ -162,7 +162,7 @@ class TestEvaluateEndToEnd(TestCase):
         namespace = {"namespace": [{"a": "1"}, {"a": "2"}, {"a": "3"}]}
         result = {"namespace": [{"a": "2"}, {"a": "3"}]}
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
     def test_neq_false(self):
@@ -172,7 +172,7 @@ class TestEvaluateEndToEnd(TestCase):
         namespace = {"namespace": [{"a": "1"}, {"a": "2"}]}
         result = {"namespace": []}
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
     def test_multiple_or(self):
@@ -180,7 +180,7 @@ class TestEvaluateEndToEnd(TestCase):
         namespace = {"namespace": [dict(a="1"), {"a": "2"}, {"a": "3"}]}
         result = {"namespace": [{"a": "1"}, {"a": "2"}, {"a": "3"}]}
 
-        evaluated = evaluate(expr, namespace, explain=True)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
     def test_implicit_namespace_eq(self):
@@ -197,7 +197,7 @@ class TestEvaluateEndToEnd(TestCase):
         evaluated = evaluate(
             expr,
             namespace,
-            explain=True,
+            explain_callback=print,
             implicit_namespace="com.canonical.certification",
         )
 
@@ -233,7 +233,7 @@ class TestEvaluateEndToEnd(TestCase):
         evaluated = evaluate(
             expr,
             namespace,
-            explain=True,
+            explain_callback=print,
             implicit_namespace="com.canonical.certification",
         )
         self.assertEqual(evaluated, result)

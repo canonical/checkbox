@@ -1,5 +1,6 @@
 import ast
 import typing
+import textwrap
 import operator
 import itertools
 import functools
@@ -7,7 +8,9 @@ import contextlib
 
 from copy import copy
 
-class UnknownResource(KeyError):...
+
+class UnknownResource(KeyError): ...
+
 
 class ValueGetter:
     """
@@ -168,12 +171,12 @@ class Constraint:
             self.namespace = self.right_getter.namespace
 
     @classmethod
-    def parse_from_ast(cls, parsed_ast):
+    def parse_from_ast(cls, parsed_ast, **kwargs):
         assert len(parsed_ast.ops) == 1
         assert len(parsed_ast.comparators) == 1
         left_getter = getter_from_ast(parsed_ast.left)
         right_getter = getter_from_ast(parsed_ast.comparators[0])
-        return cls(left_getter, parsed_ast.ops[0], right_getter)
+        return cls(left_getter, parsed_ast.ops[0], right_getter, **kwargs)
 
     def _filtered(self, ns_variables):
         def act_contains(x, y):
@@ -212,30 +215,96 @@ class Constraint:
         return namespaces
 
 
+class ConstraintExplanation:
+    MORE = "[...]"
+
+    def __init__(self, namespace_name, expression, pre_filter, post_filter):
+        self.namespace_name = namespace_name
+        self.expression = expression
+        self.pre_filter = pre_filter
+        self.post_filter = post_filter
+
+    def __str__(self):
+        return (
+            textwrap.dedent(
+                """
+                Expression: {}
+                    Pre filter:
+                      {namespace_name} = {}
+                    Post filter:
+                      {namespace_name} = {}
+                """
+            )
+            .strip()
+            .format(
+                self.expression,
+                self.pre_filter,
+                self.post_filter,
+                namespace_name=self.namespace_name,
+            )
+        )
+
+
 class ConstraintExplainer(Constraint):
-    def pretty_print(self, namespaces, namespace, max_namespace_items):
-        namespaces[namespace] = list(namespaces[namespace])
-        for filtered in namespaces[namespace][:max_namespace_items]:
-            print("   ", filtered)
-        if len(namespaces[namespace]) > max_namespace_items:
-            print("    [...]")
+    def __init__(self, *args, explain_callback=print, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.explain_callback = explain_callback
+
+    @classmethod
+    def parse_from_ast(cls, parsed_ast, explain_callback):
+        to_r = super().parse_from_ast(
+            parsed_ast, explain_callback=explain_callback
+        )
+        return to_r
+
+    def get_namespace_state(
+        self, namespaces, namespace, max_namespace_items
+    ) -> list:
+        # we need to pretty print the namespace without destroying the
+        # iterators inside it
+        namespaces[namespace], printable = itertools.tee(
+            namespaces[namespace], 2
+        )
+        # take at most max_namespace_items
+        filtered_list = [
+            filtered
+            for i, filtered in zip(range(max_namespace_items), printable)
+        ]
+        try:
+            # note [...] if we are truncating to max_namespace_items
+            next(printable)
+            filtered_list.append(ConstraintExplainer.MORE)
+        except StopIteration:
+            pass
+        return filtered_list
 
     def filtered(self, namespaces, max_namespace_items=5):
         namespace = self.left_getter.namespace
-        print(
-            "Expression:",
-            self.left_getter,
-            ast.dump(self.operator),
-            self.right_getter,
+        expression = " ".join(
+            str(x)
+            for x in (
+                self.left_getter,
+                ast.dump(self.operator),
+                self.right_getter,
+            )
         )
-        print("Filtering:", namespace)
-        print("  Pre filter: ")
-        self.pretty_print(namespaces, namespace, max_namespace_items)
+        namespace_state_pre_filter = self.get_namespace_state(
+            namespaces, namespace, max_namespace_items
+        )
 
         namespaces = super().filtered(namespaces)
 
-        print("  Post filter: ")
-        self.pretty_print(namespaces, namespace, max_namespace_items)
+        namespace_state_post_filter = self.get_namespace_state(
+            namespaces, namespace, max_namespace_items
+        )
+        self.explain_callback(
+            ConstraintExplanation(
+                namespace,
+                expression,
+                namespace_state_pre_filter,
+                namespace_state_post_filter,
+            )
+        )
 
         return namespaces
 
@@ -403,14 +472,14 @@ def _prepare_expression(ast_item, namespace, constraint_class):
 
 @_prepare_filter.register(ast.Compare)
 def _prepare_compare(ast_item, namespace, constraint_class):
-    return constraint_class.parse_from_ast(ast_item).filtered(namespace)
+    return constraint_class(ast_item).filtered(namespace)
 
 
 def prepare(
     expr: typing.Union[ast.AST, str],
     namespace: dict,
     implicit_namespace: str = "",
-    explain=False,
+    explain_callback=None,
 ):
     """
     This function returns a namespace with the same keys and values that are
@@ -427,19 +496,22 @@ def prepare(
 
     Ex.
     Expression: namespace.a In() [1, 2]
-    Filtering: namespace
       Pre filter:
         {'a': '1'}
         {'a': '2'}
         {'a': '3'}
+        [...]
       Post filter:
         {'a': '1'}
         {'a': '2'}
     """
-    if explain:
-        CC = ConstraintExplainer
+    if explain_callback:
+        CC = functools.partial(
+            ConstraintExplainer.parse_from_ast,
+            explain_callback=explain_callback,
+        )
     else:
-        CC = Constraint
+        CC = Constraint.parse_from_ast
     if isinstance(expr, str):
         expr = ast.parse(expr, mode="eval")
     return _prepare_filter(
@@ -451,7 +523,7 @@ def evaluate_lazy(
     expr: typing.Union[ast.AST, str],
     namespace: dict,
     implicit_namespace: str = "",
-    explain=False,
+    explain_callback=None,
 ) -> bool:
     """
     This returns the truth value of a prepared namespace.
@@ -462,7 +534,10 @@ def evaluate_lazy(
         all(evaluate_lazy(...).values())
     """
     namespace = prepare(
-        expr, namespace, implicit_namespace=implicit_namespace, explain=explain
+        expr,
+        namespace,
+        implicit_namespace=implicit_namespace,
+        explain_callback=explain_callback,
     )
 
     def any_next(iterable):
@@ -479,10 +554,13 @@ def evaluate(
     expr: typing.Union[ast.AST, str],
     namespace: dict,
     implicit_namespace: str = "",
-    explain=False,
+    explain_callback=None,
 ):
     namespace = prepare(
-        expr, namespace, implicit_namespace=implicit_namespace, explain=explain
+        expr,
+        namespace,
+        implicit_namespace=implicit_namespace,
+        explain_callback=explain_callback,
     )
     return {
         namespace_name: list(values_iterator)

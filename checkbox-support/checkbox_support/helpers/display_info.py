@@ -39,7 +39,9 @@ def get_display_modes() -> "dict[str, Mode]":
 
     if os.getenv("XDG_SESSION_TYPE") == "wayland":
         return parse_gnome_randr_output(
-            subprocess.check_output(["gnome-randr"])
+            subprocess.check_output(["gnome-randr"], universal_newlines=True)
         )
     else:
-        return parse_xrandr_output(subprocess.check_output(["xrandr"]))
+        return parse_xrandr_output(
+            subprocess.check_output(["xrandr"], universal_newlines=True)
+        )

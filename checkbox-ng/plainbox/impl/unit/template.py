@@ -112,6 +112,8 @@ class TemplateUnitValidator(UnitWithIdValidator):
 
 
 testplan_exp_f = open("testplan_exp_time", "a")
+
+
 class TemplateUnit(UnitWithId):
     """
     Template that can instantiate zero or more additional units.
@@ -434,8 +436,6 @@ class TemplateUnit(UnitWithId):
         resources = []
         index = 0
         self._fake_resources = fake_resources
-        import time
-        start = time.time()
         for resource in resource_list:
             if self.should_instantiate(resource):
                 index += 1
@@ -444,22 +444,24 @@ class TemplateUnit(UnitWithId):
                         resource, unit_cls_hint=unit_cls, index=index
                     )
                 )
-        end = time.time()
-        print("Og took: ", end - start, file=testplan_exp_f, flush=True)
-        res_map = {self.resource_id : resource_list}
+        res_map = {self.resource_id: resource_list}
         filter_program = self.get_filter_program()
         if filter_program:
-            filtered = filter_program.filter(res_map)
+            filtered = filter_program.filter(
+                res_map, implicit_namespace=self.resource_namespace
+            )
         else:
             filtered = res_map
-        assert sum(len(v) for v in filtered.values()) == index
+        if sum(len(v) for v in filtered.values()) != index:
+            breakpoint()
         assert len(filtered.keys()) == 1
 
         for idx, val in enumerate(filtered[list(filtered.keys())[0]]):
+
             class tmp:
-                _data = {self.resource_id : val}
+                _data = {self.resource_id: val}
+
             self.instantiate_one(tmp, unit_cls_hint=unit_cls, index=idx)
-        print("New took:", time.time() - end, file=testplan_exp_f, flush=True)
 
         return resources
 

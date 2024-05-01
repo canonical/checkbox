@@ -29,6 +29,7 @@
 
 import ast
 import itertools
+import functools
 import logging
 
 from plainbox.i18n import gettext as _
@@ -197,9 +198,6 @@ class FakeResource:
         return True
 
 
-log = open("time_print", "a")
-
-
 class ResourceProgram:
     """
     Class for storing and executing resource programs.
@@ -223,7 +221,9 @@ class ResourceProgram:
         self._implicit_namespace = implicit_namespace
         for line in program_text.splitlines():
             if line.strip() != "":
-                self._expression_parsed_list.append(ast.parse(line, mode='eval'))
+                self._expression_parsed_list.append(
+                    ast.parse(line, mode="eval")
+                )
                 self._expression_text_list.append(line)
                 self._expression_list.append(
                     ResourceExpression(line, implicit_namespace, imports)
@@ -247,7 +247,7 @@ class ResourceProgram:
                 ids.add(resource_id)
         return ids
 
-    def _og_evaluate_or_raise(self, resource_map):
+    def _legacy_evaluate_or_raise(self, resource_map):
         """
         Evaluate the program with the given map of resources.
 
@@ -281,71 +281,55 @@ class ResourceProgram:
         return True
 
     def _new_evaluate_or_raise(self, resource_map):
-        no_brainrot_keys = {
-            # removing all namespaces
-            x.rsplit(":")[-1]: [
-                new_resource.HD(object.__getattribute__(xx, "_data"))
-                for xx in y
-            ]
-            for (x, y) in resource_map.items()
-            if y
-        }
-        import time
-
-        start_time = time.time()
         if not self._expression_parsed_list:
             return True
 
         to_ret = all(
-            new_resource.evaluate_lazy(
-                new_resource.act_eval(etl, no_brainrot_keys)
+            resource_map
+            and all(
+                new_resource.evaluate_lazy(
+                    etl,
+                    resource_map,
+                    implicit_namespace=self._implicit_namespace,
+                    explain=True,
+                ).values()
             )
             for etl in self._expression_parsed_list
         )
-        print(
-            "New:",
-            (time.time() - start_time) * 1000,
-            "ms",
-            file=log,
-            flush=True,
-        )
+
         return to_ret
 
-    def filter(self, resource_map):
-        no_brainrot_keys = {
-            # removing all namespaces
-            x.rsplit(":")[-1]: [
-                new_resource.HD(object.__getattribute__(xx, "_data"))
-                for xx in y
-            ]
-            for (x, y) in resource_map.items()
-            if y
-        }
+    def filter(self, resource_map, implicit_namespace):
         if not self._expression_parsed_list:
             return resource_map
         to_ret = (
             new_resource.evaluate(
-                new_resource.prepare_eval_parse(etl, no_brainrot_keys)
+                etl,
+                resource_map,
+                explain=True,
+                implicit_namespace=implicit_namespace,
             )
             for etl in self._expression_parsed_list
         )
-        import functools
+
         return functools.reduce(new_resource.namespace_union, to_ret)
 
     def evaluate_or_raise(self, resource_map):
-        import time
-
-        start = time.time()
-        og_result = self._og_evaluate_or_raise(resource_map)
-        end_og = time.time()
-        og_time = (end_og - start) * 1000
-        print(",".join(self._expression_text_list), file=log, flush=True)
-        print("Og:", og_time, "ms", file=log, flush=True)
-        new_result = self._new_evaluate_or_raise(resource_map)
-        full_end = time.time()
-        if bool(og_result) != bool(new_result):
-            breakpoint()
-        return og_result
+        try:
+            legacy_result = self._legacy_evaluate_or_raise(resource_map)
+        except ExpressionFailedError as e:
+            legacy_result = False
+            error = e
+        try:
+            new_result = self._new_evaluate_or_raise(resource_map)
+        except new_resource.UnknownResource:
+            new_result = False
+        if bool(legacy_result) != bool(new_result):
+            logger.error("Resource expression evaluated to a different result")
+            logger.error("Report this: {}".format(self._expression_list))
+        if not legacy_result:
+            raise error
+        return legacy_result
 
 
 class ResourceProgramError(Exception):

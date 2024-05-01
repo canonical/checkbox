@@ -18,6 +18,6 @@ unit: test plan
 _name: Video Codec auto tests
 _description: Automated tests for Video Codec in before suspend and post suspend stage
 bootstrap_include:
-    ce-oem-video-codec/resource-gst_v4l2_video_decoder_md5_checksum_comparison
+    video_codec_resource
 include:
     ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison

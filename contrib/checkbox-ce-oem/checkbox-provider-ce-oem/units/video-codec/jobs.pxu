@@ -1,7 +1,6 @@
-id: ce-oem-video-codec/resource-gst_v4l2_video_decoder_md5_checksum_comparison
-_summary: Generates mappings for gst_v4l2_video_decoder_md5_checksum_comparison
-_description:
-    Generate resource for gst_v4l2_video_decoder_md5_checksum_comparison scenario.
+id: video_codec_resource
+_summary: Generates mappings for all Vedio Codec Scenarios
+_description: Generate resource for all Video Codec scenarios.
 estimated_duration: 0.02
 category_id: video-codec
 plugin: resource
@@ -11,10 +10,11 @@ command:
 
 unit: template
 template-engine: jinja2
-template-resource: ce-oem-video-codec/resource-gst_v4l2_video_decoder_md5_checksum_comparison
+template-resource: video_codec_resource
+template-filter: video_codec_resource.scenario == "gst_v4l2_video_decoder_md5_checksum_comparison"
 template-unit: job
 template-id: ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison
-id: ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison-{{ decoder_plugin }}-{{ width }}x{{ height }}-{{ color_space }}
+id: ce-oem-video-codec/{{ scenario }}-{{ decoder_plugin }}-{{ width }}x{{ height }}-{{ color_space }}
 _summary: MD5 checksum comparison {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }}
 _description: Compare the MD5 checksum to golden reference by decoding the {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }} video via gstreamer
 plugin: shell
@@ -22,7 +22,6 @@ category_id: video-codec
 estimated_duration: 1s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
-flags: also-after-suspend
 environ: GST_LAUNCH_BIN
 command:
     gst_v4l2_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}}

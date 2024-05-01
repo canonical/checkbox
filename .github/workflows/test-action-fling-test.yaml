@@ -12,7 +12,7 @@ jobs:
     - name: Checkout checkbox monorepo
       uses: actions/checkout@v3
     - name: Submit job to testflinger
-      uses: canonical/certification-github-workflows/fling-test@testflinger-action-incremental
+      uses: canonical/certification-github-workflows/.github/actions/fling-test@testflinger-action-incremental
       with:
         job_queue: rpi4b1g-001
         test_cmds: |

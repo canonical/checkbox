@@ -6,7 +6,7 @@ on:
     workflow_dispatch:
 
 jobs:
-  testflinger-pr-test:
+  checkbox-canary-test:
     runs-on: [self-hosted, testflinger]
     strategy:
       fail-fast: false

@@ -13,7 +13,6 @@ jobs:
       uses: actions/checkout@v3
     - name: Submit job to testflinger
       uses: canonical/certification-github-workflows/fling-test@testflinger-actiion-incremental
-      uses: ./.github/actions/testflinger
       with:
         job_queue: rpi4b1g-001
         test_cmds: |

@@ -5,6 +5,58 @@ outlet_port=""
 pdu_type=""
 reboot_duration=""
 
+cold_reboot_raritan() {
+    echo "Turn off the power of DUT by Raritan network PDU.."
+    echo "System should be back after around $reboot_duration seconds.."
+    echo ""
+    # change duration of power reboot
+    oid=".1.3.6.1.4.1.13742.6.3.5.3.1.12.1.$outlet_port"
+    i=0
+    result="fail"
+    while [ $i -le 3 ]
+    do
+        echo "## change the duration of power reboot"
+        snmpset -c private -v2c "$ip" "$oid" u "$reboot_duration" > /dev/null
+        ret="$?"
+        if [ "$ret" == 0 ]; then
+            echo "changed the duration successfully!"
+            result="pass"
+            break
+        fi
+        sleep 1
+        i=$((i + 1))
+    done
+
+    if [ $result == "fail" ]; then
+        echo "## failed to change the duration of power reboot"  >&2
+        exit 1
+    fi
+
+    # power cycle a outlet with delay
+    echo ""
+    oid=".1.3.6.1.4.1.13742.6.4.1.2.1.2.1.$outlet_port"
+    i=0
+    result="fail"
+    while [ $i -le 3 ]
+    do
+        echo "## trigger a cold reboot by network PDU.."
+        # 0: power on, 1: power off, 2: power cycle
+        snmpset -c private -v2c "$ip" "$oid" i 2 > /dev/null
+        ret="$?"
+        if [ "$ret" == 0 ]; then
+            echo "trigger a cold reboot successfully!"
+            result="pass"
+            break
+        fi
+        sleep 1
+        i=$((i + 1))
+    done
+    if [ $result == "fail" ]; then
+        echo "## failed to trigger a cold reboot" >&2
+        exit 1
+    fi
+}
+
 cold_reboot_apc() {
     echo "Turn off the power of DUT by APC network PDU.."
     echo "System should be back after around $reboot_duration seconds.."
@@ -70,6 +122,8 @@ main() {
 
     if [ "$pdu_type" == "apc" ]; then
         cold_reboot_apc
+    elif [ "$pdu_type" == "raritan" ]; then
+        cold_reboot_raritan
     else
         echo -e "Error: Network PDU type is not supported!\n"
         help_function

@@ -85,4 +85,7 @@ runs:
             PYTHONUNBUFFERED=1 checkbox-cli control \$DEVICE_IP canary.launcher
             EXITCODE=\$?
         JOB_EOF
-        echo "job=$(cat $OUTPUT_PATH)" >> $GITHUB_OUTPUT
+        # verify file
+        cat $OUTPUT_PATH
+        # 
+        #echo "job=$(cat $OUTPUT_PATH)" >> $GITHUB_OUTPUT

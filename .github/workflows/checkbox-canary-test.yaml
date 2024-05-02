@@ -34,7 +34,7 @@ jobs:
     - name: Verify job
       shell: bash
       run:
-        echo -e ${{ steps.create-job.outputs.job }}
+        cat ${{ steps.create-job.outputs.job }}
 
     - name: Submit job
       uses: canonical/certification-github-workflows/.github/actions/fling-test@testflinger-action-incremental

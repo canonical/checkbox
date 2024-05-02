@@ -120,15 +120,15 @@ main() {
         exit 1
     fi
 
-    if [ "$pdu_type" == "apc" ]; then
-        cold_reboot_apc
-    elif [ "$pdu_type" == "raritan" ]; then
-        cold_reboot_raritan
-    else
-        echo -e "Error: Network PDU type is not supported!\n"
-        help_function
-        exit 1
-    fi
+    case "$pdu_type" in
+        apc) cold_reboot_apc;;
+        raritan) cold_reboot_raritan;;
+        *)
+            echo -e "Error: Network PDU type is not supported!\n"
+            help_function
+            exit 1
+            ;;
+    esac
 }
 
 help_function() {

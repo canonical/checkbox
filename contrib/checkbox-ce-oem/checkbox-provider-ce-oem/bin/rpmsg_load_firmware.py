@@ -146,7 +146,7 @@ def verify_load_firmware_logs(match_records: list, search_stages: list) -> bool:
     return set(actuall_stage) == set(search_stages)
 
 
-def load_firmware_test(args):
+def load_firmware_test(args) -> None:
     remote_proc_dev = args.device
     target_path = args.path
     target_file = args.file

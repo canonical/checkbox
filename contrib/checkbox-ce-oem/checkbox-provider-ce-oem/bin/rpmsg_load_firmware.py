@@ -134,7 +134,7 @@ class RpmsgLoadFirmwareTest:
                 return self.expected_events
 
 
-def verify_load_firmware_logs(match_records: list, search_stages: list):
+def verify_load_firmware_logs(match_records: list, search_stages: list) -> bool:
     logging.info("Validate RPMSG related log from journal logs")
     logging.debug(match_records)
     actuall_stage = []

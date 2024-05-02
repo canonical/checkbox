@@ -196,7 +196,7 @@ def load_firmware_test(args):
         #    getattr(module_c, extra_testing)()
 
 
-def dump_firmware_test_mapping(args):
+def dump_firmware_test_mapping(args) -> None:
     firmware_mapping = args.mapping
     firmware_path = args.path
     pattern = r"(\w*):([\w\.-]*)"

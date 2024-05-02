@@ -104,7 +104,7 @@ class RpmsgLoadFirmwareTest:
         self._poller = select.poll()
         self._poller.register(self.log_reader, self.log_reader.get_events())
 
-    def lookup_reload_logs(self, entry: dict):
+    def lookup_reload_logs(self, entry: dict) -> bool:
         keep_looking = True
         for key, pattern in self._search_patterns.items():
             if re.search(pattern, entry.get("MESSAGE")):

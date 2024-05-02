@@ -38,11 +38,35 @@ runs:
 
             export PATH=$PATH:hwcert-jenkins-tools/scriptlets
 
+            # install checkbox runtime
+            _run_retry sudo snap install ${{ inputs.checkbox_runtime }} --no-wait --channel=latest/edge
+            wait_for_snap_complete
+            # Let's list all the installed snaps for future debugging ease
+            _run snap list
+
+            _run_retry sudo snap install --devmode --channel=${{ inputs.checkbox_track }}/edge checkbox
+
             echo "Installing checkbox in agent container"
             git clone --filter=tree:0 https://github.com/canonical/checkbox.git > /dev/null
             hwcert-jenkins-tools/version-published/checkout_to_version.py ~/checkbox "$CHECKBOX_VERSION"
             (cd checkbox/checkbox-ng; sudo python3 setup.py install > /dev/null)
             sudo rm -rf checkbox
+
+            cat << LAUNCER_EOF > canary.launcher
+            [launcher]
+            launcher_version = 1
+            stock_reports = certification
+
+            [test plan]
+            unit = com.canonical.certification::canary
+            forced = yes
+
+            [test selection]
+            forced = true
+
+            [ui]
+            type = silent
+            LAUNCER_EOF
 
             # run the canary test plan
             PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP canary.launcher

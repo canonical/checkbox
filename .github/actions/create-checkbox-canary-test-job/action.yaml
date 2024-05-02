@@ -2,16 +2,21 @@ name: create-checkbox-canary-test-job
 description: "Create job.yaml for Checkbox canary tests"
 inputs:
   queue:
+    required: true
   data_source:
+    required: true
   checkbox_runtime:
+    required: true
   checkbox_track:
+    required: true
 outputs:
   job:
+    description: "The text for the Checkbox canary test YAML"
 runs:
   using: "composite"
   steps:
     - shell: bash
-      run:
+      run: |
         cat << JOB_EOF > job.yaml
         job_queue : ${{ input.queue }}
         global_timeout: 3600

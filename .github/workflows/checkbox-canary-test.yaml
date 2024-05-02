@@ -20,11 +20,11 @@ jobs:
 
     steps:
     - name: Checkout checkbox monorepo
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Create job
       id: create-job
-      uses: ./.github/actions/create-checkbox-canary-test
+      uses: ./.github/actions/create-checkbox-canary-test-job
       with:
         queue: ${{ matrix.queue }}
         data_source: ${{ matrix.data_source }}

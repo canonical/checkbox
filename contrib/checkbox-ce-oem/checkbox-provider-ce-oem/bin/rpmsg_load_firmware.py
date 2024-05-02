@@ -95,7 +95,7 @@ class RpmsgLoadFirmwareTest:
     def search_pattern(self, patterns: dict) -> None:
         self._search_patterns.update(patterns)
 
-    def _init_logger(self):
+    def _init_logger(self) -> None:
         self.log_reader = journal.Reader()
         self.log_reader.this_boot()
         self.log_reader.seek_tail()

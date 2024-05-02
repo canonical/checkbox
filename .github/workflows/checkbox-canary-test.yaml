@@ -34,4 +34,4 @@ jobs:
     - name: Verify job
       shell: bash
       run:
-        echo ${{ steps.create-job.outputs.job }}
+        cat ${{ steps.create-job.outputs.job }}

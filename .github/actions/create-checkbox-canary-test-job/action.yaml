@@ -17,7 +17,8 @@ runs:
   steps:
     - shell: bash
       run: |
-        cat << JOB_EOF > job.yaml
+        OUTPUT_PATH=${{ github.workspace }}/job.yaml
+        cat << JOB_EOF > $OUTPUT_PATH
         job_queue : ${{ inputs.queue }}
         global_timeout: 3600
         output_timeout: 1800
@@ -83,4 +84,4 @@ runs:
             PYTHONUNBUFFERED=1 checkbox-cli control \$DEVICE_IP canary.launcher
             EXITCODE=\$?
         JOB_EOF
-        cat job.yaml
+        echo "job=$OUTPUT_PATH" >> $GITHUB_OUTPUT

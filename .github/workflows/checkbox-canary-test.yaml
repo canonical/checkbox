@@ -17,6 +17,16 @@ jobs:
             checkbox_track: uc16
             arch: amd64
             queue: hp-elitebook-850-g7-notebook-pc
+          - checkbox_runtime: checkbox22
+            data_source: "distro: jammy"
+            checkbox_track: uc22
+            arch: amd64
+            queue: hp-elitebook-850-g7-notebook-pc
+          - checkbox_runtime: checkbox22
+            data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
+            checkbox_track: uc22
+            arch: arm64
+            queue: rpi4b4g
 
     steps:
     - name: Checkout checkbox monorepo

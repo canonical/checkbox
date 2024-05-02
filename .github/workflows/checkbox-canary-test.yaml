@@ -35,3 +35,8 @@ jobs:
       shell: bash
       run:
         cat ${{ steps.create-job.outputs.job }}
+
+    - name: Submit job
+      uses: canonical/certification-github-workflows/.github/actions/fling-test@testflinger-action-incremental
+      with:
+        job: ${{ steps.create-job.outputs.job }}

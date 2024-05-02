@@ -17,116 +17,21 @@ jobs:
             checkbox_track: uc16
             arch: amd64
             queue: hp-elitebook-850-g7-notebook-pc
-            launcher: |
-              [launcher]
-              launcher_version = 1
-              stock_reports = certification
-
-              [test plan]
-              unit = com.canonical.certification::canary
-              forced = yes
-
-              [test selection]
-              forced = true
-
-              [ui]
-              type = silent
-          - checkbox_runtime: checkbox22
-            data_source: "distro: jammy"
-            checkbox_track: uc22
-            arch: amd64
-            queue: hp-elitebook-850-g7-notebook-pc
-            launcher: |
-              [launcher]
-              launcher_version = 1
-              stock_reports = certification
-
-              [test plan]
-              unit = com.canonical.certification::canary
-              forced = yes
-
-              [test selection]
-              forced = true
-
-              [ui]
-              type = silent
-          - checkbox_runtime: checkbox22
-            data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
-            checkbox_track: uc22
-            arch: arm64
-            queue: rpi4b4g
-            launcher: |
-              [launcher]
-              launcher_version = 1
-              stock_reports = certification
-
-              [test plan]
-              unit = com.canonical.certification::canary
-              forced = yes
-
-              [test selection]
-              forced = true
-
-              [ui]
-              type = silent
 
     steps:
     - name: Checkout checkbox monorepo
       uses: actions/checkout@v3
 
-    - name: Submit job to testflinger
-      uses: canonical/certification-github-workflows/.github/actions/fling-test@testflinger-action-incremental
+    - name: Create job
+      id: create-job
+      uses: ./.github/actions/create-checkbox-canary-test
       with:
-        job: |
-          job_queue : ${{ matrix.queue }}
-          global_timeout: 3600
-          output_timeout: 1800
-          provision_data:
-            ${{ matrix.data_source }}
-          test_data:
-            test_cmds: |
-              #!/bin/bash
-
-              # the machine running this script is the test controller
-              # it runs on any device that consumes the jobs on given queue name, for instance "202111-29636"
-              # the controller has a 1:1 relationship with the DUT (device under test)
-              # to run anything on the DUT, the controller ssh's into the DUT and runs the commands there
-              # and then in the end runs checkbox to run the actual testing session
-              # the checkbox run is a typical remote session where the machine running this script is the
-              # Checkbox Controller and the DUT is the Checkbox Agent
-
-              set -x
-              set -e
-
-              # prepare Controller Machine
-              sudo add-apt-repository -y ppa:checkbox-dev/edge
-              sudo apt-get -qq update
-              sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install -y python-cheetah git checkbox-ng
-
-              # get the tools necessary to prepare the target device for testing
-              git -C hwcert-jenkins-tools pull -q || (rm -rf hwcert-jenkins-tools && git clone https://github.com/canonical/hwcert-jenkins-tools.git)
-
-              export PATH=$PATH:hwcert-jenkins-tools/scriptlets
-
-              # install checkbox runtime
-              _run_retry sudo snap install ${{ matrix.checkbox_runtime }} --no-wait --channel=latest/edge
-              wait_for_snap_complete
-              # Let's list all the installed snaps for future debugging ease
-              _run snap list
-
-              _run_retry sudo snap install --devmode --channel=${{ matrix.checkbox_track }}/edge checkbox
-
-              cat <<EOF > canary.launcher
-              ${{ toJson( matrix.launcher ) }}
-              EOF
-
-              echo "Installing checkbox in agent container"
-              CHECKBOX_VERSION=$(_run checkbox.checkbox-cli --version)
-              git clone --filter=tree:0 https://github.com/canonical/checkbox.git > /dev/null
-              hwcert-jenkins-tools/version-published/checkout_to_version.py ~/checkbox "$CHECKBOX_VERSION"
-              (cd checkbox/checkbox-ng; sudo python3 setup.py install > /dev/null)
-              sudo rm -rf checkbox
-
-              # run the canary test plan
-              PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP canary.launcher
-              EXITCODE=$?
+        queue: ${{ matrix.queue }}
+        data_source: ${{ matrix.data_source }}
+        checkbox_runtime: ${{ matrix.checkbox_runtime }}
+        checkbox_track: ${{ matrix.checkbox_track }}
+    
+    - name: Verify job
+      shell: bash
+      run:
+        echo ${{ steps.create-job.outputs.job }}

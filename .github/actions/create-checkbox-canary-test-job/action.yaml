@@ -11,11 +11,12 @@ inputs:
     required: true
 outputs:
   job:
-    description: "The text for the Checkbox canary test YAML"
+    value: ${{ steps.job-creator.outputs.job }}
 runs:
   using: "composite"
   steps:
-    - shell: bash
+    - id: job-creator
+      shell: bash
       run: |
         OUTPUT_PATH=${{ github.workspace }}/job.yaml
         cat << JOB_EOF > $OUTPUT_PATH

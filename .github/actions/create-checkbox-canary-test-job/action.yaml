@@ -18,11 +18,11 @@ runs:
     - shell: bash
       run: |
         cat << JOB_EOF > job.yaml
-        job_queue : ${{ input.queue }}
+        job_queue : ${{ inputs.queue }}
         global_timeout: 3600
         output_timeout: 1800
         provision_data:
-          ${{ input.data_source }}
+          ${{ inputs.data_source }}
         test_data:
           test_cmds: |
             #!/bin/bash
@@ -49,12 +49,12 @@ runs:
             export PATH=$PATH:hwcert-jenkins-tools/scriptlets
 
             # install checkbox runtime
-            _run_retry sudo snap install ${{ input.checkbox_runtime }} --no-wait --channel=latest/edge
+            _run_retry sudo snap install ${{ inputs.checkbox_runtime }} --no-wait --channel=latest/edge
             wait_for_snap_complete
             # Let's list all the installed snaps for future debugging ease
             _run snap list
 
-            _run_retry sudo snap install --devmode --channel=${{ input.checkbox_track }}/edge checkbox
+            _run_retry sudo snap install --devmode --channel=${{ inputs.checkbox_track }}/edge checkbox
 
             cat << LAUNCER_EOF > canary.launcher
             [launcher]

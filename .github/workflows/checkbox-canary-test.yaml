@@ -39,5 +39,6 @@ jobs:
     - name: Submit job
       uses: canonical/certification-github-workflows/.github/actions/fling-test@testflinger-action-incremental
       with:
+        dry-run: true
         poll: true
         job: ${{ steps.create-job.outputs.job }}

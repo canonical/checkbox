@@ -34,6 +34,7 @@ include:
     miscellanea/debsums                            certification-status=blocker
     miscellanea/check_prerelease                   certification-status=blocker
     miscellanea/ubuntu-desktop-recommends          certification-status=blocker
+    miscellanea/ubuntu-desktop-minimal-recommends  certification-status=blocker
     miscellanea/grub_file_check                    certification-status=blocker
 bootstrap_include:
     fwts

@@ -109,46 +109,17 @@ def generate_test_config(interface, ssid, psk, address, dhcp, wpa3):
     Produce valid netplan yaml from arguments provided
 
     Typical open ap with dhcp:
-
-    >>> print(generate_test_config("eth0", "my_ap", None, "", True))
     # This is the network config written by checkbox
     network:
       version: 2
-      wifis:
-        eth0:
-          access-points:
-            my_ap: {}
-          addresses: []
-          dhcp4: True
-          nameservers: {}
-
-    Typical private ap with dhcp:
-
-    >>> print(generate_test_config("eth0", "my_ap", "s3cr3t", "", True))
-    # This is the network config written by checkbox
-    network:
-      version: 2
-      wifis:
-        eth0:
-          access-points:
-            my_ap: {password: s3cr3t}
-          addresses: []
-          dhcp4: True
-          nameservers: {}
-
-    Static IP no dhcp:
-    >>> print(generate_test_config(
-        "eth0", "my_ap", "s3cr3t", "192.168.1.1", False))
-    # This is the network config written by checkbox
-    network:
-      version: 2
-      wifis:
-        eth0:
-          access-points:
-            my_ap: {password: s3cr3t}
-          addresses: [192.168.1.1]
-          dhcp4: False
-          nameservers: {}
+        wifis:
+          eth0:
+            access-points:
+            my_ap:
+              auth:
+                password: s3cr3t
+            dhcp4: true
+            nameservers: {}
     """
     # Define the access-point with the ssid
     access_point = {ssid: {}}

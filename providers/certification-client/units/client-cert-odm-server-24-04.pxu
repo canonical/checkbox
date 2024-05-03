@@ -104,7 +104,6 @@ nested_part:
     cpu-automated
     disk-automated
     ethernet-automated
-    iot-cert-image-automated
     i2c-automated
     memory-automated
     networking-automated

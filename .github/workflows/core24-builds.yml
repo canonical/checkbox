@@ -5,7 +5,7 @@ on:
   workflow_call:
 
 jobs:
-  snap:
+  snap_runtime:
     strategy:
       fail-fast: false
       matrix:
@@ -80,4 +80,92 @@ jobs:
             do \
               echo "Uploading $snap..." ; \
               snapcraft upload $snap --release edge ; \
+            done
+  snap_frontend:
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [classic, uc]
+        releases: [24]
+        arch: [amd64, arm64]
+        tag: [X64, ARM64]
+        exclude:
+          - arch: amd64
+            tag: ARM64
+          - arch: arm64
+            tag: X64
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - ${{ matrix.tag }}
+    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+    env:
+      SERIES: series_${{ matrix.type }}${{ matrix.releases }}
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+    name: Frontend ${{ matrix.type }}${{ matrix.releases }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Copy over the common files for series ${{ matrix.type }}${{ matrix.releases }}
+        run: |
+          cd checkbox-snap/
+          sudo apt update && sudo apt install -qq -y python3-setuptools-scm
+          ./prepare_${{ matrix.type }}.sh $SERIES
+      - name: Add LP credentials
+        run: |
+          mkdir -p ~/.local/share/snapcraft/provider/launchpad/
+          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
+          git config --global user.email "robot@lists.canonical.com"
+          git config --global user.name "Certification bot"
+      - name: Print Launchpad build repository
+        run: |
+          echo "Building at: https://git.launchpad.net/~ce-certification-qa/+snap/$SNAPCRAFT_BUILDER_ID"
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Building the snaps
+        timeout-minutes: 600 # 10hours
+        with:
+          action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
+          attempt_delay: 600000 # 10min
+          attempt_limit: 5
+          with: |
+            path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
+            snapcraft-channel: 7.x/stable
+      - uses: actions/upload-artifact@v4
+        name: Upload logs on failure
+        if: failure()
+        with:
+          name: snapcraft-log-series-${{ matrix.type }}${{ matrix.releases }}${{ matrix.arch }}
+          path: |
+            /home/runner/.cache/snapcraft/log/
+            /home/runner/.local/state/snapcraft/log/
+            checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/checkbox*.txt
+      - uses: actions/upload-artifact@v4
+        name: Upload the snaps as artefacts
+        with:
+          name: series_${{ matrix.type }}${{ matrix.releases }}${{ matrix.arch }}
+          path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
+      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+        name: Upload the snaps to the store
+        timeout-minutes: 600 # 10hours
+        with:
+          attempt_delay: 600000 # 10min
+          attempt_limit: 10
+          command: |
+            for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap ; \
+            do \
+              echo "Uploading $snap..." ; \
+              if [ ${{ matrix.type }} = 'classic' ]; then \
+                if [ ${{ matrix.releases }} = '22' ]; then \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
+                else \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
+                fi \
+              else \
+                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge ; \
+              fi ; \
             done

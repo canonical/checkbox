@@ -41,7 +41,6 @@ template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_bg_nm_{{ interface }}
 template-id: wireless/wireless_connection_wpa_bg_nm_interface
-depends: wireless/detect
 _summary: Connect to WPA-encrypted 802.11b/g Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11b/g AP with wpa security
@@ -66,7 +65,6 @@ template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_bg_nm_{{ interface }}
 template-id: wireless/wireless_connection_open_bg_nm_interface
-depends: wireless/detect
 _summary: Connect to unencrypted 802.11b/g Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to insecure 802.11b/g AP
@@ -91,7 +89,6 @@ template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_n_nm_{{ interface }}
 template-id: wireless/wireless_connection_wpa_n_nm_interface
-depends: wireless/detect
 _summary: Connect to WPA-encrypted 802.11n Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11n AP with wpa security
@@ -116,7 +113,6 @@ template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_n_nm_{{ interface }}
 template-id: wireless/wireless_connection_open_n_nm_interface
-depends: wireless/detect
 _summary: Connect to unencrypted 802.11n Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to insecure 802.11n AP
@@ -141,7 +137,6 @@ template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_ac_nm_{{ interface }}
 template-id: wireless/wireless_connection_wpa_ac_nm_interface
-depends: wireless/detect
 _summary: Connect to WPA-encrypted 802.11ac Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11ac AP with wpa security
@@ -167,7 +162,6 @@ template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_ac_nm_{{ interface }}
 template-id: wireless/wireless_connection_open_ac_nm_interface
-depends: wireless/detect
 _summary: Connect to unencrypted 802.11ac Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to insecure 802.11ac AP
@@ -193,7 +187,6 @@ template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_ax_nm_{{ interface }}
 template-id: wireless/wireless_connection_wpa_ax_nm_interface
-depends: wireless/detect
 _summary: Connect to WPA-encrypted 802.11ax Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11ax AP with wpa security
@@ -219,7 +212,6 @@ template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa3_ax_nm_{{ interface }}
 template-id: wireless/wireless_connection_wpa3_ax_nm_interface
-depends: wireless/detect
 _summary: Connect to WPA3-encrypted 802.11ax Wi-Fi network on {{ interface }}
 _purpose:
   Check system can connect to 802.11ax AP with wpa3 security
@@ -244,7 +236,6 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_ax_nm_{{ interface }}
-depends: wireless/detect
 template-id: wireless/wireless_connection_open_ax_nm_interface
 _summary: Connect to unencrypted 802.11ax Wi-Fi network on {{ interface }}
 _purpose:
@@ -259,84 +250,6 @@ estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires:
  wireless_sta_protocol.{{ interface }}_ax == 'supported'
- {%- if __on_ubuntucore__ %}
- connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
- {%- endif %}
- net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
-
-unit: template
-template-resource: device
-template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
-template-engine: jinja2
-template-unit: job
-id: wireless/wireless_connection_wpa_be_nm_{{ interface }}
-template-id: wireless/wireless_connection_wpa_be_nm_interface
-depends: wireless/detect
-_summary: Connect to WPA-encrypted 802.11be Wi-Fi network on {{ interface }}
-_purpose:
-  Check system can connect to 802.11be AP with wpa security
-plugin: shell
-user: root
-command:
-  net_driver_info.py "$NET_DRIVER_INFO"
-  wifi_nmcli_test.py secured {{ interface }} "$WPA_BE_SSID" "$WPA_BE_PSK"
-category_id: com.canonical.plainbox::wireless
-estimated_duration: 30.0
-flags: preserve-locale also-after-suspend
-requires:
- wireless_sta_protocol.{{ interface }}_be == 'supported'
- {%- if __on_ubuntucore__ %}
- connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
- {%- endif %}
- net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
-
-unit: template
-template-resource: device
-template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
-template-engine: jinja2
-template-unit: job
-id: wireless/wireless_connection_wpa3_be_nm_{{ interface }}
-template-id: wireless/wireless_connection_wpa3_be_nm_interface
-depends: wireless/detect
-_summary: Connect to WPA3-encrypted 802.11be Wi-Fi network on {{ interface }}
-_purpose:
-  Check system can connect to 802.11be AP with wpa3 security
-plugin: shell
-user: root
-command:
-  net_driver_info.py "$NET_DRIVER_INFO"
-  wifi_nmcli_test.py secured {{ interface }} "$WPA3_BE_SSID" "$WPA3_BE_PSK" --exchange sae
-category_id: com.canonical.plainbox::wireless
-estimated_duration: 30.0
-flags: preserve-locale also-after-suspend
-requires:
- wireless_sta_protocol.{{ interface }}_be == 'supported'
- {%- if __on_ubuntucore__ %}
- connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
- {%- endif %}
- net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'NetworkManager'
-
-unit: template
-template-resource: device
-template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
-template-engine: jinja2
-template-unit: job
-id: wireless/wireless_connection_open_be_nm_{{ interface }}
-depends: wireless/detect
-template-id: wireless/wireless_connection_open_be_nm_interface
-_summary: Connect to unencrypted 802.11be Wi-Fi network on {{ interface }}
-_purpose:
-  Check system can connect to insecure 802.11be AP
-plugin: shell
-user: root
-command:
-  net_driver_info.py "$NET_DRIVER_INFO"
-  wifi_nmcli_test.py open {{ interface }} "$OPEN_BE_SSID"
-category_id: com.canonical.plainbox::wireless
-estimated_duration: 30.0
-flags: preserve-locale also-after-suspend
-requires:
- wireless_sta_protocol.{{ interface }}_be == 'supported'
  {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
  {%- endif %}

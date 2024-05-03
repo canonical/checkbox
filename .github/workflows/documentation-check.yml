@@ -19,7 +19,7 @@ jobs:
         working-directory: docs
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install Aspell
         run: |
@@ -42,7 +42,7 @@ jobs:
     runs-on: [self-hosted, linux, jammy, large]
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: woke
         uses: get-woke/woke-action@v0
@@ -60,7 +60,7 @@ jobs:
         working-directory: docs
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Install the doc framework
         working-directory: docs/

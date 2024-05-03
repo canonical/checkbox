@@ -12,7 +12,7 @@ jobs:
     outputs:
       new_commit_count: ${{ steps.commit_check.outputs.new_commit_count }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Check for commits

@@ -12,7 +12,7 @@ jobs:
     runs-on: [self-hosted, linux, jammy, large]
     steps:
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup the gh repository and install gh

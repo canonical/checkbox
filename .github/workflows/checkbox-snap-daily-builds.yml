@@ -22,7 +22,7 @@ jobs:
       SNAPCRAFT_BUILDER_ID: checkbox-${{ matrix.type }}${{ matrix.releases }}-${{ github.run_id }}
     name: Frontend ${{ matrix.type }}${{ matrix.releases }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Copy over the common files for series ${{ matrix.type }}${{ matrix.releases }}

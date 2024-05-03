@@ -22,6 +22,7 @@ import textwrap
 import time
 import shutil
 import sys
+import yaml
 
 from gateway_ping_test import ping
 
@@ -103,7 +104,7 @@ def netplan_config_restore():
                 raise SystemExit("Failed to restore {}".format(f))
 
 
-def generate_test_config(interface, ssid, psk, address, dhcp):
+def generate_test_config(interface, ssid, psk, address, dhcp, wpa3):
     """
     Produce valid netplan yaml from arguments provided
 
@@ -149,24 +150,36 @@ def generate_test_config(interface, ssid, psk, address, dhcp):
           dhcp4: False
           nameservers: {}
     """
-    np_cfg = """\
-    # This is the network config written by checkbox
-    network:
-      version: 2
-      wifis:
-        {0}:
-          access-points:
-            {1}: {{{2}}}
-          addresses: [{3}]
-          dhcp4: {4}
-          nameservers: {{}}"""
+    # Define the access-point with the ssid
+    access_point = {ssid: {}}
+    # If psk is provided, add it to the "auth" section
     if psk:
-        password = "password: " + psk
-    else:
-        password = ""
-    return textwrap.dedent(
-        np_cfg.format(interface, ssid, password, address, dhcp)
+        access_point[ssid] = {"auth": {"password": psk}}
+        # Set the key-management to "sae" when WPA3 is used
+        if wpa3:
+            access_point[ssid]["auth"]["key-management"] = "sae"
+
+    # Define the interface_info
+    interface_info = {
+        "access-points": access_point,
+        "dhcp4": dhcp,
+        "nameservers": {},
+    }
+
+    # If address is provided, add it to the interface_info
+    if address:
+        interface_info["addresses"] = [address]
+
+    network_config = {
+        "network": {"version": 2, "wifis": {interface: interface_info}}
+    }
+
+    # Serialize the dictionary to a YAML string using pyyaml
+    yaml_output = yaml.safe_dump(network_config)
+    output = textwrap.dedent(
+        "# This is the network config written by checkbox\n" + yaml_output
     )
+    return output
 
 
 def write_test_config(config):
@@ -326,6 +339,12 @@ def main():
             " example: 192.168.1.1/24"
         ),
         default="",
+    )
+    parser.add_argument(
+        "--wpa3",
+        action="store_true",
+        help=("Configure WPA3 key management for the network"),
+        default=False,
     )
     args = parser.parse_args()
 

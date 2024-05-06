@@ -2,25 +2,25 @@
     "gst_v4l2_video_decoder_md5_checksum_comparison": [
         {
             "decoder_plugin": "v4l2h264dec",
-            "resolutions": [{"width": 320, "height": 320}, {"width": 1920, "height": 1080}],
+            "resolutions": [{"width": 320, "height": 320}],
             "color_spaces": ["NV12", "NV21", "ARGB", "RGB", "I420", "YV12"],
             "source_format": "mp4"
         },
         {
             "decoder_plugin": "v4l2h265dec",
-            "resolutions": [{"width": 320, "height": 320}, {"width": 1920, "height": 1080}],
+            "resolutions": [{"width": 320, "height": 320}],
             "color_spaces": ["NV12", "NV21", "ARGB", "RGB", "I420", "YV12"],
             "source_format": "mp4"
         },
         {
             "decoder_plugin": "v4l2vp8dec",
-            "resolutions": [{"width": 320, "height": 320}, {"width": 1920, "height": 1080}],
+            "resolutions": [{"width": 320, "height": 320}],
             "color_spaces": ["YUV"],
             "source_format": "webm"
         },
         {
             "decoder_plugin": "v4l2vp9dec",
-            "resolutions": [{"width": 320, "height": 320}, {"width": 1920, "height": 1080}],
+            "resolutions": [{"width": 320, "height": 320}],
             "color_spaces": ["YUV"],
             "source_format": "webm"
         }

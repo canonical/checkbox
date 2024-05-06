@@ -9,7 +9,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_hardware_watchdog == 'True'
     image_source_and_type.source == 'oem'
-command: watchdog_config_test.py --check_time
+command: watchdog_config_test.py --check-time
 
 
 id: watchdog/check-service
@@ -23,7 +23,7 @@ flags: simple
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_hardware_watchdog == 'True'
-command: watchdog_config_test.py --check_service
+command: watchdog_config_test.py --check-service
 
 
 id: watchdog/probe-module
@@ -67,29 +67,7 @@ requires:
     manifest.has_hardware_watchdog == 'True'
 environ: WATCHDOG_TYPE WATCHDOG_IDENTITY
 command:
-    source=$(checkbox-support-image_checker -s| awk -F ": " '{print $2}')
-    if [[ $source == "oem" ]]; then
-        udev_resource.py -f WATCHDOG
-    elif [[ $source == "stock" ]]; then
-        if [ -z "$WATCHDOG_TYPE" ] || [ -z "$WATCHDOG_IDENTITY" ]; then
-            >&2 echo "Please define the WATCHDOG_TYPE and WATCHDOG_IDENTITY in advance"
-            exit 1
-        fi
-        WATCHDOGDS=$(find /sys/class/watchdog/watchdog*[0-9])
-        EXIT=$?
-        for w in $WATCHDOGDS; do
-            identity=$(cat "$w"/identity)
-            echo "Identity of $w: $identity"
-            if [[ "$identity" != "$WATCHDOG_IDENTITY" ]]; then
-                >&2 echo "Find an unmatched watchdog"
-                EXIT=1
-            fi
-        done
-        exit $EXIT
-    else
-        >&2 echo "Unrecognized image source: $source"
-        exit 1
-    fi
+    watchdog_config_test.py --detect
 
 
 id: watchdog/set-timeout
@@ -107,30 +85,7 @@ depends:
     watchdog/detect
 user: root
 command:
-    DEFAULT_WATCHDOG="^#RuntimeWatchdogSec"
-    search_pattern="#RuntimeWatchdogSec=[0-9]*s*"
-    for i in {0..1}
-    do
-        result=$(grep $DEFAULT_WATCHDOG /etc/systemd/system.conf)
-        if [[ -n "$result" && $i -eq 0 ]]; then
-            echo "Modifying the watchdog timeout"
-            sed -i "s/$search_pattern/RuntimeWatchdogSec=35/g" /etc/systemd/system.conf
-        elif [[ $i -eq 1 ]]; then
-            if [[ -n "$result" ]]; then
-                >&2 echo "Failed to set watchdog timeout"; RET=1
-            else
-                echo "Watchdog timeout has been configured, reloading configuration"
-                systemctl daemon-reexec; RET=$?
-                if [[ $RET -ne 0 ]]; then
-                    >&2 echo "Failed to reloading configuration"
-                fi
-            fi
-        else
-            echo "Watchdog timeout is already set"
-            break
-        fi
-    done
-    exit "$RET"
+    watchdog_config_test.py --set-timeout ${WATCHDOG_TIMEOUT:-35}
 
 
 id: watchdog/revert-timeout
@@ -147,31 +102,7 @@ depends:
     watchdog/set-timeout
 user: root
 command:
-    SET_WATCHDOG="RuntimeWatchdogSec=35"
-    for i in {0..1}
-    do
-        result=$(grep $SET_WATCHDOG /etc/systemd/system.conf)
-        if [[ "$result" == "$SET_WATCHDOG" && $i -eq 0 ]]; then
-            echo "Modifying the watchdog timeout"
-            sed -i "s/$SET_WATCHDOG/#RuntimeWatchdogSec=0/g" /etc/systemd/system.conf
-        elif [[ $i -eq 1 ]]; then
-            if [[ "$result" == "$SET_WATCHDOG" ]]; then
-                >&2 echo "Failed to revert watchdog timeout"; RET=1
-            else
-                echo "Watchdog timeout has been configured, reloading configuration"
-                systemctl daemon-reexec; RET=$?
-                if [[ $RET -ne 0 ]]; then
-                    >&2 echo "Failed to reloading configuration"
-                fi
-            fi
-        else
-            timeout_value=$(grep RuntimeWatchdogSec /etc/systemd/system.conf | awk -F '=' '{print $2}')
-            echo "The watchdog timeout is $timeout_value now, not the value we set in previouse job"
-            echo "No need to revert watchdog timeout"
-            break
-        fi
-    done
-    exit "$RET"
+    watchdog_config_test.py --revert-timeout ${WATCHDOG_TIMEOUT:-35}
 
 
 id: watchdog/trigger-system-reset-auto

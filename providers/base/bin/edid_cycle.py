@@ -231,6 +231,8 @@ def main(args=None):
         except AssertionError as exc:
             print(exc.args[0])
             failed = True
+    # leave the system with no edid set - monitor disconnected
+    _clear_edid(args.host)
 
     return failed
 

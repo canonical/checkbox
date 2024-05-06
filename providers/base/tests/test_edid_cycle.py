@@ -362,9 +362,8 @@ class ZapperEdidCycleTests(unittest.TestCase):
         mock_test_edid.side_effect = AssertionError("Mismatch")
         self.assertTrue(edid_cycle.main(args))
 
+
 class GetActiveDevicesTests(unittest.TestCase):
-
-
     @patch("edid_cycle.get_display_modes")
     def test_get_active_devices_happy(self, mock_get_display_info):
         """

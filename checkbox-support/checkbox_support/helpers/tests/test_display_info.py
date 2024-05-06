@@ -23,7 +23,6 @@ from checkbox_support.helpers.display_info import get_display_modes
 
 
 class TestDisplayInfo(unittest.TestCase):
-
     @patch("checkbox_support.helpers.display_info.parse_gnome_randr_output")
     @patch("os.getenv")
     @patch("subprocess.check_output", return_value="WayWayland")
@@ -33,7 +32,8 @@ class TestDisplayInfo(unittest.TestCase):
         mock_getenv.return_value = "wayland"
         get_display_modes()
         mock_check_output.assert_called_with(
-            ["gnome-randr"], universal_newlines=True)
+            ["gnome-randr"], universal_newlines=True
+        )
         mock_parse_gnome_randr_output.assert_called_with("WayWayland")
 
     @patch("checkbox_support.helpers.display_info.parse_xrandr_output")
@@ -45,5 +45,6 @@ class TestDisplayInfo(unittest.TestCase):
         mock_getenv.return_value = "x11"
         get_display_modes()
         mock_check_output.assert_called_with(
-            ["xrandr"], universal_newlines=True)
+            ["xrandr"], universal_newlines=True
+        )
         mock_parse_xrandr_output.assert_called_with("Xorgz")

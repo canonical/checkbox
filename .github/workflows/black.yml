@@ -1,4 +1,4 @@
-name: Black formatting (79 chars lines)
+name: Check formatting with Black
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  black:
+  check-with-black:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

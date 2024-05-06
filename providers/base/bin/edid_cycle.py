@@ -20,6 +20,7 @@ EDID_FILES = list(
     pathlib.Path(os.getenv("PLAINBOX_PROVIDER_DATA", ".")).glob("edids/*.edid")
 )
 
+
 def get_active_devices():
     """
     Get the list of active video ouput devices.
@@ -33,6 +34,7 @@ def get_active_devices():
         if any(mode.is_current for mode in modes):
             active.add(output)
     return active
+
 
 def discover_video_output_device(zapper_host):
     """

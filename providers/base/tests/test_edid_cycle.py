@@ -337,9 +337,10 @@ class ZapperEdidCycleTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             edid_cycle.main(args)
 
+    @patch("edid_cycle._clear_edid")
     @patch("edid_cycle.test_edid")
     @patch("edid_cycle.discover_video_output_device")
-    def test_main(self, mock_discover, mock_test_edid):
+    def test_main(self, mock_discover, mock_test_edid, _):
         """
         Test if main function run the EDID test for every available EDID file.
         """

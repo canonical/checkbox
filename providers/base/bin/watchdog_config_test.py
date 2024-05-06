@@ -73,14 +73,14 @@ def watchdog_argparse() -> argparse.Namespace:
     )
     group.add_argument(
         "--set-timeout",
-        nargs='?',
+        nargs="?",
         const=35,
         type=int,
         help="Set the timeout for watchdog service",
     )
     group.add_argument(
         "--revert-timeout",
-        nargs='?',
+        nargs="?",
         const=35,
         type=int,
         help="Revert the timeout for watchdog service",
@@ -193,8 +193,10 @@ def detect() -> None:
     # Handle stock image source
     elif source == "stock":
         # Check if environment variables are set
-        if "WATCHDOG_TYPE" not in os.environ or \
-                "WATCHDOG_IDENTITY" not in os.environ:
+        if (
+            "WATCHDOG_TYPE" not in os.environ
+            or "WATCHDOG_IDENTITY" not in os.environ
+        ):
             raise SystemExit(
                 "WATCHDOG_TYPE or WATCHDOG_IDENTITY not set!\n"
                 "Please define the WATCHDOG_TYPE and WATCHDOG_IDENTITY "
@@ -253,9 +255,10 @@ def set_timeout(timeout: int = 35) -> None:
 
         # Substitute the current timeout with the new one
         text = re.sub(
-            pattern, "RuntimeWatchdogSec={}".format(timeout),
+            pattern,
+            "RuntimeWatchdogSec={}".format(timeout),
             text,
-            flags=re.MULTILINE
+            flags=re.MULTILINE,
         )
 
     print("Configuring Watchdog timeout...")
@@ -274,9 +277,7 @@ def set_timeout(timeout: int = 35) -> None:
     )
     # Raise an error if there was an error in reloading the configuration
     if res.returncode:
-        raise SystemExit(
-            "[ERROR] {}".format(res.stderr.strip())
-        )
+        raise SystemExit("[ERROR] {}".format(res.stderr.strip()))
 
     # Print the new timeout value
     print("Watchdog timeout is now set to {}".format(timeout))
@@ -306,7 +307,8 @@ def revert_timeout(timeout: int = 35) -> None:
         if not re.search(pattern, text):
             raise SystemExit(
                 "Could not find Watchdog timeout equal to "
-                "{} in /etc/systemd/system.conf".format(timeout))
+                "{} in /etc/systemd/system.conf".format(timeout)
+            )
 
         # Substitute the current timeout with 0
         text = re.sub(
@@ -333,9 +335,7 @@ def revert_timeout(timeout: int = 35) -> None:
 
     # Raise an error if there was an error in reloading the configuration
     if res.returncode:
-        raise SystemExit(
-            "[ERROR] {}".format(res.stderr.strip())
-        )
+        raise SystemExit("[ERROR] {}".format(res.stderr.strip()))
 
     # Print the new timeout value
     print("Watchdog timeout is now set to 0 and disabled")

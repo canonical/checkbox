@@ -94,10 +94,10 @@ def build_gst_command(
     :returns:
         The GStreamer command to execute.
     """
-    x_raw_format_str = "video/x-raw,format={} ! ".format(color_sapce)
-
     if decoder in ["v4l2vp8dec", "v4l2vp9dec"]:
         x_raw_format_str = ""
+    else:
+        x_raw_format_str = "video/x-raw,format={} ! ".format(color_sapce)
 
     cmd = (
         "{} -v filesrc location={} ! parsebin ! {} ! v4l2convert ! {}"

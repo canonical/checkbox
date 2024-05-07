@@ -17,16 +17,6 @@ jobs:
             checkbox_track: uc16
             arch: amd64
             queue: hp-elitebook-850-g7-notebook-pc
-          - checkbox_runtime: checkbox22
-            data_source: "distro: jammy"
-            checkbox_track: uc22
-            arch: amd64
-            queue: hp-elitebook-850-g7-notebook-pc
-          - checkbox_runtime: checkbox22
-            data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
-            checkbox_track: uc22
-            arch: arm64
-            queue: rpi4b4g
 
     steps:
     - name: Checkout checkbox monorepo
@@ -47,8 +37,8 @@ jobs:
         cat ${{ steps.create-job.outputs.job }}
 
     - name: Submit job
-      uses: canonical/certification-github-workflows/.github/actions/fling-test@testflinger-action-incremental
+      uses: canonical/testflinger/.github/actions/submit@CERTTF-327-github-action-submit
       with:
-        dry-run: false
+        dry-run: true
         poll: true
         job: ${{ steps.create-job.outputs.job }}

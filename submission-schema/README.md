@@ -6,10 +6,16 @@ In this folder you can find the schema for the submission.json that's sent to ce
 
 `schema.json` contains the schema that was generated using ~2000 latest (at the time of writing) submissions uploaded to C3.
 
+This json file is referenced by the `docs/reference/submission-schema.rst` file, which is used to generate the 
+[submission schema reference documentation](https://checkbox.readthedocs.io/en/latest/reference/submission-schema.html).
+Changes in the schema are reflected after successful documentation build.
+
 ## Generating schema from scratch
 
 The `schema.json` can be generated using a existing submission tarballs.
 Follow the steps below to generate a fresh `schema.json`
+
+> The schema generator is really a utility that helps (helped) create a _starting point_ for the submission JSON schema, and is not for continued use more so than diagnostic purposes (using it serves the purpose of comparing actual submission data against the schema in use, but it is not for example intended to be used regularly to update the canonical schema.json in this directory).
 
 ### Obtaining submission tarballs
 

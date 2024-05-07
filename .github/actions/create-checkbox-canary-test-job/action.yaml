@@ -18,7 +18,7 @@ runs:
     - id: job-creator
       # This is purely a proof-of-concept. You shouldn't handle inline bash scripts in Github actions.
       # Please just don't, it won't end well. This is normally the place to feed the action inputs to
-      # a dedicated tool that generates the Checkbox launcher.
+      # a dedicated tool that generates the job YAML file.
       shell: bash
       run: |
         OUTPUT_PATH=${{ github.workspace }}/job.yaml

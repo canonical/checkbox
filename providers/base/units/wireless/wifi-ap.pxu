@@ -111,30 +111,9 @@ category_id: wifi_ap
 _summary: Create open 802.11b Wi-Fi AP on {interface} with no STA
 plugin: shell
 _purpose:
- Check that the system can create an open 802.11b Access Point without any STA connection on {interface} by configuring the system using wifi-ap snap and then checking status of the interface using `iw` command.
-_steps:
- BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
- echo "Setting up AP"
- wifi-ap.config set wifi.interface={interface}
- wifi-ap.config set wifi.operation-mode=b
- wifi-ap.config set wifi.interface-mode=direct
- wifi-ap.config set wifi.security=open
- wifi-ap.config set disabled=false
- wifi-ap.config set wifi.ssid=Ubuntu_b_open
- echo "Waiting for AP to become available"
- sleep "${{WIFI_AP_SETUPTIME:-10}}"
- RES=$(iw {interface} info |grep -c -E "(type\ AP)|(ssid\ Ubuntu_b_open)")
- wifi-ap.config set disabled=true
- if [ "$RES" -eq 2 ]; then
-    echo "Network detected"
-    exit 0
- else
-    echo "FAILED to detect the network"
-    echo "==== Service unit logs ===="
-    journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
-    exit 1;
-_verification:
- The network is detected successfully without any errors.
+ Check that the system can create an open 802.11b Access Point without any STA
+ connection on {interface} by configuring the system using wifi-ap snap and
+ then checking status of the interface using `iw` command.
 user: root
 command:
  BEGIN_AP_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')

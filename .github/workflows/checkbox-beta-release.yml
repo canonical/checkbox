@@ -29,7 +29,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tools/release/can_promote_edge.py
+          # check if can_promote but ignore (only print an error) if the workflow was manually triggered
+          tools/release/can_promote_edge.py || ${{ github.event_name == 'workflow_dispatch' }}
 
   release-notes:
     needs: should-run

@@ -121,6 +121,8 @@ def generate_test_config(interface, ssid, psk, address, dhcp, wpa3):
             dhcp4: true
             nameservers: {}
     """
+    if not ssid:
+        raise SystemExit("A SSID is required for the test")
     # Define the access-point with the ssid
     access_point = {ssid: {}}
     # If psk is provided, add it to the "auth" section

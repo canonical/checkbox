@@ -271,7 +271,7 @@ class TestSnapd(TestCase):
         )
         mock_self._poll_change.assert_not_called()
 
-    @patch.object(Snapd, 'connect_or_disconnect')
+    @patch.object(Snapd, "connect_or_disconnect")
     def test_connect_called(self, mock_connect_or_disconnect):
         snapd = Snapd()
         slot_snap = "test_slot_snap"
@@ -284,7 +284,7 @@ class TestSnapd(TestCase):
             slot_snap, slot_slot, plug_snap, plug_plug
         )
 
-    @patch.object(Snapd, 'connect_or_disconnect')
+    @patch.object(Snapd, "connect_or_disconnect")
     def test_disconnect_called(self, mock_connect_or_disconnect):
         snapd = Snapd()
         slot_snap = "test_slot_snap"

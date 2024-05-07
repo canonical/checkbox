@@ -215,9 +215,7 @@ class Snapd:
             self._poll_change(r["change"])
 
     def connect(self, slot_snap, slot_slot, plug_snap, plug_plug):
-        self.connect_or_disconnect(
-            slot_snap, slot_slot, plug_snap, plug_plug
-        )
+        self.connect_or_disconnect(slot_snap, slot_slot, plug_snap, plug_plug)
 
     def disconnect(self, slot_snap, slot_slot, plug_snap, plug_plug):
         self.connect_or_disconnect(

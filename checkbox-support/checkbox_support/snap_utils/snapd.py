@@ -13,7 +13,6 @@ import requests_unixsocket
 
 
 class AsyncException(Exception):
-
     def __init__(self, message, abort_message=""):
         self.message = message
         self.abort_message = abort_message
@@ -203,9 +202,11 @@ class Snapd:
     def interfaces(self):
         return self._get(self._interfaces)["result"]
 
-    def connect(self, slot_snap, slot_slot, plug_snap, plug_plug):
+    def connect_or_disconnect(
+        self, slot_snap, slot_slot, plug_snap, plug_plug, action="connect"
+    ):
         data = {
-            "action": "connect",
+            "action": action,
             "slots": [{"snap": slot_snap, "slot": slot_slot}],
             "plugs": [{"snap": plug_snap, "plug": plug_plug}],
         }
@@ -213,15 +214,19 @@ class Snapd:
         if r["type"] == "async" and r["status"] == "Accepted":
             self._poll_change(r["change"])
 
+    def connect(self, slot_snap, slot_slot, plug_snap, plug_plug):
+        self.connect_or_disconnect(
+            slot_snap, slot_slot, plug_snap, plug_plug
+        )
+
     def disconnect(self, slot_snap, slot_slot, plug_snap, plug_plug):
-        data = {
-            "action": "disconnect",
-            "slots": [{"snap": slot_snap, "slot": slot_slot}],
-            "plugs": [{"snap": plug_snap, "plug": plug_plug}],
-        }
-        r = self._post(self._interfaces, json.dumps(data))
-        if r["type"] == "async" and r["status"] == "Accepted":
-            self._poll_change(r["change"])
+        self.connect_or_disconnect(
+            slot_snap,
+            slot_slot,
+            plug_snap,
+            plug_plug,
+            action="disconnect",
+        )
 
     def get_assertions(self, assertion_type):
         path = self._assertions + "/" + assertion_type

@@ -2,3 +2,4 @@ alsa_test
 clocktest
 threaded_memtest
 ptrace_test
+testptp

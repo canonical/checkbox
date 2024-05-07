@@ -136,6 +136,7 @@ command:
     echo "==== Service unit logs ===="
     journalctl -q -u "*wifi-ap.management-service*" --no-pager --since "$BEGIN_AP_TEST_TS" -o cat
     exit 1;
+ fi
 requires:
  wifi_interface_mode.{interface}_AP == 'supported'
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'

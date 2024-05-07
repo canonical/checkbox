@@ -11,6 +11,7 @@ command:
      checkbox-support-lsusb -f "$CHECKBOX_RUNTIME"/var/lib/usbutils/usb.ids 2>/dev/null | sed 's/.*\(ID .*\)/\1/' | head -n 4 || echo "No USB devices were detected" >&2
  else
      lsusb 2>/dev/null | sort || echo "No USB devices were detected" >&2
+ fi
 _summary: Display USB devices attached to SUT
 _purpose: Detects and shows USB devices attached to this system.
 

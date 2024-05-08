@@ -5,8 +5,9 @@ flags: also-after-suspend
 depends: ethernet/detect
 command: gateway_ping_test.py
 estimated_duration: 2.000
-_description: Tests whether the system has a working Internet connection.
+_purpose: Tests whether the system has a working Internet connection.
 user: root
+_summary: Verifies if the system can connect to the Internet.
 
 unit: template
 template-resource: device
@@ -21,13 +22,12 @@ estimated_duration: 1.0
 requires: executable.name == 'ethtool'
 command:
   network_device_info.py info NETWORK --interface {interface}
-_description:
- PURPOSE:
-     This test will check the network device {__index__} ({interface})
- STEPS:
-     1. Click "Test" to verify the information for this network device
- VERIFICATION:
-     Is this correct?
+_purpose:
+ This test will check the network device {__index__} ({interface})
+_steps:
+ 1. Click "Test" to verify the information for this network device
+_verification:
+ Is this correct?
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::networking
@@ -35,9 +35,9 @@ id: networking/modem_connection
 flags: also-after-suspend
 command: network_check.py
 _description:
- PURPOSE:
+_purpose:
     This test will check that a DSL modem can be configured and connected.
- STEPS:
+_steps:
     1. Connect the telephone line to the computer
     2. Click on the Network icon on the top panel.
     3. Select "Edit Connections"
@@ -45,24 +45,25 @@ _description:
     5. Click on "Add" button
     6. Configure the connection parameters properly
     7. Click "Test" to verify that it's possible to establish an HTTP connection
- VERIFICATION:
+_verification:
     Did a notification show and was the connection correctly established?
+_summary: Verify DSL modem configuration and connection.
 
 plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/ping
 command: gateway_ping_test.py "$CHECKBOX_SERVER"
-_description:
- Automated test case to verify availability of some system on the network using ICMP ECHO packets.
+_purpose: Automated test case to verify the availability of some system on the network using ICMP ECHO packets.
 user: root
+_summary: Verify network system availability using ICMP ECHO packets.
 
 plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/http
 environ: TRANSFER_SERVER
 command: networking_http.py http://"$TRANSFER_SERVER"
-_description:
- Automated test case to make sure that it's possible to download files through HTTP
+_purpose: Automated test case to make sure that it's possible to download files through HTTP
+_summary: Ensure downloading files through HTTP works correctly.
 
 plugin: shell
 category_id: com.canonical.plainbox::networking
@@ -71,21 +72,24 @@ flags: also-after-suspend
 requires: package.name == 'ntpdate'
 user: root
 command: network_ntp_test.py
-_description: Test to see if we can sync local clock to an NTP server
+_purpose: Test to see if we can sync local clock to an NTP server
+_summary: Test NTP server synchronization capability.
 
 plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/ssh
 requires: package.name == 'openssh-client'
 command: if [ "$CHECKBOX_SERVER" ]; then ssh -q -o 'StrictHostKeyChecking=no' -o "UserKnownHostsFile=/tmp/ssh_test_$$" -l ubuntu "$CHECKBOX_SERVER" "uname -a" && rm /tmp/ssh_test_$$; fi
-_description: Verify that an installation of checkbox-server on the network can be reached over SSH.
+_purpose: Verify that an installation of checkbox-server on the network can be reached over SSH.
+_summary: Check connectivity to checkbox-server over SSH.
 
 plugin: shell
 category_id: com.canonical.plainbox::networking
 id: networking/printer
 requires: package.name == 'cups-client'
 command: network_printer_test.sh -s "$CHECKBOX_SERVER"
-_description: Try to enable a remote printer on the network and print a test page.
+_purpose: Try to enable a remote printer on the network and print a test page.
+_summary: Enables a remote printer on the network and prints a test page.
 
 plugin: shell
 category_id: com.canonical.plainbox::networking
@@ -93,7 +97,7 @@ template-engine: jinja2
 id: networking/predictable_names
 command: network_predictable_names.sh
 _summary: Verify that all network interfaces have predictable names.
-_description: Verify that all network interfaces have predictable names.
+_purpose: Verify that all network interfaces have predictable names.
 requires:
   {%- if __on_ubuntucore__ %}
   lsb.release >= '20'

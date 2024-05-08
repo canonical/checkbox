@@ -65,16 +65,18 @@ unit: job
 category_id: intel-ishtp
 id: eclite/temperature-reading-from-thermal-acpitz
 estimated_duration: 5m
-_summary: Read the temperature of acpitz to make sure Eclite is functional
+_summary: Read the temperature of acpitz to ensure Eclite is functional
 depends: eclite/module-detect
-_description:
+_purpose:
     For testing the feature of Eclite, one way is to monitor the
     temperature of acpitz thermal.
+_steps:
     Read the CPU temperature, run stress-ng for 5 minutes, then check the CPU
     temperature again.
+_verification:
     The temperatures should be non-zero, and the temperature after the stress
     test should be higher.
-    If any of these conditions is not true, the test fails.
+    If any of these conditions is not met, the test fails.
 plugin: shell
 user: root
 command:

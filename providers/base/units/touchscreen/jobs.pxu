@@ -5,8 +5,8 @@ requires:
   xinput.device_class == 'XITouchClass' and xinput.touch_mode != 'direct'
 command: true
 estimated_duration: 1.2
-_description:
- Determine whether the screen is detected as a non-touch device automatically.
+_purpose: Determine whether the screen is detected as a non-touch device automatically.
+_summary: Verify automatic detection of screen as non-touch device.
 
 plugin: shell
 category_id: com.canonical.plainbox::touchscreen
@@ -15,21 +15,21 @@ requires:
   xinput.device_class == 'XITouchClass' and xinput.touch_mode == 'direct'
 command: true
 estimated_duration: 1.2
-_description:
- Determine whether the screen is detected as a multitouch device automatically.
+_purpose: Determine whether the screen is detected as a multitouch device automatically.
+_summary: Determine automatic detection of the screen as a multitouch device.
 
 plugin: manual
 category_id: com.canonical.plainbox::touchscreen
 id: touchscreen/multitouch-manual
 depends: touchscreen/nontouch-automated
 estimated_duration: 120.0
-_description:
- PURPOSE:
-     Touchscreen capability manual detection.
- STEPS:
-     1. Look at the specifications for your system.
- VERIFICATION:
-     Your screen was detected as a non touch screen. Select PASS if this is correct.
+_purpose:
+ Touchscreen capability manual detection.
+_steps:
+ 1. Look at the specifications for your system.
+_verification:
+ Your screen was detected as a non-touch screen. Select PASS if this is correct.
+_summary: Manual detection of touchscreen capability by checking system specifications and verifying if the screen is non-touch.
 
 plugin: manual
 category_id: com.canonical.plainbox::touchscreen
@@ -38,12 +38,13 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 120.0
 _description:
- PURPOSE:
-     Check touchscreen tap recognition
- STEPS:
-     1. Tap an object on the screen with finger. The cursor should jump to location tapped and object should highlight
- VERIFICATION:
-     Does tap recognition work?
+_purpose:
+    Check touchscreen tap recognition
+_steps:
+    1. Tap an object on the screen with your finger. The cursor should jump to the location tapped, and the object should highlight.
+_verification:
+    Does tap recognition work?
+_summary: Test for touchscreen tap recognition functionality.
 
 plugin: manual
 category_id: com.canonical.plainbox::touchscreen
@@ -52,17 +53,18 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 120.0
 _description:
- PURPOSE:
-     Check touchscreen drag & drop
- STEPS:
-     1. Press 'PrtScn' key to create a screenshot
-     2. Tap 'Files' on dock(launcher bar) to open Home folder
-     3. Double Tap 'Pictures' folder to open Pictures folder
-     4. Tap and hold the Screenshot* files on the Pictures folder
-     5. Drag and drop the Screenshot* files to Home folder
- VERIFICATION:
-     Does drag and drop work?
+_purpose:
+ Check touchscreen drag & drop
+_steps:
+ 1. Press 'PrtScn' key to create a screenshot
+ 2. Tap 'Files' on dock (launcher bar) to open Home folder
+ 3. Double Tap 'Pictures' folder to open Pictures folder
+ 4. Tap and hold the Screenshot* files in the Pictures folder
+ 5. Drag and drop the Screenshot* files to Home folder
+_verification:
+ Does drag and drop work?
 flags: also-after-suspend
+_summary: Assess touchscreen functionality for drag & drop tasks.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::touchscreen
@@ -73,13 +75,13 @@ requires: manifest.has_touchscreen == 'True'
 command: qmlscene -qt5 "$PLAINBOX_PROVIDER_DATA"/touch_zoom_test.qml 2>&1 |grep -o PASS
 estimated_duration: 120.0
 _description:
- PURPOSE:
-     Check touchscreen pinch gesture for zoom
- STEPS:
-     1. Commence the test
-     2. Using 2 fingers, resize the blue square until it turns green, then release it.
- VERIFICATION:
-     Did the blue square change size following the gesture?
+_purpose:
+    Check touchscreen pinch gesture for zoom
+_steps:
+    1. Commence the test
+    2. Using 2 fingers, resize the blue square until it turns green, then release it.
+_verification:
+    Did the blue square change size following the gesture?
 flags: also-after-suspend
 
 plugin: user-interact-verify
@@ -91,13 +93,13 @@ requires: manifest.has_touchscreen == 'True'
 command: qmlscene -qt5 "$PLAINBOX_PROVIDER_DATA"/touch_rotate_test.qml 2>&1 |grep -o PASS
 estimated_duration: 120.0
 _description:
- PURPOSE:
-     Check touchscreen pinch gesture for rotate
- STEPS:
-     1. Commence the test
-     2. Using 2 fingers, rotate the blue square until it turns green, then release it.
- VERIFICATION:
-     Did the blue square rotate following the gesture?
+_purpose:
+ Check touchscreen pinch gesture for rotate
+_steps:
+ 1. Commence the test
+ 2. Using 2 fingers, rotate the blue square until it turns green, then release it.
+_verification:
+ Did the blue square rotate following the gesture?
 flags: also-after-suspend
 
 plugin: manual
@@ -106,14 +108,14 @@ id: touchscreen/multitouch-window-move
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 120.0
-_description:
- PURPOSE:
-     Validate that 3-touch drag is operating as expected
- STEPS:
-     1. Open a windows and bring it to the foreground
-     2. 3-touch the window and drag
- VERIFICATION:
-     Did the window move along with the drag?
+_purpose:
+ Validate that 3-touch drag is operating as expected
+_steps:
+ 1. Open a window and bring it to the foreground
+ 2. 3-touch the window and drag
+_verification:
+ Did the window move along with the drag?
+_summary: Test the functionality of the 3-touch drag on a touchscreen.
 
 plugin: manual
 category_id: com.canonical.plainbox::touchscreen
@@ -121,13 +123,13 @@ id: touchscreen/multitouch-dash
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 120.0
-_description:
- PURPOSE:
-     Validate that 4-touch tap is operating as expected
- STEPS:
-     1. 4-touch tap anywhere on the touchscreen
- VERIFICATION:
-     Did the tap open the Dash?
+_purpose:
+ Validate that 4-touch tap is operating as expected
+_steps:
+ 1. 4-touch tap anywhere on the touchscreen
+_verification:
+ Did the tap open the Dash?
+_summary: Validate the functionality of a 4-touch tap on the touchscreen.
 
 plugin: user-interact-verify
 template-engine: jinja2
@@ -165,6 +167,7 @@ command:
     {% endif %}
     exit $EXIT
 flags: also-after-suspend
+_summary: Validate the operation of 3-touch tap on touchscreen devices.
 
 plugin: user-interact-verify
 template-engine: jinja2
@@ -200,6 +203,7 @@ command:
     {% endif %}
     exit $EXIT
 flags: also-after-suspend
+_summary: Validate functionality of 4-touch tap on touchscreen devices.
 
 unit: template
 template-resource: device
@@ -214,16 +218,16 @@ flags: also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 10.0
-_description:
- PURPOSE:
-     Validate that single-touch tap is properly detected
- STEPS:
-     1. Commence the test
-     2. Tap the screen with one finger.
- VERIFICATION:
-     If the tap is not detected the test will time out after 10 seconds.
+_purpose:
+ Validate that single-touch tap is properly detected
+_steps:
+ 1. Commence the test
+ 2. Tap the screen with one finger.
+_verification:
+ If the tap is not detected the test will time out after 10 seconds.
 user: root
 command: timeout 10 evdev_touch_test.py '{{ product }}' -x 1
+_summary: Validate the detection of a single-touch tap on touchscreen devices.
 
 unit: template
 template-resource: device
@@ -238,17 +242,18 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 10.0
 _description:
- PURPOSE:
-     Validate that 2-touch tap is properly detected
- STEPS:
-     1. Commence the test
-     2. Tap the screen with 2 fingers simultaneously.
- VERIFICATION:
-     If the tap is not detected the test will time out after 10 seconds.
+_purpose:
+    Validate that 2-touch tap is properly detected
+_steps:
+    1. Commence the test
+    2. Tap the screen with 2 fingers simultaneously.
+_verification:
+    If the tap is not detected the test will time out after 10 seconds.
 user: root
 command: timeout 10 evdev_touch_test.py '{{ product }}' -x 2
 flags: also-after-suspend
 after: touchscreen/evdev/single-touch-tap-{{ product_slug }}
+_summary: Validate proper detection of a 2-touch tap on touchscreen devices.
 
 unit: template
 template-resource: device
@@ -263,17 +268,18 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 10.0
 _description:
- PURPOSE:
-     Validate that 3-touch tap is properly detected
- STEPS:
-     1. Commence the test
-     2. Tap the screen with 3 fingers simultaneously.
- VERIFICATION:
-     If the tap is not detected the test will time out after 10 seconds.
+_purpose:
+ Validate that 3-touch tap is properly detected
+_steps:
+ 1. Commence the test
+ 2. Tap the screen with 3 fingers simultaneously.
+_verification:
+ If the tap is not detected the test will time out after 10 seconds.
 user: root
 command: timeout 10 evdev_touch_test.py '{{ product }}' -x 3
 flags: also-after-suspend
 after: touchscreen/evdev/2-touch-tap-{{ product_slug }}
+_summary: Validate proper detection of a 3-touch tap on touchscreen devices.
 
 unit: template
 template-resource: device
@@ -287,15 +293,15 @@ template-id: touchscreen/evdev/4-touch-tap-product_slug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_touchscreen == 'True'
 estimated_duration: 10.0
-_description:
- PURPOSE:
-     Validate that 4-touch tap is properly detected
- STEPS:
-     1. Commence the test
-     2. Tap the screen with 4 fingers simultaneously.
- VERIFICATION:
-     If the tap is not detected the test will time out after 10 seconds.
+_purpose:
+   Validate that 4-touch tap is properly detected
+_steps:
+   1. Commence the test
+   2. Tap the screen with 4 fingers simultaneously.
+_verification:
+   If the tap is not detected the test will time out after 10 seconds.
 user: root
 command: timeout 10 evdev_touch_test.py '{{ product }}' -x 4
 flags: also-after-suspend
 after: touchscreen/evdev/3-touch-tap-{{ product_slug }}
+_summary: Validate the detection of a 4-touch tap on touchscreen devices.

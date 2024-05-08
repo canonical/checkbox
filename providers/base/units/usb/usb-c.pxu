@@ -46,6 +46,7 @@ requires:
  usb.usb3 == 'supported'
  manifest.has_usbc_data == 'True'
 estimated_duration: 30
+_summary: Verify that the system detects a USB 3 storage device using a "Type-C to Type-A" adapter.
 
 id: usb-c/c-to-a-adapter/storage-automated
 _description:
@@ -66,6 +67,8 @@ requires:
  manifest.has_usbc_data == 'True'
 depends: usb-c/c-to-a-adapter/insert
 estimated_duration: 60
+_purpose: This test is automated and executes after the usb-c/c-to-a-adapter/insert test is run.
+_summary: Automate the execution process post usb-c/c-to-a-adapter/insert test.
 
 id: usb-c/c-to-a-adapter/remove
 _purpose:
@@ -73,11 +76,11 @@ _purpose:
      a USB 3 storage device connected to a USB Type-C port using a "USB Type-C
      to Type-A" adapter.
 _steps:
-     1. Commence the test
-     2. Disconnect a USB 3 storage device to a USB Type-C port using a
+     1. Begin the test
+     2. Disconnect a USB 3 storage device from a USB Type-C port using a
         "Type-C to Type-A" adapter
 _verification:
-     The verification of this test is automated. Do not change the
+     The verification of this test is automated. Do not modify the
      automatically selected result.
 plugin: user-interact
 flags: also-after-suspend
@@ -94,6 +97,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_usbc_data == 'True'
 estimated_duration: 30
+_summary: Check the detection of a USB 3 storage device removal, connected via a "Type-C to Type-A" adapter.
 
 id: usb-c/hid
 _summary: USB HID work on USB Type-C port
@@ -116,17 +120,17 @@ estimated_duration: 60
 id: usb-c/insert
 _summary: USB 3.0 storage device insertion detected on USB Type-C port
 _purpose:
-     This test will check that the system correctly detects the insertion of
-     a USB 3 storage device in a USB Type-C connector.
-     NOTE: Make sure the USB storage device has a partition before starting
-     the test.
+ This test will check that the system correctly detects the insertion of
+ a USB 3.0 storage device in a USB Type-C connector.
+ NOTE: Make sure the USB storage device has a partition before starting
+ the test.
 _steps:
-     1. Commence the test.
-     2. Connect a USB 3 storage device to a USB Type-C port.
-     3. Do not unplug the device after the test.
+ 1. Commence the test.
+ 2. Connect a USB 3.0 storage device to a USB Type-C port.
+ 3. Do not unplug the device after the test.
 _verification:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+ The verification of this test is automated. Do not change the
+ automatically selected result.
 plugin: user-interact
 flags: also-after-suspend
 user: root
@@ -145,9 +149,8 @@ estimated_duration: 30
 
 id: usb-c/storage-automated
 _summary: USB 3.0 storage device read & write works on USB Type-C port
-_description:
- This test is automated and executes after the usb-c/insert test
- is run.
+_purpose:
+ This test is automated and executes after the usb-c/insert test is run.
 plugin: shell
 flags: also-after-suspend
 user: root
@@ -168,12 +171,13 @@ id: usb-c/remove
 _summary: USB 3.0 storage device removal detected on USB Type-C port
 _purpose:
      This test will check that the system correctly detects the removal of
-     a USB 3 storage device connected to a USB Type-C port.
+     a USB 3.0 storage device connected to a USB Type-C port.
 _steps:
      1. Commence the test
-     2. Disconnect a USB 3 storage device to a USB Type-C port
+     2. Connect a USB 3.0 storage device to a USB Type-C port
+     3. Disconnect the USB 3.0 storage device from the USB Type-C port
 _verification:
-     The verification of this test is automated. Do not change the
+     The system should automatically detect the removal of the USB 3.0 storage device. The verification of this test is automated. Do not change the
      automatically selected result.
 plugin: user-interact
 flags: also-after-suspend
@@ -217,21 +221,23 @@ user: root
 estimated_duration: 300.0
 command:
    modprobe g_serial
+_purpose:
+ Check if USB OTG can work as a serial port.
 _steps:
  1. Press enter to probe USB OTG g_serial
- 2. Connect a USB cable from an Ubuntu host to the USB OTG (it's the USB type C connector) port on DUT.
- 3. On the host, to check if ttyACM0 has been probed
+ 2. Connect a USB cable from an Ubuntu host to the USB OTG (it's the USB Type C connector) port on DUT.
+ 3. On the host, check if ttyACM0 has been probed
     $ ls /dev/ttyACM0
- 4. On the host, listen to the ttyACM0 port as a receive side.
+ 4. On the host, listen to the ttyACM0 port as the receiving side.
     $ sudo su
     $ cat /dev/ttyACM0
- 5. On DUT, send a string via /dev/ttyGS0 as a send side.
+ 5. On DUT, send a string via /dev/ttyGS0 as the sending side.
     $ sudo su
     $ echo 123 > /dev/ttyGS0
- 6. Check if received the string "123" on the host side.
+ 6. Check if the string "123" was received on the host side.
  7. Check the string sending from the host to DUT by repeating steps 4-6, but swap the send and receive sides.
 _verification:
-    Does string send and receive work?
+    Does string send and receive function correctly?
 flags: preserve-locale also-after-suspend
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_usbc_otg == 'True'
@@ -258,13 +264,13 @@ id: usb-c-otg/g_mass_storage
 _summary: Check DUT can be detected as a mass storage device
 _purpose:
   Check that after connecting the device under test (DUT) to another device
-  (host), DUT can be detected as a mass storage device by the host.
+  (host), the DUT can be detected as a mass storage device by the host.
 _steps:
   1. Press Enter to setup a 16 MB FAT32 image on the device.
   2. From an Ubuntu host, connect a cable to the USB OTG port 
-     (it's the USB type C connector) of the DUT.
+     (it's the USB Type-C connector) of the DUT.
 _verification:
-  The host detects and mounts a mass storage device. It has read and write 
+  The host detects and mounts the mass storage device. It has read and write 
   permissions on it.
 plugin: user-interact-verify
 command:
@@ -272,7 +278,7 @@ command:
   dd if=/dev/zero of="${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img bs=1M count=16
   echo "Formatting image file as FAT32..."
   mkdosfs -F 32 "${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img
-  echo "loading g_mass_storage module..."
+  echo "Loading g_mass_storage module..."
   modprobe g_mass_storage file="${PLAINBOX_SESSION_SHARE}"/checkbox-mass-storage-test.img stall=0
 user: root
 category_id: com.canonical.plainbox::usb
@@ -307,11 +313,11 @@ id: usb-c-otg/g_ether
 _summary: Check DUT can be detected as USB ethernet device
 _steps:
   1. From an Ubuntu host, connect a cable to the USB OTG port 
-     (it's the USB type C connector) of the DUT.
-  2. Press Enter to config the IP address for the USB OTG ethernet interface on the DUT.
+     (it's the USB Type-C connector) of the DUT.
+  2. Press Enter to configure the IP address for the USB OTG ethernet interface on the DUT.
      (IP will be 192.168.9.1/24)
-  3. On the host, config the IP address for the USB OTG ethernet interface. And it should be 
-     the same subnet with DUT. (eg. 192.168.9.2/24)
+  3. On the host, configure the IP address for the USB OTG ethernet interface. It should be 
+     in the same subnet as the DUT. (e.g., 192.168.9.2/24)
   4. Try to ping between the host and DUT.
 _verification:
   The host and DUT can ping each other.
@@ -320,9 +326,9 @@ command:
    echo "Setting up the IP address for USB OTG ethernet interface..."
    modprobe g_ether
    if  (ip -c a | grep -q usb0) ; then 
-      echo "USB OTG ethernet interface exist. Configuring..."
+      echo "USB OTG ethernet interface exists. Configuring..."
       ip addr add 192.168.9.1/24 dev usb0
-      echo "USB OTG ethernet interface IP address been set as 192.168.9.1/24"
+      echo "USB OTG ethernet interface IP address has been set as 192.168.9.1/24"
       ip link set dev usb0 up
    else 
       echo "USB OTG ethernet interface does not exist."

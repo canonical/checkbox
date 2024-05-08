@@ -1,24 +1,24 @@
 id: ubuntucore/os-recovery-mode
 _summary: Reboot into recovery mode and log into the system using prior credentials.
 _purpose:
- Check if system will reboot to recovery mode successfully
+ Check if the system will reboot to recovery mode successfully
 requires:
  lsb.release >= '20'
 _steps:
  1. Reboot the system to recovery mode
     $ sudo snap reboot --recover
- 2. System should respond to the command and reboot itself
- 3. Wait until system completes the reboot process
- 4. Check if system is running in recovery mode
+ 2. The system should respond to the command and reboot itself
+ 3. Wait until the system completes the reboot process
+ 4. Check if the system is running in recovery mode
     $ cat /proc/cmdline
  5. Reboot the system back to normal run mode
     $ sudo snap reboot
- 6. Check again if system is running in run mode
+ 6. Check again if the system is running in run mode
     $ cat /proc/cmdline
 _verification:
- Check if kernel cmdline when system in recovery mode includes:
+ Check if kernel cmdline when the system is in recovery mode includes:
   'snapd_recovery_mode=recover'
- Check if kernel cmdline when system in normal run mode includes:
+ Check if kernel cmdline when the system is in normal run mode includes:
   'snapd_recovery_mode=run'
 plugin: manual
 category_id: ubuntucore
@@ -26,7 +26,7 @@ category_id: ubuntucore
 id: ubuntucore/os-reinstall-mode
 _summary: Reboot into reinstall mode and trigger a factory reset on the device.
 _purpose:
- Check if system will reboot to reinstall mode and reinitialise the device with fresh factory reset
+ Check if the system will reboot to reinstall mode and reinitialize the device with a fresh factory reset.
 requires:
  lsb.release >= '20'
 _steps:
@@ -38,15 +38,15 @@ _steps:
     $ sudo su
     $ echo 5 > /sys/class/tpm/tpm0/ppi/request
     For ARM-based platforms:
-    There is no generic command for ARM-based platforms, please refer to device user manual
+    There is no generic command for ARM-based platforms, please refer to the device user manual.
  3. Reboot the system to reinstall mode
     $ sudo snap reboot --install
- 4. System should respond to the command and reboot itself
- 5. Wait until system completes the installation and initialization process
- 6. Check serial-assertion device-key after installation completes
+ 4. The system should respond to the command and reboot itself.
+ 5. Wait until the system completes the installation and initialization process.
+ 6. Check the serial-assertion device-key after installation completes.
     $ ls /var/lib/snapd/save/device/private-keys-v1
 _verification:
- Check if a new serial-assertion device-key got generated after reinstallation completes
+ Check if a new serial-assertion device-key got generated after reinstallation completes.
 plugin: manual
 category_id: ubuntucore
 
@@ -59,7 +59,7 @@ id: ubuntucore/os-fail-boot-{{description}}
 template-id: ubuntucore/os-fail-boot-description
 _summary: Automatically rollback after failed boot after upgrade
 _purpose:
- Check system will rollback to original core snap if failed to boot the updated one
+ Check the system will rollback to the original core snap if it fails to boot the updated one.
 _steps:
  {% if release == '16' -%}
    {% set release = '' -%}
@@ -67,19 +67,19 @@ _steps:
  1. Check the current revision of core{{release}}
     $ snap list core{{release}}
  2. Update to edge.
-    Note that system will automatically reboot in 1 minute after doing this command.
-    Please execute the command in step 3 in 1 minute to stop the automatic reboot.
+    Note that the system will automatically reboot in 1 minute after executing this command.
+    Please execute the command in step 3 within 1 minute to cancel the automatic reboot.
     $ sudo snap refresh core{{release}} --edge
  3. Cancel the automatic shutdown
     $ sudo shutdown -c
- 4. Simulate a failed boot by the following command
+ 4. Simulate a failed boot with the following command
     $ sudo sed -i 's/base_status=try/base_status=trying/' /var/lib/snapd/modeenv
  5. Reboot the system and log in
     $ sudo reboot
  6. Check the revision of core{{release}} again
     $ snap list core{{release}}
 _verification:
- Check system is still booting the stable core version (original revision)
+ Check the system is still booting the stable core version (original revision).
 plugin: manual
 category_id: ubuntucore
 estimated_duration: 500
@@ -91,9 +91,9 @@ template-engine: jinja2
 template-unit: job
 id: ubuntucore/os-fail-boot-with-refresh-control-{{description}}
 template-id: ubuntucore/os-fail-boot-with-refresh-control-description
-_summary: Automatically rollback after failed boot after upgrade
+_summary: Automatically roll back after failed boot after upgrade
 _purpose:
- Check system will rollback to original core snap if failed to boot the updated one
+ Check system will roll back to original core snap if it failed to boot the updated one.
 _steps:
  {% if release == '16' -%}
    {% set release = '' -%}
@@ -101,19 +101,19 @@ _steps:
  1. Check the current revision of core{{release}}
     $ snap list core{{release}}
  2. Update to edge.
-    Note that system will automatically reboot in 1 minute after doing this command.
-    Please execute the command in step 3 in 1 minute to stop the automatic reboot.
+    Note that the system will automatically reboot in 1 minute after executing this command.
+    Please execute the command in step 3 within 1 minute to stop the automatic reboot.
     $ sudo snap refresh core{{release}} --edge --ignore-validation
  3. Cancel the automatic shutdown
     $ sudo shutdown -c
- 4. Simulate a failed boot by the following command
+ 4. Simulate a failed boot with the following command
     $ sudo sed -i 's/base_status=try/base_status=trying/' /var/lib/snapd/modeenv
  5. Reboot the system and log in
     $ sudo reboot
  6. Check the revision of core{{release}} again
     $ snap list core{{release}}
 _verification:
- Check system is still booting the stable core version (original revision)
+ Check the system is still booting the stable core version (original revision).
 plugin: manual
 category_id: ubuntucore
 estimated_duration: 500
@@ -121,13 +121,13 @@ estimated_duration: 500
 id: ubuntucore/sshd
 _summary: SSH is enabled and operational
 _purpose:
- Check if user can access the system through ssh from other machine
+ Check if a user can access the system through SSH from another machine
 _steps:
- 1. Execute following command on other machine in same network
+ 1. Execute the following command on another machine in the same network:
     $ ssh [user id]@[ip address of the testing system]
- 2. Enter password to login
+ 2. Enter the password to log in
 _verification:
- Can log into system through ssh from other machine
+ Can log into the system through SSH from another machine
 plugin: manual
 category_id: ubuntucore
 estimated_duration: 120
@@ -140,18 +140,18 @@ id: ubuntucore/kernel-failboot-{kernel}
 template-id: ubuntucore/kernel-failboot-kernel
 _summary: Reboot with failboot kernel to verify system rollback function
 _purpose:
- Check if system will rollback to previous(functional) kernel
+ Check if the system will rollback to the previous (functional) kernel
 _description:
  This test checks the kernel rollback function.
- When booting a kernel that fails to boot, system should be able to rollback
- to previous one.
+ When booting a kernel that fails to boot, the system should be able to rollback
+ to the previous one.
  To perform this test, a failboot kernel should be in edge/kernel-failboot-test
  for testing.
 _steps:
- 1. Refresh kernel to the failboot branch
+ 1. Refresh the kernel to the failboot branch
     sudo snap refresh {kernel} --channel=edge/kernel-failboot-test
- 2. Wait for system reboot after kernel snap refresh
+ 2. Wait for the system reboot after kernel snap refresh
 _verification:
- Check if system could boot, and kernel version is the one before switched to
- "failboot" kernel
+ Check if the system could boot, and the kernel version is the one before it was switched to
+ the "failboot" kernel
 category_id: ubuntucore

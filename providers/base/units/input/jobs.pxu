@@ -20,13 +20,14 @@ category_id: com.canonical.plainbox::input
 id: input/mouse
 estimated_duration: 30.0
 _description:
- PURPOSE:
-     This test will test your pointing device
- STEPS:
-     1. Move the cursor using the pointing device or touch the screen.
-     2. Perform some single/double/right click operations.
- VERIFICATION:
-     Did the pointing device work as expected?
+_purpose:
+ This test will test your pointing device
+_steps:
+ 1. Move the cursor using the pointing device or touch the screen.
+ 2. Perform some single/double/right clicks operations.
+_verification:
+ Did the pointing device work as expected?
+_summary: Test the functionality of the pointing device or touch screen.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::input
@@ -36,13 +37,14 @@ estimated_duration: 30.0
 command: keyboard_test.py
 requires: device.category == 'KEYBOARD'
 _description:
- PURPOSE:
-     This test will test your keyboard
- STEPS:
-     1. Click on Test
-     2. On the open text area, use your keyboard to type something
- VERIFICATION:
-     Is your keyboard working properly?
+_purpose:
+ This test will test your keyboard
+_steps:
+ 1. Click on Test
+ 2. On the open text area, use your keyboard to type something
+_verification:
+ Is your keyboard working properly?
+_summary: Test the functionality of your keyboard.
 
 plugin: user-interact
 category_id: com.canonical.plainbox::input
@@ -52,15 +54,15 @@ estimated_duration: 60.0
 user: root
 requires: device.category == 'ACCELEROMETER'
 command: accelerometer_test.py -m
-_description:
- PURPOSE:
-     This test will test your accelerometer to see if it is detected
-     and operational as a joystick device.
- STEPS:
-     1. Click on Test
-     2. Tilt your hardware in the directions onscreen until the axis threshold is met.
- VERIFICATION:
-     Is your accelerometer properly detected? Can you use the device?
+_purpose:
+    This test will test your accelerometer to see if it is detected
+    and operational as a joystick device.
+_steps:
+    1. Click on Test
+    2. Tilt your hardware in the directions onscreen until the axis threshold is met.
+_verification:
+    Is your accelerometer properly detected? Can you use the device?
+_summary: Test the accelerometer's detection and operation as a joystick device.
 
 unit: template
 template-resource: device

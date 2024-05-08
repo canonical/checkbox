@@ -1,4 +1,3 @@
-
 unit: template
 template-resource: dmi
 template-filter: dmi.category == 'SYSTEM' and dmi.vendor == 'AAEON' and dmi.product in ('UPX-TGL01')
@@ -13,11 +12,12 @@ command:
   led_sysfs_brightness.py {product} on
 _purpose:
   Verify that the leds_aaeon driver is working by setting all LEDs to maximum
-  brightness
+  brightness.
 _steps:
-  Press ENTER to start the test while watching external LEDs on the SUT
+  Press ENTER to start the test while watching external LEDs on the SUT.
 _verification:
-  The external LEDs should now be on at maximum brightness
+  The external LEDs should now be on at maximum brightness.
+_summary: Verify the functionality of the leds_aaeon driver by ensuring all external LEDs achieve maximum brightness.
 
 unit: template
 template-resource: dmi
@@ -36,6 +36,7 @@ _purpose:
   Verify that the leds_aaeon driver is working by setting all LEDs to off / 
   minimum brightness
 _steps:
-  Press ENTER to start the test while watching external LEDs on the SUT
+  Press ENTER to start the test while watching external LEDs on the System Under Test (SUT).
 _verification:
-  The external LEDs should now be off or at minimum brightness
+  The external LEDs should now be off or at minimum brightness.
+_summary: Ensure the leds_aaeon driver properly sets all LEDs to off or minimum brightness by running a test.

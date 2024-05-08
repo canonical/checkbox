@@ -31,8 +31,8 @@ template-resource: wwan_resource
 template-unit: job
 id: wwan/gsm-connection-{manufacturer}-{model}-{hw_id}-auto
 template-id: wwan/gsm-connection-manufacturer-model-hw_id-auto
-_summary:  Verify a GSM broadband modem can create a data connection
-_description:
+_summary: Verify a GSM broadband modem can create a data connection
+_purpose:
  Any modems discovered by the resource job that list GSM support
  will be tested to ensure a data connection can be made.
 plugin: shell
@@ -82,7 +82,7 @@ id: wwan/verify-sim-info-{manufacturer}-{model}-{hw_id}
 template-id: wwan/verify-sim-info-manufacturer-model-hw_id
 depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 _summary: Verify that the information retrieved from a SIM card is valid
-_description:
+_purpose:
  Attempt to retrieve as much information as possible from a SIM present. The
  user is required to verify if the output is valid.
 plugin: user-interact-verify
@@ -125,9 +125,9 @@ _summary: Check if a SIM card is present in a slot connected to the modem
 _purpose:
  Check if a SIM card is present in a slot connected to the modem
 _steps:
- 1. Open another terminal on SUT (or press ctrl+z to suspend Checkbox)
- 2. Run `sudo mmcli -m 0 |grep SIM
- 3. Run `fg` to jump back to checkbox (if you're running in the same terminal)
+ 1. Open another terminal on SUT (or press Ctrl+Z to suspend Checkbox)
+ 2. Run `sudo mmcli -m 0 | grep SIM`
+ 3. Run `fg` to jump back to Checkbox (if you're running in the same terminal)
 _verification:
  Check the output. Was the SIM information printed?
 estimated_duration: 60s
@@ -149,8 +149,8 @@ _steps:
  1. Open another terminal on SUT (or press ctrl+z to suspend Checkbox)
  2. Run `sudo nmcli c add type gsm ifname {{ __checkbox_env__.get("WWAN_CONTROL_IF", "<device name>") }} con-name GSM apn {{ __checkbox_env__.get("WWAN_APN", "<your.carrier.com>") }}`
  {%- if "WWAN_CONTROL_IF" not in __checkbox_env__ %}
-    Replacing the <your.carrier.com> with appropriate APN name,
-    and <device name> with appropriate device (device can be found by
+    Replacing `<your.carrier.com>` with the appropriate APN name,
+    and `<device name>` with the appropriate device (device can be found by
     running sudo nmcli d)
  {%- endif %}
  {%- if "WWAN_NET_IF" not in __checkbox_env__ %}
@@ -159,9 +159,9 @@ _steps:
  3. Ping Google (Run: `ping -I {{ __checkbox_env__.get("WWAN_NET_IF") }} 8.8.8.8 -c 5`)
  {%- endif %}
  4. Disconnect from the network (Run: `sudo nmcli c delete GSM`)
- 5. Run `fg` to jump back to checkbox (if you're running in the same terminal)
+ 5. Run `fg` to jump back to Checkbox (if you're running in the same terminal)
 _verification:
- Did the ping came back?
+ Did the ping come back?
 estimated_duration: 120s
 flags:  also-after-suspend
 category_id: wwan
@@ -198,30 +198,30 @@ _summary: Verify a GSM broadband connection can be reconnected after the signal 
 _purpose:
  Ensure that the data connection can be revived after losing signal
 _steps:
- 1. Open another terminal on SUT (or press ctrl+z to suspend Checkbox)
+ 1. Open another terminal on SUT (or press ctrl+z to suspend Checkbox).
  2. Run `sudo nmcli c add type gsm ifname {{ __checkbox_env__.get("WWAN_CONTROL_IF", "<device name>") }} con-name GSM apn {{ __checkbox_env__.get("WWAN_APN", "<your.carrier.com>") }}`
  {%- if "WWAN_CONTROL_IF" not in __checkbox_env__ %}
-    Replacing the <your.carrier.com> with appropriate APN name,
-    and <device name> with appropriate device (device can be found by
-    running sudo nmcli d)
+    Replacing <your.carrier.com> with the appropriate APN name,
+    and <device name> with the appropriate device (device can be found by
+    running sudo nmcli d).
  {%- endif %}
  {%- if "WWAN_NET_IF" not in __checkbox_env__ %}
- 3. Ping Google (Run: `ping -I <ifname> 8.8.8.8 -c 5`)
+ 3. Ping Google (Run: `ping -I <ifname> 8.8.8.8 -c 5`).
  {%- else %}
- 3. Ping Google (Run: `ping -I {{ __checkbox_env__.get("WWAN_NET_IF") }} 8.8.8.8 -c 5`)
+ 3. Ping Google (Run: `ping -I {{ __checkbox_env__.get("WWAN_NET_IF") }} 8.8.8.8 -c 5`).
  {%- endif %}
- 4. Place the system in a Faraday bag
- 5. Ping Google (and verify that the connection no longer works)
- 6. Remove the Faraday bag
+ 4. Place the system in a Faraday bag.
+ 5. Ping Google (and verify that the connection no longer works).
+ 6. Remove the Faraday bag.
  {%- if "WWAN_NET_IF" not in __checkbox_env__ %}
- 7. Ping Google (Run: `ping -I <ifname> 8.8.8.8 -c 5`)
+ 7. Ping Google (Run: `ping -I <ifname> 8.8.8.8 -c 5`).
  {%- else %}
- 7. Ping Google (Run: `ping -I {{ __checkbox_env__.get("WWAN_NET_IF") }} 8.8.8.8 -c 5`)
+ 7. Ping Google (Run: `ping -I {{ __checkbox_env__.get("WWAN_NET_IF") }} 8.8.8.8 -c 5`).
  {%- endif %}
- 8. Disconnect from the network (Run: `sudo nmcli r wwan off`)
- 9. Run `fg` to jump back to checkbox (if you're running in the same terminal)
+ 8. Disconnect from the network (Run: `sudo nmcli r wwan off`).
+ 9. Run `fg` to jump back to Checkbox (if you're running in the same terminal).
 _verification:
- Was the connection revived after plugging back in the antennae?
+ Was the connection revived after removing the Faraday bag?
 estimate_duration: 120s
 flags:  also-after-suspend
 category_id: wwan

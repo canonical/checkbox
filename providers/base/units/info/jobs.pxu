@@ -3,14 +3,15 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 command: cat /proc/asound/card*/codec#*
 estimated_duration: 0.023
-_description: Attaches a report of installed codecs for Intel HDA
+_purpose: Attaches a report of installed codecs for Intel HDA
+_summary: Attach a report of installed codecs for Intel HDA.
 
 id: cpuinfo_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
 command: cat /proc/cpuinfo
 estimated_duration: 0.006
-_description: Attaches a report of CPU information
+_purpose: Attaches a report of CPU information
 _summary: Attach a copy of /proc/cpuinfo
 
 id: dmesg_attachment
@@ -24,8 +25,8 @@ command:
   dmesg | ansi_parser.py
  fi
 estimated_duration: 0.640
-_description: Attaches a copy of /var/log/dmesg or the current dmesg buffer to the test results
-_summary: Attach a copy of dmesg
+_purpose: Attaches a copy of /var/log/dmesg or the current dmesg buffer to the test results
+_summary: Attach a copy of dmesg or the current dmesg buffer to the test results.
 
 id: dmi_attachment
 plugin: attachment
@@ -34,7 +35,7 @@ command:
   # shellcheck disable=SC2015
   [ -d /sys/class/dmi/id/ ] && (grep -r . /sys/class/dmi/id/ 2>/dev/null || true) || false
 estimated_duration: 0.044
-_description: Attaches info on DMI
+_purpose: Attaches info on DMI
 _summary: Attach a copy of /sys/class/dmi/id/*
 requires:
   dmi_present.state == 'supported'
@@ -58,7 +59,7 @@ requires: executable.name == 'lshw'
 user: root
 command: lshw | iconv -t 'utf-8' -c
 _summary: Attach lshw output
-_description: Attaches lshw output
+_purpose: Attaches lshw output
 
 id: efi_attachment
 plugin: attachment
@@ -69,7 +70,7 @@ command:
   [ -d /sys/firmware/efi ] && grep -m 1 -o --color=never 'EFI v.*' /var/log/kern.log* || true
 estimated_duration: 0.5
 _summary: Attaches firmware version info
-_description: Attaches the firmware version
+_purpose: Attaches the firmware version
 
 id: lspci_attachment
 plugin: attachment
@@ -85,7 +86,7 @@ command:
      lspci -vvnn | iconv -t 'utf-8' -c
  fi
 estimated_duration: 0.042
-_description: Attaches very verbose lspci output.
+_purpose: Attaches very verbose lspci output.
 _summary: Attach a list of PCI devices
 
 id: lspci_network_attachment
@@ -93,7 +94,8 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 command: lspci -vvnnQ | iconv -t 'utf-8' -c
 estimated_duration: 1.322
-_description: Attaches very verbose lspci output (with central database Query).
+_purpose: Attaches very verbose lspci output (with central database Query).
+_summary: Attach very verbose lspci output for device information.
 
 id: lspci_standard_config_attachment
 _summary: Attach PCI configuration space hex dump
@@ -101,9 +103,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 command: lspci -x
 estimated_duration: 0.1
-_description:
-    Attaches a hex dump of the standard part of the PCI configuration
-    space for all PCI devices.
+_purpose: Attaches a hex dump of the standard part of the PCI configuration space for all PCI devices.
 
 id: lsusb_attachment
 plugin: attachment
@@ -118,7 +118,7 @@ command:
 estimated_duration: 0.700
 flags: also-after-suspend
 _summary: Attach output of lsusb
-_description: Attaches a list of detected USB devices.
+_purpose: Attaches a list of detected USB devices.
 
 id: meminfo_attachment
 plugin: attachment
@@ -126,7 +126,7 @@ category_id: com.canonical.plainbox::info
 command: cat /proc/meminfo
 estimated_duration: 0.043
 _summary: Attach copy of /proc/meminfo
-_description: Attaches info on system memory as seen in /proc/meminfo.
+_purpose: Attaches info on system memory as seen in /proc/meminfo.
 
 id: modprobe_attachment
 plugin: attachment
@@ -149,7 +149,7 @@ command:
         echo
     done
 estimated_duration: 1.5
-_description: Attaches modinfo information for all currently loaded modules
+_purpose: Attaches modinfo information for all currently loaded modules
 
 id: modules_attachment
 plugin: attachment
@@ -196,7 +196,8 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 command: udev_resource.py
 estimated_duration: 0.432
-_description: Attaches the output of udev_resource.py, for debugging purposes
+_purpose: Attaches the output of udev_resource.py, for debugging purposes
+_summary: Attach udev_resource.py output for debugging.
 
 id: lsblk_attachment
 estimated_duration: 0.1
@@ -205,8 +206,8 @@ category_id: com.canonical.plainbox::info
 command: lsblk -i -n -P -o KNAME,TYPE,MOUNTPOINT
 requires:
  executable.name == 'lsblk'
-_description: Attaches disk block devices mount points
-_summary: Attach info block devices and their mount points
+_purpose: Attaches disk block devices mount points
+_summary: Attach information about block devices and their mount points.
 
 id: gcov_attachment
 plugin: attachment
@@ -214,14 +215,15 @@ category_id: com.canonical.plainbox::info
 requires: package.name == 'lcov'
 user: root
 command: gcov_tarball.sh
-_description: Attaches a tarball of gcov data if present.
+_purpose: Attaches a tarball of gcov data if present.
+_summary: Attach gcov data tarball if available.
 
 id: lsmod_attachment
 plugin: attachment
 category_id: com.canonical.plainbox::info
 command: lsmod_info.py
 estimated_duration: 0.5
-_description: Attaches a list of the currently running kernel modules.
+_purpose: Attaches a list of the currently running kernel modules.
 _summary: Attach a list of currently running kernel modules
 
 id: dkms_info_attachment
@@ -238,18 +240,20 @@ category_id: com.canonical.plainbox::info
 id: acpi_sleep_attachment
 command: [ -e /proc/acpi/sleep ] && cat /proc/acpi/sleep || echo "No /proc/acpi/sleep found"
 estimated_duration: 0.5
-_description: Attaches the contents of /proc/acpi/sleep if it exists.
+_purpose: Attaches the contents of /proc/acpi/sleep if it exists.
+_summary: Attach the contents of /proc/acpi/sleep for further analysis.
 
 plugin: shell
 category_id: com.canonical.plainbox::info
 id: info/bootchart
-_description: Bootchart information.
+_purpose: Bootchart information.
 requires: package.name == 'bootchart' or package.name == 'pybootchartgui'
 user: root
 command:
  process_wait.py -u root bootchart collector ureadahead; \
  # shellcheck disable=SC2012
  [ "$(ls /var/log/bootchart/*.tgz 2>/dev/null | wc -l)" -lt 2 ] && reboot && sleep 100
+_summary: Gather bootchart information to analyze the boot process.
 
 unit: template
 template-resource: device
@@ -271,27 +275,30 @@ category_id: com.canonical.plainbox::info
 id: bootchart.png
 depends: info/bootchart
 requires: package.name == 'pybootchartgui'
-_description: Attaches the bootchart png file for bootchart runs
+_purpose: Attaches the bootchart png file for bootchart runs
 command:
  # shellcheck disable=SC2012
  file=$(ls /var/log/bootchart/*.png 2>/dev/null | tail -1); \
  [ -e "$file" ] && cat "$file"
+_summary: Attach the latest bootchart PNG file from bootchart runs.
 
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: bootchart.tgz
 depends: info/bootchart
-_description: Attaches the bootchart log for bootchart test runs.
+_purpose: Attaches the bootchart log for bootchart test runs.
 command:
  # shellcheck disable=SC2012
  file=$(ls /var/log/bootchart/*.tgz 2>/dev/null | tail -1); \
  [ -e "$file" ] && cat "$file"
+_summary: Attach the bootchart log from the latest bootchart test run.
 
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: installer_bootchart.tgz
 command: [ -f /var/log/installer/bootchart.tgz ] && cat /var/log/installer/bootchart.tgz
-_description: Attach the installer bootchart tarball if it exists.
+_purpose: Attach the installer bootchart tarball if it exists.
+_summary: Attach installer bootchart tarball if present.
 
 plugin: attachment
 category_id: com.canonical.plainbox::info
@@ -299,7 +306,8 @@ id: installer_debug.gz
 user: root
 command: [ -f /var/log/installer/debug ] && gzip -9 -c /var/log/installer/debug
 estimated_duration: 0.1
-_description: Attaches the installer debug log if it exists.
+_purpose: Attaches the installer debug log if it exists.
+_summary: Attach the installer's debug log for diagnostic purposes.
 
 plugin: attachment
 category_id: com.canonical.plainbox::info
@@ -307,9 +315,8 @@ id: info/touchpad_driver
 requires: device.category == 'TOUCHPAD'
 command: touchpad_driver_info.py
 estimated_duration: 0.384
-_description:
- Returns the name, driver name and driver version of any touchpad discovered on
- the system.
+_purpose: Returns the name, driver name and driver version of any touchpad discovered on the system.
+_summary: Gather touchpad name, driver name, and driver version information.
 
 plugin: attachment
 category_id: com.canonical.plainbox::info
@@ -320,27 +327,31 @@ requires:
  device.category == 'AUDIO'
 command: audio_driver_info.py
 estimated_duration: 0.177
-_description: Lists the device driver and version for all audio devices.
+_purpose: Lists the device driver and version for all audio devices.
+_summary: List device driver and versions for audio devices.
 
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/network_devices
 command: network_device_info.py info NETWORK
 estimated_duration: 0.550
-_description: Provides information about network devices
+_purpose: Provides information about network devices
+_summary: Gather information about network devices.
 
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/mobile_broadband_info
 command: broadband_info.sh
 estimated_duration: 0.5
-_description: Provides information about wwan/mobile broadband devices
+_purpose: Provides information about WWAN/mobile broadband devices
+_summary: Gather information on WWAN/mobile broadband devices.
 
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/xrandr
 command: xrandr -q --verbose
-_description: Provides information about displays attached to the system
+_purpose: Provides information about displays attached to the system
+_summary: Retrieve detailed information on displays connected to the system.
 
 plugin: attachment
 category_id: com.canonical.plainbox::info
@@ -348,8 +359,8 @@ id: info/disk_partitions
 estimated_duration: 1.0
 user: root
 command: parted -l -s
+_purpose: Attaches information about disk partitions
 _summary: Attaches info about disk partitions
-_description: Attaches information about disk partitions
 
 plugin: attachment
 category_id: com.canonical.plainbox::info
@@ -390,7 +401,7 @@ requires: package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
 user: root
 estimated_duration: 0.2
 _summary: Check existence of recovery partition
-_description: Check existence of recovery partition
+_purpose: Check existence of recovery partition
 command: recovery_info.py
 
 plugin: shell
@@ -412,7 +423,7 @@ requires: package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
 user: root
 estimated_duration: 0.2
 _summary: Attach the recovery partition versions
-_description:
+_purpose:
  Attach the recovery partition version
  image_version is the preinstalled OS image version
  bto_version is only for dell_recovery
@@ -429,11 +440,11 @@ requires: package.name == 'dell-recovery'
 user: root
 estimated_duration: 0.5
 _summary: Attach the bto.xml in Dell recovery partition
-_description:
- bto.xml is basically a Fish manifest
- The information include:
-  - fish packages
-  - dell recovery stage 2 boot log
+_purpose:
+ bto.xml is basically a Fish manifest.
+ The information includes:
+  - Fish packages
+  - Dell recovery stage 2 boot log
 command: recovery_info.py file bto.xml
 
 plugin: attachment
@@ -442,7 +453,7 @@ id: info/kvm_output
 estimated_duration: 0.1
 _summary:
  Attaches console log from the kvm_check_vm test
-_description:
+_purpose:
  Attaches the debug log from the virtualization/kvm_check_vm test
  to the results submission.
 command: [ -f "$PLAINBOX_SESSION_SHARE"/virt_debug ] && cat "$PLAINBOX_SESSION_SHARE"/virt_debug
@@ -452,7 +463,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 command: cat /proc/cmdline
 estimated_duration: 0.005
-_description: Attaches the kernel command line used to boot
+_purpose: Attaches the kernel command line used to boot
 _summary: Attach a copy of /proc/cmdline
 
 plugin: shell
@@ -485,7 +496,7 @@ category_id: com.canonical.plainbox::info
 command: lstopo -v
 estimated_duration: 0.015
 requires: executable.name == 'lstopo'
-_description: Attaches the system topology as presented by the lstopo command
+_purpose: Attaches the system topology as presented by the lstopo command
 _summary: Attach the output of lstopo
 
 id: lstopo_visual_attachment
@@ -493,8 +504,8 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 estimated_duration: 0.015
 requires: executable.name == 'lstopo'
-_description: Attaches the system topology as presented by the lstopo command
-_summary: Attach the output of lstopo
+_purpose: Attaches the system topology as presented by the lstopo command
+_summary: Attach the output of lstopo command to present system topology.
 command:
  lstopo "$PLAINBOX_SESSION_SHARE"/lstopo_visual.png; \
  [ -e "$PLAINBOX_SESSION_SHARE/lstopo_visual.png" ] && \
@@ -529,5 +540,4 @@ requires:
 command:
  mokutil --sb-state || true
 _summary: Check secure boot state
-_description:
- Output secure boot is enabled or disabled
+_purpose: Output whether secure boot is enabled or disabled

@@ -11,12 +11,13 @@ category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your VGA port as a monitor interconnect for {vendor} {product}.
 _steps:
-    1. Connect a display (if not already connected) to the VGA port on your system
-    2. Switch display modes between in your Display Settings, check if it can be
-    set to mirrored, extended, displayed on external or onboard only
+    1. Connect a display (if not already connected) to the VGA port on your system.
+    2. Switch display modes within your Display Settings, check if it can be
+    set to mirrored, extended, displayed on external or onboard only.
 _verification:
     Was the desktop displayed correctly with {vendor} {product} on the VGA-connected
     screen in every mode?
+_summary: Test VGA port as a monitor interconnect for various display modes.
 
 unit: template
 template-resource: graphics_card
@@ -31,12 +32,13 @@ category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your DVI port as a monitor interconnect for {vendor} {product}.
 _steps:
-    1. Connect a display (if not already connected) to the DVI port on your system
-    2. Switch display modes between in your Display Settings, check if it can be
-    set to mirrored, extended, displayed on external or onboard only
+    1. Connect a display (if not already connected) to the DVI port on your system.
+    2. Switch display modes within your Display Settings, check if it can be
+       set to mirrored, extended, display-only on external or onboard only.
 _verification:
     Was the desktop displayed correctly with {vendor} {product} on the DVI-connected
     screen in every mode?
+_summary: Check DVI port functionality for {vendor} {product} by connecting a display and verifying different display modes.
 
 unit: template
 template-resource: graphics_card
@@ -51,12 +53,14 @@ category_id: com.canonical.plainbox::monitor
 _purpose:
      This test will check your DisplayPort port as a monitor interconnect for {vendor} {product}.
 _steps:
-     1. Connect a display (if not already connected) to the DisplayPort port on your system
-     2. Switch display modes between in your Display Settings, check if it can be
-     set to mirrored, extended, displayed on external or onboard only
+     1. Connect a display (if not already connected) to the DisplayPort port on your system.
+     2. Switch display modes in your Display Settings; check if it can be
+     set to mirrored, extended, displayed on external or onboard only.
 _verification:
     Was the desktop displayed correctly with {vendor} {product} on the DisplayPort-connected
     screen in every mode?
+_summary:
+    Test the DisplayPort port functionality with mirrored, extended, external, or onboard display modes.
 
 unit: template
 template-resource: graphics_card
@@ -71,12 +75,13 @@ category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your HDMI port as a monitor interconnect for {vendor} {product}.
 _steps:
-    1. Connect a display (if not already connected) to the HDMI port on your system
-    2. Switch display modes between in your Display Settings, check if it can be
-    set to mirrored, extended, displayed on external or onboard only
+    1. Connect a display (if not already connected) to the HDMI port on your system.
+    2. Switch display modes within your Display Settings, check if it can be
+    set to mirrored, extended, displayed on external or onboard only.
 _verification:
     Was the desktop displayed correctly with {vendor} {product} on the HDMI-connected 
     screen in every mode?
+_summary: Check HDMI port functionality as a monitor interconnect for {vendor} {product}.
 
 unit: template
 template-resource: graphics_card
@@ -88,13 +93,15 @@ category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your S-VIDEO port as a monitor interconnect for {vendor} {product}.
 _steps:
-    Skip this test if your system does not have a S-VIDEO port.
-    1. Connect a display (if not already connected) to the S-VIDEO port on your system
-    2. Switch display modes between in your Display Settings, check if it can be
-    set to mirrored, extended, displayed on external or onboard only
+    Skip this test if your system does not have an S-VIDEO port.
+    1. Connect a display (if not already connected) to the S-VIDEO port on your system.
+    2. Switch display modes within your Display Settings, check if it can be
+    set to mirrored, extended, displayed on external or onboard only.
 _verification:
     Was the desktop displayed correctly with {vendor} {product} on the S-VIDEO-connected
     screen in every mode?
+_summary:
+    Test the S-VIDEO port for monitor connectivity with {vendor} {product}.
 
 unit: template
 template-resource: graphics_card
@@ -106,13 +113,15 @@ category_id: com.canonical.plainbox::monitor
 _purpose:
     This test will check your RCA port as a monitor interconnect for {vendor} {product}.
 _steps:
-    Skip this test if your system does not have a RCA port.
-    1. Connect a display (if not already connected) to the RCA port on your system
-    2. Switch display modes between in your Display Settings, check if it can be
-    set to mirrored, extended, displayed on external or onboard only
+    Skip this test if your system does not have an RCA port.
+    1. Connect a display (if not already connected) to the RCA port on your system.
+    2. Switch display modes within your Display Settings, check if it can be
+    set to mirrored, extended, displayed on external, or onboard only.
 _verification:
     Was the desktop displayed correctly with {vendor} {product} on the RCA-connected
     screen in every mode?
+_summary:
+ Check the RCA port as a monitor interconnect for {vendor} {product}.
 
 unit: template
 template-resource: graphics_card
@@ -124,15 +133,17 @@ flags: also-after-suspend
 plugin: manual
 category_id: com.canonical.plainbox::monitor
 _purpose:
-    This test verifies that multi-monitor output works on your desktop system. This is NOT the same test as the external monitor tests you would run on your laptop.  You will need two monitors to perform this test.
+    This test verifies that multi-monitor output works on your desktop system. This is not the same test as the external monitor tests you would run on your laptop. You will need two monitors to perform this test.
 _steps:
     Skip this test if your video card does not support multiple monitors.
-    1. If your second monitor is not already connected, connect it now
-    2. Open the "Displays" tool (open the dash and search for "Displays")
-    3. Configure your output to provide one desktop across both monitors
+    1. If your second monitor is not already connected, connect it now.
+    2. Open the "Displays" tool (open the dash and search for "Displays").
+    3. Configure your output to provide one desktop across both monitors.
     4. Open any application and drag it from one monitor to the next.
 _verification:
     Was the stretched desktop displayed correctly across both screens?
+_summary:
+    Verify multi-monitor output functionality on desktop systems.
 
 unit: template
 template-resource: graphics_card
@@ -165,14 +176,16 @@ user: root
 flags: also-after-suspend
 command: brightness_test.py
 _purpose:
-    This test will test changes to screen brightness
+    This test will check changes to screen brightness.
 _steps:
     1. Change screen brightness to maximum.
-    2. Click "Test" to try to dim the screen.
+    2. Click "Test" to attempt to dim the screen.
     3. Check if the screen was dimmed approximately to half of the maximum brightness.
     4. The screen will go back to the original brightness in 2 seconds.
 _verification:
     Was your screen dimmed approximately to half of the maximum brightness?
+_summary:
+    Examine screen brightness adjustment capabilities.
 
 unit: template
 template-resource: graphics_card
@@ -232,14 +245,14 @@ flags: also-after-suspend
 estimated_duration: 15.0
 plugin: manual
 category_id: com.canonical.plainbox::monitor
-_summary: Display connected via DisplayPort using an USB Type-C port for {vendor} {product}
+_summary: Display connected via DisplayPort using a USB Type-C port for {vendor} {product}
 _purpose:
     This test will check the connection of a screen using a "USB Type-C to DisplayPort" adapter for {vendor} {product}.
 _steps:
     1. Connect a display (if not already connected) to the USB Type-C port on
-       your system using a "USB Type-C to DisplayPort" adapter
-    2. Switch display modes between in your Display Settings, check if it can be
-       set to mirrored, extended, displayed on external or onboard only
+       your system using a "USB Type-C to DisplayPort" adapter.
+    2. Switch display modes within your Display Settings, check if it can be
+       set to mirrored, extended, displayed on external or onboard only.
 _verification:
     Was the desktop displayed correctly with {vendor} {product} on the screen
     connected using a "USB Type-C to DisplayPort" adapter in every mode?
@@ -256,14 +269,14 @@ flags: also-after-suspend
 estimated_duration: 15.0
 plugin: manual
 category_id: com.canonical.plainbox::monitor
-_summary: Display connected via HDMI using an USB Type-C port for {vendor} {product}
+_summary: Display connection via HDMI using a USB Type-C port for {vendor} {product}
 _purpose:
-    This test will check the connection of a screen using a "USB Type-C to HDMI" adapter for {vendor} {product}.
+    This test will check the connection of a display using a "USB Type-C to HDMI" adapter for {vendor} {product}.
 _steps:
     1. Connect a display (if not already connected) to the USB Type-C port on
-       your system using a "USB Type-C to HDMI" adapter
-    2. Switch display modes between in your Display Settings, check if it can be
-       set to mirrored, extended, displayed on external or onboard only
+       your system using a "USB Type-C to HDMI" adapter.
+    2. Switch display modes in your Display Settings, check if it can be
+       set to mirrored, extended, displayed on external or onboard only.
 _verification:
     Was the desktop displayed correctly with {vendor} {product} on the screen
     connected using a "USB Type-C to HDMI" adapter in every mode?
@@ -443,4 +456,3 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_vga == 'True'
 estimated_duration: 300
 flags: also-after-suspend
-

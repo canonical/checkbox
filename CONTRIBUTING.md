@@ -50,7 +50,7 @@ environment:
     (venv) $ cd ~/checkbox/providers/base
     (venv) $ ./manage.py develop -d $PROVIDERPATH
 
-Build the file under the providers in the virtual environment environment:
+Build the executables under the providers in the virtual environment environment:
 
     (venv) $ cd ~/checkbox/providers/resource/
     (venv) $ ./manage.py build

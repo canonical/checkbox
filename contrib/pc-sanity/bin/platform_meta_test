@@ -117,7 +117,7 @@ check_somerville_meta() {
                 fi
             done
             ;;
-        ('focal' | 'jammy')
+        ('focal' | 'jammy' | 'noble')
             for meta in $(ubuntu-drivers list | grep "^oem" | grep "meta$"); do
                 if apt-cache show "$meta" | grep ^Modaliases | grep -i "sv00001028sd0000$BIOSID" > /dev/null 2>&1; then
                     if dpkg-query -W -f='${Status}\n' "$meta" 2>&1 | grep "install ok installed" >/dev/null 2>&1; then

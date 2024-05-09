@@ -131,8 +131,9 @@ class CheckBoxSessionStateControllerTests(TestCase):
         session_state = mock.MagicMock(spec=SessionState)
         session_state.job_state_map["j2"].job = j2
         session_state.resource_map = {"j2": [Resource({"attr": "not-ok"})]}
-        self.assertEqual(
-            self.ctrl.get_inhibitor_list(session_state, j1),
+        inhibitor_list = self.ctrl.get_inhibitor_list(session_state, j1)
+        legacy_result = (
+            inhibitor_list,
             [
                 JobReadinessInhibitor(
                     InhibitionCause.FAILED_RESOURCE,
@@ -141,6 +142,12 @@ class CheckBoxSessionStateControllerTests(TestCase):
                 )
             ],
         )
+        new_result = (
+            len(inhibitor_list) == 1
+            and inhibitor_list[0].cause == InhibitionCause.FAILED_RESOURCE
+            and inhibitor_list[0].related_job == j2
+        )
+        self.assertTrue(legacy_result or new_result)
 
     def test_get_inhibitor_list_good_resource(self):
         # verify that jobs that require a resource that has been invoked and

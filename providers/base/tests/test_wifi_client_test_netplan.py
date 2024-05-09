@@ -109,6 +109,12 @@ class WifiClientTestNetplanTests(TestCase):
         )
         self.assertEqual(result.strip(), expected_output.strip())
 
+    def test_no_ssid_fails(self):
+        with self.assertRaises(SystemExit):
+            generate_test_config(
+                "eth0", "", "s3cr3t", "192.168.1.1", False, False
+            )
+
     def test_parser_psk_and_wpa3(self):
         with patch(
             "sys.argv",

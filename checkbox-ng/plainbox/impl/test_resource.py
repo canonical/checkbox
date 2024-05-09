@@ -511,16 +511,26 @@ class ResourceProgramTests(TestCase):
         }
         with self.assertRaises(ExpressionFailedError) as call:
             self.prog.evaluate_or_raise(resource_map)
+        try:
+            expression_text = call.exception.expression.text
+        except AttributeError:
+            # new system puts AST object as expression in the exception
+            expression_text = ast.unparse(call.exception.expression)
         self.assertEqual(
-            call.exception.expression.text, "package.name == 'fwts'"
+            expression_text, "package.name == 'fwts'"
         )
 
     def test_evaluate_without_no_match(self):
         resource_map = {"package": [], "platform": []}
         with self.assertRaises(ExpressionFailedError) as call:
             self.prog.evaluate_or_raise(resource_map)
+        try:
+            expression_text = call.exception.expression.text
+        except AttributeError:
+            # new system puts AST object as expression in the exception
+            expression_text = ast.unparse(call.exception.expression)
         self.assertEqual(
-            call.exception.expression.text, "package.name == 'fwts'"
+            expression_text, "package.name == 'fwts'"
         )
 
     def test_evaluate_failure_no_resource(self):

@@ -176,6 +176,44 @@ def getter_from_ast(parsed_ast):
     return getter(parsed_ast)
 
 
+class Operator:
+    def __init__(self, function, text_repr):
+        self.function = function
+        self.text_repr = text_repr
+
+    def __call__(self, *args, **kwargs):
+        return self.function(*args, **kwargs)
+
+    def __str__(self):
+        return self.text_repr
+
+    def __repr__(self):
+        return "<Operator '{}'>".format(self.text_repr)
+
+
+ast_to_operator = {
+    # contains(a, b) == b in a
+    # so we need to swap them around
+    ast.In: Operator(lambda x, y: operator.contains(y, x), "in"),
+    ast.NotIn: Operator(lambda x, y: not operator.contains(x, y), "not in"),
+    ast.Eq: Operator(operator.eq, "=="),
+    ast.NotEq: Operator(operator.ne, "!="),
+    ast.GtE: Operator(operator.ge, ">="),
+    ast.LtE: Operator(operator.le, "<="),
+    ast.Gt: Operator(operator.gt, ">"),
+    ast.Lt: Operator(operator.lt, "<"),
+}
+
+
+def operator_from_ast(parsed_ast):
+    try:
+        return ast_to_operator[type(parsed_ast)]
+    except KeyError as e:
+        raise ValueError(
+            "Unsupported operator {}".format(ast.dump(parsed_ast))
+        ) from e
+
+
 class Constraint:
     """
     Rappresents a filter to be applied on a namespace
@@ -207,27 +245,8 @@ class Constraint:
         return cls(left_getter, parsed_ast.ops[0], right_getter, **kwargs)
 
     def _filtered(self, ns_variables):
-        def act_contains(x, y):
-            # contains(a, b) == b in a
-            # so we need to swap them around
-            return operator.contains(y, x)
 
-        def act_not_contains(x, y):
-            return not act_contains(x, y)
-
-        ast_to_operator = {
-            ast.Eq: operator.eq,
-            ast.NotEq: operator.ne,
-            ast.GtE: operator.ge,
-            ast.Gt: operator.gt,
-            ast.LtE: operator.le,
-            ast.In: act_contains,
-            ast.NotIn: act_not_contains,
-        }
-        try:
-            operator_f = ast_to_operator[type(self.operator)]
-        except KeyError:
-            raise ValueError("Unsupported operator {}".format(self.operator))
+        operator_f = operator_from_ast(self.operator)
 
         return (
             variable_group
@@ -312,7 +331,7 @@ class ConstraintExplainer(Constraint):
             str(x)
             for x in (
                 self.left_getter,
-                ast.dump(self.operator),
+                operator_from_ast(self.operator),
                 self.right_getter,
             )
         )

@@ -255,3 +255,28 @@ id: dependency_installation
 command: dependency_installation.py
 _summary: Verify that all required modules are installed
 _description: Verify that all required modules are installed
+
+plugin: resource
+id: resource_example
+command:
+  echo "state: supported"
+  echo "name: some"
+  echo
+  echo "state: unsupported"
+  echo "name: other"
+
+id: depends_some
+flags: simple
+requires:
+  (resource_example.state == 'supported' and resource_example.name == 'some')
+command:
+  echo "this should always run"
+
+
+id: depends_other
+flags: simple
+requires:
+  (resource_example.state == 'supported' and resource_example.name == 'other')
+command:
+  echo "this should never execute, there is bug here"
+  exit 1

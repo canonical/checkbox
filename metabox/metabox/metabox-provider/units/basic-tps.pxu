@@ -69,3 +69,10 @@ _name: Pass and Crash
 include:
  basic-shell-passing
  basic-shell-crashing
+
+unit: test plan
+id: resource_expressions_smoke
+_name: Resource expression smoke testing
+include:
+ depends_some
+ depends_other

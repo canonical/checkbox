@@ -148,7 +148,7 @@ def generate_test_config(interface, ssid, psk, address, dhcp, wpa3):
     }
 
     # Serialize the dictionary to a YAML string using pyyaml
-    yaml_output = yaml.safe_dump(network_config)
+    yaml_output = yaml.safe_dump(network_config, default_flow_style=False)
     output = textwrap.dedent(
         "# This is the network config written by checkbox\n" + yaml_output
     )

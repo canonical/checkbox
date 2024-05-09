@@ -118,9 +118,11 @@ class ZapperKeyboardTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             zapper_keyboard_test.main([1, 2])
 
+    @patch("zapper_keyboard_test.get_zapper_kbd_device")
     @patch("os.access")
-    def test_main_no_file_or_permission(self, mock_access):
+    def test_main_no_file_or_permission(self, mock_access, mock_get_dev):
         """Check main exits with failure if Zapper keyboard is missing."""
+        mock_get_dev.return_value = "/dev/input/by-id/keyboard"
         mock_access.return_value = False
         with self.assertRaises(SystemExit):
             zapper_keyboard_test.main([1, 2])

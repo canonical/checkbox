@@ -4,6 +4,7 @@ import os
 import struct
 import threading
 import unittest
+from pathlib import Path
 from unittest.mock import patch, Mock
 
 import zapper_keyboard_test
@@ -58,6 +59,57 @@ class ZapperKeyboardTests(unittest.TestCase):
         """Check main exits with failure if input is missing."""
         with self.assertRaises(SystemExit):
             zapper_keyboard_test.main([1])
+
+    @patch("zapper_keyboard_test.Path")
+    def test_get_zapper_kbd_device(self, mock_path):
+        """
+        Test whether the function returns a path to the Zapper
+        keyboard device when it's the only Zapper HID device.
+        """
+
+        mock_path.return_value.glob.return_value = [
+            Path(
+                "/dev/input/by-id/"
+                "usb-Canonical_Zapper_main_board_123456-event-kbd",
+            )
+        ]
+        device = zapper_keyboard_test.get_zapper_kbd_device()
+        self.assertEqual(
+            device,
+            "/dev/input/by-id/"
+            "usb-Canonical_Zapper_main_board_123456-event-kbd",
+        )
+
+    @patch("zapper_keyboard_test.Path")
+    def test_get_zapper_kbd_device_if01(self, mock_path):
+        """
+        Test whether the function returns a path to the Zapper
+        keyboard device when it's the second Zapper HID device.
+        """
+
+        mock_path.return_value.glob.return_value = [
+            Path(
+                "/dev/input/by-id/"
+                "usb-Canonical_Zapper_main_board_123456-if01-event-kbd"
+            ),
+        ]
+        device = zapper_keyboard_test.get_zapper_kbd_device()
+        self.assertEqual(
+            device,
+            "/dev/input/by-id/"
+            "usb-Canonical_Zapper_main_board_123456-if01-event-kbd",
+        )
+
+    @patch("zapper_keyboard_test.Path")
+    def test_get_zapper_kbd_device_not_found(self, mock_path):
+        """
+        Test whether the function raises an exception if no
+        Zapper keyboard can be found.
+        """
+
+        mock_path.return_value.glob.return_value = []
+        with self.assertRaises(FileNotFoundError):
+            zapper_keyboard_test.get_zapper_kbd_device()
 
     @patch("os.access")
     def test_main_no_file_or_permission(self, mock_access):

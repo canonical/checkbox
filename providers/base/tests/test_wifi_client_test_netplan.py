@@ -18,8 +18,10 @@
 
 import textwrap
 from unittest import TestCase
+from unittest.mock import patch, MagicMock
 
-from wifi_client_test_netplan import generate_test_config
+
+from wifi_client_test_netplan import generate_test_config, parse_args
 
 
 class WifiClientTestNetplanTests(TestCase):
@@ -106,3 +108,44 @@ class WifiClientTestNetplanTests(TestCase):
             "eth0", "my_ap", "s3cr3t", "192.168.1.1", False, False
         )
         self.assertEqual(result.strip(), expected_output.strip())
+
+    def test_parser_psk_and_wpa3(self):
+        with patch(
+            "sys.argv",
+            [
+                "script.py",
+                "-i",
+                "eth0",
+                "-s",
+                "SSID",
+                "-k",
+                "pswd",
+                "-d",
+                "--wpa3",
+            ],
+        ):
+            args = parse_args()
+            self.assertEqual(args.interface, "eth0")
+            self.assertEqual(args.psk, "pswd")
+            self.assertTrue(args.wpa3)
+
+    def test_parser_custom_interface_with_address(self):
+        with patch(
+            "sys.argv",
+            ["script.py", "-s", "SSID", "-a", "192.168.1.1/24", "--wpa3"],
+        ):
+            args = parse_args()
+            self.assertEqual(args.address, "192.168.1.1/24")
+            self.assertTrue(args.wpa3)
+            self.assertFalse(args.dhcp)
+
+    @patch(
+        "sys.argv", ["script.py", "-s", "SSID", "-a", "192.168.1.1/24", "-d"]
+    )
+    def test_parser_mutually_exclusive_fail(self):
+        with patch(
+            "sys.argv",
+            ["script.py", "-s", "SSID", "-a", "192.168.1.1/24", "-d"],
+        ):
+            with self.assertRaises(SystemExit):
+                parse_args()

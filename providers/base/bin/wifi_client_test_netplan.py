@@ -264,7 +264,7 @@ def print_journal_entries(start):
     sp.call(cmd, shell=True)
 
 
-def main():
+def parse_args():
     # Read arguments
     parser = argparse.ArgumentParser(
         description=(
@@ -319,7 +319,12 @@ def main():
         help=("Configure WPA3 key management for the network"),
         default=False,
     )
-    args = parser.parse_args()
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
 
     start_time = datetime.datetime.now()
 

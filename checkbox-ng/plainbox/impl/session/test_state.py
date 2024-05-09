@@ -853,10 +853,24 @@ class SessionStateReactionToJobResultTests(TestCase):
             self.job_inhibitor("A", 0).cause, InhibitionCause.FAILED_RESOURCE
         )
         self.assertEqual(self.job_inhibitor("A", 0).related_job, self.job_R)
-        self.assertEqual(
-            self.job_inhibitor("A", 0).related_expression,
-            self.job_A_expr,
+        legacy_system_test = (
+            self.job_inhibitor("A", 0).related_expression == self.job_A_expr
         )
+        new_system_test = all(
+            explanation
+            in self.job_inhibitor("A", 0).expression_failure_explanation
+            for explanation in [
+                "attr",
+                "wrong value",
+                "Pre filter",
+                "Post filter",
+                "R = []",
+                "trace:",
+            ]
+        )
+        # new system doesn't put the legacy related_expression into the job
+        # inhibitor. The new one tries to explain why it didn't match
+        self.assertTrue(legacy_system_test or new_system_test)
         self.assertFalse(self.job_state("A").can_start())
 
     def test_resource_job_result_overwrites_old_resources(self):

@@ -32,48 +32,35 @@ root, as the method that is used to effectively gain root differs depending on
 circumstances.
 """
 
-import abc
-import contextlib
-import errno
-
 try:
     import grp
 except ImportError:
     grp = None
+import ast
 import itertools
 import json
 import logging
 import os
-import tempfile
-import subprocess
-import sys
-import threading
 from functools import partial
-from subprocess import check_output, CalledProcessError, STDOUT
 
 from plainbox.abc import IJobResult
 from plainbox.abc import ISessionStateController
 from plainbox.i18n import gettext as _
-from plainbox.impl import get_plainbox_dir
-from plainbox.impl.depmgr import DependencyDuplicateError
 from plainbox.impl.depmgr import DependencyMissingError
-from plainbox.impl.resource import ExpressionCannotEvaluateError
-from plainbox.impl.resource import ExpressionFailedError
-from plainbox.impl.resource import ResourceProgramError
-from plainbox.impl.resource import Resource
+from plainbox.impl.resource import (
+    ExpressionCannotEvaluateError,
+    ExplainedExpressionFailedError,
+    ExpressionFailedError,
+    ResourceProgramError,
+    Resource,
+)
 from plainbox.impl.secure.origin import JobOutputTextSource
-from plainbox.impl.secure.providers.v1 import Provider1
-from plainbox.impl.secure.rfc822 import RFC822SyntaxError
-from plainbox.impl.secure.rfc822 import gen_rfc822_records
-from plainbox.impl.session.jobs import InhibitionCause
-from plainbox.impl.session.jobs import JobReadinessInhibitor
-from plainbox.impl.unit.job import JobDefinition
+from plainbox.impl.secure.rfc822 import RFC822SyntaxError, gen_rfc822_records
+from plainbox.impl.session.jobs import InhibitionCause, JobReadinessInhibitor
 from plainbox.impl.unit.template import TemplateUnit
 from plainbox.impl.unit.unit import MissingParam
 from plainbox.impl.validation import Severity
 from plainbox.suspend_consts import Suspend
-from plainbox.vendor import morris
-from plainbox.vendor import extcmd
 
 __all__ = [
     "CheckBoxSessionStateController",
@@ -235,6 +222,18 @@ class CheckBoxSessionStateController(ISessionStateController):
                         related_expression=exc.expression,
                     )
                     inhibitors.append(inhibitor)
+            except ExplainedExpressionFailedError as exc:
+                # When expressions fail in this manner, we know exactly what is
+                # the reason why it did
+                resource_id = exc.first_missing_req
+                related_job = session_state.job_state_map[resource_id].job
+                inhibitor = JobReadinessInhibitor(
+                    cause=InhibitionCause.FAILED_RESOURCE,
+                    related_job=related_job,
+                    expression_failure_explanation=str(exc)
+                )
+                inhibitors.append(inhibitor)
+
             except ExpressionFailedError as exc:
                 # When expressions fail then all the associated resources are
                 # marked as failed since we don't want to get into the analysis

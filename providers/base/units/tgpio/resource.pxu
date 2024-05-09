@@ -1,0 +1,20 @@
+unit: job
+id: ptp-device-node-info
+plugin: resource
+_summary:  Get the PTP device node
+_description: Get the PTP device node, TGPIO will be used such as /devices/virtual/ptp/ptp*.
+user: root
+environ:
+    TGPIO_PIN_COUNT
+command:
+    nodes=$(udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+')
+    for node in ${nodes}
+    do
+        for ((i = 0; i < TGPIO_PIN_COUNT; i++)); do
+            echo "ptp_device_node: ${node}"
+            echo "ptp_device_pin: ${i}"
+            echo ""
+        done
+    done
+estimated_duration: 1s
+flags: preserve-locale

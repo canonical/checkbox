@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_tgpio_server
+_name: Has connected to a TGPIO server which sends timestamps
+value-type: bool
+
+unit: manifest entry
+id: has_tgpio
+_name: TGPIO support (at least 1 pin)
+value-type: bool

@@ -65,6 +65,28 @@ class ExpressionFailedError(Exception):
         )
 
 
+class ExplainedExpressionFailedError(ExpressionFailedError):
+    def __init__(self, expression, explanation, evaluation):
+        self.expression = expression
+        self.explanation = explanation
+        self.evaluation = evaluation
+        self.first_missing_req = next(
+            resource_name
+            for (resource_name, eval_value) in self.evaluation.items()
+            if eval_value is False
+        )
+
+    def __str__(self):
+        expression_text = ast.unparse(self.expression)
+        explanation_text = "\n----\n".join(str(x) for x in self.explanation)
+
+        return (
+            'Expression \n  "{}"\nevaluated to False because\n {} \n'
+            "didn't match what was required. "
+            "\nSee the following trace:\n{}"
+        ).format(expression_text, self.first_missing_req, explanation_text)
+
+
 class ExpressionCannotEvaluateError(ExpressionFailedError):
     """
     Exception raised when a resource could not be evaluated because it requires
@@ -287,24 +309,21 @@ class ResourceProgram:
     def _new_evaluate_or_raise(self, resource_map):
         if not self._expression_parsed_list:
             return True
-        # avoid explaining when not in debug as it is a bit slower
-        explain_function = (
-            logger.debug if logger.level <= logging.DEBUG else None
-        )
-        to_ret = all(
-            resource_map
-            and all(
-                new_resource.evaluate_lazy(
-                    etl,
-                    resource_map,
-                    implicit_namespace=self._implicit_namespace,
-                    explain_callback=explain_function,
-                ).values()
+        last_evaluation_explanation = []
+        explain_function = last_evaluation_explanation.append
+        for etl in self._expression_parsed_list:
+            evaluation_result = new_resource.evaluate_lazy(
+                etl,
+                resource_map,
+                implicit_namespace=self._implicit_namespace,
+                explain_callback=explain_function,
             )
-            for etl in self._expression_parsed_list
-        )
+            if not all(evaluation_result.values()):
+                raise ExplainedExpressionFailedError(
+                    etl, last_evaluation_explanation, evaluation_result
+                )
 
-        return to_ret
+        return True
 
     def filter(self, resource_map, implicit_namespace):
         if not self._expression_parsed_list:
@@ -335,10 +354,15 @@ class ResourceProgram:
             new_result = self._new_evaluate_or_raise(resource_map)
         except new_resource.UnknownResource:
             new_result = False
+        except ExplainedExpressionFailedError as e:
+            error = e
+            new_result = False
         if bool(legacy_result) != bool(new_result):
             logger.error("Resource expression evaluated to a different result")
             logger.error("Report this: {}".format(self._expression_text_list))
         if not legacy_result:
+            # Note: intentionally raise error that could be the new one
+            #       which is explained
             raise error
         return legacy_result
 

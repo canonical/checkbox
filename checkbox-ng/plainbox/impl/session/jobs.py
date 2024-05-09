@@ -166,7 +166,19 @@ class JobReadinessInhibitor(pod.POD):
         assign_filter_list=[pod.read_only_assign_filter],
     )
 
-    def __init__(self, cause, related_job=None, related_expression=None):
+    expression_failure_explanation = pod.Field(
+        doc="an (optional) explanation to why an expression evaluation failed",
+        type=str,
+        assign_filter_list=[pod.read_only_assign_filter],
+    )
+
+    def __init__(
+        self,
+        cause,
+        related_job=None,
+        related_expression=None,
+        expression_failure_explanation=None,
+    ):
         """
         Initialize a new inhibitor with the specified cause.
 
@@ -174,7 +186,12 @@ class JobReadinessInhibitor(pod.POD):
         is either PENDING_RESOURCE or FAILED_RESOURCE related_expression is
         necessary as well. A ValueError is raised when this is violated.
         """
-        super().__init__(cause, related_job, related_expression)
+        super().__init__(
+            cause,
+            related_job,
+            related_expression,
+            expression_failure_explanation,
+        )
         if (
             self.cause != InhibitionCause.UNDESIRED
             and self.related_job is None
@@ -186,13 +203,12 @@ class JobReadinessInhibitor(pod.POD):
                     self.cause.name
                 )
             )
-        if (
-            self.cause
-            in (
-                InhibitionCause.PENDING_RESOURCE,
-                InhibitionCause.FAILED_RESOURCE,
-            )
-            and self.related_expression is None
+        if self.cause in (
+            InhibitionCause.PENDING_RESOURCE,
+            InhibitionCause.FAILED_RESOURCE,
+        ) and (
+            self.related_expression is None
+            and self.expression_failure_explanation is None
         ):
             raise ValueError(
                 _(
@@ -230,6 +246,8 @@ class JobReadinessInhibitor(pod.POD):
                 " the resource it depends on did not run yet"
             ).format(self.related_expression.text)
         elif self.cause == InhibitionCause.FAILED_RESOURCE:
+            if self.expression_failure_explanation:
+                return self.expression_failure_explanation
             return _("resource expression {!r} evaluates to false").format(
                 self.related_expression.text
             )

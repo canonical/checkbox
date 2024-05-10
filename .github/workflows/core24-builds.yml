@@ -45,7 +45,7 @@ jobs:
           echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
-      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+      - uses: Wandalen/wretry.action@v3.4.0_js_action
         name: Build the snap
         timeout-minutes: 600 # 10hours
         with:
@@ -69,7 +69,7 @@ jobs:
         with:
           name: checkbox${{ matrix.releases }}_${{ matrix.arch }}
           path: checkbox-core-snap/series${{ matrix.releases }}/*.snap
-      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+      - uses: Wandalen/wretry.action@v3.4.0_js_action
         name: Upload the snap to the store
         timeout-minutes: 600 # 10hours
         with:
@@ -125,7 +125,7 @@ jobs:
       - name: Print Launchpad build repository
         run: |
           echo "Building at: https://git.launchpad.net/~ce-certification-qa/+snap/$SNAPCRAFT_BUILDER_ID"
-      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+      - uses: Wandalen/wretry.action@v3.4.0_js_action
         name: Building the snaps
         timeout-minutes: 600 # 10hours
         with:
@@ -149,7 +149,7 @@ jobs:
         with:
           name: series_${{ matrix.type }}${{ matrix.releases }}${{ matrix.arch }}
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
-      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+      - uses: Wandalen/wretry.action@v3.4.0_js_action
         name: Upload the snaps to the store
         timeout-minutes: 600 # 10hours
         with:

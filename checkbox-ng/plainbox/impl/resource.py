@@ -27,17 +27,29 @@
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
+import os
 import ast
+import logging
 import itertools
 import functools
-import logging
 
+from enum import Enum
 from plainbox.i18n import gettext as _
 
 from plainbox.impl import new_resource
 
 
 logger = logging.getLogger("plainbox.resource")
+
+
+class ExperimentalResourceLevel(Enum):
+    # both (default) will call both the legacy and new system and compare
+    # the result
+    BOTH = "both"
+    # only use the new system for everything
+    NEW = "experimental"
+    # only use the legacy system
+    OLD = "legacy"
 
 
 class ExpressionFailedError(Exception):
@@ -344,7 +356,7 @@ class ResourceProgram:
 
         return functools.reduce(new_resource.namespace_union, to_ret)
 
-    def evaluate_or_raise(self, resource_map):
+    def _evaluate_or_raise_both(self, resource_map):
         try:
             legacy_result = self._legacy_evaluate_or_raise(resource_map)
         except ExpressionFailedError as e:
@@ -365,6 +377,20 @@ class ResourceProgram:
             #       which is explained
             raise error
         return legacy_result
+
+    def evaluate_or_raise(self, resource_map):
+        to_use = os.getenv(
+            "RESOURCE_EXPRESSION_VERSION", ExperimentalResourceLevel.BOTH
+        )
+        usage_map = {
+            ExperimentalResourceLevel.BOTH: self._evaluate_or_raise_both
+        }
+        try:
+            f = usage_map[to_use]
+        except KeyError:
+            logger.error("Unknown RESOURCE_EXPRESSION_VERSION, using default")
+            f = usage_map[ExperimentalResourceLevel.BOTH]
+        return f(resource_map)
 
 
 class ResourceProgramError(Exception):

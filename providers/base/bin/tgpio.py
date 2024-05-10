@@ -70,7 +70,7 @@ def receive_timestamp(device: str, pin: str, timeout: int = 10):
         if "Event time time" not in line:
             continue
         cnt += 1
-        event_time = int(line.split(':')[-1].split(",")[0].strip())
+        event_time = int(line.split(":")[-1].split(",")[0].strip())
         if prev_event_time == -1:
             prev_event_time = event_time
             continue

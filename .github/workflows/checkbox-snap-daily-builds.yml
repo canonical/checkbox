@@ -39,7 +39,7 @@ jobs:
       - name: Print Launchpad build repository
         run: |
           echo "Building at: https://git.launchpad.net/~ce-certification-qa/+snap/$SNAPCRAFT_BUILDER_ID"
-      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
         name: Building the snaps
         timeout-minutes: 600 # 10hours
         with:
@@ -50,21 +50,21 @@ jobs:
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
             snapcraft-args: remote-build --build-for amd64,arm64,armhf --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()
         with:
-          name: snapcraft-log-series-${{ matrix.type }}${{ matrix.releases }}
+          name: frontend-build-log-${{ matrix.type }}${{ matrix.releases }}
           path: |
             /home/runner/.cache/snapcraft/log/
             /home/runner/.local/state/snapcraft/log/
             checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/checkbox*.txt
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload the snaps as artefacts
         with:
-          name: series_${{ matrix.type }}${{ matrix.releases }}
+          name: frontend_snaps${{ matrix.type }}${{ matrix.releases }}
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
-      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
         name: Upload the snaps to the store
         timeout-minutes: 600 # 10hours
         with:

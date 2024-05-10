@@ -3,8 +3,8 @@ category_id: tgpio
 id: tgpio/ptp-virtual-device-node-detect
 plugin: shell
 imports: from com.canonical.plainbox import manifest
-# requires:
-#     manifest.has_tgpio == 'True'
+requires:
+    manifest.has_tgpio == 'True'
 _summary: Check if there's at least one virtual ptp device node
 _description:
     This test is to check if there's at least one virtual ptp device node
@@ -21,8 +21,8 @@ _description:
     This test is to enumerate the loaded TGPIO driver. It's hardcoded, so it should
     always be INTC1021, INTC1022, INTC1023, INTC1024.
 imports: from com.canonical.plainbox import manifest
-# requires:
-#     manifest.has_tgpio == 'True'
+requires:
+    manifest.has_tgpio == 'True'
 user: root
 depends: tgpio/ptp-virtual-device-node-detect
 command:
@@ -52,9 +52,9 @@ _summary:  Check PTP device node function on {ptp_device_node} pin {ptp_device_p
 _description:
     This test is to check if the ptp device can receive time stamp on {ptp_device_node} pin {ptp_device_pin}.
 imports: from com.canonical.plainbox import manifest
-# requires:
-#     manifest.has_tgpio == 'True'
-#     manifest.has_tgpio_server == 'True'
+requires:
+    manifest.has_tgpio == 'True'
+    manifest.has_tgpio_server == 'True'
 user: root
 depends: tgpio/ptp-virtual-device-node-detect
 environ:

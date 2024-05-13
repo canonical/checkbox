@@ -43,6 +43,7 @@ import time
 import urllib.request
 from urllib.parse import urlparse
 from uuid import uuid4
+import glob
 
 DEFAULT_TIMEOUT = 500
 
@@ -131,6 +132,69 @@ QEMU_ARCH_CONFIG = {
         ],
     },
 }
+
+def check_sriov_interfaces():
+    """
+    Find SRIOV capable devices that are online and return the first 
+    Intel device
+    """
+    net_dir = "/sys/class/net"
+    sriov_device = {}
+    link_status = {}
+    intel_device = None
+
+    try:
+        # Detect Intel and Mellanox SR-IOV Capable Interfaces 
+        # Todo -  add other vendor devices
+        for device_path in glob.glob(os.path.join(net_dir, '*')):
+            interface = os.path.basename(device_path)
+            # sriov_totalvfs - max number of vf's supported
+            sriov_totalvfs_path = os.path.join(device_path, 'device/sriov_totalvfs')
+            
+            try:
+                if os.path.exists(sriov_totalvfs_path):
+                    with open(sriov_totalvfs_path, 'r') as file:
+                        num_vfs = int(file.read().strip())
+                    # sriov is supported  on an interface if 
+                    # sriov_totalvfs  > 0
+                    if num_vfs > 0:
+                        vendor_id_path = os.path.join(device_path, 'device/vendor')
+                        with open(vendor_id_path, 'r') as file:
+                            vendor_id = file.read().strip()
+                        if vendor_id == '0x8086':
+                            sriov_device[interface] = "Intel"
+                        elif vendor_id == '0x15b3':
+                            sriov_device[interface] = "Mellanox"
+                        else:
+                            sriov_device[interface] = "Unknown"
+
+                        # Check to see if the device is online 
+                        carrier_path = os.path.join(device_path, 'carrier')
+                        if os.path.exists(carrier_path):
+                            with open(carrier_path, 'r') as file:
+                                carrier_status = file.read().strip()
+                            if carrier_status == '1':
+                                link_status[interface] = "online"
+                                # Currently we are only testing the 
+                                # first SRIOV capable Intel device
+                                # Todo - add testing of Mellanox devices
+                                # and other vendors
+                                if intel_device is None and sriov_device[interface] == "Intel":
+                                    intel_device = interface
+                            else:
+                                link_status[interface] = "offline"
+            except IOError as e:
+                logging.error(f"Error reading from file in {device_path}: {e}")
+            except ValueError as e:
+                logging.error(f"Error processing values for {device_path}: {e}")
+    except Exception as e:
+        logging.error(f"Failed to process interfaces: {e}")
+
+    if intel_device is not None:
+        return intel_device
+    else:
+       print("No SRIOV Interfaces are available")
+       sys.exit(1)
 
 
 def get_release_to_test():
@@ -1013,6 +1077,260 @@ class LXDTest_vm(object):
         logging.debug("testing vm failed")
         return False
 
+class LXDTest_sriov(object):
+
+    def __init__(self, template=None, image=None, test_type=None):
+        self.image_url = image
+        self.template_url = template
+        self.network_name = "sriov_network"
+        self.sriov_interface = None
+        self.test_type = "vm"
+        self.image_tarball = None
+        self.template_tarball = None
+        self.name = "testbed"
+        self.image_alias = uuid4().hex
+        self.default_remote = "ubuntu:"
+        self.os_version = get_release_to_test()           
+
+    def run_command(self, cmd, log_stderr=True):
+        task = RunCommand(cmd)
+        if task.returncode != 0:
+            logging.error(
+                "Command {} returned a code of {}".format(
+                    task.cmd, task.returncode
+                )
+            )
+            logging.error(" STDOUT: {}".format(task.stdout))
+            if log_stderr:
+                logging.error(" STDERR: {}".format(task.stderr))
+            return False
+        else:
+            logging.debug("Command {}:".format(task.cmd))
+            if task.stdout != "":
+                logging.debug(" STDOUT: {}".format(task.stdout))
+            if task.stderr and log_stderr:
+                logging.debug(" STDERR: {}".format(task.stderr))
+            if not (task.stderr or task.stdout):
+                logging.debug(" Command returned no output")
+            return True
+
+    def setup(self):
+        # Initialize LXD
+        result = True
+        logging.debug("Attempting to initialize LXD")
+        # TODO: Need a method to see if LXD is already initialized
+        if not self.run_command("lxd init --auto"):
+            logging.debug("Error encounterd while initializing LXD")
+            result = False
+
+        # Retrieve and insert LXD images
+        if self.template_url is not None:
+            logging.debug("Downloading template.")
+            targetfile = urlparse(self.template_url).path.split("/")[-1]
+            filename = os.path.join("/tmp", targetfile)
+            if not os.path.isfile(filename):
+                self.template_tarball = self.download_images(
+                    self.template_url, filename
+                )
+                if not self.template_tarball:
+                    logging.error(
+                        "Unable to download {} from "
+                        "{}".format(self.template_tarball, self.template_url)
+                    )
+                    logging.error("Aborting")
+                    result = False
+            else:
+                logging.debug(
+                    "Template file {} already exists. "
+                    "Skipping Download.".format(filename)
+                )
+                self.template_tarball = filename
+
+        if self.image_url is not None:
+            logging.debug("Downloading image.")
+            targetfile = urlparse(self.image_url).path.split("/")[-1]
+            filename = os.path.join("/tmp", targetfile)
+            if not os.path.isfile(filename):
+                self.image_tarball = self.download_images(
+                    self.image_url, filename
+                )
+                if not self.image_tarball:
+                    logging.error(
+                        "Unable to download {} from{}".format(
+                            self.image_tarball, self.image_url
+                        )
+                    )
+                    logging.error("Aborting")
+                    result = False
+            else:
+                logging.debug(
+                    "Template file {} already exists. "
+                    "Skipping Download.".format(filename)
+                )
+                self.image_tarball = filename
+
+        # Insert images
+        if self.template_url is not None and self.image_url is not None:
+            logging.debug("Importing images into LXD")
+            cmd = "lxc image import {} {} --alias {}".format(
+                self.template_tarball, self.image_tarball, self.image_alias
+            )
+            result = self.run_command(cmd)
+            if not result:
+                logging.error(
+                    "Error encountered while attempting to "
+                    "import images into LXD"
+                )
+                result = False
+        return result
+
+    def download_images(self, url, filename):
+        """
+        Downloads LXD files for same release as host machine
+        """
+        # TODO: Clean this up to use a non-internet simplestream on MAAS server
+        logging.debug(
+            "Attempting download of {} from {}".format(filename, url)
+        )
+        try:
+            urllib.request.urlretrieve(url, filename)
+        except (
+            IOError,
+            OSError,
+            urllib.error.HTTPError,
+            urllib.error.URLError,
+        ) as exception:
+            logging.error(
+                "Failed download of image from %s: %s", url, exception
+            )
+            return False
+        except ValueError as verr:
+            logging.error("Invalid URL %s" % url)
+            logging.error("%s" % verr)
+            return False
+
+        if not os.path.isfile(filename):
+            logging.warn("Can not find {}".format(filename))
+            return False
+
+        return filename
+
+    def cleanup(self):
+        """
+        Clean up test files an Virtual Machines created
+        """
+        logging.debug("Cleaning up images and VMs created during test")
+        self.run_command("lxc image delete {}".format(self.image_alias), False)
+        self.run_command("lxc delete --force {}".format(self.name), False)
+        self.run_command("lxc network delete {}".format(self.network_name), False)
+
+    def start_sriov(self):
+        # Create Virtual Machine
+        logging.debug("Launching Virtual Machine")
+        wait_interval = 30
+
+        ubuntu_version = get_release_to_test()
+        if float(ubuntu_version) >= 24.04:
+            print(f"SRIOV is enabled by default in {ubuntu_version}")
+        else:
+            print(f"SRIOV is not enabled by default in {ubuntu_version}.")
+#            return False
+
+        if not self.setup():
+            logging.error("One or more setup stages failed.")
+            return False       
+
+        self.sriov_interface = check_sriov_interfaces()     
+        logging.debug("sriov interface = {}".format(self.sriov_interface))
+        
+        cmd = "lxc network create {} --type=sriov parent={}".format(
+                self.network_name, self.sriov_interface)
+        if not self.run_command(cmd):
+            return False
+            
+        time.sleep(10)
+        cmd = "lxc network list"
+        if not self.run_command(cmd):
+            return False
+            
+            
+        if not self.image_url and not self.template_url:
+            logging.debug(
+                "No local image available, attempting to "
+                "import from default remote."
+            )
+            cmd = "lxc init {}{} {}".format(
+                self.default_remote, self.os_version, self.name)
+        else:
+            cmd = "lxc init {} {}".format(self.image_alias, self.name)
+
+        if self.test_type == "vm":
+           cmd += ' --vm'
+           
+        cmd += " --network {}".format(self.network_name)
+        logging.debug(" --network {}".format(self.network_name))
+        logging.debug(f"command === {cmd}")
+        if not self.run_command(cmd):
+            return False
+
+        logging.debug("Start VM:")
+        if not self.run_command("lxc start {} ".format(self.name)):
+            return False          
+        logging.debug(cmd)
+
+        logging.debug("Virtual Machine listing:")
+        if not self.run_command("lxc list"):
+            return False
+
+        logging.debug("Wait {} for vm to boot".format(wait_interval))
+        time.sleep(wait_interval)
+
+        logging.debug("Virtual Machine listing:")
+        if not self.run_command("lxc list"):
+            return False
+
+        cmd = "lxc network list"
+        if not self.run_command(cmd):
+            return False
+
+        logging.debug("Check for SRIOV VF on the VM")
+        cmd = "lxc exec {} -- bash -c lsmod | grep vf".format(self.name)
+        if not self.run_command(cmd):
+            logging.debug("SRIOV Vf was not created")
+            return False
+
+        return True
+
+def test_sriov_vm(args):
+    logging.debug("Executing LXD SRIOV VM Test")
+
+    template = None
+    image = None
+    test_type = "vm"
+    test_type = None
+
+    # First in priority are environment variables.
+    if "LXD_TEMPLATE" in os.environ:
+        template = os.environ["LXD_TEMPLATE"]
+    if "KVM_IMAGE" in os.environ:
+        image = os.environ["KVM_IMAGE"]
+
+    # Finally, highest-priority are command line arguments.
+    if args.template:
+        template = args.template
+    if args.image:
+        image = args.image
+
+    sriov_test = LXDTest_sriov(template, image, test_type)
+    sriov_test.cleanup()
+    result = sriov_test.start_sriov()
+    sriov_test.cleanup()
+    if result:
+        print("PASS: SRIOV Virtual Machine was successfully started and checked")
+        sys.exit(0)
+    else:
+        print("FAIL: SRIOV Virtual Machine was not started and checked")
+        sys.exit(1)	
 
 def test_lxd_vm(args):
     logging.debug("Executing LXD VM Test")
@@ -1125,6 +1443,9 @@ def main():
     lxd_test_vm_parser = subparsers.add_parser(
         "lxdvm", help=("Run the LXD VM validation test")
     )
+    sriov_test_vm_parser = subparsers.add_parser(
+        "sriov", help=("Run the LXD VM validation test")
+    )   
     parser.add_argument(
         "--debug",
         dest="log_level",
@@ -1154,7 +1475,13 @@ def main():
     lxd_test_vm_parser.add_argument("--image", type=str, default=None)
     lxd_test_vm_parser.set_defaults(func=test_lxd_vm)
 
+    # Sub test options
+    sriov_test_vm_parser.add_argument("--template", type=str, default=None)
+    sriov_test_vm_parser.add_argument("--image", type=str, default=None)
+    sriov_test_vm_parser.set_defaults(func=test_sriov_vm)
+
     args = parser.parse_args()
+    
 
     try:
         logging.basicConfig(level=args.log_level)

@@ -50,7 +50,7 @@ environment:
     (venv) $ cd ~/checkbox/providers/base
     (venv) $ ./manage.py develop -d $PROVIDERPATH
 
-Build the executables under the providers in the virtual environment environment:
+Build the executables under the providers in the virtual environment:
 
     (venv) $ cd ~/checkbox/providers/resource/
     (venv) $ ./manage.py build
@@ -320,7 +320,7 @@ As a general rule, there should be one reviewer per PR. A review that requests c
 
 On approving a change without any change requests the reviewer will merge the pull request. If they choose not to perform the merge, they must leave a comment explaining the rationale (mostly this exception is to cover situations when significant changes need to be staged across multiple releases).
 
-The reviewer is encouraged to use suggestions to communicate exact intended solutions, and to make it easy to apply them. The reviewer _must_ do this when making trivial style related suggestions. The reviewer might also post code into the PR, or to a branch branched off from the feature branch, to communicate more complex suggestions. 
+The reviewer is encouraged to use suggestions to communicate exact intended solutions, and to make it easy to apply them. The reviewer _must_ do this when making trivial style related suggestions. The reviewer might also post code into the PR, or to a branch branched off from the feature branch, to communicate more complex suggestions.
 
 Whenever a Checkbox maintainer provides a review for a PR, they accept responsibility to follow the PR through to its conclusion.
 
@@ -332,7 +332,7 @@ The following sections describe the criteria upon which Checkbox maintainers wil
 2. The requirements laid out [in the PR template](.github/pull_request_template.md) are met. In particular:
   - the reviewer is convinced the changed code works as advertised.
   - tests introduced cover the new functionality, as well as untouched code it may affect.
-  - testing reported by the author covers the new functionality, as well as untouched code it may affect. 
+  - testing reported by the author covers the new functionality, as well as untouched code it may affect.
   - if needed, reviewer has tested the changed solution locally.
 
 If the PR has no problems to address that requires actions from its contributor, reviewer merges it upon approval (and deletes the feature branch).
@@ -354,7 +354,7 @@ When non-blocking issues are encountered by the reviewer, they mark the PR "appr
 4. introduces a maintenance problem.
 5. the solution is unnecessarily, significantly, too complex for the problem being solved.
 6. the introduced code / patch is very difficult to understand (the reviewer has doubts of understanding it right, or doubts that others would).
-7. the PR should be split into multiple parts (is too big to safely review, i.e. may hide critical issues). This call is not to be done for sake of readability, it is done for safety: 
+7. the PR should be split into multiple parts (is too big to safely review, i.e. may hide critical issues). This call is not to be done for sake of readability, it is done for safety:
   - if reviewer believes it were _more elegant_ to split the PR, they should approve and comment
   - if the reviewer believes to not be doing a good job reviewing it without it being split, they should "request changes" and in their comment request for it to be split.
 

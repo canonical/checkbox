@@ -130,7 +130,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
-    wifi_client_test_netplan.py -i {{ interface }} -s "$WPA3_AX_SSID" -k "$WPA3_AX_PSK" -d
+    wifi_client_test_netplan.py -i {{ interface }} -s "$WPA3_AX_SSID" -k "$WPA3_AX_PSK" -d --wpa3
 user: root
 environ: LD_LIBRARY_PATH WPA3_AX_SSID WPA3_AX_PSK NET_DRIVER_INFO
 category_id: com.canonical.plainbox::wireless

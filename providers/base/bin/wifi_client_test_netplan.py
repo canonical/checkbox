@@ -22,6 +22,7 @@ import textwrap
 import time
 import shutil
 import sys
+import yaml
 
 from gateway_ping_test import ping
 
@@ -103,70 +104,55 @@ def netplan_config_restore():
                 raise SystemExit("Failed to restore {}".format(f))
 
 
-def generate_test_config(interface, ssid, psk, address, dhcp):
+def generate_test_config(interface, ssid, psk, address, dhcp, wpa3):
     """
     Produce valid netplan yaml from arguments provided
 
     Typical open ap with dhcp:
-
-    >>> print(generate_test_config("eth0", "my_ap", None, "", True))
     # This is the network config written by checkbox
     network:
       version: 2
-      wifis:
-        eth0:
-          access-points:
-            my_ap: {}
-          addresses: []
-          dhcp4: True
-          nameservers: {}
-
-    Typical private ap with dhcp:
-
-    >>> print(generate_test_config("eth0", "my_ap", "s3cr3t", "", True))
-    # This is the network config written by checkbox
-    network:
-      version: 2
-      wifis:
-        eth0:
-          access-points:
-            my_ap: {password: s3cr3t}
-          addresses: []
-          dhcp4: True
-          nameservers: {}
-
-    Static IP no dhcp:
-    >>> print(generate_test_config(
-        "eth0", "my_ap", "s3cr3t", "192.168.1.1", False))
-    # This is the network config written by checkbox
-    network:
-      version: 2
-      wifis:
-        eth0:
-          access-points:
-            my_ap: {password: s3cr3t}
-          addresses: [192.168.1.1]
-          dhcp4: False
-          nameservers: {}
+        wifis:
+          eth0:
+            access-points:
+            my_ap:
+              auth:
+                password: s3cr3t
+            dhcp4: true
+            nameservers: {}
     """
-    np_cfg = """\
-    # This is the network config written by checkbox
-    network:
-      version: 2
-      wifis:
-        {0}:
-          access-points:
-            {1}: {{{2}}}
-          addresses: [{3}]
-          dhcp4: {4}
-          nameservers: {{}}"""
+    if not ssid:
+        raise SystemExit("A SSID is required for the test")
+    # Define the access-point with the ssid
+    access_point = {ssid: {}}
+    # If psk is provided, add it to the "auth" section
     if psk:
-        password = "password: " + psk
-    else:
-        password = ""
-    return textwrap.dedent(
-        np_cfg.format(interface, ssid, password, address, dhcp)
+        access_point[ssid] = {"auth": {"password": psk}}
+        # Set the key-management to "sae" when WPA3 is used
+        if wpa3:
+            access_point[ssid]["auth"]["key-management"] = "sae"
+
+    # Define the interface_info
+    interface_info = {
+        "access-points": access_point,
+        "dhcp4": dhcp,
+        "nameservers": {},
+    }
+
+    # If address is provided, add it to the interface_info
+    if address:
+        interface_info["addresses"] = [address]
+
+    network_config = {
+        "network": {"version": 2, "wifis": {interface: interface_info}}
+    }
+
+    # Serialize the dictionary to a YAML string using pyyaml
+    yaml_output = yaml.safe_dump(network_config, default_flow_style=False)
+    output = textwrap.dedent(
+        "# This is the network config written by checkbox\n" + yaml_output
     )
+    return output
 
 
 def write_test_config(config):
@@ -278,7 +264,7 @@ def print_journal_entries(start):
     sp.call(cmd, shell=True)
 
 
-def main():
+def parse_args():
     # Read arguments
     parser = argparse.ArgumentParser(
         description=(
@@ -327,7 +313,18 @@ def main():
         ),
         default="",
     )
-    args = parser.parse_args()
+    parser.add_argument(
+        "--wpa3",
+        action="store_true",
+        help=("Configure WPA3 key management for the network"),
+        default=False,
+    )
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
 
     start_time = datetime.datetime.now()
 

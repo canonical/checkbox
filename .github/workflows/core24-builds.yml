@@ -54,7 +54,7 @@ jobs:
           attempt_limit: 5
           with: |
             path: checkbox-core-snap/series${{ matrix.releases }}
-            snapcraft-channel: 7.x/stable
+            snapcraft-channel: 8.x/stable
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()
@@ -134,7 +134,7 @@ jobs:
           attempt_limit: 5
           with: |
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
-            snapcraft-channel: 7.x/stable
+            snapcraft-channel: 8.x/stable
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()

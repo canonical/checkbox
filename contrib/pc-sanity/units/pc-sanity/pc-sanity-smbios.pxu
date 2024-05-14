@@ -1,0 +1,21 @@
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/dump_libsmbios_tokens
+command:
+ set -x
+ # shellcheck disable=SC2230
+ [ -n "$(which apt-file)" ] || sudo apt-get install -y apt-file && sudo apt-get update
+ sudo apt-get install -y "$(apt-file search smbios-token-ctl | head -n1 |cut -d ':' -f1)"
+ sudo smbios-token-ctl -d 2>&1 | tee "${PLAINBOX_SESSION_SHARE}"/libsmbios_tokens
+_summary: dump libsmbios tokens
+_description:
+ please refer to https://trello.com/c/Vt0jzJin for detail
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/dump_libsmbios_tokens_attachment
+depends: miscellanea/dump_libsmbios_tokens
+estimated_duration: 1.0
+command: [ -e "${PLAINBOX_SESSION_SHARE}"/libsmbios_tokens ] && cat "${PLAINBOX_SESSION_SHARE}"/libsmbios_tokens
+_description:
+ attache log, please refer to https://trello.com/c/Vt0jzJin for detail

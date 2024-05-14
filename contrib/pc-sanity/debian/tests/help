@@ -1,0 +1,4 @@
+#!/bin/sh
+# to simulate the environment when SWE running pc-sanity (e.g. sideload needed providers.)
+checkbox-run-plan -s pc-sanity-smoke-test -b
+checkbox-run-plan --help

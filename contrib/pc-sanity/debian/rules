@@ -1,0 +1,35 @@
+#!/usr/bin/make -f
+
+%:
+	dh $@
+
+UBUNTU_MAJOR_VERSION := $(shell lsb_release -rs| cut -d '.' -f 1)
+
+override_dh_auto_clean:
+	cd $(CURDIR)/c && $(MAKE) clean
+	cd $(CURDIR)/c && $(MAKE) uninstall PREFIX=$(CURDIR)
+	python3 manage.py clean
+
+override_dh_auto_build:
+	python3 manage.py build
+	python3 manage.py i18n
+	cd $(CURDIR)/c && $(MAKE)
+
+override_dh_auto_test:
+	python3 manage.py validate
+	python3 manage.py test
+	bats test/*.bats
+
+override_dh_auto_install:
+	cd $(CURDIR)/c && $(MAKE) install PREFIX=$(CURDIR)
+	python3 manage.py install --prefix=/usr --layout=unix \
+			--root=$(CURDIR)/debian/plainbox-provider-pc-sanity/
+
+override_dh_gencontrol:
+	python3 manage.py packaging;\
+	#Noble replaced libopenscap8 by lopenscap-common and libopenscap25t64
+	if [ "$(UBUNTU_MAJOR_VERSION)" -gt "22" ];then \
+		dh_gencontrol -- -V"plainbox:Depends=openscap-common,libopenscap25t64";\
+	else\
+		dh_gencontrol;\
+	fi

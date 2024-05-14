@@ -1,0 +1,6 @@
+Tests: help, checkbox-cli-list, bootstrap-pc-sanity
+Depends: @, prepare-checkbox-sanity
+
+Tests: cvescan
+Depends: @, prepare-checkbox-sanity
+Restrictions: allow-stderr

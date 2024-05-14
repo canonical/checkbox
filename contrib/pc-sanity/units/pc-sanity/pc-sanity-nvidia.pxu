@@ -1,0 +1,30 @@
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+requires:
+ graphics_card.driver == 'nvidia'
+id: miscellanea/check-nvidia
+command:
+ set -x
+ check-nvidia.sh --out "$PLAINBOX_SESSION_SHARE"
+_summary: check if nvidia dgpu behave as we expected.
+_description:
+ Nvidia introduce runtime D3 (runtime pm) from Nvidia driver version 450. This test case is used to check if everything work as expected.
+
+unit: template
+template-resource: device
+template-filter:
+ device.category == 'VIDEO'
+ device.vendor_id == '4318'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_nvidia_modalias_{__index__}_{product_id}
+requires: package.name == 'ubuntu-drivers-common'
+command:
+  if ! ubuntu-drivers list --gpgpu | grep -q "nvidia-driver-"; then
+    echo "modalias not found in Nvidia driver"
+    exit 1
+  fi
+_summary: Nvidia device modalias check
+_description:
+ Check if Nvidia driver contain the device's modalias

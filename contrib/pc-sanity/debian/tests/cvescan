@@ -1,0 +1,20 @@
+#!/bin/sh
+set -x
+
+# the side-load runis the autopkgtest
+# "Depends: @" will be useless
+
+DEBNAME=$(dpkg-parsechangelog -S Source)
+TMP_DIR=$(mktemp -d -t sideload-XXXX)
+SIDELOAD_DIR=/var/tmp/checkbox-providers
+if [ -d "$SIDELOAD_DIR/$DEBNAME" ]; then
+    echo "Move side-load provider to tmp directory."
+    sudo mv "$SIDELOAD_DIR/$DEBNAME" "$TMP_DIR"
+fi
+sudo apt-get update; sudo apt-get dist-upgrade -y
+checkbox-cli run com.canonical.certification::miscellanea/cvescan 2>&1 | tee /tmp/checkbox-result.log
+if [ -d "$TMP_DIR/$DEBNAME" ]; then
+    echo "Restore side-load provider."
+    sudo mv "$TMP_DIR/$DEBNAME" "$SIDELOAD_DIR"
+fi
+grep "job passed" /tmp/checkbox-result.log || exit 1

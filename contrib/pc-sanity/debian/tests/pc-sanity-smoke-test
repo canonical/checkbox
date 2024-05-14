@@ -1,0 +1,2 @@
+#!/bin/sh
+checkbox-run-plan pc-sanity-smoke-test -b

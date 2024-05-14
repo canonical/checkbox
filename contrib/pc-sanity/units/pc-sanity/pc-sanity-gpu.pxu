@@ -1,0 +1,10 @@
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check-gpu-driver
+user: root
+command:
+ gpu-driver-checker.sh
+_summary: Check drivers on each gpu cards.
+_description:
+ All GPUs should have corresponding driver and those drivers should be
+ LTS/formal version.

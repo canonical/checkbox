@@ -1,0 +1,46 @@
+include:
+  - https://gitlab.com/hustle-ci/pipeline/-/raw/master/salsa-ci.yml
+  - https://gitlab.com/hustle-ci/pipeline/raw/master/pipeline-jobs.yml
+
+variables:
+  SALSA_CI_EXTRA_REPOSITORY: |
+    deb http://ppa.launchpad.net/oem-solutions-engineers/checkbox-snapshot/ubuntu focal main
+  SALSA_CI_EXTRA_REPOSITORY_KEY: |
+    -----BEGIN PGP PUBLIC KEY BLOCK-----
+    Comment: Hostname:
+    Version: Hockeypuck ~unreleased
+    
+    xsFNBF7sM6EBEADZo+2WL4frCcyYoNbMyq0CcGnDeuf2pE/unhMpnvAMziSe0x2Z
+    PiY+nKkgux2qLEAwVjoezYQggroEdmgpdQL+lF+jfGtQJw7ewzoYAKfKoPntANbi
+    LRRPa566YSkdoLOMP0gNzxMQEByLxLXHto3Ltdgmfcy6HVJReFq/VwSmtrsIQgdn
+    iRxwHkg0hcay9iuWZyZmjBWlaqwx8NRqQAWwsqBtvkFYencZMGVSozAvxk4e5bUy
+    BAltSQvzZHzb38kXH4CMwPofzVtLp0vKhu9tZfVll87Ui3wTNeg9HnIdxWkhfpmL
+    PBcvWboIs6nZUVjO8545BsaS6RwXu1N8k6neXkWY4zVDPkN/CN/oRsMbgYo5KRyX
+    Wtz25hR9TXLZU3BhYeYrT5ESHdtnG2TGfk0hLNslt3hYXIRO/GrHfU/1XuQVrTrJ
+    bH8DUldWu2nNSTg9Hh9/TAJAgwq6WzOpgJx0gG+aOIoBMuQ3/Yna38Z7ZbK93Ujj
+    obH8YhrSMuzRNv89E84GQeWuR3WulODBQdlchpc0SUBsnNK1lsWqM4lLsU+O+909
+    WRa6+nzWb6ASUbiqOb1iPvR+r7ycZS0178XKfX6OxrvM32qI1htSLSgrNQjJqlXJ
+    Njw9vgEYm/JlFljz9J/hdnyYhSk+YCTNCbyJlt5BLqJU9j3ZhNqoraNsVwARAQAB
+    zTBMYXVuY2hwYWQgUFBBIGZvciBPRU0gU29sdXRpb25zIEdyb3VwOiBFbmdpbmVl
+    cnPCwXgEEwECACIFAl7sM6ECGwMGCwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJ
+    EHonRP6XeRZbWmwQAIB4AX4/L5U56MmyD5ijE86vRAsxLCPgz0ItRjMBQBnEQ3Zx
+    DxThsTzyzUj+gj8yNaYb8ZaJodSoTRjuqAq5Z4sKZ3d6+bEYRxkCTGmejYNlCxF+
+    6Db2zOaaPflNL5LbTDq3sqPKEp1HafgUOFRnjVMG9IN7h6T1PFD+y9c5AJJf+crp
+    QOmPchrQJvtibHLfIgSNatuFb9xdplUOU9HgbO1hfWvLvu0f7IcFdTeReL9XI1hK
+    VYlMf69GKSoDThnFCxhZblrpKCTDyvqTb4rlyLgKZzaT4OZdRCXzSUdO1bY9Uaw8
+    7e8WfxiL4rW5xgus6e4yH/JXs7GdyJ09IAwhoYtKRvBrSFKRWhiduezpznkS0TXE
+    Z168A4/KtVoa0BeXWObrh/W90KobiKPtsx/dYmg9AmVNotsnoJd4+csdpkOJtrlz
+    QAjnonvQfyG00DoB2+U3bDEFPB5vklsl84eDG4D/PQEodXZYu1va20eJUyjrLTiT
+    qSgPs8E1cdxOveCwCIN4hwPxn878mjOltcy7RAm/M9tjEu16MUOeNniGEnBtvcKO
+    yzrU5z3jUHSAnQehrhpuwnbKA0jP3bTkuNUXZfH9b9KTA68uN2j3k7afbfjz7npr
+    EUIwrgwldreysciP6O6qTmVUGyQ4tC9ouBO7rn1Nuo6hz6o8h5nNJZeHZdPf
+    =luz6
+    -----END PGP PUBLIC KEY BLOCK-----
+  RELEASE: 'focal'
+  SALSA_CI_AUTOPKGTEST_SETUP_CMDS: apt-get install -y wget snapd software-properties-common &&  add-apt-repository -y -u -s ppa:oem-solutions-engineers/checkbox-snapshot && export DEBIAN_FRONTEND=noninteractive
+
+piuparts:
+  allow_failure: true
+
+reprotest:
+  allow_failure: true

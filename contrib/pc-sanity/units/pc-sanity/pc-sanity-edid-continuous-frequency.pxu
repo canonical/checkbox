@@ -1,0 +1,8 @@
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/edid-continuous-frequency
+command:
+ edid_continuous_frequency_check.py
+_summary: check if panel edid follow the EDID spec.
+_description:
+ check if panel edid follow the EDID spec.

@@ -1,0 +1,288 @@
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/intel-rapl
+requires: cpuinfo.type == 'GenuineIntel'
+depends: miscellanea/thermald
+command:
+ if test -d /sys/class/powercap/intel-rapl; then
+     exit 0
+ else
+     echo "Is CONFIG_INTEL_RAPL configured?"
+     echo "List node under /sys/class/powercap"
+     ls /sys/class/powercap
+     echo "The info of powercap driver:"
+     echo "https://www.kernel.org/doc/html/latest/power/powercap/powercap.html"
+     echo "The info of Intel thermal_daemon:"
+     echo "https://github.com/intel/thermal_daemon/blob/master/README.txt"
+     exit 1
+ fi
+_summary: Check if Intel RAPL power capping driver is installed
+_description:
+ Check if Intel RAPL power capping  driver is installed
+
+unit: template
+template-resource: device
+template-filter:
+ device.path == '/devices/pci0000:00/0000:00:04.0' and device.vendor_id == '32902'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/intel-rapl-mmio_{product_id}
+depends: miscellanea/thermald
+command:
+ if test -d /sys/class/powercap/intel-rapl-mmio; then
+     exit 0
+ else
+     echo "Lack of MMIO interface for power capping."
+     echo "It depends on proc_thermal, plesae check if processor thermal device exist"
+     echo "and proc_thermal driver has probed properly."
+     lspci -nnk
+     echo "The info of powercap driver:"
+     echo "https://www.kernel.org/doc/html/latest/power/powercap/powercap.html"
+     echo "The info of Intel thermal_daemon:"
+     echo "https://github.com/intel/thermal_daemon/blob/master/README.txt"
+     exit 1
+ fi
+_summary: Check if Intel RAPL-mmio power capping driver is installed
+_description:
+ Intel RAPL (Running Average Power Limit) relies on proc_thermal
+ driver to provide MMIO interface for power capping
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/intel-p-state
+requires: cpuinfo.type == 'GenuineIntel'
+depends: miscellanea/thermald
+command:
+ if test -d /sys/devices/system/cpu/intel_pstate; then
+     exit 0
+ else
+     echo "Is CONFIG_X86_INTEL_PSTATE configured?"
+     echo "List node under /sys/devices/system/cpu"
+     ls /sys/devices/system/cpu
+     echo "The intel_pstate driver is required by thermald."
+     echo "The info of Intel thermal_daemon:"
+     echo "https://github.com/intel/thermal_daemon/blob/master/README.txt"
+     echo "The info of Intel pstate driver:"
+     echo "https://www.kernel.org/doc/html/latest/admin-guide/pm/intel_pstate.html"
+     exit 1
+ fi
+_summary: Check if Intel P State driver is installed
+_description:
+ Check if Intel P State driver is installed
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/intel-powerclamp
+requires: cpuinfo.type == 'GenuineIntel'
+depends: miscellanea/thermald
+command:
+ if grep -q 'intel_powerclamp' /sys/class/thermal/cooling_device*/type; then
+     exit 0
+ else
+     echo "Is CONFIG_INTEL_POWERCLAMP configured?"
+     echo "List node type under /sys/class/thermal/cooling_device*"
+     grep . /sys/class/thermal/cooling_device*/type
+     echo "The info of Intel powerclamp driver:"
+     echo "https://www.kernel.org/doc/Documentation/thermal/intel_powerclamp.txt"
+     exit 1
+ fi
+_summary: Check if Intel Power clamp driver is installed
+_description:
+ Check if Intel Power clamp driver is installed
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/intel-cpu-thermal
+requires: cpuinfo.type == 'GenuineIntel'
+depends: miscellanea/thermald
+command:
+ if grep -q 'B0D4\|B0DB\|TCPU' /sys/class/thermal/thermal_zone*/type; then
+     exit 0
+ elif grep -q 'coretemp' /sys/class/hwmon/hwmon*/name; then
+     exit 0
+ else
+     echo "No valid sysfs node to create cpu thermal zone"
+     lspci -nnk
+     echo "node in thermal class"
+     paste <(ls -d /sys/class/thermal/thermal_zone*) <(cat /sys/class/thermal/thermal_zone*/type) \
+           <(cat /sys/class/thermal/thermal_zone*/temp) \
+           | column -s $'\t' -t | sed 's/\(.\)..$/.\1°C/'
+     echo "node in hwmon class"
+     cat /sys/class/hwmon/hwmon*/name
+     exit 1
+ fi
+_summary: Check if Intel cpu thermal zone registered
+_description:
+ Thermald checks if /sys/class/thermal/thermal_zone* contains type B0D4, B0DB, and TCPU.
+ They are devices defined in BIOS and enumerated by int340x thermal driver.
+ If those devices aren't defined in BIOS, thermald will capture coretemp under
+ /sys/class/hwmon/hwmon* to create cpu thermal zone named cpu.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/intel-x86-pkg-temp-thermal
+requires: cpuinfo.type == 'GenuineIntel'
+depends: miscellanea/thermald
+command:
+ if grep -q 'x86_pkg_temp' /sys/class/thermal/thermal_zone*/type; then
+     exit 0
+ else
+     echo "The system has no x86_pkg_thermal zone."
+     echo "The info of Intel x86_pkg_thermal zone:"
+     echo "https://www.kernel.org/doc/html/latest/driver-api/thermal/x86_pkg_temperature_thermal.html"
+     exit 1
+ fi
+_summary: Check if X86 package temperature thermal driver is installed
+_description:
+ Check if X86 package temperature thermal driver is installed
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/valid-thermal-zone-trip-points
+requires: cpuinfo.type == 'GenuineIntel'
+depends: miscellanea/thermald
+command:
+ fail=0
+ for zone in /sys/class/thermal/thermal_zone*
+ do
+     pass=0
+     tp_type=$(cat "$zone"/type)
+     if [ "${tp_type:0:7}" = "iwlwifi" ]; then
+         continue
+     elif [ "${tp_type:0:15}" = "INT3400 Thermal" ]; then
+         continue
+     elif [ "${tp_type:0:12}" = "x86_pkg_temp" ]; then
+         continue
+     elif [ "${tp_type:0:8}" = "TCPU_PCI" ]; then
+         continue
+     fi
+     # shellcheck disable=SC2013
+     for tp_temp in $(cat "$zone"/trip_point_*_temp)
+     do
+         # shellcheck disable=SC2086
+         if [ $tp_temp -gt 0 ]; then
+             pass=1
+             break
+         fi
+     done
+     if [ $pass -eq 0 ]; then
+         echo "$tp_type contains no valid trip point"
+         tail "$zone"/trip_point_*_temp
+         echo "Please consult ODM to see if it is expected."
+         fail=1
+     fi
+ done
+ if [ $fail -eq 1 ]; then
+         echo "For more detail, please refer to https://01.org/intel%C2%AE-dynamic-platform-and-thermal-framework-dptf-chromium-os/overview"
+         exit 1
+ fi
+_summary: Check if thermal zone contains valid trip point
+_description:
+ Check if the system contains valid trip points, iwlwifi/INT3400 Thermal/x86_pkg_temp are
+ ignored.
+
+unit: template
+template-resource: device
+template-filter:
+ device.path == '/devices/pci0000:00/0000:00:04.0' and device.vendor_id == '32902'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/proc_thermal_{product_id}
+depends: miscellanea/thermald
+command:
+ if [ ! -d "/sys{path}/driver" ]; then
+     echo "The error indicates there is no processor thermal driver probed."
+     echo "Dynamic Tuning Technology (DTT) - Logically, this device appears as a"
+     echo "PCI device residing on PCI Bus 0. Device 4 contains the configuration"
+     echo "registers for the DPPM device."
+     echo "More detail is in Intel Document ID:640686, Processor EDS."
+     exit 1
+ fi
+_summary: Check if processor thermal driver is loaded.
+_description:
+ Intel PCI device 4 function 0 is DTT, which should be probed by processor thermal driver.
+ The driver helps create CPU thermal zone for doing CPU thermal control on Intel platform.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/thermald
+requires:
+ cpuinfo.type == 'GenuineIntel'
+ cpuinfo.model_number != '6' or cpuinfo.model_version not in ['85', '143']
+command:
+ if [ -e /sys/devices/platform/thinkpad_acpi/dytc_lapmode ]; then
+     echo "Some Lenovo machines have in-firmware thermal management"
+     exit 0
+ fi
+ systemctl is-active --quiet thermald
+ RETVAL=$?
+ if [ $RETVAL -ne 0 ];
+ then
+     echo "FAIL: thermald is not active"
+     echo "==="
+     echo "# journalctl -b -u thermald"
+     journalctl -b -u thermald --no-pager
+     echo "==="
+     echo "Debugging Tips:"
+     echo "Please check the upstream code(https://github.com/intel/thermal_daemon/blob/master/src/thd_engine.cpp) for the target id in id_table[] " && \
+     echo "If the ID not there, then open a upstream bug like https://github.com/intel/thermal_daemon/issues/275 "
+     echo "If CPU will not supported by thermald, add model information from lscpu to test job blacklist"
+     exit $RETVAL
+ fi
+_summary: Check if thermald is active
+_description:
+ Check if thermald is active
+
+unit: template
+template-resource: device
+template-filter:
+ device.path in ['/devices/platform/INT3400:00','/devices/platform/INT3403:00','/devices/platform/INTC1040:00','/devices/platform/INTC1041:00','/devices/platform/INTC1042:00','/devices/platform/INTC1043:00','/devices/platform/INTC1046:00','/devices/platform/INTC1062:00','/devices/platform/INTC10A0:00','/devices/platform/INTC10A1:00']
+template-unit: job
+plugin: shell
+depends: miscellanea/thermald
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/thermal-policy-set_{driver}
+command:
+ policy=$(cat "/sys{path}/uuids/current_uuid")
+ if [ "$policy" = "INVALID" ]; then
+     echo "Check /sys{path}/uuids/current_uuid got INVALID."
+     echo "The implementation detail:"
+     echo "https://github.com/torvalds/linux/commit/c7ff29763989bd09c433f73fae3c1e1c15d9cda4"
+     echo "INVALID means thermal policy is not set."
+     echo "The possible causes:"
+     echo "a. thermald can't support the adaptive table in BIOS"
+     echo "b. BIOS didn't configure any adaptive table"
+     echo "c. The BIOS only supports the default passive table"
+     echo "d. The platform doesn't require the OS to do thermal management"
+     echo "How to handle the issue:"
+     echo "a. Check with ODM if the platform required user space daemon to do policy selection? ref lp:1982073, if not, set it to invalid"
+     echo "   - The platform might doesn't reuqire OS to do thermal management, like control it by EC."
+     echo "b. Is the platform complied with DPTF/DTT? if not, set it to invalid"
+     echo "   - We only have thermald in Ubuntu comply to DPTF so far."
+     echo "c. Ask OEM what default policy should be applied on the platform? refer to [1]"
+     echo "   - The platform expect which adaptive table is used, and what default policy be set?"
+     echo "[1] https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/drivers/thermal/intel/int340x_thermal/int3400_thermal.c#n33"
+     echo "[2] Intel Document ID: 655258 Thermal Management provides more detail."
+     exit 1
+ fi
+_summary: Check if the system has thermal policy applied
+_description:
+ Intel introduce thermal policy for system with designated platform device.
+ The test check if the thermal policy is set by thermald.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check-thermald-unknown-cond
+_summary: Check out-of-bound values in thermal condition tables
+_description:
+    This test checks if any out-of-bound value is found when thermald is parsing
+    the condition tables in the sysfs data_vault, by looking into its journal entries.
+estimated_duration: 0.5
+requires:
+ cpuinfo.type == 'GenuineIntel'
+ cpuinfo.model_number == '6'
+ package.name == 'systemd'
+depends: miscellanea/thermald
+command: check-thermald-unknown-cond.sh

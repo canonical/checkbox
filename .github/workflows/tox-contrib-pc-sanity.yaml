@@ -1,0 +1,40 @@
+name: Test pc-sanity (from contrib area) with tox
+
+on:
+  workflow_dispatch:
+
+jobs:
+  tox_test_contrib_pc_sanity_provider:
+    continue-on-error: true
+    name: Test pc-sanity provider (from contrib area) with tox
+    defaults:
+      run:
+        working-directory: contrib/pc-sanity
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python: ["3.5", "3.6", "3.8", "3.10"]
+        include:
+          - python: "3.5"
+            tox_env_name: "py35"
+          - python: "3.6"
+            tox_env_name: "py36"
+          - python: "3.8"
+            tox_env_name: "py38"
+          - python: "3.10"
+            tox_env_name: "py310"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install tox
+        run: pip install tox
+      - name: Run tox
+        run: tox -e${{ matrix.tox_env_name }}
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: pc-sanity

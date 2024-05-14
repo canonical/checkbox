@@ -14,8 +14,8 @@ from plainbox.provider_manager import setup, N_
 # (optional)
 
 setup(
-    name='plainbox-provider-pc-sanity',
-    namespace='com.canonical.certification',
+    name="plainbox-provider-pc-sanity",
+    namespace="com.canonical.certification",
     version="1.20.0.dev0",
     description=N_("The pc sanity provider"),
     gettext_domain="plainbox-provider-pc-sanity",

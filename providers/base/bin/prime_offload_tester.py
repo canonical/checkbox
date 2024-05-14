@@ -131,7 +131,7 @@ class PrimeOffloader:
         return self._run_command(read_clients_cmd)
 
     def check_offload(
-        self, cmd: list, card_id: str, card_name: str, timeout: str
+        self, cmd: list, card_id: str, card_name: str, timeout: int
     ):
         """
         Use to check provided command is executed on specific GPU.

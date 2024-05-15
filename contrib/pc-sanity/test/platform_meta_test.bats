@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 # execute this test file by `bats test/platform_meta_test`
-BIN_FOLDER="bin"
+BIN_FOLDER="contrib/pc-sanity/bin"
 
 function setup() {
     # shellcheck source=/dev/null

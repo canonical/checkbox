@@ -90,8 +90,9 @@ def check_display_range_limits_descriptor(
                     return True
                 else:
                     print(
-                        "horizontal_address_video_in_pixels != maximum_horizontal_active_pixels "
-                    )  # noqa: E501
+                        "horizontal_address_video_in_pixels != "
+                        "maximum_horizontal_active_pixels"
+                    )
             else:
                 print("Minimum/Maximum Vertical/Horizontal Freq value error")
         else:

@@ -1,7 +1,7 @@
 name: Submit a checkbox job to Testflinger
 on:
     push:
-        branches: []
+        branches: [test-action-fling-test]
     workflow_dispatch:
 
 jobs:
@@ -22,9 +22,9 @@ jobs:
       uses: actions/checkout@v4
 
     - name: Submit job
-      uses: canonical/testflinger/.github/actions/submit@CERTTF-327-submit-action
+      uses: canonical/testflinger/.github/actions/submit@CERTTF-327-github-action-submit
       with:
-        dry-run: false
+        dry-run: true
         poll: false
         job: |
           job_queue : ${{ matrix.queue }}

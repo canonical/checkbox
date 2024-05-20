@@ -40,4 +40,4 @@ jobs:
       with:
         dry-run: true
         poll: false
-        job_path: ${{ steps.create-job.outputs.job }}
+        job-path: ${{ steps.create-job.outputs.job }}

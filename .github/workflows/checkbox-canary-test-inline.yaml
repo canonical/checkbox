@@ -2,7 +2,7 @@ name: Fling a checkbox job with Testflinger
 
 on:
     push:
-        branches: [test-action-fling-test]
+        branches: []
     workflow_dispatch:
 
 jobs:

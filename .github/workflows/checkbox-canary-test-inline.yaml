@@ -6,7 +6,7 @@ on:
 
 jobs:
   checkbox-canary-test:
-    runs-on: [jammy]
+    runs-on: [self-hosted, testflinger]
     strategy:
       fail-fast: false
       matrix:
@@ -24,7 +24,7 @@ jobs:
     - name: Submit job
       uses: canonical/testflinger/.github/actions/submit@CERTTF-327-submit-action
       with:
-        dry-run: true
+        dry-run: false
         poll: false
         job: |
           job_queue : ${{ matrix.queue }}

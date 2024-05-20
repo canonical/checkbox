@@ -1,7 +1,7 @@
 name: Submit a checkbox job to Testflinger
 on:
     push:
-        branches: [test-action-fling-test]
+        branches: []
     workflow_dispatch:
 
 jobs:

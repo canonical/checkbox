@@ -1,12 +1,12 @@
 name: Submit a checkbox job to Testflinger
 on:
     push:
-        branches: []
+        branches: [test-action-fling-test]
     workflow_dispatch:
 
 jobs:
   checkbox-canary-test:
-    runs-on: [self-hosted, testflinger]
+    runs-on: [jammy]
     strategy:
       fail-fast: false
       matrix:
@@ -21,23 +21,8 @@ jobs:
     - name: Checkout checkbox monorepo
       uses: actions/checkout@v4
 
-    - name: Create job
-      id: create-job
-      uses: ./.github/actions/create-checkbox-canary-test-job
-      with:
-        queue: ${{ matrix.queue }}
-        data_source: ${{ matrix.data_source }}
-        checkbox_runtime: ${{ matrix.checkbox_runtime }}
-        checkbox_track: ${{ matrix.checkbox_track }}
-    
-    - name: Verify job
-      shell: bash
-      run:
-        cat ${{ steps.create-job.outputs.job }}
-
     - name: Submit job
       uses: canonical/testflinger/.github/actions/submit@CERTTF-327-submit-action
       with:
-        dry-run: false
+        dry-run: true
         poll: false
-        job-path: ${{ steps.create-job.outputs.job }}

@@ -1,5 +1,4 @@
-name: Fling a checkbox job with Testflinger
-
+name: Submit a checkbox job to Testflinger
 on:
     push:
         branches: [test-action-fling-test]
@@ -7,7 +6,7 @@ on:
 
 jobs:
   checkbox-canary-test:
-    runs-on: [self-hosted, testflinger]
+    runs-on: [jammy]
     strategy:
       fail-fast: false
       matrix:
@@ -37,8 +36,8 @@ jobs:
         cat ${{ steps.create-job.outputs.job }}
 
     - name: Submit job
-      uses: canonical/testflinger/.github/actions/submit@CERTTF-327-github-action-submit
+      uses: canonical/testflinger/.github/actions/submit@CERTTF-327-submit-action
       with:
         dry-run: true
-        poll: true
-        job: ${{ steps.create-job.outputs.job }}
+        poll: false
+        job_path: ${{ steps.create-job.outputs.job }}

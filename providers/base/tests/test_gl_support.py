@@ -28,7 +28,7 @@ class RemoveColorCode(unittest.TestCase):
     unchanged = r"""
 OpenGL vendor string:   Intel
 OpenGL renderer string: Mesa Intel(R) Arc(tm) Graphics (MTL)
-OpenGL version string:  4.6 (Compatibility Profile) Mesa 23.2.1-1ubuntu3.1~22.04.2
+OpenGL version string:4.6 (Compatibility Profile)Mesa 23.2.1-1ubuntu3.1~22.04.2
 
 Not software rendered:    [32;01myes[00m
 Not blacklisted:          [32;01myes[00m
@@ -46,7 +46,7 @@ Unity 3D supported:       [32;01myes[00m
     changed = r"""
 OpenGL vendor string:   Intel
 OpenGL renderer string: Mesa Intel(R) Arc(tm) Graphics (MTL)
-OpenGL version string:  4.6 (Compatibility Profile) Mesa 23.2.1-1ubuntu3.1~22.04.2
+OpenGL version string:4.6 (Compatibility Profile)Mesa 23.2.1-1ubuntu3.1~22.04.2
 
 Not software rendered:    yes
 Not blacklisted:          yes
@@ -67,6 +67,7 @@ Unity 3D supported:       yes
         gs = GLSupport()
         rv = gs.remove_color_code(self.unchanged)
         self.assertEqual(rv, self.changed)
+
 
 class IsSupportOpenGLTests(unittest.TestCase):
     """

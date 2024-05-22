@@ -7,7 +7,14 @@ on:
 jobs:
   ppa_update:
     name: Sync PPA history with monorepo
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     steps:
       - name: Install dependencies
@@ -15,10 +22,10 @@ jobs:
           sudo apt update -qq
           sudo apt install -qq -y python3-launchpadlib
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
         name: Make LP pull the monorepo
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
@@ -30,7 +37,14 @@ jobs:
             tools/release/lp_request_import.py "~checkbox-dev/checkbox/+git/checkbox"
   ppa_build:
     name: Trigger and monitor PPA builds
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     needs: ppa_update
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     strategy:
@@ -52,10 +66,10 @@ jobs:
           sudo apt update -qq
           sudo apt install -qq -y python3-launchpadlib
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
         name: Update the recipe in the checkbox PPA
         env:
           LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
@@ -65,7 +79,7 @@ jobs:
           attempt_limit: 60   # max 1 hour of retries
           command: |
             tools/release/lp_update_recipe.py checkbox --recipe ${{ matrix.recipe }} --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $GITHUB_SHA
-      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
         name: Build and wait result
         timeout-minutes: 780 # 13hours
         env:

@@ -1,6 +1,6 @@
 id: watchdog/detect
 category_id: com.canonical.plainbox::power-management
-_summary: Detect presence of a Hardware Watchdog
+_summary: Detect the presence of a Hardware Watchdog
 flags: simple
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_hardware_watchdog == 'True'
@@ -29,12 +29,13 @@ user: root
 plugin: shell
 category_id: com.canonical.plainbox::power-management
 estimated_duration: 60
+_purpose: Ensure that the watchdog module can successfully initiate a system reset.
 
 id: watchdog/post-trigger-system-reset-auto
 after: watchdog/trigger-system-reset-auto
 category_id: com.canonical.plainbox::power-management
 _summary: Post watchdog reset service check
-_description: Check there are no failed services after the watchdog triggered
+_purpose: Check there are no failed services after the watchdog triggered
 unit: job
 plugin: shell
 command: failed_service_check.sh

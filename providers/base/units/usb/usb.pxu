@@ -13,7 +13,7 @@ command:
      lsusb 2>/dev/null | sort || echo "No USB devices were detected" >&2
  fi
 _summary: Display USB devices attached to SUT
-_description: Detects and shows USB devices attached to this system.
+_purpose: Detects and shows USB devices attached to this system.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::usb
@@ -24,14 +24,14 @@ requires:
  package.name == 'udisks2' or snap.name == 'udisks2'
 estimated_duration: 1.0
 command: removable_storage_test.py -l usb
-_description:
- PURPOSE:
-     This test will check that your system detects USB storage devices.
- STEPS:
-     1. Plug in one or more USB keys or hard drives.
-     2. Click on "Test".
- VERIFICATION:
-     Were the drives detected?
+_purpose:
+ This test will check that your system detects USB storage devices.
+_steps:
+ 1. Plug in one or more USB keys or hard drives.
+ 2. Click on "Test".
+_verification:
+ Were the drives detected?
+_summary: Verifies the detection of USB storage devices by the system.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::usb
@@ -41,14 +41,15 @@ depends: usb/detect
 estimated_duration: 1.0
 command: keyboard_test.py
 _description:
- PURPOSE:
-     This test will check that you can use a USB HID device
- STEPS:
-     1. Enable either a USB mouse or keyboard
-     2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
-     3. For keyboards, commence the test to launch a small tool. Type some text and close the tool.
- VERIFICATION:
-     Did the device work as expected?
+_purpose:
+    This test will check that you can use a USB HID device
+_steps:
+    1. Enable either a USB mouse or keyboard
+    2. For mice, perform actions such as moving the pointer, right and left button clicks and double clicks
+    3. For keyboards, commence the test to launch a small tool. Type some text and close the tool.
+_verification:
+    Did the device work as expected?
+_summary: Verify USB HID devices functionality by performing specified actions.
 
 id: usb/insert
 flags: also-after-suspend fail-on-resource
@@ -91,9 +92,9 @@ _purpose:
  NOTE: Make sure the USB storage device has a partition before starting
  the test.
 _steps:
- 1. Press continue
- 2. Wait until the message "INSERT NOW" is printed on the screen
- 3. Connect USB 3.0 storage device
+ 1. Press continue.
+ 2. Wait until the message "INSERT NOW" is displayed on the screen.
+ 3. Connect USB 3.0 storage device.
 _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
@@ -166,15 +167,16 @@ user: root
 estimated_duration: 45.0
 command: removable_storage_test.py -s 268400000 usb
 _description:
- PURPOSE:
-     This test will check your USB connection.
- STEPS:
-     1. Plug a USB HDD or thumbdrive into the computer.
-     2. An icon should appear on the Launcher.
-     3. Click "Test" to begin the test.
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+    This test will check your USB connection.
+_steps:
+    1. Plug a USB HDD or thumbdrive into the computer.
+    2. An icon should appear on the Launcher.
+    3. Click "Test" to begin the test.
+_verification:
+    The verification of this test is automated. Do not change the
+    automatically selected result.
+_summary: Check USB connection and automatic verification process with plugged USB HDD or thumbdrive.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::usb
@@ -186,15 +188,16 @@ user: root
 estimated_duration: 45.0
 command: removable_storage_test.py -s 268400000 -m 500000000 usb
 _description:
- PURPOSE:
-     This test will check your USB 3.0 connection.
- STEPS:
-     1. Plug a USB 3.0 HDD or thumbdrive into a USB 3.0 port in the computer.
-     2. An icon should appear on the Launcher.
-     3. Click "Test" to begin the test.
- VERIFICATION:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+_purpose:
+ This test will check your USB 3.0 connection.
+_steps:
+ 1. Plug a USB 3.0 HDD or thumbdrive into a USB 3.0 port in the computer.
+ 2. An icon should appear on the Launcher.
+ 3. Click "Test" to begin the test.
+_verification:
+ The verification of this test is automated. Do not change the
+ automatically selected result.
+_summary: Check the USB 3.0 connection and data transfer capability.
 
 id: usb/storage-automated
 flags: also-after-suspend
@@ -277,7 +280,7 @@ estimated_duration: 45.0
 command: removable_storage_test.py -l usb && timeout 300 removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
 _summary: 
  Test USB 3.0 or 3.1 ports
-_description:
+_purpose:
  Tests USB 3.0 ports on a system by doing write/read/compare tests on
  randomly created data. It requires that a USB stick is plugged into an
  available USB port before running the certification suite. Additionally, it
@@ -289,17 +292,17 @@ _siblings:
 plugin: manual
 category_id: com.canonical.plainbox::usb
 id: usb/panels
-_description:
- PURPOSE:
-     This test will check your USB connection.
- STEPS:
-     1. Connect a USB storage device to an external USB slot on this computer.
-     2. An icon should appear on the Launcher.
-     3. Confirm that the icon appears.
-     4. Eject the device.
-     5. Repeat with each external USB slot.
- VERIFICATION:
-     Do all USB slots work with the device?
+_purpose:
+    This test will check your USB connection.
+_steps:
+    1. Connect a USB storage device to an external USB slot on this computer.
+    2. An icon should appear on the Launcher.
+    3. Confirm that the icon appears.
+    4. Eject the device.
+    5. Repeat with each external USB slot.
+_verification:
+    Do all USB slots work with the device?
+_summary: Test USB connectivity by connecting a USB storage device to all external USB slots.
 
 plugin: shell
 category_id: com.canonical.plainbox::usb
@@ -308,9 +311,10 @@ depends: usb/insert
 user: root
 estimated_duration: 45.00
 command: removable_storage_test.py -s 268400000 -p 15 usb
-_description:
+_purpose:
  This test will check that your USB 2.0 port transfers data at a
  minimum expected speed.
+_summary: Verify USB 2.0 port data transfer speeds meet minimum expectations.
 
 id: usb/storage-detect
 category_id: com.canonical.plainbox::usb
@@ -338,9 +342,9 @@ flags: also-after-suspend reset-locale
 command: USB_RWTEST_PARTITIONS={symlink_uuid} checkbox-support-usb_read_write
 _summary:
  Test USB storage on 2.0 or 1.1 ports detected by udev ({symlink_uuid})
-_description:
+_purpose:
  Tests USB 2.0 or 1.1 ports on a system by doing write/read/compare tests on
- randomly created data.  It requires that a USB stick is plugged into an
+ randomly created data. It requires that a USB stick is plugged into an
  available USB port before running the certification suite.
 depends: usb/storage-detect
 
@@ -350,9 +354,9 @@ _purpose:
  Check USB input device works
 _steps:
  1. Connect USB keyboard
- 2. Input somethings with USB keyboard
+ 2. Input something with USB keyboard
 _verification:
- What just input is displayed correctly
+ What was just input is displayed correctly
 plugin: manual
 flags: also-after-suspend
 category_id: com.canonical.plainbox::usb

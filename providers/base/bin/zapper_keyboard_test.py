@@ -10,6 +10,7 @@ import struct
 import sys
 import threading
 from enum import Enum
+from pathlib import Path
 
 from checkbox_support.scripts.zapper_proxy import zapper_run  # noqa: E402
 
@@ -114,23 +115,39 @@ def assert_type_string(host, events):
     ]
 
 
+def get_zapper_kbd_device():
+    """
+    Get Zapper keyboard device by ID.
+
+    Being a composite device, interface number might change depending on
+    Zapper HID configuration.
+    """
+    zapper_kbd = "usb-Canonical_Zapper_main_board_123456*-event-kbd"
+
+    for file_path in Path("/dev/input/by-id/").glob(zapper_kbd):
+        return str(file_path)
+    raise FileNotFoundError("Cannot find Zapper Keyboard.")
+
+
 def main(argv):
     """
     Request Zapper to type on keyboard and assert the received events
     are like expected.
     """
-    ZAPPER_KBD = (
-        "/dev/input/by-id/usb-Canonical_Zapper_main_board_123456-event-kbd"
-    )
 
     if len(argv) != 2:
         raise SystemExit("Usage: {} <zapper-ip>".format(argv[0]))
 
-    if not os.access(ZAPPER_KBD, os.R_OK):
+    try:
+        zapper_kbd = get_zapper_kbd_device()
+    except FileNotFoundError as exc:
+        raise SystemExit("Cannot find Zapper Keyboard.") from exc
+
+    if not os.access(zapper_kbd, os.R_OK):
         raise SystemExit("Cannot read from Zapper Keyboard.")
 
     events = []
-    listener = KeyboardListener(ZAPPER_KBD, events.append)
+    listener = KeyboardListener(zapper_kbd, events.append)
     listener.start()
 
     try:

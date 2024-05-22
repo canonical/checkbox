@@ -1,4 +1,3 @@
-
 unit: template
 template-engine: jinja2
 template-resource: interface
@@ -10,4 +9,3 @@ plugin: shell
 command:
   plug_connected_test.py {{ snap }} {{ name }}
 estimated_duration: 1.0
-

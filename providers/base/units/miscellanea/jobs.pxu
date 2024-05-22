@@ -40,16 +40,17 @@ plugin: manual
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/tester-info
 _description:
- PURPOSE:
-     Keep tester related information in the report
- STEPS:
-     1. Tester Information
-     2. Please enter the following information in the comments field:
-        a. Name
-        b. Email Address
-        c. Reason for this test run
- VERIFICATION:
-     Nothing to verify for this test
+_purpose:
+    Keep tester related information in the report
+_steps:
+    1. Tester Information
+    2. Please enter the following information in the comments field:
+       a. Name
+       b. Email Address
+       c. Reason for this test run
+_verification:
+    Nothing to verify for this test
+_summary: Collect and record tester information for the report.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::miscellanea
@@ -60,12 +61,13 @@ requires:
 user: root
 command: cycle_vts.sh
 _description:
- PURPOSE:
-     This test will check that the system can switch to a virtual terminal and back to X
- STEPS:
-     1. Click "Test" to switch to another virtual terminal and then back to X
- VERIFICATION:
-     Did your screen change temporarily to a text console and then switch back to your current session?
+_purpose:
+ This test will check that the system can switch to a virtual terminal and back to X
+_steps:
+ 1. Click "Test" to switch to another virtual terminal and then back to X
+_verification:
+ Did your screen change temporarily to a text console and then switch back to your current session?
+_summary: Verify the system's ability to switch between a virtual terminal and the X session.
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
@@ -73,11 +75,12 @@ id: miscellanea/fwts_test
 estimated_duration: 1.2
 requires: executable.name == 'fwts'
 user: root
-_description:
+_purpose:
  Run Firmware Test Suite (fwts) automated tests.
 environ: PLAINBOX_SESSION_SHARE
 command:
  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_results.log
+_summary: Run automated Firmware Test Suite (fwts) tests.
 
 plugin: attachment
 category_id: com.canonical.plainbox::miscellanea
@@ -85,7 +88,8 @@ id: miscellanea/fwts_results.log
 requires: executable.name == 'fwts'
 command:
  [[ -e "${PLAINBOX_SESSION_SHARE}"/fwts_results.log ]] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_results.log
-_description: Attaches the miscellanes/fwts_test results log to the submission.
+_purpose: Attaches the miscellaneous/fwts_test results log to the submission.
+_summary: Attach FWTS test results log for submission.
 
 plugin: attachment
 category_id: com.canonical.plainbox::miscellanea
@@ -107,7 +111,7 @@ user: root
 command: ipmi_test.py
 _summary:
  Test IPMI in-band communications
-_description:
+_purpose:
  This will run some basic commands in-band against a BMC, verifying that IPMI
  works. Use of MAAS to deploy the system implicitly tests out-of-band BMC
  control.
@@ -119,7 +123,7 @@ id: miscellanea/efi_boot_mode
 requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 _summary: Test that system booted in EFI mode
-_description:
+_purpose:
  Test to verify that the system booted in EFI mode with Secure Boot active.
 command: boot_mode_test.py efi
 
@@ -131,7 +135,7 @@ requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 depends: miscellanea/efi_boot_mode
 _summary: Test that system booted with Secure Boot active
-_description:
+_purpose:
  Test to verify that the system booted in Secure Boot active.
 command: boot_mode_test.py secureboot
 
@@ -143,7 +147,7 @@ requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 depends: miscellanea/efi_boot_mode
 _summary: Test that system supports booting into firmware setup utility
-_description:
+_purpose:
  Test that the system supports rebooting into the firmware setup utility.
 command: boot_mode_test.py reboot_firmware
 
@@ -158,7 +162,7 @@ requires:
 id: miscellanea/secure_boot_mode_{gadget}
 template-id: miscellanea/secure_boot_mode_gadget
 _summary: Test that {gadget} Ubuntu Core system booted with Secure Boot active
-_description:
+_purpose:
  Test to verify that the system booted with Secure Boot active.
 user:root
 command:
@@ -173,7 +177,7 @@ requires:
  cpuinfo.platform in ("i386", "x86_64", "aarch64")
 depends: miscellanea/efi_boot_mode
 _summary: Test that system booted from the network
-_description:
+_purpose:
  Test to verify that the system booted from the network.
  Works only on EFI-based systems.
 command: efi-pxeboot.py
@@ -182,8 +186,8 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/check_prerelease
-_summary: Test that system is not a pre-release version
-_description:
+_summary: Test that the system is not a pre-release version
+_purpose:
  Test to verify that the system uses production, rather
  than pre-release, versions of the kernel and the OS.
 command: check_prerelease.py
@@ -195,7 +199,7 @@ category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.5
 id: miscellanea/kernel_taint_test
 _summary: Test that kernel is not tainted
-_description:
+_purpose:
  Test to verify that the kernel is not tainted by out-of-tree
  drivers, live patches, proprietary modules, etc.
 command: kernel_taint_test.py
@@ -209,9 +213,9 @@ requires:
 estimated_duration: 0.5
 user: root
 command: bmc_info.py
-_description:
- This will gather some info about the BMC itself for diagnostic purposes. This
- will not works on non-IPMI systems like AMT and blade/sled type systems.
+_purpose:
+ This will gather some information about the BMC itself for diagnostic purposes. This
+ will not work on non-IPMI systems like AMT and blade/sled type systems.
 _summary:
  Gather BMC identification info
 
@@ -224,7 +228,7 @@ requires:
 estimated_duration: 0.5
 user: root
 command: dmitest.py cpu-check
-_description:
+_purpose:
  Sanity check of CPU information; fails if CPU is an engineering sample
 _summary:
  Test DMI data for CPUs
@@ -238,7 +242,7 @@ requires:
 estimated_duration: 0.5
 user: root
 command: dmitest.py server
-_description:
+_purpose:
  Sanity check of DMI system identification data (for servers)
 _summary:
  Test DMI identification data (servers)
@@ -253,7 +257,7 @@ estimated_duration: 0.5
 user: root
 command: dmitest.py --test_versions --test_serials desktop
 _description:
- Sanity check of DMI system identification data (for desktops & laptops)
+ Sanity check of DMI (Desktop Management Interface) system identification data (for desktops & laptops)
 _summary:
  DMI ID sanity check (desktops/laptops)
 
@@ -261,23 +265,25 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/is_laptop
 user: root
-_description:
+_purpose:
     Determine if we need to run tests specific to portable computers that may not apply to desktops.
 command: check_is_laptop.sh
+_summary: Determine if the system is a laptop to run specific tests.
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/apport-directory
 requires: package.name == 'apport'
 command: if [ -d /var/crash ]; then if [ "$(find /var/crash -type f | grep -c -v .lock)" -eq 0 ]; then echo "/var/crash is empty"; else ls /var/crash; false; fi; else echo "/var/crash does not exist"; fi
-_description:
- Test that the /var/crash directory doesn't contain anything. Lists the files contained within if it does, or echoes the status of the directory (doesn't exist/is empty)
+_purpose: Test that the /var/crash directory doesn't contain anything. Lists the files contained within if it does, or echoes the status of the directory (doesn't exist/is empty).
+_summary: Check the /var/crash directory's status and contents.
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/sources-list
 command: sources_test.sh "$SOURCES_LIST" "$REPOSITORIES"
-_description: Checks that a specified sources list file contains the requested repositories
+_purpose: Checks that a specified sources list file contains the requested repositories
+_summary: Verify that the sources list file includes the specified repositories.
 
 unit: template
 template-resource: device
@@ -312,22 +318,22 @@ _purpose:
 _steps:
  1. Prior to running this test, you should have configured and used IPMI to power this machine off and on using every Network Port available.
 _verification:
- 1. Select Yes if you successfully used IPMI to remotely power this system off and on using the NIC {interface}
- 2. Select No if you did not attempt to use IPMI to remotely power this sytem off and on via the NIC {interface}
+ 1. Select Yes if you successfully used IPMI to remotely power this system off and on using the NIC {interface}.
+ 2. Select No if you did not attempt to use IPMI to remotely power this system off and on via the NIC {interface}.
  3. Select No if you attempted to use IPMI to remotely power off/on this system via {interface} and it failed for some reason.
 
 plugin: manual
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/remote_dedicated_ipmi
-_description:
- PURPOSE:
-  Some systems do not share IPMI over all NICs but instead have a dedicated management port directly connected to the BMC.  This test verifies that you have used that port for remote IPMI connections and actions.
- STEPS:
-  1. Prior to running the test, you should have configured and used the Dedicated Management Port to remotely power off/on this sytem.
- VERIFICATION:
-  Skip this test if this system ONLY uses shared management/ethernet ports OR if this system does not have a Management Controller.
-  1. Select Yes if you successfully used IPMI to remotely power this system off and on using the dedicated management port.
-  2. Select No if you attempted to use the dedicated management port to remotely power this system off/on and it failed for some reason.
+_purpose:
+ Some systems do not share IPMI over all NICs but instead have a dedicated management port directly connected to the BMC. This test verifies that you have used that port for remote IPMI connections and actions.
+_steps:
+ 1. Prior to running the test, you should have configured and used the Dedicated Management Port to remotely power off/on this system.
+_verification:
+ Skip this test if this system ONLY uses shared management/ethernet ports OR if this system does not have a Management Controller.
+ 1. Select Yes if you successfully used IPMI to remotely power this system off and on using the dedicated management port.
+ 2. Select No if you attempted to use the dedicated management port to remotely power this system off/on and it failed for some reason.
+_summary: Verify remote IPMI connection functionality via the dedicated management port.
 
 plugin:shell
 id: miscellanea/oops
@@ -336,9 +342,9 @@ estimated_duration: 10.0
 requires: executable.name == 'fwts'
 user: root
 _description:
- Run Firmware Test Suite (fwts) oops tests.
+ Run Firmware Test Suite (FWTS) oops tests.
 _summary:
- Run FWTS OOPs check
+ Run FWTS OOPS check
 environ: PLAINBOX_SESSION_SHARE
 command:
  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_oops_results.log -t oops
@@ -349,7 +355,8 @@ estimated_duration: 0.5
 id: miscellanea/oops_results.log
 command:
  [ -e "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results.log ] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results.log
-_description: Attaches the FWTS oops results log to the submission
+_purpose: Attaches the FWTS oops results log to the submission
+_summary: Attach the FWTS oops results for submission.
 
 plugin:shell
 id: miscellanea/olog
@@ -373,7 +380,8 @@ estimated_duration: 0.5
 id: miscellanea/olog_results.log
 command:
  [ -e "${PLAINBOX_SESSION_SHARE}"/fwts_olog_results.log ] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_olog_results.log
-_description: Attaches the FWTS olog results log to the submission
+_purpose: Attaches the FWTS olog results log to the submission
+_summary: Attach the FWTS olog results log to the submission.
 
 plugin:shell
 id: miscellanea/klog
@@ -381,7 +389,7 @@ category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 10.0
 requires: executable.name == 'fwts'
 user: root
-_description:
+_purpose:
  Run Firmware Test Suite (fwts) klog tests.
 _summary:
  Run FWTS Kernel Log check
@@ -395,14 +403,15 @@ estimated_duration: 0.5
 id: miscellanea/klog_results.log
 command:
  [ -e "${PLAINBOX_SESSION_SHARE}"/fwts_klog_results.log ] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_klog_results.log
-_description: Attaches the FWTS klog results log to the submission
+_purpose: Attaches the FWTS klog results log to the submission
+_summary: Attach FWTS kernel log results for submission.
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.1
 id: miscellanea/get_maas_version
 command: install-method-check.sh --maas
-_description: If system was installed via MAAS from a cert server, the MAAS version used should be contained in /etc/installed-by-maas
+_description: If the system was installed via MAAS from a cert server, the MAAS version used should be contained in /etc/installed-by-maas
 _summary: Verify MAAS version used to deploy the SUT
 
 plugin: shell
@@ -410,8 +419,8 @@ category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 0.1
 id: miscellanea/test_iso_install
 command: install-method-check.sh --iso
-_description: Test that the system was installed via a Subiquity ISO image
-_summary: Test that the system was installed via a Subiquity ISO image
+_purpose: Test that the system was installed via a Subiquity ISO image
+_summary: Verify that the system installation was conducted through a Subiquity ISO image.
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
@@ -421,7 +430,7 @@ user: root
 command: get_make_and_model.py
 requires:
   dmi_present.state == 'supported'
-_description: Retrieve the computer's make and model for easier access than digging through the dmidecode output.
+_purpose: Retrieve the computer's make and model for easier access than digging through the dmidecode output.
 _summary: Gather info on the SUT's make and model
 
 plugin: user-interact-verify
@@ -446,7 +455,7 @@ user: root
 requires: executable.name == 'sosreport'
 command: sos report --batch -n lxd --tmp-dir "$PLAINBOX_SESSION_SHARE"
 _summary: Generate baseline sosreport
-_description: Generates a baseline sosreport of logs and system data
+_purpose: Generates a baseline sosreport of logs and system data
 
 plugin: attachment
 category_id: com.canonical.plainbox::miscellanea
@@ -467,7 +476,7 @@ user: root
 requires: cpuinfo.platform in ("i386", "x86_64")
 command: cpuid.py
 _summary: Attempt to identify CPU family (x86/amd64 only)
-_description: Attempts to identify the CPU family of an x86/amd64 processor
+_purpose: Attempts to identify the CPU family of an x86/amd64 processor
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
@@ -485,7 +494,7 @@ user: root
 requires: executable.name == 'debsums'
 command: debsums -c
 _summary: Check the MD5 sums of installed Debian packages
-_description: Verify installed Debian package files against MD5 checksum lists from /var/lib/dpkg/info/*.md5sums.
+_purpose: Verify installed Debian package files against MD5 checksum lists from /var/lib/dpkg/info/*.md5sums.
 
 plugin: shell
 category_id: com.canonical.plainbox::miscellanea
@@ -514,16 +523,15 @@ user: root
 command:
  CHAN=0
  while [ $CHAN -le 15 ]; do
-  if ipmitool user list $CHAN 2>/dev/null |grep -E "maas.*ADMINISTRATOR"; then
+  if ipmitool user list $CHAN 2>/dev/null | grep -E "maas.*ADMINISTRATOR"; then
    break
   fi
   (( CHAN+=1 ))
  done
-_description:
- This will verify that the maas user was successfully created with admin
- privileges
+_purpose:
+ This will verify that the maas user was successfully created with admin privileges
 _summary:
- Verify BMC user called 'maas' was successfully created
+ Verify BMC user called 'maas' was successfully created with administrative privileges
 
 id: miscellanea/ubuntu_drivers_list_oem_check
 category_id: com.canonical.plainbox::miscellanea
@@ -554,4 +562,3 @@ requires:
   cpuinfo.platform in ("x86_64", "aarch64", "armhf")
   bootloader.name == "grub"
 command: grub_file_check.sh
-

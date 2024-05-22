@@ -4,25 +4,24 @@
 # Written by:
 #   Jonathan Cave <jonathan.cave@canonical.com>
 
-
 unit: category
 id: stress-tests
 _name: Stress Tests
-
+_summary: Group of tests aimed at determining the robustness of the system under stress.
 
 unit: category
 id: stress-tests/cold-boot
 _name: Cold-boot Stress Test
-
+_summary: Conduct a stress test focused on cold-boot scenarios.
 
 unit: category
 id: stress-tests/warm-boot
 _name: Warm-boot Stress Test
-
+_summary: Conduct a Warm-boot Stress Test.
 
 id: reboot-run-generator
 category_id: stress-tests
-_description:
+_purpose:
   Generate a set of IDs corresponding to number of iterations required in the
   reboots tests.
 plugin: resource
@@ -31,19 +30,19 @@ command:
   ITERATIONS=${STRESS_BOOT_ITERATIONS:-2}
   for i in $(seq 2 "$ITERATIONS"); do
     echo "reboot_id: $i"
-    echo "reboot_id_previous: $((i-1))"
+    echo "reboot_id_previous: $((i - 1))"
     echo
   done
 estimated_duration: 1s
 flags: preserve-locale
-
+_summary: Generates IDs for each iteration of reboot tests based on the specified number of iterations.
 
 id: init-boot-loop-data
 category_id: stress-tests
 _summary: Generate the baseline data set to test against
-_description: This creates baseline data sets which be considered the master
+_purpose: This creates baseline data sets which will be considered the master
  copies and all further tests will be compared against these. Baseline data
- including network status, SSID and USB device.
+ includes network status, SSID, and USB device.
 unit: job
 plugin: shell
 command:
@@ -65,12 +64,13 @@ user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0
 depends: init-boot-loop-data
+_purpose: Enter sleep mode after a configurable delay.
 
 id: cold-boot-loop-reboot{reboot_id}
 template-id: cold-boot-loop-rebootreboot_id
 category_id: stress-tests/cold-boot
 _summary: Perform cold reboot {reboot_id}
-_description: Enter sleep mode after a configurable delay.
+_purpose: Enter sleep mode after a configurable delay.
 unit: template
 template-resource: reboot-run-generator
 template-unit: job
@@ -89,6 +89,7 @@ id: cold-boot-loop-test1
 category_id: stress-tests/cold-boot
 _summary: Cold boot system configuration test 1
 _description: Compare the data after waking up the system with the base data set
+_purpose: Compare the data after waking up the system with the base data set
 unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
@@ -103,7 +104,7 @@ id: cold-boot-loop-test{reboot_id}
 template-id: cold-boot-loop-testreboot_id
 category_id: stress-tests/cold-boot
 _summary: Cold boot system configuration test {reboot_id}
-_description: Compare the data after waking up the system with the base data set
+_purpose: Compare the data after waking up the system with the base data set
 unit: template
 template-resource: reboot-run-generator
 template-unit: job
@@ -116,13 +117,10 @@ flags: preserve-locale
 estimated_duration: 1.0
 depends: cold-boot-loop-reboot{reboot_id}
 
-
 id: warm-boot-loop-reboot1
 category_id: stress-tests/warm-boot
 _summary: Perform warm reboot 1
-_description: Perform warm reboot
-  of the system boot. Specifically this is how the device will be request a
-  reboot.
+_description: Perform warm reboot of the system boot. Specifically, this is how the device will request a reboot.
 unit: job
 plugin: shell
 command:
@@ -131,12 +129,13 @@ user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 60s
 depends: init-boot-loop-data
+_purpose: Perform warm reboot of the system boot. Specifically, this is how the device will request a reboot.
 
 id: warm-boot-loop-reboot{reboot_id}
 template-id: warm-boot-loop-rebootreboot_id
 category_id: stress-tests/warm-boot
 _summary: Perform warm reboot {reboot_id}
-_description: Perform warm reboot after a configurable delay.
+_purpose: Perform warm reboot after a configurable delay.
 unit: template
 template-resource: reboot-run-generator
 template-unit: job
@@ -153,8 +152,8 @@ depends: init-boot-loop-data
 
 id: warm-boot-loop-test1
 category_id: stress-tests/warm-boot
-_summary:  Warm boot system configuration test 1
-_description: Compare data after warm boot with baseline data set
+_summary: Warm boot system configuration test 1
+_purpose: Compare data after warm boot with baseline data set
 unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
@@ -168,8 +167,8 @@ depends: warm-boot-loop-reboot1
 id: warm-boot-loop-test{reboot_id}
 template-id: warm-boot-loop-testreboot_id
 category_id: stress-tests/warm-boot
-_summary:  Warm boot system configuration test {reboot_id}
-_description: Compare data after warm boot with baseline data set
+_summary: Compare system data after warm boot with baseline data
+_purpose: Compare data after warm boot with baseline data set
 unit: template
 template-resource: reboot-run-generator
 template-unit: job

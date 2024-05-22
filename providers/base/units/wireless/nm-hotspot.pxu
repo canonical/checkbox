@@ -1,4 +1,3 @@
-
 unit: template
 template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
@@ -7,6 +6,7 @@ template-unit: job
 id: wireless/nmcli_wifi_ap_bg_{{ interface }}
 template-id: wireless/nmcli_wifi_ap_bg_interface
 _summary: Create 802.11b/g Wi-Fi AP on {{ interface }} using NetworkManager
+_purpose: Create an 802.11b/g Wi-Fi access point on a specified interface using NetworkManager command-line tools.
 command:
   net_driver_info.py "$NET_DRIVER_INFO"
   wifi_nmcli_test.py ap {{ interface }} bg

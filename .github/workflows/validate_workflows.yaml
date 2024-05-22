@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Install action-validator with asdf
         uses: asdf-vm/actions/install@v3
         with:

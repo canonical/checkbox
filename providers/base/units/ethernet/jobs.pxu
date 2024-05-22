@@ -6,7 +6,7 @@ command: network_device_info.py detect NETWORK
 estimated_duration: 2.0
 _summary:
  Detect if at least one ethernet device is detected
-_description:
+_purpose:
  Test to detect and return information about available network controllers on
  the system under test.
 imports: from com.canonical.plainbox import manifest
@@ -21,10 +21,9 @@ requires:
 command: network_device_info.py detect NETWORK
 estimated_duration: 2.0
 _summary:
- Gather info on current state of network devices
-_description:
- Gathers some info on the current state of your network devices. If no devices
- are found, the test will exit with an error.
+ Gather info on the current state of network devices
+_purpose:
+ Gathers some info on the current state of your network devices. If no devices are found, the test will exit with an error.
 
 plugin: shell
 category_id: com.canonical.plainbox::ethernet
@@ -45,14 +44,15 @@ id: ethernet/wired_connection
 command: network_check.py
 estimated_duration: 1.2
 _description:
- PURPOSE:
-     This test will check your wired connection
- STEPS:
-     1. Click on the Network icon in the top panel
-     2. Select a network below the "Wired network" section
-     3. Click "Test" to verify that it's possible to establish a HTTP connection
- VERIFICATION:
-     Did a notification show and was the connection correctly established?
+_purpose:
+    This test will check your wired connection
+_steps:
+    1. Click on the Network icon in the top panel
+    2. Select a network below the "Wired network" section
+    3. Click "Test" to verify that it's possible to establish an HTTP connection
+_verification:
+    Did a notification show and was the connection correctly established?
+_summary: Check the functionality of the wired connection by establishing an HTTP connection.
 
 unit: template
 template-resource: device
@@ -70,9 +70,9 @@ requires:
 user: root
 environ: TEST_TARGET_IPERF
 command: network.py test -i {interface} -t iperf --scan-timeout 3600 --fail-threshold 80 --runtime 900 --num_runs 4
-_description:
+_purpose:
  This test uses iperf to ensure network devices pass data at an acceptable
- minimum percentage of advertized speed.
+ minimum percentage of advertised speed.
 
 unit: template
 template-resource: device
@@ -90,9 +90,8 @@ requires:
 user: root
 environ: TEST_TARGET_IPERF
 command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4
-_description:
- This test uses iperf3 to ensure network devices pass data at an acceptable
- minimum percentage of advertized speed.
+_purpose: This test uses iperf3 to ensure network devices pass data at an acceptable
+ minimum percentage of advertised speed.
 
 unit: template
 template-resource: device
@@ -110,9 +109,9 @@ requires:
 user: root
 environ: TEST_TARGET_IPERF
 command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 1200
-_description:
+_purpose:
  This is a shorter SRU version of the standard iperf3 based network test for
- servers.  It is intended to ONLY be used for SRU and is not valid for offical
+ servers. It is intended to ONLY be used for SRU and is not valid for official
  certification.
 
 unit: template
@@ -131,7 +130,7 @@ requires:
 user: root
 environ: TEST_TARGET_IPERF
 command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 900 --num_runs 4 --underspeed-ok
-_description:
+_purpose:
  This is the standard Multi-NIC Iperf3 test with the speed check disabled
  for retesting systems that are incorrectly reporting supported speeds.
 
@@ -148,7 +147,7 @@ requires:
  executable.name == 'ethtool'
 user: root
 command: ethtool {interface}
-_description:
+_purpose:
  This test executes ethtool requests against ethernet device {__index__} ({interface}).
 
 unit: template
@@ -164,7 +163,7 @@ requires:
  executable.name == 'ethtool'
 user: root
 command: ethtool --show-eee {interface} | grep "EEE status: enabled - active"
-_description:
+_purpose:
  Test that Energy Efficient Ethernet (EEE) is enabled on interface {interface} using ethtool.
 
 unit: template
@@ -203,8 +202,7 @@ estimated_duration: 330.0
 requires:
  package.name == 'ethtool'
 command: network.py test -i {interface} -t stress
-_description:
- Automated test that tests performance of ethernet device {__index__} ({interface}).
+_purpose: Automated test that tests the performance of ethernet device {__index__} ({interface}).
 
 unit: template
 template-resource: device
@@ -212,7 +210,7 @@ template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 id: ethernet/ping_{interface}
 template-id: ethernet/ping_interface
 _summary: Can ping another machine over Ethernet port {interface}
-_description: Check Ethernet works by pinging another machine
+_purpose: Check Ethernet works by pinging another machine
 plugin: shell
 command:
   gateway_ping_test.py --interface {interface}
@@ -223,8 +221,7 @@ user: root
 
 id: ethernet/ping-with-any-cable-interface
 _summary: Can ping the gateway with any cable Ethernet interface
-_description: Check any of the cable Ethernet ports available on the system
- can ping its default gateway.
+_purpose: Check any of the cable Ethernet ports available on the system can ping its default gateway.
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 4.0
 flags: also-after-suspend
@@ -242,14 +239,14 @@ id: ethernet/wol_S5_{interface}
 template-id: ethernet/wol_S5_interface
 _summary: Wake on LAN (WOL) test from S5 - {interface}
 _purpose:
- Check that another system can wake up from S5 the SUT using ethernet port {interface} WOL function.
+ Check that another system can wake the System Under Test (SUT) from S5 using the Ethernet port {interface} WOL function.
 _steps:
- 1. Ensure there is an ethernet cable attached to port {interface}.
+ 1. Ensure there is an ethernet cable connected to port {interface}.
  2. Press Enter for S5 (Soft Off).
- 3. From another computer on the same network run the following command:
+ 3. From another computer on the same network, run the following command:
     $ wakeonlan {mac}
-    If wakeonlan tool is not installed run:
-    $ sudo apt install wakeonlan
+    If the wakeonlan tool is not installed, run:
+    $ sudo apt-get install wakeonlan
  4. Resume Checkbox
 _verification:
   Did the SUT wake up from S5?
@@ -267,13 +264,13 @@ id: ethernet/wol_S4_{interface}
 template-id: ethernet/wol_S4_interface
 _summary: Wake on LAN (WOL) test from S4 - {interface}
 _purpose:
- Check that another system can wake up from S4 the SUT using ethernet port {interface} WOL function.
+ Check that another system can wake up from S4 the System Under Test (SUT) using ethernet port {interface} Wake-on-LAN (WOL) function.
 _steps:
  1. Ensure there is an ethernet cable attached to port {interface}.
  2. Press Enter to hibernate the system.
- 3. From another computer on the same network run the following command:
+ 3. From another computer on the same network, run the following command:
     $ wakeonlan {mac}
-    If wakeonlan tool is not installed run:
+    If the wakeonlan tool is not installed, run:
     $ sudo apt install wakeonlan
 _verification:
   Did the SUT wake up from S4?
@@ -293,16 +290,16 @@ id: ethernet/wol_S3_{interface}
 template-id: ethernet/wol_S3_interface
 _summary: Wake on LAN (WOL) test from S3 - {interface}
 _purpose:
- Check that another system can wake up from S3 the SUT using ethernet port {interface} WOL function.
+ Check that another system can wake the System Under Test (SUT) up from S3 using the Ethernet port {interface}'s WOL function.
 _steps:
- 1. Ensure there is an ethernet cable attached to port {interface}.
+ 1. Ensure there is an Ethernet cable attached to port {interface}.
  2. Press Enter to suspend the system.
- 3. From another computer on the same network run the following command:
+ 3. From another computer on the same network, run the following command:
     $ wakeonlan {mac}
-    If wakeonlan tool is not installed run:
+    If the wakeonlan tool is not installed, run:
     $ sudo apt install wakeonlan
 _verification:
-  Did the SUT wake up from S3?
+ Did the SUT wake up from S3?
 plugin: user-interact-verify
 requires:
   sleep.mem == 'supported'
@@ -347,9 +344,9 @@ environ:
  TEST_TARGET_IPERF
  LD_LIBRARY_PATH
 command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 80 --cpu-load-fail-threshold 90 --runtime 90 --num_runs 4
-_description:
+_purpose: 
  This test uses iperf3 to ensure network devices pass data at an acceptable
- minimum percentage of advertized speed.
+ minimum percentage of advertised speed.
 
 unit: template
 template-resource: device
@@ -366,9 +363,9 @@ environ:
  TEST_TARGET_IPERF
  LD_LIBRARY_PATH
 command: network.py test -i {interface} -t iperf --iperf3 --scan-timeout 3600 --fail-threshold 50 --cpu-load-fail-threshold 90 --runtime 90 --num_runs 4 --reverse
-_description:
+_purpose:
  This test uses iperf3 to ensure network devices pass data at an acceptable
- minimum percentage of advertized speed (Reverse).
+ minimum percentage of advertised speed (Reverse).
 
 unit: template
 template-resource: device
@@ -378,12 +375,12 @@ template-unit: job
 id: ethernet/check-{{ interface }}-static-configuration
 template-id: ethernet/check-interface-static-configuration
 _summary: Check that {{ interface }} has a static configuration
-_description:
+_purpose:
  This job is intended to be used on particular devices where an interface has
  been identified for configuration with a static IP address. As such, this is
  not suitable for inclusion in the ethernet nested test plans, but should be
  specifically included where required. To check the address assigned to the
- interface set the expected value in STATIC_IP_{{ interface.upper() }}.
+ interface, set the expected value in STATIC_IP_{{ interface.upper() }}.
 category_id: com.canonical.plainbox::ethernet
 plugin: shell
 estimated_duration: 2s
@@ -405,12 +402,13 @@ template-unit: job
 id: ethernet/check-{{ interface }}-static-configuration-np
 template-id: ethernet/check-interface-static-configuration-np
 _summary: Check that {{ interface }} has a static configuration
-_description:
+_purpose:
  This job is intended to be used on particular devices where an interface has
  been identified for configuration with a static IP address. As such, this is
  not suitable for inclusion in the ethernet nested test plans, but should be
- specifically included where required. To check the address assigned to the
- interface set the expected value in STATIC_IP_{{ interface.upper() }}.
+ specifically included where required.
+_steps:
+ To check the address assigned to the interface, set the expected value in STATIC_IP_{{ interface.upper() }}.
 category_id: com.canonical.plainbox::ethernet
 plugin: shell
 estimated_duration: 2s
@@ -428,6 +426,5 @@ requires:
 user: root
 command: network_reconnect_resume_test.py -t 10 -d wired
 _summary: Network reconnect resume test (wired)
-_description:
- Checks the length of time it takes to reconnect an existing wired connection
- after a suspend/resume cycle.
+_purpose:
+ Checks the length of time it takes to reconnect an existing wired connection after a suspend/resume cycle.

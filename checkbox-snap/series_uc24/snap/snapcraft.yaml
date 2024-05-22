@@ -86,11 +86,11 @@ parts:
     plugin: dump
     source: .
     override-pull: |
-      snapcraftctl pull
+      craftctl default
       # version.txt created by prepare.sh
-      export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
+      export version=`cat $CRAFT_PART_SRC/version.txt`
       [ $version ] || exit 1
-      snapcraftctl set-version $version
+      craftctl set version=$version
     stage:
       - version.txt
   launchers:

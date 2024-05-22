@@ -1,0 +1,182 @@
+id: client-cert-iot-desktop-24-04
+_name: IoT Client Certification for 24.04 classic images
+unit: test plan
+_description:
+  This is classic 24.04
+include:
+nested_part:
+  client-cert-iot-desktop-24-04-manual
+  client-cert-iot-desktop-24-04-automated
+
+
+id: client-cert-iot-desktop-24-04-manual
+_name: IoT Client Certification for 24.04 classic desktop images (Manual Tests)
+unit: test plan
+_description:
+  This is classic 24.04
+include:
+  disk/encryption/check-fde-tpm
+  disk/encryption/detect
+  miscellanea/secure_boot_mode_.*
+mandatory_include:
+  com.canonical.plainbox::manifest
+  executable
+  interface
+  connections
+  model_assertion
+  serial_assertion
+  net_if_management_attachment
+  lspci_attachment
+  lsusb_attachment
+  rtc
+  sleep
+  parts_meta_info_attachment
+bootstrap_include:
+  bootloader
+  cpuinfo
+  device
+  interface
+  net_if_management
+nested_part:
+  audio-manual
+  bluetooth-cert-manual
+  camera-manual
+  cpu-manual
+  disk-manual
+  ethernet-manual
+  led-indicator-manual
+  led-manual
+  monitor-integrated-gpu-cert-manual
+  graphics-integrated-gpu-cert-manual
+  graphics-discrete-gpu-cert-manual
+  monitor-discrete-gpu-cert-manual
+  mediacard-manual
+  memory-manual
+  networking-manual
+  rtc-manual
+  self-manual
+  serial-manual
+  snappy-snap-manual
+  socketcan-manual-remote
+  socketcan-manual-local
+  submission-cert-full
+  thunderbolt-cert-manual
+  touchscreen-cert-manual
+  usb-manual
+  usb-c-manual
+  usb3-manual
+  watchdog-manual
+  wireless-manual
+  wireless-wifi-master-mode-manual
+  wwan-manual
+  after-suspend-audio-manual
+  after-suspend-bluetooth-cert-manual
+  after-suspend-ethernet-manual
+  after-suspend-led-indicator-manual
+  after-suspend-graphics-discrete-gpu-cert-manual
+  after-suspend-monitor-discrete-gpu-cert-manual
+  after-suspend-graphics-integrated-gpu-cert-manual
+  after-suspend-monitor-integrated-gpu-cert-manual
+  after-suspend-networking-manual
+  after-suspend-serial-manual
+  after-suspend-socketcan-manual-remote
+  after-suspend-socketcan-manual-local
+  after-suspend-thunderbolt-cert-manual
+  after-suspend-touchscreen-cert-manual
+  after-suspend-usb-manual
+  after-suspend-usb-c-manual
+  after-suspend-usb3-manual
+  after-suspend-wireless-manual
+  after-suspend-wireless-wifi-master-mode-manual
+  after-suspend-wwan-manual
+exclude:
+  snappy/os-.*
+
+
+id: client-cert-iot-desktop-24-04-automated
+_name: IoT Client Certification for 24.04 classic desktop images (Automated Tests)
+unit: test plan
+_description:
+  This is classic 24.04
+include:
+mandatory_include:
+  com.canonical.plainbox::manifest
+  executable
+  interface
+  connections
+  model_assertion
+  serial_assertion
+  net_if_management_attachment
+  lspci_attachment
+  lsusb_attachment
+  rtc
+  sleep
+  parts_meta_info_attachment
+bootstrap_include:
+  bootloader
+  cpuinfo
+  device
+  interface
+  net_if_management
+nested_part:
+  acpi-automated
+  audio-automated
+  bluetooth-cert-automated
+  bluez-automated
+  camera-automated
+  cpu-automated
+  disk-automated
+  docker-automated
+  eeprom-automated
+  ethernet-automated
+  graphics-discrete-gpu-cert-automated
+  graphics-integrated-gpu-cert-automated
+  gpio-automated
+  iot-fwts-automated
+  i2c-automated
+  mediacard-automated
+  memory-automated
+  misc-client-cert-automated
+  monitor-discrete-gpu-cert-automated
+  monitor-integrated-gpu-cert-automated
+  networking-automated
+  power-automated
+  rtc-automated
+  self-automated
+  serial-automated
+  snappy-snap-automated
+  socketcan-auto-local
+  socketcan-auto-remote
+  submission-cert-automated
+  thunderbolt-cert-automated
+  tpm-cert-automated
+  usb-automated
+  watchdog-automated
+  wireless-automated
+  wireless-wifi-master-mode-auto
+  wwan-automated
+  zapper-enabled-automated
+  after-suspend-audio-automated
+  after-suspend-bluez-automated
+  after-suspend-eeprom-automated
+  after-suspend-ethernet-automated
+  after-suspend-graphics-discrete-gpu-cert-automated
+  after-suspend-graphics-integrated-gpu-cert-automated
+  after-suspend-gpio-automated
+  after-suspend-monitor-discrete-gpu-cert-automated # not defined
+  after-suspend-monitor-integrated-gpu-cert-automated # not defined
+  after-suspend-rtc-automated
+  after-suspend-serial-automated
+  after-suspend-usb-automated
+  after-suspend-wireless-automated
+  after-suspend-wwan-automated
+
+
+id: client-cert-iot-desktop-24-04-stress
+_name: IoT Client Certification for 24.04 classic desktop images (Stress Tests)
+unit: test plan
+_description:
+  This is classic 24.04
+include:
+nested_part:
+  stress-full

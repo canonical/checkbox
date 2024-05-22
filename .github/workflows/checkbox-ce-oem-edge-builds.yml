@@ -11,7 +11,14 @@ jobs:
       matrix:
         type: [classic, uc]
         releases: [20, 22]
-    runs-on: [self-hosted, linux, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:
       SERIES: series_${{ matrix.type }}${{ matrix.releases }}
@@ -22,7 +29,7 @@ jobs:
       SNAPCRAFT_BUILDER_ID: checkbox-${{ matrix.type }}${{ matrix.releases }}-${{ github.run_id }}
     name: Frontend ${{ matrix.type }}${{ matrix.releases }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Add LP credentials
@@ -34,7 +41,7 @@ jobs:
       - name: Print Launchpad build repository
         run: |
           echo "Building at: https://git.launchpad.net/~ce-certification-qa/+snap/$SNAPCRAFT_BUILDER_ID"
-      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+      - uses: Wandalen/wretry.action@v3.4.0_js_action
         name: Building the snaps
         timeout-minutes: 600 # 10hours
         with:
@@ -45,21 +52,21 @@ jobs:
             path: contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
             snapcraft-args: remote-build --build-for amd64,arm64,armhf --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()
         with:
-          name: snapcraft-log-series-${{ matrix.type }}${{ matrix.releases }}
+          name: ce-oem-build-log-${{ matrix.type }}${{ matrix.releases }}
           path: |
             /home/runner/.cache/snapcraft/log/
             /home/runner/.local/state/snapcraft/log/
             contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.releases }}/checkbox*.txt
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         name: Upload the snaps as artefacts
         with:
-          name: series_${{ matrix.type }}${{ matrix.releases }}
+          name: ce_oem_snap${{ matrix.type }}${{ matrix.releases }}
           path: contrib/checkbox-ce-oem/checkbox-ce-oem-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
-      - uses: Wandalen/wretry.action@a163f62ae554a8f3cbe27b23db15b60c0ae2e93c # v1.3.0
+      - uses: Wandalen/wretry.action@v3.4.0_js_action
         name: Upload the snaps to the store
         timeout-minutes: 600 # 10hours
         with:

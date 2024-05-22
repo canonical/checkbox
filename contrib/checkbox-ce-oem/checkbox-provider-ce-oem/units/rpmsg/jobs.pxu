@@ -32,3 +32,35 @@ user: root
 plugin: shell
 command:
     rpmsg_tests.py --type serial-tty
+
+unit: job
+category_id: rpmsg
+id: ce-oem-rpmsg/rp-firmware-mapping
+plugin: resource
+_summary: List Remote Processor firmwares and RPMSG node mapping
+_description:
+    List firmware and RPMSG node mapping for reload Remote Processor firmware test
+    RPMSG_RP_FIRMWARE_MAPPING="remoteproc0:test-1.elf remoteproc0:test-2.elf"
+    RPMSG_RP_FIRMWARE_PATH="/home/user1"
+estimated_duration: 2s
+flags: preserve-locale
+environ: RPMSG_RP_FIRMWARE_MAPPING RPMSG_RP_FIRMWARE_PATH
+command:
+    rpmsg_load_firmware.py resource-reload --path "$RPMSG_RP_FIRMWARE_PATH" --mapping "$RPMSG_RP_FIRMWARE_MAPPING"
+
+unit: template
+template-resource: ce-oem-rpmsg/rp-firmware-mapping
+template-id: ce-oem-rpmsg/reload-rp-firmware-test
+template-unit: job
+_template-summary: Reload Remote Processor firmware via RPMSG
+_summary: Reload Remote Processor firmware to {firmware} via RPMSG {device}
+id: ce-oem-rpmsg/reload-rp-firmware-test-{firmware}-{device}
+category_id: rpmsg
+estimated_duration: 60
+requires: manifest.has_rpmsg == 'True'
+imports: from com.canonical.plainbox import manifest
+flags: also-after-suspend
+user: root
+plugin: shell
+command:
+    rpmsg_load_firmware.py test-reload --device {device} --file {firmware} --path {path}

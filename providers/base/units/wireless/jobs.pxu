@@ -1,4 +1,3 @@
-
 id: wireless/detect
 category_id: com.canonical.plainbox::wireless
 plugin: shell
@@ -25,7 +24,7 @@ command:
 plugin: shell
 category_id: com.canonical.plainbox::wireless
 estimated_duration: 6
-_description:
+_purpose:
  Check system can find a wireless network AP nearby
 flags: preserve-locale also-after-suspend
 requires:
@@ -65,9 +64,9 @@ template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_bg_nm_{{ interface }}
 template-id: wireless/wireless_connection_open_bg_nm_interface
-_summary: Connect to unencrypted 802.11b/g Wi-Fi network on {{ interface }}
+_summary: Connect to an unencrypted 802.11b/g Wi-Fi network on {{ interface }}
 _purpose:
-  Check system can connect to insecure 802.11b/g AP
+  Check the system can connect to an insecure 802.11b/g AP
 plugin: shell
 user: root
 command:
@@ -89,9 +88,9 @@ template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_wpa_n_nm_{{ interface }}
 template-id: wireless/wireless_connection_wpa_n_nm_interface
-_summary: Connect to WPA-encrypted 802.11n Wi-Fi network on {{ interface }}
+_summary: Connect to a WPA-encrypted 802.11n Wi-Fi network on {{ interface }}
 _purpose:
-  Check system can connect to 802.11n AP with wpa security
+  Check if the system can connect to an 802.11n AP with WPA security.
 plugin: shell
 user: root
 command:
@@ -113,9 +112,9 @@ template-engine: jinja2
 template-unit: job
 id: wireless/wireless_connection_open_n_nm_{{ interface }}
 template-id: wireless/wireless_connection_open_n_nm_interface
-_summary: Connect to unencrypted 802.11n Wi-Fi network on {{ interface }}
+_summary: Connect to an unencrypted 802.11n Wi-Fi network on {{ interface }}
 _purpose:
-  Check system can connect to insecure 802.11n AP
+  Check if the system can connect to an unsecured 802.11n access point.
 plugin: shell
 user: root
 command:
@@ -283,17 +282,18 @@ command:
     fi
 estimated_duration: 120.0
 _description:
- PURPOSE:
-     Tests that the systems wireless hardware can connect to a router using WPA
+_purpose:
+     Tests that the system's wireless hardware can connect to a router using WPA
      security and the 802.11b/g protocols.
- STEPS:
+_steps:
      1. Open your router's configuration tool
      2. Change the settings to only accept connections on the B and G wireless bands
      3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
      4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
      5. Commence the test to create a connection to the router and test the connection
- VERIFICATION:
+_verification:
      Verification is automated, do not change the automatically selected result.
+_summary: Test the system's capability to connect to a router using WPA security and the 802.11b/g protocols with automated verification.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::wireless
@@ -323,17 +323,17 @@ command:
     fi
 estimated_duration: 120.0
 _description:
- PURPOSE:
-     Tests that the systems wireless hardware can connect to a router using
-     no security and the 802.11b/g protocols.
- STEPS:
-     1. Open your router's configuration tool
-     2. Change the settings to only accept connections on the B and G wireless bands
-     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
-     4. Change the security settings to use no security
-     5. Commence the test to create a connection to the router and test the connection
- VERIFICATION:
-     Verification is automated, do not change the automatically selected result.
+_purpose:
+ Tests that the system's wireless hardware can connect to a router using no security and the 802.11b/g protocols.
+_steps:
+ 1. Open your router's configuration tool
+ 2. Change the settings to only accept connections on the B and G wireless bands
+ 3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+ 4. Change the security settings to use no security
+ 5. Commence the test to create a connection to the router and test the connection
+_verification:
+ Verification is automated, do not change the automatically selected result.
+_summary: Ensure system's wireless hardware can connect to a router using 802.11b/g protocols with no security.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::wireless
@@ -364,17 +364,19 @@ command:
     fi
 estimated_duration: 120.0
 _description:
- PURPOSE:
-     Tests that the systems wireless hardware can connect to a router using WPA
-     security and the 802.11n protocols.
- STEPS:
-     1. Open your router's configuration tool
-     2. Change the settings to only accept connections on the N wireless band
-     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
-     4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
-     5. Commence the test to create a connection to the router and test the connection
- VERIFICATION:
-     Verification is automated, do not change the automatically selected result.
+_purpose:
+    Tests that the system's wireless hardware can connect to a router using WPA
+    security and the 802.11n protocols.
+_steps:
+    1. Open your router's configuration tool
+    2. Change the settings to only accept connections on the N wireless band
+    3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+    4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
+    5. Commence the test to create a connection to the router and test the connection
+_verification:
+    Verification is automated, do not change the automatically selected result.
+_summary:
+    Test the system's ability to connect to a router using WPA security and the 802.11n protocols.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::wireless
@@ -405,17 +407,18 @@ command:
     fi
 estimated_duration: 120.0
 _description:
- PURPOSE:
-     Tests that the systems wireless hardware can connect to a router using
+_purpose:
+     Tests that the system's wireless hardware can connect to a router using
      no security and the 802.11n protocol.
- STEPS:
+_steps:
      1. Open your router's configuration tool
      2. Change the settings to only accept connections on the N wireless band
      3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
      4. Change the security settings to use no security
      5. Commence the test to create a connection to the router and test the connection
- VERIFICATION:
+_verification:
      Verification is automated, do not change the automatically selected result.
+_summary: Test wireless hardware connection to a router using 802.11n and no security.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::wireless
@@ -446,17 +449,19 @@ command:
     fi
 estimated_duration: 120.0
 _description:
- PURPOSE:
-     Tests that the systems wireless hardware can connect to a router using WPA
-     security and the 802.11ac protocol.
- STEPS:
-     1. Open your router's configuration tool
-     2. Change the settings to only accept connections with the 802.11ac protocol.
-     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
-     4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
-     5. Commence the test to create a connection to the router and test the connection
- VERIFICATION:
-     Verification is automated, do not change the automatically selected result.
+_purpose:
+    Tests that the system's wireless hardware can connect to a router using WPA
+    security and the 802.11ac protocol.
+_steps:
+    1. Open your router's configuration tool
+    2. Change the settings to only accept connections with the 802.11ac protocol.
+    3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+    4. Change the security settings to use WPA2 and ensure the PSK matches what is set in the ROUTER_PSK environment variable
+    5. Commence the test to create a connection to the router and test the connection
+_verification:
+    Verification is automated, do not change the automatically selected result.
+_summary:
+    Test wireless connection using WPA security and 802.11ac protocol.
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::wireless
@@ -487,17 +492,18 @@ command:
     fi
 estimated_duration: 120.0
 _description:
- PURPOSE:
-     Tests that the systems wireless hardware can connect to a router using
-     no security and the 802.11ac protocol.
- STEPS:
-     1. Open your router's configuration tool
-     2. Change the settings to only accept connections with the 802.11ac protocol.
-     3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
-     4. Change the security settings to use no security
-     5. Commence the test to create a connection to the router and test the connection
- VERIFICATION:
-     Verification is automated, do not change the automatically selected result.
+_purpose:
+ Tests that the system's wireless hardware can connect to a router using
+ no security and the 802.11ac protocol.
+_steps:
+ 1. Open your router's configuration tool
+ 2. Change the settings to only accept connections with the 802.11ac protocol.
+ 3. Make sure the SSID is set to the contents of the ROUTER_SSID environment variable
+ 4. Change the security settings to use no security
+ 5. Commence the test to create a connection to the router and test the connection
+_verification:
+ Verification is automated, do not change the automatically selected result.
+_summary: Test wireless connection using 802.11ac protocol with no security.
 
 plugin: shell
 category_id: com.canonical.plainbox::wireless
@@ -526,8 +532,8 @@ command:
         exit 1
     fi
 estimated_duration: 330.0
-_description:
- Tests the performance of a system's wireless connection through the iperf tool.
+_purpose: Tests the performance of a system's wireless connection through the iperf tool.
+_summary: Test the wireless connection performance using iperf.
 
 plugin: shell
 category_id: com.canonical.plainbox::wireless
@@ -556,9 +562,8 @@ command:
         exit 1
     fi
 estimated_duration: 330.0
-_description:
- Tests the performance of a system's wireless connection through the iperf tool, using UDP packets.
-
+_purpose: Tests the performance of a system's wireless connection through the iperf tool, using UDP packets.
+_summary: Evaluate wireless connection performance using iperf with UDP packets.
 
 unit: template
 template-resource: device
@@ -601,3 +606,4 @@ category_id: com.canonical.plainbox::wireless
 estimated_duration: 30.0
 flags: preserve-locale also-after-suspend
 requires: package.name == 'systemd'
+_purpose: Ensure no crashes have occurred in the iwlwifi microcode.

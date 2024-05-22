@@ -7,10 +7,17 @@ on:
 jobs:
   release:
     name: Publish the release
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     steps:
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Install dependencies
@@ -31,14 +38,21 @@ jobs:
 
   checkbox_deb_packages:
     name: Checkbox Debian packages
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     steps:
       - name: Install dependencies
         run: |
           sudo apt update -qq
           sudo apt install -qq -y python3-launchpadlib
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Copy deb packages from testing to stable ppa
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,7 +63,14 @@ jobs:
 
   checkbox_core_snap:
     name: Checkbox core snap packages
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
     steps:
@@ -69,7 +90,14 @@ jobs:
 
   checkbox_snap:
     name: Checkbox snap packages
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     env:
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
     steps:

@@ -6,12 +6,12 @@ id: wireless/wireless_connection_open_ax_{interface}
 template-id: wireless/wireless_connection_open_ax_interface
 _summary: Connect to unencrypted 802.11ax Wi-Fi network on {interface}
 _purpose:
- Check system can connect to insecure 802.11ax AP
+ Check the system can connect to an insecure 802.11ax AP.
 _steps:
  1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
- 2. Commence the test
+ 2. Commence the test.
 _verification:
- If there's "Connection test passed" message in result, mark the test as passed.
+ If there's a "Connection test passed" message in the result, mark the test as passed.
 plugin: user-interact
 command: wifi_client_test.py -i {interface} -s "$OPEN_AX_SSID"
 environ: OPEN_AX_SSID
@@ -26,14 +26,14 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wireless_connection_open_ac_{interface}
 template-id: wireless/wireless_connection_open_ac_interface
-_summary: Connect to unencrypted 802.11ac Wi-Fi network on {interface}
+_summary: Connect to an unencrypted 802.11ac Wi-Fi network on {interface}
 _purpose:
- Check system can connect to insecure 802.11ac AP
+ Check if the system can connect to an insecure 802.11ac AP.
 _steps:
- 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
- 2. Commence the test
+ 1. Remove all wireless configurations in /etc/network/interfaces and /etc/network/interfaces.d.
+ 2. Commence the test.
 _verification:
- If there's "Connection test passed" message in result, mark the test as passed.
+ If there's a "Connection test passed" message in the result, mark the test as passed.
 plugin: user-interact
 command: wifi_client_test.py -i {interface} -s "$OPEN_AC_SSID"
 environ: OPEN_AC_SSID
@@ -50,12 +50,12 @@ id: wireless/wireless_connection_open_bg_{interface}
 template-id: wireless/wireless_connection_open_bg_interface
 _summary: Connect to unencrypted 802.11b/g Wi-Fi network on {interface}
 _purpose:
- Check system can connect to insecure 802.11b/g AP
+ Check if the system can connect to an insecure 802.11b/g AP
 _steps:
- 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
- 2. Commence the test
+ 1. Remove all wireless configurations in /etc/network/interfaces and /etc/network/interfaces.d
+ 2. Begin the test
 _verification:
- If there's "Connection test passed" message in result, mark the test as passed.
+ If there's a "Connection test passed" message in the result, mark the test as passed.
 plugin: user-interact
 command: wifi_client_test.py -i {interface} -s "$OPEN_BG_SSID"
 environ: OPEN_BG_SSID
@@ -70,14 +70,14 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wireless_connection_open_n_{interface}
 template-id: wireless/wireless_connection_open_n_interface
-_summary: Connect to unencrypted 802.11n Wi-Fi network on {interface}
+_summary: Connect to an unencrypted 802.11n Wi-Fi network on {interface}
 _purpose:
- Check system can connect to insecure 802.11n AP
+ Check if the system can connect to an insecure 802.11n AP
 _steps:
  1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
  2. Commence the test
 _verification:
- If there's "Connection test passed" message in result, mark the test as passed.
+ If there's a "Connection test passed" message in the result, mark the test as passed.
 plugin: user-interact
 command: wifi_client_test.py -i {interface} -s "$OPEN_N_SSID"
 environ: OPEN_N_SSID
@@ -92,14 +92,14 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wireless_connection_wpa_ax_{interface}
 template-id: wireless/wireless_connection_wpa_ax_interface
-_summary: Connect to WPA-encrypted 802.11ax Wi-Fi network on {interface}
+_summary: Connect to a WPA-encrypted 802.11ax Wi-Fi network on {interface}
 _purpose:
- Check system can connect to 802.11ax AP with wpa security
+ Check if the system can connect to an 802.11ax AP with WPA security.
 _steps:
- 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
- 2. Commence the test
+ 1. Remove all wireless configurations in /etc/network/interfaces and /etc/network/interfaces.d.
+ 2. Commence the test.
 _verification:
- If there's "Connection test passed" message in result, mark the test as passed.
+ If there's a "Connection test passed" message in the result, mark the test as passed.
 plugin: user-interact
 command: wifi_client_test.py -i {interface} -s "$WPA_AX_SSID" -k "$WPA_AX_PSK"
 environ: WPA_AX_SSID WPA_AX_PSK
@@ -138,12 +138,12 @@ id: wireless/wireless_connection_wpa_ac_{interface}
 template-id: wireless/wireless_connection_wpa_ac_interface
 _summary: Connect to WPA-encrypted 802.11ac Wi-Fi network on {interface}
 _purpose:
- Check system can connect to 802.11ac AP with wpa security
+ Check if the system can connect to an 802.11ac AP with WPA security.
 _steps:
- 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
- 2. Commence the test
+ 1. Remove all wireless configurations in /etc/network/interfaces and /etc/network/interfaces.d.
+ 2. Commence the test.
 _verification:
- If there's "Connection test passed" message in result, mark the test as passed.
+ If there's a "Connection test passed" message in the result, mark the test as passed.
 plugin: user-interact
 command: wifi_client_test.py -i {interface} -s "$WPA_AC_SSID" -k "$WPA_AC_PSK"
 environ: WPA_AC_SSID WPA_AC_PSK
@@ -158,14 +158,14 @@ template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-unit: job
 id: wireless/wireless_connection_wpa_bg_{interface}
 template-id: wireless/wireless_connection_wpa_bg_interface
-_summary: Connect to WPA-encrypted 802.11b/g Wi-Fi network {interface}
+_summary: Connect to a WPA-encrypted 802.11b/g Wi-Fi network {interface}
 _purpose:
- Check system can connect to 802.11b/g AP with wpa security
+ Check the system can connect to an 802.11b/g AP with WPA security
 _steps:
- 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 1. Remove all wireless configurations in /etc/network/interfaces and /etc/network/interfaces.d
  2. Commence the test
 _verification:
- If there's "Connection test passed" message in result, mark the test as passed.
+ If there's a "Connection test passed" message in the result, mark the test as passed.
 plugin: user-interact
 command: wifi_client_test.py -i {interface} -s "$WPA_BG_SSID" -k "$WPA_BG_PSK"
 environ: WPA_BG_SSID WPA_BG_PSK
@@ -182,12 +182,12 @@ id: wireless/wireless_connection_wpa_n_{interface}
 template-id: wireless/wireless_connection_wpa_n_interface
 _summary: Connect to WPA-encrypted 802.11n Wi-Fi network on {interface}
 _purpose:
- Check system can connect to 802.11n AP with wpa security
+ Check if the system can connect to an 802.11n AP with WPA security
 _steps:
- 1. Remove all wireless configuration in /etc/network/interfaces and /etc/network/interfaces.d
+ 1. Remove all wireless configurations in /etc/network/interfaces and /etc/network/interfaces.d
  2. Commence the test
 _verification:
- If there's "Connection test passed" message in result, mark the test as passed.
+ If there's a "Connection test passed" message in the result, mark the test as passed.
 plugin: user-interact
 command: wifi_client_test.py -i {interface} -s "$WPA_N_SSID" -k "$WPA_N_PSK"
 environ: WPA_N_SSID WPA_N_PSK
@@ -224,7 +224,7 @@ command:
     exit $?
 estimated_duration: 330.0
 _summary: Wireless connection iperf3 test
-_description:
+_purpose: 
  Tests the performance of a system's wireless connection through the iperf3 tool using UDP packets.
 
 plugin: shell
@@ -237,6 +237,5 @@ requires:
 user: root
 command: network_reconnect_resume_test.py -t 90 -d wifi
 _summary: Network reconnect resume test (wifi)
-_description:
- Checks the length of time it takes to reconnect an existing wifi connection
- after a suspend/resume cycle.
+_purpose:
+ Checks the length of time it takes to reconnect an existing wifi connection after a suspend/resume cycle.

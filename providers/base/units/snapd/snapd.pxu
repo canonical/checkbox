@@ -42,7 +42,7 @@ _summary: Test the snap remove command is working.
 _purpose:
  After having installed the
  {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} snap, check it
- can removed.
+ can be removed.
 plugin: shell
 command: snap_tests.py remove
 category_id: snapd
@@ -54,18 +54,18 @@ environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL CHECKBOX_RUNTIME
 id: snappy/snap-refresh
 _summary: Test the snap refresh command is able to update the hello snap.
 _purpose:
- Check hello snap can be refreshed by snap refresh
+ Check hello snap can be refreshed by snap refresh command.
 _steps:
- 1. Install
+ 1. Install:
     snap install hello
- 2. Check version number
+ 2. Check version number:
     snap list hello
- 3. Update
+ 3. Update:
     snap refresh hello --beta
- 4. Check version number
+ 4. Check version number again:
     snap list hello
 _verification:
- Check hello version is newer using the beta channel
+ Check that the hello version is newer using the beta channel.
 plugin: manual
 after: snappy/snap-remove
 category_id: snapd
@@ -74,14 +74,14 @@ estimated_duration: 60
 id: snappy/snap-revert
 _summary: Test the snap revert command is able to revert the hello snap.
 _purpose:
- Check hello snap can be reverted by snap revert
+ Check that the hello snap can be reverted using the snap revert command.
 _steps:
- 1. Revert
+ 1. Revert the hello snap by running:
     snap revert hello
- 2. Check version number
+ 2. Check the version number of the hello snap by running:
     snap list hello
 _verification:
- Check hello version is back to its stable version
+ Ensure that the hello snap version is reverted back to its stable version.
 plugin: manual
 category_id: snapd
 estimated_duration: 60
@@ -105,11 +105,11 @@ estimated_duration: 60
 
 id: snappy/snap-refresh-automated
 template-engine: jinja2
-_summary: Test the snap refresh command is working.
-_description:
+_summary: Test whether the snap refresh command is working.
+_purpose:
  The test will install the
  {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} snap from the
- stable channel and then refreshes it to edge and compares the revision before
+ stable channel and then refreshes it to the edge channel and compares the revision before
  and after the refresh.
 plugin: shell
 command: snap_tests.py refresh
@@ -122,9 +122,7 @@ id: snappy/snap-revert-automated
 template-engine: jinja2
 _summary: Test the snap revert command is working.
 _description:
- Checks if the edge channel
- {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} snap is reverted
- back to the one from stable.
+_purpose: Checks if the edge channel {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }} snap is reverted back to the one from stable.
 plugin: shell
 command: snap_tests.py revert
 category_id: snapd
@@ -135,7 +133,7 @@ environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL CHECKBOX_RUNTIME
 id: snappy/snap-reupdate-automated
 template-engine: jinja2
 _summary: Test the snap refresh command works after blacklisting.
-_description:
+_purpose:
  Checks that the {{ __checkbox_env__.get("TEST_SNAP", "test-snapd-tools") }}
  snap can be refreshed after removal of the blacklisted revision.
 plugin: shell
@@ -159,7 +157,7 @@ _steps:
  4. Check version number
     snap list core
 _verification:
- Check core version is newer using the edge channel
+ Check core version is updated using the edge channel
 plugin: manual
 category_id: snapd
 estimated_duration: 400
@@ -216,9 +214,9 @@ _steps:
     snap revert core
  3. Reboot the system and log in
     sudo reboot
- 4. Check version number
+ 4. Check version number again
     snap list core
- 5. Remove reverted version (and associated data) to make system clean
+ 5. Remove reverted version (and associated data) to make the system clean
     snap remove core --revision=<edge_revision>
 _verification:
  Check core version at step 4 is back to its stable version
@@ -243,7 +241,7 @@ environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL CHECKBOX_RUNTIME
 id: snappy/test-store-install-edge
 _summary: Snappy install command - edge channel store
 _purpose:
- Test the snappy install command is able to install snap in edge
+ Test the snappy install command is able to install a snap in the edge
  channel store.
 plugin: shell
 command: snap_tests.py install edge && snap_tests.py remove
@@ -290,7 +288,7 @@ _summary: Test all the snaps' confinement
 _purpose:
   Test all the snaps' confinement, devmode, revision.
   Make sure the confinement is "strict", devmode is "False",
-  and revision should not be sideloded.
+  and revision should not be sideloaded.
 plugin: shell
 command: snap_confinement_test.py snaps
 category_id: snapd

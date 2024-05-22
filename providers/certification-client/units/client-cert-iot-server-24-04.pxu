@@ -15,12 +15,76 @@ unit: test plan
 _description:
   This is classic 24.04
 include:
+  disk/encryption/check-fde-tpm
+  disk/encryption/detect
+  miscellanea/secure_boot_mode_.*
+mandatory_include:
+  com.canonical.plainbox::manifest
+  executable
+  interface
+  connections
+  model_assertion
+  serial_assertion
+  net_if_management_attachment
+  lspci_attachment
+  lsusb_attachment
+  rtc
+  sleep
+  parts_meta_info_attachment
+bootstrap_include:
+  bootloader
+  cpuinfo
+  device
+  interface
+  net_if_management
 nested_part:
-  # until there is reason to diverge, nest these plans
-  client-cert-iot-ubuntucore-24-manual
+  audio-manual
+  bluetooth-cert-manual
+  camera-manual
+  cpu-manual
+  disk-manual
+  ethernet-manual
+  led-indicator-manual
+  led-manual
+  mediacard-manual
+  memory-manual
+  monitor-manual
+  networking-manual
+  rtc-manual
+  self-manual
+  serial-manual
+  snappy-snap-manual
+  socketcan-manual-remote
+  socketcan-manual-local
+  submission-cert-full
+  thunderbolt-cert-manual
+  usb-manual
+  usb-c-manual
+  usb3-manual
+  watchdog-manual
+  wireless-manual
+  wireless-wifi-master-mode-manual
+  wwan-manual
+  after-suspend-audio-manual
+  after-suspend-bluetooth-cert-manual
+  after-suspend-ethernet-manual
+  after-suspend-led-indicator-manual
+  after-suspend-monitor-manual
+  after-suspend-networking-manual
+  after-suspend-serial-manual
+  after-suspend-socketcan-manual-remote
+  after-suspend-socketcan-manual-local
+  after-suspend-thunderbolt-cert-manual
+  after-suspend-usb-manual
+  after-suspend-usb-c-manual
+  after-suspend-usb3-manual
+  after-suspend-wireless-manual
+  after-suspend-wireless-wifi-master-mode-manual
+  after-suspend-wwan-manual
 exclude:
-  ubuntucore/os-.*
+  bluetooth4/HOGP-mouse
   snappy/os-.*
+  after-suspend-bluetooth4/HOGP-mouse
 
 
 id: client-cert-iot-server-24-04-automated
@@ -29,10 +93,69 @@ unit: test plan
 _description:
   This is classic 24.04
 include:
+mandatory_include:
+  com.canonical.plainbox::manifest
+  executable
+  interface
+  connections
+  model_assertion
+  serial_assertion
+  net_if_management_attachment
+  lspci_attachment
+  lsusb_attachment
+  rtc
+  sleep
+  parts_meta_info_attachment
+bootstrap_include:
+  bootloader
+  cpuinfo
+  device
+  interface
+  net_if_management
 nested_part:
-  # until there is reason to diverge, nest these plans
-  client-cert-iot-ubuntucore-24-automated
-  ## snappy-snap-automated-lightweight ??
+  acpi-automated
+  audio-automated
+  bluetooth-cert-automated
+  bluez-automated
+  camera-automated
+  cpu-automated
+  disk-automated
+  docker-automated
+  eeprom-automated
+  ethernet-automated
+  gpio-automated
+  iot-fwts-automated
+  i2c-automated
+  mediacard-automated
+  memory-automated
+  misc-client-cert-automated
+  networking-automated
+  power-automated
+  rtc-automated
+  self-automated
+  serial-automated
+  snappy-snap-automated
+  socketcan-auto-local
+  socketcan-auto-remote
+  submission-cert-automated
+  thunderbolt-cert-automated
+  tpm-cert-automated
+  usb-automated
+  watchdog-automated
+  wireless-automated
+  wireless-wifi-master-mode-auto
+  wwan-automated
+  zapper-enabled-automated
+  after-suspend-audio-automated
+  after-suspend-bluez-automated
+  after-suspend-eeprom-automated
+  after-suspend-ethernet-automated
+  after-suspend-gpio-automated
+  after-suspend-rtc-automated
+  after-suspend-serial-automated
+  after-suspend-usb-automated
+  after-suspend-wireless-automated
+  after-suspend-wwan-automated
 
 
 id: client-cert-iot-server-24-04-stress

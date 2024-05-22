@@ -44,7 +44,7 @@ The example below::
 
 Is parsed as an ENTRY (in python syntax)::
 
-    ("key", "\nvalue")
+    ("key", "\nmore value")
 
 Quirk 2 -- the # comments 
 -------------------------

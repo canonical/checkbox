@@ -7,12 +7,19 @@ on:
 
 jobs:
   check_for_commits:
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     name: Check for commits
     outputs:
       new_commit_count: ${{ steps.commit_check.outputs.new_commit_count }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Check for commits

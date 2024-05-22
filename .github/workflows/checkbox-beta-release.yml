@@ -22,21 +22,22 @@ jobs:
           sudo apt update -qq
           sudo apt install -qq -y gh
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Verify Promotion Conditions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          tools/release/can_promote_edge.py
+          # check if can_promote but ignore (only print an error) if the workflow was manually triggered
+          tools/release/can_promote_edge.py || ${{ github.event_name == 'workflow_dispatch' }}
 
   release-notes:
     needs: should-run
     runs-on: ubuntu-latest
     steps:
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Setup the gh repository and install gh
@@ -67,7 +68,7 @@ jobs:
           sudo apt update -qq
           sudo apt install -qq -y python3-launchpadlib
       - name: Checkout checkbox monorepo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Copy deb packages from edge to beta ppa
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

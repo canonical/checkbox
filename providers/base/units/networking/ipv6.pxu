@@ -1,7 +1,7 @@
-
 id: ipv6_detect
 category_id: com.canonical.plainbox::networking
 _summary: Test if the kernel is IPv6 ready
+_purpose: Test if the running kernel supports IPv6.
 command:
   if test -f /proc/net/if_inet6; then
     echo "Running kernel is IPv6 ready"

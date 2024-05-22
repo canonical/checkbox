@@ -11,7 +11,14 @@ on:
 jobs:
   if_merged:
     if: github.event.pull_request.merged == true
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     steps:
     - run: |
         curl -X POST -d "branches=latest" -d "token=${{ secrets.RTD_TOKEN }}" https://readthedocs.org/api/v2/webhook/checkbox/137367/

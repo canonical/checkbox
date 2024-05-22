@@ -13,7 +13,14 @@ concurrency:
 jobs:
   spellcheck:
     name: Spelling check
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     defaults:
       run:
         working-directory: docs
@@ -39,7 +46,14 @@ jobs:
 
   woke:
     name: Inclusive language check
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -54,7 +68,14 @@ jobs:
 
   linkcheck:
     name: Link check
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     defaults:
       run:
         working-directory: docs

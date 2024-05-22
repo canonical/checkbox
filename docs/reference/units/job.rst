@@ -14,7 +14,7 @@ File format and location
 
 Jobs are expressed as sections in text files that conform somewhat to the
 ``rfc822`` specification format. Our variant of the format is described in
-rfc822. Each record defines a single job.
+:ref:`rfc822`. Each record defines a single job.
 
 Job Fields
 ==========

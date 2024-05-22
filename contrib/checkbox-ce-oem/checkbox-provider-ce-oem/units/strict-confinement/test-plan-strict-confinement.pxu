@@ -36,6 +36,18 @@ include:
     strict-confine/mediacard/sdhc-remove
 
 
+id: after-suspend-strict-confine-mediacard
+unit: test plan
+_name: After suspend test mediacard in strict confinement mode.
+_description:
+    Afrer suspend test mediacard in strict confinement mode.
+    Rely on test-strict-confinement SNAP to test.
+include:
+    after-suspend-strict-confine/mediacard/sdhc-insert
+    after-suspend-strict-confine/mediacard/sdhc-storage
+    after-suspend-strict-confine/mediacard/sdhc-remove
+
+
 id: strict-confine-thermal
 unit: test plan
 _name: Test thermal sensor in strict confinement mode.

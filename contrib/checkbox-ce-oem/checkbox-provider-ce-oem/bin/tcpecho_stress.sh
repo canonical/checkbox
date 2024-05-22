@@ -9,8 +9,14 @@ get_active_interfaces() {
 disable_net() {
     local target_interface=$1
     local default_net_state=$2
+    # Get the parent eth name here to prevent issues on platforms with multi-port
+    # switches. If the platform has multi-port switches, the parent eth cannot be
+    # disabled; otherwise, the entire switch will become unusable.
+
     parent_eth=$(grep -oP "(?<=$target_interface@)\w+" "$default_net_state")
-    # Disable all network interfaces that are not under test
+
+    # Disable all network interfaces that are not under test except for the
+    # parent interface of the node under test.
     while IFS= read -r line; do
         if [[ "$line" != *"$target_interface"* ]] && [[ "$line" != "$parent_eth" ]]; then
             echo "Attempting to disable $line"

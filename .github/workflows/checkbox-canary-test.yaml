@@ -38,6 +38,6 @@ jobs:
     - name: Submit job
       uses: canonical/testflinger/.github/actions/submit@CERTTF-327-github-action-submit
       with:
-        dry-run: true
-        poll: false
+        dry-run: false
+        poll: true
         job-path: ${{ steps.create-job.outputs.job }}

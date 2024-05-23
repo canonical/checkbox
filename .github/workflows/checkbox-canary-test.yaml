@@ -1,4 +1,4 @@
-name: Submit a checkbox job to Testflinger
+name: Submit a checkbox job to Testflinger (job provided through file)
 on:
     push:
         branches: [test-action-fling-test]

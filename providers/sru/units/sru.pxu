@@ -75,7 +75,6 @@ nested_part:
     # with.
     power-automated
     tpm-cert-automated
-    stress-pm-graph
     stress-ng-cert-automated
     stress-10-reboot-poweroff-automated
 bootstrap_include:

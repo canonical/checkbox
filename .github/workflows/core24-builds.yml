@@ -5,7 +5,7 @@ on:
   workflow_call:
 
 jobs:
-  snap_runtime:
+  snap_runtime_native:
     strategy:
       fail-fast: false
       matrix:
@@ -81,7 +81,7 @@ jobs:
               echo "Uploading $snap..." ; \
               snapcraft upload $snap --release edge ; \
             done
-  snap_frontend:
+  snap_frontend_native:
     strategy:
       fail-fast: false
       matrix:
@@ -157,6 +157,157 @@ jobs:
           attempt_limit: 10
           command: |
             for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap ; \
+            do \
+              echo "Uploading $snap..." ; \
+              if [ ${{ matrix.type }} = 'classic' ]; then \
+                if [ ${{ matrix.releases }} = '22' ]; then \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
+                else \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
+                fi \
+              else \
+                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge ; \
+              fi ; \
+            done
+  snap_runtime_remote_build:
+    strategy:
+      fail-fast: false
+      matrix:
+        releases: [24]
+        arch: [armhf]
+    runs-on: [self-hosted, linux, jammy, large]
+    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+    env:
+      SERIES: series${{ matrix.releases }}
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+      # snapcraft remote-build will create a repository with the name decided by the --build-id arg
+      # URL to this repo echoed below to help debug builds (does not change if the workflow is re-run)
+      SNAPCRAFT_BUILDER_ID: checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}
+    name: Runtime (Core) ${{ matrix.releases }}-${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Add LP credentials
+        run: |
+          mkdir -p ~/.local/share/snapcraft/provider/launchpad/
+          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
+          git config --global user.email "robot@lists.canonical.com"
+          git config --global user.name "Certification bot"
+      - name: Copy over the common files for series ${{ matrix.releases }}
+        run: |
+          cd checkbox-core-snap/
+          sudo apt update && sudo apt install -qq -y python3-setuptools-scm
+          ./snapcraft8_prepare.sh $SERIES
+          git add ..
+          git commit -m "Prepared build"
+      - name: Print Launchpad build repository
+        run: |
+          echo "Building at: https://git.launchpad.net/~ce-certification-qa/+snap/$SNAPCRAFT_BUILDER_ID"
+      - uses: Wandalen/wretry.action@v3.4.0_js_action
+        name: Build the snap
+        timeout-minutes: 600 # 10hours
+        with:
+          action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
+          attempt_delay: 600000 # 10min
+          attempt_limit: 5
+          with: |
+            snapcraft-channel: 8.x/stable
+            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
+      - uses: actions/upload-artifact@v4
+        name: Upload logs on failure
+        if: failure()
+        with:
+          name: runtime-build-log-${{ matrix.releases }}-${{ matrix.arch }}
+          path: |
+            /home/runner/.cache/snapcraft/log/
+            /home/runner/.local/state/snapcraft/log/
+            checkbox*.txt
+      - uses: actions/upload-artifact@v4
+        name: Upload the snap as artifact
+        with:
+          name: runtime_snap${{ matrix.releases }}_${{ matrix.arch }}
+          path: "checkbox*.snap"
+      - uses: Wandalen/wretry.action@v3.4.0_js_action
+        name: Upload the snap to the store
+        timeout-minutes: 600 # 10hours
+        with:
+          attempt_delay: 600000 # 10min
+          attempt_limit: 10
+          command: |
+            for snap in checkbox*.snap ; \
+            do \
+              echo "Uploading $snap..." ; \
+              snapcraft upload $snap --release edge ; \
+            done
+  snap_frontend_remote_build:
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [classic, uc]
+        releases: [24]
+    runs-on: [self-hosted, linux, jammy, large]
+    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+    env:
+      SERIES: series_${{ matrix.type }}${{ matrix.releases }}
+      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+      # snapcraft remote-build will create a repository with the name decided by the --build-id arg
+      # URL to this repo echoed below to help debug builds (does not change if the workflow is re-run)
+      # as the run_id will not change
+      SNAPCRAFT_BUILDER_ID: checkbox-${{ matrix.type }}${{ matrix.releases }}-${{ github.run_id }}
+    name: Frontend ${{ matrix.type }}${{ matrix.releases }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Add LP credentials
+        run: |
+          mkdir -p ~/.local/share/snapcraft/provider/launchpad/
+          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
+          git config --global user.email "robot@lists.canonical.com"
+          git config --global user.name "Certification bot"
+      - name: Copy over the common files for series ${{ matrix.type }}${{ matrix.releases }}
+        run: |
+          cd checkbox-snap/
+          sudo apt update && sudo apt install -qq -y python3-setuptools-scm
+          ./snapcraft8_prepare_${{ matrix.type }}.sh $SERIES
+          git add ..
+          git commit -m "Prepared build"
+      - name: Print Launchpad build repository
+        run: |
+          echo "Building at: https://git.launchpad.net/~ce-certification-qa/+snap/$SNAPCRAFT_BUILDER_ID"
+      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
+        name: Building the snaps
+        timeout-minutes: 600 # 10hours
+        with:
+          action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
+          attempt_delay: 600000 # 10min
+          attempt_limit: 5
+          with: |
+            snapcraft-channel: 8.x/stable
+            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
+      - uses: actions/upload-artifact@v4
+        name: Upload logs on failure
+        if: failure()
+        with:
+          name: frontend-build-log-${{ matrix.type }}${{ matrix.releases }}
+          path: |
+            /home/runner/.cache/snapcraft/log/
+            /home/runner/.local/state/snapcraft/log/
+            checkbox*.txt
+      - uses: actions/upload-artifact@v4
+        name: Upload the snaps as artefacts
+        with:
+          name: frontend_snaps${{ matrix.type }}${{ matrix.releases }}
+          path: "checkbox*.snap"
+      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
+        name: Upload the snaps to the store
+        timeout-minutes: 600 # 10hours
+        with:
+          attempt_delay: 600000 # 10min
+          attempt_limit: 10
+          command: |
+            for snap in checkbox*.snap ; \
             do \
               echo "Uploading $snap..." ; \
               if [ ${{ matrix.type }} = 'classic' ]; then \

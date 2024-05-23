@@ -32,22 +32,22 @@ class CameraTestTests(unittest.TestCase):
     def setUp(self):
         self.camera_instance = CameraTest(None)
 
-    @patch("camera_test.CameraTest._supported_resolutions_to_string")
-    @patch("camera_test.CameraTest._get_supported_resolutions")
+    @patch("camera_test.CameraTest._supported_formats_to_string")
+    @patch("camera_test.CameraTest._get_supported_formats")
     def test_detect_and_show_camera_info_with_single_planar_capture_capability(
         self,
-        mock_get_supported_resolutions,
-        mock_supported_resolutions_to_string,
+        mock_get_supported_formats,
+        mock_supported_formats_to_string,
     ):
         """Test camera device supports the single planar capture capabilitiy"""
-        mock_get_supported_resolutions.return_value = [
+        mock_get_supported_formats.return_value = [
             {
                 "description": "fake",
                 "pixelformat": "fake",
                 "resolutions": [[123, 987]],
             }
         ]
-        mock_supported_resolutions_to_string.return_value = "Resolutions: fake"
+        mock_supported_formats_to_string.return_value = "Resolutions: fake"
 
         fake_device = "/dev/video0"
         fake_v4l2_capability = v4l2_capability()
@@ -60,22 +60,22 @@ class CameraTestTests(unittest.TestCase):
         )
         self.assertEqual(0, result)
 
-    @patch("camera_test.CameraTest._supported_resolutions_to_string")
-    @patch("camera_test.CameraTest._get_supported_resolutions")
+    @patch("camera_test.CameraTest._supported_formats_to_string")
+    @patch("camera_test.CameraTest._get_supported_formats")
     def test_detect_and_show_camera_info_with_multi_planar_capture_capability(
         self,
-        mock_get_supported_resolutions,
-        mock_supported_resolutions_to_string,
+        mock_get_supported_formats,
+        mock_supported_formats_to_string,
     ):
         """Test camera device supports the multi planar capture capabilitiy"""
-        mock_get_supported_resolutions.return_value = [
+        mock_get_supported_formats.return_value = [
             {
                 "description": "fake",
                 "pixelformat": "fake",
                 "resolutions": [[123, 987]],
             }
         ]
-        mock_supported_resolutions_to_string.return_value = "Resolutions: fake"
+        mock_supported_formats_to_string.return_value = "Resolutions: fake"
 
         fake_device = "/dev/video0"
         fake_v4l2_capability = v4l2_capability()
@@ -88,22 +88,22 @@ class CameraTestTests(unittest.TestCase):
         )
         self.assertEqual(0, result)
 
-    @patch("camera_test.CameraTest._supported_resolutions_to_string")
-    @patch("camera_test.CameraTest._get_supported_resolutions")
+    @patch("camera_test.CameraTest._supported_formats_to_string")
+    @patch("camera_test.CameraTest._get_supported_formats")
     def test_detect_and_show_camera_info_without_capture_capability(
         self,
-        mock_get_supported_resolutions,
-        mock_supported_resolutions_to_string,
+        mock_get_supported_formats,
+        mock_supported_formats_to_string,
     ):
         """Test camera device doesn't support the capture capabilitiy"""
-        mock_get_supported_resolutions.return_value = [
+        mock_get_supported_formats.return_value = [
             {
                 "description": "YUYV",
                 "pixelformat": "YUYV",
                 "resolutions": [[640, 480]],
             }
         ]
-        mock_supported_resolutions_to_string.return_value = "Resolutions: fake"
+        mock_supported_formats_to_string.return_value = "Resolutions: fake"
 
         fake_device = "/dev/video0"
         fake_v4l2_capability = v4l2_capability()

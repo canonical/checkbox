@@ -397,7 +397,13 @@ class CameraTest:
         # default.  This also matches the logic that fswebcam uses to select
         # a default format.
         format = formats[0]
+
         if format:
+            if self.args.output:
+                self._save_debug_image(
+                    format, self.args.device, self.args.output
+                )
+
             print(
                 "Taking multiple images using the %s format"
                 % format["pixelformat"]
@@ -426,6 +432,33 @@ class CameraTest:
                     os.remove(f.name)
                     return 1
             return 0
+
+    def _save_debug_image(self, format, device, output):
+        """
+        Save an image to a file
+        """
+        # Check if the output directory exists
+        if not os.path.exists(output):
+            raise SystemExit(
+                "Output directory does not exist: {}".format(output)
+            )
+
+        # Choose one resolution image to store as an artifact. We will use
+        # the closest resolution to 640x480 as the target to have some
+        # uniformity in the output
+        target = 640
+        closest_resolution = min(
+            format["resolutions"], key=lambda x: abs(x[0] - target)
+        )
+        w, h = closest_resolution
+        device_name = device.split("/")[-1]
+        filepath = os.path.join(
+            output, "resolution_test_image_{}.jpg".format(device_name)
+        )
+        with open(filepath, "w") as f:
+            self._still_helper(
+                f.name, w, h, True, pixelformat=format["pixelformat"]
+            )
 
     def _get_supported_pixel_formats(self, device, maxformats=5):
         """
@@ -615,15 +648,13 @@ def parse_arguments(argv):
             "--highest-device",
             action="store_true",
             help=(
-                "Use the /dev/videoN " "where N is the highest value available"
+                "Use the /dev/videoN where N is the highest value available"
             ),
         )
         group.add_argument(
             "--lowest-device",
             action="store_true",
-            help=(
-                "Use the /dev/videoN " "where N is the lowest value available"
-            ),
+            help=("Use the /dev/videoN where N is the lowest value available"),
         )
 
     subparsers.add_parser("detect")
@@ -640,9 +671,15 @@ def parse_arguments(argv):
         "-q",
         "--quiet",
         action="store_true",
-        help=("Don't display picture, " "just write the picture to a file"),
+        help=("Don't display picture, just write the picture to a file"),
     )
     resolutions_parser = subparsers.add_parser("resolutions")
+    resolutions_parser.add_argument(
+        "-o",
+        "--output",
+        default="",
+        help="Output directory to store the images",
+    )
     add_device_parameter(resolutions_parser)
     args = parser.parse_args(argv)
 

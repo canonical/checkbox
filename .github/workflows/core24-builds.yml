@@ -41,8 +41,8 @@ jobs:
           ./prepare.sh $SERIES
       - name: Add LP credentials
         run: |
-          mkdir -p ~/.local/share/snapcraft/provider/launchpad/
-          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
+          mkdir -p ~/.local/share/snapcraft/
+          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/launchpad-credentials
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
       - uses: Wandalen/wretry.action@v3.4.0_js_action
@@ -118,8 +118,8 @@ jobs:
           ./prepare_${{ matrix.type }}.sh $SERIES
       - name: Add LP credentials
         run: |
-          mkdir -p ~/.local/share/snapcraft/provider/launchpad/
-          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
+          mkdir -p ~/.local/share/snapcraft/
+          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/launchpad-credentials
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
       - name: Print Launchpad build repository
@@ -190,8 +190,8 @@ jobs:
           fetch-depth: 0
       - name: Add LP credentials
         run: |
-          mkdir -p ~/.local/share/snapcraft/provider/launchpad/
-          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
+          mkdir -p ~/.local/share/snapcraft/
+          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/launchpad-credentials
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
       - name: Copy over the common files for series ${{ matrix.releases }}
@@ -213,7 +213,7 @@ jobs:
           attempt_limit: 5
           with: |
             snapcraft-channel: 8.x/stable
-            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
+            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID --verbosity trace --launchpad-timeout=36000
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()
@@ -263,8 +263,8 @@ jobs:
           fetch-depth: 0
       - name: Add LP credentials
         run: |
-          mkdir -p ~/.local/share/snapcraft/provider/launchpad/
-          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/provider/launchpad/credentials
+          mkdir -p ~/.local/share/snapcraft/
+          echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/launchpad-credentials
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
       - name: Copy over the common files for series ${{ matrix.type }}${{ matrix.releases }}
@@ -286,7 +286,7 @@ jobs:
           attempt_limit: 5
           with: |
             snapcraft-channel: 8.x/stable
-            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
+            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID --verbosity trace --launchpad-timeout=36000
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()

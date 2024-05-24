@@ -56,3 +56,4 @@ else
 	echo "  apt install python3 git"
 	exit 1
 fi
+rm ../.gitignore

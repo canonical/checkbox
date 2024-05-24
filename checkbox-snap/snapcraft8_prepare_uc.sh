@@ -42,7 +42,7 @@ fi
 echo "Copying over common_series_uc/* to $series"
 rsync -r --links common_series_uc/ ..
 echo "Copying over snapcraft.yaml"
-rsync -r --links $series/snap ..
+rsync -r --links $series ..
 echo "Dumping version in version file for $series..."
 if which python3 1>/dev/null && which git 1>/dev/null; then
 	# get_version.py produces a version number from the traceability

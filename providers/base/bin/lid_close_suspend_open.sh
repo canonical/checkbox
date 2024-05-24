@@ -3,18 +3,16 @@
 holdoff_timeout_usec=$(gdbus introspect --system --dest org.freedesktop.login1 --object-path /org/freedesktop/login1 -p | grep HoldoffTimeoutUSec | awk '{print $5}' | awk -F\; '{print $1}')
 holdoff_timeout_sec=$(echo "scale=0; $holdoff_timeout_usec / 1000000" | bc)
 
-if [ "$holdoff_timeout_sec" -ne 0 ]; then
-    if (journalctl --since "$holdoff_timeout_sec seconds ago" -b 0 -r | grep "suspend exit" >/dev/null 2>&1); then
-        echo "The system just resume from suspend, the lid event will be hold off on in $holdoff_timeout_sec seconds"
-        echo "Please wait for the new prompt before starting the test."
-    fi
-    while (journalctl --since "$holdoff_timeout_sec seconds ago" -b 0 -r | grep "suspend exit" >/dev/null 2>&1)
-    do
-        echo "waiting... "
-        sleep 3
-    done
-    echo ""
+previous_sleep_log=$(journalctl --output=short-unix --since "$holdoff_timeout_sec seconds ago" -b 0 -r | grep "suspend exit")
+if [[ "$holdoff_timeout_sec" != 0 && "$previous_sleep_log" != "" ]]; then
+    # set the previous_sleep_time
+    previous_sleep_time=$(echo $previous_sleep_log | awk -F'.' '{ print $1 }')
+    # sleep a period of time
+    sleep_time=$(( $(date +"%s") - "$previous_sleep_time" ))
+    echo "sleep for $sleep_time seconds ..."
+    sleep "$sleep_time"
 fi
+echo "System is ready for suspend test"
 
 prev_suspend_number=$(cat /sys/power/suspend_stats/success)
 echo "Number of successful suspends until now: $prev_suspend_number"

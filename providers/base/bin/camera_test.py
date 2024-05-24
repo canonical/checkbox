@@ -119,7 +119,7 @@ class v4l2_frmsize_discrete(ctypes.Structure):
 class v4l2_frmsize_stepwise(ctypes.Structure):
     _fields_ = [
         ("min_width", ctypes.c_uint32),
-        ("min_height", ctypes.c_uint32),
+        ("max_width", ctypes.c_uint32),
         ("step_width", ctypes.c_uint32),
         ("min_height", ctypes.c_uint32),
         ("max_height", ctypes.c_uint32),
@@ -396,42 +396,43 @@ class CameraTest:
         # pick the first format, which seems to be what the driver wants for a
         # default.  This also matches the logic that fswebcam uses to select
         # a default format.
+        if not formats:
+            raise SystemExit("No supported formats found")
         format = formats[0]
 
-        if format:
-            if self.args.output:
-                self._save_debug_image(
-                    format, self.args.device, self.args.output
-                )
-
-            print(
-                "Taking multiple images using the %s format"
-                % format["pixelformat"]
+        if self.args.output:
+            self._save_debug_image(
+                format, self.args.device, self.args.output
             )
 
-            for resolution in format["resolutions"]:
-                w = resolution[0]
-                h = resolution[1]
-                f = NamedTemporaryFile(
-                    prefix="camera_test_%s%sx%s"
-                    % (format["pixelformat"], w, h),
-                    suffix=".jpg",
-                    delete=False,
+        print(
+            "Taking multiple images using the %s format"
+            % format["pixelformat"]
+        )
+
+        for resolution in format["resolutions"]:
+            w = resolution[0]
+            h = resolution[1]
+            f = NamedTemporaryFile(
+                prefix="camera_test_%s%sx%s"
+                % (format["pixelformat"], w, h),
+                suffix=".jpg",
+                delete=False,
+            )
+            print("Taking a picture at %sx%s" % (w, h))
+            self._still_helper(
+                f.name, w, h, True, pixelformat=format["pixelformat"]
+            )
+            if self._validate_image(f.name, w, h):
+                print("Validated image %s" % f.name)
+                os.remove(f.name)
+            else:
+                print(
+                    "Failed to validate image %s" % f.name, file=sys.stderr
                 )
-                print("Taking a picture at %sx%s" % (w, h))
-                self._still_helper(
-                    f.name, w, h, True, pixelformat=format["pixelformat"]
-                )
-                if self._validate_image(f.name, w, h):
-                    print("Validated image %s" % f.name)
-                    os.remove(f.name)
-                else:
-                    print(
-                        "Failed to validate image %s" % f.name, file=sys.stderr
-                    )
-                    os.remove(f.name)
-                    return 1
-            return 0
+                os.remove(f.name)
+                return 1
+        return 0
 
     def _save_debug_image(self, format, device, output):
         """
@@ -514,7 +515,7 @@ class CameraTest:
         """
         supported_formats_info = self._get_supported_pixel_formats(device)
 
-        # If we can't get any formats, we wukk return YUYV and 640x480
+        # If we can't get any formats, we will return YUYV and 640x480
         if not supported_formats_info:
             format_info = {}
             format_info["description"] = "YUYV"

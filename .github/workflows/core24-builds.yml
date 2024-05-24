@@ -246,6 +246,7 @@ jobs:
       matrix:
         type: [classic, uc]
         releases: [24]
+        arch: [armhf]
     runs-on: [self-hosted, linux, jammy, large]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:

@@ -401,9 +401,7 @@ class CameraTest:
         format = formats[0]
 
         if self.args.output:
-            self._save_debug_image(
-                format, self.args.device, self.args.output
-            )
+            self._save_debug_image(format, self.args.device, self.args.output)
 
         print(
             "Taking multiple images using the %s format"
@@ -414,8 +412,7 @@ class CameraTest:
             w = resolution[0]
             h = resolution[1]
             f = NamedTemporaryFile(
-                prefix="camera_test_%s%sx%s"
-                % (format["pixelformat"], w, h),
+                prefix="camera_test_%s%sx%s" % (format["pixelformat"], w, h),
                 suffix=".jpg",
                 delete=False,
             )
@@ -427,9 +424,7 @@ class CameraTest:
                 print("Validated image %s" % f.name)
                 os.remove(f.name)
             else:
-                print(
-                    "Failed to validate image %s" % f.name, file=sys.stderr
-                )
+                print("Failed to validate image %s" % f.name, file=sys.stderr)
                 os.remove(f.name)
                 return 1
         return 0

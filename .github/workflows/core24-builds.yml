@@ -29,7 +29,7 @@ jobs:
     env:
       SERIES: series${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-    name: Runtime (Core) ${{ matrix.releases }}-${{ matrix.arch }}
+    name: Runtime ${{ matrix.releases }}  (${{matrix.arch}})
     steps:
       - uses: actions/checkout@v4
         with:
@@ -106,7 +106,7 @@ jobs:
     env:
       SERIES: series_${{ matrix.type }}${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-    name: Frontend ${{ matrix.type }}${{ matrix.releases }}
+    name: Frontend ${{ matrix.type }}${{ matrix.releases }} (${{matrix.arch}})
     steps:
       - uses: actions/checkout@v4
         with:
@@ -183,7 +183,7 @@ jobs:
       # snapcraft remote-build will create a repository with the name decided by the --build-id arg
       # URL to this repo echoed below to help debug builds (does not change if the workflow is re-run)
       SNAPCRAFT_BUILDER_ID: checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}
-    name: Runtime (Core) ${{ matrix.releases }}-${{ matrix.arch }}
+    name: Runtime ${{ matrix.releases }} (${{ matrix.arch }})
     steps:
       - uses: actions/checkout@v4
         with:
@@ -255,7 +255,7 @@ jobs:
       # URL to this repo echoed below to help debug builds (does not change if the workflow is re-run)
       # as the run_id will not change
       SNAPCRAFT_BUILDER_ID: checkbox-${{ matrix.type }}${{ matrix.releases }}-${{ github.run_id }}
-    name: Frontend ${{ matrix.type }}${{ matrix.releases }}
+    name: Frontend ${{ matrix.type }}${{ matrix.releases }} (${{ matrix.arch }})
     steps:
       - uses: actions/checkout@v4
         with:

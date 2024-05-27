@@ -29,15 +29,15 @@ class RemoveColorCode(unittest.TestCase):
     def test_succ(self, mock_run):
         gs = GLSupport()
 
-        with (
-            open("tests/test_data/gl_support_succ.txt", "r") as s,
-            open("tests/test_data/gl_support_succ_changed.txt", "r") as sc,
-            open("tests/test_data/gl_support_fail.txt", "r") as f,
-            open("tests/test_data/gl_support_fail_changed.txt", "r") as fc,
-        ):
-            s_data = s.read()
-            rv = gs.remove_color_code(s_data)
+        SUCC = "tests/test_data/gl_support_succ.txt"
+        SUCC_CHANGED = "tests/test_data/gl_support_succ_changed.txt"
+        FAIL = "tests/test_data/gl_support_fail.txt"
+        FAIL_CHANGED = "tests/test_data/gl_support_fail_changed.txt"
+        with open(SUCC, "r") as s, open(SUCC_CHANGED, "r") as sc:
+            rv = gs.remove_color_code(s.read())
             self.assertEqual(rv, sc.read())
+
+        with open(FAIL, "r") as f, open(FAIL_CHANGED, "r") as fc:
             rv = gs.remove_color_code(f.read())
             self.assertEqual(rv, fc.read())
 

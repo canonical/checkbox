@@ -1,0 +1,16 @@
+OpenGL vendor string:   Mesa
+OpenGL renderer string: llvmpipe (LLVM 17.0.6, 256 bits)
+OpenGL version string:  4.5 (Compatibility Profile) Mesa 24.0.5-1ubuntu1
+
+Not software rendered:    no
+Not blacklisted:          yes
+GLX fbconfig:             yes
+GLX texture from pixmap:  yes
+GL npot or rect textures: yes
+GL vertex program:        yes
+GL fragment program:      yes
+GL vertex buffer object:  yes
+GL framebuffer object:    yes
+GL version is 1.4+:       yes
+
+Unity 3D supported:       no

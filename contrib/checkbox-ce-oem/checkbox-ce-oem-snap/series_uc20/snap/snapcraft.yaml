@@ -8,6 +8,57 @@ version: '1.0-focal'
 
 base: core20
 
+plugs:
+  checkbox-runtime:
+    interface: content
+    target: $SNAP/checkbox-runtime
+    default-provider: checkbox20
+  provider-resource:
+    interface: content
+    target: $SNAP/providers/plainbox-provider-resource
+    default-provider: checkbox20
+  provider-checkbox:
+    interface: content
+    target: $SNAP/providers/plainbox-provider-checkbox
+    default-provider: checkbox20
+  provider-tpm2:
+    interface: content
+    target: $SNAP/providers/plainbox-provider-tpm2
+    default-provider: checkbox20
+  provider-certification-client:
+    interface: content
+    target: $SNAP/providers/plainbox-provider-certification-client
+    default-provider: checkbox20
+apps:
+  checkbox-cli:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper
+    plugs: &standard [home, network-bind, hardware-observe, bluez, bluetooth-control,
+      gpio, modem-manager, mount-observe, network-manager, pulseaudio, serial-port,
+      system-observe, tpm, timezone-control, timeserver-control]
+  configure:
+    command-chain: [bin/wrapper_local]
+    command: bin/configure
+  remote-slave:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper slave
+    daemon: simple
+    restart-condition: on-failure
+    plugs: *standard
+  shell:
+    command-chain: [bin/wrapper_local]
+    command: bin/shell-wrapper
+    plugs: *standard
+  test-runner:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner
+    plugs: *standard
+
+passthrough:
+  hooks:
+    configure:
+      command-chain: [bin/wrapper_local]
+
 slots:
   provider-ce-oem:
     interface: content
@@ -56,3 +107,31 @@ parts:
       PART_SRC=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src
       gcc ${PART_SRC}/src/input-pcspkr.c -o ${PART_SRC}/src/beep
       cp -v ${PART_SRC}/src/beep ${SNAPCRAFT_PART_INSTALL}/usr/bin/
+
+  parts-meta-info:
+    plugin: nil
+    override-build: |
+      snapcraftctl build
+      for p in `ls -d ../../*`; do
+          if [ -d $p/src ]; then
+            (cd $p/src
+                if [ -d $p/src/.git ]; then
+                    (echo `basename $p`\: && git show --pretty=format:"%h%d %aN %ci%n%s%n" -q ; echo ) >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+                fi # for additional `source-type` support, elif them here
+            )
+          fi
+      done
+    after: [checkbox-provider-ce-oem]
+  launchers:
+    plugin: dump
+    source: launchers/
+    organize:
+      '*': bin/
+  config-variables:
+    plugin: dump
+    source: config/
+
+layout:
+  # This is an workaround to access alsa config on UC22 core image
+  /usr/share/alsa:
+    bind: $SNAP/usr/share/alsa

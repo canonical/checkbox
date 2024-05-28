@@ -14,7 +14,7 @@ template-resource: video_codec_resource
 template-filter: video_codec_resource.scenario == "gst_v4l2_video_decoder_md5_checksum_comparison"
 template-unit: job
 template-id: ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison
-template-summary: To check if the MD5 checksum is same as golden reference under specific decoder
+_template-summary: To check if the MD5 checksum is same as golden reference under specific decoder
 id: ce-oem-video-codec/{{ scenario }}-{{ decoder_plugin }}-{{ width }}x{{ height }}-{{ color_space }}
 _summary: MD5 checksum comparison {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }}
 _description: Compare the MD5 checksum to golden reference by decoding the {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }} video via gstreamer

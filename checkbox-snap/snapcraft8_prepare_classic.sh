@@ -2,9 +2,9 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2022 Canonical Ltd.
+# Copyright 2024 Canonical Ltd.
 #
-# Authors: Maciej Kisielewski <maciej.kisielewski@canonical.com>
+# Authors: Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,

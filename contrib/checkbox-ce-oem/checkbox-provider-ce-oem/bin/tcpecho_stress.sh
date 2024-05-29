@@ -61,7 +61,6 @@ check_restore_net() {
     fi
 }
 
-
 tcp_echo() {
     local target=$1
     local port=$2
@@ -104,18 +103,18 @@ tcp_echo() {
 
 main() {
     echo "Info: Attempting to test TCP echo stress ..."
-    echo "Info: Disabling network interfaces that not under test ..."
+    echo "Info: Disabling network interfaces that are not under test ..."
     original_net_state=$(mktemp)
     current_net_state=$(mktemp)
     get_active_interfaces "$original_net_state"
     disable_net "$src_if" "$original_net_state"
-    echo "Info: Checking if target is avaliable ..."
+    echo "Info: Checking if target is available ..."
     start_time=$(date +%s)
     for ((i=1; i <= 5; i++))
     do
         ping_state=0
         if ping -I "$src_if" "$dst_ip" -c 3; then
-            echo "Info: target is avaliable!"
+            echo "Info: target is available!"
             break
         else
             echo "Error: Retry ping!"
@@ -124,12 +123,12 @@ main() {
         fi
     done
     if [ "$ping_state" -ne 0 ]; then
-        echo "Error: target $dst_ip is unavaliable"
-        echo "Info: Restore default network ..."
+        echo "Error: target $dst_ip is unavailable"
+        echo "Info: Restoring default network ..."
         check_restore_net
         exit 1
     fi
-    echo "Info: Starting to test TCP ping stress."
+    echo "Info: Starting to test TCP echo stress."
     echo "Info: It will take time so please be patient."
     echo "Info: Will print out log when failed."
     if tcp_echo "$dst_ip" "$dst_port" "$loop" "$file"; then
@@ -144,7 +143,7 @@ main() {
     minutes=$((interval % 3600 / 60))
     seconds=$((interval % 60))
     echo "Time interval: $hours hours, $minutes minutes, $seconds seconds"
-    echo "Info: Restore default network ..."
+    echo "Info: Restoring default network ..."
     check_restore_net
     if [ "$status" -ne 0 ]; then
         exit 1
@@ -152,7 +151,7 @@ main() {
 }
 
 help_function() {
-    echo "This script is uses for TCP echo stress test."
+    echo "This script is used for TCP echo stress test."
     echo "Run nc command on the server before you start to test"
     echo "The following command can listen on certain port and direct message to log file."
     echo " $ nc -lk -p {port} | tee test.log"
@@ -176,8 +175,7 @@ while getopts "s:i:p:l:o:" opt; do
 done
 
 if [[ -z "$src_if" || -z "$dst_ip" || -z "$dst_port" || -z "$loop" || -z "$file" ]]; then
-    echo "Error: Source network interface, Destination IP address,port,\
- Number of test loop and the output file are needed!"
+    echo "Error: Source network interface, Destination IP address, port, Number of test loop and the output file are needed!"
     help_function
     exit 1
 fi

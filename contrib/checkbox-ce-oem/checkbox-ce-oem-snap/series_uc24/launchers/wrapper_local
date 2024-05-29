@@ -21,11 +21,11 @@ esac
 if [ -d $SNAP/checkbox-runtime ]; then
   RUNTIME=$SNAP/checkbox-runtime
   if [ ! -d $RUNTIME/usr ]; then
-    echo "You need to connect this snap to the checkbox22 snap."
+    echo "You need to connect this snap to the checkbox24 snap."
     echo ""
     echo "You can do this with those commands:"
-    echo "snap install checkbox22"
-    echo "snap connect $SNAP_NAME:checkbox-runtime checkbox22:checkbox-runtime"
+    echo "snap install checkbox24"
+    echo "snap connect $SNAP_NAME:checkbox-runtime checkbox24:checkbox-runtime"
     exit 1
   fi
 fi

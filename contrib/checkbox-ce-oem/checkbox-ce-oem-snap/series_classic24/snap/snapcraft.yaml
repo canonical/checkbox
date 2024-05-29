@@ -46,7 +46,7 @@ parts:
       - linuxptp
       - snmp
     override-prime: |
-      snapcraftctl prime
+      craftctl default
       rm lib/systemd/system/alsa-utils.service
     override-build: |
       sudo snap install checkbox24 --beta  #TODO: Remove this line when checkbox24 is released in stable channel
@@ -54,7 +54,7 @@ parts:
       for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
-      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-ce-oem --root="$SNAPCRAFT_PART_INSTALL"
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-ce-oem --root="$CRAFT_PART_INSTALL"
     #TODO: Remove the comments when checkbox24 is released in stable channel
     # build-snaps:
     #   - checkbox24
@@ -72,10 +72,10 @@ parts:
       - gcc
       - libc6-dev
     override-build: |
-      mkdir -p ${SNAPCRAFT_PART_INSTALL}/usr/bin
-      PART_SRC=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src
+      mkdir -p ${CRAFT_PART_INSTALL}/usr/bin
+      PART_SRC=${CRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src
       gcc ${PART_SRC}/src/input-pcspkr.c -o ${PART_SRC}/src/beep
-      cp -v ${PART_SRC}/src/beep ${SNAPCRAFT_PART_INSTALL}/usr/bin/
+      cp -v ${PART_SRC}/src/beep ${CRAFT_PART_INSTALL}/usr/bin/
 
   parts-meta-info:
     plugin: nil

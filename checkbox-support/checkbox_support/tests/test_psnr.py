@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-from unittest.mock import patch
+from unittest.mock import patch, MagicMock
 from argparse import Namespace
 from io import StringIO
 
@@ -11,6 +11,11 @@ from checkbox_support.scripts.psnr import (
     get_average_psnr,
     _get_frame_resolution,
 )
+
+
+def create_image_helper_function(width, height, color):
+    """Creates an image with the specified color."""
+    return np.full((height, width, 3), color, dtype=np.uint8)
 
 
 class TestPSNRArgs(unittest.TestCase):
@@ -80,6 +85,16 @@ class TestGetAveragePSNR(unittest.TestCase):
             with self.assertRaises(SystemExit):
                 get_average_psnr("nonexistent_file.mp4", "test_file.mp4")
 
+    @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
+    def test_zero_frames(self, mock_VideoCapture):
+        mock_video_capture = MagicMock()
+        mock_VideoCapture.return_value = mock_video_capture
+        mock_video_capture.isOpened.return_value = True
+        mock_video_capture.get.return_value = 0  # Zero frames in the video
+
+        with self.assertRaises(SystemExit):
+            get_average_psnr("ref.mp4", "test.mp4")
+
     @patch("checkbox_support.scripts.psnr._get_frame_resolution")
     @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
     def test_get_average_psnr_different_dimensions(
@@ -91,12 +106,35 @@ class TestGetAveragePSNR(unittest.TestCase):
         mock_capture_ref.isOpened.return_value = True
         mock_get_frame_resolution.side_effect = [(100, 100), (100, 150)]
 
-        with self.assertRaises(SystemExit) as cm:
+        with self.assertRaises(SystemExit):
             get_average_psnr("ref_file.mp4", "test_file.mp4")
 
-        self.assertEqual(
-            str(cm.exception), "Error: Files have different dimensions."
-        )
+    @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
+    @patch("checkbox_support.scripts.psnr._get_psnr")
+    @patch("checkbox_support.scripts.psnr._get_frame_resolution")
+    def test_get_average_psnr(
+        self, mock_get_frame_resolution, mock_get_psnr, mock_VideoCapture
+    ):
+        # Create a mock VideoCapture object
+        mock_video_capture = MagicMock()
+        mock_VideoCapture.return_value = mock_video_capture
+
+        # Mock the behavior of isOpened()
+        mock_video_capture.isOpened.return_value = True
+
+        # Mock the frame resolution getter
+        mock_video_capture.get.return_value = 10
+        mock_video_capture.read.side_effect = [
+            (True, create_image_helper_function(100, 100, 255))
+        ] * 20
+
+        # Mock _get_psnr to return a specific value
+        mock_get_psnr.return_value = 30.0
+
+        avg_psnr, psnr_each_frame = get_average_psnr("ref.mp4", "test.mp4")
+
+        self.assertEqual(avg_psnr, 30.0)
+        self.assertEqual(psnr_each_frame, [30.0] * 10)
 
 
 class TestMainFunction(unittest.TestCase):

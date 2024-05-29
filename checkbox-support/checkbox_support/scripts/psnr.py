@@ -117,6 +117,9 @@ def get_average_psnr(
         raise SystemExit("Error: Files have different dimensions.")
 
     total_frame_count = int(capt_refrnc.get(cv2.CAP_PROP_FRAME_COUNT))
+    if total_frame_count == 0:
+        raise SystemExit("Error: The count of frame should not be 0")
+
     avg_psnr = 0.0
     psnr_each_frame = []
 

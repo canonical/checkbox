@@ -1,0 +1,44 @@
+id: strict-confinement/timedatectl-timezone
+category_id: strict-confinement-mode
+_summary: Test timezone control with timedatectl
+_description:
+  Test timezon control with timedatectl command in strict confinement mode.
+unit: job
+plugin: shell
+user: root
+flags: also-after-suspend
+estimated_duration: 5.0
+imports:
+  from com.canonical.certification import snap
+  from com.canonical.certification import lsb
+  from com.canonical.certification import connections
+requires:
+  lsb.distributor_id == 'Ubuntu Core'
+  snap.name == 'test-strict-confinement'
+  connections.slot == "snapd:timezone-control" and connections.plug == "test-strict-confinement:timezone-control"
+command:
+  test-strict-confinement.timedatectl-timezone
+
+id: strict-confinement/timedatectl-ntp
+category_id: strict-confinement-mode
+_summary: Test NTP service with timedatectl
+_description:
+  The test ensures that the system's local time can sync with the NTP service.
+  Additionally, it verifies that the system's local time can be set up when
+  the NTP service is inactive in strict confinement mode.
+unit: job
+plugin: shell
+user: root
+flags: also-after-suspend
+estimated_duration: 30.0
+imports:
+  from com.canonical.certification import snap
+  from com.canonical.certification import lsb
+  from com.canonical.certification import connections
+requires:
+  lsb.distributor_id == 'Ubuntu Core'
+  snap.name == 'test-strict-confinement'
+  connections.slot == "snapd:timeserver-control" and connections.plug == "test-strict-confinement:timeserver-control"
+  connections.slot == "snapd:time-control" and connections.plug == "test-strict-confinement:time-control"
+command:
+  test-strict-confinement.timedatectl-ntp

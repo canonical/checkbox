@@ -39,7 +39,7 @@ restore_net() {
     done < "$default_net_state"
 }
 
-check_resote_net() {
+check_restore_net() {
     for ((i=1; i <= 5; i++))
     do
         net_check=0
@@ -126,7 +126,7 @@ main() {
     if [ "$ping_state" -ne 0 ]; then
         echo "Error: target $dst_ip is unavaliable"
         echo "Info: Restore default network ..."
-        check_resote_net
+        check_restore_net
         exit 1
     fi
     echo "Info: Starting to test TCP ping stress."
@@ -145,7 +145,7 @@ main() {
     seconds=$((interval % 60))
     echo "Time interval: $hours hours, $minutes minutes, $seconds seconds"
     echo "Info: Restore default network ..."
-    check_resote_net
+    check_restore_net
     if [ "$status" -ne 0 ]; then
         exit 1
     fi

@@ -15,20 +15,20 @@ from checkbox_support.scripts.psnr import (
 
 class TestPSNRArgs(unittest.TestCase):
 
-    @patch("checkbox_support.scripts.argparse.ArgumentParser.parse_args")
+    @patch("checkbox_support.scripts.psnr.argparse.ArgumentParser.parse_args")
     def test_psnr_args_with_defaults(self, mock_parse_args):
         mock_parse_args.return_value = Namespace(
             reference_file="ref.mp4",
             test_file="test.mp4",
             show_psnr_each_frame=False,
         )
-        args = psnr_args()
+        args = psnr_args().parse_args()
 
         self.assertEqual(args.reference_file, "ref.mp4")
         self.assertEqual(args.test_file, "test.mp4")
         self.assertFalse(args.show_psnr_each_frame)
 
-    @patch("checkbox_support.scripts.argparse.ArgumentParser.parse_args")
+    @patch("checkbox_support.scripts.psnr.argparse.ArgumentParser.parse_args")
     def test_psnr_args_with_custom_args(self, mock_parse_args):
         mock_parse_args.return_value = Namespace(
             reference_file="ref.jpg",
@@ -36,7 +36,7 @@ class TestPSNRArgs(unittest.TestCase):
             show_psnr_each_frame=True,
         )
 
-        args = psnr_args()
+        args = psnr_args().parse_args()
 
         self.assertEqual(args.reference_file, "ref.jpg")
         self.assertEqual(args.test_file, "test.jpg")
@@ -44,7 +44,7 @@ class TestPSNRArgs(unittest.TestCase):
 
 
 class TestGetFrameResolution(unittest.TestCase):
-    @patch("cv2.VideoCapture")
+    @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
     def test_get_frame_resolution(self, mock_videocapture):
         mock_capture = mock_videocapture.return_value
         mock_capture.get.side_effect = [100, 200]
@@ -53,29 +53,35 @@ class TestGetFrameResolution(unittest.TestCase):
         self.assertEqual(height, 200)
 
 
-class TestPSNRCalculation(unittest.TestCase):
-    def setUp(self):
-        # Create two dummy files whose height and width is 100
-        self.reference_frame = np.random.randint(
-            0, 256, size=(100, 100, 3), dtype=np.uint8
-        )
-        self.test_frame = np.random.randint(
-            128, 256, size=(100, 100, 3), dtype=np.uint8
-        )
+class TestGetPSNR(unittest.TestCase):
 
-    def test_get_psnr(self):
-        psnr = _get_psnr(self.reference_frame, self.test_frame)
-        self.assertIsInstance(psnr, float)
+    def create_image(self, width, height, color):
+        """Creates an image with the specified color."""
+        return np.full((height, width, 3), color, dtype=np.uint8)
 
+    def test_identical_images(self):
+        img1 = self.create_image(100, 100, 255)
+        img2 = self.create_image(100, 100, 255)
+        self.assertEqual(_get_psnr(img1, img2), 0.0)
+
+    def test_different_images(self):
+        img1 = self.create_image(100, 100, 255)
+        img2 = self.create_image(100, 100, 0)
+        self.assertNotEqual(_get_psnr(img1, img2), 0.0)
+
+
+class TestGetAveragePSNR(unittest.TestCase):
     def test_get_average_psnr_file_not_found(self):
-        with patch("cv2.VideoCapture") as mock_videocapture:
+        with patch(
+            "checkbox_support.scripts.psnr.cv2.VideoCapture"
+        ) as mock_videocapture:
             mock_capture = mock_videocapture.return_value
             mock_capture.isOpened.return_value = False
             with self.assertRaises(SystemExit):
                 get_average_psnr("nonexistent_file.mp4", "test_file.mp4")
 
-    @patch("checkbox_support.scripts._get_frame_resolution")
-    @patch("cv2.VideoCapture")
+    @patch("checkbox_support.scripts.psnr._get_frame_resolution")
+    @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
     def test_get_average_psnr_different_dimensions(
         self, mock_videocapture, mock_get_frame_resolution
     ):
@@ -96,8 +102,8 @@ class TestPSNRCalculation(unittest.TestCase):
 class TestMainFunction(unittest.TestCase):
 
     @patch("sys.stdout", new_callable=StringIO)
-    @patch("checkbox_support.scripts.get_average_psnr")
-    @patch("checkbox_support.scripts.argparse.ArgumentParser.parse_args")
+    @patch("checkbox_support.scripts.psnr.get_average_psnr")
+    @patch("checkbox_support.scripts.psnr.argparse.ArgumentParser.parse_args")
     def test_main_prints_avg_psnr(
         self, mock_parse_args, mock_get_average_psnr, mock_stdout
     ):
@@ -116,8 +122,8 @@ class TestMainFunction(unittest.TestCase):
         mock_get_average_psnr.assert_called_once_with("ref.mp4", "test.mp4")
 
     @patch("sys.stdout", new_callable=StringIO)
-    @patch("checkbox_support.scripts.get_average_psnr")
-    @patch("checkbox_support.scripts.argparse.ArgumentParser.parse_args")
+    @patch("checkbox_support.scripts.psnr.get_average_psnr")
+    @patch("checkbox_support.scripts.psnr.argparse.ArgumentParser.parse_args")
     def test_main_prints_psnr_each_frame(
         self, mock_parse_args, mock_get_average_psnr, mock_stdout
     ):

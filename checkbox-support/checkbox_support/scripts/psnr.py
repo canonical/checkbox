@@ -23,16 +23,15 @@
 import cv2
 import numpy as np
 import argparse
-from typing import Tuple, List, ArgumentParser
+from typing import Tuple, List
 
 
-def psnr_args() -> ArgumentParser:
+def psnr_args() -> argparse.ArgumentParser:
     """
-    Parse command-line arguments using argparse.
+    Create and configure the argument parser for the PSNR calculation script.
 
     Returns:
-        Tuple[str, str]: A tuple containing the reference file path and test
-        file path.
+        ArgumentParser: The configured argument parser
     """
     parser = argparse.ArgumentParser(
         description=(

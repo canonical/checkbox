@@ -9,9 +9,16 @@ get_active_interfaces() {
 disable_net() {
     local target_interface=$1
     local default_net_state=$2
-    # Disable all network interfaces that are not under test
+    # Get the parent eth name here to prevent issues on platforms with multi-port
+    # switches. If the platform has multi-port switches, the parent eth cannot be
+    # disabled; otherwise, the entire switch will become unusable.
+
+    parent_eth=$(grep -oP "(?<=$target_interface@)\w+" "$default_net_state")
+
+    # Disable all network interfaces that are not under test except for the
+    # parent interface of the node under test.
     while IFS= read -r line; do
-        if [[ "$line" != *"$target_interface"* ]]; then
+        if [[ "$line" != *"$target_interface"* ]] && [[ "$line" != "$parent_eth" ]]; then
             echo "Attempting to disable $line"
             ip link set down dev "$line"
             sleep 3
@@ -32,7 +39,7 @@ restore_net() {
     done < "$default_net_state"
 }
 
-check_resote_net() {
+check_restore_net() {
     for ((i=1; i <= 5; i++))
     do
         net_check=0
@@ -53,7 +60,6 @@ check_resote_net() {
         exit 1
     fi
 }
-
 
 tcp_echo() {
     local target=$1
@@ -97,18 +103,18 @@ tcp_echo() {
 
 main() {
     echo "Info: Attempting to test TCP echo stress ..."
-    echo "Info: Disabling network interfaces that not under test ..."
+    echo "Info: Disabling network interfaces that are not under test ..."
     original_net_state=$(mktemp)
     current_net_state=$(mktemp)
     get_active_interfaces "$original_net_state"
     disable_net "$src_if" "$original_net_state"
-    echo "Info: Checking if target is avaliable ..."
+    echo "Info: Checking if target is available ..."
     start_time=$(date +%s)
     for ((i=1; i <= 5; i++))
     do
         ping_state=0
         if ping -I "$src_if" "$dst_ip" -c 3; then
-            echo "Info: target is avaliable!"
+            echo "Info: target is available!"
             break
         else
             echo "Error: Retry ping!"
@@ -117,12 +123,12 @@ main() {
         fi
     done
     if [ "$ping_state" -ne 0 ]; then
-        echo "Error: target $dst_ip is unavaliable"
-        echo "Info: Restore default network ..."
-        check_resote_net
+        echo "Error: target $dst_ip is unavailable"
+        echo "Info: Restoring default network ..."
+        check_restore_net
         exit 1
     fi
-    echo "Info: Starting to test TCP ping stress."
+    echo "Info: Starting to test TCP echo stress."
     echo "Info: It will take time so please be patient."
     echo "Info: Will print out log when failed."
     if tcp_echo "$dst_ip" "$dst_port" "$loop" "$file"; then
@@ -137,15 +143,15 @@ main() {
     minutes=$((interval % 3600 / 60))
     seconds=$((interval % 60))
     echo "Time interval: $hours hours, $minutes minutes, $seconds seconds"
-    echo "Info: Restore default network ..."
-    check_resote_net
+    echo "Info: Restoring default network ..."
+    check_restore_net
     if [ "$status" -ne 0 ]; then
         exit 1
     fi
 }
 
 help_function() {
-    echo "This script is uses for TCP echo stress test."
+    echo "This script is used for TCP echo stress test."
     echo "Run nc command on the server before you start to test"
     echo "The following command can listen on certain port and direct message to log file."
     echo " $ nc -lk -p {port} | tee test.log"
@@ -169,8 +175,7 @@ while getopts "s:i:p:l:o:" opt; do
 done
 
 if [[ -z "$src_if" || -z "$dst_ip" || -z "$dst_port" || -z "$loop" || -z "$file" ]]; then
-    echo "Error: Source network interface, Destination IP address,port,\
- Number of test loop and the output file are needed!"
+    echo "Error: Source network interface, Destination IP address, port, Number of test loop and the output file are needed!"
     help_function
     exit 1
 fi

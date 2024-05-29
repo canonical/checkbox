@@ -1,13 +1,12 @@
 name: checkbox24
 summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
-grade: devel
+grade: stable
 confinement: strict
 
 adopt-info: version-calculator
 
 base: core24
-build-base: devel
 
 # Don't forget to add a new slot if a new provider part is added in the parts
 # section below.

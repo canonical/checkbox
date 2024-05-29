@@ -308,7 +308,7 @@ parts:
       - libasound2-dev
       - libcap-dev
     organize:
-      usr/lib/lib*.so*: usr/lib/$CRAFT_ARCH_TRIPLET/
+      usr/lib/lib*.so*: usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/
     after: [checkbox-provider-resource]
 ################################################################################
   checkbox-provider-docker:
@@ -442,7 +442,7 @@ parts:
       - on arm64:
         - libraspberrypi0
     organize:
-      usr/lib/lib*.so: usr/lib/$CRAFT_ARCH_TRIPLET/
+      usr/lib/lib*.so: usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/
 ################################################################################
   lk-boot-env:
     plugin: nil
@@ -460,9 +460,9 @@ parts:
         - gcc-aarch64-linux-gnu:amd64
     override-build: |
       mkdir -p ${CRAFT_PART_INSTALL}/bin
-      if [ "${CRAFT_ARCH_TRIPLET}" = "arm-linux-gnueabihf" ]; then
+      if [ "${CRAFT_ARCH_TRIPLET_BUILD_FOR}" = "arm-linux-gnueabihf" ]; then
           arm-linux-gnueabihf-gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${CRAFT_PART_INSTALL}/bin/lk-boot-env
-      elif [ "${CRAFT_ARCH_TRIPLET}" = "aarch64-linux-gnu" ]; then
+      elif [ "${CRAFT_ARCH_TRIPLET_BUILD_FOR}" = "aarch64-linux-gnu" ]; then
           aarch64-linux-gnu-gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${CRAFT_PART_INSTALL}/bin/lk-boot-env
       else
           # native build

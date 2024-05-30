@@ -4,6 +4,12 @@ plugin: shell
 user: root
 estimated_duration: 5
 environ: EXPECTED_GADGET_GPIO
+imports:
+  from com.canonical.certification import lsb
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.has_gpio_slot_been_defined == 'True'
+  lsb.distributor_id == 'Ubuntu Core'
 _summary: Check gadget snap defined GPIO slots.
 _purpose: Check if expected GPIO slots been defined in gadget snap
 _description:

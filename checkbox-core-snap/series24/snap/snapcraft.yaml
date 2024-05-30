@@ -221,7 +221,7 @@ parts:
       # cleaning this bit should not cause any issue but if it does do not only remove this line
       # contact also the store/update the package because else this will always trigger
       # a manual review
-      for libamd_path in $(find .. -name "libamdhip64.so.5*"); do
+      for libamd_path in $(find .. -name "*.so.*"); do
         echo "Clearing execstack on $libamd_path";
         execstack --clear-execstack "$libamd_path" || exit 1
       done;

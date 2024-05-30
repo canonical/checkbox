@@ -51,12 +51,14 @@ class CameraTestTests(unittest.TestCase):
                 "resolutions": [[640, 480]],
             },
         ]
-        expected_str = (
-            "Format: YUYV (YUYV)\n"
-            "Resolutions: 640x480,320x240\n"
-            "Format: fake (fake)\n"
-            "Resolutions: 640x480\n"
-        )
+        expected_str = textwrap.dedent(
+            """
+            Format: YUYV (YUYV)
+            Resolutions: 640x480,320x240
+            Format: fake (fake)
+            Resolutions: 640x480
+            """
+        ).lstrip()
         return_str = self.camera_instance._supported_formats_to_string(formats)
         self.assertEqual(return_str, expected_str)
 
@@ -194,79 +196,6 @@ class CameraTestTests(unittest.TestCase):
             MagicMock(), "/dev/video0", 5
         )
         self.assertEqual(pixel_formats, [])
-
-    # def _get_supported_formats(self, device):
-    #     """
-    #     Query the camera for supported format info for a given pixel_format.
-    #     Data is returned in a list of dictionaries with supported pixel
-    #     formats as the following example shows:
-    #     format_info['pixelformat'] = "YUYV"
-    #     format_info['description'] = "(YUV 4:2:2 (YUYV))"
-    #     format_info['resolutions'] = [[width, height], [640, 480], [1280, 720]]
-
-    #     If we are unable to gather any information from the driver, then we
-    #     return YUYV and 640x480 which seems to be a safe default.
-    #     Per the v4l2 spec the ioctl used here is experimental
-    #     but seems to be well supported.
-    #     """
-    #     supported_formats_info = self._get_supported_pixel_formats(device)
-
-    #     # If we can't get any formats, we will return YUYV and 640x480
-    #     if not supported_formats_info:
-    #         format_info = {}
-    #         format_info["description"] = "YUYV"
-    #         format_info["pixelformat"] = "YUYV"
-    #         format_info["resolutions"] = [[640, 480]]
-    #         return [format_info]
-
-    #     for supported_format in supported_formats_info:
-    #         resolutions = []
-    #         framesize = v4l2_frmsizeenum()
-    #         framesize.index = 0
-    #         framesize.pixel_format = supported_format["pixelformat_int"]
-    #         with open(device, "r") as vd:
-    #             try:
-    #                 while (
-    #                     fcntl.ioctl(vd, VIDIOC_ENUM_FRAMESIZES, framesize) == 0
-    #                 ):
-    #                     if framesize.type == V4L2_FRMSIZE_TYPE_DISCRETE:
-    #                         resolutions.append(
-    #                             [
-    #                                 framesize.discrete.width,
-    #                                 framesize.discrete.height,
-    #                             ]
-    #                         )
-    #                     # for continuous and stepwise, let's just use min and
-    #                     # max they use the same structure and only return
-    #                     # one result
-    #                     elif framesize.type in (
-    #                         V4L2_FRMSIZE_TYPE_CONTINUOUS,
-    #                         V4L2_FRMSIZE_TYPE_STEPWISE,
-    #                     ):
-    #                         resolutions.append(
-    #                             [
-    #                                 framesize.stepwise.min_width,
-    #                                 framesize.stepwise.min_height,
-    #                             ]
-    #                         )
-    #                         resolutions.append(
-    #                             [
-    #                                 framesize.stepwise.max_width,
-    #                                 framesize.stepwise.max_height,
-    #                             ]
-    #                         )
-    #                         break
-    #                     framesize.index = framesize.index + 1
-    #             except IOError as e:
-    #                 # EINVAL is the ioctl's way of telling us that there are no
-    #                 # more formats, so we ignore it
-    #                 if e.errno != errno.EINVAL:
-    #                     print(
-    #                         "Unable to determine supported framesizes "
-    #                         "(resolutions), this may be a driver issue."
-    #                     )
-    #         supported_format["resolutions"] = resolutions
-    #     return supported_formats_info
 
     def ioctl_enum_framesizes_side_effect(self, fd, request, fmt):
         if fmt.pixel_format == 1448695129:  # YUYV

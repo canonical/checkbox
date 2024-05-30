@@ -674,7 +674,7 @@ def parse_arguments(argv):
         "-o",
         "--output",
         default="",
-        help="Output directory to store the images",
+        help="Output directory to store a small debug image",
     )
     add_device_parameter(resolutions_parser)
     args = parser.parse_args(argv)

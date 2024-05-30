@@ -223,7 +223,8 @@ parts:
       # a manual review
       for libamd_path in $(find .. -name "*.so.*"); do
         echo "Clearing execstack on $libamd_path";
-        execstack --clear-execstack "$libamd_path" || exit 1
+        # the || true is because there are som  *.so*.py in gdblib
+        execstack --clear-execstack "$libamd_path" || true
       done;
       craftctl default
     stage-packages:

@@ -15,10 +15,14 @@ countMtd() {
     count=$( listAllMtd | grep "MTD_NAME" | wc -l )
     if [ "${1}" == "$count" ]; then
         echo "The number of MTD is correct!"
+        ret=0
     else
         echo "The number of MTD is incorrect!"
-        exit 1 
+        ret=1 
     fi
+    echo "Expected: ${1}"
+    echo "Actual: ${count}"
+    exit "$ret"
 }
 
 # This function will get the size of MTD. (Unit: byte)

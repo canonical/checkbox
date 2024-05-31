@@ -9,7 +9,15 @@ plugin: shell
 user: root
 flags: also-after-suspend
 estimated_duration: 5
-command: mtd.sh count "$TOTAL_MTD_NUM"
+requires: manifest.has_mtd == 'True'
+imports: from com.canonical.plainbox import manifest
+command:
+  if [ -z "${TOTAL_MTD_NUM}" ]; then
+      echo "TOTAL_MTD_NUM is not defined!"
+      exit 1
+  else
+      mtd.sh count "$TOTAL_MTD_NUM"
+  fi  
 
 id: ce-oem-mtd/mtd-list
 plugin: resource

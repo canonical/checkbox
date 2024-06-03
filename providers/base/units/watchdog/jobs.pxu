@@ -29,8 +29,9 @@ id: watchdog/probe-module
 category_id: com.canonical.plainbox::power-management
 _summary: Probe the suitable module for watchdog
 _description:
-    Probe the suitable module of watchdog based on the environment variable 'WATCHDOG_TYPE' in config file.
-    This job only be execute on the Stock Classic image because the module isn't probed automatically.
+    Probe the module 'WATCHDOG_TYPE'.
+    This job can only be execute on the Stock Classic image,
+    because the watchdog module is not probed automatically.
 user: root
 flags: simple
 imports: from com.canonical.plainbox import manifest

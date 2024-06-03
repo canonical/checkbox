@@ -16,9 +16,8 @@ id: watchdog/check-service
 category_id: com.canonical.plainbox::power-management
 _summary: Check the watchdog.service is enabled or not
 _description:
-    Check the watchdog.service is enabled or not.
-    Watchdog implementation on both classic and core image no longer rely
-    on watchdogd service since 20.04.
+    Check the state of the watchdog.service. It must be disabled/missing 
+    on both classic and core images since 20.04. Else it must be enabled.
 flags: simple
 imports: from com.canonical.plainbox import manifest
 requires:

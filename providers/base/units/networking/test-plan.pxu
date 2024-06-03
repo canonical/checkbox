@@ -60,6 +60,10 @@ unit: test plan
 _name: Manual networking tests for devices
 _description: Manual networking tests for devices
 include:
+  networking/info_device.*                       certification-status=blocker
+bootstrap_include:
+  device
+  executable
 
 id: networking-automated
 unit: test plan

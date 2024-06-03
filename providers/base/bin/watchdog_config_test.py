@@ -250,8 +250,7 @@ def set_timeout(timeout: int = 35) -> None:
 
         # Check if the timeout is already set
         if not re.search(pattern, text):
-            print("Watchdog timeout is already set")
-            return
+            raise SystemExit("Watchdog timeout is already set")
 
         # Substitute the current timeout with the new one
         text = re.sub(

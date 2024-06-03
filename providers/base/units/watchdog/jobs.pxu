@@ -2,8 +2,8 @@ id: watchdog/check-timeout
 category_id: com.canonical.plainbox::power-management
 _summary: Check the timeout of Hardware Watchdog
 _description:
-    Check the value of RuntimeWatchdogUSec shouldn't be 0 in OEM image.
-    It means the systemd watchdog is disabled if the value is 0.
+    Check the value of RuntimeWatchdogUSec that shouldn't be 0 or unset
+    in OEM images because that means that the watchdog is disabled.
 flags: simple
 imports: from com.canonical.plainbox import manifest
 requires:

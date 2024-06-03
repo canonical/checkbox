@@ -83,6 +83,7 @@ depends:
     watchdog/check-service
     watchdog/detect
 user: root
+environ: WATCHDOG_TIMEOUT
 command:
     watchdog_config_test.py --set-timeout ${WATCHDOG_TIMEOUT:-35}
 

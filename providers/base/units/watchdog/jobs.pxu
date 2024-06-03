@@ -99,6 +99,7 @@ requires:
     image_source_and_type.source == 'stock'
 depends:
     watchdog/set-timeout
+environ: WATCHDOG_TIMEOUT
 user: root
 command:
     watchdog_config_test.py --revert-timeout ${WATCHDOG_TIMEOUT:-35}

@@ -2,10 +2,11 @@
 #
 # This file is part of Checkbox.
 #
-# Copyright 2008-2018 Canonical Ltd.
+# Copyright 2008-2024 Canonical Ltd.
 # Written by:
 #   Matt Fischer <matt@mattfischer.com>
 #   Sylvain Pineau <sylvain.pineau@canonical.com>
+#   Fernando Bravo <fernando.bravo.hernandez@canonical.com>
 #
 # The v4l2 ioctl code comes from the Python bindings for the v4l2
 # userspace api (http://pypi.python.org/pypi/v4l2):
@@ -118,7 +119,7 @@ class v4l2_frmsize_discrete(ctypes.Structure):
 class v4l2_frmsize_stepwise(ctypes.Structure):
     _fields_ = [
         ("min_width", ctypes.c_uint32),
-        ("min_height", ctypes.c_uint32),
+        ("max_width", ctypes.c_uint32),
         ("step_width", ctypes.c_uint32),
         ("min_height", ctypes.c_uint32),
         ("max_height", ctypes.c_uint32),
@@ -202,7 +203,7 @@ class CameraTest:
         :param device:
             Full path of camera device under /dev. e.g. /dev/video0
         :param cp:
-            The v4l2 capabitliy
+            The v4l2 capability
 
         :returns:
             0 if the camera supports the capture capability
@@ -230,12 +231,12 @@ class CameraTest:
             sep="",
         )
 
-        resolutions = self._supported_resolutions_to_string(
-            self._get_supported_resolutions(device)
+        formats = self._supported_formats_to_string(
+            self._get_supported_formats(device)
         )
-        resolutions = resolutions.replace("Resolutions:", "    Resolutions:")
-        resolutions = resolutions.replace("Format:", "    Format:")
-        print(resolutions)
+        formats = formats.replace("Resolutions:", "    Resolutions:")
+        formats = formats.replace("Format:", "    Format:")
+        print(formats)
 
         return 0 if capture_capabilities else 1
 
@@ -365,19 +366,19 @@ class CameraTest:
             stage.show()
             Clutter.main()
 
-    def _supported_resolutions_to_string(self, supported_resolutions):
+    def _supported_formats_to_string(self, supported_formats):
         """
         Return a printable string representing a list of supported resolutions
         """
         ret = ""
-        for resolution in supported_resolutions:
+        for format in supported_formats:
             ret += "Format: %s (%s)\n" % (
-                resolution["pixelformat"],
-                resolution["description"],
+                format["pixelformat"],
+                format["description"],
             )
             ret += "Resolutions: "
-            for res in resolution["resolutions"]:
-                ret += "%sx%s," % (res[0], res[1])
+            for resolution in format["resolutions"]:
+                ret += "%sx%s," % (resolution[0], resolution[1])
             # truncate the extra comma with :-1
             ret = ret[:-1] + "\n"
         return ret
@@ -388,51 +389,81 @@ class CameraTest:
         take multiple images using the first format returned by the driver,
         and see if they are valid
         """
-        resolutions = self._get_supported_resolutions(self.args.device)
-        # print supported formats and resolutions for the logs
-        print(self._supported_resolutions_to_string(resolutions))
+        formats = self._get_supported_formats(self.args.device)
+        # print supported formats and formats for the logs
+        print(self._supported_formats_to_string(formats))
 
         # pick the first format, which seems to be what the driver wants for a
         # default.  This also matches the logic that fswebcam uses to select
         # a default format.
-        resolution = resolutions[0]
-        if resolution:
-            print(
-                "Taking multiple images using the %s format"
-                % resolution["pixelformat"]
-            )
-            for res in resolution["resolutions"]:
-                w = res[0]
-                h = res[1]
-                f = NamedTemporaryFile(
-                    prefix="camera_test_%s%sx%s"
-                    % (resolution["pixelformat"], w, h),
-                    suffix=".jpg",
-                    delete=False,
-                )
-                print("Taking a picture at %sx%s" % (w, h))
-                self._still_helper(
-                    f.name, w, h, True, pixelformat=resolution["pixelformat"]
-                )
-                if self._validate_image(f.name, w, h):
-                    print("Validated image %s" % f.name)
-                    os.remove(f.name)
-                else:
-                    print(
-                        "Failed to validate image %s" % f.name, file=sys.stderr
-                    )
-                    os.remove(f.name)
-                    return 1
-            return 0
+        if not formats:
+            raise SystemExit("No supported formats found")
+        format = formats[0]
 
-    def _get_pixel_formats(self, device, maxformats=5):
+        if self.args.output:
+            self._save_debug_image(format, self.args.device, self.args.output)
+
+        print(
+            "Taking multiple images using the %s format"
+            % format["pixelformat"]
+        )
+
+        for resolution in format["resolutions"]:
+            w = resolution[0]
+            h = resolution[1]
+            f = NamedTemporaryFile(
+                prefix="camera_test_%s%sx%s" % (format["pixelformat"], w, h),
+                suffix=".jpg",
+                delete=False,
+            )
+            print("Taking a picture at %sx%s" % (w, h))
+            self._still_helper(
+                f.name, w, h, True, pixelformat=format["pixelformat"]
+            )
+            if self._validate_image(f.name, w, h):
+                print("Validated image %s" % f.name)
+                os.remove(f.name)
+            else:
+                print("Failed to validate image %s" % f.name, file=sys.stderr)
+                os.remove(f.name)
+                return 1
+        return 0
+
+    def _save_debug_image(self, format, device, output):
+        """
+        Save an image to a file
+        """
+        # Check if the output directory exists
+        if not os.path.exists(output):
+            raise SystemExit(
+                "Output directory does not exist: {}".format(output)
+            )
+
+        # Choose one resolution image to store as an artifact. We will use
+        # the closest resolution to 640x480 as the target to have some
+        # uniformity in the output
+        target = 640
+        closest_resolution = min(
+            format["resolutions"], key=lambda x: abs(x[0] - target)
+        )
+        w, h = closest_resolution
+        device_name = device.split("/")[-1]
+        filepath = os.path.join(
+            output, "resolution_test_image_{}.jpg".format(device_name)
+        )
+        with open(filepath, "w") as f:
+            self._still_helper(
+                f.name, w, h, True, pixelformat=format["pixelformat"]
+            )
+
+    def _get_supported_pixel_formats(self, device, maxformats=5):
         """
         Query the camera to see what pixel formats it supports.  A list of
         dicts is returned consisting of format and description.  The caller
         should check whether this camera supports VIDEO_CAPTURE before
         calling this function.
         """
-        supported_formats = []
+        supported_pixel_formats = []
         fmt = v4l2_fmtdesc()
         fmt.index = 0
         fmt.type = V4L2_CAP_VIDEO_CAPTURE
@@ -450,7 +481,7 @@ class CameraTest:
                             chr((fmt.pixelformat >> 24) & 0xFF),
                         )
                         pixelformat["description"] = fmt.description.decode()
-                        supported_formats.append(pixelformat)
+                        supported_pixel_formats.append(pixelformat)
                 fmt.index = fmt.index + 1
         except IOError as e:
             # EINVAL is the ioctl's way of telling us that there are no
@@ -460,33 +491,34 @@ class CameraTest:
                     "Unable to determine Pixel Formats, this may be a "
                     "driver issue."
                 )
-            return supported_formats
-        return supported_formats
+            return supported_pixel_formats
+        return supported_pixel_formats
 
-    def _get_supported_resolutions(self, device):
+    def _get_supported_formats(self, device):
         """
-        Query the camera for supported resolutions for a given pixel_format.
+        Query the camera for supported format info for a given pixel_format.
         Data is returned in a list of dictionaries with supported pixel
         formats as the following example shows:
-        resolution['pixelformat'] = "YUYV"
-        resolution['description'] = "(YUV 4:2:2 (YUYV))"
-        resolution['resolutions'] = [[width, height], [640, 480], [1280, 720] ]
+        format_info['pixelformat'] = "YUYV"
+        format_info['description'] = "(YUV 4:2:2 (YUYV))"
+        format_info['resolutions'] = [[width, height], [640, 480], [1280, 720]]
 
         If we are unable to gather any information from the driver, then we
         return YUYV and 640x480 which seems to be a safe default.
         Per the v4l2 spec the ioctl used here is experimental
         but seems to be well supported.
         """
-        supported_formats = self._get_pixel_formats(device)
-        if not supported_formats:
-            resolution = {}
-            resolution["description"] = "YUYV"
-            resolution["pixelformat"] = "YUYV"
-            resolution["resolutions"] = [[640, 480]]
-            supported_formats.append(resolution)
-            return supported_formats
+        supported_formats_info = self._get_supported_pixel_formats(device)
 
-        for supported_format in supported_formats:
+        # If we can't get any formats, we will return YUYV and 640x480
+        if not supported_formats_info:
+            format_info = {}
+            format_info["description"] = "YUYV"
+            format_info["pixelformat"] = "YUYV"
+            format_info["resolutions"] = [[640, 480]]
+            return [format_info]
+
+        for supported_format in supported_formats_info:
             resolutions = []
             framesize = v4l2_frmsizeenum()
             framesize.index = 0
@@ -533,7 +565,7 @@ class CameraTest:
                             "(resolutions), this may be a driver issue."
                         )
             supported_format["resolutions"] = resolutions
-        return supported_formats
+        return supported_formats_info
 
     def _validate_image(self, filename, width, height):
         """
@@ -612,15 +644,13 @@ def parse_arguments(argv):
             "--highest-device",
             action="store_true",
             help=(
-                "Use the /dev/videoN " "where N is the highest value available"
+                "Use the /dev/videoN where N is the highest value available"
             ),
         )
         group.add_argument(
             "--lowest-device",
             action="store_true",
-            help=(
-                "Use the /dev/videoN " "where N is the lowest value available"
-            ),
+            help=("Use the /dev/videoN where N is the lowest value available"),
         )
 
     subparsers.add_parser("detect")
@@ -637,9 +667,15 @@ def parse_arguments(argv):
         "-q",
         "--quiet",
         action="store_true",
-        help=("Don't display picture, " "just write the picture to a file"),
+        help=("Don't display picture, just write the picture to a file"),
     )
     resolutions_parser = subparsers.add_parser("resolutions")
+    resolutions_parser.add_argument(
+        "-o",
+        "--output",
+        default="",
+        help="Output directory to store a small debug image",
+    )
     add_device_parameter(resolutions_parser)
     args = parser.parse_args(argv)
 

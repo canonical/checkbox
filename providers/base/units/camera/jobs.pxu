@@ -102,10 +102,28 @@ _summary: Webcam multiple resolution capture test for {product_slug}
 estimated_duration: 1.2
 depends: camera/detect
 command:
-  camera_test.py resolutions -d /dev/{name}
+  camera_test.py resolutions -d /dev/{name} -o "$PLAINBOX_SESSION_SHARE"
 _description:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format.
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CAPTURE' and device.name != ''
+template-unit: job
+plugin: attachment
+category_id: com.canonical.plainbox::camera
+id: camera/multiple-resolution-images-attachment_{name}
+flags: also-after-suspend
+_summary: Attach an image from the multiple resolution images test for {product_slug}
+estimated_duration: 1s
+after: camera/multiple-resolution-images_{name}
+command:
+  [ -f "$PLAINBOX_SESSION_SHARE"/resolution_test_image_{name}.jpg ] &&
+  cat "$PLAINBOX_SESSION_SHARE"/resolution_test_image_{name}.jpg
+_description:
+  This test will attach one of the images used for the multiple resolution
+  images test.
 
 unit: template
 template-resource: device
@@ -142,6 +160,8 @@ requires: lsb.release >= '22.04'
 command:
   [ -f "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg ] &&
   cat "$PLAINBOX_SESSION_SHARE"/quality_image_{name}.jpg
+_description:
+  This test will attach the image used for the BRISQUE score.
 
 unit: template
 template-resource: device
@@ -161,6 +181,25 @@ _description:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format.
 user: root
+
+unit: template
+template-resource: device
+template-filter: device.category == 'MMAL' and device.name != ''
+template-unit: job
+plugin: attachment
+category_id: com.canonical.plainbox::camera
+id: camera/multiple-resolution-images-rpi-attachment_{name}
+template-id: camera/multiple-resolution-images-rpi-attachment_name
+_summary: Attach an image from the multiple resolution images test on rpi
+estimated_duration: 1s
+after: camera/multiple-resolution-images-rpi_{name}
+requires: cpuinfo.platform == 'armv7l'
+command:
+  [ -f "$PLAINBOX_SESSION_SHARE"/picam_6.jpg ] &&
+  cat "$PLAINBOX_SESSION_SHARE"/picam_6.jpg
+_description:
+  This test will attach one of the images used for the multiple resolution
+  images test.
 
 unit: template
 template-engine: jinja2

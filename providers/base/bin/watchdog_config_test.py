@@ -242,7 +242,7 @@ def set_timeout(timeout: int = 35) -> None:
         SystemExit: If there is an error in reloading the configuration.
     """
     # Pattern to match the line containing the current watchdog timeout
-    pattern = r"#RuntimeWatchdogSec=.*"
+    pattern = r".?RuntimeWatchdogSec=.*"
 
     # Read the contents of /etc/systemd/system.conf
     with open("/etc/systemd/system.conf", "r") as f:

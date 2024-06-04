@@ -81,8 +81,7 @@ jobs:
               else \
                 if [ ${{ matrix.releases }} = '22' ]; then \
                   snapcraft upload $snap --release latest/edge ; \
-                else \
-                  snapcraft upload $snap --release focal/edge ; \
                 fi \
+                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge ; \
               fi ; \
             done

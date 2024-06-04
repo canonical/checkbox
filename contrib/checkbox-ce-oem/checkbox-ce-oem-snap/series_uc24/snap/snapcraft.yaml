@@ -12,23 +12,23 @@ plugs:
   checkbox-runtime:
     interface: content
     target: $SNAP/checkbox-runtime
-    default-provider: checkbox24
+    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
   provider-resource:
     interface: content
     target: $SNAP/providers/plainbox-provider-resource
-    default-provider: checkbox24
+    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
   provider-checkbox:
     interface: content
     target: $SNAP/providers/plainbox-provider-checkbox
-    default-provider: checkbox24
+    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
   provider-tpm2:
     interface: content
     target: $SNAP/providers/plainbox-provider-tpm2
-    default-provider: checkbox24
+    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
   provider-certification-client:
     interface: content
     target: $SNAP/providers/plainbox-provider-certification-client
-    default-provider: checkbox24
+    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
 apps:
   checkbox-cli:
     command-chain: [bin/wrapper_local]

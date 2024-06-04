@@ -334,9 +334,10 @@ class ZapperEdidCycleTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             edid_cycle.main(args)
 
+    @patch("edid_cycle.zapper_monitor")
     @patch("edid_cycle.test_edid")
     @patch("edid_cycle.discover_video_output_device")
-    def test_main(self, mock_discover, mock_test_edid):
+    def test_main(self, mock_discover, mock_test_edid, mock_monitor):
         """
         Test if main function run the EDID test for every available EDID file.
         """
@@ -358,3 +359,17 @@ class ZapperEdidCycleTests(unittest.TestCase):
 
         mock_test_edid.side_effect = AssertionError("Mismatch")
         self.assertTrue(edid_cycle.main(args))
+
+        mock_monitor.assert_called_with("zapper-ip")
+
+    @patch("edid_cycle._clear_edid")
+    def test_zapper_monitor(self, mock_clear):
+        """
+        Test whether this context manager unplugs the Zapper monitor
+        at exit.
+        """
+
+        with edid_cycle.zapper_monitor("zapper-ip"):
+            pass
+
+        mock_clear.assert_called_with("zapper-ip")

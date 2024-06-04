@@ -11,12 +11,22 @@ import os
 import re
 import subprocess
 import time
+from contextlib import contextmanager
 
 from checkbox_support.scripts.zapper_proxy import zapper_run  # noqa: E402
 
 EDID_FILES = list(
     pathlib.Path(os.getenv("PLAINBOX_PROVIDER_DATA", ".")).glob("edids/*.edid")
 )
+
+
+@contextmanager
+def zapper_monitor(zapper_host: str):
+    """Unplug the Zapper monitor at the end of the test."""
+    try:
+        yield
+    finally:
+        _clear_edid(zapper_host)
 
 
 def discover_video_output_device(zapper_host):
@@ -233,12 +243,13 @@ def main(args=None):
 
     failed = False
 
-    for edid_file in EDID_FILES:
-        try:
-            test_edid(args.host, edid_file, video_device)
-        except AssertionError as exc:
-            print(exc.args[0])
-            failed = True
+    with zapper_monitor(args.host):
+        for edid_file in EDID_FILES:
+            try:
+                test_edid(args.host, edid_file, video_device)
+            except AssertionError as exc:
+                print(exc.args[0])
+                failed = True
 
     return failed
 

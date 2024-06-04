@@ -80,6 +80,7 @@ nested_part:
     ce-oem-digital-io-automated
     ce-oem-gpio-automated
     com.canonical.certification::rtc-automated
+    com.canonical.certification::led-indicator-auto
 
 id: after-suspend-ce-oem-manual
 unit: test plan

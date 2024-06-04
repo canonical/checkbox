@@ -23,6 +23,8 @@ Utility class that provides functionalities connected to placing timeouts on
 functions
 """
 import os
+import time
+import traceback
 import subprocess
 import multiprocessing
 
@@ -39,15 +41,34 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
 
     Note: the function, *args and **kwargs must be picklable to use this.
     """
-    result_queue = multiprocessing.Queue()
-    exception_queue = multiprocessing.Queue()
+    result_queue = multiprocessing.SimpleQueue()
+    exception_queue = multiprocessing.SimpleQueue()
 
     def _f(*args, **kwargs):
         os.setsid()
         try:
             result_queue.put(f(*args, **kwargs))
         except BaseException as e:
-            exception_queue.put(e)
+            try:
+                exception_queue.put(e)
+            except AttributeError:
+                # raised by pickle.dumps in put when an exception is not
+                # pickleable. This raises SystemExit as we can't preserve the
+                # exception type, so any exception handler in the function
+                # user will not work (or will wrongly handle the exception
+                # if we change the type
+                exception_queue.put(
+                    SystemExit(
+                        "".join(
+                            [
+                                "Function failed but the timeout decorator is "
+                                "unable to propagate this un-picklable "
+                                "exception:\n"
+                            ]
+                            + traceback.format_exception(e)
+                        )
+                    )
+                )
 
     process = multiprocessing.Process(
         target=_f, args=args, kwargs=kwargs, daemon=True

@@ -123,3 +123,27 @@ class TestTimeoutExec(TestCase):
         self.assertEqual(
             k(1, 2, 3, abc=10), fake_run_with_timeout(k, 100, 1, 2, 3, abc=10)
         )
+
+    def test_unpicklable_return_raises(self):
+        """
+        The reason why this raises is that the timeout decorator pushes the
+        function to another process. Trying to return an un-picklable object
+        will raise a pickle error.
+        """
+        @timeout(1)
+        def k():
+            return lambda x: ...
+        with self.assertRaises(AttributeError):
+            k()
+
+    def test_unpicklable_raise_raises(self):
+        """
+        The reason why this raises is that the timeout decorator pushes the
+        function to another process. Trying to raise an un-picklable object
+        will raise a pickle error.
+        """
+        @timeout(1)
+        def k():
+            raise ValueError(lambda x:...)
+        with self.assertRaises(SystemExit):
+            k()

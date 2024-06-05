@@ -51,12 +51,12 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
         except BaseException as e:
             try:
                 exception_queue.put(e)
-            except AttributeError:
+            except BaseException:
                 # raised by pickle.dumps in put when an exception is not
                 # pickleable. This raises SystemExit as we can't preserve the
                 # exception type, so any exception handler in the function
                 # user will not work (or will wrongly handle the exception
-                # if we change the type
+                # if we change the type)
                 exception_queue.put(
                     SystemExit(
                         "".join(

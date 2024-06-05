@@ -23,12 +23,13 @@ Utility class that provides functionalities connected to placing timeouts on
 functions
 """
 import os
+import traceback
 import subprocess
-import multiprocessing
 
 from functools import partial
 from contextlib import wraps
 from unittest.mock import patch
+from multiprocessing import Process, SimpleQueue
 
 
 def run_with_timeout(f, timeout_s, *args, **kwargs):
@@ -39,19 +40,36 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
 
     Note: the function, *args and **kwargs must be picklable to use this.
     """
-    result_queue = multiprocessing.Queue()
-    exception_queue = multiprocessing.Queue()
+    result_queue = SimpleQueue()
+    exception_queue = SimpleQueue()
 
     def _f(*args, **kwargs):
         os.setsid()
         try:
             result_queue.put(f(*args, **kwargs))
         except BaseException as e:
-            exception_queue.put(e)
+            try:
+                exception_queue.put(e)
+            except BaseException:
+                # raised by pickle.dumps in put when an exception is not
+                # pickleable. This raises SystemExit as we can't preserve the
+                # exception type, so any exception handler in the function
+                # user will not work (or will wrongly handle the exception
+                # if we change the type)
+                exception_queue.put(
+                    SystemExit(
+                        "".join(
+                            [
+                                "Function failed but the timeout decorator is "
+                                "unable to propagate this un-picklable "
+                                "exception:\n"
+                            ]
+                            + traceback.format_exception(type(e), e, None)
+                        )
+                    )
+                )
 
-    process = multiprocessing.Process(
-        target=_f, args=args, kwargs=kwargs, daemon=True
-    )
+    process = Process(target=_f, args=args, kwargs=kwargs, daemon=True)
     process.start()
     process.join(timeout_s)
 

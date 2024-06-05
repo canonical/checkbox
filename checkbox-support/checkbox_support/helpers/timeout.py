@@ -25,11 +25,11 @@ functions
 import os
 import traceback
 import subprocess
-import multiprocessing
 
 from functools import partial
 from contextlib import wraps
 from unittest.mock import patch
+from multiprocessing import Process, SimpleQueue
 
 
 def run_with_timeout(f, timeout_s, *args, **kwargs):
@@ -40,8 +40,8 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
 
     Note: the function, *args and **kwargs must be picklable to use this.
     """
-    result_queue = multiprocessing.SimpleQueue()
-    exception_queue = multiprocessing.SimpleQueue()
+    result_queue = SimpleQueue()
+    exception_queue = SimpleQueue()
 
     def _f(*args, **kwargs):
         os.setsid()
@@ -69,9 +69,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
                     )
                 )
 
-    process = multiprocessing.Process(
-        target=_f, args=args, kwargs=kwargs, daemon=True
-    )
+    process = Process(target=_f, args=args, kwargs=kwargs, daemon=True)
     process.start()
     process.join(timeout_s)
 

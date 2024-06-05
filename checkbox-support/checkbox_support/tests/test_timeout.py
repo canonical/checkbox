@@ -19,6 +19,8 @@
 import time
 
 from unittest import TestCase
+from unittest.mock import patch
+from functools import partial
 
 from checkbox_support.helpers.timeout import (
     run_with_timeout,
@@ -138,12 +140,31 @@ class TestTimeoutExec(TestCase):
         with self.assertRaises(AttributeError):
             k()
 
-    def test_unpicklable_raise_raises(self):
+    @patch("checkbox_support.helpers.timeout.Process")
+    @patch("os.setsid")
+    def test_unpicklable_raise_raises(self, os_setid, process_type_mock):
         """
         The reason why this raises is that the timeout decorator pushes the
         function to another process. Trying to raise an un-picklable object
         will raise a pickle error.
         """
+
+        # this mocks process because else the coverage doesn't get the
+        # coverage
+        def init(*args, **kwargs):
+            process_type_mock.target = kwargs["target"]
+            process_type_mock.args = kwargs["args"]
+            process_type_mock.kwargs = kwargs["kwargs"]
+            return process_type_mock
+
+        def start():
+            return process_type_mock.target(
+                *process_type_mock.args, **process_type_mock.kwargs
+            )
+
+        process_type_mock.side_effect = init
+        process_type_mock.start = start
+        process_type_mock.is_alive.return_value = False
 
         @timeout(1)
         def k():

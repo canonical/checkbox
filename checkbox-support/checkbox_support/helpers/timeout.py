@@ -23,7 +23,6 @@ Utility class that provides functionalities connected to placing timeouts on
 functions
 """
 import os
-import time
 import traceback
 import subprocess
 import multiprocessing
@@ -65,7 +64,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
                                 "unable to propagate this un-picklable "
                                 "exception:\n"
                             ]
-                            + traceback.format_exception(e)
+                            + traceback.format_exception(type(e), e, None)
                         )
                     )
                 )

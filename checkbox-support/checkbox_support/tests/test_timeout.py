@@ -130,9 +130,11 @@ class TestTimeoutExec(TestCase):
         function to another process. Trying to return an un-picklable object
         will raise a pickle error.
         """
+
         @timeout(1)
         def k():
             return lambda x: ...
+
         with self.assertRaises(AttributeError):
             k()
 
@@ -142,8 +144,10 @@ class TestTimeoutExec(TestCase):
         function to another process. Trying to raise an un-picklable object
         will raise a pickle error.
         """
+
         @timeout(1)
         def k():
-            raise ValueError(lambda x:...)
+            raise ValueError(lambda x: ...)
+
         with self.assertRaises(SystemExit):
             k()

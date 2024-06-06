@@ -1678,7 +1678,6 @@ command:
         exit 1
     fi
 _purpose: Tests that the system's wireless hardware can connect to a router using WPA security and the 802.11b/g protocols after the system has been suspended.
-_summary: Ensure wireless hardware can connect using WPA and 802.11b/g after suspend.
 
 plugin: shell
 id: dock/wireless-connection-after-suspend-open-bg
@@ -2472,7 +2471,7 @@ _steps:
 _verification:
     Mark it Pass if you have connected all I/O ports as mentioned above.
 _summary:
-    Verify the initial setup of all I/O ports on the docking station by connecting various devices and ensure they meet the dock's specification.
+    Prepare all I/O ports on the dock by connecting all devices it supports.
 
 id: dock/all-reboot
 category_id: dock

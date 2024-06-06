@@ -1,0 +1,4 @@
+#!/bin/sh
+
+checkbox-cli list-bootstrapped com.canonical.certification::pc-sanity-smoke-test 2> /tmp/stderr
+cat /tmp/stderr | grep sideloaded >2

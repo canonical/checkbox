@@ -1,3 +1,6 @@
 # Devices QA team
 contrib/checkbox-provider-ce-oem @canonical/oem-qa
 .github/workflows/tox-contrib-provider-ce-oem.yaml @canonical/oem-qa
+# OEM SWE x86 team
+contrib/pc-sanity @canonical/oem-swe-x86
+.github/workflows/tox-contrib-pc-sanity.yaml @canonical/oem-swe-x86

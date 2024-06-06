@@ -1,0 +1,7 @@
+# Ignore almost eveything
+*
+!.gitignore
+
+# But keep the c files and the Makefile
+!*.c
+!Makefile

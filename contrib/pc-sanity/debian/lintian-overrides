@@ -1,0 +1,3 @@
+plainbox-provider-pc-sanity: arch-independent-package-contains-binary-or-object
+plainbox-provider-pc-sanity: statically-linked-binary
+plainbox-provider-pc-sanity: unstripped-binary-or-object

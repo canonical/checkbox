@@ -214,7 +214,6 @@ def detect() -> None:
             path = "/sys/class/watchdog/{}/identity".format(watchdog)
             with open(path, "r") as f:
                 identity = f.readline().strip()
-                print("Identity of {}: {}".format(path, identity))
                 try:
                     # check that the identity was expected
                     input_identities.remove(identity)
@@ -228,6 +227,13 @@ def detect() -> None:
                             os.environ["WATCHDOG_IDENTITY"], identity
                         )
                     )
+        # Check if there are any remain watchdogs
+        if input_identities:
+            raise SystemExit(
+                "There are still unmatched watchdogs!\n{}".format(
+                    input_identities
+                )
+            )
 
     # Handle unrecognized image source
     else:

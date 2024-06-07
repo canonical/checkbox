@@ -202,6 +202,7 @@ def detect() -> None:
                 "Please define the WATCHDOG_TYPE and WATCHDOG_IDENTITY "
                 "in advance!"
             )
+        input_identities = os.environ["WATCHDOG_IDENTITY"].split(",")
 
         # Iterate over watchdog devices
         watchdogs = os.listdir("/sys/class/watchdog")
@@ -214,9 +215,12 @@ def detect() -> None:
             with open(path, "r") as f:
                 identity = f.readline().strip()
                 print("Identity of {}: {}".format(path, identity))
-
+                try:
+                    # check that the identity was expected
+                    input_identities.remove(identity)
+                    print("Identity of {}: {}".format(path, identity))
                 # Check if the identity matches the expected identity
-                if identity != os.environ["WATCHDOG_IDENTITY"]:
+                except KeyError:
                     raise SystemExit(
                         "Found an unmatched watchdog!\n"
                         "Expected: {}\n"

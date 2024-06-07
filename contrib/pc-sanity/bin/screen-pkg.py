@@ -8,7 +8,6 @@ import subprocess
 import sys
 from typing import Dict, List, NamedTuple, Optional, Tuple, Union
 
-import lsb_release
 from apt.cache import Cache
 from apt.package import Package
 
@@ -73,13 +72,19 @@ def get_platform() -> Platform:
         raise Exception("platform name not found by get-oem-info.sh.")
 
     # Since Ubuntu 22.04, there is no group layer
-    sys_ubuntu_codename = lsb_release.get_distro_information()["CODENAME"]
+    with open("/etc/os-release") as f:
+        for line in f:
+            if line.startswith("UBUNTU_CODENAME="):
+                sys_ubuntu_codename = line.split("=")[1].strip().strip('"')
+                break
 
     oem_ubuntu_codename = None
     if sys_ubuntu_codename == "focal":
         oem_ubuntu_codename = "fossa"
     elif sys_ubuntu_codename == "jammy":
         oem_ubuntu_codename = "jellyfish"
+    elif sys_ubuntu_codename == "noble":
+        oem_ubuntu_codename = "numbat"
     if oem_ubuntu_codename is None:
         raise Exception("oem ubuntu codename is empty.")
 

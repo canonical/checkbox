@@ -11,7 +11,7 @@ include:
     com.canonical.certification::somerville/platform-meta-test
     com.canonical.certification::miscellanea/cvescan
     com.canonical.certification::miscellanea/check-nvidia
-    com.canonical.certification::miscellanea/check-gpu-driver
+    com.canonical.certification::miscellanea/check-gpu-driver                   certification-status=blocker
     com.canonical.certification::miscellanea/debsums
     com.canonical.certification::miscellanea/boot-up-time-under-2-min
     com.canonical.certification::power-management/check-turbostat-long-idle-cpu-residency
@@ -92,7 +92,7 @@ include:
     com.canonical.certification::somerville/platform-meta-test
     com.canonical.certification::miscellanea/cvescan
     com.canonical.certification::miscellanea/check-nvidia
-    com.canonical.certification::miscellanea/check-gpu-driver
+    com.canonical.certification::miscellanea/check-gpu-driver                   certification-status=blocker
     com.canonical.certification::miscellanea/debsums
     com.canonical.certification::miscellanea/boot-up-time-under-2-min
     com.canonical.certification::power-management/check-turbostat-long-idle-cpu-residency
@@ -173,7 +173,7 @@ _name: A test plan to confirm dgpu auto switch works well.
 _description: Be as a unit test. To confirm there's no regression on dgpu automatic switching.
 include:
     com.canonical.certification::miscellanea/check-nvidia
-    com.canonical.certification::miscellanea/check-gpu-driver
+    com.canonical.certification::miscellanea/check-gpu-driver                   certification-status=blocker
     com.canonical.certification::graphics/2_auto_switch_card_.*
     com.canonical.certification::graphics/2_valid_opengl_renderer_.*
     com.canonical.certification::graphics/1_auto_switch_card_.*

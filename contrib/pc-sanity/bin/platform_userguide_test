@@ -1,14 +1,14 @@
 #!/bin/bash
 failed()
 {
-    [ -n "$1" ] && echo "$1"
-    echo "$0 failed!"
+    >&2 echo "$*"
+    >&2 "$0 failed!"
     exit 1
 }
 
 passed()
 {
-    [ -n "$1" ] && echo "$1"
+    echo "$*"
     echo "$0 passed!"
     exit 0
 }

@@ -80,7 +80,7 @@ jobs:
             do \
               echo "Uploading $snap..." ; \
               if [ ${{ matrix.type }} = 'classic' ]; then \
-                if [ ${{ matrix.releases }} = '22' ]; then \
+                if [ ${{ matrix.releases }} = '24' ]; then \
                   snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
                 else \
                   snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \

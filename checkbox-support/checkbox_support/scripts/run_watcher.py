@@ -162,20 +162,20 @@ class USBStorage(StorageInterface):
             logger.info("{} was inserted {} controller".format(device, driver))
             logger.info("usable partition: {}".format(self.MOUNTED_PARTITION))
             # judge the detection by the expection
-            if (
-                self.args.storage_type == "usb2"
-                and device == "new high-speed USB device number"
+            if self.args.storage_type == "usb2" and device in (
+                "new SuperSpeed USB device number",
+                "new SuperSpeed Gen 1 USB device number",
+                "new high-speed USB device number",
             ):
                 logger.info("USB2 insertion test passed.")
 
-            if self.args.storage_type == "usb3" and (
-                device
-                in (
-                    "new SuperSpeed USB device number",
-                    "new SuperSpeed Gen 1 USB device number",
-                )
+            elif self.args.storage_type == "usb3" and device in (
+                "new SuperSpeed USB device number",
+                "new SuperSpeed Gen 1 USB device number",
             ):
                 logger.info("USB3 insertion test passed.")
+            else:
+                sys.exit("Wrong USB")
 
             # backup the storage info
             storage_info_helper(

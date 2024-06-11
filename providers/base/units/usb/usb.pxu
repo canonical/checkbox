@@ -54,10 +54,6 @@ _summary: Verify USB HID devices functionality by performing specified actions.
 id: usb/insert
 flags: also-after-suspend fail-on-resource
 template-engine: jinja2
-requires:
- {%- if not __on_ubuntucore__ %}
- package.name == 'udisks2' or snap.name == 'udisks2'
- {% endif -%}
 _summary: USB 2.0 storage device insertion detected
 _purpose:
  Check system can detect USB 2.0 storage when inserted.
@@ -73,11 +69,7 @@ _verification:
 plugin: user-interact
 user: root
 command:
- {%- if __on_ubuntucore__ %}
-     checkbox-support-run_watcher insertion usb2
- {%- else %}
-     removable_storage_watcher.py --unmounted insert usb
- {% endif -%}
+ checkbox-support-run_watcher insertion usb2
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
@@ -101,11 +93,7 @@ _verification:
 plugin: user-interact
 user: root
 command:
- {%- if __on_ubuntucore__ %}
-     checkbox-support-run_watcher insertion usb3
- {%- else %}
-     removable_storage_watcher.py --unmounted -m 500000000 insert usb
- {% endif -%}
+ checkbox-support-run_watcher insertion usb3
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 

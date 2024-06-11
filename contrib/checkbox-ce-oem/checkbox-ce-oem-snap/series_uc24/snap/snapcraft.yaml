@@ -82,7 +82,7 @@ parts:
       craftctl default
       rm lib/systemd/system/alsa-utils.service
     override-build: |
-      sudo snap install checkbox24 --beta  #TODO: Remove this line when checkbox24 is released in stable channel
+      sudo snap install checkbox24 --edge  #TODO: Remove this line when checkbox24 is released in stable channel
       export PYTHONPATH=/snap/checkbox24/current/lib/python3.12/site-packages/
       for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate

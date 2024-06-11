@@ -78,7 +78,7 @@ jobs:
 
               # sync Checkbox version between agent and device    
               CHECKBOX_VERSION=\$(_run \$CHECKBOX_CLI_CMD --version)
-              [ -n "\$CHECKBOX_VERSION" ] || echo "Error: Unable to retrieve Checkbox version from device" && exit 1
+              [ -z "\$CHECKBOX_VERSION" ] && echo "Error: Unable to retrieve Checkbox version from device" && exit 1
               echo "Installing checkbox \$CHECKBOX_VERSION on agent container from source"
               install_checkbox_agent_source \$CHECKBOX_VERSION \$TOOLS_PATH
 

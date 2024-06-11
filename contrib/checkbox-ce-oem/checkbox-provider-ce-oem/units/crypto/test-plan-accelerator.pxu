@@ -19,12 +19,15 @@ _name: Crypto accelerator auto tests
 _description: Automated crypto accelerator tests for devices
 bootstrap_include:
     cryptoinfo
+    ce-oem-crypto/caam-crypto-profiles
+    ce-oem-crypto/mcrc-crypto-profiles
+    ce-oem-crypto/sa2ul-crypto-profiles
 include:
     ce-oem-crypto/caam/caam_hwrng_test
     ce-oem-crypto/caam/algo_check
-    ce-oem-crypto/check-caam-priority
-    ce-oem-crypto/check-mcrc-priority
-    ce-oem-crypto/check-sa2ul-priority
+    ce-oem-crypto/check-caam-crypto-profiles
+    ce-oem-crypto/check-mcrc-crypto-profiles
+    ce-oem-crypto/check-sa2ul-crypto-profiles
     ce-oem-crypto/hwrng-current
 
 id: after-suspend-ce-oem-accelerator-full

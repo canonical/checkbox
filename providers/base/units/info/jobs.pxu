@@ -321,10 +321,11 @@ _summary: Gather touchpad name, driver name, and driver version information.
 plugin: attachment
 category_id: com.canonical.plainbox::info
 id: info/audio_device_driver
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'pulseaudio-utils'
  package.name == 'kmod' or package.name == 'module-init-tools'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
 command: audio_driver_info.py
 estimated_duration: 0.177
 _purpose: Lists the device driver and version for all audio devices.

@@ -30,8 +30,9 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/audio_before_suspend
 estimated_duration: 1.0
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name in ['pulseaudio-utils', 'pipewire']
 _summary: Record mixer settings before suspending.
@@ -444,8 +445,9 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/audio_after_suspend
 estimated_duration: 1.0
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name in ['pulseaudio-utils', 'pipewire']
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
@@ -464,8 +466,9 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/audio_after_suspend_auto
 estimated_duration: 1.2
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name in ['pulseaudio-utils', 'pipewire']
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
@@ -485,8 +488,9 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/speaker-headphone-plug-detection-after-suspend
 depends: suspend/suspend_advanced_auto
 estimated_duration: 60.0
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'pulseaudio-utils'
 command: pulse_active_port_change.py sinks
 _purpose:
@@ -508,8 +512,9 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/microphone-plug-detection-after-suspend
 depends: suspend/suspend_advanced_auto
 estimated_duration: 60.0
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'pulseaudio-utils'
 command: pulse_active_port_change.py sources
 _purpose:
@@ -531,8 +536,9 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/playback_headphones-after-suspend
 estimated_duration: 20.0
 depends: audio/list_devices suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
@@ -557,8 +563,9 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/alsa_record_playback_external-after-suspend
 estimated_duration: 20.0
 depends: suspend/playback_headphones-after-suspend suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
@@ -1217,14 +1224,15 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/record_playback_after_suspend
 estimated_duration: 10.0
 depends: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_audio_playback == 'True'
  package.name == 'python3-gi'
  package.name == 'gir1.2-gstreamer-1.0'
  package.name == 'libgstreamer1.0-0'
  package.name == 'gstreamer1.0-plugins-good'
  package.name == 'gstreamer1.0-pulseaudio'
  package.name == 'alsa-base'
- device.category == 'AUDIO'
 command: audio_test.py
 _purpose:
  This will check to make sure that your audio device works properly after a suspend and resume. This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
@@ -1235,14 +1243,15 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/record_playback_after_suspend_auto
 estimated_duration: 10.0
 depends: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_audio_playback == 'True'
  package.name == 'python3-gi'
  package.name == 'gir1.2-gstreamer-1.0'
  package.name == 'libgstreamer1.0-0'
  package.name == 'gstreamer1.0-plugins-good'
  package.name == 'gstreamer1.0-pulseaudio'
  package.name == 'alsa-base'
- device.category == 'AUDIO'
 command: audio_test.py
 _purpose: This will check to make sure that your audio device works properly after a suspend and resume. This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 _summary: Ensure audio device works correctly after suspend and resume cycle.
@@ -1949,7 +1958,7 @@ command: removable_storage_watcher.py --memorycard remove sdio usb scsi
 _purpose:
  This test will check that the system correctly detects the removal
  of a MS card from the system's card reader after the system has been suspended.
-_steps: 
+_steps:
  1. Click "Test" and remove the MS card from the reader.
     (Note: this test will time-out after 20 seconds.)
 _verification:

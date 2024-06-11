@@ -123,7 +123,7 @@ _steps:
     2. Switch display modes between in your Display Settings, check if it can be
        set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly on the screen connected 
+    Was the desktop displayed correctly on the screen connected
     using a "USB Type-C to DisplayPort" adapter in every mode?
 
 id: dock/monitor_type-c_hdmi
@@ -143,7 +143,7 @@ _steps:
     2. Switch display modes between in your Display Settings, check if it can be
        set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly on the screen connected 
+    Was the desktop displayed correctly on the screen connected
     using a "USB Type-C to HDMI" adapter in every mode?
 
 id: dock/monitor_type-c_vga
@@ -163,7 +163,7 @@ _steps:
     2. Switch display modes between in your Display Settings, check if it can be
        set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly on the screen connected 
+    Was the desktop displayed correctly on the screen connected
     using a "USB Type-C to VGA" adapter in every mode?
 
 id: dock/monitor-thunderbolt3
@@ -240,8 +240,9 @@ category_id: dock-audio
 estimated_duration: 1.0
 _summary: List audio devices
 depends: dock/cold-plug
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
 command: cat /proc/asound/cards
 _description: Test to detect audio devices
@@ -249,8 +250,9 @@ _description: Test to detect audio devices
 id: dock/audio-playback-hdmi
 category_id: dock-audio
 depends: dock/cold-plug
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -283,8 +285,9 @@ _verification:
 id: dock/audio-playback-displayport
 category_id: dock-audio
 depends: dock/cold-plug
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -320,7 +323,7 @@ depends: dock/cold-plug
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_usbc_video == 'True'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -355,7 +358,7 @@ depends: dock/cold-plug
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_usbc_video == 'True'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -390,7 +393,7 @@ category_id: dock-audio
 depends: dock/cold-plug
 imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -429,8 +432,9 @@ flags: also-after-suspend
 estimated_duration: 30.0
 _summary: Headphones output test
 depends: dock/audio-list-devices
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -464,8 +468,9 @@ estimated_duration: 30.0
 flags: also-after-suspend
 _summary: External microphone plugged to the dock to record sound test
 depends: dock/audio-playback-headphones
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -538,8 +543,9 @@ category_id: dock-audio
 depends: dock/cold-plug
 estimated_duration: 120.0
 _summary: Line-in connection test
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -572,8 +578,9 @@ plugin: user-interact
 depends: dock/cold-plug
 estimated_duration: 60.0
 _summary: Headphones recognized when plugged to the dock test
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
@@ -600,8 +607,9 @@ plugin: user-interact
 depends: dock/cold-plug
 estimated_duration: 60.0
 _summary: Microphone recognized when plugged to the dock test
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
@@ -677,7 +685,7 @@ _steps:
 _verification:
     1. Is the Passthrough MAC Address the same as MAC address found in step 4?
     2. If BIOS doesn't have Passthrough MAC Address in BIOS setup, a bug should be filed.
-    3. If dock ethernet MAC address is not the same as BIOS Passthrough MAC Address, a 
+    3. If dock ethernet MAC address is not the same as BIOS Passthrough MAC Address, a
     bug should be filed.
 
 ### USB Tests ###
@@ -1183,8 +1191,9 @@ _verification:
 id: dock/hotplug-playback-type-c-displayport
 category_id: dock-hotplug
 depends: dock/hot-plug
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -1217,8 +1226,9 @@ _verification:
 id: dock/hotplug-playback-thumderbolt3
 category_id: dock-hotplug
 depends: dock/hot-plug
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -1251,8 +1261,9 @@ _verification:
 id: dock/hotplug-playback-displayport
 category_id: dock-hotplug
 depends: dock/hot-plug
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -1285,8 +1296,9 @@ _verification:
 id: dock/hotplug-playback-hdmi
 category_id: dock-hotplug
 depends: dock/hot-plug
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -1332,8 +1344,9 @@ id: dock/audio-before-suspend
 category_id: dock-audio
 estimated_duration: 1.0
 _summary: Audio status before suspend
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
 _description: Record mixer settings before suspending.
 command: audio_settings.py store --file="$PLAINBOX_SESSION_SHARE"/audio_settings_before_suspend
@@ -1555,7 +1568,7 @@ _steps:
     2. Switch display modes between in your Display Settings, check if it can be
        set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly on the screen connected 
+    Was the desktop displayed correctly on the screen connected
     using a "USB Type-C to DisplayPort" adapter in every mode?
 
 id: dock/monitor_type-c_hdmi-after-suspend
@@ -1573,7 +1586,7 @@ _steps:
     2. Switch display modes between in your Display Settings, check if it can be
        set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly on the screen connected 
+    Was the desktop displayed correctly on the screen connected
     using a "USB Type-C to HDMI" adapter in every mode?
 
 id: dock/monitor_type-c_vga-after-suspend
@@ -1591,7 +1604,7 @@ _steps:
     2. Switch display modes between in your Display Settings, check if it can be
        set to mirrored, extended, displayed on external or onboard only
 _verification:
-    Was the desktop displayed correctly on the screen connected 
+    Was the desktop displayed correctly on the screen connected
     using a "USB Type-C to VGA" adapter in every mode?
 
 id: dock/monitor-dual-head-after-suspend
@@ -1804,8 +1817,9 @@ id: dock/audio-after-suspend-undock-resume
 category_id: dock-audio
 estimated_duration: 1.0
 _summary: Audio after resuming test
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
 depends: dock/suspend-undock-resume dock/audio-before-suspend
 _description: Verify that mixer settings after suspend are the same as before suspend.
@@ -1819,7 +1833,9 @@ category_id: dock-audio
 estimated_duration: 10.0
 _summary: Record playback after resuming
 depends: dock/suspend-undock-resume
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_audio_playback == 'True'
  package.name == 'python3-gi'
  package.name == 'gir1.2-gstreamer-1.0'
  package.name == 'libgstreamer1.0-0'
@@ -1827,7 +1843,6 @@ requires:
  package.name in ['gstreamer1.0-pulseaudio', 'gstreamer1.0-pipewire']
  package.name == 'alsa-base'
  package.name in ['pulseaudio-utils', 'pipewire']
- device.category == 'AUDIO'
 command:
   if check_audio_daemon.sh ; then
     pipewire_test.py
@@ -2039,7 +2054,7 @@ _steps:
     1. Insert appropriate non-blank media into your optical drive(s). Movie and Audio Disks may not work. Self-created data disks have the greatest chance of working.
     2. Try to copy a few files from the optical media to the computer.
 _verification:
-    Are the files properly copied to the computer?    
+    Are the files properly copied to the computer?
 
 plugin: manual
 id: dock/optical-write
@@ -2282,7 +2297,7 @@ _purpose:
 _steps:
     1. Suspend the laptop (e.g. by closing its lid)
     2. Unplug docking station
-    3. Plug in docking station 
+    3. Plug in docking station
     4. Resume the laptop (e.g. by pressing the Power button on the dock)
 _verification:
     Is the device working as expected after being docked and resumed?
@@ -2538,8 +2553,9 @@ _siblings:
 
 id: dock/all-init-monitor-multi-head-audio-playback
 category_id: dock-audio
+imports: from com.canonical.plainbox import manifest
 requires:
-    device.category == 'AUDIO'
+    manifest.has_audio_playback == 'True'
     package.name in ['pulseaudio-utils', 'pipewire']
 _summary: Multiple monitor audio test
 plugin: user-interact-verify
@@ -2854,8 +2870,9 @@ category_id: dock-audio
 plugin: user-interact
 estimated_duration: 60.0
 _summary: Headphones recognized when plugged to the dock test
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
@@ -2888,8 +2905,9 @@ flags: also-after-suspend
 estimated_duration: 30.0
 _summary: Headphones output test
 depends: dock/all-init-audio-speaker-headphone-plug-detection
+imports: from com.canonical.plainbox import manifest
 requires:
-    device.category == 'AUDIO'
+    manifest.has_audio_playback == 'True'
     package.name == 'alsa-base'
     package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
     package.name in ['pulseaudio-utils', 'pipewire']
@@ -2930,8 +2948,9 @@ category_id: dock-audio
 plugin: user-interact
 estimated_duration: 60.0
 _summary: Microphone recognized when plugged to the dock test
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name in ['pulseaudio-utils', 'pipewire']
 command:
   if check_audio_daemon.sh ; then
@@ -2965,8 +2984,9 @@ estimated_duration: 30.0
 flags: also-after-suspend
 _summary: External microphone plugged to the dock to record sound test
 depends: dock/all-init-audio-microphone-plug-detection
+imports: from com.canonical.plainbox import manifest
 requires:
-    device.category == 'AUDIO'
+    manifest.has_audio_playback == 'True'
     package.name == 'alsa-base'
     package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
     package.name in ['pulseaudio-utils', 'pipewire']

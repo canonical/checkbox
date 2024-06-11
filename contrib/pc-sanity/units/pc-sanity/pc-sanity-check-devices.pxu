@@ -309,9 +309,7 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/check-display_{product}
 command:
- # shellcheck disable=SC2230
- UWAKE=$(which uwake)   # sudo doesn't inherit current $PATH
- sudo "$UWAKE"          # src: c/uwake.c
+ sudo -E uwake          # src: c/uwake.c
  sleep 5                # wait the screen to be on
  for file in /sys/class/drm/*/status;
  do

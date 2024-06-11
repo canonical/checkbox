@@ -535,6 +535,10 @@ def get_execution_environment(job, environ, session_id, nest_dir):
                 "LD_LIBRARY_PATH",
                 "GI_TYPELIB_PATH",
                 "PERL5LIB",
+                "QT_PLUGIN_PATH",
+                "QT_QPA_PLATFORM",
+                "QT_QPA_PLATFORMTHEME",
+                "QT_DEBUG_PLUGINS",
             ]
             for key, value in env.items():
                 if key in copy_vars or key.startswith("SNAP"):
@@ -632,6 +636,10 @@ def get_differential_execution_environment(
             "PROVIDERPATH",
             "PYTHONPATH",
             "PERL5LIB",
+            "QT_PLUGIN_PATH",
+            "QT_QPA_PLATFORM",
+            "QT_QPA_PLATFORMTHEME",
+            "QT_DEBUG_PLUGINS",
         ]
         for key, value in base_env.items():
             if key in copy_vars or key.startswith("SNAP"):

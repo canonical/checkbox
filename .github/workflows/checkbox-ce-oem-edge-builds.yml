@@ -3,6 +3,9 @@ name: checkbox-ce-oem snap edge build
 on:
   workflow_dispatch:
   workflow_call:
+  push:
+    branches:
+      - ceoem24
 
 jobs:
   snap:

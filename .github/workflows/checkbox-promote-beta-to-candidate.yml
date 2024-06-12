@@ -49,7 +49,7 @@ jobs:
               TOOLS_PATH=tools
 
               # retrieve all scripts/tools necessary from a repo
-              curl -Ls -o installer.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/scriptlets-refactor/installer.sh
+              curl -Ls -o installer.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/main/install_tools.sh
               source installer.sh \$TOOLS_PATH --branch scriptlets-refactor
 
               # ensure device is available before continuing

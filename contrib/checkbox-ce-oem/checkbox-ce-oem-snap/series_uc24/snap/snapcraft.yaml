@@ -4,7 +4,7 @@ description: "Checkbox CE OEM test runner and public providers"
 confinement: strict
 grade: stable
 
-version: '1.0-jammy'
+version: '1.0-noble'
 
 base: core24
 

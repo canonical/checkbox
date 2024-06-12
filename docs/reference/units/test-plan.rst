@@ -191,7 +191,7 @@ copy such constructs when working on a new test plan from scratch
     A multi-line list of category override statements.
 
     This optional field can be used to alter the natural job definition
-    category association. Currently Plainbox allows each job definition to
+    category association. Currently Checkbox allows each job definition to
     associate itself with at most one category (see plainbox-category-units(7)
     and plainbox-job-units(7) for details). This is sub-optimal as some tests
     can be easily assigned equally well to two categories at the same time.

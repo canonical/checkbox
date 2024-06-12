@@ -13,8 +13,8 @@ provider and makes package management largely automatic.
 File format and location
 ------------------------
 
-Packaging meta-data units are regular plainbox units and are contained and
-shipped with plainbox providers. In other words, they are just the same as job
+Packaging meta-data units are regular checkbox units and are contained and
+shipped with checkbox providers. In other words, they are just the same as job
 and test plan units, for example.
 
 Fields

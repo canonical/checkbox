@@ -175,8 +175,7 @@ copy such constructs when working on a new test plan from scratch
     that should be excluded from execution.
 
     This optional field can be used to prevent some jobs from being selected
-    for execution. It follows the similarly named  ``-x`` command line option
-    to the ``plainbox run`` command.
+    for execution.
 
     This field may be used when a general (broad) selection is somehow made
     by the ``include`` field and it must be trimmed down (for example, to

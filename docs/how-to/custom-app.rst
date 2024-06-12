@@ -48,7 +48,7 @@ provider.
 
 .. code-block:: bash
 
-    $ cd checkbox-provider-myproject
+    $ cd checkbox-myproject/checkbox-provider-myproject
 
 Let's add a job from :ref:`tutorials`
 

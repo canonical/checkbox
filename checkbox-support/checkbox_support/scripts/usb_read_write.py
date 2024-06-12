@@ -32,7 +32,10 @@ import errno
 import contextlib
 
 
-PLAINBOX_SESSION_SHARE = os.environ.get("PLAINBOX_SESSION_SHARE", "")
+PLAINBOX_SESSION_SHARE = os.environ.get(
+    "PLAINBOX_SESSION_SHARE",
+    "/var/tmp/checkbox-ng/sessions/checkbox-run-2024-06-12T14.45.29.session/session-share",
+)
 FOLDER_TO_MOUNT = tempfile.mkdtemp()
 REPETITION_NUM = 5  # number to repeat the read/write test units.
 # Prepare a random file which size is RANDOM_FILE_SIZE.
@@ -292,6 +295,7 @@ def write_test_unit(random_file, idx=""):
         ],
         stderr=subprocess.STDOUT,
         stdout=subprocess.PIPE,
+        env={"LC_NUMERIC": "C"},
     )
     logging.debug("Apply command: %s" % process.args)
     # will get something like
@@ -299,15 +303,16 @@ def write_test_unit(random_file, idx=""):
     # '1049076 bytes (1.0 MB) copied, 0.00473357 s, 222 MB/s', '']
     list_dd_message = process.communicate()[0].decode().split("\n")
     logging.debug(list_dd_message)
-    try:
-        dd_speed = float(list_dd_message[2].split(" ")[-2])
-    except:
-        # Example:
-        # ['dd: writing to ‘/tmp/tmp08osy45j/tmpnek46on30’: Input/output error'
-        # , '38913+0 records in', '38912+0 records out', '19922944 bytes
-        # (20 MB) copied, 99.647 s, 200 kB/s', '']
-        print("ERROR: {}".format(list_dd_message))
-        sys.exit(1)
+
+    dd_speed = float(list_dd_message[2].split(" ")[-2])
+    units = list_dd_message[2].split(" ")[-1]
+    units_dict = {"kB/s": 1024, "MB/s": 1024**2, "GB/s": 1024**3}
+    if units in units_dict:
+        dd_speed_b = dd_speed * units_dict[units]
+        dd_speed_mb = dd_speed_b / (1024**2)
+    else:
+        sys.exit("Unknown units in dd output.")
+
     dmesg = subprocess.run(["dmesg"], stdout=subprocess.PIPE)
     # lp:1852510 - check there weren't any i/o errors sent to dmesg when the
     # test files were sync'ed to the disk
@@ -317,7 +322,8 @@ def write_test_unit(random_file, idx=""):
     else:
         logging.debug("No I/O errors found in dmesg")
     print("PASS: WRITING TEST: %s" % target_file)
-    return dd_speed
+
+    return dd_speed_mb
 
 
 @contextlib.contextmanager

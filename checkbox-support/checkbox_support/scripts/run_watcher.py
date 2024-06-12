@@ -167,7 +167,6 @@ class USBStorage(StorageInterface):
                 and self.device == self.Device.HIGH_SPEED_USB
             ):
                 logger.info("USB2 insertion test passed.")
-
             elif self.args.storage_type == "usb3" and self.device in [
                 self.Device.SUPER_SPEED_USB,
                 self.Device.SUPER_SPEED_GEN1_USB,

@@ -43,10 +43,11 @@ Component Descriptions
 | Checkbox Support       | - Support code for various providers  | Library     |
 |                        | - Parsers for many text formats       |             |
 +------------------------+---------------------------------------+-------------+
-| Plainbox               | - Almost all core logic               | Library     |
-| (part of Checkbox)     |                                       | and         |
-|                        |   - RFC822 (job definition) parser    | Development |
-|                        |   - Configuration handling            | Toolkit     |
+| Plainbox               | - An obsolete term referring to the   | Library     |
+| (part of Checkbox)     |   core of Checkbox                    | and         |
+|                        |                                       | Development |
+|                        |   - RFC822 (job definition) parser    | Toolkit     |
+|                        |   - Configuration handling            |             |
 |                        |   - Testing session (suspend/resume)  |             |
 |                        |   - Job runner                        |             |
 |                        |   - Trusted launcher                  |             |

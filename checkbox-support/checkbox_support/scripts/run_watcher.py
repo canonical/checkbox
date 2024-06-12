@@ -19,6 +19,7 @@ import sys
 import time
 from systemd import journal
 from abc import ABC, abstractmethod
+from enum import Enum
 
 from checkbox_support.scripts.zapper_proxy import zapper_run
 
@@ -126,20 +127,26 @@ class USBStorage(StorageInterface):
     USBStorage handles the insertion and removal of usb2, usb3 and mediacard.
     """
 
-    MOUNTED_PARTITION = None
-    FLAG_DETECTION = {
-        "device": {
-            "new high-speed USB device number": False,
-            "new SuperSpeed USB device number": False,
-            "new SuperSpeed Gen 1 USB device number": False,
-        },
-        "driver": {"using ehci_hcd": False, "using xhci_hcd": False},
-        "insertion": {"USB Mass Storage device detected": False},
-        "removal": {"USB disconnect, device number": False},
-    }
+    class Device(Enum):
+        HIGH_SPEED_USB = "new high-speed USB device"
+        SUPER_SPEED_USB = "new SuperSpeed USB device"
+        SUPER_SPEED_GEN1_USB = "new SuperSpeed Gen 1 USB device"
+
+    class Driver(Enum):
+        USING_EHCI_HCD = "using ehci_hcd"
+        USING_XHCI_HCD = "using xhci_hcd"
+
+    class Action(Enum):
+        INSERTION = "USB Mass Storage device detected"
+        REMOVAL = "USB disconnect, device"
 
     def __init__(self, args):
         self.args = args
+        self.mounted_partition = None
+        self.device = None
+        self.number = None
+        self.driver = None
+        self.action = None
 
     def callback(self, line_str):
         self._refresh_detection(line_str)
@@ -147,48 +154,38 @@ class USBStorage(StorageInterface):
         self._report_detection()
 
     def report_insertion(self):
-        if (
-            self.MOUNTED_PARTITION
-            and self.FLAG_DETECTION["insertion"][
-                "USB Mass Storage device detected"
-            ]
-        ):
-            device = ""
-            driver = ""
-            for key in self.FLAG_DETECTION["device"]:
-                if self.FLAG_DETECTION["device"][key]:
-                    device = key
-            for key in self.FLAG_DETECTION["driver"]:
-                if self.FLAG_DETECTION["driver"][key]:
-                    driver = key
-            logger.info("{} was inserted {} controller".format(device, driver))
-            logger.info("usable partition: {}".format(self.MOUNTED_PARTITION))
+        if self.mounted_partition and self.action == self.Action.INSERTION:
+            logger.info(
+                "{} was inserted {} controller".format(
+                    self.device.value, self.driver.value
+                )
+            )
+            logger.info("usable partition: {}".format(self.mounted_partition))
             # judge the detection by the expectation
-            if self.args.storage_type == "usb2" and device in (
-                "new SuperSpeed USB device number",
-                "new SuperSpeed Gen 1 USB device number",
-                "new high-speed USB device number",
+            if (
+                self.args.storage_type == "usb2"
+                and self.device == self.Device.HIGH_SPEED_USB
             ):
                 logger.info("USB2 insertion test passed.")
 
-            elif self.args.storage_type == "usb3" and device in (
-                "new SuperSpeed USB device number",
-                "new SuperSpeed Gen 1 USB device number",
-            ):
+            elif self.args.storage_type == "usb3" and self.device in [
+                self.Device.SUPER_SPEED_USB,
+                self.Device.SUPER_SPEED_GEN1_USB,
+            ]:
                 logger.info("USB3 insertion test passed.")
             else:
-                sys.exit("Wrong USB")
+                sys.exit("Wrong USB type detected.")
 
             # backup the storage info
             storage_info_helper(
                 reserve=True,
                 storage_type=self.args.storage_type,
-                mounted_partition=self.MOUNTED_PARTITION,
+                mounted_partition=self.mounted_partition,
             )
             sys.exit()
 
     def report_removal(self):
-        if self.FLAG_DETECTION["removal"]["USB disconnect, device number"]:
+        if self.action == self.Action.REMOVAL:
             logger.info("Removal test passed.")
 
         # remove the storage info
@@ -201,18 +198,27 @@ class USBStorage(StorageInterface):
         part_re = re.compile("sd\w+:.*(?P<part_name>sd\w+)")
         match = re.search(part_re, line_str)
         if match:
-            self.MOUNTED_PARTITION = match.group("part_name")
+            self.mounted_partition = match.group("part_name")
 
     def _refresh_detection(self, line_str):
         """
-        refresh values of the dictionary FLAG_DETECTION.
+        refresh values with the lines from journal.
 
         :param line_str: str of the scanned log lines.
         """
-        for key in self.FLAG_DETECTION.keys():
-            for sub_key in self.FLAG_DETECTION[key].keys():
-                if sub_key in line_str:
-                    self.FLAG_DETECTION[key][sub_key] = True
+        for driver in self.Driver:
+            if driver.value in line_str:
+                self.driver = driver
+        for device in self.Device:
+            if device.value in line_str:
+                self.device = device
+                # Get the device number after "device number "
+                self.number = re.search(
+                    r"device number (\d+)", line_str
+                ).group(1)
+        for action in self.Action:
+            if action.value in line_str:
+                self.action = action
 
     def _report_detection(self):
         """report detection status."""

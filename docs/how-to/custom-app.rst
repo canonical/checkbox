@@ -28,7 +28,7 @@ Let's create a Checkbox Snap for project called "myproject".
 
 .. code-block:: bash
 
-    $ ./configure --with-provider-included project=myproject base=18 && ./cleanup.sh
+    $ ./configure --with-provider-included project=myproject base=18
 
 This creates all the files necessary to use Snapcraft to build the
 new snap.

@@ -191,9 +191,9 @@ copy such constructs when working on a new test plan from scratch
 
     This optional field can be used to alter the natural job definition
     category association. Currently Checkbox allows each job definition to
-    associate itself with at most one category (see plainbox-category-units(7)
-    and plainbox-job-units(7) for details). This is sub-optimal as some tests
-    can be easily assigned equally well to two categories at the same time.
+    associate itself with at most one category (see :doc:`category` and
+    :doc:`job` for details). This is sub-optimal as some tests can be easily
+    assigned equally well to two categories at the same time.
 
     For that reason, it may be necessary, in a particular test plan, to
     override the natural category association with one that more correctly

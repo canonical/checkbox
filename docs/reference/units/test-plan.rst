@@ -242,16 +242,16 @@ copy such constructs when working on a new test plan from scratch
 ``estimated_duration``:
     An approximate time to execute this test plan, in seconds.
 
-    Since plainbox version 0.24 this field can be expressed in two formats. The
-    old format, a floating point number of seconds is somewhat difficult to
-    read for larger values. To avoid mistakes test designers can use the second
-    format with separate sections for number of hours, minutes and seconds. The
-    format, as regular expression, is ``(\d+h)?[: ]*(\d+m?)[: ]*(\d+s)?``. The
-    regular expression expresses an optional number of hours, followed by the
-    ``h`` character, followed by any number of spaces or ``:`` characters,
-    followed by an optional number of minutes, followed by the ``m`` character,
-    again followed by any number of spaces or ``:`` characters, followed by the
-    number of seconds, ultimately followed by the ``s`` character.
+    This field can be expressed in two formats. The old format, a floating
+    point number of seconds is somewhat difficult to read for larger values. To
+    avoid mistakes test designers can use the new format with separate sections
+    for number of hours, minutes and seconds. The format, as regular
+    expression, is ``(\d+h)?[: ]*(\d+m?)[: ]*(\d+s)?``. The regular expression
+    expresses an optional number of hours, followed by the ``h`` character,
+    followed by any number of spaces or ``:`` characters, followed by an
+    optional number of minutes, followed by the ``m`` character, again followed
+    by any number of spaces or ``:`` characters, followed by the number of
+    seconds, ultimately followed by the ``s`` character.
 
     The values can no longer be fractional (you cannot say ``2.5m`` you need to
     say ``2m 30s``). We feel that sub-second granularity does is too

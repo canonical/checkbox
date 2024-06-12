@@ -159,11 +159,11 @@ in practice.
 Joins are not optimized
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Starting with plainbox 0.24, a resource expression can use more than one
-resource object (resource job) at the same time. This allows the use of joins
-as the whole expression is evaluated over the Cartesian product of all the
-resource records. This operation is not optimized, you can think of it as a
-JOIN that is performed on a database without any indices.
+A resource expression can use more than one resource object (resource job) at
+the same time. This allows the use of joins as the whole expression is
+evaluated over the Cartesian product of all the resource records. This
+operation is not optimized, you can think of it as a JOIN that is performed on
+a database without any indices.
 
 Let's look at a practical example::
 

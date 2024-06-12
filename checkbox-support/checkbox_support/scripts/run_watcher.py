@@ -35,9 +35,9 @@ class StorageInterface(ABC):
     """
 
     @abstractmethod
-    def do_callback(self, line_str):
+    def callback(self, line_str):
         """
-        do_callback handles the line string from journal.
+        callback handles the line string from journal.
         """
         pass
 
@@ -96,13 +96,15 @@ class StorageWatcher:
         while p.poll():
             if j.process() != journal.APPEND:
                 continue
-            self._callback([e["MESSAGE"] for e in j if e and "MESSAGE" in e])
+            self._process_lines(
+                [e["MESSAGE"] for e in j if e and "MESSAGE" in e]
+            )
 
-    def _callback(self, lines):
+    def _process_lines(self, lines):
         for line in lines:
             line_str = str(line)
             logger.debug(line_str)
-            self._storage_strategy.do_callback(line_str)
+            self._storage_strategy.callback(line_str)
 
     def _no_storage_timeout(self, signum, frame):
         """
@@ -139,7 +141,7 @@ class USBStorage(StorageInterface):
     def __init__(self, args):
         self.args = args
 
-    def do_callback(self, line_str):
+    def callback(self, line_str):
         self._refresh_detection(line_str)
         self._get_partition_info(line_str)
         self._report_detection()
@@ -230,7 +232,7 @@ class MediacardStorage(StorageInterface):
     def __init__(self, args):
         self.args = args
 
-    def do_callback(self, line_str):
+    def callback(self, line_str):
         if self.args.testcase == "insertion":
             self._get_partition_info(line_str)
             self.report_insertion()
@@ -287,7 +289,7 @@ class ThunderboltStorage(StorageInterface):
         self.find_insertion_string = 0
         self.find_partition = 0
 
-    def do_callback(self, line_str):
+    def callback(self, line_str):
         if self.args.testcase == "insertion":
             self._get_partition_info(line_str)
             self.report_insertion(line_str)

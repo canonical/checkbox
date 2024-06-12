@@ -1,0 +1,103 @@
+name: checkbox-ce-oem
+summary: Checkbox CE OEM test runner and public providers for 24.04 classic
+description: "Checkbox CE OEM test runner and public providers for 24.04 classic"
+confinement: classic
+grade: stable
+
+version: '1.0-noble'
+
+base: core24
+
+apps:
+  checkbox-cli:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper
+  configure:
+    command-chain: [bin/wrapper_local]
+    command: bin/configure
+  remote-slave:
+    command-chain: [bin/wrapper_local]
+    command: bin/checkbox-cli-wrapper slave
+    daemon: simple
+    restart-condition: on-failure
+  shell:
+    command-chain: [bin/wrapper_local]
+    command: bin/shell-wrapper
+  test-runner:
+    command-chain: [bin/wrapper_local]
+    command: bin/test-runner
+
+passthrough:
+  hooks:
+    configure:
+      command-chain: [bin/wrapper_local]
+
+parts:
+  checkbox-provider-ce-oem:
+    plugin: dump
+    source: ../../checkbox-provider-ce-oem
+    source-type: local
+    stage-packages:
+      - alsa-utils
+      - mtd-utils
+      - u-boot-tools
+      - v4l-utils
+      - device-tree-compiler
+      - linuxptp
+      - snmp
+    override-prime: |
+      craftctl default
+      rm lib/systemd/system/alsa-utils.service
+    override-build: |
+      sudo snap install checkbox24 --edge  #TODO: Remove this line when checkbox24 is released in stable channel
+      export PYTHONPATH=/snap/checkbox24/current/lib/python3.12/site-packages/
+      for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
+      python3 manage.py validate
+      python3 manage.py build
+      python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-ce-oem --root="$CRAFT_PART_INSTALL"
+    #TODO: Remove the comments when checkbox24 is released in stable channel
+    # build-snaps:
+    #   - checkbox24
+    build-packages:
+      - python3-dev
+      - python3-jinja2
+      - python3-packaging
+      - python3-urwid
+      - python3-xlsxwriter
+      - python3-requests-oauthlib
+  input-pcspkr:
+    plugin: nil
+    after: [checkbox-provider-ce-oem]
+    build-packages:
+      - gcc
+      - libc6-dev
+    override-build: |
+      mkdir -p ${CRAFT_PART_INSTALL}/usr/bin
+      PART_SRC=${CRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src
+      gcc ${PART_SRC}/src/input-pcspkr.c -o ${PART_SRC}/src/beep
+      cp -v ${PART_SRC}/src/beep ${CRAFT_PART_INSTALL}/usr/bin/
+
+  parts-meta-info:
+    plugin: nil
+    override-build: |
+      craftctl default
+      for p in `ls -d ../../*`; do
+          if [ -d $p/src ]; then
+            (cd $p/src
+                if [ -d $p/src/.git ]; then
+                    (echo `basename $p`\: && git show --pretty=format:"%h%d %aN %ci%n%s%n" -q ; echo ) >> $CRAFT_PART_INSTALL/parts_meta_info
+                fi # for additional `source-type` support, elif them here
+            )
+          fi
+      done
+    after: [checkbox-provider-ce-oem]
+  launchers:
+    plugin: dump
+    source: launchers/
+    build-attributes: [no-patchelf]
+    organize:
+      '*': bin/
+  config-variables:
+    plugin: dump
+    source: config/
+    build-attributes: [no-patchelf]

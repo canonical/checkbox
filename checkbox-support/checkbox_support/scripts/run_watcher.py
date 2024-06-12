@@ -52,7 +52,7 @@ class StorageInterface(ABC):
 
 class StorageWatcher:
     """
-    StorageWatcher watches the journal message and triggeres the callback
+    StorageWatcher watches the journal message and triggers the callback
     function to detect the insertion and removal of storage.
 
     """
@@ -123,7 +123,7 @@ class StorageWatcher:
 
 class USBStorage(StorageInterface):
     """
-    USBStorage hanldes the insertion and removal of usb2, usb3 and mediacard.
+    USBStorage handles the insertion and removal of usb2, usb3 and mediacard.
     """
 
     MOUNTED_PARTITION = None
@@ -163,7 +163,7 @@ class USBStorage(StorageInterface):
                     driver = key
             logger.info("{} was inserted {} controller".format(device, driver))
             logger.info("usable partition: {}".format(self.MOUNTED_PARTITION))
-            # judge the detection by the expection
+            # judge the detection by the expectation
             if self.args.storage_type == "usb2" and device in (
                 "new SuperSpeed USB device number",
                 "new SuperSpeed Gen 1 USB device number",
@@ -298,7 +298,7 @@ class ThunderboltStorage(StorageInterface):
             # success until the requirement of new device string and partition
             # marked as true
             if self.find_insertion_string and self.find_partition:
-                logger.info("Tunderbolt insertion test passed.")
+                logger.info("Thunderbolt insertion test passed.")
                 sys.exit()
         elif self.args.testcase == "removal":
             self.report_removal(line_str)

@@ -32,10 +32,7 @@ import errno
 import contextlib
 
 
-PLAINBOX_SESSION_SHARE = os.environ.get(
-    "PLAINBOX_SESSION_SHARE",
-    "/var/tmp/checkbox-ng/sessions/checkbox-run-2024-06-12T14.45.29.session/session-share",
-)
+PLAINBOX_SESSION_SHARE = os.environ.get("PLAINBOX_SESSION_SHARE", "")
 FOLDER_TO_MOUNT = tempfile.mkdtemp()
 REPETITION_NUM = 5  # number to repeat the read/write test units.
 # Prepare a random file which size is RANDOM_FILE_SIZE.

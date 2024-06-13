@@ -53,7 +53,6 @@ _summary: Verify USB HID devices functionality by performing specified actions.
 
 id: usb/insert
 flags: also-after-suspend fail-on-resource
-template-engine: jinja2
 _summary: USB 2.0 storage device insertion detected
 _purpose:
  Check system can detect USB 2.0 storage when inserted.
@@ -75,7 +74,6 @@ estimated_duration: 120
 
 id: usb3/insert
 flags: also-after-suspend
-template-engine: jinja2
 requires:
  usb.usb3 == 'supported'
 _summary: USB 3.0 storage device insertion detected
@@ -99,7 +97,6 @@ estimated_duration: 120
 
 id: usb/remove
 flags: also-after-suspend
-template-engine: jinja2
 _summary: USB 2.0 storage device removal detected
 _purpose:
  Check system can detect removal of a USB 2.0 storage device
@@ -120,7 +117,6 @@ estimated_duration: 120
 
 id: usb3/remove
 flags: also-after-suspend
-template-engine: jinja2
 _summary: USB 3.0 storage device removal detected
 _purpose:
  Check system can detect removal of a USB 3.0 storage device

@@ -1,4 +1,4 @@
-name: checkbox core24 builder
+name: Checkbox Snapcraft8 builds
 
 on:
   workflow_dispatch:

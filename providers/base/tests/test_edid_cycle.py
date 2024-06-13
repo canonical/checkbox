@@ -1,9 +1,14 @@
 """This module provides test cases for the edid_cycle module."""
 
+import sys
 import unittest
-import textwrap
 from pathlib import Path
-from unittest.mock import patch, call, Mock
+from unittest.mock import patch, call, Mock, MagicMock
+
+sys.modules["dbus"] = MagicMock()
+sys.modules["dbus.mainloop.glib"] = MagicMock()
+sys.modules["gi"] = MagicMock()
+sys.modules["gi.repository"] = MagicMock()
 
 import edid_cycle
 
@@ -78,7 +83,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
             "zapper-ip", mock_monitor, Path("1920x1080.edid"), "HDMI-1"
         )
         mock_open.assert_called_with("1920x1080.edid", "rb")
-        mock_monitor.set_extended_mode.assert_called_once()
+        mock_monitor.set_extended_mode.assert_called_once_with()
 
     @patch("time.sleep", new=Mock)
     @patch("edid_cycle.zapper_run", new=Mock)

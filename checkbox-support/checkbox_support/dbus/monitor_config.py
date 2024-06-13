@@ -91,11 +91,6 @@ class MonitorConfigDBus:
             cancellable=None,
         )
 
-        config_variant_type = GLib.VariantType.new(
-            "(ua((ssss)a(siiddada{sv})a{sv})a(iiduba(ssss)a{sv})a{sv})"
-        )
-
-        assert variant.get_type().equal(config_variant_type)
         return variant
 
     def _get_max_resolution(

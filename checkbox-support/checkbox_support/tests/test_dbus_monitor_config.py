@@ -1,7 +1,13 @@
+import sys
 import unittest
-from gi.repository import GLib, Gio
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, MagicMock
 
+sys.modules["dbus"] = MagicMock()
+sys.modules["dbus.mainloop.glib"] = MagicMock()
+sys.modules["gi"] = MagicMock()
+sys.modules["gi.repository"] = MagicMock()
+
+from gi.repository import GLib, Gio
 from checkbox_support.dbus.monitor_config import MonitorConfigDBus
 
 
@@ -19,61 +25,54 @@ class MonitorConfigDBusTests(unittest.TestCase):
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
 
         monitor_config = MonitorConfigDBus()
-        mock_proxy.call_sync.return_value = GLib.Variant(
-            "(ua((ssss)a(siiddada{sv})a{sv})a(iiduba(ssss)a{sv})a{sv})",
-            (
-                1,
-                [
-                    (
-                        ("eDP-1", "LGD", "0x06b3", "0x00000000"),
-                        [
-                            (
-                                "1920x1200@59.950",
-                                1920,
-                                1200,
-                                59.950172424316406,
-                                1.0,
-                                [1.0, 2.0],
-                                {
-                                    "is-current": GLib.Variant("b", True),
-                                    "is-preferred": GLib.Variant("b", True),
-                                },
-                            )
-                        ],
-                        {
-                            "is-builtin": GLib.Variant("b", True),
-                            "display-name": GLib.Variant(
-                                "s", "Built-in display"
-                            ),
-                        },
-                    ),
-                    (
-                        ("HDMI-1", "LGD", "0x06b3", "0x00000000"),
-                        [
-                            (
-                                "2560x1440@59.950",
-                                2560,
-                                1440,
-                                59.950172424316406,
-                                1.0,
-                                [1.0, 2.0],
-                                {
-                                    "is-current": GLib.Variant("b", True),
-                                    "is-preferred": GLib.Variant("b", True),
-                                },
-                            )
-                        ],
-                        {
-                            "is-builtin": GLib.Variant("b", False),
-                            "display-name": GLib.Variant(
-                                "s", "External Display"
-                            ),
-                        },
-                    ),
-                ],
-                [],
-                {},
-            ),
+        mock_proxy.call_sync.return_value = (
+            1,
+            [
+                (
+                    ("eDP-1", "LGD", "0x06b3", "0x00000000"),
+                    [
+                        (
+                            "1920x1200@59.950",
+                            1920,
+                            1200,
+                            59.950172424316406,
+                            1.0,
+                            [1.0, 2.0],
+                            {
+                                "is-current": GLib.Variant("b", True),
+                                "is-preferred": GLib.Variant("b", True),
+                            },
+                        )
+                    ],
+                    {
+                        "is-builtin": GLib.Variant("b", True),
+                        "display-name": GLib.Variant("s", "Built-in display"),
+                    },
+                ),
+                (
+                    ("HDMI-1", "LGD", "0x06b3", "0x00000000"),
+                    [
+                        (
+                            "2560x1440@59.950",
+                            2560,
+                            1440,
+                            59.950172424316406,
+                            1.0,
+                            [1.0, 2.0],
+                            {
+                                "is-current": GLib.Variant("b", True),
+                                "is-preferred": GLib.Variant("b", True),
+                            },
+                        )
+                    ],
+                    {
+                        "is-builtin": GLib.Variant("b", False),
+                        "display-name": GLib.Variant("s", "External Display"),
+                    },
+                ),
+            ],
+            [],
+            {},
         )
         resolutions = monitor_config.get_current_resolutions()
         self.assertEqual(
@@ -92,61 +91,54 @@ class MonitorConfigDBusTests(unittest.TestCase):
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
 
         monitor_config = MonitorConfigDBus()
-        mock_proxy.call_sync.return_value = GLib.Variant(
-            "(ua((ssss)a(siiddada{sv})a{sv})a(iiduba(ssss)a{sv})a{sv})",
-            (
-                1,
-                [
-                    (
-                        ("eDP-1", "LGD", "0x06b3", "0x00000000"),
-                        [
-                            (
-                                "1920x1200@59.950",
-                                1920,
-                                1200,
-                                59.950172424316406,
-                                1.0,
-                                [1.0, 2.0],
-                                {
-                                    "is-current": GLib.Variant("b", True),
-                                    "is-preferred": GLib.Variant("b", True),
-                                },
-                            )
-                        ],
-                        {
-                            "is-builtin": GLib.Variant("b", True),
-                            "display-name": GLib.Variant(
-                                "s", "Built-in display"
-                            ),
-                        },
-                    ),
-                    (
-                        ("HDMI-1", "LGD", "0x06b3", "0x00000000"),
-                        [
-                            (
-                                "2560x1440@59.950",
-                                2560,
-                                1440,
-                                59.950172424316406,
-                                1.0,
-                                [1.0, 2.0],
-                                {
-                                    "is-current": GLib.Variant("b", True),
-                                    "is-preferred": GLib.Variant("b", True),
-                                },
-                            )
-                        ],
-                        {
-                            "is-builtin": GLib.Variant("b", False),
-                            "display-name": GLib.Variant(
-                                "s", "External Display"
-                            ),
-                        },
-                    ),
-                ],
-                [],
-                {},
-            ),
+        mock_proxy.call_sync.return_value = (
+            1,
+            [
+                (
+                    ("eDP-1", "LGD", "0x06b3", "0x00000000"),
+                    [
+                        (
+                            "1920x1200@59.950",
+                            1920,
+                            1200,
+                            59.950172424316406,
+                            1.0,
+                            [1.0, 2.0],
+                            {
+                                "is-current": GLib.Variant("b", True),
+                                "is-preferred": GLib.Variant("b", True),
+                            },
+                        )
+                    ],
+                    {
+                        "is-builtin": GLib.Variant("b", True),
+                        "display-name": GLib.Variant("s", "Built-in display"),
+                    },
+                ),
+                (
+                    ("HDMI-1", "LGD", "0x06b3", "0x00000000"),
+                    [
+                        (
+                            "2560x1440@59.950",
+                            2560,
+                            1440,
+                            59.950172424316406,
+                            1.0,
+                            [1.0, 2.0],
+                            {
+                                "is-current": GLib.Variant("b", True),
+                                "is-preferred": GLib.Variant("b", True),
+                            },
+                        )
+                    ],
+                    {
+                        "is-builtin": GLib.Variant("b", False),
+                        "display-name": GLib.Variant("s", "External Display"),
+                    },
+                ),
+            ],
+            [],
+            {},
         )
         monitor_config.set_extended_mode()
 

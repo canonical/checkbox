@@ -133,7 +133,7 @@ def get_average_psnr(
 
 
 def main() -> None:
-    args = psnr_args().parse_args()
+    args = psnr_args()
     avg_psnr, psnr_each_frame = get_average_psnr(
         args.reference_file, args.test_file
     )

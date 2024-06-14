@@ -28,7 +28,7 @@ jobs:
       - name: Set matrix output
         id: set-matrix
         run: |
-          echo "matrix=$(cat matrix.json) | jq -c)" >> $GITHUB_OUTPUT          
+          echo "matrix=$(cat matrix.json) | jq -c | jq -R)" >> $GITHUB_OUTPUT          
   checkbox-promotion-beta-to-candidate-test:
     needs: generate-matrix
     runs-on: [self-hosted, testflinger]

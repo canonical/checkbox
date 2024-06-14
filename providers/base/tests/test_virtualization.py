@@ -326,10 +326,10 @@ class TestLXDTest_sriov(TestCase):
         start_result = LXDTest_sriov.start_sriov(self_mock)
 
         self.assertTrue(self_mock.setup.called)
-        self.assertFalse(start_result)        
-        
+        self.assertFalse(start_result)
+
     @patch("virtualization.logging")
-    def test_start_sriov_fail_start(self, logging_mock):        
+    def test_start_sriov_fail_start(self, logging_mock):
         self_mock = MagicMock()
         self_mock.setup.return_value = True
         self_mock.image_url = "image url"
@@ -338,12 +338,12 @@ class TestLXDTest_sriov(TestCase):
         self_mock.test_type = "vm"
         self_mock.name = "testbed"
         self_mock.run_command.side_effect = [True, False]
-        
+
         start_result = LXDTest_sriov.start_sriov(self_mock)
 
         self.assertTrue(self_mock.setup.called)
-        self.assertFalse(start_result)         
-        
+        self.assertFalse(start_result)
+
     @patch("virtualization.logging")
     def test_start_sriov_fail_list(self, logging_mock):
         self_mock = MagicMock()
@@ -354,12 +354,12 @@ class TestLXDTest_sriov(TestCase):
         self_mock.test_type = "vm"
         self_mock.name = "testbed"
         self_mock.run_command.side_effect = [True, True, False]
-        
+
         start_result = LXDTest_sriov.start_sriov(self_mock)
 
         self.assertTrue(self_mock.setup.called)
-        self.assertFalse(start_result) 
-        
+        self.assertFalse(start_result)
+
     @patch("time.sleep")
     @patch("virtualization.logging")
     def test_start_sriov_fail_exec(self, logging_mock, time_sleep_mock):
@@ -369,16 +369,16 @@ class TestLXDTest_sriov(TestCase):
         self_mock.template_url = "template url"
         self_mock.network_name = "sriov_network"
         self_mock.test_type = "vm"
-        self_mock.name = "testbed"    
+        self_mock.name = "testbed"
         self_mock.run_command.side_effect = itertools.chain(
             [True, True, True], itertools.repeat(False)
         )
-    
+
         start_result = LXDTest_sriov.start_sriov(self_mock)
 
         self.assertTrue(self_mock.setup.called)
-        self.assertFalse(start_result)     
-    
+        self.assertFalse(start_result)
+
     @patch("time.sleep")
     @patch("virtualization.print")
     @patch("virtualization.logging")
@@ -389,26 +389,25 @@ class TestLXDTest_sriov(TestCase):
         self_mock.template_url = "template url"
         self_mock.network_name = "sriov_network"
         self_mock.test_type = "vm"
-        self_mock.name = "testbed"   
-        #self_mock.run_command.side_effect = [True, True, True, True]
+        self_mock.name = "testbed"
         self_mock.run_command.side_effect = itertools.chain(
             [True, True, True], itertools.repeat(False)
         )
-        
+
         start_result = LXDTest_sriov.start_sriov(self_mock)
 
         self.assertTrue(self_mock.setup.called)
-        self.assertFalse(start_result) 
+        self.assertFalse(start_result)
         self.assertTrue(print_mock.called)
-       
+
     def test_setup_failure(self):
         self_mock = MagicMock()
         self_mock.run_command.return_value = False
         self_mock.image_url = None
         self_mock.template_url = None
         self_mock.network_name = None
-        self_mock.test_type = None    
+        self_mock.test_type = None
 
         setup_return = LXDTest_sriov.setup(self_mock)
 
-        self.assertFalse(setup_return) 
+        self.assertFalse(setup_return)

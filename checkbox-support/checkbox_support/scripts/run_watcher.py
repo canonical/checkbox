@@ -240,11 +240,11 @@ class USBStorage(StorageWatcher):
         if self.action == USBStorage.Action.REMOVAL:
             logger.info("Removal test passed.")
 
-        # remove the storage info
-        self._storage_info_helper(
-            reserve=False, storage_type=self.args.storage_type
-        )
-        sys.exit()
+            # remove the storage info
+            self._storage_info_helper(
+                reserve=False, storage_type=self.args.storage_type
+            )
+            sys.exit()
 
     def _get_partition_info(self, line_str):
         """get partition info."""
@@ -314,11 +314,11 @@ class MediacardStorage(StorageWatcher):
         if match:
             logger.info("Mediacard removal test passed.")
 
-        # remove the storage info
-        self._storage_info_helper(
-            reserve=False, storage_type=self.args.storage_type
-        )
-        sys.exit()
+            # Storage removal info
+            self._storage_info_helper(
+                reserve=False, storage_type=self.args.storage_type
+            )
+            sys.exit()
 
     def _get_partition_info(self, line_str):
         """get partition info."""
@@ -383,7 +383,7 @@ class ThunderboltStorage(StorageWatcher):
         match = re.search(remove_re, line_str)
         if match:
             logger.info("Thunderbolt removal test passed.")
-            # remove the storage info
+            # Storage removal info
             self._storage_info_helper(
                 reserve=False, storage_type=self.args.storage_type
             )

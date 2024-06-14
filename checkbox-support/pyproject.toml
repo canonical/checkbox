@@ -40,7 +40,6 @@
   checkbox-support-parse = "checkbox_support.parsers:main"
   checkbox-support-zapper-proxy = "checkbox_support.scripts.zapper_proxy:main"
   checkbox-support-image_checker = "checkbox_support.scripts.image_checker:main"
-  checkbox-support-psnr = "checkbox_support.scripts.psnr:main"
 [project.entry-points."plainbox.parsers"]
   pactl-list="checkbox_support.parsers.pactl:parse_pactl_output"
   udevadm="checkbox_support.parsers.udevadm:parse_udevadm_output"

@@ -154,7 +154,10 @@ class USBStorage(StorageInterface):
         self._report_detection()
 
     def report_insertion(self):
-        if self.mounted_partition and self.action == self.Action.INSERTION:
+        if (
+            self.mounted_partition
+            and self.action == USBStorage.Action.INSERTION
+        ):
             logger.info(
                 "{} was inserted {} controller".format(
                     self.device.value, self.driver.value
@@ -164,12 +167,12 @@ class USBStorage(StorageInterface):
             # judge the detection by the expectation
             if (
                 self.args.storage_type == "usb2"
-                and self.device == self.Device.HIGH_SPEED_USB
+                and self.device == USBStorage.Device.HIGH_SPEED_USB
             ):
                 logger.info("USB2 insertion test passed.")
             elif self.args.storage_type == "usb3" and self.device in [
-                self.Device.SUPER_SPEED_USB,
-                self.Device.SUPER_SPEED_GEN1_USB,
+                USBStorage.Device.SUPER_SPEED_USB,
+                USBStorage.Device.SUPER_SPEED_GEN1_USB,
             ]:
                 logger.info("USB3 insertion test passed.")
             else:

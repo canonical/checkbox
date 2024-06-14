@@ -74,14 +74,11 @@ class TestGetPSNR(unittest.TestCase):
 
 
 class TestGetAveragePSNR(unittest.TestCase):
-    def test_get_average_psnr_file_not_found(self):
-        with patch(
-            "checkbox_support.scripts.psnr.cv2.VideoCapture"
-        ) as mock_videocapture:
-            mock_capture = mock_videocapture.return_value
-            mock_capture.isOpened.return_value = False
-            with self.assertRaises(SystemExit):
-                get_average_psnr("nonexistent_file.mp4", "test_file.mp4")
+    @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
+    def test_get_average_psnr_file_not_found(self, mock_vc):
+        mock_vc.return_value.isOpened.return_value = False
+        with self.assertRaises(SystemExit):
+            get_average_psnr("nonexistent_file.mp4", "test_file.mp4")
 
     @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
     def test_zero_frames(self, mock_vc):

@@ -44,7 +44,7 @@ jobs:
           #echo "matrix={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}" >> $GITHUB_OUTPUT
   checkbox-promotion-beta-to-candidate-test:
     needs: generate-matrix
-    runs-on: [self-hosted, testflinger]
+    runs-on: [self-hosted]
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}

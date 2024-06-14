@@ -20,18 +20,15 @@ def create_image_helper_function(width, height, color):
 
 class TestPSNRArgs(unittest.TestCase):
 
-    @patch("checkbox_support.scripts.psnr.argparse.ArgumentParser.parse_args")
-    def test_psnr_args_with_defaults(self, mock_parse_args):
-        mock_parse_args.return_value = Namespace(
-            reference_file="ref.mp4",
-            test_file="test.mp4",
-            show_psnr_each_frame=False,
-        )
-        args = psnr_args().parse_args()
-
-        self.assertEqual(args.reference_file, "ref.mp4")
-        self.assertEqual(args.test_file, "test.mp4")
-        self.assertFalse(args.show_psnr_each_frame)
+    def test_psnr_args_with_defaults(self):
+        with patch(
+            "sys.argv",
+            ["psnr.py", "ref.mp4", "test.mp4"],
+        ):
+            args = psnr_args().parse_args()
+            self.assertEqual(args.reference_file, "ref.mp4")
+            self.assertEqual(args.test_file, "test.mp4")
+            self.assertFalse(args.show_psnr_each_frame)
 
     @patch("checkbox_support.scripts.psnr.argparse.ArgumentParser.parse_args")
     def test_psnr_args_with_custom_args(self, mock_parse_args):

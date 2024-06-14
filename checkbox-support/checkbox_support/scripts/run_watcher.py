@@ -14,19 +14,21 @@ import logging
 import os
 import re
 import select
-import signal
 import sys
 import time
 from systemd import journal
 from abc import ABC, abstractmethod
 from enum import Enum
 
+from checkbox_support.helpers.timeout import timeout
 from checkbox_support.scripts.zapper_proxy import zapper_run
 
 
 logger = logging.getLogger(__file__)
 logger.setLevel(logging.INFO)
 logger.addHandler(logging.StreamHandler(sys.stdout))
+
+ACTION_TIMEOUT = 30
 
 
 class StorageInterface(ABC):
@@ -58,13 +60,8 @@ class StorageWatcher(StorageInterface):
 
     """
 
-    ACTION_TIMEOUT = 30  # sec
-    logger.info("Timeout: {} seconds".format(ACTION_TIMEOUT))
-
     def __init__(self, args):
         self.args = args
-        signal.signal(signal.SIGALRM, self._no_storage_timeout)
-        signal.alarm(self.ACTION_TIMEOUT)
 
     def run(self):
         j = journal.Reader()
@@ -93,6 +90,7 @@ class StorageWatcher(StorageInterface):
                 print("\n\nINSERT NOW\n\n", flush=True)
             elif self.args.testcase == "removal":
                 print("\n\nREMOVE NOW\n\n", flush=True)
+            print("Timeout: {} seconds".format(ACTION_TIMEOUT), flush=True)
         while p.poll():
             if j.process() != journal.APPEND:
                 continue
@@ -405,7 +403,7 @@ class ThunderboltStorage(StorageWatcher):
                 ),
             )
 
-
+@timeout(ACTION_TIMEOUT)  # 30 seconds timeout
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument(

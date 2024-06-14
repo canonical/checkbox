@@ -51,7 +51,7 @@ class StorageInterface(ABC):
         pass
 
 
-class StorageWatcher:
+class StorageWatcher(StorageInterface):
     """
     StorageWatcher watches the journal message and triggers the callback
     function to detect the insertion and removal of storage.
@@ -61,9 +61,8 @@ class StorageWatcher:
     ACTION_TIMEOUT = 30  # sec
     logger.info("Timeout: {} seconds".format(ACTION_TIMEOUT))
 
-    def __init__(self, args, storage_strategy):
+    def __init__(self, args):
         self.args = args
-        self._storage_strategy = storage_strategy
         signal.signal(signal.SIGALRM, self._no_storage_timeout)
         signal.alarm(self.ACTION_TIMEOUT)
 
@@ -105,7 +104,7 @@ class StorageWatcher:
         for line in lines:
             line_str = str(line)
             logger.debug(line_str)
-            self._storage_strategy.callback(line_str)
+            self.callback(line_str)
 
     def _no_storage_timeout(self, signum, frame):
         """
@@ -428,11 +427,11 @@ def main():
 
     watcher = None
     if args.storage_type == "thunderbolt":
-        watcher = StorageWatcher(args, ThunderboltStorage(args))
+        watcher = ThunderboltStorage(args)
     elif args.storage_type == "mediacard":
-        watcher = StorageWatcher(args, MediacardStorage(args))
+        watcher = MediacardStorage(args)
     else:
-        watcher = StorageWatcher(args, USBStorage(args))
+        watcher = USBStorage(args)
     watcher.run()
 
 

@@ -93,12 +93,9 @@ class TestGetAveragePSNR(unittest.TestCase):
     @patch("checkbox_support.scripts.psnr._get_frame_resolution")
     @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
     def test_get_average_psnr_different_dimensions(
-        self, mock_videocapture, mock_get_frame_resolution
+        self, mock_vc, mock_get_frame_resolution
     ):
-        mock_capture_ref = mock_videocapture.return_value
-        mock_capture_test = mock_videocapture.return_value
-        mock_capture_test.isOpened.return_value = True
-        mock_capture_ref.isOpened.return_value = True
+        mock_vc.return_value.isOpened.return_value = True
         mock_get_frame_resolution.side_effect = [(100, 100), (100, 150)]
 
         with self.assertRaises(SystemExit):

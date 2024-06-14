@@ -1126,6 +1126,7 @@ class LXDTest_sriov(object):
 
     def setup_container(self):
         logging.debug("calling setup_container")
+        result = True
         if self.rootfs_url is not None:
             logging.debug("Downloading rootfs.")
             targetfile = urlparse(self.rootfs_url).path.split("/")[-1]
@@ -1257,8 +1258,10 @@ class LXDTest_sriov(object):
 
         if self.test_type == "vm":
             result = self.setup_vm()
-        else:
+        elif self.test_type == "container":
             result = self.setup_container()
+        else:
+            result = False
 
         return result
 

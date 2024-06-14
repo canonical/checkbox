@@ -49,7 +49,7 @@ def psnr_args() -> argparse.ArgumentParser:
         default=False,
         help="Absolutely always show command output",
     )
-    return parser
+    return parser.parse_args()
 
 
 def _get_psnr(I1: np.ndarray, I2: np.ndarray) -> float:

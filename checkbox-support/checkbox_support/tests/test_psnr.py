@@ -84,11 +84,11 @@ class TestGetAveragePSNR(unittest.TestCase):
                 get_average_psnr("nonexistent_file.mp4", "test_file.mp4")
 
     @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
-    def test_zero_frames(self, mock_VideoCapture):
-        mock_video_capture = MagicMock()
-        mock_VideoCapture.return_value = mock_video_capture
-        mock_video_capture.isOpened.return_value = True
-        mock_video_capture.get.return_value = 0  # Zero frames in the video
+    def test_zero_frames(self, mock_vc):
+        mock_vc.return_value.isOpened.return_value = True
+        mock_vc.return_value.get.return_value = 0  # Zero frames in the video
+        with self.assertRaises(SystemExit):
+            get_average_psnr("ref.mp4", "test.mp4")
 
         with self.assertRaises(SystemExit):
             get_average_psnr("ref.mp4", "test.mp4")

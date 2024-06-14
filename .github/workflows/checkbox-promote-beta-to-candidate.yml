@@ -38,8 +38,8 @@ jobs:
       - name: Set matrix output
         id: set-matrix
         run: |
-          # echo "matrix=$(jq -cn --argjson matrix "$(cat matrix.json)" '{include: $matrix}' | jq -R)" >> $GITHUB_OUTPUT
-          echo "matrix=$(jq -cn --argjson matrix "$(cat matrix.json)" '{include: $matrix}' | jq -R)" >> $GITHUB_OUTPUT
+          echo "matrix=$(jq -cn --argjson matrix "$(cat matrix.json)" '{include: $matrix}')"
+          echo "matrix=$(jq -cn --argjson matrix "$(cat matrix.json)" '{include: $matrix}')" >> $GITHUB_OUTPUT
           #echo "matrix={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
           #echo "matrix={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}" >> $GITHUB_OUTPUT
   checkbox-promotion-beta-to-candidate-test:

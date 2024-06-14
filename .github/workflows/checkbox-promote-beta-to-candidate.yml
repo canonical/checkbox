@@ -37,10 +37,10 @@ jobs:
       matrix:
         include: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     steps:
-      name: diagnostics
-      run: |
-        echo ${{ matrix.queue }}
-        echo ${{ matrix.data_source }}
-        echo ${{ matrix.checkbox_runtime }}
-        echo ${{ matrix.checkbox_track }} 
-       
+      - name: diagnostics
+        run: |
+          echo ${{ matrix.queue }}
+          echo ${{ matrix.data_source }}
+          echo ${{ matrix.checkbox_runtime }}
+          echo ${{ matrix.checkbox_track }} 
+        

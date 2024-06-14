@@ -25,23 +25,23 @@ jobs:
               "data_source": "distro: jammy"
             }
           ]' > matrix.json
-          echo '[
-            {
-              "project": "foo",
-              "config": "Debug"
-            },
-            {
-              "project": "bar",
-              "config": "Release"
-            }
-          ]' > matrix.json
+          #echo '[
+          #  {
+          #    "project": "foo",
+          #    "config": "Debug"
+          #  },
+          #  {
+          #    "project": "bar",
+          #    "config": "Release"
+          #  }
+          #]' > matrix.json
       - name: Set matrix output
         id: set-matrix
         run: |
           # echo "matrix=$(jq -cn --argjson matrix "$(cat matrix.json)" '{include: $matrix}' | jq -R)" >> $GITHUB_OUTPUT
-          echo "matrix=$(jq -cn --argjson matrix "$(cat matrix.json)" '{include: $matrix}')"
-          echo "matrix={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
-          echo "matrix={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}" >> $GITHUB_OUTPUT
+          echo "matrix=$(jq -cn --argjson matrix "$(cat matrix.json)" '{include: $matrix}' | jq -R)" >> $GITHUB_OUTPUT
+          #echo "matrix={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
+          #echo "matrix={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}" >> $GITHUB_OUTPUT
   checkbox-promotion-beta-to-candidate-test:
     needs: generate-matrix
     runs-on: [self-hosted, testflinger]
@@ -51,8 +51,8 @@ jobs:
     steps:
       - name: diagnostics
         run: |
-          echo "Matrix - Project ${{ matrix.project }}, Config ${{ matrix.config }}"
-          #echo ${{ matrix.queue }}
-          #echo ${{ matrix.data_source }}
-          #echo ${{ matrix.checkbox_runtime }}
-          #echo ${{ matrix.checkbox_track }} 
+          # echo "Matrix - Project ${{ matrix.project }}, Config ${{ matrix.config }}"
+          echo ${{ matrix.queue }}
+          echo ${{ matrix.data_source }}
+          echo ${{ matrix.checkbox_runtime }}
+          echo ${{ matrix.checkbox_track }} 

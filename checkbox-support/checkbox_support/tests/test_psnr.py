@@ -69,7 +69,8 @@ class TestGetPSNR(unittest.TestCase):
     def test_different_images(self):
         img1 = self.create_image(100, 100, 255)
         img2 = self.create_image(100, 100, 0)
-        self.assertNotEqual(_get_psnr(img1, img2), 0.0)
+       self.assertNotEqual(_get_psnr(img1, img2), 0.0)
+       self.assertLessEqual(_get_psnr(img1, img2), 50.0)
 
 
 class TestGetAveragePSNR(unittest.TestCase):

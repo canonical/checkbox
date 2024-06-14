@@ -120,18 +120,16 @@ def get_average_psnr(
     if total_frame_count == 0:
         raise SystemExit("Error: The count of frame should not be 0")
 
-    avg_psnr = 0.0
     psnr_each_frame = []
-
     for _ in range(total_frame_count):
         _, frameReference = capt_refrnc.read()
         _, frameUnderTest = capt_undTst.read()
         psnr = _get_psnr(frameReference, frameUnderTest)
         psnr_each_frame.append(psnr)
-        avg_psnr += psnr
 
-    avg_psnr /= total_frame_count
-    return avg_psnr, psnr_each_frame
+    psnr_array =  np.array(psnr_each_frame)
+    avg_psnr = np.mean(psnr)
+    return avg_psnr, psnr_array
 
 
 def main() -> None:

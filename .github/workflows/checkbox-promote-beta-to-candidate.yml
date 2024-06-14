@@ -1,4 +1,4 @@
-name: Submit a checkbox job to Testflinger (job provided inline)
+name: Dynamic test matrix
 on:
     push:
         branches: [machine-pool-poc]
@@ -13,6 +13,10 @@ jobs:
       - name: Create matrix
         id: create-matrix
         run: |
+          # The matrix is created inline here but it could also:
+          # - be created by an inline script (if logic is required)
+          # - be created by a script checked out from the repo (if logic is required)
+          # - be checked out from the repo (if it is static)
           echo '[
             {
               "queue": "hp-elitebook-850-g7-notebook-pc",
@@ -25,23 +29,10 @@ jobs:
               "data_source": "distro: jammy"
             }
           ]' > matrix.json
-          #echo '[
-          #  {
-          #    "project": "foo",
-          #    "config": "Debug"
-          #  },
-          #  {
-          #    "project": "bar",
-          #    "config": "Release"
-          #  }
-          #]' > matrix.json
       - name: Set matrix output
         id: set-matrix
         run: |
-          echo "matrix=$(jq -cn --argjson matrix "$(cat matrix.json)" '{include: $matrix}')"
           echo "matrix=$(jq -cn --argjson matrix "$(cat matrix.json)" '{include: $matrix}')" >> $GITHUB_OUTPUT
-          #echo "matrix={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}"
-          #echo "matrix={\"include\":[{\"project\":\"foo\",\"config\":\"Debug\"},{\"project\":\"bar\",\"config\":\"Release\"}]}" >> $GITHUB_OUTPUT
   checkbox-promotion-beta-to-candidate-test:
     needs: generate-matrix
     runs-on: [self-hosted]
@@ -51,7 +42,6 @@ jobs:
     steps:
       - name: diagnostics
         run: |
-          # echo "Matrix - Project ${{ matrix.project }}, Config ${{ matrix.config }}"
           echo ${{ matrix.queue }}
           echo ${{ matrix.data_source }}
           echo ${{ matrix.checkbox_runtime }}

@@ -10,8 +10,8 @@ jobs:
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
-      - name: Generate matrix
-        id: generate-matrix
+      - name: Create matrix
+        id: create-matrix
         run: |
           echo '[
             {
@@ -28,14 +28,13 @@ jobs:
       - name: Set matrix output
         id: set-matrix
         run: |
-          echo "matrix=$(cat matrix.json | jq -c | jq -R)" >> $GITHUB_OUTPUT          
+          echo "matrix=$(jq -cn --argjson matrix "$(cat matrix.json)" '{include: $matrix}' | jq -R)" >> $GITHUB_OUTPUT
   checkbox-promotion-beta-to-candidate-test:
     needs: generate-matrix
     runs-on: [self-hosted, testflinger]
     strategy:
       fail-fast: false
-      matrix:
-        include: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     steps:
       - name: diagnostics
         run: |

@@ -22,13 +22,13 @@ jobs:
             },
             {
               "queue": "hp-elitebook-850-g7-notebook-pc",
-              "data_source": "distro: jammy",
-            },
+              "data_source": "distro: jammy"
+            }
           ]' > matrix.json
       - name: Set matrix output
         id: set-matrix
         run: |
-          echo "matrix=$(jq -cn --argjson matrix $(cat matrix.json) '$matrix')" >> $GITHUB_OUTPUT          
+          echo "matrix=$(cat matrix.json) | jq -c)" >> $GITHUB_OUTPUT          
   checkbox-promotion-beta-to-candidate-test:
     needs: generate-matrix
     runs-on: [self-hosted, testflinger]

@@ -25,7 +25,7 @@ class TestPSNRArgs(unittest.TestCase):
             "sys.argv",
             ["psnr.py", "ref.mp4", "test.mp4"],
         ):
-            args = psnr_args().parse_args()
+            args = psnr_args()
             self.assertEqual(args.reference_file, "ref.mp4")
             self.assertEqual(args.test_file, "test.mp4")
             self.assertFalse(args.show_psnr_each_frame)
@@ -38,7 +38,7 @@ class TestPSNRArgs(unittest.TestCase):
             show_psnr_each_frame=True,
         )
 
-        args = psnr_args().parse_args()
+        args = psnr_args()
 
         self.assertEqual(args.reference_file, "ref.jpg")
         self.assertEqual(args.test_file, "test.jpg")
@@ -69,8 +69,8 @@ class TestGetPSNR(unittest.TestCase):
     def test_different_images(self):
         img1 = self.create_image(100, 100, 255)
         img2 = self.create_image(100, 100, 0)
-       self.assertNotEqual(_get_psnr(img1, img2), 0.0)
-       self.assertLessEqual(_get_psnr(img1, img2), 50.0)
+        self.assertNotEqual(_get_psnr(img1, img2), 0.0)
+        self.assertLessEqual(_get_psnr(img1, img2), 50.0)
 
 
 class TestGetAveragePSNR(unittest.TestCase):
@@ -101,32 +101,56 @@ class TestGetAveragePSNR(unittest.TestCase):
         with self.assertRaises(SystemExit):
             get_average_psnr("ref_file.mp4", "test_file.mp4")
 
-    @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
     @patch("checkbox_support.scripts.psnr._get_psnr")
     @patch("checkbox_support.scripts.psnr._get_frame_resolution")
+    @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
     def test_get_average_psnr(
-        self, mock_get_frame_resolution, mock_get_psnr, mock_VideoCapture
+        self, mock_VideoCapture, mock_get_frame_resolution, mock_get_psnr
     ):
-        # Create a mock VideoCapture object
-        mock_video_capture = MagicMock()
-        mock_VideoCapture.return_value = mock_video_capture
+        # Setup
+        reference_file_path = "reference.mp4"
+        test_file_path = "test.mp4"
+        total_frame_count = 5
+        mock_capt_refrnc = MagicMock()
+        mock_capt_undTst = MagicMock()
 
-        # Mock the behavior of isOpened()
-        mock_video_capture.isOpened.return_value = True
+        mock_VideoCapture.side_effect = [mock_capt_refrnc, mock_capt_undTst]
 
-        # Mock the frame resolution getter
-        mock_video_capture.get.return_value = 10
-        mock_video_capture.read.side_effect = [
-            (True, create_image_helper_function(100, 100, 255))
-        ] * 20
+        mock_capt_refrnc.isOpened.return_value = True
+        mock_capt_undTst.isOpened.return_value = True
 
-        # Mock _get_psnr to return a specific value
-        mock_get_psnr.return_value = 30.0
+        mock_get_frame_resolution.return_value = (1920, 1080)
 
-        avg_psnr, psnr_each_frame = get_average_psnr("ref.mp4", "test.mp4")
+        mock_capt_refrnc.get.return_value = total_frame_count
 
-        self.assertEqual(avg_psnr, 30.0)
-        self.assertEqual(psnr_each_frame, [30.0] * 10)
+        mock_capt_refrnc.read.return_value = (True, "frameReference")
+        mock_capt_undTst.read.return_value = (True, "frameUnderTest")
+
+        mock_get_psnr.return_value = 30
+
+        # Code under test
+        avg_psnr, psnr_array = get_average_psnr(
+            reference_file_path, test_file_path
+        )
+
+        # Assertions
+        expected_psnr_array = np.array([30] * total_frame_count)
+        expected_avg_psnr = np.mean(expected_psnr_array)
+
+        self.assertEqual(len(psnr_array), total_frame_count)
+        self.assertTrue(np.array_equal(psnr_array, expected_psnr_array))
+        self.assertEqual(avg_psnr, expected_avg_psnr)
+
+        # Ensure mocks were called correctly
+        mock_VideoCapture.assert_any_call(reference_file_path)
+        mock_VideoCapture.assert_any_call(test_file_path)
+        self.assertEqual(mock_capt_refrnc.isOpened.call_count, 1)
+        self.assertEqual(mock_capt_undTst.isOpened.call_count, 1)
+        self.assertEqual(mock_get_frame_resolution.call_count, 2)
+        self.assertEqual(mock_capt_refrnc.get.call_count, 1)
+        self.assertEqual(mock_capt_refrnc.read.call_count, total_frame_count)
+        self.assertEqual(mock_capt_undTst.read.call_count, total_frame_count)
+        self.assertEqual(mock_get_psnr.call_count, total_frame_count)
 
 
 class TestMainFunction(unittest.TestCase):

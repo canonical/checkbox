@@ -127,7 +127,7 @@ def get_average_psnr(
         psnr = _get_psnr(frameReference, frameUnderTest)
         psnr_each_frame.append(psnr)
 
-    psnr_array =  np.array(psnr_each_frame)
+    psnr_array = np.array(psnr_each_frame)
     avg_psnr = np.mean(psnr)
     return avg_psnr, psnr_array
 

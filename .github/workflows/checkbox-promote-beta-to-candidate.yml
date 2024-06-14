@@ -1,22 +1,41 @@
 name: Submit a checkbox job to Testflinger (job provided inline)
 on:
     push:
-        branches: [CHECKBOX-1447-promotion-beta-to-candidate]
+        branches: [machine-pool-poc]
     workflow_dispatch:
 
 jobs:
+  generate-matrix:
+    runs-on: [self-hosted]
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Generate matrix
+        id: generate-matrix
+        run: |
+          echo '[
+            {
+              "queue": "hp-elitebook-850-g7-notebook-pc",
+              "data_source": "distro: jammy",
+              "checkbox_runtime": "checkbox22",
+              "checkbox_track": "uc22"
+            },
+            {
+              "queue": "hp-elitebook-850-g7-notebook-pc",
+              "data_source": "distro: jammy",
+            },
+          ]' > matrix.json
+      - name: Set matrix output
+        id: set-matrix
+        run: |
+          echo "matrix=$(cat matrix.json)" >> "$GITHUB_OUTPUT"
   checkbox-promotion-beta-to-candidate-test:
+    needs: generate-matrix
     runs-on: [self-hosted, testflinger]
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - queue: hp-elitebook-850-g7-notebook-pc
-            data_source: "distro: jammy"
-            checkbox_runtime: checkbox22
-            checkbox_track: uc22
-          - queue: hp-elitebook-850-g7-notebook-pc
-            data_source: "distro: jammy"
+        include: ${{ fromJson(needs.generate-matrix.outputs.matrix) }}
     steps:
     - name: Checkout checkbox monorepo
       uses: actions/checkout@v4

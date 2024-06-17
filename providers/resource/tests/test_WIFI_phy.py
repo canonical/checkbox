@@ -180,7 +180,7 @@ class WIFITest(unittest.TestCase, WIFIphyData):
         mock_check_output.side_effect = [iw_dev_output, phy_info_output]
         main()
         expected_calls = [
-            unittest.mock.call("wlp2s0_2.4GHz: supported"),
+            unittest.mock.call("wlp2s0_2_4GHz: supported"),
             unittest.mock.call("wlp2s0_5GHz: supported"),
             unittest.mock.call("wlp2s0_6GHz: unsupported"),
             unittest.mock.call("wlp2s0_be: unsupported"),

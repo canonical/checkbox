@@ -27,11 +27,9 @@ def parse_iw_dev_output() -> List[Tuple[str, str]]:
     """
     Parses the output of "iw dev" to extract PHY and interface mappings.
     """
-    cmd = "iw dev"
-    output = check_output(cmd, shell=True, universal_newlines=True)
+    output = check_output(["iw", "dev"], universal_newlines=True)
     iw_dev_ptn = r"(phy.*)[\s\S]*?Interface (\w+)"
-    iw_dev_compile = re.compile(iw_dev_ptn)
-    return iw_dev_compile.findall(output)
+    return re.findall(iw_dev_ptn, output)
 
 
 def parse_phy_info_output(output: str) -> Dict[str, List[str]]:
@@ -41,22 +39,21 @@ def parse_phy_info_output(output: str) -> Dict[str, List[str]]:
     bands_data = output.split("Supported commands:")[0]
     bands = {}
     for band in bands_data.split("Band "):
-        if band:
-            band_ptn = r"(\d+):\s+([\s\S]*)"
-            band_compile = re.compile(band_ptn)
-            band_res = band_compile.match(band)
-            if band_res:
-                band_num = band_res.groups()[0]
-                band_content = band_res.groups()[1]
-                freqs_raw = band_content.split("Frequencies:")[1]
-                freq_ptn = r"(\d+ MHz.*)"
-                freq_compile = re.compile(freq_ptn)
-                freqs = [
-                    freq
-                    for freq in freq_compile.findall(freqs_raw)
-                    if "disabled" not in freq
-                ]
-                bands[band_num] = freqs
+        if not band:
+            continue
+        band_ptn = r"(\d+):"
+        band_res = re.match(band_ptn, band)
+        if not band_res:
+            continue
+        band_num, band_content = band.split(":", 1)
+        # get Frequencies paragraph
+        freqs_raw = band_content.split("Frequencies:", 1)[1].split(":", 1)[0]
+        freqs = [
+            freq.strip()
+            for freq in freqs_raw.split("*")
+            if "disabled" not in freq and "MHz" in freq
+        ]
+        bands[band_num] = freqs
     return bands
 
 
@@ -80,14 +77,12 @@ def check_freq_support(bands: Dict[str, List[str]]) -> Dict[str, str]:
     Checks if supported frequency (2.4GHz, 5GHz, 6GHz) are present based on
     band number
     """
+    # Ex. the frequency 2.4GHz is band 1, 5GHz is band 2, 6GHz is band 4
+    # so if bands[1] is not empty, the device supports 2.4GHz.
     supported_freqs = {"2.4GHz": "1", "5GHz": "2", "6GHz": "4"}
 
     freq_supported = {
-        freq: (
-            "supported"
-            if band in bands and len(bands[band]) > 0
-            else "unsupported"
-        )
+        freq: ("supported" if bands.get(band) else "unsupported")
         for freq, band in supported_freqs.items()
     }
     return freq_supported
@@ -99,9 +94,8 @@ def create_phy_interface_mapping(phy_interface: List[Tuple[str, str]]) -> Dict:
     """
     phy_interface_mapping = {}
     for phy, interface in phy_interface:
-        cmd = "iw {} info".format(phy)
         phy_info_output = check_output(
-            cmd, shell=True, universal_newlines=True
+            ["iw", phy, "info"], universal_newlines=True
         )
         bands = parse_phy_info_output(phy_info_output)
         freq_supported = check_freq_support(bands)
@@ -125,7 +119,10 @@ def main():
     # Print interface summary with detailed information on separate lines
     for interface, content in phy_interface_mapping.items():
         for freq, ret in content["FREQ_Supported"].items():
-            print("{}_{}: {}".format(interface, freq, ret))
+            # replace . with _ to support resource expressions for 2.4GHz
+            # as . is not a valid character in resource expression names
+            # i.e.: wifi.wlan0_2_4GHz is valid, wifi.wlan0_2.4GHz is not
+            print("{}_{}: {}".format(interface, freq.replace(".", "_"), ret))
         for sta, ret in content["STA_Supported"].items():
             print("{}_{}: {}".format(interface, sta.lower(), ret))
 

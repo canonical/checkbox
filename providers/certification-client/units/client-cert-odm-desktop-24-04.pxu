@@ -12,6 +12,7 @@ nested_part:
     bluetooth-cert-manual
     camera-cert-manual
     edac-manual
+    ishtp-manual
     thunderbolt-cert-manual
     monitor-gpu-cert-manual
     graphics-gpu-cert-manual
@@ -20,11 +21,13 @@ nested_part:
     keys-cert-manual
     led-cert-manual
     mediacard-cert-manual
+    mei-manual
     mobilebroadband-cert-manual
     ethernet-cert-manual
     networking-cert-manual
     optical-cert-manual
     power-management-precheck-cert-manual
+    qep-manual
     snappy-snap-automated
     # touchpad-cert-manual
     # touchscreen-cert-manual
@@ -33,6 +36,7 @@ nested_part:
     usb-c-cert-full # no manual only
     usb-dwc3-manual
     wireless-cert-manual
+    va-api-manual
     # start of suspend related tests
     before-suspend-reference-cert-full
     # suspend point
@@ -110,15 +114,18 @@ nested_part:
     monitor-gpu-cert-automated
     graphics-gpu-cert-automated
     input-cert-automated
+    ishtp-automated
     disk-cert-manual
     keys-cert-automated
     led-cert-automated
     mediacard-cert-automated
+    mei-automated
     mobilebroadband-cert-automated
     ethernet-cert-automated
     networking-cert-automated
     optical-cert-automated
     power-management-precheck-cert-automated
+    qep-automated
     # touchpad-cert-automated
     # touchscreen-cert-automated
     usb-cert-automated
@@ -126,6 +133,7 @@ nested_part:
     # usb-c-cert-automated # only usb-c-cert-full
     usb-dwc3-automated
     wireless-cert-automated
+    va-api-automated
     # start of suspend related tests
     before-suspend-reference-cert-full
     # suspend point

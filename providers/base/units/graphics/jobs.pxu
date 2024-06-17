@@ -271,6 +271,7 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_gl_support_{product_slug}
 template-id: graphics/index_gl_support_product_slug
 flags: also-after-suspend
+environ: CHECKBOX_RUNTIME
 command:
     gl_support.py
 estimated_duration: 0.131

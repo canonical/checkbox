@@ -16,6 +16,9 @@
 """
 This modules includes a utility to get display information and set
 a new logical monitor configuration via DBus and Mutter.
+
+Original script that inspired this class:
+- https://gitlab.gnome.org/GNOME/mutter/-/blob/main/tools/get-state.py
 """
 
 from typing import Dict, List, Tuple

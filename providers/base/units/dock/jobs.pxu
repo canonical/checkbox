@@ -471,6 +471,7 @@ depends: dock/audio-playback-headphones
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -2987,6 +2988,7 @@ depends: dock/all-init-audio-microphone-plug-detection
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_audio_playback == 'True'
+    manifest.has_audio_capture == 'True'
     package.name == 'alsa-base'
     package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
     package.name in ['pulseaudio-utils', 'pipewire']

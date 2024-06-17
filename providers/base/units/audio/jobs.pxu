@@ -339,6 +339,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
  (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
  manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -409,6 +410,7 @@ estimated_duration: 120.0
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -732,6 +734,7 @@ requires:
  package.name == 'alsa-base'
  package.name in ['pulseaudio-utils', 'pipewire']
  manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
 command: audio_test.py
   if check_audio_daemon.sh ; then
     pipewire_test.py

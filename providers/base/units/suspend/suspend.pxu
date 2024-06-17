@@ -566,6 +566,7 @@ depends: suspend/playback_headphones-after-suspend suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
  package.name == 'alsa-base'
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
@@ -1227,6 +1228,7 @@ depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
  package.name == 'python3-gi'
  package.name == 'gir1.2-gstreamer-1.0'
  package.name == 'libgstreamer1.0-0'
@@ -1246,6 +1248,7 @@ depends: suspend/suspend_advanced_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
  package.name == 'python3-gi'
  package.name == 'gir1.2-gstreamer-1.0'
  package.name == 'libgstreamer1.0-0'

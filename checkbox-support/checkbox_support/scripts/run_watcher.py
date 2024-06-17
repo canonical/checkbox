@@ -104,23 +104,7 @@ class StorageWatcher(StorageInterface):
             logger.debug(line_str)
             self.callback(line_str)
 
-    def _no_storage_timeout(self, signum, frame):
-        """
-        define timeout feature.
-
-        timeout and return failure if there is no usb insertion/removal
-        detected after ACTION_TIMEOUT secs
-        """
-        logger.error(
-            "no {} storage {} was reported in systemd journal".format(
-                self.args.storage_type, self.args.testcase
-            )
-        )
-        sys.exit(1)
-
-    def _storage_info_helper(
-        self, reserve, storage_type, mounted_partition=""
-    ):
+    def _storage_info_helper(self, reserve, mounted_partition=""):
         """
         Reserve or removal the detected storage info.
 
@@ -285,10 +269,7 @@ class MediacardStorage(StorageWatcher):
     MediacardStorage handles the insertion and removal of sd, sdhc, mmc etc...
     """
 
-    MOUNTED_PARTITION = None
-
-    def __init__(self, args):
-        self.args = args
+    mounted_partition = None
 
     def callback(self, line_str):
         if self.args.testcase == "insertion":
@@ -298,8 +279,8 @@ class MediacardStorage(StorageWatcher):
             self.report_removal(line_str)
 
     def report_insertion(self):
-        if self.MOUNTED_PARTITION:
-            logger.info("usable partition: {}".format(self.MOUNTED_PARTITION))
+        if self.mounted_partition:
+            logger.info("usable partition: {}".format(self.mounted_partition))
             logger.info("Mediacard insertion test passed.")
             sys.exit()
 
@@ -325,14 +306,14 @@ class MediacardStorage(StorageWatcher):
         part_re = re.compile("mmcblk(?P<dev_num>\d)+: (?P<part_name>p\d+)")
         match = re.search(part_re, line_str)
         if match:
-            self.MOUNTED_PARTITION = "mmcblk{}{}".format(
+            self.mounted_partition = "mmcblk{}{}".format(
                 match.group("dev_num"), match.group("part_name")
             )
             # backup the storage info
             self._storage_info_helper(
                 reserve=True,
                 storage_type=self.args.storage_type,
-                mounted_partition=self.MOUNTED_PARTITION,
+                mounted_partition=self.mounted_partition,
             )
 
 
@@ -402,6 +383,7 @@ class ThunderboltStorage(StorageWatcher):
                     match.group("dev_num"), match.group("part_name")
                 ),
             )
+
 
 @timeout(ACTION_TIMEOUT)  # 30 seconds timeout
 def main():

@@ -60,36 +60,40 @@ class StorageWatcher(StorageInterface):
 
     """
 
-    def __init__(self, args):
-        self.args = args
+    def __init__(self, testcase, storage_type, zapper_usb_address):
+        self.testcase = testcase
+        self.storage_type = storage_type
+        self.zapper_usb_address = zapper_usb_address
 
     def run(self):
         j = journal.Reader()
         j.seek_realtime(time.time())
         p = select.poll()
         p.register(j, j.get_events())
-        if self.args.zapper_usb_address:
+        if self.zapper_usb_address:
             zapper_host = os.environ.get("ZAPPER_ADDRESS")
             if not zapper_host:
                 raise SystemExit(
                     "ZAPPER_ADDRESS environment variable not found!"
                 )
-            usb_address = self.args.zapper_usb_address
-            if self.args.testcase == "insertion":
+            usb_address = self.zapper_usb_address
+            if self.testcase == "insertion":
                 print("Calling zapper to connect the USB device")
                 zapper_run(
                     zapper_host, "typecmux_set_state", usb_address, "DUT"
                 )
-            elif self.args.testcase == "removal":
+            elif self.testcase == "removal":
                 print("Calling zapper to disconnect the USB device")
                 zapper_run(
                     zapper_host, "typecmux_set_state", usb_address, "OFF"
                 )
         else:
-            if self.args.testcase == "insertion":
+            if self.testcase == "insertion":
                 print("\n\nINSERT NOW\n\n", flush=True)
-            elif self.args.testcase == "removal":
+            elif self.testcase == "removal":
                 print("\n\nREMOVE NOW\n\n", flush=True)
+            else:
+                raise SystemExit("Invalid test case")
             print("Timeout: {} seconds".format(ACTION_TIMEOUT), flush=True)
         while p.poll():
             if j.process() != journal.APPEND:
@@ -141,11 +145,10 @@ class StorageWatcher(StorageInterface):
                     file_name, plainbox_session_share
                 )
             )
-            file_to_share = open(
+            with open(
                 os.path.join(plainbox_session_share, file_name), "w"
-            )
-            file_to_share.write(mounted_partition + "\n")
-            file_to_share.close()
+            ) as file_to_share:
+                file_to_share.write(mounted_partition + "\n")
 
         # remove the back info
         if not reserve:
@@ -159,21 +162,8 @@ class USBStorage(StorageWatcher):
     USBStorage handles the insertion and removal of usb2, usb3 and mediacard.
     """
 
-    class Device(Enum):
-        HIGH_SPEED_USB = "new high-speed USB device"
-        SUPER_SPEED_USB = "new SuperSpeed USB device"
-        SUPER_SPEED_GEN1_USB = "new SuperSpeed Gen 1 USB device"
-
-    class Driver(Enum):
-        USING_EHCI_HCD = "using ehci_hcd"
-        USING_XHCI_HCD = "using xhci_hcd"
-
-    class Action(Enum):
-        INSERTION = "USB Mass Storage device detected"
-        REMOVAL = "USB disconnect, device"
-
-    def __init__(self, args):
-        self.args = args
+    def __init__(self, *args):
+        super().__init__(*args)
         self.mounted_partition = None
         self.device = None
         self.number = None
@@ -186,25 +176,19 @@ class USBStorage(StorageWatcher):
         self._report_detection()
 
     def report_insertion(self):
-        if (
-            self.mounted_partition
-            and self.action == USBStorage.Action.INSERTION
-        ):
+        if self.mounted_partition and self.action == "insertion":
             logger.info(
-                "{} was inserted {} controller".format(
-                    self.device.value, self.driver.value
+                "{} was inserted. Controller: {}, Number: {}".format(
+                    self.device, self.driver, self.number
                 )
             )
             logger.info("usable partition: {}".format(self.mounted_partition))
             # judge the detection by the expectation
-            if (
-                self.args.storage_type == "usb2"
-                and self.device == USBStorage.Device.HIGH_SPEED_USB
-            ):
+            if self.storage_type == "usb2" and self.device == "high_speed_usb":
                 logger.info("USB2 insertion test passed.")
-            elif self.args.storage_type == "usb3" and self.device in [
-                USBStorage.Device.SUPER_SPEED_USB,
-                USBStorage.Device.SUPER_SPEED_GEN1_USB,
+            elif self.storage_type == "usb3" and self.device in [
+                "super_speed_usb",
+                "super_speed_gen1_usb",
             ]:
                 logger.info("USB3 insertion test passed.")
             else:
@@ -213,18 +197,17 @@ class USBStorage(StorageWatcher):
             # backup the storage info
             self._storage_info_helper(
                 reserve=True,
-                storage_type=self.args.storage_type,
                 mounted_partition=self.mounted_partition,
             )
             sys.exit()
 
     def report_removal(self):
-        if self.action == USBStorage.Action.REMOVAL:
+        if self.action == "removal":
             logger.info("Removal test passed.")
 
             # remove the storage info
             self._storage_info_helper(
-                reserve=False, storage_type=self.args.storage_type
+                reserve=False, storage_type=self.storage_type
             )
             sys.exit()
 
@@ -242,25 +225,43 @@ class USBStorage(StorageWatcher):
 
         :param line_str: str of the scanned log lines.
         """
-        for driver in USBStorage.Driver:
-            if driver.value in line_str:
-                self.driver = driver
-        for device in USBStorage.Device:
-            if device.value in line_str:
-                self.device = device
-                # Get the device number after "device number "
+
+        device_log_dict = {
+            "high_speed_usb": "new high-speed USB device",
+            "super_speed_usb": "new SuperSpeed USB device",
+            "super_speed_gen1_usb": "new SuperSpeed Gen 1 USB device",
+        }
+
+        driver_log_dict = {
+            "ehci_hcd": "using ehci_hcd",
+            "xhci_hcd": "using xhci_hcd",
+        }
+
+        action_log_dict = {
+            "insertion": "USB Mass Storage device detected",
+            "removal": "USB disconnect, device",
+        }
+
+        for device_type, device_log in device_log_dict.items():
+            if device_log in line_str:
+                self.device = device_type
+
+        for driver_type, driver_log in driver_log_dict.items():
+            if driver_log in line_str:
+                self.driver = driver_type
                 self.number = re.search(
                     r"device number (\d+)", line_str
                 ).group(1)
-        for action in USBStorage.Action:
-            if action.value in line_str:
-                self.action = action
+
+        for action_type, action_log in action_log_dict.items():
+            if action_log in line_str:
+                self.action = action_type
 
     def _report_detection(self):
         """report detection status."""
-        if self.args.testcase == "insertion":
+        if self.testcase == "insertion":
             self.report_insertion()
-        elif self.args.testcase == "removal":
+        elif self.testcase == "removal":
             self.report_removal()
 
 
@@ -269,13 +270,15 @@ class MediacardStorage(StorageWatcher):
     MediacardStorage handles the insertion and removal of sd, sdhc, mmc etc...
     """
 
-    mounted_partition = None
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.mounted_partition = None
 
     def callback(self, line_str):
-        if self.args.testcase == "insertion":
+        if self.testcase == "insertion":
             self._get_partition_info(line_str)
             self.report_insertion()
-        elif self.args.testcase == "removal":
+        elif self.testcase == "removal":
             self.report_removal(line_str)
 
     def report_insertion(self):
@@ -295,7 +298,7 @@ class MediacardStorage(StorageWatcher):
 
             # Storage removal info
             self._storage_info_helper(
-                reserve=False, storage_type=self.args.storage_type
+                reserve=False, storage_type=self.storage_type
             )
             sys.exit()
 
@@ -312,7 +315,7 @@ class MediacardStorage(StorageWatcher):
             # backup the storage info
             self._storage_info_helper(
                 reserve=True,
-                storage_type=self.args.storage_type,
+                storage_type=self.storage_type,
                 mounted_partition=self.mounted_partition,
             )
 
@@ -325,13 +328,13 @@ class ThunderboltStorage(StorageWatcher):
 
     RE_PREFIX = "thunderbolt \d+-\d+:"
 
-    def __init__(self, args):
-        self.args = args
+    def __init__(self, *args):
+        super().__init__(*args)
         self.find_insertion_string = 0
         self.find_partition = 0
 
     def callback(self, line_str):
-        if self.args.testcase == "insertion":
+        if self.testcase == "insertion":
             self._get_partition_info(line_str)
             self.report_insertion(line_str)
             # The new device string be shown quite early than partition name
@@ -341,7 +344,7 @@ class ThunderboltStorage(StorageWatcher):
             if self.find_insertion_string and self.find_partition:
                 logger.info("Thunderbolt insertion test passed.")
                 sys.exit()
-        elif self.args.testcase == "removal":
+        elif self.testcase == "removal":
             self.report_removal(line_str)
 
     def report_insertion(self, line_str):
@@ -364,7 +367,7 @@ class ThunderboltStorage(StorageWatcher):
             logger.info("Thunderbolt removal test passed.")
             # Storage removal info
             self._storage_info_helper(
-                reserve=False, storage_type=self.args.storage_type
+                reserve=False, storage_type=self.storage_type
             )
             sys.exit()
 
@@ -378,7 +381,7 @@ class ThunderboltStorage(StorageWatcher):
             # backup the storage info
             self._storage_info_helper(
                 reserve=True,
-                storage_type=self.args.storage_type,
+                storage_type=self.storage_type,
                 mounted_partition="{}{}".format(
                     match.group("dev_num"), match.group("part_name")
                 ),
@@ -407,11 +410,17 @@ def main():
 
     watcher = None
     if args.storage_type == "thunderbolt":
-        watcher = ThunderboltStorage(args)
+        watcher = ThunderboltStorage(
+            args.testcase, args.storage_type, args.zapper_usb_address
+        )
     elif args.storage_type == "mediacard":
-        watcher = MediacardStorage(args)
+        watcher = MediacardStorage(
+            args.testcase, args.storage_type, args.zapper_usb_address
+        )
     else:
-        watcher = USBStorage(args)
+        watcher = USBStorage(
+            args.testcase, args.storage_type, args.zapper_usb_address
+        )
     watcher.run()
 
 

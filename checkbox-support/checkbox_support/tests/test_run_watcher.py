@@ -60,10 +60,10 @@ class TestRunWatcher(unittest.TestCase):
     def test_usb2_storage_report_insertion(self):
         mock_usb_storage = MagicMock()
         mock_usb_storage.args.storage_type = "usb2"
-        mock_usb_storage.device = USBStorage.Device.HIGH_SPEED_USB
+        mock_usb_storage.device = "high_speed_usb"
         mock_usb_storage.mounted_partition = "mounted_partition"
-        mock_usb_storage.action = USBStorage.Action.INSERTION
-        mock_usb_storage.driver = USBStorage.Driver.USING_EHCI_HCD
+        mock_usb_storage.action = "insertion"
+        mock_usb_storage.driver = "ehci_hcd"
         with self.assertRaises(SystemExit) as cm:
             USBStorage.report_insertion(mock_usb_storage)
         self.assertEqual(cm.exception.code, None)
@@ -71,10 +71,10 @@ class TestRunWatcher(unittest.TestCase):
     def test_usb3_storage_report_insertion(self):
         mock_usb_storage = MagicMock()
         mock_usb_storage.args.storage_type = "usb3"
-        mock_usb_storage.device = USBStorage.Device.SUPER_SPEED_USB
+        mock_usb_storage.device = "super_speed_usb"
         mock_usb_storage.mounted_partition = "mounted_partition"
-        mock_usb_storage.action = USBStorage.Action.INSERTION
-        mock_usb_storage.driver = USBStorage.Driver.USING_XHCI_HCD
+        mock_usb_storage.action = "insertion"
+        mock_usb_storage.driver = "xhci_hcd"
         with self.assertRaises(SystemExit) as cm:
             USBStorage.report_insertion(mock_usb_storage)
         self.assertEqual(cm.exception.code, None)
@@ -82,17 +82,17 @@ class TestRunWatcher(unittest.TestCase):
     def test_usb_storage_report_insertion_wrong_usb_type(self):
         mock_usb_storage = MagicMock()
         mock_usb_storage.args.storage_type = "usb2"
-        mock_usb_storage.device = USBStorage.Device.SUPER_SPEED_USB
+        mock_usb_storage.device = "super_speed_usb"
         mock_usb_storage.mounted_partition = "mounted_partition"
-        mock_usb_storage.action = USBStorage.Action.INSERTION
-        mock_usb_storage.driver = USBStorage.Driver.USING_XHCI_HCD
+        mock_usb_storage.action = "insertion"
+        mock_usb_storage.driver = "ehci_hcd"
         with self.assertRaises(SystemExit) as cm:
             USBStorage.report_insertion(mock_usb_storage)
         cm.exception.args[0] == "Wrong USB type detected."
 
     def test_usb_storage_report_removal(self):
         mock_usb_storage = MagicMock()
-        mock_usb_storage.action = USBStorage.Action.REMOVAL
+        mock_usb_storage.action = "removal"
         with self.assertRaises(SystemExit) as cm:
             USBStorage.report_removal(mock_usb_storage)
         self.assertEqual(cm.exception.code, None)
@@ -105,17 +105,17 @@ class TestRunWatcher(unittest.TestCase):
 
     def test_usb_storage_refresh_detection(self):
         mock_usb_storage = MagicMock()
-        line_str = "new high-speed USB device number 2 using xhci_hcd"
+        line_str = "new high-speed USB device number 2 using ehci_hcd"
         USBStorage._refresh_detection(mock_usb_storage, line_str)
         self.assertEqual(
-            mock_usb_storage.driver, USBStorage.Driver.USING_XHCI_HCD
+            mock_usb_storage.driver, "ehci_hcd"
         )
         self.assertEqual(
-            mock_usb_storage.device, USBStorage.Device.HIGH_SPEED_USB
+            mock_usb_storage.device, "high_speed_usb"
         )
         line_str = "USB Mass Storage device detected"
         USBStorage._refresh_detection(mock_usb_storage, line_str)
-        self.assertEqual(mock_usb_storage.action, USBStorage.Action.INSERTION)
+        self.assertEqual(mock_usb_storage.action, "insertion")
 
     def test_usb_storage_report_detection_insertion(self):
         mock_usb_storage = MagicMock()

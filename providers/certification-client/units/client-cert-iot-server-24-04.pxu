@@ -43,13 +43,17 @@ nested_part:
   camera-manual
   cpu-manual
   disk-manual
+  edac-manual
   ethernet-manual
+  ishtp-manual
   led-indicator-manual
   led-manual
   mediacard-manual
+  mei-manual
   memory-manual
   monitor-manual
   networking-manual
+  qep-manual
   rtc-manual
   self-manual
   serial-manual
@@ -121,16 +125,20 @@ nested_part:
   cpu-automated
   disk-automated
   docker-automated
+  edac-automated
   eeprom-automated
   ethernet-automated
   gpio-automated
   iot-fwts-automated
   i2c-automated
+  ishtp-automated
   mediacard-automated
+  mei-automated
   memory-automated
   misc-client-cert-automated
   networking-automated
   power-automated
+  qep-automated
   rtc-automated
   self-automated
   serial-automated

@@ -108,25 +108,8 @@ class StorageWatcher(StorageInterface):
             logger.debug(line_str)
             self.callback(line_str)
 
-    def _storage_info_helper(self, reserve, mounted_partition=""):
-        """
-        Reserve or removal the detected storage info.
+    def _store_storage_info(self, mounted_partition=""):
 
-        write the info we got in this script to $PLAINBOX_SESSION_SHARE
-        so the other jobs, e.g. read/write test, could know more information,
-        for example the partition it want to try to mount.
-
-        :param reserve:
-            type: Boolean
-            - True: backup the info of storage partition to PLAINBOX_SESSION_SHARE
-            - False: remove the backup file from PLAINBOX_SESSION_SHARE
-        :param storage_type:
-            type: String
-            - Type of storage. e.g. usb, mediacard and thunderbolt
-        :param mounted_partition:
-            type: String
-            - The name of partition. e.g. sda1, nvme1n1p1 etc...
-        """
         plainbox_session_share = os.environ.get("PLAINBOX_SESSION_SHARE")
         if not plainbox_session_share:
             logger.error("no env var PLAINBOX_SESSION_SHARE")
@@ -139,7 +122,7 @@ class StorageWatcher(StorageInterface):
         file_name = "usb_insert_info"
 
         # backup the storage partition info
-        if reserve and mounted_partition:
+        if mounted_partition:
             logger.info(
                 "cache file {} is at: {}".format(
                     file_name, plainbox_session_share
@@ -150,11 +133,17 @@ class StorageWatcher(StorageInterface):
             ) as file_to_share:
                 file_to_share.write(mounted_partition + "\n")
 
-        # remove the back info
-        if not reserve:
-            file_to_share = os.path.join(plainbox_session_share, file_name)
-            with contextlib.suppress(FileNotFoundError):
-                os.remove(file_to_share)
+    def _remove_storage_info(self):
+
+        plainbox_session_share = os.environ.get("PLAINBOX_SESSION_SHARE")
+        file_name = "usb_insert_info"
+
+        if not plainbox_session_share:
+            logger.error("no env var PLAINBOX_SESSION_SHARE")
+            sys.exit(1)
+        file_to_share = os.path.join(plainbox_session_share, file_name)
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(file_to_share)
 
 
 class USBStorage(StorageWatcher):
@@ -195,10 +184,7 @@ class USBStorage(StorageWatcher):
                 sys.exit("Wrong USB type detected.")
 
             # backup the storage info
-            self._storage_info_helper(
-                reserve=True,
-                mounted_partition=self.mounted_partition,
-            )
+            self._store_storage_info(self.mounted_partition)
             sys.exit()
 
     def report_removal(self):
@@ -206,9 +192,7 @@ class USBStorage(StorageWatcher):
             logger.info("Removal test passed.")
 
             # remove the storage info
-            self._storage_info_helper(
-                reserve=False, storage_type=self.storage_type
-            )
+            self._remove_storage_info()
             sys.exit()
 
     def _get_partition_info(self, line_str):
@@ -297,9 +281,7 @@ class MediacardStorage(StorageWatcher):
             logger.info("Mediacard removal test passed.")
 
             # Storage removal info
-            self._storage_info_helper(
-                reserve=False, storage_type=self.storage_type
-            )
+            self._remove_storage_info()
             sys.exit()
 
     def _get_partition_info(self, line_str):
@@ -313,11 +295,7 @@ class MediacardStorage(StorageWatcher):
                 match.group("dev_num"), match.group("part_name")
             )
             # backup the storage info
-            self._storage_info_helper(
-                reserve=True,
-                storage_type=self.storage_type,
-                mounted_partition=self.mounted_partition,
-            )
+            self._store_storage_info(self.mounted_partition)
 
 
 class ThunderboltStorage(StorageWatcher):
@@ -366,9 +344,7 @@ class ThunderboltStorage(StorageWatcher):
         if match:
             logger.info("Thunderbolt removal test passed.")
             # Storage removal info
-            self._storage_info_helper(
-                reserve=False, storage_type=self.storage_type
-            )
+            self._remove_storage_info()
             sys.exit()
 
     def _get_partition_info(self, line_str):
@@ -379,14 +355,10 @@ class ThunderboltStorage(StorageWatcher):
         if match:
             self.find_partition = 1
             # backup the storage info
-            self._storage_info_helper(
-                reserve=True,
-                storage_type=self.storage_type,
-                mounted_partition="{}{}".format(
-                    match.group("dev_num"), match.group("part_name")
-                ),
+            self.mounted_partition = "{}{}".format(
+                match.group("dev_num"), match.group("part_name")
             )
-
+            self._store_storage_info(self.mounted_partition)
 
 @timeout(ACTION_TIMEOUT)  # 30 seconds timeout
 def main():

@@ -28,7 +28,7 @@ from pathlib import Path
 BTDevice = namedtuple("BTDevice", ["sysfs_name", "device_name"])
 
 
-def get_node_content(path):
+def get_node_content(path: Path):
     """Retrieve the content from a sysfs path.
 
     :param path: path to the sysfs node
@@ -36,7 +36,7 @@ def get_node_content(path):
     :return: content of the sysfs node
     :rtype: str
     """
-    with open(path, "r") as f:
+    with path.open("r") as f:
         content = f.read().strip()
     return content
 

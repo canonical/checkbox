@@ -226,7 +226,7 @@ estimated_duration: 60.0
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_special_keys == 'True'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name in ['pulseaudio-utils', 'pipewire']
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
@@ -284,7 +284,7 @@ _purpose:
 _steps:
  1. Press the keyboard overhead light key or switch on the light
  2. Check that the keyboard overhead light turns on correctly
- 3. Press the key or switch again to toggle off the light 
+ 3. Press the key or switch again to toggle off the light
 _verification:
  Did the keyboard overhead light key or switch turn on and off the light?
 _summary: Test the functionality of the keyboard overhead light key or switch.

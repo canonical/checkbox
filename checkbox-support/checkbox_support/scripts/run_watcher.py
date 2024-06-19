@@ -12,6 +12,7 @@ import argparse
 import contextlib
 import logging
 import os
+import pathlib
 import re
 import select
 import sys
@@ -38,18 +39,27 @@ class StorageInterface(ABC):
     """
 
     @abstractmethod
-    def callback(self, line_str):
+    def _check_logs_for_insertion(self, line_str):
         """
-        callback handles the line string from journal.
+        callback that looks for the expected log lines in the journal during
+        the insertion test.
         """
         pass
 
     @abstractmethod
-    def report_insertion(self):
+    def _check_logs_for_removal(self, line_str):
+        """
+        callback that looks for the expected log lines in the journal during
+        the removal test.
+        """
         pass
 
     @abstractmethod
-    def report_removal(self):
+    def _validate_insertion(self):
+        pass
+
+    @abstractmethod
+    def _validate_removal(self):
         pass
 
 
@@ -57,6 +67,7 @@ class StorageWatcher(StorageInterface):
     """
     StorageWatcher watches the journal message and triggers the callback
     function to detect the insertion and removal of storage.
+
 
     """
 
@@ -106,20 +117,28 @@ class StorageWatcher(StorageInterface):
         for line in lines:
             line_str = str(line)
             logger.debug(line_str)
-            self.callback(line_str)
+            if self.testcase == "insertion":
+                self._parse_journal_line(line_str)
+                self._validate_insertion()
+            elif self.testcase == "removal":
+                self._parse_journal_line(line_str)
+                self._validate_removal()
 
     def _store_storage_info(self, mounted_partition=""):
+        """
+        Store the mounted partition info to the shared directory.
+        """
 
         plainbox_session_share = os.environ.get("PLAINBOX_SESSION_SHARE")
-        if not plainbox_session_share:
-            logger.error("no env var PLAINBOX_SESSION_SHARE")
-            sys.exit(1)
-
         # TODO: Should name the file by the value of storage_type variable as
         #       prefix. e.g. thunderbolt_insert_info, mediacard_insert_info.
         #       Since usb_insert_info is used by usb_read_write script, we
         #       should refactor usb_read_write script to adopt different files
         file_name = "usb_insert_info"
+
+        if not plainbox_session_share:
+            logger.error("no env var PLAINBOX_SESSION_SHARE")
+            sys.exit(1)
 
         # backup the storage partition info
         if mounted_partition:
@@ -128,12 +147,14 @@ class StorageWatcher(StorageInterface):
                     file_name, plainbox_session_share
                 )
             )
-            with open(
-                os.path.join(plainbox_session_share, file_name), "w"
-            ) as file_to_share:
+            file_path = pathlib.Path(plainbox_session_share, file_name)
+            with open(file_path, "w") as file_to_share:
                 file_to_share.write(mounted_partition + "\n")
 
     def _remove_storage_info(self):
+        """Remove the file containing the storage info from the shared
+        directory.
+        """
 
         plainbox_session_share = os.environ.get("PLAINBOX_SESSION_SHARE")
         file_name = "usb_insert_info"
@@ -141,9 +162,13 @@ class StorageWatcher(StorageInterface):
         if not plainbox_session_share:
             logger.error("no env var PLAINBOX_SESSION_SHARE")
             sys.exit(1)
-        file_to_share = os.path.join(plainbox_session_share, file_name)
-        with contextlib.suppress(FileNotFoundError):
-            os.remove(file_to_share)
+
+        file_path = pathlib.Path(plainbox_session_share, file_name)
+        if pathlib.Path(file_path).exists():
+            os.remove(file_path)
+            logger.info("cache file {} removed".format(file_name))
+        else:
+            logger.error("cache file {} not found".format(file_name))
 
 
 class USBStorage(StorageWatcher):
@@ -159,12 +184,7 @@ class USBStorage(StorageWatcher):
         self.driver = None
         self.action = None
 
-    def callback(self, line_str):
-        self._refresh_detection(line_str)
-        self._get_partition_info(line_str)
-        self._report_detection()
-
-    def report_insertion(self):
+    def _validate_insertion(self):
         if self.mounted_partition and self.action == "insertion":
             logger.info(
                 "{} was inserted. Controller: {}, Number: {}".format(
@@ -187,7 +207,7 @@ class USBStorage(StorageWatcher):
             self._store_storage_info(self.mounted_partition)
             sys.exit()
 
-    def report_removal(self):
+    def _validate_removal(self):
         if self.action == "removal":
             logger.info("Removal test passed.")
 
@@ -195,17 +215,13 @@ class USBStorage(StorageWatcher):
             self._remove_storage_info()
             sys.exit()
 
-    def _get_partition_info(self, line_str):
-        """get partition info."""
-        # looking for string like "sdb: sdb1"
-        part_re = re.compile("sd\w+:.*(?P<part_name>sd\w+)")
-        match = re.search(part_re, line_str)
-        if match:
-            self.mounted_partition = match.group("part_name")
-
-    def _refresh_detection(self, line_str):
+    def _parse_journal_line(self, line_str):
         """
-        refresh values with the lines from journal.
+        Gets one of the lines from the journal and updates values of the
+        device, driver, number and action attributes based on the line content.
+
+        It uses dictionaries to match the expected log lines with the
+        attributes.
 
         :param line_str: str of the scanned log lines.
         """
@@ -221,11 +237,8 @@ class USBStorage(StorageWatcher):
             "xhci_hcd": "using xhci_hcd",
         }
 
-        action_log_dict = {
-            "insertion": "USB Mass Storage device detected",
-            "removal": "USB disconnect, device",
-        }
-
+        # Match the log line with the expected log lines and update the
+        # corresponding attributes.
         for device_type, device_log in device_log_dict.items():
             if device_log in line_str:
                 self.device = device_type
@@ -237,16 +250,19 @@ class USBStorage(StorageWatcher):
                     r"device number (\d+)", line_str
                 ).group(1)
 
-        for action_type, action_log in action_log_dict.items():
-            if action_log in line_str:
-                self.action = action_type
+        # Look for insertion action
+        if "USB Mass Storage device detected" in line_str:
+            self.action = "insertion"
 
-    def _report_detection(self):
-        """report detection status."""
-        if self.testcase == "insertion":
-            self.report_insertion()
-        elif self.testcase == "removal":
-            self.report_removal()
+        # Look for removal action
+        if "USB disconnect, device" in line_str:
+            self.action = "removal"
+
+        # Extract the partition name. Looking for string like "sdb: sdb1"
+        part_re = re.compile("sd\w+:.*(?P<part_name>sd\w+)")
+        match = re.search(part_re, line_str)
+        if match:
+            self.mounted_partition = match.group("part_name")
 
 
 class MediacardStorage(StorageWatcher):
@@ -257,45 +273,43 @@ class MediacardStorage(StorageWatcher):
     def __init__(self, *args):
         super().__init__(*args)
         self.mounted_partition = None
+        self.action = None
 
-    def callback(self, line_str):
-        if self.testcase == "insertion":
-            self._get_partition_info(line_str)
-            self.report_insertion()
-        elif self.testcase == "removal":
-            self.report_removal(line_str)
-
-    def report_insertion(self):
+    def _validate_insertion(self):
         if self.mounted_partition:
             logger.info("usable partition: {}".format(self.mounted_partition))
             logger.info("Mediacard insertion test passed.")
+
+            # backup the storage info
+            self._store_storage_info(self.mounted_partition)
             sys.exit()
 
-    def report_removal(self, line_str):
-        MMC_RE = re.compile("card [0-9a-fA-F]+ removed")
-        # since the mmc addr in kernel message is not static, so use
-        # regex to judge it
-        match = re.search(MMC_RE, line_str)
-
-        if match:
+    def _validate_removal(self):
+        if self.action == "removal":
             logger.info("Mediacard removal test passed.")
 
-            # Storage removal info
+            # remove the storage info
             self._remove_storage_info()
             sys.exit()
 
-    def _get_partition_info(self, line_str):
-        """get partition info."""
+    def _parse_journal_line(self, line_str):
+        """
+        Gets one of the lines from the journal and updates values of the
+        mounted_partition attribute based on the line content.
+        """
 
-        # Match something like "mmcblk0: p1".
+        # Extract the partition name. Looking for string like "mmcblk0: p1"
         part_re = re.compile("mmcblk(?P<dev_num>\d)+: (?P<part_name>p\d+)")
         match = re.search(part_re, line_str)
         if match:
             self.mounted_partition = "mmcblk{}{}".format(
                 match.group("dev_num"), match.group("part_name")
             )
-            # backup the storage info
-            self._store_storage_info(self.mounted_partition)
+
+        # Look for removal action
+        removal_re = re.compile("card [0-9a-fA-F]+ removed")
+        if re.search(removal_re, line_str):
+            self.action = "removal"
 
 
 class ThunderboltStorage(StorageWatcher):
@@ -304,61 +318,51 @@ class ThunderboltStorage(StorageWatcher):
     storage.
     """
 
-    RE_PREFIX = "thunderbolt \d+-\d+:"
-
     def __init__(self, *args):
         super().__init__(*args)
-        self.find_insertion_string = 0
-        self.find_partition = 0
+        self.mounted_partition = None
+        self.action = None
 
-    def callback(self, line_str):
-        if self.testcase == "insertion":
-            self._get_partition_info(line_str)
-            self.report_insertion(line_str)
-            # The new device string be shown quite early than partition name
-            # in journal. Thererfore, the insertion will be considered as
-            # success until the requirement of new device string and partition
-            # marked as true
-            if self.find_insertion_string and self.find_partition:
-                logger.info("Thunderbolt insertion test passed.")
-                sys.exit()
-        elif self.testcase == "removal":
-            self.report_removal(line_str)
+    def _validate_insertion(self):
+        # The insertion will be valid if the insertion action is detected and
+        # the mounted partition is found.
+        if self.action == "insertion" and self.mounted_partition:
+            logger.info("Thunderbolt insertion test passed.")
 
-    def report_insertion(self, line_str):
-        """
-        Find the expected string while thunderbolt storage be inserted.
-        """
-        insert_re = re.compile("{} new device found".format(self.RE_PREFIX))
-        match = re.search(insert_re, line_str)
-        if match:
-            self.find_insertion_string = 1
-            logger.debug("find new thunderbolt device string in journal")
+            # backup the storage info
+            self._store_storage_info(self.mounted_partition)
+            sys.exit()
 
-    def report_removal(self, line_str):
-        """
-        Find the expected string while thunderbolt storage be removed.
-        """
-        remove_re = re.compile("{} device disconnected".format(self.RE_PREFIX))
-        match = re.search(remove_re, line_str)
-        if match:
+    def _validate_removal(self, line_str):
+        if self.action == "removal":
             logger.info("Thunderbolt removal test passed.")
-            # Storage removal info
+
+            # remove the storage info
             self._remove_storage_info()
             sys.exit()
 
-    def _get_partition_info(self, line_str):
-        """get partition info."""
-        # looking for string like "nvme0n1: p1"
+    def _parse_journal_line(self, line_str):
+
+        # Prefix of the thunderbolt device for regex matching
+        RE_PREFIX = "thunderbolt \d+-\d+:"
+
+        # Extract the partition name. Looking for string like "nvme0n1: p1"
         part_re = re.compile("(?P<dev_num>nvme\w+): (?P<part_name>p\d+)")
         match = re.search(part_re, line_str)
         if match:
-            self.find_partition = 1
-            # backup the storage info
             self.mounted_partition = "{}{}".format(
                 match.group("dev_num"), match.group("part_name")
             )
-            self._store_storage_info(self.mounted_partition)
+
+        insertion_re = re.compile("{} new device found".format(RE_PREFIX))
+        if re.search(insertion_re, line_str):
+            logger.debug("Found new thunderbolt device string in journal")
+            self.action = "insertion"
+
+        removal_re = re.compile("{} device disconnected".format(RE_PREFIX))
+        if re.search(removal_re, line_str):
+            self.action = "removal"
+
 
 @timeout(ACTION_TIMEOUT)  # 30 seconds timeout
 def main():

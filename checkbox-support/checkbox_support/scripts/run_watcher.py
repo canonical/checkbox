@@ -67,8 +67,6 @@ class StorageWatcher(StorageInterface):
     """
     StorageWatcher watches the journal message and triggers the callback
     function to detect the insertion and removal of storage.
-
-
     """
 
     def __init__(self, testcase, storage_type, zapper_usb_address):
@@ -274,10 +272,17 @@ class MediacardStorage(StorageWatcher):
         super().__init__(*args)
         self.mounted_partition = None
         self.action = None
+        self.device = None
+        self.address = None
 
     def _validate_insertion(self):
-        if self.mounted_partition:
+        if self.mounted_partition and self.action == "insertion":
             logger.info("usable partition: {}".format(self.mounted_partition))
+            logger.info(
+                "{} card inserted. Address: {}".format(
+                    self.device, self.address
+                )
+            )
             logger.info("Mediacard insertion test passed.")
 
             # backup the storage info
@@ -306,8 +311,18 @@ class MediacardStorage(StorageWatcher):
                 match.group("dev_num"), match.group("part_name")
             )
 
+        # Look for insertion action
+        insertion_re = re.compile(
+            "new (?P<device>.*) card at address (?P<address>[0-9a-fA-F]+)"
+        )
+        insertion_match = re.search(insertion_re, line_str)
+        if re.search(insertion_re, line_str):
+            self.action = "insertion"
+            self.device = insertion_match.group("device")
+            self.address = insertion_match.group("address")
+
         # Look for removal action
-        removal_re = re.compile("card [0-9a-fA-F]+ removed")
+        removal_re = re.compile("card ([0-9a-fA-F]+) removed")
         if re.search(removal_re, line_str):
             self.action = "removal"
 
@@ -327,6 +342,7 @@ class ThunderboltStorage(StorageWatcher):
         # The insertion will be valid if the insertion action is detected and
         # the mounted partition is found.
         if self.action == "insertion" and self.mounted_partition:
+            logger.info("usable partition: {}".format(self.mounted_partition))
             logger.info("Thunderbolt insertion test passed.")
 
             # backup the storage info
@@ -343,9 +359,6 @@ class ThunderboltStorage(StorageWatcher):
 
     def _parse_journal_line(self, line_str):
 
-        # Prefix of the thunderbolt device for regex matching
-        RE_PREFIX = "thunderbolt \d+-\d+:"
-
         # Extract the partition name. Looking for string like "nvme0n1: p1"
         part_re = re.compile("(?P<dev_num>nvme\w+): (?P<part_name>p\d+)")
         match = re.search(part_re, line_str)
@@ -354,9 +367,11 @@ class ThunderboltStorage(StorageWatcher):
                 match.group("dev_num"), match.group("part_name")
             )
 
+        # Prefix of the thunderbolt device for regex matching
+        RE_PREFIX = "thunderbolt \d+-\d+:"
+
         insertion_re = re.compile("{} new device found".format(RE_PREFIX))
         if re.search(insertion_re, line_str):
-            logger.debug("Found new thunderbolt device string in journal")
             self.action = "insertion"
 
         removal_re = re.compile("{} device disconnected".format(RE_PREFIX))

@@ -1,0 +1,53 @@
+id: ce-oem-spi-full
+unit: test plan
+_name: Serial Peripheral Interface (SPI) Full Tests
+_description:
+    Serial Peripheral Interface (SPI) Full Tests
+include:
+nested_part:
+    ce-oem-spi-manual
+    ce-oem-spi-automated
+
+id: ce-oem-spi-manual
+unit: test plan
+_name: Serial Peripheral Interface (SPI) Manual Tests
+_description:
+    Serial Peripheral Interface (SPI) Manual Tests
+bootstrap_include:
+include:
+
+id: ce-oem-spi-automated
+unit: test plan
+_name: Serial Peripheral Interface (SPI) Automated Tests
+_description:
+    Serial Peripheral Interface (SPI) Automated Tests
+bootstrap_include:
+    ce-oem-spi-list
+include:
+    ce-oem-spi/detect
+    ce-oem-spi/spi-loopback-device
+
+
+# This testplan should be removed when we merge before and after suspend testplan
+id: before-suspend-ce-oem-spi-automated
+unit: test plan
+_name: Before Suspend Serial Peripheral Interface (SPI) Automated Tests
+_description:
+    Before Suspend Serial Peripheral Interface (SPI) Automated Tests
+bootstrap_include:
+    ce-oem-spi-list
+include:
+    ce-oem-spi/detect
+    ce-oem-spi/spi-loopback-.*
+
+# This testplan should be removed when we merge before and after suspend testplan
+id: after-suspend-ce-oem-spi-automated
+unit: test plan
+_name: After Suspend Serial Peripheral Interface (SPI) Automated Tests
+_description:
+    After Suspend Serial Peripheral Interface (SPI) Automated Tests
+bootstrap_include:
+    ce-oem-spi-list
+include:
+    ce-oem-spi/detect
+    after-suspend-ce-oem-spi/spi-loopback-.*

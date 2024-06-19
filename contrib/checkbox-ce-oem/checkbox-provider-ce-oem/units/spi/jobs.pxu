@@ -1,0 +1,41 @@
+id: ce-oem-spi/detect
+category_id: spi
+estimated_duration: 2s
+plugin: shell
+flags: also-after-suspend
+imports:
+    from com.canonical.plainbox import manifest
+#requires:
+#    manifest.has_spi == 'True'
+_summary:
+    To detect if the spi device exist
+_purpose:
+    Check if the SPI devices exist
+command:
+    spidev_test.py -d
+
+unit: template
+template-resource: ce-oem-spi-list
+template-unit: job
+template-id: ce-oem-spi/spi-loopback-device
+_template-_summary: Test the SPI bus functionality on devices
+id: ce-oem-spi/spi-loopback-{device}
+category_id: spi
+estimated_duration: 2s
+plugin: shell
+flags: also-after-suspend
+user: root
+#imports:
+#    from com.canonical.plainbox import manifest
+#requires:
+#    manifest.has_spi == 'True'
+#    manifest.has_baoshan_spi_lookback == "True"
+_summary: Test the SPI bus functionality on {device}
+_purpose:
+    Check if the SPI devices can be used via spidev_test tool to loopback test
+_description:
+    This test will send a test_string with spidev_test tool to check whether the
+    test_string will be received via the loopback function.
+    Please connect the SPI0_MO & SPI0_MI  pins with jumper or wiret.
+command:
+    spidev_test.py -t -p {device}

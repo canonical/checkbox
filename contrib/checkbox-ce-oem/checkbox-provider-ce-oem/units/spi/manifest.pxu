@@ -1,0 +1,9 @@
+unit: manifest entry
+id: has_spi
+_name: Serial Peripheral Interface (SPI) supported?
+value-type: bool
+
+unit: manifest entry
+id: has_spi_loopback
+_name: Does the pin MOSI connect to MISO?
+value-type: bool

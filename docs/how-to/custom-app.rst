@@ -28,7 +28,7 @@ Let's create a Checkbox Snap for project called "myproject".
 
 .. code-block:: bash
 
-    $ ./configure --with-provider-included project=myproject base=18 && ./cleanup.sh
+    $ ./configure --with-provider-included project=myproject base=18
 
 This creates all the files necessary to use Snapcraft to build the
 new snap.
@@ -48,7 +48,7 @@ provider.
 
 .. code-block:: bash
 
-    $ cd checkbox-provider-myproject
+    $ cd checkbox-myproject/checkbox-provider-myproject
 
 Let's add a job from :ref:`tutorials`
 
@@ -74,9 +74,9 @@ in another provider it is best to reference that provider in the snap, and
 include the test, or whole test plans from that provider in your new testing
 project.
 
-Let's reuse disk tests from the "plainbox-provider-snappy" provider that we
-can use from the checkbox generic snap. All we need to do is add chosen tests
-to the ``include`` field of the test plan.
+Let's reuse disk tests from the "base" provider that we can use from the
+"checkbox" generic snap. All we need to do is add chosen tests to the
+``include`` field of the test plan.
 
 .. code-block:: none
     :caption: units/test-plan.pxu
@@ -95,7 +95,7 @@ to the ``include`` field of the test plan.
     (...)
 
 You can also include the whole *external* test plan. Let's reuse the CPU
-testing suite from plainbox-provider-snappy.
+testing suite from the base provider.
 
 .. code-block:: none
     :caption: unit/test-plan.pxu

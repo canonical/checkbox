@@ -25,7 +25,7 @@ from typing import Dict, List, Tuple
 from gi.repository import GLib, Gio
 
 
-class MonitorConfigDBus:
+class GnomeMonitorConfig:
     """Get and modify the current Monitor configuration via DBus."""
 
     NAME = "org.gnome.Mutter.DisplayConfig"

@@ -8,13 +8,13 @@ sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
 
 from gi.repository import GLib, Gio
-from checkbox_support.dbus.monitor_config import MonitorConfigDBus
+from checkbox_support.dbus.gnome_monitor import GnomeMonitorConfig
 
 
-class MonitorConfigDBusTests(unittest.TestCase):
+class GnomeMonitorConfigTests(unittest.TestCase):
     """This class provides test cases for the MonitorCOnfig DBus class."""
 
-    @patch("checkbox_support.dbus.monitor_config.Gio.DBusProxy")
+    @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
     def test_get_current_resolution(self, mock_dbus_proxy):
         """
         Test whether the function returns a dictionary of
@@ -24,7 +24,7 @@ class MonitorConfigDBusTests(unittest.TestCase):
         mock_proxy = Mock()
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
 
-        monitor_config = MonitorConfigDBus()
+        gnome_monitor = GnomeMonitorConfig()
         mock_proxy.call_sync.return_value = (
             1,
             [
@@ -74,12 +74,12 @@ class MonitorConfigDBusTests(unittest.TestCase):
             [],
             {},
         )
-        resolutions = monitor_config.get_current_resolutions()
+        resolutions = gnome_monitor.get_current_resolutions()
         self.assertEqual(
             resolutions, {"eDP-1": "1920x1200", "HDMI-1": "2560x1440"}
         )
 
-    @patch("checkbox_support.dbus.monitor_config.Gio.DBusProxy")
+    @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
     def test_set_extended_mode(self, mock_dbus_proxy):
         """
         Test whether the function set the logical display
@@ -90,7 +90,7 @@ class MonitorConfigDBusTests(unittest.TestCase):
         mock_proxy = Mock()
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
 
-        monitor_config = MonitorConfigDBus()
+        gnome_monitor = GnomeMonitorConfig()
         mock_proxy.call_sync.return_value = (
             1,
             [
@@ -140,7 +140,7 @@ class MonitorConfigDBusTests(unittest.TestCase):
             [],
             {},
         )
-        monitor_config.set_extended_mode()
+        gnome_monitor.set_extended_mode()
 
         logical_monitors = [
             (0, 0, 1.0, 0, True, [("eDP-1", "1920x1200@59.950", {})]),

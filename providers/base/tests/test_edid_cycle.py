@@ -122,7 +122,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             edid_cycle.main(args)
 
-    @patch("edid_cycle.MonitorConfigDBus")
+    @patch("edid_cycle.GnomeMonitorConfig")
     @patch("edid_cycle.zapper_monitor")
     @patch("edid_cycle.test_edid")
     @patch("edid_cycle.discover_video_output_device")

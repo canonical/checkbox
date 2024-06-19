@@ -99,7 +99,6 @@ parts:
       # actual requirements
       - python3-bluez
       - python3-pyparsing
-      - python3-requests-unixsocket
       - python3-systemd
       # added to stage python:
       - libpython3-stdlib
@@ -185,7 +184,6 @@ parts:
       - dmidecode
       - libjson-xs-perl
       - pciutils
-      - python3-requests-unixsocket
       - smartmontools
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"

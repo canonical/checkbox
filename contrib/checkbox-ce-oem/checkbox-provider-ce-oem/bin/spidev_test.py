@@ -3,12 +3,12 @@
 import glob
 import argparse
 import subprocess
+import shlex
 
 
 def runcmd(command):
     ret = subprocess.run(
-        command,
-        shell=True,
+        shlex.split(command),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         encoding="utf-8",
@@ -44,7 +44,7 @@ def test_spi_content_consistency(spi_path):
     print(f"Run command: {cmd}\n")
 
     # Run the command and capture the output
-    spi_ret = runcmd([cmd])
+    spi_ret = runcmd(cmd)
     print(spi_ret.stdout)
 
     # Split the output into packets

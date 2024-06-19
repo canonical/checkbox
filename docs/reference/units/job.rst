@@ -234,8 +234,8 @@ Following fields may be used by the job unit:
 
 ``flags``:
     (optional) This fields contains list of flags separated by spaces or
-    commas that might induce checkbox to run the job in particular way.
-    Currently, following flags are inspected by checkbox:
+    commas that might induce Checkbox to run the job in particular way.
+    Currently, following flags are inspected by Checkbox:
 
     .. _reset-locale flag:
 
@@ -245,17 +245,17 @@ Following fields may be used by the job unit:
     .. _win32 flag:
 
     ``win32``:
-        This flag makes checkbox run jobs' commands in windows-specific manner.
+        This flag makes Checkbox run jobs' commands in windows-specific manner.
         Attach this flag to jobs that are run on Windows OS.
 
     .. _noreturn flag:
 
     ``noreturn``:
-        This flag makes checkbox suspend execution after job's command is run.
-        This prevents scenario where checkbox continued to operate (writing
+        This flag makes Checkbox suspend execution after job's command is run.
+        This prevents scenario where Checkbox continued to operate (writing
         session data to disk and so on), while other process kills it (leaving
-        checkbox session in unwanted/undefined state).
-        Attach this flag to jobs that cause killing of checkbox process during
+        Checkbox session in unwanted/undefined state).
+        Attach this flag to jobs that cause killing of Checkbox process during
         their operation. E.g. run shutdown, reboot, etc.
         This flag also makes Checkbox to leave a ``__checkbox_respawn`` file
         in the ``$PLAINBOX_SESSION_SHARE`` directory which can be used by the
@@ -270,16 +270,16 @@ Following fields may be used by the job unit:
     .. _has-leftovers flag:
 
     ``has-leftovers``:
-        This flag makes checkbox silently ignore (and not log) any files left
+        This flag makes Checkbox silently ignore (and not log) any files left
         over by the execution of the command associated with a job. This flag
         is useful for jobs that don't bother with maintenance of temporary
         directories and just want to rely on the one already created by
-        checkbox.
+        Checkbox.
 
     .. _simple flag:
 
     ``simple``:
-        This flag makes checkbox disable certain validation advice and have
+        This flag makes Checkbox disable certain validation advice and have
         some sensible defaults for automated test cases.  This simplification
         is meant to cut the boiler plate on jobs that are closer to unit tests
         than elaborate manual interactions.
@@ -300,7 +300,7 @@ Following fields may be used by the job unit:
     .. _preserve-cwd flag:
 
     ``preserve-cwd``:
-        This flag makes checkbox run the job command in the current working
+        This flag makes Checkbox run the job command in the current working
         directory without creating a temp folder (and running the command from
         this temp folder). Sometimes needed on snappy
         (See http://pad.lv/1618197)
@@ -308,7 +308,7 @@ Following fields may be used by the job unit:
     .. _fail-on-resource flag:
 
     ``fail-on-resource``:
-        This flag makes checkbox fail the job if one of the resource
+        This flag makes Checkbox fail the job if one of the resource
         requirements evaluates to False.
 
     .. _also-after-suspend flag:

@@ -3,7 +3,7 @@ Exporter Unit
 =============
 
 The purpose of exporter units is to provide an easy way to customize the
-checkbox reports by delegating the customization bits to providers.
+Checkbox reports by delegating the customization bits to providers.
 
 Each exporter unit expresses a binding between code (the entry point) and data.
 Data can be new options, different Jinja2 templates and/or new paths to load
@@ -12,8 +12,8 @@ them.
 File format and location
 ------------------------
 
-Exporter entry units are regular checkbox units and are contained and shipped
-with checkbox providers. In other words, they are just the same as job and test
+Exporter entry units are regular Checkbox units and are contained and shipped
+with Checkbox providers. In other words, they are just the same as job and test
 plan units, for example.
 
 Fields

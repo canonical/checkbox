@@ -5,8 +5,8 @@ plugin: shell
 flags: also-after-suspend
 imports:
     from com.canonical.plainbox import manifest
-#requires:
-#    manifest.has_spi == 'True'
+requires:
+    manifest.has_spi == 'True'
 _summary:
     To detect if the spi device exist
 _purpose:
@@ -25,11 +25,11 @@ estimated_duration: 2s
 plugin: shell
 flags: also-after-suspend
 user: root
-#imports:
-#    from com.canonical.plainbox import manifest
-#requires:
-#    manifest.has_spi == 'True'
-#    manifest.has_baoshan_spi_lookback == "True"
+imports:
+    from com.canonical.plainbox import manifest
+requires:
+    manifest.has_spi == 'True'
+    manifest.has_spi_loopback == "True"
 _summary: Test the SPI bus functionality on {device}
 _purpose:
     Check if the SPI devices can be used via spidev_test tool to loopback test

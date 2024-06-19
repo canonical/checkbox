@@ -75,8 +75,8 @@ include the test, or whole test plans from that provider in your new testing
 project.
 
 Let's reuse disk tests from the "base" provider that we can use from the
-checkbox generic snap. All we need to do is add chosen tests to the ``include``
-field of the test plan.
+"checkbox" generic snap. All we need to do is add chosen tests to the
+``include`` field of the test plan.
 
 .. code-block:: none
     :caption: units/test-plan.pxu

@@ -30,7 +30,7 @@ override_dh_gencontrol:
 	python3 $(SRCTOP)/manage.py packaging;\
 	#Noble replaced libopenscap8 by lopenscap-common and libopenscap25t64
 	if [ "$(UBUNTU_MAJOR_VERSION)" -gt "22" ];then \
-		dh_gencontrol -- -V"plainbox:Depends=openscap-common,libopenscap25t64";\
+		dh_gencontrol -- -V"plainbox:Depends=openscap-scanner,openscap-common,libopenscap25t64";\
 	else\
 		dh_gencontrol;\
 	fi

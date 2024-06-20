@@ -115,6 +115,8 @@ def main():
         detect_spi_node(exit_with_notice=False)
     elif args.test:
         test_spi_content_consistency(args.path)
+    else:
+        raise SystemExit("ERROR: Invalid arguments")
 
 
 if __name__ == "__main__":

@@ -11,8 +11,10 @@ _summary:
     To detect if the spi device exist
 _purpose:
     Check if the SPI devices exist
+environ:
+    SPI_DEVICE_COUNT
 command:
-    spidev_test.py -d
+    spidev_test.py -d "${SPI_DEVICE_COUNT:-1}"
 
 unit: template
 template-resource: ce-oem-spi-list

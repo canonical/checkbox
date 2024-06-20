@@ -17,14 +17,21 @@ def runcmd(command):
     return ret
 
 
-def detect_spi_node(exit_with_notice=False):
+def detect_spi_node(expected_number=1, exit_with_notice=False):
     spi_devices = glob.glob("/dev/spidev*")
     if spi_devices:
         for device in spi_devices:
             print("device: {}".format(device))
             print()
-    elif exit_with_notice:
-        raise SystemExit("No SPI devices found under /dev/")
+    if exit_with_notice:
+        if len(spi_devices) != expected_number:
+            raise SystemExit(
+                "Wrong number of SPI devices detected under /dev/!\n"
+                "Expected: {}\n"
+                "Actual: {}".format(
+                    expected_number, len(spi_devices)
+                )
+            )
 
 
 def test_spi_content_consistency(spi_path):
@@ -75,8 +82,11 @@ def main():
     parser.add_argument(
         "--detect",
         "-d",
-        action="store_true",
-        help="Detect SPI node in the system, will raise error if not found",
+        type=int,
+        nargs="?",
+        const=1,
+        default=None,
+        help="Detect SPI node in the system. Optionally specify a number.",
     )
     parser.add_argument(
         "--list",
@@ -100,7 +110,7 @@ def main():
     args = parser.parse_args()
 
     if args.detect:
-        detect_spi_node(exit_with_notice=True)
+        detect_spi_node(args.detect, exit_with_notice=True)
     elif args.list:
         detect_spi_node(exit_with_notice=False)
     elif args.test:

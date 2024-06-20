@@ -12,7 +12,7 @@ from checkbox_support.dbus.gnome_monitor import MonitorConfigGnome
 
 
 class MonitorConfigGnomeTests(unittest.TestCase):
-    """This class provides test cases for the MonitorCOnfig DBus class."""
+    """This class provides test cases for the MonitorConfig DBus class."""
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
     def test_get_current_resolution(self, mock_dbus_proxy):

@@ -38,11 +38,9 @@ DP-3 AOC 2770M GDBFBHA000236
 """
 import re
 import subprocess
+from collections import defaultdict
 from typing import Dict
 from checkbox_support.monitor_config import Mode, MonitorConfig
-
-import re
-from collections import defaultdict
 
 
 class MonitorConfigX11(MonitorConfig):
@@ -51,6 +49,7 @@ class MonitorConfigX11(MonitorConfig):
     def get_current_resolutions(self) -> Dict[str, str]:
         """Get current active resolutions for each monitor."""
         state = self._get_current_state()
+
         return {
             monitor: mode.resolution
             for monitor, modes in state.items()
@@ -61,8 +60,7 @@ class MonitorConfigX11(MonitorConfig):
     def set_extended_mode(self):
         """
         Set to extend mode so that each monitor can be displayed
-        at max resolution.
-
+        at preferred resolution.
         """
         state = self._get_current_state()
         cmd = ["xrandr"]
@@ -83,7 +81,7 @@ class MonitorConfigX11(MonitorConfig):
 
             cmd.extend(xrandr_args.split())
 
-        subprocess.check_output(cmd)
+        subprocess.run(cmd)
 
     def _parse_xrandr_line(self, line):
         """

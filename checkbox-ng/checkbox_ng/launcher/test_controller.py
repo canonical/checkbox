@@ -101,6 +101,38 @@ class ControllerTests(TestCase):
 
         self.assertTrue(self_mock.connect_and_run.called)
 
+    @mock.patch("checkbox_ng.launcher.controller.is_hostname_a_loopback")
+    @mock.patch("time.time")
+    @mock.patch("time.sleep")
+    @mock.patch("builtins.print")
+    @mock.patch("checkbox_ng.launcher.controller.Configuration.from_text")
+    @mock.patch("checkbox_ng.launcher.controller._")
+    def test_invoked_err_timeout(
+        self,
+        gettext_mock,
+        configuration_mock,
+        print_mock,
+        time_sleep_mock,
+        time_mock,
+        loopback_check,
+    ):
+        ctx_mock = mock.MagicMock()
+        ctx_mock.args.launcher = None
+        ctx_mock.args.user = "some username"
+        ctx_mock.args.host = "undertest@local"
+        ctx_mock.args.port = "9999"
+        loopback_check.return_value = True
+
+        self_mock = mock.MagicMock()
+        self_mock.connect_and_run.side_effect = ConnectionRefusedError
+
+        # intentionally cause the timeout
+        # we do 1 iteration, then we blow up due to timeout
+        time_mock.side_effect = [0, 0, 2e10]
+
+        with self.assertRaises(SystemExit):
+            RemoteController.invoked(self_mock, ctx_mock)
+
     @mock.patch("checkbox_ng.launcher.controller.RemoteSessionAssistant")
     def test_check_remote_api_match_ok(self, remote_assistant_mock):
         """

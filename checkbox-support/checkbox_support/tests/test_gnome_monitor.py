@@ -8,10 +8,10 @@ sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
 
 from gi.repository import GLib, Gio
-from checkbox_support.dbus.gnome_monitor import GnomeMonitorConfig
+from checkbox_support.dbus.gnome_monitor import MonitorConfigGnome
 
 
-class GnomeMonitorConfigTests(unittest.TestCase):
+class MonitorConfigGnomeTests(unittest.TestCase):
     """This class provides test cases for the MonitorCOnfig DBus class."""
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
@@ -24,7 +24,7 @@ class GnomeMonitorConfigTests(unittest.TestCase):
         mock_proxy = Mock()
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
 
-        gnome_monitor = GnomeMonitorConfig()
+        gnome_monitor = MonitorConfigGnome()
         mock_proxy.call_sync.return_value = (
             1,
             [
@@ -90,7 +90,7 @@ class GnomeMonitorConfigTests(unittest.TestCase):
         mock_proxy = Mock()
         mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
 
-        gnome_monitor = GnomeMonitorConfig()
+        gnome_monitor = MonitorConfigGnome()
         mock_proxy.call_sync.return_value = (
             1,
             [

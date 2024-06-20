@@ -27,7 +27,7 @@ from gi.repository import GLib, Gio
 from checkbox_support.helpers.monitor_config import MonitorConfig
 
 
-class GnomeMonitorConfig(MonitorConfig):
+class MonitorConfigGnome(MonitorConfig):
     """Get and modify the current Monitor configuration via DBus."""
 
     NAME = "org.gnome.Mutter.DisplayConfig"

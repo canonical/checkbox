@@ -177,7 +177,7 @@ class RemoteController(ReportsStage, MainLoopStage):
                 print(".", end="", flush=True)
                 time.sleep(1)
         else:
-            print(_("\nConnection timed out."))
+            raise SystemExit(_("\nConnection timed out."))
 
     def check_remote_api_match(self):
         """

@@ -28,9 +28,7 @@ def detect_spi_node(expected_number=1, exit_with_notice=False):
             raise SystemExit(
                 "Wrong number of SPI devices detected under /dev/!\n"
                 "Expected: {}\n"
-                "Actual: {}".format(
-                    expected_number, len(spi_devices)
-                )
+                "Actual: {}".format(expected_number, len(spi_devices))
             )
 
 

@@ -78,7 +78,7 @@ class MonitorConfigGnome(MonitorConfig):
                     1.0,
                     0,
                     position_x == 0,  # first monitor is primary
-                    [(preferred.id, monitor, {})],
+                    [(monitor, preferred.id, {})],
                 )
             )
             position_x += int(preferred.resolution.split("x")[0])
@@ -108,9 +108,9 @@ class MonitorConfigGnome(MonitorConfig):
                         mode[6].get("is-preferred", False),
                         mode[6].get("is-current", False),
                     )
+                    for mode in monitor[1]
                 ]
                 for monitor in state[1]
-                for mode in monitor[1]
             },
         )
 

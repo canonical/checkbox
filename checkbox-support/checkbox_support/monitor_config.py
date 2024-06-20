@@ -19,12 +19,7 @@ set a new logical monitor configuration.
 """
 
 from abc import ABC, abstractmethod
-from collections import namedtuple
 from typing import Dict
-
-Mode = namedtuple(
-    "Mode", ["resolution", "refresh_rate", "is_preferred", "is_current"]
-)
 
 
 class MonitorConfig(ABC):

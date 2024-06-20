@@ -38,9 +38,13 @@ DP-3 AOC 2770M GDBFBHA000236
 """
 import re
 import subprocess
-from collections import defaultdict
+from collections import defaultdict, namedtuple
 from typing import Dict
-from checkbox_support.monitor_config import Mode, MonitorConfig
+from checkbox_support.monitor_config import MonitorConfig
+
+Mode = namedtuple(
+    "Mode", ["resolution", "refresh_rate", "is_preferred", "is_current"]
+)
 
 
 class MonitorConfigX11(MonitorConfig):

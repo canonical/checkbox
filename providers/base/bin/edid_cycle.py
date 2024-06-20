@@ -12,9 +12,10 @@ import os
 import time
 from contextlib import contextmanager
 
-from checkbox_support.dbus.gnome_monitor import (
-    GnomeMonitorConfig,
+from checkbox_support.monitor_config import (
+    MonitorConfig,
 )  # noqa: E402
+from checkbox_support.helpers import display_info  # noqa: E402
 from checkbox_support.scripts.zapper_proxy import zapper_run  # noqa: E402
 
 EDID_FILES = list(
@@ -32,7 +33,7 @@ def zapper_monitor(zapper_host: str):
 
 
 def discover_video_output_device(
-    zapper_host: str, gnome_monitor: GnomeMonitorConfig
+    zapper_host: str, monitor_config: MonitorConfig
 ) -> str:
     """
     Try to discover the output device connected to Zapper
@@ -50,7 +51,7 @@ def discover_video_output_device(
     # and I'm waiting for the DUT to react to the EDID change.
     time.sleep(5)
 
-    devices = gnome_monitor.get_current_resolutions().keys()
+    devices = monitor_config.get_current_resolutions().keys()
 
     # It doesn't really matter which EDID file we set in this function:
     # we just want to recognize the port type and index, not the resolution.
@@ -62,7 +63,7 @@ def discover_video_output_device(
     targets = []
     for _ in range(5):
         targets = list(
-            gnome_monitor.get_current_resolutions().keys() - devices
+            monitor_config.get_current_resolutions().keys() - devices
         )
         if targets:
             break
@@ -80,7 +81,7 @@ def discover_video_output_device(
 
 def test_edid(
     zapper_host: str,
-    gnome_monitor: GnomeMonitorConfig,
+    monitor_config: MonitorConfig,
     edid_file: pathlib.Path,
     video_device: str,
 ):
@@ -99,12 +100,12 @@ def test_edid(
     print("switching EDID to {}".format(resolution))
 
     try:
-        _switch_edid(zapper_host, gnome_monitor, edid_file, video_device)
-        gnome_monitor.set_extended_mode()
+        _switch_edid(zapper_host, monitor_config, edid_file, video_device)
+        monitor_config.set_extended_mode()
     except TimeoutError as exc:
         raise AssertionError("Timed out switching EDID") from exc
 
-    actual_res = gnome_monitor.get_current_resolutions()[video_device]
+    actual_res = monitor_config.get_current_resolutions()[video_device]
     if actual_res != resolution:
         raise AssertionError(
             "FAIL, got {} but {} expected".format(actual_res, resolution)
@@ -113,14 +114,14 @@ def test_edid(
     print("PASS")
 
 
-def _switch_edid(zapper_host, gnome_monitor, edid_file, video_device):
+def _switch_edid(zapper_host, monitor_config, edid_file, video_device):
     """Clear EDID and then 'plug' back a new monitor."""
 
     _clear_edid(zapper_host)
-    _wait_edid_change(gnome_monitor, video_device, False)
+    _wait_edid_change(monitor_config, video_device, False)
 
     _set_edid(zapper_host, edid_file)
-    _wait_edid_change(gnome_monitor, video_device, True)
+    _wait_edid_change(monitor_config, video_device, True)
 
 
 def _set_edid(zapper_host, edid_file):
@@ -134,13 +135,13 @@ def _clear_edid(zapper_host):
     zapper_run(zapper_host, "change_edid", None)
 
 
-def _check_connected(gnome_monitor, device):
+def _check_connected(monitor_config, device):
     """Check if the video input device is recognized and active."""
 
-    return device in gnome_monitor.get_current_resolutions().keys()
+    return device in monitor_config.get_current_resolutions().keys()
 
 
-def _wait_edid_change(gnome_monitor, video_device, expected):
+def _wait_edid_change(monitor_config, video_device, expected):
     """
     Wait until `expected` connection state is reached.
     Times out after 5 seconds.
@@ -149,7 +150,7 @@ def _wait_edid_change(gnome_monitor, video_device, expected):
     max_iter = 5
     sleep = 1
     while (
-        _check_connected(gnome_monitor, video_device) != expected
+        _check_connected(monitor_config, video_device) != expected
         and iteration < max_iter
     ):
         time.sleep(sleep)
@@ -171,10 +172,14 @@ def main(args=None):
     parser = argparse.ArgumentParser()
     parser.add_argument("host", help="Zapper IP address")
     args = parser.parse_args(args)
-    gnome_monitor = GnomeMonitorConfig()
 
     try:
-        video_device = discover_video_output_device(args.host, gnome_monitor)
+        monitor_config = display_info.get_monitor_config()
+    except ValueError:
+        return True
+
+    try:
+        video_device = discover_video_output_device(args.host, monitor_config)
         print("Testing EDID cycling on {}".format(video_device))
     except IOError as exc:
         raise SystemExit(
@@ -186,7 +191,7 @@ def main(args=None):
     with zapper_monitor(args.host):
         for edid_file in EDID_FILES:
             try:
-                test_edid(args.host, gnome_monitor, edid_file, video_device)
+                test_edid(args.host, monitor_config, edid_file, video_device)
             except AssertionError as exc:
                 print(exc.args[0])
                 failed = True

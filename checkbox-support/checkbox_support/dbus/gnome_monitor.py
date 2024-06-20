@@ -24,7 +24,7 @@ Original script that inspired this class:
 from typing import Dict, List, Tuple
 from gi.repository import GLib, Gio
 
-from checkbox_support.helpers.monitor_config import MonitorConfig
+from checkbox_support.monitor_config import MonitorConfig
 
 
 class MonitorConfigGnome(MonitorConfig):

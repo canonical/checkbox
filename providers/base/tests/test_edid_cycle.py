@@ -113,6 +113,7 @@ class ZapperEdidCycleTests(unittest.TestCase):
                 "zapper-ip", mock_monitor, Path("1920x1080.edid"), "HDMI-1"
             )
 
+    @patch("edid_cycle.display_info", Mock())
     @patch("edid_cycle.discover_video_output_device")
     def test_main_no_device(self, mock_discover):
         """Test if main function exits when no device is detected."""
@@ -122,12 +123,19 @@ class ZapperEdidCycleTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             edid_cycle.main(args)
 
-    @patch("edid_cycle.GnomeMonitorConfig")
+    @patch("edid_cycle.display_info")
+    def test_main_no_device(self, mock_display_info):
+        """Test if main function exits when no monitor config is available."""
+        mock_display_info.get_monitor_config.side_effect = ValueError
+        with self.assertRaises(SystemExit):
+            edid_cycle.main([])
+
+    @patch("edid_cycle.display_info")
     @patch("edid_cycle.zapper_monitor")
     @patch("edid_cycle.test_edid")
     @patch("edid_cycle.discover_video_output_device")
     def test_main(
-        self, mock_discover, mock_test_edid, mock_monitor, mock_monitor_dbus
+        self, mock_discover, mock_test_edid, mock_monitor, mock_display_info
     ):
         """
         Test if main function run the EDID test for every available EDID file.
@@ -138,25 +146,26 @@ class ZapperEdidCycleTests(unittest.TestCase):
             Path("file2"),
             Path("file3"),
         ]
+        monitor_config = mock_display_info.get_monitor_config.return_value
 
         self.assertFalse(edid_cycle.main(args))
         mock_test_edid.assert_has_calls(
             [
                 call(
                     "zapper-ip",
-                    mock_monitor_dbus.return_value,
+                    monitor_config,
                     Path("file1"),
                     mock_discover.return_value,
                 ),
                 call(
                     "zapper-ip",
-                    mock_monitor_dbus.return_value,
+                    monitor_config,
                     Path("file2"),
                     mock_discover.return_value,
                 ),
                 call(
                     "zapper-ip",
-                    mock_monitor_dbus.return_value,
+                    monitor_config,
                     Path("file3"),
                     mock_discover.return_value,
                 ),

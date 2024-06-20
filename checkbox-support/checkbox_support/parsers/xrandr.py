@@ -39,7 +39,7 @@ DP-3 AOC 2770M GDBFBHA000236
 import re
 import subprocess
 from typing import Dict
-from checkbox_support.helpers.monitor_config import Mode, MonitorConfig
+from checkbox_support.monitor_config import Mode, MonitorConfig
 
 import re
 from collections import defaultdict

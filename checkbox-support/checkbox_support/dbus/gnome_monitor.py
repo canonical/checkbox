@@ -21,10 +21,13 @@ Original script that inspired this class:
 - https://gitlab.gnome.org/GNOME/mutter/-/blob/main/tools/get-state.py
 """
 
+from collections import namedtuple
 from typing import Dict, List, Tuple
 from gi.repository import GLib, Gio
 
 from checkbox_support.monitor_config import MonitorConfig
+
+Mode = namedtuple("Mode", ["id", "resolution", "is_preferred", "is_current"])
 
 
 class MonitorConfigGnome(MonitorConfig):
@@ -50,45 +53,44 @@ class MonitorConfigGnome(MonitorConfig):
 
         state = self._get_current_state()
         return {
-            monitor[0][0]: "{}x{}".format(mode[1], mode[2])
-            for monitor in state[1]
-            for mode in monitor[1]
-            if mode[6].get("is-current")
+            monitor: mode.resolution
+            for monitor, modes in state[1].items()
+            for mode in modes
+            if mode.is_current
         }
 
     def set_extended_mode(self):
         """
         Set to extend mode so that each monitor can be displayed
-        at max resolution.
+        at preferred resolution.
         """
         state = self._get_current_state()
 
         extended_logical_monitors = []
-        position_x = 0
 
-        for index, monitor in enumerate(state[1]):
-            monitor_id = monitor[0][0]
-            max_resolution = self._get_max_resolution(state)[monitor_id]
+        position_x = 0
+        for monitor, modes in state[1].items():
+            preferred = next(mode for mode in modes if mode.is_preferred)
             extended_logical_monitors.append(
                 (
                     position_x,
                     0,
                     1.0,
                     0,
-                    index == 0,  # first monitor is primary
-                    [(monitor_id, max_resolution[0], {})],
+                    position_x == 0,  # first monitor is primary
+                    [(preferred.id, monitor, {})],
                 )
             )
-            position_x += max_resolution[1]
+            position_x += int(preferred.resolution.split("x")[0])
 
         self._apply_monitors_config(state[0], extended_logical_monitors)
 
-    def _get_current_state(self) -> GLib.Variant:
+    def _get_current_state(self) -> Tuple[str, Dict[str, List[Mode]]]:
         """
         Run the GetCurrentState DBus request and assert the return
         format is correct.
         """
-        variant = self._proxy.call_sync(
+        state = self._proxy.call_sync(
             method_name="GetCurrentState",
             parameters=None,
             flags=Gio.DBusCallFlags.NO_AUTO_START,
@@ -96,7 +98,21 @@ class MonitorConfigGnome(MonitorConfig):
             cancellable=None,
         )
 
-        return variant
+        return (
+            state[0],
+            {
+                monitor[0][0]: [
+                    Mode(
+                        mode[0],
+                        "{}x{}".format(mode[1], mode[2]),
+                        mode[6].get("is-preferred", False),
+                        mode[6].get("is-current", False),
+                    )
+                ]
+                for monitor in state[1]
+                for mode in monitor[1]
+            },
+        )
 
     def _get_max_resolution(
         self, state: GLib.Variant

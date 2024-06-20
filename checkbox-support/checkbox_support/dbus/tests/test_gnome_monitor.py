@@ -83,7 +83,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
     def test_set_extended_mode(self, mock_dbus_proxy):
         """
         Test whether the function set the logical display
-        configuration to two screens at maximum resolution
+        configuration to two screens at preferred resolution
         placed horizontally.
         """
 

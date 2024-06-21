@@ -175,20 +175,21 @@ def main(args=None):
 
     try:
         monitor_config = display_info.get_monitor_config()
-    except ValueError:
-        return True
-
-    try:
-        video_device = discover_video_output_device(args.host, monitor_config)
-        print("Testing EDID cycling on {}".format(video_device))
-    except IOError as exc:
-        raise SystemExit(
-            "Cannot detect the target video output device."
-        ) from exc
-
-    failed = False
+    except ValueError as exc:
+        raise SystemExit("Current host is not supported.") from exc
 
     with zapper_monitor(args.host):
+        try:
+            video_device = discover_video_output_device(
+                args.host, monitor_config
+            )
+            print("Testing EDID cycling on {}".format(video_device))
+        except IOError as exc:
+            raise SystemExit(
+                "Cannot detect the target video output device."
+            ) from exc
+
+        failed = False
         for edid_file in EDID_FILES:
             try:
                 test_edid(args.host, monitor_config, edid_file, video_device)

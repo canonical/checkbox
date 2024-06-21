@@ -51,33 +51,28 @@ def receive_timestamp(device: str, pin: str, timeout: int = 10):
     cmd = "testptp -d {} -i {} -L {},1 -e 100 -o {} -E".format(
         device, pin, pin, timeout
     )
-    result = subprocess.run(
-        shlex.split(cmd),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True,
-    )
-
-    print(result.stdout)
-    if result.returncode:
+    try:
+        output = subprocess.check_output(shlex.split(cmd))
+    except subprocess.CalledProcessError as e:
         raise SystemExit(
-            "[ERROR] Failed to receive timestamp: {}".format(result.stderr)
+            "[ERROR] Failed to receive timestamps: {}".format(str(e))
         )
 
-    cnt = 0
-    prev_event_time = -1
-    for line in result.stdout.splitlines():
-        if "Event time time" not in line:
-            continue
-        cnt += 1
-        event_time = int(line.split(":")[-1].split(",")[0].strip())
-        if prev_event_time == -1:
-            prev_event_time = event_time
-            continue
-        delta = event_time - prev_event_time
-        if delta != 1:
-            raise SystemExit("[ERROR] Time Delta is not 1")
-        prev_event_time = event_time
+    event_times = [
+        int(line.split(":")[-1].split(",")[0].strip())
+        for line in output.splitlines()
+        if "Event time time" in line
+    ]
+    cnt = len(event_times)
+    deltas = [
+        y - x for (x, y) in zip(iter(event_times), iter(event_times[1:]))
+    ]
+    if all(delta != 1 for delta in deltas):
+        raise SystemExit(
+            "[ERROR] Some events didn't take exactly 1 second\n"
+            "Timestamps: {}\n"
+            "Deltas:{}".format(str(event_times), str(deltas))
+        )
     if cnt < timeout - 1 or timeout + 1 < cnt:
         raise SystemExit("[ERROR] The number for Event time time is incorrect")
     print("[PASS] Time Delta is 1")

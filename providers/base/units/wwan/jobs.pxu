@@ -27,7 +27,7 @@ requires:
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 unit: template
-template-resource: wwan_resource
+template-resource: wwan_resource_with_iteration
 template-unit: job
 id: wwan/gsm-connection-{manufacturer}-{model}-{hw_id}-cycle{iteration}-auto
 template-id: wwan/gsm-connection-manufacturer-model-hw_id-auto

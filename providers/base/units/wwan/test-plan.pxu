@@ -26,6 +26,7 @@ include:
 >>>>>>> update the test case and scripts
 bootstrap_include:
     wwan_resource
+    wwan_resource_with_iteration
 
 id: after-suspend-wwan-full
 unit: test plan

@@ -7,7 +7,7 @@ user: root
 environ:
     TGPIO_PIN_COUNT
 command:
-    nodes=$(udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+')
+    nodes=$(get_virtual_ptp_path.sh)
     for node in ${nodes}
     do
         for ((i = 0; i < TGPIO_PIN_COUNT; i++)); do

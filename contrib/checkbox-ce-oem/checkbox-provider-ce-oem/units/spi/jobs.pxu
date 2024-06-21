@@ -20,7 +20,7 @@ unit: template
 template-resource: ce-oem-spi-list
 template-unit: job
 template-id: ce-oem-spi/spi-loopback-device
-_template-_summary: Test the SPI bus functionality on devices
+_template-summary: Test the SPI bus functionality on devices
 id: ce-oem-spi/spi-loopback-{device}
 category_id: spi
 estimated_duration: 2s

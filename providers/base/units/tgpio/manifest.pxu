@@ -1,6 +1,6 @@
 unit: manifest entry
 id: has_tgpio_server
-_name: Has connected to a TGPIO server which sends timestamps
+_name: Device connected to a TGPIO server which sends timestamps
 value-type: bool
 
 unit: manifest entry

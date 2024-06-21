@@ -21,6 +21,7 @@ include:
     wwan/check-sim-present-.*-auto
 bootstrap_include:
     wwan_resource
+    wwan_resource_with_iteration
 
 id: after-suspend-wwan-full
 unit: test plan

@@ -131,6 +131,8 @@ def generate_test_config(interface, ssid, psk, address, dhcp, wpa3):
         # Set the key-management to "sae" when WPA3 is used
         if wpa3:
             access_point[ssid]["auth"]["key-management"] = "sae"
+        else:
+            access_point[ssid]["auth"]["key-management"] = "psk"
 
     # Define the interface_info
     interface_info = {

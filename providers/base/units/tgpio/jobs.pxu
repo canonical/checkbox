@@ -10,7 +10,7 @@ _description:
     This test is to check if there's at least one virtual ptp device node
 user: root
 command:
-    udevadm info /dev/ptp* | grep -E 'P: /devices/virtual/ptp/ptp[0-9]+' -A 5 | grep -Po 'DEVNAME=\K[^[:space:]]+' 
+    awk '/P: \/devices\/virtual\/ptp\/ptp[0-9]+/' RS="\n\n" ORS="\n\n" <(udevadm info /dev/ptp*) | grep -Po 'DEVNAME=\K[^[:space:]]+' 
 
 unit: job
 category_id: tgpio

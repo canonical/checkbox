@@ -28,12 +28,10 @@ class MonitorConfig(ABC):
     @abstractmethod
     def get_current_resolutions(self) -> Dict[str, str]:
         """Get current active resolutions for each monitor."""
-        pass
 
     @abstractmethod
     def set_extended_mode(self):
         """
         Set to extend mode so that each monitor can be displayed
-        at max resolution.
+        at preferred resolution.
         """
-        pass

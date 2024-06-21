@@ -31,7 +31,13 @@ Mode = namedtuple("Mode", ["id", "resolution", "is_preferred", "is_current"])
 
 
 class MonitorConfigGnome(MonitorConfig):
-    """Get and modify the current Monitor configuration via DBus."""
+    """
+    Get and modify the current Monitor configuration via DBus.
+
+    DBus interface doc at:
+    https://gitlab.gnome.org/GNOME/mutter/-/blob/main/data/dbus-interfaces/
+        org.gnome.Mutter.DisplayConfig.xml
+    """
 
     NAME = "org.gnome.Mutter.DisplayConfig"
     INTERFACE = "org.gnome.Mutter.DisplayConfig"
@@ -87,8 +93,11 @@ class MonitorConfigGnome(MonitorConfig):
 
     def _get_current_state(self) -> Tuple[str, Dict[str, List[Mode]]]:
         """
-        Run the GetCurrentState DBus request and assert the return
-        format is correct.
+        Using DBus signal 'GetCurrentState' to get the available monitors
+        and related modes.
+
+        Check the related DBus XML definition for details over the expected
+        output data format.
         """
         state = self._proxy.call_sync(
             method_name="GetCurrentState",
@@ -132,7 +141,13 @@ class MonitorConfigGnome(MonitorConfig):
         return {monitor[0][0]: get_max(monitor[1]) for monitor in state[1]}
 
     def _apply_monitors_config(self, serial: str, logical_monitors: List):
-        """Apply the given monitor configuration."""
+        """
+        Using DBus signal 'ApplyMonitorsConfig' to apply the given monitor
+        configuration.
+
+        Check the related DBus XML definition for details over the expected
+        input data format.
+        """
         self._proxy.call_sync(
             method_name="ApplyMonitorsConfig",
             parameters=GLib.Variant(

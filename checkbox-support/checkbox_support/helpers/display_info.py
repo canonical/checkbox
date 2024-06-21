@@ -14,6 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 """
+This module provides a display system agnostic way to get information about
+the available displays connected to the system.
 """
 
 import os
@@ -23,6 +25,10 @@ from checkbox_support.parsers.xrandr import MonitorConfigX11
 
 
 def get_monitor_config() -> MonitorConfig:
+    """
+    Depending on the current host, initiate and return
+    an appropriate MonitorConfig.
+    """
     if "GNOME" in os.getenv("XDG_CURRENT_DESKTOP", ""):
         return MonitorConfigGnome()
     elif "x11" == os.getenv("XDG_SESSION_TYPE", ""):

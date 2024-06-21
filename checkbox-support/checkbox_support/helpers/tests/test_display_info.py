@@ -14,12 +14,34 @@ from checkbox_support.helpers import display_info
 class DisplayInfoTests(unittest.TestCase):
     """Test cases for the display_info module."""
 
-    @patch.dict(os.environ, {"XDG_CURRENT_DESKTOP": "ubuntu:GNOME"})
+    @patch.dict(
+        os.environ,
+        {
+            "XDG_CURRENT_DESKTOP": "ubuntu:GNOME",
+            "XDG_SESSION_TYPE": "wayland",
+        },
+    )
     @patch("checkbox_support.helpers.display_info.MonitorConfigGnome")
-    def test_get_monitor_conf_gnome(self, mock_monitor):
+    def test_get_monitor_conf_gnome_wayland(self, mock_monitor):
         """
         Assert the function returns the Gnome DBus monitor config
-        if the current desktop is Gnome.
+        if the current desktop is Gnome on Wayland.
+        """
+        monitor_config = display_info.get_monitor_config()
+        self.assertEqual(mock_monitor.return_value, monitor_config)
+
+    @patch.dict(
+        os.environ,
+        {
+            "XDG_CURRENT_DESKTOP": "ubuntu:GNOME",
+            "XDG_SESSION_TYPE": "x11",
+        },
+    )
+    @patch("checkbox_support.helpers.display_info.MonitorConfigGnome")
+    def test_get_monitor_conf_gnome_x11(self, mock_monitor):
+        """
+        Assert the function returns the Gnome DBus monitor config
+        if the current desktop is Gnome on X11.
         """
         monitor_config = display_info.get_monitor_config()
         self.assertEqual(mock_monitor.return_value, monitor_config)

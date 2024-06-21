@@ -54,6 +54,7 @@ class WifiClientTestNetplanTests(TestCase):
                   access-points:
                     my_ap:
                       auth:
+                        key-management: psk
                         password: s3cr3t
                   dhcp4: true
                   nameservers: {}
@@ -97,6 +98,7 @@ class WifiClientTestNetplanTests(TestCase):
                   access-points:
                     my_ap:
                       auth:
+                        key-management: psk
                         password: s3cr3t
                   addresses:
                   - 192.168.1.1

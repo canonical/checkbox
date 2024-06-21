@@ -70,7 +70,7 @@ class MonitorConfigX11(MonitorConfig):
         cmd = ["xrandr"]
 
         previous = None
-        for monitor, modes in state.items():
+        for monitor, modes in sorted(state.items()):
             xrandr_args = "--output {} --mode {} {}".format(
                 monitor,
                 next(mode.resolution for mode in modes if mode.is_preferred),

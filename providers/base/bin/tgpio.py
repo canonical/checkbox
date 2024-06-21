@@ -67,7 +67,7 @@ def receive_timestamp(device: str, pin: str, timeout: int = 10):
     deltas = [
         y - x for (x, y) in zip(iter(event_times), iter(event_times[1:]))
     ]
-    if all(delta != 1 for delta in deltas):
+    if any(delta != 1 for delta in deltas):
         raise SystemExit(
             "[ERROR] Some events didn't take exactly 1 second\n"
             "Timestamps: {}\n"

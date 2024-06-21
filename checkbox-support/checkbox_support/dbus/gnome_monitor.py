@@ -123,23 +123,6 @@ class MonitorConfigGnome(MonitorConfig):
             },
         )
 
-    def _get_max_resolution(
-        self, state: GLib.Variant
-    ) -> Dict[str, Tuple[str, int, int]]:
-        """Get the maximum resolution from the available modes."""
-
-        def get_max(modes):
-            max_resolution = (0, 0)
-            max_resolution_mode = ""
-            for mode in modes:
-                resolution = (mode[1], mode[2])
-                if resolution > max_resolution:
-                    max_resolution = resolution
-                    max_resolution_mode = mode[0]
-            return max_resolution_mode, max_resolution[0], max_resolution[1]
-
-        return {monitor[0][0]: get_max(monitor[1]) for monitor in state[1]}
-
     def _apply_monitors_config(self, serial: str, logical_monitors: List):
         """
         Using DBus signal 'ApplyMonitorsConfig' to apply the given monitor

@@ -44,7 +44,7 @@ def parse_args():
 
 def server_mode(device: str, pin: str):
     cmd = "testptp -d {} -i {} -L {},2 -p 1000000000".format(device, pin, pin)
-    subprocess.run(shlex.split(cmd))
+    subprocess.check_call(shlex.split(cmd))
 
 
 def receive_timestamp(device: str, pin: str, timeout: int = 10):

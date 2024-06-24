@@ -23,22 +23,20 @@ from wwan_tests import MMCLI
 from wwan_tests import MMDbus
 
 
-def dump_wwan_resource(iterations, use_cli):
-
-    if use_cli:
-        mm = MMCLI()
-    else:
-        mm = MMDbus()
-
+def dump_wwan_resource(mm_obj, iterations):
     for i in range(1, iterations + 1):
-        for m in mm.get_modem_ids():
+        for m in mm_obj.get_modem_ids():
             print("iteration: {}".format(i))
             print("mm_id: {}".format(m))
-            print("hw_id: {}".format(mm.get_equipment_id(m)))
-            print("manufacturer: {}".format(mm.get_manufacturer(m)))
-            print("model: {}".format(mm.get_model_name(m)))
-            print("firmware_revision: {}".format(mm.get_firmware_revision(m)))
-            print("hardware_revision: {}".format(mm.get_hardware_revision(m)))
+            print("hw_id: {}".format(mm_obj.get_equipment_id(m)))
+            print("manufacturer: {}".format(mm_obj.get_manufacturer(m)))
+            print("model: {}".format(mm_obj.get_model_name(m)))
+            print(
+                "firmware_revision: {}".format(mm_obj.get_firmware_revision(m))
+            )
+            print(
+                "hardware_revision: {}".format(mm_obj.get_hardware_revision(m))
+            )
             print()
 
 
@@ -64,4 +62,10 @@ def register_arguments():
 if __name__ == "__main__":
 
     args = register_arguments()
-    dump_wwan_resource(args.iteration, args.use_cli)
+
+    if args.use_cli:
+        mm_obj = MMCLI()
+    else:
+        mm_obj = MMDbus()
+
+    dump_wwan_resource(mm_obj, args.iteration)

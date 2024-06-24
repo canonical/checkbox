@@ -49,5 +49,5 @@ _description:
 bootstrap_include:
     ce-oem-spi-list
 include:
-    ce-oem-spi/detect
+    after-suspend--ce-oem-spi/detect
     after-suspend-ce-oem-spi/spi-loopback-.*

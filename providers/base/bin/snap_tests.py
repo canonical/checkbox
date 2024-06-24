@@ -43,6 +43,7 @@ class SnapList:
                 "core18",
                 "core20",
                 "core22",
+                "core24",
             ):
                 print("Found a core snap")
                 print(snap["name"], snap["version"], snap["revision"])

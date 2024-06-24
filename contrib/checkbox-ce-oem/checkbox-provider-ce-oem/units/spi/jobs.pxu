@@ -38,6 +38,6 @@ _purpose:
 _description:
     This test will send a test_string with spidev_test tool to check whether the
     test_string will be received via the loopback function.
-    Please connect the SPI0_MO & SPI0_MI  pins with jumper or wiret.
+    Please connect the MISO & MOSI  pins with jumper or wire.
 command:
     spidev_test.py -t -p {device}

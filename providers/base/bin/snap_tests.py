@@ -37,17 +37,11 @@ class SnapList:
         """snap list should show the core package is installed."""
         data = Snapd().list()
         for snap in data:
-            if snap["name"] in (
-                "core",
-                "core16",
-                "core18",
-                "core20",
-                "core22",
-                "core24",
-            ):
+            if "core" in snap.get("name", ""):
                 print("Found a core snap")
                 print(snap["name"], snap["version"], snap["revision"])
                 return 0
+        print("Core snap not found")
         return 1
 
 

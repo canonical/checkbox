@@ -49,6 +49,10 @@ jobs:
           PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
       - name: Install tox
         run: pip install tox
+      - name: Install python systemd
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsystemd-dev python3-systemd
       - name: Run tox
         run: tox -e${{ matrix.tox_env_name }}
       - name: Upload coverage reports to Codecov

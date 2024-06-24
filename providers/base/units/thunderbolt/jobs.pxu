@@ -5,7 +5,6 @@ user: root
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 estimated_duration: 20.0
-template-engine: jinja2
 command:
  checkbox-support-run_watcher insertion thunderbolt
 _siblings: [
@@ -33,13 +32,8 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 depends: thunderbolt/insert
 estimated_duration: 45.0
-template-engine: jinja2
 command:
-    {%- if __on_ubuntucore__ %}
-        checkbox-support-usb_read_write
-    {%- else %}
-        removable_storage_test.py -s 268400000 scsi
-    {% endif -%}
+ checkbox-support-usb_read_write
 _siblings: [
     { "id": "after-suspend-thunderbolt/storage-test",
       "_summary": "thunderbolt/storage-test after suspend",
@@ -56,7 +50,6 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
 depends: thunderbolt/insert
 estimated_duration: 10.0
-template-engine: jinja2
 command:
  checkbox-support-run_watcher insertion thunderbolt
 _summary: Storage removal detection on Thunderbolt
@@ -105,7 +98,6 @@ user: root
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 estimated_duration: 20.0
-template-engine: jinja2
 command:
  checkbox-support-run_watcher insertion thunderbolt
 _summary: Storage insert detection on Thunderbolt 3 port
@@ -129,13 +121,8 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 depends: thunderbolt3/insert
 estimated_duration: 45.0
-template-engine: jinja2
 command:
-    {%- if __on_ubuntucore__ %}
-        checkbox-support-usb_read_write
-    {%- else %}
-        removable_storage_test.py -s 268400000 scsi
-    {% endif -%}
+ checkbox-support-usb_read_write
 _summary: Storage test on Thunderbolt 3
 _purpose: This is an automated test which performs read/write operations on an attached Thunderbolt HDD
 
@@ -161,7 +148,6 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 depends: thunderbolt3/insert
 estimated_duration: 10.0
-template-engine: jinja2
 command:
  checkbox-support-run_watcher removal thunderbolt
 _summary: Storage removal detection on Thunderbolt 3 port

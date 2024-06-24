@@ -370,7 +370,7 @@ include:
 
 id: after-suspend-usb-automated
 unit: test plan
-_name: Automated USB tests
+_name: Automated USB tests (after suspend)
 _description: Automated USB tests for Ubuntu Core devices
 include:
     after-suspend-usb/storage-detect

@@ -39,11 +39,11 @@ def main():
     Outputs kernel name, model and size data
     """
     pattern = re.compile(
-        'KNAME="(?P<KNAME>.*)" '
-        'TYPE="(?P<TYPE>.*)" '
-        'SIZE="(?P<SIZE>.*)" '
-        'MODEL="(?P<MODEL>.*)" '
-        'MOUNTPOINT="(?P<MOUNTPOINT>.*)"'
+        r'KNAME="(?P<KNAME>.*)" '
+        r'TYPE="(?P<TYPE>.*)" '
+        r'SIZE="(?P<SIZE>.*)" '
+        r'MODEL="(?P<MODEL>.*)" '
+        r'MOUNTPOINT="(?P<MOUNTPOINT>.*)"'
     )
     try:
         lsblk = check_output(

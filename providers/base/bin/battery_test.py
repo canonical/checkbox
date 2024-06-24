@@ -66,7 +66,7 @@ def find_battery():
     else:
         out, err = batinfo.communicate()
         if out:
-            device_regex = re.compile("Device: (.*battery_.*)")
+            device_regex = re.compile(r"Device: (.*battery_.*)")
             batteries = device_regex.findall(out)
             if len(batteries) == 0:
                 return None

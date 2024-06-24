@@ -34,7 +34,7 @@ class CPUScalingTest(object):
             logging.error("No file %s" % self.sysCPUDirectory)
             return None
         # look for cpu subdirectories
-        pattern = re.compile("cpu(?P<cpuNumber>[0-9]+)")
+        pattern = re.compile(r"cpu(?P<cpuNumber>[0-9]+)")
         self.cpufreqDirectories = list()
         for subdirectory in os.listdir(self.sysCPUDirectory):
             match = pattern.search(subdirectory)

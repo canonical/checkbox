@@ -170,7 +170,7 @@ class FreeIpmiTest:
         """
         logging.info("-----------------------")
         logging.info("Fetching power status:")
-        regex = re.compile("^System Power")
+        regex = re.compile(r"^System Power")
         try:
             output = self._subproc_logging(self._cmd_ipmi_chassis)
             for line in output.rstrip().split("\n"):
@@ -198,7 +198,7 @@ class FreeIpmiTest:
 
     def _ipmi_version_hlpr(self):
         """Ipmi version discovery loop."""
-        regex = re.compile("^IPMI Version")
+        regex = re.compile(r"^IPMI Version")
         output = self._subproc_logging(self._cmd_get_bmc_info)
         for line in output.rstrip().split("\n"):
             if re.search(regex, line):

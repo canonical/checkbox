@@ -181,9 +181,9 @@ class DiskTest:
     def _find_parent(self, device):
         if self.lsblk:
             pattern = re.compile(
-                'KNAME="(?P<KNAME>.*)" '
-                'TYPE="(?P<TYPE>.*)" '
-                'MOUNTPOINT="(?P<MOUNTPOINT>.*)"'
+                r'KNAME="(?P<KNAME>.*)" '
+                r'TYPE="(?P<TYPE>.*)" '
+                r'MOUNTPOINT="(?P<MOUNTPOINT>.*)"'
             )
             for line in self.lsblk.splitlines():
                 m = pattern.match(line)

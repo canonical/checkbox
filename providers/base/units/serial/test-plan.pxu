@@ -12,14 +12,14 @@ unit: test plan
 _name: Manual serial tests
 _description: Manual serial tests for Snappy Ubuntu Core devices
 include:
-    serial/rs232-console
+    serial/rs232-console    certification-status=blocker
 
 id: serial-automated
 unit: test plan
 _name: Automated serial tests
 _description: Automated serial tests for Snappy Ubuntu Core devices
 include:
-    serial/loopback-.*
+    serial/loopback-.*    certification-status=blocker
 bootstrap_include:
     serial_ports_static
 

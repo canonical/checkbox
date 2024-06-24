@@ -12,7 +12,7 @@ unit: test plan
 _name: Manual RTC tests
 _description: Manual RTC tests for Snappy Ubuntu Core devices
 include:
-    rtc/battery
+    rtc/battery    certification-status=blocker
 
 id: rtc-automated
 unit: test plan

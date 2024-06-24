@@ -15,8 +15,8 @@ _name: Automated wwan tests
 _description: Automated wwan tests for Snappy Ubuntu Core devices
 include:
     # Note these tests require snap calling snap support
-    wwan/detect
-    wwan/gsm-connection-.*-auto
+    wwan/detect    certification-status=blocker
+    wwan/gsm-connection-.*-auto    certification-status=blocker
     wwan/check-sim-present-.*-auto
 bootstrap_include:
     wwan_resource

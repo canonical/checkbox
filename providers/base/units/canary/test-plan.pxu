@@ -57,7 +57,6 @@ include:
  com.canonical.certification::info/systemd-analyze-critical-chain
  com.canonical.certification::firmware/fwts_desktop_diagnosis
  com.canonical.certification::firmware/fwts_desktop_diagnosis_results.log.gz
- com.canonical.certification::acpi/oem_osi
  com.canonical.certification::audio/detect-playback-devices
  com.canonical.certification::audio/detect-capture-devices
  com.canonical.certification::audio/alsa-loopback-automated

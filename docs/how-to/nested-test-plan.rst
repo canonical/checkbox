@@ -95,7 +95,7 @@ test plan):
     estimated_duration: 1m
     include:
         hello       certification-status=blocker
-        bye         certification-status=non-blocker
+        bye
     mandatory_include:
         mandatory   certification-status=blocker
     bootstrap_include:
@@ -303,7 +303,7 @@ Let's add a new test plan to provider Baz:
     _description: This test plan contains generic test cases + a nested part
     include:
         hello       certification-status=blocker
-        bye         certification-status=non-blocker
+        bye
     mandatory_include:
         mandatory   certification-status=blocker
     bootstrap_include:

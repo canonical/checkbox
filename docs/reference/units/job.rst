@@ -72,19 +72,12 @@ Following fields may be used by the job unit:
     Canonical to determine the jobs that **must** be run in order to be able to
     issue a certificate. The allowed values are:
 
-    :unspecified:
-        This value means that a job was not analyzed in the context of
-        certification status classification and it has no classification at this
-        time. This is also the default certification status for all jobs.
-    :not-part-of-certification:
-        This value means that a given job may fail and this will not affect the
-        certification process in any way. Typically jobs with this certification
-        status are not executed during the certification process.
     :non-blocker:
         This value means that a given job may fail and while that should be
         regarded as a possible future problem it will not block the
-        certification process. Canonical reserves the right to promote jobs from
-        *non-blocker* to *blocker*.
+        certification process. Canonical reserves the right to promote jobs
+        from *non-blocker* to *blocker*. This is the implicit certification
+        status for all jobs.
     :blocker:
         This value means that a given job **must** pass for the certification
         process to succeed.

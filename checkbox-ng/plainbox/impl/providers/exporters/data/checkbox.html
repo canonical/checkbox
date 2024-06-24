@@ -182,7 +182,7 @@
                                 <tr>
                                     <td data-filtertext="{{ job_id|strip_ns }}" style='width:35%'>{{ job_id|strip_ns }}</td>
                                     <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
-                                    {%- if job_state.effective_certification_status != "unspecified" %}
+                                    {%- if job_state.effective_certification_status != "non-blocker" %}
                                     <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
                                     {%- else %}
                                     <td style='width:10%'></td>
@@ -215,7 +215,7 @@
                                 <tr>
                                     <td data-filtertext="{{ job_id|strip_ns }}" style='width:35%'>{{ job_id|strip_ns }}</td>
                                     <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
-                                    {%- if job_state.effective_certification_status != "unspecified" %}
+                                    {%- if job_state.effective_certification_status != "non-blocker" %}
                                     <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
                                     {%- else %}
                                     <td style='width:10%'></td>
@@ -231,7 +231,7 @@
                                 <tr>
                                     <td data-filtertext="{{ job_id|strip_ns }}" style='width:35%'>{{ job_id|strip_ns }}</td>
                                     <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
-                                    {%- if job_state.effective_certification_status != "unspecified" %}
+                                    {%- if job_state.effective_certification_status != "non-blocker" %}
                                     <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
                                     {%- else %}
                                     <td style='width:10%'></td>
@@ -263,7 +263,7 @@
                                 <tr>
                                     <td data-filtertext="{{ job_id|strip_ns }}" style='width:35%'>{{ job_id|strip_ns }}</td>
                                     <td style='width:10%; font-weight: bold; color: {{ job_state.result.outcome_meta().color_hex }}'>{{ job_state.result.outcome_meta().tr_label }}</td>
-                                    {%- if job_state.effective_certification_status != "unspecified" %}
+                                    {%- if job_state.effective_certification_status != "non-blocker" %}
                                     <td style='width:10%'>{{ job_state.effective_certification_status }}</td>
                                     {%- else %}
                                     <td style='width:10%'></td>

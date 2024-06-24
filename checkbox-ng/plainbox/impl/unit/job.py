@@ -126,27 +126,18 @@ class _CertificationStatusValues(SymbolDef):
 
     Particular values have the following meanings.
 
-    unspecified:
-        This value means that a job was not analyzed in the context of
-        certification status classification and it has no classification at this
-        time. This is also the implicit certification status for all jobs.
-    not-part-of-certification:
-        This value means that a given job may fail and this will not affect the
-        certification process in any way. Typically jobs with this certification
-        status are not executed during the certification process.
     non-blocker:
         This value means that a given job may fail and while that should be
         regarded as a possible future problem it will not block the
         certification process. Canonical reserves the right to promote jobs from
-        *non-blocker* to *blocker*.
+        *non-blocker* to *blocker*. This is the implicit certification status
+        for all jobs.
     blocker:
         This value means that a given job must pass for the certification
         process to succeed. The term *blocker* was chosen to disambiguate the
         meaning of the two concepts.
     """
 
-    unspecified = "unspecified"
-    not_part_of_certification = "not-part-of-certification"
     non_blocker = "non-blocker"
     blocker = "blocker"
 
@@ -443,14 +434,14 @@ class JobDefinition(UnitWithId, IJobDefinition):
         Get the natural certification status of this job.
 
         The default certification status of all jobs is
-        ``CertificationStatus.unspecified``
+        ``CertificationStatus.non_blocker``
 
         .. note::
             Remember that the certification status can be overridden by a test
             plan.  You should, instead, consider the effective certification
             status that can be obtained from :class:`JobState`.
         """
-        return self.get_record_value("certification-status", "unspecified")
+        return self.get_record_value("certification-status", "non-blocker")
 
     @cached_property
     def estimated_duration(self):

@@ -157,3 +157,45 @@ id: ce-oem-serial/rs485-list
 RS485_PORTS={port1} {port2}
 e.g. RS485_PORTS=/dev/ttymxc1 /dev/ttymxc2
 ```
+
+### How to update the README for the test cases with environ variable
+```
+# Switch to the checkbox-ce-oem directory and launch dump_testcase_readme.py scripts
+checkbox-ce-oem$ python3 tools/dump_testcase_readme.py checkbox-provider-ce-oem
+$PROVIDERPATH is defined, so following provider sources are ignored ['/usr/local/share/plainbox-providers-1', '/usr/share/plainbox-providers-1', '/home/stanley/.local/share/plainbox-providers-1', '/var/tmp/checkbox-providers-develop']
+## Browsing...
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/bin/__pycache__/rpmsg_load_firmware.cpython-38.pyc
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/bin/__pycache__/rpmsg_tests.cpython-38.pyc
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/bin/__pycache__/serial_test.cpython-38.pyc
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/bin/test_capture_journal.py
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/crypto/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/digital-io/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/ethernet/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/gpio/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/iio-sensors/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/mir/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/optee/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/otg/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/rpmsg/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/serial/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/spi/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/stress/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/strict-confinement/cases_and_environ.md
+Skipped file: /home/stanley/Desktop/Git_Repos/checkbox-2023/contrib/checkbox-ce-oem/checkbox-provider-ce-oem/units/video-codec/cases_and_environ.md
+## Start to browse objects from providers
+## End to browse objects from providers
+Updating/Creating the checkbox-provider-ce-oem/units/crypto/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/digital-io/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/ethernet/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/gpio/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/iio-sensors/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/mir/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/optee/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/otg/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/rpmsg/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/serial/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/spi/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/stress/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/strict-confinement/cases_and_environ.md
+Updating/Creating the checkbox-provider-ce-oem/units/video-codec/cases_and_environ.md
+```

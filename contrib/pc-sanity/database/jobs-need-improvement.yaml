@@ -10,8 +10,6 @@ for-all:
         public-bug: 1908961
     disk/storage_device_sdb:
         public-bug: 1908504
-    disk/hdd-parking:
-        public-bug: 1910516
 for-desktop-only:
     graphics/{index}_valid_opengl_renderer_{product_slug}:
         public-bug: 1905355

@@ -22,7 +22,7 @@ e.g. DIGITAL_IO_LOOPBACK_GPIO=1:733:2:765 3:734:4:766
 ```
 
 - **file:**
-[source file](jobs.pxu:1-19)
+[source file](jobs.pxu#L1)
 
 - **environ:**
 DIGITAL_IO_LOOPBACK_GPIO
@@ -52,7 +52,7 @@ e.g. DIGITAL_IO_LOOPBACK_SERIAL=1:2:1:6 2:3:2:7 3:4:3:8 4:5:4:9
 ```
 
 - **file:**
-[source file](jobs.pxu:41-59)
+[source file](jobs.pxu#L41)
 
 - **environ:**
 DIGITAL_IO_LOOPBACK_SERIAL

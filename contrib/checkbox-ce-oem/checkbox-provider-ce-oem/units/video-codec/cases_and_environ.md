@@ -22,7 +22,7 @@ Generate resource for all Video Codec scenarios.
 ```
 
 - **file:**
-[source file](jobs.pxu:1-9)
+[source file](jobs.pxu#L1)
 
 - **environ:**
 VIDEO_CODEC_JSON_CONFIG_NAME VIDEO_CODEC_TESTING_DATA PLAINBOX_PROVIDER_DATA

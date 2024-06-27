@@ -18,7 +18,7 @@ e.g. OTG=USB-C1:11200000 USB-Micro:112a1000
 ```
 
 - **file:**
-[source file](jobs.pxu:1-17)
+[source file](jobs.pxu#L1)
 
 - **environ:**
 OTG

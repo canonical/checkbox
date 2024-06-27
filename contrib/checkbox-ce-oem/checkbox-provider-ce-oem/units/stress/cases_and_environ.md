@@ -21,7 +21,7 @@ copies and all further tests will be compared against these.
 ```
 
 - **file:**
-[source file](boot.pxu:1-13)
+[source file](boot.pxu#L1)
 
 - **environ:**
 LD_LIBRARY_PATH
@@ -42,7 +42,7 @@ Check there are no failed services after the cold reboot
 ```
 
 - **file:**
-[source file](boot.pxu:43-56)
+[source file](boot.pxu#L43)
 
 - **environ:**
 LD_LIBRARY_PATH
@@ -74,7 +74,7 @@ e.g.
 ```
 
 - **file:**
-[source file](boot.pxu:16-40)
+[source file](boot.pxu#L16)
 
 - **environ:**
 STRESS_BOOT_WAKEUP_DELAY

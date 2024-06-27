@@ -18,7 +18,7 @@ Sprate by comma, and also colon to define a range of ports
 ```
 
 - **file:**
-[source file](jobs.pxu:1-19)
+[source file](jobs.pxu#L1)
 
 - **environ:**
 EXPECTED_GADGET_GPIO

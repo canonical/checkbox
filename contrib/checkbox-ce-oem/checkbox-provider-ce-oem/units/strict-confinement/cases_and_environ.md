@@ -23,7 +23,7 @@ This test will check your system shutdown/booting cycle via dbus command.
 ```
 
 - **file:**
-[source file](powermanagement-strict-confinement.pxu:1-21)
+[source file](confinement.pxu#L1)
 
 - **environ:**
 STRESS_BOOT_WAKEUP_DELAY RTC_DEVICE_FILE
@@ -46,7 +46,7 @@ This is a job to check system bootup without error after cold reboot.
 ```
 
 - **file:**
-[source file](powermanagement-strict-confinement.pxu:24-36)
+[source file](confinement.pxu#L24)
 
 - **environ:**
 LD_LIBRARY_PATH
@@ -67,7 +67,7 @@ This is a job to check system bootup without error after warm reboot.
 ```
 
 - **file:**
-[source file](powermanagement-strict-confinement.pxu:59-71)
+[source file](confinement.pxu#L59)
 
 - **environ:**
 LD_LIBRARY_PATH

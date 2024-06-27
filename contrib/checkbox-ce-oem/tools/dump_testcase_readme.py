@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import os
+import re
 import copy
 import json
 import yaml
@@ -378,7 +379,7 @@ README_TEMPLATE = """
 {{ case[key] }}
 ```
 {%- elif key in ['file'] -%}
-[source file]({{ case[key] | basename }})
+[source file]({{ case[key] | gen_link }})
 {%- else -%}
 {{ case[key] }}
 {%- endif %}
@@ -386,6 +387,19 @@ README_TEMPLATE = """
 [Back to top](#top)
 {% endfor %}
 """
+
+
+def convert_job_origin_relative_link(filename):
+    filename = os.path.basename(filename)
+    re_match = re.search(r"([\w\.]+):([0-9]+)-.*", filename)
+    if re_match:
+        return f"{re_match.group(1)}#L{re_match.group(2)}"
+
+    re_match = re.search(r"([\w\.]+):.*", filename)
+    if re_match:
+        return f"{re_match.group(1)}"
+
+    return filename
 
 
 def render_readme_with_env(unit, env_cases, full_cases_set):
@@ -413,7 +427,7 @@ def render_readme_with_env(unit, env_cases, full_cases_set):
                 detailed_cases_with_env.append(full_cases_set[case])
 
     jinja2_env = jinja2.Environment(loader=jinja2.BaseLoader)
-    jinja2_env.filters["basename"] = os.path.basename
+    jinja2_env.filters["gen_link"] = convert_job_origin_relative_link
     jinja_template = jinja2_env.from_string(README_TEMPLATE)
     return jinja_template.render(
         unit=unit,

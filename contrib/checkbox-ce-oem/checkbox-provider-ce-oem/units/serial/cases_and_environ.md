@@ -23,7 +23,7 @@ SERIAL_CONSOLE_PORTS=USB:/dev/ttyUSB1:115200
 ```
 
 - **file:**
-[source file](jobs.pxu:1-18)
+[source file](jobs.pxu#L1)
 
 - **environ:**
 SERIAL_CONSOLE_PORTS
@@ -51,7 +51,7 @@ SERIAL_PORTS="RS485:/dev/ttyS0:9600 RS485:/dev/ttyS1:9600 RS232:/dev/ttyS2:11520
 ```
 
 - **file:**
-[source file](jobs.pxu:44-61)
+[source file](jobs.pxu#L44)
 
 - **environ:**
 SERIAL_PORTS

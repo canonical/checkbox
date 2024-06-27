@@ -16,7 +16,7 @@ None
 ```
 
 - **file:**
-[source file](accelerator.pxu:1-34)
+[source file](accelerator.pxu#L1)
 
 - **environ:**
 HWRNG

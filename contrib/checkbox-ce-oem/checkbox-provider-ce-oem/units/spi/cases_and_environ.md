@@ -17,7 +17,7 @@ Check if the SPI devices exist
 ```
 
 - **file:**
-[source file](jobs.pxu:1-17)
+[source file](jobs.pxu#L1)
 
 - **environ:**
 SPI_DEVICE_COUNT

@@ -31,7 +31,7 @@ $ tcp_multi_connections.py server -p 1024 -e 1223
 ```
 
 - **file:**
-[source file](jobs.pxu:24-43)
+[source file](jobs.pxu#L24)
 
 - **environ:**
 TCP_MULTI_CONNECTIONS_SERVER_IP TCP_MULTI_CONNECTIONS_START_PORT TCP_MULTI_CONNECTIONS_END_PORT TCP_MULTI_CONNECTIONS_PAYLOAD_SIZE

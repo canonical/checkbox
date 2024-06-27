@@ -21,7 +21,7 @@ RPMSG_RP_FIRMWARE_PATH="/home/user1"
 ```
 
 - **file:**
-[source file](jobs.pxu:36-49)
+[source file](jobs.pxu#L36)
 
 - **environ:**
 RPMSG_RP_FIRMWARE_MAPPING RPMSG_RP_FIRMWARE_PATH

@@ -19,7 +19,7 @@ e.g. IIO_SENSORS=0:pressure 1:accelerometer 2:humidityrelative
 ```
 
 - **file:**
-[source file](jobs.pxu:1-13)
+[source file](jobs.pxu#L1)
 
 - **environ:**
 IIO_SENSORS

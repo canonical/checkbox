@@ -81,7 +81,11 @@ def compare_device_lists(expected_dir: str, actual_dir: str) -> bool:
     :param actual_dir: a directory of files containing the actual device list
     :return: whether the device list matches
     """
-    print("Comparing devices...")
+    print(
+        "Comparing device list files in (expected){} against (actual){}...".format(
+            expected_dir, actual_dir
+        )
+    )
     for name in ["lspci", "iw", "lsusb"]:
         # file paths of the expected and actual device lists
         expected = "{}/{}_log".format(expected_dir, name)
@@ -129,14 +133,14 @@ def dump_device_info(output_directory: str) -> None:
     # TODO: check if this is intended
     os.makedirs(output_directory, exist_ok=True)
 
-    print("Checking PCI devices...")
+    print("Collecting PCI devices...")
     with open("{}/lspci_log".format(output_directory), "w") as f:
         lspci_out = run_command(
             ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
         )
         f.write(lspci_out.stdout)
 
-    print("Checking wireless connections...")
+    print("Collecting wireless connections...")
     with open("{}/iw_log".format(output_directory), "w") as f:
         iw_out = run_command(["iw", "dev"])
         lines = iw_out.stdout.splitlines()
@@ -150,7 +154,7 @@ def dump_device_info(output_directory: str) -> None:
         )
         f.write("\n".join(map(lambda line: line.strip(), lines_to_write)))
 
-    print("Checking USB devices...")
+    print("Collecting USB devices...")
     with open("{}/lsusb_log".format(output_directory), "w") as f:
         lsusb_out = run_command(
             [
@@ -251,8 +255,8 @@ def get_display_id() -> T.Optional[str]:
         )
 
     if display_server_type == "x11":
-        w_out = run_command(['w', '--no-header'])
-        return w_out.stdout.split()[2] if w_out.stdout != '' else None
+        w_out = run_command(["w", "--no-header"])
+        return w_out.stdout.split()[2] if w_out.stdout != "" else None
 
     return None  # Unsupported window system
 
@@ -287,8 +291,12 @@ def has_display_connection() -> bool:
         except FileNotFoundError:
             pass  # this just means we don't have a status file => no connection
         except Exception as e:
-            print(e, file=sys.stderr)
+            print("Unexpected error: ", e, file=sys.stderr)
 
+    print(
+        "No display is connected. This case will fail.",
+        "Maybe the display cable is not connected?",
+    )
     return False
 
 
@@ -363,27 +371,31 @@ def main() -> int:
 
     # all 4 tests pass by default
     # they only fail if their respective flags are specified
+    # if no flags are specified, calling this script is a no-op
     fwts_passed = True
     device_comparison_passed = True
     renderer_test_passed = True
     service_check_passed = True
 
-    if args.output_directory is not None:
-        dump_device_info(args.output_directory)
-        supports_fwts = is_fwts_supported()
-        if supports_fwts and fwts_log_check_passed(args.output_directory):
-            fwts_passed = True
-
     if args.comparison_directory is not None:
         if args.output_directory is None:
             print(
-                "Error: Please specify an output directory with the -d flag.",
+                "Error: Please also specify an output directory with the -d flag.",
                 file=sys.stderr,
             )
         else:
+            dump_device_info(args.output_directory)
             compare_device_lists(
                 args.comparison_directory, args.output_directory
             )
+
+    # dump if only output is specified
+    if args.output_directory is not None and args.comparison_directory is None:
+        dump_device_info(args.output_directory)
+
+    if args.do_fwts_check:
+        if is_fwts_supported() and not fwts_log_check_passed(args.output_directory):
+            fwts_passed = False
 
     if args.do_service_check:
         print("Checking for failed system services...")
@@ -414,5 +426,3 @@ def main() -> int:
 if __name__ == "__main__":
     return_code = main()
     exit(return_code)
-    # dump_device_info("testoo")
-    # is_hardware_renderer_available()

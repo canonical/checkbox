@@ -540,6 +540,25 @@ parts:
           gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${SNAPCRAFT_PART_INSTALL}/bin/lk-boot-env
       fi
 ################################################################################
+  # This is for TGPIO Testing
+  testptp:
+    plugin: nil
+    source: https://github.com/intel/linux-intel-lts.git
+    source-depth: 1
+    source-tag: lts-v6.1.28-linux-230601T020337Z # This is the working tag currently
+    build-packages:
+      - gcc
+      - make
+      - autoconf
+      - automake
+      - libtool
+      - rsync
+    override-build: |
+      mkdir -p ${SNAPCRAFT_PART_INSTALL}/bin
+      make headers_install
+      make -C tools/testing/selftests TARGETS=ptp
+      cp tools/testing/selftests/ptp/testptp ${SNAPCRAFT_PART_INSTALL}/bin/testptp
+################################################################################
   parts-meta-info:
     plugin: nil
     build-environment:

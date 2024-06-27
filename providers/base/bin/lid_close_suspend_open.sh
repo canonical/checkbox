@@ -6,7 +6,7 @@ holdoff_timeout_sec=$(echo "scale=0; $holdoff_timeout_usec / 1000000" | bc)
 previous_sleep_log=$(journalctl --output=short-unix --since "$holdoff_timeout_sec seconds ago" -b 0 -r | grep "suspend exit")
 if [[ "$holdoff_timeout_sec" != 0 && "$previous_sleep_log" != "" ]]; then
     # set the previous_sleep_time
-    previous_sleep_time=$(echo $previous_sleep_log | awk -F'.' '{ print $1 }')
+    previous_sleep_time=$(echo "$previous_sleep_log" | awk -F'.' '{ print $1 }')
     # sleep a period of time
     sleep_time=$(( $(date +"%s") - "$previous_sleep_time" ))
     echo "sleep for $sleep_time seconds ..."

@@ -147,7 +147,6 @@ def dump_device_info(output_directory: str) -> None:
     print("Dumping the devices information to {}".format(output_directory))
 
     # specifying exist_ok=True for now to mimic mkdir -p's behavior,
-    # TODO: check if this is intended
     os.makedirs(output_directory, exist_ok=True)
 
     print("Collecting PCI devices...")
@@ -325,7 +324,7 @@ def has_display_connection() -> bool:
             print("Unexpected error: ", e, file=sys.stderr)
 
     print(
-        "No display is connected. This case will fail.",
+        "No display is connected. This case will be skipped.",
         "Maybe the display cable is not connected?",
     )
     return False
@@ -422,7 +421,7 @@ def main() -> int:
                 args.comparison_directory, args.output_directory
             )
 
-    # dump if only output_directory is specified
+    # dump (no checks) if only output_directory is specified
     if args.output_directory is not None and args.comparison_directory is None:
         dump_device_info(args.output_directory)
 
@@ -459,6 +458,5 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    # print(get_display_id())
     return_code = main()
     exit(return_code)

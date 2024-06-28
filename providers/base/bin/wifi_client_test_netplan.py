@@ -49,6 +49,32 @@ NETPLAN_CFG_PATHS = ("/etc/netplan", "/lib/netplan", "/run/netplan")
 NETPLAN_TEST_CFG = "/etc/netplan/99-CREATED-BY-CHECKBOX.yaml"
 
 
+def netplan_renderer():
+    for basedir in NETPLAN_CFG_PATHS:
+        if os.path.exists(basedir):
+            files = glob.glob(os.path.join(basedir, "*.yaml"))
+            for f in files:
+                with open(f, "r") as file:
+                    data = yaml.safe_load(file)
+                    if "renderer" in data["network"]:
+                        return data["network"]["renderer"]
+    return "networkd"
+
+
+def check_and_get_renderer(renderer):
+    machine_renderer = netplan_renderer()
+
+    if renderer == "AutoDetect":
+        return machine_renderer
+    elif renderer != machine_renderer:
+        raise SystemExit(
+            "ERROR: Renderer mismatch, expected: {}, got: {}".format(
+                machine_renderer, renderer
+            )
+        )
+    return renderer
+
+
 def netplan_config_backup():
     print_head("Backup any existing netplan configuration files")
     if os.path.exists(TMP_PATH):
@@ -56,13 +82,14 @@ def netplan_config_backup():
         shutil.rmtree(TMP_PATH)
     for basedir in NETPLAN_CFG_PATHS:
         print("Checking in {}".format(basedir))
-        files = glob.glob(os.path.join(basedir, "*.yaml"))
-        if files:
-            backup_loc = os.path.join(TMP_PATH, *basedir.split("/"))
-            os.makedirs(backup_loc)
-            for f in files:
-                print(" ", f)
-                shutil.copy(f, backup_loc)
+        if os.path.exists(basedir):
+            files = glob.glob(os.path.join(basedir, "*.yaml"))
+            if files:
+                backup_loc = os.path.join(TMP_PATH, *basedir.split("/"))
+                os.makedirs(backup_loc)
+                for f in files:
+                    print(" ", f)
+                    shutil.copy(f, backup_loc)
     print()
 
 
@@ -104,7 +131,7 @@ def netplan_config_restore():
                 raise SystemExit("Failed to restore {}".format(f))
 
 
-def generate_test_config(interface, ssid, psk, address, dhcp, wpa3):
+def generate_test_config(interface, ssid, psk, address, dhcp, wpa3, renderer):
     """
     Produce valid netplan yaml from arguments provided
 
@@ -112,6 +139,7 @@ def generate_test_config(interface, ssid, psk, address, dhcp, wpa3):
     # This is the network config written by checkbox
     network:
       version: 2
+      renderer: networkd
         wifis:
           eth0:
             access-points:
@@ -146,7 +174,11 @@ def generate_test_config(interface, ssid, psk, address, dhcp, wpa3):
         interface_info["addresses"] = [address]
 
     network_config = {
-        "network": {"version": 2, "wifis": {interface: interface_info}}
+        "network": {
+            "version": 2,
+            "renderer": renderer,
+            "wifis": {interface: interface_info},
+        }
     }
 
     # Serialize the dictionary to a YAML string using pyyaml
@@ -191,22 +223,51 @@ def _get_networkctl_state(interface):
     cmd = "networkctl status --no-pager --no-legend {}".format(interface)
     output = sp.check_output(cmd, shell=True)
     for line in output.decode(sys.stdout.encoding).splitlines():
+        if ":" not in line:
+            continue
         key, val = line.strip().split(":", maxsplit=1)
         if key == "State":
             return val
+    return None
 
 
-def wait_for_routable(interface, max_wait=30):
+def _get_nmcli_state(interface):
+    cmd = "nmcli device show {}".format(interface)
+    output = sp.check_output(cmd, shell=True)
+    for line in output.decode(sys.stdout.encoding).splitlines():
+        if ":" not in line:
+            continue
+        key, val = line.strip().split(":", maxsplit=1)
+        if key.strip() == "GENERAL.STATE":
+            return val.strip()
+    return None
+
+
+def _check_routable_state(interface, renderer):
     routable = False
-    attempts = 0
-    while not routable and attempts < max_wait:
+    state = ""
+    if renderer == "networkd":
         state = _get_networkctl_state(interface)
-        print(state)
         if "routable" in state:
             routable = True
-            break
+    elif renderer == "NetworkManager":
+        state = _get_nmcli_state(interface)
+        if "connected" in state and "disconnected" not in state:
+            routable = True
+    else:
+        raise ValueError("Unknown renderer: {}".format(renderer))
+    return (routable, state)
+
+
+def wait_for_routable(interface, renderer, max_wait=30):
+    attempts = 0
+    routable = False
+    state = ""
+    while not routable and attempts < max_wait:
+        (routable, state) = _check_routable_state(interface, renderer)
         time.sleep(1)
         attempts += 1
+
     if routable:
         print("Reached routable state")
     else:
@@ -232,35 +293,68 @@ def print_route_info():
     print()
 
 
-def perform_ping_test(interface):
-    target = None
+def _get_networkctl_gateway(interface):
     cmd = "networkctl status --no-pager --no-legend {}".format(interface)
-    print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
     for line in output.decode(sys.stdout.encoding).splitlines():
-        vals = line.strip().split(" ")
-        if len(vals) >= 2:
-            if vals[0] == "Gateway:":
-                target = vals[1]
-                print("Got gateway address: {}".format(target))
+        key, val = line.strip().split(":", maxsplit=1)
+        if key.strip() == "Gateway":
+            return val.strip()
+    return None
+
+
+def _get_nmcli_gateway(interface):
+    cmd = "nmcli device show {}".format(interface)
+    output = sp.check_output(cmd, shell=True)
+    for line in output.decode(sys.stdout.encoding).splitlines():
+        key, val = line.strip().split(":", maxsplit=1)
+        if key.strip() == "IP4.GATEWAY":
+            return val.strip()
+    return None
+
+
+def get_gateway(interface, renderer):
+    gateway = None
+    if renderer == "networkd":
+        gateway = _get_networkctl_gateway(interface)
+    elif renderer == "NetworkManager":
+        gateway = _get_nmcli_gateway(interface)
+    else:
+        raise ValueError("Unknown renderer: {}".format(renderer))
+
+    print("Got gateway address: {}".format(gateway))
+    return gateway
+
+
+def perform_ping_test(interface, renderer):
+    target = get_gateway(interface, renderer)
 
     if target:
         count = 5
         result = ping(target, interface, count, 10)
+        print("Ping result: {}".format(result))
         if result["received"] == count:
             return True
 
     return False
 
 
-def print_journal_entries(start):
+def print_journal_entries(start, renderer):
+    if renderer == "networkd":
+        render_service = "systemd-networkd.service"
+    elif renderer == "NetworkManager":
+        render_service = "NetworkManager.service"
+    else:
+        raise ValueError("Unknown renderer: {}".format(renderer))
     print_head("Journal Entries")
     cmd = (
         "journalctl -q --no-pager "
-        "-u systemd-networkd.service "
+        "-u {} "
         "-u wpa_supplicant.service "
-        " -u netplan-* "
-        '--since "{}" '.format(start.strftime("%Y-%m-%d %H:%M:%S"))
+        "-u netplan-* "
+        '--since "{}" '.format(
+            render_service, start.strftime("%Y-%m-%d %H:%M:%S")
+        )
     )
     print_cmd(cmd)
     sp.call(cmd, shell=True)
@@ -322,6 +416,18 @@ def parse_args():
         default=False,
     )
 
+    parser.add_argument(
+        "--renderer",
+        choices=["networkd", "NetworkManager", "AutoDetect"],
+        help=(
+            "Set the backend daemon to use for netplan configuration. "
+            "If 'AutoDetect' is set, the script will try to determine the "
+            "renderer based on the system configuration. "
+            "(default: %(default)s)"
+        ),
+        default="AutoDetect",
+    )
+
     return parser.parse_args()
 
 
@@ -330,6 +436,8 @@ def main():
 
     start_time = datetime.datetime.now()
 
+    renderer = check_and_get_renderer(args.renderer)
+    args.renderer = renderer
     netplan_config_backup()
     netplan_config_wipe()
 
@@ -346,12 +454,12 @@ def main():
     if not netplan_apply_config():
         delete_test_config()
         netplan_config_restore()
-        print_journal_entries(start_time)
+        print_journal_entries(start_time, renderer)
         raise SystemExit(1)
     time.sleep(20)
 
     print_head("Wait for interface to be routable")
-    reached_routable = wait_for_routable(args.interface)
+    reached_routable = wait_for_routable(args.interface, renderer)
 
     test_result = False
     if reached_routable:
@@ -363,7 +471,7 @@ def main():
 
         # Check connection by ping or link status
         print_head("Perform a ping test")
-        test_result = perform_ping_test(args.interface)
+        test_result = perform_ping_test(args.interface, renderer)
         if test_result:
             print("Connection test passed\n")
         else:
@@ -373,14 +481,14 @@ def main():
     netplan_config_restore()
 
     if not netplan_apply_config():
-        print_journal_entries(start_time)
+        print_journal_entries(start_time, renderer)
         raise SystemExit("ERROR: failed to apply restored config")
 
     if not test_result:
-        print_journal_entries(start_time)
+        print_journal_entries(start_time, renderer)
         raise SystemExit(1)
 
-    print_journal_entries(start_time)
+    print_journal_entries(start_time, renderer)
 
 
 if __name__ == "__main__":

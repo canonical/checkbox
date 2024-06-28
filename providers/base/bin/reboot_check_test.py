@@ -27,6 +27,13 @@ class ShellResult:
 
 
 def run_command(args: T.List[str]) -> ShellResult:
+    """Wrapper around subprocess.run
+
+    :param args: same args that goes to subprocess.run
+    :type args: T.List[str]
+    :return: return code, stdout and stderr, all non-null
+    :rtype: ShellResult
+    """
     # PIPE is needed for subprocess.run to capture stdout and stderr (<=3.7 behavior)
     out = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return ShellResult(
@@ -94,9 +101,19 @@ def compare_device_lists(expected_dir: str, actual_dir: str) -> bool:
             print(
                 "The output of {} differs from the original list gathered at the beginning of the session!".format(
                     name
-                )
+                ),
+                file=sys.stderr,
             )
             return False
+
+    if not filecmp.cmp(
+        "{}/drm_log".format(expected_dir), "{}/drm_log".format(actual_dir)
+    ):
+        print(
+            "[WARN] Items under /sys/class/drm has changed.",
+            "If this machine dynamically switches between GPUs, this might be expected",
+            file=sys.stderr,
+        )
 
     return True
 
@@ -166,6 +183,11 @@ def dump_device_info(output_directory: str) -> None:
         )
         f.write(lsusb_out.stdout)
 
+    print("Collecting /sys/class/drm...")
+    with open("{}/drm_log".format(output_directory), "w") as f:
+        drm_contents = os.listdir("/sys/class/drm")
+        f.write(str(sorted(drm_contents)))
+
     os.sync()  # force disk write
     print("Finished dumping device info!")
 
@@ -178,12 +200,12 @@ def parse_arguments():
     parser.add_argument(
         "-d",
         dest="output_directory",
-        help="Absolute path to the output directory",
+        help="Absolute path to the output directory. Device info-dumps will be written here.",
     )
     parser.add_argument(
         "-c",
         dest="comparison_directory",
-        help="Absolute path to the comparison directory",
+        help="Absolute path to the comparison directory. This should contain the ground-truth.",
     )
     parser.add_argument(
         "-s",
@@ -230,6 +252,7 @@ def get_display_id() -> T.Optional[str]:
     XDG_SESSION_TYPE = os.getenv("XDG_SESSION_TYPE", default="")
 
     if DISPLAY != "":
+        print("Using $DISPLAY env: {}".format(DISPLAY))
         return DISPLAY  # use the environment var if non-empty
 
     session_id = (
@@ -245,8 +268,16 @@ def get_display_id() -> T.Optional[str]:
         .strip()  # it should look like Type=wayland, split and take 2nd word
     )
 
-    print("{} =? {}".format(XDG_SESSION_TYPE, display_server_type))
+    if XDG_SESSION_TYPE != display_server_type:
+        print(
+            "[WARN] XDG_SESSION_TYPE: {} != display server from loginctl: {}".format(
+                XDG_SESSION_TYPE, display_server_type
+            ),
+            file=sys.stderr,
+        )
 
+    # NOTE: Xwayland doesn't immediately start after a reboot
+    # This could return None even if a display is active
     if display_server_type == "wayland":
         pgrep_out = run_command(["pgrep", "-a", "Xwayland"])
         # search for a process called Xwayland, take the 3rd arg, which is the display id
@@ -309,10 +340,12 @@ def is_hardware_renderer_available() -> bool:
 
     # Now we know some kind of display exists, run unity_support_test
     display_id = get_display_id()
-    print("Checking display id: {}".format(display_id))
     if display_id is None:
+        print("No display id was found.", file=sys.stderr)
         # No display id was found
         return False
+    
+    print("Checking display id: {}".format(display_id))
 
     unity_support_output = run_command(
         [
@@ -331,11 +364,11 @@ def is_hardware_renderer_available() -> bool:
         )
         == "yes"
     )
-    if not is_hardware_rendered:
-        return False
+    if is_hardware_rendered:
+        print("This machine is using a hardware renderer!")
+        return True
 
-    print("This machine is using a hardware renderer!")
-    return True
+    return False
 
 
 def parse_unity_support_output(output_string: str) -> T.Dict[str, str]:
@@ -389,12 +422,14 @@ def main() -> int:
                 args.comparison_directory, args.output_directory
             )
 
-    # dump if only output is specified
+    # dump if only output_directory is specified
     if args.output_directory is not None and args.comparison_directory is None:
         dump_device_info(args.output_directory)
 
     if args.do_fwts_check:
-        if is_fwts_supported() and not fwts_log_check_passed(args.output_directory):
+        if is_fwts_supported() and not fwts_log_check_passed(
+            args.output_directory
+        ):
             fwts_passed = False
 
     if args.do_service_check:
@@ -424,5 +459,6 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # print(get_display_id())
     return_code = main()
     exit(return_code)

@@ -210,8 +210,6 @@ include:
     # depending on the amount of graphic cards available on the SUT:
     # suspend/suspend_advanced_auto (one GPU)
     # or suspend/{{ index }}_suspend_after_switch_to_card_{{ product_slug }}_auto (two GPUs)
-    power-management/lid_close_suspend_open                  certification-status=blocker
-    power-management/lid                                     certification-status=blocker
     after-suspend-miscellanea/chvt
     suspend/1_display_after_suspend_.*_graphics              certification-status=blocker
     after-suspend-graphics/1_maximum_resolution_.*           certification-status=blocker
@@ -220,6 +218,8 @@ include:
     after-suspend-graphics/1_video_.*                        certification-status=blocker
     after-suspend-graphics/1_cycle_resolution_.*             certification-status=non-blocker
     suspend/1_xrandr_screens_after_suspend.tar.gz_auto
+    power-management/lid_close_suspend_open                  certification-status=blocker
+    power-management/lid                                     certification-status=blocker
 
 id: after-suspend-graphics-discrete-gpu-cert-full
 unit: test plan
@@ -296,8 +296,6 @@ _description: After suspend tests (integrated GPU, certification blockers only)
 include:
     after-suspend-graphics/1_auto_switch_card_.*           certification-status=blocker
     suspend/1_suspend_after_switch_to_card_.*_auto         certification-status=blocker
-    power-management/lid_close_suspend_open                certification-status=blocker
-    power-management/lid                                   certification-status=blocker
     suspend/1_gl_support_after_suspend_.*_auto             certification-status=blocker
     suspend/1_driver_version_after_suspend_.*_auto         certification-status=blocker
     suspend/1_resolution_after_suspend_.*_auto             certification-status=blocker
@@ -305,6 +303,8 @@ include:
     suspend/1_glxgears_after_suspend_.*_graphics           certification-status=blocker
     suspend/1_rotation_after_suspend_.*_graphics           certification-status=blocker 
     suspend/1_video_after_suspend_.*_graphics              certification-status=blocker
+    power-management/lid_close_suspend_open                certification-status=blocker
+    power-management/lid                                   certification-status=blocker
 
 id: after-suspend-graphics-discrete-gpu-cert-blockers
 unit: test plan

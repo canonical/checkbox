@@ -98,6 +98,7 @@ jobs:
           yes | snapcraft promote checkbox18 --from-channel latest/edge --to-channel latest/beta
           yes | snapcraft promote checkbox20 --from-channel latest/edge --to-channel latest/beta
           yes | snapcraft promote checkbox22 --from-channel latest/edge --to-channel latest/beta
+          yes | snapcraft promote checkbox24 --from-channel latest/edge --to-channel latest/beta
 
   checkbox_snap:
     needs: should-run
@@ -120,8 +121,10 @@ jobs:
           yes | snapcraft promote checkbox --from-channel uc18/edge --to-channel uc18/beta
           yes | snapcraft promote checkbox --from-channel uc20/edge --to-channel uc20/beta
           yes | snapcraft promote checkbox --from-channel uc22/edge --to-channel uc22/beta
+          yes | snapcraft promote checkbox --from-channel uc24/edge --to-channel uc24/beta
           yes | snapcraft promote checkbox --from-channel 16.04/edge --to-channel 16.04/beta
           yes | snapcraft promote checkbox --from-channel 18.04/edge --to-channel 18.04/beta
           yes | snapcraft promote checkbox --from-channel 20.04/edge --to-channel 20.04/beta
           yes | snapcraft promote checkbox --from-channel 22.04/edge --to-channel 22.04/beta
+          yes | snapcraft promote checkbox --from-channel 24.04/edge --to-channel 24.04/beta
           yes | snapcraft promote checkbox --from-channel 22.04/edge --to-channel latest/beta

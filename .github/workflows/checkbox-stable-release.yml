@@ -87,6 +87,8 @@ jobs:
           snapcraft promote checkbox20 --from-channel latest/beta --to-channel latest/stable --yes
           snapcraft promote checkbox22 --from-channel latest/beta --to-channel latest/candidate --yes
           snapcraft promote checkbox22 --from-channel latest/beta --to-channel latest/stable --yes
+          snapcraft promote checkbox24 --from-channel latest/beta --to-channel latest/candidate --yes
+          snapcraft promote checkbox24 --from-channel latest/beta --to-channel latest/stable --yes
 
   checkbox_snap:
     name: Checkbox snap packages
@@ -122,5 +124,7 @@ jobs:
           snapcraft promote checkbox --from-channel 20.04/beta --to-channel 20.04/stable --yes
           snapcraft promote checkbox --from-channel 22.04/beta --to-channel 22.04/candidate --yes
           snapcraft promote checkbox --from-channel 22.04/beta --to-channel 22.04/stable --yes
+          snapcraft promote checkbox --from-channel 24.04/beta --to-channel 24.04/candidate --yes
+          snapcraft promote checkbox --from-channel 24.04/beta --to-channel 24.04/stable --yes
           snapcraft promote checkbox --from-channel 22.04/beta --to-channel latest/candidate --yes
           snapcraft promote checkbox --from-channel 22.04/beta --to-channel latest/stable --yes

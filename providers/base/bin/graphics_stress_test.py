@@ -233,8 +233,8 @@ class RenderCheckWrapper(object):
         temp_file.close()
 
         # Read values from the file
-        errors = re.compile(".*test error.*")
-        results = re.compile("(.+) tests passed of (.+) total.*")
+        errors = re.compile(r".*test error.*")
+        results = re.compile(r"(.+) tests passed of (.+) total.*")
 
         first_error = True
         with open(temp_file.name) as temp_handle:
@@ -308,7 +308,7 @@ class RenderCheckWrapper(object):
 
         proc = process.communicate()[1].split("\n")
         found = False
-        tests_pattern = re.compile(".*Available tests: *(.+).*")
+        tests_pattern = re.compile(r".*Available tests: *(.+).*")
         temp_line = ""
         tests = []
         for line in proc:

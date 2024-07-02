@@ -32,7 +32,7 @@ template-unit: job
 id: wwan/gsm-connection-{manufacturer}-{model}-{hw_id}-cycle{iteration}-auto
 template-id: wwan/gsm-connection-manufacturer-model-hw_id-auto
 _summary: Verify a GSM broadband modem can create a data connection - {iteration} cycle
-_template-summary: Verify a GSM broadband modem can create a data connection multiple iteration
+_template-summary: Verify a GSM broadband modem can create a data connection multiple times
 _purpose:
   Any modems discovered by the resource job that list GSM support
   will be tested to ensure a data connection can be made.

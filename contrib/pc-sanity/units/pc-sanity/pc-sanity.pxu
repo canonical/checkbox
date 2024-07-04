@@ -2,7 +2,9 @@ id: pc-sanity-base
 _name: pc-sanity-base
 unit: test plan
 _description:
-    pc-sanity tests
+ This test plan created by Commercial Engineering team, including kenrel error detection,
+devices check, GPU check and thermal check. It will be used to qualify OEM image before
+release the image to QA team.
 include:
     com.canonical.certification::miscellanea/dpkg-l
     com.canonical.certification::miscellanea/bootstrap-pc-sanity-smoke-test
@@ -75,21 +77,28 @@ _description:
     This test plan is for smoke test as sanity before release image.
 include:
 exclude:
+    com.canonical.certification::after-suspend-bluetooth4/beacon_.*
+    com.canonical.certification::bluetooth4/beacon_eddystone.*
     com.canonical.certification::bluetooth/bluetooth_obex_.*
     com.canonical.certification::suspend/bluetooth_obex_.*
-    com.canonical.certification::bluetooth4/beacon_eddystone.*
-    com.canonical.certification::after-suspend-bluetooth4/beacon_.*
+    com.canonical.certification::graphics/1_auto_switch_card_.*
+    com.canonical.certification::after-suspend-graphics/1_auto_switch_card_.*
+    com.canonical.certification::suspend/1_.*
+    com.canonical.certification::suspend/2_.*
+    com.canonical.certification::graphics/2_.*
 nested_part:
     com.canonical.certification::pc-sanity-base
-    com.canonical.certification::client-cert-auto
+    com.canonical.certification::client-cert-desktop-22-04-automated
     com.canonical.certification::power-management-cpu-cstate-cert-automated
 bootstrap_include:
     device
     graphics_card
     cpuinfo
+description:
+    A plan following SRU plan to exclude dGPU switching temporary.
 
-id: pc-sanity-smoke-test-no-dgpu-switching
-_name: pc-sanity-smoke-test (Ubuntu Desktop) (NO DGPU Switching)
+id: pc-sanity-smoke-test-24-04
+_name: pc-sanity-smoke-test 24.04 (Ubuntu Desktop)
 unit: test plan
 _description:
     This test plan is for smoke test as sanity before release image.
@@ -106,7 +115,7 @@ exclude:
     com.canonical.certification::graphics/2_.*
 nested_part:
     com.canonical.certification::pc-sanity-base
-    com.canonical.certification::client-cert-auto
+    com.canonical.certification::client-cert-desktop-24-04-automated
     com.canonical.certification::power-management-cpu-cstate-cert-automated
 bootstrap_include:
     device

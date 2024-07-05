@@ -117,7 +117,8 @@ environ: LD_LIBRARY_PATH
 user: root
 estimated_duration: 10.0
 category_id: wwan
-flags: preserve-locale also-after-suspend preserve-cwd
+flags: preserve-locale also-after-suspend
+depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_wwan_module == 'True'

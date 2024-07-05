@@ -3,6 +3,7 @@ import sys
 from unittest.mock import patch, call, Mock, MagicMock
 from io import StringIO
 from contextlib import redirect_stdout
+import argparse
 
 # Mock the dbus module due to is is not available on CI testing environment
 sys.modules["dbus"] = MagicMock()
@@ -109,3 +110,70 @@ class TestResources(unittest.TestCase):
             self.assertTrue(mmdbus_instance.get_model_name.called)
             self.assertTrue(mmdbus_instance.get_firmware_revision.called)
             self.assertTrue(mmdbus_instance.get_hardware_revision.called)
+
+
+class TestThreeGppScanTest(unittest.TestCase):
+
+    def test_register_argument(self):
+
+        sys.argv = ["wwan_tests.py", "3gpp-scan", "2", "--timeout", "600"]
+        obj_3gppscan = wwan_tests.ThreeGppScanTest()
+        ret_args = obj_3gppscan.register_argument()
+        self.assertEqual(ret_args.hw_id, "2")
+        self.assertEqual(ret_args.timeout, 600)
+
+    @patch("subprocess.check_call")
+    @patch("wwan_tests._wwan_radio_off")
+    @patch("wwan_tests._wwan_radio_on")
+    @patch("wwan_tests.MMCLI")
+    @patch("wwan_tests.ThreeGppScanTest.register_argument")
+    def test_invoked_successfully(
+        self, mock_arg, mock_mmcli, mock_r_on, mock_r_off, mock_subprocess
+    ):
+        mock_arg.return_value = argparse.Namespace(hw_id="2", timeout=200)
+
+        mmcli_instance = Mock()
+        mmcli_instance.equipment_id_to_mm_id.return_value = "0"
+        mock_mmcli.return_value = mmcli_instance
+        mock_subprocess.return_value = 0
+
+        with self.assertRaises(SystemExit) as context:
+            obj_3gppscan = wwan_tests.ThreeGppScanTest()
+            obj_3gppscan.invoked()
+
+        self.assertEqual(context.exception.code, 0)
+        self.assertTrue(mock_mmcli.called)
+        self.assertTrue(mmcli_instance.equipment_id_to_mm_id.called)
+        self.assertTrue(mock_r_on.called)
+        self.assertTrue(mock_r_off.called)
+        mock_subprocess.assert_called_with(
+            ["mmcli", "-m", "0", "--3gpp-scan", "--timeout", "200"]
+        )
+
+    @patch("subprocess.check_call")
+    @patch("wwan_tests._wwan_radio_off")
+    @patch("wwan_tests._wwan_radio_on")
+    @patch("wwan_tests.MMCLI")
+    @patch("wwan_tests.ThreeGppScanTest.register_argument")
+    def test_invoked_failed(
+        self, mock_arg, mock_mmcli, mock_r_on, mock_r_off, mock_subprocess
+    ):
+        mock_arg.return_value = argparse.Namespace(hw_id="2", timeout=200)
+
+        mmcli_instance = Mock()
+        mmcli_instance.equipment_id_to_mm_id.return_value = "0"
+        mock_mmcli.return_value = mmcli_instance
+        mock_subprocess.return_value = 1
+
+        with self.assertRaises(SystemExit) as context:
+            obj_3gppscan = wwan_tests.ThreeGppScanTest()
+            obj_3gppscan.invoked()
+
+        self.assertEqual(context.exception.code, 1)
+        self.assertTrue(mock_mmcli.called)
+        self.assertTrue(mmcli_instance.equipment_id_to_mm_id.called)
+        self.assertTrue(mock_r_on.called)
+        self.assertTrue(mock_r_off.called)
+        mock_subprocess.assert_called_with(
+            ["mmcli", "-m", "0", "--3gpp-scan", "--timeout", "200"]
+        )

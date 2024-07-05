@@ -362,6 +362,45 @@ class ThreeGppConnection:
         sys.exit(ret_code)
 
 
+class ThreeGppScanTest:
+
+    def register_argument(self):
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            "hw_id", type=str, help="The hardware ID of the modem"
+        )
+        parser.add_argument(
+            "--timeout",
+            type=int,
+            default=300,
+            help="timeout for 3gpp-scan",
+        )
+        return parser.parse_args(sys.argv[2:])
+
+    def invoked(self):
+
+        args = self.register_argument()
+        ret_code = 1
+        try:
+            mm = MMCLI()
+            mm_id = mm.equipment_id_to_mm_id(args.hw_id)
+            _wwan_radio_on()
+            cmd = [
+                "mmcli",
+                "-m",
+                str(mm_id),
+                "--3gpp-scan",
+                "--timeout",
+                str(args.timeout),
+            ]
+            ret_code = subprocess.check_call(cmd)
+        except subprocess.CalledProcessError:
+            pass
+        _wwan_radio_off()
+        sys.exit(ret_code)
+
+
 class CountModems:
 
     def invoked(self):
@@ -462,6 +501,7 @@ class WWANTests:
             "count": CountModems,
             "resources": Resources,
             "3gpp-connection": ThreeGppConnection,
+            "3gpp-scan": ThreeGppScanTest,
             "sim-present": SimPresent,
             "sim-info": SimInfo,
         }

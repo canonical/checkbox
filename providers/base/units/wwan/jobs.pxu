@@ -51,6 +51,7 @@ estimated_duration: 10.0
 category_id: wwan
 flags: preserve-locale also-after-suspend preserve-cwd
 imports: from com.canonical.plainbox import manifest
+depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 requires:
   manifest.has_wwan_module == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'

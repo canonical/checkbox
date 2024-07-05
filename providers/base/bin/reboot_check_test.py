@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
 
-# TODO: Match python 3.5 syntax
-
-
 import argparse
 import os
 import subprocess
@@ -10,6 +7,7 @@ import re
 import shutil
 import filecmp
 import sys
+import enum
 import typing as T
 
 
@@ -20,7 +18,9 @@ SNAP = os.getenv("SNAP", default="")
 
 
 class ShellResult:
-    def __init__(self, return_code: int, stdout: str, stderr: str) -> None:
+    """Wrapper class around the return value of run_command, guarantees non-null"""
+
+    def __init__(self, return_code: int, stdout: str, stderr: str):
         self.return_code = return_code
         self.stdout = stdout
         self.stderr = stderr
@@ -41,14 +41,18 @@ def run_command(args: T.List[str]) -> ShellResult:
         # if there's nothing on stdout, .stdout is None, so we need a default value
         stdout=(out.stdout or b"").decode(),
         stderr=(out.stderr or b"").decode(),
-    )  # This could throw on non-UTF8 decodable byte strings, but that should be rare
+    )
+    # This could throw on non-UTF8 decodable byte strings, but that should be rare
+    # since utf-8 is backwards compatible with ascii
 
 
 def is_fwts_supported() -> bool:
     return shutil.which("fwts") is not None
 
 
-def fwts_log_check_passed(output_directory: str) -> bool:
+def fwts_log_check_passed(
+    output_directory: str, fwts_arguments=["klog", "oops"]
+) -> bool:
     """Check if fwts logs passes the checks specified in sleep_test_log_check.py.
     This script live in the same directory
 
@@ -57,16 +61,10 @@ def fwts_log_check_passed(output_directory: str) -> bool:
     :return: whether sleep_test_log_check.py returned 0 (success)
     :rtype: bool
     """
-    log_file_path = "{}/fwts_klog_oops.log".format(output_directory)
-    subprocess.run(
-        [
-            "fwts",
-            "-r",
-            log_file_path,
-            "klog",
-            "oops",
-        ]
+    log_file_path = "{}/fwts_{}.log".format(
+        output_directory, "_".join(fwts_arguments)
     )
+    subprocess.run(["fwts", "-r", log_file_path, *fwts_arguments])
     result = subprocess.run(
         [
             "sleep_test_log_check.py",
@@ -79,43 +77,6 @@ def fwts_log_check_passed(output_directory: str) -> bool:
     )
 
     return result.returncode == 0
-
-
-def compare_device_lists(expected_dir: str, actual_dir: str) -> bool:
-    """Compares the list of devices in expected_dir against actual_dir
-
-    :param expected_dir: a directory of files containing the expected values the device list
-    :param actual_dir: a directory of files containing the actual device list
-    :return: whether the device list matches
-    """
-    print(
-        "Comparing device list files in (expected){} against (actual){}...".format(
-            expected_dir, actual_dir
-        )
-    )
-    for name in ["lspci", "iw", "lsusb"]:
-        # file paths of the expected and actual device lists
-        expected = "{}/{}_log".format(expected_dir, name)
-        actual = "{}/{}_log".format(actual_dir, name)
-        if not filecmp.cmp(expected, actual):
-            print(
-                "The output of {} differs from the original list gathered at the beginning of the session!".format(
-                    name
-                ),
-                file=sys.stderr,
-            )
-            return False
-
-    if not filecmp.cmp(
-        "{}/drm_log".format(expected_dir), "{}/drm_log".format(actual_dir)
-    ):
-        print(
-            "[WARN] Items under /sys/class/drm has changed.",
-            "If this machine dynamically switches between GPUs, this might be expected",
-            file=sys.stderr,
-        )
-
-    return True
 
 
 def get_failed_services() -> T.List[str]:
@@ -136,28 +97,27 @@ def get_failed_services() -> T.List[str]:
     return run_command(command).stdout.split()
 
 
-def dump_device_info(output_directory: str) -> None:
-    """Writes information of PCI, wireless, and USB devices to the specified directory
+class DeviceInfoCollector:
 
-    :param output_directory: where the output should be written to.
-    If this directory doesn't already exist, this function will create it.
-    :type output_directory: str
-    """
+    class Device(enum.Enum):
+        PCI = "pci"
+        WIRELESS = "wireless"
+        USB = "usb"
+        DRM = "drm"
 
-    print("Dumping the devices information to {}".format(output_directory))
+    DEFAULT_DEVICES = {
+        "required": [
+            Device.WIRELESS,
+            Device.PCI,
+            Device.USB,
+        ],  # these can fail the test case
+        "optional": [Device.DRM],  # these only produce warnings
+    }  # used for comparison and dump calls
 
-    # specifying exist_ok=True for now to mimic mkdir -p's behavior,
-    os.makedirs(output_directory, exist_ok=True)
+    def get_drm_info(self) -> str:
+        return str(os.listdir("/sys/class/drm"))
 
-    print("Collecting PCI devices...")
-    with open("{}/lspci_log".format(output_directory), "w") as f:
-        lspci_out = run_command(
-            ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
-        )
-        f.write(lspci_out.stdout)
-
-    print("Collecting wireless connections...")
-    with open("{}/iw_log".format(output_directory), "w") as f:
+    def get_wireless_info(self) -> str:
         iw_out = run_command(["iw", "dev"])
         lines = iw_out.stdout.splitlines()
         lines_to_write = list(
@@ -168,27 +128,93 @@ def dump_device_info(output_directory: str) -> None:
                 sorted(lines),
             )
         )
-        f.write("\n".join(map(lambda line: line.strip(), lines_to_write)))
+        return "\n".join(map(lambda line: line.strip(), lines_to_write))
 
-    print("Collecting USB devices...")
-    with open("{}/lsusb_log".format(output_directory), "w") as f:
-        lsusb_out = run_command(
+    def get_usb_info(self) -> str:
+        return run_command(
             [
                 "checkbox-support-lsusb",
                 "-f",
                 '"{}"/var/lib/usbutils/usb.ids'.format(RUNTIME_ROOT),
                 "-s",
             ]
+        ).stdout
+
+    def get_pci_info(self) -> str:
+        return run_command(
+            ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
+        ).stdout
+
+    def compare_device_lists(
+        self, expected_dir: str, actual_dir: str, devices=DEFAULT_DEVICES
+    ) -> bool:
+        """Compares the list of devices in expected_dir against actual_dir
+
+        :param expected_dir: a directory of files containing the expected values the device list
+        :param actual_dir: a directory of files containing the actual device list
+        :return: whether the device list matches
+        """
+        print(
+            "Comparing device list files in (expected){} against (actual){}...".format(
+                expected_dir, actual_dir
+            )
         )
-        f.write(lsusb_out.stdout)
+        for device in devices["required"]:
+            # file paths of the expected and actual device lists
+            expected = "{}/{}_log".format(expected_dir, device)
+            actual = "{}/{}_log".format(actual_dir, device)
+            if not filecmp.cmp(expected, actual):
+                print(
+                    "The output of {} differs from the list gathered at the beginning of the session!".format(
+                        device
+                    ),
+                    file=sys.stderr,
+                )
+                return False
 
-    print("Collecting /sys/class/drm...")
-    with open("{}/drm_log".format(output_directory), "w") as f:
-        drm_contents = os.listdir("/sys/class/drm")
-        f.write(str(sorted(drm_contents)))
+        for device in devices["optional"]:
+            expected = "{}/{}_log".format(expected_dir, device)
+            actual = "{}/{}_log".format(actual_dir, device)
+            if not filecmp.cmp(expected, actual):
+                print(
+                    "[WARN] Items under {} has changed.".format(actual),
+                    "If this machine dynamically switches between GPUs, this might be expected",
+                    file=sys.stderr,
+                )
 
-    os.sync()  # force disk write
-    print("Finished dumping device info!")
+        return True
+
+    def dump(
+        self,
+        output_directory: str, 
+        devices: T.Dict[str, T.List[Device]] = DEFAULT_DEVICES
+    ) -> None:
+
+
+        os.makedirs(output_directory, exist_ok=True)
+        # add extra behavior if necessary
+        for device in devices["required"]:
+            with open(
+                "{}/{}_log".format(output_directory, device.value), "w"
+            ) as file:
+                file.write(self.dump_function[device]())
+
+        for device in devices["optional"]:
+            with open(
+                "{}/{}_log".format(output_directory, device.value), "w"
+            ) as file:
+                file.write(self.dump_function[device]())
+
+        os.sync()
+
+    def __init__(self) -> None:
+        # self.output_directory = output_directory
+        self.dump_function = {
+            self.Device.PCI: self.get_pci_info,
+            self.Device.DRM: self.get_drm_info,
+            self.Device.USB: self.get_usb_info,
+            self.Device.WIRELESS: self.get_wireless_info,
+        }
 
 
 def parse_arguments():
@@ -198,16 +224,20 @@ def parse_arguments():
     )
     parser.add_argument(
         "-d",
+        "--dump-to",
+        required=True,
         dest="output_directory",
         help="Absolute path to the output directory. Device info-dumps will be written here.",
     )
     parser.add_argument(
         "-c",
+        "--compare-to",
         dest="comparison_directory",
         help="Absolute path to the comparison directory. This should contain the ground-truth.",
     )
     parser.add_argument(
         "-s",
+        "--service-check",
         default=False,
         dest="do_service_check",
         action="store_true",
@@ -215,6 +245,7 @@ def parse_arguments():
     )
     parser.add_argument(
         "-f",
+        "--fwts-check",
         default=False,
         dest="do_fwts_check",
         action="store_true",
@@ -222,13 +253,14 @@ def parse_arguments():
     )
     parser.add_argument(
         "-g",
+        "--graphics",
         default=False,
         dest="do_renderer_check",
         action="store_true",
         help="Whether the script should check if hardware rendering is being used",
     )
 
-    return parser.parse_args()  # type: ignore , checked manually
+    return parser.parse_args()
 
 
 def remove_color_code(string: str) -> str:
@@ -248,10 +280,9 @@ def get_display_id() -> T.Optional[str]:
     :rtype: str
     """
     DISPLAY = os.getenv("DISPLAY", default="")
-    XDG_SESSION_TYPE = os.getenv("XDG_SESSION_TYPE", default="")
 
     if DISPLAY != "":
-        print("Using $DISPLAY env: {}".format(DISPLAY))
+        print("Using $DISPLAY env variable: {}".format(DISPLAY))
         return DISPLAY  # use the environment var if non-empty
 
     session_id = (
@@ -267,34 +298,30 @@ def get_display_id() -> T.Optional[str]:
         .strip()  # it should look like Type=wayland, split and take 2nd word
     )
 
-    if XDG_SESSION_TYPE != display_server_type:
-        print(
-            "[WARN] XDG_SESSION_TYPE: {} != display server from loginctl: {}".format(
-                XDG_SESSION_TYPE, display_server_type
-            ),
-            file=sys.stderr,
-        )
-
     # NOTE: Xwayland doesn't immediately start after a reboot
-    # This could return None even if a display is active
+    # For now, we will assume :0 exists and use it as the display id
     if display_server_type == "wayland":
         pgrep_out = run_command(["pgrep", "-a", "Xwayland"])
         # search for a process called Xwayland, take the 3rd arg, which is the display id
-        return (
-            pgrep_out.stdout.split()[2] if pgrep_out.return_code == 0 else None
-        )
+        if pgrep_out.return_code == 0:
+            return pgrep_out.stdout.split()[2]
+        else:
+            print('[WARN] Waylad session detected, but Xwayland process is not found. Assuming :0 display')
+            return ':0'
 
     if display_server_type == "x11":
         w_out = run_command(["w", "--no-header"])
-        return w_out.stdout.split()[2] if w_out.stdout != "" else None
+        if len(w_out.stdout) != 0:
+            return w_out.stdout.split()[2]
+        return None
 
     return None  # Unsupported window system
 
 
 def has_display_connection() -> bool:
-    """Checks if a display is connected.
+    """Checks if a display is connected by searching the /sys/class/drm directory
 
-    :return: True if there are more items than just "version"
+    :return: True if there's at least 1 node that is connected
     """
 
     # look for GPU file nodes first
@@ -343,7 +370,7 @@ def is_hardware_renderer_available() -> bool:
         print("No display id was found.", file=sys.stderr)
         # No display id was found
         return False
-    
+
     print("Checking display id: {}".format(display_id))
 
     unity_support_output = run_command(
@@ -364,7 +391,7 @@ def is_hardware_renderer_available() -> bool:
         == "yes"
     )
     if is_hardware_rendered:
-        print("This machine is using a hardware renderer!")
+        print("[ OK ] This machine is using a hardware renderer!")
         return True
 
     return False
@@ -416,14 +443,15 @@ def main() -> int:
                 file=sys.stderr,
             )
         else:
-            dump_device_info(args.output_directory)
-            compare_device_lists(
+            collector = DeviceInfoCollector()
+            collector.dump(args.output_directory)
+            collector.compare_device_lists(
                 args.comparison_directory, args.output_directory
             )
 
     # dump (no checks) if only output_directory is specified
     if args.output_directory is not None and args.comparison_directory is None:
-        dump_device_info(args.output_directory)
+        DeviceInfoCollector().dump(args.output_directory)
 
     if args.do_fwts_check:
         if is_fwts_supported() and not fwts_log_check_passed(

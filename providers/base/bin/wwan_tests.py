@@ -453,26 +453,41 @@ class CountModems:
 
 class Resources:
 
-    def invoked(self):
+    def register_arguments(self):
         parser = argparse.ArgumentParser()
         parser.add_argument(
             "--use-cli",
             action="store_true",
             help="Use mmcli for all calls rather than dbus",
         )
-        args = parser.parse_args(sys.argv[2:])
+        parser.add_argument(
+            "--iteration",
+            type=int,
+            help="The iteration to print out wwan resource",
+        )
+        return parser.parse_args(sys.argv[2:])
+
+    def invoked(self):
+        args = self.register_arguments()
         if args.use_cli:
             mm = MMCLI()
         else:
             mm = MMDbus()
-        for m in mm.get_modem_ids():
-            print("mm_id: {}".format(m))
-            print("hw_id: {}".format(mm.get_equipment_id(m)))
-            print("manufacturer: {}".format(mm.get_manufacturer(m)))
-            print("model: {}".format(mm.get_model_name(m)))
-            print("firmware_revision: {}".format(mm.get_firmware_revision(m)))
-            print("hardware_revision: {}".format(mm.get_hardware_revision(m)))
-            print()
+
+        for idx in range(1, args.iteration + 1):
+            for m in mm.get_modem_ids():
+                print("iteration: {}".format(idx))
+                print("mm_id: {}".format(m))
+                print("hw_id: {}".format(mm.get_equipment_id(m)))
+                print("manufacturer: {}".format(mm.get_manufacturer(m)))
+                print("model: {}".format(mm.get_model_name(m)))
+                print(
+                    "firmware_revision: {}".format(mm.get_firmware_revision(m))
+                )
+                print(
+                    "hardware_revision: {}".format(mm.get_hardware_revision(m))
+                )
+                print()
 
 
 class SimPresent:

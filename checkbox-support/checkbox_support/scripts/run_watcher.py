@@ -39,27 +39,27 @@ class StorageInterface(ABC):
     """
 
     @abstractmethod
-    def _check_logs_for_insertion(self, line_str):
+    def _parse_journal_line(self, line_str):
         """
-        callback that looks for the expected log lines in the journal during
-        the insertion test.
-        """
-        pass
+        Parse the journal line and update the attributes based on the line
+        content.
 
-    @abstractmethod
-    def _check_logs_for_removal(self, line_str):
-        """
-        callback that looks for the expected log lines in the journal during
-        the removal test.
+        :param line_str: str of the scanned log lines.
         """
         pass
 
     @abstractmethod
     def _validate_insertion(self):
+        """
+        Check if the that the storage was inserted correctly.
+        """
         pass
 
     @abstractmethod
     def _validate_removal(self):
+        """
+        Check if the that the storage was removed correctly.
+        """
         pass
 
 
@@ -112,6 +112,10 @@ class StorageWatcher(StorageInterface):
             )
 
     def _process_lines(self, lines):
+        """
+        Process the lines from the journal and call the callback function to
+        validate the insertion or removal of the storage.
+        """
         for line in lines:
             line_str = str(line)
             logger.debug(line_str)
@@ -220,8 +224,6 @@ class USBStorage(StorageWatcher):
 
         It uses dictionaries to match the expected log lines with the
         attributes.
-
-        :param line_str: str of the scanned log lines.
         """
 
         device_log_dict = {

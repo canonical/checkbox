@@ -11,6 +11,7 @@ import os
 import shutil
 import subprocess as sp
 import sys
+import glob
 
 from packaging import version as version_parser
 
@@ -62,37 +63,43 @@ def reload_nm_connections():
 
 
 def save_connections(keyfile_list):
-    if not os.path.exists(SAVE_DIR):
-        os.makedirs(SAVE_DIR)
-    if len(keyfile_list) == 0:
+    os.makedirs(SAVE_DIR, exist_ok=True)
+
+    if not keyfile_list:
         print("No stored 802.11 connections to save")
         return
+
     for f in keyfile_list:
         print("Save connection {}".format(f))
+
         if not os.path.exists(f):
-            print("  No stored connection fount at {}".format(f))
+            print("  No stored connection found at {}".format(f))
             continue
+
         print("  Found file {}".format(f))
-        save_f = shutil.copy(f, SAVE_DIR)
+
+        basedir = os.path.dirname(f)
+        backup_loc = os.path.join(SAVE_DIR, *basedir.split("/"))
+
+        if not os.path.exists(backup_loc):
+            os.makedirs(backup_loc)
+        save_f = shutil.copy(f, backup_loc)
         print("  Saved copy at {}".format(save_f))
 
 
 def restore_connections():
-    saved_list = [
-        f
-        for f in os.listdir(SAVE_DIR)
-        if os.path.isfile(os.path.join(SAVE_DIR, f))
-    ]
+    saved_list = glob.glob(
+        "{}/**/*.nmconnection".format(SAVE_DIR), recursive=True
+    )
     if len(saved_list) == 0:
         print("No stored 802.11 connections found")
         return
     for f in saved_list:
-        save_f = os.path.join(SAVE_DIR, f)
+        print(SAVE_DIR)
+        print(len(SAVE_DIR))
+        save_f = f[len(SAVE_DIR) :]
         print("Restore connection {}".format(save_f))
-        restore_f = shutil.copy(save_f, NM_CON_DIR)
-        print("  Restored file at {}".format(restore_f))
-        os.remove(save_f)
-        print("  Removed copy from {}".format(save_f))
+        shutil.move(f, save_f)
 
 
 if __name__ == "__main__":

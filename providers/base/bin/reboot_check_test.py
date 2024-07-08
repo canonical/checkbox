@@ -76,7 +76,10 @@ class DeviceInfoCollector:
         ).stdout
 
     def compare_device_lists(
-        self, expected_dir: str, actual_dir: str, devices=DEFAULT_DEVICES
+        self,
+        expected_dir: str,
+        actual_dir: str,
+        devices=DEFAULT_DEVICES,  # type: dict[str, list[Device]]
     ) -> bool:
         """Compares the list of devices in expected_dir against actual_dir
 
@@ -91,8 +94,8 @@ class DeviceInfoCollector:
         )
         for device in devices["required"]:
             # file paths of the expected and actual device lists
-            expected = "{}/{}_log".format(expected_dir, device)
-            actual = "{}/{}_log".format(actual_dir, device)
+            expected = "{}/{}_log".format(expected_dir, device.value)
+            actual = "{}/{}_log".format(actual_dir, device.value)
             if not filecmp.cmp(expected, actual):
                 print(
                     "The output of {} differs from the list gathered at the beginning of the session!".format(
@@ -103,8 +106,8 @@ class DeviceInfoCollector:
                 return False
 
         for device in devices["optional"]:
-            expected = "{}/{}_log".format(expected_dir, device)
-            actual = "{}/{}_log".format(actual_dir, device)
+            expected = "{}/{}_log".format(expected_dir, device.value)
+            actual = "{}/{}_log".format(actual_dir, device.value)
             if not filecmp.cmp(expected, actual):
                 print(
                     "[WARN] Items under {} has changed.".format(actual),

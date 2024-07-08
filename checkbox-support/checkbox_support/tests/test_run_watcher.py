@@ -33,115 +33,6 @@ from checkbox_support.scripts.run_watcher import (
 
 class TestRunWatcher(unittest.TestCase):
 
-    # class StorageWatcher(StorageInterface):
-    #     """
-    #     StorageWatcher watches the journal message and triggers the callback
-    #     function to detect the insertion and removal of storage.
-    #     """
-
-    #     def __init__(self, testcase, storage_type, zapper_usb_address):
-    #         self.testcase = testcase
-    #         self.storage_type = storage_type
-    #         self.zapper_usb_address = zapper_usb_address
-
-    #     def run(self):
-    #         j = journal.Reader()
-    #         j.seek_realtime(time.time())
-    #         p = select.poll()
-    #         p.register(j, j.get_events())
-    #         if self.zapper_usb_address:
-    #             zapper_host = os.environ.get("ZAPPER_ADDRESS")
-    #             if not zapper_host:
-    #                 raise SystemExit(
-    #                     "ZAPPER_ADDRESS environment variable not found!"
-    #                 )
-    #             usb_address = self.zapper_usb_address
-    #             if self.testcase == "insertion":
-    #                 print("Calling zapper to connect the USB device")
-    #                 zapper_run(
-    #                     zapper_host, "typecmux_set_state", usb_address, "DUT"
-    #                 )
-    #             elif self.testcase == "removal":
-    #                 print("Calling zapper to disconnect the USB device")
-    #                 zapper_run(
-    #                     zapper_host, "typecmux_set_state", usb_address, "OFF"
-    #                 )
-    #         else:
-    #             if self.testcase == "insertion":
-    #                 print("\n\nINSERT NOW\n\n", flush=True)
-    #             elif self.testcase == "removal":
-    #                 print("\n\nREMOVE NOW\n\n", flush=True)
-    #             else:
-    #                 raise SystemExit("Invalid test case")
-    #             print("Timeout: {} seconds".format(ACTION_TIMEOUT), flush=True)
-    #         while p.poll():
-    #             if j.process() != journal.APPEND:
-    #                 continue
-    #             self._process_lines(
-    #                 [e["MESSAGE"] for e in j if e and "MESSAGE" in e]
-    #             )
-
-    #     def _process_lines(self, lines):
-    #         """
-    #         Process the lines from the journal and call the callback function to
-    #         validate the insertion or removal of the storage.
-    #         """
-    #         for line in lines:
-    #             line_str = str(line)
-    #             logger.debug(line_str)
-    #             if self.testcase == "insertion":
-    #                 self._parse_journal_line(line_str)
-    #                 self._validate_insertion()
-    #             elif self.testcase == "removal":
-    #                 self._parse_journal_line(line_str)
-    #                 self._validate_removal()
-
-    #     def _store_storage_info(self, mounted_partition=""):
-    #         """
-    #         Store the mounted partition info to the shared directory.
-    #         """
-
-    #         plainbox_session_share = os.environ.get("PLAINBOX_SESSION_SHARE")
-    #         # TODO: Should name the file by the value of storage_type variable as
-    #         #       prefix. e.g. thunderbolt_insert_info, mediacard_insert_info.
-    #         #       Since usb_insert_info is used by usb_read_write script, we
-    #         #       should refactor usb_read_write script to adopt different files
-    #         file_name = "usb_insert_info"
-
-    #         if not plainbox_session_share:
-    #             logger.error("no env var PLAINBOX_SESSION_SHARE")
-    #             sys.exit(1)
-
-    #         # backup the storage partition info
-    #         if mounted_partition:
-    #             logger.info(
-    #                 "cache file {} is at: {}".format(
-    #                     file_name, plainbox_session_share
-    #                 )
-    #             )
-    #             file_path = pathlib.Path(plainbox_session_share, file_name)
-    #             with open(file_path, "w") as file_to_share:
-    #                 file_to_share.write(mounted_partition + "\n")
-
-    #     def _remove_storage_info(self):
-    #         """Remove the file containing the storage info from the shared
-    #         directory.
-    #         """
-
-    #         plainbox_session_share = os.environ.get("PLAINBOX_SESSION_SHARE")
-    #         file_name = "usb_insert_info"
-
-    #         if not plainbox_session_share:
-    #             logger.error("no env var PLAINBOX_SESSION_SHARE")
-    #             sys.exit(1)
-
-    #         file_path = pathlib.Path(plainbox_session_share, file_name)
-    #         if pathlib.Path(file_path).exists():
-    #             os.remove(file_path)
-    #             logger.info("cache file {} removed".format(file_name))
-    #         else:
-    #             logger.error("cache file {} not found".format(file_name))
-
     def test_storage_watcher_process_lines(self):
         lines = ["line1", "line2", "line3"]
 
@@ -152,16 +43,6 @@ class TestRunWatcher(unittest.TestCase):
         mock_insertion_watcher._parse_journal_line.assert_has_calls(
             [call("line1"), call("line2"), call("line3")]
         )
-        mock_insertion_watcher._validate_insertion.assert_called()
-
-        mock_removal_watcher = MagicMock()
-        mock_removal_watcher._parse_journal_line = MagicMock()
-        mock_removal_watcher.testcase = "removal"
-        StorageWatcher._process_lines(mock_removal_watcher, lines)
-        mock_removal_watcher._parse_journal_line.assert_has_calls(
-            [call("line1"), call("line2"), call("line3")]
-        )
-        mock_insertion_watcher._validate_insertion.assert_called()
 
     @patch("os.environ.get")
     def test_storage_watcher_store_storage_info(self, mock_get):
@@ -331,57 +212,6 @@ class TestRunWatcher(unittest.TestCase):
         MediacardStorage._parse_journal_line(mock_mediacard_storage, line_str)
         self.assertEqual(mock_mediacard_storage.action, "removal")
 
-    # class ThunderboltStorage(StorageWatcher):
-    #     """
-    #     ThunderboltStorage handles the insertion and removal of thunderbolt
-    #     storage.
-    #     """
-
-    #     def __init__(self, *args):
-    #         super().__init__(*args)
-    #         self.mounted_partition = None
-    #         self.action = None
-
-    #     def _validate_insertion(self):
-    #         # The insertion will be valid if the insertion action is detected and
-    #         # the mounted partition is found.
-    #         if self.action == "insertion" and self.mounted_partition:
-    #             logger.info("usable partition: {}".format(self.mounted_partition))
-    #             logger.info("Thunderbolt insertion test passed.")
-
-    #             # backup the storage info
-    #             self._store_storage_info(self.mounted_partition)
-    #             sys.exit()
-
-    #     def _validate_removal(self, line_str):
-    #         if self.action == "removal":
-    #             logger.info("Thunderbolt removal test passed.")
-
-    #             # remove the storage info
-    #             self._remove_storage_info()
-    #             sys.exit()
-
-    #     def _parse_journal_line(self, line_str):
-
-    #         # Extract the partition name. Looking for string like "nvme0n1: p1"
-    #         part_re = re.compile("(?P<dev_num>nvme\w+): (?P<part_name>p\d+)")
-    #         match = re.search(part_re, line_str)
-    #         if match:
-    #             self.mounted_partition = "{}{}".format(
-    #                 match.group("dev_num"), match.group("part_name")
-    #             )
-
-    #         # Prefix of the thunderbolt device for regex matching
-    #         RE_PREFIX = "thunderbolt \d+-\d+:"
-
-    #         insertion_re = re.compile("{} new device found".format(RE_PREFIX))
-    #         if re.search(insertion_re, line_str):
-    #             self.action = "insertion"
-
-    #         removal_re = re.compile("{} device disconnected".format(RE_PREFIX))
-    #         if re.search(removal_re, line_str):
-    #             self.action = "removal"
-
     def test_thunderbolt_storage_init(self):
         thunderbolt_storage = ThunderboltStorage(
             "insertion", "thunderbolt", "zapper_addr"
@@ -417,6 +247,29 @@ class TestRunWatcher(unittest.TestCase):
         mock_thunderbolt_storage = MagicMock()
         mock_thunderbolt_storage.action = ""
         ThunderboltStorage._validate_removal(mock_thunderbolt_storage)
+
+    def test_thunderbolt_storage_parse_journal_line(self):
+        mock_thunderbolt_storage = MagicMock()
+
+        line_str = "nvme0n1: p1"
+        ThunderboltStorage._parse_journal_line(
+            mock_thunderbolt_storage, line_str
+        )
+        self.assertEqual(
+            mock_thunderbolt_storage.mounted_partition, "nvme0n1p1"
+        )
+
+        line_str = "thunderbolt 1-1: new device found"
+        ThunderboltStorage._parse_journal_line(
+            mock_thunderbolt_storage, line_str
+        )
+        self.assertEqual(mock_thunderbolt_storage.action, "insertion")
+
+        line_str = "thunderbolt 1-1: device disconnected"
+        ThunderboltStorage._parse_journal_line(
+            mock_thunderbolt_storage, line_str
+        )
+        self.assertEqual(mock_thunderbolt_storage.action, "removal")
 
     @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
     def test_main_usb(self, mock_usb_storage):

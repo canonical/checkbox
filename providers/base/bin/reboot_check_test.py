@@ -64,8 +64,8 @@ def fwts_log_check_passed(
     log_file_path = "{}/fwts_{}.log".format(
         output_directory, "_".join(fwts_arguments)
     )
-    subprocess.run(["fwts", "-r", log_file_path, *fwts_arguments])
-    result = subprocess.run(
+    run_command(["fwts", "-r", log_file_path, *fwts_arguments])
+    result = run_command(
         [
             "sleep_test_log_check.py",
             "-v",
@@ -76,7 +76,7 @@ def fwts_log_check_passed(
         ]
     )
 
-    return result.returncode == 0
+    return result.return_code == 0
 
 
 def get_failed_services() -> T.List[str]:
@@ -113,6 +113,7 @@ class DeviceInfoCollector:
         ],  # these can fail the test case
         "optional": [Device.DRM],  # these only produce warnings
     }  # used for comparison and dump calls
+    # to modify, add more values in the enum and reference them in required/optional respectively
 
     def get_drm_info(self) -> str:
         return str(os.listdir("/sys/class/drm"))
@@ -186,11 +187,9 @@ class DeviceInfoCollector:
 
     def dump(
         self,
-        output_directory: str, 
-        devices: T.Dict[str, T.List[Device]] = DEFAULT_DEVICES
+        output_directory: str,
+        devices=DEFAULT_DEVICES,
     ) -> None:
-
-
         os.makedirs(output_directory, exist_ok=True)
         # add extra behavior if necessary
         for device in devices["required"]:
@@ -208,7 +207,6 @@ class DeviceInfoCollector:
         os.sync()
 
     def __init__(self) -> None:
-        # self.output_directory = output_directory
         self.dump_function = {
             self.Device.PCI: self.get_pci_info,
             self.Device.DRM: self.get_drm_info,
@@ -217,7 +215,7 @@ class DeviceInfoCollector:
         }
 
 
-def parse_arguments():
+def create_parser():
     parser = argparse.ArgumentParser(
         prog="Reboot tests",
         description="This script is used to collect device information and to check for differences between reboots.",
@@ -260,7 +258,7 @@ def parse_arguments():
         help="Whether the script should check if hardware rendering is being used",
     )
 
-    return parser.parse_args()
+    return parser
 
 
 def remove_color_code(string: str) -> str:
@@ -306,12 +304,15 @@ def get_display_id() -> T.Optional[str]:
         if pgrep_out.return_code == 0:
             return pgrep_out.stdout.split()[2]
         else:
-            print('[WARN] Waylad session detected, but Xwayland process is not found. Assuming :0 display')
-            return ':0'
+            print(
+                "[WARN] Waylad session detected, but Xwayland process is not found. Assuming :0 display",
+                file=sys.stderr,
+            )
+            return ":0"
 
     if display_server_type == "x11":
         w_out = run_command(["w", "--no-header"])
-        if len(w_out.stdout) != 0:
+        if w_out.return_code == 0 and len(w_out.stdout) != 0:
             return w_out.stdout.split()[2]
         return None
 
@@ -346,7 +347,8 @@ def has_display_connection() -> bool:
                 print("{} is connected to display!".format(gpu))
                 return True
         except FileNotFoundError:
-            pass  # this just means we don't have a status file => no connection
+            # this just means we don't have a status file => no connection, continue to the next
+            pass
         except Exception as e:
             print("Unexpected error: ", e, file=sys.stderr)
 
@@ -397,7 +399,7 @@ def is_hardware_renderer_available() -> bool:
     return False
 
 
-def parse_unity_support_output(output_string: str) -> T.Dict[str, str]:
+def parse_unity_support_output(unity_output_string: str) -> T.Dict[str, str]:
     """Parses the output of `unity_support_test` into a dictionary
 
     :param output_string: the raw output from running `unity_support_test -p`
@@ -408,11 +410,11 @@ def parse_unity_support_output(output_string: str) -> T.Dict[str, str]:
     """
 
     output = {}  # type: dict[str, str]
-    for line in output_string.split("\n"):
+    for line in unity_output_string.split("\n"):
         # max_split=1 to prevent splitting the string after the 1st colon
         words = line.split(":", maxsplit=1)
         if len(words) == 2:
-            key = words[0]
+            key = words[0].strip()
             value = remove_color_code(words[1].strip())
             output[key] = value
 
@@ -426,7 +428,8 @@ def main() -> int:
     :rtype: int
     """
 
-    args = parse_arguments()
+    args = create_parser().parse_args()
+    print(args)
 
     # all 4 tests pass by default
     # they only fail if their respective flags are specified

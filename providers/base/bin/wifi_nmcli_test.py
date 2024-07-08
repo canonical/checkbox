@@ -42,19 +42,75 @@ def print_cmd(cmd):
     print("+", cmd)
 
 
-def cleanup_nm_connections():
-    print_head("Cleaning up NM connections")
-    cmd = "nmcli -t -f TYPE,UUID,NAME c"
+def _get_nm_wireless_connections():
+    cmd = "nmcli -t -f TYPE,UUID,NAME,STATE connection"
     print_cmd(cmd)
     output = sp.check_output(cmd, shell=True)
+    connections = {}
     for line in output.decode(sys.stdout.encoding).splitlines():
-        type, uuid, name = line.strip().split(":", 2)
+        type, uuid, name, state = line.strip().split(":", 3)
         if type == "802-11-wireless":
-            print("Deleting connection", name)
-            cmd = "nmcli c delete {}".format(uuid)
+            connections[name] = {"uuid": uuid, "state": state}
+    return connections
+
+
+def get_nm_activate_connection():
+    print_head("Get NM activate connection name")
+    connections = _get_nm_wireless_connections()
+    for name, value in connections.items():
+        state = value["state"]
+        uuid = value["uuid"]
+        if state == "activated":
+            print("Activated Connection: {} {}".format(name, uuid))
+            return uuid
+    return ""
+
+
+def turn_up_connection(uuid):
+    # uuid can also be connection name
+    print_head("Turn up NM connection")
+    cmd = "nmcli c up {}".format(uuid)
+    print("Turn up {}".format(uuid))
+    activate_uuid = get_nm_activate_connection()
+    if uuid == activate_uuid:
+        print("{} state is already activated".format(uuid))
+        return None
+    try:
+        print_cmd(cmd)
+        sp.call(cmd, shell=True)
+    except Exception as e:
+        print("Can't turn on {}: {}".format(uuid, str(e)))
+
+
+def turn_down_nm_connections():
+    print_head("Turn off NM all connections")
+    connections = _get_nm_wireless_connections()
+    for name, value in connections.items():
+        uuid = value["uuid"]
+        print("Turn down connection", name)
+        try:
+            cmd = "nmcli c down {}".format(uuid)
             print_cmd(cmd)
             sp.call(cmd, shell=True)
+            print("{} {} is down now".format(name, uuid))
+        except Exception as e:
+            print("Can't down {}: {}".format(uuid, str(e)))
     print()
+
+
+def delete_test_ap_ssid_connection():
+    print_head("Cleaning up TEST_CON connection")
+    connections = _get_nm_wireless_connections()
+    if "TEST_CON" not in connections:
+        print("No TEST_CON connection found, nothing to delete")
+        return
+    try:
+        cmd = "nmcli c delete TEST_CON"
+        print_cmd(cmd)
+        sp.call(cmd, shell=True)
+        print("TEST_CON is deleted")
+    except Exception as e:
+        print("Can't delect TEST_CON : {}".format(str(e)))
 
 
 def device_rescan():
@@ -71,30 +127,31 @@ def device_rescan():
     print()
 
 
-def list_aps(args):
+def list_aps(ifname, essid=None):
     print_head("List APs")
-    count = 0
+    aps_dict = {}
     fields = "SSID,CHAN,FREQ,SIGNAL"
-    cmd = "nmcli -t -f {} d wifi list ifname {}".format(fields, args.device)
-    print_cmd(cmd)
+    cmd = "nmcli -t -f {} d wifi list ifname {}".format(fields, ifname)
     output = sp.check_output(cmd, shell=True)
     for line in output.decode(sys.stdout.encoding).splitlines():
         # lp bug #1723372 - extra line in output on zesty
-        if line.strip() == args.device:
+        if line.strip() == ifname:  # Skip device name line
             continue
         ssid, channel, frequency, signal = line.strip().rsplit(":", 3)
+        if essid and ssid != essid:
+            continue
+        aps_dict[ssid] = {"Chan": channel, "Freq": frequency, "Signal": signal}
+    return aps_dict
+
+
+def show_aps(aps_dict):
+    for ssid, values in aps_dict.items():
         print(
             "SSID: {} Chan: {} Freq: {} Signal: {}".format(
-                ssid, channel, frequency, signal
+                ssid, values["Chan"], values["Freq"], values["Signal"]
             )
         )
-        if hasattr(args, "essid"):
-            if ssid == args.essid:
-                count += 1
-        else:
-            count += 1
     print()
-    return count
 
 
 def print_address_info(interface):
@@ -128,27 +185,40 @@ def perform_ping_test(interface):
     return False
 
 
-def wait_for_connected(interface, max_wait=5):
+def wait_for_connected(interface, essid, max_wait=5):
     connected = False
     attempts = 0
     while not connected and attempts < max_wait:
-        cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(
-            args.device
+        cmd = (
+            "nmcli -m tabular -t -f GENERAL.STATE,GENERAL.CONNECTION "
+            "d show {}".format(interface)
         )
         print_cmd(cmd)
         output = sp.check_output(cmd, shell=True)
-        state = output.decode(sys.stdout.encoding).strip()
-        print(state)
+        state, ssid = output.decode(sys.stdout.encoding).strip().splitlines()
 
-        if state.startswith("100"):
+        if state.startswith("100") and ssid == essid:
             connected = True
             break
+
         time.sleep(1)
         attempts += 1
+
     if connected:
-        print("Reached connected state")
+        print("Reached connected state with ESSID: {}".format(essid))
     else:
-        print("ERROR: did not reach connected state")
+        print(
+            "ERROR: did not reach connected state with ESSID: {}".format(essid)
+        )
+        if ssid != essid:
+            print(
+                "ESSID mismatch:\n  Excepted:{}\n  Actually:{}".format(
+                    ssid, essid
+                )
+            )
+        if not state.startswith("100"):
+            print("State is not connected: {}".format(state))
+
     print()
     return connected
 
@@ -174,16 +244,10 @@ def open_connection(args):
     sp.call(cmd, shell=True)
 
     # Make sure the connection is brought up
-    cmd = "nmcli c up TEST_CON"
-    print_cmd(cmd)
-    try:
-        sp.call(cmd, shell=True, timeout=200 if legacy_nmcli() else None)
-    except sp.TimeoutExpired:
-        print("Connection activation failed\n")
-    print()
+    turn_up_connection("TEST_CON")
 
     print_head("Ensure interface is connected")
-    reached_connected = wait_for_connected(args.device)
+    reached_connected = wait_for_connected(args.device, args.essid)
 
     rc = 1
     if reached_connected:
@@ -228,16 +292,10 @@ def secured_connection(args):
     sp.call(cmd, shell=True)
 
     # Make sure the connection is brought up
-    cmd = "nmcli c up TEST_CON"
-    print_cmd(cmd)
-    try:
-        sp.call(cmd, shell=True, timeout=200 if legacy_nmcli() else None)
-    except sp.TimeoutExpired:
-        print("Connection activation failed\n")
-    print()
+    turn_up_connection("TEST_CON")
 
     print_head("Ensure interface is connected")
-    reached_connected = wait_for_connected(args.device)
+    reached_connected = wait_for_connected(args.device, args.essid)
 
     rc = 1
     if reached_connected:
@@ -308,7 +366,7 @@ def print_journal_entries(start):
     sp.call(cmd, shell=True)
 
 
-if __name__ == "__main__":
+def parser_args():
     parser = argparse.ArgumentParser(
         description="WiFi connection test using mmcli"
     )
@@ -351,29 +409,49 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    start_time = datetime.datetime.now()
+    return args
 
-    cleanup_nm_connections()
+
+def main():
+    args = parser_args()
+    start_time = datetime.datetime.now()
     device_rescan()
-    count = list_aps(args)
+    if hasattr(args, "essid"):
+        print("Scanning for APs with ESSID: {}".format(args.essid))
+        aps_dict = list_aps(args.device, args.essid)
+    else:
+        print("Scanning for all APs")
+        aps_dict = list_aps(args.device)
+    show_aps(aps_dict)
 
     if args.test_type == "scan":
-        if count == 0:
+        if not aps_dict:
             print("Failed to find any APs")
-            sys.exit(1)
+            return 1
         else:
-            print("Found {} access points".format(count))
-            sys.exit(0)
+            print("Found {} access points".format(len(aps_dict)))
+            return 0
+
+    if not aps_dict:
+        print("Targed access points: {} found".format(args.essid))
+        return 1
 
     if args.func:
+        delete_test_ap_ssid_connection()
+        activated_uuid = get_nm_activate_connection()
+        turn_down_nm_connections()
         try:
             result = args.func(args)
         finally:
-            cleanup_nm_connections()
+            turn_up_connection(activated_uuid)
+            delete_test_ap_ssid_connection()
 
     # The test is not required to run as root, but root access is required for
     # journal access so only attempt to print when e.g. running under Remote
     if result != 0 and os.geteuid() == 0:
         print_journal_entries(start_time)
+    return result
 
-    sys.exit(result)
+
+if __name__ == "__main__":
+    sys.exit(main())

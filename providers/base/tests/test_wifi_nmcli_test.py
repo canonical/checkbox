@@ -25,6 +25,7 @@ from wifi_nmcli_test import (
     turn_up_connection,
     turn_down_nm_connections,
     delete_test_ap_ssid_connection,
+    device_rescan,
     list_aps,
     show_aps,
     wait_for_connected,
@@ -113,7 +114,7 @@ class TestTurnUpConnection(unittest.TestCase):
         self, get_nm_activate_connection_mock, sp_call_mock
     ):
         turn_up_connection("uuid2")
-        sp_call_mock.assert_called_with("nmcli c up uuid2", shell=True)
+        sp_call_mock.assert_called_with("nmcli c up uuid2".split())
 
     @patch("wifi_nmcli_test.sp.call", side_effect=Exception("Command failed"))
     @patch("wifi_nmcli_test.get_nm_activate_connection", return_value="")
@@ -145,7 +146,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
     ):
         turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
-        sp_call_mock.assert_called_once_with("nmcli c down uuid1", shell=True)
+        sp_call_mock.assert_called_once_with("nmcli c down uuid1".split())
 
     @patch(
         "wifi_nmcli_test.sp.call", side_effect=Exception("Error turning down")
@@ -159,7 +160,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
     ):
         turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
-        sp_call_mock.assert_called_once_with("nmcli c down uuid1", shell=True)
+        sp_call_mock.assert_called_once_with("nmcli c down uuid1".split())
 
     @patch("wifi_nmcli_test.sp.call")
     @patch(
@@ -175,8 +176,8 @@ class TestTurnDownNmConnections(unittest.TestCase):
         turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
         calls = [
-            call("nmcli c down uuid1", shell=True),
-            call("nmcli c down uuid2", shell=True),
+            call("nmcli c down uuid1".split()),
+            call("nmcli c down uuid2".split()),
         ]
         sp_call_mock.assert_has_calls(calls, any_order=True)
 
@@ -517,6 +518,7 @@ class TestMainFunction(unittest.TestCase):
     @patch("wifi_nmcli_test.turn_up_connection")
     @patch("wifi_nmcli_test.list_aps", return_value={})
     @patch("wifi_nmcli_test.sys.argv", ["wifi_nmcli_test.py", "scan", "wlan0"])
+    @patch("wifi_nmcli_test.device_rescan")
     def test_main_scan_no_aps_found(
         self,
         list_aps_mock,
@@ -524,6 +526,7 @@ class TestMainFunction(unittest.TestCase):
         turn_down_nm_connections_mock,
         get_nm_activate_connection_mock,
         delete_test_ap_ssid_connection_mock,
+        mock_device_rescan,
     ):
         main()
 
@@ -542,6 +545,7 @@ class TestMainFunction(unittest.TestCase):
         },
     )
     @patch("wifi_nmcli_test.sys.argv", ["wifi_nmcli_test.py", "scan", "wlan0"])
+    @patch("wifi_nmcli_test.device_rescan")
     def test_main_scan_aps_found(
         self,
         list_aps_mock,
@@ -549,6 +553,7 @@ class TestMainFunction(unittest.TestCase):
         turn_down_nm_connections_mock,
         get_nm_activate_connection_mock,
         delete_test_ap_ssid_connection_mock,
+        mock_device_rescan,
     ):
         main()
 
@@ -563,6 +568,7 @@ class TestMainFunction(unittest.TestCase):
         "wifi_nmcli_test.sys.argv",
         ["wifi_nmcli_test.py", "open", "wlan0", "TestSSID"],
     )
+    @patch("wifi_nmcli_test.device_rescan")
     def test_main_open_no_aps_found(
         self,
         list_aps_mock,
@@ -570,6 +576,7 @@ class TestMainFunction(unittest.TestCase):
         turn_down_nm_connections_mock,
         get_nm_activate_connection_mock,
         delete_test_ap_ssid_connection_mock,
+        mock_device_rescan,
     ):
         main()
 
@@ -592,6 +599,7 @@ class TestMainFunction(unittest.TestCase):
         ["wifi_nmcli_test.py", "open", "wlan0", "TestSSID"],
     )
     @patch("wifi_nmcli_test.open_connection", return_value=0)
+    @patch("wifi_nmcli_test.device_rescan")
     def test_main_open_aps_found(
         self,
         list_aps_mock,
@@ -600,5 +608,6 @@ class TestMainFunction(unittest.TestCase):
         get_nm_activate_connection_mock,
         delete_test_ap_ssid_connection_mock,
         mock_open_connection,
+        mock_device_rescan,
     ):
         main()

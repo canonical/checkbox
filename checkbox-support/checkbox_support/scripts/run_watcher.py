@@ -9,7 +9,6 @@
 this script monitors the systemd journal to catch insert/removal USB events
 """
 import argparse
-import contextlib
 import logging
 import os
 import pathlib
@@ -19,7 +18,6 @@ import sys
 import time
 from systemd import journal
 from abc import ABC, abstractmethod
-from enum import Enum
 
 from checkbox_support.helpers.timeout import timeout
 from checkbox_support.scripts.zapper_proxy import zapper_run
@@ -175,7 +173,7 @@ class StorageWatcher(StorageInterface):
 
 class USBStorage(StorageWatcher):
     """
-    USBStorage handles the insertion and removal of usb2, usb3 and mediacard.
+    USBStorage handles the insertion and removal of usb2 and usb3.
     """
 
     def __init__(self, *args):
@@ -351,7 +349,7 @@ class ThunderboltStorage(StorageWatcher):
             self._store_storage_info(self.mounted_partition)
             sys.exit()
 
-    def _validate_removal(self, line_str):
+    def _validate_removal(self):
         if self.action == "removal":
             logger.info("Thunderbolt removal test passed.")
 

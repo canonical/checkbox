@@ -26,77 +26,6 @@ class ShellResult:
         self.stderr = stderr
 
 
-def run_command(args: T.List[str]) -> ShellResult:
-    """Wrapper around subprocess.run
-
-    :param args: same args that goes to subprocess.run
-    :type args: T.List[str]
-    :return: return code, stdout and stderr, all non-null
-    :rtype: ShellResult
-    """
-    # PIPE is needed for subprocess.run to capture stdout and stderr (<=3.7 behavior)
-    out = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    return ShellResult(
-        return_code=out.returncode,
-        # if there's nothing on stdout, .stdout is None, so we need a default value
-        stdout=(out.stdout or b"").decode(),
-        stderr=(out.stderr or b"").decode(),
-    )
-    # This could throw on non-UTF8 decodable byte strings, but that should be rare
-    # since utf-8 is backwards compatible with ascii
-
-
-def is_fwts_supported() -> bool:
-    return shutil.which("fwts") is not None
-
-
-def fwts_log_check_passed(
-    output_directory: str, fwts_arguments=["klog", "oops"]
-) -> bool:
-    """Check if fwts logs passes the checks specified in sleep_test_log_check.py.
-    This script live in the same directory
-
-    :param output_directory: where the output of fwts should be redirected to
-    :type output_directory: str
-    :return: whether sleep_test_log_check.py returned 0 (success)
-    :rtype: bool
-    """
-    log_file_path = "{}/fwts_{}.log".format(
-        output_directory, "_".join(fwts_arguments)
-    )
-    run_command(["fwts", "-r", log_file_path, *fwts_arguments])
-    result = run_command(
-        [
-            "sleep_test_log_check.py",
-            "-v",
-            "--ignore-warning",
-            "-t",
-            "all",
-            log_file_path,
-        ]
-    )
-
-    return result.return_code == 0
-
-
-def get_failed_services() -> T.List[str]:
-    """Counts the number of failed services listed in systemctl
-
-    :return: number of failed services
-    """
-    command = [
-        "systemctl",
-        "list-units",
-        "--system",
-        "--no-ask-password",
-        "--no-pager",
-        "--no-legend",
-        "--state=failed",
-    ]  # only print the names of the services that failed
-
-    return run_command(command).stdout.split()
-
-
 class DeviceInfoCollector:
 
     class Device(enum.Enum):
@@ -213,6 +142,77 @@ class DeviceInfoCollector:
             self.Device.USB: self.get_usb_info,
             self.Device.WIRELESS: self.get_wireless_info,
         }
+
+
+def run_command(args: T.List[str]) -> ShellResult:
+    """Wrapper around subprocess.run
+
+    :param args: same args that goes to subprocess.run
+    :type args: T.List[str]
+    :return: return code, stdout and stderr, all non-null
+    :rtype: ShellResult
+    """
+    # PIPE is needed for subprocess.run to capture stdout and stderr (<=3.7 behavior)
+    out = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return ShellResult(
+        return_code=out.returncode,
+        # if there's nothing on stdout, .stdout is None, so we need a default value
+        stdout=(out.stdout or b"").decode(),
+        stderr=(out.stderr or b"").decode(),
+    )
+    # This could throw on non-UTF8 decodable byte strings, but that should be rare
+    # since utf-8 is backwards compatible with ascii
+
+
+def is_fwts_supported() -> bool:
+    return shutil.which("fwts") is not None
+
+
+def fwts_log_check_passed(
+    output_directory: str, fwts_arguments=["klog", "oops"]
+) -> bool:
+    """Check if fwts logs passes the checks specified in sleep_test_log_check.py.
+    This script live in the same directory
+
+    :param output_directory: where the output of fwts should be redirected to
+    :type output_directory: str
+    :return: whether sleep_test_log_check.py returned 0 (success)
+    :rtype: bool
+    """
+    log_file_path = "{}/fwts_{}.log".format(
+        output_directory, "_".join(fwts_arguments)
+    )
+    run_command(["fwts", "-r", log_file_path, *fwts_arguments])
+    result = run_command(
+        [
+            "sleep_test_log_check.py",
+            "-v",
+            "--ignore-warning",
+            "-t",
+            "all",
+            log_file_path,
+        ]
+    )
+
+    return result.return_code == 0
+
+
+def get_failed_services() -> T.List[str]:
+    """Counts the number of failed services listed in systemctl
+
+    :return: number of failed services
+    """
+    command = [
+        "systemctl",
+        "list-units",
+        "--system",
+        "--no-ask-password",
+        "--no-pager",
+        "--no-legend",
+        "--state=failed",
+    ]  # only print the names of the services that failed
+
+    return run_command(command).stdout.split()
 
 
 def create_parser():

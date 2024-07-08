@@ -11,14 +11,9 @@ def do_nothing_run_cmd(_: T.List[str]):
     return RCT.ShellResult(0, "", "")
 
 
-class RebootCheckTestTests(unittest.TestCase):
-
-    @classmethod
-    def setUpClass(cls):
-        cls.temp_directory = "{}/temporary_dump_directory".format(os.getcwd())
-
+class UnitySupportParserTests(unittest.TestCase):
     def test_parse_ok_unity_support_string(self):
-        OK_UNITY_STRING = """
+        OK_UNITY_STRING = """\
         OpenGL vendor string:   Intel
         OpenGL renderer string: Mesa Intel(R) UHD Graphics (ICL GT1)
         OpenGL version string:  4.6 (Compatibility Profile) Mesa 23.2.1-1ubuntu3.1~22.04.2
@@ -76,39 +71,8 @@ class RebootCheckTestTests(unittest.TestCase):
         # should return empty dict if input string literally doesn't make sense
         self.assertEqual(RCT.parse_unity_support_output(ARBITRARY_STRING), {})
 
-    @patch("reboot_check_test.run_command")
-    def test_info_dump_only_happy_path(self, mock_run: MagicMock):
-        # manually override the return value based on arguments
-        def mock_run_command(args: T.List[str]) -> RCT.ShellResult:
-            stdout = ""
-            if args[0] == "iw":
-                stdout = """\
-                addr some address
-                Interface some interface
-                ssid some ssid
-                """
-            elif args[0] == "checkbox-support-lsusb":
-                stdout = """\
-                usb1
-                usb2
-                usb3
-                """
-            elif args[0] == "lspci":
-                stdout = """\
-                pci1
-                pci2
-                pci3
-                """
-            else:
-                raise Exception("Unexpected use of this mock")
 
-            return RCT.ShellResult(0, stdout, "")
-
-        # wrap over run_command's return value
-        mock_run.side_effect = mock_run_command
-
-        RCT.DeviceInfoCollector().dump(self.temp_directory)
-
+class DisplayConnectionTests(unittest.TestCase):
     def test_display_check_happy_path(self):
         with patch("os.listdir", return_value=["card0", "card1"]), patch(
             "builtins.open",
@@ -131,7 +95,111 @@ class RebootCheckTestTests(unittest.TestCase):
         self.assertTrue(RCT.is_hardware_renderer_available())
 
     @patch("reboot_check_test.run_command")
-    def test_main_function_logic(self, mock_run: MagicMock):
+    def test_get_display_id(self, mock_run: MagicMock):
+        with patch.dict(os.environ, {"DISPLAY": ":0"}):
+            self.assertEqual(RCT.get_display_id(), ":0")
+
+        def create_side_effect(
+            display_server_name: 'T.Literal["wayland", "x11", "tty"]',
+        ):
+            def side_effect(args: T.List[str]):
+                stdout = ""
+                if args[0] == "loginctl":
+                    stdout = "Type={}".format(display_server_name)
+                if args[0] == "pgrep":
+                    stdout = "75632 /usr/bin/Xwayland :0 -rootless -noreset -accessx -core -auth /run/user/1000/.mutter-Xwaylandauth.FFE5P2"
+                if args[0] == "w":
+                    stdout = "ubuntu :0 :0 13:43 13:55m  0.01s  0.00s /usr/libexec/gdm-wayland-session en"
+
+                return RCT.ShellResult(0, stdout, "")
+
+            return side_effect
+
+        with patch.dict(os.environ, {"DISPLAY": ""}):
+            mock_run.side_effect = create_side_effect("wayland")
+            self.assertEqual(RCT.get_display_id(), ":0")
+
+            mock_run.reset_mock()
+            mock_run.side_effect = create_side_effect("x11")
+            self.assertEqual(RCT.get_display_id(), ":0")
+
+
+class InfoDumpTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.temp_output_dir = "{}/temp_output_dir".format(os.getcwd())
+        cls.temp_comparison_dir = "{}/temp_comparison_dir".format(os.getcwd())
+
+    def mock_run_command(self, args: T.List[str]) -> RCT.ShellResult:
+        stdout = ""
+        if args[0] == "iw":
+            stdout = """\
+                addr some address
+                Interface some interface
+                ssid some ssid
+                """
+        elif args[0] == "checkbox-support-lsusb":
+            stdout = """\
+                usb1
+                usb2
+                usb3
+                """
+        elif args[0] == "lspci":
+            stdout = """\
+                pci1
+                pci2
+                pci3
+                """
+        else:
+            raise Exception("Unexpected use of this mock")
+
+        return RCT.ShellResult(0, stdout, "")
+
+    @patch("reboot_check_test.run_command")
+    def test_info_dump_only_happy_path(self, mock_run: MagicMock):
+        # wrap over run_command's return value
+        mock_run.side_effect = self.mock_run_command
+        RCT.DeviceInfoCollector().dump(self.temp_output_dir)
+
+    @patch("reboot_check_test.run_command")
+    def test_info_dump_and_comparison_happy_path(self, mock_run: MagicMock):
+        mock_run.side_effect = self.mock_run_command
+
+        collector = RCT.DeviceInfoCollector()
+
+        collector.dump(self.temp_comparison_dir)
+        collector.dump(self.temp_output_dir)
+
+        self.assertTrue(
+            collector.compare_device_lists(
+                self.temp_comparison_dir, self.temp_output_dir
+            )
+        )
+
+        with open(
+            "{}/wireless_log".format(self.temp_comparison_dir), "a"
+        ) as f:
+            f.write("extra text that shouldn't be there")
+
+        self.assertFalse(
+            collector.compare_device_lists(
+                self.temp_comparison_dir, self.temp_output_dir
+            )
+        )
+
+    @classmethod
+    def tearDownClass(cls):
+        shutil.rmtree(cls.temp_output_dir)
+        shutil.rmtree(cls.temp_comparison_dir)
+
+
+class MainFunctionTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.temp_directory = "{}/temporary_dump_directory".format(os.getcwd())
+
+    @patch("reboot_check_test.run_command")
+    def test_partial_main(self, mock_run: MagicMock):
         # this test only validates the main function logic(if it picks out the correct tests to run)
         mock_run.side_effect = do_nothing_run_cmd
 
@@ -156,12 +224,16 @@ class RebootCheckTestTests(unittest.TestCase):
             "reboot_check_test.DeviceInfoCollector.compare_device_lists"
         ) as mock_compare:
             RCT.main()
-            print(mock_run.call_count, mock_run.call_args_list)
-            print(mock_compare.call_count, mock_compare.call_args_list)
+            # print(mock_run.call_count, mock_run.call_args_list)
+            # print(mock_compare.call_count, mock_compare.call_args_list)
 
+    @patch("reboot_check_test.get_display_id")
     @patch("reboot_check_test.run_command")
-    def test_main_function_full(self, mock_run: MagicMock):
+    def test_main_function_full(
+        self, mock_run: MagicMock, mock_get_display_id: MagicMock
+    ):
         mock_run.side_effect = do_nothing_run_cmd
+        mock_get_display_id.return_value = ":0"
         # Full suite
         with patch(
             "sys.argv",
@@ -175,8 +247,9 @@ class RebootCheckTestTests(unittest.TestCase):
         ) as mock_compare, patch(
             "reboot_check_test.is_fwts_supported"
         ) as mock_fwts_support_check:
-            mock_fwts_support_check.side_effect = lambda: True
+            mock_fwts_support_check.return_value = True
             RCT.main()
+
             self.assertTrue(mock_compare.called)
             self.assertTrue(mock_fwts_support_check.called)
 
@@ -187,17 +260,14 @@ class RebootCheckTestTests(unittest.TestCase):
 
             actual = set()
             for call in mock_run.call_args_list:
-                # it's really ugly, but [0] takes the 1st from (command, args, kwargs),
+                # [0] takes the 1st from (args, kwargs, ) = call,
                 # then take tha actual list from args
                 # then take the 1st element, which is the command name
                 actual.add(call[0][0][0])
 
-            # value doesn't matter, we just want to compare the keys
-            self.assertDictContainsSubset(
-                dict.fromkeys(expected_commands), dict.fromkeys(actual)
-            )
+            # <= is an overloaded operator for sets that checks the isSubset relation
+            self.assertLessEqual(expected_commands, actual)
 
-    
     @classmethod
     def tearDownClass(cls):
-        shutil.rmtree("{}/temporary_dump_directory".format(os.getcwd()))
+        shutil.rmtree(cls.temp_directory)

@@ -48,7 +48,7 @@ class WifiNmcliBackupTests(unittest.TestCase):
         mock_print.assert_called_once_with(
             "No stored 802.11 connections to save"
         )
-        mock_makedirs.assert_called_once()
+        self.assertEqual(mock_makedirs.call_count, 1)
 
     @patch("wifi_nmcli_backup.os.makedirs")
     @patch("wifi_nmcli_backup.os.path.exists", return_value=True)
@@ -75,7 +75,7 @@ class WifiNmcliBackupTests(unittest.TestCase):
             for f in keyfile_list
         ]
         mock_print.assert_has_calls(expected_calls, any_order=True)
-        mock_makedirs.assert_called_once()
+        self.assertEqual(mock_makedirs.call_count, 1)
 
     @patch(
         "wifi_nmcli_backup.shutil.copy",
@@ -92,7 +92,7 @@ class WifiNmcliBackupTests(unittest.TestCase):
     ):
         keyfile_list = ["/etc/NetworkManager/system-connections/connection1"]
         save_connections(keyfile_list)
-        mock_makedirs.assert_called_once()
+        self.assertEqual(mock_makedirs.call_count, 2)
         mock_copy.assert_called_once_with(
             "/etc/NetworkManager/system-connections/connection1", ANY
         )

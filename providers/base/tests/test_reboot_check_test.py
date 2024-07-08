@@ -130,6 +130,10 @@ class InfoDumpTests(unittest.TestCase):
         cls.temp_output_dir = "{}/temp_output_dir".format(os.getcwd())
         cls.temp_comparison_dir = "{}/temp_comparison_dir".format(os.getcwd())
 
+    def tearDown(self):
+        shutil.rmtree(self.temp_output_dir, ignore_errors=True)
+        shutil.rmtree(self.temp_comparison_dir, ignore_errors=True)
+
     def mock_run_command(self, args: T.List[str]) -> RCT.ShellResult:
         stdout = ""
         if args[0] == "iw":
@@ -176,8 +180,13 @@ class InfoDumpTests(unittest.TestCase):
             )
         )
 
+        # required
         with open(
-            "{}/wireless_log".format(self.temp_comparison_dir), "a"
+            "{}/{}_log".format(
+                self.temp_comparison_dir,
+                RCT.DeviceInfoCollector.Device.WIRELESS.value,
+            ),
+            "w",
         ) as f:
             f.write("extra text that shouldn't be there")
 
@@ -186,11 +195,23 @@ class InfoDumpTests(unittest.TestCase):
                 self.temp_comparison_dir, self.temp_output_dir
             )
         )
+    
+        collector.dump(self.temp_comparison_dir)
 
-    @classmethod
-    def tearDownClass(cls):
-        shutil.rmtree(cls.temp_output_dir)
-        shutil.rmtree(cls.temp_comparison_dir)
+        # optional
+        with open(
+            "{}/{}_log".format(
+                self.temp_comparison_dir, RCT.DeviceInfoCollector.Device.DRM.value
+            ),
+            "w",
+        ) as f:
+            f.write("extra text that shouldn't be there")
+
+        self.assertTrue(
+            collector.compare_device_lists(
+                self.temp_comparison_dir, self.temp_output_dir
+            )
+        )
 
 
 class MainFunctionTests(unittest.TestCase):
@@ -213,6 +234,8 @@ class MainFunctionTests(unittest.TestCase):
                 len(RCT.DeviceInfoCollector.DEFAULT_DEVICES["required"]),
             )
 
+        mock_run.reset_mock()
+
         with patch(
             "sys.argv",
             sh_split(
@@ -224,8 +247,12 @@ class MainFunctionTests(unittest.TestCase):
             "reboot_check_test.DeviceInfoCollector.compare_device_lists"
         ) as mock_compare:
             RCT.main()
-            # print(mock_run.call_count, mock_run.call_args_list)
-            # print(mock_compare.call_count, mock_compare.call_args_list)
+
+            self.assertEqual(
+                mock_run.call_count,
+                len(RCT.DeviceInfoCollector.DEFAULT_DEVICES["required"]),
+            )  # only lspci, lsusb, iw calls
+            self.assertEqual(mock_compare.call_count, 1)
 
     @patch("reboot_check_test.get_display_id")
     @patch("reboot_check_test.run_command")

@@ -18,7 +18,9 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from unittest.mock import patch, call, MagicMock
+from unittest.mock import patch, call, MagicMock, mock_open
+
+import pathlib
 
 from checkbox_support.scripts.run_watcher import (
     StorageWatcher,
@@ -31,14 +33,152 @@ from checkbox_support.scripts.run_watcher import (
 
 class TestRunWatcher(unittest.TestCase):
 
-    def test_process_lines(self):
-        mock_storage_watcher = MagicMock()
-        mock_storage_watcher.callback = MagicMock()
+    # class StorageWatcher(StorageInterface):
+    #     """
+    #     StorageWatcher watches the journal message and triggers the callback
+    #     function to detect the insertion and removal of storage.
+    #     """
+
+    #     def __init__(self, testcase, storage_type, zapper_usb_address):
+    #         self.testcase = testcase
+    #         self.storage_type = storage_type
+    #         self.zapper_usb_address = zapper_usb_address
+
+    #     def run(self):
+    #         j = journal.Reader()
+    #         j.seek_realtime(time.time())
+    #         p = select.poll()
+    #         p.register(j, j.get_events())
+    #         if self.zapper_usb_address:
+    #             zapper_host = os.environ.get("ZAPPER_ADDRESS")
+    #             if not zapper_host:
+    #                 raise SystemExit(
+    #                     "ZAPPER_ADDRESS environment variable not found!"
+    #                 )
+    #             usb_address = self.zapper_usb_address
+    #             if self.testcase == "insertion":
+    #                 print("Calling zapper to connect the USB device")
+    #                 zapper_run(
+    #                     zapper_host, "typecmux_set_state", usb_address, "DUT"
+    #                 )
+    #             elif self.testcase == "removal":
+    #                 print("Calling zapper to disconnect the USB device")
+    #                 zapper_run(
+    #                     zapper_host, "typecmux_set_state", usb_address, "OFF"
+    #                 )
+    #         else:
+    #             if self.testcase == "insertion":
+    #                 print("\n\nINSERT NOW\n\n", flush=True)
+    #             elif self.testcase == "removal":
+    #                 print("\n\nREMOVE NOW\n\n", flush=True)
+    #             else:
+    #                 raise SystemExit("Invalid test case")
+    #             print("Timeout: {} seconds".format(ACTION_TIMEOUT), flush=True)
+    #         while p.poll():
+    #             if j.process() != journal.APPEND:
+    #                 continue
+    #             self._process_lines(
+    #                 [e["MESSAGE"] for e in j if e and "MESSAGE" in e]
+    #             )
+
+    #     def _process_lines(self, lines):
+    #         """
+    #         Process the lines from the journal and call the callback function to
+    #         validate the insertion or removal of the storage.
+    #         """
+    #         for line in lines:
+    #             line_str = str(line)
+    #             logger.debug(line_str)
+    #             if self.testcase == "insertion":
+    #                 self._parse_journal_line(line_str)
+    #                 self._validate_insertion()
+    #             elif self.testcase == "removal":
+    #                 self._parse_journal_line(line_str)
+    #                 self._validate_removal()
+
+    #     def _store_storage_info(self, mounted_partition=""):
+    #         """
+    #         Store the mounted partition info to the shared directory.
+    #         """
+
+    #         plainbox_session_share = os.environ.get("PLAINBOX_SESSION_SHARE")
+    #         # TODO: Should name the file by the value of storage_type variable as
+    #         #       prefix. e.g. thunderbolt_insert_info, mediacard_insert_info.
+    #         #       Since usb_insert_info is used by usb_read_write script, we
+    #         #       should refactor usb_read_write script to adopt different files
+    #         file_name = "usb_insert_info"
+
+    #         if not plainbox_session_share:
+    #             logger.error("no env var PLAINBOX_SESSION_SHARE")
+    #             sys.exit(1)
+
+    #         # backup the storage partition info
+    #         if mounted_partition:
+    #             logger.info(
+    #                 "cache file {} is at: {}".format(
+    #                     file_name, plainbox_session_share
+    #                 )
+    #             )
+    #             file_path = pathlib.Path(plainbox_session_share, file_name)
+    #             with open(file_path, "w") as file_to_share:
+    #                 file_to_share.write(mounted_partition + "\n")
+
+    #     def _remove_storage_info(self):
+    #         """Remove the file containing the storage info from the shared
+    #         directory.
+    #         """
+
+    #         plainbox_session_share = os.environ.get("PLAINBOX_SESSION_SHARE")
+    #         file_name = "usb_insert_info"
+
+    #         if not plainbox_session_share:
+    #             logger.error("no env var PLAINBOX_SESSION_SHARE")
+    #             sys.exit(1)
+
+    #         file_path = pathlib.Path(plainbox_session_share, file_name)
+    #         if pathlib.Path(file_path).exists():
+    #             os.remove(file_path)
+    #             logger.info("cache file {} removed".format(file_name))
+    #         else:
+    #             logger.error("cache file {} not found".format(file_name))
+
+    def test_storage_watcher_process_lines(self):
         lines = ["line1", "line2", "line3"]
-        StorageWatcher._process_lines(mock_storage_watcher, lines)
-        mock_storage_watcher.callback.assert_has_calls(
+
+        mock_insertion_watcher = MagicMock()
+        mock_insertion_watcher._parse_journal_line = MagicMock()
+        mock_insertion_watcher.testcase = "insertion"
+        StorageWatcher._process_lines(mock_insertion_watcher, lines)
+        mock_insertion_watcher._parse_journal_line.assert_has_calls(
             [call("line1"), call("line2"), call("line3")]
         )
+        mock_insertion_watcher._validate_insertion.assert_called()
+
+        mock_removal_watcher = MagicMock()
+        mock_removal_watcher._parse_journal_line = MagicMock()
+        mock_removal_watcher.testcase = "removal"
+        StorageWatcher._process_lines(mock_removal_watcher, lines)
+        mock_removal_watcher._parse_journal_line.assert_has_calls(
+            [call("line1"), call("line2"), call("line3")]
+        )
+        mock_insertion_watcher._validate_insertion.assert_called()
+
+    @patch("os.environ.get")
+    def test_storage_watcher_store_storage_info(self, mock_get):
+        mock_storage_watcher = MagicMock()
+        mock_get.return_value = "/tmp"
+
+        mock_storage_watcher.storage_type = "usb2"
+        mounted_partition = "sda1"
+
+        m = mock_open()
+        with patch("builtins.open", m):
+            StorageWatcher._store_storage_info(
+                mock_storage_watcher, mounted_partition
+            )
+
+        m.assert_called_with(pathlib.Path("/tmp", "usb_insert_info"), "w")
+        m().write.assert_called_with("sda1\n")
 
     def test_usb_storage_init(self):
         usb_storage = USBStorage("insertion", "usb2", "zapper_addr")
@@ -51,15 +191,7 @@ class TestRunWatcher(unittest.TestCase):
         self.assertIsNone(usb_storage.driver)
         self.assertIsNone(usb_storage.action)
 
-    def test_usb_storage_callback(self):
-        mock_usb_storage = MagicMock()
-        line_str = "line_str"
-        USBStorage.callback(mock_usb_storage, line_str)
-        mock_usb_storage._refresh_detection.assert_called_with(line_str)
-        mock_usb_storage._get_partition_info.assert_called_with(line_str)
-        mock_usb_storage._report_detection.assert_called_with()
-
-    def test_usb2_storage_report_insertion(self):
+    def test_usb2_storage_validate_insertion(self):
         mock_usb_storage = MagicMock()
         mock_usb_storage.storage_type = "usb2"
         mock_usb_storage.device = "high_speed_usb"
@@ -67,10 +199,10 @@ class TestRunWatcher(unittest.TestCase):
         mock_usb_storage.action = "insertion"
         mock_usb_storage.driver = "ehci_hcd"
         with self.assertRaises(SystemExit) as cm:
-            USBStorage.report_insertion(mock_usb_storage)
+            USBStorage._validate_insertion(mock_usb_storage)
         self.assertEqual(cm.exception.code, None)
 
-    def test_usb3_storage_report_insertion(self):
+    def test_usb3_storage_validate_insertion(self):
         mock_usb_storage = MagicMock()
         mock_usb_storage.storage_type = "usb3"
         mock_usb_storage.device = "super_speed_usb"
@@ -78,10 +210,10 @@ class TestRunWatcher(unittest.TestCase):
         mock_usb_storage.action = "insertion"
         mock_usb_storage.driver = "xhci_hcd"
         with self.assertRaises(SystemExit) as cm:
-            USBStorage.report_insertion(mock_usb_storage)
+            USBStorage._validate_insertion(mock_usb_storage)
         self.assertEqual(cm.exception.code, None)
 
-    def test_usb_storage_report_insertion_wrong_usb_type(self):
+    def test_usb_storage_validate_insertion_wrong_usb_type(self):
         mock_usb_storage = MagicMock()
         mock_usb_storage.storage_type = "usb2"
         mock_usb_storage.device = "super_speed_usb"
@@ -89,43 +221,61 @@ class TestRunWatcher(unittest.TestCase):
         mock_usb_storage.action = "insertion"
         mock_usb_storage.driver = "ehci_hcd"
         with self.assertRaises(SystemExit) as cm:
-            USBStorage.report_insertion(mock_usb_storage)
+            USBStorage._validate_insertion(mock_usb_storage)
         cm.exception.args[0] == "Wrong USB type detected."
 
-    def test_usb_storage_report_removal(self):
+    def test_usb_storage_validate_removal(self):
         mock_usb_storage = MagicMock()
         mock_usb_storage.action = "removal"
         with self.assertRaises(SystemExit) as cm:
-            USBStorage.report_removal(mock_usb_storage)
+            USBStorage._validate_removal(mock_usb_storage)
         self.assertEqual(cm.exception.code, None)
 
-    def test_usb_storage_get_partition_info(self):
+    def test_usb_storage_no_insertion(self):
         mock_usb_storage = MagicMock()
-        line_str = "sdb: sdb1"
-        USBStorage._get_partition_info(mock_usb_storage, line_str)
-        self.assertEqual(mock_usb_storage.mounted_partition, "sdb1")
+        mock_usb_storage.mounted_partition = None
+        mock_usb_storage.action = ""
+        USBStorage._validate_insertion(mock_usb_storage)
 
-    def test_usb_storage_refresh_detection(self):
+    def test_usb_storage_no_removal(self):
         mock_usb_storage = MagicMock()
-        line_str = "new high-speed USB device number 2 using ehci_hcd"
-        USBStorage._refresh_detection(mock_usb_storage, line_str)
-        self.assertEqual(mock_usb_storage.driver, "ehci_hcd")
+        mock_usb_storage.action = ""
+        USBStorage._validate_removal(mock_usb_storage)
+
+    def test_usb_storage_parse_journal_line(self):
+        mock_usb_storage = MagicMock()
+
+        line_str = "new high-speed USB device"
+        USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.device, "high_speed_usb")
+
+        line_str = "new SuperSpeed USB device"
+        USBStorage._parse_journal_line(mock_usb_storage, line_str)
+        self.assertEqual(mock_usb_storage.device, "super_speed_usb")
+
+        line_str = "new SuperSpeed Gen 1 USB device"
+        USBStorage._parse_journal_line(mock_usb_storage, line_str)
+        self.assertEqual(mock_usb_storage.device, "super_speed_gen1_usb")
+
+        line_str = "new high-speed USB device number 1 using ehci_hcd"
+        USBStorage._parse_journal_line(mock_usb_storage, line_str)
+        self.assertEqual(mock_usb_storage.driver, "ehci_hcd")
+
+        line_str = "new high-speed USB device number 4 using xhci_hcd"
+        USBStorage._parse_journal_line(mock_usb_storage, line_str)
+        self.assertEqual(mock_usb_storage.driver, "xhci_hcd")
+
         line_str = "USB Mass Storage device detected"
-        USBStorage._refresh_detection(mock_usb_storage, line_str)
+        USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.action, "insertion")
 
-    def test_usb_storage_report_detection_insertion(self):
-        mock_usb_storage = MagicMock()
-        mock_usb_storage.testcase = "insertion"
-        USBStorage._report_detection(mock_usb_storage)
-        mock_usb_storage.report_insertion.assert_any_call()
+        line_str = "USB disconnect, device"
+        USBStorage._parse_journal_line(mock_usb_storage, line_str)
+        self.assertEqual(mock_usb_storage.action, "removal")
 
-    def test_usb_storage_report_detection_removal(self):
-        mock_usb_storage = MagicMock()
-        mock_usb_storage.testcase = "removal"
-        USBStorage._report_detection(mock_usb_storage)
-        mock_usb_storage.report_removal.assert_any_call()
+        line_str = "sdb: sdb1"
+        USBStorage._parse_journal_line(mock_usb_storage, line_str)
+        self.assertEqual(mock_usb_storage.mounted_partition, "sdb1")
 
     def test_mediacard_storage_init(self):
         mediacard_storage = MediacardStorage(
@@ -136,53 +286,101 @@ class TestRunWatcher(unittest.TestCase):
         self.assertEqual(mediacard_storage.zapper_usb_address, "zapper_addr")
         self.assertIsNone(mediacard_storage.mounted_partition)
 
-    def test_mediacard_storage_callback_insertion(self):
+    def test_mediacard_storage_validate_insertion(self):
         mock_mediacard_storage = MagicMock()
-        line_str = "line_str"
-        mock_mediacard_storage.testcase = "insertion"
-        MediacardStorage.callback(mock_mediacard_storage, line_str)
-        mock_mediacard_storage._get_partition_info.assert_called_with(line_str)
-        mock_mediacard_storage.report_insertion.assert_any_call()
+        mock_mediacard_storage.mounted_partition = "mmcblk0p1"
+        mock_mediacard_storage.action = "insertion"
+        mock_mediacard_storage.device = "SD"
+        mock_mediacard_storage.address = "123456"
+        with self.assertRaises(SystemExit) as cm:
+            MediacardStorage._validate_insertion(mock_mediacard_storage)
+        self.assertEqual(cm.exception.code, None)
 
-    def test_mediacard_storage_callback_removal(self):
+    def test_mediacard_storage_validate_removal(self):
         mock_mediacard_storage = MagicMock()
-        line_str = "line_str"
-        mock_mediacard_storage.testcase = "removal"
-        MediacardStorage.callback(mock_mediacard_storage, line_str)
-        mock_mediacard_storage.report_removal.assert_called_with(line_str)
-
-    def test_mediacard_storage_report_insertion(self):
-        mock_mediacard_storage = MagicMock()
-        mock_mediacard_storage.mounted_partition = "mounted_partition"
-        with self.assertRaises(SystemExit):
-            MediacardStorage.report_insertion(mock_mediacard_storage)
+        mock_mediacard_storage.action = "removal"
+        with self.assertRaises(SystemExit) as cm:
+            MediacardStorage._validate_removal(mock_mediacard_storage)
+        self.assertEqual(cm.exception.code, None)
 
     def test_mediacard_storage_no_insertion(self):
         mock_mediacard_storage = MagicMock()
         mock_mediacard_storage.mounted_partition = None
-        MediacardStorage.report_insertion(mock_mediacard_storage)
-
-    def test_mediacard_storage_report_removal(self):
-        mock_mediacard_storage = MagicMock()
-        line_str = "card 12 removed"
-        with self.assertRaises(SystemExit) as cm:
-            MediacardStorage.report_removal(mock_mediacard_storage, line_str)
-        self.assertEqual(cm.exception.code, None)
+        mock_mediacard_storage.action = ""
+        MediacardStorage._validate_insertion(mock_mediacard_storage)
 
     def test_mediacard_storage_no_removal(self):
         mock_mediacard_storage = MagicMock()
-        line_str = ""
-        MediacardStorage.report_removal(mock_mediacard_storage, line_str)
+        mock_mediacard_storage.action = ""
+        MediacardStorage._validate_removal(mock_mediacard_storage)
 
-    def test_mediacard_storage_get_partition_info(self):
+    def test_mediacard_storage_parse_journal_line(self):
         mock_mediacard_storage = MagicMock()
-        mock_mediacard_storage.storage_type = "mediacard"
+
         line_str = "mmcblk0: p1"
-        MediacardStorage._get_partition_info(mock_mediacard_storage, line_str)
+        MediacardStorage._parse_journal_line(mock_mediacard_storage, line_str)
         self.assertEqual(mock_mediacard_storage.mounted_partition, "mmcblk0p1")
-        mock_mediacard_storage._store_storage_info.assert_called_with(
-            "mmcblk0p1"
-        )
+
+        line_str = "new SD card at address 123456"
+        MediacardStorage._parse_journal_line(mock_mediacard_storage, line_str)
+        self.assertEqual(mock_mediacard_storage.action, "insertion")
+        self.assertEqual(mock_mediacard_storage.device, "SD")
+        self.assertEqual(mock_mediacard_storage.address, "123456")
+
+        line_str = "card 123456 removed"
+        MediacardStorage._parse_journal_line(mock_mediacard_storage, line_str)
+        self.assertEqual(mock_mediacard_storage.action, "removal")
+
+    # class ThunderboltStorage(StorageWatcher):
+    #     """
+    #     ThunderboltStorage handles the insertion and removal of thunderbolt
+    #     storage.
+    #     """
+
+    #     def __init__(self, *args):
+    #         super().__init__(*args)
+    #         self.mounted_partition = None
+    #         self.action = None
+
+    #     def _validate_insertion(self):
+    #         # The insertion will be valid if the insertion action is detected and
+    #         # the mounted partition is found.
+    #         if self.action == "insertion" and self.mounted_partition:
+    #             logger.info("usable partition: {}".format(self.mounted_partition))
+    #             logger.info("Thunderbolt insertion test passed.")
+
+    #             # backup the storage info
+    #             self._store_storage_info(self.mounted_partition)
+    #             sys.exit()
+
+    #     def _validate_removal(self, line_str):
+    #         if self.action == "removal":
+    #             logger.info("Thunderbolt removal test passed.")
+
+    #             # remove the storage info
+    #             self._remove_storage_info()
+    #             sys.exit()
+
+    #     def _parse_journal_line(self, line_str):
+
+    #         # Extract the partition name. Looking for string like "nvme0n1: p1"
+    #         part_re = re.compile("(?P<dev_num>nvme\w+): (?P<part_name>p\d+)")
+    #         match = re.search(part_re, line_str)
+    #         if match:
+    #             self.mounted_partition = "{}{}".format(
+    #                 match.group("dev_num"), match.group("part_name")
+    #             )
+
+    #         # Prefix of the thunderbolt device for regex matching
+    #         RE_PREFIX = "thunderbolt \d+-\d+:"
+
+    #         insertion_re = re.compile("{} new device found".format(RE_PREFIX))
+    #         if re.search(insertion_re, line_str):
+    #             self.action = "insertion"
+
+    #         removal_re = re.compile("{} device disconnected".format(RE_PREFIX))
+    #         if re.search(removal_re, line_str):
+    #             self.action = "removal"
 
     def test_thunderbolt_storage_init(self):
         thunderbolt_storage = ThunderboltStorage(
@@ -191,27 +389,34 @@ class TestRunWatcher(unittest.TestCase):
         self.assertEqual(thunderbolt_storage.testcase, "insertion")
         self.assertEqual(thunderbolt_storage.storage_type, "thunderbolt")
         self.assertEqual(thunderbolt_storage.zapper_usb_address, "zapper_addr")
-        self.assertEqual(thunderbolt_storage.find_insertion_string, 0)
-        self.assertEqual(thunderbolt_storage.find_partition, 0)
+        self.assertIsNone(thunderbolt_storage.mounted_partition)
+        self.assertIsNone(thunderbolt_storage.action)
 
-    def test_thunderbolt_storage_report_insertion(self):
+    def test_thunderbolt_storage_validate_insertion(self):
         mock_thunderbolt_storage = MagicMock()
-        mock_thunderbolt_storage.RE_PREFIX = "thunderbolt \d+-\d+:"
-        mock_thunderbolt_storage.testcase = "insertion"
-        line_str = "thunderbolt 1-1: new device found"
-        ThunderboltStorage.report_insertion(mock_thunderbolt_storage, line_str)
-        self.assertEqual(mock_thunderbolt_storage.find_insertion_string, 1)
-
-    def test_thunderbolt_storage_report_removal(self):
-        mock_thunderbolt_storage = MagicMock()
-        mock_thunderbolt_storage.RE_PREFIX = "thunderbolt \d+-\d+:"
-        mock_thunderbolt_storage.testcase = "removal"
-        line_str = "thunderbolt 1-1: device disconnected"
+        mock_thunderbolt_storage.mounted_partition = "nvme0n1p1"
+        mock_thunderbolt_storage.action = "insertion"
         with self.assertRaises(SystemExit) as cm:
-            ThunderboltStorage.report_removal(
-                mock_thunderbolt_storage, line_str
-            )
+            ThunderboltStorage._validate_insertion(mock_thunderbolt_storage)
         self.assertEqual(cm.exception.code, None)
+
+    def test_thunderbolt_storage_validate_removal(self):
+        mock_thunderbolt_storage = MagicMock()
+        mock_thunderbolt_storage.action = "removal"
+        with self.assertRaises(SystemExit) as cm:
+            ThunderboltStorage._validate_removal(mock_thunderbolt_storage)
+        self.assertEqual(cm.exception.code, None)
+
+    def test_thunderbolt_storage_no_insertion(self):
+        mock_thunderbolt_storage = MagicMock()
+        mock_thunderbolt_storage.mounted_partition = None
+        mock_thunderbolt_storage.action = ""
+        ThunderboltStorage._validate_insertion(mock_thunderbolt_storage)
+
+    def test_thunderbolt_storage_no_removal(self):
+        mock_thunderbolt_storage = MagicMock()
+        mock_thunderbolt_storage.action = ""
+        ThunderboltStorage._validate_removal(mock_thunderbolt_storage)
 
     @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
     def test_main_usb(self, mock_usb_storage):

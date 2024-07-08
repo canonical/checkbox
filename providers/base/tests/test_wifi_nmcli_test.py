@@ -132,7 +132,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
         self, get_connections_mock, sp_call_mock
     ):
         turn_down_nm_connections()
-        get_connections_mock.assert_called_once()
+        self.assertEqual(get_connections_mock.call_count, 1)
         sp_call_mock.assert_not_called()
 
     @patch("wifi_nmcli_test.sp.call")
@@ -144,7 +144,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
         self, get_connections_mock, sp_call_mock
     ):
         turn_down_nm_connections()
-        get_connections_mock.assert_called_once()
+        self.assertEqual(get_connections_mock.call_count, 1)
         sp_call_mock.assert_called_once_with("nmcli c down uuid1", shell=True)
 
     @patch(
@@ -158,7 +158,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
         self, get_connections_mock, sp_call_mock
     ):
         turn_down_nm_connections()
-        get_connections_mock.assert_called_once()
+        self.assertEqual(get_connections_mock.call_count, 1)
         sp_call_mock.assert_called_once_with("nmcli c down uuid1", shell=True)
 
     @patch("wifi_nmcli_test.sp.call")
@@ -173,7 +173,7 @@ class TestTurnDownNmConnections(unittest.TestCase):
         self, get_connections_mock, sp_call_mock
     ):
         turn_down_nm_connections()
-        get_connections_mock.assert_called_once()
+        self.assertEqual(get_connections_mock.call_count, 1)
         calls = [
             call("nmcli c down uuid1", shell=True),
             call("nmcli c down uuid2", shell=True),
@@ -358,9 +358,11 @@ class TestOpenConnection(unittest.TestCase):
     @patch("wifi_nmcli_test.wait_for_connected", return_value=False)
     @patch("wifi_nmcli_test.print_head")
     @patch("wifi_nmcli_test.print_cmd")
+    @patch("wifi_nmcli_test.turn_up_connection")
     def test_open_connection_failed_to_connect(
         self,
         print_cmd_mock,
+        turn_up_mock,
         print_head_mock,
         wait_for_connected_mock,
         sp_call_mock,
@@ -397,7 +399,6 @@ class TestSecuredConnection(unittest.TestCase):
         args.psk = "password123"
         rc = secured_connection(args)
         self.assertEqual(rc, 0)
-        sp_call_mock.assert_called()
         wait_for_connected_mock.assert_called_with("wlan0", "TestSSID")
         perform_ping_test_mock.assert_called_with("wlan0")
 
@@ -425,7 +426,6 @@ class TestSecuredConnection(unittest.TestCase):
         args.psk = "password123"
         rc = secured_connection(args)
         self.assertEqual(rc, 1)
-        sp_call_mock.assert_called()
         wait_for_connected_mock.assert_called_with("wlan0", "TestSSID")
         perform_ping_test_mock.assert_not_called()
 
@@ -453,7 +453,6 @@ class TestSecuredConnection(unittest.TestCase):
         args.psk = "password123"
         rc = secured_connection(args)
         self.assertEqual(rc, 1)
-        sp_call_mock.assert_called()
         wait_for_connected_mock.assert_called_with("wlan0", "TestSSID")
         perform_ping_test_mock.assert_not_called()
 

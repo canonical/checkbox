@@ -37,8 +37,8 @@ _name: Automated wwan tests (after suspend)
 _description: Automated wwan tests for Snappy Ubuntu Core devices
 include:
     after-suspend-wwan/detect
-    after-suspend-wwan/check-sim-present-.*-auto
-    after-suspend-wwan/3gpp-scan-.*-auto
+    after-suspend-wwan/check-sim-present-manufacturer-model-hw_id-auto
+    after-suspend-wwan/3gpp-scan-manufacturer-model-hw_id-auto
     after-suspend-wwan/gsm-connection-.*-auto
 bootstrap_include:
     wwan_resource

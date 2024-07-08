@@ -16,7 +16,7 @@ _description: Automated wwan tests for Snappy Ubuntu Core devices
 include:
     # Note these tests require snap calling snap support
     wwan/detect
-    wwan/3gpp-scan-.*-auto
+    wwan/3gpp-scan-manufacturer-model-hw_id-auto
     wwan/gsm-connection-.*-auto
     wwan/check-sim-present-.*-auto
 bootstrap_include:

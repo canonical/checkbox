@@ -257,7 +257,7 @@ class USBStorage(StorageWatcher):
             self.action = "removal"
 
         # Extract the partition name. Looking for string like "sdb: sdb1"
-        part_re = re.compile("sd\w+:.*(?P<part_name>sd\w+)")
+        part_re = re.compile(r"sd\w+:.*(?P<part_name>sd\w+)")
         match = re.search(part_re, line_str)
         if match:
             self.mounted_partition = match.group("part_name")
@@ -304,7 +304,7 @@ class MediacardStorage(StorageWatcher):
         """
 
         # Extract the partition name. Looking for string like "mmcblk0: p1"
-        part_re = re.compile("mmcblk(?P<dev_num>\d)+: (?P<part_name>p\d+)")
+        part_re = re.compile(r"mmcblk(?P<dev_num>\d)+: (?P<part_name>p\d+)")
         match = re.search(part_re, line_str)
         if match:
             self.mounted_partition = "mmcblk{}{}".format(
@@ -313,7 +313,7 @@ class MediacardStorage(StorageWatcher):
 
         # Look for insertion action
         insertion_re = re.compile(
-            "new (?P<device>.*) card at address (?P<address>[0-9a-fA-F]+)"
+            r"new (?P<device>.*) card at address (?P<address>[0-9a-fA-F]+)"
         )
         insertion_match = re.search(insertion_re, line_str)
         if re.search(insertion_re, line_str):
@@ -322,7 +322,7 @@ class MediacardStorage(StorageWatcher):
             self.address = insertion_match.group("address")
 
         # Look for removal action
-        removal_re = re.compile("card ([0-9a-fA-F]+) removed")
+        removal_re = re.compile(r"card ([0-9a-fA-F]+) removed")
         if re.search(removal_re, line_str):
             self.action = "removal"
 
@@ -360,7 +360,7 @@ class ThunderboltStorage(StorageWatcher):
     def _parse_journal_line(self, line_str):
 
         # Extract the partition name. Looking for string like "nvme0n1: p1"
-        part_re = re.compile("(?P<dev_num>nvme\w+): (?P<part_name>p\d+)")
+        part_re = re.compile(r"(?P<dev_num>nvme\w+): (?P<part_name>p\d+)")
         match = re.search(part_re, line_str)
         if match:
             self.mounted_partition = "{}{}".format(
@@ -368,13 +368,13 @@ class ThunderboltStorage(StorageWatcher):
             )
 
         # Prefix of the thunderbolt device for regex matching
-        RE_PREFIX = "thunderbolt \d+-\d+:"
+        RE_PREFIX = r"thunderbolt \d+-\d+:"
 
-        insertion_re = re.compile("{} new device found".format(RE_PREFIX))
+        insertion_re = re.compile(r"{} new device found".format(RE_PREFIX))
         if re.search(insertion_re, line_str):
             self.action = "insertion"
 
-        removal_re = re.compile("{} device disconnected".format(RE_PREFIX))
+        removal_re = re.compile(r"{} device disconnected".format(RE_PREFIX))
         if re.search(removal_re, line_str):
             self.action = "removal"
 

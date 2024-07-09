@@ -1,28 +1,5 @@
 {
     "[markdown]": {
         "editor.formatOnSave": false
-    },
-    "python.testing.pytestArgs": [
-        "checkbox-ng",
-        "checkbox-support",
-        "providers/genio/",
-        "providers/base/",
-        // "providers/sru/",
-    ],
-    "python.testing.unittestEnabled": false,
-    "python.testing.pytestEnabled": true,
-    "python.analysis.extraPaths": [
-        "${workspaceFolder}/providers/base/bin",
-        "${workspaceFolder}/providers/genio/bin",
-        "${workspaceFolder}/checkbox-ng",
-        "${workspaceFolder}/providers/base",
-        // "${workspaceFolder}/providers/sru/bin",
-    ],
-    "cSpell.ignoreWords": [
-        "bluz",
-        "clazz",
-        "pipewire",
-        "rtype"
-    ],
-    "cmake.configureOnOpen": false,
+    }
 }

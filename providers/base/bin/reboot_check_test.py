@@ -40,7 +40,7 @@ class DeviceInfoCollector:
             Device.USB,
         ],  # these can fail the test case
         "optional": [Device.DRM],  # these only produce warnings
-    }  # used for comparison and dump calls
+    }  # type: dict[T.Literal['required','optional'], list[Device]]
     # to modify, add more values in the enum and reference them in required/optional respectively
 
     def get_drm_info(self) -> str:
@@ -78,7 +78,7 @@ class DeviceInfoCollector:
         self,
         expected_dir: str,
         actual_dir: str,
-        devices=DEFAULT_DEVICES,  # type: dict[str, list[Device]]
+        devices=DEFAULT_DEVICES,
     ) -> bool:
         """Compares the list of devices in expected_dir against actual_dir
 
@@ -109,7 +109,7 @@ class DeviceInfoCollector:
             actual = "{}/{}_log".format(actual_dir, device.value)
             if not filecmp.cmp(expected, actual):
                 print(
-                    "[ WARN ] Items under {} has changed.".format(actual),
+                    "[ WARN ] Items under {} have changed.".format(actual),
                     file=sys.stderr,
                 )
 
@@ -211,7 +211,8 @@ def get_failed_services() -> T.List[str]:
         "--no-pager",
         "--no-legend",
         "--state=failed",
-    ]  # only print the names of the services that failed
+        "--plain",  # plaintext, otherwise it includes color codes
+    ]
 
     return run_command(command).stdout.splitlines()
 
@@ -305,7 +306,11 @@ class HardwareRendererTester:
             pgrep_out = run_command(["pgrep", "-a", "Xwayland"])
             pgrep_args = pgrep_out.stdout.split()
             # search for a process called Xwayland, take the 3rd arg, which is the display id
-            if pgrep_out.return_code == 0 and len(pgrep_args) >= 3:
+            if (
+                pgrep_out.return_code == 0
+                and len(pgrep_args) >= 3
+                and ":" in pgrep_args[2]
+            ):
                 return pgrep_args[2]
             else:
                 print(
@@ -317,8 +322,12 @@ class HardwareRendererTester:
         if display_server_type == "x11":
             w_out = run_command(["w", "--no-header"])
             w_out_split = w_out.stdout.split()
-            if w_out.return_code == 0 and len(w_out_split) >= 3:
-                return w_out.stdout.split()[2]
+            if (
+                w_out.return_code == 0
+                and len(w_out_split) >= 3
+                and ":" in w_out_split[2]
+            ):
+                return w_out_split[2]
 
         return None  # Unsupported window system, or it's tty
 
@@ -340,7 +349,6 @@ class HardwareRendererTester:
             return False
 
         print("These nodes", possible_gpu_nodes, "exist")
-        print("Checking for display connection...")
 
         for gpu in possible_gpu_nodes:
             # for each gpu, check for connection, return true if anything is connected
@@ -371,7 +379,10 @@ class HardwareRendererTester:
         # Now we know some kind of display exists, run unity_support_test
         display_id = self.get_display_id()
         if display_id is None:
-            print("No display id was found.", file=sys.stderr)
+            print(
+                "No display id was found. Does this system have a desktop environment?",
+                file=sys.stderr,
+            )
             # No display id was found
             return False
 
@@ -469,7 +480,7 @@ def main() -> int:
         failed_services = get_failed_services()
         if len(failed_services) > 0:
             print(
-                "These services failed: {}".format(failed_services),
+                "These services failed: {}".format("\n".join(failed_services)),
                 file=sys.stderr,
             )
             service_check_passed = False

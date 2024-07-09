@@ -234,7 +234,7 @@ def open_connection(args):
         "nmcli c add con-name TEST_CON "
         "ifname {} "
         "type wifi "
-        "ssid '{}' "
+        "ssid {} "
         "-- "
         "ipv4.method auto "
         "ipv4.dhcp-timeout 30 "
@@ -247,7 +247,7 @@ def open_connection(args):
     turn_up_connection("TEST_CON")
 
     print_head("Ensure interface is connected")
-    reached_connected = wait_for_connected(args.device, args.essid)
+    reached_connected = wait_for_connected(args.device, "TEST_CON")
 
     rc = 1
     if reached_connected:
@@ -278,7 +278,7 @@ def secured_connection(args):
         "nmcli c add con-name TEST_CON "
         "ifname {} "
         "type wifi "
-        "ssid '{}' "
+        "ssid {} "
         "-- "
         "wifi-sec.key-mgmt {} "
         "wifi-sec.psk {} "
@@ -295,7 +295,7 @@ def secured_connection(args):
     turn_up_connection("TEST_CON")
 
     print_head("Ensure interface is connected")
-    reached_connected = wait_for_connected(args.device, args.essid)
+    reached_connected = wait_for_connected(args.device, "TEST_CON")
 
     rc = 1
     if reached_connected:

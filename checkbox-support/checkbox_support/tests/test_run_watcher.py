@@ -21,19 +21,219 @@ import unittest
 from unittest.mock import patch, call, MagicMock, mock_open
 
 import pathlib
+from systemd import journal
 
 from checkbox_support.scripts.run_watcher import (
     StorageWatcher,
     USBStorage,
     MediacardStorage,
     ThunderboltStorage,
-    launch_watcher
+    launch_watcher,
 )
 
 
 class TestRunWatcher(unittest.TestCase):
+    # class StorageWatcher(StorageInterface):
+    # """
+    # StorageWatcher watches the journal message and triggers the callback
+    # function to detect the insertion and removal of storage.
+    # """
 
-    def test_storage_watcher_process_lines(self):
+    # def __init__(self, testcase, storage_type, zapper_usb_address):
+    #     self.testcase = testcase
+    #     self.storage_type = storage_type
+    #     self.zapper_usb_address = zapper_usb_address
+
+    # def run(self):
+    #     j = journal.Reader()
+    #     j.seek_realtime(time.time())
+    #     p = select.poll()
+    #     p.register(j, j.get_events())
+    #     if self.zapper_usb_address:
+    #         zapper_host = os.environ.get("ZAPPER_ADDRESS")
+    #         if not zapper_host:
+    #             raise SystemExit(
+    #                 "ZAPPER_ADDRESS environment variable not found!"
+    #             )
+    #         usb_address = self.zapper_usb_address
+    #         if self.testcase == "insertion":
+    #             print("Calling zapper to connect the USB device")
+    #             zapper_run(
+    #                 zapper_host, "typecmux_set_state", usb_address, "DUT"
+    #             )
+    #         elif self.testcase == "removal":
+    #             print("Calling zapper to disconnect the USB device")
+    #             zapper_run(
+    #                 zapper_host, "typecmux_set_state", usb_address, "OFF"
+    #             )
+    #     else:
+    #         if self.testcase == "insertion":
+    #             print("\n\nINSERT NOW\n\n", flush=True)
+    #         elif self.testcase == "removal":
+    #             print("\n\nREMOVE NOW\n\n", flush=True)
+    #         else:
+    #             raise SystemExit("Invalid test case")
+    #         print("Timeout: {} seconds".format(ACTION_TIMEOUT), flush=True)
+    #     while p.poll():
+    #         if j.process() != journal.APPEND:
+    #             continue
+    #         self._process_lines(
+    #             [e["MESSAGE"] for e in j if e and "MESSAGE" in e]
+    #         )
+
+    # def _process_lines(self, lines):
+    #     """
+    #     Process the lines from the journal and call the callback function to
+    #     validate the insertion or removal of the storage.
+    #     """
+    #     for line in lines:
+    #         line_str = str(line)
+    #         logger.debug(line_str)
+    #         if self.testcase == "insertion":
+    #             self._parse_journal_line(line_str)
+    #             self._validate_insertion()
+    #         elif self.testcase == "removal":
+    #             self._parse_journal_line(line_str)
+    #             self._validate_removal()
+
+    # def _store_storage_info(self, mounted_partition=""):
+    #     """
+    #     Store the mounted partition info to the shared directory.
+    #     """
+
+    #     plainbox_session_share = os.environ.get("PLAINBOX_SESSION_SHARE")
+    #     # TODO: Should name the file by the value of storage_type variable as
+    #     #       prefix. e.g. thunderbolt_insert_info, mediacard_insert_info.
+    #     #       Since usb_insert_info is used by usb_read_write script, we
+    #     #       should refactor usb_read_write script to adopt different files
+    #     file_name = "usb_insert_info"
+
+    #     if not plainbox_session_share:
+    #         logger.error("no env var PLAINBOX_SESSION_SHARE")
+    #         sys.exit(1)
+
+    #     # backup the storage partition info
+    #     if mounted_partition:
+    #         logger.info(
+    #             "cache file {} is at: {}".format(
+    #                 file_name, plainbox_session_share
+    #             )
+    #         )
+    #         file_path = pathlib.Path(plainbox_session_share, file_name)
+    #         with open(file_path, "w") as file_to_share:
+    #             file_to_share.write(mounted_partition + "\n")
+
+    # def _remove_storage_info(self):
+    #     """Remove the file containing the storage info from the shared
+    #     directory.
+    #     """
+
+    #     plainbox_session_share = os.environ.get("PLAINBOX_SESSION_SHARE")
+    #     file_name = "usb_insert_info"
+
+    #     if not plainbox_session_share:
+    #         logger.error("no env var PLAINBOX_SESSION_SHARE")
+    #         sys.exit(1)
+
+    #     file_path = pathlib.Path(plainbox_session_share, file_name)
+    #     if pathlib.Path(file_path).exists():
+    #         os.remove(file_path)
+    #         logger.info("cache file {} removed".format(file_name))
+    #     else:
+    #         logger.error("cache file {} not found".format(file_name))
+
+    @patch("systemd.journal.Reader")
+    @patch("select.poll")
+    def test_storage_watcher_run_insertion(self, mock_poll, mock_journal):
+        mock_journal.return_value.process.side_effect = [journal.APPEND, None]
+        mock_journal.return_value.__iter__.return_value = [
+            {"MESSAGE": "line1"}
+        ]
+        mock_poll.return_value.poll.side_effect = [True, True, False]
+
+        mock_storage_watcher = MagicMock()
+        mock_storage_watcher.zapper_usb_address = ""
+
+        # Test insertion
+        mock_storage_watcher.testcase = "insertion"
+        StorageWatcher.run(mock_storage_watcher)
+        mock_storage_watcher._process_lines.assert_called_with(["line1"])
+
+    @patch("systemd.journal.Reader")
+    @patch("select.poll")
+    def test_storage_watcher_run_removal(self, mock_poll, mock_journal):
+        mock_journal.return_value.process.return_value = journal.APPEND
+        mock_journal.return_value.__iter__.return_value = [
+            {"MESSAGE": "line1"}
+        ]
+        mock_poll.return_value.poll.side_effect = [True, False]
+
+        mock_storage_watcher = MagicMock()
+        mock_storage_watcher.zapper_usb_address = ""
+
+        # Test removal
+        mock_storage_watcher.testcase = "removal"
+        StorageWatcher.run(mock_storage_watcher)
+        mock_storage_watcher._process_lines.assert_called_with(["line1"])
+
+    def test_storage_watcher_run_invalid_testcase(self):
+        mock_storage_watcher = MagicMock()
+        mock_storage_watcher.testcase = "invalid"
+
+        with self.assertRaises(SystemExit):
+            StorageWatcher.run(mock_storage_watcher)
+
+    @patch("systemd.journal.Reader")
+    @patch("select.poll")
+    @patch("os.environ.get")
+    @patch("checkbox_support.scripts.run_watcher.zapper_run")
+    def test_storage_watcher_run_insertion_with_zapper(
+        self, mock_zapper_run, mock_get, mock_poll, mock_journal
+    ):
+        mock_journal.return_value.process.return_value = journal.APPEND
+        mock_journal.return_value.__iter__.return_value = [
+            {"MESSAGE": "line1"}
+        ]
+        mock_poll.return_value.poll.side_effect = [True, False]
+        mock_get.return_value = "zapper_addr"
+
+        mock_storage_watcher = MagicMock()
+        mock_storage_watcher.zapper_usb_address = "usb_address"
+
+        # Test insertion with zapper
+        mock_storage_watcher.testcase = "insertion"
+        StorageWatcher.run(mock_storage_watcher)
+        mock_zapper_run.assert_called_with(
+            "zapper_addr", "typecmux_set_state", "usb_address", "DUT"
+        )
+        mock_storage_watcher._process_lines.assert_called_with(["line1"])
+
+    @patch("systemd.journal.Reader")
+    @patch("select.poll")
+    @patch("os.environ.get")
+    @patch("checkbox_support.scripts.run_watcher.zapper_run")
+    def test_storage_watcher_run_removal_with_zapper(
+        self, mock_zapper_run, mock_get, mock_poll, mock_journal
+    ):
+        mock_journal.return_value.process.return_value = journal.APPEND
+        mock_journal.return_value.__iter__.return_value = [
+            {"MESSAGE": "line1"}
+        ]
+        mock_poll.return_value.poll.side_effect = [True, False]
+        mock_get.return_value = "zapper_addr"
+
+        mock_storage_watcher = MagicMock()
+        mock_storage_watcher.zapper_usb_address = "usb_address"
+
+        # Test removal with zapper
+        mock_storage_watcher.testcase = "removal"
+        StorageWatcher.run(mock_storage_watcher)
+        mock_zapper_run.assert_called_with(
+            "zapper_addr", "typecmux_set_state", "usb_address", "OFF"
+        )
+        mock_storage_watcher._process_lines.assert_called_with(["line1"])
+
+    def test_storage_watcher_process_lines_insertion(self):
         lines = ["line1", "line2", "line3"]
 
         mock_insertion_watcher = MagicMock()
@@ -41,6 +241,17 @@ class TestRunWatcher(unittest.TestCase):
         mock_insertion_watcher.testcase = "insertion"
         StorageWatcher._process_lines(mock_insertion_watcher, lines)
         mock_insertion_watcher._parse_journal_line.assert_has_calls(
+            [call("line1"), call("line2"), call("line3")]
+        )
+
+    def test_storage_watcher_process_lines_removal(self):
+        lines = ["line1", "line2", "line3"]
+
+        mock_removal_watcher = MagicMock()
+        mock_removal_watcher._parse_journal_line = MagicMock()
+        mock_removal_watcher.testcase = "removal"
+        StorageWatcher._process_lines(mock_removal_watcher, lines)
+        mock_removal_watcher._parse_journal_line.assert_has_calls(
             [call("line1"), call("line2"), call("line3")]
         )
 
@@ -60,6 +271,50 @@ class TestRunWatcher(unittest.TestCase):
 
         m.assert_called_with(pathlib.Path("/tmp", "usb_insert_info"), "w")
         m().write.assert_called_with("sda1\n")
+
+    @patch("os.environ.get")
+    def test_storage_watcher_store_storage_info_no_session(self, mock_get):
+        mock_storage_watcher = MagicMock()
+        mock_get.return_value = None
+
+        with self.assertRaises(SystemExit):
+            StorageWatcher._store_storage_info(mock_storage_watcher)
+
+    @patch("pathlib.Path.exists")
+    @patch("os.remove")
+    @patch("os.environ.get")
+    def test_storage_watcher_remove_storage_info(
+        self, mock_get, mock_remove, mock_exists
+    ):
+        mock_storage_watcher = MagicMock()
+        mock_get.return_value = "/tmp"
+        mock_exists.return_value = True
+
+        StorageWatcher._remove_storage_info(mock_storage_watcher)
+
+        mock_remove.assert_called_with(pathlib.Path("/tmp", "usb_insert_info"))
+
+    @patch("pathlib.Path.exists")
+    @patch("os.remove")
+    @patch("os.environ.get")
+    def test_storage_watcher_remove_storage_info_no_file(
+        self, mock_get, mock_remove, mock_exists
+    ):
+        mock_storage_watcher = MagicMock()
+        mock_get.return_value = "/tmp"
+        mock_exists.return_value = False
+
+        StorageWatcher._remove_storage_info(mock_storage_watcher)
+
+        mock_remove.assert_not_called()
+
+    @patch("os.environ.get")
+    def test_storage_watcher_remove_storage_info_no_session(self, mock_get):
+        mock_storage_watcher = MagicMock()
+        mock_get.return_value = None
+
+        with self.assertRaises(SystemExit):
+            StorageWatcher._remove_storage_info(mock_storage_watcher)
 
     def test_usb_storage_init(self):
         usb_storage = USBStorage("insertion", "usb2", "zapper_addr")

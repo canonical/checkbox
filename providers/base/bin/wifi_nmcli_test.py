@@ -16,6 +16,7 @@ import os
 import subprocess as sp
 import sys
 import time
+import shlex
 
 from packaging import version as version_parser
 
@@ -27,7 +28,7 @@ print = functools.partial(print, flush=True)
 
 def legacy_nmcli():
     cmd = "nmcli -v"
-    output = sp.check_output(cmd.split())
+    output = sp.check_output(shlex.split(cmd))
     version = version_parser.parse(output.strip().split()[-1].decode())
     # check if using the 16.04 nmcli because of this bug
     # https://bugs.launchpad.net/plano/+bug/1896806
@@ -45,7 +46,7 @@ def print_cmd(cmd):
 def _get_nm_wireless_connections():
     cmd = "nmcli -t -f TYPE,UUID,NAME,STATE connection"
     print_cmd(cmd)
-    output = sp.check_output(cmd.split())
+    output = sp.check_output(shlex.split(cmd))
     connections = {}
     for line in output.decode(sys.stdout.encoding).splitlines():
         type, uuid, name, state = line.strip().split(":", 3)
@@ -77,7 +78,7 @@ def turn_up_connection(uuid):
         return None
     try:
         print_cmd(cmd)
-        sp.call(cmd.split())
+        sp.call(shlex.split(cmd))
     except Exception as e:
         print("Can't turn on {}: {}".format(uuid, str(e)))
 
@@ -91,7 +92,7 @@ def turn_down_nm_connections():
         try:
             cmd = "nmcli c down {}".format(uuid)
             print_cmd(cmd)
-            sp.call(cmd.split())
+            sp.call(shlex.split(cmd))
             print("{} {} is down now".format(name, uuid))
         except Exception as e:
             print("Can't down {}: {}".format(uuid, str(e)))
@@ -107,7 +108,7 @@ def delete_test_ap_ssid_connection():
     try:
         cmd = "nmcli c delete TEST_CON"
         print_cmd(cmd)
-        sp.call(cmd.split())
+        sp.call(shlex.split(cmd))
         print("TEST_CON is deleted")
     except Exception as e:
         print("Can't delect TEST_CON : {}".format(str(e)))
@@ -117,7 +118,7 @@ def device_rescan():
     print_head("Calling a rescan")
     cmd = "nmcli d wifi rescan"
     print_cmd(cmd)
-    retcode = sp.call(cmd.split())
+    retcode = sp.call(shlex.split(cmd))
     if retcode != 0:
         # Most often the rescan request fails because NM has itself started
         # a scan in recent past, we should let these operations complete before
@@ -128,11 +129,14 @@ def device_rescan():
 
 
 def list_aps(ifname, essid=None):
-    print_head("List APs")
+    if essid:
+        print_head("List APs with ESSID: {}".format(essid))
+    else:
+        print("List all APs")
     aps_dict = {}
     fields = "SSID,CHAN,FREQ,SIGNAL"
     cmd = "nmcli -t -f {} d wifi list ifname {}".format(fields, ifname)
-    output = sp.check_output(cmd.split())
+    output = sp.check_output(shlex.split(cmd))
     for line in output.decode(sys.stdout.encoding).splitlines():
         # lp bug #1723372 - extra line in output on zesty
         if line.strip() == ifname:  # Skip device name line
@@ -157,14 +161,14 @@ def show_aps(aps_dict):
 def print_address_info(interface):
     cmd = "ip address show dev {}".format(interface)
     print_cmd(cmd)
-    sp.call(cmd.split())
+    sp.call(shlex.split(cmd))
     print()
 
 
 def print_route_info():
     cmd = "ip route"
     print_cmd(cmd)
-    sp.call(cmd.split())
+    sp.call(shlex.split(cmd))
     print()
 
 
@@ -172,7 +176,7 @@ def perform_ping_test(interface):
     target = None
     cmd = "nmcli --mode tabular --terse --fields IP4.GATEWAY c show TEST_CON"
     print_cmd(cmd)
-    output = sp.check_output(cmd.split())
+    output = sp.check_output(shlex.split(cmd))
     target = output.decode(sys.stdout.encoding).strip()
     print("Got gateway address: {}".format(target))
 
@@ -194,7 +198,7 @@ def wait_for_connected(interface, essid, max_wait=5):
             "d show {}".format(interface)
         )
         print_cmd(cmd)
-        output = sp.check_output(cmd.split())
+        output = sp.check_output(shlex.split(cmd))
         state, ssid = output.decode(sys.stdout.encoding).strip().splitlines()
 
         if state.startswith("100") and ssid == essid:
@@ -234,14 +238,14 @@ def open_connection(args):
         "nmcli c add con-name TEST_CON "
         "ifname {} "
         "type wifi "
-        "ssid {} "
+        "ssid '{}' "
         "-- "
         "ipv4.method auto "
         "ipv4.dhcp-timeout 30 "
         "ipv6.method ignore".format(args.device, args.essid)
     )
     print_cmd(cmd)
-    sp.call(cmd.split())
+    sp.call(shlex.split(cmd))
 
     # Make sure the connection is brought up
     turn_up_connection("TEST_CON")
@@ -278,7 +282,7 @@ def secured_connection(args):
         "nmcli c add con-name TEST_CON "
         "ifname {} "
         "type wifi "
-        "ssid {} "
+        "ssid '{}' "
         "-- "
         "wifi-sec.key-mgmt {} "
         "wifi-sec.psk {} "
@@ -289,7 +293,7 @@ def secured_connection(args):
         )
     )
     print_cmd(cmd)
-    sp.call(cmd.split())
+    sp.call(shlex.split(cmd))
 
     # Make sure the connection is brought up
     turn_up_connection("TEST_CON")
@@ -322,7 +326,7 @@ def hotspot(args):
         " ssid CHECKBOX_AP".format(args.device)
     )
     print_cmd(cmd)
-    retcode = sp.call(cmd.split())
+    retcode = sp.call(shlex.split(cmd))
     if retcode != 0:
         print("Connection creation failed\n")
         return retcode
@@ -331,7 +335,7 @@ def hotspot(args):
         " 802-11-wireless.band {}".format(args.band)
     )
     print_cmd(cmd)
-    retcode = sp.call(cmd.split())
+    retcode = sp.call(shlex.split(cmd))
     if retcode != 0:
         print("Set band failed\n")
         return retcode
@@ -340,7 +344,7 @@ def hotspot(args):
         'wifi-sec.psk "ubuntu1234"'
     )
     print_cmd(cmd)
-    retcode = sp.call(cmd.split())
+    retcode = sp.call(shlex.split(cmd))
     if retcode != 0:
         print("Setting up wifi security failed\n")
         return retcode
@@ -361,7 +365,7 @@ def print_journal_entries(start):
         '--since "{}" '.format(start.strftime("%Y-%m-%d %H:%M:%S"))
     )
     print_cmd(cmd)
-    sp.call(cmd.split())
+    sp.call(shlex.split(cmd))
 
 
 def parser_args():
@@ -414,12 +418,8 @@ def main():
     args = parser_args()
     start_time = datetime.datetime.now()
     device_rescan()
-    if hasattr(args, "essid"):
-        print("Scanning for APs with ESSID: {}".format(args.essid))
-        aps_dict = list_aps(args.device, args.essid)
-    else:
-        print("Scanning for all APs")
-        aps_dict = list_aps(args.device)
+    essid = getattr(args, "essid", None)
+    aps_dict = list_aps(args.device, essid)
     show_aps(aps_dict)
 
     if args.test_type == "scan":
@@ -431,7 +431,7 @@ def main():
             return 0
 
     if not aps_dict:
-        print("Targed access points: {} found".format(args.essid))
+        print("Targed access points: {} not found".format(args.essid))
         return 1
 
     if args.func:

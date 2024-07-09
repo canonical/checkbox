@@ -379,8 +379,7 @@ class ThunderboltStorage(StorageWatcher):
             self.action = "removal"
 
 
-@timeout(ACTION_TIMEOUT)  # 30 seconds timeout
-def main():
+def launch_watcher():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "testcase",
@@ -413,6 +412,11 @@ def main():
             args.testcase, args.storage_type, args.zapper_usb_address
         )
     watcher.run()
+
+
+@timeout(ACTION_TIMEOUT)  # 30 seconds timeout
+def main():
+    launch_watcher()
 
 
 if __name__ == "__main__":

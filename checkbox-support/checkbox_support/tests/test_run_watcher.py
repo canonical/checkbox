@@ -27,7 +27,7 @@ from checkbox_support.scripts.run_watcher import (
     USBStorage,
     MediacardStorage,
     ThunderboltStorage,
-    main,
+    launch_watcher
 )
 
 
@@ -274,7 +274,7 @@ class TestRunWatcher(unittest.TestCase):
     @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
     def test_main_usb(self, mock_usb_storage):
         with patch("sys.argv", ["run_watcher.py", "insertion", "usb2"]):
-            main()
+            launch_watcher()
         # get the watcher object from main
         watcher = mock_usb_storage.return_value
         # check that the watcher is an USBStorage object
@@ -286,7 +286,7 @@ class TestRunWatcher(unittest.TestCase):
     )
     def test_main_mediacard(self, mock_mediacard_storage):
         with patch("sys.argv", ["run_watcher.py", "insertion", "mediacard"]):
-            main()
+            launch_watcher()
         # get the watcher object from main
         watcher = mock_mediacard_storage.return_value
         # check that the watcher is an MediacardStorage object
@@ -298,7 +298,7 @@ class TestRunWatcher(unittest.TestCase):
     )
     def test_main_thunderbolt(self, mock_thunderbolt_storage):
         with patch("sys.argv", ["run_watcher.py", "insertion", "thunderbolt"]):
-            main()
+            launch_watcher()
         # get the watcher object from main
         watcher = mock_thunderbolt_storage.return_value
         # check that the watcher is an ThunderboltStorage object

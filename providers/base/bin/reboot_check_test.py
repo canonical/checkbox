@@ -10,7 +10,6 @@ import sys
 import enum
 import typing as T
 
-
 # Checkbox could run in a snap container, so we need to prepend this root path
 RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="")
 # Snap mount point, see https://snapcraft.io/docs/environment-variables#heading--snap
@@ -99,7 +98,7 @@ class DeviceInfoCollector:
             if not filecmp.cmp(expected, actual):
                 print(
                     "The output of {} differs from the list gathered at the beginning of the session!".format(
-                        device
+                        device.value
                     ),
                     file=sys.stderr,
                 )
@@ -110,8 +109,7 @@ class DeviceInfoCollector:
             actual = "{}/{}_log".format(actual_dir, device.value)
             if not filecmp.cmp(expected, actual):
                 print(
-                    "[WARN] Items under {} has changed.".format(actual),
-                    "If this machine dynamically switches between GPUs, this might be expected",
+                    "[ WARN ] Items under {} has changed.".format(actual),
                     file=sys.stderr,
                 )
 
@@ -167,37 +165,37 @@ def run_command(args: T.List[str]) -> ShellResult:
     # since utf-8 is backwards compatible with ascii
 
 
-def is_fwts_supported() -> bool:
-    return shutil.which("fwts") is not None
+class FwtsTester:
+    def is_fwts_supported(self) -> bool:
+        return shutil.which("fwts") is not None
 
+    def fwts_log_check_passed(
+        self, output_directory: str, fwts_arguments=["klog", "oops"]
+    ) -> bool:
+        """Check if fwts logs passes the checks specified in sleep_test_log_check.py.
+        This script live in the same directory
 
-def fwts_log_check_passed(
-    output_directory: str, fwts_arguments=["klog", "oops"]
-) -> bool:
-    """Check if fwts logs passes the checks specified in sleep_test_log_check.py.
-    This script live in the same directory
+        :param output_directory: where the output of fwts should be redirected to
+        :type output_directory: str
+        :return: whether sleep_test_log_check.py returned 0 (success)
+        :rtype: bool
+        """
+        log_file_path = "{}/fwts_{}.log".format(
+            output_directory, "_".join(fwts_arguments)
+        )
+        run_command(["fwts", "-r", log_file_path, *fwts_arguments])
+        result = run_command(
+            [
+                "sleep_test_log_check.py",
+                "-v",
+                "--ignore-warning",
+                "-t",
+                "all",
+                log_file_path,
+            ]
+        )
 
-    :param output_directory: where the output of fwts should be redirected to
-    :type output_directory: str
-    :return: whether sleep_test_log_check.py returned 0 (success)
-    :rtype: bool
-    """
-    log_file_path = "{}/fwts_{}.log".format(
-        output_directory, "_".join(fwts_arguments)
-    )
-    run_command(["fwts", "-r", log_file_path, *fwts_arguments])
-    result = run_command(
-        [
-            "sleep_test_log_check.py",
-            "-v",
-            "--ignore-warning",
-            "-t",
-            "all",
-            log_file_path,
-        ]
-    )
-
-    return result.return_code == 0
+        return result.return_code == 0
 
 
 def get_failed_services() -> T.List[str]:
@@ -215,7 +213,7 @@ def get_failed_services() -> T.List[str]:
         "--state=failed",
     ]  # only print the names of the services that failed
 
-    return run_command(command).stdout.split()
+    return run_command(command).stdout.splitlines()
 
 
 def create_parser():
@@ -273,155 +271,157 @@ def remove_color_code(string: str) -> str:
     return re.sub(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])", "", string)
 
 
-def get_display_id() -> T.Optional[str]:
-    """Returns the active display id
-    https://github.com/canonical/checkbox/blob/main/contrib/pc-sanity/bin/renderer-mesa-driver-check.sh
+class HardwareRendererTester:
 
-    :return: the display id, usually ":0" if there's only 1 display
-    :rtype: str
-    """
-    DISPLAY = os.getenv("DISPLAY", default="")
+    def get_display_id(self) -> T.Optional[str]:
+        """Returns the active display id
+        https://github.com/canonical/checkbox/blob/main/contrib/pc-sanity/bin/renderer-mesa-driver-check.sh
 
-    if DISPLAY != "":
-        print("Using $DISPLAY env variable: {}".format(DISPLAY))
-        return DISPLAY  # use the environment var if non-empty
+        :return: the display id, usually ":0" if there's only 1 display
+        :rtype: str | None when there's no display
+        """
+        DISPLAY = os.getenv("DISPLAY", default="")
 
-    session_id = (
-        run_command(["loginctl", "list-sessions", "--no-legend"])
-        .stdout.split()[0]
-        .strip()
-        # string is guaranteed to be non-empty, at least 1 user is logged in
-    )
+        if DISPLAY != "":
+            print("Using $DISPLAY env variable: {}".format(DISPLAY))
+            return DISPLAY  # use the environment var if non-empty
 
-    display_server_type = (
-        run_command(["loginctl", "show-session", session_id, "-p", "Type"])
-        .stdout.split("=")[1]
-        .strip()  # it should look like Type=wayland, split and take 2nd word
-    )
+        session_id = (
+            run_command(["loginctl", "list-sessions", "--no-legend"])
+            .stdout.split()[0]
+            .strip()
+            # string is guaranteed to be non-empty, at least 1 user is logged in
+        )
 
-    # NOTE: Xwayland doesn't immediately start after a reboot
-    # For now, we will assume :0 exists and use it as the display id
-    if display_server_type == "wayland":
-        pgrep_out = run_command(["pgrep", "-a", "Xwayland"])
-        # search for a process called Xwayland, take the 3rd arg, which is the display id
-        if pgrep_out.return_code == 0:
-            return pgrep_out.stdout.split()[2]
-        else:
+        display_server_type = (
+            run_command(["loginctl", "show-session", session_id, "-p", "Type"])
+            .stdout.split("=")[1]
+            .strip()  # it should look like Type=wayland, split and take 2nd word
+        )
+
+        # NOTE: Xwayland won't start until the first x11 app runs
+        # For now, we will assume :0 exists and use it as the display id
+        if display_server_type == "wayland":
+            pgrep_out = run_command(["pgrep", "-a", "Xwayland"])
+            pgrep_args = pgrep_out.stdout.split()
+            # search for a process called Xwayland, take the 3rd arg, which is the display id
+            if pgrep_out.return_code == 0 and len(pgrep_args) >= 3:
+                return pgrep_args[2]
+            else:
+                print(
+                    "[ WARN ] Waylad session detected, but Xwayland process is not found. Assuming :0 display",
+                    file=sys.stderr,
+                )
+                return ":0"
+
+        if display_server_type == "x11":
+            w_out = run_command(["w", "--no-header"])
+            w_out_split = w_out.stdout.split()
+            if w_out.return_code == 0 and len(w_out_split) >= 3:
+                return w_out.stdout.split()[2]
+
+        return None  # Unsupported window system, or it's tty
+
+    def has_display_connection(self) -> bool:
+        """Checks if a display is connected by searching the /sys/class/drm directory
+
+        :return: True if there's at least 1 node that is connected
+        """
+
+        # look for GPU file nodes first
+        DRM_PATH = "/sys/class/drm"
+        possible_gpu_nodes = os.listdir(DRM_PATH)
+        if len(possible_gpu_nodes) == 0 or possible_gpu_nodes == ["version"]:
+            # kernel doesn't see any GPU nodes
             print(
-                "[WARN] Waylad session detected, but Xwayland process is not found. Assuming :0 display",
-                file=sys.stderr,
+                "There's nothing under {}".format(DRM_PATH),
+                "if an external GPU is connected, check if the connection is loose",
             )
-            return ":0"
+            return False
 
-    if display_server_type == "x11":
-        w_out = run_command(["w", "--no-header"])
-        if w_out.return_code == 0 and len(w_out.stdout) != 0:
-            return w_out.stdout.split()[2]
-        return None
+        print("These nodes", possible_gpu_nodes, "exist")
+        print("Checking for display connection...")
 
-    return None  # Unsupported window system
+        for gpu in possible_gpu_nodes:
+            # for each gpu, check for connection, return true if anything is connected
+            try:
+                with open("{}/{}/status".format(DRM_PATH, gpu)) as status_file:
+                    if status_file.read().strip().lower() == "connected":
+                        print("{} is connected to display!".format(gpu))
+                        return True
+            except FileNotFoundError:
+                # this just means we don't have a status file => no connection, continue to the next
+                pass
+            except Exception as e:
+                print("Unexpected error: ", e, file=sys.stderr)
 
-
-def has_display_connection() -> bool:
-    """Checks if a display is connected by searching the /sys/class/drm directory
-
-    :return: True if there's at least 1 node that is connected
-    """
-
-    # look for GPU file nodes first
-    DRM_PATH = "/sys/class/drm"
-    possible_gpu_nodes = os.listdir(DRM_PATH)
-    if len(possible_gpu_nodes) == 0 or possible_gpu_nodes == ["version"]:
-        # kernel doesn't see any GPU nodes
         print(
-            "There's nothing under {}".format(DRM_PATH),
-            "if an external GPU is connected, check if the connection is loose",
+            "No display is connected. This case will be skipped.",
+            "Maybe the display cable is not connected?",
         )
         return False
 
-    print("These nodes", possible_gpu_nodes, "exist")
-    print("Checking for display connection...")
+    def is_hardware_renderer_available(self) -> bool:
+        """Checks if hardware rendering is being used. THIS ASSUMES A DRM CONNECTION EXISTS
 
-    for gpu in possible_gpu_nodes:
-        # for each gpu, check for connection, return true if anything is connected
-        try:
-            status_file = open("{}/{}/status".format(DRM_PATH, gpu))
-            if status_file.read().strip().lower() == "connected":
-                print("{} is connected to display!".format(gpu))
-                return True
-        except FileNotFoundError:
-            # this just means we don't have a status file => no connection, continue to the next
-            pass
-        except Exception as e:
-            print("Unexpected error: ", e, file=sys.stderr)
+        :return: True if a hardware renderer is active, otherwise return False
+        :rtype: bool
+        """
 
-    print(
-        "No display is connected. This case will be skipped.",
-        "Maybe the display cable is not connected?",
-    )
-    return False
+        # Now we know some kind of display exists, run unity_support_test
+        display_id = self.get_display_id()
+        if display_id is None:
+            print("No display id was found.", file=sys.stderr)
+            # No display id was found
+            return False
 
+        print("Checking display id: {}".format(display_id))
 
-def is_hardware_renderer_available() -> bool:
-    """Checks if hardware rendering is being used. THIS ASSUMES A DRM CONNECTION EXISTS
-
-    :return: True if a hardware renderer is active, otherwise return False
-    :rtype: bool
-    """
-
-    # Now we know some kind of display exists, run unity_support_test
-    display_id = get_display_id()
-    if display_id is None:
-        print("No display id was found.", file=sys.stderr)
-        # No display id was found
-        return False
-
-    print("Checking display id: {}".format(display_id))
-
-    unity_support_output = run_command(
-        [
-            "{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT),
-            "-p",
-            "-display",
-            display_id,
-        ]
-    )
-    if unity_support_output.return_code != 0:
-        return False
-
-    is_hardware_rendered = (
-        parse_unity_support_output(unity_support_output.stdout).get(
-            "Not software rendered"
+        unity_support_output = run_command(
+            [
+                "{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT),
+                "-p",
+                "-display",
+                display_id,
+            ]
         )
-        == "yes"
-    )
-    if is_hardware_rendered:
-        print("[ OK ] This machine is using a hardware renderer!")
-        return True
+        if unity_support_output.return_code != 0:
+            return False
 
-    return False
+        is_hardware_rendered = (
+            self.parse_unity_support_output(unity_support_output.stdout).get(
+                "Not software rendered"
+            )
+            == "yes"
+        )
+        if is_hardware_rendered:
+            print("[ OK ] This machine is using a hardware renderer!")
+            return True
 
+        return False
 
-def parse_unity_support_output(unity_output_string: str) -> T.Dict[str, str]:
-    """Parses the output of `unity_support_test` into a dictionary
+    def parse_unity_support_output(
+        self, unity_output_string: str
+    ) -> T.Dict[str, str]:
+        """Parses the output of `unity_support_test` into a dictionary
 
-    :param output_string: the raw output from running `unity_support_test -p`
-    :type output_string: str
-    :return: string key-value pairs that mirror the output of unity_support_test.
-        Left hand side of the first colon are the keys; right hand side are the values.
-    :rtype: dict[str, str]
-    """
+        :param output_string: the raw output from running `unity_support_test -p`
+        :type output_string: str
+        :return: string key-value pairs that mirror the output of unity_support_test.
+            Left hand side of the first colon are the keys; right hand side are the values.
+        :rtype: dict[str, str]
+        """
 
-    output = {}  # type: dict[str, str]
-    for line in unity_output_string.split("\n"):
-        # max_split=1 to prevent splitting the string after the 1st colon
-        words = line.split(":", maxsplit=1)
-        if len(words) == 2:
-            key = words[0].strip()
-            value = remove_color_code(words[1].strip())
-            output[key] = value
+        output = {}  # type: dict[str, str]
+        for line in unity_output_string.split("\n"):
+            # max_split=1 to prevent splitting the string after the 1st colon
+            words = line.split(":", maxsplit=1)
+            if len(words) == 2:
+                key = words[0].strip()
+                value = remove_color_code(words[1].strip())
+                output[key] = value
 
-    return output
+        return output
 
 
 def main() -> int:
@@ -432,7 +432,6 @@ def main() -> int:
     """
 
     args = create_parser().parse_args()
-    print(args)
 
     # all 4 tests pass by default
     # they only fail if their respective flags are specified
@@ -460,14 +459,13 @@ def main() -> int:
         DeviceInfoCollector().dump(args.output_directory)
 
     if args.do_fwts_check:
-        if is_fwts_supported() and not fwts_log_check_passed(
+        tester = FwtsTester()
+        if tester.is_fwts_supported() and not tester.fwts_log_check_passed(
             args.output_directory
         ):
             fwts_passed = False
 
     if args.do_service_check:
-        print("Checking for failed system services...")
-
         failed_services = get_failed_services()
         if len(failed_services) > 0:
             print(
@@ -476,9 +474,13 @@ def main() -> int:
             )
             service_check_passed = False
 
-    if args.do_renderer_check and has_display_connection():
-        # skip renderer test if there's no display
-        renderer_test_passed = is_hardware_renderer_available()
+        print("[ OK ] All system services are running!")
+
+    if args.do_renderer_check:
+        tester = HardwareRendererTester()
+        if tester.has_display_connection():
+            # skip renderer test if there's no display
+            renderer_test_passed = tester.is_hardware_renderer_available()
 
     if (
         fwts_passed

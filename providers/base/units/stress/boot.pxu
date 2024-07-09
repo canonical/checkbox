@@ -46,7 +46,7 @@ _purpose: This creates baseline data sets which will be considered the master
 unit: job
 plugin: shell
 command:
-  reboot_check_test.py -g -d "$PLAINBOX_SESSION_SHARE/before_reboot"
+  reboot_check_test.py -d "$PLAINBOX_SESSION_SHARE/before_reboot"
 environ: LD_LIBRARY_PATH
 user: root
 estimated_duration: 1s

@@ -201,8 +201,8 @@ class FwtsTester:
 def get_failed_services() -> T.List[str]:
     """Counts the number of failed services listed in systemctl
 
-    :return: number of failed services
-    """
+    :return: a list of failed services as they appear in systemctl
+    """    
     command = [
         "systemctl",
         "list-units",
@@ -371,6 +371,7 @@ class HardwareRendererTester:
 
     def is_hardware_renderer_available(self) -> bool:
         """Checks if hardware rendering is being used. THIS ASSUMES A DRM CONNECTION EXISTS
+        - self.has_display_connection() should be called first if unsure
 
         :return: True if a hardware renderer is active, otherwise return False
         :rtype: bool

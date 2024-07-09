@@ -400,7 +400,7 @@ class TestSecuredConnection(unittest.TestCase):
         args.psk = "password123"
         rc = secured_connection(args)
         self.assertEqual(rc, 0)
-        wait_for_connected_mock.assert_called_with("wlan0", "TestSSID")
+        wait_for_connected_mock.assert_called_with("wlan0", "TEST_CON")
         perform_ping_test_mock.assert_called_with("wlan0")
 
     @patch("wifi_nmcli_test.sp.call")
@@ -427,7 +427,7 @@ class TestSecuredConnection(unittest.TestCase):
         args.psk = "password123"
         rc = secured_connection(args)
         self.assertEqual(rc, 1)
-        wait_for_connected_mock.assert_called_with("wlan0", "TestSSID")
+        wait_for_connected_mock.assert_called_with("wlan0", "TEST_CON")
         perform_ping_test_mock.assert_not_called()
 
     @patch("wifi_nmcli_test.sp.call")
@@ -454,7 +454,7 @@ class TestSecuredConnection(unittest.TestCase):
         args.psk = "password123"
         rc = secured_connection(args)
         self.assertEqual(rc, 1)
-        wait_for_connected_mock.assert_called_with("wlan0", "TestSSID")
+        wait_for_connected_mock.assert_called_with("wlan0", "TEST_CON")
         perform_ping_test_mock.assert_not_called()
 
 

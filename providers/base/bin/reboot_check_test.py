@@ -10,9 +10,11 @@ import sys
 import enum
 import typing as T
 
+
 # Checkbox could run in a snap container, so we need to prepend this root path
 RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="")
-# Snap mount point, see https://snapcraft.io/docs/environment-variables#heading--snap
+# Snap mount point, see
+# https://snapcraft.io/docs/environment-variables#heading--snap
 SNAP = os.getenv("SNAP", default="")
 
 
@@ -157,7 +159,7 @@ def run_command(args: T.List[str]) -> ShellResult:
     out = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return ShellResult(
         return_code=out.returncode,
-        # if there's nothing on stdout, .stdout is None, so we need a default value
+        # if there's nothing on stdout, .stdout is None (<=3.7 behavior), so we need a default value
         stdout=(out.stdout or b"").decode(),
         stderr=(out.stderr or b"").decode(),
     )
@@ -202,7 +204,7 @@ def get_failed_services() -> T.List[str]:
     """Counts the number of failed services listed in systemctl
 
     :return: a list of failed services as they appear in systemctl
-    """    
+    """
     command = [
         "systemctl",
         "list-units",
@@ -225,7 +227,7 @@ def create_parser():
     parser.add_argument(
         "-d",
         "--dump-to",
-        required=True,
+        required=False,
         dest="output_directory",
         help="Absolute path to the output directory. Device info-dumps will be written here.",
     )
@@ -274,62 +276,16 @@ def remove_color_code(string: str) -> str:
 
 class HardwareRendererTester:
 
-    def get_display_id(self) -> T.Optional[str]:
-        """Returns the active display id
-        https://github.com/canonical/checkbox/blob/main/contrib/pc-sanity/bin/renderer-mesa-driver-check.sh
-
-        :return: the display id, usually ":0" if there's only 1 display
-        :rtype: str | None when there's no display
-        """
-        DISPLAY = os.getenv("DISPLAY", default="")
-
-        if DISPLAY != "":
-            print("Using $DISPLAY env variable: {}".format(DISPLAY))
-            return DISPLAY  # use the environment var if non-empty
-
-        session_id = (
-            run_command(["loginctl", "list-sessions", "--no-legend"])
-            .stdout.split()[0]
-            .strip()
-            # string is guaranteed to be non-empty, at least 1 user is logged in
-        )
-
-        display_server_type = (
-            run_command(["loginctl", "show-session", session_id, "-p", "Type"])
-            .stdout.split("=")[1]
-            .strip()  # it should look like Type=wayland, split and take 2nd word
-        )
-
-        # NOTE: Xwayland won't start until the first x11 app runs
-        # For now, we will assume :0 exists and use it as the display id
-        if display_server_type == "wayland":
-            pgrep_out = run_command(["pgrep", "-a", "Xwayland"])
-            pgrep_args = pgrep_out.stdout.split()
-            # search for a process called Xwayland, take the 3rd arg, which is the display id
-            if (
-                pgrep_out.return_code == 0
-                and len(pgrep_args) >= 3
-                and ":" in pgrep_args[2]
-            ):
-                return pgrep_args[2]
-            else:
-                print(
-                    "[ WARN ] Waylad session detected, but Xwayland process is not found. Assuming :0 display",
-                    file=sys.stderr,
-                )
-                return ":0"
-
-        if display_server_type == "x11":
-            w_out = run_command(["w", "--no-header"])
-            w_out_split = w_out.stdout.split()
-            if (
-                w_out.return_code == 0
-                and len(w_out_split) >= 3
-                and ":" in w_out_split[2]
-            ):
-                return w_out_split[2]
-
-        return None  # Unsupported window system, or it's tty
+    def is_desktop_image(self) -> bool:
+        if not shutil.which("dpkg"):
+            # core and server image doesn't have dpkg
+            return False
+        # if we found any of these packages, we are on desktop
+        if run_command(["dpkg", "-l", "ubuntu-desktop"]).stdout == 0:
+            return True
+        if run_command(["dpkg", "-l", "ubuntu-desktop-minimal"]).stdout == 0:
+            return True
+        return False
 
     def has_display_connection(self) -> bool:
         """Checks if a display is connected by searching the /sys/class/drm directory
@@ -339,8 +295,12 @@ class HardwareRendererTester:
 
         # look for GPU file nodes first
         DRM_PATH = "/sys/class/drm"
-        possible_gpu_nodes = os.listdir(DRM_PATH)
-        if len(possible_gpu_nodes) == 0 or possible_gpu_nodes == ["version"]:
+        possible_gpu_nodes = [
+            directory
+            for directory in os.listdir(DRM_PATH)
+            if directory != "version"
+        ]
+        if len(possible_gpu_nodes) == 0:
             # kernel doesn't see any GPU nodes
             print(
                 "There's nothing under {}".format(DRM_PATH),
@@ -377,24 +337,16 @@ class HardwareRendererTester:
         :rtype: bool
         """
 
-        # Now we know some kind of display exists, run unity_support_test
-        display_id = self.get_display_id()
-        if display_id is None:
-            print(
-                "No display id was found. Does this system have a desktop environment?",
-                file=sys.stderr,
+        print(
+            "Checking display id: {}".format(
+                os.getenv("DISPLAY", ":0 (assume)")
             )
-            # No display id was found
-            return False
-
-        print("Checking display id: {}".format(display_id))
+        )
 
         unity_support_output = run_command(
             [
                 "{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT),
                 "-p",
-                "-display",
-                display_id,
             ]
         )
         if unity_support_output.return_code != 0:
@@ -490,7 +442,7 @@ def main() -> int:
 
     if args.do_renderer_check:
         tester = HardwareRendererTester()
-        if tester.has_display_connection():
+        if tester.has_display_connection() and tester.is_desktop_image():
             # skip renderer test if there's no display
             renderer_test_passed = tester.is_hardware_renderer_available()
 

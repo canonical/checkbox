@@ -458,7 +458,10 @@ command:
   else
     audio_test.py
   fi
-_purpose: Play back a sound on the default output and listen for it on the default input.
+_purpose:
+ Play back a sound on the default output and listen for it on the default input.
+ This test is intended mostly for laptops, where the default output will be the
+ internal speakers and the default input will be the internal microphone.
 _summary: Test playback and recording functionality on the default audio input and output.
 
 plugin: shell
@@ -846,7 +849,10 @@ estimated_duration: 10
 id: audio/alsa-loopback-automated
 _summary: Captured sound matches played one (automated)
 _purpose:
- Check if sound that is 'hearable' by capture device
+ Check if sound that is 'hearable' by capture device.
+ This test is intended mostly for devices without internal speakers/microphones,
+ but with a line-in and a line-out ports to which a loopback cable can be
+ connected.
 plugin: shell
 depends: audio/detect-playback-devices audio/detect-capture-devices
 user: root

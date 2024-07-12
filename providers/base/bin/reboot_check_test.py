@@ -156,7 +156,11 @@ def run_command(args: T.List[str]) -> ShellResult:
     :rtype: ShellResult
     """
     # PIPE is needed for subprocess.run to capture stdout and stderr (<=3.7 behavior)
-    out = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    try:
+        out = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    except FileNotFoundError as e:
+        return ShellResult(1, '', "Command {} not found".format(args[0], e))
+
     return ShellResult(
         return_code=out.returncode,
         # if there's nothing on stdout, .stdout is None (<=3.7 behavior), so we need a default value
@@ -277,14 +281,18 @@ def remove_color_code(string: str) -> str:
 class HardwareRendererTester:
 
     def is_desktop_image(self) -> bool:
+        print("Checking if this system is using a desktop image...", end='')
         if not shutil.which("dpkg"):
             # core and server image doesn't have dpkg
             return False
         # if we found any of these packages, we are on desktop
-        if run_command(["dpkg", "-l", "ubuntu-desktop"]).stdout == 0:
+        if run_command(["dpkg", "-l", "ubuntu-desktop"]).return_code == 0:
+            print('ok')
             return True
-        if run_command(["dpkg", "-l", "ubuntu-desktop-minimal"]).stdout == 0:
+        if run_command(["dpkg", "-l", "ubuntu-desktop-minimal"]).return_code == 0:
+            print('ok')
             return True
+        print('not desktop')
         return False
 
     def has_display_connection(self) -> bool:

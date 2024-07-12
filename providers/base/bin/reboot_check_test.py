@@ -19,7 +19,9 @@ SNAP = os.getenv("SNAP", default="")
 
 
 class ShellResult:
-    """Wrapper class around the return value of run_command, guarantees non-null"""
+    """
+    Wrapper class around the return value of run_command, guarantees non-null
+    """
 
     def __init__(self, return_code: int, stdout: str, stderr: str):
         self.return_code = return_code
@@ -43,7 +45,8 @@ class DeviceInfoCollector:
         ],  # these can fail the test case
         "optional": [Device.DRM],  # these only produce warnings
     }  # type: dict[T.Literal['required','optional'], list[Device]]
-    # to modify, add more values in the enum and reference them in required/optional respectively
+    # to modify, add more values in the enum
+    # and reference them in required/optional respectively
 
     def get_drm_info(self) -> str:
         return str(os.listdir("/sys/class/drm"))
@@ -84,12 +87,13 @@ class DeviceInfoCollector:
     ) -> bool:
         """Compares the list of devices in expected_dir against actual_dir
 
-        :param expected_dir: a directory of files containing the expected values the device list
-        :param actual_dir: a directory of files containing the actual device list
+        :param expected_dir: files containing the expected device list
+        :param actual_dir: files containing the actual device list
         :return: whether the device list matches
         """
         print(
-            "Comparing device list files in (expected){} against (actual){}...".format(
+            "Comparing device lists in (expected){} against (actual){}..."
+            .format(
                 expected_dir, actual_dir
             )
         )
@@ -99,9 +103,7 @@ class DeviceInfoCollector:
             actual = "{}/{}_log".format(actual_dir, device.value)
             if not filecmp.cmp(expected, actual):
                 print(
-                    "The output of {} differs from the list gathered at the beginning of the session!".format(
-                        device.value
-                    ),
+                    "[ ERR ] The output of {} differs!".format(device.value),
                     file=sys.stderr,
                 )
                 return False
@@ -155,20 +157,26 @@ def run_command(args: T.List[str]) -> ShellResult:
     :return: return code, stdout and stderr, all non-null
     :rtype: ShellResult
     """
-    # PIPE is needed for subprocess.run to capture stdout and stderr (<=3.7 behavior)
+    # PIPE is needed for subprocess.run to capture stdout and stderr
+    # <=3.7 behavior
     try:
-        out = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        out = subprocess.run(
+            args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
     except FileNotFoundError as e:
-        return ShellResult(1, '', "Command {} not found".format(args[0], e))
+        return ShellResult(
+            1, "", "Command {} not found, {}".format(args[0], e)
+        )
 
     return ShellResult(
         return_code=out.returncode,
-        # if there's nothing on stdout, .stdout is None (<=3.7 behavior), so we need a default value
+        # if there's nothing on stdout, .stdout is None (<=3.7 behavior)
+        # so we need a default value
         stdout=(out.stdout or b"").decode(),
         stderr=(out.stderr or b"").decode(),
     )
-    # This could throw on non-UTF8 decodable byte strings, but that should be rare
-    # since utf-8 is backwards compatible with ascii
+    # This could throw on non-UTF8 decodable byte strings
+    # but that should be rare since utf-8 is backwards compatible with ascii
 
 
 class FwtsTester:
@@ -178,10 +186,11 @@ class FwtsTester:
     def fwts_log_check_passed(
         self, output_directory: str, fwts_arguments=["klog", "oops"]
     ) -> bool:
-        """Check if fwts logs passes the checks specified in sleep_test_log_check.py.
+        """
+        Check if fwts logs passes the checks specified in sleep_test_log_check
         This script live in the same directory
 
-        :param output_directory: where the output of fwts should be redirected to
+        :param output_directory: where the output of fwts should be written to
         :type output_directory: str
         :return: whether sleep_test_log_check.py returned 0 (success)
         :rtype: bool
@@ -205,7 +214,8 @@ class FwtsTester:
 
 
 def get_failed_services() -> T.List[str]:
-    """Counts the number of failed services listed in systemctl
+    """
+    Counts the number of failed services listed in systemctl
 
     :return: a list of failed services as they appear in systemctl
     """
@@ -226,20 +236,20 @@ def get_failed_services() -> T.List[str]:
 def create_parser():
     parser = argparse.ArgumentParser(
         prog="Reboot tests",
-        description="This script is used to collect device information and to check for differences between reboots.",
+        description="Collects device info and compares them across reboots",
     )
     parser.add_argument(
         "-d",
         "--dump-to",
         required=False,
         dest="output_directory",
-        help="Absolute path to the output directory. Device info-dumps will be written here.",
+        help="Device info-dumps will be written here",
     )
     parser.add_argument(
         "-c",
         "--compare-to",
         dest="comparison_directory",
-        help="Absolute path to the comparison directory. This should contain the ground-truth.",
+        help="Directory of ground-truth for device info comparison",
     )
     parser.add_argument(
         "-s",
@@ -247,7 +257,7 @@ def create_parser():
         default=False,
         dest="do_service_check",
         action="store_true",
-        help="Whether the script should check if all system services are running",
+        help="If specified, check if all system services are running",
     )
     parser.add_argument(
         "-f",
@@ -255,7 +265,7 @@ def create_parser():
         default=False,
         dest="do_fwts_check",
         action="store_true",
-        help="Whether the script should look for fwts log errors",
+        help="If specified, look for fwts log errors",
     )
     parser.add_argument(
         "-g",
@@ -263,14 +273,15 @@ def create_parser():
         default=False,
         dest="do_renderer_check",
         action="store_true",
-        help="Whether the script should check if hardware rendering is being used",
+        help="If specified, check if hardware rendering is being used",
     )
 
     return parser
 
 
 def remove_color_code(string: str) -> str:
-    """Removes ANSI color escape sequences from string
+    """
+    Removes ANSI color escape sequences from string
 
     :param string: the string that you would like to remove color code
     credit: Hanhsuan Lee <hanhsuan.lee@canonical.com>
@@ -281,22 +292,23 @@ def remove_color_code(string: str) -> str:
 class HardwareRendererTester:
 
     def is_desktop_image(self) -> bool:
-        print("Checking if this system is using a desktop image...", end='')
+        print("Checking if this system is using a desktop image...", end="")
         if not shutil.which("dpkg"):
             # core and server image doesn't have dpkg
             return False
         # if we found any of these packages, we are on desktop
         if run_command(["dpkg", "-l", "ubuntu-desktop"]).return_code == 0:
-            print('ok')
             return True
-        if run_command(["dpkg", "-l", "ubuntu-desktop-minimal"]).return_code == 0:
-            print('ok')
+        if (
+            run_command(["dpkg", "-l", "ubuntu-desktop-minimal"]).return_code
+            == 0
+        ):
             return True
-        print('not desktop')
         return False
 
     def has_display_connection(self) -> bool:
-        """Checks if a display is connected by searching the /sys/class/drm directory
+        """
+        Checks if a display is connected by searching /sys/class/drm
 
         :return: True if there's at least 1 node that is connected
         """
@@ -312,21 +324,24 @@ class HardwareRendererTester:
             # kernel doesn't see any GPU nodes
             print(
                 "There's nothing under {}".format(DRM_PATH),
-                "if an external GPU is connected, check if the connection is loose",
+                "if an external GPU is connected,"
+                "check if the connection is loose",
             )
             return False
 
         print("These nodes", possible_gpu_nodes, "exist")
 
         for gpu in possible_gpu_nodes:
-            # for each gpu, check for connection, return true if anything is connected
+            # for each gpu, check for connection
+            # return true if anything is connected
             try:
                 with open("{}/{}/status".format(DRM_PATH, gpu)) as status_file:
                     if status_file.read().strip().lower() == "connected":
                         print("{} is connected to display!".format(gpu))
                         return True
             except FileNotFoundError:
-                # this just means we don't have a status file => no connection, continue to the next
+                # this just means we don't have a status file
+                # => no connection, continue to the next
                 pass
             except Exception as e:
                 print("Unexpected error: ", e, file=sys.stderr)
@@ -334,11 +349,15 @@ class HardwareRendererTester:
         print(
             "No display is connected. This case will be skipped.",
             "Maybe the display cable is not connected?",
+            "If the device is not supposed to have a display,"
+            "then skipping is expected",
         )
         return False
 
     def is_hardware_renderer_available(self) -> bool:
-        """Checks if hardware rendering is being used. THIS ASSUMES A DRM CONNECTION EXISTS
+        """
+        Checks if hardware rendering is being used.
+        THIS ASSUMES A DRM CONNECTION EXISTS
         - self.has_display_connection() should be called first if unsure
 
         :return: True if a hardware renderer is active, otherwise return False
@@ -375,12 +394,14 @@ class HardwareRendererTester:
     def parse_unity_support_output(
         self, unity_output_string: str
     ) -> T.Dict[str, str]:
-        """Parses the output of `unity_support_test` into a dictionary
+        """
+        Parses the output of `unity_support_test` into a dictionary
 
-        :param output_string: the raw output from running `unity_support_test -p`
+        :param output_string: the raw output from running unity_support_test -p
         :type output_string: str
-        :return: string key-value pairs that mirror the output of unity_support_test.
-            Left hand side of the first colon are the keys; right hand side are the values.
+        :return: string key-value pairs that mirror the output of unity_support
+        Left hand side of the first colon are the keys;
+        right hand side are the values.
         :rtype: dict[str, str]
         """
 
@@ -416,7 +437,7 @@ def main() -> int:
     if args.comparison_directory is not None:
         if args.output_directory is None:
             print(
-                "Error: Please also specify an output directory with the -d flag.",
+                "[ ERR ] Please specify an output directory with the -d flag.",
                 file=sys.stderr,
             )
         else:
@@ -450,7 +471,7 @@ def main() -> int:
 
     if args.do_renderer_check:
         tester = HardwareRendererTester()
-        if tester.has_display_connection() and tester.is_desktop_image():
+        if tester.is_desktop_image() and tester.has_display_connection():
             # skip renderer test if there's no display
             renderer_test_passed = tester.is_hardware_renderer_available()
 

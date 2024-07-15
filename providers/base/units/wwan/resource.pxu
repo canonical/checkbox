@@ -11,19 +11,7 @@ category_id: wwan
 plugin: resource
 _summary: Gather device info about WWAN modems
 _description: Gather device info about WWAN modems
-command: wwan_tests.py resources
-user: root
-estimated_duration: 3s
-flags: preserve-locale
-
-unit: job
-id: wwan_resource_with_iteration
-category_id: wwan
-plugin: resource
-_summary: Gather device info about WWAN modems
-_description: Gather device info about WWAN modems
-command: wwan_resource_with_iterations.py -i "${WWAN_CONNECTION_TEST_COUNT:-1}"
-environ: WWAN_CONNECTION_TEST_COUNT
+command: wwan_tests.py resources --iteration "${WWAN_CONNECTION_TEST_COUNT:-2}"
 user: root
 estimated_duration: 3s
 flags: preserve-locale

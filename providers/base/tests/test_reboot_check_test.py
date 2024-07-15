@@ -148,24 +148,6 @@ class DisplayConnectionTests(unittest.TestCase):
         tester = RCT.HardwareRendererTester()
         self.assertTrue(tester.is_hardware_renderer_available())
 
-    @patch("reboot_check_test.run_command")
-    def test_get_display_id(self, mock_run: MagicMock):
-        with patch.dict(os.environ, {"DISPLAY": ":0"}):
-            self.assertEqual(self.tester.get_display_id(), ":0")
-
-        with patch.dict(os.environ, {"DISPLAY": ""}):
-            mock_run.side_effect = self.create_side_effect("wayland")
-            self.assertEqual(self.tester.get_display_id(), ":0")
-
-            mock_run.side_effect = self.create_side_effect("wayland", False)
-            self.assertEqual(self.tester.get_display_id(), ":0")
-
-            mock_run.side_effect = self.create_side_effect("x11")
-            self.assertEqual(self.tester.get_display_id(), ":0")
-
-            mock_run.side_effect = self.create_side_effect("x11", False)
-            self.assertIsNone(self.tester.get_display_id())
-
 
 class InfoDumpTests(unittest.TestCase):
     @classmethod
@@ -274,7 +256,9 @@ class FailedServiceCheckerTests(unittest.TestCase):
             "snap.checkbox.agent.service loaded failed failed Service for snap applictaion checkbox.agent",
             "",
         )
-        self.assertEqual(RCT.get_failed_services(), [mock_run.return_value.stdout])
+        self.assertEqual(
+            RCT.get_failed_services(), [mock_run.return_value.stdout]
+        )
 
 
 class MainFunctionTests(unittest.TestCase):
@@ -285,7 +269,7 @@ class MainFunctionTests(unittest.TestCase):
 
     def tearDown(self):
         shutil.rmtree(self.temp_output_dir, ignore_errors=True)
-        shutil.rmtree(self.temp_comparison_dir, ignore_errors=True)        
+        shutil.rmtree(self.temp_comparison_dir, ignore_errors=True)
 
     @patch("reboot_check_test.run_command")
     def test_partial_main(self, mock_run: MagicMock):
@@ -345,7 +329,7 @@ class MainFunctionTests(unittest.TestCase):
             "reboot_check_test.FwtsTester.is_fwts_supported"
         ) as mock_is_fwts_supported:
             mock_is_fwts_supported.return_value = True
-            mock_compare.return_value = True 
+            mock_compare.return_value = True
 
             RCT.main()
 

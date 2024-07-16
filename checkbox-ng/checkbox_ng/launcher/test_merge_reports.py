@@ -16,21 +16,22 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-from unittest import TestCase, mock
+from unittest import TestCase
+from unittest.mock import patch, MagicMock
 from functools import partial
 
 from checkbox_ng.launcher.merge_reports import MergeReports
 
 
 class MergeReportsTests(TestCase):
-    @mock.patch("checkbox_ng.launcher.merge_reports.TemporaryDirectory")
-    @mock.patch("checkbox_ng.launcher.merge_reports.SessionManager")
-    @mock.patch("checkbox_ng.launcher.merge_reports.JobDefinition")
-    @mock.patch("checkbox_ng.launcher.merge_reports.CategoryUnit")
-    @mock.patch("builtins.print")
-    @mock.patch("os.path.join")
-    @mock.patch("tarfile.open")
-    @mock.patch("json.load")
+    @patch("checkbox_ng.launcher.merge_reports.TemporaryDirectory")
+    @patch("checkbox_ng.launcher.merge_reports.SessionManager")
+    @patch("checkbox_ng.launcher.merge_reports.JobDefinition")
+    @patch("checkbox_ng.launcher.merge_reports.CategoryUnit")
+    @patch("builtins.print")
+    @patch("os.path.join")
+    @patch("tarfile.open")
+    @patch("json.load")
     # used to load an empty launcher with no error
     def test_invoked_ok(
         self,
@@ -43,11 +44,11 @@ class MergeReportsTests(TestCase):
         session_manager_mock,
         temp_dir_mock,
     ):
-        ctx_mock = mock.MagicMock()
+        ctx_mock = MagicMock()
         ctx_mock.args.submission = ["submission"]
         ctx_mock.args.output_file = "file_location"
 
-        self_mock = mock.MagicMock()
+        self_mock = MagicMock()
         self_mock._parse_submission = partial(
             MergeReports._parse_submission, self_mock
         )
@@ -65,7 +66,7 @@ class MergeReportsTests(TestCase):
         }
         json_mock.return_value = sub_to_read
 
-        with mock.patch("builtins.open"):
+        with patch("builtins.open"):
             MergeReports.invoked(self_mock, ctx_mock)
 
         # output path was printed
@@ -73,3 +74,10 @@ class MergeReportsTests(TestCase):
         exporter = self_mock._create_exporter.return_value
         # exporter was created and dumped
         self.assertTrue(exporter.dump_from_session_manager_list.called)
+
+    def test_populate_session_state(self):
+        job_mock = MagicMock()
+        state_mock = MagicMock()
+        self_mock = MagicMock()
+        MergeReports._populate_session_state(self_mock, job_mock, state_mock)
+        self.assertTrue(job_mock.get_record_value.called)

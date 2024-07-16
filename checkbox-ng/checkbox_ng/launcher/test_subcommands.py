@@ -734,7 +734,7 @@ class TestLListBootstrapped(TestCase):
                             "summary": "fake-job1",
                             "plugin": "manual",
                             "description": "fake-description1",
-                            "certification_status": "unspecified",
+                            "certification_status": "non-blocker",
                         },
                         id="namespace1::test-job1",
                         partial_id="test-job1",
@@ -745,7 +745,7 @@ class TestLListBootstrapped(TestCase):
                             "summary": "fake-job2",
                             "plugin": "shell",
                             "command": "ls",
-                            "certification_status": "unspecified",
+                            "certification_status": "non-blocker",
                         },
                         id="namespace2::test-job2",
                         partial_id="test-job2",
@@ -903,7 +903,7 @@ class TestExpand(TestCase):
         )
         self.assertEqual(
             self.launcher.get_effective_certification_status(template1),
-            "unspecified",
+            "non-blocker",
         )
 
 

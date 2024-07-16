@@ -89,6 +89,7 @@ class DeviceInfoCollector:
 
         :param expected_dir: files containing the expected device list
         :param actual_dir: files containing the actual device list
+        :param devices: what devices do we want to compare, see DEFAULT_DEVICES
         :return: whether the device list matches
         """
         print(
@@ -164,9 +165,7 @@ def run_command(args: T.List[str]) -> ShellResult:
             args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
         )
     except FileNotFoundError as e:
-        return ShellResult(
-            1, "", "Command {} not found, {}".format(args[0], e)
-        )
+        return ShellResult(1, "", "Command {} not found {}".format(args[0], e))
 
     return ShellResult(
         return_code=out.returncode,
@@ -292,7 +291,7 @@ def remove_color_code(string: str) -> str:
 class HardwareRendererTester:
 
     def is_desktop_image(self) -> bool:
-        print("Checking if this system is using a desktop image...", end="")
+        print("Checking if this system is using a desktop image...")
         if not shutil.which("dpkg"):
             # core and server image doesn't have dpkg
             return False
@@ -303,7 +302,10 @@ class HardwareRendererTester:
             run_command(["dpkg", "-l", "ubuntu-desktop-minimal"]).return_code
             == 0
         ):
+            print("Ubuntu desktop detected!")
             return True
+
+        print("Not on ubuntu desktop.")
         return False
 
     def has_display_connection(self) -> bool:
@@ -374,9 +376,19 @@ class HardwareRendererTester:
             [
                 "{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT),
                 "-p",
+                "-display",
+                os.getenv("DISPLAY", ":0"),
             ]
         )
         if unity_support_output.return_code != 0:
+            print(
+                "[ ERR ] unity support test returned {}".format(
+                    unity_support_output.return_code
+                ),
+                file=sys.stderr,
+            )
+            print("stdout", unity_support_output.stdout, file=sys.stderr)
+            print("stderr", unity_support_output.stderr, file=sys.stderr)
             return False
 
         is_hardware_rendered = (
@@ -389,6 +401,7 @@ class HardwareRendererTester:
             print("[ OK ] This machine is using a hardware renderer!")
             return True
 
+        print("[ ERR ] Software rendering detected", file=sys.stderr)
         return False
 
     def parse_unity_support_output(
@@ -443,9 +456,10 @@ def main() -> int:
         else:
             collector = DeviceInfoCollector()
             collector.dump(args.output_directory)
-            collector.compare_device_lists(
+            if collector.compare_device_lists(
                 args.comparison_directory, args.output_directory
-            )
+            ):
+                print("[ OK ] Devices match!")
 
     # dump (no checks) if only output_directory is specified
     if args.output_directory is not None and args.comparison_directory is None:

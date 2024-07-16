@@ -83,30 +83,6 @@ class DisplayConnectionTests(unittest.TestCase):
     def setUp(self) -> None:
         self.tester = RCT.HardwareRendererTester()
 
-    def create_side_effect(
-        self,
-        display_server_name: 'T.Literal["wayland", "x11", "tty"]',
-        happy_path=True,
-    ):
-        def side_effect(args: T.List[str]):
-            stdout = ""
-            if args[0] == "loginctl":
-                stdout = "Type={}".format(display_server_name)
-            if args[0] == "pgrep":
-                if happy_path:
-                    stdout = "75632 /usr/bin/Xwayland :0 -rootless -noreset -accessx -core -auth /run/user/1000/.mutter-Xwaylandauth.FFE5P2"
-                else:
-                    stdout = ""  # Xwayland is not guaranteed to exist
-            if args[0] == "w":
-                if happy_path:
-                    stdout = "ubuntu :0 :0 13:43 13:55m  0.01s  0.00s /usr/libexec/gdm-wayland-session en"
-                else:
-                    stdout = "ubuntu tty2 tty2 Mon13 35:51m  0.01s  0.00s /usr/libexec/gdm-wayland-session en"
-
-            return RCT.ShellResult(0, stdout, "")
-
-        return side_effect
-
     def test_display_check_happy_path(self):
         with patch(
             "os.listdir", return_value=["fakeCard0", "fakeCard1"]
@@ -129,7 +105,6 @@ class DisplayConnectionTests(unittest.TestCase):
         ):
             self.assertFalse(self.tester.has_display_connection())
 
-    @patch("reboot_check_test.HardwareRendererTester.get_display_id")
     @patch(
         "reboot_check_test.HardwareRendererTester.parse_unity_support_output"
     )
@@ -138,15 +113,22 @@ class DisplayConnectionTests(unittest.TestCase):
         self,
         mock_run: MagicMock,
         mock_parse: MagicMock,
-        mock_get_display_id: MagicMock,
     ):
         mock_run.side_effect = do_nothing
-        mock_get_display_id.return_value = ":0"
         mock_parse.return_value = {
             "Not software rendered": "yes",
         }
         tester = RCT.HardwareRendererTester()
         self.assertTrue(tester.is_hardware_renderer_available())
+
+    @patch("reboot_check_test.run_command")
+    def test_is_ubuntu_desktop(self, mock_run: MagicMock):
+        mock_run.return_value = RCT.ShellResult(1, "No such package", "")
+        tester = RCT.HardwareRendererTester()
+        self.assertFalse(tester.is_desktop_image())
+
+        mock_run.return_value = RCT.ShellResult(0, "", "")
+        self.assertTrue(tester.is_desktop_image())
 
 
 class InfoDumpTests(unittest.TestCase):
@@ -262,6 +244,13 @@ class FailedServiceCheckerTests(unittest.TestCase):
 
 
 class MainFunctionTests(unittest.TestCase):
+
+    def test_run_cmd_exception(self):
+        cmd = sh_split("non_existent_command -a -b -c")
+        output = RCT.run_command(cmd)
+        self.assertEqual(output.return_code, 1)
+        self.assertIn("Command non_existent_command not found", output.stderr)
+
     @classmethod
     def setUpClass(cls):
         cls.temp_output_dir = "{}/temp_output_dir".format(os.getcwd())
@@ -308,13 +297,9 @@ class MainFunctionTests(unittest.TestCase):
             )  # only lspci, lsusb, iw calls
             self.assertEqual(mock_compare.call_count, 1)
 
-    @patch("reboot_check_test.HardwareRendererTester.get_display_id")
     @patch("reboot_check_test.run_command")
-    def test_main_function_full(
-        self, mock_run: MagicMock, mock_get_display_id: MagicMock
-    ):
+    def test_main_function_full(self, mock_run: MagicMock):
         mock_run.side_effect = do_nothing
-        mock_get_display_id.return_value = ":0"
         # Full suite
         with patch(
             "sys.argv",

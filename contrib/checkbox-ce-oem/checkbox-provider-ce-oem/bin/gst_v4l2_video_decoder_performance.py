@@ -24,6 +24,8 @@ import re
 import shlex
 import subprocess
 
+from performance_mode_controller import performance_mode
+
 logging.basicConfig(level=logging.INFO)
 
 
@@ -69,6 +71,14 @@ def register_arguments():
             "The minimum value of FPS that "
             "all average FPS value should not violate"
         ),
+    )
+
+    parser.add_argument(
+        "-pmt",
+        "--performance_mode_target",
+        default="",
+        type=str,
+        help="",
     )
 
     args = parser.parse_args()
@@ -210,7 +220,9 @@ def main() -> None:
         sink=args.sink,
     )
 
-    output = execute_command(cmd).rstrip(os.linesep)
+    with performance_mode(args.performance_mode_target):
+        output = execute_command(cmd).rstrip(os.linesep)
+
     if not is_valid_result(output, args.minimum_fps):
         raise SystemExit(1)
     logging.info("Pass")

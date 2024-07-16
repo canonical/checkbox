@@ -29,6 +29,34 @@ class ShellResult:
         self.stderr = stderr
 
 
+def run_command(args: T.List[str]) -> ShellResult:
+    """Wrapper around subprocess.run
+
+    :param args: same args that goes to subprocess.run
+    :type args: T.List[str]
+    :return: return code, stdout and stderr, all non-null
+    :rtype: ShellResult
+    """
+    # PIPE is needed for subprocess.run to capture stdout and stderr
+    # <=3.7 behavior
+    try:
+        out = subprocess.run(
+            args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
+    except FileNotFoundError as e:
+        return ShellResult(1, "", "Command {} not found {}".format(args[0], e))
+
+    return ShellResult(
+        return_code=out.returncode,
+        # if there's nothing on stdout, .stdout is None (<=3.7 behavior)
+        # so we need a default value
+        stdout=(out.stdout or b"").decode(),
+        stderr=(out.stderr or b"").decode(),
+    )
+    # This could throw on non-UTF8 decodable byte strings
+    # but that should be rare since utf-8 is backwards compatible with ascii
+
+
 class DeviceInfoCollector:
 
     class Device(enum.Enum):
@@ -93,8 +121,7 @@ class DeviceInfoCollector:
         :return: whether the device list matches
         """
         print(
-            "Comparing device lists in (expected){} against (actual){}..."
-            .format(
+            "Comparing device lists in (expected){} against (actual){}...".format(
                 expected_dir, actual_dir
             )
         )
@@ -150,34 +177,6 @@ class DeviceInfoCollector:
         }
 
 
-def run_command(args: T.List[str]) -> ShellResult:
-    """Wrapper around subprocess.run
-
-    :param args: same args that goes to subprocess.run
-    :type args: T.List[str]
-    :return: return code, stdout and stderr, all non-null
-    :rtype: ShellResult
-    """
-    # PIPE is needed for subprocess.run to capture stdout and stderr
-    # <=3.7 behavior
-    try:
-        out = subprocess.run(
-            args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-    except FileNotFoundError as e:
-        return ShellResult(1, "", "Command {} not found {}".format(args[0], e))
-
-    return ShellResult(
-        return_code=out.returncode,
-        # if there's nothing on stdout, .stdout is None (<=3.7 behavior)
-        # so we need a default value
-        stdout=(out.stdout or b"").decode(),
-        stderr=(out.stderr or b"").decode(),
-    )
-    # This could throw on non-UTF8 decodable byte strings
-    # but that should be rare since utf-8 is backwards compatible with ascii
-
-
 class FwtsTester:
     def is_fwts_supported(self) -> bool:
         return shutil.which("fwts") is not None
@@ -210,82 +209,6 @@ class FwtsTester:
         )
 
         return result.return_code == 0
-
-
-def get_failed_services() -> T.List[str]:
-    """
-    Counts the number of failed services listed in systemctl
-
-    :return: a list of failed services as they appear in systemctl
-    """
-    command = [
-        "systemctl",
-        "list-units",
-        "--system",
-        "--no-ask-password",
-        "--no-pager",
-        "--no-legend",
-        "--state=failed",
-        "--plain",  # plaintext, otherwise it includes color codes
-    ]
-
-    return run_command(command).stdout.splitlines()
-
-
-def create_parser():
-    parser = argparse.ArgumentParser(
-        prog="Reboot tests",
-        description="Collects device info and compares them across reboots",
-    )
-    parser.add_argument(
-        "-d",
-        "--dump-to",
-        required=False,
-        dest="output_directory",
-        help="Device info-dumps will be written here",
-    )
-    parser.add_argument(
-        "-c",
-        "--compare-to",
-        dest="comparison_directory",
-        help="Directory of ground-truth for device info comparison",
-    )
-    parser.add_argument(
-        "-s",
-        "--service-check",
-        default=False,
-        dest="do_service_check",
-        action="store_true",
-        help="If specified, check if all system services are running",
-    )
-    parser.add_argument(
-        "-f",
-        "--fwts-check",
-        default=False,
-        dest="do_fwts_check",
-        action="store_true",
-        help="If specified, look for fwts log errors",
-    )
-    parser.add_argument(
-        "-g",
-        "--graphics",
-        default=False,
-        dest="do_renderer_check",
-        action="store_true",
-        help="If specified, check if hardware rendering is being used",
-    )
-
-    return parser
-
-
-def remove_color_code(string: str) -> str:
-    """
-    Removes ANSI color escape sequences from string
-
-    :param string: the string that you would like to remove color code
-    credit: Hanhsuan Lee <hanhsuan.lee@canonical.com>
-    """
-    return re.sub(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])", "", string)
 
 
 class HardwareRendererTester:
@@ -387,8 +310,6 @@ class HardwareRendererTester:
                 ),
                 file=sys.stderr,
             )
-            print("stdout", unity_support_output.stdout, file=sys.stderr)
-            print("stderr", unity_support_output.stderr, file=sys.stderr)
             return False
 
         is_hardware_rendered = (
@@ -428,6 +349,82 @@ class HardwareRendererTester:
                 output[key] = value
 
         return output
+
+
+def get_failed_services() -> T.List[str]:
+    """
+    Counts the number of failed services listed in systemctl
+
+    :return: a list of failed services as they appear in systemctl
+    """
+    command = [
+        "systemctl",
+        "list-units",
+        "--system",
+        "--no-ask-password",
+        "--no-pager",
+        "--no-legend",
+        "--state=failed",
+        "--plain",  # plaintext, otherwise it includes color codes
+    ]
+
+    return run_command(command).stdout.splitlines()
+
+
+def create_parser():
+    parser = argparse.ArgumentParser(
+        prog="Reboot tests",
+        description="Collects device info and compares them across reboots",
+    )
+    parser.add_argument(
+        "-d",
+        "--dump-to",
+        required=False,
+        dest="output_directory",
+        help="Device info-dumps will be written here",
+    )
+    parser.add_argument(
+        "-c",
+        "--compare-to",
+        dest="comparison_directory",
+        help="Directory of ground-truth for device info comparison",
+    )
+    parser.add_argument(
+        "-s",
+        "--service-check",
+        default=False,
+        dest="do_service_check",
+        action="store_true",
+        help="If specified, check if all system services are running",
+    )
+    parser.add_argument(
+        "-f",
+        "--fwts-check",
+        default=False,
+        dest="do_fwts_check",
+        action="store_true",
+        help="If specified, look for fwts log errors",
+    )
+    parser.add_argument(
+        "-g",
+        "--graphics",
+        default=False,
+        dest="do_renderer_check",
+        action="store_true",
+        help="If specified, check if hardware rendering is being used",
+    )
+
+    return parser
+
+
+def remove_color_code(string: str) -> str:
+    """
+    Removes ANSI color escape sequences from string
+
+    :param string: the string that you would like to remove color code
+    credit: Hanhsuan Lee <hanhsuan.lee@canonical.com>
+    """
+    return re.sub(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])", "", string)
 
 
 def main() -> int:
@@ -471,6 +468,8 @@ def main() -> int:
             args.output_directory
         ):
             fwts_passed = False
+        else:
+            print("[ OK ] fwts checks passed!")
 
     if args.do_service_check:
         failed_services = get_failed_services()
@@ -480,8 +479,8 @@ def main() -> int:
                 file=sys.stderr,
             )
             service_check_passed = False
-
-        print("[ OK ] All system services are running!")
+        else:
+            print("[ OK ] Didn't find any failed system services!")
 
     if args.do_renderer_check:
         tester = HardwareRendererTester()

@@ -121,7 +121,8 @@ class DeviceInfoCollector:
         :return: whether the device list matches
         """
         print(
-            "Comparing device lists in (expected){} against (actual){}...".format(
+            "Comparing device lists in (expected){} against (actual){}..."
+            .format(
                 expected_dir, actual_dir
             )
         )
@@ -295,7 +296,6 @@ class HardwareRendererTester:
             print("$DISPLAY is not set, we will let unity_support infer this")
         else:
             print("Checking $DISPLAY={}".format(DISPLAY))
-
 
         unity_support_output = run_command(
             [

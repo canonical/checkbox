@@ -19,7 +19,7 @@ class UnitySupportParserTests(unittest.TestCase):
         OK_UNITY_STRING = """\
         OpenGL vendor string:   Intel
         OpenGL renderer string: Mesa Intel(R) UHD Graphics (ICL GT1)
-        OpenGL version string:  4.6 (Compatibility Profile) Mesa 23.2.1-1ubuntu3.1~22.04.2
+        OpenGL version string:  4.6 (Compatibility Profile) Mesa 23.2.1
 
         Not software rendered:    \x1B[033myes\x1B[0m
         Not blacklisted:          \x1B[033myes\x1B[0m
@@ -38,7 +38,7 @@ class UnitySupportParserTests(unittest.TestCase):
         expected = {
             "OpenGL vendor string": "Intel",
             "OpenGL renderer string": "Mesa Intel(R) UHD Graphics (ICL GT1)",
-            "OpenGL version string": "4.6 (Compatibility Profile) Mesa 23.2.1-1ubuntu3.1~22.04.2",
+            "OpenGL version string": "4.6 (Compatibility Profile) Mesa 23.2.1",
             "Not software rendered": "yes",
             "Not blacklisted": "yes",
             "GLX fbconfig": "yes",
@@ -59,7 +59,7 @@ class UnitySupportParserTests(unittest.TestCase):
         BAD_UNITY_STRING = """
         OpenGL vendor string   Intel
         OpenGL renderer string: Mesa Intel(R) UHD Graphics (ICL GT1)
-        OpenGL version string  4.6 (Compatibility Profile) Mesa 23.2.1-1ubuntu3.1~22.04.2
+        OpenGL version string  4.6 (Compatibility Profile) Mesa 23.2.1-1ubuntu
         GL version is 1.4+%       \x1B[033myes\x1B[0m
         """
         actual = self.tester.parse_unity_support_output(BAD_UNITY_STRING)
@@ -235,7 +235,8 @@ class FailedServiceCheckerTests(unittest.TestCase):
     ):
         mock_run.return_value = RCT.ShellResult(
             0,
-            "snap.checkbox.agent.service loaded failed failed Service for snap applictaion checkbox.agent",
+            "snap.checkbox.agent.service loaded failed failed Service\
+                  for snap applictaion checkbox.agent",
             "",
         )
         self.assertEqual(
@@ -262,7 +263,8 @@ class MainFunctionTests(unittest.TestCase):
 
     @patch("reboot_check_test.run_command")
     def test_partial_main(self, mock_run: MagicMock):
-        # this test only validates the main function logic(if it picks out the correct tests to run)
+        # this test only validates the main function logic
+        # (if it picks out the correct tests to run)
         mock_run.side_effect = do_nothing
 
         with patch(
@@ -334,7 +336,8 @@ class MainFunctionTests(unittest.TestCase):
                 # then take the 1st element, which is the command name
                 actual.add(call[0][0][0])
 
-            # <= is an overloaded operator for sets that checks the isSubset relation
+            # <= is an overloaded operator for sets
+            # that checks the isSubset relation
             self.assertLessEqual(
                 expected_commands, actual, "should be a subset"
             )

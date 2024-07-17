@@ -289,18 +289,18 @@ class HardwareRendererTester:
         :rtype: bool
         """
 
-        print(
-            "Checking display id: {}".format(
-                os.getenv("DISPLAY", ":0 (assume)")
-            )
-        )
+        DISPLAY = os.getenv("DISPLAY", "")
+
+        if DISPLAY == '':
+            print("$DISPLAY is not set, we will let unity_support infer this")
+        else:
+            print("Checking $DISPLAY={}".format(DISPLAY))
+
 
         unity_support_output = run_command(
             [
                 "{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT),
-                "-p",
-                "-display",
-                os.getenv("DISPLAY", ":0"),
+                "-p"
             ]
         )
         if unity_support_output.return_code != 0:

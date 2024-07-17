@@ -6,4 +6,4 @@ launcher_version = 1
 stock_reports = text, submission_files, certification
 
 [test plan]
-filter = com.canonical.certification::client-cert-iot-server-22-04-*
+filter = com.canonical.certification::client-cert-iot-server-24-04-*

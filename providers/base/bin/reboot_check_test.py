@@ -219,10 +219,11 @@ class HardwareRendererTester:
             # core and server image doesn't have dpkg
             return False
         # if we found any of these packages, we are on desktop
-        if run_command(["dpkg", "-l", "ubuntu-desktop"]).return_code == 0:
-            return True
         if (
-            run_command(["dpkg", "-l", "ubuntu-desktop-minimal"]).return_code
+            run_command(["dpkg", "-l", "ubuntu-desktop"]).return_code == 0
+            or run_command(
+                ["dpkg", "-l", "ubuntu-desktop-minimal"]
+            ).return_code
             == 0
         ):
             print("Ubuntu desktop detected!")

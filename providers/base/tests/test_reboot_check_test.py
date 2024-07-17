@@ -320,7 +320,6 @@ class MainFunctionTests(unittest.TestCase):
 
             RCT.main()
 
-            # self.assertTrue(mock_compare.called)
             self.assertTrue(mock_is_fwts_supported.called)
 
             expected_commands = {
@@ -341,3 +340,21 @@ class MainFunctionTests(unittest.TestCase):
             self.assertLessEqual(
                 expected_commands, actual, "should be a subset"
             )
+
+            with patch(
+                "reboot_check_test.get_failed_services"
+            ) as mock_get_failed_services:
+                mock_get_failed_services.return_value = [
+                    "failed service1",
+                    "failed service2",
+                ]
+                self.assertEqual(RCT.main(), 1)
+
+    def test_only_comparison_is_specified(self):
+        with patch(
+            "sys.argv",
+            sh_split(
+                'reboot_check_test.py -c "{}"'.format(self.temp_output_dir)
+            ),
+        ), self.assertRaises(ValueError):
+            RCT.main()

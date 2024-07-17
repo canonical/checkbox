@@ -121,8 +121,7 @@ class DeviceInfoCollector:
         :return: whether the device list matches
         """
         print(
-            "Comparing device lists in (expected){} against (actual){}..."
-            .format(
+            "Comparing devices in (expected) {} against (actual) {}...".format(
                 expected_dir, actual_dir
             )
         )
@@ -292,16 +291,13 @@ class HardwareRendererTester:
 
         DISPLAY = os.getenv("DISPLAY", "")
 
-        if DISPLAY == '':
+        if DISPLAY == "":
             print("$DISPLAY is not set, we will let unity_support infer this")
         else:
             print("Checking $DISPLAY={}".format(DISPLAY))
 
         unity_support_output = run_command(
-            [
-                "{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT),
-                "-p"
-            ]
+            ["{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT), "-p"]
         )
         if unity_support_output.return_code != 0:
             print(
@@ -449,6 +445,9 @@ def main() -> int:
             print(
                 "[ ERR ] Please specify an output directory with the -d flag.",
                 file=sys.stderr,
+            )
+            raise ValueError(
+                "Cmoparison directory is specified, but output directory isn't"
             )
         else:
             collector = DeviceInfoCollector()

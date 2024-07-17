@@ -82,6 +82,7 @@ nested_part:
     com.canonical.certification::rtc-automated
     com.canonical.certification::led-indicator-auto
     before-suspend-ce-oem-spi-automated
+    ce-oem-rpmsg-automated
 
 id: after-suspend-ce-oem-manual
 unit: test plan
@@ -144,6 +145,7 @@ nested_part:
     after-suspend-ce-oem-iio-sensors-automated
     after-suspend-ce-oem-digital-io-automated
     after-suspend-ce-oem-spi-automated
+    after-suspend-ce-oem-rpmsg-automated
 
 id: ce-oem-stress
 unit: test plan

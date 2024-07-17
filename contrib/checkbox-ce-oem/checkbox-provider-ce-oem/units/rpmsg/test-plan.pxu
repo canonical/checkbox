@@ -24,3 +24,12 @@ include:
     ce-oem-rpmsg/serial-tty
     ce-oem-rpmsg/pingpong
     ce-oem-rpmsg/reload-rp-firmware-test
+
+id: after-suspend-ce-oem-rpmsg-automated
+unit: test plan
+_name: After suspend remote Processor RPMSG auto tests
+_description: After suspend Automated RPMSG framework tests
+bootstrap_include:
+    ce-oem-rpmsg/rp-firmware-mapping
+include:
+    after-suspend-ce-oem-rpmsg/reload-rp-firmware-test

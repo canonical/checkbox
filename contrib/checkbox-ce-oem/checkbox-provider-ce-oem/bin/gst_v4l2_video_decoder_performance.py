@@ -78,7 +78,12 @@ def register_arguments():
         "--performance_mode_target",
         default="",
         type=str,
-        help="",
+        help=(
+            "Once this value be assigned, script will enable performance mode"
+            " by the given value. For instance, if 'genio-1200' be assigned, "
+            "script will find the performance controller and execute the logic"
+            ' of genio-1200 board. (Default: "", will do nothing)'
+        ),
     )
 
     args = parser.parse_args()

@@ -31,11 +31,7 @@ logging.basicConfig(level=logging.INFO)
 def register_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=(
-            "Script helps verify the MD5 checksum from specific Gstreamer"
-            " Decoder with different resolutions and color spaces is exactly"
-            " match golden reference"
-        ),
+        description=("This script generates the resource for all scenarios"),
     )
 
     parser.add_argument(
@@ -170,6 +166,29 @@ class GstResources:
                         ],
                     }
                 )
+
+    def gst_v4l2_video_decoder_performance_fakesink(
+        self, scenario_data: List[Dict]
+    ) -> None:
+        for item in scenario_data:
+            self._resource_items.append(
+                {
+                    "scenario": self._current_scenario_name,
+                    "decoder_plugin": item["decoder_plugin"],
+                    "minimum_fps": item["minimum_fps"],
+                    "golden_sample_file": "{}/video_golden_samples/{}".format(
+                        self._args.video_codec_testing_data_path,
+                        item["golden_sample_file"],
+                    ),
+                    # performance_target is "" means won't enable performance
+                    # mode.
+                    "performance_target": (
+                        self._args.video_codec_conf_file
+                        if item["enable_performance_mode"]
+                        else ""
+                    ),
+                }
+            )
 
     def main(self):
         for scenario in self._scenarios:

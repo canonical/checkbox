@@ -900,14 +900,13 @@ def setup_network_ifaces(
                 )
             )
 
-    # Shutdown other network interfaces
-    for iface, attrs in network_info.items():
-        if (
-            attrs["status"] == "up"
-            and toggle_status
-            and not turn_down_network(iface)
-        ):
-            raise SystemExit("Failed to shutdown {} interface".format(iface))
+    if toggle_status:
+        # Shutdown other network interfaces
+        for iface, attrs in network_info.items():
+            if attrs["status"] == "up" and not turn_down_network(iface):
+                raise SystemExit(
+                    "Failed to shutdown {} interface".format(iface)
+                )
 
 
 def restore_network_ifaces(cur_network_info, back_network_info, timeout):

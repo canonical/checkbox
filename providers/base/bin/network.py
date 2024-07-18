@@ -888,16 +888,15 @@ def setup_network_ifaces(
         if not conduit_net:
             raise SystemExit("Conduit network interface not found")
 
-        conduit_if_attrs = network_info.pop(conduit_net[0])
+        conduit_net = conduit_net[0]
+        conduit_if_attrs = network_info.pop(conduit_net)
 
         # bring up conduit network interface as well
         if conduit_if_attrs["status"] == "down" and not turn_up_network(
             conduit_net, timeout
         ):
             raise SystemExit(
-                "Failed to bring up {} conduit interface".format(
-                    conduit_net[0]
-                )
+                "Failed to bring up {} conduit interface".format(conduit_net)
             )
 
     if toggle_status:

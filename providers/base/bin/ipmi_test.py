@@ -245,7 +245,7 @@ class FreeIpmiTest:
         logging.info("Fetching IPMI channels:")
         # support multiple channels
         channel = []
-        regex = re.compile("Section User")
+        regex = re.compile(r"Section User")
         # test channels 0 - 15
         for i in range(16):
             # channel 12, 13 are invalid channels, skip

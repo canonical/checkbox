@@ -8,7 +8,7 @@ from pathlib import Path
 from itertools import chain
 from subprocess import check_output, CalledProcessError
 
-rootdir_pattern = re.compile("^.*?/devices")
+rootdir_pattern = re.compile(r"^.*?/devices")
 
 # NOTE: If raid_types changes, also change it in disk_smart script!
 raid_types = ["megaraid", "cciss", "3ware", "areca"]

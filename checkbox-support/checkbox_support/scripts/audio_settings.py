@@ -30,14 +30,14 @@ TYPES = ("source", "sink")
 DIRECTIONS = {"source": "input", "sink": "output"}
 
 # use %s string format to compatible with other python version
-default_pattern = "(?<=Default %s: ).*"
-index_regex = re.compile("(?<=Sink Input #)[0-9]*")
-muted_regex = re.compile("(?<=Mute: ).*")
-name_regex = re.compile("(?<=Name:).*")
-channel_map_regex = re.compile("(?<=Channel Map: ).*")
+default_pattern = r"(?<=Default %s: ).*"
+index_regex = re.compile(r"(?<=Sink Input #)[0-9]*")
+muted_regex = re.compile(r"(?<=Mute: ).*")
+name_regex = re.compile(r"(?<=Name:).*")
+channel_map_regex = re.compile(r"(?<=Channel Map: ).*")
 
 # use %s string format to compatible with other python version
-entry_pattern = "Name: %s.*?(?=Properties)"
+entry_pattern = r"Name: %s.*?(?=Properties)"
 volume_pattern = r"Volume: .*(?:%s):[\w\/0-9 ]* ([0-9]*)%%"
 
 

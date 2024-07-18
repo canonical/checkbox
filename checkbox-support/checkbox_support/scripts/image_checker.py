@@ -10,10 +10,9 @@ from checkbox_support.snap_utils.system import on_ubuntucore
 import shutil
 import subprocess
 from subprocess import PIPE
-from typing import Literal
 
 
-def get_type() -> Literal["core", "classic"]:
+def get_type() -> str:
     """
     Return the type of image.
     """
@@ -41,7 +40,7 @@ def has_desktop_environment() -> bool:
     return False
 
 
-def get_source() -> Literal["oem", "stock", "unknown"]:
+def get_source() -> str:
     """
     Return the source of image.
     """

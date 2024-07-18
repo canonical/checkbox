@@ -968,7 +968,7 @@ def interface_test_initialize(
             pass
 
         if not recover_success:
-            raise CalledProcessError()
+            raise CalledProcessError(3, "restore network failed")
 
 
 def interface_test(args):

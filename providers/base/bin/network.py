@@ -848,8 +848,8 @@ def check_underspeed(iface):
             "under-speed link, use"
         )
         logging.error("the --underspeed-ok option.")
-        return False
-    return True
+        return True
+    return False
 
 
 def setup_network_ifaces(

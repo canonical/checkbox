@@ -3,7 +3,7 @@
 #
 # Copyright 2024 Canonical Ltd.
 # Authors:
-#   Fernando Bravo <daniel.manrique@canonical.com>
+#   Fernando Bravo <fernando.bravo.hernandez@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -33,114 +33,6 @@ from checkbox_support.scripts.run_watcher import (
 
 
 class TestRunWatcher(unittest.TestCase):
-    # class StorageWatcher(StorageInterface):
-    # """
-    # StorageWatcher watches the journal message and triggers the callback
-    # function to detect the insertion and removal of storage.
-    # """
-
-    # def __init__(self, testcase, storage_type, zapper_usb_address):
-    #     self.testcase = testcase
-    #     self.storage_type = storage_type
-    #     self.zapper_usb_address = zapper_usb_address
-
-    # def run(self):
-    #     j = journal.Reader()
-    #     j.seek_realtime(time.time())
-    #     p = select.poll()
-    #     p.register(j, j.get_events())
-    #     if self.zapper_usb_address:
-    #         zapper_host = os.environ.get("ZAPPER_ADDRESS")
-    #         if not zapper_host:
-    #             raise SystemExit(
-    #                 "ZAPPER_ADDRESS environment variable not found!"
-    #             )
-    #         usb_address = self.zapper_usb_address
-    #         if self.testcase == "insertion":
-    #             print("Calling zapper to connect the USB device")
-    #             zapper_run(
-    #                 zapper_host, "typecmux_set_state", usb_address, "DUT"
-    #             )
-    #         elif self.testcase == "removal":
-    #             print("Calling zapper to disconnect the USB device")
-    #             zapper_run(
-    #                 zapper_host, "typecmux_set_state", usb_address, "OFF"
-    #             )
-    #     else:
-    #         if self.testcase == "insertion":
-    #             print("\n\nINSERT NOW\n\n", flush=True)
-    #         elif self.testcase == "removal":
-    #             print("\n\nREMOVE NOW\n\n", flush=True)
-    #         else:
-    #             raise SystemExit("Invalid test case")
-    #         print("Timeout: {} seconds".format(ACTION_TIMEOUT), flush=True)
-    #     while p.poll():
-    #         if j.process() != journal.APPEND:
-    #             continue
-    #         self._process_lines(
-    #             [e["MESSAGE"] for e in j if e and "MESSAGE" in e]
-    #         )
-
-    # def _process_lines(self, lines):
-    #     """
-    #     Process the lines from the journal and call the callback function to
-    #     validate the insertion or removal of the storage.
-    #     """
-    #     for line in lines:
-    #         line_str = str(line)
-    #         logger.debug(line_str)
-    #         if self.testcase == "insertion":
-    #             self._parse_journal_line(line_str)
-    #             self._validate_insertion()
-    #         elif self.testcase == "removal":
-    #             self._parse_journal_line(line_str)
-    #             self._validate_removal()
-
-    # def _store_storage_info(self, mounted_partition=""):
-    #     """
-    #     Store the mounted partition info to the shared directory.
-    #     """
-
-    #     plainbox_session_share = os.environ.get("PLAINBOX_SESSION_SHARE")
-    #     # TODO: Should name the file by the value of storage_type variable as
-    #     #       prefix. e.g. thunderbolt_insert_info, mediacard_insert_info.
-    #     #       Since usb_insert_info is used by usb_read_write script, we
-    #     #       should refactor usb_read_write script to adopt different files
-    #     file_name = "usb_insert_info"
-
-    #     if not plainbox_session_share:
-    #         logger.error("no env var PLAINBOX_SESSION_SHARE")
-    #         sys.exit(1)
-
-    #     # backup the storage partition info
-    #     if mounted_partition:
-    #         logger.info(
-    #             "cache file {} is at: {}".format(
-    #                 file_name, plainbox_session_share
-    #             )
-    #         )
-    #         file_path = pathlib.Path(plainbox_session_share, file_name)
-    #         with open(file_path, "w") as file_to_share:
-    #             file_to_share.write(mounted_partition + "\n")
-
-    # def _remove_storage_info(self):
-    #     """Remove the file containing the storage info from the shared
-    #     directory.
-    #     """
-
-    #     plainbox_session_share = os.environ.get("PLAINBOX_SESSION_SHARE")
-    #     file_name = "usb_insert_info"
-
-    #     if not plainbox_session_share:
-    #         logger.error("no env var PLAINBOX_SESSION_SHARE")
-    #         sys.exit(1)
-
-    #     file_path = pathlib.Path(plainbox_session_share, file_name)
-    #     if pathlib.Path(file_path).exists():
-    #         os.remove(file_path)
-    #         logger.info("cache file {} removed".format(file_name))
-    #     else:
-    #         logger.error("cache file {} not found".format(file_name))
 
     @patch("systemd.journal.Reader")
     @patch("select.poll")

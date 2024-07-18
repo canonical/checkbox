@@ -3,12 +3,12 @@
 #
 # Written by:
 #   Patrick Chang <patrick.chang@canonical.com>
+#   Zhongning Li <zhongning.li@canonical.com>
 
 import argparse
 from os.path import exists
 from checkbox_support.snap_utils.system import on_ubuntucore
-import shutil
-from subprocess import PIPE, run
+from subprocess import DEVNULL, run
 
 
 def get_type() -> str:
@@ -18,26 +18,24 @@ def get_type() -> str:
     return "core" if on_ubuntucore() else "classic"
 
 
-def has_desktop_environment() -> bool:
+def has_desktop_environment(
+    desktop_packages=["ubuntu-desktop", "ubuntu-desktop-minimal"]
+) -> bool:
     """
     Returns whether there's a desktop environment
     """
-    if not shutil.which("dpkg") or on_ubuntucore():
-        # core doesn't have dpkg
+    if on_ubuntucore():
+        # ubuntu core doesn't have a desktop env by default
         return False
 
-    # if we found any of these packages, we are on desktop
-    if (
-        run(
-            ["dpkg", "-l", "ubuntu-desktop"], stdout=PIPE, stderr=PIPE
-        ).returncode
-        == 0
-        or run(
-            ["dpkg", "-l", "ubuntu-desktop-minimal"], stdout=PIPE, stderr=PIPE
-        ).returncode
-        == 0
-    ):
-        return True
+    for package in desktop_packages:
+        if (
+            run(
+                ["dpkg", "-l", package], stdout=DEVNULL, stderr=DEVNULL
+            ).returncode
+            == 0
+        ):
+            return True
 
     return False
 

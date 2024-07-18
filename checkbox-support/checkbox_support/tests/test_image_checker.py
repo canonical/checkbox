@@ -68,10 +68,6 @@ class ImageCheckerTest(unittest.TestCase):
 
     @patch("checkbox_support.scripts.image_checker.run")
     def test_has_desktop_environment(self, mock_run: MagicMock):
-        with patch("shutil.which") as mock_which:
-            mock_which.return_value = None
-            self.assertFalse(has_desktop_environment())
-
         with patch(
             "checkbox_support.scripts.image_checker.on_ubuntucore"
         ) as mock_on_ubuntu_core:

@@ -864,7 +864,7 @@ def setup_network_ifaces(
     ):
         raise SystemExit("Failed to bring up %s interface", target_network)
 
-    if not underspeed_ok and not check_underspeed(target_network):
+    if not underspeed_ok and check_underspeed(target_network):
         raise SystemExit(
             "the network speed is incorrect for %s interface", target_network
         )

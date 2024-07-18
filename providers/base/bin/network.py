@@ -767,24 +767,19 @@ def make_target_list(iface, test_targets, log_warnings):
 
 # Wait until the specified interface comes up, or until iface_timeout.
 def wait_for_iface_up(iface, timeout):
-    isdown = True
     deadline = time.time() + timeout
-    while (time.time() < deadline) and isdown:
-        try:
-            link_status = check_output(
-                ["ip", "link", "show", "dev", iface]
-            ).decode("utf-8")
-        except CalledProcessError as interface_failure:
-            logging.error("Failed to check %s:%s", iface, interface_failure)
-            return 1
-        if "state UP" in link_status:
+
+    net_if = Interface(iface)
+    while (time.time() < deadline):
+        if net_if.status == "up":
             logging.debug("Interface {} is up!".format(iface))
-            isdown = False
-        else:
-            logging.debug("Interface {} not yet up; waiting....".format(iface))
-            # Sleep whether or not interface is up because sometimes the IP
-            # address gets assigned after "ip" claims it's up.
-            time.sleep(5)
+            return True
+        logging.debug("Interface {} not yet up; waiting....".format(iface))
+        # Sleep whether or not interface is up because sometimes the IP
+        # address gets assigned after "ip" claims it's up.
+        time.sleep(5)
+
+    return False
 
 
 def get_network_ifaces():
@@ -826,7 +821,8 @@ def turn_up_network(iface, timeout):
     logging.debug("Restoring interface:%s", iface)
     try:
         check_call(["ip", "link", "set", "dev", iface, "up"])
-        wait_for_iface_up(iface, timeout)
+        if not wait_for_iface_up(iface, timeout):
+            return False
         return True
     except CalledProcessError as interface_failure:
         logging.error("Failed to restore %s:%s", iface, interface_failure)

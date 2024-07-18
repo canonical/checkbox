@@ -770,7 +770,7 @@ def wait_for_iface_up(iface, timeout):
     deadline = time.time() + timeout
 
     net_if = Interface(iface)
-    while (time.time() < deadline):
+    while time.time() < deadline:
         if net_if.status == "up":
             logging.debug("Interface {} is up!".format(iface))
             return True
@@ -829,7 +829,7 @@ def turn_up_network(iface, timeout):
         return False
 
 
-def check_speed(iface):
+def check_underspeed(iface):
     # Check for an underspeed link and abort if found,
     # UNLESS --underspeed-ok option was used or max_speed is 0
     # (which indicates a probable WiFi link)
@@ -864,7 +864,7 @@ def setup_network_ifaces(
     ):
         raise SystemExit("Failed to bring up %s interface", target_network)
 
-    if not underspeed_ok and not check_speed(target_network):
+    if not underspeed_ok and not check_underspeed(target_network):
         raise SystemExit(
             "the network speed is incorrect for %s interface", target_network
         )

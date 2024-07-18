@@ -947,7 +947,7 @@ def interface_test_initialize(
 
     finally:
         cur_network_info = get_network_ifaces()
-        toggle_success = restore_network_ifaces(
+        recover_success = restore_network_ifaces(
             cur_network_info, network_info, recover_timeout
         )
 
@@ -967,7 +967,7 @@ def interface_test_initialize(
             # "ip route restore" command can't handle.
             pass
 
-        if not toggle_success:
+        if not recover_success:
             raise CalledProcessError()
 
 

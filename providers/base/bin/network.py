@@ -862,11 +862,15 @@ def setup_network_ifaces(
     if target_if_attrs["status"] == "down" and not turn_up_network(
         target_network, timeout
     ):
-        raise SystemExit("Failed to bring up %s interface", target_network)
+        raise SystemExit(
+            "Failed to bring up {} interface".format(target_network)
+        )
 
     if not underspeed_ok and check_underspeed(target_network):
         raise SystemExit(
-            "the network speed is incorrect for %s interface", target_network
+            "the network speed is incorrect for {} interface".format(
+                target_network
+            )
         )
 
     if (
@@ -891,7 +895,9 @@ def setup_network_ifaces(
             conduit_net, timeout
         ):
             raise SystemExit(
-                "Failed to bring up %s conduit interface", conduit_net[0]
+                "Failed to bring up {} conduit interface".format(
+                    conduit_net[0]
+                )
             )
 
     # Shutdown other network interfaces
@@ -901,7 +907,7 @@ def setup_network_ifaces(
             and toggle_status
             and not turn_down_network(iface)
         ):
-            raise SystemExit("Failed to shutdown %s interface", iface)
+            raise SystemExit("Failed to shutdown {} interface".format(iface))
 
 
 def restore_network_ifaces(cur_network_info, back_network_info, timeout):

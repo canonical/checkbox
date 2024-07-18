@@ -68,6 +68,16 @@ class ImageCheckerTest(unittest.TestCase):
 
     @patch("checkbox_support.scripts.image_checker.run")
     def test_has_desktop_environment(self, mock_run: MagicMock):
+        with patch("shutil.which") as mock_which:
+            mock_which.return_value = None
+            self.assertFalse(has_desktop_environment())
+
+        with patch(
+            "checkbox_support.scripts.image_checker.on_ubuntucore"
+        ) as mock_on_ubuntu_core:
+            mock_on_ubuntu_core.return_value = True
+            self.assertFalse(has_desktop_environment())
+
         # 'ubuntu-desktop' or 'ubuntu-desktop-minimal'
         # pick one to return true
         def create_dpkg_side_effect(option: str):
@@ -90,11 +100,18 @@ class ImageCheckerTest(unittest.TestCase):
         mock_run.side_effect = create_dpkg_side_effect("neither")
         self.assertFalse(has_desktop_environment())
 
-    @patch("sys.argv", ["script_name.py", "--type", "--source"])
+    @patch(
+        "sys.argv",
+        ["script_name.py", "--type", "--source", "--detect_desktop"],
+    )
+    @patch("checkbox_support.scripts.image_checker.has_desktop_environment")
     @patch("checkbox_support.scripts.image_checker.get_source")
     @patch("checkbox_support.scripts.image_checker.get_type")
     @patch("sys.stdout", new_callable=StringIO)
-    def test_main(self, mock_stdout, mock_get_type, mock_get_source):
+    def test_main(
+        self, mock_stdout, mock_get_type, mock_get_source, mock_has_desktop_env
+    ):
         main()
         mock_get_type.assert_called_with()
         mock_get_source.assert_called_with()
+        mock_has_desktop_env.assert_called_with()

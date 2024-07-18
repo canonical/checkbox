@@ -461,7 +461,7 @@ class StressPerformanceTest:
 
         print("Running ping test...")
         result = 0
-        time_re = re.compile("(?<=time=)[0-9]*")
+        time_re = re.compile(r"(?<=time=)[0-9]*")
         for line in out.decode().split("\n"):
             time = time_re.search(line)
 

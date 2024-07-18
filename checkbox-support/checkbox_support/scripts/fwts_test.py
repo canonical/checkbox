@@ -165,7 +165,7 @@ SERVER_TESTS.extend(
 )
 # By default, we launch all the tests
 TESTS = sorted(list(set(QA_TESTS + HWE_TESTS)))
-SLEEP_TIME_RE = re.compile("(Suspend|Resume):\s+([\d\.]+)\s+seconds.")
+SLEEP_TIME_RE = re.compile(r"(Suspend|Resume):\s+([\d\.]+)\s+seconds.")
 
 
 def get_sleep_times(log, start_marker):

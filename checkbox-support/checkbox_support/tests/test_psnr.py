@@ -36,8 +36,8 @@ class TestPSNRArgs(unittest.TestCase):
             ["psnr.py", "ref.mp4", "test.mp4", "-s"],
         ):
             args = psnr_args()
-            self.assertEqual(args.reference_file, "ref.jpg")
-            self.assertEqual(args.test_file, "test.jpg")
+            self.assertEqual(args.reference_file, "ref.mp4")
+            self.assertEqual(args.test_file, "test.mp4")
             self.assertTrue(args.show_psnr_each_frame)
 
 

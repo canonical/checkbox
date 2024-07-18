@@ -8,8 +8,7 @@ import argparse
 from os.path import exists
 from checkbox_support.snap_utils.system import on_ubuntucore
 import shutil
-import subprocess
-from subprocess import PIPE
+from subprocess import PIPE, run
 
 
 def get_type() -> str:
@@ -20,17 +19,20 @@ def get_type() -> str:
 
 
 def has_desktop_environment() -> bool:
-    if not shutil.which("dpkg"):
-        # core and server image doesn't have dpkg
+    """
+    Returns whether there's a desktop environment
+    """
+    if not shutil.which("dpkg") or on_ubuntucore():
+        # core doesn't have dpkg
         return False
 
     # if we found any of these packages, we are on desktop
     if (
-        subprocess.run(
+        run(
             ["dpkg", "-l", "ubuntu-desktop"], stdout=PIPE, stderr=PIPE
         ).returncode
         == 0
-        or subprocess.run(
+        or run(
             ["dpkg", "-l", "ubuntu-desktop-minimal"], stdout=PIPE, stderr=PIPE
         ).returncode
         == 0

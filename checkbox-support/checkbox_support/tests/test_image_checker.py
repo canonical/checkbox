@@ -18,8 +18,14 @@
 
 import unittest
 from unittest.mock import patch, mock_open
-from checkbox_support.scripts.image_checker import get_type, get_source, main
+from checkbox_support.scripts.image_checker import (
+    get_type,
+    get_source,
+    main,
+    has_desktop_environment,
+)
 from io import StringIO
+from subprocess import CompletedProcess
 
 
 class ImageCheckerTest(unittest.TestCase):
@@ -59,6 +65,29 @@ class ImageCheckerTest(unittest.TestCase):
 
         mock_exists.return_value = False
         self.assertEqual(get_source(), "stock")
+
+    def test_has_desktop_environment(self):
+        # 'ubuntu-desktop' or 'ubuntu-desktop-minimal'
+        # pick one to return true
+        def create_dpkg_side_effect(option: str):
+            # kwargs are stdout and stderr, not used in this case
+            def wrapped(args, **kwargs):
+                if args[2] == option:
+                    return CompletedProcess(args, 0)
+                return CompletedProcess(args, 1)
+            return wrapped
+
+        with patch("subprocess.run") as mock_run:
+            mock_run.side_effect = create_dpkg_side_effect("ubuntu-desktop")
+            self.assertTrue(has_desktop_environment())
+
+            mock_run.side_effect = create_dpkg_side_effect(
+                "ubuntu-desktop-minimal"
+            )
+            self.assertTrue(has_desktop_environment())
+
+            mock_run.side_effect = create_dpkg_side_effect("neither")
+            self.assertFalse(has_desktop_environment())
 
     @patch("sys.argv", ["script_name.py", "--type", "--source"])
     @patch("checkbox_support.scripts.image_checker.get_source")

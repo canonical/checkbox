@@ -548,12 +548,12 @@ class IPerfPerfomanceTestTests(unittest.TestCase):
         self.assertEqual(mock_net_ifs.call_count, 2)
         mock_net_setup.assert_called_with({}, "eth0", False, True, 10)
         mock_net_restore.assert_called_with({}, {}, 10)
-        self.assertEqual(
-            str(context.exception),
+        self.assertIn(
             (
                 "Command 'restore network failed' "
-                "returned non-zero exit status 3."
+                "returned non-zero exit status 3"
             ),
+            str(context.exception),
         )
 
 

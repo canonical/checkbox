@@ -908,11 +908,11 @@ def setup_network_ifaces(
                 )
 
 
-def restore_network_ifaces(cur_network_info, back_network_info, timeout):
+def restore_network_ifaces(cur_network_info, origin_network_info, timeout):
     status = True
 
     logging.debug("Restoring interface")
-    for iface, attrs in back_network_info.items():
+    for iface, attrs in origin_network_info.items():
         if attrs["status"] != cur_network_info[iface]["status"]:
             if attrs["status"] == "up" and not turn_up_network(iface, timeout):
                 status = False

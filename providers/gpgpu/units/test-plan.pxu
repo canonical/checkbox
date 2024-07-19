@@ -6,3 +6,7 @@ _description:
 mandatory_include:
     gpgpu/gpu-burn
 include:
+    gpgpu/matrix-mul-drv
+    gpgpu/vector-add-drv
+    gpgpu/device-query-drv
+    gpgpu/simple-texture-drv

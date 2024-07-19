@@ -70,6 +70,12 @@ export PATH=$PATH:$CUDA_PATH
 echo "*  Cloning cuda-samples repo"
 CUDA_SAMPLES_DIR=/opt/cuda-samples
 git clone https://github.com/nvidia/cuda-samples.git $CUDA_SAMPLES_DIR
+echo "*  Building cuda-samples tests"
+cd $CUDA_SAMPLES_DIR/Samples/0_Introduction/matrixMulDrv && make
+cd $CUDA_SAMPLES_DIR/Samples/0_Introduction/vectorAddDrv && make
+cd $CUDA_SAMPLES_DIR/Samples/1_Utilities/deviceQueryDrv && make
+cd $CUDA_SAMPLES_DIR/Samples/0_Introduction/simpleTextureDrv && make
+echo "*  Building cuda-samples tests completed..."
 
 # get the gpu-burn repo and build it
 echo "*  Cloning gpu-burn repo"

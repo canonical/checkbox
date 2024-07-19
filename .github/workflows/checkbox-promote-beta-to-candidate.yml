@@ -95,3 +95,7 @@ jobs:
               # run the canary test plan
               PYTHONUNBUFFERED=1 checkbox-cli control \$DEVICE_IP checkbox.conf
               EXITCODE=\$?
+
+              # placeholder for gathering possible artifacts
+
+              exit \$EXITCODE

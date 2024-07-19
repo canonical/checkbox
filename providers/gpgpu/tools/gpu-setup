@@ -43,7 +43,11 @@ echo "*  Adding nVidia package repository"
 # SAUCE: https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=debnetwork
 
 OSRELEASE=ubuntu`lsb_release -r | cut -f2 |sed -e 's/\.//'`
-REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/x86_64"
+ARCH=`uname -i`
+if [[ "$ARCH" =~ "aarch64" ]]; then
+    ARCH="arm64"
+fi
+REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH"
 PINFILE="cuda-$OSRELEASE.pin"
 if [[ "$OSRELEASE" =~ "2004" ]] || [[ "$OSRELEASE" =~ "1804" ]]; then
     KEYFILE="cuda-$OSRELEASE-keyring.gpg"
@@ -52,7 +56,7 @@ else
 fi
 wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"
 wget -O /etc/apt/trusted.gpg.d/$KEYFILE "$REPO_URL/$KEYFILE"
-add-apt-repository -y "deb http://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/x86_64/ /"
+add-apt-repository -y "deb http://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH/ /"
 
 # Install necessary files
 #apt update

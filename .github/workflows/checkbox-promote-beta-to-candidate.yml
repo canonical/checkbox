@@ -49,8 +49,8 @@ jobs:
               TOOLS_PATH=tools
 
               # retrieve all scripts/tools necessary from a repo
-              curl -Ls -o installer.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/main/install_tools.sh
-              source installer.sh \$TOOLS_PATH --branch scriptlets-refactor
+              curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/CHECKBOX-1447-scriptlets/install_tools.sh
+              source install_tools.sh \$TOOLS_PATH --branch CHECKBOX-1447-scriptlets
 
               # ensure device is available before continuing
               wait_for_ssh
@@ -67,8 +67,7 @@ jobs:
               else
                   echo "Installing checkbox runtime on device (from deb package)"
                   _run sudo add-apt-repository -y ppa:checkbox-dev/\$CHANNEL
-                  _run sudo apt-get -qq update
-                  _run sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install -y checkbox-*
+                  _run install_packages checkbox-*
                   # list installed checkbox-related packages to facilitate debugging
                   _run "apt list --installed | grep checkbox"
                   CHECKBOX_CLI_CMD="checkbox-cli"

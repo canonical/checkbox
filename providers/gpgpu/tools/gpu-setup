@@ -49,13 +49,10 @@ if [[ "$ARCH" =~ "aarch64" ]]; then
 fi
 REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH"
 PINFILE="cuda-$OSRELEASE.pin"
-if [[ "$OSRELEASE" =~ "2004" ]] || [[ "$OSRELEASE" =~ "1804" ]]; then
-    KEYFILE="cuda-$OSRELEASE-keyring.gpg"
-else
-    KEYFILE="cuda-archive-keyring.gpg"
-fi
 wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"
-wget -O /etc/apt/trusted.gpg.d/$KEYFILE "$REPO_URL/$KEYFILE"
+curl -s -L "$REPO_URL/7fa2af80.pub" | tee /etc/apt/trusted.gpg.d/cuda-af80.asc
+# Had to add the next line because they now have a new key in the repos
+curl -s -L "$REPO_URL/3bf863cc.pub" | tee /etc/apt/trusted.gpg.d/cuda-63cc.asc
 add-apt-repository -y "deb http://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH/ /"
 
 # Install necessary files

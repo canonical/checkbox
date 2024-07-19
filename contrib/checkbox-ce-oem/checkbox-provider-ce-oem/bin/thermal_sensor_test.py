@@ -52,7 +52,12 @@ class ThermalMonitor:
 
     def _read_node(self, node):
         if node.exists():
-            return node.read_text().strip("\n")
+            try:
+                return node.read_text().strip("\n")
+            except Exception as e:
+                raise SystemExit(
+                    "Failed to read node: {}\n{}".format(str(node), e)
+                )
         else:
             raise FileNotFoundError("{} file not exists".format(str(node)))
 

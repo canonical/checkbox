@@ -61,6 +61,9 @@ def register_arguments() -> argparse.Namespace:
 
 
 class GstResources:
+
+    VIDEO_GOLDEN_SAMPLES = "video_golden_samples"
+
     def __init__(self, args: argparse.Namespace) -> None:
         self._args = args
         try:
@@ -134,6 +137,32 @@ class GstResources:
                     for color_space in item["color_spaces"]
                 ]
             )
+
+    def gst_v4l2_audio_video_synchronization(
+        self, scenario_data: Dict
+    ) -> None:
+        # TODO: check if there's desktop environment
+        has_desktop_env = True
+        video_sink = (
+            scenario_data["video_sinks"]["desktop"]
+            if has_desktop_env
+            else scenario_data["video_sinks"]["non_desktop"]
+        )
+        for item in scenario_data["cases"]:
+            for sample_file in item["golden_sample_files"]:
+                self._resource_items.append(
+                    {
+                        "scenario": self._current_scenario_name,
+                        "video_sink": video_sink,
+                        "decoder_plugin": item["decoder_plugin"],
+                        "golden_sample_file_name": sample_file,
+                        "golden_sample_file": os.path.join(
+                            self._args.video_codec_testing_data_path,
+                            self.VIDEO_GOLDEN_SAMPLES,
+                            sample_file,
+                        ),
+                    }
+                )
 
     def main(self):
         for scenario in self._scenarios:

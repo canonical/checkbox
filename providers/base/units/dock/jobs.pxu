@@ -2066,7 +2066,7 @@ depends: dock/cold-plug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend
-command: removable_storage_watcher.py insert --timeout 40 scsi
+command: checkbox-support-run_watcher insertion thunderbolt
 _summary: Thunderbolt3 storage insertion detection
 _purpose:
     This test will check if the connection of a Thunderbolt3 HDD to the dock could be detected
@@ -2088,7 +2088,7 @@ depends: dock/thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend
-command: removable_storage_test.py -s 268400000 scsi
+command: checkbox-support-usb_read_write
 _summary: Thunderbolt3 storage test
 _description:
  This is an automated test which performs read/write operations on an attached
@@ -2102,7 +2102,7 @@ depends: dock/thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend
-command: removable_storage_watcher.py remove scsi
+command: checkbox-support-run_watcher removal thunderbolt
 _summary: Thunderbolt3 storage removal detection
 _purpose:
     This test will check the system can detect the removal of a Thunderbolt3 HDD
@@ -2625,7 +2625,7 @@ plugin: user-interact
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend
-command: removable_storage_watcher.py insert --timeout 40 scsi
+command: checkbox-support-run_watcher insertion thunderbolt
 _summary: Thunderbolt3 storage insertion detection
 _purpose:
     This test will check if the connection of a Thunderbolt3 HDD to the dock could be detected
@@ -2652,7 +2652,7 @@ depends: dock/all-init-thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend
-command: removable_storage_test.py -s 268400000 scsi
+command: checkbox-support-usb_read_write
 _summary: Thunderbolt3 storage test
 _description:
     This is an automated test which performs read/write operations on an attached
@@ -2675,7 +2675,7 @@ depends: dock/all-init-thunderbolt3-insert
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend
-command: removable_storage_watcher.py remove scsi
+command: checkbox-support-run_watcher removal thunderbolt
 _summary: Thunderbolt3 storage removal detection
 _purpose:
     This test will check the system can detect the removal of a Thunderbolt3 storage.

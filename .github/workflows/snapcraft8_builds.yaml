@@ -49,7 +49,7 @@ jobs:
         name: Build the snap
         timeout-minutes: 600 # 10hours
         with:
-          action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
+          action: snapcore/action-build@v1.3.0
           attempt_delay: 600000 # 10min
           attempt_limit: 5
           with: |
@@ -129,7 +129,7 @@ jobs:
         name: Building the snaps
         timeout-minutes: 600 # 10hours
         with:
-          action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
+          action: snapcore/action-build@v1.3.0
           attempt_delay: 600000 # 10min
           attempt_limit: 5
           with: |
@@ -208,7 +208,7 @@ jobs:
         name: Build the snap
         timeout-minutes: 600 # 10hours
         with:
-          action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
+          action: snapcore/action-build@v1.3.0
           attempt_delay: 600000 # 10min
           attempt_limit: 5
           with: |
@@ -281,7 +281,7 @@ jobs:
         name: Building the snaps
         timeout-minutes: 600 # 10hours
         with:
-          action: Hook25/action-build@707dce252c4f367b6c1afe61ed577f7413cf7912
+          action: snapcore/action-build@v1.3.0
           attempt_delay: 600000 # 10min
           attempt_limit: 5
           with: |

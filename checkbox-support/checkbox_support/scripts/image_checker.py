@@ -9,6 +9,7 @@ import argparse
 from os.path import exists
 from checkbox_support.snap_utils.system import on_ubuntucore
 from subprocess import DEVNULL, run
+from contextlib import suppress
 
 
 def get_type() -> str:
@@ -29,12 +30,15 @@ def has_desktop_environment(
         return False
 
     for package in desktop_packages:
-        if (
+        with suppress(Exception):
+            # if dpkg fails to start, it could throw something else
+            # so we suppress all exceptions here and just return false
             run(
-                ["dpkg", "-l", package], stdout=DEVNULL, stderr=DEVNULL
-            ).returncode
-            == 0
-        ):
+                ["dpkg", "-l", package],
+                stdout=DEVNULL,  # else dpkg will wait for "q" to be pressed
+                stderr=DEVNULL,
+                check=True,
+            )
             return True
 
     return False
@@ -69,12 +73,14 @@ def main():
     parser.add_argument("-d", "--detect_desktop", action="store_true")
     args = parser.parse_args()
 
+    # for furture maintainers, follow the format
+    # and print key-value pairs here
     if args.type:
         print("type: {}".format(get_type()))
     if args.source:
         print("source: {}".format(get_source()))
     if args.detect_desktop:
-        print("Has desktop environment? {}".format(has_desktop_environment()))
+        print("has_desktop_environment: {}".format(has_desktop_environment()))
 
 
 if __name__ == "__main__":

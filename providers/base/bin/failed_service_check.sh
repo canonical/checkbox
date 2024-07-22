@@ -7,5 +7,10 @@ if [ "$COUNT" -eq 0 ]; then
 else
     printf "\nFailed units:\n"
     systemctl --system --no-ask-password --no-pager list-units --state=failed
+
+    for service in $(systemctl --system --no-ask-password --no-pager --no-legend list-units --state=failed | awk '{print $2}'); do
+        printf "\nLogs for %s:\n" "$service"
+        journalctl -u "$service" | tail -n 50
+    done
 fi
 exit 1

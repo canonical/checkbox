@@ -30,7 +30,8 @@ jobs:
         INPUT_DATA_SOURCE="${{ matrix.data_source }}" \
         INPUT_CHECKBOX_RUNTIME="${{ matrix.checkbox_runtime }}" \
         INPUT_CHECKBOX_TRACK="${{ matrix.checkbox_track }}" \
-        envsubst '$INPUT_QUEUE $INPUT_DATA_SOURCE $INPUT_CHECKBOX_RUNTIME $INPUT_CHECKBOX_TRACK' \
+        INPUT_RESOURCES_PATH="${{ github.workspace }}/.github/workflows/checkbox-promote-beta-to-candidate/resources" \
+        envsubst '$INPUT_QUEUE $INPUT_DATA_SOURCE $INPUT_CHECKBOX_RUNTIME $INPUT_CHECKBOX_TRACK $INPUT_RESOURCES_PATH' \
         < $GITHUB_WORKSPACE/.github/workflows/checkbox-promote-beta-to-candidate/job.template \
         > $JOB_PATH
         # return path for instantiated job file

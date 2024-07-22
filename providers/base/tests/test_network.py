@@ -580,17 +580,18 @@ class NetworkTests(unittest.TestCase):
             dont_toggle_ifaces=True,
             iface_timeout=1,
         )
-        mock_mk_targets.return_value = ["192.168.1.1", "192.168.1.2"]
+        mock_mk_targets.side_effect = [["192.168.1.1"], ["192.168.1.1"]]
         mock_run.side_effect = [1, 0]
+        mock_get_test_params.return_value = {"test_target_iperf": "127.0.0.1"}
 
-        # mock_net_init.return_value.__enter__.return_value = yield
-        # mock_net_init.__enter__.return_vaue = None
         with redirect_stderr(StringIO()):
             result = network.interface_test(args)
         mock_net_init.assert_called_with("eth0", True, True, 1)
+        mock_mk_targets.assert_called_with("eth0", "127.0.0.1", False)
+        mock_sleep.assert_called_with(30)
         self.assertEqual(mock_run.call_count, 2)
-        self.assertEqual(mock_sleep.call_count, 0)
-        self.assertEqual(mock_mk_targets.call_count, 1)
+        self.assertEqual(mock_sleep.call_count, 1)
+        self.assertEqual(mock_mk_targets.call_count, 2)
         self.assertEqual(result, 0)
 
     def test_interface_test_no_test_type(self):

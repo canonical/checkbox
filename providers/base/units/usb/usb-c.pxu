@@ -35,11 +35,7 @@ plugin: user-interact
 flags: also-after-suspend
 user: root
 command:
- if [[ -v SNAP ]]; then
-     checkbox-support-run_watcher insertion usb3
- else
-     removable_storage_watcher.py -m 500000000 insert usb
- fi
+ checkbox-support-run_watcher insertion usb3
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -56,11 +52,7 @@ plugin: shell
 flags: also-after-suspend
 user: root
 command:
- if [[ -v SNAP ]]; then
-     checkbox-support-usb_read_write
- else
-     removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
- fi
+ checkbox-support-usb_read_write
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -86,11 +78,7 @@ plugin: user-interact
 flags: also-after-suspend
 user: root
 command:
- if [[ -v SNAP ]]; then
-     checkbox-support-run_watcher removal usb3
- else
-     removable_storage_watcher.py -m 500000000 remove usb
- fi
+ checkbox-support-run_watcher removal usb3
 category_id: com.canonical.plainbox::usb
 depends: usb-c/c-to-a-adapter/insert
 imports: from com.canonical.plainbox import manifest
@@ -135,11 +123,7 @@ plugin: user-interact
 flags: also-after-suspend
 user: root
 command:
- if [[ -v SNAP ]]; then
-     checkbox-support-run_watcher insertion usb3
- else
-     removable_storage_watcher.py -m 500000000 insert usb
- fi
+ checkbox-support-run_watcher insertion usb3
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -155,11 +139,7 @@ plugin: shell
 flags: also-after-suspend
 user: root
 command:
- if [[ -v SNAP ]]; then
-     checkbox-support-usb_read_write
- else
-     removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
- fi
+ checkbox-support-usb_read_write
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -183,11 +163,7 @@ plugin: user-interact
 flags: also-after-suspend
 user: root
 command:
- if [[ -v SNAP ]]; then
-     checkbox-support-run_watcher removal usb3
- else
-     removable_storage_watcher.py -m 500000000 remove usb
- fi
+ checkbox-support-run_watcher removal usb3
 category_id: com.canonical.plainbox::usb
 depends: usb-c/insert
 imports: from com.canonical.plainbox import manifest

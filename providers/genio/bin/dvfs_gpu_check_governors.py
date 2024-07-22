@@ -4,7 +4,7 @@
 # Copyright 2024 Canonical Ltd.
 # Authors:
 #   Patrick Chang <patrick.chang@canonical.com>
-#   Fernando Bravo <daniel.manrique@canonical.com>
+#   Fernando Bravo <fernando.bravo.hernandez@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,

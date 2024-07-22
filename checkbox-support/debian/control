@@ -40,6 +40,7 @@ Depends: gir1.2-gudev-1.0,
          python3-yaml,
          udev,
          udisks2,
+         libsystemd-dev
          ${misc:Depends},
          ${python3:Depends}
 Description: collection of Python modules used by PlainBox providers

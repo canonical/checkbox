@@ -1,0 +1,73 @@
+job_queue: $INPUT_QUEUE
+global_timeout: 3600
+output_timeout: 1800
+provision_data:
+  $INPUT_DATA_SOURCE
+test_data:
+  test_cmds: |
+    #!/usr/bin/env bash
+
+    set -x
+
+    # input arguments
+    CHECKBOX_RUNTIME=$INPUT_CHECKBOX_RUNTIME
+    CHECKBOX_TRACK=$INPUT_CHECKBOX_TRACK
+
+    # flag to indicate how Checkbox is installed on the device (snap or deb)
+    [ -n "$CHECKBOX_RUNTIME" ] && [ -n "$CHECKBOX_TRACK" ] && SNAP_FLAG="true" || SNAP_FLAG="false"
+
+    # constants
+    CHANNEL=beta
+    TOOLS_PATH=tools
+
+    # retrieve all scripts/tools necessary from a repo
+    curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/CHECKBOX-1447-scriptlets/install_tools.sh
+    source install_tools.sh $TOOLS_PATH --branch CHECKBOX-1447-scriptlets
+
+    # ensure device is available before continuing
+    wait_for_ssh
+
+    # install checkbox runtime on device (snap or deb)
+    if [[ "$SNAP_FLAG" == "true" ]]; then
+        echo "Installing checkbox runtime on device (from snap)"
+        CHANGE_ID=$(_run sudo snap install $CHECKBOX_RUNTIME --no-wait --channel=latest/$CHANNEL)
+        wait_for_snap_change_id $CHANGE_ID
+        _run_retry sudo snap install checkbox --devmode --channel=$CHECKBOX_TRACK/$CHANNEL
+        # list all the installed snaps to facilitate debugging
+        _run snap list
+        CHECKBOX_CLI_CMD="checkbox.checkbox-cli"
+    else
+        echo "Installing checkbox runtime on device (from deb package)"
+        _run sudo add-apt-repository -y ppa:checkbox-dev/$CHANNEL
+        _run install_packages checkbox-*
+        # list installed checkbox-related packages to facilitate debugging
+        _run "apt list --installed | grep checkbox"
+        CHECKBOX_CLI_CMD="checkbox-cli"
+    fi
+
+    check_for_checkbox_service --debug || exit 1
+
+    # sync Checkbox version between agent and device    
+    CHECKBOX_VERSION=$(_run $CHECKBOX_CLI_CMD --version)
+    [ -z "$CHECKBOX_VERSION" ] && echo "Error: Unable to retrieve Checkbox version from device" && exit 1
+    echo "Installing checkbox $CHECKBOX_VERSION on agent container from source"
+    install_checkbox_agent_source $CHECKBOX_VERSION $TOOLS_PATH
+
+    # retrieve manifest
+    RESOURCES_DIR=$TOOLS_PATH/cert-tools/resources/checkbox-promotion
+    MANIFEST_FILE=manifest.conf
+    $TOOLS_PATH/scriptlets/sru-helpers/fetch_manifest --manifest_file manifest.conf $CID $HEXR_DEVICE_SECURE_ID
+    if [ $? -ne 0 ]; then
+        echo "Using default manifest"
+        MANIFEST_FILE=$RESOURCES_DIR/manifest.conf
+    fi
+    # create checkbox launcher
+    stacker --output checkbox.conf $RESOURCES_DIR/testplan.conf $MANIFEST_FILE
+
+    # run the canary test plan
+    PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP checkbox.conf
+    EXITCODE=$?
+
+    # placeholder for gathering possible artifacts
+    
+    exit $EXITCODE

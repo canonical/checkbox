@@ -4,7 +4,7 @@
 process relies on Launchpad builders, and they may be down or very busy. This
 might prevent building the packages and snaps from being built.
 
-## When can you relase a new beta version
+## When can you release a new beta version
 
 A new beta version will be automatically released by the canary validation
 process. When this process passes, it moves the `beta` branch to the latest

@@ -56,7 +56,7 @@ test_data:
     # retrieve manifest
     RESOURCES_DIR=$TOOLS_PATH/cert-tools/resources/checkbox-promotion
     MANIFEST_FILE=manifest.conf
-    $TOOLS_PATH/scriptlets/sru-helpers/fetch_manifest --manifest_file manifest.conf $CID $HEXR_DEVICE_SECURE_ID
+    fetch_manifest --manifest_file manifest.conf $CID $HEXR_DEVICE_SECURE_ID
     if [ $? -ne 0 ]; then
         echo "Using default manifest"
         MANIFEST_FILE=$RESOURCES_DIR/manifest.conf

@@ -18,6 +18,7 @@ from contextlib import redirect_stdout, redirect_stderr
 from io import StringIO
 from pathlib import Path
 from subprocess import CalledProcessError
+from argparse import Namespace
 
 import network
 
@@ -40,6 +41,8 @@ class IPerfPerfomanceTestTests(unittest.TestCase):
             returned = network.IPerfPerformanceTest.find_numa(None, "device")
             self.assertEqual(returned, -1)
 
+
+class NetworkTests(unittest.TestCase):
     @patch("network.Interface")
     @patch("pathlib.Path.glob")
     def test_get_network_ifaces(self, mock_glob, mock_intf):
@@ -142,16 +145,16 @@ class IPerfPerfomanceTestTests(unittest.TestCase):
             ["ip", "link", "set", "dev", "test_if", "up"]
         )
 
+    @patch("logging.error")
     @patch("network.Interface")
-    def test_check_is_underspeed(self, mock_intf):
+    def test_check_is_underspeed(self, mock_intf, mock_logging):
         mock_intf.return_value = Mock(
             status="up", link_speed=100, max_speed=1000
         )
 
-        with redirect_stderr(StringIO()):
-            self.assertTrue(network.check_underspeed("test_if"))
-
+        self.assertTrue(network.check_underspeed("test_if"))
         mock_intf.assert_called_with("test_if")
+        self.assertEqual(mock_logging.call_count, 4)
 
     @patch("network.Interface")
     def test_check_is_not_underspeed(self, mock_intf):
@@ -555,6 +558,75 @@ class IPerfPerfomanceTestTests(unittest.TestCase):
             ),
             str(context.exception),
         )
+
+    @patch("time.sleep")
+    @patch("network.run_test")
+    @patch("network.interface_test_initialize")
+    @patch("network.make_target_list")
+    @patch("network.get_test_parameters")
+    def test_interface_test_run_completed(
+        self,
+        mock_get_test_params,
+        mock_mk_targets,
+        mock_net_init,
+        mock_run,
+        mock_sleep,
+    ):
+        args = Namespace(
+            test_type="iperf",
+            interface="eth0",
+            scan_timeout=4,
+            underspeed_ok=True,
+            dont_toggle_ifaces=True,
+            iface_timeout=1,
+        )
+        mock_mk_targets.return_value = ["192.168.1.1", "192.168.1.2"]
+        mock_run.side_effect = [1, 0]
+
+        # mock_net_init.return_value.__enter__.return_value = yield
+        # mock_net_init.__enter__.return_vaue = None
+        with redirect_stderr(StringIO()):
+            result = network.interface_test(args)
+        mock_net_init.assert_called_with("eth0", True, True, 1)
+        self.assertEqual(mock_run.call_count, 2)
+        self.assertEqual(mock_sleep.call_count, 0)
+        self.assertEqual(mock_mk_targets.call_count, 1)
+        self.assertEqual(result, 0)
+
+    def test_interface_test_no_test_type(self):
+        args = Namespace()
+        self.assertIsNone(network.interface_test(args))
+
+    @patch("logging.error")
+    @patch("network.make_target_list")
+    @patch("network.get_test_parameters")
+    def test_interface_test_no_target_list(
+        self, mock_get_test_params, mock_mk_targets, mock_logging
+    ):
+        mock_mk_targets.return_value = []
+        args = Namespace(test_type="iperf", interface="eth0")
+
+        with self.assertRaises(SystemExit) as context:
+            network.interface_test(args)
+        self.assertEqual(context.exception.code, 1)
+        self.assertEqual(mock_logging.call_count, 7)
+
+    @patch("logging.error")
+    @patch("network.make_target_list")
+    @patch("network.get_test_parameters")
+    def test_interface_test_with_example_target_list(
+        self, mock_get_test_params, mock_mk_targets, mock_logging
+    ):
+        mock_mk_targets.return_value = ["192.168.1.1"]
+        mock_get_test_params.return_value = {
+            "test_target_iperf": "example.com"
+        }
+        args = Namespace(test_type="iperf", interface="eth0")
+
+        with self.assertRaises(SystemExit) as context:
+            network.interface_test(args)
+        self.assertEqual(context.exception.code, 1)
+        self.assertEqual(mock_logging.call_count, 7)
 
 
 class InterfaceClassTest(unittest.TestCase):

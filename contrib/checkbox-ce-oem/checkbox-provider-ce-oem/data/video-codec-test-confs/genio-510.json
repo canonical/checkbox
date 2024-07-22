@@ -1,0 +1,15 @@
+{
+    "gst_v4l2_audio_video_synchronization": {
+        "video_sinks": {
+            "desktop": "waylandsink",
+            "non_desktop": "kmssink connector-id=32 driver-name=mediatek"
+        },
+        "cases": [
+            {
+                "decoder_plugin": "v4l2h264dec",
+                "golden_sample_files": ["480p.mp4", "720p.mp4", "1080p.mp4", "4K.mp4"]
+            }
+        ]
+    }
+}
+

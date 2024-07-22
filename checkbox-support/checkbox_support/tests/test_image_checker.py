@@ -25,7 +25,7 @@ from checkbox_support.scripts.image_checker import (
     has_desktop_environment,
 )
 from io import StringIO
-from subprocess import CompletedProcess
+from subprocess import CalledProcessError, CompletedProcess
 
 
 class ImageCheckerTest(unittest.TestCase):
@@ -76,12 +76,16 @@ class ImageCheckerTest(unittest.TestCase):
 
         # 'ubuntu-desktop' or 'ubuntu-desktop-minimal'
         # pick one to return true
-        def create_dpkg_side_effect(option: str):
+        def create_dpkg_side_effect(option: str, throw_unexpected=False):
             # kwargs are stdout and stderr, not used in this case
-            def wrapped(args, **_):
-                if args[2] == option:
-                    return CompletedProcess(args, 0)
-                return CompletedProcess(args, 1)
+            def wrapped(command, **_):
+                if command[2] == option:
+                    return CompletedProcess(command, 0)
+
+                if throw_unexpected:
+                    raise ValueError("some unexpected exception")
+                else:
+                    raise CalledProcessError(1, command, "no such package")
 
             return wrapped
 
@@ -94,6 +98,9 @@ class ImageCheckerTest(unittest.TestCase):
         self.assertTrue(has_desktop_environment())
 
         mock_run.side_effect = create_dpkg_side_effect("neither")
+        self.assertFalse(has_desktop_environment())
+
+        mock_run.side_effect = create_dpkg_side_effect("unexpected", True)
         self.assertFalse(has_desktop_environment())
 
     @patch(

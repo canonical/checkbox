@@ -43,7 +43,7 @@ echo "*  Adding nVidia package repository"
 # SAUCE: https://developer.nvidia.com/cuda-downloads?target_os=Linux&target_arch=x86_64&target_distro=Ubuntu&target_version=1804&target_type=debnetwork
 
 OSRELEASE=ubuntu`lsb_release -r | cut -f2 |sed -e 's/\.//'`
-ARCH=`uname -i`
+ARCH=`uname -m`
 if [[ "$ARCH" =~ "aarch64" ]]; then
     ARCH="arm64"
 fi

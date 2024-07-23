@@ -22,6 +22,7 @@ import os
 import json
 import logging
 from typing import Dict, List
+from checkbox_support.scripts.image_checker import has_desktop_environment
 
 logging.basicConfig(level=logging.INFO)
 
@@ -84,6 +85,7 @@ class GstResources:
             raise SystemExit("{}".format(e))
         self._current_scenario_name = ""
         self._resource_items = []
+        self._has_desktop_environment = has_desktop_environment()
 
     def _v4l2_video_decoder_md5_checksum_comparison_helper(
         self,
@@ -141,11 +143,9 @@ class GstResources:
     def gst_v4l2_audio_video_synchronization(
         self, scenario_data: Dict
     ) -> None:
-        # TODO: check if there's desktop environment
-        has_desktop_env = True
         video_sink = (
             scenario_data["video_sinks"]["desktop"]
-            if has_desktop_env
+            if self._has_desktop_environment
             else scenario_data["video_sinks"]["non_desktop"]
         )
         for item in scenario_data["cases"]:

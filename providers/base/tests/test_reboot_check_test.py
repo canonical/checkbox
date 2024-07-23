@@ -120,7 +120,29 @@ class DisplayConnectionTests(unittest.TestCase):
         }
         tester = RCT.HardwareRendererTester()
         self.assertTrue(tester.is_hardware_renderer_available())
+    
+    @patch(
+        "reboot_check_test.HardwareRendererTester.parse_unity_support_output"
+    )
+    @patch("reboot_check_test.run_command")
+    def test_is_hardware_renderer_available_fail(
+        self,
+        mock_run: MagicMock,
+        mock_parse: MagicMock,
+    ):
+       
+        mock_run.side_effect = lambda _: RCT.ShellResult(1, '', '')
+        tester = RCT.HardwareRendererTester()
+        self.assertFalse(tester.is_hardware_renderer_available())
 
+        mock_run.reset_mock()
+        mock_run.side_effect = do_nothing
+        mock_parse.return_value = {
+            "Not software rendered": "no",
+        }
+        tester = RCT.HardwareRendererTester()
+        self.assertFalse(tester.is_hardware_renderer_available())
+        
 
 class InfoDumpTests(unittest.TestCase):
     @classmethod

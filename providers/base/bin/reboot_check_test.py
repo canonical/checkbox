@@ -9,6 +9,7 @@ import filecmp
 import sys
 import enum
 import typing as T
+from checkbox_support.scripts.image_checker import has_desktop_environment
 
 
 # Checkbox could run in a snap container, so we need to prepend this root path
@@ -212,25 +213,6 @@ class FwtsTester:
 
 
 class HardwareRendererTester:
-
-    def is_desktop_image(self) -> bool:
-        print("Checking if this system is using a desktop image...")
-        if not shutil.which("dpkg"):
-            # core and server image doesn't have dpkg
-            return False
-        # if we found any of these packages, we are on desktop
-        if (
-            run_command(["dpkg", "-l", "ubuntu-desktop"]).return_code == 0
-            or run_command(
-                ["dpkg", "-l", "ubuntu-desktop-minimal"]
-            ).return_code
-            == 0
-        ):
-            print("Ubuntu desktop detected!")
-            return True
-
-        print("Not on ubuntu desktop.")
-        return False
 
     def has_display_connection(self) -> bool:
         """
@@ -484,7 +466,7 @@ def main() -> int:
 
     if args.do_renderer_check:
         tester = HardwareRendererTester()
-        if tester.is_desktop_image() and tester.has_display_connection():
+        if has_desktop_environment() and tester.has_display_connection():
             # skip renderer test if there's no display
             renderer_test_passed = tester.is_hardware_renderer_available()
 

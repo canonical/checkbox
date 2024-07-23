@@ -121,15 +121,6 @@ class DisplayConnectionTests(unittest.TestCase):
         tester = RCT.HardwareRendererTester()
         self.assertTrue(tester.is_hardware_renderer_available())
 
-    @patch("reboot_check_test.run_command")
-    def test_is_ubuntu_desktop(self, mock_run: MagicMock):
-        mock_run.return_value = RCT.ShellResult(1, "No such package", "")
-        tester = RCT.HardwareRendererTester()
-        self.assertFalse(tester.is_desktop_image())
-
-        mock_run.return_value = RCT.ShellResult(0, "", "")
-        self.assertTrue(tester.is_desktop_image())
-
 
 class InfoDumpTests(unittest.TestCase):
     @classmethod

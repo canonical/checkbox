@@ -1,4 +1,4 @@
-id gpgpu-stress-test
+id gpgpu-stress
 unit: test plan
 _name: GPGPU Compute Stress Testing
 _description:
@@ -6,11 +6,11 @@ _description:
 mandatory_include:
     gpgpu/gpu-burn
 
-id: gpgpu-tests
+id: gpgpu-automated
 unit: test plan
-_name: GPGPU Compute Testing
+_name: GPGPU Compute Automated Testing
 _description:
- Tests for GPGPU Computations (non-graphical)
+ Automated Tests for GPGPU Computations (non-graphical)
 include:
     gpgpu/matrix-mul-drv
     gpgpu/vector-add-drv

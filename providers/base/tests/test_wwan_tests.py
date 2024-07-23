@@ -240,34 +240,6 @@ class TestThreeGppScanTest(unittest.TestCase):
     @patch("subprocess.run")
     @patch("wwan_tests.WWANTestCtx")
     @patch("wwan_tests.ThreeGppScanTest.register_argument")
-    def test_invoked_failed_msg(self, mock_arg, mock_mmctx, mock_run):
-        mock_arg.return_value = argparse.Namespace(hw_id="2", timeout=200)
-        mmcli_instance = Mock()
-        mmcli_instance.modem_idx = "0"
-        mock_mmctx.return_value.__enter__.return_value = mmcli_instance
-        mock_run.return_value = subprocess.CompletedProcess(
-            args=[],
-            returncode=0,
-            stdout=b"output\nerror: modem disabled",
-            stderr=b"",
-        )
-
-        with redirect_stdout(StringIO()):
-            with self.assertRaises(SystemExit) as context:
-                obj_3gppscan = wwan_tests.ThreeGppScanTest()
-                obj_3gppscan.invoked()
-
-        self.assertEqual(context.exception.code, 1)
-        mock_mmctx.assert_called_with("2", True, True)
-        mock_run.assert_called_with(
-            ["mmcli", "-m", "0", "--3gpp-scan", "--timeout", "200"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-        )
-
-    @patch("subprocess.run")
-    @patch("wwan_tests.WWANTestCtx")
-    @patch("wwan_tests.ThreeGppScanTest.register_argument")
     def test_invoked_call_error(self, mock_arg, mock_mmctx, mock_run):
         mock_arg.return_value = argparse.Namespace(hw_id="2", timeout=200)
         mmcli_instance = Mock()

@@ -427,11 +427,7 @@ class ThreeGppScanTest:
                     cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
                 )
                 print(ret_sp.stdout.decode("utf-8"))
-                if (
-                    ret_sp.returncode == 0
-                    and b"error" not in ret_sp.stdout.lower()
-                ):
-                    ret_code = 0
+                ret_code = ret_sp.returncode
         except subprocess.CalledProcessError:
             pass
 

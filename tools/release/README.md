@@ -1,18 +1,17 @@
 # Checkbox release process
 
-> **_NOTE:_** Check the [Launchpad Builders status] before triggering a release.
-Sometimes, the builders will be down and this might prevent building the
-packages.
+> **_NOTE:_** Here you can check the [Launchpad Builders status]. Our build
+process relies on Launchpad builders, and they may be down or very busy. This
+might prevent building the packages and snaps from being built.
 
-## When can you relase a new beta candidate
+## When can you release a new beta version
 
-You can release a new beta candidate when you have at least one commit tagged
-by the verification process. This process will add a tag to the latest commit
-it can fetch with the version that is being verified and a
-`edge-validation-success` suffix. Note, any commit with that suffix is in theory
-a valid candidate for promotion but please, if any more recent commit is marked
-as `edge-validation-failed` investigate why, we may have upgraded the testing
-infra from one commit to the other!
+A new beta version will be automatically released by the canary validation
+process. When this process passes, it moves the `beta` branch to the latest
+commit it verified calculating it from the version string. Namely if the latest
+edge version is `1.2.3-dev120`, and it is verified, the beta `HEAD`
+will be moved to the `120th` commit after the tag `v1.2.3` (so that
+`origin/beta/HEAD~120` is `v1.2.3`)
 
 The verification process works as follows:
 
@@ -21,28 +20,16 @@ flowchart TD
     A[Wait for specific time of the day] --New changes--> D
     D[Build runtime/frontend snaps]
     A --No new change--> A
-    D --Build failed--> E(Tag commit with: edge-validation-failed)
+    D --Build failed--> E(Failure, do nothing)
     E --> A
     D --Build ok--> F[Verify snaps via Metabox]
-    F --Validation ok--> G[Run canary testing via jenkins]
+    F --Validation ok--> G[Run canary testing on jenkins]
     F --Validation failed --->E
     G --Validation failed --->E
-    G --Validation ok--->H(Tag commit with: edge-validation-success)
+    G --Validation ok--->H(Move beta branch to the commit)
 ```
 
 > **_NOTE:_** This process is fully automated, you don't need to trigger it.
-
-If you want to verify the status of the latest edge build, run:
-```bash
-$ git fetch --tags
-$ git describe --tags --match "*edge-validation*" origin/main &&
-    git log -1 $(
-        git describe --tags --match "*edge-validation*" --abbrev=0 origin/main)
-```
-
-These commands will show you the latest tag that is in the repo and the commit
-it is associated with. If this tag ends with `edge-validation-success` you can
-proceed with the release.
 
 ## Promote the previous beta release to stable
 
@@ -54,11 +41,6 @@ stakeholders.
 Therefore, if there has been no negative feedback from internal teams after a
 cycle of testing the beta release, run the [Stable release workflow] to copy deb
 packages to the stable PPA and promote all snaps to stable.
-
-> **_NOTE:_** Copy to the stable ppa only selects packages published in the last
-4 weeks.
-
-Then, it's time to build the new beta version.
 
 ## How packages versions are generated?
 
@@ -109,11 +91,9 @@ You can use the previously described script to do so:
 
 3 workflows are triggered on tag push events:
 
-- [checkbox deb packages] *(built and published to the beta PPA)*
-- [checkbox snap packages] *(built and uploaded to their respective beta
-  channels)*
-- [checkbox core snap packages] *(built and uploaded to their respective beta
-  channels)*
+- [checkbox deb packages] *(copy packages to the stable PPA)*
+- [checkbox snap packages] *(copy snaps to the stable channels)*
+- [checkbox core snap packages] *(copy snaps to the stable channels)*
 
 In addition to the above workflows, a [Draft Release Note] is created on Github
 with an auto-generated changelog.
@@ -123,10 +103,6 @@ Check the related Github Action logs to see if everything runs as expected:
 - Snapcraft is not blocked during the snap build process. For example, in this
 [build], the i386 build was blocked on an error (`Chroot problem`) for hours
 before finally completing
-- the expected number of snaps are built. Snapcraft does not return 1 when only
-a few of the snaps are built, which leads to Github Actions being marked as
-successful even though some snaps are not built (and therefore not pushed to
-the store)
 
 ## Send the release e-mail
 

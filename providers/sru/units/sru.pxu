@@ -90,6 +90,7 @@ exclude:
     audio/valid-sof-firmware-sig
     miscellanea/check_prerelease
     suspend/bluetooth_obex_.*
+    bluetooth/.*_obex_.*
     miscellanea/debsums
 
 id: sru
@@ -152,3 +153,4 @@ exclude:
     miscellanea/check_prerelease
     suspend/bluetooth_obex_.*
     miscellanea/debsums
+    bluetooth/.*_obex_.*

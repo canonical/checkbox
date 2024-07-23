@@ -297,6 +297,16 @@ def _wwan_radio_off():
     print()
 
 
+def _wwan_radio_status():
+    print_head("Get radio status")
+    cmd = ["nmcli", "r", "wwan"]
+    ret_sp = subprocess.run(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, check=True
+    )
+    print(ret_sp.stdout.decode("utf-8"))
+    return ret_sp.stdout.decode("utf-8").strip()
+
+
 def _destroy_3gpp_connection():
     print_head("Destroy 3GPP Connection")
     cmd = ["nmcli", "c", "delete", GSM_CON_ID]
@@ -359,6 +369,68 @@ class ThreeGppConnection:
             pass
         _destroy_3gpp_connection()
         _wwan_radio_off()
+        sys.exit(ret_code)
+
+
+class WWANTestCtx:
+
+    def __init__(self, hardware_id, use_mmcli=True, need_enable=False):
+        self.mm_obj = MMCLI() if use_mmcli else MMDbus()
+        self.need_enable = need_enable
+        self.original_status = ""
+        self.modem_idx = self.mm_obj.equipment_id_to_mm_id(hardware_id)
+
+    def __enter__(self):
+        self.original_status = _wwan_radio_status()
+        if self.need_enable and self.original_status == "disabled":
+            _wwan_radio_on()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        if self.need_enable and self.original_status == "disabled":
+            _wwan_radio_off()
+
+
+class ThreeGppScanTest:
+
+    def register_argument(self):
+
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            "hw_id", type=str, help="The hardware ID of the modem"
+        )
+        parser.add_argument(
+            "--timeout",
+            type=int,
+            default=300,
+            help="timeout for 3gpp-scan",
+        )
+        return parser.parse_args(sys.argv[2:])
+
+    def invoked(self):
+
+        args = self.register_argument()
+        ret_code = 1
+        try:
+            with WWANTestCtx(args.hw_id, True, True) as ctx:
+                cmd = [
+                    "mmcli",
+                    "-m",
+                    str(ctx.modem_idx),
+                    "--3gpp-scan",
+                    "--timeout",
+                    str(args.timeout),
+                ]
+                print_head("Scanning 3GPP available network")
+                print("+ {}".format(" ".join(cmd)))
+                ret_sp = subprocess.run(
+                    cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+                )
+                print(ret_sp.stdout.decode("utf-8"))
+                ret_code = ret_sp.returncode
+        except subprocess.CalledProcessError:
+            pass
+
         sys.exit(ret_code)
 
 
@@ -462,6 +534,7 @@ class WWANTests:
             "count": CountModems,
             "resources": Resources,
             "3gpp-connection": ThreeGppConnection,
+            "3gpp-scan": ThreeGppScanTest,
             "sim-present": SimPresent,
             "sim-info": SimInfo,
         }

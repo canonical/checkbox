@@ -150,6 +150,7 @@ def main(argv):
     listener = KeyboardListener(zapper_kbd, events.append)
     listener.start()
 
+    zapper_run(argv[1], "reset_hid_state")
     try:
         assert_key_combo(argv[1], events)
         assert_type_string(argv[1], events)

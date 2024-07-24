@@ -619,10 +619,13 @@ def parse_arguments(argv):
     Parse command line arguments
     """
     parser = argparse.ArgumentParser(description="Run a camera-related test")
+
+    # Add subparsers for the different tests
     subparsers = parser.add_subparsers(
         dest="test", title="test", description="Available camera tests"
     )
 
+    # Add a debug option
     parser.add_argument(
         "--debug",
         dest="log_level",
@@ -632,6 +635,8 @@ def parse_arguments(argv):
         help="Show debugging messages",
     )
 
+    # Function to manage the device parameter, either by specifying the device
+    # or by using the highest or lowest available device
     def add_device_parameter(parser):
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
@@ -653,11 +658,18 @@ def parse_arguments(argv):
             help=("Use the /dev/videoN where N is the lowest value available"),
         )
 
+    # Detect subparser
     subparsers.add_parser("detect")
+
+    # Led subparser
     led_parser = subparsers.add_parser("led")
     add_device_parameter(led_parser)
+
+    # Display subparser
     display_parser = subparsers.add_parser("display")
     add_device_parameter(display_parser)
+
+    # Still subparser
     still_parser = subparsers.add_parser("still")
     add_device_parameter(still_parser)
     still_parser.add_argument(
@@ -669,6 +681,8 @@ def parse_arguments(argv):
         action="store_true",
         help=("Don't display picture, just write the picture to a file"),
     )
+
+    # Resolutions subparser
     resolutions_parser = subparsers.add_parser("resolutions")
     resolutions_parser.add_argument(
         "-o",
@@ -679,6 +693,7 @@ def parse_arguments(argv):
     add_device_parameter(resolutions_parser)
     args = parser.parse_args(argv)
 
+    # Handle the selection of the highest or lowest device
     def get_video_devices():
         devices = sorted(
             glob("/dev/video[0-9]"), key=lambda d: re.search(r"\d", d).group(0)
@@ -698,8 +713,8 @@ if __name__ == "__main__":
 
     if not args.test:
         args.test = "detect"
-
     logging.basicConfig(level=args.log_level)
+
 
     # Import Gst only for the test cases that will need it
     if args.test in ["display", "still", "led", "resolutions"]:

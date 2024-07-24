@@ -40,11 +40,6 @@ jobs:
           - queue: 202012-28526
             data_source: "distro: noble"
 
-          - queue: 202012-28526
-            data_source: "distro: jammy"
-            checkbox_runtime: checkbox22
-            checkbox_track: "22.04"
-
           - queue: 202201-29865
             data_source: "distro: bionic"
             checkbox_runtime: checkbox18

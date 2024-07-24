@@ -43,7 +43,7 @@ test_data:
     else
         echo "Installing checkbox runtime on device (from deb package)"
         _run sudo add-apt-repository -y ppa:checkbox-dev/$CHANNEL
-        _run install_packages checkbox-*
+        _run sudo DEBIAN_FRONTEND=noninteractive apt-get -qq install -o Dpkg::Options::="--force-confdef" -y --force-yes checkbox-ng python3-checkbox-ng checkbox-provider-base checkbox-provider-resource checkbox-provider-sru fswebcam obexftp wmctrl iperf mesa-utils vim pastebinit fwts xorg-dev gir1.2-clutter-1.0
         # list installed checkbox-related packages to facilitate debugging
         _run "apt list --installed | grep checkbox"
         CHECKBOX_CLI_CMD="checkbox-cli"

@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        releases: [16, 18, 20, 22]
+        releases: [16, 18]
         arch: [amd64, arm64, armhf]
     runs-on:
       group: "Canonical self-hosted runners"

@@ -9,7 +9,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        releases: [24]
+        releases: [20, 22, 24]
         arch: [amd64, arm64]
         tag: [X64, ARM64]
         exclude:
@@ -86,7 +86,7 @@ jobs:
       fail-fast: false
       matrix:
         type: [classic, uc]
-        releases: [24]
+        releases: [20, 22, 24]
         arch: [amd64, arm64]
         tag: [X64, ARM64]
         exclude:
@@ -173,7 +173,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        releases: [24]
+        releases: [20, 22, 24]
         arch: [armhf]
     runs-on: [self-hosted, linux, jammy, large]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
@@ -245,7 +245,7 @@ jobs:
       fail-fast: false
       matrix:
         type: [classic, uc]
-        releases: [24]
+        releases: [20, 22, 24]
         arch: [armhf]
     runs-on: [self-hosted, linux, jammy, large]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts

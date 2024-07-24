@@ -35,8 +35,7 @@ test_data:
     # install checkbox runtime on device (snap or deb)
     if [[ "$SNAP_FLAG" == "true" ]]; then
         echo "Installing checkbox runtime on device (from snap)"
-        CHANGE_ID=$(_run sudo snap install $CHECKBOX_RUNTIME --no-wait --channel=latest/$CHANNEL)
-        wait_for_snap_change_id $CHANGE_ID
+        _run_retry sudo snap install $CHECKBOX_RUNTIME --channel=latest/$CHANNEL
         _run_retry sudo snap install checkbox --devmode --channel=$CHECKBOX_TRACK/$CHANNEL
         # list all the installed snaps to facilitate debugging
         _run snap list
@@ -52,7 +51,7 @@ test_data:
 
     check_for_checkbox_service --debug || exit 1
 
-    # sync Checkbox version between agent and device    
+    # sync Checkbox version between agent and device
     CHECKBOX_VERSION=$(_run $CHECKBOX_CLI_CMD --version)
     [ -z "$CHECKBOX_VERSION" ] && echo "Error: Unable to retrieve Checkbox version from device" && exit 1
     echo "Installing checkbox $CHECKBOX_VERSION on agent container from source"
@@ -74,5 +73,5 @@ test_data:
     EXITCODE=$?
 
     # placeholder for gathering possible artifacts
-    
+
     exit $EXITCODE

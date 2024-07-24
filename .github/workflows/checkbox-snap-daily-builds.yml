@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         type: [classic, uc]
-        releases: [16, 18, 20, 22]
+        releases: [16, 18]
     runs-on:
       group: "Canonical self-hosted runners"
       labels:

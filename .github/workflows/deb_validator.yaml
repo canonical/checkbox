@@ -9,10 +9,8 @@ on:
       - providers/base/**
       - providers/certification-client/**
       - providers/certification-server/**
-      - providers/docker/**
       - providers/genio/**
       - providers/gpgpu/**
-      - providers/iiotg/**
       - providers/resource/**
       - providers/sru/**
       - providers/tpm2/**
@@ -24,9 +22,7 @@ on:
       - providers/base/**
       - providers/certification-client/**
       - providers/certification-server/**
-      - providers/docker/**
       - providers/gpgpu/**
-      - providers/iiotg/**
       - providers/resource/**
       - providers/sru/**
       - providers/tpm2/**
@@ -39,8 +35,8 @@ jobs:
       matrix:
         # Version of Ubuntu
         # note: no 16, we dont have 16 debs anymore
+        #       no 18, not supported by github
         os:
-          - ubuntu-18.04
           - ubuntu-20.04
           - ubuntu-22.04
           - ubuntu-24.04
@@ -50,9 +46,7 @@ jobs:
           - providers/base
           - providers/certification-client
           - providers/certification-server
-          - providers/docker
           - providers/gpgpu
-          - providers/iiotg
           - providers/resource
           - providers/sru
           - providers/tpm2

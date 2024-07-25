@@ -80,8 +80,6 @@ include:
  com.canonical.certification::power-management/post-warm-reboot
  com.canonical.certification::power-management/cold-reboot
  com.canonical.certification::power-management/post-cold-reboot
- com.canonical.certification::snappy/snap-list
- com.canonical.certification::snappy/test-snap-confinement-mode
  com.canonical.certification::socketcan/modprobe_vcan
  com.canonical.certification::socketcan/send_packet_local_sff_virtual
  com.canonical.certification::socketcan/send_packet_local_eff_virtual

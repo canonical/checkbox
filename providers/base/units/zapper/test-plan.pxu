@@ -14,11 +14,11 @@ include:
   bluetooth/zapper-a2dp
   input/zapper-keyboard
   monitor/zapper-edid
-  monitor/1_zapper_hdmi_.*
   usb/zapper-usb-insert-.*
   usb/zapper-usb-remove-.*
   usb3/zapper-usb-insert-.*
   usb3/zapper-usb-remove-.*
 bootstrap_include:
   zapper_capabilities
+  zapper_reset_setup
   graphics_card

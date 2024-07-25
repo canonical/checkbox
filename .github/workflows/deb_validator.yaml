@@ -25,7 +25,6 @@ on:
       - providers/certification-client/**
       - providers/certification-server/**
       - providers/docker/**
-      - providers/genio/**
       - providers/gpgpu/**
       - providers/iiotg/**
       - providers/resource/**
@@ -52,7 +51,6 @@ jobs:
           - providers/certification-client
           - providers/certification-server
           - providers/docker
-          - providers/genio
           - providers/gpgpu
           - providers/iiotg
           - providers/resource
@@ -68,9 +66,9 @@ jobs:
           sudo add-apt-repository ppa:checkbox-dev/edge
           sudo apt-get update
           sudo apt-get install -qq -y dpkg-dev
-      - name: Install dependencies
-        run: sudo apt-get build-dep .
       - name: Prepare installation
         run: mv ${{ matrix.path }}/debian .
+      - name: Install dependencies
+        run: sudo apt-get build-dep .
       - name: Build source, test and build binary
         run: dpkg-buildpackage

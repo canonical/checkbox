@@ -1,4 +1,4 @@
-name: Verify that the debian packages are still buildable
+name: Verify debian packages
 
 on:
   push:

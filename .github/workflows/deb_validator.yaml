@@ -34,7 +34,7 @@ jobs:
       fail-fast: false
       matrix:
         # Version of Ubuntu
-        # note: no 16, we dont have 16 debs anymore
+        # note: no 16, we don't support debs for 16 anymore
         #       no 18, not supported by github
         os:
           - ubuntu-20.04

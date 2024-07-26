@@ -38,18 +38,19 @@ BACKUP_THERMAL_MODE_STR_TEMPLEATE = "/tmp/thermal_{}_mode"
 BACKUP_CPUIDEL_STATE_DISABLE_STR_TEMPLEATE = "/tmp/c_{}_s_{}_disable"
 
 
-class PerformanceController():
-    '''
+class PerformanceController:
+    """
     PerformanceController provides some methods that handle the get, set and
     backup actions.
-    '''
+    """
+
     def _get_node_value(self, node_path):
-        with open(node_path, 'r') as f:
+        with open(node_path, "r") as f:
             value = f.read().strip()
             return value
 
     def _set_node_value(self, node_path, value):
-        with open(node_path, 'w') as out:
+        with open(node_path, "w") as out:
             out.write(str(value))
 
     def _get_cpu_governor(self, policy):
@@ -72,7 +73,8 @@ class PerformanceController():
 
     def _get_thermal_trip_point_temp(self, thermal_zone, trip_point_count):
         node_path = PATH_OF_THERMAL_TRIP_POINT.format(
-            thermal_zone, trip_point_count)
+            thermal_zone, trip_point_count
+        )
         temp_value = self._get_node_value(node_path=node_path)
         return temp_value
 
@@ -80,7 +82,8 @@ class PerformanceController():
         self, thermal_zone, trip_point_count, temp_value
     ):
         node_path = PATH_OF_THERMAL_TRIP_POINT.format(
-            thermal_zone, trip_point_count)
+            thermal_zone, trip_point_count
+        )
         self._set_node_value(node_path=node_path, value=temp_value)
 
     def _set_apusys(self, value):
@@ -88,7 +91,7 @@ class PerformanceController():
         self._set_node_value(node_path=node_path, value=value)
 
     def _toggle_cpuidle_state_disable(self, cpu_count, state_count, value):
-        '''
+        """
         Toggle the 'disable' attribute for CPU idle states.
 
         Args:
@@ -99,21 +102,21 @@ class PerformanceController():
 
         Raises:
             ValueError: If the provided value is not 0 or 1.
-        '''
+        """
         if value not in [0, 1]:
             raise ValueError("Value must be 0 or 1")
         self._set_node_value(
-            PATH_CPUIDLE_STATE_DISABLE.format(cpu_count, state_count), value)
+            PATH_CPUIDLE_STATE_DISABLE.format(cpu_count, state_count), value
+        )
 
     def _toggle_thermal_mode(self, thermal_zone, value):
         if value not in ["disabled", "enabled"]:
             raise ValueError("Thermal mode must be enabled or disabled")
-        self._set_node_value(
-            PATH_OF_THERMAL_MODE.format(thermal_zone), value)
+        self._set_node_value(PATH_OF_THERMAL_MODE.format(thermal_zone), value)
 
 
 class PerformanceModeManager(PerformanceController):
-    '''
+    """
     PerformanceModeManager class for managing system performance modes.
 
     This class extends the PerformanceController class and provides methods
@@ -147,7 +150,8 @@ class PerformanceModeManager(PerformanceController):
         _set_thermal_trip_point_temp, _restore_cpu_governor,
         _restore_gpu_governor, and _restore_thermal_trip_point_temp
         in the parent class (PerformanceController).
-    '''
+    """
+
     def __init__(
         self,
         affected_policies: list,
@@ -156,7 +160,7 @@ class PerformanceModeManager(PerformanceController):
         affected_trip_point_temp: int,
         change_thermal_mode: bool,
         gpu_soc_name: str,
-        enable_apu: bool
+        enable_apu: bool,
     ):
         self._affected_policies = affected_policies
         self._affected_thermal_zone = affected_thermal_zone
@@ -168,7 +172,7 @@ class PerformanceModeManager(PerformanceController):
         self._affected_cpuidle_count_state = self._extract_cpu_state_numbers()
 
     def set_performance_mode(self):
-        '''
+        """
         Set performance mode by configuring CPU, GPU, APU, and thermal
         settings.
 
@@ -176,12 +180,11 @@ class PerformanceModeManager(PerformanceController):
         "performance", toggles CPU idle state, sets GPU governor to
         "performance", sets APU configuration, and adjusts thermal settings
         based on provided parameters.
-        '''
+        """
         # Configure CPU
         for policy in self._affected_policies:
             self._backup_cpu_governor(policy)
-            self._set_cpu_governor(
-                governor_mode="performance", policy=policy)
+            self._set_cpu_governor(governor_mode="performance", policy=policy)
         for item in self._affected_cpuidle_count_state:
             self._backup_cpuidle_state_disable(item[0], item[1])
             self._toggle_cpuidle_state_disable(item[0], item[1], 1)
@@ -189,7 +192,8 @@ class PerformanceModeManager(PerformanceController):
         if self._gpu_soc_name:
             self._backup_gpu_governor(soc=self._gpu_soc_name)
             self._set_gpu_governor(
-                governor_mode="performance", soc=self._gpu_soc_name)
+                governor_mode="performance", soc=self._gpu_soc_name
+            )
         # Configure APU
         if self._enable_apu:
             self._set_apusys(value="dvfs_debug 0")
@@ -197,17 +201,19 @@ class PerformanceModeManager(PerformanceController):
         if self._change_thermal_mode:
             self._backup_thermal_mode()
             self._toggle_thermal_mode(self._affected_thermal_zone, "disabled")
-        if self._affected_thermal_trip_points and \
-                self._affected_trip_point_temp:
+        if (
+            self._affected_thermal_trip_points
+            and self._affected_trip_point_temp
+        ):
             for trip_point in self._affected_thermal_trip_points:
                 self._backup_thermal_trip_point_temp(
                     thermal_zone=self._affected_thermal_zone,
-                    trip_point_count=trip_point
+                    trip_point_count=trip_point,
                 )
                 self._set_thermal_trip_point_temp(
                     thermal_zone=self._affected_thermal_zone,
                     trip_point_count=trip_point,
-                    temp_value=self._affected_trip_point_temp
+                    temp_value=self._affected_trip_point_temp,
                 )
 
     def restore_default_mode(self):
@@ -222,52 +228,60 @@ class PerformanceModeManager(PerformanceController):
         # Configure Thermal
         if self._change_thermal_mode:
             self._restore_thermal_mode()
-        if self._affected_thermal_trip_points and \
-                self._affected_trip_point_temp:
+        if (
+            self._affected_thermal_trip_points
+            and self._affected_trip_point_temp
+        ):
             for trip_point in self._affected_thermal_trip_points:
                 self._restore_thermal_trip_point_temp(
                     thermal_zone=self._affected_thermal_zone,
-                    trip_point_count=trip_point
+                    trip_point_count=trip_point,
                 )
 
     def _backup_cpu_governor(self, policy):
         governor = self._get_cpu_governor(policy)
         self._set_node_value(
             node_path=BACKUP_CPU_GOVERNOR_STR_TEMPLEATE.format(policy),
-            value=governor
+            value=governor,
         )
 
     def _restore_cpu_governor(self, policy):
         origianl_value = self._get_node_value(
-            BACKUP_CPU_GOVERNOR_STR_TEMPLEATE.format(policy))
+            BACKUP_CPU_GOVERNOR_STR_TEMPLEATE.format(policy)
+        )
         self._set_cpu_governor(governor_mode=origianl_value, policy=policy)
 
     def _backup_cpuidle_state_disable(self, cpu_count, state_count):
         value = self._get_node_value(
-            PATH_CPUIDLE_STATE_DISABLE.format(cpu_count, state_count))
+            PATH_CPUIDLE_STATE_DISABLE.format(cpu_count, state_count)
+        )
         self._set_node_value(
             BACKUP_CPUIDEL_STATE_DISABLE_STR_TEMPLEATE.format(
-                cpu_count, state_count),
-            value
+                cpu_count, state_count
+            ),
+            value,
         )
 
     def _restore_cpuidle_state(self, cpu_count, state_count):
         origianl_value = self._get_node_value(
             BACKUP_CPUIDEL_STATE_DISABLE_STR_TEMPLEATE.format(
-                cpu_count, state_count))
+                cpu_count, state_count
+            )
+        )
         self._toggle_cpuidle_state_disable(
-            cpu_count, state_count, int(origianl_value))
+            cpu_count, state_count, int(origianl_value)
+        )
 
     def _extract_cpu_state_numbers(self):
-        '''
+        """
         Extracts CPU state numbers from files in the specified directory.
 
         Returns:
         - List of tuples:
             Each tuple contains two integers representing CPU numbers (X) and
             state numbers (Y).
-        '''
-        pattern = re.compile(r'/cpu(\d+)/cpuidle/state(\d+)/disable')
+        """
+        pattern = re.compile(r"/cpu(\d+)/cpuidle/state(\d+)/disable")
         results = []
 
         # Walk through the directory and its subdirectories
@@ -288,46 +302,56 @@ class PerformanceModeManager(PerformanceController):
         governor = self._get_gpu_governor(soc)
         self._set_node_value(
             node_path=BACKUP_GPU_GOVERNOR_STR_TEMPLEATE.format(soc),
-            value=governor
+            value=governor,
         )
 
     def _restore_gpu_governor(self, soc):
         origianl_value = self._get_node_value(
-            BACKUP_GPU_GOVERNOR_STR_TEMPLEATE.format(soc))
+            BACKUP_GPU_GOVERNOR_STR_TEMPLEATE.format(soc)
+        )
         self._set_gpu_governor(governor_mode=origianl_value, soc=soc)
 
     def _backup_thermal_mode(self):
-        value = self._get_node_value(node_path=PATH_OF_THERMAL_MODE.format(
-            self._affected_thermal_zone))
+        value = self._get_node_value(
+            node_path=PATH_OF_THERMAL_MODE.format(self._affected_thermal_zone)
+        )
         self._set_node_value(
             node_path=BACKUP_THERMAL_MODE_STR_TEMPLEATE.format(
-                self._affected_thermal_zone),
-            value=value
+                self._affected_thermal_zone
+            ),
+            value=value,
         )
 
     def _restore_thermal_mode(self):
         origianl_value = self._get_node_value(
             BACKUP_THERMAL_MODE_STR_TEMPLEATE.format(
-                self._affected_thermal_zone))
+                self._affected_thermal_zone
+            )
+        )
         self._toggle_thermal_mode(self._affected_thermal_zone, origianl_value)
 
     def _backup_thermal_trip_point_temp(self, thermal_zone, trip_point_count):
         temp_value = self._get_thermal_trip_point_temp(
-            thermal_zone=thermal_zone, trip_point_count=trip_point_count)
+            thermal_zone=thermal_zone, trip_point_count=trip_point_count
+        )
         self._set_node_value(
             node_path=BACKUP_THERMAL_TRIP_POINT_STR_TEMPLEATE.format(
-                thermal_zone, trip_point_count),
-            value=temp_value
+                thermal_zone, trip_point_count
+            ),
+            value=temp_value,
         )
 
     def _restore_thermal_trip_point_temp(self, thermal_zone, trip_point_count):
         origianl_temp = self._get_node_value(
             BACKUP_THERMAL_TRIP_POINT_STR_TEMPLEATE.format(
-                thermal_zone, trip_point_count))
+                thermal_zone, trip_point_count
+            )
+        )
         self._set_thermal_trip_point_temp(
             thermal_zone=thermal_zone,
             trip_point_count=trip_point_count,
-            temp_value=origianl_temp)
+            temp_value=origianl_temp,
+        )
 
 
 def get_testing_parameters(platform):

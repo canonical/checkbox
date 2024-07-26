@@ -42,6 +42,7 @@ import sys
 
 from glob import glob
 from subprocess import check_call, CalledProcessError, STDOUT
+from time import sleep
 from tempfile import NamedTemporaryFile
 
 
@@ -178,7 +179,7 @@ class CameraTest:
         self._width = 640
         self._height = 480
         self._devices = []
-        self._show_image = True
+        self._show_image = False
 
     def detect(self):
         """
@@ -314,9 +315,19 @@ class CameraTest:
         """
         Displays the preview window for a video stream
         """
-        self._setup_gstreamer()
-        GLib.timeout_add_seconds(10, self._stop)
-        Gtk.main()
+        if self.args.quiet:
+            self._setup_gstreamer("fakesink")
+            sleep(4)
+            # get the status of the camerabin
+            state = self.camerabin.get_state(0)
+            if state[1] != Gst.State.PLAYING:
+                raise SystemExit("Unable to start the camera")
+            self._stop()
+        else:
+            self._show_image = True
+            self._setup_gstreamer()
+            GLib.timeout_add_seconds(10, self._stop)
+            Gtk.main()
 
     def image(self):
         """
@@ -327,7 +338,9 @@ class CameraTest:
                 self.args.output, self._width, self._height, self.args.quiet
             )
         else:
-            with NamedTemporaryFile(prefix="camera_test_", suffix=".jpg") as f:
+            with NamedTemporaryFile(
+                prefix="camera_test_", suffix=".jpg", delete=False
+            ) as f:
                 self._still_image_helper(
                     f.name, self._width, self._height, self.args.quiet
                 )
@@ -351,23 +364,25 @@ class CameraTest:
             "%dx%d" % (width, height),
             filename,
         ]
-        use_camerabin = False
+        use_camerabin = True
         if pixelformat:
             if "MJPG" == pixelformat:  # special tweak for fswebcam
                 pixelformat = "MJPEG"
             command.extend(["-p", pixelformat])
 
-        try:
-            check_call(command, stdout=open(os.devnull, "w"), stderr=STDOUT)
-            if os.path.getsize(filename) == 0:
-                use_camerabin = True
-        except (CalledProcessError, OSError):
-            use_camerabin = True
+        # try:
+        #     check_call(command, stdout=open(os.devnull, "w"), stderr=STDOUT)
+        #     if os.path.getsize(filename) == 0:
+        #         use_camerabin = True
+        # except (CalledProcessError, OSError):
+        #     use_camerabin = True
         if use_camerabin:
             self._setup_gstreamer(sink="fakesink")
-            GLib.timeout_add_seconds(3, self._take_photo, filename)
-            GLib.timeout_add_seconds(4, self._stop)
-            Gtk.main()
+            sleep(3)
+            self._take_photo(filename)
+            sleep(1)
+            self._stop()
+            print("Image saved to %s" % filename)
         if self._show_image:
             self._display_image(filename, width, height)
 
@@ -687,6 +702,13 @@ def parse_arguments(argv):
     # Video subparser
     video_parser = subparsers.add_parser("video")
     add_device_parameter(video_parser)
+    # add a quiet option false by default
+    video_parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help=("Don't display video, just run the camera"),
+    )
 
     # Image subparser
     image_parser = subparsers.add_parser("image")
@@ -748,14 +770,19 @@ if __name__ == "__main__":
         gi.require_version("GLib", "2.0")
         from gi.repository import GLib
 
-        gi.require_version("Clutter", "1.0")
-        from gi.repository import Clutter
-
-        gi.require_version("Gtk", "3.0")
-        from gi.repository import Gtk
-
         Gst.init(None)
-        Clutter.init()
-        Gtk.init([])
+
+        # Import Clutter/Gtk only for the test cases that will need it
+        if args.test in ["video", "image"] and not args.quiet:
+            print("showing the image")
+            gi.require_version("Clutter", "1.0")
+            from gi.repository import Clutter
+
+            gi.require_version("Gtk", "3.0")
+            from gi.repository import Gtk
+
+            Clutter.init()
+            Gtk.init([])
+
     camera = CameraTest(args)
     sys.exit(getattr(camera, args.test)())

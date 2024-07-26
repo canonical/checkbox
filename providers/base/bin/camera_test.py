@@ -168,7 +168,9 @@ VIDIOC_ENUM_FMT = _IOWR("V", 2, v4l2_fmtdesc)
 
 class CameraTest:
     """
-    A simple class that displays a test image via GStreamer.
+    This class is handles all the different camera tests. The tests available
+    are:
+     - 
     """
 
     def __init__(self, args):
@@ -299,29 +301,29 @@ class CameraTest:
         GLib.timeout_add_seconds(3, self._stop)
         Gtk.main()
 
-    def display(self):
+    def video(self):
         """
-        Displays the preview window
+        Displays the preview window for a video stream
         """
         self._setup()
         GLib.timeout_add_seconds(10, self._stop)
         Gtk.main()
 
-    def still(self):
+    def image(self):
         """
         Captures an image to a file
         """
         if self.args.filename:
-            self._still_helper(
+            self._still_image_helper(
                 self.args.filename, self._width, self._height, self.args.quiet
             )
         else:
             with NamedTemporaryFile(prefix="camera_test_", suffix=".jpg") as f:
-                self._still_helper(
+                self._still_image_helper(
                     f.name, self._width, self._height, self.args.quiet
                 )
 
-    def _still_helper(self, filename, width, height, quiet, pixelformat=None):
+    def _still_image_helper(self, filename, width, height, quiet, pixelformat=None):
         """
         Captures an image to a given filename.  width and height specify the
         image size and quiet controls whether the image is displayed to the
@@ -417,7 +419,7 @@ class CameraTest:
                 delete=False,
             )
             print("Taking a picture at %sx%s" % (w, h))
-            self._still_helper(
+            self._still_image_helper(
                 f.name, w, h, True, pixelformat=format["pixelformat"]
             )
             if self._validate_image(f.name, w, h):
@@ -452,7 +454,7 @@ class CameraTest:
             output, "resolution_test_image_{}.jpg".format(device_name)
         )
         with open(filepath, "w") as f:
-            self._still_helper(
+            self._still_image_helper(
                 f.name, w, h, True, pixelformat=format["pixelformat"]
             )
 
@@ -665,17 +667,20 @@ def parse_arguments(argv):
     led_parser = subparsers.add_parser("led")
     add_device_parameter(led_parser)
 
-    # Display subparser
-    display_parser = subparsers.add_parser("display")
-    add_device_parameter(display_parser)
+    # Video subparser
+    video_parser = subparsers.add_parser("video")
+    add_device_parameter(video_parser)
 
-    # Still subparser
-    still_parser = subparsers.add_parser("still")
-    add_device_parameter(still_parser)
-    still_parser.add_argument(
-        "-f", "--filename", help="Filename to store the picture"
+    # Image subparser
+    image_parser = subparsers.add_parser("image")
+    add_device_parameter(image_parser)
+    image_parser.add_argument(
+        "-o",
+        "--output",
+        default="",
+        help="Output directory to store the image",
     )
-    still_parser.add_argument(
+    image_parser.add_argument(
         "-q",
         "--quiet",
         action="store_true",
@@ -691,6 +696,7 @@ def parse_arguments(argv):
         help="Output directory to store a small debug image",
     )
     add_device_parameter(resolutions_parser)
+
     args = parser.parse_args(argv)
 
     # Handle the selection of the highest or lowest device
@@ -717,7 +723,7 @@ if __name__ == "__main__":
 
 
     # Import Gst only for the test cases that will need it
-    if args.test in ["display", "still", "led", "resolutions"]:
+    if args.test in ["video", "image", "led", "resolutions"]:
         import gi
 
         gi.require_version("Gst", "1.0")

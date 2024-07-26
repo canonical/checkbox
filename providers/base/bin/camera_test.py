@@ -170,7 +170,7 @@ class CameraTest:
     """
     This class is handles all the different camera tests. The tests available
     are:
-     - 
+     -
     """
 
     def __init__(self, args):
@@ -178,6 +178,7 @@ class CameraTest:
         self._width = 640
         self._height = 480
         self._devices = []
+        self._show_image = True
 
     def detect(self):
         """
@@ -244,10 +245,17 @@ class CameraTest:
 
     def _stop(self):
         self.camerabin.set_state(Gst.State.NULL)
-        Gtk.main_quit()
+        if self._show_image:
+            Gtk.main_quit()
 
     def _on_error(self, bus, msg):
-        Gtk.main_quit()
+        if self._show_image:
+            Gtk.main_quit()
+        raise SystemExit(
+            "An error ocurred while processing the stream:\n{}".format(
+                msg.parse_error().debug
+            )
+        )
 
     def _on_destroy(self, *args):
         Clutter.main_quit()
@@ -256,7 +264,8 @@ class CameraTest:
         self.camerabin.set_property("location", filename)
         self.camerabin.emit("start-capture")
 
-    def _setup(self, sink=None):
+    def _setup_gstreamer(self, sink=None):
+
         webcam = Gst.ElementFactory.make("v4l2src")
         webcam.set_property("device", self.args.device)
         wrappercamerabinsrc = Gst.ElementFactory.make("wrappercamerabinsrc")
@@ -297,7 +306,7 @@ class CameraTest:
         """
         Activate camera (switch on led), but don't display any output
         """
-        self._setup(sink="fakesink")
+        self._setup_gstreamer(sink="fakesink")
         GLib.timeout_add_seconds(3, self._stop)
         Gtk.main()
 
@@ -305,7 +314,7 @@ class CameraTest:
         """
         Displays the preview window for a video stream
         """
-        self._setup()
+        self._setup_gstreamer()
         GLib.timeout_add_seconds(10, self._stop)
         Gtk.main()
 
@@ -313,9 +322,9 @@ class CameraTest:
         """
         Captures an image to a file
         """
-        if self.args.filename:
+        if self.args.output:
             self._still_image_helper(
-                self.args.filename, self._width, self._height, self.args.quiet
+                self.args.output, self._width, self._height, self.args.quiet
             )
         else:
             with NamedTemporaryFile(prefix="camera_test_", suffix=".jpg") as f:
@@ -323,7 +332,9 @@ class CameraTest:
                     f.name, self._width, self._height, self.args.quiet
                 )
 
-    def _still_image_helper(self, filename, width, height, quiet, pixelformat=None):
+    def _still_image_helper(
+        self, filename, width, height, quiet, pixelformat=None
+    ):
         """
         Captures an image to a given filename.  width and height specify the
         image size and quiet controls whether the image is displayed to the
@@ -353,20 +364,26 @@ class CameraTest:
         except (CalledProcessError, OSError):
             use_camerabin = True
         if use_camerabin:
-            self._setup(sink="fakesink")
+            self._setup_gstreamer(sink="fakesink")
             GLib.timeout_add_seconds(3, self._take_photo, filename)
             GLib.timeout_add_seconds(4, self._stop)
             Gtk.main()
-        if not quiet:
-            stage = Clutter.Stage()
-            stage.set_title("Camera still picture test")
-            stage.set_size(width, height)
-            stage.connect("destroy", self._on_destroy)
-            Clutter.threads_add_timeout(0, 10000, self._on_destroy, None, None)
-            still_texture = Clutter.Texture.new_from_file(filename)
-            stage.add_actor(still_texture)
-            stage.show()
-            Clutter.main()
+        if self._show_image:
+            self._display_image(filename, width, height)
+
+    def _display_image(self, filename, width, height):
+        """
+        Display an image using Clutter
+        """
+        stage = Clutter.Stage()
+        stage.set_title("Camera still picture test")
+        stage.set_size(width, height)
+        stage.connect("destroy", self._on_destroy)
+        Clutter.threads_add_timeout(0, 10000, self._on_destroy, None, None)
+        still_texture = Clutter.Texture.new_from_file(filename)
+        stage.add_actor(still_texture)
+        stage.show()
+        Clutter.main()
 
     def _supported_formats_to_string(self, supported_formats):
         """
@@ -720,7 +737,6 @@ if __name__ == "__main__":
     if not args.test:
         args.test = "detect"
     logging.basicConfig(level=args.log_level)
-
 
     # Import Gst only for the test cases that will need it
     if args.test in ["video", "image", "led", "resolutions"]:

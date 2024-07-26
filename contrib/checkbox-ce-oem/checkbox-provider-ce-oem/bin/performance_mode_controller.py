@@ -29,6 +29,7 @@ def performance_mode(target: str = "", **kwrags):
         # Run performance mode if target string starts with "genio"
         if target.startswith("genio"):
             from genio_performance_mode import performance_mode
+
             with performance_mode(target):
                 yield
         # Do nothing if no specific target

@@ -205,3 +205,13 @@ _description:
  This test verifies that boot up time was less than 2 minutes on Notebook and Laptop
 _purpose:
  This test verifies that boot up time was less than 2 minutes on Notebook and Laptop
+
+plugin: attachment
+category_id: com.canonical.plainbox::info
+id: info/image-url
+estimated_duration: 0.1
+_description: Get image URL based on DCD
+_summary: Provides image URL based on DistributionChannelDescriptor meta data
+_purpose: Provide a link to the ISO file which was installed on the system
+command: get-image-url.sh
+

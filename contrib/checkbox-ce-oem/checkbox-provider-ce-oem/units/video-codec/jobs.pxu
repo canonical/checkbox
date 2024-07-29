@@ -50,7 +50,8 @@ _steps:
     2. Adjust the audio sink to be headset via Gnome Settings or command
     3. Press enter to perform test
 _verification:
-    Do you hear the beep sound and see the video be displayed?
-    Is the timing of audio and video synchronized?
+    Ensure there's no delay between the audio output and the visual display
+    1. Do you hear the beep sound and see the video be displayed?
+    2. Is the timing of audio and video synchronized?
 command:
     gst_v4l2_audio_video_synchronization.py -dp {{decoder_plugin}} -gp {{golden_sample_file}} -vs {{video_sink}}

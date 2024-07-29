@@ -179,7 +179,7 @@ class CameraTest:
         self._width = 640
         self._height = 480
         self._devices = []
-        self._show_image = False
+        self._show_image = True
 
     def detect(self):
         """
@@ -246,8 +246,7 @@ class CameraTest:
 
     def _stop(self):
         self.camerabin.set_state(Gst.State.NULL)
-        if self._show_image:
-            Gtk.main_quit()
+        Gtk.main_quit()
 
     def _on_error(self, bus, msg):
         if self._show_image:
@@ -257,9 +256,6 @@ class CameraTest:
                 msg.parse_error().debug
             )
         )
-
-    def _on_destroy(self, *args):
-        Clutter.main_quit()
 
     def _take_photo(self, filename):
         self.camerabin.set_property("location", filename)
@@ -303,26 +299,28 @@ class CameraTest:
         bus.connect("message::error", self._on_error)
         self.camerabin.set_state(Gst.State.PLAYING)
 
+    def _quiet_video_recording(self):
+        self._setup_gstreamer("fakesink")
+        sleep(3)
+        # get the status of the camerabin
+        state = self.camerabin.get_state(0)
+        if state[1] != Gst.State.PLAYING:
+            raise SystemExit("Unable to start the camera")
+        self.camerabin.set_state(Gst.State.NULL)
+
     def led(self):
         """
         Activate camera (switch on led), but don't display any output
         """
-        self._setup_gstreamer(sink="fakesink")
-        GLib.timeout_add_seconds(3, self._stop)
-        Gtk.main()
+        self._quiet_video_recording()
 
     def video(self):
         """
         Displays the preview window for a video stream
         """
+        # Don't display the video, just run the camera
         if self.args.quiet:
-            self._setup_gstreamer("fakesink")
-            sleep(4)
-            # get the status of the camerabin
-            state = self.camerabin.get_state(0)
-            if state[1] != Gst.State.PLAYING:
-                raise SystemExit("Unable to start the camera")
-            self._stop()
+            self._quiet_video_recording()
         else:
             self._show_image = True
             self._setup_gstreamer()
@@ -370,35 +368,46 @@ class CameraTest:
                 pixelformat = "MJPEG"
             command.extend(["-p", pixelformat])
 
-        # try:
-        #     check_call(command, stdout=open(os.devnull, "w"), stderr=STDOUT)
-        #     if os.path.getsize(filename) == 0:
-        #         use_camerabin = True
-        # except (CalledProcessError, OSError):
-        #     use_camerabin = True
+        try:
+            check_call(command, stdout=open(os.devnull, "w"), stderr=STDOUT)
+            if os.path.getsize(filename) == 0:
+                use_camerabin = True
+        except (CalledProcessError, OSError):
+            use_camerabin = True
         if use_camerabin:
-            self._setup_gstreamer(sink="fakesink")
+            self._setup_gstreamer()
             sleep(3)
             self._take_photo(filename)
             sleep(1)
-            self._stop()
+            # self._stop()
             print("Image saved to %s" % filename)
         if self._show_image:
             self._display_image(filename, width, height)
 
     def _display_image(self, filename, width, height):
         """
-        Display an image using Clutter
+        Display an image using Gtk
         """
-        stage = Clutter.Stage()
-        stage.set_title("Camera still picture test")
-        stage.set_size(width, height)
-        stage.connect("destroy", self._on_destroy)
-        Clutter.threads_add_timeout(0, 10000, self._on_destroy, None, None)
-        still_texture = Clutter.Texture.new_from_file(filename)
-        stage.add_actor(still_texture)
-        stage.show()
-        Clutter.main()
+        print("starting GTK")
+        # Initialize GTK application
+        window = Gtk.Window(title="Image Viewer")
+        window.set_border_width(10)
+        window.set_default_size(400, 300)
+
+        # Load and display the image
+        image = Gtk.Image.new_from_file(filename)
+        window.add(image)
+
+        # Connect the destroy event to quit the GTK main loop
+        window.connect("destroy", self._stop)
+        GLib.timeout_add_seconds(10, self._stop)
+
+
+        # Show all widgets in the window
+        window.show_all()
+
+        # Start the GTK main loop
+        Gtk.main()
 
     def _supported_formats_to_string(self, supported_formats):
         """
@@ -774,14 +783,10 @@ if __name__ == "__main__":
 
         # Import Clutter/Gtk only for the test cases that will need it
         if args.test in ["video", "image"] and not args.quiet:
-            print("showing the image")
-            gi.require_version("Clutter", "1.0")
-            from gi.repository import Clutter
 
             gi.require_version("Gtk", "3.0")
             from gi.repository import Gtk
 
-            Clutter.init()
             Gtk.init([])
 
     camera = CameraTest(args)

@@ -10,7 +10,14 @@ jobs:
       fail-fast: false
       matrix:
         type: [classic, uc]
-        releases: [16, 18]
+        releases: [16, 18, 20]
+        include:
+          - releases: 16
+            arch: "amd64,arm64,armhf"
+          - releases: 18
+            arch: "armhf"
+          - releases: 20
+            arch: "armhf"
     runs-on:
       group: "Canonical self-hosted runners"
       labels:
@@ -56,7 +63,7 @@ jobs:
           with: |
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
-            snapcraft-args: remote-build --build-for amd64,arm64,armhf --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
+            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()
@@ -71,23 +78,3 @@ jobs:
         with:
           name: frontend_snaps${{ matrix.type }}${{ matrix.releases }}
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
-      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
-        name: Upload the snaps to the store
-        timeout-minutes: 600 # 10hours
-        with:
-          attempt_delay: 600000 # 10min
-          attempt_limit: 10
-          command: |
-            for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap ; \
-            do \
-              echo "Uploading $snap..." ; \
-              if [ ${{ matrix.type }} = 'classic' ]; then \
-                if [ ${{ matrix.releases }} = '22' ]; then \
-                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
-                else \
-                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
-                fi \
-              else \
-                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge ; \
-              fi ; \
-            done

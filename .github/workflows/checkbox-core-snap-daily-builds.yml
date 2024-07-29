@@ -9,8 +9,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        releases: [16, 18]
+        releases: [16, 18, 20]
         arch: [amd64, arm64, armhf]
+        exclude:
+          # confs built by the other workflow
+          - releases: 20
+            arch: arm64
+          - releases: 20
+            arch: arm64
+          - releases: 18
+            arch: arm64
+          - releases: 18
+            arch: arm64
     runs-on:
       group: "Canonical self-hosted runners"
       labels:
@@ -70,15 +80,3 @@ jobs:
         with:
           name: runtime_snap${{ matrix.releases }}_${{ matrix.arch }}
           path: checkbox-core-snap/series${{ matrix.releases }}/*.snap
-      - uses: Wandalen/wretry.action@v3.4.0_js_action
-        name: Upload the snap to the store
-        timeout-minutes: 600 # 10hours
-        with:
-          attempt_delay: 600000 # 10min
-          attempt_limit: 10
-          command: |
-            for snap in checkbox-core-snap/series${{ matrix.releases }}/*.snap ; \
-            do \
-              echo "Uploading $snap..." ; \
-              snapcraft upload $snap --release edge ; \
-            done

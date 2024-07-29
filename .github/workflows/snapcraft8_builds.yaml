@@ -9,14 +9,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        releases: [20, 22, 24]
+        releases: [18, 20, 22, 24]
         arch: [amd64, arm64]
-        tag: [X64, ARM64]
-        exclude:
+        include:
           - arch: amd64
-            tag: ARM64
-          - arch: arm64
             tag: X64
+          - arch: arm64
+            tag: ARM64
+          - releases: 18
+            snapcraft_version: 7.x
+          - releases: 20
+            snapcraft_version: 7.x
+          - releases: 22
+            snapcraft_version: 8.x
+          - releases: 24
+            snapcraft_version: 8.x
     runs-on:
       group: "Canonical self-hosted runners"
       labels:
@@ -54,7 +61,7 @@ jobs:
           attempt_limit: 5
           with: |
             path: checkbox-core-snap/series${{ matrix.releases }}
-            snapcraft-channel: 8.x/stable
+            snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()
@@ -69,31 +76,27 @@ jobs:
         with:
           name: checkbox${{ matrix.releases }}_${{ matrix.arch }}
           path: checkbox-core-snap/series${{ matrix.releases }}/*.snap
-      - uses: Wandalen/wretry.action@v3.4.0_js_action
-        name: Upload the snap to the store
-        timeout-minutes: 600 # 10hours
-        with:
-          attempt_delay: 600000 # 10min
-          attempt_limit: 10
-          command: |
-            for snap in checkbox-core-snap/series${{ matrix.releases }}/*.snap ; \
-            do \
-              echo "Uploading $snap..." ; \
-              snapcraft upload $snap --release edge ; \
-            done
+
   snap_frontend_native:
     strategy:
       fail-fast: false
       matrix:
         type: [classic, uc]
-        releases: [20, 22, 24]
+        releases: [18, 20, 22, 24]
         arch: [amd64, arm64]
-        tag: [X64, ARM64]
-        exclude:
+        include:
           - arch: amd64
-            tag: ARM64
-          - arch: arm64
             tag: X64
+          - arch: arm64
+            tag: ARM64
+          - releases: 18
+            snapcraft_version: 7.x
+          - releases: 20
+            snapcraft_version: 7.x
+          - releases: 22
+            snapcraft_version: 8.x
+          - releases: 24
+            snapcraft_version: 8.x
     runs-on:
       group: "Canonical self-hosted runners"
       labels:
@@ -122,9 +125,6 @@ jobs:
           echo '${{ secrets.LP_CREDS }}' > ~/.local/share/snapcraft/launchpad-credentials
           git config --global user.email "robot@lists.canonical.com"
           git config --global user.name "Certification bot"
-      - name: Print Launchpad build repository
-        run: |
-          echo "Building at: https://git.launchpad.net/~ce-certification-qa/+snap/$SNAPCRAFT_BUILDER_ID"
       - uses: Wandalen/wretry.action@v3.4.0_js_action
         name: Building the snaps
         timeout-minutes: 600 # 10hours
@@ -134,7 +134,7 @@ jobs:
           attempt_limit: 5
           with: |
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
-            snapcraft-channel: 8.x/stable
+            snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()
@@ -149,31 +149,12 @@ jobs:
         with:
           name: series_${{ matrix.type }}${{ matrix.releases }}${{ matrix.arch }}
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
-      - uses: Wandalen/wretry.action@v3.4.0_js_action
-        name: Upload the snaps to the store
-        timeout-minutes: 600 # 10hours
-        with:
-          attempt_delay: 600000 # 10min
-          attempt_limit: 10
-          command: |
-            for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap ; \
-            do \
-              echo "Uploading $snap..." ; \
-              if [ ${{ matrix.type }} = 'classic' ]; then \
-                if [ ${{ matrix.releases }} = '22' ]; then \
-                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
-                else \
-                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
-                fi \
-              else \
-                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge ; \
-              fi ; \
-            done
+
   snap_runtime_remote_build:
     strategy:
       fail-fast: false
       matrix:
-        releases: [20, 22, 24]
+        releases: [22, 24]
         arch: [armhf]
     runs-on: [self-hosted, linux, jammy, large]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
@@ -212,8 +193,8 @@ jobs:
           attempt_delay: 600000 # 10min
           attempt_limit: 5
           with: |
-            snapcraft-channel: 8.x/stable
-            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID --launchpad-timeout=36000
+            snapcraft-channel: 8.0/stable
+            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id "checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}" --launchpad-timeout=36000
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()
@@ -228,24 +209,13 @@ jobs:
         with:
           name: runtime_snap${{ matrix.releases }}_${{ matrix.arch }}
           path: "checkbox*.snap"
-      - uses: Wandalen/wretry.action@v3.4.0_js_action
-        name: Upload the snap to the store
-        timeout-minutes: 600 # 10hours
-        with:
-          attempt_delay: 600000 # 10min
-          attempt_limit: 10
-          command: |
-            for snap in checkbox*.snap ; \
-            do \
-              echo "Uploading $snap..." ; \
-              snapcraft upload $snap --release edge ; \
-            done
+
   snap_frontend_remote_build:
     strategy:
       fail-fast: false
       matrix:
         type: [classic, uc]
-        releases: [20, 22, 24]
+        releases: [22, 24]
         arch: [armhf]
     runs-on: [self-hosted, linux, jammy, large]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
@@ -285,8 +255,8 @@ jobs:
           attempt_delay: 600000 # 10min
           attempt_limit: 5
           with: |
-            snapcraft-channel: 8.x/stable
-            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID --launchpad-timeout=36000
+            snapcraft-channel: 8.0/stable
+            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id "checkbox-${{ matrix.type }}${{ matrix.releases }}-${{ github.run_id }}" --launchpad-timeout=36000
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()
@@ -301,23 +271,3 @@ jobs:
         with:
           name: frontend_snaps${{ matrix.type }}${{ matrix.releases }}
           path: "checkbox*.snap"
-      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
-        name: Upload the snaps to the store
-        timeout-minutes: 600 # 10hours
-        with:
-          attempt_delay: 600000 # 10min
-          attempt_limit: 10
-          command: |
-            for snap in checkbox*.snap ; \
-            do \
-              echo "Uploading $snap..." ; \
-              if [ ${{ matrix.type }} = 'classic' ]; then \
-                if [ ${{ matrix.releases }} = '22' ]; then \
-                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
-                else \
-                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
-                fi \
-              else \
-                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge ; \
-              fi ; \
-            done

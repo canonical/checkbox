@@ -41,6 +41,7 @@ include:
  monitor/1_thunderbolt3_.*                  certification-status=non-blocker
  audio/1_playback_thunderbolt3_.*           certification-status=non-blocker
  thunderbolt3/daisy-chain                   certification-status=non-blocker
+ monitor/multi-head                         certification-status=blocker
 bootstrap_include:
     graphics_card
 
@@ -84,6 +85,7 @@ include:
  after-suspend-monitor/1_thunderbolt3_.*                  certification-status=non-blocker
  after-suspend-audio/1_playback_thunderbolt3_.*           certification-status=non-blocker
  after-suspend-thunderbolt3/daisy-chain                   certification-status=non-blocker
+ after-suspend-monitor/multi-head                         certification-status=blocker
 bootstrap_include:
     graphics_card
 

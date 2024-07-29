@@ -23,6 +23,7 @@ import json
 import logging
 from typing import Dict, List
 from checkbox_support.scripts.image_checker import has_desktop_environment
+from checkbox_support.snap_utils.system import on_ubuntucore
 
 logging.basicConfig(level=logging.INFO)
 
@@ -143,11 +144,14 @@ class GstResources:
     def gst_v4l2_audio_video_synchronization(
         self, scenario_data: Dict
     ) -> None:
-        video_sink = (
-            scenario_data["video_sinks"]["desktop"]
-            if self._has_desktop_environment
-            else scenario_data["video_sinks"]["non_desktop"]
-        )
+        video_sink = ""
+        if on_ubuntucore():
+            video_sink = scenario_data["video_sinks"]["on_core"]
+        elif self._has_desktop_environment:
+            video_sink = scenario_data["video_sinks"]["on_desktop"]
+        else:
+            video_sink = scenario_data["video_sinks"]["on_desktop"]
+
         for item in scenario_data["cases"]:
             for sample_file in item["golden_sample_files"]:
                 self._resource_items.append(

@@ -1,7 +1,8 @@
 {
     "gst_v4l2_audio_video_synchronization": {
         "video_sinks": {
-            "non_desktop": "kmssink connector-id=32 driver-name=mediatek"
+            "on_server": "kmssink connector-id=32 driver-name=mediatek",
+            "on_core": "kmssink connector-id=32 driver-name=mediatek"
         },
         "cases": [
             {

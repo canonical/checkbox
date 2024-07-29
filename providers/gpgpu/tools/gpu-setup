@@ -44,13 +44,29 @@ echo "*  Adding nVidia package repository"
 
 OSRELEASE=ubuntu`lsb_release -r | cut -f2 |sed -e 's/\.//'`
 ARCH=`uname -m`
-if [[ "$ARCH" =~ "aarch64" ]]; then
-    ARCH="arm64"
-fi
+case $ARCH in
+    arm)
+        ;&
+    aarch64_be)
+        ;&
+    aarch64)
+        ARCH="arm64"
+        ;;
+    x86_64)
+        ;;
+    *)
+        echo "ERROR: Unsupported architecture $ARCH"
+        exit 1
+        ;;
+esac
 REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH"
 
 # Import and verify cuda gpg key
 wget -O cuda-archive-keyring.gpg "$REPO_URL/3bf863cc.pub"
+if [[ $? -eq 8 ]] ; then
+    echo "ERROR: wget failed. $OSRELEASE/$ARCH not supported?"
+    exit 1
+fi
 gpg --no-default-keyring --keyring ./temp-keyring.gpg \
     --import cuda-archive-keyring.gpg
 gpg --no-default-keyring --keyring ./temp-keyring.gpg \

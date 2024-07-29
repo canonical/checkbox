@@ -1,4 +1,5 @@
+.PHONY: all
 all: gpu-setup
 
 gpu-setup:
-	sudo ../../tools/gpu-setup
+	../../tools/gpu-setup

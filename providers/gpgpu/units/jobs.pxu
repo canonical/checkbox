@@ -5,7 +5,7 @@ estimated_duration: 300
 requires:
     package.name == 'cuda-toolkit'
 _summary: GPGPU stress testing
-command: cd /opt/gpu-burn/ && ./gpu_burn 14400 | grep -v -e '^[[:space:]]*$' -e "errors:" -e "Summary at"
+command: gpu_burn.sh
 
 id: gpgpu/matrix-mul-drv
 category_id: gpgpu
@@ -14,7 +14,7 @@ estimated_duration: 4
 requires:
     package.name == 'cuda-toolkit'
 _summary: GPGPU matrix multiplication
-command: cd /opt/cuda-samples/Samples/0_Introduction/matrixMulDrv && ./matrixMulDrv
+command: matrixMulDrv.sh
 
 id: gpgpu/vector-add-drv
 category_id: gpgpu
@@ -23,7 +23,7 @@ estimated_duration: 4
 requires:
     package.name == 'cuda-toolkit'
 _summary: GPGPU vector addition
-command: cd /opt/cuda-samples/Samples/0_Introduction/vectorAddDrv && ./vectorAddDrv
+command: vectorAddDrv.sh
 
 id: gpgpu/device-query-drv
 category_id: gpgpu
@@ -32,7 +32,7 @@ estimated_duration: 4
 requires:
     package.name == 'cuda-toolkit'
 _summary: GPGPU query device
-command: cd /opt/cuda-samples/Samples/1_Utilities/deviceQueryDrv && ./deviceQueryDrv
+command: deviceQueryDrv
 
 id: gpgpu/simple-texture-drv
 category_id: gpgpu
@@ -41,4 +41,4 @@ estimated_duration: 4
 requires:
     package.name == 'cuda-toolkit'
 _summary: GPGPU simple textures
-command: cd /opt/cuda-samples/Samples/0_Introduction/simpleTextureDrv && ./simpleTextureDrv
+command: simpleTextureDrv.sh

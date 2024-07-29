@@ -1,10 +1,5 @@
 #!/bin/bash
 
-if [[ $EUID -ne 0 ]]; then
-   echo "ERROR: This script must be run as root"
-   exit 1
-fi
-
 echo "Configuring system for GPU Testing"
 echo "**********************************"
 echo "*"
@@ -75,48 +70,57 @@ if [[ $? -ne 0 ]] ; then
     echo "ERROR: GPG key import failed. Invalid gpg key?"
     exit 1
 fi
-gpg --yes --no-default-keyring --keyring ./temp-keyring.gpg --export \
+sudo gpg --yes --no-default-keyring --keyring ./temp-keyring.gpg --export \
     --output /usr/share/keyrings/cuda-archive-keyring.gpg
 rm ./temp-keyring.gpg
 rm ./temp-keyring.gpg~
 rm ./cuda-archive-keyring.gpg
 
 PINFILE="cuda-$OSRELEASE.pin"
-wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"
+sudo wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"
 
-cat > /etc/apt/sources.list.d/cuda-$OSRELEASE-$ARCH.list <<EOF
+sudo tee /etc/apt/sources.list.d/cuda-$OSRELEASE-$ARCH.list << 'EOF'
 deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] http://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH/ /
 EOF
 
 # Install necessary files
 #apt update
 echo "*  Installing necessary pacakges"
-apt install -y build-essential git
+sudo apt install -y build-essential git
 ## need to break this out to fix issue where cuda installs gdm3
-apt install -y --no-install-recommends cuda-toolkit
+sudo apt install -y --no-install-recommends cuda-toolkit
 
 #fix the path to get nvcc from the cuda package
 CUDA_PATH=$(find /usr/local -maxdepth 1 -type d -iname "cuda*")/bin
 export PATH=$PATH:$CUDA_PATH
 
+mkdir -p ../../bin ../../data
+
 # clone cuda-samples repo
 echo "*  Cloning cuda-samples repo"
-CUDA_SAMPLES_DIR=/opt/cuda-samples
-git clone https://github.com/nvidia/cuda-samples.git $CUDA_SAMPLES_DIR
+git clone https://github.com/nvidia/cuda-samples.git
 echo "*  Building cuda-samples tests"
-cd $CUDA_SAMPLES_DIR/Samples/0_Introduction/matrixMulDrv && make
-cd $CUDA_SAMPLES_DIR/Samples/0_Introduction/vectorAddDrv && make
-cd $CUDA_SAMPLES_DIR/Samples/1_Utilities/deviceQueryDrv && make
-cd $CUDA_SAMPLES_DIR/Samples/0_Introduction/simpleTextureDrv && make
+make -C cuda-samples/Samples/0_Introduction/matrixMulDrv
+cp cuda-samples/Samples/0_Introduction/matrixMulDrv/matrixMulDrv ../../bin/
+cp -r cuda-samples/Samples/0_Introduction/matrixMulDrv/data/* ../../data/
+make -C cuda-samples/Samples/0_Introduction/vectorAddDrv
+cp cuda-samples/Samples/0_Introduction/vectorAddDrv/vectorAddDrv ../../bin/
+cp -r cuda-samples/Samples/0_Introduction/vectorAddDrv/data/* ../../data/
+make -C cuda-samples/Samples/1_Utilities/deviceQueryDrv
+cp cuda-samples/Samples/1_Utilities/deviceQueryDrv/deviceQueryDrv ../../bin/
+make -C cuda-samples/Samples/0_Introduction/simpleTextureDrv
+cp -r cuda-samples/Samples/0_Introduction/simpleTextureDrv/data/* ../../data/
+cp cuda-samples/Samples/0_Introduction/simpleTextureDrv/simpleTextureDrv ../../bin/
 echo "*  Building cuda-samples tests completed..."
 
 # get the gpu-burn repo and build it
 echo "*  Cloning gpu-burn repo"
-GPU_BURN_DIR=/opt/gpu-burn
-git clone https://github.com/wilicc/gpu-burn.git $GPU_BURN_DIR
-cd $GPU_BURN_DIR
+git clone https://github.com/wilicc/gpu-burn.git
 echo "*  Building gpu-burn"
-make && echo "*  Build completed..."
+make -C gpu-burn
+cp gpu-burn/gpu_burn ../../bin/
+cp gpu-burn/compare.ptx ../../data/
+echo "*  Build completed..."
 echo "*"
 echo "*  Completed installation. Please reboot the machine now"
 echo "*  to load the nVidia proprietary drivers"

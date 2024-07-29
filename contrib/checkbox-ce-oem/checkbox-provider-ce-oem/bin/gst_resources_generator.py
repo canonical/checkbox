@@ -159,12 +159,15 @@ class GstResources:
                         "scenario": self._current_scenario_name,
                         "video_sink": video_sink,
                         "decoder_plugin": item["decoder_plugin"],
-                        "golden_sample_file_name": sample_file,
+                        "golden_sample_file_name": sample_file["file_name"],
                         "golden_sample_file": os.path.join(
                             self._args.video_codec_testing_data_path,
                             self.VIDEO_GOLDEN_SAMPLES,
-                            sample_file,
+                            sample_file["file_name"],
                         ),
+                        "capssetter_pipeline": sample_file[
+                            "capssetter_pipeline"
+                        ],
                     }
                 )
 

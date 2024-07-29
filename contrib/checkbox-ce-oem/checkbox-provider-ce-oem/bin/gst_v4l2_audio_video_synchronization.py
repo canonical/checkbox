@@ -64,12 +64,24 @@ def register_arguments():
         ),
     )
 
+    parser.add_argument(
+        "-cp",
+        "--capssetter_pipeline",
+        default="",
+        type=str,
+        help=("Specific value for caps setting. (Default: " ")"),
+    )
+
     args = parser.parse_args()
     return args
 
 
 def build_gst_command(
-    gst_bin: str, golden_sample_path: str, decoder: str, video_sink: str
+    gst_bin: str,
+    golden_sample_path: str,
+    decoder: str,
+    video_sink: str,
+    capssetter_pipeline: str,
 ) -> str:
     """
     Builds a GStreamer command to process the golden sample.
@@ -84,24 +96,18 @@ def build_gst_command(
         The decoder to use for the video, e.g., "v4l2vp8dec", "v4l2vp9dec".
     :param video_sink:
         The specific sink for video displaying on, e.g. "waylandsink"
+    :param capssetter_pipeline:
+        The specific value for caps setting
 
     :returns:
         The GStreamer command to execute.
     """
 
-    # FIXME: Why we did this?
-    # Because the 4K.mp4 golden sample need a special colorimetry "bt2020"
-    # that needs special pipeline configuration to get it streaming smoothly.
-    if golden_sample_path.endswith("4K.mp4"):
-        decoder = (
-            "capssetter replace=true "
-            'caps="video/x-h264, stream-format=(string)byte-stream, '
-            "alignment=(string)au, level=(string)5.2, profile=(string)main, "
-            "width=(int)3840, height=(int)2160, framerate=(fraction)24/1, "
-            "pixel-aspect-ratio=(fraction)1/1, colorimetry=(string)bt2020, "
-            "chroma-format=(string)4:2:0, bit-depth-luma=(uint)8, "
-            'bit-depth-chroma=(uint)8, parsed=(boolean)true" ! {}'
-        ).format(decoder)
+    # Why we need capssetter_pipeline?
+    # Because some golden samples need a special colorimetry and configuration
+    # to get it streaming smoothly.
+    if capssetter_pipeline:
+        decoder = "{} ! {}".format(capssetter_pipeline, decoder)
 
     cmd = (
         "{} -v filesrc location={} ! qtdemux name=demux demux.video_0 !"
@@ -174,6 +180,7 @@ def play_video_for_av_synchronization_test(args: Any) -> None:
         golden_sample_path=args.golden_sample_path,
         decoder=args.decoder_plugin,
         video_sink=args.video_sink,
+        capssetter_pipeline=args.capssetter_pipeline,
     )
     # The video will be displayed on the real display
     execute_command(cmd)

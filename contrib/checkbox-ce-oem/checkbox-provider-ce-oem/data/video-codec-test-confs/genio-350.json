@@ -7,7 +7,20 @@
         "cases": [
             {
                 "decoder_plugin": "v4l2h264dec",
-                "golden_sample_files": ["480p.mp4", "720p.mp4", "1080p.mp4"]
+                "golden_sample_files": [
+                    {
+                        "file_name": "480p.mp4",
+                        "capssetter_pipeline": ""
+                    },
+                    {
+                        "file_name": "720p.mp4",
+                        "capssetter_pipeline": ""
+                    },
+                    {
+                        "file_name": "1080p.mp4",
+                        "capssetter_pipeline": ""
+                    }
+                ]
             }
         ]
     }

@@ -48,12 +48,29 @@ if [[ "$ARCH" =~ "aarch64" ]]; then
     ARCH="arm64"
 fi
 REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH"
+
+# Import and verify cuda gpg key
+wget -O cuda-archive-keyring.gpg "$REPO_URL/3bf863cc.pub"
+gpg --no-default-keyring --keyring ./temp-keyring.gpg \
+    --import cuda-archive-keyring.gpg
+gpg --no-default-keyring --keyring ./temp-keyring.gpg \
+    --fingerprint "EB693B3035CD5710E231E123A4B469963BF863CC"
+if [[ $? -ne 0 ]] ; then
+    echo "ERROR: GPG key import failed. Invalid gpg key?"
+    exit 1
+fi
+gpg --yes --no-default-keyring --keyring ./temp-keyring.gpg --export \
+    --output /usr/share/keyrings/cuda-archive-keyring.gpg
+rm ./temp-keyring.gpg
+rm ./temp-keyring.gpg~
+rm ./cuda-archive-keyring.gpg
+
 PINFILE="cuda-$OSRELEASE.pin"
 wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"
-curl -s -L "$REPO_URL/7fa2af80.pub" | tee /etc/apt/trusted.gpg.d/cuda-af80.asc
-# Had to add the next line because they now have a new key in the repos
-curl -s -L "$REPO_URL/3bf863cc.pub" | tee /etc/apt/trusted.gpg.d/cuda-63cc.asc
-add-apt-repository -y "deb http://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH/ /"
+
+cat > /etc/apt/sources.list.d/cuda-$OSRELEASE-$ARCH.list <<EOF
+deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] http://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH/ /
+EOF
 
 # Install necessary files
 #apt update

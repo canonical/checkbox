@@ -174,12 +174,13 @@ class CameraTest:
      -
     """
 
-    def __init__(self, args):
-        self.args = args
+    def __init__(self, **kwargs):
         self._width = 640
         self._height = 480
         self._devices = []
-        self._show_image = True
+        self.device = kwargs.get("device", "/dev/video0")
+        self.quiet = kwargs.get("quiet", False)
+        self.output = kwargs.get("output", "")
 
     def detect(self):
         """
@@ -249,7 +250,7 @@ class CameraTest:
         Gtk.main_quit()
 
     def _on_error(self, bus, msg):
-        if self._show_image:
+        if not self.quiet:
             Gtk.main_quit()
         raise SystemExit(
             "An error ocurred while processing the stream:\n{}".format(
@@ -264,7 +265,7 @@ class CameraTest:
     def _setup_gstreamer(self, sink=None):
 
         webcam = Gst.ElementFactory.make("v4l2src")
-        webcam.set_property("device", self.args.device)
+        webcam.set_property("device", self.device)
         wrappercamerabinsrc = Gst.ElementFactory.make("wrappercamerabinsrc")
         wrappercamerabinsrc.set_property("video-source", webcam)
         self.camerabin = Gst.ElementFactory.make("camerabin")
@@ -319,7 +320,7 @@ class CameraTest:
         Displays the preview window for a video stream
         """
         # Don't display the video, just run the camera
-        if self.args.quiet:
+        if self.quiet:
             self._quiet_video_recording()
         else:
             self._show_image = True
@@ -331,16 +332,16 @@ class CameraTest:
         """
         Captures an image to a file
         """
-        if self.args.output:
+        if self.output:
             self._still_image_helper(
-                self.args.output, self._width, self._height, self.args.quiet
+                self.output, self._width, self._height, self.quiet
             )
         else:
             with NamedTemporaryFile(
                 prefix="camera_test_", suffix=".jpg", delete=False
             ) as f:
                 self._still_image_helper(
-                    f.name, self._width, self._height, self.args.quiet
+                    f.name, self._width, self._height, self.quiet
                 )
 
     def _still_image_helper(
@@ -357,31 +358,37 @@ class CameraTest:
             "-S 50",
             "--no-banner",
             "-d",
-            self.args.device,
+            self.device,
             "-r",
             "%dx%d" % (width, height),
             filename,
         ]
-        use_camerabin = True
         if pixelformat:
             if "MJPG" == pixelformat:  # special tweak for fswebcam
                 pixelformat = "MJPEG"
             command.extend(["-p", pixelformat])
 
+        # Try to take a picture with fswebcam
+        use_camerabin = False
         try:
+            print("Using fswebcam")
             check_call(command, stdout=open(os.devnull, "w"), stderr=STDOUT)
             if os.path.getsize(filename) == 0:
                 use_camerabin = True
         except (CalledProcessError, OSError):
+            print("fswebcam failed, trying with camerabin")
             use_camerabin = True
+
+        # If fswebcam fails, try with gstreamer
         if use_camerabin:
-            self._setup_gstreamer()
+            print("Using gstreamer")
+            self._setup_gstreamer("fakesink")
             sleep(3)
             self._take_photo(filename)
             sleep(1)
-            # self._stop()
             print("Image saved to %s" % filename)
-        if self._show_image:
+            self.camerabin.set_state(Gst.State.NULL)
+        if not self.quiet:
             self._display_image(filename, width, height)
 
     def _display_image(self, filename, width, height):
@@ -391,17 +398,15 @@ class CameraTest:
         print("starting GTK")
         # Initialize GTK application
         window = Gtk.Window(title="Image Viewer")
-        window.set_border_width(10)
-        window.set_default_size(400, 300)
+        window.set_default_size(width, height)
 
         # Load and display the image
         image = Gtk.Image.new_from_file(filename)
         window.add(image)
 
         # Connect the destroy event to quit the GTK main loop
-        window.connect("destroy", self._stop)
-        GLib.timeout_add_seconds(10, self._stop)
-
+        window.connect("destroy", Gtk.main_quit)
+        GLib.timeout_add_seconds(10, Gtk.main_quit)
 
         # Show all widgets in the window
         window.show_all()
@@ -432,7 +437,7 @@ class CameraTest:
         take multiple images using the first format returned by the driver,
         and see if they are valid
         """
-        formats = self._get_supported_formats(self.args.device)
+        formats = self._get_supported_formats(self.device)
         # print supported formats and formats for the logs
         print(self._supported_formats_to_string(formats))
 
@@ -443,8 +448,8 @@ class CameraTest:
             raise SystemExit("No supported formats found")
         format = formats[0]
 
-        if self.args.output:
-            self._save_debug_image(format, self.args.device, self.args.output)
+        if self.output:
+            self._save_debug_image(format, self.device, self.output)
 
         print(
             "Taking multiple images using the %s format"
@@ -759,18 +764,18 @@ def parse_arguments(argv):
         args.device = get_video_devices()[-1]
     elif hasattr(args, "lowest_device") and args.lowest_device:
         args.device = get_video_devices()[0]
-    return args
+    return vars(args)
 
 
 if __name__ == "__main__":
     args = parse_arguments(sys.argv[1:])
 
-    if not args.test:
-        args.test = "detect"
-    logging.basicConfig(level=args.log_level)
+    if not args.get("test"):
+        args["test"] = "detect"
+    logging.basicConfig(level=args["log_level"])
 
     # Import Gst only for the test cases that will need it
-    if args.test in ["video", "image", "led", "resolutions"]:
+    if args["test"] in ["video", "image", "led", "resolutions"]:
         import gi
 
         gi.require_version("Gst", "1.0")
@@ -782,12 +787,12 @@ if __name__ == "__main__":
         Gst.init(None)
 
         # Import Clutter/Gtk only for the test cases that will need it
-        if args.test in ["video", "image"] and not args.quiet:
+        if args["test"] in ["video", "image"] and not args["quiet"]:
 
             gi.require_version("Gtk", "3.0")
             from gi.repository import Gtk
 
             Gtk.init([])
-
-    camera = CameraTest(args)
-    sys.exit(getattr(camera, args.test)())
+    camera = CameraTest(**args)
+    print(args["test"])
+    sys.exit(getattr(camera, args["test"])())

@@ -10,7 +10,15 @@ jobs:
       fail-fast: false
       matrix:
         type: [classic, uc]
-        releases: [16, 18]
+        releases: [16, 18, 20]
+        include:
+          # other arch built on self hosted runners by the other workflow
+          - releases: 16
+            arch: "amd64,arm64,armhf"
+          - releases: 18
+            arch: "armhf"
+          - releases: 20
+            arch: "armhf"
     runs-on:
       group: "Canonical self-hosted runners"
       labels:
@@ -56,7 +64,7 @@ jobs:
           with: |
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
             snapcraft-channel: 7.x/stable
-            snapcraft-args: remote-build --build-for amd64,arm64,armhf --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
+            snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id $SNAPCRAFT_BUILDER_ID
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()

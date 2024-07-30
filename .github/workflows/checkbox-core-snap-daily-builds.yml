@@ -9,8 +9,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        releases: [16, 18]
+        releases: [16, 18, 20]
         arch: [amd64, arm64, armhf]
+        exclude:
+          # confs built by the other workflow
+          - releases: 20
+            arch: arm64
+          - releases: 20
+            arch: amd64
+          - releases: 18
+            arch: arm64
+          - releases: 18
+            arch: amd64
     runs-on:
       group: "Canonical self-hosted runners"
       labels:

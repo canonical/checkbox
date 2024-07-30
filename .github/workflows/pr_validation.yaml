@@ -46,8 +46,10 @@ jobs:
           python3 providers/sru/manage.py develop
       - name: Export main sru list
         env:
-          DESCRIPTION: ${{ github.event.description }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.html_url }}
         run: |
+          export DESCRIPTION=$(gh pr view $PR --json 'body' --jq '.body')
           # we are on current branch/commit
           . venv/bin/activate
           checkbox-cli expand -f json com.canonical.certification::sru-server >> sru_server_testplan_this_branch.json
@@ -65,7 +67,7 @@ jobs:
             <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_server_testplan_main.json") | tee sru_server_diff.txt
 
           if [ -s sru_server_diff.txt ]; then
-            if [[ "$DESCRIPTION" == *"WARNING: This modifies com.canonical.certification::sru-server"* ]]; then
+            if [[ "$DESCRIPTION" == *"## WARNING: This modifies com.canonical.certification::sru-server"* ]]; then
               echo "Warning is correcty posted in the description for sru-server"
             else
               echo "Missing warning for sru-server modification"
@@ -81,10 +83,12 @@ jobs:
             <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_testplan_main.json") | tee sru_diff.txt
 
           if [ -s sru_diff.txt ]; then
-            if [[ "$DESCRIPTION" == *"WARNING: This modifies com.canonical.certification::sru"* ]]; then
+            if [[ "$DESCRIPTION" == *"## WARNING: This modifies com.canonical.certification::sru"* ]]; then
               echo "Warning is correcty posted in the description for sru"
             else
-              echo "Missing warning for sru modification"
+              echo "Missing warning for sru modification in the description"
+              echo "Include the following in your description:"
+              echo "  ## WARNING: This modifies com.canonical.certification::sru"
               exit 1
             fi
           else

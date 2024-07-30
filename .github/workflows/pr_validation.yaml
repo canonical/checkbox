@@ -61,7 +61,9 @@ jobs:
           # compare two jsons without comparing the order arrays but just
           # the content of objects
 
-          echo "Difference of com.canonical.certification::sru-server"
+          echo
+          echo
+          echo "Difference of com.canonical.certification::sru-server (diff this_branch main)"
           diff \
             <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_server_testplan_this_branch.json") \
             <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_server_testplan_main.json") | tee sru_server_diff.txt
@@ -70,14 +72,16 @@ jobs:
             if [[ "$DESCRIPTION" == *"## WARNING: This modifies com.canonical.certification::sru-server"* ]]; then
               echo "Warning is correcty posted in the description for sru-server"
             else
-              echo "Missing warning for sru-server modification"
+              echo "Missing warning for sru modification in the description"
+              echo "Include the following in your description:"
+              echo "  ## WARNING: This modifies com.canonical.certification::sru-server"
               exit 1
             fi
           else
             echo "No diff found"
           fi
 
-          echo "Difference of com.canonical.certification::sru"
+          echo "Difference of com.canonical.certification::sru (diff this_branch main)"
           diff \
             <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_testplan_this_branch.json") \
             <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_testplan_main.json") | tee sru_diff.txt

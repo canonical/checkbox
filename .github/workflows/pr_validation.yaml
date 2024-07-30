@@ -41,7 +41,7 @@ jobs:
           python3 -m pip install checkbox-support/
           python3 providers/resource/manage.py develop
           python3 providers/base/manage.py develop
-          python3 providers/certificaiton-client/manage.py develop
+          python3 providers/certification-client/manage.py develop
           python3 providers/sru/manage.py develop
       - name: Export main sru list
         env:

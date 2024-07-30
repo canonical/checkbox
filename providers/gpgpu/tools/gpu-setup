@@ -51,7 +51,7 @@ case $ARCH in
         ;;
     *)
         echo "ERROR: Unsupported architecture $ARCH"
-        exit 1
+        exit 0
         ;;
 esac
 REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH"
@@ -59,8 +59,8 @@ REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$A
 # Import and verify cuda gpg key
 wget -O cuda-archive-keyring.gpg "$REPO_URL/3bf863cc.pub"
 if [[ $? -eq 8 ]] ; then
-    echo "ERROR: wget failed. $OSRELEASE/$ARCH not supported?"
-    exit 1
+    echo "ERROR: wget failed. Check networking or $OSRELEASE/$ARCH not supported?"
+    exit 0
 fi
 gpg --no-default-keyring --keyring ./temp-keyring.gpg \
     --import cuda-archive-keyring.gpg

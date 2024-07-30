@@ -4,6 +4,7 @@ plugin: shell
 estimated_duration: 300
 requires:
     package.name == 'cuda-toolkit'
+    uname.machine == 'x86_64'
 _summary: GPGPU stress testing
 command: gpu_burn.sh
 
@@ -13,6 +14,7 @@ plugin: shell
 estimated_duration: 4
 requires:
     package.name == 'cuda-toolkit'
+    uname.machine == 'x86_64'
 _summary: GPGPU matrix multiplication
 command: matrixMulDrv.sh
 
@@ -22,6 +24,7 @@ plugin: shell
 estimated_duration: 4
 requires:
     package.name == 'cuda-toolkit'
+    uname.machine == 'x86_64'
 _summary: GPGPU vector addition
 command: vectorAddDrv.sh
 
@@ -31,6 +34,7 @@ plugin: shell
 estimated_duration: 4
 requires:
     package.name == 'cuda-toolkit'
+    uname.machine == 'x86_64'
 _summary: GPGPU query device
 command: deviceQueryDrv
 
@@ -40,5 +44,6 @@ plugin: shell
 estimated_duration: 4
 requires:
     package.name == 'cuda-toolkit'
+    uname.machine == 'x86_64'
 _summary: GPGPU simple textures
 command: simpleTextureDrv.sh

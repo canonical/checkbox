@@ -69,6 +69,7 @@ include:
     com.canonical.certification::miscellanea/check_UBSAN_error
     com.canonical.certification::miscellanea/check_nvidia_modalias_.*                  certification-status=blocker
     com.canonical.certification::miscellanea/check-kernel                              certification-status=blocker
+    com.canonical.certification::info/image-url
 
 id: pc-sanity-smoke-test
 _name: pc-sanity-smoke-test (Ubuntu Desktop)

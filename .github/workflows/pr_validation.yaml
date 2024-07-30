@@ -3,7 +3,6 @@ on:
   pull_request:
     types:
       - opened
-      - ready_for_review
       - synchronize
       - edited
 jobs:
@@ -27,8 +26,6 @@ jobs:
         fi
 
   sru_gate:
-    strategy:
-      fail-fast: false
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Checkbox monorepo
@@ -37,7 +34,6 @@ jobs:
           fetch-depth: 0
       - name: Install Checkbox and providers
         run: |
-          cd checkbox
           apt install -y -qq python3 python3-venv jq
           python3 -m venv venv
           . venv/bin/activate
@@ -56,7 +52,6 @@ jobs:
           DESCRIPTION: ${{ github.event.description }}
         run: |
           # we are on current branch/commit
-          cd checkbox
           . venv/bin/activate
           checkbox-cli expand -f json com.canonical.certification::sru-server >> sru_server_testplan_this_branch.json
           checkbox-cli expand -f json com.canonical.certification::sru >> sru_testplan_this_branch.json

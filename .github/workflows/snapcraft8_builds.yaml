@@ -76,6 +76,18 @@ jobs:
         with:
           name: checkbox${{ matrix.releases }}_${{ matrix.arch }}
           path: checkbox-core-snap/series${{ matrix.releases }}/*.snap
+      - uses: Wandalen/wretry.action@v3.4.0_js_action
+        name: Upload the snap to the store
+        timeout-minutes: 600 # 10hours
+        with:
+          attempt_delay: 600000 # 10min
+          attempt_limit: 10
+          command: |
+            for snap in checkbox-core-snap/series${{ matrix.releases }}/*.snap ; \
+            do \
+              echo "Uploading $snap..." ; \
+              snapcraft upload $snap --release edge ; \
+            done
 
   snap_frontend_native:
     strategy:
@@ -149,6 +161,26 @@ jobs:
         with:
           name: series_${{ matrix.type }}${{ matrix.releases }}${{ matrix.arch }}
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
+      - uses: Wandalen/wretry.action@v3.4.0_js_action
+        name: Upload the snaps to the store
+        timeout-minutes: 600 # 10hours
+        with:
+          attempt_delay: 600000 # 10min
+          attempt_limit: 10
+          command: |
+            for snap in checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap ; \
+            do \
+              echo "Uploading $snap..." ; \
+              if [ ${{ matrix.type }} = 'classic' ]; then \
+                if [ ${{ matrix.releases }} = '22' ]; then \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
+                else \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
+                fi \
+              else \
+                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge ; \
+              fi ; \
+            done
 
   snap_runtime_remote_build:
     strategy:
@@ -209,6 +241,18 @@ jobs:
         with:
           name: runtime_snap${{ matrix.releases }}_${{ matrix.arch }}
           path: "checkbox*.snap"
+      - uses: Wandalen/wretry.action@v3.4.0_js_action
+        name: Upload the snap to the store
+        timeout-minutes: 600 # 10hours
+        with:
+          attempt_delay: 600000 # 10min
+          attempt_limit: 10
+          command: |
+            for snap in checkbox*.snap ; \
+            do \
+              echo "Uploading $snap..." ; \
+              snapcraft upload $snap --release edge ; \
+            done
 
   snap_frontend_remote_build:
     strategy:
@@ -271,3 +315,23 @@ jobs:
         with:
           name: frontend_snaps${{ matrix.type }}${{ matrix.releases }}
           path: "checkbox*.snap"
+      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
+        name: Upload the snaps to the store
+        timeout-minutes: 600 # 10hours
+        with:
+          attempt_delay: 600000 # 10min
+          attempt_limit: 10
+          command: |
+            for snap in checkbox*.snap ; \
+            do \
+              echo "Uploading $snap..." ; \
+              if [ ${{ matrix.type }} = 'classic' ]; then \
+                if [ ${{ matrix.releases }} = '22' ]; then \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
+                else \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
+                fi \
+              else \
+                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge ; \
+              fi ; \
+            done

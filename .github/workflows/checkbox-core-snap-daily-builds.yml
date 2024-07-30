@@ -80,3 +80,15 @@ jobs:
         with:
           name: runtime_snap${{ matrix.releases }}_${{ matrix.arch }}
           path: checkbox-core-snap/series${{ matrix.releases }}/*.snap
+      - uses: Wandalen/wretry.action@v3.4.0_js_action
+        name: Upload the snap to the store
+        timeout-minutes: 600 # 10hours
+        with:
+          attempt_delay: 600000 # 10min
+          attempt_limit: 10
+          command: |
+            for snap in checkbox-core-snap/series${{ matrix.releases }}/*.snap ; \
+            do \
+              echo "Uploading $snap..." ; \
+              snapcraft upload $snap --release edge ; \
+            done

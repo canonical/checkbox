@@ -65,7 +65,7 @@ jobs:
             <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_server_testplan_main.json") | tee sru_server_diff.txt
 
           if [ -s sru_server_diff.txt ]; then
-            if [ "$DESCRIPTION" == *"WARNING: This modifies com.canonical.certification::sru-server"* ]]; then
+            if [[ "$DESCRIPTION" == *"WARNING: This modifies com.canonical.certification::sru-server"* ]]; then
               echo "Warning is correcty posted in the description for sru-server"
             else
               echo "Missing warning for sru-server modification"
@@ -81,7 +81,7 @@ jobs:
             <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_testplan_main.json") | tee sru_diff.txt
 
           if [ -s sru_diff.txt ]; then
-            if [ "$DESCRIPTION" == *"WARNING: This modifies com.canonical.certification::sru"* ]]; then
+            if [[ "$DESCRIPTION" == *"WARNING: This modifies com.canonical.certification::sru"* ]]; then
               echo "Warning is correcty posted in the description for sru"
             else
               echo "Missing warning for sru modification"

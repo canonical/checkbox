@@ -193,7 +193,7 @@ jobs:
           attempt_delay: 600000 # 10min
           attempt_limit: 5
           with: |
-            snapcraft-channel: 8.0/stable
+            snapcraft-channel: 8.x/stable
             snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id "checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}" --launchpad-timeout=36000
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
@@ -255,7 +255,7 @@ jobs:
           attempt_delay: 600000 # 10min
           attempt_limit: 5
           with: |
-            snapcraft-channel: 8.0/stable
+            snapcraft-channel: 8.x/stable
             snapcraft-args: remote-build --build-for ${{ matrix.arch }} --launchpad-accept-public-upload --build-id "checkbox-${{ matrix.type }}${{ matrix.releases }}-${{ github.run_id }}" --launchpad-timeout=36000
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure

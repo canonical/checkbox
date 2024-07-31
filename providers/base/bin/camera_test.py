@@ -171,7 +171,13 @@ class CameraTest:
     """
     This class is handles all the different camera tests. The tests available
     are:
-     -
+        - detect: Display information regarding webcam hardware
+        - led: Activate camera (switch on led), but don't display any output
+        - video: Displays the preview window for a video stream
+        - image: Captures an image to a file
+        - resolutions: After querying the webcam for supported formats and
+            resolutions, take multiple images using the first format returned
+            by the driver, and see if they are valid.
     """
 
     def __init__(self, **kwargs):
@@ -245,7 +251,7 @@ class CameraTest:
 
         return 0 if capture_capabilities else 1
 
-    def _stop(self):
+    def _stop_video(self):
         self.camerabin.set_state(Gst.State.NULL)
         Gtk.main_quit()
 
@@ -263,7 +269,9 @@ class CameraTest:
         self.camerabin.emit("start-capture")
 
     def _setup_gstreamer(self, sink=None):
-
+        """
+        Setup the gstreamer pipeline to create the video stream
+        """
         webcam = Gst.ElementFactory.make("v4l2src")
         webcam.set_property("device", self.device)
         wrappercamerabinsrc = Gst.ElementFactory.make("wrappercamerabinsrc")
@@ -291,6 +299,7 @@ class CameraTest:
         height = min(
             supported_resolutions[width], key=lambda y: abs(y - self._height)
         )
+        if
         vf_caps = Gst.Caps.from_string(
             "video/x-raw, width={}, height={}".format(width, height)
         )
@@ -325,7 +334,7 @@ class CameraTest:
         else:
             self._show_image = True
             self._setup_gstreamer()
-            GLib.timeout_add_seconds(10, self._stop)
+            GLib.timeout_add_seconds(10, self._stop_video)
             Gtk.main()
 
     def image(self):
@@ -774,6 +783,8 @@ if __name__ == "__main__":
         args["test"] = "detect"
     logging.basicConfig(level=args["log_level"])
 
+    args["quiet"] = True
+
     # Import Gst only for the test cases that will need it
     if args["test"] in ["video", "image", "led", "resolutions"]:
         import gi
@@ -794,5 +805,4 @@ if __name__ == "__main__":
 
             Gtk.init([])
     camera = CameraTest(**args)
-    print(args["test"])
     sys.exit(getattr(camera, args["test"])())

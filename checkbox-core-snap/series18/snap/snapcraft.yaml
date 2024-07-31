@@ -362,6 +362,9 @@ parts:
     plugin: dump
     source: providers/gpgpu
     source-type: local
+    build-packages:
+      - iputils-ping
+      - wget
     override-build: |
       export PYTHONPATH=$SNAPCRAFT_STAGE/lib/python3.8/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$SNAPCRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done

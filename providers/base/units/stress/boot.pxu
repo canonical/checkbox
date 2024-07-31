@@ -20,7 +20,7 @@ _name: Warm-boot Stress Test
 _summary: Conduct a Warm-boot Stress Test.
 
 id: reboot-run-generator
-category_id: stress-tests
+category_id: com.canonical.plainbox::stress
 _purpose:
   Generate a set of IDs corresponding to number of iterations required in the
   reboots tests.
@@ -38,7 +38,7 @@ flags: preserve-locale
 _summary: Generates IDs for each iteration of reboot tests based on the specified number of iterations.
 
 id: init-boot-loop-data
-category_id: stress-tests
+category_id: com.canonical.plainbox::stress
 _summary: Generate the baseline data set to test against
 _purpose: This creates baseline data sets which will be considered the master
  copies and all further tests will be compared against these. Baseline data

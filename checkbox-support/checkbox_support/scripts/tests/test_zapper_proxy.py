@@ -112,7 +112,7 @@ class ZapperProxyV1Tests(TestCase):
 
         with patch("builtins.print") as mocked_print:
             get_capabilities("0.0.0.0")
-            mocked_print.assert_called_once_with("foo: bar")
+            mocked_print.assert_called_once_with("foo: bar\n\navailable: True")
 
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_get_capabilities_error(self, import_mock):
@@ -126,7 +126,7 @@ class ZapperProxyV1Tests(TestCase):
 
         with patch("builtins.print") as mocked_print:
             get_capabilities("0.0.0.0")
-            mocked_print.assert_called_once_with("")
+            mocked_print.assert_called_once_with("available: False")
 
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_get_capabilities_empty(self, import_mock):
@@ -137,7 +137,7 @@ class ZapperProxyV1Tests(TestCase):
         self._mocked_conn.root.get_capabilities = Mock(return_value=ret_val)
         with patch("builtins.print") as mocked_print:
             get_capabilities("0.0.0.0")
-            mocked_print.assert_called_once_with("")
+            mocked_print.assert_called_once_with("available: True")
 
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_get_capabilities_multiple_caps(self, import_mock):
@@ -154,7 +154,9 @@ class ZapperProxyV1Tests(TestCase):
 
         with patch("builtins.print") as mocked_print:
             get_capabilities("0.0.0.0")
-            mocked_print.assert_called_once_with("foo: bar\n\nbaz: biz")
+            mocked_print.assert_called_once_with(
+                "foo: bar\n\nbaz: biz\n\navailable: True"
+            )
 
     @patch("checkbox_support.scripts.zapper_proxy.import_module")
     def test_get_capabilities_one_cap_multi_rows(self, import_mock):
@@ -171,7 +173,9 @@ class ZapperProxyV1Tests(TestCase):
 
         with patch("builtins.print") as mocked_print:
             get_capabilities("0.0.0.0")
-            mocked_print.assert_called_once_with("foo: bar\nfoo2: bar2")
+            mocked_print.assert_called_once_with(
+                "foo: bar\nfoo2: bar2\n\navailable: True"
+            )
 
     @patch("checkbox_support.scripts.zapper_proxy.zapper_run")
     def test_main_run(self, mock_run):

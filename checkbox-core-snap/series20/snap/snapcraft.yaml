@@ -156,7 +156,7 @@ parts:
       - python3-bluez
       - python3-pyparsing
       - python3-requests-unixsocket
-      - python3-systemd
+      - libsystemd0
       # added to stage python:
       - libpython3-stdlib
       - libpython3.8-stdlib
@@ -171,6 +171,7 @@ parts:
       - python3.8-minimal
     build-packages:
       - libbluetooth-dev
+      - libsystemd-dev
       - python3-dev
     python-packages:
       - pynmea2

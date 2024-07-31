@@ -90,7 +90,10 @@ exclude:
     audio/valid-sof-firmware-sig
     miscellanea/check_prerelease
     suspend/bluetooth_obex_.*
+    bluetooth/.*_obex_.*
     miscellanea/debsums
+    miscellanea/ubuntu-desktop-recommends
+    miscellanea/ubuntu-desktop-minimal-recommends
 
 id: sru
 _name: All SRU Tests (Ubuntu Desktop)
@@ -152,3 +155,6 @@ exclude:
     miscellanea/check_prerelease
     suspend/bluetooth_obex_.*
     miscellanea/debsums
+    bluetooth/.*_obex_.*
+    miscellanea/ubuntu-desktop-recommends
+    miscellanea/ubuntu-desktop-minimal-recommends

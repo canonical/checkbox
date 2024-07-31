@@ -1,7 +1,7 @@
 Source: checkbox-support
 Section: python
 Priority: optional
-Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com> 
+Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
 Uploaders: Sylvain Pineau <sylvain.pineau@canonical.com>
 Build-Depends:
  debhelper (>= 9),
@@ -20,7 +20,10 @@ Build-Depends:
  python3-requests-unixsocket,
  python3-setuptools,
  python3-setuptools-scm,
- python3-yaml
+ python3-yaml,
+ python3-numpy,
+ python3-opencv,
+ python3-systemd,
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.5
 XS-Testsuite: autopkgtest
@@ -34,15 +37,17 @@ Depends: gir1.2-gudev-1.0,
          python3-gi,
          python3-importlib-metadata | python3 (>> 3.8),
          python3-lxml,
+         python3-systemd,
          python3-pyparsing,
          python3-requests,
          python3-requests-unixsocket,
          python3-yaml,
          udev,
          udisks2,
-         libsystemd-dev
          ${misc:Depends},
          ${python3:Depends}
+Recommends: python3-opencv,
+            python3-numpy
 Description: collection of Python modules used by PlainBox providers
  This package contains the CheckBox support Python 3 library, primarily used by
  the CheckBox provider.

@@ -2,9 +2,9 @@ id: pc-sanity-base
 _name: pc-sanity-base
 unit: test plan
 _description:
- This test plan created by Commercial Engineering team, including kenrel error detection,
-devices check, GPU check and thermal check. It will be used to qualify OEM image before
-release the image to QA team.
+    This test plan created by Commercial Engineering team, including kenrel error detection,
+    devices check, GPU check and thermal check. It will be used to qualify OEM image before
+    release the image to QA team.
 include:
     com.canonical.certification::miscellanea/dpkg-l
     com.canonical.certification::miscellanea/bootstrap-pc-sanity-smoke-test
@@ -69,6 +69,7 @@ include:
     com.canonical.certification::miscellanea/check_UBSAN_error
     com.canonical.certification::miscellanea/check_nvidia_modalias_.*                  certification-status=blocker
     com.canonical.certification::miscellanea/check-kernel                              certification-status=blocker
+    com.canonical.certification::info/image-url
 
 id: pc-sanity-smoke-test
 _name: pc-sanity-smoke-test (Ubuntu Desktop)

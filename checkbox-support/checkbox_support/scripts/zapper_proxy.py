@@ -73,8 +73,9 @@ def get_capabilities(host):
     """Get Zapper capabilities."""
     try:
         capabilities = zapper_run(host, "get_capabilities")
+        capabilities.append({"available": True})
     except SystemExit:
-        capabilities = []
+        capabilities = [{"available": False}]
 
     def stringify_cap(cap):
         return "\n".join(

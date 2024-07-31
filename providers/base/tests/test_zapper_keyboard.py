@@ -127,13 +127,20 @@ class ZapperKeyboardTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             zapper_keyboard_test.main([1, 2])
 
+    @patch("zapper_keyboard_test.zapper_run")
     @patch("zapper_keyboard_test.get_zapper_kbd_device")
     @patch("zapper_keyboard_test.assert_type_string")
     @patch("zapper_keyboard_test.assert_key_combo")
     @patch("zapper_keyboard_test.KeyboardListener")
     @patch("os.access")
     def test_main(
-        self, mock_access, mock_key, mock_combo, mock_type, mock_get_dev
+        self,
+        mock_access,
+        mock_key,
+        mock_combo,
+        mock_type,
+        mock_get_dev,
+        mock_run,
     ):
         """Check main exits with failure if any of the test fails."""
 
@@ -143,10 +150,11 @@ class ZapperKeyboardTests(unittest.TestCase):
         mock_combo.side_effect = AssertionError
         mock_type.side_effect = None
         with self.assertRaises(SystemExit):
-            zapper_keyboard_test.main([1, 2])
+            zapper_keyboard_test.main([1, "127.0.0.1"])
         mock_key.return_value.start.assert_called_once_with()
         mock_key.return_value.stop.assert_called_once_with()
         mock_key.return_value.join.assert_called_once_with()
+        mock_run.assert_called_once_with("127.0.0.1", "reset_hid_state")
 
         mock_combo.side_effect = None
         mock_type.side_effect = AssertionError

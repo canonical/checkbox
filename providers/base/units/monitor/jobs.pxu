@@ -145,6 +145,24 @@ _verification:
 _summary:
     Verify multi-monitor output functionality on desktop systems.
 
+id: monitor/multi-head
+requires: dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower', 'Space-saving', 'Mini PC']
+flags: also-after-suspend
+plugin: manual
+category_id: com.canonical.plainbox::monitor
+_purpose:
+    This test verifies that multi-monitor output works on your desktop system. This is not the same test as the external monitor tests you would run on your laptop. You will need two monitors to perform this test.
+_steps:
+    Skip this test if your video card does not support multiple monitors.
+    1. If your second monitor is not already connected, connect it now.
+    2. Open the "Displays" tool (open the dash and search for "Displays").
+    3. Configure your output to provide one desktop across both monitors.
+    4. Open any application and drag it from one monitor to the next.
+_verification:
+    Was the stretched desktop displayed correctly across both screens?
+_summary:
+    Verify multi-monitor output functionality on desktop systems.
+
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.prime_gpu_offload == 'Off'

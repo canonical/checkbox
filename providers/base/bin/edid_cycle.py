@@ -101,7 +101,17 @@ def test_edid(
 
     try:
         _switch_edid(zapper_host, monitor_config, edid_file, video_device)
-        monitor_config.set_extended_mode()
+
+        # In case the "preferred" mode is missing, we can
+        # safely assume it was discarder at driver level,
+        # probably not supported because of the HDMI version.
+        # (e.g. 2560x1440 requires HDMI >= 1.3)
+        try:
+            monitor_config.set_extended_mode()
+        except ValueError:
+            print("SKIPPED, not supported.")
+            return
+
     except TimeoutError as exc:
         raise AssertionError("Timed out switching EDID") from exc
 

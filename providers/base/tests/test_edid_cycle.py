@@ -88,6 +88,34 @@ class ZapperEdidCycleTests(unittest.TestCase):
     @patch("time.sleep", new=Mock)
     @patch("edid_cycle.zapper_run", new=Mock)
     @patch("builtins.open")
+    def test_test_edid_skip(self, mock_open):
+        """
+        Check whether the function returns w/o errors
+        if the MonitorConfig failed at setting extended mode
+        because of missing preferred mode.
+        """
+
+        mock_monitor = Mock()
+        mock_monitor.get_current_resolutions.side_effect = [
+            {
+                "eDP-1": "1280x1024",
+            },
+            {
+                "eDP-1": "1280x1024",
+                "HDMI-1": "1280x1024",
+            },
+        ]
+        mock_monitor.set_extended_mode.side_effect = ValueError
+
+        edid_cycle.test_edid(
+            "zapper-ip", mock_monitor, Path("1920x1080.edid"), "HDMI-1"
+        )
+
+        mock_monitor.set_extended_mode.assert_called_once_with()
+
+    @patch("time.sleep", new=Mock)
+    @patch("edid_cycle.zapper_run", new=Mock)
+    @patch("builtins.open")
     def test_test_edid_error(self, mock_open):
         """
         Check the function raise an exception when the assertion

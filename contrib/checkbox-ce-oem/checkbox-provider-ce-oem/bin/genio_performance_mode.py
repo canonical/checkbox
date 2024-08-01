@@ -424,11 +424,11 @@ def get_testing_parameters(platform):
 
 
 @contextlib.contextmanager
-def performance_mode(target: str):
+def performance_mode(**kwargs):
     # Run Performance Mode
     try:
         logging.info("======== Enable Performance Mode ========")
-        testing_params = get_testing_parameters(target)
+        testing_params = get_testing_parameters(**kwargs)
         PerformanceModeManager(**testing_params).set_performance_mode()
         yield
     finally:

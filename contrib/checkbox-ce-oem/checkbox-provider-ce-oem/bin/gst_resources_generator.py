@@ -150,7 +150,7 @@ class GstResources:
         elif self._has_desktop_environment:
             video_sink = scenario_data["video_sinks"]["on_desktop"]
         else:
-            video_sink = scenario_data["video_sinks"]["on_desktop"]
+            video_sink = scenario_data["video_sinks"]["on_server"]
 
         for item in scenario_data["cases"]:
             for sample_file in item["golden_sample_files"]:

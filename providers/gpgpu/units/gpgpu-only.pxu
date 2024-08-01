@@ -7,7 +7,8 @@ nested_part:
     com.canonical.certification::server-info-attachment-automated
     com.canonical.certification::server-firmware
     com.canonical.certification::server-miscellaneous
-    com.canonical.certification::gpgpu-tests
+    com.canonical.certification::gpgpu-stress
+    com.canonical.certification::gpgpu-automated
 include:
 bootstrap_include:
     device

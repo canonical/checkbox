@@ -145,8 +145,7 @@ def execute_command(cmd: str) -> str:
         logging.info(ret.stdout)
         return ret.stdout
     except Exception as e:
-        logging.error(e.stderr)
-        raise SystemExit(e.returncode)
+        raise SystemExit(e)
 
 
 def is_valid_result(input_text: str, min_fps: float) -> bool:

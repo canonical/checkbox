@@ -373,9 +373,6 @@ parts:
     plugin: dump
     source: providers/gpgpu
     source-type: local
-    build-packages:
-      - iputils-ping
-      - wget
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
     override-build: |

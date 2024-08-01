@@ -76,7 +76,10 @@ class MonitorConfigGnome(MonitorConfig):
 
         position_x = 0
         for monitor, modes in state[1].items():
-            preferred = next(mode for mode in modes if mode.is_preferred)
+            try:
+                preferred = next(mode for mode in modes if mode.is_preferred)
+            except StopIteration as exc:
+                raise ValueError("Preferred mode is not available") from exc
             extended_logical_monitors.append(
                 (
                     position_x,

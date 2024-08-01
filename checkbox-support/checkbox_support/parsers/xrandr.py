@@ -71,9 +71,14 @@ class MonitorConfigX11(MonitorConfig):
 
         previous = None
         for monitor, modes in sorted(state.items()):
+            try:
+                mode = next(mode for mode in modes if mode.is_preferred)
+            except StopIteration as exc:
+                raise ValueError("Preferred mode is not available") from exc
+
             xrandr_args = "--output {} --mode {} {}".format(
                 monitor,
-                next(mode.resolution for mode in modes if mode.is_preferred),
+                mode.resolution,
                 (
                     "--right-of {}".format(previous)
                     if previous

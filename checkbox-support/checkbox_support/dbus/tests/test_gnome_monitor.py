@@ -162,3 +162,66 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             timeout_msec=-1,
             cancellable=None,
         )
+
+    @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
+    def test_set_extended_mode_raises(self, mock_dbus_proxy):
+        """
+        Test whether the function raises a ValueError in case
+        the preferred mode is missing from the external monitor.
+        """
+
+        mock_proxy = Mock()
+        mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
+
+        gnome_monitor = MonitorConfigGnome()
+        mock_proxy.call_sync.return_value = (
+            1,
+            [
+                (
+                    ("eDP-1", "LGD", "0x06b3", "0x00000000"),
+                    [
+                        (
+                            "1920x1200@59.950",
+                            1920,
+                            1200,
+                            59.950172424316406,
+                            1.0,
+                            [1.0, 2.0],
+                            {
+                                "is-current": GLib.Variant("b", True),
+                                "is-preferred": GLib.Variant("b", True),
+                            },
+                        )
+                    ],
+                    {
+                        "is-builtin": GLib.Variant("b", True),
+                        "display-name": GLib.Variant("s", "Built-in display"),
+                    },
+                ),
+                (
+                    ("HDMI-1", "LGD", "0x06b3", "0x00000000"),
+                    [
+                        (
+                            "2560x1440@59.950",
+                            2560,
+                            1440,
+                            59.950172424316406,
+                            1.0,
+                            [1.0, 2.0],
+                            {
+                                "is-current": GLib.Variant("b", True),
+                            },
+                        )
+                    ],
+                    {
+                        "is-builtin": GLib.Variant("b", False),
+                        "display-name": GLib.Variant("s", "External Display"),
+                    },
+                ),
+            ],
+            [],
+            {},
+        )
+
+        with self.assertRaises(ValueError):
+            gnome_monitor.set_extended_mode()

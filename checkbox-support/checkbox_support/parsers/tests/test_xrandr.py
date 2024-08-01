@@ -65,3 +65,28 @@ class MonitorConfigX11Tests(unittest.TestCase):
             "--output eDP --mode 1680x1050 --right-of HDMI-A-0"
         )
         mock_run.assert_called_with(expected.split(" "))
+
+    @patch("subprocess.run")
+    @patch("subprocess.check_output")
+    def test_set_extended_mode_raises(self, mock_check_output, mock_run):
+        """
+        Test whether the function raises a ValueError in case
+        the preferred mode is missing from the external monitor.
+        """
+        mock_check_output.return_value = dedent(
+            """
+        Screen 0: minimum 320 x 200,
+        eDP connected primary 1920x1080+0+607
+           1680x1050     60.03 +
+           1920x1080     60.03*
+        HDMI-A-0 connected 2560x1440+1920+0
+           2560x1440     59.95
+           1920x1080     60.00    50.00    59.94
+        DisplayPort-0 disconnected (normal left inverted right x axis y axis)
+        DisplayPort-1 disconnected (normal left inverted right x axis y axis)
+        """
+        )
+
+        x11_monitor = MonitorConfigX11()
+        with self.assertRaises(ValueError):
+            x11_monitor.set_extended_mode()

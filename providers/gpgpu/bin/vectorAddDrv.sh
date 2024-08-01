@@ -1,3 +1,4 @@
 #!/usr/bin/env sh
-cp "$PLAINBOX_PROVIDER_DATA/vectorAdd_kernel64.fatbin" .
+cp -r "$PLAINBOX_PROVIDER_DATA/vectorAddDrv" ./data
 vectorAddDrv
+rm -r ./data

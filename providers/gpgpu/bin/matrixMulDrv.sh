@@ -1,3 +1,4 @@
 #!/usr/bin/env sh
-cp "$PLAINBOX_PROVIDER_DATA/matrixMul_kernel64.fatbin" .
+cp -r "$PLAINBOX_PROVIDER_DATA/matrixMulDrv" ./data
 matrixMulDrv
+rm -r ./data

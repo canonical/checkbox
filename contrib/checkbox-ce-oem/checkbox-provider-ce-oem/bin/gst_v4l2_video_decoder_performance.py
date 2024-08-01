@@ -24,7 +24,7 @@ import re
 import shlex
 import subprocess
 
-from performance_mode_controller import performance_mode
+from performance_mode_controller import get_performance_ctx_function
 
 logging.basicConfig(level=logging.INFO)
 
@@ -225,7 +225,13 @@ def main() -> None:
         sink=args.sink,
     )
 
-    with performance_mode(args.performance_mode_target):
+    output = ""
+
+    if args.performance_mode_target:
+        performance_mode_ctx = get_performance_ctx_function()
+        with performance_mode_ctx(platform=args.performance_mode_target):
+            output = execute_command(cmd).rstrip(os.linesep)
+    else:
         output = execute_command(cmd).rstrip(os.linesep)
 
     if not is_valid_result(output, args.minimum_fps):

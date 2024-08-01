@@ -69,6 +69,6 @@ estimated_duration: 1s
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 flags: also-after-suspend
-environ: GST_LAUNCH_BIN
+environ: GST_LAUNCH_BIN, PERFORMANCE_PYTHON_MODULE_PATH, PERFORMANCE_FUNCTION_NAME
 command:
-    gst_v4l2_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt {{performance_target}}
+    gst_v4l2_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}"

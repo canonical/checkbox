@@ -59,6 +59,9 @@ slots:
     interface: content
     read:
       - /
+package-repositories:
+  - type: apt
+    ppa: firmware-testing-team/ppa-fwts-stable
 
 parts:
   version-calculator:

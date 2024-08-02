@@ -62,7 +62,7 @@ slots:
 
 package-repositories:
   - type: apt
-    ppa: checkbox-dev/stable
+    ppa: firmware-testing-team/ppa-fwts-stable
 
 parts:
   version-calculator:
@@ -76,32 +76,10 @@ parts:
       snapcraftctl set-version $version
     stage:
       - version.txt
-################################################################################
-# Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
   fwts:
-    source-tag: "V23.09.00"
-    source-depth: 1
-    plugin: autotools
-    source: https://github.com/fwts/fwts.git
-    autotools-configure-parameters:
-      - --prefix=/
+    plugin: nil
     stage-packages:
-      - libfdt1
-      - libbsd0
-      - libpci3
-    build-packages:
-      - gcc
-      - make
-      - autoconf
-      - automake
-      - libtool
-      - libjson-c-dev
-      - flex
-      - bison
-      - dh-autoreconf
-      - libglib2.0-dev
-      - libfdt-dev
-      - libbsd-dev
+      - fwts
     after: [version-calculator]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml

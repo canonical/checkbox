@@ -70,8 +70,10 @@ parts:
       - version.txt
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/hwe/fwts.git/plain/snapcraft.yaml
+# Note: This can't be updated anymore. No new version will build for xenial
+#       anymore.
   fwts:
-    source-tag: "V24.07.00"
+    source-tag: "V23.09.00"
     source-depth: 1
     plugin: autotools
     source: https://github.com/fwts/fwts.git

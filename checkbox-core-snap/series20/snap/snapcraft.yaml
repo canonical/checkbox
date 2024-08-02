@@ -459,6 +459,8 @@ parts:
       snapcraftctl build
       echo "checkbox-runtime:" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
       echo "$RUNTIME_VERSION" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+      echo "fwts:" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+      fwts --version >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
     after: [checkbox-provider-certification-server]
 ################################################################################
   common-config:

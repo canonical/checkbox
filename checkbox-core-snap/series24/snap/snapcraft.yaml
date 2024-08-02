@@ -478,6 +478,8 @@ parts:
       craftctl default
       echo "checkbox-runtime:" >> $CRAFT_PART_INSTALL/parts_meta_info
       echo "$RUNTIME_VERSION" >> $CRAFT_PART_INSTALL/parts_meta_info
+      echo "fwts:" >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
+      fwts --version >> $SNAPCRAFT_PART_INSTALL/parts_meta_info
     after: [checkbox-provider-certification-server]
 ################################################################################
   common-config:

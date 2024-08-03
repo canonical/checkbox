@@ -136,56 +136,6 @@ _summary: Verify the functionality of the Caps Lock LED by pressing the Caps Loc
 
 plugin: manual
 category_id: led
-id: led/wlan
-depends: keys/wireless
-estimated_duration: 60.0
-_purpose:
-    WLAN LED verification
-_steps:
-    1. During the keys/wireless test you should have observed the
-    wireless LED while turning wireless back on.
-    2. WLAN LED should light or change color when wireless is turned on
-_verification:
-    Did the WLAN LED turn on or change color as expected?
-_summary: Verify the functionality of the WLAN LED during the keys/wireless test.
-
-plugin: manual
-category_id: led
-id: led/wlan-disabled
-estimated_duration: 30.0
-depends: keys/wireless
-_purpose:
-     Validate that WLAN LED shuts off when disabled
-_steps:
-     1. During the keys/wireless test you should have observed the WLAN LED
-     while performing that test after turning wireless off.
-     2. WLAN LED should turn off or change color when wireless is turned off
-_verification:
-     Did the WLAN LED turn off or change color as expected?
-_summary: Verify the behavior of the WLAN LED when wireless is disabled.
-
-id: led/bluetooth
-_summary: Bluetooth LED behavior
-_purpose:
- Check bluetooth LED behavior is correct
-_steps:
- 1. Run following command to start bluetoothctl console:
-  sudo bluetoothctl
- ***Following steps are run in bluetoothctl console***
- 2. Power on the device:
-  power on
- 3. Power off the device:
-  power off
- 4. Quit bluetoothctl console
-  quit
-_verification:
- Bluetooth LED is turned on in step 2, and turned off in step 3.
-plugin: manual
-category_id: led
-estimated_duration: 180
-
-plugin: manual
-category_id: led
 id: led/touchpad
 imports: from com.canonical.plainbox import manifest
 requires:

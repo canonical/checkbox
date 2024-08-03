@@ -1,6 +1,7 @@
 unit: manifest entry
-id: has_led_indicator
-_name: Does device supported LED indicator?
+id: has_led_gpio_sysfs
+_name: LEDs controlled via GPIO or sysfs
+_prompt: Does this machine have the following LED indicators?
 value-type: bool
 
 unit: manifest entry

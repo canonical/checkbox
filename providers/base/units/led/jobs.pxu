@@ -326,7 +326,7 @@ estimated_duration: 10
 plugin: user-interact-verify
 user: root
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_led_indicator == 'True'
+requires: manifest.has_led_gpio_sysfs == 'True'
 flags: also-after-suspend
 _summary: Check control of {name} LED indicator.
 _purpose:
@@ -379,7 +379,7 @@ user: root
 flags: also-after-suspend
 estimated_duration: 10
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_led_indicator == 'True'
+requires: manifest.has_led_gpio_sysfs == 'True'
 command:
     led_control_test.py -n {path} -d 10
 
@@ -397,7 +397,7 @@ user: root
 flags: also-after-suspend
 estimated_duration: 10
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_led_indicator == 'True'
+requires: manifest.has_led_gpio_sysfs == 'True'
 command:
     led_control_test.py -n {path} -d 10
 
@@ -424,7 +424,7 @@ estimated_duration: 10
 plugin: user-interact-verify
 user: root
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_led_indicator == 'True'
+requires: manifest.has_led_gpio_sysfs == 'True'
 flags: also-after-suspend
 _summary: Check control of {name} LED indicator.
 _purpose:

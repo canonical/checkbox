@@ -2,3 +2,57 @@ unit: manifest entry
 id: has_led_indicator
 _name: Does device supported LED indicator?
 value-type: bool
+
+unit: manifest entry
+id: has_led_power
+_name: Power
+_prompt: Does this machine have the following LED indicators?
+value-type: bool
+
+unit: manifest entry
+id: has_led_caps_lock
+_name: Caps lock
+_prompt: Does this machine have the following LED indicators?
+value-type: bool
+
+unit: manifest entry
+id: has_led_touchpad
+_name: Touchpad
+_prompt: Does this machine have the following LED indicators?
+value-type: bool
+
+unit: manifest entry
+id: has_led_wireless
+_name: Wireless
+_prompt: Does this machine have the following LED indicators?
+value-type: bool
+
+unit: manifest entry
+id: has_led_audio_mute
+_name: Audio mute
+_prompt: Does this machine have the following LED indicators?
+value-type: bool
+
+unit: manifest entry
+id: has_led_microphone_mute
+_name: Microphone mute
+_prompt: Does this machine have the following LED indicators?
+value-type: bool
+
+unit: manifest entry
+id: has_led_serial
+_name: Serial transfer
+_prompt: Does this machine have the following LED indicators?
+value-type: bool
+
+unit: manifest entry
+id: has_led_fn_lock
+_name: Function key lock (Fn lock)
+_prompt: Does this machine have the following LED indicators?
+value-type: bool
+
+unit: manifest entry
+id: has_led_numeric_keypad
+_name: Numeric keypad
+_prompt: Does this machine have the following LED indicators?
+value-type: bool

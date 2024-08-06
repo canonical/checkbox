@@ -39,7 +39,7 @@ DP-3 AOC 2770M GDBFBHA000236
 import re
 import subprocess
 from collections import defaultdict, namedtuple
-from typing import Dict
+from typing import Dict, List, Set
 from checkbox_support.monitor_config import MonitorConfig
 
 Mode = namedtuple(
@@ -49,6 +49,11 @@ Mode = namedtuple(
 
 class MonitorConfigX11(MonitorConfig):
     """A generic monitor config for X11, based on xrandr."""
+
+    def get_connected_monitors(self) -> Set[str]:
+        """Get list of connected monitors, even if inactive."""
+        state = self._get_current_state()
+        return set(state.keys())
 
     def get_current_resolutions(self) -> Dict[str, str]:
         """Get current active resolutions for each monitor."""

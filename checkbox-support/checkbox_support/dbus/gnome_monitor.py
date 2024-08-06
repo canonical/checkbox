@@ -22,7 +22,7 @@ Original script that inspired this class:
 """
 
 from collections import namedtuple
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Set
 from gi.repository import GLib, Gio
 
 from checkbox_support.monitor_config import MonitorConfig
@@ -53,6 +53,11 @@ class MonitorConfigGnome(MonitorConfig):
             interface_name=self.INTERFACE,
             cancellable=None,
         )
+
+    def get_connected_monitors(self) -> Set[str]:
+        """Get list of connected monitors, even if inactive."""
+        state = self._get_current_state()
+        return {monitor for monitor in state[1]}
 
     def get_current_resolutions(self) -> Dict[str, str]:
         """Get current active resolutions for each monitor."""

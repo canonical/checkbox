@@ -20,13 +20,17 @@ set a new logical monitor configuration.
 
 from abc import ABC, abstractmethod
 from collections import namedtuple
-from typing import Dict
+from typing import Dict, Set
 
 Mode = namedtuple("Mode", ["resolution"])
 
 
 class MonitorConfig(ABC):
     """Get and modify the current Monitor configuration."""
+
+    @abstractmethod
+    def get_connected_monitors(self) -> Set[str]:
+        """Get list of connected monitors, even if inactive."""
 
     @abstractmethod
     def get_current_resolutions(self) -> Dict[str, str]:

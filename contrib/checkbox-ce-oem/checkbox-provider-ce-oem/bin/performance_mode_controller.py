@@ -31,10 +31,34 @@ logging.basicConfig(level=logging.INFO)
 
 
 def get_performance_ctx_function() -> Optional[Callable]:
+    """
+    Get the specific context manager function of controlling performance mode.
+    The function helps you load a module which can not in the PYTHONPATH.
+    Therefore, developers can implement the python script of controlling
+    performance mode in each Checkbox Project and be used by ce-oem's script.
+
+    Environment Variables:
+    -----------
+    PERFORMANCE_PYTHON_MODULE_PATH
+        The full path of a python module that you are interested in even it's
+        not in PYTHONPATH
+    PERFORMANCE_FUNCTION_NAME
+        The name of ctx function to control the performance in a module.
+
+    Returns:
+    --------
+    Optional[Callable]:
+        The function object if found
+
+    Raises:
+    -------
+    SystemExit:
+        If the module or function cannot be loaded, the program exits.
+    """
 
     # Get the full path of the specific python module which implements the
     # real logic to control the enable and disable performance mode.
-    # In this way, we can leverage the perfromance python module which be
+    # In this way, we can leverage the performance python module which be
     # implemented at each project checkbox instead of duplicating same script
     # in ce-oem provider.
     # It's the empty value by defaul, you have to define it as Checkbox's
@@ -42,14 +66,15 @@ def get_performance_ctx_function() -> Optional[Callable]:
     PERFORMANCE_PYTHON_MODULE_PATH = os.environ.get(
         "PERFORMANCE_PYTHON_MODULE_PATH", ""
     )
-    if not os.path.exists(PERFORMANCE_PYTHON_MODULE_PATH):
+    if PERFORMANCE_PYTHON_MODULE_PATH == "":
         raise FileNotFoundError(
             (
-                "Fail to get the full path of performance python module. "
+                "Fail to get a performance python module"
                 "Please define the path in Checkbox configuration. "
                 "e.g. PERFORMANCE_PYTHON_MODULE_PATH=/path/of/the/module.py"
             )
         )
+
     # Get the name of context manager function which controls the performance
     # mode. Default name is performance_mode. You can assign the specific name
     # via environment variable
@@ -62,96 +87,6 @@ def get_performance_ctx_function() -> Optional[Callable]:
         module_path=PERFORMANCE_PYTHON_MODULE_PATH,
         function_name=PERFORMANCE_FUNCTION_NAME,
     )
-
-
-class ModuleLoader:
-    """
-    A class to load Python modules dynamically from a given file path.
-
-    Attributes:
-    -----------
-    module_name : str
-        The name to assign to the module once it's loaded.
-    full_path : str
-        The full file path to the module.
-    module : Optional[object]
-        The loaded module object, initialized to None.
-
-    Methods:
-    --------
-    load_module() -> None:
-        Loads the module from the specified file path.
-    get_function(func_name: str) -> Callable:
-        Retrieves a function from the loaded module.
-    """
-
-    def __init__(self, module_name: str, full_path: str):
-        """
-        Initializes the ModuleLoader with the given module name and path.
-
-        Parameters:
-        -----------
-        module_name : str
-            The name to assign to the module once it's loaded.
-        full_path : str
-            The full file path to the module.
-        """
-        self.module_name = module_name
-        self.full_path = full_path
-        self.module: Optional[object] = None
-
-    def load_module(self) -> None:
-        """
-        Loads the module from the specified file path.
-
-        Raises:
-        -------
-        FileNotFoundError:
-            If the module file does not exist.
-        """
-        try:
-            loader = SourceFileLoader(self.module_name, self.full_path)
-            spec = importlib.util.spec_from_loader(self.module_name, loader)
-            self.module = importlib.util.module_from_spec(spec)
-            loader.exec_module(self.module)
-        except FileNotFoundError:
-            logging.error(
-                "Module '{}' cannot be loaded since '{}' doesn't exist".format(
-                    self.module_name, self.full_path
-                )
-            )
-            raise
-
-    def get_function(self, func_name: str) -> Callable:
-        """
-        Retrieves a function from the loaded module.
-
-        Parameters:
-        -----------
-        func_name : str
-            The name of the function to retrieve.
-
-        Returns:
-        --------
-        Callable:
-            The function object from the module.
-
-        Raises:
-        -------
-        AttributeError:
-            If the function is not found in the module.
-        """
-        if self.module is None:
-            self.load_module()
-        try:
-            return getattr(self.module, func_name)
-        except AttributeError:
-            logging.error(
-                "Function '{}' not found in module '{}'".format(
-                    func_name, self.module_name
-                )
-            )
-            raise
 
 
 def get_function_from_a_module(
@@ -189,8 +124,22 @@ def get_function_from_a_module(
                 " function"
             ).format(module_name, module_path, function_name)
         )
-        return ModuleLoader(module_name, module_path).get_function(
-            function_name
+        loader = SourceFileLoader(module_name, module_path)
+        spec = importlib.util.spec_from_loader(module_name, loader)
+        module = importlib.util.module_from_spec(spec)
+        loader.exec_module(module)
+        return getattr(module, function_name)
+    except FileNotFoundError:
+        logging.error(
+            "Module '%s' cannot be loaded since '%s' doesn't exist",
+            module_name,
+            module_path,
         )
-    except Exception:
-        raise SystemExit()
+        raise
+    except AttributeError:
+        logging.error(
+            "Function '%s' not found in module '%s'",
+            function_name,
+            module_name,
+        )
+        raise

@@ -64,7 +64,7 @@ class MonitorConfigX11(MonitorConfig):
     def set_extended_mode(self) -> Dict[str, str]:
         """
         Set to extend mode so that each monitor can be displayed
-        at maximum resolution.
+        at preferred, or if missing, maximum resolution.
 
         :return configuration: ordered list of applied Configuration
         """
@@ -74,10 +74,13 @@ class MonitorConfigX11(MonitorConfig):
 
         previous = None
         for monitor, modes in sorted(state.items()):
-            max_mode = self._get_mode_at_max(modes)
+            try:
+                target_mode = next(mode for mode in modes if mode.is_preferred)
+            except StopIteration:
+                target_mode = self._get_mode_at_max(modes)
             xrandr_args = "--output {} --mode {} {}".format(
                 monitor,
-                max_mode.resolution,
+                target_mode.resolution,
                 (
                     "--right-of {}".format(previous)
                     if previous
@@ -86,7 +89,7 @@ class MonitorConfigX11(MonitorConfig):
             )
             previous = monitor
             cmd.extend(xrandr_args.split())
-            configuration[monitor] = max_mode.resolution
+            configuration[monitor] = target_mode.resolution
 
         subprocess.run(cmd)
         return configuration

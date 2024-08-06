@@ -110,6 +110,7 @@ template-resource: wwan_resource
 template-unit: job
 id: wwan/3gpp-scan-{manufacturer}-{model}-{hw_id}-auto
 template-id: wwan/3gpp-scan-manufacturer-model-hw_id-auto
+template-filter: wwan_resource.iteration == '1'
 _summary:  Scan for available 3GPP networks with the modem
 _template-summary: Scan for available 3GPP networks with the {model} modem
 _description:

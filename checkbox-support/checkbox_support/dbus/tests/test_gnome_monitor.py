@@ -127,9 +127,9 @@ class MonitorConfigGnomeTests(unittest.TestCase):
                             [1.0, 2.0],
                             {
                                 "is-current": GLib.Variant("b", True),
-                                "is-preferred": GLib.Variant("b", True),
+                                "is-preferred": GLib.Variant("b", False),
                             },
-                        )
+                        ),
                     ],
                     {
                         "is-builtin": GLib.Variant("b", False),
@@ -140,7 +140,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             [],
             {},
         )
-        gnome_monitor.set_extended_mode()
+        configuration = gnome_monitor.set_extended_mode()
 
         logical_monitors = [
             (0, 0, 1.0, 0, True, [("eDP-1", "1920x1200@59.950", {})]),
@@ -162,3 +162,8 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             timeout_msec=-1,
             cancellable=None,
         )
+        expected = {
+            "eDP-1": "1920x1200",
+            "HDMI-1": "2560x1440",
+        }
+        self.assertDictEqual(configuration, expected)

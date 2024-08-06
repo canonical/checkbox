@@ -58,10 +58,15 @@ class MonitorConfigX11Tests(unittest.TestCase):
         )
 
         x11_monitor = MonitorConfigX11()
-        x11_monitor.set_extended_mode()
+        configuration = x11_monitor.set_extended_mode()
         expected = (
             "xrandr "
             "--output HDMI-A-0 --mode 2560x1440 --primary --pos 0x0 "
-            "--output eDP --mode 1680x1050 --right-of HDMI-A-0"
+            "--output eDP --mode 1920x1080 --right-of HDMI-A-0"
         )
         mock_run.assert_called_with(expected.split(" "))
+        expected = {
+            "HDMI-A-0": "2560x1440",
+            "eDP": "1920x1080",
+        }
+        self.assertDictEqual(configuration, expected)

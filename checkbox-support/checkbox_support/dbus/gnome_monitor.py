@@ -65,18 +65,21 @@ class MonitorConfigGnome(MonitorConfig):
             if mode.is_current
         }
 
-    def set_extended_mode(self):
+    def set_extended_mode(self) -> Dict[str, str]:
         """
         Set to extend mode so that each monitor can be displayed
-        at preferred resolution.
+        at maximum resolution.
+
+        :return configuration: ordered list of applied Configuration
         """
         state = self._get_current_state()
 
         extended_logical_monitors = []
+        configuration = {}
 
         position_x = 0
         for monitor, modes in state[1].items():
-            preferred = next(mode for mode in modes if mode.is_preferred)
+            max_mode = self._get_mode_at_max(modes)
             extended_logical_monitors.append(
                 (
                     position_x,
@@ -84,12 +87,14 @@ class MonitorConfigGnome(MonitorConfig):
                     1.0,
                     0,
                     position_x == 0,  # first monitor is primary
-                    [(monitor, preferred.id, {})],
+                    [(monitor, max_mode.id, {})],
                 )
             )
-            position_x += int(preferred.resolution.split("x")[0])
+            position_x += int(max_mode.resolution.split("x")[0])
+            configuration[monitor] = max_mode.resolution
 
         self._apply_monitors_config(state[0], extended_logical_monitors)
+        return configuration
 
     def _get_current_state(self) -> Tuple[str, Dict[str, List[Mode]]]:
         """

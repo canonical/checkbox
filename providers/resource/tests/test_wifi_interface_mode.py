@@ -25,9 +25,7 @@ class TestWiFiFunctions(unittest.TestCase):
         with self.assertRaises(SystemError):
             run_command(["echo", "hello"])
 
-    @patch(
-        "wifi_interface_mode.run_command"
-    )
+    @patch("wifi_interface_mode.run_command")
     def test_get_interfaces(self, mock_run_command):
         mock_run_command.return_value = """
         phy#0
@@ -39,9 +37,7 @@ class TestWiFiFunctions(unittest.TestCase):
         result = get_interfaces()
         self.assertEqual(result, expected)
 
-    @patch(
-        "wifi_interface_mode.run_command"
-    )
+    @patch("wifi_interface_mode.run_command")
     def test_get_wiphy_info_with_one_phy(self, mock_run_command):
         mock_run_command.return_value = """Wiphy phy0
         Supported interface modes:
@@ -52,17 +48,13 @@ class TestWiFiFunctions(unittest.TestCase):
         expected = [
             (
                 "0",
-                ["managed",
-                 "AP/VLAN",
-                 "monitor"],
+                ["managed", "AP/VLAN", "monitor"],
             ),
         ]
         result = get_wiphy_info()
         self.assertEqual(result, expected)
 
-    @patch(
-        "wifi_interface_mode.run_command"
-    )
+    @patch("wifi_interface_mode.run_command")
     def test_get_wiphy_info_with_phy_start_with_mwi(self, mock_run_command):
         mock_run_command.return_value = """Wiphy mwiphy0
         Supported interface modes:
@@ -73,17 +65,13 @@ class TestWiFiFunctions(unittest.TestCase):
         expected = [
             (
                 "0",
-                ["managed",
-                 "AP/VLAN",
-                 "monitor"],
+                ["managed", "AP/VLAN", "monitor"],
             ),
         ]
         result = get_wiphy_info()
         self.assertEqual(result, expected)
 
-    @patch(
-        "wifi_interface_mode.run_command"
-    )
+    @patch("wifi_interface_mode.run_command")
     def test_get_wiphy_info_with_two_phy(self, mock_run_command):
         mock_run_command.return_value = """Wiphy phy0
         Supported interface modes:
@@ -99,37 +87,27 @@ class TestWiFiFunctions(unittest.TestCase):
         expected = [
             (
                 "0",
-                ["managed",
-                 "AP/VLAN",
-                 "monitor"],
+                ["managed", "AP/VLAN", "monitor"],
             ),
             (
                 "1",
-                ["managed",
-                 "AP/VLAN",
-                 "P2P-client"],
+                ["managed", "AP/VLAN", "P2P-client"],
             ),
         ]
         result = get_wiphy_info()
         self.assertEqual(result, expected)
 
-    @patch(
-        "wifi_interface_mode.run_command"
-    )
+    @patch("wifi_interface_mode.run_command")
     def test_print_supported_modes(self, mock_run_command):
         interfaces = [("0", "wlan0"), ("1", "wlan1")]
         wiphy_ids = [
             (
                 "0",
-                ["managed",
-                 "AP/VLAN",
-                 "monitor"],
+                ["managed", "AP/VLAN", "monitor"],
             ),
             (
                 "1",
-                ["managed",
-                 "AP/VLAN",
-                 "P2P-client"],
+                ["managed", "AP/VLAN", "P2P-client"],
             ),
         ]
 

@@ -1,7 +1,7 @@
 name: Promote Checkbox beta to candidate
 on:
     push:
-        branches: [CHECKBOX-1447-promotion-beta-to-candidate, expand_matrix]
+        branches: [CHECKBOX-1447-promotion-beta-to-candidate]
     workflow_dispatch:
 
 jobs:

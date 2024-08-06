@@ -5,11 +5,6 @@
 #   Jonathan Cave <jonathan.cave@canonical.com>
 
 unit: category
-id: stress-tests
-_name: Stress Tests
-_summary: Group of tests aimed at determining the robustness of the system under stress.
-
-unit: category
 id: stress-tests/cold-boot
 _name: Cold-boot Stress Test
 _summary: Conduct a stress test focused on cold-boot scenarios.

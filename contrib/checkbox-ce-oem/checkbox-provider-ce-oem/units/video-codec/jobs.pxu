@@ -27,3 +27,30 @@ flags: also-after-suspend
 environ: GST_LAUNCH_BIN
 command:
     gst_v4l2_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}}
+
+unit: template
+template-engine: jinja2
+template-resource: video_codec_resource
+template-filter: video_codec_resource.scenario == "gst_v4l2_audio_video_synchronization"
+template-unit: job
+template-id: ce-oem-video-codec/gst_v4l2_audio_video_synchronization
+_template-summary: To check if the relative timing of audio and video is synchronized under a specific decoder
+id: ce-oem-video-codec/{{ scenario }}-{{ decoder_plugin }}-{{ golden_sample_file_name }}-{{ video_sink }}
+_summary: AV-Sync test of decoder {{ decoder_plugin }} with {{ golden_sample_file_name }} file
+_purpose: To check if the relative timing of audio and video of {{ golden_sample_file_name }} file is synchronized under a specific {{ decoder_plugin }} decoder
+plugin: user-interact-verify
+category_id: video-codec
+estimated_duration: 30s
+imports: from com.canonical.plainbox import manifest
+flags: also-after-suspend
+environ: GST_LAUNCH_BIN
+_steps:
+    1. Plug a headset/earphone to the device
+    2. Adjust the audio sink to be headset via Gnome Settings or command
+    3. Press enter to perform test
+_verification:
+    Ensure there's no delay between the audio output and the visual display
+    1. Do you hear the beep sound and see the video be displayed?
+    2. Is the timing of audio and video synchronized?
+command:
+    gst_v4l2_audio_video_synchronization.py -dp {{decoder_plugin}} -gp {{golden_sample_file}} -vs {{video_sink}} -cp "{{capssetter_pipeline}}"

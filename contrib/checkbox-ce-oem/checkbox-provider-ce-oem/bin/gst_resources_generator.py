@@ -22,6 +22,8 @@ import os
 import json
 import logging
 from typing import Dict, List
+from checkbox_support.scripts.image_checker import has_desktop_environment
+from checkbox_support.snap_utils.system import on_ubuntucore
 
 logging.basicConfig(level=logging.INFO)
 
@@ -61,6 +63,9 @@ def register_arguments() -> argparse.Namespace:
 
 
 class GstResources:
+
+    VIDEO_GOLDEN_SAMPLES = "video_golden_samples"
+
     def __init__(self, args: argparse.Namespace) -> None:
         self._args = args
         try:
@@ -81,6 +86,7 @@ class GstResources:
             raise SystemExit("{}".format(e))
         self._current_scenario_name = ""
         self._resource_items = []
+        self._has_desktop_environment = has_desktop_environment()
 
     def _v4l2_video_decoder_md5_checksum_comparison_helper(
         self,
@@ -134,6 +140,36 @@ class GstResources:
                     for color_space in item["color_spaces"]
                 ]
             )
+
+    def gst_v4l2_audio_video_synchronization(
+        self, scenario_data: Dict
+    ) -> None:
+        video_sink = ""
+        if on_ubuntucore():
+            video_sink = scenario_data["video_sinks"]["on_core"]
+        elif self._has_desktop_environment:
+            video_sink = scenario_data["video_sinks"]["on_desktop"]
+        else:
+            video_sink = scenario_data["video_sinks"]["on_server"]
+
+        for item in scenario_data["cases"]:
+            for sample_file in item["golden_sample_files"]:
+                self._resource_items.append(
+                    {
+                        "scenario": self._current_scenario_name,
+                        "video_sink": video_sink,
+                        "decoder_plugin": item["decoder_plugin"],
+                        "golden_sample_file_name": sample_file["file_name"],
+                        "golden_sample_file": os.path.join(
+                            self._args.video_codec_testing_data_path,
+                            self.VIDEO_GOLDEN_SAMPLES,
+                            sample_file["file_name"],
+                        ),
+                        "capssetter_pipeline": sample_file[
+                            "capssetter_pipeline"
+                        ],
+                    }
+                )
 
     def main(self):
         for scenario in self._scenarios:

@@ -1,5 +1,5 @@
 id: ce-oem-init-boot-loop-data
-category_id: com.canonical.certification::stress-tests
+category_id: com.canonical.plainbox::stress
 _summary: Generate the baseline data set to test against
 _description: This creates baseline data sets which be considered the master
  copies and all further tests will be compared against these.

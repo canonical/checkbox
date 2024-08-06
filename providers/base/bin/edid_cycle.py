@@ -101,11 +101,20 @@ def test_edid(
 
     try:
         _switch_edid(zapper_host, monitor_config, edid_file, video_device)
-        monitor_config.set_extended_mode()
+        configuration = monitor_config.set_extended_mode()
     except TimeoutError as exc:
         raise AssertionError("Timed out switching EDID") from exc
 
+    # A mismatch between requested and applied resolution might
+    # indicated an incompatibility at HW level, most of the time
+    # due to HDMI < 1.3.
+    applied_res = configuration[video_device]
     actual_res = monitor_config.get_current_resolutions()[video_device]
+
+    if applied_res != resolution:
+        print("SKIP, max available was {}".format(applied_res))
+        return
+
     if actual_res != resolution:
         raise AssertionError(
             "FAIL, got {} but {} expected".format(actual_res, resolution)

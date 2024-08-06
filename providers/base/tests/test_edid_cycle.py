@@ -5,6 +5,10 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch, call, Mock, MagicMock
 
+from checkbox_support.monitor_config import (
+    Configuration,
+)  # noqa: E402
+
 sys.modules["dbus"] = MagicMock()
 sys.modules["dbus.mainloop.glib"] = MagicMock()
 sys.modules["gi"] = MagicMock()
@@ -78,6 +82,10 @@ class ZapperEdidCycleTests(unittest.TestCase):
                 "HDMI-1": "1920x1080",  # and then we set extended mode
             },
         ]
+        mock_monitor.set_extended_mode.return_value = {
+            "eDP-1": "1280x1024",
+            "HDMI-1": "1920x1080",
+        }
 
         edid_cycle.test_edid(
             "zapper-ip", mock_monitor, Path("1920x1080.edid"), "HDMI-1"
@@ -88,9 +96,44 @@ class ZapperEdidCycleTests(unittest.TestCase):
     @patch("time.sleep", new=Mock)
     @patch("edid_cycle.zapper_run", new=Mock)
     @patch("builtins.open")
+    def test_test_edid_skip(self, mock_open):
+        """
+        Check the function returns w/o errors if
+        the resolution doesn't match because of
+        HW incompatibility.
+        """
+
+        mock_monitor = Mock()
+        mock_monitor.get_current_resolutions.side_effect = [
+            {
+                "eDP-1": "1280x1024",
+            },
+            {
+                "eDP-1": "1280x1024",
+                "HDMI-1": "1280x1024",  # when connected it's in mirror mode
+            },
+            {
+                "eDP-1": "1280x1024",
+                "HDMI-1": "2048x1440",  # and then we set extended mode
+            },
+        ]
+        mock_monitor.set_extended_mode.return_value = {
+            "eDP-1": "1280x1024",
+            "HDMI-1": "2048x1440",
+        }
+
+        edid_cycle.test_edid(
+            "zapper-ip", mock_monitor, Path("2560x1440.edid"), "HDMI-1"
+        )
+        mock_open.assert_called_with("2560x1440.edid", "rb")
+        mock_monitor.set_extended_mode.assert_called_once_with()
+
+    @patch("time.sleep", new=Mock)
+    @patch("edid_cycle.zapper_run", new=Mock)
+    @patch("builtins.open")
     def test_test_edid_error(self, mock_open):
         """
-        Check the function raise an exception when the assertion
+        Check the function raises an exception when the assertion
         on resolution fails.
         """
         mock_monitor = Mock()
@@ -107,6 +150,10 @@ class ZapperEdidCycleTests(unittest.TestCase):
                 "HDMI-1": "1280x1024",  # still not at requested resolution
             },
         ]
+        mock_monitor.set_extended_mode.return_value = {
+            "eDP-1": "1280x1024",
+            "HDMI-1": "1920x1080",
+        }
 
         with self.assertRaises(AssertionError):
             edid_cycle.test_edid(

@@ -182,6 +182,7 @@ def main(args=None):
 
     try:
         monitor_config = display_info.get_monitor_config()
+        print("Running with `{}`.".format(monitor_config.__class__.__name__))
     except ValueError as exc:
         raise SystemExit("Current host is not supported.") from exc
 

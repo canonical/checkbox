@@ -178,6 +178,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "AMD Bergamo":      ['0xaa0f01'],
         "AMD Siena SP6":    ['0xaa0f02'],
         "AMD Raphael":      ['0xa60f12'],
+        "AMD Turin":        ['0xb00f21'],
         "Broadwell":        ['0x4067', '0x306d4', '0x5066', '0x406f'],
         "Canon Lake":       ['0x6066'],
         "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],
@@ -231,7 +232,7 @@ def main():
             my_id, nice_name))
     except ValueError:
         raise SystemExit(
-            "Unable to determine CPU Family for this CPUID: {}".format(cpuid))
+            "Unable to determine CPU Family for this CPUID: {}".format(my_id))
 
 
 if __name__ == "__main__":

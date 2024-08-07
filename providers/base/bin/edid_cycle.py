@@ -51,7 +51,7 @@ def discover_video_output_device(
     # and I'm waiting for the DUT to react to the EDID change.
     time.sleep(5)
 
-    devices = monitor_config.get_current_resolutions().keys()
+    devices = monitor_config.get_connected_monitors()
 
     # It doesn't really matter which EDID file we set in this function:
     # we just want to recognize the port type and index, not the resolution.
@@ -62,9 +62,7 @@ def discover_video_output_device(
     # enough for such changes to happen.
     targets = []
     for _ in range(5):
-        targets = list(
-            monitor_config.get_current_resolutions().keys() - devices
-        )
+        targets = monitor_config.get_connected_monitors() - devices
         if targets:
             break
 
@@ -76,7 +74,7 @@ def discover_video_output_device(
             "got {} new devices.".format(len(targets))
         )
 
-    return targets[0]
+    return next(iter(targets))
 
 
 def test_edid(
@@ -101,11 +99,20 @@ def test_edid(
 
     try:
         _switch_edid(zapper_host, monitor_config, edid_file, video_device)
-        monitor_config.set_extended_mode()
+        configuration = monitor_config.set_extended_mode()
     except TimeoutError as exc:
         raise AssertionError("Timed out switching EDID") from exc
 
+    # A mismatch between requested and applied resolution might
+    # indicated an incompatibility at HW level, most of the time
+    # due to HDMI < 1.3.
+    applied_res = configuration[video_device]
     actual_res = monitor_config.get_current_resolutions()[video_device]
+
+    if applied_res != resolution:
+        print("SKIP, max available was {}".format(applied_res))
+        return
+
     if actual_res != resolution:
         raise AssertionError(
             "FAIL, got {} but {} expected".format(actual_res, resolution)
@@ -175,6 +182,7 @@ def main(args=None):
 
     try:
         monitor_config = display_info.get_monitor_config()
+        print("Running with `{}`.".format(monitor_config.__class__.__name__))
     except ValueError as exc:
         raise SystemExit("Current host is not supported.") from exc
 

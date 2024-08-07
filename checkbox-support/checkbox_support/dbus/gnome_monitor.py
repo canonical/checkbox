@@ -22,7 +22,7 @@ Original script that inspired this class:
 """
 
 from collections import namedtuple
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Set
 from gi.repository import GLib, Gio
 
 from checkbox_support.monitor_config import MonitorConfig
@@ -54,6 +54,11 @@ class MonitorConfigGnome(MonitorConfig):
             cancellable=None,
         )
 
+    def get_connected_monitors(self) -> Set[str]:
+        """Get list of connected monitors, even if inactive."""
+        state = self._get_current_state()
+        return {monitor for monitor in state[1]}
+
     def get_current_resolutions(self) -> Dict[str, str]:
         """Get current active resolutions for each monitor."""
 
@@ -65,18 +70,24 @@ class MonitorConfigGnome(MonitorConfig):
             if mode.is_current
         }
 
-    def set_extended_mode(self):
+    def set_extended_mode(self) -> Dict[str, str]:
         """
         Set to extend mode so that each monitor can be displayed
-        at preferred resolution.
+        at preferred, or if missing, maximum resolution.
+
+        :return configuration: ordered list of applied Configuration
         """
         state = self._get_current_state()
 
         extended_logical_monitors = []
+        configuration = {}
 
         position_x = 0
         for monitor, modes in state[1].items():
-            preferred = next(mode for mode in modes if mode.is_preferred)
+            try:
+                target_mode = next(mode for mode in modes if mode.is_preferred)
+            except StopIteration:
+                target_mode = self._get_mode_at_max(modes)
             extended_logical_monitors.append(
                 (
                     position_x,
@@ -84,12 +95,14 @@ class MonitorConfigGnome(MonitorConfig):
                     1.0,
                     0,
                     position_x == 0,  # first monitor is primary
-                    [(monitor, preferred.id, {})],
+                    [(monitor, target_mode.id, {})],
                 )
             )
-            position_x += int(preferred.resolution.split("x")[0])
+            position_x += int(target_mode.resolution.split("x")[0])
+            configuration[monitor] = target_mode.resolution
 
         self._apply_monitors_config(state[0], extended_logical_monitors)
+        return configuration
 
     def _get_current_state(self) -> Tuple[str, Dict[str, List[Mode]]]:
         """

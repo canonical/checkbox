@@ -201,6 +201,7 @@ class CameraTest:
 
         self.main_loop = None
         self.pipeline = None
+        self.timeout = None
 
     def detect(self):
         """
@@ -300,23 +301,27 @@ class CameraTest:
                 )
             )
 
-    def _on_timeout(self, reason=None):
+    def _stop_pipeline(self):
         """
         Stop the Glib main loop and set the pipeline state to NULL
         """
+        self.main_loop.quit()
+        self.pipeline.set_state(Gst.State.NULL)
+
+    def _on_timeout(self):
+        """
+        Stop the  pipeline when the timeout is reached and remove the timeout
+        """
         print("Timeout exceeded")
         self.timeout = None
-        self.main_loop.quit()
-        if self.pipeline:
-            self.pipeline.set_state(Gst.State.NULL)
-
+        self._stop_pipeline()
 
     def led(self):
         """
         Activate camera (switch on led), but don't display any output
         """
         self.main_loop = GLib.MainLoop()
-        GLib.timeout_add_seconds(3, self._on_timeout)
+        GLib.timeout_add_seconds(3, self._stop_pipeline)
         self._setup_video_gstreamer("fakesink")
 
     def video(self):
@@ -324,17 +329,13 @@ class CameraTest:
         Displays the preview window for a video stream
         """
         # Don't display the video, just run the camera
-        print("Starting video preview")
-        print(self.quiet)
         if self.quiet:
             self.main_loop = GLib.MainLoop()
-            GLib.timeout_add_seconds(4, self._on_timeout)
+            GLib.timeout_add_seconds(4, self._stop_pipeline)
             self._setup_video_gstreamer("fakesink")
         else:
             print("Starting video preview")
-            self.main_loop = GLib.MainLoop()
-            self._show_image = True
-            GLib.timeout_add_seconds(10, self._on_timeout)
+            GLib.timeout_add_seconds(10, self._stop_pipeline)
             self._setup_video_gstreamer()
 
     def _setup_video_gstreamer(self, sink=None):
@@ -379,6 +380,8 @@ class CameraTest:
         self.pipeline = pipeline
         bus.connect("message", self._on_gst_message)
         self.pipeline.set_state(Gst.State.PLAYING)
+
+        self.main_loop = GLib.MainLoop()
         try:
             self.main_loop.run()
         except GLib.Error:
@@ -404,14 +407,13 @@ class CameraTest:
 
     def _still_image_helper(self, filename, width, height, pixelformat):
         """
-        Captures an image to a given filename.  width and height specify the
-        image size and quiet controls whether the image is displayed to the
-        user (quiet = True means do not display image).
+        Captures an image to a given filename. If the image capture fails with
+        fswebcam, it will try to capture the image with gstreamer.
         """
 
         # Try to take a picture with fswebcam
-        use_fswebcam = False
-        use_gstreamer = True
+        use_fswebcam = True
+        use_gstreamer = False
 
         if use_fswebcam:
             result = self._capture_image_fswebcam(
@@ -423,14 +425,15 @@ class CameraTest:
 
         # If fswebcam fails, try with gstreamer
         if use_gstreamer:
-            self.main_loop = GLib.MainLoop()
-            # Add a timeout to stop the pipeline after 60 seconds
             self._capture_image_gstreamer(filename, width, height, pixelformat)
             print("Image saved to %s" % filename)
         if not self.quiet:
             self._display_image(filename, width, height)
 
     def _capture_image_fswebcam(self, filename, width, height, pixelformat):
+        """
+        Simple wrapper around fswebcam to capture an image
+        """
         command = [
             "fswebcam",
             "-D 1",
@@ -460,6 +463,7 @@ class CameraTest:
         This pipeline consists of the following elements:
         - v4l2src: Capture video from a V4L2 device
         - caps: Filter the video stream to the desired resolution
+        - bayer2rgb (only for bayer format): Convert the bayer format to RGB
         - jpegenc: Encode the video stream to a JPEG image
         - filesink: Save the JPEG image to a file
         """
@@ -469,7 +473,7 @@ class CameraTest:
         # Add source
         source = Gst.ElementFactory.make("v4l2src", "video-source")
         source.set_property("device", self.device)
-        source.set_property("num-buffers", 20)
+        source.set_property("num-buffers", 10)
         pipeline.add(source)
 
         # Add caps
@@ -516,23 +520,27 @@ class CameraTest:
             caps.link(encoder)
         encoder.link(sink)
 
+        # Connect the bus to the message handler
         bus = pipeline.get_bus()
         bus.add_signal_watch()
-
-        self.pipeline = pipeline
         bus.connect("message", self._on_gst_message)
 
+        # Start the pipeline
+        self.pipeline = pipeline
         self.pipeline.set_state(Gst.State.PLAYING)
 
         # Add a timeout of 60 seconds to capture the image
-        self.timeout = GLib.timeout_add_seconds(1, self._on_timeout)
+        self.timeout = GLib.timeout_add_seconds(10, self._on_timeout)
+
+        # Start the main loop
+        self.main_loop = GLib.MainLoop()
         try:
             self.main_loop.run()
         except GLib.Error:
             print("Gstreamer pipeline stoppedssdfsdf")
             self.main_loop.quit()
             self.pipeline.set_state(Gst.State.NULL)
-        
+
         # Remove the timeout
         if self.timeout:
             GLib.source_remove(self.timeout)
@@ -801,7 +809,7 @@ class CameraTest:
                 outw, outh = int(w), int(h)
             except (struct.error, ValueError):
                 pass
-            
+
             if outw == 0 or outh == 0:
                 print("Image dimensions not found in JPEG file")
                 return False

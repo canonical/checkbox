@@ -527,9 +527,10 @@ class CameraTest:
         # Start the pipeline
         self.pipeline = pipeline
         self.pipeline.set_state(Gst.State.PLAYING)
+        
 
-        # Add a timeout of 60 seconds to capture the image
-        self.timeout = GLib.timeout_add_seconds(10, self._on_timeout)
+        # Add a timeout of 90 seconds to capture the image
+        self.timeout = GLib.timeout_add_seconds(90, self._on_timeout)
 
         # Start the main loop
         self.main_loop = GLib.MainLoop()

@@ -11,12 +11,55 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - queue: hp-elitebook-850-g7-notebook-pc
+          - queue: 201712-26047
+            data_source: "distro: xenial"
+            checkbox_runtime: checkbox16
+            checkbox_track: uc16
+
+          - queue: 201712-26047
+            data_source: "distro: focal"
+            checkbox_runtime: checkbox20
+            checkbox_track: uc20
+
+          - queue: 201712-26047
+            data_source: "distro: bionic"
+
+          - queue: 202203-30061
             data_source: "distro: jammy"
             checkbox_runtime: checkbox22
             checkbox_track: uc22
-          - queue: hp-elitebook-850-g7-notebook-pc
+
+          - queue: 202203-30061
             data_source: "distro: jammy"
+
+          - queue: 202012-28526
+            data_source: "distro: noble"
+            checkbox_runtime: checkbox24
+            checkbox_track: uc24
+
+          - queue: 202012-28526
+            data_source: "distro: noble"
+
+          - queue: 202201-29865
+            data_source: "distro: bionic"
+            checkbox_runtime: checkbox18
+            checkbox_track: uc18
+
+          - queue: 202201-29865
+            data_source: "distro: focal"
+
+          - queue: rpi4b
+            data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
+            checkbox_runtime: checkbox22
+            checkbox_track: uc22
+
+          - queue: rpi4b
+            data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
+
+          - queue: rpi4b
+            data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-armhf+raspi.img.xz"
+            checkbox_runtime: checkbox22
+            checkbox_track: uc22
     steps:
     - name: Checkout checkbox monorepo
       uses: actions/checkout@v4

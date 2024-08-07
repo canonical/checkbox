@@ -319,8 +319,8 @@ class CameraTest:
         """
         Activate camera (switch on led), but don't display any output
         """
-        self.main_loop = GLib.MainLoop()
-        GLib.timeout_add_seconds(3, self._stop_pipeline)
+        self.main_loop = self.GLib.MainLoop()
+        self.GLib.timeout_add_seconds(3, self._stop_pipeline)
         self._setup_video_gstreamer("fakesink")
 
     def video(self):
@@ -329,12 +329,12 @@ class CameraTest:
         """
         # Don't display the video, just run the camera
         if self.quiet:
-            self.main_loop = GLib.MainLoop()
-            GLib.timeout_add_seconds(4, self._stop_pipeline)
+            self.main_loop = self.GLib.MainLoop()
+            self.GLib.timeout_add_seconds(4, self._stop_pipeline)
             self._setup_video_gstreamer("fakesink")
         else:
             print("Starting video preview")
-            GLib.timeout_add_seconds(10, self._stop_pipeline)
+            self.GLib.timeout_add_seconds(10, self._stop_pipeline)
             self._setup_video_gstreamer()
 
     def _setup_video_gstreamer(self, sink=None):
@@ -343,7 +343,9 @@ class CameraTest:
         """
         webcam = self.Gst.ElementFactory.make("v4l2src")
         webcam.set_property("device", self.device)
-        wrappercamerabinsrc = self.Gst.ElementFactory.make("wrappercamerabinsrc")
+        wrappercamerabinsrc = self.Gst.ElementFactory.make(
+            "wrappercamerabinsrc"
+        )
         wrappercamerabinsrc.set_property("video-source", webcam)
         pipeline = self.Gst.ElementFactory.make("camerabin", "pipeline")
         pipeline.set_property("camera-source", wrappercamerabinsrc)
@@ -380,10 +382,10 @@ class CameraTest:
         bus.connect("message", self._on_gst_message)
         self.pipeline.set_state(self.Gst.State.PLAYING)
 
-        self.main_loop = GLib.MainLoop()
+        self.main_loop = self.GLib.MainLoop()
         try:
             self.main_loop.run()
-        except GLib.Error:
+        except self.GLib.Error:
             self.main_loop.quit()
             self.pipeline.set_state(self.Gst.State.NULL)
 
@@ -529,19 +531,19 @@ class CameraTest:
         self.pipeline.set_state(self.Gst.State.PLAYING)
 
         # Add a timeout of 90 seconds to capture the image
-        self.timeout = GLib.timeout_add_seconds(90, self._on_timeout)
+        self.timeout = self.GLib.timeout_add_seconds(90, self._on_timeout)
 
         # Start the main loop
-        self.main_loop = GLib.MainLoop()
+        self.main_loop = self.GLib.MainLoop()
         try:
             self.main_loop.run()
-        except GLib.Error:
+        except self.GLib.Error:
             self.main_loop.quit()
             self.pipeline.set_state(self.Gst.State.NULL)
 
         # Remove the timeout
         if self.timeout:
-            GLib.source_remove(self.timeout)
+            self.GLib.source_remove(self.timeout)
         return 0
 
     def _display_image(self, filename, width, height):
@@ -559,7 +561,7 @@ class CameraTest:
 
         # Connect the destroy event to quit the GTK main loop
         window.connect("destroy", self.Gtk.main_quit)
-        GLib.timeout_add_seconds(10, self.Gtk.main_quit)
+        self.GLib.timeout_add_seconds(10, self.Gtk.main_quit)
 
         # Show all widgets in the window
         window.show_all()

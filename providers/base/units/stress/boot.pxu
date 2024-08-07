@@ -53,8 +53,9 @@ _summary: Perform cold reboot 1
 _description: Enter sleep mode after a configurable delay.
 unit: job
 plugin: shell
-environ: STRESS_BOOT_WAKEUP_DELAY
-command: rtcwake --mode off -s "${STRESS_BOOT_WAKEUP_DELAY:-120}"
+environ: STRESS_BOOT_WAKEUP_DELAY RTC_DEVICE_FILE
+command:
+  rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" --mode off -s "${STRESS_BOOT_WAKEUP_DELAY:-120}"
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0
@@ -70,10 +71,10 @@ unit: template
 template-resource: reboot-run-generator
 template-unit: job
 plugin: shell
-environ: STRESS_BOOT_WAKEUP_DELAY STRESS_BOOT_WAIT_DELAY
+environ: STRESS_BOOT_WAKEUP_DELAY STRESS_BOOT_WAIT_DELAY RTC_DEVICE_FILE
 command:
  sleep "${{STRESS_BOOT_WAIT_DELAY:-120}}"
- rtcwake --mode off -s "${{STRESS_BOOT_WAKEUP_DELAY:-120}}"
+ rtcwake -v -d "${{RTC_DEVICE_FILE:-rtc0}}"--mode off -s "${{STRESS_BOOT_WAKEUP_DELAY:-120}}"
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0

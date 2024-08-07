@@ -58,7 +58,7 @@ requires:
   sleep.mem == 'supported'
   rtc.state == 'supported'
 estimated_duration: 2400.0
-environ: PLAINBOX_SESSION_SHARE STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH
+environ: PLAINBOX_SESSION_SHARE STRESS_S3_SLEEP_DELAY STRESS_S3_WAIT_DELAY LD_LIBRARY_PATH RTC_DEVICE_FILE
 user: root
 command:
  {%- if fwts == "supported" %}
@@ -68,7 +68,7 @@ command:
  for i in {1..{{ s3_iterations }}};
  do
     echo "Iteration $i"
-    rtcwake -v -m mem -s "${STRESS_S3_SLEEP_DELAY:-30}"
+    rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m mem -s "${STRESS_S3_SLEEP_DELAY:-30}"
  done
  {% endif -%}
 _purpose:

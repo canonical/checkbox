@@ -394,14 +394,14 @@ requires:
  rtc.state == 'supported'
  rtc.wakealarm == 'supported'
 command:
- rtcwake --mode no -s "${COLD_REBOOT_DELAY:-120}"
+ rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" --mode no -s "${COLD_REBOOT_DELAY:-120}"
  sleep 5
- rtcwake -m show
+ rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m show
  sleep 5
  dbus-send --system --print-reply --dest=org.freedesktop.login1 /org/freedesktop/login1 "org.freedesktop.login1.Manager.PowerOff" boolean:true
 user: root
 flags: preserve-locale noreturn autorestart
-environ: COLD_REBOOT_DELAY
+environ: COLD_REBOOT_DELAY RTC_DEVICE_FILE
 estimated_duration: 300
 
 id: power-management/post-cold-reboot

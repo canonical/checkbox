@@ -6,7 +6,7 @@ flags: preserve-locale noreturn autorestart also-after-suspend
 user: root
 plugin: shell
 estimated_duration: 60
-environ: PLAINBOX_SESSION_SHARE
+environ: PLAINBOX_SESSION_SHARE RTC_DEVICE_FILE
 command:
     # Clean up
     if [ -f "$PLAINBOX_SESSION_SHARE/thermal-is-malfunction" ]; then
@@ -14,7 +14,7 @@ command:
     fi
     # Feed the super high temperature to the emul_temp of thermal_zone0
     # to make thermal shuts system down and rtcwake will wake system up. 
-    rtcwake -v -m no -s 60
+    rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m no -s 60
     echo 999999 > /sys/class/thermal/thermal_zone0/emul_temp
     # If thermal's protection mechanism doesn't work, reboot the system
     # to prevent Checkbox stucks here due to noreturn flag

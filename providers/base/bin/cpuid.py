@@ -206,6 +206,8 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "Alder Lake":       ['0x906a4', '0x906A3', '0x90675', '0x90672'],
         "Westmere":         ['0x2065', '0x206c', '0x206f'],
         "Whisky Lake":      ['0x806eb', '0x806ec'],
+        "Sierra Forest":    ['0xa06f3'],
+        "Granite Rapids":   ['0xa06e0', '0xa06d0']
     }
     for key in CPUIDS.keys():
         for value in CPUIDS[key]:

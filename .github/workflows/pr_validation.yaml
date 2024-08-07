@@ -3,8 +3,6 @@ on:
   pull_request:
     types:
       - opened
-      - reopened
-      - ready_for_review
       - synchronize
       - edited
 jobs:
@@ -26,3 +24,93 @@ jobs:
           echo "e.g. $PR_TITLE (BugFix)"
           exit 1
         fi
+
+  sru_gate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Checkbox monorepo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install dependencies, Checkbox and providers
+        run: |
+          sudo apt install -y -qq python3 python3-venv jq libsystemd-dev
+          python3 -m venv venv
+          . venv/bin/activate
+          python3 -m pip install checkbox-ng/
+          python3 -m pip install checkbox-support/
+          python3 providers/resource/manage.py develop
+          python3 providers/base/manage.py develop
+          python3 providers/certification-client/manage.py develop
+          python3 providers/tpm2/manage.py develop
+          python3 providers/sru/manage.py develop
+      - name: Export main sru list
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR: ${{ github.event.pull_request.html_url }}
+        run: |
+          export DESCRIPTION=$(gh pr view $PR --json 'body' --jq '.body')
+          # we are on current branch/commit
+          . venv/bin/activate
+          checkbox-cli expand -f json com.canonical.certification::sru-server >> sru_server_testplan_this_branch.json
+          checkbox-cli expand -f json com.canonical.certification::sru >> sru_testplan_this_branch.json
+          git checkout origin/main
+          checkbox-cli expand -f json com.canonical.certification::sru-server >> sru_server_testplan_main.json
+          checkbox-cli expand -f json com.canonical.certification::sru >> sru_testplan_main.json
+          # https://stackoverflow.com/a/57795761
+          # compare two jsons without comparing the order arrays but just
+          # the content of objects
+
+          echo
+          echo
+          echo "Difference of com.canonical.certification::sru-server (diff this_branch main)"
+          # The following line sorts the array of jobs/templates obtained from the pre/post checkout.
+          # This is done because we want compare the list/content of jobs but not necessarily the order
+          # that for most jobs is not deterministic either way. The array keys are sorted as well
+          # as what counts is the content of each key (id, environ, command) and not the order
+          # the exporter prints them out.
+          # Taken partially from: https://github.com/jqlang/jq/issues/893
+          diff \
+            <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_server_testplan_this_branch.json") \
+            <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_server_testplan_main.json") | tee sru_server_diff.txt
+
+          if [ -s sru_server_diff.txt ]; then
+            # if the sru_server_diff file is not empty, there is at least one diff (patch) done to it
+            # require the PR description to contain the bold text highlighting it
+            if [[ "$DESCRIPTION" == *"## WARNING: This modifies com.canonical.certification::sru-server"* ]]; then
+              echo "Warning is correcty posted in the description for sru-server"
+            else
+              echo "Missing warning for sru modification in the description"
+              echo "Include the following in your description:"
+              echo "  ## WARNING: This modifies com.canonical.certification::sru-server"
+              exit 1
+            fi
+          else
+            echo "No diff found"
+          fi
+
+          echo "Difference of com.canonical.certification::sru (diff this_branch main)"
+          # the following line sorts the array of jobs/templates obtained from the pre/post checkout
+          # this is done because we want compare the list/content of jobs but not necessarely the order
+          # that for most jobs is not deterministic either way. The array keys are sorted as well
+          # as what counts is the content of each key (id, environ, command) and not the order
+          # the exporter prints them out
+          # Taken partially from: https://github.com/jqlang/jq/issues/893
+          diff \
+            <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_testplan_this_branch.json") \
+            <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_testplan_main.json") | tee sru_diff.txt
+
+          if [ -s sru_diff.txt ]; then
+            # if the sru_server_diff file is not empty, there is at least one diff (patch) done to it
+            # require the PR description to contain the bold text highlighting it
+            if [[ "$DESCRIPTION" == *"## WARNING: This modifies com.canonical.certification::sru"* ]]; then
+              echo "Warning is correcty posted in the description for sru"
+            else
+              echo "Missing warning for sru modification in the description"
+              echo "Include the following in your description:"
+              echo "  ## WARNING: This modifies com.canonical.certification::sru"
+              exit 1
+            fi
+          else
+            echo "No diff found"
+          fi

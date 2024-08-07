@@ -527,7 +527,6 @@ class CameraTest:
         # Start the pipeline
         self.pipeline = pipeline
         self.pipeline.set_state(Gst.State.PLAYING)
-        
 
         # Add a timeout of 90 seconds to capture the image
         self.timeout = GLib.timeout_add_seconds(90, self._on_timeout)
@@ -537,7 +536,6 @@ class CameraTest:
         try:
             self.main_loop.run()
         except GLib.Error:
-            print("Gstreamer pipeline stoppedssdfsdf")
             self.main_loop.quit()
             self.pipeline.set_state(Gst.State.NULL)
 
@@ -678,7 +676,6 @@ class CameraTest:
                         pixelformat["description"] = fmt.description.decode()
                         supported_pixel_formats.append(pixelformat)
                 fmt.index = fmt.index + 1
-                print("fmt.index: %s" % fmt.index)
         except IOError as e:
             # EINVAL is the ioctl's way of telling us that there are no
             # more formats, so we ignore it
@@ -781,12 +778,10 @@ class CameraTest:
         Given a filename, ensure that the image is the width and height
         specified and is a valid image file.
         """
-        print("filename: %s" % filename)
         if not os.path.exists(filename):
             print("Image file not found")
             return False
         if imghdr.what(filename) != "jpeg":
-            print("recognized image type: %s" % imghdr.what(filename))
             print("Image is not a valid JPEG file")
             return False
 

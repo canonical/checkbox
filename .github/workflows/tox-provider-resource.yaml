@@ -47,6 +47,10 @@ jobs:
           python-version: ${{ matrix.python }}
         env:
           PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
+      - name: Install libsystemd-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsystemd-dev
       - name: Install tox
         run: pip install tox
       - name: Run tox

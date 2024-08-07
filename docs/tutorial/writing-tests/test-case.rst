@@ -697,16 +697,83 @@ While we could do this with a tall jenga tower entirely constituted of pipes,
 tee and awk commands, always keep in mind, the best foot gun is the one we
 don't use. Checkbox allows you to write hundreds of lines of code in the
 command section but this doesn't make it a good idea. When we need to evolve
-beyond a few lines of bash we always rewrite the test in Python and add proper
-unit tests.
+beyond a few lines of bash we always suggest a rewrite in Python and to add
+proper unit tests.
 
 .. note::
     While there is no formal rule on the maximum size or complexity of a
-    command section but as a rule of thumb avoid using nested ifs/for loops,
+    command section, as a rule of thumb avoid using nested ifs/for loops,
     multiple pipes and destructive redirection within a command section. You
     will thank us later.
 
-how python tests work
+Create two new directories in the provider: ``bin/`` and ``tests/``. Create
+a new python file in ``bin/`` and call it ``network_available.py`` and make it
+executable (``chmod +x network_available.py``).
+
+Lets translate the previous test into Python first:
+
+.. code-block:: python
+
+    #!/usr/bin/env python3
+    import sys
+    import argparse
+    import subprocess
+
+
+    def parse_args(argv):
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            "interface", help="Interface to connectivity test"
+        )
+        return parser.parse_args()
+
+
+    def network_available(interface):
+        print("Testing", interface)
+        return subprocess.check_call(
+            ["ping", "-I", interface, "-c", "1", "1.1.1.1"]
+        )
+
+
+    def main(argv=None):
+        if argv is None:
+            argv = sys.argv[1:]
+        args = parse_args(argv)
+        ping_test(args.interface)
+
+
+    if __name__ == "__main__":
+        main()
+
+.. note::
+    A few important things to notice about the script:
+
+    #. We use Black to format all tests and source files in Checkbox with a custom config: ``line-length = 79``.
+    #. We make files in ``bin/`` executable, this is convenient, but remember to put a shebang on the first line.
+    #. If we call a subprocess (like ping) we try to avoid capturing the output if we don't need it. Makes it way easier to debug test failures when they occur.
+
+Modify now the ``network_available_interface`` job to call our new script.
+Remember that any script in the ``bin/`` directory is directly accessible by
+any test in the same provider.
+
+.. code-block::
+    :emphasize-lines: 6
+
+    unit: template
+    [...]
+    template-id: network_available_interface
+    [...]
+    command:
+      network_available.py {interface}
+
+.. note::
+   Call the script by name without ``./`` in front
+
+We are now ready to extract the information from the log of the command.
+Update the function ``network_available`` as follows:
+
+.. code:: none
+
 
 how tests tests work
 

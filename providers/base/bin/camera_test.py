@@ -42,7 +42,6 @@ import sys
 
 from glob import glob
 from subprocess import check_call, CalledProcessError, STDOUT
-from time import sleep
 from tempfile import NamedTemporaryFile
 
 
@@ -678,6 +677,7 @@ class CameraTest:
                         pixelformat["description"] = fmt.description.decode()
                         supported_pixel_formats.append(pixelformat)
                 fmt.index = fmt.index + 1
+                print("fmt.index: %s" % fmt.index)
         except IOError as e:
             # EINVAL is the ioctl's way of telling us that there are no
             # more formats, so we ignore it
@@ -939,8 +939,11 @@ def parse_arguments(argv):
 if __name__ == "__main__":
     args = parse_arguments(sys.argv[1:])
 
+    # Set the default test to detect if not specified
     if not args.get("test"):
         args["test"] = "detect"
+
+    # Set the log level
     logging.basicConfig(level=args["log_level"])
 
     # Import Gst only for the test cases that will need it
@@ -955,7 +958,7 @@ if __name__ == "__main__":
 
         Gst.init(None)
 
-        # Import Clutter/Gtk only for the test cases that will need it
+        # Import Gtk only for the test cases that will need it
         if args["test"] in ["video", "image"] and not args["quiet"]:
 
             gi.require_version("Gtk", "3.0")
@@ -963,6 +966,5 @@ if __name__ == "__main__":
 
             Gtk.init([])
 
-    print(args)
     camera = CameraTest(**args)
     sys.exit(getattr(camera, args["test"])())

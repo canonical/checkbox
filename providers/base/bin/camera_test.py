@@ -167,13 +167,13 @@ VIDIOC_ENUM_FMT = _IOWR("V", 2, v4l2_fmtdesc)
 
 
 # Add the adobe format to the test_jpeg function
-def test_jpeg_adobe(h, f):
+def imghdr_jpeg_adobe(h, f):
     """JPEG data in Adobe format"""
     if h[6:11] in (b"Adobe"):
         return "jpeg"
 
 
-imghdr.tests.append(test_jpeg_adobe)
+imghdr.tests.append(imghdr_jpeg_adobe)
 
 
 class CameraTest:
@@ -267,19 +267,19 @@ class CameraTest:
 
     def _on_gst_message(self, bus, message):
         # Process End-of-stream messages
-        if message.type == Gst.MessageType.EOS:
+        if message.type == self.Gst.MessageType.EOS:
             # Stop the pipeline
-            self.pipeline.set_state(Gst.State.NULL)
-            # Quit the Glib main loop
+            self.pipeline.set_state(self.Gst.State.NULL)
+            # Quit the GLib main loop
             self.main_loop.quit()
             if self.log_level == logging.DEBUG:
                 print("End-of-stream")
 
         # Process Error messages
-        elif message.type == Gst.MessageType.ERROR:
+        elif message.type == self.Gst.MessageType.ERROR:
             # Stop the pipeline
-            self.pipeline.set_state(Gst.State.NULL)
-            # Quit the Glib main loop
+            self.pipeline.set_state(self.Gst.State.NULL)
+            # Quit the GLib main loop
             self.main_loop.quit()
             err, debug = message.parse_error()
             print(f"Error: {err.message}")
@@ -289,7 +289,7 @@ class CameraTest:
 
         # Process Pipeline state change messages
         elif (
-            message.type == Gst.MessageType.STATE_CHANGED
+            message.type == self.Gst.MessageType.STATE_CHANGED
             and message.src.get_name() == "pipeline"
             and self.log_level == logging.DEBUG
         ):
@@ -302,10 +302,10 @@ class CameraTest:
 
     def _stop_pipeline(self):
         """
-        Stop the Glib main loop and set the pipeline state to NULL
+        Stop the GLib main loop and set the pipeline state to NULL
         """
         self.main_loop.quit()
-        self.pipeline.set_state(Gst.State.NULL)
+        self.pipeline.set_state(self.Gst.State.NULL)
 
     def _on_timeout(self):
         """
@@ -341,16 +341,16 @@ class CameraTest:
         """
         Setup the gstreamer pipeline to create the video stream
         """
-        webcam = Gst.ElementFactory.make("v4l2src")
+        webcam = self.Gst.ElementFactory.make("v4l2src")
         webcam.set_property("device", self.device)
-        wrappercamerabinsrc = Gst.ElementFactory.make("wrappercamerabinsrc")
+        wrappercamerabinsrc = self.Gst.ElementFactory.make("wrappercamerabinsrc")
         wrappercamerabinsrc.set_property("video-source", webcam)
-        pipeline = Gst.ElementFactory.make("camerabin", "pipeline")
+        pipeline = self.Gst.ElementFactory.make("camerabin", "pipeline")
         pipeline.set_property("camera-source", wrappercamerabinsrc)
         if sink:
-            vf_sink = Gst.ElementFactory.make(sink)
+            vf_sink = self.Gst.ElementFactory.make(sink)
             pipeline.set_property("viewfinder-sink", vf_sink)
-        pipeline.set_state(Gst.State.PAUSED)
+        pipeline.set_state(self.Gst.State.PAUSED)
         caps = pipeline.get_property("viewfinder-supported-caps")
         supported_resolutions = {}
         for i in range(caps.get_size()):
@@ -368,7 +368,7 @@ class CameraTest:
         height = min(
             supported_resolutions[width], key=lambda y: abs(y - self._height)
         )
-        vf_caps = Gst.Caps.from_string(
+        vf_caps = self.Gst.Caps.from_string(
             "video/x-raw, width={}, height={}".format(width, height)
         )
         pipeline.set_property("viewfinder-caps", vf_caps)
@@ -378,14 +378,14 @@ class CameraTest:
 
         self.pipeline = pipeline
         bus.connect("message", self._on_gst_message)
-        self.pipeline.set_state(Gst.State.PLAYING)
+        self.pipeline.set_state(self.Gst.State.PLAYING)
 
         self.main_loop = GLib.MainLoop()
         try:
             self.main_loop.run()
         except GLib.Error:
             self.main_loop.quit()
-            self.pipeline.set_state(Gst.State.NULL)
+            self.pipeline.set_state(self.Gst.State.NULL)
 
     def image(self):
         """
@@ -467,45 +467,45 @@ class CameraTest:
         - filesink: Save the JPEG image to a file
         """
 
-        pipeline = Gst.Pipeline.new("pipeline")
+        pipeline = self.Gst.Pipeline.new("pipeline")
 
         # Add source
-        source = Gst.ElementFactory.make("v4l2src", "video-source")
+        source = self.Gst.ElementFactory.make("v4l2src", "video-source")
         source.set_property("device", self.device)
         source.set_property("num-buffers", 10)
         pipeline.add(source)
 
         # Add caps
-        caps = Gst.ElementFactory.make("capsfilter", "caps")
+        caps = self.Gst.ElementFactory.make("capsfilter", "caps")
         if pixelformat == "RG10":
             caps.set_property(
                 "caps",
-                Gst.Caps.from_string(
+                self.Gst.Caps.from_string(
                     "video/x-bayer, format=gbrg, width={},height={}".format(
                         width, height
                     )
                 ),
             )
             # Add bayer2rgb
-            bayer2rgb = Gst.ElementFactory.make("bayer2rgb", "bayer2rgb")
+            bayer2rgb = self.Gst.ElementFactory.make("bayer2rgb", "bayer2rgb")
 
             pipeline.add(caps)
             pipeline.add(bayer2rgb)
         else:
             caps.set_property(
                 "caps",
-                Gst.Caps.from_string(
+                self.Gst.Caps.from_string(
                     "video/x-raw,width={},height={}".format(width, height)
                 ),
             )
             pipeline.add(caps)
 
         # Add encoder
-        encoder = Gst.ElementFactory.make("jpegenc", "encoder")
+        encoder = self.Gst.ElementFactory.make("jpegenc", "encoder")
         pipeline.add(encoder)
 
         # Add sink
-        sink = Gst.ElementFactory.make("filesink", "sink")
+        sink = self.Gst.ElementFactory.make("filesink", "sink")
         sink.set_property("location", filename)
         pipeline.add(sink)
 
@@ -526,7 +526,7 @@ class CameraTest:
 
         # Start the pipeline
         self.pipeline = pipeline
-        self.pipeline.set_state(Gst.State.PLAYING)
+        self.pipeline.set_state(self.Gst.State.PLAYING)
 
         # Add a timeout of 90 seconds to capture the image
         self.timeout = GLib.timeout_add_seconds(90, self._on_timeout)
@@ -537,7 +537,7 @@ class CameraTest:
             self.main_loop.run()
         except GLib.Error:
             self.main_loop.quit()
-            self.pipeline.set_state(Gst.State.NULL)
+            self.pipeline.set_state(self.Gst.State.NULL)
 
         # Remove the timeout
         if self.timeout:
@@ -550,22 +550,22 @@ class CameraTest:
         """
         print("starting GTK")
         # Initialize GTK application
-        window = Gtk.Window(title="Image Viewer")
+        window = self.Gtk.Window(title="Image Viewer")
         window.set_default_size(width, height)
 
         # Load and display the image
-        image = Gtk.Image.new_from_file(filename)
+        image = self.Gtk.Image.new_from_file(filename)
         window.add(image)
 
         # Connect the destroy event to quit the GTK main loop
-        window.connect("destroy", Gtk.main_quit)
-        GLib.timeout_add_seconds(10, Gtk.main_quit)
+        window.connect("destroy", self.Gtk.main_quit)
+        GLib.timeout_add_seconds(10, self.Gtk.main_quit)
 
         # Show all widgets in the window
         window.show_all()
 
         # Start the GTK main loop
-        Gtk.main()
+        self.Gtk.main()
 
     def _supported_formats_to_string(self, supported_formats):
         """
@@ -942,6 +942,7 @@ if __name__ == "__main__":
     # Set the log level
     logging.basicConfig(level=args["log_level"])
 
+    camera = CameraTest(**args)
     # Import Gst only for the test cases that will need it
     if args["test"] in ["video", "image", "led", "resolutions"]:
         import gi
@@ -953,6 +954,8 @@ if __name__ == "__main__":
         from gi.repository import GLib
 
         Gst.init(None)
+        camera.Gst = Gst
+        camera.GLib = GLib
 
         # Import Gtk only for the test cases that will need it
         if args["test"] in ["video", "image"] and not args["quiet"]:
@@ -961,6 +964,6 @@ if __name__ == "__main__":
             from gi.repository import Gtk
 
             Gtk.init([])
+            camera.Gtk = Gtk
 
-    camera = CameraTest(**args)
     sys.exit(getattr(camera, args["test"])())

@@ -45,14 +45,12 @@ class MonitorConfig(ABC):
 
     def _get_mode_at_max(self, modes) -> Mode:
         """Get mode with maximum resolution."""
-        max_area = 0
-        max_mode = None
-        for mode in modes:
-            horizontal, vertical = mode.resolution.split("x")
-            area = int(horizontal) * int(vertical)
-            if area > max_area:
-                max_area = area
-                max_mode = mode
-        if not max_mode:
-            raise ValueError("Provided modes are empty or invalid.")
-        return max_mode
+
+        def mode_area(mode):
+            w, h = mode.resolution.split("x")
+            return int(w) * int(h)
+
+        try:
+            return max(modes, key=mode_area)
+        except ValueError as e:
+            raise ValueError("Provided modes are empty or invalid.") from e

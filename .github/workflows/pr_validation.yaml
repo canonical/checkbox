@@ -64,11 +64,11 @@ jobs:
           echo
           echo
           echo "Difference of com.canonical.certification::sru-server (diff this_branch main)"
-          # the following line sorts the array of jobs/templates obtained from the pre/post checkout
-          # this is done because we want compare the list/content of jobs but not necessarely the order
+          # The following line sorts the array of jobs/templates obtained from the pre/post checkout.
+          # This is done because we want compare the list/content of jobs but not necessarily the order
           # that for most jobs is not deterministic either way. The array keys are sorted as well
           # as what counts is the content of each key (id, environ, command) and not the order
-          # the exporter prints them out
+          # the exporter prints them out.
           # Taken partially from: https://github.com/jqlang/jq/issues/893
           diff \
             <(jq -S 'def post_recurse(f): def r: (f | select(. != null) | r), .; r; def post_recurse: post_recurse(.[]?); (. | (post_recurse | arrays) |= sort)' "sru_server_testplan_this_branch.json") \

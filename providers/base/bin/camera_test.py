@@ -282,9 +282,9 @@ class CameraTest:
             # Quit the GLib main loop
             self.main_loop.quit()
             err, debug = message.parse_error()
-            print(f"Error: {err.message}")
+            print("Error: {}".format(err.message))
             if self.log_level == logging.DEBUG:
-                print(f"Debug info: {debug}")
+                print("Debug info: {}".format(debug))
             raise SystemExit("Error: {}".format(err.message))
 
         # Process Pipeline state change messages

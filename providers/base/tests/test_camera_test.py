@@ -60,7 +60,7 @@ class CameraTestTests(unittest.TestCase):
 
     @patch("camera_test.v4l2_capability", MagicMock())
     @patch("fcntl.ioctl", MagicMock())
-    def test_detect(self,):
+    def test_detect(self):
         mock_camera = MagicMock()
         mock_camera._detect_and_show_camera_info.return_value = 0
 
@@ -746,8 +746,7 @@ class CameraTestTests(unittest.TestCase):
         mock_what.return_value = "jpeg"
         mock_unpack.return_value = (320, 480)
 
-        # Create binary data that will ensure the loop reaches the 
-        # struct.unpack statement
+        # Binary data to reach the struct.unpack statement
         data = (
             b"\x00\x00"  # Initial bytes to seek past
             b"\xff\xc0"  # Marker indicating the start of a frame
@@ -758,6 +757,7 @@ class CameraTestTests(unittest.TestCase):
         height = 0x0140  # 320 in hexadecimal
         width = 0x01E0  # 480 in hexadecimal
         data += struct.pack(">HH", height, width)
+        data = bytes(data)
 
         with patch("builtins.open", mock_open(read_data=data)):
             result = CameraTest._validate_image(

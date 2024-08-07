@@ -1,0 +1,721 @@
+.. _test_case:
+
+============================
+Writing your first test case
+============================
+Lets begin our journey in Checkbox test jobs by writing our first test job. Our
+objective is to detect if the DUT is correctly connected to the internet.
+
+Basic setup
+===========
+
+Lets create a new Checkbox provider by ...
+
+Inside the provider you can see there are several directories. Definitions (the
+descriptions of what we want to do) are contained in PXU files that we store in
+the ``unit`` subdirectory. We usually separate PXU files between the kind of
+unit they contain (for example: resource, job, test-plan etc.) but for this
+simple example we are going to use a single file.
+
+Create the ``units/extended_tutorial.pxu``. This will be our first job:
+
+.. code-block:: none
+
+    id: network_test
+    flags: simple
+    _summary: A job that always passes
+    command:
+      echo This job passes!
+
+Now lets try to run this test job. Given that we have just created this
+provider, Checkbox has no idea it exists. To make it discoverable to it we have
+to install it. The concept of a provider is very similar to a Python module.
+The equivalent of the ``setup.py`` file for Checkbox is ``manage.py``. The
+automated process should have created it in the root of your provider. In order
+to install a provider one can either use ``python3 manage.py install`` or
+``python3 manage.py develop``. The difference is exactly the same between
+``pip install`` and ``pip install -e``, namely, the second method allows us to
+modify and use the provider without re-installing.
+
+Run the following:
+
+.. code-block:: shell
+
+    (checkbox_venv) > python3 manage.py develop
+
+Now to run our test we can use the run sub-command, try the following:
+
+.. code-block:: none
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_test
+    ===========================[ Running Selected Jobs ]============================
+    =========[ Running job 1 / 1. Estimated time left (at least): 0:00:00 ]=========
+    --------------------------[ A job that always passes ]--------------------------
+    ID: com.canonical.certification::network_test
+    Category: com.canonical.plainbox::uncategorised
+    ... 8< -------------------------------------------------------------------------
+    This job passes!
+    ------------------------------------------------------------------------- >8 ---
+    Outcome: job passed
+    Finalizing session that hasn't been submitted anywhere: checkbox-run-2024-08-01T13.05.51
+    ==================================[ Results ]===================================
+     ☑ : A job that always passes
+
+
+First concrete test example
+===========================
+
+Ok, it worked, but this is not very useful. Lets go back and edit the job to
+actually run a ping command. Replace the command section of the job with
+``ping -c 1 1.1.1.1``, lets also update the summary as follows:
+
+.. code-block:: none
+
+    id: network_available
+    flags: simple
+    _summary: Test that the internet is reachable
+    command:
+      ping -c 1 1.1.1.1
+
+.. note::
+
+    Giving your test a significant summary and id is almost as important as
+    giving it a significant output. Ideally when a test fails one should be able
+    to understand what is being tested from these two fields, without restorting
+    to reading the command section
+
+Try to re-use the run command to test the update. You should now see something
+like this:
+
+.. code-block:: none
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_available
+    ===========================[ Running Selected Jobs ]============================
+    =========[ Running job 1 / 1. Estimated time left (at least): 0:00:00 ]=========
+    ---------------------[ Test that the internet is reachable ]--------------------
+    ID: com.canonical.certification::network_available
+    Category: com.canonical.plainbox::uncategorised
+     ... 8< ------------------------------------------------------------------------
+     PING 1.1.1.1 (1.1.1.1) 56(84) bytes of data.
+     64 bytes from 1.1.1.1: icmp_seq=1 ttl=57 time=19.5 ms
+
+     --- 1.1.1.1 ping statistics ---
+     1 packets transmitted, 1 received, 0% packet loss, time 0ms
+     rtt min/avg/max/mdev = 19.507/19.507/19.507/0.000 ms
+     ------------------------------------------------------------------------- >8--
+    Outcome: job passed
+    Finalizing session that hasn't been submitted anywhere: checkbox-run-2024-08-01T13.05.51
+    ==================================[ Results ]===================================
+     ☑ : Test that the internet is reachable
+
+Dependencies
+============
+
+Lets keep in mind that our objective is to test if the network works correctly.
+Currently we can check if we are able to ping some arbitrary host, but lets try
+to actually measure the network speed and determine if it is acceptable.
+
+.. code-block:: none
+
+    id: network_speed
+    flags: simple
+    _summary: Test that the network speed is acceptable
+    command:
+      curl -Y 600 -o /dev/null \
+        https://cdimage.ubuntu.com/ubuntu-mini-iso/noble/daily-live/current/noble-mini-iso-amd64.iso
+
+Try to run the test via the run command. You should see something like this:
+
+.. code-block:: none
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_speed
+    ===========================[ Running Selected Jobs ]============================
+    =========[ Running job 1 / 1. Estimated time left (at least): 0:00:00 ]=========
+    -----------------[ Test that the network speed is acceptable ]------------------
+    ID: com.canonical.certification::network_speed
+    Category: com.canonical.plainbox::uncategorised
+    ... 8< -------------------------------------------------------------------------
+      % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                     Dload  Upload   Total   Spent    Left  Speed
+    100  5105    0  5105    0     0   1237      0 --:--:--  0:00:04 --:--:--  1237
+    ------------------------------------------------------------------------- >8 ---
+    Outcome: job passed
+    Finalizing session that hasn't been submitted anywhere: checkbox-run-2024-08-02T12.21.55
+    ==================================[ Results ]===================================
+     ☑ : Test that the network speed is acceptable
+
+
+
+We can save time and resources skipping this test if the ping test didn't work.
+Lets add a dependency of the second test on the first one like follows:
+
+.. code-block:: none
+    :emphasize-lines: 4
+
+    id: network_speed
+    flags: simple
+    _summary: Test that the network speed is acceptable
+    depends: network_available
+    command:
+      curl -Y 600 -o /dev/null \
+        https://cdimage.ubuntu.com/ubuntu-mini-iso/noble/daily-live/current/noble-mini-iso-amd64.iso
+
+Try to run the job via the following command
+``checkbox-cli run com.canonical.certification::network_speed``.
+As you can see, checkbox presents the following result:
+
+.. code-block:: none
+
+    [...]
+    ==================================[ Results ]===================================
+     ☑ : Test that the internet is reachable
+     ☑ : Test that the network speed is acceptable
+
+If asked to run a job that depends on another job, Checkbox will try to pull
+the other job and its dependencies automatically. If Checkbox is unable to do
+so we can always force this behaviour by listing the jobs in order of dependence
+in the run command:
+
+.. code-block:: none
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_available \
+      com.canonical.certification::network_speed
+
+Finally lets test that this actually works. To do so we can temporarely change the
+command section of ``network_available`` to ``exit 1``. This
+is the new Result that Checkbox will present:
+
+.. code-block:: none
+
+    [...]
+    -----------------[ Test that the network speed is acceptable ]------------------
+    ID: com.canonical.certification::network_speed
+    Category: com.canonical.plainbox::uncategorised
+    Job cannot be started because:
+      - required dependency 'com.canonical.certification::network_available' has failed
+    Outcome: job cannot be started
+    Finalizing session that hasn't been submitted anywhere: checkbox-run-2024-08-02T13.31.58
+    ==================================[ Results ]===================================
+     ☒ : Test that the internet is reachable
+     ☐ : Test that the network speed is acceptable
+
+Customize test envvars
+======================
+
+Sometimes it is hard to set an unique value for a test parameter because it may
+depend on a multitude of factors. Notice that our previous test has a very
+ISP-generous interpretation of what is an acceptable speed, some customers may
+beg to differ. At the same time it is hard to define an acceptable speed for
+any interface and all machines. In Checkbox we use environment variables
+to customize testing parameters that have to be defined per-machine/test run.
+Consider the following:
+
+.. code-block:: none
+
+    id: network_speed
+    flags: simple
+    _summary: Test that the network speed is acceptable
+    environ:
+      ACCEPTABLE_BYTES_PER_SECOND_SPEED
+    command:
+      echo Testing for the limit speed: ${ACCEPTABLE_BYTES_PER_SECOND_SPEED:-600}
+      curl -Y ${ACCEPTABLE_BYTES_PER_SECOND_SPEED:-600} -o /dev/null \
+        https://cdimage.ubuntu.com/ubuntu-mini-iso/noble/daily-live/current/noble-mini-iso-amd64.iso
+
+Before running the test we have to define a Checkbox configuration. Note that
+if we were using a test plan, we could run it with a launcher, but the
+``run`` command doesn't take a launcher parameter, so we have to use a
+configuration file. Place the following in ``~/.config/checkbox.conf``.
+
+.. code-block:: ini
+
+    [environment]
+    ACCEPTABLE_BYTES_PER_SECOND_SPEED=60000000
+
+Running the test with the usual command, you will notice that now the limit is
+higher:
+
+.. code-block:: none
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_speed
+    [...]
+    Testing for the limit speed: 60000000
+      % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                     Dload  Upload   Total   Spent    Left  Speed
+    100  5105    0  5105    0     0   6645      0 --:--:-- --:--:-- --:--:--  6647
+    ------------------------------------------------------------------------- >8 ---
+    Outcome: job passed
+    Finalizing session that hasn't been submitted anywhere: checkbox-run-2024-08-06T14.17.23
+    ==================================[ Results ]===================================
+     ☑ : Test that the network speed is acceptable
+
+
+.. warning::
+
+    Don't assume that a Checkbox job will inherit any environment variable from
+    the parent shell, global env or any other source. There are a few exceptions
+    but in general:
+
+    - Any variable that is not in the ``environ`` section of a job is not set
+    - Any variable not declared in the ``environment`` section of a launcher or
+     configuration file is not set
+
+If you decide to parametrize your tests using enviroment variables, always
+check if they are set or give them a default value via ``${...:-default}``.
+If you expect a variable to be set and it is not, always fail the test stating
+what variable you needed and what it was for. If you decide to use a default
+value, always output the value the test is going to use in the test log so that
+when you have to investigate why something went wrong, it is trivial to
+reproduce the tests with the parameters that may have made it fail.
+
+Resources
+=========
+
+Before even thinking to test if we are connected to the interenet a wise
+question to ask would be: do we even have a network interface? Lets create a
+resource job to fetch this information.
+
+Create a new job with the following content:
+
+.. code-block:: none
+
+    id: network_iface_info
+    _summary: Fetches information of all network intefaces
+    plugin: resource
+    command:
+      ip -details -json link show | jq -r '
+          .[] | "interface: " + .ifname +
+          "\nlink_info_kind: " + .linkinfo.info_kind +
+          "\nlink_type: " + .link_type + "\n"'
+
+This test adds a new dependency to our provider. We need to declare this in
+the correct spot else this will not work in a reproducible manner. Lets create
+a packaging meta-data unit.
+
+.. code-block:: none
+
+    id: extended_tutorial_dependencies
+    unit: packaging meta-data
+    os-id: debian
+    Depends:
+      jq
+
+If you now run the following command you will notice a validation error.
+
+.. code-block:: none
+
+
+    (checkbox_venv) > python3 manage.py validate
+    [...]
+    error: ../base/units/submission/packaging.pxu:3: field 'Depends', clashes with 1 other unit, look at: ../base/units/submission/packaging.pxu:1-3, units/extended_tutorial.pxu:1-4
+    Validation of provider tutorial has failed
+
+Opening the file that the validator complains about, you will notice that the
+jq dependency is already required by a base provider test. We can rely on the
+base provider, so we can safely remove this dependency from our provider.
+
+.. warning::
+   If you don't have ``jq`` installed on your machine, install it now else you
+   won't be able to follow the next steps. You can install it either via
+   ``sudo snap install jq`` or ``sudo apt install jq``
+
+Now that we have this new resource lets run it to see what the output is
+
+.. code-block:: none
+
+    (checkbox_venv) >  checkbox-cli run com.canonical.certification::network_iface_info
+    ===========================[ Running Selected Jobs ]============================
+    =========[ Running job 1 / 1. Estimated time left (at least): 0:00:00 ]=========
+    ----------------[ Fetches information of all network intefaces ]----------------
+    ID: com.canonical.certification::network_iface_info
+    Category: com.canonical.plainbox::uncategorised
+    ... 8< -------------------------------------------------------------------------
+    interface: lo
+    link_info_kind:
+    link_type: loopback
+
+    interface: enp2s0f0
+    link_info_kind:
+    link_type: ether
+
+    interface: enp5s0
+    link_info_kind:
+    link_type: ether
+
+    interface: wlan0
+    link_info_kind:
+    link_type: ether
+
+    interface: lxdbr0
+    link_info_kind: bridge
+    link_type: ether
+
+    interface: veth993f2cd0
+    link_info_kind: veth
+    link_type: ether
+
+    interface: tun0
+    link_info_kind: tun
+    link_type: none
+
+We now add a ``requires:`` constraint to our jobs so that, if no interface
+that could possibly connected to the internet is on the machine, we can
+skip them instead of failing.
+
+.. code-block:: none
+    :emphasize-lines: 4,5
+
+    id: network_available
+    flags: simple
+    _summary: Test that the internet is reachable
+    requires:
+      network_iface_info.link_type == "ether"
+    command:
+      ping -c 1 1.1.1.1
+
+If we now run the ``network_available`` test, Checkbox will automatically pull
+also ``network_iface_info``. Note that this only happens because both are in
+the same namespace.
+
+.. code-block:: none
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_available
+    ===========================[ Running Selected Jobs ]============================
+    =========[ Running job 1 / 2. Estimated time left (at least): 0:00:00 ]=========
+    ----------------[ Fetches information of all network intefaces ]----------------
+    [...]
+    =========[ Running job 2 / 2. Estimated time left (at least): 0:00:00 ]=========
+    --------------------[ Test that the internet is reachable ]---------------------
+    [...]
+    ==================================[ Results ]===================================
+     ☑ : Fetches information of all network intefaces
+     ☑ : Test that the internet is reachable
+
+Are we done then? Almost, there are a few issues with our resource job. The
+first and most relevant is that the ``resource`` constraint we have written
+seems to work, but if we analize the output what we have written actually
+over-matches (as ``veth993f2cd0`` is also an ``ether`` device, but it is not a
+valid interface to use to connect to the internet). We can easily fix this by
+updating the expression as follows but take note of what happened.
+
+.. warning::
+    It is actually difficoult to write a significant resource expressions. This
+    time we got "lucky", and we could notice the mistake on our own machine, but
+    this may not be the always the case. In general make your resource
+    expressions as restrictive as possible.
+
+.. code-block:: none
+
+    id: network_available
+    [...]
+    requires:
+      (network_iface_info.link_info_kind == "" and network_iface_info.link_type == "ether")
+
+The second issue is harder to fix. Checkbox is currently built for a multitude
+of Ubuntu versions, including 16.04. If we inspect the 16.04
+`manual <https://manpages.ubuntu.com/manpages/xenial/man8/ip.8.html>`_ of the
+ip command we notice one thing: the version shipped with Xenial doesn't support
+the ``--json`` flag.
+
+.. warning::
+    When you use a pre-installed package, always check if all versions support
+    your use case and if there is a version available for all target versions
+
+If we want to contribute this new test upstream, the pull request will be
+declined for this reason. We could work around this in a moltitude of way but
+what we should have done to begin with is ask ourselves: Is there a resource
+job that already does what we need? We can ask Checkbox via the ``list``
+command.
+
+.. code-block:: none
+
+    (checkbox_venv) > checkbox-cli list all-jobs -f "{id} -> {_summary} : {plugin}\n" | grep resource | grep device
+    [...]
+    device -> Collect information about hardware devices (udev) : resource
+    [...]
+
+We can now update our job, but with what ``requires``? Lets run the ``device``
+job and check the output.
+
+.. code-block:: none
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::device | grep -C 15 wlan
+    [...]
+    category: WIRELESS
+    interface: wlan0
+    [...]
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::device | grep -C 15 enp
+    [...]
+    category: NETWORK
+    interface: enp5s0
+    [...]
+
+Lets propagate this newfound knowledge over to our ``requires`` constraint:
+
+.. code-block:: none
+
+    requires:
+      (device.category == "NETWORK" or device.category == "WIRELESS")
+
+Template Jobs
+=============
+
+Currently we are testing if any interface has access to the internet in our
+demo test. This may now be exactly what we want. When testing a device we may
+want to plug in every interface and test them all just to be sure that they all
+work. Ideally, the test that we want to do is the same for each interface.
+
+Templates allow us to do exactly this. Lets try to implement per-interface
+connection checking.
+
+.. note::
+
+    We'll switch back to the tutorial resource job only because that way we can
+    easily tweak it. It is desirable if you are developing a test and need a
+    resource to have a "fake" resource that just emulates the real one with
+    echo. The reason is that this way you can iterate on a different machine
+    without relying on the "real" hardware while developing.
+
+Create a new unit that uses the ``network_iface_info`` resource and, for now,
+only print out the ``interface`` field to get the hang of it. It should look
+something like this:
+
+.. code-block:: none
+
+    unit: template
+    template-resource: network_iface_info
+    template-unit: job
+    id: network_available_{interface}
+    template-id: network_available_interface
+    command:
+      echo Testing {interface}
+    _summary: Test that the internet is reachable via {interface}
+    flags: simple
+
+.. note::
+    If you are unsure about what a template will be expanded to, you can always
+    use echo to print and debug it. This is the most immediate tool you have at
+    your disposal. For a more principled solution see the Test Plan Extended
+    Tutorial.
+
+We can technically still user run to execute this job but note that the job
+id is, and must, be calculated at runtime, as ids must be unique. Try to run
+the following:
+
+.. code-block:: none
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_available_interface
+    ===========================[ Running Selected Jobs ]============================
+    Finalizing session that hasn't been submitted anywhere: checkbox-run-2024-08-06T10.02.00
+    ==================================[ Results ]===================================
+    (checkbox_venv) >
+
+As you can see, nothing was ran. There are two reasons:
+
+- Templates don't automatically pull the ``template-resource`` dependency when
+  executed via run
+- Templates can't be executed via run using their ``template-id``
+
+We can easily solve the situation in this example by manually pulling the
+dependency and using the explicit id of the job that will be generated or a
+regex:
+
+.. code-block:: none
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_iface_info "com.canonical.certification::network_available_wlan0"
+    [...]
+    ==================================[ Results ]===================================
+     ☑ : Fetches information of all network intefaces
+     ☑ : Test that the internet is reachable via wlan0
+
+    # or alternatively with the regex (note the " " around the id, they are important!)
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_iface_info "com.canonical.certification::network_available_.*"
+    [...]
+    ==================================[ Results ]===================================
+     ☑ : Fetches information of all network intefaces
+     ☑ : Test that the internet is reachable via lo
+     ☑ : Test that the internet is reachable via enp2s0f0
+     ☑ : Test that the internet is reachable via enp5s0
+     ☑ : Test that the internet is reachable via wlan0
+     ☑ : Test that the internet is reachable via lxdbr0
+     ☑ : Test that the internet is reachable via vetha6dd5923
+
+This is a quick and dirty solution that can be handy if you want to run a test
+and you can manually resolve the dependency chain that is not resolved by
+Checkbox but this can be, in practice, often hard or impossible.
+For a more principled solution see the the Test Plan Tutorial section.
+
+Lets then modify the job so that it actually does the test and use the template
+filter so that we don't generate tests for interfaces that we know that will
+not work:
+
+.. code-block:: none
+    :emphasize-lines: 6,7,10
+
+    unit: template
+    template-resource: network_iface_info
+    template-unit: job
+    id: network_available_{interface}
+    template-id: network_available_interface
+    template-filter:
+      network_iface_info.link_type == "ether" and network_iface_info.link_info_kind == ""
+    command:
+      echo Testing {interface}
+      ping -I {interface} 1.1.1.1 -c 1
+    _summary: Test that the internet is reachable via {interface}
+    flags: simple
+
+Re-running the jobs, we now see way less jobs, although a few are failing:
+
+.. code-block:: none
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_iface_info "com.canonical.certification::network_available_.*"
+    [...]
+    =========[ Running job 1 / 3. Estimated time left (at least): 0:00:00 ]=========
+    --------------[ Test that the internet is reachable via enp2s0f0 ]--------------
+    ID: com.canonical.certification::network_available_enp2s0f0
+    Category: com.canonical.plainbox::uncategorised
+    ... 8< -------------------------------------------------------------------------
+    Testing enp2s0f0
+    ping: Warning: source address might be selected on device other than: enp2s0f0
+    PING 1.1.1.1 (1.1.1.1) from 192.168.43.79 enp2s0f0: 56(84) bytes of data.
+
+    --- 1.1.1.1 ping statistics ---
+    1 packets transmitted, 0 received, 100% packet loss, time 0ms
+    ------------------------------------------------------------------------- >8 ---
+    Outcome: job failed
+    [...]
+    ==================================[ Results ]===================================
+     ☑ : Fetches information of all network intefaces
+     ☒ : Test that the internet is reachable via enp2s0f0
+     ☒ : Test that the internet is reachable via enp5s0
+     ☑ : Test that the internet is reachable via wlan0
+
+The fact that these tests are failing, on my machine, is due to the fact that
+the interfaces are down. This is not clear from the output of the job nor
+from the outcome (I.E. the outcome of a broken interface is the same as the
+outcome of an unplugged one). This is not desirable, it makes reviewing the
+test results significantly more difficoult. There are two ways to fix this
+issue, the first is to output more informations about the interface we are
+testing so that the reviewer can then go through the log and catch the fact
+that the interface is down. This works but still requires manual intervention
+every time we run the tests, as they fail, and we need to figure out why.
+
+Another possibility is to generate the jobs, via the template, but make
+Checkbox skip the tests when the interface is down. This produces a job per
+interface, but marks the ones for interfaces that are "down" as skipped with
+a clear reason.
+
+Update the resource job with the following new line:
+
+.. code-block:: none
+    :emphasize-lines: 9
+
+    id: network_iface_info
+    _summary: Fetches information of all network intefaces
+    plugin: resource
+    command:
+      ip -details -json link show | jq -r '
+          .[] | "interface: " + .ifname +
+          "\nlink_info_kind: " + .linkinfo.info_kind +
+          "\nlink_type: " + .link_type +
+          "\noperstate: " + .operstate + "\n"'
+
+Now lets modify the template to add a ``requires`` to the generated job:
+
+.. code-block:: none
+    :emphasize-lines: 8,9
+
+    unit: template
+    template-resource: network_iface_info
+    template-unit: job
+    id: network_available_{interface}
+    template-id: network_available_interface
+    template-filter:
+      network_iface_info.link_type == "ether" and network_iface_info.link_info_kind == ""
+    requires:
+      (network_iface_info.interface == "{interface}" and network_iface_info.operstate == "UP")
+    command:
+      echo Testing {interface}
+      ping -I {interface} 1.1.1.1 -c 1
+    _summary: Test that the internet is reachable via {interface}
+    flags: simple
+
+.. note::
+   For historical reasons the grammar of resource expressions is currently
+   broken. Even though they shouldn't be, parenthesis around this requires are
+   compulsory!
+
+Re-running the jobs we see the difference, now the jobs are there and skipped.
+The reason why they were skipped is clear from the output log (and the eventual
+submission).
+
+.. code-block:: none
+    :emphasize-lines: 6,7,12,13
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_iface_info "com.canonical.certification::network_available_.*"
+    =========[ Running job 1 / 3. Estimated time left (at least): 0:00:00 ]=========
+    --------------[ Test that the internet is reachable via enp2s0f0 ]--------------
+    ID: com.canonical.certification::network_available_enp2s0f0
+    Category: com.canonical.plainbox::uncategorised
+    Job cannot be started because:
+     - resource expression '(network_iface_info.interface == "enp2s0f0" and network_iface_info.operstate == "UP")' evaluates to false
+    Outcome: job cannot be started
+    [...]
+    ==================================[ Results ]===================================
+     ☑ : Fetches information of all network intefaces
+     ☐ : Test that the internet is reachable via enp2s0f0
+     ☐ : Test that the internet is reachable via enp5s0
+     ☑ : Test that the internet is reachable via wlan0
+
+Let me conclude this section by highlighting this last point. See the
+difference between ``template-filter`` and ``requires``.
+
+- The resources filtered by the ``template-filter`` do not generate a test, we
+  do this when the generated test would not make sense (for example, connection
+  test for the loopback interface)
+- The resources that, when filtered by the ``resource`` expression is empty,
+  marks the job as skipped. We do this when the job makes sense (for example,
+  the interface exists) but the current situation makes it impossible for it
+  to pass for an external reason (for example, the ethernet port may work but
+  it is not currently plugged in)
+
+Dealing with complexity - Python
+================================
+
+The ``network_available`` test that we have created during this tutorial is
+very simple but, in the real world things are not as simple. For example,
+right now we are only pinging once from the test, if the ping goes through
+we call that a success, else a failure. This works in our simple scenario while
+developing the test, but when hundreds of devices all try to ping at the same
+time things can get messy quickly, and messages can get lost. One possible
+evolution for this test is to do more pings and use the packet
+loss output to decide if we can call the test a success or a failure.
+
+While we could do this with a tall jenga tower entirely constituted of pipes,
+tee and awk commands, always keep in mind, the best foot gun is the one we
+don't use. Checkbox allows you to write hundreds of lines of code in the
+command section but this doesn't make it a good idea. When we need to evolve
+beyond a few lines of bash we always rewrite the test in Python and add proper
+unit tests.
+
+.. note::
+    While there is no formal rule on the maximum size or complexity of a
+    command section but as a rule of thumb avoid using nested ifs/for loops,
+    multiple pipes and destructive redirection within a command section. You
+    will thank us later.
+
+how python tests work
+
+how tests tests work
+
+how packaging works
+
+Dealing with complexity - Binaries
+==================================
+
+how to deal with binaries
+- Makefile
+- src -> bin
+- multiplatform

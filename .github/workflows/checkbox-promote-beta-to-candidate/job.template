@@ -26,8 +26,8 @@ test_data:
     TOOLS_PATH=tools
 
     # retrieve all scripts/tools necessary from a repo
-    curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/CHECKBOX-1447-scriptlets/install_tools.sh
-    source install_tools.sh $TOOLS_PATH --branch CHECKBOX-1447-scriptlets
+    curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/CERTTF-337-scriptlets-sru/install_tools.sh
+    source install_tools.sh $TOOLS_PATH --branch CERTTF-337-scriptlets-sru
 
     # ensure device is available before continuing
     wait_for_ssh

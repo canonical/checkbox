@@ -308,7 +308,7 @@ def print_journal_entries(start):
     sp.call(cmd, shell=True)
 
 
-if __name__ == "__main__":
+def parse_args(args=None):
     parser = argparse.ArgumentParser(
         description="WiFi connection test using mmcli"
     )
@@ -349,8 +349,11 @@ if __name__ == "__main__":
     parser_ap.add_argument("band", type=str, help="Band")
     parser_ap.set_defaults(func=hotspot)
 
-    args = parser.parse_args()
+    return parser.parse_args(args)
 
+
+if __name__ == "__main__":
+    args = parse_args()
     start_time = datetime.datetime.now()
 
     cleanup_nm_connections()

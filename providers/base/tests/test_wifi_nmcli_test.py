@@ -56,7 +56,7 @@ class WifiNmcliBackupTests(unittest.TestCase):
     @patch("wifi_nmcli_test.ping")
     @patch("wifi_nmcli_test.sp")
     def test_perform_ping_test_received_none(self, subprocess_mock, ping_mock):
-        subprocess_mock.check_output.return_value = b""
+        subprocess_mock.check_output.return_value = b"10.0.0.1"
         ping_mock.return_value = {
             "transmitted": 10,
             "received": 0,

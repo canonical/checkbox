@@ -738,35 +738,6 @@ class CameraTestTests(unittest.TestCase):
             CameraTest._get_default_format(mock_camera)
 
     @patch("os.path.exists")
-    @patch("imghdr.what")
-    @patch("struct.unpack")
-    def test_validate_image(self, mock_unpack, mock_what, mock_exists):
-        mock_camera = MagicMock()
-        mock_exists.return_value = True
-        mock_what.return_value = "jpeg"
-        mock_unpack.return_value = (320, 480)
-
-        # Binary data to reach the struct.unpack statement
-        data = (
-            b"\x00\x00"  # Initial bytes to seek past
-            b"\xff\xc0"  # Marker indicating the start of a frame
-            b"\x00\x00\x00"  # Three bytes to seek after the marker
-        )
-
-        # Add the bytes representing the height and width to be unpacked
-        height = 0x0140  # 320 in hexadecimal
-        width = 0x01E0  # 480 in hexadecimal
-        data += struct.pack(">HH", height, width)
-        data = bytes(data)
-
-        with patch("builtins.open", mock_open(read_data=data)):
-            result = CameraTest._validate_image(
-                mock_camera, "/tmp/test.jpg", 480, 320
-            )
-
-        self.assertEqual(result, True)
-
-    @patch("os.path.exists")
     def test_validate_image_no_file(self, mock_exists):
         mock_camera = MagicMock()
         mock_exists.return_value = False

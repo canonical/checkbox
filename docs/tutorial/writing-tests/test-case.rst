@@ -81,7 +81,7 @@ actually run a ping command. Replace the command section of the job with
 
     Giving your test a significant summary and id is almost as important as
     giving it a significant output. Ideally when a test fails one should be able
-    to understand what is being tested from these two fields, without restorting
+    to understand what is being tested from these two fields, without resorting
     to reading the command section
 
 Try to re-use the run command to test the update. You should now see something
@@ -173,7 +173,7 @@ As you can see, checkbox presents the following result:
 
 If asked to run a job that depends on another job, Checkbox will try to pull
 the other job and its dependencies automatically. If Checkbox is unable to do
-so we can always force this behaviour by listing the jobs in order of dependence
+so we can always force this behavior by listing the jobs in order of dependence
 in the run command:
 
 .. code-block:: none
@@ -181,7 +181,7 @@ in the run command:
     (checkbox_venv) > checkbox-cli run com.canonical.certification::network_available \
       com.canonical.certification::network_speed
 
-Finally lets test that this actually works. To do so we can temporarely change the
+Finally lets test that this actually works. To do so we can temporarily change the
 command section of ``network_available`` to ``exit 1``. This
 is the new Result that Checkbox will present:
 
@@ -257,10 +257,9 @@ higher:
     but in general:
 
     - Any variable that is not in the ``environ`` section of a job is not set
-    - Any variable not declared in the ``environment`` section of a launcher or
-     configuration file is not set
+    - Any variable not declared in the ``environment`` section of a launcher or configuration file is not set
 
-If you decide to parametrize your tests using enviroment variables, always
+If you decide to parametrize your tests using environment variables, always
 check if they are set or give them a default value via ``${...:-default}``.
 If you expect a variable to be set and it is not, always fail the test stating
 what variable you needed and what it was for. If you decide to use a default
@@ -271,7 +270,7 @@ reproduce the tests with the parameters that may have made it fail.
 Resources
 =========
 
-Before even thinking to test if we are connected to the interenet a wise
+Before even thinking to test if we are connected to the internet a wise
 question to ask would be: do we even have a network interface? Lets create a
 resource job to fetch this information.
 
@@ -393,13 +392,13 @@ the same namespace.
 
 Are we done then? Almost, there are a few issues with our resource job. The
 first and most relevant is that the ``resource`` constraint we have written
-seems to work, but if we analize the output what we have written actually
+seems to work, but if we analyze the output what we have written actually
 over-matches (as ``veth993f2cd0`` is also an ``ether`` device, but it is not a
 valid interface to use to connect to the internet). We can easily fix this by
 updating the expression as follows but take note of what happened.
 
 .. warning::
-    It is actually difficoult to write a significant resource expressions. This
+    It is actually difficult to write a significant resource expressions. This
     time we got "lucky", and we could notice the mistake on our own machine, but
     this may not be the always the case. In general make your resource
     expressions as restrictive as possible.
@@ -414,7 +413,7 @@ updating the expression as follows but take note of what happened.
 The second issue is harder to fix. Checkbox is currently built for a multitude
 of Ubuntu versions, including 16.04. If we inspect the 16.04
 `manual <https://manpages.ubuntu.com/manpages/xenial/man8/ip.8.html>`_ of the
-ip command we notice one thing: the version shipped with Xenial doesn't support
+``ip`` command we notice one thing: the version shipped with Xenial doesn't support
 the ``--json`` flag.
 
 .. warning::
@@ -422,7 +421,7 @@ the ``--json`` flag.
     your use case and if there is a version available for all target versions
 
 If we want to contribute this new test upstream, the pull request will be
-declined for this reason. We could work around this in a moltitude of way but
+declined for this reason. We could work around this in a multitude of way but
 what we should have done to begin with is ask ourselves: Is there a resource
 job that already does what we need? We can ask Checkbox via the ``list``
 command.
@@ -596,8 +595,8 @@ The fact that these tests are failing, on my machine, is due to the fact that
 the interfaces are down. This is not clear from the output of the job nor
 from the outcome (I.E. the outcome of a broken interface is the same as the
 outcome of an unplugged one). This is not desirable, it makes reviewing the
-test results significantly more difficoult. There are two ways to fix this
-issue, the first is to output more informations about the interface we are
+test results significantly more difficult. There are two ways to fix this
+issue, the first is to output more information about the interface we are
 testing so that the reviewer can then go through the log and catch the fact
 that the interface is down. This works but still requires manual intervention
 every time we run the tests, as they fail, and we need to figure out why.
@@ -697,7 +696,7 @@ Translating the test to Python
 ------------------------------
 
 While we could do this with a tall jenga tower entirely constituted of pipes,
-tee and awk commands, always keep in mind, the best foot gun is the one we
+tee and ``awk`` commands, always keep in mind, the best foot gun is the one we
 don't use. Checkbox allows you to write hundreds of lines of code in the
 command section but this doesn't make it a good idea. When we need to evolve
 beyond a few lines of bash we always suggest a rewrite in Python and to add
@@ -839,7 +838,7 @@ Although the example in this tutorial is not the most complex, there are
 situations and tests that do need to be more on the complex side, this is
 why the ``bin/`` vs ``commands:`` separation came to be. One important thing
 to consider though, is that with the complexity we are introducing, we are also
-creating a future burthen for whoever will have to maintain our test. For this
+creating a future burden for whoever will have to maintain our test. For this
 reason we highly encourage you (and straight up require if you want to
 contribute to the main Checkbox repository), to write unit tests for your
 scripts.
@@ -926,17 +925,17 @@ To run the tests go to the root of the provider and run the following:
     OK
 
 .. note::
-   You can also run ``python3 manage.py test`` without th ``-u``. Every
-   provider comes with a set of builtin tests like shellcheck
+   You can also run ``python3 manage.py test`` without the ``-u``. Every
+   provider comes with a set of builtin tests like ``shellcheck``
    (for the ``commands:`` sections) and flake8 (for all ``bin/*.py`` files).
    Not providing ``-u`` will simply run all tests.
 
 Gathering Coverage from Unit Tests
 ----------------------------------
 
-In Checkbox we have a coverage requirement for new PRs. This is to ensure that
-new contributions do not add source paths that are not explored in testing and
-therefore easy to break down the line with any change.
+In Checkbox we have a coverage requirement for new pull requests.
+This is to ensure that new contributions do not add source paths that are not
+explored in testing and therefore easy to break down the line with any change.
 
 If you want to collect the coverage of your contribution you can run the
 following:
@@ -962,7 +961,7 @@ following:
     # in
     (checkbox_venv) > python3 -m coverage html
 
-As you can see we are way below the coverage target but this is difficoult to
+As you can see we are way below the coverage target but this is difficult to
 fix, we should add an end to end test of the main function, so that we
 cover it but, most importantly, we leave trace in the test file of an expected
 usage of the script. Add the following to ``tests/test_network_available.py``
@@ -1100,7 +1099,7 @@ Running it you should see the following:
 
 .. note::
    Before using a compilable tool see if you can obtain the same result/test
-   using `Python's excelent module ctypes <https://docs.python.org/3/library/ctypes.html>`_.
+   using `Python's excellent module ctypes <https://docs.python.org/3/library/ctypes.html>`_.
    The above example is for example impossible to emulate via ctypes,
    completely cross-platform, compatible with any modern C standard compiler
    so it is a good candidate.

@@ -38,6 +38,7 @@ class TestNetworkAvailable(unittest.TestCase):
         with self.assertRaises(SystemExit):
             network_available.network_available("wlan0", "0")
 
+
 class TestMain(unittest.TestCase):
 
     @mock.patch("subprocess.check_output")

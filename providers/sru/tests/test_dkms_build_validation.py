@@ -23,6 +23,25 @@ class TestDKMSValidation(unittest.TestCase):
         "fwts/24.01.00, 6.5.0-15-generic, x86_64: installed"
     )
 
+    # Example output of `dkms status` on machine
+    # in which efi_test driver is used rather than
+    # fwts dkms driver
+    # https://bugs.launchpad.net/fwts/+bug/2066243
+    dkms_status_efi_test_driver = (
+        "fwts-efi-runtime-dkms/24.07.00: added\n"
+        "tp_smapi/0.43, 6.1.0-1028-oem, x86_64: installed\n"
+        "tp_smapi/0.43, 6.1.0-1032-oem, x86_64: installed\n"
+        "tp_smapi/0.43, 6.1.0-1033-oem, x86_64: installed\n"
+        "tp_smapi/0.43, 6.1.0-1034-oem, x86_64: installed\n"
+        "tp_smapi/0.43, 6.1.0-1035-oem, x86_64: installed\n"
+        "tp_smapi/0.43, 6.5.0-1020-oem, x86_64: installed\n"
+        "tp_smapi/0.43, 6.5.0-1022-oem, x86_64: installed\n"
+        "tp_smapi/0.43, 6.5.0-1023-oem, x86_64: installed\n"
+        "tp_smapi/0.43, 6.5.0-1024-oem, x86_64: installed\n"
+        "tp_smapi/0.43, 6.5.0-1026-oem, x86_64: installed\n"
+        "tp_smapi/0.43, 6.8.0-40-generic, x86_64: installed"
+    )
+
     sorted_kernel_info = [
         {"version": "6.5.0-15-generic", "status": "installed"},
         {"version": "6.5.0-17-generic", "status": "installed"},
@@ -57,6 +76,26 @@ class TestDKMSValidation(unittest.TestCase):
         expected_kernel_info = [
             {"version": "6.5.0-15-generic", "status": "installed"},
             {"version": "6.5.0-17-generic", "status": "installed"},
+        ]
+        self.assertEqual(kernel_info, expected_kernel_info)
+
+    def test_parse_dkms_status_efi_test(self):
+        ubuntu_release = "22.04"
+        kernel_info = parse_dkms_status(
+            self.dkms_status_efi_test_driver, ubuntu_release
+        )
+        expected_kernel_info = [
+            {"version": "6.1.0-1028-oem", "status": "installed"},
+            {"version": "6.1.0-1032-oem", "status": "installed"},
+            {"version": "6.1.0-1033-oem", "status": "installed"},
+            {"version": "6.1.0-1034-oem", "status": "installed"},
+            {"version": "6.1.0-1035-oem", "status": "installed"},
+            {"version": "6.5.0-1020-oem", "status": "installed"},
+            {"version": "6.5.0-1022-oem", "status": "installed"},
+            {"version": "6.5.0-1023-oem", "status": "installed"},
+            {"version": "6.5.0-1024-oem", "status": "installed"},
+            {"version": "6.5.0-1026-oem", "status": "installed"},
+            {"version": "6.8.0-40-generic", "status": "installed"},
         ]
         self.assertEqual(kernel_info, expected_kernel_info)
 

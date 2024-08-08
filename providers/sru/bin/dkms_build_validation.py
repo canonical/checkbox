@@ -63,11 +63,14 @@ def parse_dkms_status(dkms_status: str, ubuntu_release: str) -> List[Dict]:
     kernel_info = []
     for line in dkms_status.splitlines():
         details, status = line.split(": ")
-        if version.parse(ubuntu_release) >= version.parse("22.04"):
-            kernel_ver = details.split(", ")[1]
-        else:
-            kernel_ver = details.split(", ")[2]
-        kernel_info.append({"version": kernel_ver, "status": status})
+        # will only get comma separated info on two statuses
+        # https://github.com/dell/dkms/blob/master/dkms.in#L1866
+        if status in ("built", "installed"):
+            if version.parse(ubuntu_release) >= version.parse("22.04"):
+                kernel_ver = details.split(", ")[1]
+            else:
+                kernel_ver = details.split(", ")[2]
+            kernel_info.append({"version": kernel_ver, "status": status})
 
     sorted_kernel_info = sorted(
         kernel_info, key=lambda x: parse_version(x["version"])

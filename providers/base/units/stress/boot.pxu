@@ -74,7 +74,7 @@ plugin: shell
 environ: STRESS_BOOT_WAKEUP_DELAY STRESS_BOOT_WAIT_DELAY RTC_DEVICE_FILE
 command:
  sleep "${{STRESS_BOOT_WAIT_DELAY:-120}}"
- rtcwake -v -d "${{RTC_DEVICE_FILE:-rtc0}}"--mode off -s "${{STRESS_BOOT_WAKEUP_DELAY:-120}}"
+ rtcwake -v -d "${{RTC_DEVICE_FILE:-rtc0}}" --mode off -s "${{STRESS_BOOT_WAKEUP_DELAY:-120}}"
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0

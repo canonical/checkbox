@@ -55,6 +55,8 @@ slots:
 package-repositories:
   - type: apt
     ppa: checkbox-dev/stable
+  - type: apt
+    ppa: colin-king/stress-ng
 
 parts:
   version-calculator:
@@ -94,33 +96,12 @@ parts:
       - libbsd-dev
     after: [version-calculator]
 ################################################################################
-# Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: "V0.15.07"
-    # stress-ng remains at version 0.15.07 because libipsec-mb-dev and libxxhash-dev are not available for Ubuntu 16.04 (Xenial).
-    source-depth: 1
-    plugin: make
-    build-environment:
-      - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
-      - LDFLAGS: "-Wl,-z,relro -lrt"
-    source: https://github.com/ColinIanKing/stress-ng.git
-    make-parameters:
-      - STATIC=1 VERBOSE=1
+    plugin: nil
     stage-packages:
-      - libjudydebian1
-      - libsctp1
+      - stress-ng
     build-packages:
-      - gcc
-      - make
-      - zlib1g-dev
-      - libbsd-dev
-      - libgcrypt20-dev
-      - libkeyutils-dev
-      - libapparmor-dev
-      - libaio-dev
-      - libcap-dev
-      - libsctp-dev
-      - libjudy-dev
+      - stress-ng
     after: [fwts]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml

@@ -18,19 +18,20 @@ def resources():
     print("session_type: {}".format(os.getenv("XDG_SESSION_TYPE")))
 
 
-def main(args=None):
+def main(argv):
     """
     Retrieve information about the current desktop session.
     """
 
-    if not args:
-        parser = argparse.ArgumentParser()
-        parser.add_argument("command", choices=["resources"])
-        args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("command", choices=["resources"])
+    args = parser.parse_args(argv)
 
     if args.command == "resources":
         return resources()
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+
+    main(sys.argv[1:])

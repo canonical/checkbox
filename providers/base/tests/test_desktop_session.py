@@ -10,6 +10,15 @@ import desktop_session
 class DesktopSessionTests(unittest.TestCase):
     """Tests for the desktop_session module."""
 
+    @patch("desktop_session.resources")
+    def test_main(self, mock_resources):
+        """
+        Test whether the main function calls the resources
+        function when requested via CLI.
+        """
+        desktop_session.main(["resources"])
+        mock_resources.assert_called_once_with()
+
     @patch("builtins.print")
     def test_resources_server(self, mock_print):
         """Test the result faking a server session."""

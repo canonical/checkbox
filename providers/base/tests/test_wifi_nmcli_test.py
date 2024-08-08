@@ -20,6 +20,7 @@ import unittest
 from unittest.mock import patch
 
 from wifi_nmcli_test import (
+    hotspot,
     legacy_nmcli,
     list_aps,
     parse_args,
@@ -105,3 +106,33 @@ class WifiNmcliBackupTests(unittest.TestCase):
     def test_wait_for_connected_false(self, subprocess_mock):
         subprocess_mock.check_output.return_value = b"20 (unavailable)"
         self.assertFalse(wait_for_connected("wlo1"))
+
+    @patch("wifi_nmcli_test.sp")
+    def test_hotspot_success(self, subprocess_mock):
+        args = parse_args(["ap", "wlo1", "a"])
+        subprocess_mock.call.side_effect = [0, 0, 0, 0]
+        self.assertEqual(hotspot(args), 0)
+
+    @patch("wifi_nmcli_test.sp")
+    def test_hotspot_creation_fail(self, subprocess_mock):
+        args = parse_args(["ap", "wlo1", "a"])
+        subprocess_mock.call.side_effect = [2, 0, 0, 0]
+        self.assertEqual(hotspot(args), 2)
+
+    @patch("wifi_nmcli_test.sp")
+    def test_hotspot_set_band_fail(self, subprocess_mock):
+        args = parse_args(["ap", "wlo1", "a"])
+        subprocess_mock.call.side_effect = [0, 2, 0, 0]
+        self.assertEqual(hotspot(args), 2)
+
+    @patch("wifi_nmcli_test.sp")
+    def test_hotspot_security_fail(self, subprocess_mock):
+        args = parse_args(["ap", "wlo1", "a"])
+        subprocess_mock.call.side_effect = [0, 0, 2, 0]
+        self.assertEqual(hotspot(args), 2)
+
+    @patch("wifi_nmcli_test.sp")
+    def test_hotspot_connection_fail(self, subprocess_mock):
+        args = parse_args(["ap", "wlo1", "a"])
+        subprocess_mock.call.side_effect = [0, 0, 0, 10]
+        self.assertEqual(hotspot(args), 10)

@@ -24,6 +24,7 @@ from wifi_nmcli_test import (
     list_aps,
     parse_args,
     perform_ping_test,
+    wait_for_connected,
 )
 
 
@@ -94,3 +95,13 @@ class WifiNmcliBackupTests(unittest.TestCase):
         args = parse_args(["scan", "wlo1"])
         subprocess_mock.check_output.return_value = b""
         self.assertEqual(list_aps(args), 0)
+
+    @patch("wifi_nmcli_test.sp")
+    def test_wait_for_connected_true(self, subprocess_mock):
+        subprocess_mock.check_output.return_value = b"100 (connected)"
+        self.assertTrue(wait_for_connected("wlo1"))
+
+    @patch("wifi_nmcli_test.sp")
+    def test_wait_for_connected_false(self, subprocess_mock):
+        subprocess_mock.check_output.return_value = b"20 (unavailable)"
+        self.assertFalse(wait_for_connected("wlo1"))

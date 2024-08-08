@@ -133,7 +133,7 @@ def wait_for_connected(interface, max_wait=5):
     attempts = 0
     while not connected and attempts < max_wait:
         cmd = "nmcli -m tabular -t -f GENERAL.STATE d show {}".format(
-            args.device
+            interface
         )
         print_cmd(cmd)
         output = sp.check_output(cmd, shell=True)

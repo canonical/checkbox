@@ -19,7 +19,12 @@
 import unittest
 from unittest.mock import patch
 
-from wifi_nmcli_test import legacy_nmcli, perform_ping_test
+from wifi_nmcli_test import (
+    legacy_nmcli,
+    list_aps,
+    parse_args,
+    perform_ping_test,
+)
 
 
 class WifiNmcliBackupTests(unittest.TestCase):
@@ -63,3 +68,29 @@ class WifiNmcliBackupTests(unittest.TestCase):
             "pct_loss": 0,
         }
         self.assertFalse(perform_ping_test("wlo1"))
+
+    @patch("wifi_nmcli_test.sp")
+    def test_list_aps_found(self, subprocess_mock):
+        args = parse_args(["scan", "wlo1"])
+        subprocess_mock.check_output.return_value = b"Mock:6:2437 MHz:84"
+        self.assertEqual(list_aps(args), 1)
+
+    @patch("wifi_nmcli_test.sp")
+    def test_list_aps_skip_extra_line(self, subprocess_mock):
+        args = parse_args(["scan", "wlo1"])
+        subprocess_mock.check_output.return_value = b"wlo1\nMock:6:2437 MHz:84"
+        self.assertEqual(list_aps(args), 1)
+
+    @patch("wifi_nmcli_test.sp")
+    def test_list_aps_found_essid(self, subprocess_mock):
+        args = parse_args(["open", "wlo1", "Mock"])
+        subprocess_mock.check_output.return_value = (
+            b"Mock:6:2437 MHz:84\nWrong:6:2437 MHz:84"
+        )
+        self.assertEqual(list_aps(args), 1)
+
+    @patch("wifi_nmcli_test.sp")
+    def test_list_aps_none(self, subprocess_mock):
+        args = parse_args(["scan", "wlo1"])
+        subprocess_mock.check_output.return_value = b""
+        self.assertEqual(list_aps(args), 0)

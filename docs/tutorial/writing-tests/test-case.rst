@@ -1,8 +1,8 @@
 .. _test_case:
 
-============================
-Writing your first test case
-============================
+=================
+Writing Test Jobs
+=================
 Lets begin our journey in Checkbox test jobs by writing our first test job. Our
 objective is to detect if the DUT is correctly connected to the internet.
 
@@ -199,8 +199,8 @@ is the new Result that Checkbox will present:
      ☒ : Test that the internet is reachable
      ☐ : Test that the network speed is acceptable
 
-Customize test envvars
-======================
+Customize tests via envvars
+===========================
 
 Sometimes it is hard to set an unique value for a test parameter because it may
 depend on a multitude of factors. Notice that our previous test has a very
@@ -693,6 +693,9 @@ time things can get messy quickly, and messages can get lost. One possible
 evolution for this test is to do more pings and use the packet
 loss output to decide if we can call the test a success or a failure.
 
+Translating the test to Python
+------------------------------
+
 While we could do this with a tall jenga tower entirely constituted of pipes,
 tee and awk commands, always keep in mind, the best foot gun is the one we
 don't use. Checkbox allows you to write hundreds of lines of code in the
@@ -725,7 +728,7 @@ Lets translate the previous test into Python first:
         parser.add_argument(
             "interface", help="Interface to connectivity test"
         )
-        return parser.parse_args()
+        return parser.parse_args(argv)
 
 
     def network_available(interface):
@@ -770,19 +773,334 @@ any test in the same provider.
    Call the script by name without ``./`` in front
 
 We are now ready to extract the information from the log of the command.
-Update the function ``network_available`` as follows:
+Update the script ``network_available`` as follows:
+
+.. code-block:: python
+
+    def parse_args(argv):
+        parser = argparse.ArgumentParser()
+        parser.add_argument(
+            "interface", help="Interface which will be used to ping"
+        )
+        parser.add_argument(
+            "--threshold",
+            "-t",
+            help="Maximum percentage of lost of packets to mark the test as ok",
+            default="90",
+        )
+        return parser.parse_args(argv)
+
+
+    def network_available(interface, threshold):
+        print("Testing", interface)
+        ping_output = subprocess.check_output(
+            ["ping", "-I", interface, "-c", "10", "1.1.1.1"],
+            universal_newlines=True,
+        )
+        print(ping_output)
+        if "% packet loss" not in ping_output:
+            raise SystemExit(
+                "Unable to determine the % packet loss from the output"
+            )
+        perc_packet_loss = ping_output.rsplit("% packet loss", 1)[0].rsplit(
+            maxsplit=1
+        )[1]
+        if float(perc_packet_loss) > float(threshold):
+            raise SystemExit(
+                "Detected packet loss ({}%) is higher than threshold ({}%)".format(
+                    perc_packet_loss, threshold
+                )
+            )
+        print(
+            "Detected packet loss ({}%) is lower than threshold ({}%)".format(
+                perc_packet_loss, threshold
+            )
+        )
+
+
+    def main(argv=None):
+        if argv is None:
+            argv = sys.argv[1:]
+        args = parse_args(argv)
+        network_available(args.interface, args.threshold)
+
+.. note::
+    A few tips and tricks in the code above:
+
+    - We print out the command output, try to not hide intermediate steps if possible.
+    - We don't use a regex: if you can, use simple splits, they make debugging easier and the code more maintainable.
+    - We not only output the decision, but also the parameters that took us to that conclusion. Makes it way easier to interpret the output log.
+
+Unit testing the Python scripts
+-------------------------------
+
+Notice how we don't push you to make ``bin/`` script simple to understand.
+Although the example in this tutorial is not the most complex, there are
+situations and tests that do need to be more on the complex side, this is
+why the ``bin/`` vs ``commands:`` separation came to be. One important thing
+to consider though, is that with the complexity we are introducing, we are also
+creating a future burthen for whoever will have to maintain our test. For this
+reason we highly encourage you (and straight up require if you want to
+contribute to the main Checkbox repository), to write unit tests for your
+scripts.
+
+Create a new ``tests/`` directory and a ``test_network_available.py`` file
+inside it.
+
+.. note::
+   You can call your tests however you want but we encourage to make the naming
+   convention uniform at the very least. This tutorial will use the Checkbox
+   naming convention.
+
+The most important thing with your unit tests is that you provide, for each
+function, at least the "happy path" that you have predicted will exist in
+your script. If you have predicted some error path along it (or you have seen
+it happen), create a test for it as well. It is important that each test checks
+for exactly one situation, if possible. Consider the following:
+
+.. code-block:: python
+
+    import unittest
+    import textwrap
+    from unittest import mock
+
+    import network_available
+
+
+    class TestNetworkAvailable(unittest.TestCase):
+
+        @mock.patch("subprocess.check_output")
+        def test_nominal(self, check_output_mock):
+            check_output_mock.return_value = textwrap.dedent(
+                """
+                PING 1.1.1.1 (1.1.1.1) from 192.168.1.100 wlan0: 56(84) bytes
+                64 bytes from 1.1.1.1: icmp_seq=1 ttl=53 time=39.0 ms
+                64 bytes from 1.1.1.1: icmp_seq=2 ttl=53 time=143 ms
+
+                --- 1.1.1.1 ping statistics ---
+                2 packets transmitted, 2 received, 0% packet loss, time 170ms
+                rtt min/avg/max/mdev = 34.980/60.486/142.567/31.077 ms
+                """
+            ).strip()
+            network_available.network_available("wlan0", "90")
+            self.assertTrue(check_output_mock.called)
+
+        @mock.patch("subprocess.check_output")
+        def test_failure(self, check_output_mock):
+            check_output_mock.return_value = textwrap.dedent(
+                """
+                PING 1.1.1.1 (1.1.1.1) from 192.168.1.100 wlan0: 56(84) bytes
+                64 bytes from 1.1.1.1: icmp_seq=1 ttl=53 time=39.0 ms
+
+                --- 1.1.1.1 ping statistics ---
+                10 packets transmitted, a received, 90% packet loss, time 170ms
+                rtt min/avg/max/mdev = 34.980/60.486/142.567/31.077 ms
+                """
+            ).strip()
+            with self.assertRaises(SystemExit):
+                network_available.network_available("wlan0", "0")
+
+.. note::
+   We use ``self.assertTrue(check_output_mock.called)`` instead of
+   ``check_output_mock.assert_called_once()``. The reason is that we have to be
+   compatible (in tests as well!) with python3.5 and
+   ``Mock.assert_called_once`` was introduced in Python3.6. If you don't know
+   when a function was introduced, refer to `the python documentation
+   <https://docs.python.org/3/library/unittest.mock.html#unittest.mock.Mock.assert_called_once>`_.
+   See below the example, if a function was introduced with a specific
+   version, you will find it there.
+
+To run the tests go to the root of the provider and run the following:
+
+.. code-block:: none
+
+    (checkbox_venv) > python3 manage.py test -u
+    test_failure (test_network_available.TestNetworkAvailable.test_failure) ...
+    [...]
+    test_nominal (test_network_available.TestNetworkAvailable.test_nominal) ...
+    [...]
+
+    ----------------------------------------------------------------------
+    Ran 2 tests in 0.002s
+
+    OK
+
+.. note::
+   You can also run ``python3 manage.py test`` without th ``-u``. Every
+   provider comes with a set of builtin tests like shellcheck
+   (for the ``commands:`` sections) and flake8 (for all ``bin/*.py`` files).
+   Not providing ``-u`` will simply run all tests.
+
+Gathering Coverage from Unit Tests
+----------------------------------
+
+In Checkbox we have a coverage requirement for new PRs. This is to ensure that
+new contributions do not add source paths that are not explored in testing and
+therefore easy to break down the line with any change.
+
+If you want to collect the coverage of your contribution you can run the
+following:
+
+.. code-block:: none
+
+    (checkbox_venv) > python3 -m coverage run manage.py test -u
+    (checkbox_venv) > python3 -m coverage report --include=bin/*
+    Name                       Stmts   Miss  Cover
+    ----------------------------------------------
+    bin/network_available.py      25     10    60%
+    ----------------------------------------------
+    TOTAL                         25     10    60%
+    (checkbox_venv) > python3 -m coverage report --include=bin/* -m
+    Name                       Stmts   Miss  Cover   Missing
+    --------------------------------------------------------
+    bin/network_available.py      25     10    60%   8-18, 29, 49-52, 56
+    --------------------------------------------------------
+    TOTAL                         25     10    60%
+
+    # You can also get an html report with the following
+    # it is very convenient as you can see file per file what lines are covered
+    # in
+    (checkbox_venv) > python3 -m coverage html
+
+As you can see we are way below the coverage target but this is difficoult to
+fix, we should add an end to end test of the main function, so that we
+cover it but, most importantly, we leave trace in the test file of an expected
+usage of the script. Add the following to ``tests/test_network_available.py``
+
+.. code:: python
+
+    class TestMain(unittest.TestCase):
+
+        @mock.patch("subprocess.check_output")
+        def test_nominal(self, check_output_mock):
+            check_output_mock.return_value = textwrap.dedent(
+                """
+                PING 1.1.1.1 (1.1.1.1) from 192.168.1.100 wlan0: 56(84) bytes
+                64 bytes from 1.1.1.1: icmp_seq=1 ttl=53 time=39.0 ms
+                64 bytes from 1.1.1.1: icmp_seq=2 ttl=53 time=143 ms
+
+                --- 1.1.1.1 ping statistics ---
+                2 packets transmitted, 2 received, 0% packet loss, time 170ms
+                rtt min/avg/max/mdev = 34.980/60.486/142.567/31.077 ms
+                """
+            ).strip()
+            network_available.main(["--threshold", "20", "wlan0"])
+            self.assertTrue(check_output_mock.called)
+
+
+
+Dealing with complexity - Source builds
+=======================================
+
+There are very few situations where we need to include a source file to be
+compiled in a provider. Checkbox supports building and delivering binaries
+that can then be used in tests similarly to script we placed in the
+``bin/`` directory but in most cases we would advise you against it. The most
+common usage of this feature is to vendorize small license-compatible tools.
+
+Source tests are stored in the root of the provider in a directory called
+``src/``. Create the ``src/`` directory and inside create a new file called
+``vfork_memory_share_test.c``. The objective of this test is going to be to
+check if the `vfork <https://www.man7.org/linux/man-pages/man2/vfork.2.html>`_
+syscall actually shares the memory between the parent and child process.
+
+.. code:: C
+
+    #include <unistd.h>
+    #include <stdio.h>
+
+    #define MAGIC_NUMBER 24
+
+    static pid_t shared;
+
+    int main(void){
+      int pid = vfork();
+      if(pid != 0){
+        // we are in parent, we can't rely on us being suspended
+        // so let's give the children process 1s to write to the shared variable
+        // if we are not
+        if(shared != MAGIC_NUMBER){
+          printf("Parent wasn't suspended when spawning child, waiting\n");
+          sleep(1);
+        }
+        if(shared != MAGIC_NUMBER){
+          printf("Child failed to set the variable\n");
+        }else{
+          printf("Child set the variable, vfork shares the memory\n");
+        }
+        return shared != MAGIC_NUMBER;
+      }
+      // we are in children, we should now write to shared, parent will
+      // discover this if vfork implementation uses mamory sharing as expected
+      shared = MAGIC_NUMBER;
+      _exit(0);
+    }
+
+To compile our source files, Checkbox relies on a Makefile that must be in the
+``src/`` directory. Lets create it with all the basic rules we are going to
+need:
+
+.. code-block:: Makefile
+
+    .PHONY:
+    all: vfork_memory_share_test
+
+    .PHONY: clean
+    clean:
+      rm -f vfork_memory_share_test
+
+    vfork_memory_share_test: CFLAGS += -pedantic
+
+    CFLAGS += -Wall
+
+Now we can go back to the root of the provider and use ``manage.py`` to compile
+our test file:
 
 .. code:: none
 
+    (checkbox_venv) > ./manage.py build
+    cc -Wall -pedantic ../../src/vfork_memory_share_test.c -o vfork_memory_share_test
+    # The following step is not necessary when you install a provider
+    # but
 
-how tests tests work
 
-how packaging works
+Add a new test to our provider that calls our new binary by name like a script:
 
-Dealing with complexity - Binaries
-==================================
+.. code-block:: none
 
-how to deal with binaries
-- Makefile
-- src -> bin
-- multiplatform
+    id: vfork_memory_share
+    _summary: Check that vfork syscall shares the memory between parent and child
+    flags: simple
+    command:
+      vfork_memory_share_test
+
+Running it you should see the following:
+
+.. code-block:: none
+
+    (checkbox_venv) > checkbox-cli run com.canonical.certification::vfork_memory_share
+    ===========================[ Running Selected Jobs ]============================
+    =========[ Running job 1 / 1. Estimated time left (at least): 0:00:00 ]=========
+    ----[ Check that vfork syscall shares the memory between parent and child ]-----
+    ID: com.canonical.certification::vfork_memory_share
+    Category: com.canonical.plainbox::uncategorised
+    ... 8< -------------------------------------------------------------------------
+    Child set the variable, vfork shares the memory
+    ------------------------------------------------------------------------- >8 ---
+    Outcome: job passed
+    Finalizing session that hasn't been submitted anywhere: checkbox-run-2024-08-08T13.35.24
+    ==================================[ Results ]===================================
+     ☑ : Check that vfork syscall shares the memory between parent and child
+
+.. warning::
+   Checkbox is delivered for many platforms so be mindful of what you include
+   in the ``src/`` directory, especially if you plan to contribute the test
+   upstream. It must be compatible with all architectures we build for, debian
+   packages and snaps.
+
+.. note::
+   Before using a compilable tool see if you can obtain the same result/test
+   using `Python's excelent module ctypes <https://docs.python.org/3/library/ctypes.html>`_.
+   The above example is for example impossible to emulate via ctypes,
+   completely cross-platform, compatible with any modern C standard compiler
+   so it is a good candidate.

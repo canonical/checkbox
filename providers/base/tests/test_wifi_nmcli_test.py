@@ -19,7 +19,7 @@
 import unittest
 from unittest.mock import patch
 
-from wifi_nmcli_test import legacy_nmcli
+from wifi_nmcli_test import legacy_nmcli, perform_ping_test
 
 
 class WifiNmcliBackupTests(unittest.TestCase):
@@ -36,3 +36,30 @@ class WifiNmcliBackupTests(unittest.TestCase):
             b"nmcli tool, version 1.46.0-2"
         )
         self.assertFalse(legacy_nmcli())
+
+    @patch("wifi_nmcli_test.ping")
+    @patch("wifi_nmcli_test.sp")
+    def test_perform_ping_test_true(self, subprocess_mock, ping_mock):
+        subprocess_mock.return_value = b"10.0.0.1"
+        ping_mock.return_value = {
+            "transmitted": 10,
+            "received": 5,
+            "pct_loss": 0,
+        }
+        self.assertTrue(perform_ping_test("wlo1"))
+
+    @patch("wifi_nmcli_test.sp")
+    def test_perform_ping_test_no_target(self, subprocess_mock):
+        subprocess_mock.return_value = b""
+        self.assertFalse(perform_ping_test("wlo1"))
+
+    @patch("wifi_nmcli_test.ping")
+    @patch("wifi_nmcli_test.sp")
+    def test_perform_ping_test_received_none(self, subprocess_mock, ping_mock):
+        subprocess_mock.return_value = b""
+        ping_mock.return_value = {
+            "transmitted": 10,
+            "received": 0,
+            "pct_loss": 0,
+        }
+        self.assertFalse(perform_ping_test("wlo1"))

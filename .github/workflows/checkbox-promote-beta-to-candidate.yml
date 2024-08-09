@@ -54,9 +54,6 @@ jobs:
             checkbox_track: uc22
 
           - queue: rpi4b
-            data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
-
-          - queue: rpi4b
             data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-armhf+raspi.img.xz"
             checkbox_runtime: checkbox22
             checkbox_track: uc22

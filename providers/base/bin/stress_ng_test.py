@@ -175,7 +175,7 @@ def num_numa_nodes():
         return 1
 
 
-def swap_space_ok(args):
+def swap_space_ok(swap_size):
     """Check available swap space."""
     # If swap space is too small, add more. The minimum
     # acceptable amount is defined as the GREATER of the amount specified
@@ -192,7 +192,7 @@ def swap_space_ok(args):
     min_swap_space = 0
 
     swap_size = max(
-        os.environ.get("STRESS_NG_MIN_SWAP_SPACE", 0), args.swap_size
+        os.environ.get("STRESS_NG_MIN_SWAP_SPACE", 0), swap_size
     )
     print("Minimum swap space is set to {} GiB".format(swap_size))
     min_swap_space = swap_size * 1024**3
@@ -236,7 +236,7 @@ def stress_memory(args):
     """Run stress-ng tests on memory."""
 
     retval = 0
-    if not swap_space_ok(args):
+    if not swap_space_ok(args.swap_size):
         print(
             "** Swap space unavailable! Please activate swap space "
             + "and re-run this test!"

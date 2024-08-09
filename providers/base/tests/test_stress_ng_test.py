@@ -17,10 +17,51 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from unittest.mock import patch
 from subprocess import CalledProcessError, TimeoutExpired
+from unittest.mock import MagicMock, mock_open, patch
 
-from stress_ng_test import main
+from stress_ng_test import main, num_numa_nodes, swap_space_ok
+
+
+class TestMemoryFunctions(unittest.TestCase):
+    @patch("stress_ng_test.run")
+    def test_num_numa_nodes_success(self, run_mock):
+        run_mock.return_value = MagicMock(name="completed_process")
+        run_mock.return_value.stdout = b"available: 2 nodes (0-1)"
+        self.assertEqual(num_numa_nodes(), 2)
+
+    @patch("stress_ng_test.run", side_effect=OSError)
+    def test_num_numa_nodes_failure(self, run_mock):
+        self.assertEqual(num_numa_nodes(), 1)
+
+    @patch(
+        "stress_ng_test.psutil.swap_memory", return_value=MagicMock(total=1)
+    )
+    def test_swap_space_ok_success(self, psutil_swap_memory_mock):
+        self.assertTrue(swap_space_ok(0))
+
+    @patch("stress_ng_test.run")
+    @patch("stress_ng_test.os.chmod")
+    @patch("stress_ng_test.open", new_callable=mock_open)
+    @patch(
+        "stress_ng_test.psutil.swap_memory",
+        side_effect=[MagicMock(total=0), MagicMock(total=1073741824)],
+    )
+    def test_swap_space_ok_create_swap(
+        self, psutil_swap_memory_mock, open_mock, os_chmod_mock, run_mock
+    ):
+        self.assertTrue(swap_space_ok(1))
+
+    @patch("stress_ng_test.run")
+    @patch("stress_ng_test.os.chmod")
+    @patch("stress_ng_test.open", side_effect=OSError)
+    @patch(
+        "stress_ng_test.psutil.swap_memory", return_value=MagicMock(total=0)
+    )
+    def test_swap_space_ok_remove_swap(
+        self, psutil_swap_memory_mock, open_mock, os_chmod_mock, run_mock
+    ):
+        self.assertFalse(swap_space_ok(1))
 
 
 class TestMainFunction(unittest.TestCase):
@@ -62,7 +103,10 @@ class TestMainFunction(unittest.TestCase):
     ):
         self.assertEqual(main(), 1)
 
-    @patch("stress_ng_test.check_output", side_effect=CalledProcessError(1, b"", b""))
+    @patch(
+        "stress_ng_test.check_output",
+        side_effect=CalledProcessError(1, b"", b""),
+    )
     @patch("stress_ng_test.os.geteuid", return_value=0)
     @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
     @patch("stress_ng_test.sys.argv", ["stress_ng_test.py", "cpu"])
@@ -79,3 +123,69 @@ class TestMainFunction(unittest.TestCase):
         self, shutil_which_mock, os_geteuid_mock, check_output_mock
     ):
         self.assertEqual(main(), 0)
+
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch("stress_ng_test.os.geteuid", return_value=0)
+    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("stress_ng_test.sys.argv", ["stress_ng_test.py", "memory"])
+    def test_main_stress_memory_success(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+    ):
+        self.assertEqual(main(), 0)
+
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=2)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch("stress_ng_test.os.geteuid", return_value=0)
+    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("stress_ng_test.sys.argv", ["stress_ng_test.py", "memory"])
+    def test_main_stress_memory_more_numa_nodes(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+    ):
+        self.assertEqual(main(), 0)
+
+    @patch("stress_ng_test.os.remove")
+    @patch("stress_ng_test.Popen")
+    @patch(
+        "stress_ng_test.my_swap",
+        return_value="/swap-df8a2b5f-d624-4e06-81bd-ec5e31aa213f",
+    )
+    @patch("stress_ng_test.check_output")
+    @patch("stress_ng_test.num_numa_nodes", return_value=1)
+    @patch("stress_ng_test.swap_space_ok", return_value=True)
+    @patch("stress_ng_test.os.geteuid", return_value=0)
+    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("stress_ng_test.sys.argv", ["stress_ng_test.py", "memory"])
+    def test_main_stress_memory_delete_swap(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        swap_space_ok_mock,
+        num_numa_nodes_mock,
+        check_output_mock,
+        my_swap_mock,
+        popen_mock,
+        os_remove_mock,
+    ):
+        self.assertEqual(main(), 0)
+
+    @patch("stress_ng_test.swap_space_ok", return_value=False)
+    @patch("stress_ng_test.os.geteuid", return_value=0)
+    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("stress_ng_test.sys.argv", ["stress_ng_test.py", "memory"])
+    def test_main_stress_memory_not_enough_swap(
+        self, shutil_which_mock, os_geteuid_mock, swap_space_ok_mock
+    ):
+        self.assertEqual(main(), 1)

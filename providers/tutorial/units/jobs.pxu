@@ -70,7 +70,7 @@ _summary: A job that displays an environment variable, if set
 environ: TUTORIAL
 command:
  echo This job prints the content of a given environment variable if set, or a default value otherwise
- echo ${TUTORIAL:-"Default Value"}
+ echo "${TUTORIAL:-"Default Value"}"
 
 id: tutorial/manual
 category_id: tutorial

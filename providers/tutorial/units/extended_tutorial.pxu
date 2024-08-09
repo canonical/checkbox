@@ -1,0 +1,55 @@
+id: network_iface_info
+_summary: Fetches information of all network intefaces
+plugin: resource
+command:
+  ip -details -json link show | jq -r '
+      .[] | "interface: " + .ifname +
+      "\nlink_info_kind: " + .linkinfo.info_kind +
+      "\nlink_type: " + .link_type +
+      "\noperstate: " + .operstate + "\n"'
+
+id: network_available
+flags: simple
+_summary: Test that the internet is reachable
+requires:
+  (network_iface_info.link_info_kind == "" and network_iface_info.link_type == "ether")
+command:
+  ping -c 1 1.1.1.1
+
+id: network_speed
+flags: simple
+_summary: Test that the network speed is acceptable
+depends: network_available
+command:
+  curl -Y 600 -o /dev/null \
+    https://cdimage.ubuntu.com/ubuntu-mini-iso/noble/daily-live/current/
+
+id: network_speed_99
+flags: simple
+_summary: Test that the network speed is acceptable
+environ:
+  ACCEPTABLE_BYTES_PER_SECOND_SPEED
+command:
+  echo Testing for the limit speed: "${ACCEPTABLE_BYTES_PER_SECOND_SPEED:-600}"
+  curl -Y "${ACCEPTABLE_BYTES_PER_SECOND_SPEED:-600}" -o /dev/null \
+    "https://cdimage.ubuntu.com/ubuntu-mini-iso/noble/daily-live/current/"
+
+unit: template
+template-resource: network_iface_info
+template-unit: job
+id: network_available_{interface}
+template-id: network_available_interface
+template-filter:
+  network_iface_info.link_type == "ether" and network_iface_info.link_info_kind == ""
+requires:
+  (network_iface_info.interface == "{interface}" and network_iface_info.operstate == "UP")
+command:
+  network_available.py {interface}
+_summary: Test that the internet is reachable via {interface}
+flags: simple
+
+id: vfork_memory_share
+_summary: Check that vfork syscall shares the memory between parent and child
+flags: simple
+command:
+  vfork_memory_share_test

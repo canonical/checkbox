@@ -35,8 +35,12 @@ test_data:
     # install checkbox runtime on device (snap or deb)
     if [[ "$SNAP_FLAG" == "true" ]]; then
         echo "Installing checkbox runtime on device (from snap)"
-        retry --times 5 --  _run sudo snap install $CHECKBOX_RUNTIME --channel=latest/$CHANNEL
-        retry --times 5 --  _run sudo snap install checkbox --devmode --channel=$CHECKBOX_TRACK/$CHANNEL
+        CHANGE_ID=$(_run sudo snap install $CHECKBOX_RUNTIME --no-wait --channel=latest/$CHANNEL)
+        wait_for_snap_change_id $CHANGE_ID
+        wait_for_ssh
+        CHANGE_ID=$(_run sudo snap install checkbox --devmode --channel=$CHECKBOX_TRACK/$CHANNEL)
+        wait_for_snap_change_id $CHANGE_ID
+        wait_for_ssh
         # list all the installed snaps to facilitate debugging
         _run snap list
         CHECKBOX_CLI_CMD="checkbox.checkbox-cli"

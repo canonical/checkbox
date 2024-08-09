@@ -166,16 +166,41 @@ VIDIOC_ENUM_FRAMESIZES = _IOWR("V", 74, v4l2_frmsizeenum)
 VIDIOC_ENUM_FMT = _IOWR("V", 2, v4l2_fmtdesc)
 
 
+# Add the adobe format to the test_jpeg function
+def imghdr_jpeg_adobe(h, f):
+    """JPEG data in Adobe format"""
+    if h[6:11] in (b"Adobe"):
+        return "jpeg"
+
+
+imghdr.tests.append(imghdr_jpeg_adobe)
+
+
 class CameraTest:
     """
-    A simple class that displays a test image via GStreamer.
+    This class is handles all the different camera tests. The tests available
+    are:
+        - detect: Display information regarding webcam hardware
+        - led: Activate camera (switch on led), but don't display any output
+        - video: Displays the preview window for a video stream
+        - image: Captures an image to a file
+        - resolutions: After querying the webcam for supported formats and
+            resolutions, take multiple images using the first format returned
+            by the driver, and see if they are valid.
     """
 
-    def __init__(self, args):
-        self.args = args
+    def __init__(self, **kwargs):
         self._width = 640
         self._height = 480
         self._devices = []
+        self.device = kwargs.get("device", "/dev/video0")
+        self.quiet = kwargs.get("quiet", False)
+        self.output = kwargs.get("output", "")
+        self.log_level = kwargs.get("log_level", logging.INFO)
+
+        self.main_loop = None
+        self.pipeline = None
+        self.timeout = None
 
     def detect(self):
         """
@@ -240,32 +265,95 @@ class CameraTest:
 
         return 0 if capture_capabilities else 1
 
-    def _stop(self):
-        self.camerabin.set_state(Gst.State.NULL)
-        Gtk.main_quit()
+    def _on_gst_message(self, bus, message):
+        # Process End-of-stream messages
+        if message.type == self.Gst.MessageType.EOS:
+            # Stop the pipeline
+            self.pipeline.set_state(self.Gst.State.NULL)
+            # Quit the GLib main loop
+            self.main_loop.quit()
+            if self.log_level == logging.DEBUG:
+                print("End-of-stream")
 
-    def _on_error(self, bus, msg):
-        Gtk.main_quit()
+        # Process Error messages
+        elif message.type == self.Gst.MessageType.ERROR:
+            # Stop the pipeline
+            self.pipeline.set_state(self.Gst.State.NULL)
+            # Quit the GLib main loop
+            self.main_loop.quit()
+            err, debug = message.parse_error()
+            print("Error: {}".format(err.message))
+            if self.log_level == logging.DEBUG:
+                print("Debug info: {}".format(debug))
+            raise SystemExit("Error: {}".format(err.message))
 
-    def _on_destroy(self, *args):
-        Clutter.main_quit()
+        # Process Pipeline state change messages
+        elif (
+            message.type == self.Gst.MessageType.STATE_CHANGED
+            and message.src.get_name() == "pipeline"
+            and self.log_level == logging.DEBUG
+        ):
+            old_state, new_state, _ = message.parse_state_changed()
+            print(
+                "Pipeline changed state from {} to {}".format(
+                    old_state.value_nick, new_state.value_nick
+                )
+            )
 
-    def _take_photo(self, filename):
-        self.camerabin.set_property("location", filename)
-        self.camerabin.emit("start-capture")
+    def _stop_pipeline(self):
+        """
+        Stop the GLib main loop and set the pipeline state to NULL
+        """
+        self.main_loop.quit()
+        self.pipeline.set_state(self.Gst.State.NULL)
 
-    def _setup(self, sink=None):
-        webcam = Gst.ElementFactory.make("v4l2src")
-        webcam.set_property("device", self.args.device)
-        wrappercamerabinsrc = Gst.ElementFactory.make("wrappercamerabinsrc")
+    def _on_timeout(self):
+        """
+        Stop the  pipeline when the timeout is reached and remove the timeout
+        """
+        print("Timeout exceeded")
+        self.timeout = None
+        self._stop_pipeline()
+
+    def led(self):
+        """
+        Activate camera (switch on led), but don't display any output
+        """
+        self.main_loop = self.GLib.MainLoop()
+        self.GLib.timeout_add_seconds(3, self._stop_pipeline)
+        self._setup_video_gstreamer("fakesink")
+
+    def video(self):
+        """
+        Displays the preview window for a video stream
+        """
+        # Don't display the video, just run the camera
+        if self.quiet:
+            self.main_loop = self.GLib.MainLoop()
+            self.GLib.timeout_add_seconds(4, self._stop_pipeline)
+            self._setup_video_gstreamer("fakesink")
+        else:
+            print("Starting video preview")
+            self.GLib.timeout_add_seconds(10, self._stop_pipeline)
+            self._setup_video_gstreamer()
+
+    def _setup_video_gstreamer(self, sink=None):
+        """
+        Setup the gstreamer pipeline to create the video stream
+        """
+        webcam = self.Gst.ElementFactory.make("v4l2src")
+        webcam.set_property("device", self.device)
+        wrappercamerabinsrc = self.Gst.ElementFactory.make(
+            "wrappercamerabinsrc"
+        )
         wrappercamerabinsrc.set_property("video-source", webcam)
-        self.camerabin = Gst.ElementFactory.make("camerabin")
-        self.camerabin.set_property("camera-source", wrappercamerabinsrc)
+        pipeline = self.Gst.ElementFactory.make("camerabin", "pipeline")
+        pipeline.set_property("camera-source", wrappercamerabinsrc)
         if sink:
-            vf_sink = Gst.ElementFactory.make(sink)
-            self.camerabin.set_property("viewfinder-sink", vf_sink)
-        self.camerabin.set_state(Gst.State.PAUSED)
-        caps = self.camerabin.get_property("viewfinder-supported-caps")
+            vf_sink = self.Gst.ElementFactory.make(sink)
+            pipeline.set_property("viewfinder-sink", vf_sink)
+        pipeline.set_state(self.Gst.State.PAUSED)
+        caps = pipeline.get_property("viewfinder-supported-caps")
         supported_resolutions = {}
         for i in range(caps.get_size()):
             key = caps.get_structure(i).get_int("width").value
@@ -282,50 +370,70 @@ class CameraTest:
         height = min(
             supported_resolutions[width], key=lambda y: abs(y - self._height)
         )
-        vf_caps = Gst.Caps.from_string(
+        vf_caps = self.Gst.Caps.from_string(
             "video/x-raw, width={}, height={}".format(width, height)
         )
-        self.camerabin.set_property("viewfinder-caps", vf_caps)
-        bus = self.camerabin.get_bus()
+        pipeline.set_property("viewfinder-caps", vf_caps)
+
+        bus = pipeline.get_bus()
         bus.add_signal_watch()
-        bus.connect("message::error", self._on_error)
-        self.camerabin.set_state(Gst.State.PLAYING)
 
-    def led(self):
-        """
-        Activate camera (switch on led), but don't display any output
-        """
-        self._setup(sink="fakesink")
-        GLib.timeout_add_seconds(3, self._stop)
-        Gtk.main()
+        self.pipeline = pipeline
+        bus.connect("message", self._on_gst_message)
+        self.pipeline.set_state(self.Gst.State.PLAYING)
 
-    def display(self):
-        """
-        Displays the preview window
-        """
-        self._setup()
-        GLib.timeout_add_seconds(10, self._stop)
-        Gtk.main()
+        self.main_loop = self.GLib.MainLoop()
+        try:
+            self.main_loop.run()
+        except self.GLib.Error:
+            self.main_loop.quit()
+            self.pipeline.set_state(self.Gst.State.NULL)
 
-    def still(self):
+    def image(self):
         """
         Captures an image to a file
         """
-        if self.args.filename:
-            self._still_helper(
-                self.args.filename, self._width, self._height, self.args.quiet
+        pixelformat = self._get_default_format()["pixelformat"]
+        if self.output:
+            self._still_image_helper(
+                self.output, self._width, self._height, pixelformat
             )
         else:
-            with NamedTemporaryFile(prefix="camera_test_", suffix=".jpg") as f:
-                self._still_helper(
-                    f.name, self._width, self._height, self.args.quiet
+            with NamedTemporaryFile(
+                prefix="camera_test_", suffix=".jpg", delete=False
+            ) as f:
+                self._still_image_helper(
+                    f.name, self._width, self._height, pixelformat
                 )
 
-    def _still_helper(self, filename, width, height, quiet, pixelformat=None):
+    def _still_image_helper(self, filename, width, height, pixelformat):
         """
-        Captures an image to a given filename.  width and height specify the
-        image size and quiet controls whether the image is displayed to the
-        user (quiet = True means do not display image).
+        Captures an image to a given filename. If the image capture fails with
+        fswebcam, it will try to capture the image with gstreamer.
+        """
+
+        # Try to take a picture with fswebcam
+        use_fswebcam = True
+        use_gstreamer = False
+
+        if use_fswebcam:
+            result = self._capture_image_fswebcam(
+                filename, width, height, pixelformat
+            )
+            if not result:
+                print("Failed to capture image with fswebcam, using gstreamer")
+                use_gstreamer = True
+
+        # If fswebcam fails, try with gstreamer
+        if use_gstreamer:
+            self._capture_image_gstreamer(filename, width, height, pixelformat)
+            print("Image saved to %s" % filename)
+        if not self.quiet:
+            self._display_image(filename, width, height)
+
+    def _capture_image_fswebcam(self, filename, width, height, pixelformat):
+        """
+        Simple wrapper around fswebcam to capture an image
         """
         command = [
             "fswebcam",
@@ -333,38 +441,133 @@ class CameraTest:
             "-S 50",
             "--no-banner",
             "-d",
-            self.args.device,
+            self.device,
             "-r",
             "%dx%d" % (width, height),
             filename,
         ]
-        use_camerabin = False
         if pixelformat:
             if "MJPG" == pixelformat:  # special tweak for fswebcam
                 pixelformat = "MJPEG"
             command.extend(["-p", pixelformat])
-
         try:
             check_call(command, stdout=open(os.devnull, "w"), stderr=STDOUT)
             if os.path.getsize(filename) == 0:
-                use_camerabin = True
+                return False
         except (CalledProcessError, OSError):
-            use_camerabin = True
-        if use_camerabin:
-            self._setup(sink="fakesink")
-            GLib.timeout_add_seconds(3, self._take_photo, filename)
-            GLib.timeout_add_seconds(4, self._stop)
-            Gtk.main()
-        if not quiet:
-            stage = Clutter.Stage()
-            stage.set_title("Camera still picture test")
-            stage.set_size(width, height)
-            stage.connect("destroy", self._on_destroy)
-            Clutter.threads_add_timeout(0, 10000, self._on_destroy, None, None)
-            still_texture = Clutter.Texture.new_from_file(filename)
-            stage.add_actor(still_texture)
-            stage.show()
-            Clutter.main()
+            return False
+        return True
+
+    def _capture_image_gstreamer(self, filename, width, height, pixelformat):
+        """
+        Setup the gstreamer pipeline to capture an image.
+        This pipeline consists of the following elements:
+        - v4l2src: Capture video from a V4L2 device
+        - caps: Filter the video stream to the desired resolution
+        - bayer2rgb (only for bayer format): Convert the bayer format to RGB
+        - jpegenc: Encode the video stream to a JPEG image
+        - filesink: Save the JPEG image to a file
+        """
+
+        pipeline = self.Gst.Pipeline.new("pipeline")
+
+        # Add source
+        source = self.Gst.ElementFactory.make("v4l2src", "video-source")
+        source.set_property("device", self.device)
+        source.set_property("num-buffers", 10)
+        pipeline.add(source)
+
+        # Add caps
+        caps = self.Gst.ElementFactory.make("capsfilter", "caps")
+        if pixelformat == "RG10":
+            caps.set_property(
+                "caps",
+                self.Gst.Caps.from_string(
+                    "video/x-bayer, format=gbrg, width={},height={}".format(
+                        width, height
+                    )
+                ),
+            )
+            # Add bayer2rgb
+            bayer2rgb = self.Gst.ElementFactory.make("bayer2rgb", "bayer2rgb")
+
+            pipeline.add(caps)
+            pipeline.add(bayer2rgb)
+        else:
+            caps.set_property(
+                "caps",
+                self.Gst.Caps.from_string(
+                    "video/x-raw,width={},height={}".format(width, height)
+                ),
+            )
+            pipeline.add(caps)
+
+        # Add encoder
+        encoder = self.Gst.ElementFactory.make("jpegenc", "encoder")
+        pipeline.add(encoder)
+
+        # Add sink
+        sink = self.Gst.ElementFactory.make("filesink", "sink")
+        sink.set_property("location", filename)
+        pipeline.add(sink)
+
+        # Link elements
+        source.link(caps)
+        # If the pixelformat is RG10, we need to link the bayer2rgb element
+        if pixelformat == "RG10":
+            caps.link(bayer2rgb)
+            bayer2rgb.link(encoder)
+        else:
+            caps.link(encoder)
+        encoder.link(sink)
+
+        # Connect the bus to the message handler
+        bus = pipeline.get_bus()
+        bus.add_signal_watch()
+        bus.connect("message", self._on_gst_message)
+
+        # Start the pipeline
+        self.pipeline = pipeline
+        self.pipeline.set_state(self.Gst.State.PLAYING)
+
+        # Add a timeout of 90 seconds to capture the image
+        self.timeout = self.GLib.timeout_add_seconds(90, self._on_timeout)
+
+        # Start the main loop
+        self.main_loop = self.GLib.MainLoop()
+        try:
+            self.main_loop.run()
+        except self.GLib.Error:
+            self.main_loop.quit()
+            self.pipeline.set_state(self.Gst.State.NULL)
+
+        # Remove the timeout
+        if self.timeout:
+            self.GLib.source_remove(self.timeout)
+        return 0
+
+    def _display_image(self, filename, width, height):
+        """
+        Display an image using Gtk
+        """
+        print("starting GTK")
+        # Initialize GTK application
+        window = self.Gtk.Window(title="Image Viewer")
+        window.set_default_size(width, height)
+
+        # Load and display the image
+        image = self.Gtk.Image.new_from_file(filename)
+        window.add(image)
+
+        # Connect the destroy event to quit the GTK main loop
+        window.connect("destroy", self.Gtk.main_quit)
+        self.GLib.timeout_add_seconds(10, self.Gtk.main_quit)
+
+        # Show all widgets in the window
+        window.show_all()
+
+        # Start the GTK main loop
+        self.Gtk.main()
 
     def _supported_formats_to_string(self, supported_formats):
         """
@@ -389,26 +592,18 @@ class CameraTest:
         take multiple images using the first format returned by the driver,
         and see if they are valid
         """
-        formats = self._get_supported_formats(self.args.device)
-        # print supported formats and formats for the logs
-        print(self._supported_formats_to_string(formats))
+        self.quiet = True
 
-        # pick the first format, which seems to be what the driver wants for a
-        # default.  This also matches the logic that fswebcam uses to select
-        # a default format.
-        if not formats:
-            raise SystemExit("No supported formats found")
-        format = formats[0]
-
-        if self.args.output:
-            self._save_debug_image(format, self.args.device, self.args.output)
-
+        format = self._get_default_format()
         print(
-            "Taking multiple images using the %s format"
+            "Taking multiple images using the %s pixelformat"
             % format["pixelformat"]
         )
 
-        for resolution in format["resolutions"]:
+        if self.output:
+            self._save_debug_image(format, self.device, self.output)
+
+        for resolution in reversed(format["resolutions"]):
             w = resolution[0]
             h = resolution[1]
             f = NamedTemporaryFile(
@@ -417,8 +612,9 @@ class CameraTest:
                 delete=False,
             )
             print("Taking a picture at %sx%s" % (w, h))
-            self._still_helper(
-                f.name, w, h, True, pixelformat=format["pixelformat"]
+
+            self._still_image_helper(
+                f.name, w, h, pixelformat=format["pixelformat"]
             )
             if self._validate_image(f.name, w, h):
                 print("Validated image %s" % f.name)
@@ -451,10 +647,9 @@ class CameraTest:
         filepath = os.path.join(
             output, "resolution_test_image_{}.jpg".format(device_name)
         )
+        print("Saving debug image to %s" % filepath)
         with open(filepath, "w") as f:
-            self._still_helper(
-                f.name, w, h, True, pixelformat=format["pixelformat"]
-            )
+            self._still_image_helper(f.name, w, h, format["pixelformat"])
 
     def _get_supported_pixel_formats(self, device, maxformats=5):
         """
@@ -567,12 +762,29 @@ class CameraTest:
             supported_format["resolutions"] = resolutions
         return supported_formats_info
 
+    def _get_default_format(self):
+        formats = self._get_supported_formats(self.device)
+        # print supported formats and formats for the logs
+        print(self._supported_formats_to_string(formats))
+
+        # pick the first format, which seems to be what the driver wants for a
+        # default.  This also matches the logic that fswebcam uses to select
+        # a default format.
+        if not formats:
+            raise SystemExit("No supported formats found")
+        format = formats[0]
+        return format
+
     def _validate_image(self, filename, width, height):
         """
         Given a filename, ensure that the image is the width and height
         specified and is a valid image file.
         """
+        if not os.path.exists(filename):
+            print("Image file not found")
+            return False
         if imghdr.what(filename) != "jpeg":
+            print("Image is not a valid JPEG file")
             return False
 
         outw = outh = 0
@@ -580,6 +792,8 @@ class CameraTest:
             jpeg.seek(2)
             b = jpeg.read(1)
             try:
+                w = 0
+                h = 0
                 while b and ord(b) != 0xDA:
                     while ord(b) != 0xFF:
                         b = jpeg.read(1)
@@ -594,6 +808,9 @@ class CameraTest:
             except (struct.error, ValueError):
                 pass
 
+            if outw == 0 or outh == 0:
+                print("Image dimensions not found in JPEG file")
+                return False
             if outw != width:
                 print(
                     "Image width does not match, was %s should be %s"
@@ -611,18 +828,19 @@ class CameraTest:
 
             return True
 
-        return True
-
 
 def parse_arguments(argv):
     """
     Parse command line arguments
     """
     parser = argparse.ArgumentParser(description="Run a camera-related test")
+
+    # Add subparsers for the different tests
     subparsers = parser.add_subparsers(
         dest="test", title="test", description="Available camera tests"
     )
 
+    # Add a debug option
     parser.add_argument(
         "--debug",
         dest="log_level",
@@ -632,6 +850,8 @@ def parse_arguments(argv):
         help="Show debugging messages",
     )
 
+    # Function to manage the device parameter, either by specifying the device
+    # or by using the highest or lowest available device
     def add_device_parameter(parser):
         group = parser.add_mutually_exclusive_group()
         group.add_argument(
@@ -653,22 +873,41 @@ def parse_arguments(argv):
             help=("Use the /dev/videoN where N is the lowest value available"),
         )
 
+    # Detect subparser
     subparsers.add_parser("detect")
+
+    # Led subparser
     led_parser = subparsers.add_parser("led")
     add_device_parameter(led_parser)
-    display_parser = subparsers.add_parser("display")
-    add_device_parameter(display_parser)
-    still_parser = subparsers.add_parser("still")
-    add_device_parameter(still_parser)
-    still_parser.add_argument(
-        "-f", "--filename", help="Filename to store the picture"
+
+    # Video subparser
+    video_parser = subparsers.add_parser("video")
+    add_device_parameter(video_parser)
+    # add a quiet option false by default
+    video_parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        help=("Don't display video, just run the camera"),
     )
-    still_parser.add_argument(
+
+    # Image subparser
+    image_parser = subparsers.add_parser("image")
+    add_device_parameter(image_parser)
+    image_parser.add_argument(
+        "-o",
+        "--output",
+        default="",
+        help="Output directory to store the image",
+    )
+    image_parser.add_argument(
         "-q",
         "--quiet",
         action="store_true",
         help=("Don't display picture, just write the picture to a file"),
     )
+
+    # Resolutions subparser
     resolutions_parser = subparsers.add_parser("resolutions")
     resolutions_parser.add_argument(
         "-o",
@@ -677,8 +916,10 @@ def parse_arguments(argv):
         help="Output directory to store a small debug image",
     )
     add_device_parameter(resolutions_parser)
+
     args = parser.parse_args(argv)
 
+    # Handle the selection of the highest or lowest device
     def get_video_devices():
         devices = sorted(
             glob("/dev/video[0-9]"), key=lambda d: re.search(r"\d", d).group(0)
@@ -690,19 +931,22 @@ def parse_arguments(argv):
         args.device = get_video_devices()[-1]
     elif hasattr(args, "lowest_device") and args.lowest_device:
         args.device = get_video_devices()[0]
-    return args
+    return vars(args)
 
 
 if __name__ == "__main__":
     args = parse_arguments(sys.argv[1:])
 
-    if not args.test:
-        args.test = "detect"
+    # Set the default test to detect if not specified
+    if not args.get("test"):
+        args["test"] = "detect"
 
-    logging.basicConfig(level=args.log_level)
+    # Set the log level
+    logging.basicConfig(level=args["log_level"])
 
+    camera = CameraTest(**args)
     # Import Gst only for the test cases that will need it
-    if args.test in ["display", "still", "led", "resolutions"]:
+    if args["test"] in ["video", "image", "led", "resolutions"]:
         import gi
 
         gi.require_version("Gst", "1.0")
@@ -711,14 +955,17 @@ if __name__ == "__main__":
         gi.require_version("GLib", "2.0")
         from gi.repository import GLib
 
-        gi.require_version("Clutter", "1.0")
-        from gi.repository import Clutter
-
-        gi.require_version("Gtk", "3.0")
-        from gi.repository import Gtk
-
         Gst.init(None)
-        Clutter.init()
-        Gtk.init([])
-    camera = CameraTest(args)
-    sys.exit(getattr(camera, args.test)())
+        camera.Gst = Gst
+        camera.GLib = GLib
+
+        # Import Gtk only for the test cases that will need it
+        if args["test"] in ["video", "image"] and not args["quiet"]:
+
+            gi.require_version("Gtk", "3.0")
+            from gi.repository import Gtk
+
+            Gtk.init([])
+            camera.Gtk = Gtk
+
+    sys.exit(getattr(camera, args["test"])())

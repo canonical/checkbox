@@ -21,6 +21,7 @@ from subprocess import TimeoutExpired
 from unittest.mock import patch
 
 from wifi_nmcli_test import (
+    device_rescan,
     hotspot,
     legacy_nmcli,
     list_aps,
@@ -260,3 +261,17 @@ class WifiNmcliBackupTests(unittest.TestCase):
         perform_ping_test_mock.return_value = False
 
         self.assertEqual(secured_connection(args), 1)
+
+    @patch("time.sleep")
+    @patch("wifi_nmcli_test.sp")
+    def test_device_rescan_success(self, subprocess_mock, time_sleep_mock):
+        subprocess_mock.call.return_value = 0
+        device_rescan()
+        self.assertFalse(time_sleep_mock.called)
+
+    @patch("time.sleep")
+    @patch("wifi_nmcli_test.sp")
+    def test_device_rescan_fail(self, subprocess_mock, time_sleep_mock):
+        subprocess_mock.call.return_value = 1
+        device_rescan()
+        self.assertTrue(time_sleep_mock.called)

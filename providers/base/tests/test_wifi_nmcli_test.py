@@ -17,14 +17,17 @@
 
 
 import unittest
+from subprocess import TimeoutExpired
 from unittest.mock import patch
 
 from wifi_nmcli_test import (
     hotspot,
     legacy_nmcli,
     list_aps,
+    open_connection,
     parse_args,
     perform_ping_test,
+    secured_connection,
     wait_for_connected,
 )
 
@@ -136,3 +139,121 @@ class WifiNmcliBackupTests(unittest.TestCase):
         args = parse_args(["ap", "wlo1", "a"])
         subprocess_mock.call.side_effect = [0, 0, 0, 10]
         self.assertEqual(hotspot(args), 10)
+
+    @patch("wifi_nmcli_test.perform_ping_test")
+    @patch("wifi_nmcli_test.wait_for_connected")
+    @patch("wifi_nmcli_test.legacy_nmcli")
+    @patch("wifi_nmcli_test.sp")
+    def test_open_connection_success(
+        self,
+        subprocess_mock,
+        legacy_nmcli_mock,
+        wait_for_connected_mock,
+        perform_ping_test_mock,
+    ):
+        args = parse_args(["open", "wlo1", "Mock"])
+        subprocess_mock.call.side_effect = [0, 0, 0, 0]
+        legacy_nmcli_mock.return_value = False
+        wait_for_connected_mock.return_value = True
+        perform_ping_test_mock.return_value = True
+        self.assertEqual(open_connection(args), 0)
+
+    @patch("wifi_nmcli_test.wait_for_connected")
+    @patch("wifi_nmcli_test.legacy_nmcli")
+    @patch("wifi_nmcli_test.sp")
+    def test_open_connection_legacy_timeout(
+        self,
+        subprocess_mock,
+        legacy_nmcli_mock,
+        wait_for_connected_mock,
+    ):
+        args = parse_args(["open", "wlo1", "Mock"])
+
+        subprocess_mock.TimeoutExpired = TimeoutExpired
+        subprocess_mock.call.side_effect = [
+            0,
+            subprocess_mock.TimeoutExpired("nmcli c up TEST_CON", 200),
+        ]
+        legacy_nmcli_mock.return_value = True
+        wait_for_connected_mock.return_value = False
+
+        self.assertEqual(open_connection(args), 1)
+
+    @patch("wifi_nmcli_test.perform_ping_test")
+    @patch("wifi_nmcli_test.wait_for_connected")
+    @patch("wifi_nmcli_test.legacy_nmcli")
+    @patch("wifi_nmcli_test.sp")
+    def test_open_connection_ping_fail(
+        self,
+        subprocess_mock,
+        legacy_nmcli_mock,
+        wait_for_connected_mock,
+        perform_ping_test_mock,
+    ):
+        args = parse_args(["open", "wlo1", "Mock"])
+
+        subprocess_mock.call.side_effect = [0, 0, 0, 0]
+        legacy_nmcli_mock.return_value = False
+        wait_for_connected_mock.return_value = True
+        perform_ping_test_mock.return_value = False
+
+        self.assertEqual(open_connection(args), 1)
+
+    @patch("wifi_nmcli_test.perform_ping_test")
+    @patch("wifi_nmcli_test.wait_for_connected")
+    @patch("wifi_nmcli_test.legacy_nmcli")
+    @patch("wifi_nmcli_test.sp")
+    def test_secured_connection_success(
+        self,
+        subprocess_mock,
+        legacy_nmcli_mock,
+        wait_for_connected_mock,
+        perform_ping_test_mock,
+    ):
+        args = parse_args(["secured", "wlo1", "Mock", "password"])
+        subprocess_mock.call.side_effect = [0, 0, 0, 0]
+        legacy_nmcli_mock.return_value = False
+        wait_for_connected_mock.return_value = True
+        perform_ping_test_mock.return_value = True
+        self.assertEqual(secured_connection(args), 0)
+
+    @patch("wifi_nmcli_test.wait_for_connected")
+    @patch("wifi_nmcli_test.legacy_nmcli")
+    @patch("wifi_nmcli_test.sp")
+    def test_secured_connection_legacy_timeout(
+        self,
+        subprocess_mock,
+        legacy_nmcli_mock,
+        wait_for_connected_mock,
+    ):
+        args = parse_args(["secured", "wlo1", "Mock", "password"])
+
+        subprocess_mock.TimeoutExpired = TimeoutError
+        subprocess_mock.call.side_effect = [
+            0,
+            subprocess_mock.TimeoutExpired("nmcli c up TEST_CON", 200),
+        ]
+        legacy_nmcli_mock.return_value = True
+        wait_for_connected_mock.return_value = False
+
+        self.assertEqual(secured_connection(args), 1)
+
+    @patch("wifi_nmcli_test.perform_ping_test")
+    @patch("wifi_nmcli_test.wait_for_connected")
+    @patch("wifi_nmcli_test.legacy_nmcli")
+    @patch("wifi_nmcli_test.sp")
+    def test_secured_connection_ping_fail(
+        self,
+        subprocess_mock,
+        legacy_nmcli_mock,
+        wait_for_connected_mock,
+        perform_ping_test_mock,
+    ):
+        args = parse_args(["secured", "wlo1", "Mock", "password"])
+
+        subprocess_mock.call.side_effect = [0, 0, 0, 0]
+        legacy_nmcli_mock.return_value = False
+        wait_for_connected_mock.return_value = True
+        perform_ping_test_mock.return_value = False
+
+        self.assertEqual(secured_connection(args), 1)

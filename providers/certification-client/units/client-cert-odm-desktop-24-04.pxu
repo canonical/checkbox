@@ -82,9 +82,7 @@ exclude:
     com.canonical.certification::after-suspend-manual-keys/keyboard-backlight
     com.canonical.certification::after-suspend-manual-keys/microphone-mute
     com.canonical.certification::after-suspend-manual-keys/fn-lock
-    com.canonical.certification::led/bluetooth
-    com.canonical.certification::led/wlan
-    com.canonical.certification::led/wlan-disabled
+    com.canonical.certification::led/wireless
     com.canonical.certification::led/fn
     com.canonical.certification::led/mute
     com.canonical.certification::led/microphone-mute
@@ -191,9 +189,7 @@ exclude:
     com.canonical.certification::after-suspend-manual-keys/keyboard-backlight
     com.canonical.certification::after-suspend-manual-keys/microphone-mute
     com.canonical.certification::after-suspend-manual-keys/fn-lock
-    com.canonical.certification::led/bluetooth
-    com.canonical.certification::led/wlan
-    com.canonical.certification::led/wlan-disabled
+    com.canonical.certification::led/wireless
     com.canonical.certification::led/fn
     com.canonical.certification::led/mute
     com.canonical.certification::led/microphone-mute

@@ -5,8 +5,6 @@ _description:
  LED tests
  Notes: - led/power-blink-suspend and led/suspend are used later in the
           power management testplan just after a number of suspend tests.
-        - led/wireless is redundant given that we have led/wlan and
-          led/bluetooth already.
 include:
 nested_part:
  com.canonical.certification::led-cert-manual
@@ -20,8 +18,6 @@ _description:
     LED tests
     Notes: - led/power-blink-suspend and led/suspend are used later in the
              power management testplan just after a number of suspend tests.
-           - led/wireless is redundant given that we have led/wlan and
-             led/bluetooth already. (Manual)
 include:
     camera/led_.*                      certification-status=blocker
     led/caps-lock                      certification-status=blocker
@@ -30,6 +26,7 @@ include:
     led/fn                             certification-status=non-blocker
     led/mute                           certification-status=blocker
     led/microphone-mute                certification-status=blocker
+    led/wireless                       certification-status=blocker
 bootstrap_include:
     device
 
@@ -41,8 +38,6 @@ _description:
     LED tests
     Notes: - led/power-blink-suspend and led/suspend are used later in the
              power management testplan just after a number of suspend tests.
-           - led/wireless is redundant given that we have led/wlan and
-             led/bluetooth already. (Automated)
 include:
 
 
@@ -58,6 +53,7 @@ include:
     after-suspend-led/mute                      certification-status=blocker
     after-suspend-led/microphone-mute           certification-status=blocker
     after-suspend-led/fn                        certification-status=non-blocker
+    after-suspend-led/wireless                  certification-status=blocker
 bootstrap_include:
     device
 
@@ -73,6 +69,7 @@ include:
     led/power                          certification-status=blocker
     led/mute                           certification-status=blocker
     led/microphone-mute                certification-status=blocker
+    led/wireless                       certification-status=blocker
 bootstrap_include:
     device
 
@@ -88,6 +85,7 @@ include:
     suspend/led_after_suspend/power             certification-status=blocker
     after-suspend-led/mute                      certification-status=blocker
     after-suspend-led/microphone-mute           certification-status=blocker
+    after-suspend-led/wireless                  certification-status=blocker
 bootstrap_include:
     device
 
@@ -108,7 +106,7 @@ _description: Manual LED tests for IoT devices
 include:
     led/power
     led/power-blink-suspend
-    led/bluetooth
+    led/wireless
     led/serial
     led/fn
     led/sysfs_led_brightness_on_.*

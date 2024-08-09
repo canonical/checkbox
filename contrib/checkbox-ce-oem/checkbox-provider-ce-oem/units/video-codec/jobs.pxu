@@ -34,7 +34,7 @@ template-resource: video_codec_resource
 template-filter: video_codec_resource.scenario == "gst_v4l2_audio_video_synchronization"
 template-unit: job
 template-id: ce-oem-video-codec/gst_v4l2_audio_video_synchronization
-_template-summary: To check if the relative timing of audio and video is synchronized under a specific decoder
+_template-summary: To check if the relative timing of audio and video is synchronized
 id: ce-oem-video-codec/{{ scenario }}-{{ decoder_plugin }}-{{ golden_sample_file_name }}-{{ video_sink }}
 _summary: AV-Sync test of decoder {{ decoder_plugin }} with {{ golden_sample_file_name }} file
 _purpose: To check if the relative timing of audio and video of {{ golden_sample_file_name }} file is synchronized under a specific {{ decoder_plugin }} decoder

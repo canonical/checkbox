@@ -108,7 +108,10 @@ class WifiNmcliBackupTests(unittest.TestCase):
     @patch("wifi_nmcli_test.sp")
     def test_wait_for_connected_false(self, subprocess_mock):
         subprocess_mock.check_output.return_value = b"20 (unavailable)"
-        self.assertFalse(wait_for_connected("wlo1"))
+        max_wait = 5
+        result = wait_for_connected("wlo1", max_wait)
+        self.assertEqual(subprocess_mock.check_output.call_count, max_wait)
+        self.assertFalse(result)
 
     @patch("wifi_nmcli_test.sp")
     def test_hotspot_success(self, subprocess_mock):

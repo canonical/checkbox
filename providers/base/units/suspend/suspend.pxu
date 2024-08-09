@@ -262,13 +262,8 @@ command:
      echo "Calling fwts"
      set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/suspend_single.log -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
  else
-    if [ -z "$RTC_DEVICE_FILE" ]; then
-      echo "Calling rtcwake"
-      rtcwake -m no -s 30 && systemctl suspend || exit 1
-    else
-      echo "Calling rtcwake with -d $RTC_DEVICE_FILE"
-      rtcwake -d "$RTC_DEVICE_FILE" -m no -s 30 and systemctl suspend || exit 1
-    fi
+      echo "Calling rtcwake with -d ${RTC_DEVICE_FILE:-/dev/rtc0}"
+      rtcwake -d "${RTC_DEVICE_FILE:-/dev/rtc0}" -m no -s 30 && systemctl suspend || exit 1
  fi
 estimated_duration: 90.000
 

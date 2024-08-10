@@ -191,9 +191,7 @@ def swap_space_ok(swap_size):
     global my_swap
     min_swap_space = 0
 
-    swap_size = max(
-        os.environ.get("STRESS_NG_MIN_SWAP_SPACE", 0), swap_size
-    )
+    swap_size = max(os.environ.get("STRESS_NG_MIN_SWAP_SPACE", 0), swap_size)
     print("Minimum swap space is set to {} GiB".format(swap_size))
     min_swap_space = swap_size * 1024**3
     swap = psutil.swap_memory()

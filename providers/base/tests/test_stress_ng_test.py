@@ -189,3 +189,104 @@ class TestMainFunction(unittest.TestCase):
         self, shutil_which_mock, os_geteuid_mock, swap_space_ok_mock
     ):
         self.assertEqual(main(), 1)
+
+    @patch("stress_ng_test.shutil.rmtree")
+    @patch("stress_ng_test.check_output")
+    @patch(
+        "stress_ng_test.Disk",
+        return_value=MagicMock(
+            is_block_device=MagicMock(return_value=True),
+            mount_filesystem=MagicMock(return_value=True),
+        ),
+    )
+    @patch("stress_ng_test.os.geteuid", return_value=0)
+    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
+    @patch(
+        "stress_ng_test.sys.argv",
+        ["stress_ng_test.py", "disk", "--device", "/dev/sda"],
+    )
+    def test_main_stress_disk_success(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        disk_mock,
+        check_output_mock,
+        rmtree_mock,
+    ):
+        self.assertEqual(main(), 0)
+
+    @patch("stress_ng_test.shutil.rmtree")
+    @patch("stress_ng_test.check_output")
+    @patch(
+        "stress_ng_test.Disk",
+        return_value=MagicMock(
+            is_block_device=MagicMock(return_value=True),
+            mount_filesystem=MagicMock(return_value=True),
+        ),
+    )
+    @patch("stress_ng_test.os.geteuid", return_value=0)
+    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
+    @patch(
+        "stress_ng_test.sys.argv",
+        ["stress_ng_test.py", "disk", "--device", "sda"],
+    )
+    def test_main_stress_disk_partial_name_success(
+        self,
+        shutil_which_mock,
+        os_geteuid_mock,
+        disk_mock,
+        check_output_mock,
+        rmtree_mock,
+    ):
+        self.assertEqual(main(), 0)
+
+    @patch(
+        "stress_ng_test.Disk",
+        return_value=MagicMock(
+            is_block_device=MagicMock(return_value=True),
+            mount_filesystem=MagicMock(return_value=True),
+        ),
+    )
+    @patch("stress_ng_test.os.geteuid", return_value=0)
+    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
+    @patch(
+        "stress_ng_test.sys.argv",
+        ["stress_ng_test.py", "disk", "--device", "/dev/sda", "--simulate"],
+    )
+    def test_main_stress_disk_simulate_success(
+        self, shutil_which_mock, os_geteuid_mock, disk_mock
+    ):
+        self.assertEqual(main(), 0)
+
+    @patch(
+        "stress_ng_test.Disk",
+        return_value=MagicMock(is_block_device=MagicMock(return_value=False)),
+    )
+    @patch("stress_ng_test.os.geteuid", return_value=0)
+    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
+    @patch(
+        "stress_ng_test.sys.argv",
+        ["stress_ng_test.py", "disk", "--device", "/dev/sda"],
+    )
+    def test_main_stress_disk_not_a_block_device(
+        self, shutil_which_mock, os_geteuid_mock, disk_mock
+    ):
+        self.assertEqual(main(), 1)
+
+    @patch(
+        "stress_ng_test.Disk",
+        return_value=MagicMock(
+            is_block_device=MagicMock(return_value=True),
+            mount_filesystem=MagicMock(return_value=False),
+        ),
+    )
+    @patch("stress_ng_test.os.geteuid", return_value=0)
+    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
+    @patch(
+        "stress_ng_test.sys.argv",
+        ["stress_ng_test.py", "disk", "--device", "/dev/sda"],
+    )
+    def test_main_stress_disk_fail_mount(
+        self, shutil_which_mock, os_geteuid_mock, disk_mock
+    ):
+        self.assertEqual(main(), 1)

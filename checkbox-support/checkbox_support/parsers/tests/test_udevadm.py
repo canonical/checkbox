@@ -690,6 +690,11 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.verify_devices(devices, expected_devices)
 
+    def test_HP_ELITEBOOK_835_13_INCH_G10(self):
+        devices = self.parse("HP_ELITEBOOK_835_13_INCH_G10")
+        expected_devices = []
+        self.assertTrue(False)
+
     def test_HP_ENVY_15_MEDIATEK_BT(self):
         devices = self.parse("HP_ENVY_15_MEDIATEK_BT")
         expected_devices = [

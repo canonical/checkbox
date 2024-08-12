@@ -79,12 +79,12 @@ rm ./cuda-archive-keyring.gpg
 PINFILE="cuda-$OSRELEASE.pin"
 sudo wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"
 
-sudo tee /etc/apt/sources.list.d/cuda-$OSRELEASE-$ARCH.list << 'EOF'
+sudo tee /etc/apt/sources.list.d/cuda-$OSRELEASE-$ARCH.list <<EOF
 deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] http://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH/ /
 EOF
 
 # Install necessary files
-#apt update
+sudo apt update
 echo "*  Installing necessary pacakges"
 sudo apt install -y build-essential git
 ## need to break this out to fix issue where cuda installs gdm3
@@ -108,14 +108,17 @@ CUDA_SAMPLES_DIR="$BUILD_DIR/cuda-samples"
 git clone https://github.com/nvidia/cuda-samples.git "$CUDA_SAMPLES_DIR"
 echo "*  Building cuda-samples tests"
 make -C "$CUDA_SAMPLES_DIR/Samples/0_Introduction/matrixMulDrv"
+mkdir -p "$DATA_DIR/matrixMulDrv"
 cp "$CUDA_SAMPLES_DIR/Samples/0_Introduction/matrixMulDrv/matrixMulDrv" "$BIN_DIR/"
 cp -r "$CUDA_SAMPLES_DIR/Samples/0_Introduction/matrixMulDrv/data" "$DATA_DIR/matrixMulDrv"
 make -C "$CUDA_SAMPLES_DIR/Samples/0_Introduction/vectorAddDrv"
+mkdir -p "$DATA_DIR/vectorAddDrv"
 cp "$CUDA_SAMPLES_DIR/Samples/0_Introduction/vectorAddDrv/vectorAddDrv" "$BIN_DIR/"
 cp -r "$CUDA_SAMPLES_DIR/Samples/0_Introduction/vectorAddDrv/data" "$DATA_DIR/vectorAddDrv"
 make -C "$CUDA_SAMPLES_DIR/Samples/1_Utilities/deviceQueryDrv"
 cp "$CUDA_SAMPLES_DIR/Samples/1_Utilities/deviceQueryDrv/deviceQueryDrv" "$BIN_DIR/"
 make -C "$CUDA_SAMPLES_DIR/Samples/0_Introduction/simpleTextureDrv"
+mkdir -p "$DATA_DIR/simpleTextureDrv"
 cp "$CUDA_SAMPLES_DIR/Samples/0_Introduction/simpleTextureDrv/simpleTextureDrv" "$BIN_DIR/"
 cp -r "$CUDA_SAMPLES_DIR/Samples/0_Introduction/simpleTextureDrv/data" "$DATA_DIR/simpleTextureDrv"
 echo "*  Building cuda-samples tests completed..."

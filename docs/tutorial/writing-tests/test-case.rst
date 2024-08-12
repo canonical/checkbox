@@ -4,7 +4,7 @@
 Writing Test Jobs
 =================
 Let's begin our journey in Checkbox test jobs by writing our first test job. Our
-objective is to detect if the DUT is correctly connected to the internet.
+objective is to detect if the :term:`DUT` is correctly connected to the Internet.
 
 Basic setup
 ===========
@@ -13,8 +13,8 @@ Let's create a new Checkbox provider by ...
 
 Inside the provider you can see there are several directories. Definitions (the
 descriptions of what we want to do) are contained in PXU files that we store in
-the ``unit`` subdirectory. We usually separate PXU files between the kind of
-unit they contain (for example: resource, job, test-plan etc.) but for this
+the ``units`` subdirectory. We usually separate PXU files between the kind of
+unit they contain (for example: resource, job, test plan, etc.) but for this
 simple example we are going to use a single file.
 
 Create the ``units/extended_tutorial.pxu``. This will be our first job:
@@ -28,14 +28,14 @@ Create the ``units/extended_tutorial.pxu``. This will be our first job:
       echo This job passes!
 
 Now let's try to run this test job. Given that we have just created this
-provider, Checkbox has no idea it exists. To make it discoverable to it we have
+provider, Checkbox has no idea it exists. To make it discoverable, we have
 to install it. The concept of a provider is very similar to a Python module.
 The equivalent of the ``setup.py`` file for Checkbox is ``manage.py``. The
-automated process should have created it in the root of your provider. In order
+automated process should have created this file in the root of your provider. In order
 to install a provider one can either use ``python3 manage.py install`` or
 ``python3 manage.py develop``. The difference is exactly the same between
 ``pip install`` and ``pip install -e``, namely, the second method allows us to
-modify and use the provider without re-installing.
+modify and use the provider without re-installing it.
 
 Run the following:
 
@@ -43,7 +43,7 @@ Run the following:
 
     (checkbox_venv) > python3 manage.py develop
 
-Now to run our test we can use the run sub-command, try the following:
+Now to run our test we can use the ``run`` sub-command. Try the following:
 
 .. code-block:: none
 
@@ -66,7 +66,7 @@ First concrete test example
 ===========================
 
 Ok, it worked, but this is not very useful. Let's go back and edit the job to
-actually run a ping command. Replace the command section of the job with
+actually run a ping command. Replace the ``command`` section of the job with
 ``ping -c 1 1.1.1.1``, let's also update the summary as follows:
 
 .. code-block:: none
@@ -79,12 +79,12 @@ actually run a ping command. Replace the command section of the job with
 
 .. note::
 
-    Giving your test a significant summary and id is almost as important as
+    Giving your test a significant ``summary`` and ``id`` is almost as important as
     giving it a significant output. Ideally when a test fails one should be able
     to understand what is being tested from these two fields, without resorting
-    to reading the command section
+    to reading the ``command`` section.
 
-Try to re-use the run command to test the update. You should now see something
+Try to re-use the ``run`` command to test the update. You should now see something
 like this:
 
 .. code-block:: none
@@ -199,10 +199,10 @@ is the new Result that Checkbox will present:
      ☒ : Test that the internet is reachable
      ☐ : Test that the network speed is acceptable
 
-Customize tests via envvars
-===========================
+Customize tests via environment variables
+=========================================
 
-Sometimes it is hard to set an unique value for a test parameter because it may
+Sometimes it is hard to set a unique value for a test parameter because it may
 depend on a multitude of factors. Notice that our previous test has a very
 ISP-generous interpretation of what is an acceptable speed, some customers may
 beg to differ. At the same time it is hard to define an acceptable speed for
@@ -270,7 +270,7 @@ reproduce the tests with the parameters that may have made it fail.
 Resources
 =========
 
-Before even thinking to test if we are connected to the internet a wise
+Before even thinking to test if we are connected to the Internet a wise
 question to ask would be: do we even have a network interface? Let's create a
 resource job to fetch this information.
 
@@ -316,7 +316,7 @@ base provider, so we can safely remove this dependency from our provider.
 .. warning::
    If you don't have ``jq`` installed on your machine, install it now else you
    won't be able to follow the next steps. You can install it either via
-   ``sudo snap install jq`` or ``sudo apt install jq``
+   ``sudo snap install jq`` or ``sudo apt install jq``.
 
 Now that we have this new resource let's run it to see what the output is
 
@@ -358,7 +358,7 @@ Now that we have this new resource let's run it to see what the output is
     link_type: none
 
 We now add a ``requires:`` constraint to our jobs so that, if no interface
-that could possibly connected to the internet is on the machine, we can
+that could possibly connect to the Internet is on the machine, we can
 skip them instead of failing.
 
 .. code-block:: none
@@ -366,14 +366,14 @@ skip them instead of failing.
 
     id: network_available
     flags: simple
-    _summary: Test that the internet is reachable
+    _summary: Test that the Internet is reachable
     requires:
       network_iface_info.link_type == "ether"
     command:
       ping -c 1 1.1.1.1
 
-If we now run the ``network_available`` test, Checkbox will automatically pull
-also ``network_iface_info``. Note that this only happens because both are in
+If we now run the ``network_available`` test, Checkbox will also automatically
+pull ``network_iface_info``. Note that this only happens because both are in
 the same namespace.
 
 .. code-block:: none
@@ -384,7 +384,7 @@ the same namespace.
     ----------------[ Fetches information of all network intefaces ]----------------
     [...]
     =========[ Running job 2 / 2. Estimated time left (at least): 0:00:00 ]=========
-    --------------------[ Test that the internet is reachable ]---------------------
+    --------------------[ Test that the Internet is reachable ]---------------------
     [...]
     ==================================[ Results ]===================================
      ☑ : Fetches information of all network intefaces
@@ -394,11 +394,11 @@ Are we done then? Almost, there are a few issues with our resource job. The
 first and most relevant is that the ``resource`` constraint we have written
 seems to work, but if we analyze the output what we have written actually
 over-matches (as ``veth993f2cd0`` is also an ``ether`` device, but it is not a
-valid interface to use to connect to the internet). We can easily fix this by
+valid interface to use to connect to the Internet). We can easily fix this by
 updating the expression as follows but take note of what happened.
 
 .. warning::
-    It is actually difficult to write a significant resource expressions. This
+    It is actually difficult to write a significant resource expression. This
     time we got "lucky", and we could notice the mistake on our own machine, but
     this may not be the always the case. In general make your resource
     expressions as restrictive as possible.
@@ -418,7 +418,7 @@ the ``--json`` flag.
 
 .. warning::
     When you use a pre-installed package, always check if all versions support
-    your use case and if there is a version available for all target versions
+    your use case and if there is a version available for all target versions.
 
 If we want to contribute this new test upstream, the pull request will be
 declined for this reason. We could work around this in a multitude of way but

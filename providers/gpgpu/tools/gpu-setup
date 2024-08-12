@@ -79,12 +79,12 @@ rm ./cuda-archive-keyring.gpg
 PINFILE="cuda-$OSRELEASE.pin"
 sudo wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"
 
-sudo tee /etc/apt/sources.list.d/cuda-$OSRELEASE-$ARCH.list << 'EOF'
+sudo tee /etc/apt/sources.list.d/cuda-$OSRELEASE-$ARCH.list <<EOF
 deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] http://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH/ /
 EOF
 
 # Install necessary files
-#apt update
+sudo apt update
 echo "*  Installing necessary pacakges"
 sudo apt install -y build-essential git
 ## need to break this out to fix issue where cuda installs gdm3

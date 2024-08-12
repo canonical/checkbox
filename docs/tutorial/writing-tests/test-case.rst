@@ -3,13 +3,13 @@
 =================
 Writing Test Jobs
 =================
-Lets begin our journey in Checkbox test jobs by writing our first test job. Our
+Let's begin our journey in Checkbox test jobs by writing our first test job. Our
 objective is to detect if the DUT is correctly connected to the internet.
 
 Basic setup
 ===========
 
-Lets create a new Checkbox provider by ...
+Let's create a new Checkbox provider by ...
 
 Inside the provider you can see there are several directories. Definitions (the
 descriptions of what we want to do) are contained in PXU files that we store in
@@ -27,7 +27,7 @@ Create the ``units/extended_tutorial.pxu``. This will be our first job:
     command:
       echo This job passes!
 
-Now lets try to run this test job. Given that we have just created this
+Now let's try to run this test job. Given that we have just created this
 provider, Checkbox has no idea it exists. To make it discoverable to it we have
 to install it. The concept of a provider is very similar to a Python module.
 The equivalent of the ``setup.py`` file for Checkbox is ``manage.py``. The
@@ -65,9 +65,9 @@ Now to run our test we can use the run sub-command, try the following:
 First concrete test example
 ===========================
 
-Ok, it worked, but this is not very useful. Lets go back and edit the job to
+Ok, it worked, but this is not very useful. Let's go back and edit the job to
 actually run a ping command. Replace the command section of the job with
-``ping -c 1 1.1.1.1``, lets also update the summary as follows:
+``ping -c 1 1.1.1.1``, let's also update the summary as follows:
 
 .. code-block:: none
 
@@ -111,8 +111,8 @@ like this:
 Dependencies
 ============
 
-Lets keep in mind that our objective is to test if the network works correctly.
-Currently we can check if we are able to ping some arbitrary host, but lets try
+Let's keep in mind that our objective is to test if the network works correctly.
+Currently we can check if we are able to ping some arbitrary host, but let's try
 to actually measure the network speed and determine if it is acceptable.
 
 .. code-block:: none
@@ -147,7 +147,7 @@ Try to run the test via the run command. You should see something like this:
 
 
 We can save time and resources skipping this test if the ping test didn't work.
-Lets add a dependency of the second test on the first one like follows:
+Let's add a dependency of the second test on the first one like follows:
 
 .. code-block:: none
     :emphasize-lines: 4
@@ -181,7 +181,7 @@ in the run command:
     (checkbox_venv) > checkbox-cli run com.canonical.certification::network_available \
       com.canonical.certification::network_speed
 
-Finally lets test that this actually works. To do so we can temporarily change the
+Finally let's test that this actually works. To do so we can temporarily change the
 command section of ``network_available`` to ``exit 1``. This
 is the new Result that Checkbox will present:
 
@@ -271,7 +271,7 @@ Resources
 =========
 
 Before even thinking to test if we are connected to the internet a wise
-question to ask would be: do we even have a network interface? Lets create a
+question to ask would be: do we even have a network interface? Let's create a
 resource job to fetch this information.
 
 Create a new job with the following content:
@@ -288,7 +288,7 @@ Create a new job with the following content:
           "\nlink_type: " + .link_type + "\n"'
 
 This test adds a new dependency to our provider. We need to declare this in
-the correct spot else this will not work in a reproducible manner. Lets create
+the correct spot else this will not work in a reproducible manner. Let's create
 a packaging meta-data unit.
 
 .. code-block:: none
@@ -318,7 +318,7 @@ base provider, so we can safely remove this dependency from our provider.
    won't be able to follow the next steps. You can install it either via
    ``sudo snap install jq`` or ``sudo apt install jq``
 
-Now that we have this new resource lets run it to see what the output is
+Now that we have this new resource let's run it to see what the output is
 
 .. code-block:: none
 
@@ -433,7 +433,7 @@ command.
     device -> Collect information about hardware devices (udev) : resource
     [...]
 
-We can now update our job, but with what ``requires``? Lets run the ``device``
+We can now update our job, but with what ``requires``? Let's run the ``device``
 job and check the output.
 
 .. code-block:: none
@@ -450,7 +450,7 @@ job and check the output.
     interface: enp5s0
     [...]
 
-Lets propagate this newfound knowledge over to our ``requires`` constraint:
+Let's propagate this newfound knowledge over to our ``requires`` constraint:
 
 .. code-block:: none
 
@@ -465,7 +465,7 @@ demo test. This may now be exactly what we want. When testing a device we may
 want to plug in every interface and test them all just to be sure that they all
 work. Ideally, the test that we want to do is the same for each interface.
 
-Templates allow us to do exactly this. Lets try to implement per-interface
+Templates allow us to do exactly this. Let's try to implement per-interface
 connection checking.
 
 .. note::
@@ -545,7 +545,7 @@ and you can manually resolve the dependency chain that is not resolved by
 Checkbox but this can be, in practice, often hard or impossible.
 For a more principled solution see the the Test Plan Tutorial section.
 
-Lets then modify the job so that it actually does the test and use the template
+Let's then modify the job so that it actually does the test and use the template
 filter so that we don't generate tests for interfaces that we know that will
 not work:
 
@@ -621,7 +621,7 @@ Update the resource job with the following new line:
           "\nlink_type: " + .link_type +
           "\noperstate: " + .operstate + "\n"'
 
-Now lets modify the template to add a ``requires`` to the generated job:
+Now let's modify the template to add a ``requires`` to the generated job:
 
 .. code-block:: none
     :emphasize-lines: 8,9
@@ -712,7 +712,7 @@ Create two new directories in the provider: ``bin/`` and ``tests/``. Create
 a new python file in ``bin/`` and call it ``network_available.py`` and make it
 executable (``chmod +x network_available.py``).
 
-Lets translate the previous test into Python first:
+Let's translate the previous test into Python first:
 
 .. code-block:: python
 
@@ -1036,7 +1036,7 @@ syscall actually shares the memory between the parent and child process.
     }
 
 To compile our source files, Checkbox relies on a Makefile that must be in the
-``src/`` directory. Lets create it with all the basic rules we are going to
+``src/`` directory. Let's create it with all the basic rules we are going to
 need:
 
 .. code-block:: Makefile

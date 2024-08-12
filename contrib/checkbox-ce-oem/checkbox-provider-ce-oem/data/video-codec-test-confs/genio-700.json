@@ -28,6 +28,38 @@
                 ]
             }
         ]
-    }
+    },
+    "gst_v4l2_video_decoder_performance_fakesink": [
+        {
+            "decoder_plugin": "v4l2h264dec",
+            "golden_sample_file": "H264_3840x2160_75fps_160Mbps.mp4",
+            "minimum_fps": 75,
+            "enable_performance_mode": true
+        },
+        {
+            "decoder_plugin": "v4l2h265dec",
+            "golden_sample_file": "H265_3840x2160_75fps_160Mbps.mp4",
+            "minimum_fps": 75,
+            "enable_performance_mode": true
+        },
+        {
+            "decoder_plugin": "v4l2mpeg4dec",
+            "golden_sample_file": "MPEG-4_1920x1080_60fps_60Mbps.mp4",
+            "minimum_fps": 60,
+            "enable_performance_mode": true
+        },
+        {
+            "decoder_plugin": "v4l2vp8dec",
+            "golden_sample_file": "VP8_1920x1080_60fps_40Mbps.webm",
+            "minimum_fps": 60,
+            "enable_performance_mode": true
+        },
+        {
+            "decoder_plugin": "v4l2vp9dec",
+            "golden_sample_file": "VP9_3840x2160_75fps_120Mbps.webm",
+            "minimum_fps": 75,
+            "enable_performance_mode": true
+        }
+    ]
 }
 

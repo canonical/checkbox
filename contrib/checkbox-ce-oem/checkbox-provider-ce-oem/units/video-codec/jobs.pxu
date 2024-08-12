@@ -55,6 +55,9 @@ _verification:
 command:
     gst_v4l2_audio_video_synchronization.py -dp {{decoder_plugin}} -gp {{golden_sample_file}} -vs {{video_sink}} -cp "{{capssetter_pipeline}}"
 
+unit: template
+template-engine: jinja2
+template-resource: video_codec_resource
 template-filter: video_codec_resource.scenario == "gst_v4l2_video_decoder_performance_fakesink"
 template-unit: job
 template-id: ce-oem-video-codec/gst_v4l2_video_decoder_performance_fakesink

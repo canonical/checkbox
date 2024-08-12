@@ -26,7 +26,7 @@ from stress_ng_test import main, num_numa_nodes, swap_space_ok
 class TestMemoryFunctions(unittest.TestCase):
     @patch("stress_ng_test.run")
     def test_num_numa_nodes_success(self, run_mock):
-        run_mock.return_value = MagicMock(name="completed_process")
+        run_mock.return_value = MagicMock()
         run_mock.return_value.stdout = b"available: 2 nodes (0-1)"
         self.assertEqual(num_numa_nodes(), 2)
 

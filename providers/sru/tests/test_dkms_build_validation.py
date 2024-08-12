@@ -42,9 +42,28 @@ class TestDKMSValidation(unittest.TestCase):
         "tp_smapi/0.43, 6.8.0-40-generic, x86_64: installed"
     )
 
+    dkms_status_with_warning = (
+        "fwts-efi-runtime-dkms/22.03.00, 6.0.0-1011-oem, x86_64: installed "
+        "(WARNING! Diff between built and installed module!)"
+    )
+
     sorted_kernel_info = [
         {"version": "6.5.0-15-generic", "status": "installed"},
         {"version": "6.5.0-17-generic", "status": "installed"},
+    ]
+
+    sorted_kernel_info_efi_test_driver = [
+        {"version": "6.1.0-1028-oem", "status": "installed"},
+        {"version": "6.1.0-1032-oem", "status": "installed"},
+        {"version": "6.1.0-1033-oem", "status": "installed"},
+        {"version": "6.1.0-1034-oem", "status": "installed"},
+        {"version": "6.1.0-1035-oem", "status": "installed"},
+        {"version": "6.5.0-1020-oem", "status": "installed"},
+        {"version": "6.5.0-1022-oem", "status": "installed"},
+        {"version": "6.5.0-1023-oem", "status": "installed"},
+        {"version": "6.5.0-1024-oem", "status": "installed"},
+        {"version": "6.5.0-1026-oem", "status": "installed"},
+        {"version": "6.8.0-40-generic", "status": "installed"},
     ]
 
     @patch("dkms_build_validation.subprocess.check_output")
@@ -99,6 +118,16 @@ class TestDKMSValidation(unittest.TestCase):
         ]
         self.assertEqual(kernel_info, expected_kernel_info)
 
+    def test_parse_dkms_status_with_warning(self):
+        ubuntu_release = "22.04"
+        kernel_info = parse_dkms_status(
+            self.dkms_status_with_warning, ubuntu_release
+        )
+        expected_kernel_info = [
+            {"version": "6.0.0-1011-oem", "status": "installed"},
+        ]
+        self.assertEqual(kernel_info, expected_kernel_info)
+
     def test_parse_dkms_status_old(self):
         old_dkms_status = (
             "fwts, 24.01.00, 6.5.0-17-generic, x86_64: installed\n"
@@ -150,6 +179,33 @@ class TestDKMSValidation(unittest.TestCase):
                 "6.5.0-18-generic", self.sorted_kernel_info, self.dkms_status
             ),
             1,
+        )
+
+        self.assertEqual(
+            check_kernel_version(
+                "6.1.0-1028-oem",
+                self.sorted_kernel_info_efi_test_driver,
+                self.dkms_status_efi_test_driver,
+            ),
+            1,
+        )
+
+        self.assertEqual(
+            check_kernel_version(
+                "6.5.0-1023-oem",
+                self.sorted_kernel_info_efi_test_driver,
+                self.dkms_status_efi_test_driver,
+            ),
+            1,
+        )
+
+        self.assertEqual(
+            check_kernel_version(
+                "6.8.0-40-generic",
+                self.sorted_kernel_info_efi_test_driver,
+                self.dkms_status_efi_test_driver,
+            ),
+            0,
         )
 
     def test_check_dkms_module_count(self):

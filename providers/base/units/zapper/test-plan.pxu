@@ -8,7 +8,7 @@ nested_part:
 
 id: zapper-enabled-automated
 unit: test plan
-_name: Tests using Zapper
+_name: Tests using Zapper (automated)
 _description: Tests using Zapper
 include:
   bluetooth/zapper-a2dp

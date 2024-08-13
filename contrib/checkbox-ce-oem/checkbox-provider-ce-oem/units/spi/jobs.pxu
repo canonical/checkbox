@@ -14,7 +14,7 @@ _purpose:
 _description:
     This test will validate the SPI devices are exposed as expected.
     Update the SPI_DEVICES variable if you have multiple SPI devices. the default value is "/dev/spidev0.0"
-    e.g. SPI_DEVICES="/dev/spidev0.0 /dev/spidev0.1 /dev/spidev0.3"
+    e.g. SPI_DEVICES="/dev/spidev0.0,/dev/spidev0.1,/dev/spidev0.3"
 environ:
     SPI_DEVICES
 command:

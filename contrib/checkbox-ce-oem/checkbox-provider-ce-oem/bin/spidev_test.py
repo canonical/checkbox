@@ -19,16 +19,21 @@ def runcmd(command):
 
 def detect_spi_node(expected_devs=None):
     spi_devices = glob.glob("/dev/spidev*")
+    spi_devices.sort()
     if spi_devices:
         for device in spi_devices:
             print("device: {}".format(device))
             print()
     if expected_devs:
-        if set(spi_devices) != set(expected_devs.split()):
+        expected_devs = expected_devs.split(",")
+        expected_devs.sort()
+        if set(spi_devices) != set(expected_devs):
             raise SystemExit(
                 "SPI devices detected under /dev/ is not expected!\n"
                 "Expected: {}\n"
-                "Actual: {}".format(expected_devs, " ".join(spi_devices))
+                "Actual: {}".format(
+                    ", ".join(expected_devs), ", ".join(spi_devices)
+                )
             )
         print("SPI devices detected under /dev/ is expected")
 

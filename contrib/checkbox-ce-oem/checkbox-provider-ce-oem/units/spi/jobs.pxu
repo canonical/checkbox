@@ -11,10 +11,14 @@ _summary:
     To detect if the spi device exist
 _purpose:
     Check if the SPI devices exist
+_description:
+    This test will validate the SPI devices are exposed as expected.
+    Update the SPI_DEVICES variable if you have multiple SPI devices. the default value is "/dev/spidev0.0"
+    e.g. SPI_DEVICES="/dev/spidev0.0 /dev/spidev0.1 /dev/spidev0.3"
 environ:
-    SPI_DEVICE_COUNT
+    SPI_DEVICES
 command:
-    spidev_test.py -d "${SPI_DEVICE_COUNT:-1}"
+    spidev_test.py -d "${SPI_DEVICES:-/dev/spidev0.0}"
 
 unit: template
 template-resource: ce-oem-spi-list

@@ -1517,7 +1517,7 @@ class UdevadmParser(object):
                     d.category = "VIDEO"
 
         for device in list(self.devices.values()):
-            if device.category == "HIDRAW" and device._stack:
+            if device.category == "HIDRAW" and len(device._stack) > 1:
                 for parent in (device._stack[-1], device._stack[-2]):
                     if parent._raw_path in HID_devices_path_list:
                         self.devices.pop(device._raw_path, None)

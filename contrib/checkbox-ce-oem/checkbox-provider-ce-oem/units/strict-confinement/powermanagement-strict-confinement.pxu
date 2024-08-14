@@ -18,7 +18,7 @@ requires:
 command:
   rtcwake -d "${RTC_DEVICE_FILE:-rtc0}" -v -m no -s "${STRESS_BOOT_WAKEUP_DELAY:-120}"
   test-strict-confinement.dbus-cold-boot
-  sleep 5
+  sleep 60
   touch "$PLAINBOX_SESSION_SHARE/coldboot_fail"
   reboot
 
@@ -61,7 +61,7 @@ requires:
   snap.name == 'test-strict-confinement'
 command:
   test-strict-confinement.dbus-warm-boot
-  sleep 5
+  sleep 60
   touch "$PLAINBOX_SESSION_SHARE/warmboot_fail"
   reboot
 

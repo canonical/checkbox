@@ -1,16 +1,16 @@
-id: dbus-warm-boot
+id: strict-confinement-dbus-warm-boot
 unit: test plan
-_name: Warm boot test via dbus
+_name: Warm reboot test via dbus
 _description:
-    Warm boot test by using dbus command.
+    Warm reboot test by using dbus command.
     Rely on test-strict-confinement SNAP to test.
 bootstrap_include:
 include:
-    dbus-warm-boot
-    dbus-warm-boot-test
+    strict-confinement/dbus-warm-boot
+    strict-confinement/dbus-warm-boot-test
 
 
-id: dbus-cold-boot
+id: strict-confinement-dbus-cold-boot
 unit: test plan
 _name: Cold boot test via dbus
 _description:
@@ -18,8 +18,8 @@ _description:
     Rely on test-strict-confinement SNAP to test.
 bootstrap_include:
 include:
-    dbus-cold-boot
-    dbus-cold-boot-test
+    strict-confinement/dbus-cold-boot
+    strict-confinement/dbus-cold-boot-test
 
 
 id: strict-confine-mediacard

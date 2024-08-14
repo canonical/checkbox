@@ -1,10 +1,10 @@
-id: dbus-cold-boot
+id: strict-confinement/dbus-cold-boot
 category_id: strict-confinement-mode
 _summary: Perform cold boot via dbus
 _description: This test will check your system shutdown/booting cycle via dbus command.
 unit: job
 plugin: shell
-environ: STRESS_BOOT_WAKEUP_DELAY RTC_DEVICE_FILE
+environ: STRESS_BOOT_WAKEUP_DELAY RTC_DEVICE_FILE PLAINBOX_SESSION_SHARE
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 180.0
@@ -18,24 +18,31 @@ requires:
 command:
   rtcwake -d "${RTC_DEVICE_FILE:-rtc0}" -v -m no -s "${STRESS_BOOT_WAKEUP_DELAY:-120}"
   test-strict-confinement.cold-boot
+  sleep 5
+  touch "$PLAINBOX_SESSION_SHARE/coldboot_fail"
+  reboot
 
 
-id: dbus-cold-boot-test
+id: strict-confinement/dbus-cold-boot-test
 category_id: strict-confinement-mode
 _summary: Cold boot system configuration test via dbus
 _description: This is a job to check system bootup without error after cold boot.
 unit: job
 plugin: shell
-environ: LD_LIBRARY_PATH
+environ: LD_LIBRARY_PATH PLAINBOX_SESSION_SHARE
 user: root
 flags: preserve-locale
 estimated_duration: 1.0
-depends: dbus-cold-boot
+depends: strict-confinement/dbus-cold-boot
 command:
-  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/cold_reboot" -s -f
+  if [ -f "$PLAINBOX_SESSION_SHARE/coldboot_fail" ]; then
+    echo "FAIL: Unexpected cold boot!"
+    exit 1
+  fi
+  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/cold_reboot" -s
 
 
-id: dbus-warm-boot
+id: strict-confinement/dbus-warm-boot
 category_id: strict-confinement-mode
 _summary: Perform warm boot via dbus
 _description: Perform warm boot of the system via dbus command.
@@ -44,6 +51,7 @@ plugin: shell
 user: root
 flags: preserve-locale noreturn autorestart
 estimated_duration: 60s
+environ: PLAINBOX_SESSION_SHARE
 depends: com.canonical.certification::init-boot-loop-data
 imports:
   from com.canonical.certification import snap
@@ -53,18 +61,25 @@ requires:
   snap.name == 'test-strict-confinement'
 command:
   test-strict-confinement.warm-boot
+  sleep 5
+  touch "$PLAINBOX_SESSION_SHARE/warmboot_fail"
+  reboot
 
 
-id: dbus-warm-boot-test
+id: strict-confinement/dbus-warm-boot-test
 category_id: strict-confinement-mode
 _summary:  Warm boot system configuration test via dbus
 _description: This is a job to check system bootup without error after warm boot.
 unit: job
 plugin: shell
-environ: LD_LIBRARY_PATH
+environ: LD_LIBRARY_PATH PLAINBOX_SESSION_SHARE
 user: root
 flags: preserve-locale
 estimated_duration: 1.0
-depends: dbus-warm-boot
+depends: strict-confinement/dbus-warm-boot
 command:
-  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/warm_reboot" -s -f
+  if [ -f "$PLAINBOX_SESSION_SHARE/warmboot_fail" ]; then
+    echo "FAIL: Unexpected warm boot!"
+    exit 1
+  fi
+  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/warm_reboot" -s

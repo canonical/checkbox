@@ -86,12 +86,28 @@ def register_arguments():
         ),
     )
 
+    parser.add_argument(
+        "-fpss",
+        "--fpsdisplaysink_sync",
+        default="true",
+        type=str,
+        help=(
+            "The property option of fpsdisplaysink. (Default: true)"
+            "https://gstreamer.freedesktop.org/documentation/debugutilsbad/"
+            "fpsdisplaysink.html?gi-language=python#fpsdisplaysink:sync"
+        ),
+    )
+
     args = parser.parse_args()
     return args
 
 
 def build_gst_command(
-    gst_bin: str, golden_sample_path: str, decoder: str, sink: str
+    gst_bin: str,
+    golden_sample_path: str,
+    decoder: str,
+    sink: str,
+    fpsdisplaysink_sync: str,
 ) -> str:
     """
     Builds a GStreamer command to process the golden sample.
@@ -106,6 +122,10 @@ def build_gst_command(
         The decoder to use for the video, e.g., "v4l2vp8dec", "v4l2vp9dec".
     :param sink:
         The desired sink option, e.g., "fakesink".
+    :param fpsdisplaysink_sync:
+        The property option of fpsdisplaysink."
+        Ref: https://gstreamer.freedesktop.org/documentation/debugutilsbad/
+        fpsdisplaysink.html?gi-language=python#fpsdisplaysink:sync
 
     :returns:
         The GStreamer command to execute.
@@ -114,8 +134,8 @@ def build_gst_command(
         "{} -v filesrc location={} ! parsebin ! queue ! {} ! queue ! "
         "v4l2convert output-io-mode=dmabuf-import capture-io-mode=dmabuf ! "
         'queue ! fpsdisplaysink video-sink="{}"'
-        " text-overlay=false sync=false"
-    ).format(gst_bin, golden_sample_path, decoder, sink)
+        " text-overlay=false sync={}"
+    ).format(gst_bin, golden_sample_path, decoder, sink, fpsdisplaysink_sync)
 
     return cmd
 
@@ -222,6 +242,7 @@ def main() -> None:
         golden_sample_path=args.golden_sample_path,
         decoder=args.decoder_plugin,
         sink=args.sink,
+        fpsdisplaysink_sync=args.fpsdisplaysink_sync
     )
 
     output = ""

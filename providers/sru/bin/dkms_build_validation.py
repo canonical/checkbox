@@ -65,6 +65,9 @@ def parse_dkms_status(dkms_status: str, ubuntu_release: str) -> List[Dict]:
         details, fullstatus = line.split(": ")
         if " " in fullstatus:
             (status, rest) = fullstatus.split(maxsplit=1)
+            logger.warning("dkms status included warning:")
+            logger.warning(" module: {}".format(details))
+            logger.warning(" message: {}".format(rest))
         else:
             status = fullstatus
         # will only get comma separated info on two statuses

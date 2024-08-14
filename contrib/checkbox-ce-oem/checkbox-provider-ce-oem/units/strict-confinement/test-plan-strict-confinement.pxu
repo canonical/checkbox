@@ -5,6 +5,8 @@ _description:
     Warm reboot test by using dbus command.
     Rely on test-strict-confinement SNAP to test.
 bootstrap_include:
+mandatory_include:
+    com.canonical.certification::init-boot-loop-data
 include:
     strict-confinement/dbus-warm-boot
     strict-confinement/dbus-warm-boot-test
@@ -17,6 +19,8 @@ _description:
     Cold boot test by using dbus command.
     Rely on test-strict-confinement SNAP to test.
 bootstrap_include:
+mandatory_include:
+    com.canonical.certification::init-boot-loop-data
 include:
     strict-confinement/dbus-cold-boot
     strict-confinement/dbus-cold-boot-test

@@ -1,0 +1,22 @@
+id: strict-confinement-timedatectl
+unit: test plan
+_name: Test timedatectl in strict confinement mode.
+_desription:
+    Test timedatectl command in strcit confinement mode.
+    Rely on test-strict-confinment SNAP to test.
+bootstrap_include:
+include:
+    strict-confinement/timedatectl-timezone
+    strict-confinement/timedatectl-ntp
+
+
+id: after-suspend-strict-confinement-timedatectl
+unit: test plan
+_name: After suspend test timedatectl in strict confinement mode.
+_desription:
+    After suspend test timedatectl command in strcit confinement mode.
+    Rely on test-strict-confinment SNAP to test.
+bootstrap_include:
+include:
+    after-suspend-strict-confinement/timedatectl-timezone
+    after-suspend-strict-confinement/timedatectl-ntp

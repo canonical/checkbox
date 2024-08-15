@@ -1,86 +1,65 @@
-id: strict-confinement-dbus-warm-boot
+id: strict-confinement-full
 unit: test plan
-_name: Warm reboot test via dbus
+_name: Strict-confinement - Full manual + automated tests for Ubuntu Core in strict confinement environment
 _description:
-    Warm reboot test by using dbus command.
-    Rely on test-strict-confinement SNAP to test.
-bootstrap_include:
-mandatory_include:
-    com.canonical.certification::init-boot-loop-data
+ Combined manual and automated test plans for Ubuntu Core in strict confinement environment.
 include:
-    strict-confinement/dbus-warm-boot
-    strict-confinement/dbus-warm-boot-test
+nested_part:
+    strict-confinement-manual
+    strict-confinement-automated
+    after-suspend-strict-confinement-manual
+    after-suspend-strict-confinement-automated
 
-
-id: strict-confinement-dbus-cold-boot
+id: strict-confinement-manual
 unit: test plan
-_name: Cold boot test via dbus
+_name: Strict-confinement - Manual only QA tests for Ubuntu Core in strict confinement environment
 _description:
-    Cold boot test by using dbus command.
-    Rely on test-strict-confinement SNAP to test.
-bootstrap_include:
-mandatory_include:
-    com.canonical.certification::init-boot-loop-data
+ Ubuntu Core QA test plan for strict confinement environment.
+ This test plan contains all of the tests that require manual
+ control of device hardware or some other user input to complete.
+estimated_duration: 3600
 include:
-    strict-confinement/dbus-cold-boot
-    strict-confinement/dbus-cold-boot-test
+nested_part:
+    strict-confinement-mediacard
+exclude:
 
-
-id: strict-confine-mediacard
+id: strict-confinement-automated
 unit: test plan
-_name: Test mediacard in strict confinement mode.
+_name: Strict-confinement - Automated only QA tests for Ubuntu Core in strict confinement environment
 _description:
-    Test mediacard in strict confinement mode.
-    Rely on test-strict-confinement SNAP to test.
+ Ubuntu Core QA test plan for the strict confinement environment.
+ This test plan contains all of the automated tests used to validate
+ the Ubuntu Core in strict confinement environment.
 include:
-    strict-confine/mediacard/sdhc-insert
-    strict-confine/mediacard/sdhc-storage
-    strict-confine/mediacard/sdhc-remove
+nested_part:
+    strict-confinement-timedatectl
+    strict-confinement-thermal
+    strict-confinement-dbus-warm-boot
+    strict-confinement-dbus-cold-boot
+exclude:
 
-
-id: after-suspend-strict-confine-mediacard
+id: after-suspend-strict-confinement-manual
 unit: test plan
-_name: After suspend test mediacard in strict confinement mode.
+_name: Strict-confinement - After suspend Manual only QA tests for Ubuntu Core in strict confinement environment
 _description:
-    Afrer suspend test mediacard in strict confinement mode.
-    Rely on test-strict-confinement SNAP to test.
+ Ubuntu Core QA test plan for strict confinement environment.
+ This test plan contains all of the tests that require manual
+ control of device hardware or some other user input to complete.
+estimated_duration: 3600
 include:
-    after-suspend-strict-confine/mediacard/sdhc-insert
-    after-suspend-strict-confine/mediacard/sdhc-storage
-    after-suspend-strict-confine/mediacard/sdhc-remove
+nested_part:
+    after-suspend-strict-confinement-mediacard
+exclude:
 
-
-id: strict-confine-thermal
+id: after-suspend-strict-confinement-automated
 unit: test plan
-_name: Test thermal sensor in strict confinement mode.
-_desription:
-    Test thermal sensor in strict confinement mode.
-    Rely on test-strict-confinment SNAP to test.
-bootstrap_include:
-    thermal_zones
+_name: Strict-confinement - After suspend Automated only QA tests for Ubuntu Core in strict confinement environment
+_description:
+ Ubuntu Core QA test plan for the strict confinement environment.
+ This test plan contains all of the automated tests used to validate
+ the Ubuntu Core in strict confinement environment.
 include:
-    strict-confine/temperature-test
-
-
-id: strict-confine-timedatectl
-unit: test plan
-_name: Test timedatectl in strict confinement mode.
-_desription:
-    Test timedatectl command in strcit confinement mode.
-    Rely on test-strict-confinment SNAP to test.
-bootstrap_include:
-include:
-    strict-confinement/timedatectl-timezone
-    strict-confinement/timedatectl-ntp
-
-
-id: after-suspend-strict-confine-timedatectl
-unit: test plan
-_name: After suspend test timedatectl in strict confinement mode.
-_desription:
-    After suspend test timedatectl command in strcit confinement mode.
-    Rely on test-strict-confinment SNAP to test.
-bootstrap_include:
-include:
-    after-suspend-strict-confinement/timedatectl-timezone
-    after-suspend-strict-confinement/timedatectl-ntp
+nested_part:
+    after-suspend-strict-confinement-timedatectl
+    after-suspend-strict-confinement-thermal
+exclude:

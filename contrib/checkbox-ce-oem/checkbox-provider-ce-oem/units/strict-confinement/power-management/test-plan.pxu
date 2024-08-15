@@ -1,0 +1,26 @@
+id: strict-confinement-dbus-warm-boot
+unit: test plan
+_name: Warm reboot test via dbus
+_description:
+    Warm reboot test by using dbus command.
+    Rely on test-strict-confinement SNAP to test.
+bootstrap_include:
+mandatory_include:
+    com.canonical.certification::init-boot-loop-data
+include:
+    strict-confinement/dbus-warm-boot
+    strict-confinement/dbus-warm-boot-test
+
+
+id: strict-confinement-dbus-cold-boot
+unit: test plan
+_name: Cold boot test via dbus
+_description:
+    Cold boot test by using dbus command.
+    Rely on test-strict-confinement SNAP to test.
+bootstrap_include:
+mandatory_include:
+    com.canonical.certification::init-boot-loop-data
+include:
+    strict-confinement/dbus-cold-boot
+    strict-confinement/dbus-cold-boot-test

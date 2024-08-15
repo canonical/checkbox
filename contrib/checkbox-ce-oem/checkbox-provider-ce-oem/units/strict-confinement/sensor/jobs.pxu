@@ -1,8 +1,8 @@
 unit: template
 template-engine: jinja2
 template-resource: thermal_zones
-template-id: strict-confine/temperature-test
-id: strict-confine/temperature_{{ name }}_{{ type }}
+template-id: strict-confinement/temperature-test
+id: strict-confinement/temperature_{{ name }}_{{ type }}
 _summary: Check Thermal temperature of {{ name }} - {{ type }}
 _description:
     Test a thermal temperature for {{ name }} - {{ type }}.
@@ -13,8 +13,10 @@ flags: also-after-suspend
 imports:
   from com.canonical.certification import snap
   from com.canonical.certification import lsb
+  from com.canonical.certification import connections
 requires:
   lsb.distributor_id == 'Ubuntu Core'
   snap.name == 'test-strict-confinement'
+  connections.slot == "snapd:hardware-observe" and connections.plug == "test-strict-confinement:hardware-observe"
 command:
-    test-strict-confinement.thermal-test monitor -n {{ name }} --extra-commands "dd if=/dev/zero of=/dev/null"
+  test-strict-confinement.thermal-test monitor -n {{ name }} --extra-commands "dd if=/dev/zero of=/dev/null"

@@ -7,7 +7,7 @@ _desription:
 bootstrap_include:
     thermal_zones
 include:
-    strict-confinement/temperature-test
+    strict-confinement/temperature_.*
 
 id: after-suspend-strict-confinement-thermal
 unit: test plan
@@ -18,4 +18,4 @@ _desription:
 bootstrap_include:
     thermal_zones
 include:
-    after-suspend-strict-confinement/temperature-test
+    after-suspend-strict-confinement/temperature_.*

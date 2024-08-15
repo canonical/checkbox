@@ -62,7 +62,14 @@ def parse_dkms_status(dkms_status: str, ubuntu_release: str) -> List[Dict]:
     """
     kernel_info = []
     for line in dkms_status.splitlines():
-        details, status = line.split(": ")
+        details, fullstatus = line.split(": ")
+        if " " in fullstatus:
+            (status, rest) = fullstatus.split(maxsplit=1)
+            logger.warning("dkms status included warning:")
+            logger.warning(" module: {}".format(details))
+            logger.warning(" message: {}".format(rest))
+        else:
+            status = fullstatus
         # will only get comma separated info on two statuses
         # https://github.com/dell/dkms/blob/master/dkms.in#L1866
         if status in ("built", "installed"):

@@ -98,9 +98,7 @@ class GstResources:
         Generate a resource item dictionary for
         gst_v4l2_video_decoder_md5_checksum_comparison scenario
         """
-        name = "{}x{}-{}-{}".format(
-            width, height, decoder_plugin, color_space
-        )
+        name = "{}x{}-{}-{}".format(width, height, decoder_plugin, color_space)
         name_with_format = "{}.{}".format(name, source_format)
         golden_sample_file = os.path.join(
             self._args.video_codec_testing_data_path,

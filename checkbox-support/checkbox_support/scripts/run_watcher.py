@@ -78,11 +78,9 @@ class StorageWatcher(StorageInterface):
         p = select.poll()
         p.register(j, j.get_events())
         if self.zapper_usb_address:
-            zapper_host = os.environ.get("ZAPPER_ADDRESS")
+            zapper_host = os.environ.get("ZAPPER_HOST")
             if not zapper_host:
-                raise SystemExit(
-                    "ZAPPER_ADDRESS environment variable not found!"
-                )
+                raise SystemExit("ZAPPER_HOST environment variable not found!")
             usb_address = self.zapper_usb_address
             if self.testcase == "insertion":
                 print("Calling zapper to connect the USB device")

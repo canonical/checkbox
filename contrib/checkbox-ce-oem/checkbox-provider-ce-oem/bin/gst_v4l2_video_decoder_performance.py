@@ -242,7 +242,7 @@ def main() -> None:
         golden_sample_path=args.golden_sample_path,
         decoder=args.decoder_plugin,
         sink=args.sink,
-        fpsdisplaysink_sync=args.fpsdisplaysink_sync
+        fpsdisplaysink_sync=args.fpsdisplaysink_sync,
     )
 
     output = ""

@@ -20,7 +20,7 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
-    strict-confinement-mediacard
+    strict-confinement-mediacard-manual
 exclude:
 
 id: strict-confinement-automated
@@ -32,10 +32,10 @@ _description:
  the Ubuntu Core in strict confinement environment.
 include:
 nested_part:
-    strict-confinement-timedatectl
-    strict-confinement-thermal
-    strict-confinement-dbus-warm-boot
-    strict-confinement-dbus-cold-boot
+    strict-confinement-timedatectl-automated
+    strict-confinement-thermal-automated
+    strict-confinement-dbus-warm-boot-automated
+    strict-confinement-dbus-cold-boot-automated
 exclude:
 
 id: after-suspend-strict-confinement-manual
@@ -48,7 +48,7 @@ _description:
 estimated_duration: 3600
 include:
 nested_part:
-    after-suspend-strict-confinement-mediacard
+    after-suspend-strict-confinement-mediacard-manual
 exclude:
 
 id: after-suspend-strict-confinement-automated
@@ -60,6 +60,6 @@ _description:
  the Ubuntu Core in strict confinement environment.
 include:
 nested_part:
-    after-suspend-strict-confinement-timedatectl
-    after-suspend-strict-confinement-thermal
+    after-suspend-strict-confinement-timedatectl-automated
+    after-suspend-strict-confinement-thermal-automated
 exclude:

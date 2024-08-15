@@ -1,4 +1,4 @@
-id: strict-confinement-dbus-warm-boot
+id: strict-confinement-dbus-warm-boot-automated
 unit: test plan
 _name: Warm reboot test via dbus
 _description:
@@ -12,7 +12,7 @@ include:
     strict-confinement/dbus-warm-boot-test
 
 
-id: strict-confinement-dbus-cold-boot
+id: strict-confinement-dbus-cold-boot-automated
 unit: test plan
 _name: Cold boot test via dbus
 _description:

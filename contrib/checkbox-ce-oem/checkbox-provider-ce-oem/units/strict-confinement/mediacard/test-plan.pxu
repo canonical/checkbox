@@ -1,4 +1,4 @@
-id: strict-confinement-mediacard
+id: strict-confinement-mediacard-manual
 unit: test plan
 _name: Test mediacard in strict confinement mode.
 _description:
@@ -10,7 +10,7 @@ include:
     strict-confinement/mediacard/sdhc-remove
 
 
-id: after-suspend-strict-confinement-mediacard
+id: after-suspend-strict-confinement-mediacard-manual
 unit: test plan
 _name: After suspend test mediacard in strict confinement mode.
 _description:

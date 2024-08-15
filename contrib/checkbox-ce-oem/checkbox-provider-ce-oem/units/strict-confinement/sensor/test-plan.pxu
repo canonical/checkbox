@@ -1,4 +1,4 @@
-id: strict-confinement-thermal
+id: strict-confinement-thermal-automated
 unit: test plan
 _name: Test thermal sensor in strict confinement mode.
 _desription:
@@ -9,7 +9,7 @@ bootstrap_include:
 include:
     strict-confinement/temperature_.*
 
-id: after-suspend-strict-confinement-thermal
+id: after-suspend-strict-confinement-thermal-automated
 unit: test plan
 _name: Test thermal sensor in strict confinement mode.
 _desription:

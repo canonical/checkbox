@@ -1,4 +1,4 @@
-id: strict-confinement-timedatectl
+id: strict-confinement-timedatectl-automated
 unit: test plan
 _name: Test timedatectl in strict confinement mode.
 _desription:
@@ -10,7 +10,7 @@ include:
     strict-confinement/timedatectl-ntp
 
 
-id: after-suspend-strict-confinement-timedatectl
+id: after-suspend-strict-confinement-timedatectl-automated
 unit: test plan
 _name: After suspend test timedatectl in strict confinement mode.
 _desription:

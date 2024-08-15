@@ -98,18 +98,22 @@ class GstResources:
         Generate a resource item dictionary for
         gst_v4l2_video_decoder_md5_checksum_comparison scenario
         """
-        name = "{}x{}-{}-{}".format(width, height, decoder_plugin, color_space)
-        golden_sample_file = "{}/{}/{}.{}".format(
+        name = "{}x{}-{}-{}".format(
+            width, height, decoder_plugin, color_space
+        )
+        name_with_format = "{}.{}".format(name, source_format)
+        golden_sample_file = os.path.join(
             self._args.video_codec_testing_data_path,
             self.VIDEO_GOLDEN_SAMPLES,
-            name,
-            source_format,
+            name_with_format,
         )
-        golden_md5_checkum_file = "{}/{}/golden_md5_checksum/{}/{}.md5".format(
+        md5_name = "{}.md5".format(name)
+        golden_md5_checkum_file = os.path.join(
             self._args.video_codec_testing_data_path,
             self._current_scenario_name,
+            "golden_md5_checksum",
             self._conf_name,
-            name,
+            md5_name,
         )
 
         returned_dict = {

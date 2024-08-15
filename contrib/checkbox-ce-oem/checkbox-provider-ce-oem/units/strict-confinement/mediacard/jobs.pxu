@@ -16,7 +16,7 @@ requires:
   snap.name == 'test-strict-confinement'
   connections.slot == "snapd:mount-control" and connections.plug == "test-strict-confinement:mount-control"
   connections.slot == "snapd:log-observe" and connections.plug == "test-strict-confinement:log-observe"
-  connections.slot == "snapd:removable-media " and connections.plug == "test-strict-confinement:removable-media "
+  connections.slot == "snapd:removable-media" and connections.plug == "test-strict-confinement:removable-media"
 user: root
 _summary: Test that insertion of an SDHC card is detected
 _description:

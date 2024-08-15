@@ -183,7 +183,7 @@ class GstResources:
                     "scenario": self._current_scenario_name,
                     "decoder_plugin": item["decoder_plugin"],
                     "minimum_fps": item["minimum_fps"],
-                    "golden_sample_file": "{}/{}/{}".format(
+                    "golden_sample_file": os.path.join(
                         self._args.video_codec_testing_data_path,
                         self.VIDEO_GOLDEN_SAMPLES,
                         item["golden_sample_file"],

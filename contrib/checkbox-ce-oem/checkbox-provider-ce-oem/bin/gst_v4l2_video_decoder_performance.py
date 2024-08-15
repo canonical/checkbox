@@ -225,11 +225,12 @@ def main() -> None:
     """
     args = register_arguments()
     logging.info(
-        "Pass Criteria"
-        "\n 1. All dropped frames must be 0"
-        "\n 2. All average fps values must greater than or equal to {}".format(
-            args.minimum_fps
-        )
+        (
+            "Pass Criteria \n"
+            " 1. All dropped frames must be 0\n"
+            " 2. All average fps values must greater than or equal to %s"
+        ),
+        args.minimum_fps,
     )
     # Check the golden sample exixt
     if not os.path.exists(args.golden_sample_path):

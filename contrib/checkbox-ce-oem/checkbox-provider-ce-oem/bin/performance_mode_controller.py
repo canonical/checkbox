@@ -119,10 +119,10 @@ def get_function_from_a_module(
     """
     try:
         logging.info(
-            (
-                "Trying to load the '{}' module from '{}' to get '{}'"
-                " function"
-            ).format(module_name, module_path, function_name)
+            "Trying to load the '%s' module from '%s' to get '%s' function",
+            module_name,
+            module_path,
+            function_name,
         )
         loader = SourceFileLoader(module_name, module_path)
         spec = importlib.util.spec_from_loader(module_name, loader)

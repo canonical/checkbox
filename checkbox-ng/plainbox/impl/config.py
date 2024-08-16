@@ -386,7 +386,7 @@ CONFIG_SPEC = [
             ),
             "only_include": VarSpec(
                 list, [], "Only run job that match or their dependencies."
-            )
+            ),
         },
     ),
     (

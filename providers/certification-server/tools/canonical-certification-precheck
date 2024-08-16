@@ -391,7 +391,7 @@ fi
 # Check local availability of KVM image or pull from Internet, which tends to be slow
 KVM_Image_Check(){
 echoname "KVM Image Check"
-if grep "^KVM_IMAGE =" /etc/xdg/$configfile >/dev/null; then
+if grep "^KVM_IMAGE =" $configfile >/dev/null; then
     kvmurl=$(grep ^KVM_IMAGE $configfile|awk '{print $3}')
     if [[ "$kvmurl" =~ .*\.img$ ]] ; then
         /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
@@ -405,7 +405,7 @@ if grep "^KVM_IMAGE =" /etc/xdg/$configfile >/dev/null; then
             if [[ $YN == "Y" ]]; then
                 read -e -p " Enter the path of your KVM Image: " kvm
                 sudo sed -i "s,KVM_IMAGE =.*,KVM_IMAGE = $kvm,g" $configfile
-                kvmurl=$(grep ^KVM_IMAGE $configfilen|awk '{print $3}')
+                kvmurl=$(grep ^KVM_IMAGE $configfile|awk '{print $3}')
                 /usr/bin/qemu-img check $kvmurl >/dev/null 2>&1
                 if [ $? = "0" ]; then
                     echo -e " $kvmurl is a valid image.\n Continuing to use this image"

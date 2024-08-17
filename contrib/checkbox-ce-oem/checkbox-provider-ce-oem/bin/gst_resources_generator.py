@@ -31,11 +31,7 @@ logging.basicConfig(level=logging.INFO)
 def register_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=(
-            "Script helps verify the MD5 checksum from specific Gstreamer"
-            " Decoder with different resolutions and color spaces is exactly"
-            " match golden reference"
-        ),
+        description=("This script generates the resource for all scenarios"),
     )
 
     parser.add_argument(
@@ -64,6 +60,8 @@ def register_arguments() -> argparse.Namespace:
 
 class GstResources:
 
+    # video_golden_samples is the name of folder in hardware_codec_testing_data
+    # repo. https://github.com/canonical/hardware_codec_testing_data
     VIDEO_GOLDEN_SAMPLES = "video_golden_samples"
 
     def __init__(self, args: argparse.Namespace) -> None:
@@ -101,14 +99,19 @@ class GstResources:
         gst_v4l2_video_decoder_md5_checksum_comparison scenario
         """
         name = "{}x{}-{}-{}".format(width, height, decoder_plugin, color_space)
-        golden_sample_file = "{}/video_golden_samples/{}.{}".format(
-            self._args.video_codec_testing_data_path, name, source_format
+        name_with_format = "{}.{}".format(name, source_format)
+        golden_sample_file = os.path.join(
+            self._args.video_codec_testing_data_path,
+            self.VIDEO_GOLDEN_SAMPLES,
+            name_with_format,
         )
-        golden_md5_checkum_file = "{}/{}/golden_md5_checksum/{}/{}.md5".format(
+        md5_name = "{}.md5".format(name)
+        golden_md5_checkum_file = os.path.join(
             self._args.video_codec_testing_data_path,
             self._current_scenario_name,
+            "golden_md5_checksum",
             self._conf_name,
-            name,
+            md5_name,
         )
 
         returned_dict = {
@@ -170,6 +173,30 @@ class GstResources:
                         ],
                     }
                 )
+
+    def gst_v4l2_video_decoder_performance_fakesink(
+        self, scenario_data: List[Dict]
+    ) -> None:
+        for item in scenario_data:
+            self._resource_items.append(
+                {
+                    "scenario": self._current_scenario_name,
+                    "decoder_plugin": item["decoder_plugin"],
+                    "minimum_fps": item["minimum_fps"],
+                    "golden_sample_file": os.path.join(
+                        self._args.video_codec_testing_data_path,
+                        self.VIDEO_GOLDEN_SAMPLES,
+                        item["golden_sample_file"],
+                    ),
+                    # performance_target is "" means won't enable performance
+                    # mode.
+                    "performance_target": (
+                        self._args.video_codec_conf_file
+                        if item["enable_performance_mode"]
+                        else ""
+                    ),
+                }
+            )
 
     def main(self):
         for scenario in self._scenarios:

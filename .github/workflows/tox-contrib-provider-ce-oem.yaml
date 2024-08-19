@@ -9,7 +9,7 @@ jobs:
     name: Test ce-oem provider (from contrib area) with tox
     defaults:
       run:
-        working-directory: contrib/checkbox-provider-ce-oem
+        working-directory: contrib/checkbox-ce-oem/checkbox-provider-ce-oem
     runs-on: ubuntu-20.04
     strategy:
       matrix:

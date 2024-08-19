@@ -1,11 +1,18 @@
 name: Test provider-ce-oem (from contrib area) with tox
 
 on:
+  push:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-ce-oem/checkbox-provider-ce-oem/**
+  pull_request:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-ce-oem/checkbox-provider-ce-oem/**
   workflow_dispatch:
 
 jobs:
   tox_test_contrib_ce_oem_provider:
-    continue-on-error: true
     name: Test ce-oem provider (from contrib area) with tox
     defaults:
       run:

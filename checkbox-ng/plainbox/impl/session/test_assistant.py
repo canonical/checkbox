@@ -232,7 +232,7 @@ class SessionAssistantTests(morris.SignalTestCase):
         def get_value(section, value):
             if section == "test selection" and value == "exclude":
                 return [r".*some.*", r".*other.*"]
-            elif section == "test selection" and value == "only_include":
+            elif section == "test selection" and value == "match":
                 return [r".*target", r".*another_target"]
             raise AssertionError(
                 "Need more configuration sections/config to mock,"
@@ -245,34 +245,34 @@ class SessionAssistantTests(morris.SignalTestCase):
         SessionAssistant.use_alternate_configuration(self_mock, config_mock)
 
         self.assertEqual(len(self_mock._exclude_qualifiers), 2)
-        self.assertEqual(len(self_mock._only_include_qualifiers), 2)
+        self.assertEqual(len(self_mock._match_qualifiers), 2)
 
     @mock.patch("plainbox.impl.session.assistant.UsageExpectation")
     @mock.patch("plainbox.impl.session.assistant.select_units")
-    def test_finish_bootstrap_only_include_nominal(
+    def test_finish_bootstrap_match_nominal(
         self, select_units_mock, ue_mock, get_providers_mock
     ):
         self_mock = mock.MagicMock()
         # this is just to test that the subfunction is called if this arr is
         # defined, assumes the select_units function is mocked
-        self_mock._only_include_qualifiers = [1, 2, 3]
+        self_mock._match_qualifiers = [1, 2, 3]
 
         SessionAssistant.finish_bootstrap(self_mock)
 
         # called once to get all the jobs for the selected testplan
-        # and another time to prune it for only_include
+        # and another time to prune it for match`
         self.assertEqual(select_units_mock.call_count, 2)
 
     @mock.patch("plainbox.impl.session.assistant.UsageExpectation")
     @mock.patch("plainbox.impl.session.assistant.select_units")
-    def test_finish_bootstrap_only_include_no_only_include(
+    def test_finish_bootstrap_match_no_match(
         self, select_units_mock, ue_mock, get_providers_mock
     ):
         self_mock = mock.MagicMock()
-        self_mock._only_include_qualifiers = []
+        self_mock._match_qualifiers = []
 
         SessionAssistant.finish_bootstrap(self_mock)
 
         # called once to get all the jobs for the selected testplan
-        # and another time to prune it for only_include
+        # and another time to prune it for match
         self.assertEqual(select_units_mock.call_count, 1)

@@ -29,19 +29,19 @@ depends:
 command: true
 
 id: nested_target
-_summary: Used to test that the only_include target can be in a nested part
+_summary: Used to test that the match target can be in a nested part
 flags: simple
 depends:
   nested_direct_dependency
 command: true
 
 id: nested_not_included
-_summary: Used to test that tests not in only_include aren't pulled in nested part
+_summary: Used to test that tests not in match aren't pulled in nested part
 flags: simple
 command: false
 
 id: nested_exclude_target
-_summary: Used to test that exclude has the precedence over only_include for nested part
+_summary: Used to test that exclude has the precedence over match for nested part
 flags: simple
 command: false
 
@@ -51,12 +51,12 @@ template-unit: job
 id: nested_generated_job_template_{nested_direct_resource}
 template-id: nested_include_by_template_id
 flags: simple
-_summary: Used to test that template-id is used to only_include from nested part
+_summary: Used to test that template-id is used to match from nested part
 command: true
 
 unit: test plan
 id: nested_part_tests
-_name: Test plan used as a nested_part by the only_include tp
+_name: Test plan used as a nested_part by the match tp
 bootstrap_include:
   nested_indirect_resource
 include:
@@ -100,24 +100,24 @@ depends:
 command: true
 
 id: include_target
-_summary: Used to test that the only_include target can be in a include
+_summary: Used to test that the match target can be in a include
 flags: simple
 depends:
   include_direct_dependency
 command: true
 
 id: include_not_included
-_summary: Used to test that tests not in only_include aren't pulled in include
+_summary: Used to test that tests not in match aren't pulled in include
 flags: simple
 command: false
 
 id: include_exclude_target
-_summary: Used to test that exclude has the precedence over only_include for include
+_summary: Used to test that exclude has the precedence over match for include
 flags: simple
 command: false
 
 id: include_launcher_removed_target
-_summary: Used to test that exclude has precedence over only_include from launcher as well
+_summary: Used to test that exclude has precedence over match from launcher as well
 flags: simple
 command: false
 
@@ -127,14 +127,14 @@ template-unit: job
 id: include_generated_job_template_{include_direct_resource}
 template-id: include_include_by_template_id
 flags: simple
-_summary: Used to test that template-id is used to only_include from include
+_summary: Used to test that template-id is used to match from include
 command: true
 
 # test plan differs in exclude constraint and nested_part
 
 unit: test plan
-id: stress_only_include
-_name: Test plan used as a include_part by the only_include tp
+id: stress_match
+_name: Test plan used as a include_part by the match tp
 bootstrap_include:
   include_indirect_resource
 include:

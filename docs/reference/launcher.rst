@@ -208,7 +208,7 @@ Note: To clear the exclude list use...
 
 ...in your 'last' config.
 
-``only_include``
+``match``
   List of regex patterns that job ids will be matched against. Checkbox will
   only run the matching jobs, their dependencies and any job included in the
   testplan bootstrap section. This is useful to re-run the failing subset of
@@ -219,13 +219,13 @@ Only run ``bluetooth`` jobs and their dependencies:
 .. code-block:: ini
 
   [test selection]
-  only_include = .*bluetooth.*
+  match = .*bluetooth.*
 
 .. note::
-   ``exclude`` takes precedence over ``only_include``.
+   ``exclude`` takes precedence over ``match``.
 
 .. note::
-   You can use ``only_include`` only to select jobs already included in a test
+   You can use ``match`` only to select jobs already included in a test
    plan. You can not use it to include additional tests in a test plan.
 
 .. _launcher_ui:

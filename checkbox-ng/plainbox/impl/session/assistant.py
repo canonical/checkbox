@@ -182,7 +182,7 @@ class SessionAssistant:
         # manager matters, the context and metadata are just shortcuts to stuff
         # available on the manager.
         self._exclude_qualifiers = []
-        self._only_include_qualifiers = []
+        self._match_qualifiers = []
         self._manager = None
         self._context = None
         self._metadata = None
@@ -338,11 +338,11 @@ class SessionAssistant:
                 RegExpJobQualifier(pattern, None, False)
             )
 
-        self._only_include_qualifiers = []
+        self._match_qualifiers = []
         for pattern in self._config.get_value(
-            "test selection", "only_include"
+            "test selection", "match"
         ):
-            self._only_include_qualifiers.append(
+            self._match_qualifiers.append(
                 RegExpJobQualifier(pattern, None, True)
             )
         Unit.config = config
@@ -945,12 +945,12 @@ class SessionAssistant:
                 )
             ],
         )
-        if self._only_include_qualifiers:
+        if self._match_qualifiers:
             # when only include is provided, use the testplan but prune it to
             # only pull the jobs asked in the launcher or their dependencies
             desired_job_list = select_units(
                 desired_job_list,
-                self._only_include_qualifiers
+                self._match_qualifiers
                 + self._exclude_qualifiers
                 + [
                     JobIdQualifier(

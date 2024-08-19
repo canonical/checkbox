@@ -27,10 +27,10 @@ from metabox.core.utils import tag
 from metabox.core.scenario import Scenario
 
 
-@tag("test_selection", "only_include", "return_code")
-class TestSelectionOnlyIncludeEmpty(Scenario):
+@tag("test_selection", "match", "return_code")
+class TestSelectionMatchEmpty(Scenario):
     """
-    Try to only_include a test that is not in the test plan, nothing should run
+    Try to match a test that is not in the test plan, nothing should run
     """
 
     launcher = textwrap.dedent(
@@ -43,17 +43,17 @@ class TestSelectionOnlyIncludeEmpty(Scenario):
         forced = yes
         [test selection]
         forced = yes
-        only_include = .*storage-preinserted.*
+        match = .*storage-preinserted.*
         """
     )
     steps = [Start(), AssertRetCode(1)]
 
 
-@tag("test_selection", "only_include", "return_code")
-class TestSelectionOnlyIncludeNominal(Scenario):
+@tag("test_selection", "match", "return_code")
+class TestSelectionMatchNominal(Scenario):
     """
-    only_include only pulls jobs and their direct/indirect dependencies +
-    all bootstrap jobs. exclude has the precedence over only_include
+    match only pulls jobs and their direct/indirect dependencies +
+    all bootstrap jobs. exclude has the precedence over match
     """
 
     launcher = textwrap.dedent(
@@ -63,12 +63,12 @@ class TestSelectionOnlyIncludeNominal(Scenario):
         launcher_version = 1
         stock_reports = text
         [test plan]
-        unit = 2021.com.canonical.certification::stress_only_include
+        unit = 2021.com.canonical.certification::stress_match
         forced = yes
         [test selection]
         forced = yes
         exclude = .*launcher_removed_target
-        only_include = .*target
+        match = .*target
         """
     )
     steps = [

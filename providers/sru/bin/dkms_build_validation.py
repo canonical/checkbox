@@ -177,6 +177,11 @@ def main():
     # Parse and sort the DKMS status and sort the kernel versions
     sorted_kernel_info = parse_dkms_status(dkms_status, ubuntu_release)
 
+    # if there are no built or installed dkms modules there is nothing
+    # to check
+    if not sorted_kernel_info:
+        return 0
+
     # kernel_ver_max should be the same as kernel_ver_current
     kernel_ver_current = run_command(["uname", "-r"])
     if check_kernel_version(
@@ -184,7 +189,7 @@ def main():
     ):
         return 1
 
-    # Count the occurernces of the latest and the oldest kernel version and
+    # Count the occurrences of the latest and the oldest kernel version and
     # compare the number of DKMS modules for min and max kernel versions
     check_dkms_module_count(sorted_kernel_info, dkms_status)
 

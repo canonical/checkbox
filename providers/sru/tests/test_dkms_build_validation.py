@@ -23,6 +23,10 @@ class TestDKMSValidation(unittest.TestCase):
         "fwts/24.01.00, 6.5.0-15-generic, x86_64: installed"
     )
 
+    dkms_status_empty = ""
+
+    dkms_status_added_only = "fwts-efi-runtime-dkms/24.07.00: added"
+
     # Example output of `dkms status` on machine
     # in which efi_test driver is used rather than
     # fwts dkms driver
@@ -52,6 +56,10 @@ class TestDKMSValidation(unittest.TestCase):
         {"version": "6.5.0-17-generic", "status": "installed"},
     ]
 
+    sorted_kernel_info_empty = []
+
+    sorted_kernel_info_added_only = []
+
     sorted_kernel_info_efi_test_driver = [
         {"version": "6.1.0-1028-oem", "status": "installed"},
         {"version": "6.1.0-1032-oem", "status": "installed"},
@@ -64,6 +72,10 @@ class TestDKMSValidation(unittest.TestCase):
         {"version": "6.5.0-1024-oem", "status": "installed"},
         {"version": "6.5.0-1026-oem", "status": "installed"},
         {"version": "6.8.0-40-generic", "status": "installed"},
+    ]
+
+    sorted_kernel_info_with_warning = [
+        {"version": "6.0.0-1011-oem", "status": "installed"}
     ]
 
     @patch("dkms_build_validation.subprocess.check_output")
@@ -96,6 +108,20 @@ class TestDKMSValidation(unittest.TestCase):
             {"version": "6.5.0-15-generic", "status": "installed"},
             {"version": "6.5.0-17-generic", "status": "installed"},
         ]
+        self.assertEqual(kernel_info, expected_kernel_info)
+
+    def test_parse_dkms_status_empty(self):
+        ubuntu_release = "20.04"
+        kernel_info = parse_dkms_status(self.dkms_status_empty, ubuntu_release)
+        expected_kernel_info = []
+        self.assertEqual(kernel_info, expected_kernel_info)
+
+    def test_parse_dkms_status_added_only(self):
+        ubuntu_release = "22.04"
+        kernel_info = parse_dkms_status(
+            self.dkms_status_added_only, ubuntu_release
+        )
+        expected_kernel_info = []
         self.assertEqual(kernel_info, expected_kernel_info)
 
     def test_parse_dkms_status_efi_test(self):
@@ -181,6 +207,7 @@ class TestDKMSValidation(unittest.TestCase):
             1,
         )
 
+    def test_check_kernel_version_efi_test_driver(self):
         self.assertEqual(
             check_kernel_version(
                 "6.1.0-1028-oem",
@@ -204,6 +231,16 @@ class TestDKMSValidation(unittest.TestCase):
                 "6.8.0-40-generic",
                 self.sorted_kernel_info_efi_test_driver,
                 self.dkms_status_efi_test_driver,
+            ),
+            0,
+        )
+
+    def test_check_kernel_version_with_warning(self):
+        self.assertEqual(
+            check_kernel_version(
+                "6.0.0-1011-oem",
+                self.sorted_kernel_info_with_warning,
+                self.dkms_status_with_warning,
             ),
             0,
         )
@@ -268,46 +305,70 @@ class TestDKMSValidation(unittest.TestCase):
             self.assertEqual(has_dkms_build_errors(kernel_ver_current), True)
 
     @patch("dkms_build_validation.run_command")
-    @patch("dkms_build_validation.parse_dkms_status")
-    @patch("dkms_build_validation.check_kernel_version")
-    @patch("dkms_build_validation.check_dkms_module_count")
     @patch("dkms_build_validation.has_dkms_build_errors")
-    def test_main(
-        self, mock_err, mock_count, mock_ver, mock_parse, mock_run_command
-    ):
-        mock_run_command.return_value = "output"
-        mock_parse.return_value = []
-        mock_ver.return_value = 0
-        mock_count.return_value = 0
+    def test_main(self, mock_err, mock_run_command):
+        # 0: lsb_release -r
+        # 1: dkms status
+        # 2: uname -r
+        mock_run_command.side_effect = [
+            "Release:	22.04",
+            self.dkms_status,
+            "6.5.0-17-generic",
+        ]
         mock_err.return_value = 0
         self.assertEqual(main(), 0)
 
     @patch("dkms_build_validation.run_command")
-    @patch("dkms_build_validation.parse_dkms_status")
-    @patch("dkms_build_validation.check_kernel_version")
-    @patch("dkms_build_validation.check_dkms_module_count")
     @patch("dkms_build_validation.has_dkms_build_errors")
-    def test_main_different_kernel_version(
-        self, mock_err, mock_count, mock_ver, mock_parse, mock_run_command
-    ):
-        mock_run_command.return_value = "output"
-        mock_parse.return_value = []
-        mock_ver.return_value = 1
-        mock_count.return_value = 0
+    def test_main_empty(self, mock_err, mock_run_command):
+        mock_run_command.side_effect = [
+            "Release:	22.04",
+            "",
+            "6.8.0-40-generic",
+        ]
         mock_err.return_value = 0
-        self.assertEqual(main(), 1)
+        self.assertEqual(main(), 0)
 
     @patch("dkms_build_validation.run_command")
-    @patch("dkms_build_validation.parse_dkms_status")
-    @patch("dkms_build_validation.check_kernel_version")
-    @patch("dkms_build_validation.check_dkms_module_count")
     @patch("dkms_build_validation.has_dkms_build_errors")
-    def test_main_with_dkms_build_errors(
-        self, mock_err, mock_count, mock_ver, mock_parse, mock_run_command
-    ):
-        mock_run_command.return_value = "output"
-        mock_parse.return_value = []
-        mock_ver.return_value = 0
-        mock_count.return_value = 0
+    def test_main_added_only(self, mock_err, mock_run_command):
+        mock_run_command.side_effect = [
+            "Release:	22.04",
+            self.dkms_status_added_only,
+            "6.8.0-40-generic",
+        ]
+        mock_err.return_value = 0
+        self.assertEqual(main(), 0)
+
+    @patch("dkms_build_validation.run_command")
+    @patch("dkms_build_validation.has_dkms_build_errors")
+    def test_main_efi_test_driver(self, mock_err, mock_run_command):
+        mock_run_command.side_effect = [
+            "Release:	22.04",
+            self.dkms_status_efi_test_driver,
+            "6.8.0-40-generic",
+        ]
+        mock_err.return_value = 0
+        self.assertEqual(main(), 0)
+
+    @patch("dkms_build_validation.run_command")
+    @patch("dkms_build_validation.has_dkms_build_errors")
+    def test_main_with_warning(self, mock_err, mock_run_command):
+        mock_run_command.side_effect = [
+            "Release:	22.04",
+            self.dkms_status_with_warning,
+            "6.0.0-1011-oem",
+        ]
+        mock_err.return_value = 0
+        self.assertEqual(main(), 0)
+
+    @patch("dkms_build_validation.run_command")
+    @patch("dkms_build_validation.has_dkms_build_errors")
+    def test_main_with_dkms_build_errors(self, mock_err, mock_run_command):
+        mock_run_command.side_effect = [
+            "Release:	22.04",
+            self.dkms_status,
+            "6.5.0-17-generic",
+        ]
         mock_err.return_value = 1
         self.assertEqual(main(), 1)

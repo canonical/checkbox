@@ -78,6 +78,11 @@ def parse_dkms_status(dkms_status: str, ubuntu_release: str) -> List[Dict]:
             else:
                 kernel_ver = details.split(", ")[2]
             kernel_info.append({"version": kernel_ver, "status": status})
+            print(
+                "Found module {}, status {} for kernel version {}".format(
+                    details, status, kernel_ver
+                )
+            )
 
     sorted_kernel_info = sorted(
         kernel_info, key=lambda x: parse_version(x["version"])
@@ -180,6 +185,7 @@ def main():
     # if there are no built or installed dkms modules there is nothing
     # to check
     if not sorted_kernel_info:
+        print("No installed dkms modules found, nothing to check")
         return 0
 
     # kernel_ver_max should be the same as kernel_ver_current

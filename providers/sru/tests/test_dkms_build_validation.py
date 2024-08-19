@@ -51,6 +51,16 @@ class TestDKMSValidation(unittest.TestCase):
         "(WARNING! Diff between built and installed module!)"
     )
 
+    dkms_status_oem_focal = (
+        "fwts-efi-runtime-dkms, 24.07.00, 5.14.0-1042-oem, x86_64: installed\n"
+        "fwts-efi-runtime-dkms, 24.07.00, 5.15.0-117-generic, x86_64: installed"
+    )
+
+    dkms_status_stock_noble = (
+        "fwts-efi-runtime-dkms/24.07.00: added\n"
+        "nvidia/550.107.02, 6.8.0-44-generic, x86_64: installed"
+    )
+
     sorted_kernel_info = [
         {"version": "6.5.0-15-generic", "status": "installed"},
         {"version": "6.5.0-17-generic", "status": "installed"},
@@ -316,7 +326,9 @@ class TestDKMSValidation(unittest.TestCase):
             "6.5.0-17-generic",
         ]
         mock_err.return_value = 0
-        self.assertEqual(main(), 0)
+        result = main()
+        self.assertEqual(mock_err.call_count, 1)
+        self.assertEqual(result, 0)
 
     @patch("dkms_build_validation.run_command")
     @patch("dkms_build_validation.has_dkms_build_errors")
@@ -327,7 +339,9 @@ class TestDKMSValidation(unittest.TestCase):
             "6.8.0-40-generic",
         ]
         mock_err.return_value = 0
-        self.assertEqual(main(), 0)
+        result = main()
+        self.assertEqual(mock_err.call_count, 0)
+        self.assertEqual(result, 0)
 
     @patch("dkms_build_validation.run_command")
     @patch("dkms_build_validation.has_dkms_build_errors")
@@ -338,7 +352,9 @@ class TestDKMSValidation(unittest.TestCase):
             "6.8.0-40-generic",
         ]
         mock_err.return_value = 0
-        self.assertEqual(main(), 0)
+        result = main()
+        self.assertEqual(mock_err.call_count, 0)
+        self.assertEqual(result, 0)
 
     @patch("dkms_build_validation.run_command")
     @patch("dkms_build_validation.has_dkms_build_errors")
@@ -349,7 +365,9 @@ class TestDKMSValidation(unittest.TestCase):
             "6.8.0-40-generic",
         ]
         mock_err.return_value = 0
-        self.assertEqual(main(), 0)
+        result = main()
+        self.assertEqual(mock_err.call_count, 1)
+        self.assertEqual(result, 0)
 
     @patch("dkms_build_validation.run_command")
     @patch("dkms_build_validation.has_dkms_build_errors")
@@ -360,7 +378,9 @@ class TestDKMSValidation(unittest.TestCase):
             "6.0.0-1011-oem",
         ]
         mock_err.return_value = 0
-        self.assertEqual(main(), 0)
+        result = main()
+        self.assertEqual(mock_err.call_count, 1)
+        self.assertEqual(result, 0)
 
     @patch("dkms_build_validation.run_command")
     @patch("dkms_build_validation.has_dkms_build_errors")
@@ -371,4 +391,32 @@ class TestDKMSValidation(unittest.TestCase):
             "6.5.0-17-generic",
         ]
         mock_err.return_value = 1
-        self.assertEqual(main(), 1)
+        result = main()
+        self.assertEqual(mock_err.call_count, 1)
+        self.assertEqual(result, 1)
+
+    @patch("dkms_build_validation.run_command")
+    @patch("dkms_build_validation.has_dkms_build_errors")
+    def test_main_oem_focal(self, mock_err, mock_run_command):
+        mock_run_command.side_effect = [
+            "Release:	20.04",
+            self.dkms_status_oem_focal,
+            "5.15.0-117-generic",
+        ]
+        mock_err.return_value = 0
+        result = main()
+        self.assertEqual(mock_err.call_count, 1)
+        self.assertEqual(result, 0)
+
+    @patch("dkms_build_validation.run_command")
+    @patch("dkms_build_validation.has_dkms_build_errors")
+    def test_main_stock_noble(self, mock_err, mock_run_command):
+        mock_run_command.side_effect = [
+            "No LSB modules are available.\nRelease:	24.04",
+            self.dkms_status_stock_noble,
+            "6.8.0-44-generic",
+        ]
+        mock_err.return_value = 0
+        result = main()
+        self.assertEqual(mock_err.call_count, 1)
+        self.assertEqual(result, 0)

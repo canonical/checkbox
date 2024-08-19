@@ -339,9 +339,7 @@ class SessionAssistant:
             )
 
         self._match_qualifiers = []
-        for pattern in self._config.get_value(
-            "test selection", "match"
-        ):
+        for pattern in self._config.get_value("test selection", "match"):
             self._match_qualifiers.append(
                 RegExpJobQualifier(pattern, None, True)
             )

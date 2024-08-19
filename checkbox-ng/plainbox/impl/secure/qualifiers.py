@@ -30,9 +30,10 @@ import functools
 import itertools
 import logging
 import operator
-import os
 import re
 import sre_constants
+
+from contextlib import suppress
 
 from plainbox.abc import IUnitQualifier
 from plainbox.i18n import gettext as _
@@ -172,6 +173,11 @@ class RegExpJobQualifier(SimpleQualifier):
         This method should not be called directly, it is an implementation
         detail of SimpleQualifier class.
         """
+        pattern = self._pattern
+        if job.template_id:
+            return bool(
+                pattern.match(job.template_id) or pattern.match(job.id)
+            )
         return self._pattern.match(job.id) is not None
 
     @property

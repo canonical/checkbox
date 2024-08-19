@@ -79,11 +79,13 @@ class TestSelectionOnlyIncludeNominal(Scenario):
         AssertPrinted("include_target"),
         AssertNotPrinted("include_exclude_target"),
         AssertNotPrinted("include_launcher_removed_target"),
+        AssertPrinted("include_generated_job_template_"),
         AssertPrinted("nested_indirect_resource"),
         AssertPrinted("nested_direct_dependency"),
         AssertPrinted("nested_indirect_dependency"),
         AssertNotPrinted("nested_not_included"),
         AssertPrinted("nested_target"),
+        AssertPrinted("nested_generated_job_template_"),
         AssertNotPrinted("nested_exclude_target"),
         AssertRetCode(0),
     ]

@@ -45,6 +45,15 @@ _summary: Used to test that exclude has the precedence over only_include for nes
 flags: simple
 command: false
 
+unit: template
+template-resource: nested_direct_resource
+template-unit: job
+id: nested_generated_job_template_{nested_direct_resource}
+template-id: nested_include_by_template_id
+flags: simple
+_summary: Used to test that template-id is used to only_include from nested part
+command: true
+
 unit: test plan
 id: nested_part_tests
 _name: Test plan used as a nested_part by the only_include tp
@@ -56,6 +65,7 @@ include:
   nested_not_included
   nested_target
   nested_exclude_target
+  nested_include_by_template_id
 
 # note from here onward is copy paste till test plan :%s/nested/include/g
 
@@ -64,7 +74,7 @@ _summary: Used to test that resource jobs are always pulled
 flags: simple
 plugin: resource
 command:
-  echo "nested_indirect_resource: true"
+  echo "include_indirect_resource: true"
   echo
 
 id: include_direct_resource
@@ -72,14 +82,14 @@ _summary: Used to test that resource jobs are pulled if used by some other job
 flags: simple
 plugin: resource
 command:
-  echo "nested_direct_resource: true"
+  echo "include_direct_resource: true"
   echo
 
 id: include_indirect_dependency
 _summary: Used to test that indirect dependencies are pulled for include jobs
 flags: simple
 requires:
-  include_direct_resource.nested_direct_resource == 'true'
+  include_direct_resource.include_direct_resource == 'true'
 command: true
 
 id: include_direct_dependency
@@ -111,6 +121,15 @@ _summary: Used to test that exclude has precedence over only_include from launch
 flags: simple
 command: false
 
+unit: template
+template-resource: include_direct_resource
+template-unit: job
+id: include_generated_job_template_{include_direct_resource}
+template-id: include_include_by_template_id
+flags: simple
+_summary: Used to test that template-id is used to only_include from include
+command: true
+
 # test plan differs in exclude constraint and nested_part
 
 unit: test plan
@@ -125,6 +144,7 @@ include:
   include_target
   include_exclude_target
   include_launcher_removed_target
+  include_include_by_template_id
 nested_part:
   nested_part_tests
 exclude:

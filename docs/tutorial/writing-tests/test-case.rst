@@ -27,6 +27,11 @@ Create the ``units/extended_tutorial.pxu``. This will be our first job:
     command:
       echo This job passes!
 
+.. note::
+    The ``simple`` flag sets a few default field of your unit allowing you to
+    easily develop a new test. See :ref:`jobs<job>` for a more comprehensive
+    list of fields and flags
+
 Now let's try to run this test job. Given that we have just created this
 provider, Checkbox has no idea it exists. To make it discoverable, we have
 to install it. The concept of a provider is very similar to a Python module.
@@ -65,7 +70,7 @@ Now to run our test we can use the ``run`` sub-command. Try the following:
 First concrete test example
 ===========================
 
-Ok, it worked, but this is not very useful. Let's go back and edit the job to
+OK, it worked, but this is not very useful. Let's go back and edit the job to
 actually run a ping command. Replace the ``command`` section of the job with
 ``ping -c 1 1.1.1.1``, let's also update the summary as follows:
 
@@ -219,7 +224,7 @@ Consider the following:
       ACCEPTABLE_BYTES_PER_SECOND_SPEED
     command:
       echo Testing for the limit speed: ${ACCEPTABLE_BYTES_PER_SECOND_SPEED:-600}
-      curl -Y ${ACCEPTABLE_BYTES_PER_SECOND_SPEED:-600} -o /dev/null \
+      curl -y 1 -Y ${ACCEPTABLE_BYTES_PER_SECOND_SPEED:-600} -o /dev/null \
         https://cdimage.ubuntu.com/ubuntu-mini-iso/noble/daily-live/current/noble-mini-iso-amd64.iso
 
 Before running the test we have to define a Checkbox configuration. Note that
@@ -271,8 +276,10 @@ Resources
 =========
 
 Before even thinking to test if we are connected to the Internet a wise
-question to ask would be: do we even have a network interface? Let's create a
-resource job to fetch this information.
+question to ask would be: do we even have a network interface? :term:`Resource`
+jobs gather information about a system, printing them in a ``key: value`` format
+that Checkbox parses. They are used for this purpose. Let's create a resource
+job to fetch this information.
 
 Create a new job with the following content:
 

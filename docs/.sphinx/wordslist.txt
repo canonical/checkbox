@@ -74,7 +74,6 @@ namespace
 namespaces
 Naur
 ng
-Ok
 parametrize
 Parsers
 pdf

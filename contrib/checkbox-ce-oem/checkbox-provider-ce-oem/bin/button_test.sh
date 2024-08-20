@@ -17,7 +17,7 @@ export_gpio() {
         echo "$gpio_direct" > "$gpio_node"/direction
     fi
 }
-
+ 
 test_button() {
     press_result="fail"
     release_result="fail"

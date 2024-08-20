@@ -18,7 +18,7 @@
     'requests_unixsocket2; python_version>="3.12"',
     'importlib_metadata; python_version<"3.8"',
     'systemd-python==233; python_version=="3.5"',
-    'systemd-python>=234; python_version>="3.6"',
+    'systemd-python>=235; python_version>="3.6"',
     'pyyaml',
   ]
 [metadata]

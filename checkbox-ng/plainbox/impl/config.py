@@ -384,9 +384,6 @@ CONFIG_SPEC = [
             "exclude": VarSpec(
                 list, [], "Exclude test matching patterns from running."
             ),
-            "match": VarSpec(
-                list, [], "Only run job that match or their dependencies."
-            ),
         },
     ),
     (

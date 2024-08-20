@@ -305,7 +305,6 @@ class ContainerSourceMachine(ContainerBaseMachine):
             else '"pip>20"'
         )
         return [
-            "bash -c 'sudo apt-get install -qq -y pkg-config libsystemd-dev'",
             "bash -c 'sudo python3 -m pip install -U {}'".format(pip_version),
         ]
 

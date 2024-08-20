@@ -341,20 +341,6 @@ class RegExpJobQualifierTests(TestCase):
             IUnitQualifier.VOTE_IGNORE,
         )
 
-    def test_matches_any_id(self):
-        template_job_mock = mock.Mock(template_id="some", id="other")
-
-        reg_match_template_id = RegExpJobQualifier("some", self.origin)
-        self.assertTrue(
-            reg_match_template_id.get_simple_match(template_job_mock)
-        )
-
-        reg_match_id = RegExpJobQualifier("other", self.origin)
-        self.assertTrue(reg_match_id.get_simple_match(template_job_mock))
-
-        reg_match_nothing = RegExpJobQualifier("nothing", self.origin)
-        self.assertFalse(reg_match_nothing.get_simple_match(template_job_mock))
-
 
 class JobIdQualifierTests(TestCase):
     """

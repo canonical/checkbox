@@ -1,0 +1,21 @@
+id: strict-confinement-thermal-automated
+unit: test plan
+_name: Test thermal sensor in strict confinement mode.
+_desription:
+    Test thermal sensor in strict confinement mode.
+    Rely on test-strict-confinment SNAP to test.
+bootstrap_include:
+    thermal_zones
+include:
+    strict-confinement/temperature_.*
+
+id: after-suspend-strict-confinement-thermal-automated
+unit: test plan
+_name: Test thermal sensor in strict confinement mode.
+_desription:
+    Test thermal sensor in strict confinement mode.
+    Rely on test-strict-confinment SNAP to test.
+bootstrap_include:
+    thermal_zones
+include:
+    after-suspend-strict-confinement/temperature_.*

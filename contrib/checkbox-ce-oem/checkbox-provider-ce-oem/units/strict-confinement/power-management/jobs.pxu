@@ -12,9 +12,11 @@ depends: com.canonical.certification::init-boot-loop-data
 imports:
   from com.canonical.certification import snap
   from com.canonical.certification import lsb
+  from com.canonical.certification import connections
 requires:
   lsb.distributor_id == 'Ubuntu Core'
   snap.name == 'test-strict-confinement'
+  connections.slot == "snapd:shutdown" and connections.plug == "test-strict-confinement:shutdown"
 command:
   rtcwake -d "${RTC_DEVICE_FILE:-rtc0}" -v -m no -s "${STRESS_BOOT_WAKEUP_DELAY:-120}"
   test-strict-confinement.dbus-cold-boot
@@ -56,9 +58,11 @@ depends: com.canonical.certification::init-boot-loop-data
 imports:
   from com.canonical.certification import snap
   from com.canonical.certification import lsb
+  from com.canonical.certification import connections
 requires:
   lsb.distributor_id == 'Ubuntu Core'
   snap.name == 'test-strict-confinement'
+  connections.slot == "snapd:shutdown" and connections.plug == "test-strict-confinement:shutdown"
 command:
   test-strict-confinement.dbus-warm-boot
   sleep 60

@@ -1,6 +1,6 @@
 plugin: user-interact
 category_id: strict-confinement-mode
-id: strict-confine/mediacard/sdhc-insert
+id: strict-confinement/mediacard/sdhc-insert
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
@@ -9,10 +9,14 @@ imports:
   from com.canonical.plainbox import manifest
   from com.canonical.certification import snap
   from com.canonical.certification import lsb
+  from com.canonical.certification import connections
 requires:
   manifest.has_card_reader == 'True'
   lsb.distributor_id == 'Ubuntu Core'
   snap.name == 'test-strict-confinement'
+  connections.slot == "snapd:mount-control" and connections.plug == "test-strict-confinement:mount-control"
+  connections.slot == "snapd:log-observe" and connections.plug == "test-strict-confinement:log-observe"
+  connections.slot == "snapd:removable-media" and connections.plug == "test-strict-confinement:removable-media"
 user: root
 _summary: Test that insertion of an SDHC card is detected
 _description:
@@ -31,9 +35,9 @@ _verification:
 
 plugin: shell
 category_id: strict-confinement-mode
-id: strict-confine/mediacard/sdhc-storage
+id: strict-confinement/mediacard/sdhc-storage
 estimated_duration: 30.0
-depends: strict-confine/mediacard/sdhc-insert
+depends: strict-confinement/mediacard/sdhc-insert
 user: root
 flags: preserve-cwd reset-locale also-after-suspend
 command: test-strict-confinement.usb-read-write
@@ -44,10 +48,10 @@ _description:
 
 plugin: user-interact
 category_id: strict-confinement-mode
-id: strict-confine/mediacard/sdhc-remove
+id: strict-confinement/mediacard/sdhc-remove
 flags: also-after-suspend
 estimated_duration: 30.0
-depends: strict-confine/mediacard/sdhc-insert
+depends: strict-confinement/mediacard/sdhc-insert
 command:
   test-strict-confinement.run-watcher removal mediacard
 user: root

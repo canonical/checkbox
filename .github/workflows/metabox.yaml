@@ -68,4 +68,7 @@ jobs:
           python3 -m venv --system-site-packages venv
           venv/bin/python3 -m pip install -e .
       - name: Run Metabox scenarios
-        run: venv/bin/metabox configs/${{ matrix.mode }}-source-${{ matrix.os }}.py
+        run: |
+          # activate needed as metabox uses pip to validate the source package location
+          . venv/bin/activate
+          metabox configs/${{ matrix.mode }}-source-${{ matrix.os }}.py

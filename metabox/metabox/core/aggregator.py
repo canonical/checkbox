@@ -41,7 +41,7 @@ class _ScenarioAggregator:
         """Import all modules so the scenarios can be auto-loaded."""
         path = metabox.scenarios.__path__
         for loader, name, _ in pkgutil.walk_packages(path):
-            loader.find_module(name).load_module(name)
+            _ = loader.find_spec(name).loader.load_module()
 
     def all_scenarios(self):
         """Return all available scenarios."""

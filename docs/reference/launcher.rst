@@ -209,10 +209,10 @@ Note: To clear the exclude list use...
 ...in your 'last' config.
 
 ``match``
-  List of regex patterns that job ids will be matched against. Checkbox will
-  only run the matching jobs, their dependencies and any job included in the
-  testplan bootstrap section. This is useful to re-run the failing subset of
-  jobs included in a test plan
+  List of regex patterns that job ids and template ids will be matched against.
+  Checkbox will only run the matching jobs, their dependencies and any job
+  included in the testplan bootstrap section. This is useful to re-run the
+  failing subset of jobs included in a test plan.
 
 Only run ``bluetooth`` jobs and their dependencies:
 

@@ -944,7 +944,7 @@ class SessionAssistant:
             ],
         )
         if self._match_qualifiers:
-            # when only include is provided, use the testplan but prune it to
+            # when `match` is provided, use the test plan but prune it to
             # only pull the jobs asked in the launcher or their dependencies
             desired_job_list = select_units(
                 desired_job_list,

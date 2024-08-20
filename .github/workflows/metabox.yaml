@@ -42,7 +42,7 @@ jobs:
       run:
         working-directory: metabox
     needs: metabox_run_required
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       # Workaround to get loguru colored output
       # See https://github.com/Delgan/loguru/issues/604

@@ -9,7 +9,43 @@ objective is to detect if the :term:`DUT` is correctly connected to the Internet
 Basic setup
 ===========
 
-Let's create a new Checkbox provider by ...
+To follow this tutorial we recommend provisioning Checkbox from source. This is
+ideal for prototyping. To provision Checkbox from source do the following:
+
+.. code-block:: shell
+
+    # first install python3 and python3-venv
+    > sudo apt install python3 python3-venv python3-pip
+    # clone the Checkbox repository
+    > git clone https://github.com/canonical/checkbox.git
+    # call the mk-venv script with the location of your virtualenv
+    # Note: this mk-venv script sets up more than a normal virtual env. It also
+    #       adds some Checkbox specific environment variables
+    > cd checkbox/checkbox-ng
+    > ./mk-venv ../../checkbox_venv
+    # Activate the virtual environment
+    > . ../../checkbox_venv/bin/activate
+    # Install checkbox_support, it is a collection of utility scripts used by
+    # many tests
+    (checkbox_venv) > cd ../checkbox-support
+    (checkbox_venv) > pip install -e .
+    # Install the resource provider, we will use it further along in this tutorial
+    (checkbox_venv) > cd ../providers/resource
+    (checkbox_venv) > python3 manage.py develop
+
+.. note::
+    Remember to activate the virtual environment! You can also create an alias
+    in your ``~/.bashrc`` to enable it when you need it.
+
+Creating a new provider
+=======================
+
+Let's create a new Checkbox provider by using the Checkbox sub-command
+``startprovider``.
+
+.. code-block:: shell
+
+   (checkbox_venv) > checkbox-cli startprovider 2024.com.tutorial:tutorial
 
 Inside the provider you can see there are several directories. Definitions (the
 descriptions of what we want to do) are contained in PXU files that we store in

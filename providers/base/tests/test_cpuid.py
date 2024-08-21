@@ -96,7 +96,6 @@ class CpuidMainTests(unittest.TestCase):
         )
         print_mock.assert_called_with(expected_msg)
 
-
     @patch("builtins.print")
     @patch("subprocess.check_output")
     @patch("cpuid.CPUID")

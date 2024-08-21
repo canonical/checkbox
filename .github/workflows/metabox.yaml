@@ -42,6 +42,7 @@ jobs:
       run:
         working-directory: metabox
     needs: metabox_run_required
+    # use 20.04 as we need xenial containers support => cgroup v1
     runs-on: ubuntu-20.04
     env:
       # Workaround to get loguru colored output
@@ -61,7 +62,13 @@ jobs:
           lxc profile device add default root disk path=/ pool=metabox${{ matrix.os }}
           lxc storage list
       - name: Install dependencies
-        run: python3 -m pip install --upgrade pyopenssl pip setuptools
+        run: |
+          # Here we pull from pypi because we need a version that supports pyproject.toml
+          # urllib update is to bypass a req. fail due to dist-packages. Version is pinned
+          # to <2 because pylxd doesn't currently support >=2
+          # pyopenssl upgraded is necessary because pylxd doesn't support the old version
+          # of pyopenssl included in focal
+          python3 -m pip install --upgrade pyopenssl pip "setuptools==70.0.0" "urllib3==1.26.19"
       - name: Install Metabox
         run: python3 -m pip install -e .
       - name: Run Metabox scenarios

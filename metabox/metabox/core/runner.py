@@ -290,7 +290,7 @@ class Runner:
 
                 # let's escape < from the output to avoid confusing loguru
                 # loguru assumes that <> is used for colorizing
-                output = scn.get_output_streams().strip().replace("<", "\<")
+                output = scn.get_output_streams().strip().replace("<", r"\<")
 
                 logger.error("Scenario output:\n" + output)
                 if self.hold_on_fail:

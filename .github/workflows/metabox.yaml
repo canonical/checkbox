@@ -42,7 +42,8 @@ jobs:
       run:
         working-directory: metabox
     needs: metabox_run_required
-    runs-on: ubuntu-24.04
+    # use 20.04 as we need xenial containers support => cgroup v1
+    runs-on: ubuntu-20.04
     env:
       # Workaround to get loguru colored output
       # See https://github.com/Delgan/loguru/issues/604
@@ -61,14 +62,14 @@ jobs:
           lxc profile device add default root disk path=/ pool=metabox${{ matrix.os }}
           lxc storage list
       - name: Install dependencies
-        run: sudo apt install -y -qq python3-pip python3-setuptools python3-venv python3-pkg-resources
+        run: |
+          # Here we pull from pypi because we need a version that supports pyproject.toml
+          # urllib update is to bypass a req. fail due to dist-packages. Version is pinned
+          # to <2 because pylxd doesn't currently support >=2
+          # pyopenssl upgraded is necessary because pylxd doesn't support the old version
+          # of pyopenssl included in focal
+          python3 -m pip install --upgrade pyopenssl pip "setuptools==70.0.0" "urllib3==1.26.19"
       - name: Install Metabox
-        run: |
-          # system-site-packages needed for pkg_resource installed by setuptools
-          python3 -m venv --system-site-packages venv
-          venv/bin/python3 -m pip install -e .
+        run: python3 -m pip install -e .
       - name: Run Metabox scenarios
-        run: |
-          # activate needed as metabox uses pip to validate the source package location
-          . venv/bin/activate
-          metabox configs/${{ matrix.mode }}-source-${{ matrix.os }}.py
+        run: metabox configs/${{ matrix.mode }}-source-${{ matrix.os }}.py

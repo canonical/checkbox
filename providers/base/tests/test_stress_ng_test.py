@@ -43,12 +43,18 @@ class TestMemoryFunctions(unittest.TestCase):
     @patch("stress_ng_test.run")
     @patch("stress_ng_test.os.chmod")
     @patch("stress_ng_test.open", new_callable=mock_open)
+    @patch("stress_ng_test.range", return_value=[0])
     @patch(
         "stress_ng_test.psutil.swap_memory",
         side_effect=[MagicMock(total=0), MagicMock(total=1073741824)],
     )
     def test_swap_space_ok_create_swap(
-        self, psutil_swap_memory_mock, open_mock, os_chmod_mock, run_mock
+        self,
+        psutil_swap_memory_mock,
+        open_mock,
+        range_mock,
+        os_chmod_mock,
+        run_mock,
     ):
         self.assertTrue(swap_space_ok(1))
 

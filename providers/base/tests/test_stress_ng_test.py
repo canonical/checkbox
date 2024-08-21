@@ -34,18 +34,16 @@ class TestMemoryFunctions(unittest.TestCase):
     def test_num_numa_nodes_failure(self, run_mock):
         self.assertEqual(num_numa_nodes(), 1)
 
-    @patch(
-        "stress_ng_test.psutil.swap_memory", return_value=MagicMock(total=1)
-    )
+    @patch("psutil.swap_memory", return_value=MagicMock(total=1))
     def test_swap_space_ok_success(self, psutil_swap_memory_mock):
         self.assertTrue(swap_space_ok(0))
 
     @patch("stress_ng_test.run")
-    @patch("stress_ng_test.os.chmod")
+    @patch("os.chmod")
     @patch("stress_ng_test.open", new_callable=mock_open)
     @patch("stress_ng_test.range", return_value=[0])
     @patch(
-        "stress_ng_test.psutil.swap_memory",
+        "psutil.swap_memory",
         side_effect=[MagicMock(total=0), MagicMock(total=1073741824)],
     )
     def test_swap_space_ok_create_swap(
@@ -59,11 +57,9 @@ class TestMemoryFunctions(unittest.TestCase):
         self.assertTrue(swap_space_ok(1))
 
     @patch("stress_ng_test.run")
-    @patch("stress_ng_test.os.chmod")
+    @patch("os.chmod")
     @patch("stress_ng_test.open", side_effect=OSError)
-    @patch(
-        "stress_ng_test.psutil.swap_memory", return_value=MagicMock(total=0)
-    )
+    @patch("psutil.swap_memory", return_value=MagicMock(total=0))
     def test_swap_space_ok_remove_swap(
         self, psutil_swap_memory_mock, open_mock, os_chmod_mock, run_mock
     ):
@@ -71,14 +67,14 @@ class TestMemoryFunctions(unittest.TestCase):
 
 
 class TestMainFunction(unittest.TestCase):
-    @patch("stress_ng_test.shutil.which", return_value=None)
-    @patch("stress_ng_test.sys.argv", ["stress_ng_test.py", "cpu"])
+    @patch("shutil.which", return_value=None)
+    @patch("sys.argv", ["stress_ng_test.py", "cpu"])
     def test_main_no_stress_ng(self, shutil_which_mock):
         self.assertEqual(main(), 1)
 
-    @patch("stress_ng_test.os.geteuid", return_value=1000)
-    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
-    @patch("stress_ng_test.sys.argv", ["stress_ng_test.py", "cpu"])
+    @patch("os.geteuid", return_value=1000)
+    @patch("shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("sys.argv", ["stress_ng_test.py", "cpu"])
     def test_main_not_root(self, shutil_which_mock, os_geteuid_mock):
         self.assertEqual(main(), 1)
 
@@ -134,9 +130,9 @@ class TestMainFunction(unittest.TestCase):
     @patch("stress_ng_test.check_output")
     @patch("stress_ng_test.num_numa_nodes", return_value=1)
     @patch("stress_ng_test.swap_space_ok", return_value=True)
-    @patch("stress_ng_test.os.geteuid", return_value=0)
-    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
-    @patch("stress_ng_test.sys.argv", ["stress_ng_test.py", "memory"])
+    @patch("os.geteuid", return_value=0)
+    @patch("shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("sys.argv", ["stress_ng_test.py", "memory"])
     def test_main_stress_memory_success(
         self,
         shutil_which_mock,
@@ -152,9 +148,9 @@ class TestMainFunction(unittest.TestCase):
     @patch("stress_ng_test.check_output")
     @patch("stress_ng_test.num_numa_nodes", return_value=2)
     @patch("stress_ng_test.swap_space_ok", return_value=True)
-    @patch("stress_ng_test.os.geteuid", return_value=0)
-    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
-    @patch("stress_ng_test.sys.argv", ["stress_ng_test.py", "memory"])
+    @patch("os.geteuid", return_value=0)
+    @patch("shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("sys.argv", ["stress_ng_test.py", "memory"])
     def test_main_stress_memory_more_numa_nodes(
         self,
         shutil_which_mock,
@@ -166,7 +162,7 @@ class TestMainFunction(unittest.TestCase):
     ):
         self.assertEqual(main(), 0)
 
-    @patch("stress_ng_test.os.remove")
+    @patch("os.remove")
     @patch("stress_ng_test.Popen")
     @patch(
         "stress_ng_test.my_swap",
@@ -175,9 +171,9 @@ class TestMainFunction(unittest.TestCase):
     @patch("stress_ng_test.check_output")
     @patch("stress_ng_test.num_numa_nodes", return_value=1)
     @patch("stress_ng_test.swap_space_ok", return_value=True)
-    @patch("stress_ng_test.os.geteuid", return_value=0)
-    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
-    @patch("stress_ng_test.sys.argv", ["stress_ng_test.py", "memory"])
+    @patch("os.geteuid", return_value=0)
+    @patch("shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("sys.argv", ["stress_ng_test.py", "memory"])
     def test_main_stress_memory_delete_swap(
         self,
         shutil_which_mock,
@@ -192,15 +188,15 @@ class TestMainFunction(unittest.TestCase):
         self.assertEqual(main(), 0)
 
     @patch("stress_ng_test.swap_space_ok", return_value=False)
-    @patch("stress_ng_test.os.geteuid", return_value=0)
-    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
-    @patch("stress_ng_test.sys.argv", ["stress_ng_test.py", "memory"])
+    @patch("os.geteuid", return_value=0)
+    @patch("shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("sys.argv", ["stress_ng_test.py", "memory"])
     def test_main_stress_memory_not_enough_swap(
         self, shutil_which_mock, os_geteuid_mock, swap_space_ok_mock
     ):
         self.assertEqual(main(), 1)
 
-    @patch("stress_ng_test.shutil.rmtree")
+    @patch("shutil.rmtree")
     @patch("stress_ng_test.check_output")
     @patch(
         "stress_ng_test.Disk",
@@ -209,12 +205,9 @@ class TestMainFunction(unittest.TestCase):
             mount_filesystem=MagicMock(return_value=True),
         ),
     )
-    @patch("stress_ng_test.os.geteuid", return_value=0)
-    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
-    @patch(
-        "stress_ng_test.sys.argv",
-        ["stress_ng_test.py", "disk", "--device", "/dev/sda"],
-    )
+    @patch("os.geteuid", return_value=0)
+    @patch("shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("sys.argv", ["stress_ng_test.py", "disk", "--device", "/dev/sda"])
     def test_main_stress_disk_success(
         self,
         shutil_which_mock,
@@ -225,7 +218,7 @@ class TestMainFunction(unittest.TestCase):
     ):
         self.assertEqual(main(), 0)
 
-    @patch("stress_ng_test.shutil.rmtree")
+    @patch("shutil.rmtree")
     @patch("stress_ng_test.check_output")
     @patch(
         "stress_ng_test.Disk",
@@ -234,12 +227,9 @@ class TestMainFunction(unittest.TestCase):
             mount_filesystem=MagicMock(return_value=True),
         ),
     )
-    @patch("stress_ng_test.os.geteuid", return_value=0)
-    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
-    @patch(
-        "stress_ng_test.sys.argv",
-        ["stress_ng_test.py", "disk", "--device", "sda"],
-    )
+    @patch("os.geteuid", return_value=0)
+    @patch("shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("sys.argv", ["stress_ng_test.py", "disk", "--device", "sda"])
     def test_main_stress_disk_partial_name_success(
         self,
         shutil_which_mock,
@@ -257,10 +247,10 @@ class TestMainFunction(unittest.TestCase):
             mount_filesystem=MagicMock(return_value=True),
         ),
     )
-    @patch("stress_ng_test.os.geteuid", return_value=0)
-    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("os.geteuid", return_value=0)
+    @patch("shutil.which", return_value="/usr/bin/stress-ng")
     @patch(
-        "stress_ng_test.sys.argv",
+        "sys.argv",
         ["stress_ng_test.py", "disk", "--device", "/dev/sda", "--simulate"],
     )
     def test_main_stress_disk_simulate_success(
@@ -272,12 +262,9 @@ class TestMainFunction(unittest.TestCase):
         "stress_ng_test.Disk",
         return_value=MagicMock(is_block_device=MagicMock(return_value=False)),
     )
-    @patch("stress_ng_test.os.geteuid", return_value=0)
-    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
-    @patch(
-        "stress_ng_test.sys.argv",
-        ["stress_ng_test.py", "disk", "--device", "/dev/sda"],
-    )
+    @patch("os.geteuid", return_value=0)
+    @patch("shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("sys.argv", ["stress_ng_test.py", "disk", "--device", "/dev/sda"])
     def test_main_stress_disk_not_a_block_device(
         self, shutil_which_mock, os_geteuid_mock, disk_mock
     ):
@@ -290,12 +277,9 @@ class TestMainFunction(unittest.TestCase):
             mount_filesystem=MagicMock(return_value=False),
         ),
     )
-    @patch("stress_ng_test.os.geteuid", return_value=0)
-    @patch("stress_ng_test.shutil.which", return_value="/usr/bin/stress-ng")
-    @patch(
-        "stress_ng_test.sys.argv",
-        ["stress_ng_test.py", "disk", "--device", "/dev/sda"],
-    )
+    @patch("os.geteuid", return_value=0)
+    @patch("shutil.which", return_value="/usr/bin/stress-ng")
+    @patch("sys.argv", ["stress_ng_test.py", "disk", "--device", "/dev/sda"])
     def test_main_stress_disk_fail_mount(
         self, shutil_which_mock, os_geteuid_mock, disk_mock
     ):

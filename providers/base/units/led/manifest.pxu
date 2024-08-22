@@ -11,6 +11,12 @@ _prompt: Does this machine have the following LED indicators?
 value-type: bool
 
 unit: manifest entry
+id: has_led_suspend
+_name: Suspend
+_prompt: Does this machine have the following LED indicators?
+value-type: bool
+
+unit: manifest entry
 id: has_led_caps_lock
 _name: Caps lock
 _prompt: Does this machine have the following LED indicators?

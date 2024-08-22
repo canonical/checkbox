@@ -31,11 +31,13 @@ plugin: manual
 category_id: led
 id: led/suspend
 estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_suspend == 'True'
 depends: suspend/suspend_advanced_auto
 _purpose:
  Suspend LED verification.
 _steps:
- Skip this test if your system does not have a dedicated Suspend LED.
  1. The Suspend LED should blink or change color while the system is suspended
 _verification:
  Did the Suspend LED blink or change color while the system was suspended?

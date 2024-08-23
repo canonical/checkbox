@@ -54,16 +54,18 @@ id: camera/led_{name}
 template-id: camera/led_name
 _summary: Webcam LED test for {product_slug}
 estimated_duration: 120.0
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_camera == 'True'
 depends: camera/detect
 command:
   camera_test.py led -d /dev/{name}
-_description:
- PURPOSE:
+_purpose:
      This test will check that the {product_slug} camera LED works
- STEPS:
+_steps:
      1. Select Test to activate camera
      2. Camera LED should light for a few seconds
- VERIFICATION:
+_verification:
      Did the camera LED light?
 flags: also-after-suspend
 

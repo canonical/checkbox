@@ -272,8 +272,8 @@ class CameraTest:
             self.pipeline.set_state(self.Gst.State.NULL)
             # Quit the GLib main loop
             self.main_loop.quit()
-            if self.log_level == logging.DEBUG:
-                print("End-of-stream")
+
+            logging.debug("End-of-stream")
 
         # Process Error messages
         elif message.type == self.Gst.MessageType.ERROR:
@@ -283,18 +283,18 @@ class CameraTest:
             self.main_loop.quit()
             err, debug = message.parse_error()
             print("Error: {}".format(err.message))
-            if self.log_level == logging.DEBUG:
-                print("Debug info: {}".format(debug))
+
+            logging.debug("Debug info: {}".format(debug))
+
             raise SystemExit("Error: {}".format(err.message))
 
         # Process Pipeline state change messages
         elif (
             message.type == self.Gst.MessageType.STATE_CHANGED
             and message.src.get_name() == "pipeline"
-            and self.log_level == logging.DEBUG
         ):
             old_state, new_state, _ = message.parse_state_changed()
-            print(
+            logging.debug(
                 "Pipeline changed state from {} to {}".format(
                     old_state.value_nick, new_state.value_nick
                 )
@@ -943,6 +943,7 @@ if __name__ == "__main__":
 
     # Set the log level
     logging.basicConfig(level=args["log_level"])
+    print("log level: %s" % logging.getLevelName(args["log_level"]))
 
     camera = CameraTest(**args)
     # Import Gst only for the test cases that will need it

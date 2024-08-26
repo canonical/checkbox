@@ -191,6 +191,35 @@ class CameraTest:
         self.pipeline = None
         self.timeout = None
 
+    def init_gstreamer(self):
+        """
+        Initialize the GStreamer and GLib libraries
+        """
+        import gi
+
+        gi.require_version("Gst", "1.0")
+        from gi.repository import Gst
+
+        gi.require_version("GLib", "2.0")
+        from gi.repository import GLib
+
+        self.Gst = Gst
+        self.GLib = GLib
+
+        self.Gst.init(None)
+
+    def init_gtk(self):
+        """
+        Initialize the Gtk library
+        """
+        import gi
+
+        gi.require_version("Gtk", "3.0")
+        from gi.repository import Gtk
+
+        self.Gtk = Gtk
+        self.Gtk.init([])
+
     def detect(self):
         """
         Display information regarding webcam hardware
@@ -941,30 +970,14 @@ if __name__ == "__main__":
 
     # Set the log level
     logging.basicConfig(level=args["log_level"])
-    print("log level: %s" % logging.getLevelName(args["log_level"]))
 
     camera = CameraTest(**args)
     # Import Gst only for the test cases that will need it
     if args["test"] in ["video", "image", "led", "resolutions"]:
-        import gi
-
-        gi.require_version("Gst", "1.0")
-        from gi.repository import Gst
-
-        gi.require_version("GLib", "2.0")
-        from gi.repository import GLib
-
-        Gst.init(None)
-        camera.Gst = Gst
-        camera.GLib = GLib
+        camera.init_gstreamer()
 
         # Import Gtk only for the test cases that will need it
         if args["test"] in ["video", "image"] and not args["quiet"]:
-
-            gi.require_version("Gtk", "3.0")
-            from gi.repository import Gtk
-
-            Gtk.init([])
-            camera.Gtk = Gtk
+            camera.init_gtk()
 
     sys.exit(getattr(camera, args["test"])())

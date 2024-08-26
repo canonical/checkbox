@@ -463,8 +463,9 @@ class CameraTest:
         Setup the gstreamer pipeline to capture an image.
         This pipeline consists of the following elements:
         - v4l2src: Capture video from a V4L2 device
-        - caps: Filter the video stream to the desired resolution
-        - bayer2rgb (only for bayer format): Convert the bayer format to RGB
+        - caps: Set the video stream to the desired resolution
+        - rgb_capture: last element in the pipeline to capture the image. If
+            no conversion is needed, this is the same as caps
         - jpegenc: Encode the video stream to a JPEG image
         - filesink: Save the JPEG image to a file
         """
@@ -477,7 +478,8 @@ class CameraTest:
         source.set_property("num-buffers", 10)
         pipeline.add(source)
 
-        # Add caps
+        # Add the caps element and include a format converter if needed to
+        # always get a RGB format.
         caps = self.Gst.ElementFactory.make("capsfilter", "caps")
         if pixelformat == "RG10":
             caps.set_property(
@@ -493,6 +495,9 @@ class CameraTest:
 
             pipeline.add(caps)
             pipeline.add(bayer2rgb)
+            caps.link(bayer2rgb)
+            rgb_capture = bayer2rgb
+
         else:
             caps.set_property(
                 "caps",
@@ -501,6 +506,7 @@ class CameraTest:
                 ),
             )
             pipeline.add(caps)
+            rgb_capture = caps
 
         # Add encoder
         encoder = self.Gst.ElementFactory.make("jpegenc", "encoder")
@@ -513,12 +519,7 @@ class CameraTest:
 
         # Link elements
         source.link(caps)
-        # If the pixelformat is RG10, we need to link the bayer2rgb element
-        if pixelformat == "RG10":
-            caps.link(bayer2rgb)
-            bayer2rgb.link(encoder)
-        else:
-            caps.link(encoder)
+        rgb_capture.link(encoder)
         encoder.link(sink)
 
         # Connect the bus to the message handler

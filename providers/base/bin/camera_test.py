@@ -33,7 +33,6 @@ import argparse
 import ctypes
 import errno
 import fcntl
-import imghdr
 import logging
 import os
 import re
@@ -164,16 +163,6 @@ V4L2_FMT_FLAG_EMULATED = 0x0002
 VIDIOC_QUERYCAP = _IOR("V", 0, v4l2_capability)
 VIDIOC_ENUM_FRAMESIZES = _IOWR("V", 74, v4l2_frmsizeenum)
 VIDIOC_ENUM_FMT = _IOWR("V", 2, v4l2_fmtdesc)
-
-
-# Add the adobe format to the test_jpeg function
-def imghdr_jpeg_adobe(h, f):
-    """JPEG data in Adobe format"""
-    if h[6:11] in (b"Adobe"):
-        return "jpeg"
-
-
-imghdr.tests.append(imghdr_jpeg_adobe)
 
 
 class CameraTest:
@@ -784,27 +773,35 @@ class CameraTest:
         if not os.path.exists(filename):
             print("Image file not found")
             return False
-        if imghdr.what(filename) != "jpeg":
-            print("Image is not a valid JPEG file")
-            return False
 
         outw = outh = 0
-        with open(filename, mode="rb") as jpeg:
-            jpeg.seek(2)
-            b = jpeg.read(1)
+        with open(filename, mode="rb") as f:
+
+            # Check if the header of the image to see if it's a valid JPEG file
+            header = f.read(32)
+            if (
+                header[6:10] != b"JFIF"
+                and header[6:10] != b"Exif"
+                and header[6:11] != b"Adobe"
+            ):
+                print("Image is not a JPEG file")
+                return False
+
+            f.seek(2)
+            b = f.read(1)
             try:
                 w = 0
                 h = 0
                 while b and ord(b) != 0xDA:
                     while ord(b) != 0xFF:
-                        b = jpeg.read(1)
+                        b = f.read(1)
                     while ord(b) == 0xFF:
-                        b = jpeg.read(1)
+                        b = f.read(1)
                     if ord(b) >= 0xC0 and ord(b) <= 0xC3:
-                        jpeg.seek(3, 1)
-                        h, w = struct.unpack(">HH", jpeg.read(4))
+                        f.seek(3, 1)
+                        h, w = struct.unpack(">HH", f.read(4))
                         break
-                    b = jpeg.read(1)
+                    b = f.read(1)
                 outw, outh = int(w), int(h)
             except (struct.error, ValueError):
                 pass

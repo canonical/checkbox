@@ -3,7 +3,8 @@
 Getting support
 ===============
 
-If you have any question related to Checkbox, please send an e-mail to our
-`mailing list`_.
+Checkbox has a `dedicated section`_ in the `Ubuntu Discourse`_. If you have any
+question related to Checkbox, please send a message there!
 
-.. _mailing list: https://lists.ubuntu.com/mailman/listinfo/checkbox-devel
+.. _dedicated section: https://discourse.ubuntu.com/c/certification/checkbox/168
+.. _Ubuntu Discourse: https://discourse.ubuntu.com

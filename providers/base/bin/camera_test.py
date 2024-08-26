@@ -33,6 +33,7 @@ import argparse
 import ctypes
 import errno
 import fcntl
+import gi
 import logging
 import os
 import re
@@ -195,8 +196,6 @@ class CameraTest:
         """
         Initialize the GStreamer and GLib libraries
         """
-        import gi
-
         gi.require_version("Gst", "1.0")
         from gi.repository import Gst
 
@@ -212,8 +211,6 @@ class CameraTest:
         """
         Initialize the Gtk library
         """
-        import gi
-
         gi.require_version("Gtk", "3.0")
         from gi.repository import Gtk
 

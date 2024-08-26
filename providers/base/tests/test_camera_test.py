@@ -19,7 +19,6 @@ import errno
 import logging
 import textwrap
 import sys
-import struct
 
 import unittest
 from unittest.mock import patch, MagicMock, call, mock_open
@@ -29,22 +28,12 @@ from camera_test import (
     v4l2_capability,
     V4L2_FRMSIZE_TYPE_DISCRETE,
     V4L2_FRMSIZE_TYPE_STEPWISE,
-    imghdr_jpeg_adobe,
     parse_arguments,
 )
 
 
 class CameraTestTests(unittest.TestCase):
     """This class provides test cases for the CameraTest class."""
-
-    def test_imghdr_adobe(self):
-        """Test the JPEG data in Adobe format"""
-        h = b"......Adobe......"
-        f = ""
-        self.assertEqual(imghdr_jpeg_adobe(h, f), "jpeg")
-
-        h = b"......None......."
-        self.assertEqual(imghdr_jpeg_adobe(h, f), None)
 
     def test_init(self):
         mock_camera = CameraTest(
@@ -57,6 +46,22 @@ class CameraTestTests(unittest.TestCase):
         self.assertEqual(mock_camera.quiet, True)
         self.assertEqual(mock_camera.output, "/tmp")
         self.assertEqual(mock_camera.log_level, logging.DEBUG)
+
+    @patch("camera_test.gi")
+    def test_init_gstreamer(self, mock_gi):
+        mock_camera = MagicMock()
+        mock_camera.Gst = None
+        CameraTest.init_gstreamer(mock_camera)
+        self.assertEqual(mock_gi.require_version.call_count, 2)
+        self.assertIsNotNone(mock_camera.Gst)
+
+    @patch("camera_test.gi")
+    @patch("gi.repository.Gtk.init")
+    def test_init_gtk(self, mock_init, mock_gi):
+        mock_camera = MagicMock()
+        CameraTest.init_gtk(mock_camera)
+        self.assertEqual(mock_gi.require_version.call_count, 1)
+        self.assertIsNotNone(mock_camera.Gtk)
 
     @patch("camera_test.v4l2_capability", MagicMock())
     @patch("fcntl.ioctl", MagicMock())
@@ -160,9 +165,9 @@ class CameraTestTests(unittest.TestCase):
 
         # Test also debug mode
         mock_camera.log_level = logging.DEBUG
-        with patch("builtins.print") as mocked_print:
+        with patch("logging.debug") as mocked_log:
             CameraTest._on_gst_message(mock_camera, None, mock_message)
-            mocked_print.assert_called_once_with("End-of-stream")
+            mocked_log.assert_called_once_with("End-of-stream")
 
     def test_on_gst_message_error(self):
         mock_camera = MagicMock()
@@ -181,10 +186,10 @@ class CameraTestTests(unittest.TestCase):
 
         # Test also debug mode
         mock_camera.log_level = logging.DEBUG
-        with patch("builtins.print") as mocked_print:
+        with patch("logging.debug") as mocked_log:
             with self.assertRaises(SystemExit):
                 CameraTest._on_gst_message(mock_camera, None, mock_message)
-            mocked_print.assert_called_with("Debug info: debug")
+            mocked_log.assert_called_with("Debug info: debug")
 
     def test_on_gst_message_state_changed(self):
         mock_camera = MagicMock()
@@ -204,9 +209,9 @@ class CameraTestTests(unittest.TestCase):
             None,
         )
 
-        with patch("builtins.print") as mocked_print:
+        with patch("logging.debug") as mocked_log:
             CameraTest._on_gst_message(mock_camera, None, mock_message)
-            mocked_print.assert_called_with(
+            mocked_log.assert_called_with(
                 "Pipeline changed state from old to new"
             )
 
@@ -747,14 +752,18 @@ class CameraTestTests(unittest.TestCase):
         self.assertEqual(result, False)
 
     @patch("os.path.exists")
-    @patch("imghdr.what")
-    def test_validate_image_wrong_format(self, mock_what, mock_exists):
+    def test_validate_image_wrong_format(self, mock_exists):
         mock_camera = MagicMock()
         mock_exists.return_value = True
-        mock_what.return_value = None
-        result = CameraTest._validate_image(
-            mock_camera, "/tmp/test.jpg", 480, 320
-        )
+        data = b"......bad-format.........................."
+        with patch("builtins.open", mock_open(read_data=data)):
+            with patch("builtins.print") as mocked_print:
+                result = CameraTest._validate_image(
+                    mock_camera, "/tmp/test.jpg", 480, 320
+                )
+                mocked_print.assert_called_once_with(
+                    "Image is not a JPEG file"
+                )
         self.assertEqual(result, False)
 
     @patch("camera_test.glob")

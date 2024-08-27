@@ -51,6 +51,9 @@ import requests
 
 DEFAULT_TIMEOUT = 500
 
+GPU_VENDORS = ["nvidia", "amd"]
+VGPU_RUNS = 20
+VGPU_THRESHOLD_SEC = 3.71  # TODO: Finetune this default threshold
 
 # The "TAR" type is a tarball that contains both
 # a disk image and a kernel binary. This is useful
@@ -755,6 +758,99 @@ class LXDTest(object):
                 retry -= 1
         return result
 
+    def configure_nvidia(self, gpu_pci: Optional[str] = None):
+        """Configures container to pass through NVIDIA GPU."""
+        logging.debug("Passing through GPU device")
+        cmd = f"lxc config device add {self.name} gpu gpu gputype=physical"
+        if gpu_pci:
+            cmd += f" pci={gpu_pci}"
+        if not self.run_command(cmd):
+            return False
+
+        logging.debug(
+            "Passing NVIDIA drivers and runtime through to container"
+        )
+        cmd = f"lxc config set {self.name} nvidia.runtime=true"
+        if not self.run_command(cmd):
+            return False
+
+        osrelease = f"ubuntu{self.os_version.replace('.', '')}"
+        arch = os.uname().machine
+        repo_url = f"https://developer.download.nvidia.com/compute/cuda/repos/{osrelease}/{arch}"
+        pinfile = f"cuda-{osrelease}.pin"
+        script = textwrap.dedent(
+            f"""\
+            if [[ ! `ping -c 1 www.ubuntu.com` ]] ; then
+                echo "ERROR: This script requires internet access to function correctly"
+                exit 1
+            fi
+
+            wget -O cuda-archive-keyring.gpg "{repo_url}/3bf863cc.pub"
+            gpg --no-default-keyring --keyring ./temp-keyring.gpg \
+                --import cuda-archive-keyring.gpg
+            gpg --no-default-keyring --keyring ./temp-keyring.gpg \
+                --fingerprint "EB693B3035CD5710E231E123A4B469963BF863CC"
+            if [[ $? -ne 0 ]] ; then
+                echo "ERROR: GPG key import failed. Invalid GPG key?"
+                exit 1
+            fi
+            gpg --yes --no-default-keyring --keyring ./temp-keyring.gpg \
+                --export --output /usr/share/keyrings/cuda-archive-keyring.gpg
+            rm ./temp-keyring.gpg
+            rm ./temp-keyring.gpg~
+            rm ./cuda-archive-keyring.gpg
+
+            wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "{repo_url}/{pinfile}"
+
+            tee /etc/apt/sources.list.d/cuda-{osrelease}-{arch}.list <<-EOF
+            deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] {repo_url} /
+            EOF
+
+            apt update
+            apt install -y build-essential git cmake
+            apt install -y --no-install-recommends cuda-toolkit
+            if [[ $? -ne 0 ]] ; then
+                echo "ERROR: CUDA installation failed"
+                exit 1
+            fi
+
+            git clone https://github.com/ekondis/mixbench.git
+            cd mixbench
+            mkdir build-cuda
+            cd build-cuda
+            CUDACXX=/usr/local/cuda/bin/nvcc cmake ../mixbench-cuda -DCMAKE_CUDA_ARCHITECTURES=native
+            make
+            if [[ $? -ne 0 ]] ; then
+                echo "ERROR: Test compilation failed"
+                exit 1
+            fi
+            ln -s ~/mixbench/build-cuda/mixbench-cuda ~/vgpu-test
+            """
+        )
+
+        logging.debug("Setting up CUDA toolkit and test on container")
+        try:
+            proc = subprocess.run(
+                ["lxc", "exec", self.name, "--", "bash", "-c", script],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+        except CalledProcessError as e:
+            logging.error("Container NVIDIA configuration failed")
+            logging.error(" STDOUT: %s", e.stdout)
+            logging.error(" STDERR: %s", e.stderr)
+            return False
+        else:
+            logging.debug(" STDOUT: %s", proc.stdout)
+            logging.debug(" STDERR: %s", proc.stderr)
+
+        logging.debug("Restarting container")
+        if not self.run_command(f"lxc restart {self.name}"):
+            return False
+
+        return True
+
     def download_images(self, url, filename):
         """
         Downloads LXD files for same release as host machine
@@ -821,6 +917,52 @@ class LXDTest(object):
             "bs=1024 count=1000".format(self.name)
         )
         if not self.run_command(cmd):
+            return False
+
+        return True
+
+    def test_vgpu(
+        self,
+        gpu_vendor: str,
+        gpu_pci: Optional[str] = None,
+        run_count: int = VGPU_RUNS,
+        threshold_sec: float = VGPU_THRESHOLD_SEC,
+    ):
+        """Creates a container and performs the vGPU test."""
+        if not self.launch():
+            return False
+
+        # Wait for network to be up
+        time.sleep(5)
+
+        if gpu_vendor == "nvidia" and not self.configure_nvidia(gpu_pci):
+            logging.error("One or more steps of NVIDIA configuration failed")
+            return False
+        elif gpu_vendor == "amd":
+            raise NotImplementedError("AMD vGPU test not implemented")
+        elif gpu_vendor not in GPU_VENDORS:
+            logging.error("Unrecognized GPU vendor %s", gpu_vendor)
+            return False
+
+        logging.debug("Testing container %d times", run_count)
+        total_runtime = 0
+        for i in range(run_count):
+            tic = time.time()
+            if not self.run_command(f"lxc exec {self.name} -- ./vgpu-test"):
+                logging.error("vGPU test failed")
+                return False
+            toc = time.time()
+            runtime = toc - tic
+            total_runtime += runtime
+            logging.debug("Runtime #%d (sec): %f", i, runtime)
+        avg_runtime = total_runtime / run_count
+        logging.info("Average runtime (sec): %f", avg_runtime)
+        if avg_runtime > threshold_sec:
+            logging.error(
+                "Average runtime %fs greater than threshold %fs",
+                avg_runtime,
+                threshold_sec,
+            )
             return False
 
         return True
@@ -1049,6 +1191,11 @@ def test_lxd_vm(args):
         sys.exit(1)
 
 
+# TODO: Finish
+def test_lxd_vm_vgpu(args):
+    pass
+
+
 def test_lxd(args):
     logging.debug("Executing LXD Test")
 
@@ -1073,6 +1220,30 @@ def test_lxd(args):
     lxd_test.cleanup()
     if result:
         print("PASS: Container was succssfully started and checked")
+        sys.exit(0)
+    else:
+        print("FAIL: Container was not started and checked")
+        sys.exit(1)
+
+
+def test_lxd_vgpu(args):
+    logging.debug("Executing LXD vGPU Test")
+
+    template = args.template or os.getenv("LXD_TEMPLATE")
+    rootfs = args.rootfs or os.getenv("LXD_ROOTFS")
+    run_count = args.count or int(os.environ.get("LXD_VGPU_RUNS", VGPU_RUNS))
+    threshold_sec = args.threshold or float(
+        os.environ.get("LXD_VGPU_THRESHOLD", VGPU_THRESHOLD_SEC)
+    )
+
+    lxd_test = LXDTest(template, rootfs)
+    result = lxd_test.test_vgpu(
+        args.gpu_vendor, args.gpu_pci, run_count, threshold_sec
+    )
+    lxd_test.cleanup()
+
+    if result:
+        print("PASS: Container was successfully started and checked")
         sys.exit(0)
     else:
         print("FAIL: Container was not started and checked")
@@ -1153,11 +1324,55 @@ def main():
     lxd_test_parser.add_argument("--template", type=str, default=None)
     lxd_test_parser.add_argument("--rootfs", type=str, default=None)
     lxd_test_parser.set_defaults(func=test_lxd)
+    lxd_subparsers = lxd_test_parser.add_subparsers()
+    lxd_vgpu_parser = lxd_subparsers.add_parser(
+        "vgpu", help="Run the LXD vGPU validation test"
+    )
+    lxd_vgpu_parser.add_argument(
+        "--gpu-vendor", type=str, choices=GPU_VENDORS, default=GPU_VENDORS[0]
+    )
+    lxd_vgpu_parser.add_argument("--gpu-pci", type=str, default=None)
+    lxd_vgpu_parser.add_argument(
+        "--count",
+        "-c",
+        type=int,
+        default=None,
+        help="How many times to run vGPU test.",
+    )
+    lxd_vgpu_parser.add_argument(
+        "--threshold",
+        type=float,
+        default=None,
+        help="Threshold (sec) for vGPU test.",
+    )
+    lxd_vgpu_parser.set_defaults(func=test_lxd_vgpu)
 
     # Sub test options
     lxd_test_vm_parser.add_argument("--template", type=str, default=None)
     lxd_test_vm_parser.add_argument("--image", type=str, default=None)
     lxd_test_vm_parser.set_defaults(func=test_lxd_vm)
+    lxd_vm_subparsers = lxd_test_vm_parser.add_subparsers()
+    lxd_vm_vgpu_parser = lxd_vm_subparsers.add_parser(
+        "vgpu", help="Run the LXD VM vGPU validation test"
+    )
+    lxd_vm_vgpu_parser.add_argument(
+        "--gpu-vendor", type=str, choices=GPU_VENDORS, default=GPU_VENDORS[0]
+    )
+    lxd_vm_vgpu_parser.add_argument("--gpu-pci", type=str, default=None)
+    lxd_vm_vgpu_parser.add_argument(
+        "--count",
+        "-c",
+        type=int,
+        default=None,
+        help="How many times to run vGPU test.",
+    )
+    lxd_vm_vgpu_parser.add_argument(
+        "--threshold",
+        type=float,
+        default=None,
+        help="Threshold (sec) for vGPU test.",
+    )
+    lxd_vm_vgpu_parser.set_defaults(func=test_lxd_vm_vgpu)
 
     args = parser.parse_args()
 

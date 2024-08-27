@@ -794,25 +794,25 @@ class LXDTest(object):
         self.run_command("lxc image delete {}".format(self.image_alias))
         self.run_command("lxc delete --force {}".format(self.name))
 
-    def start(self):
-        """
-        Creates a container and performs the test
-        """
-        result = self.setup()
-        if not result:
+    def launch(self):
+        """Sets up and creates the container."""
+        if not self.setup():
             logging.error("One or more setup stages failed.")
             return False
 
-        # Create container
         logging.debug("Launching container")
-        if not self.run_command(
-            "lxc launch {} {}".format(self.image_alias, self.name)
-        ):
+        if not self.run_command(f"lxc launch {self.image_alias} {self.name}"):
             return False
 
         logging.debug("Container listing:")
-        cmd = "lxc list"
-        if not self.run_command(cmd):
+        if not self.run_command("lxc list"):
+            return False
+
+        return True
+
+    def start(self):
+        """Creates a container and performs the test."""
+        if not self.launch():
             return False
 
         logging.debug("Testing container")

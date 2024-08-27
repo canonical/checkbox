@@ -23,26 +23,31 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
-from argparse import ArgumentParser
-import os
 import logging
-import requests
+import os
 import shlex
-from subprocess import (
-    Popen,
-    PIPE,
-    DEVNULL,
-    CalledProcessError,
-    check_output,
-    call,
-)
+import subprocess
 import sys
-import tempfile
 import tarfile
+import tempfile
+import textwrap
 import time
+import urllib.error
 import urllib.request
+from argparse import ArgumentParser
+from subprocess import (
+    DEVNULL,
+    PIPE,
+    CalledProcessError,
+    Popen,
+    call,
+    check_output,
+)
+from typing import Optional
 from urllib.parse import urlparse
 from uuid import uuid4
+
+import requests
 
 DEFAULT_TIMEOUT = 500
 

@@ -63,7 +63,7 @@ class CameraTestTests(unittest.TestCase):
         mock_gi = MagicMock()
         with patch.dict(
             sys.modules, {"gi": mock_gi, "gi.repository": mock_gi.repository}
-        ):        
+        ):
             CameraTest.init_gtk(mock_camera)
         self.assertEqual(mock_gi.require_version.call_count, 1)
         self.assertEqual(mock_camera.Gtk.init.call_count, 1)

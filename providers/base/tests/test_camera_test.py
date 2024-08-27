@@ -47,21 +47,26 @@ class CameraTestTests(unittest.TestCase):
         self.assertEqual(mock_camera.output, "/tmp")
         self.assertEqual(mock_camera.log_level, logging.DEBUG)
 
-    @patch("camera_test.gi")
-    def test_init_gstreamer(self, mock_gi):
+    def test_init_gstreamer(self):
         mock_camera = MagicMock()
-        mock_camera.Gst = None
-        CameraTest.init_gstreamer(mock_camera)
-        self.assertEqual(mock_gi.require_version.call_count, 2)
-        self.assertIsNotNone(mock_camera.Gst)
+        mock_gi = MagicMock()
+        with patch.dict(
+            sys.modules, {"gi": mock_gi, "gi.repository": mock_gi.repository}
+        ):
+            CameraTest.init_gstreamer(mock_camera)
 
-    @patch("camera_test.gi")
-    @patch("gi.repository.Gtk.init")
-    def test_init_gtk(self, mock_init, mock_gi):
+        self.assertEqual(mock_gi.require_version.call_count, 2)
+        self.assertEqual(mock_camera.Gst.init.call_count, 1)
+
+    def test_init_gtk(self):
         mock_camera = MagicMock()
-        CameraTest.init_gtk(mock_camera)
+        mock_gi = MagicMock()
+        with patch.dict(
+            sys.modules, {"gi": mock_gi, "gi.repository": mock_gi.repository}
+        ):        
+            CameraTest.init_gtk(mock_camera)
         self.assertEqual(mock_gi.require_version.call_count, 1)
-        self.assertIsNotNone(mock_camera.Gtk)
+        self.assertEqual(mock_camera.Gtk.init.call_count, 1)
 
     @patch("camera_test.v4l2_capability", MagicMock())
     @patch("fcntl.ioctl", MagicMock())

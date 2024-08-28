@@ -38,12 +38,12 @@ class CameraTestTests(unittest.TestCase):
     def test_init(self):
         mock_camera = CameraTest(
             device="/dev/video1",
-            quiet=True,
+            headless=True,
             output="/tmp",
             log_level=logging.DEBUG,
         )
         self.assertEqual(mock_camera.device, "/dev/video1")
-        self.assertEqual(mock_camera.quiet, True)
+        self.assertEqual(mock_camera.headless, True)
         self.assertEqual(mock_camera.output, "/tmp")
         self.assertEqual(mock_camera.log_level, logging.DEBUG)
 
@@ -268,14 +268,14 @@ class CameraTestTests(unittest.TestCase):
 
     def test_video(self):
         mock_camera = MagicMock()
-        mock_camera.quiet = False
+        mock_camera.headless = False
         CameraTest.video(mock_camera)
         self.assertEqual(mock_camera.GLib.timeout_add_seconds.call_count, 1)
         self.assertEqual(mock_camera._setup_video_gstreamer.call_count, 1)
 
-    def test_video_quiet(self):
+    def test_video_headless(self):
         mock_camera = MagicMock()
-        mock_camera.quiet = True
+        mock_camera.headless = True
         CameraTest.video(mock_camera)
         self.assertEqual(mock_camera.GLib.timeout_add_seconds.call_count, 1)
         self.assertEqual(mock_camera._setup_video_gstreamer.call_count, 1)
@@ -372,17 +372,17 @@ class CameraTestTests(unittest.TestCase):
         mock_camera = MagicMock()
         mock_camera._capture_image_fswebcam.return_value = True
         mock_camera._display_image.return_value = True
-        mock_camera.quiet = False
+        mock_camera.headless = False
         CameraTest._still_image_helper(
             mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
         )
         self.assertEqual(mock_camera._capture_image_fswebcam.call_count, 1)
         self.assertEqual(mock_camera._display_image.call_count, 1)
 
-    def test_still_image_quiet(self):
+    def test_still_image_headless(self):
         mock_camera = MagicMock()
         mock_camera._capture_image_fswebcam.return_value = True
-        mock_camera.quiet = True
+        mock_camera.headless = True
         CameraTest._still_image_helper(
             mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
         )
@@ -793,12 +793,12 @@ class CameraTestTests(unittest.TestCase):
             "/dev/video2",
             "-o",
             "/tmp/test.jpg",
-            "-q",
+            "-hl",
         ]
         args = parse_arguments(argv)
         self.assertEqual(args["device"], "/dev/video2")
         self.assertEqual(args["output"], "/tmp/test.jpg")
-        self.assertEqual(args["quiet"], True)
+        self.assertEqual(args["headless"], True)
 
     def test_debug_flag(self):
         argv = ["detect"]

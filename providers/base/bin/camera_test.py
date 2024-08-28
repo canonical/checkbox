@@ -183,7 +183,7 @@ class CameraTest:
         self._height = 480
         self._devices = []
         self.device = kwargs.get("device", "/dev/video0")
-        self.quiet = kwargs.get("quiet", False)
+        self.headless = kwargs.get("headless", False)
         self.output = kwargs.get("output", "")
         self.log_level = kwargs.get("log_level", logging.INFO)
 
@@ -346,7 +346,7 @@ class CameraTest:
         Displays the preview window for a video stream
         """
         # Don't display the video, just run the camera
-        if self.quiet:
+        if self.headless:
             self.main_loop = self.GLib.MainLoop()
             self.GLib.timeout_add_seconds(4, self._stop_pipeline)
             self._setup_video_gstreamer("fakesink")
@@ -446,7 +446,7 @@ class CameraTest:
         if use_gstreamer:
             self._capture_image_gstreamer(filename, width, height, pixelformat)
             print("Image saved to %s" % filename)
-        if not self.quiet:
+        if not self.headless:
             self._display_image(filename, width, height)
 
     def _capture_image_fswebcam(self, filename, width, height, pixelformat):
@@ -611,7 +611,7 @@ class CameraTest:
         take multiple images using the first format returned by the driver,
         and see if they are valid
         """
-        self.quiet = True
+        self.headless = True
 
         format = self._get_default_format()
         print(
@@ -910,10 +910,10 @@ def parse_arguments(argv):
     # Video subparser
     video_parser = subparsers.add_parser("video")
     add_device_parameter(video_parser)
-    # add a quiet option false by default
+    # add a headless option, false by default
     video_parser.add_argument(
-        "-q",
-        "--quiet",
+        "-hl",
+        "--headless",
         action="store_true",
         help=("Don't display video, just run the camera"),
     )
@@ -928,8 +928,8 @@ def parse_arguments(argv):
         help="Output directory to store the image",
     )
     image_parser.add_argument(
-        "-q",
-        "--quiet",
+        "-hl",
+        "--headless",
         action="store_true",
         help=("Don't display picture, just write the picture to a file"),
     )
@@ -977,7 +977,7 @@ if __name__ == "__main__":
         camera.init_gstreamer()
 
         # Import Gtk only for the test cases that will need it
-        if args["test"] in ["video", "image"] and not args["quiet"]:
+        if args["test"] in ["video", "image"] and not args["headless"]:
             camera.init_gtk()
 
     sys.exit(getattr(camera, args["test"])())

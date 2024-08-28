@@ -338,21 +338,21 @@ class TestLXDTest(TestCase):
         self.assertTrue(result)
 
     @patch("virtualization.logging")
-    def test_configure_nvidia_add_gpu_device_fail(self, logging_mock):
+    def test_configure_nvidia_gpu_add_gpu_device_fail(self, logging_mock):
         self_mock = MagicMock()
         self_mock.add_gpu_device.return_value = False
 
-        result = LXDTest.configure_nvidia(self_mock)
+        result = LXDTest.configure_nvidia_gpu(self_mock)
         self.assertFalse(result)
 
     @patch("virtualization.logging")
-    def test_configure_nvidia_nvidia_runtime_fail(self, logging_mock):
+    def test_configure_nvidia_gpu_nvidia_runtime_fail(self, logging_mock):
         self_mock = MagicMock()
         self_mock.os_version = "24.04"
         self_mock.add_gpu_device.return_value = True
         self_mock.run_command.side_effect = [False]
 
-        result = LXDTest.configure_nvidia(self_mock)
+        result = LXDTest.configure_nvidia_gpu(self_mock)
         self.assertFalse(result)
 
     @patch("os.uname", return_value=MagicMock(machine="x86_64"))
@@ -361,7 +361,7 @@ class TestLXDTest(TestCase):
         side_effect=CalledProcessError(1, "cmd", "stdout", "stderr"),
     )
     @patch("virtualization.logging")
-    def test_configure_nvidia_configuration_fail(
+    def test_configure_nvidia_gpu_configuration_fail(
         self, logging_mock, subprocess_run_mock, os_uname_mock
     ):
         self_mock = MagicMock()
@@ -369,13 +369,13 @@ class TestLXDTest(TestCase):
         self_mock.add_gpu_device.return_value = True
         self_mock.run_command.side_effect = [True, True]
 
-        result = LXDTest.configure_nvidia(self_mock)
+        result = LXDTest.configure_nvidia_gpu(self_mock)
         self.assertFalse(result)
 
     @patch("os.uname", return_value=MagicMock(machine="x86_64"))
     @patch("subprocess.run", return_value=MagicMock(stdout="", stderr=""))
     @patch("virtualization.logging")
-    def test_configure_nvidia_restart_fail(
+    def test_configure_nvidia_gpu_restart_fail(
         self, logging_mock, subprocess_run_mock, os_uname_mock
     ):
         self_mock = MagicMock()
@@ -383,13 +383,13 @@ class TestLXDTest(TestCase):
         self_mock.add_gpu_device.return_value = True
         self_mock.run_command.side_effect = [True, False]
 
-        result = LXDTest.configure_nvidia(self_mock)
+        result = LXDTest.configure_nvidia_gpu(self_mock)
         self.assertFalse(result)
 
     @patch("os.uname", return_value=MagicMock(machine="x86_64"))
     @patch("subprocess.run", return_value=MagicMock(stdout="", stderr=""))
     @patch("virtualization.logging")
-    def test_configure_nvidia_success(
+    def test_configure_nvidia_gpu_success(
         self, logging_mock, subprocess_run_mock, os_uname_mock
     ):
         self_mock = MagicMock()
@@ -397,7 +397,7 @@ class TestLXDTest(TestCase):
         self_mock.add_gpu_device.return_value = True
         self_mock.run_command.side_effect = [True, True]
 
-        result = LXDTest.configure_nvidia(self_mock)
+        result = LXDTest.configure_nvidia_gpu(self_mock)
         self.assertTrue(result)
 
     @patch("urllib.request.urlretrieve", side_effect=IOError())
@@ -542,7 +542,7 @@ class TestLXDTest(TestCase):
     def test_test_vgpu_nvidia_configure_fail(self, logging_mock, sleep_mock):
         self_mock = MagicMock()
         self_mock.launch.return_value = True
-        self_mock.configure_nvidia.return_value = False
+        self_mock.configure_nvidia_gpu.return_value = False
 
         gpu_vendor = "nvidia"
         result = LXDTest.test_vgpu(self_mock, gpu_vendor)
@@ -591,7 +591,7 @@ class TestLXDTest(TestCase):
     ):
         self_mock = MagicMock()
         self_mock.launch.return_value = True
-        self_mock.configure_nvidia.return_value = True
+        self_mock.configure_nvidia_gpu.return_value = True
         self_mock.run_command.return_value = True
 
         gpu_vendor = "nvidia"

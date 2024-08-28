@@ -800,6 +800,58 @@ class LXDTest:
             cmd += f" pci={gpu_pci}"
         return self.run_command(cmd)
 
+    def add_apt_repo(
+        self,
+        name: str,
+        repo_url: str,
+        gpg_url: str,
+        gpg_fingerprint: str,
+        pinfile: Optional[str] = None,
+    ):
+        """Adds an APT repository to the instance."""
+        logging.debug("Downloading GPG key from %s", gpg_url)
+        gpg_dest = f"/usr/share/keyrings/{name}.gpg"
+        cmds = [
+            "set -e",
+            f'wget -O {name}.gpg "{gpg_url}"',
+            f"gpg --no-default-keyring --keyring ./tmp.gpg --import {name}.gpg",
+            f"gpg --no-default-keyring --keyring ./tmp.gpg --fingerprint {gpg_fingerprint}",
+            f"gpg --yes --no-default-keyring --keyring ./tmp.gpg --export --output {gpg_dest}",
+            f"rm ./tmp.gpg ./tmp.gpg~ ./{name}.gpg",
+        ]
+        cmd = f"bash -c \"{'; '.join(cmds)}\""
+        if not self.run_command(cmd, on_guest=True):
+            logging.error("Failed to import GPG key from %s", gpg_url)
+            return False
+
+        # Create/download pinfile.
+        if pinfile:
+            pinfile_dest = f"/etc/apt/preferences.d/{name}-pin-600"
+            if pinfile.startswith("http"):
+                logging.debug("Downloading pinfile")
+                cmd = f"wget -O {pinfile_dest} {pinfile}"
+            else:
+                logging.debug("Creating pinfile")
+                cmd = f"bash -c \"echo -e '{pinfile}' | tee {pinfile_dest}\""
+            if not self.run_command(cmd, on_guest=True):
+                logging.error("Failed to create/download pinfile")
+                return False
+
+        logging.debug("Setting up APT repository: %s", name)
+        repo_dest = f"/etc/apt/sources.list.d/{name}.list"
+        list_file = f"deb [signed-by={gpg_dest}] {repo_url} /"
+        cmd = f"bash -c \"echo '{list_file}' | tee {repo_dest}\""
+        if not self.run_command(cmd, on_guest=True):
+            logging.error("Failed to create APT repository")
+            return False
+
+        logging.debug("Updating APT cache")
+        if not self.run_command("apt-get update", on_guest=True):
+            logging.error("Failed to update APT cache")
+            return False
+
+        return True
+
     def configure_amd_gpu(self, gpu_pci: Optional[str] = None):
         """Configures instance to pass through AMD GPU."""
         if not gpu_pci:

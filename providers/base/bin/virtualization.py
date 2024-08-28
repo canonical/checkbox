@@ -868,87 +868,50 @@ class LXDTest:
             logging.error("Failed to add GPU device to instance")
             return False
 
-        logging.debug("Passing through /dev/kfd and /dev/dri files")
-        if not self.run_command(
+        logging.debug("Passing through /dev/kfd and render files")
+        kfd_cmd = (
             f"lxc config device add {self.name} kfd unix-char path={kfd_file}"
-        ):
-            logging.error("Failed to add kfd file to instance")
-            return False
-        if not self.run_command(
-            f"lxc config device add {self.name} render unix-char path={render_file}"
-        ):
-            logging.error("Failed to add /dev/dri render file to instance")
-            return False
-
-        gpg_key_url = "https://repo.radeon.com/rocm/rocm.gpg.key"
-        amdgpu_repo_url = "https://repo.radeon.com/amdgpu/6.2/ubuntu"
-        rocm_repo_url = "https://repo.radeon.com/rocm/apt/6.2"
-        script = textwrap.dedent(
-            f"""\
-            if [[ ! `ping -c 1 www.ubuntu.com` ]] ; then
-                echo "ERROR: This script requires internet access to function correctly"
-                exit 1
-            fi
-
-            mkdir --parents --mode=0755 /etc/apt/keyrings
-            wget {gpg_key_url} -O - | gpg --dearmor | tee /etc/apt/keyrings/rocm.gpg > /dev/null
-            if [[ $? -ne 0 ]] ; then
-                echo "ERROR: GPG key installation failed"
-                exit 1
-            fi
-
-            tee /etc/apt/sources.list.d/amdgpu.list <<-EOF
-            deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] {amdgpu_repo_url} noble main
-            EOF
-            tee /etc/apt/sources.list.d/rocm.list <<-EOF
-            deb [arch=amd64 signed-by=/etc/apt/keyrings/rocm.gpg] {rocm_repo_url} noble main
-            EOF
-            tee /etc/apt/preferences.d/rocm-pin-600 <<-EOF
-            Package: *
-            Pin: release o=repo.radeon.com
-            Pin-Priority: 600
-            EOF
-
-            apt update
-            apt install rocm
-            if [[ $? -ne 0 ]] ; then
-                echo "ERROR: ROCm installation failed"
-                exit 1
-            fi
-
-            git clone https://github.com/ekondis/mixbench.git
-            cd mixbench
-            mkdir build-hip
-            cd build-hip
-            cmake ../mixbench-hip
-            make
-            if [[ $? -ne 0 ]] ; then
-                echo "ERROR: Test compilation failed"
-                exit 1
-            fi
-            ln -s ~/mixbench/build-hip/mixbench-hip ~/vgpu-test
-            """
         )
-
-        logging.debug("Setting up ROCm toolkit and test on instance")
-        try:
-            proc = subprocess.run(
-                ["lxc", "exec", self.name, "--", "bash", "-c", script],
-                check=True,
-                capture_output=True,
-                text=True,
+        render_cmd = f"lxc config device add {self.name} render unix-char path={render_file}"
+        if not self.run_command(kfd_cmd) or not self.run_command(render_cmd):
+            logging.error(
+                "Failed to add %s or %s to instance", kfd_file, render_file
             )
-        except CalledProcessError as e:
-            logging.error("Instance ROCm configuration failed")
-            if e.stdout:
-                logging.error(" STDOUT: %s", e.stdout)
-            if e.stderr:
-                logging.error(" STDERR: %s", e.stderr)
             return False
-        if proc.stdout:
-            logging.debug(" STDOUT: %s", proc.stdout)
-        if proc.stderr:
-            logging.debug(" STDERR: %s", proc.stderr)
+
+        if not self.add_apt_repo(
+            "amdgpu",
+            "https://repo.radeon.com/amdgpu/6.2/ubuntu",
+            gpg_url="https://repo.radeon.com/rocm/rocm.gpg.key",
+            gpg_fingerprint="CA8BB4727A47B4D09B4EE8969386B48A1A693C5C",
+        ) or not self.add_apt_repo(
+            "rocm",
+            "https://repo.radeon.com/rocm/apt/6.2",
+            gpg_url="https://repo.radeon.com/rocm/rocm.gpg.key",
+            gpg_fingerprint="CA8BB4727A47B4D09B4EE8969386B48A1A693C5C",
+            pinfile="Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600",
+        ):
+            return False
+
+        logging.debug("Installing ROCm on instance")
+        if not self.run_command("apt-get install rocm", on_guest=True):
+            logging.error("ROCm installation failed")
+            return False
+
+        logging.debug("Fetching and compiling vGPU test on instance")
+        cmds = [
+            "set -e",
+            "git clone https://github.com/ekondis/mixbench.git",
+            "mkdir mixbench/build-hip",
+            "cd mixbench/build-hip",
+            "cmake ../mixbench-hip",
+            "make",
+            "ln -s ~/mixbench/build-hip/mixbench-hip ~/vgpu-test",
+        ]
+        cmd = f"bash -c \"{'; '.join(cmds)}\""
+        if not self.run_command(cmd, on_guest=True):
+            logging.error("Failed to set up vGPU test")
+            return False
 
         logging.debug("Restarting instance")
         if not self.run_command(f"lxc restart {self.name}"):
@@ -962,18 +925,32 @@ class LXDTest:
             logging.error("Failed to add GPU device to instance")
             return False
 
-        logging.debug(
-            "Passing NVIDIA drivers and runtime through to container"
-        )
+        logging.debug("Passing NVIDIA runtime through to container")
         cmd = f"lxc config set {self.name} nvidia.runtime=true"
         if not self.run_command(cmd):
-            logging.error(
-                "Failed to pass NVIDIA drivers and runtime to instance"
-            )
+            logging.error("Failed to pass NVIDIA runtime to instance")
+            return False
+
+        logging.debug("Adding NVIDIA CUDA repository to instance")
+        osrelease = f"ubuntu{self.os_version.replace('.', '')}"
+        arch = os.uname().machine
+        repo_url = f"https://developer.download.nvidia.com/compute/cuda/repos/{osrelease}/{arch}"
+        if not self.add_apt_repo(
+            "cuda",
+            repo_url,
+            gpg_url=f"{repo_url}/3bf863cc.pub",
+            gpg_fingerprint="EB693B3035CD5710E231E123A4B469963BF863CC",
+            pinfile=f"{repo_url}/cuda-{osrelease}.pin",
+        ):
+            return False
+
+        logging.debug("Installing CUDA toolkit on instance")
+        cmd = "apt-get install -y --no-install-recommends git make cmake cuda-toolkit"
+        if not self.run_command(cmd, on_guest=True):
+            logging.error("CUDA toolkit installation failed")
             return False
 
         logging.debug("Finding CUDA capability for GPU")
-        nvcc_path = "/usr/local/cuda/bin/nvcc"
         cuda_arch = "native"
         cmd = "nvidia-smi --query-gpu=compute_cap --format=csv,noheader"
         if gpu_pci:
@@ -985,81 +962,21 @@ class LXDTest:
             cuda_arch = int(proc.stdout.strip().replace(".", ""))
         logging.debug("Using CUDA architecture '%s'", cuda_arch)
 
-        gpg_key_name = "3bf863cc.pub"  # GPG key in CUDA repository
-        gpg_fingerprint = "EB693B3035CD5710E231E123A4B469963BF863CC"
-        osrelease = f"ubuntu{self.os_version.replace('.', '')}"
-        arch = os.uname().machine
-        repo_url = f"https://developer.download.nvidia.com/compute/cuda/repos/{osrelease}/{arch}"
-        pinfile = f"cuda-{osrelease}.pin"
-        script = textwrap.dedent(
-            f"""\
-            if [[ ! `ping -c 1 www.ubuntu.com` ]] ; then
-                echo "ERROR: This script requires internet access to function correctly"
-                exit 1
-            fi
-
-            wget -O cuda-archive-keyring.gpg "{repo_url}/{gpg_key_name}"
-            gpg --no-default-keyring --keyring ./temp-keyring.gpg \
-                --import cuda-archive-keyring.gpg
-            gpg --no-default-keyring --keyring ./temp-keyring.gpg \
-                --fingerprint "{gpg_fingerprint}"
-            if [[ $? -ne 0 ]] ; then
-                echo "ERROR: GPG key import failed. Invalid GPG key?"
-                exit 1
-            fi
-            gpg --yes --no-default-keyring --keyring ./temp-keyring.gpg \
-                --export --output /usr/share/keyrings/cuda-archive-keyring.gpg
-            rm ./temp-keyring.gpg
-            rm ./temp-keyring.gpg~
-            rm ./cuda-archive-keyring.gpg
-
-            wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "{repo_url}/{pinfile}"
-
-            tee /etc/apt/sources.list.d/cuda-{osrelease}-{arch}.list <<-EOF
-            deb [signed-by=/usr/share/keyrings/cuda-archive-keyring.gpg] {repo_url} /
-            EOF
-
-            apt update > /dev/null 2>&1 
-            apt install -y build-essential git cmake > /dev/null 2>&1 
-            apt install -y --no-install-recommends cuda-toolkit
-            if [[ $? -ne 0 ]] ; then
-                echo "ERROR: CUDA installation failed"
-                exit 1
-            fi
-
-            git clone https://github.com/ekondis/mixbench.git
-            cd mixbench
-            mkdir build-cuda
-            cd build-cuda
-            CUDACXX={nvcc_path} cmake ../mixbench-cuda -DCMAKE_CUDA_ARCHITECTURES={cuda_arch}
-            make
-            if [[ $? -ne 0 ]] ; then
-                echo "ERROR: Test compilation failed"
-                exit 1
-            fi
-            ln -s ~/mixbench/build-cuda/mixbench-cuda ~/vgpu-test
-            """
-        )
-
-        logging.debug("Setting up CUDA toolkit and test on instance")
-        try:
-            proc = subprocess.run(
-                ["lxc", "exec", self.name, "--", "bash", "-c", script],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
-        except CalledProcessError as e:
-            logging.error("Instance NVIDIA configuration failed")
-            if e.stdout:
-                logging.error(" STDOUT: %s", e.stdout)
-            if e.stderr:
-                logging.error(" STDERR: %s", e.stderr)
+        logging.debug("Fetching and compiling vGPU test on instance")
+        nvcc_path = "/usr/local/cuda/bin/nvcc"
+        cmds = [
+            "set -e",
+            "git clone https://github.com/ekondis/mixbench.git",
+            "mkdir mixbench/build-cuda",
+            "cd mixbench/build-cuda",
+            f"CUDACXX={nvcc_path} cmake ../mixbench-cuda -DCMAKE_CUDA_ARCHITECTURES={cuda_arch}",
+            "make",
+            "ln -s ~/mixbench/build-cuda/mixbench-cuda ~/vgpu-test",
+        ]
+        cmd = f"bash -c \"{'; '.join(cmds)}\""
+        if not self.run_command(cmd, on_guest=True):
+            logging.error("Failed to set up vGPU test")
             return False
-        if proc.stdout:
-            logging.debug(" STDOUT: %s", proc.stdout)
-        if proc.stderr:
-            logging.debug(" STDERR: %s", proc.stderr)
 
         logging.debug("Restarting instance")
         if not self.run_command(f"lxc restart {self.name}"):
@@ -1124,8 +1041,8 @@ class LXDTest:
             return False
 
         logging.debug("Testing container")
-        cmd = f"lxc exec {self.name} dd if=/dev/urandom of=testdata.txt bs=1024 count=1000"
-        if not self.run_command(cmd):
+        cmd = "dd if=/dev/urandom of=testdata.txt bs=1024 count=1000"
+        if not self.run_command(cmd, on_guest=True):
             return False
 
         return True
@@ -1148,12 +1065,12 @@ class LXDTest:
         # Wait for network to be up
         time.sleep(5)
 
+        # Configure GPU device
         result = False
         if gpu_vendor == "nvidia":
             result = self.configure_nvidia_gpu(gpu_pci)
         elif gpu_vendor == "amd":
             result = self.configure_amd_gpu(gpu_pci)
-
         if not result:
             logging.error("One or more steps of GPU configuration failed")
             return False
@@ -1162,7 +1079,7 @@ class LXDTest:
         total_runtime = 0
         for i in range(run_count):
             tic = time.time()
-            if not self.run_command(f"lxc exec {self.name} -- ./vgpu-test"):
+            if not self.run_command("./vgpu-test", on_guest=True):
                 logging.error("vGPU test failed")
                 return False
             toc = time.time()
@@ -1256,8 +1173,9 @@ class LXDTest_vm(LXDTest):
         time_waited = 0
         while time_waited < max_wait_duration:
             time.sleep(wait_interval)
-            cmd = f"lxc exec {self.name} -- lsb_release -a"
-            if self.run_command(cmd, log_stderr=False):
+            if self.run_command(
+                "lsb_release -a", log_stderr=False, on_guest=True
+            ):
                 print("VM started and booted successfully")
                 return True
             logging.debug("Re-verify VM booted")

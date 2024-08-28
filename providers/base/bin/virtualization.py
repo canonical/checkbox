@@ -916,8 +916,19 @@ class LXDTest:
             )
             return False
 
+        logging.debug("Finding CUDA capability for GPU")
         nvcc_path = "/usr/local/cuda/bin/nvcc"
         cuda_arch = "native"
+        cmd = "nvidia-smi --query-gpu=compute_cap --format=csv,noheader"
+        if gpu_pci:
+            cmd += f" --id={gpu_pci}"
+        proc = subprocess.run(
+            shlex.split(cmd), check=False, capture_output=True, text=True
+        )
+        if proc.returncode == 0:
+            cuda_arch = int(proc.stdout.strip().replace(".", ""))
+        logging.debug("Using CUDA architecture '%s'", cuda_arch)
+
         gpg_key_name = "3bf863cc.pub"  # GPG key in CUDA repository
         gpg_fingerprint = "EB693B3035CD5710E231E123A4B469963BF863CC"
         osrelease = f"ubuntu{self.os_version.replace('.', '')}"

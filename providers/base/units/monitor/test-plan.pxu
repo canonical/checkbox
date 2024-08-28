@@ -359,11 +359,11 @@ unit: test plan
 _name: Manual monitor tests
 _description: Manual monitor tests for Snappy Ubuntu Core devices
 include:
-    monitor/dvi
-    monitor/hdmi
+    monitor/dvi                  certification-status=blocker
+    monitor/hdmi                 certification-status=blocker
     monitor/dvi-to-vga
     monitor/hdmi-to-vga
-    monitor/displayport_hotplug
+    monitor/displayport_hotplug  certification-status=blocker
     monitor/vga
 
 id: after-suspend-monitor-full

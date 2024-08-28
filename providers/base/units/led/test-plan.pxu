@@ -104,10 +104,10 @@ unit: test plan
 _name: Manual LED tests for IoT
 _description: Manual LED tests for IoT devices
 include:
-    led/power
+    led/power                         certification-status=blocker
     led/power-blink-suspend
     led/wireless
-    led/serial
+    led/serial                        certification-status=blocker
     led/fn
     led/sysfs_led_brightness_on_.*
     led/sysfs_led_brightness_off_.*

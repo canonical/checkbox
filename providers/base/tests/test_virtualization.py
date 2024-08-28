@@ -358,7 +358,10 @@ class TestLXDTest(TestCase):
     @patch("os.uname", return_value=MagicMock(machine="x86_64"))
     @patch(
         "subprocess.run",
-        side_effect=CalledProcessError(1, "cmd", "stdout", "stderr"),
+        side_effect=[
+            MagicMock(returncode=0, stdout="7.4"),
+            CalledProcessError(1, "cmd", "stdout", "stderr"),
+        ],
     )
     @patch("virtualization.logging")
     def test_configure_nvidia_gpu_configuration_fail(
@@ -373,7 +376,13 @@ class TestLXDTest(TestCase):
         self.assertFalse(result)
 
     @patch("os.uname", return_value=MagicMock(machine="x86_64"))
-    @patch("subprocess.run", return_value=MagicMock(stdout="", stderr=""))
+    @patch(
+        "subprocess.run",
+        side_effect=[
+            MagicMock(returncode=0, stdout="7.4"),
+            MagicMock(stdout="", stderr=""),
+        ],
+    )
     @patch("virtualization.logging")
     def test_configure_nvidia_gpu_restart_fail(
         self, logging_mock, subprocess_run_mock, os_uname_mock
@@ -387,7 +396,30 @@ class TestLXDTest(TestCase):
         self.assertFalse(result)
 
     @patch("os.uname", return_value=MagicMock(machine="x86_64"))
-    @patch("subprocess.run", return_value=MagicMock(stdout="", stderr=""))
+    @patch(
+        "subprocess.run",
+        side_effect=[MagicMock(returncode=1), MagicMock(stdout="", stderr="")],
+    )
+    @patch("virtualization.logging")
+    def test_configure_nvidia_gpu_native_arch_fallback(
+        self, logging_mock, subprocess_run_mock, os_uname_mock
+    ):
+        self_mock = MagicMock()
+        self_mock.os_version = "24.04"
+        self_mock.add_gpu_device.return_value = True
+        self_mock.run_command.side_effect = [True, True]
+
+        result = LXDTest.configure_nvidia_gpu(self_mock)
+        self.assertTrue(result)
+
+    @patch("os.uname", return_value=MagicMock(machine="x86_64"))
+    @patch(
+        "subprocess.run",
+        side_effect=[
+            MagicMock(returncode=0, stdout="7.4"),
+            MagicMock(stdout="", stderr=""),
+        ],
+    )
     @patch("virtualization.logging")
     def test_configure_nvidia_gpu_success(
         self, logging_mock, subprocess_run_mock, os_uname_mock

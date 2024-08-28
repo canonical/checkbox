@@ -650,8 +650,12 @@ class LXDTest:
         self.default_remote = "ubuntu:"
         self.os_version = get_release_to_test()
 
-    def run_command(self, cmd: str, log_stderr: bool = True):
+    def run_command(
+        self, cmd: str, log_stderr: bool = True, on_guest: bool = False
+    ):
         """Runs a shell command."""
+        if on_guest:
+            cmd = f"lxc exec {self.name} -- {cmd}"
         task = RunCommand(cmd)
         if task.returncode != 0:
             logging.error(

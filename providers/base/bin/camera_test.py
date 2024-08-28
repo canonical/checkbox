@@ -560,7 +560,9 @@ class CameraTest:
             self.main_loop.quit()
             self.pipeline.set_state(self.Gst.State.NULL)
 
-        # Remove the timeout
+        # If the image is captured correctly and the timeout is not reached,
+        # remove the GLib timeout, so it does not interfere with the next
+        # iteration.
         if self.timeout:
             self.GLib.source_remove(self.timeout)
         return 0

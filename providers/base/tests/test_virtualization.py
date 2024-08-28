@@ -83,6 +83,21 @@ class TestLXDTest(TestCase):
 
     @patch("virtualization.RunCommand")
     @patch("virtualization.logging")
+    def test_run_command_guest_ok(self, logging_mock, run_command_mock):
+        task = run_command_mock()
+        task.returncode = 0
+        task.stdout = "abc"
+        task.stderr = "some error"
+
+        command_result = LXDTest.run_command(
+            MagicMock(), "command", log_stderr=True, on_guest=True
+        )
+
+        self.assertTrue(logging_mock.debug.called)
+        self.assertTrue(command_result)
+
+    @patch("virtualization.RunCommand")
+    @patch("virtualization.logging")
     def test_run_command_ok_no_stdout(self, logging_mock, run_command_mock):
         task = run_command_mock()
         task.returncode = 0
@@ -333,8 +348,178 @@ class TestLXDTest(TestCase):
         self_mock = MagicMock()
         self_mock.run_command.return_value = True
 
-        gpu_pci = "57:00.0"
+        gpu_pci = "000057:00.0"
         result = LXDTest.add_gpu_device(self_mock, gpu_pci)
+        self.assertTrue(result)
+
+    @patch("virtualization.logging")
+    def test_add_apt_repo_gpg_import_fail(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.run_command.side_effect = [False]
+
+        name = "repo"
+        url = "http://www.repo.com"
+        gpg = "http://www.repo.com/key"
+        fingerprint = "fingerprint"
+        result = LXDTest.add_apt_repo(self_mock, name, url, gpg, fingerprint)
+        self.assertFalse(result)
+
+    @patch("virtualization.logging")
+    def test_add_apt_repo_pinfile_fail(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.run_command.side_effect = [True, False]
+
+        name = "repo"
+        url = "http://www.repo.com"
+        gpg = "http://www.repo.com/key"
+        fingerprint = "fingerprint"
+        pinfile = "bad pinfile, bad"
+        result = LXDTest.add_apt_repo(
+            self_mock, name, url, gpg, fingerprint, pinfile
+        )
+        self.assertFalse(result)
+
+    @patch("virtualization.logging")
+    def test_add_apt_repo_source_list_fail(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.run_command.side_effect = [True, False]
+
+        name = "repo"
+        url = "http://www.repo.com"
+        gpg = "http://www.repo.com/key"
+        fingerprint = "fingerprint"
+        result = LXDTest.add_apt_repo(self_mock, name, url, gpg, fingerprint)
+        self.assertFalse(result)
+
+    @patch("virtualization.logging")
+    def test_add_apt_repo_cache_fail(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.run_command.side_effect = [True, True, False]
+
+        name = "repo"
+        url = "http://www.repo.com"
+        gpg = "http://www.repo.com/key"
+        fingerprint = "fingerprint"
+        result = LXDTest.add_apt_repo(self_mock, name, url, gpg, fingerprint)
+        self.assertFalse(result)
+
+    @patch("virtualization.logging")
+    def test_add_apt_repo_success(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.run_command.side_effect = [True, True, True, True]
+
+        name = "repo"
+        url = "http://www.repo.com"
+        gpg = "http://www.repo.com/key"
+        fingerprint = "fingerprint"
+        pinfile = "http://www.repo.com/pin"
+        result = LXDTest.add_apt_repo(
+            self_mock, name, url, gpg, fingerprint, pinfile
+        )
+        self.assertTrue(result)
+
+    @patch("virtualization.logging")
+    def test_configure_amd_gpu_no_pci(self, logging_mock):
+        self_mock = MagicMock()
+
+        gpu_pci = None
+        result = LXDTest.configure_amd_gpu(self_mock, gpu_pci)
+        self.assertFalse(result)
+
+    @patch("os.path.isfile", side_effect=[False, False])
+    @patch("virtualization.logging")
+    def test_configure_amd_gpu_no_dev_files(self, logging_mock, isfile_mock):
+        self_mock = MagicMock()
+
+        gpu_pci = "000057:00.0"
+        result = LXDTest.configure_amd_gpu(self_mock, gpu_pci)
+        self.assertFalse(result)
+        self.assertTrue(isfile_mock.called)
+
+    @patch("os.path.isfile", side_effect=[True, True])
+    @patch("virtualization.logging")
+    def test_configure_amd_gpu_add_gpu_device_fail(
+        self, logging_mock, isfile_mock
+    ):
+        self_mock = MagicMock()
+        self_mock.add_gpu_device.return_value = False
+
+        gpu_pci = "000057:00.0"
+        result = LXDTest.configure_amd_gpu(self_mock, gpu_pci)
+        self.assertFalse(result)
+
+    @patch("os.path.isfile", side_effect=[True, True])
+    @patch("virtualization.logging")
+    def test_configure_amd_gpu_add_files_fail(self, logging_mock, isfile_mock):
+        self_mock = MagicMock()
+        self_mock.add_gpu_device.return_value = True
+        self_mock.run_command.side_effect = [False, False]
+
+        gpu_pci = "000057:00.0"
+        result = LXDTest.configure_amd_gpu(self_mock, gpu_pci)
+        self.assertFalse(result)
+
+    @patch("os.path.isfile", side_effect=[True, True])
+    @patch("virtualization.logging")
+    def test_configure_amd_gpu_apt_repo_fail(self, logging_mock, isfile_mock):
+        self_mock = MagicMock()
+        self_mock.add_gpu_device.return_value = True
+        self_mock.run_command.side_effect = [True, True]
+        self_mock.add_apt_repo.return_value = False
+
+        gpu_pci = "000057:00.0"
+        result = LXDTest.configure_amd_gpu(self_mock, gpu_pci)
+        self.assertFalse(result)
+        self.assertTrue(self_mock.add_apt_repo.called)
+
+    @patch("os.path.isfile", side_effect=[True, True])
+    @patch("virtualization.logging")
+    def test_configure_amd_gpu_rocm_install_fail(
+        self, logging_mock, isfile_mock
+    ):
+        self_mock = MagicMock()
+        self_mock.add_gpu_device.return_value = True
+        self_mock.run_command.side_effect = [True, True, False]
+        self_mock.add_apt_repo.return_value = True
+
+        gpu_pci = "000057:00.0"
+        result = LXDTest.configure_amd_gpu(self_mock, gpu_pci)
+        self.assertFalse(result)
+
+    @patch("os.path.isfile", side_effect=[True, True])
+    @patch("virtualization.logging")
+    def test_configure_amd_gpu_compile_fail(self, logging_mock, isfile_mock):
+        self_mock = MagicMock()
+        self_mock.add_gpu_device.return_value = True
+        self_mock.run_command.side_effect = [True, True, True, False]
+        self_mock.add_apt_repo.return_value = True
+
+        gpu_pci = "000057:00.0"
+        result = LXDTest.configure_amd_gpu(self_mock, gpu_pci)
+        self.assertFalse(result)
+
+    @patch("os.path.isfile", side_effect=[True, True])
+    @patch("virtualization.logging")
+    def test_configure_amd_gpu_restart_fail(self, logging_mock, isfile_mock):
+        self_mock = MagicMock()
+        self_mock.add_gpu_device.return_value = True
+        self_mock.run_command.side_effect = [True, True, True, True, False]
+        self_mock.add_apt_repo.return_value = True
+
+        gpu_pci = "000057:00.0"
+        result = LXDTest.configure_amd_gpu(self_mock, gpu_pci)
+        self.assertFalse(result)
+
+    @patch("os.path.isfile", side_effect=[True, True])
+    @patch("virtualization.logging")
+    def test_configure_amd_gpu_success(self, logging_mock, isfile_mock):
+        self_mock = MagicMock()
+        self_mock.add_gpu_device.return_value = True
+        self_mock.run_command.side_effect = [True, True, True, True, True]
+        self_mock.add_apt_repo.return_value = True
+
+        gpu_pci = "000057:00.0"
+        result = LXDTest.configure_amd_gpu(self_mock, gpu_pci)
         self.assertTrue(result)
 
     @patch("virtualization.logging")
@@ -356,32 +541,52 @@ class TestLXDTest(TestCase):
         self.assertFalse(result)
 
     @patch("os.uname", return_value=MagicMock(machine="x86_64"))
-    @patch(
-        "subprocess.run",
-        side_effect=[
-            MagicMock(returncode=0, stdout="7.4"),
-            CalledProcessError(1, "cmd", "stdout", "stderr"),
-        ],
-    )
     @patch("virtualization.logging")
-    def test_configure_nvidia_gpu_configuration_fail(
-        self, logging_mock, subprocess_run_mock, os_uname_mock
-    ):
+    def test_configure_nvidia_gpu_repo_fail(self, logging_mock, os_uname_mock):
         self_mock = MagicMock()
         self_mock.os_version = "24.04"
         self_mock.add_gpu_device.return_value = True
         self_mock.run_command.side_effect = [True, True]
+        self_mock.add_apt_repo.return_value = False
+
+        result = LXDTest.configure_nvidia_gpu(self_mock)
+        self.assertFalse(result)
+        self.assertTrue(self_mock.add_apt_repo.called)
+
+    @patch("os.uname", return_value=MagicMock(machine="x86_64"))
+    @patch("virtualization.logging")
+    def test_configure_nvidia_cuda_install_fail(
+        self, logging_mock, os_uname_mock
+    ):
+        self_mock = MagicMock()
+        self_mock.os_version = "24.04"
+        self_mock.add_gpu_device.return_value = True
+        self_mock.run_command.side_effect = [True, False]
+        self_mock.add_apt_repo.return_value = True
 
         result = LXDTest.configure_nvidia_gpu(self_mock)
         self.assertFalse(result)
 
     @patch("os.uname", return_value=MagicMock(machine="x86_64"))
     @patch(
-        "subprocess.run",
-        side_effect=[
-            MagicMock(returncode=0, stdout="7.4"),
-            MagicMock(stdout="", stderr=""),
-        ],
+        "subprocess.run", side_effect=[MagicMock(returncode=0, stdout="7.4")]
+    )
+    @patch("virtualization.logging")
+    def test_configure_nvidia_gpu_compile_fail(
+        self, logging_mock, subprocess_run_mock, os_uname_mock
+    ):
+        self_mock = MagicMock()
+        self_mock.os_version = "24.04"
+        self_mock.add_gpu_device.return_value = True
+        self_mock.run_command.side_effect = [True, True, False]
+        self_mock.add_apt_repo.return_value = True
+
+        result = LXDTest.configure_nvidia_gpu(self_mock)
+        self.assertFalse(result)
+
+    @patch("os.uname", return_value=MagicMock(machine="x86_64"))
+    @patch(
+        "subprocess.run", side_effect=[MagicMock(returncode=0, stdout="7.4")]
     )
     @patch("virtualization.logging")
     def test_configure_nvidia_gpu_restart_fail(
@@ -390,35 +595,15 @@ class TestLXDTest(TestCase):
         self_mock = MagicMock()
         self_mock.os_version = "24.04"
         self_mock.add_gpu_device.return_value = True
-        self_mock.run_command.side_effect = [True, False]
+        self_mock.run_command.side_effect = [True, True, True, False]
+        self_mock.add_apt_repo.return_value = True
 
         result = LXDTest.configure_nvidia_gpu(self_mock)
         self.assertFalse(result)
 
     @patch("os.uname", return_value=MagicMock(machine="x86_64"))
     @patch(
-        "subprocess.run",
-        side_effect=[MagicMock(returncode=1), MagicMock(stdout="", stderr="")],
-    )
-    @patch("virtualization.logging")
-    def test_configure_nvidia_gpu_native_arch_fallback(
-        self, logging_mock, subprocess_run_mock, os_uname_mock
-    ):
-        self_mock = MagicMock()
-        self_mock.os_version = "24.04"
-        self_mock.add_gpu_device.return_value = True
-        self_mock.run_command.side_effect = [True, True]
-
-        result = LXDTest.configure_nvidia_gpu(self_mock)
-        self.assertTrue(result)
-
-    @patch("os.uname", return_value=MagicMock(machine="x86_64"))
-    @patch(
-        "subprocess.run",
-        side_effect=[
-            MagicMock(returncode=0, stdout="7.4"),
-            MagicMock(stdout="", stderr=""),
-        ],
+        "subprocess.run", side_effect=[MagicMock(returncode=0, stdout="7.4")]
     )
     @patch("virtualization.logging")
     def test_configure_nvidia_gpu_success(
@@ -427,7 +612,24 @@ class TestLXDTest(TestCase):
         self_mock = MagicMock()
         self_mock.os_version = "24.04"
         self_mock.add_gpu_device.return_value = True
-        self_mock.run_command.side_effect = [True, True]
+        self_mock.run_command.side_effect = [True, True, True, True]
+        self_mock.add_apt_repo.return_value = True
+
+        gpu_pci = "000057:00.0"
+        result = LXDTest.configure_nvidia_gpu(self_mock, gpu_pci)
+        self.assertTrue(result)
+
+    @patch("os.uname", return_value=MagicMock(machine="x86_64"))
+    @patch("subprocess.run", side_effect=[MagicMock(returncode=1)])
+    @patch("virtualization.logging")
+    def test_configure_nvidia_gpu_cuda_arch_fallback_success(
+        self, logging_mock, subprocess_run_mock, os_uname_mock
+    ):
+        self_mock = MagicMock()
+        self_mock.os_version = "24.04"
+        self_mock.add_gpu_device.return_value = True
+        self_mock.run_command.side_effect = [True, True, True, True, True]
+        self_mock.add_apt_repo.return_value = True
 
         result = LXDTest.configure_nvidia_gpu(self_mock)
         self.assertTrue(result)
@@ -589,6 +791,7 @@ class TestLXDTest(TestCase):
     ):
         self_mock = MagicMock()
         self_mock.launch.return_value = True
+        self_mock.configure_nvidia_gpu.return_value = True
         self_mock.run_command.return_value = False
 
         gpu_vendor = "nvidia"
@@ -596,20 +799,18 @@ class TestLXDTest(TestCase):
         self.assertFalse(result)
 
     @patch("time.time", side_effect=[0, 2])
-    @patch("virtualization.range", return_value=[0])
     @patch("time.sleep")
     @patch("virtualization.logging")
-    def test_test_vgpu_runtime_fail(
-        self, logging_mock, sleep_mock, range_mock, time_mock
-    ):
+    def test_test_vgpu_runtime_fail(self, logging_mock, sleep_mock, time_mock):
         self_mock = MagicMock()
         self_mock.launch.return_value = True
-        self_mock.run_command.return_value = False
+        self_mock.configure_nvidia_gpu.return_value = True
+        self_mock.run_command.return_value = True
 
         gpu_vendor = "nvidia"
         threshold_sec = 1
         result = LXDTest.test_vgpu(
-            self_mock, gpu_vendor, threshold_sec=threshold_sec
+            self_mock, gpu_vendor, run_count=1, threshold_sec=threshold_sec
         )
         self.assertFalse(result)
         self.assertTrue(logging_mock.error.called)
@@ -618,7 +819,7 @@ class TestLXDTest(TestCase):
     @patch("virtualization.range", return_value=[0])
     @patch("time.sleep")
     @patch("virtualization.logging")
-    def test_test_vgpu_success(
+    def test_test_vgpu_nvidia_success(
         self, logging_mock, sleep_mock, range_mock, time_mock
     ):
         self_mock = MagicMock()
@@ -627,6 +828,25 @@ class TestLXDTest(TestCase):
         self_mock.run_command.return_value = True
 
         gpu_vendor = "nvidia"
+        threshold_sec = 2
+        result = LXDTest.test_vgpu(
+            self_mock, gpu_vendor, threshold_sec=threshold_sec
+        )
+        self.assertTrue(result)
+
+    @patch("time.time", side_effect=[0, 1])
+    @patch("virtualization.range", return_value=[0])
+    @patch("time.sleep")
+    @patch("virtualization.logging")
+    def test_test_vgpu_amd_success(
+        self, logging_mock, sleep_mock, range_mock, time_mock
+    ):
+        self_mock = MagicMock()
+        self_mock.launch.return_value = True
+        self_mock.configure_amd_gpu.return_value = True
+        self_mock.run_command.return_value = True
+
+        gpu_vendor = "amd"
         threshold_sec = 2
         result = LXDTest.test_vgpu(
             self_mock, gpu_vendor, threshold_sec=threshold_sec

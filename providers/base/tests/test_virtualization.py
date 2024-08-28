@@ -704,6 +704,44 @@ class TestLXDTest_vm(TestCase):
         self.assertTrue(self_mock.launch.called)
         self.assertFalse(result)
 
+    @patch("virtualization.logging")
+    def test_add_gpu_device_stop_fail(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.run_command.return_value = False
+
+        result = LXDTest_vm.add_gpu_device(self_mock)
+        self.assertFalse(result)
+
+    @patch("virtualization.super")
+    @patch("virtualization.logging")
+    def test_add_gpu_device_super_fail(self, logging_mock, super_mock):
+        self_mock = MagicMock()
+        self_mock.run_command.return_value = True
+        super_mock().add_gpu_device.return_value = False
+
+        result = LXDTest_vm.add_gpu_device(self_mock)
+        self.assertFalse(result)
+
+    @patch("virtualization.super")
+    @patch("virtualization.logging")
+    def test_add_gpu_device_start_fail(self, logging_mock, super_mock):
+        self_mock = MagicMock()
+        self_mock.run_command.side_effect = [True, False]
+        super_mock().add_gpu_device.return_value = True
+
+        result = LXDTest_vm.add_gpu_device(self_mock)
+        self.assertFalse(result)
+
+    @patch("virtualization.super")
+    @patch("virtualization.logging")
+    def test_add_gpu_device_success(self, logging_mock, super_mock):
+        self_mock = MagicMock()
+        self_mock.run_command.side_effect = [True, True]
+        super_mock().add_gpu_device.return_value = True
+
+        result = LXDTest_vm.add_gpu_device(self_mock)
+        self.assertTrue(result)
+
     @patch("time.sleep")
     @patch("virtualization.print")
     @patch("virtualization.logging")

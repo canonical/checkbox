@@ -42,7 +42,7 @@ from subprocess import (
     call,
     check_output,
 )
-from typing import Optional
+from typing import Optional, override
 from urllib.parse import urlparse
 from uuid import uuid4
 
@@ -791,13 +791,24 @@ class LXDTest:
 
         return True
 
-    def add_gpu_device(self, gpu_pci: Optional[str] = None):
+    def add_gpu_device(self, gpu_vendor: str, gpu_pci: Optional[str] = None):
         """Adds a GPU device to the instance."""
         logging.debug("Passing through GPU device")
         cmd = f"lxc config device add {self.name} gpu gpu gputype=physical"
         if gpu_pci:
             cmd += f" pci={gpu_pci}"
         return self.run_command(cmd)
+
+    def configure_gpu_device(self, gpu_vendor: str, gpu_pci: Optional[str] = None):
+        """Performs additional GPU configuration on instance."""
+        if gpu_vendor == "nvidia":
+            logging.debug("Passing NVIDIA runtime through to container")
+            cmd = f"lxc config set {self.name} nvidia.runtime=true"
+            if not self.run_command(cmd):
+                logging.error("Failed to pass NVIDIA runtime to instance")
+                return False
+
+        return True
 
     def add_apt_repo(
         self,
@@ -851,137 +862,82 @@ class LXDTest:
 
         return True
 
-    def configure_amd_gpu(self, gpu_pci: Optional[str] = None):
-        """Configures instance to pass through AMD GPU."""
-        if not gpu_pci:
-            logging.error("PCI address required to set up AMD GPU passthrough")
-            return False
+    def build_vgpu_test(self, gpu_vendor: str, gpu_pci: Optional[str] = None):
+        """Fetches and builds the vGPU test on the instance."""
+        test_name = ""
+        cmake_cmd = "cmake ../mixbench-{test_name}"
+        if gpu_vendor == "nvidia":
+            logging.debug("Adding NVIDIA CUDA repository to instance")
+            osrelease = f"ubuntu{self.os_version.replace('.', '')}"
+            arch = os.uname().machine
+            repo_url = f"https://developer.download.nvidia.com/compute/cuda/repos/{osrelease}/{arch}"
+            if not self.add_apt_repo(
+                "cuda",
+                repo_url,
+                gpg_url=f"{repo_url}/3bf863cc.pub",
+                gpg_fingerprint="EB693B3035CD5710E231E123A4B469963BF863CC",
+                pinfile=f"{repo_url}/cuda-{osrelease}.pin",
+            ):
+                return False
 
-        kfd_file = "/dev/kfd"
-        render_file = f"/dev/dri/by-path/pci-{gpu_pci}-render"
-        if not os.path.isfile(kfd_file) or not os.path.isfile(render_file):
-            logging.error("Failed to find %s or %s", kfd_file, render_file)
-            return False
+            logging.debug("Installing CUDA toolkit on instance")
+            cmd = "apt-get install -y --no-install-recommends git make cmake cuda-toolkit"
+            if not self.run_command(cmd, on_guest=True):
+                logging.error("CUDA toolkit installation failed")
+                return False
 
-        if not self.add_gpu_device(gpu_pci):
-            logging.error("Failed to add GPU device to instance")
-            return False
-
-        logging.debug("Passing through /dev/kfd and render files")
-        kfd_cmd = (
-            f"lxc config device add {self.name} kfd unix-char path={kfd_file}"
-        )
-        render_cmd = f"lxc config device add {self.name} render unix-char path={render_file}"
-        if not self.run_command(kfd_cmd) or not self.run_command(render_cmd):
-            logging.error(
-                "Failed to add %s or %s to instance", kfd_file, render_file
+            logging.debug("Finding CUDA capability for GPU")
+            cuda_arch = "native"
+            cmd = "nvidia-smi --query-gpu=compute_cap --format=csv,noheader"
+            if gpu_pci:
+                cmd += f" --id={gpu_pci}"
+            proc = subprocess.run(
+                shlex.split(cmd), check=False, capture_output=True, text=True
             )
-            return False
+            if proc.returncode == 0:
+                cuda_arch = proc.stdout.strip().replace(".", "")
+            logging.debug("Using CUDA architecture '%s'", cuda_arch)
 
-        if not self.add_apt_repo(
-            "amdgpu",
-            "https://repo.radeon.com/amdgpu/6.2/ubuntu",
-            gpg_url="https://repo.radeon.com/rocm/rocm.gpg.key",
-            gpg_fingerprint="CA8BB4727A47B4D09B4EE8969386B48A1A693C5C",
-        ) or not self.add_apt_repo(
-            "rocm",
-            "https://repo.radeon.com/rocm/apt/6.2",
-            gpg_url="https://repo.radeon.com/rocm/rocm.gpg.key",
-            gpg_fingerprint="CA8BB4727A47B4D09B4EE8969386B48A1A693C5C",
-            pinfile="Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600",
-        ):
-            return False
+            nvcc_path = "/usr/local/cuda/bin/nvcc"
+            cmake_cmd = f"CUDACXX={nvcc_path} {cmake_cmd} -DCMAKE_CUDA_ARCHITECTURES={cuda_arch}"
+        elif gpu_vendor == "amd":
+            # TODO: Test if hardcoding v6.2 works on older LTS releases
+            amd_version = "6.2"
+            gpg_fingerprint = "CA8BB4727A47B4D09B4EE8969386B48A1A693C5C"
+            if not self.add_apt_repo(
+                "amdgpu",
+                f"https://repo.radeon.com/amdgpu/{amd_version}/ubuntu",
+                gpg_url="https://repo.radeon.com/rocm/rocm.gpg.key",
+                gpg_fingerprint=gpg_fingerprint,
+            ) or not self.add_apt_repo(
+                "rocm",
+                f"https://repo.radeon.com/rocm/apt/{amd_version}",
+                gpg_url="https://repo.radeon.com/rocm/rocm.gpg.key",
+                gpg_fingerprint=gpg_fingerprint,
+                pinfile="Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600",
+            ):
+                return False
 
-        logging.debug("Installing ROCm on instance")
-        if not self.run_command("apt-get install rocm", on_guest=True):
-            logging.error("ROCm installation failed")
+            logging.debug("Installing ROCm on instance")
+            if not self.run_command("apt-get install rocm", on_guest=True):
+                logging.error("ROCm installation failed")
+                return False
+        else:
+            logging.error("Unsupported GPU vendor %s", gpu_vendor)
             return False
 
         logging.debug("Fetching and compiling vGPU test on instance")
         cmds = [
             "set -e",
             "git clone https://github.com/ekondis/mixbench.git",
-            "mkdir mixbench/build-hip",
-            "cd mixbench/build-hip",
-            "cmake ../mixbench-hip",
+            f"mkdir mixbench/build-{test_name}",
+            f"cd mixbench/build-{test_name}",
+            cmake_cmd.format(test_name=test_name),
             "make",
-            "ln -s ~/mixbench/build-hip/mixbench-hip ~/vgpu-test",
+            f"ln -s ~/mixbench/build-{test_name}/mixbench-{test_name} ~/vgpu-test",
         ]
         cmd = f"bash -c \"{'; '.join(cmds)}\""
-        if not self.run_command(cmd, on_guest=True):
-            logging.error("Failed to set up vGPU test")
-            return False
-
-        logging.debug("Restarting instance")
-        if not self.run_command(f"lxc restart {self.name}"):
-            return False
-
-        return True
-
-    def configure_nvidia_gpu(self, gpu_pci: Optional[str] = None):
-        """Configures instance to pass through NVIDIA GPU."""
-        if not self.add_gpu_device(gpu_pci):
-            logging.error("Failed to add GPU device to instance")
-            return False
-
-        logging.debug("Passing NVIDIA runtime through to container")
-        cmd = f"lxc config set {self.name} nvidia.runtime=true"
-        if not self.run_command(cmd):
-            logging.error("Failed to pass NVIDIA runtime to instance")
-            return False
-
-        logging.debug("Adding NVIDIA CUDA repository to instance")
-        osrelease = f"ubuntu{self.os_version.replace('.', '')}"
-        arch = os.uname().machine
-        repo_url = f"https://developer.download.nvidia.com/compute/cuda/repos/{osrelease}/{arch}"
-        if not self.add_apt_repo(
-            "cuda",
-            repo_url,
-            gpg_url=f"{repo_url}/3bf863cc.pub",
-            gpg_fingerprint="EB693B3035CD5710E231E123A4B469963BF863CC",
-            pinfile=f"{repo_url}/cuda-{osrelease}.pin",
-        ):
-            return False
-
-        logging.debug("Installing CUDA toolkit on instance")
-        cmd = "apt-get install -y --no-install-recommends git make cmake cuda-toolkit"
-        if not self.run_command(cmd, on_guest=True):
-            logging.error("CUDA toolkit installation failed")
-            return False
-
-        logging.debug("Finding CUDA capability for GPU")
-        cuda_arch = "native"
-        cmd = "nvidia-smi --query-gpu=compute_cap --format=csv,noheader"
-        if gpu_pci:
-            cmd += f" --id={gpu_pci}"
-        proc = subprocess.run(
-            shlex.split(cmd), check=False, capture_output=True, text=True
-        )
-        if proc.returncode == 0:
-            cuda_arch = proc.stdout.strip().replace(".", "")
-        logging.debug("Using CUDA architecture '%s'", cuda_arch)
-
-        logging.debug("Fetching and compiling vGPU test on instance")
-        nvcc_path = "/usr/local/cuda/bin/nvcc"
-        cmds = [
-            "set -e",
-            "git clone https://github.com/ekondis/mixbench.git",
-            "mkdir mixbench/build-cuda",
-            "cd mixbench/build-cuda",
-            f"CUDACXX={nvcc_path} cmake ../mixbench-cuda -DCMAKE_CUDA_ARCHITECTURES={cuda_arch}",
-            "make",
-            "ln -s ~/mixbench/build-cuda/mixbench-cuda ~/vgpu-test",
-        ]
-        cmd = f"bash -c \"{'; '.join(cmds)}\""
-        if not self.run_command(cmd, on_guest=True):
-            logging.error("Failed to set up vGPU test")
-            return False
-
-        logging.debug("Restarting instance")
-        if not self.run_command(f"lxc restart {self.name}"):
-            return False
-
-        return True
+        return self.run_command(cmd, on_guest=True)
 
     def download_images(self, url, filename):
         """Downloads LXD files for same release as host machine."""
@@ -1060,21 +1016,37 @@ class LXDTest:
         if not self.launch():
             return False
 
-        # Wait for network to be up
-        time.sleep(5)
+        if not self.add_gpu_device(gpu_vendor, gpu_pci):
+            logging.error("Failed to add GPU device to instance")
+            return False
+
+        logging.debug("Wait for network to be up")
+        max_retries = 5
+        for _ in range(max_retries):
+            if self.run_command("ping -qc 1 developer.download.nvidia.com", on_guest=True):
+                break
+            logging.error("Network not up on instance, waiting and retrying")
+            time.sleep(2)
+        else:
+            logging.error("Network did not start on instance")
+            return False
 
         # Configure GPU device
-        result = False
-        if gpu_vendor == "nvidia":
-            result = self.configure_nvidia_gpu(gpu_pci)
-        elif gpu_vendor == "amd":
-            result = self.configure_amd_gpu(gpu_pci)
-        if not result:
+        if not self.configure_gpu_device(gpu_vendor, gpu_pci):
             logging.error("One or more steps of GPU configuration failed")
+            return False
+
+        logging.debug("Restarting instance")
+        if not self.run_command(f"lxc restart {self.name}"):
+            return False
+
+        logging.debug("Building vGPU test")
+        if not self.build_vgpu_test(gpu_vendor, gpu_pci):
             return False
 
         logging.debug("Testing container %d times", run_count)
         total_runtime = 0.0
+        result = True
         for i in range(run_count):
             tic = time.time()
             if not self.run_command("./vgpu-test", on_guest=True):
@@ -1084,27 +1056,28 @@ class LXDTest:
             runtime = toc - tic
             total_runtime += runtime
             logging.debug("Runtime #%d (sec): %f", i, runtime)
+
         avg_runtime = total_runtime / run_count
         logging.info("Average runtime (sec): %f", avg_runtime)
-        if avg_runtime > threshold_sec:
+        result = avg_runtime < threshold_sec
+        if not result:
             logging.error(
                 "Average runtime %fs greater than threshold %fs",
                 avg_runtime,
                 threshold_sec,
             )
-            return False
-
-        return True
+        return result
 
 
 class LXDTest_vm(LXDTest):
     """This class represents a LXD VM instance test."""
 
+    @override
     def __init__(self, template=None, image=None):
         super().__init__(template, image)
 
+    @override
     def insert_images(self):
-        """Inserts images into LXD."""
         if self.template_tarball and self.image_tarball:
             logging.debug("Importing images into LXD")
             cmd = (
@@ -1118,8 +1091,8 @@ class LXDTest_vm(LXDTest):
                 return False
         return True
 
+    @override
     def launch(self):
-        """Sets up and creates the virtual machine."""
         if not self.setup():
             logging.error("One or more setup stages failed.")
             return False
@@ -1145,13 +1118,14 @@ class LXDTest_vm(LXDTest):
 
         return True
 
-    def add_gpu_device(self, gpu_pci: Optional[str] = None):
-        """Adds a GPU device to the instance."""
+    @override
+    def add_gpu_device(self, gpu_vendor: str, gpu_pci: Optional[str] = None):
+        # Hot plugging is only supported on containers
         logging.debug("Stopping virtual machine to add GPU device")
         if not self.run_command(f"lxc stop --force {self.name}"):
             return False
 
-        if not super().add_gpu_device(gpu_pci):
+        if not super().add_gpu_device(gpu_vendor, gpu_pci):
             return False
 
         logging.debug("Starting virtual machine")
@@ -1160,6 +1134,19 @@ class LXDTest_vm(LXDTest):
 
         return True
 
+    @override
+    def configure_gpu_device(self, gpu_vendor: str, gpu_pci: Optional[str] = None):
+        if gpu_vendor == "nvidia":
+            cmd = "apt-get install ubuntu-drivers-common"
+            if not self.run_command(cmd, on_guest=True):
+                return False
+
+            cmd = "ubuntu-drivers install"
+            if not self.run_command(cmd, on_guest=True):
+                return False
+        return True
+
+    @override
     def test(self):
         """Creates a LXD virtual machine and performs the test."""
         if not self.launch():

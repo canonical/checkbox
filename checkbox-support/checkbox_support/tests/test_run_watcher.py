@@ -241,6 +241,17 @@ class TestRunWatcher(unittest.TestCase):
             USBStorage._validate_insertion(mock_usb_storage)
         self.assertEqual(cm.exception.code, None)
 
+    def test_usb3_gen2x1_storage_validate_insertion(self):
+        mock_usb_storage = MagicMock()
+        mock_usb_storage.storage_type = "usb3"
+        mock_usb_storage.device = "super_speed_plus_gen2x1_usb"
+        mock_usb_storage.mounted_partition = "mounted_partition"
+        mock_usb_storage.action = "insertion"
+        mock_usb_storage.driver = "xhci_hcd"
+        with self.assertRaises(SystemExit) as cm:
+            USBStorage._validate_insertion(mock_usb_storage)
+        self.assertEqual(cm.exception.code, None)
+
     def test_usb_storage_validate_insertion_wrong_usb_type(self):
         mock_usb_storage = MagicMock()
         mock_usb_storage.storage_type = "usb2"
@@ -285,6 +296,12 @@ class TestRunWatcher(unittest.TestCase):
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.device, "super_speed_gen1_usb")
 
+        line_str = "new SuperSpeed Plus Gen 2x1 USB device"
+        USBStorage._parse_journal_line(mock_usb_storage, line_str)
+        self.assertEqual(
+            mock_usb_storage.device, "super_speed_plus_gen2x1_usb"
+        )
+
         line_str = "new high-speed USB device number 1 using ehci_hcd"
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.driver, "ehci_hcd")
@@ -294,6 +311,10 @@ class TestRunWatcher(unittest.TestCase):
         self.assertEqual(mock_usb_storage.driver, "xhci_hcd")
 
         line_str = "USB Mass Storage device detected"
+        USBStorage._parse_journal_line(mock_usb_storage, line_str)
+        self.assertEqual(mock_usb_storage.action, "insertion")
+
+        line_str = "kernel: scsi host0: uas"
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.action, "insertion")
 

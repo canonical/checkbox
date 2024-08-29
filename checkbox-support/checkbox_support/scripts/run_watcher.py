@@ -196,6 +196,7 @@ class USBStorage(StorageWatcher):
             elif self.storage_type == "usb3" and self.device in [
                 "super_speed_usb",
                 "super_speed_gen1_usb",
+                "super_speed_plus_gen2x1_usb",
             ]:
                 logger.info("USB3 insertion test passed.")
             else:
@@ -226,6 +227,7 @@ class USBStorage(StorageWatcher):
             "high_speed_usb": "new high-speed USB device",
             "super_speed_usb": "new SuperSpeed USB device",
             "super_speed_gen1_usb": "new SuperSpeed Gen 1 USB device",
+            "super_speed_plus_gen2x1_usb": "new SuperSpeed Plus Gen 2x1 USB device",
         }
 
         driver_log_dict = {
@@ -247,7 +249,7 @@ class USBStorage(StorageWatcher):
                 ).group(1)
 
         # Look for insertion action
-        if "USB Mass Storage device detected" in line_str:
+        if "USB Mass Storage device detected" or "uas" in line_str:
             self.action = "insertion"
 
         # Look for removal action

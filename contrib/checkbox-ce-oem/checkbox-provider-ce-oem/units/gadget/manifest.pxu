@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_snap_interface_been_defined_in_gadget
+_name: Does platform has plugs and slots been defined in Gadget snap?
+value-type: bool

@@ -1,0 +1,50 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "type": "object",
+    "properties": {
+        "slots": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "interface": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "interface"
+                    ]
+                }
+            ]
+        },
+        "plugs": {
+            "type": "array",
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                            "type": "string"
+                        },
+                        "interface": {
+                            "type": "string"
+                        }
+                    },
+                    "required": [
+                        "name",
+                        "interface"
+                    ]
+                }
+            ]
+        }
+    },
+    "required": [
+        "slots",
+        "plugs"
+    ]
+}

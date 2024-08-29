@@ -648,6 +648,7 @@ class LXDTest:
         self.image_alias = uuid4().hex
         self.default_remote = "ubuntu:"
         self.os_version = get_release_to_test()
+        self.release = get_codename_to_test()
 
     def run_command(
         self, cmd: str, log_stderr: bool = True, on_guest: bool = False
@@ -799,13 +800,21 @@ class LXDTest:
             cmd += f" pci={gpu_pci}"
         return self.run_command(cmd)
 
-    def configure_gpu_device(self, gpu_vendor: str, gpu_pci: Optional[str] = None):
+    def configure_gpu_device(
+        self, gpu_vendor: str, gpu_pci: Optional[str] = None
+    ):
         """Performs additional GPU configuration on instance."""
         if gpu_vendor == "nvidia":
-            logging.debug("Passing NVIDIA runtime through to container")
+            logging.debug("Passing NVIDIA runtime through to instance")
             cmd = f"lxc config set {self.name} nvidia.runtime=true"
             if not self.run_command(cmd):
                 logging.error("Failed to pass NVIDIA runtime to instance")
+                return False
+        elif gpu_vendor == "amd":
+            logging.debug("Passing AMD Kernel Fusion Driver through")
+            cmd = f"lxc config device add {self.name} kfd unix-char path=/dev/kfd"
+            if not self.run_command(cmd):
+                logging.error("Failed to pass AMD KFD to instance")
                 return False
 
         return True
@@ -813,7 +822,7 @@ class LXDTest:
     def add_apt_repo(
         self,
         name: str,
-        repo_url: str,
+        repo_line: str,
         gpg_url: str,
         gpg_fingerprint: str,
         pinfile: Optional[str] = None,
@@ -849,7 +858,7 @@ class LXDTest:
 
         logging.debug("Setting up APT repository: %s", name)
         repo_dest = f"/etc/apt/sources.list.d/{name}.list"
-        list_file = f"deb [signed-by={gpg_dest}] {repo_url} /"
+        list_file = f"deb [signed-by={gpg_dest}] {repo_line}"
         cmd = f"bash -c \"echo '{list_file}' | tee {repo_dest}\""
         if not self.run_command(cmd, on_guest=True):
             logging.error("Failed to create APT repository")
@@ -873,7 +882,7 @@ class LXDTest:
             repo_url = f"https://developer.download.nvidia.com/compute/cuda/repos/{osrelease}/{arch}"
             if not self.add_apt_repo(
                 "cuda",
-                repo_url,
+                f"{repo_url} /",
                 gpg_url=f"{repo_url}/3bf863cc.pub",
                 gpg_fingerprint="EB693B3035CD5710E231E123A4B469963BF863CC",
                 pinfile=f"{repo_url}/cuda-{osrelease}.pin",
@@ -898,20 +907,25 @@ class LXDTest:
                 cuda_arch = proc.stdout.strip().replace(".", "")
             logging.debug("Using CUDA architecture '%s'", cuda_arch)
 
+            test_name = "cuda"
             nvcc_path = "/usr/local/cuda/bin/nvcc"
             cmake_cmd = f"CUDACXX={nvcc_path} {cmake_cmd} -DCMAKE_CUDA_ARCHITECTURES={cuda_arch}"
         elif gpu_vendor == "amd":
             # TODO: Test if hardcoding v6.2 works on older LTS releases
             amd_version = "6.2"
             gpg_fingerprint = "CA8BB4727A47B4D09B4EE8969386B48A1A693C5C"
+            amdgpu_repo = (
+                f"https://repo.radeon.com/amdgpu/{amd_version}/ubuntu"
+            )
+            rocm_repo = f"https://repo.radeon.com/rocm/apt/{amd_version}"
             if not self.add_apt_repo(
                 "amdgpu",
-                f"https://repo.radeon.com/amdgpu/{amd_version}/ubuntu",
+                f"{amdgpu_repo} {self.release} main",
                 gpg_url="https://repo.radeon.com/rocm/rocm.gpg.key",
                 gpg_fingerprint=gpg_fingerprint,
             ) or not self.add_apt_repo(
                 "rocm",
-                f"https://repo.radeon.com/rocm/apt/{amd_version}",
+                f"{rocm_repo} {self.release} main",
                 gpg_url="https://repo.radeon.com/rocm/rocm.gpg.key",
                 gpg_fingerprint=gpg_fingerprint,
                 pinfile="Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600",
@@ -919,9 +933,13 @@ class LXDTest:
                 return False
 
             logging.debug("Installing ROCm on instance")
-            if not self.run_command("apt-get -q install rocm", on_guest=True):
+            if not self.run_command(
+                "apt-get -q install -y cmake make rocm", on_guest=True
+            ):
                 logging.error("ROCm installation failed")
                 return False
+
+            test_name = "hip"
         else:
             logging.error("Unsupported GPU vendor %s", gpu_vendor)
             return False
@@ -1146,7 +1164,9 @@ class LXDTest_vm(LXDTest):
         return True
 
     @override
-    def configure_gpu_device(self, gpu_vendor: str, gpu_pci: Optional[str] = None):
+    def configure_gpu_device(
+        self, gpu_vendor: str, gpu_pci: Optional[str] = None
+    ):
         if gpu_vendor == "nvidia":
             cmd = "apt-get -q install ubuntu-drivers-common"
             if not self.run_command(cmd, on_guest=True):

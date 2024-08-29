@@ -25,11 +25,7 @@ def register_arguments():
         required=True,
         help="The path with file name of the config file",
     )
-    parser.add_argument(
-        "--action",
-        type=str,
-        choices=["generate", "dump"]
-    )
+    parser.add_argument("--action", type=str, choices=["generate", "dump"])
     return parser.parse_args()
 
 
@@ -64,14 +60,9 @@ def _generate_slot_data(interface: dict):
 
 
 def gadget_interface_generator(
-    file: str,
-    by_gadget: bool = True,
-    validate_by_schema: bool = False
+    file: str, by_gadget: bool = True, validate_by_schema: bool = False
 ):
-    func_mapping = {
-        "plugs": _generate_plug_data,
-        "slots": _generate_slot_data
-    }
+    func_mapping = {"plugs": _generate_plug_data, "slots": _generate_slot_data}
     snap_interfaces = {"plugs": [], "slots": []}
 
     if by_gadget:
@@ -113,7 +104,7 @@ def _print_formatted_plug_data(interface):
 def gadget_interface_parser(file: str, validate_by_schema: bool = False):
     func_mapping = {
         "plugs": _print_formatted_plug_data,
-        "slots": _print_formatted_slot_data
+        "slots": _print_formatted_slot_data,
     }
     if not os.path.exists(file):
         print("file: gadget file not found")
@@ -147,13 +138,13 @@ if __name__ == "__main__":
         format="%(message)s",
         handlers=[
             logging.StreamHandler(sys.stdout),
-        ]
+        ],
     )
     logging.basicConfig(
         level=logging.ERROR,
         format="%(message)s",
         handlers=[
             logging.StreamHandler(sys.stderr),
-        ]
+        ],
     )
     main()

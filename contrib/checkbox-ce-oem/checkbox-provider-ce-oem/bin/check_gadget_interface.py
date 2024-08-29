@@ -18,20 +18,9 @@ def register_arguments():
         choices=["plug", "slot"],
         help="the interface type of snap",
     )
-    parser.add_argument(
-        "--name",
-        type=str,
-        required=True
-    )
-    parser.add_argument(
-        "--interface",
-        type=str,
-        required=True
-    )
-    parser.add_argument(
-        "--attrs",
-        type=str,
-    )
+    parser.add_argument("--name", type=str, required=True)
+    parser.add_argument("--interface", type=str, required=True)
+    parser.add_argument("--attrs", type=str)
     return parser.parse_args()
 
 
@@ -49,9 +38,7 @@ def filter_gadget_interface(type):
 
 def varify_slot_interface(name, interface):
     logging.info(
-        "[Expected Slot Interface] name: %s, type: %s",
-        name,
-        interface
+        "[Expected Slot Interface] name: %s, type: %s", name, interface
     )
     gadget_interfaces = filter_gadget_interface("slot")
     for sys_intf in gadget_interfaces:
@@ -61,18 +48,17 @@ def varify_slot_interface(name, interface):
         logging.info(
             "[Actual Slot Interface] name: %s, type: %s\n",
             sys_intf["slot"],
-            sys_intf["interface"]
+            sys_intf["interface"],
         )
         if sys_intf["interface"] == interface:
             logging.info(
-                "The interface type of %s slot interface match",
-                name
+                "The interface type of %s slot interface match", name
             )
             exit(0)
         else:
             logging.error(
-                "The interface type of %s slot interface mismatch",
-                name)
+                "The interface type of %s slot interface mismatch", name
+            )
             exit(1)
 
     logging.error("The %s slot interface is not defined in gadget", name)
@@ -81,9 +67,7 @@ def varify_slot_interface(name, interface):
 
 def varify_plug_interface(name, interface):
     logging.info(
-        "[Expected Plug Interface] name: %s, type: %s",
-        name,
-        interface
+        "[Expected Plug Interface] name: %s, type: %s", name, interface
     )
 
     gadget_interfaces = filter_gadget_interface("plug")
@@ -95,17 +79,17 @@ def varify_plug_interface(name, interface):
         logging.info(
             "[Actual Plug Interface] name: %s, type: %s\n",
             sys_intf["plug"],
-            sys_intf["interface"]
+            sys_intf["interface"],
         )
         if sys_intf["interface"] == interface:
             logging.info(
-                "The interface type of %s plug interface match",
-                name)
+                "The interface type of %s plug interface match", name
+            )
             exit(0)
         else:
             logging.error(
-                "The interface type of %s plug interface mismatch",
-                name)
+                "The interface type of %s plug interface mismatch", name
+            )
             exit(1)
 
     logging.error("The %s plug interface is not defined in gadget", name)
@@ -131,13 +115,13 @@ if __name__ == "__main__":
         format="%(message)s",
         handlers=[
             logging.StreamHandler(sys.stdout),
-        ]
+        ],
     )
     logging.basicConfig(
         level=logging.ERROR,
         format="%(message)s",
         handlers=[
             logging.StreamHandler(sys.stderr),
-        ]
+        ],
     )
     main()

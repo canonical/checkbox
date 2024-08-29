@@ -45,6 +45,7 @@ nested_part:
     com.canonical.certification::led-indicator-manual
     ce-oem-iio-sensors-manual
     ce-oem-digital-io-manual
+    ce-oem-secure-boot-manual
 
 id: ce-oem-automated
 unit: test plan
@@ -82,6 +83,7 @@ nested_part:
     com.canonical.certification::rtc-automated
     com.canonical.certification::led-indicator-auto
     before-suspend-ce-oem-spi-automated
+    ce-oem-secure-boot-automated
 
 id: after-suspend-ce-oem-manual
 unit: test plan

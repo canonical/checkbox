@@ -910,21 +910,20 @@ class LXDTest:
             cmake_cmd = f"CUDACXX={nvcc_path} {cmake_cmd} -DCMAKE_CUDA_ARCHITECTURES={cuda_arch}"
         elif gpu_vendor == "amd":
             # TODO: Test if hardcoding v6.2 works on older LTS releases
-            amd_version = "6.2"
+            gpg_url = "https://repo.radeon.com/rocm/rocm.gpg.key"
             gpg_fingerprint = "CA8BB4727A47B4D09B4EE8969386B48A1A693C5C"
-            amdgpu_repo = (
-                f"https://repo.radeon.com/amdgpu/{amd_version}/ubuntu"
-            )
+            amd_version = "6.2"
+            amd_repo = f"https://repo.radeon.com/amdgpu/{amd_version}/ubuntu"
             rocm_repo = f"https://repo.radeon.com/rocm/apt/{amd_version}"
             if not self.add_apt_repo(
                 "amdgpu",
-                f"{amdgpu_repo} {self.release} main",
-                gpg_url="https://repo.radeon.com/rocm/rocm.gpg.key",
+                f"{amd_repo} {self.release} main",
+                gpg_url=gpg_url,
                 gpg_fingerprint=gpg_fingerprint,
             ) or not self.add_apt_repo(
                 "rocm",
                 f"{rocm_repo} {self.release} main",
-                gpg_url="https://repo.radeon.com/rocm/rocm.gpg.key",
+                gpg_url=gpg_url,
                 gpg_fingerprint=gpg_fingerprint,
                 pinfile="Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600",
             ):
@@ -1166,7 +1165,7 @@ class LXDTest_vm(LXDTest):
         self, gpu_vendor: str, gpu_pci: Optional[str] = None
     ):
         if gpu_vendor == "nvidia":
-            cmd = "apt-get -q install ubuntu-drivers-common"
+            cmd = "apt-get -q install -y ubuntu-drivers-common"
             if not self.run_command(cmd, on_guest=True):
                 return False
 

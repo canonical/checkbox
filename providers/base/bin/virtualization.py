@@ -30,7 +30,6 @@ import subprocess
 import sys
 import tarfile
 import tempfile
-import textwrap
 import time
 import urllib.error
 import urllib.request
@@ -959,7 +958,7 @@ class LXDTest:
             shlex.split(cmd), check=False, capture_output=True, text=True
         )
         if proc.returncode == 0:
-            cuda_arch = int(proc.stdout.strip().replace(".", ""))
+            cuda_arch = proc.stdout.strip().replace(".", "")
         logging.debug("Using CUDA architecture '%s'", cuda_arch)
 
         logging.debug("Fetching and compiling vGPU test on instance")
@@ -1014,9 +1013,8 @@ class LXDTest:
     def cleanup(self):
         """Cleans up test files and instances created."""
         logging.debug("Cleaning up images and instance created during test")
-        self.run_command(
-            f"lxc image delete {self.image_alias}", log_stderr=False
-        )
+        cmd = f"lxc image delete {self.image_alias}"
+        self.run_command(cmd, log_stderr=False)
         self.run_command(f"lxc delete --force {self.name}", log_stderr=False)
 
     def launch(self):
@@ -1076,7 +1074,7 @@ class LXDTest:
             return False
 
         logging.debug("Testing container %d times", run_count)
-        total_runtime = 0
+        total_runtime = 0.0
         for i in range(run_count):
             tic = time.time()
             if not self.run_command("./vgpu-test", on_guest=True):

@@ -937,25 +937,6 @@ class TestLXDTest_vm(TestCase):
         self.assertTrue(result)
 
     @patch("virtualization.logging")
-    def test_test_fail_launch(self, logging_mock):
-        self_mock = MagicMock()
-        self_mock.launch.return_value = False
-
-        result = LXDTest_vm.test(self_mock)
-        self.assertTrue(self_mock.launch.called)
-        self.assertFalse(result)
-
-    @patch("virtualization.logging")
-    def test_test_launch_fail(self, logging_mock):
-        self_mock = MagicMock()
-        self_mock.launch.return_value = False
-        self_mock.run_command.side_effect = itertools.repeat(True)
-
-        result = LXDTest_vm.test(self_mock)
-        self.assertTrue(self_mock.launch.called)
-        self.assertFalse(result)
-
-    @patch("virtualization.logging")
     def test_add_gpu_device_stop_fail(self, logging_mock):
         self_mock = MagicMock()
         self_mock.run_command.return_value = False
@@ -992,6 +973,28 @@ class TestLXDTest_vm(TestCase):
 
         result = LXDTest_vm.add_gpu_device(self_mock)
         self.assertTrue(result)
+
+    @patch("virtualization.logging")
+    def test_test_launch_fail(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.launch.return_value = False
+
+        result = LXDTest_vm.test(self_mock)
+        self.assertTrue(self_mock.launch.called)
+        self.assertFalse(result)
+
+    @patch("time.sleep")
+    @patch("virtualization.print")
+    @patch("virtualization.logging")
+    def test_test_failure(self, logging_mock, print_mock, time_sleep_mock):
+        self_mock = MagicMock()
+        self_mock.launch.return_value = True
+        self_mock.name = "vm name"
+        self_mock.run_command.side_effect = itertools.repeat(False)
+
+        result = LXDTest_vm.test(self_mock)
+        self.assertTrue(self_mock.launch.called)
+        self.assertFalse(result)
 
     @patch("time.sleep")
     @patch("virtualization.print")

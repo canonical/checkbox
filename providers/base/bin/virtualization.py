@@ -52,7 +52,7 @@ DEFAULT_TIMEOUT = 500
 
 GPU_VENDORS = ["nvidia", "amd"]
 VGPU_RUNS = 20
-VGPU_THRESHOLD_SEC = 3.71  # TODO: Finetune this default threshold
+VGPU_THRESHOLD_SEC = 12.0  # TODO: Finetune this default threshold
 
 # The "TAR" type is a tarball that contains both
 # a disk image and a kernel binary. This is useful

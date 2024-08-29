@@ -19,7 +19,9 @@ import os
 import time
 import multiprocessing
 
+from queue import Empty
 from unittest import TestCase
+from unittest.mock import patch
 
 from checkbox_support.helpers.timeout import (
     run_with_timeout,
@@ -161,6 +163,7 @@ class TestTimeoutExec(TestCase):
         the function and it could cause mayhem (and block the test session as
         Checkbox waits for all childs to be done)
         """
+
         def inner(pid_pipe):
             pid_pipe.send(os.getpid())
             pid_pipe.close()
@@ -183,7 +186,32 @@ class TestTimeoutExec(TestCase):
         with self.assertRaises(OSError):
             pid = read.recv()
             # give the process a few ms to wind down
-            time.sleep(.01)
+            time.sleep(0.01)
             # this throws an exception if the process we are trying to send
             # a signal to doesn't exist
             os.kill(pid, 0)
+
+    @patch("checkbox_support.helpers.timeout.Queue")
+    @patch("checkbox_support.helpers.timeout.Process")
+    def test_run_with_timeout_double_get(self, process_mock, queue_mock):
+        process_mock().is_alive.return_value = False
+        queue_mock().get_nowait.side_effect = Empty()
+        queue_mock().get.side_effect = [
+            Empty(),
+            ValueError("Some value error"),
+        ]
+
+        with self.assertRaises(ValueError):
+            run_with_timeout(lambda: ..., 0)
+
+    @patch("checkbox_support.helpers.timeout.Queue")
+    @patch("checkbox_support.helpers.timeout.Process")
+    def test_run_with_timeout_system_exit_no_get(
+        self, process_mock, queue_mock
+    ):
+        process_mock().is_alive.return_value = False
+        queue_mock().get_nowait.side_effect = Empty()
+        queue_mock().get.side_effect = Empty()
+
+        with self.assertRaises(SystemExit):
+            run_with_timeout(lambda: ..., 0)

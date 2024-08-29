@@ -24,7 +24,7 @@ functions
 """
 import os
 import traceback
-import subprocess
+import signal
 
 from functools import partial
 from contextlib import wraps
@@ -74,7 +74,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
     process.join(timeout_s)
 
     if process.is_alive():
-        subprocess.run("kill -9 -- -{}".format(process.pid), shell=True)
+        os.kill(process.pid, signal.SIGKILL)
         raise TimeoutError("Task unable to finish in {}s".format(timeout_s))
     if not exception_queue.empty():
         raise exception_queue.get()

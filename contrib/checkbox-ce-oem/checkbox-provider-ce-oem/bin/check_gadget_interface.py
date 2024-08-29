@@ -51,14 +51,10 @@ def varify_slot_interface(name, interface):
             sys_intf["interface"],
         )
         if sys_intf["interface"] == interface:
-            logging.info(
-                "The interface type of %s slot interface match", name
-            )
+            logging.info("The slot interface type of %s match", name)
             exit(0)
         else:
-            logging.error(
-                "The interface type of %s slot interface mismatch", name
-            )
+            logging.error("The slot interface type of %s mismatch", name)
             exit(1)
 
     logging.error("The %s slot interface is not defined in gadget", name)
@@ -82,14 +78,10 @@ def varify_plug_interface(name, interface):
             sys_intf["interface"],
         )
         if sys_intf["interface"] == interface:
-            logging.info(
-                "The interface type of %s plug interface match", name
-            )
+            logging.info("The plug interface type of %s match", name)
             exit(0)
         else:
-            logging.error(
-                "The interface type of %s plug interface mismatch", name
-            )
+            logging.error("The plug interface type of %s mismatch", name)
             exit(1)
 
     logging.error("The %s plug interface is not defined in gadget", name)

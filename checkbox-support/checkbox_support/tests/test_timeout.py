@@ -153,7 +153,14 @@ class TestTimeoutExec(TestCase):
         with self.assertRaises(SystemExit):
             k()
 
-    def test_timeout_kills_subprocess_on_timeout(self):
+    def test_timeout_kills_subprocess_tree_on_timeout(self):
+        """
+        This tests that the timeout decorator not only kills the direct child
+        (function under test) but also any sub-process it has spawned. This
+        is done because one could `subprocess.run` a long-lived process from
+        the function and it could cause mayhem (and block the test session as
+        Checkbox waits for all childs to be done)
+        """
         def inner(pid_pipe):
             pid_pipe.send(os.getpid())
             pid_pipe.close()
@@ -177,4 +184,6 @@ class TestTimeoutExec(TestCase):
             pid = read.recv()
             # give the process a few ms to wind down
             time.sleep(.01)
+            # this throws an exception if the process we are trying to send
+            # a signal to doesn't exist
             os.kill(pid, 0)

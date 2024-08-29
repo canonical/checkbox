@@ -24,8 +24,9 @@ from unittest import TestCase
 from unittest.mock import patch
 
 from checkbox_support.helpers.timeout import (
-    run_with_timeout,
     timeout,
+    is_picklable,
+    run_with_timeout,
     fake_run_with_timeout,
 )
 
@@ -215,3 +216,7 @@ class TestTimeoutExec(TestCase):
 
         with self.assertRaises(SystemExit):
             run_with_timeout(lambda: ..., 0)
+
+    def test_is_picklable(self):
+        self.assertFalse(is_picklable(lambda: ...))
+        self.assertTrue(is_picklable([1, 2, 3]))

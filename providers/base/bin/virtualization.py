@@ -1040,6 +1040,17 @@ class LXDTest:
         if not self.run_command(f"lxc restart {self.name}"):
             return False
 
+        logging.debug("Wait for network to be up")
+        max_retries = 5
+        for _ in range(max_retries):
+            if self.run_command("ping -qc 1 www.ubuntu.com", on_guest=True):
+                break
+            logging.error("Network not up on instance, waiting and retrying")
+            time.sleep(2)
+        else:
+            logging.error("Network did not start on instance")
+            return False
+
         logging.debug("Building vGPU test")
         if not self.build_vgpu_test(gpu_vendor, gpu_pci):
             return False

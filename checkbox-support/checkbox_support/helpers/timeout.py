@@ -23,13 +23,22 @@ Utility class that provides functionalities connected to placing timeouts on
 functions
 """
 import os
+import pickle
 import traceback
 import subprocess
 
+from queue import Empty
 from functools import partial
-from contextlib import wraps
 from unittest.mock import patch
-from multiprocessing import Process, SimpleQueue
+from contextlib import wraps, suppress
+from multiprocessing import Process, Queue
+
+
+def is_picklable(value):
+    with suppress(pickle.PicklingError), suppress(AttributeError):
+        _ = pickle.dumps(value)
+        return True
+    return False
 
 
 def run_with_timeout(f, timeout_s, *args, **kwargs):
@@ -40,45 +49,80 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
 
     Note: the function, *args and **kwargs must be picklable to use this.
     """
-    result_queue = SimpleQueue()
-    exception_queue = SimpleQueue()
+    result_queue = Queue()
+    exception_queue = Queue()
 
     def _f(*args, **kwargs):
         os.setsid()
         try:
-            result_queue.put(f(*args, **kwargs))
-        except BaseException as e:
-            try:
-                exception_queue.put(e)
-            except BaseException:
-                # raised by pickle.dumps in put when an exception is not
-                # pickleable. This raises SystemExit as we can't preserve the
-                # exception type, so any exception handler in the function
-                # user will not work (or will wrongly handle the exception
-                # if we change the type)
+            result = f(*args, **kwargs)
+            if is_picklable(result):
+                result_queue.put(result)
+            else:
                 exception_queue.put(
                     SystemExit(
-                        "".join(
-                            [
-                                "Function failed but the timeout decorator is "
-                                "unable to propagate this un-picklable "
-                                "exception:\n"
-                            ]
-                            + traceback.format_exception(type(e), e, None)
-                        )
+                        "Function tried to return non-picklable value "
+                        "but this is not supported by the timeout decorator"
+                        "Returned object:\n" + repr(result)
                     )
                 )
+            result_queue.close()
+            exception_queue.close()
+            return
+        except BaseException as e:
+            error = e
 
-    process = Process(target=_f, args=args, kwargs=kwargs, daemon=True)
+        if is_picklable(error):
+            exception_queue.put(error)
+            result_queue.close()
+            exception_queue.close()
+            return
+        # raised by pickle.dumps in put when an exception is not
+        # pickleable. This raises SystemExit as we can't preserve the
+        # exception type, so any exception handler in the function
+        # user will not work (or will wrongly handle the exception
+        # if we change the type)
+        exception_queue.put(
+            SystemExit(
+                "".join(
+                    [
+                        "Function failed but the timeout decorator is "
+                        "unable to propagate this un-picklable "
+                        "exception:\n"
+                    ]
+                    + traceback.format_exception(type(error), error, None)
+                )
+            )
+        )
+        result_queue.close()
+        exception_queue.close()
+
+    process = Process(target=_f, args=args, kwargs=kwargs)
     process.start()
     process.join(timeout_s)
 
     if process.is_alive():
-        subprocess.run("kill -9 -- -{}".format(process.pid), shell=True)
+        # this kills the whole process tree, not just the child
+        subprocess.run("kill -9 -{}".format(process.pid), shell=True)
         raise TimeoutError("Task unable to finish in {}s".format(timeout_s))
-    if not exception_queue.empty():
-        raise exception_queue.get()
-    return result_queue.get()
+
+    with suppress(Empty):
+        return result_queue.get_nowait()
+    with suppress(Empty):
+        raise exception_queue.get_nowait()
+
+    # unpicklig is done in a separate thread, could it be un-scheduled yet?
+    with suppress(Empty):
+        return result_queue.get(timeout=0.1)
+    with suppress(Empty):
+        raise exception_queue.get(timeout=0.1)
+
+    # this should never happen, lets crash the program if it does
+    raise SystemExit(
+        "Function failed to propagate either a value or an exception\n"
+        "It is unclear why this happened or what the underlying function "
+        "did."
+    )
 
 
 def timeout(timeout_s):

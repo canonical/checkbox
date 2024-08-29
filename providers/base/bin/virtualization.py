@@ -823,7 +823,7 @@ class LXDTest:
         gpg_dest = f"/usr/share/keyrings/{name}.gpg"
         cmds = [
             "set -e",
-            f'wget -O {name}.gpg "{gpg_url}"',
+            f"wget -O {name}.gpg '{gpg_url}'",
             f"gpg --no-default-keyring --keyring ./tmp.gpg --import {name}.gpg",
             f"gpg --no-default-keyring --keyring ./tmp.gpg --fingerprint {gpg_fingerprint}",
             f"gpg --yes --no-default-keyring --keyring ./tmp.gpg --export --output {gpg_dest}",
@@ -856,7 +856,7 @@ class LXDTest:
             return False
 
         logging.debug("Updating APT cache")
-        if not self.run_command("apt-get update", on_guest=True):
+        if not self.run_command("apt-get -q update", on_guest=True):
             logging.error("Failed to update APT cache")
             return False
 
@@ -881,7 +881,7 @@ class LXDTest:
                 return False
 
             logging.debug("Installing CUDA toolkit on instance")
-            cmd = "apt-get install -y --no-install-recommends git make cmake cuda-toolkit"
+            cmd = "apt-get -q install -y --no-install-recommends git make cmake cuda-toolkit"
             if not self.run_command(cmd, on_guest=True):
                 logging.error("CUDA toolkit installation failed")
                 return False
@@ -919,7 +919,7 @@ class LXDTest:
                 return False
 
             logging.debug("Installing ROCm on instance")
-            if not self.run_command("apt-get install rocm", on_guest=True):
+            if not self.run_command("apt-get -q install rocm", on_guest=True):
                 logging.error("ROCm installation failed")
                 return False
         else:
@@ -1023,7 +1023,7 @@ class LXDTest:
         logging.debug("Wait for network to be up")
         max_retries = 5
         for _ in range(max_retries):
-            if self.run_command("ping -qc 1 developer.download.nvidia.com", on_guest=True):
+            if self.run_command("ping -qc 1 www.ubuntu.com", on_guest=True):
                 break
             logging.error("Network not up on instance, waiting and retrying")
             time.sleep(2)
@@ -1137,7 +1137,7 @@ class LXDTest_vm(LXDTest):
     @override
     def configure_gpu_device(self, gpu_vendor: str, gpu_pci: Optional[str] = None):
         if gpu_vendor == "nvidia":
-            cmd = "apt-get install ubuntu-drivers-common"
+            cmd = "apt-get -q install ubuntu-drivers-common"
             if not self.run_command(cmd, on_guest=True):
                 return False
 

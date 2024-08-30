@@ -1037,11 +1037,12 @@ class LXDTest:
 
         logging.debug("Wait for network to be up")
         max_retries = 5
+        wait_interval_sec = 5
         for _ in range(max_retries):
             if self.run_command("ping -qc 1 www.ubuntu.com", on_guest=True):
                 break
             logging.error("Network not up on instance, waiting and retrying")
-            time.sleep(2)
+            time.sleep(wait_interval_sec)
         else:
             logging.error("Network did not start on instance")
             return False
@@ -1057,11 +1058,12 @@ class LXDTest:
 
         logging.debug("Wait for network to be up")
         max_retries = 5
+        wait_interval_sec = 5
         for _ in range(max_retries):
             if self.run_command("ping -qc 1 www.ubuntu.com", on_guest=True):
                 break
             logging.error("Network not up on instance, waiting and retrying")
-            time.sleep(2)
+            time.sleep(wait_interval_sec)
         else:
             logging.error("Network did not start on instance")
             return False
@@ -1128,9 +1130,9 @@ class LXDTest_vm(LXDTest):
             logging.debug(
                 "No local image available, attempting to import from default remote."
             )
-            cmd = f"lxc init {self.default_remote}{self.os_version} {self.name} --vm"
+            cmd = f"lxc init {self.default_remote}{self.os_version} {self.name} --vm -d root,size=15GB"
         else:
-            cmd = f"lxc init {self.image_alias} {self.name} --vm"
+            cmd = f"lxc init {self.image_alias} {self.name} --vm -d root,size=15GB"
         if not self.run_command(cmd):
             return False
 

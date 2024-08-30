@@ -61,7 +61,7 @@ def verify_slot_interface(name, interface):
     exit(1)
 
 
-def varify_plug_interface(name, interface):
+def verify_plug_interface(name, interface):
     logging.info(
         "[Expected Plug Interface] name: %s, type: %s", name, interface
     )

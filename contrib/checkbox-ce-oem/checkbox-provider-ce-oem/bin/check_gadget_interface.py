@@ -95,7 +95,7 @@ def main():
         # AI: to verify the slot attrs
         varify_slot_interface(args.name, args.interface)
     elif args.type == "plug":
-        varify_plug_interface(args.name, args.interface)
+        verify_plug_interface(args.name, args.interface)
     else:
         raise ValueError("Unsupported action")
 

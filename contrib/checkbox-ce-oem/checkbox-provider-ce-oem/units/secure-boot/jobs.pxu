@@ -1,5 +1,5 @@
 plugin: manual
-category_id: secure-boot
+category_id: com.canonical.certification::security
 id: ce-oem-secure-boot/uefi-secure-boot-unsigned-kernel
 estimated_duration: 120.0
 imports:

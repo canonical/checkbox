@@ -897,7 +897,7 @@ class LXDTest:
 
             logging.debug("Finding CUDA capability for GPU")
             cuda_arch = "native"
-            cmd = f"lxc exec {self.name} -- nvida-smi --query-gpu=compute_cap --format=csv,noheader"
+            cmd = f"lxc exec {self.name} -- nvidia-smi --query-gpu=compute_cap --format=csv,noheader"
             proc = subprocess.run(
                 shlex.split(cmd), check=False, capture_output=True, text=True
             )

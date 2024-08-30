@@ -17,10 +17,11 @@ def get_crash_logs() -> T.List[str]:
     crash_files_of_this_boot = []
 
     for crash_file in os.listdir("/var/crash"):
+        print(crash_file)
         file_stats = os.stat("/var/crash/{}".format(crash_file))
         last_modified_time = max(
             file_stats.st_atime, file_stats.st_mtime, file_stats.st_ctime
-        ) # whichever timestamp is the latest
+        )  # whichever timestamp is the latest
 
         if datetime.fromtimestamp(last_modified_time) >= boot_time:
             crash_files_of_this_boot.append(crash_file)

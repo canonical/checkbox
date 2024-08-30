@@ -678,7 +678,7 @@ class LXDTest:
     def init_lxd(self):
         """Initializes LXD."""
         logging.debug("Attempting to initialize LXD")
-        if self.run_command("lxd waitready --timeout 5"):
+        if self.run_command("lxd waitready --timeout 5", log_stderr=False):
             logging.debug("LXD already initialized")
             return True
 
@@ -1165,11 +1165,13 @@ class LXDTest_vm(LXDTest):
         self, gpu_vendor: str, gpu_pci: Optional[str] = None
     ):
         if gpu_vendor == "nvidia":
+            logging.debug("Installing ubuntu-drivers tool")
             cmd = "apt-get -q install -y ubuntu-drivers-common"
             if not self.run_command(cmd, on_guest=True):
                 return False
 
-            cmd = "ubuntu-drivers install"
+            logging.debug("Installing NVIDIA drivers on VM")
+            cmd = "ubuntu-drivers install --gpgpu"
             if not self.run_command(cmd, on_guest=True):
                 return False
         return True

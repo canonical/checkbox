@@ -24,7 +24,6 @@ id: snap_interface_resource
 _summary: Generates a list of slot that defined in the gadget snap
 _description:
     Generates a slot list that is defined in GADGET_INTERFACE_FILE variable.
-    Usage
 estimated_duration: 0.02
 imports:
   from com.canonical.certification import lsb

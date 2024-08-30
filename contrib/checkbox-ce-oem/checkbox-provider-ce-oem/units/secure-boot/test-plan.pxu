@@ -1,0 +1,15 @@
+id: ce-oem-secure-boot-full
+unit: test plan
+_name: Secure Boot test
+_description: Secure Boot tests for devices
+include:
+nested_part:
+    ce-oem-secure-boot-manual
+
+id: ce-oem-secure-boot-manual
+unit: test plan
+_name: Secure Boot manual Tests (Manual)
+_description: Secure Boot manual Tests (Manual)
+bootstrap_include:
+include:
+    ce-oem-secure-boot/uefi-secure-boot-unsigned-kernel

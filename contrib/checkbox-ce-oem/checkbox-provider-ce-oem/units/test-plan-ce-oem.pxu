@@ -45,6 +45,7 @@ nested_part:
     com.canonical.certification::led-indicator-manual
     ce-oem-iio-sensors-manual
     ce-oem-digital-io-manual
+    ce-oem-secure-boot-manual
 
 id: ce-oem-automated
 unit: test plan

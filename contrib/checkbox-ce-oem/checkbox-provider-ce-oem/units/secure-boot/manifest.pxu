@@ -1,0 +1,5 @@
+unit: manifest entry
+id: has_uefi_secure_boot_support
+_prompt: Does this machine have the following secure boot features?
+_name: UEFI Secure Boot Support
+value-type: bool

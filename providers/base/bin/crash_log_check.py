@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 from datetime import datetime
 import os
 from subprocess import run, PIPE

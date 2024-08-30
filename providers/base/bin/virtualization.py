@@ -1181,7 +1181,7 @@ class LXDTest_vm(LXDTest):
                 return False
 
             logging.debug("Installing NVIDIA drivers on VM")
-            cmd = "ubuntu-drivers install --gpgpu"
+            cmd = "ubuntu-drivers install"
             if not self.run_command(cmd, on_guest=True):
                 return False
         return True

@@ -36,7 +36,7 @@ def filter_gadget_interface(type):
     return system_snap_interfaces
 
 
-def varify_slot_interface(name, interface):
+def verify_slot_interface(name, interface):
     logging.info(
         "[Expected Slot Interface] name: %s, type: %s", name, interface
     )

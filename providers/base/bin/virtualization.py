@@ -875,6 +875,11 @@ class LXDTest:
         """Fetches and builds the vGPU test on the instance."""
         test_name = ""
         cmake_cmd = "cmake ../mixbench-{test_name}"
+
+        # Depending on the GPU vendor:
+        #   * Install dependencies
+        #   * Set the mixbench test name
+        #   * (If needed) Add env vars or parameters to cmake command
         if gpu_vendor == "nvidia":
             logging.debug("Adding NVIDIA CUDA repository to instance")
             osrelease = f"ubuntu{self.os_version.replace('.', '')}"
@@ -1101,8 +1106,9 @@ class LXDTest_vm(LXDTest):
     """This class represents a LXD VM instance test."""
 
     @override
-    def __init__(self, template=None, image=None):
+    def __init__(self, template=None, image=None, launch_options=None):
         super().__init__(template, image)
+        self.launch_options = launch_options
 
     @override
     def insert_images(self):
@@ -1130,9 +1136,11 @@ class LXDTest_vm(LXDTest):
             logging.debug(
                 "No local image available, attempting to import from default remote."
             )
-            cmd = f"lxc init {self.default_remote}{self.os_version} {self.name} --vm -d root,size=15GB"
+            cmd = f"lxc init {self.default_remote}{self.os_version} {self.name} --vm"
         else:
-            cmd = f"lxc init {self.image_alias} {self.name} --vm -d root,size=15GB"
+            cmd = f"lxc init {self.image_alias} {self.name} --vm"
+        if self.launch_options:
+            cmd = f"{cmd} {' '.join(self.launch_options)}"
         if not self.run_command(cmd):
             return False
 
@@ -1244,7 +1252,11 @@ def test_lxd_vm_vgpu(args):
         args.threshold or os.getenv("LXD_VGPU_THRESHOLD") or VGPU_THRESHOLD_SEC
     )
 
-    lxd_test = LXDTest_vm(template, image)
+    lxd_test = LXDTest_vm(
+        template,
+        image,
+        launch_options=["-d root,size=25GB", "-c security.secureboot=false"],
+    )
     result = lxd_test.test_vgpu(
         args.gpu_vendor, args.gpu_pci, run_count, threshold_sec
     )

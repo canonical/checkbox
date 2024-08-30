@@ -93,7 +93,7 @@ def main():
 
     if args.type == "slot":
         # AI: to verify the slot attrs
-        varify_slot_interface(args.name, args.interface)
+        verify_slot_interface(args.name, args.interface)
     elif args.type == "plug":
         verify_plug_interface(args.name, args.interface)
     else:

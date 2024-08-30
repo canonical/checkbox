@@ -7,6 +7,8 @@ include:
 nested_part:
   client-cert-iot-ubuntucore-24-manual
   client-cert-iot-ubuntucore-24-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-ubuntucore-24-manual
@@ -86,6 +88,8 @@ nested_part:
 exclude:
   bluetooth4/HOGP-mouse
   after-suspend-bluetooth4/HOGP-mouse
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-ubuntucore-24-automated
@@ -165,6 +169,8 @@ nested_part:
   after-suspend-usb-automated
   after-suspend-wireless-automated
   after-suspend-wwan-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-ubuntucore-24-stress
@@ -175,3 +181,5 @@ _description:
 include:
 nested_part:
   stress-full
+certification_status_overrides:
+  apply blocker to .*

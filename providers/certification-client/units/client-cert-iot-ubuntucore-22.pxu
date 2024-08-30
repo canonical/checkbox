@@ -7,6 +7,8 @@ include:
 nested_part:
   client-cert-iot-ubuntucore-22-manual
   client-cert-iot-ubuntucore-22-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-ubuntucore-22-manual
@@ -77,6 +79,8 @@ nested_part:
   after-suspend-wireless-manual
   after-suspend-wireless-wifi-master-mode-manual
   after-suspend-wwan-manual
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-ubuntucore-22-automated
@@ -148,6 +152,8 @@ nested_part:
   after-suspend-usb-automated
   after-suspend-wireless-automated
   after-suspend-wwan-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-ubuntucore-22-stress
@@ -158,3 +164,5 @@ _description:
 include:
 nested_part:
   stress-full
+certification_status_overrides:
+  apply blocker to .*

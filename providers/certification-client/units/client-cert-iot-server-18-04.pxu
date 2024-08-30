@@ -7,6 +7,8 @@ include:
 nested_part:
   client-cert-iot-server-18-04-manual
   client-cert-iot-server-18-04-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-server-18-04-manual
@@ -18,6 +20,8 @@ include:
 nested_part:
   # until there is reason to diverge, nest these plans
   client-cert-iot-ubuntucore-18-manual
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-server-18-04-automated
@@ -30,6 +34,8 @@ nested_part:
   # until there is reason to diverge, nest these plans
   client-cert-iot-ubuntucore-18-automated
   ## snappy-snap-automated-lightweight ??
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-server-18-04-stress
@@ -40,3 +46,5 @@ _description:
 include:
 nested_part:
   stress-full
+certification_status_overrides:
+  apply blocker to .*

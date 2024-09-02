@@ -794,16 +794,14 @@ def get_network_ifaces():
             continue
         logging.debug("Retrieve the network attribute for %s interface", iface)
         network_if = Interface(iface)
-        network_info.update(
-            {
-                iface.name: {
-                    "status": network_if.status,
-                    "phys_switch_id": network_if.phys_switch_id,
-                    "iflink": network_if.iflink,
-                    "ifindex": network_if.ifindex,
-                }
-            }
-        )
+        network_info[iface.name] = {
+                "status": network_if.status,
+                "phys_switch_id": network_if.phys_switch_id,
+                "iflink": network_if.iflink,
+                "ifindex": network_if.ifindex,
+        }
+        
+        
     return network_info
 
 

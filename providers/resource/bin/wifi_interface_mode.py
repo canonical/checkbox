@@ -1,21 +1,11 @@
 #!/usr/bin/env python3
-import subprocess
+from subprocess import check_output
 import re
-from typing import List, Tuple
-
-
-def run_command(command: List[str]) -> str:
-    try:
-        result = subprocess.run(
-            command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        return result.stdout.decode("utf-8")
-    except Exception as e:
-        raise SystemError("An unexpected error occurred: {}".format(e))
+from typing import List, Tuple, Dict
 
 
 def get_interfaces() -> List[Tuple[str, str]]:
-    output = run_command(["iw", "dev"])
+    output = check_output(["iw", "dev"], universal_newlines=True)
     device_pattern = r"phy#(\d+).*?Interface (\S+)"
     if output:
         matches = re.findall(device_pattern, output, re.DOTALL)
@@ -26,7 +16,7 @@ def get_interfaces() -> List[Tuple[str, str]]:
     raise SystemExit(0)
 
 
-def get_wiphy_info():
+def get_wiphy_info() -> Dict[int, List[str]]:
     # We can not use command "iw phy0 info" to get the infomation of sepcific
     # interface.
     # Because of "phy0" in command could be other pattern like "mwiphy0".
@@ -52,17 +42,19 @@ def get_wiphy_info():
         # remove first element because it is spaces before the first *
         _ = next(supported_modes)
         wiphy_info[interface_id] = list(supported_modes)
+    return wiphy_info
 
 
 def print_supported_modes() -> str:
     interfaces = get_interfaces()
     wiphy_info = get_wiphy_info()
     for wiphy_index, modes in wiphy_info.items():
-        interface = interfaces[wiphy_index]
+        interface = interfaces[int(wiphy_index)][1]
+        print("interface: {}".format(interface))
         for mode in modes:
             print(
-                "{}_{}: supported".format(
-                    interface, mode.replace("-", "_").replace("/", "_")
+                "{}: supported".format(
+                    mode.replace("-", "_").replace("/", "_")
                 )
             )
         print()

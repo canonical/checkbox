@@ -34,8 +34,11 @@ import struct
 import subprocess
 import tempfile
 import threading
-from subprocess import CalledProcessError, check_call, check_output, STDOUT
-from contextlib import contextmanager
+from subprocess import (
+    CalledProcessError, check_call, check_output, STDOUT, DEVNULL
+)
+from subprocess import run as sp_run
+from contextlib import contextmanager, suppress
 from pathlib import Path
 import sys
 import time
@@ -203,7 +206,7 @@ class IPerfPerformanceTest(object):
         """Extract a list of CPU cores from a line of the form:
         NUMA node# CPU(s):    a-b[,c-d[,...]]"""
         colon = line.find(":")
-        cpu_list = line[colon + 1 :]
+        cpu_list = line[colon + 1:]
         core_list = []
         for core_range in cpu_list.split(","):
             # core_range should be of the form "a-b" or "a"
@@ -627,12 +630,11 @@ def can_ping(the_interface, test_target):
         working_interface = True
 
         try:
-            with open(os.devnull, "wb") as DEVNULL:
-                check_call(
-                    ["ping", "-I", the_interface, "-c", "1", test_target],
-                    stdout=DEVNULL,
-                    stderr=DEVNULL,
-                )
+            sp_run(
+                ["ping", "-I", the_interface, "-c", "1", test_target],
+                stdout=DEVNULL,
+                stderr=DEVNULL,
+            )
         except CalledProcessError:
             working_interface = False
 
@@ -800,8 +802,7 @@ def get_network_ifaces():
                 "iflink": network_if.iflink,
                 "ifindex": network_if.ifindex,
         }
-        
-        
+
     return network_info
 
 
@@ -951,19 +952,17 @@ def interface_test_initialize(
 
         # Restore routing table to original state
         logging.debug("Restore routing table")
-        try:
+        with suppress(CalledProcessError):
             # Harmless "RTNETLINK answers: File exists" messages on stderr
-            with open(os.devnull, "wb") as DEVNULL:
-                check_call(
-                    ["ip", "route", "restore"],
-                    stdin=tempfile_route,
-                    stderr=DEVNULL,
-                )
-        except CalledProcessError:
+
             # This always errors out -- but it works!
             # The problem is virbr0, which has the "linkdown" flag, which the
             # "ip route restore" command can't handle.
-            pass
+            sp_run(
+                ["ip", "route", "restore"],
+                stdin=tempfile_route,
+                stderr=DEVNULL,
+            )
 
         if not recover_success:
             raise CalledProcessError(3, "restore network failed")

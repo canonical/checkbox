@@ -10,7 +10,7 @@ from checkbox_support.snap_utils.system import get_gadget_snap
 
 DEFAULT_SCHEMA = os.path.join(
     os.environ.get("PLAINBOX_PROVIDER_DATA", ""),
-    "gadget_interface_schema.json"
+    "gadget_interface_schema.json",
 )
 
 

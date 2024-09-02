@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, call
 from wifi_interface_mode import (
-    run_command,
     get_interfaces,
     get_wiphy_info,
     print_supported_modes,
@@ -12,28 +11,9 @@ from wifi_interface_mode import (
 
 
 class TestWiFiFunctions(unittest.TestCase):
-    @patch("subprocess.run")
-    def test_run_command_success(self, mock_run):
-        mock_run.return_value = MagicMock(
-            stdout=b"output", stderr=b"", returncode=0
-        )
-        result = run_command(["echo", "hello"])
-        self.assertEqual(result, "output")
-
-    @patch("subprocess.run")
-    def test_run_command_failure(self, mock_run):
-        mock_run.side_effect = Exception("Command failed")
-        with self.assertRaises(SystemError) as context:
-            run_command(["echo", "hello"])
-
-        self.assertIn(
-            "An unexpected error occurred: Command failed",
-            str(context.exception),
-        )
-
-    @patch("wifi_interface_mode.run_command")
-    def test_get_interfaces(self, mock_run_command):
-        mock_run_command.return_value = """
+    @patch("wifi_interface_mode.check_output")
+    def test_get_interfaces(self, mock_check_output):
+        mock_check_output.return_value = """
         phy#0
             Interface wlan0
         phy#1
@@ -43,52 +23,46 @@ class TestWiFiFunctions(unittest.TestCase):
         result = get_interfaces()
         self.assertEqual(result, expected)
 
-    @patch("wifi_interface_mode.run_command")
-    def test_get_interfaces_no_wifi_interface(self, mock_run_command):
-        mock_run_command.return_value = ""
+    @patch("wifi_interface_mode.check_output")
+    def test_get_interfaces_no_wifi_interface(self, mock_check_output):
+        mock_check_output.return_value = ""
 
         with self.assertRaises(SystemExit) as cm:
             get_interfaces()
 
         self.assertEqual(cm.exception.code, 0)
 
-    @patch("wifi_interface_mode.run_command")
-    def test_get_wiphy_info_with_one_phy(self, mock_run_command):
-        mock_run_command.return_value = """Wiphy phy0
+    @patch("wifi_interface_mode.check_output")
+    def test_get_wiphy_info_with_one_phy(self, mock_check_output):
+        mock_check_output.return_value = """Wiphy phy0
         Supported interface modes:
         * managed
         * AP/VLAN
         * monitor
         """
-        expected = [
-            (
-                "0",
-                ["managed", "AP/VLAN", "monitor"],
-            ),
-        ]
+        expected = {
+            "0": ["managed", "AP/VLAN", "monitor"],
+        }
         result = get_wiphy_info()
         self.assertEqual(result, expected)
 
-    @patch("wifi_interface_mode.run_command")
-    def test_get_wiphy_info_with_phy_start_with_mwi(self, mock_run_command):
-        mock_run_command.return_value = """Wiphy mwiphy0
+    @patch("wifi_interface_mode.check_output")
+    def test_get_wiphy_info_with_phy_start_with_mwi(self, mock_check_output):
+        mock_check_output.return_value = """Wiphy mwiphy0
         Supported interface modes:
         * managed
         * AP/VLAN
         * monitor
         """
-        expected = [
-            (
-                "0",
-                ["managed", "AP/VLAN", "monitor"],
-            ),
-        ]
+        expected = {
+            "0": ["managed", "AP/VLAN", "monitor"],
+        }
         result = get_wiphy_info()
         self.assertEqual(result, expected)
 
-    @patch("wifi_interface_mode.run_command")
-    def test_get_wiphy_info_with_two_phy(self, mock_run_command):
-        mock_run_command.return_value = """Wiphy phy0
+    @patch("wifi_interface_mode.check_output")
+    def test_get_wiphy_info_with_two_phy(self, mock_check_output):
+        mock_check_output.return_value = """Wiphy phy0
         Supported interface modes:
         * managed
         * AP/VLAN
@@ -99,16 +73,10 @@ class TestWiFiFunctions(unittest.TestCase):
         * AP/VLAN
         * P2P-client
         """
-        expected = [
-            (
-                "0",
-                ["managed", "AP/VLAN", "monitor"],
-            ),
-            (
-                "1",
-                ["managed", "AP/VLAN", "P2P-client"],
-            ),
-        ]
+        expected = {
+            "0": ["managed", "AP/VLAN", "monitor"],
+            "1": ["managed", "AP/VLAN", "P2P-client"],
+        }
         result = get_wiphy_info()
         self.assertEqual(result, expected)
 
@@ -119,21 +87,26 @@ class TestWiFiFunctions(unittest.TestCase):
     ):
         # Mock the return values
         mock_get_interfaces.return_value = [("0", "wlan0"), ("1", "wlan1")]
-        mock_get_wiphy_info.return_value = [
-            ("0", ["IBSS", "AP/VLAN"]),
-            ("1", ["AP", "P2P-client"]),
-        ]
+        mock_get_wiphy_info.return_value = {
+            "0": ["IBSS", "AP/VLAN"],
+            "1": ["AP", "P2P-client"],
+        }
         # Mock print to capture output
         with patch("builtins.print") as mock_print:
             print_supported_modes()
-            expected_output = [
-                "wlan0_IBSS: supported",
-                "wlan0_AP/VLAN: supported",
-                "wlan1_AP: supported",
-                "wlan1_P2P-client: supported",
+
+            # Expected sequence of print calls
+            expected_calls = [
+                call("interface: wlan0"),
+                call("IBSS: supported"),
+                call("AP_VLAN: supported"),
+                call(),
+                call("interface: wlan1"),
+                call("AP: supported"),
+                call("P2P_client: supported"),
+                call(),
             ]
-            for output in expected_output:
-                mock_print.assert_any_call(output)
+            mock_print.assert_has_calls(expected_calls, any_order=True)
 
 
 if __name__ == "__main__":

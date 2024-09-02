@@ -33,7 +33,7 @@ category_id: com.canonical.certification::gadget
 plugin: resource
 environ: GADGET_INTERFACE_FILE
 command:
-    gadget_interface_utils.py --file $GADGET_INTERFACE_FILE --action dump
+    gadget_interface_utils.py --file "$GADGET_INTERFACE_FILE" --action dump
 
 unit: template
 template-resource: snap_interface_resource

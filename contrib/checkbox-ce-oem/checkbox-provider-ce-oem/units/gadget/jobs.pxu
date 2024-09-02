@@ -1,0 +1,77 @@
+id: ce-oem-gadget/check-snap-interface-conf
+category_id: com.canonical.certification::gadget
+plugin: shell
+user: root
+estimated_duration: 5
+environ: GADGET_INTERFACE_FILE
+imports:
+  from com.canonical.certification import lsb
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.has_snap_interface_been_defined_in_gadget == 'True'
+  lsb.distributor_id == 'Ubuntu Core'
+_summary: Check SNAP interface configuration been provided.
+_purpose: Check if gadget interface file been defined in GADGET_INTERFACE_FILE
+_description:
+    Create a snap interface file with JSON format.
+    Refer to gadget_interface_schema.json for the detail attributes.
+    Usage GADGET_INTERFACE_FILE=/home/user/gadget_interface.json
+command:
+    echo "Check gadget interface file been defined in GADGET_INTERFACE_FILE"
+    [ -f "$GADGET_INTERFACE_FILE" ] && echo "Available" || echo "Not Available"
+
+id: snap_interface_resource
+_summary: Generates a list of slot that defined in the gadget snap
+_description:
+    Generates a slot list that is defined in GADGET_INTERFACE_FILE variable.
+estimated_duration: 0.02
+imports:
+  from com.canonical.certification import lsb
+requires:
+  lsb.distributor_id == 'Ubuntu Core'
+category_id: com.canonical.certification::gadget
+plugin: resource
+environ: GADGET_INTERFACE_FILE
+command:
+    gadget_interface_utils.py --file $GADGET_INTERFACE_FILE --action dump
+
+unit: template
+template-resource: snap_interface_resource
+template-unit: job
+template-id: ce-oem-gadget/check-gadget-slot-interface
+template-filter: snap_interface_resource.type == 'slot'
+id: ce-oem-gadget/check-slot-{name}
+_summary: To test {name} slot interface been exported on system
+plugin: shell
+user: root
+imports:
+  from com.canonical.certification import lsb
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.has_interface_been_defined == 'True'
+  lsb.distributor_id == 'Ubuntu Core'
+category_id: com.canonical.certification::gadget
+estimated_duration: 5s
+flags: also-after-suspend
+command:
+  check_gadget_interface.py --type {type} --name {name} --interface {interface} # --attrs "{attrs}"
+
+unit: template
+template-resource: snap_interface_resource
+template-unit: job
+template-id: ce-oem-gadget/check-gadget-plug-interface
+template-filter: snap_interface_resource.type == 'plug'
+id: ce-oem-gadget/check-plug-{name}
+_summary: To test {name} plug interface been exported on system
+plugin: shell
+user: root
+imports:
+  from com.canonical.certification import lsb
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.has_interface_been_defined == 'True'
+  lsb.distributor_id == 'Ubuntu Core'
+category_id: com.canonical.certification::gadget
+estimated_duration: 5s
+flags: also-after-suspend
+command: check_gadget_interface.py --type {type} --name {name} --interface {interface}

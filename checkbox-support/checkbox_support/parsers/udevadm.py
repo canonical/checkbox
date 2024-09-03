@@ -445,6 +445,8 @@ class UdevadmDevice(object):
                     if test_bit(Input.BTN_MOUSE, bitmask, self._bits):
                         return "KVM"
         if "ID_INPUT_MOUSE" in self._environment:
+            if "ID_INPUT_POINTINGSTICK" in self._environment:
+                return "TOUCHPAD"
             return "MOUSE"
 
         if self.driver:

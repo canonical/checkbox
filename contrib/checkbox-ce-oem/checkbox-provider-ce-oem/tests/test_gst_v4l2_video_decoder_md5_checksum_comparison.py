@@ -264,8 +264,9 @@ class TestValidateVideoDecoderMD5Checksum(unittest.TestCase):
             (),
             {
                 "golden_sample_path": "golden_sample.mp4",
-                "golden_sample_md5_checksum_path":
-                    "non_exist_golden_sample.md5",
+                "golden_sample_md5_checksum_path": (
+                    "non_exist_golden_sample.md5"
+                ),
                 "decoder_plugin": "fake_decoder",
                 "color_space": "NN",
             },

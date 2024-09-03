@@ -35,6 +35,13 @@ from multiprocessing import Process, Queue
 
 
 def is_picklable(value):
+    """
+    This function checks if an object is picklable. This is used here because
+    to propagate a value via a multiprocessing queue, it has to be picklable.
+    If it is not, when using normal Queues (not SimpleQueues), pushing the
+    value in the queue will crash the encoder Thread that the Queue contains,
+    silently failing the operation.
+    """
     with suppress(pickle.PicklingError), suppress(AttributeError):
         _ = pickle.dumps(value)
         return True

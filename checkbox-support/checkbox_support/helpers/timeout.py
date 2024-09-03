@@ -62,7 +62,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
                 exception_queue.put(
                     SystemExit(
                         "Function tried to return non-picklable value "
-                        "but this is not supported by the timeout decorator"
+                        "but this is not supported by the timeout decorator.\n"
                         "Returned object:\n" + repr(result)
                     )
                 )
@@ -111,7 +111,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
     with suppress(Empty):
         raise exception_queue.get_nowait()
 
-    # unpicklig is done in a separate thread, could it be un-scheduled yet?
+    # unpickling is done in a separate thread, could it be un-scheduled yet?
     with suppress(Empty):
         return result_queue.get(timeout=0.1)
     with suppress(Empty):
@@ -119,7 +119,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
 
     # this should never happen, lets crash the program if it does
     raise SystemExit(
-        "Function failed to propagate either a value or an exception\n"
+        "Function failed to propagate either a value or an exception.\n"
         "It is unclear why this happened or what the underlying function "
         "did."
     )

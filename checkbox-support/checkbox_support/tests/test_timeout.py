@@ -162,7 +162,7 @@ class TestTimeoutExec(TestCase):
         (function under test) but also any sub-process it has spawned. This
         is done because one could `subprocess.run` a long-lived process from
         the function and it could cause mayhem (and block the test session as
-        Checkbox waits for all childs to be done)
+        Checkbox waits for all children to be done)
         """
 
         def inner(pid_pipe):

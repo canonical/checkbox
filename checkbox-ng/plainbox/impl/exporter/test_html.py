@@ -162,23 +162,12 @@ class HTMLExporterTests(TestCase):
 
     def prepare_manager_without_certification_status(self):
         return self._get_session_manager(
-            "unspecified", "unspecified", "unspecified"
+            "non-blocker", "non-blocker", "non-blocker"
         )
 
     def prepare_manager_with_certification_blocker(self):
         return self._get_session_manager(
-            "blocker", "unspecified", "unspecified"
-        )
-
-    def prepare_manager_with_certification_non_blocker(self):
-        return self._get_session_manager(
-            "non-blocker", "unspecified", "unspecified"
-        )
-
-    def prepare_manager_with_both_certification_status(self):
-        self.session_state.update_job_result(self.job2, self.result_fail)
-        return self._get_session_manager(
-            "blocker", "non-blocker", "unspecified"
+            "blocker", "non-blocker", "non-blocker"
         )
 
     def test_perfect_match_without_certification_status(self):
@@ -224,51 +213,5 @@ class HTMLExporterTests(TestCase):
         expected_result = resource_string(
             "plainbox",
             "test-data/html-exporter/with_certification_blocker.html",
-        )  # unintuitively, resource_string returns bytes
-        self.assertEqual(actual_result, expected_result)
-
-    def test_perfect_match_with_certification_non_blocker(self):
-        """
-        Test that output from the exporter exactly matches known
-        good HTML output, inlining and everything included.
-        """
-        exporter = Jinja2SessionStateExporter(
-            system_id="",
-            timestamp="2012-12-21T12:00:00",
-            client_version="Checkbox 1.0",
-            exporter_unit=self.exporter_unit,
-        )
-        stream = io.BytesIO()
-        exporter.dump_from_session_manager(
-            self.prepare_manager_with_certification_non_blocker(), stream
-        )
-        actual_result = stream.getvalue()  # This is bytes
-        self.assertIsInstance(actual_result, bytes)
-        expected_result = resource_string(
-            "plainbox",
-            "test-data/html-exporter/with_certification_non_blocker.html",
-        )  # unintuitively, resource_string returns bytes
-        self.assertEqual(actual_result, expected_result)
-
-    def test_perfect_match_with_both_certification_status(self):
-        """
-        Test that output from the exporter exactly matches known
-        good HTML output, inlining and everything included.
-        """
-        exporter = Jinja2SessionStateExporter(
-            system_id="",
-            timestamp="2012-12-21T12:00:00",
-            client_version="Checkbox 1.0",
-            exporter_unit=self.exporter_unit,
-        )
-        stream = io.BytesIO()
-        exporter.dump_from_session_manager(
-            self.prepare_manager_with_both_certification_status(), stream
-        )
-        actual_result = stream.getvalue()  # This is bytes
-        self.assertIsInstance(actual_result, bytes)
-        expected_result = resource_string(
-            "plainbox",
-            "test-data/html-exporter/with_both_certification_status.html",
         )  # unintuitively, resource_string returns bytes
         self.assertEqual(actual_result, expected_result)

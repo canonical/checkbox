@@ -464,6 +464,11 @@ class UdevadmDevice(object):
                     return "DISK"
                 else:
                     return "CARDREADER"
+            if self.driver.startswith("sd"):
+                if find_pkname_is_root_mountpoint(self.name, self._lsblk):
+                    return "DISK"
+                else:
+                    return "CARDREADER"
             if self.driver == "rts_pstor":
                 return "CARDREADER"
             if self.driver == "smo8800":

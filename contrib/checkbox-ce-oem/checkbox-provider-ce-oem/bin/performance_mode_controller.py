@@ -39,7 +39,7 @@ def get_performance_ctx_function() -> Optional[Callable]:
 
     Environment Variables:
     -----------
-    PERFORMANCE_PYTHON_MODULE_PATH
+    performance_module_path
         The full path of a python module that you are interested in even it's
         not in PYTHONPATH
     PERFORMANCE_FUNCTION_NAME
@@ -63,10 +63,10 @@ def get_performance_ctx_function() -> Optional[Callable]:
     # in ce-oem provider.
     # It's the empty value by defaul, you have to define it as Checkbox's
     # configuraion.
-    PERFORMANCE_PYTHON_MODULE_PATH = os.environ.get(
+    performance_module_path = os.environ.get(
         "PERFORMANCE_PYTHON_MODULE_PATH", ""
     )
-    if PERFORMANCE_PYTHON_MODULE_PATH == "":
+    if performance_module_path == "":
         raise FileNotFoundError(
             (
                 "Fail to get a performance python module"
@@ -78,14 +78,14 @@ def get_performance_ctx_function() -> Optional[Callable]:
     # Get the name of context manager function which controls the performance
     # mode. Default name is performance_mode. You can assign the specific name
     # via environment variable
-    PERFORMANCE_FUNCTION_NAME = os.environ.get(
+    performance_function_name = os.environ.get(
         "PERFORMANCE_FUNCTION_NAME", "performance_mode"
     )
 
     return get_function_from_a_module(
-        module_name=os.path.basename(PERFORMANCE_PYTHON_MODULE_PATH),
-        module_path=PERFORMANCE_PYTHON_MODULE_PATH,
-        function_name=PERFORMANCE_FUNCTION_NAME,
+        module_name=os.path.basename(performance_module_path),
+        module_path=performance_module_path,
+        function_name=performance_function_name,
     )
 
 

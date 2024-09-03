@@ -73,8 +73,8 @@ category_id: com.canonical.plainbox::benchmarks
 id: benchmarks/network/wifi_time_to_reconnect
 requires: device.category == 'WIRELESS'
 command: wifi_time2reconnect.py
-_purpose: Check the time needed to reconnect to a WIFI access point
-_summary: Measure WIFI reconnection time.
+_purpose: Check the time needed to reconnect to a Wi-Fi access point
+_summary: Measure Wi-Fi reconnection time.
 
 plugin: shell
 category_id: com.canonical.plainbox::benchmarks
@@ -102,8 +102,8 @@ requires:
  cpuinfo.platform == 'x86_64'
 command: gputest_benchmark.py fur --width 1920 --height 1080 -f
 estimated_duration: 75.000
-_purpose: Run a stress test based on FurMark (OpenGL 2.1 or 3.2)in Fullscreen 1920x1080 no antialiasing
-_summary: Conduct a FurMark stress test in fullscreen 1920x1080 without antialiasing.
+_purpose: Run a stress test based on FurMark (OpenGL 2.1 or 3.2) in fullscreen 1920x1080 no anti-aliasing
+_summary: Conduct a FurMark stress test in fullscreen 1920x1080 without anti-aliasing.
 
 plugin: shell
 category_id: com.canonical.plainbox::benchmarks
@@ -113,8 +113,8 @@ requires:
  cpuinfo.platform == 'x86_64'
 command: gputest_benchmark.py fur
 estimated_duration: 75.000
-_purpose: Run a stress test based on FurMark (OpenGL 2.1 or 3.2) Windowed 1024x640 no antialiasing
-_summary: Conduct a FurMark-based OpenGL stress test at 1024x640 without antialiasing.
+_purpose: Run a stress test based on FurMark (OpenGL 2.1 or 3.2) windowed 1024x640 no anti-aliasing
+_summary: Conduct a FurMark-based OpenGL stress test at 1024x640 without anti-aliasing.
 
 plugin: shell
 category_id: com.canonical.plainbox::benchmarks
@@ -124,8 +124,8 @@ requires:
  cpuinfo.platform == 'x86_64'
 command: gputest_benchmark.py gi --width 1920 --height 1080 -f
 estimated_duration: 75.00
-_purpose: Run GiMark, a geometry instancing test (OpenGL 3.3) Fullscreen 1920x1080 no antialiasing
-_summary: Run GiMark OpenGL 3.3 benchmark at 1920x1080 fullscreen without antialiasing.
+_purpose: Run GiMark, a geometry instancing test (OpenGL 3.3) fullscreen 1920x1080 no anti-aliasing
+_summary: Run GiMark OpenGL 3.3 benchmark at 1920x1080 fullscreen without anti-aliasing.
 
 plugin: shell
 category_id: com.canonical.plainbox::benchmarks
@@ -136,8 +136,8 @@ requires:
 command: gputest_benchmark.py gi
 estimated_duration: 75.500
 _purpose:
- Run GiMark, a geometry instancing test (OpenGL 3.3) in a windowed 1024x640 resolution without antialiasing.
-_summary: Run GiMark OpenGL 3.3 geometry test at 1024x640 windowed without antialiasing.
+ Run GiMark, a geometry instancing test (OpenGL 3.3) in a windowed 1024x640 resolution without anti-aliasing.
+_summary: Run GiMark OpenGL 3.3 geometry test at 1024x640 windowed without anti-aliasing.
 
 plugin: shell
 category_id: com.canonical.plainbox::benchmarks
@@ -147,8 +147,8 @@ requires:
  cpuinfo.platform == 'x86_64'
 command: gputest_benchmark.py tess --width 1920 --height 1080 -f
 estimated_duration: 75.000
-_purpose: Run a tessellation test based on TessMark (OpenGL 4.0), fullscreen 1920x1080 with no antialiasing.
-_summary: Run TessMark tessellation test at 1920x1080 fullscreen without antialiasing.
+_purpose: Run a tessellation test based on TessMark (OpenGL 4.0), fullscreen 1920x1080 with no anti-aliasing.
+_summary: Run TessMark tessellation test at 1920x1080 fullscreen without anti-aliasing.
 
 plugin: shell
 category_id: com.canonical.plainbox::benchmarks
@@ -157,5 +157,5 @@ requires:
  package.name == 'gputest'
  cpuinfo.platform == 'x86_64'
 command: gputest_benchmark.py tess
-_purpose: Run a tessellation test based on TessMark (OpenGL 4.0) Windowed 1024x640 no antialiasing
-_summary: Run TessMark tessellation test at 1024x640 windowed without antialiasing.
+_purpose: Run a tessellation test based on TessMark (OpenGL 4.0) Windowed 1024x640 no anti-aliasing
+_summary: Run TessMark tessellation test at 1024x640 windowed without anti-aliasing.

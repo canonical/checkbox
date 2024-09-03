@@ -50,7 +50,7 @@ command:
      echo "BT hardware not available"
      exit 1
  fi
-_purpose: Automated test to store Bluetooth device information in checkbox report
+_purpose: Automated test to store Bluetooth device information in the Checkbox report
 _summary: Store Bluetooth device information for reports.
 
 plugin: manual

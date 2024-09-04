@@ -8,7 +8,14 @@ template-id: benchmarks/disk/hdparm-read_name
 flags: also-after-suspend
 estimated_duration: 15.0
 user: root
-command: hdparm -t /dev/{name}
+command: 
+ # Check if the disk size is smaller than the threshold (2MB)
+ disk_size=$(blockdev --getsize64 /dev/{name})
+ if [ "$disk_size" -gt 2097152 ]; then
+    hdparm -t /dev/{name}
+ else
+    echo "Disk size is smaller than the threshold (2MB), ignoring the test"
+ fi
 _summary: Raw read timing benchmark of {name} using hdparm
 _description: This test runs hdparm timing of device reads as a benchmark for {name}
 

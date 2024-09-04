@@ -1125,6 +1125,11 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(len(devices), 93)
         self.assertEqual(self.count(devices, "PARTITION"), 1)
 
+    def test_XILINX_KR260(self):
+        devices = self.parse("XILINX_KR260", with_partitions=True)
+        self.assertEqual(self.count(devices, "DISK"), 18)
+        self.assertEqual(self.count(devices, "CARDREADER"), 1)
+
     def test_two_dms_one_with_ubutnu_save(self):
         """
         This test checks that udevadm parser properly handles the case

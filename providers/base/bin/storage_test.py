@@ -146,6 +146,11 @@ def main():
     udev_name = sys.argv[1]
     print("Testing disk {}".format(udev_name))
 
+    # Ignore this test for devices with less than 2MB of memory
+    if memory() < 2:
+        print("This device has less than 2MB of memory, skipping test")
+        return
+
     # handle dev mapper and regular disks seperately
     if devmapper_name(udev_name):
         devmapper_test(udev_name)

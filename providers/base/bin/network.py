@@ -35,7 +35,11 @@ import subprocess
 import tempfile
 import threading
 from subprocess import (
-    CalledProcessError, check_call, check_output, STDOUT, DEVNULL
+    CalledProcessError,
+    check_call,
+    check_output,
+    STDOUT,
+    DEVNULL,
 )
 from subprocess import run as sp_run
 from contextlib import contextmanager, suppress
@@ -206,7 +210,7 @@ class IPerfPerformanceTest(object):
         """Extract a list of CPU cores from a line of the form:
         NUMA node# CPU(s):    a-b[,c-d[,...]]"""
         colon = line.find(":")
-        cpu_list = line[colon + 1:]
+        cpu_list = line[colon + 1 :]
         core_list = []
         for core_range in cpu_list.split(","):
             # core_range should be of the form "a-b" or "a"
@@ -797,10 +801,10 @@ def get_network_ifaces():
         logging.debug("Retrieve the network attribute for %s interface", iface)
         network_if = Interface(iface)
         network_info[iface.name] = {
-                "status": network_if.status,
-                "phys_switch_id": network_if.phys_switch_id,
-                "iflink": network_if.iflink,
-                "ifindex": network_if.ifindex,
+            "status": network_if.status,
+            "phys_switch_id": network_if.phys_switch_id,
+            "iflink": network_if.iflink,
+            "ifindex": network_if.ifindex,
         }
 
     return network_info

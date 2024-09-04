@@ -162,6 +162,7 @@ class StorageWatcher(StorageInterface):
                 read_test(random_file)
         print("\n------- Read/Write test passed -------")
 
+
 class USBStorage(StorageWatcher):
     """
     USBStorage handles the insertion and removal of usb2 and usb3.

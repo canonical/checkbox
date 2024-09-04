@@ -155,14 +155,16 @@ class TestRunWatcher(unittest.TestCase):
         mock_storage_watcher = MagicMock()
         mock_storage_watcher.run.return_value = "mounted_partition"
         StorageWatcher.run_insertion(mock_storage_watcher)
-        mock_storage_watcher.run.assert_called_once()
+        self.assertEqual(mock_storage_watcher.run.call_count, 1)
+        self.assertEqual(mock_storage_watcher.testcase, "insertion")
 
     @mock_timeout()
     def test_storage_watcher_run_removal(self):
         mock_storage_watcher = MagicMock()
         mock_storage_watcher.run.return_value = "mounted_partition"
         StorageWatcher.run_removal(mock_storage_watcher, "mounted_partition")
-        mock_storage_watcher.run.assert_called_once()
+        self.assertEqual(mock_storage_watcher.run.call_count, 1)
+        self.assertEqual(mock_storage_watcher.testcase, "removal")
 
     @patch(
         "checkbox_support.scripts.run_watcher.mount_usb_storage", MagicMock()

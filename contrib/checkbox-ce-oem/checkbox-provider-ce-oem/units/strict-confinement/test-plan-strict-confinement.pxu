@@ -1,6 +1,6 @@
 id: strict-confinement-full
 unit: test plan
-_name: Strict-confinement - Full manual + automated tests for Ubuntu Core in strict confinement environment
+_name: Full manual + automated tests for Ubuntu Core in strict confinement
 _description:
  Combined manual and automated test plans for Ubuntu Core in strict confinement environment.
 include:
@@ -12,7 +12,7 @@ nested_part:
 
 id: strict-confinement-manual
 unit: test plan
-_name: Strict-confinement - Manual only QA tests for Ubuntu Core in strict confinement environment
+_name: Manual only QA tests for Ubuntu Core in strict confinement
 _description:
  Ubuntu Core QA test plan for strict confinement environment.
  This test plan contains all of the tests that require manual
@@ -25,7 +25,7 @@ exclude:
 
 id: strict-confinement-automated
 unit: test plan
-_name: Strict-confinement - Automated only QA tests for Ubuntu Core in strict confinement environment
+_name: Automated only QA tests for Ubuntu Core in strict confinement
 _description:
  Ubuntu Core QA test plan for the strict confinement environment.
  This test plan contains all of the automated tests used to validate
@@ -40,7 +40,7 @@ exclude:
 
 id: after-suspend-strict-confinement-manual
 unit: test plan
-_name: Strict-confinement - After suspend Manual only QA tests for Ubuntu Core in strict confinement environment
+_name: After suspend Manual only QA tests for Ubuntu Core in strict confinement
 _description:
  Ubuntu Core QA test plan for strict confinement environment.
  This test plan contains all of the tests that require manual
@@ -53,7 +53,7 @@ exclude:
 
 id: after-suspend-strict-confinement-automated
 unit: test plan
-_name: Strict-confinement - After suspend Automated only QA tests for Ubuntu Core in strict confinement environment
+_name: After suspend Automated only QA tests for Ubuntu Core in strict confinement
 _description:
  Ubuntu Core QA test plan for the strict confinement environment.
  This test plan contains all of the automated tests used to validate

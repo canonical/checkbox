@@ -52,7 +52,7 @@ def test_spi_content_consistency(spi_path):
 
     # Construct the command to run the SPI test
     cmd = "spidev_test -D {} -p 'Canonical SPI Test' -v".format(spi_path)
-    print(f"Run command: {cmd}\n")
+    print("Run command: {}\n".format(cmd))
 
     # Run the command and capture the output
     spi_ret = runcmd(cmd)

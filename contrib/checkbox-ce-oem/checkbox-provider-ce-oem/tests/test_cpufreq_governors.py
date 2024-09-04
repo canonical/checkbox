@@ -992,7 +992,10 @@ class TestMainFunction(unittest.TestCase):
     def test_policy_resource_flag_enabled(self, mock_handler, mock_exit):
         with patch("sys.argv", ["program_name", "--policy-resource"]):
             main()
-            mock_handler.return_value.print_policies_list.assert_called_once_with()
+            # fmt: off
+            mock_handler.return_value.print_policies_list.\
+                assert_called_once_with()
+            # fmt: on
 
     @patch("sys.exit")
     @patch("cpufreq_governors.CPUScalingHandler")

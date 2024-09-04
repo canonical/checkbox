@@ -4,7 +4,7 @@ import unittest
 from datetime import timedelta, datetime
 import tcp_multi_connections
 from tcp_multi_connections import StatusEnum
-from unittest.mock import patch, Mock, MagicMock
+from unittest.mock import patch, Mock
 
 
 class TestTcpMulitConnections(unittest.TestCase):

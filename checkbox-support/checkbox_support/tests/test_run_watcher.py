@@ -49,6 +49,14 @@ class TestRunWatcher(unittest.TestCase):
 
         # Test insertion
         mock_storage_watcher.testcase = "insertion"
+        with patch("builtins.print") as mock_print:
+            StorageWatcher.run(mock_storage_watcher)
+            mock_print.assert_has_calls(
+                [
+                    call("\n\nINSERT NOW\n\n", flush=True),
+                    call("Timeout: 30 seconds", flush=True),
+                ]
+            )
         StorageWatcher.run(mock_storage_watcher)
         mock_storage_watcher._process_lines.assert_called_with(["line1"])
 
@@ -66,15 +74,24 @@ class TestRunWatcher(unittest.TestCase):
 
         # Test removal
         mock_storage_watcher.testcase = "removal"
-        StorageWatcher.run(mock_storage_watcher)
+        with patch("builtins.print") as mock_print:
+            StorageWatcher.run(mock_storage_watcher)
+            mock_print.assert_has_calls(
+                [
+                    call("\n\nREMOVE NOW\n\n", flush=True),
+                    call("Timeout: 30 seconds", flush=True),
+                ]
+            )
         mock_storage_watcher._process_lines.assert_called_with(["line1"])
 
     def test_storage_watcher_run_invalid_testcase(self):
         mock_storage_watcher = MagicMock()
         mock_storage_watcher.testcase = "invalid"
+        mock_storage_watcher.zapper_usb_address = ""
 
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(SystemExit) as cm:
             StorageWatcher.run(mock_storage_watcher)
+        self.assertEqual(cm.exception.args[0], "Invalid test case")
 
     @patch("systemd.journal.Reader")
     @patch("select.poll")
@@ -126,6 +143,25 @@ class TestRunWatcher(unittest.TestCase):
         )
         mock_storage_watcher._process_lines.assert_called_with(["line1"])
 
+    @patch("systemd.journal.Reader")
+    @patch("select.poll")
+    def test_storage_watcher_run_not_passed(self, mock_poll, mock_journal):
+        mock_journal.return_value.process.return_value = journal.APPEND
+        mock_journal.return_value.__iter__.return_value = [
+            {"MESSAGE": "line1"}
+        ]
+        mock_poll.return_value.poll.side_effect = [True, False]
+
+        mock_storage_watcher = MagicMock()
+        mock_storage_watcher.zapper_usb_address = ""
+        mock_storage_watcher.test_passed = False
+
+        # Test not passed
+        mock_storage_watcher.testcase = "insertion"
+        mock_storage_watcher.test_passed = False
+        StorageWatcher.run(mock_storage_watcher)
+        mock_storage_watcher._process_lines.assert_called_with(["line1"])
+
     def test_storage_watcher_process_lines_insertion(self):
         lines = ["line1", "line2", "line3"]
 
@@ -149,6 +185,16 @@ class TestRunWatcher(unittest.TestCase):
         mock_removal_watcher._parse_journal_line.assert_has_calls(
             [call("line1"), call("line2"), call("line3")]
         )
+
+    def test_storage_watcher_process_lines_passed(self):
+        lines = ["line1", "line2", "line3"]
+
+        mock_watcher = MagicMock()
+        mock_watcher._parse_journal_line = MagicMock()
+        mock_watcher.testcase = "insertion"
+        mock_watcher.test_passed = True
+        StorageWatcher._process_lines(mock_watcher, lines)
+        mock_watcher._parse_journal_line.assert_has_calls([call("line1")])
 
     @mock_timeout()
     def test_storage_watcher_run_insertion(self):
@@ -408,13 +454,28 @@ class TestRunWatcher(unittest.TestCase):
         self.assertEqual(mock_thunderbolt_storage.action, "removal")
 
     @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
-    def test_main_usb(self, mock_usb_storage):
+    def test_main_usb_insertion(self, mock_usb_storage):
         with patch("sys.argv", ["run_watcher.py", "insertion", "usb2"]):
             main()
         # get the watcher object from main
         watcher = mock_usb_storage.return_value
         # check that the watcher is an USBStorage object
         self.assertIsInstance(watcher, USBStorage)
+        self.assertEqual(watcher.run_insertion.call_count, 1)
+        self.assertEqual(watcher.run_storage.call_count, 0)
+        self.assertEqual(watcher.run_removal.call_count, 1)
+
+    @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
+    def test_main_usb_storage(self, mock_usb_storage):
+        with patch("sys.argv", ["run_watcher.py", "storage", "usb2"]):
+            main()
+        # get the watcher object from main
+        watcher = mock_usb_storage.return_value
+        # check that the watcher is an USBStorage object
+        self.assertIsInstance(watcher, USBStorage)
+        self.assertEqual(watcher.run_insertion.call_count, 1)
+        self.assertEqual(watcher.run_storage.call_count, 1)
+        self.assertEqual(watcher.run_removal.call_count, 1)
 
     @patch(
         "checkbox_support.scripts.run_watcher.MediacardStorage",

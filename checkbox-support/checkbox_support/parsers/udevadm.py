@@ -466,11 +466,10 @@ class UdevadmDevice(object):
             # In https://github.com/canonical/checkbox/issues/1272 we decided
             # to include them also in the disk category if have a partition
             # mounted as root.
-            if self.driver.startswith("sd"):
+            if self.driver == "sd":
                 if find_pkname_is_root_mountpoint(self.name, self._lsblk):
                     return "DISK"
-                else:
-                    return "CARDREADER"
+
             if self.driver == "rts_pstor":
                 return "CARDREADER"
             if self.driver == "smo8800":

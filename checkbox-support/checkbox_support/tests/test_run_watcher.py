@@ -30,6 +30,7 @@ from checkbox_support.scripts.run_watcher import (
     ThunderboltStorage,
     main,
 )
+from checkbox_support.helpers.timeout import mock_timeout
 
 
 class TestRunWatcher(unittest.TestCase):
@@ -148,6 +149,20 @@ class TestRunWatcher(unittest.TestCase):
         mock_removal_watcher._parse_journal_line.assert_has_calls(
             [call("line1"), call("line2"), call("line3")]
         )
+
+    @mock_timeout()
+    def test_storage_watcher_run_insertion(self):
+        mock_storage_watcher = MagicMock()
+        mock_storage_watcher.run.return_value = "mounted_partition"
+        StorageWatcher.run_insertion(mock_storage_watcher)
+        mock_storage_watcher.run.assert_called_once()
+
+    @mock_timeout()
+    def test_storage_watcher_run_removal(self):
+        mock_storage_watcher = MagicMock()
+        mock_storage_watcher.run.return_value = "mounted_partition"
+        StorageWatcher.run_removal(mock_storage_watcher, "mounted_partition")
+        mock_storage_watcher.run.assert_called_once()
 
     @patch(
         "checkbox_support.scripts.run_watcher.mount_usb_storage", MagicMock()

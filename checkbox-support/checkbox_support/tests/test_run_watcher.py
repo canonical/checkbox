@@ -20,7 +20,7 @@
 import unittest
 from unittest.mock import patch, call, MagicMock, mock_open
 
-import pathlib
+import argparse
 from systemd import journal
 
 from checkbox_support.scripts.run_watcher import (
@@ -28,6 +28,7 @@ from checkbox_support.scripts.run_watcher import (
     USBStorage,
     MediacardStorage,
     ThunderboltStorage,
+    parse_args,
     main,
 )
 from checkbox_support.helpers.timeout import mock_timeout
@@ -453,39 +454,68 @@ class TestRunWatcher(unittest.TestCase):
         )
         self.assertEqual(mock_thunderbolt_storage.action, "removal")
 
-    @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
-    def test_main_usb_insertion(self, mock_usb_storage):
-        with patch("sys.argv", ["run_watcher.py", "insertion", "usb2"]):
-            main()
-        # get the watcher object from main
-        watcher = mock_usb_storage.return_value
-        # check that the watcher is an USBStorage object
-        self.assertIsInstance(watcher, USBStorage)
-        self.assertEqual(watcher.run_insertion.call_count, 1)
-        self.assertEqual(watcher.run_storage.call_count, 0)
-        self.assertEqual(watcher.run_removal.call_count, 1)
+    def test_parse_args(self):
+        with patch(
+            "sys.argv",
+            ["script.py", "insertion", "usb2", "--zapper-usb-address", "addr"],
+        ):
+            args = parse_args()
+            self.assertEqual(args.testcase, "insertion")
+            self.assertEqual(args.storage_type, "usb2")
+            self.assertEqual(args.zapper_usb_address, "addr")
 
     @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
-    def test_main_usb_storage(self, mock_usb_storage):
-        with patch("sys.argv", ["run_watcher.py", "storage", "usb2"]):
-            main()
+    @patch("checkbox_support.scripts.run_watcher.parse_args")
+    def test_main_usb_insertion(self, mock_parse_args, mock_usb):
+        mock_parse_args.return_value = argparse.Namespace(
+            testcase="insertion", storage_type="usb2", zapper_usb_address=None
+        )
+        main()
+        mock_usb.assert_called_with("usb2", None)
+        self.assertEqual(mock_usb.return_value.run_insertion.call_count, 1)
+        self.assertEqual(mock_usb.return_value.run_removal.call_count, 1)
         # get the watcher object from main
-        watcher = mock_usb_storage.return_value
+        watcher = mock_usb.return_value
         # check that the watcher is an USBStorage object
         self.assertIsInstance(watcher, USBStorage)
-        self.assertEqual(watcher.run_insertion.call_count, 1)
-        self.assertEqual(watcher.run_storage.call_count, 1)
-        self.assertEqual(watcher.run_removal.call_count, 1)
+
+    @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
+    @patch("checkbox_support.scripts.run_watcher.parse_args")
+    def test_main_usb_storage(self, mock_parse_args, mock_usb):
+        mock_parse_args.return_value = argparse.Namespace(
+            testcase="storage", storage_type="usb2", zapper_usb_address=None
+        )
+        main()
+        mock_usb.assert_called_with("usb2", None)
+        self.assertEqual(mock_usb.return_value.run_insertion.call_count, 1)
+        self.assertEqual(mock_usb.return_value.run_storage.call_count, 1)
+        self.assertEqual(mock_usb.return_value.run_removal.call_count, 1)
+
+    @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
+    @patch("checkbox_support.scripts.run_watcher.parse_args")
+    def test_main_usb_invalid(self, mock_parse_args, mock_usb):
+        mock_parse_args.return_value = argparse.Namespace(
+            testcase="invalid", storage_type="usb2", zapper_usb_address=None
+        )
+        with self.assertRaises(SystemExit) as cm:
+            main()
+        cm.exception.args[0] == "Invalid test case"
 
     @patch(
         "checkbox_support.scripts.run_watcher.MediacardStorage",
         spec=MediacardStorage,
     )
-    def test_main_mediacard(self, mock_mediacard_storage):
-        with patch("sys.argv", ["run_watcher.py", "insertion", "mediacard"]):
-            main()
+    @patch("checkbox_support.scripts.run_watcher.parse_args")
+    def test_main_mediacard(self, mock_parse_args, mock_mediacard):
+        mock_parse_args.return_value = argparse.Namespace(
+            testcase="insertion",
+            storage_type="mediacard",
+            zapper_usb_address=None,
+        )
+        main()
+        self.assertEqual(mock_mediacard.call_count, 1)
         # get the watcher object from main
-        watcher = mock_mediacard_storage.return_value
+        watcher = mock_mediacard.return_value
         # check that the watcher is an MediacardStorage object
         self.assertIsInstance(watcher, MediacardStorage)
 
@@ -493,10 +523,16 @@ class TestRunWatcher(unittest.TestCase):
         "checkbox_support.scripts.run_watcher.ThunderboltStorage",
         spec=ThunderboltStorage,
     )
-    def test_main_thunderbolt(self, mock_thunderbolt_storage):
-        with patch("sys.argv", ["run_watcher.py", "insertion", "thunderbolt"]):
-            main()
+    @patch("checkbox_support.scripts.run_watcher.parse_args")
+    def test_main_thunderbolt(self, mock_parse_args, mock_thunderbolt):
+        mock_parse_args.return_value = argparse.Namespace(
+            testcase="insertion",
+            storage_type="thunderbolt",
+            zapper_usb_address=None,
+        )
+        main()
+        self.assertEqual(mock_thunderbolt.call_count, 1)
         # get the watcher object from main
-        watcher = mock_thunderbolt_storage.return_value
+        watcher = mock_thunderbolt.return_value
         # check that the watcher is an ThunderboltStorage object
         self.assertIsInstance(watcher, ThunderboltStorage)

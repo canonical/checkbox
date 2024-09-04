@@ -355,8 +355,7 @@ class ThunderboltStorage(StorageWatcher):
         if re.search(removal_re, line_str):
             self.action = "removal"
 
-
-def main():
+def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "testcase",
@@ -376,7 +375,11 @@ def main():
         type=str,
         help="Zapper's USB switch address to use",
     )
-    args = parser.parse_args()
+    return parser.parse_args()
+
+
+def main():
+    args = parse_args()
 
     watcher = None
     if args.storage_type == "thunderbolt":
@@ -395,7 +398,8 @@ def main():
         mounted_partition = watcher.run_insertion()
         watcher.run_storage(mounted_partition)
         watcher.run_removal(mounted_partition)
-
+    else:
+        raise SystemExit("Invalid test case")
 
 if __name__ == "__main__":
     main()

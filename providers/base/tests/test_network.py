@@ -13,6 +13,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
+import subprocess
 from unittest.mock import patch, mock_open, Mock, call
 from contextlib import redirect_stdout, redirect_stderr
 from io import StringIO
@@ -435,9 +436,9 @@ class NetworkTests(unittest.TestCase):
             )
         )
 
-    @patch("builtins.open", new_callable=mock_open)
     @patch("network.restore_network_ifaces")
     @patch("network.setup_network_ifaces")
+    @patch("network.sp_run")
     @patch("network.check_call")
     @patch("network.get_network_ifaces")
     @patch("tempfile.TemporaryFile")
@@ -446,9 +447,9 @@ class NetworkTests(unittest.TestCase):
         mock_temp_file,
         mock_net_ifs,
         mock_check_call,
+        mock_sp_run,
         mock_net_setup,
         mock_net_restore,
-        mock_open_c,
     ):
 
         mock_temp_file.return_value = "fake-file"
@@ -457,25 +458,21 @@ class NetworkTests(unittest.TestCase):
         with network.interface_test_initialize("eth0", False, False, 10):
             pass
 
-        mock_check_call.assert_has_calls(
-            [
-                call(
-                    ["ip", "route", "save", "table", "all"], stdout="fake-file"
-                ),
-                call(
-                    ["ip", "route", "restore"],
-                    stdin="fake-file",
-                    stderr=mock_open_c.return_value,
-                ),
-            ]
+        mock_check_call.assert_called_with(
+            ["ip", "route", "save", "table", "all"], stdout="fake-file"
+        )
+        mock_sp_run.assert_called_with(
+            ["ip", "route", "restore"],
+            stdin="fake-file",
+            stderr=subprocess.DEVNULL,
         )
         self.assertEqual(mock_temp_file.call_count, 1)
         self.assertEqual(mock_net_ifs.call_count, 2)
         mock_net_setup.assert_called_with({}, "eth0", False, True, 10)
         mock_net_restore.assert_called_with({}, {}, 10)
 
-    @patch("builtins.open", new_callable=mock_open)
     @patch("network.restore_network_ifaces")
+    @patch("network.sp_run")
     @patch("network.check_call")
     @patch("network.get_network_ifaces")
     @patch("tempfile.TemporaryFile")
@@ -484,8 +481,8 @@ class NetworkTests(unittest.TestCase):
         mock_temp_file,
         mock_net_ifs,
         mock_check_call,
+        mock_sp_run,
         mock_net_restore,
-        mock_open_c,
     ):
         mock_check_call.side_effect = CalledProcessError(1, "command failed")
         mock_temp_file.return_value = "fake-file"
@@ -495,25 +492,22 @@ class NetworkTests(unittest.TestCase):
             with network.interface_test_initialize("eth0", False, False, 10):
                 pass
 
-        mock_check_call.assert_has_calls(
-            [
-                call(
-                    ["ip", "route", "save", "table", "all"], stdout="fake-file"
-                ),
-                call(
-                    ["ip", "route", "restore"],
-                    stdin="fake-file",
-                    stderr=mock_open_c.return_value,
-                ),
-            ]
+        mock_check_call.assert_called_with(
+            ["ip", "route", "save", "table", "all"], stdout="fake-file"
+        )
+        mock_sp_run.assert_called_with(
+            ["ip", "route", "restore"],
+            stdin="fake-file",
+            stderr=subprocess.DEVNULL,
         )
         self.assertEqual(mock_temp_file.call_count, 1)
         self.assertEqual(mock_net_ifs.call_count, 2)
         mock_net_restore.assert_called_with({}, {}, 10)
 
-    @patch("builtins.open", new_callable=mock_open)
+    @patch("network.suppress")
     @patch("network.restore_network_ifaces")
     @patch("network.setup_network_ifaces")
+    @patch("network.sp_run")
     @patch("network.check_call")
     @patch("network.get_network_ifaces")
     @patch("tempfile.TemporaryFile")
@@ -522,9 +516,10 @@ class NetworkTests(unittest.TestCase):
         mock_temp_file,
         mock_net_ifs,
         mock_check_call,
+        mock_sp_run,
         mock_net_setup,
         mock_net_restore,
-        mock_open_c,
+        mock_suppress,
     ):
 
         mock_temp_file.return_value = "fake-file"
@@ -535,18 +530,15 @@ class NetworkTests(unittest.TestCase):
             with network.interface_test_initialize("eth0", False, False, 10):
                 pass
 
-        mock_check_call.assert_has_calls(
-            [
-                call(
-                    ["ip", "route", "save", "table", "all"], stdout="fake-file"
-                ),
-                call(
-                    ["ip", "route", "restore"],
-                    stdin="fake-file",
-                    stderr=mock_open_c.return_value,
-                ),
-            ]
+        mock_check_call.assert_called_with(
+            ["ip", "route", "save", "table", "all"], stdout="fake-file"
         )
+        mock_sp_run.assert_called_with(
+            ["ip", "route", "restore"],
+            stdin="fake-file",
+            stderr=subprocess.DEVNULL,
+        )
+        mock_suppress.assert_called_with(subprocess.CalledProcessError)
         self.assertEqual(mock_temp_file.call_count, 1)
         self.assertEqual(mock_net_ifs.call_count, 2)
         mock_net_setup.assert_called_with({}, "eth0", False, True, 10)

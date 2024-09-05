@@ -17,6 +17,16 @@ include:
 bootstrap_include:
     device
 
+id: ethernet-wake-on-lan-cert-manual
+unit: test plan
+_name: Ethernet wake on lan tests (manual)
+_description: Ethernet wake on lan tests (manual)
+include:
+    ethernet/wol_S5_.*                             certification-status=blocker
+    ethernet/wol_S3_.*                             certification-status=blocker
+bootstrap_include:
+    device
+
 id: ethernet-cert-automated
 unit: test plan
 _name: Ethernet tests (automated)

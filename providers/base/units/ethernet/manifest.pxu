@@ -2,3 +2,8 @@ unit: manifest entry
 id: has_ethernet_adapter
 _name: An Ethernet Port
 value-type: bool
+
+unit: manifest entry
+id: has_ethernet_wake_on_lan_support
+_name: Wake-On-Lan support by Ethernet Port
+value-type: bool

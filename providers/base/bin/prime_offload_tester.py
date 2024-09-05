@@ -52,7 +52,7 @@ class PrimeOffloader:
 
         :param shell: enable shell or not
 
-        :returns: Ouput of command
+        :returns: Output of command
         """
         try:
             return subprocess.check_output(

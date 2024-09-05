@@ -51,87 +51,59 @@ _verification:
     Did the device work as expected?
 _summary: Verify USB HID devices functionality by performing specified actions.
 
-id: usb/insert
+id: usb/storage-manual
 flags: also-after-suspend fail-on-resource
-_summary: USB 2.0 storage device insertion detected
+_summary: Test USB 2.0 storage device insertion + read/write + removal.
 _purpose:
- Check system can detect USB 2.0 storage when inserted.
- NOTE: Make sure the USB storage device has a partition before starting
- the test.
+    Check system can detect insertion of a USB 2.0 storage device.
+    Then it performs a read and write test on the USB 2.0. Finally, it
+    checks that the system correctly detects the removal of the USB 2.0.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
- 1. Press continue
- 2. Wait until the message "INSERT NOW" is printed on the screen
- 3. Connect USB 2.0 storage device
+    1. Commence the test and then insert an USB 2.0 into the reader.
+    (Note: this test will time-out after 30 seconds.)
+    2. Do not remove the device after this test.
+    3. Wait for the read/write operations to complete.
+    4. Press Enter to start the removal test.
+    5. Remove the USB 2.0 from the reader.
+    (Note: this test will time-out after 30 seconds.)
 _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
 plugin: user-interact
 user: root
 command:
- checkbox-support-run_watcher insertion usb2
+ checkbox-support-run_watcher storage usb2
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
-id: usb3/insert
+id: usb3/storage-manual
 flags: also-after-suspend
 requires:
  usb.usb3 == 'supported'
-_summary: USB 3.0 storage device insertion detected
+_summary: Test USB 3.0 storage device insertion + read/write + removal.
 _purpose:
- Check system can detect insertion of a USB 3.0 storage device.
- NOTE: Make sure the USB storage device has a partition before starting
- the test.
+    Check system can detect insertion of a USB 3.0 storage device.
+    Then it performs a read and write test on the USB 3.0. Finally, it
+    checks that the system correctly detects the removal of the USB 3.0.
+    NOTE: Make sure the USB storage device has a partition before starting
+    the test.
 _steps:
- 1. Press continue.
- 2. Wait until the message "INSERT NOW" is displayed on the screen.
- 3. Connect USB 3.0 storage device.
+    1. Commence the test and then insert an USB 3.0 into the reader.
+    (Note: this test will time-out after 30 seconds.)
+    2. Do not remove the device after this test.
+    3. Wait for the read/write operations to complete.
+    4. Press Enter to start the removal test.
+    5. Remove the USB 3.0 from the reader.
+    (Note: this test will time-out after 30 seconds.)
 _verification:
  The verification of this test is automated.
  Do not change the automatically selected result.
 plugin: user-interact
 user: root
 command:
- checkbox-support-run_watcher insertion usb3
-category_id: com.canonical.plainbox::usb
-estimated_duration: 120
-
-id: usb/remove
-flags: also-after-suspend
-_summary: USB 2.0 storage device removal detected
-_purpose:
- Check system can detect removal of a USB 2.0 storage device
-_steps:
- 1. Press continue
- 2. Wait until the message "REMOVE NOW" is printed on the screen
- 3. Disconnect USB 2.0 storage device
-_verification:
- The verification of this test is automated.
- Do not change the automatically selected result.
-plugin: user-interact
-depends: usb/insert
-user: root
-command:
- checkbox-support-run_watcher removal usb2
-category_id: com.canonical.plainbox::usb
-estimated_duration: 120
-
-id: usb3/remove
-flags: also-after-suspend
-_summary: USB 3.0 storage device removal detected
-_purpose:
- Check system can detect removal of a USB 3.0 storage device
-_steps:
- 1. Press continue
- 2. Wait until the message "REMOVE NOW" is printed on the screen
- 3. Disconnect USB 3.0 storage device
-_verification:
- The verification of this test is automated.
- Do not change the automatically selected result.
-plugin: user-interact
-depends: usb3/insert
-user: root
-command:
- checkbox-support-run_watcher removal usb3
+ checkbox-support-run_watcher storage usb3
 category_id: com.canonical.plainbox::usb
 estimated_duration: 120
 
@@ -175,39 +147,7 @@ _verification:
  automatically selected result.
 _summary: Check the USB 3.0 connection and data transfer capability.
 
-id: usb/storage-automated
-flags: also-after-suspend
-_summary: USB 2.0 storage device read & write works
-_purpose:
- Check system can read/write to USB 2.0 storage correctly
-_steps:
- 1. This task is fully automatic and need USB 2.0 insertion test was applied first.
-_verification:
- This task is fully automatic and will verify the result for you.
-plugin: shell
-depends: usb/insert
-user: root
-command:
- checkbox-support-usb_read_write
-category_id: com.canonical.plainbox::usb
-estimated_duration: 300
 
-id: usb3/storage-automated
-flags: also-after-suspend
-_summary: USB 3.0 storage device read & write works
-_purpose:
- Check system can read/write to USB 3.0 storage devices correctly
-_steps:
- 1. This task is fully automatic and need USB 3.0 insertion test was applied first.
-_verification:
- This task is fully automatic and will verify the result for you.
-plugin: shell
-depends: usb3/insert
-user: root
-command:
- checkbox-support-usb_read_write
-category_id: com.canonical.plainbox::usb
-estimated_duration: 300
 
 plugin: shell
 category_id: com.canonical.plainbox::usb

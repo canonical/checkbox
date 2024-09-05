@@ -134,15 +134,15 @@ class PrimeOffloader:
         self, cmd: list, card_id: str, card_name: str, timeout: int
     ):
         """
-        Use to check provided command is executed on specific GPU.
+        Used to check if the provided command is executed on a specific GPU.
 
-        :param cmd: command that running under prime offload
+        :param cmd: command to be run under prime offload
 
-        :param card_id: card id of dri device
+        :param card_id: card ID of the DRI device
 
-        :param card_name: card name of dri device
+        :param card_name: card name of the DRI device
 
-        :param timeout: timeout for offloaded command
+        :param timeout: timeout for the offloaded command
         """
         delay = timeout / 10
 

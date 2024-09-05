@@ -50,7 +50,7 @@ class PrimeOffloader:
 
         :param cmd: the command will be executed
 
-        :param shell: enbale shell or not
+        :param shell: enable shell or not
 
         :returns: Ouput of command
         """

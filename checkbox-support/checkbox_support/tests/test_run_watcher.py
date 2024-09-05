@@ -479,6 +479,7 @@ class TestRunWatcher(unittest.TestCase):
         # check that the watcher is an USBStorage object
         self.assertIsInstance(watcher, USBStorage)
 
+    @patch("checkbox_support.scripts.run_watcher.input", MagicMock())
     @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
     @patch("checkbox_support.scripts.run_watcher.parse_args")
     def test_main_usb_storage(self, mock_parse_args, mock_usb):

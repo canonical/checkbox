@@ -397,6 +397,8 @@ def main():
     elif args.testcase == "storage":
         mounted_partition = watcher.run_insertion()
         watcher.run_storage(mounted_partition)
+        print("Press Enter to start removal", flush=True)
+        input()
         watcher.run_removal(mounted_partition)
     else:
         raise SystemExit("Invalid test case")

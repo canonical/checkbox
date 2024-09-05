@@ -175,7 +175,7 @@ class PrimeOffloader:
 
     def find_offload(self, cmd: str, timeout: int):
         """
-        Use to find provided command is executed on which GPU.
+        Find the card that the command is running on.
 
         :param cmd: command that is running
 

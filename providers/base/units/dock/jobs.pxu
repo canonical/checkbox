@@ -2631,10 +2631,10 @@ _verification:
     The verification of this test is automated. Do not change the automatically
     selected result.
 _siblings:
-    [{"id": "dock/all-reboot-thunderbolt3-insert"},
-     {"id": "dock/all-hotplug-thunderbolt3-insert"},
-     {"id": "dock/all-suspend-thunderbolt3-insert"},
-     {"id": "dock/all-poweroff-thunderbolt3-insert"}]
+    [{"id": "dock/all-reboot-thunderbolt3-storage-manual"},
+     {"id": "dock/all-hotplug-thunderbolt3-storage-manual"},
+     {"id": "dock/all-suspend-thunderbolt3-storage-manual"},
+     {"id": "dock/all-poweroff-thunderbolt3-storage-manual"}]
 
 
 id: dock/all-init-usb-c/insert

@@ -168,10 +168,10 @@ class PrimeOffloader:
         :param card: in /sys/kernel/debug/dri/<card id>/clients format
 
         """
-        data_in_name = self._run_command(
-            ["cat", card.replace("clients", "name")]
-        )
-        return data_in_name.split()[1].split("=")[1]
+    filename = card.replace("clients", "name")
+    with open(filename, "r") as f:
+        data_in_name = f.read()
+    return data_in_name.split()[1].split("=")[1]
 
     def find_offload(self, cmd: str, timeout: int):
         """

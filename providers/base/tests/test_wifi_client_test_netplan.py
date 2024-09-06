@@ -20,13 +20,12 @@ import textwrap
 from unittest import TestCase
 from unittest.mock import patch, MagicMock, mock_open, ANY
 import datetime
+import subprocess as sp
 
 from wifi_client_test_netplan import (
     netplan_renderer,
     check_and_get_renderer,
     netplan_config_backup,
-    _get_networkctl_state,
-    _get_nmcli_state,
     _check_routable_state,
     wait_for_routable,
     get_gateway,
@@ -35,6 +34,7 @@ from wifi_client_test_netplan import (
     parse_args,
     print_journal_entries,
     main,
+    get_interface_info,
 )
 
 
@@ -166,49 +166,39 @@ class WifiClientTestNetplanTests(TestCase):
         self.assertTrue("Unknown renderer: unknown" in str(context.exception))
 
     def test_parser_psk_and_wpa3(self):
-        with patch(
-            "sys.argv",
-            [
-                "script.py",
-                "-i",
-                "eth0",
-                "-s",
-                "SSID",
-                "-k",
-                "pswd",
-                "-d",
-                "--wpa3",
-            ],
-        ):
+        args = [
+            "script.py",
+            "-i",
+            "eth0",
+            "-s",
+            "SSID",
+            "-k",
+            "pswd",
+            "-d",
+            "--wpa3",
+        ]
+        with patch("sys.argv", args):
             args = parse_args()
             self.assertEqual(args.interface, "eth0")
             self.assertEqual(args.psk, "pswd")
             self.assertTrue(args.wpa3)
 
     def test_parser_custom_interface_with_address(self):
-        with patch(
-            "sys.argv",
-            ["script.py", "-s", "SSID", "-a", "192.168.1.1/24", "--wpa3"],
-        ):
+        args = ["script.py", "-s", "SSID", "-a", "192.168.1.1/24", "--wpa3"]
+        with patch("sys.argv", args):
             args = parse_args()
             self.assertEqual(args.address, "192.168.1.1/24")
             self.assertTrue(args.wpa3)
             self.assertFalse(args.dhcp)
 
-    @patch(
-        "sys.argv", ["script.py", "-s", "SSID", "-a", "192.168.1.1/24", "-d"]
-    )
     def test_parser_mutually_exclusive_fail(self):
-        with patch(
-            "sys.argv",
-            ["script.py", "-s", "SSID", "-a", "192.168.1.1/24", "-d"],
-        ):
+        args = ["script.py", "-s", "SSID", "-a", "192.168.1.1/24", "-d"]
+        with patch("sys.argv", args):
             with self.assertRaises(SystemExit):
                 parse_args()
 
-    @patch(
-        "sys.argv",
-        [
+    def test_parser_networkd(self):
+        args = [
             "script.py",
             "-i",
             "wlan0",
@@ -217,21 +207,19 @@ class WifiClientTestNetplanTests(TestCase):
             "-d",
             "--renderer",
             "networkd",
-        ],
-    )
-    def test_parser_networkd(self):
-        args = parse_args()
-        self.assertEqual(args.renderer, "networkd")
-        self.assertEqual(args.interface, "wlan0")
-        self.assertEqual(args.ssid, "SSID")
-        self.assertTrue(args.dhcp)
-        self.assertFalse(args.wpa3)
-        self.assertIsNone(args.psk)
-        self.assertEqual(args.address, "")
+        ]
+        with patch("sys.argv", args):
+            args = parse_args()
+            self.assertEqual(args.renderer, "networkd")
+            self.assertEqual(args.interface, "wlan0")
+            self.assertEqual(args.ssid, "SSID")
+            self.assertTrue(args.dhcp)
+            self.assertFalse(args.wpa3)
+            self.assertIsNone(args.psk)
+            self.assertEqual(args.address, "")
 
-    @patch(
-        "sys.argv",
-        [
+    def test_parser_networkmanager(self):
+        args = [
             "script.py",
             "-i",
             "wlan0",
@@ -240,22 +228,20 @@ class WifiClientTestNetplanTests(TestCase):
             "-d",
             "--renderer",
             "NetworkManager",
-        ],
-    )
-    def test_parser_networkmanager(self):
-        args = parse_args()
-        self.assertEqual(args.renderer, "NetworkManager")
-        self.assertEqual(args.interface, "wlan0")
-        self.assertEqual(args.ssid, "SSID")
-        self.assertTrue(args.dhcp)
-        self.assertFalse(args.wpa3)
-        self.assertIsNone(args.psk)
-        self.assertEqual(args.address, "")
+        ]
+        with patch("sys.argv", args):
+            args = parse_args()
+            self.assertEqual(args.renderer, "NetworkManager")
+            self.assertEqual(args.interface, "wlan0")
+            self.assertEqual(args.ssid, "SSID")
+            self.assertTrue(args.dhcp)
+            self.assertFalse(args.wpa3)
+            self.assertIsNone(args.psk)
+            self.assertEqual(args.address, "")
 
     def test_parser_no_renderer(self):
-        with patch(
-            "sys.argv", ["script.py", "-i", "wlan0", "-s", "SSID", "-d"]
-        ):
+        args = ["script.py", "-i", "wlan0", "-s", "SSID", "-d"]
+        with patch("sys.argv", args):
             args = parse_args()
             self.assertEqual(args.renderer, "AutoDetect")
             self.assertEqual(args.interface, "wlan0")
@@ -266,19 +252,17 @@ class WifiClientTestNetplanTests(TestCase):
             self.assertEqual(args.address, "")
 
     def test_parser_autodetect_renderer(self):
-        with patch(
-            "sys.argv",
-            [
-                "script.py",
-                "-i",
-                "wlan0",
-                "-s",
-                "SSID",
-                "-d",
-                "--renderer",
-                "AutoDetect",
-            ],
-        ):
+        args = [
+            "script.py",
+            "-i",
+            "wlan0",
+            "-s",
+            "SSID",
+            "-d",
+            "--renderer",
+            "AutoDetect",
+        ]
+        with patch("sys.argv", args):
             args = parse_args()
             self.assertEqual(args.renderer, "AutoDetect")
             self.assertEqual(args.interface, "wlan0")
@@ -440,221 +424,90 @@ class WifiClientTestNetplanTests(TestCase):
             _check_routable_state("wlan0", "unknown_renderer")
 
     @patch("subprocess.check_output")
-    def test_get_networkctl_state_success(self, mock_check_output):
+    def test_get_interface_info_networkd(self, mock_check_output):
         mock_check_output.return_value = (
-            b"State: routable\nPath: pci-0000:02:00.0"
+            b"State: routable\nGateway: 192.168.1.1\nPath: pci-0000:02:00.0"
         )
         interface = "wlan0"
-        state = _get_networkctl_state(interface)
-        self.assertEqual(state, " routable", "Should return 'routable' state")
+        renderer = "networkd"
+        info = get_interface_info(interface, renderer)
+        self.assertEqual(info["state"], "routable")
+        self.assertEqual(info["gateway"], "192.168.1.1")
 
     @patch("subprocess.check_output")
-    def test_get_networkctl_state_no_state_line(self, mock_check_output):
+    def test_get_interface_info_networkd_no_state(self, mock_check_output):
         mock_check_output.return_value = (
             b"Some other info: value\nsome more info"
         )
         interface = "wlan0"
-        state = _get_networkctl_state(interface)
-        self.assertIsNone(
-            state, "Should return None when 'State' line is missing"
-        )
+        renderer = "networkd"
+        info = get_interface_info(interface, renderer)
+        self.assertNotIn("state", info)
+        self.assertNotIn("gateway", info)
 
     @patch("subprocess.check_output")
-    def test_get_networkctl_state_empty_output(self, mock_check_output):
+    def test_get_interface_info_networkd_empty_output(self, mock_check_output):
         mock_check_output.return_value = b""
         interface = "wlan0"
-        state = _get_networkctl_state(interface)
-        self.assertIsNone(state, "Should return None for empty command output")
+        renderer = "networkd"
+        info = get_interface_info(interface, renderer)
+        self.assertEqual(info, {})
 
-    @patch("subprocess.check_output", side_effect=Exception("Command failed"))
-    def test_get_networkctl_state_command_fails(self, mock_check_output):
+    @patch(
+        "subprocess.check_output",
+        side_effect=sp.CalledProcessError(1, "Command failed"),
+    )
+    def test_get_interface_info_networkd_command_fails(
+        self, mock_check_output
+    ):
         interface = "wlan0"
-        with self.assertRaises(
-            Exception, msg="Should raise an exception for command failure"
-        ):
-            _get_networkctl_state(interface)
+        renderer = "networkd"
+        info = get_interface_info(interface, renderer)
+        self.assertEqual(info, {})
 
     @patch("subprocess.check_output")
-    def test_get_nmcli_state_success(self, mock_check_output):
+    def test_get_interface_info_networkmanager(self, mock_check_output):
         mock_check_output.return_value = (
             b"GENERAL.MTU:                            1500\n"
-            b"some other info\n"
-            b"GENERAL.STATE:                          100 (connected)"
+            b"GENERAL.STATE:                          100 (connected)\n"
+            b"IP4.GATEWAY:                            192.168.1.1"
         )
         interface = "wlan0"
-        state = _get_nmcli_state(interface)
-        self.assertEqual(
-            state, "100 (connected)", "Should return '100 (connected)' state"
-        )
+        renderer = "NetworkManager"
+        info = get_interface_info(interface, renderer)
+        self.assertEqual(info["state"], "100 (connected)")
+        self.assertEqual(info["gateway"], "192.168.1.1")
 
     @patch("subprocess.check_output")
-    def test_get_nmcli_state_unexpected_output(self, mock_check_output):
+    def test_get_interface_info_networkmanager_unexpected_output(
+        self, mock_check_output
+    ):
         mock_check_output.return_value = b"some unexpected output"
         interface = "wlan0"
-        state = _get_nmcli_state(interface)
-        self.assertIsNone(
-            state,
-            "Should return None when expected state information is missing",
-        )
+        renderer = "NetworkManager"
+        info = get_interface_info(interface, renderer)
+        self.assertEqual(info, {})
 
-    @patch("subprocess.check_output", side_effect=Exception("Command failed"))
-    def test_get_nmcli_state_command_fails(self, mock_check_output):
-        interface = "wlan0"
-        with self.assertRaises(
-            Exception, msg="Should raise an exception for command failure"
-        ):
-            _get_nmcli_state(interface)
-
-    @patch("wifi_client_test_netplan._check_routable_state")
-    @patch("wifi_client_test_netplan.time.sleep", return_value=None)
-    def test_wait_for_routable_networkd(
-        self, mock_sleep, mock_check_routable_state
+    @patch(
+        "subprocess.check_output",
+        side_effect=sp.CalledProcessError(1, "Command failed"),
+    )
+    def test_get_interface_info_networkmanager_command_fails(
+        self, mock_check_output
     ):
-        mock_check_routable_state.side_effect = [
-            (False, ""),
-            (False, ""),
-            (True, ""),
-        ]
-        result = wait_for_routable("wlan0", "networkd")
-        self.assertTrue(result)
-        self.assertEqual(mock_check_routable_state.call_count, 3)
-        mock_check_routable_state.assert_called_with("wlan0", "networkd")
-
-    @patch("wifi_client_test_netplan._check_routable_state")
-    @patch("wifi_client_test_netplan.time.sleep", return_value=None)
-    def test_wait_for_no_routable_networkd(
-        self, mock_sleep, mock_check_routable_state
-    ):
-        mock_check_routable_state.side_effect = [
-            (False, ""),
-            (False, ""),
-            (False, ""),
-        ]
-        result = wait_for_routable("wlan0", "networkd", 3)
-        self.assertFalse(result)
-        self.assertEqual(mock_check_routable_state.call_count, 3)
-        mock_check_routable_state.assert_called_with("wlan0", "networkd")
-
-    @patch("wifi_client_test_netplan._check_routable_state")
-    @patch("wifi_client_test_netplan.time.sleep", return_value=None)
-    def test_wait_for_routable_networkmanager(
-        self, mock_sleep, mock_check_routable_state
-    ):
-        mock_check_routable_state.side_effect = [
-            (False, ""),
-            (True, ""),
-        ]
-        result = wait_for_routable("wlan0", "NetworkManager", 3)
-        self.assertTrue(result)
-        self.assertEqual(mock_check_routable_state.call_count, 2)
-        mock_check_routable_state.assert_called_with("wlan0", "NetworkManager")
-
-    @patch("wifi_client_test_netplan._check_routable_state")
-    @patch("wifi_client_test_netplan.time.sleep", return_value=None)
-    def test_wait_for_no_routable_networkmanager(
-        self, mock_sleep, mock_check_routable_state
-    ):
-        mock_check_routable_state.side_effect = [
-            (False, ""),
-            (False, ""),
-            (False, ""),
-        ]
-        result = wait_for_routable("wlan0", "NetworkManager", 3)
-        self.assertFalse(result)
-        self.assertEqual(mock_check_routable_state.call_count, 3)
-        mock_check_routable_state.assert_called_with("wlan0", "NetworkManager")
-
-    @patch("subprocess.check_output")
-    def test_get_gateway_networkd(self, mock_check_output):
-        # Setup: Mock the subprocess output for networkd
-        mock_check_output.return_value = b"Gateway: 192.168.1.1\n"
-        interface = "wlan0"
-        renderer = "networkd"
-
-        # Execution: Call the get_gateway function
-        gateway = get_gateway(interface, renderer)
-
-        # Verification: Verify the correct gateway is returned
-        self.assertEqual(gateway, "192.168.1.1")
-
-    @patch("subprocess.check_output")
-    def test_get_gateway_networkd_failure(self, mock_check_output):
-        mock_check_output.return_value = b"ABC:123\n abc:zxc\n"
-        interface = "wlan0"
-        renderer = "networkd"
-
-        gateway = get_gateway(interface, renderer)
-        self.assertIsNone(gateway)
-
-    @patch("subprocess.check_output")
-    def test_get_gateway_networkmanager(self, mock_check_output):
-        mock_check_output.return_value = (
-            b"IP4.GATEWAY:                        192.168.1.1\n"
-        )
         interface = "wlan0"
         renderer = "NetworkManager"
+        info = get_interface_info(interface, renderer)
+        self.assertEqual(info, {})
 
-        gateway = get_gateway(interface, renderer)
-
-        self.assertEqual(gateway, "192.168.1.1")
-
-    @patch("subprocess.check_output")
-    def test_get_gateway_networkmanager_failure(self, mock_check_output):
-        mock_check_output.return_value = b"ABC:123\n abc:zxc\n"
+    def test_get_interface_info_unknown_renderer(self):
         interface = "wlan0"
-        renderer = "NetworkManager"
-        gateway = get_gateway(interface, renderer)
-        self.assertIsNone(gateway)
-
-    @patch("subprocess.check_output")
-    def test_get_gateway_unknown_renderer(self, mock_check_output):
-        interface = "wlan0"
-        renderer = "unknown_renderer"
+        renderer = "unknown"
         with self.assertRaises(ValueError):
-            get_gateway(interface, renderer)
-
-    @patch("wifi_client_test_netplan.ping")
-    @patch("wifi_client_test_netplan.get_gateway")
-    def test_perform_ping_test_success_networkd(
-        self, mock_get_gateway, mock_ping
-    ):
-        mock_get_gateway.return_value = "192.168.1.1"
-        mock_ping.return_value = {"received": 5}
-        result = perform_ping_test("wlan0", "networkd")
-        self.assertTrue(result)
-
-    @patch("wifi_client_test_netplan.ping")
-    @patch("wifi_client_test_netplan.get_gateway")
-    def test_perform_ping_test_failure_networkd(
-        self, mock_get_gateway, mock_ping
-    ):
-        mock_get_gateway.return_value = "192.168.1.1"
-        mock_ping.return_value = {"received": 0}
-        result = perform_ping_test("wlan0", "networkd")
-        self.assertFalse(result)
-
-    @patch("wifi_client_test_netplan.ping")
-    @patch("wifi_client_test_netplan.get_gateway")
-    def test_perform_ping_test_success_networkmanager(
-        self, mock_get_gateway, mock_ping
-    ):
-        mock_get_gateway.return_value = "192.168.1.1"
-        mock_ping.return_value = {"received": 5}
-        result = perform_ping_test("wlan0", "NetworkManager")
-        self.assertTrue(result)
-
-    @patch("wifi_client_test_netplan.ping")
-    @patch("wifi_client_test_netplan.get_gateway")
-    def test_perform_ping_test_failure_networkmanager(
-        self, mock_get_gateway, mock_ping
-    ):
-        mock_get_gateway.return_value = "192.168.1.1"
-        mock_ping.return_value = {"received": 0}
-        result = perform_ping_test("wlan0", "NetworkManager")
-        self.assertFalse(result)
+            get_interface_info(interface, renderer)
 
 
-class MainTests(TestCase):
+class TestMain(TestCase):
     @patch("wifi_client_test_netplan.wait_for_routable", return_value=True)
     @patch("wifi_client_test_netplan.print_address_info")
     @patch("wifi_client_test_netplan.print_route_info")
@@ -668,6 +521,19 @@ class MainTests(TestCase):
         return_value=MagicMock(renderer="NetworkManager"),
     )
     @patch("os.remove")
-    def test_main_success(self, *args):
-        with self.assertRaises(SystemExit) as cm:
-            main()
+    @patch("wifi_client_test_netplan.netplan_config_wipe")
+    @patch("wifi_client_test_netplan.netplan_config_backup")
+    @patch("wifi_client_test_netplan.generate_test_config")
+    @patch("wifi_client_test_netplan.write_test_config")
+    @patch("wifi_client_test_netplan.netplan_apply_config", return_value=True)
+    def test_main_success(
+        self,
+        mock_write_test_config,
+        mock_generate_test_config,
+        mock_netplan_config_backup,
+        mock_netplan_config_wipe,
+        *args
+    ):
+        main()
+        mock_netplan_config_backup.assert_called_once()
+        mock_netplan_config_wipe.assert_called_once()

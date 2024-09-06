@@ -137,7 +137,7 @@ def netplan_config_restore():
     if files:
         print("Restoring:")
         for f in files:
-            restore_loc = f[len(TMP_PATH):]
+            restore_loc = f[len(TMP_PATH) :]
             print(" ", restore_loc)
             try:
                 shutil.move(f, restore_loc)
@@ -233,29 +233,35 @@ def netplan_apply_config():
     return True
 
 
-def _get_networkctl_state(interface):
-    cmd = "networkctl status --no-pager --no-legend {}".format(interface)
-    output = sp.check_output(cmd, shell=True)
-    for line in output.decode(sys.stdout.encoding).splitlines():
-        # Skip lines that don't have a "key: value" format
-        if ":" not in line:
-            continue
-        key, val = line.strip().split(":", maxsplit=1)
-        if key == "State":
-            return val
-    return None
+def get_interface_info(interface, renderer):
+    if renderer == "networkd":
+        cmd = "networkctl status --no-pager --no-legend {}".format(interface)
+        key_map = {"State": "state", "Gateway": "gateway"}
+    elif renderer == "NetworkManager":
+        cmd = "nmcli device show {}".format(interface)
+        key_map = {"GENERAL.STATE": "state", "IP4.GATEWAY": "gateway"}
+    else:
+        raise ValueError("Unknown renderer: {}".format(renderer))
+
+    return _get_cmd_info(cmd, key_map, renderer)
 
 
-def _get_nmcli_state(interface):
-    cmd = "nmcli device show {}".format(interface)
-    output = sp.check_output(cmd, shell=True)
-    for line in output.decode(sys.stdout.encoding).splitlines():
-        if ":" not in line:
-            continue
-        key, val = line.strip().split(":", maxsplit=1)
-        if key.strip() == "GENERAL.STATE":
-            return val.strip()
-    return None
+def _get_cmd_info(cmd, key_map, renderer):
+    info = {}
+    try:
+        output = sp.check_output(cmd, shell=True)
+        for line in output.decode(sys.stdout.encoding).splitlines():
+            # Skip lines that don't have a "key: value" format
+            if ":" not in line:
+                continue
+            key, val = line.strip().split(":", maxsplit=1)
+            key = key.strip()
+            val = val.strip()
+            if key in key_map:
+                info[key_map[key]] = val
+    except sp.CalledProcessError as e:
+        print("Error running {} command: {}".format(renderer, e))
+    return info
 
 
 def _check_routable_state(interface, renderer):
@@ -264,14 +270,12 @@ def _check_routable_state(interface, renderer):
     """
     routable = False
     state = ""
+    info = get_interface_info(interface, renderer)
+    state = info.get("state", "")
     if renderer == "networkd":
-        state = _get_networkctl_state(interface)
-        if "routable" in state:
-            routable = True
+        routable = "routable" in state
     elif renderer == "NetworkManager":
-        state = _get_nmcli_state(interface)
-        if "connected" in state and "disconnected" not in state:
-            routable = True
+        routable = "connected" in state and "disconnected" not in state
     else:
         raise ValueError("Unknown renderer: {}".format(renderer))
     return (routable, state)
@@ -311,35 +315,10 @@ def print_route_info():
     print()
 
 
-def _get_networkctl_gateway(interface):
-    cmd = "networkctl status --no-pager --no-legend {}".format(interface)
-    output = sp.check_output(cmd, shell=True)
-    for line in output.decode(sys.stdout.encoding).splitlines():
-        key, val = line.strip().split(":", maxsplit=1)
-        if key.strip() == "Gateway":
-            return val.strip()
-    return None
-
-
-def _get_nmcli_gateway(interface):
-    cmd = "nmcli device show {}".format(interface)
-    output = sp.check_output(cmd, shell=True)
-    for line in output.decode(sys.stdout.encoding).splitlines():
-        key, val = line.strip().split(":", maxsplit=1)
-        if key.strip() == "IP4.GATEWAY":
-            return val.strip()
-    return None
-
-
 def get_gateway(interface, renderer):
     gateway = None
-    if renderer == "networkd":
-        gateway = _get_networkctl_gateway(interface)
-    elif renderer == "NetworkManager":
-        gateway = _get_nmcli_gateway(interface)
-    else:
-        raise ValueError("Unknown renderer: {}".format(renderer))
-
+    info = get_interface_info(interface, renderer)
+    gateway = info.get("gateway", None)
     print("Got gateway address: {}".format(gateway))
     return gateway
 

@@ -49,6 +49,12 @@ NETPLAN_CFG_PATHS = ("/etc/netplan", "/lib/netplan", "/run/netplan")
 NETPLAN_TEST_CFG = "/etc/netplan/99-CREATED-BY-CHECKBOX.yaml"
 
 
+    """
+    Check the renderer used by netplan on the system.
+    This function looks for the renderer used in the yaml files located in the
+    NETPLAN_CFG_PATHS directories, and returns the first renderer found. If the
+    renderer is not found, it defaults to "networked".
+    """
 def netplan_renderer():
     for basedir in NETPLAN_CFG_PATHS:
         if os.path.exists(basedir):

@@ -390,6 +390,7 @@ class WifiClientTestNetplanTests(TestCase):
     ):
         netplan_config_backup()
         # Assert based on expected behavior when no config files are found
+        mock_copy.assert_not_called()
 
     @patch("shutil.rmtree", side_effect=lambda x: None)
     @patch("shutil.copy")

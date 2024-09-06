@@ -255,6 +255,9 @@ def _get_nmcli_state(interface):
 
 
 def _check_routable_state(interface, renderer):
+    """
+    Check if the interface is in a routable state depending on the renderer
+    """
     routable = False
     state = ""
     if renderer == "networkd":

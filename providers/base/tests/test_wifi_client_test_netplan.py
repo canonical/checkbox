@@ -526,6 +526,10 @@ class TestMain(TestCase):
     @patch("wifi_client_test_netplan.generate_test_config")
     @patch("wifi_client_test_netplan.write_test_config")
     @patch("wifi_client_test_netplan.netplan_apply_config", return_value=True)
+    @patch(
+        "wifi_client_test_netplan.check_and_get_renderer",
+        return_value="NetworkManager",
+    )
     def test_main_success(
         self,
         mock_write_test_config,

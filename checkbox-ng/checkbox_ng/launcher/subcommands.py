@@ -1344,7 +1344,28 @@ class Expand:
             all_jobs_and_templates,
             [tp.get_mandatory_qualifier()] + [tp.get_qualifier()],
         )
-
+        manifest_units = filter(
+            lambda unit: unit.unit == "manifest entry",
+            self.sa._context.unit_list,
+        )
+        requires = list(
+            filter(
+                lambda x: x and "manifest" in x,
+                map(
+                    lambda x: x.get_record_value("requires"),
+                    jobs_and_templates_list,
+                ),
+            )
+        )
+        manifest_units = list(
+            filter(
+                lambda x: any(
+                    x.id.rsplit(":", 1)[-1] in require for require in requires
+                ),
+                manifest_units,
+            )
+        )
+        jobs_and_templates_list = manifest_units + jobs_and_templates_list
         obj_list = []
         for unit in jobs_and_templates_list:
             obj = unit._raw_data.copy()
@@ -1353,7 +1374,7 @@ class Expand:
             obj["certification-status"] = (
                 self.get_effective_certification_status(unit)
             )
-            if unit.template_id:
+            if hasattr(unit, "template_id") and unit.template_id:
                 obj["template-id"] = unit.template_id
             obj_list.append(obj)
         obj_list.sort(key=lambda x: x.get("template-id", x["id"]))
@@ -1363,8 +1384,14 @@ class Expand:
             for obj in obj_list:
                 if obj["unit"] == "template":
                     print("Template '{}'".format(obj["template-id"]))
-                else:
+                elif obj["unit"] == "manifest entry":
+                    print("Manifest '{}'".format(obj["id"]))
+                elif obj["unit"] == "job":
                     print("Job '{}'".format(obj["id"]))
+                else:
+                    raise AssertionError(
+                        "Unknown unit type {}".format(obj["unit"])
+                    )
 
     def get_effective_certification_status(self, unit):
         if unit.unit == "template":

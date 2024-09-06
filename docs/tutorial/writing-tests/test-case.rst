@@ -166,7 +166,7 @@ Add a new test job to the same `.pxu` file:
 
     id: network_speed
     flags: simple
-    _summary: Test that the network speed is acceptable
+    _summary: Test that the network speed is acceptable (600bytes/s)
     command:
       curl -Y 600 -o /dev/null \
         https://cdimage.ubuntu.com/ubuntu-mini-iso/noble/daily-live/current/noble-mini-iso-amd64.iso
@@ -306,13 +306,8 @@ higher:
     - Any variable that is not in the ``environ`` section of a job is not set
     - Any variable not declared in the ``environment`` section of a launcher or configuration file is not set
 
-If you decide to parametrize your tests using environment variables, always
-check if they are set or give them a default value via ``${...:-default}``.
-If you expect a variable to be set and it is not, always fail the test stating
-what variable you needed and what it was for. If you decide to use a default
-value, always output the value the test is going to use in the test log so that
-when you have to investigate why something went wrong, it is trivial to
-reproduce the tests with the parameters that may have made it fail.
+- If you decide to parametrize your tests using environment variables, always check if they are set or give them a default value via ``${...:-default}``.
+- If you expect a variable to be set and it is not, always fail the test stating what variable you needed and what it was for. If you decide to use a default value, always output the value the test is going to use in the test log so that when you have to investigate why something went wrong, it is trivial to reproduce the tests with the parameters that may have made it fail.
 
 Resources
 =========
@@ -954,7 +949,7 @@ for exactly one situation, if possible. Consider the following:
    ``Mock.assert_called_once`` was introduced in Python 3.6. If you don't know
    when a function was introduced, refer to `the Python documentation
    <https://docs.python.org/3/library/unittest.mock.html#unittest.mock.Mock.assert_called_once>`_.
-   For example, if you check the documentation for `Mock.assert_called_once<https://docs.python.org/3/library/unittest.mock.html#unittest.mock.Mock.assert_called_once>`_ you will see *Added in version 3.6.*
+   For example, if you check the documentation you will see *Added in version 3.6.*
 
 To run the tests go to the root of the provider and run the following:
 
@@ -1106,8 +1101,6 @@ our test file:
 
     (checkbox_venv) $ ./manage.py build
     cc -Wall -pedantic ../../src/vfork_memory_share_test.c -o vfork_memory_share_test
-    # The following step is not necessary when you install a provider
-    # but
 
 
 Add a new test to our provider that calls our new binary by name like a script:

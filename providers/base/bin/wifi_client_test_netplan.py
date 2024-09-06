@@ -85,45 +85,49 @@ def check_and_get_renderer(renderer):
     return renderer
 
 
+def get_netplan_config_files():
+    config_files = []
+    for basedir in NETPLAN_CFG_PATHS:
+        if os.path.exists(basedir):
+            files = glob.glob(os.path.join(basedir, "*.yaml"))
+            config_files.extend(files)
+    return config_files
+
+
 def netplan_config_backup():
     print_head("Backup any existing netplan configuration files")
     if os.path.exists(TMP_PATH):
         print("Clear backup location")
         shutil.rmtree(TMP_PATH)
-    for basedir in NETPLAN_CFG_PATHS:
-        print("Checking in {}".format(basedir))
-        if os.path.exists(basedir):
-            files = glob.glob(os.path.join(basedir, "*.yaml"))
-            if files:
-                backup_loc = os.path.join(TMP_PATH, *basedir.split("/"))
-                os.makedirs(backup_loc)
-                for f in files:
-                    print(" ", f)
-                    shutil.copy(f, backup_loc)
+
+    config_files = get_netplan_config_files()
+
+    for f in config_files:
+        basedir = os.path.dirname(f)
+        print("Backing up from {}".format(basedir))
+        backup_loc = os.path.join(TMP_PATH, *basedir.split("/"))
+        os.makedirs(backup_loc, exist_ok=True)
+        print(" ", f)
+        shutil.copy(f, backup_loc)
     print()
 
 
 def netplan_config_wipe():
     print_head("Delete any existing netplan configuration files")
-    # NOTE: this removes not just configs for wifis, but for all device types
-    #  (ethernets, bridges) which could be dangerous
-    for basedir in NETPLAN_CFG_PATHS:
-        print("Wiping {}".format(basedir))
-        files = glob.glob(os.path.join(basedir, "*.yaml"))
-        for f in files:
-            print(" ", f)
-            os.remove(f)
+    config_files = get_netplan_config_files()
+    for f in config_files:
+        print(" ", f)
+        os.remove(f)
 
     # If there's any file left in configuration folder then there's something
     # not expected, stop the test
-    for basedir in NETPLAN_CFG_PATHS:
-        files = glob.glob(os.path.join(basedir, "*.yaml"))
-        if files:
-            print("ERROR: Failed to wipe netplan config files:")
-            for f in files:
-                print(" ", f)
-            netplan_config_restore()
-            raise SystemExit("Configuration file restored, exiting...")
+    remaining_files = get_netplan_config_files()
+    if remaining_files:
+        print("ERROR: Failed to wipe netplan config files:")
+        for f in remaining_files:
+            print(" ", f)
+        netplan_config_restore()
+        raise SystemExit("Configuration file restored, exiting...")
     print()
 
 

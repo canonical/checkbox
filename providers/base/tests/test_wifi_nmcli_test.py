@@ -322,25 +322,17 @@ class TestOpenConnection(unittest.TestCase):
         rc = open_connection(args)
         self.assertEqual(rc, 0)
 
-    @patch("wifi_nmcli_test.sp.call")
-    @patch("wifi_nmcli_test.perform_ping_test", return_value=False)
+    @patch("wifi_nmcli_test.sp.call", new=MagicMock())
+    @patch("wifi_nmcli_test.print_address_info", new=MagicMock())
+    @patch("wifi_nmcli_test.print_route_info", new=MagicMock())
+    @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
+    @patch("wifi_nmcli_test.print_head", new=MagicMock())
+    @patch("wifi_nmcli_test.print_cmd", new=MagicMock())
+    @patch("wifi_nmcli_test.perform_ping_test", return_value=True)
     @patch("wifi_nmcli_test.wait_for_connected", return_value=True)
-    @patch("wifi_nmcli_test.print_address_info")
-    @patch("wifi_nmcli_test.print_route_info")
-    @patch("wifi_nmcli_test.turn_up_connection")
-    @patch("wifi_nmcli_test.print_head")
-    @patch("wifi_nmcli_test.print_cmd")
-    def test_open_connection_failed_ping(
-        self,
-        print_cmd_mock,
-        print_head_mock,
-        turn_up_mock,
-        print_route_info_mock,
-        print_address_info_mock,
-        wait_for_connected_mock,
-        perform_ping_test_mock,
-        sp_call_mock,
-    ):
+    def test_open_connection_success(
+        self, perform_ping_test_mock, wait_for_connected_mock
+    ):```
         args = type("", (), {})()
         args.device = "wlan0"
         args.essid = "TestESSID"

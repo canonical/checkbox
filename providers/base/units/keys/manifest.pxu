@@ -1,4 +1,96 @@
 unit: manifest entry
-id: has_special_keys
-_name: Special keys Support
+id: has_key_battery_info
+_name: Battery Info
+_prompt: Does this machine have the following special keys?
 value-type: bool
+
+unit: manifest entry
+id: has_key_brightness
+_name: Screen brightness up/down
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_fn_lock
+_name: Function lock (Fn lock)
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_hibernate
+_name: Hibernate
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_keyboard_backlight
+_name: Keyboard backlight
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_keyboard_overhead_light
+_name: Keyboard overhead light
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_lock_screen
+_name: Lock screen
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_media_control
+_name: Media control (Play, Next, etc.)
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_microphone_mute
+_name: Microphone mute
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_audio_mute
+_name: Audio mute
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_sleep
+_name: Sleep
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_super
+_name: Super (usually the key with the Windows logo)
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_touchpad
+_name: Touchpad on/off
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_video_out
+_name: Video out (to toggle video output)
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_volume
+_name: Volume up/down
+_prompt: Does this machine have the following special keys?
+value-type: bool
+
+unit: manifest entry
+id: has_key_wireless
+_name: Wireless on/off
+_prompt: Does this machine have the following special keys?
+value-type: bool
+

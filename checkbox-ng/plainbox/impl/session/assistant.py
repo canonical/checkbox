@@ -1,9 +1,10 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2023 Canonical Ltd.
+# Copyright 2012-2024 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
 #   Maciej Kisielewski <maciej.kisielewski@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -181,6 +182,7 @@ class SessionAssistant:
         # manager matters, the context and metadata are just shortcuts to stuff
         # available on the manager.
         self._exclude_qualifiers = []
+        self._match_qualifiers = []
         self._manager = None
         self._context = None
         self._metadata = None
@@ -334,6 +336,12 @@ class SessionAssistant:
         for pattern in self._config.get_value("test selection", "exclude"):
             self._exclude_qualifiers.append(
                 RegExpJobQualifier(pattern, None, False)
+            )
+
+        self._match_qualifiers = []
+        for pattern in self._config.get_value("test selection", "match"):
+            self._match_qualifiers.append(
+                RegExpJobQualifier(pattern, None, True)
             )
         Unit.config = config
         # NOTE: We expect applications to call this at most once.
@@ -935,6 +943,20 @@ class SessionAssistant:
                 )
             ],
         )
+        if self._match_qualifiers:
+            # when `match` is provided, use the test plan but prune it to
+            # only pull the jobs asked in the launcher or their dependencies
+            desired_job_list = select_units(
+                desired_job_list,
+                self._match_qualifiers
+                + self._exclude_qualifiers
+                + [
+                    JobIdQualifier(
+                        "com.canonical.plainbox::collect-manifest", None, False
+                    )
+                ],
+            )
+
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are
         # available now.

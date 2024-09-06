@@ -1,0 +1,65 @@
+{
+    "gst_v4l2_audio_video_synchronization": {
+        "video_sinks": {
+            "on_desktop": "waylandsink",
+            "on_server": "kmssink connector-id=32 driver-name=mediatek",
+            "on_core": "kmssink connector-id=32 driver-name=mediatek"
+        },
+        "cases": [
+            {
+                "decoder_plugin": "v4l2h264dec",
+                "golden_sample_files": [
+                    {
+                        "file_name": "480p.mp4",
+                        "capssetter_pipeline": ""
+                    },
+                    {
+                        "file_name": "720p.mp4",
+                        "capssetter_pipeline": ""
+                    },
+                    {
+                        "file_name": "1080p.mp4",
+                        "capssetter_pipeline": ""
+                    },
+                    {
+                        "file_name": "4K.mp4",
+                        "capssetter_pipeline": "capssetter replace=true caps='video/x-h264, stream-format=(string)byte-stream, alignment=(string)au, level=(string)5.2, profile=(string)main, width=(int)3840, height=(int)2160, framerate=(fraction)24/1, pixel-aspect-ratio=(fraction)1/1, colorimetry=(string)bt2020, chroma-format=(string)4:2:0, bit-depth-luma=(uint)8, bit-depth-chroma=(uint)8, parsed=(boolean)true'"
+                    }
+                ]
+            }
+        ]
+    },
+    "gst_v4l2_video_decoder_performance_fakesink": [
+        {
+            "decoder_plugin": "v4l2h264dec",
+            "golden_sample_file": "H264_3840x2160_75fps_160Mbps.mp4",
+            "minimum_fps": 60,
+            "enable_performance_mode": true
+        },
+        {
+            "decoder_plugin": "v4l2h265dec",
+            "golden_sample_file": "H265_3840x2160_75fps_160Mbps.mp4",
+            "minimum_fps": 60,
+            "enable_performance_mode": true
+        },
+        {
+            "decoder_plugin": "v4l2mpeg4dec",
+            "golden_sample_file": "MPEG-4_1920x1080_60fps_60Mbps.mp4",
+            "minimum_fps": 60,
+            "enable_performance_mode": true
+        },
+        {
+            "decoder_plugin": "v4l2vp8dec",
+            "golden_sample_file": "VP8_1920x1080_60fps_40Mbps.webm",
+            "minimum_fps": 60,
+            "enable_performance_mode": true
+        },
+        {
+            "decoder_plugin": "v4l2vp9dec",
+            "golden_sample_file": "VP9_3840x2160_75fps_120Mbps.webm",
+            "minimum_fps": 60,
+            "enable_performance_mode": true
+        }
+    ]
+}
+

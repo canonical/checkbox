@@ -1,0 +1,28 @@
+plugin: manual
+category_id: com.canonical.certification::security
+id: ce-oem-secure-boot/uefi-secure-boot-unsigned-kernel
+estimated_duration: 120.0
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import lsb
+    from com.canonical.certification import bootloader
+requires:
+    manifest.has_uefi_secure_boot_support == 'True'
+    "Ubuntu Core" not in lsb.description
+    bootloader.name == "grub"
+_summary:
+    Verify UEFI Secure Boot by replacing signed kernel with unsigned kernel
+_purpose:
+    Check device fails to load unsigned kernel due to security protection
+_steps:
+    1. Enable the Secure Boot feature in UEFI firmware
+        - Enroll UEFI Keys (PK.auth, KEK.auth and db.auth)
+    2. Boot into Ubuntu
+    3. Find any unsigned generic kernel through command "apt search linux-image-unsigned | grep generic"
+    4. Install an unsigned generic kernel through command like "sudo apt install linux-image-unsigned-6.8.0-40-generic"
+    5. Reboot device and when the grub boot menu is displayed, choose the unsigned kernel and try to boot into Ubuntu
+    6. Verify the expected outcome and choose the original signed kernel then boot into Ubuntu
+_verification:
+    Do you see the following messages be displayed and system stucks here?
+        error: bad shim signature
+        error: you need to load the kernel first

@@ -258,7 +258,7 @@ class SessionStateExporterBaseTests(TestCase):
                         ("requires", 'job_b.ready == "yes"'),
                         ("command", "echo testing && true"),
                         ("io_log", ["dGVzdGluZwo="]),
-                        ("certification_status", "unspecified"),
+                        ("certification_status", "non-blocker"),
                     ]
                 ),
                 "job_b": OrderedDict(
@@ -278,7 +278,7 @@ class SessionStateExporterBaseTests(TestCase):
                         ("plugin", "resource"),
                         ("command", "echo ready: yes"),
                         ("io_log", ["cmVhZHk6IHllcwo="]),
-                        ("certification_status", "unspecified"),
+                        ("certification_status", "non-blocker"),
                     ]
                 ),
             },

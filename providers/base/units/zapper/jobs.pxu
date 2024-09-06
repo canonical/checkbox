@@ -1,5 +1,10 @@
 id: monitor/zapper-edid
-requires: zapper_capabilities.capability == 'hdmi-capture' and zapper_capabilities.edid_cycling == 'True'
+template-resource: zapper_capabilities desktop_session
+requires: 
+ zapper_capabilities.capability == 'hdmi-capture'
+ zapper_capabilities.edid_cycling == 'True'
+ desktop_session.desktop_session == 'True'
+ desktop_session.session_type in ['x11', 'wayland']
 category_id: com.canonical.plainbox::monitor
 plugin: shell
 estimated_duration: 60

@@ -19,19 +19,38 @@ set a new logical monitor configuration.
 """
 
 from abc import ABC, abstractmethod
-from typing import Dict
+from collections import namedtuple
+from typing import Dict, Set
+
+Mode = namedtuple("Mode", ["resolution"])
 
 
 class MonitorConfig(ABC):
     """Get and modify the current Monitor configuration."""
 
     @abstractmethod
+    def get_connected_monitors(self) -> Set[str]:
+        """Get list of connected monitors, even if inactive."""
+
+    @abstractmethod
     def get_current_resolutions(self) -> Dict[str, str]:
         """Get current active resolutions for each monitor."""
 
     @abstractmethod
-    def set_extended_mode(self):
+    def set_extended_mode(self) -> Dict[str, str]:
         """
         Set to extend mode so that each monitor can be displayed
         at preferred resolution.
         """
+
+    def _get_mode_at_max(self, modes) -> Mode:
+        """Get mode with maximum resolution."""
+
+        def mode_area(mode):
+            w, h = mode.resolution.split("x")
+            return int(w) * int(h)
+
+        try:
+            return max(modes, key=mode_area)
+        except ValueError as e:
+            raise ValueError("Provided modes are empty or invalid.") from e

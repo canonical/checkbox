@@ -141,7 +141,7 @@ class MergeReports:
             "category_id", "com.canonical.plainbox::uncategorised"
         )
         job_state.effective_certification_status = job.get_record_value(
-            "certification_status", "unspecified"
+            "certification_status", "non-blocker"
         )
 
     def _create_exporter(self, exporter_id):

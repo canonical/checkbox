@@ -7,3 +7,9 @@ unit: manifest entry
 id: has_camera
 _name: Camera/Capture Device
 value-type: bool
+
+unit: manifest entry
+id: has_led_camera
+_name: Camera
+_prompt: Does this machine have the following LED indicators?
+value-type: bool

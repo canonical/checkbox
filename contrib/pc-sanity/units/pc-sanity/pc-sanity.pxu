@@ -70,6 +70,7 @@ include:
     com.canonical.certification::miscellanea/check_nvidia_modalias_.*                  certification-status=blocker
     com.canonical.certification::miscellanea/check-kernel                              certification-status=blocker
     com.canonical.certification::info/image-url
+    com.canonical.certification::miscellanea/sideload-hook-no-fail
 
 id: pc-sanity-smoke-test
 _name: pc-sanity-smoke-test (Ubuntu Desktop)
@@ -159,5 +160,6 @@ include:
     com.canonical.certification::miscellanea/screen-pkg-not-public
     com.canonical.certification::miscellanea/screen-pkg-not-supported-by-canonical
     com.canonical.certification::miscellanea/ubuntu-desktop-recommends
+    com.canonical.certification::miscellanea/sideload-hook-no-fail
 nested_part:
     com.canonical.certification::stress-10-reboot-automated

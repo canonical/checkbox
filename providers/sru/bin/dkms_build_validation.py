@@ -62,12 +62,27 @@ def parse_dkms_status(dkms_status: str, ubuntu_release: str) -> List[Dict]:
     """
     kernel_info = []
     for line in dkms_status.splitlines():
-        details, status = line.split(": ")
-        if version.parse(ubuntu_release) >= version.parse("22.04"):
-            kernel_ver = details.split(", ")[1]
+        details, fullstatus = line.split(": ")
+        if " " in fullstatus:
+            (status, rest) = fullstatus.split(maxsplit=1)
+            logger.warning("dkms status included warning:")
+            logger.warning(" module: {}".format(details))
+            logger.warning(" message: {}".format(rest))
         else:
-            kernel_ver = details.split(", ")[2]
-        kernel_info.append({"version": kernel_ver, "status": status})
+            status = fullstatus
+        # will only get comma separated info on two statuses
+        # https://github.com/dell/dkms/blob/master/dkms.in#L1866
+        if status in ("built", "installed"):
+            if version.parse(ubuntu_release) >= version.parse("22.04"):
+                kernel_ver = details.split(", ")[1]
+            else:
+                kernel_ver = details.split(", ")[2]
+            kernel_info.append({"version": kernel_ver, "status": status})
+            print(
+                "Found module {}, status {} for kernel version {}".format(
+                    details, status, kernel_ver
+                )
+            )
 
     sorted_kernel_info = sorted(
         kernel_info, key=lambda x: parse_version(x["version"])
@@ -167,6 +182,12 @@ def main():
     # Parse and sort the DKMS status and sort the kernel versions
     sorted_kernel_info = parse_dkms_status(dkms_status, ubuntu_release)
 
+    # if there are no built or installed dkms modules there is nothing
+    # to check
+    if not sorted_kernel_info:
+        print("No installed dkms modules found, nothing to check")
+        return 0
+
     # kernel_ver_max should be the same as kernel_ver_current
     kernel_ver_current = run_command(["uname", "-r"])
     if check_kernel_version(
@@ -174,7 +195,7 @@ def main():
     ):
         return 1
 
-    # Count the occurernces of the latest and the oldest kernel version and
+    # Count the occurrences of the latest and the oldest kernel version and
     # compare the number of DKMS modules for min and max kernel versions
     check_dkms_module_count(sorted_kernel_info, dkms_status)
 

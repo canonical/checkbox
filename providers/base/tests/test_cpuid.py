@@ -85,6 +85,20 @@ class CpuidMainTests(unittest.TestCase):
     @patch("builtins.print")
     @patch("subprocess.check_output")
     @patch("cpuid.CPUID")
+    def test_meteor_lake(self, cpuid_mock, co_mock, print_mock):
+        call_mock = MagicMock()
+        call_mock.return_value = [0xA06A4, 0x0, 0x0, 0x0]
+        cpuid_mock.return_value = call_mock
+        co_mock.return_value = ""
+        main()
+        expected_msg = "CPUID: {} which appears to be a {} processor".format(
+            "0xa06a4", "Meteor Lake"
+        )
+        print_mock.assert_called_with(expected_msg)
+
+    @patch("builtins.print")
+    @patch("subprocess.check_output")
+    @patch("cpuid.CPUID")
     def test_amd_siena_sp6(self, cpuid_mock, co_mock, print_mock):
         # import pdb; pdb.set_trace()
         call_mock = MagicMock()

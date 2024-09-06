@@ -215,3 +215,11 @@ _summary: Provides image URL based on DistributionChannelDescriptor meta data
 _purpose: Provide a link to the ISO file which was installed on the system
 command: get-image-url.sh
 
+id: miscellanea/sideload-hook-no-fail
+category_id: com.canonical.plainbox::miscellanea
+plugin: shell
+command:
+ ! grep "# FAILED:" /var/log/installer/sideload-hook.sh.*.log
+_description:
+  Check the result of sideload/hook.sh, used for OEM PC enablements since 24.04
+

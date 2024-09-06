@@ -60,6 +60,10 @@ slots:
     read:
       - /
 
+package-repositories:
+  - type: apt
+    ppa: colin-king/stress-ng
+
 parts:
   version-calculator:
     plugin: dump

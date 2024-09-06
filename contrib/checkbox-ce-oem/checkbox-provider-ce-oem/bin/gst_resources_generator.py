@@ -22,6 +22,8 @@ import os
 import json
 import logging
 from typing import Dict, List
+from checkbox_support.scripts.image_checker import has_desktop_environment
+from checkbox_support.snap_utils.system import on_ubuntucore
 
 logging.basicConfig(level=logging.INFO)
 
@@ -29,11 +31,7 @@ logging.basicConfig(level=logging.INFO)
 def register_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        description=(
-            "Script helps verify the MD5 checksum from specific Gstreamer"
-            " Decoder with different resolutions and color spaces is exactly"
-            " match golden reference"
-        ),
+        description=("This script generates the resource for all scenarios"),
     )
 
     parser.add_argument(
@@ -61,6 +59,11 @@ def register_arguments() -> argparse.Namespace:
 
 
 class GstResources:
+
+    # video_golden_samples is the name of folder in hardware_codec_testing_data
+    # repo. https://github.com/canonical/hardware_codec_testing_data
+    VIDEO_GOLDEN_SAMPLES = "video_golden_samples"
+
     def __init__(self, args: argparse.Namespace) -> None:
         self._args = args
         try:
@@ -81,6 +84,7 @@ class GstResources:
             raise SystemExit("{}".format(e))
         self._current_scenario_name = ""
         self._resource_items = []
+        self._has_desktop_environment = has_desktop_environment()
 
     def _v4l2_video_decoder_md5_checksum_comparison_helper(
         self,
@@ -95,14 +99,19 @@ class GstResources:
         gst_v4l2_video_decoder_md5_checksum_comparison scenario
         """
         name = "{}x{}-{}-{}".format(width, height, decoder_plugin, color_space)
-        golden_sample_file = "{}/video_golden_samples/{}.{}".format(
-            self._args.video_codec_testing_data_path, name, source_format
+        name_with_format = "{}.{}".format(name, source_format)
+        golden_sample_file = os.path.join(
+            self._args.video_codec_testing_data_path,
+            self.VIDEO_GOLDEN_SAMPLES,
+            name_with_format,
         )
-        golden_md5_checkum_file = "{}/{}/golden_md5_checksum/{}/{}.md5".format(
+        md5_name = "{}.md5".format(name)
+        golden_md5_checkum_file = os.path.join(
             self._args.video_codec_testing_data_path,
             self._current_scenario_name,
+            "golden_md5_checksum",
             self._conf_name,
-            name,
+            md5_name,
         )
 
         returned_dict = {
@@ -133,6 +142,60 @@ class GstResources:
                     for resolution in item["resolutions"]
                     for color_space in item["color_spaces"]
                 ]
+            )
+
+    def gst_v4l2_audio_video_synchronization(
+        self, scenario_data: Dict
+    ) -> None:
+        video_sink = ""
+        if on_ubuntucore():
+            video_sink = scenario_data["video_sinks"]["on_core"]
+        elif self._has_desktop_environment:
+            video_sink = scenario_data["video_sinks"]["on_desktop"]
+        else:
+            video_sink = scenario_data["video_sinks"]["on_server"]
+
+        for item in scenario_data["cases"]:
+            for sample_file in item["golden_sample_files"]:
+                self._resource_items.append(
+                    {
+                        "scenario": self._current_scenario_name,
+                        "video_sink": video_sink,
+                        "decoder_plugin": item["decoder_plugin"],
+                        "golden_sample_file_name": sample_file["file_name"],
+                        "golden_sample_file": os.path.join(
+                            self._args.video_codec_testing_data_path,
+                            self.VIDEO_GOLDEN_SAMPLES,
+                            sample_file["file_name"],
+                        ),
+                        "capssetter_pipeline": sample_file[
+                            "capssetter_pipeline"
+                        ],
+                    }
+                )
+
+    def gst_v4l2_video_decoder_performance_fakesink(
+        self, scenario_data: List[Dict]
+    ) -> None:
+        for item in scenario_data:
+            self._resource_items.append(
+                {
+                    "scenario": self._current_scenario_name,
+                    "decoder_plugin": item["decoder_plugin"],
+                    "minimum_fps": item["minimum_fps"],
+                    "golden_sample_file": os.path.join(
+                        self._args.video_codec_testing_data_path,
+                        self.VIDEO_GOLDEN_SAMPLES,
+                        item["golden_sample_file"],
+                    ),
+                    # performance_target is "" means won't enable performance
+                    # mode.
+                    "performance_target": (
+                        self._args.video_codec_conf_file
+                        if item["enable_performance_mode"]
+                        else ""
+                    ),
+                }
             )
 
     def main(self):

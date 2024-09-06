@@ -15,7 +15,6 @@ port on DUT.
 import sys
 import argparse
 import serial
-import serial.rs485
 import time
 import logging
 import os
@@ -89,8 +88,6 @@ class Serial:
             stopbits=self.stopbits,
             timeout=self.timeout,
         )
-        if self.type == "RS485":
-            ser.rs485_mode = serial.rs485.RS485Settings()
         ser.reset_input_buffer()
         ser.reset_output_buffer()
         return ser

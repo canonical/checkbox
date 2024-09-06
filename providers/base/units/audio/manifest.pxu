@@ -7,13 +7,13 @@
 unit: manifest entry
 id: has_audio_playback
 _prompt: Does this machine have the following audio features?
-_name: Audio playback
+_name: Audio playback: Machine can emit sound. (For example, a desktop PC probably requires speakers connected to it)
 value-type: bool
 
 unit: manifest entry
 id: has_audio_capture
 _prompt: Does this machine have the following audio features?
-_name: Audio capture
+_name: Audio capture: Machine can record sound. (For example, a desktop PC probably requires a microphone connected to it)
 value-type: bool
 
 unit: manifest entry

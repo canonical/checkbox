@@ -63,6 +63,7 @@ WWAN_APN=internet
 WWAN_CONTROL_IF=ttyACM3
 WWAN_NET_IF=ppp0
 WWAN_SETUPTIME=30
+RTC_DEVICE_FILE=/dev/rtc0
 # modify checkbox configuration
 $ sudo checkbox-ce-oem.configure WIFI_AP_SETUPTIME=50
 ```

@@ -86,6 +86,7 @@ exclude:
     disk/stats_.*
     disk/storage_device_.*
     installer_debug.gz
+    stress/cpu_stress_ng_test
     stress/memory_stress_ng
     audio/valid-sof-firmware-sig
     miscellanea/check_prerelease
@@ -150,6 +151,7 @@ exclude:
     disk/stats_.*
     disk/storage_device_.*
     installer_debug.gz
+    stress/cpu_stress_ng_test
     stress/memory_stress_ng
     audio/valid-sof-firmware-sig
     miscellanea/check_prerelease

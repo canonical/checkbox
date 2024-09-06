@@ -17,7 +17,7 @@ template-resource: stress-ng-stressors
 template-unit: job
 id: stress/stress-ng-test-for-stressor-{stressor}
 template-id: stress/stress-ng-test-for-stressor-stressor
-category_id: stress-tests
+category_id: com.canonical.plainbox::stress
 _summary: Run the stress-ng for stressor {stressor}
 _purpose:
  Runs the stressors from stress-ng. Tests run using the

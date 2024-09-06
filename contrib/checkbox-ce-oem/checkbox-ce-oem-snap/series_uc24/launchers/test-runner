@@ -1,12 +1,12 @@
 #!/usr/bin/env checkbox-cli-wrapper
 [launcher]
-app_id = com.canonical.qa.ceoem:checkbox
+app_id = com.canonical.contrib:checkbox
 launcher_version = 1
 stock_reports = text, submission_files, certification
 
 [test plan]
-unit = com.canonical.qa.ceoem::ce-oem-iot-ubuntucore-24-automated
-filter = com.canonical.qa.ceoem::ce-oem-iot-ubuntucore-24
-         com.canonical.qa.ceoem::ce-oem-iot-ubuntucore-24-manual
-         com.canonical.qa.ceoem::ce-oem-iot-ubuntucore-24-automated
-         com.canonical.qa.ceoem::ce-oem-iot-ubuntucore-24-stress
+unit = com.canonical.contrib::ce-oem-iot-ubuntucore-24-automated
+filter = com.canonical.contrib::ce-oem-iot-ubuntucore-24
+         com.canonical.contrib::ce-oem-iot-ubuntucore-24-manual
+         com.canonical.contrib::ce-oem-iot-ubuntucore-24-automated
+         com.canonical.contrib::ce-oem-iot-ubuntucore-24-stress

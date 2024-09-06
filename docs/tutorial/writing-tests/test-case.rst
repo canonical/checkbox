@@ -40,6 +40,8 @@ ideal for prototyping. To provision Checkbox from source do the following:
 Creating a new provider
 =======================
 
+Checkbox organizes and manages all jobs, test plans and other test units in various logical containers called :term:`Provider`. To be discovered by Checkbox, test units and related components must be defined within a provider.
+
 Let's create a new Checkbox provider by using the Checkbox sub-command
 ``startprovider``.
 
@@ -64,7 +66,7 @@ Create the ``units/extended_tutorial.pxu``. This will be our first job:
       echo This job passes!
 
 .. note::
-    The ``simple`` flag sets a few default field of your unit allowing you to
+    The ``simple`` flag sets a few default fields for your unit, allowing you to
     easily develop a new test. See :ref:`jobs<job>` for a more comprehensive
     list of fields and flags
 
@@ -78,7 +80,7 @@ to install a provider one can either use ``python3 manage.py install`` or
 ``pip install`` and ``pip install -e``, namely, the second method allows us to
 modify and use the provider without re-installing it.
 
-Run the following:
+Run the following command in the new `2024.com.tutorial:tutorial` directory:
 
 .. code-block:: shell
 
@@ -121,9 +123,9 @@ actually run a ping command. Replace the ``command`` section of the job with
 .. note::
 
     Giving your test a significant ``summary`` and ``id`` is almost as important as
-    giving it a significant output. Ideally when a test fails one should be able
-    to understand what is being tested from these two fields, without resorting
-    to reading the ``command`` section.
+    giving it a significant output. These fields should provide enough context 
+    to understand the test's purpose without reading the command section, 
+    especially when troubleshooting failed tests.
 
 Try to re-use the ``run`` command to test the update. You should now see something
 like this:
@@ -156,6 +158,10 @@ Let's keep in mind that our objective is to test if the network works correctly.
 Currently we can check if we are able to ping some arbitrary host, but let's try
 to actually measure the network speed and determine if it is acceptable.
 
+Add the following job in ``units/extended_tutorial.pxu``:
+
+Add a new test job to the same `.pxu` file:
+
 .. code-block:: none
 
     id: network_speed
@@ -165,7 +171,7 @@ to actually measure the network speed and determine if it is acceptable.
       curl -Y 600 -o /dev/null \
         https://cdimage.ubuntu.com/ubuntu-mini-iso/noble/daily-live/current/noble-mini-iso-amd64.iso
 
-Try to run the test via the run command. You should see something like this:
+Try to run the test via the run command (depending on your Internet connection speed, it might take a while since the ``curl`` command downloads an ISO file!). You should see something like this:
 
 .. code-block:: none
 
@@ -245,8 +251,8 @@ Customize tests via environment variables
 
 Sometimes it is hard to set a unique value for a test parameter because it may
 depend on a multitude of factors. Notice that our previous test has a very
-ISP-generous interpretation of what is an acceptable speed, some customers may
-beg to differ. At the same time it is hard to define an acceptable speed for
+ISP-generous interpretation of the acceptable speed, which might not align 
+with all customers' expectations. At the same time, it is hard to define an acceptable speed for
 any interface and all machines. In Checkbox we use environment variables
 to customize testing parameters that have to be defined per-machine/test run.
 Consider the following:
@@ -293,7 +299,7 @@ higher:
 
 .. warning::
 
-    Don't assume that a Checkbox job will inherit any environment variable from
+    Checkbox jobs do not automatically inherit any environment variable from
     the parent shell, global env or any other source. There are a few exceptions
     but in general:
 
@@ -314,8 +320,7 @@ Resources
 Before even thinking to test if we are connected to the Internet a wise
 question to ask would be: do we even have a network interface? :term:`Resource`
 jobs gather information about a system, printing them in a ``key: value`` format
-that Checkbox parses. They are used for this purpose. Let's create a resource
-job to fetch this information.
+that Checkbox parses. Let's create a resource job to assess the network interface status.
 
 Create a new job with the following content:
 
@@ -330,9 +335,9 @@ Create a new job with the following content:
           "\nlink_info_kind: " + .linkinfo.info_kind +
           "\nlink_type: " + .link_type + "\n"'
 
-This test adds a new dependency to our provider. We need to declare this in
-the correct spot else this will not work in a reproducible manner. Let's create
-a packaging meta-data unit.
+We are using ``jq`` to parse the output of the ``ip`` command, which means we need to make sure ``jq`` is available. We need to declare this in
+the correct spot, otherwise this will not work in a reproducible manner. Let's add
+a packaging meta-data unit to our ``units/extended_tutorial.pxu`` file:
 
 .. code-block:: none
 
@@ -357,8 +362,8 @@ jq dependency is already required by a base provider test. We can rely on the
 base provider, so we can safely remove this dependency from our provider.
 
 .. warning::
-   If you don't have ``jq`` installed on your machine, install it now else you
-   won't be able to follow the next steps. You can install it either via
+   The next steps require the  command-line tool ``jq``. 
+   If you don't have ``jq`` installed on your machine, install it either via
    ``sudo snap install jq`` or ``sudo apt install jq``.
 
 Now that we have this new resource let's run it to see what the output is
@@ -504,7 +509,7 @@ Template Jobs
 =============
 
 Currently we are testing if any interface has access to the internet in our
-demo test. This may now be exactly what we want. When testing a device we may
+demo test. This may not be exactly what we want. When testing a device we may
 want to plug in every interface and test them all just to be sure that they all
 work. Ideally, the test that we want to do is the same for each interface.
 
@@ -541,7 +546,7 @@ something like this:
     your disposal. For a more principled solution see the Test Plan Extended
     Tutorial.
 
-We can technically still user run to execute this job but note that the job
+We can technically still use ``run`` to execute this job but note that the job
 id is, and must, be calculated at runtime, as ids must be unique. Try to run
 the following:
 
@@ -556,8 +561,8 @@ the following:
 As you can see, nothing was ran. There are two reasons:
 
 - Templates don't automatically pull the ``template-resource`` dependency when
-  executed via run
-- Templates can't be executed via run using their ``template-id``
+  executed via ``run``
+- Templates can't be executed via ``run`` using their ``template-id``
 
 We can easily solve the situation in this example by manually pulling the
 dependency and using the explicit id of the job that will be generated or a
@@ -589,7 +594,7 @@ Checkbox but this can be, in practice, often hard or impossible.
 For a more principled solution see the the Test Plan Tutorial section.
 
 Let's then modify the job so that it actually does the test and use the template
-filter so that we don't generate tests for interfaces that we know that will
+filter so that we don't generate tests for interfaces that we know will
 not work:
 
 .. code-block:: none
@@ -729,7 +734,7 @@ Dealing with complexity - Python
 The ``network_available`` test that we have created during this tutorial is
 very simple but, in the real world things are not as simple. For example,
 right now we are only pinging once from the test, if the ping goes through
-we call that a success, else a failure. This works in our simple scenario while
+the test is considered successful; otherwise, it's a failure. This works in our simple scenario while
 developing the test, but when hundreds of devices all try to ping at the same
 time things can get messy quickly, and messages can get lost. One possible
 evolution for this test is to do more pings and use the packet
@@ -751,7 +756,7 @@ proper unit tests.
     multiple pipes and destructive redirection within a command section. You
     will thank us later.
 
-Create two new directories in the provider: ``bin/`` and ``tests/``. Create
+Create a new directory in the provider: ``bin/``. Create
 a new python file in ``bin/`` and call it ``network_available.py`` and make it
 executable (``chmod +x network_available.py``).
 
@@ -945,12 +950,11 @@ for exactly one situation, if possible. Consider the following:
 .. note::
    We use ``self.assertTrue(check_output_mock.called)`` instead of
    ``check_output_mock.assert_called_once()``. The reason is that we have to be
-   compatible (in tests as well!) with python3.5 and
-   ``Mock.assert_called_once`` was introduced in Python3.6. If you don't know
-   when a function was introduced, refer to `the python documentation
+   compatible (in tests as well!) with Python 3.5 and
+   ``Mock.assert_called_once`` was introduced in Python 3.6. If you don't know
+   when a function was introduced, refer to `the Python documentation
    <https://docs.python.org/3/library/unittest.mock.html#unittest.mock.Mock.assert_called_once>`_.
-   See below the example, if a function was introduced with a specific
-   version, you will find it there.
+   For example, if you check the documentation for `Mock.assert_called_once<https://docs.python.org/3/library/unittest.mock.html#unittest.mock.Mock.assert_called_once>`_ you will see *Added in version 3.6.*
 
 To run the tests go to the root of the provider and run the following:
 
@@ -999,12 +1003,12 @@ following:
     --------------------------------------------------------
     TOTAL                         25     10    60%
 
-    # You can also get an html report with the following
+    # You can also get an HTML report with the following
     # it is very convenient as you can see file per file what lines are covered
     # in
     (checkbox_venv) > python3 -m coverage html
 
-As you can see we are way below the coverage target but this is difficult to
+As you can see we are way below the coverage target (90%) but this is difficult to
 fix, we should add an end to end test of the main function, so that we
 cover it but, most importantly, we leave trace in the test file of an expected
 usage of the script. Add the following to ``tests/test_network_available.py``
@@ -1135,9 +1139,9 @@ Running it you should see the following:
      ☑ : Check that vfork syscall shares the memory between parent and child
 
 .. warning::
-   Checkbox is delivered for many platforms so be mindful of what you include
+   Checkbox is delivered for many platforms (x86, ARM, etc.) so be mindful of what you include
    in the ``src/`` directory, especially if you plan to contribute the test
-   upstream. It must be compatible with all architectures we build for, debian
+   upstream. It must be compatible with all architectures we build for, Debian
    packages and snaps.
 
 .. note::

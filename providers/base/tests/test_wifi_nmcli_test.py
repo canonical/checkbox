@@ -158,7 +158,8 @@ class TestTurnDownNmConnections(unittest.TestCase):
     def test_turn_down_single_connection_with_exception(
         self, get_connections_mock, sp_call_mock
     ):
-        turn_down_nm_connections()
+        with self.assertRaises(Exception):
+            turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
         sp_call_mock.assert_called_once_with("nmcli c down uuid1".split())
 
@@ -192,9 +193,10 @@ class TestDeleteTestApSsidConnection(unittest.TestCase):
     )
     @patch("wifi_nmcli_test.print")
     def test_delete_existing_test_con(
-        self, get_nm_wireless_connections_mock, sp_call_mock, print_mock
+        self, print_mock, get_nm_wireless_connections_mock, sp_call_mock
     ):
         delete_test_ap_ssid_connection()
+        print_mock.assert_called_with("TEST_CON is deleted")
 
     @patch("wifi_nmcli_test.sp.call", side_effect=Exception("Deletion failed"))
     @patch(
@@ -203,14 +205,24 @@ class TestDeleteTestApSsidConnection(unittest.TestCase):
             "TEST_CON": {"uuid": "uuid-test", "state": "deactivated"}
         },
     )
+    @patch("wifi_nmcli_test.print")
     def test_delete_test_con_exception(
-        self, get_nm_wireless_connections_mock, sp_call_mock
+        self, print_mock, get_nm_wireless_connections_mock, sp_call_mock
     ):
         delete_test_ap_ssid_connection()
+        print_mock.assert_called_with(
+            "Can't delete TEST_CON : Deletion failed"
+        )
 
     @patch("wifi_nmcli_test._get_nm_wireless_connections", return_value={})
-    def test_no_test_con_to_delete(self, get_nm_wireless_connections_mock):
+    @patch("wifi_nmcli_test.print")
+    def test_no_test_con_to_delete(
+        self, print_mock, get_nm_wireless_connections_mock
+    ):
         delete_test_ap_ssid_connection()
+        print_mock.assert_called_with(
+            "No TEST_CON connection found, nothing to delete"
+        )
 
 
 class TestListAps(unittest.TestCase):
@@ -248,6 +260,7 @@ class TestShowAps(unittest.TestCase):
     def test_show_aps_empty(self, mock_print):
         aps_dict = {}
         show_aps(aps_dict)
+        mock_print.assert_called_with()
 
     @patch("wifi_nmcli_test.print")
     def test_show_aps_multiple_aps(self, mock_print):
@@ -328,11 +341,11 @@ class TestOpenConnection(unittest.TestCase):
     @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
     @patch("wifi_nmcli_test.print_head", new=MagicMock())
     @patch("wifi_nmcli_test.print_cmd", new=MagicMock())
-    @patch("wifi_nmcli_test.perform_ping_test", return_value=True)
+    @patch("wifi_nmcli_test.perform_ping_test", return_value=False)
     @patch("wifi_nmcli_test.wait_for_connected", return_value=True)
-    def test_open_connection_success(
-        self, perform_ping_test_mock, wait_for_connected_mock
-    ):```
+    def test_open_connection_failed_ping(
+        self, wait_for_connected_mock, perform_ping_test_mock
+    ):
         args = type("", (), {})()
         args.device = "wlan0"
         args.essid = "TestESSID"

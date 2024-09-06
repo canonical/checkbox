@@ -49,13 +49,13 @@ NETPLAN_CFG_PATHS = ("/etc/netplan", "/lib/netplan", "/run/netplan")
 NETPLAN_TEST_CFG = "/etc/netplan/99-CREATED-BY-CHECKBOX.yaml"
 
 
+def netplan_renderer():
     """
     Check the renderer used by netplan on the system.
     This function looks for the renderer used in the yaml files located in the
     NETPLAN_CFG_PATHS directories, and returns the first renderer found. If the
     renderer is not found, it defaults to "networked".
     """
-def netplan_renderer():
     for basedir in NETPLAN_CFG_PATHS:
         if os.path.exists(basedir):
             files = glob.glob(os.path.join(basedir, "*.yaml"))
@@ -133,7 +133,7 @@ def netplan_config_restore():
     if files:
         print("Restoring:")
         for f in files:
-            restore_loc = f[len(TMP_PATH) :]
+            restore_loc = f[len(TMP_PATH):]
             print(" ", restore_loc)
             try:
                 shutil.move(f, restore_loc)
@@ -233,7 +233,7 @@ def _get_networkctl_state(interface):
     cmd = "networkctl status --no-pager --no-legend {}".format(interface)
     output = sp.check_output(cmd, shell=True)
     for line in output.decode(sys.stdout.encoding).splitlines():
-        # Skip lines that don't have a "key: value" format 
+        # Skip lines that don't have a "key: value" format
         if ":" not in line:
             continue
         key, val = line.strip().split(":", maxsplit=1)

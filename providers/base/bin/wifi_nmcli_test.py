@@ -111,7 +111,7 @@ def delete_test_ap_ssid_connection():
         sp.call(shlex.split(cmd))
         print("TEST_CON is deleted")
     except Exception as e:
-        print("Can't delect TEST_CON : {}".format(str(e)))
+        print("Can't delete TEST_CON : {}".format(str(e)))
 
 
 def device_rescan():

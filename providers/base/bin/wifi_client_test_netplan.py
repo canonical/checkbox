@@ -233,6 +233,7 @@ def _get_networkctl_state(interface):
     cmd = "networkctl status --no-pager --no-legend {}".format(interface)
     output = sp.check_output(cmd, shell=True)
     for line in output.decode(sys.stdout.encoding).splitlines():
+        # Skip lines that don't have a "key: value" format 
         if ":" not in line:
             continue
         key, val = line.strip().split(":", maxsplit=1)

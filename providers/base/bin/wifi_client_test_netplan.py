@@ -68,6 +68,10 @@ def netplan_renderer():
 
 
 def check_and_get_renderer(renderer):
+    """
+    Check if the renderer provided matches the one used by netplan. If the
+    renderer is set to "AutoDetect", it will return the detected renderer.
+    """
     machine_renderer = netplan_renderer()
 
     if renderer == "AutoDetect":

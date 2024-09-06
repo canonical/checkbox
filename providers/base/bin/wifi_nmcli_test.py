@@ -94,7 +94,7 @@ def turn_down_nm_connections():
             print_cmd(cmd)
             sp.call(shlex.split(cmd))
             print("{} {} is down now".format(name, uuid))
-        except Exception as e:
+        except sp.CalledProcessError as e:
             print("Can't down {}: {}".format(uuid, str(e)))
     print()
 

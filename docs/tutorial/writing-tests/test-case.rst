@@ -15,23 +15,23 @@ ideal for prototyping. To provision Checkbox from source do the following:
 .. code-block:: shell
 
     # first install python3 and python3-venv
-    > sudo apt install python3 python3-venv python3-pip
+    $ sudo apt install python3 python3-venv python3-pip
     # clone the Checkbox repository
-    > git clone https://github.com/canonical/checkbox.git
+    $ git clone https://github.com/canonical/checkbox.git
     # call the mk-venv script with the location of your virtualenv
     # Note: this mk-venv script sets up more than a normal virtual env. It also
     #       adds some Checkbox specific environment variables
-    > cd checkbox/checkbox-ng
-    > ./mk-venv ../../checkbox_venv
+    $ cd checkbox/checkbox-ng
+    $ ./mk-venv ../../checkbox_venv
     # Activate the virtual environment
-    > . ../../checkbox_venv/bin/activate
+    $ . ../../checkbox_venv/bin/activate
     # Install checkbox_support, it is a collection of utility scripts used by
     # many tests
-    (checkbox_venv) > cd ../checkbox-support
-    (checkbox_venv) > pip install -e .
+    (checkbox_venv) $ cd ../checkbox-support
+    (checkbox_venv) $ pip install -e .
     # Install the resource provider, we will use it further along in this tutorial
-    (checkbox_venv) > cd ../providers/resource
-    (checkbox_venv) > python3 manage.py develop
+    (checkbox_venv) $ cd ../providers/resource
+    (checkbox_venv) $ python3 manage.py develop
 
 .. note::
     Remember to activate the virtual environment! You can also create an alias
@@ -47,7 +47,7 @@ Let's create a new Checkbox provider by using the Checkbox sub-command
 
 .. code-block:: shell
 
-   (checkbox_venv) > checkbox-cli startprovider 2024.com.tutorial:tutorial
+   (checkbox_venv) $ checkbox-cli startprovider 2024.com.tutorial:tutorial
 
 Inside the provider you can see there are several directories. Definitions (the
 descriptions of what we want to do) are contained in PXU files that we store in
@@ -84,13 +84,13 @@ Run the following command in the new `2024.com.tutorial:tutorial` directory:
 
 .. code-block:: shell
 
-    (checkbox_venv) > python3 manage.py develop
+    (checkbox_venv) $ python3 manage.py develop
 
 Now to run our test we can use the ``run`` sub-command. Try the following:
 
 .. code-block:: none
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_test
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::network_test
     ===========================[ Running Selected Jobs ]============================
     =========[ Running job 1 / 1. Estimated time left (at least): 0:00:00 ]=========
     --------------------------[ A job that always passes ]--------------------------
@@ -123,8 +123,8 @@ actually run a ping command. Replace the ``command`` section of the job with
 .. note::
 
     Giving your test a significant ``summary`` and ``id`` is almost as important as
-    giving it a significant output. These fields should provide enough context 
-    to understand the test's purpose without reading the command section, 
+    giving it a significant output. These fields should provide enough context
+    to understand the test's purpose without reading the command section,
     especially when troubleshooting failed tests.
 
 Try to re-use the ``run`` command to test the update. You should now see something
@@ -132,7 +132,7 @@ like this:
 
 .. code-block:: none
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_available
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::network_available
     ===========================[ Running Selected Jobs ]============================
     =========[ Running job 1 / 1. Estimated time left (at least): 0:00:00 ]=========
     ---------------------[ Test that the internet is reachable ]--------------------
@@ -175,7 +175,7 @@ Try to run the test via the run command (depending on your Internet connection s
 
 .. code-block:: none
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_speed
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::network_speed
     ===========================[ Running Selected Jobs ]============================
     =========[ Running job 1 / 1. Estimated time left (at least): 0:00:00 ]=========
     -----------------[ Test that the network speed is acceptable ]------------------
@@ -225,7 +225,7 @@ in the run command:
 
 .. code-block:: none
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_available \
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::network_available \
       com.canonical.certification::network_speed
 
 Finally let's test that this actually works. To do so we can temporarily change the
@@ -251,7 +251,7 @@ Customize tests via environment variables
 
 Sometimes it is hard to set a unique value for a test parameter because it may
 depend on a multitude of factors. Notice that our previous test has a very
-ISP-generous interpretation of the acceptable speed, which might not align 
+ISP-generous interpretation of the acceptable speed, which might not align
 with all customers' expectations. At the same time, it is hard to define an acceptable speed for
 any interface and all machines. In Checkbox we use environment variables
 to customize testing parameters that have to be defined per-machine/test run.
@@ -284,7 +284,7 @@ higher:
 
 .. code-block:: none
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_speed
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::network_speed
     [...]
     Testing for the limit speed: 60000000
       % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
@@ -352,7 +352,7 @@ If you now run the following command you will notice a validation error.
 .. code-block:: none
 
 
-    (checkbox_venv) > python3 manage.py validate
+    (checkbox_venv) $ python3 manage.py validate
     [...]
     error: ../base/units/submission/packaging.pxu:3: field 'Depends', clashes with 1 other unit, look at: ../base/units/submission/packaging.pxu:1-3, units/extended_tutorial.pxu:1-4
     Validation of provider tutorial has failed
@@ -362,7 +362,7 @@ jq dependency is already required by a base provider test. We can rely on the
 base provider, so we can safely remove this dependency from our provider.
 
 .. warning::
-   The next steps require the  command-line tool ``jq``. 
+   The next steps require the  command-line tool ``jq``.
    If you don't have ``jq`` installed on your machine, install it either via
    ``sudo snap install jq`` or ``sudo apt install jq``.
 
@@ -370,7 +370,7 @@ Now that we have this new resource let's run it to see what the output is
 
 .. code-block:: none
 
-    (checkbox_venv) >  checkbox-cli run com.canonical.certification::network_iface_info
+    (checkbox_venv) $  checkbox-cli run com.canonical.certification::network_iface_info
     ===========================[ Running Selected Jobs ]============================
     =========[ Running job 1 / 1. Estimated time left (at least): 0:00:00 ]=========
     ----------------[ Fetches information of all network intefaces ]----------------
@@ -426,7 +426,7 @@ the same namespace.
 
 .. code-block:: none
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_available
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::network_available
     ===========================[ Running Selected Jobs ]============================
     =========[ Running job 1 / 2. Estimated time left (at least): 0:00:00 ]=========
     ----------------[ Fetches information of all network intefaces ]----------------
@@ -476,7 +476,7 @@ command.
 
 .. code-block:: none
 
-    (checkbox_venv) > checkbox-cli list all-jobs -f "{id} -> {_summary} : {plugin}\n" | grep resource | grep device
+    (checkbox_venv) $ checkbox-cli list all-jobs -f "{id} -> {_summary} : {plugin}\n" | grep resource | grep device
     [...]
     device -> Collect information about hardware devices (udev) : resource
     [...]
@@ -486,13 +486,13 @@ job and check the output.
 
 .. code-block:: none
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::device | grep -C 15 wlan
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::device | grep -C 15 wlan
     [...]
     category: WIRELESS
     interface: wlan0
     [...]
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::device | grep -C 15 enp
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::device | grep -C 15 enp
     [...]
     category: NETWORK
     interface: enp5s0
@@ -552,7 +552,7 @@ the following:
 
 .. code-block:: none
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_available_interface
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::network_available_interface
     ===========================[ Running Selected Jobs ]============================
     Finalizing session that hasn't been submitted anywhere: checkbox-run-2024-08-06T10.02.00
     ==================================[ Results ]===================================
@@ -570,14 +570,14 @@ regex:
 
 .. code-block:: none
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_iface_info "com.canonical.certification::network_available_wlan0"
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::network_iface_info "com.canonical.certification::network_available_wlan0"
     [...]
     ==================================[ Results ]===================================
      ☑ : Fetches information of all network intefaces
      ☑ : Test that the internet is reachable via wlan0
 
     # or alternatively with the regex (note the " " around the id, they are important!)
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_iface_info "com.canonical.certification::network_available_.*"
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::network_iface_info "com.canonical.certification::network_available_.*"
     [...]
     ==================================[ Results ]===================================
      ☑ : Fetches information of all network intefaces
@@ -617,7 +617,7 @@ Re-running the jobs, we now see way less jobs, although a few are failing:
 
 .. code-block:: none
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_iface_info "com.canonical.certification::network_available_.*"
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::network_iface_info "com.canonical.certification::network_available_.*"
     [...]
     =========[ Running job 1 / 3. Estimated time left (at least): 0:00:00 ]=========
     --------------[ Test that the internet is reachable via enp2s0f0 ]--------------
@@ -701,7 +701,7 @@ submission).
 .. code-block:: none
     :emphasize-lines: 6,7,12,13
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::network_iface_info "com.canonical.certification::network_available_.*"
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::network_iface_info "com.canonical.certification::network_available_.*"
     =========[ Running job 1 / 3. Estimated time left (at least): 0:00:00 ]=========
     --------------[ Test that the internet is reachable via enp2s0f0 ]--------------
     ID: com.canonical.certification::network_available_enp2s0f0
@@ -960,7 +960,7 @@ To run the tests go to the root of the provider and run the following:
 
 .. code-block:: none
 
-    (checkbox_venv) > python3 manage.py test -u
+    (checkbox_venv) $ python3 manage.py test -u
     test_failure (test_network_available.TestNetworkAvailable.test_failure) ...
     [...]
     test_nominal (test_network_available.TestNetworkAvailable.test_nominal) ...
@@ -989,14 +989,14 @@ following:
 
 .. code-block:: none
 
-    (checkbox_venv) > python3 -m coverage run manage.py test -u
-    (checkbox_venv) > python3 -m coverage report --include=bin/*
+    (checkbox_venv) $ python3 -m coverage run manage.py test -u
+    (checkbox_venv) $ python3 -m coverage report --include=bin/*
     Name                       Stmts   Miss  Cover
     ----------------------------------------------
     bin/network_available.py      25     10    60%
     ----------------------------------------------
     TOTAL                         25     10    60%
-    (checkbox_venv) > python3 -m coverage report --include=bin/* -m
+    (checkbox_venv) $ python3 -m coverage report --include=bin/* -m
     Name                       Stmts   Miss  Cover   Missing
     --------------------------------------------------------
     bin/network_available.py      25     10    60%   8-18, 29, 49-52, 56
@@ -1006,7 +1006,7 @@ following:
     # You can also get an HTML report with the following
     # it is very convenient as you can see file per file what lines are covered
     # in
-    (checkbox_venv) > python3 -m coverage html
+    (checkbox_venv) $ python3 -m coverage html
 
 As you can see we are way below the coverage target (90%) but this is difficult to
 fix, we should add an end to end test of the main function, so that we
@@ -1104,7 +1104,7 @@ our test file:
 
 .. code:: none
 
-    (checkbox_venv) > ./manage.py build
+    (checkbox_venv) $ ./manage.py build
     cc -Wall -pedantic ../../src/vfork_memory_share_test.c -o vfork_memory_share_test
     # The following step is not necessary when you install a provider
     # but
@@ -1124,7 +1124,7 @@ Running it you should see the following:
 
 .. code-block:: none
 
-    (checkbox_venv) > checkbox-cli run com.canonical.certification::vfork_memory_share
+    (checkbox_venv) $ checkbox-cli run com.canonical.certification::vfork_memory_share
     ===========================[ Running Selected Jobs ]============================
     =========[ Running job 1 / 1. Estimated time left (at least): 0:00:00 ]=========
     ----[ Check that vfork syscall shares the memory between parent and child ]-----

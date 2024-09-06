@@ -12,6 +12,7 @@ import shutil
 import subprocess as sp
 import sys
 import glob
+from pathlib import Path
 
 from packaging import version as version_parser
 
@@ -77,9 +78,8 @@ def save_connections(keyfile_list):
             continue
 
         print("  Found file {}".format(f))
-
-        basedir = os.path.dirname(f)
-        backup_loc = os.path.join(SAVE_DIR, *basedir.split("/"))
+        basedir = Path(f).parent
+        backup_loc = SAVE_DIR / basedir
 
         os.makedirs(backup_loc, exist_ok=True)
         save_f = shutil.copy(f, backup_loc)
@@ -94,9 +94,11 @@ def restore_connections():
         print("No stored 802.11 connections found")
         return
     for f in saved_list:
-        save_f = f[len(SAVE_DIR) :]
+        f_path = Path(f)
+        save_f = f_path.relative_to(SAVE_DIR)
+        dest_path = Path("/") / save_f
         print("Restore connection {}".format(save_f))
-        shutil.move(f, save_f)
+        shutil.move(f, dest_path)
 
 
 if __name__ == "__main__":

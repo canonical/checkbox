@@ -17,6 +17,7 @@
 
 
 import unittest
+from pathlib import Path
 from unittest.mock import patch, call, ANY
 
 from wifi_nmcli_backup import (
@@ -120,34 +121,34 @@ class WifiNmcliBackupTests(unittest.TestCase):
             "No stored 802.11 connections found"
         )
 
-    @patch("wifi_nmcli_backup.shutil.move")
     @patch("wifi_nmcli_backup.SAVE_DIR", "/stored-system-connections")
-    @patch(
-        "wifi_nmcli_backup.glob.glob",
-        return_value=[
-            "/stored-system-connections/etc/NetworkManager/system-connections"
-            "/connection1.nmconnection",
-            "/stored-system-connections/run/NetworkManager/system-connections"
-            "/connection2.nmconnection",
-        ],
-    )
+    @patch("wifi_nmcli_backup.shutil.move")
+    @patch("wifi_nmcli_backup.glob.glob")
     @patch("wifi_nmcli_backup.print")
     def test_restore_connections_existing_files(
         self, mock_print, mock_glob, mock_move
     ):
+        mock_glob.return_value = [
+            "/stored-system-connections/etc/NetworkManager/system-connections/"
+            "connection1.nmconnection",
+            "/stored-system-connections/run/NetworkManager/system-connections/"
+            "connection2.nmconnection",
+        ]
+
         restore_connections()
+
         expected_calls = [
             call(
-                "/stored-system-connections/etc/NetworkManager"
-                "/system-connections/connection1.nmconnection",
-                "/etc/NetworkManager/system-connections"
-                "/connection1.nmconnection",
+                "/stored-system-connections/etc/NetworkManager/"
+                "system-connections/connection1.nmconnection",
+                Path("/etc/NetworkManager/system-connections/"
+                     "connection1.nmconnection"),
             ),
             call(
-                "/stored-system-connections/run/NetworkManager"
-                "/system-connections/connection2.nmconnection",
-                "/run/NetworkManager/system-connections"
-                "/connection2.nmconnection",
+                "/stored-system-connections/run/NetworkManager/"
+                "system-connections/connection2.nmconnection",
+                Path("/run/NetworkManager/system-connections/"
+                     "connection2.nmconnection"),
             ),
         ]
 

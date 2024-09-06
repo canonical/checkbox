@@ -141,14 +141,18 @@ class WifiNmcliBackupTests(unittest.TestCase):
             call(
                 "/stored-system-connections/etc/NetworkManager/"
                 "system-connections/connection1.nmconnection",
-                Path("/etc/NetworkManager/system-connections/"
-                     "connection1.nmconnection"),
+                Path(
+                    "/etc/NetworkManager/system-connections/"
+                    "connection1.nmconnection"
+                ),
             ),
             call(
                 "/stored-system-connections/run/NetworkManager/"
                 "system-connections/connection2.nmconnection",
-                Path("/run/NetworkManager/system-connections/"
-                     "connection2.nmconnection"),
+                Path(
+                    "/run/NetworkManager/system-connections/"
+                    "connection2.nmconnection"
+                ),
             ),
         ]
 

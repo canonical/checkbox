@@ -264,11 +264,11 @@ class TestShowAps(unittest.TestCase):
 
 
 class TestWaitForConnected(unittest.TestCase):
+    @patch("wifi_nmcli_test.print_cmd", new=MagicMock())
     @patch("wifi_nmcli_test.sp.check_output")
-    @patch("wifi_nmcli_test.print_cmd")
     @patch("wifi_nmcli_test.time.sleep", return_value=None)
     def test_wait_for_connected_success(
-        self, mock_sleep, mock_print_cmd, mock_check_output
+        self, mock_sleep, mock_check_output
     ):
         mock_check_output.side_effect = [
             b"100:connected\nTestESSID",

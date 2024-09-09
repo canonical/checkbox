@@ -21,11 +21,14 @@ from unittest import TestCase
 from unittest.mock import patch, MagicMock, mock_open, ANY
 import datetime
 import subprocess as sp
-
+import io
+import sys
+from unittest.mock import call
 from wifi_client_test_netplan import (
     netplan_renderer,
     check_and_get_renderer,
     netplan_config_backup,
+    netplan_config_wipe,
     _check_routable_state,
     wait_for_routable,
     get_gateway,
@@ -506,38 +509,302 @@ class WifiClientTestNetplanTests(TestCase):
         with self.assertRaises(ValueError):
             get_interface_info(interface, renderer)
 
+    @patch('wifi_client_test_netplan.get_netplan_config_files')
+    @patch('wifi_client_test_netplan.os.remove')
+    @patch('wifi_client_test_netplan.print_head')
+    def test_successful_wipe(
+        self, mock_print_head, mock_remove, mock_get_files
+    ):
+        mock_get_files.side_effect = [
+            ['/etc/netplan/01-netcfg.yaml', '/etc/netplan/02-wifi.yaml'],
+            [],
+        ]
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        netplan_config_wipe()
+        sys.stdout = sys.__stdout__
+        mock_print_head.assert_called_once_with(
+            "Delete any existing netplan configuration files"
+        )
+        mock_remove.assert_has_calls(
+            [
+                call("/etc/netplan/01-netcfg.yaml"),
+                call("/etc/netplan/02-wifi.yaml"),
+            ]
+        )
+        self.assertIn(
+            "/etc/netplan/01-netcfg.yaml",
+            captured_output.getvalue(),
+        )
+        self.assertIn(
+            "/etc/netplan/02-wifi.yaml",
+            captured_output.getvalue(),
+        )
+
+    @patch('wifi_client_test_netplan.get_netplan_config_files')
+    @patch('wifi_client_test_netplan.os.remove')
+    @patch('wifi_client_test_netplan.netplan_config_restore')
+    @patch('wifi_client_test_netplan.print_head')
+    def test_failed_wipe(
+        self,
+        mock_print_head,
+        mock_restore,
+        mock_remove,
+        mock_get_files,
+    ):
+        mock_get_files.side_effect = [
+            ["/etc/netplan/01-netcfg.yaml", "/etc/netplan/02-wifi.yaml"],
+            ['/etc/netplan/02-wifi.yaml'],
+        ]
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        with self.assertRaises(SystemExit):
+            netplan_config_wipe()
+
+        sys.stdout = sys.__stdout__
+        mock_print_head.assert_called_once_with(
+            "Delete any existing netplan configuration files"
+        )
+        mock_remove.assert_has_calls(
+            [
+                call("/etc/netplan/01-netcfg.yaml"),
+                call("/etc/netplan/02-wifi.yaml"),
+            ]
+        )
+        mock_restore.assert_called_once()
+        self.assertIn(
+            "ERROR: Failed to wipe netplan config files:",
+            captured_output.getvalue(),
+        )
+        self.assertIn("/etc/netplan/02-wifi.yaml", captured_output.getvalue())
+
+    @patch(
+        "wifi_client_test_netplan._check_routable_state",
+        return_value=(True, "routable"),
+    )
+    @patch("wifi_client_test_netplan.time.sleep", new=MagicMock())
+    def test_immediate_routable(self, mock_check_state):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        result = wait_for_routable("wlan0", "networkd")
+        sys.stdout = sys.__stdout__
+        self.assertTrue(result)
+        mock_check_state.assert_called_once_with("wlan0", "networkd")
+        self.assertIn("Reached routable state", captured_output.getvalue())
+
+    @patch(
+        "wifi_client_test_netplan._check_routable_state",
+        side_effect=[
+            (False, "configuring"),
+            (False, "configuring"),
+            (True, "routable"),
+        ],
+    )
+    @patch("wifi_client_test_netplan.time.sleep", new=MagicMock())
+    def test_eventually_routable(self, mock_check_state):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        result = wait_for_routable("wlan0", "networkd")
+        sys.stdout = sys.__stdout__
+        self.assertTrue(result)
+        self.assertEqual(mock_check_state.call_count, 3)
+        self.assertIn("Reached routable state", captured_output.getvalue())
+
+    @patch(
+        "wifi_client_test_netplan._check_routable_state",
+        return_value=(False, "configuring"),
+    )
+    @patch("wifi_client_test_netplan.time.sleep", new=MagicMock())
+    def test_never_routable(self, mock_check_state):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        result = wait_for_routable("wlan0", "networkd", max_wait=5)
+        sys.stdout = sys.__stdout__
+        self.assertFalse(result)
+        self.assertEqual(mock_check_state.call_count, 5)
+        self.assertIn(
+            "ERROR: did not reach routable state", captured_output.getvalue()
+        )
+
+    @patch(
+        "wifi_client_test_netplan._check_routable_state",
+        return_value=(False, "degraded"),
+    )
+    @patch("wifi_client_test_netplan.time.sleep", new=MagicMock())
+    def test_degraded_state(self, mock_check_state):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        result = wait_for_routable("wlan0", "networkd", max_wait=1)
+        sys.stdout = sys.__stdout__
+        self.assertFalse(result)
+        mock_check_state.assert_called_once_with("wlan0", "networkd")
+        self.assertIn(
+            "ERROR: degraded state, no IP address assigned",
+            captured_output.getvalue(),
+        )
+
+    @patch(
+        "wifi_client_test_netplan.get_interface_info",
+        return_value={"gateway": "192.168.1.1"},
+    )
+    def test_gateway_found(self, mock_get_interface_info):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        result = get_gateway("wlan0", "networkd")
+        sys.stdout = sys.__stdout__
+        self.assertEqual(result, "192.168.1.1")
+        mock_get_interface_info.assert_called_once_with("wlan0", "networkd")
+        self.assertIn(
+            "Got gateway address: 192.168.1.1", captured_output.getvalue()
+        )
+
+    @patch(
+        "wifi_client_test_netplan.get_interface_info",
+        return_value={},
+    )
+    def test_gateway_not_found(self, mock_get_interface_info):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        result = get_gateway("wlan0", "networkd")
+        sys.stdout = sys.__stdout__
+        self.assertIsNone(result)
+        mock_get_interface_info.assert_called_once_with("wlan0", "networkd")
+        self.assertIn("Got gateway address: None", captured_output.getvalue())
+
+    @patch(
+        "wifi_client_test_netplan.get_interface_info",
+        return_value={"gateway": ""},
+    )
+    def test_gateway_empty_string(self, mock_get_interface_info):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        result = get_gateway("wlan0", "networkd")
+        sys.stdout = sys.__stdout__
+        self.assertEqual(result, "")
+        mock_get_interface_info.assert_called_once_with("wlan0", "networkd")
+        self.assertIn("Got gateway address: ", captured_output.getvalue())
+
 
 class TestMain(TestCase):
-    @patch("wifi_client_test_netplan.wait_for_routable", return_value=True)
-    @patch("wifi_client_test_netplan.print_address_info")
-    @patch("wifi_client_test_netplan.print_route_info")
-    @patch("wifi_client_test_netplan.perform_ping_test", return_value=True)
-    @patch("wifi_client_test_netplan.delete_test_config")
-    @patch("wifi_client_test_netplan.netplan_config_restore")
-    @patch("wifi_client_test_netplan.print_journal_entries")
-    @patch("wifi_client_test_netplan.time.sleep", return_value=None)
-    @patch(
-        "wifi_client_test_netplan.parse_args",
-        return_value=MagicMock(renderer="NetworkManager"),
-    )
-    @patch("os.remove")
-    @patch("wifi_client_test_netplan.netplan_config_wipe")
-    @patch("wifi_client_test_netplan.netplan_config_backup")
-    @patch("wifi_client_test_netplan.generate_test_config")
-    @patch("wifi_client_test_netplan.write_test_config")
-    @patch("wifi_client_test_netplan.netplan_apply_config", return_value=True)
-    @patch(
-        "wifi_client_test_netplan.check_and_get_renderer",
-        return_value="NetworkManager",
-    )
+
+    @patch('wifi_client_test_netplan.parse_args')
+    @patch('wifi_client_test_netplan.check_and_get_renderer')
+    @patch('wifi_client_test_netplan.netplan_config_backup')
+    @patch('wifi_client_test_netplan.netplan_config_wipe')
+    @patch('wifi_client_test_netplan.generate_test_config')
+    @patch('wifi_client_test_netplan.write_test_config')
+    @patch('wifi_client_test_netplan.netplan_apply_config')
+    @patch('wifi_client_test_netplan.time.sleep')
+    @patch('wifi_client_test_netplan.wait_for_routable')
+    @patch('wifi_client_test_netplan.print_address_info')
+    @patch('wifi_client_test_netplan.print_route_info')
+    @patch('wifi_client_test_netplan.perform_ping_test')
+    @patch('wifi_client_test_netplan.delete_test_config')
+    @patch('wifi_client_test_netplan.netplan_config_restore')
+    @patch('wifi_client_test_netplan.print_journal_entries')
     def test_main_success(
-        self,
-        mock_write_test_config,
-        mock_generate_test_config,
-        mock_netplan_config_backup,
-        mock_netplan_config_wipe,
-        *args
+        self, mock_print_journal, mock_restore, mock_delete,
+        mock_ping, mock_print_route, mock_print_address,
+        mock_wait_routable, mock_sleep, mock_apply, mock_write,
+        mock_generate, mock_wipe, mock_backup, mock_renderer,
+        mock_parse_args
     ):
+        # Setup
+        mock_args = MagicMock()
+        mock_args.renderer = 'networkd'
+        mock_args.interface = 'wlan0'
+        mock_parse_args.return_value = mock_args
+        mock_renderer.return_value = 'networkd'
+        mock_wait_routable.return_value = True
+        mock_ping.return_value = True
+        mock_apply.return_value = True
+
+        # Execute
         main()
-        mock_netplan_config_backup.assert_called_once()
-        mock_netplan_config_wipe.assert_called_once()
+
+        # Assert
+        mock_parse_args.assert_called_once()
+        mock_renderer.assert_called_once_with('networkd')
+        mock_backup.assert_called_once()
+        mock_wipe.assert_called_once()
+        mock_generate.assert_called_once()
+        mock_write.assert_called_once()
+        mock_apply.assert_called()
+        mock_wait_routable.assert_called_once_with('wlan0', 'networkd')
+        mock_print_address.assert_called_once_with('wlan0')
+        mock_print_route.assert_called_once()
+        mock_ping.assert_called_once_with('wlan0', 'networkd')
+        mock_delete.assert_called_once()
+        mock_restore.assert_called_once()
+        mock_print_journal.assert_called_once()
+
+    @patch('wifi_client_test_netplan.parse_args')
+    @patch('wifi_client_test_netplan.check_and_get_renderer')
+    @patch('wifi_client_test_netplan.netplan_config_backup')
+    @patch('wifi_client_test_netplan.netplan_config_wipe')
+    @patch('wifi_client_test_netplan.generate_test_config')
+    @patch('wifi_client_test_netplan.write_test_config')
+    @patch('wifi_client_test_netplan.netplan_apply_config')
+    @patch('wifi_client_test_netplan.time.sleep')
+    @patch('wifi_client_test_netplan.wait_for_routable')
+    @patch('wifi_client_test_netplan.delete_test_config')
+    @patch('wifi_client_test_netplan.netplan_config_restore')
+    @patch('wifi_client_test_netplan.print_journal_entries')
+    def test_main_apply_config_failure(
+        self, mock_print_journal, mock_restore, mock_delete,
+        mock_wait_routable, mock_sleep, mock_apply, mock_write,
+        mock_generate, mock_wipe, mock_backup, mock_renderer,
+        mock_parse_args
+    ):
+        # Setup
+        mock_args = MagicMock()
+        mock_args.renderer = 'networkd'
+        mock_parse_args.return_value = mock_args
+        mock_renderer.return_value = 'networkd'
+        mock_apply.return_value = False
+
+        # Execute and Assert
+        with self.assertRaises(SystemExit):
+            main()
+
+        mock_delete.assert_called_once()
+        mock_restore.assert_called_once()
+        mock_print_journal.assert_called_once()
+
+    @patch('wifi_client_test_netplan.parse_args')
+    @patch('wifi_client_test_netplan.check_and_get_renderer')
+    @patch('wifi_client_test_netplan.netplan_config_backup')
+    @patch('wifi_client_test_netplan.netplan_config_wipe')
+    @patch('wifi_client_test_netplan.generate_test_config')
+    @patch('wifi_client_test_netplan.write_test_config')
+    @patch('wifi_client_test_netplan.netplan_apply_config')
+    @patch('wifi_client_test_netplan.time.sleep')
+    @patch('wifi_client_test_netplan.wait_for_routable')
+    @patch('wifi_client_test_netplan.delete_test_config')
+    @patch('wifi_client_test_netplan.netplan_config_restore')
+    @patch('wifi_client_test_netplan.print_journal_entries')
+    @patch('wifi_client_test_netplan.perform_ping_test')
+    def test_main_ping_test_failure(
+        self, mock_ping, mock_print_journal, mock_restore, mock_delete,
+        mock_wait_routable, mock_sleep, mock_apply, mock_write,
+        mock_generate, mock_wipe, mock_backup, mock_renderer,
+        mock_parse_args
+    ):
+        # Setup
+        mock_args = MagicMock()
+        mock_args.renderer = 'networkd'
+        mock_args.interface = 'wlan0'
+        mock_parse_args.return_value = mock_args
+        mock_renderer.return_value = 'networkd'
+        mock_wait_routable.return_value = True
+        mock_apply.return_value = True
+        mock_ping.return_value = False
+
+        # Execute and Assert
+        with self.assertRaises(SystemExit):
+            main()
+
+        mock_delete.assert_called_once()
+        mock_restore.assert_called_once()
+        mock_print_journal.assert_called_once()
+        mock_ping.assert_called_once_with('wlan0', 'networkd')

@@ -381,18 +381,25 @@ class WifiClientTestNetplanTests(TestCase):
 
     @patch("shutil.rmtree", side_effect=lambda x: None)
     @patch("shutil.copy")
+    @patch("os.path.exists")
     @patch(
-        "os.path.exists",
-        side_effect=lambda x: (
-            False if x == "specific_condition_path" else True
-        ),
+        "wifi_client_test_netplan.get_netplan_config_files",
+        return_value=["/etc/netplan/config.yaml"],
     )
-    @patch("glob.glob", return_value=["/etc/netplan/config.yaml"])
     @patch("os.makedirs")
     def test_netplan_config_backup_no_existing_backup(
         self, mock_makedirs, mock_glob, mock_exists, mock_copy, mock_rmtree
     ):
+        def exists_side_effect(path):
+            return (
+                False
+                if path == "/tmp/WIFI-TEST-NETPLAN-CREATED-BY-CHECKBOX"
+                else True
+            )
+
+        mock_exists.side_effect = exists_side_effect
         netplan_config_backup()
+        mock_copy.assert_called_once_with("/etc/netplan/config.yaml", ANY)
 
     @patch("subprocess.check_output")
     def test_networkd_routable(self, mock_check_output):

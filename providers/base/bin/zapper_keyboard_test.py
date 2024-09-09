@@ -9,11 +9,20 @@ import os
 import struct
 import sys
 import threading
+import time
 from enum import Enum
 from pathlib import Path
 
 from checkbox_support.scripts.zapper_proxy import zapper_run  # noqa: E402
 
+ROBOT_INIT = """
+*** Settings ***
+Library    libraries/ZapperHid.py
+
+*** Test Cases ***
+Do nothing
+    Log    Re-configure HID device
+"""
 
 ROBOT_TESTCASE_COMBO = """
 *** Settings ***
@@ -124,8 +133,12 @@ def get_zapper_kbd_device():
     """
     zapper_kbd = "usb-Canonical_Zapper_main_board_123456*-event-kbd"
 
-    for file_path in Path("/dev/input/by-id/").glob(zapper_kbd):
-        return str(file_path)
+    start = time.time()
+    for _ in range(5):
+        for file_path in Path("/dev/input/by-id/").glob(zapper_kbd):
+            print(time.time() - start)
+            return str(file_path)
+        time.sleep(1)
     raise FileNotFoundError("Cannot find Zapper Keyboard.")
 
 
@@ -137,6 +150,9 @@ def main(argv):
 
     if len(argv) != 2:
         raise SystemExit("Usage: {} <zapper-ip>".format(argv[0]))
+
+    # A simple robot-run to initialize the Zapper HID device
+    zapper_run(argv[1], "robot_run", ROBOT_INIT.encode(), {}, {})
 
     try:
         zapper_kbd = get_zapper_kbd_device()
@@ -150,7 +166,6 @@ def main(argv):
     listener = KeyboardListener(zapper_kbd, events.append)
     listener.start()
 
-    zapper_run(argv[1], "reset_hid_state")
     try:
         assert_key_combo(argv[1], events)
         assert_type_string(argv[1], events)

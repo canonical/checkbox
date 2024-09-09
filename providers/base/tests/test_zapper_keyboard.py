@@ -60,6 +60,7 @@ class ZapperKeyboardTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             zapper_keyboard_test.main([1])
 
+    @patch("time.sleep", Mock())
     @patch("zapper_keyboard_test.Path")
     def test_get_zapper_kbd_device(self, mock_path):
         """
@@ -67,11 +68,17 @@ class ZapperKeyboardTests(unittest.TestCase):
         keyboard device when it's the only Zapper HID device.
         """
 
-        mock_path.return_value.glob.return_value = [
-            Path(
-                "/dev/input/by-id/"
-                "usb-Canonical_Zapper_main_board_123456-event-kbd",
-            )
+        mock_path.return_value.glob.side_effect = [
+            [],
+            [],
+            [],
+            [],
+            [
+                Path(
+                    "/dev/input/by-id/"
+                    "usb-Canonical_Zapper_main_board_123456-event-kbd",
+                )
+            ],
         ]
         device = zapper_keyboard_test.get_zapper_kbd_device()
         self.assertEqual(
@@ -80,6 +87,7 @@ class ZapperKeyboardTests(unittest.TestCase):
             "usb-Canonical_Zapper_main_board_123456-event-kbd",
         )
 
+    @patch("time.sleep", Mock())
     @patch("zapper_keyboard_test.Path")
     def test_get_zapper_kbd_device_if01(self, mock_path):
         """
@@ -100,6 +108,7 @@ class ZapperKeyboardTests(unittest.TestCase):
             "usb-Canonical_Zapper_main_board_123456-if01-event-kbd",
         )
 
+    @patch("time.sleep", Mock())
     @patch("zapper_keyboard_test.Path")
     def test_get_zapper_kbd_device_not_found(self, mock_path):
         """
@@ -111,6 +120,7 @@ class ZapperKeyboardTests(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             zapper_keyboard_test.get_zapper_kbd_device()
 
+    @patch("zapper_keyboard_test.zapper_run", Mock())
     @patch("zapper_keyboard_test.get_zapper_kbd_device")
     def test_main_no_keyboard(self, mock_get_dev):
         """Check main exits with failure if Zapper keyboard is missing."""
@@ -118,6 +128,7 @@ class ZapperKeyboardTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             zapper_keyboard_test.main([1, 2])
 
+    @patch("zapper_keyboard_test.zapper_run", Mock())
     @patch("zapper_keyboard_test.get_zapper_kbd_device")
     @patch("os.access")
     def test_main_no_file_or_permission(self, mock_access, mock_get_dev):
@@ -154,7 +165,13 @@ class ZapperKeyboardTests(unittest.TestCase):
         mock_key.return_value.start.assert_called_once_with()
         mock_key.return_value.stop.assert_called_once_with()
         mock_key.return_value.join.assert_called_once_with()
-        mock_run.assert_called_once_with("127.0.0.1", "reset_hid_state")
+        mock_run.assert_called_once_with(
+            "127.0.0.1",
+            "robot_run",
+            zapper_keyboard_test.ROBOT_INIT.encode(),
+            {},
+            {},
+        )
 
         mock_combo.side_effect = None
         mock_type.side_effect = AssertionError

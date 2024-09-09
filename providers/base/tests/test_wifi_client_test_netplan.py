@@ -740,7 +740,7 @@ class TestMain(TestCase):
         self.assertEqual(mock_wipe.call_count, 1)
         self.assertEqual(mock_generate.call_count, 1)
         self.assertEqual(mock_write.call_count, 1)
-        mock_apply.assert_called()
+        self.assertGreaterEqual(mock_apply.call_count, 1)
         mock_wait_routable.assert_called_once_with("wlan0", "networkd")
         mock_print_address.assert_called_once_with("wlan0")
         self.assertEqual(mock_print_route.call_count, 1)

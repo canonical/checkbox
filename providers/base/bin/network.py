@@ -34,7 +34,16 @@ import struct
 import subprocess
 import tempfile
 import threading
-from subprocess import CalledProcessError, check_call, check_output, STDOUT
+from subprocess import (
+    CalledProcessError,
+    check_call,
+    check_output,
+    STDOUT,
+    DEVNULL,
+)
+from subprocess import run as sp_run
+from contextlib import contextmanager, suppress
+from pathlib import Path
 import sys
 import time
 
@@ -584,6 +593,18 @@ class Interface(socket.socket):
     def device_name(self):
         return self._read_data("device/label")
 
+    @property
+    def ifindex(self):
+        return self._read_data("ifindex")
+
+    @property
+    def iflink(self):
+        return self._read_data("iflink")
+
+    @property
+    def phys_switch_id(self):
+        return self._read_data("phys_switch_id")
+
 
 def get_test_parameters(args, environ):
     # Decide the actual values for test parameters, which can come
@@ -613,12 +634,11 @@ def can_ping(the_interface, test_target):
         working_interface = True
 
         try:
-            with open(os.devnull, "wb") as DEVNULL:
-                check_call(
-                    ["ping", "-I", the_interface, "-c", "1", test_target],
-                    stdout=DEVNULL,
-                    stderr=DEVNULL,
-                )
+            sp_run(
+                ["ping", "-I", the_interface, "-c", "1", test_target],
+                stdout=DEVNULL,
+                stderr=DEVNULL,
+            )
         except CalledProcessError:
             working_interface = False
 
@@ -753,24 +773,203 @@ def make_target_list(iface, test_targets, log_warnings):
 
 # Wait until the specified interface comes up, or until iface_timeout.
 def wait_for_iface_up(iface, timeout):
-    isdown = True
     deadline = time.time() + timeout
-    while (time.time() < deadline) and isdown:
-        try:
-            link_status = check_output(
-                ["ip", "link", "show", "dev", iface]
-            ).decode("utf-8")
-        except CalledProcessError as interface_failure:
-            logging.error("Failed to check %s:%s", iface, interface_failure)
-            return 1
-        if "state UP" in link_status:
+
+    net_if = Interface(iface)
+    while time.time() < deadline:
+        if net_if.status == "up":
             logging.debug("Interface {} is up!".format(iface))
-            isdown = False
-        else:
-            logging.debug("Interface {} not yet up; waiting....".format(iface))
-            # Sleep whether or not interface is up because sometimes the IP
-            # address gets assigned after "ip" claims it's up.
-            time.sleep(5)
+            return True
+        logging.debug("Interface {} not yet up; waiting....".format(iface))
+        # Sleep whether or not interface is up because sometimes the IP
+        # address gets assigned after "ip" claims it's up.
+        time.sleep(5)
+
+    return False
+
+
+def get_network_ifaces():
+    network_info = {}
+
+    for iface in Path("/sys/class/net/").glob("*"):
+        if (
+            iface.name == "lo"
+            or iface.name.startswith("virbr")
+            or iface.name.startswith("lxdbr")
+        ):
+            continue
+        logging.debug("Retrieve the network attribute for %s interface", iface)
+        network_if = Interface(iface)
+        network_info[iface.name] = {
+            "status": network_if.status,
+            "phys_switch_id": network_if.phys_switch_id,
+            "iflink": network_if.iflink,
+            "ifindex": network_if.ifindex,
+        }
+
+    return network_info
+
+
+def turn_down_network(iface):
+    logging.debug("Shutting down interface:%s", iface)
+    try:
+        check_call(["ip", "link", "set", "dev", iface, "down"])
+        return True
+    except CalledProcessError as interface_failure:
+        logging.error("Failed to shut down %s:%s", iface, interface_failure)
+        return False
+
+
+def turn_up_network(iface, timeout):
+    logging.debug("Restoring interface:%s", iface)
+    try:
+        check_call(["ip", "link", "set", "dev", iface, "up"])
+        if not wait_for_iface_up(iface, timeout):
+            return False
+        return True
+    except CalledProcessError as interface_failure:
+        logging.error("Failed to restore %s:%s", iface, interface_failure)
+        return False
+
+
+def check_underspeed(iface):
+    # Check for an underspeed link and abort if found,
+    # UNLESS --underspeed-ok option was used or max_speed is 0
+    # (which indicates a probable WiFi link)
+    network_if = Interface(iface)
+    if (
+        network_if.link_speed < network_if.max_speed
+        and network_if.max_speed != 0
+    ):
+        logging.error(
+            "Detected link speed ({}) is lower than detected max "
+            "speed ({})".format(network_if.link_speed, network_if.max_speed)
+        )
+        logging.error("Check your device configuration and try again.")
+        logging.error(
+            "If you want to override and test despite this "
+            "under-speed link, use"
+        )
+        logging.error("the --underspeed-ok option.")
+        return True
+    return False
+
+
+def setup_network_ifaces(
+    network_info, target_network, underspeed_ok, toggle_status, timeout
+):
+    logging.debug("Setup network interface")
+
+    target_if_attrs = network_info.pop(target_network)
+    # bring up target interface
+    if target_if_attrs["status"] == "down" and not turn_up_network(
+        target_network, timeout
+    ):
+        raise SystemExit(
+            "Failed to bring up {} interface".format(target_network)
+        )
+
+    if not underspeed_ok and check_underspeed(target_network):
+        raise SystemExit(
+            "the network speed is incorrect for {} interface".format(
+                target_network
+            )
+        )
+
+    if (
+        target_if_attrs["phys_switch_id"] is not None
+        and target_if_attrs["ifindex"] != target_if_attrs["iflink"]
+    ):
+        # Means it's not a Physical network, but a Linux DSA network
+        # Reference:
+        # https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-class-net
+        conduit_net = [
+            iface
+            for iface, attr in network_info.items()
+            if attr["ifindex"] == target_if_attrs["iflink"]
+        ]
+        if not conduit_net:
+            raise SystemExit("Conduit network interface not found")
+
+        conduit_net = conduit_net[0]
+        conduit_if_attrs = network_info.pop(conduit_net)
+
+        # bring up conduit network interface as well
+        if conduit_if_attrs["status"] == "down" and not turn_up_network(
+            conduit_net, timeout
+        ):
+            raise SystemExit(
+                "Failed to bring up {} conduit interface".format(conduit_net)
+            )
+
+    if toggle_status:
+        # Shutdown other network interfaces
+        for iface, attrs in network_info.items():
+            if attrs["status"] == "up" and not turn_down_network(iface):
+                raise SystemExit(
+                    "Failed to shutdown {} interface".format(iface)
+                )
+
+
+def restore_network_ifaces(cur_network_info, origin_network_info, timeout):
+    status = True
+
+    logging.debug("Restoring interface")
+    for iface, attrs in origin_network_info.items():
+        if attrs["status"] != cur_network_info[iface]["status"]:
+            if attrs["status"] == "up" and not turn_up_network(iface, timeout):
+                status = False
+            elif attrs["status"] == "down" and not turn_down_network(iface):
+                status = False
+
+    return status
+
+
+@contextmanager
+def interface_test_initialize(
+    target_dev, underspeed_ok, dont_toggle_ifaces, recover_timeout
+):
+    tempfile_route = tempfile.TemporaryFile()
+    try:
+        network_info = get_network_ifaces()
+        # Back up routing table, since network down/up process
+        # tends to trash it....
+        logging.debug("Backup routing table")
+        check_call(
+            ["ip", "route", "save", "table", "all"], stdout=tempfile_route
+        )
+        setup_network_ifaces(
+            network_info,
+            target_dev,
+            underspeed_ok,
+            not dont_toggle_ifaces,
+            recover_timeout,
+        )
+
+        yield
+
+    finally:
+        cur_network_info = get_network_ifaces()
+        recover_success = restore_network_ifaces(
+            cur_network_info, network_info, recover_timeout
+        )
+
+        # Restore routing table to original state
+        logging.debug("Restore routing table")
+        with suppress(CalledProcessError):
+            # Harmless "RTNETLINK answers: File exists" messages on stderr
+
+            # This always errors out -- but it works!
+            # The problem is virbr0, which has the "linkdown" flag, which the
+            # "ip route restore" command can't handle.
+            sp_run(
+                ["ip", "route", "restore"],
+                stdin=tempfile_route,
+                stderr=DEVNULL,
+            )
+
+        if not recover_success:
+            raise CalledProcessError(3, "restore network failed")
 
 
 def interface_test(args):
@@ -808,114 +1007,48 @@ def interface_test(args):
         sys.exit(1)
 
     # Testing begins here!
-    #
-    # Make sure that the interface is indeed connected
     try:
-        check_call(["ip", "link", "set", "dev", args.interface, "up"])
-    except CalledProcessError as interface_failure:
-        logging.error("Failed to use %s:%s", args.interface, interface_failure)
-        return 1
-
-    # Check for an underspeed link and abort if found, UNLESS --underspeed-ok
-    # option was used or max_speed is 0 (which indicates a probable WiFi link)
-    iface = Interface(args.interface)
-    if (
-        iface.link_speed < iface.max_speed
-        and iface.max_speed != 0
-        and not args.underspeed_ok
-    ):
-        logging.error(
-            "Detected link speed ({}) is lower than detected max "
-            "speed ({})".format(iface.link_speed, iface.max_speed)
-        )
-        logging.error("Check your device configuration and try again.")
-        logging.error(
-            "If you want to override and test despite this "
-            "under-speed link, use"
-        )
-        logging.error("the --underspeed-ok option.")
-        sys.exit(1)
-
-    # Back up routing table, since network down/up process
-    # tends to trash it....
-    temp = tempfile.TemporaryFile()
-    try:
-        check_call(["ip", "route", "save", "table", "all"], stdout=temp)
-    except CalledProcessError as route_error:
-        logging.warning("Unable to save routing table: %s", route_error)
-
-    error_number = 0
-    # Stop all other interfaces
-    if not args.dont_toggle_ifaces:
-        extra_interfaces = [
-            iface
-            for iface in os.listdir("/sys/class/net")
-            if iface != "lo"
-            and iface != args.interface
-            and not iface.startswith("virbr")
-            and not iface.startswith("lxdbr")
-        ]
-
-        for iface in extra_interfaces:
-            logging.debug("Shutting down interface:%s", iface)
-            try:
-                check_call(["ip", "link", "set", "dev", iface, "down"])
-            except CalledProcessError as interface_failure:
-                logging.error(
-                    "Failed to shut down %s:%s", iface, interface_failure
-                )
-                error_number = 3
-
-    if error_number == 0:
-        start_time = datetime.datetime.now()
-        first_loop = True
-        # Keep testing until a success or we run out of both targets and time
-        while test_targets_list:
-            test_target = test_targets_list.pop().strip()
-            error_number = run_test(args, test_target)
-            elapsed_seconds = (datetime.datetime.now() - start_time).seconds
-            if (
-                elapsed_seconds > args.scan_timeout and not first_loop
-            ) or not error_number:
-                break
-            if not test_targets_list:
-                logging.warning(
-                    " Exhausted test target list; trying again ".center(
-                        60, "="
+        error_number = 1
+        with interface_test_initialize(
+            args.interface,
+            args.underspeed_ok,
+            args.dont_toggle_ifaces,
+            args.iface_timeout,
+        ):
+            logging.debug(
+                "Start Iperf testing with %s iperf server", test_targets_list
+            )
+            start_time = datetime.datetime.now()
+            first_loop = True
+            # Keep testing until a success
+            # or we run out of both targets and time
+            while test_targets_list:
+                test_target = test_targets_list.pop().strip()
+                error_number = run_test(args, test_target)
+                elapsed_seconds = (
+                    datetime.datetime.now() - start_time
+                ).seconds
+                if (
+                    elapsed_seconds > args.scan_timeout and not first_loop
+                ) or not error_number:
+                    break
+                if not test_targets_list:
+                    logging.warning(
+                        " Exhausted test target list; trying again ".center(
+                            60, "="
+                        )
                     )
-                )
-                test_targets_list = make_target_list(
-                    args.interface, test_targets, False
-                )
-                time.sleep(30)  # Wait to give server(s) time to come online
-                first_loop = False
+                    test_targets_list = make_target_list(
+                        args.interface, test_targets, False
+                    )
+                    time.sleep(
+                        30
+                    )  # Wait to give server(s) time to come online
+                    first_loop = False
 
-    if not args.dont_toggle_ifaces:
-        for iface in extra_interfaces:
-            logging.debug("Restoring interface:%s", iface)
-            try:
-                check_call(["ip", "link", "set", "dev", iface, "up"])
-                wait_for_iface_up(iface, args.iface_timeout)
-            except CalledProcessError as interface_failure:
-                logging.error(
-                    "Failed to restore %s:%s", iface, interface_failure
-                )
-                error_number = 3
-
-    # Restore routing table to original state
-    temp.seek(0)
-    try:
-        # Harmless "RTNETLINK answers: File exists" messages on stderr
-        with open(os.devnull, "wb") as DEVNULL:
-            check_call(["ip", "route", "restore"], stdin=temp, stderr=DEVNULL)
+        return error_number
     except CalledProcessError:
-        # This always errors out -- but it works!
-        # The problem is virbr0, which has the "linkdown" flag, which the
-        # "ip route restore" command can't handle.
-        pass
-    temp.close()
-
-    return error_number
+        return 3
 
 
 def interface_info(args):

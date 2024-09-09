@@ -703,10 +703,21 @@ class TestMain(TestCase):
     @patch("wifi_client_test_netplan.netplan_config_restore")
     @patch("wifi_client_test_netplan.print_journal_entries")
     def test_main_success(
-        self, mock_print_journal, mock_restore, mock_delete,
-        mock_ping, mock_print_route, mock_print_address,
-        mock_wait_routable, mock_sleep, mock_apply, mock_write,
-        mock_generate, mock_wipe, mock_backup, mock_renderer,
+        self,
+        mock_print_journal,
+        mock_restore,
+        mock_delete,
+        mock_ping,
+        mock_print_route,
+        mock_print_address,
+        mock_wait_routable,
+        mock_sleep,
+        mock_apply,
+        mock_write,
+        mock_generate,
+        mock_wipe,
+        mock_backup,
+        mock_renderer,
         mock_parse_args
     ):
         # Setup
@@ -751,9 +762,18 @@ class TestMain(TestCase):
     @patch("wifi_client_test_netplan.netplan_config_restore")
     @patch("wifi_client_test_netplan.print_journal_entries")
     def test_main_apply_config_failure(
-        self, mock_print_journal, mock_restore, mock_delete,
-        mock_wait_routable, mock_sleep, mock_apply, mock_write,
-        mock_generate, mock_wipe, mock_backup, mock_renderer,
+        self,
+        mock_print_journal,
+        mock_restore,
+        mock_delete,
+        mock_wait_routable,
+        mock_sleep,
+        mock_apply,
+        mock_write,
+        mock_generate,
+        mock_wipe,
+        mock_backup,
+        mock_renderer,
         mock_parse_args
     ):
         # Setup
@@ -785,9 +805,19 @@ class TestMain(TestCase):
     @patch("wifi_client_test_netplan.print_journal_entries")
     @patch("wifi_client_test_netplan.perform_ping_test")
     def test_main_ping_test_failure(
-        self, mock_ping, mock_print_journal, mock_restore, mock_delete,
-        mock_wait_routable, mock_sleep, mock_apply, mock_write,
-        mock_generate, mock_wipe, mock_backup, mock_renderer,
+        self,
+        mock_ping,
+        mock_print_journal,
+        mock_restore,
+        mock_delete,
+        mock_wait_routable,
+        mock_sleep,
+        mock_apply,
+        mock_write,
+        mock_generate,
+        mock_wipe,
+        mock_backup,
+        mock_renderer,
         mock_parse_args
     ):
         # Setup

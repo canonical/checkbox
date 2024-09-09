@@ -259,9 +259,10 @@ class ImageInfoCollector(Collector):
     def __init__(self):
         super().__init__(
             collection_cmd=[
+                "python3",
                 str(vendor.IMAGE_INFO),
             ],
-            version_cmd=[str(vendor.IMAGE_INFO), "--version"],
+            version_cmd=["python3", str(vendor.IMAGE_INFO), "--version"],
         )
 
 

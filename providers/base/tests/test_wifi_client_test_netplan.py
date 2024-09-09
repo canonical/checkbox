@@ -571,7 +571,7 @@ class WifiClientTestNetplanTests(TestCase):
                 call("/etc/netplan/02-wifi.yaml"),
             ]
         )
-        mock_restore.assert_called_once()
+        self.assertEqual(mock_restore.call_count, 1)
         self.assertIn(
             "ERROR: Failed to wipe netplan config files:",
             captured_output.getvalue(),
@@ -723,20 +723,20 @@ class TestMain(TestCase):
         main()
 
         # Assert
-        mock_parse_args.assert_called_once()
+        self.assertEqual(mock_parse_args.call_count, 1)
         mock_renderer.assert_called_once_with("networkd")
-        mock_backup.assert_called_once()
-        mock_wipe.assert_called_once()
-        mock_generate.assert_called_once()
-        mock_write.assert_called_once()
+        self.assertEqual(mock_backup.call_count, 1)
+        self.assertEqual(mock_wipe.call_count, 1)
+        self.assertEqual(mock_generate.call_count, 1)
+        self.assertEqual(mock_write.call_count, 1)
         mock_apply.assert_called()
         mock_wait_routable.assert_called_once_with("wlan0", "networkd")
         mock_print_address.assert_called_once_with("wlan0")
-        mock_print_route.assert_called_once()
+        self.assertEqual(mock_print_route.call_count, 1)
         mock_ping.assert_called_once_with("wlan0", "networkd")
-        mock_delete.assert_called_once()
-        mock_restore.assert_called_once()
-        mock_print_journal.assert_called_once()
+        self.assertEqual(mock_delete.call_count, 1)
+        self.assertEqual(mock_restore.call_count, 1)
+        self.assertEqual(mock_print_journal.call_count, 1)
 
     @patch("wifi_client_test_netplan.parse_args")
     @patch("wifi_client_test_netplan.check_and_get_renderer")
@@ -767,9 +767,9 @@ class TestMain(TestCase):
         with self.assertRaises(SystemExit):
             main()
 
-        mock_delete.assert_called_once()
-        mock_restore.assert_called_once()
-        mock_print_journal.assert_called_once()
+        self.assertEqual(mock_delete.call_count, 1)
+        self.assertEqual(mock_restore.call_count, 1)
+        self.assertEqual(mock_print_journal.call_count, 1)
 
     @patch("wifi_client_test_netplan.parse_args")
     @patch("wifi_client_test_netplan.check_and_get_renderer")
@@ -804,7 +804,7 @@ class TestMain(TestCase):
         with self.assertRaises(SystemExit):
             main()
 
-        mock_delete.assert_called_once()
-        mock_restore.assert_called_once()
-        mock_print_journal.assert_called_once()
+        self.assertEqual(mock_delete.call_count, 1)
+        self.assertEqual(mock_restore.call_count, 1)
+        self.assertEqual(mock_print_journal.call_count, 1)
         mock_ping.assert_called_once_with("wlan0", "networkd")

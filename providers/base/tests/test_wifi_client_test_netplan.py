@@ -147,7 +147,7 @@ class WifiClientTestNetplanTests(TestCase):
         expected_command = (
             "journalctl -q --no-pager -u systemd-networkd.service "
             "-u wpa_supplicant.service "
-            "-u netplan-* --since \"2021-01-01 12:00:00\" "
+            '-u netplan-* --since "2021-01-01 12:00:00" '
         )
         mock_call.assert_called_once_with(expected_command, shell=True)
 
@@ -158,7 +158,7 @@ class WifiClientTestNetplanTests(TestCase):
         expected_command = (
             "journalctl -q --no-pager -u NetworkManager.service "
             "-u wpa_supplicant.service "
-            "-u netplan-* --since \"2021-01-01 12:00:00\" "
+            '-u netplan-* --since "2021-01-01 12:00:00" '
         )
         mock_call.assert_called_once_with(expected_command, shell=True)
 
@@ -718,7 +718,7 @@ class TestMain(TestCase):
         mock_wipe,
         mock_backup,
         mock_renderer,
-        mock_parse_args
+        mock_parse_args,
     ):
         # Setup
         mock_args = MagicMock()
@@ -774,7 +774,7 @@ class TestMain(TestCase):
         mock_wipe,
         mock_backup,
         mock_renderer,
-        mock_parse_args
+        mock_parse_args,
     ):
         # Setup
         mock_args = MagicMock()
@@ -818,7 +818,7 @@ class TestMain(TestCase):
         mock_wipe,
         mock_backup,
         mock_renderer,
-        mock_parse_args
+        mock_parse_args,
     ):
         # Setup
         mock_args = MagicMock()

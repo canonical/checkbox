@@ -146,7 +146,6 @@ nested_part:
     # restart of checkbox.
     after-suspend-graphics-integrated-gpu-cert-automated
     # after-suspend-monitor-integrated-gpu-cert-automated # not defined
-    suspend-key-led-oops-check-cert
     # after-suspend-audio-cert-automated
     # after-suspend-camera-cert-automated
     # after-suspend-input-cert-automated

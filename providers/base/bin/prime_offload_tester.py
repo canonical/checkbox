@@ -46,19 +46,18 @@ class PrimeOffloader:
     logger = logging.getLogger()
     check_result = False
 
-    def _if_file_contain(
-        self, directory: str, file_name_pattern: str, contain_str: str
-    ) -> str:
-        """
-        find the file that contains the specific string
+def find_file_containing_string(
+    self, search_directory: str, filename_pattern: str, search_string: str
+) -> str:
+    """
+    Search for a file matching a specific pattern that contains a given string.
 
-        :param directory: directory that will be searched
-
-        :param file_name_pattern: the filename pattern
-
-        :param contain_str: the string should be in the file
-
-        :returns: the file name with path
+    :param search_directory: The directory to search through.
+    :param filename_pattern: The pattern that filenames should match.
+    :param search_string: The string to search for within the file's contents.
+    
+    :returns: The full path of the file that contains the string, or None if no file is found.
+    """
         """
         for root, dirs, files in os.walk(directory):
             for file_name in fnmatch.filter(files, file_name_pattern):

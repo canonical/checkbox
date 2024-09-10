@@ -61,9 +61,7 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
             )  # Jitter: up to 50% of the delay
             total_delay = min_delay + jitter
             print(
-                "Waiting {:.2f} seconds before retrying...".format(
-                    total_delay
-                )
+                "Waiting {:.2f} seconds before retrying...".format(total_delay)
             )
             time.sleep(total_delay)
 
@@ -79,6 +77,7 @@ def retry(max_attempts, delay):
         @functools.wraps(f)
         def _f(*args, **kwargs):
             return run_with_retry(f, max_attempts, delay, *args, **kwargs)
+
         return _f
 
     return decorator_retry

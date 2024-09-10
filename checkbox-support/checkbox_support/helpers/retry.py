@@ -25,52 +25,71 @@ delay, backoff and jitter.
 import functools
 import random
 import time
+from unittest.mock import patch
 
 
-def retry(
-    f=None, *, max_attempts=5, initial_delay=1, backoff_factor=2, max_delay=60
-):
+def run_with_retry(f, max_attempts, delay, *args, **kwargs):
+    """
+    Run the f function. If it fails, retry for up to max_attempts times, adding
+    a backoff and a jitter on top of a delay (in seconds). If none of the runs
+    succeed, raise the encountered exception.
+    """
+    initial_delay = 1
+    backoff_factor = 2
+    for attempt in range(1, max_attempts + 1):
+        attempt_string = "Attempt {}/{}".format(attempt, max_attempts)
+        print()
+        print("=" * len(attempt_string))
+        print(attempt_string)
+        print("=" * len(attempt_string))
+        try:
+            result = f(*args, **kwargs)
+            return result
+        except BaseException as e:
+            print("Attempt {} failed:".format(attempt))
+            print(e)
+            print()
+            if attempt >= max_attempts:
+                print("All the attempts have failed!")
+                raise
+            min_delay = min(
+                initial_delay * (backoff_factor**attempt),
+                delay,
+            )
+            jitter = random.uniform(
+                0, delay * 0.5
+            )  # Jitter: up to 50% of the delay
+            total_delay = min_delay + jitter
+            print(
+                "Waiting {:.2f} seconds before retrying...".format(
+                    total_delay
+                )
+            )
+            time.sleep(total_delay)
+
+
+def retry(max_attempts, delay):
     """
     Run the decorated function. If it fails, retry for up to max_attempts
-    times, adding a backoff and a jitter on top of a delay of max_delay
-    seconds. If none of the runs succeed, raise a SystemExit exception.
+    times, adding a backoff and a jitter on top of a delay (in seconds).
+    If none of the runs succeed, raise the encountered exception.
     """
 
     def decorator_retry(f):
         @functools.wraps(f)
         def _f(*args, **kwargs):
-            for attempt in range(1, max_attempts + 1):
-                attempt_string = "Attempt {}/{}".format(attempt, max_attempts)
-                print(attempt_string)
-                print("=" * len(attempt_string))
-                try:
-                    result = f(*args, **kwargs)
-                    return result
-                except BaseException as e:
-                    print("Attempt {} failed:\n{}".format(attempt, e))
-                    print()
-                    if attempt < max_attempts:
-                        delay = min(
-                            initial_delay * (backoff_factor**attempt),
-                            max_delay,
-                        )
-                        jitter = random.uniform(
-                            0, delay * 0.5
-                        )  # Jitter: up to 50% of the delay
-                        total_delay = delay + jitter
-                        print(
-                            "Waiting {:.2f} seconds before retrying...".format(
-                                total_delay
-                            )
-                        )
-                        time.sleep(total_delay)
-                finally:
-                    print()
-            raise SystemExit("All the attempts have failed!")
-
+            return run_with_retry(f, max_attempts, delay, *args, **kwargs)
         return _f
 
-    if f is not None:
-        return decorator_retry(f)
-
     return decorator_retry
+
+
+def fake_run_with_retry(f, max_attempts, delay, *args, **kwargs):
+    return f(*args, **kwargs)
+
+
+mock_timeout = functools.partial(
+    patch,
+    "checkbox_support.helpers.retry.run_with_retry",
+    new=fake_run_with_retry,
+)

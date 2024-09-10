@@ -35,13 +35,13 @@ class NetworkingHTTPTests(TestCase):
         self.assertEqual(networking_http.http_connect("test"), None)
 
     @patch("networking_http.subprocess.run")
-    @patch("checkbox_support.helpers.retry.time.sleep")
+    @patch("time.sleep")
     def test_http_connect_failure(self, mock_sleep, mock_run):
         """
-        Test that a SystemExit exception is raised if wget command returns 1
+        Test that an exception is raised if wget command returns 1
         """
         mock_run.side_effect = subprocess.CalledProcessError(1, "")
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(subprocess.CalledProcessError):
             networking_http.http_connect("test")
 
     @patch("networking_http.http_connect")

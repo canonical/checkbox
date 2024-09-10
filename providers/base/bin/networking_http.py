@@ -26,12 +26,11 @@ import sys
 from checkbox_support.helpers.retry import retry
 
 
-@retry
+@retry(max_attempts=5, delay=60)
 def http_connect(url):
     """
     Use `wget` to try to connect to `url`. If attempt fails, the next one is
-    made after adding a random delay calculated using a backoff and a jitter
-    (with a maximum delay of 60 seconds).
+    made after adding a random delay calculated using a backoff and a jitter.
     """
     subprocess.run(
         [
@@ -48,7 +47,10 @@ def main(args):
     parser = argparse.ArgumentParser()
     parser.add_argument("url", help="URL to try to connect to")
     args = parser.parse_args(args)
-    http_connect(args.url)
+    try:
+        http_connect(args.url)
+    except subprocess.CalledProcessError as e:
+        raise SystemExit(e)
 
 
 if __name__ == "__main__":

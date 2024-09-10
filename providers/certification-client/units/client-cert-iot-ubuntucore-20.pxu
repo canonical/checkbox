@@ -7,6 +7,8 @@ include:
 nested_part:
   client-cert-iot-ubuntucore-20-manual
   client-cert-iot-ubuntucore-20-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-ubuntucore-20-manual
@@ -77,6 +79,8 @@ nested_part:
   after-suspend-wireless-manual
   after-suspend-wireless-wifi-master-mode-manual
   after-suspend-wwan-manual
+certification_status_overrides:
+  apply blocker to .*
 
 id: client-cert-iot-ubuntucore-20-automated
 _name: IoT Client Certification for Ubuntu Core 20 (Automated Tests)
@@ -146,6 +150,8 @@ nested_part:
   after-suspend-usb-automated
   after-suspend-wireless-automated
   after-suspend-wwan-automated
+certification_status_overrides:
+  apply blocker to .*
 
 id: client-cert-iot-ubuntucore-20-stress
 _name: IoT Client Certification for Ubuntu Core 20 (Stress Tests)
@@ -155,3 +161,5 @@ _description:
 include:
 nested_part:
   stress-full
+certification_status_overrides:
+  apply blocker to .*

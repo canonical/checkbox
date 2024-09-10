@@ -220,10 +220,10 @@ unit: test plan
 _name: Manual USB tests
 _description: Manual USB tests for Ubuntu Core devices
 include:
-    usb/hid
-    usb/insert
-    usb/storage-automated # depends on manual one, so not automated
-    usb/remove
+    usb/hid                  certification-status=blocker
+    usb/insert               certification-status=blocker
+    usb/storage-automated    certification-status=blocker # depends on manual one, so not automated
+    usb/remove               certification-status=blocker
 
 id: usb-automated
 unit: test plan

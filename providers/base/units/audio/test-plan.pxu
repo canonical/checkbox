@@ -106,7 +106,7 @@ unit: test plan
 _name: Manual audio tests
 _description: Manual audio tests for Snappy Ubuntu Core devices
 include:
-    audio/alsa-playback
+    audio/alsa-playback    certification-status=blocker
 
 id: audio-pa-manual
 unit: test plan
@@ -126,7 +126,7 @@ _description: Automated audio tests for Snappy Ubuntu Core devices
 include:
     audio/detect-playback-devices
     audio/detect-capture-devices
-    audio/alsa-loopback-automated
+    audio/alsa-loopback-automated    certification-status=blocker
 
 id: after-suspend-audio-full
 unit: test plan

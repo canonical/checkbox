@@ -89,7 +89,11 @@ _description:
  Clevis encryption tests
 estimated_duration: 1m
 include:
-    clevis.*
+    clevis-encrypt-tpm2/precheck    certification-status=blocker
+    clevis-encrypt-tpm2/detect-rsa-capabilities    certification-status=blocker
+    clevis-encrypt-tpm2/rsa    certification-status=blocker
+    clevis-encrypt-tpm2/detect-ecc-capabilities    certification-status=blocker
+    clevis-encrypt-tpm2/ecc    certification-status=blocker
 mandatory_include:
     com.canonical.plainbox::manifest
 

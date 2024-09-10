@@ -61,9 +61,6 @@ class PrimeOffloader:
         :returns: the file name with path
         """
         for root, dirs, files in os.walk(directory):
-            print(
-                f"++++++++++++++++++++{root}:{dirs}:{files}+++++++++++++++++++"
-            )
             for file_name in fnmatch.filter(files, file_name_pattern):
                 file_path = os.path.join(root, file_name)
                 # Check if the search string is in the file
@@ -411,9 +408,7 @@ class PrimeOffloader:
 
         if args.pci and args.driver:
             # cmd_checker("glxgears", "0000:00:02.0", "i915", 0)
-            self.cmd_checker(
-                args.command, args.pci, args.driver, args.timeout
-            )
+            self.cmd_checker(args.command, args.pci, args.driver, args.timeout)
         else:
             # cmd_finder("glxgears", 0)
             self.cmd_finder(args.command, args.timeout)

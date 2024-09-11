@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Dispatch test in the lab and monitor it
-        if: ${{ contains(github.event.comment.body, '/lab') && github.event.issue.pull_request && github.event.issue.author_association == "MEMBER" }}
+        if: ${{ contains(github.event.comment.body, '/lab') && github.event.issue.pull_request && github.event.issue.author_association == 'MEMBER' }}
         run:
           COMMENT_BODY="${{ github.event.comment.body }}"
           echo "$COMMENT_BODY"

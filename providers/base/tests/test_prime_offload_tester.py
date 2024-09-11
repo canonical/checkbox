@@ -18,12 +18,11 @@
 from unittest.mock import patch, MagicMock, mock_open
 import subprocess
 import unittest
-import sys
 import os
 
-sys.modules["checkbox_support"] = MagicMock()
-sys.modules["checkbox_support.helpers.timeout"] = MagicMock()
-from prime_offload_tester import *
+from checkbox_support.helpers.timeout import mock_timeout
+
+from prime_offload_tester import PrimeOffloader
 
 
 class FindFileContainingString(unittest.TestCase):
@@ -308,11 +307,13 @@ class CheckOffloadTests(unittest.TestCase):
         self.assertEqual(po.check_result, False)
 
     @patch("time.sleep", return_value=None)
+    @patch("time.time")
     @patch("prime_offload_tester.PrimeOffloader.get_clients")
-    def test_offload_fail_check(self, mock_client, mock_sleep):
+    def test_offload_fail_check(self, mock_client, mock_time, mock_sleep):
         cmd = ["echo"]
         # get_clients return string that doesn't include cmd
         mock_client.return_value = ""
+        mock_time.side_effect = [0, 0, 1, 2]
         po = PrimeOffloader()
         self.assertEqual(
             po.check_offload(cmd, "card_id", "card_name", 1), None
@@ -321,6 +322,7 @@ class CheckOffloadTests(unittest.TestCase):
 
         # get_clients return None by CalledProcessError
         mock_client.return_value = None
+        mock_time.side_effect = [0, 0, 1, 2]
         po = PrimeOffloader()
         self.assertEqual(
             po.check_offload(cmd, "card_id", "card_name", 1), None
@@ -351,30 +353,34 @@ class FindOffloadTests(unittest.TestCase):
     """
 
     @patch("time.sleep", return_value=None)
-    @patch("prime_offload_tester.PrimeOffloader.find_file_containing_string")
-    def test_found(self, mock_file, mock_sleep):
+    def test_found(self, mock_sleep):
         cmd = "echo"
         po = PrimeOffloader()
         po._find_bdf = MagicMock(return_value="0")
         po.find_card_id = MagicMock(return_value="0")
         po.find_card_name = MagicMock(return_value="Intel")
-        mock_file.return_value = "/sys/kernel/debug/dri/0/clients"
+        po.find_file_containing_string = MagicMock(
+            return_value="/sys/kernel/debug/dri/0/clients"
+        )
         self.assertEqual(po.find_offload(cmd, 1), None)
         self.assertEqual(po.check_result, False)
-        mock_file.assert_called_with("/sys/kernel/debug/dri", "clients", cmd)
+        po.find_file_containing_string("/sys/kernel/debug/dri", "clients", cmd)
         self.assertEqual(po.check_result, False)
 
     @patch("time.sleep", return_value=None)
-    @patch("prime_offload_tester.PrimeOffloader.find_file_containing_string")
-    def test_not_found(self, mock_file, mock_sleep):
+    @patch("time.time")
+    def test_not_found(self, mock_time, mock_sleep):
         cmd = "echo"
         po = PrimeOffloader()
         po._find_bdf = MagicMock(return_value="0")
         po.find_card_id = MagicMock(return_value="0")
         po.find_card_name = MagicMock(return_value="Intel")
-        mock_file.return_value = ""
+        po.find_file_containing_string = MagicMock(return_value="")
+        mock_time.side_effect = [0, 0, 1, 2]
         self.assertEqual(po.find_offload(cmd, 1), None)
-        mock_file.assert_called_with("/sys/kernel/debug/dri", "clients", cmd)
+        po.find_file_containing_string.assert_called_with(
+            "/sys/kernel/debug/dri", "clients", cmd
+        )
         self.assertEqual(po.check_result, True)
 
 
@@ -455,6 +461,7 @@ class CmdRunnerTests(unittest.TestCase):
             po.cmd_runner(["echo", "0000:00:00.0", "xxx", 0], self.o_env)
 
 
+@patch("subprocess.Popen", MagicMock())
 class CmdFinderTests(unittest.TestCase):
     """
     This function should find the command is rendered by which GPU
@@ -480,6 +487,7 @@ class CmdFinderTests(unittest.TestCase):
         po.find_offload.assert_called_with("glxgears", 20)
 
 
+@patch("subprocess.check_output", MagicMock())
 class CmdCheckerTests(unittest.TestCase):
     """
     This function is the entry point to run the command with prime offload,
@@ -550,17 +558,23 @@ class CmdCheckerTests(unittest.TestCase):
         # check check_offload function get correct args
         po.check_offload.assert_called_with("glxgears", "0", "NV", 1)
 
-    def test_not_found(self):
+    @patch("checkbox_support.helpers.timeout.run_with_timeout")
+    @patch("threading.Thread")
+    def test_not_found(self, mock_thread, mock_timeout):
         po = PrimeOffloader()
         po.find_card_id = MagicMock(return_value="0")
         po.find_card_name = MagicMock(return_value="NV")
         po.check_offload = MagicMock(return_value="")
+        po.check_nv_offload_env = MagicMock(return_value=None)
         os.environ.copy = MagicMock(return_value={})
         po.check_result = True
+        mock_timeout.side_effect = TimeoutError
         with self.assertRaises(SystemExit):
             po.cmd_checker("glxgears", "0000:00:00.0", "nvidia", 1)
         # check check_offload function get correct args
-        po.check_offload.assert_called_with("glxgears", "0", "NV", 1)
+        mock_thread.assert_called_with(
+            target=po.check_offload, args=("glxgears", "0", "NV", 1)
+        )
 
 
 class ParseArgsTests(unittest.TestCase):

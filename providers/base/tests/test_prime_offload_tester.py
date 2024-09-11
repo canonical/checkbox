@@ -533,7 +533,6 @@ class CmdCheckerTests(unittest.TestCase):
             po.cmd_checker("echo", "0000:00:00.0", "driver", 0)
 
     def test_non_nv_driver_check(self):
-
         # non NV driver
         po = PrimeOffloader()
         po.find_card_id = MagicMock(return_value="0")
@@ -545,8 +544,8 @@ class CmdCheckerTests(unittest.TestCase):
         # check check_offload function get correct args
         po.check_offload.assert_called_with("glxgears", "0", "Intel", 0)
 
+    @patch("checkbox_support.helpers.timeout.run_with_timeout", MagicMock())
     def test_nv_driver_check(self):
-
         # NV driver
         po = PrimeOffloader()
         po.find_card_id = MagicMock(return_value="0")
@@ -560,7 +559,7 @@ class CmdCheckerTests(unittest.TestCase):
 
     @patch("checkbox_support.helpers.timeout.run_with_timeout")
     @patch("threading.Thread")
-    def test_not_found(self, mock_thread, mock_timeout):
+    def test_not_found(self, mock_thread, mock_run_timeout):
         po = PrimeOffloader()
         po.find_card_id = MagicMock(return_value="0")
         po.find_card_name = MagicMock(return_value="NV")
@@ -568,7 +567,7 @@ class CmdCheckerTests(unittest.TestCase):
         po.check_nv_offload_env = MagicMock(return_value=None)
         os.environ.copy = MagicMock(return_value={})
         po.check_result = True
-        mock_timeout.side_effect = TimeoutError
+        mock_run_timeout.side_effect = TimeoutError
         with self.assertRaises(SystemExit):
             po.cmd_checker("glxgears", "0000:00:00.0", "nvidia", 1)
         # check check_offload function get correct args

@@ -421,9 +421,7 @@ class PrimeOffloader:
 
         if args.pci and args.driver:
             # cmd_checker("glxgears", "0000:00:02.0", "i915", 0)
-            self.cmd_checker(
-                args.command, args.pci, args.driver, args.timeout
-            )
+            self.cmd_checker(args.command, args.pci, args.driver, args.timeout)
         else:
             # cmd_finder("glxgears", 0)
             self.cmd_finder(args.command, args.timeout)

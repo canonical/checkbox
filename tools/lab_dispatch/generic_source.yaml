@@ -1,0 +1,74 @@
+job_queue: $INPUT_QUEUE
+global_timeout: 3600
+output_timeout: 1800
+provision_data:
+  $INPUT_DATA_SOURCE
+test_data:
+  attachments:
+    - local: "resources/manifest.conf"
+    - local: "resources/testplan.conf"
+    - local: "resources/service_file.service"
+    - local: "resources/build_install_deb.py"
+  test_cmds: |
+    #!/usr/bin/env bash
+
+    set -x
+
+    # input arguments
+    CHECKBOX_REVISION=$INPUT_CHECKBOX_REVISION
+    RESOURCES_PATH=attachments/test/resources
+
+    TOOLS_PATH=tools
+
+    # retrieve all scripts/tools necessary from a repo
+    curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/main/install_tools.sh
+    source install_tools.sh $TOOLS_PATH
+
+    # ensure device is available before continuing
+    wait_for_ssh
+
+    _run sudo add-apt-repository ppa:checkbox-dev/edge
+    _run install_packages git python3 python3-pip dpkg-dev
+
+    wait_for_ssh
+
+    _put $RESOURCES_PATH/build_install_deb.py :
+    _run git clone https://github.com/canonical/checkbox.git
+    _run git -C checkbox checkout $CHECKBOX_REVISION
+    _run python3 build_install_deb.py --clean checkbox/checkbox-ng \
+        checkbox/checkbox-support checkbox/providers/resource \
+        checkbox/providers/base checkbox/providers/sru
+    _run sudo systemctl restart checkbox-ng.service
+
+    git clone https://github.com/canonical/checkbox.git
+    git -C checkbox checkout $CHECKBOX_REVISION
+
+    python3 -m venv --system-site-packages checkbox_venv
+    . checkbox_venv/bin/activate
+    pip install --upgrade pip setuptools
+    pip install checkbox/checkbox-ng
+    # retrieve manifest
+    MANIFEST_FILE=manifest.conf
+    fetch_manifest --manifest_file manifest.conf $CID $HEXR_DEVICE_SECURE_ID
+    if [ $? -ne 0 ]; then
+        echo "Using default manifest"
+        MANIFEST_FILE=$RESOURCES_PATH/manifest.conf
+    fi
+
+    ### create checkbox launcher
+    # first dump the location specific infos in the launcher
+    which envsubst || install_packages gettext
+    envsubst < $RESOURCES_PATH/testplan.conf > test_conf.conf
+    stacker --output checkbox.conf test_conf.conf $MANIFEST_FILE
+
+    wait_for_ssh
+
+    check_for_checkbox_service
+
+    # run the canary test plan
+    PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP checkbox.conf
+    EXITCODE=$?
+
+    # placeholder for gathering possible artifacts
+
+    exit $EXITCODE

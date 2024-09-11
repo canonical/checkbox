@@ -18,13 +18,15 @@ jobs:
         working-directory: tools/lab_dispatch
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Install dependencies
         run: |
           sudo apt install gettext
       - name: dispatch test in the lab
         env:
-          INPUT_DATA_SOURCE=${{ toJson(matrix.spec.data_source) }}
-          INPUT_QUEUE=${{ toJson(matrix.spec.queue) }}
+          INPUT_DATA_SOURCE: ${{ matrix.spec.data_source }}
+          INPUT_QUEUE: ${{ matrix.spec.queue }}
         run: |
-          INPUT_CHECKBOX_REVISION="$GITHUB_SHA"
+          export INPUT_CHECKBOX_REVISION="$(git rev-parse HEAD)"
           envsubst '$INPUT_CHECKBOX_REVISION $INPUT_DATA_SOURCE $INPUT_QUEUE' < generic_source.yaml | tee job.yaml

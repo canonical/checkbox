@@ -28,33 +28,24 @@ import networking_http
 
 class NetworkingHTTPTests(TestCase):
     @patch("networking_http.subprocess.run")
-    @patch("networking_http.time.sleep")
-    def test_http_connect_max_retries(self, mock_sleep, mock_run):
-        with self.assertRaises(SystemExit):
-            networking_http.http_connect("test", 0)
-
-    @patch("networking_http.subprocess.run")
-    @patch("networking_http.time.sleep")
-    def test_http_connect_success(self, mock_sleep, mock_run):
+    def test_http_connect_success(self, mock_run):
         """
         Test that `http_connect` returns safely if the wget command returns 0
         """
-        self.assertEqual(networking_http.http_connect("test", 3), None)
+        self.assertEqual(networking_http.http_connect("test"), None)
 
     @patch("networking_http.subprocess.run")
-    @patch("networking_http.time.sleep")
+    @patch("time.sleep")
     def test_http_connect_failure(self, mock_sleep, mock_run):
         """
-        Test that if set to 3 retries, the connection command (wget, run
-        through subprocess.run) will be called 3 times
+        Test that an exception is raised if wget command returns 1
         """
         mock_run.side_effect = subprocess.CalledProcessError(1, "")
-        with self.assertRaises(SystemExit):
-            networking_http.http_connect("test", 3)
-        self.assertEqual(mock_run.call_count, 3)
+        with self.assertRaises(subprocess.CalledProcessError):
+            networking_http.http_connect("test")
 
     @patch("networking_http.http_connect")
     def test_main(self, mock_http_connect):
-        args = ["test", "--attempts", "6"]
+        args = ["test"]
         networking_http.main(args)
-        mock_http_connect.assert_called_with("test", 6)
+        mock_http_connect.assert_called_with("test")

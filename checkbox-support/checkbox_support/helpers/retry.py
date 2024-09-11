@@ -36,6 +36,16 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
     """
     initial_delay = 1
     backoff_factor = 2
+    if max_attempts < 1:
+        raise ValueError(
+            "max_attempts should be at least 1 ({} was used)".format(
+                max_attempts
+            )
+        )
+    if delay < 1:
+        raise ValueError(
+            "delay should be at least 1 ({} was used)".format(delay)
+        )
     for attempt in range(1, max_attempts + 1):
         attempt_string = "Attempt {}/{}".format(attempt, max_attempts)
         print()

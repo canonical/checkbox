@@ -53,6 +53,22 @@ class TestRetry(TestCase):
         self.assertIn("Attempt 7 failed", mock_stdout.getvalue())
         self.assertNotIn("Attempt 8 failed", mock_stdout.getvalue())
 
+    def test_decorator_wrong_max_attempts(self):
+        @retry(-1, 10)
+        def f():
+            return 1 / 0
+
+        with self.assertRaises(ValueError):
+            f()
+
+    def test_decorator_wrong_delay(self):
+        @retry(2, -1)
+        def f():
+            return 1 / 0
+
+        with self.assertRaises(ValueError):
+            f()
+
     def test_identity(self):
         def k(*args, **kwargs):
             return (args, kwargs)

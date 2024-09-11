@@ -256,6 +256,17 @@ def detect_progress_indicator():
     return []
 
 
+def print_log(logfile):
+    """
+    Print logfile to the output
+    """
+    with open(logfile) as f:
+        try:
+            print(f.read())
+        except UnicodeDecodeError as e:
+            print("WARNING: Found bad char in " + logfile)
+
+
 def main():
     description_text = "Tests the system BIOS using the Firmware Test Suite"
     epilog_text = (
@@ -668,8 +679,7 @@ def main():
     print()
     print(" Please review the following log for more information:")
     print()
-    with open(args.log) as f:
-        print(f.read())
+    print_log(args.log)
 
     if args.fail_level != "none":
         if fail_priority == fail_levels["FAILED_CRITICAL"]:

@@ -1,15 +1,30 @@
 name: Run Workflow on PR Comment
 on:
-  issue_comment:
-    types: [created]
   workflow_dispatch:
+    inputs:
+      matrix_to_create:
+        description: 'Json formatted description of the jobs to dispatch'
+        required: true
+        type: string
 
 jobs:
-  trigger:
+  run-matrix:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        spec: ${{ fromJson(inputs.matrix_to_create) }}
+    defaults:
+      run:
+        working-directory: tools/lab_dispatch
     steps:
-      - name: Dispatch test in the lab and monitor it
-        if: ${{ contains(github.event.comment.body, '/lab') && github.event.issue.pull_request }}
-        run:
-          COMMENT_BODY="${{ github.event.comment.body }}"
-          echo "$COMMENT_BODY"
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt install gettext
+      - name: dispatch test in the lab
+        env:
+          INPUT_DATA_SOURCE=${{ toJson(matrix.spec.data_source) }}
+          INPUT_QUEUE=${{ toJson(matrix.spec.queue) }}
+        run: |
+          INPUT_CHECKBOX_REVISION="$GITHUB_SHA"
+          envsubst '$INPUT_CHECKBOX_REVISION $INPUT_DATA_SOURCE $INPUT_QUEUE' < generic_source.yaml | tee job.yaml

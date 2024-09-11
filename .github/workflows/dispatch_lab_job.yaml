@@ -11,4 +11,4 @@ jobs:
         if: ${{ contains(github.event.comment.body, '/lab') && github.event.issue.pull_request && github.event.issue.author_association == "MEMBER" }}
         run:
           COMMENT_BODY="${{ github.event.comment.body }}"
-          echo $COMMENT_BODY
+          echo "$COMMENT_BODY"

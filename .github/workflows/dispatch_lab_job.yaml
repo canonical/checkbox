@@ -27,6 +27,10 @@ jobs:
         env:
           INPUT_DATA_SOURCE: ${{ matrix.spec.data_source }}
           INPUT_QUEUE: ${{ matrix.spec.queue }}
+          INPUT_MATCH: ${{ matrix.spec.match }}
+          INPUT_TEST_PLAN: ${{ matrix.spec.test_plan }}
+          INPUT_PASSWORD_SECRET: ${{ secrets.INPUT_PASSWORD_SECRET }}
         run: |
           export INPUT_CHECKBOX_REVISION="$(git rev-parse HEAD)"
           envsubst '$INPUT_CHECKBOX_REVISION $INPUT_DATA_SOURCE $INPUT_QUEUE' < generic_source.yaml | tee job.yaml
+          envsubst '$INPUT_TEST_PLAN $INPUT_MATCH $INPUT_PASSWORD_SECRET' < resources/checkbox.conf_template | tee resources/checkbox.conf

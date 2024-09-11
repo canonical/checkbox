@@ -26,7 +26,7 @@ sys.modules["checkbox_support.helpers.timeout"] = MagicMock()
 from prime_offload_tester import *
 
 
-class IfFileContain(unittest.TestCase):
+class FindFileContainingString(unittest.TestCase):
     """
     This function should work like "grep -l"
     """
@@ -37,7 +37,7 @@ class IfFileContain(unittest.TestCase):
         po = PrimeOffloader()
         with patch("builtins.open", mock_open(read_data="test")) as mock_file:
             self.assertEqual(
-                po._if_file_contain("/foo/bar", "spam", "test"),
+                po.find_file_containing_string("/foo/bar", "spam", "test"),
                 "/foo/bar/spam",
             )
         mock_file.assert_called_with(
@@ -50,7 +50,7 @@ class IfFileContain(unittest.TestCase):
         po = PrimeOffloader()
         with patch("builtins.open", mock_open(read_data="test")) as mock_file:
             self.assertEqual(
-                po._if_file_contain("/foo/bar", "spam", "xxx"), None
+                po.find_file_containing_string("/foo/bar", "spam", "xxx"), None
             )
         mock_file.assert_called_with(
             "/foo/bar/spam", "r", encoding="utf-8", errors="ignore"
@@ -63,7 +63,7 @@ class FindCardIdTests(unittest.TestCase):
     (pci bus information)
     """
 
-    @patch("prime_offload_tester.PrimeOffloader._if_file_contain")
+    @patch("prime_offload_tester.PrimeOffloader.find_file_containing_string")
     def test_pci_name_format_check(self, mock_cmd):
         po = PrimeOffloader()
         # correct format
@@ -75,14 +75,14 @@ class FindCardIdTests(unittest.TestCase):
             "0000:00:00.0",
         )
 
-    @patch("prime_offload_tester.PrimeOffloader._if_file_contain")
+    @patch("prime_offload_tester.PrimeOffloader.find_file_containing_string")
     def test_pci_name_hex_format_check(self, mock_cmd):
         po = PrimeOffloader()
         # should work with hex vaule
         mock_cmd.return_value = "/sys/kernel/debug/dri/0/name"
         self.assertEqual(po.find_card_id("0000:c6:F0.0"), "0")
 
-    @patch("prime_offload_tester.PrimeOffloader._if_file_contain")
+    @patch("prime_offload_tester.PrimeOffloader.find_file_containing_string")
     def test_pci_name_non_hex_format_check(self, mock_cmd):
         po = PrimeOffloader()
         # error format - with alphabet
@@ -90,7 +90,7 @@ class FindCardIdTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             po.find_card_id("000r:00:00.0")
 
-    @patch("prime_offload_tester.PrimeOffloader._if_file_contain")
+    @patch("prime_offload_tester.PrimeOffloader.find_file_containing_string")
     def test_pci_name_digital_error_format_check(self, mock_cmd):
         po = PrimeOffloader()
         # error format - digital position error
@@ -98,7 +98,7 @@ class FindCardIdTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             po.find_card_id("0000:00:000.0")
 
-    @patch("prime_offload_tester.PrimeOffloader._if_file_contain")
+    @patch("prime_offload_tester.PrimeOffloader.find_file_containing_string")
     def test_empty_string_id_not_found(self, mock_cmd):
         po = PrimeOffloader()
         # empty string
@@ -111,7 +111,7 @@ class FindCardIdTests(unittest.TestCase):
             "0000:00:00.0",
         )
 
-    @patch("prime_offload_tester.PrimeOffloader._if_file_contain")
+    @patch("prime_offload_tester.PrimeOffloader.find_file_containing_string")
     def test_indexerror_id_not_found(self, mock_cmd):
         po = PrimeOffloader()
         # IndexError
@@ -351,7 +351,7 @@ class FindOffloadTests(unittest.TestCase):
     """
 
     @patch("time.sleep", return_value=None)
-    @patch("prime_offload_tester.PrimeOffloader._if_file_contain")
+    @patch("prime_offload_tester.PrimeOffloader.find_file_containing_string")
     def test_found(self, mock_file, mock_sleep):
         cmd = "echo"
         po = PrimeOffloader()
@@ -365,7 +365,7 @@ class FindOffloadTests(unittest.TestCase):
         self.assertEqual(po.check_result, False)
 
     @patch("time.sleep", return_value=None)
-    @patch("prime_offload_tester.PrimeOffloader._if_file_contain")
+    @patch("prime_offload_tester.PrimeOffloader.find_file_containing_string")
     def test_not_found(self, mock_file, mock_sleep):
         cmd = "echo"
         po = PrimeOffloader()

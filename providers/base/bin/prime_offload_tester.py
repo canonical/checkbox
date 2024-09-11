@@ -46,27 +46,31 @@ class PrimeOffloader:
     logger = logging.getLogger()
     check_result = False
 
-def find_file_containing_string(
-    self, search_directory: str, filename_pattern: str, search_string: str
-) -> str:
-    """
-    Search for a file matching a specific pattern that contains a given string.
-
-    :param search_directory: The directory to search through.
-    :param filename_pattern: The pattern that filenames should match.
-    :param search_string: The string to search for within the file's contents.
-    
-    :returns: The full path of the file that contains the string, or None if no file is found.
-    """
+    def find_file_containing_string(
+        self, search_directory: str, filename_pattern: str, search_string: str
+    ) -> str:
         """
-        for root, dirs, files in os.walk(directory):
-            for file_name in fnmatch.filter(files, file_name_pattern):
+        Search for a file matching a specific pattern
+        that contains a given string.
+
+        :param search_directory: The directory to search through.
+
+        :param filename_pattern: The pattern that filenames should match.
+
+        :param search_string: The string to search for within
+                              the file's contents.
+
+        :returns: The full path of the file that contains the string,
+                  or None if no file is found.
+        """
+        for root, dirs, files in os.walk(search_directory):
+            for file_name in fnmatch.filter(files, filename_pattern):
                 file_path = os.path.join(root, file_name)
                 # Check if the search string is in the file
                 with open(
                     file_path, "r", encoding="utf-8", errors="ignore"
                 ) as file:
-                    if contain_str in file.read():
+                    if search_string in file.read():
                         return file_path
 
     def find_card_id(self, pci_bdf: str) -> str:
@@ -82,7 +86,7 @@ def find_file_containing_string(
             raise SystemExit("pci BDF format error")
 
         try:
-            card_path = self._if_file_contain(
+            card_path = self.find_file_containing_string(
                 "/sys/kernel/debug/dri", "name", pci_bdf
             )
             return card_path.split("/")[5]
@@ -155,6 +159,8 @@ def find_file_containing_string(
         while time.time() < deadline:
             time.sleep(delay)
             clients = self.get_clients(card_id)
+            # The command shows in /sys/kernel/debug/dri/<card_id>/clients
+            # doesn't include arguments. Therefore cmd[0] is used to search
             if clients and cmd[0] in clients:
                 self.logger.info("Checking success:")
                 self.logger.info("  Offload process:[{}]".format(cmd))
@@ -179,6 +185,10 @@ def find_file_containing_string(
     def find_offload(self, cmd: str, timeout: int):
         """
         Find the card that the command is running on.
+        This script looks for the card on which a specific command is running.
+        It checks ten times in regular intervals if the process is running
+        by looking for it in the /sys/kernel/debug/dri/<card id>/clients.
+        If the timeout is reached, the function will fail
 
         :param cmd: command that is running
 
@@ -194,7 +204,11 @@ def find_file_containing_string(
 
         while time.time() < deadline:
             time.sleep(delay)
-            card_path = self._if_file_contain(directory, "clients", cmd[0])
+            # The command shows in /sys/kernel/debug/dri/<card_id>/clients
+            # doesn't include arguments. Therefore cmd[0] is used to search
+            card_path = self.find_file_containing_string(
+                directory, "clients", cmd[0]
+            )
             if directory in card_path:
                 try:
                     # The graphic will be shown such as 0 and 128
@@ -407,7 +421,9 @@ def find_file_containing_string(
 
         if args.pci and args.driver:
             # cmd_checker("glxgears", "0000:00:02.0", "i915", 0)
-            self.cmd_checker(args.command, args.pci, args.driver, args.timeout)
+            self.cmd_checker(
+                args.command, args.pci, args.driver, args.timeout
+            )
         else:
             # cmd_finder("glxgears", 0)
             self.cmd_finder(args.command, args.timeout)

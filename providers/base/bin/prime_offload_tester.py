@@ -17,10 +17,12 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
+from checkbox_support.helpers.timeout import run_with_timeout
 import subprocess
 import threading
 import argparse
 import logging
+import fnmatch
 import time
 import json
 import sys
@@ -44,25 +46,32 @@ class PrimeOffloader:
     logger = logging.getLogger()
     check_result = False
 
-    def _run_command(self, cmd: list, shell=False) -> str:
+    def find_file_containing_string(
+        self, search_directory: str, filename_pattern: str, search_string: str
+    ) -> str:
         """
-        use subprocess.check_output to execute command
+        Search for a file matching a specific pattern
+        that contains a given string.
 
-        :param cmd: the command will be executed
+        :param search_directory: The directory to search through.
 
-        :param shell: enable shell or not
+        :param filename_pattern: The pattern that filenames should match.
 
-        :returns: Output of command
+        :param search_string: The string to search for within
+                              the file's contents.
+
+        :returns: The full path of the file that contains the string,
+                  or None if no file is found.
         """
-        try:
-            return subprocess.check_output(
-                cmd, shell=shell, universal_newlines=True
-            )
-
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            raise SystemExit(
-                "Running command:{} failed due to {}".format(cmd, repr(e))
-            )
+        for root, dirs, files in os.walk(search_directory):
+            for file_name in fnmatch.filter(files, filename_pattern):
+                file_path = os.path.join(root, file_name)
+                # Check if the search string is in the file
+                with open(
+                    file_path, "r", encoding="utf-8", errors="ignore"
+                ) as file:
+                    if search_string in file.read():
+                        return file_path
 
     def find_card_id(self, pci_bdf: str) -> str:
         """
@@ -77,15 +86,9 @@ class PrimeOffloader:
             raise SystemExit("pci BDF format error")
 
         try:
-            cmd = [
-                "grep",
-                "-lr",
-                "--include=name",
-                pci_bdf,
-                "/sys/kernel/debug/dri",
-            ]
-
-            card_path = self._run_command(cmd)
+            card_path = self.find_file_containing_string(
+                "/sys/kernel/debug/dri", "name", pci_bdf
+            )
             return card_path.split("/")[5]
         except IndexError as e:
             raise SystemExit("return value format error {}".format(repr(e)))
@@ -100,7 +103,9 @@ class PrimeOffloader:
         """
         cmd = ["lshw", "-c", "display", "-numeric", "-json"]
         try:
-            card_infos = self._run_command(cmd)
+            card_infos = subprocess.check_output(
+                cmd, shell=False, universal_newlines=True
+            )
             infos = json.loads(card_infos)
             for info in infos:
                 if pci_bdf in info["businfo"]:
@@ -108,6 +113,10 @@ class PrimeOffloader:
             raise SystemExit("Card name not found")
         except (KeyError, TypeError, json.decoder.JSONDecodeError) as e:
             raise SystemExit("return value format error {}".format(e))
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            raise SystemExit(
+                "Running command:{} failed due to {}".format(cmd, repr(e))
+            )
 
     def get_clients(self, card_id: str) -> str:
         """
@@ -122,13 +131,12 @@ class PrimeOffloader:
             and the process could be found in
             /sys/kernel/debug/dri/<card id>/clients
 
-        :param cmd: command that running under prime offload
+        :param card_id: card id shows in debugfs
         """
-        read_clients_cmd = [
-            "cat",
-            "/sys/kernel/debug/dri/{}/clients".format(card_id),
-        ]
-        return self._run_command(read_clients_cmd)
+        filename = "/sys/kernel/debug/dri/{}/clients".format(card_id)
+        with open(filename, "r") as f:
+            return f.read()
+        return ""
 
     def check_offload(
         self, cmd: list, card_id: str, card_name: str, timeout: int
@@ -151,6 +159,8 @@ class PrimeOffloader:
         while time.time() < deadline:
             time.sleep(delay)
             clients = self.get_clients(card_id)
+            # The command shows in /sys/kernel/debug/dri/<card_id>/clients
+            # doesn't include arguments. Therefore cmd[0] is used to search
             if clients and cmd[0] in clients:
                 self.logger.info("Checking success:")
                 self.logger.info("  Offload process:[{}]".format(cmd))
@@ -161,49 +171,51 @@ class PrimeOffloader:
         self.logger.info("  Couldn't find process [{}]".format(cmd))
         self.check_result = True
 
-    def _find_bdf(self, card: str):
+    def _find_bdf(self, card_id: str):
         """
         Use the /sys/kernel/debug/dri/<card id>/name to get pci BDF.
 
-        :param card: in /sys/kernel/debug/dri/<card id>/clients format
-
+        :param card_id: card id shows in debugfs
         """
-        data_in_name = self._run_command(
-            ["cat", card.replace("clients", "name")]
-        )
+        filename = "/sys/kernel/debug/dri/{}/name".format(card_id)
+        with open(filename, "r") as f:
+            data_in_name = f.read()
         return data_in_name.split()[1].split("=")[1]
 
     def find_offload(self, cmd: str, timeout: int):
         """
         Find the card that the command is running on.
+        This script looks for the card on which a specific command is running.
+        It checks ten times in regular intervals if the process is running
+        by looking for it in the /sys/kernel/debug/dri/<card id>/clients.
+        If the timeout is reached, the function will fail
 
         :param cmd: command that is running
 
         :param timeout: timeout for command
         """
+        directory = "/sys/kernel/debug/dri"
+
         delay = timeout / 10
 
         deadline = time.time() + timeout
 
         cmd = cmd.split()
 
-        find_cmd = [
-            "grep",
-            "-lr",
-            "--include=clients",
-            cmd[0],
-            "/sys/kernel/debug/dri",
-        ]
-
         while time.time() < deadline:
             time.sleep(delay)
-            card_path = self._run_command(find_cmd)
-            if "/sys/kernel/debug/dri" in card_path:
+            # The command shows in /sys/kernel/debug/dri/<card_id>/clients
+            # doesn't include arguments. Therefore cmd[0] is used to search
+            card_path = self.find_file_containing_string(
+                directory, "clients", cmd[0]
+            )
+            if directory in card_path:
                 try:
                     # The graphic will be shown such as 0 and 128
                     # at the same time. Therefore, pick up the first one
                     first_card = card_path.splitlines()[0]
-                    bdf = self._find_bdf(first_card)
+                    card_id = first_card.split("/")[5]
+                    bdf = self._find_bdf(card_id)
                     self.logger.info("Process is running on:")
                     self.logger.info("  process:[{}]".format(cmd))
                     self.logger.info(
@@ -250,36 +262,6 @@ class PrimeOffloader:
                 "No prime-select, it should be ok to run prime offload"
             )
 
-    def _reformat_cmd_timeout(self, cmd: str, timeout: int) -> (list, int):
-        """
-        use to reformat the command with correct timeout setting
-
-        :param cmd: the command will be executed
-
-        :param timeout: timeout
-
-        :returns: reformated command and real timeout
-        """
-        if "timeout" in cmd:
-            raise SystemExit("Put timeout in command isn't allowed")
-
-        cmd = cmd.split()
-
-        if timeout > 0:
-            offload_cmd = ["timeout", str(timeout)] + cmd
-        else:
-            # if timeout <=0 will make check_offload failed.
-            # Set the timeout to the default value
-            log_str = (
-                "Timeout {}s is invalid,"
-                " remove the timeout setting"
-                " and change check_offload to run 20s".format(timeout)
-            )
-            self.logger.info(log_str)
-            timeout = 20
-            offload_cmd = cmd
-        return (offload_cmd, timeout)
-
     def cmd_runner(self, cmd: list, env: dict = None):
         """
         use to execute command and piping the output to the screen.
@@ -314,14 +296,18 @@ class PrimeOffloader:
 
         :param timeout: timeout for offloaded command
         """
-        (modified_cmd, timeout) = self._reformat_cmd_timeout(cmd, timeout)
+        if "timeout" in cmd:
+            raise SystemExit("Put timeout in command isn't allowed")
 
         # use other thread to find offload
         find_thread = threading.Thread(
             target=self.find_offload, args=(cmd, timeout)
         )
         find_thread.start()
-        self.cmd_runner(modified_cmd)
+        try:
+            run_with_timeout(self.cmd_runner, timeout, cmd.split())
+        except TimeoutError:
+            self.logger.info("Test finished")
         find_thread.join()
 
         if self.check_result:
@@ -345,7 +331,8 @@ class PrimeOffloader:
         # run offload command in other process
         dri_pci_bdf_format = re.sub("[:.]", "_", pci_bdf)
 
-        (modified_cmd, timeout) = self._reformat_cmd_timeout(cmd, timeout)
+        if "timeout" in cmd:
+            raise SystemExit("Put timeout in command isn't allowed")
 
         env = os.environ.copy()
         if driver in ("nvidia", "pcieport"):
@@ -367,7 +354,10 @@ class PrimeOffloader:
             target=self.check_offload, args=(cmd, card_id, card_name, timeout)
         )
         check_thread.start()
-        self.cmd_runner(modified_cmd, env)
+        try:
+            run_with_timeout(self.cmd_runner, timeout, cmd.split(), env)
+        except TimeoutError:
+            self.logger.info("Test finished")
         check_thread.join()
 
         if self.check_result:

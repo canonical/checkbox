@@ -523,6 +523,7 @@ class CmdCheckerTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             po.cmd_checker("timeout 10 echo", "0000:00:00.0", "driver", 0)
 
+    @patch("prime_offload_tester.run_with_timeout", MagicMock())
     def test_nv_env_fail_check(self):
         po = PrimeOffloader()
         # check_nv_offload_env failed
@@ -532,6 +533,7 @@ class CmdCheckerTests(unittest.TestCase):
         with self.assertRaises(SystemExit):
             po.cmd_checker("echo", "0000:00:00.0", "driver", 0)
 
+    @patch("prime_offload_tester.run_with_timeout", MagicMock())
     def test_non_nv_driver_check(self):
         # non NV driver
         po = PrimeOffloader()
@@ -544,7 +546,7 @@ class CmdCheckerTests(unittest.TestCase):
         # check check_offload function get correct args
         po.check_offload.assert_called_with("glxgears", "0", "Intel", 0)
 
-    @patch("checkbox_support.helpers.timeout.run_with_timeout", MagicMock())
+    @patch("prime_offload_tester.run_with_timeout", MagicMock())
     def test_nv_driver_check(self):
         # NV driver
         po = PrimeOffloader()
@@ -557,7 +559,7 @@ class CmdCheckerTests(unittest.TestCase):
         # check check_offload function get correct args
         po.check_offload.assert_called_with("glxgears", "0", "NV", 1)
 
-    @patch("checkbox_support.helpers.timeout.run_with_timeout")
+    @patch("prime_offload_tester.run_with_timeout")
     @patch("threading.Thread")
     def test_not_found(self, mock_thread, mock_run_timeout):
         po = PrimeOffloader()

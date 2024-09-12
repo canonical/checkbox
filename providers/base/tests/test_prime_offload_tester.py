@@ -510,18 +510,14 @@ class CmdFinderTests(unittest.TestCase):
     @patch("threading.Thread")
     def test_not_found(self, mock_thread, mock_run_timeout):
         po = PrimeOffloader()
-        po.find_card_id = MagicMock(return_value="0")
-        po.find_card_name = MagicMock(return_value="NV")
         po.check_offload = MagicMock(return_value="")
-        po.check_nv_offload_env = MagicMock(return_value=None)
-        os.environ.copy = MagicMock(return_value={})
         po.check_result = True
         mock_run_timeout.side_effect = TimeoutError
         with self.assertRaises(SystemExit):
-            po.cmd_finder("glxgears", "0000:00:00.0", "nvidia", 1)
+            po.cmd_finder("glxgears", 1)
         # check check_offload function get correct args
         mock_thread.assert_called_with(
-            target=po.check_offload, args=("glxgears", "0", "NV", 1)
+            target=po.check_offload, args=("glxgears", 1)
         )
 
 

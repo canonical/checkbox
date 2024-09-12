@@ -355,6 +355,7 @@ class ThunderboltStorage(StorageWatcher):
         if re.search(removal_re, line_str):
             self.action = "removal"
 
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -402,6 +403,7 @@ def main():
         watcher.run_removal(mounted_partition)
     else:
         raise SystemExit("Invalid test case")
+
 
 if __name__ == "__main__":
     main()

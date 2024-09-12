@@ -517,7 +517,7 @@ class CmdFinderTests(unittest.TestCase):
             po.cmd_finder("glxgears", 1)
         # check check_offload function get correct args
         mock_thread.assert_called_with(
-            target=po.check_offload, args=("glxgears", 1)
+            target=po.find_offload, args=("glxgears", 1)
         )
 
 

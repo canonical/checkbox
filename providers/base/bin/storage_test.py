@@ -5,7 +5,7 @@
 # Written by:
 #   Jonathan Cave <jonathan.cave@canonical.com>
 #
-# Perfrom bonnie++ disk test
+# Perform bonnie++ disk test
 
 from collections import namedtuple
 from contextlib import ExitStack
@@ -89,7 +89,7 @@ def run_bonnie(test_dir, user="root"):
     # some tweaking. Bonnie uses 2x RAM by default to write data. If that's
     # more than available disk space, the test will fail inappropriately.
     free = free_space(test_dir)
-    print("{}MB of free space avaialble".format(free))
+    print("{}MB of free space available".format(free))
     if (force_mem_mb * 2) > free:
         force_mem_mb = free / 4
     print("Forcing memory setting to {}MB".format(force_mem_mb))
@@ -144,10 +144,12 @@ def disk_test(udev_name):
 
 def main():
     udev_name = sys.argv[1]
-    print("Testing disk {}".format(udev_name))
+    print("Testing device {}".format(udev_name))
 
-    # handle dev mapper and regular disks seperately
-    if devmapper_name(udev_name):
+    # Handle devmapper, and regular disks separately, and ignore mtdblock.
+    if udev_name.startswith("mtdblock"):
+        print("Ignoring mtdblock device")
+    elif devmapper_name(udev_name):
         devmapper_test(udev_name)
     else:
         disk_test(udev_name)

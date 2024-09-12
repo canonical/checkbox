@@ -6,7 +6,7 @@ provision_data:
 test_data:
   attachments:
     - local: "resources/manifest.conf"
-    - local: "resources/checkbox.conf"
+    - local: "resources/input.conf"
     - local: "resources/service_file.service"
     - local: "resources/build_install_deb.py"
   test_cmds: |
@@ -58,7 +58,7 @@ test_data:
     ### create checkbox launcher
     # first dump the location specific infos in the launcher
     which envsubst || install_packages gettext
-    envsubst < $RESOURCES_PATH/testplan.conf > test_conf.conf
+    envsubst < $RESOURCES_PATH/input.conf > test_conf.conf
     stacker --output checkbox.conf test_conf.conf $MANIFEST_FILE
 
     wait_for_ssh

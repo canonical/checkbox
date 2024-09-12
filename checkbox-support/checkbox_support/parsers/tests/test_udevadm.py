@@ -355,9 +355,9 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "VIDEO"), 2)
         self.assertEqual(self.count(devices, "AUDIO"), 2)
         self.assertEqual(self.count(devices, "KEYBOARD"), 1)
-        self.assertEqual(self.count(devices, "TOUCHPAD"), 1)
+        self.assertEqual(self.count(devices, "TOUCHPAD"), 2)
         self.assertEqual(self.count(devices, "CARDREADER"), 1)
-        self.assertEqual(self.count(devices, "MOUSE"), 1)
+        self.assertEqual(self.count(devices, "MOUSE"), 0)
         self.assertEqual(self.count(devices, "CAPTURE"), 1)
         self.assertEqual(self.count(devices, "BLUETOOTH"), 1)
         self.assertEqual(self.count(devices, "WIRELESS"), 2)
@@ -1124,6 +1124,10 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = self.parse("CRYPTO_FDE", with_partitions=True)
         self.assertEqual(len(devices), 93)
         self.assertEqual(self.count(devices, "PARTITION"), 1)
+
+    def test_RESISTIVE_TOUCHPAD(self):
+        devices = self.parse("RESISTIVE_TOUCHPAD")
+        self.assertEqual(self.count(devices, "TOUCHPAD"), 1)
 
     def test_two_dms_one_with_ubutnu_save(self):
         """

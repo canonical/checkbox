@@ -7,7 +7,7 @@ from contextlib import redirect_stdout
 from unittest.mock import patch, MagicMock, Mock
 
 sys.modules["systemd"] = MagicMock()
-
+# flake8: noqa: E402
 import rpmsg_load_firmware
 
 

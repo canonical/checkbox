@@ -220,7 +220,7 @@ def dump_firmware_test_mapping(args) -> None:
 def register_arguments():
     parser = argparse.ArgumentParser(description="RPMSG reload firmware test")
 
-    subparsers = parser.add_subparsers(dest="mode", required=True)
+    subparsers = parser.add_subparsers(dest="mode")
     reload_test_parser = subparsers.add_parser("test-reload")
     reload_test_parser.add_argument(
         "--device",
@@ -260,8 +260,12 @@ def register_arguments():
         required=True,
     )
     reload_res_test_parser.set_defaults(test_func=dump_firmware_test_mapping)
+    args = parser.parse_args()
+    if args.mode is None:
+        parser.print_help()
+        exit(1)
 
-    return parser.parse_args()
+    return args
 
 
 if __name__ == "__main__":

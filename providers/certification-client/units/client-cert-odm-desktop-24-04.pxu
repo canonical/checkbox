@@ -138,7 +138,6 @@ nested_part:
     after-suspend-reference-cert-full
     after-suspend-graphics-gpu-cert-automated
     # after-suspend-monitor-gpu-cert-automated # not defined
-    suspend-key-led-oops-check-cert
     # after-suspend-audio-cert-automated
     # after-suspend-camera-cert-automated
     # after-suspend-input-cert-automated

@@ -98,10 +98,10 @@ unit: test plan
 _name: Automated power tests
 _description: Automated power tests for Snappy Ubuntu Core devices
 include:
-    power-management/warm-reboot
-    power-management/post-warm-reboot
-    power-management/cold-reboot
-    power-management/post-cold-reboot
+    power-management/warm-reboot         certification-status=blocker
+    power-management/post-warm-reboot    certification-status=blocker
+    power-management/cold-reboot         certification-status=blocker
+    power-management/post-cold-reboot    certification-status=blocker
 
 id: power-manual
 unit: test plan

@@ -7,6 +7,8 @@ include:
 nested_part:
   client-cert-iot-server-24-04-manual
   client-cert-iot-server-24-04-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-server-24-04-manual
@@ -89,6 +91,8 @@ exclude:
   bluetooth4/HOGP-mouse
   snappy/os-.*
   after-suspend-bluetooth4/HOGP-mouse
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-server-24-04-automated
@@ -164,6 +168,8 @@ nested_part:
   after-suspend-usb-automated
   after-suspend-wireless-automated
   after-suspend-wwan-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-server-24-04-stress
@@ -174,3 +180,5 @@ _description:
 include:
 nested_part:
   stress-full
+certification_status_overrides:
+  apply blocker to .*

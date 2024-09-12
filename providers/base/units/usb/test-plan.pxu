@@ -192,8 +192,8 @@ unit: test plan
 _name: Manual USB tests
 _description: Manual USB tests for Ubuntu Core devices
 include:
-    usb/hid
-    usb/storage-manual
+    usb/hid                  certification-status=blocker
+    usb/storage-manual       certification-status=blocker
 
 id: usb-automated
 unit: test plan

@@ -1,5 +1,4 @@
 id: monitor/zapper-edid
-template-resource: zapper_capabilities desktop_session
 requires: 
  zapper_capabilities.capability == 'hdmi-capture'
  zapper_capabilities.edid_cycling == 'True'

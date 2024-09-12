@@ -18,6 +18,7 @@ include:
   usb/zapper-usb-remove-.*
   usb3/zapper-usb-insert-.*
 bootstrap_include:
+  desktop_session
+  graphics_card
   zapper_capabilities
   zapper_reset_setup
-  graphics_card

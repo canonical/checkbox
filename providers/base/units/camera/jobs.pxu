@@ -36,13 +36,12 @@ estimated_duration: 120.0
 depends: camera/detect
 command:
   camera_test.py display -d /dev/{name}
-_description:
- PURPOSE:
-     This test will check that the {product_slug} camera works
- STEPS:
-     1. Click on Test to display a video capture from the camera for ten seconds.
- VERIFICATION:
-     Did you see the video capture?
+_purpose:
+    This test will check that the {product_slug} camera works
+_steps:
+    1. Click on Test to display a video capture from the camera for ten seconds.
+_verification:
+    Did you see the video capture?
 
 unit: template
 template-resource: device
@@ -61,12 +60,12 @@ depends: camera/detect
 command:
   camera_test.py led -d /dev/{name}
 _purpose:
-     This test will check that the {product_slug} camera LED works
+    This test will check that the {product_slug} camera LED works
 _steps:
-     1. Select Test to activate camera
-     2. Camera LED should light for a few seconds
+    1. Select Test to activate camera
+    2. Camera LED should light for a few seconds
 _verification:
-     Did the camera LED light?
+    Did the camera LED light?
 flags: also-after-suspend
 
 unit: template
@@ -83,13 +82,12 @@ estimated_duration: 120.0
 depends: camera/detect
 command:
   camera_test.py still -d /dev/{name}
-_description:
- PURPOSE:
-     This test will check that the {product_slug} works
- STEPS:
-     1. Click on Test to display a still image from the camera for ten seconds.
- VERIFICATION:
-     Did you see the image?
+_purpose:
+    This test will check that the {product_slug} works
+_steps:
+    1. Click on Test to display a still image from the camera for ten seconds.
+_verification:
+    Did you see the image?
 
 unit: template
 template-resource: device
@@ -105,7 +103,7 @@ estimated_duration: 1.2
 depends: camera/detect
 command:
   camera_test.py resolutions -d /dev/{name} -o "$PLAINBOX_SESSION_SHARE"
-_description:
+_purpose:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format.
 
@@ -136,16 +134,16 @@ category_id: com.canonical.plainbox::camera
 id: camera/camera-quality_{name}
 template-id: camera/camera-quality_name
 flags: also-after-suspend
-_summary: Webcam brisque score for {product_slug}
+_summary: Webcam BRISQUE score for {product_slug}
 estimated_duration: 20s
 depends: camera/detect
 requires: lsb.release >= '22.04'
 command:
   camera_quality_test.py -d {name} -o "$PLAINBOX_SESSION_SHARE"
-_description:
+_purpose:
   Takes a picture and computes the quality based on a No-Reference image
   quality assessment algorithm called BRISQUE. This test will timeout and fail
-  if the quality has not been compute within 120 seconds.
+  if the quality has not been computed within 120 seconds.
 
 unit: template
 template-resource: device
@@ -179,7 +177,7 @@ depends: camera/detect-rpi
 requires: cpuinfo.platform == 'armv7l'
 command:
   camera_test_rpi.py --device /dev/{name}
-_description:
+_purpose:
   Takes multiple pictures based on the resolutions supported by the camera and
   validates their size and that they are of a valid format.
 user: root
@@ -212,7 +210,7 @@ plugin: shell
 category_id: com.canonical.plainbox::camera
 id: camera/roundtrip-qrcode_{{ name }}
 template-id: camera/roundtrip-qrcode_name
-_summary: Test video output and camera {{ name }} by displaying and reading a qrcode
+_summary: Test video output and camera {{ name }} by displaying and reading a QR code
 estimated_duration: 5.0
 depends:
   {%- if category == 'MMAL' %}
@@ -231,10 +229,10 @@ requires:
   {% endif -%}
 command:
   roundtrip_qr.py {{ name }}
-_description:
-  Generates a QRcode representing a random string of ascii letters. This is
-  written to tty1 using ascii escape codes. Either the PiCamera python module or
-  a gstreamer pipeline is used to capture an image of the display. An attempt
-  to decode a QRcode in the image is then made and data compared against the
+_purpose:
+  Generates a QR code representing a random string of ASCII letters. This is
+  written to tty1 using ASCII escape codes. Either the PiCamera python module or
+  a GStreamer pipeline is used to capture an image of the display. An attempt
+  to decode a QR code in the image is then made and data compared against the
   random string.
 user: root

@@ -1,4 +1,4 @@
-{%- if manager.state.get_certification_status_map(certification_status_filter=('unspecified', 'not-part-of-certification', 'blocker', 'non-bloker',)) -%}
+{%- if manager.state.get_certification_status_map(certification_status_filter=('blocker', 'non-blocker',)) -%}
 FAIL
 {%- else -%}
 PASS

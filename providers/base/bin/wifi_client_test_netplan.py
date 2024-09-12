@@ -54,7 +54,7 @@ def netplan_renderer():
     Check the renderer used by netplan on the system.
     This function looks for the renderer used in the yaml files located in the
     NETPLAN_CFG_PATHS directories, and returns the first renderer found. If the
-    renderer is not found, it defaults to "networked".
+    renderer is not found, it defaults to "networkd".
     """
     for basedir in NETPLAN_CFG_PATHS:
         if os.path.exists(basedir):

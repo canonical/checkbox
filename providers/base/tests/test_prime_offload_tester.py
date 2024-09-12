@@ -275,6 +275,18 @@ class FindCardNameTests(unittest.TestCase):
             universal_newlines=True,
         )
 
+    @patch("subprocess.check_output")
+    def test_subprocess_run_fail(self, mock_cmd):
+        po = PrimeOffloader()
+        mock_cmd.side_effect = subprocess.CalledProcessError
+        with self.assertRaises(SystemExit):
+            po.find_card_name("0000:00:00.0")
+        mock_cmd.assert_called_with(
+            ["lshw", "-c", "display", "-numeric", "-json"],
+            shell=False,
+            universal_newlines=True,
+        )
+
 
 class GetClientsTests(unittest.TestCase):
     """
@@ -467,6 +479,14 @@ class CmdFinderTests(unittest.TestCase):
     This function should find the command is rendered by which GPU
     """
 
+    def test_command_include_timeout(self):
+        po = PrimeOffloader()
+        po.find_offload = MagicMock(return_value="")
+        os.environ.copy = MagicMock(return_value={})
+        po.check_result = True
+        with self.assertRaises(SystemExit):
+            po.cmd_finder("timeout 20 glxgears", 20)
+
     def test_found(self):
         po = PrimeOffloader()
         po.find_offload = MagicMock(return_value="")
@@ -485,6 +505,24 @@ class CmdFinderTests(unittest.TestCase):
             po.cmd_finder("glxgears", 20)
         # check check_offload function get correct args
         po.find_offload.assert_called_with("glxgears", 20)
+
+    @patch("prime_offload_tester.run_with_timeout")
+    @patch("threading.Thread")
+    def test_not_found(self, mock_thread, mock_run_timeout):
+        po = PrimeOffloader()
+        po.find_card_id = MagicMock(return_value="0")
+        po.find_card_name = MagicMock(return_value="NV")
+        po.check_offload = MagicMock(return_value="")
+        po.check_nv_offload_env = MagicMock(return_value=None)
+        os.environ.copy = MagicMock(return_value={})
+        po.check_result = True
+        mock_run_timeout.side_effect = TimeoutError
+        with self.assertRaises(SystemExit):
+            po.cmd_finder("glxgears", "0000:00:00.0", "nvidia", 1)
+        # check check_offload function get correct args
+        mock_thread.assert_called_with(
+            target=po.check_offload, args=("glxgears", "0", "NV", 1)
+        )
 
 
 @patch("subprocess.check_output", MagicMock())

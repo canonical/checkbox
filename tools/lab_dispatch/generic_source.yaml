@@ -5,10 +5,10 @@ provision_data:
   $INPUT_DATA_SOURCE
 test_data:
   attachments:
-    - local: "resources/manifest.conf"
-    - local: "resources/input.conf"
-    - local: "resources/service_file.service"
-    - local: "resources/build_install_deb.py"
+    - local: "tools/lab_dispatch/resources/manifest.conf"
+    - local: "tools/lab_dispatch/resources/input.conf"
+    - local: "tools/lab_dispatch/resources/service_file.service"
+    - local: "tools/lab_dispatch/resources/build_install_deb.py"
   test_cmds: |
     #!/usr/bin/env bash
 
@@ -16,7 +16,7 @@ test_data:
 
     # input arguments
     CHECKBOX_REVISION=$INPUT_CHECKBOX_REVISION
-    RESOURCES_PATH=attachments/test/resources
+    RESOURCES_PATH=attachments/tools/lab_dispatch/resources
 
     TOOLS_PATH=tools
 
@@ -32,7 +32,7 @@ test_data:
 
     wait_for_ssh
 
-    _put $RESOURCES_PATH/build_install_deb.py :
+    _put $RESOURCES_PATH/build_install_deb.py :build_install_deb.py
     _run git clone https://github.com/canonical/checkbox.git
     _run git -C checkbox checkout $CHECKBOX_REVISION
     _run python3 build_install_deb.py --clean checkbox/checkbox-ng \

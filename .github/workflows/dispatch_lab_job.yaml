@@ -32,13 +32,16 @@ jobs:
           INPUT_TEST_PLAN: ${{ matrix.spec.test_plan }}
           INPUT_PASSWORD_SECRET: ${{ secrets.INPUT_PASSWORD_SECRET }}
         run: |
-          echo "::group::Building the job.yaml"
+          echo "::group::Building the testflinger job"
           export INPUT_CHECKBOX_REVISION="$(git rev-parse HEAD)"
           envsubst '$INPUT_CHECKBOX_REVISION $INPUT_DATA_SOURCE $INPUT_QUEUE' < generic_source.yaml | tee job.yaml
           echo "::endgroup::"
 
-          echo "::group::Building the input.conf"
+          echo "::group::Building the Checkbox launcher"
           envsubst '$INPUT_TEST_PLAN $INPUT_MATCH $INPUT_PASSWORD_SECRET' < resources/input.conf_template | tee resources/input.conf
           echo "::endgroup::"
-
-          testflinger submit -p job.yaml
+      - name: Submit job
+        uses: canonical/testflinger/.github/actions/submit@main
+        with:
+          poll: true
+          job-path: tools/lab_dispatch/job.yaml

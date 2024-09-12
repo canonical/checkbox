@@ -304,7 +304,7 @@ plugin: attachment
 category_id: com.canonical.plainbox::info
 id: installer_debug.gz
 user: root
-command: [ -f /var/log/installer/debug ] && gzip -9 -c /var/log/installer/debug
+command: [ -d /var/log/installer ] && tar zcvf installer.tgz /var/log/installer
 estimated_duration: 0.1
 _purpose: Attaches the installer debug log if it exists.
 _summary: Attach the installer's debug log for diagnostic purposes.

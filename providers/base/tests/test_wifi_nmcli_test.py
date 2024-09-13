@@ -278,38 +278,39 @@ class TestShowAps(unittest.TestCase):
 
 class TestWaitForConnected(unittest.TestCase):
     @patch("wifi_nmcli_test.print_cmd", new=MagicMock())
-    @patch("wifi_nmcli_test.sp.check_output")
-    @patch("wifi_nmcli_test.time.sleep", return_value=None)
-    def test_wait_for_connected_success(self, mock_sleep, mock_check_output):
-        mock_check_output.side_effect = [
-            b"100:connected\nTestESSID",
-        ]
+    @patch("wifi_nmcli_test.time.sleep", MagicMock(return_value=None))
+    @patch(
+        "wifi_nmcli_test.sp.check_output",
+        MagicMock(
+            side_effect=[
+                b"30:disconnected\nTestESSID",
+                b"100:connected\nTestESSID",
+            ]
+        ),
+    )
+    def test_wait_for_connected_success(self):
         interface = "wlan0"
         essid = "TestESSID"
         self.assertTrue(wait_for_connected(interface, essid))
 
     @patch(
         "wifi_nmcli_test.sp.check_output",
-        return_value=b"30:disconnected\nTestESSID",
+        MagicMock(return_value=b"30:disconnected\nTestESSID"),
     )
-    @patch("wifi_nmcli_test.print_cmd")
-    @patch("wifi_nmcli_test.time.sleep", return_value=None)
-    def test_wait_for_connected_failure_due_to_timeout(
-        self, mock_sleep, mock_print_cmd, mock_check_output
-    ):
+    @patch("wifi_nmcli_test.print_cmd", new=MagicMock())
+    @patch("wifi_nmcli_test.time.sleep", MagicMock(return_value=None))
+    def test_wait_for_connected_failure_due_to_timeout(self):
         interface = "wlan0"
         essid = "TestESSID"
         self.assertFalse(wait_for_connected(interface, essid, max_wait=3))
 
     @patch(
         "wifi_nmcli_test.sp.check_output",
-        return_value=b"100:connected\nWrongESSID",
+        MagicMock(return_value=b"100:connected\nWrongESSID"),
     )
-    @patch("wifi_nmcli_test.print_cmd")
-    @patch("wifi_nmcli_test.time.sleep", return_value=None)
-    def test_wait_for_connected_failure_due_to_essid_mismatch(
-        self, mock_sleep, mock_print_cmd, mock_check_output
-    ):
+    @patch("wifi_nmcli_test.print_cmd", new=MagicMock())
+    @patch("wifi_nmcli_test.time.sleep", MagicMock(return_value=None))
+    def test_wait_for_connected_failure_due_to_essid_mismatch(self):
         interface = "wlan0"
         essid = "TestESSID"
         self.assertFalse(wait_for_connected(interface, essid))
@@ -339,30 +340,21 @@ class TestOpenConnection(unittest.TestCase):
     @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
     @patch("wifi_nmcli_test.print_head", new=MagicMock())
     @patch("wifi_nmcli_test.print_cmd", new=MagicMock())
-    @patch("wifi_nmcli_test.perform_ping_test", return_value=False)
-    @patch("wifi_nmcli_test.wait_for_connected", return_value=True)
-    def test_open_connection_failed_ping(
-        self, wait_for_connected_mock, perform_ping_test_mock
-    ):
+    @patch("wifi_nmcli_test.perform_ping_test", MagicMock(return_value=False))
+    @patch("wifi_nmcli_test.wait_for_connected", MagicMock(return_value=True))
+    def test_open_connection_failed_ping(self):
         args = type("", (), {})()
         args.device = "wlan0"
         args.essid = "TestESSID"
         rc = open_connection(args)
         self.assertEqual(rc, 1)
 
-    @patch("wifi_nmcli_test.sp.call")
-    @patch("wifi_nmcli_test.wait_for_connected", return_value=False)
-    @patch("wifi_nmcli_test.print_head")
-    @patch("wifi_nmcli_test.print_cmd")
-    @patch("wifi_nmcli_test.turn_up_connection")
-    def test_open_connection_failed_to_connect(
-        self,
-        print_cmd_mock,
-        turn_up_mock,
-        print_head_mock,
-        wait_for_connected_mock,
-        sp_call_mock,
-    ):
+    @patch("wifi_nmcli_test.sp.call", new=MagicMock())
+    @patch("wifi_nmcli_test.print_head", new=MagicMock())
+    @patch("wifi_nmcli_test.print_cmd", new=MagicMock())
+    @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
+    @patch("wifi_nmcli_test.wait_for_connected", MagicMock(return_value=False))
+    def test_open_connection_failed_to_connect(self):
         args = type("", (), {})()
         args.device = "wlan0"
         args.essid = "TestESSID"
@@ -371,22 +363,17 @@ class TestOpenConnection(unittest.TestCase):
 
 
 class TestSecuredConnection(unittest.TestCase):
-    @patch("wifi_nmcli_test.sp.call")
+    @patch("wifi_nmcli_test.sp.call", new=MagicMock())
+    @patch("wifi_nmcli_test.print_route_info", new=MagicMock())
+    @patch("wifi_nmcli_test.print_address_info", new=MagicMock())
+    @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
+    @patch("wifi_nmcli_test.sp.check_output", new=MagicMock())
     @patch("wifi_nmcli_test.wait_for_connected", return_value=True)
     @patch("wifi_nmcli_test.perform_ping_test", return_value=True)
-    @patch("wifi_nmcli_test.print_route_info")
-    @patch("wifi_nmcli_test.print_address_info")
-    @patch("wifi_nmcli_test.turn_up_connection")
-    @patch("wifi_nmcli_test.sp.check_output")
     def test_secured_connection_success(
         self,
-        check_output_mock,
-        turn_up_connection_mock,
-        print_address_info_mock,
-        print_route_info_mock,
         perform_ping_test_mock,
         wait_for_connected_mock,
-        sp_call_mock,
     ):
         args = type("", (), {})()
         args.device = "wlan0"
@@ -398,22 +385,17 @@ class TestSecuredConnection(unittest.TestCase):
         wait_for_connected_mock.assert_called_with("wlan0", "TEST_CON")
         perform_ping_test_mock.assert_called_with("wlan0")
 
-    @patch("wifi_nmcli_test.sp.call")
+    @patch("wifi_nmcli_test.sp.call", new=MagicMock())
+    @patch("wifi_nmcli_test.print_route_info", new=MagicMock())
+    @patch("wifi_nmcli_test.print_address_info", new=MagicMock())
+    @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
+    @patch("wifi_nmcli_test.sp.check_output", new=MagicMock())
     @patch("wifi_nmcli_test.wait_for_connected", return_value=False)
     @patch("wifi_nmcli_test.perform_ping_test", return_value=False)
-    @patch("wifi_nmcli_test.print_route_info")
-    @patch("wifi_nmcli_test.print_address_info")
-    @patch("wifi_nmcli_test.turn_up_connection")
-    @patch("wifi_nmcli_test.sp.check_output")
     def test_secured_connection_fail_to_connect(
         self,
-        check_output_mock,
-        turn_up_connection_mock,
-        print_address_info_mock,
-        print_route_info_mock,
         perform_ping_test_mock,
         wait_for_connected_mock,
-        sp_call_mock,
     ):
         args = type("", (), {})()
         args.device = "wlan0"
@@ -425,22 +407,17 @@ class TestSecuredConnection(unittest.TestCase):
         wait_for_connected_mock.assert_called_with("wlan0", "TEST_CON")
         perform_ping_test_mock.assert_not_called()
 
-    @patch("wifi_nmcli_test.sp.call")
+    @patch("wifi_nmcli_test.sp.call", new=MagicMock())
+    @patch("wifi_nmcli_test.print_route_info", new=MagicMock())
+    @patch("wifi_nmcli_test.print_address_info", new=MagicMock())
+    @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
+    @patch("wifi_nmcli_test.sp.check_output", new=MagicMock())
     @patch("wifi_nmcli_test.wait_for_connected", return_value=False)
     @patch("wifi_nmcli_test.perform_ping_test", return_value=True)
-    @patch("wifi_nmcli_test.print_route_info")
-    @patch("wifi_nmcli_test.print_address_info")
-    @patch("wifi_nmcli_test.turn_up_connection")
-    @patch("wifi_nmcli_test.sp.check_output")
     def test_secured_connection_command_failure(
         self,
-        check_output_mock,
-        turn_up_connection_mock,
-        print_address_info_mock,
-        print_route_info_mock,
         perform_ping_test_mock,
         wait_for_connected_mock,
-        sp_call_mock,
     ):
         args = type("", (), {})()
         args.device = "wlan0"
@@ -505,32 +482,30 @@ class TestParserArgs(unittest.TestCase):
 
 class TestMainFunction(unittest.TestCase):
 
-    @patch("wifi_nmcli_test.delete_test_ap_ssid_connection")
+    @patch("wifi_nmcli_test.delete_test_ap_ssid_connection", new=MagicMock())
+    @patch("wifi_nmcli_test.turn_down_nm_connections", new=MagicMock())
+    @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
+    @patch("wifi_nmcli_test.device_rescan", new=MagicMock())
     @patch(
         "wifi_nmcli_test.get_nm_activate_connection", return_value="uuid123"
     )
-    @patch("wifi_nmcli_test.turn_down_nm_connections")
-    @patch("wifi_nmcli_test.turn_up_connection")
     @patch("wifi_nmcli_test.list_aps", return_value={})
     @patch("wifi_nmcli_test.sys.argv", ["wifi_nmcli_test.py", "scan", "wlan0"])
-    @patch("wifi_nmcli_test.device_rescan")
     def test_main_scan_no_aps_found(
         self,
         list_aps_mock,
-        turn_up_connection_mock,
-        turn_down_nm_connections_mock,
         get_nm_activate_connection_mock,
-        delete_test_ap_ssid_connection_mock,
-        mock_device_rescan,
     ):
         main()
 
-    @patch("wifi_nmcli_test.delete_test_ap_ssid_connection")
+    @patch("wifi_nmcli_test.delete_test_ap_ssid_connection", new=MagicMock())
+    @patch("wifi_nmcli_test.turn_down_nm_connections", new=MagicMock())
+    @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
+    @patch("wifi_nmcli_test.device_rescan", new=MagicMock())
     @patch(
-        "wifi_nmcli_test.get_nm_activate_connection", return_value="uuid123"
+        "wifi_nmcli_test.get_nm_activate_connection",
+        return_value="uuid123",
     )
-    @patch("wifi_nmcli_test.turn_down_nm_connections")
-    @patch("wifi_nmcli_test.turn_up_connection")
     @patch(
         "wifi_nmcli_test.list_aps",
         return_value={
@@ -540,47 +515,41 @@ class TestMainFunction(unittest.TestCase):
         },
     )
     @patch("wifi_nmcli_test.sys.argv", ["wifi_nmcli_test.py", "scan", "wlan0"])
-    @patch("wifi_nmcli_test.device_rescan")
     def test_main_scan_aps_found(
         self,
         list_aps_mock,
-        turn_up_connection_mock,
-        turn_down_nm_connections_mock,
         get_nm_activate_connection_mock,
-        delete_test_ap_ssid_connection_mock,
-        mock_device_rescan,
     ):
         main()
 
-    @patch("wifi_nmcli_test.delete_test_ap_ssid_connection")
+    @patch("wifi_nmcli_test.delete_test_ap_ssid_connection", new=MagicMock())
+    @patch("wifi_nmcli_test.turn_down_nm_connections", new=MagicMock())
+    @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
+    @patch("wifi_nmcli_test.device_rescan", new=MagicMock())
     @patch(
-        "wifi_nmcli_test.get_nm_activate_connection", return_value="uuid123"
+        "wifi_nmcli_test.get_nm_activate_connection",
+        return_value="uuid123",
     )
-    @patch("wifi_nmcli_test.turn_down_nm_connections")
-    @patch("wifi_nmcli_test.turn_up_connection")
     @patch("wifi_nmcli_test.list_aps", return_value={})
     @patch(
         "wifi_nmcli_test.sys.argv",
         ["wifi_nmcli_test.py", "open", "wlan0", "TestSSID"],
     )
-    @patch("wifi_nmcli_test.device_rescan")
     def test_main_open_no_aps_found(
         self,
         list_aps_mock,
-        turn_up_connection_mock,
-        turn_down_nm_connections_mock,
         get_nm_activate_connection_mock,
-        delete_test_ap_ssid_connection_mock,
-        mock_device_rescan,
     ):
         main()
 
-    @patch("wifi_nmcli_test.delete_test_ap_ssid_connection")
+    @patch("wifi_nmcli_test.delete_test_ap_ssid_connection", new=MagicMock())
     @patch(
-        "wifi_nmcli_test.get_nm_activate_connection", return_value="uuid123"
+        "wifi_nmcli_test.get_nm_activate_connection",
+        return_value="uuid123",
     )
-    @patch("wifi_nmcli_test.turn_down_nm_connections")
-    @patch("wifi_nmcli_test.turn_up_connection")
+    @patch("wifi_nmcli_test.turn_down_nm_connections", new=MagicMock())
+    @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
+    @patch("wifi_nmcli_test.device_rescan", new=MagicMock())
     @patch(
         "wifi_nmcli_test.list_aps",
         return_value={
@@ -589,20 +558,15 @@ class TestMainFunction(unittest.TestCase):
             "TestSSID": {"Chan": "11", "Freq": "2462", "Signal": "80"},
         },
     )
+    @patch("wifi_nmcli_test.open_connection", return_value=0)
     @patch(
         "wifi_nmcli_test.sys.argv",
         ["wifi_nmcli_test.py", "open", "wlan0", "TestSSID"],
     )
-    @patch("wifi_nmcli_test.open_connection", return_value=0)
-    @patch("wifi_nmcli_test.device_rescan")
     def test_main_open_aps_found(
         self,
         list_aps_mock,
-        turn_up_connection_mock,
-        turn_down_nm_connections_mock,
         get_nm_activate_connection_mock,
-        delete_test_ap_ssid_connection_mock,
         mock_open_connection,
-        mock_device_rescan,
     ):
         main()

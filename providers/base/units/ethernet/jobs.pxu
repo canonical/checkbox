@@ -281,7 +281,6 @@ _verification:
 plugin: user-interact-verify
 imports: from com.canonical.plainbox import manifest
 requires:
- sleep.disk == 'supported'
  manifest.has_ethernet_adapter == 'True'
  manifest.has_ethernet_wake_on_lan_support== 'True'
 command: systemctl hibernate
@@ -310,7 +309,6 @@ _verification:
 plugin: user-interact-verify
 imports: from com.canonical.plainbox import manifest
 requires:
- sleep.mem == 'supported'
  manifest.has_ethernet_adapter == 'True'
  manifest.has_ethernet_wake_on_lan_support== 'True'
 command: systemctl suspend

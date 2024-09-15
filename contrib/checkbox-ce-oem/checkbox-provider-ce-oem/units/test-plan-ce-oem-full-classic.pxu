@@ -13,6 +13,8 @@ include:
 nested_part:
     ce-oem-iot-server-24-04-manual
     ce-oem-iot-server-24-04-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-22-04
 unit: test plan
@@ -23,6 +25,8 @@ include:
 nested_part:
     ce-oem-iot-server-22-04-manual
     ce-oem-iot-server-22-04-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-20-04
 unit: test plan
@@ -33,6 +37,8 @@ include:
 nested_part:
     ce-oem-iot-server-20-04-manual
     ce-oem-iot-server-20-04-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-24-04-manual
 unit: test plan
@@ -49,6 +55,8 @@ nested_part:
     after-suspend-ce-oem-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-22-04-manual
 unit: test plan
@@ -65,6 +73,8 @@ nested_part:
     after-suspend-ce-oem-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-20-04-manual
 unit: test plan
@@ -81,6 +91,8 @@ nested_part:
     after-suspend-ce-oem-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-24-04-automated
 unit: test plan
@@ -94,6 +106,8 @@ nested_part:
     com.canonical.certification::client-cert-iot-server-24-04-automated
     after-suspend-ce-oem-automated
 exclude:
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-22-04-automated
 unit: test plan
@@ -107,6 +121,8 @@ nested_part:
     com.canonical.certification::client-cert-iot-server-22-04-automated
     after-suspend-ce-oem-automated
 exclude:
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-20-04-automated
 unit: test plan
@@ -120,6 +136,8 @@ nested_part:
     com.canonical.certification::client-cert-iot-server-20-04-automated
     after-suspend-ce-oem-automated
 exclude:
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-24-04-stress
 unit: test plan
@@ -132,6 +150,8 @@ nested_part:
     ce-oem-stress
 exclude:
     com.canonical.certification::stress-tests/hibernate.*
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-22-04-stress
 unit: test plan
@@ -144,7 +164,8 @@ nested_part:
     ce-oem-stress
 exclude:
     com.canonical.certification::stress-tests/hibernate.*
-
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-20-04-stress
 unit: test plan
@@ -157,4 +178,6 @@ nested_part:
     ce-oem-stress
 exclude:
     com.canonical.certification::stress-tests/hibernate.*
+certification_status_overrides:
+    apply blocker to .*
 

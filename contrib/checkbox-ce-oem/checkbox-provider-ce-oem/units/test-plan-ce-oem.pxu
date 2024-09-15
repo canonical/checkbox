@@ -15,6 +15,8 @@ nested_part:
     ce-oem-automated
     after-suspend-ce-oem-manual
     after-suspend-ce-oem-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-manual
 unit: test plan
@@ -46,6 +48,8 @@ nested_part:
     ce-oem-iio-sensors-manual
     ce-oem-digital-io-manual
     ce-oem-secure-boot-manual
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-automated
 unit: test plan
@@ -83,6 +87,8 @@ nested_part:
     com.canonical.certification::rtc-automated
     com.canonical.certification::led-indicator-auto
     before-suspend-ce-oem-spi-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: after-suspend-ce-oem-manual
 unit: test plan
@@ -112,6 +118,8 @@ nested_part:
     com.canonical.certification::after-suspend-led-indicator-manual
     after-suspend-ce-oem-iio-sensors-manual
     after-suspend-ce-oem-digital-io-manual
+certification_status_overrides:
+    apply blocker to .*
 
 id: after-suspend-ce-oem-automated
 unit: test plan
@@ -145,6 +153,8 @@ nested_part:
     after-suspend-ce-oem-iio-sensors-automated
     after-suspend-ce-oem-digital-io-automated
     after-suspend-ce-oem-spi-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-stress
 unit: test plan
@@ -156,4 +166,6 @@ include:
 nested_part:
     ce-oem-cold-boot-stress-test-by-pdu
     ce-oem-ethernet-tcp-stress
+certification_status_overrides:
+    apply blocker to .*
 

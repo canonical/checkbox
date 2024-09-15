@@ -13,6 +13,8 @@ include:
 nested_part:
     ce-oem-iot-ubuntucore-24-manual
     ce-oem-iot-ubuntucore-24-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-ubuntucore-22
 unit: test plan
@@ -23,6 +25,8 @@ include:
 nested_part:
     ce-oem-iot-ubuntucore-22-manual
     ce-oem-iot-ubuntucore-22-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-ubuntucore-20
 unit: test plan
@@ -33,6 +37,8 @@ include:
 nested_part:
     ce-oem-iot-ubuntucore-20-manual
     ce-oem-iot-ubuntucore-20-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-ubuntucore-24-manual
 unit: test plan
@@ -51,6 +57,8 @@ nested_part:
     after-suspend-ce-oem-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-ubuntucore-22-manual
 unit: test plan
@@ -69,6 +77,8 @@ nested_part:
     after-suspend-ce-oem-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-ubuntucore-20-manual
 unit: test plan
@@ -87,6 +97,8 @@ nested_part:
     after-suspend-ce-oem-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-ubuntucore-24-automated
 unit: test plan
@@ -103,6 +115,8 @@ nested_part:
     com.canonical.certification::client-cert-iot-ubuntucore-24-automated
     after-suspend-ce-oem-automated
 exclude:
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-ubuntucore-22-automated
 unit: test plan
@@ -119,6 +133,8 @@ nested_part:
     com.canonical.certification::client-cert-iot-ubuntucore-22-automated
     after-suspend-ce-oem-automated
 exclude:
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-ubuntucore-20-automated
 unit: test plan
@@ -135,6 +151,8 @@ nested_part:
     com.canonical.certification::client-cert-iot-ubuntucore-20-automated
     after-suspend-ce-oem-automated
 exclude:
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-ubuntucore-24-stress
 unit: test plan
@@ -147,6 +165,8 @@ nested_part:
     ce-oem-stress
 exclude:
     com.canonical.certification::stress-tests/hibernate.*
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-ubuntucore-22-stress
 unit: test plan
@@ -159,6 +179,8 @@ nested_part:
     ce-oem-stress
 exclude:
     com.canonical.certification::stress-tests/hibernate.*
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-ubuntucore-20-stress
 unit: test plan
@@ -171,4 +193,6 @@ nested_part:
     ce-oem-stress
 exclude:
     com.canonical.certification::stress-tests/hibernate.*
+certification_status_overrides:
+    apply blocker to .*
 

@@ -126,15 +126,15 @@ unit: test plan
 _name: USB tests (after suspend, certification blockers only)
 _description: USB tests (after suspend, certification blockers only)
 include:
-    usb/hid                                    certification-status=blocker
-    usb/storage-manual                         certification-status=blocker
+    after-suspend-usb/hid                      certification-status=blocker
+    after-suspend-usb/storage-manual           certification-status=blocker
 
 id: after-suspend-usb3-cert-blockers
 unit: test plan
 _name: USB3 tests (after suspend, certification blockers only)
 _description: USB3 tests (after suspend, certification blockers only)
 include:
-    usb3/storage-manual                            certification-status=blocker
+    after-suspend-usb3/storage-manual          certification-status=blocker
 
 id: after-suspend-usb-c-cert-blockers
 unit: test plan

@@ -464,9 +464,10 @@ class TestRunWatcher(unittest.TestCase):
         line_str = "Invalid line"
         mock_thunderbolt_storage = MagicMock()
         mock_thunderbolt_storage.action = None
-        MediacardStorage._parse_journal_line(mock_thunderbolt_storage, line_str)
+        MediacardStorage._parse_journal_line(
+            mock_thunderbolt_storage, line_str
+        )
         self.assertEqual(mock_thunderbolt_storage.action, None)
-
 
     @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
     def test_main_usb(self, mock_usb_storage):

@@ -18,8 +18,7 @@ estimated_duration: 60
 
 id: usb-c/c-to-a-adapter/storage-manual
 _summary: 
-    Test USB 3 storage device insertion + read/write + removal using a
-    "Type-C to Type-A" adapter.
+    Test USB 3 storage device insertion + read/write + removal using a "Type-C to Type-A" adapter.
 _purpose:
     This test will check that the system correctly detects the insertion of
     a USB 3 storage device in a USB Type-C connector using a "Type-C to Type-A"

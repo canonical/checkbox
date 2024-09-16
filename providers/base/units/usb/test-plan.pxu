@@ -14,7 +14,7 @@ _name: USB tests (Manual)
 _description:
  USB tests (Manual)
 include:
- usb/HID                                    certification-status=blocker
+ usb/hid                                    certification-status=blocker
  usb/storage-manual                         certification-status=blocker
 
 id: usb-cert-automated
@@ -58,7 +58,6 @@ _description:
  USB3 tests (Automated)
 include:
 
-
 id: usb-c-cert-full
 unit: test plan
 _name: USB Type-C tests
@@ -75,7 +74,7 @@ unit: test plan
 _name: USB tests (after suspend)
 _description: USB tests (after suspend)
 include:
- after-suspend-usb/HID                                    certification-status=blocker
+ after-suspend-usb/hid                                    certification-status=blocker
  after-suspend-usb/storage-manual                         certification-status=blocker
 
 id: after-suspend-usb3-cert-full
@@ -102,7 +101,7 @@ _name: USB tests (certification blockers only)
 _description: USB tests (certification blockers only)
 include:
     usb/detect                                 certification-status=blocker
-    usb/HID                                    certification-status=blocker
+    usb/hid                                    certification-status=blocker
     usb/storage-manual                         certification-status=blocker
 
 id: usb3-cert-blockers
@@ -127,18 +126,15 @@ unit: test plan
 _name: USB tests (after suspend, certification blockers only)
 _description: USB tests (after suspend, certification blockers only)
 include:
-    suspend/usb_insert_after_suspend                       certification-status=blocker
-    suspend/usb_storage_automated_after_suspend            certification-status=blocker
-    suspend/usb_remove_after_suspend                       certification-status=blocker
+    usb/hid                                    certification-status=blocker
+    usb/storage-manual                         certification-status=blocker
 
 id: after-suspend-usb3-cert-blockers
 unit: test plan
 _name: USB3 tests (after suspend, certification blockers only)
 _description: USB3 tests (after suspend, certification blockers only)
 include:
-    suspend/usb3_insert_after_suspend                      certification-status=blocker
-    suspend/usb3_storage_automated_after_suspend           certification-status=blocker
-    suspend/usb3_remove_after_suspend                      certification-status=blocker
+    usb3/storage-manual                            certification-status=blocker
 
 id: after-suspend-usb-c-cert-blockers
 unit: test plan

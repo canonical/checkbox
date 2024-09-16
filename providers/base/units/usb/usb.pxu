@@ -211,6 +211,7 @@ _summary: Test USB connectivity by connecting a USB storage device to all extern
 plugin: shell
 category_id: com.canonical.plainbox::usb
 id: usb/performance
+flags: also-after-suspend
 user: root
 estimated_duration: 45.00
 command: removable_storage_test.py -s 268400000 -p 15 usb

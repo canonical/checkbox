@@ -282,49 +282,63 @@ class TestRunWatcher(unittest.TestCase):
         USBStorage._validate_removal(mock_usb_storage)
 
     def test_usb_storage_parse_journal_line(self):
-        mock_usb_storage = MagicMock()
-
         line_str = "new high-speed USB device"
+        mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.device, "high_speed_usb")
 
         line_str = "new SuperSpeed USB device"
+        mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.device, "super_speed_usb")
 
         line_str = "new SuperSpeed Gen 1 USB device"
+        mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.device, "super_speed_gen1_usb")
 
         line_str = "new SuperSpeed Plus Gen 2x1 USB device"
+        mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(
             mock_usb_storage.device, "super_speed_plus_gen2x1_usb"
         )
 
         line_str = "new high-speed USB device number 1 using ehci_hcd"
+        mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.driver, "ehci_hcd")
 
         line_str = "new high-speed USB device number 4 using xhci_hcd"
+        mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.driver, "xhci_hcd")
 
         line_str = "USB Mass Storage device detected"
+        mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.action, "insertion")
 
         line_str = "kernel: scsi host0: uas"
+        mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.action, "insertion")
 
         line_str = "USB disconnect, device"
+        mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.action, "removal")
 
         line_str = "sdb: sdb1"
+        mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.mounted_partition, "sdb1")
+
+        line_str = "Invalid line"
+        mock_usb_storage = MagicMock()
+        mock_usb_storage.action = None
+        USBStorage._parse_journal_line(mock_usb_storage, line_str)
+        self.assertEqual(mock_usb_storage.action, None)
 
     def test_mediacard_storage_init(self):
         mediacard_storage = MediacardStorage(
@@ -364,21 +378,28 @@ class TestRunWatcher(unittest.TestCase):
         MediacardStorage._validate_removal(mock_mediacard_storage)
 
     def test_mediacard_storage_parse_journal_line(self):
-        mock_mediacard_storage = MagicMock()
-
         line_str = "mmcblk0: p1"
+        mock_mediacard_storage = MagicMock()
         MediacardStorage._parse_journal_line(mock_mediacard_storage, line_str)
         self.assertEqual(mock_mediacard_storage.mounted_partition, "mmcblk0p1")
 
         line_str = "new SD card at address 123456"
+        mock_mediacard_storage = MagicMock()
         MediacardStorage._parse_journal_line(mock_mediacard_storage, line_str)
         self.assertEqual(mock_mediacard_storage.action, "insertion")
         self.assertEqual(mock_mediacard_storage.device, "SD")
         self.assertEqual(mock_mediacard_storage.address, "123456")
 
         line_str = "card 123456 removed"
+        mock_mediacard_storage = MagicMock()
         MediacardStorage._parse_journal_line(mock_mediacard_storage, line_str)
         self.assertEqual(mock_mediacard_storage.action, "removal")
+
+        line_str = "Invalid line"
+        mock_mediacard_storage = MagicMock()
+        mock_mediacard_storage.action = None
+        MediacardStorage._parse_journal_line(mock_mediacard_storage, line_str)
+        self.assertEqual(mock_mediacard_storage.action, None)
 
     def test_thunderbolt_storage_init(self):
         thunderbolt_storage = ThunderboltStorage(
@@ -417,9 +438,8 @@ class TestRunWatcher(unittest.TestCase):
         ThunderboltStorage._validate_removal(mock_thunderbolt_storage)
 
     def test_thunderbolt_storage_parse_journal_line(self):
-        mock_thunderbolt_storage = MagicMock()
-
         line_str = "nvme0n1: p1"
+        mock_thunderbolt_storage = MagicMock()
         ThunderboltStorage._parse_journal_line(
             mock_thunderbolt_storage, line_str
         )
@@ -428,16 +448,26 @@ class TestRunWatcher(unittest.TestCase):
         )
 
         line_str = "thunderbolt 1-1: new device found"
+        mock_thunderbolt_storage = MagicMock()
         ThunderboltStorage._parse_journal_line(
             mock_thunderbolt_storage, line_str
         )
         self.assertEqual(mock_thunderbolt_storage.action, "insertion")
 
         line_str = "thunderbolt 1-1: device disconnected"
+        mock_thunderbolt_storage = MagicMock()
         ThunderboltStorage._parse_journal_line(
             mock_thunderbolt_storage, line_str
         )
         self.assertEqual(mock_thunderbolt_storage.action, "removal")
+
+        line_str = "Invalid line"
+        mock_thunderbolt_storage = MagicMock()
+        mock_thunderbolt_storage.action = None
+        MediacardStorage._parse_journal_line(
+            mock_thunderbolt_storage, line_str
+        )
+        self.assertEqual(mock_thunderbolt_storage.action, None)
 
     @patch("checkbox_support.scripts.run_watcher.USBStorage", spec=USBStorage)
     def test_main_usb(self, mock_usb_storage):

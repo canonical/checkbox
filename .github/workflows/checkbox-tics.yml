@@ -1,0 +1,75 @@
+name: Security and quality nightly scan
+
+on:
+  schedule:
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+ 
+jobs:
+  TICS:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          # Latest branches
+          - { branch: main }
+
+    steps:
+    #   - name: Harden Runner
+    #     uses: step-security/harden-runner@v2
+    #     with:
+    #       egress-policy: audit
+      - name: Checking out repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{matrix.branch}}
+    #   - name: Install Go
+    #     uses: actions/setup-go@v5
+    #     with:
+    #       go-version: "1.22"
+    #   - name: go mod download
+    #     working-directory: src/k8s
+    #     run: go mod download
+      - name: TICS scan
+        run: |
+          export TICSAUTHTOKEN=${{ secrets.TICSAUTHTOKEN }}
+
+          set -x
+          # Install python virtual env
+          sudo apt install python3-virtualenv
+
+          # Create and activate the Python virtual environment:
+          cd ~/checkbox/checkbox-ng
+          ./mk-venv
+          . ~/checkbox/checkbox-ng/venv/bin/activate
+
+          # Activate the base providers in the virtual environment from within the virtual environment:
+          cd ~/checkbox/providers/resource/
+          ./manage.py develop -d $PROVIDERPATH
+          cd ~/checkbox/providers/base
+          ./manage.py develop -d $PROVIDERPATH
+
+          # Build the executables under the providers in the virtual environment:
+          cd ~/checkbox/providers/resource/
+          ./manage.py build
+          cd ~/checkbox/providers/base
+          ./manage.py build
+
+          # Install the Checkbox support library in the virtual environment:
+          cd ~/checkbox/checkbox-support
+          python3 -m pip install -e .
+
+          # TICS requires us to have the test results in cobertura xml format under the
+          # directory use below
+          cd ~/checkbox
+          python3 -m pip install coverage
+          coverage run providers/resource/manage.py test -u
+          coverage run --append providers/base/manage.py test -u
+          coverage xml
+
+          # Install the TICS
+          . <(curl --silent --show-error 'https://canonical.tiobe.com/tiobeweb/TICS/api/public/v1/fapi/installtics/Script?cfg=default&platform=linux&url=https://canonical.tiobe.com/tiobeweb/TICS/')
+
+          TICSQServer -project checkbox -tmpdir /tmp/tics -branchdir .

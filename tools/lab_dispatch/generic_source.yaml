@@ -6,9 +6,13 @@ provision_data:
 test_data:
   attachments:
     - local: "tools/lab_dispatch/resources/manifest.conf"
-    - local: "tools/lab_dispatch/resources/input.conf"
+      agent: "manifest.conf"
+    - local: "tools/lab_dispatch/resources/input.conf_template"
+      agent: "input.conf_template"
     - local: "tools/lab_dispatch/resources/service_file.service"
+      agent: "service_file.service"
     - local: "tools/lab_dispatch/resources/build_install_deb.py"
+      agent: "build_install_deb.py"
   test_cmds: |
     #!/usr/bin/env bash
 
@@ -16,7 +20,7 @@ test_data:
 
     # input arguments
     CHECKBOX_REVISION=$INPUT_CHECKBOX_REVISION
-    RESOURCES_PATH=attachments/tools/lab_dispatch/resources
+    RESOURCES_PATH="attachments/test/"
 
     TOOLS_PATH=tools
 
@@ -32,7 +36,7 @@ test_data:
 
     wait_for_ssh
 
-    _put $RESOURCES_PATH/build_install_deb.py :build_install_deb.py
+    _put $RESOURCES_PATH/build_install_deb.py :
     _run git clone https://github.com/canonical/checkbox.git
     _run git -C checkbox checkout $CHECKBOX_REVISION
     _run python3 build_install_deb.py --clean checkbox/checkbox-ng \
@@ -58,7 +62,7 @@ test_data:
     ### create checkbox launcher
     # first dump the location specific infos in the launcher
     which envsubst || install_packages gettext
-    envsubst < $RESOURCES_PATH/input.conf > test_conf.conf
+    envsubst < $RESOURCES_PATH/input.conf_template > test_conf.conf
     stacker --output checkbox.conf test_conf.conf $MANIFEST_FILE
 
     wait_for_ssh

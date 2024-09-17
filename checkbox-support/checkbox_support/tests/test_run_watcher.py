@@ -318,7 +318,7 @@ class TestRunWatcher(unittest.TestCase):
         mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.action, "insertion")
-        
+
         line_str = "USB disconnect, device"
         mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)

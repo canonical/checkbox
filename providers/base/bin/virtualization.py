@@ -1234,10 +1234,12 @@ def test_lxd_vm_vgpu(args):
         args.threshold or os.getenv("LXD_VGPU_THRESHOLD") or VGPU_THRESHOLD_SEC
     )
 
+    # Increase storage for drivers installation.
+    # Disable secureboot to simplify drivers installation.
     lxd_test = LXDTest_vm(
         template,
         image,
-        launch_options=["-d root,size=25GB", "-c security.secureboot=false"],
+        launch_options=["-d root,size=50GB", "-c security.secureboot=false"],
     )
     result = lxd_test.test_vgpu(
         args.gpu_vendor, args.gpu_pci, run_count, threshold_sec

@@ -27,7 +27,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: py310
+          python-version: "py310"
         env:
           PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
 

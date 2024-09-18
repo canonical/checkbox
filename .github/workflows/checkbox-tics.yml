@@ -46,16 +46,16 @@ jobs:
           # Create and activate the Python virtual environment:
           ls -la
           pwd
-          .$HOME/checkbox/checkbox/checkbox-ng/mk-venv
-          .$HOME/checkbox/checkbox/checkbox-ng/venv/bin/activate
+          .$PWD/checkbox/checkbox/checkbox-ng/mk-venv
+          .$PWD/checkbox/checkbox/checkbox-ng/venv/bin/activate
 
           # Activate the base providers in the virtual environment from within the virtual environment:
-          .$HOME/checkbox/checkbox/providers/resource/manage.py develop -d $PROVIDERPATH
-          .$HOME/checkbox/checkbox/providers/base/manage.py develop -d $PROVIDERPATH
+          .$PWD/checkbox/checkbox/providers/resource/manage.py develop -d $PROVIDERPATH
+          .$PWD/checkbox/checkbox/providers/base/manage.py develop -d $PROVIDERPATH
 
           # Build the executables under the providers in the virtual environment:
-          .$HOME/checkbox/providers/resource/manage.py build
-          .$HOME/checkbox/providers/base/manage.py build
+          .$PWD/checkbox/providers/resource/manage.py build
+          .$PWD/checkbox/providers/base/manage.py build
 
           # Install the Checkbox support library in the virtual environment:
           # cd ~/checkbox/checkbox-support

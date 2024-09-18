@@ -1,4 +1,4 @@
-name: Security and quality nightly scan
+name: TICS Code Quality Analysis
 
 on:
   push:

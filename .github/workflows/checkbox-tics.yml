@@ -49,35 +49,35 @@ jobs:
           
           # Checkbox-ng
           python3 -m pip install $PWD/checkbox-ng
-          python3 -m coverage run --append -m pytest $PWD/checkbox-ng
+          coverage run --append -m pytest $PWD/checkbox-ng
 
           # Checkbox-support
           python3 -m pip install $PWD/checkbox-support
-          python3 -m coverage run --append -m pytest $PWD/checkbox-support
+          coverage run --append -m pytest $PWD/checkbox-support
 
           # Providers
           python3 -m pip install $PWD/providers/base
-          python3 -m coverage run --append $PWD/providers/base/manage.py test -u
+          coverage run --append $PWD/providers/base/manage.py test -u
           python3 -m pip install $PWD/providers/certification-client
-          python3 -m coverage run --append $PWD/providers/certification-client/manage.py test -u
+          coverage run --append $PWD/providers/certification-client/manage.py test -u
           python3 -m pip install $PWD/providers/certification-server
-          python3 -m coverage run --append $PWD/providers/certification-server/manage.py test -u
+          coverage run --append $PWD/providers/certification-server/manage.py test -u
           python3 -m pip install $PWD/providers/docker
-          python3 -m coverage run --append $PWD/providers/docker/manage.py test -u
+          coverage run --append $PWD/providers/docker/manage.py test -u
           python3 -m pip install $PWD/providers/genio
-          python3 -m coverage run --append $PWD/providers/genio/manage.py test -u
+          coverage run --append $PWD/providers/genio/manage.py test -u
           python3 -m pip install $PWD/providers/gpgpu
-          python3 -m coverage run --append $PWD/providers/gpgpu/manage.py test -u
+          coverage run --append $PWD/providers/gpgpu/manage.py test -u
           python3 -m pip install $PWD/providers/iiotg
-          python3 -m coverage run --append $PWD/providers/iiotg/manage.py test -u
+          coverage run --append $PWD/providers/iiotg/manage.py test -u
           python3 -m pip install $PWD/providers/resource
-          python3 -m coverage run --append $PWD/providers/resource/manage.py test -u
+          coverage run --append $PWD/providers/resource/manage.py test -u
           python3 -m pip install $PWD/providers/sru
-          python3 -m coverage run --append $PWD/providers/sru/manage.py test -u
+          coverage run --append $PWD/providers/sru/manage.py test -u
           python3 -m pip install $PWD/providers/tpm2
-          python3 -m coverage run --append $PWD/providers/tpm2/manage.py test -u
+          coverage run --append $PWD/providers/tpm2/manage.py test -u
           python3 -m pip install $PWD/providers/tutorial
-          python3 -m coverage run --append $PWD/providers/tutorial/manage.py test -u
+          coverage run --append $PWD/providers/tutorial/manage.py test -u
 
       - name: TICS GitHub Action
         uses: tiobe/tics-github-action@v3

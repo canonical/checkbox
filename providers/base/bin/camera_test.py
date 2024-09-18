@@ -552,7 +552,9 @@ class CameraTest:
         # Add a timeout of 90 seconds to capture the image
         self.timeout = self.GLib.timeout_add_seconds(90, self._on_timeout)
 
-        # Start the main loop
+        # Start the main loop. If the loop finishes successfully, we will
+        # remove the timeout. If the timeout is reached, we will stop the
+        # pipeline calling the _on_timeout method and stop both the
         self.main_loop = self.GLib.MainLoop()
         try:
             self.main_loop.run()
@@ -565,7 +567,6 @@ class CameraTest:
         # iteration.
         if self.timeout:
             self.GLib.source_remove(self.timeout)
-        return 0
 
     def _display_image(self, filename, width, height):
         """

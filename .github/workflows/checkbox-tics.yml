@@ -29,7 +29,7 @@ jobs:
 
       - name: Install Checkbox
         run: |
-          python3 -m pip install .$PWD/checkbox-ng
+          python3 -m pip install $PWD/checkbox-ng
 
           cd $PWD/checkbox-support
           python3 -m pip install .

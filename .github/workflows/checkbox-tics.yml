@@ -46,8 +46,10 @@ jobs:
           # Create and activate the Python virtual environment:
           ls -la
           pwd
-          .$PWD/checkbox-ng/mk-venv
-          source .$PWD/checkbox-ng/venv/bin/activate
+          cd $PWD/checkbox-ng
+          ./mk-venv
+          source ./venv/bin/activate
+          cd ../
 
           # Activate the base providers in the virtual environment from within the virtual environment:
           .$PWD/providers/resource/manage.py develop -d $PROVIDERPATH

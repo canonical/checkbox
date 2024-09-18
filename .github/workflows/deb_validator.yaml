@@ -1,0 +1,68 @@
+name: Verify debian packages
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - checkbox-ng/**
+      - checkbox-support/**
+      - providers/base/**
+      - providers/certification-client/**
+      - providers/certification-server/**
+      - providers/genio/**
+      - providers/gpgpu/**
+      - providers/resource/**
+      - providers/sru/**
+      - providers/tpm2/**
+  pull_request:
+    branches: [ main ]
+    paths:
+      - checkbox-ng/**
+      - checkbox-support/**
+      - providers/base/**
+      - providers/certification-client/**
+      - providers/certification-server/**
+      - providers/gpgpu/**
+      - providers/resource/**
+      - providers/sru/**
+      - providers/tpm2/**
+  workflow_dispatch:
+
+jobs:
+  deb_validation:
+    strategy:
+      fail-fast: false
+      matrix:
+        # Version of Ubuntu
+        # note: no 16, we don't support debs for 16 anymore
+        #       no 18, not supported by github
+        os:
+          - ubuntu-20.04
+          - ubuntu-22.04
+          - ubuntu-24.04
+        path:
+          - checkbox-ng
+          - checkbox-support
+          - providers/base
+          - providers/certification-client
+          - providers/certification-server
+          - providers/gpgpu
+          - providers/resource
+          - providers/sru
+          - providers/tpm2
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout Checkbox monorepo
+        uses: actions/checkout@v4
+      # needed by providers that pull checkbox-support
+      - name: Install PPA and dependencies
+        run: |
+          sudo add-apt-repository ppa:checkbox-dev/edge
+          sudo apt-get update
+          sudo apt-get install -qq -y dpkg-dev
+      - name: Prepare installation
+        run: mv ${{ matrix.path }}/debian .
+      - name: Install dependencies
+        run: sudo apt-get build-dep .
+      - name: Build source, test and build binary
+        run: dpkg-buildpackage

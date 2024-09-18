@@ -1,0 +1,54 @@
+id: stress-suspend-3-cycles-with-idle60-reboots-automated
+unit: test plan
+_name: Suspend sanity tests (with reboots)
+_description: Suspend sanity tests (with reboots)
+include:
+    miscellanea/set-idle-delay-60s
+    power-management/suspend_3_cycles_with_reboots
+    power-management/suspend-3-cycles-log-check-with-reboots
+    power-management/suspend-3-cycle-log-attach-with-reboots
+    power-management/suspend-3-cycles-time-check-with-reboots
+    miscellanea/restore-idle-delay
+
+id: stress-10-reboot-automated
+unit: test plan
+_name: Power Management reboot and power off stress tests (automated)
+_description: Power Management reboot and power off stress tests (automated)
+include:
+    stress/reboot_10        certification-status=blocker
+    stress/reboot_10_log
+
+id: stress-10-poweroff-automated
+unit: test plan
+_name: Power Management reboot and power off stress tests (automated)
+_description: Power Management reboot and power off stress tests (automated)
+include:
+    stress/poweroff_10      certification-status=blocker
+    stress/poweroff_10_log
+
+
+id: stress-100-reboot-poweroff-automated
+unit: test plan
+_name: Power Management reboot and power off stress tests (automated)
+_description: Power Management reboot and power off stress tests (automated)
+include:
+    stress/reboot_100        certification-status=blocker
+    stress/reboot_100_log
+    stress/poweroff_100      certification-status=blocker
+    stress/poweroff_100_log
+
+id: stress-100-reboot-automated
+unit: test plan
+_name: Power Management reboot and power off stress tests (automated)
+_description: Power Management reboot and power off stress tests (automated)
+include:
+    stress/reboot_100        certification-status=blocker
+    stress/reboot_100_log
+
+id: stress-100-poweroff-automated
+unit: test plan
+_name: Power Management reboot and power off stress tests (automated)
+_description: Power Management reboot and power off stress tests (automated)
+include:
+    stress/poweroff_100      certification-status=blocker
+    stress/poweroff_100_log

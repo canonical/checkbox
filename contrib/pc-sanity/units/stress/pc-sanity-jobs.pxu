@@ -1,0 +1,135 @@
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: power-management/suspend_3_cycles_with_reboots
+estimated_duration: 540.0
+depends:
+ power-management/rtc
+ suspend/suspend_advanced_auto
+requires:
+ executable.name == 'x-terminal-emulator'
+flags: noreturn
+user: root
+environ: PM_TEST_DRY_RUN
+command:
+ pm_test.py reboot --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox --fwts --log-level=debug --log-dir="$PLAINBOX_SESSION_SHARE" --suspends-before-reboot=3 -r 3 --silent --check-hardware-list
+_summary: 30 suspend/resume cycles and 1 reboot, 3 times (automated stress test)
+_description:
+ This is an automated stress test that will run a sequence of '3 suspend/resume cycles and one reboot' 3 times.
+_siblings: [
+    { "id": "power-management/suspend_3_cycles_with_coldboots",
+      "command": "pm_test.py poweroff --checkbox-respawn-cmd $PLAINBOX_SESSION_SHARE/__respawn_checkbox --fwts --log-level=debug --log-dir=$PLAINBOX_SESSION_SHARE --suspends-before-reboot=3 -r 3 --silent --check-hardware-list",
+      "_description": "This is an automated stress test that will run a sequence of '3 suspend/resume cycles and one poweroff' 3 times.",
+      "_summary": "3 suspend/resume cycles and 1 poweroff, 3 times (automated stress test)"
+    }
+    ]
+
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: power-management/suspend-3-cycles-log-check-with-reboots
+depends: power-management/suspend_3_cycles_with_reboots
+estimated_duration: 1.0
+command: [ -e "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log ] && sleep_test_log_check.py -v s3 "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log
+_summary: 3 suspend/resume cycles and 1 reboot, 3 times (check logs for errors)
+_description:
+ Automated check of the '3 cycle suspend and 1 reboot times 3' logs for errors detected by fwts.
+_siblings: [
+    { "id": "power-management/suspend-3-cycles-log-check-with-coldboots",
+      "depends": "power-management/suspend_3_cycles_with_coldboots",
+      "command": "[ -e $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log ] && sleep_test_log_check.py -v s3 $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log",
+      "_description": "Automated check of the '3 cycle suspend and 1 poweroff times 3' logs for errors detected by fwts.",
+      "_summary": "3 suspend/resume cycles and 1 poweroff, 3 times (check logs for errors)"
+    }
+    ]
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: power-management/suspend-3-cycle-log-attach-with-reboots
+estimated_duration: 1.0
+depends: power-management/suspend_3_cycles_with_reboots
+command: [ -e "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log ] && cat "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log
+_summary: 3 suspend/resume cycles and 1 reboot, 3 times (attach logs)
+_description:
+ Attaches the log from the '3 cycle suspend/resume and one reboot times 3' test if it exists
+_siblings: [
+    { "id": "power-management/suspend-3-cycle-log-attach-with-coldboots",
+      "depends": "power-management/suspend_3_cycles_with_coldboots",
+      "command": "[ -e $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log ] && cat $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log",
+      "_description": "Attaches the log from the '3 cycle Suspend/Resume and one poweroff times 3' test if it exists",
+      "_summary": "3 suspend/resume cycles and 1 poweroff, 3 times (attach logs)"
+    }
+    ]
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: power-management/suspend-3-cycles-time-check-with-reboots
+estimated_duration: 1.0
+depends: power-management/suspend_3_cycles_with_reboots
+command: [ -e "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/pm_test.reboot.3.log
+_summary: 3 suspend/resume cycles and 1 reboot, 3 times (check logs for timing issues)
+_description:
+ Checks the sleep times to ensure that a machine suspends and resumes within a given threshold (warm boots)
+_siblings: [
+    { "id": "power-management/suspend-3-cycles-time-check-with-coldboots",
+      "depends": "power-management/suspend_30_cycles_with_coldboots",
+      "command": "[ -e $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log ] && sleep_time_check.py $PLAINBOX_SESSION_SHARE/pm_test.poweroff.3.log",
+      "_description": "Checks the sleep times to ensure that a machine suspends and resumes within a given threshold (cold boots)",
+      "_summary": "3 suspend/resume cycles and 1 poweroff, 3 times (check logs for timing issues)"
+    }
+    ]
+
+id: graphics-discrete-gpu-stress-suspend-3-cycles-with-reboots-automated
+unit: test plan
+_name: Suspend sanity tests with discrete gpu (with reboots)
+_description: Suspend sanity tests with discrete gpu (with reboots)
+include:
+    graphics/2_auto_switch_card_.*
+    stress-suspend-3-cycles-with-reboots-automated
+    graphics/1_auto_switch_card_.*
+bootstrap_include:
+    graphics_card
+
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_100
+requires:
+ executable.name == 'fwts'
+ executable.name == 'x-terminal-emulator'
+command: pm_test.py --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox -r 100 --wakeup 90 --silent --log-level=notset poweroff --log-dir="$PLAINBOX_SESSION_SHARE"
+flags: noreturn
+estimated_duration: 12000
+user: root
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
+_description:
+ Stress poweroff system (100 cycles)
+
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/poweroff_100_log
+depends: stress/poweroff_100
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/*poweroff.100.log
+
+plugin: shell
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_100
+requires: executable.name == 'fwts'
+ executable.name == 'x-terminal-emulator'
+command: pm_test.py --checkbox-respawn-cmd "$PLAINBOX_SESSION_SHARE"/__respawn_checkbox -r 100 --silent --log-level=notset reboot --log-dir="$PLAINBOX_SESSION_SHARE"
+flags: noreturn
+estimated_duration: 9000
+user: root
+environ: PLAINBOX_SESSION_SHARE PM_TEST_DRY_RUN
+_description:
+ Stress reboot system (100 cycles)
+
+plugin: attachment
+category_id: com.canonical.plainbox::stress
+id: stress/reboot_100_log
+depends: stress/reboot_100
+command:
+ set -o pipefail
+ cat "$PLAINBOX_SESSION_SHARE"/*reboot.100.log

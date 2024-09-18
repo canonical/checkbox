@@ -7,7 +7,14 @@ on:
 jobs:
   ppa_update:
     name: Sync PPA history with monorepo
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     steps:
       - name: Install dependencies
@@ -30,7 +37,14 @@ jobs:
             tools/release/lp_request_import.py "~checkbox-dev/checkbox/+git/checkbox"
   ppa_build:
     name: Trigger and monitor PPA builds
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     needs: ppa_update
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     strategy:

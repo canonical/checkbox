@@ -1,0 +1,46 @@
+Source: plainbox-provider-pc-sanity
+Section: utils
+Priority: optional
+Maintainer: Commercial Engineering <commercial-engineering@canonical.com>
+Standards-Version: 4.5.0
+Build-Depends:  debhelper-compat (= 12),
+                dh-modaliases,
+                intltool,
+                python3-checkbox-ng,
+                checkbox-provider-certification-client,
+                checkbox-provider-base,
+                linux-headers,
+                gcc,
+                make,
+                flake8,
+                bats,
+                shellcheck,
+                python3
+Vcs-Browser: https://code.launchpad.net/~ville-team/ville/+git/plainbox-provider-pc-sanity
+
+Package: plainbox-provider-pc-sanity
+Architecture: all
+Depends: git,
+         libc6,
+         iputils-ping,
+         jq,
+         msr-tools,
+         checkbox-provider-certification-client,
+         checkbox-provider-base,
+         checkbox-provider-resource,
+         checkbox-ng,
+         python3 (>= 3.2),
+         python3-apt,
+         python3-checkbox-support (>= 0.27),
+         python3-pip,
+         sudo,
+         xautomation,
+         wget,
+         bzip2,
+         ${misc:Depends},
+         ${shlibs:Depends},
+         ${plainbox:Depends}
+Recommends: oem-scripts
+X-Plainbox-Provider: yes
+Description: CheckBox pc sanity jobs provider which forked from plainbox-provider-sru
+ This is a provider as staging pool before upstream to ppc.

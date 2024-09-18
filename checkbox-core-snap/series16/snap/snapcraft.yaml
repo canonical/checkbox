@@ -55,6 +55,8 @@ slots:
 package-repositories:
   - type: apt
     ppa: checkbox-dev/stable
+  - type: apt
+    ppa: colin-king/stress-ng
 
 parts:
   version-calculator:
@@ -94,33 +96,12 @@ parts:
       - libbsd-dev
     after: [version-calculator]
 ################################################################################
-# Upstream: https://kernel.ubuntu.com/git/cking/stress-ng.git/plain/snap/snapcraft.yaml
   stress-ng:
-    source-tag: "V0.15.07"
-    # stress-ng remains at version 0.15.07 because libipsec-mb-dev and libxxhash-dev are not available for Ubuntu 16.04 (Xenial).
-    source-depth: 1
-    plugin: make
-    build-environment:
-      - CFLAGS: "-fstack-protector-strong -Wformat -Werror=format-security"
-      - LDFLAGS: "-Wl,-z,relro -lrt"
-    source: https://github.com/ColinIanKing/stress-ng.git
-    make-parameters:
-      - STATIC=1 VERBOSE=1
+    plugin: nil
     stage-packages:
-      - libjudydebian1
-      - libsctp1
+      - stress-ng
     build-packages:
-      - gcc
-      - make
-      - zlib1g-dev
-      - libbsd-dev
-      - libgcrypt20-dev
-      - libkeyutils-dev
-      - libapparmor-dev
-      - libaio-dev
-      - libcap-dev
-      - libsctp-dev
-      - libjudy-dev
+      - stress-ng
     after: [fwts]
 ################################################################################
 # Upstream: https://kernel.ubuntu.com/git/cking/snapcraft-snaps.git/tree/acpica/snapcraft.yaml
@@ -151,10 +132,10 @@ parts:
       - python3-requests-unixsocket
       - python3-serial
       - python3-setuptools
-      - python3-systemd
       - python3-yaml
       - pyotherside
       - libbluetooth3
+      - libsystemd0
       - lsb-release
     build-environment:
       - PYTHONPATH: $SNAPCRAFT_PART_INSTALL/usr/lib/python3/dist-packages:$PYTHONPATH
@@ -176,6 +157,7 @@ parts:
     build-packages:
       - gcc
       - libbluetooth-dev
+      - libsystemd-dev
       - python3-dev
       - python3-pip
       - lsb-release
@@ -278,8 +260,8 @@ parts:
       - gir1.2-gudev-1.0
       - gnome-screenshot
       - gstreamer1.0-tools
+      - gstreamer1.0-plugins-bad
       - gstreamer1.0-pulseaudio
-      - on amd64: [hdapsd] # optional as not available for arm
       - hdparm
       - i2c-tools
       - ipmitool

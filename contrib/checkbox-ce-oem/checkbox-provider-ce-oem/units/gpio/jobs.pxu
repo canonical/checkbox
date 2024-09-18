@@ -4,6 +4,12 @@ plugin: shell
 user: root
 estimated_duration: 5
 environ: EXPECTED_GADGET_GPIO
+imports:
+  from com.canonical.certification import lsb
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.has_gpio_slot_been_defined == 'True'
+  lsb.distributor_id == 'Ubuntu Core'
 _summary: Check gadget snap defined GPIO slots.
 _purpose: Check if expected GPIO slots been defined in gadget snap
 _description:
@@ -19,6 +25,10 @@ _description:
     This GPIO list will be used to check if the GPIO nodes have
     been exported after connecting the interfaces.
 estimated_duration: 0.02
+imports:
+  from com.canonical.certification import lsb
+requires:
+  lsb.distributor_id == 'Ubuntu Core'
 category_id: com.canonical.certification::gpio
 plugin: resource
 command: check_gpio.py dump
@@ -31,6 +41,12 @@ id: ce-oem-gpio/node-export-test-{slot}
 _summary: To test node of GPIO {gpio_number} been exported
 plugin: shell
 user: root
+imports:
+  from com.canonical.certification import lsb
+  from com.canonical.plainbox import manifest
+requires:
+  manifest.has_gpio_slot_been_defined == 'True'
+  lsb.distributor_id == 'Ubuntu Core'
 category_id: com.canonical.certification::gpio
 estimated_duration: 5s
 flags: also-after-suspend

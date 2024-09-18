@@ -7,6 +7,8 @@ include:
 nested_part:
   client-cert-iot-ubuntucore-24-manual
   client-cert-iot-ubuntucore-24-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-ubuntucore-24-manual
@@ -40,13 +42,17 @@ nested_part:
   camera-manual
   cpu-manual
   disk-manual
+  edac-manual
   ethernet-manual
+  ishtp-manual
   led-indicator-manual
   led-manual
   mediacard-manual
+  mei-manual
   memory-manual
   monitor-manual
   networking-manual
+  qep-manual
   rtc-manual
   self-manual
   serial-manual
@@ -82,6 +88,8 @@ nested_part:
 exclude:
   bluetooth4/HOGP-mouse
   after-suspend-bluetooth4/HOGP-mouse
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-ubuntucore-24-automated
@@ -90,7 +98,6 @@ unit: test plan
 _description:
   This is UC24
 include:
-  disk/encryption/check-fde-tpm
   disk/encryption/detect
   image/model-grade
   miscellanea/secure_boot_mode_.*
@@ -122,16 +129,20 @@ nested_part:
   cpu-automated
   disk-automated
   docker-automated
+  edac-automated
   eeprom-automated
   ethernet-automated
   gpio-automated
   iot-fwts-automated
   i2c-automated
+  ishtp-automated
   kernel-snap-automated
   mediacard-automated
+  mei-automated
   memory-automated
   networking-automated
   power-automated
+  qep-automated
   rtc-automated
   self-automated
   serial-automated
@@ -158,6 +169,8 @@ nested_part:
   after-suspend-usb-automated
   after-suspend-wireless-automated
   after-suspend-wwan-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-ubuntucore-24-stress
@@ -168,3 +181,5 @@ _description:
 include:
 nested_part:
   stress-full
+certification_status_overrides:
+  apply blocker to .*

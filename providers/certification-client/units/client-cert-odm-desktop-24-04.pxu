@@ -12,6 +12,7 @@ nested_part:
     bluetooth-cert-manual
     camera-cert-manual
     edac-manual
+    ishtp-manual
     thunderbolt-cert-manual
     monitor-gpu-cert-manual
     graphics-gpu-cert-manual
@@ -20,11 +21,13 @@ nested_part:
     keys-cert-manual
     led-cert-manual
     mediacard-cert-manual
+    mei-manual
     mobilebroadband-cert-manual
     ethernet-cert-manual
     networking-cert-manual
     optical-cert-manual
     power-management-precheck-cert-manual
+    qep-manual
     snappy-snap-automated
     # touchpad-cert-manual
     # touchscreen-cert-manual
@@ -33,6 +36,7 @@ nested_part:
     usb-c-cert-full # no manual only
     usb-dwc3-manual
     wireless-cert-manual
+    va-api-manual
     # start of suspend related tests
     before-suspend-reference-cert-full
     # suspend point
@@ -78,9 +82,7 @@ exclude:
     com.canonical.certification::after-suspend-manual-keys/keyboard-backlight
     com.canonical.certification::after-suspend-manual-keys/microphone-mute
     com.canonical.certification::after-suspend-manual-keys/fn-lock
-    com.canonical.certification::led/bluetooth
-    com.canonical.certification::led/wlan
-    com.canonical.certification::led/wlan-disabled
+    com.canonical.certification::led/wireless
     com.canonical.certification::led/fn
     com.canonical.certification::led/mute
     com.canonical.certification::led/microphone-mute
@@ -110,15 +112,18 @@ nested_part:
     monitor-gpu-cert-automated
     graphics-gpu-cert-automated
     input-cert-automated
+    ishtp-automated
     disk-cert-manual
     keys-cert-automated
     led-cert-automated
     mediacard-cert-automated
+    mei-automated
     mobilebroadband-cert-automated
     ethernet-cert-automated
     networking-cert-automated
     optical-cert-automated
     power-management-precheck-cert-automated
+    qep-automated
     # touchpad-cert-automated
     # touchscreen-cert-automated
     usb-cert-automated
@@ -126,13 +131,13 @@ nested_part:
     # usb-c-cert-automated # only usb-c-cert-full
     usb-dwc3-automated
     wireless-cert-automated
+    va-api-automated
     # start of suspend related tests
     before-suspend-reference-cert-full
     # suspend point
     after-suspend-reference-cert-full
     after-suspend-graphics-gpu-cert-automated
     # after-suspend-monitor-gpu-cert-automated # not defined
-    suspend-key-led-oops-check-cert
     # after-suspend-audio-cert-automated
     # after-suspend-camera-cert-automated
     # after-suspend-input-cert-automated
@@ -183,9 +188,7 @@ exclude:
     com.canonical.certification::after-suspend-manual-keys/keyboard-backlight
     com.canonical.certification::after-suspend-manual-keys/microphone-mute
     com.canonical.certification::after-suspend-manual-keys/fn-lock
-    com.canonical.certification::led/bluetooth
-    com.canonical.certification::led/wlan
-    com.canonical.certification::led/wlan-disabled
+    com.canonical.certification::led/wireless
     com.canonical.certification::led/fn
     com.canonical.certification::led/mute
     com.canonical.certification::led/microphone-mute

@@ -3,16 +3,15 @@ category_id: com.canonical.plainbox::keys
 id: keys/lock-screen
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_lock_screen == 'True'
 flags: also-after-suspend
 command: lock_screen_watcher.py
 _purpose:
  This test will test the screen lock key
 _steps:
- 1. Commence the test. If there is no such key, please skip this test.
- 2. Press the lock screen button on the keyboard in 30 seconds.
- 3. If the screen is locked, move the mouse or press any key to activate the prompt.
- 4. Input the password to unlock the screen.
+ 1. Press the lock screen button on the keyboard in 30 seconds.
+ 2. If the screen is locked, move the mouse or press any key to activate the prompt.
+ 3. Input the password to unlock the screen.
 _verification:
  The verification of this test is automated. Do not change the
  automatically selected result.
@@ -23,7 +22,7 @@ category_id: com.canonical.plainbox::keys
 id: keys/brightness
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_brightness == 'True'
 flags: also-after-suspend
 _purpose:
     This test will test the brightness keys
@@ -38,14 +37,13 @@ category_id: com.canonical.plainbox::keys
 id: keys/volume
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_volume == 'True'
 flags: also-after-suspend
 user: root
 command: key_test.py -s '0xe02e,0xe0ae:Volume Down' '0xe030,0xe0b0:Volume Up'
 _purpose:
  This test will test the volume keys of your keyboard
 _steps:
- Skip this test if your computer has no volume keys.
  1. Click test to open a window on which to test the volume keys.
  2. If all the keys work, the test will be marked as passed.
 _verification:
@@ -57,7 +55,7 @@ category_id: com.canonical.plainbox::keys
 id: keys/mute
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_audio_mute == 'True'
 flags: also-after-suspend
 user: root
 command: key_test.py -s '0xe020,0xe0a0:Mute'
@@ -76,7 +74,7 @@ category_id: com.canonical.plainbox::keys
 id: keys/sleep
 estimated_duration: 90.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_sleep == 'True'
 flags: also-after-suspend
 _purpose:
      This test will test the sleep key
@@ -92,14 +90,13 @@ category_id: com.canonical.plainbox::keys
 id: keys/battery-info
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_battery_info == 'True'
 flags: also-after-suspend
 user: root
 command: key_test.py -s '0xe071,0xef1:Battery Info'
 _purpose:
  This test will test the battery information key
 _steps:
- Skip this test if you do not have a Battery Button.
  1. Click Test to begin
  2. Press the Battery Info button (or combo like Fn+F3)
  3. Close the Power Statistics tool if it opens
@@ -112,7 +109,7 @@ category_id: com.canonical.plainbox::keys
 id: keys/wireless
 estimated_duration: 90.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_wireless == 'True'
 flags: also-after-suspend
 _purpose:
  This test will test the wireless key
@@ -134,14 +131,13 @@ category_id: com.canonical.plainbox::keys
 id: keys/media-control
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_media_control == 'True'
 flags: also-after-suspend
 user: root
 command: key_test.py -s 0xe010,0xe090:Previous 0xe024,0xe0a4:Stop 0xe019,0xe099:Next 0xe022,0xe0a2:Play
 _purpose:
  This test will test the media keys of your keyboard
 _steps:
- Skip this test if your computer has no media keys.
  1. Click test to open a window on which to test the media keys.
  2. If all the keys work, the test will be marked as passed.
 _verification:
@@ -153,7 +149,7 @@ category_id: com.canonical.plainbox::keys
 id: keys/super
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_super == 'True'
 flags: also-after-suspend
 user: root
 command: key_test.py -s '0xe05b,0xe0db:Left Super Key'
@@ -172,7 +168,7 @@ category_id: com.canonical.plainbox::keys
 id: keys/video-out
 estimated_duration: 120.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_video_out == 'True'
 flags: also-after-suspend
 _purpose:
  Validate that the External Video hot key is working as expected
@@ -188,7 +184,7 @@ category_id: com.canonical.plainbox::keys
 id: keys/touchpad
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_touchpad == 'True'
 flags: also-after-suspend
 _description:
 _purpose:
@@ -206,7 +202,7 @@ category_id: com.canonical.plainbox::keys
 id: keys/keyboard-backlight
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_keyboard_backlight == 'True'
 flags: also-after-suspend
 _purpose:
      Verify that the keyboard backlight toggle key works properly
@@ -225,8 +221,8 @@ id: keys/microphone-mute
 estimated_duration: 60.0
 imports: from com.canonical.plainbox import manifest
 requires:
- manifest.has_special_keys == 'True'
- device.category == 'AUDIO'
+ manifest.has_key_microphone_mute == 'True'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name in ['pulseaudio-utils', 'pipewire']
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
@@ -260,7 +256,7 @@ category_id: com.canonical.plainbox::keys
 id: keys/hibernate
 estimated_duration: 120.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_hibernate == 'True'
 _description:
 _purpose:
  This test will test the hibernate key
@@ -277,14 +273,14 @@ category_id: com.canonical.plainbox::keys
 id: keys/keyboard-overhead-light
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_keyboard_overhead_light == 'True'
 _description:
 _purpose:
  This test will test the keyboard overhead light key or switch
 _steps:
  1. Press the keyboard overhead light key or switch on the light
  2. Check that the keyboard overhead light turns on correctly
- 3. Press the key or switch again to toggle off the light 
+ 3. Press the key or switch again to toggle off the light
 _verification:
  Did the keyboard overhead light key or switch turn on and off the light?
 _summary: Test the functionality of the keyboard overhead light key or switch.
@@ -333,12 +329,11 @@ category_id: com.canonical.plainbox::keys
 id: keys/fn-lock
 estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_special_keys == 'True'
+requires: manifest.has_key_fn_lock == 'True'
 flags: also-after-suspend
 _purpose:
      This test will test the Fn Lock key
 _steps:
-     Skip this test if your system does not have Fn Lock key.
      1. Press the Fn+Fn Lock key.
      2. Press the Fn+any hotkey.
 _verification:

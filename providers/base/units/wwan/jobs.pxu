@@ -51,6 +51,7 @@ estimated_duration: 10.0
 category_id: wwan
 flags: preserve-locale also-after-suspend preserve-cwd
 imports: from com.canonical.plainbox import manifest
+depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 requires:
   manifest.has_wwan_module == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
@@ -96,6 +97,28 @@ user: root
 estimated_duration: 5s
 category_id: wwan
 flags: preserve-locale also-after-suspend preserve-cwd
+imports: from com.canonical.plainbox import manifest
+requires:
+  manifest.has_wwan_module == 'True'
+  snap.name == 'modem-manager' or package.name == 'modemmanager'
+
+unit: template
+template-resource: wwan_resource
+template-unit: job
+id: wwan/3gpp-scan-{manufacturer}-{model}-{hw_id}-auto
+template-id: wwan/3gpp-scan-manufacturer-model-hw_id-auto
+_summary:  Scan for available 3GPP networks with the modem
+_template-summary: Scan for available 3GPP networks with the {model} modem
+_description:
+  Scan for available 3GPP networks with the target modem
+plugin: shell
+command: wwan_tests.py 3gpp-scan {hw_id}
+environ: LD_LIBRARY_PATH
+user: root
+estimated_duration: 10.0
+category_id: wwan
+flags: preserve-locale also-after-suspend
+depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_wwan_module == 'True'
@@ -162,26 +185,6 @@ _steps:
  5. Run `fg` to jump back to Checkbox (if you're running in the same terminal)
 _verification:
  Did the ping come back?
-estimated_duration: 120s
-flags:  also-after-suspend
-category_id: wwan
-imports: from com.canonical.plainbox import manifest
-requires:
-    manifest.has_wwan_module == 'True'
-depends:
-    wwan/check-sim-present-manual
-
-id: wwan/scan-networks-manual
-plugin: manual
-_summary: Verify that modem can scan for available networks
-_purpose:
- Ensure that the modem can scan/find available networks
-_steps:
- 1. Open another terminal on SUT (or press ctrl+z to suspend Checkbox)
- 2. Run `sudo mmcli -m 0 --3gpp-scan --timeout=300`
- 3. Run `fg` to jump back to checkbox (if you're running in the same terminal)
-_verification:
- Were available networks listed?
 estimated_duration: 120s
 flags:  also-after-suspend
 category_id: wwan

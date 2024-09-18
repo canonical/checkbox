@@ -1,79 +1,29 @@
 plugin: user-interact
 category_id: com.canonical.plainbox::disk
-id: thunderbolt/insert
+id: thunderbolt/storage-manual
+flags: also-after-suspend
 user: root
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt == 'True'
-estimated_duration: 20.0
-template-engine: jinja2
+estimated_duration: 120.0
 command:
- checkbox-support-run_watcher insertion thunderbolt
-_siblings: [
-    { "id": "after-suspend-thunderbolt/insert",
-      "_summary": "thunderbolt/insert after suspend",
-      "depends": "suspend/suspend_advanced_auto"}
-    ]
-_summary: Storage insert detection on Thunderbolt
+    checkbox-support-run_watcher storage thunderbolt
+_summary: Thunderbolt HDD storage insertion + read/write + removal
 _purpose:
- This test will check if the insertion of a Thunderbolt HDD could be detected
+    This test will check if the connection of a Thunderbolt HDD could be detected,
+    then performs read/write operations on the attached Thunderbolt HDD storage and
+    checks if the removal of the Thunderbolt HDD can be detected.
 _steps:
- 1. Click 'Test' to begin the test. This test will
-    timeout and fail if the insertion has not been detected within 40 seconds.
- 2. Plug a Thunderbolt HDD into an available Thunderbolt port, if it's not
-    mounted automatically, please click the HDD icon to mount it.
+    1. Click 'Test' to begin the test. This test will
+       timeout and fail if the insertion has not been detected within 30 seconds.
+    2. Plug a Thunderbolt HDD into an available Thunderbolt port, if it's not
+       mounted automatically, please click the HDD icon to mount it.
+    3. Wait for the read/write operations to complete.
+    4. Press Enter to start the removal test.
+    5. Remove the previously attached Thunderbolt HDD.
 _verification:
- The verification of this test is automated. Do not change the automatically
- selected result
-
-plugin: shell
-category_id: com.canonical.plainbox::disk
-id: thunderbolt/storage-test
-user: root
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_thunderbolt == 'True'
-depends: thunderbolt/insert
-estimated_duration: 45.0
-template-engine: jinja2
-command:
-    {%- if __on_ubuntucore__ %}
-        checkbox-support-usb_read_write
-    {%- else %}
-        removable_storage_test.py -s 268400000 scsi
-    {% endif -%}
-_siblings: [
-    { "id": "after-suspend-thunderbolt/storage-test",
-      "_summary": "thunderbolt/storage-test after suspend",
-      "depends": "after-suspend-thunderbolt/insert"}
-    ]
-_summary: Storage test on Thunderbolt
-_purpose: This is an automated test which performs read/write operations on an attached Thunderbolt HDD
-
-plugin: user-interact
-category_id: com.canonical.plainbox::disk
-id: thunderbolt/remove
-user: root
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_thunderbolt == 'True'
-depends: thunderbolt/insert
-estimated_duration: 10.0
-template-engine: jinja2
-command:
- checkbox-support-run_watcher insertion thunderbolt
-_summary: Storage removal detection on Thunderbolt
-_siblings: [
-    { "id": "after-suspend-thunderbolt/remove",
-      "_summary": "Thunderbolt/remove after suspend",
-      "depends": "after-suspend-thunderbolt/insert"}
-    ]
-_purpose:
- This test will check the system can detect the removal of a Thunderbolt HDD
-_steps:
- 1. Click 'Test' to begin the test. This test will timeout and fail if
-    the removal has not been detected within 20 seconds.
- 2. Remove the previously attached Thunderbolt HDD from the Thunderbolt port.
-_verification:
- The verification of this test is automated. Do not change the automatically
- selected result
+    The verification of this test is automated. Do not change the automatically
+    selected result
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::disk
@@ -99,81 +49,30 @@ _verification:
 
 plugin: user-interact
 category_id: com.canonical.plainbox::disk
-id: thunderbolt3/insert
+id: thunderbolt3/storage-manual
 flags: also-after-suspend
 user: root
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
-estimated_duration: 20.0
-template-engine: jinja2
+estimated_duration: 120.0
 command:
- checkbox-support-run_watcher insertion thunderbolt
-_summary: Storage insert detection on Thunderbolt 3 port
+    checkbox-support-run_watcher storage thunderbolt
+_summary: Thunderbolt 3 HDD storage insertion + read/write + removal
 _purpose:
- This test will check if the insertion of a Thunderbolt 3 HDD could be detected
+    This test will check if the connection of a Thunderbolt 3 HDD could be detected,
+    then performs read/write operations on the attached Thunderbolt 3 HDD storage and
+    checks if the removal of the Thunderbolt 3 HDD can be detected.
 _steps:
- 1. Click 'Test' to begin the test. This test will
-    timeout and fail if the insertion has not been detected within 40 seconds.
- 2. Plug a Thunderbolt HDD into an available Thunderbolt 3 port, if it's not
-    mounted automatically, please click the HDD icon to mount it.
+    1. Click 'Test' to begin the test. This test will
+       timeout and fail if the insertion has not been detected within 30 seconds.
+    2. Plug a Thunderbolt 3 HDD into an available Thunderbolt 3 port, if it's not
+       mounted automatically, please click the HDD icon to mount it.
+    3. Wait for the read/write operations to complete.
+    4. Press Enter to start the removal test.
+    5. Remove the previously attached Thunderbolt 3 HDD.
 _verification:
- The verification of this test is automated. Do not change the automatically
- selected result
-
-plugin: shell
-category_id: com.canonical.plainbox::disk
-id: thunderbolt3/storage-test
-flags: also-after-suspend
-user: root
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_thunderbolt3 == 'True'
-depends: thunderbolt3/insert
-estimated_duration: 45.0
-template-engine: jinja2
-command:
-    {%- if __on_ubuntucore__ %}
-        checkbox-support-usb_read_write
-    {%- else %}
-        removable_storage_test.py -s 268400000 scsi
-    {% endif -%}
-_summary: Storage test on Thunderbolt 3
-_purpose: This is an automated test which performs read/write operations on an attached Thunderbolt HDD
-
-plugin: shell
-category_id: com.canonical.plainbox::disk
-id: thunderbolt3/storage-preinserted
-user: root
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_thunderbolt3 == 'True'
-estimated_duration: 45.0
-command: removable_storage_test.py -s 268400000 scsi
-flags: also-after-suspend
-_summary: Storage test on Thunderbolt 3 pre-inserted
-_purpose:
- This is an automated test which performs read/write operations on a preinserted Thunderbolt HDD
-
-plugin: user-interact
-category_id: com.canonical.plainbox::disk
-id: thunderbolt3/remove
-user: root
-flags: also-after-suspend
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_thunderbolt3 == 'True'
-depends: thunderbolt3/insert
-estimated_duration: 10.0
-template-engine: jinja2
-command:
- checkbox-support-run_watcher removal thunderbolt
-_summary: Storage removal detection on Thunderbolt 3 port
-_purpose:
- This test will check if the system can detect the removal of a Thunderbolt 3 HDD
-_steps:
- 1. Click 'Test' to begin the test. This test will timeout and fail if
-    the removal has not been detected within 20 seconds.
- 2. Remove the previously attached Thunderbolt HDD from the Thunderbolt port.
-_verification:
- The verification of this test is automated. Do not change the automatically
- selected result
+    The verification of this test is automated. Do not change the automatically
+    selected result
 
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::disk

@@ -16,6 +16,7 @@
 
 from io import StringIO
 from unittest import TestCase
+from unittest.mock import patch, MagicMock
 from textwrap import dedent
 
 from pkg_resources import resource_filename
@@ -45,6 +46,7 @@ class UdevadmDataMixIn(object):
             return None
 
 
+@patch("checkbox_support.parsers.udevadm.check_output", MagicMock())
 class TestUdevadmParser(TestCase, UdevadmDataMixIn):
 
     def parse(self, name, with_lsblk=True, with_partitions=False):
@@ -690,6 +692,11 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         self.assertEqual(self.count(devices, "NETWORK"), 1)
         self.verify_devices(devices, expected_devices)
 
+    def test_HP_ELITEBOOK_835_13_INCH_G10(self):
+        devices = self.parse("HP_ELITEBOOK_835_13_INCH_G10")
+        self.assertEqual(len(devices), 156)
+        self.assertEqual(self.count(devices, "HIDRAW"), 1)
+
     def test_HP_ENVY_15_MEDIATEK_BT(self):
         devices = self.parse("HP_ENVY_15_MEDIATEK_BT")
         expected_devices = [
@@ -1119,6 +1126,11 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = self.parse("CRYPTO_FDE", with_partitions=True)
         self.assertEqual(len(devices), 93)
         self.assertEqual(self.count(devices, "PARTITION"), 1)
+
+    def test_XILINX_KR260(self):
+        devices = self.parse("XILINX_KR260", with_partitions=True)
+        self.assertEqual(self.count(devices, "DISK"), 18)
+        self.assertEqual(self.count(devices, "CARDREADER"), 1)
 
     def test_two_dms_one_with_ubutnu_save(self):
         """

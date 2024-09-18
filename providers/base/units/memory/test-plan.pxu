@@ -17,7 +17,7 @@ unit: test plan
 _name: Automated memory tests
 _description: Automated memory tests for Ubuntu Core devices
 include:
-    memory/info
+    memory/info    certification-status=blocker
 
 id: server-memory
 unit: test plan

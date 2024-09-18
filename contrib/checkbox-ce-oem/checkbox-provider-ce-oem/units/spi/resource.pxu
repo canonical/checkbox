@@ -1,0 +1,8 @@
+id: ce-oem-spi-list
+category_id: spi
+estimated_duration: 2s
+plugin: resource
+_summary:
+    List all the SPI device nodes
+command:
+    spidev_test.py -l

@@ -31,8 +31,11 @@ nested_part:
     bluetooth-manual
     camera-manual
     edac-manual
+    ishtp-manual
     led-manual
     mediacard-manual
+    mei-manual
+    qep-manual
     rtc-manual
     serial-manual
     usb-c-manual
@@ -105,9 +108,12 @@ nested_part:
     ethernet-automated
     iot-cert-image-automated
     i2c-automated
+    ishtp-automated
     gpio-automated
+    mei-automated
     memory-automated
     networking-automated
+    qep-automated
     snappy-snap-automated
     wireless-automated
     wireless-wifi-master-mode-auto
@@ -129,3 +135,12 @@ exclude:
     mediacard/msp-.*
     mediacard/xd-.*
     rtc/battery
+
+
+id: client-cert-odm-ubuntucore-24
+_name: DONT USE - uc24 - placeholder to establish that total number of tests has not changed
+unit: test plan
+include:
+nested_part:
+    client-cert-odm-ubuntucore-24-manual
+    client-cert-odm-ubuntucore-24-automated

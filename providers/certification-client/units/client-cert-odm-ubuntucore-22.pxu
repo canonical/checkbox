@@ -129,3 +129,12 @@ exclude:
     mediacard/msp-.*
     mediacard/xd-.*
     rtc/battery
+
+
+id: client-cert-odm-ubuntucore-22
+_name: DONT USE - uc22 - placeholder to establish that total number of tests has not changed
+unit: test plan
+include:
+nested_part:
+    client-cert-odm-ubuntucore-22-manual
+    client-cert-odm-ubuntucore-22-automated

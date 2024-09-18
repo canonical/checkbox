@@ -86,9 +86,7 @@ exclude:
     com.canonical.certification::after-suspend-manual-keys/keyboard-backlight
     com.canonical.certification::after-suspend-manual-keys/microphone-mute
     com.canonical.certification::after-suspend-manual-keys/fn-lock
-    com.canonical.certification::led/bluetooth
-    com.canonical.certification::led/wlan
-    com.canonical.certification::led/wlan-disabled
+    com.canonical.certification::led/wireless
     com.canonical.certification::led/fn
     com.canonical.certification::led/mute
     com.canonical.certification::led/microphone-mute
@@ -148,7 +146,6 @@ nested_part:
     # restart of checkbox.
     after-suspend-graphics-integrated-gpu-cert-automated
     # after-suspend-monitor-integrated-gpu-cert-automated # not defined
-    suspend-key-led-oops-check-cert
     # after-suspend-audio-cert-automated
     # after-suspend-camera-cert-automated
     # after-suspend-input-cert-automated
@@ -199,9 +196,7 @@ exclude:
     com.canonical.certification::after-suspend-manual-keys/keyboard-backlight
     com.canonical.certification::after-suspend-manual-keys/microphone-mute
     com.canonical.certification::after-suspend-manual-keys/fn-lock
-    com.canonical.certification::led/bluetooth
-    com.canonical.certification::led/wlan
-    com.canonical.certification::led/wlan-disabled
+    com.canonical.certification::led/wireless
     com.canonical.certification::led/fn
     com.canonical.certification::led/mute
     com.canonical.certification::led/microphone-mute

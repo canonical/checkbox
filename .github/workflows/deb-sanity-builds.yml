@@ -1,0 +1,71 @@
+name: Sanity Debian package build
+
+on:
+  schedule:
+    - cron: '00 14 * * *'
+  workflow_dispatch:
+
+jobs:
+  ppa_update:
+    name: Sync PPA history with monorepo
+    runs-on: [self-hosted, linux, jammy, large]
+    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update -qq
+          sudo apt install -qq -y python3-launchpadlib
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
+        name: Make LP pull the monorepo
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
+          PYTHONUNBUFFERED: 1
+        with:
+          attempt_delay: 6000 # 1 min
+          attempt_limit: 60   # max 1 hour of retries
+          command: |
+            tools/release/lp_request_import.py "~checkbox-dev/checkbox/+git/checkbox"
+  ppa_build:
+    name: Trigger and monitor PPA builds
+    runs-on: [self-hosted, linux, jammy, large]
+    needs: ppa_update
+    timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
+    strategy:
+      fail-fast: false
+      matrix:
+        recipe:
+        - checkbox-contrib-pc-sanity-edge
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt update -qq
+          sudo apt install -qq -y python3-launchpadlib
+      - name: Checkout checkbox monorepo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
+        name: Update the recipe in the checkbox PPA
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
+          PYTHONUNBUFFERED: 1
+        with:
+          attempt_delay: 6000 # 1 min
+          attempt_limit: 60   # max 1 hour of retries
+          command: |
+            tools/release/lp_update_recipe.py checkbox --recipe ${{ matrix.recipe }} --new-version $(tools/release/get_version.py --dev-suffix --output-format deb) --revision $GITHUB_SHA
+      - uses: Wandalen/wretry.action/main@v3.4.0_js_action
+        name: Build and wait result
+        timeout-minutes: 780 # 13hours
+        env:
+          LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
+          PYTHONUNBUFFERED: 1
+        with:
+          attempt_delay: 60000 # 10min
+          attempt_limit: 3
+          command: |
+            tools/release/lp_build_monitor_recipe.py checkbox ${{ matrix.recipe }}

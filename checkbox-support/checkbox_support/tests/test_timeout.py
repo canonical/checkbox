@@ -15,14 +15,18 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
+import os
 import time
+import multiprocessing
 
+from queue import Empty
 from unittest import TestCase
+from unittest.mock import patch
 
 from checkbox_support.helpers.timeout import (
-    run_with_timeout,
     timeout,
+    is_picklable,
+    run_with_timeout,
     fake_run_with_timeout,
 )
 
@@ -123,3 +127,96 @@ class TestTimeoutExec(TestCase):
         self.assertEqual(
             k(1, 2, 3, abc=10), fake_run_with_timeout(k, 100, 1, 2, 3, abc=10)
         )
+
+    def test_unpicklable_return_raises(self):
+        """
+        The reason why this raises is that the timeout decorator pushes the
+        function to another process. Trying to return an un-picklable object
+        will raise a pickle error.
+        """
+
+        @timeout(1)
+        def k():
+            return lambda x: ...
+
+        with self.assertRaises(SystemExit):
+            k()
+
+    def test_unpicklable_raise_raises(self):
+        """
+        The reason why this raises is that the timeout decorator pushes the
+        function to another process. Trying to raise an un-picklable object
+        will raise a pickle error.
+        """
+
+        @timeout(1)
+        def k():
+            raise ValueError(lambda x: ...)
+
+        with self.assertRaises(SystemExit):
+            k()
+
+    def test_timeout_kills_subprocess_tree_on_timeout(self):
+        """
+        This tests that the timeout decorator not only kills the direct child
+        (function under test) but also any sub-process it has spawned. This
+        is done because one could `subprocess.run` a long-lived process from
+        the function and it could cause mayhem (and block the test session as
+        Checkbox waits for all children to be done)
+        """
+
+        def inner(pid_pipe):
+            pid_pipe.send(os.getpid())
+            pid_pipe.close()
+            time.sleep(1e4)
+
+        def outer(pid_pipe):
+            inner_p = multiprocessing.Process(target=inner, args=(pid_pipe,))
+            inner_p.start()
+            inner_p.join()
+
+        @timeout(0.1)
+        def f(pid_pipe):
+            outer_p = multiprocessing.Process(target=outer, args=(pid_pipe,))
+            outer_p.start()
+            outer_p.join()
+
+        read, write = multiprocessing.Pipe()
+        with self.assertRaises(TimeoutError):
+            f(write)
+        with self.assertRaises(OSError):
+            pid = read.recv()
+            # give the process a few ms to wind down
+            time.sleep(0.01)
+            # this throws an exception if the process we are trying to send
+            # a signal to doesn't exist
+            os.kill(pid, 0)
+
+    @patch("checkbox_support.helpers.timeout.Queue")
+    @patch("checkbox_support.helpers.timeout.Process")
+    def test_run_with_timeout_double_get(self, process_mock, queue_mock):
+        process_mock().is_alive.return_value = False
+        queue_mock().get_nowait.side_effect = Empty()
+        queue_mock().get.side_effect = [
+            Empty(),
+            ValueError("Some value error"),
+        ]
+
+        with self.assertRaises(ValueError):
+            run_with_timeout(lambda: ..., 0)
+
+    @patch("checkbox_support.helpers.timeout.Queue")
+    @patch("checkbox_support.helpers.timeout.Process")
+    def test_run_with_timeout_system_exit_no_get(
+        self, process_mock, queue_mock
+    ):
+        process_mock().is_alive.return_value = False
+        queue_mock().get_nowait.side_effect = Empty()
+        queue_mock().get.side_effect = Empty()
+
+        with self.assertRaises(SystemExit):
+            run_with_timeout(lambda: ..., 0)
+
+    def test_is_picklable(self):
+        self.assertFalse(is_picklable(lambda: ...))
+        self.assertTrue(is_picklable([1, 2, 3]))

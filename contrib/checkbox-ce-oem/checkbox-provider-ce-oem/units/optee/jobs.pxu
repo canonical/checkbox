@@ -47,7 +47,7 @@ command:
     tool=$(look_up_xtest.py)
     ta_path=""
     if [[ "$tool" == "x-test.xtest" ]]; then
-        ta_path="$(find /var/snap -wholename */lib/optee_armtz)"
+        ta_path="$(find /var/snap -wholename '*/lib/optee_armtz')"
     else
         gadget=$(awk -F"." '{ print $1}' <<< "$tool")
         ta_path="/snap/$gadget/current/lib/optee_armtz/"

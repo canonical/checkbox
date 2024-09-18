@@ -14,7 +14,7 @@ File format and location
 
 Jobs are expressed as sections in text files that conform somewhat to the
 ``rfc822`` specification format. Our variant of the format is described in
-rfc822. Each record defines a single job.
+:ref:`rfc822`. Each record defines a single job.
 
 Job Fields
 ==========
@@ -72,19 +72,12 @@ Following fields may be used by the job unit:
     Canonical to determine the jobs that **must** be run in order to be able to
     issue a certificate. The allowed values are:
 
-    :unspecified:
-        This value means that a job was not analyzed in the context of
-        certification status classification and it has no classification at this
-        time. This is also the default certification status for all jobs.
-    :not-part-of-certification:
-        This value means that a given job may fail and this will not affect the
-        certification process in any way. Typically jobs with this certification
-        status are not executed during the certification process.
     :non-blocker:
         This value means that a given job may fail and while that should be
         regarded as a possible future problem it will not block the
-        certification process. Canonical reserves the right to promote jobs from
-        *non-blocker* to *blocker*.
+        certification process. Canonical reserves the right to promote jobs
+        from *non-blocker* to *blocker*. This is the implicit certification
+        status for all jobs.
     :blocker:
         This value means that a given job **must** pass for the certification
         process to succeed.
@@ -130,8 +123,6 @@ Following fields may be used by the job unit:
     (optional). If specified, the job will only run if all the listed jobs have
     run (regardless of the outcome). Multiple job names, separated by spaces,
     can be specified.
-
-    This feature is available since plainbox 0.24.
 
 .. _Job salvages field:
 
@@ -217,16 +208,16 @@ Following fields may be used by the job unit:
     expected to run for, as a positive float value indicating
     the estimated job duration in seconds.
 
-    Since plainbox version 0.24 this field can be expressed in two formats. The
-    old format, a floating point number of seconds is somewhat difficult to
-    read for larger values. To avoid mistakes test designers can use the second
-    format with separate sections for number of hours, minutes and seconds. The
-    format, as regular expression, is ``(\d+h)?[: ]*(\d+m?)[: ]*(\d+s)?``. The
-    regular expression expresses an optional number of hours, followed by the
-    ``h`` character, followed by any number of spaces or ``:`` characters,
-    followed by an optional number of minutes, followed by the ``m`` character,
-    again followed by any number of spaces or ``:`` characters, followed by the
-    number of seconds, ultimately followed by the ``s`` character.
+    This field can be expressed in two formats. The old format, a floating
+    point number of seconds is somewhat difficult to read for larger values. To
+    avoid mistakes test designers can use the new format with separate
+    sections for number of hours, minutes and seconds. The format, as regular
+    expression, is ``(\d+h)?[: ]*(\d+m?)[: ]*(\d+s)?``. The regular expression
+    expresses an optional number of hours, followed by the ``h`` character,
+    followed by any number of spaces or ``:`` characters, followed by an
+    optional number of minutes, followed by the ``m`` character, again followed
+    by any number of spaces or ``:`` characters, followed by the number of
+    seconds, ultimately followed by the ``s`` character.
 
     The values can no longer be fractional (you cannot say ``2.5m`` you need to
     say ``2m 30s``). We feel that sub-second granularity does is too
@@ -236,8 +227,8 @@ Following fields may be used by the job unit:
 
 ``flags``:
     (optional) This fields contains list of flags separated by spaces or
-    commas that might induce plainbox to run the job in particular way.
-    Currently, following flags are inspected by plainbox:
+    commas that might induce Checkbox to run the job in particular way.
+    Currently, following flags are inspected by Checkbox:
 
     .. _reset-locale flag:
 
@@ -247,17 +238,17 @@ Following fields may be used by the job unit:
     .. _win32 flag:
 
     ``win32``:
-        This flag makes plainbox run jobs' commands in windows-specific manner.
+        This flag makes Checkbox run jobs' commands in windows-specific manner.
         Attach this flag to jobs that are run on Windows OS.
 
     .. _noreturn flag:
 
     ``noreturn``:
-        This flag makes plainbox suspend execution after job's command is run.
-        This prevents scenario where plainbox continued to operate (writing
+        This flag makes Checkbox suspend execution after job's command is run.
+        This prevents scenario where Checkbox continued to operate (writing
         session data to disk and so on), while other process kills it (leaving
-        plainbox session in unwanted/undefined state).
-        Attach this flag to jobs that cause killing of plainbox process during
+        Checkbox session in unwanted/undefined state).
+        Attach this flag to jobs that cause killing of Checkbox process during
         their operation. E.g. run shutdown, reboot, etc.
         This flag also makes Checkbox to leave a ``__checkbox_respawn`` file
         in the ``$PLAINBOX_SESSION_SHARE`` directory which can be used by the
@@ -272,16 +263,16 @@ Following fields may be used by the job unit:
     .. _has-leftovers flag:
 
     ``has-leftovers``:
-        This flag makes plainbox silently ignore (and not log) any files left
+        This flag makes Checkbox silently ignore (and not log) any files left
         over by the execution of the command associated with a job. This flag
         is useful for jobs that don't bother with maintenance of temporary
         directories and just want to rely on the one already created by
-        plainbox.
+        Checkbox.
 
     .. _simple flag:
 
     ``simple``:
-        This flag makes plainbox disable certain validation advice and have
+        This flag makes Checkbox disable certain validation advice and have
         some sensible defaults for automated test cases.  This simplification
         is meant to cut the boiler plate on jobs that are closer to unit tests
         than elaborate manual interactions.
@@ -302,7 +293,7 @@ Following fields may be used by the job unit:
     .. _preserve-cwd flag:
 
     ``preserve-cwd``:
-        This flag makes plainbox run the job command in the current working
+        This flag makes Checkbox run the job command in the current working
         directory without creating a temp folder (and running the command from
         this temp folder). Sometimes needed on snappy
         (See http://pad.lv/1618197)
@@ -310,7 +301,7 @@ Following fields may be used by the job unit:
     .. _fail-on-resource flag:
 
     ``fail-on-resource``:
-        This flag makes plainbox fail the job if one of the resource
+        This flag makes Checkbox fail the job if one of the resource
         requirements evaluates to False.
 
     .. _also-after-suspend flag:

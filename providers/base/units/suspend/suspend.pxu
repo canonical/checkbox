@@ -30,8 +30,9 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/audio_before_suspend
 estimated_duration: 1.0
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name in ['pulseaudio-utils', 'pipewire']
 _summary: Record mixer settings before suspending.
@@ -261,13 +262,8 @@ command:
      echo "Calling fwts"
      set -o pipefail; checkbox-support-fwts_test -f none -l "$PLAINBOX_SESSION_SHARE"/suspend_single.log -s s3 --s3-sleep-delay=30 --s3-device-check --s3-device-check-delay=45 | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
  else
-    if [ -z "$RTC_DEVICE_FILE" ]; then
-      echo "Calling rtcwake"
-      rtcwake -m no -s 30 && systemctl suspend || exit 1
-    else
-      echo "Calling rtcwake with -d $RTC_DEVICE_FILE"
-      rtcwake -d "$RTC_DEVICE_FILE" -m no -s 30 and systemctl suspend || exit 1
-    fi
+      echo "Calling rtcwake with -d ${RTC_DEVICE_FILE:-/dev/rtc0}"
+      rtcwake -d "${RTC_DEVICE_FILE:-/dev/rtc0}" -m no -s 30 && systemctl suspend || exit 1
  fi
 estimated_duration: 90.000
 
@@ -444,8 +440,9 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/audio_after_suspend
 estimated_duration: 1.0
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name in ['pulseaudio-utils', 'pipewire']
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
@@ -464,8 +461,9 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/audio_after_suspend_auto
 estimated_duration: 1.2
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name in ['pulseaudio-utils', 'pipewire']
 depends: suspend/suspend_advanced_auto suspend/audio_before_suspend
@@ -485,8 +483,9 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/speaker-headphone-plug-detection-after-suspend
 depends: suspend/suspend_advanced_auto
 estimated_duration: 60.0
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'pulseaudio-utils'
 command: pulse_active_port_change.py sinks
 _purpose:
@@ -508,8 +507,9 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/microphone-plug-detection-after-suspend
 depends: suspend/suspend_advanced_auto
 estimated_duration: 60.0
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'pulseaudio-utils'
 command: pulse_active_port_change.py sources
 _purpose:
@@ -531,8 +531,9 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/playback_headphones-after-suspend
 estimated_duration: 20.0
 depends: audio/list_devices suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name == 'pulseaudio-utils'
@@ -557,8 +558,10 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/alsa_record_playback_external-after-suspend
 estimated_duration: 20.0
 depends: suspend/playback_headphones-after-suspend suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
  package.name == 'alsa-base'
  package.name == 'pulseaudio-utils'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
@@ -1217,14 +1220,16 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/record_playback_after_suspend
 estimated_duration: 10.0
 depends: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
  package.name == 'python3-gi'
  package.name == 'gir1.2-gstreamer-1.0'
  package.name == 'libgstreamer1.0-0'
  package.name == 'gstreamer1.0-plugins-good'
  package.name == 'gstreamer1.0-pulseaudio'
  package.name == 'alsa-base'
- device.category == 'AUDIO'
 command: audio_test.py
 _purpose:
  This will check to make sure that your audio device works properly after a suspend and resume. This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
@@ -1235,14 +1240,16 @@ category_id: com.canonical.plainbox::suspend
 id: suspend/record_playback_after_suspend_auto
 estimated_duration: 10.0
 depends: suspend/suspend_advanced_auto
+imports: from com.canonical.plainbox import manifest
 requires:
+ manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
  package.name == 'python3-gi'
  package.name == 'gir1.2-gstreamer-1.0'
  package.name == 'libgstreamer1.0-0'
  package.name == 'gstreamer1.0-plugins-good'
  package.name == 'gstreamer1.0-pulseaudio'
  package.name == 'alsa-base'
- device.category == 'AUDIO'
 command: audio_test.py
 _purpose: This will check to make sure that your audio device works properly after a suspend and resume. This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 _summary: Ensure audio device works correctly after suspend and resume cycle.
@@ -1511,556 +1518,6 @@ _steps:
 _verification:
  Did the WLAN/Bluetooth LED light as expected after resuming from suspend?
 _summary: Validate that the LED indicators for Wireless (WLAN + Bluetooth) function correctly after resuming from suspend.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: suspend/usb_insert_after_suspend
-estimated_duration: 30.0
-depends:
- suspend/suspend_advanced_auto
-command: removable_storage_watcher.py insert usb
-_purpose:
-     This test will check that the system correctly detects the insertion of
-     a USB storage device after suspend and resume.
-     NOTE: Make sure the USB storage device has a partition before starting
-     the test.
-_steps:
-     1. Click "Test" and insert a USB storage device (pen-drive/HDD).
-        (Note: this test will time out after 20 seconds.)
-     2. Do not unplug the device after the test.
-_verification:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
-_summary: Verify automatic detection of a USB storage device insertion after system suspend and resume.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: suspend/usb3_insert_after_suspend
-estimated_duration: 30.0
-requires:
- usb.usb3 == 'supported'
-depends:
- suspend/suspend_advanced_auto
-command: removable_storage_watcher.py -m 500000000 insert usb
-_purpose:
-     This test will check that the system correctly detects the insertion of
-     a USB 3.0 storage device after suspend and resume.
-     NOTE: Make sure the USB storage device has a partition before starting
-     the test.
-_steps:
-     1. Click "Test" and insert a USB 3.0 storage device (pen-drive/HDD) in
-        a USB 3.0 port. (Note: this test will time out after 20 seconds.)
-     2. Do not unplug the device after the test.
-_verification:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
-_summary: Verify USB 3.0 device detection after system suspend and resume.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: suspend/usb_remove_after_suspend
-estimated_duration: 30.0
-depends:
- suspend/usb_insert_after_suspend
-command: removable_storage_watcher.py remove usb
-_purpose:
- This test will check that the system correctly detects the removal of
- a USB storage device after suspend.
-_steps:
- 1. Click "Test" and remove the USB device.
-    (Note: this test will time-out after 20 seconds.)
-_verification:
- The verification of this test is automated. Do not manually change the
- automatically selected result.
-_summary: Automated test for checking USB device removal detection after system suspend.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: suspend/usb3_remove_after_suspend
-estimated_duration: 30.0
-depends:
- suspend/usb3_insert_after_suspend
-requires:
- usb.usb3 == 'supported'
-command: removable_storage_watcher.py -m 500000000 remove usb
-_purpose:
- This test will check that the system correctly detects the removal of
- a USB 3.0 storage device after suspend
-_steps:
- 1. Click "Test" and remove the USB 3.0 device.
-    (Note: this test will time-out after 20 seconds.)
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary: Verify system detects removal of a USB 3.0 storage device post-suspend.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/usb_storage_automated_after_suspend
-estimated_duration: 1.2
-depends: suspend/usb_insert_after_suspend
-user: root
-command: removable_storage_test.py -s 268400000 usb
-_purpose:
- This test is automated and executes after the suspend/usb_insert_after_suspend test is run.
-_summary: An automated test that runs after the suspend/usb_insert_after_suspend test, focusing on USB storage.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/usb3_storage_automated_after_suspend
-estimated_duration: 1.2
-requires:
- usb.usb3 == 'supported'
-depends: suspend/usb3_insert_after_suspend
-user: root
-command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_purpose:
- This test is automated and executes after the suspend/usb3_insert_after_suspend
- test is run.
-_summary: Automated USB3 storage test after system suspend.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/usb_performance_after_suspend
-depends: suspend/usb_insert_after_suspend
-user: root
-estimated_duration: 45.00
-command: removable_storage_test.py -s 268400000 -p 15 usb
-_purpose:
- This test will check that your USB 2.0 port transfers data at a
- minimum expected speed.
-_summary: Verify USB 2.0 port's data transfer speed after suspend.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/usb3_superspeed_performance_after_suspend
-requires:
- usb.usb3 == 'supported'
-depends: suspend/usb3_insert_after_suspend
-user: root
-estimated_duration: 45.00
-command: removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
-_purpose:
- This test will check that your USB 3.0 port can be recognized
- as a SuperSpeed USB device using the xhci_hcd driver and transfers data correctly.
-_summary: Verify USB 3.0 port's SuperSpeed performance with xhci_hcd driver after suspend.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: suspend/mmc-insert-after-suspend
-estimated_duration: 30.0
-depends: suspend/suspend_advanced_auto
-imports: from com.canonical.plainbox import manifest
-requires:
- package.name == 'udisks2' or snap.name == 'udisks2'
- manifest.has_card_reader == 'True'
-command: removable_storage_watcher.py --memorycard insert sdio usb scsi
-_purpose:
- This test will check that the system's media card reader can
- detect the insertion of an MMC card after the system has been suspended
-_steps:
- 1. Click "Test" and insert an MMC card into the reader.
-    If a file browser opens up, you can safely close it.
-    (Note: this test will time out after 20 seconds.)
- 2. Do not remove the device after this test.
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary:
- Automated check for MMC card detection post system suspend.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/mmc-storage-after-suspend
-depends: suspend/mmc-insert-after-suspend
-estimated_duration: 10.0
-user: root
-command: removable_storage_test.py -s 67120000 --memorycard sdio usb scsi
-_purpose: This test is automated and executes after the mediacard/mmc-insert-after-suspend test is run. It tests reading and writing to the MMC card after the system has been suspended.
-_summary: Automated test for MMC card read/write operations post system suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: suspend/mmc-remove-after-suspend
-depends: suspend/mmc-insert-after-suspend
-estimated_duration: 30.0
-command: removable_storage_watcher.py --memorycard remove sdio usb scsi
-_purpose:
-    This test will check that the system correctly detects the removal
-    of an MMC card from the system's card reader after the system has been suspended.
-_steps:
-    1. Click "Test" and remove the MMC card from the reader.
-       (Note: this test will time-out after 20 seconds.)
-_verification:
-    The verification of this test is automated. Do not change the
-    automatically selected result.
-_summary: Verify the system detects MMC card removal after suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: suspend/sd-insert-after-suspend
-estimated_duration: 30.0
-depends: suspend/suspend_advanced_auto
-imports: from com.canonical.plainbox import manifest
-requires:
- package.name == 'udisks2' or snap.name == 'udisks2'
- manifest.has_card_reader == 'True'
-command: removable_storage_watcher.py --memorycard insert sdio usb scsi
-_purpose:
- This test will check that the system's media card reader can
- detect the insertion of an UNLOCKED SD card after the system
- has been suspended
-_steps:
- 1. Click "Test" and insert an UNLOCKED SD card into the reader.
-    If a file browser opens up, you can safely close it.
-    (Note: this test will time-out after 20 seconds.)
- 2. Do not remove the device after this test.
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary: Automated check for SD card detection post system suspension.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/sd-storage-after-suspend
-estimated_duration: 10.0
-depends: suspend/sd-insert-after-suspend
-user: root
-command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
-_purpose:
- This test is automated and executes after the mediacard/sd-insert-after-suspend test
- is run. It tests reading and writing to the SD card after the system has been suspended.
-_summary: Test reading and writing to the SD card after system suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: suspend/sd-remove-after-suspend
-estimated_duration: 30.0
-depends: suspend/sd-insert-after-suspend
-command: removable_storage_watcher.py --memorycard remove sdio usb scsi
-_purpose:
-    This test will check that the system correctly detects
-    the removal of an SD card from the system's card reader
-    after the system has been suspended.
-_steps:
-    1. Click "Test" and remove the SD card from the reader.
-       (Note: this test will time-out after 20 seconds.)
-_verification:
-    The verification of this test is automated. Do not change the
-    automatically selected result.
-_summary: Check that the system detects SD card removal after suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: suspend/sdhc-insert-after-suspend
-estimated_duration: 30.0
-depends: suspend/suspend_advanced_auto
-imports: from com.canonical.plainbox import manifest
-requires:
- package.name == 'udisks2' or snap.name == 'udisks2'
- manifest.has_card_reader == 'True'
-command: removable_storage_watcher.py --memorycard insert sdio usb scsi
-_purpose:
- This test will check that the system's media card reader can
- detect the insertion of an UNLOCKED SDHC media card after the
- system has been suspended
-_steps:
- 1. Click "Test" and insert an UNLOCKED SDHC card into the reader.
-    If a file browser opens up, you can safely close it.
-    (Note: this test will time-out after 20 seconds.)
- 2. Do not remove the device after this test.
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary:
- Verify the media card reader's ability to detect an UNLOCKED SDHC media after system suspension.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: suspend/sdhc-storage-after-suspend
-estimated_duration: 10.0
-depends: suspend/sdhc-insert-after-suspend
-user: root
-command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
-_purpose:
- This test is automated and executes after the mediacard/sdhc-insert-after-suspend test
- is run. It tests reading and writing to the SDHC card after the system has been suspended.
-_summary: Automated test for SDHC card read/write after system suspend.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: suspend/sdhc-remove-after-suspend
-estimated_duration: 30.0
-depends: suspend/sdhc-insert-after-suspend
-command: removable_storage_watcher.py --memorycard remove sdio usb scsi
-_purpose:
-     This test will check that the system correctly detects the removal
-     of an SDHC card from the system's card reader after the system has been suspended.
-_steps:
-     1. Click "Test" and remove the SDHC card from the reader.
-        (Note: this test will time-out after 20 seconds.)
-_verification:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
-_summary: Check the system's ability to detect the removal of an SDHC card from the card reader after suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: mediacard/cf-insert-after-suspend
-estimated_duration: 30.0
-depends: suspend/suspend_advanced_auto
-imports: from com.canonical.plainbox import manifest
-requires:
- package.name == 'udisks2' or snap.name == 'udisks2'
- manifest.has_card_reader == 'True'
-command: removable_storage_watcher.py --memorycard insert sdio usb scsi
-_purpose:
- This test will check that the system's media card reader can
- detect the insertion of a CF card after the system has been suspended
-_steps:
- 1. Click "Test" and insert a CF card into the reader.
-    If a file browser opens up, you can safely close it.
-    (Note: this test will time-out after 20 seconds.)
- 2. Do not remove the device after this test.
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary: Verify that a CF card is detected after the system resumes from suspension.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: mediacard/cf-storage-after-suspend
-estimated_duration: 10.0
-depends: mediacard/cf-insert-after-suspend
-user: root
-command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
-_purpose:
- This test is automated and executes after the mediacard/cf-insert-after-suspend test is run. It tests reading and writing to the CF card after the system has been suspended.
-_summary: Automate reading and writing test on the CF card after system suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: mediacard/cf-remove-after-suspend
-estimated_duration: 30.0
-depends: mediacard/cf-insert-after-suspend
-command: removable_storage_watcher.py --memorycard remove sdio usb scsi
-_purpose:
- This test will check that the system correctly detects the removal
- of a CF card from the system's card reader after the system has been suspended.
-_steps:
- 1. Click "Test" and remove the CF card from the reader.
-    (Note: this test will time-out after 20 seconds.)
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary: Verify system detects CF card removal after suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: mediacard/sdxc-insert-after-suspend
-estimated_duration: 30.0
-depends: suspend/suspend_advanced_auto
-imports: from com.canonical.plainbox import manifest
-requires:
- package.name == 'udisks2' or snap.name == 'udisks2'
- manifest.has_card_reader == 'True'
-command: removable_storage_watcher.py --memorycard insert sdio usb scsi
-_purpose:
- This test will check that the system's media card reader can
- detect the insertion of a SDXC card after the system has been suspended
-_steps:
- 1. Click "Test" and insert a SDXC card into the reader.
-    If a file browser opens up, you can safely close it.
-    (Note: This test will time-out after 20 seconds.)
- 2. Do not remove the device after this test.
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary: Automate the verification of SDXC card detection post system suspension.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: mediacard/sdxc-storage-after-suspend
-estimated_duration: 10.0
-depends: mediacard/sdxc-insert-after-suspend
-user: root
-command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
-_purpose:
- This test is automated and executes after the mediacard/sdxc-insert-after-suspend test
- is run. It tests reading and writing to the SDXC card after the system has been suspended.
-_summary: Automate testing of SDXC card read/write operations post system suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: mediacard/sdxc-remove-after-suspend
-depends: mediacard/sdxc-insert-after-suspend
-estimated_duration: 30.0
-command: removable_storage_watcher.py --memorycard remove sdio usb scsi
-_purpose:
- This test will check that the system correctly detects the removal
- of a SDXC card from the system's card reader after the system has been suspended.
-_steps:
- 1. Click "Test" and remove the SDXC card from the reader.
-    (Note: this test will time-out after 20 seconds.)
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary: Verify the detection of SDXC card removal post-system suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: mediacard/ms-insert-after-suspend
-estimated_duration: 30.0
-depends: suspend/suspend_advanced_auto
-imports: from com.canonical.plainbox import manifest
-requires:
- package.name == 'udisks2' or snap.name == 'udisks2'
- manifest.has_card_reader == 'True'
-command: removable_storage_watcher.py --memorycard insert sdio usb scsi
-_purpose:
- This test will check that the system's media card reader can
- detect the insertion of a MS card after the system has been suspended
-_steps:
- 1. Click "Test" and insert a MS card into the reader.
-    If a file browser opens up, you can safely close it.
-    (Note: this test will time-out after 20 seconds.)
- 2. Do not remove the device after this test.
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary: Ensure the system's media card reader detects a MS card insertion post system suspension.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: mediacard/ms-storage-after-suspend
-estimated_duration: 10.0
-depends: mediacard/ms-insert-after-suspend
-user: root
-command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
-_purpose: This test is automated and executes after the mediacard/ms-insert-after-suspend test is run. It tests reading and writing to the MS card after the system has been suspended.
-_summary: Execute reading and writing test on MS card after system suspension and following the mediacard/ms-insert-after-suspend test.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: mediacard/ms-remove-after-suspend
-estimated_duration: 30.0
-depends: mediacard/ms-insert-after-suspend
-command: removable_storage_watcher.py --memorycard remove sdio usb scsi
-_purpose:
- This test will check that the system correctly detects the removal
- of a MS card from the system's card reader after the system has been suspended.
-_steps: 
- 1. Click "Test" and remove the MS card from the reader.
-    (Note: this test will time-out after 20 seconds.)
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary: Verify the system detects the removal of a MS card after suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: mediacard/msp-insert-after-suspend
-estimated_duration: 30.0
-depends: suspend/suspend_advanced_auto
-imports: from com.canonical.plainbox import manifest
-requires:
- package.name == 'udisks2' or snap.name == 'udisks2'
- manifest.has_card_reader == 'True'
-command: removable_storage_watcher.py --memorycard insert sdio usb scsi
-_purpose:
- This test will check that the system's media card reader can
- detect the insertion of a MSP card after the system has been suspended
-_steps:
- 1. Click "Test" and insert a MSP card into the reader.
-    If a file browser opens up, you can safely close it.
-    (Note: this test will time-out after 20 seconds.)
- 2. Do not remove the device after this test.
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary: Verify detection of a MSP card insertion into a media card reader after system suspension.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: mediacard/msp-storage-after-suspend
-estimated_duration: 10.0
-depends: mediacard/msp-insert-after-suspend
-user: root
-command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
-_purpose:
- This test is automated and executes after the mediacard/msp-insert-after-suspend test
- is run. It tests reading and writing to the MSP card after the system has been suspended.
-_summary: Automated test for reading and writing to the MSP card after system suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: mediacard/msp-remove-after-suspend
-estimated_duration: 30.0
-depends: mediacard/msp-insert-after-suspend
-command: removable_storage_watcher.py --memorycard remove sdio usb scsi
-_purpose:
- This test will check that the system correctly detects the removal
- of a MSP card from the system's card reader after the system has been suspended.
-_steps:
- 1. Click "Test" and remove the MSP card from the reader.
-    (Note: this test will time-out after 20 seconds.)
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary: Check the system's detection of MSP card removal after suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: mediacard/xd-insert-after-suspend
-estimated_duration: 30.0
-depends: suspend/suspend_advanced_auto
-imports: from com.canonical.plainbox import manifest
-requires:
- package.name == 'udisks2' or snap.name == 'udisks2'
- manifest.has_card_reader == 'True'
-command: removable_storage_watcher.py --memorycard insert sdio usb scsi
-_purpose:
- This test will check that the system's media card reader can
- detect the insertion of a xD card after the system has been suspended
-_steps:
- 1. Click "Test" and insert a xD card into the reader.
-    If a file browser opens up, you can safely close it.
-    (Note: this test will time-out after 20 seconds.)
- 2. Do not remove the device after this test.
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary: Verify media card reader functionality post-suspension by detecting xD card insertion.
-
-plugin: shell
-category_id: com.canonical.plainbox::suspend
-id: mediacard/xd-storage-after-suspend
-estimated_duration: 10.0
-depends: mediacard/xd-insert-after-suspend
-user: root
-command: removable_storage_test.py -s 268400000 --memorycard sdio usb scsi
-_purpose:
- This test is automated and executes after the mediacard/xd-insert-after-suspend test
- is run. It tests reading and writing to the xD card after the system has been suspended.
-_summary: Test reading and writing to xD card after system suspension.
-
-plugin: user-interact
-category_id: com.canonical.plainbox::suspend
-id: mediacard/xd-remove-after-suspend
-estimated_duration: 30.0
-depends: mediacard/xd-insert-after-suspend
-command: removable_storage_watcher.py --memorycard remove sdio usb scsi
-_purpose:
- This test will check that the system correctly detects the removal
- of a xD card from the system's card reader after the system has been suspended.
-_steps:
- 1. Click "Test" and remove the xD card from the reader.
-    (Note: this test will time-out after 20 seconds.)
-_verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
-_summary:
- Verifies system detection of xD card removal from the card reader after suspension.
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend

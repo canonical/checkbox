@@ -1,0 +1,16 @@
+OpenGL vendor string:   Intel
+OpenGL renderer string: Mesa Intel(R) UHD Graphics (CML GT2)
+OpenGL version string:  4.6 (Compatibility Profile) Mesa 24.0.5-1ubuntu1
+
+Not software rendered:    [32;01myes[00m
+Not blacklisted:          [32;01myes[00m
+GLX fbconfig:             [32;01myes[00m
+GLX texture from pixmap:  [32;01myes[00m
+GL npot or rect textures: [32;01myes[00m
+GL vertex program:        [32;01myes[00m
+GL fragment program:      [32;01myes[00m
+GL vertex buffer object:  [32;01myes[00m
+GL framebuffer object:    [32;01myes[00m
+GL version is 1.4+:       [32;01myes[00m
+
+Unity 3D supported:       [32;01myes[00m

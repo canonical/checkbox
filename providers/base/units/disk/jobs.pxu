@@ -5,7 +5,7 @@ flags: also-after-suspend
 requires:
   executable.name == 'lsblk'
 _summary: Gathers information about each disk detected
-_description:
+_purpose:
  Uses lsblk to gather information about each disk detected on the system
  under test.
 command: disk_info.py
@@ -33,7 +33,7 @@ user: root
 estimated_duration: 10.0
 command: disk_stats_test.sh {name}
 _summary: Disk statistics for {product_slug}
-_description:
+_purpose:
  This test checks disk stats, generates some activity and rechecks stats to
  verify they've changed. It also verifies that disks appear in the various
  files they're supposed to.
@@ -57,8 +57,8 @@ requires:
  block_device.smart == 'True' and block_device.name == '{name}'
 _summary:
  Test SMART capabilities for {product_slug}
-_description:
- This tests the SMART capabilities for {product_slug} (Note that this test may not work against hardware RAID)
+_purpose:
+ This test assesses the SMART capabilities for {product_slug}. (Note that this test may not work against hardware RAID)
 user: root
 command: disk_smart.py -b /dev/{name} -s 130 -t 530
 
@@ -73,7 +73,7 @@ flags: also-after-suspend
 estimated_duration: 65.0
 requires:
 _summary: Disk performance test for {product_slug}
-_description: Verify that disk storage performs at or above baseline performance
+_purpose: Verify that disk storage performs at or above baseline performance
 user: root
 environ: DISK_READ_PERF DISK_NVME_READ_PERF DISK_MDADM_READ_PERF
 command: disk_read_performance_test.sh {name}
@@ -90,7 +90,7 @@ estimated_duration: 375.0
 user: root
 requires:
 _summary: Disk I/O stress test for {product_slug}
-_description: Take the path of the storage device and test is it a block device
+_purpose: Take the path of the storage device and test if it is a block device.
 command: storage_test.py {name}
 
 unit: template
@@ -105,7 +105,7 @@ user: root
 requires:
  block_device.rotation == 'no' and block_device.name == '{name}'
 _summary: Filesystem TRIM check for {product_slug}
-_description: Take the path of the storage device and test its TRIM capabilities
+_purpose: Take the path of the storage device and test its TRIM capabilities
 command: fstrim_test.py --device-file {name}
 
 unit: template
@@ -120,15 +120,15 @@ user: root
 requires:
  executable.name == 'stress-ng'
  executable.name == 'uuidgen'
-_summary: Disk stress_ng test for {product_slug}
-_description: Disk stress_ng test for {product_slug}
+_summary: Disk stress-ng test for {product_slug}
+_purpose: Disk stress-ng test for {product_slug}
 command:
   if [ -n "$STRESS_NG_DISK_TIME" ]
   then
-    echo "Found STRESS_NG_DISK_TIME env var, stress_ng disk running time is now: $STRESS_NG_DISK_TIME seconds"
+    echo "Found STRESS_NG_DISK_TIME env var, stress-ng disk running time is now: $STRESS_NG_DISK_TIME seconds"
     stress_ng_test.py disk --device {name} --base-time "$STRESS_NG_DISK_TIME"
   else
-    echo "STRESS_NG_DISK_TIME env var is not found, stress_ng disk running time is default value"
+    echo "STRESS_NG_DISK_TIME env var is not found, stress-ng disk running time is default value"
     stress_ng_test.py disk --device {name} --base-time 240
   fi
 
@@ -145,7 +145,7 @@ requires:
  block_device.state != 'removable' and block_device.name == '{name}'
  executable.name == 'bc'
 _summary: Check of CPU load imposed by {product_slug}
-_description: Check to ensure CPU load of {product_slug} is not too high
+_purpose: Check to ensure CPU load of {product_slug} is not too high
 command: disk_cpu_load.sh {name}
 
 plugin: user-interact
@@ -161,16 +161,16 @@ depends:
   input/accelerometer
 user: root
 command: hdd_parking.py
-_description:
- PURPOSE:
-  This test checks that a systems drive protection mechanism works properly.
-  Which also known as free fall sensor checking in terms of laptop PC.
- STEPS:
-  1. Click on Test
-  2. Move the system under test around, ensuring it is raised and lowered at some point.
- VERIFICATION:
-  The verification of this test is automated. Do not change the
-  automatically selected result.
+_purpose:
+ This test checks that a system's drive protection mechanism (free fall
+ sensor in laptops) works properly.
+_steps:
+ 1. Click on Test
+ 2. Move the system under test around, ensuring it is raised and lowered at some point.
+_verification:
+ The verification of this test is automated. Do not change the
+ automatically selected result.
+_summary: Test the system's hard drive protection mechanism.
 
 unit: template
 template-resource: device

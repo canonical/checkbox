@@ -208,6 +208,25 @@ Note: To clear the exclude list use...
 
 ...in your 'last' config.
 
+``match``
+  List of regex patterns that job ids and template ids will be matched against.
+  Checkbox will only run the matching jobs, their dependencies and any job
+  included in the testplan bootstrap section. This is useful to re-run the
+  failing subset of jobs included in a test plan.
+
+Only run ``bluetooth`` jobs and their dependencies:
+
+.. code-block:: ini
+
+  [test selection]
+  match = .*bluetooth.*
+
+.. note::
+   ``exclude`` takes precedence over ``match``.
+
+.. note::
+   You can use ``match`` only to select jobs already included in a test
+   plan. You can not use it to include additional tests in a test plan.
 
 .. _launcher_ui:
 
@@ -227,7 +246,7 @@ This section controls which type of UI to use.
     * ``silent`` skips the tests that would require human interaction. This UI
       type requires forcing test selection and test plan selection. It's not
       'silent' in the traditional command-line tool sense.
-    * ``converged`` launches the QML interface. It requires ``checkbox-converged`` 
+    * ``converged`` launches the QML interface. It requires ``checkbox-converged``
       to be installed on your system.
     * ``converged-silent`` launches the QML interface and skips the tests that
       would require human interaction. It requires ``checkbox-converged`` to be
@@ -287,7 +306,7 @@ This section controls which type of UI to use.
 
     .. note::
 
-        You can use ``auto-retry=no`` inline in the test plan to exclude a job 
+        You can use ``auto-retry=no`` inline in the test plan to exclude a job
         from auto-retrying. For more details, see :doc:`../how-to/launcher/auto-retry`.
 
 ``max_attempts``
@@ -300,7 +319,7 @@ This section controls which type of UI to use.
     the testing session. This can be useful when the jobs rely on external
     factors (e.g. a WiFi access point) and you want to wait before retrying the
     same job. Default value: ``1``.
-    
+
 Restart section
 ===============
 

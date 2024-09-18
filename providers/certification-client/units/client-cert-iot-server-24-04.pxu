@@ -7,6 +7,8 @@ include:
 nested_part:
   client-cert-iot-server-24-04-manual
   client-cert-iot-server-24-04-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-server-24-04-manual
@@ -43,13 +45,17 @@ nested_part:
   camera-manual
   cpu-manual
   disk-manual
+  edac-manual
   ethernet-manual
+  ishtp-manual
   led-indicator-manual
   led-manual
   mediacard-manual
+  mei-manual
   memory-manual
   monitor-manual
   networking-manual
+  qep-manual
   rtc-manual
   self-manual
   serial-manual
@@ -85,6 +91,8 @@ exclude:
   bluetooth4/HOGP-mouse
   snappy/os-.*
   after-suspend-bluetooth4/HOGP-mouse
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-server-24-04-automated
@@ -121,16 +129,20 @@ nested_part:
   cpu-automated
   disk-automated
   docker-automated
+  edac-automated
   eeprom-automated
   ethernet-automated
   gpio-automated
   iot-fwts-automated
   i2c-automated
+  ishtp-automated
   mediacard-automated
+  mei-automated
   memory-automated
   misc-client-cert-automated
   networking-automated
   power-automated
+  qep-automated
   rtc-automated
   self-automated
   serial-automated
@@ -156,6 +168,8 @@ nested_part:
   after-suspend-usb-automated
   after-suspend-wireless-automated
   after-suspend-wwan-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-server-24-04-stress
@@ -166,3 +180,5 @@ _description:
 include:
 nested_part:
   stress-full
+certification_status_overrides:
+  apply blocker to .*

@@ -19,6 +19,8 @@ include:
     benchmarks/disk/hdparm-cache-read_.*
     disk/apste_support_on_.*
     disk/check-software-raid
+bootstrap_include:
+    device
 
 id: after-suspend-disk-cert-automated
 unit: test plan
@@ -32,6 +34,8 @@ include:
     after-suspend-benchmarks/disk/hdparm-read_.*
     after-suspend-benchmarks/disk/hdparm-cache-read_.*
     after-suspend-disk/apste_support_on_.*
+bootstrap_include:
+    device
 
 id: disk-cert-blockers
 unit: test plan
@@ -41,6 +45,8 @@ include:
     disk/detect                                certification-status=blocker
     disk/read_performance_.*                   certification-status=blocker
     disk/storage_device_.*                     certification-status=blocker
+bootstrap_include:
+    device
 
 id: disk-full
 unit: test plan
@@ -82,3 +88,5 @@ include:
     disk/fstrim_.*                             certification-status=non-blocker
     disk/disk_stress_ng_.*                     certification-status=blocker
     disk/disk_cpu_load_.*                      certification-status=blocker
+bootstrap_include:
+    device

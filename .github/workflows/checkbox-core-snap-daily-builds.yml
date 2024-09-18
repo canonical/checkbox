@@ -9,9 +9,26 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        releases: [16, 18, 20, 22]
+        releases: [16, 18, 20]
         arch: [amd64, arm64, armhf]
-    runs-on: [self-hosted, linux, jammy, large]
+        exclude:
+          # confs built by the other workflow
+          - releases: 20
+            arch: arm64
+          - releases: 20
+            arch: amd64
+          - releases: 18
+            arch: arm64
+          - releases: 18
+            arch: amd64
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:
       SERIES: series${{ matrix.releases }}

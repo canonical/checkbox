@@ -4,13 +4,16 @@ launcher_version = 1
 stock_reports = text, submission_files
 
 [test plan]
-unit = com.canonical.certification::client-cert-odm-desktop-22-04-manual
-filter = com.canonical.certification::client-cert-odm-desktop-22-04-*
+unit = com.canonical.certification::client-cert-odm-desktop-24-04-manual
+filter = com.canonical.certification::client-cert-odm-desktop-24-04-*
+    com.canonical.certification::client-cert-odm-desktop-22-04-*
     com.canonical.certification::client-cert-odm-desktop-20-04-*
     com.canonical.certification::client-cert-odm-desktop-18-04-*
+    com.canonical.certification::client-cert-odm-server-24-04-*
     com.canonical.certification::client-cert-odm-server-22-04-*
     com.canonical.certification::client-cert-odm-server-20-04-*
     com.canonical.certification::client-cert-odm-server-18-04-*
+    com.canonical.certification::client-cert-odm-ubuntucore-24-*
     com.canonical.certification::client-cert-odm-ubuntucore-22-*
     com.canonical.certification::client-cert-odm-ubuntucore-20-*
     com.canonical.certification::client-cert-odm-ubuntucore-18-*

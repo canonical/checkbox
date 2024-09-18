@@ -1,11 +1,11 @@
 .. _rfc822:
 
 =============================
-Plainbox RFC822 Specification
+Checkbox RFC822 Specification
 =============================
 
 The syntax is only loosely inspired by the actual :RFC:`822` syntax. Since
-Plainbox is not processing email, the original specification is used only as an
+Checkbox is not processing email, the original specification is used only as an
 inspiration. One of the most important aspect of the syntax we're using is
 relative familiarity for other users of the system and ease-of-use when using
 general, off-the-shelf text editors.
@@ -44,7 +44,7 @@ The example below::
 
 Is parsed as an ENTRY (in python syntax)::
 
-    ("key", "\nvalue")
+    ("key", "\nmore value")
 
 Quirk 2 -- the # comments 
 -------------------------

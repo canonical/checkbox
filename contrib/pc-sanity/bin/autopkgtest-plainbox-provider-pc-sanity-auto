@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+# shellcheck source=/dev/null
+source /usr/share/oem-scripts/config.sh 2>/dev/null || source config.sh
+
+if ! valid_oem_scripts_config; then
+    >&2 echo "Please execute \`launchpad-api\` to get the token for Launchpad API first."
+    exit 1
+fi
+
+autopkgtest-collect-credentials ppa:checkbox-dev/beta "$@"

@@ -1,0 +1,154 @@
+plugin: shell
+id: somerville/platform-meta-test
+category_id: com.canonical.plainbox::miscellanea
+requires: lsb.release >= "20.04"
+command:
+ platform_meta_test --oem-codename "$(get-oem-info.sh --oem-codename)"
+_description: Check if the platform metapackage is installed.
+
+plugin: shell
+id: miscellanea/platform-userguide-test
+category_id: com.canonical.plainbox::miscellanea
+requires:
+ lsb.release >= "20.04"
+ dmi.vendor == 'LENOVO'
+command:
+ platform_userguide_test
+_description: Check if the platform userguide package is installed.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/gate_rste_raid
+command:
+ set -x
+ # copy from script https://launchpadlibrarian.net/468773053/hw-detect_1.117ubuntu8.debdiff
+ # shellcheck disable=SC1001
+ for ahci_device in /sys/module/ahci/drivers/pci\:ahci/*/remapped_nvme
+ do
+    if [ -f "$ahci_device" ]; then
+        ref_count="$(cat "$ahci_device")"
+        if [ "$ref_count" -ge 1 ]; then
+            echo "Intel RAID/RST mode detected."
+            exit 1
+        else
+            echo "No Intel RAID/RST mode detected."
+        fi
+    fi
+ done
+_summary: to confirm the dell-recoery is what we expected.
+_description:
+ we don't support RSTe raid, so gate it based on https://docs.google.com/document/d/13G8VkaFB8W2ck-vtzu4OqkYFmi7-w0ooi6qNpxJLtPY/edit#
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_oem_recovery_version
+requires:
+ package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
+ package.name == 'dpkg'
+command:
+ if dpkg-query -W -f='${Version}\n' dell-recovery | grep -q somerville; then
+     exit 0
+ elif dpkg-query -W -f='${Version}\n' ubuntu-recovery | grep -q -e timbuktu -e ouagadougou -e jiayi; then
+     exit 0
+ else
+     echo "The recovery package version string is wrong, expect somerville for dell-recovery,"
+     echo "and ouagadougou for ubuntu-recovery."
+     exit 1
+ fi
+_summary: Confirm the recovery version string is as expected.
+_description:
+ based on the meeting conclusion of 4/22, we need somerville version before Mario agree Canonical take the duty of dell-recovery sru.
+ Let it support ubuntu-recovery and dell-recovery.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/cvescan
+command:
+ ubuntu-oval.sh "$PLAINBOX_SESSION_SHARE/oval" "/var/local/plainbox-provider-pc-sanity/clean-installed-dpkg.list"
+_summary: Scan if all CVEs are fixed well.
+_description:
+ Refer to https://ubuntu.com/security/oval,
+ to scan if all CVEs are fixed well on the target machine.
+
+unit: packaging meta-data
+os-id: ubuntu
+Depends:
+  libopenscap8
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_language_packages
+command:
+ [ -z "$(find /var/lib/apt/periodic/update-success-stamp -mmin -10)" ] && sudo apt-get update
+ pkgs="$(check-language-support -l "${LANG/.UTF-8/}")"
+ if [ -z "$pkgs" ]
+ then
+     exit 0
+ else
+     echo Missing packages: "$pkgs"
+     exit 1
+ fi
+_summary: Check if all needed language packages are installed
+_description:
+ To check if all needed language packages are in the system
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_secureboot_fish_not_installed
+requires:
+ lsb.release >= "22.04"
+ package.name == 'dell-recovery' or package.name == 'ubuntu-recovery'
+user: root
+command:
+ if dpkg-query -W -f='${Status}\n' dell-recovery 2>&1 | grep "install ok installed" >/dev/null 2>&1; then
+    TARGET=$(python3 -c "import Dell.recovery_common as magic; target=magic.find_partition(); print(target.decode('utf8')) if type(target) is bytes else print(target)")
+ elif dpkg-query -W -f='${Status}\n' ubuntu-recovery 2>&1 | grep "install ok installed" >/dev/null 2>&1; then
+    TARGET=$(python3 -c "import ubunturecovery.recovery_common as magic; target=magic.find_partition('PQSERVICE'); print(target.decode('utf8')) if type(target) is bytes else print(target)")
+ fi
+ sudo mount "$TARGET" /cdrom
+ RET=$?
+ if [ $RET -eq 0 ] || [ $RET -eq 32 ]; then
+     if [ -d /cdrom/secureboot ]; then
+         echo "Found the recovery contains file from secureboot fish"
+         echo "The FVR image no longer requires to install dkms, so that we don't need secureboot fish"
+         echo "please remove it before FVR release."
+         exit 1
+     fi
+ else
+     echo "Mount $TARGET to /cdrom failed, can't check content"
+     exit 1
+ fi
+_summary: Check secureboot fish is not installed
+_description:
+ The FVR image no longer require dkms, so check if the secureboot fish
+ has removed.
+
+unit: template
+template-resource: dmi
+template-filter:
+ dmi.category == 'CHASSIS' and dmi.product not in ['Mini Tower', 'Tower', 'Main Server Chassis','Rack Mount Chassis']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_windowing_system_{product}
+requires:
+ lsb.release >= "22.04"
+ package.name == "pciutils"
+depends: miscellanea/check-display_{product}
+command: check-windowing-system.sh
+_summary: Check if system using correct windowing system
+_description:
+ After 22.04, machine with Nvidia GPU will using X11 as windowing system.
+ And machine with AMD and Intel GPU will default to wayland.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_production_suite
+requires:
+ lsb.release == "22.04"
+ package.name == 'lsb-release'
+user: root
+command: check-production-suite.sh
+_summary: Check if production suite is created properly
+_description:
+ Add a job to check the production suite is created correcly.

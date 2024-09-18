@@ -4,11 +4,10 @@ description: |
   Checkbox is a flexible test automation software.
   It’s the main tool used in Ubuntu Certification program.
 adopt-info: version-calculator
-grade: devel
+grade: stable
 confinement: classic
 
 base: core24
-build-base: devel
 
 apps:
   checkbox-cli:
@@ -48,11 +47,11 @@ parts:
     plugin: dump
     source: .
     override-pull: |
-      snapcraftctl pull
+      craftctl default
       # version.txt created by prepare.sh
-      export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
+      export version=`cat $CRAFT_PART_SRC/version.txt`
       [ $version ] || exit 1
-      snapcraftctl set-version $version
+      craftctl set version=$version
     stage:
       - version.txt
   launchers:

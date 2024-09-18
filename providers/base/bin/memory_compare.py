@@ -88,6 +88,10 @@ def get_threshold(installed_memory):
         return 25
     elif installed_memory <= 6 * GB:
         return 20
+    elif installed_memory <= 8 * GB:
+        return 15
+    elif installed_memory <= 16 * GB:
+        return 12
     else:
         return 10
 

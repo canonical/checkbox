@@ -6,9 +6,10 @@ _steps:
  1. Start the test to power off the system (wakeup scheduled in 30s).
 _verification:
  RTC can wake up the system successfully.
+ environ: RTC_DEVICE_FILE
 command:
- rtcwake -v -m disable
- rtcwake -v -m off -s 30
+ rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m disable
+ rtcwake -v -d "${RTC_DEVICE_FILE:-rtc0}" -m off -s 30
 plugin: user-interact
 user: root
 category_id: rtc_category

@@ -14,7 +14,7 @@ template-resource: video_codec_resource
 template-filter: video_codec_resource.scenario == "gst_v4l2_video_decoder_md5_checksum_comparison"
 template-unit: job
 template-id: ce-oem-video-codec/gst_v4l2_video_decoder_md5_checksum_comparison
-template-summary: To check if the MD5 checksum is same as golden reference under specific decoder
+_template-summary: To check if the MD5 checksum is same as golden reference under specific decoder
 id: ce-oem-video-codec/{{ scenario }}-{{ decoder_plugin }}-{{ width }}x{{ height }}-{{ color_space }}
 _summary: MD5 checksum comparison {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }}
 _description: Compare the MD5 checksum to golden reference by decoding the {{ width }}x{{ height }}-{{ decoder_plugin }}-{{ color_space }} video via gstreamer
@@ -27,3 +27,51 @@ flags: also-after-suspend
 environ: GST_LAUNCH_BIN
 command:
     gst_v4l2_video_decoder_md5_checksum_comparison.py -dp {{decoder_plugin}} -cs {{color_space}} -gp {{golden_sample_file}} -gmp {{golden_md5_checkum_file}}
+
+unit: template
+template-engine: jinja2
+template-resource: video_codec_resource
+template-filter: video_codec_resource.scenario == "gst_v4l2_audio_video_synchronization"
+template-unit: job
+template-id: ce-oem-video-codec/gst_v4l2_audio_video_synchronization
+_template-summary: To check if the relative timing of audio and video is synchronized
+id: ce-oem-video-codec/{{ scenario }}-{{ decoder_plugin }}-{{ golden_sample_file_name }}-{{ video_sink }}
+_summary: AV-Sync test of decoder {{ decoder_plugin }} with {{ golden_sample_file_name }} file
+_purpose: To check if the relative timing of audio and video of {{ golden_sample_file_name }} file is synchronized under a specific {{ decoder_plugin }} decoder
+plugin: user-interact-verify
+category_id: video-codec
+estimated_duration: 30s
+imports: from com.canonical.plainbox import manifest
+flags: also-after-suspend
+environ: GST_LAUNCH_BIN
+_steps:
+    1. Plug a headset/earphone to the device
+    2. Adjust the audio sink to be headset via Gnome Settings or command
+    3. Press enter to perform test
+_verification:
+    Ensure there's no delay between the audio output and the visual display
+    1. Do you hear the beep sound and see the video be displayed?
+    2. Is the timing of audio and video synchronized?
+command:
+    gst_v4l2_audio_video_synchronization.py -dp {{decoder_plugin}} -gp {{golden_sample_file}} -vs {{video_sink}} -cp "{{capssetter_pipeline}}"
+
+unit: template
+template-engine: jinja2
+template-resource: video_codec_resource
+template-filter: video_codec_resource.scenario == "gst_v4l2_video_decoder_performance_fakesink"
+template-unit: job
+template-id: ce-oem-video-codec/gst_v4l2_video_decoder_performance_fakesink
+_template-summary: To check if the performance of decoder doesn't violate Pass Criteria
+id: ce-oem-video-codec/{{ scenario }}-{{ decoder_plugin }}
+_summary: Performance test of decoder {{ decoder_plugin }} - fakesink
+_description: Test if while the sink is fakesink, the decoder's performance, {{ decoder_plugin }}, doesn't violate the Pass Criteria. (1) There are no frame losses (2) Average FPS not fall below the specification's definition
+plugin: shell
+user: root
+category_id: video-codec
+estimated_duration: 1s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_video_codec == 'True'
+flags: also-after-suspend
+environ: GST_LAUNCH_BIN, PERFORMANCE_PYTHON_MODULE_PATH, PERFORMANCE_FUNCTION_NAME
+command:
+    gst_v4l2_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}"

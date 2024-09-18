@@ -41,14 +41,14 @@ class Parser(object):
         r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}"
     ).search
     is_getting_info_line = re.compile(
-        "Gathering hardware information...$"
+        r"Gathering hardware information...$"
     ).search
-    is_executing_line = re.compile("Executing: '(?P<command>.*)'...$").search
-    is_output_line = re.compile("Output:$").search
+    is_executing_line = re.compile(r"Executing: '(?P<command>.*)'...$").search
+    is_output_line = re.compile(r"Output:$").search
     is_field_line = re.compile(
-        "^- (?P<field>returncode|stdout|stderr):$"
+        r"^- (?P<field>returncode|stdout|stderr):$"
     ).match
-    is_test_complete_line = re.compile("test complete$").search
+    is_test_complete_line = re.compile(r"test complete$").search
 
     def __init__(self, filename):
         self.filename = filename

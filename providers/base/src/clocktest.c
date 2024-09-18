@@ -31,7 +31,7 @@ int test_clock_jitter(){
     unsigned cpu, num_cpus, iter;
     int failures = 0;
 
-    num_cpus = sysconf(_SC_NPROCESSORS_CONF);
+    num_cpus = sysconf(_SC_NPROCESSORS_ONLN);
     if (num_cpus == 1) {
         printf("Single CPU detected. No clock jitter testing necessary.\n");
         return 0;

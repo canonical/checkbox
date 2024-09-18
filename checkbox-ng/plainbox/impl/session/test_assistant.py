@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2015 Canonical Ltd.
+# Copyright 2015-2024 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -223,3 +224,55 @@ class SessionAssistantTests(morris.SignalTestCase):
         self.assertEqual(
             self_mock._context.state.update_desired_job_list.call_count, 1
         )
+
+    @mock.patch("plainbox.impl.session.assistant.UsageExpectation")
+    def test_use_alternate_configuration(self, ue_mock, mock_get_providers):
+        self_mock = mock.MagicMock()
+
+        def get_value(section, value):
+            if section == "test selection" and value == "exclude":
+                return [r".*some.*", r".*other.*"]
+            elif section == "test selection" and value == "match":
+                return [r".*target", r".*another_target"]
+            raise AssertionError(
+                "Need more configuration sections/config to mock,"
+                " test asked for [{}][{}]".format(section, value)
+            )
+
+        config_mock = mock.MagicMock()
+        config_mock.get_value.side_effect = get_value
+
+        SessionAssistant.use_alternate_configuration(self_mock, config_mock)
+
+        self.assertEqual(len(self_mock._exclude_qualifiers), 2)
+        self.assertEqual(len(self_mock._match_qualifiers), 2)
+
+    @mock.patch("plainbox.impl.session.assistant.UsageExpectation")
+    @mock.patch("plainbox.impl.session.assistant.select_units")
+    def test_finish_bootstrap_match_nominal(
+        self, select_units_mock, ue_mock, get_providers_mock
+    ):
+        self_mock = mock.MagicMock()
+        # this is just to test that the subfunction is called if this arr is
+        # defined, assumes the select_units function is mocked
+        self_mock._match_qualifiers = [1, 2, 3]
+
+        SessionAssistant.finish_bootstrap(self_mock)
+
+        # called once to get all the jobs for the selected testplan
+        # and another time to prune it for match`
+        self.assertEqual(select_units_mock.call_count, 2)
+
+    @mock.patch("plainbox.impl.session.assistant.UsageExpectation")
+    @mock.patch("plainbox.impl.session.assistant.select_units")
+    def test_finish_bootstrap_match_no_match(
+        self, select_units_mock, ue_mock, get_providers_mock
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._match_qualifiers = []
+
+        SessionAssistant.finish_bootstrap(self_mock)
+
+        # called once to get all the jobs for the selected testplan
+        # and another time to prune it for match
+        self.assertEqual(select_units_mock.call_count, 1)

@@ -69,8 +69,8 @@ _name: Automated ethernet tests
 _description: Automated ethernet tests for Ubuntu Core devices
 estimated_duration: 1m
 include:
-    ethernet/detect
-    ethernet/ping_.*
+    ethernet/detect    certification-status=blocker
+    ethernet/ping_.*   certification-status=blocker
 bootstrap_include:
     device
 

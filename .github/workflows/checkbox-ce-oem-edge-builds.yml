@@ -10,8 +10,15 @@ jobs:
       fail-fast: false
       matrix:
         type: [classic, uc]
-        releases: [20, 22]
-    runs-on: [self-hosted, linux, large]
+        releases: [20, 22, 24]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:
       SERIES: series_${{ matrix.type }}${{ matrix.releases }}
@@ -70,12 +77,12 @@ jobs:
             do \
               echo "Uploading $snap..." ; \
               if [ ${{ matrix.type }} = 'classic' ]; then \
-                snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
-              else \
-                if [ ${{ matrix.releases }} = '22' ]; then \
-                  snapcraft upload $snap --release latest/edge ; \
+                if [ ${{ matrix.releases }} = '24' ]; then \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge,latest/edge ; \
                 else \
-                  snapcraft upload $snap --release focal/edge ; \
+                  snapcraft upload $snap --release ${{ matrix.releases }}.04/edge ; \
                 fi \
+              else \
+                snapcraft upload $snap --release ${{ matrix.type }}${{ matrix.releases }}/edge ; \
               fi ; \
             done

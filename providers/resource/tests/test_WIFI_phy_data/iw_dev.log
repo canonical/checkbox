@@ -1,0 +1,17 @@
+phy#0
+        Unnamed/non-netdev interface
+                wdev 0x2
+                addr 90:09:df:b5:ef:9c
+                type P2P-device
+                txpower 0.00 dBm
+        Interface wlp2s0
+                ifindex 3
+                wdev 0x1
+                addr 90:09:df:b5:ef:9b
+                ssid Canonical
+                type managed
+                channel 100 (5500 MHz), width: 40 MHz, center1: 5510 MHz
+                txpower 22.00 dBm
+                multicast TXQ:
+                        qsz-byt qsz-pkt flows   drops   marks   overlmt hashcol tx-bytes        tx-packets
+                        0       0       0       0       0       0       0       0               0

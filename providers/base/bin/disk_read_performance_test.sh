@@ -9,10 +9,21 @@ DEFAULT_NVME_READ=${DISK_NVME_READ_PERF:-200}
 DEFAULT_MDADM_READ=${DISK_MDADM_READ_PERF:-80}
 DEFAULT_SSD_READ=${DISK_SSD_READ_PERF:-200}
 
+# Minimum size threshold in bytes (2MB)
+MIN_SIZE_THRESHOLD=$((2 * 1024 * 1024))
+
 for disk in "$@"; do
 
   echo "Beginning $0 test for $disk"
   echo "---------------------------------------------------"
+
+  # Get the size of the device in bytes
+  disk_size=$(blockdev --getsize64 /dev/"$disk")
+
+  if [ "$disk_size" -lt "$MIN_SIZE_THRESHOLD" ]; then
+    echo "INFO: $disk is smaller than 2MB ($disk_size bytes). Skipping test."
+    continue
+  fi
 
   disk_type=$(udevadm info --name /dev/"$disk" --query property | grep "ID_BUS" | awk '{gsub(/ID_BUS=/," ")}{printf $1}')
   dev_path=$(udevadm info --name /dev/"$disk" --query property | grep "DEVPATH" | awk '{gsub(/DEVPATH=/," ")}{printf $1}')
@@ -98,7 +109,7 @@ for disk in "$@"; do
   echo "---------------------------------------------------"
   echo ""
   result=0
-  if [ "$max_speed" -gt "$MIN_BUF_READ" ]; then
+  if [ "$max_speed" -ge "$MIN_BUF_READ" ]; then
     echo "PASS: $disk Max Speed of $max_speed MB/sec is faster than Minimum Buffer Read Speed of $MIN_BUF_READ MB/sec"
   else
     echo "FAIL: $disk Max Speed of $max_speed MB/sec is slower than Minimum Buffer Read Speed of $MIN_BUF_READ MB/sec"

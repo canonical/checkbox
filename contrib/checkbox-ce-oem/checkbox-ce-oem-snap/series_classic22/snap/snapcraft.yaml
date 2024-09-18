@@ -74,7 +74,12 @@ parts:
       PART_SRC=${SNAPCRAFT_PROJECT_DIR}/parts/checkbox-provider-ce-oem/src
       gcc ${PART_SRC}/src/input-pcspkr.c -o ${PART_SRC}/src/beep
       cp -v ${PART_SRC}/src/beep ${SNAPCRAFT_PART_INSTALL}/usr/bin/
-
+  spidev-test:
+    plugin: make
+    source: https://github.com/torvalds/linux.git
+    source-type: git
+    source-depth: 1
+    source-subdir: tools/spi
   parts-meta-info:
     plugin: nil
     override-build: |

@@ -10,6 +10,9 @@ _verification:
 plugin: manual
 category_id: led
 estimated_duration: 15.0
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_power == 'True'
 
 id: led/power-blink-suspend
 _summary: Power LED behavior when suspended
@@ -23,16 +26,21 @@ _verification:
 plugin: manual
 category_id: led
 estimated_duration: 180
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_power == 'True'
 
 plugin: manual
 category_id: led
 id: led/suspend
 estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_suspend == 'True'
 depends: suspend/suspend_advanced_auto
 _purpose:
  Suspend LED verification.
 _steps:
- Skip this test if your system does not have a dedicated Suspend LED.
  1. The Suspend LED should blink or change color while the system is suspended
 _verification:
  Did the Suspend LED blink or change color while the system was suspended?
@@ -97,6 +105,9 @@ category_id: led
 id: led/numeric-keypad
 flags: also-after-suspend
 estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_numeric_keypad == 'True'
 command: keyboard_test.py
 _description:
 _purpose:
@@ -114,6 +125,9 @@ plugin: manual
 category_id: led
 id: led/caps-lock
 flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_caps_lock == 'True'
 estimated_duration: 30.0
 _description:
 _purpose:
@@ -127,57 +141,10 @@ _summary: Verify the functionality of the Caps Lock LED by pressing the Caps Loc
 
 plugin: manual
 category_id: led
-id: led/wlan
-depends: keys/wireless
-estimated_duration: 60.0
-_purpose:
-    WLAN LED verification
-_steps:
-    1. During the keys/wireless test you should have observed the
-    wireless LED while turning wireless back on.
-    2. WLAN LED should light or change color when wireless is turned on
-_verification:
-    Did the WLAN LED turn on or change color as expected?
-_summary: Verify the functionality of the WLAN LED during the keys/wireless test.
-
-plugin: manual
-category_id: led
-id: led/wlan-disabled
-estimated_duration: 30.0
-depends: keys/wireless
-_purpose:
-     Validate that WLAN LED shuts off when disabled
-_steps:
-     1. During the keys/wireless test you should have observed the WLAN LED
-     while performing that test after turning wireless off.
-     2. WLAN LED should turn off or change color when wireless is turned off
-_verification:
-     Did the WLAN LED turn off or change color as expected?
-_summary: Verify the behavior of the WLAN LED when wireless is disabled.
-
-id: led/bluetooth
-_summary: Bluetooth LED behavior
-_purpose:
- Check bluetooth LED behavior is correct
-_steps:
- 1. Run following command to start bluetoothctl console:
-  sudo bluetoothctl
- ***Following steps are run in bluetoothctl console***
- 2. Power on the device:
-  power on
- 3. Power off the device:
-  power off
- 4. Quit bluetoothctl console
-  quit
-_verification:
- Bluetooth LED is turned on in step 2, and turned off in step 3.
-plugin: manual
-category_id: led
-estimated_duration: 180
-
-plugin: manual
-category_id: led
 id: led/touchpad
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_touchpad == 'True'
 estimated_duration: 30.0
 _description:
 _purpose:
@@ -195,6 +162,9 @@ plugin: manual
 category_id: led
 id: led/wireless
 estimated_duration: 120.0
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_wireless == 'True'
 _description:
 _purpose:
     Wireless (WLAN + Bluetooth) LED verification
@@ -214,11 +184,13 @@ category_id: led
 id: led/mute
 depends: keys/mute
 estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_audio_mute == 'True'
 _description:
 _purpose:
     Audio Mute LED verification.
 _steps:
-    Skip this test if your system does not have a special Audio Mute LED.
     1. Press the Mute key twice and observe the Audio LED to determine if it
     either turned off and on or changed colors.
 _verification:
@@ -230,12 +202,14 @@ plugin: manual
 category_id: led
 id: led/microphone-mute
 estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_microphone_mute == 'True'
 depends: keys/microphone-mute
 _description:
 _purpose:
     Microphone Mute LED verification.
 _steps:
-    Skip this test if your system does not have a special Microphone Mute LED.
     1. Press the Microphone Mute key twice and observe the Microphone LED to
     determine if it either turned off and on or changed colors.
 _verification:
@@ -256,16 +230,21 @@ command: echo {0..1024} | tee /dev/ttyS{0..100} &> /dev/null
 user: root
 category_id: led
 estimated_duration: 15
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_serial == 'True'
 
 plugin: manual
 category_id: led
 id: led/fn
 estimated_duration: 30.0
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_led_fn_lock == 'True'
 flags: also-after-suspend
 _purpose:
      This test will test the Fn key LED.
 _steps:
-     Skip this test if your system does not have an Fn Lock key.
      1. Press the Fn+Fn Lock key to activate/deactivate Fn keys locking.
      2. The Fn key LED should be switched on/off every time the key is pressed.
 _verification:
@@ -302,7 +281,7 @@ estimated_duration: 10
 plugin: user-interact-verify
 user: root
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_led_indicator == 'True'
+requires: manifest.has_led_gpio_sysfs == 'True'
 flags: also-after-suspend
 _summary: Check control of {name} LED indicator.
 _purpose:
@@ -340,8 +319,8 @@ command:
 unit: template
 template-resource: led-indicator/sysfs-leds
 template-unit: job
-id: led-indicator/sysfs-leds-{name}
-template-id: led-indicator/sysfs-leds-name
+template-id: led-indicator/sysfs-leds-manual
+id: led-indicator/sysfs-leds-{name}-manual
 category_id: led
 _summary: Check control of {name} LED.
 _purpose:
@@ -355,7 +334,25 @@ user: root
 flags: also-after-suspend
 estimated_duration: 10
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_led_indicator == 'True'
+requires: manifest.has_led_gpio_sysfs == 'True'
+command:
+    led_control_test.py -n {path} -d 10
+
+unit: template
+template-resource: led-indicator/sysfs-leds
+template-unit: job
+template-id: led-indicator/sysfs-leds-auto
+id: led-indicator/sysfs-leds-{name}-auto
+category_id: led
+_summary: Automated check control of {name} LED.
+_description:
+  Automated check that {name} LED turns on and off.
+plugin: shell
+user: root
+flags: also-after-suspend
+estimated_duration: 10
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_led_gpio_sysfs == 'True'
 command:
     led_control_test.py -n {path} -d 10
 
@@ -382,7 +379,7 @@ estimated_duration: 10
 plugin: user-interact-verify
 user: root
 imports: from com.canonical.plainbox import manifest
-requires: manifest.has_led_indicator == 'True'
+requires: manifest.has_led_gpio_sysfs == 'True'
 flags: also-after-suspend
 _summary: Check control of {name} LED indicator.
 _purpose:

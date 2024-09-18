@@ -30,16 +30,13 @@ import functools
 import itertools
 import logging
 import operator
-import os
 import re
 import sre_constants
 
 from plainbox.abc import IUnitQualifier
 from plainbox.i18n import gettext as _
 from plainbox.impl import pod
-from plainbox.impl.secure.origin import FileTextSource
 from plainbox.impl.secure.origin import Origin
-from plainbox.impl.secure.origin import UnknownTextSource
 
 
 _logger = logging.getLogger("plainbox.secure.qualifiers")
@@ -165,14 +162,19 @@ class RegExpJobQualifier(SimpleQualifier):
             raise exc
         self._pattern_text = pattern
 
-    def get_simple_match(self, job):
+    def get_simple_match(self, unit):
         """
-        Check if the given job matches this qualifier.
+        Check if the given unit matches this qualifier.
 
         This method should not be called directly, it is an implementation
         detail of SimpleQualifier class.
         """
-        return self._pattern.match(job.id) is not None
+        pattern = self._pattern
+        if unit.template_id:
+            return bool(
+                pattern.match(unit.template_id) or pattern.match(unit.id)
+            )
+        return pattern.match(unit.id) is not None
 
     @property
     def pattern_text(self):

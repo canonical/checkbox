@@ -454,9 +454,6 @@ class UdevadmDevice(object):
             # As it's not possible to distinguish them from simple MMC
             # removable storage, only those with a partition mounted as /
             # will be considered.
-            # To avoid categorizing SD cards as main storage and run heavy
-            # tests on them (e.g on a pandaboard) only devices with the udev
-            # property MMC_TYPE == MMC are accepted.
             if self.driver.startswith("mmc"):
                 if self._mmc_type == "MMC" and find_pkname_is_root_mountpoint(
                     self.name, self._lsblk
@@ -464,6 +461,15 @@ class UdevadmDevice(object):
                     return "DISK"
                 else:
                     return "CARDREADER"
+            # The previous behavior was to not categorize SD cards as "DISK"
+            # storage and run heavy tests on them (e.g on a pandaboard).
+            # In https://github.com/canonical/checkbox/issues/1272 we decided
+            # to include them also in the disk category if have a partition
+            # mounted as root.
+            if self.driver == "sd":
+                if find_pkname_is_root_mountpoint(self.name, self._lsblk):
+                    return "DISK"
+
             if self.driver == "rts_pstor":
                 return "CARDREADER"
             if self.driver == "smo8800":
@@ -1517,7 +1523,7 @@ class UdevadmParser(object):
                     d.category = "VIDEO"
 
         for device in list(self.devices.values()):
-            if device.category == "HIDRAW" and device._stack:
+            if device.category == "HIDRAW" and len(device._stack) > 1:
                 for parent in (device._stack[-1], device._stack[-2]):
                     if parent._raw_path in HID_devices_path_list:
                         self.devices.pop(device._raw_path, None)

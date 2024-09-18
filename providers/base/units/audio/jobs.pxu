@@ -2,8 +2,9 @@ plugin: shell
 category_id: com.canonical.plainbox::audio
 id: audio/list_devices
 estimated_duration: 1.0
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
 command: cat /proc/asound/cards
 _purpose: Test to detect audio devices
@@ -12,8 +13,9 @@ _summary: Check if audio devices can be detected.
 plugin: shell
 category_id: com.canonical.plainbox::audio
 id: audio/valid-sof-firmware-sig
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'linux-firmware'
 command:
  fail=0
@@ -40,7 +42,7 @@ depends: audio/list_devices
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_internal_speakers == 'True'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -78,7 +80,7 @@ estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_hdmi == 'True'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -115,7 +117,7 @@ estimated_duration: 30.0
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_dp == 'True'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -152,7 +154,7 @@ imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
  manifest.has_thunderbolt == 'True'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -189,7 +191,7 @@ imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
  manifest.has_thunderbolt3 == 'True'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -226,7 +228,7 @@ imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
  manifest.has_usbc_video == 'True'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -263,7 +265,7 @@ imports: from com.canonical.plainbox import manifest
 estimated_duration: 30.0
 requires:
  manifest.has_usbc_video == 'True'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -300,7 +302,7 @@ depends: audio/list_devices
 imports: from com.canonical.plainbox import manifest
 requires:
  (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -336,7 +338,8 @@ depends: audio/playback_auto
 imports: from com.canonical.plainbox import manifest
 requires:
  (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -356,7 +359,7 @@ command:
 _description:
 _purpose:
     This test will check that recording sound using the onboard microphone works correctly
-_steps: 
+_steps:
     1. Disconnect any external microphones that you have plugged in
     2. Click "Test", then speak into your internal microphone
     3. After a few seconds, your speech will be played back to you.
@@ -373,7 +376,7 @@ depends: audio/playback_headphones
 imports: from com.canonical.plainbox import manifest
 requires:
  (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -404,8 +407,10 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_usb
 estimated_duration: 120.0
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -437,6 +442,7 @@ id: audio/alsa_record_playback_automated
 flags: also-after-suspend
 depends: audio/detect_sinks audio/detect_sources
 estimated_duration: 10.0
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'python3-gi'
  package.name == 'gir1.2-gstreamer-1.0'
@@ -444,15 +450,18 @@ requires:
  package.name == 'gstreamer1.0-plugins-good'
  package.name in ['gstreamer1.0-pulseaudio', 'gstreamer1.0-pipewire']
  package.name == 'alsa-base'
- device.category == 'AUDIO'
  package.name in ['pulseaudio-utils', 'pipewire']
-command: 
+ manifest.has_audio_playback == 'True'
+command:
   if check_audio_daemon.sh ; then
     pipewire_test.py
   else
     audio_test.py
   fi
-_purpose: Play back a sound on the default output and listen for it on the default input.
+_purpose:
+ Play back a sound on the default output and listen for it on the default input.
+ This test is intended mostly for laptops, where the default output will be the
+ internal speakers and the default input will be the internal microphone.
 _summary: Test playback and recording functionality on the default audio input and output.
 
 plugin: shell
@@ -533,9 +542,10 @@ plugin: shell
 category_id: com.canonical.plainbox::audio
 id: audio/check_volume
 estimated_duration: 1.0
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'pulseaudio-utils'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
 command: volume_test.py --minvol 1 --maxvol 100
 _purpose:
  This test will verify that the volume levels are at an acceptable level on
@@ -576,7 +586,7 @@ imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_line_in == 'True'
  dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving','All In One','All-In-One','AIO']
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -612,9 +622,9 @@ estimated_duration: 60.0
 imports: from com.canonical.plainbox import manifest
 requires:
  (manifest.has_line_out == 'True' or manifest.has_headset == 'True')
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name in ['pulseaudio-utils', 'pipewire']
-command: 
+command:
   if check_audio_daemon.sh ; then
     pipewire_utils.py monitor -t 30 -m sinks
   else
@@ -641,9 +651,9 @@ estimated_duration: 60.0
 imports: from com.canonical.plainbox import manifest
 requires:
  (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name in ['pulseaudio-utils', 'pipewire']
-command: 
+command:
   if check_audio_daemon.sh ; then
     pipewire_utils.py monitor -t 30 -m sources
   else
@@ -668,8 +678,9 @@ category_id: com.canonical.plainbox::audio
 id: audio/list_devices_after_suspend_30_cycles
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
 command: cat /proc/asound/cards
 _purpose: Test to detect audio devices after suspending 30 times.
@@ -680,8 +691,9 @@ category_id: com.canonical.plainbox::audio
 id: audio/playback_auto_after_suspend_30_cycles
 estimated_duration: 5.0
 depends: audio/list_devices power-management/suspend_30_cycles
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
  package.name == 'gir1.2-gst-plugins-base-0.10' or package.name == 'gir1.2-gst-plugins-base-1.0'
  package.name in ['pulseaudio-utils', 'pipewire']
@@ -715,6 +727,7 @@ category_id: com.canonical.plainbox::audio
 id: audio/alsa_record_playback_automated_after_suspend_30_cycles
 estimated_duration: 10.0
 depends: power-management/suspend_30_cycles audio/detect_sinks_sources_after_suspend_30_cycles
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'python3-gi'
  package.name == 'gir1.2-gstreamer-1.0'
@@ -723,7 +736,8 @@ requires:
  package.name in ['gstreamer1.0-pulseaudio', 'gstreamer1.0-pipewire']
  package.name == 'alsa-base'
  package.name in ['pulseaudio-utils', 'pipewire']
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
+ manifest.has_audio_capture == 'True'
 command: audio_test.py
   if check_audio_daemon.sh ; then
     pipewire_test.py
@@ -753,9 +767,10 @@ category_id: com.canonical.plainbox::audio
 id: audio/check_volume_after_suspend_30_cycles
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'pulseaudio-utils'
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
 command: volume_test.py --minvol 1 --maxvol 100
 _purpose:
  This test will verify that the volume levels are at an acceptable level on
@@ -771,8 +786,9 @@ category_id: com.canonical.plainbox::audio
 id: audio/audio_after_suspend_30_cycles
 estimated_duration: 1.0
 depends: power-management/suspend_30_cycles
+imports: from com.canonical.plainbox import manifest
 requires:
- device.category == 'AUDIO'
+ manifest.has_audio_playback == 'True'
  package.name == 'alsa-base'
 _purpose: Record mixer settings after suspending 30 times.
 command:
@@ -833,7 +849,10 @@ estimated_duration: 10
 id: audio/alsa-loopback-automated
 _summary: Captured sound matches played one (automated)
 _purpose:
- Check if sound that is 'hearable' by capture device
+ Check if sound that is 'hearable' by capture device.
+ This test is intended mostly for devices without internal speakers/microphones,
+ but with a line-in and a line-out ports to which a loopback cable can be
+ connected.
 plugin: shell
 depends: audio/detect-playback-devices audio/detect-capture-devices
 user: root

@@ -32,10 +32,22 @@ jobs:
             tox_env_name: "py310"
     steps:
       - uses: actions/checkout@v4
+      # Python 3.5 setup was failing because of a CERTIFICATE_VERIFY_FAILED
+      # error. To fix this, we have set up manually PIP_TRUSTED_HOST, checking
+      # first that we can "curl" the hosts, since they will fail in case of
+      # expired/invalid/self-signed certificate.
+
+      - name: Workaround SSL Certificates manual verification for Python
+        run: |
+          curl --fail --silent --show-error https://pypi.python.org
+          curl --fail --silent --show-error https://pypi.org
+          curl --fail --silent --show-error https://files.pythonhosted.org
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python }}
+        env:
+          PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
       - name: Install tox
         run: pip install tox
       - name: Run tox

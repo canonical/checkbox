@@ -1,0 +1,20 @@
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check-kernel
+command:
+  case $(sudo find /boot -name 'vmlinuz-*' | wc -l) in
+    0)
+      echo "No Linux kernel is installed"
+      exit 1
+      ;;
+    1)
+      echo "One and only one Linux kernel is installed"
+      ;;
+    *)
+      echo "More than one Linux kernel is installed"
+      exit 1
+      ;;
+  esac
+_summary: Check Linux kernel installation status
+_description:
+  Check if one and only one Linux kernel is installed. If the kernel that the meta package depends on is different from bugsy-config/chroot, two kernels will be installed.

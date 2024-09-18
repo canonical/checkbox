@@ -1,0 +1,165 @@
+id: pc-sanity-base
+_name: pc-sanity-base
+unit: test plan
+_description:
+    This test plan created by Commercial Engineering team, including kenrel error detection,
+    devices check, GPU check and thermal check. It will be used to qualify OEM image before
+    release the image to QA team.
+include:
+    com.canonical.certification::miscellanea/dpkg-l
+    com.canonical.certification::miscellanea/bootstrap-pc-sanity-smoke-test
+    com.canonical.certification::miscellanea/side-load-changes
+    com.canonical.certification::somerville-installation
+    com.canonical.certification::somerville/platform-meta-test
+    com.canonical.certification::miscellanea/platform-userguide-test
+    com.canonical.certification::miscellanea/cvescan
+    com.canonical.certification::miscellanea/check-nvidia
+    com.canonical.certification::miscellanea/check-gpu-driver                   certification-status=blocker
+    com.canonical.certification::miscellanea/debsums
+    com.canonical.certification::miscellanea/boot-up-time-under-2-min
+    com.canonical.certification::power-management/check-turbostat-long-idle-cpu-residency
+    com.canonical.certification::power-management/check-turbostat-long-idle-s0ix-residency
+    com.canonical.certification::power-management/check-turbostat-long-idle-gfxrc6-residency
+    com.canonical.certification::power-management/check-turbostat-s2i-cpu-residency
+    com.canonical.certification::power-management/check-turbostat-s2i-s0ix-residency
+    com.canonical.certification::power-management/check-turbostat-s2i-gfxrc6-residency
+    com.canonical.certification::miscellanea/intel-rapl
+    com.canonical.certification::miscellanea/intel-rapl-mmio_.*
+    com.canonical.certification::miscellanea/intel-p-state
+    com.canonical.certification::miscellanea/intel-powerclamp
+    com.canonical.certification::miscellanea/intel-cpu-thermal
+    com.canonical.certification::miscellanea/intel-x86-pkg-temp-thermal
+    com.canonical.certification::miscellanea/intel_pmc_core
+    com.canonical.certification::miscellanea/valid-thermal-zone-trip-points
+    com.canonical.certification::miscellanea/proc_thermal_.*
+    com.canonical.certification::miscellanea/thermald
+    com.canonical.certification::miscellanea/thermal-policy-set_.*
+    com.canonical.certification::miscellanea/check-thermald-unknown-cond
+    com.canonical.certification::miscellanea/dump_libsmbios_tokens
+    com.canonical.certification::miscellanea/dump_libsmbios_tokens_attachment
+    com.canonical.certification::miscellanea/check_i2c_hid
+    com.canonical.certification::miscellanea/tgp-rid-check_.*
+    com.canonical.certification::miscellanea/touchpad-firmware-version_.*
+    com.canonical.certification::miscellanea/check_oem_recovery_version
+    com.canonical.certification::miscellanea/gate_rste_raid
+    com.canonical.certification::miscellanea/screen-pkg-not-public
+    com.canonical.certification::miscellanea/screen-pkg-not-supported-by-canonical
+    com.canonical.certification::miscellanea/edid-continuous-frequency
+    com.canonical.certification::miscellanea/bluetooth-on-off-rfkill_.*
+    com.canonical.certification::miscellanea/csme-detection-tool
+    com.canonical.certification::miscellanea/bluetooth-scan
+    com.canonical.certification::miscellanea/mesa-libdrm-gating_.*
+    com.canonical.certification::miscellanea/pressure-capability-detect_.*
+    com.canonical.certification::miscellanea/check_.*_unchecked_msr_access_error
+    com.canonical.certification::miscellanea/check_.*_start_rt_ucode_failed
+    com.canonical.certification::miscellanea/check_.*_start_wm_firmware_failed
+    com.canonical.certification::miscellanea/check_.*_wifi6e_enabled
+    com.canonical.certification::miscellanea/check_secureboot_fish_not_installed
+    com.canonical.certification::miscellanea/acpi-bios-error_.*                        certification-status=blocker
+    com.canonical.certification::miscellanea/intel-vtd-enabled_.*
+    com.canonical.certification::miscellanea/ac-automatic-suspend-estar-settings_.*
+    com.canonical.certification::miscellanea/intel-hid_.*
+    com.canonical.certification::miscellanea/check-display_.*
+    com.canonical.certification::miscellanea/google-chrome-included_.*
+    com.canonical.certification::miscellanea/get-wwan-firmware-version
+    com.canonical.certification::miscellanea/renderer-mesa-driver-check_.*
+    com.canonical.certification::miscellanea/check-fcclock-state_.*
+    com.canonical.certification::miscellanea/check_windowing_system_.*
+    com.canonical.certification::miscellanea/check_production_suite                    certification-status=blocker
+    com.canonical.certification::miscellanea/check_UBSAN_error
+    com.canonical.certification::miscellanea/check_nvidia_modalias_.*                  certification-status=blocker
+    com.canonical.certification::miscellanea/check-kernel                              certification-status=blocker
+    com.canonical.certification::info/image-url
+    com.canonical.certification::miscellanea/sideload-hook-no-fail
+
+id: pc-sanity-smoke-test
+_name: pc-sanity-smoke-test (Ubuntu Desktop)
+unit: test plan
+_description:
+    This test plan is for smoke test as sanity before release image.
+include:
+exclude:
+    com.canonical.certification::after-suspend-bluetooth4/beacon_.*
+    com.canonical.certification::bluetooth4/beacon_eddystone.*
+    com.canonical.certification::bluetooth/bluetooth_obex_.*
+    com.canonical.certification::suspend/bluetooth_obex_.*
+    com.canonical.certification::graphics/1_auto_switch_card_.*
+    com.canonical.certification::after-suspend-graphics/1_auto_switch_card_.*
+    com.canonical.certification::suspend/1_.*
+    com.canonical.certification::suspend/2_.*
+    com.canonical.certification::graphics/2_.*
+nested_part:
+    com.canonical.certification::pc-sanity-base
+    com.canonical.certification::client-cert-desktop-22-04-automated
+    com.canonical.certification::power-management-cpu-cstate-cert-automated
+bootstrap_include:
+    device
+    graphics_card
+    cpuinfo
+description:
+    A plan following SRU plan to exclude dGPU switching temporary.
+
+id: pc-sanity-smoke-test-24-04
+_name: pc-sanity-smoke-test 24.04 (Ubuntu Desktop)
+unit: test plan
+_description:
+    This test plan is for smoke test as sanity before release image.
+include:
+exclude:
+    com.canonical.certification::after-suspend-bluetooth4/beacon_.*
+    com.canonical.certification::bluetooth4/beacon_eddystone.*
+    com.canonical.certification::bluetooth/bluetooth_obex_.*
+    com.canonical.certification::suspend/bluetooth_obex_.*
+    com.canonical.certification::graphics/1_auto_switch_card_.*
+    com.canonical.certification::after-suspend-graphics/1_auto_switch_card_.*
+    com.canonical.certification::suspend/1_.*
+    com.canonical.certification::suspend/2_.*
+    com.canonical.certification::graphics/2_.*
+nested_part:
+    com.canonical.certification::pc-sanity-base
+    com.canonical.certification::client-cert-desktop-24-04-automated
+    com.canonical.certification::power-management-cpu-cstate-cert-automated
+bootstrap_include:
+    device
+    graphics_card
+    cpuinfo
+description:
+    A plan following SRU plan to exclude dGPU switching temporary.
+
+id: graphics-dgpu-auto-switch-testing
+unit: test plan
+_name: A test plan to confirm dgpu auto switch works well.
+_description: Be as a unit test. To confirm there's no regression on dgpu automatic switching.
+include:
+    com.canonical.certification::miscellanea/check-nvidia
+    com.canonical.certification::miscellanea/check-gpu-driver                   certification-status=blocker
+    com.canonical.certification::graphics/2_auto_switch_card_.*
+    com.canonical.certification::graphics/2_valid_opengl_renderer_.*
+    com.canonical.certification::graphics/1_auto_switch_card_.*
+    com.canonical.certification::graphics/1_valid_opengl_renderer_.*
+bootstrap_include:
+    com.canonical.certification::graphics_card
+
+id: pc-sanity-software-test
+_name: pc-sanity-software-test (Ubuntu Desktop)
+unit: test plan
+_description:
+    This test plan is for smoke test for software only, it will not covery any hardware related tests.
+include:
+    com.canonical.certification::info/buildstamp
+    com.canonical.certification::raw_devices_dmi_json
+    com.canonical.certification::dmi_attachment
+    com.canonical.certification::miscellanea/dpkg-l
+    com.canonical.certification::miscellanea/bootstrap-pc-sanity-smoke-test
+    com.canonical.certification::miscellanea/side-load-changes
+    com.canonical.certification::somerville-installation
+    com.canonical.certification::somerville/platform-meta-test
+    com.canonical.certification::miscellanea/cvescan
+    com.canonical.certification::miscellanea/debsums
+    com.canonical.certification::miscellanea/check_oem_recovery_version
+    com.canonical.certification::miscellanea/screen-pkg-not-public
+    com.canonical.certification::miscellanea/screen-pkg-not-supported-by-canonical
+    com.canonical.certification::miscellanea/ubuntu-desktop-recommends
+    com.canonical.certification::miscellanea/sideload-hook-no-fail
+nested_part:
+    com.canonical.certification::stress-10-reboot-automated

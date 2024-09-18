@@ -31,8 +31,11 @@ nested_part:
     bluetooth-manual
     camera-manual
     edac-manual
+    ishtp-manual
     led-manual
     mediacard-manual
+    mei-manual
+    qep-manual
     rtc-manual
     serial-manual
     usb-c-manual
@@ -91,7 +94,9 @@ nested_part:
     bluez-automated
     camera-automated
     edac-automated
+    ishtp-automated
     mediacard-automated
+    mei-automated
     rtc-automated
     serial-automated
     usb-c-automated
@@ -107,6 +112,7 @@ nested_part:
     i2c-automated
     memory-automated
     networking-automated
+    qep-automated
     snappy-snap-automated
     wireless-automated
     wireless-wifi-master-mode-auto
@@ -127,3 +133,12 @@ exclude:
     mediacard/msp-.*
     mediacard/xd-.*
     rtc/battery
+
+
+id: client-cert-odm-server-24-04
+_name: DONT USE - server-24-04 - placeholder to establish that total number of tests has not changed
+unit: test plan
+include:
+nested_part:
+    client-cert-odm-server-24-04-manual
+    client-cert-odm-server-24-04-automated

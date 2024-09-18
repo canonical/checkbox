@@ -3,6 +3,30 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
+id: wireless/wireless_connection_open_be_np_{{ interface }}
+template-id: wireless/wireless_connection_open_be_np_interface
+_summary:
+ Connect to unencrypted 802.11be Wi-Fi network on {{ interface }} - netplan
+_purpose:
+ Check system can connect to insecure 802.11be AP using netplan
+plugin: shell
+command:
+    net_driver_info.py "$NET_DRIVER_INFO"
+    wifi_client_test_netplan.py -i {{ interface }} -s "$OPEN_BE_SSID" -d
+user: root
+environ: LD_LIBRARY_PATH OPEN_BE_SSID NET_DRIVER_INFO
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 15
+flags: preserve-locale also-after-suspend
+requires:
+ wireless_sta_protocol.{{ interface }}_be == 'supported'
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
 id: wireless/wireless_connection_open_ax_np_{{ interface }}
 template-id: wireless/wireless_connection_open_ax_np_interface
 _summary:
@@ -97,6 +121,30 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
+id: wireless/wireless_connection_wpa_be_np_{{ interface }}
+template-id: wireless/wireless_connection_wpa_be_np_interface
+_summary:
+ Connect to WPA-encrypted 802.11be Wi-Fi network on {{ interface }} - netplan
+_purpose:
+ Check system can connect to 802.11be AP with wpa security using netplan
+plugin: shell
+command:
+    net_driver_info.py "$NET_DRIVER_INFO"
+    wifi_client_test_netplan.py -i {{ interface }} -s "$WPA_BE_SSID" -k "$WPA_BE_PSK" -d
+user: root
+environ: LD_LIBRARY_PATH WPA_BE_SSID WPA_BE_PSK NET_DRIVER_INFO
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 15
+flags: preserve-locale also-after-suspend
+requires:
+ wireless_sta_protocol.{{ interface }}_be == 'supported'
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
 id: wireless/wireless_connection_wpa_ax_np_{{ interface }}
 template-id: wireless/wireless_connection_wpa_ax_np_interface
 _summary:
@@ -121,6 +169,30 @@ template-resource: device
 template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
 template-engine: jinja2
 template-unit: job
+id: wireless/wireless_connection_wpa3_be_np_{{ interface }}
+template-id: wireless/wireless_connection_wpa3_be_np_interface
+_summary:
+ Connect to WPA3-encrypted 802.11be Wi-Fi network on {{ interface }} - netplan
+_purpose:
+ Check system can connect to 802.11be AP with wpa3 security using netplan
+plugin: shell
+command:
+    net_driver_info.py "$NET_DRIVER_INFO"
+    wifi_client_test_netplan.py -i {{ interface }} -s "$WPA3_BE_SSID" -k "$WPA3_BE_PSK" -d --wpa3
+user: root
+environ: LD_LIBRARY_PATH WPA3_BE_SSID WPA3_BE_PSK NET_DRIVER_INFO
+category_id: com.canonical.plainbox::wireless
+estimated_duration: 15
+flags: preserve-locale also-after-suspend
+requires:
+ wireless_sta_protocol.{{ interface }}_be == 'supported'
+ net_if_management.device == '{{ interface }}' and net_if_management.managed_by == 'networkd'
+
+unit: template
+template-resource: device
+template-filter: device.category == 'WIRELESS' and device.interface != 'UNKNOWN'
+template-engine: jinja2
+template-unit: job
 id: wireless/wireless_connection_wpa3_ax_np_{{ interface }}
 template-id: wireless/wireless_connection_wpa3_ax_np_interface
 _summary:
@@ -130,7 +202,7 @@ _purpose:
 plugin: shell
 command:
     net_driver_info.py "$NET_DRIVER_INFO"
-    wifi_client_test_netplan.py -i {{ interface }} -s "$WPA3_AX_SSID" -k "$WPA3_AX_PSK" -d
+    wifi_client_test_netplan.py -i {{ interface }} -s "$WPA3_AX_SSID" -k "$WPA3_AX_PSK" -d --wpa3
 user: root
 environ: LD_LIBRARY_PATH WPA3_AX_SSID WPA3_AX_PSK NET_DRIVER_INFO
 category_id: com.canonical.plainbox::wireless

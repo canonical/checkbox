@@ -38,6 +38,9 @@ def get_build_path(recipe_name: str) -> str:
     if "provider" in recipe_name:
         component_name = "-".join(package[2:])  # 0-1 are checkbox provider
         return f"providers/{component_name}"
+    elif "contrib" in recipe_name:
+        component_name = "-".join(package[2:])  # 0-1 are checkbox contrib
+        return f"contrib/{component_name}"
     return "-".join(package)
 
 

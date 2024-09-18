@@ -1,0 +1,133 @@
+plainbox-provider-pc-sanity (1.0.2) UNRELEASED; urgency=medium
+
+  [ Kai-Chuan Hsieh ]
+  * bump version
+
+  [ Atlas Yu ]
+  * feat(screen-pkg-generic): template support
+  * use "OpenSCAP" + "Ubuntu OVAL Data" to replace CVEScan for jammy or later.
+
+ -- Kai-Chuan Hsieh <kaichuan.hsieh@canonical.com>  Fri, 08 Apr 2022 11:36:18 +0800
+
+plainbox-provider-pc-sanity (1.0.1ubuntu1) focal; urgency=medium
+
+  [ Alex Tu ]
+  * fix build error.
+  * add autopkgtest to check build and installation time error.
+
+  [ Shih-Yuan Lee (FourDollars) ]
+  * bin/autopkgtest-plainbox-provider-pc-sanity-auto,
+    debian/control: Add a script for run-autopkgtest of oem-scripts.
+
+  [ Cyrus Lien ]
+  * bin/cvescan.sh: keep quiet while downloading Ubuntu vulnerability
+    database.
+
+  [ Alex Tu ]
+  * bump version
+
+ -- Cyrus Lien <cyrus.lien@canonical.com>  Tue, 30 Mar 2021 16:55:26 +0800
+
+plainbox-provider-pc-sanity (1.0.0) focal; urgency=medium
+
+  * refactor folder layout based on plainbox-provider-sru-1.19.0+git202006190355+pkg65~ubuntu20.04.
+
+ -- Alex Tu <alex.tu@canonical.com>  Thu, 03 Sep 2020 18:55:41 +0800
+
+plainbox-provider-pc-sanity (0.2.9) bionic; urgency=medium
+
+  * add debsums checking
+  * miscellanea/turbostate-s2i-power-residency : to check expected power state
+    during s2i
+
+ -- Alex Tu <alex.tu@canonical.com>  Tue, 18 Aug 2020 15:44:22 +0800
+
+plainbox-provider-pc-sanity (0.2.8) bionic; urgency=medium
+
+  [ Kai-Chuan Hsieh ]
+  * Add job to check if thermald is active.
+
+  [Alex Tu]
+  * remove turbostat checking for shortidle
+
+  [ Yuan-Chen Cheng ]
+  * pc-sanity-power-consumption.pxu: fix issues that long idle always passed,
+    and also failed if requirements neither exists nor can be installed.
+
+ -- Yuan-Chen Cheng <yc.cheng@canonical.com>  Thu, 18 Jun 2020 15:02:17 +0800
+
+plainbox-provider-pc-sanity (0.2.7) bionic; urgency=medium
+
+  [ Alex Tu ]
+  * add gate_rste_raid case
+  * based on the meeting conclusion of 4/22, we need somerville version.
+  * to confirm the CPU package state in long idle
+
+ -- OEM Taipei Bot <oem-taipei-bot@canonical.com>  Tue, 28 Apr 2020 06:07:31 +0000
+
+plainbox-provider-pc-sanity (0.2.6ubuntu1) bionic; urgency=medium
+
+  * bump version
+
+ -- Alex Tu <alex.tu@canonical.com>  Sat, 07 Mar 2020 16:32:54 +0800
+
+plainbox-provider-pc-sanity (0.2.6) bionic; urgency=medium
+
+  * remove SRU dependency
+
+ -- Alex Tu <alex.tu@canonical.com>  Sat, 07 Mar 2020 01:10:02 +0800
+
+plainbox-provider-pc-sanity (0.2.5) bionic; urgency=medium
+
+  * drop SRU plan because of it is not expected to be run on non-public
+    projects.
+
+ -- Alex Tu <alex.tu@canonical.com>  Mon, 24 Feb 2020 17:45:28 +0800
+
+plainbox-provider-pc-sanity (0.2.4) bionic; urgency=medium
+
+  * divert the smoke test plan to cover existed auto plans.
+
+ -- Alex Tu <alex.tu@canonical.com>  Mon, 24 Feb 2020 15:32:29 +0800
+
+plainbox-provider-pc-sanity (0.2.3) bionic; urgency=medium
+
+  * add 100 times reboot and poweroff stress by request.
+
+ -- Alex Tu <alex.tu@canonical.com>  Wed, 08 Jan 2020 19:06:57 +0800
+
+plainbox-provider-pc-sanity (0.2.2) bionic; urgency=medium
+
+  * reduce the waiting time for poweroff stress.
+
+ -- Alex Tu <alex.tu@canonical.com>  Tue, 07 Jan 2020 15:59:43 +0800
+
+plainbox-provider-pc-sanity (0.2.1) bionic; urgency=medium
+
+  * add a quick poweroff and reboot stress
+
+ -- Alex Tu <alex.tu@canonical.com>  Tue, 07 Jan 2020 15:31:39 +0800
+
+plainbox-provider-pc-sanity (0.2.0~alex1) bionic; urgency=medium
+
+  * test oem-generic-auto.pxu from QA
+
+ -- Alex Tu <alex.tu@canonical.com>  Fri, 20 Dec 2019 16:00:00 +0800
+
+plainbox-provider-pc-sanity (0.1.0) bionic; urgency=medium
+
+  * 1st version of smoke test plan
+
+ -- Alex Tu <alex.tu@canonical.com>  Mon, 09 Dec 2019 18:42:16 +0800
+
+plainbox-provider-pc-sanity (0.0.2) bionic; urgency=medium
+
+  * rename to generic names
+
+ -- Alex Tu <alex.tu@canonical.com>  Thu, 28 Nov 2019 19:06:58 +0800
+
+plainbox-provider-pc-sanity (0.0.1) bionic; urgency=medium
+
+  * alpha version
+
+ -- Alex Tu <alex.tu@canonical.com>  Sat, 12 Oct 2019 02:59:06 +0800

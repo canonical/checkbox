@@ -271,8 +271,9 @@ category_id: com.canonical.plainbox::graphics
 id: graphics/{index}_gl_support_{product_slug}
 template-id: graphics/index_gl_support_product_slug
 flags: also-after-suspend
+environ: CHECKBOX_RUNTIME
 command:
-  "$CHECKBOX_RUNTIME"/usr/lib/nux/unity_support_test -p 2>&1 | sed -e "s/\x1b\[[0-9;]*m//g"
+    gl_support.py
 estimated_duration: 0.131
 _purpose: Check that {vendor} {product} hardware is able to run a desktop session (OpenGL)
 _summary: Test OpenGL support for {vendor} {product}

@@ -1,0 +1,18 @@
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/screen-pkg-not-public
+user: root
+command: screen-pkg.py --out "$PLAINBOX_SESSION_SHARE" check-public
+_summary: check if pkgs not on public archive
+_description:
+ check if pkgs not on public archive
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/screen-pkg-not-supported-by-canonical
+user: root
+command: screen-pkg.py --out "$PLAINBOX_SESSION_SHARE" check-component
+_summary: check if pkgs are not supported by Canonical
+_description:
+ This lists the packages which is not coming from main or restricted component.
+

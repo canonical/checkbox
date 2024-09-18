@@ -1,0 +1,40 @@
+#!/bin/bash
+failed()
+{
+    >&2 echo "$*"
+    >&2 "$0 failed!"
+    exit 1
+}
+
+passed()
+{
+    echo "$*"
+    echo "$0 passed!"
+    exit 0
+}
+
+# Check userguide package if installed in sutton project
+# https://warthogs.atlassian.net/browse/OEX86-301
+check_sutton_userguide() {
+    # userguide package will depend on a oem-sutton-common-doc package
+    for pkg in $(dpkg-query -W -f='${Package}\n'  "oem-sutton-*-doc" 2> /dev/null); do
+        platform_name=$(echo "${pkg}" | cut -d'-' -f3)
+        if [ "$platform_name" = "common" ]; then
+            # Ignore common doc package
+            continue
+        fi
+        if dpkg-query -W -f='${Status}\n' "${pkg}" 2> /dev/null | grep -q "install ok installed"; then
+            passed "Found the platform userguide package: ${pkg}"
+        fi
+    done
+    # No platform userguide package found, then fail the test
+    failed "Missing platform userguide packages!!!"
+}
+
+main() {
+    check_sutton_userguide
+}
+
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+    main "$@"
+fi

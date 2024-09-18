@@ -4,40 +4,48 @@ description: |
   Checkbox is a flexible test automation software.
   It’s the main tool used in Ubuntu Certification program.
 adopt-info: version-calculator
-grade: devel
+grade: stable
 confinement: strict
 
 base: core24
-build-base: devel
 
 plugs:
   checkbox-runtime:
     interface: content
     target: $SNAP/checkbox-runtime
+    default-provider: checkbox24
   provider-resource:
     interface: content
     target: $SNAP/providers/checkbox-provider-resource
+    default-provider: checkbox24
   provider-checkbox:
     interface: content
     target: $SNAP/providers/checkbox-provider-checkbox
+    default-provider: checkbox24
   provider-docker:
     interface: content
     target: $SNAP/providers/checkbox-provider-docker
+    default-provider: checkbox24
   provider-tpm2:
     interface: content
     target: $SNAP/providers/checkbox-provider-tpm2
+    default-provider: checkbox24
   provider-sru:
     interface: content
     target: $SNAP/providers/checkbox-provider-sru
+    default-provider: checkbox24
   provider-gpgpu:
     interface: content
     target: $SNAP/providers/checkbox-provider-gpgpu
+    default-provider: checkbox24
   provider-certification-client:
     interface: content
     target: $SNAP/providers/checkbox-provider-certification-client
+    default-provider: checkbox24
   provider-certification-server:
     interface: content
     target: $SNAP/providers/checkbox-provider-certification-server
+    default-provider: checkbox24
 
 apps:
   checkbox-cli:
@@ -86,11 +94,11 @@ parts:
     plugin: dump
     source: .
     override-pull: |
-      snapcraftctl pull
+      craftctl default
       # version.txt created by prepare.sh
-      export version=`cat $SNAPCRAFT_PART_SRC/version.txt`
+      export version=`cat $CRAFT_PART_SRC/version.txt`
       [ $version ] || exit 1
-      snapcraftctl set-version $version
+      craftctl set version=$version
     stage:
       - version.txt
   launchers:

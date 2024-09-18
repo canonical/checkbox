@@ -12,6 +12,11 @@ class TestUpdateBuildRecipe(unittest.TestCase):
             lp_update_recipe.get_build_path(provider_recipe_name),
             "providers/name",
         )
+        contrib_recipe_name = "checkbox-contrib-name-risk"
+        self.assertEqual(
+            lp_update_recipe.get_build_path(contrib_recipe_name),
+            "contrib/name",
+        )
 
     def test_get_build_path_checkbox_ng(self):
         checkbox_ng_recipe_name = "checkbox-ng-risk"

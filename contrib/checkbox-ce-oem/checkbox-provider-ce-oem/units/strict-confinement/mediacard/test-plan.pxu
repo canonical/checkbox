@@ -1,0 +1,22 @@
+id: strict-confinement-mediacard-manual
+unit: test plan
+_name: Test mediacard in strict confinement mode.
+_description:
+    Test mediacard in strict confinement mode.
+    Rely on test-strict-confinement SNAP to test.
+include:
+    strict-confinement/mediacard/sdhc-insert
+    strict-confinement/mediacard/sdhc-storage
+    strict-confinement/mediacard/sdhc-remove
+
+
+id: after-suspend-strict-confinement-mediacard-manual
+unit: test plan
+_name: After suspend test mediacard in strict confinement mode.
+_description:
+    Afrer suspend test mediacard in strict confinement mode.
+    Rely on test-strict-confinement SNAP to test.
+include:
+    after-suspend-strict-confinement/mediacard/sdhc-insert
+    after-suspend-strict-confinement/mediacard/sdhc-storage
+    after-suspend-strict-confinement/mediacard/sdhc-remove

@@ -41,6 +41,7 @@ include:
  monitor/1_thunderbolt3_.*                  certification-status=non-blocker
  audio/1_playback_thunderbolt3_.*           certification-status=non-blocker
  thunderbolt3/daisy-chain                   certification-status=non-blocker
+ monitor/multi-head                         certification-status=blocker
 bootstrap_include:
     graphics_card
 
@@ -84,6 +85,7 @@ include:
  after-suspend-monitor/1_thunderbolt3_.*                  certification-status=non-blocker
  after-suspend-audio/1_playback_thunderbolt3_.*           certification-status=non-blocker
  after-suspend-thunderbolt3/daisy-chain                   certification-status=non-blocker
+ after-suspend-monitor/multi-head                         certification-status=blocker
 bootstrap_include:
     graphics_card
 
@@ -357,11 +359,11 @@ unit: test plan
 _name: Manual monitor tests
 _description: Manual monitor tests for Snappy Ubuntu Core devices
 include:
-    monitor/dvi
-    monitor/hdmi
+    monitor/dvi                  certification-status=blocker
+    monitor/hdmi                 certification-status=blocker
     monitor/dvi-to-vga
     monitor/hdmi-to-vga
-    monitor/displayport_hotplug
+    monitor/displayport_hotplug  certification-status=blocker
     monitor/vga
 
 id: after-suspend-monitor-full

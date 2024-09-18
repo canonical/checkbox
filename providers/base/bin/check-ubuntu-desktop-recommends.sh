@@ -5,7 +5,7 @@ IFS=$'\n\t'
 target_package=${1:-ubuntu-desktop}
 
 noninstalled=()
-target_version="$(dpkg-query --showformat='${Version}' --show ubuntu-desktop)"
+target_version="$(dpkg-query --showformat='${Version}' --show "$target_package")"
 apt_show_ud="$(apt-cache show "${target_package}"="$target_version")"
 recommends="$(echo "${apt_show_ud}"| grep ^Recommends | head -n 1)"
 while read -r pkg; do

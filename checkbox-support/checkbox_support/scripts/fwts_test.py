@@ -165,7 +165,7 @@ SERVER_TESTS.extend(
 )
 # By default, we launch all the tests
 TESTS = sorted(list(set(QA_TESTS + HWE_TESTS)))
-SLEEP_TIME_RE = re.compile("(Suspend|Resume):\s+([\d\.]+)\s+seconds.")
+SLEEP_TIME_RE = re.compile(r"(Suspend|Resume):\s+([\d\.]+)\s+seconds.")
 
 
 def get_sleep_times(log, start_marker):
@@ -254,6 +254,17 @@ def detect_progress_indicator():
         return ["dialog", "--gauge", "Progress", "20", "70"]
     # Return empty list if no progress indicator is to be used
     return []
+
+
+def print_log(logfile):
+    """
+    Print logfile to the output
+    """
+    with open(logfile) as f:
+        try:
+            print(f.read())
+        except UnicodeDecodeError as e:
+            print("WARNING: Found bad char in " + logfile)
 
 
 def main():
@@ -668,8 +679,7 @@ def main():
     print()
     print(" Please review the following log for more information:")
     print()
-    with open(args.log) as f:
-        print(f.read())
+    print_log(args.log)
 
     if args.fail_level != "none":
         if fail_priority == fail_levels["FAILED_CRITICAL"]:

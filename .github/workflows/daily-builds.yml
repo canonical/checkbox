@@ -7,7 +7,14 @@ on:
 
 jobs:
   check_for_commits:
-    runs-on: [self-hosted, linux, jammy, large]
+    runs-on:
+      group: "Canonical self-hosted runners"
+      labels:
+        - self-hosted
+        - linux
+        - jammy
+        - large
+        - X64
     name: Check for commits
     outputs:
       new_commit_count: ${{ steps.commit_check.outputs.new_commit_count }}
@@ -29,20 +36,26 @@ jobs:
           commit_count=$(git log --since="$LAST_PASS_DAILY_BUILD" --oneline -- checkbox-ng checkbox-support providers checkbox-core-snap checkbox-snap | wc -l)
           echo "new_commit_count=$commit_count" | tee $GITHUB_OUTPUT
 
-  checkbox-core-snap-daily:
+  snapcraft7-runtime:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-core-snap-daily-builds.yml
     secrets: inherit
 
-  checkbox-snap-daily:
+  snapcraft7-frontend:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-snap-daily-builds.yml
     secrets: inherit
 
-  checkbox-deb-daily:
+  deb-daily:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/deb-daily-builds.yml
+    secrets: inherit
+
+  snapcraft8-daily:
+    needs: check_for_commits
+    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
+    uses: ./.github/workflows/snapcraft8_builds.yaml
     secrets: inherit

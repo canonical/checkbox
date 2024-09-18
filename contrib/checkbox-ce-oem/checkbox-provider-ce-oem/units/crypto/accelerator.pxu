@@ -86,35 +86,80 @@ command:
     echo -e "\nPlease refer to resource job cryptoinfo for more detail"
     exit "$status"
 
-id: ce-oem-crypto/check-caam-priority
-_summary: Check CAAM priority is in the system /proc/crypto
-plugin: shell
+id: ce-oem-crypto/caam-crypto-profiles
+_summary: Generates a crypto profiles for CAAM accelerator
+_description:
+    A set of crypto profile mapping for CAAm accelerator.
+estimated_duration: 0.02
 category_id: crypto
+plugin: resource
+command:
+    check_crypto_profile.py resource -t caam
+
+unit: template
+template-resource: ce-oem-crypto/caam-crypto-profiles
+template-unit: job
+_summary: Check CAAM crypto {name} profile and its driver in the system
+_template-summary: Check CAAM crypto profile and its driver in the system
+category_id: crypto
+template-id: ce-oem-crypto/check-caam-crypto-profiles
+id: ce-oem-crypto/check-caam-{name}-crypto-profile
 flags: also-after-suspend
+plugin: shell
 estimated_duration: 1
 requires: manifest.has_caam == 'True'
 imports: from com.canonical.plainbox import manifest
 command:
-    crypto_priority_check.py -t caam
+    check_crypto_profile.py check -n "{name}" -t {type} -d {driver_pattern}
 
-id: ce-oem-crypto/check-mcrc-priority
-_summary: Check MCRC priority is in the system /proc/crypto
-plugin: shell
+id: ce-oem-crypto/mcrc-crypto-profiles
+_summary: Generates a crypto profiles for MCRC accelerator
+_description:
+    A set of crypto profile mapping for MCRC accelerator.
+estimated_duration: 0.02
 category_id: crypto
+plugin: resource
+command:
+    check_crypto_profile.py resource -t mcrc
+
+unit: template
+template-resource: ce-oem-crypto/mcrc-crypto-profiles
+template-unit: job
+_summary: Check MCRC crypto {name} profile and its driver in the system
+_template-summary: Check MCRC crypto profile and its driver in the system
+category_id: crypto
+template-id: ce-oem-crypto/check-mcrc-crypto-profiles
+id: ce-oem-crypto/check-mcrc-{name}-crypto-profile
 flags: also-after-suspend
+plugin: shell
 estimated_duration: 1
 requires: manifest.has_mcrc_engine == 'True'
 imports: from com.canonical.plainbox import manifest
 command:
-    crypto_priority_check.py -t mcrc
+    check_crypto_profile.py check -n "{name}" -t {type} -d {driver_pattern}
 
-id: ce-oem-crypto/check-sa2ul-priority
-_summary: Check SA2UL priority is in the system /proc/crypto
-plugin: shell
+id: ce-oem-crypto/sa2ul-crypto-profiles
+_summary: Generates a crypto profiles for SA2UL accelerator
+_description:
+    A set of crypto profile mapping for SA2UL accelerator.
+estimated_duration: 0.02
 category_id: crypto
+plugin: resource
+command:
+    check_crypto_profile.py resource -t sa2ul
+
+unit: template
+template-resource: ce-oem-crypto/sa2ul-crypto-profiles
+template-unit: job
+_summary: Check SA2UL crypto {name} profile and its driver in the system
+_template-summary: Check SA2UL crypto profile and its driver in the system
+category_id: crypto
+template-id: ce-oem-crypto/check-sa2ul-crypto-profiles
+id: ce-oem-crypto/check-sa2ul-{name}-crypto-profile
 flags: also-after-suspend
+plugin: shell
 estimated_duration: 1
 requires: manifest.has_sa2ul_engine == 'True'
 imports: from com.canonical.plainbox import manifest
 command:
-    crypto_priority_check.py -t sa2ul
+    check_crypto_profile.py check -n "{name}" -t {type} -d {driver_pattern}

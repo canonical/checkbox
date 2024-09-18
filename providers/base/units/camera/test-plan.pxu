@@ -36,6 +36,7 @@ _description: Camera tests (automated)
 include:
  camera/detect                                     certification-status=blocker
  camera/multiple-resolution-images_.*              certification-status=blocker
+ camera/multiple-resolution-images-attachment_.*   certification-status=non-blocker
  camera/camera-quality_.*                          certification-status=non-blocker
  camera/camera-quality-image_.*                    certification-status=non-blocker
 bootstrap_include:
@@ -70,6 +71,7 @@ _description: Camera tests After Suspend (automated)
 include:
  after-suspend-camera/detect                                     certification-status=blocker
  after-suspend-camera/multiple-resolution-images_.*              certification-status=blocker
+ after-suspend-camera/multiple-resolution-images-attachment_.*   certification-status=non-blocker
  after-suspend-camera/camera-quality_.*                          certification-status=non-blocker
  after-suspend-camera/camera-quality-image_.*                    certification-status=non-blocker 
 bootstrap_include:
@@ -98,6 +100,7 @@ estimated_duration: 1h30m
 include:
     camera/multiple-resolution-images_.*
     camera/multiple-resolution-images-rpi_.*
+    camera/multiple-resolution-images-rpi-attachment_.*
     camera/roundtrip-qrcode_.*
 bootstrap_include:
     device

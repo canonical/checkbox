@@ -1,13 +1,12 @@
 name: checkbox24
 summary: Checkbox runtime and public providers
 description: "Checkbox runtime and public providers"
-grade: devel
+grade: stable
 confinement: strict
 
 adopt-info: version-calculator
 
 base: core24
-build-base: devel
 
 # Don't forget to add a new slot if a new provider part is added in the parts
 # section below.
@@ -61,6 +60,10 @@ slots:
     read:
       - /
 
+package-repositories:
+  - type: apt
+    ppa: colin-king/stress-ng
+
 parts:
   version-calculator:
     plugin: dump
@@ -100,8 +103,7 @@ parts:
       # actual requirements
       - python3-bluez
       - python3-pyparsing
-      - python3-requests-unixsocket
-      - python3-systemd
+      - libsystemd0
       # added to stage python:
       - libpython3-stdlib
       - libpython3.12-stdlib
@@ -115,6 +117,7 @@ parts:
       - python3.12-minimal
     build-packages:
       - libbluetooth-dev
+      - libsystemd-dev
       - python3-dev
     python-packages:
       - pynmea2
@@ -186,7 +189,6 @@ parts:
       - dmidecode
       - libjson-xs-perl
       - pciutils
-      - python3-requests-unixsocket
       - smartmontools
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
@@ -222,9 +224,10 @@ parts:
       # cleaning this bit should not cause any issue but if it does do not only remove this line
       # contact also the store/update the package because else this will always trigger
       # a manual review
-      for libamd_path in $(find .. -name "libamdhip64.so.5*"); do
+      for libamd_path in $(find .. -name "*.so.*"); do
         echo "Clearing execstack on $libamd_path";
-        execstack --clear-execstack "$libamd_path" || exit 1
+        # the || true is because there are some  "*.so*.py" in gdblib
+        execstack --clear-execstack "$libamd_path" || true
       done;
       craftctl default
     stage-packages:
@@ -247,8 +250,8 @@ parts:
       - glmark2-es2
       - gnome-screenshot
       - gstreamer1.0-tools
+      - gstreamer1.0-plugins-bad
       - gstreamer1.0-pulseaudio
-      - on amd64: [hdapsd] # optional as not available for arm
       - hdparm
       - i2c-tools
       - ipmitool
@@ -308,7 +311,7 @@ parts:
       - libasound2-dev
       - libcap-dev
     organize:
-      usr/lib/lib*.so*: usr/lib/$CRAFT_ARCH_TRIPLET/
+      usr/lib/lib*.so*: usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/
     after: [checkbox-provider-resource]
 ################################################################################
   checkbox-provider-docker:
@@ -442,7 +445,7 @@ parts:
       - on arm64:
         - libraspberrypi0
     organize:
-      usr/lib/lib*.so: usr/lib/$CRAFT_ARCH_TRIPLET/
+      usr/lib/lib*.so: usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/
 ################################################################################
   lk-boot-env:
     plugin: nil
@@ -460,9 +463,9 @@ parts:
         - gcc-aarch64-linux-gnu:amd64
     override-build: |
       mkdir -p ${CRAFT_PART_INSTALL}/bin
-      if [ "${CRAFT_ARCH_TRIPLET}" = "arm-linux-gnueabihf" ]; then
+      if [ "${CRAFT_ARCH_TRIPLET_BUILD_FOR}" = "arm-linux-gnueabihf" ]; then
           arm-linux-gnueabihf-gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${CRAFT_PART_INSTALL}/bin/lk-boot-env
-      elif [ "${CRAFT_ARCH_TRIPLET}" = "aarch64-linux-gnu" ]; then
+      elif [ "${CRAFT_ARCH_TRIPLET_BUILD_FOR}" = "aarch64-linux-gnu" ]; then
           aarch64-linux-gnu-gcc lk-boot-env.c -I/usr/include/ -Iapp/aboot -o ${CRAFT_PART_INSTALL}/bin/lk-boot-env
       else
           # native build

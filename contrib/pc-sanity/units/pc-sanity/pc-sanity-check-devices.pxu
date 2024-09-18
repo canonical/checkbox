@@ -1,0 +1,374 @@
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_i2c_hid
+command:
+ set -x
+ if sudo dmidecode -t 3 | grep -i "Notebook\|Laptop"; then
+    journalctl -b -k | grep i2c | grep input || exit 1
+ else
+    echo "this machine is not laptop, no need to check i2c touchpad"
+ fi
+_summary: check if i2c device exists
+_description:
+ check if i2c device exists
+
+unit: template
+template-resource: cpuinfo
+template-filter:
+ cpuinfo.type == 'GenuineIntel'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_{type}_unchecked_msr_access_error
+command: check-error-string.sh "unchecked MSR access error"
+_summary: Check if kernel log contains unchecked MSR access error
+_description:
+ Check if the system experience unchecked MSR access error.
+
+unit: template
+template-resource: device
+template-filter:
+ device.driver == 'iwlwifi'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_{driver}_start_rt_ucode_failed
+command: check-error-string.sh "Failed to start RT ucode"
+_summary: Check if kernel log contains iwlwifi failed to start RT ucode
+_description:
+ Check if the system experience iwlwifi failed to start RT ucode.
+
+unit: template
+template-resource: device
+template-filter:
+ device.driver == 'mt7921e'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_{driver}_start_wm_firmware_failed
+command: check-error-string.sh "Failed to start WM firmware"
+_summary: Check if kernel log contains mt7921e failed to start WM firmware
+_description:
+ Check if the system experience mt7921e failed to start WM firmware.
+
+unit: template
+template-resource: device
+template-filter:
+ device.category == 'WIRELESS'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_{interface}_wifi6e_enabled
+requires:
+ package.name == 'coreutils'
+ package.name == 'iw'
+command: check_wifi6e.py {interface}
+_summary: Check the status of Wifi6e
+_description:
+ Check if the system enable Wifi6e 6GHz band with Kernel less then 5.15
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/intel_pmc_core
+requires:
+ sleep.mem_sleep == 's2idle'
+ cpuinfo.type == 'GenuineIntel'
+user: root
+command:
+ if [ ! -d /sys/kernel/debug/pmc_core ]; then
+     echo "The system has no /sys/kernel/debug/pmc_core."
+     echo "It is required for doing low power idle analysis."
+     echo "For more detail, please refer to https://web.archive.org/web/20230614200306/https://01.org/blogs/qwang59/2020/linux-s0ix-troubleshooting"
+     exit 1
+ fi
+_summary: Check if intel_pmc_core driver is probed
+_description:
+ For system support low power idle, intel_pmc_core
+ driver is required for all Intel platforms.
+
+unit: template
+template-resource: device
+template-filter:
+ device.path == '/devices/pci0000:00/0000:00:1f.0' and device.vendor_id == '32902'
+ device.product_id >= '17280' and device.product_id <= '17311'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/tgp-rid-check_{product_id}
+command:
+ rid_hex=$(lspci -xs 00:1f.0 | grep "00: " | cut -d " " -f10)
+ rid="0x$rid_hex"
+ if [[ $(("$rid")) -eq $((0x10)) ]]; then
+     echo "The PCH has known issue, the detail is in lp:1909053."
+     echo "Please request another hardware to proceed the test."
+     exit 1
+ fi
+_summary: PCH revision ID check
+_description:
+ The specific PCH revision ID has known issue, add the test case
+ for filtering out the invalid hardware.
+
+unit: template
+template-resource: device
+template-filter:
+ device.category == 'TOUCHPAD'
+ device.vendor_id == '1160'
+ device.product_id == '4618'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/touchpad-firmware-version_{product_slug}
+user: root
+requires:
+ package.name == 'i2c-tools'
+ dmi.sku in ['0A69','0A6A','09C3','09C4']
+command:
+ out=$(get-tp-fw-ver.sh)
+ major=$(echo "$out" | cut -d "," -f1 | cut -d " " -f2)
+ minor=$(echo "$out" | cut -d "," -f2 | cut -d " " -f3)
+ version=$(echo "$out" | cut -d "," -f3 | cut -d " " -f3)
+ # shellcheck disable=SC2050
+ if [ "{vendor_id}" = "1160" ] && [ "{product_id}" = "4618" ]; then
+     if [[ $(("$major")) -lt $((0x05)) ]] || [[ $(("$minor")) -lt $((0x34)) ]]; then
+         echo "The touchpad firmware version is $version which is not correct."
+         echo "please refer to the lp:1903951 for getting correct firmware."
+         exit 1
+     fi
+ fi
+_summary: Touchpad firmware version checking
+_description:
+ The test case is for gating invalid touchpad firmware.
+
+unit: template
+template-resource: cpuinfo
+template-filter:
+ cpuinfo.type == 'GenuineIntel'
+ cpuinfo.model_number == '6'
+ cpuinfo.model_version == '151'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/mesa-libdrm-gating_{model_number}_{model_version}_{model_revision}
+command:
+ GLX_MESA_VER=$(dpkg-query -W libglx-mesa0:amd64 | cut -f2)
+ EGL_MESA_VER=$(dpkg-query -W libegl-mesa0:amd64 | cut -f2)
+ GBM_VER=$(dpkg-query -W libgbm1:amd64 | cut -f2)
+ DRM_VER=$(dpkg-query -W libdrm2:amd64 | cut -f2)
+ dpkg --compare-versions "$GLX_MESA_VER" gt 21.0.3
+ RET=$?
+ if [ $RET -ne 0 ]; then
+     echo "Wrong libglx-mesa0 version $GLX_MESA_VER for supporting ADL-S"
+     exit 1
+ fi
+ dpkg --compare-versions "$EGL_MESA_VER" gt 21.0.3
+ RET=$?
+ if [ $RET -ne 0 ]; then
+     echo "Wrong libegl-mesa0 version $EGL_MESA_VER for supporting ADL-S"
+     exit 1
+ fi
+ dpkg --compare-versions "$GBM_VER" gt 21.0.3
+ RET=$?
+ if [ $RET -ne 0 ]; then
+     echo "Wrong libgbm1 version $GBM_VER for supporting ADL-S"
+     exit 1
+ fi
+ dpkg --compare-versions "$DRM_VER" gt 2.4.105
+ RET=$?
+ if [ $RET -ne 0 ]; then
+     echo "Wrong libdrm2 version $DRM_VER for supporting ADL-S"
+     exit 1
+ fi
+_summary: Check libglx-mesa0 libegl-mesa0 libgbm1 libdrm2 for ADL-S
+_description:
+ Gating the mesa and libdrm packages for supporting ADL-S graphic
+
+unit: template
+template-resource: device
+template-filter: device.category == 'TOUCHPAD' and device.driver == 'hid-multitouch'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/pressure-capability-detect_{product_slug}
+requires:
+  package.name == 'libinput-bin'
+  package.name == 'dpkg'
+estimated_duration: 5.0
+command:
+ touchpad-support.sh -p
+ RET=$?
+ VER=$(dpkg-query -W libinput-bin | cut -f2)
+ dpkg --compare-versions "$VER" gt 1.15.5-1ubuntu0.2
+ VER_RET=$?
+ if [ $RET -ne 0 ] && [ $VER_RET -ne 0 ]; then
+     echo "The platform touchpad reports pressure event, it requires"
+     echo "a special handle for the event, please make sure if the platform"
+     echo "should support pressure event, if not, plesae follow instruction [1] and [2]"
+     echo "to fine tune it or disable it."
+     echo "Reference:"
+     echo "[1] https://wayland.freedesktop.org/libinput/doc/latest/touchpad-pressure.html"
+     echo "[2] https://wayland.freedesktop.org/libinput/doc/latest/device-quirks.html"
+     exit $RET
+ fi
+_summary: Touchpad EV_ABS pressure capability check
+_description:
+ Check if touchpad support ABS_PRESSURE and MT_ABS_PRESSURE event.
+
+unit: template
+template-resource: cpuinfo
+template-filter:
+ cpuinfo.type in ['GenuineIntel','AuthenticAMD']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/acpi-bios-error_{type}
+command: bios-error.sh
+_summary: Check if kernel reports ACPI BIOS Error
+_description:
+ Check if the kernel reports ACPI BIOS Error
+
+unit: template
+template-resource: dmi
+template-filter:
+ dmi.category == 'CHASSIS' and dmi.product not in ['Mini Tower', 'Tower', 'Main Server Chassis','Rack Mount Chassis']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check-device-runtime-pm_{product}
+command: check-device-power-control.sh
+_summary: Check if devices runtime PM enabled
+_description:
+ Check if devices runtime PM is enabled for power sensitive platforms
+
+unit: template
+template-resource: device
+template-filter: device.driver in ['iosm', 'mtk_t7xx', 'thunderbolt']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/intel-vtd-enabled_{driver}_{__index__}
+requires:
+ cpuinfo.type == 'GenuineIntel'
+user: root
+command:
+ if ! journalctl -k | grep -q 'Intel(R) Virtualization Technology for Directed I/O'; then
+    echo "Intel VT-d disabled which is need for device"
+    echo "Reference for enabling VT-d:"
+    echo "Kernel with CONFIG_INTEL_IOMMU"
+    echo " 1. Kernel with CONFIG_INTEL_IOMMU_DEFAULT_ON"
+    echo " 2. Kernel parameter intel_iommu=on"
+    echo " 3. Force enable Intel VT-d in BIOS"
+    exit 1
+ fi
+ device=$(echo {path} | rev | cut -d '/' -f 1 | rev)
+ if [ ! -d /sys/{path}/iommu ];then
+    echo "Device $device not add to iommu group"
+    exit 1
+ fi
+ exit 0
+_summary: Check the status of Intel VT-d ({driver})
+_description:
+ The test case is for checking the status of Intel VT-d (Virtualization 
+ Technology direct I/O)
+
+unit: template
+template-resource: cpuinfo
+template-filter: cpuinfo.type == 'GenuineIntel'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/intel-hid_{model_number}_{model_version}_{model_revision}
+requires:
+ sleep.mem_sleep == 's2idle'
+command:
+ intel_hid=$(grep HIDD /sys/bus/acpi/devices/*/path -l)
+ # shellcheck disable=SC2001
+ status=$(echo "$intel_hid" | sed "s/path/status/")
+ if [ -n "$intel_hid" ] && [ "$(cat "$status")" == "15" ]; then
+     if grep -q intel_hid /proc/modules; then
+         exit 0
+     else
+         echo "The intel_hid is not loaded."
+         echo "HIDD device node:"
+         grep HIDD /sys/bus/acpi/devices/*/path
+         echo "intel_hid modinfo:"
+         modinfo intel_hid
+         exit 1
+    fi
+ fi
+_summary: Check if the intel_hid loaded on the system
+_description:
+ Intel changes intel_hid supported acpi device ID for different generations.
+ Capture the newly added ID before image release.
+
+unit: template
+template-resource: dmi
+template-filter:
+ dmi.category == 'CHASSIS' and dmi.product not in ['Mini Tower', 'Tower', 'Main Server Chassis','Rack Mount Chassis']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check-display_{product}
+command:
+ # shellcheck disable=SC2230
+ UWAKE=$(which uwake)   # sudo doesn't inherit current $PATH
+ sudo "$UWAKE"          # src: c/uwake.c
+ sleep 5                # wait the screen to be on
+ for file in /sys/class/drm/*/status;
+ do
+     status=$(cat < "$file")
+     if [ "$status" = "connected" ]; then
+         dpms_path="${{file//status/dpms}}"
+         dpms=$(cat < "$dpms_path")
+         if [ "$dpms" = "On" ]; then
+             echo "Has disaplay attached and screen on"
+             echo "$file:connected"
+             echo "$dpms_path:On"
+             exit 0
+         fi
+     fi
+ done
+ echo "No display attach to any connectors"
+ echo "Please check if graphic driver probed properly."
+ echo "Please check if display attach to it."
+ exit 1
+_summary: Check if display is available for the machine
+_description: Check if the display is available for the machine
+ to avoid release image without output.
+
+unit: template
+template-resource: graphics_card
+template-unit: job
+requires:
+    package.name == 'mesa-utils'
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/renderer-mesa-driver-check_{product_slug}_{index}
+command: renderer-mesa-driver-check.sh
+_summary: Check if renderer mesa driver support correctness
+_description:
+ Check if mesa driver support the renderer correctly
+
+unit: template
+template-resource: device
+template-filter:
+ (device.vendor_id == '32902' and device.product_id == '30048') or (device.vendor_id == '5315' and device.product_id == '19829')
+template-unit: job
+requires:
+ package.name == 'modemmanager'
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check-fcclock-state_{product_id}_{__index__}
+user: root
+command:
+ check-fcclock-state.sh {path}
+_summary: Check the fcclock state of ({product_id})
+_description:
+ The test case is for checking the fcclock state of WWAN module
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/check_UBSAN_error
+command: check-error-string.sh "UBSAN:"
+_summary: Check if kernel log contains Undefined Behavior Sanitizer (UBSAN) error
+_description:
+ Check if the system experience Undefined Behavior Sanitizer (UBSAN) error.

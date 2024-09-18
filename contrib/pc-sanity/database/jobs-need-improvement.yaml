@@ -1,0 +1,18 @@
+---
+for-all:
+    bluetooth4/beacon_eddystone_url_hci0:
+        public-bug: 1904697
+    suspend/audio_before_suspend:
+        public-bug: 1904707
+    suspend/network_resume_time_auto:
+        public-bug: 1906390
+    miscellanea/device_check:
+        public-bug: 1908961
+    disk/storage_device_sdb:
+        public-bug: 1908504
+for-desktop-only:
+    graphics/{index}_valid_opengl_renderer_{product_slug}:
+        public-bug: 1905355
+    miscellanea/edid-continuous-frequency:
+        public-bug: 1909262
+for-laptop-only:

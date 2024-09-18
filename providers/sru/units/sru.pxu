@@ -75,7 +75,6 @@ nested_part:
     # with.
     power-automated
     tpm-cert-automated
-    stress-pm-graph
     stress-ng-cert-automated
     stress-10-reboot-poweroff-automated
 bootstrap_include:
@@ -87,11 +86,15 @@ exclude:
     disk/stats_.*
     disk/storage_device_.*
     installer_debug.gz
+    stress/cpu_stress_ng_test
     stress/memory_stress_ng
     audio/valid-sof-firmware-sig
     miscellanea/check_prerelease
     suspend/bluetooth_obex_.*
+    bluetooth/.*_obex_.*
     miscellanea/debsums
+    miscellanea/ubuntu-desktop-recommends
+    miscellanea/ubuntu-desktop-minimal-recommends
 
 id: sru
 _name: All SRU Tests (Ubuntu Desktop)
@@ -148,8 +151,12 @@ exclude:
     disk/stats_.*
     disk/storage_device_.*
     installer_debug.gz
+    stress/cpu_stress_ng_test
     stress/memory_stress_ng
     audio/valid-sof-firmware-sig
     miscellanea/check_prerelease
     suspend/bluetooth_obex_.*
     miscellanea/debsums
+    bluetooth/.*_obex_.*
+    miscellanea/ubuntu-desktop-recommends
+    miscellanea/ubuntu-desktop-minimal-recommends

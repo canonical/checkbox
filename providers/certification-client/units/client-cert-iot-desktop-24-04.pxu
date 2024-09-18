@@ -7,6 +7,8 @@ include:
 nested_part:
   client-cert-iot-desktop-24-04-manual
   client-cert-iot-desktop-24-04-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-desktop-24-04-manual
@@ -43,7 +45,9 @@ nested_part:
   camera-manual
   cpu-manual
   disk-manual
+  edac-manual
   ethernet-manual
+  ishtp-manual
   led-indicator-manual
   led-manual
   monitor-integrated-gpu-cert-manual
@@ -51,8 +55,10 @@ nested_part:
   graphics-discrete-gpu-cert-manual
   monitor-discrete-gpu-cert-manual
   mediacard-manual
+  mei-manual
   memory-manual
   networking-manual
+  qep-manual
   rtc-manual
   self-manual
   serial-manual
@@ -69,6 +75,7 @@ nested_part:
   wireless-manual
   wireless-wifi-master-mode-manual
   wwan-manual
+  va-api-manual
   after-suspend-audio-manual
   after-suspend-bluetooth-cert-manual
   after-suspend-ethernet-manual
@@ -91,6 +98,8 @@ nested_part:
   after-suspend-wwan-manual
 exclude:
   snappy/os-.*
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-desktop-24-04-automated
@@ -127,6 +136,7 @@ nested_part:
   cpu-automated
   disk-automated
   docker-automated
+  edac-automated
   eeprom-automated
   ethernet-automated
   graphics-discrete-gpu-cert-automated
@@ -134,13 +144,16 @@ nested_part:
   gpio-automated
   iot-fwts-automated
   i2c-automated
+  ishtp-automated
   mediacard-automated
+  mei-automated
   memory-automated
   misc-client-cert-automated
   monitor-discrete-gpu-cert-automated
   monitor-integrated-gpu-cert-automated
   networking-automated
   power-automated
+  qep-automated
   rtc-automated
   self-automated
   serial-automated
@@ -155,6 +168,7 @@ nested_part:
   wireless-automated
   wireless-wifi-master-mode-auto
   wwan-automated
+  va-api-automated
   zapper-enabled-automated
   after-suspend-audio-automated
   after-suspend-bluez-automated
@@ -170,6 +184,8 @@ nested_part:
   after-suspend-usb-automated
   after-suspend-wireless-automated
   after-suspend-wwan-automated
+certification_status_overrides:
+  apply blocker to .*
 
 
 id: client-cert-iot-desktop-24-04-stress
@@ -180,3 +196,5 @@ _description:
 include:
 nested_part:
   stress-full
+certification_status_overrides:
+  apply blocker to .*

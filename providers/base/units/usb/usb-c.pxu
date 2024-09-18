@@ -16,88 +16,40 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_usbc_data == 'True'
 estimated_duration: 60
 
-id: usb-c/c-to-a-adapter/insert
+id: usb-c/c-to-a-adapter/storage-manual
+_summary: 
+    Test USB 3 storage device insertion + read/write + removal using a "Type-C to Type-A" adapter.
 _purpose:
-     This test will check that the system correctly detects the insertion of
-     a USB 3 storage device in a USB Type-C connector using a "Type-C to Type-A"
-     adapter.
-     NOTE: Make sure the USB storage device has a partition before starting
-     the test.
+    This test will check that the system correctly detects the insertion of
+    a USB 3 storage device in a USB Type-C connector using a "Type-C to Type-A"
+    adapter.
+    Then it performs a read and write test on the device. Finally, it
+    checks that the system correctly detects the removal of the USB 3 storage.
+    NOTE: Make sure the USB 3 storage device has a partition before starting
+    the test.
 _steps:
-     1. Commence the test
-     2. Connect a USB 3 storage device to a USB Type-C port using a
-        "Type-C to Type-A" adapter.
-     3. Do not unplug the device after the test.
+    1. Commence and then insert a USB 3 storage device to a USB Type-C port
+       using a "Type-C to Type-A" adapter.
+       (Note: this test will time-out after 30 seconds.)
+    2. Do not remove the device after this test.
+    3. Wait for the read/write operations to complete.
+    4. Press Enter to start the removal test.
+    5. Remove the USB 3 storage from the reader.
+    (Note: this test will time-out after 30 seconds.)
 _verification:
-     The verification of this test is automated. Do not change the
-     automatically selected result.
+    The verification of this test is automated. Do not change the
+    automatically selected result.
 plugin: user-interact
 flags: also-after-suspend
 user: root
 command:
- if [[ -v SNAP ]]; then
-     checkbox-support-run_watcher insertion usb3
- else
-     removable_storage_watcher.py -m 500000000 insert usb
- fi
+    checkbox-support-run_watcher storage usb3
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires:
- usb.usb3 == 'supported'
- manifest.has_usbc_data == 'True'
-estimated_duration: 30
-_summary: Verify that the system detects a USB 3 storage device using a "Type-C to Type-A" adapter.
-
-id: usb-c/c-to-a-adapter/storage-automated
-_description:
- This test is automated and executes after the usb-c/c-to-a-adapter/insert test
- is run.
-plugin: shell
-flags: also-after-suspend
-user: root
-command:
- if [[ -v SNAP ]]; then
-     checkbox-support-usb_read_write
- else
-     removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
- fi
-category_id: com.canonical.plainbox::usb
-imports: from com.canonical.plainbox import manifest
-requires:
- manifest.has_usbc_data == 'True'
-depends: usb-c/c-to-a-adapter/insert
-estimated_duration: 60
-_purpose: This test is automated and executes after the usb-c/c-to-a-adapter/insert test is run.
-_summary: Automate the execution process post usb-c/c-to-a-adapter/insert test.
-
-id: usb-c/c-to-a-adapter/remove
-_purpose:
-     This test will check that the system correctly detects the removal of
-     a USB 3 storage device connected to a USB Type-C port using a "USB Type-C
-     to Type-A" adapter.
-_steps:
-     1. Begin the test
-     2. Disconnect a USB 3 storage device from a USB Type-C port using a
-        "Type-C to Type-A" adapter
-_verification:
-     The verification of this test is automated. Do not modify the
-     automatically selected result.
-plugin: user-interact
-flags: also-after-suspend
-user: root
-command:
- if [[ -v SNAP ]]; then
-     checkbox-support-run_watcher removal usb3
- else
-     removable_storage_watcher.py -m 500000000 remove usb
- fi
-category_id: com.canonical.plainbox::usb
-depends: usb-c/c-to-a-adapter/insert
-imports: from com.canonical.plainbox import manifest
-requires:
- manifest.has_usbc_data == 'True'
-estimated_duration: 30
-_summary: Check the detection of a USB 3 storage device removal, connected via a "Type-C to Type-A" adapter.
+    usb.usb3 == 'supported'
+    manifest.has_usbc_data == 'True'
+estimated_duration: 120
 
 id: usb-c/hid
 _summary: USB HID work on USB Type-C port
@@ -117,83 +69,37 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_usbc_data == 'True'
 estimated_duration: 60
 
-id: usb-c/insert
-_summary: USB 3.0 storage device insertion detected on USB Type-C port
+id: usb-c/storage-manual
+_summary: USB 3.0 storage device insertion + read/write + removal on USB Type-C port
 _purpose:
- This test will check that the system correctly detects the insertion of
- a USB 3.0 storage device in a USB Type-C connector.
- NOTE: Make sure the USB storage device has a partition before starting
- the test.
+    This test will check that the system correctly detects the insertion of
+    a USB 3.0 storage device in a USB Type-C connector.
+    Then it performs a read and write test on the device. Finally, it
+    checks that the system correctly detects the removal of the USB 3 storage.
+    NOTE: Make sure the USB 3 storage device has a partition before starting
+    the test.
 _steps:
- 1. Commence the test.
- 2. Connect a USB 3.0 storage device to a USB Type-C port.
- 3. Do not unplug the device after the test.
+    1. Commence the test and then insert a USB 3.0 storage device to a USB Type-C port.
+       (Note: this test will time-out after 30 seconds.)
+    2. Do not remove the device after this test.
+    3. Wait for the read/write operations to complete.
+    4. Press Enter to start the removal test.
+    5. Remove the USB 3 storage from the reader.
+    (Note: this test will time-out after 30 seconds.)
 _verification:
- The verification of this test is automated. Do not change the
- automatically selected result.
+    The verification of this test is automated. Do not change the
+    automatically selected result.
 plugin: user-interact
 flags: also-after-suspend
 user: root
 command:
- if [[ -v SNAP ]]; then
-     checkbox-support-run_watcher insertion usb3
- else
-     removable_storage_watcher.py -m 500000000 insert usb
- fi
+    checkbox-support-run_watcher storage usb3
 category_id: com.canonical.plainbox::usb
 imports: from com.canonical.plainbox import manifest
 requires:
- usb.usb3 == 'supported'
- manifest.has_usbc_data == 'True'
-estimated_duration: 30
-
-id: usb-c/storage-automated
-_summary: USB 3.0 storage device read & write works on USB Type-C port
-_purpose:
- This test is automated and executes after the usb-c/insert test is run.
-plugin: shell
-flags: also-after-suspend
-user: root
-command:
- if [[ -v SNAP ]]; then
-     checkbox-support-usb_read_write
- else
-     removable_storage_test.py -s 268400000 -m 500000000 usb --driver xhci_hcd
- fi
-category_id: com.canonical.plainbox::usb
-imports: from com.canonical.plainbox import manifest
-requires:
- manifest.has_usbc_data == 'True'
-depends: usb-c/insert
-estimated_duration: 60
-
-id: usb-c/remove
-_summary: USB 3.0 storage device removal detected on USB Type-C port
-_purpose:
-     This test will check that the system correctly detects the removal of
-     a USB 3.0 storage device connected to a USB Type-C port.
-_steps:
-     1. Commence the test
-     2. Connect a USB 3.0 storage device to a USB Type-C port
-     3. Disconnect the USB 3.0 storage device from the USB Type-C port
-_verification:
-     The system should automatically detect the removal of the USB 3.0 storage device. The verification of this test is automated. Do not change the
-     automatically selected result.
-plugin: user-interact
-flags: also-after-suspend
-user: root
-command:
- if [[ -v SNAP ]]; then
-     checkbox-support-run_watcher removal usb3
- else
-     removable_storage_watcher.py -m 500000000 remove usb
- fi
-category_id: com.canonical.plainbox::usb
-depends: usb-c/insert
-imports: from com.canonical.plainbox import manifest
-requires:
- manifest.has_usbc_data == 'True'
-estimated_duration: 30
+    usb.usb3 == 'supported'
+    manifest.has_usbc_data == 'True'
+estimated_duration: 120
 
 id: usb-c/c-to-ethernet-adapter-insert
 plugin: user-interact

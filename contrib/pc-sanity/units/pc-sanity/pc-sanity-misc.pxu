@@ -1,0 +1,225 @@
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+requires:
+ device.category == 'NETWORK'
+ package.name == 'checkbox-ng'
+estimated_duration: 20
+id: miscellanea/install_kernel_tools_testing
+user: root
+command:
+ dpkg -s linux-tools-"$(uname -r)" || apt-get install -y linux-tools-"$(uname -r)" || exit 1
+_summary: Install linux-tools based on the running kernel version.
+_description: Install linux-tools based on the running kernel version.
+
+plugin: shell
+id: misc/generic/grub_boothole
+user: root
+requires:
+ lsb.codename in ('xenial', 'bionic', 'focal')
+command:
+ check_grub_boothole.sh
+_description:
+  Check if kernel and grub are new enough to fix the boothole issue.
+  https://docs.google.com/document/d/1EheQcQ5fzdwW_JOXz5LChqObu6di4GztkxRtVxtUYGs/edit#heading=h.ek2fnosafgow
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/copy_submission_file
+requires: package.name == 'dkms'
+command:
+ report_folder="$HOME/submission-report-$(date +%Y%m%d%H%M)"
+ checkboxk_ng_folder="/home/ubuntu/.local/share/checkbox-ng"
+ [ -d "/home/u" ] && checkboxk_ng_folder="/home/u/.local/share/checkbox-ng"
+ mkdir -p "$report_folder"
+ cp "$checkboxk_ng_folder"/* "$report_folder"
+ rm "$checkboxk_ng_folder"/*
+ mv "$(find "$report_folder" -type f | grep tar)" /tmp/c3-local-submission.tar.xz
+_summary: copy reports to folder
+_description:
+ copy the file for c3 submission.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/prepare-sanity-env
+command:
+ set -x
+ sudo disable-uattu.py
+_summary: disable unattended update
+_description:
+ disable unattended update
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/set-idle-delay-60s
+command:
+ set -x
+ gsettings get org.gnome.desktop.session idle-delay > "$HOME/old-idle-delay"
+ gsettings set org.gnome.desktop.session idle-delay 60
+ [ "$(gsettings get org.gnome.desktop.session idle-delay | cut -d ' ' -f2)" == "60" ]
+_summary: prepare env before suspend testing
+_description:
+ set long idle delay to 1 min, so that we can check suspend after long idle.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/restore-idle-delay
+command:
+ set -x
+ awk -F' ' '{ print $2 }' "$HOME"/old-idle-delay | xargs gsettings set org.gnome.desktop.session idle-delay
+ [ "$(gsettings get org.gnome.desktop.session idle-delay | cut -d ' ' -f2)" == "$(awk -F' ' '{ print $2 }' "$HOME"/old-idle-delay)" ]
+_summary: restore saved idle delay
+_description:
+ restore saved idle delay
+
+id: graphics-discrete-gpu-stress-suspend-3-cycles-with-idle60s-reboots-automated
+unit: test plan
+_name: Suspend stress tests (with reboots)
+_description: Suspend stress tests (with reboots)
+include:
+    miscellanea/set-idle-delay-60s
+    graphics/2_auto_switch_card_.*
+    stress-suspend-3-cycles-with-reboots-automated
+    graphics/1_auto_switch_card_.*
+    miscellanea/restore-idle-delay
+bootstrap_include:
+    graphics_card
+
+id: pc-sanity-collect-info-in-the-end
+unit: test plan
+_name: pc-sanity-collect-info-in-the-end
+_description: Suspend stress tests (with reboots)
+include:
+    cpu_pkg_state_attachment
+    miscellanea/sosreport_attachment
+
+id: somerville-installation
+category_id: com.canonical.plainbox::miscellanea
+requires: package.name == 'dell-recovery'
+plugin: shell
+command:
+ grep "(SUCCESS) Clean-Up .. Done" /var/log/installer/chroot.sh.log
+_description: Check the result of the installation, from oem-qa-checkbox 6596762f
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/dpkg-l
+estimated_duration: 1.0
+command: dpkg -l
+_description:
+ attache log from dpkg -l
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/bootstrap-pc-sanity-smoke-test
+estimated_duration: 1.0
+command:
+ while read -r folder
+ do
+    git -C "$folder" remote get-url --all origin
+    git -C "$folder" rev-parse HEAD
+ done < <(find /var/tmp/checkbox-providers -mindepth 1 -maxdepth 1 -type d)
+ checkbox-cli list-bootstrapped com.canonical.certification::pc-sanity-smoke-test || true
+_description:
+ Attache the order of executed order of test cases.
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/side-load-changes
+estimated_duration: 1.0
+command: cat /var/tmp/checkbox-providers/*/side-load-changes.json || true
+_description:
+ attach what changed from sideloading.
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/csme-detection-tool
+estimated_duration: 5.0
+requires:
+ cpuinfo.type == 'GenuineIntel'
+ module.name == 'mei_me'
+ package.name == 'curl'
+command: csme-detection-tool.sh
+_description:
+ Attach Intel ME info.
+
+unit: template
+template-resource: dmi
+template-filter:
+ dmi.category == 'CHASSIS' and dmi.product not in ['Mini Tower', 'Tower', 'Main Server Chassis','Rack Mount Chassis']
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/ac-automatic-suspend-estar-settings_{product}
+command:
+ if [ ! -f /usr/share/glib-2.0/schemas/40_manage-estar-settings.gschema.override ]; then
+   echo "For somerville project, please check your manifest to see lp:1993993 is applied or not"
+   echo "For stella and sutton, please check manage-estar-settings is installed or not"
+   exit 1
+ fi
+_description:
+  Check if image include manage-estar-settings package to apply default e-star setting
+  LP#1993993
+
+unit: template
+template-resource: dmi
+template-filter:
+ dmi.category == 'SYSTEM' and dmi.vendor == 'Dell Inc.'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/google-chrome-included_{vendor}
+command:
+ dpkg-query -W -f='${{Status}}' google-chrome-stable 2>/dev/null | grep -q -c "ok installed"
+_summary:
+ Check if Google Chrome is included
+_description:
+ According to PRD 3.9.9, {vendor} has a requirement to include Google Chrome.
+ This check is to ensure the package "google-chrome-stable" is included.
+
+plugin: attachment
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/get-wwan-firmware-version
+estimated_duration: 2.0
+requires:
+ package.name == 'modemmanager'
+ mobilebroadband.gsm == 'supported'
+command:
+ for i in $(mmcli -L | awk '/freedesktop\/ModemManager1\/Modem/ {print $1;}'); do
+   echo "model: $(mmcli -m "$i" | grep "model" | awk -F'model:' '{print $2}')"
+   echo "revision: $(mmcli -m "$i" | grep "firmware revision" | awk -F'firmware revision:' '{print $2}')"
+ done
+_description:
+ Attach WWAN module FW info.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/boot-up-time-under-2-min
+estimated_duration: 2.0
+requires:
+ package.name == 'systemd'
+ dmi.product in ['Notebook','Laptop']
+command: boot-up-time-check.sh
+_summary:
+ Check if boot up finished under 2 minutes
+_description:
+ This test verifies that boot up time was less than 2 minutes on Notebook and Laptop
+_purpose:
+ This test verifies that boot up time was less than 2 minutes on Notebook and Laptop
+
+plugin: attachment
+category_id: com.canonical.plainbox::info
+id: info/image-url
+estimated_duration: 0.1
+_description: Get image URL based on DCD
+_summary: Provides image URL based on DistributionChannelDescriptor meta data
+_purpose: Provide a link to the ISO file which was installed on the system
+command: get-image-url.sh
+
+id: miscellanea/sideload-hook-no-fail
+category_id: com.canonical.plainbox::miscellanea
+plugin: shell
+command:
+ ! grep "# FAILED:" /var/log/installer/sideload-hook.sh.*.log
+_description:
+  Check the result of sideload/hook.sh, used for OEM PC enablements since 24.04
+

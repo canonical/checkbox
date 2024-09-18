@@ -1,0 +1,47 @@
+unit: template
+template-resource: device
+template-filter: device.category == 'BLUETOOTH'
+template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/bluetooth-on-off-rfkill_{interface}
+requires:
+ package.name == 'libglib2.0-bin'
+command:
+ echo "Turn off Bluetooth by gnome.SettingsDaemon.Rfkill"
+ gdbus call --session --dest org.gnome.SettingsDaemon.Rfkill --object-path /org/gnome/SettingsDaemon/Rfkill --method org.freedesktop.DBus.Properties.Set 'org.gnome.SettingsDaemon.Rfkill' 'BluetoothAirplaneMode' '<true>'
+ sleep 5
+ echo "Turn on Bluetooth by gnome.SettingsDaemon.Rfkill"
+ gdbus call --session --dest org.gnome.SettingsDaemon.Rfkill --object-path /org/gnome/SettingsDaemon/Rfkill --method org.freedesktop.DBus.Properties.Set 'org.gnome.SettingsDaemon.Rfkill' 'BluetoothAirplaneMode' '<false>'
+ sleep 5
+ ret=$(bluetoothctl show | grep -i Powered | sed -r 's/\s+//g' | cut -d ':' -f 2)
+ if [ "$ret" = "no" ]; then
+   echo "Bluetooth can't be powered on by toggling org.gnome.SettingsDaemon.Rfkill BluetoothAirplaneMode property."
+   echo "Please refer to lp:1926062"
+   exit 1
+ fi
+_summary: check if Bluetooth does not power on if turn off then on by gnome-control-center
+_description:
+  check if Bluetooth does not work after gnome-control-center on/off.
+
+plugin: shell
+category_id: com.canonical.plainbox::miscellanea
+id: miscellanea/bluetooth-scan
+requires:
+ device.category == 'BLUETOOTH'
+ package.name == 'bluez'
+command:
+ if ! bluetoothctl --timeout 10 scan on; then
+   echo "bluetoothctl returns error: cannot scan bluetooth devices."
+   exit 1
+ fi
+ if ! ret=$(bluetoothctl devices); then
+   echo "bluetoothctl returns error."
+   exit 1
+ elif [ -z "$ret" ]; then
+   echo "No nearby bluetooth device found."
+   exit 1
+ fi
+_summary: test scanning Bluetooth devices
+_description:
+ this test checks the scanning of Bluetooth devices around the test subject.

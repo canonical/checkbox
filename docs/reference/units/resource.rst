@@ -86,8 +86,8 @@ be compatible with the identifier syntax. It can also be used to refer to
 resources from another namespace.
 
 In the examples elsewhere in this page the  ``package`` resources are generated
-by the ``package`` job. Plainbox uses this to know which resources to try but
-also to implicitly to express dependencies so that the ``package`` job does not
+by the ``package`` job. Checkbox uses this to know which resources to try but
+also to implicitly express dependencies so that the ``package`` job does not
 have to be explicitly selected and marked for execution prior to the job that
 in fact depends on it. This is all done automatically.
 
@@ -135,7 +135,7 @@ Now the power-management/rtc job will only be run on systems where
 Evaluation
 ----------
 
-1. First Plainbox looks at the resource program and splits it into lines. Each
+1. First Checkbox looks at the resource program and splits it into lines. Each
    non-empty line is parsed and converted to a resource expression.
 
 2. **unexpected** Each resource expression is repeatedly evaluated, once for
@@ -159,11 +159,11 @@ in practice.
 Joins are not optimized
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Starting with plainbox 0.24, a resource expression can use more than one
-resource object (resource job) at the same time. This allows the use of joins
-as the whole expression is evaluated over the Cartesian product of all the
-resource records. This operation is not optimized, you can think of it as a
-JOIN that is performed on a database without any indices.
+A resource expression can use more than one resource object (resource job) at
+the same time. This allows the use of joins as the whole expression is
+evaluated over the Cartesian product of all the resource records. This
+operation is not optimized, you can think of it as a JOIN that is performed on
+a database without any indices.
 
 Let's look at a practical example::
 

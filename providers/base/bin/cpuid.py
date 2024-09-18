@@ -177,6 +177,8 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "AMD Ryzen":        ['0x810f81'],
         "AMD Bergamo":      ['0xaa0f01'],
         "AMD Siena SP6":    ['0xaa0f02'],
+        "AMD Raphael":      ['0xa60f12'],
+        "AMD Turin":        ['0xb00f21'],
         "Broadwell":        ['0x4067', '0x306d4', '0x5066', '0x406f'],
         "Canon Lake":       ['0x6066'],
         "Cascade Lake":     ['0x50655', '0x50656', '0x50657'],
@@ -201,9 +203,13 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "Sapphire Rapids":  ['0x806f3', '0x806f6', '0x806f7', '0x806f8'],
         "Skylake":          ['0x406e3', '0x506e3', '0x50654', '0x50652'],
         "Tiger Lake":       ['0x806c1'],
-        "Alder Lake":       ['0x906a4', '0x906A3', '0x90675', '0x90672'],
+        "Alder Lake":       ['0x906a4', '0x906a3', '0x90675', '0x90672'],
         "Westmere":         ['0x2065', '0x206c', '0x206f'],
         "Whisky Lake":      ['0x806eb', '0x806ec'],
+        "Sierra Forest":    ['0xa06f3'],
+        "Granite Rapids":   ['0xa06e0', '0xa06d0'],
+        "Meteor Lake":      ['0xa06a4'],
+        "Arrow Lake":       ['0xc0660']
     }
     for key in CPUIDS.keys():
         for value in CPUIDS[key]:
@@ -230,7 +236,7 @@ def main():
             my_id, nice_name))
     except ValueError:
         raise SystemExit(
-            "Unable to determine CPU Family for this CPUID: {}".format(cpuid))
+            "Unable to determine CPU Family for this CPUID: {}".format(my_id))
 
 
 if __name__ == "__main__":

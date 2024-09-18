@@ -192,9 +192,10 @@ def wait_for_connected(interface, essid):
     if state.startswith("100") and ssid == essid:
         print("Reached connected state with ESSID: {}".format(essid))
     elif ssid != essid:
-        error_msg = "ERROR: did not reach connected state with ESSID: {}\nESSID mismatch:\n  Excepted:{}\n  Actually:{}".format(
-            essid, ssid, essid
-        )
+        error_msg = (
+            "ERROR: did not reach connected state with ESSID: {}\n"
+            "ESSID mismatch:\n  Excepted:{}\n  Actually:{}"
+        ).format(essid, ssid, essid)
         raise SystemExit(error_msg)
     elif not state.startswith("100"):
         error_msg = "State is not connected: {}".format(state)

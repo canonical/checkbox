@@ -24,6 +24,7 @@ template-id: suspend/index_suspend_after_switch_to_card_product_slug_auto
 requires:
  sleep.mem == 'supported'
  rtc.state == 'supported'
+depends: graphics/{index}_auto_switch_card_{product_slug}
 after: graphics/{index}_auto_switch_card_{product_slug}
 user: root
 environ: PLAINBOX_SESSION_SHARE

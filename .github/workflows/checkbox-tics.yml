@@ -27,21 +27,11 @@ jobs:
           sudo apt install -y python3-pip pylint flake8 tox
           echo "::endgroup::"
 
-      # - name: Install Checkbox
-      #   run: |
-      #     python3 -m pip install $PWD/checkbox-ng
-      #     python3 -m pip install $PWD/checkbox-support
-      #     python3 -m pip install $PWD/providers/base
-      #     python3 -m pip install $PWD/providers/certification-client
-      #     python3 -m pip install $PWD/providers/certification-server
-      #     python3 -m pip install $PWD/providers/docker
-      #     python3 -m pip install $PWD/providers/genio
-      #     python3 -m pip install $PWD/providers/gpgpu
-      #     python3 -m pip install $PWD/providers/iiotg
-      #     python3 -m pip install $PWD/providers/resource
-      #     python3 -m pip install $PWD/providers/sru
-      #     python3 -m pip install $PWD/providers/tpm2
-      #     python3 -m pip install $PWD/providers/tutorial
+      - name: Install Checkbox
+        run: |
+          python3 -m pip install $PWD/checkbox-ng
+          python3 -m pip install $PWD/checkbox-support
+          python3 -m pip install psutil opencv_python natsort
 
       - name: Run coverage tests
         run: |
@@ -49,14 +39,13 @@ jobs:
           python3 -m pip install pytest
           
           # Checkbox-ng
-          python3 -m pip install $PWD/checkbox-ng
-          python3 -m pip install psutil
+          # python3 -m pip install $PWD/checkbox-ng
+          # python3 -m pip install psutil
           # coverage run --append -m pytest $PWD/checkbox-ng
 
           # Checkbox-support
-          python3 -m pip install $PWD/checkbox-support
-          python3 -m pip install pytest-cov
-          python3 -m pip install opencv_python
+          # python3 -m pip install $PWD/checkbox-support
+          # python3 -m pip install pytest-cov
           # coverage run --append -m pytest $PWD/checkbox-support/checkbox_support/
 
           # Providers

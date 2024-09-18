@@ -18,6 +18,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Workaround SSL Certificates manual verification for Python
+        run: |
+          curl --fail --silent --show-error https://pypi.python.org
+          curl --fail --silent --show-error https://pypi.org
+          curl --fail --silent --show-error https://files.pythonhosted.org
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+        env:
+          PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
+
+      - name: Install libsystemd-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsystemd-dev
+          
       - name: Install dependencies
         run: |
           echo "::group::apt update"
@@ -31,7 +49,7 @@ jobs:
         run: |
           python3 -m pip install $PWD/checkbox-ng
           python3 -m pip install $PWD/checkbox-support
-          python3 -m pip install psutil opencv_python natsort
+          python3 -m pip install psutil opencv_python natsort libsvm
 
       - name: Run coverage tests
         run: |
@@ -39,38 +57,22 @@ jobs:
           python3 -m pip install pytest
           
           # Checkbox-ng
-          # python3 -m pip install $PWD/checkbox-ng
-          # python3 -m pip install psutil
           # coverage run --append -m pytest $PWD/checkbox-ng
 
           # Checkbox-support
-          # python3 -m pip install $PWD/checkbox-support
-          # python3 -m pip install pytest-cov
           # coverage run --append -m pytest $PWD/checkbox-support/checkbox_support/
 
           # Providers
-          python3 -m pip install libsvm
-          # python3 -m pip install $PWD/providers/base
           coverage run --append $PWD/providers/base/manage.py test -u
-          # python3 -m pip install $PWD/providers/certification-client
           coverage run --append $PWD/providers/certification-client/manage.py test -u
-          # python3 -m pip install $PWD/providers/certification-server
           coverage run --append $PWD/providers/certification-server/manage.py test -u
-          # python3 -m pip install $PWD/providers/docker
           coverage run --append $PWD/providers/docker/manage.py test -u
-          # python3 -m pip install $PWD/providers/genio
           coverage run --append $PWD/providers/genio/manage.py test -u
-          # python3 -m pip install $PWD/providers/gpgpu
           coverage run --append $PWD/providers/gpgpu/manage.py test -u
-          # python3 -m pip install $PWD/providers/iiotg
           coverage run --append $PWD/providers/iiotg/manage.py test -u
-          # python3 -m pip install $PWD/providers/resource
           coverage run --append $PWD/providers/resource/manage.py test -u
-          # python3 -m pip install $PWD/providers/sru
           coverage run --append $PWD/providers/sru/manage.py test -u
-          # python3 -m pip install $PWD/providers/tpm2
           coverage run --append $PWD/providers/tpm2/manage.py test -u
-          # python3 -m pip install $PWD/providers/tutorial
           coverage run --append $PWD/providers/tutorial/manage.py test -u
 
       - name: TICS GitHub Action

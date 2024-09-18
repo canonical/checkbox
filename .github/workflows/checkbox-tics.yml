@@ -18,12 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Workaround SSL Certificates manual verification for Python
-        run: |
-          curl --fail --silent --show-error https://pypi.python.org
-          curl --fail --silent --show-error https://pypi.org
-          curl --fail --silent --show-error https://files.pythonhosted.org
-      
       - name: Setup Python
         uses: actions/setup-python@v4
         with:

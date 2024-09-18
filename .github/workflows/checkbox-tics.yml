@@ -55,6 +55,7 @@ jobs:
 
           # Checkbox-support
           python3 -m pip install $PWD/checkbox-support
+          python3 -m pip list
           coverage run --append -m pytest $PWD/checkbox-support/checkbox_support/
 
           # Providers

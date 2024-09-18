@@ -17,7 +17,7 @@ jobs:
       matrix:
         include:
           # Latest branches
-          - { branch: main }
+          - { branch: add-tics-ci }
 
     steps:
     #   - name: Harden Runner

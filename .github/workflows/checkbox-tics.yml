@@ -55,7 +55,9 @@ jobs:
 
           # Checkbox-support
           python3 -m pip install $PWD/checkbox-support
-          python3 -m pip list
+          python3 -m pip install pytest-cov
+          python3 -m pip install opencv_python
+          
           coverage run --append -m pytest $PWD/checkbox-support/checkbox_support/
 
           # Providers

@@ -371,8 +371,9 @@ class TestLXDTest_sriov(TestCase):
     @patch("time.sleep")
     @patch("virtualization.print")
     @patch("virtualization.logging")
-    def test_start_sriov_success(self, logging_mock, print_mock,
-                                 time_sleep_mock):
+    def test_start_sriov_success(
+        self, logging_mock, print_mock, time_sleep_mock
+    ):
         self_mock = MagicMock()
         self_mock.setup.return_value = True
         self_mock.image_url = "image url"

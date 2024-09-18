@@ -4,6 +4,10 @@ on:
   push:
     branches:
       - "add-tics-ci"
+    paths:
+      - checkbox-ng/**
+      - checkbox-support/**
+      - providers/**
   schedule:
     - cron: '0 10 * * *'
   workflow_dispatch:

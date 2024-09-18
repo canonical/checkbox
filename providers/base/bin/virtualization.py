@@ -193,16 +193,18 @@ def check_sriov_interfaces():
                                 link_status[interface] = "offline"
             except IOError as e:
                 logging.error(
-                    f"Error reading from file in \
-                             {device_path}: {e}"
+                    "Error reading from file in {}: {}".format(
+                        device_path, e
+                    )
                 )
             except ValueError as e:
                 logging.error(
-                    f"Error processing values for \
-                             {device_path}: {e}"
+                    "Error processing values for  {}: {}".format(
+                        device_path, e
+                    )
                 )
     except Exception as e:
-        logging.error(f"Failed to process interfaces: {e}")
+        logging.error("Failed to process interfaces: {}".format(e))
 
     if intel_device is not None:
         return intel_device

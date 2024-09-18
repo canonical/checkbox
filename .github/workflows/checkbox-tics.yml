@@ -1,0 +1,100 @@
+name: Security and quality nightly scan
+
+on:
+  push:
+    branches:
+      - "add-tics-ci"
+  schedule:
+    - cron: '0 10 * * *'
+  workflow_dispatch:
+ 
+permissions:
+  contents: read
+
+jobs:
+  TICS:
+    runs-on: ubuntu-latest
+    environment: TICS
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+        env:
+          PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
+
+      - name: Install dependencies
+        run: |
+          echo "::group::apt update"
+          sudo apt-get update
+          echo "::endgroup::"
+          echo "::group::apt install..."
+          sudo apt-get install -y libsystemd-dev python3-pip pylint flake8
+          echo "::endgroup::"
+
+      - name: Install Checkbox
+        run: |
+          pip install $PWD/checkbox-ng
+          pip install $PWD/checkbox-support
+          pip install psutil opencv_python natsort libsvm coverage pytest
+
+      - name: Run coverage tests
+        run: |
+          REPO_DIR="$PWD"
+          mkdir .coverage/
+          COVR_DIR="$PWD/.coverage"
+
+          # Providers
+          echo "::group::coverage tests for providers..."
+          cd $REPO_DIR/providers/base
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/certification-client
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/certification-server
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/docker
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/genio
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/gpgpu
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/iiotg
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/resource
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/sru
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/tpm2
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/tutorial
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
+          cd $REPO_DIR
+          echo "::endgroup::"
+
+          # Checkbox-ng
+          echo "::group::coverage tests for checkbox-ng..."
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage -m pytest $PWD/checkbox-ng
+          echo "::endgroup::"
+
+          # Checkbox-support
+          echo "::group::coverage tests for checkbox-support..."
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage -m pytest $PWD/checkbox-support/checkbox_support/
+          echo "::endgroup::"
+
+          # Coverage report XML
+          echo "::group::coverage XML report..."
+          coverage xml -i --data-file ./.coverage/.coverage -o ./.coverage/cobertura.xml
+          echo "::endgroup::"
+
+      - name: TICS GitHub Action
+        uses: tiobe/tics-github-action@v3
+        with:
+          mode: qserver
+          project: checkbox
+          viewerUrl: https://canonical.tiobe.com/tiobeweb/TICS/api/cfg?name=default
+          branchdir: ${{ env.GITHUB_WORKSPACE }}
+          ticsAuthToken: ${{ secrets.TICSAUTHTOKEN }}
+          installTics: true
+          calc: ALL

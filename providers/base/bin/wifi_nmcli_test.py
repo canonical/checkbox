@@ -15,11 +15,11 @@ import functools
 import os
 import subprocess as sp
 import sys
-import time
 import shlex
 
 from packaging import version as version_parser
 
+from checkbox_support.helpers.retry import retry
 from gateway_ping_test import ping
 
 
@@ -108,17 +108,12 @@ def delete_test_ap_ssid_connection():
     print("TEST_CON is deleted")
 
 
+@retry(max_attempts=5, delay=60)
 def device_rescan():
     print_head("Calling a rescan")
     cmd = "nmcli d wifi rescan"
     print_cmd(cmd)
-    retcode = sp.call(shlex.split(cmd))
-    if retcode != 0:
-        # Most often the rescan request fails because NM has itself started
-        # a scan in recent past, we should let these operations complete before
-        # attempting a connection
-        print("Scan request failed, allow other operations to complete (15s)")
-        time.sleep(15)
+    sp.run(shlex.split(cmd), check=True)
     print()
 
 
@@ -183,42 +178,28 @@ def perform_ping_test(interface):
     return False
 
 
-def wait_for_connected(interface, essid, max_wait=5):
-    connected = False
-    attempts = 0
-    while not connected and attempts < max_wait:
-        cmd = (
-            "nmcli -m tabular -t -f GENERAL.STATE,GENERAL.CONNECTION "
-            "d show {}".format(interface)
-        )
-        print_cmd(cmd)
-        output = sp.check_output(shlex.split(cmd))
-        state, ssid = output.decode(sys.stdout.encoding).strip().splitlines()
+@retry(max_attempts=5, delay=1)
+def wait_for_connected(interface, essid):
+    cmd = (
+        "nmcli -m tabular -t -f GENERAL.STATE,GENERAL.CONNECTION "
+        "d show {}".format(interface)
+    )
+    print_cmd(cmd)
+    output = sp.check_output(shlex.split(cmd))
+    print(output.decode(sys.stdout.encoding))
+    state, ssid = output.decode(sys.stdout.encoding).strip().splitlines()
 
-        if state.startswith("100") and ssid == essid:
-            connected = True
-            break
-
-        time.sleep(1)
-        attempts += 1
-
-    if connected:
+    if state.startswith("100") and ssid == essid:
         print("Reached connected state with ESSID: {}".format(essid))
-    else:
-        print(
-            "ERROR: did not reach connected state with ESSID: {}".format(essid)
+    elif ssid != essid:
+        error_msg = "ERROR: did not reach connected state with ESSID: {}\nESSID mismatch:\n  Excepted:{}\n  Actually:{}".format(
+            essid, ssid, essid
         )
-        if ssid != essid:
-            print(
-                "ESSID mismatch:\n  Excepted:{}\n  Actually:{}".format(
-                    ssid, essid
-                )
-            )
-        if not state.startswith("100"):
-            print("State is not connected: {}".format(state))
-
+        raise SystemExit(error_msg)
+    elif not state.startswith("100"):
+        error_msg = "State is not connected: {}".format(state)
+        raise SystemExit(error_msg)
     print()
-    return connected
 
 
 def connection(cmd, device):
@@ -380,6 +361,7 @@ def parser_args():
     return args
 
 
+@retry(max_attempts=5, delay=60)
 def main():
     args = parser_args()
     start_time = datetime.datetime.now()

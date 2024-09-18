@@ -37,6 +37,7 @@ jobs:
     #     run: go mod download
       - name: TICS scan
         run: |
+          REPO_DIR="$PWD"
           export TICSAUTHTOKEN=${{ secrets.TICSAUTHTOKEN }}
 
           set -x
@@ -46,26 +47,29 @@ jobs:
           # Create and activate the Python virtual environment:
           ls -la
           pwd
-          cd $PWD/checkbox-ng
+          cd $REPO_DIR/checkbox-ng
           ./mk-venv
           source ./venv/bin/activate
-          cd ../
 
           # Activate the base providers in the virtual environment from within the virtual environment:
-          .$PWD/providers/resource/manage.py develop -d $PROVIDERPATH
-          .$PWD/providers/base/manage.py develop -d $PROVIDERPATH
+          cd $REPO_DIR/providers/resource
+          ./manage.py develop -d $PROVIDERPATH
+          cd $REPO_DIR/providers/base
+          ./manage.py develop -d $PROVIDERPATH
 
           # Build the executables under the providers in the virtual environment:
-          .$PWD/providers/resource/manage.py build
-          .$PWD/providers/base/manage.py build
+          cd $REPO_DIR/providers/resource
+          ./manage.py build
+          cd $REPO_DIR/providers/base
+          ./manage.py build
 
           # Install the Checkbox support library in the virtual environment:
-          # cd ~/checkbox/checkbox-support
-          python3 -m pip install -e ~/checkbox/checkbox-support
+          # cd $REPO_DIR/checkbox-support
+          python3 -m pip install -e .
 
           # TICS requires us to have the test results in cobertura xml format under the
           # directory use below
-          # cd ~/checkbox
+          # cd $REPO_DIR
           python3 -m pip install coverage
           coverage run providers/resource/manage.py test -u
           coverage run --append providers/base/manage.py test -u

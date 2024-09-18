@@ -17,7 +17,7 @@ jobs:
       matrix:
         include:
           # Latest branches
-          - { branch: add-tics-ci }
+          - { branch: main }
 
     steps:
     #   - name: Harden Runner
@@ -44,6 +44,7 @@ jobs:
           sudo apt install python3-virtualenv
 
           # Create and activate the Python virtual environment:
+          ls -la
           cd ~/checkbox/checkbox-ng
           ./mk-venv
           . ~/checkbox/checkbox-ng/venv/bin/activate

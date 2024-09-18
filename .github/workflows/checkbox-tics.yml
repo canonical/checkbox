@@ -8,74 +8,63 @@ on:
     - cron: '0 10 * * *'
   workflow_dispatch:
  
+permissions:
+  contents: read
+
 jobs:
   TICS:
-    permissions:
-      contents: read
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          # Latest branches
-          - { branch: main }
-
+    environment: TICS
     steps:
-    #   - name: Harden Runner
-    #     uses: step-security/harden-runner@v2
-    #     with:
-    #       egress-policy: audit
-      - name: Checking out repo
-        uses: actions/checkout@v4
-        with:
-          ref: ${{matrix.branch}}
-    #   - name: Install Go
-    #     uses: actions/setup-go@v5
-    #     with:
-    #       go-version: "1.22"
-    #   - name: go mod download
-    #     working-directory: src/k8s
-    #     run: go mod download
-      - name: TICS scan
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
         run: |
-          REPO_DIR="$PWD"
-          export TICSAUTHTOKEN=${{ secrets.TICSAUTHTOKEN }}
+          echo "::group::apt update"
+          sudo apt update
+          echo "::endgroup::"
+          echo "::group::apt install..."
+          sudo apt install -y python3-pip pylint flake8 tox
+          echo "::endgroup::"
 
-          set -x
-          # Install python virtual env
-          sudo apt install python3-virtualenv
+      - name: Install Checkbox
+        run: |
+          cd $PWD/checkbox-ng
+          python3 -m pip install .
+          cd ..
 
-          # Create and activate the Python virtual environment:
-          ls -la
-          pwd
-          cd $REPO_DIR/checkbox-ng
-          ./mk-venv
-          source ./venv/bin/activate
+          cd $PWD/checkbox-support
+          python3 -m pip install .
+          cd ..
 
-          # Activate the base providers in the virtual environment from within the virtual environment:
-          cd $REPO_DIR/providers/resource
-          ./manage.py develop -d $PROVIDERPATH
-          cd $REPO_DIR/providers/base
-          ./manage.py develop -d $PROVIDERPATH
+      - name: Run coverage tests
+        run: |
+          # Providers
+          python3 -m coverage run --append $PWD/providers/base/manage.py test -u
+          python3 -m coverage run --append $PWD/providers/certification-client/manage.py test -u
+          python3 -m coverage run --append $PWD/providers/certification-server/manage.py test -u
+          python3 -m coverage run --append $PWD/providers/docker/manage.py test -u
+          python3 -m coverage run --append $PWD/providers/genio/manage.py test -u
+          python3 -m coverage run --append $PWD/providers/gpgpu/manage.py test -u
+          python3 -m coverage run --append $PWD/providers/iiotg/manage.py test -u
+          python3 -m coverage run --append $PWD/providers/resource/manage.py test -u
+          python3 -m coverage run --append $PWD/providers/sru/manage.py test -u
+          python3 -m coverage run --append $PWD/providers/tpm2/manage.py test -u
+          python3 -m coverage run --append $PWD/providers/tutorial/manage.py test -u
 
-          # Build the executables under the providers in the virtual environment:
-          cd $REPO_DIR/providers/resource
-          ./manage.py build
-          cd $REPO_DIR/providers/base
-          ./manage.py build
+          # Checkbox-ng
+          python3 -m coverage run --append -m pytest $PWD/checkbox-ng
 
-          # Install the Checkbox support library in the virtual environment:
-          # cd $REPO_DIR/checkbox-support
-          python3 -m pip install -e .
+          # Checkbox-support
+          python3 -m coverage run --append -m pytest $PWD/checkbox-support
 
-          # TICS requires us to have the test results in cobertura xml format under the
-          # directory use below
-          # cd $REPO_DIR
-          python3 -m pip install coverage
-          coverage run providers/resource/manage.py test -u
-          coverage run --append providers/base/manage.py test -u
-          coverage xml
-
-          # Install the TICS
-          . <(curl --silent --show-error 'https://canonical.tiobe.com/tiobeweb/TICS/api/public/v1/fapi/installtics/Script?cfg=default&platform=linux&url=https://canonical.tiobe.com/tiobeweb/TICS/')
-
-          TICSQServer -project checkbox -tmpdir /tmp/tics -branchdir .
+      - name: TICS GitHub Action
+        uses: tiobe/tics-github-action@v3
+        with:
+          mode: qserver
+          project: checkbox
+          viewerUrl: https://canonical.tiobe.com/tiobeweb/TICS/api/cfg?name=default
+          branchdir: ${{ env.GITHUB_WORKSPACE }}
+          ticsAuthToken: ${{ secrets.TICSAUTHTOKEN }}
+          installTics: true
+          calc: ALL

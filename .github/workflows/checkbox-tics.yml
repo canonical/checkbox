@@ -27,40 +27,32 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python }}
+          python-version: py310
         env:
           PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
 
-      - name: Install libsystemd-dev
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libsystemd-dev
-          
       - name: Install dependencies
         run: |
           echo "::group::apt update"
-          sudo apt update
+          sudo apt-get update
           echo "::endgroup::"
           echo "::group::apt install..."
-          sudo apt install -y python3-pip pylint flake8 tox
+          sudo apt-get install -y python3-pip pylint flake8 tox libsystemd-dev
           echo "::endgroup::"
 
       - name: Install Checkbox
         run: |
           python3 -m pip install $PWD/checkbox-ng
           python3 -m pip install $PWD/checkbox-support
-          python3 -m pip install psutil opencv_python natsort libsvm
+          python3 -m pip install psutil opencv_python natsort libsvm coverage pytest
 
       - name: Run coverage tests
         run: |
-          python3 -m pip install coverage
-          python3 -m pip install pytest
-          
           # Checkbox-ng
-          # coverage run --append -m pytest $PWD/checkbox-ng
+          coverage run --append -m pytest $PWD/checkbox-ng
 
           # Checkbox-support
-          # coverage run --append -m pytest $PWD/checkbox-support/checkbox_support/
+          coverage run --append -m pytest $PWD/checkbox-support/checkbox_support/
 
           # Providers
           coverage run --append $PWD/providers/base/manage.py test -u

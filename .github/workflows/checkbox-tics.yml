@@ -46,29 +46,24 @@ jobs:
           # Create and activate the Python virtual environment:
           ls -la
           pwd
-          cd ~/checkbox/checkbox-ng
-          ./mk-venv
-          . ~/checkbox/checkbox-ng/venv/bin/activate
+          .~/checkbox/checkbox/checkbox-ng/mk-venv
+          .~/checkbox/checkbox/checkbox-ng/venv/bin/activate
 
           # Activate the base providers in the virtual environment from within the virtual environment:
-          cd ~/checkbox/providers/resource/
-          ./manage.py develop -d $PROVIDERPATH
-          cd ~/checkbox/providers/base
-          ./manage.py develop -d $PROVIDERPATH
+          .~/checkbox/checkbox/providers/resource/manage.py develop -d $PROVIDERPATH
+          .~/checkbox/checkbox/providers/base/manage.py develop -d $PROVIDERPATH
 
           # Build the executables under the providers in the virtual environment:
-          cd ~/checkbox/providers/resource/
-          ./manage.py build
-          cd ~/checkbox/providers/base
-          ./manage.py build
+          .~/checkbox/providers/resource/manage.py build
+          .~/checkbox/providers/base/manage.py build
 
           # Install the Checkbox support library in the virtual environment:
-          cd ~/checkbox/checkbox-support
-          python3 -m pip install -e .
+          # cd ~/checkbox/checkbox-support
+          python3 -m pip install -e ~/checkbox/checkbox-support
 
           # TICS requires us to have the test results in cobertura xml format under the
           # directory use below
-          cd ~/checkbox
+          # cd ~/checkbox
           python3 -m pip install coverage
           coverage run providers/resource/manage.py test -u
           coverage run --append providers/base/manage.py test -u

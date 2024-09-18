@@ -381,7 +381,7 @@ class TestOpenConnection(unittest.TestCase):
         args.exchange = "wpa-psk"
         args.psk = "password123"
         open_connection(args)
-        self.assertNotIn("wifi-sec", mock_connection.call_args.args[0])
+        self.assertNotIn("wifi-sec", mock_connection.call_args[0][0])
 
 
 class TestSecuredConnection(unittest.TestCase):
@@ -397,7 +397,7 @@ class TestSecuredConnection(unittest.TestCase):
         args.exchange = "wpa-psk"
         args.psk = "password123"
         secured_connection(args)
-        self.assertIn("wifi-sec", mock_connection.call_args.args[0])
+        self.assertIn("wifi-sec", mock_connection.call_args[0][0])
 
 
 class TestParserArgs(unittest.TestCase):

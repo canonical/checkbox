@@ -227,13 +227,34 @@ def wait_for_connected(interface, essid, max_wait=5):
     return connected
 
 
+def connection(cmd, device):
+    print_head("Connection attempt")
+    print_cmd(cmd)
+    sp.run(shlex.split(cmd), check=True)
+
+    # Make sure the connection is brought up
+    turn_up_connection("TEST_CON")
+
+    print_head("Ensure interface is connected")
+    wait_for_connected(device, "TEST_CON")
+
+    print_head("Display address")
+    print_address_info(device)
+
+    print_head("Display route table")
+    print_route_info()
+
+    print_head("Perform a ping test")
+    perform_ping_test(device)
+    print("Connection test passed\n")
+
+
 def open_connection(args):
     # Configure the connection
     # ipv4.dhcp-timeout 30 : ensure plenty of time to get address
     # ipv6.method ignore : I believe that NM can report the device as Connected
     #                      if an IPv6 address is setup. This should ensure in
     #                      this test we are using IPv4
-    print_head("Connection attempt")
     cmd = (
         "nmcli c add con-name TEST_CON "
         "ifname {} "
@@ -244,31 +265,7 @@ def open_connection(args):
         "ipv4.dhcp-timeout 30 "
         "ipv6.method ignore".format(args.device, args.essid)
     )
-    print_cmd(cmd)
-    sp.call(shlex.split(cmd))
-
-    # Make sure the connection is brought up
-    turn_up_connection("TEST_CON")
-
-    print_head("Ensure interface is connected")
-    reached_connected = wait_for_connected(args.device, "TEST_CON")
-
-    rc = 1
-    if reached_connected:
-        print_head("Display address")
-        print_address_info(args.device)
-
-        print_head("Display route table")
-        print_route_info()
-
-        print_head("Perform a ping test")
-        test_result = perform_ping_test(args.device)
-        if test_result:
-            rc = 0
-            print("Connection test passed\n")
-        else:
-            print("Connection test failed\n")
-    return rc
+    connection(cmd, args.device)
 
 
 def secured_connection(args):
@@ -277,7 +274,6 @@ def secured_connection(args):
     # ipv6.method ignore : I believe that NM can report the device as Connected
     #                      if an IPv6 address is setup. This should ensure in
     #                      this test we are using IPv4
-    print_head("Connection attempt")
     cmd = (
         "nmcli c add con-name TEST_CON "
         "ifname {} "
@@ -292,31 +288,7 @@ def secured_connection(args):
             args.device, args.essid, args.exchange, args.psk
         )
     )
-    print_cmd(cmd)
-    sp.call(shlex.split(cmd))
-
-    # Make sure the connection is brought up
-    turn_up_connection("TEST_CON")
-
-    print_head("Ensure interface is connected")
-    reached_connected = wait_for_connected(args.device, "TEST_CON")
-
-    rc = 1
-    if reached_connected:
-        print_head("Display address")
-        print_address_info(args.device)
-
-        print_head("Display route table")
-        print_route_info()
-
-        print_head("Perform a ping test")
-        test_result = perform_ping_test(args.device)
-        if test_result:
-            rc = 0
-            print("Connection test passed\n")
-        else:
-            print("Connection test failed\n")
-    return rc
+    connection(cmd, args.device)
 
 
 def hotspot(args):

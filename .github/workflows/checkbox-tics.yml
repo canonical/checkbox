@@ -39,6 +39,8 @@ jobs:
 
       - name: Run coverage tests
         run: |
+          python3 -m pip install coverage
+          
           # Providers
           python3 -m coverage run --append $PWD/providers/base/manage.py test -u
           python3 -m coverage run --append $PWD/providers/certification-client/manage.py test -u

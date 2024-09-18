@@ -99,7 +99,7 @@ def fake_run_with_retry(f, max_attempts, delay, *args, **kwargs):
     return f(*args, **kwargs)
 
 
-mock_timeout = functools.partial(
+mock_retry = functools.partial(
     patch,
     "checkbox_support.helpers.retry.run_with_retry",
     new=fake_run_with_retry,

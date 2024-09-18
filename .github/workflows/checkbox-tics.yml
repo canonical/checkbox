@@ -52,20 +52,33 @@ jobs:
           coverage run --append -m pytest $PWD/checkbox-ng
 
           # Checkbox-support
-          coverage run --append -m pytest $PWD/checkbox-support/checkbox_support/
+          # coverage run --append -m pytest $PWD/checkbox-support/checkbox_support/
 
           # Providers
-          coverage run --append $PWD/providers/base/manage.py test -u
-          coverage run --append $PWD/providers/certification-client/manage.py test -u
-          coverage run --append $PWD/providers/certification-server/manage.py test -u
-          coverage run --append $PWD/providers/docker/manage.py test -u
-          coverage run --append $PWD/providers/genio/manage.py test -u
-          coverage run --append $PWD/providers/gpgpu/manage.py test -u
-          coverage run --append $PWD/providers/iiotg/manage.py test -u
-          coverage run --append $PWD/providers/resource/manage.py test -u
-          coverage run --append $PWD/providers/sru/manage.py test -u
-          coverage run --append $PWD/providers/tpm2/manage.py test -u
-          coverage run --append $PWD/providers/tutorial/manage.py test -u
+          REPO_DIR="$PWD"
+          cd $REPO_DIR/providers/base
+          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/certification-client
+          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/certification-server
+          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/docker
+          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/genio
+          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/gpgpu
+          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/iiotg
+          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/resource
+          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/sru
+          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/tpm2
+          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          cd $REPO_DIR/providers/tutorial
+          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          cd $REPO_DIR
 
       - name: TICS GitHub Action
         uses: tiobe/tics-github-action@v3

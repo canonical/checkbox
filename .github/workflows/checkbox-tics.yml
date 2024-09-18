@@ -48,12 +48,6 @@ jobs:
 
       - name: Run coverage tests
         run: |
-          # Checkbox-ng
-          coverage run --append -m pytest $PWD/checkbox-ng
-
-          # Checkbox-support
-          # coverage run --append -m pytest $PWD/checkbox-support/checkbox_support/
-
           # Providers
           REPO_DIR="$PWD"
           cd $REPO_DIR/providers/base
@@ -79,6 +73,12 @@ jobs:
           cd $REPO_DIR/providers/tutorial
           coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
           cd $REPO_DIR
+
+          # Checkbox-ng
+          coverage run --append -m pytest $PWD/checkbox-ng
+
+          # Checkbox-support
+          # coverage run --append -m pytest $PWD/checkbox-support/checkbox_support/
 
       - name: TICS GitHub Action
         uses: tiobe/tics-github-action@v3

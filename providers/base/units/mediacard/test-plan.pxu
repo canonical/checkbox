@@ -14,9 +14,7 @@ _name: Mediacard tests (Manual)
 _description:
  Mediacard tests (Manual)
 include:
- mediacard/sdhc-insert                          certification-status=blocker
- mediacard/sdhc-storage                         certification-status=blocker
- mediacard/sdhc-remove                          certification-status=blocker
+ mediacard/sdhc-storage-manual                  certification-status=blocker
 
 id: mediacard-cert-automated
 unit: test plan
@@ -31,27 +29,21 @@ unit: test plan
 _name: Mediacard tests (after suspend)
 _description: Mediacard tests (after suspend)
 include:
- after-suspend-mediacard/sdhc-insert                          certification-status=blocker
- after-suspend-mediacard/sdhc-storage                         certification-status=blocker
- after-suspend-mediacard/sdhc-remove                          certification-status=blocker
+ after-suspend-mediacard/sdhc-storage-manual       certification-status=blocker
 
 id: mediacard-cert-blockers
 unit: test plan
 _name: Mediacard tests (certification blockers only)
 _description: Mediacard tests (certification blockers only)
 include:
-    mediacard/sdhc-insert                          certification-status=blocker
-    mediacard/sdhc-storage                         certification-status=blocker
-    mediacard/sdhc-remove                          certification-status=blocker
+    mediacard/sdhc-storage-manual                  certification-status=blocker
 
 id: after-suspend-mediacard-cert-blockers
 unit: test plan
 _name: Mediacard tests (after suspend, certification blockers only)
 _description: Mediacard tests (after suspend, certification blockers only)
 include:
-    suspend/sdhc-insert-after-suspend              certification-status=blocker
-    suspend/sdhc-storage-after-suspend             certification-status=blocker
-    suspend/sdhc-remove-after-suspend              certification-status=blocker
+    suspend/sdhc-storage-manual-after-suspend      certification-status=blocker
 
 id: mediacard-full
 unit: test plan
@@ -68,30 +60,14 @@ unit: test plan
 _name: Manual mediacard tests
 _description: Manual mediacard tests for Snappy Ubuntu Core devices
 include:
-    mediacard/cf-insert
-    mediacard/cf-storage
-    mediacard/cf-remove
-    mediacard/mmc-insert
-    mediacard/mmc-storage
-    mediacard/mmc-remove
-    mediacard/ms-insert
-    mediacard/ms-storage
-    mediacard/ms-remove
-    mediacard/msp-insert
-    mediacard/msp-storage
-    mediacard/msp-remove
-    mediacard/sd-insert
-    mediacard/sd-storage
-    mediacard/sd-remove
-    mediacard/sdhc-insert
-    mediacard/sdhc-storage
-    mediacard/sdhc-remove
-    mediacard/sdxc-insert
-    mediacard/sdxc-storage
-    mediacard/sdxc-remove
-    mediacard/xd-insert
-    mediacard/xd-storage
-    mediacard/xd-remove
+    mediacard/cf-storage-manual
+    mediacard/mmc-storage-manual
+    mediacard/ms-storage-manual
+    mediacard/msp-storage-manual
+    mediacard/sd-storage-manual
+    mediacard/sdhc-storage-manual
+    mediacard/sdxc-storage-manual
+    mediacard/xd-storage-manual
 
 id: mediacard-automated
 unit: test plan

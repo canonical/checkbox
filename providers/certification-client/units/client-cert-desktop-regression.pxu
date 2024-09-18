@@ -58,9 +58,7 @@ include:
     touchpad/vertical
     usb/detect
     usb/HID
-    usb/insert
-    usb/storage-automated
-    usb/remove
+    usb/storage-manual
     wireless/wireless_scanning
     suspend/suspend-time-check
     suspend/suspend-single-log-attach

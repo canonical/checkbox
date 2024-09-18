@@ -18,18 +18,16 @@ category_id: com.canonical.plainbox::usb
 id: usb/zapper-usb-insert-{{ port_alias }}
 template-id: usb/zapper-usb-insert-port_alias
 template-engine: jinja2
-_summary: Zapper-driven USB insertion test on port {{ port_alias }}
+_summary: Zapper-driven USB insertion + removal test on port {{ port_alias }}
+_purpose:
+ Check the insertion and removal of a USB 2.0 storage device using zapper.
 requires: usb.usb2 == 'supported'
 plugin: shell
 user: root
 environ: ZAPPER_HOST
 command:
- {%- if __on_ubuntucore__ %}
-     checkbox-support-run_watcher --zapper-usb-address={{ port_alias }} insertion usb2
- {%- else %}
-     removable_storage_watcher.py --unmounted --zapper-usb-address={{ port_alias }} insert usb
- {% endif -%}
-estimated_duration: 20
+ checkbox-support-run_watcher --zapper-usb-address={{ port_alias }} insertion usb2
+estimated_duration: 30
 
 unit: template
 template-resource: zapper_capabilities
@@ -38,58 +36,16 @@ category_id: com.canonical.plainbox::usb
 id: usb3/zapper-usb-insert-{{ port_alias }}
 template-id: usb3/zapper-usb-insert-port_alias
 template-engine: jinja2
-_summary: Zapper-driven USB 3.0 insertion test on port {{ port_alias }}
+_summary: Zapper-driven USB 3 insertion + removal test test on port {{ port_alias }}
+_purpose:
+ Check the insertion and removal of a USB 3.0 storage device using zapper.
 requires: usb.usb3 == 'supported'
 plugin: shell
 user: root
 environ: ZAPPER_HOST
 command:
- {%- if __on_ubuntucore__ %}
-     checkbox-support-run_watcher --zapper-usb-address={{ port_alias }} insertion usb3
- {%- else %}
-     removable_storage_watcher.py --unmounted -m 500000000 --zapper-usb-address={{ port_alias }} insert usb
- {% endif -%}
-estimated_duration: 20
-
-unit: template
-template-resource: zapper_capabilities
-template-filter: zapper_capabilities.capability == 'USB hotplug' and zapper_capabilities.usb_version == '2'
-category_id: com.canonical.plainbox::usb
-id: usb/zapper-usb-remove-{{ port_alias }}
-template-id: usb/zapper-usb-remove-port_alias
-template-engine: jinja2
-_summary: Zapper-driven USB removal test on port {{ port_alias }}
-requires: usb.usb2 == 'supported'
-plugin: shell
-user: root
-environ: ZAPPER_HOST
-command:
- {%- if __on_ubuntucore__ %}
-     checkbox-support-run_watcher --zapper-usb-address={{ port_alias }} removal usb2
- {%- else %}
-     removable_storage_watcher.py --unmounted --zapper-usb-address={{ port_alias }} remove usb
- {% endif -%}
-estimated_duration: 20
-
-unit: template
-template-resource: zapper_capabilities
-template-filter: zapper_capabilities.capability == 'USB hotplug' and zapper_capabilities.usb_version == '3'
-category_id: com.canonical.plainbox::usb
-id: usb3/zapper-usb-remove-{{ port_alias }}
-template-id: usb3/zapper-usb-remove-port_alias
-template-engine: jinja2
-_summary: Zapper-driven USB 3.0 removal test on port {{ port_alias }}
-requires: usb.usb3 == 'supported'
-plugin: shell
-user: root
-environ: ZAPPER_HOST
-command:
- {%- if __on_ubuntucore__ %}
-     checkbox-support-run_watcher --zapper-usb-address={{ port_alias }} removal usb3
- {%- else %}
-     removable_storage_watcher.py --unmounted -m 500000000 --zapper-usb-address={{ port_alias }} remove usb
- {% endif -%}
-estimated_duration: 20
+ checkbox-support-run_watcher --zapper-usb-address={{ port_alias }} insertion usb3
+estimated_duration: 30
 
 id: bluetooth/zapper-a2dp
 requires: zapper_capabilities.capability == 'bluetooth' and 'a2dp' in zapper_capabilities.profiles

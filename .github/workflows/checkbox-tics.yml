@@ -50,6 +50,7 @@ jobs:
           
           # Checkbox-ng
           python3 -m pip install $PWD/checkbox-ng
+          python3 -m pip install psutil
           coverage run --append -m pytest $PWD/checkbox-ng
 
           # Checkbox-support

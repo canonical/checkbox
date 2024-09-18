@@ -42,9 +42,9 @@ jobs:
 
       - name: Install Checkbox
         run: |
-          python3 -m pip install $PWD/checkbox-ng
-          python3 -m pip install $PWD/checkbox-support
-          python3 -m pip install psutil opencv_python natsort libsvm coverage pytest
+          pip install $PWD/checkbox-ng
+          pip install $PWD/checkbox-support
+          pip install psutil opencv_python natsort libsvm coverage pytest
 
       - name: Run coverage tests
         run: |

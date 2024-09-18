@@ -45,6 +45,7 @@ jobs:
 
           # Create and activate the Python virtual environment:
           ls -la
+          pwd
           cd ~/checkbox/checkbox-ng
           ./mk-venv
           . ~/checkbox/checkbox-ng/venv/bin/activate

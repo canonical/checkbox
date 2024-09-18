@@ -89,13 +89,10 @@ def turn_down_nm_connections():
     for name, value in connections.items():
         uuid = value["uuid"]
         print("Turn down connection", name)
-        try:
-            cmd = "nmcli c down {}".format(uuid)
-            print_cmd(cmd)
-            sp.call(shlex.split(cmd))
-            print("{} {} is down now".format(name, uuid))
-        except sp.CalledProcessError as e:
-            print("Can't down {}: {}".format(uuid, str(e)))
+        cmd = "nmcli c down {}".format(uuid)
+        print_cmd(cmd)
+        sp.run(shlex.split(cmd), check=True)
+        print("{} {} is down now".format(name, uuid))
     print()
 
 
@@ -105,13 +102,10 @@ def delete_test_ap_ssid_connection():
     if "TEST_CON" not in connections:
         print("No TEST_CON connection found, nothing to delete")
         return
-    try:
-        cmd = "nmcli c delete TEST_CON"
-        print_cmd(cmd)
-        sp.call(shlex.split(cmd))
-        print("TEST_CON is deleted")
-    except Exception as e:
-        print("Can't delete TEST_CON : {}".format(str(e)))
+    cmd = "nmcli c delete TEST_CON"
+    print_cmd(cmd)
+    sp.run(shlex.split(cmd), check=True)
+    print("TEST_CON is deleted")
 
 
 def device_rescan():
@@ -396,31 +390,32 @@ def main():
 
     if args.test_type == "scan":
         if not aps_dict:
-            print("Failed to find any APs")
-            return 1
+            raise SystemExit("Failed to find any access point.")
         else:
             print("Found {} access points".format(len(aps_dict)))
-            return 0
+            return
 
     if not aps_dict:
-        print("Targed access points: {} not found".format(args.essid))
-        return 1
+        raise SystemExit(
+            "Targed access point: {} not found".format(args.essid)
+        )
 
     if args.func:
         delete_test_ap_ssid_connection()
         activated_uuid = get_nm_activate_connection()
         turn_down_nm_connections()
         try:
-            result = args.func(args)
+            args.func(args)
+        except Exception as e:
+            # The test is not required to run as root, but root access is
+            # required for journal access so only attempt to print when e.g.
+            # running under Remote
+            if os.geteuid() == 0:
+                print_journal_entries(start_time)
+            raise e
         finally:
             turn_up_connection(activated_uuid)
             delete_test_ap_ssid_connection()
-
-    # The test is not required to run as root, but root access is required for
-    # journal access so only attempt to print when e.g. running under Remote
-    if result != 0 and os.geteuid() == 0:
-        print_journal_entries(start_time)
-    return result
 
 
 if __name__ == "__main__":

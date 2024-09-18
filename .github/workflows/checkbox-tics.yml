@@ -46,6 +46,7 @@ jobs:
       - name: Run coverage tests
         run: |
           python3 -m pip install coverage
+          python3 -m pip install pytest
           
           # Checkbox-ng
           python3 -m pip install $PWD/checkbox-ng

@@ -47,7 +47,7 @@ jobs:
           ls -la
           pwd
           .$PWD/checkbox-ng/mk-venv
-          .$PWD/checkbox-ng/venv/bin/activate
+          source .$PWD/checkbox-ng/venv/bin/activate
 
           # Activate the base providers in the virtual environment from within the virtual environment:
           .$PWD/providers/resource/manage.py develop -d $PROVIDERPATH

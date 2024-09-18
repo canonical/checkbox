@@ -3,9 +3,8 @@ name: Security and quality nightly scan
 on:
   push:
     branches:
-      - "add-tics-ci"
-  schedule:
-    - cron: '0 10 * * *'
+      - "main"
+      - "add-checkbox-tics"
   workflow_dispatch:
  
 permissions:

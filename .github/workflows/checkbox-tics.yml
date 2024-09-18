@@ -48,37 +48,40 @@ jobs:
 
       - name: Run coverage tests
         run: |
-          # Providers
           REPO_DIR="$PWD"
+          mkdir .coverage/
+          COVR_DIR="$PWD/.coverage"
+
+          # Providers
           cd $REPO_DIR/providers/base
-          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
           cd $REPO_DIR/providers/certification-client
-          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
           cd $REPO_DIR/providers/certification-server
-          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
           cd $REPO_DIR/providers/docker
-          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
           cd $REPO_DIR/providers/genio
-          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
           cd $REPO_DIR/providers/gpgpu
-          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
           cd $REPO_DIR/providers/iiotg
-          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
           cd $REPO_DIR/providers/resource
-          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
           cd $REPO_DIR/providers/sru
-          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
           cd $REPO_DIR/providers/tpm2
-          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
           cd $REPO_DIR/providers/tutorial
-          coverage run --append --data-file=$REPO_DIR/.coverage manage.py test -u
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
           cd $REPO_DIR
 
           # Checkbox-ng
-          coverage run --append -m pytest $PWD/checkbox-ng
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage -m pytest $PWD/checkbox-ng
 
           # Checkbox-support
-          # coverage run --append -m pytest $PWD/checkbox-support/checkbox_support/
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage -m pytest $PWD/checkbox-support/checkbox_support/
 
       - name: TICS GitHub Action
         uses: tiobe/tics-github-action@v3

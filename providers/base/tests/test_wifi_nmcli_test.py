@@ -450,6 +450,7 @@ class TestParserArgs(unittest.TestCase):
         self.assertEqual(args.band, "5GHz")
 
 
+@mock_retry()
 class TestMainFunction(unittest.TestCase):
 
     @patch("wifi_nmcli_test.delete_test_ap_ssid_connection", new=MagicMock())

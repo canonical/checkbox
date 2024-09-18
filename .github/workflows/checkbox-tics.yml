@@ -47,6 +47,14 @@ jobs:
         run: |
           python3 -m pip install coverage
           
+          # Checkbox-ng
+          python3 -m pip install $PWD/checkbox-ng
+          python3 -m coverage run --append -m pytest $PWD/checkbox-ng
+
+          # Checkbox-support
+          python3 -m pip install $PWD/checkbox-support
+          python3 -m coverage run --append -m pytest $PWD/checkbox-support
+
           # Providers
           python3 -m pip install $PWD/providers/base
           python3 -m coverage run --append $PWD/providers/base/manage.py test -u
@@ -70,14 +78,6 @@ jobs:
           python3 -m coverage run --append $PWD/providers/tpm2/manage.py test -u
           python3 -m pip install $PWD/providers/tutorial
           python3 -m coverage run --append $PWD/providers/tutorial/manage.py test -u
-
-          # Checkbox-ng
-          python3 -m pip install $PWD/checkbox-ng
-          python3 -m coverage run --append -m pytest $PWD/checkbox-ng
-
-          # Checkbox-support
-          python3 -m pip install $PWD/checkbox-support
-          python3 -m coverage run --append -m pytest $PWD/checkbox-support
 
       - name: TICS GitHub Action
         uses: tiobe/tics-github-action@v3

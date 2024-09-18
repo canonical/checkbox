@@ -2,6 +2,19 @@ name: Run Workflow on PR Comment
 on:
   workflow_dispatch:
     inputs:
+      # matrix to create is an array where each item is a job configuration
+      # to be dispatched in the lab.
+      # A job configuration is a dict with
+      # - data_source: distribution to provision (ex. distro: desktop-22-04-2-uefi)
+      # - queue: machine that will run the job (ex. 202012-28526)
+      # - test_plan: Checkbox test plan to run (ex. com.canonical.certification::sru)
+      # - match: subset of jobs to run (ex. .*wireless.*)
+      #
+      # One possible matrix_to_create would therefore look like this:
+      # matrix_to_create=[{ data_source: "distro: desktop-22-04-2-uefi", queue: "202012-28526", match: ".*wireless.*", test_plan: "com.canonical.certification::sru" }]'
+      #
+      # To run this workflow manually you can use the `gh` cli utility as follows:
+      # gh workflow run dispatch_lab_job.yaml -f 'matrix_to_create=[...]'
       matrix_to_create:
         description: 'Json formatted description of the jobs to dispatch'
         required: true
@@ -23,7 +36,6 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt install gettext
-          sudo snap install testflinger-cli
       - name: Dispatch test in the lab and monitor it
         env:
           INPUT_DATA_SOURCE: ${{ matrix.spec.data_source }}

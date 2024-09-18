@@ -193,9 +193,7 @@ def check_sriov_interfaces():
                                 link_status[interface] = "offline"
             except IOError as e:
                 logging.error(
-                    "Error reading from file in {}: {}".format(
-                        device_path, e
-                    )
+                    "Error reading from file in {}: {}".format(device_path, e)
                 )
             except ValueError as e:
                 logging.error(

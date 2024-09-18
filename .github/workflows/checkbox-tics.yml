@@ -30,10 +30,18 @@ jobs:
       - name: Install Checkbox
         run: |
           python3 -m pip install $PWD/checkbox-ng
-
-          cd $PWD/checkbox-support
-          python3 -m pip install .
-          cd ..
+          python3 -m pip install $PWD/checkbox-support
+          python3 -m pip install $PWD/providers/base
+          python3 -m pip install $PWD/providers/certification-client
+          python3 -m pip install $PWD/providers/certification-server
+          python3 -m pip install $PWD/providers/docker
+          python3 -m pip install $PWD/providers/genio
+          python3 -m pip install $PWD/providers/gpgpu
+          python3 -m pip install $PWD/providers/iiotg
+          python3 -m pip install $PWD/providers/resource
+          python3 -m pip install $PWD/providers/sru
+          python3 -m pip install $PWD/providers/tpm2
+          python3 -m pip install $PWD/providers/tutorial
 
       - name: Run coverage tests
         run: |

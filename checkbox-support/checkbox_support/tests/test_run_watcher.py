@@ -197,6 +197,15 @@ class TestRunWatcher(unittest.TestCase):
         StorageWatcher._process_lines(mock_watcher, lines)
         mock_watcher._parse_journal_line.assert_has_calls([call("line1")])
 
+    def test_storage_watcher_process_lines_no_testcase(self):
+        lines = ["line1", "line2", "line3"]
+
+        mock_watcher = MagicMock()
+        mock_watcher._parse_journal_line = MagicMock()
+        mock_watcher.testcase = None
+        StorageWatcher._process_lines(mock_watcher, lines)
+        self.assertEqual(mock_watcher._parse_journal_line.call_count, 0)
+
     @mock_timeout()
     def test_storage_watcher_run_insertion(self):
         mock_storage_watcher = MagicMock()

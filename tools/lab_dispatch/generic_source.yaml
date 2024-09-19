@@ -9,8 +9,6 @@ test_data:
       agent: "manifest.conf"
     - local: "tools/lab_dispatch/resources/input.conf"
       agent: "input.conf"
-    - local: "tools/lab_dispatch/resources/service_file.service"
-      agent: "service_file.service"
     - local: "tools/lab_dispatch/build_install_deb.py"
       agent: "build_install_deb.py"
   test_cmds: |

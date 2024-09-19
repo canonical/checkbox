@@ -3,6 +3,7 @@ import numpy as np
 from unittest.mock import patch, MagicMock
 from argparse import Namespace
 from io import StringIO
+from math import inf
 
 from checkbox_support.scripts.psnr import (
     main,
@@ -60,13 +61,12 @@ class TestGetPSNR(unittest.TestCase):
     def test_identical_images(self):
         img1 = self.create_image(100, 100, 255)
         img2 = self.create_image(100, 100, 255)
-        self.assertEqual(_get_psnr(img1, img2), 0.0)
+        self.assertEqual(_get_psnr(img1, img2), np.float32(inf))
 
     def test_different_images(self):
         img1 = self.create_image(100, 100, 255)
         img2 = self.create_image(100, 100, 0)
-        self.assertNotEqual(_get_psnr(img1, img2), 0.0)
-        self.assertLessEqual(_get_psnr(img1, img2), 50.0)
+        self.assertEqual(_get_psnr(img1, img2), 0.0)
 
     def test_similar_images(self):
         img1 = self.create_image(100, 100, 125)

@@ -46,7 +46,7 @@ test_data:
     git -C checkbox checkout $CHECKBOX_REVISION
 
     python3 -m venv --system-site-packages checkbox_venv
-    . checkbox_venv/bin/activate
+    source checkbox_venv/bin/activate
     pip install --upgrade pip setuptools
     pip install checkbox/checkbox-ng
     # retrieve manifest

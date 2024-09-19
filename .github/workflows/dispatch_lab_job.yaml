@@ -36,7 +36,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt install gettext
-      - name: Dispatch test in the lab and monitor it
+      - name: Build test resource
         env:
           INPUT_DATA_SOURCE: ${{ matrix.spec.data_source }}
           INPUT_QUEUE: ${{ matrix.spec.queue }}
@@ -52,7 +52,7 @@ jobs:
           echo "::group::Building the Checkbox launcher"
           envsubst '$INPUT_TEST_PLAN $INPUT_MATCH $INPUT_PASSWORD_SECRET' < resources/input.conf_template | tee resources/input.conf
           echo "::endgroup::"
-      - name: Submit job
+      - name: Submit and monitor job
         uses: canonical/testflinger/.github/actions/submit@main
         with:
           poll: true

@@ -37,13 +37,12 @@ jobs:
         run: |
           pip install -e $PWD/checkbox-ng
           pip install -e $PWD/checkbox-support
-          pip install psutil==5.9.5 opencv_python==4.8.0.76 natsort==8.0.2 libsvm==3.23.0.4 numpy==1.26.4 coverage==7.3.0 pytest
+          pip install opencv_python==4.8.0.76 natsort==8.0.2 libsvm==3.23.0.4 numpy==1.26.4 coverage==7.3.0 pytest
 
       - name: Run coverage tests
         run: |
           REPO_DIR="$PWD"
-          mkdir .coverage/
-          COVR_DIR="$PWD/coverage"
+          COVR_DIR="$PWD/.coverage"
 
           # Providers
           echo "::group::coverage tests for providers..."

@@ -172,10 +172,12 @@ def perform_ping_test(interface):
     if target:
         count = 5
         result = ping(target, interface, count, 10)
-        if result["received"] == count:
-            return True
-
-    return False
+        if result["received"] != count:
+            raise ValueError(
+                "{} packets expected but only {} received".format(
+                    count, result["received"]
+                )
+            )
 
 
 @retry(max_attempts=5, delay=1)

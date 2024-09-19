@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "main"
-      - "add-checkbox-tics"
+      - "add-checkbox-tiobe"
   workflow_dispatch:
  
 permissions:

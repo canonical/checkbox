@@ -28,9 +28,9 @@ jobs:
 
       - name: Install Checkbox
         run: |
-          python -m pip install -e $PWD/checkbox-ng
-          python -m pip install -e $PWD/checkbox-support
-          python -m pip install opencv_python==4.8.0.76 natsort==8.0.2 libsvm==3.23.0.4 numpy==1.26.4 coverage==7.3.0 pytest
+          sudo python -m pip install -e $PWD/checkbox-ng
+          sudo python -m pip install -e $PWD/checkbox-support
+          sudo python -m pip install opencv_python==4.8.0.76 natsort==8.0.2 libsvm==3.23.0.4 numpy==1.26.4 coverage==7.3.0 pytest
 
       - name: Run coverage tests
         run: |

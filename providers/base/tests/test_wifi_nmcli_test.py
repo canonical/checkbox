@@ -36,6 +36,9 @@ from wifi_nmcli_test import (
     connection,
     open_connection,
     secured_connection,
+    print_address_info,
+    print_route_info,
+    perform_ping_test,
     hotspot,
     parser_args,
     main,
@@ -398,6 +401,45 @@ class TestSecuredConnection(unittest.TestCase):
         args.psk = "password123"
         secured_connection(args)
         self.assertIn("wifi-sec", mock_connection.call_args[0][0])
+
+
+class TestDeviceRescan(unittest.TestCase):
+    @patch("wifi_nmcli_test.sp.run")
+    def test_device_rescan_success(self, mock_sp_run):
+        device_rescan()
+
+
+class TestPrintAddressInfo(unittest.TestCase):
+    @patch("wifi_nmcli_test.sp.run")
+    def test_print_address_info_success(self, mock_sp_run):
+        print_address_info("wlan0")
+
+
+class TestPrintRouteInfo(unittest.TestCase):
+    @patch("wifi_nmcli_test.sp.run")
+    def test_print_route_info_success(self, mock_sp_run):
+        print_route_info()
+
+
+@patch("wifi_nmcli_test.ping")
+@patch("wifi_nmcli_test.sp.check_output")
+class TestPerformPingTest(unittest.TestCase):
+    def test_perform_ping_test_success(self, mock_check_output, mock_ping):
+        mock_ping.return_value = {
+            "transmitted": 5,
+            "received": 5,
+            "pct_loss": 0,
+        }
+        perform_ping_test("wlan0")
+
+    def test_perform_ping_test_failure(self, mock_check_output, mock_ping):
+        mock_ping.return_value = {
+            "transmitted": 5,
+            "received": 0,
+            "pct_loss": 0,
+        }
+        with self.assertRaises(ValueError):
+            perform_ping_test("wlan0")
 
 
 class TestParserArgs(unittest.TestCase):

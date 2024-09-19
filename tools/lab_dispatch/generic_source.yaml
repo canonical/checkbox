@@ -40,15 +40,12 @@ test_data:
     _run python3 build_install_deb.py --clean checkbox/checkbox-ng \
         checkbox/checkbox-support checkbox/providers/resource \
         checkbox/providers/base checkbox/providers/sru
-    _run sudo systemctl restart checkbox-ng.service
+    _run sudo systemctl restart checkbox-ng
 
     git clone https://github.com/canonical/checkbox.git
     git -C checkbox checkout $CHECKBOX_REVISION
+    pipx install --spec checkbox/checkbox-ng checkbox-ng
 
-    python3 -m venv --system-site-packages checkbox_venv
-    source checkbox_venv/bin/activate
-    pip install --upgrade pip setuptools
-    pip install checkbox/checkbox-ng
     # retrieve manifest
     MANIFEST_FILE=manifest.conf
     fetch_manifest --manifest_file manifest.conf $CID $HEXR_DEVICE_SECURE_ID

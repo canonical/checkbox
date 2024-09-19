@@ -1168,6 +1168,29 @@ class LXDTest_vm(LXDTest):
             cmd = "ubuntu-drivers install"
             if not self.run_command(cmd, on_guest=True):
                 return False
+        elif gpu_vendor == "amd":
+            logging.debug("Updating machine")
+            cmd = f"bash -c \"apt-get -q update -y; apt-get -q upgrade -y\""
+            if not self.run_command(cmd, on_guest=True):
+                return False
+
+            logging.debug("Installing AMD GPU drivers")
+            cmd = "apt-get -q install -y xserver-xorg-video-all"
+            if not self.run_command(cmd, on_guest=True):
+                return False
+
+            logging.debug("Enabling AMD sysmodules")
+            cmds = [
+                "set -e",
+                "apt-get -q install -y linux-modules-extra-$(uname -r)",
+                "modprobe amdgpu",
+                "modprobe radeon",
+                r"echo -e 'amdgpu\nradeon' >> /etc/modules-load.d/amdgpu.conf",
+                "update-initramfs -u",
+            ]
+            cmd = f"bash -c \"{'; '.join(cmds)}\""
+            if not self.run_command(cmd, on_guest=True):
+                return False
         return True
 
     @override

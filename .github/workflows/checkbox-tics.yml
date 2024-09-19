@@ -17,13 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.10"
-        env:
-          PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
-
       - name: Install dependencies
         run: |
           echo "::group::apt update"

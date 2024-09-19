@@ -895,7 +895,7 @@ class LXDTest:
                 return False
 
             logging.debug("Installing CUDA toolkit on instance")
-            cmd = "apt-get -q install -y --no-install-recommends git make cmake cuda-toolkit"
+            cmd = "apt-get -q install -y --no-install-recommends build-essential cmake cuda-toolkit"
             if not self.run_command(cmd, on_guest=True):
                 logging.error("CUDA toolkit installation failed")
                 return False
@@ -935,9 +935,8 @@ class LXDTest:
                 return False
 
             logging.debug("Installing ROCm on instance")
-            if not self.run_command(
-                "apt-get -q install -y cmake make rocm", on_guest=True
-            ):
+            cmd = "apt-get -q install -y --no-install-recommends cmake build-essential rocm"
+            if not self.run_command(cmd, on_guest=True):
                 logging.error("ROCm installation failed")
                 return False
 
@@ -1156,6 +1155,9 @@ class LXDTest_vm(LXDTest):
     def configure_gpu_device(
         self, gpu_vendor: str, gpu_pci: Optional[str] = None
     ):
+        if not self.run_command("apt-get -q update -y", on_guest=True):
+            return False
+
         if gpu_vendor == "nvidia":
             logging.debug("Installing ubuntu-drivers tool")
             cmd = "apt-get -q install -y ubuntu-drivers-common"

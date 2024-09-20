@@ -1,9 +1,25 @@
 #!/usr/bin/env python3
 import shutil
 import argparse
+import functools
 import subprocess
 
 from pathlib import Path
+
+
+def github_group(group_name):
+    def _group_printing(f):
+        @functools.wraps(f)
+        def _f(*args, **kwargs):
+            print("::group::" + group_name)
+            try:
+                return f(*args, **kwargs)
+            finally:
+                print("::endgroup::")
+
+        return _f
+
+    return _group_printing
 
 
 def parse_args():
@@ -18,19 +34,38 @@ def prepare_repo(repo_root, package_path):
     shutil.move(str(package_path / "debian"), str(repo_root))
 
 
+@github_group("Installing build depends")
 def install_build_depends(repo_root):
     subprocess.check_call(
-        ["sudo", "apt-get", "-y", "build-dep", "."], cwd=repo_root
+        [
+            "sudo",
+            "apt-get",
+            "-y",
+            "-o",
+            'Dpkg::Options::="--force-confdef"',
+            "-o",
+            'Dpkg::Options::="--force-confold"',
+            "build-dep",
+            ".",
+        ],
+        cwd=repo_root,
+        env={"DEBIAN_FRONTEND": "noninteractive"},
     )
 
 
+@github_group("Building the packages")
 def build_package(repo_root):
     # -Pnocheck: skip tests as we have a pipeline that builds/tests debian
     #            packages and doing them on slow machines is a big waste of
     #            time/resources
-    subprocess.check_call(["dpkg-buildpackage", "-Pnocheck"], cwd=repo_root)
+    subprocess.check_call(
+        ["dpkg-buildpackage", "-Pnocheck"],
+        cwd=repo_root,
+        env={"DEBIAN_FRONTEND": "noninteractive"},
+    )
 
 
+@github_group("Installing the packages")
 def install_local_package(repo_root, deb_name_glob):
     # we build in path.parent, dpkg will put the result on ..
     package_list = list(repo_root.parent.glob(deb_name_glob))
@@ -42,6 +77,10 @@ def install_local_package(repo_root, deb_name_glob):
             "apt-get",
             "--fix-broken",
             "-y",
+            "-o",
+            'Dpkg::Options::="--force-confdef"',
+            "-o",
+            'Dpkg::Options::="--force-confold"',
             "install",
         ]
         + package_list,

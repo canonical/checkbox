@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
+import os
 import shutil
 import argparse
 import functools
 import subprocess
 
+from copy import copy
 from pathlib import Path
 
 
@@ -11,11 +13,12 @@ def github_group(group_name):
     def _group_printing(f):
         @functools.wraps(f)
         def _f(*args, **kwargs):
-            print("::group::" + group_name)
+            # flush is necessary to make this appear above subprocess output
+            print("::group::" + group_name, flush=True)
             try:
                 return f(*args, **kwargs)
             finally:
-                print("::endgroup::")
+                print("::endgroup::", flush=True)
 
         return _f
 
@@ -36,6 +39,9 @@ def prepare_repo(repo_root, package_path):
 
 @github_group("Installing build depends")
 def install_build_depends(repo_root):
+    environ = copy(os.environ)
+    environ["DEBIAN_FRONTEND"] = "noninteractive"
+
     subprocess.check_call(
         [
             "sudo",
@@ -45,24 +51,28 @@ def install_build_depends(repo_root):
             ".",
         ],
         cwd=repo_root,
-        env={"DEBIAN_FRONTEND": "noninteractive"},
+        env=environ,
     )
 
 
 @github_group("Building the packages")
 def build_package(repo_root):
+    environ = copy(os.environ)
+    environ["DEBIAN_FRONTEND"] = "noninteractive"
+
     # -Pnocheck: skip tests as we have a pipeline that builds/tests debian
     #            packages and doing them on slow machines is a big waste of
     #            time/resources
     subprocess.check_call(
-        ["dpkg-buildpackage", "-Pnocheck"],
-        cwd=repo_root,
-        env={"DEBIAN_FRONTEND": "noninteractive"},
+        ["dpkg-buildpackage", "-Pnocheck"], cwd=repo_root, env=environ
     )
 
 
 @github_group("Installing the packages")
 def install_local_package(repo_root, deb_name_glob):
+    environ = copy(os.environ)
+    environ["DEBIAN_FRONTEND"] = "noninteractive"
+
     # we build in path.parent, dpkg will put the result on ..
     package_list = list(repo_root.parent.glob(deb_name_glob))
     print(f"==== Installing {package_list} ====")
@@ -77,7 +87,7 @@ def install_local_package(repo_root, deb_name_glob):
         ]
         + package_list,
         cwd=repo_root.parent,
-        env={"DEBIAN_FRONTEND": "noninteractive"},
+        env=environ,
     )
 
 

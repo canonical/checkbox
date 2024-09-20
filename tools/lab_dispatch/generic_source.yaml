@@ -7,8 +7,8 @@ test_data:
   attachments:
     - local: "tools/lab_dispatch/resources/manifest.conf"
       agent: "manifest.conf"
-    - local: "tools/lab_dispatch/resources/input.conf"
-      agent: "input.conf"
+    - local: "tools/lab_dispatch/resources/checkbox.no-manifest.partial.conf"
+      agent: "checkbox.no-manifest.partial.conf"
     - local: "tools/lab_dispatch/build_install_deb.py"
       agent: "build_install_deb.py"
   test_cmds: |
@@ -57,8 +57,9 @@ test_data:
     ### create checkbox launcher
     # first dump the location specific infos in the launcher
     which envsubst || install_packages gettext
-    envsubst < $RESOURCES_PATH/input.conf > test_conf.conf
-    stacker --output checkbox.conf test_conf.conf $MANIFEST_FILE
+    envsubst < $RESOURCES_PATH/checkbox.no-manifest.partial.conf > checkbox.no-manifest.conf
+    # then insert the manifest entries via the stacker
+    stacker --output checkbox.conf checkbox.no-manifest.conf $MANIFEST_FILE
 
     wait_for_ssh
 

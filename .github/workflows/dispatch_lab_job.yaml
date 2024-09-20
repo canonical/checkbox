@@ -1,4 +1,4 @@
-name: Run Workflow on PR Comment
+name: Dispatch Checkbox jobs in the lab
 on:
   workflow_dispatch:
     inputs:
@@ -50,7 +50,10 @@ jobs:
           echo "::endgroup::"
 
           echo "::group::Building the Checkbox launcher"
-          envsubst '$INPUT_TEST_PLAN $INPUT_MATCH $INPUT_PASSWORD_SECRET' < resources/input.conf_template | tee resources/input.conf
+
+          # this goes from .template. (missing secret, testplan, match etc. to .partial.)
+          # this is partial as some values are filled in on the agent (like wireless access points names)
+          envsubst '$INPUT_TEST_PLAN $INPUT_MATCH $INPUT_PASSWORD_SECRET' < resources/checkbox.no-manifest.template.conf | tee resources/checkbox.no-manifest.partial.conf
           echo "::endgroup::"
       - name: Submit and monitor job
         uses: canonical/testflinger/.github/actions/submit@main

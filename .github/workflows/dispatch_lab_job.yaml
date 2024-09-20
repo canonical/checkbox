@@ -1,14 +1,62 @@
-name: Run Workflow on PR Comment
+name: Dispatch Checkbox jobs in the lab
 on:
-  issue_comment:
-    types: [created]
+  workflow_dispatch:
+    inputs:
+      # matrix to create is an array where each item is a job configuration
+      # to be dispatched in the lab.
+      # A job configuration is a dict with
+      # - data_source: distribution to provision (ex. distro: desktop-22-04-2-uefi)
+      # - queue: machine that will run the job (ex. 202012-28526)
+      # - test_plan: Checkbox test plan to run (ex. com.canonical.certification::sru)
+      # - match: subset of jobs to run (ex. .*wireless.*)
+      #
+      # One possible matrix_to_create would therefore look like this:
+      # matrix_to_create=[{ data_source: "distro: desktop-22-04-2-uefi", queue: "202012-28526", match: ".*wireless.*", test_plan: "com.canonical.certification::sru" }]'
+      #
+      # To run this workflow manually you can use the `gh` cli utility as follows:
+      # gh workflow run dispatch_lab_job.yaml -f 'matrix_to_create=[...]'
+      matrix_to_create:
+        description: 'Json formatted description of the jobs to dispatch'
+        required: true
+        type: string
 
 jobs:
-  trigger:
-    runs-on: ubuntu-latest
+  run-matrix:
+    runs-on: [self-hosted, testflinger]
+    strategy:
+      matrix:
+        spec: ${{ fromJson(inputs.matrix_to_create) }}
+    defaults:
+      run:
+        working-directory: tools/lab_dispatch
     steps:
-      - name: Dispatch test in the lab and monitor it
-        if: ${{ contains(github.event.comment.body, '/lab') && github.event.issue.pull_request && github.event.issue.author_association == "MEMBER" }}
-        run:
-          COMMENT_BODY="${{ github.event.comment.body }}"
-          echo $COMMENT_BODY
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Install dependencies
+        run: |
+          sudo apt install gettext
+      - name: Build test resource
+        env:
+          INPUT_DATA_SOURCE: ${{ matrix.spec.data_source }}
+          INPUT_QUEUE: ${{ matrix.spec.queue }}
+          INPUT_MATCH: ${{ matrix.spec.match }}
+          INPUT_TEST_PLAN: ${{ matrix.spec.test_plan }}
+          INPUT_PASSWORD_SECRET: ${{ secrets.INPUT_PASSWORD_SECRET }}
+        run: |
+          echo "::group::Building the testflinger job"
+          export INPUT_CHECKBOX_REVISION="$(git rev-parse HEAD)"
+          envsubst '$INPUT_CHECKBOX_REVISION $INPUT_DATA_SOURCE $INPUT_QUEUE' < generic_source.yaml | tee job.yaml
+          echo "::endgroup::"
+
+          echo "::group::Building the Checkbox launcher"
+
+          # this goes from .template. (missing secret, testplan, match etc. to .partial.)
+          # this is partial as some values are filled in on the agent (like wireless access points names)
+          envsubst '$INPUT_TEST_PLAN $INPUT_MATCH $INPUT_PASSWORD_SECRET' < resources/checkbox.no-manifest.template.conf | tee resources/checkbox.no-manifest.partial.conf
+          echo "::endgroup::"
+      - name: Submit and monitor job
+        uses: canonical/testflinger/.github/actions/submit@main
+        with:
+          poll: true
+          job-path: tools/lab_dispatch/job.yaml

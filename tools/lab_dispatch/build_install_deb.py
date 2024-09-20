@@ -45,6 +45,7 @@ def install_build_depends(repo_root):
     subprocess.check_call(
         [
             "sudo",
+            "-E",
             "apt-get",
             "-y",
             "build-dep",
@@ -80,6 +81,7 @@ def install_local_package(repo_root, deb_name_glob):
     subprocess.check_call(
         [
             "sudo",
+            "-E",
             "apt-get",
             "--fix-broken",
             "-y",

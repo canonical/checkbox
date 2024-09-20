@@ -4,7 +4,6 @@ import argparse
 import subprocess
 
 from pathlib import Path
-from contextlib import suppress
 
 
 def parse_args():
@@ -16,7 +15,7 @@ def parse_args():
 
 
 def prepare_repo(repo_root, package_path):
-    shutil.move(package_path / "debian", repo_root)
+    shutil.move(str(package_path / "debian"), str(repo_root))
 
 
 def install_build_depends(repo_root):
@@ -47,6 +46,7 @@ def install_local_package(repo_root, deb_name_glob):
         ]
         + package_list,
         cwd=repo_root.parent,
+        env={"DEBIAN_FRONTEND": "noninteractive"},
     )
 
 

@@ -203,7 +203,7 @@ def check_sriov_interfaces():
                 )
     except Exception as e:
         logging.error("Failed to process interfaces: {}".format(e))
-
+    intel_device = interface
     if intel_device is not None:
         return intel_device
     else:

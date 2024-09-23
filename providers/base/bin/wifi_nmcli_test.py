@@ -397,7 +397,7 @@ def main():
             # running under Remote
             if os.geteuid() == 0:
                 print_journal_entries(start_time)
-            raise e
+            raise
         finally:
             turn_up_connection(activated_uuid)
             delete_test_ap_ssid_connection()

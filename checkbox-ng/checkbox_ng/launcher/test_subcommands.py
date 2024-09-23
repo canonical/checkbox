@@ -813,6 +813,16 @@ class TestExpand(TestCase):
         self.launcher = Expand()
         self.ctx = Mock()
         self.ctx.args = Mock(TEST_PLAN="", format="")
+
+        selected_1 = Mock(unit="manifest entry", id="some", partial_id="some")
+        selected_1._raw_data.copy.return_value = {}
+        selected_2 = Mock(
+            unit="manifest entry", id="other", partial_id="other"
+        )
+        selected_2._raw_data.copy.return_value = {}
+        not_selected = Mock(unit="manifest entry", partial_id="not_selected")
+        not_selected._raw_data.copy.return_value = {}
+
         self.ctx.sa = Mock(
             start_new_session=Mock(),
             get_test_plans=Mock(return_value=["test-plan1", "test-plan2"]),
@@ -821,6 +831,7 @@ class TestExpand(TestCase):
             _context=Mock(
                 state=Mock(unit_list=[]),
                 _test_plan_list=[Mock()],
+                unit_list=[selected_1, selected_2, not_selected],
             ),
         )
 
@@ -865,18 +876,24 @@ class TestExpand(TestCase):
                 "template-id": "test-template",
                 "id": "test-{res}",
                 "template-summary": "Test Template Summary",
+                "requires": "manifest.some == 'True'",
             }
         )
         job1 = JobDefinition(
             {
                 "id": "job1",
+                "requires": "manifest.other == 'Other'",
             }
         )
+
         mock_select_units.return_value = [job1, template1]
         self.ctx.args.TEST_PLAN = "test-plan1"
         self.ctx.args.format = "json"
         self.launcher.invoked(self.ctx)
         self.assertIn('"template-id": "test-template"', stdout.getvalue())
+        self.assertIn('"id": "some"', stdout.getvalue())
+        self.assertIn('"id": "other"', stdout.getvalue())
+        self.assertNotIn('"id": "not_selected"', stdout.getvalue())
 
     def test_get_effective_certificate_status(self):
         job1 = JobDefinition(

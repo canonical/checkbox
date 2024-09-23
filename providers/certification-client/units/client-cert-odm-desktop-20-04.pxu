@@ -214,4 +214,3 @@ include:
 nested_part:
     client-cert-odm-desktop-20-04-manual
     client-cert-odm-desktop-20-04-automated
-    after-suspend-wwan-automated

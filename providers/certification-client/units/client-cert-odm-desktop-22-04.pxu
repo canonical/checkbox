@@ -210,7 +210,6 @@ exclude:
 
 id: client-cert-odm-desktop-22-04
 _name: DO NOT USE - desktop-22-04 - placeholder to establish that total number of tests has not changed
-    after-suspend-wwan-automated
 unit: test plan
 include:
 nested_part:

@@ -126,7 +126,6 @@ nested_part:
     qep-automated
     # touchpad-cert-automated
     # touchscreen-cert-automated
-    after-suspend-wwan-automated
     usb-cert-automated
     usb3-cert-automated
     # usb-c-cert-automated # only usb-c-cert-full

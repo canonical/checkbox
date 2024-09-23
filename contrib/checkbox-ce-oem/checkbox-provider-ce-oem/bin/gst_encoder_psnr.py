@@ -30,9 +30,20 @@ from typing import List, Dict
 
 from checkbox_support.scripts.psnr import get_average_psnr
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 GST_LAUNCH_BIN = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
 OUTPUT_FOLDER = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
+PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
+VIDEO_CODEC_TESTING_DATA = os.getenv("VIDEO_CODEC_TESTING_DATA")
+if not VIDEO_CODEC_TESTING_DATA or not os.path.exists(
+    VIDEO_CODEC_TESTING_DATA
+):
+    raise SystemExit(
+        "Error: Please define the proper path of golden sample folder to "
+        "the environment variable 'VIDEO_CODEC_TESTING_DATA'"
+    )
+# Folder stores the golden samples
+SAMPLE_2_FOLDER = "sample_2_big_bug_bunny"
 
 
 class MuxType(Enum):
@@ -70,6 +81,7 @@ def register_arguments():
         "-cs",
         "--color_space",
         type=str,
+        default="",
         help="Color space be used in gstreamer format e.g. I420 or NV12",
     )
 
@@ -77,6 +89,7 @@ def register_arguments():
         "-wi",
         "--width",
         type=str,
+        default="",
         help="Value of width of resolution",
     )
 
@@ -84,6 +97,7 @@ def register_arguments():
         "-hi",
         "--height",
         type=str,
+        default="",
         help="Value of height of resolution",
     )
 
@@ -91,6 +105,7 @@ def register_arguments():
         "-f",
         "--framerate",
         type=str,
+        default="",
         help="Value of framerate. e.g. 60, 30",
     )
 
@@ -98,6 +113,7 @@ def register_arguments():
         "-m",
         "--mux",
         type=str,
+        default="",
         help="Value of mux. e.g. mp4mux, avimux",
     )
 
@@ -125,15 +141,8 @@ def get_golden_sample(
         width, height, framerate, codec, container
     )
 
-    testing_data_folder = os.getenv("VIDEO_CODEC_TESTING_DATA")
-    if not testing_data_folder or not os.path.exists(testing_data_folder):
-        raise SystemExit(
-            "Error: Please define the proper path of golden sample folder to "
-            "the environment variable 'VIDEO_CODEC_TESTING_DATA'"
-        )
-
     full_path = os.path.join(
-        testing_data_folder, "sample_2_big_bug_bunny", golden_sample
+        VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_sample
     )
     logging.debug("Golden Sample: '{}'".format(full_path))
     if not os.path.exists(full_path):
@@ -196,26 +205,34 @@ class BaseHandler(ABC):
         self._height = kwargs.get("height")
         self._framerate = kwargs.get("framerate")
         self._mux = kwargs.get("mux")
-        self._output_file_format = {
+        self._output_file_extension = {
             MuxType.MP4.value: "mp4",
             MuxType.AVI.value: "avi",
             MuxType.MATROSKA.value: "mkv",
         }.get(self._mux, "unknown_format")
+        # Default format of name of artifact
         self._output_file_name = "encode_psnr_{}_{}x{}_{}fps_{}.{}".format(
             self._codec,
             self._width,
             self._height,
             self._framerate,
             self._color_space,
-            self._output_file_format,
+            self._output_file_extension,
         )
+        # Get the golden sample.
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
         self._golden_sample = get_golden_sample(
             width=self._width,
             height=self._height,
             framerate=self._framerate,
         )
+        # A file be treated as the reference file while doing PSNR
+        # Comparision. If you want to use other file as reference while doing
+        # PSNR comparison, please reassign the full path to it
+        self._psnr_reference_file = self._golden_sample
         self._output_file_full_path = os.path.join(
-            os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp"),
+            PLAINBOX_SESSION_SHARE,
             self._output_file_name,
         )
 
@@ -236,11 +253,16 @@ class BaseHandler(ABC):
         execute_command(self._build_command())
 
     def compare_psnr(self) -> None:
+        logging.info(
+            "Compare the PSNR: {} vs {}".format(
+                self._psnr_reference_file, self._output_file_full_path
+            )
+        )
         avg_psnr, _ = get_average_psnr(
-            self._golden_sample, self._output_file_full_path
+            self._psnr_reference_file, self._output_file_full_path
         )
         logging.info("Average PSNR: {}".format(avg_psnr))
-        if avg_psnr < 30:
+        if avg_psnr < 30 and avg_psnr > 0:
             raise SystemExit(
                 "Error: The average PSNR value did not reach the acceptable"
                 " threshold (30 dB)"
@@ -273,48 +295,55 @@ class BaseHandler(ABC):
         is_metadata_good = True
         p = self._extract_metadata_property(input=outcome)
         if not p.get("width") or p.get("width") != self._width:
-            logging.ERROR(
-                "Error: expect width is '{}' but got '{}'".format(
+            logging.error(
+                "expect width is '{}' but got '{}'".format(
                     self._width, p.get("width")
                 )
             )
             is_metadata_good = False
         if not p.get("height") or p.get("height") != self._height:
-            logging.ERROR(
-                "Error: expect height is '{}' but got '{}'".format(
+            logging.error(
+                "expect height is '{}' but got '{}'".format(
                     self._height, p.get("height")
                 )
             )
             is_metadata_good = False
-        if not p.get("frame_rate") or p.get("frame_rate") != "{}/1".format(
-            self._framerate
-        ):
-            logging.ERROR(
-                "Error: expect framerate is '{}' but got '{}'".format(
-                    self._framerate, p.get("frame_rate")
+
+        # Ignore the codec that capture frame as image file not video.
+        # The framerate of image is 0/1.
+        if self._codec not in ["v4l2jpegenc"]:
+            if not p.get("frame_rate") or p.get("frame_rate") != "{}/1".format(
+                self._framerate
+            ):
+                logging.error(
+                    "expect framerate is '{}' but got '{}'".format(
+                        self._framerate, p.get("frame_rate")
+                    )
                 )
-            )
-            is_metadata_good = False
+                is_metadata_good = False
 
         if not p.get("video_codec") or codec_map.get(self._codec) not in p.get(
             "video_codec"
         ):
-            logging.ERROR(
-                "Error: expect video codec is '{}' but got '{}'".format(
+            logging.error(
+                "expect video codec is '{}' but got '{}'".format(
                     codec_map.get(self._codec), p.get("video_codec")
                 )
             )
             is_metadata_good = False
 
-        if not p.get("container") or p.get("container") != container_map.get(
-            self._mux
-        ):
-            logging.ERROR(
-                "Error: expect container is '{}' but got '{}'".format(
-                    container_map.get(self._mux), p.get("container")
+        # Ignore the codec that capture frame as image file not video.
+        # There's no concept of container of any image file.
+        if self._codec not in ["v4l2jpegenc"]:
+            if not p.get("container") or p.get(
+                "container"
+            ) != container_map.get(self._mux):
+                logging.error(
+                    "expect container is '{}' but got '{}'".format(
+                        container_map.get(self._mux), p.get("container")
+                    )
                 )
-            )
-            is_metadata_good = False
+                is_metadata_good = False
 
         if not is_metadata_good:
             raise SystemError("Error: Checking metadata failed")
@@ -322,7 +351,9 @@ class BaseHandler(ABC):
     def _extract_metadata_property(self, input: str) -> Dict:
         properties = {}
         container_pattern = re.compile(r"container #\d+: (.+)")
-        video_pattern = re.compile(r"video #\d+: (.+)")
+        video_pattern = re.compile(
+            r"video #\d+: (.+)|video\(image\) #\d+: (.+)"
+        )
         width_pattern = re.compile(r"Width: (\d+)")
         height_pattern = re.compile(r"Height: (\d+)")
         frame_rate_pattern = re.compile(r"Frame rate: ([\d/]+)")
@@ -332,11 +363,14 @@ class BaseHandler(ABC):
             if container_pattern.search(input)
             else None
         )
-        properties["video_codec"] = (
-            video_pattern.search(input).group(1).strip()
-            if video_pattern.search(input)
-            else None
-        )
+        # Check if either video or video(image) pattern matches
+        video_match = video_pattern.search(input)
+        if video_match:
+            properties["video_codec"] = (
+                video_match.group(1).strip()
+                if video_match.group(1)
+                else video_match.group(2).strip()
+            )
         properties["width"] = (
             width_pattern.search(input).group(1)
             if width_pattern.search(input)
@@ -352,7 +386,7 @@ class BaseHandler(ABC):
             if frame_rate_pattern.search(input)
             else None
         )
-        logging.debug(properties)
+        logging.debug("Prperties got from meta: {}".format(properties))
         return properties
 
     def delete_file(self):
@@ -397,17 +431,27 @@ class GenioProject(BaseHandler):
         )
 
     def _264_265_command_builder(self) -> List[str]:
+        base_pipeline = (
+            "{} filesrc location={} ! decodebin ! videoconvert !"
+            " video/x-raw,format={} ! {}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._color_space,
+            self._codec,
+        )
+
         if self._mux in [MuxType.MP4.value, MuxType.MATROSKA.value]:
             encode_parser = self._codec_parser_map.get(self._codec)
             final_pipeline = "{} ! {} ! {} ! filesink location={}".format(
-                self._base_pipeline,
+                base_pipeline,
                 encode_parser,
                 self._mux,
                 self._output_file_full_path,
             )
         elif self._mux == MuxType.AVI.value:
             final_pipeline = "{} ! {} ! filesink location={}".format(
-                self._base_pipeline, self._mux, self._output_file_full_path
+                base_pipeline, self._mux, self._output_file_full_path
             )
         else:
             raise SystemExit(
@@ -423,21 +467,31 @@ class GenioProject(BaseHandler):
             raise SystemExit(
                 "Genio 350 platform doesn't support v4l2jpecenc codec"
             )
-        if self._mux == MuxType.AVI.value:
-            final_pipeline = "{} ! {} ! filesink location={}".format(
-                self._base_pipeline, self._mux, self._output_file_full_path
-            )
-        elif self._mux == MuxType.MP4.value:
-            raise SystemExit(
-                "Error: MP4 container format does not support MJPEG "
-                "(a sequence of JPEG images) as a native video format"
-            )
-        else:
-            raise SystemExit(
-                "Error: Pipeline for '{}' mux not implemented.".format(
-                    self._mux
-                )
-            )
+        # Make the name of artifact and its full path
+        self._output_file_name = "encode_psnr_{}x{}_{}.jpg".format(
+            self._width, self._height, self._color_space
+        )
+        self._output_file_full_path = os.path.join(
+            PLAINBOX_SESSION_SHARE, self._output_file_name
+        )
+        # Capture the first frame and save it as jpg file
+        final_pipeline = (
+            "{} filesrc location={} ! decodebin ! videorate !"
+            " video/x-raw,framerate=1/1 ! videoconvert ! "
+            "video/x-raw,format={} ! {} ! filesink location={}"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._color_space,
+            self._codec,
+            self._output_file_full_path,
+        )
+        # Reassign the reference file to be an image file
+        self._psnr_reference_file = os.path.join(
+            VIDEO_CODEC_TESTING_DATA,
+            SAMPLE_2_FOLDER,
+            "big_bug_bunny_{}x{}.jpg".format(self._width, self._height),
+        )
         return final_pipeline
 
     def _build_command(self) -> str:

@@ -6,23 +6,25 @@
 
 id: ce-oem-full
 unit: test plan
-_name: CE-OEM - Full manual + automated tests for Ubuntu Core and Classic
+_name: CE-OEM - Full manual + automated OEMQA tests for Ubuntu Core and Classic
 _description:
- Combined manual and automated test plans for Ubuntu Core and Classic devices.
+    Combined manual and automated test plans for Ubuntu Core and Classic devices.
 include:
 nested_part:
     ce-oem-manual
     ce-oem-automated
     after-suspend-ce-oem-manual
     after-suspend-ce-oem-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-manual
 unit: test plan
-_name: CE-OEM - Manual only QA tests for Ubuntu Core and Classic
+_name: CE-OEM - Manual only OEMQA tests for Ubuntu Core and Classic
 _description:
- Ubuntu Core and Classic QA test plan for the hardware. This test plan contains
- all of the tests that require manual control of device hardware
- or some other user input to complete.
+    Ubuntu Core and Classic OEMQA test plan for the hardware. This test plan contains
+    all of the tests that require manual control of device hardware
+    or some other user input to complete.
 estimated_duration: 3600
 include:
 nested_part:
@@ -46,13 +48,15 @@ nested_part:
     ce-oem-iio-sensors-manual
     ce-oem-digital-io-manual
     ce-oem-secure-boot-manual
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-automated
 unit: test plan
-_name: CE-OEM - Automated only QA tests for Ubuntu Core and Classic
+_name: CE-OEM - Automated only OEMQA tests for Ubuntu Core and Classic
 _description:
- Ubuntu Core and Classic QA test plan for the hardware. This test plan contains
- all of the automated tests used to validate the device.
+    Ubuntu Core and Classic OEMQA test plan for the hardware. This test plan contains
+    all of the automated tests used to validate the device.
 estimated_duration: 120
 include:
 nested_part:
@@ -84,14 +88,16 @@ nested_part:
     com.canonical.certification::led-indicator-auto
     before-suspend-ce-oem-spi-automated
     ce-oem-gadget-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: after-suspend-ce-oem-manual
 unit: test plan
-_name: CE-OEM - Manual only QA tests for Ubuntu Core and Classic
+_name: CE-OEM - Manual only OEMQA after suspend tests for Ubuntu Core and Classic
 _description:
- Ubuntu Core and Classic QA test plan for the hardware. This test plan contains
- all of the tests that require manual control of device hardware
- or some other user input to complete.
+    Ubuntu Core and Classic OEMQA test plan for the hardware. This test plan contains
+    all of the after suspend tests that require manual control of device hardware
+    or some other user input to complete.
 estimated_duration: 3600
 include:
 nested_part:
@@ -113,13 +119,15 @@ nested_part:
     com.canonical.certification::after-suspend-led-indicator-manual
     after-suspend-ce-oem-iio-sensors-manual
     after-suspend-ce-oem-digital-io-manual
+certification_status_overrides:
+    apply blocker to .*
 
 id: after-suspend-ce-oem-automated
 unit: test plan
-_name: CE-OEM - Automated only QA tests for Ubuntu Core and Classic
+_name: CE-OEM - Automated only OEMQA after suspend tests for Ubuntu Core and Classic
 _description:
- Ubuntu Core and Classic QA test plan for the hardware. This test plan contains
- all of the automated tests used to validate the device.
+    Ubuntu Core and Classic OEMQA test plan for the hardware. This test plan contains
+    all of the after suspend automated tests used to validate the device.
 estimated_duration: 120
 include:
 nested_part:
@@ -146,14 +154,19 @@ nested_part:
     after-suspend-ce-oem-iio-sensors-automated
     after-suspend-ce-oem-digital-io-automated
     after-suspend-ce-oem-spi-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-stress
 unit: test plan
-_name: CE-OEM - stress only QA tests for Ubuntu Core and Classic
+_name: CE-OEM - Stress only OEMQA tests for Ubuntu Core and Classic
 _description:
-    Ubuntu Core and Classic QA test plan that includes all stress tests required for devices
+    Ubuntu Core and Classic OEMQA test plan that includes all stress tests required for devices
 estimated_duration: 3600
 include:
 nested_part:
     ce-oem-cold-boot-stress-test-by-pdu
     ce-oem-ethernet-tcp-stress
+certification_status_overrides:
+    apply blocker to .*
+

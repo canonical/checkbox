@@ -6,40 +6,45 @@
 
 id: ce-oem-iot-server-24-04
 unit: test plan
-_name: CE-OEM-IOT - Full manual + automated tests for Ubuntu Server 24.04
+_name: CE-OEM-IOT - Full manual + automated OEMQA tests for Ubuntu Server 24.04
 _description:
-    Combined manual and automated test plans for the IoT devices running Ubuntu Server.
+    Combined manual and automated test plans for IoT devices running Ubuntu Server.
 include:
 nested_part:
     ce-oem-iot-server-24-04-manual
     ce-oem-iot-server-24-04-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-22-04
 unit: test plan
-_name: CE-OEM-IOT - Full manual + automated tests for Ubuntu Server 22.04
+_name: CE-OEM-IOT - Full manual + automated OEMQA tests for Ubuntu Server 22.04
 _description:
-    Combined manual and automated test plans for the IoT devices running Ubuntu Server.
+    Combined manual and automated test plans for IoT devices running Ubuntu Server.
 include:
 nested_part:
     ce-oem-iot-server-22-04-manual
     ce-oem-iot-server-22-04-automated
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-20-04
 unit: test plan
-_name: CE-OEM-IOT - Full manual + automated tests for Ubuntu Server 20.04
+_name: CE-OEM-IOT - Full manual + automated OEMQA tests for Ubuntu Server 20.04
 _description:
-    Combined manual and automated test plans for Ubuntu Server IoT devices.
+    Combined manual and automated test plans for IoT devices running Ubuntu Server.
 include:
 nested_part:
     ce-oem-iot-server-20-04-manual
     ce-oem-iot-server-20-04-automated
-
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-24-04-manual
 unit: test plan
-_name: CE-OEM-IOT - Manual only QA tests for Ubuntu Server 24.04
+_name: CE-OEM-IOT - Manual only OEMQA tests for Ubuntu Server 24.04
 _description:
-    Ubuntu Server QA test plan for the ce-oem-iot hardware. This test plan contains
+    Ubuntu Server OEMQA test plan for the IoT devices. This test plan contains
     all of the tests that require manual control of device hardware
     or some other user input to complete.
 estimated_duration: 3600
@@ -50,12 +55,14 @@ nested_part:
     after-suspend-ce-oem-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-22-04-manual
 unit: test plan
-_name: CE-OEM-IOT - Manual only QA tests for Ubuntu Server 22.04
+_name: CE-OEM-IOT - Manual only OEMQA tests for Ubuntu Server 22.04
 _description:
-    Ubuntu Server QA test plan for the ce-oem-iot hardware. This test plan contains
+    Ubuntu Server OEMQA test plan for the IoT devices. This test plan contains
     all of the tests that require manual control of device hardware
     or some other user input to complete.
 estimated_duration: 3600
@@ -66,12 +73,14 @@ nested_part:
     after-suspend-ce-oem-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-20-04-manual
 unit: test plan
-_name: CE-OEM-IOT - Manual only QA tests for Ubuntu Server 20.04
+_name: CE-OEM-IOT - Manual only OEMQA tests for Ubuntu Server 20.04
 _description:
-    Ubuntu Server QA test plan for the ce-oem-iot hardware. This test plan contains
+    Ubuntu Server OEMQA test plan for the IoT devices. This test plan contains
     all of the tests that require manual control of device hardware
     or some other user input to complete.
 estimated_duration: 3600
@@ -82,70 +91,93 @@ nested_part:
     after-suspend-ce-oem-manual
 exclude:
     com.canonical.certification::ethernet/wol_S4_.*
-
-
-id: ce-oem-iot-server-22-04-automated
-unit: test plan
-_name: CE-OEM-IOT - Automated only QA tests for Ubuntu Server 22.04
-_description:
-    Ubuntu Server QA test plan for the IoT hardware. This test plan contains
-    all of the automated tests used to validate the IoT device.
-include:
-nested_part:
-    ce-oem-automated
-    com.canonical.certification::client-cert-iot-server-22-04-automated
-    after-suspend-ce-oem-automated
-exclude:
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-24-04-automated
 unit: test plan
-_name: CE-OEM-IOT - Automated only QA tests for Ubuntu Server 24.04
+_name: CE-OEM-IOT - Automated only OEMQA tests for Ubuntu Server 24.04
 _description:
-    Ubuntu Server QA test plan for the IoT hardware. This test plan contains
-    all of the automated tests used to validate the IoT device.
+    Ubuntu Server OEMQA test plan for the IoT devices. This test plan contains
+    all of the automated tests used to validate the IoT devices.
 include:
 nested_part:
     ce-oem-automated
     com.canonical.certification::client-cert-iot-server-24-04-automated
     after-suspend-ce-oem-automated
 exclude:
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-server-22-04-automated
+unit: test plan
+_name: CE-OEM-IOT - Automated only OEMQA tests for Ubuntu Server 22.04
+_description:
+    Ubuntu Server OEMQA test plan for the IoT devices. This test plan contains
+    all of the automated tests used to validate the IoT devices.
+include:
+nested_part:
+    ce-oem-automated
+    com.canonical.certification::client-cert-iot-server-22-04-automated
+    after-suspend-ce-oem-automated
+exclude:
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-20-04-automated
 unit: test plan
-_name: CE-OEM-IOT - Automated only QA tests for Ubuntu Server 20.04
+_name: CE-OEM-IOT - Automated only OEMQA tests for Ubuntu Server 20.04
 _description:
- Ubuntu Server QA test plan for the ce-oem-iot hardware. This test plan contains
- all of the automated tests used to validate the ce-oem-iot device.
+    Ubuntu Server OEMQA test plan for the IoT devices. This test plan contains
+    all of the automated tests used to validate the IoT devices.
 include:
 nested_part:
     ce-oem-automated
     com.canonical.certification::client-cert-iot-server-20-04-automated
     after-suspend-ce-oem-automated
 exclude:
+certification_status_overrides:
+    apply blocker to .*
+
+id: ce-oem-iot-server-24-04-stress
+unit: test plan
+_name: CE-OEM-IOT - Stress only OEMQA tests for Ubuntu Server 24.04
+_description:
+    Ubuntu Server OEMQA test plan that includes all stress tests required for IoT devices
+include:
+nested_part:
+    com.canonical.certification::client-cert-iot-server-24-04-stress
+    ce-oem-stress
+exclude:
+    com.canonical.certification::stress-tests/hibernate.*
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-22-04-stress
 unit: test plan
-_name: CE-OEM-IOT - Stress tests for Ubuntu Server 22.04
+_name: CE-OEM-IOT - Stress only OEMQA tests for Ubuntu Server 22.04
 _description:
- Ubuntu Server QA test plan that includes all stress tests required for IoT devices
+    Ubuntu Server OEMQA test plan that includes all stress tests required for IoT devices
 include:
 nested_part:
-    com.canonical.certification::stress-iperf3-automated                       # keep if ethernet is supported
     com.canonical.certification::client-cert-iot-server-22-04-stress
     ce-oem-stress
 exclude:
     com.canonical.certification::stress-tests/hibernate.*
-
+certification_status_overrides:
+    apply blocker to .*
 
 id: ce-oem-iot-server-20-04-stress
 unit: test plan
-_name: CE-OEM-IOT - Stress tests for Ubuntu Server 20.04
+_name: CE-OEM-IOT - Stress only OEMQA tests for Ubuntu Server 20.04
 _description:
- Ubuntu Server QA test plan that includes all stress tests required for IoT devices
+    Ubuntu Server OEMQA test plan that includes all stress tests required for IoT devices
 include:
 nested_part:
-    com.canonical.certification::stress-iperf3-automated                       # keep if ethernet is supported
     com.canonical.certification::client-cert-iot-server-20-04-stress
     ce-oem-stress
 exclude:
     com.canonical.certification::stress-tests/hibernate.*
+certification_status_overrides:
+    apply blocker to .*
+

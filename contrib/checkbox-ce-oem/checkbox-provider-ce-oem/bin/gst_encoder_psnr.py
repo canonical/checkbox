@@ -20,25 +20,33 @@
 import argparse
 import logging
 import os
+import re
 import shlex
 import subprocess
 
 from abc import ABC, abstractmethod
-from typing import List
+from enum import Enum
+from typing import List, Dict
 
 from checkbox_support.scripts.psnr import get_average_psnr
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 GST_LAUNCH_BIN = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
 OUTPUT_FOLDER = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
+
+
+class MuxType(Enum):
+    MP4 = "mp4mux"
+    AVI = "avimux"
+    MATROSKA = "matroskamux"
 
 
 def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=(
-            "Script helps verify the performance of specific decoder won't"
-            " violate some Pass Criteria."
+            "Script helps verify the gst_encoder_psnr scenario of specific"
+            " encoder."
         ),
     )
 
@@ -189,9 +197,9 @@ class BaseHandler(ABC):
         self._framerate = kwargs.get("framerate")
         self._mux = kwargs.get("mux")
         self._output_file_format = {
-            "mp4mux": "mp4",
-            "avimux": "avi",
-            "matroskamux": "mkv",
+            MuxType.MP4.value: "mp4",
+            MuxType.AVI.value: "avi",
+            MuxType.MATROSKA.value: "mkv",
         }.get(self._mux, "unknown_format")
         self._output_file_name = "encode_psnr_{}_{}x{}_{}fps_{}.{}".format(
             self._codec,
@@ -228,22 +236,124 @@ class BaseHandler(ABC):
         execute_command(self._build_command())
 
     def compare_psnr(self) -> None:
-        logging.debug(
-            "Comparing PSNR... {} vs {}".format(
-                self._golden_sample, self._output_file_full_path
-            )
-        )
-        v, _ = get_average_psnr(
+        avg_psnr, _ = get_average_psnr(
             self._golden_sample, self._output_file_full_path
         )
-        logging.info("PSNR: {}".format(v))
-        # TODO: Define the acceptable PSNR threshold
+        logging.info("Average PSNR: {}".format(avg_psnr))
+        if avg_psnr < 30:
+            raise SystemExit(
+                "Error: The average PSNR value did not reach the acceptable"
+                " threshold (30 dB)"
+            )
+        logging.info("Pass: Average PSNR meets the acceptable threshold")
 
     def check_metadata(self) -> None:
         logging.debug("Checking metadata...")
-        cmd = "gst-discoverer-1.0 {}".format(self._output_file_full_path)
-        execute_command(cmd)
-        # TODO: implement the check logic...
+        outcome = execute_command(
+            cmd="gst-discoverer-1.0 {}".format(self._output_file_full_path)
+        )
+
+        # Define the mapping for different Mux. You can add item if your
+        # mux isn't included.
+        container_map = {
+            MuxType.MP4.value: "Quicktime",
+            MuxType.AVI.value: "Audio Video Interleave (AVI)",
+            MuxType.MATROSKA.value: "Matroska",
+        }
+
+        # Define the mapping for different encoders. You can add item if your
+        # codec isn't included.
+        codec_map = {
+            "v4l2h264enc": "H.264",
+            "v4l2h265enc": "H.265",
+            "v4l2jpegenc": "JPEG",
+        }
+
+        # Check the meta
+        is_metadata_good = True
+        p = self._extract_metadata_property(input=outcome)
+        if not p.get("width") or p.get("width") != self._width:
+            logging.ERROR(
+                "Error: expect width is '{}' but got '{}'".format(
+                    self._width, p.get("width")
+                )
+            )
+            is_metadata_good = False
+        if not p.get("height") or p.get("height") != self._height:
+            logging.ERROR(
+                "Error: expect height is '{}' but got '{}'".format(
+                    self._height, p.get("height")
+                )
+            )
+            is_metadata_good = False
+        if not p.get("frame_rate") or p.get("frame_rate") != "{}/1".format(
+            self._framerate
+        ):
+            logging.ERROR(
+                "Error: expect framerate is '{}' but got '{}'".format(
+                    self._framerate, p.get("frame_rate")
+                )
+            )
+            is_metadata_good = False
+
+        if not p.get("video_codec") or codec_map.get(self._codec) not in p.get(
+            "video_codec"
+        ):
+            logging.ERROR(
+                "Error: expect video codec is '{}' but got '{}'".format(
+                    codec_map.get(self._codec), p.get("video_codec")
+                )
+            )
+            is_metadata_good = False
+
+        if not p.get("container") or p.get("container") != container_map.get(
+            self._mux
+        ):
+            logging.ERROR(
+                "Error: expect container is '{}' but got '{}'".format(
+                    container_map.get(self._mux), p.get("container")
+                )
+            )
+            is_metadata_good = False
+
+        if not is_metadata_good:
+            raise SystemError("Error: Checking metadata failed")
+
+    def _extract_metadata_property(self, input: str) -> Dict:
+        properties = {}
+        container_pattern = re.compile(r"container #\d+: (.+)")
+        video_pattern = re.compile(r"video #\d+: (.+)")
+        width_pattern = re.compile(r"Width: (\d+)")
+        height_pattern = re.compile(r"Height: (\d+)")
+        frame_rate_pattern = re.compile(r"Frame rate: ([\d/]+)")
+
+        properties["container"] = (
+            container_pattern.search(input).group(1).replace("\n", " ").strip()
+            if container_pattern.search(input)
+            else None
+        )
+        properties["video_codec"] = (
+            video_pattern.search(input).group(1).strip()
+            if video_pattern.search(input)
+            else None
+        )
+        properties["width"] = (
+            width_pattern.search(input).group(1)
+            if width_pattern.search(input)
+            else None
+        )
+        properties["height"] = (
+            height_pattern.search(input).group(1)
+            if height_pattern.search(input)
+            else None
+        )
+        properties["frame_rate"] = (
+            frame_rate_pattern.search(input).group(1)
+            if frame_rate_pattern.search(input)
+            else None
+        )
+        logging.debug(properties)
+        return properties
 
     def delete_file(self):
         try:
@@ -274,7 +384,7 @@ class GenioProject(BaseHandler):
         super().__init__(**kwargs)
         self._codec_parser_map = {
             "v4l2h264enc": "h264parse",
-            "v4l2h265enc": "h265parse"
+            "v4l2h265enc": "h265parse",
         }
         self._base_pipeline = (
             "{} filesrc location={} ! decodebin ! videoconvert !"
@@ -287,7 +397,7 @@ class GenioProject(BaseHandler):
         )
 
     def _264_265_command_builder(self) -> List[str]:
-        if self._mux in ["mp4mux", "matroskamux"]:
+        if self._mux in [MuxType.MP4.value, MuxType.MATROSKA.value]:
             encode_parser = self._codec_parser_map.get(self._codec)
             final_pipeline = "{} ! {} ! {} ! filesink location={}".format(
                 self._base_pipeline,
@@ -295,7 +405,7 @@ class GenioProject(BaseHandler):
                 self._mux,
                 self._output_file_full_path,
             )
-        elif self._mux == "avimux":
+        elif self._mux == MuxType.AVI.value:
             final_pipeline = "{} ! {} ! filesink location={}".format(
                 self._base_pipeline, self._mux, self._output_file_full_path
             )
@@ -313,11 +423,11 @@ class GenioProject(BaseHandler):
             raise SystemExit(
                 "Genio 350 platform doesn't support v4l2jpecenc codec"
             )
-        if self._mux == "avimux":
+        if self._mux == MuxType.AVI.value:
             final_pipeline = "{} ! {} ! filesink location={}".format(
                 self._base_pipeline, self._mux, self._output_file_full_path
             )
-        elif self._mux == "mp4mux":
+        elif self._mux == MuxType.MP4.value:
             raise SystemExit(
                 "Error: MP4 container format does not support MJPEG "
                 "(a sequence of JPEG images) as a native video format"

@@ -15,6 +15,7 @@ test_data:
     #!/usr/bin/env bash
 
     set -x
+    set -e
 
     # input arguments
     CHECKBOX_REVISION=$INPUT_CHECKBOX_REVISION

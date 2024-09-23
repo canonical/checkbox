@@ -855,17 +855,22 @@ class TestExpand(TestCase):
                 "template-id": "test-template",
                 "id": "test-{res}",
                 "template-summary": "Test Template Summary",
+                "requires": "manifest.some == 'True'",
             }
         )
         job1 = JobDefinition(
             {
                 "id": "job1",
+                "requires": "manifest.other == 'Other'",
             }
         )
         mock_select_units.return_value = [job1, template1]
         self.ctx.args.TEST_PLAN = "test-plan1"
         self.launcher.invoked(self.ctx)
         self.assertIn("Template 'test-template'", stdout.getvalue())
+        self.assertIn("Manifest 'some'", stdout.getvalue())
+        self.assertIn("Manifest 'other'", stdout.getvalue())
+        self.assertNotIn("Manifest 'not_selected'", stdout.getvalue())
 
     @patch("sys.stdout", new_callable=StringIO)
     @patch("checkbox_ng.launcher.subcommands.TestPlanUnitSupport")

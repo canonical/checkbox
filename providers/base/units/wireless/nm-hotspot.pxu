@@ -15,7 +15,7 @@ category_id: wifi_ap
 estimated_duration: 10
 flags: preserve-locale also-after-suspend
 requires:
- wifi_interface_mode.{{ interface }}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{{ interface }}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{{ interface }}' and net_if_management.master_mode_managed_by == 'NetworkManager'
  {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'
@@ -39,7 +39,7 @@ category_id: wifi_ap
 estimated_duration: 10
 flags: preserve-locale also-after-suspend
 requires:
- wifi_interface_mode.{{ interface }}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{{ interface }}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{{ interface }}' and net_if_management.master_mode_managed_by == 'NetworkManager'
  {%- if __on_ubuntucore__ %}
  connections.slot == 'network-manager:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:network-manager'

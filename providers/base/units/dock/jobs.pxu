@@ -2079,57 +2079,27 @@ _verification:
     Are all kinds of discs properly written?
 
 plugin: user-interact
-id: dock/thunderbolt3-insert
+id: dock/thunderbolt3-storage-manual
 category_id: dock
-estimated_duration: 40.0
+estimated_duration: 120
 depends: dock/cold-plug
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend
-command: checkbox-support-run_watcher insertion thunderbolt
-_summary: Thunderbolt3 storage insertion detection
+command: checkbox-support-run_watcher storage thunderbolt
+_summary: Thunderbolt3 storage insertion + read/write + removal
 _purpose:
-    This test will check if the connection of a Thunderbolt3 HDD to the dock could be detected
+    This test will check if the connection of a Thunderbolt3 HDD to the dock could be detected,
+    then performs read/write operations on the attached Thunderbolt3 storage and
+    checks if the removal of the Thunderbolt3 HDD can be detected.
 _steps:
     1. Click 'Test' to begin the test. This test will
-       timeout and fail if the insertion has not been detected within 40 seconds.
-    2. Plug a Thunderbolt3 HDD into an available Thunderbolt3 port on the dock;
-       if it's not mounted automatically, please click the HDD icon to mount it.
-_verification:
-    The verification of this test is automated. Do not change the automatically
-    selected result
-
-plugin: shell
-id: dock/thunderbolt3-storage-test
-category_id: dock
-estimated_duration: 45.0
-user: root
-depends: dock/thunderbolt3-insert
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_thunderbolt3 == 'True'
-flags: also-after-suspend
-command: checkbox-support-usb_read_write
-_summary: Thunderbolt3 storage test
-_purpose:
- This is an automated test which performs read/write operations on an attached
- Thunderbolt3 HDD
-
-plugin: user-interact
-id: dock/thunderbolt3-remove
-category_id: dock
-estimated_duration: 20.0
-depends: dock/thunderbolt3-insert
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_thunderbolt3 == 'True'
-flags: also-after-suspend
-command: checkbox-support-run_watcher removal thunderbolt
-_summary: Thunderbolt3 storage removal detection
-_purpose:
-    This test will check the system can detect the removal of a Thunderbolt3 HDD
-_steps:
-    1. Click 'Test' to begin the test. This test will timeout and fail if
-       the removal has not been detected within 20 seconds.
-    2. Remove the previously attached Thunderbolt3 HDD from the Thunderbolt3 port.
+       timeout and fail if the insertion has not been detected within 30 seconds.
+    2. Plug a Thunderbolt3 HDD into an available Thunderbolt3 port on the dock.
+       If it's not mounted automatically, please click the HDD icon to mount it.
+    3. Wait for the read/write operations to complete.
+    4. Press Enter to start the removal test.
+    5. Remove the previously attached Thunderbolt3 HDD from the Thunderbolt3 port.
 _verification:
     The verification of this test is automated. Do not change the automatically
     selected result
@@ -2649,83 +2619,36 @@ _siblings:
      {"id": "dock/all-suspend-networking-ntp"},
      {"id": "dock/all-poweroff-networking-ntp"}]
 
-id: dock/all-init-thunderbolt3-insert
+
+id: dock/all-init-thunderbolt3-storage-manual
 category_id: dock
-estimated_duration: 40.0
+estimated_duration: 120
 plugin: user-interact
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
 flags: also-after-suspend
-command: checkbox-support-run_watcher insertion thunderbolt
-_summary: Thunderbolt3 storage insertion detection
+command: checkbox-support-run_watcher storage thunderbolt
+_summary: Thunderbolt3 storage insertion + read/write + removal
 _purpose:
-    This test will check if the connection of a Thunderbolt3 HDD to the dock could be detected
+    This test will check if the connection of a Thunderbolt3 HDD to the dock could be detected,
+    then performs read/write operations on the attached Thunderbolt3 storage and
+    checks if the removal of the Thunderbolt3 HDD can be detected.
 _steps:
     1. Click 'Test' to begin the test. This test will
-       timeout and fail if the insertion has not been detected within 40 seconds.
+       timeout and fail if the insertion has not been detected within 30 seconds.
     2. Plug a Thunderbolt3 HDD into an available Thunderbolt3 port on the dock.
        If it's not mounted automatically, please click the HDD icon to mount it.
+    3. Wait for the read/write operations to complete.
+    4. Press Enter to start the removal test.
+    5. Remove the previously attached Thunderbolt3 HDD from the Thunderbolt3 port.
 _verification:
     The verification of this test is automated. Do not change the automatically
     selected result.
 _siblings:
-    [{"id": "dock/all-reboot-thunderbolt3-insert"},
-     {"id": "dock/all-hotplug-thunderbolt3-insert"},
-     {"id": "dock/all-suspend-thunderbolt3-insert"},
-     {"id": "dock/all-poweroff-thunderbolt3-insert"}]
-
-id: dock/all-init-thunderbolt3-storage-automated
-category_id: dock
-estimated_duration: 45.0
-user: root
-plugin: shell
-depends: dock/all-init-thunderbolt3-insert
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_thunderbolt3 == 'True'
-flags: also-after-suspend
-command: checkbox-support-usb_read_write
-_summary: Thunderbolt3 storage test
-_description:
-    This is an automated test which performs read/write operations on an attached
-    Thunderbolt storage.
-_siblings:
-    [{"id": "dock/all-reboot-thunderbolt3-storage-automated",
-      "depends": "dock/all-reboot-thunderbolt3-insert"},
-     {"id": "dock/all-hotplug-thunderbolt3-storage-automated",
-      "depends": "dock/all-hotplug-thunderbolt3-insert"},
-     {"id": "dock/all-suspend-thunderbolt3-storage-automated",
-      "depends": "dock/all-suspend-thunderbolt3-insert"},
-     {"id": "dock/all-poweroff-thunderbolt3-storage-automated",
-      "depends": "dock/all-poweroff-thunderbolt3-insert"}]
-
-id: dock/all-init-thunderbolt3-remove
-category_id: dock
-estimated_duration: 20.0
-plugin: user-interact
-depends: dock/all-init-thunderbolt3-insert
-imports: from com.canonical.plainbox import manifest
-requires: manifest.has_thunderbolt3 == 'True'
-flags: also-after-suspend
-command: checkbox-support-run_watcher removal thunderbolt
-_summary: Thunderbolt3 storage removal detection
-_purpose:
-    This test will check the system can detect the removal of a Thunderbolt3 storage.
-_steps:
-    1. Click 'Test' to begin the test. This test will timeout and fail if
-       the removal has not been detected within 20 seconds.
-    2. Remove the previously attached Thunderbolt3 HDD from the Thunderbolt3 port.
-_verification:
-    The verification of this test is automated. Do not change the automatically
-    selected result
-_siblings:
-    [{"id": "dock/all-reboot-thunderbolt3-remove",
-      "depends": "dock/all-reboot-thunderbolt3-insert"},
-     {"id": "dock/all-hotplug-thunderbolt3-remove",
-      "depends": "dock/all-hotplug-thunderbolt3-insert"},
-     {"id": "dock/all-suspend-thunderbolt3-remove",
-      "depends": "dock/all-suspend-thunderbolt3-insert"},
-     {"id": "dock/all-poweroff-thunderbolt3-remove",
-      "depends": "dock/all-poweroff-thunderbolt3-insert"}]
+    [{"id": "dock/all-reboot-thunderbolt3-storage-manual"},
+     {"id": "dock/all-hotplug-thunderbolt3-storage-manual"},
+     {"id": "dock/all-suspend-thunderbolt3-storage-manual"},
+     {"id": "dock/all-poweroff-thunderbolt3-storage-manual"}]
 
 
 id: dock/all-init-usb-c/insert

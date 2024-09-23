@@ -8,7 +8,7 @@ category_id: wifi_ap
 _summary: Create open 802.11a Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 _purpose:
@@ -65,7 +65,7 @@ command:
     exit 1;
  fi
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: WIFI_AP_SETUPTIME
@@ -81,7 +81,7 @@ category_id: wifi_ap
 _summary: Create open 802.11b Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 _purpose:
@@ -138,7 +138,7 @@ command:
     exit 1;
  fi
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: WIFI_AP_SETUPTIME
@@ -154,7 +154,7 @@ category_id: wifi_ap
 _summary: Create open 802.11g Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 _purpose:
@@ -211,7 +211,7 @@ command:
     exit 1;
  fi
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: WIFI_AP_SETUPTIME
@@ -227,7 +227,7 @@ category_id: wifi_ap
 _summary: Create open 802.11ad Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 _purpose:
@@ -284,7 +284,7 @@ command:
     exit 1;
  fi
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: WIFI_AP_SETUPTIME
@@ -300,7 +300,7 @@ category_id: wifi_ap
 _summary: Create WPA2 802.11a Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 _purpose:
@@ -359,7 +359,7 @@ command:
     exit 1;
  fi
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: WIFI_AP_SETUPTIME
@@ -375,7 +375,7 @@ category_id: wifi_ap
 _summary: Create WPA2 802.11b Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{{ interface }}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 _purpose:
@@ -434,7 +434,7 @@ command:
     exit 1;
  fi
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: WIFI_AP_SETUPTIME
@@ -450,7 +450,7 @@ category_id: wifi_ap
 _summary: Create WPA2 802.11g Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 _purpose:
@@ -507,7 +507,7 @@ command:
     exit 1;
  fi
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: WIFI_AP_SETUPTIME
@@ -523,7 +523,7 @@ category_id: wifi_ap
 _summary: Create WPA2 802.11ad Wi-Fi AP on {interface} with no STA (Manual)
 plugin: manual
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 _purpose:
@@ -582,7 +582,7 @@ command:
     exit 1;
  fi
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: WIFI_AP_SETUPTIME
@@ -598,7 +598,7 @@ category_id: wifi_ap
 _summary: Create WPA2 802.11a Wi-Fi AP on {interface} with active STA (Manual)
 plugin: user-interact-verify
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID
@@ -637,7 +637,7 @@ category_id: wifi_ap
 _summary: Create WPA2 802.11a Wi-Fi Access Point on {interface} with active STA
 plugin: shell
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID WIFI_AP_SETUPTIME
@@ -686,7 +686,7 @@ category_id: wifi_ap
 _summary: Create WPA2 802.11b Wi-Fi AP on {interface} with active STA (Manual)
 plugin: user-interact-verify
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID
@@ -725,7 +725,7 @@ category_id: wifi_ap
 _summary: Create a WPA2 802.11b Wi-Fi Access Point on {interface} with active STA
 plugin: shell
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID WIFI_AP_SETUPTIME
@@ -774,7 +774,7 @@ category_id: wifi_ap
 _summary: Create WPA2 802.11g Wi-Fi AP on {interface} with active STA (Manual)
 plugin: user-interact-verify
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID
@@ -813,7 +813,7 @@ category_id: wifi_ap
 _summary: Create WPA2 802.11g Wi-Fi Access Point on {interface} with active STA
 plugin: shell
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID WIFI_AP_SETUPTIME
@@ -862,7 +862,7 @@ category_id: wifi_ap
 _summary: Create WPA2 802.11ad Wi-Fi AP on {interface} with active STA (Manual)
 plugin: user-interact-verify
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID
@@ -901,7 +901,7 @@ category_id: wifi_ap
 _summary: Create WPA2 802.11ad Wi-Fi Access Point on {interface} with active STA
 plugin: shell
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: LD_LIBRARY_PATH OPEN_BG_SSID WIFI_AP_SETUPTIME
@@ -950,7 +950,7 @@ category_id: wifi_ap
 _summary: Create Access Point on {interface} using wifi-ap.setup-wizard
 plugin: shell
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 20.0
 user: root
@@ -998,7 +998,7 @@ command:
  echo "Rebooting"
  reboot
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: WIFI_AP_SETUPTIME
@@ -1035,7 +1035,7 @@ command:
  sleep "${{WIFI_AP_SETUPTIME:-10}}"
  reboot
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 estimated_duration: 120.0
 environ: WIFI_AP_SETUPTIME
@@ -1067,7 +1067,7 @@ command:
     exit 1;
  fi
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 depends: wireless/wifi_ap_across_reboot_{interface}_setup
 estimated_duration: 120.0
@@ -1093,7 +1093,7 @@ command:
  wifi-ap.config set disabled=true
  if [ "$RES" -eq 2 ]; then exit 0; else exit 1; fi
 requires:
- wifi_interface_mode.{interface}_AP == 'supported'
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'wifi-ap'
 depends: wireless/wifi_ap_across_reboot_{interface}_setup_manual
 estimated_duration: 120.0

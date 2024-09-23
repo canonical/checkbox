@@ -87,6 +87,7 @@ nested_part:
     com.canonical.certification::rtc-automated
     com.canonical.certification::led-indicator-auto
     before-suspend-ce-oem-spi-automated
+    ce-oem-gadget-automated
 certification_status_overrides:
     apply blocker to .*
 

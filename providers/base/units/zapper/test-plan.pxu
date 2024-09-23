@@ -15,9 +15,7 @@ include:
   input/zapper-keyboard
   monitor/zapper-edid
   usb/zapper-usb-insert-.*
-  usb/zapper-usb-remove-.*
   usb3/zapper-usb-insert-.*
-  usb3/zapper-usb-remove-.*
 bootstrap_include:
   desktop_session
   graphics_card

@@ -22,9 +22,7 @@ include:
   dock/all-init-monitor-multi-head-audio-playback         certification-status=blocker
   dock/all-init-networking-gateway-ping                   certification-status=blocker
   dock/all-init-networking-ntp                            certification-status=blocker
-  dock/all-init-thunderbolt3-insert                       certification-status=blocker
-  dock/all-init-thunderbolt3-storage-automated            certification-status=blocker
-  dock/all-init-thunderbolt3-remove                       certification-status=blocker
+  dock/all-init-thunderbolt3-storage-manual               certification-status=blocker
   dock/all-init-usb-c/insert                              certification-status=blocker
   dock/all-init-usb-c/storage-automated                   certification-status=blocker
   dock/all-init-usb-c/remove                              certification-status=blocker
@@ -47,9 +45,7 @@ include:
   dock/all-reboot-monitor-multi-head-audio-playback         certification-status=blocker
   dock/all-reboot-networking-gateway-ping                   certification-status=blocker
   dock/all-reboot-networking-ntp                            certification-status=blocker
-  dock/all-reboot-thunderbolt3-insert                       certification-status=blocker
-  dock/all-reboot-thunderbolt3-storage-automated            certification-status=blocker
-  dock/all-reboot-thunderbolt3-remove                       certification-status=blocker
+  dock/all-reboot-thunderbolt3-storage-manual               certification-status=blocker
   dock/all-reboot-usb-c/insert                              certification-status=blocker
   dock/all-reboot-usb-c/storage-automated                   certification-status=blocker
   dock/all-reboot-usb-c/remove                              certification-status=blocker
@@ -72,9 +68,7 @@ include:
   dock/all-hotplug-monitor-multi-head-audio-playback         certification-status=blocker
   dock/all-hotplug-networking-gateway-ping                   certification-status=blocker
   dock/all-hotplug-networking-ntp                            certification-status=blocker
-  dock/all-hotplug-thunderbolt3-insert                       certification-status=blocker
-  dock/all-hotplug-thunderbolt3-storage-automated            certification-status=blocker
-  dock/all-hotplug-thunderbolt3-remove                       certification-status=blocker
+  dock/all-hotplug-thunderbolt3-storage-manual               certification-status=blocker
   dock/all-hotplug-usb-c/insert                              certification-status=blocker
   dock/all-hotplug-usb-c/storage-automated                   certification-status=blocker
   dock/all-hotplug-usb-c/remove                              certification-status=blocker
@@ -97,9 +91,7 @@ include:
   dock/all-suspend-monitor-multi-head-audio-playback         certification-status=blocker
   dock/all-suspend-networking-gateway-ping                   certification-status=blocker
   dock/all-suspend-networking-ntp                            certification-status=blocker
-  dock/all-suspend-thunderbolt3-insert                       certification-status=blocker
-  dock/all-suspend-thunderbolt3-storage-automated            certification-status=blocker
-  dock/all-suspend-thunderbolt3-remove                       certification-status=blocker
+  dock/all-suspend-thunderbolt3-storage-manual               certification-status=blocker
   dock/all-suspend-usb-c/insert                              certification-status=blocker
   dock/all-suspend-usb-c/storage-automated                   certification-status=blocker
   dock/all-suspend-usb-c/remove                              certification-status=blocker
@@ -122,9 +114,7 @@ include:
   dock/all-poweroff-monitor-multi-head-audio-playback         certification-status=blocker
   dock/all-poweroff-networking-gateway-ping                   certification-status=blocker
   dock/all-poweroff-networking-ntp                            certification-status=blocker
-  dock/all-poweroff-thunderbolt3-insert                       certification-status=blocker
-  dock/all-poweroff-thunderbolt3-storage-automated            certification-status=blocker
-  dock/all-poweroff-thunderbolt3-remove                       certification-status=blocker
+  dock/all-poweroff-thunderbolt3-storage-manual               certification-status=blocker
   dock/all-poweroff-usb-c/insert                              certification-status=blocker
   dock/all-poweroff-usb-c/storage-automated                   certification-status=blocker
   dock/all-poweroff-usb-c/remove                              certification-status=blocker
@@ -196,9 +186,7 @@ include:
   dock/battery-charging                 certification-status=blocker
   dock/monitor-thunderbolt3
   dock/audio-playback-thunderbolt3
-  dock/thunderbolt3-insert
-  dock/thunderbolt3-storage-test
-  dock/thunderbolt3-remove
+  dock/thunderbolt3-storage-manual
   dock/thunderbolt3-daisy-chain
   dock/network-before-suspend           certification-status=blocker
   dock/audio-before-suspend             certification-status=blocker

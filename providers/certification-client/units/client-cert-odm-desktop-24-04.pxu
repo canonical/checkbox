@@ -22,7 +22,7 @@ nested_part:
     led-cert-manual
     mediacard-cert-manual
     mei-manual
-    mobilebroadband-cert-manual
+    wwan-manual
     ethernet-cert-manual
     networking-cert-manual
     optical-cert-manual
@@ -118,7 +118,7 @@ nested_part:
     led-cert-automated
     mediacard-cert-automated
     mei-automated
-    mobilebroadband-cert-automated
+    wwan-automated
     ethernet-cert-automated
     networking-cert-automated
     optical-cert-automated
@@ -126,6 +126,7 @@ nested_part:
     qep-automated
     # touchpad-cert-automated
     # touchscreen-cert-automated
+    after-suspend-wwan-automated
     usb-cert-automated
     usb3-cert-automated
     # usb-c-cert-automated # only usb-c-cert-full
@@ -150,6 +151,7 @@ nested_part:
     # after-suspend-usb-cert-automated
     # after-suspend-usb3-cert-automated
     # after-suspend-usb-c-cert-automated # only usb-c-cert-full
+    after-suspend-wwan-automated
     after-suspend-wireless-cert-automated
     # Automated Tests
     # The following tests are purely automated and/or lenghty stress tests.

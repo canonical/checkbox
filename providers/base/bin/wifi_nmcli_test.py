@@ -187,9 +187,9 @@ def wait_for_connected(interface, essid):
         "d show {}".format(interface)
     )
     print_cmd(cmd)
-    output = sp.check_output(shlex.split(cmd))
-    print(output.decode(sys.stdout.encoding))
-    state, ssid = output.decode(sys.stdout.encoding).strip().splitlines()
+    output = sp.check_output(shlex.split(cmd), universal_newlines=True)
+    print(output)
+    state, ssid = output.strip().splitlines()
 
     if state.startswith("100") and ssid == essid:
         print("Reached connected state with ESSID: {}".format(essid))

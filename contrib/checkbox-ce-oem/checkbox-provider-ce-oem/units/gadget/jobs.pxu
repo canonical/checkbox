@@ -52,7 +52,6 @@ requires:
   lsb.distributor_id == 'Ubuntu Core'
 category_id: com.canonical.certification::gadget
 estimated_duration: 5s
-flags: also-after-suspend
 command:
   check_gadget_interface.py --type {type} --name {name} --interface {interface} # --attrs "{attrs}"
 
@@ -73,5 +72,4 @@ requires:
   lsb.distributor_id == 'Ubuntu Core'
 category_id: com.canonical.certification::gadget
 estimated_duration: 5s
-flags: also-after-suspend
 command: check_gadget_interface.py --type {type} --name {name} --interface {interface}

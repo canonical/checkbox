@@ -54,7 +54,7 @@ nested_part:
     mediacard-cert-automated
     mediacard-automated
     memory-automated
-    mobilebroadband-cert-automated
+    wwan-automated
     ethernet-cert-automated
     networking-cert-automated
     optical-cert-automated
@@ -68,6 +68,7 @@ nested_part:
     before-suspend-reference-cert-full
     # suspend point
     after-suspend-reference-cert-full
+    after-suspend-wwan-automated
     after-suspend-touchscreen-cert-automated
     after-suspend-wireless-cert-automated
     # The following tests should run BEFORE the automated tests. The reboot and

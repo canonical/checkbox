@@ -1,60 +1,83 @@
 {
-    "gst_v4l2_audio_video_synchronization": {
-        "video_sinks": {
-            "on_server": "kmssink connector-id=32 driver-name=mediatek",
-            "on_core": "kmssink connector-id=32 driver-name=mediatek"
-        },
-        "cases": [
-            {
-                "decoder_plugin": "v4l2h264dec",
-                "golden_sample_files": [
-                    {
-                        "file_name": "480p.mp4",
-                        "capssetter_pipeline": ""
-                    },
-                    {
-                        "file_name": "720p.mp4",
-                        "capssetter_pipeline": ""
-                    },
-                    {
-                        "file_name": "1080p.mp4",
-                        "capssetter_pipeline": ""
-                    }
-                ]
-            }
-        ]
+  "gst_v4l2_audio_video_synchronization": {
+    "video_sinks": {
+      "on_server": "kmssink connector-id=32 driver-name=mediatek",
+      "on_core": "kmssink connector-id=32 driver-name=mediatek"
     },
-    "gst_v4l2_video_decoder_performance_fakesink": [
-        {
-            "decoder_plugin": "v4l2h264dec",
-            "golden_sample_file": "H264_1920x1080_60fps_40Mbps.mp4",
-            "minimum_fps": 60,
-            "enable_performance_mode": true
-        },
-        {
-            "decoder_plugin": "v4l2h265dec",
-            "golden_sample_file": "H265_1920x1080_60fps_40Mbps",
-            "minimum_fps": 60,
-            "enable_performance_mode": true
-        },
-        {
-            "decoder_plugin": "v4l2mpeg4dec",
-            "golden_sample_file": "MPEG-4_1920x1080_60fps_40Mbps.mp4",
-            "minimum_fps": 60,
-            "enable_performance_mode": true
-        },
-        {
-            "decoder_plugin": "v4l2vp8dec",
-            "golden_sample_file": "VP8_1920x1080_60fps_40Mbps.webm",
-            "minimum_fps": 60,
-            "enable_performance_mode": true
-        },
-        {
-            "decoder_plugin": "v4l2vp9dec",
-            "golden_sample_file": "VP9_1920x1080_60fps_40Mbps.webm",
-            "minimum_fps": 60,
-            "enable_performance_mode": true
-        }
+    "cases": [
+      {
+        "decoder_plugin": "v4l2h264dec",
+        "golden_sample_files": [
+          {
+            "file_name": "480p.mp4",
+            "capssetter_pipeline": ""
+          },
+          {
+            "file_name": "720p.mp4",
+            "capssetter_pipeline": ""
+          },
+          {
+            "file_name": "1080p.mp4",
+            "capssetter_pipeline": ""
+          }
+        ]
+      }
     ]
+  },
+  "gst_v4l2_video_decoder_performance_fakesink": [
+    {
+      "decoder_plugin": "v4l2h264dec",
+      "golden_sample_file": "H264_1920x1080_60fps_40Mbps.mp4",
+      "minimum_fps": 60,
+      "enable_performance_mode": true
+    },
+    {
+      "decoder_plugin": "v4l2h265dec",
+      "golden_sample_file": "H265_1920x1080_60fps_40Mbps",
+      "minimum_fps": 60,
+      "enable_performance_mode": true
+    },
+    {
+      "decoder_plugin": "v4l2mpeg4dec",
+      "golden_sample_file": "MPEG-4_1920x1080_60fps_40Mbps.mp4",
+      "minimum_fps": 60,
+      "enable_performance_mode": true
+    },
+    {
+      "decoder_plugin": "v4l2vp8dec",
+      "golden_sample_file": "VP8_1920x1080_60fps_40Mbps.webm",
+      "minimum_fps": 60,
+      "enable_performance_mode": true
+    },
+    {
+      "decoder_plugin": "v4l2vp9dec",
+      "golden_sample_file": "VP9_1920x1080_60fps_40Mbps.webm",
+      "minimum_fps": 60,
+      "enable_performance_mode": true
+    }
+  ],
+  "gst_encoder_psnr": [
+    {
+      "encoder_plugin": "v4l2h264enc",
+      "resolutions": [
+        { "width": 1920, "height": 1080, "fps": 60 },
+        { "width": 1920, "height": 1080, "fps": 30 },
+        { "width": 1280, "height": 720, "fps": 60 },
+        { "width": 1280, "height": 720, "fps": 30 }
+      ],
+      "color_spaces": ["NV12", "NV21", "I420", "YV12"],
+      "mux": ["mp4mux", "avimux", "matroskamux"]
+    },
+    {
+      "encoder_plugin": "v4l2h265enc",
+      "resolutions": [
+        { "width": 1920, "height": 1080, "fps": 60 },
+        { "width": 1920, "height": 1080, "fps": 30 },
+        { "width": 1280, "height": 720, "fps": 60 },
+        { "width": 1280, "height": 720, "fps": 30 }
+      ],
+      "color_spaces": ["NV12", "NV21", "I420", "YV12"],
+      "mux": ["mp4mux", "avimux", "matroskamux"]
+    }
+  ]
 }
-

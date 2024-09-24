@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-# Copyright 2017-2019 Canonical Ltd.
+# Copyright 2017-2024 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
 #   Jonathan Cave <jonathan.cave@canonical.com>
 #   Taihsiang Ho <taihsiang.ho@canonical.com>
+#   Isaac Yang <isaac.yang@canonical.com>
+#   Pierre Equoy <pierre.equoy@canonical.com>
 #
 # wireless connection tests using nmcli
 

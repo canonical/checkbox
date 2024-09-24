@@ -404,20 +404,20 @@ class TestSecuredConnection(unittest.TestCase):
 
 
 class TestDeviceRescan(unittest.TestCase):
-    @patch("wifi_nmcli_test.sp.run")
-    def test_device_rescan_success(self, mock_sp_run):
+    @patch("wifi_nmcli_test.sp.check_call")
+    def test_device_rescan_success(self, mock_sp_check_call):
         device_rescan()
 
 
 class TestPrintAddressInfo(unittest.TestCase):
-    @patch("wifi_nmcli_test.sp.run")
-    def test_print_address_info_success(self, mock_sp_run):
+    @patch("wifi_nmcli_test.sp.call")
+    def test_print_address_info_success(self, mock_sp_call):
         print_address_info("wlan0")
 
 
 class TestPrintRouteInfo(unittest.TestCase):
-    @patch("wifi_nmcli_test.sp.run")
-    def test_print_route_info_success(self, mock_sp_run):
+    @patch("wifi_nmcli_test.sp.call")
+    def test_print_route_info_success(self, mock_sp_call):
         print_route_info()
 
 

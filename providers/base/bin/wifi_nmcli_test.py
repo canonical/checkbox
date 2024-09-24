@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
-# Copyright 2017-2019 Canonical Ltd.
+# Copyright 2017-2024 Canonical Ltd.
 # All rights reserved.
 #
 # Written by:
 #   Jonathan Cave <jonathan.cave@canonical.com>
 #   Taihsiang Ho <taihsiang.ho@canonical.com>
+#   Isaac Yang <isaac.yang@canonical.com>
+#   Pierre Equoy <pierre.equoy@canonical.com>
 #
 # wireless connection tests using nmcli
 
@@ -15,11 +17,11 @@ import functools
 import os
 import subprocess as sp
 import sys
-import time
 import shlex
 
 from packaging import version as version_parser
 
+from checkbox_support.helpers.retry import retry
 from gateway_ping_test import ping
 
 
@@ -89,13 +91,10 @@ def turn_down_nm_connections():
     for name, value in connections.items():
         uuid = value["uuid"]
         print("Turn down connection", name)
-        try:
-            cmd = "nmcli c down {}".format(uuid)
-            print_cmd(cmd)
-            sp.call(shlex.split(cmd))
-            print("{} {} is down now".format(name, uuid))
-        except sp.CalledProcessError as e:
-            print("Can't down {}: {}".format(uuid, str(e)))
+        cmd = "nmcli c down {}".format(uuid)
+        print_cmd(cmd)
+        sp.check_call(shlex.split(cmd))
+        print("{} {} is down now".format(name, uuid))
     print()
 
 
@@ -105,26 +104,18 @@ def delete_test_ap_ssid_connection():
     if "TEST_CON" not in connections:
         print("No TEST_CON connection found, nothing to delete")
         return
-    try:
-        cmd = "nmcli c delete TEST_CON"
-        print_cmd(cmd)
-        sp.call(shlex.split(cmd))
-        print("TEST_CON is deleted")
-    except Exception as e:
-        print("Can't delete TEST_CON : {}".format(str(e)))
+    cmd = "nmcli c delete TEST_CON"
+    print_cmd(cmd)
+    sp.check_call(shlex.split(cmd))
+    print("TEST_CON is deleted")
 
 
+@retry(max_attempts=5, delay=60)
 def device_rescan():
     print_head("Calling a rescan")
     cmd = "nmcli d wifi rescan"
     print_cmd(cmd)
-    retcode = sp.call(shlex.split(cmd))
-    if retcode != 0:
-        # Most often the rescan request fails because NM has itself started
-        # a scan in recent past, we should let these operations complete before
-        # attempting a connection
-        print("Scan request failed, allow other operations to complete (15s)")
-        time.sleep(15)
+    sp.check_call(shlex.split(cmd))
     print()
 
 
@@ -183,48 +174,59 @@ def perform_ping_test(interface):
     if target:
         count = 5
         result = ping(target, interface, count, 10)
-        if result["received"] == count:
-            return True
-
-    return False
-
-
-def wait_for_connected(interface, essid, max_wait=5):
-    connected = False
-    attempts = 0
-    while not connected and attempts < max_wait:
-        cmd = (
-            "nmcli -m tabular -t -f GENERAL.STATE,GENERAL.CONNECTION "
-            "d show {}".format(interface)
-        )
-        print_cmd(cmd)
-        output = sp.check_output(shlex.split(cmd))
-        state, ssid = output.decode(sys.stdout.encoding).strip().splitlines()
-
-        if state.startswith("100") and ssid == essid:
-            connected = True
-            break
-
-        time.sleep(1)
-        attempts += 1
-
-    if connected:
-        print("Reached connected state with ESSID: {}".format(essid))
-    else:
-        print(
-            "ERROR: did not reach connected state with ESSID: {}".format(essid)
-        )
-        if ssid != essid:
-            print(
-                "ESSID mismatch:\n  Excepted:{}\n  Actually:{}".format(
-                    ssid, essid
+        if result["received"] != count:
+            raise ValueError(
+                "{} packets expected but only {} received".format(
+                    count, result["received"]
                 )
             )
-        if not state.startswith("100"):
-            print("State is not connected: {}".format(state))
 
+
+@retry(max_attempts=5, delay=1)
+def wait_for_connected(interface, essid):
+    cmd = (
+        "nmcli -m tabular -t -f GENERAL.STATE,GENERAL.CONNECTION "
+        "d show {}".format(interface)
+    )
+    print_cmd(cmd)
+    output = sp.check_output(shlex.split(cmd), universal_newlines=True)
+    print(output)
+    state, ssid = output.strip().splitlines()
+
+    if state.startswith("100") and ssid == essid:
+        print("Reached connected state with ESSID: {}".format(essid))
+    elif ssid != essid:
+        error_msg = (
+            "ERROR: did not reach connected state with ESSID: {}\n"
+            "ESSID mismatch:\n  Excepted:{}\n  Actually:{}"
+        ).format(essid, ssid, essid)
+        raise SystemExit(error_msg)
+    elif not state.startswith("100"):
+        error_msg = "State is not connected: {}".format(state)
+        raise SystemExit(error_msg)
     print()
-    return connected
+
+
+def connection(cmd, device):
+    print_head("Connection attempt")
+    print_cmd(cmd)
+    sp.check_call(shlex.split(cmd))
+
+    # Make sure the connection is brought up
+    turn_up_connection("TEST_CON")
+
+    print_head("Ensure interface is connected")
+    wait_for_connected(device, "TEST_CON")
+
+    print_head("Display address")
+    print_address_info(device)
+
+    print_head("Display route table")
+    print_route_info()
+
+    print_head("Perform a ping test")
+    perform_ping_test(device)
+    print("Connection test passed\n")
 
 
 def open_connection(args):
@@ -233,7 +235,6 @@ def open_connection(args):
     # ipv6.method ignore : I believe that NM can report the device as Connected
     #                      if an IPv6 address is setup. This should ensure in
     #                      this test we are using IPv4
-    print_head("Connection attempt")
     cmd = (
         "nmcli c add con-name TEST_CON "
         "ifname {} "
@@ -244,31 +245,7 @@ def open_connection(args):
         "ipv4.dhcp-timeout 30 "
         "ipv6.method ignore".format(args.device, args.essid)
     )
-    print_cmd(cmd)
-    sp.call(shlex.split(cmd))
-
-    # Make sure the connection is brought up
-    turn_up_connection("TEST_CON")
-
-    print_head("Ensure interface is connected")
-    reached_connected = wait_for_connected(args.device, "TEST_CON")
-
-    rc = 1
-    if reached_connected:
-        print_head("Display address")
-        print_address_info(args.device)
-
-        print_head("Display route table")
-        print_route_info()
-
-        print_head("Perform a ping test")
-        test_result = perform_ping_test(args.device)
-        if test_result:
-            rc = 0
-            print("Connection test passed\n")
-        else:
-            print("Connection test failed\n")
-    return rc
+    connection(cmd, args.device)
 
 
 def secured_connection(args):
@@ -277,7 +254,6 @@ def secured_connection(args):
     # ipv6.method ignore : I believe that NM can report the device as Connected
     #                      if an IPv6 address is setup. This should ensure in
     #                      this test we are using IPv4
-    print_head("Connection attempt")
     cmd = (
         "nmcli c add con-name TEST_CON "
         "ifname {} "
@@ -292,31 +268,7 @@ def secured_connection(args):
             args.device, args.essid, args.exchange, args.psk
         )
     )
-    print_cmd(cmd)
-    sp.call(shlex.split(cmd))
-
-    # Make sure the connection is brought up
-    turn_up_connection("TEST_CON")
-
-    print_head("Ensure interface is connected")
-    reached_connected = wait_for_connected(args.device, "TEST_CON")
-
-    rc = 1
-    if reached_connected:
-        print_head("Display address")
-        print_address_info(args.device)
-
-        print_head("Display route table")
-        print_route_info()
-
-        print_head("Perform a ping test")
-        test_result = perform_ping_test(args.device)
-        if test_result:
-            rc = 0
-            print("Connection test passed\n")
-        else:
-            print("Connection test failed\n")
-    return rc
+    connection(cmd, args.device)
 
 
 def hotspot(args):
@@ -414,6 +366,7 @@ def parser_args():
     return args
 
 
+@retry(max_attempts=5, delay=60)
 def main():
     args = parser_args()
     start_time = datetime.datetime.now()
@@ -424,31 +377,32 @@ def main():
 
     if args.test_type == "scan":
         if not aps_dict:
-            print("Failed to find any APs")
-            return 1
+            raise SystemExit("Failed to find any access point.")
         else:
             print("Found {} access points".format(len(aps_dict)))
-            return 0
+            return
 
     if not aps_dict:
-        print("Targed access points: {} not found".format(args.essid))
-        return 1
+        raise SystemExit(
+            "Targed access point: {} not found".format(args.essid)
+        )
 
     if args.func:
         delete_test_ap_ssid_connection()
         activated_uuid = get_nm_activate_connection()
         turn_down_nm_connections()
         try:
-            result = args.func(args)
+            args.func(args)
+        except Exception:
+            # The test is not required to run as root, but root access is
+            # required for journal access so only attempt to print when e.g.
+            # running under Remote
+            if os.geteuid() == 0:
+                print_journal_entries(start_time)
+            raise
         finally:
             turn_up_connection(activated_uuid)
             delete_test_ap_ssid_connection()
-
-    # The test is not required to run as root, but root access is required for
-    # journal access so only attempt to print when e.g. running under Remote
-    if result != 0 and os.geteuid() == 0:
-        print_journal_entries(start_time)
-    return result
 
 
 if __name__ == "__main__":

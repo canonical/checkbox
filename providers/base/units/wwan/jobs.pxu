@@ -226,7 +226,7 @@ _steps:
 _verification:
  Was the connection revived after removing the Faraday bag?
 estimate_duration: 120s
-flags:  also-after-suspend
+flags: also-after-suspend
 category_id: wwan
 imports: from com.canonical.plainbox import manifest
 requires:

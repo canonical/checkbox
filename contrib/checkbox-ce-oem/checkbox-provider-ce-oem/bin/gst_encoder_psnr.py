@@ -181,7 +181,7 @@ def execute_command(cmd: str) -> str:
         raise SystemExit(e)
 
 
-def ProjectFactory(**kwargs):
+def project_factory(**kwargs):
     """
     Factory
     """
@@ -510,7 +510,7 @@ class GenioProject(BaseHandler):
 
 def main() -> None:
     args = register_arguments()
-    p = ProjectFactory(**vars(args))
+    p = project_factory(**vars(args))
     logging.info("Step 1: Generating artifact...")
     p.execute_encode_command()
     logging.info("\nStep 2: Checking metadata...")

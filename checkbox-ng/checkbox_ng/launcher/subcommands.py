@@ -1393,7 +1393,8 @@ class Expand:
                 obj["certification-status"] = (
                     self.get_effective_certification_status(unit)
                 )
-                obj["template-id"] = unit.template_id
+                if unit.template_id:
+                    obj["template-id"] = unit.template_id
             obj_list.append(obj)
 
         obj_list.sort(key=lambda x: x.get("template-id", x["id"]) or x["id"])

@@ -462,10 +462,10 @@ class GenioProject(BaseHandler):
 
         return final_pipeline
 
-    def _v4l2jpecenc_command_builder(self) -> List[str]:
+    def _v4l2jpegenc_command_builder(self) -> List[str]:
         if self._platform == "genio-350":
             raise SystemExit(
-                "Genio 350 platform doesn't support v4l2jpecenc codec"
+                "Genio 350 platform doesn't support v4l2jpegenc codec"
             )
         # Make the name of artifact and its full path
         self._output_file_name = "encode_psnr_{}x{}_{}.jpg".format(
@@ -505,7 +505,7 @@ class GenioProject(BaseHandler):
         if self._codec in ["v4l2h264enc", "v4l2h265enc"]:
             return self._264_265_command_builder()
         elif self._codec == "v4l2jpegenc":
-            return self._v4l2jpecenc_command_builder()
+            return self._v4l2jpegenc_command_builder()
 
 
 def main() -> None:

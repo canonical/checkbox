@@ -26,7 +26,7 @@ import subprocess
 
 from abc import ABC, abstractmethod
 from enum import Enum
-from typing import List, Dict
+from typing import Dict
 
 from checkbox_support.scripts.psnr import get_average_psnr
 
@@ -430,7 +430,7 @@ class GenioProject(BaseHandler):
             self._codec,
         )
 
-    def _264_265_command_builder(self) -> List[str]:
+    def _264_265_command_builder(self) -> str:
         base_pipeline = (
             "{} filesrc location={} ! decodebin ! videoconvert !"
             " video/x-raw,format={} ! {}"
@@ -462,7 +462,7 @@ class GenioProject(BaseHandler):
 
         return final_pipeline
 
-    def _v4l2jpegenc_command_builder(self) -> List[str]:
+    def _v4l2jpegenc_command_builder(self) -> str:
         if self._platform == "genio-350":
             raise SystemExit(
                 "Genio 350 platform doesn't support v4l2jpegenc codec"

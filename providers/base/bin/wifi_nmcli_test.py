@@ -91,7 +91,7 @@ def turn_down_nm_connections():
         print("Turn down connection", name)
         cmd = "nmcli c down {}".format(uuid)
         print_cmd(cmd)
-        sp.run(shlex.split(cmd), check=True)
+        sp.check_call(shlex.split(cmd))
         print("{} {} is down now".format(name, uuid))
     print()
 
@@ -104,7 +104,7 @@ def delete_test_ap_ssid_connection():
         return
     cmd = "nmcli c delete TEST_CON"
     print_cmd(cmd)
-    sp.run(shlex.split(cmd), check=True)
+    sp.check_call(shlex.split(cmd))
     print("TEST_CON is deleted")
 
 
@@ -113,7 +113,7 @@ def device_rescan():
     print_head("Calling a rescan")
     cmd = "nmcli d wifi rescan"
     print_cmd(cmd)
-    sp.run(shlex.split(cmd), check=True)
+    sp.check_call(shlex.split(cmd))
     print()
 
 
@@ -208,7 +208,7 @@ def wait_for_connected(interface, essid):
 def connection(cmd, device):
     print_head("Connection attempt")
     print_cmd(cmd)
-    sp.run(shlex.split(cmd), check=True)
+    sp.check_call(shlex.split(cmd))
 
     # Make sure the connection is brought up
     turn_up_connection("TEST_CON")

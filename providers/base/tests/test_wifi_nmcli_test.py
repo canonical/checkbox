@@ -144,37 +144,37 @@ class TestTurnDownNmConnections(unittest.TestCase):
         self.assertEqual(get_connections_mock.call_count, 1)
         sp_call_mock.assert_not_called()
 
-    @patch("wifi_nmcli_test.sp.run")
+    @patch("wifi_nmcli_test.sp.check_call")
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
         return_value={"Wireless1": {"uuid": "uuid1", "state": "activated"}},
     )
     def test_turn_down_single_connection(
-        self, get_connections_mock, sp_run_mock
+        self, get_connections_mock, sp_check_call_mock
     ):
         turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
-        sp_run_mock.assert_called_once_with(
-            "nmcli c down uuid1".split(), check=True
+        sp_check_call_mock.assert_called_once_with(
+            "nmcli c down uuid1".split()
         )
 
-    @patch("wifi_nmcli_test.sp.run")
+    @patch("wifi_nmcli_test.sp.check_call")
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
         return_value={"Wireless1": {"uuid": "uuid1", "state": "activated"}},
     )
     def test_turn_down_single_connection_with_exception(
-        self, get_connections_mock, sp_run_mock
+        self, get_connections_mock, sp_check_call_mock
     ):
-        sp_run_mock.side_effect = subprocess.CalledProcessError("", 1)
+        sp_check_call_mock.side_effect = subprocess.CalledProcessError("", 1)
         with self.assertRaises(subprocess.CalledProcessError):
             turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
-        sp_run_mock.assert_called_once_with(
-            "nmcli c down uuid1".split(), check=True
+        sp_check_call_mock.assert_called_once_with(
+            "nmcli c down uuid1".split()
         )
 
-    @patch("wifi_nmcli_test.sp.run")
+    @patch("wifi_nmcli_test.sp.check_call")
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
         return_value={
@@ -183,19 +183,19 @@ class TestTurnDownNmConnections(unittest.TestCase):
         },
     )
     def test_turn_down_multiple_connections(
-        self, get_connections_mock, sp_run_mock
+        self, get_connections_mock, sp_check_call_mock
     ):
         turn_down_nm_connections()
         self.assertEqual(get_connections_mock.call_count, 1)
         calls = [
-            call("nmcli c down uuid1".split(), check=True),
-            call("nmcli c down uuid2".split(), check=True),
+            call("nmcli c down uuid1".split()),
+            call("nmcli c down uuid2".split()),
         ]
-        sp_run_mock.assert_has_calls(calls, any_order=True)
+        sp_check_call_mock.assert_has_calls(calls, any_order=True)
 
 
 class TestDeleteTestApSsidConnection(unittest.TestCase):
-    @patch("wifi_nmcli_test.sp.run")
+    @patch("wifi_nmcli_test.sp.check_call")
     @patch(
         "wifi_nmcli_test._get_nm_wireless_connections",
         return_value={
@@ -204,7 +204,7 @@ class TestDeleteTestApSsidConnection(unittest.TestCase):
     )
     @patch("wifi_nmcli_test.print")
     def test_delete_existing_test_con(
-        self, print_mock, get_nm_wireless_connections_mock, sp_run_mock
+        self, print_mock, get_nm_wireless_connections_mock, sp_check_call_mock
     ):
         delete_test_ap_ssid_connection()
         print_mock.assert_called_with("TEST_CON is deleted")
@@ -311,7 +311,7 @@ class TestWaitForConnected(unittest.TestCase):
 
 
 class TestConnection(unittest.TestCase):
-    @patch("wifi_nmcli_test.sp.run", new=MagicMock())
+    @patch("wifi_nmcli_test.sp.check_call", new=MagicMock())
     @patch("wifi_nmcli_test.print_route_info", new=MagicMock())
     @patch("wifi_nmcli_test.print_address_info", new=MagicMock())
     @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())
@@ -329,7 +329,7 @@ class TestConnection(unittest.TestCase):
         wait_for_connected_mock.assert_called_with("wlan0", "TEST_CON")
         perform_ping_test_mock.assert_called_with("wlan0")
 
-    @patch("wifi_nmcli_test.sp.run", new=MagicMock())
+    @patch("wifi_nmcli_test.sp.check_call", new=MagicMock())
     @patch("wifi_nmcli_test.print_route_info", new=MagicMock())
     @patch("wifi_nmcli_test.print_address_info", new=MagicMock())
     @patch("wifi_nmcli_test.turn_up_connection", new=MagicMock())

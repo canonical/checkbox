@@ -54,6 +54,7 @@ imports: from com.canonical.plainbox import manifest
 depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 requires:
   manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 unit: template
@@ -74,6 +75,7 @@ flags: preserve-locale also-after-suspend preserve-cwd
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 unit: template
@@ -100,6 +102,7 @@ flags: preserve-locale also-after-suspend preserve-cwd
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 unit: template
@@ -122,6 +125,7 @@ depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 id: wwan/detect-manual
@@ -141,6 +145,7 @@ imports: from com.canonical.plainbox import manifest
 category_id: wwan
 requires:
     manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
 
 id: wwan/check-sim-present-manual
 plugin: manual
@@ -159,6 +164,7 @@ imports: from com.canonical.plainbox import manifest
 category_id: wwan
 requires:
     manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
 depends:
     wwan/detect-manual
 
@@ -191,6 +197,7 @@ category_id: wwan
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
 depends:
     wwan/check-sim-present-manual
 
@@ -231,5 +238,6 @@ category_id: wwan
 imports: from com.canonical.plainbox import manifest
 requires:
     manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
 depends:
     wwan/check-sim-present-manual

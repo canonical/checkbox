@@ -144,7 +144,7 @@ flags:  also-after-suspend
 imports: from com.canonical.plainbox import manifest
 category_id: wwan
 requires:
-    manifest.has_wwan_module == 'True'
+  manifest.has_wwan_module == 'True'
   manifest.has_sim_card == 'True'
 
 id: wwan/check-sim-present-manual
@@ -163,10 +163,10 @@ flags:  also-after-suspend
 imports: from com.canonical.plainbox import manifest
 category_id: wwan
 requires:
-    manifest.has_wwan_module == 'True'
+  manifest.has_wwan_module == 'True'
   manifest.has_sim_card == 'True'
 depends:
-    wwan/detect-manual
+  wwan/detect-manual
 
 id: wwan/gsm-connection-manual
 plugin: manual
@@ -196,10 +196,10 @@ flags:  also-after-suspend
 category_id: wwan
 imports: from com.canonical.plainbox import manifest
 requires:
-    manifest.has_wwan_module == 'True'
+  manifest.has_wwan_module == 'True'
   manifest.has_sim_card == 'True'
 depends:
-    wwan/check-sim-present-manual
+  wwan/check-sim-present-manual
 
 id: wwan/gsm-connection-interrupted-manual
 plugin: manual
@@ -237,7 +237,7 @@ flags: also-after-suspend
 category_id: wwan
 imports: from com.canonical.plainbox import manifest
 requires:
-    manifest.has_wwan_module == 'True'
+  manifest.has_wwan_module == 'True'
   manifest.has_sim_card == 'True'
 depends:
-    wwan/check-sim-present-manual
+  wwan/check-sim-present-manual

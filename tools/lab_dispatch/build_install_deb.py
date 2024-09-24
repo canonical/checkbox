@@ -39,20 +39,16 @@ def prepare_repo(repo_root, package_path):
 
 @github_group("Installing build depends")
 def install_build_depends(repo_root):
-    environ = copy(os.environ)
-    environ["DEBIAN_FRONTEND"] = "noninteractive"
-
     subprocess.check_call(
         [
             "sudo",
-            "-E",
+            "DEBIAN_FRONTEND=noninteractive",
             "apt-get",
             "-y",
             "build-dep",
             ".",
         ],
         cwd=repo_root,
-        env=environ,
     )
 
 
@@ -71,9 +67,6 @@ def build_package(repo_root):
 
 @github_group("Installing the packages")
 def install_local_package(repo_root, deb_name_glob):
-    environ = copy(os.environ)
-    environ["DEBIAN_FRONTEND"] = "noninteractive"
-
     # we build in path.parent, dpkg will put the result on ..
     package_list = list(repo_root.parent.glob(deb_name_glob))
     print(f"==== Installing {package_list} ====")
@@ -81,7 +74,7 @@ def install_local_package(repo_root, deb_name_glob):
     subprocess.check_call(
         [
             "sudo",
-            "-E",
+            "DEBIAN_FRONTEND=noninteractive",
             "apt-get",
             "--fix-broken",
             "-y",
@@ -89,7 +82,6 @@ def install_local_package(repo_root, deb_name_glob):
         ]
         + package_list,
         cwd=repo_root.parent,
-        env=environ,
     )
 
 

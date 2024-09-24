@@ -278,7 +278,7 @@ class TestWaitForConnected(unittest.TestCase):
         "wifi_nmcli_test.sp.check_output",
         MagicMock(
             side_effect=[
-                b"100:connected\nTestESSID",
+                "100:connected\nTestESSID\n",
             ]
         ),
     )
@@ -289,7 +289,7 @@ class TestWaitForConnected(unittest.TestCase):
 
     @patch(
         "wifi_nmcli_test.sp.check_output",
-        MagicMock(return_value=b"30:disconnected\nTestESSID"),
+        MagicMock(return_value="30:disconnected\nTestESSID\n"),
     )
     @patch("wifi_nmcli_test.print_cmd", new=MagicMock())
     def test_wait_for_connected_failure_due_to_timeout(self):
@@ -300,7 +300,7 @@ class TestWaitForConnected(unittest.TestCase):
 
     @patch(
         "wifi_nmcli_test.sp.check_output",
-        MagicMock(return_value=b"100:connected\nWrongESSID"),
+        MagicMock(return_value="100:connected\nWrongESSID\n"),
     )
     @patch("wifi_nmcli_test.print_cmd", new=MagicMock())
     def test_wait_for_connected_failure_due_to_essid_mismatch(self):

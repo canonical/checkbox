@@ -391,7 +391,7 @@ def main():
         turn_down_nm_connections()
         try:
             args.func(args)
-        except Exception as e:
+        except Exception:
             # The test is not required to run as root, but root access is
             # required for journal access so only attempt to print when e.g.
             # running under Remote

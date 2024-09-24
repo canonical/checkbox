@@ -8,3 +8,8 @@ unit: manifest entry
 id: has_wwan_module
 _name: A WWAN Module
 value-type: bool
+
+unit: manifest entry
+id: has_sim_card
+_name: A working SIM card inserted
+value-type: bool

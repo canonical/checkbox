@@ -1,10 +1,28 @@
 #!/usr/bin/env python3
+import os
 import shutil
 import argparse
+import functools
 import subprocess
 
+from copy import copy
 from pathlib import Path
-from contextlib import suppress
+
+
+def github_group(group_name):
+    def _group_printing(f):
+        @functools.wraps(f)
+        def _f(*args, **kwargs):
+            # flush is necessary to make this appear above subprocess output
+            print("::group::" + group_name, flush=True)
+            try:
+                return f(*args, **kwargs)
+            finally:
+                print("::endgroup::", flush=True)
+
+        return _f
+
+    return _group_printing
 
 
 def parse_args():
@@ -16,22 +34,38 @@ def parse_args():
 
 
 def prepare_repo(repo_root, package_path):
-    shutil.move(package_path / "debian", repo_root)
+    shutil.move(str(package_path / "debian"), str(repo_root))
 
 
+@github_group("Installing build depends")
 def install_build_depends(repo_root):
     subprocess.check_call(
-        ["sudo", "apt-get", "-y", "build-dep", "."], cwd=repo_root
+        [
+            "sudo",
+            "DEBIAN_FRONTEND=noninteractive",
+            "apt-get",
+            "-y",
+            "build-dep",
+            ".",
+        ],
+        cwd=repo_root,
     )
 
 
+@github_group("Building the packages")
 def build_package(repo_root):
+    environ = copy(os.environ)
+    environ["DEBIAN_FRONTEND"] = "noninteractive"
+
     # -Pnocheck: skip tests as we have a pipeline that builds/tests debian
     #            packages and doing them on slow machines is a big waste of
     #            time/resources
-    subprocess.check_call(["dpkg-buildpackage", "-Pnocheck"], cwd=repo_root)
+    subprocess.check_call(
+        ["dpkg-buildpackage", "-Pnocheck"], cwd=repo_root, env=environ
+    )
 
 
+@github_group("Installing the packages")
 def install_local_package(repo_root, deb_name_glob):
     # we build in path.parent, dpkg will put the result on ..
     package_list = list(repo_root.parent.glob(deb_name_glob))
@@ -40,6 +74,7 @@ def install_local_package(repo_root, deb_name_glob):
     subprocess.check_call(
         [
             "sudo",
+            "DEBIAN_FRONTEND=noninteractive",
             "apt-get",
             "--fix-broken",
             "-y",

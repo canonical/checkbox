@@ -141,9 +141,9 @@ def stress_cpu(args):
         "vecmath",
         "wcs",
     ]
-    # Add 10% to runtime; will forcefully terminate if stress-ng
+    # Add 300% to runtime; will forcefully terminate if stress-ng
     # fails to return in that time.
-    end_time = 1.1 * args.base_time
+    end_time = 3 * args.base_time
     print(
         "Estimated total run time is {:.0f} minutes\n".format(
             args.base_time / 60

@@ -5,7 +5,7 @@ category_id: com.canonical.plainbox::mediacard
 id: mediacard/mmc-storage-manual
 estimated_duration: 120 
 command:
- checkbox-support-run_watcher storage mediacard
+ checkbox-support-run_watcher storage mediacard_combo
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_card_reader == 'True'
@@ -36,7 +36,7 @@ id: mediacard/sdhc-storage-manual
 flags: also-after-suspend
 estimated_duration: 30.0
 command:
- checkbox-support-run_watcher storage mediacard
+ checkbox-support-run_watcher storage mediacard_combo
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_card_reader == 'True'
@@ -67,7 +67,7 @@ category_id: com.canonical.plainbox::mediacard
 id: mediacard/cf-storage-manual
 estimated_duration: 120
 command:
- checkbox-support-run_watcher storage mediacard
+ checkbox-support-run_watcher storage mediacard_combo
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_card_reader == 'True'
@@ -97,7 +97,7 @@ category_id: com.canonical.plainbox::mediacard
 id: mediacard/sdxc-storage-manual
 estimated_duration: 120
 command:
- checkbox-support-run_watcher storage mediacard
+ checkbox-support-run_watcher storage mediacard_combo
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_card_reader == 'True'
@@ -127,7 +127,7 @@ category_id: com.canonical.plainbox::mediacard
 id: mediacard/ms-storage-manual
 estimated_duration: 120
 command:
- checkbox-support-run_watcher storage mediacard
+ checkbox-support-run_watcher storage mediacard_combo
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_card_reader == 'True'
@@ -158,7 +158,7 @@ category_id: com.canonical.plainbox::mediacard
 id: mediacard/msp-storage-manual
 estimated_duration: 120
 command:
- checkbox-support-run_watcher storage mediacard
+ checkbox-support-run_watcher storage mediacard_combo
 user: root
 imports: from com.canonical.plainbox import manifest
 requires:
@@ -190,7 +190,7 @@ category_id: com.canonical.plainbox::mediacard
 id: mediacard/xd-storage-manual
 estimated_duration: 120
 command:
- checkbox-support-run_watcher storage mediacard
+ checkbox-support-run_watcher storage mediacard_combo
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_card_reader == 'True'

@@ -310,6 +310,48 @@ class MediacardStorage(StorageWatcher):
             self.action = "removal"
 
 
+class MediacardComboStorage(StorageWatcher):
+    """
+    MediacardComboStorage handles the insertion and removal of sd, sdhc, mmc
+    etc., for devices that combine mediacard and usb storage.
+    """
+
+    def __init__(self, *args):
+        super().__init__(*args)
+        self.mounted_partition = None
+        self.action = None
+        self.device = None
+        self.address = None
+        self.number = None
+        self.driver = None
+
+    def _validate_insertion(self):
+        if self.mounted_partition and self.action == "insertion":
+            logger.info("usable partition: {}".format(self.mounted_partition))
+            logger.info("Device: {}".format(self.device))
+            if self.address:
+                logger.info("Address: {}".format(self.address))
+            if self.driver:
+                logger.info("Controller: {}".format(self.driver))
+            if self.number:
+                logger.info("Number: {}".format(self.number))
+            logger.info("Mediacard insertion test passed.")
+            self.test_passed = True
+
+    def _validate_removal(self):
+        if self.action == "removal":
+            logger.info("Mediacard removal test passed.")
+            self.test_passed = True
+
+    def _parse_journal_line(self, line_str):
+        """
+        Gets one of the lines from the journal and updates values by calling
+        the parsers of MediacardStorage and USBStorage.
+        """
+        MediacardStorage._parse_journal_line(self, line_str)
+        USBStorage._parse_journal_line(self, line_str)
+
+
 class ThunderboltStorage(StorageWatcher):
     """
     ThunderboltStorage handles the insertion and removal of thunderbolt
@@ -368,8 +410,14 @@ def parse_args():
     )
     parser.add_argument(
         "storage_type",
-        choices=["usb2", "usb3", "mediacard", "thunderbolt"],
-        help=("usb2, usb3, mediacard or thunderbolt"),
+        choices=[
+            "usb2",
+            "usb3",
+            "mediacard",
+            "mediacard_combo",
+            "thunderbolt",
+        ],
+        help=("usb2, usb3, mediacard, mediacard_combo or thunderbolt"),
     )
     parser.add_argument(
         "--zapper-usb-address",
@@ -389,6 +437,10 @@ def main():
         )
     elif args.storage_type == "mediacard":
         watcher = MediacardStorage(args.storage_type, args.zapper_usb_address)
+    elif args.storage_type == "mediacard_combo":
+        watcher = MediacardComboStorage(
+            args.storage_type, args.zapper_usb_address
+        )
     else:
         watcher = USBStorage(args.storage_type, args.zapper_usb_address)
 

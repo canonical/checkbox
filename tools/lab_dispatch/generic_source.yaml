@@ -49,11 +49,13 @@ test_data:
 
     # retrieve manifest
     MANIFEST_FILE=manifest.conf
+    set +e
     fetch_manifest --manifest_file manifest.conf $CID $HEXR_DEVICE_SECURE_ID
     if [ $? -ne 0 ]; then
         echo "Using default manifest"
         MANIFEST_FILE=$RESOURCES_PATH/manifest.conf
     fi
+    set -e
 
     ### create checkbox launcher
     # first dump the location specific infos in the launcher

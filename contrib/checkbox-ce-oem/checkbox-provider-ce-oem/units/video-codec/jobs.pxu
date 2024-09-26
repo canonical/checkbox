@@ -75,3 +75,23 @@ flags: also-after-suspend
 environ: GST_LAUNCH_BIN, PERFORMANCE_PYTHON_MODULE_PATH, PERFORMANCE_FUNCTION_NAME
 command:
     gst_v4l2_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}"
+
+unit: template
+template-engine: jinja2
+template-resource: video_codec_resource
+template-filter:
+    video_codec_resource.scenario == "gst_transform_resize"
+    ( video_codec_resource.platform == "genio-350" or video_codec_resource.platform == "genio-510" or video_codec_resource.platform == "genio-700" or video_codec_resource.platform == "genio-1200" )
+template-unit: job
+template-id: ce-oem-video-codec/gst_transform_resize
+_template-summary: Check if the resize (scale Up and scale down) operation is functional
+id: ce-oem-video-codec/{{ scenario }}-{{ encoder_plugin }}-{{ width_from }}x{{ height_from }}_to_{{ width_to }}x{{ height_to }}_{{ framerate }}fps
+_summary: Transform resize - {{ width_from }}x{{ height_from }}_to_{{ width_to }}x{{ height_to }}
+_description: Test if the resize (scale Up and scale down) operation is functional
+plugin: shell
+category_id: video-codec
+estimated_duration: 60s
+flags: also-after-suspend
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
+command:
+    gst_transform_resize.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wf "{{ width_from }}" -hf "{{ height_from }}" -wt "{{ width_to }}" -ht "{{ height_to }}" -f "{{ framerate }}"

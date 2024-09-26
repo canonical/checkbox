@@ -15,7 +15,6 @@ bootstrap_include:
     ce-oem-optee-test-list-pkcs11
 include:
     ce-oem-optee/device-node
-    ce-oem-optee/xtest-check
     ce-oem-optee/ta-install
     ce-oem-optee/xtest-regression.*
     ce-oem-optee/xtest-benchmark.*

@@ -2,7 +2,7 @@
 
 import json
 import argparse
-from look_up_xtest import look_up_xtest
+import look_up_xtest
 
 
 def parse_json_file(filepath, filter=False, xtest=None):
@@ -38,10 +38,10 @@ def main():
     )
     args = parser.parse_args()
     try:
-        xtest = look_up_xtest()
+        xtest = look_up_xtest.main()
     except SystemExit:
         xtest = None
-    parse_json_file(args.filepath, args.pkcs11, xtest)
+    parse_json_file(args.filepath, args.pkcs11, xtest["xtest"])
 
 
 if __name__ == "__main__":

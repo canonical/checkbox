@@ -1,31 +1,43 @@
 #!/usr/bin/env python3
 
 from checkbox_support.snap_utils.snapd import Snapd
-from checkbox_support.snap_utils.system import get_gadget_snap
+import os
 
 
-def look_up_xtest():
-    if Snapd().list("x-test"):
-        return "x-test.xtest"
-    elif look_up_gadget() is not False:
-        return look_up_gadget()
-    else:
-        raise SystemExit(1)
+class ExtendSanpd(Snapd):
+    _apps = "/v2/apps"
+
+    def __init__(self, task_timeout=30, poll_interval=1, verbose=False):
+        super().__init__(task_timeout, poll_interval, verbose)
+
+    def list_apps(self):
+        list_apps = self._get(self._apps)["result"]
+        return list_apps
 
 
-def look_up_gadget():
-    gadget = get_gadget_snap()
-    snap = Snapd().list(gadget)
-    if "apps" in snap.keys():
-        for app in snap["apps"]:
+def look_up_apps(apps, snap_name=None):
+    """Lookup xtest and tee-supplicant apps."""
+    results = {"xtest": None, "tee": None}
+    if apps:
+        for app in apps:
             if app["name"] == "xtest":
-                return ".".join([app["snap"], app["name"]])
-    return False
+                results["xtest"] = "{}.xtest".format(app["snap"])
+            if app["name"] == "tee-supplicant":
+                results["tee"] = "{}.tee-supplicant".format(app["snap"])
+    if snap_name:
+        results["xtest"] = "{}.xtest".format(snap_name)
+        results["tee"] = "{}.tee-supplicant".format(snap_name)
+    return results
 
 
 def main():
-    print(look_up_xtest())
+    a = ExtendSanpd()
+    snap = os.environ.get("XTEST")
+
+    apps = a.list_apps()
+    app_results = look_up_apps(apps, snap)
+    return app_results
 
 
 if __name__ == "__main__":
-    main()
+    print(main())

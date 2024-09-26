@@ -76,7 +76,7 @@ class DeviceInfoCollector:
         self,
         expected_dir: str,
         actual_dir: str,
-        devices: T.Dict[str, T.List[str]] = DEFAULT_DEVICES
+        devices: T.Dict[str, T.List[str]] = DEFAULT_DEVICES,
     ) -> bool:
         """Compares the list of devices in expected_dir against actual_dir
 

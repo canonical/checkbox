@@ -180,9 +180,7 @@ class InfoDumpTests(unittest.TestCase):
         else:
             raise Exception("Unexpected use of this mock")
 
-        return sp.CompletedProcess(
-            args, 0, stdout.encode(), "".encode()
-        )
+        return sp.CompletedProcess(args, 0, stdout.encode(), "".encode())
 
     @patch("subprocess.run")
     def test_info_dump_only_happy_path(self, mock_run: MagicMock):
@@ -269,12 +267,12 @@ class MainFunctionTests(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.temp_output_dir = "{}/temp_output_dir".format(os.getcwd())
-        cls.temp_comparison_dir = "{}/temp_comparison_dir".format(os.getcwd())
+        cls.tmp_output_dir = "{}/temp_output_dir".format(os.getcwd())
+        cls.tmp_comparison_dir = "{}/temp_comparison_dir".format(os.getcwd())
 
     def tearDown(self):
-        shutil.rmtree(self.temp_output_dir, ignore_errors=True)
-        shutil.rmtree(self.temp_comparison_dir, ignore_errors=True)
+        shutil.rmtree(self.tmp_output_dir, ignore_errors=True)
+        shutil.rmtree(self.tmp_comparison_dir, ignore_errors=True)
 
     @patch("subprocess.run")
     def test_partial_main(self, mock_run: MagicMock):
@@ -284,7 +282,7 @@ class MainFunctionTests(unittest.TestCase):
 
         with patch(
             "sys.argv",
-            sh_split("reboot_check_test.py -d {}".format(self.temp_output_dir)),
+            sh_split("reboot_check_test.py -d {}".format(self.tmp_output_dir)),
         ):
             RCT.main()
             self.assertEqual(
@@ -298,7 +296,7 @@ class MainFunctionTests(unittest.TestCase):
             "sys.argv",
             sh_split(
                 'reboot_check_test.py -d "{}" -c "{}"'.format(
-                    self.temp_output_dir, self.temp_comparison_dir
+                    self.tmp_output_dir, self.tmp_comparison_dir
                 )
             ),
         ), patch(
@@ -320,7 +318,7 @@ class MainFunctionTests(unittest.TestCase):
             "sys.argv",
             sh_split(
                 'reboot_check_test.py -d "{}" -c "{}" -f -s -g'.format(
-                    self.temp_output_dir, self.temp_comparison_dir
+                    self.tmp_output_dir, self.tmp_comparison_dir
                 )
             ),
         ), patch(
@@ -367,7 +365,7 @@ class MainFunctionTests(unittest.TestCase):
         with patch(
             "sys.argv",
             sh_split(
-                'reboot_check_test.py -c "{}"'.format(self.temp_output_dir)
+                'reboot_check_test.py -c "{}"'.format(self.tmp_output_dir)
             ),
         ), self.assertRaises(ValueError):
             RCT.main()

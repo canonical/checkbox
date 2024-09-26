@@ -34,7 +34,7 @@ jobs:
         run: |
           sudo python -m pip install -e $PWD/checkbox-ng
           sudo python -m pip install -e $PWD/checkbox-support
-          sudo python -m pip install psutil==5.9.5 opencv_python==4.8.0.76 natsort==8.0.2 libsvm==3.23.0.4 numpy==1.26.4 coverage==7.3.0 urwid==2.1.2 pynmea2 pytest
+          sudo python -m pip install psutil==5.9.5 opencv_python==4.8.0.76 natsort==8.0.2 libsvm==3.23.0.4 numpy==1.26.4 coverage==7.3.0 urwid==2.1.2 pynmea2 loguru importlib_resources pylxd pytest
 
       - name: Run coverage tests
         run: |

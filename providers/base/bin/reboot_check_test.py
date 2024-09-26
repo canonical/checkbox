@@ -7,7 +7,6 @@ import re
 import shutil
 import filecmp
 import sys
-import enum
 import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
 
@@ -21,7 +20,7 @@ SNAP = os.getenv("SNAP", default="")
 
 class DeviceInfoCollector:
 
-    class Device(enum.Enum):
+    class Device:
         PCI = "pci"
         WIRELESS = "wireless"
         USB = "usb"
@@ -34,7 +33,7 @@ class DeviceInfoCollector:
             Device.USB,
         ],  # these can fail the test case
         "optional": [Device.DRM],  # these only produce warnings
-    }  # type: dict[T.Literal['required','optional'], list[Device]]
+    }  # type: dict[str, list[str]]
     # to modify, add more values in the enum
     # and reference them in required/optional respectively
 
@@ -77,7 +76,7 @@ class DeviceInfoCollector:
         self,
         expected_dir: str,
         actual_dir: str,
-        devices=DEFAULT_DEVICES,
+        devices: T.Dict[str, T.List[str]] = DEFAULT_DEVICES
     ) -> bool:
         """Compares the list of devices in expected_dir against actual_dir
 
@@ -93,18 +92,18 @@ class DeviceInfoCollector:
         )
         for device in devices["required"]:
             # file paths of the expected and actual device lists
-            expected = "{}/{}_log".format(expected_dir, device.value)
-            actual = "{}/{}_log".format(actual_dir, device.value)
+            expected = "{}/{}_log".format(expected_dir, device)
+            actual = "{}/{}_log".format(actual_dir, device)
             if not filecmp.cmp(expected, actual):
                 print(
-                    "[ ERR ] The output of {} differs!".format(device.value),
+                    "[ ERR ] The output of {} differs!".format(device),
                     file=sys.stderr,
                 )
                 return False
 
         for device in devices["optional"]:
-            expected = "{}/{}_log".format(expected_dir, device.value)
-            actual = "{}/{}_log".format(actual_dir, device.value)
+            expected = "{}/{}_log".format(expected_dir, device)
+            actual = "{}/{}_log".format(actual_dir, device)
             if not filecmp.cmp(expected, actual):
                 print(
                     "[ WARN ] Items under {} have changed.".format(actual),
@@ -116,19 +115,19 @@ class DeviceInfoCollector:
     def dump(
         self,
         output_directory: str,
-        devices=DEFAULT_DEVICES,
+        devices: T.Dict[str, T.List[str]] = DEFAULT_DEVICES,
     ) -> None:
         os.makedirs(output_directory, exist_ok=True)
         # add extra behavior if necessary
         for device in devices["required"]:
             with open(
-                "{}/{}_log".format(output_directory, device.value), "w"
+                "{}/{}_log".format(output_directory, device), "w"
             ) as file:
                 file.write(self.dump_function[device]())
 
         for device in devices["optional"]:
             with open(
-                "{}/{}_log".format(output_directory, device.value), "w"
+                "{}/{}_log".format(output_directory, device), "w"
             ) as file:
                 file.write(self.dump_function[device]())
 

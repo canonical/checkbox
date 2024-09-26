@@ -1,0 +1,49 @@
+name: Submit a Checkbox Test plan (or subset of it) to the lab
+inputs:
+  data_source:
+    description: "Distrubtion to provision (ex. `url:` or `distro:`)"
+    required: false
+    default: null
+  queue:
+    description: "Queue that will run the testing (ex. 202012-28526)"
+    required: true
+  test_plan:
+    description: "Test plan to run (ex. com.canonical.certification::sru)"
+    required: true
+  match:
+    description: "Subset of jobs to run (ex. .*wireless.*)"
+    required: false
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-detph: 0
+    - name: Install dependencies
+      shell: bash
+      run: |
+        sudo apt install -y -qq gettext
+    - name: Build test resource
+      shell: bash
+      env:
+        INPUT_DATA_SOURCE: ${{ inputs.data_source }}
+        INPUT_QUEUE: ${{ inputs.queue }}
+        INPUT_MATCH: ${{ inputs.match }}
+        INPUT_TEST_PLAN: ${{ inputs.test_plan }}
+      run: |
+        echo "::group::Building the testflinger job"
+        export INPUT_CHECKBOX_REVISION="$(git rev-parse HEAD)"
+        envsubst '$INPUT_CHECKBOX_REVISION $INPUT_DATA_SOURCE $INPUT_QUEUE' < generic_source.yaml | tee job.yaml
+        echo "::endgroup::"
+
+        echo "::group::Building the Checkbox launcher"
+
+        # this goes from .template. (missing secret, testplan, match etc. to .partial.)
+        # this is partial as some values are filled in on the agent (like wireless access points names)
+        envsubst '$INPUT_TEST_PLAN $INPUT_MATCH' < resources/checkbox.no-manifest.template.conf | tee resources/checkbox.no-manifest.partial.conf
+        echo "::endgroup::"
+    - name: Submit and monitor job
+      uses: canonical/testflinger/.github/actions/submit@main
+      with:
+        poll: true
+        job-path: tools/lab_dispatch/job.yaml

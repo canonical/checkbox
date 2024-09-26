@@ -22,8 +22,8 @@ unit: test plan
 _name: Ethernet wake on lan tests (manual)
 _description: Ethernet wake on lan tests (manual)
 include:
-    ethernet/wol_S5_.*                             certification-status=blocker
-    ethernet/wol_S3_.*                             certification-status=blocker
+    ethernet/wol_S5_.*
+    ethernet/wol_S3_.*
 bootstrap_include:
     device
 

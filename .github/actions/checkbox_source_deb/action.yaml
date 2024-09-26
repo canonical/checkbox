@@ -13,6 +13,11 @@ inputs:
   match:
     description: "Subset of jobs to run (ex. .*wireless.*)"
     required: false
+    default: ".*"
+  launcher_override:
+    description: "Launcher with additional values that will take priority over the defaults"
+    default: ""
+    required: false
 runs:
   using: composite
   steps:
@@ -30,6 +35,7 @@ runs:
         INPUT_QUEUE: ${{ inputs.queue }}
         INPUT_MATCH: ${{ inputs.match }}
         INPUT_TEST_PLAN: ${{ inputs.test_plan }}
+        INPUT_LAUNCHER_OVERRIDE: ${{ inputs.launcher_override }}
       working-directory: tools/lab_dispatch
       run: |
         echo "::group::Building the testflinger job"
@@ -38,10 +44,13 @@ runs:
         echo "::endgroup::"
 
         echo "::group::Building the Checkbox launcher"
-
         # this goes from .template. (missing secret, testplan, match etc. to .partial.)
         # this is partial as some values are filled in on the agent (like wireless access points names)
         envsubst '$INPUT_TEST_PLAN $INPUT_MATCH' < resources/checkbox.no-manifest.template.conf | tee resources/checkbox.no-manifest.partial.conf
+        echo "::endgroup::"
+
+        echo "::group::Dumping launcher overrides"
+        echo "$INPUT_LAUNCHER_OVERRIDE" > launcher_override.conf
         echo "::endgroup::"
     - name: Submit and monitor job
       uses: canonical/testflinger/.github/actions/submit@main

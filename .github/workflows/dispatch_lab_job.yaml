@@ -37,3 +37,10 @@ jobs:
           queue: ${{ matrix.spec.queue }}
           test_plan: ${{ matrix.spec.test_plan }}
           match: ${{ matrix.spec.match }}
+          launcher_override: |
+            [environment]
+            WPA_BG_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA_N_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA_AC_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA3_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}

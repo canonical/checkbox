@@ -11,6 +11,8 @@ test_data:
       agent: "checkbox.no-manifest.partial.conf"
     - local: "tools/lab_dispatch/build_install_deb.py"
       agent: "build_install_deb.py"
+    - local: "tools/lab_dispatch/launcher_override.conf"
+      agent: "launcher_override.conf"
   test_cmds: |
     #!/usr/bin/env bash
 
@@ -38,10 +40,12 @@ test_data:
     _put $RESOURCES_PATH/build_install_deb.py :
     _run git clone https://github.com/canonical/checkbox.git
     _run git -C checkbox checkout $CHECKBOX_REVISION
+    _run wait_for_packages_complete
     _run python3 build_install_deb.py --clean checkbox/checkbox-ng \
         checkbox/checkbox-support checkbox/providers/resource \
         checkbox/providers/base checkbox/providers/sru
     _run sudo systemctl restart checkbox-ng
+    _run wait_for_packages_complete
 
     git clone https://github.com/canonical/checkbox.git
     git -C checkbox checkout $CHECKBOX_REVISION
@@ -62,7 +66,7 @@ test_data:
     which envsubst || install_packages gettext
     envsubst < $RESOURCES_PATH/checkbox.no-manifest.partial.conf > checkbox.no-manifest.conf
     # then insert the manifest entries via the stacker
-    stacker --output checkbox.conf checkbox.no-manifest.conf $MANIFEST_FILE
+    stacker --output checkbox.conf checkbox.no-manifest.conf $MANIFEST_FILE launcher_override.conf
 
     wait_for_ssh
 

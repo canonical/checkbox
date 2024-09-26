@@ -18,7 +18,7 @@ runs:
   steps:
     - uses: actions/checkout@v4
       with:
-        fetch-detph: 0
+        fetch-depth: 0
     - name: Install dependencies
       shell: bash
       run: |
@@ -30,6 +30,7 @@ runs:
         INPUT_QUEUE: ${{ inputs.queue }}
         INPUT_MATCH: ${{ inputs.match }}
         INPUT_TEST_PLAN: ${{ inputs.test_plan }}
+      working-directory: tools/lab_dispatch
       run: |
         echo "::group::Building the testflinger job"
         export INPUT_CHECKBOX_REVISION="$(git rev-parse HEAD)"

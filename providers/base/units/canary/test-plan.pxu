@@ -105,14 +105,6 @@ _description:
  This test plan is meant to run on Zapper versions that are candidates for
  a release against the latest beta Checkbox.
 estimated_duration: 5m
-bootstrap_include:
- com.canonical.certification::desktop_session
- com.canonical.certification::graphics_card
- com.canonical.certification::zapper_capabilities
- com.canonical.certification::zapper_reset_setup
+nested_part:
+  com.canonical.certification::zapper-enabled-automated
 include:
-  com.canonical.certification::bluetooth/zapper-a2dp
-  com.canonical.certification::input/zapper-keyboard
-  com.canonical.certification::monitor/zapper-edid
-  com.canonical.certification::usb/zapper-usb-insert-.*
-  com.canonical.certification::usb3/zapper-usb-insert-.*

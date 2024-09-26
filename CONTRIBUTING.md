@@ -27,7 +27,7 @@ install everything you need in a Python virtual environment.
 
 Install the required tools:
 
-    $ sudo apt install git python3-virtualenv
+    $ sudo apt install git python3-virtualenv libasound2-dev
 
 Prepare the development environment. If you are an external contributor and
 plan on submitting some changes, you will have to [fork the Checkbox repository

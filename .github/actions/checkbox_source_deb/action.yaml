@@ -50,7 +50,7 @@ runs:
         echo "::endgroup::"
 
         echo "::group::Dumping launcher overrides"
-        echo "$INPUT_LAUNCHER_OVERRIDE" > launcher_override.conf
+        echo "$INPUT_LAUNCHER_OVERRIDE" | tee launcher_override.conf
         echo "::endgroup::"
     - name: Submit and monitor job
       uses: canonical/testflinger/.github/actions/submit@main

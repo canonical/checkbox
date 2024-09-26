@@ -2,7 +2,7 @@
 
 import argparse
 import os
-import subprocess
+import subprocess as sp
 import re
 import shutil
 import filecmp
@@ -17,45 +17,6 @@ RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="")
 # Snap mount point, see
 # https://snapcraft.io/docs/environment-variables#heading--snap
 SNAP = os.getenv("SNAP", default="")
-
-
-class ShellResult:
-    """
-    Wrapper class around the return value of run_command, guarantees non-null
-    """
-
-    def __init__(self, return_code: int, stdout: str, stderr: str):
-        self.return_code = return_code
-        self.stdout = stdout
-        self.stderr = stderr
-
-
-def run_command(args: T.List[str]) -> ShellResult:
-    """Wrapper around subprocess.run
-
-    :param args: same args that goes to subprocess.run
-    :type args: T.List[str]
-    :return: return code, stdout and stderr, all non-null
-    :rtype: ShellResult
-    """
-    # PIPE is needed for subprocess.run to capture stdout and stderr
-    # <=3.7 behavior
-    try:
-        out = subprocess.run(
-            args, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-    except FileNotFoundError as e:
-        return ShellResult(1, "", "Command {} not found {}".format(args[0], e))
-
-    return ShellResult(
-        return_code=out.returncode,
-        # if there's nothing on stdout, .stdout is None (<=3.7 behavior)
-        # so we need a default value
-        stdout=(out.stdout or b"").decode(),
-        stderr=(out.stderr or b"").decode(),
-    )
-    # This could throw on non-UTF8 decodable byte strings
-    # but that should be rare since utf-8 is backwards compatible with ascii
 
 
 class DeviceInfoCollector:
@@ -81,8 +42,10 @@ class DeviceInfoCollector:
         return str(os.listdir("/sys/class/drm"))
 
     def get_wireless_info(self) -> str:
-        iw_out = run_command(["iw", "dev"])
-        lines = iw_out.stdout.splitlines()
+        iw_out = sp.run(
+            ["iw", "dev"], stdout=sp.PIPE, stderr=sp.PIPE, check=True
+        )
+        lines = iw_out.stdout.decode().splitlines()
         lines_to_write = list(
             filter(
                 lambda line: "addr" in line
@@ -94,19 +57,21 @@ class DeviceInfoCollector:
         return "\n".join(map(lambda line: line.strip(), lines_to_write))
 
     def get_usb_info(self) -> str:
-        return run_command(
+        return sp.run(
             [
                 "checkbox-support-lsusb",
                 "-f",
                 '"{}"/var/lib/usbutils/usb.ids'.format(RUNTIME_ROOT),
                 "-s",
-            ]
-        ).stdout
+            ],
+            check=True,
+        ).stdout.decode()
 
     def get_pci_info(self) -> str:
-        return run_command(
+        return sp.run(
             ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
-        ).stdout
+            check=True,
+        ).stdout.decode()
 
     def compare_device_lists(
         self,
@@ -197,8 +162,8 @@ class FwtsTester:
         log_file_path = "{}/fwts_{}.log".format(
             output_directory, "_".join(fwts_arguments)
         )
-        run_command(["fwts", "-r", log_file_path, *fwts_arguments])
-        result = run_command(
+        sp.run(["fwts", "-r", log_file_path, *fwts_arguments])
+        result = sp.run(
             [
                 "sleep_test_log_check.py",
                 "-v",
@@ -206,10 +171,10 @@ class FwtsTester:
                 "-t",
                 "all",
                 log_file_path,
-            ]
+            ],
         )
 
-        return result.return_code == 0
+        return result.returncode == 0
 
 
 class HardwareRendererTester:
@@ -279,22 +244,22 @@ class HardwareRendererTester:
         else:
             print("Checking $DISPLAY={}".format(DISPLAY))
 
-        unity_support_output = run_command(
+        unity_support_output = sp.run(
             ["{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT), "-p"]
         )
-        if unity_support_output.return_code != 0:
+        if unity_support_output.returncode != 0:
             print(
                 "[ ERR ] unity support test returned {}".format(
-                    unity_support_output.return_code
+                    unity_support_output.returncode
                 ),
                 file=sys.stderr,
             )
             return False
 
         is_hardware_rendered = (
-            self.parse_unity_support_output(unity_support_output.stdout).get(
-                "Not software rendered"
-            )
+            self.parse_unity_support_output(
+                unity_support_output.stdout.decode()
+            ).get("Not software rendered")
             == "yes"
         )
         if is_hardware_rendered:
@@ -347,7 +312,7 @@ def get_failed_services() -> T.List[str]:
         "--plain",  # plaintext, otherwise it includes color codes
     ]
 
-    return run_command(command).stdout.splitlines()
+    return sp.run(command).stdout.decode().splitlines()
 
 
 def create_parser():

@@ -5,10 +5,11 @@ import reboot_check_test as RCT
 import unittest
 import os
 import typing as T
+import subprocess as sp
 
 
-def do_nothing(_: T.List[str]):
-    return RCT.ShellResult(0, "", "")
+def do_nothing(args: T.List[str], **kwargs):
+    return sp.CompletedProcess(args, 0, "".encode(), "".encode())
 
 
 class UnitySupportParserTests(unittest.TestCase):
@@ -108,7 +109,7 @@ class DisplayConnectionTests(unittest.TestCase):
     @patch(
         "reboot_check_test.HardwareRendererTester.parse_unity_support_output"
     )
-    @patch("reboot_check_test.run_command")
+    @patch("subprocess.run")
     def test_is_hardware_renderer_available(
         self,
         mock_run: MagicMock,
@@ -124,14 +125,16 @@ class DisplayConnectionTests(unittest.TestCase):
     @patch(
         "reboot_check_test.HardwareRendererTester.parse_unity_support_output"
     )
-    @patch("reboot_check_test.run_command")
+    @patch("subprocess.run")
     def test_is_hardware_renderer_available_fail(
         self,
         mock_run: MagicMock,
         mock_parse: MagicMock,
     ):
 
-        mock_run.side_effect = lambda _: RCT.ShellResult(1, "", "")
+        mock_run.side_effect = lambda _: sp.CompletedProcess(
+            [], 1, "".encode(), "".encode()
+        )
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
 
@@ -154,7 +157,7 @@ class InfoDumpTests(unittest.TestCase):
         shutil.rmtree(self.temp_output_dir, ignore_errors=True)
         shutil.rmtree(self.temp_comparison_dir, ignore_errors=True)
 
-    def mock_run_command(self, args: T.List[str]) -> RCT.ShellResult:
+    def mock_run(self, args: T.List[str], **_) -> sp.CompletedProcess:
         stdout = ""
         if args[0] == "iw":
             stdout = """\
@@ -177,17 +180,19 @@ class InfoDumpTests(unittest.TestCase):
         else:
             raise Exception("Unexpected use of this mock")
 
-        return RCT.ShellResult(0, stdout, "")
+        return sp.CompletedProcess(
+            args, 0, stdout.encode(), "".encode()
+        )
 
-    @patch("reboot_check_test.run_command")
+    @patch("subprocess.run")
     def test_info_dump_only_happy_path(self, mock_run: MagicMock):
-        # wrap over run_command's return value
-        mock_run.side_effect = self.mock_run_command
+        # wrap over run's return value
+        mock_run.side_effect = self.mock_run
         RCT.DeviceInfoCollector().dump(self.temp_output_dir)
 
-    @patch("reboot_check_test.run_command")
+    @patch("subprocess.run")
     def test_info_dump_and_comparison_happy_path(self, mock_run: MagicMock):
-        mock_run.side_effect = self.mock_run_command
+        mock_run.side_effect = self.mock_run
 
         collector = RCT.DeviceInfoCollector()
 
@@ -204,7 +209,7 @@ class InfoDumpTests(unittest.TestCase):
         with open(
             "{}/{}_log".format(
                 self.temp_comparison_dir,
-                RCT.DeviceInfoCollector.Device.WIRELESS.value,
+                RCT.DeviceInfoCollector.Device.WIRELESS,
             ),
             "w",
         ) as f:
@@ -222,7 +227,7 @@ class InfoDumpTests(unittest.TestCase):
         with open(
             "{}/{}_log".format(
                 self.temp_comparison_dir,
-                RCT.DeviceInfoCollector.Device.DRM.value,
+                RCT.DeviceInfoCollector.Device.DRM,
             ),
             "w",
         ) as f:
@@ -237,33 +242,30 @@ class InfoDumpTests(unittest.TestCase):
 
 class FailedServiceCheckerTests(unittest.TestCase):
 
-    @patch("reboot_check_test.run_command")
+    @patch("subprocess.run")
     def test_get_failed_services_happy_path(self, mock_run: MagicMock):
-        mock_run.return_value = RCT.ShellResult(0, "", "")
+        mock_run.return_value = sp.CompletedProcess(
+            [], 0, "".encode(), "".encode()
+        )
         self.assertEqual(RCT.get_failed_services(), [])
 
-    @patch("reboot_check_test.run_command")
+    @patch("subprocess.run")
     def test_get_failed_services_with_failed_services(
         self, mock_run: MagicMock
     ):
-        mock_run.return_value = RCT.ShellResult(
+        mock_run.return_value = sp.CompletedProcess(
+            [],
             0,
             "snap.checkbox.agent.service loaded failed failed Service\
-                  for snap applictaion checkbox.agent",
+                  for snap applictaion checkbox.agent".encode(),
             "",
         )
         self.assertEqual(
-            RCT.get_failed_services(), [mock_run.return_value.stdout]
+            RCT.get_failed_services(), [mock_run.return_value.stdout.decode()]
         )
 
 
 class MainFunctionTests(unittest.TestCase):
-
-    def test_run_cmd_exception(self):
-        cmd = sh_split("non_existent_command -a -b -c")
-        output = RCT.run_command(cmd)
-        self.assertEqual(output.return_code, 1)
-        self.assertIn("Command non_existent_command not found", output.stderr)
 
     @classmethod
     def setUpClass(cls):
@@ -274,7 +276,7 @@ class MainFunctionTests(unittest.TestCase):
         shutil.rmtree(self.temp_output_dir, ignore_errors=True)
         shutil.rmtree(self.temp_comparison_dir, ignore_errors=True)
 
-    @patch("reboot_check_test.run_command")
+    @patch("subprocess.run")
     def test_partial_main(self, mock_run: MagicMock):
         # this test only validates the main function logic
         # (if it picks out the correct tests to run)
@@ -282,9 +284,7 @@ class MainFunctionTests(unittest.TestCase):
 
         with patch(
             "sys.argv",
-            sh_split(
-                "reboot_check_test.py -d {}".format(self.temp_output_dir)
-            ),
+            sh_split("reboot_check_test.py -d {}".format(self.temp_output_dir)),
         ):
             RCT.main()
             self.assertEqual(
@@ -312,7 +312,7 @@ class MainFunctionTests(unittest.TestCase):
             )  # only lspci, lsusb, iw calls
             self.assertEqual(mock_compare.call_count, 1)
 
-    @patch("reboot_check_test.run_command")
+    @patch("subprocess.run")
     def test_main_function_full(self, mock_run: MagicMock):
         mock_run.side_effect = do_nothing
         # Full suite

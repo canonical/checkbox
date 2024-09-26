@@ -5,5 +5,5 @@ value-type: bool
 
 unit: manifest entry
 id: has_ethernet_wake_on_lan_support
-_name: Wake-On-Lan support by Ethernet Port
+_name: Wake-on-LAN support through Ethernet port
 value-type: bool

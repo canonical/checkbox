@@ -66,7 +66,7 @@ test_data:
     which envsubst || install_packages gettext
     envsubst < $RESOURCES_PATH/checkbox.no-manifest.partial.conf > checkbox.no-manifest.conf
     # then insert the manifest entries via the stacker
-    stacker --output checkbox.conf checkbox.no-manifest.conf $MANIFEST_FILE launcher_override.conf
+    stacker --output checkbox.conf checkbox.no-manifest.conf $MANIFEST_FILE $RESOURCES_PATH/launcher_override.conf
 
     wait_for_ssh
 

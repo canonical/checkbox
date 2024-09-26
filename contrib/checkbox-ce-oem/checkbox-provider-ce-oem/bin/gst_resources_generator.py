@@ -247,6 +247,26 @@ class GstResources:
                 }
                 self._resource_items.append(config)
 
+    def gst_transform_resize(self, scenario_data: List[Dict]) -> None:
+        # Iterate through each encoder plugin configuration
+        for item in scenario_data:
+            encoder_plugin = item.get("encoder_plugin")
+            resolutions = item.get("resolutions", [])
+
+            # Use itertools.product to create combinations of all parameters
+            for resolution in resolutions:
+                config = {
+                    "platform": self._conf_name,
+                    "scenario": self._current_scenario_name,
+                    "encoder_plugin": encoder_plugin,
+                    "width_from": resolution.get("width_from"),
+                    "height_from": resolution.get("height_from"),
+                    "width_to": resolution.get("width_to"),
+                    "height_to": resolution.get("height_to"),
+                    "framerate": resolution.get("fps"),
+                }
+                self._resource_items.append(config)
+
     def main(self):
         for scenario in self._scenarios:
             self._current_scenario_name = scenario

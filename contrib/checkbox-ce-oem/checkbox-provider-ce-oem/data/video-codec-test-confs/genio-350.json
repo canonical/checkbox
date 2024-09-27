@@ -55,6 +55,15 @@
             "minimum_fps": 60,
             "enable_performance_mode": true
         }
+    ],
+    "gst_transform_resize": [
+        {
+            "encoder_plugin": "v4l2h264enc",
+            "resolutions": [
+              { "width_from": 1920, "height_from": 1080, "fps": 60, "width_to": 1280, "height_to": 720 },
+              { "width_from": 1280, "height_from": 720, "fps": 60, "width_to": 1920, "height_to": 1080 }
+            ]
+        }
     ]
 }
 

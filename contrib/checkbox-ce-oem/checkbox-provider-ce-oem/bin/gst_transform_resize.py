@@ -338,7 +338,7 @@ class GenioProject(BaseHandler):
             codec.
         """
         pipeline = (
-            "{} filesrc location={} ! decodebin ! v4l2convert !"
+            "{} filesrc location={} ! decodebin ! v4l2convert ! "
             "video/x-raw,width={},height={} ! {} ! {} ! mp4mux ! filesink"
             " location={}"
         ).format(
@@ -363,10 +363,8 @@ def main() -> None:
     logging.info("\nStep 3: Comparing PSNR...")
     p.compare_psnr()
     # Release the disk space if no error be observed
-    # p.delete_file()
+    p.delete_file()
 
 
 if __name__ == "__main__":
     main()
-
-# gst-launch-1.0 -v filesrc location=./big_bug_bunny_3840x2160_60fps_h264.mp4 ! decodebin ! v4l2convert ! video/x-raw,width=720,height=480 ! v4l2h264enc ! h264parse ! mp4mux ! filesink location=./output_to_720x480.mp4

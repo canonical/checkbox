@@ -24,8 +24,8 @@ from argparse import SUPPRESS
 from collections import defaultdict
 from string import Formatter
 from tempfile import TemporaryDirectory
-import textwrap
 import fnmatch
+import itertools
 import contextlib
 import gettext
 import json
@@ -1324,6 +1324,37 @@ class Expand:
             help=_("output format: 'text' or 'json' (default: %(default)s)"),
         )
 
+    def _get_relevant_manifest_units(self, jobs_and_templates_list):
+        """
+        Get all manifest units that are cited in the jobs_and_templates_list
+        resource expressions
+        """
+        # get all manifest units
+        manifest_units = filter(
+            lambda unit: unit.unit == "manifest entry",
+            self.sa._context.unit_list,
+        )
+        # get all jobs/templates that have a requires and do require a manifest
+        # entry
+        job_requires = [
+            requires
+            for requires in map(
+                lambda x: x.get_record_value("requires"),
+                jobs_and_templates_list,
+            )
+            if requires and "manifest" in requires
+        ]
+
+        # only return manifest entries that are actually required by any job in
+        # the list
+        return filter(
+            lambda manifest_unit: any(
+                "manifest.{}".format(manifest_unit.partial_id) in require
+                for require in job_requires
+            ),
+            manifest_units,
+        )
+
     def invoked(self, ctx):
         self.ctx = ctx
         session_title = "checkbox-expand-{}".format(ctx.args.TEST_PLAN)
@@ -1340,31 +1371,48 @@ class Expand:
         tp = self.sa._context._test_plan_list[0]
         tp_us = TestPlanUnitSupport(tp)
         self.override_list = tp_us.override_list
+
         jobs_and_templates_list = select_units(
             all_jobs_and_templates,
             [tp.get_mandatory_qualifier()] + [tp.get_qualifier()],
         )
+        relevant_manifest_units = self._get_relevant_manifest_units(
+            jobs_and_templates_list
+        )
 
+        units_to_print = itertools.chain(
+            relevant_manifest_units, iter(jobs_and_templates_list)
+        )
         obj_list = []
-        for unit in jobs_and_templates_list:
+        for unit in units_to_print:
             obj = unit._raw_data.copy()
             obj["unit"] = unit.unit
             obj["id"] = unit.id  # To get the fully qualified id
-            obj["certification-status"] = (
-                self.get_effective_certification_status(unit)
-            )
-            if unit.template_id:
-                obj["template-id"] = unit.template_id
+            # these two don't make sense for manifest units
+            if unit.unit != "manifest entry":
+                obj["certification-status"] = (
+                    self.get_effective_certification_status(unit)
+                )
+                if unit.template_id:
+                    obj["template-id"] = unit.template_id
             obj_list.append(obj)
-        obj_list.sort(key=lambda x: x.get("template-id", x["id"]))
+
+        obj_list.sort(key=lambda x: x.get("template-id", x["id"]) or x["id"])
+
         if ctx.args.format == "json":
-            print(json.dumps(obj_list, sort_keys=True))
+            json.dump(obj_list, sys.stdout, sort_keys=True)
         else:
             for obj in obj_list:
                 if obj["unit"] == "template":
                     print("Template '{}'".format(obj["template-id"]))
-                else:
+                elif obj["unit"] == "manifest entry":
+                    print("Manifest '{}'".format(obj["id"]))
+                elif obj["unit"] == "job":
                     print("Job '{}'".format(obj["id"]))
+                else:
+                    raise AssertionError(
+                        "Unknown unit type {}".format(obj["unit"])
+                    )
 
     def get_effective_certification_status(self, unit):
         if unit.unit == "template":

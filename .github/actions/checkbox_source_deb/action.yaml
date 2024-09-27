@@ -18,6 +18,9 @@ inputs:
     description: "Launcher with additional values that will take priority over the defaults"
     default: ""
     required: false
+  checkbox_revision:
+    description: "Revision of checkbox that has to be provisioned"
+    required: true
 runs:
   using: composite
   steps:
@@ -36,10 +39,10 @@ runs:
         INPUT_MATCH: ${{ inputs.match }}
         INPUT_TEST_PLAN: ${{ inputs.test_plan }}
         INPUT_LAUNCHER_OVERRIDE: ${{ inputs.launcher_override }}
+        INPUT_CHECKBOX_REVISION: ${{ inputs.checkbox_revision }}
       working-directory: tools/lab_dispatch
       run: |
         echo "::group::Building the testflinger job"
-        export INPUT_CHECKBOX_REVISION="$(git rev-parse HEAD)"
         envsubst '$INPUT_CHECKBOX_REVISION $INPUT_DATA_SOURCE $INPUT_QUEUE' < generic_source.yaml | tee job.yaml
         echo "::endgroup::"
 

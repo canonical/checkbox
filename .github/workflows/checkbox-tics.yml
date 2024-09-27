@@ -27,7 +27,7 @@ jobs:
           sudo apt-get update
           echo "::endgroup::"
           echo "::group::apt install..."
-          sudo apt-get install -y libsystemd-dev python3-pip pylint flake8 libbluetooth3 libbluetooth-dev libasound2-dev python3-zbar
+          sudo apt-get install -y libsystemd-dev python3-pip pylint flake8 libbluetooth3 libbluetooth-dev libasound2-dev python3-zbar python3-pil
           echo "::endgroup::"
 
       - name: Install Checkbox

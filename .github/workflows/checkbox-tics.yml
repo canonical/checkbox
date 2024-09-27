@@ -27,14 +27,14 @@ jobs:
           sudo apt-get update
           echo "::endgroup::"
           echo "::group::apt install..."
-          sudo apt-get install -y libsystemd-dev python3-pip pylint flake8 libbluetooth3 libbluetooth-dev libasound2-dev
+          sudo apt-get install -y libsystemd-dev python3-pip pylint flake8 libbluetooth3 libbluetooth-dev libasound2-dev python3-zbar
           echo "::endgroup::"
 
       - name: Install Checkbox
         run: |
           sudo python -m pip install -e $PWD/checkbox-ng
           sudo python -m pip install -e $PWD/checkbox-support
-          sudo python -m pip install psutil==5.9.5 opencv_python==4.8.0.76 natsort==8.0.2 libsvm==3.23.0.4 numpy==1.26.4 coverage==7.3.0 urwid==2.1.2 pynmea2 loguru importlib_resources pylxd pytest evdev pyalsaaudio RPi.GPIO PyQRCode
+          sudo python -m pip install psutil==5.9.5 opencv_python==4.8.0.76 natsort==8.0.2 libsvm==3.23.0.4 numpy==1.26.4 coverage==7.3.0 urwid==2.1.2 pynmea2 loguru importlib_resources pylxd pytest evdev pyalsaaudio RPi.GPIO PyQRCode PyBluez picamera
 
       - name: Run coverage tests
         run: |

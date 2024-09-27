@@ -238,7 +238,7 @@ class USBStorage(StorageWatcher):
                 ).group(1)
 
         # Look for insertion action
-        if "USB Mass Storage device detected" in line_str or "uas" in line_str:
+        if "New USB device found" in line_str:
             self.action = "insertion"
 
         # Look for removal action

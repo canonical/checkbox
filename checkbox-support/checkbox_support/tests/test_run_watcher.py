@@ -345,12 +345,7 @@ class TestRunWatcher(unittest.TestCase):
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.driver, "xhci_hcd")
 
-        line_str = "USB Mass Storage device detected"
-        mock_usb_storage = MagicMock()
-        USBStorage._parse_journal_line(mock_usb_storage, line_str)
-        self.assertEqual(mock_usb_storage.action, "insertion")
-
-        line_str = "kernel: scsi host0: uas"
+        line_str = "New USB device found"
         mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.action, "insertion")

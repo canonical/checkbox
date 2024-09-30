@@ -149,7 +149,7 @@ def get_golden_input_sample(
     return full_path
 
 
-def get_golden_reference_for_PSNR(
+def get_golden_reference_for_psnr(
     action: str = Actions.ROTATE_90,
     width: str = "3840",
     height: str = "2160",
@@ -247,7 +247,7 @@ class BaseHandler(ABC):
         # A file be treated as the reference file while doing PSNR
         # Comparision. If you want to use other file as reference while doing
         # PSNR comparison, please reassign the full path to it
-        self._psnr_reference_file = get_golden_reference_for_PSNR(
+        self._psnr_reference_file = get_golden_reference_for_psnr(
             action=self._action,
             width=self._width,
             height=self._height,
@@ -393,9 +393,7 @@ class GenioProject(BaseHandler):
                 "pixel-aspect-ratio='(fraction)1/1'"
             ).format(pipeline, self._height, self._width)
 
-        pipeline = (
-            "{} ! {} ! {} ! mp4mux ! filesink location={}"
-        ).format(
+        pipeline = ("{} ! {} ! {} ! mp4mux ! filesink location={}").format(
             pipeline,
             self._codec,
             self._codec_parser_map.get(self._codec),

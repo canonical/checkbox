@@ -25,6 +25,7 @@ import shlex
 import subprocess
 
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Dict
 
 from checkbox_support.scripts.psnr import get_average_psnr
@@ -45,12 +46,22 @@ if not VIDEO_CODEC_TESTING_DATA or not os.path.exists(
 SAMPLE_2_FOLDER = "sample_2_big_bug_bunny"
 
 
+class Actions(Enum):
+    ROTATE_90 = "rotate_90"
+    ROTATE_180 = "rotate_180"
+    ROTATE_270 = "rotate_270"
+    VERTICAL_FLIP = "vertical_flip"
+    HORIZONTAL_FLIP = "horizontal_flip"
+
+    def __str__(self):
+        return self.value
+
+
 def register_arguments():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.RawDescriptionHelpFormatter,
         description=(
-            "Script helps verify the gst_encoder_psnr scenario of specific"
-            " encoder."
+            "Script helps verify the gst_transform_rotate_and_flip scenario"
         ),
     )
 
@@ -71,18 +82,27 @@ def register_arguments():
     )
 
     parser.add_argument(
-        "-w",
+        "-a",
+        "--action",
+        type=Actions,
+        required=True,
+        choices=list(Actions),
+        help="Supported transform operation of rotation or flip",
+    )
+
+    parser.add_argument(
+        "-wi",
         "--width",
         type=str,
-        required=True,
+        default="1920",
         help="Value of width of the golden sample",
     )
 
     parser.add_argument(
-        "-h",
+        "-hi",
         "--height",
         type=str,
-        required=True,
+        default="1080",
         help="Value of height of the golden sample",
     )
 
@@ -90,7 +110,7 @@ def register_arguments():
         "-f",
         "--framerate",
         type=str,
-        default="",
+        default="60",
         help="Value of framerate. e.g. 60, 30",
     )
 
@@ -98,9 +118,9 @@ def register_arguments():
     return args
 
 
-def get_golden_sample(
-    width: str = "3840",
-    height: str = "2160",
+def get_golden_input_sample(
+    width: str = "1920",
+    height: str = "1080",
     framerate: str = "60",
     codec: str = "h264",
     container: str = "mp4",
@@ -120,10 +140,37 @@ def get_golden_sample(
     full_path = os.path.join(
         VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_sample
     )
-    logging.debug("Golden Sample: '{}'".format(full_path))
+    logging.debug("Golden Input Sample: '{}'".format(full_path))
     if not os.path.exists(full_path):
         raise SystemExit(
-            "Error: Golden sample '{}' doesn't exist".format(full_path)
+            "Error: Golden input sample '{}' doesn't exist".format(full_path)
+        )
+
+    return full_path
+
+
+def get_golden_reference_for_PSNR(
+    action: str = Actions.ROTATE_90,
+    width: str = "3840",
+    height: str = "2160",
+    framerate: str = "60",
+    container: str = "mp4",
+) -> str:
+    """
+    A golden reference which has been transformed in advance. It's used to be
+    the compared reference file for PSNR.
+    """
+    golden_reference = "big_bug_bunny_{}x{}_{}fps_{}.{}".format(
+        width, height, framerate, action, container
+    )
+
+    full_path = os.path.join(
+        VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_reference
+    )
+    logging.debug("Golden Reference: '{}'".format(full_path))
+    if not os.path.exists(full_path):
+        raise SystemExit(
+            "Error: Golden reference '{}' doesn't exist".format(full_path)
         )
 
     return full_path
@@ -174,37 +221,36 @@ class BaseHandler(ABC):
     def __init__(self, **kwargs):
         self._platform = kwargs.get("platform")
         self._codec = kwargs.get("encoder_plugin")
+        self._action = kwargs.get("action")
         self._width = kwargs.get("width")
         self._height = kwargs.get("height")
         self._framerate = kwargs.get("framerate")
         # Default extension is mp4, overwrite it if you need
         self._output_file_extension = "mp4"
         # Default format of name of artifact
-        # TODO
-        self._output_file_name = "resize_{}_{}x{}_to_{}x{}_{}fps.{}".format(
+        self._output_file_name = "{}_{}_{}x{}_{}fps.{}".format(
+            self._action,
             self._codec,
-            self._width_from,
-            self._height_from,
-            self._width_to,
-            self._height_to,
+            self._width,
+            self._height,
             self._framerate,
             self._output_file_extension,
         )
         # Get the golden sample.
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
-        self._golden_sample = get_golden_sample(
-            width=self._width_from,
-            height=self._height_from,
+        self._golden_sample = get_golden_input_sample(
+            width=self._width,
+            height=self._height,
             framerate=self._framerate,
         )
         # A file be treated as the reference file while doing PSNR
         # Comparision. If you want to use other file as reference while doing
         # PSNR comparison, please reassign the full path to it
-        # TODO
-        self._psnr_reference_file = get_golden_sample(
-            width=self._width_to,
-            height=self._height_to,
+        self._psnr_reference_file = get_golden_reference_for_PSNR(
+            action=self._action,
+            width=self._width,
+            height=self._height,
             framerate=self._framerate,
         )
         self._output_file_full_path = os.path.join(
@@ -250,21 +296,25 @@ class BaseHandler(ABC):
             cmd="gst-discoverer-1.0 {}".format(self._output_file_full_path)
         )
 
+        expected_height = self._height
+        expected_width = self._width
+        if self._action in [Actions.ROTATE_90, Actions.ROTATE_270]:
+            expected_height, expected_width = expected_width, expected_height
+
         # Check the meta
-        # TODO
         is_metadata_good = True
         p = self._extract_metadata_property(input=outcome)
-        if not p.get("width") or p.get("width") != self._width_to:
+        if not p.get("width") or p.get("width") != expected_width:
             logging.error(
                 "expect width is '{}' but got '{}'".format(
-                    self._width, p.get("width")
+                    expected_width, p.get("width")
                 )
             )
             is_metadata_good = False
-        if not p.get("height") or p.get("height") != self._height_to:
+        if not p.get("height") or p.get("height") != expected_height:
             logging.error(
                 "expect height is '{}' but got '{}'".format(
-                    self._height, p.get("height")
+                    expected_height, p.get("height")
                 )
             )
             is_metadata_good = False
@@ -312,18 +362,46 @@ class GenioProject(BaseHandler):
         super().__init__(**kwargs)
         self._codec_parser_map = {
             "v4l2h264enc": "h264parse",
-            "v4l2h265enc": "h265parse",
+        }
+        self._actions_map = {
+            Actions.ROTATE_90: "rotate=90",
+            Actions.ROTATE_180: "rotate=180",
+            Actions.ROTATE_270: "rotate=270",
+            Actions.HORIZONTAL_FLIP: "horizontal_flip=1",
+            Actions.VERTICAL_FLIP: "vertical_flip=1",
         }
 
     def _build_command(self) -> str:
         """
-        Build the GStreamer commands based on the platform and codec.
+        Build the GStreamer command to perform the rotation or flip action
         Returns:
-            str: A GStreamer command based on the platform and
-            codec.
+            str: A GStreamer command
         """
-        # TODO:
-        pass
+
+        pipeline = (
+            "{} filesrc location={} ! decodebin ! v4l2convert "
+            "extra-controls='cid,{}'"
+        ).format(
+            GST_LAUNCH_BIN,
+            self._golden_sample,
+            self._actions_map.get(self._action),
+        )
+
+        if self._action in [Actions.ROTATE_90, Actions.ROTATE_270]:
+            pipeline = (
+                "{} ! video/x-raw,width={},height={},"
+                "pixel-aspect-ratio='(fraction)1/1'"
+            ).format(pipeline, self._height, self._width)
+
+        pipeline = (
+            "{} ! {} ! {} ! mp4mux ! filesink location={}"
+        ).format(
+            pipeline,
+            self._codec,
+            self._codec_parser_map.get(self._codec),
+            self._output_file_full_path,
+        )
+        return pipeline
 
 
 def main() -> None:
@@ -331,7 +409,7 @@ def main() -> None:
     p = project_factory(**vars(args))
     logging.info("Step 1: Generating artifact...")
     p.execute_encode_command()
-    logging.info("\nStep 2: Checking metadata...")
+    # logging.info("\nStep 2: Checking metadata...")
     p.check_metadata()
     logging.info("\nStep 3: Comparing PSNR...")
     p.compare_psnr()

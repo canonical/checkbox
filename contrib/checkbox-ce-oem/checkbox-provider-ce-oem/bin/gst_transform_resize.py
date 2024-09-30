@@ -348,7 +348,7 @@ class GenioProject(BaseHandler):
             self._height_to,
             self._codec,
             self._codec_parser_map.get(self._codec),
-            self._output_file_full_path
+            self._output_file_full_path,
         )
         return pipeline
 

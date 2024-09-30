@@ -32,6 +32,7 @@ test_data:
     wait_for_ssh --allow-degraded
 
     _run install_packages git python3 python3-pip dpkg-dev
+    refresh_zapper_if_needed --channel "$INPUT_ZAPPER_CHANNEL"
 
     wait_for_ssh --allow-degraded
 

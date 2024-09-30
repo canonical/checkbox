@@ -45,6 +45,7 @@ jobs:
           queue: ${{ matrix.spec.queue }}
           test_plan: ${{ matrix.spec.test_plan }}
           match: ${{ matrix.spec.match }}
+          zapper_channel: ${{ matrix.spec.zapper_channel }}
           launcher_override: |
             [environment]
             WPA_BG_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}

@@ -9,6 +9,7 @@ on:
       # - queue: machine that will run the job (ex. 202012-28526)
       # - test_plan: Checkbox test plan to run (ex. com.canonical.certification::sru)
       # - match: subset of jobs to run (ex. .*wireless.*)
+      # - zapper_channel: refreshes the zapper snap to the channel if provided, default is beta (ex. "beta")
       #
       # One possible matrix_to_create would therefore look like this:
       # matrix_to_create=[{ data_source: "distro: desktop-22-04-2-uefi", queue: "202012-28526", match: ".*wireless.*", test_plan: "com.canonical.certification::sru" }]'

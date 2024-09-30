@@ -86,5 +86,13 @@
             "minimum_fps": 90,
             "enable_performance_mode": true
         }
+    ],
+    "gst_transform_rotate_and_flip": [
+        {
+            "encoder_plugin": "v4l2h264enc",
+            "actions": [
+              
+            ]
+        }
     ]
 }

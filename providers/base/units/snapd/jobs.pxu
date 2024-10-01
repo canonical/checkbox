@@ -63,7 +63,7 @@ plugin: shell
 estimated_duration: 30s
 category_id: snapd
 user: root
-depends: snapd/reboot-after-snap-refresh-{type}-{name}-to-stable-rev
+depends: snapd/snap-refresh-{type}-{name}-to-stable-rev
 command:
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
  snap_update_test.py --verify-refresh --info-path "$path" {name}

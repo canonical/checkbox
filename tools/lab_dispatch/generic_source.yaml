@@ -39,8 +39,13 @@ test_data:
     _run clean_machine --im-sure
     _run sudo add-apt-repository ppa:checkbox-dev/edge
     _put $RESOURCES_PATH/build_install_deb.py :
-    _run git clone https://github.com/canonical/checkbox.git
-    _run git -C checkbox checkout $CHECKBOX_REVISION
+
+    # clone the Checkbox revision without history (easier for slow systems, preserves RAM/storage/networking)
+    _run mkdir checkbox
+    _run git -C checkbox init --quiet
+    _run git -C checkbox fetch --depth 1 https://github.com/canonical/checkbox.git $CHECKBOX_REVISION
+    _run git -C checkbox reset --hard FETCH_HEAD
+
     _run wait_for_packages_complete
     _run python3 build_install_deb.py --clean checkbox/checkbox-ng \
         checkbox/checkbox-support checkbox/providers/resource \

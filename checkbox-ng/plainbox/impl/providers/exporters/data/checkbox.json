@@ -108,9 +108,15 @@
     {%- endfor %}
     ],
     "rejected-jobs": [
-    {%- for job_id in state.metadata.rejected_jobs %}
+    {%- for job in state.metadata.rejected_jobs %}
         {
-            "full_id": "{{ job_id }}"
+            "id": "{{ job['partial_id'] }}",
+            "full_id": "{{ job['id'] }}",
+            "name": "{{ job['name'] }}",
+            "category": "{{ category_map[job['category_id']] }}",
+            "category_id": "{{ job['category_id'] }}",
+            "plugin": "{{ job['plugin'] }}",
+            "template_id": {{ job['template_id'] | jsonify | safe }}
         }{%- if not loop.last -%},{%- endif %}
     {%- endfor %}
     ],

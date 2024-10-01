@@ -43,7 +43,7 @@ runs:
         INPUT_LAUNCHER_OVERRIDE: ${{ inputs.launcher_override }}
         INPUT_CHECKBOX_REVISION: ${{ inputs.checkbox_revision }}
         INPUT_ZAPPER_CHANNEL: ${{ inputs.zapper_channel || 'beta' }}
-      working-directory: tools/lab_dispatch
+      working-directory: ${{ github.action_path }}/../../../tools/lab_dispatch
       run: |
         echo "::group::Building the testflinger job"
         if [ -n "$INPUT_DATA_SOURCE" ]; then
@@ -61,6 +61,10 @@ runs:
         echo "::group::Dumping launcher overrides"
         echo "$INPUT_LAUNCHER_OVERRIDE" | tee launcher_override.conf
         echo "::endgroup::"
+    - name: Grosshack
+      shell: bash
+      run: |
+        mv ${{ github.action_path }}/../../../tools/ .
     - name: Submit and monitor job
       uses: canonical/testflinger/.github/actions/submit@main
       with:

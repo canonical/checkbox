@@ -353,7 +353,7 @@ class CameraTestTests(unittest.TestCase):
         }
 
         CameraTest.image(mock_camera)
-        self.assertEqual(mock_camera._still_image_helper.call_count, 1)
+        self.assertEqual(mock_camera._capture_image.call_count, 1)
 
     def test_image_without_output(self):
         mock_camera = MagicMock()
@@ -366,32 +366,32 @@ class CameraTestTests(unittest.TestCase):
 
         with patch("tempfile.NamedTemporaryFile"):
             CameraTest.image(mock_camera)
-            self.assertEqual(mock_camera._still_image_helper.call_count, 1)
+            self.assertEqual(mock_camera._capture_image.call_count, 1)
 
-    def test_still_image_helper(self):
+    def test_capture_image_helper(self):
         mock_camera = MagicMock()
         mock_camera._capture_image_fswebcam.return_value = True
         mock_camera._display_image.return_value = True
         mock_camera.headless = False
-        CameraTest._still_image_helper(
+        CameraTest._capture_image(
             mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
         )
         self.assertEqual(mock_camera._capture_image_fswebcam.call_count, 1)
         self.assertEqual(mock_camera._display_image.call_count, 1)
 
-    def test_still_image_headless(self):
+    def test_capture_image_headless(self):
         mock_camera = MagicMock()
         mock_camera._capture_image_fswebcam.return_value = True
         mock_camera.headless = True
-        CameraTest._still_image_helper(
+        CameraTest._capture_image(
             mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
         )
         self.assertEqual(mock_camera._display_image.call_count, 0)
 
-    def test_still_image_helper_fswebcam_fails(self):
+    def test_capture_image_helper_fswebcam_fails(self):
         mock_camera = MagicMock()
         mock_camera._capture_image_fswebcam.return_value = False
-        CameraTest._still_image_helper(
+        CameraTest._capture_image(
             mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
         )
         self.assertEqual(mock_camera._capture_image_gstreamer.call_count, 1)
@@ -514,7 +514,7 @@ class CameraTestTests(unittest.TestCase):
 
         self.assertEqual(mock_camera._get_default_format.call_count, 1)
         self.assertEqual(mock_camera._save_debug_image.call_count, 1)
-        self.assertEqual(mock_camera._still_image_helper.call_count, 2)
+        self.assertEqual(mock_camera._capture_image.call_count, 2)
         self.assertEqual(mock_camera._validate_image.call_count, 2)
 
         # Test that the function also works with no output
@@ -545,7 +545,7 @@ class CameraTestTests(unittest.TestCase):
         CameraTest._save_debug_image(
             mock_camera, format, "/dev/video0", "/tmp"
         )
-        self.assertEqual(mock_camera._still_image_helper.call_count, 1)
+        self.assertEqual(mock_camera._capture_image.call_count, 1)
 
     @patch("camera_test.os.path.exists")
     def test_save_debug_image_fails_if_path_not_exists(self, mock_exists):

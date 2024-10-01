@@ -551,18 +551,28 @@
                 "name": {
                     "type": "string"
                 },
+                "plugin": {
+                    "$ref": "#/definitions/Plugin"
+                },
+                "certification_status": {
+                    "$ref": "#/definitions/CertificationStatus"
+                },
                 "category": {
                     "type": "string"
                 },
                 "category_id": {
                     "type": "string"
                 },
-                "plugin": {
-                    "$ref": "#/definitions/Plugin"
-                },
                 "template_id": {
-                    "type": "string"
-                },
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
+                }
             },
             "required": [
                 "id",

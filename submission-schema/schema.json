@@ -542,12 +542,36 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "id": {
+                    "type": "string"
+                },
                 "full_id": {
                     "type": "string"
-                }
+                },
+                "name": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "plugin": {
+                    "$ref": "#/definitions/Plugin"
+                },
+                "template_id": {
+                    "type": "string"
+                },
             },
             "required": [
-                "full_id"
+                "id",
+                "full_id",
+                "name",
+                "category",
+                "category_id",
+                "plugin",
+                "template_id"
             ],
             "title": "RejectedJob"
         },
@@ -645,7 +669,9 @@
                 "shell",
                 "user-interact-verify",
                 "user-interact",
-                "manual"
+                "manual",
+                "attachment",
+                "resource"
             ],
             "title": "Plugin"
         },

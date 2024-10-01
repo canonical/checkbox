@@ -187,6 +187,16 @@
                 },
                 "plugin": {
                     "$ref": "#/definitions/Plugin"
+                },
+                "template_id": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ]
                 }
             },
             "required": [
@@ -200,7 +210,9 @@
                 "io_log",
                 "name",
                 "outcome",
-                "status"
+                "status",
+                "plugin",
+                "template_id"
             ],
             "title": "Result"
         },

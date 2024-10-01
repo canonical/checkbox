@@ -25,6 +25,7 @@ jobs:
   run-matrix:
     runs-on: [self-hosted, testflinger]
     strategy:
+      fail-fast: false
       matrix:
         spec: ${{ fromJson(inputs.matrix_to_create) }}
     defaults:

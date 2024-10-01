@@ -999,19 +999,10 @@ class SessionAssistant:
         desired_job_list = []
         rejected_job_list = []
         for job_id in self.get_static_todo_list():
-            job = self._context.get_unit(job_id, "job")
             if job_id in selection:
-                desired_job_list.append(job)
+                desired_job_list.append(self._context.get_unit(job_id, "job"))
             else:
-                job_repr = {
-                    "partial_id": job.partial_id,
-                    "id": job.id,
-                    "name": job.tr_summary(),
-                    "category_id": job.category_id,
-                    "plugin": job.plugin,
-                    "template_id": job.template_id,
-                }
-                rejected_job_list.append(job_repr)
+                rejected_job_list.append(job_id)
         self._metadata.rejected_jobs = rejected_job_list
         self._context.state.update_desired_job_list(desired_job_list)
 

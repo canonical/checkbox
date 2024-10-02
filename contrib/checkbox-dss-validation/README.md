@@ -16,8 +16,8 @@ Install the Checkbox runtime and build/install the dss provider snaps:
 sudo snap install --classic snapcraft
 sudo snap install checkbox22
 lxd init --auto
-git clone https://github.com/canonical/checkbox-dss-validation
-cd checkbox-dss-validation
+git clone https://github.com/canonical/checkbox
+cd checkbox/contrib/checkbox-dss-validation
 snapcraft
 sudo snap install --dangerous --classic ./checkbox-dss_2.0_amd64.snap
 ```
@@ -30,8 +30,7 @@ systemctl status snap.checkbox-dss.remote-slave.service
 
 # Install dependencies
 
-Some test need dependencies, so in order to run all tests, you might way to install those dependencies.
-A helper script is available to install them:
+Some test need dependencies, and a helper script is available to install them:
 
 ```shell
 checkbox-dss.install-deps
@@ -73,9 +72,9 @@ Therefore, if you want to edit a job definition, a script or a test plan, run th
 
 ```shell
 cd $HOME
-git clone https://github.com/canonical/checkbox-dss-validation
+git clone https://github.com/canonical/checkbox
 mkdir /var/tmp/checkbox-providers
-cp -r $HOME/checkbox-dss-validation/checkbox-provider-dss /var/tmp/checkbox-providers/
+cp -r $HOME/checkbox/contrib/checkbox-dss-validation/checkbox-provider-dss /var/tmp/checkbox-providers/
 ```
 
 You can then modify the content of the provider in `/var/tmp/checkbox-providers/checkbox-provider-dss/`, and it's this version that will be used when you run the tests.

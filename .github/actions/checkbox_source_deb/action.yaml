@@ -61,10 +61,21 @@ runs:
         echo "::group::Dumping launcher overrides"
         echo "$INPUT_LAUNCHER_OVERRIDE" | tee launcher_override.conf
         echo "::endgroup::"
-    - name: Grosshack
+    - name: Workaroud cwd
       shell: bash
       run: |
-        mv ${{ github.action_path }}/../../../tools/ .
+        # this allows us to dispatch the action and the attachments with relative
+        # paths even when called form outside the Checkbox repo
+        action_path=$(realpath ${{ github.action_path }}/../../../tools/)
+        workdir_path=$(realpath tools/)
+        if [ ! -e "$workdir_path" ]; then
+          cp -rT "$action_path" "$workdir_path"
+        fi
+        if [ "$action_path" = "$workdir_path" ]; then
+          echo "Skipping copy as the action is already running in workdir"
+        else
+          cp -rT "$action_path" "$workdir_path"
+        fi
     - name: Submit and monitor job
       uses: canonical/testflinger/.github/actions/submit@main
       with:

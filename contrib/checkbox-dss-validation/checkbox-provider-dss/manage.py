@@ -14,7 +14,7 @@ from plainbox.provider_manager import setup, N_
 # (optional)
 
 setup(
-    name='com.canonical.certification:dss-validation',
+    name="com.canonical.certification:dss-validation",
     version="1.0",
     description=N_("The com.canonical.certification:dss-validation provider"),
     gettext_domain="com_canonical_certification_dss_validation",

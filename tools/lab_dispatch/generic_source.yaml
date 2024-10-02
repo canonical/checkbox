@@ -41,7 +41,7 @@ test_data:
     _put $RESOURCES_PATH/build_install_deb.py :
 
     # clone the Checkbox revision without history (easier for slow systems, preserves RAM/storage/networking)
-    _run git_get https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
+    _run git_get_shallow https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
 
     _run wait_for_packages_complete
     _run python3 build_install_deb.py --clean checkbox/checkbox-ng \
@@ -50,7 +50,7 @@ test_data:
     _run sudo systemctl restart checkbox-ng
     _run wait_for_packages_complete
 
-    git_get https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
+    git_get_shallow https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
     pipx install --spec checkbox/checkbox-ng checkbox-ng
 
     # retrieve manifest

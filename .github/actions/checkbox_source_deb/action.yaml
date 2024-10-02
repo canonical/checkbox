@@ -1,7 +1,7 @@
 name: Submit a Checkbox Test plan (or subset of it) to the lab
 inputs:
   data_source:
-    description: "Distrubtion to provision (ex. `url:` or `distro:`)"
+    description: "Target image and provisioning data (ex. `url:` or `distro:`)"
     required: false
     default: null
   queue:

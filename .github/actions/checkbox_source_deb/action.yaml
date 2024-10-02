@@ -19,10 +19,10 @@ inputs:
     default: ""
     required: false
   checkbox_revision:
-    description: "Revision of checkbox that has to be provisioned"
+    description: "Revision of checkbox that has to be provisioned (ex. commit_hash, branch name, can be `beta`)"
     required: true
   zapper_channel:
-    description: "Zapper channel to be used, will be ignored if no Zapper"
+    description: "Zapper channel to be used, will be ignored if no Zapper (ex. edge, beta, stable)"
     required: false
     default: "beta"
 runs:

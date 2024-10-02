@@ -4,3 +4,5 @@ contrib/checkbox-provider-ce-oem @canonical/oem-qa
 # OEM SWE x86 team
 contrib/pc-sanity @canonical/oem-swe-x86
 .github/workflows/tox-contrib-pc-sanity.yaml @canonical/oem-swe-x86
+# Solutions QA team
+contrib/checkbox-dss-validation @canonical/solutions-qa

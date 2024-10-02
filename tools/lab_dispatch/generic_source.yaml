@@ -1,8 +1,7 @@
 job_queue: $INPUT_QUEUE
 global_timeout: 3600
 output_timeout: 1800
-provision_data:
-  $INPUT_DATA_SOURCE
+$INPUT_DATA_SOURCE
 test_data:
   attachments:
     - local: "tools/lab_dispatch/resources/manifest.conf"
@@ -11,6 +10,8 @@ test_data:
       agent: "checkbox.no-manifest.partial.conf"
     - local: "tools/lab_dispatch/build_install_deb.py"
       agent: "build_install_deb.py"
+    - local: "tools/lab_dispatch/launcher_override.conf"
+      agent: "launcher_override.conf"
   test_cmds: |
     #!/usr/bin/env bash
 
@@ -28,23 +29,28 @@ test_data:
     source install_tools.sh $TOOLS_PATH
 
     # ensure device is available before continuing
-    wait_for_ssh
+    wait_for_ssh --allow-degraded
 
-    _run sudo add-apt-repository ppa:checkbox-dev/edge
     _run install_packages git python3 python3-pip dpkg-dev
+    refresh_zapper_if_needed --channel "$INPUT_ZAPPER_CHANNEL"
 
-    wait_for_ssh
+    wait_for_ssh --allow-degraded
 
+    _run clean_machine --im-sure
+    _run sudo add-apt-repository ppa:checkbox-dev/edge
     _put $RESOURCES_PATH/build_install_deb.py :
-    _run git clone https://github.com/canonical/checkbox.git
-    _run git -C checkbox checkout $CHECKBOX_REVISION
+
+    # clone the Checkbox revision without history (easier for slow systems, preserves RAM/storage/networking)
+    _run git_get_shallow https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
+
+    _run wait_for_packages_complete
     _run python3 build_install_deb.py --clean checkbox/checkbox-ng \
         checkbox/checkbox-support checkbox/providers/resource \
         checkbox/providers/base checkbox/providers/sru
     _run sudo systemctl restart checkbox-ng
+    _run wait_for_packages_complete
 
-    git clone https://github.com/canonical/checkbox.git
-    git -C checkbox checkout $CHECKBOX_REVISION
+    git_get_shallow https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
     pipx install --spec checkbox/checkbox-ng checkbox-ng
 
     # retrieve manifest
@@ -62,9 +68,9 @@ test_data:
     which envsubst || install_packages gettext
     envsubst < $RESOURCES_PATH/checkbox.no-manifest.partial.conf > checkbox.no-manifest.conf
     # then insert the manifest entries via the stacker
-    stacker --output checkbox.conf checkbox.no-manifest.conf $MANIFEST_FILE
+    stacker --output checkbox.conf checkbox.no-manifest.conf $MANIFEST_FILE $RESOURCES_PATH/launcher_override.conf
 
-    wait_for_ssh
+    wait_for_ssh --allow-degraded
 
     check_for_checkbox_service
 

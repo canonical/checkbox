@@ -77,6 +77,7 @@ def install_local_package(repo_root, deb_name_glob):
             "DEBIAN_FRONTEND=noninteractive",
             "apt-get",
             "--fix-broken",
+            "--allow-downgrades",
             "-y",
             "install",
         ]

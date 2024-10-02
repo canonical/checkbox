@@ -2,7 +2,7 @@
 
 import re
 from shutil import which
-import subprocess as s
+import subprocess as sp
 from typing import Dict, List, Tuple, Union
 
 
@@ -17,12 +17,16 @@ Summary = Dict[str, Union[int, str]]
 Details = Dict[str, List[str]]
 
 
-def parse_v4l2_compliance() -> Tuple[Summary, Details]:
+def parse_v4l2_compliance(device="/dev/video0") -> Tuple[Summary, Details]:
     assert which("v4l2-compliance")
-    out = s.run(["v4l2-compliance"], stdout=s.PIPE)
+    out = sp.run(
+        ["v4l2-compliance", "-d", device, "-C", "never"],
+        universal_newlines=True,
+        stdout=sp.PIPE,
+    )
 
     lines = []  # type: list[str]
-    for line in out.stdout.decode().splitlines():
+    for line in out.stdout.splitlines():
         clean_line = line.strip()
         if clean_line != "":
             lines.append(clean_line)
@@ -66,8 +70,8 @@ def parse_v4l2_compliance() -> Tuple[Summary, Details]:
 
 
 if __name__ == "__main__":
-    a, b = parse_v4l2_compliance()
-    print(a)
-    for k, v in b.items():
+    summary, details = parse_v4l2_compliance()
+    print(summary)
+    for k, v in details.items():
         print(k, len(v))
         print("\t", v)

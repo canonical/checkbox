@@ -1,14 +1,6 @@
 # Welcome to the Checkbox DSS project!
 
-This repository contains the Checkbox DSS Provider (test cases and test plans for validating Intel GPU support in the [Data Science Stack](https://documentation.ubuntu.com/data-science-stack/en/latest/)) as well as everything that is required to build the `checkbox-dss` snap. It also contains GitHub actions for running the tests weekly on Testflinger devices containing Intel GPUs.
-
-[![Data Science Stack (DSS) Regression Testing](https://github.com/canonical/checkbox-dss-validation/actions/workflows/regression.yaml/badge.svg)](https://github.com/canonical/checkbox-dss-validation/actions/workflows/regression.yaml)
-
-# Checkbox DSS Provider
-
-Located in the `checkbox-provider-dss` directory, it contains:
-
-- the test cases (also called "jobs" in the Checkbox jargon) and test plans to be run by Checkbox (in the `units` directory)
+This repository contains the Checkbox DSS Provider (test cases and test plans for validating Intel GPU support in the [Data Science Stack](https://documentation.ubuntu.com/data-science-stack/en/latest/)) as well as everything that is required to build the `checkbox-dss` snap.
 
 # Requirements
 

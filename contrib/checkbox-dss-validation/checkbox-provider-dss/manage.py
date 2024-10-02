@@ -14,8 +14,9 @@ from plainbox.provider_manager import setup, N_
 # (optional)
 
 setup(
-    name="com.canonical.certification:dss-validation",
+    name="checkbox-provider-dss-validation",
+    namespace="com.canonical.certification",
     version="1.0",
-    description=N_("The com.canonical.certification:dss-validation provider"),
-    gettext_domain="com_canonical_certification_dss_validation",
+    description=N_("Checkbox provider to validate Data Science Stack (DSS)"),
+    gettext_domain="checkbox-provider-dss-validation",
 )

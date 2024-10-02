@@ -17,6 +17,9 @@ jobs:
   regression-tests:
     name: Regression tests
     runs-on: [testflinger]
+    defaults:
+      run:
+        working-directory: contrib/checkbox-dss-validation
     strategy:
       matrix:
         dss_channel:
@@ -37,7 +40,7 @@ jobs:
           -e "s|REPLACE_QUEUE|${{ matrix.queue }}|" \
           -e "s|REPLACE_PROVISION_DATA|${PROVISION_DATA}|" \
           -e "s|REPLACE_DSS_CHANNEL|${{ matrix.dss_channel }}|" \
-          ${GITHUB_WORKSPACE}/.github/testflinger/job-def.yaml > \
+          ${GITHUB_WORKSPACE}/testflinger/job-def.yaml > \
           ${GITHUB_WORKSPACE}/job.yaml
       - name: Build job file from template with oemscript provisioning
         if: ${{ matrix.queue == 'dell-precision-5680-c31665' }}
@@ -48,7 +51,7 @@ jobs:
           -e "s|REPLACE_QUEUE|${{ matrix.queue }}|" \
           -e "s|REPLACE_PROVISION_DATA|${PROVISION_DATA}|" \
           -e "s|REPLACE_DSS_CHANNEL|${{ matrix.dss_channel }}|" \
-          ${GITHUB_WORKSPACE}/.github/testflinger/job-def.yaml > \
+          ${GITHUB_WORKSPACE}/testflinger/job-def.yaml > \
           ${GITHUB_WORKSPACE}/job.yaml
       - name: Submit testflinger job
         uses: canonical/testflinger/.github/actions/submit@main

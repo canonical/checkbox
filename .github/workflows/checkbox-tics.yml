@@ -1,12 +1,8 @@
 name: TICS Code Quality Analysis
 
 on:
-  push:
-    branches:
-      - "main"
-      - "add-checkbox-tiobe"
-  # schedule:
-  #   - cron: '00 19 * * *'
+  schedule:
+    - cron: '00 19 * * *'
   workflow_dispatch:
  
 permissions:
@@ -18,8 +14,8 @@ jobs:
     environment: TICS
     steps:
       - uses: actions/checkout@v4
-        # with:
-        #   ref: main
+        with:
+          ref: main
 
       - name: Install dependencies
         run: |

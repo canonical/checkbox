@@ -26,7 +26,7 @@ test_data:
 
     # retrieve all scripts/tools necessary from a repo
     curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/main/install_tools.sh
-    source install_tools.sh $TOOLS_PATH
+    source install_tools.sh $TOOLS_PATH --branch git-get-light
 
     # ensure device is available before continuing
     wait_for_ssh --allow-degraded
@@ -41,10 +41,8 @@ test_data:
     _put $RESOURCES_PATH/build_install_deb.py :
 
     # clone the Checkbox revision without history (easier for slow systems, preserves RAM/storage/networking)
-    _run mkdir checkbox
-    _run git -C checkbox init --quiet
-    _run git -C checkbox fetch --depth 1 https://github.com/canonical/checkbox.git $CHECKBOX_REVISION
-    _run git -C checkbox reset --hard FETCH_HEAD
+    _put `which git_get` :
+    _run git_get https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
 
     _run wait_for_packages_complete
     _run python3 build_install_deb.py --clean checkbox/checkbox-ng \
@@ -53,8 +51,7 @@ test_data:
     _run sudo systemctl restart checkbox-ng
     _run wait_for_packages_complete
 
-    git clone https://github.com/canonical/checkbox.git
-    git -C checkbox checkout $CHECKBOX_REVISION
+    git_get https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
     pipx install --spec checkbox/checkbox-ng checkbox-ng
 
     # retrieve manifest

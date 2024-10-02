@@ -25,8 +25,8 @@ test_data:
     TOOLS_PATH=tools
 
     # retrieve all scripts/tools necessary from a repo
-    curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/git-get-light/install_tools.sh
-    source install_tools.sh $TOOLS_PATH --branch git-get-light
+    curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/main/install_tools.sh
+    source install_tools.sh $TOOLS_PATH
 
     # ensure device is available before continuing
     wait_for_ssh --allow-degraded

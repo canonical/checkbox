@@ -6,3 +6,4 @@ contrib/pc-sanity @canonical/oem-swe-x86
 .github/workflows/tox-contrib-pc-sanity.yaml @canonical/oem-swe-x86
 # Solutions QA team
 contrib/checkbox-dss-validation @canonical/solutions-qa
+.github/workflows/testflinger-contrib-dss-regression.yaml @canonical/solutions-qa

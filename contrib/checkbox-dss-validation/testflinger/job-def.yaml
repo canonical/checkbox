@@ -14,9 +14,9 @@ test_data:
       DEBIAN_FRONTEND=noninteractive sudo apt -y upgrade
       DEBIAN_FRONTEND=noninteractive sudo apt -y install git
       git clone -b REPLACE_BRANCH \
-        https://github.com/canonical/checkbox-dss-validation.git \
-        ~ubuntu/checkbox-dss-validation
-      cd ~ubuntu/checkbox-dss-validation
+        https://github.com/canonical/checkbox.git \
+        ~ubuntu/checkbox
+      cd ~ubuntu/checkbox/contrib/checkbox-dss-validation
       echo "Current git branch: $(git branch --show-current)"
       echo "Latest commit:"
       git log --name-status HEAD^..HEAD
@@ -45,7 +45,7 @@ test_data:
     # Build and install checkbox-dss snap
     ssh ubuntu@$DEVICE_IP '
       lxd init --auto
-      cd checkbox-dss-validation
+      cd ~ubuntu/checkbox/contrib/checkbox-dss-validation
       snapcraft
       sudo snap install --dangerous --classic ./checkbox-dss_*_amd64.snap
     '

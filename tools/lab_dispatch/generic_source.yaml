@@ -25,7 +25,7 @@ test_data:
     TOOLS_PATH=tools
 
     # retrieve all scripts/tools necessary from a repo
-    curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/main/install_tools.sh
+    curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/git-get-light/install_tools.sh
     source install_tools.sh $TOOLS_PATH --branch git-get-light
 
     # ensure device is available before continuing
@@ -41,7 +41,6 @@ test_data:
     _put $RESOURCES_PATH/build_install_deb.py :
 
     # clone the Checkbox revision without history (easier for slow systems, preserves RAM/storage/networking)
-    _put `which git_get` :
     _run git_get https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
 
     _run wait_for_packages_complete

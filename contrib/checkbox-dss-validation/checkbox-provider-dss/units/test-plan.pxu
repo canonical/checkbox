@@ -25,7 +25,7 @@ include:
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
-    com.canonical.certification::graphics_card
+    graphics_card
 
 id: ipex-validation
 unit: test plan
@@ -52,7 +52,7 @@ include:
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
-    com.canonical.certification::graphics_card
+    graphics_card
 
 id: itex-validation
 unit: test plan
@@ -79,4 +79,4 @@ include:
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
-    com.canonical.certification::graphics_card
+    graphics_card

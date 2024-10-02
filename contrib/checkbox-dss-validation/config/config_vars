@@ -1,0 +1,3 @@
+GST_PLUGIN=/usr/lib/x86_64-linux-gnu/gstreamer-1.0/
+# Debug output for libva
+LIBVA_MESSAGING_LEVEL=2

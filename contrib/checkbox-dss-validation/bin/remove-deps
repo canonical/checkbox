@@ -1,0 +1,9 @@
+#!/bin/bash
+
+for node in $(sudo microk8s.kubectl get nodes -o name); do
+    sudo microk8s.kubectl drain --ignore-daemonsets --delete-emptydir-data "${node}"
+done
+sudo snap remove microk8s --purge
+sudo snap remove kubectl --purge
+sudo snap remove data-science-stack --purge
+sudo delgroup microk8s

@@ -1,0 +1,56 @@
+#!/bin/bash
+set -e
+
+echo -e "\nStep 1/5: Installing microk8s snap"
+sudo snap install microk8s --channel 1.28/stable --classic
+
+USER=$(id -nu ${SNAP_UID})
+HOME=${SNAP_REAL_HOME}
+
+# microk8s commands run from tests are run without sudo
+sudo usermod -a -G microk8s $USER
+# Directory needed for sharing microk8s config with kubectl snap
+mkdir -p $HOME/.kube
+
+echo -e "\nStep 2/5: Configuring microk8s addons"
+sudo microk8s status --wait-ready
+# Give microk8s another minute to stabilize
+# to avoid intermittent failures when
+# enabling hostpath-storage
+echo "Giving microk8s a minute to stabilize..."
+sleep 60
+sudo microk8s enable hostpath-storage
+sudo microk8s enable dns
+sudo microk8s enable rbac
+
+echo "Waiting for microk8s addons to become ready..."
+sudo microk8s.kubectl wait \
+  --for=condition=available \
+  --timeout 1800s \
+  -n kube-system \
+  deployment/coredns \
+  deployment/hostpath-provisioner
+sudo microk8s.kubectl -n kube-system rollout status ds/calico-node
+
+# This is needed to overcome the following bug within microk8s:
+# https://github.com/canonical/microk8s/issues/4453
+echo -e "\nStep 3/5: Installing kubectl snap"
+sudo snap install kubectl --classic --channel=1.29/stable
+# hack as redirecting stdout anywhere but /dev/null throws a permission denied error
+# see: https://forum.snapcraft.io/t/eksctl-cannot-write-to-stdout/17254/4
+sudo microk8s.kubectl config view --raw | tee $HOME/.kube/config > /dev/null
+
+# intel_gpu_top command used for host-level GPU check
+# jq used for cases where jsonpath is insufficient for parsing json results
+echo -e "\nStep 4/5: Installing intel-gpu-tools"
+DEBIAN_FRONTEND=noninteractive sudo apt install -y intel-gpu-tools jq
+
+echo -e "\nStep 5/5: Installing data-science-stack snap"
+optional_arg=$1
+if [ "${optional_arg}" = "--dss-snap-channel=latest/edge" ]; then
+  echo "Installing from edge"
+  sudo snap install data-science-stack --channel latest/edge
+else
+  echo "Installing from stable"
+  sudo snap install data-science-stack --channel latest/stable
+fi

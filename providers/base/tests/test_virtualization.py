@@ -443,7 +443,7 @@ class TestCheckSriovInterfaces(unittest.TestCase):
 
         # Call the function being tested
         intel_device = check_sriov_interfaces()
-        print(f"Intel device: {intel_device}")
+
         # Assert that 'eth0' is correctly identified as the Intel device
         self.assertEqual(intel_device, "eth1")
 

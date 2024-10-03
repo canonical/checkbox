@@ -33,7 +33,9 @@ class TestLXDTest_vm(TestCase):
         task.stdout = "abc"
         task.stderr = None
 
-        command_result = LXDTest_vm.run_command(MagicMock(), "command", log_stderr=True)
+        command_result = LXDTest_vm.run_command(
+            MagicMock(), "command", log_stderr=True
+        )
 
         self.assertTrue(logging_mock.debug.called)
         self.assertTrue(command_result)
@@ -60,7 +62,9 @@ class TestLXDTest_vm(TestCase):
         task.stdout = "abc"
         task.stderr = "some error"
 
-        command_result = LXDTest_vm.run_command(MagicMock(), "command", log_stderr=True)
+        command_result = LXDTest_vm.run_command(
+            MagicMock(), "command", log_stderr=True
+        )
 
         self.assertTrue(logging_mock.error.called)
         self.assertFalse(command_result)
@@ -73,7 +77,9 @@ class TestLXDTest_vm(TestCase):
         task.stdout = "abc"
         task.stderr = "some error"
 
-        command_result = LXDTest_vm.run_command(MagicMock(), "command", log_stderr=True)
+        command_result = LXDTest_vm.run_command(
+            MagicMock(), "command", log_stderr=True
+        )
 
         self.assertTrue(logging_mock.debug.called)
         self.assertTrue(command_result)
@@ -86,7 +92,9 @@ class TestLXDTest_vm(TestCase):
         task.stdout = ""
         task.stderr = "some error"
 
-        command_result = LXDTest_vm.run_command(MagicMock(), "command", log_stderr=True)
+        command_result = LXDTest_vm.run_command(
+            MagicMock(), "command", log_stderr=True
+        )
 
         self.assertTrue(logging_mock.debug.called)
         self.assertTrue(command_result)
@@ -364,7 +372,9 @@ class TestLXDTest_sriov(TestCase):
     @patch("time.sleep")
     @patch("virtualization.print")
     @patch("virtualization.logging")
-    def test_start_sriov_success(self, logging_mock, print_mock, time_sleep_mock):
+    def test_start_sriov_success(
+        self, logging_mock, print_mock, time_sleep_mock
+    ):
         self_mock = MagicMock()
         self_mock.setup.return_value = True
         self_mock.image_url = "image url"
@@ -427,8 +437,8 @@ class TestCheckSriovInterfaces(unittest.TestCase):
             if "eth0/device/vendor" in file:
                 return mock_open(read_data="0x8086").return_value
             if "eth0/carrier" in file:
-                 return mock_open(read_data="1").return_value
-                
+                return mock_open(read_data="1").return_value
+
         mock_file.side_effect = open_side_effect
 
         # Call the function being tested

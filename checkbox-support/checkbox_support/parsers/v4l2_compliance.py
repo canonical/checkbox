@@ -3,7 +3,7 @@
 import re
 from shutil import which
 import subprocess as sp
-from typing import Dict, List, Tuple, Union
+import typing as T
 
 
 def get_test_name_from_line(line: str) -> str:
@@ -12,12 +12,12 @@ def get_test_name_from_line(line: str) -> str:
 
 
 # see the summary dict literal for actual keys
-Summary = Dict[str, Union[int, str]]
+Summary = T.Dict[str, T.Union[int, str]]
 # see the details dict literal for actual keys
-Details = Dict[str, List[str]]
+Details = T.Dict[str, T.List[str]]
 
 
-def parse_v4l2_compliance(device="/dev/video0") -> Tuple[Summary, Details]:
+def parse_v4l2_compliance(device="/dev/video0") -> T.Tuple[Summary, Details]:
     assert which("v4l2-compliance")
     out = sp.run(
         ["v4l2-compliance", "-d", device, "-C", "never"],

@@ -539,6 +539,7 @@ def get_execution_environment(job, environ, session_id, nest_dir):
                 "QT_QPA_PLATFORM",
                 "QT_QPA_PLATFORMTHEME",
                 "QT_DEBUG_PLUGINS",
+                "QML2_IMPORT_PATH",
             ]
             for key, value in env.items():
                 if key in copy_vars or key.startswith("SNAP"):
@@ -640,6 +641,7 @@ def get_differential_execution_environment(
             "QT_QPA_PLATFORM",
             "QT_QPA_PLATFORMTHEME",
             "QT_DEBUG_PLUGINS",
+            "QML2_IMPORT_PATH",
         ]
         for key, value in base_env.items():
             if key in copy_vars or key.startswith("SNAP"):

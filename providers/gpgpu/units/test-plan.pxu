@@ -3,9 +3,9 @@ unit: test plan
 _name: GPGPU Compute Stress Testing
 _description:
  Stress Tests for GPGPU Computations (non-graphical)
-mandatory_include:
-    gpgpu/gpu-burn
 include:
+    gpgpu/gpu-burn
+    gpgpu/rvs-gst
 
 id: gpgpu-automated
 unit: test plan
@@ -17,3 +17,9 @@ include:
     gpgpu/vector-add-drv
     gpgpu/device-query-drv
     gpgpu/simple-texture-drv
+    gpgpu/rvs-gpup
+    gpgpu/rvs-peqt
+    gpgpu/rvs-pebb
+    gpgpu/rvs-pbqt
+    gpgpu/rvs-iet
+    gpgpu/rvs-babel

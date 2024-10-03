@@ -52,3 +52,80 @@ requires:
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU simple textures
 command: simpleTextureDrv.sh
+
+id: gpgpu/rvs-gpup
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
+    package.name == 'rocm-validation-suite'
+    uname.machine == 'x86_64'
+_summary: AMD GPGPU properties query
+command: rvs.py gpup
+
+id: gpgpu/rvs-peqt
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
+    package.name == 'rocm-validation-suite'
+    uname.machine == 'x86_64'
+_summary: AMD GPGPU PCIe configuration test
+command: rvs.py peqt
+
+id: gpgpu/rvs-pebb
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
+    package.name == 'rocm-validation-suite'
+    uname.machine == 'x86_64'
+_summary: AMD GPGPU PCIe bandwidth test
+command: rvs.py pebb
+
+id: gpgpu/rvs-pbqt
+category_id: gpgpu
+plugin: shell
+estimated_duration: 4
+requires:
+    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
+    package.name == 'rocm-validation-suite'
+    uname.machine == 'x86_64'
+_summary: AMD GPGPU P2P tests
+command: rvs.py pbqt
+
+id: gpgpu/rvs-iet
+category_id: gpgpu
+plugin: shell
+estimated_duration: 50
+requires:
+    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
+    package.name == 'rocm-validation-suite'
+    uname.machine == 'x86_64'
+_summary: AMD GPGPU power tests
+command: rvs.py iet
+
+id: gpgpu/rvs-babel
+category_id: gpgpu
+plugin: shell
+estimated_duration: 50
+requires:
+    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
+    package.name == 'rocm-validation-suite'
+    uname.machine == 'x86_64'
+_summary: AMD GPGPU BabelStream benchmarks
+command: rvs.py babel
+
+id: gpgpu/rvs-gst
+category_id: gpgpu
+plugin: shell
+estimated_duration: 14400
+requires:
+    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
+    package.name == 'rocm-validation-suite'
+    uname.machine == 'x86_64'
+_summary: AMD GPGPU stress test
+command: rvs.py gst

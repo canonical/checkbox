@@ -416,7 +416,7 @@ class TestCheckSriovInterfaces(unittest.TestCase):
             return False  # eth1 does not support SR-IOV
 
         mock_exists.side_effect = exists_side_effect
-        print(f"exits side effect : {mock_exists.side_effect}")
+
         # Mock open to return values based on the file being opened
         # eth0 supports SR-IOV with 4 VFs
         # Intel vendor ID for eth0

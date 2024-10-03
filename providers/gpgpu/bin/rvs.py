@@ -62,12 +62,14 @@ class ModuleRunner:
         proc = self._run(module)
         if proc.stdout:
             logging.info(proc.stdout)
-        if proc.stderr:
-            logging.debug(proc.stderr)
 
         if proc.returncode != 0:
+            if proc.stderr:
+                logging.error(proc.stderr)
             logging.error("%s: FAILURE", module)
             return 1
+        elif proc.stderr:
+            logging.debug(proc.stderr)
 
         logging.debug("%s: SUCCESS", module)
         return 0

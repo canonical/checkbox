@@ -1,14 +1,58 @@
-name: Run Workflow on PR Comment
+name: Dispatch Checkbox jobs in the lab
 on:
-  issue_comment:
-    types: [created]
+  workflow_dispatch:
+    inputs:
+      # matrix to create is an array where each item is a job configuration
+      # to be dispatched in the lab.
+      # A job configuration is a dict with
+      # - data_source: distribution to provision (ex. distro: desktop-22-04-2-uefi)
+      # - queue: machine that will run the job (ex. 202012-28526)
+      # - test_plan: Checkbox test plan to run (ex. com.canonical.certification::sru)
+      # - match: subset of jobs to run (ex. .*wireless.*)
+      # - zapper_channel: refreshes the zapper snap to the channel if provided, default is beta (ex. "beta")
+      #
+      # One possible matrix_to_create would therefore look like this:
+      # matrix_to_create=[{ data_source: "distro: desktop-22-04-2-uefi", queue: "202012-28526", match: ".*wireless.*", test_plan: "com.canonical.certification::sru" }]'
+      #
+      # To run this workflow manually you can use the `gh` cli utility as follows:
+      # gh workflow run dispatch_lab_job.yaml -f 'matrix_to_create=[...]'
+      matrix_to_create:
+        description: 'Json formatted description of the jobs to dispatch'
+        required: true
+        type: string
 
 jobs:
-  trigger:
-    runs-on: ubuntu-latest
+  run-matrix:
+    runs-on: [self-hosted, testflinger]
+    strategy:
+      fail-fast: false
+      matrix:
+        spec: ${{ fromJson(inputs.matrix_to_create) }}
+    defaults:
+      run:
+        working-directory: tools/lab_dispatch
     steps:
-      - name: Dispatch test in the lab and monitor it
-        if: ${{ contains(github.event.comment.body, '/lab') && github.event.issue.pull_request && github.event.issue.author_association == "MEMBER" }}
-        run:
-          COMMENT_BODY="${{ github.event.comment.body }}"
-          echo $COMMENT_BODY
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get current commit SHA
+        id: get_sha
+        run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
+
+      - name: Run the spec
+        uses: canonical/checkbox/.github/actions/checkbox_source_deb@main
+        with:
+          data_source: ${{ matrix.spec.data_source }}
+          queue: ${{ matrix.spec.queue }}
+          test_plan: ${{ matrix.spec.test_plan }}
+          match: ${{ matrix.spec.match }}
+          zapper_channel: ${{ matrix.spec.zapper_channel }}
+          launcher_override: |
+            [environment]
+            WPA_BG_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA_N_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA_AC_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+            WPA3_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+          checkbox_revision: ${{ steps.get_sha.outputs.sha }}

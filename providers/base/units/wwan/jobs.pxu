@@ -54,6 +54,7 @@ imports: from com.canonical.plainbox import manifest
 depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 requires:
   manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 unit: template
@@ -74,6 +75,7 @@ flags: preserve-locale also-after-suspend preserve-cwd
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 unit: template
@@ -100,6 +102,7 @@ flags: preserve-locale also-after-suspend preserve-cwd
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 unit: template
@@ -122,6 +125,7 @@ depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 imports: from com.canonical.plainbox import manifest
 requires:
   manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
 
 id: wwan/detect-manual
@@ -140,7 +144,8 @@ flags:  also-after-suspend
 imports: from com.canonical.plainbox import manifest
 category_id: wwan
 requires:
-    manifest.has_wwan_module == 'True'
+  manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
 
 id: wwan/check-sim-present-manual
 plugin: manual
@@ -158,9 +163,10 @@ flags:  also-after-suspend
 imports: from com.canonical.plainbox import manifest
 category_id: wwan
 requires:
-    manifest.has_wwan_module == 'True'
+  manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
 depends:
-    wwan/detect-manual
+  wwan/detect-manual
 
 id: wwan/gsm-connection-manual
 plugin: manual
@@ -190,9 +196,10 @@ flags:  also-after-suspend
 category_id: wwan
 imports: from com.canonical.plainbox import manifest
 requires:
-    manifest.has_wwan_module == 'True'
+  manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
 depends:
-    wwan/check-sim-present-manual
+  wwan/check-sim-present-manual
 
 id: wwan/gsm-connection-interrupted-manual
 plugin: manual
@@ -226,10 +233,11 @@ _steps:
 _verification:
  Was the connection revived after removing the Faraday bag?
 estimate_duration: 120s
-flags:  also-after-suspend
+flags: also-after-suspend
 category_id: wwan
 imports: from com.canonical.plainbox import manifest
 requires:
-    manifest.has_wwan_module == 'True'
+  manifest.has_wwan_module == 'True'
+  manifest.has_sim_card == 'True'
 depends:
-    wwan/check-sim-present-manual
+  wwan/check-sim-present-manual

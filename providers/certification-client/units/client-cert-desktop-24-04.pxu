@@ -35,7 +35,7 @@ nested_part:
     led-cert-manual
     mediacard-cert-manual
     memory-manual
-    mobilebroadband-cert-manual
+    wwan-manual
     ethernet-cert-manual
     networking-cert-manual
     optical-cert-manual
@@ -60,6 +60,7 @@ nested_part:
     after-suspend-keys-cert-full
     after-suspend-led-cert-full
     after-suspend-mediacard-cert-full
+    after-suspend-wwan-manual
     after-suspend-ethernet-manual
     after-suspend-networking-manual
     after-suspend-optical-cert-full
@@ -69,6 +70,7 @@ nested_part:
     after-suspend-usb3-cert-full
     after-suspend-usb-c-cert-full
     # after-suspend-wireless-cert-full # auto only
+    ethernet-wake-on-lan-cert-manual
     info-attachment-cert-manual
 exclude:
     keys/hibernate
@@ -102,7 +104,7 @@ nested_part:
     mediacard-cert-automated
     mediacard-automated
     memory-automated
-    mobilebroadband-cert-automated
+    wwan-automated
     ethernet-cert-automated
     networking-cert-automated
     optical-cert-automated
@@ -123,7 +125,7 @@ nested_part:
     after-suspend-cpu-cert-automated
     after-suspend-input-cert-automated
     after-suspend-disk-cert-automated
-    after-suspend-mobilebroadband-cert-automated
+    after-suspend-wwan-automated
     after-suspend-ethernet-cert-automated
     after-suspend-networking-cert-automated
     after-suspend-optical-cert-automated

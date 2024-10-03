@@ -35,7 +35,7 @@ _summary: Webcam video display test for {product_slug}
 estimated_duration: 120.0
 depends: camera/detect
 command:
-  camera_test.py display -d /dev/{name}
+  camera_test.py video -d /dev/{name}
 _purpose:
     This test will check that the {product_slug} camera works
 _steps:
@@ -81,7 +81,7 @@ _summary: Webcam still image capture test for {product_slug}
 estimated_duration: 120.0
 depends: camera/detect
 command:
-  camera_test.py still -d /dev/{name}
+  camera_test.py image -d /dev/{name}
 _purpose:
     This test will check that the {product_slug} works
 _steps:

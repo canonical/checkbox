@@ -65,6 +65,7 @@ nested_part:
     after-suspend-keys-cert-full
     after-suspend-led-cert-full
     after-suspend-mediacard-cert-full
+    after-suspend-wwan-manual
     after-suspend-optical-cert-full
     after-suspend-touchpad-cert-full
     after-suspend-touchscreen-cert-manual

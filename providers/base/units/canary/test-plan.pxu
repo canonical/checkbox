@@ -97,3 +97,14 @@ include:
  com.canonical.certification::after-suspend-ethernet/detect
  com.canonical.certification::after-suspend-ethernet/ping_.*
  com.canonical.certification::after-suspend-usb/storage-detect
+
+id: canary-zapper
+unit: test plan
+_name: Zapper release self-test (canary test plan)
+_description:
+ This test plan is meant to run on Zapper versions that are candidates for
+ a release against the latest beta Checkbox.
+estimated_duration: 5m
+nested_part:
+  com.canonical.certification::zapper-enabled-automated
+include:

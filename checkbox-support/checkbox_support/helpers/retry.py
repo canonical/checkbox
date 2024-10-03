@@ -47,7 +47,9 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
             "delay should be at least 1 ({} was used)".format(delay)
         )
     for attempt in range(1, max_attempts + 1):
-        attempt_string = "Attempt {}/{}".format(attempt, max_attempts)
+        attempt_string = "Attempt {}/{} (function '{}')".format(
+            attempt, max_attempts, f.__name__
+        )
         print()
         print("=" * len(attempt_string))
         print(attempt_string)
@@ -97,7 +99,7 @@ def fake_run_with_retry(f, max_attempts, delay, *args, **kwargs):
     return f(*args, **kwargs)
 
 
-mock_timeout = functools.partial(
+mock_retry = functools.partial(
     patch,
     "checkbox_support.helpers.retry.run_with_retry",
     new=fake_run_with_retry,

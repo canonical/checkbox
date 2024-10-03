@@ -27,6 +27,7 @@ from checkbox_support.scripts.run_watcher import (
     StorageWatcher,
     USBStorage,
     MediacardStorage,
+    MediacardComboStorage,
     ThunderboltStorage,
     parse_args,
     main,
@@ -344,12 +345,7 @@ class TestRunWatcher(unittest.TestCase):
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.driver, "xhci_hcd")
 
-        line_str = "USB Mass Storage device detected"
-        mock_usb_storage = MagicMock()
-        USBStorage._parse_journal_line(mock_usb_storage, line_str)
-        self.assertEqual(mock_usb_storage.action, "insertion")
-
-        line_str = "kernel: scsi host0: uas"
+        line_str = "New USB device found"
         mock_usb_storage = MagicMock()
         USBStorage._parse_journal_line(mock_usb_storage, line_str)
         self.assertEqual(mock_usb_storage.action, "insertion")
@@ -427,6 +423,91 @@ class TestRunWatcher(unittest.TestCase):
         mock_mediacard_storage.action = None
         MediacardStorage._parse_journal_line(mock_mediacard_storage, line_str)
         self.assertEqual(mock_mediacard_storage.action, None)
+
+    def test_mediacard_combo_storage_init(self):
+        mediacard_combo_storage = MediacardComboStorage(
+            "mediacard", "zapper_addr"
+        )
+        self.assertEqual(mediacard_combo_storage.storage_type, "mediacard")
+        self.assertEqual(
+            mediacard_combo_storage.zapper_usb_address, "zapper_addr"
+        )
+        self.assertIsNone(mediacard_combo_storage.mounted_partition)
+
+    def test_mediacard_combo_storage_validate_insertion(self):
+        mock_mediacard_combo_storage = MagicMock()
+        mock_mediacard_combo_storage.mounted_partition = "mmcblk0p1"
+        mock_mediacard_combo_storage.action = "insertion"
+        mock_mediacard_combo_storage.device = "SD"
+        mock_mediacard_combo_storage.address = "123456"
+        mock_mediacard_combo_storage.driver = None
+        mock_mediacard_combo_storage.number = None
+
+        MediacardComboStorage._validate_insertion(mock_mediacard_combo_storage)
+        self.assertEqual(mock_mediacard_combo_storage.test_passed, True)
+
+        mock_mediacard_combo_storage = MagicMock()
+        mock_mediacard_combo_storage.mounted_partition = "sda1"
+        mock_mediacard_combo_storage.action = "insertion"
+        mock_mediacard_combo_storage.device = "SD"
+        mock_mediacard_combo_storage.driver = "xhci_hcd"
+        mock_mediacard_combo_storage.number = 1
+        mock_mediacard_combo_storage.address = None
+
+        MediacardComboStorage._validate_insertion(mock_mediacard_combo_storage)
+        self.assertEqual(mock_mediacard_combo_storage.test_passed, True)
+
+    def test_mediacard_combo_storage_validate_removal(self):
+        mock_mediacard_combo_storage = MagicMock()
+        mock_mediacard_combo_storage.action = "removal"
+
+        MediacardComboStorage._validate_removal(mock_mediacard_combo_storage)
+        self.assertEqual(mock_mediacard_combo_storage.test_passed, True)
+
+    def test_mediacard_combo_storage_no_insertion(self):
+        mock_mediacard_combo_storage = MagicMock()
+        mock_mediacard_combo_storage.mounted_partition = None
+        mock_mediacard_combo_storage.action = ""
+        MediacardComboStorage._validate_insertion(mock_mediacard_combo_storage)
+
+    def test_mediacard_combo_storage_no_removal(self):
+        mock_mediacard_combo_storage = MagicMock()
+        mock_mediacard_combo_storage.action = ""
+        MediacardComboStorage._validate_removal(mock_mediacard_combo_storage)
+
+    def test_mediacard_combo_storage_parse_journal_line(self):
+        line_str = "mmcblk0: p1"
+        mock_mediacard_combo_storage = MagicMock()
+        MediacardComboStorage._parse_journal_line(
+            mock_mediacard_combo_storage, line_str
+        )
+        self.assertEqual(
+            mock_mediacard_combo_storage.mounted_partition, "mmcblk0p1"
+        )
+
+        line_str = "new SD card at address 123456"
+        mock_mediacard_combo_storage = MagicMock()
+        MediacardComboStorage._parse_journal_line(
+            mock_mediacard_combo_storage, line_str
+        )
+        self.assertEqual(mock_mediacard_combo_storage.action, "insertion")
+        self.assertEqual(mock_mediacard_combo_storage.device, "SD")
+        self.assertEqual(mock_mediacard_combo_storage.address, "123456")
+
+        line_str = "card 123456 removed"
+        mock_mediacard_combo_storage = MagicMock()
+        MediacardComboStorage._parse_journal_line(
+            mock_mediacard_combo_storage, line_str
+        )
+        self.assertEqual(mock_mediacard_combo_storage.action, "removal")
+
+        line_str = "Invalid line"
+        mock_mediacard_combo_storage = MagicMock()
+        mock_mediacard_combo_storage.action = None
+        MediacardComboStorage._parse_journal_line(
+            mock_mediacard_combo_storage, line_str
+        )
+        self.assertEqual(mock_mediacard_combo_storage.action, None)
 
     def test_thunderbolt_storage_init(self):
         thunderbolt_storage = ThunderboltStorage("thunderbolt", "zapper_addr")
@@ -558,6 +639,24 @@ class TestRunWatcher(unittest.TestCase):
         watcher = mock_mediacard.return_value
         # check that the watcher is an MediacardStorage object
         self.assertIsInstance(watcher, MediacardStorage)
+
+    @patch(
+        "checkbox_support.scripts.run_watcher.MediacardComboStorage",
+        spec=MediacardComboStorage,
+    )
+    @patch("checkbox_support.scripts.run_watcher.parse_args")
+    def test_main_mediacard_combo(self, mock_parse_args, mock_mediacard):
+        mock_parse_args.return_value = argparse.Namespace(
+            testcase="insertion",
+            storage_type="mediacard_combo",
+            zapper_usb_address=None,
+        )
+        main()
+        self.assertEqual(mock_mediacard.call_count, 1)
+        # get the watcher object from main
+        watcher = mock_mediacard.return_value
+        # check that the watcher is an MediacardComboStorage object
+        self.assertIsInstance(watcher, MediacardComboStorage)
 
     @patch(
         "checkbox_support.scripts.run_watcher.ThunderboltStorage",

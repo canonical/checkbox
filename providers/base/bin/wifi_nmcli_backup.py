@@ -78,7 +78,7 @@ def save_connections(keyfile_list):
             continue
 
         print("  Found file {}".format(f))
-        basedir = Path(f).parent
+        basedir = Path(f).parent.relative_to("/")
         backup_loc = SAVE_DIR / basedir
 
         os.makedirs(backup_loc, exist_ok=True)

@@ -237,6 +237,10 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN'
 id: ethernet/wol_S5_{interface}
 template-id: ethernet/wol_S5_interface
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_ethernet_adapter == 'True'
+ manifest.has_ethernet_wake_on_lan_support== 'True'
 _summary: Wake on LAN (WOL) test from S5 - {interface}
 _purpose:
  Check that another system can wake the System Under Test (SUT) from S5 using the Ethernet port {interface} WOL function.
@@ -275,8 +279,10 @@ _steps:
 _verification:
   Did the SUT wake up from S4?
 plugin: user-interact-verify
+imports: from com.canonical.plainbox import manifest
 requires:
-  sleep.disk == 'supported'
+ manifest.has_ethernet_adapter == 'True'
+ manifest.has_ethernet_wake_on_lan_support== 'True'
 command: systemctl hibernate
 user: root
 category_id: com.canonical.plainbox::ethernet
@@ -301,8 +307,10 @@ _steps:
 _verification:
  Did the SUT wake up from S3?
 plugin: user-interact-verify
+imports: from com.canonical.plainbox import manifest
 requires:
-  sleep.mem == 'supported'
+ manifest.has_ethernet_adapter == 'True'
+ manifest.has_ethernet_wake_on_lan_support== 'True'
 command: systemctl suspend
 user: root
 category_id: com.canonical.plainbox::ethernet

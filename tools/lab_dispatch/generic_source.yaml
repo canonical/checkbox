@@ -1,0 +1,83 @@
+job_queue: $INPUT_QUEUE
+global_timeout: 3600
+output_timeout: 1800
+$INPUT_DATA_SOURCE
+test_data:
+  attachments:
+    - local: "tools/lab_dispatch/resources/manifest.conf"
+      agent: "manifest.conf"
+    - local: "tools/lab_dispatch/resources/checkbox.no-manifest.partial.conf"
+      agent: "checkbox.no-manifest.partial.conf"
+    - local: "tools/lab_dispatch/build_install_deb.py"
+      agent: "build_install_deb.py"
+    - local: "tools/lab_dispatch/launcher_override.conf"
+      agent: "launcher_override.conf"
+  test_cmds: |
+    #!/usr/bin/env bash
+
+    set -x
+    set -e
+
+    # input arguments
+    CHECKBOX_REVISION=$INPUT_CHECKBOX_REVISION
+    RESOURCES_PATH="attachments/test"
+
+    TOOLS_PATH=tools
+
+    # retrieve all scripts/tools necessary from a repo
+    curl -Ls -o install_tools.sh https://raw.githubusercontent.com/canonical/hwcert-jenkins-tools/main/install_tools.sh
+    source install_tools.sh $TOOLS_PATH
+
+    # ensure device is available before continuing
+    wait_for_ssh --allow-degraded
+
+    _run install_packages git python3 python3-pip dpkg-dev
+    refresh_zapper_if_needed --channel "$INPUT_ZAPPER_CHANNEL"
+
+    wait_for_ssh --allow-degraded
+
+    _run clean_machine --im-sure
+    _run sudo add-apt-repository ppa:checkbox-dev/edge
+    _put $RESOURCES_PATH/build_install_deb.py :
+
+    # clone the Checkbox revision without history (easier for slow systems, preserves RAM/storage/networking)
+    _run git_get_shallow https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
+
+    _run wait_for_packages_complete
+    _run python3 build_install_deb.py --clean checkbox/checkbox-ng \
+        checkbox/checkbox-support checkbox/providers/resource \
+        checkbox/providers/base checkbox/providers/sru
+    _run sudo systemctl restart checkbox-ng
+    _run wait_for_packages_complete
+
+    git_get_shallow https://github.com/canonical/checkbox.git commit $CHECKBOX_REVISION
+    pipx install --spec checkbox/checkbox-ng checkbox-ng
+
+    # retrieve manifest
+    MANIFEST_FILE=manifest.conf
+    set +e
+    fetch_manifest --manifest_file manifest.conf $CID $HEXR_DEVICE_SECURE_ID
+    if [ $? -ne 0 ]; then
+        echo "Using default manifest"
+        MANIFEST_FILE=$RESOURCES_PATH/manifest.conf
+    fi
+    set -e
+
+    ### create checkbox launcher
+    # first dump the location specific infos in the launcher
+    which envsubst || install_packages gettext
+    envsubst < $RESOURCES_PATH/checkbox.no-manifest.partial.conf > checkbox.no-manifest.conf
+    # then insert the manifest entries via the stacker
+    stacker --output checkbox.conf checkbox.no-manifest.conf $MANIFEST_FILE $RESOURCES_PATH/launcher_override.conf
+
+    wait_for_ssh --allow-degraded
+
+    check_for_checkbox_service
+
+    # run the canary test plan
+    PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP checkbox.conf
+    EXITCODE=$?
+
+    # placeholder for gathering possible artifacts
+
+    exit $EXITCODE

@@ -41,7 +41,7 @@ _purpose: This creates baseline data sets which will be considered the master
 unit: job
 plugin: shell
 command:
-  reboot_check_test.sh -d "$PLAINBOX_SESSION_SHARE/before_reboot"
+  reboot_check_test.py -d "$PLAINBOX_SESSION_SHARE/before_reboot"
 environ: LD_LIBRARY_PATH
 user: root
 estimated_duration: 1s
@@ -90,7 +90,7 @@ unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
-  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle1" -s -f
+  reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle1" -s -f
 user: root
 flags: preserve-locale
 estimated_duration: 1.0
@@ -107,7 +107,7 @@ template-unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
-  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle{reboot_id}" -s -f
+  reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/cold_reboot_cycle{reboot_id}" -s -f
 user: root
 flags: preserve-locale
 estimated_duration: 1.0
@@ -154,7 +154,7 @@ unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
-  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle1" -s -f
+  reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle1" -s -f
 user: root
 flags: preserve-locale
 estimated_duration: 1.0
@@ -171,7 +171,7 @@ template-unit: job
 plugin: shell
 environ: LD_LIBRARY_PATH
 command:
-  reboot_check_test.sh -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle{reboot_id}" -s -f
+  reboot_check_test.py -g -c "$PLAINBOX_SESSION_SHARE/before_reboot" -d "$PLAINBOX_SESSION_SHARE/warm_reboot_cycle{reboot_id}" -s -f
 user: root
 flags: preserve-locale
 estimated_duration: 1.0

@@ -14,3 +14,4 @@ These how-to guides cover key operations and processes in Checkbox.
    agent-service
    freeze-checkbox-version
    launcher/*
+   using-match

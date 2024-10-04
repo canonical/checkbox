@@ -8,7 +8,7 @@ subset of a testplan.
 To only re-run the ``wireless`` portion of the ``sru`` testplan, use the
 following launcher:
 
-.. code-block:: none
+.. code-block:: ini
 
   [test plan]
   unit = com.canonical.certification::sru
@@ -19,7 +19,8 @@ following launcher:
 
 To only re-run the wifi ``bg_np`` and ``ac_np`` tests for ``wlan0``:
 
-.. code-block:: none
+.. code-block:: ini
+  :emphasize-lines: 7-8
 
   [test plan]
   unit = com.canonical.certification::sru
@@ -32,7 +33,8 @@ To only re-run the wifi ``bg_np`` and ``ac_np`` tests for ``wlan0``:
 
 To re-run all wireless tests but ``bg_np``:
 
-.. code-block:: none
+.. code-block:: ini
+  :emphasize-lines: 6-7
 
   [test plan]
   unit = com.canonical.certification::sru

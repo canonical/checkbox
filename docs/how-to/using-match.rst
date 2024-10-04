@@ -1,11 +1,11 @@
 Using ``match``
 ^^^^^^^^^^^^^^^
 
-When a subset of test plan run fails, it can be expensive to re-run it all.
-To aid with this ``match`` was introduced. It allows you to re-run only a
-subset of a testplan.
+When a subset of a test plan run fails, it can be expensive to re-run it all.
+To help with this, the ``match`` keyword was introduced. It allows you to re-run only a
+subset of a test plan.
 
-To only re-run the ``wireless`` portion of the ``sru`` testplan, use the
+To only re-run the ``wireless`` portion of the ``sru`` test plan, use the
 following launcher:
 
 .. code-block:: ini
@@ -15,7 +15,7 @@ following launcher:
   forced = yes
 
   [test selection]
-  match=.*wireless.*
+  match = .*wireless.*
 
 To only re-run the WiFi ``bg_np`` and ``ac_np`` tests for ``wlan0``:
 
@@ -27,7 +27,7 @@ To only re-run the WiFi ``bg_np`` and ``ac_np`` tests for ``wlan0``:
   forced = yes
 
   [test selection]
-  match=
+  match =
     com.canonical.certification::wireless/wireless_connection_open_ac_np_wlan0
     com.canonical.certification::wireless/wireless_connection_open_bg_np_wlan0
 
@@ -41,8 +41,8 @@ To re-run all wireless tests but ``bg_np``:
   forced = yes
 
   [test selection]
-  exclude=.*wireless.*bg_np.*
-  match=.*wireless.*
+  exclude = .*wireless.*bg_np.*
+  match = .*wireless.*
 
 Key features of ``match``:
 

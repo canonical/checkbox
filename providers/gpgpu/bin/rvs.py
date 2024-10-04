@@ -40,7 +40,10 @@ PLAINBOX_PROVIDER_DATA = Path(os.getenv("PLAINBOX_PROVIDER_DATA", "."))
 def which_rvs() -> Path:
     """Finds the location of the ROCm Validation Suite binary."""
     proc = subprocess.run(
-        ["which", "rvs"], check=False, capture_output=True, text=True
+        ["which", "rvs"],
+        check=False,
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
     )
     return Path(proc.stdout.strip()) if proc.returncode == 0 else RVS_BIN
 
@@ -79,8 +82,9 @@ class ModuleRunner:
         proc = subprocess.run(
             [self.rvs, "-c", self.config_dir / "rvs-{}.conf".format(module)],
             check=False,
-            capture_output=True,
-            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
         )
         return proc
 

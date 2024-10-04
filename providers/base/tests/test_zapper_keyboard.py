@@ -7,7 +7,8 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch, Mock
 
-import zapper_keyboard_test
+import test_image_matching.zapper_keyboard_test as zapper_keyboard_test
+from za
 
 
 class ZapperKeyboardTests(unittest.TestCase):

@@ -32,7 +32,7 @@ Library    libraries/ZapperHid.py
 *** Test Cases ***
 Click in the middle of the screen
     [Documentation]     Click a button
-    Move Mouse To Absolute  194    230
+    Move Mouse To Absolute  500    1000
     Click Pointer Button    LEFT
 """
 

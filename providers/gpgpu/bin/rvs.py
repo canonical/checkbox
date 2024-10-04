@@ -148,8 +148,6 @@ def parse_args():
         metavar="MOD",
         nargs="*",
         type=str,
-        default=None,
-        choices=RVS_MODULES,
         help="RVS modules to run",
     )
     parser.add_argument(
@@ -189,6 +187,10 @@ def parse_args():
         parser.exit(message=f"Modules supported: {' '.join(RVS_MODULES)}\n")
     elif not args.modules:
         parser.error("--list-modules or modules required")
+    elif any(m not in RVS_MODULES for m in args.modules):
+        parser.error(
+            f"Invalid module provided (choose from {', '.join(RVS_MODULES)})"
+        )
     return args
 
 

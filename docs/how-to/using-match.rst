@@ -2,8 +2,15 @@ Using ``match``
 ^^^^^^^^^^^^^^^
 
 When a subset of a test plan run fails, it can be expensive to re-run it all.
-To help with this, the ``match`` keyword was introduced. It allows you to re-run only a
-subset of a test plan.
+To help with this, the ``match`` keyword was introduced. It allows you to
+re-run only a subset of a test plan.
+
+Key features of ``match``:
+
+* All tests in the bootstrap section will always be included
+* Test Selection screen is still shown and functional, but only matching tests are shown
+* Matched tests pull their dependencies automatically
+* ``exclude`` has the priority over ``match``
 
 To only re-run the ``wireless`` portion of the ``sru`` test plan, use the
 following launcher:
@@ -43,10 +50,3 @@ To re-run all wireless tests but ``bg_np``:
   [test selection]
   exclude = .*wireless.*bg_np.*
   match = .*wireless.*
-
-Key features of ``match``:
-
-* All tests in the bootstrap section will always be included
-* Test Selection screen is still shown and functional, but only matching tests are shown
-* Matched tests pull their dependencies automatically
-* ``exclude`` has the priority over ``match``

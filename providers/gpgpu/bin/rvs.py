@@ -29,7 +29,6 @@ import re
 import subprocess
 import sys
 from pathlib import Path
-from typing import override
 
 RVS_BIN = Path("/opt/rocm/bin/rvs")
 """Default location for ROCm Validation Suite binary."""
@@ -89,7 +88,6 @@ class ModuleRunner:
 class PassFailModuleRunner(ModuleRunner):
     """This class represents a module runner that passes or fails."""
 
-    @override
     def _run(self, module: str) -> subprocess.CompletedProcess:
         proc = super()._run(module)
         if proc.returncode != 0:
@@ -112,7 +110,6 @@ class PassFailModuleRunner(ModuleRunner):
 class MemModuleRunner(ModuleRunner):
     """This class represents the memory test module runner."""
 
-    @override
     def _run(self, module: str) -> subprocess.CompletedProcess:
         proc = super()._run(module)
         if proc.returncode != 0:

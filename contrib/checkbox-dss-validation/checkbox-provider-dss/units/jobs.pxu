@@ -1,6 +1,7 @@
 id: intel_gpu/host_gpu_avail
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'intel_gpu_top'
 _summary: Verify that an Intel GPU is available on the host
 estimated_duration: 5s
@@ -16,6 +17,7 @@ command:
 id: dss/initialize
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires:
   executable.name == 'dss'
   executable.name == 'microk8s'
@@ -40,6 +42,7 @@ command:
 id: dss/namespace
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: dss/initialize
 _summary: Check that the dss namespace is deployed
@@ -56,6 +59,7 @@ command:
 id: dss/status_mlflow
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/namespace
 _summary: Check that the dss namespace is deployed
@@ -75,6 +79,7 @@ command:
 id: dss/mlflow_deployed
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: dss/namespace
 _summary: Check that the first service name is mlflow
@@ -92,6 +97,7 @@ command:
 id: intel_gpu_plugin/install
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
@@ -121,6 +127,7 @@ command:
 id: intel_gpu_plugin/daemonset_name
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/install
 _summary: Check DaemonSet Name
@@ -138,6 +145,7 @@ command:
 id: intel_gpu_plugin/daemonset_number_available
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/install
 _summary: Check number of available daemonsets
@@ -155,6 +163,7 @@ command:
 id: intel_gpu_plugin/daemonset_number_ready
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/daemonset_number_available
 _summary: Check number of ready daemonsets
@@ -172,6 +181,7 @@ command:
 id: intel_gpu_plugin/labels
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/daemonset_number_ready
 _summary: Check intel.feature.node.kubernetes.io/gpu k8s node label
@@ -189,6 +199,7 @@ command:
 id: intel_gpu_plugin/gpu_count
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/labels
 _summary: Check number of Intel GPUs available on k8s node
@@ -206,6 +217,7 @@ command:
 id: intel_gpu_plugin/node_gpu_capacity
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/gpu_count
 _summary: Check capacity slots for pods requesting GPU(s)
@@ -227,6 +239,7 @@ command:
 id: intel_gpu_plugin/node_gpu_allocatable
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/node_gpu_capacity
 _summary: Check allocatable slots for pods requesting GPU(s)
@@ -248,6 +261,7 @@ command:
 id: dss/status_intel_gpu
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: intel_gpu_plugin/node_gpu_allocatable
 _summary: Check that dss status reports that Intel GPU acceleration is enabled
@@ -267,6 +281,7 @@ command:
 id: dss/create_itex_2.15_notebook
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that an ITEX 2.15 notebook can be successfully created
@@ -284,6 +299,7 @@ command:
 id: itex/itex_2.15_import
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: dss/create_itex_2.15_notebook
 _summary: Check to see if ITEX 2.15 can be imported
@@ -305,6 +321,7 @@ command:
 id: itex/itex_2.15_gpu_avail
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: itex/itex_2.15_import
 _summary: Check ITEX 2.15 GPU Availability
@@ -340,6 +357,7 @@ command:
 id: dss/create_ipex_2.1.20_notebook
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that an IPEX 2.1.20 notebook can be successfully created
@@ -357,6 +375,7 @@ command:
 id: ipex/ipex_2.1.20_import
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: dss/create_ipex_2.1.20_notebook
 _summary: Check to see if IPEX 2.1.20 can be imported
@@ -378,6 +397,7 @@ command:
 id: ipex/ipex_2.1.20_gpu_avail
 category_id: dss-regress
 flags: simple
+imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: ipex/ipex_2.1.20_import
 _summary: Check IPEX 2.1.20 GPU availability

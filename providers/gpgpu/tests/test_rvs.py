@@ -64,6 +64,13 @@ class TestMain(TestCase):
         self.assertEqual(cm.exception.code, 2)
 
     @patch("sys.stderr", new_callable=io.StringIO)
+    @patch("sys.argv", ["rvs.py", "invalid_module"])
+    def test_parse_args_invalid_module(self, logging_mock, stderr_mock):
+        with self.assertRaises(SystemExit) as cm:
+            args = parse_args()
+        self.assertEqual(cm.exception.code, 2)
+
+    @patch("sys.stderr", new_callable=io.StringIO)
     @patch("sys.argv", ["rvs.py", "gpup"])
     def test_parse_args_success(self, logging_mock, stderr_mock):
         args = parse_args()

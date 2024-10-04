@@ -34,7 +34,7 @@ from typing import override
 RVS_BIN = Path("/opt/rocm/bin/rvs")
 """Default location for ROCm Validation Suite binary."""
 
-PLAINBOX_PROVIDER_DATA = Path(os.getenv("PLAINBOX_PROVIDER_DATA", "../data"))
+PLAINBOX_PROVIDER_DATA = Path(os.getenv("PLAINBOX_PROVIDER_DATA", "."))
 """Location of the RVS module configurations."""
 
 
@@ -49,9 +49,10 @@ def which_rvs() -> Path:
 class ModuleRunner:
     """This class represents the base module runner."""
 
-    def __init__(self, rvs: Path) -> None:
+    def __init__(self, rvs: Path, config_dir: Path) -> None:
         """Initializes the module runner."""
         self.rvs = rvs
+        self.config_dir = config_dir
 
     def run(self, module: str) -> int:
         """Runs and validates the RVS module.
@@ -77,7 +78,7 @@ class ModuleRunner:
     def _run(self, module: str) -> subprocess.CompletedProcess:
         """Runs the RVS module."""
         proc = subprocess.run(
-            [self.rvs, "-c", PLAINBOX_PROVIDER_DATA / f"rvs-{module}.conf"],
+            [self.rvs, "-c", self.config_dir / f"rvs-{module}.conf"],
             check=False,
             capture_output=True,
             text=True,
@@ -175,6 +176,14 @@ def parse_args():
         default=which_rvs(),
         help="Path to RVS binary",
     )
+    parser.add_argument(
+        "-c",
+        "--config-dir",
+        metavar="DIR",
+        type=Path,
+        default=PLAINBOX_PROVIDER_DATA,
+        help="Path to directory containing the configuration",
+    )
 
     args = parser.parse_args()
 
@@ -192,7 +201,7 @@ def main():
 
     logging.debug("Modules to run: %s" % ", ".join(args.modules))
     for module in args.modules:
-        runner = RVS_MODULES[module](args.rvs)
+        runner = RVS_MODULES[module](args.rvs, args.config_dir)
         ret = runner.run(module)
         if ret != 0:
             logging.error("Result: FAIL")

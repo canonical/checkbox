@@ -207,7 +207,7 @@ def main():
     args = parse_args()
     logging.basicConfig(level=args.log_level)
 
-    logging.debug("Modules to run: %s" % ", ".join(args.modules))
+    logging.debug("Modules to run: %s", ", ".join(args.modules))
     for module in args.modules:
         runner = RVS_MODULES[module](args.rvs, args.config_dir)
         ret = runner.run(module)

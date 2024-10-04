@@ -413,39 +413,30 @@ class CameraTest:
         """
         pixelformat = self._get_default_format()["pixelformat"]
         if self.output:
-            self._still_image_helper(
+            self._capture_image(
                 self.output, self._width, self._height, pixelformat
             )
         else:
             with NamedTemporaryFile(
                 prefix="camera_test_", suffix=".jpg", delete=False
             ) as f:
-                self._still_image_helper(
+                self._capture_image(
                     f.name, self._width, self._height, pixelformat
                 )
 
-    def _still_image_helper(self, filename, width, height, pixelformat):
+    def _capture_image(self, filename, width, height, pixelformat):
         """
         Captures an image to a given filename. If the image capture fails with
         fswebcam, it will try to capture the image with gstreamer.
         """
-
         # Try to take a picture with fswebcam
-        use_fswebcam = True
-        use_gstreamer = False
-
-        if use_fswebcam:
-            result = self._capture_image_fswebcam(
-                filename, width, height, pixelformat
-            )
-            if not result:
-                print("Failed to capture image with fswebcam, using gstreamer")
-                use_gstreamer = True
-
-        # If fswebcam fails, try with gstreamer
-        if use_gstreamer:
+        if not self._capture_image_fswebcam(
+            filename, width, height, pixelformat
+        ):
+            print("Failed to capture image with fswebcam, using gstreamer")
+            # If fswebcam fails, try with gstreamer
             self._capture_image_gstreamer(filename, width, height, pixelformat)
-            print("Image saved to %s" % filename)
+        print("Image saved to %s" % filename)
         if not self.headless:
             self._display_image(filename, width, height)
 
@@ -465,16 +456,15 @@ class CameraTest:
             filename,
         ]
         if pixelformat:
-            if "MJPG" == pixelformat:  # special tweak for fswebcam
-                pixelformat = "MJPEG"
-            command.extend(["-p", pixelformat])
+            # special tweak for fswebcam
+            command.extend(
+                ["-p", pixelformat if pixelformat != "MJPG" else "MJPEG"]
+            )
         try:
             check_call(command, stdout=open(os.devnull, "w"), stderr=STDOUT)
-            if os.path.getsize(filename) == 0:
-                return False
+            return os.path.getsize(filename) != 0
         except (CalledProcessError, OSError):
             return False
-        return True
 
     def _capture_image_gstreamer(self, filename, width, height, pixelformat):
         """
@@ -635,7 +625,7 @@ class CameraTest:
             )
             print("Taking a picture at %sx%s" % (w, h))
 
-            self._still_image_helper(
+            self._capture_image(
                 f.name, w, h, pixelformat=format["pixelformat"]
             )
             if self._validate_image(f.name, w, h):
@@ -671,7 +661,7 @@ class CameraTest:
         )
         print("Saving debug image to %s" % filepath)
         with open(filepath, "w") as f:
-            self._still_image_helper(f.name, w, h, format["pixelformat"])
+            self._capture_image(f.name, w, h, format["pixelformat"])
 
     def _get_supported_pixel_formats(self, device, maxformats=5):
         """

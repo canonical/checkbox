@@ -17,7 +17,7 @@ following launcher:
   [test selection]
   match=.*wireless.*
 
-To only re-run the wifi ``bg_np`` and ``ac_np`` tests for ``wlan0``:
+To only re-run the WiFi ``bg_np`` and ``ac_np`` tests for ``wlan0``:
 
 .. code-block:: ini
   :emphasize-lines: 7-8

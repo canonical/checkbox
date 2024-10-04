@@ -148,7 +148,8 @@ def parse_args():
         metavar="MOD",
         nargs="*",
         type=str,
-        choices=RVS_MODULES.keys(),
+        default=None,
+        choices=RVS_MODULES,
         help="RVS modules to run",
     )
     parser.add_argument(
@@ -179,7 +180,7 @@ def parse_args():
         metavar="DIR",
         type=Path,
         default=PLAINBOX_PROVIDER_DATA,
-        help="Path to directory containing the configuration",
+        help="Path to directory containing the RVS module configurations",
     )
 
     args = parser.parse_args()

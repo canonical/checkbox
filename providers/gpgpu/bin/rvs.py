@@ -77,7 +77,7 @@ class ModuleRunner:
     def _run(self, module: str) -> subprocess.CompletedProcess:
         """Runs the RVS module."""
         proc = subprocess.run(
-            [self.rvs, "-c", self.config_dir / f"rvs-{module}.conf"],
+            [self.rvs, "-c", self.config_dir / "rvs-{}.conf".format(module)],
             check=False,
             capture_output=True,
             text=True,
@@ -184,12 +184,16 @@ def parse_args():
     args = parser.parse_args()
 
     if args.list_modules:
-        parser.exit(message=f"Modules supported: {' '.join(RVS_MODULES)}\n")
+        parser.exit(
+            message="Modules supported: {}".format(" ".join(RVS_MODULES))
+        )
     elif not args.modules:
         parser.error("--list-modules or modules required")
     elif any(m not in RVS_MODULES for m in args.modules):
         parser.error(
-            f"Invalid module provided (choose from {', '.join(RVS_MODULES)})"
+            "Invalid module provided (choose from {})".format(
+                ", ".join(RVS_MODULES)
+            )
         )
     return args
 

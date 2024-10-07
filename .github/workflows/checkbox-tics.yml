@@ -51,29 +51,11 @@ jobs:
 
           # Providers
           echo "::group::coverage tests for providers..."
-          cd $REPO_DIR/providers/base
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
-          cd $REPO_DIR/providers/certification-client
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
-          cd $REPO_DIR/providers/certification-server
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
-          cd $REPO_DIR/providers/docker
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
-          cd $REPO_DIR/providers/genio
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
-          cd $REPO_DIR/providers/gpgpu
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
-          cd $REPO_DIR/providers/iiotg
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
-          cd $REPO_DIR/providers/resource
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
-          cd $REPO_DIR/providers/sru
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
-          cd $REPO_DIR/providers/tpm2
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
-          cd $REPO_DIR/providers/tutorial
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage manage.py test -u
-          cd $REPO_DIR
+          providers="base certification-client certification-server docker genio gpgpu iiotg resource sru tpm2"
+          for provider in $providers; do
+              cd "$REPO_DIR/providers/$provider"
+              coverage run --append --branch --data-file="$COVR_DIR/.coverage" manage.py test -u
+          done
           echo "::endgroup::"
 
           # Checkbox-ng

@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import logging
 import os
 import shlex
-import subprocess
 import sys
 import tarfile
 import tempfile
@@ -655,7 +654,7 @@ class LXDTest:
     ):
         """Runs a shell command."""
         if on_guest:
-            cmd = f"lxc exec {self.name} -- {cmd}"
+            cmd = "lxc exec {} -- {}".format(self.name, cmd)
         task = RunCommand(cmd)
         if task.returncode != 0:
             logging.error(
@@ -745,9 +744,8 @@ class LXDTest:
         """Insert LXD images."""
         if self.template_tarball and self.image_tarball:
             logging.debug("Importing images into LXD")
-            cmd = (
-                f"lxc image import {self.template_tarball} "
-                f"rootfs {self.image_tarball} --alias {self.image_alias}"
+            cmd = "lxc image import {} rootfs {} --alias {}".format(
+                self.template_tarball, self.image_tarball, self.image_alias
             )
             if not self.run_command(cmd):
                 logging.error(
@@ -760,9 +758,8 @@ class LXDTest:
             "No local image available, attempting to import from default remote."
         )
         retries = 2
-        cmd = (
-            f"lxc image copy {self.default_remote}{self.os_version} "
-            f"local: --alias {self.image_alias}"
+        cmd = "lxc image copy {}{} local: --alias {}".format(
+            self.default_remote, self.os_version, self.image_alias
         )
         for _ in range(retries):
             if self.run_command(cmd):
@@ -795,9 +792,11 @@ class LXDTest:
     def add_gpu_device(self, gpu_vendor: str, gpu_pci: Optional[str] = None):
         """Adds a GPU device to the instance."""
         logging.debug("Passing through GPU device")
-        cmd = f"lxc config device add {self.name} gpu gpu gputype=physical"
+        cmd = "lxc config device add {} gpu gpu gputype=physical".format(
+            self.name
+        )
         if gpu_pci:
-            cmd += f" pci={gpu_pci}"
+            cmd += " pci={}".format(gpu_pci)
         return self.run_command(cmd)
 
     def configure_gpu_device(
@@ -806,13 +805,17 @@ class LXDTest:
         """Performs additional GPU configuration on instance."""
         if gpu_vendor == "nvidia":
             logging.debug("Passing NVIDIA runtime through to instance")
-            cmd = f"lxc config set {self.name} nvidia.runtime=true"
+            cmd = "lxc config set {} nvidia.runtime=true".format(self.name)
             if not self.run_command(cmd):
                 logging.error("Failed to pass NVIDIA runtime to instance")
                 return False
         elif gpu_vendor == "amd":
             logging.debug("Passing AMD Kernel Fusion Driver through")
-            cmd = f"lxc config device add {self.name} kfd unix-char path=/dev/kfd"
+            cmd = (
+                "lxc config device add {} kfd unix-char path=/dev/kfd".format(
+                    self.name
+                )
+            )
             if not self.run_command(cmd):
                 logging.error("Failed to pass AMD KFD to instance")
                 return False
@@ -829,37 +832,45 @@ class LXDTest:
     ):
         """Adds an APT repository to the instance."""
         logging.debug("Downloading GPG key from %s", gpg_url)
-        gpg_dest = f"/usr/share/keyrings/{name}.gpg"
+        gpg_dest = "/usr/share/keyrings/{}.gpg".format(name)
         cmds = [
             "set -e",
-            f"wget -O {name}.gpg '{gpg_url}'",
-            f"gpg --no-default-keyring --keyring ./tmp.gpg --import {name}.gpg",
-            f"gpg --no-default-keyring --keyring ./tmp.gpg --fingerprint {gpg_fingerprint}",
-            f"gpg --yes --no-default-keyring --keyring ./tmp.gpg --export --output {gpg_dest}",
-            f"rm ./tmp.gpg ./tmp.gpg~ ./{name}.gpg",
+            "wget -O {}.gpg '{}'".format(name, gpg_url),
+            "gpg --no-default-keyring --keyring ./tmp.gpg --import {}.gpg".format(
+                name
+            ),
+            "gpg --no-default-keyring --keyring ./tmp.gpg --fingerprint {}".format(
+                gpg_fingerprint
+            ),
+            "gpg --yes --no-default-keyring --keyring ./tmp.gpg --export --output {}".format(
+                gpg_dest
+            ),
+            "rm ./tmp.gpg ./tmp.gpg~ ./{}.gpg".format(name),
         ]
-        cmd = f"bash -c \"{'; '.join(cmds)}\""
+        cmd = 'bash -c "{}"'.format("; ".join(cmds))
         if not self.run_command(cmd, on_guest=True):
             logging.error("Failed to import GPG key from %s", gpg_url)
             return False
 
         # Create/download pinfile.
         if pinfile:
-            pinfile_dest = f"/etc/apt/preferences.d/{name}-pin-600"
+            pinfile_dest = "/etc/apt/preferences.d/{}-pin-600".format(name)
             if pinfile.startswith("http"):
                 logging.debug("Downloading pinfile")
-                cmd = f"wget -O {pinfile_dest} {pinfile}"
+                cmd = "wget -O {} {}".format(pinfile_dest, pinfile)
             else:
                 logging.debug("Creating pinfile")
-                cmd = f"bash -c \"echo -e '{pinfile}' | tee {pinfile_dest}\""
+                cmd = "bash -c \"echo -e '{}' | tee {}\"".format(
+                    pinfile, pinfile_dest
+                )
             if not self.run_command(cmd, on_guest=True):
                 logging.error("Failed to create/download pinfile")
                 return False
 
         logging.debug("Setting up APT repository: %s", name)
-        repo_dest = f"/etc/apt/sources.list.d/{name}.list"
-        list_file = f"deb [signed-by={gpg_dest}] {repo_line}"
-        cmd = f"bash -c \"echo '{list_file}' | tee {repo_dest}\""
+        repo_dest = "/etc/apt/sources.list.d/{}.list".format(name)
+        list_file = "deb [signed-by={}] {}".format(gpg_dest, repo_line)
+        cmd = "bash -c \"echo '{}' | tee {}\"".format(list_file, repo_dest)
         if not self.run_command(cmd, on_guest=True):
             logging.error("Failed to create APT repository")
             return False
@@ -882,15 +893,17 @@ class LXDTest:
         #   * (If needed) Add env vars or parameters to cmake command
         if gpu_vendor == "nvidia":
             logging.debug("Adding NVIDIA CUDA repository to instance")
-            osrelease = f"ubuntu{self.os_version.replace('.', '')}"
+            osrelease = "ubuntu{}".format(self.os_version.replace(".", ""))
             arch = os.uname().machine
-            repo_url = f"https://developer.download.nvidia.com/compute/cuda/repos/{osrelease}/{arch}"
+            repo_url = "https://developer.download.nvidia.com/compute/cuda/repos/{}/{}".format(
+                osrelease, arch
+            )
             if not self.add_apt_repo(
                 "cuda",
-                f"{repo_url} /",
-                gpg_url=f"{repo_url}/3bf863cc.pub",
+                "{} /".format(repo_url),
+                gpg_url="{}/3bf863cc.pub".format(repo_url),
                 gpg_fingerprint="EB693B3035CD5710E231E123A4B469963BF863CC",
-                pinfile=f"{repo_url}/cuda-{osrelease}.pin",
+                pinfile="{}/cuda-{}.pin".format(repo_url, osrelease),
             ):
                 return False
 
@@ -902,32 +915,38 @@ class LXDTest:
 
             logging.debug("Finding CUDA capability for GPU")
             cuda_arch = "native"
-            cmd = f"lxc exec {self.name} -- nvidia-smi --query-gpu=compute_cap --format=csv,noheader"
-            proc = subprocess.run(
-                shlex.split(cmd), check=False, capture_output=True, text=True
+            cmd = "lxc exec {} -- nvidia-smi --query-gpu=compute_cap --format=csv,noheader".format(
+                self.name
             )
-            if proc.returncode == 0:
-                cuda_arch = proc.stdout.strip().replace(".", "")
+            task = RunCommand(cmd)
+            if task.returncode == 0:
+                cuda_arch = task.stdout.strip().replace(".", "")
             logging.debug("Using CUDA architecture '%s'", cuda_arch)
 
             test_name = "cuda"
             nvcc_path = "/usr/local/cuda/bin/nvcc"
-            cmake_cmd = f"CUDACXX={nvcc_path} {cmake_cmd} -DCMAKE_CUDA_ARCHITECTURES={cuda_arch}"
+            cmake_cmd = "CUDACXX={} {} -DCMAKE_CUDA_ARCHITECTURES={}".format(
+                nvcc_path, cmake_cmd, cuda_arch
+            )
         elif gpu_vendor == "amd":
             # TODO: Test if hardcoding v6.2 works on older LTS releases
             gpg_url = "https://repo.radeon.com/rocm/rocm.gpg.key"
             gpg_fingerprint = "CA8BB4727A47B4D09B4EE8969386B48A1A693C5C"
             amd_version = "6.2"
-            amd_repo = f"https://repo.radeon.com/amdgpu/{amd_version}/ubuntu"
-            rocm_repo = f"https://repo.radeon.com/rocm/apt/{amd_version}"
+            amd_repo = "https://repo.radeon.com/amdgpu/{}/ubuntu".format(
+                amd_version
+            )
+            rocm_repo = "https://repo.radeon.com/rocm/apt/{}".format(
+                amd_version
+            )
             if not self.add_apt_repo(
                 "amdgpu",
-                f"{amd_repo} {self.release} main",
+                "{} {} main".format(amd_repo, self.release),
                 gpg_url=gpg_url,
                 gpg_fingerprint=gpg_fingerprint,
             ) or not self.add_apt_repo(
                 "rocm",
-                f"{rocm_repo} {self.release} main",
+                "{} {} main".format(rocm_repo, self.release),
                 gpg_url=gpg_url,
                 gpg_fingerprint=gpg_fingerprint,
                 pinfile="Package: *\nPin: release o=repo.radeon.com\nPin-Priority: 600",
@@ -949,13 +968,15 @@ class LXDTest:
         cmds = [
             "set -e",
             "git clone https://github.com/ekondis/mixbench.git",
-            f"mkdir mixbench/build-{test_name}",
-            f"cd mixbench/build-{test_name}",
+            "mkdir mixbench/build-{}".format(test_name),
+            "cd mixbench/build-{}".format(test_name),
             cmake_cmd.format(test_name=test_name),
             "make",
-            f"ln -s ~/mixbench/build-{test_name}/mixbench-{test_name} ~/vgpu-test",
+            "ln -s ~/mixbench/build-{0}/mixbench-{0} ~/vgpu-test".format(
+                test_name
+            ),
         ]
-        cmd = f"bash -c \"{'; '.join(cmds)}\""
+        cmd = 'bash -c "{}"'.format("; ".join(cmds))
         return self.run_command(cmd, on_guest=True)
 
     def download_images(self, url, filename):
@@ -988,9 +1009,11 @@ class LXDTest:
     def cleanup(self):
         """Cleans up test files and instances created."""
         logging.debug("Cleaning up images and instance created during test")
-        cmd = f"lxc image delete {self.image_alias}"
+        cmd = "lxc image delete {}".format(self.image_alias)
         self.run_command(cmd, log_stderr=False)
-        self.run_command(f"lxc delete --force {self.name}", log_stderr=False)
+        self.run_command(
+            "lxc delete --force {}".format(self.name), log_stderr=False
+        )
 
     def launch(self):
         """Sets up and creates the container."""
@@ -999,7 +1022,9 @@ class LXDTest:
             return False
 
         logging.debug("Launching container")
-        if not self.run_command(f"lxc launch {self.image_alias} {self.name}"):
+        if not self.run_command(
+            "lxc launch {} {}".format(self.image_alias, self.name)
+        ):
             return False
 
         logging.debug("Container listing:")
@@ -1048,7 +1073,7 @@ class LXDTest:
             return False
 
         logging.debug("Restarting instance")
-        if not self.run_command(f"lxc restart {self.name}"):
+        if not self.run_command("lxc restart {}".format(self.name)):
             return False
 
         logging.debug("Wait for network to be up")
@@ -1095,9 +1120,8 @@ class LXDTest_vm(LXDTest):
     def insert_images(self):
         if self.template_tarball and self.image_tarball:
             logging.debug("Importing images into LXD")
-            cmd = (
-                f"lxc image import {self.template_tarball} {self.image_tarball} "
-                f"--alias {self.image_alias}"
+            cmd = "lxc image import {} {} --alias {}".format(
+                self.template_tarball, self.image_tarball, self.image_alias
             )
             if not self.run_command(cmd):
                 logging.error(
@@ -1117,16 +1141,18 @@ class LXDTest_vm(LXDTest):
             logging.debug(
                 "No local image available, attempting to import from default remote."
             )
-            cmd = f"lxc init {self.default_remote}{self.os_version} {self.name} --vm"
+            cmd = "lxc init {}{} {} --vm".format(
+                self.default_remote, self.os_version, self.name
+            )
         else:
-            cmd = f"lxc init {self.image_alias} {self.name} --vm"
+            cmd = "lxc init {} {} --vm".format(self.image_alias, self.name)
         if self.launch_options:
-            cmd = f"{cmd} {' '.join(self.launch_options)}"
+            cmd = "{} {}".format(cmd, " ".join(self.launch_options))
         if not self.run_command(cmd):
             return False
 
         logging.debug("Start VM:")
-        if not self.run_command(f"lxc start {self.name}"):
+        if not self.run_command("lxc start {}".format(self.name)):
             return False
 
         logging.debug("Virtual machine listing:")
@@ -1139,14 +1165,14 @@ class LXDTest_vm(LXDTest):
     def add_gpu_device(self, gpu_vendor: str, gpu_pci: Optional[str] = None):
         # Hot plugging is only supported on containers
         logging.debug("Stopping virtual machine to add GPU device")
-        if not self.run_command(f"lxc stop --force {self.name}"):
+        if not self.run_command("lxc stop --force {}".format(self.name)):
             return False
 
         if not super().add_gpu_device(gpu_vendor, gpu_pci):
             return False
 
         logging.debug("Starting virtual machine")
-        if not self.run_command(f"lxc start {self.name}"):
+        if not self.run_command("lxc start {}".format(self.name)):
             return False
 
         return True
@@ -1170,7 +1196,7 @@ class LXDTest_vm(LXDTest):
                 return False
         elif gpu_vendor == "amd":
             logging.debug("Updating machine")
-            cmd = f"bash -c \"apt-get -q update -y; apt-get -q upgrade -y\""
+            cmd = 'bash -c "apt-get -q update -y; apt-get -q upgrade -y"'
             if not self.run_command(cmd, on_guest=True):
                 return False
 
@@ -1188,7 +1214,7 @@ class LXDTest_vm(LXDTest):
                 r"echo -e 'amdgpu\nradeon' >> /etc/modules-load.d/amdgpu.conf",
                 "update-initramfs -u",
             ]
-            cmd = f"bash -c \"{'; '.join(cmds)}\""
+            cmd = 'bash -c "{}"'.format("; ".join(cmds))
             if not self.run_command(cmd, on_guest=True):
                 return False
         return True

@@ -1,10 +1,8 @@
 name: TICS Code Quality Analysis
 
 on:
-  push:
-    branches: [ add-checkbox-tiobe ]
-  # schedule:
-  #   - cron: '00 19 * * *'
+  schedule:
+    - cron: '00 19 * * *'
   workflow_dispatch:
  
 permissions:

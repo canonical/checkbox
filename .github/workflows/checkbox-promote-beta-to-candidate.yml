@@ -1,0 +1,82 @@
+name: Promote Checkbox beta to candidate
+on:
+    workflow_dispatch:
+
+jobs:
+  checkbox-promotion-beta-to-candidate-test:
+    runs-on: [self-hosted, testflinger]
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - queue: 201712-26047
+            data_source: "distro: xenial"
+            checkbox_runtime: checkbox16
+            checkbox_track: uc16
+
+          - queue: 201712-26047
+            data_source: "distro: focal"
+            checkbox_runtime: checkbox20
+            checkbox_track: uc20
+
+          - queue: 201712-26047
+            data_source: "distro: bionic"
+
+          - queue: 202203-30061
+            data_source: "distro: jammy"
+            checkbox_runtime: checkbox22
+            checkbox_track: uc22
+
+          - queue: 202203-30061
+            data_source: "distro: jammy"
+
+          - queue: 202012-28526
+            data_source: "distro: noble"
+            checkbox_runtime: checkbox24
+            checkbox_track: uc24
+
+          - queue: 202012-28526
+            data_source: "distro: noble"
+
+          - queue: 202201-29865
+            data_source: "distro: bionic"
+            checkbox_runtime: checkbox18
+            checkbox_track: uc18
+
+          - queue: 202201-29865
+            data_source: "distro: focal"
+
+          - queue: rpi4b
+            data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
+            checkbox_runtime: checkbox22
+            checkbox_track: uc22
+
+          - queue: rpi4b
+            data_source: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-armhf+raspi.img.xz"
+            checkbox_runtime: checkbox22
+            checkbox_track: uc22
+    steps:
+    - name: Checkout checkbox monorepo
+      uses: actions/checkout@v4
+
+    - name: Create job file (by instantiating template)
+      id: create-job
+      run: |
+        JOB_PATH=${{ github.workspace }}/job.yaml
+        # instantiate job template with input values
+        INPUT_QUEUE="${{ matrix.queue }}" \
+        INPUT_DATA_SOURCE="${{ matrix.data_source }}" \
+        INPUT_CHECKBOX_RUNTIME="${{ matrix.checkbox_runtime }}" \
+        INPUT_CHECKBOX_TRACK="${{ matrix.checkbox_track }}" \
+        INPUT_RESOURCES_PATH="${{ github.workspace }}/.github/workflows/checkbox-promote-beta-to-candidate/resources" \
+        envsubst '$INPUT_QUEUE $INPUT_DATA_SOURCE $INPUT_CHECKBOX_RUNTIME $INPUT_CHECKBOX_TRACK $INPUT_RESOURCES_PATH' \
+        < $GITHUB_WORKSPACE/.github/workflows/checkbox-promote-beta-to-candidate/job.template \
+        > $JOB_PATH
+        # return path for instantiated job file
+        echo "job=$JOB_PATH" >> $GITHUB_OUTPUT
+
+    - name: Submit job
+      uses: canonical/testflinger/.github/actions/submit@main
+      with:
+        poll: true
+        job-path: ${{ steps.create-job.outputs.job }}

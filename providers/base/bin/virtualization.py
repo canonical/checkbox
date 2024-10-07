@@ -41,7 +41,7 @@ from subprocess import (
     call,
     check_output,
 )
-from typing import Optional, override
+from typing import Optional
 from urllib.parse import urlparse
 from uuid import uuid4
 
@@ -693,23 +693,23 @@ class LXDTest:
             logging.debug("Downloading template.")
             targetfile = urlparse(self.template_url).path.split("/")[-1]
             filename = os.path.join("/tmp", targetfile)
-            if not os.path.isfile(filename):
-                self.template_tarball = self.download_images(
-                    self.template_url, filename
-                )
-                if not self.template_tarball:
-                    logging.error(
-                        "Unable to download %s from %s",
-                        targetfile,
-                        self.template_url,
-                    )
-                    return False
-            else:
+            if os.path.isfile(filename):
                 logging.debug(
-                    "Template file %s already exists. Skipping Download.",
+                    "Template file %s already exists. Skipping download",
                     filename,
                 )
-                self.template_tarball = filename
+                return True
+
+            self.template_tarball = self.download_images(
+                self.template_url, filename
+            )
+            if not self.template_tarball:
+                logging.error(
+                    "Unable to download %s from %s",
+                    targetfile,
+                    self.template_url,
+                )
+                return False
 
         return True
 
@@ -719,24 +719,22 @@ class LXDTest:
             logging.debug("Downloading image.")
             targetfile = urlparse(self.image_url).path.split("/")[-1]
             filename = os.path.join("/tmp", targetfile)
-            if not os.path.isfile(filename):
-                self.image_tarball = self.download_images(
-                    self.image_url, filename
-                )
-                if not self.image_tarball:
-                    logging.error(
-                        "Unable to download %s from %s",
-                        targetfile,
-                        self.image_url,
-                    )
-                    logging.error("Aborting")
-                    return False
-            else:
+            if os.path.isfile(filename):
                 logging.debug(
                     "Image file %s already exists. Skipping Download.",
                     filename,
                 )
                 self.image_tarball = filename
+
+            self.image_tarball = self.download_images(self.image_url, filename)
+            if not self.image_tarball:
+                logging.error(
+                    "Unable to download %s from %s",
+                    targetfile,
+                    self.image_url,
+                )
+                logging.error("Aborting")
+                return False
 
         return True
 
@@ -919,7 +917,7 @@ class LXDTest:
                 self.name
             )
             task = RunCommand(cmd)
-            if task.returncode == 0:
+            if task.returncode == 0 and task.stdout:
                 cuda_arch = task.stdout.strip().replace(".", "")
             logging.debug("Using CUDA architecture '%s'", cuda_arch)
 
@@ -990,10 +988,8 @@ class LXDTest:
             OSError,
             urllib.error.HTTPError,
             urllib.error.URLError,
-        ) as exception:
-            logging.error(
-                "Failed download of image from %s: %s", url, exception
-            )
+        ) as e:
+            logging.error("Failed download of image from %s: %s", url, e)
             return False
         except ValueError as verr:
             logging.error("Invalid URL %s", url)
@@ -1011,9 +1007,8 @@ class LXDTest:
         logging.debug("Cleaning up images and instance created during test")
         cmd = "lxc image delete {}".format(self.image_alias)
         self.run_command(cmd, log_stderr=False)
-        self.run_command(
-            "lxc delete --force {}".format(self.name), log_stderr=False
-        )
+        cmd = "lxc delete --force {}".format(self.name)
+        self.run_command(cmd, log_stderr=False)
 
     def launch(self):
         """Sets up and creates the container."""
@@ -1022,9 +1017,8 @@ class LXDTest:
             return False
 
         logging.debug("Launching container")
-        if not self.run_command(
-            "lxc launch {} {}".format(self.image_alias, self.name)
-        ):
+        cmd = "lxc launch {} {}".format(self.image_alias, self.name)
+        if not self.run_command(cmd):
             return False
 
         logging.debug("Container listing:")
@@ -1111,12 +1105,10 @@ class LXDTest:
 class LXDTest_vm(LXDTest):
     """This class represents a LXD VM instance test."""
 
-    @override
     def __init__(self, template=None, image=None, launch_options=None):
         super().__init__(template, image)
         self.launch_options = launch_options
 
-    @override
     def insert_images(self):
         if self.template_tarball and self.image_tarball:
             logging.debug("Importing images into LXD")
@@ -1130,7 +1122,6 @@ class LXDTest_vm(LXDTest):
                 return False
         return True
 
-    @override
     def launch(self):
         if not self.setup():
             logging.error("One or more setup stages failed.")
@@ -1161,7 +1152,6 @@ class LXDTest_vm(LXDTest):
 
         return True
 
-    @override
     def add_gpu_device(self, gpu_vendor: str, gpu_pci: Optional[str] = None):
         # Hot plugging is only supported on containers
         logging.debug("Stopping virtual machine to add GPU device")
@@ -1177,7 +1167,6 @@ class LXDTest_vm(LXDTest):
 
         return True
 
-    @override
     def configure_gpu_device(
         self, gpu_vendor: str, gpu_pci: Optional[str] = None
     ):
@@ -1219,7 +1208,6 @@ class LXDTest_vm(LXDTest):
                 return False
         return True
 
-    @override
     def test(self):
         """Creates a LXD virtual machine and performs the test."""
         if not self.launch():

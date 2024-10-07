@@ -698,6 +698,7 @@ class LXDTest:
                     "Template file %s already exists. Skipping download",
                     filename,
                 )
+                self.template_tarball = filename
                 return True
 
             self.template_tarball = self.download_images(

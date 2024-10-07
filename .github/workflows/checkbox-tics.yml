@@ -63,12 +63,12 @@ jobs:
 
           # Checkbox-ng
           echo "::group::coverage tests for checkbox-ng..."
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage -m pytest $PWD/checkbox-ng
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage -m pytest $REPO_DIR/checkbox-ng
           echo "::endgroup::"
 
           # Checkbox-support
           echo "::group::coverage tests for checkbox-support..."
-          coverage run --append --branch --data-file=$COVR_DIR/.coverage -m pytest $PWD/checkbox-support/checkbox_support/
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage -m pytest $REPO_DIR/checkbox-support/checkbox_support/
           echo "::endgroup::"
 
           # Coverage report XML

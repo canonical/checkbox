@@ -1,0 +1,53 @@
+#!/bin/bash
+
+RELEASE=$(lsb_release -sc)
+REQUIRED_DEPENDENCIES="make clinfo"
+## XXX: g++ version is really a factor of the cuda toolkit and we shouldn't
+# depend on what is the release default
+case ${RELEASE} in
+    jammy )
+        REQUIRED_DEPENDENCIES="${REQUIRED_DEPENDENCIES} g++ ocl-icd-libopencl1 build-essential libpng-dev libboost-all-dev libva-dev unzip cmake"
+        ;;
+    noble )
+        REQUIRED_DEPENDENCIES="${REQUIRED_DEPENDENCIES} g++ ocl-icd-libopencl1 build-essential libpng-dev libboost-all-dev libva-dev unzip cmake"
+        ;;
+    * )
+	echo "Unsupported OS version. Use Ubuntu jammy or noble"
+        ;;
+esac
+
+# Downloads for OpenCL version 24.13.29138.7
+IGC_CORE_DEB="https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.16510.2/intel-igc-core_1.0.16510.2_amd64.deb"
+IGC_OCL_DEB="https://github.com/intel/intel-graphics-compiler/releases/download/igc-1.0.16510.2/intel-igc-opencl_1.0.16510.2_amd64.deb"
+LEVEL_ZERO_DDEB="https://github.com/intel/compute-runtime/releases/download/24.13.29138.7/intel-level-zero-gpu-dbgsym_1.3.29138.7_amd64.ddeb"
+LEVEL_ZERO_DEB="https://github.com/intel/compute-runtime/releases/download/24.13.29138.7/intel-level-zero-gpu_1.3.29138.7_amd64.deb"
+OPENCL_DDEB="https://github.com/intel/compute-runtime/releases/download/24.13.29138.7/intel-opencl-icd-dbgsym_24.13.29138.7_amd64.ddeb"
+OPENCL_DEB="https://github.com/intel/compute-runtime/releases/download/24.13.29138.7/intel-opencl-icd_24.13.29138.7_amd64.deb"
+GMMLIB_DEB="https://github.com/intel/compute-runtime/releases/download/24.13.29138.7/libigdgmm12_22.3.18_amd64.deb"
+CHECKSUM_URL="https://github.com/intel/compute-runtime/releases/download/24.13.29138.7/ww13.sum"
+
+# Install other needed packages
+sudo DEBIAN_FRONTEND=noninteractive apt-get -y update
+sudo DEBIAN_FRONTEND=noninteractive apt-get install -y ${REQUIRED_DEPENDENCIES}
+
+# Fetch and install the requested OPENCL version
+wget ${IGC_CORE_DEB}
+wget ${IGC_OCL_DEB}
+wget ${LEVEL_ZERO_DDEB}
+wget ${LEVEL_ZERO_DEB}
+wget ${OPENCL_DDEB}
+wget ${OPENCL_DEB}
+wget ${GMMLIB_DEB}
+wget ${CHECKSUM_URL}
+sha256sum -c *.sum
+sudo DEBIAN_FRONTEND=noninteractive dpkg -i *.deb *.ddeb
+
+COMPUTE_SAMPLES_DIR=/tmp/compute-samples
+git clone https://github.com/mckees/compute-samples $COMPUTE_SAMPLES_DIR
+cd $COMPUTE_SAMPLES_DIR && ./scripts/install/install_ubuntu_20_04.sh
+mkdir build
+cd build && cmake ..
+cmake --build .
+cmake --build . --target install
+
+exit 0

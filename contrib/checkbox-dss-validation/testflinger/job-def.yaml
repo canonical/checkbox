@@ -1,0 +1,61 @@
+job_queue: REPLACE_QUEUE
+output_timeout: 1800
+provision_data:
+  REPLACE_PROVISION_DATA
+test_data:
+  test_cmds: |
+
+    # Exit immediately if a test fails
+    set -e
+
+    # Clone repo from appropriate branch/commit.
+    ssh ubuntu@$DEVICE_IP '
+      DEBIAN_FRONTEND=noninteractive sudo apt update
+      DEBIAN_FRONTEND=noninteractive sudo apt -y upgrade
+      DEBIAN_FRONTEND=noninteractive sudo apt -y install git
+      git clone -b REPLACE_BRANCH \
+        https://github.com/canonical/checkbox.git \
+        ~ubuntu/checkbox
+      cd ~ubuntu/checkbox/contrib/checkbox-dss-validation
+      echo "Current git branch: $(git branch --show-current)"
+      echo "Latest commit:"
+      git log --name-status HEAD^..HEAD
+    '
+
+    # Install dependencies
+    ssh ubuntu@$DEVICE_IP '
+      sudo snap install --classic snapcraft
+      sudo snap install checkbox22
+      sudo snap install lxd --channel=5.21/stable
+      sudo adduser ubuntu lxd
+      sudo snap refresh
+    '
+
+    # Disable swap and IPv6
+    ssh ubuntu@$DEVICE_IP '
+      sudo sysctl -w vm.swappiness=0
+      sudo echo "vm.swappiness = 0" | sudo tee -a /etc/sysctl.conf
+      sudo swapoff -a
+      echo "net.ipv6.conf.all.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
+      echo "net.ipv6.conf.default.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
+      echo "net.ipv6.conf.lo.disable_ipv6=1" | sudo tee -a /etc/sysctl.conf
+      sudo sysctl -p
+    '
+
+    # Build and install checkbox-dss snap
+    ssh ubuntu@$DEVICE_IP '
+      lxd init --auto
+      cd ~ubuntu/checkbox/contrib/checkbox-dss-validation
+      snapcraft
+      sudo snap install --dangerous --classic ./checkbox-dss_*_amd64.snap
+    '
+
+    # Install test dependencies
+    ssh ubuntu@$DEVICE_IP '
+      checkbox-dss.install-deps --dss-snap-channel=REPLACE_DSS_CHANNEL
+    '
+
+    # Run tests
+    ssh ubuntu@$DEVICE_IP '
+      checkbox-dss.validate-intel-gpu
+    '

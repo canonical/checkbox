@@ -725,6 +725,7 @@ class LXDTest:
                     filename,
                 )
                 self.image_tarball = filename
+                return True
 
             self.image_tarball = self.download_images(self.image_url, filename)
             if not self.image_tarball:

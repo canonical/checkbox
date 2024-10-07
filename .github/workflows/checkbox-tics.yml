@@ -14,8 +14,6 @@ jobs:
     environment: TICS
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: main
 
       - name: Install dependencies
         run: |

@@ -29,12 +29,13 @@ requires:
 unit: template
 template-resource: wwan_resource
 template-unit: job
-id: wwan/gsm-connection-{manufacturer}-{model}-{hw_id}-auto
+id: wwan/gsm-connection-{manufacturer}-{model}-{hw_id}-cycle{iteration}-auto
 template-id: wwan/gsm-connection-manufacturer-model-hw_id-auto
-_summary: Verify a GSM broadband modem can create a data connection
+_summary: Verify a GSM broadband modem can create a data connection - iteration #{iteration}
+_template-summary: Verify a GSM broadband modem can create a data connection multiple times
 _purpose:
- Any modems discovered by the resource job that list GSM support
- will be tested to ensure a data connection can be made.
+  Any modems discovered by the resource job that list GSM support
+  will be tested to ensure a data connection can be made.
 plugin: shell
 command:
   BEGIN_CONNECTION_TEST_TS=$(date '+%Y-%m-%d %H:%M:%S')
@@ -62,6 +63,7 @@ template-resource: wwan_resource
 template-unit: job
 id: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 template-id: wwan/check-sim-present-manufacturer-model-hw_id-auto
+template-filter: wwan_resource.iteration == '1'
 _summary:  Check if a SIM card is present in a slot connected to the modem
 _description:
  Check if a SIM card is present in a slot connected to the modem
@@ -83,6 +85,7 @@ template-resource: wwan_resource
 template-unit: job
 id: wwan/verify-sim-info-{manufacturer}-{model}-{hw_id}
 template-id: wwan/verify-sim-info-manufacturer-model-hw_id
+template-filter: wwan_resource.iteration == '1'
 depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 _summary: Verify that the information retrieved from a SIM card is valid
 _purpose:
@@ -110,6 +113,7 @@ template-resource: wwan_resource
 template-unit: job
 id: wwan/3gpp-scan-{manufacturer}-{model}-{hw_id}-auto
 template-id: wwan/3gpp-scan-manufacturer-model-hw_id-auto
+template-filter: wwan_resource.iteration == '1'
 _summary:  Scan for available 3GPP networks with the modem
 _template-summary: Scan for available 3GPP networks with the {model} modem
 _description:

@@ -1,8 +1,10 @@
 name: TICS Code Quality Analysis
 
 on:
-  schedule:
-    - cron: '00 19 * * *'
+  push:
+    branches: [ add-checkbox-tiobe ]
+  # schedule:
+  #   - cron: '00 19 * * *'
   workflow_dispatch:
  
 permissions:
@@ -25,24 +27,25 @@ jobs:
           sudo python -m pip install -e $PWD/checkbox-ng
           sudo python -m pip install -e $PWD/checkbox-support
           sudo python -m pip install \
+          pyparsing==2.4.7 \
+          requests==2.25.1 \
+          XlsxWriter==3.0.2 \
+          Jinja2==3.0.3 \
           psutil==5.9.5 \
-          opencv_python==4.8.0.76 \
-          natsort==8.0.2 \
           libsvm==3.23.0.4 \
-          numpy==1.26.4 \
-          coverage==7.3.0 \
           urwid==2.1.2 \
-          pynmea2 \
-          loguru \
-          importlib_resources \
-          pylxd \
+          systemd-python==235 \
+          distro==1.7.0 \
+          coverage==7.3.0 \
+          flake8 \
+          MarkupSafe==2.0.1 \
           pytest \
-          evdev \
-          pyalsaaudio \
-          RPi.GPIO \
-          PyQRCode \
-          pybluez2 \
-          git+https://github.com/waveform80/picamera
+          opencv_python==4.8.1.78 \
+          natsort==8.0.2 \
+          tqdm==4.57.0 \
+          PyYAML==6.0.1 \
+          numpy==1.26.4 \
+          pytest-cov==4.1.0
 
       - name: Run coverage tests
         run: |

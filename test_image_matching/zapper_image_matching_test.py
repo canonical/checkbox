@@ -24,18 +24,7 @@ import torch
 import time
 
 
-# screen_size =(3456, 2160)
 screen_size = (1920, 1080)
-
-# # Homography matrix from your data
-# homography_matrix = np.array(
-#     [
-#         [2.3497401216403873, 0.32739839205407256, -430.2644530168988],
-#         [-0.03441855074237415, 2.574459827018083, -240.52384223791717],
-#         [-0.000004170753263481942, 0.00015643521128339517, 1],
-#     ]
-# )
-
 
 torch.set_grad_enabled(False)
 device = torch.device(
@@ -94,12 +83,11 @@ def compare_two_images(
     template,
     show_result=False,
     threshold=0.8,
-    method=cv2.TM_CCOEFF_NORMED,
+    method=cv2.TM_CCORR_NORMED,
 ):
     # Load the reference image and the template
     img = cv2.cvtColor(reference, cv2.COLOR_BGR2GRAY)
     template = cv2.cvtColor(template, cv2.COLOR_BGR2GRAY)
-    template = cv2.resize(template, (0, 0), fx=0.75, fy=0.75)
     w, h = template.shape[::-1]
 
     # All the 6 methods for comparison in a list
@@ -151,7 +139,7 @@ def compare_two_images(
     return center
 
 
-def click_position(zapper_ip, position):
+def click_position(zapper_ip, position, screen_size):
     """
     Request Zapper to type on keyboard and assert the received events
     are like expected.
@@ -166,13 +154,17 @@ Do nothing
     Log    Re-configure HID device
     """
 
-    # if i set the mouse
-    x = position[0] / 4
-    y = position[1] / 4
+    if screen_size == (3456, 2160):
+        # if i set the mouse
+        x = position[0] / 4
+        y = position[1] / 4
 
-    # round the values
-    x = int(round(x))
-    y = int(round(y))
+        # round the values
+        x = int(round(x))
+        y = int(round(y))
+    else:
+        x = position[0]
+        y = position[1]
 
     print(x)
     print(y)
@@ -188,35 +180,31 @@ Click in the middle of the screen
     Click Pointer Button    LEFT
     """
 
-    # print("Running the mouse test")
-    # zapper_run(zapper_ip, "robot_run", ROBOT_INIT.encode(), {}, {})
-    # zapper_run(zapper_ip, "robot_run", ROBOT_MOUSE.encode(), {}, {})
+    print("Running the mouse test")
+    zapper_run(zapper_ip, "robot_run", ROBOT_INIT.encode(), {}, {})
+    zapper_run(zapper_ip, "robot_run", ROBOT_MOUSE.encode(), {}, {})
 
 
 def start_calculator(device_ip):
     p = subprocess.Popen(
-        ["ssh", f"ubuntu@{device_ip}", "gnome-calculator", "&"]
+        ["ssh", f"ubuntu@{device_ip}", "DISPLAY=:0", "gnome-calculator"]
     )
-
-    time.sleep(5)
-
+    time.sleep(10)
     return p
 
 
 def stop_calcualtor(device_ip):
-    p = subprocess.Popen(
-        ["ssh", f"ubuntu@{device_ip}", "pkill", "gnome-calculator"]
+    subprocess.run(
+        ["ssh", f"ubuntu@{device_ip}", "pkill", "-f", "gnome-calculator"],
+        check=True,
     )
-
-    return p
 
 
 def get_screen_size(device_ip):
-    # p = subprocess.check_output(
-    #     ["ssh", f"ubuntu@{device_ip}", "DISPLAY=:0", "xrandr"], text=True
-    # )
-    p = result
-    for line in p.split("\n"):
+    output = subprocess.check_output(
+        ["ssh", f"ubuntu@{device_ip}", "DISPLAY=:0", "xrandr"], text=True
+    )
+    for line in output.split("\n"):
         if "*" in line:
             screen_size = line.split()[0]
             screen_size = screen_size.split("x")
@@ -224,26 +212,44 @@ def get_screen_size(device_ip):
             return screen_size
 
 
-def capture_screen(device_ip):
-    subprocess.check_output(
+def get_screenshot(device_ip):
+    subprocess.run(
         [
             "ssh",
             f"ubuntu@{device_ip}",
             "DISPLAY=:0",
             "gnome-screenshot -f /tmp/screenshot.png",
-        ]
+        ],
+        check=True,
     )
 
     # Copy the screenshot to the local machine
-    subprocess.check_output(
+    subprocess.run(
         [
             "scp",
             f"ubuntu@{device_ip}:/tmp/screenshot.png",
             "/tmp/screenshot.png",
-        ]
+        ],
+        check=True,
     )
 
     img = cv2.imread("/tmp/screenshot.png")
+    return img
+
+
+def capture_image(zapper_ip):
+    subprocess.run(
+        [
+            "curl",
+            "-m",
+            "10",
+            "-o",
+            "/tmp/capture.jpg",
+            f"{zapper_ip}:60020/snapshot",
+        ],
+        check=True,
+    )
+    img = cv2.imread("/tmp/capture.jpg")
     return img
 
 
@@ -251,10 +257,10 @@ if __name__ == "__main__":
     zapper_ip = sys.argv[1]
     device_ip = sys.argv[2]
 
-    desktop = cv2.imread("images/screenshot_desktop.png")
-    capture = cv2.imread("images/capture_desktop.jpg")
-    calc_top_raw = cv2.imread("images/snapshot_calc_top.jpg")
-    calc_top_result_raw = cv2.imread("images/snapshot_calc_top_result.jpg")
+    # desktop = cv2.imread("images/screenshot_desktop.png")
+    # capture = cv2.imread("images/capture_desktop.jpg")
+    # calc_top_raw = cv2.imread("images/snapshot_calc_top.jpg")
+    # calc_top_result_raw = cv2.imread("images/snapshot_calc_top_result.jpg")
 
     # desktop = cv2.imread(
     #     "/home/fernando/Canonical/image_matching/desktop_37.png"
@@ -269,15 +275,27 @@ if __name__ == "__main__":
     #     "/home/fernando/Canonical/image_matching/desktop_37_result.jpg"
     # )
 
-    # screen_size = get_screen_size(device_ip)
-    screenshot = capture_screen(device_ip)
+    screen_size = get_screen_size(device_ip)
+    screenshot = get_screenshot(device_ip)
+
+    capture = capture_image(zapper_ip)
 
     # Get the homography matrix
     H = get_homography_matrix(screenshot, capture, True)
+    # H = np.array(
+    #     [
+    #         [2.3497401216403873, 0.32739839205407256, -430.2644530168988],
+    #         [-0.03441855074237415, 2.574459827018083, -240.52384223791717],
+    #         [-0.000004170753263481942, 0.00015643521128339517, 1],
+    #     ]
+    # )
 
     # Start the calculator
-    start_calculator(device_ip)
+    p = start_calculator(device_ip)
+
+    calc_top_raw = capture_image(zapper_ip)
     calc_top = cv2.warpPerspective(calc_top_raw, H, screen_size)
+    cv2.imwrite("images/snapshot_calc_wrapped.jpg", calc_top)
 
     number_2 = cv2.imread("images/number_2.jpg")
     plus = cv2.imread("images/plus.jpg")
@@ -292,7 +310,9 @@ if __name__ == "__main__":
     click_position(zapper_ip, number_2_pos)
     click_position(zapper_ip, equal_pos)
 
+    calc_top_result_raw = capture_image(zapper_ip)
     calc_top_result = cv2.warpPerspective(calc_top_result_raw, H, screen_size)
+    cv2.imwrite("images/snapshot_result_wrapped.jpg", calc_top_result)
 
     result = cv2.imread("images/result.jpg")
     result_pos = compare_two_images(calc_top_result, result, True)

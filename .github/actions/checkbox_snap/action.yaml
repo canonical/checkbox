@@ -47,7 +47,7 @@ runs:
       run: |
         echo "::group::Building the testflinger job"
         if [ -n "$INPUT_PROVISION_DATA" ]; then
-          INPUT_PROVISION_DATA="provision_data: $INPUT_PROVISION_DATA"
+          INPUT_PROVISION_DATA="provision_data: { $INPUT_PROVISION_DATA }"
         fi
         envsubst '$INPUT_CHECKBOX_REVISION $INPUT_PROVISION_DATA $INPUT_QUEUE $INPUT_ZAPPER_CHANNEL' < generic_snap.yaml | tee job.yaml
         echo "::endgroup::"

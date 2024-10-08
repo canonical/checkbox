@@ -8,6 +8,8 @@ test_data:
       agent: "manifest.conf"
     - local: "tools/lab_dispatch/resources/checkbox.no-manifest.partial.conf"
       agent: "checkbox.no-manifest.partial.conf"
+    - local: "tools/lab_dispatch/launcher_override.conf"
+      agent: "launcher_override.conf"
   test_cmds: |
     #!/usr/bin/env bash
 
@@ -52,7 +54,7 @@ test_data:
     which envsubst || install_packages gettext
     envsubst < $RESOURCES_PATH/checkbox.no-manifest.partial.conf > checkbox.no-manifest.conf
     # then insert the manifest entries via the stacker
-    stacker --output checkbox.conf checkbox.no-manifest.conf $MANIFEST_FILE
+    stacker --output checkbox.conf checkbox.no-manifest.conf $MANIFEST_FILE $RESOURCES_PATH/launcher_override.conf
 
     PYTHONUNBUFFERED=1 checkbox-cli control $DEVICE_IP checkbox.conf
     EXITCODE=$?

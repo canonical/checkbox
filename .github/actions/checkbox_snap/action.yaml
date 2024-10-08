@@ -36,7 +36,7 @@ runs:
     - name: Build test resource
       shell: bash
       env:
-        INPUT_DATA_SOURCE: ${{ inputs.data_source }}
+        INPUT_PROVISION_DATA: ${{ inputs.provision_data }}
         INPUT_QUEUE: ${{ inputs.queue }}
         INPUT_MATCH: ${{ inputs.match || '.*' }}
         INPUT_TEST_PLAN: ${{ inputs.test_plan }}
@@ -46,8 +46,8 @@ runs:
       working-directory: ${{ github.action_path }}/../../../tools/lab_dispatch
       run: |
         echo "::group::Building the testflinger job"
-        if [ -n "$INPUT_DATA_SOURCE" ]; then
-          INPUT_DATA_SOURCE="provision_data: $INPUT_DATA_SOURCE"
+        if [ -n "$INPUT_PROVISION_DATA" ]; then
+          INPUT_PROVISION_DATA="provision_data: $INPUT_PROVISION_DATA"
         fi
         envsubst '$INPUT_CHECKBOX_REVISION $INPUT_PROVISION_DATA $INPUT_QUEUE $INPUT_ZAPPER_CHANNEL' < generic_snap.yaml | tee job.yaml
         echo "::endgroup::"

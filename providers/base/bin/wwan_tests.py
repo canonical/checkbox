@@ -463,11 +463,6 @@ class Resources:
             action="store_true",
             help="Use mmcli for all calls rather than dbus",
         )
-        parser.add_argument(
-            "--iteration",
-            type=int,
-            help="The iteration to print out wwan resource",
-        )
         return parser.parse_args(sys.argv[2:])
 
     def invoked(self):
@@ -477,20 +472,18 @@ class Resources:
         else:
             mm = MMDbus()
 
-        for idx in range(1, args.iteration + 1):
-            for m in mm.get_modem_ids():
-                print("iteration: {}".format(idx))
-                print("mm_id: {}".format(m))
-                print("hw_id: {}".format(mm.get_equipment_id(m)))
-                print("manufacturer: {}".format(mm.get_manufacturer(m)))
-                print("model: {}".format(mm.get_model_name(m)))
-                print(
-                    "firmware_revision: {}".format(mm.get_firmware_revision(m))
-                )
-                print(
-                    "hardware_revision: {}".format(mm.get_hardware_revision(m))
-                )
-                print()
+        for m in mm.get_modem_ids():
+            print("mm_id: {}".format(m))
+            print("hw_id: {}".format(mm.get_equipment_id(m)))
+            print("manufacturer: {}".format(mm.get_manufacturer(m)))
+            print("model: {}".format(mm.get_model_name(m)))
+            print(
+                "firmware_revision: {}".format(mm.get_firmware_revision(m))
+            )
+            print(
+                "hardware_revision: {}".format(mm.get_hardware_revision(m))
+            )
+            print()
 
 
 class SimPresent:

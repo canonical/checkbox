@@ -84,13 +84,7 @@ class TestResources(unittest.TestCase):
         mmcli_instance.get_modem_ids.return_value = ["test"]
         mock_mmcli.return_value = mmcli_instance
 
-        sys.argv = [
-            "wwan_tests.py",
-            "resources",
-            "--use-cli",
-            "--iteration",
-            "1",
-        ]
+        sys.argv = ["wwan_tests.py", "resources", "--use-cli"]
 
         with redirect_stdout(StringIO()):
             wwan_tests.Resources().invoked()
@@ -111,19 +105,19 @@ class TestResources(unittest.TestCase):
         mmdbus_instance.get_modem_ids.return_value = ["test"]
         mock_mmdbus.return_value = mmdbus_instance
 
-        sys.argv = ["wwan_tests.py", "resources", "--iteration", "2"]
+        sys.argv = ["wwan_tests.py", "resources"]
 
         with redirect_stdout(StringIO()):
             wwan_tests.Resources().invoked()
             self.assertEqual(mock_mmdbus.call_count, 1)
-            self.assertEqual(mmdbus_instance.get_equipment_id.call_count, 2)
-            self.assertEqual(mmdbus_instance.get_manufacturer.call_count, 2)
-            self.assertEqual(mmdbus_instance.get_model_name.call_count, 2)
+            self.assertEqual(mmdbus_instance.get_equipment_id.call_count, 1)
+            self.assertEqual(mmdbus_instance.get_manufacturer.call_count, 1)
+            self.assertEqual(mmdbus_instance.get_model_name.call_count, 1)
             self.assertEqual(
-                mmdbus_instance.get_firmware_revision.call_count, 2
+                mmdbus_instance.get_firmware_revision.call_count, 1
             )
             self.assertEqual(
-                mmdbus_instance.get_hardware_revision.call_count, 2
+                mmdbus_instance.get_hardware_revision.call_count, 1
             )
 
 

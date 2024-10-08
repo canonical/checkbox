@@ -29,9 +29,9 @@ requires:
 unit: template
 template-resource: wwan_resource
 template-unit: job
-id: wwan/gsm-connection-{manufacturer}-{model}-{hw_id}-cycle{iteration}-auto
+id: wwan/gsm-connection-{manufacturer}-{model}-{hw_id}-auto
 template-id: wwan/gsm-connection-manufacturer-model-hw_id-auto
-_summary: Verify a GSM broadband modem can create a data connection - iteration #{iteration}
+_summary: Verify a GSM broadband modem can create a data connection
 _template-summary: Verify a GSM broadband modem can create a data connection multiple times
 _purpose:
   Any modems discovered by the resource job that list GSM support
@@ -57,13 +57,18 @@ requires:
   manifest.has_wwan_module == 'True'
   manifest.has_sim_card == 'True'
   snap.name == 'modem-manager' or package.name == 'modemmanager'
+_siblings:
+    [{{
+      "id": "wwan/gsm-reconnection-{manufacturer}-{model}-{hw_id}-auto",
+      "_summary": "Verify a GSM broadband modem can recreate a data connection",
+      "depends": "wwan/gsm-connection-{manufacturer}-{model}-{hw_id}-auto"
+    }}]
 
 unit: template
 template-resource: wwan_resource
 template-unit: job
 id: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 template-id: wwan/check-sim-present-manufacturer-model-hw_id-auto
-template-filter: wwan_resource.iteration == '1'
 _summary:  Check if a SIM card is present in a slot connected to the modem
 _description:
  Check if a SIM card is present in a slot connected to the modem
@@ -85,7 +90,6 @@ template-resource: wwan_resource
 template-unit: job
 id: wwan/verify-sim-info-{manufacturer}-{model}-{hw_id}
 template-id: wwan/verify-sim-info-manufacturer-model-hw_id
-template-filter: wwan_resource.iteration == '1'
 depends: wwan/check-sim-present-{manufacturer}-{model}-{hw_id}-auto
 _summary: Verify that the information retrieved from a SIM card is valid
 _purpose:
@@ -113,7 +117,6 @@ template-resource: wwan_resource
 template-unit: job
 id: wwan/3gpp-scan-{manufacturer}-{model}-{hw_id}-auto
 template-id: wwan/3gpp-scan-manufacturer-model-hw_id-auto
-template-filter: wwan_resource.iteration == '1'
 _summary:  Scan for available 3GPP networks with the modem
 _template-summary: Scan for available 3GPP networks with the {model} modem
 _description:

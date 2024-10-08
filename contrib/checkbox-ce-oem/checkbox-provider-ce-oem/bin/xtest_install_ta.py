@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import look_up_xtest
+from look_up_xtest import look_up_xtest
 from subprocess import run, CalledProcessError
 
 
@@ -52,7 +52,7 @@ def enable_tee_supplicant(tee):
 
 
 def main():
-    xtest = look_up_xtest.main()
+    xtest = look_up_xtest()
     enable_tee_supplicant(xtest["tee"])
     ta_path = find_ta_path()
     install_ta(xtest["xtest"], ta_path)

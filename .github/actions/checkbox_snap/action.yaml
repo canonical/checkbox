@@ -1,0 +1,83 @@
+name: Submit a Checkbox Test plan (or subset of it) to the lab
+inputs:
+  provision_data:
+    description: "Target image and provisioning data (ex. `url:` or `distro:`)"
+    required: false
+    default: null
+  queue:
+    description: "Queue that will run the testing (ex. 202012-28526)"
+    required: true
+  test_plan:
+    description: "Test plan to run (ex. com.canonical.certification::sru)"
+    required: true
+  match:
+    description: "Subset of jobs to run (ex. .*wireless.*)"
+    required: false
+    default: ".*"
+  launcher_override:
+    description: "Launcher with additional values that will take priority over the defaults"
+    default: ""
+    required: false
+  checkbox_revision:
+    description: "Revision of checkbox that has to be provisioned (ex. commit_hash, branch name, can be `beta`)"
+    required: true
+  zapper_channel:
+    description: "Zapper channel to be used, will be ignored if no Zapper (ex. edge, beta, stable)"
+    required: false
+    default: "beta"
+runs:
+  using: composite
+  steps:
+    - uses: actions/checkout@v4
+    - name: Install dependencies
+      shell: bash
+      run: |
+        sudo apt install -y -qq gettext
+    - name: Build test resource
+      shell: bash
+      env:
+        INPUT_DATA_SOURCE: ${{ inputs.data_source }}
+        INPUT_QUEUE: ${{ inputs.queue }}
+        INPUT_MATCH: ${{ inputs.match || '.*' }}
+        INPUT_TEST_PLAN: ${{ inputs.test_plan }}
+        INPUT_LAUNCHER_OVERRIDE: ${{ inputs.launcher_override }}
+        INPUT_CHECKBOX_REVISION: ${{ inputs.checkbox_revision }}
+        INPUT_ZAPPER_CHANNEL: ${{ inputs.zapper_channel || 'beta' }}
+      working-directory: ${{ github.action_path }}/../../../tools/lab_dispatch
+      run: |
+        echo "::group::Building the testflinger job"
+        if [ -n "$INPUT_DATA_SOURCE" ]; then
+          INPUT_DATA_SOURCE="provision_data: $INPUT_DATA_SOURCE"
+        fi
+        envsubst '$INPUT_CHECKBOX_REVISION $INPUT_DATA_SOURCE $INPUT_QUEUE $INPUT_ZAPPER_CHANNEL' < generic_snap.yaml | tee job.yaml
+        echo "::endgroup::"
+
+        echo "::group::Building the Checkbox launcher"
+        # this goes from .template. (missing secret, testplan, match etc. to .partial.)
+        # this is partial as some values are filled in on the agent (like wireless access points names)
+        envsubst '$INPUT_TEST_PLAN $INPUT_MATCH' < resources/checkbox.no-manifest.template.conf | tee resources/checkbox.no-manifest.partial.conf
+        echo "::endgroup::"
+
+        echo "::group::Dumping launcher overrides"
+        echo "$INPUT_LAUNCHER_OVERRIDE" | tee launcher_override.conf
+        echo "::endgroup::"
+    - name: Workaroud cwd
+      shell: bash
+      run: |
+        # this allows us to dispatch the action and the attachments with relative
+        # paths even when called form outside the Checkbox repo
+        action_path=$(realpath ${{ github.action_path }}/../../../tools/)
+        workdir_path=$(realpath tools/)
+        if [ ! -e "$workdir_path" ]; then
+          cp -rT "$action_path" "$workdir_path"
+        fi
+        if [ "$action_path" = "$workdir_path" ]; then
+          echo "Skipping copy as the action is already running in workdir"
+        else
+          cp -rT "$action_path" "$workdir_path"
+        fi
+    - name: Submit and monitor job
+      uses: canonical/testflinger/.github/actions/submit@main
+      with:
+        poll: true
+        job-path: tools/lab_dispatch/job.yaml

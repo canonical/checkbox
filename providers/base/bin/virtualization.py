@@ -819,6 +819,9 @@ class LXDTest:
             if not self.run_command(cmd):
                 logging.error("Failed to pass AMD KFD to instance")
                 return False
+        else:
+            logging.error("Unrecognized GPU vendor %s", gpu_vendor)
+            return False
 
         return True
 
@@ -1208,6 +1211,10 @@ class LXDTest_vm(LXDTest):
             cmd = 'bash -c "{}"'.format("; ".join(cmds))
             if not self.run_command(cmd, on_guest=True):
                 return False
+        else:
+            logging.error("Unrecognized GPU vendor: %s", gpu_vendor)
+            return False
+
         return True
 
     def test(self):

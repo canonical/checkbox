@@ -16,9 +16,8 @@ class ExtendSanpd(Snapd):
 
 def look_up_xtest():
     """Lookup xtest and tee-supplicant apps."""
-    a = ExtendSanpd()
     snap = os.environ.get("XTEST")
-    apps = a.list_apps(snap)
+    apps = ExtendSanpd().list_apps(snap)
     results = {"xtest": None, "tee": None}
     if apps["result"]:
         for app in apps["result"]:

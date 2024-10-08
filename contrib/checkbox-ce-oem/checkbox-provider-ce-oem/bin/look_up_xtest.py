@@ -10,9 +10,8 @@ class ExtendSanpd(Snapd):
     def __init__(self, task_timeout=30, poll_interval=1, verbose=False):
         super().__init__(task_timeout, poll_interval, verbose)
 
-    def list_apps(self):
-        list_apps = self._get(self._apps)["result"]
-        return list_apps
+    def list_apps(self, snaps):
+        return self._get(self._apps, params={"names": snaps})
 
 
 def look_up_apps(apps, snap_name=None):

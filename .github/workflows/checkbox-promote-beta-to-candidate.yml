@@ -14,18 +14,18 @@ jobs:
           #  checkbox_runtime: checkbox16
           #  checkbox_track: uc16
 
-          #- queue: 201712-26047
-          #  provision_data: "distro: focal"
-          #  checkbox_runtime: checkbox20
-          #  checkbox_track: uc20
+          - queue: 201712-26047
+            provision_data: "distro: focal"
+            checkbox_runtime: checkbox20
+            checkbox_track: uc20
 
           #- queue: 201712-26047
           #  provision_data: "distro: bionic"
 
-          - queue: 202203-30061
-            provision_data: "distro: jammy"
-            checkbox_runtime: checkbox22
-            checkbox_track: uc22
+          #- queue: 202203-30061
+          #  provision_data: "distro: jammy"
+          #  checkbox_runtime: checkbox22
+          #  checkbox_track: uc22
 
             #- queue: 202203-30061
           #  provision_data: "distro: jammy"

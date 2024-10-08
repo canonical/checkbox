@@ -59,14 +59,14 @@ jobs:
     - name: Checkout checkbox monorepo
       uses: actions/checkout@v4
 
-    - name: Run the spec
-      uses: canonical/checkbox/.github/actions/checkbox_source_deb@main
+    - name: Run the
+      uses: canonical/checkbox/.github/actions/checkbox_snap@snap_lab_dispatch
       with:
-        provision_data: ${{ matrix.spec.provision_data }}
-        queue: ${{ matrix.spec.queue }}
-        test_plan: ${{ matrix.spec.test_plan }}
-        match: ${{ matrix.spec.match }}
-        zapper_channel: ${{ matrix.spec.zapper_channel }}
+        provision_data: ${{ matrix.provision_data }}
+        queue: ${{ matrix.queue }}
+        test_plan: ${{ matrix.test_plan }}
+        match: ${{ matrix.match }}
+        zapper_channel: ${{ matrix.zapper_channel }}
         launcher_override: |
           [environment]
           WPA_BG_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}

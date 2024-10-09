@@ -13,11 +13,13 @@ jobs:
           #  provision_data: "distro: xenial"
           #  checkbox_runtime_name: checkbox16
           #  checkbox_frontend_track: uc16
+          #  test_plan: "com.canonical.certification::sru-server"
 
           - queue: 201712-26047
             provision_data: "distro: focal"
             checkbox_runtime_name: checkbox20
             checkbox_frontend_track: uc20
+            test_plan: "com.canonical.certification::sru-server"
 
           #- queue: 201712-26047
           #  provision_data: "distro: bionic"
@@ -26,14 +28,16 @@ jobs:
           #  provision_data: "distro: jammy"
           #  checkbox_runtime_name: checkbox22
           #  checkbox_frontend_track: uc22
+          #  test_plan: "com.canonical.certification::sru-server"
 
-            #- queue: 202203-30061
+          #- queue: 202203-30061
           #  provision_data: "distro: jammy"
 
-          #- queue: 202012-28526
-          #  provision_data: "distro: noble"
-          #  checkbox_runtime_name: checkbox24
-          #  checkbox_frontend_track: uc24
+          - queue: 202012-28526
+            provision_data: "distro: desktop-24-04-uefi"
+            checkbox_runtime_name: checkbox24
+            checkbox_frontend_track: "24.04"
+            test_plan: "com.canonical.certification::sru"
 
           #- queue: 202012-28526
           #  provision_data: "distro: noble"
@@ -42,6 +46,7 @@ jobs:
           #  provision_data: "distro: bionic"
           #  checkbox_runtime_name: checkbox18
           #  checkbox_frontend_track: uc18
+          #  test_plan: "com.canonical.certification::sru-server"
 
           #- queue: 202201-29865
           #  provision_data: "distro: focal"
@@ -50,21 +55,23 @@ jobs:
           #   provision_data: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
           #   checkbox_runtime_name: checkbox22
           #   checkbox_frontend_track: uc22
+          #   test_plan: "com.canonical.certification::sru-server"
 
           # - queue: rpi4b
-          #     provision_data: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-armhf+raspi.img.xz"
-          #     checkbox_runtime_name: checkbox22
-          #     checkbox_frontend_track: uc22
+          #   provision_data: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-armhf+raspi.img.xz"
+          #   checkbox_runtime_name: checkbox22
+          #   checkbox_frontend_track: uc22
+          #   test_plan: "com.canonical.certification::sru-server"
     steps:
     - name: Checkout checkbox monorepo
       uses: actions/checkout@v4
 
-    - name: Run the
+    - name: Run the test plan on the machine
       uses: canonical/checkbox/.github/actions/checkbox_snap@snap_lab_dispatch
       with:
         provision_data: ${{ matrix.provision_data }}
         queue: ${{ matrix.queue }}
-        test_plan: "com.canonical.certification::sru"
+        test_plan: ${{ matrix.test_plan }}
         launcher_override: |
           [environment]
           WPA_BG_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}

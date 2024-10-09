@@ -707,6 +707,19 @@ class WifiClientTestNetplanTests(TestCase):
 
     @patch(
         "wifi_client_test_netplan.get_interface_info",
+        return_value={"gateway": "192.168.1.1.100 (TP-Link 123)"},
+    )
+    def test_gateway_ip_not_valid(self, mock_get_interface_info):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        result = get_gateway("wlan0", "networkd")
+        sys.stdout = sys.__stdout__
+        self.assertEqual(result, "")
+        mock_get_interface_info.assert_called_once_with("wlan0", "networkd")
+        self.assertIn("Got gateway address: ", captured_output.getvalue())
+
+    @patch(
+        "wifi_client_test_netplan.get_interface_info",
         return_value={"gateway": ""},
     )
     def test_gateway_empty_string(self, mock_get_interface_info):

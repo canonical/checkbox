@@ -82,6 +82,7 @@ jobs:
           - queue: 202201-29865
             provision_data: "distro: focal"
             ppa: beta
+    steps:
     - name: Run the test plan on the machine
       uses: canonical/checkbox/.github/actions/checkbox_deb@snap_lab_dispatch
       with:

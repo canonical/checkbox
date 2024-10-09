@@ -36,7 +36,7 @@ test_data:
 
     wait_for_ssh --allow-degraded
 
-    install_checkbox_snaps beta
+    install_checkbox_snaps $RISK $RUNTIME_NAME $FRONTEND_NAME $FRONTEND_TRACK
 
     # retrieve manifest
     RESOURCES_PATH=attachments/test/resources

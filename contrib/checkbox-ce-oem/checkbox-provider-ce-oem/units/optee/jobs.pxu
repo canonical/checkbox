@@ -19,51 +19,15 @@ command:
       exit 1
     fi
 
-id: ce-oem-optee/xtest-check
-category_id: optee
-_summary: Check if xtest is in the system.
-plugin: shell
-user: root
-estimated_duration: 20.0
-command:
-    tool=$(look_up_xtest.py)
-    exit_status=$?
-    if [[ "$exit_status" -eq 0 ]]; then
-        echo "Info: Found xtest runnable $tool"
-    else
-        echo "Error: Not able to found xtest runnable tool"
-        exit 1
-    fi
-depends: ce-oem-optee/device-node
-
 id: ce-oem-optee/ta-install
 category_id: optee
 _summary: Install Trusted Applications for xtest
 plugin: shell
 user: root
 estimated_duration: 20.0
-depends: ce-oem-optee/xtest-check
-command:
-    tool=$(look_up_xtest.py)
-    ta_path=""
-    if [[ "$tool" == "x-test.xtest" ]]; then
-        ta_path="$(find /var/snap -wholename '*/lib/optee_armtz')"
-    else
-        gadget=$(awk -F"." '{ print $1}' <<< "$tool")
-        ta_path="/snap/$gadget/current/lib/optee_armtz/"
-    fi
-    if [[ -z "$(find "$ta_path" -mindepth 1 -type f -o -type d)" ]]; then
-        echo -e "\nError: Not able to find TA!"
-        exit 1
-    else
-        echo -e '\nAttempting to install TA ...'
-        if ! "$tool" --install-ta "$ta_path"; then
-            echo -e '\nError: TA installed FAIL!'
-            exit 1
-        else
-            echo -e '\nInfo: TA installed SUCCESS!'
-        fi
-    fi
+environ: XTEST
+depends: ce-oem-optee/device-node
+command: xtest_install_ta.py
 
 id: ce-oem-optee-test-list
 estimated_duration: 1
@@ -122,7 +86,7 @@ plugin: shell
 user: root
 category_id: optee
 estimated_duration: 30
-depends: ce-oem-optee/xtest-check
+depends: ce-oem-optee/device-node
 flags: also-after-suspend
 command:
     {{ tool }} -t {{ suite }} {{ test_id }}

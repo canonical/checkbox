@@ -1,4 +1,3 @@
-name: Submit a Checkbox Test plan (or subset of it) to the lab
 inputs:
   provision_data:
     description: "Target image and provisioning data (ex. `url:` or `distro:`)"
@@ -18,13 +17,22 @@ inputs:
     description: "Launcher with additional values that will take priority over the defaults"
     default: ""
     required: false
-  checkbox_revision:
-    description: "Revision of checkbox that has to be provisioned (ex. commit_hash, branch name, can be `beta`)"
-    required: true
   zapper_channel:
     description: "Zapper channel to be used, will be ignored if no Zapper (ex. edge, beta, stable)"
     required: false
     default: "beta"
+  checkbox_risk:
+    description: "Risk of the Checkbox snaps to install on the DUT (ex. edge, beta, stable)"
+    required: true
+  checkbox_frontend_name:
+    description: "Name of the Checkbox frontend snap to install on the DUT (ex. checkbox[-project])"
+    required: true
+  checkbox_frontend_track:
+    description: "Track of the Checkbox frontend snap to install on the DUT (ex. uc24, 22.04)"
+    required: true
+  checkbox_runtime_name:
+    description: "Name of the Checkbox runtime snap to install on the DUT (ex. checkbox24)"
+    required: true
 runs:
   using: composite
   steps:
@@ -38,18 +46,29 @@ runs:
       env:
         INPUT_PROVISION_DATA: ${{ inputs.provision_data }}
         INPUT_QUEUE: ${{ inputs.queue }}
-        INPUT_MATCH: ${{ inputs.match || '.*' }}
         INPUT_TEST_PLAN: ${{ inputs.test_plan }}
+        INPUT_MATCH: ${{ inputs.match || '.*' }}
         INPUT_LAUNCHER_OVERRIDE: ${{ inputs.launcher_override }}
-        INPUT_CHECKBOX_REVISION: ${{ inputs.checkbox_revision }}
         INPUT_ZAPPER_CHANNEL: ${{ inputs.zapper_channel || 'beta' }}
+        INPUT_CHECKBOX_RISK: ${{ inputs.checkbox_risk }}
+        INPUT_CHECKBOX_FRONTEND_NAME: ${{ inputs.checkbox_frontend_name }}
+        INPUT_CHECKBOX_FRONTEND_TRACK: ${{ inputs.checkbox_frontend_track }}
+        INPUT_CHECKBOX_RUNTIME_NAME: ${{ inputs.checkbox_runtime_name }}
       working-directory: ${{ github.action_path }}/../../../tools/lab_dispatch
       run: |
         echo "::group::Building the testflinger job"
         if [ -n "$INPUT_PROVISION_DATA" ]; then
           INPUT_PROVISION_DATA="provision_data: { $INPUT_PROVISION_DATA }"
         fi
-        envsubst '$INPUT_CHECKBOX_REVISION $INPUT_PROVISION_DATA $INPUT_QUEUE $INPUT_ZAPPER_CHANNEL' < generic_snap.yaml | tee job.yaml
+        envsubst '
+          $INPUT_QUEUE
+          $INPUT_PROVISION_DATA
+          $INPUT_RISK
+          $INPUT_CHECKBOX_RUNTIME_NAME
+          $INPUT_CHECKBOX_FRONTEND_NAME
+          $INPUT_CHECKBOX_FRONTEND_TRACK
+          $INPUT_ZAPPER_CHANNEL
+        ' < generic_snap.yaml | tee job.yaml
         echo "::endgroup::"
 
         echo "::group::Building the Checkbox launcher"

@@ -22,8 +22,10 @@ def find_ta_path():
     if not ta_folder:
         raise SystemError("Not able to find TA in the system!")
     elif len(ta_folder) > 1:
-        raise SystemError("Found multiple TA sources."
-                          "Please make sure only one exist in the system!")
+        raise SystemError(
+            "Found multiple TA sources."
+            "Please make sure only one exist in the system!"
+        )
     return ta_folder[0]
 
 

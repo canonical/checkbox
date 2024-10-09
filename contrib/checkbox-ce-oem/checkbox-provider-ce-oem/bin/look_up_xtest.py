@@ -19,11 +19,13 @@ def look_up_xtest():
     snap = os.environ.get("XTEST")
     apps = ExtendSanpd().list_apps(snap)
     results = {"xtest": None, "tee-supplicant": None}
-    xtest_apps = list({
-        (app["snap"], app["name"])
-        for app in apps["result"]
-        if app["name"] in ["tee-supplicant", "xtest"]
-    })
+    xtest_apps = list(
+        {
+            (app["snap"], app["name"])
+            for app in apps["result"]
+            if app["name"] in ["tee-supplicant", "xtest"]
+        }
+    )
     if xtest_apps:
         if (
             len(xtest_apps) > 2

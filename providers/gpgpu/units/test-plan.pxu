@@ -17,3 +17,14 @@ include:
     gpgpu/vector-add-drv
     gpgpu/device-query-drv
     gpgpu/simple-texture-drv
+
+id: gpgpu-virtualisation
+unit: test plan
+_name: GPGPU Virtualisation Testing
+_description:
+ Automated Tests for GPGPU Passthrough (non-graphical)
+include:
+    gpgpu/lxd-nvidia-gpu-passthrough-index
+    gpgpu/lxdvm-nvidia-gpu-passthrough-index
+bootstrap_include:
+    graphics_card

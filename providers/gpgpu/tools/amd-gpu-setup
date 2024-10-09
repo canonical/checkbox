@@ -63,5 +63,9 @@ sudo apt-get -q update
 echo "*  Installing necessary pacakges"
 sudo apt-get -q install -y rocblas rocm-smi-lib rocm-validation-suite
 
+# Add user to render group
+echo "*  Adding $USER to render group"
+sudo usermod -aG render $USER
+
 echo "*"
 echo "*  Completed installation."

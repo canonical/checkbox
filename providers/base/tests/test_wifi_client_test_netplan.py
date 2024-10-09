@@ -443,11 +443,12 @@ class WifiClientTestNetplanTests(TestCase):
         info = get_interface_info(interface, renderer)
         self.assertEqual(info["state"], "routable")
         self.assertEqual(info["gateway"], "192.168.1.1")
-    
+
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_any_name(self, mock_check_output):
         mock_check_output.return_value = (
-            b"State: routable\nGateway: 192.168.1.1 (TP-Link 123)\nPath: pci-0000:02:00.0"
+            b"State: routable\nGateway: 192.168.1.1 (TP-Link 123)\n"
+            b"Path: pci-0000:02:00.0"
         )
         interface = "wlan0"
         renderer = "networkd"

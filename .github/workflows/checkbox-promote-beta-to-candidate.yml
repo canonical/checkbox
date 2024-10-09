@@ -3,65 +3,64 @@ on:
     workflow_dispatch:
 
 jobs:
-  checkbox-promotion-beta-to-candidate-test-snaps:
-    if: ${{ false }}
-    runs-on: [self-hosted, testflinger]
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - queue: 201712-26047
-            provision_data: "distro: xenial"
-            checkbox_runtime_name: checkbox16
-            checkbox_frontend_track: uc16
-
-          - queue: 201712-26047
-            provision_data: "distro: focal"
-            checkbox_runtime_name: checkbox20
-            checkbox_frontend_track: uc20
-
-          - queue: 202203-30061
-            provision_data: "distro: jammy"
-            checkbox_runtime_name: checkbox22
-            checkbox_frontend_track: uc22
-
-          - queue: 202012-28526
-            provision_data: "distro: desktop-24-04-uefi"
-            checkbox_runtime_name: checkbox24
-            checkbox_frontend_track: "24.04"
-
-          - queue: 202201-29865
-            provision_data: "distro: bionic"
-            checkbox_runtime_name: checkbox18
-            checkbox_frontend_track: uc18
-
-           - queue: rpi4b
-             provision_data: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
-             checkbox_runtime_name: checkbox22
-             checkbox_frontend_track: uc22
-
-           - queue: rpi4b
-             provision_data: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-armhf+raspi.img.xz"
-             checkbox_runtime_name: checkbox22
-             checkbox_frontend_track: uc22
-    steps:
-    - name: Run the test plan on the machine
-      uses: canonical/checkbox/.github/actions/checkbox_snap@snap_lab_dispatch
-      with:
-        provision_data: ${{ matrix.provision_data }}
-        queue: ${{ matrix.queue }}
-        test_plan: "com.canonical.certification::canary"
-        launcher_override: |
-          [environment]
-          WPA_BG_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
-          WPA_N_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
-          WPA_AC_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
-          WPA_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
-          WPA3_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
-        checkbox_risk: beta
-        checkbox_frontend_name: checkbox
-        checkbox_runtime_name: ${{ matrix.checkbox_runtime_name }}
-        checkbox_frontend_track: ${{ matrix.checkbox_frontend_track }}
+  #  checkbox-promotion-beta-to-candidate-test-snaps:
+  #    runs-on: [self-hosted, testflinger]
+  #    strategy:
+  #      fail-fast: false
+  #      matrix:
+  #        include:
+  #          - queue: 201712-26047
+  #            provision_data: "distro: xenial"
+  #            checkbox_runtime_name: checkbox16
+  #            checkbox_frontend_track: uc16
+  #
+  #          - queue: 201712-26047
+  #            provision_data: "distro: focal"
+  #            checkbox_runtime_name: checkbox20
+  #            checkbox_frontend_track: uc20
+  #
+  #          - queue: 202203-30061
+  #            provision_data: "distro: jammy"
+  #            checkbox_runtime_name: checkbox22
+  #            checkbox_frontend_track: uc22
+  #
+  #          - queue: 202012-28526
+  #            provision_data: "distro: desktop-24-04-uefi"
+  #            checkbox_runtime_name: checkbox24
+  #            checkbox_frontend_track: "24.04"
+  #
+  #          - queue: 202201-29865
+  #            provision_data: "distro: bionic"
+  #            checkbox_runtime_name: checkbox18
+  #            checkbox_frontend_track: uc18
+  #
+  #           - queue: rpi4b
+  #             provision_data: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-arm64+raspi.img.xz"
+  #             checkbox_runtime_name: checkbox22
+  #             checkbox_frontend_track: uc22
+  #
+  #           - queue: rpi4b
+  #             provision_data: "url: http://cdimage.ubuntu.com/ubuntu-core/22/dangerous-stable/current/ubuntu-core-22-armhf+raspi.img.xz"
+  #             checkbox_runtime_name: checkbox22
+  #             checkbox_frontend_track: uc22
+  #    steps:
+  #    - name: Run the test plan on the machine
+  #      uses: canonical/checkbox/.github/actions/checkbox_snap@snap_lab_dispatch
+  #      with:
+  #        provision_data: ${{ matrix.provision_data }}
+  #        queue: ${{ matrix.queue }}
+  #        test_plan: "com.canonical.certification::canary"
+  #        launcher_override: |
+  #          [environment]
+  #          WPA_BG_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+  #          WPA_N_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+  #          WPA_AC_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+  #          WPA_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+  #          WPA3_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+  #        checkbox_risk: beta
+  #        checkbox_frontend_name: checkbox
+  #        checkbox_runtime_name: ${{ matrix.checkbox_runtime_name }}
+  #        checkbox_frontend_track: ${{ matrix.checkbox_frontend_track }}
   checkbox-promotion-beta-to-candidate-test-debs:
     runs-on: [self-hosted, testflinger]
     strategy:

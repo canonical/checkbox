@@ -23,20 +23,28 @@ from lightglue import viz2d
 import torch
 import time
 
+laptop_list = [
+    ["202112-29762", "10.102.161.49", "202312-33778", "10.102.241.49"],
+    ["202212-30926", "10.102.153.67", "202312-33777", "10.102.233.67"],
+    ["202212-30951", "10.102.153.31", "202312-33775", "10.102.233.31"],
+    ["202304-31460", "10.102.153.97", "202312-33772", "10.102.233.97"],
+    ["202210-30711", "10.102.152.245", "202312-33770", "10.102.232.245"],
+    ["202212-30908", "10.102.152.225", "202312-33769", "10.102.232.225"],
+    ["202301-31119", "10.102.154.125", "202312-33765", "10.102.234.125"],
+]
+
 
 screen_size = (1920, 1080)
 
 torch.set_grad_enabled(False)
-device = torch.device(
-    "cuda" if torch.cuda.is_available() else "cpu"
-)  # 'mps', 'cpu'
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 extractor = (
     SuperPoint(max_num_keypoints=2048).eval().to(device)
 )  # load the extractor
 matcher = LightGlue(features="superpoint").eval().to(device)
 
 
-def get_homography_matrix(ref, capture, show_result=False):
+def get_homography_matrix(ref, capture, name, show_result=False):
 
     img_tensor_0 = numpy_image_to_torch(ref)
     img_tensor_1 = numpy_image_to_torch(capture)
@@ -62,17 +70,20 @@ def get_homography_matrix(ref, capture, show_result=False):
 
     H, mask = cv2.findHomography(kpts1, kpts0, cv2.USAC_MAGSAC, 5.0)
 
+    # Use the homography matrix to warp the result image
+    result = cv2.warpPerspective(capture, H, ref.shape[1::-1])
+    # Display the result
+    fig, ax = plt.subplots(1, 3, figsize=(20, 5))
+    ax[0].imshow(ref)
+    ax[0].set_title("Image 0")
+    ax[1].imshow(result)
+    ax[1].set_title("Image 0 warped")
+    ax[2].imshow(capture)
+    ax[2].set_title("Image 1")
+
+    plt.tight_layout()
+    plt.savefig(f"images/{name}.jpg")
     if show_result:
-        # Use the homography matrix to warp the result image
-        result = cv2.warpPerspective(capture, H, ref.shape[1::-1])
-        # Display the result
-        fig, ax = plt.subplots(1, 3, figsize=(20, 5))
-        ax[0].imshow(ref)
-        ax[0].set_title("Image 0")
-        ax[1].imshow(result)
-        ax[1].set_title("Image 0 warped")
-        ax[2].imshow(capture)
-        ax[2].set_title("Image 1")
         plt.show()
 
     return H
@@ -81,6 +92,7 @@ def get_homography_matrix(ref, capture, show_result=False):
 def compare_two_images(
     reference,
     template,
+    name="",
     show_result=False,
     threshold=0.8,
     method=cv2.TM_CCORR_NORMED,
@@ -117,20 +129,23 @@ def compare_two_images(
     else:
         match_text = f"No Match (val: {match_val:.2f})"
 
+    # Plot matching result
+    axs[0].imshow(template, cmap="gray")
+    axs[0].set_title("Template")
+    axs[0].set_xticks([]), axs[0].set_yticks([])
+
+    # Plot detected point (only top left corner of the image)
+    top_left_corner = img2.copy()[: screen_size[1], : screen_size[0]]
+    axs[1].imshow(top_left_corner, cmap="gray")
+    axs[1].set_title(f"Detected Point ({match_text})")
+    axs[1].set_xticks([]), axs[1].set_yticks([])
+
+    # Adjust layout and display the plot
+    plt.tight_layout()
+    # Save the plot
+    plt.savefig(f"images/{name}.jpg")
+
     if show_result:
-        # Plot matching result
-        axs[0].imshow(template, cmap="gray")
-        axs[0].set_title("Template")
-        axs[0].set_xticks([]), axs[0].set_yticks([])
-
-        # Plot detected point (only top left corner of the image)
-        top_left_corner = img2.copy()[: screen_size[1], : screen_size[0]]
-        axs[1].imshow(top_left_corner, cmap="gray")
-        axs[1].set_title(f"Detected Point ({match_text})")
-        axs[1].set_xticks([]), axs[1].set_yticks([])
-
-        # Adjust layout and display the plot
-        plt.tight_layout()
         plt.show()
 
     # print the center of the rectangle
@@ -159,13 +174,13 @@ Do nothing
         x = position[0] / 4
         y = position[1] / 4
 
-        # round the values
-        x = int(round(x))
-        y = int(round(y))
     else:
-        x = position[0]
-        y = position[1]
+        x = position[0] / 2
+        y = position[1] / 2
 
+    # round the values
+    x = int(round(x))
+    y = int(round(y))
     print(x)
     print(y)
 
@@ -187,7 +202,16 @@ Click in the middle of the screen
 
 def start_calculator(device_ip):
     p = subprocess.Popen(
-        ["ssh", f"ubuntu@{device_ip}", "DISPLAY=:0", "gnome-calculator"]
+        [
+            "ssh",
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "UserKnownHostsFile=/dev/null",
+            f"ubuntu@{device_ip}",
+            "DISPLAY=:0",
+            "gnome-calculator",
+        ]
     )
     time.sleep(10)
     return p
@@ -195,14 +219,34 @@ def start_calculator(device_ip):
 
 def stop_calcualtor(device_ip):
     subprocess.run(
-        ["ssh", f"ubuntu@{device_ip}", "pkill", "-f", "gnome-calculator"],
+        [
+            "ssh",
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "UserKnownHostsFile=/dev/null",
+            f"ubuntu@{device_ip}",
+            "pkill",
+            "-f",
+            "gnome-calculator",
+        ],
         check=True,
     )
 
 
 def get_screen_size(device_ip):
     output = subprocess.check_output(
-        ["ssh", f"ubuntu@{device_ip}", "DISPLAY=:0", "xrandr"], text=True
+        [
+            "ssh",
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "UserKnownHostsFile=/dev/null",
+            f"ubuntu@{device_ip}",
+            "DISPLAY=:0",
+            "xrandr",
+        ],
+        text=True,
     )
     for line in output.split("\n"):
         if "*" in line:
@@ -213,9 +257,27 @@ def get_screen_size(device_ip):
 
 
 def get_screenshot(device_ip):
+
     subprocess.run(
         [
             "ssh",
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "UserKnownHostsFile=/dev/null",
+            f"ubuntu@{device_ip}",
+            "sudo apt install -y gnome-screenshot",
+        ],
+        check=True,
+    )
+
+    subprocess.run(
+        [
+            "ssh",
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "UserKnownHostsFile=/dev/null",
             f"ubuntu@{device_ip}",
             "DISPLAY=:0",
             "gnome-screenshot -f /tmp/screenshot.png",
@@ -227,6 +289,10 @@ def get_screenshot(device_ip):
     subprocess.run(
         [
             "scp",
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "UserKnownHostsFile=/dev/null",
             f"ubuntu@{device_ip}:/tmp/screenshot.png",
             "/tmp/screenshot.png",
         ],
@@ -253,71 +319,151 @@ def capture_image(zapper_ip):
     return img
 
 
+def start_zapper_camera(zapper_ip):
+    subprocess.run(
+        [
+            "sshpass",
+            "-p",
+            "insecure",
+            "ssh",
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "UserKnownHostsFile=/dev/null",
+            f"ubuntu@{zapper_ip}",
+            "zapper",
+            "ustreamer",
+            "start",
+            "camera",
+            "--resolution",
+            "1920x1080",
+            "--quality",
+            "100",
+        ],
+        check=True,
+    )
+
+
+def stop_zapper_camera(zapper_ip):
+    subprocess.run(
+        [
+            "sshpass",
+            "-p",
+            "insecure",
+            "ssh",
+            "-o",
+            "StrictHostKeyChecking=no",
+            "-o",
+            "UserKnownHostsFile=/dev/null",
+            f"ubuntu@{zapper_ip}",
+            "zapper",
+            "ustreamer",
+            "stop",
+            "camera",
+        ],
+        check=True,
+    )
+
+
 if __name__ == "__main__":
-    zapper_ip = sys.argv[1]
-    device_ip = sys.argv[2]
 
-    # desktop = cv2.imread("images/screenshot_desktop.png")
-    # capture = cv2.imread("images/capture_desktop.jpg")
-    # calc_top_raw = cv2.imread("images/snapshot_calc_top.jpg")
-    # calc_top_result_raw = cv2.imread("images/snapshot_calc_top_result.jpg")
+    for laptop in laptop_list:
+        try:
+            device_id = laptop[0]
+            device_ip = laptop[1]
+            zapper_id = laptop[2]
+            zapper_ip = laptop[3]
+            # Create a dir for the device
+            subprocess.run(["mkdir", "-p", f"images/{device_id}"], check=True)
 
-    # desktop = cv2.imread(
-    #     "/home/fernando/Canonical/image_matching/desktop_37.png"
-    # )
-    # capture = cv2.imread(
-    #     "/home/fernando/Canonical/image_matching/desktop_37_real.jpg"
-    # )
-    # calc_top_raw = cv2.imread(
-    #     "/home/fernando/Canonical/image_matching/desktop_37_calc.jpg"
-    # )
-    # calc_top_result_raw = cv2.imread(
-    #     "/home/fernando/Canonical/image_matching/desktop_37_result.jpg"
-    # )
+            # Get the screen size
+            screen_size = get_screen_size(device_ip)
+            print("screen_size: ", screen_size)
 
-    screen_size = get_screen_size(device_ip)
-    screenshot = get_screenshot(device_ip)
+            # Put the cursor in the middle
+            middle = (screen_size[0] // 2, screen_size[1] // 2)
+            click_position(zapper_ip, middle, screen_size)
 
-    capture = capture_image(zapper_ip)
+            # Get the screenshot
+            start_zapper_camera(zapper_ip)
+            screenshot = get_screenshot(device_ip)
+            cv2.imwrite(f"images/{device_id}/screenshot.png", screenshot)
 
-    # Get the homography matrix
-    H = get_homography_matrix(screenshot, capture, True)
-    # H = np.array(
-    #     [
-    #         [2.3497401216403873, 0.32739839205407256, -430.2644530168988],
-    #         [-0.03441855074237415, 2.574459827018083, -240.52384223791717],
-    #         [-0.000004170753263481942, 0.00015643521128339517, 1],
-    #     ]
-    # )
+            # Get the capture
+            capture = capture_image(zapper_ip)
+            cv2.imwrite(
+                f"images/{device_id}/snapshot_desktop_raw.jpg", capture
+            )
 
-    # Start the calculator
-    p = start_calculator(device_ip)
+            # Get the homography matrix
+            H = get_homography_matrix(
+                screenshot, capture, f"{device_id}/homography"
+            )
 
-    calc_top_raw = capture_image(zapper_ip)
-    calc_top = cv2.warpPerspective(calc_top_raw, H, screen_size)
-    cv2.imwrite("images/snapshot_calc_wrapped.jpg", calc_top)
+            # Start the calculator
+            p = start_calculator(device_ip)
 
-    number_2 = cv2.imread("images/number_2.jpg")
-    plus = cv2.imread("images/plus.jpg")
-    equal = cv2.imread("images/equal.jpg")
+            calc_top_raw = capture_image(zapper_ip)
+            cv2.imwrite(
+                f"images/{device_id}/snapshot_calc_top_raw.jpg", calc_top_raw
+            )
 
-    number_2_pos = compare_two_images(calc_top, number_2, True)
-    plus_pos = compare_two_images(calc_top, plus, True)
-    equal_pos = compare_two_images(calc_top, equal, True)
+            calc_top = cv2.warpPerspective(calc_top_raw, H, screen_size)
+            cv2.imwrite(
+                f"images/{device_id}/snapshot_calc_wrapped.jpg", calc_top
+            )
 
-    click_position(zapper_ip, number_2_pos)
-    click_position(zapper_ip, plus_pos)
-    click_position(zapper_ip, number_2_pos)
-    click_position(zapper_ip, equal_pos)
+            number_2 = cv2.imread("images/number_2.jpg")
+            plus = cv2.imread("images/plus.jpg")
+            equal = cv2.imread("images/equal.jpg")
+            sum_result = cv2.imread("images/sum_result.jpg")
 
-    calc_top_result_raw = capture_image(zapper_ip)
-    calc_top_result = cv2.warpPerspective(calc_top_result_raw, H, screen_size)
-    cv2.imwrite("images/snapshot_result_wrapped.jpg", calc_top_result)
+            if screen_size != (3456, 2160):
+                number_2 = cv2.resize(number_2, None, fx=0.5, fy=0.5)
+                plus = cv2.resize(plus, None, fx=0.5, fy=0.5)
+                equal = cv2.resize(equal, None, fx=0.5, fy=0.5)
+                sum_result = cv2.resize(sum_result, None, fx=0.5, fy=0.5)
 
-    result = cv2.imread("images/result.jpg")
-    result_pos = compare_two_images(calc_top_result, result, True)
+            number_2_pos = compare_two_images(
+                calc_top, number_2, f"{device_id}/number_2"
+            )
+            plus_pos = compare_two_images(calc_top, plus, f"{device_id}/plus")
+            equal_pos = compare_two_images(
+                calc_top, equal, f"{device_id}/equal"
+            )
 
-    stop_calcualtor(device_ip)
+            click_position(zapper_ip, number_2_pos, screen_size)
+            click_position(zapper_ip, plus_pos, screen_size)
+            click_position(zapper_ip, number_2_pos, screen_size)
+            click_position(zapper_ip, equal_pos, screen_size)
 
-    if result_pos:
-        print("Test passed")
+            result_raw = capture_image(zapper_ip)
+            cv2.imwrite(
+                f"images/{device_id}/snapshot_result_raw.jpg", result_raw
+            )
+
+            result = cv2.warpPerspective(result_raw, H, screen_size)
+            cv2.imwrite(
+                f"images/{device_id}/snapshot_result_wrapped.jpg", result
+            )
+
+            result_pos = compare_two_images(
+                result, sum_result, f"{device_id}/sum_result"
+            )
+
+            stop_calcualtor(device_ip)
+            stop_zapper_camera(zapper_ip)
+
+            if result_pos:
+                print("Test passed")
+                # Write the test result
+                with open(f"images/{device_id}/test_result.txt", "a") as f:
+                    f.write(f"{device_id} passed\n")
+        except:
+            print("Test failed")
+            # Write the test result
+            with open(f"images/{device_id}/test_result.txt", "a") as f:
+                f.write(f"{device_id} failed\n")
+            stop_calcualtor(device_ip)
+            stop_zapper_camera(zapper_ip)
+            continue

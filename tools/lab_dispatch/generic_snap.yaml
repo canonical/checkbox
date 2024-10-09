@@ -22,6 +22,8 @@ test_data:
     FRONTEND_NAME=$INPUT_CHECKBOX_FRONTEND_NAME
     FRONTEND_TRACK=$INPUT_CHECKBOX_FRONTEND_TRACK
 
+    RESOURCES_PATH="attachments/test"
+
     export TOOLS_PATH=tools
 
     # retrieve all scripts/tools necessary from a repo
@@ -39,7 +41,6 @@ test_data:
     install_checkbox_snaps $RISK $RUNTIME_NAME $FRONTEND_NAME $FRONTEND_TRACK
 
     # retrieve manifest
-    RESOURCES_PATH=attachments/test/resources
     MANIFEST_FILE=manifest.conf
     set +e
     fetch_manifest --manifest_file manifest.conf $CID $HEXR_DEVICE_SECURE_ID

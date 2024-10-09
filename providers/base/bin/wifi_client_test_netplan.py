@@ -339,8 +339,8 @@ def get_gateway(interface, renderer):
     info = get_interface_info(interface, renderer)
     gateway = info.get("gateway")
     validated_gateway = _validate_gateway_ip(gateway)
-    print(f"Got gateway address: {gateway}")
-    print(f"Validated gateway address: {validated_gateway}")
+    print("Got gateway address: {}".format(gateway))
+    print("Validated gateway address: {}".format(validated_gateway))
     return validated_gateway
 
 

@@ -149,6 +149,8 @@ class GstResources:
         # Iterate through each encoder plugin configuration
         for item in scenario_data:
             encoder_plugin = item.get("encoder_plugin")
+            if not encoder_plugin:
+                continue
             mux_list = item.get("mux", [])
             color_spaces = item.get("color_spaces", [])
             resolutions = item.get("resolutions", [])

@@ -83,11 +83,11 @@ template-filter:
     video_codec_resource.scenario == "gst_encoder_psnr"
     ( video_codec_resource.platform == "genio-350" or video_codec_resource.platform == "genio-510" or video_codec_resource.platform == "genio-700" or video_codec_resource.platform == "genio-1200" )
 template-unit: job
-template-id: ce-oem-video-codec/gst_encoder_psnr
-_template-summary: To check if the PSNR
+template-id: ce-oem-video-codec/genio-gst_encoder_psnr
+_template-summary: Verify the PSNR ratio meets requirement for specific encoder on Genio platform
 id: ce-oem-video-codec/{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}-{{ mux }}
-_summary: Encoder PSNR - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}-{{ mux }}
-_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold
+_summary: Encoder PSNR - Genio - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}-{{ mux }}
+_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on Genio platform
 plugin: shell
 category_id: video-codec
 estimated_duration: 60s

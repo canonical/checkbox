@@ -408,29 +408,16 @@ class GenioProject(BaseHandler):
     """
 
     def __init__(self, **kwargs):
-        """
-        Initialize the project with a platform and a codec.
-
-        Args:
-            platform (str): The platform name (e.g., 'Platform A').
-            codec (str): The codec name (e.g., 'v4l2h264enc').
-        """
         super().__init__(**kwargs)
         self._codec_parser_map = {
             "v4l2h264enc": "h264parse",
             "v4l2h265enc": "h265parse",
         }
-        self._base_pipeline = (
-            "{} filesrc location={} ! decodebin ! videoconvert !"
-            " video/x-raw,format={} ! {}"
-        ).format(
-            GST_LAUNCH_BIN,
-            self._golden_sample,
-            self._color_space,
-            self._codec,
-        )
 
     def _264_265_command_builder(self) -> str:
+        """
+        Build gstreamer pipeline for H264 and H265 encoder
+        """
         base_pipeline = (
             "{} filesrc location={} ! decodebin ! videoconvert !"
             " video/x-raw,format={} ! {}"
@@ -463,6 +450,9 @@ class GenioProject(BaseHandler):
         return final_pipeline
 
     def _v4l2jpegenc_command_builder(self) -> str:
+        """
+        Build gstreamer pipeline for JPEG encoder
+        """
         if self._platform == "genio-350":
             raise SystemExit(
                 "Genio 350 platform doesn't support v4l2jpegenc codec"

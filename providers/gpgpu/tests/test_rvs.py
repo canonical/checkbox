@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 import io
-import itertools
 from pathlib import Path
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
@@ -78,7 +77,7 @@ class TestMain(TestCase):
 
     @patch.object(ModuleRunner, "run", lambda self, _: 0)
     @patch(
-        "rvs.parse_args", return_value=MagicMock(log_level=0, modules=["gpup"])
+        "rvs.parse_args", return_value=MagicMock(log_level=0, module="gpup")
     )
     def test_main_successful(self, logging_mock, parse_args_mock):
         ret = main()
@@ -86,7 +85,7 @@ class TestMain(TestCase):
 
     @patch.object(ModuleRunner, "run", lambda self, _: 1)
     @patch(
-        "rvs.parse_args", return_value=MagicMock(log_level=0, modules=["gpup"])
+        "rvs.parse_args", return_value=MagicMock(log_level=0, module="gpup")
     )
     def test_main_failure(self, logging_mock, parse_args_mock):
         ret = main()

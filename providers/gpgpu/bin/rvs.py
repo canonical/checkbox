@@ -148,11 +148,12 @@ def parse_args():
         description="ROCm Validation Suite wrapper"
     )
     parser.add_argument(
-        "modules",
+        "module",
         metavar="MOD",
-        nargs="*",
+        nargs="?",
         type=str,
-        help="RVS modules to run",
+        choices=RVS_MODULES.keys(),
+        help="RVS module to run [{}]".format(", ".join(RVS_MODULES.keys())),
     )
     parser.add_argument(
         "-l",
@@ -189,14 +190,14 @@ def parse_args():
 
     if args.list_modules:
         parser.exit(
-            message="Modules supported: {}".format(" ".join(RVS_MODULES))
+            message="Modules supported: {}\n".format(" ".join(RVS_MODULES))
         )
-    elif not args.modules:
-        parser.error("--list-modules or modules required")
-    elif any(m not in RVS_MODULES for m in args.modules):
+    elif not args.module:
+        parser.error("--list-modules or module required")
+    elif args.module not in RVS_MODULES:
         parser.error(
-            "Invalid module provided (choose from {})".format(
-                ", ".join(RVS_MODULES)
+            "Invalid module {} provided (choose from {})".format(
+                args.module, ", ".join(RVS_MODULES)
             )
         )
     return args
@@ -207,13 +208,12 @@ def main():
     args = parse_args()
     logging.basicConfig(level=args.log_level)
 
-    logging.debug("Modules to run: %s", ", ".join(args.modules))
-    for module in args.modules:
-        runner = RVS_MODULES[module](args.rvs, args.config_dir)
-        ret = runner.run(module)
-        if ret != 0:
-            logging.error("Result: FAIL")
-            return 1
+    logging.debug("Module to run: %s", args.module)
+    runner = RVS_MODULES[args.module](args.rvs, args.config_dir)
+    ret = runner.run(args.module)
+    if ret != 0:
+        logging.error("Result: FAIL")
+        return 1
 
     logging.info("Result: PASS")
     return 0

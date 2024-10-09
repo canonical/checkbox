@@ -18,15 +18,21 @@ def look_up_xtest():
     """Lookup xtest and tee-supplicant apps."""
     snap = os.environ.get("XTEST")
     apps = ExtendSanpd().list_apps(snap)
-    results = {"xtest": None, "tee": None}
-    if apps["result"]:
-        for app in apps["result"]:
-            if app["name"] == "xtest":
-                results["xtest"] = "{}.xtest".format(app["snap"])
-            if app["name"] == "tee-supplicant":
-                results["tee"] = "{}.tee-supplicant".format(app["snap"])
-    if results["xtest"] is None or results["tee"] is None:
-        raise SystemError("Can not find xtest snap in the system.")
-    if results["xtest"].split(".")[0] != results["tee"].split(".")[0]:
-        raise SystemError("Find more then one xtest snap in the system.")
+    results = {"xtest": None, "tee-supplicant": None}
+    xtest_apps = list({
+        (app["snap"], app["name"])
+        for app in apps["result"]
+        if app["name"] in ["tee-supplicant", "xtest"]
+    })
+    if xtest_apps:
+        if (
+            len(xtest_apps) > 2
+            or xtest_apps[0][0] != xtest_apps[1][0]
+            or xtest_apps[0][1] == xtest_apps[1][1]
+        ):
+            raise SystemError("Found multiple xtest snap in the system!")
+    else:
+        raise SystemError("Not found xtest snap in the system!")
+    for key in results.keys():
+        results[key] = ".".join([xtest_apps[0][0], key])
     return results

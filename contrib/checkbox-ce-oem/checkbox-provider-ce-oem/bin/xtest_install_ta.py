@@ -2,6 +2,7 @@
 
 from look_up_xtest import look_up_xtest
 from subprocess import run, CalledProcessError
+import glob
 
 
 def run_command(cmd, capture_output=True, text=True, check=True):
@@ -15,16 +16,19 @@ def run_command(cmd, capture_output=True, text=True, check=True):
 
 
 def find_ta_path():
+    dir = "/var/snap/**/optee_armtz"
     print("Looking for TA path...", flush=True)
-    cmd = ["find", "/var/snap", "-wholename", "*/lib/optee_armtz"]
-    path = run_command(cmd)
-    if path:
-        print("Found TA file in {}".format(path))
-    return path
+    ta_folder = glob.glob(dir, recursive=True)
+    if not ta_folder:
+        raise SystemError("Not able to find TA in the system!")
+    elif len(ta_folder) > 1:
+        raise SystemError("Found multiple TA sources."
+                          "Please make sure only one exist in the system!")
+    return ta_folder[0]
 
 
 def install_ta(xtest, path):
-    cmd = [xtest, "--install-ta", path]
+    cmd = ["timeout", "10", xtest, "--install-ta", path]
     print("Attempting to install TA...", flush=True)
     run_command(cmd)
     print("TA install succeeded!", flush=True)
@@ -32,7 +36,7 @@ def install_ta(xtest, path):
 
 def find_tee_supplicant():
     cmd = ["pgrep", "-f", "tee-supplicant"]
-    return run_command(cmd)
+    return run_command(cmd, check=False)
 
 
 def enable_tee_supplicant(tee):
@@ -53,7 +57,7 @@ def enable_tee_supplicant(tee):
 
 def main():
     xtest = look_up_xtest()
-    enable_tee_supplicant(xtest["tee"])
+    enable_tee_supplicant(xtest["tee-supplicant"])
     ta_path = find_ta_path()
     install_ta(xtest["xtest"], ta_path)
 

@@ -67,21 +67,21 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - queue: 201712-26047
-            provision_data: "distro: bionic"
-            ppa: beta
+          #- queue: 201712-26047
+          #  provision_data: "distro: bionic"
+          #  checkbox_risk: beta
 
           - queue: 202203-30061
             provision_data: "distro: jammy"
-            ppa: beta
+            checkbox_risk: beta
 
-          - queue: 202012-28526
-            provision_data: "distro: noble"
-            ppa: beta
+          #- queue: 202012-28526
+          #  provision_data: "distro: noble"
+          #  checkbox_risk: beta
 
-          - queue: 202201-29865
-            provision_data: "distro: focal"
-            ppa: beta
+          #- queue: 202201-29865
+          #  provision_data: "distro: focal"
+          #  checkbox_risk: beta
     steps:
     - name: Run the test plan on the machine
       uses: canonical/checkbox/.github/actions/checkbox_deb@snap_lab_dispatch
@@ -96,3 +96,4 @@ jobs:
           WPA_AC_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
           WPA_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
           WPA3_AX_PSK = ${{ secrets.INPUT_PASSWORD_SECRET }}
+        checkbox_risk: ${{ matrix.checkbox_risk }}

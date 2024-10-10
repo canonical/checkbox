@@ -24,6 +24,7 @@ inputs:
   checkbox_risk:
     description: "Risk of the Checkbox snaps to install on the DUT (ex. edge, beta, stable)"
     required: true
+runs:
   using: composite
   steps:
     - uses: actions/checkout@v4

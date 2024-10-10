@@ -187,6 +187,17 @@
                 },
                 "plugin": {
                     "$ref": "#/definitions/Plugin"
+                },
+                "template_id": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "If the job is instantiated from a template, this field points to its origin template."
                 }
             },
             "required": [
@@ -200,7 +211,9 @@
                 "io_log",
                 "name",
                 "outcome",
-                "status"
+                "status",
+                "plugin",
+                "template_id"
             ],
             "title": "Result"
         },
@@ -542,12 +555,47 @@
             "type": "object",
             "additionalProperties": false,
             "properties": {
+                "id": {
+                    "type": "string"
+                },
                 "full_id": {
                     "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "plugin": {
+                    "$ref": "#/definitions/Plugin"
+                },
+                "certification_status": {
+                    "$ref": "#/definitions/CertificationStatus"
+                },
+                "category": {
+                    "type": "string"
+                },
+                "category_id": {
+                    "type": "string"
+                },
+                "template_id": {
+                    "anyOf": [
+                        {
+                            "type": "null"
+                        },
+                        {
+                            "type": "string"
+                        }
+                    ],
+                    "description": "If the job is instantiated from a template, this field points to its origin template."
                 }
             },
             "required": [
-                "full_id"
+                "id",
+                "full_id",
+                "name",
+                "category",
+                "category_id",
+                "plugin",
+                "template_id"
             ],
             "title": "RejectedJob"
         },
@@ -645,7 +693,9 @@
                 "shell",
                 "user-interact-verify",
                 "user-interact",
-                "manual"
+                "manual",
+                "attachment",
+                "resource"
             ],
             "title": "Plugin"
         },

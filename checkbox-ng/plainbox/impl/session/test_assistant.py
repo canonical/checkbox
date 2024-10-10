@@ -28,6 +28,7 @@ from plainbox.impl.session.assistant import (
     UsageExpectation,
     SessionMetaData,
 )
+from plainbox.impl.unit.job import JobDefinition
 from plainbox.vendor import morris
 
 
@@ -276,3 +277,25 @@ class SessionAssistantTests(morris.SignalTestCase):
         # called once to get all the jobs for the selected testplan
         # and another time to prune it for match
         self.assertEqual(select_units_mock.call_count, 1)
+
+    @mock.patch(
+        "plainbox.impl.session.assistant.UsageExpectation",
+        new=mock.MagicMock(),
+    )
+    def test_use_alternate_selection(self, mock_get_providers):
+        self_mock = mock.MagicMock()
+
+        job1_id = "com.canonical.certification::job_1"
+        job2_id = "com.canonical.certification::job_2"
+        job1 = JobDefinition({"id": job1_id})
+        job2 = JobDefinition({"id": job2_id})
+
+        self_mock.get_static_todo_list.return_value = [job1_id, job2_id]
+        self_mock._context.get_unit.side_effect = [job1, job2]
+        selection = [job1_id]
+
+        SessionAssistant.use_alternate_selection(self_mock, selection)
+        self.assertEqual(len(self_mock._metadata.rejected_jobs), 1)
+        self_mock._context.state.update_desired_job_list.assert_called_with(
+            [job1]
+        )

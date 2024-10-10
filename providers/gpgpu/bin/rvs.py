@@ -50,10 +50,10 @@ def which_rvs() -> Path:
 class ModuleRunner:
     """This class represents the base module runner."""
 
-    def __init__(self, rvs: Path, config_dir: Path) -> None:
+    def __init__(self, rvs: Path, config: Path) -> None:
         """Initializes the module runner."""
         self.rvs = rvs
-        self.config_dir = config_dir
+        self.config = config
 
     def run(self, module: str):
         """Runs and validates the RVS module.
@@ -75,7 +75,7 @@ class ModuleRunner:
     def _run(self, module: str) -> subprocess.CompletedProcess:
         """Runs the RVS module."""
         proc = subprocess.run(
-            [self.rvs, "-c", self.config_dir / "rvs-{}.conf".format(module)],
+            [self.rvs, "-c", self.config],
             check=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
@@ -182,11 +182,11 @@ def parse_args():
     )
     parser.add_argument(
         "-c",
-        "--config-dir",
-        metavar="DIR",
+        "--config",
+        metavar="PATH",
         type=Path,
-        default=PLAINBOX_PROVIDER_DATA,
-        help="Path to directory containing the RVS module configurations",
+        default=None,
+        help="Path to RVS module configuration",
     )
 
     args = parser.parse_args()
@@ -197,6 +197,12 @@ def parse_args():
         )
     elif not args.module:
         parser.error("--list-modules or module required")
+
+    # Add default configuration if none is provided
+    if args.config is None:
+        args.config = PLAINBOX_PROVIDER_DATA / "rvs-{}.conf".format(
+            args.module
+        )
 
     return args
 

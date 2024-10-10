@@ -75,6 +75,12 @@ class TestMain(TestCase):
         args = parse_args()
         self.assertIsNotNone(args)
 
+    @patch("sys.stderr", new_callable=io.StringIO)
+    @patch("sys.argv", ["rvs.py", "gpup", "-c", "./config.conf"])
+    def test_parse_args_success_config(self, stderr_mock, logging_mock):
+        args = parse_args()
+        self.assertIsNotNone(args)
+
     @patch.object(ModuleRunner, "run")
     @patch(
         "rvs.parse_args", return_value=MagicMock(log_level=0, module="gpup")

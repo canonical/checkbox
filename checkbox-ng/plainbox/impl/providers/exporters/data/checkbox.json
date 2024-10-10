@@ -108,16 +108,16 @@
     {%- endfor %}
     ],
     "rejected-jobs": [
-    {%- for job_id, job_state in job_state_map|dictsort if job_id in state.metadata.rejected_jobs %}
+    {%- for job_id in state.metadata.rejected_jobs %}
         {
             "id": "{{ job_id|strip_ns }}",
             "full_id": "{{ job_id }}",
-            "name": "{{ job_state.job.tr_summary() }}",
-            "plugin": "{{ job_state.job.plugin }}",
-            "certification_status": "{{ job_state.effective_certification_status }}",
-            "category": "{{ category_map[job_state.effective_category_id] }}",
-            "category_id": "{{ job_state.effective_category_id }}",
-            "template_id": {{ job_state.job.template_id | jsonify | safe }}
+            "name": "{{ job_state_map[job_id].job.tr_summary() }}",
+            "plugin": "{{ job_state_map[job_id].job.plugin }}",
+            "certification_status": "{{ job_state_map[job_id].effective_certification_status }}",
+            "category": "{{ category_map[job_state_map[job_id].effective_category_id] }}",
+            "category_id": "{{ job_state_map[job_id].effective_category_id }}",
+            "template_id": {{ job_state_map[job_id].job.template_id | jsonify | safe }}
         }{%- if not loop.last -%},{%- endif %}
     {%- endfor %}
     ],

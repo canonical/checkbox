@@ -27,7 +27,6 @@ import logging
 import os
 import re
 import subprocess
-import sys
 from pathlib import Path
 
 RVS_BIN = Path("/opt/rocm/bin/rvs")
@@ -56,26 +55,22 @@ class ModuleRunner:
         self.rvs = rvs
         self.config_dir = config_dir
 
-    def run(self, module: str) -> int:
+    def run(self, module: str):
         """Runs and validates the RVS module.
 
         Returns: 0 on success, nonzero on failure.
+        Raises: RuntimeError if process failed execution.
         """
         logging.debug("%s: RUNNING", module)
         proc = self._run(module)
         if proc.stdout:
             logging.info(proc.stdout)
 
-        if proc.returncode != 0:
-            if proc.stderr:
-                logging.error(proc.stderr)
-            logging.error("%s: FAILURE", module)
-            return 1
-        elif proc.stderr:
-            logging.debug(proc.stderr)
+        self._validate_output(proc, module)
 
+        if proc.stderr:
+            logging.debug(proc.stderr)
         logging.debug("%s: SUCCESS", module)
-        return 0
 
     def _run(self, module: str) -> subprocess.CompletedProcess:
         """Runs the RVS module."""
@@ -88,14 +83,23 @@ class ModuleRunner:
         )
         return proc
 
+    def _validate_output(self, proc: subprocess.CompletedProcess, module: str):
+        """Validates the output of the module.
+
+        Raises: SystemExit if process failed execution.
+        """
+        if proc.returncode != 0:
+            if proc.stderr:
+                logging.error(proc.stderr)
+            logging.error("%s: FAILURE", module)
+            raise SystemExit(proc.returncode)
+
 
 class PassFailModuleRunner(ModuleRunner):
     """This class represents a module runner that passes or fails."""
 
-    def _run(self, module: str) -> subprocess.CompletedProcess:
-        proc = super()._run(module)
-        if proc.returncode != 0:
-            return proc
+    def _validate_output(self, proc: subprocess.CompletedProcess, module: str):
+        super()._validate_output(proc, module)
 
         # Find any of the common success messages in stdout
         if not any(
@@ -106,27 +110,26 @@ class PassFailModuleRunner(ModuleRunner):
                 r"GFLOPS \d+ Target GFLOPS: \d+ met: TRUE",
             ]
         ):
-            proc.returncode = 1
-
-        return proc
+            if proc.stderr:
+                logging.error(proc.stderr)
+            logging.error("%s: FAILURE", module)
+            raise SystemExit(1)
 
 
 class MemModuleRunner(ModuleRunner):
     """This class represents the memory test module runner."""
 
-    def _run(self, module: str) -> subprocess.CompletedProcess:
-        proc = super()._run(module)
-        if proc.returncode != 0:
-            return proc
+    def _validate_output(self, proc: subprocess.CompletedProcess, module: str):
+        super()._validate_output(proc, module)
 
         # Check that every memory test passed
         if not all(
-            re.search(r"mem Test %s : PASS" % re.escape(str(i)), proc.stdout)
-            for i in range(1, 12)
+            "mem Test %s : PASS" % i in proc.stdout for i in range(1, 12)
         ):
-            proc.returncode = 1
-
-        return proc
+            if proc.stderr:
+                logging.error(proc.stderr)
+            logging.error("%s: FAILURE", module)
+            raise SystemExit(1)
 
 
 RVS_MODULES = {
@@ -210,14 +213,10 @@ def main():
 
     logging.debug("Module to run: %s", args.module)
     runner = RVS_MODULES[args.module](args.rvs, args.config_dir)
-    ret = runner.run(args.module)
-    if ret != 0:
-        logging.error("Result: FAIL")
-        return 1
+    runner.run(args.module)
 
     logging.info("Result: PASS")
-    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

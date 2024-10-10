@@ -71,13 +71,13 @@ jobs:
           #  provision_data: "distro: bionic"
           #  checkbox_risk: beta
 
-          - queue: 202203-30061
-            provision_data: "distro: jammy"
-            checkbox_risk: beta
-
-          #- queue: 202012-28526
-          #  provision_data: "distro: noble"
+          #- queue: 202203-30061
+          #  provision_data: "distro: jammy"
           #  checkbox_risk: beta
+
+          - queue: 202012-28526
+            provision_data: "distro: noble"
+            checkbox_risk: beta
 
           #- queue: 202201-29865
           #  provision_data: "distro: focal"

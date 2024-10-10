@@ -197,12 +197,7 @@ def parse_args():
         )
     elif not args.module:
         parser.error("--list-modules or module required")
-    elif args.module not in RVS_MODULES:
-        parser.error(
-            "Invalid module {} provided (choose from {})".format(
-                args.module, ", ".join(RVS_MODULES)
-            )
-        )
+
     return args
 
 

@@ -1,0 +1,86 @@
+name: TICS Code Quality Analysis
+
+on:
+  schedule:
+    - cron: '00 19 * * *'
+  workflow_dispatch:
+ 
+permissions:
+  contents: read
+
+jobs:
+  TICS:
+    runs-on: ubuntu-latest
+    environment: TICS
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsystemd-dev python3-pip pylint flake8 libbluetooth3 libbluetooth-dev libasound2-dev python3-zbar python3-pil
+
+      - name: Install Checkbox
+        run: |
+          sudo python -m pip install -e $PWD/checkbox-ng
+          sudo python -m pip install -e $PWD/checkbox-support
+          sudo python -m pip install \
+          pyparsing==2.4.7 \
+          requests==2.25.1 \
+          XlsxWriter==3.0.2 \
+          Jinja2==3.0.3 \
+          psutil==5.9.5 \
+          libsvm==3.23.0.4 \
+          urwid==2.1.2 \
+          systemd-python==235 \
+          distro==1.7.0 \
+          coverage==7.3.0 \
+          flake8 \
+          MarkupSafe==2.0.1 \
+          pytest \
+          opencv_python==4.8.1.78 \
+          natsort==8.0.2 \
+          tqdm==4.57.0 \
+          PyYAML==6.0.1 \
+          numpy==1.26.4 \
+          pytest-cov==4.1.0
+
+      - name: Run coverage tests
+        run: |
+          REPO_DIR="$PWD"
+          COVR_DIR="$PWD/.coverage"
+
+          # Providers
+          echo "::group::coverage tests for providers..."
+          providers="base certification-client certification-server docker genio gpgpu iiotg resource sru tpm2"
+          for provider in $providers; do
+              cd "$REPO_DIR/providers/$provider"
+              coverage run --append --branch --data-file="$COVR_DIR/.coverage" manage.py test -u
+          done
+          echo "::endgroup::"
+
+          # Checkbox-ng
+          echo "::group::coverage tests for checkbox-ng..."
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage -m pytest $REPO_DIR/checkbox-ng
+          echo "::endgroup::"
+
+          # Checkbox-support
+          echo "::group::coverage tests for checkbox-support..."
+          coverage run --append --branch --data-file=$COVR_DIR/.coverage -m pytest $REPO_DIR/checkbox-support/checkbox_support/
+          echo "::endgroup::"
+
+          # Coverage report XML
+          echo "::group::coverage XML report..."
+          coverage xml -i --data-file $COVR_DIR/.coverage -o $COVR_DIR/cobertura.xml
+          echo "::endgroup::"
+
+      - name: TICS GitHub Action
+        uses: tiobe/tics-github-action@v3
+        with:
+          mode: qserver
+          project: checkbox
+          viewerUrl: https://canonical.tiobe.com/tiobeweb/TICS/api/cfg?name=default
+          branchdir: ${{ github.workspace }}
+          ticsAuthToken: ${{ secrets.TICSAUTHTOKEN }}
+          installTics: true
+          calc: ALL

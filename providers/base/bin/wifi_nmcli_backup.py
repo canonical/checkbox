@@ -82,8 +82,11 @@ def save_connections(keyfile_list):
         backup_loc = SAVE_DIR / basedir
 
         os.makedirs(backup_loc, exist_ok=True)
-        save_f = shutil.copy(f, backup_loc)
-        print("  Saved copy at {}".format(save_f))
+        try:
+            save_f = shutil.copy(f, backup_loc)
+            print("  Saved copy at {}".format(save_f))
+        except shutil.SameFileError:
+            print("  Skipping, file already exists at {}".format(f))
 
 
 def restore_connections():

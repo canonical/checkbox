@@ -195,7 +195,9 @@ class TestPassFailModuleRunner(TestCase):
         try:
             runner._validate_output(proc, "gst")
         except SystemExit:
-            self.fail("PassFailModuleRunner._validate_output raised SystemExit!")
+            self.fail(
+                "PassFailModuleRunner._validate_output raised SystemExit!"
+            )
 
     @patch.object(ModuleRunner, "_validate_output")
     def test__validate_output_failure(

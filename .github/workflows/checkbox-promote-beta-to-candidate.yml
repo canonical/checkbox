@@ -19,7 +19,7 @@ jobs:
             checkbox_runtime_name: checkbox20
             checkbox_frontend_track: uc20
 
-          - queue: 202203-30061
+          - queue: 201712-26047
             provision_data: "distro: jammy"
             checkbox_runtime_name: checkbox22
             checkbox_frontend_track: uc22
@@ -71,7 +71,7 @@ jobs:
             provision_data: "distro: bionic"
             checkbox_risk: beta
 
-          - queue: 202203-30061
+          - queue: 202201-29865
             provision_data: "distro: jammy"
             checkbox_risk: beta
 

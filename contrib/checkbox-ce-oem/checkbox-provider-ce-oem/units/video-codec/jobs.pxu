@@ -94,4 +94,4 @@ estimated_duration: 60s
 flags: also-after-suspend
 environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
 command:
-    gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi "{{ width }}" -hi "{{ height }}" -f "{{ framerate }}" -m "{{ mux }}"
+    gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f {{ framerate }} -m "{{ mux }}"

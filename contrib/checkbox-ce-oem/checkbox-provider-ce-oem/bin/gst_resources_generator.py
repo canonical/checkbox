@@ -151,9 +151,9 @@ class GstResources:
             encoder_plugin = item.get("encoder_plugin")
             if not encoder_plugin:
                 continue
-            mux_list = item.get("mux", [])
-            color_spaces = item.get("color_spaces", [])
-            resolutions = item.get("resolutions", [])
+            mux_list = item.get("mux", [""])
+            color_spaces = item.get("color_spaces", [""])
+            resolutions = item.get("resolutions", [{}])
 
             # Use itertools.product to create combinations of all parameters
             for resolution, color_space, mux in product(

@@ -127,8 +127,7 @@
         { "width": 1280, "height": 720, "fps": 60 },
         { "width": 1280, "height": 720, "fps": 30 }
       ],
-      "color_spaces": ["NV12", "NV21", "YUY2", "YVYU"],
-      "mux": [""]
+      "color_spaces": ["NV12", "NV21", "YUY2", "YVYU"]
     }
   ]
 }

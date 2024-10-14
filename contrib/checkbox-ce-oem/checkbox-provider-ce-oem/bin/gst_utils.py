@@ -1,11 +1,13 @@
 import logging
 import os
+import re
 import shlex
 import subprocess
 import uuid
 
 from abc import ABC, abstractmethod
 from enum import Enum
+from typing import Any
 
 from checkbox_support.scripts.psnr import get_average_psnr
 
@@ -79,7 +81,7 @@ def execute_command(cmd: str = "", timeout: int = 300) -> str:
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
-            encoding="utf-8",
+            universal_newlines=True,
             timeout=timeout,
         )
         logging.info(ret.stdout)
@@ -91,6 +93,16 @@ def execute_command(cmd: str = "", timeout: int = 300) -> str:
 class PipelineInterface(ABC):
     @abstractmethod
     def build_pipeline(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def artifact_file(self) -> str:
+        pass
+
+    @property
+    @abstractmethod
+    def psnr_reference_file(self) -> str:
         pass
 
 
@@ -126,9 +138,9 @@ def generate_artifact_name(extension: str = "mp4") -> str:
 
 
 def get_big_bug_bunny_golden_sample(
-    width: str = "3840",
-    height: str = "2160",
-    framerate: str = "60",
+    width: int = 3840,
+    height: int = 2160,
+    framerate: int = 60,
     codec: str = "h264",
     container: str = "mp4",
 ) -> str:
@@ -155,3 +167,103 @@ def get_big_bug_bunny_golden_sample(
         )
 
     return full_path
+
+
+class MetadataValidator:
+    INVALID_PATTERN = "Validation failed: expected '{}: {}' be found"
+
+    def __init__(self, file_path: str):
+        """
+        Initialize the MetadataValidator with the parsed metadata.
+
+        :param cmd:
+            file_path (str): TBD
+        """
+        self._file_path = file_path
+        self._metadata = execute_command(
+            cmd="gst-discoverer-1.0 {}".format(self._file_path)
+        )
+        self._errors = []
+
+    def validate(self, key: str, expected: Any) -> "MetadataValidator":
+        """
+        Validates the metadata for a specific key against an expected value.
+
+        :param key:
+            The property to be validated.
+            Support 'width', 'height', 'frame_rate' and 'codec' currently
+        :param expected:
+            The expected value for the property.
+
+        :returns:
+            MetadataValidator: Returns self to allow method chaining.
+        """
+        lk = key.lower()
+        if lk == "width":
+            self._validate_width(expected)
+        elif lk == "height":
+            self._validate_height(expected)
+        elif lk == "frame_rate":
+            self._validate_frame_rate(expected)
+        elif lk == "codec":
+            self._validate_codec(expected)
+
+        return self
+
+    def _validate_width(self, expected: int) -> None:
+        width_pattern = "Width: {}".format(expected)
+        if width_pattern not in self._metadata:
+            self._errors.append(
+                self.INVALID_PATTERN.format("Width", expected)
+            )
+
+    def _validate_height(self, expected: int) -> None:
+        logging.debug("Validating Height: {}".format(expected))
+        height_pattern = "Height: {}".format(expected)
+        if height_pattern not in self._metadata:
+            self._errors.append(
+                self.INVALID_PATTERN.format("Height", expected)
+            )
+
+    def _validate_frame_rate(self, expected: int) -> None:
+        logging.debug("Validating Frame Rate: {}".format(expected))
+        frame_rate_pattern = re.compile(
+            r"Frame rate:\s*({}/\d+)".format(expected)
+        )
+        if not frame_rate_pattern.search(self._metadata):
+            self._errors.append(
+                self.INVALID_PATTERN.format("Frame rate", expected)
+            )
+
+    def _validate_codec(self, expected: str) -> None:
+        """
+        :param expected: the name of gstreamer plugin
+        """
+        logging.debug("Validating Codec: {}".format(expected))
+        codec_map = {
+            GStreamerEncodePlugins.V4L2H264ENC.value: "H.264",
+            GStreamerEncodePlugins.V4L2H265ENC.value: "H.265",
+            GStreamerEncodePlugins.V4L2JPEGENC.value: "JPEG",
+        }
+        if expected not in codec_map:
+            raise SystemExit(
+                "Error: cannot get the mapping of _validate_codec function"
+            )
+        video_pattern = re.compile(
+            r"video(\(image\))? #\d+: .*{}.*".format(codec_map[expected])
+        )
+        if not video_pattern.search(self._metadata):
+            self._errors.append(
+                self.INVALID_PATTERN.format("video_or_image", expected)
+            )
+
+    def is_valid(self) -> bool:
+        """
+        Checks if there are any validation errors.
+
+        :returns: True if all validations passed, False otherwise.
+        """
+        if bool(self._errors):
+            for i in self._errors:
+                logging.error(i)
+            raise SystemExit("Error: validate the metadata failed")

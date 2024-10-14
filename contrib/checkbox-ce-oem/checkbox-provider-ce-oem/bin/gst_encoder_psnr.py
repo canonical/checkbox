@@ -29,6 +29,7 @@ from gst_utils import (
     PipelineInterface,
     GStreamerMuxerType,
     GStreamerEncodePlugins,
+    MetadataValidator,
     get_big_bug_bunny_golden_sample,
     generate_artifact_name,
     compare_psnr,
@@ -37,7 +38,7 @@ from gst_utils import (
 )
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 
 
 def register_arguments():
@@ -93,7 +94,7 @@ def register_arguments():
         "-f",
         "--framerate",
         type=int,
-        default=60,
+        default=0,
         help="Value of framerate. e.g. 60, 30",
     )
 
@@ -153,13 +154,13 @@ class GenioProject(PipelineInterface):
 
     def __init__(
         self,
-        platform: str = "",
-        codec: str = "",
-        color_space: str = "",
-        width: int = None,
-        height: int = None,
-        framerate: int = None,
-        mux: str = "",
+        platform: str,
+        codec: str,
+        color_space: str,
+        width: int,
+        height: int,
+        framerate: int,
+        mux: str,
     ) -> None:
         self._platform = platform
         self._codec = codec
@@ -291,8 +292,11 @@ def main() -> None:
     cmd = p.build_pipeline()
     # execute command
     execute_command(cmd=cmd)
-    # TODO: implement the metadata checker
-    # logging.info("\nStep 2: Checking metadata...")
+    logging.info("\nStep 2: Checking metadata...")
+    mv = MetadataValidator(file_path=p.artifact_file)
+    mv.validate("width", args.width).validate("height", args.height).validate(
+        "frame_rate", args.framerate
+    ).validate("codec", args.encoder_plugin).is_valid()
     logging.info("\nStep 3: Comparing PSNR...")
     compare_psnr(
         golden_reference_file=p.psnr_reference_file,

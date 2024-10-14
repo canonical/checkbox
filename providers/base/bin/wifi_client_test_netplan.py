@@ -323,16 +323,12 @@ def _validate_gateway_ip(gateway):
     # Examples:
     # 192.168.144.1 (TP-Link 123)
     # 192.168.144.1
-    ip_part = gateway.split()[0]  # Get the first part before any space
-    return ip_part if __validate_ip(ip_part) else ""
-
-
-def __validate_ip(ip):
+    ip_address = gateway.split()[0]  # Get the first part before any space
     try:
-        ipaddress.ip_address(ip)
-        return True
+        ipaddress.ip_address(ip_address)
+        return ip_address
     except ValueError:
-        return False
+        return ""
 
 
 def get_gateway(interface, renderer):

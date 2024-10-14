@@ -22,6 +22,7 @@ import textwrap
 import time
 import shutil
 import sys
+import ipaddress
 import yaml
 
 from gateway_ping_test import ping
@@ -315,12 +316,28 @@ def print_route_info():
     print()
 
 
+def _validate_gateway_ip(gateway):
+    if not gateway:
+        return ""
+    # Check if the gateway is a valid IP address
+    # Examples:
+    # 192.168.144.1 (TP-Link 123)
+    # 192.168.144.1
+    ip_address = gateway.split()[0]  # Get the first part before any space
+    try:
+        ipaddress.ip_address(ip_address)
+        return ip_address
+    except ValueError:
+        return ""
+
+
 def get_gateway(interface, renderer):
-    gateway = None
     info = get_interface_info(interface, renderer)
-    gateway = info.get("gateway", None)
+    gateway = info.get("gateway") or ""
+    validated_gateway = _validate_gateway_ip(gateway)
     print("Got gateway address: {}".format(gateway))
-    return gateway
+    print("Validated gateway address: {}".format(validated_gateway))
+    return validated_gateway
 
 
 def perform_ping_test(interface, renderer):

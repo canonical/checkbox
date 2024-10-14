@@ -445,6 +445,18 @@ class WifiClientTestNetplanTests(TestCase):
         self.assertEqual(info["gateway"], "192.168.1.1")
 
     @patch("subprocess.check_output")
+    def test_get_interface_info_networkd_any_name(self, mock_check_output):
+        mock_check_output.return_value = (
+            b"State: routable\nGateway: 192.168.1.1 (TP-Link 123)\n"
+            b"Path: pci-0000:02:00.0"
+        )
+        interface = "wlan0"
+        renderer = "networkd"
+        info = get_interface_info(interface, renderer)
+        self.assertEqual(info["state"], "routable")
+        self.assertEqual(info["gateway"], "192.168.1.1 (TP-Link 123)")
+
+    @patch("subprocess.check_output")
     def test_get_interface_info_networkd_no_state(self, mock_check_output):
         mock_check_output.return_value = (
             b"Some other info: value\nsome more info"
@@ -667,6 +679,21 @@ class WifiClientTestNetplanTests(TestCase):
 
     @patch(
         "wifi_client_test_netplan.get_interface_info",
+        return_value={"gateway": "192.168.1.1 (TP-Link 123)"},
+    )
+    def test_gateway_found_any_name(self, mock_get_interface_info):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        result = get_gateway("wlan0", "networkd")
+        sys.stdout = sys.__stdout__
+        self.assertEqual(result, "192.168.1.1")
+        mock_get_interface_info.assert_called_once_with("wlan0", "networkd")
+        self.assertIn(
+            "Got gateway address: 192.168.1.1", captured_output.getvalue()
+        )
+
+    @patch(
+        "wifi_client_test_netplan.get_interface_info",
         return_value={},
     )
     def test_gateway_not_found(self, mock_get_interface_info):
@@ -674,9 +701,22 @@ class WifiClientTestNetplanTests(TestCase):
         sys.stdout = captured_output
         result = get_gateway("wlan0", "networkd")
         sys.stdout = sys.__stdout__
-        self.assertIsNone(result)
+        self.assertEqual(result, "")
         mock_get_interface_info.assert_called_once_with("wlan0", "networkd")
-        self.assertIn("Got gateway address: None", captured_output.getvalue())
+        self.assertIn("Got gateway address: ", captured_output.getvalue())
+
+    @patch(
+        "wifi_client_test_netplan.get_interface_info",
+        return_value={"gateway": "192.168.1.1.100 (TP-Link 123)"},
+    )
+    def test_gateway_ip_not_valid(self, mock_get_interface_info):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        result = get_gateway("wlan0", "networkd")
+        sys.stdout = sys.__stdout__
+        self.assertEqual(result, "")
+        mock_get_interface_info.assert_called_once_with("wlan0", "networkd")
+        self.assertIn("Got gateway address: ", captured_output.getvalue())
 
     @patch(
         "wifi_client_test_netplan.get_interface_info",

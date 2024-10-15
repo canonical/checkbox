@@ -52,74 +52,66 @@ class ModuleRunner:
         Raises: RuntimeError if process failed execution.
         """
         logging.debug("%s: RUNNING", module)
-        proc = self._run(module)
-        if proc.stdout:
-            logging.info(proc.stdout)
 
-        self._validate_output(proc, module)
-
-        if proc.stderr:
-            logging.debug(proc.stderr)
-        logging.debug("%s: SUCCESS", module)
-
-    def _run(self, module: str) -> subprocess.CompletedProcess:
-        """Runs the RVS module."""
-        proc = subprocess.run(
+        result = subprocess.run(
             [self.rvs, "-c", self.config],
-            check=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             universal_newlines=True,
+            check=False,
         )
-        return proc
 
-    def _validate_output(self, proc: subprocess.CompletedProcess, module: str):
-        """Validates the output of the module.
+        if result.returncode != 0:
+            logging.error(result.stdout)
+            logging.error(result.stderr)
+            raise SystemExit("%s: FAILURE - failed to execute" % module)
 
-        Raises: SystemExit if process failed execution.
-        """
-        if proc.returncode != 0:
-            if proc.stderr:
-                logging.error(proc.stderr)
-            logging.error("%s: FAILURE", module)
-            raise SystemExit(proc.returncode)
+        # Log the error output as debug
+        if result.stderr:
+            logging.debug(result.stderr)
+
+        if hasattr(self, "_validate_output"):
+            if not self._validate_output(result.stdout, module):
+                logging.error(result.stdout)
+                raise SystemExit("%s: FAILURE - validation failed" % module)
+
+        logging.info(result.stdout)
+        logging.debug("%s: SUCCESS", module)
 
 
 class PassFailModuleRunner(ModuleRunner):
     """This class represents a module runner that passes or fails."""
 
-    def _validate_output(self, proc: subprocess.CompletedProcess, module: str):
-        super()._validate_output(proc, module)
+    def _validate_output(self, output: str, module: str):
+        # Identify a successful module run
+        pass_strs = [
+            r"%s true" % re.escape(module),
+            r"pass: TRUE",
+            r"GFLOPS \d+ Target GFLOPS: \d+ met: TRUE",
+        ]
 
         # Find any of the common success messages in stdout
-        if not any(
-            re.search(pass_str, proc.stdout)
-            for pass_str in [
-                r"%s true" % re.escape(module),
-                r"pass: TRUE",
-                r"GFLOPS \d+ Target GFLOPS: \d+ met: TRUE",
-            ]
-        ):
-            if proc.stderr:
-                logging.error(proc.stderr)
-            logging.error("%s: FAILURE", module)
-            raise SystemExit(1)
+        for line in output.splitlines():
+            if any(re.search(pass_str, line) for pass_str in pass_strs):
+                return True
+
+        return False
 
 
 class MemModuleRunner(ModuleRunner):
     """This class represents the memory test module runner."""
 
-    def _validate_output(self, proc: subprocess.CompletedProcess, module: str):
-        super()._validate_output(proc, module)
-
+    def _validate_output(self, output: str, module: str):
         # Check that every memory test passed
-        if not all(
-            "mem Test %s : PASS" % i in proc.stdout for i in range(1, 12)
-        ):
-            if proc.stderr:
-                logging.error(proc.stderr)
-            logging.error("%s: FAILURE", module)
-            raise SystemExit(1)
+        for test in range(1, 12):
+            if any(
+                "mem Test %s : PASS" % test in line
+                for line in output.splitlines()
+            ):
+                continue
+            return False
+
+        return True
 
 
 RVS_MODULES = {

@@ -26,6 +26,7 @@ import argparse
 import logging
 import os
 import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -34,17 +35,6 @@ RVS_BIN = Path("/opt/rocm/bin/rvs")
 
 PLAINBOX_PROVIDER_DATA = Path(os.getenv("PLAINBOX_PROVIDER_DATA", "."))
 """Location of the RVS module configurations."""
-
-
-def which_rvs() -> Path:
-    """Finds the location of the ROCm Validation Suite binary."""
-    proc = subprocess.run(
-        ["which", "rvs"],
-        check=False,
-        stdout=subprocess.PIPE,
-        universal_newlines=True,
-    )
-    return Path(proc.stdout.strip()) if proc.returncode == 0 else RVS_BIN
 
 
 class ModuleRunner:
@@ -177,7 +167,7 @@ def parse_args():
         "--rvs",
         metavar="EXE",
         type=Path,
-        default=which_rvs(),
+        default=Path(shutil.which("rvs") or RVS_BIN),
         help="Path to RVS binary",
     )
     parser.add_argument(

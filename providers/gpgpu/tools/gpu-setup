@@ -90,48 +90,6 @@ sudo apt install -y build-essential git
 ## need to break this out to fix issue where cuda installs gdm3
 sudo apt install -y --no-install-recommends cuda-toolkit
 
-#fix the path to get nvcc from the cuda package
-CUDA_PATH=$(find /usr/local -maxdepth 1 -type d -iname "cuda*")/bin
-export PATH=$PATH:$CUDA_PATH
-
-# Get the build and output directories, make them if they don't exist yet
-SCRIPT_DIR="$(dirname -- "$(readlink -f -- "$0")")"
-PROVIDER_PATH="$(dirname -- "$SCRIPT_DIR")"
-BUILD_DIR="$PROVIDER_PATH/build"
-BIN_DIR="$PROVIDER_PATH/bin"
-DATA_DIR="$PROVIDER_PATH/data"
-mkdir -p "$BUILD_DIR" "$BIN_DIR" "$DATA_DIR"
-
-# clone cuda-samples repo
-echo "*  Cloning cuda-samples repo"
-CUDA_SAMPLES_DIR="$BUILD_DIR/cuda-samples"
-git clone https://github.com/nvidia/cuda-samples.git "$CUDA_SAMPLES_DIR"
-echo "*  Building cuda-samples tests"
-make -C "$CUDA_SAMPLES_DIR/Samples/0_Introduction/matrixMulDrv"
-mkdir -p "$DATA_DIR/matrixMulDrv"
-cp "$CUDA_SAMPLES_DIR/Samples/0_Introduction/matrixMulDrv/matrixMulDrv" "$BIN_DIR/"
-cp -r "$CUDA_SAMPLES_DIR/Samples/0_Introduction/matrixMulDrv/data" "$DATA_DIR/matrixMulDrv"
-make -C "$CUDA_SAMPLES_DIR/Samples/0_Introduction/vectorAddDrv"
-mkdir -p "$DATA_DIR/vectorAddDrv"
-cp "$CUDA_SAMPLES_DIR/Samples/0_Introduction/vectorAddDrv/vectorAddDrv" "$BIN_DIR/"
-cp -r "$CUDA_SAMPLES_DIR/Samples/0_Introduction/vectorAddDrv/data" "$DATA_DIR/vectorAddDrv"
-make -C "$CUDA_SAMPLES_DIR/Samples/1_Utilities/deviceQueryDrv"
-cp "$CUDA_SAMPLES_DIR/Samples/1_Utilities/deviceQueryDrv/deviceQueryDrv" "$BIN_DIR/"
-make -C "$CUDA_SAMPLES_DIR/Samples/0_Introduction/simpleTextureDrv"
-mkdir -p "$DATA_DIR/simpleTextureDrv"
-cp "$CUDA_SAMPLES_DIR/Samples/0_Introduction/simpleTextureDrv/simpleTextureDrv" "$BIN_DIR/"
-cp -r "$CUDA_SAMPLES_DIR/Samples/0_Introduction/simpleTextureDrv/data" "$DATA_DIR/simpleTextureDrv"
-echo "*  Building cuda-samples tests completed..."
-
-# get the gpu-burn repo and build it
-echo "*  Cloning gpu-burn repo"
-GPU_BURN_DIR="$BUILD_DIR/gpu-burn"
-git clone https://github.com/wilicc/gpu-burn.git "$GPU_BURN_DIR"
-echo "*  Building gpu-burn"
-make -C "$GPU_BURN_DIR"
-cp "$GPU_BURN_DIR/gpu_burn" "$BIN_DIR/"
-cp "$GPU_BURN_DIR/compare.ptx" "$DATA_DIR/"
-echo "*  Build completed..."
 echo "*"
 echo "*  Completed installation. Please reboot the machine now"
 echo "*  to load the nVidia proprietary drivers"

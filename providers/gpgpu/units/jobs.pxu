@@ -3,7 +3,7 @@ category_id: gpgpu
 plugin: shell
 estimated_duration: 300
 requires:
-    graphics_card.vendor == 'NVIDIA'
+    graphics_card.vendor == 'NVIDIA Corporation'
     package.name == 'cuda-toolkit'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU stress testing
@@ -14,7 +14,7 @@ category_id: gpgpu
 plugin: shell
 estimated_duration: 4
 requires:
-    graphics_card.vendor == 'NVIDIA'
+    graphics_card.vendor == 'NVIDIA Corporation'
     package.name == 'cuda-toolkit'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU matrix multiplication
@@ -25,7 +25,7 @@ category_id: gpgpu
 plugin: shell
 estimated_duration: 4
 requires:
-    graphics_card.vendor == 'NVIDIA'
+    graphics_card.vendor == 'NVIDIA Corporation'
     package.name == 'cuda-toolkit'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU vector addition
@@ -36,7 +36,7 @@ category_id: gpgpu
 plugin: shell
 estimated_duration: 4
 requires:
-    graphics_card.vendor == 'NVIDIA'
+    graphics_card.vendor == 'NVIDIA Corporation'
     package.name == 'cuda-toolkit'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU query device
@@ -47,7 +47,7 @@ category_id: gpgpu
 plugin: shell
 estimated_duration: 4
 requires:
-    graphics_card.vendor == 'NVIDIA'
+    graphics_card.vendor == 'NVIDIA Corporation'
     package.name == 'cuda-toolkit'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU simple textures

@@ -78,8 +78,10 @@ flags: preserve-locale
 id: image/model-grade
 category_id: image
 _summary: Check that the model grade is correctly set
+imports: from com.canonical.plainbox import manifest
 requires:
  lsb.distributor_id == "Ubuntu Core" and int(lsb.release) >= 20
+ manifest.dangerous_grade_core_image == 'False'
 _purpose:
  Images with the 'dangerous' grade (the lowest of all available grades)
  results in certain security measures being relaxed.

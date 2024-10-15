@@ -213,9 +213,7 @@ class MetadataValidator:
     def _validate_width(self, expected: int) -> None:
         width_pattern = "Width: {}".format(expected)
         if width_pattern not in self._metadata:
-            self._errors.append(
-                self.INVALID_PATTERN.format("Width", expected)
-            )
+            self._errors.append(self.INVALID_PATTERN.format("Width", expected))
 
     def _validate_height(self, expected: int) -> None:
         logging.debug("Validating Height: {}".format(expected))

@@ -38,7 +38,7 @@ from gst_utils import (
 )
 
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(level=logging.INFO)
 
 
 def register_arguments():
@@ -55,7 +55,7 @@ def register_arguments():
         "--platform",
         required=True,
         type=str,
-        help="Json file name which is also the platform e.g. genio-1200",
+        help="JSON file name which is also the platform e.g. genio-1200",
     )
 
     parser.add_argument(

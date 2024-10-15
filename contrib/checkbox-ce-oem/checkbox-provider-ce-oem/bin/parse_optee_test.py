@@ -38,8 +38,8 @@ def main():
     )
     args = parser.parse_args()
     try:
-        xtest = look_up_xtest()
-    except SystemExit:
+        xtest = look_up_xtest()["xtest"]
+    except SystemError:
         xtest = None
     parse_json_file(args.filepath, args.pkcs11, xtest)
 

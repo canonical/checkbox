@@ -195,7 +195,7 @@ def main():
     logging.basicConfig(level=args.log_level)
 
     logging.debug("Module to run: %s", args.module)
-    runner = RVS_MODULES[args.module](args.rvs, args.config_dir)
+    runner = RVS_MODULES[args.module](args.rvs, args.config)
     runner.run(args.module)
 
     logging.info("Result: PASS")

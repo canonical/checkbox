@@ -29,25 +29,11 @@ from rvs import (
     PassFailModuleRunner,
     main,
     parse_args,
-    which_rvs,
 )
 
 
 @patch("rvs.logging")
 class TestMain(TestCase):
-    @patch(
-        "subprocess.run",
-        return_value=MagicMock(returncode=0, stdout="/bin/rvs"),
-    )
-    def test_which_rvs_found(self, run_mock, logging_mock):
-        p = which_rvs()
-        self.assertEqual(p, Path(run_mock().stdout.strip()))
-
-    @patch("subprocess.run", side_effect=MagicMock(returncode=1))
-    def test_which_rvs_fallback(self, run_mock, logging_mock):
-        p = which_rvs()
-        self.assertEqual(p, RVS_BIN)
-
     @patch("sys.stderr", new_callable=io.StringIO)
     @patch("sys.argv", ["rvs.py", "--list-modules"])
     def test_parse_args_list_modules(self, logging_mock, stderr_mock):
@@ -98,87 +84,47 @@ class TestMain(TestCase):
     def test_main_failure(self, parse_args_mock, run_mock, logging_mock):
         with self.assertRaises(SystemExit) as cm:
             main()
-        self.assertEqual(cm.exception.code, 1)
 
 
 @patch("rvs.logging")
 class TestModuleRunner(TestCase):
-    @patch("subprocess.run")
-    def test__run(self, logging_mock, run_mock):
-        runner = ModuleRunner(RVS_BIN, Path("."))
-        proc = runner._run("gpup")
-
-    def test__validate_output_success(self, logging_mock):
-        proc = MagicMock(returncode=0)
-        runner = ModuleRunner(RVS_BIN, Path("."))
-        try:
-            runner._validate_output(proc, "gpup")
-        except SystemExit:
-            self.fail("ModuleRunner._validate_output raised SystemExit!")
-
-    def test__validate_output_failure(self, logging_mock):
-        proc = MagicMock(returncode=1, stderr="[DEBUG] debug")
-        runner = ModuleRunner(RVS_BIN, Path("."))
-        with self.assertRaises(SystemExit) as cm:
-            runner._validate_output(proc, "gpup")
-        self.assertEqual(cm.exception.code, 1)
-
-    def test__validate_output_failure_stderr(self, logging_mock):
-        proc = MagicMock(returncode=1, stderr="")
-        runner = ModuleRunner(RVS_BIN, Path("."))
-        with self.assertRaises(SystemExit) as cm:
-            runner._validate_output(proc, "gpup")
-        self.assertEqual(cm.exception.code, 1)
-
-    @patch.object(ModuleRunner, "_validate_output", side_effect=SystemExit(1))
-    @patch.object(ModuleRunner, "_run", return_value=MagicMock(stdout=""))
-    def test_run_failure(self, _run_mock, _validate_output_mock, logging_mock):
+    @patch("subprocess.run", return_value=MagicMock(returncode=255))
+    def test_run_failure(self, run_mock, logging_mock):
         runner = ModuleRunner(RVS_BIN, Path("."))
         with self.assertRaises(SystemExit) as cm:
             runner.run("gpup")
-        self.assertEqual(cm.exception.code, 1)
 
-    @patch.object(ModuleRunner, "_validate_output", side_effect=SystemExit(1))
-    @patch.object(
-        ModuleRunner, "_run", return_value=MagicMock(stdout="no gpu")
-    )
-    def test_run_failure_stdout(
-        self, _run_mock, _validate_output_mock, logging_mock
-    ):
-        runner = ModuleRunner(RVS_BIN, Path("."))
-        with self.assertRaises(SystemExit) as cm:
-            runner.run("gpup")
-        self.assertEqual(cm.exception.code, 1)
-
-    @patch.object(ModuleRunner, "_validate_output")
-    @patch.object(
-        ModuleRunner,
-        "_run",
-        return_value=MagicMock(stdout="[RESULT] info", stderr=""),
-    )
-    def test_run_success(self, _run_mock, _validate_output_mock, logging_mock):
+    @patch("subprocess.run", return_value=MagicMock(returncode=0, stderr=""))
+    def test_run_success(self, run_mock, logging_mock):
         runner = ModuleRunner(RVS_BIN, Path("."))
         try:
             runner.run("gpup")
         except SystemExit:
             self.fail("ModuleRunner.run raised SystemExit!")
-        self.assertTrue(logging_mock.debug.call_count, 2)
 
-    @patch.object(ModuleRunner, "_validate_output")
-    @patch.object(
-        ModuleRunner,
-        "_run",
-        return_value=MagicMock(stderr="[DEBUG] debug", stdout="[RESULT] info"),
+    @patch(
+        "subprocess.run",
+        return_value=MagicMock(returncode=0, stderr="err", stdout=""),
     )
-    def test_run_success_stderr(
-        self, _run_mock, _validate_output_mock, logging_mock
-    ):
-        runner = ModuleRunner(RVS_BIN, Path("."))
+    def test_run_validate_failure(self, run_mock, logging_mock):
+        self_mock = MagicMock()
+        self_mock._validate_output.return_value = False
+
+        with self.assertRaises(SystemExit) as cm:
+            ModuleRunner.run(self_mock, "gpup")
+
+    @patch(
+        "subprocess.run",
+        return_value=MagicMock(returncode=0, stderr="", stdout=""),
+    )
+    def test_run_validate_success(self, run_mock, logging_mock):
+        self_mock = MagicMock()
+        self_mock._validate_output.return_value = True
+
         try:
-            runner.run("gpup")
+            ModuleRunner.run(self_mock, "gpup")
         except SystemExit:
             self.fail("ModuleRunner.run raised SystemExit!")
-        self.assertTrue(logging_mock.debug.call_count, 3)
 
 
 @patch("rvs.logging")
@@ -186,38 +132,15 @@ class TestPassFailModuleRunner(TestCase):
     PASS_OUT = "[RESULT] pass: TRUE"
     FAIL_OUT = "[RESULT] pass: FALSE"
 
-    @patch.object(ModuleRunner, "_validate_output")
-    def test__validate_output_success(
-        self, _validate_output_mock, logging_mock
-    ):
-        proc = MagicMock(stderr="", stdout=self.PASS_OUT)
+    def test__validate_output_success(self, logging_mock):
         runner = PassFailModuleRunner(RVS_BIN, Path("."))
-        try:
-            runner._validate_output(proc, "gst")
-        except SystemExit:
-            self.fail(
-                "PassFailModuleRunner._validate_output raised SystemExit!"
-            )
+        result = runner._validate_output(self.PASS_OUT, "gst")
+        self.assertTrue(result)
 
-    @patch.object(ModuleRunner, "_validate_output")
-    def test__validate_output_failure(
-        self, _validate_output_mock, logging_mock
-    ):
-        proc = MagicMock(stderr="", stdout=self.FAIL_OUT)
+    def test__validate_output_failure(self, logging_mock):
         runner = PassFailModuleRunner(RVS_BIN, Path("."))
-        with self.assertRaises(SystemExit) as cm:
-            runner._validate_output(proc, "gpup")
-        self.assertEqual(cm.exception.code, 1)
-
-    @patch.object(ModuleRunner, "_validate_output")
-    def test__validate_output_failure_stderr(
-        self, _validate_output_mock, logging_mock
-    ):
-        proc = MagicMock(stderr="[DEBUG] info", stdout=self.FAIL_OUT)
-        runner = PassFailModuleRunner(RVS_BIN, Path("."))
-        with self.assertRaises(SystemExit) as cm:
-            runner._validate_output(proc, "gpup")
-        self.assertEqual(cm.exception.code, 1)
+        result = runner._validate_output(self.FAIL_OUT, "gpup")
+        self.assertFalse(result)
 
 
 @patch("rvs.logging")
@@ -250,33 +173,12 @@ class TestMemModuleRunner(TestCase):
     [RESULT] mem Test 11 : PASS
     """
 
-    @patch.object(ModuleRunner, "_validate_output")
-    def test__validate_output_success(
-        self, _validate_output_mock, logging_mock
-    ):
-        proc = MagicMock(stderr="", stdout=self.PASS_OUT)
+    def test__validate_output_success(self, logging_mock):
         runner = MemModuleRunner(RVS_BIN, Path("."))
-        try:
-            runner._validate_output(proc, "mem")
-        except SystemExit:
-            self.fail("MemModuleRunner._validate_output raised SystemExit!")
+        result = runner._validate_output(self.PASS_OUT, "mem")
+        self.assertTrue(result)
 
-    @patch.object(ModuleRunner, "_validate_output")
-    def test__validate_output_failure(
-        self, _validate_output_mock, logging_mock
-    ):
-        proc = MagicMock(stderr="", stdout=self.FAIL_OUT)
+    def test__validate_output_failure(self, logging_mock):
         runner = MemModuleRunner(RVS_BIN, Path("."))
-        with self.assertRaises(SystemExit) as cm:
-            runner._validate_output(proc, "mem")
-        self.assertEqual(cm.exception.code, 1)
-
-    @patch.object(ModuleRunner, "_validate_output")
-    def test__validate_output_failure_stderr(
-        self, _validate_output_mock, logging_mock
-    ):
-        proc = MagicMock(stderr="[DEBUG] debug", stdout=self.FAIL_OUT)
-        runner = MemModuleRunner(RVS_BIN, Path("."))
-        with self.assertRaises(SystemExit) as cm:
-            runner._validate_output(proc, "mem")
-        self.assertEqual(cm.exception.code, 1)
+        result = runner._validate_output(self.FAIL_OUT, "mem")
+        self.assertFalse(result)

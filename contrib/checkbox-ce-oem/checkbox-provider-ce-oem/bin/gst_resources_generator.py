@@ -21,6 +21,7 @@ import argparse
 import os
 import json
 import logging
+from itertools import product
 from typing import Dict, List
 from checkbox_support.scripts.image_checker import has_desktop_environment
 from checkbox_support.snap_utils.system import on_ubuntucore
@@ -143,6 +144,32 @@ class GstResources:
                     for color_space in item["color_spaces"]
                 ]
             )
+
+    def gst_encoder_psnr(self, scenario_data: List[Dict]) -> None:
+        # Iterate through each encoder plugin configuration
+        for item in scenario_data:
+            encoder_plugin = item.get("encoder_plugin")
+            if not encoder_plugin:
+                continue
+            mux_list = item.get("mux", [""])
+            color_spaces = item.get("color_spaces", [""])
+            resolutions = item.get("resolutions", [{}])
+
+            # Use itertools.product to create combinations of all parameters
+            for resolution, color_space, mux in product(
+                resolutions, color_spaces, mux_list
+            ):
+                config = {
+                    "platform": self._conf_name,
+                    "scenario": self._current_scenario_name,
+                    "encoder_plugin": encoder_plugin,
+                    "width": resolution.get("width"),
+                    "height": resolution.get("height"),
+                    "framerate": resolution.get("fps"),
+                    "color_space": color_space,
+                    "mux": mux,
+                }
+                self._resource_items.append(config)
 
     def gst_v4l2_audio_video_synchronization(
         self, scenario_data: Dict

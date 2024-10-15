@@ -75,3 +75,23 @@ flags: also-after-suspend
 environ: GST_LAUNCH_BIN, PERFORMANCE_PYTHON_MODULE_PATH, PERFORMANCE_FUNCTION_NAME
 command:
     gst_v4l2_video_decoder_performance.py -gp {{golden_sample_file}} -dp {{decoder_plugin}} -mf {{minimum_fps}} -pmt "{{performance_target}}"
+
+unit: template
+template-engine: jinja2
+template-resource: video_codec_resource
+template-filter:
+    video_codec_resource.scenario == "gst_encoder_psnr"
+    ( video_codec_resource.platform == "genio-350" or video_codec_resource.platform == "genio-510" or video_codec_resource.platform == "genio-700" or video_codec_resource.platform == "genio-1200" )
+template-unit: job
+template-id: ce-oem-video-codec/genio-gst_encoder_psnr
+_template-summary: Verify the PSNR ratio meets requirement for specific encoder on Genio platform
+id: ce-oem-video-codec/{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}-{{ mux }}
+_summary: Encoder PSNR - Genio - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps-{{ color_space }}-{{ mux }}
+_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on Genio platform
+plugin: shell
+category_id: video-codec
+estimated_duration: 60s
+flags: also-after-suspend
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
+command:
+    gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f {{ framerate }} -m "{{ mux }}"

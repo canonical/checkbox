@@ -1,5 +1,5 @@
 unit: manifest entry
 id: dangerous_grade_core_image
-_name: Image is using 'dangerous' grade (should NOT be the case for enablements!)
+_name: Image is using 'dangerous' grade (should be set to 'No' unless you're doing SRU testing)
 _prompt: Does this setup have the following configuration?
 value-type: bool

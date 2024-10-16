@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from look_up_xtest import look_up_xtest
+from look_up_xtest import look_up_app
 from subprocess import run, CalledProcessError
 import glob
 
@@ -58,10 +58,11 @@ def enable_tee_supplicant(tee):
 
 
 def main():
-    xtest = look_up_xtest()
-    enable_tee_supplicant(xtest["tee-supplicant"])
+    xtest = look_up_app("xtest")
+    tee_supplicant = look_up_app("tee-supplicant")
+    enable_tee_supplicant(tee_supplicant)
     ta_path = find_ta_path()
-    install_ta(xtest["xtest"], ta_path)
+    install_ta(xtest, ta_path)
 
 
 if __name__ == "__main__":

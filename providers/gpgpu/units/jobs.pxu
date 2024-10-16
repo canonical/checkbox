@@ -55,7 +55,7 @@ template-id: gpgpu/lxd-nvidia-gpu-passthrough-index
 id: gpgpu/lxd-nvidia-gpu-passthrough-{index}
 requires:
     executable.name == 'lxc'
-    package.name == 'lxd-installer' or snap.name == 'lxd'
+    package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
 category_id: gpgpu
 plugin: shell
 command: virtualization.py lxd vgpu --gpu-vendor=nvidia --gpu-pci={pci_device_name}
@@ -69,7 +69,7 @@ template-id: gpgpu/lxdvm-nvidia-gpu-passthrough-index
 id: gpgpu/lxdvm-nvidia-gpu-passthrough-{index}
 requires:
     executable.name == 'lxc'
-    package.name == 'lxd-installer' or snap.name == 'lxd'
+    package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
 category_id: gpgpu
 plugin: shell
 command: virtualization.py lxdvm vgpu --gpu-vendor=nvidia --gpu-pci={pci_device_name}

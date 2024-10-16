@@ -25,7 +25,7 @@ _summary: Install Trusted Applications for xtest
 plugin: shell
 user: root
 estimated_duration: 20.0
-environ: XTEST
+environ: XTEST TEE_SUPPLICANT
 depends: ce-oem-optee/device-node
 command: xtest_install_ta.py
 
@@ -33,7 +33,7 @@ id: ce-oem-optee-test-list
 estimated_duration: 1
 plugin: resource
 user: root
-environ: OPTEE_CASES
+environ: OPTEE_CASES XTEST
 command:
     filepath=""
     if [[ -n "$OPTEE_CASES" ]]; then
@@ -48,7 +48,7 @@ id: ce-oem-optee-test-list-pkcs11
 estimated_duration: 1
 plugin: resource
 user: root
-environ: OPTEE_CASES
+environ: OPTEE_CASES XTEST
 command:
     filepath=""
     if [[ -n "$OPTEE_CASES" ]]; then

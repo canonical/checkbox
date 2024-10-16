@@ -3,6 +3,8 @@ Section: utils
 Priority: optional
 Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
 Uploaders: Jeff Lane <jeffrey.lane@canonical.com>
+Depends: build-essential,
+         git
 Build-Depends: checkbox-ng,
                debhelper (>= 9),
                intltool,

@@ -1,0 +1,59 @@
+#!/usr/bin/env sh
+
+echo "Configuring system for GPU Testing"
+echo "**********************************"
+echo "*"
+
+OSRELEASE=ubuntu`lsb_release -r | cut -f2 |sed -e 's/\.//'`
+ARCH=`uname -m`
+case $ARCH in
+    arm)
+        ;&
+    aarch64_be)
+        ;&
+    aarch64)
+        ARCH="arm64"
+        ;;
+    x86_64)
+        ;;
+    *)
+        echo "ERROR: Unsupported architecture $ARCH"
+        exit 0
+        ;;
+esac
+REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH"
+
+# Import and verify cuda gpg key
+TMP_GPG_KEY=/tmp/cuda-archive-keyring.gpg
+TMP_KEYRING=/tmp/tmp-keyring.gpg
+GPG_FINGERPRINT=EB693B3035CD5710E231E123A4B469963BF863CC
+GPG_KEYRING=/usr/share/keyrings/cuda-archive-keyring.gpg
+wget -O "$TMP_GPG_KEY" "$REPO_URL/3bf863cc.pub"
+if [[ $? -eq 8 ]] ; then
+    echo "ERROR: wget failed. Check networking or $OSRELEASE/$ARCH not supported?"
+    exit 0
+fi
+gpg --no-default-keyring --keyring "$TMP_KEYRING" \
+    --import "$TMP_GPG_KEY"
+gpg --no-default-keyring --keyring "$TMP_KEYRING" \
+    --fingerprint "$GPG_FINGERPRINT"
+if [[ $? -ne 0 ]] ; then
+    echo "ERROR: GPG key import failed. Invalid gpg key?"
+    exit 1
+fi
+gpg --yes --no-default-keyring --keyring "$TMP_KEYRING" --export \
+    --output "$GPG_KEYRING"
+rm "$TMP_KEYRING" "$TMP_KEYRING~" "$TMP_KEYRING"
+
+PINFILE="cuda-$OSRELEASE.pin"
+wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"
+
+tee /etc/apt/sources.list.d/cuda-$OSRELEASE-$ARCH.list <<EOF
+deb [signed-by=$GPG_KEYRING] http://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH/ /
+EOF
+
+# Install necessary files
+apt-get update
+echo "*  Installing CUDA toolkit"
+## need to break this out to fix issue where cuda installs gdm3
+apt-get install -y --no-install-recommends cuda-toolkit

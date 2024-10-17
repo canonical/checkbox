@@ -14,6 +14,7 @@ def do_nothing(args: T.List[str], **kwargs):
     else:
         return sp.CompletedProcess(args, 0, "".encode(), "".encode())
 
+
 class UnitySupportParserTests(unittest.TestCase):
     def setUp(self):
         self.tester = RCT.HardwareRendererTester()
@@ -243,9 +244,7 @@ class FailedServiceCheckerTests(unittest.TestCase):
 
     @patch("subprocess.run")
     def test_get_failed_services_happy_path(self, mock_run: MagicMock):
-        mock_run.return_value = sp.CompletedProcess(
-            [], 0, "",""
-        )
+        mock_run.return_value = sp.CompletedProcess([], 0, "", "")
         self.assertEqual(RCT.get_failed_services(), [])
 
     @patch("subprocess.run")

@@ -59,8 +59,8 @@ requires:
 category_id: gpgpu
 plugin: shell
 command: virtualization.py lxd vgpu --gpu-vendor=nvidia --gpu-pci={pci_device_name}
-_purpose: Creates a LXD container and passes {name} GPU through
-_summary: Test LXD GPU passthrough on NVIDIA GPU {index}
+_purpose: Creates a LXD container and passes {pci_device_name} GPU through
+_summary: Test LXD GPU passthrough on NVIDIA GPU {pci_device_name}
 
 unit: template
 template-resource: graphics_card
@@ -73,5 +73,5 @@ requires:
 category_id: gpgpu
 plugin: shell
 command: virtualization.py lxdvm vgpu --gpu-vendor=nvidia --gpu-pci={pci_device_name}
-_purpose: Creates a LXD VM and passes {name} GPU through
-_summary: Test LXD VM GPU passthrough on NVIDIA GPU {index}
+_purpose: Creates a LXD VM and passes {pci_device_name} GPU through
+_summary: Test LXD VM GPU passthrough on NVIDIA GPU {pci_device_name}

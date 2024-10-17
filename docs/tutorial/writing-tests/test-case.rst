@@ -151,6 +151,13 @@ like this:
     ==================================[ Results ]===================================
      ☑ : Test that the internet is reachable
 
+.. note::
+   Similarly to ``summary`` and ``id``, consider also providing a ``category``
+   for your tests. It makes the output easier to read and present (you can see
+   that we are getting an ``uncategorised`` category right now). Additionally
+   it is used in the Test Selection screen to group your tests, so when you
+   have many of them, it makes sifting through them that much easier.
+
 Dependencies
 ============
 

@@ -311,9 +311,7 @@ def get_failed_services() -> T.List[str]:
         "--plain",  # plaintext, otherwise it includes color codes
     ]
 
-    return sp.run(
-        command, stdout=sp.PIPE, universal_newlines=True
-    ).stdout.splitlines()
+    return sp.check_output(command, universal_newlines=True).splitlines()
 
 
 def create_parser():

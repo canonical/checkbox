@@ -47,3 +47,31 @@ requires:
     uname.machine == 'x86_64'
 _summary: GPGPU simple textures
 command: simpleTextureDrv.sh
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.vendor == 'NVIDIA Corporation'
+template-id: gpgpu/lxd-nvidia-gpu-passthrough-index
+id: gpgpu/lxd-nvidia-gpu-passthrough-{index}
+requires:
+    executable.name == 'lxc'
+    package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
+category_id: gpgpu
+plugin: shell
+command: virtualization.py lxd vgpu --gpu-vendor=nvidia --gpu-pci={pci_device_name}
+_purpose: Creates a LXD container and passes {pci_device_name} GPU through
+_summary: Test LXD GPU passthrough on NVIDIA GPU {pci_device_name}
+
+unit: template
+template-resource: graphics_card
+template-filter: graphics_card.vendor == 'NVIDIA Corporation'
+template-id: gpgpu/lxdvm-nvidia-gpu-passthrough-index
+id: gpgpu/lxdvm-nvidia-gpu-passthrough-{index}
+requires:
+    executable.name == 'lxc'
+    package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
+category_id: gpgpu
+plugin: shell
+command: virtualization.py lxdvm vgpu --gpu-vendor=nvidia --gpu-pci={pci_device_name}
+_purpose: Creates a LXD VM and passes {pci_device_name} GPU through
+_summary: Test LXD VM GPU passthrough on NVIDIA GPU {pci_device_name}

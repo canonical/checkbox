@@ -256,11 +256,11 @@ class FailedServiceCheckerTests(unittest.TestCase):
             [],
             0,
             "snap.checkbox.agent.service loaded failed failed Service\
-                  for snap applictaion checkbox.agent".encode(),
+                  for snap applictaion checkbox.agent",
             "",
         )
         self.assertEqual(
-            RCT.get_failed_services(), [mock_run.return_value.stdout.decode()]
+            RCT.get_failed_services(), [mock_run.return_value.stdout]
         )
 
 

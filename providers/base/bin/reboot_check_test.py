@@ -61,13 +61,13 @@ class DeviceInfoCollector:
                 '"{}"/var/lib/usbutils/usb.ids'.format(RUNTIME_ROOT),
                 "-s",
             ],
-            universal_newlines=True
+            universal_newlines=True,
         )
 
     def get_pci_info(self) -> str:
         return sp.check_output(
             ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
-            universal_newlines=True
+            universal_newlines=True,
         )
 
     def compare_device_lists(
@@ -244,7 +244,7 @@ class HardwareRendererTester:
         unity_support_output = sp.run(
             ["{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT), "-p"],
             stdout=sp.PIPE,
-            universal_newlines=True
+            universal_newlines=True,
         )
         if unity_support_output.returncode != 0:
             print(
@@ -256,9 +256,9 @@ class HardwareRendererTester:
             return False
 
         is_hardware_rendered = (
-            self.parse_unity_support_output(
-                unity_support_output.stdout
-            ).get("Not software rendered")
+            self.parse_unity_support_output(unity_support_output.stdout).get(
+                "Not software rendered"
+            )
             == "yes"
         )
         if is_hardware_rendered:
@@ -311,7 +311,9 @@ def get_failed_services() -> T.List[str]:
         "--plain",  # plaintext, otherwise it includes color codes
     ]
 
-    return sp.run(command, stdout=sp.PIPE, universal_newlines=True).stdout.splitlines()
+    return sp.run(
+        command, stdout=sp.PIPE, universal_newlines=True
+    ).stdout.splitlines()
 
 
 def create_parser():

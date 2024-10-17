@@ -9,8 +9,10 @@ import subprocess as sp
 
 
 def do_nothing(args: T.List[str], **kwargs):
-    return sp.CompletedProcess(args, 0, "".encode(), "".encode())
-
+    if "universal_newlines" in kwargs:
+        return sp.CompletedProcess(args, 0, "", "")
+    else:
+        return sp.CompletedProcess(args, 0, "".encode(), "".encode())
 
 class UnitySupportParserTests(unittest.TestCase):
     def setUp(self):
@@ -131,9 +133,8 @@ class DisplayConnectionTests(unittest.TestCase):
         mock_run: MagicMock,
         mock_parse: MagicMock,
     ):
-
-        mock_run.side_effect = lambda _: sp.CompletedProcess(
-            [], 1, "".encode(), "".encode()
+        mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
+            [], 1, "", ""
         )
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
@@ -180,7 +181,7 @@ class InfoDumpTests(unittest.TestCase):
         else:
             raise Exception("Unexpected use of this mock")
 
-        return sp.CompletedProcess(args, 0, stdout.encode(), "".encode())
+        return sp.CompletedProcess(args, 0, stdout, "")
 
     @patch("subprocess.run")
     def test_info_dump_only_happy_path(self, mock_run: MagicMock):
@@ -243,7 +244,7 @@ class FailedServiceCheckerTests(unittest.TestCase):
     @patch("subprocess.run")
     def test_get_failed_services_happy_path(self, mock_run: MagicMock):
         mock_run.return_value = sp.CompletedProcess(
-            [], 0, "".encode(), "".encode()
+            [], 0, "",""
         )
         self.assertEqual(RCT.get_failed_services(), [])
 

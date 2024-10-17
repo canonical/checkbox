@@ -41,10 +41,8 @@ class DeviceInfoCollector:
         return str(os.listdir("/sys/class/drm"))
 
     def get_wireless_info(self) -> str:
-        iw_out = sp.run(
-            ["iw", "dev"], stdout=sp.PIPE, stderr=sp.PIPE, check=True
-        )
-        lines = iw_out.stdout.decode().splitlines()
+        iw_out = sp.check_output(["iw", "dev"], universal_newlines=True)
+        lines = iw_out.splitlines()
         lines_to_write = list(
             filter(
                 lambda line: "addr" in line
@@ -56,21 +54,21 @@ class DeviceInfoCollector:
         return "\n".join(map(lambda line: line.strip(), lines_to_write))
 
     def get_usb_info(self) -> str:
-        return sp.run(
+        return sp.check_output(
             [
                 "checkbox-support-lsusb",
                 "-f",
                 '"{}"/var/lib/usbutils/usb.ids'.format(RUNTIME_ROOT),
                 "-s",
             ],
-            check=True,
-        ).stdout.decode()
+            universal_newlines=True,
+        )
 
     def get_pci_info(self) -> str:
-        return sp.run(
+        return sp.check_output(
             ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
-            check=True,
-        ).stdout.decode()
+            universal_newlines=True,
+        )
 
     def compare_device_lists(
         self,
@@ -244,7 +242,9 @@ class HardwareRendererTester:
             print("Checking $DISPLAY={}".format(DISPLAY))
 
         unity_support_output = sp.run(
-            ["{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT), "-p"]
+            ["{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT), "-p"],
+            stdout=sp.PIPE,
+            universal_newlines=True,
         )
         if unity_support_output.returncode != 0:
             print(
@@ -256,9 +256,9 @@ class HardwareRendererTester:
             return False
 
         is_hardware_rendered = (
-            self.parse_unity_support_output(
-                unity_support_output.stdout.decode()
-            ).get("Not software rendered")
+            self.parse_unity_support_output(unity_support_output.stdout).get(
+                "Not software rendered"
+            )
             == "yes"
         )
         if is_hardware_rendered:
@@ -311,7 +311,7 @@ def get_failed_services() -> T.List[str]:
         "--plain",  # plaintext, otherwise it includes color codes
     ]
 
-    return sp.run(command).stdout.decode().splitlines()
+    return sp.check_output(command, universal_newlines=True).splitlines()
 
 
 def create_parser():

@@ -41,8 +41,8 @@ class DeviceInfoCollector:
         return str(os.listdir("/sys/class/drm"))
 
     def get_wireless_info(self) -> str:
-        iw_out = sp.check_output(["iw", "dev"])
-        lines = iw_out.decode().splitlines()
+        iw_out = sp.check_output(["iw", "dev"], universal_newlines=True)
+        lines = iw_out.splitlines()
         lines_to_write = list(
             filter(
                 lambda line: "addr" in line
@@ -60,13 +60,15 @@ class DeviceInfoCollector:
                 "-f",
                 '"{}"/var/lib/usbutils/usb.ids'.format(RUNTIME_ROOT),
                 "-s",
-            ]
-        ).decode()
+            ],
+            universal_newlines=True
+        )
 
     def get_pci_info(self) -> str:
         return sp.check_output(
-            ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)]
-        ).decode()
+            ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
+            universal_newlines=True
+        )
 
     def compare_device_lists(
         self,
@@ -242,6 +244,7 @@ class HardwareRendererTester:
         unity_support_output = sp.run(
             ["{}/usr/lib/nux/unity_support_test".format(RUNTIME_ROOT), "-p"],
             stdout=sp.PIPE,
+            universal_newlines=True
         )
         if unity_support_output.returncode != 0:
             print(
@@ -254,7 +257,7 @@ class HardwareRendererTester:
 
         is_hardware_rendered = (
             self.parse_unity_support_output(
-                unity_support_output.stdout.decode()
+                unity_support_output.stdout
             ).get("Not software rendered")
             == "yes"
         )
@@ -308,7 +311,7 @@ def get_failed_services() -> T.List[str]:
         "--plain",  # plaintext, otherwise it includes color codes
     ]
 
-    return sp.run(command, stdout=sp.PIPE).stdout.decode().splitlines()
+    return sp.run(command, stdout=sp.PIPE, universal_newlines=True).stdout.splitlines()
 
 
 def create_parser():

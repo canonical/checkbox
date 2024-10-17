@@ -18,9 +18,9 @@ include:
     gpgpu/device-query-drv
     gpgpu/simple-texture-drv
 
-id: gpgpu-virtualisation
+id: gpgpu-virtualization
 unit: test plan
-_name: GPGPU Virtualisation Testing
+_name: GPGPU Virtualization Testing
 _description:
  Automated Tests for GPGPU Passthrough (non-graphical)
 include:

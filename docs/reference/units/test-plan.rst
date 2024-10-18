@@ -184,9 +184,9 @@ copy such constructs when working on a new test plan from scratch
 
     When a job is both included and excluded, exclusion always takes priority.
 
-.. _Test Plan category-overrides field:
+.. _Test Plan category_overrides field:
 
-``category-overrides``:
+``category_overrides``:
     A multi-line list of category override statements.
 
     This optional field can be used to alter the natural job definition
@@ -218,7 +218,7 @@ copy such constructs when working on a new test plan from scratch
 
         apply CATEGORY-IDENTIFIER to JOB-DEFINITION-PATTERN
 
-    Both 'apply' and 'to' are literal strings. CATEGORY-IDENTIFIER is
+    Both ``apply`` and ``to`` are literal strings. CATEGORY-IDENTIFIER is
     the identifier of a category unit. The JOB-DEFINITION-PATTERN has the
     same syntax as the ``include`` field does. That is, it can be either
     a simple string or a regular expression that is being compared to

@@ -2626,6 +2626,7 @@ estimated_duration: 120
 plugin: user-interact
 imports: from com.canonical.plainbox import manifest
 requires: manifest.has_thunderbolt3 == 'True'
+user: root
 flags: also-after-suspend
 command: checkbox-support-run_watcher storage thunderbolt
 _summary: Thunderbolt3 storage insertion + read/write + removal

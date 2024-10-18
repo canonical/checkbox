@@ -251,10 +251,20 @@ def main() -> None:
     # execute command
     execute_command(cmd=cmd)
     logging.info("\nStep 2: Checking metadata...")
+    # Assign the expected width and height for validation
+    # If you are verifying rotate 90 or 270 degree, the height and width
+    # should be exchanged.
+    expeted_width = args.width
+    expeted_height = args.height
+    if args.action in [Actions.ROTATE_90, Actions.ROTATE_270]:
+        expeted_width = args.height
+        expeted_height = args.width
     mv = MetadataValidator(file_path=p.artifact_file)
-    mv.validate("width", args.width).validate("height", args.height).validate(
-        "frame_rate", args.framerate
-    ).validate("codec", args.encoder_plugin).is_valid()
+    mv.validate("width", expeted_width).validate(
+        "height", expeted_height
+    ).validate("frame_rate", args.framerate).validate(
+        "codec", args.encoder_plugin
+    ).is_valid()
     logging.info("\nStep 3: Comparing PSNR...")
     compare_psnr(
         golden_reference_file=p.psnr_reference_file,

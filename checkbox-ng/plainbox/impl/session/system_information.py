@@ -253,6 +253,19 @@ class InxiCollector(Collector):
         )
 
 
+class ImageInfoCollector(Collector):
+    COLLECTOR_NAME = "image_info"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=[
+                "python3",
+                str(vendor.IMAGE_INFO),
+            ],
+            version_cmd=["python3", str(vendor.IMAGE_INFO), "--version"],
+        )
+
+
 if __name__ == "__main__":
     collection = collect()
     print(collection.to_json())

@@ -398,6 +398,36 @@ verification:
     1. Did the 3D animation appear?
     2. Was the animation free from slowness/jerkiness?
 
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/auto_glxgears
+flags: also-after-suspend
+user: root
+requires:
+    executable.name == 'glxgears'
+    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving']
+command:
+    prime_offload_tester.py -c glxgears -t 30
+summary:
+    Test that glxgears works for current video card
+purpose:
+     Tests the basic 3D capabilities of your current video card. This test covers all devices without an integrated display, such as desktops.
+
+plugin: shell
+category_id: com.canonical.plainbox::graphics
+id: graphics/auto_glxgears_fullscreen
+flags: also-after-suspend
+user: root
+requires:
+    executable.name == 'glxgears'
+    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving']
+command:
+     prime_offload_tester.py -c "glxgears -fullscreen" -t 30
+summary:
+    Test that glxgears works in full screen mode for current video card
+purpose:
+     Tests the basic full screen 3D capabilities of your current video card. This test covers all devices without an integrated display, such as desktops.
+
 plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/valid_glxgears
@@ -406,8 +436,7 @@ requires:
     executable.name == 'glxgears'
     dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving']
 command:
- glxgears
- true
+    prime_offload_tester.py -c glxgears -t 30
 summary:
     Test that glxgears works for current video card
 purpose:
@@ -427,8 +456,7 @@ requires:
     executable.name == 'glxgears'
     dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving']
 command:
- glxgears -fullscreen
- true
+    prime_offload_tester.py -c "glxgears -fullscreen" -t 30
 summary:
     Test that glxgears works in full screen mode for current video card
 purpose:

@@ -196,7 +196,7 @@ The jobs execution order is:
 How to change category or certification status of jobs coming from nested parts?
 --------------------------------------------------------------------------------
 
-The :ref:`test plan override mechanism<Test Plan category-overrides field>`
+The :ref:`test plan override mechanism<Test Plan category_overrides field>`
 still works with nested parts. For example the ``hello`` job from the Baz
 provider was defined as a blocker and did not have a category.
 

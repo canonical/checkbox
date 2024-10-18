@@ -184,9 +184,9 @@ copy such constructs when working on a new test plan from scratch
 
     When a job is both included and excluded, exclusion always takes priority.
 
-.. _Test Plan category-overrides field:
+.. _Test Plan category_overrides field:
 
-``category-overrides``:
+``category_overrides``:
     A multi-line list of category override statements.
 
     This optional field can be used to alter the natural job definition
@@ -218,7 +218,7 @@ copy such constructs when working on a new test plan from scratch
 
         apply CATEGORY-IDENTIFIER to JOB-DEFINITION-PATTERN
 
-    Both 'apply' and 'to' are literal strings. CATEGORY-IDENTIFIER is
+    Both ``apply`` and ``to`` are literal strings. CATEGORY-IDENTIFIER is
     the identifier of a category unit. The JOB-DEFINITION-PATTERN has the
     same syntax as the ``include`` field does. That is, it can be either
     a simple string or a regular expression that is being compared to
@@ -235,6 +235,45 @@ copy such constructs when working on a new test plan from scratch
 
     The job definition with the partial identifier ``foo`` will be associated
     with the ``cat-2`` category.
+
+.. _Test Plan certification_status_overrides field:
+
+``certification_status_overrides``:
+    A multi-line list of certification status override statements.
+
+    Similar to the :ref:`category_overrides<Test Plan category_overrides field>`
+    field, this field can be used to modify the certification status of the
+    jobs matching the given regular expression.
+
+    The possible values are the same as for the
+    :ref:`certification-status<Job certification-status field>` job field.
+
+    For instance, the following will force every wireless job to become a
+    certification blocker::
+
+        apply blocker to .*wireless.*
+
+    .. note::
+
+        This override mechanism “bubbles up”, meaning if it is used in a
+        :ref:`nested part<nested-test-plan>`, all the jobs selected as part of
+        the whole test plan will be impacted, not only the jobs in that
+        specific nested part.
+
+    .. warning::
+
+        If no namespace is provided, Checkbox will add the namespace of the
+        current provider to the regular expression that is provided. This can
+        be a problem if the override has to work across different providers
+        with different namespaces. In that case, instead of using::
+
+            apply blocker to .*
+
+        the following should be used::
+
+            apply blocker to .*::.*
+
+        to apply the override to every job of every namespaces.
 
 .. _Test Plan estimated_duration field:
 

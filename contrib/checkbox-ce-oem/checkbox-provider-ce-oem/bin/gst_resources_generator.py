@@ -22,6 +22,7 @@ import os
 import json
 import logging
 from itertools import product
+from typing import Dict, List
 from checkbox_support.scripts.image_checker import has_desktop_environment
 from checkbox_support.snap_utils.system import on_ubuntucore
 
@@ -93,7 +94,7 @@ class GstResources:
         height: str,
         color_space: str,
         source_format: str,
-    ) -> dict:
+    ) -> Dict:
         """
         Generate a resource item dictionary for
         gst_v4l2_video_decoder_md5_checksum_comparison scenario
@@ -127,7 +128,7 @@ class GstResources:
         return returned_dict
 
     def gst_v4l2_video_decoder_md5_checksum_comparison(
-        self, scenario_data: list[dict]
+        self, scenario_data: List[Dict]
     ) -> None:
         for item in scenario_data:
             self._resource_items.extend(
@@ -144,7 +145,7 @@ class GstResources:
                 ]
             )
 
-    def gst_encoder_psnr(self, scenario_data: list[dict]) -> None:
+    def gst_encoder_psnr(self, scenario_data: List[Dict]) -> None:
         # Iterate through each encoder plugin configuration
         for item in scenario_data:
             encoder_plugin = item.get("encoder_plugin")
@@ -171,7 +172,7 @@ class GstResources:
                 self._resource_items.append(config)
 
     def gst_v4l2_audio_video_synchronization(
-        self, scenario_data: dict
+        self, scenario_data: Dict
     ) -> None:
         video_sink = ""
         if on_ubuntucore():
@@ -201,7 +202,7 @@ class GstResources:
                 )
 
     def gst_v4l2_video_decoder_performance_fakesink(
-        self, scenario_data: list[dict]
+        self, scenario_data: List[Dict]
     ) -> None:
         for item in scenario_data:
             self._resource_items.append(
@@ -231,7 +232,7 @@ class GstResources:
             if not encoder_plugin:
                 continue
             actions = item.get("actions", [""])
-            resolutions = item.get("resolutions", [""])
+            resolutions = item.get("resolutions", [{}])
 
             # Use itertools.product to create combinations of all parameters
             for resolution, action in product(resolutions, actions):

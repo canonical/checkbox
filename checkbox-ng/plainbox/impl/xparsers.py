@@ -672,6 +672,15 @@ class WordList(Node):
                 continue
             elif token == scanner.TokenEnum.WORD:
                 entries.append(Text(lineno, col_offset, lexeme))
+            elif token == scanner.TokenEnum.INVALID:
+                entries.append(
+                    Error(
+                        lineno,
+                        col_offset,
+                        "Missing end of word: {!r}".format(lexeme),
+                    )
+                )
+                break
             else:
                 entries.append(
                     Error(

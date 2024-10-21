@@ -41,6 +41,10 @@ class ScannerBase:
     def get_token(self):
         """
         Get the next pair (token, lexeme)
+
+        This is a greedy parser, it will try to parse until it finds an error.
+        If an error is found, then the parser goes back to the last valid char
+        (the last char that parsed to something valid).
         """
         state = self.STATE_START
         lexeme = ""
@@ -52,8 +56,12 @@ class ScannerBase:
                 stack[:] = ()
             stack.append(state)
             state = self._next_state_for(state, char)
+        # Latest lexeme at the end of the parsing cycle, if we didn't
+        # fetch anything valid from it (accepting), then it is returned
+        # along with the error as an information
+        lexeme_endparse = lexeme
         if state is self.STATE_ERROR:
-            while not state.is_accepting and state is not self.STATE_BAD:
+            while not state.is_accepting and state is not self.STATE_START:
                 state = stack.pop()
                 lexeme = lexeme[:-1]
                 self._rollback()
@@ -62,7 +70,7 @@ class ScannerBase:
         if state.is_accepting:
             return state.token, lexeme
         else:
-            return state.token, None
+            return state.token, lexeme_endparse.rstrip("\0")
 
     def _rollback(self):
         if self._pos > 0:
@@ -281,10 +289,6 @@ class WordScanner(ScannerBase):
                 return WordScannerState.ERROR
             else:
                 return WordScannerState.QUOTED_WORD_INNER
-            if char.isspace() or char == "\0" or char == "#":
-                return WordScannerState.ERROR
-            else:
-                return WordScannerState.WORD
         elif state is WordScannerState.QUOTED_WORD_END:
             pass
         elif state is WordScannerState.COMMENT_END:

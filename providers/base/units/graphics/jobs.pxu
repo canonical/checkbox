@@ -432,6 +432,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/valid_glxgears
 flags: also-after-suspend
+user: root
 requires:
     executable.name == 'glxgears'
     dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving']
@@ -452,6 +453,7 @@ plugin: user-interact-verify
 category_id: com.canonical.plainbox::graphics
 id: graphics/valid_glxgears_fullscreen
 flags: also-after-suspend
+user: root
 requires:
     executable.name == 'glxgears'
     dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving']

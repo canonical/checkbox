@@ -70,6 +70,8 @@ include:
  after-suspend-graphics/1_minimum_resolution_.*
  after-suspend-graphics/1_auto_glxgears_.*                certification-status=blocker
  after-suspend-graphics/2_auto_glxgears_.*                certification-status=blocker
+ after-suspend-graphics/auto_glxgears                     certification-status=blocker
+ after-suspend-graphics/auto_glxgears_fullscreen          certification-status=blocker
  suspend/resolution_after_suspend                         certification-status=blocker
 
 id: after-suspend-graphics-gpu-cert-manual

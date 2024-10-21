@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2015 Canonical Ltd.
+# Copyright 2012-2024 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -18,7 +19,7 @@
 import doctest
 import unittest
 
-from plainbox.impl.xparsers import WordList, Error
+from plainbox.impl.xparsers import WordList, Error, Text
 
 
 def load_tests(loader, tests, ignore):
@@ -65,3 +66,9 @@ class WordParserTests(unittest.TestCase):
         entries = parsed.entries
         self.assertEqual(len(entries), 1)
         self.assertTrue(isinstance(entries[0], Error))
+
+    def test_error_word(self):
+        entries = WordList.parse("a=").entries
+        self.assertEqual(len(entries), 2)
+        self.assertTrue(isinstance(entries[0], Text))
+        self.assertTrue(isinstance(entries[1], Error))

@@ -225,6 +225,28 @@ class GstResources:
                 }
             )
 
+    def gst_transform_rotate_and_flip(self, scenario_data: list[dict]) -> None:
+        # Iterate through each encoder plugin configuration
+        for item in scenario_data:
+            encoder_plugin = item.get("encoder_plugin")
+            if not encoder_plugin:
+                continue
+            actions = item.get("actions", [""])
+            resolutions = item.get("resolutions", [{}])
+
+            # Use itertools.product to create combinations of all parameters
+            for resolution, action in product(resolutions, actions):
+                config = {
+                    "platform": self._conf_name,
+                    "scenario": self._current_scenario_name,
+                    "encoder_plugin": encoder_plugin,
+                    "width": resolution.get("width"),
+                    "height": resolution.get("height"),
+                    "framerate": resolution.get("fps"),
+                    "action": action,
+                }
+                self._resource_items.append(config)
+
     def main(self):
         for scenario in self._scenarios:
             self._current_scenario_name = scenario

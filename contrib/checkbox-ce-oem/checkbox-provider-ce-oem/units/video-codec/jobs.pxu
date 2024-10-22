@@ -95,3 +95,24 @@ flags: also-after-suspend
 environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
 command:
     gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -cs "{{ color_space }}" -wi {{ width }} -hi {{ height }} -f {{ framerate }} -m "{{ mux }}"
+
+unit: template
+template-engine: jinja2
+template-resource: video_codec_resource
+template-filter:
+    video_codec_resource.scenario == "gst_transform_rotate_and_flip"
+    ( video_codec_resource.platform == "genio-350" or video_codec_resource.platform == "genio-510" or video_codec_resource.platform == "genio-700" or video_codec_resource.platform == "genio-1200" )
+template-unit: job
+template-id: ce-oem-video-codec/gst_transform_rotate_and_flip
+_template-summary: Check if the rotation or flip operations are functional
+id: ce-oem-video-codec/{{ scenario }}-{{ encoder_plugin }}_{{ action }}_{{ width }}x{{ height }}_{{ framerate }}fps
+_summary: Perform {{ action }} - {{ width }}x{{ height }}_{{ framerate }}fps file
+plugin: shell
+category_id: video-codec
+estimated_duration: 60s
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_video_codec == 'True'
+flags: also-after-suspend
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
+command:
+    gst_transform_rotate_and_flip.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wi "{{ width }}" -hi "{{ height }}" -f "{{ framerate }}" -a "{{ action }}"

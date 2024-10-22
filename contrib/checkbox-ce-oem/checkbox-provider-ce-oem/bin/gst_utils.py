@@ -50,7 +50,7 @@ class GStreamerMuxerType(Enum):
     MATROSKAMUX = "mkv"
 
     @classmethod
-    def get_extension(cls, mux_type):
+    def get_extension(cls, mux_type: str = "MP4MUX"):
         if mux_type.upper() in cls.__members__:
             return cls[mux_type].value
         else:

@@ -30,7 +30,7 @@ def find_ta_path():
 
 
 def install_ta(xtest, path):
-    cmd = ["timeout", "10", xtest, "--install-ta", path]
+    cmd = ["timeout", "30", xtest, "--install-ta", path]
     print("Attempting to install TA...", flush=True)
     run_command(cmd)
     print("TA install succeeded!", flush=True)

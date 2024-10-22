@@ -16,10 +16,9 @@ class ExtendSanpd(Snapd):
 
 def look_up_app(target_app):
     """Lookup target app and the snap."""
+    snap = None
     if target_app == "xtest":
         snap = os.environ.get("XTEST")
-    elif target_app == "tee-supplicant":
-        snap = os.environ.get("TEE_SUPPLICANT")
     apps = ExtendSanpd().list_apps(snap)
     try:
         for app in apps["result"]:

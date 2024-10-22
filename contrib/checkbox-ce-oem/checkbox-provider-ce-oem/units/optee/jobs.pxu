@@ -25,9 +25,15 @@ _summary: Install Trusted Applications for xtest
 plugin: shell
 user: root
 estimated_duration: 20.0
-environ: XTEST TEE_SUPPLICANT
+environ: XTEST
 depends: ce-oem-optee/device-node
-command: xtest_install_ta.py
+command:
+    if pgrep -x "tee-supplicant" > /dev/null; then
+        xtest_install_ta.py
+    else
+        echo "Error: tee-supplicant not found!"
+        exit 1
+    fi
 
 id: ce-oem-optee-test-list
 estimated_duration: 1
@@ -73,7 +79,12 @@ estimated_duration: 30
 flags: also-after-suspend
 depends: ce-oem-optee/ta-install
 command:
-    {{ tool }} -t {{ suite }} {{ test_id }}
+    if pgrep -x "tee-supplicant"  > /dev/null; then
+        {{ tool }} -t {{ suite }} {{ test_id }}
+    else
+        echo "Error: Not found tee-supplicant!"
+        exit 1
+    fi
 
 unit: template
 template-resource: ce-oem-optee-test-list-pkcs11
@@ -89,4 +100,9 @@ estimated_duration: 30
 depends: ce-oem-optee/device-node
 flags: also-after-suspend
 command:
-    {{ tool }} -t {{ suite }} {{ test_id }}
+    if pgrep -x "tee-supplicant"  > /dev/null; then
+        {{ tool }} -t {{ suite }} {{ test_id }}
+    else
+        echo "Error: Not found tee-supplicant!"
+        exit 1
+    fi

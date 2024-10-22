@@ -1,8 +1,9 @@
 # This file is part of Checkbox.
 #
-# Copyright 2012-2015 Canonical Ltd.
+# Copyright 2012-2024 Canonical Ltd.
 # Written by:
 #   Zygmunt Krynicki <zygmunt.krynicki@canonical.com>
+#   Massimiliano Girardi <massimiliano.girardi@canonical.com>
 #
 # Checkbox is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License version 3,
@@ -672,6 +673,15 @@ class WordList(Node):
                 continue
             elif token == scanner.TokenEnum.WORD:
                 entries.append(Text(lineno, col_offset, lexeme))
+            elif token == scanner.TokenEnum.INVALID:
+                entries.append(
+                    Error(
+                        lineno,
+                        col_offset,
+                        "Missing end of word: {!r}".format(lexeme),
+                    )
+                )
+                break
             else:
                 entries.append(
                     Error(

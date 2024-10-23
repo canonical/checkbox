@@ -69,3 +69,11 @@ _name: Pass and Crash
 include:
  basic-shell-passing
  basic-shell-crashing
+
+unit: test plan
+id: crash_invalid_template_id
+_name: Crashes the agent due to the invalid template
+bootstrap_include:
+  resource_names
+include:
+  template_validation_testing

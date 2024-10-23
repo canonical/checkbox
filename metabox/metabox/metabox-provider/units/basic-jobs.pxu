@@ -255,3 +255,24 @@ id: dependency_installation
 command: dependency_installation.py
 _summary: Verify that all required modules are installed
 _description: Verify that all required modules are installed
+
+id: resource_names
+_summary: Returns names usable in templates along with their validity as an id
+plugin: resource
+command:
+  echo "name: somename"
+  echo "id_valid: True"
+  echo
+  echo 'name: "invalid_id'
+  echo "id_valid: False"
+
+unit: template
+template-resource: resource_names
+template-unit: job
+id: template_validation_testing_{name}
+template-id: template_validation_testing
+command:
+  echo Testing {name}
+_summary:
+  Used to test that Checkbox validates templates and crashes when invalid
+flags: simple

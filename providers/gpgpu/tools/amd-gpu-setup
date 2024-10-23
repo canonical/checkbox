@@ -1,0 +1,71 @@
+#!/bin/bash
+
+echo "Configuring system for GPU Testing"
+echo "**********************************"
+echo "*"
+
+# For now we need internet access for this to work.  Future versions will
+# remove this necessity
+echo "*  Testing network connectivity"
+[[ ! `ping -c 1 www.ubuntu.com` ]] \
+    && echo "ERROR: This script requires internet access to function correctly" \
+    && exit 1
+echo "*"
+echo "**********************************"
+echo "*"
+echo "*  Adding AMDGPU and ROCm repositories"
+KFD_VERSION="6.2"
+
+CODENAME=`lsb_release -c | cut -f2`
+ARCH=`uname -m`
+if [[ "$ARCH" != "x86_64" ]] ; then
+    echo "ERROR: Unsupported architecture $ARCH"
+    exit 0
+fi
+
+# Import and verify rocm gpg key
+wget -O rocm.gpg "https://repo.radeon.com/rocm/rocm.gpg.key"
+if [[ $? -eq 8 ]] ; then
+    echo "ERROR: wget failed."
+    exit 0
+fi
+gpg --no-default-keyring --keyring ./temp-keyring.gpg \
+    --import rocm.gpg
+gpg --no-default-keyring --keyring ./temp-keyring.gpg \
+    --fingerprint "CA8BB4727A47B4D09B4EE8969386B48A1A693C5C"
+if [[ $? -ne 0 ]] ; then
+    echo "ERROR: GPG key import failed. Invalid gpg key?"
+    exit 1
+fi
+sudo gpg --yes --no-default-keyring --keyring ./temp-keyring.gpg --export \
+    --output /usr/share/keyrings/rocm.gpg
+rm ./temp-keyring.gpg
+rm ./temp-keyring.gpg~
+rm ./rocm.gpg
+
+# Add repository lists
+sudo tee /etc/apt/sources.list.d/amdgpu.list <<EOF
+deb [arch=amd64 signed-by=/usr/share/keyrings/rocm.gpg] https://repo.radeon.com/amdgpu/${KFD_VERSION}/ubuntu ${CODENAME} main
+EOF
+sudo tee /etc/apt/sources.list.d/rocm.list <<EOF
+deb [arch=amd64 signed-by=/usr/share/keyrings/rocm.gpg] https://repo.radeon.com/rocm/apt/${KFD_VERSION} ${CODENAME} main
+EOF
+
+# Add pinfile
+sudo tee /etc/apt/preferences.d/rocm-pin-600 <<EOF
+Package: *
+Pin: release o=repo.radeon.com
+Pin-Priority: 600
+EOF
+
+# Install necessary packages
+sudo apt-get -q update
+echo "*  Installing necessary pacakges"
+sudo apt-get -q install -y rocblas rocm-smi-lib rocm-validation-suite
+
+# Add user to render group
+echo "*  Adding $USER to render group"
+sudo usermod -aG render $USER
+
+echo "*"
+echo "*  Completed installation."

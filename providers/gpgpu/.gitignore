@@ -1,3 +1,10 @@
+# python
+*.egg-info
+*.pyc
+.coverage
+MANIFEST
+__pycache__
+
 # packaging folders
 build
 dist

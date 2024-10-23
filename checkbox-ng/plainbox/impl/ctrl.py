@@ -432,35 +432,33 @@ class CheckBoxSessionStateController(ISessionStateController):
         # before it was suspended, so don't
         if result.outcome is IJobResult.OUTCOME_NONE:
             return
-        for unit in session_state.unit_list:
-            if isinstance(unit, TemplateUnit) and unit.resource_id == job.id:
-                logger.info(_("Instantiating unit: %s"), unit)
-                for new_unit in unit.instantiate_all(
-                    session_state.resource_map[job.id], fake_resources
-                ):
-                    try:
-                        check_result = new_unit.check()
-                    except MissingParam as m:
-                        logger.debug(
-                            _(
-                                "Ignoring %s with missing "
-                                "template parameter %s"
-                            ),
-                            new_unit._raw_data.get("id"),
-                            m.parameter,
-                        )
-                        continue
-                    # Only ignore jobs for which check() returns an error
-                    if [
-                        c for c in check_result if c.severity == Severity.error
-                    ]:
-                        logger.error(
-                            _("Ignoring invalid generated job %s"), new_unit.id
-                        )
-                    else:
-                        session_state.add_unit(
-                            new_unit, via=job, recompute=False
-                        )
+        # get all templates that use this (resource) job as template_resource
+        template_units = filter(
+            lambda unit: isinstance(unit, TemplateUnit)
+            and unit.resource_id == job.id,
+            session_state.unit_list,
+        )
+        # get the parsed resource (list of dict created from the resource
+        # stdout)
+        parsed_resource = session_state.resource_map[job.id]
+        # get a list of all new units generated from each template
+        # this is an array of arrays units as follows:
+        # [[unit_from_template1, ...], [unit_from_template2, ...]]
+        new_units_lists = (
+            template_unit.instantiate_all(parsed_resource, fake_resources)
+            for template_unit in template_units
+        )
+        # flattening list to make it easier to work with
+        new_units = [
+            new_unit
+            for new_unit_list in new_units_lists
+            for new_unit in new_unit_list
+        ]
+
+        for new_unit in new_units:
+            # here they are added unconditionally as they will be checked
+            # before running to make error reporting possible
+            session_state.add_unit(new_unit, via=job, recompute=False)
         session_state._recompute_job_readiness()
 
 

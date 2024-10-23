@@ -9,6 +9,7 @@ nested_part:
     com.canonical.certification::server-miscellaneous
     com.canonical.certification::gpgpu-stress
     com.canonical.certification::gpgpu-automated
+    com.canonical.certification::gpgpu-virtualisation
 include:
 bootstrap_include:
     device

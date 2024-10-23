@@ -1306,11 +1306,11 @@ class Expand:
     def register_arguments(self, parser):
         parser.formatter_class = RawDescriptionHelpFormatter
         parser.description = (
-            "Expand a given test plan: display all the jobs and templates "
-            "that are defined in this test plan and that would be executed "
-            "if ran. This is useful to visualize the full list of jobs and "
-            "templates for complex test plans that consist of many nested "
-            "parts with different 'include' and 'exclude' sections.\n\n"
+            "Expand a given test plan: display all the jobs, templates and "
+            "manifest entries that are defined in this test plan and that "
+            " would be executed if ran. This is useful to visualize the full "
+            "list of units called for complex test plans that consist of many "
+            "nested parts with different 'include' and 'exclude' sections.\n\n"
             "NOTE: the elements listed here are not sorted by execution "
             "order. To see the execution order, please use the "
             "'list-bootstrapped' command instead."

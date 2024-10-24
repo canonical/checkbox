@@ -492,21 +492,13 @@ class ReportsStage(CheckboxUiStage):
             )
             self.sa.config.update_from_another(additional_config, new_origin)
         elif report == "submission_files":
-            # LP:1585326 maintain isoformat but removing ':' chars that cause
-            # issues when copying files.
-            isoformat = "%Y-%m-%dT%H.%M.%S.%f"
-            timestamp = datetime.datetime.utcnow().strftime(isoformat)
-            if not os.path.exists(self.base_dir):
-                os.makedirs(self.base_dir)
             for exporter, file_ext in [
                 ("html", ".html"),
                 ("junit", ".junit.xml"),
                 ("tar", ".tar.xz"),
             ]:
-                path = os.path.join(
-                    self.base_dir,
-                    "".join(["submission_", timestamp, file_ext]),
-                )
+                path = self._get_submission_file_path(file_ext)
+                os.path.makedirs(os.path.dirname(path), exist_ok=True)
                 template = textwrap.dedent(
                     """
                     [transport:{exporter}_file]
@@ -527,11 +519,22 @@ class ReportsStage(CheckboxUiStage):
                     additional_config, new_origin
                 )
 
+    def _get_submission_file_path(self, file_ext):
+        # LP:1585326 maintain isoformat but removing ':' chars that cause
+        # issues when copying files.
+        isoformat = "%Y-%m-%dT%H.%M.%S.%f"
+        timestamp = datetime.datetime.now(datetime.UTC).strftime(isoformat)
+        return os.path.join(
+            self.base_dir,
+            "".join(["submission_", timestamp, file_ext]),
+        )
+
     def _prepare_transports(self):
         self.base_dir = os.path.join(
             os.getenv("XDG_DATA_HOME", os.path.expanduser("~/.local/share/")),
             "checkbox-ng",
         )
+        os.makedirs(self.base_dir, exist_ok=True)
         self._available_transports = get_all_transports()
         self.transports = dict()
 
@@ -679,9 +682,23 @@ class ReportsStage(CheckboxUiStage):
                                 exc,
                             )
                     if result and "url" in result:
-                        print(result["url"])
+                        path = self._get_submission_file_path(".c3_url.log")
+                        with open(path, "w+") as f:
+                            print(
+                                "Submission url ({}) saved also to: {}".format(
+                                    path, result["url"]
+                                )
+                            )
+                            f.write(result["url"])
                     elif result and "status_url" in result:
-                        print(result["status_url"])
+                        path = self._get_submission_file_path(".c3_url.log")
+                        with open(path, "w+") as f:
+                            print(
+                                "Submission url ({}) saved also to: {}".format(
+                                    path, result["status_url"]
+                                )
+                            )
+                            f.write(result["status_url"])
                 except TransportError as exc:
                     _logger.warning(
                         _("Problem occured when submitting '%s' report: %s"),

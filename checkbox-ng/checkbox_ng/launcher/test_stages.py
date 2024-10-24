@@ -18,6 +18,7 @@
 
 
 from pathlib import Path
+from functools import partial
 from unittest import TestCase, mock
 
 from checkbox_ng.launcher.stages import MainLoopStage, ReportsStage
@@ -143,3 +144,15 @@ class TestReportsStage(TestCase):
                     "https://certification.canonical.com/submissions/status/EXAMPLE"
                 ),
             )
+
+    @mock.patch("os.makedirs")
+    def test__prepare_stock_report(self, makedirs):
+        self_mock = mock.MagicMock()
+        self_mock._get_submission_file_path = partial(
+            ReportsStage._get_submission_file_path, self_mock
+        )
+
+        ReportsStage._prepare_stock_report(self_mock, "submission_files")
+
+        self.assertEqual(self_mock.sa.config.update_from_another.call_count, 3)
+        self.assertTrue(makedirs.called)

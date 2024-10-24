@@ -542,12 +542,16 @@ class ReportsStage(CheckboxUiStage):
             "".join(["submission_", timestamp, file_ext]),
         )
 
-    def _prepare_transports(self):
-        self.base_dir = os.path.join(
+    @property
+    def base_dir(self):
+        base_dir = os.path.join(
             os.getenv("XDG_DATA_HOME", os.path.expanduser("~/.local/share/")),
             "checkbox-ng",
         )
-        os.makedirs(self.base_dir, exist_ok=True)
+        os.makedirs(base_dir, exist_ok=True)
+        return base_dir
+
+    def _prepare_transports(self):
         self._available_transports = get_all_transports()
         self.transports = dict()
 

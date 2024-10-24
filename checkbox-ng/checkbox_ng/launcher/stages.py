@@ -512,7 +512,7 @@ class ReportsStage(CheckboxUiStage):
                 ("tar", ".tar.xz"),
             ]:
                 path = self._get_submission_file_path(file_ext)
-                os.path.makedirs(os.path.dirname(path), exist_ok=True)
+                os.makedirs(os.path.dirname(path), exist_ok=True)
                 template = textwrap.dedent(
                     """
                     [transport:{exporter}_file]

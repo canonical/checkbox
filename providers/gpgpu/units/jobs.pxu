@@ -18,7 +18,7 @@ requires:
     package.name == 'cuda-toolkit'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU matrix multiplication
-command: matrixMulDrv.sh
+command: matrixMulDrv
 
 id: gpgpu/vector-add-drv
 category_id: gpgpu
@@ -29,7 +29,7 @@ requires:
     package.name == 'cuda-toolkit'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU vector addition
-command: vectorAddDrv.sh
+command: vectorAddDrv
 
 id: gpgpu/device-query-drv
 category_id: gpgpu
@@ -51,7 +51,7 @@ requires:
     package.name == 'cuda-toolkit'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU simple textures
-command: simpleTextureDrv.sh
+command: simpleTextureDrv
 
 id: gpgpu/rvs-gpup
 category_id: gpgpu

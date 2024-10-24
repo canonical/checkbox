@@ -4,6 +4,8 @@ echo "Configuring system for GPU Testing"
 echo "**********************************"
 echo "*"
 
+# TODO: Break this into NVIDIA or/and AMD depending on GPUs present?
+
 OSRELEASE=ubuntu`lsb_release -r | cut -f2 |sed -e 's/\.//'`
 ARCH=`uname -m`
 case $ARCH in
@@ -55,5 +57,31 @@ EOF
 # Install necessary files
 apt-get update
 echo "*  Installing CUDA toolkit"
-## need to break this out to fix issue where cuda installs gdm3
 apt-get install -y --no-install-recommends cuda-toolkit
+
+# Add CUDA binaries to PATH
+CUDA_PATH=$(find /usr/local -maxdepth 1 -type d -iname "cuda*")/bin
+export PATH=$PATH:$CUDA_PATH
+
+# Set up gpu-burn and CUDA samples, used for the tests
+echo "*  Setting up gpu-burn"
+GPU_BURN_DIR=/opt/gpu-burn
+git clone https://github.com/wilicc/gpu-burn.git "$GPU_BURN_DIR"
+make -C "$GPU_BURN_DIR"
+ln -s "$GPU_BURN_DIR/gpu_burn" /usr/local/sbin/gpu_burn
+
+echo "*  Setting up cuda-samples"
+CUDA_SAMPLES_DIR=/opt/cuda-samples
+git clone https://github.com/nvidia/cuda-samples.git "$CUDA_SAMPLES_DIR"
+make -C "$CUDA_SAMPLES_DIR/Samples/0_Introduction/matrixMulDrv"
+make -C "$CUDA_SAMPLES_DIR/Samples/0_Introduction/vectorAddDrv"
+make -C "$CUDA_SAMPLES_DIR/Samples/1_Utilities/deviceQueryDrv"
+make -C "$CUDA_SAMPLES_DIR/Samples/0_Introduction/simpleTextureDrv"
+ln -s "$CUDA_SAMPLES_DIR/Samples/0_Introduction/matrixMulDrv/matrixMulDrv" /usr/local/sbin/matrixMulDrv
+ln -s "$CUDA_SAMPLES_DIR/Samples/0_Introduction/vectorAddDrv/vectorAddDrv" /usr/local/sbin/vectorAddDrv
+ln -s "$CUDA_SAMPLES_DIR/Samples/1_Utilities/deviceQueryDrv/deviceQueryDrv" /usr/local/sbin/deviceQueryDrv
+ln -s "$CUDA_SAMPLES_DIR/Samples/0_Introduction/simpleTextureDrv/simpleTextureDrv" /usr/local/sbin/simpleTextureDrv
+
+echo "*"
+echo "*  Completed installation. Please reboot the machine now"
+echo "*  to load the NVIDIA proprietary drivers"

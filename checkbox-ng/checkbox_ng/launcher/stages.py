@@ -27,6 +27,7 @@ import logging
 import os
 import textwrap
 import time
+import functools
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import pgettext as C_
@@ -49,6 +50,17 @@ from checkbox_ng.launcher.run import (
 _ = gettext.gettext
 
 _logger = logging.getLogger("checkbox-ng.launcher.stages")
+
+
+@functools.lru_cache(maxsize=1)
+def get_submissions_timestamp():
+    """
+    This is so that one session produces only artifacts with the same
+    submission timestamp
+    """
+    isoformat = "%Y-%m-%dT%H.%M.%S.%f"
+    timestamp = datetime.datetime.now(datetime.UTC).strftime(isoformat)
+    return timestamp
 
 
 class CheckboxUiStage(metaclass=abc.ABCMeta):
@@ -522,8 +534,7 @@ class ReportsStage(CheckboxUiStage):
     def _get_submission_file_path(self, file_ext):
         # LP:1585326 maintain isoformat but removing ':' chars that cause
         # issues when copying files.
-        isoformat = "%Y-%m-%dT%H.%M.%S.%f"
-        timestamp = datetime.datetime.now(datetime.UTC).strftime(isoformat)
+        timestamp = get_submissions_timestamp()
         return os.path.join(
             self.base_dir,
             "".join(["submission_", timestamp, file_ext]),

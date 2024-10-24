@@ -59,7 +59,9 @@ def get_submissions_timestamp():
     submission timestamp
     """
     isoformat = "%Y-%m-%dT%H.%M.%S.%f"
-    timestamp = datetime.datetime.now(datetime.UTC).strftime(isoformat)
+    timestamp = datetime.datetime.now(datetime.timezone.utc).strftime(
+        isoformat
+    )
     return timestamp
 
 

@@ -151,6 +151,7 @@ class TestReportsStage(TestCase):
         self_mock._get_submission_file_path = partial(
             ReportsStage._get_submission_file_path, self_mock
         )
+        self_mock.base_dir = "~/.local/share"
 
         ReportsStage._prepare_stock_report(self_mock, "submission_files")
 

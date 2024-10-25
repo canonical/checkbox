@@ -33,7 +33,11 @@ if [[ $? -ne 0 ]] ; then
 fi
 gpg --yes --no-default-keyring --keyring "$TMP_KEYRING" --export \
     --output "$GPG_KEYRING"
-rm "$TMP_KEYRING" "$TMP_KEYRING~" "$TMP_GPG_KEY"
+
+# Clean up temporary files
+if [[ -f "$TMP_KEYRING" ]] ; then rm "$TMP_KEYRING" ; fi
+if [[ -f "$TMP_KEYRING~" ]] ; then rm "$TMP_KEYRING~" ; fi
+if [[ -f "$TMP_GPG_KEY" ]] ; then rm "$TMP_GPG_KEY" ; fi
 
 PINFILE="cuda-$OSRELEASE.pin"
 wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"

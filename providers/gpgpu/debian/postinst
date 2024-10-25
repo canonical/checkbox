@@ -21,7 +21,7 @@ GPG_KEYRING=/usr/share/keyrings/cuda-archive-keyring.gpg
 wget -O "$TMP_GPG_KEY" "$REPO_URL/3bf863cc.pub"
 if [[ $? -eq 8 ]] ; then
     echo "ERROR: wget failed. Check networking or $OSRELEASE/$ARCH not supported?"
-    exit 0
+    exit 1
 fi
 gpg --no-default-keyring --keyring "$TMP_KEYRING" \
     --import "$TMP_GPG_KEY"
@@ -33,7 +33,7 @@ if [[ $? -ne 0 ]] ; then
 fi
 gpg --yes --no-default-keyring --keyring "$TMP_KEYRING" --export \
     --output "$GPG_KEYRING"
-rm "$TMP_KEYRING" "$TMP_KEYRING~" "$TMP_KEYRING"
+rm "$TMP_KEYRING" "$TMP_KEYRING~" "$TMP_GPG_KEY"
 
 PINFILE="cuda-$OSRELEASE.pin"
 wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"

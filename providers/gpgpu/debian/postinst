@@ -36,7 +36,7 @@ PINFILE="cuda-$OSRELEASE.pin"
 wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"
 
 tee /etc/apt/sources.list.d/cuda-$OSRELEASE-$ARCH.list <<EOF
-deb [signed-by=$GPG_KEYRING] http://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH/ /
+deb [signed-by=$GPG_KEYRING] $REPO_URL /
 EOF
 
 # Install necessary files

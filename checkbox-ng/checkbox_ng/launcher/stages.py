@@ -27,6 +27,7 @@ import logging
 import os
 import textwrap
 import time
+import functools
 
 from plainbox.abc import IJobResult
 from plainbox.i18n import pgettext as C_
@@ -49,6 +50,19 @@ from checkbox_ng.launcher.run import (
 _ = gettext.gettext
 
 _logger = logging.getLogger("checkbox-ng.launcher.stages")
+
+
+@functools.lru_cache(maxsize=1)
+def get_submissions_timestamp():
+    """
+    This is so that one session produces only artifacts with the same
+    submission timestamp
+    """
+    isoformat = "%Y-%m-%dT%H.%M.%S.%f"
+    timestamp = datetime.datetime.now(datetime.timezone.utc).strftime(
+        isoformat
+    )
+    return timestamp
 
 
 class CheckboxUiStage(metaclass=abc.ABCMeta):
@@ -492,21 +506,13 @@ class ReportsStage(CheckboxUiStage):
             )
             self.sa.config.update_from_another(additional_config, new_origin)
         elif report == "submission_files":
-            # LP:1585326 maintain isoformat but removing ':' chars that cause
-            # issues when copying files.
-            isoformat = "%Y-%m-%dT%H.%M.%S.%f"
-            timestamp = datetime.datetime.utcnow().strftime(isoformat)
-            if not os.path.exists(self.base_dir):
-                os.makedirs(self.base_dir)
             for exporter, file_ext in [
                 ("html", ".html"),
                 ("junit", ".junit.xml"),
                 ("tar", ".tar.xz"),
             ]:
-                path = os.path.join(
-                    self.base_dir,
-                    "".join(["submission_", timestamp, file_ext]),
-                )
+                path = self._get_submission_file_path(file_ext)
+                os.makedirs(os.path.dirname(path), exist_ok=True)
                 template = textwrap.dedent(
                     """
                     [transport:{exporter}_file]
@@ -527,11 +533,25 @@ class ReportsStage(CheckboxUiStage):
                     additional_config, new_origin
                 )
 
-    def _prepare_transports(self):
-        self.base_dir = os.path.join(
+    def _get_submission_file_path(self, file_ext):
+        # LP:1585326 maintain isoformat but removing ':' chars that cause
+        # issues when copying files.
+        timestamp = get_submissions_timestamp()
+        return os.path.join(
+            self.base_dir,
+            "".join(["submission_", timestamp, file_ext]),
+        )
+
+    @property
+    def base_dir(self):
+        base_dir = os.path.join(
             os.getenv("XDG_DATA_HOME", os.path.expanduser("~/.local/share/")),
             "checkbox-ng",
         )
+        os.makedirs(base_dir, exist_ok=True)
+        return base_dir
+
+    def _prepare_transports(self):
         self._available_transports = get_all_transports()
         self.transports = dict()
 
@@ -678,10 +698,17 @@ class ReportsStage(CheckboxUiStage):
                                 exporter_id,
                                 exc,
                             )
-                    if result and "url" in result:
-                        print(result["url"])
-                    elif result and "status_url" in result:
-                        print(result["status_url"])
+                    result = result or {}
+                    url = result.get("url") or result.get("status_url")
+                    if url:
+                        path = self._get_submission_file_path(".c3_url.log")
+                        with open(path, "w+") as f:
+                            print(
+                                "Submission url ({}) saved also to: {}".format(
+                                    path, url
+                                )
+                            )
+                            f.write(url)
                 except TransportError as exc:
                     _logger.warning(
                         _("Problem occured when submitting '%s' report: %s"),

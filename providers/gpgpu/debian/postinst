@@ -1,4 +1,4 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
 echo "Configuring system for GPU Testing"
 echo "**********************************"

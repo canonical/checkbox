@@ -2,9 +2,8 @@ Source: checkbox-provider-gpgpu
 Section: utils
 Priority: optional
 Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
-Uploaders: Jeff Lane <jeffrey.lane@canonical.com>
-Depends: build-essential,
-         git
+Uploaders: Jeff Lane <jeffrey.lane@canonical.com>,
+           Pedro Avalos Jimenez <pedro.avalosjimenez@canonical.com>
 Build-Depends: checkbox-ng,
                debhelper (>= 9),
                intltool,
@@ -13,12 +12,14 @@ Build-Depends: checkbox-ng,
                python3,
                python3-checkbox-ng,
                python3-debian,
-               python3-setuptools,
+               python3-setuptools
 Standards-Version: 3.9.6
 
 Package: checkbox-provider-gpgpu
 Architecture: amd64
+Pre-Depends: build-essential, git
 Depends: checkbox-provider-base, ${plainbox:Depends}, ${misc:Depends}
+Suggests: cuda-toolkit
 X-Plainbox-Provider: yes
 Description: Checkbox provider for GPGPU testing
  This package provides a test plan and tooling to be used by Canonical for the

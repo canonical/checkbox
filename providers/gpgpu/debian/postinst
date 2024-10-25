@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
 
-# Exit if anything fails
-set -e
-
 echo "Configuring system for GPU Testing"
 echo "**********************************"
 echo "*"
@@ -33,6 +30,11 @@ if [[ $? -ne 0 ]] ; then
 fi
 gpg --yes --no-default-keyring --keyring "$TMP_KEYRING" --export \
     --output "$GPG_KEYRING"
+
+# Clean up temporary files
+if [[ -f "$TMP_KEYRING" ]] ; then rm "$TMP_KEYRING" ; fi
+if [[ -f "$TMP_KEYRING~" ]] ; then rm "$TMP_KEYRING~" ; fi
+if [[ -f "$TMP_GPG_KEY" ]] ; then rm "$TMP_GPG_KEY" ; fi
 
 PINFILE="cuda-$OSRELEASE.pin"
 wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"

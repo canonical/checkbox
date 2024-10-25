@@ -671,6 +671,7 @@ class TestLauncher(TestCase):
         Launcher.invoked(self_mock, ctx_mock)
 
 
+@patch("os.makedirs", new=MagicMock())
 class TestLauncherReturnCodes(TestCase):
     def setUp(self):
         self.launcher = Launcher()

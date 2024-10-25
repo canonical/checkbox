@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# Exit if anything fails
+set -e
+
 echo "Configuring system for GPU Testing"
 echo "**********************************"
 echo "*"

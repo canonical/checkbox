@@ -265,14 +265,35 @@ command:
   echo
   echo 'name: "invalid_id'
   echo "id_valid: False"
+  echo
+  echo "id_valid: noid"
 
 unit: template
 template-resource: resource_names
 template-unit: job
 id: template_validation_testing_{name}
 template-id: template_validation_testing
+template-filter: resource_names.id_valid in ["True", "False"]
 command:
   echo Testing {name}
 _summary:
-  Used to test that Checkbox validates templates and crashes when invalid
+  Used to test that Checkbox validates templates and reports them when invalid
+flags: simple
+
+id: somekey_resource
+_summary: Used to test that if a template uses a key that doesn't exist, it crashes the session
+plugin: resource
+command:
+  echo "somekey: True"
+
+
+unit: template
+template-resource: somekey_resource
+template-unit: job
+id: template_validation_testing_{missing_field}
+template-id: template_validation_testing_missing_field
+command:
+  echo Testing {name}
+_summary:
+  Used to test that Checkbox validates templates and crashes params are missing
 flags: simple

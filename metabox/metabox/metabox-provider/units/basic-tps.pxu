@@ -71,9 +71,17 @@ include:
  basic-shell-crashing
 
 unit: test plan
-id: crash_invalid_template_id
-_name: Crashes the agent due to the invalid template
+id: report_invalid_generated_units
+_name: Reports generated jobs that are invalid
 bootstrap_include:
   resource_names
 include:
   template_validation_testing
+
+unit: test plan
+id: crash_missing_parameters_generated_units
+_name: Crashes the agent due to the invalid template
+bootstrap_include:
+  resource_names
+include:
+  template_validation_testing_missing_field

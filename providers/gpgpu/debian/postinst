@@ -8,21 +8,6 @@ echo "*"
 
 OSRELEASE=ubuntu`lsb_release -r | cut -f2 |sed -e 's/\.//'`
 ARCH=`uname -m`
-case $ARCH in
-    arm)
-        ;&
-    aarch64_be)
-        ;&
-    aarch64)
-        ARCH="arm64"
-        ;;
-    x86_64)
-        ;;
-    *)
-        echo "ERROR: Unsupported architecture $ARCH"
-        exit 0
-        ;;
-esac
 REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH"
 
 # Import and verify cuda gpg key

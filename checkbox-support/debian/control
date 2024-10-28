@@ -44,7 +44,7 @@ Depends: gir1.2-gudev-1.0,
          python3-yaml,
          udev,
          udisks2,
-         v4l-utils
+         v4l-utils,
          ${misc:Depends},
          ${python3:Depends}
 Recommends: python3-opencv,

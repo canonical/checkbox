@@ -110,7 +110,7 @@ def get_test_name_from_line(line: str) -> T.Tuple[str, bool]:
 
 
 def parse_v4l2_compliance(
-    device: T.Union[int, str] = "/dev/video0"
+    device: T.Optional[str] = None,
 ) -> T.Tuple[Summary, Details]:
     """Parses the output of v4l2-compliance
 
@@ -118,7 +118,7 @@ def parse_v4l2_compliance(
     it can also be an integer. See v4l2-compliance -h
     :type device: T.Union[int, str], optional
     :return: 2 dictionaries (summary, details).
-    NOTE: summary comes from directly parsing the numbers in the last line of 
+    NOTE: summary comes from directly parsing the numbers in the last line of
     v4l2-compliance and it does **NOT** match the array sizes in Details
     since we map the test names to actual ioctls.
 
@@ -127,10 +127,21 @@ def parse_v4l2_compliance(
     assert which("v4l2-compliance")
 
     out = sp.run(
-        ["v4l2-compliance", "-d", str(device), "-C", "never"],  # type: ignore
+        [
+            "v4l2-compliance",
+            *(["-d", str(device)] if device else []),
+            "-C",
+            "never",
+        ],
         universal_newlines=True,
         stdout=sp.PIPE,
-    )
+        stderr=sp.PIPE,
+    )  # can't really depend on the return code here
+    # since any failure => return code 1
+
+    if "Cannot open device" in out.stderr:
+        # can't open the device
+        raise ValueError(out.stderr)
 
     lines = []  # type: list[str]
     for line in out.stdout.splitlines():

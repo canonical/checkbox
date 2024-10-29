@@ -135,6 +135,7 @@ parts:
       - python3-pyparsing
       - python3-requests-unixsocket
       - libsystemd0
+      - v4l-utils
       # added to stage python:
       - libpython3-stdlib
       - libpython3.8-stdlib

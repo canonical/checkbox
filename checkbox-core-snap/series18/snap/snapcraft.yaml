@@ -131,6 +131,7 @@ parts:
       - python3-requests-unixsocket
       - libbluetooth3
       - libsystemd0
+      - v4l-utils
     python-packages:
       - pynmea2
       - pybluez

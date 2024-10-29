@@ -710,7 +710,7 @@ class ReportsStage(CheckboxUiStage):
                                     url, path
                                 )
                             )
-                            f.writelines([url, "\n"])
+                            f.write(url + "\n")
                 except TransportError as exc:
                     _logger.warning(
                         _("Problem occured when submitting '%s' report: %s"),

@@ -107,7 +107,7 @@ class TestReportsStage(TestCase):
             self.assertEqual(
                 file_mock.write.call_args,
                 mock.call(
-                    "https://certification.canonical.com/submissions/status/EXAMPLE"
+                    "https://certification.canonical.com/submissions/status/EXAMPLE\n"
                 ),
             )
 
@@ -141,7 +141,7 @@ class TestReportsStage(TestCase):
             self.assertEqual(
                 file_mock.write.call_args,
                 mock.call(
-                    "https://certification.canonical.com/submissions/status/EXAMPLE"
+                    "https://certification.canonical.com/submissions/status/EXAMPLE\n"
                 ),
             )
 

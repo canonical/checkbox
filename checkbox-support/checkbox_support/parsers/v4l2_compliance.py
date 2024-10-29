@@ -6,9 +6,95 @@ import subprocess as sp
 import typing as T
 
 
-def get_test_name_from_line(line: str) -> str:
-    assert line.startswith("test"), "This line doesn't describe a test output"
-    return line.split("test ", maxsplit=1)[1].split(": ", maxsplit=1)[0]
+# Not going to try to parse these test names since the
+# ioctls in the test are not necessarily described in its name
+TEST_NAME_TO_IOCTL_MAP = {
+    "VIDIOC_QUERYCAP": ["VIDIOC_QUERYCAP"],
+    "VIDIOC_G/S_PRIORITY": ["VIDIOC_G_PRIORITY", "VIDIOC_S_PRIORITY"],
+    "VIDIOC_DBG_G/S_REGISTER": [
+        "VIDIOC_DBG_G_REGISTER",
+        "VIDIOC_DBG_S_REGISTER",
+    ],
+    "VIDIOC_LOG_STATUS": ["VIDIOC_LOG_STATUS"],
+    "VIDIOC_G/S_TUNER/ENUM_FREQ_BANDS": [
+        "VIDIOC_G_TUNER",
+        "VIDIOC_S_TUNER",
+        "VIDIO_ENUM_FREQ_BANDS",
+    ],
+    "VIDIOC_G/S_FREQUENCY": ["VIDIOC_G_FREQUENCY", "VIDIOC_S_FREQUENCY"],
+    "VIDIOC_S_HW_FREQ_SEEK": ["VIDIOC_S_HW_FREQ_SEEK"],
+    "VIDIOC_ENUMAUDIO": ["VIDIOC_ENUMAUDIO"],
+    "VIDIOC_G/S/ENUMINPUT": [
+        "VIDIOC_G_SELECTION",
+        "VIDIOC_ENUMINPUT",
+        "VIDIOC_S_INPUT",
+    ],
+    "VIDIOC_G/S_AUDIO": ["VIDIOC_G_AUDIO", "VIDIOC_S_AUDIO"],
+    "VIDIOC_G/S_MODULATOR": ["VIDIOC_G_MODULATOR", "VIDIOC_S_MODULATOR"],
+    "VIDIOC_G/S_FREQUENCY": ["VIDIOC_G_FREQUENCY", "VIDIOC_S_FREQUENCY"],
+    "VIDIOC_ENUMAUDOUT": ["VIDIOC_ENUMAUDOUT"],
+    "VIDIOC_G/S/ENUMOUTPUT": [
+        "VIDIOC_G_OUTPUT",
+        "VIDIOC_S_OUTPUT",
+        "VIDIOC_ENUMOUTPUT",
+    ],
+    "VIDIOC_G/S_AUDOUT": ["VIDIOC_G_AUDOUT", "VIDIOC_S_AUDOUT"],
+    "VIDIOC_ENUM/G/S/QUERY_STD": [
+        "VIDIOC_ENUMSTD",
+        "VIDIOC_G_STD",
+        "VIDIOC_S_STD",
+        "VIDIOC_QUERYSTD",
+    ],
+    "VIDIOC_ENUM/G/S/QUERY_DV_TIMINGS": [
+        "VIDIOC_G_DV_TIMINGS",
+        "VIDIOC_ENUM_DV_TIMINGS",
+        "VIDIOC_QUERY_DV_TIMINGS",
+    ],
+    "VIDIOC_DV_TIMINGS_CAP": ["VIDIOC_DV_TIMINGS_CAP"],
+    "VIDIOC_G/S_EDID": ["VIDIOC_G_EDID", "VIDIOC_S_EDID"],
+    "VIDIOC_QUERY_EXT_CTRL/QUERYMENU": [
+        "VIDIOC_QUERYMENU",
+        "VIDIOC_QUERY_EXT_CTRL",
+    ],
+    "VIDIOC_QUERYCTRL": ["VIDIOC_QUERYCTRL"],
+    "VIDIOC_G/S_CTRL": ["VIDIOC_G_CTRL", "VIDIOC_S_CTRL"],
+    "VIDIOC_G/S/TRY_EXT_CTRLS": [
+        "VIDIOC_G_EXT_CTRLS",
+        "VIDIOC_S_EXT_CTRLS",
+        "VIDIOC_TRY_EXT_CTRLS",
+    ],
+    "VIDIOC_(UN)SUBSCRIBE_EVENT/DQEVENT": [
+        "VIDIOC_SUBSCRIBE_EVENT",
+        "VIDIOC_UNSUBSCRIBE_EVENT",
+    ],
+    "VIDIOC_G/S_JPEGCOMP": ["VIDIOC_G_JPEGCOMP", "VIDIOC_S_JPEGCOMP"],
+    "VIDIOC_ENUM_FMT/FRAMESIZES/FRAMEINTERVALS": [
+        "VIDIOC_ENUM_FMT",
+        "VIDIOC_ENUM_FRAMEINTERVALS",
+        "VIDIOC_ENUM_FRAMESIZES",
+    ],
+    "VIDIOC_G/S_PARM": ["VIDIOC_G_PARM", "VIDIOC_S_PARM"],
+    "VIDIOC_G_FBUF": ["VIDIOC_G_FBUF"],
+    "VIDIOC_G_FMT": ["VIDIOC_G_FMT"],
+    "VIDIOC_TRY_FMT": ["VIDIOC_TRY_FMT"],
+    "VIDIOC_S_FMT": ["VIDIOC_S_FMT"],
+    "VIDIOC_G_SLICED_VBI_CAP": ["VIDIOC_G_SLICED_VBI_CAP"],
+    "VIDIOC_(TRY_)ENCODER_CMD": [
+        "VIDIOC_ENCODER_CMD",
+        "VIDIOC_TRY_ENCODER_CMD",
+    ],
+    "VIDIOC_G_ENC_INDEX": ["VIDIOC_G_ENC_INDEX"],
+    "VIDIOC_(TRY_)DECODER_CMD": [
+        "VIDIOC_DECODER_CMD",
+        "VIDIOC_TRY_DECODER_CMD",
+    ],
+    "VIDIOC_REQBUFS/CREATE_BUFS/QUERYBUF": [
+        "VIDIOC_REQBUFS",
+        "VIDIOC_CREATE_BUFS",
+        "VIDIOC_QUERYBUF",
+    ],
+    "VIDIOC_EXPBUF": ["VIDIOC_EXPBUF"],
+}
 
 
 # see the summary dict literal for actual keys
@@ -17,10 +103,31 @@ Summary = T.Dict[str, T.Union[int, str]]
 Details = T.Dict[str, T.List[str]]
 
 
-def parse_v4l2_compliance(device="/dev/video0") -> T.Tuple[Summary, Details]:
+def get_test_name_from_line(line: str) -> T.Tuple[str, bool]:
+    assert line.startswith("test"), "This line doesn't describe a test output"
+    test_name = line.split("test ", maxsplit=1)[1].split(": ", maxsplit=1)[0]
+    return test_name, test_name.startswith("VIDIOC")
+
+
+def parse_v4l2_compliance(
+    device: T.Union[int, str] = "/dev/video0"
+) -> T.Tuple[Summary, Details]:
+    """Parses the output of v4l2-compliance
+
+    :param device: which device to test, defaults to "/dev/video0",
+    it can also be an integer. See v4l2-compliance -h
+    :type device: T.Union[int, str], optional
+    :return: 2 dictionaries (summary, details).
+    NOTE: summary comes from directly parsing the numbers in the last line of 
+    v4l2-compliance and it does **NOT** match the array sizes in Details
+    since we map the test names to actual ioctls.
+
+    :rtype: T.Tuple[Summary, Details]
+    """
     assert which("v4l2-compliance")
+
     out = sp.run(
-        ["v4l2-compliance", "-d", device, "-C", "never"],
+        ["v4l2-compliance", "-d", str(device), "-C", "never"],  # type: ignore
         universal_newlines=True,
         stdout=sp.PIPE,
     )
@@ -54,24 +161,28 @@ def parse_v4l2_compliance(device="/dev/video0") -> T.Tuple[Summary, Details]:
 
     for line in lines:
         if line.endswith(": OK"):
-            details["succeeded"].append(get_test_name_from_line(line))
+            name, is_ioctl_name = get_test_name_from_line(line)
+            if is_ioctl_name:
+                # ignore unknown test names, just don't append
+                for ioctl_name in TEST_NAME_TO_IOCTL_MAP.get(name, []):
+                    details["succeeded"].append(ioctl_name)
         elif line.endswith(": OK (Not Supported)"):
-            details["not_supported"].append(get_test_name_from_line(line))
+            name, is_ioctl_name = get_test_name_from_line(line)
+            if is_ioctl_name:
+                for ioctl_name in TEST_NAME_TO_IOCTL_MAP.get(name, []):
+                    details["not_supported"].append(ioctl_name)
         elif line.endswith(": FAIL"):
-            details["failed"].append(get_test_name_from_line(line))
-
-    assert (
-        len(details["succeeded"]) + len(details["not_supported"])
-        == summary["succeeded"]
-    )
-    assert len(details["failed"]) == summary["failed"]
+            name, is_ioctl_name = get_test_name_from_line(line)
+            if is_ioctl_name:
+                for ioctl_name in TEST_NAME_TO_IOCTL_MAP.get(name, []):
+                    details["failed"].append(ioctl_name)
 
     return summary, details
 
 
 if __name__ == "__main__":
     summary, details = parse_v4l2_compliance()
-    print(summary)
+    print(summary, "\n")
     for k, v in details.items():
         print(k, len(v))
         print("\t", v)

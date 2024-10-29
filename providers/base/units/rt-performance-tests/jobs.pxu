@@ -9,6 +9,8 @@ _purpose:
     that the maximum latency did not exceed the threshold and that there are no
     overflows (scheduling misses) for each thread.
 plugin: shell
+imports: from com.canonical.certification import executable
+requires: executable.name == 'cyclictest'
 user: root
 environ: CYCLICTEST_DURATION
 command:
@@ -26,6 +28,8 @@ _purpose:
     latency and overflow occurrences. The goal is to ensure that basic real-time
     functions can be executed without latency spikes.
 plugin: shell
+imports: from com.canonical.certification import executable
+requires: executable.name == 'cyclictest'
 user: root
 command:
     run_cyclictest.py --duration 60

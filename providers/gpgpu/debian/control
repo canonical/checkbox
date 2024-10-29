@@ -17,9 +17,8 @@ Standards-Version: 3.9.6
 
 Package: checkbox-provider-gpgpu
 Architecture: amd64
-Pre-Depends: build-essential, git
 Depends: checkbox-provider-base, ${plainbox:Depends}, ${misc:Depends}
-Suggests: cuda-toolkit
+Suggests: cuda-toolkit, rocm-validation-suite, ${plainbox:Suggests}
 X-Plainbox-Provider: yes
 Description: Checkbox provider for GPGPU testing
  This package provides a test plan and tooling to be used by Canonical for the

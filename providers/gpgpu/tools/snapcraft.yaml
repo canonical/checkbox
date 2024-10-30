@@ -37,7 +37,7 @@ package-repositories:
 
 apps:
   gpu-burn:
-    command: usr/sbin/gpu_burn -c $SNAP/usr/share/gpu-burn/compare.ptx
+    command: usr/sbin/gpu-burn -c $SNAP/usr/share/gpu-burn/compare.ptx
     plugs:
       - opengl
       - nvidia-drivers-support

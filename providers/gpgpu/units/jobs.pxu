@@ -4,10 +4,10 @@ plugin: shell
 estimated_duration: 300
 requires:
     graphics_card.vendor == 'NVIDIA Corporation'
-    package.name == 'cuda-toolkit'
+    snap.name == 'checkbox-gpgpu-tools'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU stress testing
-command: gpu_burn.sh
+command: checkbox-gpgpu-tools.gpu_burn 14400 |  grep -v -e '^[[:space:]]*$' -e "errors:" -e "Summary at"
 
 id: gpgpu/device-query-drv
 category_id: gpgpu
@@ -15,7 +15,7 @@ plugin: shell
 estimated_duration: 4
 requires:
     graphics_card.vendor == 'NVIDIA Corporation'
-    package.name == 'cuda-toolkit'
+    snap.name == 'checkbox-gpgpu-tools'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU query device test
 command: deviceQueryDrv
@@ -37,10 +37,10 @@ plugin: shell
 estimated_duration: 4
 requires:
     graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
+    snap.name == 'checkbox-gpgpu-tools'
     uname.machine == 'x86_64'
 _summary: AMD GPGPU properties query
-command: rvs.py gpup
+command: rvs.py --rvs=checkbox-gpgpu-tools.rvs gpup
 _siblings: [
   { "id": "gpgpu/rvs-peqt",
     "_summary": "AMD GPGPU PCIe configuration test",

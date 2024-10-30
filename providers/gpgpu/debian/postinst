@@ -1,94 +1,11 @@
 #!/usr/bin/env bash
 
-echo "Configuring system for GPU Testing"
-echo "**********************************"
-echo "*"
+echo "************************************"
+echo "Installing necessary GPGPU test tools"
+echo "*************************************"
 
-CODENAME=$(lsb_release -c | cut -f2)
-OSRELEASE=ubuntu$(lsb_release -r | cut -f2 |sed -e 's/\.//')
-ARCH=$(uname -m)
-TMP_KEYRING=/tmp/tmp-keyring.gpg
+snap install checkbox-gpgpu-tools
 
-setup_nvidia() {
-    REPO_URL="https://developer.download.nvidia.com/compute/cuda/repos/$OSRELEASE/$ARCH"
-
-    # Import and verify cuda gpg key
-    TMP_GPG_KEY=/tmp/cuda-archive-keyring.gpg
-    GPG_FINGERPRINT=EB693B3035CD5710E231E123A4B469963BF863CC
-    GPG_KEYRING=/usr/share/keyrings/cuda-archive-keyring.gpg
-    wget -O "$TMP_GPG_KEY" "$REPO_URL/3bf863cc.pub"
-    if [[ $? -eq 8 ]] ; then
-        echo "ERROR: wget failed. Check networking or $OSRELEASE/$ARCH not supported?"
-        exit 1
-    fi
-    gpg --no-default-keyring --keyring "$TMP_KEYRING" \
-        --import "$TMP_GPG_KEY"
-    gpg --no-default-keyring --keyring "$TMP_KEYRING" \
-        --fingerprint "$GPG_FINGERPRINT"
-    if [[ $? -ne 0 ]] ; then
-        echo "ERROR: GPG key import failed. Invalid gpg key?"
-        exit 1
-    fi
-    gpg --yes --no-default-keyring --keyring "$TMP_KEYRING" --export \
-        --output "$GPG_KEYRING"
-
-    # Clean up temporary files
-    rm "$TMP_KEYRING" "$TMP_GPG_KEY"
-
-    PINFILE="cuda-$OSRELEASE.pin"
-    wget -O /etc/apt/preferences.d/cuda-repository-pin-600 "$REPO_URL/$PINFILE"
-
-    tee "/etc/apt/sources.list.d/cuda-$OSRELEASE-$ARCH.list" <<-EOF
-deb [signed-by=$GPG_KEYRING] $REPO_URL /
-EOF
-}
-
-setup_amd() {
-    # Import and verify rocm gpg key
-    TMP_GPG_KEY=/tmp/rocm.gpg
-    GPG_FINGERPRINT=CA8BB4727A47B4D09B4EE8969386B48A1A693C5C
-    GPG_KEYRING=/usr/share/keyrings/rocm.gpg
-    wget -O "$TMP_GPG_KEY" "https://repo.radeon.com/rocm/rocm.gpg.key"
-    if [[ $? -eq 8 ]] ; then
-        echo "ERROR: wget failed."
-        exit 1
-    fi
-    gpg --no-default-keyring --keyring "$TMP_KEYRING" \
-        --import "$TMP_GPG_KEY"
-    gpg --no-default-keyring --keyring "$TMP_KEYRING" \
-        --fingerprint "$GPG_FINGERPRINT"
-    if [[ $? -ne 0 ]] ; then
-        echo "ERROR: GPG key import failed. Invalid gpg key?"
-        exit 1
-    fi
-    gpg --yes --no-default-keyring --keyring "$TMP_KEYRING" --export \
-        --output "$GPG_KEYRING"
-
-    # Clean up temporary viles
-    rm "$TMP_KEYRING" "$TMP_GPG_KEY"
-
-    # Add repository lists
-    AMDGPU_REPO_URL="https://repo.radeon.com/amdgpu/$KFD_VERSION/ubuntu"
-    ROCM_REPO_URL="https://repo.radeon.com/rocm/apt/$KFD_VERSION"
-    tee /etc/apt/sources.list.d/amdgpu.list <<-EOF
-deb [arch=amd64 signed-by=$GPG_KEYRING] $AMDGPU_REPO_URL $CODENAME main
-EOF
-    tee /etc/apt/sources.list.d/rocm.list <<-EOF
-deb [arch=amd64 signed-by=$GPG_KEYRING] $ROCM_REPO_URL $CODENAME main
-EOF
-
-    # Add pinfile
-    tee /etc/apt/preferences.d/rocm-pin-600 <<-EOF
-Package: *
-Pin: release o=repo.radeon.com
-Pin-Priority: 600
-EOF
-}
-
-apt-get update
-
-# TODO: Set up NVIDIA or/and AMD depending on GPUs present
-setup_nvidia
-
-echo "*"
-echo "*  Completed configuration"
+echo "************************************"
+echo "Finished installing GPGPU test tools"
+echo "************************************"

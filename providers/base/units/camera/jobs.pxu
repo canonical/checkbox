@@ -111,6 +111,23 @@ unit: template
 template-resource: device
 template-filter: device.category == 'CAPTURE' and device.name != ''
 template-unit: job
+plugin: shell
+category_id: com.canonical.plainbox::camera
+id: camera/v4l2-compliance_{name}
+template-id: camera/v4l2-compliance_name
+flags: also-after-suspend
+_summary: Webcam V4L2 Compliance test for {product_slug}
+estimated_duration: 1.2
+depends: camera/detect
+command:
+  v4l2_compliance_test.py --device /dev/{name} --ioctl VIDIOC_ENUM_FMT 
+_purpose:
+  runs the v4l2-compliance test for this camera
+
+unit: template
+template-resource: device
+template-filter: device.category == 'CAPTURE' and device.name != ''
+template-unit: job
 plugin: attachment
 category_id: com.canonical.plainbox::camera
 id: camera/multiple-resolution-images-attachment_{name}

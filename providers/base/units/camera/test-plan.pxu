@@ -36,6 +36,7 @@ _description: Camera tests (automated)
 include:
  camera/detect                                     certification-status=blocker
  camera/multiple-resolution-images_.*              certification-status=blocker
+ camera/v4l2-compliance_.*                         certification-status=blocker
  camera/multiple-resolution-images-attachment_.*   certification-status=non-blocker
  camera/camera-quality_.*                          certification-status=non-blocker
  camera/camera-quality-image_.*                    certification-status=non-blocker

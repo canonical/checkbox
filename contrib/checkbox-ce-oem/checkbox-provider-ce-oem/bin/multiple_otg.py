@@ -1,5 +1,7 @@
+import argparse
 import logging
 import os
+import shutil
 import subprocess
 
 from contextlib import contextmanager
@@ -70,12 +72,12 @@ def _create_otg_configs():
     max_power_file.write_text("120")
 
 
-def otg_testing(method):
-    pass
-
-
 def teardown():
-    pass
+    path_obj = Path(GADGET_PATH).joinpath("g1", "UDC")
+    path_obj.write_text("")
+
+    shutil.rmtree(GADGET_PATH)
+
 
 @contextmanager
 def prepare_env():
@@ -88,9 +90,37 @@ def prepare_env():
         teardown()
 
 
+class OtgTest():
+
+    def mass_storage_test(self):
+        pass
+
+    def ethernet_test(self):
+        pass
+
+    def serial_test(self):
+        pass
+
+
+def register_arguments():
+    parser = argparse.ArgumentParser(
+        description="OTG test method"
+    )
+
+    parser.add_argument(
+        "-t",
+        "--type",
+        required=True,
+        choices=["mass_storage", "ethernet", "serial"]
+    )
+
+    return parser.parse_args()
+
+
 def main():
+    args = register_arguments()
     with prepare_env():
-        otg_testing()
+        getattr(OtgTest, args.type)(args)
 
 
 if __name__ == "__main__":

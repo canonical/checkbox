@@ -164,6 +164,11 @@ def parse_v4l2_compliance(
             "warnings": int(match_output.group(5)),
         }
 
+    assert summary != {}, (
+        "There's no summary line in v4l2-compliance's output. "
+        "Output might be corrupted."
+    )
+
     details = {
         "succeeded": [],
         "failed": [],

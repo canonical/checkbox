@@ -189,11 +189,3 @@ def parse_v4l2_compliance(
                     details["failed"].append(ioctl_name)
 
     return summary, details
-
-
-if __name__ == "__main__":
-    summary, details = parse_v4l2_compliance()
-    print(summary, "\n")
-    for k, v in details.items():
-        print(k, len(v))
-        print("\t", v)

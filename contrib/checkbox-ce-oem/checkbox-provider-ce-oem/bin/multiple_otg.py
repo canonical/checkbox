@@ -9,6 +9,7 @@ import tempfile
 
 from contextlib import contextmanager
 from pathlib import Path
+from rpyc_client import rpyc_client
 
 
 MODULE_MAPPING = {
@@ -102,25 +103,6 @@ def otg_testing(method):
     pass
 
 
-def teardown():
-    UDC_NODE.write_text("")
-    shutil.rmtree(GADGET_PATH)
-
-
-@contextmanager
-def prepare_env(mode, address):
-    try:
-        _initial_gadget()
-        _create_otg_configs()
-        _create_function(mode)
-        # Activate OTG
-        UDC_NODE.write_text(address)
-    except Exception as err:
-        logging.error(err)
-    finally:
-        teardown()
-
-
 def _identify_udc_bus(otg_bus, udc_list):
     for udc in udc_list:
         if udc in otg_bus:
@@ -154,10 +136,135 @@ def dump_otg_info(configs):
             print()
 
 
+class ConfigFsOperator(tempfile.TemporaryDirectory):
+
+    def __enter__(self):
+        subprocess.run(
+            "mount -t configfs none {}".format(self.name),
+            shell=True,
+            check=True
+        )
+        super.__init__()
+
+    def __exit__(self, exc, value, tb):
+        subprocess.run("umount {}".format(self.name))
+        super.__exit__(exc, value, tb)
+
+    def create_otg_gadget(self):
+        gadget_root = Path(self.name, "usb_gadget")
+        gadget_root.mkdir()
+        self.gadget_node = gadget_root.joinpath("g1")
+        self.gadget_node.mkdir()
+
+        # create PID and VID file
+        self.gadget_node.joinpath("idVendor").write_text("0xabcd")
+        self.gadget_node.joinpath("idProduct").write_text("0x9999")
+
+        # create serial no, manufacture and product
+        string_dir = self.gadget_node.joinpath("strings")
+        string_dir.mkdir()
+        lang_dir = string_dir.joinpath("0x409")
+        lang_dir.mkdir()
+        lang_dir.joinpath("serialnumber").write_text("1234567")
+        lang_dir.joinpath("manufacturer").write_text("canonical")
+        lang_dir.joinpath("product").write_text("otg_device")
+
+    def create_otg_config(self):
+        config_root = self.gadget_node.joinpath("configs")
+        config_root.mkdir()
+        config_node = config_root.joinpath("c.1")
+        config_node.mkdir()
+
+        config_node.joinpath("MaxPower").write_text("120")
+        string_dir = config_node.joinpath("strings")
+        string_dir.mkdir()
+        lang_dir = string_dir.joinpath("0x409")
+        lang_dir.mkdir()
+        lang_dir.joinpath("configuration").write_text("otg")
+
+    def create_otg_function(self):
+        pass
+
+class OtgTestBase():
+    """
+    This is a object to setup the USB gadget to support different OTG scenario
+    Reference https://www.kernel.org/doc/Documentation/usb/gadget_configfs.txt
+    """
+    def __init__(self, bus_addr):
+        self._addr = bus_addr
+
+    def _get_related_libcomposite_modules(self):
+        ret = subprocess.run("lsmod | awk '/^libcomposite/ {print $4}'")
+        if ret.returncode == 0:
+            return ret.stdout.split(",")
+        return []
+
+    def _enable_libcomposite_module(self):
+        modules = self._get_related_libcomposite_modules()
+        if modules:
+            # libcomposite module has been loaded, unload corresponding module
+            for module in modules:
+                subprocess.run("modprobe -r {}".format(module), check=True)
+        else:
+            # load libcomposite
+            subprocess.run("modprobe {}".format(module), check=True)
+
+    def _identify_configfs_dir(self):
+
+
+    def _pre_setup_env(self):
+        self._enable_libcomposite_module()
+
+    def create_gadget(self):
+        pass
+
+    def create_config(self):
+        pass
+
+    def create_function(self):
+        pass
+
+    def associate_function_and_config(self):
+        pass
+
+    def enable_gadget(self):
+        pass
+
+    def disable_gadget(self):
+        pass
+
+    def clean_up(self):
+        pass
+
+
 class OtgTest():
 
-    def mass_storage(self, type, address):
-        pass
+    def __init__(self, mode, address):
+        self._mode = mode
+        self._address = address
+
+    def __enter__(self):
+        self._prepare_env()
+
+    def __exit__(self):
+        try:
+            UDC_NODE.write_text("")
+            shutil.rmtree(GADGET_PATH)
+        except Exception as err:
+            logging.error(err)
+
+    def _prepare_env(self):
+        _initial_gadget()
+        _create_otg_configs()
+        _create_function(self._mode)
+
+    def activate_otg(self):
+        # Activate OTG
+        UDC_NODE.write_text(self._address)
+
+    @classmethod
+    def mass_storage(cls, type, address):
+        rpyc_client()
 
     def ethernet(self, type, address):
         pass

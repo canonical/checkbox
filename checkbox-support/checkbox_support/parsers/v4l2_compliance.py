@@ -124,7 +124,6 @@ def parse_v4l2_compliance(
 
     :rtype: T.Tuple[Summary, Details]
     """
-    assert which("v4l2-compliance")
 
     out = sp.run(
         [

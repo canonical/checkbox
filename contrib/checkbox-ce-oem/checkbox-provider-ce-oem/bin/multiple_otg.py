@@ -90,15 +90,22 @@ def prepare_env():
         teardown()
 
 
+def dump_otg_info(configs):
+    pass
+
+
 class OtgTest():
 
-    def mass_storage_test(self):
+    def info(self):
         pass
 
-    def ethernet_test(self):
+    def mass_storage(self):
         pass
 
-    def serial_test(self):
+    def ethernet(self):
+        pass
+
+    def serial(self):
         pass
 
 
@@ -107,12 +114,21 @@ def register_arguments():
         description="OTG test method"
     )
 
-    parser.add_argument(
+    sub_parser = parser.add_subparsers(
+        dest="mode",
+        required=True,
+    )
+    test_parser = sub_parser.add_parser("test")
+    test_parser.add_argument(
         "-t",
         "--type",
         required=True,
         choices=["mass_storage", "ethernet", "serial"]
     )
+    test_parser.add_argument("-a", "--address", required=True, type=str)
+
+    info_parser = sub_parser.add_parser("info")
+    info_parser.add_argument("-c", "--config", required=True, type=str)
 
     return parser.parse_args()
 
@@ -120,7 +136,10 @@ def register_arguments():
 def main():
     args = register_arguments()
     with prepare_env():
-        getattr(OtgTest, args.type)(args)
+        if args.mode == "test":
+            getattr(OtgTest, args.type)(args)
+        elif args.mode == "info":
+            dump_otg_info(args.config)
 
 
 if __name__ == "__main__":

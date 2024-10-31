@@ -37,6 +37,8 @@ export PYTHONPATH="$SNAP/usr/lib/python3/dist-packages:$PYTHONPATH"
 
 if [ -e $RUNTIME/wrapper_common_classic ]; then
   . $RUNTIME/wrapper_common_classic
+  # Append mir provider
+  export PROVIDERPATH="$PROVIDERPATH:/snap/checkbox-mir/current/providers/checkbox-provider-mir"
 else
   echo "ERROR: no $RUNTIME/wrapper_common_classic found"
   exit 1

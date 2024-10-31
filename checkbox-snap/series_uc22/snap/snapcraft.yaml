@@ -46,6 +46,10 @@ plugs:
     interface: content
     target: $SNAP/providers/checkbox-provider-certification-server
     default-provider: checkbox22
+  provider-mir:
+    interface: content
+    target: $SNAP/providers/checkbox-provider-mir
+    default-provider: checkbox-mir
 
 apps:
   checkbox-cli:

@@ -83,15 +83,25 @@ class MissingParam(Exception):
     the name of the missing parameter.
     """
 
-    def __init__(self, parameter):
+    def __init__(self, template_id, field, value, parameter):
+        self.template_id = template_id
+        self.field = field
+        self.value = value
         self.parameter = parameter
 
     def __str__(self):
-        return _("failed to find value for paramter {}").format(self.parameter)
+        return (
+            "Template '{}' generated an invalid unit. Field '{}' has value "
+            "'{}' but the template-resource didn't generate any value for "
+            "'{}'"
+        ).format(self.template_id, self.field, self.value, self.parameter)
 
     def __repr__(self):
-        return "<{} paramter:{}>".format(
-            self.__class__.__name__, self.parameter
+        return "<{} template_id:{} field: {} paramter:{}>".format(
+            self.__class__.__name__,
+            self.template_id,
+            self.field,
+            self.parameter,
         )
 
 
@@ -708,7 +718,9 @@ class Unit(metaclass=UnitType):
                         value, (), self.parameters
                     )
                 except KeyError as e:
-                    raise MissingParam(e.args[0])
+                    raise MissingParam(
+                        self.template_id, name, value, e.args[0]
+                    )
         elif (
             value is not None
             and self.template_engine == "jinja2"

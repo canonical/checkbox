@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 import subprocess
+import tempfile
 
 from contextlib import contextmanager
 from pathlib import Path
@@ -72,6 +73,39 @@ def _create_otg_configs():
     max_power_file.write_text("120")
 
 
+def _create_function(function):
+    logging.info("create function")
+    subprocess.run("modprobe usb_f_{}".format(function))
+    function_path = os.path.join(
+        GADGET_PATH,
+        "g1",
+        "functions",
+        "{}.0".format(function)
+        )
+    config_path = os.path.join(GADGET_PATH, "g1", "configs", "c.1")
+
+    if not os.path.isdir(function_path):
+        os.makedirs(function_path)
+
+    if function == "mass_storage":
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            img = os.path.join(tmp_dir, "lun0.img")
+            subprocess.run("dd if=/dev/zero of={} bs=1M count=16".format(img))
+            subprocess.run("mkdosfs -F 32 {}".format(img))
+
+            with open(os.path.join(function_path, "lun.0", "file"), "w") as f:
+                f.write(img)
+
+    os.symlink(
+        function_path,
+        os.path.join(config_path, "{}.0".format(function))
+        )
+
+
+def otg_testing(method):
+    pass
+
+
 def teardown():
     path_obj = Path(GADGET_PATH).joinpath("g1", "UDC")
     path_obj.write_text("")
@@ -79,11 +113,13 @@ def teardown():
     shutil.rmtree(GADGET_PATH)
 
 
+
 @contextmanager
 def prepare_env():
     try:
         _initial_gadget()
         _create_otg_configs()
+        _create_function()
     except Exception as err:
         logging.error(err)
     finally:

@@ -104,6 +104,7 @@ parts:
       - python3-bluez
       - python3-pyparsing
       - libsystemd0
+      - v4l-utils
       # added to stage python:
       - libpython3-stdlib
       - libpython3.12-stdlib

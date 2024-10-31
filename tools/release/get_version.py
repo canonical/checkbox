@@ -112,7 +112,7 @@ def get_last_stable_release(repo_path: str) -> str:
     ).strip()
 
 
-def get_history_since(tag: str, repo_path: str) -> list[str]:
+def get_history_since(tag: str, repo_path: str) -> "list[str]":
     """
     Returns the list of commits messages since the input tag
     """
@@ -123,7 +123,7 @@ def get_history_since(tag: str, repo_path: str) -> list[str]:
     ).splitlines()
 
 
-def get_needed_bump(history: list[str]) -> TraceabilityEnum:
+def get_needed_bump(history: "list[str]") -> TraceabilityEnum:
     """
     Get what version number should be bumped using traceability postfixes
 
@@ -188,20 +188,19 @@ def bump_version(
     """
     version_no_v = version.replace("v", "")
     major, minor, patch = (int(n) for n in version_no_v.split("."))
-    match needed_bump:
-        case TraceabilityEnum.BREAKING:
-            major += 1
-            minor = 0
-            patch = 0
-        case TraceabilityEnum.NEW:
-            minor += 1
-            patch = 0
-        case TraceabilityEnum.BUGFIX:
-            patch += 1
-        case TraceabilityEnum.INFRA:
-            pass
-        case _:
-            raise ValueError(f"Unknown traceability marker {needed_bump}")
+    if needed_bump == TraceabilityEnum.BREAKING:
+        major += 1
+        minor = 0
+        patch = 0
+    elif needed_bump == TraceabilityEnum.NEW:
+        minor += 1
+        patch = 0
+    elif needed_bump == TraceabilityEnum.BUGFIX:
+        patch += 1
+    elif needed_bump == TraceabilityEnum.INFRA:
+        pass
+    else:
+        raise ValueError(f"Unknown traceability marker {needed_bump}")
 
     prefix = ""
     if output_format == OutputFormats.TAG:

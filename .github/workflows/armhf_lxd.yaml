@@ -1,0 +1,37 @@
+on: [push, pull_request]
+
+jobs:
+  build_job:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          #  series: "series24"
+          - series: "series22"
+            runner_os: "ubuntu-22.04"
+          - series: "series20"
+            runner_os: "ubuntu-22.04"
+          - series: "series18"
+            runner_os: "ubuntu-22.04"
+          - series: "series16"
+            runner_os: "ubuntu-20.04"
+    runs-on: ${{ matrix.runner_os }}
+    name: "Build: ${{ matrix.series }}"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Prepare the repo
+        run: |
+          cd checkbox-core-snap/
+          ./prepare.sh ${{ matrix.series }}
+      - uses: docker/setup-qemu-action@v1
+      - uses: diddlesnaps/snapcraft-multiarch-action@v1
+        with:
+          architecture: armhf
+          snapcraft-channel: "stable"
+          path: "checkbox-core-snap/${{matrix.series}}"
+      - uses: actions/upload-artifact@v4
+        with:
+          path: "checkbox-core-snap/${{matrix.series}}/*.snap"
+          name: checkbox_runtime_${{matrix.series}}.snap

@@ -701,14 +701,16 @@ class ReportsStage(CheckboxUiStage):
                     result = result or {}
                     url = result.get("url") or result.get("status_url")
                     if url:
-                        path = self._get_submission_file_path(".c3_url.log")
-                        with open(path, "w+") as f:
+                        path = self._get_submission_file_path(
+                            ".submission.log"
+                        )
+                        with open(path, "a+") as f:
                             print(
-                                "Submission url ({}) saved also to: {}".format(
-                                    path, url
+                                "[{}]: {} (URL added to: {})".format(
+                                    params["transport"], url, path
                                 )
                             )
-                            f.write(url)
+                            f.write(url + "\n")
                 except TransportError as exc:
                     _logger.warning(
                         _("Problem occured when submitting '%s' report: %s"),

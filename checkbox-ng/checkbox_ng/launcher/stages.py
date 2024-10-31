@@ -706,8 +706,8 @@ class ReportsStage(CheckboxUiStage):
                         )
                         with open(path, "a+") as f:
                             print(
-                                "Submission url: {} (URL added to: {})".format(
-                                    url, path
+                                "[{}]: {} (URL added to: {})".format(
+                                    params["transport"], url, path
                                 )
                             )
                             f.write(url + "\n")

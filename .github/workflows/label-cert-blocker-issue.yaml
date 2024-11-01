@@ -14,7 +14,7 @@ jobs:
       - name: Check if an issue has a ticked cert-blocker test case mark
         id: check_for_cert_blocker_test_case
         run: |
-          if echo "${{ github.event.issue.body }}" | grep -q "\[x\] Cert-blocker Test Case"; then
+          if echo "${{ github.event.issue.body }}" | grep -q "\[X\] This issue is about a test case that has the \"blocker\" certification status"; then
             echo "found=true" >> $GITHUB_ENV
           else
             echo "found=false" >> $GITHUB_ENV

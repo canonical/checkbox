@@ -16,6 +16,11 @@ body:
         If applicable, add screenshots to help explain the problem you are facing.      
     validations:
       required: true
+  - type: checkboxes
+    attributes:
+      label: Cert-blocker Test Case
+      options:
+        - label: This issue is about a test case that has the "blocker" certification status
   - type: textarea
     id: reproduction
     attributes:

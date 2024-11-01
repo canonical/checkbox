@@ -1,6 +1,8 @@
 import argparse
+import glob
 import logging
 import os
+import re
 import shutil
 import subprocess
 import tempfile
@@ -16,6 +18,9 @@ MODULE_MAPPING = {
 }
 OTG_MODULE = "libcomposite"
 GADGET_PATH = "/sys/kernel/config/usb_gadget"
+UDC_G1_NODE = Path(GADGET_PATH).joinpath("g1")
+UDC_CONFIG = UDC_G1_NODE.joinpath("configs", "c.1")
+UDC_NODE = UDC_G1_NODE.joinpath("UDC")
 
 
 def _get_otg_module():
@@ -51,38 +56,29 @@ def _initial_gadget():
             "mount -t configfs none {}".format(os.path.split(GADGET_PATH))
         )
 
+
 def _create_otg_configs():
     logging.info("create gadget")
-    path_g1 = os.path.join(GADGET_PATH, "g1")
-    os.makedirs(path_g1)
+    os.makedirs(UDC_G1_NODE.name)
 
-    path_lang = os.path.join(path_g1, "strings", "0x409") # english lang
-    os.makedirs(path_lang)
+    path_lang = UDC_G1_NODE.joinpath("strings", "0x409")
+    os.makedirs(path_lang.name) # english language
 
-    path_g1 = Path(path_g1)
-    vid_file = path_g1.joinpath("idVendor")
+    vid_file = UDC_G1_NODE.joinpath("idVendor")
     vid_file.write_text("0xabcd")
-    pid_file = path_g1.joinpath("idProduct")
+    pid_file = UDC_G1_NODE.joinpath("idProduct")
     pid_file.write_text("0x9999")
 
     # create configs
-    path_config = path_g1.joinpath("configs", "c.1")
-    os.makedirs(path_config)
-
-    max_power_file = path_config.joinpath("MaxPower")
+    os.makedirs(UDC_CONFIG.name)
+    max_power_file = UDC_CONFIG.joinpath("MaxPower")
     max_power_file.write_text("120")
 
 
 def _create_function(function):
     logging.info("create function")
     subprocess.run("modprobe usb_f_{}".format(function))
-    function_path = os.path.join(
-        GADGET_PATH,
-        "g1",
-        "functions",
-        "{}.0".format(function)
-        )
-    config_path = os.path.join(GADGET_PATH, "g1", "configs", "c.1")
+    function_path = UDC_G1_NODE.joinpath("functions", "{}.0".format(function))
 
     if not os.path.isdir(function_path):
         os.makedirs(function_path)
@@ -98,7 +94,7 @@ def _create_function(function):
 
     os.symlink(
         function_path,
-        os.path.join(config_path, "{}.0".format(function))
+        UDC_CONFIG.joinpath("{}.0".format(function)).name
         )
 
 
@@ -107,41 +103,66 @@ def otg_testing(method):
 
 
 def teardown():
-    path_obj = Path(GADGET_PATH).joinpath("g1", "UDC")
-    path_obj.write_text("")
-
+    UDC_NODE.write_text("")
     shutil.rmtree(GADGET_PATH)
 
 
-
 @contextmanager
-def prepare_env():
+def prepare_env(mode, address):
     try:
         _initial_gadget()
         _create_otg_configs()
-        _create_function()
+        _create_function(mode)
+        # Activate OTG
+        UDC_NODE.write_text(address)
     except Exception as err:
         logging.error(err)
     finally:
         teardown()
 
 
+def _identify_udc_bus(otg_bus, udc_list):
+    for udc in udc_list:
+        if udc in otg_bus:
+            return udc
+        elif glob.glob(
+            "/sys/devices/platform/**/{}/{}*".format(udc, otg_bus)
+        ):
+            return udc
+    return "None"
+
+
 def dump_otg_info(configs):
-    pass
+    otg_nodes = glob.glob(
+        "/sys/firmware/devicetree/base/**/dr_mode", recursive=True
+    )
+    udc_list = [os.path.basename(f) for f in glob.glob("/sys/class/udc/*")]
+    otg_mapping = {}
+    for node in otg_nodes:
+        mode = Path(node).read_text().strip()
+        usb_bus = re.search(r"usb@([a-z0-9]*)", node)
+        otg_mapping[usb_bus] = mode
+
+    for config in configs.split():
+        otg_conf = config.split(":")
+        if len(otg_conf) == 2:
+            udc_bus = _identify_udc_bus(otg_conf[1], udc_list)
+            print("USB_port: {}".format(otg_conf[0]))
+            print("USB_node: {}".format(otg_conf[1]))
+            print("Mode: {}".format(otg_mapping.get(config[0], "")))
+            print("UDC: {}".format(udc_bus))
+            print()
 
 
 class OtgTest():
 
-    def info(self):
+    def mass_storage(self, type, address):
         pass
 
-    def mass_storage(self):
+    def ethernet(self, type, address):
         pass
 
-    def ethernet(self):
-        pass
-
-    def serial(self):
+    def serial(self, type, address):
         pass
 
 
@@ -171,11 +192,11 @@ def register_arguments():
 
 def main():
     args = register_arguments()
-    with prepare_env():
-        if args.mode == "test":
-            getattr(OtgTest, args.type)(args)
-        elif args.mode == "info":
-            dump_otg_info(args.config)
+    if args.mode == "test":
+        with prepare_env():
+            getattr(OtgTest, args.type)(args.type, args.address)
+    elif args.mode == "info":
+        dump_otg_info(args.config)
 
 
 if __name__ == "__main__":

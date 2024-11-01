@@ -1,0 +1,31 @@
+name: Label issue related to cert-blocker test cases
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  label_checked_item:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+      - name: Check if an issue has a ticked cert-blocker test case mark
+        id: check_for_cert_blocker_test_case
+        run: |
+          if echo "${{ github.event.issue.body }}" | grep -q "\[x\] Cert-blocker Test Case"; then
+            echo "found=true" >> $GITHUB_ENV
+          else
+            echo "found=false" >> $GITHUB_ENV
+          fi
+
+      - name: Add label if cert-blocker test case mark found
+        if: env.found == 'true'
+        run: gh issue edit "$NUMBER" --add-label "$LABELS"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+          LABELS: cert-blocker test case
+

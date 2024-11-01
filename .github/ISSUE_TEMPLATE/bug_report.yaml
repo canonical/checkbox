@@ -19,8 +19,9 @@ body:
   - type: checkboxes
     attributes:
       label: Cert-blocker Test Case
+      description: Tick this box if your issue is about a test case that has the "blocker" certification status
       options:
-        - label: This issue is about a test case that has the "blocker" certification status
+        - label: cert-blocker
   - type: textarea
     id: reproduction
     attributes:

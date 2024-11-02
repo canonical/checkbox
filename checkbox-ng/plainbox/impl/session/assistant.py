@@ -946,7 +946,7 @@ class SessionAssistant:
         if self._match_qualifiers:
             # when `match` is provided, use the test plan but prune it to
             # only pull the jobs asked in the launcher or their dependencies
-            desired_job_list = select_units(
+            desired_matching_job_list = select_units(
                 desired_job_list,
                 self._match_qualifiers
                 + self._exclude_qualifiers
@@ -956,6 +956,16 @@ class SessionAssistant:
                     )
                 ],
             )
+            rejected_job_list = [
+                job.id
+                for job in desired_job_list
+                if job not in desired_matching_job_list
+            ]
+            if rejected_job_list:
+                for rejected_job in rejected_job_list:
+                    self._metadata.rejected_jobs.append(rejected_job)
+                self._metadata.custom_joblist = True
+            desired_job_list = desired_matching_job_list
 
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are
@@ -997,13 +1007,11 @@ class SessionAssistant:
         UsageExpectation.of(self).enforce()
         self._metadata.custom_joblist = True
         desired_job_list = []
-        rejected_job_list = []
         for job_id in self.get_static_todo_list():
             if job_id in selection:
                 desired_job_list.append(self._context.get_unit(job_id, "job"))
             else:
-                rejected_job_list.append(job_id)
-        self._metadata.rejected_jobs = rejected_job_list
+                self._metadata.rejected_jobs.append(job_id)
         self._context.state.update_desired_job_list(desired_job_list)
 
     @raises(UnexpectedMethodCall)

@@ -87,9 +87,7 @@ class MonitorConfigGnome(MonitorConfig):
         position_x = 0
         for monitor, modes in state[1].items():
             try:
-                target_mode = next(
-                    mode for mode in modes if mode.is_preferred
-                )
+                target_mode = next(mode for mode in modes if mode.is_preferred)
             except StopIteration:
                 target_mode = self._get_mode_at_max(modes)
             extended_logical_monitors.append(
@@ -113,8 +111,8 @@ class MonitorConfigGnome(MonitorConfig):
         res: bool = True,
         max_res_amount: int = 5,
         trans: bool = False,
-        log: Callable[str, Any] = None,
-        action: Callable[str, Any] = None,
+        log: Callable[[str, ...], Any] = None,
+        action: Callable[[str, ...], Any] = None,
         **kwargs
     ):
         """

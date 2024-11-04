@@ -23,3 +23,14 @@ include:
     gpgpu/rvs-pebb
     gpgpu/rvs-pbqt
     gpgpu/rvs-babel
+
+id gpgpu-virtualization
+unit: test plan
+_name: GPGPU Virtualization Testing
+_description:
+ Automated Tests for GPGPU Passthrough (non-graphical)
+include:
+    gpgpu/lxd-nvidia-gpu-passthrough-index
+    gpgpu/lxdvm-nvidia-gpu-passthrough-index
+bootstrap_include:
+    graphics_card

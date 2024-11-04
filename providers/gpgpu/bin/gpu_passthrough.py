@@ -505,65 +505,74 @@ def test_lxdvm_gpu(args):
 
 def parse_args():
     """Parses command-line arguments."""
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(description="GPU passthrough tests")
+    subparsers = parser.add_subparsers()
+
     parser.add_argument(
         "-v",
         "--verbose",
+        dest="log_level",
         action="store_const",
         default=logging.INFO,
         const=logging.DEBUG,
         help="Increase logging level",
     )
-    parser.add_argument("--pci", type=str, help="PCI address of GPU")
-    parser.add_argument(
+
+    test_group = parser.add_argument_group("test")
+    test_group.add_argument(
         "--threshold",
         type=float,
         default=float(os.getenv("LXD_GPU_THRESHOLD") or GPU_THRESHOLD_SEC),
         help="Threshold (sec) for GPU test",
     )
-    parser.add_argument(
+    test_group.add_argument(
         "--count",
         type=int,
         default=int(os.getenv("LXD_GPU_RUNS") or GPU_RUNS),
         help="Times to run GPU test",
     )
-    parser.add_argument(
+
+    gpu_group = parser.add_argument_group("gpu")
+    gpu_group.add_argument(
+        "--pci", type=str, help="PCI address of GPU", required=True
+    )
+    gpu_group.add_argument(
         "--vendor",
         type=str,
         choices=GPU_VENDORS.keys(),
-        default="nvidia",
         help="GPU vendor",
+        required=True,
     )
 
-    lxd_group = parser.add_argument_group("lxd")
-    lxd_group.add_argument(
+    lxd_subparser = subparsers.add_parser("lxd", help="Run on LXD container")
+    lxd_subparser.add_argument(
         "--template",
         type=str,
         default=os.getenv("LXD_TEMPLATE"),
         help="URL to template",
     )
-    lxd_group.add_argument(
+    lxd_subparser.add_argument(
         "--rootfs",
         type=str,
         default=os.getenv("LXD_ROOTFS"),
         help="URL to rootfs image",
     )
-    lxd_group.set_defaults(func=test_lxd_gpu)
+    lxd_subparser.set_defaults(func=test_lxd_gpu)
 
-    lxdvm_group = parser.add_argument_group("lxdvm")
-    lxdvm_group.add_argument(
+    lxdvm_subparser = subparsers.add_parser("lxdvm", help="Run on LXD VM")
+    lxdvm_subparser.add_argument(
         "--template",
         type=str,
         default=os.getenv("LXD_TEMPLATE"),
         help="URL to template",
     )
-    lxdvm_group.add_argument(
+    lxdvm_subparser.add_argument(
         "--image",
         type=str,
         default=os.getenv("KVM_IMAGE"),
         help="URL to image",
     )
-    lxd_group.set_defaults(func=test_lxdvm_gpu)
+    lxdvm_subparser.set_defaults(func=test_lxdvm_gpu)
 
     return parser.parse_args()
 

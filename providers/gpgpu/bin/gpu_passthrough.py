@@ -75,7 +75,7 @@ GPU_VENDORS = {
                 repo_line="{} /".format(NVIDIA_URL),
                 gpg_url="{}/3bf863cc.pub".format(NVIDIA_URL),
                 gpg_fingerprint="EB693B3035CD5710E231E123A4B469963BF863CC",
-                pinfile="{}/cuda-{}.pin".format(
+                pinfile="{}/cuda-ubuntu{}.pin".format(
                     NVIDIA_URL, RELEASE.replace(".", "")
                 ),
             )

@@ -24,7 +24,7 @@ include:
     gpgpu/rvs-pbqt
     gpgpu/rvs-babel
 
-id gpgpu-virtualization
+id: gpgpu-virtualization
 unit: test plan
 _name: GPGPU Virtualization Testing
 _description:

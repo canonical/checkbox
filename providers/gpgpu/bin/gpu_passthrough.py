@@ -215,7 +215,7 @@ class LXD:
     def cleanup(self):
         """Cleans up instance."""
         self.run("lxc image delete {}".format(self.image_alias.hex))
-        self.run("lxc delete {}".format(self.name))
+        self.run("lxc delete --force {}".format(self.name))
 
     def launch(self, options: Optional[List] = None):
         """Sets up and creates the instance."""

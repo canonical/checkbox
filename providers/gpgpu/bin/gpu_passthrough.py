@@ -222,7 +222,7 @@ class LXD:
         if not options:
             options = []
 
-        cmd = "lxc launch {} {}".format(self.image, self.name)
+        cmd = "lxc launch {} {}".format(self.image_alias, self.name)
         if options:
             cmd = "{} {}".format(cmd, " ".join(options))
         self.run(cmd, check=True)

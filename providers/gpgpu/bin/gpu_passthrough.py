@@ -64,10 +64,8 @@ class Repository:
     pinfile: Optional[str] = None
 
 
-NVIDIA_URL = (
-    "https://developer.download.nvidia.com/compute/cuda/repos/{}/{}".format(
-        RELEASE.replace(".", ""), ARCH
-    )
+NVIDIA_URL = "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu{}/{}".format(
+    RELEASE.replace(".", ""), ARCH
 )
 GPU_VENDORS = {
     "nvidia": {

@@ -111,8 +111,8 @@ class MonitorConfigGnome(MonitorConfig):
         res: bool = True,
         max_res_amount: int = 5,
         trans: bool = False,
-        log: Callable[[str, ...], Any] = None,
-        action: Callable[[str, ...], Any] = None,
+        log: Callable[..., Any] = None,
+        action: Callable[..., Any] = None,
         **kwargs
     ):
         """

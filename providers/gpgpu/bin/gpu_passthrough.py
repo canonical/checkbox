@@ -64,7 +64,7 @@ class Repository:
     pinfile: Optional[str] = None
 
 
-NVIDIA_URL = "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu{}/{}".format(
+NVIDIA_URL = "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu{}/{}".format(  # noqa: E501
     RELEASE.replace(".", ""), ARCH
 )
 GPU_VENDORS = {
@@ -446,8 +446,6 @@ def test_lxd_gpu(args):
         if args.vendor == "nvidia":
             options = ["-c nvidia.runtime=true"]
         instance.launch(options=options)
-
-        # Add and configure GPU device
         instance.add_device("gpu", "gpu", options=["pci={}".format(args.pci)])
 
         logging.info("Waiting for network to be up")

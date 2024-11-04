@@ -206,10 +206,8 @@ class LXD:
 
     def init_lxd(self):
         """Initializes LXD."""
-        if self.run("lxd waitready --timeout=5").returncode == 0:
-            return
-        self.run("lxd init --auto", check=True)
-
+        if self.run("lxd waitready --timeout=5").returncode != 0:
+            self.run("lxd init --auto", check=True)
         self.insert_images()
 
     def cleanup(self):
@@ -222,7 +220,7 @@ class LXD:
         if not options:
             options = []
 
-        cmd = "lxc launch {} {}".format(self.image_alias, self.name)
+        cmd = "lxc launch {} {}".format(self.image_alias.hex, self.name)
         if options:
             cmd = "{} {}".format(cmd, " ".join(options))
         self.run(cmd, check=True)

@@ -400,9 +400,7 @@ def build_gpu_test(instance: LXD, vendor: str):
         "cd mixbench/build-{}".format(test_name),
         cmake_cmd.format(test_name=test_name),
         "make",
-        "ln -s ~/mixbench/build-{0}/mixbench-{0} ~/vgpu-test".format(
-            test_name
-        ),
+        "ln -s ~/mixbench/build-{0}/mixbench-{0} ~/test".format(test_name),
     ]
     instance.run(
         "bash -c '{}'".format("; ".join(cmds)), on_guest=True, check=True

@@ -230,3 +230,88 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             "HDMI-1": "2560x1440",
         }
         self.assertDictEqual(configuration, expected)
+
+    @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
+    def test_cycler(self, mock_dbus_proxy):
+        """
+        Test the cycler could get the right monitors configuration
+        and send to ApplyMonitorsConfig.
+        """
+
+        mock_proxy = Mock()
+        mock_dbus_proxy.new_for_bus_sync.return_value = mock_proxy
+
+        gnome_monitor = MonitorConfigGnome()
+        mock_proxy.call_sync.return_value = (
+            1,
+            [
+                (
+                    ("eDP-1", "LGD", "0x06b3", "0x00000000"),
+                    [
+                        (
+                            "1920x1200@59.950",
+                            1920,
+                            1200,
+                            59.950172424316406,
+                            1.0,
+                            [1.0, 2.0],
+                            {
+                                "is-current": GLib.Variant("b", True),
+                                "is-preferred": GLib.Variant("b", True),
+                            },
+                        )
+                    ],
+                    {
+                        "is-builtin": GLib.Variant("b", True),
+                        "display-name": GLib.Variant("s", "Built-in display"),
+                    },
+                ),
+                (
+                    ("HDMI-1", "LGD", "0x06b3", "0x00000000"),
+                    [
+                        (
+                            "2560x1440@59.950",
+                            2560,
+                            1440,
+                            59.950172424316406,
+                            1.0,
+                            [1.0, 2.0],
+                            {
+                                "is-current": GLib.Variant("b", True),
+                                "is-preferred": GLib.Variant("b", True),
+                            },
+                        )
+                    ],
+                    {
+                        "is-builtin": GLib.Variant("b", False),
+                        "display-name": GLib.Variant("s", "External Display"),
+                    },
+                ),
+            ],
+            [],
+            {},
+        )
+        gnome_monitor.cycler()
+
+        logical_monitors = [
+            (0, 0, 1.0, 0, True, [("eDP-1", "1920x1200@59.950", {})]),
+            (1920, 0, 1.0, 0, False, [("HDMI-1", "2560x1440@59.950", {})]),
+        ]
+
+        expected_logical_monitors = GLib.Variant(
+            "(uua(iiduba(ssa{sv}))a{sv})",
+            (
+                1,
+                1,
+                logical_monitors,
+                {},
+            ),
+        )
+
+        mock_proxy.call_sync.assert_called_with(
+            method_name="ApplyMonitorsConfig",
+            parameters=expected_logical_monitors,
+            flags=Gio.DBusCallFlags.NONE,
+            timeout_msec=-1,
+            cancellable=None,
+        )

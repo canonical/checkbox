@@ -442,16 +442,13 @@ def test_lxd_gpu(args):
     instance = LXD(args.template, args.rootfs)
     try:
         instance.init_lxd()
-        instance.launch()
+        options = []
+        if args.vendor == "nvidia":
+            options = ["-c nvidia.runtime=true"]
+        instance.launch(options=options)
 
         # Add and configure GPU device
         instance.add_device("gpu", "gpu", options=["pci={}".format(args.pci)])
-        if args.vendor == "nvidia":
-            logging.info("Passing NVIDIA runtime through to instance")
-            instance.run(
-                "lxc config set {} nvidia.runtime=true".format(instance.name),
-                check=True,
-            )
 
         logging.info("Waiting for network to be up")
         time.sleep(20)

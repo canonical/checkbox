@@ -30,8 +30,8 @@ def print_ports_config(string: str, rs485_conf: str = None):
     """
     if rs485_conf:
         for rs485_conf_list in rs485_conf.split():
-            node, rts_tx, rts_rx, delay_tx, delay_rx = (
-                rs485_conf_list.split(":")
+            node, rts_tx, rts_rx, delay_tx, delay_rx = rs485_conf_list.split(
+                ":"
             )
             rs485_conf_lists[node] = {
                 "rts_level_for_tx": rts_tx,

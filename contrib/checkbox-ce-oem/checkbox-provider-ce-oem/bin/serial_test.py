@@ -96,10 +96,10 @@ class Serial:
         )
         if self.type == "RS485":
             ser.rs485_mode = serial.rs485.RS485Settings(
-                rts_level_for_tx=self.rs485_settings.get('rts_level_for_tx'),
-                rts_level_for_rx=self.rs485_settings.get('rts_level_for_rx'),
-                delay_before_tx=self.rs485_settings.get('delay_before_tx'),
-                delay_before_rx=self.rs485_settings.get('delay_before_rx')
+                rts_level_for_tx=self.rs485_settings.get("rts_level_for_tx"),
+                rts_level_for_rx=self.rs485_settings.get("rts_level_for_rx"),
+                delay_before_tx=self.rs485_settings.get("delay_before_tx"),
+                delay_before_rx=self.rs485_settings.get("delay_before_rx"),
             )
         ser.reset_input_buffer()
         ser.reset_output_buffer()
@@ -277,14 +277,13 @@ def create_args():
 
     # Create RS485 subparser that only activates when --type=RS485
     rs485_group = parser.add_argument_group(
-        "RS485 Options",
-        "RS485-specific configuration options")
+        "RS485 Options", "RS485-specific configuration options"
+    )
     rs485_group.add_argument(
         "--rts-level-for-tx",
         choices=["True", "False"],
         type=str,
-        help="RTS level for transmission."
-             "Equal to RTS_ON_SEND",
+        help="RTS level for transmission." "Equal to RTS_ON_SEND",
         default="True",
         required=False,
     )
@@ -292,8 +291,7 @@ def create_args():
         "--rts-level-for-rx",
         choices=["True", "False"],
         type=str,
-        help="RTS level for reception."
-             "Equal to RTS_AFTER_SEND",
+        help="RTS level for reception." "Equal to RTS_AFTER_SEND",
         default="False",
         required=False,
     )
@@ -322,14 +320,14 @@ def main():
     rs485_settings = {}
     if args.type == "RS485":
         rs485_settings = {
-            'rts_level_for_tx': (
+            "rts_level_for_tx": (
                 True if args.rts_level_for_tx == "True" else False
             ),
-            'rts_level_for_rx': (
+            "rts_level_for_rx": (
                 True if args.rts_level_for_rx == "True" else False
             ),
-            'delay_before_tx': args.rts_delay_before_tx,
-            'delay_before_rx': args.rts_delay_before_rx,
+            "delay_before_tx": args.rts_delay_before_tx,
+            "delay_before_rx": args.rts_delay_before_rx,
         }
     ser = Serial(
         args.node,

@@ -85,14 +85,14 @@ class LXD:
         name: str = "testbed",
         remote: str = "ubuntu:",
     ):
-        self.template_url: Optional[str] = template_url
-        self.image_url: Optional[str] = image_url
-        self.name: str = name
-        self.remote: str = remote
-        self.image_alias: uuid.UUID = uuid.uuid4()
+        self.template_url = template_url
+        self.image_url = image_url
+        self.name = name
+        self.remote = remote
+        self.image_alias = uuid.uuid4()
 
-        self._template: Optional[str] = None
-        self._image: Optional[str] = None
+        self._template = None
+        self._image = None
 
     @property
     def template(self) -> Optional[str]:

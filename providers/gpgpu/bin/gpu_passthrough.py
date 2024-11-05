@@ -27,8 +27,7 @@ import subprocess
 import time
 import urllib
 import uuid
-from dataclasses import dataclass
-from typing import List, Optional
+from typing import Dict, List, Optional
 from urllib.parse import urlparse
 
 try:
@@ -53,32 +52,22 @@ except ImportError:
 ARCH = os.uname().machine
 
 
-@dataclass
-class Repository:
-    """Represents an apt repository."""
-
-    name: str
-    repo_line: str
-    gpg_url: str
-    gpg_fingerprint: str
-    pinfile: Optional[str] = None
-
-
+# XXX: The repository part of this should go away if we package mixbench
 NVIDIA_URL = "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu{}/{}".format(  # noqa: E501
     RELEASE.replace(".", ""), ARCH
 )
 GPU_VENDORS = {
     "nvidia": {
         "repos": [
-            Repository(
-                name="cuda",
-                repo_line="{} /".format(NVIDIA_URL),
-                gpg_url="{}/3bf863cc.pub".format(NVIDIA_URL),
-                gpg_fingerprint="EB693B3035CD5710E231E123A4B469963BF863CC",
-                pinfile="{}/cuda-ubuntu{}.pin".format(
+            {
+                "name": "cuda",
+                "repo_line": "{} /".format(NVIDIA_URL),
+                "gpg_url": "{}/3bf863cc.pub".format(NVIDIA_URL),
+                "gpg_fingerprint": "EB693B3035CD5710E231E123A4B469963BF863CC",
+                "pinfile": "{}/cuda-ubuntu{}.pin".format(
                     NVIDIA_URL, RELEASE.replace(".", "")
                 ),
-            )
+            }
         ],
     },
 }
@@ -292,26 +281,32 @@ class LXDVM(LXD):
 
 
 # XXX: If we package the mixbench program, this wouldn't be needed
-def add_apt_repo(instance: LXD, repo: Repository):
+def add_apt_repo(instance: LXD, repo: Dict):
     """Adds an APT repository to a LXD instance."""
-    logging.debug("Downloading GPG key from %s", repo.gpg_url)
+    name = repo["name"]
+    repo_line = repo["repo_line"]
+    gpg_url = repo["gpg_url"]
+    gpg_fingerprint = repo["gpg_fingerprint"]
+    pinfile = repo["pinfile"]
+
+    logging.debug("Downloading GPG key from %s", gpg_url)
     temp_keyring = "./tmp.gpg"
-    gpg_dest = "/usr/share/keyrings/{}.gpg".format(repo.name)
+    gpg_dest = "/usr/share/keyrings/{}.gpg".format(name)
     instance.run(
-        "wget -O {}.gpg '{}'".format(repo.name, repo.gpg_url),
+        "wget -O {}.gpg '{}'".format(name, gpg_url),
         on_guest=True,
         check=True,
     )
     instance.run(
         "gpg --no-default-keyring --keyring {} --import {}.gpg".format(
-            temp_keyring, repo.name
+            temp_keyring, name
         ),
         on_guest=True,
         check=True,
     )
     instance.run(
         "gpg --no-default-keyring --keyring {} --fingerprint {}".format(
-            temp_keyring, repo.gpg_fingerprint
+            temp_keyring, gpg_fingerprint
         ),
         on_guest=True,
         check=True,
@@ -324,26 +319,26 @@ def add_apt_repo(instance: LXD, repo: Repository):
         check=True,
     )
     instance.run(
-        "rm {0} {0}~ ./{1}.gpg".format(temp_keyring, repo.name),
+        "rm {0} {0}~ ./{1}.gpg".format(temp_keyring, name),
         on_guest=True,
         check=True,
     )
 
-    if repo.pinfile:
-        pinfile_dest = "/etc/apt/preferences.d/{}-pin-600".format(repo.name)
-        if repo.pinfile.startswith("http"):
+    if pinfile:
+        pinfile_dest = "/etc/apt/preferences.d/{}-pin-600".format(name)
+        if pinfile.startswith("http"):
             logging.debug("Downloading pinfile")
-            cmd = "wget -O {} {}".format(pinfile_dest, repo.pinfile)
+            cmd = "wget -O {} {}".format(pinfile_dest, pinfile)
         else:
             logging.debug("Creating pinfile")
             cmd = "bash -c \"echo -e '{}' | tee {}\"".format(
-                repo.pinfile, pinfile_dest
+                pinfile, pinfile_dest
             )
         instance.run(cmd, on_guest=True, check=True)
 
-    logging.debug("Setting up APT repository: %s", repo.name)
-    repo_dest = "/etc/apt/sources.list.d/{}.list".format(repo.name)
-    list_file = "deb [signed-by={}] {}".format(gpg_dest, repo.repo_line)
+    logging.debug("Setting up APT repository: %s", name)
+    repo_dest = "/etc/apt/sources.list.d/{}.list".format(name)
+    list_file = "deb [signed-by={}] {}".format(gpg_dest, repo_line)
     instance.run(
         "bash -c \"echo '{}' | tee {}\"".format(list_file, repo_dest),
         on_guest=True,

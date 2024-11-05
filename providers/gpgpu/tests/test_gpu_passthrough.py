@@ -280,17 +280,35 @@ class TestLXDVM(TestCase):
 class TestMain(TestCase):
     def test_add_apt_repo_no_pinfile(self, logging_mock):
         instance = MagicMock()
-        repo = MagicMock(pinfile=None)
+        repo = {
+            "name": "",
+            "repo_line": "",
+            "gpg_url": "",
+            "gpg_fingerprint": "",
+            "pinfile": None,
+        }
         add_apt_repo(instance, repo)
 
     def test_add_apt_repo_download_pinfile(self, logging_mock):
         instance = MagicMock()
-        repo = MagicMock(pinfile="https://ubuntu.com/pinfile")
+        repo = {
+            "name": "",
+            "repo_line": "",
+            "gpg_url": "",
+            "gpg_fingerprint": "",
+            "pinfile": "https://ubuntu.com/pinfile",
+        }
         add_apt_repo(instance, repo)
 
     def test_add_apt_repo_text_pinfile(self, logging_mock):
         instance = MagicMock()
-        repo = MagicMock(pinfile="Package: *\nPin: ...")
+        repo = {
+            "name": "",
+            "repo_line": "",
+            "gpg_url": "",
+            "gpg_fingerprint": "",
+            "pinfile": "Package: *\nPin: ...",
+        }
         add_apt_repo(instance, repo)
 
     def test_build_gpu_test(self, logging_mock):

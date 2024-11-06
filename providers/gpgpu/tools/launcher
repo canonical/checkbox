@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+cd $SNAP/usr/share/doc/nvidia-cuda-toolkit/examples/Samples/$TEST_GROUP/$TEST_NAME
+./$TEST_NAME
+cd $OLDPWD

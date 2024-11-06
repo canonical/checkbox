@@ -23,22 +23,41 @@ package-repositories:
 
 apps:
   device-query-drv:
-    command: usr/share/doc/nvidia-cuda-toolkit/examples/Samples/1_Utilities/deviceQueryDrv/deviceQueryDrv
+    command: bin/launcher
+    environment:
+      TEST_GROUP: 1_Utilities
+      TEST_NAME: deviceQueryDrv
     plugs: [opengl]
 
   matrix-mul-drv:
-    command: usr/share/doc/nvidia-cuda-toolkit/examples/Samples/0_Introduction/matrixMulDrv/matrixMulDrv
+    command: bin/launcher
+    environment:
+      TEST_GROUP: 0_Introduction
+      TEST_NAME: matrixMulDrv
     plugs: [opengl]
 
   vector-add-drv:
-    command: usr/share/doc/nvidia-cuda-toolkit/examples/Samples/0_Introduction/vectorAddDrv/vectorAddDrv
+    command: bin/launcher
+    environment:
+      TEST_GROUP: 0_Introduction
+      TEST_NAME: vectorAddDrv
     plugs: [opengl]
 
   simple-texture-drv:
-    command: usr/share/doc/nvidia-cuda-toolkit/examples/Samples/0_Introduction/simpleTextureDrv/simpleTextureDrv
+    command: bin/launcher
+    environment:
+      TEST_GROUP: 0_Introduction
+      TEST_NAME: simpleTextureDrv
     plugs: [opengl]
 
 parts:
+  launcher:
+    plugin: dump
+    source: .
+    source-type: local
+    organize:
+      launcher: bin/
+
   glib-only:
     source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-type: git
@@ -68,27 +87,69 @@ parts:
   device-query-drv:
     plugin: nil
     after: [cuda-samples]
-    build-packages: [cuda-toolkit-12-6]
+    build-packages: [cuda-toolkit]
+    build-environment:
+      - GROUP_NAME: 1_Utilities
+      - TEST_NAME: deviceQueryDrv
+      - SAMPLES_PATH: usr/share/doc/nvidia-cuda-toolkit/examples/Samples
+      - SRC_DIR: $CRAFT_STAGE/$SAMPLES_PATH/$GROUP_NAME/$TEST_NAME
+      - DEST_DIR: $CRAFT_PART_INSTALL/$SAMPLES_PATH/$GROUP_NAME/$TEST_NAME
     override-build: |
-      make -C $CRAFT_STAGE/usr/share/doc/nvidia-cuda-toolkit/examples/Samples/1_Utilities/deviceQueryDrv
+      make -C $SRC_DIR
+      mkdir -p $DEST_DIR
+      cp $SRC_DIR/$TEST_NAME $DEST_DIR/
 
   matrix-mul-drv:
     plugin: nil
     after: [cuda-samples]
-    build-packages: [cuda-toolkit-12-6]
+    build-packages: [cuda-toolkit]
+    build-environment:
+      - GROUP_NAME: 0_Introduction
+      - TEST_NAME: matrixMulDrv
+      - SAMPLES_PATH: usr/share/doc/nvidia-cuda-toolkit/examples/Samples
+      - SRC_DIR: $CRAFT_STAGE/$SAMPLES_PATH/$GROUP_NAME/$TEST_NAME
+      - DEST_DIR: $CRAFT_PART_INSTALL/$SAMPLES_PATH/$GROUP_NAME/$TEST_NAME
     override-build: |
-      make -C $CRAFT_STAGE/usr/share/doc/nvidia-cuda-toolkit/examples/Samples/0_Introduction/matrixMulDrv
+      make -C $SRC_DIR
+      mkdir -p $DEST_DIR
+      cp $SRC_DIR/$TEST_NAME $DEST_DIR/
+      cp -r $SRC_DIR/data $DEST_DIR/
 
   vector-add-drv:
     plugin: nil
     after: [cuda-samples]
-    build-packages: [cuda-toolkit-12-6]
+    build-packages: [cuda-toolkit]
+    build-environment:
+      - GROUP_NAME: 0_Introduction
+      - TEST_NAME: vectorAddDrv
+      - SAMPLES_PATH: usr/share/doc/nvidia-cuda-toolkit/examples/Samples
+      - SRC_DIR: $CRAFT_STAGE/$SAMPLES_PATH/$GROUP_NAME/$TEST_NAME
+      - DEST_DIR: $CRAFT_PART_INSTALL/$SAMPLES_PATH/$GROUP_NAME/$TEST_NAME
     override-build: |
-      make -C $CRAFT_STAGE/usr/share/doc/nvidia-cuda-toolkit/examples/Samples/0_Introduction/vectorAddDrv
+      make -C $SRC_DIR
+      mkdir -p $DEST_DIR
+      cp $SRC_DIR/$TEST_NAME $DEST_DIR/
+      cp -r $SRC_DIR/data $DEST_DIR/
 
   simple-texture-drv:
     plugin: nil
     after: [cuda-samples]
-    build-packages: [cuda-toolkit-12-6]
+    build-packages: [cuda-toolkit]
+    build-environment:
+      - GROUP_NAME: 0_Introduction
+      - TEST_NAME: simpleTextureDrv
+      - SAMPLES_PATH: usr/share/doc/nvidia-cuda-toolkit/examples/Samples
+      - SRC_DIR: $CRAFT_STAGE/$SAMPLES_PATH/$GROUP_NAME/$TEST_NAME
+      - DEST_DIR: $CRAFT_PART_INSTALL/$SAMPLES_PATH/$GROUP_NAME/$TEST_NAME
     override-build: |
-      make -C $CRAFT_STAGE/usr/share/doc/nvidia-cuda-toolkit/examples/Samples/0_Introduction/simpleTextureDrv
+      make -C $SRC_DIR
+      mkdir -p $DEST_DIR
+      cp $SRC_DIR/$TEST_NAME $DEST_DIR/
+      cp -r $SRC_DIR/data $DEST_DIR/
+
+lint:
+  ignore:
+    - library:
+      - usr/lib/x86_64-linux-gnu/libGLU.so*
+      - usr/lib/x86_64-linux-gnu/libOpenGL.so*
+      - usr/lib/x86_64-linux-gnu/libGLdispatch.so*

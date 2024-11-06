@@ -1,11 +1,17 @@
 #!/usr/bin/env bash
 
-echo "************************************"
-echo "Installing necessary GPGPU test tools"
-echo "*************************************"
+# XXX: Installing candidate until I make a release to stable
+snap install --channel=latest/candidate gpu-burn
+# XXX: Installing in devmode for now. SEE: https://github.com/canonical/snapd/pull/14685
+snap install --channel=latest/candidate rocm-validation-suite --devmode
+# TODO: CUDA samples are not in a snap just yet.
 
-snap install checkbox-gpgpu-tools
+# XXX: This is needed until auto-connection requests are granted.
+# SEE: https://forum.snapcraft.io/t/autoconnection-request-for-gpu-burn/43882
+# SEE: https://forum.snapcraft.io/t/request-autoconnect-for-rocm-validation-suite/43842
+snap connect gpu-burn:hardware-observe
+snap connect rocm-validation-suite:hardware-observe
 
-echo "************************************"
-echo "Finished installing GPGPU test tools"
-echo "************************************"
+# XXX: This is needed until alias request is granted.
+# SEE: https://forum.snapcraft.io/t/alias-request-for-rocm-validation-suite/43745
+snap alias rocm-validation-suite rvs

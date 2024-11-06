@@ -9,28 +9,6 @@ requires:
 _summary: NVIDIA GPGPU stress testing
 command: gpu_burn.sh
 
-id: gpgpu/matrix-mul-drv
-category_id: gpgpu
-plugin: shell
-estimated_duration: 4
-requires:
-    graphics_card.vendor == 'NVIDIA Corporation'
-    package.name == 'cuda-toolkit'
-    uname.machine == 'x86_64'
-_summary: NVIDIA GPGPU matrix multiplication
-command: matrixMulDrv.sh
-
-id: gpgpu/vector-add-drv
-category_id: gpgpu
-plugin: shell
-estimated_duration: 4
-requires:
-    graphics_card.vendor == 'NVIDIA Corporation'
-    package.name == 'cuda-toolkit'
-    uname.machine == 'x86_64'
-_summary: NVIDIA GPGPU vector addition
-command: vectorAddDrv.sh
-
 id: gpgpu/device-query-drv
 category_id: gpgpu
 plugin: shell
@@ -39,19 +17,19 @@ requires:
     graphics_card.vendor == 'NVIDIA Corporation'
     package.name == 'cuda-toolkit'
     uname.machine == 'x86_64'
-_summary: NVIDIA GPGPU query device
+_summary: NVIDIA GPGPU query device test
 command: deviceQueryDrv
-
-id: gpgpu/simple-texture-drv
-category_id: gpgpu
-plugin: shell
-estimated_duration: 4
-requires:
-    graphics_card.vendor == 'NVIDIA Corporation'
-    package.name == 'cuda-toolkit'
-    uname.machine == 'x86_64'
-_summary: NVIDIA GPGPU simple textures
-command: simpleTextureDrv.sh
+_siblings: [
+  { "id": "gpgpu/vector-add-drv",
+    "_summary": "NVIDIA GPGPU vector addition test",
+    "command": "vectorAddDrv.sh" },
+  { "id": "gpgpu/matrix-mul-drv",
+    "_summary": "NVIDIA GPGPU matrix multiplication test",
+    "command": "matrixMulDrv.sh" },
+  { "id": "gpgpu/simple-texture-drv",
+    "_summary": "NVIDIA GPGPU simple textures test",
+    "command": "simpleTextureDrv.sh" }
+  ]
 
 id: gpgpu/rvs-gpup
 category_id: gpgpu
@@ -63,69 +41,29 @@ requires:
     uname.machine == 'x86_64'
 _summary: AMD GPGPU properties query
 command: rvs.py gpup
-
-id: gpgpu/rvs-peqt
-category_id: gpgpu
-plugin: shell
-estimated_duration: 4
-requires:
-    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
-    uname.machine == 'x86_64'
-_summary: AMD GPGPU PCIe configuration test
-command: rvs.py peqt
-
-id: gpgpu/rvs-pebb
-category_id: gpgpu
-plugin: shell
-estimated_duration: 4
-requires:
-    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
-    uname.machine == 'x86_64'
-_summary: AMD GPGPU PCIe bandwidth test
-command: rvs.py pebb
-
-id: gpgpu/rvs-pbqt
-category_id: gpgpu
-plugin: shell
-estimated_duration: 4
-requires:
-    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
-    uname.machine == 'x86_64'
-_summary: AMD GPGPU P2P tests
-command: rvs.py pbqt
-
-id: gpgpu/rvs-iet
-category_id: gpgpu
-plugin: shell
-estimated_duration: 50
-requires:
-    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
-    uname.machine == 'x86_64'
-_summary: AMD GPGPU power tests
-command: rvs.py iet
-
-id: gpgpu/rvs-babel
-category_id: gpgpu
-plugin: shell
-estimated_duration: 50
-requires:
-    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
-    uname.machine == 'x86_64'
-_summary: AMD GPGPU BabelStream benchmarks
-command: rvs.py babel
-
-id: gpgpu/rvs-gst
-category_id: gpgpu
-plugin: shell
-estimated_duration: 14400
-requires:
-    graphics_card.vendor == 'Advanced Micro Devices, Inc. [AMD/ATI]'
-    package.name == 'rocm-validation-suite'
-    uname.machine == 'x86_64'
-_summary: AMD GPGPU stress test
-command: rvs.py gst
+_siblings: [
+  { "id": "gpgpu/rvs-peqt",
+    "_summary": "AMD GPGPU PCIe configuration test",
+    "command": "rvs.py peqt" },
+  { "id": "gpgpu/rvs-pebb",
+    "_summary": "AMD GPGPU PCIe bandwidth test",
+    "command": "rvs.py pebb" },
+  { "id": "gpgpu/rvs-pebb",
+    "_summary": "AMD GPGPU PCIe bandwidth test",
+    "command": "rvs.py pebb" },
+  { "id": "gpgpu/rvs-pbqt",
+    "_summary": "AMD GPGPU PCIe P2P tests",
+    "command": "rvs.py pbqt" },
+  { "id": "gpgpu/rvs-iet",
+    "_summary": "AMD GPGPU power tests",
+    "command": "rvs.py iet",
+    "estimated_duration": 50 },
+  { "id": "gpgpu/rvs-babel",
+    "_summary": "AMD GPGPU BabelStream benchmarks",
+    "command": "rvs.py babel",
+    "estimated_duration": 50 },
+  { "id": "gpgpu/rvs-gst",
+    "_summary": "AMD GPGPU stress test",
+    "command": "rvs.py gst",
+    "estimated_duration": 14400 }
+  ]

@@ -104,7 +104,7 @@ def main():
     parser.add_argument(
         "--rs485-conf",
         type=str,
-        help="RS485 sepcific configurations.",
+        help="RS485 specific configurations.",
         default=None,
         required=False,
     )

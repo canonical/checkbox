@@ -6,9 +6,7 @@ description: |
   test suite.
 
   Included in this package are:
-    * `checkbox-gpgpu-tools.gpu-burn`: GPU stress test based on CUDA toolkit.
-    * `checkbox-gpgpu-tools.cuda-samples`: Various test programs from NVIDIA.
-    * `checkbox-gpgpu-tools.rvs`: ROCm Validation Suite, a validation tool created by AMD for their GPUs.
+    * `cuda-samples`: Various test programs from NVIDIA.
 
 base: core24
 grade: stable
@@ -22,85 +20,39 @@ package-repositories:
     path: /
     key-id: EB693B3035CD5710E231E123A4B469963BF863CC
     url: https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2404/x86_64
-  - type: apt
-    architectures: [amd64]
-    components: [main]
-    suites: [noble]
-    key-id: CA8BB4727A47B4D09B4EE8969386B48A1A693C5C
-    url: https://repo.radeon.com/amdgpu/6.2/ubuntu
-  - type: apt
-    architectures: [amd64]
-    components: [main]
-    suites: [noble]
-    key-id: CA8BB4727A47B4D09B4EE8969386B48A1A693C5C
-    url: https://repo.radeon.com/rocm/apt/6.2
 
 apps:
-  gpu-burn:
-    command: usr/sbin/gpu-burn -c $SNAP/usr/share/gpu-burn/compare.ptx
-    plugs:
-      - opengl
-      - nvidia-drivers-support
-      - home
-
-  rvs:
-    command: rvs
-    plugs: 
-      - opengl
-      - home
-
   device-query-drv:
     command: usr/share/doc/nvidia-cuda-toolkit/examples/Samples/1_Utilities/deviceQueryDrv/deviceQueryDrv
-    plugs:
-      - opengl
-      - nvidia-drivers-support
-      - home
+    plugs: [opengl]
 
   matrix-mul-drv:
     command: usr/share/doc/nvidia-cuda-toolkit/examples/Samples/0_Introduction/matrixMulDrv/matrixMulDrv
-    plugs:
-      - opengl
-      - nvidia-drivers-support
-      - home
+    plugs: [opengl]
 
   vector-add-drv:
     command: usr/share/doc/nvidia-cuda-toolkit/examples/Samples/0_Introduction/vectorAddDrv/vectorAddDrv
-    plugs:
-      - opengl
-      - nvidia-drivers-support
-      - home
+    plugs: [opengl]
 
   simple-texture-drv:
     command: usr/share/doc/nvidia-cuda-toolkit/examples/Samples/0_Introduction/simpleTextureDrv/simpleTextureDrv
-    plugs:
-      - opengl
-      - nvidia-drivers-support
-      - home
+    plugs: [opengl]
 
 parts:
-  rocm-validation-suite:
-    plugin: nil
-    stage-packages:
-      - libnuma1
-      - rocm-validation-suite
-
-  gpu-burn:
-    plugin: make
-    source: https://github.com/wilicc/gpu-burn.git
+  glib-only:
+    source: https://github.com/ubuntu/snapcraft-desktop-helpers.git
     source-type: git
-    build-packages: [cuda-toolkit-12-6]
-    stage-packages: [libcublas-12-6]
-    override-build: |
-      make
-      mkdir -p $CRAFT_PART_INSTALL/usr/sbin $CRAFT_PART_INSTALL/usr/share/gpu-burn
-      cp gpu_burn $CRAFT_PART_INSTALL/usr/share/gpu-burn/
-      cp compare.ptx $CRAFT_PART_INSTALL/usr/share/gpu-burn/
-      ln -s ../share/gpu-burn/gpu_burn $CRAFT_PART_INSTALL/usr/sbin/gpu-burn
+    source-subdir: glib-only
+    plugin: make
+    build-packages: [libglib2.0-dev]
+    stage-packages: [libglib2.0-bin]
 
   cuda-samples:
+    after: [glib-only]
     plugin: dump
     source: https://github.com/NVIDIA/cuda-samples.git
     source-type: git
+    stage-packages: [libglu1-mesa]
     organize:
       Common/UtilNPP: usr/share/doc/nvidia-cuda-toolkit/examples/Common/
       Common/data: usr/share/doc/nvidia-cuda-toolkit/examples/Common/

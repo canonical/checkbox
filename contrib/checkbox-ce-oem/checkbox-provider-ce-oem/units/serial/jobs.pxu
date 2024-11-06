@@ -50,7 +50,7 @@ _description:
     This is to allow template jobs to then be instantiated.
     TYPE:NODE:BAUDRATE
     SERIAL_PORTS="RS485:/dev/ttyS0:9600 RS485:/dev/ttyS1:9600 RS232:/dev/ttyS2:115200"
-    For RS485 sepcific configuration:
+    For RS485 specific configuration:
     NODE:rts_level_for_tx{True|False}:rts_level_for_rx{True|False}:delay_before_tx{float}:delay_before_rx{float}
     RS485_CONFIG="/dev/ttySC0:True:False:0.0:0.0"
 plugin: resource

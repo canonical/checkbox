@@ -82,7 +82,7 @@ class Serial:
             try:
                 self.group.append(self.serial_init(ser))
             except Exception:
-                raise SystemError("Failed to init RS485 port: {}".format(ser))
+                raise SystemError("Failed to init serial port: {}".format(ser))
 
     def serial_init(self, node: str) -> serial.Serial:
         """Create a serial.Serial object based on the class variables"""

@@ -27,28 +27,40 @@ apps:
     environment:
       TEST_GROUP: 1_Utilities
       TEST_NAME: deviceQueryDrv
-    plugs: [opengl]
+    plugs:
+      - opengl
+      - network-bind
+      - hardware-observe
 
   matrix-mul-drv:
     command: bin/launcher
     environment:
       TEST_GROUP: 0_Introduction
       TEST_NAME: matrixMulDrv
-    plugs: [opengl]
+    plugs:
+      - opengl
+      - network-bind
+      - hardware-observe
 
   vector-add-drv:
     command: bin/launcher
     environment:
       TEST_GROUP: 0_Introduction
       TEST_NAME: vectorAddDrv
-    plugs: [opengl]
+    plugs:
+      - opengl
+      - network-bind
+      - hardware-observe
 
   simple-texture-drv:
     command: bin/launcher
     environment:
       TEST_GROUP: 0_Introduction
       TEST_NAME: simpleTextureDrv
-    plugs: [opengl]
+    plugs:
+      - opengl
+      - network-bind
+      - hardware-observe
 
 parts:
   launcher:

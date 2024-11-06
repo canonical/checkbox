@@ -85,6 +85,7 @@ category_id: com.canonical.certification::serial
 estimated_duration: 30
 flags: also-after-suspend
 command:
+    # shellcheck disable=SC2050
     if [ {{ type }} == "RS485" ]; then
         serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }} --rts-level-for-tx {{ rts_level_for_tx }} --rts-level-for-rx {{ rts_level_for_rx }} --rts-delay-before-tx {{ delay_before_tx }} --rts-delay-before-rx {{ delay_before_rx }}
     else

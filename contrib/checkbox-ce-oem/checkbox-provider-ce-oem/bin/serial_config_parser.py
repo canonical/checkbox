@@ -55,7 +55,12 @@ def print_ports_config(string: str, rs485_conf: str = None):
         port_type, port_node, baud_rate = config_parts
         serial["type"] = port_type
 
-        # Init a config dict if type is RS485
+        """
+        Init a config dict if type is RS485, and the init value are refer
+        to the serial.rs485 module.
+        ref:
+        https://pyserial.readthedocs.io/en/latest/pyserial_api.html#serial.rs485.RS485Settings
+        """
         if port_type == "RS485":
             serial["rs485_conf"] = {
                 "rts_level_for_tx": True,

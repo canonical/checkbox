@@ -232,6 +232,13 @@ class LXD:
             )
         )
 
+    def __enter__(self):
+        self.init_lxd()
+        return self
+
+    def __exit__(self, exc_type, exc_value, exc_tb):
+        self.cleanup()
+
 
 class LXDVM(LXD):
     """This class represents a LXD VM instance."""
@@ -301,7 +308,7 @@ def test_lxd_gpu(args):
     logging.info("Executing LXD GPU passthrough test")
 
     instance = LXD(args.template, args.rootfs)
-    try:
+    with LXD(args.template, args.rootfs) as instance:
         instance.init_lxd()
         options = []
         if args.vendor == "nvidia":
@@ -319,16 +326,13 @@ def test_lxd_gpu(args):
         )
 
         run_gpu_test(instance, args.count, args.threshold)
-    finally:
-        instance.cleanup()
 
 
 def test_lxdvm_gpu(args):
     """Tests GPU passthrough with a LXD virtual machine."""
     logging.info("Executing LXD VM GPU passthrough test")
 
-    instance = LXDVM(args.template, args.image)
-    try:
+    with LXDVM(args.template, args.image) as instance:
         instance.init_lxd()
         instance.launch(
             options=["-d root,size=50GB", "-c security.secureboot=false"]
@@ -357,8 +361,6 @@ def test_lxdvm_gpu(args):
         )
 
         run_gpu_test(instance, args.count, args.threshold)
-    finally:
-        instance.cleanup()
 
 
 def parse_args():

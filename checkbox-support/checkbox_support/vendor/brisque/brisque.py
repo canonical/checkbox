@@ -36,7 +36,7 @@ class BRISQUE:
         resized_image = cv2.resize(
             grey_img,
             (desired_width, desired_height),
-            interpolation=cv2.INTER_NEAREST,
+            interpolation=cv2.INTER_AREA,
         )
 
         float_img = np.float64(resized_image) / 255.0

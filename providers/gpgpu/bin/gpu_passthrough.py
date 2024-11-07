@@ -113,9 +113,6 @@ class LXD:
         self.remote = remote
         self.image_alias = uuid.uuid4()
 
-        self._template = None
-        self._image = None
-
     @cached_property
     def template(self) -> Optional[str]:
         """Gets path to template tarball."""

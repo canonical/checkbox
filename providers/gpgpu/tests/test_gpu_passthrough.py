@@ -229,17 +229,17 @@ class TestLXD(TestCase):
         self_mock = MagicMock()
         LXD.cleanup(self_mock)
 
-    @patch("shlex.join")
-    def test_launch_no_options(self, shlex_join_mock, logging_mock):
-        self_mock = MagicMock(name="testbed")
+    def test_launch_no_options(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.name = "testbed"
         self_mock.image_alias = MagicMock(
             hex="656382d4-d820-4d01-944b-82b5b63041a7"
         )
         LXD.launch(self_mock)
 
-    @patch("shlex.join")
-    def test_launch_options(self, shlex_join_mock, logging_mock):
-        self_mock = MagicMock(name="testbed")
+    def test_launch_options(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.name = "testbed"
         self_mock.image_alias = MagicMock(
             hex="656382d4-d820-4d01-944b-82b5b63041a7"
         )
@@ -293,24 +293,35 @@ class TestLXDVM(TestCase):
         self_mock.image = None
         LXDVM.insert_images(self_mock)
 
-    @patch("shlex.join")
-    def test_launch_images(self, shlex_join_mock, logging_mock):
-        self_mock = MagicMock(
-            name="testbed", template="/tmp/template", image="/tmp/image"
+    def test_launch_images(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.name = "testbed"
+        self_mock.template = "/tmp/template"
+        self_mock.image = "/tmp/image"
+        self_mock.image_alias = MagicMock(
+            hex="656382d4-d820-4d01-944b-82b5b63041a7"
         )
         LXDVM.launch(self_mock)
 
-    @patch("shlex.join")
-    def test_launch_no_images(self, shlex_join_mock, logging_mock):
-        self_mock = MagicMock(
-            name="testbed", remote="ubuntu:", template=None, image=None
+    def test_launch_no_images(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.name = "testbed"
+        self_mock.remote = "ubuntu:"
+        self_mock.template = None
+        self_mock.image = None
+        self_mock.image_alias = MagicMock(
+            hex="656382d4-d820-4d01-944b-82b5b63041a7"
         )
         LXDVM.launch(self_mock)
 
-    @patch("shlex.join")
-    def test_launch_options(self, shlex_join_mock, logging_mock):
-        self_mock = MagicMock(
-            name="testbed", remote="ubuntu:", template=None, image=None
+    def test_launch_options(self, logging_mock):
+        self_mock = MagicMock()
+        self_mock.name = "testbed"
+        self_mock.remote = "ubuntu:"
+        self_mock.template = None
+        self_mock.image = None
+        self_mock.image_alias = MagicMock(
+            hex="656382d4-d820-4d01-944b-82b5b63041a7"
         )
         LXDVM.launch(self_mock, options=["-d root,size=50GB"])
 

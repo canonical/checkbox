@@ -310,13 +310,20 @@ def test_lxd_gpu(args):
 
     instance = LXD(args.template, args.rootfs)
     with LXD(args.template, args.rootfs) as instance:
+        logging.info("Launching container: %s", instance.name)
         instance.launch(
             options=GPU_VENDORS[args.vendor]["lxd"].get("launch_options")
         )
         instance.add_device("gpu", "gpu", options=["pci={}".format(args.pci)])
 
-        logging.info("Waiting for network to be up")
-        time.sleep(20)
+        logging.info("Waiting for system to be up")
+        run_with_retry(
+            instance.run,
+            5,
+            2,
+            "systemctl is-system-running --wait",
+            on_guest=True,
+        )
 
         instance.run("snap install mixbench", on_guest=True)
         # XXX: Connecting manually until request is granted
@@ -336,12 +343,19 @@ def test_lxdvm_gpu(args):
     logging.info("Executing LXD VM GPU passthrough test")
 
     with LXDVM(args.template, args.image) as instance:
+        logging.info("Launching virtual machine: %s", instance.name)
         instance.launch(
             options=GPU_VENDORS[args.vendor]["lxdvm"].get("launch_options")
         )
 
-        logging.info("Waiting for network to be up")
-        time.sleep(20)
+        logging.info("Waiting for system to be up")
+        run_with_retry(
+            instance.run,
+            5,
+            2,
+            "systemctl is-system-running --wait",
+            on_guest=True,
+        )
 
         # Add and configure GPU device
         instance.add_device("gpu", "gpu", ["pci={}".format(args.pci)])
@@ -350,8 +364,14 @@ def test_lxdvm_gpu(args):
             instance.run(cmd, on_guest=True)
         instance.restart()
 
-        logging.info("Waiting for network to be up")
-        time.sleep(20)
+        logging.info("Waiting for system to be up")
+        run_with_retry(
+            instance.run,
+            5,
+            2,
+            "systemctl is-system-running --wait",
+            on_guest=True,
+        )
 
         instance.run("snap install mixbench", on_guest=True)
         # XXX: Connecting manually until request is granted

@@ -228,6 +228,11 @@ class LXD:
         """Restarts LXD instance."""
         self.run("lxc restart {}".format(self.name))
 
+    @retry(10, 10)
+    def wait_until_running(self):
+        """Waits for the instance to be up and running."""
+        self.run("systemctl is-system-running --wait", on_guest=True)
+
     def add_device(
         self,
         device: str,
@@ -329,13 +334,7 @@ def test_lxd_gpu(args):
         instance.add_device("gpu", "gpu", options=["pci={}".format(args.pci)])
 
         logging.info("Waiting for %s to be up", instance.name)
-        run_with_retry(
-            instance.run,
-            5,
-            2,
-            "systemctl is-system-running --wait",
-            on_guest=True,
-        )
+        instance.wait_until_running()
 
         logging.info("Installing mixbench snap")
         instance.run("snap install mixbench", on_guest=True)
@@ -362,25 +361,13 @@ def test_lxdvm_gpu(args):
         )
 
         logging.info("Waiting for %s to be up", instance.name)
-        run_with_retry(
-            instance.run,
-            5,
-            5,
-            "systemctl is-system-running --wait",
-            on_guest=True,
-        )
+        instance.wait_until_running()
 
         logging.info("Passing GPU %s through to %s", args.pci, instance.name)
         instance.add_device("gpu", "gpu", ["pci={}".format(args.pci)])
 
         logging.info("Waiting for %s to be up", instance.name)
-        run_with_retry(
-            instance.run,
-            5,
-            5,
-            "systemctl is-system-running --wait",
-            on_guest=True,
-        )
+        instance.wait_until_running()
 
         logging.info("Configuring %s", instance.name)
         for cmd in GPU_VENDORS[args.vendor]["lxdvm"].get("config_cmds", []):
@@ -390,13 +377,7 @@ def test_lxdvm_gpu(args):
         instance.restart()
 
         logging.info("Waiting for %s to be up", instance.name)
-        run_with_retry(
-            instance.run,
-            5,
-            5,
-            "systemctl is-system-running --wait",
-            on_guest=True,
-        )
+        instance.wait_until_running()
 
         logging.info("Installing mixbench snap")
         instance.run("snap install mixbench", on_guest=True)

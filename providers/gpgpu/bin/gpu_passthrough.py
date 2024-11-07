@@ -211,7 +211,7 @@ class LXD:
         cmd = ["lxc", "launch", self.image_alias.hex, self.name]
         if options:
             cmd += options
-        self.run(shlex.join(cmd))
+        self.run(" ".join(cmd))
 
     def stop(self, force: bool = False):
         """Stops LXD instance."""
@@ -274,7 +274,7 @@ class LXDVM(LXD):
         cmd += [self.name, "--vm"]
         if options:
             cmd += options
-        self.run(shlex.join(cmd))
+        self.run(" ".join(cmd))
 
         logging.debug("Starting virtual machine")
         self.run("lxc start {}".format(self.name))

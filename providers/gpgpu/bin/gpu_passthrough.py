@@ -30,7 +30,7 @@ import uuid
 from typing import Dict, List, Optional
 from urllib.parse import urlparse
 
-from checkbox_support.helpers.retry import run_with_retry
+from checkbox_support.helpers.retry import retry, run_with_retry
 from plainbox.impl.decorators import cached_property
 
 try:
@@ -152,21 +152,13 @@ class LXD:
             if not ignore_errors:
                 raise
 
+    @retry(5, 2)
     def download_image(self, url, filename):
         """Downloads LXD files for same release as host machine."""
+        if os.path.isfile(filename):
+            return
         logging.debug("Attempting download of %s from %s", filename, url)
-        try:
-            urllib.request.urlretrieve(url, filename)
-        except (
-            IOError,
-            OSError,
-            urllib.error.HTTPError,
-            urllib.error.URLError,
-        ) as e:
-            logging.exception(e)
-        except ValueError as verr:
-            logging.exception(verr)
-
+        urllib.request.urlretrieve(url, filename)
         if not os.path.isfile(filename):
             raise FileNotFoundError(filename)
 

@@ -1,8 +1,0 @@
-# These are built by the NVIDIA GPU tests for the specific system.
-compare.ptx
-matrixMul_*.fatbin
-ref_rotated.pgm
-simpleTexture_*.fatbin
-teapot512_out.pgm
-teapot512.pgm
-vectorAdd_*.fatbin

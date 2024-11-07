@@ -335,6 +335,7 @@ def test_lxd_gpu(args):
             on_guest=True,
         )
 
+        logging.info("Installing mixbench snap")
         instance.run("snap install mixbench", on_guest=True)
         # XXX: Connecting manually until request is granted
         # https://forum.snapcraft.io/t/autoconnect-request-for-mixbench/43881
@@ -383,6 +384,7 @@ def test_lxdvm_gpu(args):
             on_guest=True,
         )
 
+        logging.info("Installing mixbench snap")
         instance.run("snap install mixbench", on_guest=True)
         # XXX: Connecting manually until request is granted
         # https://forum.snapcraft.io/t/autoconnect-request-for-mixbench/43881

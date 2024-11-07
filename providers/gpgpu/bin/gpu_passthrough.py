@@ -30,6 +30,8 @@ import uuid
 from typing import Dict, List, Optional
 from urllib.parse import urlparse
 
+from plainbox.impl.decorators import cached_property
+
 try:
     import distro
 
@@ -105,29 +107,25 @@ class LXD:
         self._template = None
         self._image = None
 
-    @property
+    @cached_property
     def template(self) -> Optional[str]:
         """Gets path to template tarball."""
-        if not self._template and self.template_url:
-            targetfile = urlparse(self.template_url).path.split("/")[-1]
-            filename = os.path.join("/tmp", targetfile)
-            if not os.path.isfile(filename):
-                self.download_image(self.template_url, filename)
-            self._template = filename
+        if not self.template_url:
+            return None
+        targetfile = urlparse(self.template_url).path.split("/")[-1]
+        filename = os.path.join("/tmp", targetfile)
+        self.download_image(self.template_url, filename)
+        return filename
 
-        return self._template
-
-    @property
+    @cached_property
     def image(self) -> Optional[str]:
         """Gets path to image tarball."""
-        if not self._image and self.image_url:
-            targetfile = urlparse(self.image_url).path.split("/")[-1]
-            filename = os.path.join("/tmp", targetfile)
-            if not os.path.isfile(filename):
-                self.download_image(self.image_url, filename)
-            self._image = filename
-
-        return self._image
+        if not self.image_url:
+            return None
+        targetfile = urlparse(self.image_url).path.split("/")[-1]
+        filename = os.path.join("/tmp", targetfile)
+        self.download_image(self.image_url, filename)
+        return filename
 
     def run(
         self,

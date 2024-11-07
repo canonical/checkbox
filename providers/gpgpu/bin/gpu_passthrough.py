@@ -148,8 +148,8 @@ class LXD:
                 universal_newlines=True,
             )
         except subprocess.CalledProcessError as e:
-            logging.debug("Command failed: %s", cmd)
-            logging.debug(" STDOUT: %s", e.stdout)
+            logging.error("Command failed: %s", cmd)
+            logging.info(" STDOUT: %s", e.stdout)
             if not ignore_errors:
                 raise
 
@@ -348,7 +348,7 @@ def test_lxdvm_gpu(args):
         # Add and configure GPU device
         instance.add_device("gpu", "gpu", ["pci={}".format(args.pci)])
         for cmd in GPU_VENDORS[args.vendor]["lxdvm"].get("config_cmds", []):
-            logging.debug("Configuring instance")
+            logging.info("Configuring instance")
             instance.run(cmd, on_guest=True)
         instance.restart()
 

@@ -72,7 +72,18 @@ GPU_VENDORS = {
     },
 }
 GPU_RUNS = 20
+"""How many times to run the GPU test.
+
+This can be overwritten by the `--count` option or by setting the environment
+variable `LXD_GPU_RUNS`. With priority in that order.
+"""
+
 GPU_THRESHOLD_SEC = 12.0  # TODO: finetune
+"""The threshold for the GPU test to pass.
+
+This can be overwritten by the `--threshold` option or by setting the
+environment variable `LXD_GPU_THRESHOLD`. With priority in that order.
+"""
 
 
 class LXD:

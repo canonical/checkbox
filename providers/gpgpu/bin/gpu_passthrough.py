@@ -245,10 +245,7 @@ class LXDVM(LXD):
                 )
             )
 
-    def launch(self, options=None):
-        if not options:
-            options = []
-
+    def launch(self, options: Optional[List] = None):
         logging.debug("Initializing virtual machine")
         cmd = ["lxc", "init"]
         if not self.image and not self.template:

@@ -10,9 +10,9 @@ jobs:
           - series: "series22"
             runner_os: "ubuntu-22.04"
           - series: "series20"
-            runner_os: "ubuntu-22.04"
+            runner_os: "ubuntu-20.04"
           - series: "series18"
-            runner_os: "ubuntu-22.04"
+            runner_os: "ubuntu-20.04"
           - series: "series16"
             runner_os: "ubuntu-20.04"
     runs-on: ${{ matrix.runner_os }}

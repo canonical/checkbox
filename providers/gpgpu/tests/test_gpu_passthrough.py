@@ -117,7 +117,33 @@ class TestLXD(TestCase):
         with self.assertRaises(subprocess.CalledProcessError):
             LXD.run(self_mock, "ip a")
 
+    @patch(
+        "subprocess.run",
+        side_effect=subprocess.CalledProcessError(1, "", "fail"),
+    )
+    def test_run_ignore_errors(self, run_mock, logging_mock):
+        self_mock = MagicMock()
+        try:
+            LXD.run(self_mock, "ip a", ignore_errors=True)
+        except subprocess.CalledProcessError:
+            self.fail("run raised CalledProcessError")
+
+    @patch("urllib.request.urlretrieve")
     @patch("os.path.isfile", return_value=True)
+    def test_download_image_exists(
+        self, isfile_mock, urlretrieve_mock, logging_mock
+    ):
+        self_mock = MagicMock()
+        try:
+            LXD.download_image(
+                self_mock, "https://ubuntu.com/image", "/tmp/image"
+            )
+        except FileNotFoundError:
+            self.fail("download_image raised FileNotFoundError")
+        self.assertEqual(isfile_mock.call_count, 1)
+        self.assertFalse(urlretrieve_mock.called)
+
+    @patch("os.path.isfile", side_effect=[False, True])
     @patch("urllib.request.urlretrieve")
     def test_download_image_success(
         self, urlretrieve_mock, isfile_mock, logging_mock
@@ -129,6 +155,8 @@ class TestLXD(TestCase):
             )
         except FileNotFoundError:
             self.fail("download_image raised FileNotFoundError")
+        self.assertEqual(isfile_mock.call_count, 2)
+        self.assertTrue(urlretrieve_mock.called)
 
     @patch("os.path.isfile", return_value=False)
     @patch("urllib.request.urlretrieve", side_effect=IOError)
@@ -140,6 +168,8 @@ class TestLXD(TestCase):
             LXD.download_image(
                 self_mock, "https://ubuntu.com/image", "/tmp/image"
             )
+        self.assertEqual(isfile_mock.call_count, 1)
+        self.assertTrue(urlretrieve_mock.called)
 
     @patch("os.path.isfile", return_value=False)
     @patch("urllib.request.urlretrieve")
@@ -151,6 +181,8 @@ class TestLXD(TestCase):
             LXD.download_image(
                 self_mock, "https://ubuntu.com/image", "/tmp/image"
             )
+        self.assertEqual(isfile_mock.call_count, 2)
+        self.assertTrue(urlretrieve_mock.called)
 
     def test_insert_images_local_success(self, logging_mock):
         self_mock = MagicMock(template="/tmp/template", image="/tmp/image")
@@ -297,21 +329,17 @@ class TestMain(TestCase):
             run_gpu_test(instance, run_count=1, threshold_sec=1)
 
     @patch("gpu_passthrough.run_gpu_test")
-    @patch("gpu_passthrough.build_gpu_test")
     @patch("time.sleep")
     @patch("gpu_passthrough.LXD")
-    def test_test_lxd_gpu(
-        self, lxd_mock, sleep_mock, build_mock, run_mock, logging_mock
-    ):
+    def test_test_lxd_gpu(self, lxd_mock, sleep_mock, run_mock, logging_mock):
         args = MagicMock(vendor="nvidia")
         test_lxd_gpu(args)
 
     @patch("gpu_passthrough.run_gpu_test")
-    @patch("gpu_passthrough.build_gpu_test")
     @patch("time.sleep")
     @patch("gpu_passthrough.LXDVM")
     def test_test_lxdvm_gpu(
-        self, lxdvm_mock, sleep_mock, build_mock, run_mock, logging_mock
+        self, lxdvm_mock, sleep_mock, run_mock, logging_mock
     ):
         args = MagicMock(vendor="nvidia")
         test_lxdvm_gpu(args)

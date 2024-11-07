@@ -318,7 +318,7 @@ class TestMain(TestCase):
     def test_run_gpu_test_success(self, time_mock, logging_mock):
         instance = MagicMock()
         try:
-            run_gpu_test(instance, run_count=1, threshold_sec=2)
+            run_gpu_test(instance, "test", run_count=1, threshold_sec=2)
         except SystemExit:
             self.fail("run_gpu_test raised SystemExit")
 
@@ -326,7 +326,7 @@ class TestMain(TestCase):
     def test_run_gpu_test_failure(self, time_mock, logging_mock):
         instance = MagicMock()
         with self.assertRaises(SystemExit):
-            run_gpu_test(instance, run_count=1, threshold_sec=1)
+            run_gpu_test(instance, "test", run_count=1, threshold_sec=1)
 
     @patch("gpu_passthrough.run_gpu_test")
     @patch("time.sleep")

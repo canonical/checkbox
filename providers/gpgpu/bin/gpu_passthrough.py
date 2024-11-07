@@ -315,7 +315,8 @@ def test_lxd_gpu(args):
         time.sleep(20)
 
         instance.run("sudo snap install mixbench", on_guest=True)
-        # XXX: https://forum.snapcraft.io/t/autoconnect-request-for-mixbench/43881
+        # XXX: Connecting manually until request is granted
+        # https://forum.snapcraft.io/t/autoconnect-request-for-mixbench/43881
         instance.run(
             "sudo snap connect mixbench:hardware-observe", on_guest=True
         )
@@ -352,7 +353,8 @@ def test_lxdvm_gpu(args):
         time.sleep(20)
 
         instance.run("sudo snap install mixbench", on_guest=True)
-        # XXX: https://forum.snapcraft.io/t/autoconnect-request-for-mixbench/43881
+        # XXX: Connecting manually until request is granted
+        # https://forum.snapcraft.io/t/autoconnect-request-for-mixbench/43881
         instance.run(
             "sudo snap connect mixbench:hardware-observe", on_guest=True
         )

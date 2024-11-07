@@ -206,7 +206,7 @@ class LXD:
         )
         self.run("lxc delete --force {}".format(self.name), ignore_errors=True)
 
-    def launch(self, options: Optional[List] = None):
+    def launch(self, options: Optional[List[str]] = None):
         """Sets up and creates the instance."""
         cmd = ["lxc", "launch", self.image_alias.hex, self.name]
         if options:
@@ -229,7 +229,10 @@ class LXD:
         self.run("lxc restart {}".format(self.name))
 
     def add_device(
-        self, device: str, device_type: str, options: Optional[List] = None
+        self,
+        device: str,
+        device_type: str,
+        options: Optional[List[str]] = None,
     ):
         """Adds a device to the LXD instance."""
         if not options:
@@ -260,7 +263,7 @@ class LXDVM(LXD):
                 )
             )
 
-    def launch(self, options: Optional[List] = None):
+    def launch(self, options: Optional[List[str]] = None):
         logging.debug("Initializing virtual machine")
         cmd = ["lxc", "init"]
         if not self.image and not self.template:

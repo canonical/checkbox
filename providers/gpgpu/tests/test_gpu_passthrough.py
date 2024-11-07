@@ -17,12 +17,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-import os
 import subprocess
-import urllib.error
 from unittest import TestCase
 from unittest.mock import MagicMock, patch
 
+from checkbox_support.helpers.retry import mock_retry
 from gpu_passthrough import (
     LXD,
     LXDVM,
@@ -36,6 +35,7 @@ from gpu_passthrough import (
 )
 
 
+@mock_retry()
 @patch("gpu_passthrough.logging")
 class TestLXD(TestCase):
     def test_template_none(self, logging_mock):
@@ -112,17 +112,12 @@ class TestLXD(TestCase):
 
     @patch(
         "subprocess.run",
-        return_value=MagicMock(returncode=1, stdout="", stderr="fail"),
+        side_effect=subprocess.CalledProcessError(1, "", "fail"),
     )
     def test_run_fail(self, run_mock, logging_mock):
-        run_mock().check_returncode.side_effect = [
-            subprocess.CalledProcessError(
-                run_mock.returncode, "ip a", run_mock.stdout, run_mock.stderr
-            )
-        ]
         self_mock = MagicMock()
         with self.assertRaises(subprocess.CalledProcessError):
-            LXD.run(self_mock, "ip a", check=True)
+            LXD.run(self_mock, "ip a")
 
     @patch("os.path.isfile", return_value=True)
     @patch("urllib.request.urlretrieve")
@@ -143,14 +138,14 @@ class TestLXD(TestCase):
         self, urlretrieve_mock, isfile_mock, logging_mock
     ):
         self_mock = MagicMock()
-        with self.assertRaises(FileNotFoundError):
+        with self.assertRaises(IOError):
             LXD.download_image(
                 self_mock, "https://ubuntu.com/image", "/tmp/image"
             )
 
     @patch("os.path.isfile", return_value=False)
-    @patch("urllib.request.urlretrieve", side_effect=ValueError)
-    def test_download_image_val_error(
+    @patch("urllib.request.urlretrieve")
+    def test_download_image_file_not_found(
         self, urlretrieve_mock, isfile_mock, logging_mock
     ):
         self_mock = MagicMock()
@@ -160,29 +155,28 @@ class TestLXD(TestCase):
             )
 
     def test_insert_images_local_success(self, logging_mock):
-        self_mock = MagicMock()
-        self_mock.template = "/tmp/template"
-        self_mock.image = "/tmp/image"
+        self_mock = MagicMock(template="/tmp/template", image="/tmp/image")
         LXD.insert_images(self_mock)
 
-    def test_insert_images_remote_success(self, logging_mock):
-        self_mock = MagicMock()
-        self_mock.template = None
-        self_mock.image = None
-        self_mock.remote = "ubuntu:"
-        self_mock.run.return_value = MagicMock(returncode=0)
+    @patch("gpu_passthrough.run_with_retry")
+    def test_insert_images_remote_success(
+        self, logging_mock, run_with_retry_mock
+    ):
+        self_mock = MagicMock(template=None, image=None, remote="ubuntu:")
         try:
             LXD.insert_images(self_mock)
         except RuntimeError:
             self.fail("insert_images raised RuntimeError")
 
-    def test_insert_images_remote_fail(self, logging_mock):
-        self_mock = MagicMock()
-        self_mock.template = None
-        self_mock.image = None
-        self_mock.remote = "ubuntu:"
-        self_mock.run.return_value = MagicMock(returncode=1)
-        with self.assertRaises(RuntimeError):
+    @patch(
+        "gpu_passthrough.run_with_retry",
+        side_effect=subprocess.CalledProcessError(1, "", ""),
+    )
+    def test_insert_images_remote_fail(
+        self, logging_mock, fake_run_with_retry_mock
+    ):
+        self_mock = MagicMock(template=None, image=None, remote="ubuntu:")
+        with self.assertRaises(subprocess.CalledProcessError):
             LXD.insert_images(self_mock)
 
     def test_init_lxd_already_running(self, logging_mock):
@@ -194,7 +188,7 @@ class TestLXD(TestCase):
     def test_init_lxd_success(self, logging_mock):
         self_mock = MagicMock()
         self_mock.run.side_effect = [
-            MagicMock(returncode=1),
+            subprocess.CalledProcessError(1, "", "lxd not running"),
             MagicMock(returncode=0),
         ]
         LXD.init_lxd(self_mock)
@@ -205,12 +199,20 @@ class TestLXD(TestCase):
         self_mock = MagicMock()
         LXD.cleanup(self_mock)
 
-    def test_launch_no_options(self, logging_mock):
-        self_mock = MagicMock()
+    @patch("shlex.join")
+    def test_launch_no_options(self, shlex_join_mock, logging_mock):
+        self_mock = MagicMock(name="testbed")
+        self_mock.image_alias = MagicMock(
+            hex="656382d4-d820-4d01-944b-82b5b63041a7"
+        )
         LXD.launch(self_mock)
 
-    def test_launch_options(self, logging_mock):
-        self_mock = MagicMock()
+    @patch("shlex.join")
+    def test_launch_options(self, shlex_join_mock, logging_mock):
+        self_mock = MagicMock(name="testbed")
+        self_mock.image_alias = MagicMock(
+            hex="656382d4-d820-4d01-944b-82b5b63041a7"
+        )
         LXD.launch(self_mock, ["-d root,size=50GB"])
 
     def test_stop_no_force(self, logging_mock):
@@ -238,6 +240,7 @@ class TestLXD(TestCase):
         LXD.add_device(self_mock, "gpu", "gpu", ["pci=0000:0a:00.0"])
 
 
+@mock_retry()
 @patch("gpu_passthrough.logging")
 class TestLXDVM(TestCase):
     def test_insert_images(self, logging_mock):
@@ -252,22 +255,25 @@ class TestLXDVM(TestCase):
         self_mock.image = None
         LXDVM.insert_images(self_mock)
 
-    def test_launch_images(self, logging_mock):
-        self_mock = MagicMock()
-        self_mock.template = "/tmp/template"
-        self_mock.image = "/tmp/image"
+    @patch("shlex.join")
+    def test_launch_images(self, shlex_join_mock, logging_mock):
+        self_mock = MagicMock(
+            name="testbed", template="/tmp/template", image="/tmp/image"
+        )
         LXDVM.launch(self_mock)
 
-    def test_launch_no_images(self, logging_mock):
-        self_mock = MagicMock()
-        self_mock.template = None
-        self_mock.image = None
+    @patch("shlex.join")
+    def test_launch_no_images(self, shlex_join_mock, logging_mock):
+        self_mock = MagicMock(
+            name="testbed", remote="ubuntu:", template=None, image=None
+        )
         LXDVM.launch(self_mock)
 
-    def test_launch_options(self, logging_mock):
-        self_mock = MagicMock()
-        self_mock.template = None
-        self_mock.image = None
+    @patch("shlex.join")
+    def test_launch_options(self, shlex_join_mock, logging_mock):
+        self_mock = MagicMock(
+            name="testbed", remote="ubuntu:", template=None, image=None
+        )
         LXDVM.launch(self_mock, options=["-d root,size=50GB"])
 
     @patch("gpu_passthrough.super")

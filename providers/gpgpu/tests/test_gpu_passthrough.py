@@ -269,6 +269,14 @@ class TestLXD(TestCase):
         self_mock = MagicMock()
         LXD.add_device(self_mock, "gpu", "gpu", ["pci=0000:0a:00.0"])
 
+    @patch.object(LXD, "cleanup")
+    @patch.object(LXD, "init_lxd")
+    def test_context_manager(self, init_lxd_mock, cleanup_mock, logging_mock):
+        with LXD() as _:
+            pass
+        self.assertTrue(init_lxd_mock.called)
+        self.assertTrue(cleanup_mock.called)
+
 
 @mock_retry()
 @patch("gpu_passthrough.logging")
@@ -329,17 +337,19 @@ class TestMain(TestCase):
             run_gpu_test(instance, "test", run_count=1, threshold_sec=1)
 
     @patch("gpu_passthrough.run_gpu_test")
-    @patch("time.sleep")
+    @patch("gpu_passthrough.run_with_retry")
     @patch("gpu_passthrough.LXD")
-    def test_test_lxd_gpu(self, lxd_mock, sleep_mock, run_mock, logging_mock):
+    def test_test_lxd_gpu(
+        self, lxd_mock, run_with_retry_mock, run_mock, logging_mock
+    ):
         args = MagicMock(vendor="nvidia")
         test_lxd_gpu(args)
 
     @patch("gpu_passthrough.run_gpu_test")
-    @patch("time.sleep")
+    @patch("gpu_passthrough.run_with_retry")
     @patch("gpu_passthrough.LXDVM")
     def test_test_lxdvm_gpu(
-        self, lxdvm_mock, sleep_mock, run_mock, logging_mock
+        self, lxdvm_mock, run_with_retry_mock, run_mock, logging_mock
     ):
         args = MagicMock(vendor="nvidia")
         test_lxdvm_gpu(args)

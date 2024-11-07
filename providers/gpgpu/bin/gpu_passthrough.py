@@ -58,7 +58,14 @@ ARCH = os.uname().machine
 GPU_VENDORS = {
     "nvidia": {
         "test": "mixbench.cuda",
-        "lxd": {"launch_options": ["-c", "nvidia.runtime=true"]},
+        "lxd": {
+            "launch_options": [
+                "-c",
+                "nvidia.runtime=true",
+                "-c",
+                "nvidia.driver.capabilities=all",
+            ]
+        },
         "lxdvm": {
             "launch_options": [
                 "-d",

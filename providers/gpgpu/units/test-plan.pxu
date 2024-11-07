@@ -24,9 +24,9 @@ include:
     gpgpu/rvs-pbqt
     gpgpu/rvs-babel
 
-id: gpgpu-virtualization
+id: gpgpu-passthrough
 unit: test plan
-_name: GPGPU Virtualization Testing
+_name: GPGPU Virtualization Passthrough Testing
 _description:
  Automated Tests for GPGPU Passthrough (non-graphical)
 include:

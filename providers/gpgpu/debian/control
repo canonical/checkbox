@@ -17,7 +17,7 @@ Standards-Version: 3.9.6
 
 Package: checkbox-provider-gpgpu
 Architecture: amd64
-Depends: checkbox-provider-base, ${plainbox:Depends}, ${misc:Depends}
+Depends: checkbox-provider-base, snapd, ${plainbox:Depends}, ${misc:Depends}
 Suggests: ${plainbox:Suggests}
 X-Plainbox-Provider: yes
 Description: Checkbox provider for GPGPU testing

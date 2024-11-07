@@ -268,115 +268,6 @@ class LXDVM(LXD):
         self.start()
 
 
-# XXX: If we package the mixbench program, this wouldn't be needed
-def add_apt_repo(instance: LXD, repo: Dict):
-    """Adds an APT repository to a LXD instance."""
-    name = repo["name"]
-    repo_line = repo["repo_line"]
-    gpg_url = repo["gpg_url"]
-    gpg_fingerprint = repo["gpg_fingerprint"]
-    pinfile = repo["pinfile"]
-
-    logging.debug("Downloading GPG key from %s", gpg_url)
-    temp_keyring = "./tmp.gpg"
-    gpg_dest = "/usr/share/keyrings/{}.gpg".format(name)
-    instance.run("wget -O {}.gpg '{}'".format(name, gpg_url), on_guest=True)
-    instance.run(
-        "gpg --no-default-keyring --keyring {} --import {}.gpg".format(
-            temp_keyring, name
-        ),
-        on_guest=True,
-    )
-    instance.run(
-        "gpg --no-default-keyring --keyring {} --fingerprint {}".format(
-            temp_keyring, gpg_fingerprint
-        ),
-        on_guest=True,
-    )
-    instance.run(
-        "gpg --yes --no-default-keyring --keyring {} --export -o {}".format(
-            temp_keyring, gpg_dest
-        ),
-        on_guest=True,
-    )
-    instance.run(
-        "rm {0} {0}~ ./{1}.gpg".format(temp_keyring, name), on_guest=True
-    )
-
-    if pinfile:
-        pinfile_dest = "/etc/apt/preferences.d/{}-pin-600".format(name)
-        if pinfile.startswith("http"):
-            logging.debug("Downloading pinfile")
-            cmd = "wget -O {} {}".format(pinfile_dest, pinfile)
-        else:
-            logging.debug("Creating pinfile")
-            cmd = "bash -c \"echo -e '{}' | tee {}\"".format(
-                pinfile, pinfile_dest
-            )
-        instance.run(cmd, on_guest=True)
-
-    logging.debug("Setting up APT repository: %s", name)
-    repo_dest = "/etc/apt/sources.list.d/{}.list".format(name)
-    list_file = "deb [signed-by={}] {}".format(gpg_dest, repo_line)
-    instance.run(
-        "bash -c \"echo '{}' | tee {}\"".format(list_file, repo_dest),
-        on_guest=True,
-    )
-
-    logging.debug("Updating APT cache")
-    instance.run("apt-get -q update", on_guest=True)
-
-
-# TODO: Package test program (e.g., as a snap) to simplify this logic
-#       If we package mixbench, then this function goes away entirely
-def build_gpu_test(instance: LXD, vendor: str):
-    """Builds the GPU passthrough test."""
-    test_name = ""
-    cmake_cmd = "cmake ../mixbench-{test_name}"
-
-    # Add necessary APT repositories to instance
-    for repo in GPU_VENDORS[vendor].get("repos", []):
-        add_apt_repo(instance, repo)
-
-    if vendor == "nvidia":
-        logging.debug("Installing CUDA Toolkit on instance")
-        packages = ["build-essential", "cmake", "cuda-toolkit"]
-        instance.run(
-            "apt-get -q install -y --no-install-recommends {}".format(
-                " ".join(packages)
-            ),
-            on_guest=True,
-        )
-
-        logging.debug("Finding CUDA capability for GPU")
-        cuda_arch = "native"
-        proc = instance.run(
-            "nvidia-smi --query-gpu=compute_cap --format=csv,noheader",
-            on_guest=True,
-        )
-        if proc.returncode == 0 and proc.stdout:
-            cuda_arch = proc.stdout.strip().replace(".", "")
-        logging.debug("Using CUDA architecture '%s'", cuda_arch)
-
-        test_name = "cuda"
-        nvcc_path = "/usr/local/cuda/bin/nvcc"
-        cmake_cmd = "CUDACXX={} {} -DCMAKE_CUDA_ARCHITECTURES={}".format(
-            nvcc_path, cmake_cmd, cuda_arch
-        )
-
-    logging.info("Fetching and compiling GPU passthrough test on instance")
-    cmds = [
-        "set -e",
-        "git clone https://github.com/ekondis/mixbench.git",
-        "mkdir mixbench/build-{}".format(test_name),
-        "cd mixbench/build-{}".format(test_name),
-        cmake_cmd.format(test_name=test_name),
-        "make",
-        "ln -s ~/mixbench/build-{0}/mixbench-{0} ~/test".format(test_name),
-    ]
-    instance.run("bash -c '{}'".format("; ".join(cmds)), on_guest=True)
-
-
 def run_gpu_test(
     instance: LXD,
     run_count: int = GPU_RUNS,
@@ -421,7 +312,12 @@ def test_lxd_gpu(args):
         logging.info("Waiting for network to be up")
         time.sleep(20)
 
-        build_gpu_test(instance, args.vendor)
+        instance.run("sudo snap install mixbench", on_guest=True)
+        # XXX: https://forum.snapcraft.io/t/autoconnect-request-for-mixbench/43881
+        instance.run(
+            "sudo snap connect mixbench:hardware-observe", on_guest=True
+        )
+
         run_gpu_test(instance, args.count, args.threshold)
     finally:
         instance.cleanup()
@@ -454,7 +350,12 @@ def test_lxdvm_gpu(args):
         logging.info("Waiting for network to be up")
         time.sleep(20)
 
-        build_gpu_test(instance, args.vendor)
+        instance.run("sudo snap install mixbench", on_guest=True)
+        # XXX: https://forum.snapcraft.io/t/autoconnect-request-for-mixbench/43881
+        instance.run(
+            "sudo snap connect mixbench:hardware-observe", on_guest=True
+        )
+
         run_gpu_test(instance, args.count, args.threshold)
     finally:
         instance.cleanup()

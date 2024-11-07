@@ -25,8 +25,6 @@ from checkbox_support.helpers.retry import mock_retry
 from gpu_passthrough import (
     LXD,
     LXDVM,
-    add_apt_repo,
-    build_gpu_test,
     main,
     parse_args,
     run_gpu_test,
@@ -284,43 +282,6 @@ class TestLXDVM(TestCase):
 
 @patch("gpu_passthrough.logging")
 class TestMain(TestCase):
-    def test_add_apt_repo_no_pinfile(self, logging_mock):
-        instance = MagicMock()
-        repo = {
-            "name": "",
-            "repo_line": "",
-            "gpg_url": "",
-            "gpg_fingerprint": "",
-            "pinfile": None,
-        }
-        add_apt_repo(instance, repo)
-
-    def test_add_apt_repo_download_pinfile(self, logging_mock):
-        instance = MagicMock()
-        repo = {
-            "name": "",
-            "repo_line": "",
-            "gpg_url": "",
-            "gpg_fingerprint": "",
-            "pinfile": "https://ubuntu.com/pinfile",
-        }
-        add_apt_repo(instance, repo)
-
-    def test_add_apt_repo_text_pinfile(self, logging_mock):
-        instance = MagicMock()
-        repo = {
-            "name": "",
-            "repo_line": "",
-            "gpg_url": "",
-            "gpg_fingerprint": "",
-            "pinfile": "Package: *\nPin: ...",
-        }
-        add_apt_repo(instance, repo)
-
-    def test_build_gpu_test(self, logging_mock):
-        instance = MagicMock()
-        build_gpu_test(instance, "nvidia")
-
     @patch("time.time", side_effect=[0, 1])
     def test_run_gpu_test_success(self, time_mock, logging_mock):
         instance = MagicMock()

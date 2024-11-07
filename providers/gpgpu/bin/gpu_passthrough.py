@@ -328,7 +328,7 @@ def test_lxd_gpu(args):
         logging.info("Passing GPU %s through to %s", args.pci, instance.name)
         instance.add_device("gpu", "gpu", options=["pci={}".format(args.pci)])
 
-        logging.info("Waiting for system to be up")
+        logging.info("Waiting for %s to be up", instance.name)
         run_with_retry(
             instance.run,
             5,
@@ -361,7 +361,7 @@ def test_lxdvm_gpu(args):
             options=GPU_VENDORS[args.vendor]["lxdvm"].get("launch_options")
         )
 
-        logging.info("Waiting for system to be up")
+        logging.info("Waiting for %s to be up", instance.name)
         run_with_retry(
             instance.run,
             5,
@@ -373,12 +373,23 @@ def test_lxdvm_gpu(args):
         logging.info("Passing GPU %s through to %s", args.pci, instance.name)
         instance.add_device("gpu", "gpu", ["pci={}".format(args.pci)])
 
-        logging.info("Configuring instance")
+        logging.info("Waiting for %s to be up", instance.name)
+        run_with_retry(
+            instance.run,
+            5,
+            5,
+            "systemctl is-system-running --wait",
+            on_guest=True,
+        )
+
+        logging.info("Configuring %s", instance.name)
         for cmd in GPU_VENDORS[args.vendor]["lxdvm"].get("config_cmds", []):
             instance.run(cmd, on_guest=True)
+
+        logging.info("Restarting %s", instance.name)
         instance.restart()
 
-        logging.info("Waiting for system to be up")
+        logging.info("Waiting for %s to be up", instance.name)
         run_with_retry(
             instance.run,
             5,

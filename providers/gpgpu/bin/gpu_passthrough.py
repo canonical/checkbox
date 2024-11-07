@@ -324,6 +324,8 @@ def test_lxd_gpu(args):
         instance.launch(
             options=GPU_VENDORS[args.vendor]["lxd"].get("launch_options")
         )
+
+        logging.info("Passing GPU %s through to %s", args.pci, instance.name)
         instance.add_device("gpu", "gpu", options=["pci={}".format(args.pci)])
 
         logging.info("Waiting for system to be up")
@@ -363,15 +365,16 @@ def test_lxdvm_gpu(args):
         run_with_retry(
             instance.run,
             5,
-            2,
+            5,
             "systemctl is-system-running --wait",
             on_guest=True,
         )
 
-        # Add and configure GPU device
+        logging.info("Passing GPU %s through to %s", args.pci, instance.name)
         instance.add_device("gpu", "gpu", ["pci={}".format(args.pci)])
+
+        logging.info("Configuring instance")
         for cmd in GPU_VENDORS[args.vendor]["lxdvm"].get("config_cmds", []):
-            logging.info("Configuring instance")
             instance.run(cmd, on_guest=True)
         instance.restart()
 
@@ -379,7 +382,7 @@ def test_lxdvm_gpu(args):
         run_with_retry(
             instance.run,
             5,
-            2,
+            5,
             "systemctl is-system-running --wait",
             on_guest=True,
         )

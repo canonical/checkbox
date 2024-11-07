@@ -270,7 +270,7 @@ class LXDVM(LXD):
             logging.debug("No local image, importing from remote")
             cmd += ["{}{}".format(self.remote, RELEASE)]
         else:
-            cmd += [self.image]
+            cmd += [self.image_alias.hex]
         cmd += [self.name, "--vm"]
         if options:
             cmd += options

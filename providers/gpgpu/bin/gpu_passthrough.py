@@ -58,9 +58,14 @@ ARCH = os.uname().machine
 GPU_VENDORS = {
     "nvidia": {
         "test": "mixbench.cuda",
-        "lxd": {"launch_options": ["-c nvidia.runtime=true"]},
+        "lxd": {"launch_options": ["-c", "nvidia.runtime=true"]},
         "lxdvm": {
-            "launch_options": [],
+            "launch_options": [
+                "-d",
+                "root,size=50GB",
+                "-c",
+                "security.secureboot=false",
+            ],
             "config_cmds": [
                 "apt-get -q install -y ubuntu-drivers-common",
                 "ubuntu-drivers install",

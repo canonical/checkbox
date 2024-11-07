@@ -319,12 +319,10 @@ def test_lxd_gpu(args):
         logging.info("Waiting for network to be up")
         time.sleep(20)
 
-        instance.run("sudo snap install mixbench", on_guest=True)
+        instance.run("snap install mixbench", on_guest=True)
         # XXX: Connecting manually until request is granted
         # https://forum.snapcraft.io/t/autoconnect-request-for-mixbench/43881
-        instance.run(
-            "sudo snap connect mixbench:hardware-observe", on_guest=True
-        )
+        instance.run("snap connect mixbench:hardware-observe", on_guest=True)
 
         run_gpu_test(
             instance,
@@ -357,12 +355,10 @@ def test_lxdvm_gpu(args):
         logging.info("Waiting for network to be up")
         time.sleep(20)
 
-        instance.run("sudo snap install mixbench", on_guest=True)
+        instance.run("snap install mixbench", on_guest=True)
         # XXX: Connecting manually until request is granted
         # https://forum.snapcraft.io/t/autoconnect-request-for-mixbench/43881
-        instance.run(
-            "sudo snap connect mixbench:hardware-observe", on_guest=True
-        )
+        instance.run("snap connect mixbench:hardware-observe", on_guest=True)
 
         run_gpu_test(
             instance,

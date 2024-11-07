@@ -27,7 +27,7 @@ import subprocess
 import time
 import urllib
 import uuid
-from typing import Dict, List, Optional
+from typing import List, Optional
 from urllib.parse import urlparse
 
 from checkbox_support.helpers.retry import retry, run_with_retry
@@ -55,25 +55,21 @@ except ImportError:
 ARCH = os.uname().machine
 
 
-# XXX: The repository part of this should go away if we package mixbench
-NVIDIA_URL = "https://developer.download.nvidia.com/compute/cuda/repos/ubuntu{}/{}".format(  # noqa: E501
-    RELEASE.replace(".", ""), ARCH
-)
 GPU_VENDORS = {
     "nvidia": {
-        "repos": [
-            {
-                "name": "cuda",
-                "repo_line": "{} /".format(NVIDIA_URL),
-                "gpg_url": "{}/3bf863cc.pub".format(NVIDIA_URL),
-                "gpg_fingerprint": "EB693B3035CD5710E231E123A4B469963BF863CC",
-                "pinfile": "{}/cuda-ubuntu{}.pin".format(
-                    NVIDIA_URL, RELEASE.replace(".", "")
-                ),
-            }
-        ],
+        "test": "mixbench.cuda",
+        "lxd": {"launch_options": ["-c nvidia.runtime=true"]},
+        "lxdvm": {
+            "launch_options": [],
+            "config_cmds": [
+                "apt-get -q install -y ubuntu-drivers-common",
+                "ubuntu-drivers install",
+            ],
+        },
     },
 }
+"""Mapping of supported vendor names to test configuration."""
+
 GPU_RUNS = 20
 """How many times to run the GPU test.
 
@@ -277,6 +273,7 @@ class LXDVM(LXD):
 
 def run_gpu_test(
     instance: LXD,
+    cmd: str,
     run_count: int = GPU_RUNS,
     threshold_sec: float = GPU_THRESHOLD_SEC,
 ):
@@ -285,8 +282,7 @@ def run_gpu_test(
     total_runtime_sec = 0.0
     for i in range(run_count):
         tic = time.time()
-        # XXX: If we package the test, this line needs to be updated
-        instance.run("./test", on_guest=True)
+        instance.run(cmd, on_guest=True)
         toc = time.time()
         runtime_sec = toc - tic
         total_runtime_sec += runtime_sec
@@ -310,10 +306,9 @@ def test_lxd_gpu(args):
     instance = LXD(args.template, args.rootfs)
     with LXD(args.template, args.rootfs) as instance:
         instance.init_lxd()
-        options = []
-        if args.vendor == "nvidia":
-            options = ["-c nvidia.runtime=true"]
-        instance.launch(options=options)
+        instance.launch(
+            options=GPU_VENDORS[args.vendor]["lxd"].get("launch_options")
+        )
         instance.add_device("gpu", "gpu", options=["pci={}".format(args.pci)])
 
         logging.info("Waiting for network to be up")
@@ -325,7 +320,12 @@ def test_lxd_gpu(args):
             "sudo snap connect mixbench:hardware-observe", on_guest=True
         )
 
-        run_gpu_test(instance, args.count, args.threshold)
+        run_gpu_test(
+            instance,
+            GPU_VENDORS[args.vendor]["test"],
+            args.count,
+            args.threshold,
+        )
 
 
 def test_lxdvm_gpu(args):
@@ -335,7 +335,7 @@ def test_lxdvm_gpu(args):
     with LXDVM(args.template, args.image) as instance:
         instance.init_lxd()
         instance.launch(
-            options=["-d root,size=50GB", "-c security.secureboot=false"]
+            options=GPU_VENDORS[args.vendor]["lxdvm"].get("launch_options")
         )
 
         logging.info("Waiting for network to be up")
@@ -343,12 +343,9 @@ def test_lxdvm_gpu(args):
 
         # Add and configure GPU device
         instance.add_device("gpu", "gpu", ["pci={}".format(args.pci)])
-        if args.vendor == "nvidia":
-            logging.debug("Installing ubuntu-drivers tool")
-            instance.run(
-                "apt-get -q install -y ubuntu-drivers-common", on_guest=True
-            )
-            instance.run("ubuntu-drivers install", on_guest=True)
+        for cmd in GPU_VENDORS[args.vendor]["lxdvm"].get("config_cmds", []):
+            logging.debug("Configuring instance")
+            instance.run(cmd, on_guest=True)
         instance.restart()
 
         logging.info("Waiting for network to be up")
@@ -360,7 +357,12 @@ def test_lxdvm_gpu(args):
             "sudo snap connect mixbench:hardware-observe", on_guest=True
         )
 
-        run_gpu_test(instance, args.count, args.threshold)
+        run_gpu_test(
+            instance,
+            GPU_VENDORS[args.vendor]["test"],
+            args.count,
+            args.threshold,
+        )
 
 
 def parse_args():

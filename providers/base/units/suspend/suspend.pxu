@@ -106,11 +106,13 @@ _purpose: This test executes an iperf connection performance/stability test agai
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_browse_before_suspend
+imports: from com.canonical.plainbox import manifest
 estimated_duration: 10.0
 requires:
  package.name == 'bluez'
  executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
+ manifest.has_bt_obex_support == 'True'
 command:
   if [ -z "$BTDEVADDR" ]
   then
@@ -135,11 +137,13 @@ _purpose:
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_get_before_suspend
+imports: from com.canonical.plainbox import manifest
 estimated_duration: 20.0
 requires:
  package.name == 'bluez'
  executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
+ manifest.has_bt_obex_support == 'True'
 command:
   if [ -z "$BTDEVADDR" ]
   then
@@ -1016,12 +1020,14 @@ _summary: Grab and compare Bluetooth hardware addresses before and after suspend
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_browse_after_suspend
+imports: from com.canonical.plainbox import manifest
 depends: suspend/suspend_advanced_auto
 estimated_duration: 10.0
 requires:
  package.name == 'bluez'
  executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
+ manifest.has_bt_obex_support == 'True'
 command:
   if [ -z "$BTDEVADDR" ]
   then
@@ -1046,12 +1052,14 @@ _summary: Perform an automated Bluetooth test to emulate browsing on a remote de
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_browse_after_suspend_auto
+imports: from com.canonical.plainbox import manifest
 depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 requires:
  package.name == 'bluez'
  executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
+ manifest.has_bt_obex_support == 'True'
 command:
   if [ -z "$BTDEVADDR" ]
   then
@@ -1076,12 +1084,14 @@ _summary: Automate a Bluetooth browsing test on a remote device using the BTDEVA
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_get_after_suspend
+imports: from com.canonical.plainbox import manifest
 estimated_duration: 20.0
 depends: suspend/suspend_advanced_auto
 requires:
  package.name == 'bluez'
  executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
+ manifest.has_bt_obex_support == 'True'
 command:
   if [ -z "$BTDEVADDR" ]
   then
@@ -1105,12 +1115,14 @@ _summary: Automate the process of receiving a file from a remote host via Blueto
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/bluetooth_obex_get_after_suspend_auto
+imports: from com.canonical.plainbox import manifest
 depends: suspend/suspend_advanced_auto
 estimated_duration: 20.0
 requires:
  package.name == 'bluez'
  executable.name == 'obexftp'
  device.category == 'BLUETOOTH'
+ manifest.has_bt_obex_support == 'True'
 command:
   if [ -z "$BTDEVADDR" ]
   then

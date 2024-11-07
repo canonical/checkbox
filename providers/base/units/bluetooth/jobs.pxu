@@ -434,10 +434,12 @@ id: bluetooth/bluetooth_obex_send
 depends: bluetooth/detect-output
 estimated_duration: 10.0
 environ: BTDEVADDR PLAINBOX_PROVIDER_DATA
+imports: from com.canonical.plainbox import manifest
 requires:
  package.name == 'bluez' or snap.name == 'bluez'
  executable.name == 'obexftp' and executable.name == 'hcitool'
  device.category == 'BLUETOOTH'
+ manifest.has_bt_obex_support == 'True'
 command:
   if [ -z "$BTDEVADDR" ]
   then

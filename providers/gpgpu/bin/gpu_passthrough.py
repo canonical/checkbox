@@ -310,7 +310,6 @@ def test_lxd_gpu(args):
 
     instance = LXD(args.template, args.rootfs)
     with LXD(args.template, args.rootfs) as instance:
-        instance.init_lxd()
         instance.launch(
             options=GPU_VENDORS[args.vendor]["lxd"].get("launch_options")
         )
@@ -337,7 +336,6 @@ def test_lxdvm_gpu(args):
     logging.info("Executing LXD VM GPU passthrough test")
 
     with LXDVM(args.template, args.image) as instance:
-        instance.init_lxd()
         instance.launch(
             options=GPU_VENDORS[args.vendor]["lxdvm"].get("launch_options")
         )

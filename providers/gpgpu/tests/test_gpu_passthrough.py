@@ -269,6 +269,10 @@ class TestLXD(TestCase):
         self_mock = MagicMock()
         LXD.add_device(self_mock, "gpu", "gpu", ["pci=0000:0a:00.0"])
 
+    def test_wait_until_running(self, logging_mock):
+        self_mock = MagicMock()
+        LXD.wait_until_running(self_mock)
+
     @patch.object(LXD, "cleanup")
     @patch.object(LXD, "init_lxd")
     def test_context_manager(self, init_lxd_mock, cleanup_mock, logging_mock):

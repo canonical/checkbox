@@ -1,5 +1,5 @@
 .PHONY:
-all: alsa_test clocktest threaded_memtest ptrace_test testptp
+all: alsa_test clocktest threaded_memtest ptrace_test testptp keyboard-mouse_test
 
 ifeq ($(shell uname -m), x86_64)
 all: testptp
@@ -15,5 +15,6 @@ clocktest: CFLAGS += -D_POSIX_C_SOURCE=199309L -D_DEFAULT_SOURCE
 clocktest: LDLIBS += -lrt
 alsa_test: CXXFLAGS += -std=c++11
 alsa_test: LDLIBS += -lasound -pthread
+keyboard-mouse_test:
 
 CFLAGS += -Wall

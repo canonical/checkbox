@@ -65,7 +65,6 @@ _description: USB Type-C tests
 include:
     usb-c/c-to-a-adapter/hid                   certification-status=blocker
     usb-c/c-to-a-adapter/storage-manual        certification-status=blocker
-    usb-c/hid                                  certification-status=blocker
     usb-c/storage-manual                       certification-status=blocker
     usb-c/c-to-ethernet-adapter-insert
 
@@ -91,7 +90,6 @@ _description: USB Type-C tests (after suspend)
 include:
     after-suspend-usb-c/c-to-a-adapter/hid                   certification-status=blocker
     after-suspend-usb-c/c-to-a-adapter/storage-manual        certification-status=blocker
-    after-suspend-usb-c/hid                                  certification-status=blocker
     after-suspend-usb-c/storage-manual                       certification-status=blocker
     after-suspend-usb-c/c-to-ethernet-adapter-insert
 
@@ -118,7 +116,6 @@ _description: USB Type-C tests (certification blockers only)
 include:
     usb-c/c-to-a-adapter/hid                   certification-status=blocker
     usb-c/c-to-a-adapter/storage-manual        certification-status=blocker
-    usb-c/hid                                  certification-status=blocker
     usb-c/storage-manual                       certification-status=blocker
 
 id: after-suspend-usb-cert-blockers
@@ -143,7 +140,6 @@ _description: USB Type-C tests (after suspend, certification blockers only)
 include:
     after-suspend-usb-c/c-to-a-adapter/hid                   certification-status=blocker
     after-suspend-usb-c/c-to-a-adapter/storage-manual        certification-status=blocker
-    after-suspend-usb-c/hid                                  certification-status=blocker
     after-suspend-usb-c/storage-manual                       certification-status=blocker
 
 id: usb-preinserted
@@ -238,7 +234,6 @@ _description: Manual USB-C tests for Ubuntu Core devices
 include:
     usb-c/c-to-a-adapter/hid
     usb-c/c-to-a-adapter/storage-manual
-    usb-c/hid
     usb-c/storage-manual
     usb-c-otg/g_serial
     usb-c-otg/g_serial-cleanup
@@ -305,7 +300,6 @@ _description: Manual USB-C tests for Ubuntu Core devices
 include:
     after-suspend-usb-c/c-to-a-adapter/hid
     after-suspend-usb-c/c-to-a-adapter/storage-manual
-    after-suspend-usb-c/hid
     after-suspend-usb-c/storage-manual
     after-suspend-usb-c-otg/g_serial
     after-suspend-usb-c-otg/g_serial-cleanup

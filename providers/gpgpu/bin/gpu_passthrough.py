@@ -30,6 +30,7 @@ import uuid
 from typing import Dict, List, Optional
 from urllib.parse import urlparse
 
+from checkbox_support.helpers.retry import run_with_retry
 from plainbox.impl.decorators import cached_property
 
 try:
@@ -132,30 +133,24 @@ class LXD:
         cmd: str,
         log_stderr: bool = True,
         on_guest: bool = False,
-        check: bool = False,
-    ) -> subprocess.CompletedProcess:
+        ignore_errors: bool = False,
+    ):
         """Runs a command on the host or instance."""
         if on_guest:
             cmd = "lxc exec {} -- {}".format(self.name, cmd)
-        proc = subprocess.run(
-            shlex.split(cmd),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            stdin=subprocess.DEVNULL,
-            universal_newlines=True,
-            check=False,
-        )
-
-        logging.debug("Command: %s", cmd)
-        if proc.stdout:
-            logging.debug(" STDOUT: %s", proc.stdout)
-        if log_stderr and proc.stderr:
-            logging.debug(" STDERR: %s", proc.stderr)
-
-        if check:
-            proc.check_returncode()
-
-        return proc
+        stderr_pipe = subprocess.STDOUT if log_stderr else subprocess.DEVNULL
+        try:
+            _ = subprocess.check_output(
+                shlex.split(cmd),
+                stderr=stderr_pipe,
+                stdin=subprocess.DEVNULL,
+                universal_newlines=True,
+            )
+        except subprocess.CalledProcessError as e:
+            logging.debug("Command failed: %s", cmd)
+            logging.debug(" STDOUT: %s", e.stdout)
+            if not ignore_errors:
+                raise
 
     def download_image(self, url, filename):
         """Downloads LXD files for same release as host machine."""
@@ -182,59 +177,56 @@ class LXD:
             self.run(
                 "lxc image import {} rootfs {} --alias {}".format(
                     self.template, self.image, self.image_alias.hex
-                ),
-                check=True,
+                )
             )
         else:
             logging.debug("No local images, attempting import from remote")
-            retries = 2
-            for _ in range(retries):
-                proc = self.run(
-                    "lxc image copy {}{} local: --alias {}".format(
-                        self.remote, RELEASE, self.image_alias.hex
-                    )
-                )
-                if proc.returncode == 0:
-                    return
-                logging.error("Error encountered while importing images")
-                logging.error("Attempting up to %d times", retries)
-            raise RuntimeError("Images could not be inserted")
+            run_with_retry(
+                self.run,
+                5,
+                2,
+                "lxc image copy {}{} local: --alias {}".format(
+                    self.remote, RELEASE, self.image_alias.hex
+                ),
+            )
 
     def init_lxd(self):
         """Initializes LXD."""
-        if self.run("lxd waitready --timeout=5").returncode != 0:
-            self.run("lxd init --auto", check=True)
+        try:
+            self.run("lxd waitready --timeout=5")
+        except subprocess.CalledProcessError:
+            self.run("lxd init --auto")
         self.insert_images()
 
     def cleanup(self):
         """Cleans up instance."""
-        self.run("lxc image delete {}".format(self.image_alias.hex))
-        self.run("lxc delete --force {}".format(self.name))
+        self.run(
+            "lxc image delete {}".format(self.image_alias.hex),
+            ignore_errors=True,
+        )
+        self.run("lxc delete --force {}".format(self.name), ignore_errors=True)
 
     def launch(self, options: Optional[List] = None):
         """Sets up and creates the instance."""
-        if not options:
-            options = []
-
-        cmd = "lxc launch {} {}".format(self.image_alias.hex, self.name)
+        cmd = ["lxc", "launch", self.image_alias.hex, self.name]
         if options:
-            cmd = "{} {}".format(cmd, " ".join(options))
-        self.run(cmd, check=True)
+            cmd += options
+        self.run(shlex.join(cmd))
 
     def stop(self, force: bool = False):
         """Stops LXD instance."""
         cmd = "lxc stop {}".format(self.name)
         if force:
             cmd += " --force"
-        self.run(cmd, check=True)
+        self.run(cmd)
 
     def start(self):
         """Starts LXD instance."""
-        self.run("lxc start {}".format(self.name), check=True)
+        self.run("lxc start {}".format(self.name))
 
     def restart(self):
         """Restarts LXD instance."""
-        self.run("lxc restart {}".format(self.name), check=True)
+        self.run("lxc restart {}".format(self.name))
 
     def add_device(
         self, device: str, device_type: str, options: Optional[List] = None
@@ -245,8 +237,7 @@ class LXD:
         self.run(
             "lxc config device add {} {} {} {}".format(
                 self.name, device, device_type, " ".join(options)
-            ),
-            check=True,
+            )
         )
 
 
@@ -259,8 +250,7 @@ class LXDVM(LXD):
             self.run(
                 "lxc image import {} {} --alias {}".format(
                     self.template, self.image, self.image_alias.hex
-                ),
-                check=True,
+                )
             )
 
     def launch(self, options=None):
@@ -268,19 +258,19 @@ class LXDVM(LXD):
             options = []
 
         logging.debug("Initializing virtual machine")
+        cmd = ["lxc", "init"]
         if not self.image and not self.template:
             logging.debug("No local image, importing from remote")
-            cmd = "lxc init {}{} {} --vm".format(
-                self.remote, RELEASE, self.name
-            )
+            cmd += ["{}{}".format(self.remote, RELEASE)]
         else:
-            cmd = "lxc init {} {} --vm".format(self.image, self.name)
+            cmd += [self.image]
+        cmd += [self.name, "--vm"]
         if options:
-            cmd = "{} {}".format(cmd, " ".join(options))
-        self.run(cmd, check=True)
+            cmd += options
+        self.run(shlex.join(cmd))
 
         logging.debug("Starting virtual machine")
-        self.run("lxc start {}".format(self.name), check=True)
+        self.run("lxc start {}".format(self.name))
 
     def add_device(self, device: str, device_type: str, options=None):
         # Hot plugging is only supported on containers
@@ -301,36 +291,27 @@ def add_apt_repo(instance: LXD, repo: Dict):
     logging.debug("Downloading GPG key from %s", gpg_url)
     temp_keyring = "./tmp.gpg"
     gpg_dest = "/usr/share/keyrings/{}.gpg".format(name)
-    instance.run(
-        "wget -O {}.gpg '{}'".format(name, gpg_url),
-        on_guest=True,
-        check=True,
-    )
+    instance.run("wget -O {}.gpg '{}'".format(name, gpg_url), on_guest=True)
     instance.run(
         "gpg --no-default-keyring --keyring {} --import {}.gpg".format(
             temp_keyring, name
         ),
         on_guest=True,
-        check=True,
     )
     instance.run(
         "gpg --no-default-keyring --keyring {} --fingerprint {}".format(
             temp_keyring, gpg_fingerprint
         ),
         on_guest=True,
-        check=True,
     )
     instance.run(
         "gpg --yes --no-default-keyring --keyring {} --export -o {}".format(
             temp_keyring, gpg_dest
         ),
         on_guest=True,
-        check=True,
     )
     instance.run(
-        "rm {0} {0}~ ./{1}.gpg".format(temp_keyring, name),
-        on_guest=True,
-        check=True,
+        "rm {0} {0}~ ./{1}.gpg".format(temp_keyring, name), on_guest=True
     )
 
     if pinfile:
@@ -343,7 +324,7 @@ def add_apt_repo(instance: LXD, repo: Dict):
             cmd = "bash -c \"echo -e '{}' | tee {}\"".format(
                 pinfile, pinfile_dest
             )
-        instance.run(cmd, on_guest=True, check=True)
+        instance.run(cmd, on_guest=True)
 
     logging.debug("Setting up APT repository: %s", name)
     repo_dest = "/etc/apt/sources.list.d/{}.list".format(name)
@@ -351,11 +332,10 @@ def add_apt_repo(instance: LXD, repo: Dict):
     instance.run(
         "bash -c \"echo '{}' | tee {}\"".format(list_file, repo_dest),
         on_guest=True,
-        check=True,
     )
 
     logging.debug("Updating APT cache")
-    instance.run("apt-get -q update", on_guest=True, check=True)
+    instance.run("apt-get -q update", on_guest=True)
 
 
 # TODO: Package test program (e.g., as a snap) to simplify this logic
@@ -377,7 +357,6 @@ def build_gpu_test(instance: LXD, vendor: str):
                 " ".join(packages)
             ),
             on_guest=True,
-            check=True,
         )
 
         logging.debug("Finding CUDA capability for GPU")
@@ -406,9 +385,7 @@ def build_gpu_test(instance: LXD, vendor: str):
         "make",
         "ln -s ~/mixbench/build-{0}/mixbench-{0} ~/test".format(test_name),
     ]
-    instance.run(
-        "bash -c '{}'".format("; ".join(cmds)), on_guest=True, check=True
-    )
+    instance.run("bash -c '{}'".format("; ".join(cmds)), on_guest=True)
 
 
 def run_gpu_test(
@@ -422,7 +399,7 @@ def run_gpu_test(
     for i in range(run_count):
         tic = time.time()
         # XXX: If we package the test, this line needs to be updated
-        instance.run("./test", on_guest=True, check=True)
+        instance.run("./test", on_guest=True)
         toc = time.time()
         runtime_sec = toc - tic
         total_runtime_sec += runtime_sec
@@ -480,11 +457,9 @@ def test_lxdvm_gpu(args):
         if args.vendor == "nvidia":
             logging.debug("Installing ubuntu-drivers tool")
             instance.run(
-                "apt-get -q install -y ubuntu-drivers-common",
-                on_guest=True,
-                check=True,
+                "apt-get -q install -y ubuntu-drivers-common", on_guest=True
             )
-            instance.run("ubuntu-drivers install", on_guest=True, check=True)
+            instance.run("ubuntu-drivers install", on_guest=True)
         instance.restart()
 
         logging.info("Waiting for network to be up")

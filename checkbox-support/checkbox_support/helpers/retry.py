@@ -50,16 +50,16 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
         attempt_string = "Attempt {}/{} (function '{}')".format(
             attempt, max_attempts, f.__name__
         )
-        print(flush=True)
-        print("=" * len(attempt_string), flush=True)
-        print(attempt_string, flush=True)
+        print()
+        print("=" * len(attempt_string))
+        print(attempt_string)
         print("=" * len(attempt_string), flush=True)
         try:
             result = f(*args, **kwargs)
             return result
         except BaseException as e:
-            print("Attempt {} failed:".format(attempt), flush=True)
-            print(e, flush=True)
+            print("Attempt {} failed:".format(attempt))
+            print(e)
             print(flush=True)
             if attempt >= max_attempts:
                 print("All the attempts have failed!", flush=True)

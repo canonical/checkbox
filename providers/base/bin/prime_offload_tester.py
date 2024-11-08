@@ -434,5 +434,5 @@ class PrimeOffloader:
 
 
 if __name__ == "__main__":
-    assert os.getuid() == 0
+    assert os.getuid() == 0, "This test must be run as root"
     PrimeOffloader().main()

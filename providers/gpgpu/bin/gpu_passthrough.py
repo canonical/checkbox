@@ -90,7 +90,7 @@ This can be overwritten by the `--count` option or by setting the environment
 variable `LXD_GPU_RUNS`. With priority in that order.
 """
 
-GPU_THRESHOLD_SEC = 12.0  # TODO: finetune
+GPU_THRESHOLD_SEC = 12.0
 """The threshold for the GPU test to pass.
 
 This can be overwritten by the `--threshold` option or by setting the

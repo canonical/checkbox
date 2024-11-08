@@ -28,7 +28,7 @@ import json
 import sys
 import re
 import os
-
+import typing as T
 
 class PrimeOffloader:
     """
@@ -139,7 +139,7 @@ class PrimeOffloader:
         return ""
 
     def check_offload(
-        self, cmd: list, card_id: str, card_name: str, timeout: int
+        self, cmd: T.List[str], card_id: str, card_name: str, timeout: int
     ):
         """
         Used to check if the provided command is executed on a specific GPU.
@@ -199,7 +199,7 @@ class PrimeOffloader:
         delay = timeout / 10
 
         deadline = time.time() + timeout
-
+        
         cmd = cmd.split()
 
         while time.time() < deadline:
@@ -262,7 +262,7 @@ class PrimeOffloader:
                 "No prime-select, it should be ok to run prime offload"
             )
 
-    def cmd_runner(self, cmd: list, env: dict = None):
+    def cmd_runner(self, cmd: T.List, env: T.Optional[T.Dict]):
         """
         use to execute command and piping the output to the screen.
 

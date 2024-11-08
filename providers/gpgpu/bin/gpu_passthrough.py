@@ -67,12 +67,7 @@ GPU_VENDORS = {
             ]
         },
         "lxdvm": {
-            "launch_options": [
-                "-d",
-                "root,size=50GB",
-                "-c",
-                "security.secureboot=false",
-            ],
+            "launch_options": ["-c", "security.secureboot=false"],
             "config_cmds": [
                 "apt-get -q -U upgrade",
                 "apt-get -q install -y linux-generic ubuntu-drivers-common",

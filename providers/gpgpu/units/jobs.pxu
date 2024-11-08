@@ -20,16 +20,16 @@ requires:
 _summary: NVIDIA GPGPU query device test
 command: checkbox-gpgpu-tools.device-query-drv
 _siblings: [
-    { "id": "gpgpu/vector-add-drv",
-      "_summary": "NVIDIA GPGPU vector addition test",
-      "command": "checkbox-gpgpu-tools.vector-add-drv"},
-    { "id": "gpgpu/matrix-mul-drv",
-      "_summary": "NVIDIA GPGPU matrix multiplication test",
-      "command": "checkbox-gpgpu-tools.matrix-mul-drv"},
-    { "id": "gpgpu/simple-texture-drv",
-      "_summary": "NVIDIA GPGPU simple textures test",
-      "command": "checkbox-gpgpu-tools.simple-texture-drv"}
-    ]
+  { "id": "gpgpu/vector-add-drv",
+    "_summary": "NVIDIA GPGPU vector addition test",
+    "command": "checkbox-gpgpu-tools.vector-add-drv"},
+  { "id": "gpgpu/matrix-mul-drv",
+    "_summary": "NVIDIA GPGPU matrix multiplication test",
+    "command": "checkbox-gpgpu-tools.matrix-mul-drv"},
+  { "id": "gpgpu/simple-texture-drv",
+    "_summary": "NVIDIA GPGPU simple textures test",
+    "command": "checkbox-gpgpu-tools.simple-texture-drv"}
+  ]
 
 id: gpgpu/rvs-gpup
 category_id: gpgpu

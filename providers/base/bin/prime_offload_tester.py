@@ -171,7 +171,7 @@ class PrimeOffloader:
                 self.logger.info("  Device Name:[{}]".format(card_name))
                 return
         self.logger.info("Checking fail:")
-        self.logger.info("  Couldn't find process [{}]".format(cmd))
+        self.logger.info("  Couldn't find process {}".format(cmd))
         self.check_result = True
 
     def _find_bdf(self, card_id: str):
@@ -235,7 +235,7 @@ class PrimeOffloader:
                     )
 
         self.logger.info("Checking fail:")
-        self.logger.info("  Couldn't find process [{}]".format(cmd))
+        self.logger.info("  Couldn't find process {}".format(cmd))
         self.check_result = True
 
     def check_nv_offload_env(self):

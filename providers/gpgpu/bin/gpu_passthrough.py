@@ -364,7 +364,7 @@ def test_lxdvm_gpu(args):
         instance.wait_until_running()
 
         logging.info("Passing GPU %s through to %s", args.pci, instance.name)
-        instance.add_device("gpu", "gpu", ["pci={}".format(args.pci)])
+        instance.add_device("gpu", "gpu", options=["pci={}".format(args.pci)])
 
         logging.info("Waiting for %s to be up", instance.name)
         instance.wait_until_running()

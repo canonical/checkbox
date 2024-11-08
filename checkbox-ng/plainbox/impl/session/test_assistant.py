@@ -278,6 +278,33 @@ class SessionAssistantTests(morris.SignalTestCase):
         # and another time to prune it for match
         self.assertEqual(select_units_mock.call_count, 1)
 
+    @mock.patch("plainbox.impl.session.assistant.UsageExpectation")
+    @mock.patch("plainbox.impl.session.assistant.select_units")
+    def test_finish_bootstrap_match_rejected_jobs(
+        self, select_units_mock, ue_mock, get_providers_mock
+    ):
+        self_mock = mock.MagicMock()
+        self_mock._metadata.rejected_jobs = []
+        # this is just to test that the subfunction is called if this arr is
+        # defined, assumes the select_units function is mocked
+        self_mock._match_qualifiers = [1, 2, 3]
+
+        job1_id = "com.canonical.certification::job_1"
+        job2_id = "com.canonical.certification::job_2"
+        job1 = JobDefinition({"id": job1_id})
+        job2 = JobDefinition({"id": job2_id})
+        select_units_mock.side_effect = [[job1, job2], [job2]]
+
+        SessionAssistant.finish_bootstrap(self_mock)
+
+        # called once to get all the jobs for the selected testplan
+        # and another time to prune it for match`
+        self.assertEqual(select_units_mock.call_count, 2)
+
+        # job1 is rejected, so the metadata is updated accordingly
+        self.assertEqual(self_mock._metadata.rejected_jobs, [job1_id])
+        self.assertTrue(self_mock._metadata.custom_joblist)
+
     @mock.patch(
         "plainbox.impl.session.assistant.UsageExpectation",
         new=mock.MagicMock(),
@@ -290,12 +317,13 @@ class SessionAssistantTests(morris.SignalTestCase):
         job1 = JobDefinition({"id": job1_id})
         job2 = JobDefinition({"id": job2_id})
 
+        self_mock._metadata.rejected_jobs = ["already-rejected-job"]
         self_mock.get_static_todo_list.return_value = [job1_id, job2_id]
         self_mock._context.get_unit.side_effect = [job1, job2]
         selection = [job1_id]
 
         SessionAssistant.use_alternate_selection(self_mock, selection)
-        self.assertEqual(len(self_mock._metadata.rejected_jobs), 1)
+        self.assertEqual(len(self_mock._metadata.rejected_jobs), 2)
         self_mock._context.state.update_desired_job_list.assert_called_with(
             [job1]
         )

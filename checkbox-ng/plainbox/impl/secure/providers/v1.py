@@ -661,31 +661,28 @@ class ProviderContentLoader:
 
     def _warn_ignored_file(self, filename):
         """
-        Print an warning message for each file that is skipped at loading
-        Do not print warning for all skipped files, do it only for file that is located
-        inside a official provider folder (bin, data, units, ..).
+        Print a warning message for each file that is skipped at loading.
+        Do not print warning for all skipped files. Ignore common text formats,
+        compiled bytcode python files, etc. Files to warn about should also be
+        located inside an official provider folder (bin, data, units, ...).
         """
-        if (
-            (
-                self.provider.units_dir
-                and filename.startswith(self.provider.units_dir)
+        if all(
+            not filename.endswith(ext)
+            for ext in (
+                ".md",
+                ".txt",
+                ".pyc",
             )
-            or (
-                self.provider.jobs_dir
-                and filename.startswith(self.provider.jobs_dir)
+        ) and any(
+            filename.startswith(path)
+            for path in (
+                self.provider.units_dir,
+                self.provider.jobs_dir,
+                self.provider.data_dir,
+                self.provider.bin_dir,
+                self.provider.locale_dir,
             )
-            or (
-                self.provider.data_dir
-                and filename.startswith(self.provider.data_dir)
-            )
-            or (
-                self.provider.bin_dir
-                and filename.startswith(self.provider.bin_dir)
-            )
-            or (
-                self.provider.locale_dir
-                and filename.startswith(self.provider.locale_dir)
-            )
+            if path
         ):
             logger.warning("Skipped file: %s", filename)
 

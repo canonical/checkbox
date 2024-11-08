@@ -101,8 +101,8 @@ class FindCardIdTests(unittest.TestCase):
     def test_empty_string_id_not_found(self, mock_cmd):
         po = PrimeOffloader()
         # empty string
-        mock_cmd.return_value = ""
-        with self.assertRaises(SystemExit):
+        mock_cmd.return_value = None
+        with self.assertRaises(AssertionError):
             po.find_card_id("0000:00:00.0")
         mock_cmd.assert_called_with(
             "/sys/kernel/debug/dri",
@@ -578,7 +578,7 @@ class CmdCheckerTests(unittest.TestCase):
         os.environ.copy = MagicMock(return_value={})
         po.cmd_checker("glxgears", "0000:00:00.0", "xxx", 0)
         # check check_offload function get correct args
-        po.check_offload.assert_called_with("glxgears", "0", "Intel", 0)
+        po.check_offload.assert_called_with(["glxgears"], "0", "Intel", 0)
 
     @patch("prime_offload_tester.run_with_timeout", MagicMock())
     def test_nv_driver_check(self):
@@ -591,7 +591,7 @@ class CmdCheckerTests(unittest.TestCase):
         os.environ.copy = MagicMock(return_value={})
         po.cmd_checker("glxgears", "0000:00:00.0", "nvidia", 1)
         # check check_offload function get correct args
-        po.check_offload.assert_called_with("glxgears", "0", "NV", 1)
+        po.check_offload.assert_called_with(["glxgears"], "0", "NV", 1)
 
     @patch("prime_offload_tester.run_with_timeout")
     @patch("threading.Thread")
@@ -608,7 +608,7 @@ class CmdCheckerTests(unittest.TestCase):
             po.cmd_checker("glxgears", "0000:00:00.0", "nvidia", 1)
         # check check_offload function get correct args
         mock_thread.assert_called_with(
-            target=po.check_offload, args=("glxgears", "0", "NV", 1)
+            target=po.check_offload, args=(["glxgears"], "0", "NV", 1)
         )
 
 

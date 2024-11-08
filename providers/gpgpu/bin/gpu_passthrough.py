@@ -74,9 +74,8 @@ GPU_VENDORS = {
                 "security.secureboot=false",
             ],
             "config_cmds": [
-                "apt-get -q update",
-                "apt-get -q upgrade",
-                "apt-get -q install -y ubuntu-drivers-common",
+                "apt-get -q -U upgrade",
+                "apt-get -q install -y linux-generic ubuntu-drivers-common",
                 "ubuntu-drivers install --gpgpu",
             ],
         },

@@ -25,6 +25,7 @@ delay, backoff and jitter.
 import functools
 import random
 import time
+import sys
 from unittest.mock import patch
 
 
@@ -54,6 +55,7 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
         print("=" * len(attempt_string))
         print(attempt_string)
         print("=" * len(attempt_string))
+        sys.stdout.flush()
         try:
             result = f(*args, **kwargs)
             return result
@@ -61,8 +63,10 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
             print("Attempt {} failed:".format(attempt))
             print(e)
             print()
+            sys.stdout.flush()
             if attempt >= max_attempts:
                 print("All the attempts have failed!")
+                sys.stdout.flush()
                 raise
             min_delay = min(
                 initial_delay * (backoff_factor**attempt),
@@ -75,6 +79,7 @@ def run_with_retry(f, max_attempts, delay, *args, **kwargs):
             print(
                 "Waiting {:.2f} seconds before retrying...".format(total_delay)
             )
+            sys.stdout.flush()
             time.sleep(total_delay)
 
 

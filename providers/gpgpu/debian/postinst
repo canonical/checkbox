@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-# XXX: Installing candidate until I make a release to stable
-snap install --channel=latest/candidate gpu-burn
-# XXX: Installing in devmode for now. SEE: https://github.com/canonical/snapd/pull/14685
-snap install --channel=latest/candidate rocm-validation-suite --devmode
+snap install gpu-burn
+# XXX: Installing in devmode until KFD is accessible with opengl plug
+# SEE: https://github.com/canonical/snapd/pull/14685
+snap install rocm-validation-suite --devmode
 # TODO: CUDA samples are not in a snap just yet.
 
 # XXX: This is needed until auto-connection requests are granted.

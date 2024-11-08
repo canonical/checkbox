@@ -147,12 +147,14 @@ class LXD:
             cmd = "lxc exec {} -- {}".format(self.name, cmd)
         stderr_pipe = subprocess.STDOUT if log_stderr else subprocess.DEVNULL
         try:
-            _ = subprocess.check_output(
+            logging.debug("Command: %s", cmd)
+            out = subprocess.check_output(
                 shlex.split(cmd),
                 stderr=stderr_pipe,
                 stdin=subprocess.DEVNULL,
                 universal_newlines=True,
             )
+            logging.debug(" STDOUT: %s", out)
         except subprocess.CalledProcessError as e:
             logging.error("Command failed: %s", cmd)
             logging.info(" STDOUT: %s", e.stdout)

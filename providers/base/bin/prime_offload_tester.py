@@ -319,7 +319,9 @@ class PrimeOffloader:
         if self.check_result:
             raise SystemExit("Couldn't find process running on GPU")
 
-    def cmd_checker(self, cmd: str, pci_bdf: str, driver: str, timeout: int):
+    def cmd_checker(
+        self, cmd_str: str, pci_bdf: str, driver: str, timeout: int
+    ):
         """
         run offload command and check it runs on correct GPU
 
@@ -337,7 +339,7 @@ class PrimeOffloader:
         # run offload command in other process
         dri_pci_bdf_format = re.sub("[:.]", "_", pci_bdf)
 
-        if "timeout" in cmd:
+        if "timeout" in cmd_str:
             raise SystemExit("Put timeout in command isn't allowed")
 
         env = os.environ.copy()
@@ -355,19 +357,22 @@ class PrimeOffloader:
         # if nv driver under nvidia mode, prime/reverse prime couldn't work.
         self.check_nv_offload_env()
 
+        cmd = sh_split(cmd_str)
         # use other thread to check offload is correctly or not
         check_thread = threading.Thread(
             target=self.check_offload, args=(cmd, card_id, card_name, timeout)
         )
         check_thread.start()
         try:
-            run_with_timeout(self.cmd_runner, timeout, cmd.split(), env)
+            run_with_timeout(self.cmd_runner, timeout, cmd, env)
         except TimeoutError:
             self.logger.info("Test finished")
         check_thread.join()
 
         if self.check_result:
-            raise SystemExit("offload to specific GPU failed")
+            raise SystemExit(
+                "offload to specific GPU: {} failed".format(pci_bdf)
+            )
 
     def parse_args(self, args=sys.argv[1:]):
         """

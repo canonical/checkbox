@@ -8,6 +8,59 @@ import contextlib
 
 from copy import copy
 
+"""
+The objective of this module is to filter a namespace of resource objects
+using a resource expression.
+
+We call namespace the dict of lists that contains the output of each
+resource job. Items in the lists are called objects, they are dicts where
+each key is an attribute of the object and each value is a string.
+
+Example:
+
+    Resource job `foo` outputs:
+        name: a
+        value: 1
+
+        name: b
+        version: v1.2.abc
+        value: 5
+
+    Resource job `bar` outputs:
+        sample_1: some
+        sample_2: other
+
+        sample_1: some
+        sample_2: same
+
+    Will generate the following namespace:
+
+        {
+            'foo' : [
+                { 'name'  : 'a', 'value' : '1' },
+                { 'name' : 'b', 'version' : 'v1.2.abc' }
+            ],
+            'bar' : [
+                { 'sample_1': 'some', 'sample_2': 'other' },
+                { 'sample_1': 'some', 'sample_2': 'same' }
+            ]
+        }
+
+A resource expression is a function that predicates over the attributes of an
+object with the objective of excluding it or including it in a query.
+
+Example:
+
+    "All foo having name == a"
+    foo.name == 'a'
+
+    "All foo having a value that is more than 4"
+    int(foo.value) > 4
+
+    "All foo having name a and value that is more than 4
+    foo.name == 'a' and foo.value > 4
+"""
+
 
 class UnknownResource(KeyError): ...
 
@@ -15,7 +68,12 @@ class UnknownResource(KeyError): ...
 class ValueGetter:
     """
     A value getter is a function that returns a value
-    that is independent from variables in any namespace
+    that is namespace independent (constant)
+
+    Example:
+        True
+        [1, 2, 3]
+        1.2
     """
 
 
@@ -23,6 +81,10 @@ class NamespacedGetter:
     """
     A namespaced getter is a function that returns a value
     dependent on the current namespace
+
+    Example:
+        foo.bar
+        int(a.b)
     """
 
     def __init__(self, namespace):
@@ -31,8 +93,8 @@ class NamespacedGetter:
 
 class CallGetter(NamespacedGetter):
     """
-    This is a function call that evaluates over a variable
-    in the group over a single namespace
+    This is a function call that evaluates over an attribute
+    of the object. All attributes must refer to the same namespace.
     """
 
     CALLS_MEANING = {
@@ -73,8 +135,8 @@ class CallGetter(NamespacedGetter):
         self.args = [getter_from_ast(arg) for arg in parsed_ast.args]
         self.namespace = self._get_namespace_args(self.args)
 
-    def __call__(self, variable_group):
-        return self.function(*(arg(variable_group) for arg in self.args))
+    def __call__(self, variable_object):
+        return self.function(*(arg(variable_object) for arg in self.args))
 
     def __str__(self):
         args = ",".join(str(x) for x in self.args)
@@ -86,10 +148,10 @@ class AttributeGetter(NamespacedGetter):
         self.namespace = parsed_ast.value.id
         self.variable = parsed_ast.attr
 
-    def __call__(self, variable_group):
+    def __call__(self, variable_object):
         # resources are free form, support variable names not being unifrom
         try:
-            return variable_group[self.variable]
+            return variable_object[self.variable]
         except KeyError:
             return None
 
@@ -156,16 +218,16 @@ class ListGetter(ConstantGetter):
 
 def getter_from_ast(parsed_ast):
     """
-    Rappresents a way to get a value
+    Rappresents a way to fetch a value
     """
     getters = {
-        ast.Call: CallGetter,
-        ast.Attribute: AttributeGetter,
-        ast.Constant: ConstantGetter,
-        ast.List: ListGetter,
-        ast.Tuple: ListGetter,
-        ast.UnaryOp: ConstantGetter.from_unary_op,
-        ast.Name: NamedConstant,
+        ast.Call: CallGetter,  # such as: int(group.name)
+        ast.Attribute: AttributeGetter,  # such as: group.name
+        ast.Constant: ConstantGetter,  # such as: "name"
+        ast.List: ListGetter,  # such as: [1, 2, 3]
+        ast.Tuple: ListGetter,  # such as: (1, 2, 3)
+        ast.UnaryOp: ConstantGetter.from_unary_op,  # such as: not True
+        ast.Name: NamedConstant,  # such as: DESKTOP_PC_PRODUCT
     }
     try:
         getter = getters[type(parsed_ast)]
@@ -249,11 +311,11 @@ class Constraint:
         operator_f = operator_from_ast(self.operator)
 
         return (
-            variable_group
-            for variable_group in ns_variables
+            variable_object
+            for variable_object in ns_variables
             if operator_f(
-                self.left_getter(variable_group),
-                self.right_getter(variable_group),
+                self.left_getter(variable_object),
+                self.right_getter(variable_object),
             )
         )
 
@@ -533,8 +595,8 @@ def prepare(
     parsed_expr ~= 'a.v > 1'
     output_namespace = {'a' : (x for x in input_namespace['a'] if x['v'] > 1) }
 
-    When explain is True, the evaluating the resource expression will explain
-    what each constraint did to the namespace affected
+    When explain_callback is provided, each filtering action done will call
+    the callback with a ConstraintExplanation object
 
     Ex.
     Expression: namespace.a In() [1, 2]
@@ -568,9 +630,13 @@ def evaluate_lazy(
     explain_callback=None,
 ) -> bool:
     """
-    This returns the truth value of a prepared namespace.
-    Returns a namespace where each value is True if any resource matched the
-    expression
+    This returns a new namespaces where each id has a truth value given
+    a resource expression
+
+    Returns a namespace where each value is True if any object matched the
+    expression. This is used when one doesn't need to know which objects match
+    the expression but whether something actually does, namely, when
+    deciding if a job with `resource:...` has to run or not.
 
     To get a True/False answer one can simply use:
         all(evaluate_lazy(...).values())
@@ -598,6 +664,10 @@ def evaluate(
     implicit_namespace: str = "",
     explain_callback=None,
 ):
+    """
+    This returns a filtered namespace where each id has only the keys that
+    match a given resource expression
+    """
     namespace = prepare(
         expr,
         namespace,

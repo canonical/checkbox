@@ -12,6 +12,12 @@ DEFAULT_SSD_READ=${DISK_SSD_READ_PERF:-200}
 # Minimum size threshold in bytes (2MB)
 MIN_SIZE_THRESHOLD=$((2 * 1024 * 1024))
 
+# Check if there is at least one disk to test
+if [ "$#" -lt 1 ]; then
+  echo "ERROR: No disks to test!"
+  exit 1
+fi
+
 for disk in "$@"; do
 
   echo "Beginning $0 test for $disk"
@@ -85,6 +91,9 @@ for disk in "$@"; do
     *     ) MIN_BUF_READ=$DEFAULT_BUF_READ;;
   esac
   echo "INFO: $disk_type: Using $MIN_BUF_READ MB/sec as the minimum throughput speed"
+
+  # Perform a test run of hdparm without hiding the output and exit if it fails
+  hdparm -t /dev/"$disk" || exit 1
 
   max_speed=0
   echo ""

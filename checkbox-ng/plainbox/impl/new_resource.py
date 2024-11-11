@@ -1,3 +1,4 @@
+import sys
 import ast
 import typing
 import textwrap
@@ -216,6 +217,17 @@ class ListGetter(ConstantGetter):
         return "[{}]".format(to_r)
 
 
+legacy_getters = {}
+if sys.version_info[0] == 3 and sys.version_info[1] < 8:
+    # older version of python have
+    legacy_getters = {
+        ast.Str: ConstantGetter,
+        ast.Num: ConstantGetter,
+        ast.Bytes: ConstantGetter,
+        ast.NameConstant: ConstantGetter,
+    }
+
+
 def getter_from_ast(parsed_ast):
     """
     Rappresents a way to fetch a value
@@ -229,6 +241,7 @@ def getter_from_ast(parsed_ast):
         ast.UnaryOp: ConstantGetter.from_unary_op,  # such as: not True
         ast.Name: NamedConstant,  # such as: DESKTOP_PC_PRODUCT
     }
+    getters.update(legacy_getters)
     try:
         getter = getters[type(parsed_ast)]
     except KeyError:

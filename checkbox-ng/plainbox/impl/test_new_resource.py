@@ -317,7 +317,10 @@ class TestEvaluateEndToEnd(TestCase):
         self.assertTrue(all(evaluate_lazy(expr, namespace).values()))
 
     def test_nested_and_or_combination(self):
-        expr = "(namespace.a == 1 and namespace.b == 2) or (namespace.c == 3 and namespace.d == 4)"
+        expr = (
+            "(namespace.a == 1 and namespace.b == 2) "
+            "or (namespace.c == 3 and namespace.d == 4)"
+        )
         namespace = {
             "namespace": [
                 HD({"a": 1, "b": 2, "c": 0, "d": 0}),  # First condition true
@@ -378,7 +381,7 @@ class TestEvaluateEndToEnd(TestCase):
                 HD({"a": 0, "b": 0, "c": 3, "d": 5}),
             ]
         }
-        evaluated = evaluate(expr, namespace)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
     def test_multiple_namespace_complex_condition(self):
@@ -402,5 +405,5 @@ class TestEvaluateEndToEnd(TestCase):
             "ns1": [HD({"value": 15}), HD({"value": 3})],
             "ns2": [HD({"text": "hello"}), HD({"text": "world"})],
         }
-        evaluated = evaluate(expr, namespace)
+        evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)

@@ -337,9 +337,9 @@ estimated_duration: 20.0
 depends: audio/playback_auto
 imports: from com.canonical.plainbox import manifest
 requires:
- (manifest.has_line_in == 'True' or manifest.has_headset == 'True')
  manifest.has_audio_playback == 'True'
  manifest.has_audio_capture == 'True'
+ manifest.has_internal_microphone == 'True'
  package.name == 'alsa-base'
  package.name == 'gstreamer1.0-plugins-good' or package.name == 'gstreamer0.10-plugins-good'
  package.name in ['pulseaudio-utils', 'pipewire']

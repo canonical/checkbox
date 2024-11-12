@@ -45,7 +45,7 @@ command:
     if [[ -n "$OPTEE_CASES" ]]; then
         filepath="$OPTEE_CASES"
     else
-        filepath="$PLAINBOX_PROVIDER_DATA/optee-test.json"
+        filepath="$PLAINBOX_PROVIDER_DATA/optee-test-319.json"
     fi
     parse_optee_test.py "$filepath"
 _summary: Collect the test cases support by OP-TEE test(xtest)
@@ -60,7 +60,7 @@ command:
     if [[ -n "$OPTEE_CASES" ]]; then
         filepath="$OPTEE_CASES"
     else
-        filepath="$PLAINBOX_PROVIDER_DATA/optee-test.json"
+        filepath="$PLAINBOX_PROVIDER_DATA/optee-test-319.json"
     fi
     parse_optee_test.py "$filepath" -p
 _summary: Collect the test cases related with PKCS11 support by OP-TEE test(xtest)

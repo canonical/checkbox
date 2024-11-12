@@ -14,7 +14,7 @@ For example:
 ## id: ce-oem-optee-test-list
 This resource job generates a list of optee-test against optee-test.json (Please check the section about "Test cases for optee-test").
 It includes "regression" and "benchmark" tests of optee-test.
-The checkbox config variable "OPTEE_CASES" allows you to provide a path to optee-test.json if needed. Otherwise, it will use the default JSON file in the provider.
+The checkbox config variable "OPTEE_CASES" allows you to provide a path to optee-test.json if needed. Otherwise, it will use the default JSON file(optee version 3.19) in the provider.
 Please ensure that the file can be accessed by checkbox.
 You can assign variable "XTEST" if your system has more than one SNAP that includes the xtest app.
 For example:
@@ -24,7 +24,7 @@ For example:
 ## id: ce-oem-optee-test-list-pkcs11
 This resource job generates a list of optee-test against optee-test.json (Please check the section about "Test cases for optee-test").
 It includes the "pkcs11" test of optee-test.
-The checkbox config variable "OPTEE_CASES" allows you to provide a path to optee-test.json if needed. Otherwise, it will use the default JSON file in the provider.
+The checkbox config variable "OPTEE_CASES" allows you to provide a path to optee-test.json if needed. Otherwise, it will use the default JSON file(optee version 3.19) in the provider.
 Please ensure that the file can be accessed by checkbox.
 You can assign variable "XTEST" if your system has more than one SNAP that includes the xtest app.
 For example:

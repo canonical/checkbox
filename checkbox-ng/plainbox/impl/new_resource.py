@@ -171,8 +171,13 @@ class ConstantGetter(ValueGetter):
     def from_unary_op(cls, parsed_ast):
         if not isinstance(parsed_ast.op, ast.USub):
             raise ValueError("Unsupported operator {}".format(parsed_ast))
-        parsed_ast.operand.value *= -1
-        return cls(parsed_ast.operand)
+        operand = getter_from_ast(parsed_ast.operand)
+        if not isinstance(operand, ConstantGetter):
+            raise ValueError(
+                "`-` operator can't be applied to non-constant operands"
+            )
+        operand.value *= -1
+        return cls(operand)
 
     def __str__(self):
         return str(self.value)
@@ -219,11 +224,25 @@ class ListGetter(ConstantGetter):
 
 legacy_getters = {}
 if sys.version_info[0] == 3 and sys.version_info[1] < 8:
-    # older version of python have
+    from collections import namedtuple
+
+    # older version of python have slightly different nodes to parse
+    # constants. Here we wrap them for forward compatibility putting the old
+    # attribute where the ConstantGetter expects to find it
+    Wrapper = namedtuple("Wrapper", ["value"])
+
+    def wrapping(attr):
+        def _f(parsed_ast):
+            wrapped_parsed_ast = Wrapper(getattr(parsed_ast, attr))
+            return ConstantGetter(wrapped_parsed_ast)
+
+        return _f
+
     legacy_getters = {
-        ast.Str: ConstantGetter,
-        ast.Num: ConstantGetter,
-        ast.Bytes: ConstantGetter,
+        ast.Str: wrapping("s"),
+        ast.Num: wrapping("n"),
+        ast.Bytes: wrapping("s"),
+        # this actually uses .value
         ast.NameConstant: ConstantGetter,
     }
 
@@ -235,13 +254,16 @@ def getter_from_ast(parsed_ast):
     getters = {
         ast.Call: CallGetter,  # such as: int(group.name)
         ast.Attribute: AttributeGetter,  # such as: group.name
-        ast.Constant: ConstantGetter,  # such as: "name"
         ast.List: ListGetter,  # such as: [1, 2, 3]
         ast.Tuple: ListGetter,  # such as: (1, 2, 3)
         ast.UnaryOp: ConstantGetter.from_unary_op,  # such as: not True
         ast.Name: NamedConstant,  # such as: DESKTOP_PC_PRODUCT
     }
     getters.update(legacy_getters)
+    with contextlib.suppress(AttributeError):
+        # new in python 3.6, all lemmas will be parsed from the legacy getters
+        getters[ast.Constant] = ConstantGetter  # such as: "name"
+
     try:
         getter = getters[type(parsed_ast)]
     except KeyError:

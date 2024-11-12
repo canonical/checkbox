@@ -3,7 +3,7 @@ _summary:
     Generates a serial console resource based on user supplied configuration
 _description:
     A serial console resource that relies on the user
-    specifying the number of serial console port. 
+    specifying the number of serial console port.
     This is to allow template jobs to then be instantiated.
     TYPE:NODE:BAUDRATE
     SERIAL_CONSOLE_PORTS=USB:/dev/ttyUSB1:115200
@@ -24,11 +24,11 @@ template-engine: jinja2
 template-id: ce-oem-serial/serial-console-tests
 id: ce-oem-serial/serial-console-{{ type }}-{{ node }}-{{ baudrate }}
 imports: from com.canonical.plainbox import manifest
-requires: 
+requires:
     manifest.has_serial_console_loopback == 'True'
 _template-summary: To check if the serial ports can work as a console
 _summary: To check if the serial port {{ type }} ({{ node }}) can work as a console
-_purpose: 
+_purpose:
     To check the serial port {{ type }} ({{ node }}) can work as a console.
 _description:
     Have to connect the serial port back to itself
@@ -46,19 +46,22 @@ _summary:
     Generates a serial resource based on user supplied configuration
 _description:
     A serial resource that relies on the user
-    specifying the number of serial port. 
+    specifying the number of serial port.
     This is to allow template jobs to then be instantiated.
     TYPE:NODE:BAUDRATE
     SERIAL_PORTS="RS485:/dev/ttyS0:9600 RS485:/dev/ttyS1:9600 RS232:/dev/ttyS2:115200"
+    For RS485 specific configuration:
+    NODE:rts_level_for_tx{True|False}:rts_level_for_rx{True|False}:delay_before_tx{float}:delay_before_rx{float}
+    RS485_CONFIG="/dev/ttySC0:True:False:0.0:0.0"
 plugin: resource
 estimated_duration: 1.0
 environ:
-    SERIAL_PORTS
+    SERIAL_PORTS RS485_CONFIG
 command:
     if [ -z "$SERIAL_PORTS" ]; then
         exit 0
     fi
-    serial_config_parser.py "$SERIAL_PORTS"
+    serial_config_parser.py "$SERIAL_PORTS" --rs485-conf "$RS485_CONFIG"
 
 unit: template
 template-resource: ce-oem-serial/serial-list
@@ -67,11 +70,11 @@ template-engine: jinja2
 template-id: ce-oem-serial/serial-transmit-data-tests
 id: ce-oem-serial/serial-transmit-data-{{ type }}-{{ node }}-{{ baudrate }}
 imports: from com.canonical.plainbox import manifest
-requires: 
+requires:
     manifest.has_serial_ehco_server == 'True'
 _template-summary:
     Transmit data via serial ports
-_purpose: 
+_purpose:
     To check the serial port {{ type }} ({{ node }}) can transmit
     data with baudate {{ baudrate }}
 _description:
@@ -82,4 +85,9 @@ category_id: com.canonical.certification::serial
 estimated_duration: 30
 flags: also-after-suspend
 command:
-    serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }}
+    # shellcheck disable=SC2050
+    if [ {{ type }} == "RS485" ]; then
+        serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }} --rts-level-for-tx {{ rts_level_for_tx }} --rts-level-for-rx {{ rts_level_for_rx }} --rts-delay-before-tx {{ delay_before_tx }} --rts-delay-before-rx {{ delay_before_rx }}
+    else
+        serial_test.py {{ node }} --mode client --type {{ type }} --group {{ group }} --baudrate {{ baudrate }}
+    fi

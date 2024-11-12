@@ -2,8 +2,43 @@
 import argparse
 
 
-def print_ports_config(string: str):
+def print_ports_config(string: str, rs485_conf: str = None):
     ports_config_list = string.split()
+    rs485_conf_lists = {}
+    """
+    Parse RS485 config,
+    e.g.
+    Input:
+    RS485_CONFIG = "/dev/ttySC0:True:False:0.0:0.0
+    /dev/ttySC2:True:False:0.0:0.0"
+
+    Output:
+    rs485_conf_lists = {
+        "/dev/ttySC0": {
+            "rts_level_for_tx": True,
+            "rts_level_for_rx": False,
+            "delay_before_tx: 0.0,
+            "delay_before_rx: 0.0,
+        }
+        "/dev/ttySC2": {
+            "rts_level_for_tx": True,
+            "rts_level_for_rx": False,
+            "delay_before_tx: 0.0,
+            "delay_before_rx: 0.0,
+        }
+    }
+    """
+    if rs485_conf:
+        for rs485_conf_list in rs485_conf.split():
+            node, rts_tx, rts_rx, delay_tx, delay_rx = rs485_conf_list.split(
+                ":"
+            )
+            rs485_conf_lists[node] = {
+                "rts_level_for_tx": rts_tx,
+                "rts_level_for_rx": rts_rx,
+                "delay_before_tx": delay_tx,
+                "delay_before_rx": delay_rx,
+            }
     serials = []
     rs485_nodes = []
     rs422_nodes = []
@@ -19,8 +54,26 @@ def print_ports_config(string: str):
         serial = {}
         port_type, port_node, baud_rate = config_parts
         serial["type"] = port_type
+
+        """
+        Init a config dict if type is RS485, and the init value are refer
+        to the serial.rs485 module.
+        ref:
+        https://pyserial.readthedocs.io/en/latest/pyserial_api.html#serial.rs485.RS485Settings
+        """
+        if port_type == "RS485":
+            serial["rs485_conf"] = {
+                "rts_level_for_tx": True,
+                "rts_level_for_rx": False,
+                "delay_before_tx": 0.0,
+                "delay_before_rx": 0.0,
+            }
         serial["node"] = port_node
         serial["baudrate"] = baud_rate
+
+        # Mapping rs485 configs with rs485 node name and update the config
+        if port_node in rs485_conf_lists.keys():
+            serial["rs485_conf"] = rs485_conf_lists[port_node]
         serials.append(serial)
         if port_type == "RS485":
             rs485_nodes.append(port_node)
@@ -30,6 +83,9 @@ def print_ports_config(string: str):
     for serial in serials:
         print("type: {}".format(serial["type"]))
         print("node: {}".format(serial["node"]))
+        if serial["type"] == "RS485":
+            for key, value in serial["rs485_conf"].items():
+                print("{}: {}".format(key, value))
         print("baudrate: {}".format(serial["baudrate"]))
         print("group: ", end="")
         if serial["type"] == "RS485":
@@ -50,8 +106,15 @@ def main():
         type=str,
         help="The string needed to be parsed",
     )
+    parser.add_argument(
+        "--rs485-conf",
+        type=str,
+        help="RS485 specific configurations.",
+        default=None,
+        required=False,
+    )
     args = parser.parse_args()
-    print_ports_config(args.string)
+    print_ports_config(args.string, args.rs485_conf)
 
 
 if __name__ == "__main__":

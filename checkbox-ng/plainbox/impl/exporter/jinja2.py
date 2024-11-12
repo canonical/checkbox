@@ -45,6 +45,7 @@ except ImportError:  # renamed in jinja2 3.1
 
 
 from plainbox import get_version_string
+from plainbox import __version__ as checkbox_version
 from plainbox.abc import ISessionStateExporter
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.result import OUTCOME_METADATA_MAP
@@ -109,6 +110,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         self._client_version = client_version or get_version_string()
         # Remember client name
         self._client_name = client_name
+        self._checkbox_version = checkbox_version
 
         self.option_list = None
         self.template = None
@@ -195,6 +197,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             "OUTCOME_METADATA_MAP": OUTCOME_METADATA_MAP,
             "client_name": self._client_name,
             "client_version": self._client_version,
+            "checkbox_version": self._checkbox_version,
             "manager": session_manager,
             "app_blob": app_blob_data,
             "options": self.option_list,
@@ -220,6 +223,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             "OUTCOME_METADATA_MAP": OUTCOME_METADATA_MAP,
             "client_name": self._client_name,
             "client_version": self._client_version,
+            "checkbox_version": self._checkbox_version,
             "manager_list": session_manager_list,
             "app_blob": {},
             "options": self.option_list,

@@ -11,6 +11,12 @@
                 "title": {
                     "type": "string"
                 },
+                "client_version": {
+                    "type": "string"
+                },
+                "checkbox_version": {
+                    "type": "string"
+                },
                 "testplan_id": {
                     "type": "string"
                 },

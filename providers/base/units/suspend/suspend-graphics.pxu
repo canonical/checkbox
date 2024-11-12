@@ -266,7 +266,12 @@ depends:
   suspend/suspend_advanced_auto
  {%- endif %}
 estimated_duration: 1.2
-command: [ -e "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single_times.log
+command: 
+ {%- if gpu_count > "1" %}
+  [ -e "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single_times.log
+ {%- else %}
+  [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
+ {%- endif %}
 _purpose: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 _summary: Verify if the machine meets the suspend and resume time thresholds.
 

@@ -15,20 +15,20 @@ plugin: shell
 estimated_duration: 4
 requires:
     graphics_card.vendor == 'NVIDIA Corporation'
-    snap.name == 'checkbox-gpgpu-tools'
+    snap.name == 'cuda-samples'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU query device test
-command: checkbox-gpgpu-tools.device-query-drv
+command: cuda-samples deviceQueryDrv
 _siblings: [
   { "id": "gpgpu/vector-add-drv",
     "_summary": "NVIDIA GPGPU vector addition test",
-    "command": "checkbox-gpgpu-tools.vector-add-drv"},
+    "command": "cuda-samples vectorAddDrv"},
   { "id": "gpgpu/matrix-mul-drv",
     "_summary": "NVIDIA GPGPU matrix multiplication test",
-    "command": "checkbox-gpgpu-tools.matrix-mul-drv"},
+    "command": "cuda-samples matrixMulDrv"},
   { "id": "gpgpu/simple-texture-drv",
     "_summary": "NVIDIA GPGPU simple textures test",
-    "command": "checkbox-gpgpu-tools.simple-texture-drv"}
+    "command": "cuda-samples simpleTextureDrv"}
   ]
 
 id: gpgpu/rvs-gpup

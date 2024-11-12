@@ -50,6 +50,18 @@ NETPLAN_CFG_PATHS = ("/etc/netplan", "/lib/netplan", "/run/netplan")
 NETPLAN_TEST_CFG = "/etc/netplan/99-CREATED-BY-CHECKBOX.yaml"
 
 
+def get_ubuntu_version():
+    """Get Ubuntu release version"""
+    try:
+        with open("/etc/lsb-release", "r") as lsb:
+            for line in lsb.readlines():
+                (key, value) = line.split("=", 1)
+                if key == "DISTRIB_RELEASE":
+                    return value.strip()
+    except OSError:
+        return None
+
+
 def netplan_renderer():
     """
     Check the renderer used by netplan on the system.
@@ -170,12 +182,16 @@ def generate_test_config(interface, ssid, psk, address, dhcp, wpa3, renderer):
     access_point = {ssid: {}}
     # If psk is provided, add it to the "auth" section
     if psk:
-        access_point[ssid] = {"auth": {"password": psk}}
-        # Set the key-management to "sae" when WPA3 is used
-        if wpa3:
-            access_point[ssid]["auth"]["key-management"] = "sae"
+        ubuntu_version = get_ubuntu_version()
+        if ubuntu_version and "16" in ubuntu_version:
+            access_point[ssid] = {"password": psk}
         else:
-            access_point[ssid]["auth"]["key-management"] = "psk"
+            access_point[ssid] = {"auth": {"password": psk}}
+            # Set the key-management to "sae" when WPA3 is used
+            if wpa3:
+                access_point[ssid]["auth"]["key-management"] = "sae"
+            else:
+                access_point[ssid]["auth"]["key-management"] = "psk"
 
     # Define the interface_info
     interface_info = {

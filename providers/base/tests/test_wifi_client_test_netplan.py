@@ -25,6 +25,7 @@ import io
 import sys
 from unittest.mock import call
 from wifi_client_test_netplan import (
+    get_ubuntu_version,
     netplan_renderer,
     check_and_get_renderer,
     netplan_config_backup,
@@ -42,6 +43,10 @@ from wifi_client_test_netplan import (
 
 
 class WifiClientTestNetplanTests(TestCase):
+    @patch(
+        "wifi_client_test_netplan.get_ubuntu_version",
+        new=MagicMock(return_value="20.04"),
+    )
     def test_open_ap_with_dhcp(self):
         expected_output = textwrap.dedent(
             """
@@ -63,6 +68,10 @@ class WifiClientTestNetplanTests(TestCase):
         )
         self.assertEqual(result.strip(), expected_output.strip())
 
+    @patch(
+        "wifi_client_test_netplan.get_ubuntu_version",
+        new=MagicMock(return_value="20.04"),
+    )
     def test_private_ap_with_dhcp(self):
         expected_output = textwrap.dedent(
             """
@@ -86,6 +95,37 @@ class WifiClientTestNetplanTests(TestCase):
         )
         self.assertEqual(result.strip(), expected_output.strip())
 
+    @patch(
+        "wifi_client_test_netplan.get_ubuntu_version",
+        new=MagicMock(return_value="16.04"),
+    )
+    def test_private_ap_with_dhcp_ubuntu_16_04(self):
+        expected_output = textwrap.dedent(
+            """
+            # This is the network config written by checkbox
+            network:
+              renderer: networkd
+              version: 2
+              wifis:
+                eth0:
+                  access-points:
+                    my_ap:
+                      password: s3cr3t
+                  dhcp4: true
+                  nameservers: {}
+            """
+        )
+        print(expected_output)
+        result = generate_test_config(
+            "eth0", "my_ap", "s3cr3t", "", True, False, "networkd"
+        )
+        print(result)
+        self.assertEqual(result.strip(), expected_output.strip())
+
+    @patch(
+        "wifi_client_test_netplan.get_ubuntu_version",
+        new=MagicMock(return_value="20.04"),
+    )
     def test_private_ap_with_wpa3(self):
         expected_output = textwrap.dedent(
             """
@@ -109,6 +149,10 @@ class WifiClientTestNetplanTests(TestCase):
         )
         self.assertEqual(result.strip(), expected_output.strip())
 
+    @patch(
+        "wifi_client_test_netplan.get_ubuntu_version",
+        new=MagicMock(return_value="20.04"),
+    )
     def test_static_ip_no_dhcp(self):
         expected_output = textwrap.dedent(
             """
@@ -134,6 +178,10 @@ class WifiClientTestNetplanTests(TestCase):
         )
         self.assertEqual(result.strip(), expected_output.strip())
 
+    @patch(
+        "wifi_client_test_netplan.get_ubuntu_version",
+        new=MagicMock(return_value="20.04"),
+    )
     def test_no_ssid_fails(self):
         with self.assertRaises(SystemExit):
             generate_test_config(
@@ -274,6 +322,22 @@ class WifiClientTestNetplanTests(TestCase):
             self.assertFalse(args.wpa3)
             self.assertIsNone(args.psk)
             self.assertEqual(args.address, "")
+
+    def test_get_ubuntu_version_20_04(self):
+        data = (
+            "DISTRIB_ID=Ubuntu\n"
+            "DISTRIB_RELEASE=20.04\n"
+            "DISTRIB_CODENAME=focal\n"
+            'DISTRIB_DESCRIPTION="Ubuntu 20.04.2 LTS"'
+        )
+        with patch("builtins.open", new_callable=mock_open, read_data=data):
+            version = get_ubuntu_version()
+            self.assertEqual(version, "20.04")
+
+    def test_get_ubuntu_version_error(self):
+        with patch("builtins.open", side_effect=OSError):
+            version = get_ubuntu_version()
+            self.assertIsNone(version)
 
     @patch(
         "builtins.open",

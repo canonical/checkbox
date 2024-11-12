@@ -4,27 +4,32 @@
 This job checks if the OP-TEE node (teepriv0 and tee0) has been probed.
 It relies on the manifest "has_optee" to be true.
 
-## id: ce-oem-optee/xtest-check
-This job checks if xtest is in the gadget snap. Since xtest and TA (Trusted Application) rely on the same signing key as optee-os and optee-client, xtest is built into the gadget snap.
-However, if you intend to use your own built optee-test, you can assign the checkbox config variable to make this job use a specific tool.
-The checkbox config variable "OPTEE_TOOL" should be given the full application name, including SNAP name and APP name if it's a SNAP, otherwise, the APP name should be fine.
+## id: ce-oem-optee/ta-install
+This job is to install TA for the x-test.
+The checkbox configuration variable "XTEST" should be set to the SNAP name if your system has more than one SNAP that includes the xtest app. In some cases,
+the system may have xtest in the gadget, and the user may need an additional x-test SNAP for debugging purposes.
 For example:
-- SNAP named "optee-test" and APP name "xtest": `OPTEE_TOOL=optee-test.xtest`
-- APP named "xtest": `OPTEE_TOOL=xtest`
+- SNAP named "optee-test": `XTEST=optee-test`
 
 ## id: ce-oem-optee-test-list
 This resource job generates a list of optee-test against optee-test.json (Please check the section about "Test cases for optee-test").
 It includes "regression" and "benchmark" tests of optee-test.
 The checkbox config variable "OPTEE_CASES" allows you to provide a path to optee-test.json if needed. Otherwise, it will use the default JSON file in the provider.
 Please ensure that the file can be accessed by checkbox.
-For example: `OPTEE_CASES=/home/user/optee-test.json`
+You can assign variable "XTEST" if your system has more than one SNAP that includes the xtest app.
+For example:
+- `OPTEE_CASES=/home/user/optee-test.json`
+- SNAP named "optee-test": `XTEST=optee-test`
 
 ## id: ce-oem-optee-test-list-pkcs11
 This resource job generates a list of optee-test against optee-test.json (Please check the section about "Test cases for optee-test").
 It includes the "pkcs11" test of optee-test.
 The checkbox config variable "OPTEE_CASES" allows you to provide a path to optee-test.json if needed. Otherwise, it will use the default JSON file in the provider.
 Please ensure that the file can be accessed by checkbox.
-For example: `OPTEE_CASES=/home/user/optee-test.json`
+You can assign variable "XTEST" if your system has more than one SNAP that includes the xtest app.
+For example:
+- `OPTEE_CASES=/home/user/optee-test.json`
+- SNAP named "optee-test": `XTEST=optee-test`
 
 ## Test Coverage
 We have covered the default tests of optee-test, which include:

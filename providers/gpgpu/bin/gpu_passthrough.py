@@ -69,7 +69,8 @@ GPU_VENDORS = {
         "lxdvm": {
             "launch_options": ["-c", "security.secureboot=false"],
             "config_cmds": [
-                "apt-get -q -U upgrade",
+                "apt-get -q update -y",
+                "apt-get -q upgrade -y",
                 "apt-get -q install -y linux-generic ubuntu-drivers-common",
                 "ubuntu-drivers install --gpgpu",
             ],

@@ -1,17 +1,5 @@
 #!/usr/bin/env bash
 
-snap install gpu-burn
-# XXX: Installing in devmode until KFD is accessible with opengl plug
-# SEE: https://github.com/canonical/snapd/pull/14685
-snap install rocm-validation-suite --devmode
-# TODO: CUDA samples are not in a snap just yet.
-
-# XXX: This is needed until auto-connection requests are granted.
-# SEE: https://forum.snapcraft.io/t/autoconnection-request-for-gpu-burn/43882
-# SEE: https://forum.snapcraft.io/t/request-autoconnect-for-rocm-validation-suite/43842
-snap connect gpu-burn:hardware-observe
-snap connect rocm-validation-suite:hardware-observe
-
-# XXX: This is needed until alias request is granted.
-# SEE: https://forum.snapcraft.io/t/alias-request-for-rocm-validation-suite/43745
-snap alias rocm-validation-suite rvs
+snap install gpu-burn rocm-validation-suite
+# XXX: cuda-samples is not owned by us (yet)
+# snap install cuda-samples

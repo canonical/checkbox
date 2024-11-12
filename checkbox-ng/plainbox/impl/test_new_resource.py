@@ -434,6 +434,13 @@ class TestEvaluateEndToEnd(TestCase):
         evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
+    def test_support_arbitrary_get(self):
+        expr = "namespace.missing == None"
+        namespace = {"namespace": [HD({"value": 1})]}
+
+        evaluated = evaluate(expr, namespace, explain_callback=print)
+        self.assertEqual(evaluated, namespace)
+
 
 class TestUnsupportedGrammars(TestCase):
     def test_unsupported_unary_operator(self):
@@ -456,3 +463,32 @@ class TestUnsupportedGrammars(TestCase):
     def test_unsupported_function_reported(self):
         with self.assertRaises(ValueError):
             _ = evaluate("isinstance(namespace.a, str) == True", {})
+
+    def test_unsupported_is(self):
+        with self.assertRaises(ValueError):
+            _ = evaluate("namespace.a is True", {"namespace": []})
+
+    def test_unsupported_multinamespace_function(self):
+        with self.assertRaises(ValueError):
+            _ = evaluate("int(namespace.a, 1, namespace_1.b) == 1", {})
+
+    def test_unsupported_constant_function_calls(self):
+        with self.assertRaises(ValueError):
+            _ = evaluate("int('1') == 1", {})
+
+    def test_unknown_constant_raises(self):
+        with self.assertRaises(NameError):
+            _ = evaluate("UNKNOWN_CONSTANT == namespace.a", {})
+
+    try:
+        import ast
+
+        _ = ast.Compare
+
+        def test_unsupported_compare(self):
+            with self.assertRaises(ValueError):
+                _ = evaluate("1 < namespace.a < 3", {})
+
+    except AttributeError:
+        # this was added after 3.8
+        ...

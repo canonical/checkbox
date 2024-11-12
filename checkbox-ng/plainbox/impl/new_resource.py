@@ -245,24 +245,24 @@ if sys.version_info[0] == 3 and sys.version_info[1] < 8:
         # this actually uses .value
         ast.NameConstant: ConstantGetter,
     }
+getters = {
+    ast.Call: CallGetter,  # such as: int(group.name)
+    ast.Attribute: AttributeGetter,  # such as: group.name
+    ast.List: ListGetter,  # such as: [1, 2, 3]
+    ast.Tuple: ListGetter,  # such as: (1, 2, 3)
+    ast.UnaryOp: ConstantGetter.from_unary_op,  # such as: not True
+    ast.Name: NamedConstant,  # such as: DESKTOP_PC_PRODUCT
+}
+getters.update(legacy_getters)
+with contextlib.suppress(AttributeError):
+    # new in python 3.6, all lemmas will be parsed from the legacy getters
+    getters[ast.Constant] = ConstantGetter  # such as: "name"
 
 
 def getter_from_ast(parsed_ast):
     """
     Rappresents a way to fetch a value
     """
-    getters = {
-        ast.Call: CallGetter,  # such as: int(group.name)
-        ast.Attribute: AttributeGetter,  # such as: group.name
-        ast.List: ListGetter,  # such as: [1, 2, 3]
-        ast.Tuple: ListGetter,  # such as: (1, 2, 3)
-        ast.UnaryOp: ConstantGetter.from_unary_op,  # such as: not True
-        ast.Name: NamedConstant,  # such as: DESKTOP_PC_PRODUCT
-    }
-    getters.update(legacy_getters)
-    with contextlib.suppress(AttributeError):
-        # new in python 3.6, all lemmas will be parsed from the legacy getters
-        getters[ast.Constant] = ConstantGetter  # such as: "name"
 
     try:
         getter = getters[type(parsed_ast)]
@@ -283,9 +283,6 @@ class Operator:
 
     def __str__(self):
         return self.text_repr
-
-    def __repr__(self):
-        return "<Operator '{}'>".format(self.text_repr)
 
 
 ast_to_operator = {
@@ -335,8 +332,12 @@ class Constraint:
 
     @classmethod
     def parse_from_ast(cls, parsed_ast, **kwargs):
-        assert len(parsed_ast.ops) == 1
-        assert len(parsed_ast.comparators) == 1
+        if len(parsed_ast.ops) != 1 or len(parsed_ast.comparators) != 1:
+            raise ValueError(
+                "Unsupported multi operator constrating: {}".format(
+                    ast.dump(parsed_ast)
+                )
+            )
         left_getter = getter_from_ast(parsed_ast.left)
         right_getter = getter_from_ast(parsed_ast.comparators[0])
         return cls(left_getter, parsed_ast.ops[0], right_getter, **kwargs)

@@ -101,6 +101,24 @@ class TestEvaluateEndToEnd(TestCase):
         evaluated = all(evaluate_lazy(expr, namespace).values())
         self.assertEqual(evaluated, result_bool)
 
+    def test_or_false_exp(self):
+        expr = "abc.z == 1 or namespace.b == 20"
+        namespace = {
+            "namespace": [HD({"a": 1, "b": 2}), HD({"a": 2, "b": 2})],
+            "abc": [HD({"z": 1})],
+        }
+        result = {
+            "abc": [{"z": 1}],
+            "namespace": [{"a": 1, "b": 2}, {"a": 2, "b": 2}],
+        }
+        result_bool = True
+
+        evaluated = evaluate(expr, namespace, explain_callback=print)
+        self.assertEqual(evaluated, result)
+
+        evaluated = all(evaluate_lazy(expr, namespace).values())
+        self.assertEqual(evaluated, result_bool)
+
     def test_or_false(self):
         expr = "namespace.b == 20 or namespace.a == 11"
         namespace = {"namespace": [HD({"a": 1, "b": 2}), HD({"a": 2, "b": 2})]}
@@ -373,6 +391,14 @@ class TestEvaluateEndToEnd(TestCase):
                 ),  # Second condition (d==5)
                 HD({"a": 1, "b": 2, "c": 0, "d": 0}),  # No match
                 HD({"a": 0, "b": 0, "c": 3, "d": 6}),  # No match
+                HD({"a": 1, "b": 0, "c": 3, "d": 6}),  # No match
+                HD({"a": 2, "b": 0, "c": 3, "d": 6}),  # No match
+                HD({"a": 3, "b": 0, "c": 3, "d": 6}),  # No match
+                HD({"a": 4, "b": 0, "c": 3, "d": 6}),  # No match
+                HD({"a": 5, "b": 0, "c": 3, "d": 6}),  # No match
+                HD({"a": 6, "b": 0, "c": 3, "d": 6}),  # No match
+                HD({"a": 7, "b": 0, "c": 3, "d": 6}),  # No match
+                HD({"a": 8, "b": 0, "c": 3, "d": 6}),  # No match
             ]
         }
         result = {
@@ -407,3 +433,26 @@ class TestEvaluateEndToEnd(TestCase):
         }
         evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
+
+
+class TestUnsupportedGrammars(TestCase):
+    def test_unsupported_unary_operator(self):
+        # unary - can only be applied to constants
+        with self.assertRaises(ValueError):
+            _ = evaluate("-int(namespace.a) == 1", {})
+
+        # unary not is not supported
+        with self.assertRaises(ValueError):
+            _ = evaluate("(not namespace.a) == False", {})
+
+    def test_unsupported_namespaced_collections(self):
+        with self.assertRaises(ValueError):
+            _ = evaluate("'abc' in [namespace.a, namespace.b]", {})
+
+    def test_unsupported_namespace_comparison(self):
+        with self.assertRaises(ValueError):
+            _ = evaluate("namespace_1.a == namespace_2.a", {})
+
+    def test_unsupported_function_reported(self):
+        with self.assertRaises(ValueError):
+            _ = evaluate("isinstance(namespace.a, str) == True", {})

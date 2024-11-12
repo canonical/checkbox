@@ -246,7 +246,12 @@ depends:
  {%- else %}
   suspend/suspend_advanced_auto
  {%- endif %}
-command: [ -e "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single.log
+command: 
+ {%- if gpu_count > "1" %}
+  [ -e "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single.log
+ {%- else %}
+  [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_single.log
+ {%- endif %}
 _purpose:
  Attaches the log from the single suspend/resume test to the results
 _summary: Attach log from a single suspend/resume test.

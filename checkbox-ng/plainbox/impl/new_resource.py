@@ -106,23 +106,19 @@ class CallGetter(NamespacedGetter):
     }
 
     def _get_namespace_args(self, args):
-        namespace = None
-        for arg in args:
-            try:
-                arg_ns = arg.namespace
-                if namespace and arg_ns != namespace:
-                    raise ValueError(
-                        "Function call can access at most one namespace "
-                        "({} != {})".format(namespace, arg_ns)
-                    )
-                namespace = arg_ns
-            except AttributeError:
-                pass
-        if namespace is None:
+        namespaces = {
+            arg.namespace for arg in args if hasattr(arg, "namespace")
+        }
+        if len(namespaces) > 1:
+            raise ValueError(
+                "Function call can access at most one namespace but this is "
+                "using: " + " ".join(namespaces)
+            )
+        elif len(namespaces) == 0:
             raise ValueError(
                 "Function calls with no namespace are unsupported"
             )
-        return namespace
+        return namespaces.pop()
 
     def __init__(self, parsed_ast):
         try:
@@ -274,38 +270,37 @@ def getter_from_ast(parsed_ast):
 
 
 class Operator:
+    ast_to_operator = {
+        # contains(a, b) == b in a
+        # so we need to swap them around
+        ast.In: (lambda x, y: operator.contains(y, x), "in"),
+        ast.NotIn: (lambda x, y: not operator.contains(x, y), "not in"),
+        ast.Eq: (operator.eq, "=="),
+        ast.NotEq: (operator.ne, "!="),
+        ast.GtE: (operator.ge, ">="),
+        ast.LtE: (operator.le, "<="),
+        ast.Gt: (operator.gt, ">"),
+        ast.Lt: (operator.lt, "<"),
+    }
+
     def __init__(self, function, text_repr):
         self.function = function
         self.text_repr = text_repr
+
+    @classmethod
+    def parse_from_ast(cls, parsed_ast):
+        try:
+            return cls(*cls.ast_to_operator[type(parsed_ast)])
+        except KeyError as e:
+            raise ValueError(
+                "Unsupported operator {}".format(ast.dump(parsed_ast))
+            ) from e
 
     def __call__(self, *args, **kwargs):
         return self.function(*args, **kwargs)
 
     def __str__(self):
         return self.text_repr
-
-
-ast_to_operator = {
-    # contains(a, b) == b in a
-    # so we need to swap them around
-    ast.In: Operator(lambda x, y: operator.contains(y, x), "in"),
-    ast.NotIn: Operator(lambda x, y: not operator.contains(x, y), "not in"),
-    ast.Eq: Operator(operator.eq, "=="),
-    ast.NotEq: Operator(operator.ne, "!="),
-    ast.GtE: Operator(operator.ge, ">="),
-    ast.LtE: Operator(operator.le, "<="),
-    ast.Gt: Operator(operator.gt, ">"),
-    ast.Lt: Operator(operator.lt, "<"),
-}
-
-
-def operator_from_ast(parsed_ast):
-    try:
-        return ast_to_operator[type(parsed_ast)]
-    except KeyError as e:
-        raise ValueError(
-            "Unsupported operator {}".format(ast.dump(parsed_ast))
-        ) from e
 
 
 class Constraint:
@@ -344,7 +339,7 @@ class Constraint:
 
     def _filtered(self, ns_variables):
 
-        operator_f = operator_from_ast(self.operator)
+        operator_f = Operator.parse_from_ast(self.operator)
 
         return (
             variable_object
@@ -429,7 +424,7 @@ class ConstraintExplainer(Constraint):
             str(x)
             for x in (
                 self.left_getter,
-                operator_from_ast(self.operator),
+                Operator.parse_from_ast(self.operator),
                 self.right_getter,
             )
         )

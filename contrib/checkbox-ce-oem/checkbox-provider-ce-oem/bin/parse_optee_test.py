@@ -23,6 +23,7 @@ def check_suite(suite, filter):
 def print_test_info(test, xtest):
     print("suite: {}".format(test["suite"]))
     print("test_id: {}".format(test["test_id"]))
+    print("test_name: {}".format(test["test_name"]))
     print("description: {}".format(test["test_description"]))
     print("tool: {}\n".format(xtest))
 

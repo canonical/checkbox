@@ -69,7 +69,7 @@ unit: template
 template-resource: ce-oem-optee-test-list
 template-unit: job
 template-engine: jinja2
-id: ce-oem-optee/xtest-{{ suite }}-{{ description }}
+id: ce-oem-optee/xtest-{{ suite }}-{{ test_name }}
 _summary:
     OP-TEE test by using xtest to test suite {{ suite }} {{ description }}
 plugin: shell
@@ -90,7 +90,7 @@ unit: template
 template-resource: ce-oem-optee-test-list-pkcs11
 template-unit: job
 template-engine: jinja2
-id: ce-oem-optee/xtest-pkcs11-{{ description }}
+id: ce-oem-optee/xtest-pkcs11-{{ test_name }}
 _summary:
     OP-TEE test by using xtest to test PKCS11 related {{ description }}
 plugin: shell

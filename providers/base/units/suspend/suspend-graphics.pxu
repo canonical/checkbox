@@ -246,12 +246,14 @@ depends:
  {%- else %}
   suspend/suspend_advanced_auto
  {%- endif %}
-command: 
- {%- if gpu_count > "1" %}
-  [ -e "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single.log
- {%- else %}
-  [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single.log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_single.log
- {%- endif %}
+command:
+ if [ -e "$PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single.log" ]; then
+     cat "$PLAINBOX_SESSION_SHARE/{{ index }}_suspend_single.log"
+ elif [ -e "$PLAINBOX_SESSION_SHARE/suspend_single.log" ]; then
+     cat "$PLAINBOX_SESSION_SHARE/suspend_single.log"
+ else
+     echo "No suspend log files found"
+ fi
 _purpose:
  Attaches the log from the single suspend/resume test to the results
 _summary: Attach log from a single suspend/resume test.
@@ -271,12 +273,15 @@ depends:
   suspend/suspend_advanced_auto
  {%- endif %}
 estimated_duration: 1.2
-command: 
- {%- if gpu_count > "1" %}
-  [ -e "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single_times.log
- {%- else %}
-  [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log ] && sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
- {%- endif %}
+command:
+ if [ -e "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single_times.log ]; then
+   sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/{{ index }}_suspend_single_times.log
+ elif [ -e "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log ]; then
+   sleep_time_check.py "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
+ else
+   echo "No suspend log files found"
+   exit 1
+ fi
 _purpose: Checks the sleep times to ensure that a machine suspends and resumes within a given threshold
 _summary: Verify if the machine meets the suspend and resume time thresholds.
 

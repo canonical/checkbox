@@ -74,6 +74,7 @@ template-filter: graphics_card.vendor == 'NVIDIA Corporation'
 template-id: gpgpu/lxd-nvidia-gpu-passthrough-index
 id: gpgpu/lxd-nvidia-gpu-passthrough-{index}
 requires:
+    graphics_card.driver == 'nvidia'
     executable.name == 'lxc'
     package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
 category_id: gpgpu

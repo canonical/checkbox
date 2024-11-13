@@ -1,5 +1,3 @@
 #!/usr/bin/env bash
 
-snap install gpu-burn rocm-validation-suite
-# XXX: cuda-samples is not owned by us (yet)
-# snap install cuda-samples
+snap install gpu-burn rocm-validation-suite cuda-samples

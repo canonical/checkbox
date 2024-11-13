@@ -31,6 +31,5 @@ _description:
  Automated Tests for GPGPU Passthrough (non-graphical)
 include:
     gpgpu/lxd-nvidia-gpu-passthrough-index
-    gpgpu/lxdvm-nvidia-gpu-passthrough-index
 bootstrap_include:
     graphics_card

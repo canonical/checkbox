@@ -82,18 +82,3 @@ command: gpu_passthrough.py --vendor=nvidia --pci={pci_device_name} lxd
 _purpose: Creates a LXD container and passes {pci_device_name} GPU through
 _summary: Test LXD GPU passthrough on NVIDIA GPU {pci_device_name}
 _template-summary: Test LXD GPU passthrough on NVIDIA GPU
-
-unit: template
-template-resource: graphics_card
-template-filter: graphics_card.vendor == 'NVIDIA Corporation'
-template-id: gpgpu/lxdvm-nvidia-gpu-passthrough-index
-id: gpgpu/lxdvm-nvidia-gpu-passthrough-{index}
-requires:
-    executable.name == 'lxc'
-    package.name == 'lxd' or package.name == 'lxd-installer' or snap.name == 'lxd'
-category_id: gpgpu
-plugin: shell
-command: gpu_passthrough.py --vendor=nvidia --pci={pci_device_name} lxdvm
-_purpose: Creates a LXD VM and passes {pci_device_name} GPU through
-_summary: Test LXD VM GPU passthrough on NVIDIA GPU {pci_device_name}
-_template-summary: Test LXD VM GPU passthrough on NVIDIA GPU

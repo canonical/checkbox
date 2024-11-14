@@ -205,6 +205,15 @@ class TestEvaluateEndToEnd(TestCase):
         evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, result)
 
+    def test_not_in(self):
+        expr = "namespace.a not in ['1', '2']"
+        namespace = {
+            "namespace": [HD({"a": "1"}), HD({"a": "2"}), HD({"a": "3"})]
+        }
+        result = {"namespace": [HD({"a": "3"})]}
+        evaluated = evaluate(expr, namespace)
+        self.assertEqual(evaluated, result)
+
     def test_neq_true(self):
         expr = "namespace.a != '1'"
         namespace = {
@@ -246,8 +255,6 @@ class TestEvaluateEndToEnd(TestCase):
                 HD({"a": 3, "b": 2}),
             ]
         }
-        result = {"com.canonical.certification::namespace": []}
-        result_bool = False
 
         evaluated = evaluate(
             expr,

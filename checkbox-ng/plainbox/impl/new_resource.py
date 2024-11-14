@@ -105,7 +105,7 @@ class CallGetter(NamespacedGetter):
         "str": str,
     }
 
-    def _get_namespace_args(self, args):
+    def _get_common_namespace(self, args):
         namespaces = {
             arg.namespace for arg in args if hasattr(arg, "namespace")
         }
@@ -146,7 +146,7 @@ class AttributeGetter(NamespacedGetter):
         self.variable = parsed_ast.attr
 
     def __call__(self, variable_object):
-        # resources are free form, support variable names not being unifrom
+        # resources are free form, support variable names not being uniform
         try:
             return variable_object[self.variable]
         except KeyError:
@@ -257,7 +257,7 @@ with contextlib.suppress(AttributeError):
 
 def getter_from_ast(parsed_ast):
     """
-    Rappresents a way to fetch a value
+    Represents a way to fetch a value
     """
 
     try:
@@ -274,7 +274,7 @@ class Operator:
         # contains(a, b) == b in a
         # so we need to swap them around
         ast.In: (lambda x, y: operator.contains(y, x), "in"),
-        ast.NotIn: (lambda x, y: not operator.contains(x, y), "not in"),
+        ast.NotIn: (lambda x, y: not operator.contains(y, x), "not in"),
         ast.Eq: (operator.eq, "=="),
         ast.NotEq: (operator.ne, "!="),
         ast.GtE: (operator.ge, ">="),
@@ -305,7 +305,7 @@ class Operator:
 
 class Constraint:
     """
-    Rappresents a filter to be applied on a namespace
+    Represents a filter to be applied on a namespace
     """
 
     def __init__(self, left_getter, operator, right_getter):
@@ -661,7 +661,7 @@ def evaluate_lazy(
     explain_callback=None,
 ) -> bool:
     """
-    This returns a new namespaces where each id has a truth value given
+    This returns a new namespace where each id has a truth value given
     a resource expression
 
     Returns a namespace where each value is True if any object matched the

@@ -54,8 +54,8 @@ main() {
     pod=$(microk8s.kubectl get pods -n dss --field-selector=status.phase==Running -o=jsonpath='{.items..metadata.name}' | grep -o 'ipex-2120-notebook.*')
     echo "Found PyTorch pod: ${pod}"
     case ${1} in
-    can_be_imported) check_ipex_can_be_imported pod ;;
-    pytorch_can_use_xpu) check_pytorch_can_use_xpu pod ;;
+    can_be_imported) check_ipex_can_be_imported "$pod" ;;
+    pytorch_can_use_xpu) check_pytorch_can_use_xpu "$pod" ;;
     *) help_function ;;
     esac
 }

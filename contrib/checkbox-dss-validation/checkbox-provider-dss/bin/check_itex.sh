@@ -53,8 +53,8 @@ main() {
     pod=$(microk8s.kubectl get pods -n dss --field-selector=status.phase==Running -o=jsonpath='{.items..metadata.name}' | grep -o 'itex-215-notebook.*')
     echo "Found Tensorflow pod: ${pod}"
     case ${1} in
-    can_be_imported) check_itex_can_be_imported pod ;;
-    tensorflow_can_use_xpu) check_tensorflow_can_use_xpu pod ;;
+    can_be_imported) check_itex_can_be_imported "$pod" ;;
+    tensorflow_can_use_xpu) check_tensorflow_can_use_xpu "$pod" ;;
     *) help_function ;;
     esac
 }

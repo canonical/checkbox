@@ -23,3 +23,16 @@ include:
     gpgpu/rvs-pebb
     gpgpu/rvs-pbqt
     gpgpu/rvs-babel
+
+id: gpgpu-passthrough
+unit: test plan
+_name: GPGPU Virtualization Passthrough Testing
+_description:
+ Automated Tests for GPGPU Passthrough (non-graphical)
+include:
+    gpgpu/lxd-nvidia-gpu-passthrough-index
+bootstrap_include:
+    graphics_card
+    executable
+    package
+    snap

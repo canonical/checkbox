@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import intel_extension_for_tensorflow as itex
 import tensorflow as tf
 import jupyter

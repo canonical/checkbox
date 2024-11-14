@@ -50,7 +50,7 @@ help_function() {
 }
 
 main() {
-    pod=$(microk8s.kubectl get pods -n dss --field-selector=status.phase==Running -o=jsonpath='{.items..metadata.name}' | grep -o 'itex-215-notebook.*')
+    pod=$(microk8s.kubectl get pods -n dss --field-selector=status.phase==Running -o=jsonpath='{.items..metadata.name}' | grep -o 'itex-215-notebook\S*')
     echo "Found Tensorflow pod: ${pod}"
     case ${1} in
     can_be_imported) check_itex_can_be_imported "$pod" ;;

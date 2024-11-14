@@ -16,7 +16,21 @@ check_ipex_can_be_imported() {
 
 check_pytorch_can_use_xpu() {
     echo "Starting ipex GPU check test"
-    script="$(cat pytorch_can_use_xpu.py)"
+    script='
+import sys
+import torch
+import intel_extension_for_pytorch as ipex
+
+print(torch.__version__)
+print(ipex.__version__)
+
+try:
+    [print(f"[{i}]: {torch.xpu.get_device_properties(i)}") for i in range(torch.xpu.device_count())];
+    sys.exit(0)
+except Exception:
+    print("Encountered an error getting XPU device properties", file=sys.stderr)
+    sys.exit(1)
+    '
     gpu_grep_out=$(microk8s.kubectl -n dss exec "$1" -- python3 -c "$script" | grep "dev_type=.gpu" 2>&1)
     if [[ -z ${gpu_grep_out} ]]; then
         >&2 echo "FAIL: No GPU found"

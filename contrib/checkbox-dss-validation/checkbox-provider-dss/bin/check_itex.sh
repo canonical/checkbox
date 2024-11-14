@@ -2,6 +2,8 @@
 
 set -euxo pipefail
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 check_itex_can_be_imported() {
     echo "Starting itex import test"
     script="import intel_extension_for_tensorflow as itex; import tensorflow; import jupyter"
@@ -16,7 +18,7 @@ check_itex_can_be_imported() {
 
 check_tensorflow_can_use_xpu() {
     echo "Starting itex GPU check test"
-    script="$(cat tensorflow_can_use_xpu.py)"
+    script="$(cat "$SCRIPT_DIR/tensorflow_can_use_xpu.py")"
     if microk8s.kubectl -n dss exec "$1" -- python3 -c "$script"; then
         echo "PASS: XPU found"
         exit 0

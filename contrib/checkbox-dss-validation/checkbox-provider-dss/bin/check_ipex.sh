@@ -2,6 +2,8 @@
 
 set -euxo pipefail
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 check_ipex_can_be_imported() {
     echo "Starting ipex import test"
     script="import intel_extension_for_pytorch as ipex; import torch; import jupyter"
@@ -16,7 +18,7 @@ check_ipex_can_be_imported() {
 
 check_pytorch_can_use_xpu() {
     echo "Starting ipex GPU check test"
-    script="$(cat pytorch_can_use_xpu.py)"
+    script="$(cat "$SCRIPT_DIR/pytorch_can_use_xpu.py")"
     gpu_grep_out=$(microk8s.kubectl -n dss exec "$1" -- python3 -c "$script" | grep "dev_type=.gpu" 2>&1)
     if [[ -z ${gpu_grep_out} ]]; then
         >&2 echo "FAIL: No GPU found"

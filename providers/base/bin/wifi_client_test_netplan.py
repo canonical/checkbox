@@ -26,6 +26,7 @@ import ipaddress
 import yaml
 
 from gateway_ping_test import ping
+from checkbox_support.snap_utils.system import get_series
 
 print = functools.partial(print, flush=True)
 
@@ -48,18 +49,6 @@ else:
 
 NETPLAN_CFG_PATHS = ("/etc/netplan", "/lib/netplan", "/run/netplan")
 NETPLAN_TEST_CFG = "/etc/netplan/99-CREATED-BY-CHECKBOX.yaml"
-
-
-def get_ubuntu_version():
-    """Get Ubuntu release version"""
-    try:
-        with open("/etc/lsb-release", "r") as lsb:
-            for line in lsb.readlines():
-                (key, value) = line.split("=", 1)
-                if key == "DISTRIB_RELEASE":
-                    return value.strip()
-    except OSError:
-        return None
 
 
 def netplan_renderer():
@@ -182,8 +171,8 @@ def generate_test_config(interface, ssid, psk, address, dhcp, wpa3, renderer):
     access_point = {ssid: {}}
     # If psk is provided, add it to the "auth" section
     if psk:
-        ubuntu_version = get_ubuntu_version()
-        if ubuntu_version and "16" in ubuntu_version:
+        ubuntu_version = int(get_series().split(".")[0])
+        if ubuntu_version == 16:
             access_point[ssid] = {"password": psk}
         else:
             access_point[ssid] = {"auth": {"password": psk}}

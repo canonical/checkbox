@@ -33,3 +33,6 @@ include:
     gpgpu/lxd-nvidia-gpu-passthrough-index
 bootstrap_include:
     graphics_card
+    executable
+    package
+    snap

@@ -10,5 +10,5 @@ value-type: bool
 
 unit: manifest entry
 id: has_bt_obex_support
-_name: A Bluetooth Module with OBEX Support
+_name: A Bluetooth Module with OBject EXchange (OBEX) Support
 value-type: bool

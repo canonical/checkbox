@@ -138,9 +138,10 @@ def parse_v4l2_compliance(
     )  # can't really depend on the return code here
     # since any failure => return code 1
 
-    if "Cannot open device" in out.stderr:
+    error_prefixes = ("Failed to open", "Cannot open device")
+    if any(out.stderr.startswith(prefix) for prefix in error_prefixes):
         # can't open the device
-        raise ValueError(out.stderr)
+        raise FileNotFoundError(out.stderr)
 
     lines = []  # type: list[str]
     for line in out.stdout.splitlines():

@@ -16,7 +16,7 @@ class TestV4L2ComplianceParser(ut.TestCase):
 
     @patch("subprocess.run")
     def test_happy_path(self, mock_run: MagicMock):
-        ok_input = read_file_as_str("clean_input_1")
+        ok_input = read_file_as_str("22_04_success")
         mock_run.return_value = sp.CompletedProcess(
             [], 1, stdout=ok_input, stderr=""
         )
@@ -43,6 +43,21 @@ class TestV4L2ComplianceParser(ut.TestCase):
         )
 
         self.assertRaises(AssertionError, parse_v4l2_compliance)
+
+    @patch("subprocess.run")
+    def test_unopenable_device(self, mock_run: MagicMock):
+        err_messages = [
+            # 16.04 18.04: found this message in VMs without camera pass through
+            "Failed to open device /dev/video0: No such file or directory"
+            # 20.04: found this msg in VMs without camera pass through
+            # 22.04, 24.04: found this message if we disable camera in BIOS
+            "Cannot open device /dev/video0, exiting."
+        ]
+        for err_msg in err_messages:
+            mock_run.return_value = sp.CompletedProcess(
+                [], 1, stdout="", stderr=err_msg
+            )
+            self.assertRaises(FileNotFoundError, parse_v4l2_compliance)
 
 
 if __name__ == "__main__":

@@ -16,21 +16,7 @@ check_itex_can_be_imported() {
 
 check_tensorflow_can_use_xpu() {
     echo "Starting itex GPU check test"
-    script='
-import intel_extension_for_tensorflow as itex
-import tensorflow as tf
-import jupyter
-
-
-devices = tf.config.experimental.list_physical_devices()
-xpu_found = False
-for device_str in devices:
-    if "XPU" in device_str:
-        xpu_found = True
-        break
-
-assert xpu_found, "XPU not found"
-    '
+    script="$(cat tensorflow_can_use_xpu.py)"
     if microk8s.kubectl -n dss exec "$1" -- python3 -c "$script"; then
         echo "PASS: XPU found"
         exit 0

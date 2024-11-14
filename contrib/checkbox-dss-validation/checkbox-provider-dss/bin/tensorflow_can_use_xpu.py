@@ -8,8 +8,8 @@ import jupyter
 devices = tf.config.experimental.list_physical_devices()
 xpu_found = False
 for device_str in devices:
-   if "XPU" in device_str:
-       xpu_found = True
-       break
+    if "XPU" in device_str:
+        xpu_found = True
+        break
 
 assert xpu_found, "XPU not found"

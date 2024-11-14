@@ -15,6 +15,6 @@ try:
     sys.exit(0)
 except Exception:
     print(
-       "Encountered an error getting XPU device properties", file=sys.stderr
+        "Encountered an error getting XPU device properties", file=sys.stderr
     )
     sys.exit(1)

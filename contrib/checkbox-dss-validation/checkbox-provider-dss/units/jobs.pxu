@@ -5,14 +5,7 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'intel_gpu_top'
 _summary: Verify that an Intel GPU is available on the host
 estimated_duration: 5s
-command:
-  result=$(intel_gpu_top -L)
-  if [[ ${result} == *"pci:vendor=8086"* ]]; then
-      echo "Test success: Intel GPU available on host: ${result}"
-  else
-      >&2 echo "Test failure: "intel_gpu_top -L" reports no Intel GPUs: ${result}"
-      exit 1
-  fi
+command: check_intel.sh host_has_intel_gpus
 
 id: dss/initialize
 category_id: dss-regress
@@ -24,20 +17,7 @@ requires:
 depends: intel_gpu/host_gpu_avail
 _summary: Check that the DSS environment initializes
 estimated_duration: 2m
-command:
-  #  IMPORTANT: for any test using the dss command:
-  #
-  # - Clear PYTHON shell vars to prevent conflicts between dss
-  #   and checkbox python environments
-  # - Run from ${HOME} as dss writes logs to its working directory,
-  #   and as a snap does not have permissions to write to the default
-  #   working directory for checkbox tests
-  #
-  export -n PYTHONHOME PYTHONPATH PYTHONUSERBASE
-  set -e
-  cd ${HOME}
-  dss initialize --kubeconfig="$(sudo microk8s config)"
-  echo "Test success: dss initialized."
+command: check_dss.sh dss_can_be_initialized
 
 id: dss/namespace
 category_id: dss-regress
@@ -47,14 +27,7 @@ requires: executable.name == 'microk8s'
 depends: dss/initialize
 _summary: Check that the dss namespace is deployed
 estimated_duration: 5s
-command:
-  set -o pipefail
-  if microk8s.kubectl get ns | grep -q dss; then
-      echo "Test success: 'dss' namespace is deployed!"
-  else
-      >&2 echo "Test failure: no namespace named 'dss' deployed."
-      exit 1
-  fi
+command: check_dss.sh dss_namespace_is_deployed
 
 id: dss/status_mlflow
 category_id: dss-regress
@@ -62,19 +35,9 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/namespace
-_summary: Check that the dss namespace is deployed
+_summary: Check that the dss mlflow is deployed
 estimated_duration: 5s
-command:
-  export -n PYTHONHOME PYTHONPATH PYTHONUSERBASE
-  set -eo pipefail
-  cd ${HOME}
-  result=$(dss status) # save result to shell var to avoid broken pipe error
-  if echo ${result} | grep -q "MLflow deployment: Ready"; then
-      echo "Test success: 'dss status' shows ready status for mlflow."
-  else
-      >&2 echo "Test failure: 'dss status' does not show ready status for mlflow."
-      exit 1
-  fi
+command: check_dss.sh mlflow_status_is_ready
 
 id: dss/mlflow_deployed
 category_id: dss-regress
@@ -84,15 +47,7 @@ requires: executable.name == 'microk8s'
 depends: dss/namespace
 _summary: Check that the first service name is mlflow
 estimated_duration: 5s
-command:
-  set -e
-  result=$(microk8s.kubectl get service -n dss -o jsonpath='{.items[0].metadata.name}')
-  if [ "${result}" = "mlflow" ]; then
-      echo "Test success: 'mlflow' service is deployed!"
-  else
-      >&2 echo "Test failure: expected service name 'mlflow' but got ${result}"
-      exit 1
-  fi
+command: check_dss.sh mlflow_is_deployed_as_first_service
 
 id: intel_gpu_plugin/install
 category_id: dss-regress
@@ -102,27 +57,7 @@ requires: executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
 estimated_duration: 2m
-command:
-  set -e
-  # Using kubectl directly due to this bug: https://github.com/canonical/microk8s/issues/4453
-  VERSION=v0.30.0
-  # hack as redirecting stdout anywhere but /dev/null throws a permission denied error
-  # see: https://forum.snapcraft.io/t/eksctl-cannot-write-to-stdout/17254/4
-  kubectl kustomize https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/nfd?ref=${VERSION} | tee /tmp/node_feature_discovery.yaml > /dev/null
-  kubectl kustomize https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/nfd/overlays/node-feature-rules?ref=${VERSION} | tee /tmp/node_feature_rules.yaml > /dev/null
-  kubectl kustomize https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/gpu_plugin/overlays/nfd_labeled_nodes?ref=${VERSION} | tee /tmp/gpu_plugin.yaml > /dev/null
-  sed -i 's/enable-monitoring/enable-monitoring\n        - -shared-dev-num=10/' /tmp/gpu_plugin.yaml
-  kubectl apply -f /tmp/node_feature_discovery.yaml
-  kubectl apply -f /tmp/node_feature_rules.yaml
-  kubectl apply -f /tmp/gpu_plugin.yaml
-  SLEEP_SECS=15
-  echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking rollout status."
-  sleep ${SLEEP_SECS}
-  kubectl -n node-feature-discovery rollout status ds/nfd-worker
-  kubectl -n default rollout status ds/intel-gpu-plugin
-  echo "[INFO]: sleeping for ${SLEEP_SECS} seconds to allow pod status to update for subsequent tests."
-  sleep ${SLEEP_SECS}
-  echo "Test success: Intel K8s GPU Device Plugin deployed."
+command: check_intel.sh gpu_plugin_can_be_installed
 
 id: intel_gpu_plugin/daemonset_name
 category_id: dss-regress
@@ -132,15 +67,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/install
 _summary: Check DaemonSet Name
 estimated_duration: 5s
-command:
-  set -e
-  result=$(microk8s.kubectl get daemonset.apps -o jsonpath='{.items[0].metadata.name}')
-  if [ "${result}" = "intel-gpu-plugin" ]; then
-      echo "Test success: 'intel-gpu-plugin' daemonset is deployed!"
-  else
-      >&2 echo "Test failure: expected daemonset name 'intel-gpu-plugin' but got ${result}"
-      exit 1
-  fi
+command: check_intel.sh gpu_plugin_daemonset_is_deployed
 
 id: intel_gpu_plugin/daemonset_number_available
 category_id: dss-regress
@@ -150,15 +77,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/install
 _summary: Check number of available daemonsets
 estimated_duration: 5s
-command:
-  set -e
-  result=$(microk8s.kubectl get daemonset.apps -o jsonpath='{.items[0].status.numberAvailable}')
-  if [ "${result}" = "1" ]; then
-      echo "Test success: 1 daemonset in numberAvailable status."
-  else
-      >&2 echo "Test failure: expected numberAvailable to be 1 but got ${result}"
-      exit 1
-  fi
+command: check_intel.sh one_daemonset_is_available
 
 id: intel_gpu_plugin/daemonset_number_ready
 category_id: dss-regress
@@ -168,15 +87,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/daemonset_number_available
 _summary: Check number of ready daemonsets
 estimated_duration: 5s
-command:
-  set -e
-  result=$(microk8s.kubectl get daemonset.apps -o jsonpath='{.items[0].status.numberReady}')
-  if [ "${result}" = "1" ]; then
-      echo "Test success: 1 daemonset in numberReady status."
-  else
-      >&2 echo "Test failure: expected numberReady to be 1 but got ${result}"
-      exit 1
-  fi
+command: check_intel.sh one_daemonset_is_ready
 
 id: intel_gpu_plugin/labels
 category_id: dss-regress
@@ -186,15 +97,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/daemonset_number_ready
 _summary: Check intel.feature.node.kubernetes.io/gpu k8s node label
 estimated_duration: 5s
-command:
-  set -e
-  result=$(microk8s.kubectl get node -o jsonpath='{.items[0].metadata.labels.intel\.feature\.node\.kubernetes\.io/gpu}')
-  if [ "${result}" = "true" ]; then
-      echo "Test success: found expected label: 'intel.feature.node.kubernetes.io/gpu': 'true'"
-  else
-      >&2 echo "Test failure: expected 'true' but got ${result}"
-      exit 1
-  fi
+command: check_intel.sh gpu_node_label_is_attached
 
 id: intel_gpu_plugin/gpu_count
 category_id: dss-regress
@@ -204,15 +107,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/labels
 _summary: Check number of Intel GPUs available on k8s node
 estimated_duration: 5s
-command:
-  set -e
-  result=$(microk8s.kubectl get node -o json | jq '.items[0].metadata.labels | with_entries(select(.key|match("gpu.intel.com/device-id.*.count";"i")))[] | tonumber' | awk '{cnt+=$1} END{print cnt}')
-  if [ "${result}" -ge 1 ]; then
-      echo "Test success: Found ${result} GPUs on system."
-  else
-      >&2 echo "Test failure: expected at least 1 GPU but got ${result}"
-      exit 1
-  fi
+command: check_intel.sh at_least_one_gpu_is_available
 
 id: intel_gpu_plugin/node_gpu_capacity
 category_id: dss-regress
@@ -222,19 +117,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/gpu_count
 _summary: Check capacity slots for pods requesting GPU(s)
 estimated_duration: 5s
-command:
-  set -e
-  num_gpus=$(microk8s.kubectl get node -o json | jq '.items[0].metadata.labels | with_entries(select(.key|match("gpu.intel.com/device-id.*.count";"i")))[] | tonumber' | awk '{cnt+=$1} END{print cnt}')
-  result=$(microk8s.kubectl get node -o jsonpath='{.items[0].status.capacity.gpu\.intel\.com/i915}')
-  # this is the sharedDevNum we pass into the gpu_plugin.yaml during installation
-  SLOTS_PER_GPU=10
-  total_slots=$(( num_gpus * SLOTS_PER_GPU ))
-  if [ "${total_slots}" -eq "${result}" ]; then
-      echo "Test success: Found ${result} GPU capacity slots on k8s node."
-  else
-      >&2 echo "Test failure: expected ${total_slots} GPU capacity slots but got ${result}"
-      exit 1
-  fi
+command: check_intel.sh capacity_slots_for_gpus_match
 
 id: intel_gpu_plugin/node_gpu_allocatable
 category_id: dss-regress
@@ -244,19 +127,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/node_gpu_capacity
 _summary: Check allocatable slots for pods requesting GPU(s)
 estimated_duration: 5s
-command:
-  set -e
-  num_gpus=$(microk8s.kubectl get node -o json | jq '.items[0].metadata.labels | with_entries(select(.key|match("gpu.intel.com/device-id.*.count";"i")))[] | tonumber' | awk '{cnt+=$1} END{print cnt}')
-  result=$(microk8s.kubectl get node -o jsonpath='{.items[0].status.allocatable.gpu\.intel\.com/i915}')
-  # this is the sharedDevNum we pass into the gpu_plugin.yaml during installation
-  SLOTS_PER_GPU=10
-  total_slots=$(( num_gpus * SLOTS_PER_GPU ))
-  if [ "${total_slots}" -eq "${result}" ]; then
-      echo "Test success: Found ${result} GPU allocatable slots on k8s node."
-  else
-      >&2 echo "Test failure: expected ${total_slots} GPU allocatable slots but got ${result}"
-      exit 1
-  fi
+command: check_intel.sh allocatable_slots_for_gpus_match
 
 id: dss/status_intel_gpu
 category_id: dss-regress
@@ -266,17 +137,7 @@ requires: executable.name == 'dss'
 depends: intel_gpu_plugin/node_gpu_allocatable
 _summary: Check that dss status reports that Intel GPU acceleration is enabled
 estimated_duration: 5s
-command:
-  export -n PYTHONHOME PYTHONPATH PYTHONUSERBASE
-  set -eo pipefail
-  cd ${HOME}
-  result=$(dss status) # save result to shell var to avoid broken pipe error
-  if echo ${result} | grep -q "Intel GPU acceleration: Enabled"; then
-      echo "Test success: 'dss status' correctly reports Intel GPU status."
-  else
-      >&2 echo "Test failure: 'dss status' does not report that Intel GPU acceleration is enabled."
-      exit 1
-  fi
+command: check_dss.sh intel_gpu_acceleration_is_enabled
 
 id: dss/create_itex_2.15_notebook
 category_id: dss-regress
@@ -286,15 +147,7 @@ requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that an ITEX 2.15 notebook can be successfully created
 estimated_duration: 3m
-command:
-  export -n PYTHONHOME PYTHONPATH PYTHONUSERBASE
-  cd ${HOME}
-  if dss create itex-215-notebook --image=intel/intel-extension-for-tensorflow:2.15.0-xpu-idp-jupyter; then
-      echo "Test success: successfully created an ITEX 2.15 notebook."
-  else
-      >&2 echo "Test failure: failed to create an ITEX 2.15 notebook."
-      exit 1
-  fi
+command: check_dss.sh can_create_itex_215_notebook
 
 id: itex/itex_2.15_import
 category_id: dss-regress
@@ -304,19 +157,7 @@ requires: executable.name == 'microk8s'
 depends: dss/create_itex_2.15_notebook
 _summary: Check to see if ITEX 2.15 can be imported
 estimated_duration: 1m
-command:
-  echo "Starting itex import test"
-  pod=$(microk8s.kubectl get pods -n dss --field-selector=status.phase==Running -o=jsonpath='{.items..metadata.name}' | grep -o 'itex-215-notebook.*')
-  echo "Found Tensorflow pod: ${pod}"
-  microk8s.kubectl -n dss exec ${pod} -- python3 -c "import intel_extension_for_tensorflow as itex; import tensorflow; import jupyter"
-  if [ "$?" = 0 ]
-  then
-    echo "PASS: Found module"
-    exit 0
-  else
-    >&2 echo "FAIL: Did not find ITEX python module"
-    exit 1
-  fi
+command: check_itex.sh can_be_imported
 
 id: itex/itex_2.15_gpu_avail
 category_id: dss-regress
@@ -326,33 +167,7 @@ requires: executable.name == 'microk8s'
 depends: itex/itex_2.15_import
 _summary: Check ITEX 2.15 GPU Availability
 estimated_duration: 1m
-command:
-  set -e
-  echo "Starting itex GPU check test"
-  pod=$(microk8s.kubectl get pods -n dss --field-selector=status.phase==Running -o=jsonpath='{.items..metadata.name}' | grep -o 'itex-215-notebook.*')
-  echo "Found Tensorflow pod: ${pod}"
-  gpu_grep_out=$(microk8s.kubectl -n dss exec ${pod} -- python3 -c '
-  import intel_extension_for_tensorflow as itex
-  import tensorflow as tf
-  import jupyter
-  devices = tf.config.experimental.list_physical_devices()
-  xpu_found = False
-  for device_str in devices:
-     if "XPU" in device_str:
-         xpu_found = True
-         break
-  if xpu_found:
-      print("XPU Found")
-  else:
-      print("XPU Not Found")
-  ' | grep "XPU Found")
-  if [[ -z ${gpu_grep_out} ]]; then
-    >&2 echo "ERROR: No XPU found"
-    exit 1
-  else
-    echo "PASS: XPU found"
-    exit 0
-  fi
+command: check_itex.sh tensorflow_can_use_xpu
 
 id: dss/create_ipex_2.1.20_notebook
 category_id: dss-regress
@@ -362,15 +177,7 @@ requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that an IPEX 2.1.20 notebook can be successfully created
 estimated_duration: 3m
-command:
-  export -n PYTHONHOME PYTHONPATH PYTHONUSERBASE
-  cd ${HOME}
-  if dss create ipex-2120-notebook --image=intel/intel-extension-for-pytorch:2.1.20-xpu-idp-jupyter; then
-      echo "Test success: successfully created an IPEX 2.1.20 notebook."
-  else
-      >&2 echo "Test failure: failed to create an IPEX 2.1.20 notebook."
-      exit 1
-  fi
+command: check_dss.sh can_create_ipex_2120_notebook
 
 id: ipex/ipex_2.1.20_import
 category_id: dss-regress
@@ -380,19 +187,7 @@ requires: executable.name == 'microk8s'
 depends: dss/create_ipex_2.1.20_notebook
 _summary: Check to see if IPEX 2.1.20 can be imported
 estimated_duration: 1m
-command:
-  echo "Starting ipex import test"
-  pod=$(microk8s.kubectl get pods -n dss --field-selector=status.phase==Running -o=jsonpath='{.items..metadata.name}' | grep -o 'ipex-2120-notebook.*')
-  echo "Found PyTorch pod: ${pod}"
-  microk8s.kubectl -n dss exec ${pod} -- python3 -c "import intel_extension_for_pytorch as ipex; import torch; import jupyter"
-  if [ "$?" = 0 ]
-  then
-    echo "PASS: Found module"
-    exit 0
-  else
-    >&2 echo "FAIL: Did not find IPEX python module"
-    exit 1
-  fi
+command: check_ipex.sh can_be_imported
 
 id: ipex/ipex_2.1.20_gpu_avail
 category_id: dss-regress
@@ -402,28 +197,4 @@ requires: executable.name == 'microk8s'
 depends: ipex/ipex_2.1.20_import
 _summary: Check IPEX 2.1.20 GPU availability
 estimated_duration: 1m
-command:
-  set -e
-  echo "Starting ipex GPU check test"
-  pod=$(microk8s.kubectl get pods -n dss --field-selector=status.phase==Running -o=jsonpath='{.items..metadata.name}' | grep -o 'ipex-2120-notebook.*')
-  echo "Found PyTorch pod: ${pod}"
-  gpu_grep_out=$(microk8s.kubectl -n dss exec ${pod} -- python3 -c '
-  import sys
-  import torch
-  import intel_extension_for_pytorch as ipex
-  print(torch.__version__)
-  print(ipex.__version__)
-  try:
-    [print(f"[{i}]: {torch.xpu.get_device_properties(i)}") for i in range(torch.xpu.device_count())];
-    sys.exit(0)
-  except Exception:
-    print("Encountered an error getting XPU device properties", file=sys.stderr)
-    sys.exit(1)
-  ' | grep "dev_type=.gpu" 2>&1)
-  if [[ -z ${gpu_grep_out} ]]; then
-    >&2 echo "FAIL: No GPU found"
-    exit 1
-  else
-    echo "PASS: GPU found"
-    exit 0
-  fi
+command: check_ipex.sh pytorch_can_use_xpu

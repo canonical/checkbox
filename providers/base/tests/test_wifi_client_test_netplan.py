@@ -42,6 +42,10 @@ from wifi_client_test_netplan import (
 
 
 class WifiClientTestNetplanTests(TestCase):
+    @patch(
+        "wifi_client_test_netplan.get_series",
+        new=MagicMock(return_value="20.04"),
+    )
     def test_open_ap_with_dhcp(self):
         expected_output = textwrap.dedent(
             """
@@ -63,6 +67,10 @@ class WifiClientTestNetplanTests(TestCase):
         )
         self.assertEqual(result.strip(), expected_output.strip())
 
+    @patch(
+        "wifi_client_test_netplan.get_series",
+        new=MagicMock(return_value="20.04"),
+    )
     def test_private_ap_with_dhcp(self):
         expected_output = textwrap.dedent(
             """
@@ -86,6 +94,37 @@ class WifiClientTestNetplanTests(TestCase):
         )
         self.assertEqual(result.strip(), expected_output.strip())
 
+    @patch(
+        "wifi_client_test_netplan.get_series",
+        new=MagicMock(return_value="16.04"),
+    )
+    def test_private_ap_with_dhcp_ubuntu_16_04(self):
+        expected_output = textwrap.dedent(
+            """
+            # This is the network config written by checkbox
+            network:
+              renderer: networkd
+              version: 2
+              wifis:
+                eth0:
+                  access-points:
+                    my_ap:
+                      password: s3cr3t
+                  dhcp4: true
+                  nameservers: {}
+            """
+        )
+        print(expected_output)
+        result = generate_test_config(
+            "eth0", "my_ap", "s3cr3t", "", True, False, "networkd"
+        )
+        print(result)
+        self.assertEqual(result.strip(), expected_output.strip())
+
+    @patch(
+        "wifi_client_test_netplan.get_series",
+        new=MagicMock(return_value="20.04"),
+    )
     def test_private_ap_with_wpa3(self):
         expected_output = textwrap.dedent(
             """
@@ -109,6 +148,10 @@ class WifiClientTestNetplanTests(TestCase):
         )
         self.assertEqual(result.strip(), expected_output.strip())
 
+    @patch(
+        "wifi_client_test_netplan.get_series",
+        new=MagicMock(return_value="20.04"),
+    )
     def test_static_ip_no_dhcp(self):
         expected_output = textwrap.dedent(
             """
@@ -134,6 +177,10 @@ class WifiClientTestNetplanTests(TestCase):
         )
         self.assertEqual(result.strip(), expected_output.strip())
 
+    @patch(
+        "wifi_client_test_netplan.get_series",
+        new=MagicMock(return_value="20.04"),
+    )
     def test_no_ssid_fails(self):
         with self.assertRaises(SystemExit):
             generate_test_config(

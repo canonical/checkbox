@@ -26,6 +26,7 @@ import ipaddress
 import yaml
 
 from gateway_ping_test import ping
+from checkbox_support.snap_utils.system import get_series
 
 print = functools.partial(print, flush=True)
 
@@ -170,12 +171,16 @@ def generate_test_config(interface, ssid, psk, address, dhcp, wpa3, renderer):
     access_point = {ssid: {}}
     # If psk is provided, add it to the "auth" section
     if psk:
-        access_point[ssid] = {"auth": {"password": psk}}
-        # Set the key-management to "sae" when WPA3 is used
-        if wpa3:
-            access_point[ssid]["auth"]["key-management"] = "sae"
+        ubuntu_version = int(get_series().split(".")[0])
+        if ubuntu_version == 16:
+            access_point[ssid] = {"password": psk}
         else:
-            access_point[ssid]["auth"]["key-management"] = "psk"
+            access_point[ssid] = {"auth": {"password": psk}}
+            # Set the key-management to "sae" when WPA3 is used
+            if wpa3:
+                access_point[ssid]["auth"]["key-management"] = "sae"
+            else:
+                access_point[ssid]["auth"]["key-management"] = "psk"
 
     # Define the interface_info
     interface_info = {

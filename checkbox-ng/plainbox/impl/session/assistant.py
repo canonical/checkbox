@@ -1010,7 +1010,7 @@ class SessionAssistant:
         for job_id in self.get_static_todo_list():
             if job_id in selection:
                 desired_job_list.append(self._context.get_unit(job_id, "job"))
-            else:
+            elif job_id not in self.get_mandatory_jobs():
                 self._metadata.rejected_jobs.append(job_id)
         self._context.state.update_desired_job_list(desired_job_list)
 

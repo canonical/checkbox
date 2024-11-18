@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 from checkbox_support.snap_utils.snapd import Snapd
-import os
 
 
 class ExtendSanpd(Snapd):
@@ -14,12 +13,9 @@ class ExtendSanpd(Snapd):
         return self._get(self._apps, params={"names": snaps})
 
 
-def look_up_app(target_app):
+def look_up_app(target_app, snap_name=None):
     """Lookup target app and the snap."""
-    snap = None
-    if target_app == "xtest":
-        snap = os.environ.get("XTEST")
-    apps = ExtendSanpd().list_apps(snap)
+    apps = ExtendSanpd().list_apps(snap_name)
     try:
         for app in apps["result"]:
             if app["name"] == target_app:

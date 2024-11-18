@@ -3,6 +3,7 @@
 from look_up_xtest import look_up_app
 from subprocess import run, CalledProcessError
 import glob
+import os
 
 
 def run_command(cmd, capture_output=True, text=True, check=True):
@@ -37,7 +38,7 @@ def install_ta(xtest, path):
 
 
 def main():
-    xtest = look_up_app("xtest")
+    xtest = look_up_app("xtest", os.environ.get("XTEST"))
     ta_path = find_ta_path()
     install_ta(xtest, ta_path)
 

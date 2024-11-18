@@ -1,6 +1,6 @@
 id: dss-validation
 unit: test plan
-_name: DSS validation of Intel-supported Docker images and k8s Intel GPU support
+_name: DSS validation on Intel and NVIDIA GPUs
 include:
     intel_gpu/host_gpu_avail
     dss/initialize
@@ -22,6 +22,14 @@ include:
     dss/create_ipex_2.1.20_notebook
     ipex/ipex_2.1.20_import
     ipex/ipex_2.1.20_gpu_avail
+    nvidia_gpu/host_gpu_avail
+    nvidia_gpu_addon/enable
+    nvidia_gpu_addon/validations_succeed
+    dss/status_nvidia_gpu
+    dss/create_pytorch_cuda_notebook
+    cuda/pytorch_can_use_cuda
+    dss/create_tensorflow_cuda_notebook
+    cuda/tensorflow_can_use_cuda
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap

@@ -198,3 +198,82 @@ depends: ipex/ipex_2.1.20_import
 _summary: Check IPEX 2.1.20 GPU availability
 estimated_duration: 1m
 command: check_ipex.sh pytorch_can_use_xpu
+
+id: nvidia_gpu/host_gpu_avail
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'lspci'
+_summary: Verify that an NVIDIA GPU is available on the host
+estimated_duration: 5s
+command: check_cuda.sh host_has_nvidia_gpus
+
+id: nvidia_gpu_addon/enable
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: dss/initialize
+_summary: Enable NVIDIA GPU addon
+estimated_duration: 2m
+command: check_cuda.sh gpu_addon_can_be_enabled
+
+id: nvidia_gpu_addon/validations_succeed
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: nvidia_gpu_addon/enable
+_summary: NVIDIA GPU validations should succeed
+estimated_duration: 1m
+command: check_cuda.sh gpu_validations_succeed
+
+id: dss/status_nvidia_gpu
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: intel_gpu_plugin/node_gpu_allocatable
+_summary: Check that dss status reports that NVIDIA GPU acceleration is enabled
+estimated_duration: 5s
+command: check_dss.sh nvidia_gpu_acceleration_is_enabled
+
+id: dss/create_pytorch_cuda_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/status_nvidia_gpu
+_summary: Check that an PyTorch CUDA notebook can be successfully created
+estimated_duration: 3m
+command: check_dss.sh can_create_pytorch_cuda_notebook
+
+id: cuda/pytorch_can_use_cuda
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: dss/create_pytorch_cuda_notebook
+_summary: Check PyTorch can use CUDA
+estimated_duration: 1m
+command: check_cuda.sh pytorch_can_use_cuda
+
+id: dss/create_tensorflow_cuda_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/status_nvidia_gpu
+_summary: Check that an Tensorflow CUDA notebook can be successfully created
+estimated_duration: 3m
+command: check_dss.sh can_create_tensorflow_cuda_notebook
+
+id: cuda/tensorflow_can_use_cuda
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: dss/create_tensorflow_cuda_notebook
+_summary: Check PyTorch can use CUDA
+estimated_duration: 1m
+command: check_cuda.sh tensorflow_can_use_cuda

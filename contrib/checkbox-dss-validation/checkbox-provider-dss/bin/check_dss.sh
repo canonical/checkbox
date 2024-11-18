@@ -80,6 +80,38 @@ check_dss_can_create_ipex_2120_notebook() {
     fi
 }
 
+check_dss_has_nvidia_gpu_acceleration_enabled() {
+    cd "${HOME}"
+    result=$(dss status) # save result to shell var to avoid broken pipe error
+    if echo "${result}" | grep -q "NVIDIA GPU acceleration: Enabled.*"; then
+        echo "Test success: 'dss status' correctly reports NVIDIA GPU status."
+    else
+        >&2 echo "Test failure: 'dss status' does not report that NVIDIA GPU acceleration is enabled."
+        exit 1
+    fi
+}
+
+check_dss_can_create_pytorch_cuda_notebook() {
+    cd "${HOME}"
+    if dss create pytorch-cuda --image=pytorch-cuda; then
+        echo "Test success: successfully created pytorch-cuda notebook."
+    else
+        >&2 echo "Test failure: failed to create pytorch-cuda notebook."
+        exit 1
+    fi
+}
+
+check_dss_can_create_tensorflow_cuda_notebook() {
+    cd "${HOME}"
+    if dss create tensorflow-cuda --image=tensorflow-cuda; then
+        echo "Test success: successfully created tensorflow-cuda notebook."
+    else
+        >&2 echo "Test failure: failed to create tensorflow-cuda notebook."
+        exit 1
+    fi
+}
+
+
 help_function() {
     echo "This script is used for generic tests related to DSS"
     echo "Usage: check_dss.sh <test_case>"
@@ -92,6 +124,9 @@ help_function() {
     echo -e "\t<intel_gpu_acceleration_is_enabled>: check_dss_has_intel_gpu_acceleration_enabled"
     echo -e "\t<can_create_itex_215_notebook>: check_dss_can_create_itex_215_notebook"
     echo -e "\t<can_create_ipex_2120_notebook>: check_dss_can_create_ipex_2120_notebook"
+    echo -e "\t<nvidia_gpu_acceleration_is_enabled>: check_dss_has_nvidia_gpu_acceleration_enabled"
+    echo -e "\t<can_create_pytorch_cuda_notebook>: check_dss_can_create_pytorch_cuda_notebook"
+    echo -e "\t<can_create_tensorflow_cuda_notebook>: check_dss_can_create_tensorflow_cuda_notebook"
 }
 
 main() {
@@ -103,6 +138,9 @@ main() {
     intel_gpu_acceleration_is_enabled) check_dss_has_intel_gpu_acceleration_enabled ;;
     can_create_itex_215_notebook) check_dss_can_create_itex_215_notebook ;;
     can_create_ipex_2120_notebook) check_dss_can_create_ipex_2120_notebook ;;
+    nvidia_gpu_acceleration_is_enabled) check_dss_has_nvidia_gpu_acceleration_enabled ;;
+    can_create_pytorch_cuda_notebook) check_dss_can_create_pytorch_cuda_notebook ;;
+    can_create_tensorflow_cuda_notebook) check_dss_can_create_tensorflow_cuda_notebook ;;
     *) help_function ;;
     esac
 }

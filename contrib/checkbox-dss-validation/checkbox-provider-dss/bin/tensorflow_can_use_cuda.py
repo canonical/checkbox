@@ -2,9 +2,9 @@
 
 import tensorflow as tf
 
-devices = tf.config.experimental.list_physical_devices()
+devices = tf.config.experimental.list_physical_devices("GPU")
 for device_str in devices:
-    if "CUDA" in device_str:
+    if "GPU" in device_str:
         break
 else:
     raise AssertionError("CUDA device not found")

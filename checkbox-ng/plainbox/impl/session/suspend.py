@@ -516,6 +516,7 @@ class SessionSuspendHelper4(SessionSuspendHelper3):
                 state object.
         """
         id_run_list = frozenset([job.id for job in obj.run_list])
+
         return {
             "jobs": {
                 state.job.id: state.job.checksum
@@ -631,7 +632,10 @@ class SessionSuspendHelper6(SessionSuspendHelper5):
                 The representation of meta-data associated with the session
                 state object.
         """
-        id_run_list = frozenset([job.id for job in obj.run_list])
+        id_run_list = frozenset(
+            [job.id for job in obj.run_list] + obj.metadata.rejected_jobs
+        )
+
         return {
             "jobs": {
                 state.job.id: state.job.checksum

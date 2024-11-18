@@ -24,6 +24,7 @@ from metabox.core.actions import (
     Expect,
     Start,
     Signal,
+    ExpectNot,
 )
 from metabox.core.scenario import Scenario
 from metabox.core.utils import tag
@@ -160,4 +161,32 @@ class ResumeAfterFinishPreserveOutputRemote(Scenario):
         Send("f"),
         Expect("job passed"),
         Expect("job failed"),
+    ]
+
+
+@tag("resume", "manual", "regression")
+class ResumePreservesRejectedJobsStateMap(Scenario):
+    launcher = "# no launcher"
+    steps = [
+        Start(),
+        Expect("Select test plan"),
+        SelectTestPlan("2021.com.canonical.certification::pass-and-crash"),
+        Send(keys.KEY_ENTER),
+        Expect("Press (T) to start"),
+        Send(keys.KEY_ENTER),
+        Expect("basic-shell-crashing"),
+        Send(keys.KEY_DOWN + keys.KEY_SPACE),
+        Expect("[ ]"),
+        Send("T"),
+        Expect("Do you want to submit 'upload to certification' report?"),
+        Signal(keys.SIGINT),
+        Start(),
+        Expect("Reports will be saved to"),
+        # Part of the regression, fixing the job state map would make the
+        # re-bootstrapping of the session include the excluded job
+        ExpectNot("basic-shell-crashing", timeout=0.1),
+        # Here the session will try to re-generate the submission.json but it
+        # will fail if the info about the session is not complete in the job
+        # state map (as it was prior to this regression)
+        Expect("Do you want to submit 'upload to certification' report?"),
     ]

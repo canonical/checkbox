@@ -27,19 +27,25 @@ user: root
 estimated_duration: 20.0
 environ: XTEST
 depends: ce-oem-optee/device-node
-command: xtest_install_ta.py
+command:
+    if pgrep -x "tee-supplicant" > /dev/null; then
+        xtest_install_ta.py
+    else
+        echo "Error: tee-supplicant not found!"
+        exit 1
+    fi
 
 id: ce-oem-optee-test-list
 estimated_duration: 1
 plugin: resource
 user: root
-environ: OPTEE_CASES
+environ: OPTEE_CASES XTEST
 command:
     filepath=""
     if [[ -n "$OPTEE_CASES" ]]; then
         filepath="$OPTEE_CASES"
     else
-        filepath="$PLAINBOX_PROVIDER_DATA/optee-test.json"
+        filepath="$PLAINBOX_PROVIDER_DATA/optee-test-319.json"
     fi
     parse_optee_test.py "$filepath"
 _summary: Collect the test cases support by OP-TEE test(xtest)
@@ -48,13 +54,13 @@ id: ce-oem-optee-test-list-pkcs11
 estimated_duration: 1
 plugin: resource
 user: root
-environ: OPTEE_CASES
+environ: OPTEE_CASES XTEST
 command:
     filepath=""
     if [[ -n "$OPTEE_CASES" ]]; then
         filepath="$OPTEE_CASES"
     else
-        filepath="$PLAINBOX_PROVIDER_DATA/optee-test.json"
+        filepath="$PLAINBOX_PROVIDER_DATA/optee-test-319.json"
     fi
     parse_optee_test.py "$filepath" -p
 _summary: Collect the test cases related with PKCS11 support by OP-TEE test(xtest)
@@ -63,7 +69,7 @@ unit: template
 template-resource: ce-oem-optee-test-list
 template-unit: job
 template-engine: jinja2
-id: ce-oem-optee/xtest-{{ suite }}-{{ description }}
+id: ce-oem-optee/xtest-{{ suite }}-{{ test_name }}
 _summary:
     OP-TEE test by using xtest to test suite {{ suite }} {{ description }}
 plugin: shell
@@ -73,13 +79,18 @@ estimated_duration: 30
 flags: also-after-suspend
 depends: ce-oem-optee/ta-install
 command:
-    {{ tool }} -t {{ suite }} {{ test_id }}
+    if pgrep -x "tee-supplicant"  > /dev/null; then
+        {{ tool }} -t {{ suite }} {{ test_id }}
+    else
+        echo "Error: Not found tee-supplicant!"
+        exit 1
+    fi
 
 unit: template
 template-resource: ce-oem-optee-test-list-pkcs11
 template-unit: job
 template-engine: jinja2
-id: ce-oem-optee/xtest-pkcs11-{{ description }}
+id: ce-oem-optee/xtest-pkcs11-{{ test_name }}
 _summary:
     OP-TEE test by using xtest to test PKCS11 related {{ description }}
 plugin: shell
@@ -89,4 +100,9 @@ estimated_duration: 30
 depends: ce-oem-optee/device-node
 flags: also-after-suspend
 command:
-    {{ tool }} -t {{ suite }} {{ test_id }}
+    if pgrep -x "tee-supplicant"  > /dev/null; then
+        {{ tool }} -t {{ suite }} {{ test_id }}
+    else
+        echo "Error: Not found tee-supplicant!"
+        exit 1
+    fi

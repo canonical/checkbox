@@ -213,7 +213,7 @@ category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
-depends: dss/initialize
+depends: dss/initialize nvidia_gpu/host_gpu_avail
 _summary: Enable NVIDIA GPU addon
 estimated_duration: 2m
 command: check_cuda.sh gpu_addon_can_be_enabled

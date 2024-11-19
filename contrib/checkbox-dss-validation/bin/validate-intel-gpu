@@ -1,4 +1,4 @@
-#!/usr/bin/env -S checkbox-cli-wrapper remote 127.0.0.1
+#!/usr/bin/env -S checkbox-cli-wrapper control 127.0.0.1
 [launcher]
 app_id = com.canonical.contrib.dss-validation:checkbox
 launcher_version = 1

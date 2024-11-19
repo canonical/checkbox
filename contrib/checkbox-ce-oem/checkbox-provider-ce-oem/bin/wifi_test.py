@@ -66,7 +66,8 @@ class WiFiManager:
             )
         if self.type == "wifi-p2p":
             self.run_command(
-                "{} c add type {} ifname {} con-name {} wifi-p2p.peer {}".format(
+                "{} c add type {} ifname {} con-name {} \
+                    wifi-p2p.peer {}".format(
                     self._command,
                     self.type,
                     self.interface,

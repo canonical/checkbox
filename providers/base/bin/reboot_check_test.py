@@ -99,6 +99,15 @@ class DeviceInfoCollector:
                     "[ ERR ] The output of {} differs!".format(device),
                     file=sys.stderr,
                 )
+                with open(expected) as file_expected, open(
+                    actual
+                ) as file_actual:
+                    print("Expected {} output".format(device))
+                    print(file_expected.read())
+                    print("Actual {} output".format(device))
+                    print(file_actual.read())
+                    print("End of {} diff".format(device))
+
                 return False
 
         for device in devices["optional"]:
@@ -109,6 +118,14 @@ class DeviceInfoCollector:
                     "[ WARN ] Items under {} have changed.".format(actual),
                     file=sys.stderr,
                 )
+                with open(expected) as file_expected, open(
+                    actual
+                ) as file_actual:
+                    print("Expected {} output".format(device))
+                    print(file_expected.read())
+                    print("Actual {} output".format(device))
+                    print(file_actual.read())
+                    print("End of {} diff".format(device))
 
         return True
 
@@ -250,10 +267,10 @@ class HardwareRendererTester:
         )
         if unity_support_output.returncode != 0:
             print(
-                "[ ERR ] unity support test returned {}".format(
-                    unity_support_output.returncode
-                ),
-                file=sys.stderr,
+                "[ ERR ] unity support test returned {}. Error is: {}".format(
+                    unity_support_output.returncode,
+                    unity_support_output.stdout,
+                )
             )
             return False
 
@@ -267,7 +284,7 @@ class HardwareRendererTester:
             print("[ OK ] This machine is using a hardware renderer!")
             return True
 
-        print("[ ERR ] Software rendering detected", file=sys.stderr)
+        print("[ ERR ] Software rendering detected")
         return False
 
     def parse_unity_support_output(
@@ -392,8 +409,7 @@ def main() -> int:
     if args.comparison_directory is not None:
         if args.output_directory is None:
             print(
-                "[ ERR ] Please specify an output directory with the -d flag.",
-                file=sys.stderr,
+                "[ ERR ] Please specify an output directory with the -d flag."
             )
             raise ValueError(
                 "Cmoparison directory is specified, but output directory isn't"
@@ -423,8 +439,7 @@ def main() -> int:
         failed_services = get_failed_services()
         if len(failed_services) > 0:
             print(
-                "These services failed: {}".format("\n".join(failed_services)),
-                file=sys.stderr,
+                "These services failed: {}".format("\n".join(failed_services))
             )
             service_check_passed = False
         else:

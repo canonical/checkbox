@@ -54,7 +54,7 @@ class DeviceInfoCollector:
         return "\n".join(map(lambda line: line.strip(), lines_to_write))
 
     def get_usb_info(self) -> str:
-        return sp.check_output(
+        out = sp.check_output(
             [
                 "checkbox-support-lsusb",
                 "-f",
@@ -62,7 +62,9 @@ class DeviceInfoCollector:
                 "-s",
             ],
             universal_newlines=True,
-        )
+        ).splitlines()
+        out.sort()
+        return "\n".join(out)
 
     def get_pci_info(self) -> str:
         return sp.check_output(

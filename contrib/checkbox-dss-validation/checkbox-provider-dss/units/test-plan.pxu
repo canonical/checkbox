@@ -1,8 +1,7 @@
 id: dss-validation
 unit: test plan
-_name: DSS validation on Intel and NVIDIA GPUs
+_name: DSS validations with Intel and NVIDIA GPUs if available
 include:
-    intel_gpu/host_gpu_avail
     dss/initialize
     dss/namespace
     dss/status_mlflow
@@ -22,7 +21,6 @@ include:
     dss/create_ipex_2.1.20_notebook
     ipex/ipex_2.1.20_import
     ipex/ipex_2.1.20_gpu_avail
-    nvidia_gpu/host_gpu_avail
     nvidia_gpu_addon/enable
     nvidia_gpu_addon/validations_succeed
     dss/status_nvidia_gpu
@@ -34,6 +32,8 @@ bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
     com.canonical.certification::graphics_card
+    host_has_intel_gpus
+    host_has_nvidia_gpus
 
 id: ipex-validation
 unit: test plan

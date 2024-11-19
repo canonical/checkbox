@@ -4,16 +4,6 @@ set -euxo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
-check_host_has_nvidia_gpus() {
-    result="$(lspci | grep -ci 'nvidia')"
-    if [[ "$result" -ge 1 ]]; then
-        echo "Test success; NVIDIA GPU available on host: count = ${result}"
-    else
-        >&2 echo "Test failed: 'lspci' does not report any NVIDIA GPUs"
-        exit 1
-    fi
-}
-
 check_nvidia_gpu_addon_can_be_enabled() {
     # TODO: enable changing GPU_OPERATOR_VERSION
     GPU_OPERATOR_VERSION=24.6.2
@@ -32,7 +22,6 @@ check_nvidia_gpu_addon_can_be_enabled() {
     microk8s.kubectl -n gpu-operator-resources rollout status ds/nvidia-operator-validator
     echo "Test success: NVIDIA GPU addon enabled."
 }
-
 
 check_nvidia_gpu_validations_succeed() {
     SLEEP_SECS=5
@@ -88,7 +77,6 @@ help_function() {
 
 main() {
     case ${1} in
-    host_has_nvidia_gpus) check_host_has_nvidia_gpus ;;
     gpu_addon_can_be_enabled) check_nvidia_gpu_addon_can_be_enabled ;;
     gpu_validations_succeed) check_nvidia_gpu_validations_succeed ;;
     pytorch_can_use_cuda) check_pytorch_can_use_cuda ;;

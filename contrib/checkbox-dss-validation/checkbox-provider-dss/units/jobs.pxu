@@ -1,12 +1,3 @@
-id: intel_gpu/host_gpu_avail
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'intel_gpu_top'
-_summary: Verify that an Intel GPU is available on the host
-estimated_duration: 5s
-command: check_intel.sh host_has_intel_gpus
-
 id: dss/initialize
 category_id: dss-regress
 flags: simple
@@ -14,7 +5,6 @@ imports: from com.canonical.certification import executable
 requires:
   executable.name == 'dss'
   executable.name == 'microk8s'
-depends: intel_gpu/host_gpu_avail
 _summary: Check that the DSS environment initializes
 estimated_duration: 2m
 command: check_dss.sh dss_can_be_initialized
@@ -53,7 +43,7 @@ id: intel_gpu_plugin/install
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'kubectl'
+requires: (host_has_intel_gpus.available == 'true' and executable.name == 'kubectl')
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
 estimated_duration: 2m
@@ -199,21 +189,12 @@ _summary: Check IPEX 2.1.20 GPU availability
 estimated_duration: 1m
 command: check_ipex.sh pytorch_can_use_xpu
 
-id: nvidia_gpu/host_gpu_avail
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'lspci'
-_summary: Verify that an NVIDIA GPU is available on the host
-estimated_duration: 5s
-command: check_cuda.sh host_has_nvidia_gpus
-
 id: nvidia_gpu_addon/enable
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: dss/initialize nvidia_gpu/host_gpu_avail
+requires: (host_has_nvidia_gpus.available == 'true' and executable.name == 'microk8s')
+depends: dss/initialize
 _summary: Enable NVIDIA GPU addon
 estimated_duration: 5m
 command: check_cuda.sh gpu_addon_can_be_enabled

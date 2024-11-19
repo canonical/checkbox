@@ -2,16 +2,6 @@
 
 set -euxo pipefail
 
-check_host_has_intel_gpus() {
-    result=$(intel_gpu_top -L)
-    if [[ ${result} == *"pci:vendor=8086"* ]]; then
-        echo "Test success: Intel GPU available on host: ${result}"
-    else
-        >&2 echo "Test failure: "intel_gpu_top -L" reports no Intel GPUs: ${result}"
-        exit 1
-    fi
-}
-
 check_intel_gpu_plugin_can_be_installed() {
     # Using kubectl directly due to this bug: https://github.com/canonical/microk8s/issues/4453
 
@@ -119,7 +109,6 @@ help_function() {
     echo "Usage: check.sh <test_case>"
     echo
     echo "Test cases currently implemented:"
-    echo -e "\t<host_has_intel_gpus>: check_host_has_intel_gpus"
     echo -e "\t<gpu_plugin_can_be_installed>: check_intel_gpu_plugin_can_be_installed"
     echo -e "\t<gpu_plugin_daemonset_is_deployed>: check_intel_gpu_plugin_daemonset_is_deployed"
     echo -e "\t<one_daemonset_is_available>: check_one_intel_gpu_plugin_daemonset_is_available"
@@ -132,7 +121,6 @@ help_function() {
 
 main() {
     case ${1} in
-    host_has_intel_gpus) check_host_has_intel_gpus ;;
     gpu_plugin_can_be_installed) check_intel_gpu_plugin_can_be_installed ;;
     gpu_plugin_daemonset_is_deployed) check_intel_gpu_plugin_daemonset_is_deployed ;;
     one_daemonset_is_available) check_one_intel_gpu_plugin_daemonset_is_available ;;

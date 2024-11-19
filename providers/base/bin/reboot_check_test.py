@@ -6,7 +6,6 @@ import subprocess as sp
 import re
 import shutil
 import filecmp
-import sys
 import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
 
@@ -95,16 +94,13 @@ class DeviceInfoCollector:
             expected = "{}/{}_log".format(expected_dir, device)
             actual = "{}/{}_log".format(actual_dir, device)
             if not filecmp.cmp(expected, actual):
-                print(
-                    "[ ERR ] The output of {} differs!".format(device),
-                    file=sys.stderr,
-                )
+                print("[ ERR ] The output of {} differs!".format(device))
                 with open(expected) as file_expected, open(
                     actual
                 ) as file_actual:
-                    print("Expected {} output".format(device))
+                    print("Expected {} output:".format(device))
                     print(file_expected.read())
-                    print("Actual {} output".format(device))
+                    print("Actual {} output:".format(device))
                     print(file_actual.read())
                     print("End of {} diff".format(device))
 
@@ -116,14 +112,13 @@ class DeviceInfoCollector:
             if not filecmp.cmp(expected, actual):
                 print(
                     "[ WARN ] Items under {} have changed.".format(actual),
-                    file=sys.stderr,
                 )
                 with open(expected) as file_expected, open(
                     actual
                 ) as file_actual:
-                    print("Expected {} output".format(device))
+                    print("Expected {} output:".format(device))
                     print(file_expected.read())
-                    print("Actual {} output".format(device))
+                    print("Actual {} output:".format(device))
                     print(file_actual.read())
                     print("End of {} diff".format(device))
 
@@ -233,7 +228,7 @@ class HardwareRendererTester:
                 # => no connection, continue to the next
                 pass
             except Exception as e:
-                print("Unexpected error: ", e, file=sys.stderr)
+                print("Unexpected error: ", e)
 
         print(
             "No display is connected. This case will be skipped.",
@@ -412,7 +407,7 @@ def main() -> int:
                 "[ ERR ] Please specify an output directory with the -d flag."
             )
             raise ValueError(
-                "Cmoparison directory is specified, but output directory isn't"
+                "Comparison directory is specified, but output directory isn't"
             )
         else:
             collector = DeviceInfoCollector()
@@ -421,6 +416,8 @@ def main() -> int:
                 args.comparison_directory, args.output_directory
             ):
                 print("[ OK ] Devices match!")
+            else:
+                device_comparison_passed = False
 
     # dump (no checks) if only output_directory is specified
     if args.output_directory is not None and args.comparison_directory is None:

@@ -6,6 +6,7 @@ import subprocess as sp
 import re
 import shutil
 import filecmp
+import sys
 import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
 
@@ -94,33 +95,19 @@ class DeviceInfoCollector:
             expected = "{}/{}_log".format(expected_dir, device)
             actual = "{}/{}_log".format(actual_dir, device)
             if not filecmp.cmp(expected, actual):
-                print("[ ERR ] The output of {} differs!".format(device))
-                with open(expected) as file_expected, open(
-                    actual
-                ) as file_actual:
-                    print("Expected {} output:".format(device))
-                    print(file_expected.read())
-                    print("Actual {} output:".format(device))
-                    print(file_actual.read())
-                    print("End of {} diff".format(device))
-
+                print(
+                    "[ ERR ] The output of {} differs!".format(device),
+                    file=sys.stderr,
+                )
+                self.print_diff(device, expected, actual)
                 return False
 
         for device in devices["optional"]:
             expected = "{}/{}_log".format(expected_dir, device)
             actual = "{}/{}_log".format(actual_dir, device)
             if not filecmp.cmp(expected, actual):
-                print(
-                    "[ WARN ] Items under {} have changed.".format(actual),
-                )
-                with open(expected) as file_expected, open(
-                    actual
-                ) as file_actual:
-                    print("Expected {} output:".format(device))
-                    print(file_expected.read())
-                    print("Actual {} output:".format(device))
-                    print(file_actual.read())
-                    print("End of {} diff".format(device))
+                print("[ WARN ] Items under {} have changed.".format(actual))
+                self.print_diff(device, expected, actual)
 
         return True
 
@@ -144,6 +131,16 @@ class DeviceInfoCollector:
                 file.write(self.dump_function[device]())
 
         os.sync()
+
+    def print_diff(self, name: str, expected_path: str, actual_path: str):
+        with open(expected_path) as file_expected, open(
+            actual_path
+        ) as file_actual:
+            print("Expected {} output:".format(name), file=sys.stderr)
+            print(file_expected.read(), file=sys.stderr)
+            print("Actual {} output:".format(name), file=sys.stderr)
+            print(file_actual.read(), file=sys.stderr)
+            print("End of {} diff".format(name), file=sys.stderr)
 
     def __init__(self) -> None:
         self.dump_function = {
@@ -173,7 +170,7 @@ class FwtsTester:
         log_file_path = "{}/fwts_{}.log".format(
             output_directory, "_".join(fwts_arguments)
         )
-        sp.run(["fwts", "-r", log_file_path, *fwts_arguments])
+        sp.run(["fwts", "-r", log_file_path, "-q", *fwts_arguments])
         result = sp.run(
             [
                 "sleep_test_log_check.py",
@@ -265,7 +262,8 @@ class HardwareRendererTester:
                 "[ ERR ] unity support test returned {}. Error is: {}".format(
                     unity_support_output.returncode,
                     unity_support_output.stdout,
-                )
+                ),
+                file=sys.stderr,
             )
             return False
 
@@ -279,7 +277,7 @@ class HardwareRendererTester:
             print("[ OK ] This machine is using a hardware renderer!")
             return True
 
-        print("[ ERR ] Software rendering detected")
+        print("[ ERR ] Software rendering detected", file=sys.stderr)
         return False
 
     def parse_unity_support_output(

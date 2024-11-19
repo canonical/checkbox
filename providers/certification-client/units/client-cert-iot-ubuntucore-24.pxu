@@ -158,7 +158,6 @@ nested_part:
   wireless-automated
   wireless-wifi-master-mode-auto
   wwan-automated
-  zapper-enabled-automated
   after-suspend-audio-automated
   after-suspend-bluez-automated
   after-suspend-eeprom-automated

@@ -135,7 +135,6 @@ To create a table listing each job id and their summary, run:
     acpi_sleep_attachment         	|	<missing _summary>
     (...)
     xinput                        	|	Creates resource info from xinput output.
-    zapper_capabilities           	|	Get Zapper's setup capabilities
     collect-manifest              	|	Collect the hardware manifest (interactively)
     manifest                      	|	Hardware Manifest
 

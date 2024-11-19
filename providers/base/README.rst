@@ -25,7 +25,7 @@ Base Provider Units
 +------------+-------------+-------------+------------------+-------------+----------------+
 | camera_    | firewire    | kernel-snap | oob-management   | submission  | wwan           |
 +------------+-------------+-------------+------------------+-------------+----------------+
-| canary     | firmware    | keys        | optical          | suspend     | zapper         |
+| canary     | firmware    | keys        | optical          | suspend     |                |
 +------------+-------------+-------------+------------------+-------------+----------------+
 | codecs     | gadget      | led         | power-management | thunderbolt |                |
 +------------+-------------+-------------+------------------+-------------+----------------+

@@ -166,18 +166,26 @@ class ResumeAfterFinishPreserveOutputRemote(Scenario):
 
 @tag("resume", "manual", "regression")
 class ResumePreservesRejectedJobsStateMap(Scenario):
+    """
+    Check that the job_state_map survives both manual closure and restarts
+    """
+
     launcher = "# no launcher"
     steps = [
         Start(),
         Expect("Select test plan"),
-        SelectTestPlan("2021.com.canonical.certification::pass-and-crash"),
+        SelectTestPlan(
+            "2021.com.canonical.certification::checkbox-crash-then-reboot"
+        ),
         Send(keys.KEY_ENTER),
         Expect("Press (T) to start"),
         Send(keys.KEY_ENTER),
-        Expect("basic-shell-crashing"),
+        Expect("Crash Checkbox"),
         Send(keys.KEY_DOWN + keys.KEY_SPACE),
         Expect("[ ]"),
         Send("T"),
+        Expect("Waiting for the system to shut down or reboot"),
+        Start(),
         Expect("Do you want to submit 'upload to certification' report?"),
         Signal(keys.SIGINT),
         Start(),

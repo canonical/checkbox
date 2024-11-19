@@ -2033,11 +2033,13 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
 
     def test_simple_session_with_rejected(self):
         """
-        verify that _restore_SessionState_jobs_and_results() works when
-        faced with a representation of a simple session (no generated jobs
-        or anything "exotic").
+        verify that _restore_SessionState_jobs_and_results() also resumes in
+        the job_state_map jobs that were manually excluded from the user
+        (rejected jobs)
         """
         job = make_job(id="job")
+        # this job was de-selected by the user manually in the test selection
+        # screen
         job1 = make_job(id="job1")
         session_repr = {
             "jobs": {job.id: job.checksum, job1.id: job1.checksum},

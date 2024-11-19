@@ -106,7 +106,10 @@ class DeviceInfoCollector:
             expected = "{}/{}_log".format(expected_dir, device)
             actual = "{}/{}_log".format(actual_dir, device)
             if not filecmp.cmp(expected, actual):
-                print("[ WARN ] Items under {} have changed.".format(actual))
+                print(
+                    "[ WARN ] Items under {} have changed.".format(actual),
+                    file=sys.stderr,
+                )
                 self.print_diff(device, expected, actual)
 
         return True
@@ -225,7 +228,7 @@ class HardwareRendererTester:
                 # => no connection, continue to the next
                 pass
             except Exception as e:
-                print("Unexpected error: ", e)
+                print("Unexpected error: ", e, file=sys.stderr)
 
         print(
             "No display is connected. This case will be skipped.",
@@ -434,7 +437,8 @@ def main() -> int:
         failed_services = get_failed_services()
         if len(failed_services) > 0:
             print(
-                "These services failed: {}".format("\n".join(failed_services))
+                "These services failed: {}".format("\n".join(failed_services)),
+                file=sys.stderr,
             )
             service_check_passed = False
         else:

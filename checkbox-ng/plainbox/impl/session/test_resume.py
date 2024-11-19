@@ -2031,6 +2031,41 @@ class SessionJobsAndResultsResumeTests(TestCaseWithParameters):
         # as specific tests for restoring results are written elsewhere
         self.assertEqual(session.job_state_map[job.id].result.outcome, "pass")
 
+    def test_simple_session_with_rejected(self):
+        """
+        verify that _restore_SessionState_jobs_and_results() works when
+        faced with a representation of a simple session (no generated jobs
+        or anything "exotic").
+        """
+        job = make_job(id="job")
+        job1 = make_job(id="job1")
+        session_repr = {
+            "jobs": {job.id: job.checksum, job1.id: job1.checksum},
+            "results": {
+                job.id: [
+                    {
+                        "outcome": "pass",
+                        "comments": None,
+                        "execution_duration": None,
+                        "return_code": None,
+                        "io_log": [],
+                    }
+                ]
+            },
+            "metadata": {"rejected_jobs": [job1.id]},
+        }
+        helper = self.parameters.resume_cls([], None, None)
+        session = SessionState([job, job1])
+        helper._restore_SessionState_jobs_and_results(session, session_repr)
+        # Session still has one job in it
+        self.assertEqual(session.job_list, [job, job1])
+        # Resources don't have anything (no resource jobs)
+        self.assertEqual(session.resource_map, {})
+        # The result was restored correctly. This is just a smoke test
+        # as specific tests for restoring results are written elsewhere
+        self.assertEqual(session.job_state_map[job.id].result.outcome, "pass")
+        self.assertIn(job1.id, session.job_state_map)
+
     def test_unknown_jobs_get_reported(self):
         """
         verify that _restore_SessionState_jobs_and_results() reports

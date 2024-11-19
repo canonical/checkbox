@@ -215,7 +215,7 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: dss/initialize nvidia_gpu/host_gpu_avail
 _summary: Enable NVIDIA GPU addon
-estimated_duration: 2m
+estimated_duration: 5m
 command: check_cuda.sh gpu_addon_can_be_enabled
 
 id: nvidia_gpu_addon/validations_succeed
@@ -225,7 +225,7 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: nvidia_gpu_addon/enable
 _summary: NVIDIA GPU validations should succeed
-estimated_duration: 1m
+estimated_duration: 10s
 command: check_cuda.sh gpu_validations_succeed
 
 id: dss/status_nvidia_gpu
@@ -233,7 +233,7 @@ category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
-depends: intel_gpu_plugin/node_gpu_allocatable
+depends: nvidia_gpu_addon/validations_succeed
 _summary: Check that dss status reports that NVIDIA GPU acceleration is enabled
 estimated_duration: 5s
 command: check_dss.sh nvidia_gpu_acceleration_is_enabled

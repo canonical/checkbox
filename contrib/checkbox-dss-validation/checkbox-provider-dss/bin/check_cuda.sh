@@ -19,32 +19,23 @@ check_nvidia_gpu_addon_can_be_enabled() {
     GPU_OPERATOR_VERSION=24.6.2
     echo "[INFO]: enabling the NVIDIA GPU addon"
     sudo microk8s enable gpu --driver=operator --version="$GPU_OPERATOR_VERSION"
-    SLEEP_SECS=15
-    echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking rollout status."
-    sleep ${SLEEP_SECS}
     microk8s.kubectl -n gpu-operator-resources rollout status ds/nvidia-device-plugin-daemonset
+    echo "[INFO]: Waiting for the GPU validations to rollout"
+    microk8s.kubectl -n gpu-operator-resources rollout status ds/nvidia-operator-validator
     echo "Test success: NVIDIA GPU addon enabled."
 }
 
 
 check_nvidia_gpu_validations_succeed() {
-    SLEEP_SECS=60
-    echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking GPU validations were successful."
+    SLEEP_SECS=5
+    echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking if GPU validations were successful."
     sleep ${SLEEP_SECS}
     result=$(microk8s.kubectl logs -n gpu-operator-resources -lapp=nvidia-operator-validator -c nvidia-operator-validator)
     if [ "${result}" = "all validations are successful" ]; then
         echo "Test success: NVIDIA GPU validations were successful!"
     else
-        SLEEP_SECS=60
-        echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking GPU validations again."
-        sleep ${SLEEP_SECS}
-        result=$(microk8s.kubectl logs -n gpu-operator-resources -lapp=nvidia-operator-validator -c nvidia-operator-validator)
-        if [ "${result}" = "all validations are successful" ]; then
-            echo "Test success: NVIDIA GPU validations were successful!"
-        else
-            >&2 echo "Test failure: NVIDIA GPU validations were not successful, got ${result}"
-            exit 1
-        fi
+        >&2 echo "Test failure: NVIDIA GPU validations were not successful, got ${result}"
+        exit 1
     fi
 }
 

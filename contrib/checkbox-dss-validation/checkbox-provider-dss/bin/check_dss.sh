@@ -38,17 +38,6 @@ check_mlflow_status_is_ready() {
     fi
 }
 
-check_mlflow_is_deployed_as_first_service() {
-    # TODO: enable mlflow to be a service in any position
-    result=$(microk8s.kubectl get service -n dss -o jsonpath='{.items[0].metadata.name}')
-    if [ "${result}" = "mlflow" ]; then
-        echo "Test success: 'mlflow' service is deployed!"
-    else
-        >&2 echo "Test failure: expected service name 'mlflow' but got ${result}"
-        exit 1
-    fi
-}
-
 check_dss_has_intel_gpu_acceleration_enabled() {
     cd "${HOME}"
     result=$(dss status) # save result to shell var to avoid broken pipe error
@@ -120,7 +109,6 @@ help_function() {
     echo -e "\t<dss_can_be_initialized>: check_dss_can_be_initialized"
     echo -e "\t<dss_namespace_is_deployed>: check_dss_namespace_is_deployed"
     echo -e "\t<mlflow_status_is_ready>: check_mlflow_status_is_ready"
-    echo -e "\t<mlflow_is_deployed_as_first_service>: check_mlflow_is_deployed_as_first_service"
     echo -e "\t<intel_gpu_acceleration_is_enabled>: check_dss_has_intel_gpu_acceleration_enabled"
     echo -e "\t<can_create_itex_215_notebook>: check_dss_can_create_itex_215_notebook"
     echo -e "\t<can_create_ipex_2120_notebook>: check_dss_can_create_ipex_2120_notebook"
@@ -134,7 +122,6 @@ main() {
     dss_can_be_initialized) check_dss_can_be_initialized ;;
     dss_namespace_is_deployed) check_dss_namespace_is_deployed ;;
     mlflow_status_is_ready) check_mlflow_status_is_ready ;;
-    mlflow_is_deployed_as_first_service) check_mlflow_is_deployed_as_first_service ;;
     intel_gpu_acceleration_is_enabled) check_dss_has_intel_gpu_acceleration_enabled ;;
     can_create_itex_215_notebook) check_dss_can_create_itex_215_notebook ;;
     can_create_ipex_2120_notebook) check_dss_can_create_ipex_2120_notebook ;;

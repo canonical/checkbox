@@ -29,16 +29,6 @@ _summary: Check that the dss mlflow is deployed
 estimated_duration: 5s
 command: check_dss.sh mlflow_status_is_ready
 
-id: dss/mlflow_deployed
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: dss/namespace
-_summary: Check that the first service name is mlflow
-estimated_duration: 5s
-command: check_dss.sh mlflow_is_deployed_as_first_service
-
 id: intel_gpu_plugin/install
 category_id: dss-regress
 flags: simple

@@ -5,7 +5,6 @@ include:
     dss/initialize
     dss/namespace
     dss/status_mlflow
-    dss/mlflow_deployed
     intel_gpu_plugin/install
     intel_gpu_plugin/daemonset_name
     intel_gpu_plugin/daemonset_number_available

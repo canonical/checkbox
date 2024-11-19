@@ -19,7 +19,15 @@ check_nvidia_gpu_addon_can_be_enabled() {
     GPU_OPERATOR_VERSION=24.6.2
     echo "[INFO]: enabling the NVIDIA GPU addon"
     sudo microk8s enable gpu --driver=operator --version="$GPU_OPERATOR_VERSION"
+    SLEEP_SECS=30
+    echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking GPU feature discovery has rolled out."
+    sleep ${SLEEP_SECS}
+    microk8s.kubectl -n gpu-operator-resources rollout status ds/gpu-operator-node-feature-discovery-worker
+    echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking if daemonsets have rolled out."
+    sleep ${SLEEP_SECS}
     microk8s.kubectl -n gpu-operator-resources rollout status ds/nvidia-device-plugin-daemonset
+    echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking if daemonsets have rolled out."
+    sleep ${SLEEP_SECS}
     echo "[INFO]: Waiting for the GPU validations to rollout"
     microk8s.kubectl -n gpu-operator-resources rollout status ds/nvidia-operator-validator
     echo "Test success: NVIDIA GPU addon enabled."

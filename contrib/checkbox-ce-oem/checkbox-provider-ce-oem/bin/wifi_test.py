@@ -66,8 +66,7 @@ class WiFiManager:
             )
         if self.type == "wifi-p2p":
             self.run_command(
-                "{} c add type {} ifname {} con-name {} wifi-p2p.peer {}".
-                format(
+                "{} c add type {} ifname {} con-name {} wifi-p2p.peer {}".format(
                     self._command,
                     self.type,
                     self.interface,
@@ -174,9 +173,7 @@ def connect_host_device(manager, ip, user, pwd):
         except Exception:
             logging.warning("Not able to found SSID {}".format(manager.ssid))
         time.sleep(10)
-    logging.error(
-        "Not able to connect to DUT AP SSID {}".format(manager.ssid)
-    )
+    logging.error("Not able to connect to DUT AP SSID {}".format(manager.ssid))
     sys.exit(1)
 
 
@@ -186,7 +183,7 @@ def ping_test(manager, ip, user, pwd):
         ping_result = manager.run_command(
             sshpass_cmd_gen(ip, user, pwd, ping_cmd(manager.get_ip_addr()))
         )
-        packet_loss = re.search(r'(\d+)% packet loss', ping_result).group(1)
+        packet_loss = re.search(r"(\d+)% packet loss", ping_result).group(1)
         logging.info("Packet loss: %s %%", packet_loss)
         if packet_loss == "0":
             logging.info("Ping DUT pass")

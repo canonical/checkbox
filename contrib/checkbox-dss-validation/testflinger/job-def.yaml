@@ -57,5 +57,5 @@ test_data:
 
     # Run tests
     ssh ubuntu@$DEVICE_IP '
-      checkbox-dss.validate-intel-gpu
+      checkbox-dss.validate-with-gpu
     '

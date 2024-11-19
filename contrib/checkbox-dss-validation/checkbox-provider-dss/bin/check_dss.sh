@@ -100,6 +100,26 @@ check_dss_can_create_tensorflow_cuda_notebook() {
     fi
 }
 
+check_dss_can_create_pytorch_cpu_notebook() {
+    cd "${HOME}"
+    if dss create pytorch-cpu --image=pytorch; then
+        echo "Test success: successfully created pytorch-cpu notebook."
+    else
+        >&2 echo "Test failure: failed to create pytorch-cpu notebook."
+        exit 1
+    fi
+}
+
+check_dss_can_create_tensorflow_cpu_notebook() {
+    cd "${HOME}"
+    if dss create tensorflow-cpu --image=tensorflow; then
+        echo "Test success: successfully created tensorflow-cpu notebook."
+    else
+        >&2 echo "Test failure: failed to create tensorflow-cpu notebook."
+        exit 1
+    fi
+}
+
 
 help_function() {
     echo "This script is used for generic tests related to DSS"
@@ -115,6 +135,8 @@ help_function() {
     echo -e "\t<nvidia_gpu_acceleration_is_enabled>: check_dss_has_nvidia_gpu_acceleration_enabled"
     echo -e "\t<can_create_pytorch_cuda_notebook>: check_dss_can_create_pytorch_cuda_notebook"
     echo -e "\t<can_create_tensorflow_cuda_notebook>: check_dss_can_create_tensorflow_cuda_notebook"
+    echo -e "\t<can_create_pytorch_cpu_notebook>: check_dss_can_create_pytorch_cpu_notebook"
+    echo -e "\t<can_create_tensorflow_cpu_notebook>: check_dss_can_create_tensorflow_cpu_notebook"
 }
 
 main() {
@@ -128,6 +150,8 @@ main() {
     nvidia_gpu_acceleration_is_enabled) check_dss_has_nvidia_gpu_acceleration_enabled ;;
     can_create_pytorch_cuda_notebook) check_dss_can_create_pytorch_cuda_notebook ;;
     can_create_tensorflow_cuda_notebook) check_dss_can_create_tensorflow_cuda_notebook ;;
+    can_create_pytorch_cpu_notebook) check_dss_can_create_pytorch_cpu_notebook ;;
+    can_create_tensorflow_cpu_notebook) check_dss_can_create_tensorflow_cpu_notebook ;;
     *) help_function ;;
     esac
 }

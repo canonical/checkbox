@@ -5,6 +5,10 @@ include:
     dss/initialize
     dss/namespace
     dss/status_mlflow
+    dss/create_pytorch_cpu_notebook
+    cpu/pytorch_can_use_cpu
+    dss/create_tensorflow_cpu_notebook
+    cpu/tensorflow_can_use_cpu
     intel_gpu_plugin/install
     intel_gpu_plugin/daemonset_name
     intel_gpu_plugin/daemonset_number_available

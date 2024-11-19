@@ -39,7 +39,6 @@ unit: test plan
 _name: IPEX validation testing plan
 include:
     opencl/ocl_device_check.*
-    intel_gpu/host_gpu_avail
     dss/initialize
     dss/namespace
     dss/status_mlflow
@@ -60,13 +59,13 @@ bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
     com.canonical.certification::graphics_card
+    host_has_intel_gpus
 
 id: itex-validation
 unit: test plan
 _name: ITEX validation testing plan
 include:
     opencl/ocl_device_check.*
-    intel_gpu/host_gpu_avail
     dss/initialize
     dss/namespace
     dss/status_mlflow
@@ -87,3 +86,4 @@ bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
     com.canonical.certification::graphics_card
+    host_has_intel_gpus

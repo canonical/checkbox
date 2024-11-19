@@ -314,16 +314,26 @@ class SessionAssistantTests(morris.SignalTestCase):
 
         job1_id = "com.canonical.certification::job_1"
         job2_id = "com.canonical.certification::job_2"
+        job3_id = "com.canonical.certification::job_3"
         job1 = JobDefinition({"id": job1_id})
         job2 = JobDefinition({"id": job2_id})
+        job3 = JobDefinition({"id": job3_id})
 
         self_mock._metadata.rejected_jobs = ["already-rejected-job"]
-        self_mock.get_static_todo_list.return_value = [job1_id, job2_id]
-        self_mock._context.get_unit.side_effect = [job1, job2]
-        selection = [job1_id]
+        self_mock.get_mandatory_jobs.return_value = [job1_id]
+        self_mock.get_static_todo_list.return_value = [
+            job1_id,
+            job2_id,
+            job3_id,
+        ]
+        self_mock._context.get_unit.side_effect = [job2]
+        selection = [job2_id]
 
         SessionAssistant.use_alternate_selection(self_mock, selection)
-        self.assertEqual(len(self_mock._metadata.rejected_jobs), 2)
-        self_mock._context.state.update_desired_job_list.assert_called_with(
-            [job1]
+        # job1 is not part of the selection, but it's a mandatory job, so it
+        # should not be added to the rejected jobs, because it's going to be run.
+        self.assertEqual(
+            self_mock._metadata.rejected_jobs,
+            ["already-rejected-job", job3_id],
         )
+        self_mock._context.get_unit.assert_called_once_with(job2_id, "job")

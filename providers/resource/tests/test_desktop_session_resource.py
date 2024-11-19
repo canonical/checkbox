@@ -1,22 +1,22 @@
-"""This module provides test cases for the desktop_session module."""
+"""This module provides test cases for the desktop_session_resource module."""
 
 import os
 import unittest
 from unittest.mock import call, patch
 
-import desktop_session
+import desktop_session_resource
 
 
 class DesktopSessionTests(unittest.TestCase):
-    """Tests for the desktop_session module."""
+    """Tests for the desktop_session_resource module."""
 
-    @patch("desktop_session.resources")
+    @patch("desktop_session_resource.resources")
     def test_main(self, mock_resources):
         """
         Test whether the main function calls the resources
         function when requested via CLI.
         """
-        desktop_session.main(["resources"])
+        desktop_session_resource.main(["resources"])
         mock_resources.assert_called_once_with()
 
     @patch("builtins.print")
@@ -27,7 +27,7 @@ class DesktopSessionTests(unittest.TestCase):
             "XDG_SESSION_TYPE": "tty",
         }
         with patch.dict(os.environ, server_session, clear=True):
-            desktop_session.resources()
+            desktop_session_resource.resources()
 
         mock_print.assert_has_calls(
             [
@@ -45,7 +45,7 @@ class DesktopSessionTests(unittest.TestCase):
             "XDG_CURRENT_DESKTOP": "hyprland",
         }
         with patch.dict(os.environ, server_session, clear=True):
-            desktop_session.resources()
+            desktop_session_resource.resources()
 
         mock_print.assert_has_calls(
             [

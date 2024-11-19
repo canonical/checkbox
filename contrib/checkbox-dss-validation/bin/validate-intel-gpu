@@ -14,5 +14,5 @@ forced = yes
 [ui]
 type = silent
 auto_retry = yes
-max_attempts = 10
+max_attempts = 2
 delay_before_retry = 10

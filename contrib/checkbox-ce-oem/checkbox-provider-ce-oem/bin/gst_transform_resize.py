@@ -20,29 +20,24 @@
 import argparse
 import logging
 import os
-import re
-import shlex
-import subprocess
 
-from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Any
 
-from checkbox_support.scripts.psnr import get_average_psnr
+from gst_utils import (
+    GST_LAUNCH_BIN,
+    VIDEO_CODEC_TESTING_DATA,
+    SAMPLE_2_FOLDER,
+    PipelineInterface,
+    GStreamerEncodePlugins,
+    MetadataValidator,
+    get_big_bug_bunny_golden_sample,
+    generate_artifact_name,
+    compare_psnr,
+    delete_file,
+    execute_command,
+)
 
 logging.basicConfig(level=logging.INFO)
-GST_LAUNCH_BIN = os.getenv("GST_LAUNCH_BIN", "gst-launch-1.0")
-OUTPUT_FOLDER = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
-PLAINBOX_SESSION_SHARE = os.getenv("PLAINBOX_SESSION_SHARE", "/var/tmp")
-VIDEO_CODEC_TESTING_DATA = os.getenv("VIDEO_CODEC_TESTING_DATA")
-if not VIDEO_CODEC_TESTING_DATA or not os.path.exists(
-    VIDEO_CODEC_TESTING_DATA
-):
-    raise SystemExit(
-        "Error: Please define the proper path of golden sample folder to "
-        "the environment variable 'VIDEO_CODEC_TESTING_DATA'"
-    )
-# Folder stores the golden samples
-SAMPLE_2_FOLDER = "sample_2_big_bug_bunny"
 
 
 def register_arguments():
@@ -114,223 +109,104 @@ def register_arguments():
     return args
 
 
-def get_golden_sample(
-    width: str = "3840",
-    height: str = "2160",
-    framerate: str = "60",
-    codec: str = "h264",
-    container: str = "mp4",
-) -> str:
+def project_factory(args: argparse.Namespace) -> Any:
     """
-    Idealy, we can consume a h264 mp4 file then encode by any other codecs and
-    mux it with specific muxer such as mp4mux into mp4 container.
-    Therefore, we only need to adjust the width, height and framerate for
-    getting golden sample.
-    If you need a golden sample which doesn't exist in our sample pool, please
-    contribute it and get it as your requirement.
+    Factory function to create a project instance based on the platform
+    specified in the argparse arguments.
+    Args:
+        args (argparse.Namespace): A parsed argument object that contains the
+            project parameters.
+    Returns:
+        Any: An instance of the project class (e.g., `GenioProject`) created
+            with the specified parameters.
+    Raises:
+        SystemExit: If the platform is not recognized or supported.
     """
-    golden_sample = "big_bug_bunny_{}x{}_{}fps_{}.{}".format(
-        width, height, framerate, codec, container
-    )
-
-    full_path = os.path.join(
-        VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_sample
-    )
-    logging.debug("Golden Sample: '{}'".format(full_path))
-    if not os.path.exists(full_path):
-        raise SystemExit(
-            "Error: Golden sample '{}' doesn't exist".format(full_path)
+    if "genio" in args.platform:
+        return GenioProject(
+            platform=args.platform,
+            codec=args.encoder_plugin,
+            width_from=args.width_from,
+            height_from=args.height_from,
+            width_to=args.width_to,
+            height_to=args.height_to,
+            framerate=args.framerate,
         )
-
-    return full_path
-
-
-def execute_command(cmd: str) -> str:
-    """
-    Executes the GStreamer command and extracts the specific data from the
-    output. The specific data is the value of last-message which is exposed by
-    fpsdisplaysink.
-    :param cmd:
-        The GStreamer command to execute.
-    :returns:
-        The extracted last_message.
-    """
-    try:
-        logging.info("Starting command: '{}'".format(cmd))
-        ret = subprocess.run(
-            shlex.split(cmd),
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            encoding="utf-8",
-            timeout=300,
-        )
-        logging.info(ret.stdout)
-        return ret.stdout
-    except Exception as e:
-        raise SystemExit(e)
-
-
-def project_factory(**kwargs):
-    """
-    Factory
-    """
-    platform = kwargs.get("platform")
-    if "genio" in platform:
-        return GenioProject(**kwargs)
     else:
         raise SystemExit(
-            "Cannot find the implementation for '{}'".format(platform)
-        )
-
-
-class BaseHandler(ABC):
-    """Abstract base class for project-specific command handlers."""
-
-    def __init__(self, **kwargs):
-        self._platform = kwargs.get("platform")
-        self._codec = kwargs.get("encoder_plugin")
-        self._width_from = kwargs.get("width_from")
-        self._height_from = kwargs.get("height_from")
-        self._width_to = kwargs.get("width_to")
-        self._height_to = kwargs.get("height_to")
-        self._framerate = kwargs.get("framerate")
-        # Default extension is mp4, overwrite it if you need
-        self._output_file_extension = "mp4"
-        # Default format of name of artifact
-        self._output_file_name = "resize_{}_{}x{}_to_{}x{}_{}fps.{}".format(
-            self._codec,
-            self._width_from,
-            self._height_from,
-            self._width_to,
-            self._height_to,
-            self._framerate,
-            self._output_file_extension,
-        )
-        # Get the golden sample.
-        # This sample video file will be consumed by any gstreamer piple as
-        # input video.
-        self._golden_sample = get_golden_sample(
-            width=self._width_from,
-            height=self._height_from,
-            framerate=self._framerate,
-        )
-        # A file be treated as the reference file while doing PSNR
-        # Comparision. If you want to use other file as reference while doing
-        # PSNR comparison, please reassign the full path to it
-        self._psnr_reference_file = get_golden_sample(
-            width=self._width_to,
-            height=self._height_to,
-            framerate=self._framerate,
-        )
-        self._output_file_full_path = os.path.join(
-            PLAINBOX_SESSION_SHARE,
-            self._output_file_name,
-        )
-
-    @abstractmethod
-    def _build_command(self) -> str:
-        """
-        Execute the command associated with the given method name for a
-        platform.
-        Returns:
-            str: The corresponding command or an error message if the method
-            is not found.
-        """
-        pass
-
-    def execute_encode_command(self) -> None:
-        logging.debug("Executing Encode Command...")
-        execute_command(self._build_command())
-
-    def compare_psnr(self) -> None:
-        logging.info(
-            "Compare the PSNR: {} vs {}".format(
-                self._psnr_reference_file, self._output_file_full_path
+            "Error: Cannot get the implementation for '{}'".format(
+                args.platform
             )
         )
-        avg_psnr, _ = get_average_psnr(
-            self._psnr_reference_file, self._output_file_full_path
-        )
-        logging.info("Average PSNR: {}".format(avg_psnr))
-        if avg_psnr < 30 and avg_psnr > 0:
-            raise SystemExit(
-                "Error: The average PSNR value did not reach the acceptable"
-                " threshold (30 dB)"
-            )
-        logging.info("Pass: Average PSNR meets the acceptable threshold")
-
-    def check_metadata(self) -> None:
-        logging.debug("Checking metadata...")
-        outcome = execute_command(
-            cmd="gst-discoverer-1.0 {}".format(self._output_file_full_path)
-        )
-
-        # Check the meta
-        is_metadata_good = True
-        p = self._extract_metadata_property(input=outcome)
-        if not p.get("width") or p.get("width") != self._width_to:
-            logging.error(
-                "expect width is '{}' but got '{}'".format(
-                    self._width, p.get("width")
-                )
-            )
-            is_metadata_good = False
-        if not p.get("height") or p.get("height") != self._height_to:
-            logging.error(
-                "expect height is '{}' but got '{}'".format(
-                    self._height, p.get("height")
-                )
-            )
-            is_metadata_good = False
-
-        if not is_metadata_good:
-            raise SystemError("Error: Checking metadata failed")
-
-    def _extract_metadata_property(self, input: str) -> Dict:
-        properties = {}
-        width_pattern = re.compile(r"Width: (\d+)")
-        height_pattern = re.compile(r"Height: (\d+)")
-
-        # Check if either video or video(image) pattern matches
-        properties["width"] = (
-            width_pattern.search(input).group(1)
-            if width_pattern.search(input)
-            else None
-        )
-        properties["height"] = (
-            height_pattern.search(input).group(1)
-            if height_pattern.search(input)
-            else None
-        )
-        logging.debug("Prperties got from meta: {}".format(properties))
-        return properties
-
-    def delete_file(self):
-        try:
-            if os.path.exists(self._output_file_full_path):
-                os.remove(self._output_file_full_path)
-        except Exception as e:
-            logging.warn(
-                "Error occurred while deleting file: {}".format(str(e))
-            )
 
 
-class GenioProject(BaseHandler):
+class GenioProject(PipelineInterface):
     """
     Genio project manages platforms and codecs, and handles
     building.
     Spec: https://download.mediatek.com/aiot/download/release-note/v24.0/v24.0_IoT_Yocto_Feature_Table_v1.0.pdf     # noqa: E501
     """
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(
+        self,
+        platform: str,
+        codec: str,
+        width_from: int,
+        height_from: int,
+        width_to: int,
+        height_to: int,
+        framerate: int,
+    ):
+        self._platform = platform
+        self._codec = codec
+        self._width_from = width_from
+        self._height_from = height_from
+        self._width_to = width_to
+        self._height_to = height_to
+        self._framerate = framerate
         self._codec_parser_map = {
-            "v4l2h264enc": "h264parse",
-            "v4l2h265enc": "h265parse",
+            GStreamerEncodePlugins.V4L2H264ENC.value: "h264parse"
         }
+        # This sample video file will be consumed by any gstreamer piple as
+        # input video.
+        self._golden_sample = get_big_bug_bunny_golden_sample(
+            width=self._width_from,
+            height=self._height_from,
+            framerate=self._framerate,
+        )
+        self._artifact_file = ""
 
-    def _build_command(self) -> str:
+    @property
+    def artifact_file(self) -> str:
+        if not self._artifact_file:
+            self._artifact_file = generate_artifact_name(extension="mp4")
+        return self._artifact_file
+
+    @property
+    def psnr_reference_file(self) -> str:
+        """
+        A golden reference which has been transformed in advance. It's used to
+        be the compared reference file for PSNR.
+        """
+        golden_reference = get_big_bug_bunny_golden_sample(
+            self._width_to,
+            self._height_to,
+            self._framerate
+        )
+
+        full_path = os.path.join(
+            VIDEO_CODEC_TESTING_DATA, SAMPLE_2_FOLDER, golden_reference
+        )
+        if not os.path.exists(full_path):
+            raise SystemExit(
+                "Error: Golden PSNR reference '{}' doesn't exist".format(
+                    full_path
+                )
+            )
+
+        return full_path
+
+    def build_pipeline(self) -> str:
         """
         Build the GStreamer commands based on the platform and codec.
         Returns:
@@ -348,22 +224,31 @@ class GenioProject(BaseHandler):
             self._height_to,
             self._codec,
             self._codec_parser_map.get(self._codec),
-            self._output_file_full_path,
+            self.artifact_file,
         )
         return pipeline
 
 
 def main() -> None:
     args = register_arguments()
-    p = project_factory(**vars(args))
+    p = project_factory(args)
     logging.info("Step 1: Generating artifact...")
-    p.execute_encode_command()
+    cmd = p.build_pipeline()
+    # execute command
+    execute_command(cmd=cmd)
     logging.info("\nStep 2: Checking metadata...")
-    p.check_metadata()
+    mv = MetadataValidator(file_path=p.artifact_file)
+    mv.validate("width", args.width_to).validate(
+        "height", args.height_to
+    ).validate("frame_rate", args.framerate).validate(
+        "codec", args.encoder_plugin
+    ).is_valid()
     logging.info("\nStep 3: Comparing PSNR...")
-    p.compare_psnr()
-    # Release the disk space if no error be observed
-    p.delete_file()
+    compare_psnr(
+        golden_reference_file=p.psnr_reference_file,
+        artifact_file=p.artifact_file,
+    )
+    delete_file(file_path=p.artifact_file)
 
 
 if __name__ == "__main__":

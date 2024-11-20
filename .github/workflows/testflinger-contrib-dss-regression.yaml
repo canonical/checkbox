@@ -26,30 +26,18 @@ jobs:
           - latest/stable
           - latest/edge
         queue:
-          - dell-precision-3470-c30322 #ADL iGPU + NVIDIA GPU
-          - dell-precision-5680-c31665 #RPL iGPU + Arc Pro A60M dGPU
+          - name: dell-precision-3470-c30322 #ADL iGPU + NVIDIA GPU
+            provision_data: "distro: jammy"
+          - name: dell-precision-5680-c31665 #RPL iGPU + Arc Pro A60M dGPU
+            provision_data: "url: http://10.102.196.9/somerville/Platforms/jellyfish-muk/X96_A00/dell-bto-jammy-jellyfish-muk-X96-20230419-19_A00.iso"
     steps:
       - name: Check out code
         uses: actions/checkout@v4
-      - name: Build job file from template with maas2 provisioning
-        if: ${{ matrix.queue == 'dell-precision-3470-c30322' }}
-        env:
-          PROVISION_DATA: "distro: jammy"
+      - name: Build job file from template
         run: |
           sed -e "s|REPLACE_BRANCH|${BRANCH}|" \
-          -e "s|REPLACE_QUEUE|${{ matrix.queue }}|" \
-          -e "s|REPLACE_PROVISION_DATA|${PROVISION_DATA}|" \
-          -e "s|REPLACE_DSS_CHANNEL|${{ matrix.dss_channel }}|" \
-          ${GITHUB_WORKSPACE}/contrib/checkbox-dss-validation/testflinger/job-def.yaml > \
-          ${GITHUB_WORKSPACE}/job.yaml
-      - name: Build job file from template with oemscript provisioning
-        if: ${{ matrix.queue == 'dell-precision-5680-c31665' }}
-        env:
-          PROVISION_DATA: "url: http://10.102.196.9/somerville/Platforms/jellyfish-muk/X96_A00/dell-bto-jammy-jellyfish-muk-X96-20230419-19_A00.iso"
-        run: |
-          sed -e "s|REPLACE_BRANCH|${BRANCH}|" \
-          -e "s|REPLACE_QUEUE|${{ matrix.queue }}|" \
-          -e "s|REPLACE_PROVISION_DATA|${PROVISION_DATA}|" \
+          -e "s|REPLACE_QUEUE|${{ matrix.queue.name }}|" \
+          -e "s|REPLACE_PROVISION_DATA|${{ matrix.queue.provision_data }}|" \
           -e "s|REPLACE_DSS_CHANNEL|${{ matrix.dss_channel }}|" \
           ${GITHUB_WORKSPACE}/contrib/checkbox-dss-validation/testflinger/job-def.yaml > \
           ${GITHUB_WORKSPACE}/job.yaml

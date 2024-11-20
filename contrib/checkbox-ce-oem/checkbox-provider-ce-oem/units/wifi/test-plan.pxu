@@ -13,13 +13,7 @@ _name: ce-oem manual WiFi AP mode tests
 _description: Manual WiFi AP mode tests
 mandatory_include:
 bootstrap_include:
-    com.canonical.certification::device
-    com.canonical.certification::wifi_interface_mode
-    com.canonical.certification::net_if_management
-    ce_oem_wifi_ap_mode
 include:
-    ce-oem-wireless/ap_open_.*_manual
-    ce-oem-wireless/ap_wpa_.*_manual
 
 id: ce-oem-wifi-ap-automated
 unit: test plan

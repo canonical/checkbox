@@ -252,16 +252,18 @@ def main():
         help="Password of the Host device for SSH connection",
     )
     parser.add_argument(
-        "--manual", action="store_true", help="Manual test (default is False)"
+        "--set-ap-only",
+        action="store_true",
+        help="Setup DUT's AP mode only. Mostly use for debugging.",
     )
 
     args = parser.parse_args()
 
-    if not args.manual:
+    if not args.set_ap_only:
         if not args.host_ip or not args.host_user or not args.host_pwd:
             parser.error(
-                "--host-ip, --host-user, and --host-pwd are required "
-                "if not a manual test."
+                "--host-ip, --host-user, and --host-pwd are required, "
+                "if you are intend to execute auto test."
             )
 
     manager = WiFiManager(
@@ -281,13 +283,13 @@ def main():
             manager.set_secured()
         if not manager.up_conn():
             raise RuntimeError("Connection initialization failed!")
-        if not args.manual:
+        if not args.set_ap_only:
             connect_host_device(
                 manager, args.host_ip, args.host_user, args.host_pwd
             )
             ping_test(manager, args.host_ip, args.host_user, args.host_pwd)
         else:
-            input("Press Enter to exit after manual test finished...")
+            input("Press Enter to exit after test finished...")
 
 
 if __name__ == "__main__":

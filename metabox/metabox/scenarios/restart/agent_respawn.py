@@ -207,7 +207,7 @@ class RemoteResumePreservesRejectedJobsStateMap(Scenario):
     Check that the job_state_map survives both manual closure and restarts
 
     This differs from Local because in remote the controller waits for the
-    agent to come back, we loose the output of the rebooting job and we don't
+    agent to come back, we lose the output of the rebooting job and we don't
     need to re-start the controller on reboot
     """
 

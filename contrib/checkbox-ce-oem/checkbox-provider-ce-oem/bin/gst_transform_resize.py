@@ -189,9 +189,7 @@ class GenioProject(PipelineInterface):
         be the compared reference file for PSNR.
         """
         golden_reference = get_big_bug_bunny_golden_sample(
-            self._width_to,
-            self._height_to,
-            self._framerate
+            self._width_to, self._height_to, self._framerate
         )
 
         full_path = os.path.join(

@@ -23,7 +23,15 @@ _name: Ethernet wake-on-LAN tests (manual)
 _description: Ethernet wake-on-LAN tests (manual)
 include:
     ethernet/wol_S5_interface
-    ethernet/wol_S3_interface
+bootstrap_include:
+    device
+
+id: ethernet-wake-on-lan-cert-automated
+unit: test plan
+_name: Ethernet wake-on-LAN tests for S3 (automated)
+_description: Ethernet wake-on-LAN tests for S3 (automated)
+include:
+    ethernet/wol_S3_auto_interface
 bootstrap_include:
     device
 

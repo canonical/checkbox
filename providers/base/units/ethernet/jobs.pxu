@@ -439,3 +439,26 @@ command: network_reconnect_resume_test.py -t 10 -d wired
 _summary: Network reconnect resume test (wired)
 _purpose:
  Checks the length of time it takes to reconnect an existing wired connection after a suspend/resume cycle.
+
+id: ethernet/wol_S3_auto_{{ interface }}
+template-id: ethernet/wol_S3_auto_interface
+category_id: com.canonical.plainbox::ethernet
+unit: template
+template-resource: device
+template-engine: jinja2
+template-filter: device.category == 'NETWORK' and device.mac != 'UNKNOWN'
+_summary: Wake on LAN (WOL) automatic test from S3 - {{ interface }}
+plugin: shell
+environ: SERVER_WAKE_ON_LAN WAKE_ON_LAN_DELAY WAKE_ON_LAN_RETRY PLAINBOX_SESSION_SHARE
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest.has_ethernet_adapter == 'True'
+ manifest.has_ethernet_wake_on_lan_support== 'True'
+command:
+ set -e
+ wol_client.py --interface {{ interface }} --target "$SERVER_WAKE_ON_LAN" --delay "$WAKE_ON_LAN_DELAY" --retry "$WAKE_ON_LAN_RETRY" --waketype g --powertype s3  --timestamp_file "$PLAINBOX_SESSION_SHARE"/{{ interface }}_s3_timestamp
+ sleep 30
+ wol_check.py --interface {{ interface }} --delay "$WAKE_ON_LAN_DELAY" --retry "$WAKE_ON_LAN_RETRY" --powertype s3 --timestamp_file "$PLAINBOX_SESSION_SHARE"/{{ interface }}_s3_timestamp
+user: root
+estimated_duration: 600
+flags: preserve-locale

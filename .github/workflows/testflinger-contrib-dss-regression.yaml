@@ -21,6 +21,7 @@ jobs:
       run:
         working-directory: contrib/checkbox-dss-validation
     strategy:
+      fail-fast: false
       matrix:
         dss_channel:
           - latest/stable

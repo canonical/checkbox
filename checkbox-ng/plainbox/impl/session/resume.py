@@ -779,6 +779,10 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
                 self._process_job(session, jobs_repr, results_repr, job_id)
             except KeyError:
                 leftover_jobs.append(job_id)
+
+        leftover_jobs += session_repr.get("metadata", {}).get(
+            "rejected_jobs", []
+        )
         # Process leftovers. For each iteration the leftover_jobs list should
         # shrink or we're not making any progress. If that happens we've got
         # undefined jobs (in general the session is corrupted)

@@ -22,6 +22,8 @@ import shlex
 import threading
 import time
 
+from contextlib import suppress
+
 from loguru import logger
 import metabox.core.keys as keys
 from metabox.core.utils import ExecuteResult
@@ -113,7 +115,9 @@ class InteractiveWebsocket(WebSocketClient):
         return found
 
     def expect_not(self, data, timeout=0):
-        return not self.expect(data, timeout)
+        with suppress(TimeoutError):
+            return not self.expect(data, timeout)
+        return True
 
     def select_test_plan(self, data, timeout=0):
         if not self._lookup_by_id:

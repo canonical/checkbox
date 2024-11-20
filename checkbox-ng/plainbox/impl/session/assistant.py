@@ -828,12 +828,19 @@ class SessionAssistant:
             ] = "to run bootstrapping job"
             rb = self.run_job(job.id, "silent", False)
             self.use_job_result(job.id, rb.get_result())
+        # we may have a list of rejected jobs if this session is a resumed
+        # session
+        already_rejected = [
+            JobIdQualifier(job_id, None, inclusive=False)
+            for job_id in self._context.state.metadata.rejected_jobs
+        ]
         # Perform initial selection -- we want to run everything that is
         # described by the test plan that was selected earlier.
         desired_job_list = select_units(
             self._context.state.job_list,
             [plan.get_qualifier() for plan in self._manager.test_plans]
-            + self._exclude_qualifiers,
+            + self._exclude_qualifiers
+            + already_rejected,
         )
         self._context.state.update_desired_job_list(desired_job_list)
         # Set subsequent usage expectations i.e. all of the runtime parts are

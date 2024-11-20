@@ -24,6 +24,27 @@
       }
     ]
   },
+  "gst_transform_resize": [
+    {
+      "encoder_plugin": "v4l2h264enc",
+      "resolutions": [
+        {
+          "width_from": 1920,
+          "height_from": 1080,
+          "fps": 60,
+          "width_to": 1280,
+          "height_to": 720
+        },
+        {
+          "width_from": 1280,
+          "height_from": 720,
+          "fps": 60,
+          "width_to": 1920,
+          "height_to": 1080
+        }
+      ]
+    }
+  ],
   "gst_v4l2_video_decoder_performance_fakesink": [
     {
       "decoder_plugin": "v4l2h264dec",

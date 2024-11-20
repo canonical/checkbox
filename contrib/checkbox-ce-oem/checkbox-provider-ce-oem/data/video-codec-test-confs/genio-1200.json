@@ -55,6 +55,139 @@
       }
     ]
   },
+  "gst_transform_resize": [
+    {
+      "encoder_plugin": "v4l2h264enc",
+      "resolutions": [
+        {
+          "width_from": 3840,
+          "height_from": 2160,
+          "fps": 60,
+          "width_to": 2560,
+          "height_to": 1440
+        },
+        {
+          "width_from": 3840,
+          "height_from": 2160,
+          "fps": 60,
+          "width_to": 1920,
+          "height_to": 1080
+        },
+        {
+          "width_from": 3840,
+          "height_from": 2160,
+          "fps": 30,
+          "width_to": 1920,
+          "height_to": 1080
+        },
+        {
+          "width_from": 3840,
+          "height_from": 2160,
+          "fps": 60,
+          "width_to": 1280,
+          "height_to": 720
+        },
+        {
+          "width_from": 3840,
+          "height_from": 2160,
+          "fps": 30,
+          "width_to": 1280,
+          "height_to": 720
+        },
+        {
+          "width_from": 2560,
+          "height_from": 1440,
+          "fps": 60,
+          "width_to": 3840,
+          "height_to": 2160
+        },
+        {
+          "width_from": 2560,
+          "height_from": 1440,
+          "fps": 60,
+          "width_to": 1920,
+          "height_to": 1080
+        },
+        {
+          "width_from": 2560,
+          "height_from": 1440,
+          "fps": 60,
+          "width_to": 1280,
+          "height_to": 720
+        },
+        {
+          "width_from": 1920,
+          "height_from": 1080,
+          "fps": 60,
+          "width_to": 3840,
+          "height_to": 2160
+        },
+        {
+          "width_from": 1920,
+          "height_from": 1080,
+          "fps": 30,
+          "width_to": 3840,
+          "height_to": 2160
+        },
+        {
+          "width_from": 1920,
+          "height_from": 1080,
+          "fps": 60,
+          "width_to": 2560,
+          "height_to": 1440
+        },
+        {
+          "width_from": 1920,
+          "height_from": 1080,
+          "fps": 60,
+          "width_to": 1280,
+          "height_to": 720
+        },
+        {
+          "width_from": 1920,
+          "height_from": 1080,
+          "fps": 30,
+          "width_to": 1280,
+          "height_to": 720
+        },
+        {
+          "width_from": 1280,
+          "height_from": 720,
+          "fps": 60,
+          "width_to": 3840,
+          "height_to": 2160
+        },
+        {
+          "width_from": 1280,
+          "height_from": 720,
+          "fps": 30,
+          "width_to": 3840,
+          "height_to": 2160
+        },
+        {
+          "width_from": 1280,
+          "height_from": 720,
+          "fps": 60,
+          "width_to": 2560,
+          "height_to": 1440
+        },
+        {
+          "width_from": 1280,
+          "height_from": 720,
+          "fps": 60,
+          "width_to": 1920,
+          "height_to": 1080
+        },
+        {
+          "width_from": 1280,
+          "height_from": 720,
+          "fps": 30,
+          "width_to": 1920,
+          "height_to": 1080
+        }
+      ]
+    }
+  ],
   "gst_v4l2_video_decoder_performance_fakesink": [
     {
       "decoder_plugin": "v4l2h264dec",

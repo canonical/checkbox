@@ -558,3 +558,19 @@ _verification:
     Did the Ambient Light Sensor values change when you _shook_ your hands over the sensor? 
     Did the Screen backlight also change?
 _summary: Test the functionality of the Ambient Light Sensor by checking if sensor values and screen backlight change when covered.
+
+unit: job
+plugin: shell
+category_id: com.canonical.plainbox::power-management
+id: power-management/amd_pmf_detect
+flags: also-after-suspend
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_amd_pmf == 'True'
+command:
+ amd_pmf.py
+estimated_duration: 5s
+summary:
+    Test this machine have the AMD PMF support or not
+description:
+    The AMD PMF driver should be loaded while the BIOS enabling this function and could be validated by
+    the outcome of lsmod automatically.

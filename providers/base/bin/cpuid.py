@@ -189,6 +189,7 @@ def cpuid_to_human_friendly(cpuid: str) -> str:
         "Emerald Rapids":   ['0xc06f2'],
         "Haswell":          ['0x306c', '0x4065', '0x4066', '0x306f'],
         "Hygon Dhyana Plus": ["0x900f22"],
+        "Hygon C86-4G 7490": ['0x900f41'],
         "Ice Lake":         ['0x606e6', '0x606a6', '0x706e6', '0x606c1'],
         "Ivy Bridge":       ['0x306a', '0x306e'],
         "Kaby Lake":        ['0x806e9', '0x906e9'],

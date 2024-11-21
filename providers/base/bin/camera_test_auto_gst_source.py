@@ -1,14 +1,13 @@
 #! /usr/bin/python3
 
-# import time
-# from checkbox_support.helpers.timeout import timeout
 from enum import Enum
 import sys
-import time
 import gi
 from argparse import ArgumentParser
 import typing as T
 import re
+
+from checkbox_support.helpers.timeout import timeout
 
 # https://github.com/TheImagingSource/tiscamera/blob/master/examples/python/00-list-devices.py
 
@@ -29,8 +28,14 @@ class ElementPrinter:
         "capsfilter": ("caps",),
         "multifilesink": ("location",),
     }
-    global_exclude_keys = ("parent", "client-name")
-    simple_elements = ("videoconvert", "decodebin", "videorate", "jpegenc")
+    global_exclude_keys = ("parent", "client-name", "fd")
+    simple_elements = (
+        "videoconvert",
+        "decodebin",
+        "videorate",
+        "jpegenc",
+        "jpegdec",
+    )
 
     @staticmethod
     def print(element: Gst.Element):
@@ -53,15 +58,15 @@ class ElementPrinter:
             if prop.name in ElementPrinter.global_exclude_keys:
                 continue
             prop_value = element.get_property(prop.name)
-            if hasattr(prop_value, "to_string"):
-                # sometimes we have a nice to_string method, prioritize this
-                prop_strings.append(
-                    "{}={}".format(prop.name, prop_value.to_string())
-                )
-            elif prop.name == "caps":
+            if prop.name == "caps":
                 # need to double quote the caps
                 prop_strings.append(
                     '{}="{}"'.format(prop.name, prop_value.to_string())
+                )
+            elif hasattr(prop_value, "to_string"):
+                # sometimes we have a nice to_string method, prioritize this
+                prop_strings.append(
+                    "{}={}".format(prop.name, prop_value.to_string())
                 )
             elif type(prop_value) is Enum:
                 prop_strings.append(
@@ -93,16 +98,14 @@ def get_all_fixated_caps(caps: Gst.Caps) -> T.List[Gst.Caps]:
     :param caps: A mixed Gst.Caps
     """
     fixated_caps = []
-    for cap_str in caps.to_string().split(";"):
-        mixed_caps = Gst.Caps.from_string(cap_str)
-        while not mixed_caps.is_fixed():
-            # keep fixiating it until it's fixed
-            fixated_cap = mixed_caps.fixate()
-            fixated_caps.append(fixated_cap)
-            mixed_caps = mixed_caps.subtract(fixated_cap)
-            # this is useful to get around missing types
-            # in default gst python binding on ubuntu, like Gst.Fraction
-        fixated_caps.append(mixed_caps)  # append tha final one
+    while not caps.is_fixed():
+        # keep fixiating it until it's fixed
+        fixated_cap = caps.fixate()
+        fixated_caps.append(fixated_cap)
+        caps = caps.subtract(fixated_cap)
+        # this is useful to get around missing types
+        # in default gst python binding on ubuntu, like Gst.Fraction
+    fixated_caps.append(caps)  # append tha final one
 
     return fixated_caps
 
@@ -117,29 +120,28 @@ def pipeline_add_many(
 def element_link_many(elements: T.Iterable[Gst.Element]):
     elem_list = list(elements)
     for i in range(len(elem_list) - 1):
-        e1, e2 = elem_list[i], elem_list[i + 1]
-        is_linked = Gst.Element.link(e1, e2)
+        elem1, elem2 = elem_list[i], elem_list[i + 1]
+        is_linked = Gst.Element.link(elem1, elem2)
         if not is_linked:
-            if e1.get_factory().get_name() == "decodebin":
-                e2_copy = e2  # force a reference copy
+            if elem1.get_factory().get_name() == "decodebin":
+                e2_copy = elem2  # force a reference copy
 
                 def on_pad_added(
                     decodebin: Gst.Element, decodebin_src: Gst.Pad
                 ):
-                    nonlocal e2_copy
                     print("\n\ndecode bin pad added\n\n")
                     e2_name = e2_copy.get_factory().get_name()
                     e2_sink = e2_copy.get_static_pad("sink")
                     assert e2_sink, "Null sink"
-                    assert decodebin.link(e2_copy)
+                    assert decodebin.link(e2_copy), f"cannot link to {e2_name}"
                     print("Linked decodebin to {}".format(e2_name))
 
-                e1.connect("pad-added", on_pad_added)
+                elem1.connect("pad-added", on_pad_added)
             else:
                 raise RuntimeError(
                     "{} and {} could not be linked!".format(
-                        ElementPrinter.print(e1),
-                        ElementPrinter.print(e2),
+                        ElementPrinter.print(elem1),
+                        ElementPrinter.print(elem2),
                     )
                 )
 
@@ -274,12 +276,16 @@ def take_photo(
     bus.add_signal_watch()
     bus.connect("message", eos_handler)
 
-    print("Setting playing state")
-    pipeline.set_state(Gst.State.PLAYING)
-    print("Playing")
-    main_loop.run()
-    while main_loop.is_running():
-        pass
+    @timeout(delay_seconds + 5)
+    def run():
+        print("Setting playing state")
+        pipeline.set_state(Gst.State.PLAYING)
+        print("Playing")
+        main_loop.run()
+        while main_loop.is_running():
+            pass
+
+    run()
 
 
 def main():
@@ -310,8 +316,6 @@ def main():
                     dev_i, cap_i
                 ),
             )
-            break
-        break
 
 
 if __name__ == "__main__":

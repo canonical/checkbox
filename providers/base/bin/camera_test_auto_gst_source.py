@@ -5,6 +5,7 @@ import sys
 import gi
 from argparse import ArgumentParser
 import typing as T
+from checkbox_support.helpers.timeout import timeout
 
 # https://github.com/TheImagingSource/tiscamera/blob/master/examples/python/00-list-devices.py
 
@@ -73,12 +74,20 @@ def elem_to_str(element: Gst.Element) -> str:
     properties = element.list_properties()  # list[GObject.GParamSpec]
     element_name = element.get_factory().get_name()
 
-    exclude = ["parent", "client"]
+    exclude = ["parent", "client-name"]
     prop_strings = []  # type: list[str]
     for prop in properties:
         if prop.name in exclude:
             continue
-        prop_value = element.get_property(prop.name)
+        try:
+            prop_value = element.get_property(prop.name)
+        except:
+            print(
+                "[ INFO ] Property {} is unreadable in {}".format(
+                    prop.name, element_name
+                )
+            )
+            continue
         if hasattr(prop_value, "to_string"):
             # sometimes we have a nice to_string method, prioritize this
             prop_strings.append(
@@ -99,7 +108,7 @@ def take_photo(
     source: Gst.Element,
     *,
     caps: T.Optional[Gst.Caps] = None,
-    filename="/home/fgfg/photo",
+    file_path: str,
     delay_seconds=0,
 ):
     """Take a photo using the source element
@@ -111,16 +120,17 @@ def take_photo(
     :param delay_seconds: number of seconds to keep the pipeline running
         before taking the photo
     """
-    # key is the name, value is the element. Ordered
 
+    # this may seem unorthodox
+    # but it's way less verbose than creating individual elements
     str_elements = [
-        "capsfilter name=source-caps caps={}",  # 0
+        'capsfilter name=source-caps caps="{}"',  # 0
         "decodebin",  # 1
         "videoconvert",  # 2
         "videorate",  # 3
-        "capsfilter name=videorate-caps caps=video/x-raw,framerate=1/{}",  # 4
+        'capsfilter name=videorate-caps caps="video/x-raw,framerate=1/{}"',  # 4
         "jpegenc",  # 5
-        "multifilesink location={}".format(filename),  # 6
+        "multifilesink location={}".format(file_path),  # 6
     ]
 
     if caps:
@@ -135,7 +145,7 @@ def take_photo(
             str_elements[1] = ""
         # else case is using decodebin as a fallback
 
-    if delay_seconds > 0 and caps:
+    if delay_seconds > 0:
         str_elements[4] = str_elements[4].format(delay_seconds)
     else:
         str_elements[3] = ""
@@ -149,22 +159,34 @@ def take_photo(
     assert head_elem
     assert source.link(head_elem)
 
-    print("Created pipeline: {} ! {}".format(elem_to_str(source), partial))
+    print(
+        "[ OK ] Created pipeline: {} ! {}".format(elem_to_str(source), partial)
+    )
 
-    print("Setting playing state")
-    pipeline.set_state(Gst.State.PLAYING)
-    if pipeline.get_state(0)[0] == Gst.StateChangeReturn.FAILURE:
-        raise RuntimeError("Failed to transition to playing state")
+    print("[ INFO ] Setting playing state")
+
+    @timeout(5)  # pipeline needs to start within 5 seconds
+    def start():
+        pipeline.set_state(Gst.State.PLAYING)
+        # it's possible to hang here if the source is broken
+        # but the main thread will keep running,
+        # so we check both an explicit fail and a hang
+        if pipeline.get_state(0)[0] == Gst.StateChangeReturn.FAILURE:
+            raise RuntimeError("Failed to transition to playing state")
 
     def quit():
         pipeline.set_state(Gst.State.NULL)
         main_loop.quit()
 
-    print("Playing!")
+    start()
+    print("[ OK ] Pipeline is playing!")
+
     GLib.timeout_add_seconds(delay_seconds, quit)
     main_loop.run()
     while main_loop.is_running():
         pass
+
+    print("[ OK ] Photo was saved to {}".format(file_path))
 
 
 def main():
@@ -183,16 +205,16 @@ def main():
         for cap_i, capability in enumerate(get_all_fixated_caps(caps)):
             print(
                 "[ INFO ] Testing",
-                capability.to_string(),
+                '"{}"'.format(capability.to_string()),
                 "for device",
-                device.get_display_name(),
+                '"{}"'.format(device.get_display_name()),
             )
             take_photo(
                 device.create_element(),
                 delay_seconds=args.wait_seconds,
                 caps=capability,
-                filename="/home/zhongning/fgfg/photo_dev{}_cap{}".format(
-                    dev_i, cap_i
+                file_path="{}/photo_dev{}_cap{}.jpeg".format(
+                    args.path, dev_i, cap_i
                 ),
             )
 

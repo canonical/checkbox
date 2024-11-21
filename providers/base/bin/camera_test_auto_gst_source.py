@@ -15,6 +15,9 @@ gi.require_version("GLib", "2.0")
 from gi.repository import GLib  # type: ignore
 
 Gst.init(None)
+main_loop = GLib.MainLoop.new(  # type: GLib.MainLoop
+    None, False  # type: ignore
+)
 
 
 def get_devices() -> T.List[Gst.Device]:
@@ -128,6 +131,11 @@ def take_photo(
     )
 
     if caps:
+        assert (
+            caps.is_fixed()
+        ), '"{}" is not fixed. If caps.fixate was called before, then this is a bug in GStreamer'.format(
+            caps.to_string()
+        )
         elements["source-capsfilter"].set_property("caps", caps)
         # structure 0 is guaranteed to exist
         mime_type = caps.get_structure(0).get_name()  # type: str
@@ -135,8 +143,11 @@ def take_photo(
             elements["decoder"] = Gst.ElementFactory.make("jpegdec")
             assert elements["decoder"] is not None
         elif mime_type == "video/x-raw":
+            # don't need a decoder for raw
             del elements["decoder"]
+        # else case is using decodebin as a fallback
     else:
+        # remove the initial capsfilter if unused
         del elements["source-capsfilter"]
 
     if delay_seconds > 0 and caps:
@@ -146,18 +157,25 @@ def take_photo(
                 "video/x-raw,framerate=1/{}".format(delay_seconds)
             ),
         )
-        # framerate=(fraction)30/1
+        # framerate=(fraction)30/1, we can assume this format
+        # because caps is fixated
         framerate_match = re.search(
             r"framerate=\(fraction\)(\d+)\/1", caps.to_string()
         )
-        if framerate_match:
+        if framerate_match is not None:
             num_buffers = delay_seconds * int(framerate_match.group(1))
             source.set_property("num-buffers", num_buffers)
-            print("Dynamically computed num-buffers={}".format(num_buffers))
+            print(
+                "[ INFO ] Dynamically computed num-buffers={} to delay {} seconds".format(
+                    num_buffers, delay_seconds
+                )
+            )
         else:
             source.set_property("num-buffers", 60)
             print(
-                "Non standard framerate object: {}".format(caps.to_string()),
+                "[ ERR ] Non standard framerate object: {}".format(
+                    caps.to_string()
+                ),
                 "Defaulting to 60 buffers",
                 file=sys.stderr,
             )
@@ -168,23 +186,18 @@ def take_photo(
 
     # link elements and create pipeline
     pipeline = Gst.Pipeline()  # type: Gst.Pipeline
-    # add many does not exist in default ubuntu gst python binding
+    # Gst.Pipeline.add_many and Gst.Element.link_many
+    # do not exist in default ubuntu gst python binding
     pipeline_add_many(pipeline, source, *elements.values())
     element_link_many(source, *elements.values())
 
-    # print("Created pipeline")
-    # for elem in source, *elements.values():
-    #     print(element_to_str(elem))
-    #     print()
-
-    main_loop = GLib.MainLoop.new(  # type: GLib.MainLoop
-        None, False  # type: ignore
-    )
+    print("Created pipeline: ")
+    print(" ! ".join(element_to_str(e) for e in (source, *elements.values())))
 
     def eos_handler(_, message: Gst.Message):
         nonlocal pipeline
         if message.type == Gst.MessageType.EOS:
-            print("We reached EOS!")
+            print("[ OK ] We reached EOS!")
             # use closure here since this function must take 2 parameters
             # none of which can be the pipeline
             pipeline.set_state(Gst.State.NULL)
@@ -204,21 +217,29 @@ def take_photo(
 
 def main():
     devices = get_devices()
-    for di, device in enumerate(devices):
+    if len(devices) == 0:
+        print(
+            "GStreamer cannot find any cameras on this device.",
+            file=sys.stderr,
+        )
+        exit(1)
+
+    print("Found {} cameras!".format(len(devices)))
+    for dev_i, device in enumerate(devices):
         caps = device.get_caps()
-        for ci, cap in enumerate(get_all_fixated_caps(caps)):
+        for cap_i, capability in enumerate(get_all_fixated_caps(caps)):
             print(
                 "Testing",
-                cap.to_string(),
+                capability.to_string(),
                 "for device",
                 device.get_display_name(),
             )
             take_photo(
                 device.create_element(),
                 delay_seconds=1,
-                caps=cap,
+                caps=capability,
                 filename="/home/zhongning/fgfg/photo_dev{}_cap{}".format(
-                    di, ci
+                    dev_i, cap_i
                 ),
             )
 

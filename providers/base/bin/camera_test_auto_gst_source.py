@@ -5,9 +5,15 @@ import sys
 import gi
 from argparse import ArgumentParser
 import typing as T
-from checkbox_support.helpers.timeout import timeout
+
+# from checkbox_support.helpers.timeout import timeout
+timeout = lambda _: lambda f: f
 
 # https://github.com/TheImagingSource/tiscamera/blob/master/examples/python/00-list-devices.py
+
+
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk  # type: ignore
 
 gi.require_version("Gst", "1.0")
 from gi.repository import Gst  # type: ignore
@@ -15,7 +21,9 @@ from gi.repository import Gst  # type: ignore
 gi.require_version("GLib", "2.0")
 from gi.repository import GLib  # type: ignore
 
+
 Gst.init(None)
+Gtk.init([])
 main_loop = GLib.MainLoop.new(  # type: GLib.MainLoop
     None, False  # type: ignore
 )
@@ -104,6 +112,50 @@ def elem_to_str(element: Gst.Element) -> str:
     )  # libcamerasrc name=cam_name location=p.jpeg
 
 
+def run_pipeline(pipeline: Gst.Pipeline, run_n_seconds: int):
+    @timeout(5)  # pipeline needs to start within 5 seconds
+    def start():
+        pipeline.set_state(Gst.State.PLAYING)
+        # it's possible to hang here if the source is broken
+        # but the main thread will keep running,
+        # so we check both an explicit fail and a hang
+        if pipeline.get_state(0)[0] == Gst.StateChangeReturn.FAILURE:
+            raise RuntimeError("Failed to transition to playing state")
+
+    def quit():
+        pipeline.set_state(Gst.State.NULL)
+        main_loop.quit()
+
+    start()
+    print("[ OK ] Pipeline is playing!")
+
+    GLib.timeout_add_seconds(run_n_seconds, quit)
+
+    main_loop.run()
+
+
+def display_viewfinder(
+    source: Gst.Element,
+    *,
+    show_n_seconds=5,
+):
+    partial_pipeline = "videoconvert name=head ! autovideosink name=sink"
+    pipeline = Gst.parse_launch(partial_pipeline)  # type: Gst.Pipeline
+    head = pipeline.get_by_name("head")
+    print(pipeline.get_by_name("sink"))
+
+    assert pipeline.add(source)
+    assert head
+    assert source.link(head)
+
+    print(
+        "[ OK ] Created pipeline: {} ! {}".format(
+            elem_to_str(source), partial_pipeline
+        )
+    )
+    run_pipeline(pipeline, show_n_seconds)
+
+
 def take_photo(
     source: Gst.Element,
     *,
@@ -116,7 +168,7 @@ def take_photo(
     :param source: The camera source element
     :param caps: Which capability to use for the source
         - If none, no caps filter will be inserted between source and decoder
-    :param filename: the path to the photo
+    :param file_path: the path to the photo
     :param delay_seconds: number of seconds to keep the pipeline running
         before taking the photo
     """
@@ -133,6 +185,8 @@ def take_photo(
         "multifilesink location={}".format(file_path),  # 6
     ]
 
+    # using empty string as null values here
+    # they are filtered out at parse_launch
     if caps:
         assert caps.is_fixed(), '"{}" is not fixed.'.format(caps.to_string())
         str_elements[0] = str_elements[0].format(caps.to_string())
@@ -165,26 +219,7 @@ def take_photo(
 
     print("[ INFO ] Setting playing state")
 
-    @timeout(5)  # pipeline needs to start within 5 seconds
-    def start():
-        pipeline.set_state(Gst.State.PLAYING)
-        # it's possible to hang here if the source is broken
-        # but the main thread will keep running,
-        # so we check both an explicit fail and a hang
-        if pipeline.get_state(0)[0] == Gst.StateChangeReturn.FAILURE:
-            raise RuntimeError("Failed to transition to playing state")
-
-    def quit():
-        pipeline.set_state(Gst.State.NULL)
-        main_loop.quit()
-
-    start()
-    print("[ OK ] Pipeline is playing!")
-
-    GLib.timeout_add_seconds(delay_seconds, quit)
-    main_loop.run()
-    while main_loop.is_running():
-        pass
+    run_pipeline(pipeline, delay_seconds)
 
     print("[ OK ] Photo was saved to {}".format(file_path))
 
@@ -217,6 +252,8 @@ def main():
                     args.path, dev_i, cap_i
                 ),
             )
+            break
+        display_viewfinder(device.create_element())
 
 
 if __name__ == "__main__":

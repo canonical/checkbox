@@ -217,6 +217,32 @@ class CPUScalingHandler:
             print("ERROR: Fail to get scaling driver from {}".format(path))
             return ""
 
+    def get_cpb(self, policy=0) -> str:
+        """
+        Get the core performance boost (cpb) used by a specific CPU policy.
+        Ref. https://en.wikipedia.org/wiki/AMD_Turbo_Core
+
+        Args:
+            policy (int): The CPU policy number to query (default is 0).
+
+        Returns:
+            str: The value of the cpb for the specified policy.
+                 1 means enabled, 0 means disabled.
+        """
+        path = os.path.join(
+            self.sys_cpu_dir,
+            "cpufreq",
+            "policy{}".format(policy),
+            "cpb",
+        )
+        try:
+            with open(path, "r") as attr_file:
+                line = attr_file.read()
+                return line.strip()
+        except IOError:
+            print("ERROR: Fail to get cpb from {}".format(path))
+            return ""
+
     def print_policies_list(self) -> bool:
         """
         Print the list of CPU policies and their corresponding scaling drivers
@@ -230,9 +256,11 @@ class CPUScalingHandler:
         if not self.cpu_policies:
             return False
         for policy in self.cpu_policies:
-            driver = self.get_scaling_driver(policy)
             print("policy: {}".format(policy))
-            print("scaling_driver: {}".format(driver))
+            print(
+                "scaling_driver: {}".format(self.get_scaling_driver(policy))
+            )
+            print("cpb: {}".format(self.get_cpb(policy)))
             print()
         return True
 
@@ -632,7 +660,7 @@ class CPUScalingTest:
                     success = False
                     logging.error(
                         "Could not verify that cpu frequency has close to "
-                        "frequency %s MHz",
+                        "%s frequency %s MHz",
                         frequencies_mapping[governor][1],
                         (frequencies_mapping[governor][0] / 1000),
                     )

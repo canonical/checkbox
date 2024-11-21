@@ -683,9 +683,5 @@ def get_execution_command(
         "{key}={value}".format(key=key, value=value)
         for key, value in sorted(env.items())
     ]
-    # Run the command unconfined on ubuntu core because of snap-confine fixes
-    # related to https://ubuntu.com/security/CVE-2021-44731
-    if on_ubuntucore():
-        cmd += ["aa-exec", "-p", "unconfined"]
     cmd += [job.shell, "-c", job.command]
     return cmd

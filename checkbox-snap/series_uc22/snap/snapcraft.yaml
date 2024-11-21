@@ -46,30 +46,24 @@ plugs:
     interface: content
     target: $SNAP/providers/checkbox-provider-certification-server
     default-provider: checkbox22
+  steam-support:
 
 apps:
   checkbox-cli:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper
-    plugs: &standard [home, network-bind, hardware-observe, bluez, bluetooth-control,
-      gpio, modem-manager, mount-observe, network-manager, pulseaudio, serial-port,
-      system-observe, tpm, udisks2]
   test-runner:
     command-chain: [bin/wrapper_local]
     command: bin/test-runner
-    plugs: *standard
   sru:
     command-chain: [bin/wrapper_local]
     command: bin/sru
-    plugs: *standard
   client-cert-iot-ubuntucore:
     command-chain: [bin/wrapper_local]
     command: bin/client-cert-iot-ubuntucore
-    plugs: *standard
   odm-certification:
     command-chain: [bin/wrapper_local]
     command: bin/odm-certification-app
-    plugs: *standard
   configure:
     command: bin/configure
   agent:
@@ -78,11 +72,9 @@ apps:
     daemon: simple
     restart-condition: always
     restart-delay: 1s
-    plugs: *standard
   shell:
     command-chain: [bin/wrapper_local]
     command: bin/shell-wrapper
-    plugs: *standard
 
 passthrough:
   hooks:

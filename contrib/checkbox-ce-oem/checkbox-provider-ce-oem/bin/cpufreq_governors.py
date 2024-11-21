@@ -257,9 +257,7 @@ class CPUScalingHandler:
             return False
         for policy in self.cpu_policies:
             print("policy: {}".format(policy))
-            print(
-                "scaling_driver: {}".format(self.get_scaling_driver(policy))
-            )
+            print("scaling_driver: {}".format(self.get_scaling_driver(policy)))
             print("cpb: {}".format(self.get_cpb(policy)))
             print()
         return True

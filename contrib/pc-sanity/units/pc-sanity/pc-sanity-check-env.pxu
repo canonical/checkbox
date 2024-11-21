@@ -145,7 +145,7 @@ plugin: shell
 category_id: com.canonical.plainbox::miscellanea
 id: miscellanea/check_production_suite
 requires:
- lsb.release == "22.04"
+ lsb.release >= "22.04"
  package.name == 'lsb-release'
 user: root
 command: check-production-suite.sh

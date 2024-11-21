@@ -267,10 +267,6 @@ def take_photo(
             # none of which can be the pipeline
             pipeline.set_state(Gst.State.NULL)
             main_loop.quit()
-        if message.type == Gst.MessageType.ELEMENT:
-            print(("Element message from bus:"), bus.name)
-            message_string = message.get_structure().to_string()  # type: ignore
-            print(message_string)
 
     bus = pipeline.get_bus()
     bus.add_signal_watch()
@@ -280,7 +276,10 @@ def take_photo(
     def run():
         print("Setting playing state")
         pipeline.set_state(Gst.State.PLAYING)
-        print("Playing")
+        if pipeline.get_state(0)[0] == Gst.StateChangeReturn.FAILURE:
+            raise RuntimeError("Failed to transition to playing state")
+
+        print("Playing!")
         main_loop.run()
         while main_loop.is_running():
             pass

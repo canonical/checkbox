@@ -23,6 +23,7 @@ include:
     com.canonical.certification::power-management/check-turbostat-s2i-cpu-residency
     com.canonical.certification::power-management/check-turbostat-s2i-s0ix-residency
     com.canonical.certification::power-management/check-turbostat-s2i-gfxrc6-residency
+    com.canonical.certification::power-management/switch_power_mode
     com.canonical.certification::miscellanea/intel-rapl
     com.canonical.certification::miscellanea/intel-rapl-mmio_.*
     com.canonical.certification::miscellanea/intel-p-state

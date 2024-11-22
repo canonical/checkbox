@@ -285,7 +285,7 @@ def main(args):
     )
     parser.add_argument(
         "--timeout",
-        default=300,
+        default=600,
         help="Timeout for each task, in seconds (default: %(default)s))",
     )
 

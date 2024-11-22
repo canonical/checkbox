@@ -554,6 +554,7 @@ class CPUScalingTest:
                 frequency; otherwise, returns False.
         """
         curr_freq = self.handler.get_current_frequency()
+        logging.info("Current CPU frequency is %s", curr_freq)
         return curr_freq == target
 
     @with_timeout()
@@ -566,6 +567,7 @@ class CPUScalingTest:
                 otherwise, returns False.
         """
         curr_freq = self.handler.get_current_frequency()
+        logging.info("Current CPU frequency is %s", curr_freq)
         return curr_freq < self.handler.max_freq
 
     def test_frequency_influence(self, governor, target_freq=None) -> bool:

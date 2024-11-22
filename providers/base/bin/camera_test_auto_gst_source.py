@@ -47,7 +47,7 @@ def get_all_fixated_caps(caps: Gst.Caps) -> T.List[Gst.Caps]:
     """
     fixated_caps = []
     while not caps.is_fixed():
-        # keep fixiating it until it's fixed
+        # keep fixating it until it's fixed
         fixated_cap = caps.fixate()
         fixated_caps.append(fixated_cap)
         caps = caps.subtract(fixated_cap)
@@ -230,6 +230,8 @@ def main():
     if len(devices) == 0:
         print(
             "GStreamer cannot find any cameras on this device.",
+            "If you know a camera element exists, then it did not implement",
+            "Gst.DeviceProvider to make itself visible to GStreamer",
             file=sys.stderr,
         )
         exit(1)

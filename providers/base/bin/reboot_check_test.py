@@ -54,7 +54,7 @@ class DeviceInfoCollector:
         return "\n".join(map(lambda line: line.strip(), lines_to_write))
 
     def get_usb_info(self) -> str:
-        return sp.check_output(
+        out = sp.check_output(
             [
                 "checkbox-support-lsusb",
                 "-f",
@@ -62,7 +62,9 @@ class DeviceInfoCollector:
                 "-s",
             ],
             universal_newlines=True,
-        )
+        ).splitlines()
+        out.sort()
+        return "\n".join(out)
 
     def get_pci_info(self) -> str:
         return sp.check_output(
@@ -97,6 +99,7 @@ class DeviceInfoCollector:
                     "[ ERR ] The output of {} differs!".format(device),
                     file=sys.stderr,
                 )
+                self.print_diff(device, expected, actual)
                 return False
 
         for device in devices["optional"]:
@@ -107,6 +110,7 @@ class DeviceInfoCollector:
                     "[ WARN ] Items under {} have changed.".format(actual),
                     file=sys.stderr,
                 )
+                self.print_diff(device, expected, actual)
 
         return True
 
@@ -130,6 +134,16 @@ class DeviceInfoCollector:
                 file.write(self.dump_function[device]())
 
         os.sync()
+
+    def print_diff(self, name: str, expected_path: str, actual_path: str):
+        with open(expected_path) as file_expected, open(
+            actual_path
+        ) as file_actual:
+            print("Expected {} output:".format(name), file=sys.stderr)
+            print(file_expected.read(), file=sys.stderr)
+            print("Actual {} output:".format(name), file=sys.stderr)
+            print(file_actual.read(), file=sys.stderr)
+            print("End of {} diff".format(name), file=sys.stderr)
 
     def __init__(self) -> None:
         self.dump_function = {
@@ -159,7 +173,7 @@ class FwtsTester:
         log_file_path = "{}/fwts_{}.log".format(
             output_directory, "_".join(fwts_arguments)
         )
-        sp.run(["fwts", "-r", log_file_path, *fwts_arguments])
+        sp.run(["fwts", "-r", log_file_path, "-q", *fwts_arguments])
         result = sp.run(
             [
                 "sleep_test_log_check.py",
@@ -248,8 +262,9 @@ class HardwareRendererTester:
         )
         if unity_support_output.returncode != 0:
             print(
-                "[ ERR ] unity support test returned {}".format(
-                    unity_support_output.returncode
+                "[ ERR ] unity support test returned {}. Error is: {}".format(
+                    unity_support_output.returncode,
+                    unity_support_output.stdout,
                 ),
                 file=sys.stderr,
             )
@@ -390,11 +405,10 @@ def main() -> int:
     if args.comparison_directory is not None:
         if args.output_directory is None:
             print(
-                "[ ERR ] Please specify an output directory with the -d flag.",
-                file=sys.stderr,
+                "[ ERR ] Please specify an output directory with the -d flag."
             )
             raise ValueError(
-                "Cmoparison directory is specified, but output directory isn't"
+                "Comparison directory is specified, but output directory isn't"
             )
         else:
             collector = DeviceInfoCollector()
@@ -403,6 +417,8 @@ def main() -> int:
                 args.comparison_directory, args.output_directory
             ):
                 print("[ OK ] Devices match!")
+            else:
+                device_comparison_passed = False
 
     # dump (no checks) if only output_directory is specified
     if args.output_directory is not None and args.comparison_directory is None:

@@ -302,13 +302,16 @@ class MainFunctionTests(unittest.TestCase):
         ), patch(
             "reboot_check_test.DeviceInfoCollector.compare_device_lists"
         ) as mock_compare:
-            RCT.main()
+            mock_compare.return_value = False
+
+            rv = RCT.main()
 
             self.assertEqual(
                 mock_run.call_count,
                 len(RCT.DeviceInfoCollector.DEFAULT_DEVICES["required"]),
             )  # only lspci, lsusb, iw calls
             self.assertEqual(mock_compare.call_count, 1)
+            self.assertEqual(rv, 1)
 
     @patch("subprocess.run")
     def test_main_function_full(self, mock_run: MagicMock):

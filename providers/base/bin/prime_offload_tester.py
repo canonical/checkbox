@@ -28,6 +28,8 @@ import json
 import sys
 import re
 import os
+import typing as T
+from shlex import split as sh_split
 
 
 class PrimeOffloader:
@@ -48,7 +50,7 @@ class PrimeOffloader:
 
     def find_file_containing_string(
         self, search_directory: str, filename_pattern: str, search_string: str
-    ) -> str:
+    ) -> T.Optional[str]:
         """
         Search for a file matching a specific pattern
         that contains a given string.
@@ -89,6 +91,7 @@ class PrimeOffloader:
             card_path = self.find_file_containing_string(
                 "/sys/kernel/debug/dri", "name", pci_bdf
             )
+            assert card_path, "Couldn't find a card named: {}".format(pci_bdf)
             return card_path.split("/")[5]
         except IndexError as e:
             raise SystemExit("return value format error {}".format(repr(e)))
@@ -139,7 +142,7 @@ class PrimeOffloader:
         return ""
 
     def check_offload(
-        self, cmd: list, card_id: str, card_name: str, timeout: int
+        self, cmd: T.List[str], card_id: str, card_name: str, timeout: int
     ):
         """
         Used to check if the provided command is executed on a specific GPU.
@@ -168,7 +171,7 @@ class PrimeOffloader:
                 self.logger.info("  Device Name:[{}]".format(card_name))
                 return
         self.logger.info("Checking fail:")
-        self.logger.info("  Couldn't find process [{}]".format(cmd))
+        self.logger.info("  Couldn't find process {}".format(cmd))
         self.check_result = True
 
     def _find_bdf(self, card_id: str):
@@ -182,7 +185,7 @@ class PrimeOffloader:
             data_in_name = f.read()
         return data_in_name.split()[1].split("=")[1]
 
-    def find_offload(self, cmd: str, timeout: int):
+    def find_offload(self, cmd_str: str, timeout: int):
         """
         Find the card that the command is running on.
         This script looks for the card on which a specific command is running.
@@ -200,7 +203,7 @@ class PrimeOffloader:
 
         deadline = time.time() + timeout
 
-        cmd = cmd.split()
+        cmd = sh_split(cmd_str)
 
         while time.time() < deadline:
             time.sleep(delay)
@@ -209,7 +212,8 @@ class PrimeOffloader:
             card_path = self.find_file_containing_string(
                 directory, "clients", cmd[0]
             )
-            if directory in card_path:
+
+            if card_path and directory in card_path:
                 try:
                     # The graphic will be shown such as 0 and 128
                     # at the same time. Therefore, pick up the first one
@@ -217,7 +221,7 @@ class PrimeOffloader:
                     card_id = first_card.split("/")[5]
                     bdf = self._find_bdf(card_id)
                     self.logger.info("Process is running on:")
-                    self.logger.info("  process:[{}]".format(cmd))
+                    self.logger.info("  process:[{}]".format(cmd[0]))
                     self.logger.info(
                         "  Card ID:[{}]".format(self.find_card_id(bdf))
                     )
@@ -229,8 +233,9 @@ class PrimeOffloader:
                     self.logger.info(
                         "Finding card information failed {}".format(repr(e))
                     )
+
         self.logger.info("Checking fail:")
-        self.logger.info("  Couldn't find process [{}]".format(cmd))
+        self.logger.info("  Couldn't find process {}".format(cmd))
         self.check_result = True
 
     def check_nv_offload_env(self):
@@ -262,7 +267,7 @@ class PrimeOffloader:
                 "No prime-select, it should be ok to run prime offload"
             )
 
-    def cmd_runner(self, cmd: list, env: dict = None):
+    def cmd_runner(self, cmd: T.List[str], env: T.Optional[T.Dict] = None):
         """
         use to execute command and piping the output to the screen.
 
@@ -283,7 +288,8 @@ class PrimeOffloader:
 
                 # redirect command output real time
                 while runner.poll() is None:
-                    line = runner.stdout.readline().strip()
+                    # when stdout=subprocess.PIPE, stdout is not None
+                    line = runner.stdout.readline().strip()  # type: ignore
                     self.logger.info(line)
         except subprocess.CalledProcessError as e:
             raise SystemExit("run command failed {}".format(repr(e)))
@@ -313,7 +319,9 @@ class PrimeOffloader:
         if self.check_result:
             raise SystemExit("Couldn't find process running on GPU")
 
-    def cmd_checker(self, cmd: str, pci_bdf: str, driver: str, timeout: int):
+    def cmd_checker(
+        self, cmd_str: str, pci_bdf: str, driver: str, timeout: int
+    ):
         """
         run offload command and check it runs on correct GPU
 
@@ -331,7 +339,7 @@ class PrimeOffloader:
         # run offload command in other process
         dri_pci_bdf_format = re.sub("[:.]", "_", pci_bdf)
 
-        if "timeout" in cmd:
+        if "timeout" in cmd_str:
             raise SystemExit("Put timeout in command isn't allowed")
 
         env = os.environ.copy()
@@ -349,19 +357,22 @@ class PrimeOffloader:
         # if nv driver under nvidia mode, prime/reverse prime couldn't work.
         self.check_nv_offload_env()
 
+        cmd = sh_split(cmd_str)
         # use other thread to check offload is correctly or not
         check_thread = threading.Thread(
             target=self.check_offload, args=(cmd, card_id, card_name, timeout)
         )
         check_thread.start()
         try:
-            run_with_timeout(self.cmd_runner, timeout, cmd.split(), env)
+            run_with_timeout(self.cmd_runner, timeout, cmd, env)
         except TimeoutError:
             self.logger.info("Test finished")
         check_thread.join()
 
         if self.check_result:
-            raise SystemExit("offload to specific GPU failed")
+            raise SystemExit(
+                "offload to specific GPU: {} failed".format(pci_bdf)
+            )
 
     def parse_args(self, args=sys.argv[1:]):
         """
@@ -428,4 +439,5 @@ class PrimeOffloader:
 
 
 if __name__ == "__main__":
+    assert os.getuid() == 0, "This test must be run as root"
     PrimeOffloader().main()

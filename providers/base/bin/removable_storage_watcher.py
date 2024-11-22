@@ -1001,7 +1001,7 @@ class UDisks2StorageDeviceListener:
                     )
 
 
-def main():
+def main(argv=sys.argv[1:]):
     description = "Wait for the specified device to be inserted or removed."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("action", choices=["insert", "remove"])
@@ -1046,7 +1046,7 @@ def main():
         help="Don't require drive being automounted",
     )
     parser.set_defaults(logging_level=logging.WARNING)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     # Configure logging as requested
     # XXX: This may be incorrect as logging.basicConfig() fails after any other

@@ -3,7 +3,12 @@
 set -euxo pipefail
 
 check_intel_gpu_plugin_can_be_installed() {
-    # Using kubectl directly due to this bug: https://github.com/canonical/microk8s/issues/4453
+    if microk8s.kubectl get daemonset.apps | grep -q "intel-gpu-plugin"; then
+        echo "Test success: 'intel-gpu-plugin' daemonset is already deployed!"
+        exit 0
+    fi
+
+    # NOTE: Using kubectl directly due to this bug: https://github.com/canonical/microk8s/issues/4453
 
     # TODO: make version a param
     VERSION=v0.30.0

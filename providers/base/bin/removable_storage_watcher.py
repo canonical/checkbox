@@ -5,9 +5,7 @@ import collections
 import copy
 import dbus
 import logging
-import os
 import sys
-import threading
 
 import gi
 
@@ -26,7 +24,6 @@ from checkbox_support.heuristics.udisks2 import is_memory_card  # noqa: E402
 from checkbox_support.parsers.udevadm import CARD_READER_RE  # noqa: E402
 from checkbox_support.parsers.udevadm import GENERIC_RE  # noqa: E402
 from checkbox_support.parsers.udevadm import FLASH_RE  # noqa: E402
-from checkbox_support.scripts.zapper_proxy import zapper_run  # noqa: E402
 from checkbox_support.udev import get_interconnect_speed  # noqa: E402
 from checkbox_support.udev import get_udev_block_devices  # noqa: E402
 
@@ -1004,7 +1001,7 @@ class UDisks2StorageDeviceListener:
                     )
 
 
-def main():
+def main(argv=sys.argv[1:]):
     description = "Wait for the specified device to be inserted or removed."
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("action", choices=["insert", "remove"])
@@ -1048,13 +1045,8 @@ def main():
         action="store_true",
         help="Don't require drive being automounted",
     )
-    parser.add_argument(
-        "--zapper-usb-address",
-        type=str,
-        help="Zapper's USB switch address to use",
-    )
     parser.set_defaults(logging_level=logging.WARNING)
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     # Configure logging as requested
     # XXX: This may be incorrect as logging.basicConfig() fails after any other
@@ -1097,42 +1089,11 @@ def main():
         )
     # Run the actual listener and wait till it either times out of discovers
     # the appropriate media changes
-    if args.zapper_usb_address:
-        zapper_host = os.environ.get("ZAPPER_HOST")
-        if not zapper_host:
-            raise SystemExit("ZAPPER_HOST environment variable not found!")
-        usb_address = args.zapper_usb_address
-        delay = 5  # in seconds
-
-        def do_the_insert():
-            logging.info("Calling zapper to connect the USB device")
-            zapper_run(zapper_host, "typecmux_set_state", usb_address, "DUT")
-
-        insert_timer = threading.Timer(delay, do_the_insert)
-
-        def do_the_remove():
-            logging.info("Calling zapper to disconnect the USB device")
-            zapper_run(zapper_host, "typecmux_set_state", usb_address, "OFF")
-
-        remove_timer = threading.Timer(delay, do_the_remove)
-        if args.action == "insert":
-            logging.info("Starting timer for delayed insertion")
-            insert_timer.start()
-        elif args.action == "remove":
-            logging.info("Starting timer for delayed removal")
-            remove_timer.start()
-        try:
-            res = listener.check(args.timeout)
-            return res
-        except KeyboardInterrupt:
-            return 1
-
-    else:
-        print("\n\n{} NOW\n\n".format(args.action.upper()), flush=True)
-        try:
-            return listener.check(args.timeout)
-        except KeyboardInterrupt:
-            return 1
+    print("\n\n{} NOW\n\n".format(args.action.upper()), flush=True)
+    try:
+        return listener.check(args.timeout)
+    except KeyboardInterrupt:
+        return 1
 
 
 if __name__ == "__main__":

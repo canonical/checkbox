@@ -1,5 +1,0 @@
-# This is for Zapper-enabled Bluetooth tests
-unit: packaging meta-data
-os-id: debian
-Depends: python3-bluez
-

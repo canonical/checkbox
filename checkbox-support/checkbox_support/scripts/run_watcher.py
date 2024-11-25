@@ -10,7 +10,6 @@ this script monitors the systemd journal to catch insert/removal USB events
 """
 import argparse
 import logging
-import os
 import re
 import select
 import sys
@@ -19,7 +18,6 @@ from systemd import journal
 from abc import ABC, abstractmethod
 
 from checkbox_support.helpers.timeout import timeout
-from checkbox_support.scripts.zapper_proxy import zapper_run
 from checkbox_support.scripts.usb_read_write import (
     mount_usb_storage,
     gen_random_file,
@@ -33,6 +31,33 @@ logger.setLevel(logging.INFO)
 
 
 ACTION_TIMEOUT = 30
+
+
+class ControllerInterface(ABC):
+    """
+    Perform actions on the device user test.
+    """
+
+    @abstractmethod
+    def action(self, action_type):
+        """Perform action of type `action_type` on the DUT."""
+
+
+class ManualController(ControllerInterface):
+    """
+    Interact with the device under test manually.
+    """
+
+    def action(self, action_type):
+        """Perform action of type `action_type` on the DUT."""
+
+        if action_type == "insertion":
+            print("\n\nINSERT NOW\n\n", flush=True)
+        elif action_type == "removal":
+            print("\n\nREMOVE NOW\n\n", flush=True)
+        else:
+            raise SystemExit("Invalid test case")
+        print("Timeout: {} seconds".format(ACTION_TIMEOUT), flush=True)
 
 
 class StorageInterface(ABC):
@@ -72,41 +97,21 @@ class StorageWatcher(StorageInterface):
     function to detect the insertion and removal of storage.
     """
 
-    def __init__(self, storage_type, zapper_usb_address):
+    def __init__(self, storage_type, controller=ManualController()):
         self.storage_type = storage_type
-        self.zapper_usb_address = zapper_usb_address
         self.testcase = None
         self.test_passed = False
         self.mounted_partition = None
+        self._controller = controller
 
     def run(self):
         j = journal.Reader()
         j.seek_realtime(time.time())
         p = select.poll()
         p.register(j, j.get_events())
-        if self.zapper_usb_address:
-            zapper_host = os.environ.get("ZAPPER_HOST")
-            if not zapper_host:
-                raise SystemExit("ZAPPER_HOST environment variable not found!")
-            usb_address = self.zapper_usb_address
-            if self.testcase == "insertion":
-                print("Calling zapper to connect the USB device")
-                zapper_run(
-                    zapper_host, "typecmux_set_state", usb_address, "DUT"
-                )
-            elif self.testcase == "removal":
-                print("Calling zapper to disconnect the USB device")
-                zapper_run(
-                    zapper_host, "typecmux_set_state", usb_address, "OFF"
-                )
-        else:
-            if self.testcase == "insertion":
-                print("\n\nINSERT NOW\n\n", flush=True)
-            elif self.testcase == "removal":
-                print("\n\nREMOVE NOW\n\n", flush=True)
-            else:
-                raise SystemExit("Invalid test case")
-            print("Timeout: {} seconds".format(ACTION_TIMEOUT), flush=True)
+
+        self._controller.action(self.testcase)
+
         while p.poll():
             if j.process() != journal.APPEND:
                 continue
@@ -168,8 +173,8 @@ class USBStorage(StorageWatcher):
     USBStorage handles the insertion and removal of usb2 and usb3.
     """
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.mounted_partition = None
         self.device = None
         self.number = None
@@ -257,8 +262,8 @@ class MediacardStorage(StorageWatcher):
     MediacardStorage handles the insertion and removal of sd, sdhc, mmc etc...
     """
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.mounted_partition = None
         self.action = None
         self.device = None
@@ -316,8 +321,8 @@ class MediacardComboStorage(StorageWatcher):
     etc., for devices that combine mediacard and usb storage.
     """
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.mounted_partition = None
         self.action = None
         self.device = None
@@ -358,8 +363,8 @@ class ThunderboltStorage(StorageWatcher):
     storage.
     """
 
-    def __init__(self, *args):
-        super().__init__(*args)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.mounted_partition = None
         self.action = None
 
@@ -419,11 +424,6 @@ def parse_args():
         ],
         help=("usb2, usb3, mediacard, mediacard_combo or thunderbolt"),
     )
-    parser.add_argument(
-        "--zapper-usb-address",
-        type=str,
-        help="Zapper's USB switch address to use",
-    )
     return parser.parse_args()
 
 
@@ -432,17 +432,13 @@ def main():
 
     watcher = None
     if args.storage_type == "thunderbolt":
-        watcher = ThunderboltStorage(
-            args.storage_type, args.zapper_usb_address
-        )
+        watcher = ThunderboltStorage(args.storage_type)
     elif args.storage_type == "mediacard":
-        watcher = MediacardStorage(args.storage_type, args.zapper_usb_address)
+        watcher = MediacardStorage(args.storage_type)
     elif args.storage_type == "mediacard_combo":
-        watcher = MediacardComboStorage(
-            args.storage_type, args.zapper_usb_address
-        )
+        watcher = MediacardComboStorage(args.storage_type)
     else:
-        watcher = USBStorage(args.storage_type, args.zapper_usb_address)
+        watcher = USBStorage(args.storage_type)
 
     if args.testcase == "insertion":
         mounted_partition = watcher.run_insertion()

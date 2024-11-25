@@ -128,7 +128,6 @@ nested_part:
     monitor-discrete-gpu-cert-automated
     graphics-integrated-gpu-cert-automated
     graphics-discrete-gpu-cert-automated
-    zapper-enabled-automated
     # start of suspend related tests
     before-suspend-reference-cert-full
     # suspend point

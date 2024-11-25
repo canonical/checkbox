@@ -37,7 +37,7 @@ requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that an PyTorch CPU notebook can be successfully created
 estimated_duration: 3m
-command: check_dss can_create_pytorch_cpu_notebook
+command: check_dss can_create_notebook pytorch-cpu --image=pytorch
 
 id: cpu/pytorch_can_use_cpu
 category_id: dss-regress
@@ -67,7 +67,7 @@ requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that an Tensorflow CPU notebook can be successfully created
 estimated_duration: 3m
-command: check_dss can_create_tensorflow_cpu_notebook
+command: check_dss can_create_notebook tensorflow-cpu --image=tensorflow
 
 id: cpu/tensorflow_can_use_cpu
 category_id: dss-regress
@@ -187,7 +187,7 @@ requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that an ITEX 2.15 notebook can be successfully created
 estimated_duration: 3m
-command: check_dss can_create_itex_215_notebook
+command: check_dss can_create_notebook itex-215-notebook --image tensorflow-intel
 
 id: itex/itex_2.15_import
 category_id: dss-regress
@@ -227,7 +227,7 @@ requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that an IPEX 2.1.20 notebook can be successfully created
 estimated_duration: 3m
-command: check_dss can_create_ipex_2120_notebook
+command: check_dss can_create_notebook ipex-2120-notebook --image pytorch-intel
 
 id: ipex/ipex_2.1.20_import
 category_id: dss-regress
@@ -297,7 +297,7 @@ requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an PyTorch CUDA notebook can be successfully created
 estimated_duration: 3m
-command: check_dss can_create_pytorch_cuda_notebook
+command: check_dss can_create_notebook pytorch-cuda --image=pytorch-cuda
 
 id: cuda/pytorch_can_use_cuda
 category_id: dss-regress
@@ -327,7 +327,7 @@ requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an Tensorflow CUDA notebook can be successfully created
 estimated_duration: 3m
-command: check_dss can_create_tensorflow_cuda_notebook
+command: check_dss can_create_notebook tensorflow-cuda --image=tensorflow-cuda
 
 id: cuda/tensorflow_can_use_cuda
 category_id: dss-regress

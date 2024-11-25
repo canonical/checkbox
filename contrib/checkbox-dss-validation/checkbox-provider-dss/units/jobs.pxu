@@ -7,7 +7,7 @@ requires:
   executable.name == 'microk8s'
 _summary: Check that the DSS environment initializes
 estimated_duration: 2m
-command: check_dss.sh dss_can_be_initialized
+command: check_dss dss_can_be_initialized
 
 id: dss/namespace
 category_id: dss-regress
@@ -17,7 +17,7 @@ requires: executable.name == 'microk8s'
 depends: dss/initialize
 _summary: Check that the dss namespace is deployed
 estimated_duration: 5s
-command: check_dss.sh dss_namespace_is_deployed
+command: check_dss dss_namespace_is_deployed
 
 id: dss/status_mlflow
 category_id: dss-regress
@@ -27,7 +27,7 @@ requires: executable.name == 'dss'
 depends: dss/namespace
 _summary: Check that the dss mlflow is deployed
 estimated_duration: 5s
-command: check_dss.sh mlflow_status_is_ready
+command: check_dss mlflow_status_is_ready
 
 id: dss/create_pytorch_cpu_notebook
 category_id: dss-regress
@@ -37,7 +37,7 @@ requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that an PyTorch CPU notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.sh can_create_pytorch_cpu_notebook
+command: check_dss can_create_pytorch_cpu_notebook
 
 id: cpu/pytorch_can_use_cpu
 category_id: dss-regress
@@ -57,7 +57,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_cpu_notebook
 _summary: Check that the PyTorch CPU notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook "pytorch-cpu"
+command: check_dss can_remove_notebook "pytorch-cpu"
 
 id: dss/create_tensorflow_cpu_notebook
 category_id: dss-regress
@@ -67,7 +67,7 @@ requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that an Tensorflow CPU notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.sh can_create_tensorflow_cpu_notebook
+command: check_dss can_create_tensorflow_cpu_notebook
 
 id: cpu/tensorflow_can_use_cpu
 category_id: dss-regress
@@ -87,7 +87,7 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cpu_notebook
 _summary: Check that the Tensorflow CPU notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook "tensorflow-cpu"
+command: check_dss can_remove_notebook "tensorflow-cpu"
 
 id: intel_gpu_plugin/install
 category_id: dss-regress
@@ -177,7 +177,7 @@ requires: executable.name == 'dss'
 depends: intel_gpu_plugin/node_gpu_allocatable
 _summary: Check that dss status reports that Intel GPU acceleration is enabled
 estimated_duration: 5s
-command: check_dss.sh intel_gpu_acceleration_is_enabled
+command: check_dss intel_gpu_acceleration_is_enabled
 
 id: dss/create_tensorflow_intel_notebook
 category_id: dss-regress
@@ -187,7 +187,7 @@ requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that an ITEX 2.15 notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.sh can_create_itex_215_notebook
+command: check_dss can_create_itex_215_notebook
 
 id: itex/itex_2.15_import
 category_id: dss-regress
@@ -217,7 +217,7 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_intel_notebook
 _summary: Check that the Tensorflow Intel notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook "itex-215-notebook"
+command: check_dss can_remove_notebook "itex-215-notebook"
 
 id: dss/create_pytorch_intel_notebook
 category_id: dss-regress
@@ -227,7 +227,7 @@ requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that an IPEX 2.1.20 notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.sh can_create_ipex_2120_notebook
+command: check_dss can_create_ipex_2120_notebook
 
 id: ipex/ipex_2.1.20_import
 category_id: dss-regress
@@ -257,7 +257,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_intel_notebook
 _summary: Check that the PyTorch Intel notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook "ipex-2120-notebook"
+command: check_dss can_remove_notebook "ipex-2120-notebook"
 
 id: nvidia_gpu_addon/enable
 category_id: dss-regress
@@ -287,7 +287,7 @@ requires: executable.name == 'dss'
 depends: nvidia_gpu_addon/validations_succeed
 _summary: Check that dss status reports that NVIDIA GPU acceleration is enabled
 estimated_duration: 5s
-command: check_dss.sh nvidia_gpu_acceleration_is_enabled
+command: check_dss nvidia_gpu_acceleration_is_enabled
 
 id: dss/create_pytorch_cuda_notebook
 category_id: dss-regress
@@ -297,7 +297,7 @@ requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an PyTorch CUDA notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.sh can_create_pytorch_cuda_notebook
+command: check_dss can_create_pytorch_cuda_notebook
 
 id: cuda/pytorch_can_use_cuda
 category_id: dss-regress
@@ -317,7 +317,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_cuda_notebook
 _summary: Check that the PyTorch CUDA notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook "pytorch-cuda"
+command: check_dss can_remove_notebook "pytorch-cuda"
 
 id: dss/create_tensorflow_cuda_notebook
 category_id: dss-regress
@@ -327,7 +327,7 @@ requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an Tensorflow CUDA notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.sh can_create_tensorflow_cuda_notebook
+command: check_dss can_create_tensorflow_cuda_notebook
 
 id: cuda/tensorflow_can_use_cuda
 category_id: dss-regress
@@ -347,4 +347,4 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cuda_notebook
 _summary: Check that the Tensorflow CUDA notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook "tensorflow-cuda"
+command: check_dss can_remove_notebook "tensorflow-cuda"

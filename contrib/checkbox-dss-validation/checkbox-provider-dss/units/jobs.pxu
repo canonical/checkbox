@@ -7,7 +7,7 @@ requires:
   executable.name == 'microk8s'
 _summary: Check that the DSS environment initializes
 estimated_duration: 2m
-command: check_dss dss_can_be_initialized
+command: check_dss can_be_initialized
 
 id: dss/namespace
 category_id: dss-regress
@@ -17,7 +17,7 @@ requires: executable.name == 'microk8s'
 depends: dss/initialize
 _summary: Check that the dss namespace is deployed
 estimated_duration: 5s
-command: check_dss dss_namespace_is_deployed
+command: check_dss namespace_is_deployed
 
 id: dss/status_mlflow
 category_id: dss-regress

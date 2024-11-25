@@ -85,8 +85,8 @@ help_function() {
     echo "Usage: check_dss.sh <test_case> [args]..."
     echo
     echo "Test cases currently implemented:"
-    echo -e "\t<dss_can_be_initialized>: check_dss_can_be_initialized"
-    echo -e "\t<dss_namespace_is_deployed>: check_dss_namespace_is_deployed"
+    echo -e "\t<can_be_initialized>: check_dss_can_be_initialized"
+    echo -e "\t<namespace_is_deployed>: check_dss_namespace_is_deployed"
     echo -e "\t<mlflow_status_is_ready>: check_mlflow_status_is_ready"
     echo -e "\t<intel_gpu_acceleration_is_enabled>: check_dss_has_intel_gpu_acceleration_enabled"
     echo -e "\t<nvidia_gpu_acceleration_is_enabled>: check_dss_has_nvidia_gpu_acceleration_enabled"
@@ -95,8 +95,8 @@ help_function() {
 
 main() {
     case ${1} in
-    dss_can_be_initialized) check_dss_can_be_initialized ;;
-    dss_namespace_is_deployed) check_dss_namespace_is_deployed ;;
+    can_be_initialized) check_dss_can_be_initialized ;;
+    namespace_is_deployed) check_dss_namespace_is_deployed ;;
     mlflow_status_is_ready) check_mlflow_status_is_ready ;;
     intel_gpu_acceleration_is_enabled) check_dss_has_intel_gpu_acceleration_enabled ;;
     nvidia_gpu_acceleration_is_enabled) check_dss_has_nvidia_gpu_acceleration_enabled ;;

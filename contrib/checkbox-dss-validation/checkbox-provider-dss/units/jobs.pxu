@@ -57,7 +57,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_cpu_notebook
 _summary: Check that the PyTorch CPU notebook can be removed
 estimated_duration: 1m
-command: check_dss can_remove_notebook "pytorch-cpu"
+command: check_dss can_remove_notebook pytorch-cpu
 
 id: dss/create_tensorflow_cpu_notebook
 category_id: dss-regress
@@ -87,7 +87,7 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cpu_notebook
 _summary: Check that the Tensorflow CPU notebook can be removed
 estimated_duration: 1m
-command: check_dss can_remove_notebook "tensorflow-cpu"
+command: check_dss can_remove_notebook tensorflow-cpu
 
 id: intel_gpu_plugin/install
 category_id: dss-regress
@@ -217,7 +217,7 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_intel_notebook
 _summary: Check that the Tensorflow Intel notebook can be removed
 estimated_duration: 1m
-command: check_dss can_remove_notebook "itex-215-notebook"
+command: check_dss can_remove_notebook itex-215-notebook
 
 id: dss/create_pytorch_intel_notebook
 category_id: dss-regress
@@ -257,7 +257,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_intel_notebook
 _summary: Check that the PyTorch Intel notebook can be removed
 estimated_duration: 1m
-command: check_dss can_remove_notebook "ipex-2120-notebook"
+command: check_dss can_remove_notebook ipex-2120-notebook
 
 id: nvidia_gpu_addon/enable
 category_id: dss-regress
@@ -317,7 +317,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_cuda_notebook
 _summary: Check that the PyTorch CUDA notebook can be removed
 estimated_duration: 1m
-command: check_dss can_remove_notebook "pytorch-cuda"
+command: check_dss can_remove_notebook pytorch-cuda
 
 id: dss/create_tensorflow_cuda_notebook
 category_id: dss-regress
@@ -347,4 +347,4 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cuda_notebook
 _summary: Check that the Tensorflow CUDA notebook can be removed
 estimated_duration: 1m
-command: check_dss can_remove_notebook "tensorflow-cuda"
+command: check_dss can_remove_notebook tensorflow-cuda

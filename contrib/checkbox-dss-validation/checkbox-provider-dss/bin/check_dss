@@ -122,10 +122,10 @@ check_dss_can_create_tensorflow_cpu_notebook() {
 
 check_dss_can_remove_notebook() {
     cd "${HOME}"
-    if dss remove "$1"; then
-        echo "Test success: successfully removed '$1' notebook."
+    if dss remove "$@"; then
+        echo "Test success: successfully removed notebook with '$*'."
     else
-        >&2 echo "Test failure: failed to remove '$1' notebook."
+        >&2 echo "Test failure: failed to remove notebook with '$*'."
         exit 1
     fi
 }
@@ -162,7 +162,7 @@ main() {
     can_create_tensorflow_cuda_notebook) check_dss_can_create_tensorflow_cuda_notebook ;;
     can_create_pytorch_cpu_notebook) check_dss_can_create_pytorch_cpu_notebook ;;
     can_create_tensorflow_cpu_notebook) check_dss_can_create_tensorflow_cpu_notebook ;;
-    can_remove_notebook) check_dss_can_remove_notebook "$2" ;;
+    can_remove_notebook) check_dss_can_remove_notebook "${@:2}" ;;
     *) help_function ;;
     esac
 }

@@ -49,6 +49,16 @@ _summary: Check PyTorch can use CPU
 estimated_duration: 1m
 command: check_cpu.sh pytorch_can_use_cpu
 
+id: dss/remove_pytorch_cpu_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_pytorch_cpu_notebook
+_summary: Check that the PyTorch CPU notebook can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook "pytorch-cpu"
+
 id: dss/create_tensorflow_cpu_notebook
 category_id: dss-regress
 flags: simple
@@ -68,6 +78,16 @@ depends: dss/create_tensorflow_cpu_notebook
 _summary: Check PyTorch can use CPU
 estimated_duration: 1m
 command: check_cpu.sh tensorflow_can_use_cpu
+
+id: dss/remove_tensorflow_cpu_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_tensorflow_cpu_notebook
+_summary: Check that the Tensorflow CPU notebook can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook "tensorflow-cpu"
 
 id: intel_gpu_plugin/install
 category_id: dss-regress
@@ -159,7 +179,7 @@ _summary: Check that dss status reports that Intel GPU acceleration is enabled
 estimated_duration: 5s
 command: check_dss.sh intel_gpu_acceleration_is_enabled
 
-id: dss/create_itex_2.15_notebook
+id: dss/create_tensorflow_intel_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
@@ -174,7 +194,7 @@ category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
-depends: dss/create_itex_2.15_notebook
+depends: dss/create_tensorflow_intel_notebook
 _summary: Check to see if ITEX 2.15 can be imported
 estimated_duration: 1m
 command: check_itex.sh can_be_imported
@@ -189,7 +209,17 @@ _summary: Check ITEX 2.15 GPU Availability
 estimated_duration: 1m
 command: check_itex.sh tensorflow_can_use_xpu
 
-id: dss/create_ipex_2.1.20_notebook
+id: dss/remove_tensorflow_intel_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_tensorflow_intel_notebook
+_summary: Check that the Tensorflow Intel notebook can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook "itex-215-notebook"
+
+id: dss/create_pytorch_intel_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
@@ -204,7 +234,7 @@ category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
-depends: dss/create_ipex_2.1.20_notebook
+depends: dss/create_pytorch_intel_notebook
 _summary: Check to see if IPEX 2.1.20 can be imported
 estimated_duration: 1m
 command: check_ipex.sh can_be_imported
@@ -218,6 +248,16 @@ depends: ipex/ipex_2.1.20_import
 _summary: Check IPEX 2.1.20 GPU availability
 estimated_duration: 1m
 command: check_ipex.sh pytorch_can_use_xpu
+
+id: dss/remove_pytorch_intel_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_pytorch_intel_notebook
+_summary: Check that the PyTorch Intel notebook can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook "ipex-2120-notebook"
 
 id: nvidia_gpu_addon/enable
 category_id: dss-regress
@@ -269,6 +309,16 @@ _summary: Check PyTorch can use CUDA
 estimated_duration: 1m
 command: check_cuda.sh pytorch_can_use_cuda
 
+id: dss/remove_pytorch_cuda_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_pytorch_cuda_notebook
+_summary: Check that the PyTorch CUDA notebook can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook "pytorch-cuda"
+
 id: dss/create_tensorflow_cuda_notebook
 category_id: dss-regress
 flags: simple
@@ -288,3 +338,13 @@ depends: dss/create_tensorflow_cuda_notebook
 _summary: Check PyTorch can use CUDA
 estimated_duration: 1m
 command: check_cuda.sh tensorflow_can_use_cuda
+
+id: dss/remove_tensorflow_cuda_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_tensorflow_cuda_notebook
+_summary: Check that the Tensorflow CUDA notebook can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook "tensorflow-cuda"

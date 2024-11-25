@@ -7,8 +7,10 @@ include:
     dss/status_mlflow
     dss/create_pytorch_cpu_notebook
     cpu/pytorch_can_use_cpu
+    dss/remove_pytorch_cpu_notebook
     dss/create_tensorflow_cpu_notebook
     cpu/tensorflow_can_use_cpu
+    dss/remove_tensorflow_cpu_notebook
     intel_gpu_plugin/install
     intel_gpu_plugin/daemonset_name
     intel_gpu_plugin/daemonset_number_available
@@ -18,19 +20,23 @@ include:
     intel_gpu_plugin/node_gpu_capacity
     intel_gpu_plugin/node_gpu_allocatable
     dss/status_intel_gpu
-    dss/create_itex_2.15_notebook
+    dss/create_tensorflow_intel_notebook
     itex/itex_2.15_import
     itex/itex_2.15_gpu_avail
-    dss/create_ipex_2.1.20_notebook
+    dss/remove_tensorflow_intel_notebook
+    dss/create_pytorch_intel_notebook
     ipex/ipex_2.1.20_import
     ipex/ipex_2.1.20_gpu_avail
+    dss/remove_pytorch_intel_notebook
     nvidia_gpu_addon/enable
     nvidia_gpu_addon/validations_succeed
     dss/status_nvidia_gpu
     dss/create_pytorch_cuda_notebook
     cuda/pytorch_can_use_cuda
+    dss/remove_pytorch_cuda_notebook
     dss/create_tensorflow_cuda_notebook
     cuda/tensorflow_can_use_cuda
+    dss/remove_tensorflow_cuda_notebook
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap

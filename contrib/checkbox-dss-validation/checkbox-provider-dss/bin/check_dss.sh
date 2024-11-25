@@ -120,10 +120,19 @@ check_dss_can_create_tensorflow_cpu_notebook() {
     fi
 }
 
+check_dss_can_remove_notebook() {
+    cd "${HOME}"
+    if dss remove "$1"; then
+        echo "Test success: successfully removed '$1' notebook."
+    else
+        >&2 echo "Test failure: failed to remove '$1' notebook."
+        exit 1
+    fi
+}
 
 help_function() {
     echo "This script is used for generic tests related to DSS"
-    echo "Usage: check_dss.sh <test_case>"
+    echo "Usage: check_dss.sh <test_case> [args]..."
     echo
     echo "Test cases currently implemented:"
     echo -e "\t<dss_can_be_initialized>: check_dss_can_be_initialized"
@@ -137,6 +146,7 @@ help_function() {
     echo -e "\t<can_create_tensorflow_cuda_notebook>: check_dss_can_create_tensorflow_cuda_notebook"
     echo -e "\t<can_create_pytorch_cpu_notebook>: check_dss_can_create_pytorch_cpu_notebook"
     echo -e "\t<can_create_tensorflow_cpu_notebook>: check_dss_can_create_tensorflow_cpu_notebook"
+    echo -e "\t<can_remove_notebook>: check_dss_can_remove_notebook <notebook_name>"
 }
 
 main() {
@@ -152,6 +162,7 @@ main() {
     can_create_tensorflow_cuda_notebook) check_dss_can_create_tensorflow_cuda_notebook ;;
     can_create_pytorch_cpu_notebook) check_dss_can_create_pytorch_cpu_notebook ;;
     can_create_tensorflow_cpu_notebook) check_dss_can_create_tensorflow_cpu_notebook ;;
+    can_remove_notebook) check_dss_can_remove_notebook "$2" ;;
     *) help_function ;;
     esac
 }

@@ -27,24 +27,13 @@ check_dss_namespace_is_deployed() {
     fi
 }
 
-check_mlflow_status_is_ready() {
+check_dss_status_contains() {
     cd "${HOME}"
     result=$(dss status) # save result to shell var to avoid broken pipe error
-    if echo "${result}" | grep -q "MLflow deployment: Ready"; then
-        echo "Test success: 'dss status' shows ready status for mlflow."
+    if echo "${result}" | grep -q "${1}"; then
+        echo "Test success: 'dss status' shows '$1'."
     else
-        >&2 echo "Test failure: 'dss status' does not show ready status for mlflow."
-        exit 1
-    fi
-}
-
-check_dss_has_intel_gpu_acceleration_enabled() {
-    cd "${HOME}"
-    result=$(dss status) # save result to shell var to avoid broken pipe error
-    if echo "${result}" | grep -q "Intel GPU acceleration: Enabled"; then
-        echo "Test success: 'dss status' correctly reports Intel GPU status."
-    else
-        >&2 echo "Test failure: 'dss status' does not report that Intel GPU acceleration is enabled."
+        >&2 echo "Test failure: 'dss status' does not show '$1'."
         exit 1
     fi
 }
@@ -55,17 +44,6 @@ check_dss_can_create_notebook() {
         echo "Test success: successfully created notebook with '$*'."
     else
         >&2 echo "Test failure: failed to create notebook with '$*'."
-        exit 1
-    fi
-}
-
-check_dss_has_nvidia_gpu_acceleration_enabled() {
-    cd "${HOME}"
-    result=$(dss status) # save result to shell var to avoid broken pipe error
-    if echo "${result}" | grep -q "NVIDIA GPU acceleration: Enabled.*"; then
-        echo "Test success: 'dss status' correctly reports NVIDIA GPU status."
-    else
-        >&2 echo "Test failure: 'dss status' does not report that NVIDIA GPU acceleration is enabled."
         exit 1
     fi
 }
@@ -97,9 +75,9 @@ main() {
     case ${1} in
     can_be_initialized) check_dss_can_be_initialized ;;
     namespace_is_deployed) check_dss_namespace_is_deployed ;;
-    mlflow_status_is_ready) check_mlflow_status_is_ready ;;
-    intel_gpu_acceleration_is_enabled) check_dss_has_intel_gpu_acceleration_enabled ;;
-    nvidia_gpu_acceleration_is_enabled) check_dss_has_nvidia_gpu_acceleration_enabled ;;
+    mlflow_status_is_ready) check_dss_status_contains "MLflow deployment: Ready" ;;
+    intel_gpu_acceleration_is_enabled) check_dss_status_contains "Intel GPU acceleration: Enabled.*" ;;
+    nvidia_gpu_acceleration_is_enabled) check_dss_status_contains "NVIDIA GPU acceleration: Enabled.*" ;;
     can_create_notebook) check_dss_can_create_notebook "${@:2}" ;;
     can_remove_notebook) check_dss_can_remove_notebook "${@:2}" ;;
     *) help_function ;;

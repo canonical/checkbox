@@ -13,7 +13,6 @@ export -n PYTHONHOME PYTHONPATH PYTHONUSERBASE
 
 check_dss_can_be_initialized() {
     # TODO: we actually seem to initialize dss here; maybe split it out
-    cd "${HOME}"
     dss initialize --kubeconfig="$(sudo microk8s config)"
     echo "Test success: dss initialized."
 }
@@ -28,7 +27,6 @@ check_dss_namespace_is_deployed() {
 }
 
 check_dss_status_contains() {
-    cd "${HOME}"
     result=$(dss status) # save result to shell var to avoid broken pipe error
     if echo "${result}" | grep -q "${1}"; then
         echo "Test success: 'dss status' shows '$1'."
@@ -39,7 +37,6 @@ check_dss_status_contains() {
 }
 
 check_dss_can_create_notebook() {
-    cd "${HOME}"
     if dss create "${@}"; then
         echo "Test success: successfully created notebook with '$*'."
     else
@@ -49,7 +46,6 @@ check_dss_can_create_notebook() {
 }
 
 check_dss_can_remove_notebook() {
-    cd "${HOME}"
     if dss remove "$@"; then
         echo "Test success: successfully removed notebook with '$*'."
     else
@@ -73,6 +69,7 @@ help_function() {
 }
 
 main() {
+    pushd "${HOME}"
     case ${1} in
     can_be_initialized) check_dss_can_be_initialized ;;
     namespace_is_deployed) check_dss_namespace_is_deployed ;;
@@ -83,6 +80,7 @@ main() {
     can_remove_notebook) check_dss_can_remove_notebook "${@:2}" ;;
     *) help_function ;;
     esac
+    popd
 }
 
 main "$@"

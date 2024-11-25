@@ -32,32 +32,6 @@ jobs:
           # check if can_promote but ignore (only print an error) if the workflow was manually triggered
           tools/release/can_promote_edge.py || ${{ github.event_name == 'workflow_dispatch' }}
 
-  release-notes:
-    needs: should-run
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout checkbox monorepo
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Setup the gh repository and install gh
-        run: |
-          which curl || (sudo apt update && sudo apt install curl -y)
-          sudo curl https://cli.github.com/packages/githubcli-archive-keyring.gpg --output /usr/share/keyrings/githubcli-archive-keyring.gpg
-          sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
-          gpg --import /usr/share/keyrings/githubcli-archive-keyring.gpg
-          gpg --fingerprint "2C6106201985B60E6C7AC87323F3D4EA75716059"
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-          sudo apt update -qq
-          sudo apt install -qq -y gh
-      - name: Generate the github release note
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          LP_CREDENTIALS: ${{ secrets.LP_CREDS }}
-          CHECKBOX_REPO: ${{ github.repository }}
-        run: |
-          gh release create $(git describe --tags --abbrev=0 --match v*) -d --generate-notes
-
   checkbox_deb_packages:
     needs: should-run
     name: Checkbox Debian packages

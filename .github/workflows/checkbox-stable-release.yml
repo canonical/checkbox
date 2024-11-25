@@ -3,10 +3,13 @@ run-name: Promote beta versions of checkbox to stable
 
 on:
   workflow_dispatch:
+  push:
+    tags:
+        - "v*"
 
 jobs:
   release:
-    name: Publish the release
+    name: Github release
     runs-on:
       group: "Canonical self-hosted runners"
       labels:
@@ -34,7 +37,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release edit $(git describe --tags --abbrev=0 --match v*) --draft=false
+          gh release create $(git describe --tags --abbrev=0 --match "v*") --draft=false --generate-notes
 
   checkbox_deb_packages:
     name: Checkbox Debian packages

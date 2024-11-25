@@ -31,7 +31,6 @@ bootstrap_include:
     device
 include:
     wireless/detect
-    wireless/nm_connection_save_interface
     wireless/wireless_scanning_interface                  certification-status=blocker
     wireless/wireless_connection_wpa_bg_nm_interface      certification-status=blocker
     wireless/wireless_connection_open_bg_nm_interface     certification-status=blocker
@@ -45,7 +44,6 @@ include:
     wireless/wireless_connection_wpa_be_nm_interface      certification-status=blocker
     wireless/wireless_connection_wpa3_be_nm_interface     certification-status=blocker
     wireless/wireless_connection_open_be_nm_interface     certification-status=blocker
-    wireless/nm_connection_restore_interface
     wireless/check_iwlwifi_microcode_crash_interface
 
 id: after-suspend-wireless-cert-automated
@@ -55,7 +53,6 @@ _description: Wireless connection tests (after suspend, automated)
 bootstrap_include:
     device
 include:
-    after-suspend-wireless/nm_connection_save_interface
     after-suspend-wireless/wireless_connection_wpa_bg_nm_interface    certification-status=blocker
     after-suspend-wireless/wireless_connection_open_bg_nm_interface   certification-status=blocker
     after-suspend-wireless/wireless_connection_wpa_n_nm_interface     certification-status=blocker
@@ -68,7 +65,6 @@ include:
     after-suspend-wireless/wireless_connection_wpa_be_nm_interface    certification-status=blocker
     after-suspend-wireless/wireless_connection_wpa3_be_nm_interface   certification-status=blocker
     after-suspend-wireless/wireless_connection_open_be_nm_interface   certification-status=blocker
-    after-suspend-wireless/nm_connection_restore_interface
     after-suspend-wireless/check_iwlwifi_microcode_crash_interface
 
 id: wireless-netplan-cert-automated
@@ -119,7 +115,6 @@ _description: Wireless connection tests (certification blockers only)
 bootstrap_include:
     device
 include:
-    wireless/nm_connection_save_interface
     wireless/wireless_scanning_interface                  certification-status=blocker
     wireless/wireless_connection_wpa_bg_nm_interface      certification-status=blocker
     wireless/wireless_connection_open_bg_nm_interface     certification-status=blocker
@@ -133,7 +128,6 @@ include:
     wireless/wireless_connection_wpa_be_nm_interface      certification-status=blocker
     wireless/wireless_connection_wpa3_be_nm_interface     certification-status=blocker
     wireless/wireless_connection_open_be_nm_interface     certification-status=blocker
-    wireless/nm_connection_restore_interface
 
 id: after-suspend-wireless-cert-blockers
 unit: test plan
@@ -143,7 +137,6 @@ _description:
 bootstrap_include:
     device
 include:
-    after-suspend-wireless/nm_connection_save_interface
     after-suspend-wireless/wireless_connection_wpa_bg_nm_interface    certification-status=blocker
     after-suspend-wireless/wireless_connection_open_bg_nm_interface   certification-status=blocker
     after-suspend-wireless/wireless_connection_wpa_n_nm_interface     certification-status=blocker
@@ -156,7 +149,6 @@ include:
     after-suspend-wireless/wireless_connection_wpa_be_nm_interface    certification-status=blocker
     after-suspend-wireless/wireless_connection_wpa3_be_nm_interface   certification-status=blocker
     after-suspend-wireless/wireless_connection_open_be_nm_interface   certification-status=blocker
-    after-suspend-wireless/nm_connection_restore_interface
 
 id: wireless-full
 unit: test plan

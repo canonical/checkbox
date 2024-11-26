@@ -18,6 +18,9 @@ RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="")
 SNAP = os.getenv("SNAP", default="")
 
 
+def get_uptime(): ...
+
+
 class DeviceInfoCollector:
 
     class Device:
@@ -215,6 +218,7 @@ class HardwareRendererTester:
 
         print("These nodes", possible_gpu_nodes, "exist")
 
+        connected_to_display = False
         for gpu in possible_gpu_nodes:
             # for each gpu, check for connection
             # return true if anything is connected
@@ -222,21 +226,23 @@ class HardwareRendererTester:
                 with open("{}/{}/status".format(DRM_PATH, gpu)) as status_file:
                     if status_file.read().strip().lower() == "connected":
                         print("{} is connected to display!".format(gpu))
-                        return True
+                        connected_to_display = True
             except FileNotFoundError:
                 # this just means we don't have a status file
                 # => no connection, continue to the next
-                pass
+                print("{} does not have a status file".format(gpu))
             except Exception as e:
                 print("Unexpected error: ", e, file=sys.stderr)
 
-        print(
-            "No display is connected. This case will be skipped.",
-            "Maybe the display cable is not connected?",
-            "If the device is not supposed to have a display,"
-            "then skipping is expected",
-        )
-        return False
+        if not connected_to_display:
+            print(
+                "No display is connected. This case will be skipped.",
+                "Maybe the display cable is not connected?",
+                "If the device is not supposed to have a display,"
+                "then skipping is expected.",
+            )
+
+        return connected_to_display
 
     def is_hardware_renderer_available(self) -> bool:
         """

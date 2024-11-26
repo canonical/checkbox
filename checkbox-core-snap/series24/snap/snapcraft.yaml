@@ -381,10 +381,6 @@ parts:
     source-type: local
     build-environment:
       - PYTHONPYCACHEPREFIX: "/tmp"
-    stage-snaps:
-      - gpu-burn
-      - rocm-validation-suite
-      - cuda-samples
     override-build: |
       export PYTHONPATH=$CRAFT_STAGE/lib/python3.12/site-packages:$SNAPCRAFT_STAGE/usr/lib/python3/dist-packages
       for path in $(find "$CRAFT_STAGE/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done

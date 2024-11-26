@@ -170,7 +170,9 @@ def mount_usb_storage(partition):
         # use pipe so I could hide message like
         # "umount: /tmp/tmpjzwb6lys: not mounted"
         subprocess.call(["umount", FOLDER_TO_MOUNT], stderr=subprocess.PIPE)
-        # umount device_to_mount such as "umount /dev/mmcblk0p1" to avoid when the storage type is ntfs, which could not be mounted twice.
+        # Unmounting the device (e.g., "/dev/mmcblk0p1") to ensure the storage
+        # device is fully detached. This prevents issues with certain
+        # filesystem types like NTFS, which cannot be mounted multiple times.
         subprocess.call(["umount", device_to_mount], stderr=subprocess.PIPE)
         # mount the target device/partition
         # if the return code of the shell command is non-zero,

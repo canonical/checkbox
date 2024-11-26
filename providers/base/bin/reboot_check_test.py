@@ -18,7 +18,14 @@ RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="")
 SNAP = os.getenv("SNAP", default="")
 
 
-def get_uptime(): ...
+def get_uptime_seconds() -> float:
+    with open("/proc/uptime", "r") as f:
+        # uptime file always have 2 numbers
+        # uptime_seconds total_idle_seconds
+        # take the 1st one
+        uptime_seconds = float(f.readline().split()[0])
+
+    return uptime_seconds
 
 
 class DeviceInfoCollector:
@@ -212,11 +219,11 @@ class HardwareRendererTester:
             print(
                 "There's nothing under {}".format(DRM_PATH),
                 "if an external GPU is connected,"
-                "check if the connection is loose",
+                "check if the connection is loose.",
             )
             return False
 
-        print("These nodes", possible_gpu_nodes, "exist")
+        print("Listing all DRM connection statuses:")
 
         connected_to_display = False
         for gpu in possible_gpu_nodes:
@@ -224,13 +231,16 @@ class HardwareRendererTester:
             # return true if anything is connected
             try:
                 with open("{}/{}/status".format(DRM_PATH, gpu)) as status_file:
-                    if status_file.read().strip().lower() == "connected":
-                        print("{} is connected to display!".format(gpu))
+                    status_str = status_file.read().strip().lower()
+                    # - card0: connected
+                    print(" - {}: {}".format(gpu, status_str))
+
+                    if status_str == "connected":
                         connected_to_display = True
             except FileNotFoundError:
                 # this just means we don't have a status file
                 # => no connection, continue to the next
-                print("{} does not have a status file".format(gpu))
+                print(" - {} does not have a status file".format(gpu))
             except Exception as e:
                 print("Unexpected error: ", e, file=sys.stderr)
 
@@ -408,10 +418,17 @@ def main() -> int:
     renderer_test_passed = True
     service_check_passed = True
 
+    print(
+        "Starting reboot checks at {} seconds after boot.".format(
+            get_uptime_seconds()
+        )
+    )
+
     if args.comparison_directory is not None:
         if args.output_directory is None:
             print(
-                "[ ERR ] Please specify an output directory with the -d flag."
+                "[ ERR ] Please specify an output directory with the -d flag.",
+                file=sys.stderr,
             )
             raise ValueError(
                 "Comparison directory is specified, but output directory isn't"
@@ -428,6 +445,7 @@ def main() -> int:
 
     # dump (no checks) if only output_directory is specified
     if args.output_directory is not None and args.comparison_directory is None:
+        print("Only dumping device info to {}".format(args.output_directory))
         DeviceInfoCollector().dump(args.output_directory)
 
     if args.do_fwts_check:
@@ -455,6 +473,12 @@ def main() -> int:
         if has_desktop_environment() and tester.has_display_connection():
             # skip renderer test if there's no display
             renderer_test_passed = tester.is_hardware_renderer_available()
+
+    print(
+        "Finished reboot checks at {} seconds after boot.".format(
+            get_uptime_seconds()
+        )
+    )
 
     if (
         fwts_passed

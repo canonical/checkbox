@@ -72,6 +72,7 @@ check_intel_gpu_node_label_is_attached() {
 }
 
 check_at_least_one_intel_gpu_is_available() {
+    # FIXME: this test also counts NVIDIA GPUs
     result=$(microk8s.kubectl get node -o json | jq '.items[0].metadata.labels | with_entries(select(.key|match("gpu.intel.com/device-id.*.count";"i")))[] | tonumber' | awk '{cnt+=$1} END{print cnt}')
     if [ "${result}" -ge 1 ]; then
         echo "Test success: Found ${result} GPUs on system."
@@ -82,6 +83,7 @@ check_at_least_one_intel_gpu_is_available() {
 }
 
 check_capacity_slots_for_intel_gpus_match() {
+    # FIXME: this test fails because it also counts NVIDIA GPUs once their plugin is enabled
     num_gpus=$(microk8s.kubectl get node -o json | jq '.items[0].metadata.labels | with_entries(select(.key|match("gpu.intel.com/device-id.*.count";"i")))[] | tonumber' | awk '{cnt+=$1} END{print cnt}')
     result=$(microk8s.kubectl get node -o jsonpath='{.items[0].status.capacity.gpu\.intel\.com/i915}')
     # IMPORTANT NOTE: this is the sharedDevNum we pass into the gpu_plugin.yaml during installation

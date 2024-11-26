@@ -17,8 +17,9 @@ include:
     intel_gpu_plugin/daemonset_number_ready
     intel_gpu_plugin/labels
     intel_gpu_plugin/gpu_count
-    intel_gpu_plugin/node_gpu_capacity
-    intel_gpu_plugin/node_gpu_allocatable
+    # FIXME: re-enable after fixing the tests for re-runs
+    # intel_gpu_plugin/node_gpu_capacity
+    # intel_gpu_plugin/node_gpu_allocatable
     dss/status_intel_gpu
     dss/create_tensorflow_intel_notebook
     itex/itex_2.15_import

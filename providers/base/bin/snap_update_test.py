@@ -25,7 +25,9 @@ import os
 import sys
 import time
 
-from checkbox_support.snap_utils.snapd import Snapd, SnapdRequestError
+from checkbox_support.snap_utils.snapd import Snapd
+from checkbox_support.snap_utils.snapd import AsyncException
+from checkbox_support.snap_utils.snapd import SnapdRequestError
 
 
 def guess_snaps() -> list:
@@ -155,7 +157,7 @@ class SnapRefreshRevert:
                 channel=self.snap_info.tracking_channel,
                 revision=self.revision,
             )
-        except SnapdRequestError as exc:
+        except (SnapdRequestError, AsyncException) as exc:
             checkbox_session_dir = os.getenv("PLAINBOX_SESSION_SHARE")
             if checkbox_session_dir:
                 result = {
@@ -187,7 +189,7 @@ class SnapRefreshRevert:
         )
         try:
             response = self.snapd.revert(self.name)
-        except SnapdRequestError as exc:
+        except (SnapdRequestError, AsyncException) as exc:
             checkbox_session_dir = os.getenv("PLAINBOX_SESSION_SHARE")
             if checkbox_session_dir:
                 result = {

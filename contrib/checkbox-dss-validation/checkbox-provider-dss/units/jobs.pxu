@@ -270,7 +270,7 @@ requires: (host_has_nvidia_gpus.available == 'true' and executable.name == 'micr
 depends: dss/initialize
 _summary: Enable NVIDIA GPU addon
 estimated_duration: 5m
-command: check_cuda.sh gpu_addon_can_be_enabled
+command: check_cuda gpu_addon_can_be_enabled
 
 id: nvidia_gpu_addon/validations_succeed
 category_id: dss-regress
@@ -280,7 +280,7 @@ requires: executable.name == 'microk8s'
 depends: nvidia_gpu_addon/enable
 _summary: NVIDIA GPU validations should succeed
 estimated_duration: 10s
-command: check_cuda.sh gpu_validations_succeed
+command: check_cuda gpu_validations_succeed
 
 id: dss/status_nvidia_gpu
 category_id: dss-regress
@@ -310,7 +310,7 @@ requires: executable.name == 'microk8s'
 depends: dss/create_pytorch_cuda_notebook
 _summary: Check PyTorch can use CUDA
 estimated_duration: 1m
-command: check_cuda.sh pytorch_can_use_cuda
+command: check_cuda pytorch_can_use_cuda
 
 id: dss/remove_pytorch_cuda_notebook
 category_id: dss-regress
@@ -340,7 +340,7 @@ requires: executable.name == 'microk8s'
 depends: dss/create_tensorflow_cuda_notebook
 _summary: Check PyTorch can use CUDA
 estimated_duration: 1m
-command: check_cuda.sh tensorflow_can_use_cuda
+command: check_cuda tensorflow_can_use_cuda
 
 id: dss/remove_tensorflow_cuda_notebook
 category_id: dss-regress

@@ -13,8 +13,10 @@ jobs:
     steps:
       - name: Check if an issue has a ticked cert-blocker test case mark
         id: check_for_cert_blocker_test_case
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          if echo "${{ github.event.issue.body }}" | grep -q "\[X\] cert-blocker"; then
+          if echo "$ISSUE_BODY" | grep -q "\[X\] cert-blocker"; then
             echo "found=true" >> $GITHUB_ENV
           else
             echo "found=false" >> $GITHUB_ENV
@@ -28,4 +30,3 @@ jobs:
           GH_REPO: ${{ github.repository }}
           NUMBER: ${{ github.event.issue.number }}
           LABELS: cert-blocker test case
-

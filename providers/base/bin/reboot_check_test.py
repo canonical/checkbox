@@ -9,6 +9,7 @@ import filecmp
 import sys
 import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
+from datetime import datetime
 
 
 # Checkbox could run in a snap container, so we need to prepend this root path
@@ -16,6 +17,18 @@ RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="")
 # Snap mount point, see
 # https://snapcraft.io/docs/environment-variables#heading--snap
 SNAP = os.getenv("SNAP", default="")
+
+
+def get_timestamp_str() -> str:
+    with open("/proc/uptime", "r") as f:
+        # uptime file always have 2 numbers
+        # uptime_seconds total_idle_seconds
+        # take the 1st one
+        uptime_seconds = f.readline().split()[0]
+
+    return "Time: {}; Uptime: {} seconds ".format(
+        datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), uptime_seconds
+    )
 
 
 class DeviceInfoCollector:
@@ -209,20 +222,24 @@ class HardwareRendererTester:
             print(
                 "There's nothing under {}".format(DRM_PATH),
                 "if an external GPU is connected,"
-                "check if the connection is loose",
+                "check if the connection is loose.",
             )
             return False
 
-        print("These nodes", possible_gpu_nodes, "exist")
+        print("Listing all DRM connection statuses:")
 
+        connected_to_display = False
         for gpu in possible_gpu_nodes:
             # for each gpu, check for connection
             # return true if anything is connected
             try:
                 with open("{}/{}/status".format(DRM_PATH, gpu)) as status_file:
-                    if status_file.read().strip().lower() == "connected":
-                        print("{} is connected to display!".format(gpu))
-                        return True
+                    status_str = status_file.read().strip().lower()
+                    # - card0: connected
+                    print(" - {}: {}".format(gpu, status_str))
+
+                    if status_str == "connected":
+                        connected_to_display = True
             except FileNotFoundError:
                 # this just means we don't have a status file
                 # => no connection, continue to the next
@@ -230,13 +247,15 @@ class HardwareRendererTester:
             except Exception as e:
                 print("Unexpected error: ", e, file=sys.stderr)
 
-        print(
-            "No display is connected. This case will be skipped.",
-            "Maybe the display cable is not connected?",
-            "If the device is not supposed to have a display,"
-            "then skipping is expected",
-        )
-        return False
+        if not connected_to_display:
+            print(
+                "No display is connected. This case will be skipped.",
+                "Maybe the display cable is not connected?",
+                "If the device is not supposed to have a display,"
+                "then skipping is expected.",
+            )
+
+        return connected_to_display
 
     def is_hardware_renderer_available(self) -> bool:
         """
@@ -402,10 +421,13 @@ def main() -> int:
     renderer_test_passed = True
     service_check_passed = True
 
+    print("Starting reboot checks. {}".format(get_timestamp_str()))
+
     if args.comparison_directory is not None:
         if args.output_directory is None:
             print(
-                "[ ERR ] Please specify an output directory with the -d flag."
+                "[ ERR ] Please specify an output directory with the -d flag.",
+                file=sys.stderr,
             )
             raise ValueError(
                 "Comparison directory is specified, but output directory isn't"
@@ -422,6 +444,7 @@ def main() -> int:
 
     # dump (no checks) if only output_directory is specified
     if args.output_directory is not None and args.comparison_directory is None:
+        print("Only dumping device info to {}".format(args.output_directory))
         DeviceInfoCollector().dump(args.output_directory)
 
     if args.do_fwts_check:
@@ -449,6 +472,8 @@ def main() -> int:
         if has_desktop_environment() and tester.has_display_connection():
             # skip renderer test if there's no display
             renderer_test_passed = tester.is_hardware_renderer_available()
+
+    print("Finished reboot checks. {}".format(get_timestamp_str()))
 
     if (
         fwts_passed

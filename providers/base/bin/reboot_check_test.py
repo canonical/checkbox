@@ -9,6 +9,7 @@ import filecmp
 import sys
 import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
+from datetime import datetime
 
 
 # Checkbox could run in a snap container, so we need to prepend this root path
@@ -18,14 +19,16 @@ RUNTIME_ROOT = os.getenv("CHECKBOX_RUNTIME", default="")
 SNAP = os.getenv("SNAP", default="")
 
 
-def get_uptime_seconds() -> float:
+def get_timestamp_str() -> str:
     with open("/proc/uptime", "r") as f:
         # uptime file always have 2 numbers
         # uptime_seconds total_idle_seconds
         # take the 1st one
-        uptime_seconds = float(f.readline().split()[0])
+        uptime_seconds = f.readline().split()[0]
 
-    return uptime_seconds
+    return "Time: {}; Uptime: {} seconds ".format(
+        datetime.now().strftime("%m/%d/%Y, %H:%M:%S"), uptime_seconds
+    )
 
 
 class DeviceInfoCollector:
@@ -240,7 +243,7 @@ class HardwareRendererTester:
             except FileNotFoundError:
                 # this just means we don't have a status file
                 # => no connection, continue to the next
-                print(" - {} does not have a status file".format(gpu))
+                pass
             except Exception as e:
                 print("Unexpected error: ", e, file=sys.stderr)
 
@@ -418,11 +421,7 @@ def main() -> int:
     renderer_test_passed = True
     service_check_passed = True
 
-    print(
-        "Starting reboot checks at {} seconds after boot.".format(
-            get_uptime_seconds()
-        )
-    )
+    print("Starting reboot checks. {}".format(get_timestamp_str()))
 
     if args.comparison_directory is not None:
         if args.output_directory is None:
@@ -474,11 +473,7 @@ def main() -> int:
             # skip renderer test if there's no display
             renderer_test_passed = tester.is_hardware_renderer_available()
 
-    print(
-        "Finished reboot checks at {} seconds after boot.".format(
-            get_uptime_seconds()
-        )
-    )
+    print("Finished reboot checks. {}".format(get_timestamp_str()))
 
     if (
         fwts_passed

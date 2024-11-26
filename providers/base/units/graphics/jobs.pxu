@@ -405,7 +405,7 @@ flags: also-after-suspend
 user: root
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving']
+    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving', 'Mini PC']
 command:
     prime_offload_tester.py -c glxgears -t 30
 summary:
@@ -420,7 +420,7 @@ flags: also-after-suspend
 user: root
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving']
+    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving', 'Mini PC']
 command:
      prime_offload_tester.py -c "glxgears -fullscreen" -t 30
 summary:
@@ -435,7 +435,7 @@ flags: also-after-suspend
 user: root
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving']
+    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving', 'Mini PC']
 command:
     prime_offload_tester.py -c glxgears -t 30
 summary:
@@ -456,7 +456,7 @@ flags: also-after-suspend
 user: root
 requires:
     executable.name == 'glxgears'
-    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving']
+    dmi.product in ['Desktop','Low Profile Desktop','Tower','Mini Tower','Space-saving', 'Mini PC']
 command:
     prime_offload_tester.py -c "glxgears -fullscreen" -t 30
 summary:

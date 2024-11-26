@@ -106,7 +106,7 @@ class MonitorConfigGnome(MonitorConfig):
         self._apply_monitors_config(state[0], extended_logical_monitors)
         return configuration
 
-    def cycler(
+    def cycle(
         self,
         res: bool = True,
         max_res_amount: int = 5,
@@ -116,13 +116,13 @@ class MonitorConfigGnome(MonitorConfig):
         **kwargs
     ):
         """
-        Cycling change the monitors configurations automatically
+        Automatically cycle through the supported monitor configurations.
 
         Args:
             res: Cycling the resolution or not.
 
-            max_res_amount: The supported resolution might be a lot
-                            and this could limited test amount.
+            max_res_amount: Limit the number of tested configurations
+                to avoid an unnecessarily large test matrix.
 
             trans: Cycling the transform or not.
 

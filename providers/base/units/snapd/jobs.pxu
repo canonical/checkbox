@@ -32,7 +32,7 @@ requires:
  (snap_revision_info.name == "{name}") and snap_revision_info.stable_rev != snap_revision_info.original_installed_rev
  manifest.need_{type}_snap_update_test == "True"
 command:
- set -eo pipefail
+ set -o pipefail
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
  logpath="$PLAINBOX_SESSION_SHARE/snap-refresh-{type}-{name}-to-stable-rev.log"
  snap_update_test.py --refresh --revision {stable_rev} --info-path "$path" {name} | tee "$logpath"
@@ -82,7 +82,7 @@ category_id: snapd
 user: root
 depends: snapd/snap-verify-after-refresh-{type}-{name}-to-stable-rev
 command:
- set -eo pipefail
+ set -o pipefail
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
  logpath="$PLAINBOX_SESSION_SHARE/snap-revert-{type}-{name}-from-stable-rev.log"
  snap_update_test.py --revert --info-path "$path" {name} | tee "$logpath"
@@ -145,7 +145,7 @@ requires:
  (snap_revision_info.name == "{name}") and snap_revision_info.base_rev != snap_revision_info.original_installed_rev
  manifest.need_{type}_snap_update_test == "True"
 command:
- set -eo pipefail
+ set -o pipefail
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
  logpath="$PLAINBOX_SESSION_SHARE/snap-refresh-{type}-{name}-to-base-rev.log"
  snap_update_test.py --refresh --revision {base_rev} --info-path "$path" {name} | tee "$logpath"
@@ -195,7 +195,7 @@ category_id: snapd
 user: root
 depends: snapd/snap-verify-after-refresh-{type}-{name}-to-base-rev
 command:
- set -eo pipefail
+ set -o pipefail
  path="$PLAINBOX_SESSION_SHARE/{name}_snap_revision_info"
  logpath="$PLAINBOX_SESSION_SHARE/snap-revert-{type}-{name}-from-base-rev.log"
  snap_update_test.py --revert --info-path "$path" {name} | tee "$logpath"

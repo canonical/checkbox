@@ -7,7 +7,10 @@ requires:
     snap.name == 'gpu-burn'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU stress testing
-command: gpu-burn 14400 |  grep -v -e '^[[:space:]]*$' -e "errors:" -e "Summary at"
+command:
+    set -eo pipefail
+    gpu-burn 14400 | tee $PLAINBOX_SESSION_SHARE/gpu_burn.log
+    cat $PLAINBOX_SESSION_SHARE/gpu_burn.log | grep -v -e '^[[:space:]]*$' -e "errors:" -e "Summary at"
 
 id: gpgpu/device-query-drv
 category_id: gpgpu

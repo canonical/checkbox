@@ -1,4 +1,5 @@
 from plainbox.impl.resource_v2 import evaluate, evaluate_lazy, UnknownResource
+import contextlib
 from unittest import TestCase
 
 
@@ -447,9 +448,6 @@ class TestEvaluateEndToEnd(TestCase):
 
         evaluated = evaluate(expr, namespace, explain_callback=print)
         self.assertEqual(evaluated, namespace)
-
-
-import contextlib
 
 
 class TestUnsupportedGrammars(TestCase):

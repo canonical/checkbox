@@ -1,5 +1,6 @@
 import sys
 import ast
+import yaml
 import typing
 import textwrap
 import operator
@@ -8,6 +9,7 @@ import functools
 import contextlib
 
 from copy import copy
+from pathlib import Path
 
 """
 The objective of this module is to filter a namespace of resource objects
@@ -209,18 +211,14 @@ class ConstantGetter(ValueGetter):
 
 
 class NamedConstant(ConstantGetter):
-    constants = {
-        "DESKTOP_PC_PRODUCT": [
-            "Desktop",
-            "Low Profile Desktop",
-            "Tower",
-            "Mini Tower",
-            "Space-saving",
-            "All In One",
-            "All-In-One",
-            "AIO",
-        ]
-    }
+    constant_path_file = Path(__file__).parent / "resource_constants.yaml"
+
+    @functools.cached_property
+    def constants(self):
+        if not self.constant_path_file.exists():
+            return {}
+        with self.constant_path_file.open("r") as f:
+            return yaml.safe_load(f)
 
     def __init__(self, parsed_ast):
         self.name = parsed_ast.id

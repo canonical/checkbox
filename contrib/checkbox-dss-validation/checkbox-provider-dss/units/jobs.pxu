@@ -310,7 +310,7 @@ requires: executable.name == 'microk8s'
 depends: dss/create_pytorch_cuda_notebook
 _summary: Check PyTorch can use CUDA
 estimated_duration: 1m
-command: check_cuda pytorch_can_use_cuda
+command: check_notebook pytorch-cuda can_run_python_script_in_pod verifying_pytorch_can_use_cuda
 
 id: dss/remove_pytorch_cuda_notebook
 category_id: dss-regress
@@ -338,9 +338,9 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: dss/create_tensorflow_cuda_notebook
-_summary: Check PyTorch can use CUDA
+_summary: Check Tensorflow can use CUDA
 estimated_duration: 1m
-command: check_cuda tensorflow_can_use_cuda
+command: check_notebook tensorflow-cuda can_run_python_script_in_pod verifying_tensorflow_can_use_cuda
 
 id: dss/remove_tensorflow_cuda_notebook
 category_id: dss-regress

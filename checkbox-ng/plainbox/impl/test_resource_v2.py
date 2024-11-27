@@ -1,4 +1,4 @@
-from plainbox.impl.new_resource import evaluate, evaluate_lazy, UnknownResource
+from plainbox.impl.resource_v2 import evaluate, evaluate_lazy, UnknownResource
 from unittest import TestCase
 
 

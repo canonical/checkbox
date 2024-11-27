@@ -52,7 +52,7 @@ test_data:
 
     # Install test dependencies
     ssh ubuntu@$DEVICE_IP '
-      checkbox-dss.install-deps --dss-snap-channel=REPLACE_DSS_CHANNEL
+      checkbox-dss.install-deps --dss-snap-channel REPLACE_DSS_CHANNEL
     '
 
     # Run tests

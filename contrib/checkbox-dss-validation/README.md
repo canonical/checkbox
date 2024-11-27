@@ -38,12 +38,24 @@ Some test need dependencies, and a helper script is available to install them:
 checkbox-dss.install-deps
 ```
 
-By default this will install the `data-science-stack` snap from the `latest/stable`
+By default this will install the `data-science-stack` snap from the `1/stable`
 channel. To instead install from `latest/edge` use:
 
 ```shell
-checkbox-dss.install-deps --dss-snap-channel=latest/edge
+checkbox-dss.install-deps --dss-snap-channel latest/edge
 ```
+
+Furthermore, the default `microk8s` snap channel is `1.28/stable` in classic mode,
+but this can be customized as
+(please note that this snap must to be `--classic` to enable GPU support):
+
+```shell
+checkbox-dss.install-deps --microk8s-snap-channel 1.31/stable
+```
+
+These validations also need the `kubectl` snap installed, and the default channel
+used for that is `1.29/stable`, but can be customized as shown previously by passing
+the appropriate channel name for `--kubectl-snap-channel`.
 
 # Automated Run
 

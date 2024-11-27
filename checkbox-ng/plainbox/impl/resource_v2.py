@@ -213,7 +213,8 @@ class ConstantGetter(ValueGetter):
 class NamedConstant(ConstantGetter):
     constant_path_file = Path(__file__).parent / "resource_constants.yaml"
 
-    @functools.cached_property
+    @property
+    @functools.lru_cache(maxsize=1)
     def constants(self):
         if not self.constant_path_file.exists():
             return {}

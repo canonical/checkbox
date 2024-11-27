@@ -23,8 +23,8 @@ Build-Depends: debhelper (>= 9),
                python3-tk,
                python3-tqdm,
                python3-urwid,
-               python3-xlsxwriter
-               python3-yaml,
+               python3-xlsxwriter,
+               python3-yaml
 Standards-Version: 3.9.6
 X-Python3-Version: >= 3.2
 

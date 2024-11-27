@@ -109,7 +109,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/install
-_summary: Check DaemonSet Name
+_summary: Check that Intel GPU plugin daemonset is deployed
 estimated_duration: 5s
 command: check_intel gpu_plugin_daemonset_is_deployed
 
@@ -119,7 +119,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/install
-_summary: Check number of available daemonsets
+_summary: Check that at least one Intel GPU daemonset is available
 estimated_duration: 5s
 command: check_intel one_daemonset_is_available
 
@@ -129,7 +129,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/daemonset_number_available
-_summary: Check number of ready daemonsets
+_summary: Check that at least one Intel GPU daemonset is ready
 estimated_duration: 5s
 command: check_intel one_daemonset_is_ready
 
@@ -139,7 +139,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/daemonset_number_ready
-_summary: Check intel.feature.node.kubernetes.io/gpu k8s node label
+_summary: Check that Kubernetes has label intel.feature.node.kubernetes.io/gpu
 estimated_duration: 5s
 command: check_intel gpu_node_label_is_attached
 
@@ -149,7 +149,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/labels
-_summary: Check number of Intel GPUs available on k8s node
+_summary: Check that at least one Intel GPU is available on k8s node
 estimated_duration: 5s
 command: check_intel at_least_one_gpu_is_available
 
@@ -159,7 +159,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/gpu_count
-_summary: Check capacity slots for pods requesting GPU(s)
+_summary: Check that at least expected capacity slots for Intel GPU are availabled
 estimated_duration: 5s
 command: check_intel capacity_slots_for_gpus_match
 
@@ -169,7 +169,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/node_gpu_capacity
-_summary: Check allocatable slots for pods requesting GPU(s)
+_summary: Check that at least expected allocatable slots for Intel GPU are available
 estimated_duration: 5s
 command: check_intel allocatable_slots_for_gpus_match
 
@@ -178,11 +178,8 @@ category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
-# FIXME: change back after re-enabling the tests for intel gpu counts
-# FIXME: revisit dependency, it must also depend on dss/initialize
-# depends: intel_gpu_plugin/node_gpu_allocatable
-depends: intel_gpu_plugin/gpu_count
-_summary: Check that dss status reports that Intel GPU acceleration is enabled
+depends: intel_gpu_plugin/node_gpu_allocatable
+_summary: Check that DSS status reports Intel GPU acceleration is enabled
 estimated_duration: 5s
 command: check_dss intel_gpu_acceleration_is_enabled
 

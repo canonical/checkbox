@@ -17,9 +17,8 @@ include:
     intel_gpu_plugin/daemonset_number_ready
     intel_gpu_plugin/labels
     intel_gpu_plugin/gpu_count
-    # FIXME: re-enable after fixing the tests for re-runs
-    # intel_gpu_plugin/node_gpu_capacity
-    # intel_gpu_plugin/node_gpu_allocatable
+    intel_gpu_plugin/node_gpu_capacity
+    intel_gpu_plugin/node_gpu_allocatable
     dss/status_intel_gpu
     dss/create_tensorflow_intel_notebook
     xpu/tensorflow_can_use_xpu

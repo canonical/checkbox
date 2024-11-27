@@ -26,6 +26,9 @@ jobs:
         dss_channel:
           - latest/stable
           - latest/edge
+        microk8s_channel:
+          - 1.28/stable
+          - 1.31/stable
         queue:
           - name: dell-precision-3470-c30322 #ADL iGPU + NVIDIA GPU
             provision_data: "distro: jammy"
@@ -42,6 +45,7 @@ jobs:
           -e "s|REPLACE_QUEUE|${{ matrix.queue.name }}|" \
           -e "s|REPLACE_PROVISION_DATA|${{ matrix.queue.provision_data }}|" \
           -e "s|REPLACE_DSS_CHANNEL|${{ matrix.dss_channel }}|" \
+          -e "s|REPLACE_MICROK8S_CHANNEL|${{ matrix.microk8s_channel }}|" \
           ${GITHUB_WORKSPACE}/contrib/checkbox-dss-validation/testflinger/job-def.yaml > \
           ${GITHUB_WORKSPACE}/job.yaml
       - name: Submit testflinger job

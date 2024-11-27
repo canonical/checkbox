@@ -130,7 +130,7 @@ class CallGetter(NamespacedGetter):
             )
 
         self.args = [getter_from_ast(arg) for arg in parsed_ast.args]
-        self.namespace = self._get_namespace_args(self.args)
+        self.namespace = self._get_common_namespace(self.args)
 
     def __call__(self, variable_object):
         return self.function(*(arg(variable_object) for arg in self.args))

@@ -695,7 +695,7 @@ def evaluate_lazy(
     Returns a namespace where each value is True if any object matched the
     expression. This is used when one doesn't need to know which objects match
     the expression but whether something actually does, namely, when
-    deciding if a job with `resource:...` has to run or not.
+    deciding if a job with `requires:...` has to run or not.
 
     To get a True/False answer one can simply use:
         all(evaluate_lazy(...).values())

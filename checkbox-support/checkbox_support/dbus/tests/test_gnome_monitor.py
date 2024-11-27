@@ -232,9 +232,9 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         self.assertDictEqual(configuration, expected)
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
-    def test_cycler(self, mock_dbus_proxy):
+    def test_cycle(self, mock_dbus_proxy):
         """
-        Test the cycler could get the right monitors configuration
+        Test the cycle could get the right monitors configuration
         and send to ApplyMonitorsConfig.
         """
 
@@ -291,7 +291,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             [],
             {},
         )
-        gnome_monitor.cycler()
+        gnome_monitor.cycle()
 
         logical_monitors = [
             (0, 0, 1.0, 0, True, [("eDP-1", "1920x1200@59.950", {})]),
@@ -317,9 +317,9 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         )
 
     @patch("checkbox_support.dbus.gnome_monitor.Gio.DBusProxy")
-    def test_cycler_no_cycling(self, mock_dbus_proxy):
+    def test_cycle_no_cycling(self, mock_dbus_proxy):
         """
-        Test the cycler could get the right monitors configuration
+        Test the cycle could get the right monitors configuration
         (without res and trans change) and send to ApplyMonitorsConfig.
         """
 
@@ -378,7 +378,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         )
         # mock callback
         mock_callback = MagicMock()
-        gnome_monitor.cycler(
+        gnome_monitor.cycle(
             res=False, trans=False, log=mock_callback, action=mock_callback
         )
 

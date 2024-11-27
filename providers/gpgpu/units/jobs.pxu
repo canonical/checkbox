@@ -9,8 +9,8 @@ requires:
 _summary: NVIDIA GPGPU stress testing
 command:
     set -eo pipefail
-    gpu-burn 14400 | tee $PLAINBOX_SESSION_SHARE/gpu_burn.log
-    cat $PLAINBOX_SESSION_SHARE/gpu_burn.log | grep -v -e '^[[:space:]]*$' -e "errors:" -e "Summary at"
+    gpu-burn 14400 | tee "$PLAINBOX_SESSION_SHARE/gpu_burn.log"
+    grep -v -e '^[[:space:]]*$' -e "errors:" -e "Summary at" "$PLAINBOX_SESSION_SHARE/gpu_burn.log"
 
 id: gpgpu/device-query-drv
 category_id: gpgpu

@@ -95,7 +95,9 @@ id: intel_gpu_plugin/install
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: (host_has_intel_gpus.available == 'true' and executable.name == 'kubectl')
+requires:
+  host_has_intel_gpus.available == 'true'
+  executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
 estimated_duration: 2m
@@ -250,7 +252,9 @@ id: nvidia_gpu_addon/enable
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: (host_has_nvidia_gpus.available == 'true' and executable.name == 'microk8s')
+requires:
+  host_has_nvidia_gpus.available == 'true'
+  executable.name == 'microk8s'
 depends: dss/initialize
 _summary: Enable NVIDIA GPU addon
 estimated_duration: 5m

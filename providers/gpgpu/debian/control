@@ -2,7 +2,8 @@ Source: checkbox-provider-gpgpu
 Section: utils
 Priority: optional
 Maintainer: Checkbox Developers <checkbox-devel@lists.ubuntu.com>
-Uploaders: Jeff Lane <jeffrey.lane@canonical.com>
+Uploaders: Jeff Lane <jeffrey.lane@canonical.com>,
+           Pedro Avalos Jimenez <pedro.avalosjimenez@canonical.com>
 Build-Depends: checkbox-ng,
                debhelper (>= 9),
                intltool,
@@ -15,8 +16,9 @@ Build-Depends: checkbox-ng,
 Standards-Version: 3.9.6
 
 Package: checkbox-provider-gpgpu
-Architecture: all
+Architecture: amd64
 Depends: checkbox-provider-base, ${plainbox:Depends}, ${misc:Depends}
+Suggests: ubuntu-drivers-common, ${plainbox:Suggests}
 X-Plainbox-Provider: yes
 Description: Checkbox provider for GPGPU testing
  This package provides a test plan and tooling to be used by Canonical for the

@@ -25,8 +25,7 @@ include:
     xpu/tensorflow_can_use_xpu
     dss/remove_tensorflow_intel_notebook
     dss/create_pytorch_intel_notebook
-    ipex/ipex_2.1.20_import
-    ipex/ipex_2.1.20_gpu_avail
+    xpu/pytorch_can_use_xpu
     dss/remove_pytorch_intel_notebook
     nvidia_gpu_addon/enable
     nvidia_gpu_addon/validations_succeed

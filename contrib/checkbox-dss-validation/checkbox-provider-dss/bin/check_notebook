@@ -2,6 +2,8 @@
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
+pytorch_can_use_cpu_script="import torch; print(torch.__version__)"
+tensorflow_can_use_cpu_script="import tensorflow as tf; print(tf.config.experimental.list_physical_devices())"
 pytorch_can_use_cuda_script="import torch; assert torch.cuda.is_available(), 'CUDA is not available'"
 tensorflow_can_use_cuda_script="$(cat "$SCRIPT_DIR/tensorflow_can_use_cuda.py")"
 
@@ -23,6 +25,8 @@ help_function() {
     echo -e "\t<can_run_python_script_in_pod>: check_notebook_can_run_python_script_in_pod <pod_name_for_notebook> <script>"
     echo -e "\t\t<pod_name_for_notebook>: determined by grep-ing <notebook_name> for running pods in dss namespace"
     echo -e "\t\t<script>: one of:"
+    echo -e "\t\t\t- verifying_pytorch_can_use_cpu"
+    echo -e "\t\t\t- verifying_tensorflow_can_use_cpu"
     echo -e "\t\t\t- verifying_pytorch_can_use_cuda"
     echo -e "\t\t\t- verifying_tensorflow_can_use_cuda"
 }
@@ -33,6 +37,8 @@ main() {
     echo "Found ${1} pod: ${pod}"
 
     case ${3} in
+    verifying_pytorch_can_use_cpu) script="$pytorch_can_use_cpu_script" ;;
+    verifying_tensorflow_can_use_cpu) script="$tensorflow_can_use_cpu_script" ;;
     verifying_pytorch_can_use_cuda) script="$pytorch_can_use_cuda_script" ;;
     verifying_tensorflow_can_use_cuda) script="$tensorflow_can_use_cuda_script" ;;
     *) help_function ;;

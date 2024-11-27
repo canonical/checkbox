@@ -449,38 +449,58 @@ class TestEvaluateEndToEnd(TestCase):
         self.assertEqual(evaluated, namespace)
 
 
+import contextlib
+
+
 class TestUnsupportedGrammars(TestCase):
+
+    @contextlib.contextmanager
+    def assertRaisesMessage(self, exception, strings):
+        with self.assertRaises(exception) as e:
+            yield
+        exception_s = str(e.exception)
+        all(self.assertIn(string, exception_s) for string in strings)
+
     def test_unsupported_unary_operator(self):
         # unary - can only be applied to constants
-        with self.assertRaises(ValueError):
+        with self.assertRaisesMessage(ValueError, ["constant", "operands"]):
             _ = evaluate("-int(namespace.a) == 1", {})
 
         # unary not is not supported
-        with self.assertRaises(ValueError):
+        with self.assertRaisesMessage(ValueError, ["unary", "Not"]):
             _ = evaluate("(not namespace.a) == False", {})
 
     def test_unsupported_namespaced_collections(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaisesMessage(
+            ValueError,
+            ["collection", "non-constant", "namespace.a", "namespace.b"],
+        ):
             _ = evaluate("'abc' in [namespace.a, namespace.b]", {})
 
     def test_unsupported_namespace_comparison(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaisesMessage(
+            ValueError, ["comparison", "namespaces"]
+        ):
             _ = evaluate("namespace_1.a == namespace_2.a", {})
 
     def test_unsupported_function_reported(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaisesMessage(
+            ValueError, ["function", "called", "isinstance"]
+        ):
             _ = evaluate("isinstance(namespace.a, str) == True", {})
 
     def test_unsupported_is(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaisesMessage(ValueError, ["operator", "is"]):
             _ = evaluate("namespace.a is True", {"namespace": []})
 
     def test_unsupported_multinamespace_function(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaisesMessage(
+            ValueError, ["call", "namespace", "namespace_1"]
+        ):
             _ = evaluate("int(namespace.a, 1, namespace_1.b) == 1", {})
 
     def test_unsupported_constant_function_calls(self):
-        with self.assertRaises(ValueError):
+        with self.assertRaisesMessage(ValueError, ["calls", "no namespace"]):
             _ = evaluate("int('1') == 1", {})
 
     def test_unknown_constant_raises(self):
@@ -493,7 +513,9 @@ class TestUnsupportedGrammars(TestCase):
         _ = ast.Compare
 
         def test_unsupported_compare(self):
-            with self.assertRaises(ValueError):
+            with self.assertRaisesMessage(
+                ValueError, ["multi-operator", "constraint"]
+            ):
                 _ = evaluate("1 < namespace.a < 3", {})
 
     except AttributeError:

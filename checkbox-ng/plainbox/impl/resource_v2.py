@@ -63,6 +63,32 @@ Example:
 """
 
 
+class UnsupportedGrammar(ValueError):
+    """
+    Used to return a human readable message
+    """
+
+    def __init__(self, *args, parsed_ast=None):
+        self.args = args
+        self.parsed_ast = parsed_ast
+
+    def dump_parsed_ast(self):
+        if not self.parsed_ast:
+            return ""
+        try:
+            # new in 3.9
+            return ast.unparse(self.parsed_ast)
+        except AttributeError:
+            return ast.dump(self.parsed_ast)
+
+    def __str__(self):
+        base_str = " ".join(self.args)
+        extra = self.dump_parsed_ast()
+        if extra:
+            return "{}\nRaised by lemma:\n{}".format(base_str, extra)
+        return base_str
+
+
 class UnknownResource(KeyError): ...
 
 
@@ -110,12 +136,12 @@ class CallGetter(NamespacedGetter):
             arg.namespace for arg in args if hasattr(arg, "namespace")
         }
         if len(namespaces) > 1:
-            raise ValueError(
+            raise UnsupportedGrammar(
                 "Function call can access at most one namespace but this is "
                 "using: " + " ".join(namespaces)
             )
         elif len(namespaces) == 0:
-            raise ValueError(
+            raise UnsupportedGrammar(
                 "Function calls with no namespace are unsupported"
             )
         return namespaces.pop()
@@ -125,8 +151,8 @@ class CallGetter(NamespacedGetter):
             self.function_name = parsed_ast.func.id
             self.function = self.CALLS_MEANING[parsed_ast.func.id]
         except KeyError:
-            raise ValueError(
-                "Unsupported function {}".format(parsed_ast.func.id)
+            raise UnsupportedGrammar(
+                "Unknown function called", parsed_ast=parsed_ast
             )
 
         self.args = [getter_from_ast(arg) for arg in parsed_ast.args]
@@ -166,11 +192,14 @@ class ConstantGetter(ValueGetter):
     @classmethod
     def from_unary_op(cls, parsed_ast):
         if not isinstance(parsed_ast.op, ast.USub):
-            raise ValueError("Unsupported operator {}".format(parsed_ast))
+            raise UnsupportedGrammar(
+                "Unsupported unary operator", parsed_ast=parsed_ast
+            )
         operand = getter_from_ast(parsed_ast.operand)
         if not isinstance(operand, ConstantGetter):
-            raise ValueError(
-                "`-` operator can't be applied to non-constant operands"
+            raise UnsupportedGrammar(
+                "`-` operator can't be applied to non-constant operands",
+                parsed_ast=parsed_ast,
             )
         operand.value *= -1
         return cls(operand)
@@ -210,7 +239,10 @@ class ListGetter(ConstantGetter):
         if any(
             isinstance(value, NamespacedGetter) for value in values_getters
         ):
-            raise ValueError("Unsupported collection of non-constant values")
+            raise UnsupportedGrammar(
+                "Unsupported collection of non-constant values",
+                parsed_ast=parsed_ast,
+            )
         self.value = [value_getter() for value_getter in values_getters]
 
     def __str__(self):
@@ -263,8 +295,8 @@ def getter_from_ast(parsed_ast):
     try:
         getter = getters[type(parsed_ast)]
     except KeyError:
-        raise ValueError(
-            "Unsupported name/value {}".format(ast.dump(parsed_ast))
+        raise UnsupportedGrammar(
+            "Unsupported way to fetch a value", parsed_ast=parsed_ast
         )
     return getter(parsed_ast)
 
@@ -292,7 +324,7 @@ class Operator:
         try:
             return cls(*cls.ast_to_operator[type(parsed_ast)])
         except KeyError as e:
-            raise ValueError(
+            raise UnsupportedGrammar(
                 "Unsupported operator {}".format(ast.dump(parsed_ast))
             ) from e
 
@@ -309,14 +341,6 @@ class Constraint:
     """
 
     def __init__(self, left_getter, operator, right_getter):
-        if isinstance(left_getter, NamespacedGetter) and isinstance(
-            right_getter, NamespacedGetter
-        ):
-            raise ValueError(
-                "Unsupported comparison of namespaces with operands {} and {}".format(
-                    left_getter, right_getter
-                )
-            )
         self.left_getter = left_getter
         self.operator = operator
         self.right_getter = right_getter
@@ -328,13 +352,17 @@ class Constraint:
     @classmethod
     def parse_from_ast(cls, parsed_ast, **kwargs):
         if len(parsed_ast.ops) != 1 or len(parsed_ast.comparators) != 1:
-            raise ValueError(
-                "Unsupported multi operator constrating: {}".format(
-                    ast.dump(parsed_ast)
-                )
+            raise UnsupportedGrammar(
+                "Unsupported multi-operator constraint", parsed_ast=parsed_ast
             )
         left_getter = getter_from_ast(parsed_ast.left)
         right_getter = getter_from_ast(parsed_ast.comparators[0])
+        if isinstance(left_getter, NamespacedGetter) and isinstance(
+            right_getter, NamespacedGetter
+        ):
+            raise UnsupportedGrammar(
+                "Unsupported comparison of namespaces", parsed_ast=parsed_ast
+            )
         return cls(left_getter, parsed_ast.ops[0], right_getter, **kwargs)
 
     def _filtered(self, ns_variables):
@@ -597,7 +625,9 @@ def _prepare_boolop(bool_op, namespace, constraint_class):
             for namespace, constraint in ns_constraint
         )
         return functools.reduce(Namespace.namespace_union, filtered_namespaces)
-    raise ValueError("Unsupported boolean operator: {}".format(bool_op.op))
+    raise UnsupportedGrammar(
+        "Unsupported boolean operator", parsed_ast=bool_op.op
+    )
 
 
 @_prepare_filter.register(ast.Expression)

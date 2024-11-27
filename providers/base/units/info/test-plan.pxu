@@ -96,3 +96,12 @@ include:
 bootstrap_include:
     device
     fwts
+
+id: kernel-info
+unit: test plan
+_name: Kernel Info jobs
+_description:
+ Checks the CONFIG_INTEL_IOMMU_DEFAULT_ON flag and attaches the kernel config
+include:
+ info/iommu-kernel-config
+ info/kernel-config-attachment

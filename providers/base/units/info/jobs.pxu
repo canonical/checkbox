@@ -542,3 +542,26 @@ command:
  mokutil --sb-state || true
 _summary: Check secure boot state
 _purpose: Output whether secure boot is enabled or disabled
+
+id: info/iommu-kernel-config
+plugin: shell
+category_id: com.canonical.plainbox::info
+estimated_duration: 0.2
+command:
+    if grep -q CONFIG_INTEL_IOMMU_DEFAULT_ON /boot/config-"$(uname -r)"; then
+        echo "Intel IOMMU is enabled"
+    else
+        echo "Intel IOMMU is disabled"
+        exit 1
+    fi
+_summary: Check Intel IOMMU kernel config
+_purpose: Output whether Intel IOMMU is enabled or disabled
+
+id: info/kernel-config-attachment
+plugin: attachment
+category_id: com.canonical.plainbox::info
+estimated_duration: 0.2
+command:
+    cat /boot/config-"$(uname -r)"
+_summary: Attach the kernel config file
+_purpose: Attaches the kernel config file

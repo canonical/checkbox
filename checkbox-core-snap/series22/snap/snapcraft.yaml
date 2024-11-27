@@ -199,6 +199,7 @@ parts:
       - python3-distutils
       - python3-pkg-resources
       - python3.10-minimal
+      - python3-yaml
     python-packages:
       - tqdm
       - picamera # p-p-c dep that wouldnt install in another part

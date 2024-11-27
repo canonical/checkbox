@@ -163,6 +163,7 @@ parts:
       - python3-minimal
       - python3-pkg-resources
       - python3.12-minimal
+      - python3-yaml
     python-packages:
       - tqdm
       - picamera # p-p-c dep that wouldnt install in another part

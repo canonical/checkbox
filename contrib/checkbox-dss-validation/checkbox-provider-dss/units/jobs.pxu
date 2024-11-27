@@ -101,7 +101,7 @@ requires:
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
 estimated_duration: 2m
-command: check_intel.sh gpu_plugin_can_be_installed
+command: check_intel gpu_plugin_can_be_installed
 
 id: intel_gpu_plugin/daemonset_name
 category_id: dss-regress
@@ -111,7 +111,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/install
 _summary: Check DaemonSet Name
 estimated_duration: 5s
-command: check_intel.sh gpu_plugin_daemonset_is_deployed
+command: check_intel gpu_plugin_daemonset_is_deployed
 
 id: intel_gpu_plugin/daemonset_number_available
 category_id: dss-regress
@@ -121,7 +121,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/install
 _summary: Check number of available daemonsets
 estimated_duration: 5s
-command: check_intel.sh one_daemonset_is_available
+command: check_intel one_daemonset_is_available
 
 id: intel_gpu_plugin/daemonset_number_ready
 category_id: dss-regress
@@ -131,7 +131,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/daemonset_number_available
 _summary: Check number of ready daemonsets
 estimated_duration: 5s
-command: check_intel.sh one_daemonset_is_ready
+command: check_intel one_daemonset_is_ready
 
 id: intel_gpu_plugin/labels
 category_id: dss-regress
@@ -141,7 +141,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/daemonset_number_ready
 _summary: Check intel.feature.node.kubernetes.io/gpu k8s node label
 estimated_duration: 5s
-command: check_intel.sh gpu_node_label_is_attached
+command: check_intel gpu_node_label_is_attached
 
 id: intel_gpu_plugin/gpu_count
 category_id: dss-regress
@@ -151,7 +151,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/labels
 _summary: Check number of Intel GPUs available on k8s node
 estimated_duration: 5s
-command: check_intel.sh at_least_one_gpu_is_available
+command: check_intel at_least_one_gpu_is_available
 
 id: intel_gpu_plugin/node_gpu_capacity
 category_id: dss-regress
@@ -161,7 +161,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/gpu_count
 _summary: Check capacity slots for pods requesting GPU(s)
 estimated_duration: 5s
-command: check_intel.sh capacity_slots_for_gpus_match
+command: check_intel capacity_slots_for_gpus_match
 
 id: intel_gpu_plugin/node_gpu_allocatable
 category_id: dss-regress
@@ -171,7 +171,7 @@ requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/node_gpu_capacity
 _summary: Check allocatable slots for pods requesting GPU(s)
 estimated_duration: 5s
-command: check_intel.sh allocatable_slots_for_gpus_match
+command: check_intel allocatable_slots_for_gpus_match
 
 id: dss/status_intel_gpu
 category_id: dss-regress

@@ -1,0 +1,61 @@
+id: sru-desktop
+_name: All SRU Tests (Ubuntu Desktop)
+unit: test plan
+_description:
+    This test plan contains tests that are useful for validating a Stable
+    Release Update (SRU) on Ubuntu Certified systems.  This test plan is not
+    recommended for, nor will it be accepted for self-testing purposes.
+include:
+    graphics/xorg-version
+    graphics/xorg-failsafe
+    graphics/xorg-process
+nested_part:
+    sru-base
+    cpu-cert-automated
+    disk-cert-automated
+    monitor-integrated-gpu-cert-automated
+    monitor-discrete-gpu-cert-automated
+    graphics-integrated-gpu-cert-automated
+    graphics-discrete-gpu-cert-automated
+    zapper-enabled-automated
+    snap-refresh-revert
+    # SUSPEND POINT
+    after-suspend-graphics-discrete-gpu-cert-automated
+    after-suspend-graphics-integrated-gpu-cert-automated
+bootstrap_include:
+    device
+    graphics_card
+    net_if_management
+
+id: sru-desktop-no-stress
+_name: SRU Tests without stress tests (Ubuntu Desktop)
+unit: test plan
+_description:
+    This test plan contains tests that are useful for validating a Stable
+    Release Update (SRU) on Ubuntu Certified systems, excluding the stress
+    tests.  This test plan is not recommended for, nor will it be accepted for 
+    self-testing purposes.
+nested_part:
+    sru-desktop
+exclude:
+    stress/.*
+bootstrap_include:
+    device
+    graphics_card
+    net_if_management
+
+id: sru-desktop-rt
+_name: All SRU Tests (Ubuntu Real-time)
+unit: test plan
+_description:
+    This test plan contains tests that are useful for validating a Stable
+    Release Update (SRU) on Ubuntu Certified systems, including real time
+    tests.  This test plan is not recommended for, nor will it be accepted for 
+    self-testing purposes.
+nested_part:
+    sru-desktop
+    rt-performance-tests-automated
+bootstrap_include:
+    device
+    graphics_card
+    net_if_management

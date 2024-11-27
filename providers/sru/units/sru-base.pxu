@@ -1,0 +1,62 @@
+id: sru-base
+_name: SRU Base Tests
+unit: test plan
+_description:
+    This test plan contains tests common to all SRU categories, including Server, Desktop, and IoT.
+include:
+    recovery_info_attachment
+    net_if_management_attachment
+    install/apt-get-gets-updates
+    miscellanea/dkms_build_validation
+    networking/http
+nested_part:
+    submission-cert-automated
+    info-attachment-cert-automated
+    audio-cert-automated
+    bluetooth-cert-automated
+    camera-cert-automated
+    cpu-cert-automated
+    input-cert-automated
+    disk-cert-automated
+    misc-client-cert-automated
+    mediacard-automated
+    memory-automated
+    wwan-automated
+    ethernet-cert-automated
+    networking-cert-automated
+    optical-cert-automated
+    power-management-precheck-cert-automated
+    touchpad-cert-automated
+    usb-cert-automated
+    usb-automated
+    wireless-cert-automated
+    # START OF SUSPEND RELATED TESTS
+    before-suspend-reference-cert-automated
+    # SUSPEND POINT
+    after-suspend-reference-cert-automated
+    after-suspend-wwan-automated
+    after-suspend-touchscreen-cert-automated
+    after-suspend-wireless-cert-automated
+    # NOTE: The following tests should run BEFORE the automated tests. The reboot and
+    # power off tests will also give us a clean system to start the stress run
+    # with. This is not being controlled at the moment.
+    power-automated
+    tpm-cert-automated
+    stress-ng-cert-automated
+    stress-10-reboot-poweroff-automated
+bootstrap_include:
+    device
+    graphics_card
+    net_if_management
+exclude:
+    cpu/clocktest
+    disk/stats_.*
+    disk/storage_device_.*
+    installer_debug.gz
+    stress/cpu_stress_ng_test
+    stress/memory_stress_ng
+    audio/valid-sof-firmware-sig
+    miscellanea/check_prerelease
+    miscellanea/debsums
+    miscellanea/ubuntu-desktop-recommends
+    miscellanea/ubuntu-desktop-minimal-recommends

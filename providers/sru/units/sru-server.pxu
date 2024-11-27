@@ -1,0 +1,9 @@
+id: sru-server-new
+_name: All SRU Tests (Ubuntu Server)
+unit: test plan
+_description:
+    This test plan contains tests that are useful for validating a Stable
+    Release Update (SRU) on Ubuntu Certified systems.  This test plan is not
+    recommended for, nor will it be accepted for self-testing purposes.
+nested_part:
+    sru-base

@@ -188,29 +188,19 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
-_summary: Check that an ITEX 2.15 notebook can be successfully created
+_summary: Check that a Tensorflow Intel notebook can be successfully created
 estimated_duration: 3m
-command: check_dss can_create_notebook itex-215-notebook --image tensorflow-intel
+command: check_dss can_create_notebook tensorflow-intel --image tensorflow-intel
 
-id: itex/itex_2.15_import
+id: xpu/tensorflow_can_use_xpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: dss/create_tensorflow_intel_notebook
-_summary: Check to see if ITEX 2.15 can be imported
+_summary: Check that Tensorflow can use XPU in the notebook
 estimated_duration: 1m
-command: check_itex.sh can_be_imported
-
-id: itex/itex_2.15_gpu_avail
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: itex/itex_2.15_import
-_summary: Check ITEX 2.15 GPU Availability
-estimated_duration: 1m
-command: check_itex.sh tensorflow_can_use_xpu
+command: check_notebook tensorflow-intel can_run_python_script_in_pod verifying_tensorflow_can_use_xpu
 
 id: dss/remove_tensorflow_intel_notebook
 category_id: dss-regress
@@ -220,7 +210,7 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_intel_notebook
 _summary: Check that the Tensorflow Intel notebook can be removed
 estimated_duration: 1m
-command: check_dss can_remove_notebook itex-215-notebook
+command: check_dss can_remove_notebook tensorflow-intel
 
 id: dss/create_pytorch_intel_notebook
 category_id: dss-regress

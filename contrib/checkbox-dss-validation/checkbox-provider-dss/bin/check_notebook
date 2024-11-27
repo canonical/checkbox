@@ -4,6 +4,7 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
 
 pytorch_can_use_cpu_script="import torch; print(torch.__version__)"
 tensorflow_can_use_cpu_script="import tensorflow as tf; print(tf.config.experimental.list_physical_devices())"
+tensorflow_can_use_xpu_script="$(cat "$SCRIPT_DIR/tensorflow_can_use_xpu.py")"
 pytorch_can_use_cuda_script="import torch; assert torch.cuda.is_available(), 'CUDA is not available'"
 tensorflow_can_use_cuda_script="$(cat "$SCRIPT_DIR/tensorflow_can_use_cuda.py")"
 
@@ -39,6 +40,7 @@ main() {
     case ${3} in
     verifying_pytorch_can_use_cpu) script="$pytorch_can_use_cpu_script" ;;
     verifying_tensorflow_can_use_cpu) script="$tensorflow_can_use_cpu_script" ;;
+    verifying_tensorflow_can_use_xpu) script="$tensorflow_can_use_xpu_script" ;;
     verifying_pytorch_can_use_cuda) script="$pytorch_can_use_cuda_script" ;;
     verifying_tensorflow_can_use_cuda) script="$tensorflow_can_use_cuda_script" ;;
     *) help_function ;;

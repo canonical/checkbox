@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-dss_snap_channel="1/stable"
+dss_snap_channel="latest/stable"
 microk8s_snap_channel="1.28/stable"
 kubectl_snap_channel="1.29/stable"
 

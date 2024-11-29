@@ -35,6 +35,26 @@ body:
     validations:
       required: true
   - type: textarea
+    id: expected_result
+    attributes:
+      label: Expected Result
+      description: >
+        What should happen?
+      placeholder: |
+        The job passes and all is green.
+    validations:
+      required: true
+  - type: textarea
+    id: actual_result
+    attributes:
+      label: Actual Result
+      description: >
+        What actually happens?
+      placeholder: |
+        The job fails and everything is red!
+    validations:
+      required: true
+  - type: textarea
     id: environment
     attributes:
       label: Environment

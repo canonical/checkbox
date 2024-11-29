@@ -320,7 +320,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
     def test_cycle_no_cycling(self, mock_dbus_proxy):
         """
         Test the cycle could get the right monitors configuration
-        (without res and trans change) and send to ApplyMonitorsConfig.
+        (without res and transform change) and send to ApplyMonitorsConfig.
         """
 
         mock_proxy = Mock()
@@ -379,7 +379,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         # mock callback
         mock_callback = MagicMock()
         gnome_monitor.cycle(
-            res=False, trans=False, log=mock_callback, action=mock_callback
+            res=False, transform=False, log=mock_callback, action=mock_callback
         )
 
         logical_monitors = [

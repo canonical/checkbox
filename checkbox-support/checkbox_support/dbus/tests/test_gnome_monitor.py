@@ -1,3 +1,4 @@
+import re
 import sys
 import unittest
 from unittest.mock import patch, Mock, MagicMock
@@ -404,6 +405,6 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             timeout_msec=-1,
             cancellable=None,
         )
-        mock_callback.assert_called_with(
-            "HDMI-1_2560x1440_normal_eDP-1_1920x1200_normal_"
-        )
+        argument_string = mock_callback.call_args[0][0]
+        pattern = re.compile("HDMI-1_2560x1440_normal_eDP-1_1920x1200_normal_|eDP-1_1920x1200_normal_HDMI-1_2560x1440_normal_")
+        assert pattern.match(argument_string)

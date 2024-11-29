@@ -380,7 +380,10 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         # mock callback
         mock_callback = MagicMock()
         gnome_monitor.cycle(
-            res=False, transform=False, log=mock_callback, action=mock_callback
+            res=False,
+            transform=False,
+            log=mock_callback,
+            action=mock_callback,
         )
 
         logical_monitors = [
@@ -406,5 +409,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             cancellable=None,
         )
         argument_string = mock_callback.call_args[0][0]
-        pattern = re.compile("HDMI-1_2560x1440_normal_eDP-1_1920x1200_normal_|eDP-1_1920x1200_normal_HDMI-1_2560x1440_normal_")
+        p1 = "HDMI-1_2560x1440_normal_"
+        p2 = "eDP-1_1920x1200_normal_"
+        pattern = re.compile("{}{}|{}{}".format(p1, p2, p2, p1))
         assert pattern.match(argument_string)

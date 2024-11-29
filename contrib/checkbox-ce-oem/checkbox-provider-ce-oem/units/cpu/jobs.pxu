@@ -20,11 +20,11 @@ command: cpufreq_governors.py --driver-detect
 unit: template
 template-resource: cpufreq_policy_list
 template-unit: job
-template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate'
+template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate' and cpufreq_policy_list.cpb != '1'
 id: ce-oem-cpu/cpufreq-governor-performance-policy{policy}
 _summary: Test "performance" scaling governor on policy{policy}
 _description:
-    This job sets the governor to "performance" and 
+    This job sets the governor to "performance" and
     verifies whether the frequency is maximum.
 plugin: shell
 user: root
@@ -37,11 +37,11 @@ command: cpufreq_governors.py --policy {policy} --governor performance
 unit: template
 template-resource: cpufreq_policy_list
 template-unit: job
-template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate'
+template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate' and cpufreq_policy_list.cpb != '1'
 id: ce-oem-cpu/cpufreq-governor-powersave-policy{policy}
 _summary: Test "powersave" scaling governor on policy{policy}
 _description:
-    This job sets the governor to "powersave" and 
+    This job sets the governor to "powersave" and
     verifies whether the frequency is minimum.
 plugin: shell
 user: root
@@ -54,11 +54,11 @@ command: cpufreq_governors.py --policy {policy} --governor powersave
 unit: template
 template-resource: cpufreq_policy_list
 template-unit: job
-template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate'
+template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate' and cpufreq_policy_list.cpb != '1'
 id: ce-oem-cpu/cpufreq-governor-userspace-policy{policy}
 _summary: Test "userspace" scaling governor on policy{policy}
 _description:
-    This job sets the governor to "userspace" and 
+    This job sets the governor to "userspace" and
     verifies the frequency when setting it to maximum
     and minimum.
 plugin: shell
@@ -72,7 +72,7 @@ command: cpufreq_governors.py --policy {policy} --governor userspace
 unit: template
 template-resource: cpufreq_policy_list
 template-unit: job
-template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate'
+template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate' and cpufreq_policy_list.cpb != '1'
 id: ce-oem-cpu/cpufreq-governor-schedutil-policy{policy}
 _summary: Test "schedutil" scaling governor on policy{policy}
 _description:
@@ -91,7 +91,7 @@ command: cpufreq_governors.py --policy {policy} --governor schedutil
 unit: template
 template-resource: cpufreq_policy_list
 template-unit: job
-template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate'
+template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate' and cpufreq_policy_list.cpb != '1'
 id: ce-oem-cpu/cpufreq-governor-ondemand-policy{policy}
 _summary: Test "ondemand" scaling governor on policy{policy}
 _description:
@@ -110,7 +110,7 @@ command: cpufreq_governors.py --policy {policy} --governor ondemand
 unit: template
 template-resource: cpufreq_policy_list
 template-unit: job
-template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate'
+template-filter: cpufreq_policy_list.scaling_driver != 'intel_pstate' and cpufreq_policy_list.cpb != '1'
 id: ce-oem-cpu/cpufreq-governor-conservative-policy{policy}
 _summary: Test "conservative" scaling governor on policy{policy}
 _description:

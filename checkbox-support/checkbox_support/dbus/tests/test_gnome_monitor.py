@@ -405,5 +405,5 @@ class MonitorConfigGnomeTests(unittest.TestCase):
             cancellable=None,
         )
         mock_callback.assert_called_with(
-            "eDP-1_1920x1200_normal_HDMI-1_2560x1440_normal_"
+            "HDMI-1_2560x1440_normal_eDP-1_1920x1200_normal_"
         )

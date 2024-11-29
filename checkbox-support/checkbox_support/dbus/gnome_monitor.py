@@ -110,7 +110,7 @@ class MonitorConfigGnome(MonitorConfig):
         self,
         res: bool = True,
         max_res_amount: int = 5,
-        trans: bool = False,
+        transform: bool = False,
         log: Callable[..., Any] = None,
         action: Callable[..., Any] = None,
         **kwargs
@@ -124,7 +124,7 @@ class MonitorConfigGnome(MonitorConfig):
             max_res_amount: Limit the number of tested configurations
                 to avoid an unnecessarily large test matrix.
 
-            trans: Cycling the transform or not.
+            transform: Cycling the transform or not.
 
             log: For logging, the string is constructed by
                  [monitor name]_[resolution]_[transform]_.
@@ -138,7 +138,7 @@ class MonitorConfigGnome(MonitorConfig):
         monitors = []
         modes_list = []
         # ["normal": 0, "left": 1, "inverted": 6, "right": 3]
-        trans_list = [0, 1, 6, 3] if trans else [0]
+        trans_list = [0, 1, 6, 3] if transform else [0]
 
         # for multiple monitors, we need to create res combination
         state = self._get_current_state()
@@ -151,10 +151,8 @@ class MonitorConfigGnome(MonitorConfig):
             for trans in trans_list:
                 logical_monitors = []
                 position_x = 0
-                m_list = list(mode)
                 uni_string = ""
-                for monitor in monitors:
-                    m = m_list.pop(0)
+                for monitor, m in zip(monitors, mode):
                     uni_string += "{}_{}_{}_".format(
                         monitor,
                         m.resolution,

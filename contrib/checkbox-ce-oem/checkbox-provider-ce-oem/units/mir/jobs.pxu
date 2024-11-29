@@ -18,11 +18,13 @@ plugin: shell
 flags: also-after-suspend
 user: root
 depends: mir/check-ubuntu-frame-launching-auto
-imports: 
+imports:
     from com.canonical.certification import snap
     from com.canonical.plainbox import manifest
+    from com.canonical.certification import connections
 requires:
     snap.name == "graphics-test-tools"
+    connections.plug in ["graphics-test-tools:graphics-core20", "graphics-test-tools:graphics-core22", "graphics-test-tools:gpu-2404"]
     manifest.has_ubuntu_frame == "True"
 _summary: Run OpenGL ES 2.0 Wayland benchmark on the GPU
 environ: PLAINBOX_SESSION_SHARE GL_VENDOR GL_RENDERER

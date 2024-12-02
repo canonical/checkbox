@@ -21,7 +21,7 @@ check_notebook_can_run_python_script_in_pod() {
 
 help_function() {
     echo "This script is used for tests related to running things in notebooks' pods"
-    echo "Usage: check_notebook <notebook_name> <test_case> [args]..."
+    echo "Usage: check_notebook.sh <notebook_name> <test_case> [args]..."
     echo
     echo "Test cases currently implemented:"
     echo -e "\t<can_run_python_script_in_pod>: check_notebook_can_run_python_script_in_pod <pod_name_for_notebook> <script>"

@@ -126,3 +126,4 @@ _name: AMD specific automated tests
 _description: AMD specific automated tests for Ubuntu PC devices
 include:
     power-management/amd_pmf_detect
+    after-suspend-power-management/amd_pmf_detect

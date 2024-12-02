@@ -109,7 +109,7 @@ class MonitorConfigGnome(MonitorConfig):
         self,
         res: bool = True,
         transform: bool = False,
-        resolution_filter: Callable[List[Mode], List[Mode]] = None,
+        resolution_filter: Callable[[List[Mode]], List[Mode]] = None,
         action: Callable[..., Any] = None,
         **kwargs
     ):

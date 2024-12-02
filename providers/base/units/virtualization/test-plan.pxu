@@ -17,3 +17,5 @@ _name: Automated virtualization tests
 include:
     virtualization/verify_lxd
     virtualization/verify_lxd_vm
+    virtualization/verify_lxd_vm_sriov
+    virtualization/verify_lxd_container_sriov

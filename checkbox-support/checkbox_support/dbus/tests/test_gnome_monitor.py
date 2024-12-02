@@ -382,7 +382,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         gnome_monitor.cycle(
             res=False,
             transform=False,
-            log=mock_callback,
+            resoultion_filter=mock_callback,
             action=mock_callback,
         )
 

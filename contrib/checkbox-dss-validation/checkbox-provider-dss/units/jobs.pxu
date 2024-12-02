@@ -94,9 +94,11 @@ command: check_dss.sh can_remove_notebook tensorflow-cpu
 id: intel_gpu_plugin/install
 category_id: dss-regress
 flags: simple
-imports: from com.canonical.certification import executable
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
 requires:
-  host_has_intel_gpus.available == 'true'
+  graphics_card.driver == 'i915'
   executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
@@ -248,9 +250,11 @@ command: check_dss.sh can_remove_notebook pytorch-intel
 id: nvidia_gpu_addon/enable
 category_id: dss-regress
 flags: simple
-imports: from com.canonical.certification import executable
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
 requires:
-  host_has_nvidia_gpus.available == 'true'
+  graphics_card.driver == 'nvidia'
   executable.name == 'microk8s'
 depends: dss/initialize
 _summary: Enable NVIDIA GPU addon

@@ -39,5 +39,3 @@ bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
     com.canonical.certification::graphics_card
-    host_has_intel_gpus
-    host_has_nvidia_gpus

@@ -340,3 +340,50 @@ depends: dss/create_tensorflow_cuda_notebook
 _summary: Check that the Tensorflow CUDA notebook can be removed
 estimated_duration: 1m
 command: check_dss.sh can_remove_notebook tensorflow-cuda
+
+# DSS integration test jobs ###################################################
+
+id: dss/purge
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/initialize
+_summary: Check that DSS can be purged
+estimated_duration: 1m
+command: check_dss.sh can_be_purged
+
+# NOTE: DSS Integration tests expect DSS to not be initialized
+#  hence they also depend on the dss/purge job
+
+id: dss_integration_tests/cpu
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import package
+requires:
+  executable.name == 'dss'
+  executable.name == 'python3'
+  package.name == 'python3-venv'
+depends: dss/purge
+_summary: Check that all DSS integration tests for CPU pass
+estimated_duration: 1m
+command: check_dss_integration_tests.sh can_be_purged pass_on_cpu
+
+id: dss_integration_tests/nvidia_gpu
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import package
+requires:
+  executable.name == 'dss'
+  executable.name == 'python3'
+  package.name == 'python3-venv'
+depends:
+  dss/purge
+  nvidia_gpu_addon/validations_succeed
+_summary: Check that all DSS integration tests for NVIDIA GPUs
+estimated_duration: 1m
+command: check_dss_integration_tests.sh can_be_purged pass_on_nvidia_gpu

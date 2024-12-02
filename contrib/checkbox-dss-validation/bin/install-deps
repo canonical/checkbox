@@ -80,7 +80,7 @@ main() {
     # intel_gpu_top command used for host-level GPU check
     # jq used for cases where jsonpath is insufficient for parsing json results
     echo -e "\nStep 3/4: Installing intel-gpu-tools"
-    DEBIAN_FRONTEND=noninteractive sudo apt install -y intel-gpu-tools jq
+    DEBIAN_FRONTEND=noninteractive sudo apt install -y python3-venv intel-gpu-tools jq
 
     echo -e "\nStep 4/4: Installing data-science-stack snap from channel $dss_snap_channel"
     sudo snap install data-science-stack --channel "$dss_snap_channel"

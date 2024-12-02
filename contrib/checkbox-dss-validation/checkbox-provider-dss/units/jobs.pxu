@@ -98,7 +98,7 @@ imports:
   from com.canonical.certification import executable
   from com.canonical.certification import graphics_card
 requires:
-  graphics_card.driver == 'i915'
+  graphics_card.vendor == 'Intel Corporation'
   executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
@@ -254,7 +254,7 @@ imports:
   from com.canonical.certification import executable
   from com.canonical.certification import graphics_card
 requires:
-  graphics_card.driver == 'nvidia'
+  graphics_card.vendor == 'NVIDIA Corporation'
   executable.name == 'microk8s'
 depends: dss/initialize
 _summary: Enable NVIDIA GPU addon

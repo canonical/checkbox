@@ -162,7 +162,8 @@ class SnapRefreshRevert:
             if checkbox_session_dir:
                 result = {
                     "outcome": "fail",
-                    "comments": "Marking the test as failed because it raised the following:" + str(exc),
+                    "comments": "Marking the test as failed because it raised the following:"
+                    + str(exc),
                 }
                 result_filename = os.path.join(
                     checkbox_session_dir, "__result"

@@ -1,12 +1,14 @@
 # Welcome to the Checkbox DSS project!
 
-This repository contains the Checkbox DSS Provider (test cases and test plans for validating Intel GPU support in the [Data Science Stack](https://documentation.ubuntu.com/data-science-stack/en/latest/)) as well as everything that is required to build the `checkbox-dss` snap.
+This repository contains the Checkbox DSS Provider (test cases and test plans for validating Intel and NVIDIA GPU support in the [Data Science Stack](https://documentation.ubuntu.com/data-science-stack/en/latest/)) as well as everything that is required to build the `checkbox-dss` snap.
 
 # Requirements
 
 - Ubuntu Jammy (22.04)
 - Supported hardware platforms:
+  - No GPUs
   - Intel platforms with recent GPU (>= Broadwell)
+  - Recent NVIDIA GPU
 
 # Installation
 
@@ -19,7 +21,7 @@ lxd init --auto
 git clone https://github.com/canonical/checkbox
 cd checkbox/contrib/checkbox-dss-validation
 snapcraft
-sudo snap install --dangerous --classic ./checkbox-dss_2.0_amd64.snap
+sudo snap install --dangerous --classic ./checkbox-dss_3.0_amd64.snap
 ```
 
 Make sure that the provider service is running and active:
@@ -40,15 +42,27 @@ By default this will install the `data-science-stack` snap from the `latest/stab
 channel. To instead install from `latest/edge` use:
 
 ```shell
-checkbox-dss.install-deps --dss-snap-channel=latest/edge
+checkbox-dss.install-deps --dss-snap-channel latest/edge
 ```
+
+Furthermore, the default `microk8s` snap channel is `1.28/stable` in classic mode,
+but this can be customized as
+(please note that this snap must to be `--classic` to enable GPU support):
+
+```shell
+checkbox-dss.install-deps --microk8s-snap-channel 1.31/stable
+```
+
+These validations also need the `kubectl` snap installed, and the default channel
+used for that is `1.29/stable`, but can be customized as shown previously by passing
+the appropriate channel name for `--kubectl-snap-channel`.
 
 # Automated Run
 
 To run the test plans:
 
 ```shell
-checkbox-dss.validate-intel-gpu
+checkbox-dss.validate-with-gpu
 ```
 
 # Cleanup

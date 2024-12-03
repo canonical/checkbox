@@ -2,7 +2,7 @@ name: checkbox-dss
 summary: Checkbox tests for validating the Data Science Stack
 description: |
   Collection of tests to be run on devices that are part of the dss-validation project
-version: '2.0'
+version: '3.0'
 confinement: classic
 grade: stable
 
@@ -35,9 +35,9 @@ apps:
   configure:
     command-chain: [bin/wrapper_local]
     command: bin/configure
-  validate-intel-gpu:
+  validate-with-gpu:
     command-chain: [bin/wrapper_local]
-    command: bin/validate-intel-gpu
+    command: bin/validate-with-gpu
   remote-slave:
     command-chain: [bin/wrapper_local]
     command: bin/checkbox-cli-wrapper slave
@@ -82,4 +82,3 @@ parts:
   config-variables:
     plugin: dump
     source: config/
-

@@ -1,12 +1,3 @@
-id: intel_gpu/host_gpu_avail
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'intel_gpu_top'
-_summary: Verify that an Intel GPU is available on the host
-estimated_duration: 5s
-command: check_intel.sh host_has_intel_gpus
-
 id: dss/initialize
 category_id: dss-regress
 flags: simple
@@ -14,10 +5,9 @@ imports: from com.canonical.certification import executable
 requires:
   executable.name == 'dss'
   executable.name == 'microk8s'
-depends: intel_gpu/host_gpu_avail
 _summary: Check that the DSS environment initializes
 estimated_duration: 2m
-command: check_dss.sh dss_can_be_initialized
+command: check_dss.sh can_be_initialized
 
 id: dss/namespace
 category_id: dss-regress
@@ -27,7 +17,7 @@ requires: executable.name == 'microk8s'
 depends: dss/initialize
 _summary: Check that the dss namespace is deployed
 estimated_duration: 5s
-command: check_dss.sh dss_namespace_is_deployed
+command: check_dss.sh namespace_is_deployed
 
 id: dss/status_mlflow
 category_id: dss-regress
@@ -39,21 +29,77 @@ _summary: Check that the dss mlflow is deployed
 estimated_duration: 5s
 command: check_dss.sh mlflow_status_is_ready
 
-id: dss/mlflow_deployed
+id: dss/create_pytorch_cpu_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/initialize
+_summary: Check that an PyTorch CPU notebook can be successfully created
+estimated_duration: 3m
+command: check_dss.sh can_create_notebook pytorch-cpu --image=pytorch
+
+id: cpu/pytorch_can_use_cpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
-depends: dss/namespace
-_summary: Check that the first service name is mlflow
-estimated_duration: 5s
-command: check_dss.sh mlflow_is_deployed_as_first_service
+depends: dss/create_pytorch_cpu_notebook
+_summary: Check that PyTorch can use CPU in notebook
+estimated_duration: 1m
+command: check_notebook.sh pytorch-cpu can_run_python_script_in_pod verifying_pytorch_can_use_cpu
+
+id: dss/remove_pytorch_cpu_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_pytorch_cpu_notebook
+_summary: Check that the PyTorch CPU notebook can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook pytorch-cpu
+
+id: dss/create_tensorflow_cpu_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/initialize
+_summary: Check that an Tensorflow CPU notebook can be successfully created
+estimated_duration: 3m
+command: check_dss.sh can_create_notebook tensorflow-cpu --image=tensorflow
+
+id: cpu/tensorflow_can_use_cpu
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: dss/create_tensorflow_cpu_notebook
+_summary: Check that Tensorflow can use CPU in notebook
+estimated_duration: 1m
+command: check_notebook.sh tensorflow-cpu can_run_python_script_in_pod verifying_tensorflow_can_use_cpu
+
+id: dss/remove_tensorflow_cpu_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_tensorflow_cpu_notebook
+_summary: Check that the Tensorflow CPU notebook can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook tensorflow-cpu
+
+# Intel XPU jobs ##############################################################
 
 id: intel_gpu_plugin/install
 category_id: dss-regress
 flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'kubectl'
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  graphics_card.vendor == 'Intel Corporation'
+  executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
 estimated_duration: 2m
@@ -65,7 +111,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/install
-_summary: Check DaemonSet Name
+_summary: Check that Intel GPU plugin daemonset is deployed
 estimated_duration: 5s
 command: check_intel.sh gpu_plugin_daemonset_is_deployed
 
@@ -75,7 +121,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/install
-_summary: Check number of available daemonsets
+_summary: Check that at least one Intel GPU daemonset is available
 estimated_duration: 5s
 command: check_intel.sh one_daemonset_is_available
 
@@ -85,7 +131,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/daemonset_number_available
-_summary: Check number of ready daemonsets
+_summary: Check that at least one Intel GPU daemonset is ready
 estimated_duration: 5s
 command: check_intel.sh one_daemonset_is_ready
 
@@ -95,7 +141,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/daemonset_number_ready
-_summary: Check intel.feature.node.kubernetes.io/gpu k8s node label
+_summary: Check that Kubernetes has label intel.feature.node.kubernetes.io/gpu
 estimated_duration: 5s
 command: check_intel.sh gpu_node_label_is_attached
 
@@ -105,7 +151,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/labels
-_summary: Check number of Intel GPUs available on k8s node
+_summary: Check that at least one Intel GPU is available on k8s node
 estimated_duration: 5s
 command: check_intel.sh at_least_one_gpu_is_available
 
@@ -115,7 +161,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/gpu_count
-_summary: Check capacity slots for pods requesting GPU(s)
+_summary: Check that at least expected capacity slots for Intel GPU are availabled
 estimated_duration: 5s
 command: check_intel.sh capacity_slots_for_gpus_match
 
@@ -125,7 +171,7 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
 depends: intel_gpu_plugin/node_gpu_capacity
-_summary: Check allocatable slots for pods requesting GPU(s)
+_summary: Check that at least expected allocatable slots for Intel GPU are available
 estimated_duration: 5s
 command: check_intel.sh allocatable_slots_for_gpus_match
 
@@ -135,66 +181,162 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: intel_gpu_plugin/node_gpu_allocatable
-_summary: Check that dss status reports that Intel GPU acceleration is enabled
+_summary: Check that DSS status reports Intel GPU acceleration is enabled
 estimated_duration: 5s
 command: check_dss.sh intel_gpu_acceleration_is_enabled
 
-id: dss/create_itex_2.15_notebook
+id: dss/create_tensorflow_intel_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
-_summary: Check that an ITEX 2.15 notebook can be successfully created
+_summary: Check that a Tensorflow Intel notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.sh can_create_itex_215_notebook
+command: check_dss.sh can_create_notebook tensorflow-intel --image tensorflow-intel
 
-id: itex/itex_2.15_import
+id: xpu/tensorflow_can_use_xpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
-depends: dss/create_itex_2.15_notebook
-_summary: Check to see if ITEX 2.15 can be imported
+depends: dss/create_tensorflow_intel_notebook
+_summary: Check that Tensorflow can use XPU in the notebook
 estimated_duration: 1m
-command: check_itex.sh can_be_imported
+command: check_notebook.sh tensorflow-intel can_run_python_script_in_pod verifying_tensorflow_can_use_xpu
 
-id: itex/itex_2.15_gpu_avail
+id: dss/remove_tensorflow_intel_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: itex/itex_2.15_import
-_summary: Check ITEX 2.15 GPU Availability
+requires: executable.name == 'dss'
+depends: dss/create_tensorflow_intel_notebook
+_summary: Check that the Tensorflow Intel notebook can be removed
 estimated_duration: 1m
-command: check_itex.sh tensorflow_can_use_xpu
+command: check_dss.sh can_remove_notebook tensorflow-intel
 
-id: dss/create_ipex_2.1.20_notebook
+id: dss/create_pytorch_intel_notebook
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
-_summary: Check that an IPEX 2.1.20 notebook can be successfully created
+_summary: Check that a PyTorch Intel notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.sh can_create_ipex_2120_notebook
+command: check_dss.sh can_create_notebook pytorch-intel --image pytorch-intel
 
-id: ipex/ipex_2.1.20_import
+id: xpu/pytorch_can_use_xpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
-depends: dss/create_ipex_2.1.20_notebook
-_summary: Check to see if IPEX 2.1.20 can be imported
+depends: dss/create_pytorch_intel_notebook
+_summary: Check that Pytorch can use XPU in the notebook
 estimated_duration: 1m
-command: check_ipex.sh can_be_imported
+command: check_notebook.sh pytorch-intel can_run_python_script_in_pod verifying_pytorch_can_use_xpu
 
-id: ipex/ipex_2.1.20_gpu_avail
+id: dss/remove_pytorch_intel_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_pytorch_intel_notebook
+_summary: Check that the PyTorch Intel notebook can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook pytorch-intel
+
+# NVIDIA CUDA jobs ############################################################
+
+id: nvidia_gpu_addon/enable
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  graphics_card.vendor == 'NVIDIA Corporation'
+  executable.name == 'microk8s'
+depends: dss/initialize
+_summary: Enable NVIDIA GPU addon
+estimated_duration: 5m
+command: check_cuda.sh gpu_addon_can_be_enabled
+
+id: nvidia_gpu_addon/validations_succeed
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
-depends: ipex/ipex_2.1.20_import
-_summary: Check IPEX 2.1.20 GPU availability
+depends: nvidia_gpu_addon/enable
+_summary: NVIDIA GPU validations should succeed
+estimated_duration: 10s
+command: check_cuda.sh gpu_validations_succeed
+
+id: dss/status_nvidia_gpu
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: nvidia_gpu_addon/validations_succeed
+_summary: Check that dss status reports that NVIDIA GPU acceleration is enabled
+estimated_duration: 5s
+command: check_dss.sh nvidia_gpu_acceleration_is_enabled
+
+id: dss/create_pytorch_cuda_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/status_nvidia_gpu
+_summary: Check that an PyTorch CUDA notebook can be successfully created
+estimated_duration: 3m
+command: check_dss.sh can_create_notebook pytorch-cuda --image=pytorch-cuda
+
+id: cuda/pytorch_can_use_cuda
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: dss/create_pytorch_cuda_notebook
+_summary: Check PyTorch can use CUDA
 estimated_duration: 1m
-command: check_ipex.sh pytorch_can_use_xpu
+command: check_notebook.sh pytorch-cuda can_run_python_script_in_pod verifying_pytorch_can_use_cuda
+
+id: dss/remove_pytorch_cuda_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_pytorch_cuda_notebook
+_summary: Check that the PyTorch CUDA notebook can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook pytorch-cuda
+
+id: dss/create_tensorflow_cuda_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/status_nvidia_gpu
+_summary: Check that an Tensorflow CUDA notebook can be successfully created
+estimated_duration: 3m
+command: check_dss.sh can_create_notebook tensorflow-cuda --image=tensorflow-cuda
+
+id: cuda/tensorflow_can_use_cuda
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: dss/create_tensorflow_cuda_notebook
+_summary: Check Tensorflow can use CUDA
+estimated_duration: 1m
+command: check_notebook.sh tensorflow-cuda can_run_python_script_in_pod verifying_tensorflow_can_use_cuda
+
+id: dss/remove_tensorflow_cuda_notebook
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_tensorflow_cuda_notebook
+_summary: Check that the Tensorflow CUDA notebook can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook tensorflow-cuda

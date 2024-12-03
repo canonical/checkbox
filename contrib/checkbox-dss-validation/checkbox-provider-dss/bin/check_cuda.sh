@@ -1,0 +1,54 @@
+#!/usr/bin/env bash
+
+set -euxo pipefail
+
+check_nvidia_gpu_addon_can_be_enabled() {
+    # TODO: enable changing GPU_OPERATOR_VERSION
+    GPU_OPERATOR_VERSION=24.6.2
+    echo "[INFO]: enabling the NVIDIA GPU addon"
+    sudo microk8s enable gpu --driver=operator --version="$GPU_OPERATOR_VERSION"
+    SLEEP_SECS=10
+    echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking GPU feature discovery has rolled out."
+    sleep ${SLEEP_SECS}
+    microk8s.kubectl -n gpu-operator-resources rollout status ds/gpu-operator-node-feature-discovery-worker
+    echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking if daemonsets have rolled out."
+    sleep ${SLEEP_SECS}
+    microk8s.kubectl -n gpu-operator-resources rollout status ds/nvidia-device-plugin-daemonset
+    echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking GPU validations have rolled out."
+    sleep ${SLEEP_SECS}
+    echo "[INFO]: Waiting for the GPU validations to rollout"
+    microk8s.kubectl -n gpu-operator-resources rollout status ds/nvidia-operator-validator
+    echo "Test success: NVIDIA GPU addon enabled."
+}
+
+check_nvidia_gpu_validations_succeed() {
+    SLEEP_SECS=5
+    echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking if GPU validations were successful."
+    sleep ${SLEEP_SECS}
+    result=$(microk8s.kubectl logs -n gpu-operator-resources -lapp=nvidia-operator-validator -c nvidia-operator-validator)
+    if [ "${result}" = "all validations are successful" ]; then
+        echo "Test success: NVIDIA GPU validations were successful!"
+    else
+        >&2 echo "Test failure: NVIDIA GPU validations were not successful, got ${result}"
+        exit 1
+    fi
+}
+
+help_function() {
+    echo "This script is used for tests related to CUDA"
+    echo "Usage: check_dss.sh <test_case>"
+    echo
+    echo "Test cases currently implemented:"
+    echo -e "\t<gpu_addon_can_be_enabled>: check_nvidia_gpu_addon_can_be_enabled"
+    echo -e "\t<gpu_validations_succeed>: check_nvidia_gpu_validations_succeed"
+}
+
+main() {
+    case ${1} in
+    gpu_addon_can_be_enabled) check_nvidia_gpu_addon_can_be_enabled ;;
+    gpu_validations_succeed) check_nvidia_gpu_validations_succeed ;;
+    *) help_function ;;
+    esac
+}
+
+main "$@"

@@ -39,20 +39,10 @@ class WiFiManager:
         self.peer = peer
         self.conname = "qa-test-ap"
 
-    def run_command(self, command):
-        try:
-            output = subprocess.check_output(
-                command, shell=True, stderr=subprocess.STDOUT
-            )
-            return output.decode()
-        except subprocess.CalledProcessError as e:
-            logging.error("Command failed: %s", e.output.decode())
-            raise
-
     def init_conn(self):
         logging.info("Initializing connection")
         if self.type == "wifi":
-            self.run_command(
+            run_command(
                 "{} c add type {} ifname {} con-name {} \
                     autoconnect no wifi.ssid {} wifi.mode \
                     {} ipv4.method shared".format(
@@ -65,7 +55,7 @@ class WiFiManager:
                 )
             )
         if self.type == "wifi-p2p":
-            self.run_command(
+            run_command(
                 "{} c add type {} ifname {} con-name {} \
                     wifi-p2p.peer {}".format(
                     self._command,
@@ -77,14 +67,14 @@ class WiFiManager:
             )
 
     def set_band_channel(self):
-        self.run_command(
+        run_command(
             "{} c modify {} wifi.band {} wifi.channel {}".format(
                 self._command, self.conname, self.band, self.channel
             )
         )
 
     def set_secured(self):
-        self.run_command(
+        run_command(
             "{} c modify {} wifi-sec.key-mgmt {} wifi-sec.psk {}\
                   wifi-sec.group {}".format(
                 self._command,
@@ -102,7 +92,7 @@ class WiFiManager:
         e.g. 10.102.99.224/22
         """
         try:
-            ip_addr = self.run_command(
+            ip_addr = run_command(
                 "{} -g IP4.ADDRESS device show {}".format(
                     self._command,
                     self.interface,
@@ -115,7 +105,7 @@ class WiFiManager:
 
     def up_conn(self):
         try:
-            self.run_command("{} c up {}".format(self._command, self.conname))
+            run_command("{} c up {}".format(self._command, self.conname))
             logging.info("Initialized connection successful!")
         except Exception:
             raise SystemError("Bring up connection failed!")
@@ -131,7 +121,7 @@ class WiFiManager:
         return False
 
     def del_conn(self):
-        self.run_command("{} c delete {}".format(self._command, self.conname))
+        run_command("{} c delete {}".format(self._command, self.conname))
 
     def __enter__(self):
         self.init_conn()
@@ -141,6 +131,17 @@ class WiFiManager:
     def __exit__(self, exc_type, exc_value, traceback):
         logging.info("Exiting context and cleaning up connection")
         self.del_conn()
+
+
+def run_command(command):
+    try:
+        output = subprocess.check_output(
+            command, shell=True, stderr=subprocess.STDOUT
+        )
+        return output.decode()
+    except subprocess.CalledProcessError as e:
+        logging.error("Command failed: %s", e.output.decode())
+        raise
 
 
 def sshpass_cmd_gen(ip, user, pwd, cmd):
@@ -160,7 +161,7 @@ def connect_host_device(manager, ip, user, pwd):
     if manager.mode == "adhoc":
         connect_cmd += " wifi.mode {}".format(manager.mode)
     logging.info("Ping target Host first ...")
-    manager.run_command(ping_cmd(ip))
+    run_command(ping_cmd(ip))
     logging.info("Ping target Host %s successful...", ip)
     logging.info("Attempting to connect DUT AP %s...", manager.ssid)
     for i in range(1, 11):
@@ -168,7 +169,7 @@ def connect_host_device(manager, ip, user, pwd):
             "Attempting to connect DUT AP %s %d time...", manager.ssid, i
         )
         try:
-            manager.run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
+            run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
             logging.info("Connect successful!")
             return True
         except Exception:
@@ -181,7 +182,7 @@ def connect_host_device(manager, ip, user, pwd):
 def ping_test(manager, ip, user, pwd):
     try:
         logging.info("Attempting to ping DUT...")
-        ping_result = manager.run_command(
+        ping_result = run_command(
             sshpass_cmd_gen(ip, user, pwd, ping_cmd(manager.get_ip_addr()))
         )
         packet_loss = re.search(r"(\d+)% packet loss", ping_result).group(1)
@@ -198,7 +199,7 @@ def ping_test(manager, ip, user, pwd):
     finally:
         del_host_conn = "{} c delete {}".format(manager._command, manager.ssid)
         try:
-            manager.run_command(sshpass_cmd_gen(ip, user, pwd, del_host_conn))
+            run_command(sshpass_cmd_gen(ip, user, pwd, del_host_conn))
             logging.info("Deleted host connection successfully.")
         except Exception as e:
             logging.error("Failed to delete host connection: %s", str(e))

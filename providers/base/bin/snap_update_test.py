@@ -21,10 +21,13 @@
 import argparse
 from pathlib import Path
 import json
+import os
 import sys
 import time
 
 from checkbox_support.snap_utils.snapd import Snapd
+from checkbox_support.snap_utils.snapd import AsyncException
+from checkbox_support.snap_utils.snapd import SnapdRequestError
 
 
 def guess_snaps() -> list:
@@ -148,11 +151,29 @@ class SnapRefreshRevert:
                 self.name, original_revision, self.revision
             )
         )
-        response = self.snapd.refresh(
-            self.name,
-            channel=self.snap_info.tracking_channel,
-            revision=self.revision,
-        )
+        try:
+            response = self.snapd.refresh(
+                self.name,
+                channel=self.snap_info.tracking_channel,
+                revision=self.revision,
+            )
+        except (SnapdRequestError, AsyncException) as exc:
+            checkbox_session_dir = os.getenv("PLAINBOX_SESSION_SHARE")
+            if checkbox_session_dir:
+                result = {
+                    "outcome": "fail",
+                    "comments": (
+                        "Marking the test as failed because it raised"
+                        " the following:"
+                    )
+                    + str(exc),
+                }
+                result_filename = os.path.join(
+                    checkbox_session_dir, "__result"
+                )
+                with open(result_filename, "wt") as result_f:
+                    json.dump(result, result_f)
+            raise
         data["change_id"] = response["change"]
         print(
             "Snap operation finished. "
@@ -170,7 +191,21 @@ class SnapRefreshRevert:
                 self.name, destination_rev, original_rev
             )
         )
-        response = self.snapd.revert(self.name)
+        try:
+            response = self.snapd.revert(self.name)
+        except (SnapdRequestError, AsyncException) as exc:
+            checkbox_session_dir = os.getenv("PLAINBOX_SESSION_SHARE")
+            if checkbox_session_dir:
+                result = {
+                    "outcome": "fail",
+                    "comments": exc.message,
+                }
+                result_filename = os.path.join(
+                    checkbox_session_dir, "__result"
+                )
+                with open(result_filename, "wt") as result_f:
+                    json.dump(result, result_f)
+            raise
         data["change_id"] = response["change"]
         print(
             "Snap operation finished. "
@@ -285,7 +320,7 @@ def main(args):
     )
     parser.add_argument(
         "--timeout",
-        default=300,
+        default=600,
         help="Timeout for each task, in seconds (default: %(default)s))",
     )
 

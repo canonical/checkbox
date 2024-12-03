@@ -38,7 +38,7 @@ Some test need dependencies, and a helper script is available to install them:
 checkbox-dss.install-deps
 ```
 
-By default this will install the `data-science-stack` snap from the `1/stable`
+By default this will install the `data-science-stack` snap from the `latest/stable`
 channel. To instead install from `latest/edge` use:
 
 ```shell

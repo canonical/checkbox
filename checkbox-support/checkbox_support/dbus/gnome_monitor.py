@@ -107,7 +107,7 @@ class MonitorConfigGnome(MonitorConfig):
 
     def cycle(
         self,
-        res: bool = True,
+        resolution: bool = True,
         transform: bool = False,
         resolution_filter: Callable[[List[Mode]], List[Mode]] = None,
         action: Callable[..., Any] = None,
@@ -117,7 +117,7 @@ class MonitorConfigGnome(MonitorConfig):
         Automatically cycle through the supported monitor configurations.
 
         Args:
-            res: Cycling the resolution or not.
+            resolution: Cycling the resolution or not.
 
             transform: Cycling the transform or not.
 
@@ -136,7 +136,7 @@ class MonitorConfigGnome(MonitorConfig):
         # ["normal": 0, "left": 1, "inverted": 6, "right": 3]
         trans_list = [0, 1, 6, 3] if transform else [0]
 
-        # for multiple monitors, we need to create res combination
+        # for multiple monitors, we need to create resolution combination
         state = self._get_current_state()
         for monitor, modes in state[1].items():
             monitors.append(monitor)
@@ -178,7 +178,7 @@ class MonitorConfigGnome(MonitorConfig):
                 self._apply_monitors_config(state[0], logical_monitors)
                 if action:
                     action(uni_string, **kwargs)
-            if not res:
+            if not resolution:
                 break
         # change back to preferred monitor configuration
         self.set_extended_mode()

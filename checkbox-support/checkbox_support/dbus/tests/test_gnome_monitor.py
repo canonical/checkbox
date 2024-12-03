@@ -380,7 +380,7 @@ class MonitorConfigGnomeTests(unittest.TestCase):
         # mock callback
         mock_callback = MagicMock()
         gnome_monitor.cycle(
-            res=False,
+            resolution=False,
             transform=False,
             resoultion_filter=mock_callback,
             action=mock_callback,

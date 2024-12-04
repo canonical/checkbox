@@ -172,8 +172,7 @@ def connect_host_device(manager, ip, user, pwd):
     logging.info("Ping target Host %s successful...", ip)
     logging.info("Attempting to connect DUT AP %s...", ssid)
     for i in range(1, 11):
-        logging.info(
-            "Attempting to connect DUT AP %s %d time...", ssid, i)
+        logging.info("Attempting to connect DUT AP %s %d time...", ssid, i)
         try:
             run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
             logging.info("Connect successful!")
@@ -216,7 +215,7 @@ def main():
     parser = argparse.ArgumentParser(description="WiFi test")
 
     parser.add_argument(
-        "--type", required=False, default="wifi", help="Connection type."
+        "--type", required=True, default="wifi", help="Connection type."
     )
     parser.add_argument(
         "--mode",
@@ -225,12 +224,10 @@ def main():
         help="WiFi mode: ap or adhoc",
     )
     parser.add_argument(
-        "--interface", required=False, help="WiFi interface to use"
+        "--interface", required=True, help="WiFi interface to use"
     )
-    parser.add_argument("--band", required=False, help="WiFi band to use")
-    parser.add_argument(
-        "--channel", required=False, help="WiFi channel to use"
-    )
+    parser.add_argument("--band", required=True, help="WiFi band to use")
+    parser.add_argument("--channel", required=True, help="WiFi channel to use")
     parser.add_argument(
         "--keymgmt", required=False, help="Key management method"
     )
@@ -238,10 +235,13 @@ def main():
         "--group", required=False, help="Group key management method"
     )
     parser.add_argument(
-        "--ssid", 
-        default= ''.join([random.choice(string.ascii_letters) for i in range(10)]),
-        required=False, 
-        help="SSID for AP mode")
+        "--ssid",
+        default="".join(
+            [random.choice(string.ascii_letters) for i in range(10)]
+        ),
+        required=False,
+        help="SSID for AP mode",
+    )
     parser.add_argument("--ssid-pwd", required=False, help="Password for SSID")
     parser.add_argument(
         "--peer", required=False, help="MAC address for p2p peer"

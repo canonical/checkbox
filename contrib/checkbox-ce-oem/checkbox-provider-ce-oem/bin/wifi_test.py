@@ -5,6 +5,8 @@ import sys
 import time
 import logging
 import re
+import random
+import string
 
 # Configure logging
 logging.basicConfig(
@@ -123,6 +125,14 @@ class WiFiManager:
     def del_conn(self):
         run_command("{} c delete {}".format(self._command, self.conname))
 
+    def connect_dut(self):
+        connect_cmd = "{} d wifi c {}".format(self._command, self.ssid)
+        if self.key_mgmt != "none":
+            connect_cmd += " password {}".format(self.ssid_pwd)
+        if self.mode == "adhoc":
+            connect_cmd += " wifi.mode {}".format(self.mode)
+        return connect_cmd
+
     def __enter__(self):
         self.init_conn()
         if self.type == "wifi":
@@ -155,27 +165,23 @@ def ping_cmd(ip):
 
 
 def connect_host_device(manager, ip, user, pwd):
-    connect_cmd = "{} d wifi c {}".format(manager._command, manager.ssid)
-    if manager.key_mgmt != "none":
-        connect_cmd += " password {}".format(manager.ssid_pwd)
-    if manager.mode == "adhoc":
-        connect_cmd += " wifi.mode {}".format(manager.mode)
+    connect_cmd = manager.connect_dut()
+    ssid = manager.ssid
     logging.info("Ping target Host first ...")
     run_command(ping_cmd(ip))
     logging.info("Ping target Host %s successful...", ip)
-    logging.info("Attempting to connect DUT AP %s...", manager.ssid)
+    logging.info("Attempting to connect DUT AP %s...", ssid)
     for i in range(1, 11):
         logging.info(
-            "Attempting to connect DUT AP %s %d time...", manager.ssid, i
-        )
+            "Attempting to connect DUT AP %s %d time...", ssid, i)
         try:
             run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
             logging.info("Connect successful!")
             return True
         except Exception:
-            logging.warning("Not able to found SSID {}".format(manager.ssid))
+            logging.warning("Not able to found SSID %s", ssid)
         time.sleep(10)
-    logging.error("Not able to connect to DUT AP SSID {}".format(manager.ssid))
+    logging.error("Not able to connect to DUT AP SSID %s", ssid)
     sys.exit(1)
 
 

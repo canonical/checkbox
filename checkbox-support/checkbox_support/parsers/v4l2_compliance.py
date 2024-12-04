@@ -150,7 +150,8 @@ def parse_v4l2_compliance(
             lines.append(clean_line)
 
     pattern = (
-        r"Total for (.*): (.*), Succeeded: (.*), Failed: (.*), Warnings: (.*)"
+        r"Total(?: for (.*))?: (.*), "
+        r"Succeeded: (.*), Failed: (.*), Warnings: (.*)"
     )
     match_output = re.match(pattern, lines[-1])
 
@@ -160,7 +161,7 @@ def parse_v4l2_compliance(
     )
 
     summary = {
-        "device_name": match_output.group(1),
+        "device_name": match_output.group(1),  # could be null
         "total": int(match_output.group(2)),
         "succeeded": int(match_output.group(3)),
         "failed": int(match_output.group(4)),
@@ -174,6 +175,15 @@ def parse_v4l2_compliance(
     }  # type: dict[str, list[str]]
 
     for line in lines:
+        if summary["device_name"] is None and line.startswith(
+            "Compliance test for"
+        ):
+            name_line_pattern = r"Compliance test for (*.)"
+            name_match = re.match(name_line_pattern, line)
+            if name_match is not None:
+                summary["device_name"] = name_match.group(1)
+            continue
+
         if line.endswith(": OK"):
             result = "succeeded"
         elif line.endswith(": OK (Not Supported)"):

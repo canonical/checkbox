@@ -230,7 +230,11 @@ def main():
     parser.add_argument(
         "--group", required=False, help="Group key management method"
     )
-    parser.add_argument("--ssid", required=False, help="SSID for AP mode")
+    parser.add_argument(
+        "--ssid", 
+        default= ''.join([random.choice(string.ascii_letters) for i in range(10)]),
+        required=False, 
+        help="SSID for AP mode")
     parser.add_argument("--ssid-pwd", required=False, help="Password for SSID")
     parser.add_argument(
         "--peer", required=False, help="MAC address for p2p peer"

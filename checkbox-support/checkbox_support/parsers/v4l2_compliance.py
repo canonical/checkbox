@@ -131,12 +131,7 @@ def parse_v4l2_compliance(
     """
 
     out = sp.run(
-        [
-            "v4l2-compliance",
-            *(["-d", str(device)] if device else []),
-            "-C",
-            "never",  # dont show colors
-        ],
+        ["v4l2-compliance", *(["-d", str(device)] if device else [])],
         universal_newlines=True,
         stdout=sp.PIPE,
         stderr=sp.PIPE,

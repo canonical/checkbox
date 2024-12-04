@@ -2,14 +2,29 @@ import subprocess as sp
 from checkbox_support.parsers.v4l2_compliance import parse_v4l2_compliance
 import unittest as ut
 from unittest.mock import patch, MagicMock
-from pkg_resources import resource_filename
 
+try:
+    # new in python 3.9
+    from importlib import resources
 
-def read_file_as_str(name: str):
-    resource = "parsers/tests/v4l2_compliance_data/{}.txt".format(name)
-    filename = resource_filename("checkbox_support", resource)
-    with open(filename) as f:
-        return f.read()
+    def read_file_as_str(name: str):
+        resource_path = "parsers/tests/v4l2_compliance_data/{}.txt".format(
+            name
+        )
+        ref = resources.files("checkbox_support")
+        file_ref = ref.joinpath(resource_path)
+        with file_ref.open("r") as f:
+            return f.read()
+
+except ImportError:
+    # 3.5 fallback
+    from pkg_resources import resource_filename
+
+    def read_file_as_str(name: str):
+        resource = "parsers/tests/v4l2_compliance_data/{}.txt".format(name)
+        filename = resource_filename("checkbox_support", resource)
+        with open(filename) as f:
+            return f.read()
 
 
 class TestV4L2ComplianceParser(ut.TestCase):

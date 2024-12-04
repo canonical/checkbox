@@ -5,13 +5,13 @@ from unittest.mock import patch, MagicMock
 
 try:
     # new in python 3.9
-    from importlib import resources
+    from importlib.resources import files
 
     def read_file_as_str(name: str):
         resource_path = "parsers/tests/v4l2_compliance_data/{}.txt".format(
             name
         )
-        ref = resources.files("checkbox_support")
+        ref = files("checkbox_support")
         file_ref = ref.joinpath(resource_path)
         with file_ref.open("r") as f:
             return f.read()
@@ -62,7 +62,8 @@ class TestV4L2ComplianceParser(ut.TestCase):
     @patch("subprocess.run")
     def test_unopenable_device(self, mock_run: MagicMock):
         err_messages = [
-            # 16.04 18.04: found this message in VMs without camera pass through
+            # 16.04 18.04: found this message in VMs
+            # without camera USB pass through
             "Failed to open device /dev/video0: No such file or directory"
             # 20.04: found this msg in VMs without camera pass through
             # 22.04, 24.04: found this message if we disable camera in BIOS

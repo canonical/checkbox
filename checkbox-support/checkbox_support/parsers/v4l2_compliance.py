@@ -96,7 +96,7 @@ TEST_NAME_TO_IOCTL_MAP = {
 
 
 # see the summary dict literal for actual keys
-Summary = T.Dict[str, T.Union[int, str]]
+Summary = T.Dict[str, T.Union[int, T.Optional[str]]]
 # see the details dict literal for actual keys
 Details = T.Dict[str, T.List[str]]
 
@@ -161,7 +161,7 @@ def parse_v4l2_compliance(
     )
 
     summary = {
-        "device_name": match_output.group(1),  # could be null
+        "device_name": match_output.group(1),  # could be None, but won't panic
         "total": int(match_output.group(2)),
         "succeeded": int(match_output.group(3)),
         "failed": int(match_output.group(4)),
@@ -178,7 +178,9 @@ def parse_v4l2_compliance(
         if summary["device_name"] is None and line.startswith(
             "Compliance test for"
         ):
-            name_line_pattern = r"Compliance test for (*.)"
+            # try to see if there's a device name at the top
+            # if not, report None
+            name_line_pattern = r"Compliance test for (.*)"
             name_match = re.match(name_line_pattern, line)
             if name_match is not None:
                 summary["device_name"] = name_match.group(1)

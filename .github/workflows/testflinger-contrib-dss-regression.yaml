@@ -24,7 +24,8 @@ jobs:
       fail-fast: false
       matrix:
         dss_channel:
-          - latest/stable
+          - 1/stable
+          - 1/candidate
           - latest/edge
         microk8s_channel:
           - 1.28/stable

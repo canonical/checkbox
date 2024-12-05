@@ -245,6 +245,7 @@ parts:
       - bc
       - bluez-tests
       - bonnie++
+      - bpftrace
       - cryptsetup-bin
       - dbus
       - debsums

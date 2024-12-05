@@ -235,6 +235,7 @@ parts:
       - python3-opencv
       - bc
       - bonnie++
+      - bpftrace
       - cryptsetup-bin
       - dbus
       - debsums

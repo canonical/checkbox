@@ -77,6 +77,8 @@ class SessionMetaData:
     # and is not following any test plan
     FLAG_TESTPLANLESS = "testplanless"
 
+    FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION = "strict_template_expansion"
+
     def __init__(
         self,
         title=None,
@@ -123,6 +125,10 @@ class SessionMetaData:
     def title(self, title):
         """set the session title to the given value."""
         self._title = title
+
+    def update_feature_flags(self, config):
+        if config.get_value("features", "strict_template_expansion"):
+            self._flags.add(self.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION)
 
     @property
     def flags(self):

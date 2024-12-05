@@ -6,6 +6,7 @@ global-include COPYING LICENSE
 global-include README*
 global-include Vagrantfile
 
+include plainbox/impl/resource_constants.yaml
 include plainbox/impl/providers/categories/README.md
 include plainbox/impl/providers/categories/manage.py
 include plainbox/impl/providers/categories/po/*.po

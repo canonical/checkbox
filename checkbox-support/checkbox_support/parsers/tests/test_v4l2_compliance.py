@@ -46,9 +46,60 @@ class TestV4L2ComplianceParser(ut.TestCase):
             },
             summary,
         )
-        expected_failures = read_file_as_str("output_failed_ioctls_1")
-        for ioctl_request in expected_failures.splitlines():
+        expected_failures = read_file_as_str(
+            "22_04_expected_fail_1"
+        ).splitlines()
+        for ioctl_request in expected_failures:
             self.assertIn(ioctl_request.strip(), detail["failed"])
+        self.assertEqual(len(expected_failures), len(detail["failed"]))
+
+    @patch("subprocess.run")
+    def test_happy_path_24_04(self, mock_run: MagicMock):
+        ok_input = read_file_as_str("24_04_success")
+        mock_run.return_value = sp.CompletedProcess(
+            [], 1, stdout=ok_input, stderr=""
+        )
+        summary, detail = parse_v4l2_compliance()
+        self.assertDictEqual(
+            {
+                "device_name": "v4l2 loopback device /dev/video0",
+                "total": 46,
+                "succeeded": 41,
+                "failed": 5,
+                "warnings": 6,
+            },
+            summary,
+        )
+        expected_failures = read_file_as_str(
+            "24_04_expected_fail_1"
+        ).splitlines()
+        for ioctl_request in expected_failures:
+            self.assertIn(ioctl_request.strip(), detail["failed"])
+        self.assertEqual(len(expected_failures), len(detail["failed"]))
+
+    @patch("subprocess.run")
+    def test_happy_path_18_04(self, mock_run: MagicMock):
+        ok_input = read_file_as_str("18_04_success")
+        mock_run.return_value = sp.CompletedProcess(
+            [], 1, stdout=ok_input, stderr=""
+        )
+        summary, detail = parse_v4l2_compliance()
+        self.assertDictEqual(
+            {
+                "device_name": "device /dev/video0",
+                "total": 43,
+                "succeeded": 38,
+                "failed": 5,
+                "warnings": 1,
+            },
+            summary,
+        )
+        expected_failures = read_file_as_str(
+            "18_04_expected_fail_1"
+        ).splitlines()
+        for ioctl_request in expected_failures:
+            self.assertIn(ioctl_request.strip(), detail["failed"])
+        self.assertEqual(len(expected_failures), len(detail["failed"]))
 
     @patch("subprocess.run")
     def test_unparsable(self, mock_run: MagicMock):

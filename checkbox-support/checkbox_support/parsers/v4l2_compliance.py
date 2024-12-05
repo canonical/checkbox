@@ -183,7 +183,14 @@ def parse_v4l2_compliance(
             name_line_pattern = r"Compliance test for (.*)"
             name_match = re.match(name_line_pattern, line)
             if name_match is not None:
-                summary["device_name"] = name_match.group(1)
+                clean_name = (
+                    name_match.group(1)
+                    .replace(":", "")
+                    .replace("(not using libv4l2)", "")
+                    .strip()
+                )
+                if clean_name != "":
+                    summary["device_name"] = clean_name
             continue
 
         if line.endswith(": OK"):

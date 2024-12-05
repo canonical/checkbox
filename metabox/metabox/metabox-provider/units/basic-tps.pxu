@@ -85,3 +85,4 @@ bootstrap_include:
   resource_names
 include:
   template_validation_testing_missing_field
+  template_validation_testing

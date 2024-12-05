@@ -259,6 +259,8 @@ _description: Verify that all required modules are installed
 id: resource_names
 _summary: Returns names usable in templates along with their validity as an id
 plugin: resource
+environ:
+  CRASH
 command:
   echo "name: somename"
   echo "id_valid: True"
@@ -266,7 +268,10 @@ command:
   echo 'name: "invalid_id'
   echo "id_valid: False"
   echo
-  echo "id_valid: noid"
+  if [ -z "$CRASH" ]; then
+    exit 0;
+  fi;
+  echo "id_valid: noname"
 
 unit: template
 template-resource: resource_names
@@ -280,15 +285,9 @@ _summary:
   Used to test that Checkbox validates templates and reports them when invalid
 flags: simple
 
-id: somekey_resource
-_summary: Used to test that if a template uses a key that doesn't exist, it crashes the session
-plugin: resource
-command:
-  echo "somekey: True"
-
 
 unit: template
-template-resource: somekey_resource
+template-resource: resource_names
 template-unit: job
 id: template_validation_testing_{missing_field}
 template-id: template_validation_testing_missing_field

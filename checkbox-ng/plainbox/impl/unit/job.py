@@ -29,32 +29,26 @@ import re
 import os
 
 from plainbox.abc import IJobDefinition
-from plainbox.i18n import gettext as _
-from plainbox.i18n import gettext_noop as N_
-from plainbox.impl.decorators import cached_property
-from plainbox.impl.decorators import instance_method_lru_cache
-from plainbox.impl.resource import ResourceProgram
-from plainbox.impl.resource import parse_imports_stmt
-from plainbox.impl.secure.origin import JobOutputTextSource
-from plainbox.impl.secure.origin import Origin
+from plainbox.i18n import gettext as _, gettext_noop as N_
+from plainbox.impl.decorators import cached_property, instance_method_lru_cache
+from plainbox.impl.resource import ResourceProgram, parse_imports_stmt
+from plainbox.impl.secure.origin import JobOutputTextSource, Origin
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit_with_id import UnitWithId
-from plainbox.impl.unit.validators import CorrectFieldValueValidator
-from plainbox.impl.unit.validators import DeprecatedFieldValidator
-from plainbox.impl.unit.validators import MemberOfFieldValidator
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.unit.validators import ReferenceConstraint
-from plainbox.impl.unit.validators import ShellProgramValidator
-from plainbox.impl.unit.validators import UnitReferenceValidator
-from plainbox.impl.unit.validators import UselessFieldValidator
+from plainbox.impl.unit.validators import (
+    CorrectFieldValueValidator,
+    DeprecatedFieldValidator,
+    MemberOfFieldValidator,
+    PresentFieldValidator,
+    ReferenceConstraint,
+    ShellProgramValidator,
+    UnitReferenceValidator,
+    UselessFieldValidator,
+)
 
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
-from plainbox.impl.xparsers import Error
-from plainbox.impl.xparsers import Text
-from plainbox.impl.xparsers import Visitor
-from plainbox.impl.xparsers import WordList
+from plainbox.impl.validation import Problem, Severity
+from plainbox.impl.xparsers import Error, Text, Visitor, WordList
 
 __all__ = ["JobDefinition", "propertywithsymbols"]
 
@@ -115,6 +109,7 @@ class _PluginValues(SymbolDef):
     user_interact = "user-interact"
     user_interact_verify = "user-interact-verify"
     shell = "shell"
+    invalid_unit = "invalid-unit"
 
 
 supported_plugins = [str(s) for s in _PluginValues.get_all_symbols()]
@@ -1081,3 +1076,57 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 MemberOfFieldValidator(_AutoRetryValues.get_all_symbols()),
             ],
         }
+
+
+class InvalidJob(JobDefinition):
+    UUID = 0
+
+    def __init__(self, *args, errors=[], **kwargs):
+        assert errors, "Unit is not invalid"
+        self.errors = errors
+        self.uuid = self.UUID
+        type(self).UUID += 1
+        super().__init__(*args, **kwargs)
+
+    @property
+    def error_lines(self) -> str:
+        return [str(x) for x in self.errors]
+
+    @cached_property
+    def id(self):
+        def missing_param():
+            return "MISSING_PARAM_{}".format(self.uuid)
+
+        from collections import defaultdict
+
+        format_map = defaultdict(missing_param)
+        # fix id so that it is unique and signals the issue
+        return self._data.get("id", "MISSING_ID_{id}").format_map(format_map)
+
+    @classmethod
+    def from_unit(cls, unit, errors):
+        return cls(unit._data, errors=errors)
+
+    class Meta:
+        """
+        Class containing additional meta-data about this unit.
+
+        :attr name:
+            Name of this unit as it can appear in unit definition files
+        :attr fields:
+            A :class:`plainbox.impl.symbol.SymbolDef` with a symbol for each of
+            the fields used by this unit.
+        :attr validator_cls:
+            A custom validator class specific to this unit
+        :attr field_validators:
+            A dictionary mapping each field to a list of field validators
+        """
+
+        name = "job"
+
+        class fields(SymbolDef):
+            """
+            Unit defines only one field, the 'unit'
+            """
+
+            unit = "job"

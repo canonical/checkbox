@@ -513,6 +513,7 @@ class SessionAssistant:
         self._metadata.app_id = self._app_id
         self._metadata.title = title
         self._metadata.flags = {SessionMetaData.FLAG_BOOTSTRAPPING}
+        self._metadata.update_feature_flags(self._config)
         self._manager.checkpoint()
         self._command_io_delegate = JobRunnerUIDelegate(_SilentUI())
         self._init_runner(runner_cls, runner_kwargs)

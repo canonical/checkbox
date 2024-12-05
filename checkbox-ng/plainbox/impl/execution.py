@@ -37,7 +37,7 @@ from plainbox.abc import IJobResult, IJobRunner
 from plainbox.i18n import gettext as _
 from plainbox.impl.color import Colorizer
 from plainbox.impl.unit.job import supported_plugins
-from plainbox.impl.unit.unit import on_ubuntucore, MissingParam
+from plainbox.impl.unit.unit import on_ubuntucore
 from plainbox.impl.result import (
     IOLogRecordWriter,
     JobResultBuilder,
@@ -49,7 +49,6 @@ from plainbox.impl.runner import (
     JobRunnerUIDelegate,
     slugify,
 )
-from plainbox.impl.validation import Severity
 from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.impl.session.storage import WellKnownDirsHelper

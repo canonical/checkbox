@@ -26,13 +26,12 @@
 import json
 import logging
 import re
-import os
 
 from plainbox.abc import IJobDefinition
 from plainbox.i18n import gettext as _, gettext_noop as N_
 from plainbox.impl.decorators import cached_property, instance_method_lru_cache
 from plainbox.impl.resource import ResourceProgram, parse_imports_stmt
-from plainbox.impl.secure.origin import JobOutputTextSource, Origin
+from plainbox.impl.secure.origin import Origin
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit_with_id import UnitWithId
@@ -109,7 +108,6 @@ class _PluginValues(SymbolDef):
     user_interact = "user-interact"
     user_interact_verify = "user-interact-verify"
     shell = "shell"
-    invalid_unit = "invalid-unit"
 
 
 supported_plugins = [str(s) for s in _PluginValues.get_all_symbols()]

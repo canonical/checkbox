@@ -1,0 +1,22 @@
+{
+    "gst_encoder_psnr": [
+        {
+          "encoder_plugin": "v4l2h264enc",
+          "resolutions": [
+            { "width": 3840, "height": 2160, "fps": 30 },
+            { "width": 1920, "height": 1088, "fps": 120 },
+            { "width": 1280, "height": 720, "fps": 240 },
+            { "width": 640, "height": 480, "fps": 30 }
+          ]
+        },
+        {
+          "encoder_plugin": "v4l2h265enc",
+          "resolutions": [
+            { "width": 3840, "height": 2160, "fps": 30 },
+            { "width": 1920, "height": 1088, "fps": 120 },
+            { "width": 1280, "height": 720, "fps": 240 },
+            { "width": 640, "height": 480, "fps": 30 }
+          ]
+        }
+    ]
+}

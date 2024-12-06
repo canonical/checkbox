@@ -177,8 +177,7 @@ def parse_v4l2_compliance(
             # try to see if there's a device name at the top
             # if not, report None
             clean_name = (
-                line
-                .replace("Compliance test for ", "")
+                line.replace("Compliance test for ", "")
                 .replace(":", "")
                 .replace("(not using libv4l2)", "")
                 .strip()

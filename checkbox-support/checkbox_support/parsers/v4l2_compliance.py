@@ -171,22 +171,20 @@ def parse_v4l2_compliance(
     }  # type: dict[str, list[str]]
 
     for line in lines:
-        if summary["device_name"] is None and line.startswith(
+        if not summary["device_name"] and line.startswith(
             "Compliance test for"
         ):
             # try to see if there's a device name at the top
             # if not, report None
-            name_line_pattern = r"Compliance test for (.*)"
-            name_match = re.match(name_line_pattern, line)
-            if name_match is not None:
-                clean_name = (
-                    name_match.group(1)
-                    .replace(":", "")
-                    .replace("(not using libv4l2)", "")
-                    .strip()
-                )
-                if clean_name != "":
-                    summary["device_name"] = clean_name
+            clean_name = (
+                line
+                .replace("Compliance test for ", "")
+                .replace(":", "")
+                .replace("(not using libv4l2)", "")
+                .strip()
+            )
+            if clean_name:
+                summary["device_name"] = clean_name
             continue
 
         if line.endswith(": OK"):

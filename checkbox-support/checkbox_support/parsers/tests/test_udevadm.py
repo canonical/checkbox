@@ -906,6 +906,11 @@ class TestUdevadmParser(TestCase, UdevadmDataMixIn):
         devices = self.parse("DELL_LATITUDE_7350_WITH_IPU6_DRIVER")
         self.assertEqual(self.count(devices, "CAPTURE"), 1)
 
+    def test_IPU7_DRIVER(self):
+        # Ignore intel_ipu7_isys.isys camera driver
+        devices = self.parse("IPU7_DRIVER")
+        self.assertEqual(self.count(devices, "CAPTURE"), 1)
+
     def test_CARA_T(self):
         # A Snappy system with CANBus
         devices = self.parse("CARA_T")

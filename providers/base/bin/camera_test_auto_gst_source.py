@@ -134,14 +134,15 @@ def elem_to_str(element: Gst.Element) -> str:
 
 def run_pipeline(
     pipeline: Gst.Pipeline,
-    run_n_seconds: int,
+    run_n_seconds: int = -1,
     intermediate_calls: T.List[T.Tuple[int, VoidFn]] = [],
 ):
     """Run the pipeline
 
     :param pipeline: Gst.Pipeline. All element creation/linking steps
         should be done by this point
-    :param run_n_seconds: how long until we stop the main loop
+    :param run_n_seconds: how long until we stop the main loop.
+        - If -1, only wait for EOS
     :param intermedate_calls: a list of functions to call
         while the pipeline is running. list[(() -> None, int)], where 2nd elem
         is the number of seconds to wait RELATIVE to
@@ -167,14 +168,40 @@ def run_pipeline(
     start()
     logger.info(f"[ OK ] Pipeline is playing! {run_n_seconds}")
 
-    GLib.timeout_add_seconds(run_n_seconds, quit)
     for delay, call in intermediate_calls:
         assert (
             delay < run_n_seconds
         ), "delay for each call must be smaller than total run seconds"
         GLib.timeout_add_seconds(delay, call)
 
+    if run_n_seconds == -1:
+        bus = pipeline.get_bus()
+        assert bus
+        bus.add_signal_watch()
+        bus.connect(
+            "message",
+            lambda _, msg: msg.type
+            in (Gst.MessageType.EOS, Gst.MessageType.ERROR)
+            and quit(),
+        )
+    else:
+        GLib.timeout_add_seconds(run_n_seconds, quit)
+
     main_loop.run()
+
+
+def play_video(filepath: str):
+    pipeline = Gst.parse_launch(
+        " ! ".join(
+            [
+                "filesrc location={}".format(filepath),
+                "decodebin",
+                "videoconvert",
+                "autovideosink",
+            ]
+        )
+    )
+    run_pipeline(pipeline)
 
 
 def display_viewfinder(
@@ -307,7 +334,7 @@ def take_photo(
     logging.info(
         "[ OK ] Photo for this capability: "
         + "{}".format(caps.to_string() if caps else "[device default]")
-        + "was saved to {}".format(file_path)
+        + " was saved to {}".format(file_path)
     )
 
 
@@ -343,7 +370,7 @@ def record_video(
         elif mime_type == "video/x-raw":
             str_elements[1] = ""
     else:
-        # decode bin doesn't work with video/x-raw
+        # decodebin doesn't work with video/x-raw
         # videorate doesn't work if source-caps was not created
         str_elements[0] = str_elements[1] = ""
         head_elem_name = "converter"
@@ -402,6 +429,8 @@ def main():
             "This may lead to different results than running as regular user."
         )
 
+    play_video("/home/zhongning/fgfg/video_dev_0_cap_default.avi")
+    return
     devices = get_devices()
     if len(devices) == 0:
         logging.error(
@@ -428,7 +457,7 @@ def main():
             file_path="{}/video_dev_{}_cap_{}.avi".format(
                 args.path, dev_i, "default"
             ),
-            record_n_seconds=args.wait_seconds
+            record_n_seconds=args.wait_seconds,
         )
         break
         take_photo(
@@ -470,4 +499,10 @@ def main():
 
 
 if __name__ == "__main__":
+    old_env = os.environ.get("GST_DEBUG", None)
+    os.environ["GST_DEBUG"] = "2"  # error and warnings
+
     main()
+
+    if old_env:
+        os.environ["GST_DEBUG"] = old_env

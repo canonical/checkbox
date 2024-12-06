@@ -1,0 +1,104 @@
+v4l2-compliance 1.26.1, 64 bits, 64-bit time_t
+
+Compliance test for v4l2 loopback device /dev/video0:
+
+Driver Info:
+	Driver name      : v4l2 loopback
+	Card type        : Intel MIPI Camera
+	Bus info         : platform:v4l2loopback-000
+	Driver version   : 6.8.12
+	Capabilities     : 0x85200001
+		Video Capture
+		Read/Write
+		Streaming
+		Extended Pix Format
+		Device Capabilities
+	Device Caps      : 0x05200001
+		Video Capture
+		Read/Write
+		Streaming
+		Extended Pix Format
+
+Required ioctls:
+	test VIDIOC_QUERYCAP: OK
+	test invalid ioctls: OK
+
+Allow for multiple opens:
+	test second /dev/video0 open: OK
+	test VIDIOC_QUERYCAP: OK
+	test VIDIOC_G/S_PRIORITY: OK
+		fail: v4l2-compliance.cpp(763): !ok
+	test for unlimited opens: FAIL
+
+Debug ioctls:
+	test VIDIOC_DBG_G/S_REGISTER: OK (Not Supported)
+	test VIDIOC_LOG_STATUS: OK (Not Supported)
+
+Input ioctls:
+	test VIDIOC_G/S_TUNER/ENUM_FREQ_BANDS: OK (Not Supported)
+	test VIDIOC_G/S_FREQUENCY: OK (Not Supported)
+	test VIDIOC_S_HW_FREQ_SEEK: OK (Not Supported)
+	test VIDIOC_ENUMAUDIO: OK (Not Supported)
+	test VIDIOC_G/S/ENUMINPUT: OK
+	test VIDIOC_G/S_AUDIO: OK (Not Supported)
+	Inputs: 1 Audio Inputs: 0 Tuners: 0
+
+Output ioctls:
+	test VIDIOC_G/S_MODULATOR: OK (Not Supported)
+	test VIDIOC_G/S_FREQUENCY: OK (Not Supported)
+	test VIDIOC_ENUMAUDOUT: OK (Not Supported)
+	test VIDIOC_G/S/ENUMOUTPUT: OK (Not Supported)
+	test VIDIOC_G/S_AUDOUT: OK (Not Supported)
+	Outputs: 0 Audio Outputs: 0 Modulators: 0
+
+Input/Output configuration ioctls:
+	test VIDIOC_ENUM/G/S/QUERY_STD: OK (Not Supported)
+	test VIDIOC_ENUM/G/S/QUERY_DV_TIMINGS: OK (Not Supported)
+	test VIDIOC_DV_TIMINGS_CAP: OK (Not Supported)
+	test VIDIOC_G/S_EDID: OK (Not Supported)
+
+Control ioctls (Input 0):
+	test VIDIOC_QUERY_EXT_CTRL/QUERYMENU: OK
+	test VIDIOC_QUERYCTRL: OK
+	test VIDIOC_G/S_CTRL: OK
+	test VIDIOC_G/S/TRY_EXT_CTRLS: OK
+	test VIDIOC_(UN)SUBSCRIBE_EVENT/DQEVENT: OK
+	test VIDIOC_G/S_JPEGCOMP: OK (Not Supported)
+	Standard Controls: 1 Private Controls: 4
+
+Format ioctls (Input 0):
+		fail: v4l2-test-formats.cpp(337): Video Output cap not set, but Video Output formats defined
+	test VIDIOC_ENUM_FMT/FRAMESIZES/FRAMEINTERVALS: FAIL
+		fail: v4l2-test-formats.cpp(1300): node->has_frmintervals && !cap->capability
+	test VIDIOC_G/S_PARM: FAIL
+	test VIDIOC_G_FBUF: OK (Not Supported)
+		fail: v4l2-test-formats.cpp(633): Video Output cap not set, but Video Output formats defined
+	test VIDIOC_G_FMT: FAIL
+		warn: v4l2-test-formats.cpp(794): TRY_FMT cannot handle an invalid pixelformat.
+		warn: v4l2-test-formats.cpp(795): This may or may not be a problem. For more information see:
+		warn: v4l2-test-formats.cpp(796): http://www.mail-archive.com/linux-media@vger.kernel.org/msg56550.html
+	test VIDIOC_TRY_FMT: OK
+		warn: v4l2-test-formats.cpp(1157): S_FMT cannot handle an invalid pixelformat.
+		warn: v4l2-test-formats.cpp(1158): This may or may not be a problem. For more information see:
+		warn: v4l2-test-formats.cpp(1159): http://www.mail-archive.com/linux-media@vger.kernel.org/msg56550.html
+	test VIDIOC_S_FMT: OK
+	test VIDIOC_G_SLICED_VBI_CAP: OK (Not Supported)
+	test Cropping: OK (Not Supported)
+	test Composing: OK (Not Supported)
+	test Scaling: OK (Not Supported)
+
+Codec ioctls (Input 0):
+	test VIDIOC_(TRY_)ENCODER_CMD: OK (Not Supported)
+	test VIDIOC_G_ENC_INDEX: OK (Not Supported)
+	test VIDIOC_(TRY_)DECODER_CMD: OK (Not Supported)
+
+Buffer ioctls (Input 0):
+		fail: v4l2-test-buffers.cpp(355): timestamp != V4L2_BUF_FLAG_TIMESTAMP_MONOTONIC && timestamp != V4L2_BUF_FLAG_TIMESTAMP_COPY
+		fail: v4l2-test-buffers.cpp(483): buf.check(Unqueued, i)
+		fail: v4l2-test-buffers.cpp(612): testQueryBuf(node, i, q.g_buffers())
+	test VIDIOC_REQBUFS/CREATE_BUFS/QUERYBUF: FAIL
+	test CREATE_BUFS maximum buffers: OK
+	test VIDIOC_EXPBUF: OK (Not Supported)
+	test Requests: OK (Not Supported)
+
+Total for v4l2 loopback device /dev/video0: 46, Succeeded: 41, Failed: 5, Warnings: 6

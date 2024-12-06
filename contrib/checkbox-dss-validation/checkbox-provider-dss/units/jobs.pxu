@@ -369,7 +369,7 @@ requires:
 depends: dss/purge
 _summary: Check that all DSS integration tests for CPU pass
 estimated_duration: 1m
-command: check_dss_integration_tests.sh can_be_purged pass_on_cpu
+command: check_dss_integration_tests.sh pass_on_cpu
 
 id: dss_integration_tests/nvidia_gpu
 category_id: dss-regress
@@ -386,4 +386,4 @@ depends:
   nvidia_gpu_addon/validations_succeed
 _summary: Check that all DSS integration tests for NVIDIA GPUs
 estimated_duration: 1m
-command: check_dss_integration_tests.sh can_be_purged pass_on_nvidia_gpu
+command: check_dss_integration_tests.sh pass_on_nvidia_gpu

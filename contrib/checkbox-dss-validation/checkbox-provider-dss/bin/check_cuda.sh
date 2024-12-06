@@ -41,6 +41,7 @@ help_function() {
     echo "Test cases currently implemented:"
     echo -e "\t<gpu_addon_can_be_enabled>: check_nvidia_gpu_addon_can_be_enabled"
     echo -e "\t<gpu_validations_succeed>: check_nvidia_gpu_validations_succeed"
+    exit 1
 }
 
 main() {

@@ -42,6 +42,7 @@ help_function() {
     echo "Test cases currently implemented:"
     echo -e "\t<pass_on_cpu>"
     echo -e "\t<pass_on_nvidia_gpu>"
+    exit 1
 }
 
 main() {

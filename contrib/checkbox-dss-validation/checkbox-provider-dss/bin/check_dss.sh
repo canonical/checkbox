@@ -71,6 +71,7 @@ help_function() {
     echo -e "\t<nvidia_gpu_acceleration_is_enabled>: check_dss_has_nvidia_gpu_acceleration_enabled"
     echo -e "\t<can_create_notebook>: check_dss_can_create_notebook <notebook_name> [args]"
     echo -e "\t<can_remove_notebook>: check_dss_can_remove_notebook <notebook_name>"
+    exit 1
 }
 
 main() {

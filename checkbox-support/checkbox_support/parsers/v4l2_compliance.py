@@ -115,7 +115,7 @@ def get_test_name_from_line(line: str) -> T.Tuple[str, bool]:
 
 
 def parse_v4l2_compliance(
-    device: T.Optional[str] = None,
+    device: T.Union[int, str, None] = None,
 ) -> T.Tuple[Summary, Details]:
     """Parses the output of v4l2-compliance
 
@@ -143,11 +143,7 @@ def parse_v4l2_compliance(
         # can't open the device
         raise FileNotFoundError(out.stderr)
 
-    lines = []  # type: list[str]
-    for line in out.stdout.splitlines():
-        clean_line = line.strip()
-        if clean_line != "":
-            lines.append(clean_line)
+    lines = [line.strip() for line in out.stdout.splitlines() if line.strip()]
 
     pattern = (
         r"Total(?: for (.*))?: (.*), "

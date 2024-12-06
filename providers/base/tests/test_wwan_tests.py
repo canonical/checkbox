@@ -264,3 +264,84 @@ class TestThreeGppScanTest(unittest.TestCase):
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
         )
+
+
+class TestThreeGppConnectionTest(unittest.TestCase):
+
+    def test_register_argument(self):
+
+        sys.argv = [
+            "wwan_tests.py",
+            "3gpp-connection",
+            "hw_id",
+            "wwan_net_if",
+            "apn",
+            "30",
+        ]
+        obj_3gppscan = wwan_tests.ThreeGppConnection()
+        ret_args = obj_3gppscan.register_argument()
+        self.assertEqual(ret_args.hw_id, "hw_id")
+        self.assertEqual(ret_args.wwan_net_if, "wwan_net_if")
+        self.assertEqual(ret_args.apn, "apn")
+        self.assertEqual(ret_args.wwan_setup_time, 30)
+
+    @patch("wwan_tests._ping_test")
+    @patch("wwan_tests._destroy_3gpp_connection")
+    @patch("wwan_tests._create_3gpp_connection")
+    @patch("wwan_tests.WWANTestCtx")
+    @patch("wwan_tests.ThreeGppConnection.register_argument")
+    def test_invoked_successfully(
+        self, mock_arg, mock_mmctx, mock_create_conn, mock_rm_conn, mock_ping
+    ):
+        mock_arg.return_value = argparse.Namespace(
+            hw_id="2", wwan_net_if="wwan0", apn="internet", wwan_setup_time=0.1
+        )
+        mock_get_primary_port = Mock()
+        mmcli_instance = Mock()
+        mmcli_instance.modem_idx = "0"
+        mmcli_instance.mm_obj = Mock(get_primary_port=mock_get_primary_port)
+        mock_mmctx.return_value.__enter__.return_value = mmcli_instance
+        mock_ping.return_value = 0
+
+        with redirect_stdout(StringIO()):
+            with self.assertRaises(SystemExit) as context:
+                obj_3gppscan = wwan_tests.ThreeGppConnection()
+                obj_3gppscan.invoked()
+
+        mock_mmctx.assert_called_with("2", True, True)
+        self.assertEqual(mock_arg.call_count, 1)
+        self.assertEqual(mock_get_primary_port.call_count, 1)
+        self.assertEqual(mock_ping.call_count, 1)
+        self.assertEqual(mock_create_conn.call_count, 1)
+        self.assertEqual(mock_rm_conn.call_count, 1)
+        self.assertEqual(context.exception.code, 0)
+
+    @patch("wwan_tests._ping_test")
+    @patch("wwan_tests._destroy_3gpp_connection")
+    @patch("wwan_tests._create_3gpp_connection")
+    @patch("wwan_tests.WWANTestCtx")
+    @patch("wwan_tests.ThreeGppConnection.register_argument")
+    def test_invoked_failed_exit_code(
+        self, mock_arg, mock_mmctx, mock_create_conn, mock_rm_conn, mock_ping
+    ):
+        mock_arg.return_value = argparse.Namespace(
+            hw_id="2", wwan_net_if="wwan0", apn="internet", wwan_setup_time=0.1
+        )
+        mock_get_primary_port = Mock()
+        mmcli_instance = Mock()
+        mmcli_instance.modem_idx = "0"
+        mmcli_instance.mm_obj = Mock(get_primary_port=mock_get_primary_port)
+        mock_mmctx.return_value.__enter__.return_value = mmcli_instance
+        mock_ping.return_value = 1
+
+        with redirect_stdout(StringIO()):
+            with self.assertRaises(SystemExit) as context:
+                obj_3gppscan = wwan_tests.ThreeGppConnection()
+                obj_3gppscan.invoked()
+
+        mock_mmctx.assert_called_with("2", True, True)
+        self.assertEqual(mock_arg.call_count, 1)
+        self.assertEqual(mock_ping.call_count, 1)
+        self.assertEqual(mock_create_conn.call_count, 1)
+        self.assertEqual(mock_rm_conn.call_count, 1)
+        self.assertEqual(context.exception.code, 1)

@@ -178,6 +178,8 @@ class CameraTest:
             by the driver, and see if they are valid.
     """
 
+    PHOTO_DELAY_SECONDS = 2
+
     def __init__(self, **kwargs):
         self._width = 640
         self._height = 480
@@ -483,7 +485,6 @@ class CameraTest:
         # Add source
         source = self.Gst.ElementFactory.make("v4l2src", "video-source")
         source.set_property("device", self.device)
-        source.set_property("num-buffers", 10)
         pipeline.add(source)
 
         # Add the caps element and include a format converter if needed to
@@ -516,8 +517,17 @@ class CameraTest:
             pipeline.add(caps)
             rgb_capture = caps
 
+        # Add valve, doc says drop=True is default
+        valve = self.Gst.ElementFactory.make("valve", "photo-valve")
+        assert valve, "Valve element could not be created"
+        valve.set_property("drop", True)
+        pipeline.add(valve)
+
         # Add encoder
         encoder = self.Gst.ElementFactory.make("jpegenc", "encoder")
+        # snapshot=True sends a EOS downstream 
+        # when the first buffer reaches jpegenc
+        encoder.set_property("snapshot", True)
         pipeline.add(encoder)
 
         # Add sink
@@ -527,8 +537,10 @@ class CameraTest:
 
         # Link elements
         source.link(caps)
-        rgb_capture.link(encoder)
+        rgb_capture.link(valve)
+        valve.link(encoder)
         encoder.link(sink)
+        # source ! rgbcapture ! valve ! encoder ! filesink
 
         # Connect the bus to the message handler
         bus = pipeline.get_bus()
@@ -539,8 +551,12 @@ class CameraTest:
         self.pipeline = pipeline
         self.pipeline.set_state(self.Gst.State.PLAYING)
 
-        # Add a timeout of 90 seconds to capture the image
+        # Add a global timeout of 90 seconds to capture the image
         self.timeout = self.GLib.timeout_add_seconds(90, self._on_timeout)
+        self.GLib.timeout_add_seconds(
+            self.PHOTO_DELAY_SECONDS,
+            lambda: valve.set_property("drop", False)
+        )
 
         # Start the main loop. If the loop finishes successfully, we will
         # remove the timeout. If the timeout is reached, we will stop the

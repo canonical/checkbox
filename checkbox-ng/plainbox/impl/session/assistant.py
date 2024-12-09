@@ -849,7 +849,7 @@ class SessionAssistant:
         UsageExpectation.of(self).allowed_calls = (
             self._get_allowed_calls_in_normal_state()
         )
-        self._metadata.flags = {SessionMetaData.FLAG_INCOMPLETE}
+        self._metadata.flags.add(SessionMetaData.FLAG_INCOMPLETE)
         self._manager.checkpoint()
 
     @raises(UnexpectedMethodCall)
@@ -981,7 +981,8 @@ class SessionAssistant:
         UsageExpectation.of(self).allowed_calls = (
             self._get_allowed_calls_in_normal_state()
         )
-        self._metadata.flags = {SessionMetaData.FLAG_INCOMPLETE}
+        self._metadata.flags.remove(SessionMetaData.FLAG_BOOTSTRAPPING)
+        self._metadata.flags.add(SessionMetaData.FLAG_INCOMPLETE)
         self._manager.checkpoint()
         # No bootstrap is done update the cache of jobs that were run
         # during bootstrap phase

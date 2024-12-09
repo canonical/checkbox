@@ -21,7 +21,6 @@ depends: mir/check-ubuntu-frame-launching-auto
 imports:
     from com.canonical.certification import snap
     from com.canonical.plainbox import manifest
-    from com.canonical.certification import connections
 requires:
     snap.name == "graphics-test-tools"
     manifest.has_ubuntu_frame == "True"

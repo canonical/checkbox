@@ -1239,13 +1239,13 @@ class SessionResumeHelper6(MetaDataHelper6MixIn, SessionResumeHelper5):
                 )
                 session = new_session
         # Restore bits and pieces of state
+        logger.debug(_("Starting to restore metadata..."))
+        self._restore_SessionState_metadata(session.metadata, session_repr)
+        logger.debug(_("restored metadata %r"), session.metadata)
         logger.debug(
             _("Starting to restore jobs and results to %r..."), session
         )
         self._restore_SessionState_jobs_and_results(session, session_repr)
-        logger.debug(_("Starting to restore metadata..."))
-        self._restore_SessionState_metadata(session.metadata, session_repr)
-        logger.debug(_("restored metadata %r"), session.metadata)
         logger.debug(_("Starting to restore mandatory job list..."))
         self._restore_SessionState_mandatory_job_list(session, session_repr)
         logger.debug(_("Starting to restore desired job list..."))

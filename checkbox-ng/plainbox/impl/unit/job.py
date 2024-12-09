@@ -27,6 +27,8 @@ import json
 import logging
 import re
 
+from collections import defaultdict
+
 from plainbox.abc import IJobDefinition
 from plainbox.i18n import gettext as _, gettext_noop as N_
 from plainbox.impl.decorators import cached_property, instance_method_lru_cache
@@ -1077,54 +1079,72 @@ class JobDefinition(UnitWithId, IJobDefinition):
 
 
 class InvalidJob(JobDefinition):
-    UUID = 0
 
     def __init__(self, *args, errors=[], **kwargs):
         assert errors, "Unit is not invalid"
         self.errors = errors
-        self.uuid = self.UUID
-        type(self).UUID += 1
         super().__init__(*args, **kwargs)
 
     @property
     def error_lines(self) -> str:
         return [str(x) for x in self.errors]
 
-    @cached_property
-    def id(self):
+    @classmethod
+    def wrap_default_missing(cls, dct):
         def missing_param():
-            return "MISSING_PARAM_{}".format(self.uuid)
+            # if the __index__ wasn't generated, something is extra wrong here
+            # lets crash
+            return "MISSING_PARAM_{}".format(dct["__index__"])
 
-        from collections import defaultdict
-
-        format_map = defaultdict(missing_param)
-        # fix id so that it is unique and signals the issue
-        return self._data.get("id", "MISSING_ID_{id}").format_map(format_map)
+        return defaultdict(missing_param, dct)
 
     @classmethod
     def from_unit(cls, unit, errors):
-        return cls(unit._data, errors=errors)
+        # values for the parameters. Given that this may be invalid due to
+        # missing parameters, lets give a default so that we can always expand
+        # the unit
+        parameters = cls.wrap_default_missing(unit.parameters)
+        return cls(
+            unit._data,
+            parameters=parameters,
+            provider=unit.provider,
+            errors=errors,
+        )
 
     class Meta:
-        """
-        Class containing additional meta-data about this unit.
 
-        :attr name:
-            Name of this unit as it can appear in unit definition files
-        :attr fields:
-            A :class:`plainbox.impl.symbol.SymbolDef` with a symbol for each of
-            the fields used by this unit.
-        :attr validator_cls:
-            A custom validator class specific to this unit
-        :attr field_validators:
-            A dictionary mapping each field to a list of field validators
-        """
-
-        name = "job"
+        name = N_("job")
 
         class fields(SymbolDef):
             """
-            Unit defines only one field, the 'unit'
+            Symbols for each field that a InvalidJob can have
             """
 
-            unit = "job"
+            name = "name"
+            summary = "summary"
+            plugin = "plugin"
+            command = "command"
+            description = "description"
+            user = "user"
+            environ = "environ"
+            estimated_duration = "estimated_duration"
+            depends = "depends"
+            after = "after"
+            salvages = "salvages"
+            requires = "requires"
+            shell = "shell"
+            imports = "imports"
+            flags = "flags"
+            category_id = "category_id"
+            purpose = "purpose"
+            steps = "steps"
+            verification = "verification"
+            certification_status = "certification_status"
+            siblings = "siblings"
+            auto_retry = "auto_retry"
+
+    def __str__(self):
+        return self.summary
+
+    def __repr__(self):
+        return "<InvalidJob id:{!r} plugin:{!r}>".format(self.id, self.plugin)

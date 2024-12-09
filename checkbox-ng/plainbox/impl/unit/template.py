@@ -601,7 +601,7 @@ class TemplateUnit(UnitWithId):
                 CorrectFieldValueValidator(
                     lambda field: len(field) <= 80,
                     Problem.wrong,
-                    Severity.advice,
+                    Severity.warning,
                     message=_("please stay under 80 characters"),
                     onlyif=lambda unit: unit.template_summary,
                 ),

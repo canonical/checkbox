@@ -462,7 +462,7 @@ class TranslatableFieldValidator(FieldValidatorBase):
             and unit.get_record_value(field) is not None
             and not unit.is_translatable_field(field)
         ):
-            yield parent.advice(unit, field, Problem.expected_i18n)
+            yield parent.warning(unit, field, Problem.expected_i18n)
 
 
 class UntranslatableFieldValidator(FieldValidatorBase):

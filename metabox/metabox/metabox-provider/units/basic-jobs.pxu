@@ -264,35 +264,35 @@ environ:
 command:
   echo "name: somename"
   echo "id_valid: True"
+  echo "body: body"
   echo
-  echo 'name: "invalid_id'
-  echo "id_valid: False"
+  echo 'name: invalid_body'
+  echo "id_valid: True"
+  echo "body: 'this breaks the body"
   echo
-  if [ -z "$CRASH" ]; then
-    exit 0;
-  fi;
   echo "id_valid: noname"
 
 unit: template
 template-resource: resource_names
 template-unit: job
-id: template_validation_testing_{name}
-template-id: template_validation_testing
+id: template_validation_invalid_fields_{name}
+template-id: template_validation_invalid_fields
 template-filter: resource_names.id_valid in ["True", "False"]
 command:
-  echo Testing {name}
-_summary:
-  Used to test that Checkbox validates templates and reports them when invalid
+  echo Testing {body}
+_summary: Tests that generated units are validated and reported when invalid
 flags: simple
 
 
 unit: template
 template-resource: resource_names
 template-unit: job
-id: template_validation_testing_{missing_field}
-template-id: template_validation_testing_missing_field
+id: template_validation_missing_parameter_{name}
+template-filter: resource_names.id_valid == "noname"
+template-id: template_validation_missing_parameter
 command:
-  echo Testing {name}
-_summary:
-  Used to test that Checkbox validates templates and crashes params are missing
+  # note: missing params is a special case because it triggers a different kind
+  #       of error that is not a validation error
+  echo Testing
+_summary: Tests that generated units are validated and reported when params are missing
 flags: simple

@@ -33,21 +33,131 @@ class InvalidUnitErrorUserVisible(Scenario):
         #!/usr/bin/env checkbox-cli
         [launcher]
         launcher_version = 1
-        stock_reports = text
+        stock_reports = text, submission_files
         [test plan]
-        unit = 2021.com.canonical.certification::crash_invalid_template_id
+        unit = 2021.com.canonical.certification::report_missing_parameters_generated_units
         forced = yes
+        [ui]
+        type=silent
         [test selection]
         forced=yes
+        [transport:local_file]
+        type=file
+        path=c3-local-submission.tar.xz
+        [exporter:example_tar]
+        unit = com.canonical.plainbox::tar
+        [report:file]
+        transport = local_file
+        exporter = tar
+        forced = yes
         """
     )
     steps = [
         Start(),
-        AssertPrinted(
-            "2021.com.canonical.certification::template_validation_testing_somename"
-        ),
+        AssertPrinted("template_validation_invalid_fields_somename"),
         AssertPrinted("Outcome: job passed"),
-        AssertPrinted("Validation failed with message:"),
+        AssertPrinted("template_validation_invalid_fields_invalid_body"),
         AssertPrinted("Outcome: job failed"),
+        AssertPrinted("template_validation_missing_parameter_MISSING_PARAM_1"),
+        AssertPrinted("Outcome: job failed"),
+        AssertRetCode(1),
+    ]
+
+
+@tag("template", "resume", "basic")
+class LocalResumeInvalidUnitErrorUserVisible(Scenario):
+    """
+    Check that when Checkbox expands a template it correctly detects
+    if some of the expanded units are invalid and reports it to the user
+    """
+
+    modes = ["local"]
+    launcher = textwrap.dedent(
+        """
+        #!/usr/bin/env checkbox-cli
+        [launcher]
+        launcher_version = 1
+        stock_reports = text, submission_files
+        [test plan]
+        unit = 2021.com.canonical.certification::resume_report_missing_parameters_generated_units
+        forced = yes
+        [ui]
+        type=silent
+        [test selection]
+        forced=yes
+        [transport:local_file]
+        type=file
+        path=c3-local-submission.tar.xz
+        [exporter:example_tar]
+        unit = com.canonical.plainbox::tar
+        [report:file]
+        transport = local_file
+        exporter = tar
+        forced = yes
+        """
+    )
+    steps = [
+        Start(),
+        AssertPrinted("reboot-emulator"),
+        Start(),
+        AssertPrinted("template_validation_invalid_fields_somename"),
+        AssertPrinted("job passed"),
+        AssertPrinted("template_validation_invalid_fields_invalid_body"),
+        AssertPrinted("job failed"),
+        AssertPrinted("template_validation_missing_parameter_MISSING_PARAM_1"),
+        AssertPrinted("job failed"),
+        AssertPrinted("job passed"),
+        AssertPrinted("job passed"),
+        AssertPrinted("job failed"),
+        AssertPrinted("job failed"),
+        AssertRetCode(1),
+    ]
+
+
+@tag("template", "resume", "basic")
+class RemoteResumeInvalidUnitErrorUserVisible(Scenario):
+    """
+    Check that when Checkbox expands a template it correctly detects
+    if some of the expanded units are invalid and reports it to the user
+    """
+
+    modes = ["remote"]
+    launcher = textwrap.dedent(
+        """
+        #!/usr/bin/env checkbox-cli
+        [launcher]
+        launcher_version = 1
+        stock_reports = text, submission_files
+        [test plan]
+        unit = 2021.com.canonical.certification::resume_report_missing_parameters_generated_units
+        forced = yes
+        [ui]
+        type=silent
+        [test selection]
+        forced=yes
+        [transport:local_file]
+        type=file
+        path=c3-local-submission.tar.xz
+        [exporter:example_tar]
+        unit = com.canonical.plainbox::tar
+        [report:file]
+        transport = local_file
+        exporter = tar
+        forced = yes
+        """
+    )
+    steps = [
+        Start(),
+        AssertPrinted("reboot-emulator"),
+        AssertPrinted("template_validation_invalid_fields_somename"),
+        AssertPrinted("job passed"),
+        AssertPrinted("template_validation_invalid_fields_invalid_body"),
+        AssertPrinted("job failed"),
+        AssertPrinted("template_validation_missing_parameter_MISSING_PARAM_1"),
+        AssertPrinted("job failed"),
+        AssertPrinted("job passed"),
+        AssertPrinted("job passed"),
+        AssertPrinted("job failed"),
+        AssertPrinted("job failed"),
         AssertRetCode(1),
     ]

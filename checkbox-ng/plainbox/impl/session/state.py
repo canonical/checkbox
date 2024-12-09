@@ -129,6 +129,8 @@ class SessionMetaData:
     def update_feature_flags(self, config):
         if config.get_value("features", "strict_template_expansion"):
             self._flags.add(self.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION)
+        else:
+            logger.warning("Using legacy non-strict template expansion")
 
     @property
     def flags(self):

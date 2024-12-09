@@ -17,7 +17,12 @@
 import textwrap
 
 from metabox.core.scenario import Scenario
-from metabox.core.actions import AssertRetCode, Start, AssertPrinted
+from metabox.core.actions import (
+    AssertRetCode,
+    Start,
+    AssertPrinted,
+    AssertNotPrinted,
+)
 from metabox.core.utils import tag
 
 
@@ -160,4 +165,55 @@ class RemoteResumeInvalidUnitErrorUserVisible(Scenario):
         AssertPrinted("job failed"),
         AssertPrinted("job failed"),
         AssertRetCode(1),
+    ]
+
+
+@tag("template", "resume", "basic")
+class RemoteResumeInvalidUnitErrorIgnoredBackwardCompatibility(Scenario):
+    """
+    Check that when Checkbox expands a template it correctly detects
+    if some of the expanded units are invalid and reports it to the user
+    """
+
+    modes = ["remote"]
+    launcher = textwrap.dedent(
+        """
+        #!/usr/bin/env checkbox-cli
+        [launcher]
+        launcher_version = 1
+        stock_reports = text, submission_files
+        [test plan]
+        unit = 2021.com.canonical.certification::resume_report_missing_parameters_generated_units
+        forced = yes
+        [ui]
+        type=silent
+        [test selection]
+        forced=yes
+        [transport:local_file]
+        type=file
+        path=c3-local-submission.tar.xz
+        [exporter:example_tar]
+        unit = com.canonical.plainbox::tar
+        [report:file]
+        transport = local_file
+        exporter = tar
+        forced = yes
+        [features]
+        strict_template_expansion=false
+        """
+    )
+    steps = [
+        Start(),
+        AssertPrinted("reboot-emulator"),
+        AssertPrinted("template_validation_invalid_fields_somename"),
+        AssertPrinted("job passed"),
+        AssertNotPrinted("template_validation_invalid_fields_invalid_body"),
+        AssertNotPrinted("job failed"),
+        AssertNotPrinted(
+            "template_validation_missing_parameter_MISSING_PARAM_1"
+        ),
+        AssertNotPrinted("job failed"),
+        AssertPrinted("job passed"),
+        AssertPrinted("job passed"),
+        AssertRetCode(0),
     ]

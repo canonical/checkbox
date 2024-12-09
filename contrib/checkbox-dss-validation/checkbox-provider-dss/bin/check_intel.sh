@@ -119,6 +119,7 @@ help_function() {
     echo -e "\t<at_least_one_gpu_is_available>: check_at_least_one_intel_gpu_is_available"
     echo -e "\t<capacity_slots_for_gpus_match>: check_capacity_slots_for_intel_gpus_match"
     echo -e "\t<allocatable_slots_for_gpus_match>: check_allocatable_slots_for_intel_gpus_match"
+    exit 1
 }
 
 main() {

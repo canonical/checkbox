@@ -51,6 +51,6 @@ oneLine = CorrectFieldValueValidator(
 shortValue = CorrectFieldValueValidator(
     lambda field: field is not None and len(field) <= 80,
     Problem.wrong,
-    Severity.advice,
+    Severity.warning,
     message=_("please stay under 80 characters"),
 )

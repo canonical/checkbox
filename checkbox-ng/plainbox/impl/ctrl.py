@@ -485,13 +485,13 @@ class CheckBoxSessionStateController(ISessionStateController):
 
         if (
             session_state._metadata.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION
-            not in session_state._metadata.flags
+            in session_state._metadata.flags
         ):
 
+            new_units = map(self._wrap_invalid_units, new_units)
+        else:
             logger.warning("Using legacy non-strict template expansion")
             new_units = filter(self._filter_invalid_log, new_units)
-        else:
-            new_units = map(self._wrap_invalid_units, new_units)
 
         for new_unit in new_units:
             # here they are added unconditionally as they will be checked

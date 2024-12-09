@@ -436,7 +436,7 @@ class CheckBoxSessionStateControllerTests(TestCase):
         session_state = SessionState([template, job])
         self.ctrl.observe_result(session_state, job, result)
         # Ensure that a warning was logged
-        mock_logger.debug.assert_called_with(
+        mock_logger.critical.assert_called_with(
             "Ignoring %s with missing template parameter %s",
             "foo-{missing}",
             "missing",

@@ -228,9 +228,10 @@ class CameraTestTests(unittest.TestCase):
 
     def test_on_timeout(self):
         mock_camera = MagicMock()
+        mock_camera.timeout = {}
         CameraTest._on_timeout(mock_camera)
         self.assertEqual(mock_camera._stop_pipeline.call_count, 1)
-        self.assertEqual(mock_camera.timeout, None)
+        self.assertEqual(mock_camera.timeout['global_timeout'], None)
 
     def test_supported_formats_to_string(self):
         formats = [
@@ -492,6 +493,7 @@ class CameraTestTests(unittest.TestCase):
     def test_capture_image_gstreamer_remove_timeout(self):
         mock_camera = MagicMock()
         mock_camera.photo_wait_seconds = 3
+        mock_camera.timeout = {}
         mock_camera.GLib.timeout_add_seconds.return_value = "timeout"
         CameraTest._capture_image_gstreamer(
             mock_camera, "/tmp/test.jpg", 640, 480, "RG10"

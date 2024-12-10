@@ -11,12 +11,47 @@
                 "title": {
                     "type": "string"
                 },
-                "client_version": {
-                    "type": "string"
-                },
-                "checkbox_version": {
-                    "type": "string"
-                },
+                "origin": {
+                "type": "object",
+                "required": [
+                    "name",
+                    "version",
+                    "packaging"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Name of the application used to run the test plan ('Checkbox')"
+                    },
+                    "version": {
+                        "type": "string",
+                        "description": "Version of Checkbox used to run the test plan."
+                    },
+                    "packaging": {
+                        "type": "object",
+                        "properties": {
+                            "type": {
+                                "type": "string",
+                                "description": "Packaging type ('debian', 'snap', or 'source' if running in a Python virtual env"
+                            },
+                            "name": {
+                                "type": "string",
+                                "description": "Name of the package used, if any"
+                            },
+                            "version": {
+                                "type": "string",
+                                "description": "Version installed"
+                            },
+                            "revision": {
+                                "type": "string",
+                                "description": "Revision installed (only for Snaps)"
+                            }
+                        },
+                        "if": {"properties": {"type": {"const": "snap"}}},
+                        "then": {"required": ["revision"]}
+                    }
+                }
+            },
                 "testplan_id": {
                     "type": "string"
                 },

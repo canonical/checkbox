@@ -95,17 +95,14 @@ class WiFiManager:
         interface with netmask.
         e.g. 10.102.99.224/22
         """
-        try:
-            ip_addr = run_command(
-                "{} -g IP4.ADDRESS device show {}".format(
-                    self._command,
-                    self.interface,
-                )
-            ).split("/")[0]
-            return ip_addr
-        except Exception:
-            logging.warning("Not able to get IP address!")
-            raise
+        ip_addr = run_command(
+            "{} -g IP4.ADDRESS device show {}".format(
+                self._command,
+                self.interface,
+            )
+        )
+        ip_addr = ip_addr.split("/")[0] if id_addr.find("/") != -1 else ""
+        return ip_addr
 
     def up_conn(self):
         try:
@@ -119,7 +116,7 @@ class WiFiManager:
                 if ip_addr:
                     logging.info("IP address is {}".format(ip_addr))
                     return True
-            except Exception:
+            except subprocess.CalledProcessError:
                 pass
             time.sleep(5)
         return False

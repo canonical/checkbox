@@ -28,7 +28,27 @@ from typing import List, Optional
 from urllib.parse import urlparse
 
 from checkbox_support.helpers.retry import retry, run_with_retry
-from plainbox.impl.decorators import cached_property
+
+try:
+    from functools import cached_property
+except ImportError:
+
+    class cached_property:
+        """
+        Decorator that converts a method with a single self argument into a
+        property cached on the instance.
+        See https://goo.gl/QgJYks (django cached_property)
+        """
+
+        def __init__(self, func):
+            self.func = func
+
+        def __get__(self, instance, type=None):
+            if instance is None:
+                return self
+            res = instance.__dict__[self.func.__name__] = self.func(instance)
+            return res
+
 
 logger = logging.getLogger(__file__)
 logger.addHandler(logging.StreamHandler())

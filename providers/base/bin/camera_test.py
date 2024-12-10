@@ -195,7 +195,14 @@ class CameraTest:
 
         self.main_loop = None
         self.pipeline = None
-        self.timeout = None
+        self.timeout = {
+            # the 90 seconds global timeout
+            "global_timeout": None,
+            # valve open timeout if using a valve
+            "open_valve": None,
+            # pipeline end timeout if mime type is jpeg
+            "stop_jpeg_pipeline": None,
+        }  # type: dict[str, int | None]
 
     def init_gstreamer(self):
         """
@@ -336,7 +343,7 @@ class CameraTest:
         Stop the  pipeline when the timeout is reached and remove the timeout
         """
         print("Timeout exceeded")
-        self.timeout = None
+        self.timeout["global_timeout"] = None
         self._stop_pipeline()
 
     def led(self):
@@ -554,10 +561,15 @@ class CameraTest:
         rgb_capture.link(valve)
 
         if pixelformat == "MJPG":
+
+            def stop_jpeg_pipeline():
+                self.timeout["stop_jpeg_pipeline"] = None
+                self._stop_pipeline()
+
             # cannot use jpegenc here, so we directly link to the sink
             # give it 1 extra second in case MainLoop checks this timeout first
-            self.GLib.timeout_add_seconds(
-                self.photo_wait_seconds + 1, self._stop_pipeline
+            self.timeout["stop_jpeg_pipeline"] = self.GLib.timeout_add_seconds(
+                self.photo_wait_seconds + 1, stop_jpeg_pipeline
             )
             valve.link(sink)
 
@@ -576,11 +588,17 @@ class CameraTest:
         self.pipeline.set_state(self.Gst.State.PLAYING)
 
         # Add a global timeout of 90 seconds to capture the image
-        self.timeout = self.GLib.timeout_add_seconds(90, self._on_timeout)
+        self.timeout["global_timeout"] = self.GLib.timeout_add_seconds(
+            90, self._on_timeout
+        )
         if self.photo_wait_seconds > 0:
-            self.GLib.timeout_add_seconds(
-                self.photo_wait_seconds,
-                lambda: valve.set_property("drop", False),
+
+            def open_valve():
+                self.timeout["open_valve"] = None
+                valve.set_property("drop", False)
+
+            self.timeout["open_valve"] = self.GLib.timeout_add_seconds(
+                self.photo_wait_seconds, open_valve
             )
         else:
             valve.set_property("drop", False)
@@ -598,8 +616,9 @@ class CameraTest:
         # If the image is captured correctly and the timeout is not reached,
         # remove the GLib timeout, so it does not interfere with the next
         # iteration.
-        if self.timeout:
-            self.GLib.source_remove(self.timeout)
+        for timeout in self.timeout.values():
+            if timeout:
+                self.GLib.source_remove(timeout)
 
     def _display_image(self, filename, width, height):
         """

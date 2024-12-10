@@ -480,7 +480,9 @@ class CameraTestTests(unittest.TestCase):
     def test_capture_image_gstreamer_jpeg(self):
         mock_camera = MagicMock()
         mock_camera.photo_wait_seconds = 3
+        mock_camera.timeout = {}
         mock_make = mock_camera.Gst.ElementFactory.make
+        mock_GLib_timout_add = mock_camera.GLib.timeout_add_seconds
 
         CameraTest._capture_image_gstreamer(
             mock_camera, "/tmp/test.jpg", 640, 480, "MJPG"
@@ -496,6 +498,23 @@ class CameraTestTests(unittest.TestCase):
                 call("filesink", "sink"),
             ],
         )
+        self.assertTrue(mock_GLib_timout_add.called)
+        # now simulate the timeout
+        self.assertEqual(mock_GLib_timout_add.call_count, 3)
+
+        stop_jpeg_pipeline_inserted = False
+        for mock_timeout_call in mock_GLib_timout_add.call_args_list:
+            callback = mock_timeout_call.args[1]
+            if (
+                hasattr(callback, "__name__")
+                and callback.__name__ == "stop_jpeg_pipeline"
+            ):
+                stop_jpeg_pipeline_inserted = True
+                callback()
+                self.assertIsNone(
+                    mock_camera.timeout["stop_jpeg_pipeline"], None
+                )
+        self.assertTrue(stop_jpeg_pipeline_inserted)
 
     def test_capture_image_gstreamer_error(self):
         mock_camera = MagicMock()

@@ -67,28 +67,65 @@ def get_all_fixated_caps(caps: Gst.Caps) -> T.List[Gst.Caps]:
 
 
 def parse_args():
-    p = ArgumentParser()
-    p.add_argument(
+    parser = ArgumentParser()
+
+    subparser = parser.add_subparsers(dest="subcommand", required=True)
+    photo_subparser = subparser.add_parser("take-photo")
+    photo_subparser.add_argument(
         "-ws",
         "--wait-seconds",
         type=int,
         help="Number of seconds to keep the pipeline running "
-        "before taking the photo. Default = 2",
+        "before taking the photo. Default = 2.",
         default=2,
     )
-    p.add_argument(
+    # photo_subparser.add_argument(
+    #     "-ac",
+    #     "--all-caps",
+    #     action="store_true",
+    #     help="Take a photo for each camera capability. "
+    #     "The --wait-seconds is in effect for all of them. ",
+    # )
+    photo_subparser.add_argument(
         "-p",
         "--path",
         type=str,
-        help="Where to save all the files",
-        default="/home/ubuntu",
+        help="Where to save the file. This should be a directory.",
+        required=True,
     )
-    return p.parse_args()
+
+    video_subparser = subparser.add_parser("record-video")
+    video_subparser.add_argument(
+        "-s",
+        "--seconds",
+        type=int,
+        help="Number of seconds to record. Default = 5.",
+        default=5,
+    )
+    video_subparser.add_argument(
+        "-p",
+        "--path",
+        type=str,
+        help="Where to save the file. This should be a directory.",
+        required=True,
+    )
+
+    player_subparser = subparser.add_parser("play-video")
+    player_subparser.add_argument(
+        "-p",
+        "--path",
+        type=str,
+        help="Path to the video file",
+        required=True,
+    )
+
+    return parser.parse_args()
 
 
 def elem_to_str(element: Gst.Element) -> str:
     """Prints an element to string
     - Excluding parent & client name
+
     :param element: gstreamer element
     :return: String representaion
     """
@@ -161,12 +198,22 @@ def run_pipeline(
             raise RuntimeError("Failed to transition to playing state")
 
     def quit():
-        logger.debug("Setting null to stop the pipeline")
-        pipeline.set_state(Gst.State.NULL)
+        logger.debug("Sending EOS.")
+        # Terminate gracefully with EOS.
+        # Directly setting it to null can cause videos to have timestamp issues
+        eos_handled = pipeline.send_event(Gst.Event.new_eos())
+
+        if not eos_handled:
+            logging.error(
+                "EOS was not handled by the pipeline. "
+                "Forcefully setting the state to NULL."
+            )
+            pipeline.set_state(Gst.State.NULL)
+
         main_loop.quit()
 
     start()
-    logger.info(f"[ OK ] Pipeline is playing! {run_n_seconds}")
+    logger.info(f"[ OK ] Pipeline is playing!")
 
     for delay, call in intermediate_calls:
         assert (
@@ -319,9 +366,7 @@ def take_photo(
             delay_seconds
         )
     )
-    # this is just printing the pipeline and separate it from the rest
     logging.info("{} ! {}".format(elem_to_str(source), partial))
-
     logging.debug("Setting playing state")
 
     run_pipeline(
@@ -346,15 +391,16 @@ def record_video(
     record_n_seconds=0,
 ):
     assert file_path.endswith(
-        ".avi"
-    ), "This function uses avimux, so the filename must end in .avi"
+        ".mkv"
+    ), "This function uses matroshkamux, so the filename must end in .mkv"
 
     str_elements = [
         'capsfilter name=source-caps caps="{}"',  # 0
         "decodebin",  # 1
         "videoconvert name=converter",  # 2
-        "avimux",  # 3
-        "filesink location={}".format(file_path),  # 4
+        "jpegenc",  # 3, avoid massiave uncompressed videos
+        "matroskamux",  # 4
+        "filesink location={}".format(file_path),  # 5
     ]
 
     head_elem_name = "source-caps"
@@ -403,7 +449,7 @@ def record_video(
     logging.info(
         "[ OK ] Video for this capability: "
         + "{}".format(caps.to_string() if caps else "[device default]")
-        + "was saved to {}".format(file_path)
+        + " was saved to {}".format(file_path)
     )
 
     """record
@@ -419,6 +465,8 @@ def record_video(
 
 def main():
     args = parse_args()
+    print(args)
+
     if not os.path.isdir(args.path):
         # must validate early, filesink does not check if the path exists
         raise FileNotFoundError('Path "{}" does not exist'.format(args.path))
@@ -429,9 +477,8 @@ def main():
             "This may lead to different results than running as regular user."
         )
 
-    play_video("/home/zhongning/fgfg/video_dev_0_cap_default.avi")
-    return
     devices = get_devices()
+
     if len(devices) == 0:
         logging.error(
             "GStreamer cannot find any cameras on this device. "
@@ -441,61 +488,62 @@ def main():
         )
         exit(1)
 
-    print("Found {} cameras!".format(len(devices)))
+    seconds_per_pipeline = (
+        args.wait_seconds if args.subcommand == "take-photo" else args.seconds
+    )
+    sleep_sec = 3
+    logging.info("Found {} cameras!".format(len(devices)))
     print(
         '[ HINT ] For debugging, remove the "valve" element to get a pipeline',
         "that can be run with gst-launch-1.0",
         "Also keep the pipeline running for {} seconds".format(
-            args.wait_seconds
+            seconds_per_pipeline
         ),
     )
 
     for dev_i, device in enumerate(devices):
         dev_element = device.create_element()
-        record_video(
-            dev_element,
-            file_path="{}/video_dev_{}_cap_{}.avi".format(
-                args.path, dev_i, "default"
-            ),
-            record_n_seconds=args.wait_seconds,
-        )
-        break
-        take_photo(
-            dev_element,
-            delay_seconds=args.wait_seconds,
-            caps=None,
-            file_path="{}/photo_dev_{}_cap_{}.jpeg".format(
-                args.path, dev_i, "default"
-            ),
-        )
-        caps = device.get_caps()
-        for cap_i, capability in enumerate(get_all_fixated_caps(caps)):
-            print(
-                "[ INFO ] Testing",
-                '"{}"'.format(capability.to_string()),
-                "for device",
-                '"{}"'.format(device.get_display_name()),
-            )
-            take_photo(
-                dev_element,
-                delay_seconds=args.wait_seconds,
-                caps=capability,
-                file_path="{}/photo_dev{}_cap{}.jpeg".format(
-                    args.path, dev_i, cap_i
-                ),
-            )
-            break
-
-        display_viewfinder(dev_element)
-
-        sleep_sec = 3
+        all_fixed_caps = get_all_fixated_caps(device.get_caps())
         logging.info(
-            "Sleep {} seconds to release current device pipeline".format(
-                sleep_sec
+            "Test for this device may take {} seconds.".format(
+                len(all_fixed_caps) * (seconds_per_pipeline + sleep_sec)
             )
-            + '"{}"'.format(elem_to_str(dev_element)),
         )
-        time.sleep(3)
+        for cap_i, capability in enumerate(all_fixed_caps):
+            if args.subcommand == "take-photo":
+                logging.info(
+                    "[ INFO ] Taking a photo with capability: "
+                    + '"{}"'.format(capability.to_string())
+                    + "for device: "
+                    + '"{}"'.format(device.get_display_name()),
+                )
+                take_photo(
+                    dev_element,
+                    delay_seconds=args.wait_seconds,
+                    caps=capability,
+                    file_path="{}/photo_dev_{}_cap_{}.jpeg".format(
+                        args.path, dev_i, cap_i
+                    ),
+                )
+            elif args.subcommand == "record-video":
+                record_video(
+                    dev_element,
+                    file_path="{}/video_dev_{}_cap_{}.mkv".format(
+                        args.path, dev_i, cap_i
+                    ),
+                    caps=capability,
+                    record_n_seconds=args.seconds,
+                )
+
+            logging.info(
+                "Sleep {} seconds to release current device pipeline ".format(
+                    sleep_sec
+                )
+                + '"{}"'.format(elem_to_str(dev_element)),
+            )
+            time.sleep(sleep_sec)
+
+    logging.info("[ OK ] All done!")
 
 
 if __name__ == "__main__":

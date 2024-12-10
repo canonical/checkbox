@@ -56,7 +56,8 @@ try:
 
     if distro.id() == "ubuntu-core":
         HOST_RELEASE = "{}.04".format(distro.version())
-    HOST_RELEASE = distro.version()
+    else:
+        HOST_RELEASE = distro.version()
 except ImportError:
     import lsb_release  # type: ignore
 
@@ -83,7 +84,7 @@ class LXD:
         self.name = name
         self.remote = remote
         self.image_alias = uuid.uuid4()
-        self._release = release
+        self.release = release or HOST_RELEASE
 
     @cached_property
     def template(self) -> Optional[str]:
@@ -104,14 +105,6 @@ class LXD:
         filename = os.path.join("/tmp", targetfile)
         self.download_image(self.image_url, filename)
         return filename
-
-    @cached_property
-    def release(self) -> str:
-        """Gets the Ubuntu release used.
-
-        If a release was not provided, the host release is used.
-        """
-        return self._release or HOST_RELEASE
 
     @retry(5, 2)
     def download_image(self, url, filename):

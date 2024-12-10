@@ -1,0 +1,123 @@
+id: ce_oem_wifi_ap_mode
+_summary: Generates a WiFi Access Point list for test
+_description:
+    A WiFi Access Point mapping resource that relies on the user specifying in config varirable.
+    Usage of parameter:
+    WIFI_AP_MODE={interface_name2}:{band in a|bg}:{channel}:{key_mgmt}:{group in one of ciphers wep40|wep104|tkip|ccmp}
+    e.g. WIFI_AP_MODE=wlP1p1s0f0:a:36:wpa-psk:ccmp wlP1p1s0f0:bg:5:none:none
+    For more detail please check
+    https://networkmanager.dev/docs/api/latest/settings-802-11-wireless.html
+    https://networkmanager.dev/docs/api/latest/settings-802-11-wireless-security.html
+estimated_duration: 0.02
+plugin: resource
+environ: WIFI_AP_MODE
+command:
+    awk '{
+        split($0, record, " ")
+        for (i in record) {
+            split(record[i], data, ":")
+            printf "interface: %s\nband: %s\nchannel: %s\nkey_mgmt: %s\ngroup: %s\n\n", data[1], data[2], data[3], data[4], data[5]
+        }
+    }' <<< "$WIFI_AP_MODE"
+
+unit: template
+template-resource: ce_oem_wifi_ap_mode
+template-filter: ce_oem_wifi_ap_mode.key_mgmt == 'none'
+template-unit: job
+id: ce-oem-wireless/ap_open_{band}_ch{channel}_{group}_{interface}_manual
+category_id: com.canonical.certification::wifi_ap
+_summary: Create open 802.11{band} Wi-Fi AP on {interface} and check connection(Manual)
+_description:
+   Create open 802.11{band} Wi-Fi AP on {interface} in channel{channel}
+   group {group} and check connection(Manual)
+plugin: user-interact
+imports:
+  from com.canonical.certification import wifi_interface_mode
+  from com.canonical.certification import net_if_management
+requires:
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'NetworkManager'
+estimated_duration: 120.0
+_steps:
+   1. Check if AP ssid "qa-test-ssid" can be found.
+   2. Connect to ssid "qa-test-ssid"
+   3. Ping the DUT ip "10.42.0.1"
+_verification:
+  Did the client manage to connect the HOST and able to ping the HOST?
+flags: preserve-locale also-after-suspend
+command:
+   wifi_test.py --mode ap --interface {interface} --band {band} --channel {channel} --manual
+
+unit: template
+template-resource: ce_oem_wifi_ap_mode
+template-filter: ce_oem_wifi_ap_mode.key_mgmt != 'none'
+template-unit: job
+id: ce-oem-wireless/ap_wpa_{key_mgmt}_{band}_ch{channel}_{group}_{interface}_manual
+category_id: com.canonical.certification::wifi_ap
+_summary: Create wpa 802.11{band} Wi-Fi AP on {interface} and check connection(Manual)
+_description:
+   Create wpa 802.11{band} Wi-Fi AP on {interface} in channel{channel}
+   group {group} and check connection(Manual)
+plugin: user-interact
+imports:
+  from com.canonical.certification import wifi_interface_mode
+  from com.canonical.certification import net_if_management
+requires:
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'NetworkManager'
+estimated_duration: 120.0
+_steps:
+   1. Check if AP ssid "qa-test-ssid" can be found.
+   2. Connect to ssid "qa-test-ssid"
+   3. Ping the DUT ip "10.42.0.1"
+_verification:
+  Did the client manage to connect the HOST and able to ping the HOST?
+flags: preserve-locale also-after-suspend
+command:
+   wifi_test.py --mode ap --interface {interface} --band {band} --channel {channel} --keymgmt {key_mgmt} --group {group} --manual
+
+unit: template
+template-resource: ce_oem_wifi_ap_mode
+template-filter: ce_oem_wifi_ap_mode.key_mgmt == 'none'
+template-unit: job
+id: ce-oem-wireless/ap_open_{band}_ch{channel}_{group}_{interface}_automated
+category_id: com.canonical.certification::wifi_ap
+_summary: Create open 802.11{band} Wi-Fi AP on {interface} and check connection
+_description:
+   Create open 802.11{band} Wi-Fi AP on {interface} in channel{channel}
+   group {group} and check connection
+plugin: shell
+environ: WIFI_AP_HOST_DEVICE_IP WIFI_AP_HOST_DEVICE_USER WIFI_AP_HOST_DEVICE_PWD
+imports:
+  from com.canonical.certification import wifi_interface_mode
+  from com.canonical.certification import net_if_management
+requires:
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'NetworkManager'
+estimated_duration: 120.0
+flags: preserve-locale also-after-suspend
+command:
+   wifi_test.py --mode ap --interface {interface} --band {band} --channel {channel} --host-ip $WIFI_AP_HOST_DEVICE_IP --host-user $WIFI_AP_HOST_DEVICE_USER --host-pwd $WIFI_AP_HOST_DEVICE_PWD
+
+unit: template
+template-resource: ce_oem_wifi_ap_mode
+template-filter: ce_oem_wifi_ap_mode.key_mgmt != 'none'
+template-unit: job
+id: ce-oem-wireless/ap_wpa_{key_mgmt}_{band}_ch{channel}_{group}_{interface}_automated
+category_id: com.canonical.certification::wifi_ap
+_summary: Create wpa 802.11{band} Wi-Fi AP on {interface} and check connection
+_description:
+   Create wpa 802.11{band} Wi-Fi AP on {interface} in channel{channel}
+   group {group} and check connection
+plugin: shell
+environ: WIFI_AP_HOST_DEVICE_IP WIFI_AP_HOST_DEVICE_USER WIFI_AP_HOST_DEVICE_PWD
+imports:
+  from com.canonical.certification import wifi_interface_mode
+  from com.canonical.certification import net_if_management
+requires:
+ ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
+ net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'NetworkManager'
+estimated_duration: 120.0
+flags: preserve-locale also-after-suspend
+command:
+   wifi_test.py --mode ap --interface {interface} --band {band} --channel {channel} --keymgmt {key_mgmt} --group {group} --host-ip $WIFI_AP_HOST_DEVICE_IP --host-user $WIFI_AP_HOST_DEVICE_USER --host-pwd $WIFI_AP_HOST_DEVICE_PWD

@@ -96,7 +96,6 @@ class UnifiedRunner(IJobRunner):
         self._extra_env = extra_env
 
     def run_job(self, job, job_state, environ=None, ui=None):
-
         logger.info(_("Running %r"), job)
         self._job_runner_ui_delegate.ui = ui
 
@@ -116,6 +115,7 @@ class UnifiedRunner(IJobRunner):
                     )
                 ],
             ).get_result()
+
         if job.plugin not in supported_plugins:
             print(
                 Colorizer().RED(

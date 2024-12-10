@@ -191,6 +191,7 @@ class CameraTest:
         self.photo_wait_seconds = kwargs.get(
             "wait_seconds", CameraTest.DEFAULT_PHOTO_WAIT_SECONDS
         )
+        assert self.photo_wait_seconds >= 0, "Wait seconds must be nonnegative"
 
         self.main_loop = None
         self.pipeline = None
@@ -457,7 +458,6 @@ class CameraTest:
         """
         command = [
             "fswebcam",
-            "-D {}".format(self.photo_wait_seconds),
             "--no-banner",
             "-d",
             self.device,
@@ -465,6 +465,9 @@ class CameraTest:
             "%dx%d" % (width, height),
             filename,
         ]
+        if self.photo_wait_seconds > 0:
+            command.insert(1, "-D {}".format(self.photo_wait_seconds))
+
         if pixelformat:
             # special tweak for fswebcam
             command.extend(
@@ -514,12 +517,14 @@ class CameraTest:
             pipeline.add(bayer2rgb)
             caps.link(bayer2rgb)
             rgb_capture = bayer2rgb
-
         else:
+            mime_type = "video/x-raw"
+            if pixelformat == "MJPG":
+                mime_type = "image/jpeg"
             caps.set_property(
                 "caps",
                 self.Gst.Caps.from_string(
-                    "video/x-raw,width={},height={}".format(width, height)
+                    "{},width={},height={}".format(mime_type, width, height)
                 ),
             )
             pipeline.add(caps)
@@ -547,8 +552,18 @@ class CameraTest:
         # Link elements
         source.link(caps)
         rgb_capture.link(valve)
-        valve.link(encoder)
-        encoder.link(sink)
+
+        if pixelformat == "MJPG":
+            # cannot use jpegenc here, so we directly link to the sink
+            # give it 1 extra second in case MainLoop checks this timeout first
+            self.GLib.timeout_add_seconds(
+                self.photo_wait_seconds + 1, self._stop_pipeline
+            )
+            valve.link(sink)
+
+        else:
+            valve.link(encoder)
+            encoder.link(sink)
         # source ! rgbcapture ! valve ! encoder ! filesink
 
         # Connect the bus to the message handler
@@ -562,9 +577,13 @@ class CameraTest:
 
         # Add a global timeout of 90 seconds to capture the image
         self.timeout = self.GLib.timeout_add_seconds(90, self._on_timeout)
-        self.GLib.timeout_add_seconds(
-            self.photo_wait_seconds, lambda: valve.set_property("drop", False)
-        )
+        if self.photo_wait_seconds > 0:
+            self.GLib.timeout_add_seconds(
+                self.photo_wait_seconds,
+                lambda: valve.set_property("drop", False),
+            )
+        else:
+            valve.set_property("drop", False)
 
         # Start the main loop. If the loop finishes successfully, we will
         # remove the timeout. If the timeout is reached, we will stop the
@@ -809,6 +828,7 @@ class CameraTest:
         if not formats:
             raise SystemExit("No supported formats found")
         format = formats[0]
+        print(format)
         return format
 
     def _validate_image(self, filename, width, height):

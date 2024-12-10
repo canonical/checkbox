@@ -441,7 +441,7 @@ class CameraTestTests(unittest.TestCase):
             [
                 call("v4l2src", "video-source"),
                 call("capsfilter", "caps"),
-                call('valve', 'photo-valve'),
+                call("valve", "photo-valve"),
                 call("jpegenc", "encoder"),
                 call("filesink", "sink"),
             ],

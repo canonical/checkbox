@@ -29,6 +29,10 @@
                     },
                     "packaging": {
                         "type": "object",
+                        "required": [
+                            "type",
+                            "version"
+                        ],
                         "properties": {
                             "type": {
                                 "type": "string",

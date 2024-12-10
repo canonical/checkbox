@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-06/schema#",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
     "$id": "https://certification.canonical.com/checkbox-submission.json",
     "description": "Output format for the Checkbox test framework (see more info at https://checkbox.readthedocs.io)",
     "$ref": "#/definitions/Submission",

@@ -79,13 +79,6 @@ def parse_args():
         "before taking the photo. Default = 2.",
         default=2,
     )
-    # photo_subparser.add_argument(
-    #     "-ac",
-    #     "--all-caps",
-    #     action="store_true",
-    #     help="Take a photo for each camera capability. "
-    #     "The --wait-seconds is in effect for all of them. ",
-    # )
     photo_subparser.add_argument(
         "-p",
         "--path",
@@ -186,6 +179,8 @@ def run_pipeline(
         when the pipeline started running
     :raises RuntimeError: When set_state(PLAYING) fails
     """
+    bus = pipeline.get_bus()
+    assert bus
 
     # pipeline needs to start within 5 seconds
     def start():
@@ -197,7 +192,7 @@ def run_pipeline(
             pipeline.set_state(Gst.State.NULL)
             raise RuntimeError("Failed to transition to playing state")
 
-    def quit():
+    def graceful_quit():
         logger.debug("Sending EOS.")
         # Terminate gracefully with EOS.
         # Directly setting it to null can cause videos to have timestamp issues
@@ -206,8 +201,6 @@ def run_pipeline(
         if not eos_handled:
             logging.error("EOS was not handled by the pipeline. ")
 
-        bus = pipeline.get_bus()
-        assert bus
         # at this point the previous signal_watch can be overriden
         # (we are in the handler)
         bus.add_signal_watch()
@@ -215,18 +208,27 @@ def run_pipeline(
         pipeline.set_state(Gst.State.NULL)
         main_loop.quit()
 
+    def quit():
+        logger.debug("Setting state to NULL.")
+        pipeline.set_state(Gst.State.NULL)
+        main_loop.quit()
+        # Must explicitly unref, otherwise source is never released
+        # not sure why graceful_quite doesn't need this
+        pipeline.unref()
+
     start()
     logger.info(f"[ OK ] Pipeline is playing!")
 
     for delay, call in intermediate_calls:
-        assert (
-            delay < run_n_seconds
-        ), "delay for each call must be smaller than total run seconds"
+        assert run_n_seconds == -1 or delay < run_n_seconds, (
+            "Delay for each call must be smaller than total run seconds, "
+            " (Got delay = {}, run_n_seconds = {})".format(
+                delay, run_n_seconds
+            )
+        )
         GLib.timeout_add_seconds(delay, call)
 
     if run_n_seconds == -1:
-        bus = pipeline.get_bus()
-        assert bus
         bus.add_signal_watch()
         bus.connect(
             "message",
@@ -235,7 +237,7 @@ def run_pipeline(
             and quit(),
         )
     else:
-        GLib.timeout_add_seconds(run_n_seconds, quit)
+        GLib.timeout_add_seconds(run_n_seconds, graceful_quit)
 
     main_loop.run()
 
@@ -306,11 +308,9 @@ def take_photo(
         'capsfilter name=source-caps caps="{}"',  # 0
         "decodebin",  # 1
         "videoconvert name=converter",  # 2
-        "videorate drop-only=True",  # 3
-        'capsfilter name=videorate-caps caps="video/x-raw,framerate=1/{}"',  # 4
-        "jpegenc",  # 5
-        "valve name=photo-valve",  # 6
-        "filesink location={}".format(file_path),  # 7
+        "valve name=photo-valve drop=True",  # 4
+        "jpegenc snapshot=True",  # 3
+        "filesink location={}".format(file_path),  # 5
     ]
     head_elem_name = "source-caps"
 
@@ -331,18 +331,8 @@ def take_photo(
         # else case is using decodebin as a fallback
     else:
         # decode bin doesn't work with video/x-raw
-        # videorate doesn't work if source-caps was not created
-        str_elements[0] = str_elements[1] = str_elements[3] = str_elements[
-            4
-        ] = ""
+        str_elements[0] = str_elements[1] = str_elements[3] = ""
         head_elem_name = "converter"
-
-    if delay_seconds > 0:
-        # if this caps filter was deleted earlier, this does nothing
-        str_elements[4] = str_elements[4].format(delay_seconds)
-    else:
-        str_elements[3] = ""
-        str_elements[4] = ""
 
     partial = " ! ".join(elem for elem in str_elements if elem)
     pipeline = Gst.parse_launch(partial)  # type: Gst.Pipeline
@@ -365,7 +355,7 @@ def take_photo(
         valve.set_property("drop", False)
 
     logging.info(
-        "[ OK ] Created photo pipeline with {} second delay".format(
+        "[ OK ] Created photo pipeline with {} second delay.".format(
             delay_seconds
         )
     )
@@ -374,16 +364,11 @@ def take_photo(
 
     run_pipeline(
         pipeline,
-        delay_seconds
-        + 1,  # run the pipeline for 1 more second to take tha actual photo
+        -1,
         [(delay_seconds, open_valve)],
     )
 
-    logging.info(
-        "[ OK ] Photo for this capability: "
-        + "{}".format(caps.to_string() if caps else "[device default]")
-        + " was saved to {}".format(file_path)
-    )
+    logging.info("[ OK ] Photo was saved to {}".format(file_path))
 
 
 def record_video(
@@ -395,7 +380,7 @@ def record_video(
 ):
     assert file_path.endswith(
         ".mkv"
-    ), "This function uses matroshkamux, so the filename must end in .mkv"
+    ), "This function uses matroskamux, so the filename must end in .mkv"
 
     str_elements = [
         'capsfilter name=source-caps caps="{}"',  # 0
@@ -507,14 +492,14 @@ def main():
         dev_element = device.create_element()
         all_fixed_caps = get_all_fixated_caps(device.get_caps())
         logging.info(
-            "Test for this device may take {} seconds.".format(
-                len(all_fixed_caps) * seconds_per_pipeline
+            "---- Test for this device may take {} seconds for {} caps. ----".format(
+                len(all_fixed_caps) * seconds_per_pipeline, len(all_fixed_caps)
             )
         )
         for cap_i, capability in enumerate(all_fixed_caps):
             if args.subcommand == "take-photo":
                 logging.info(
-                    "[ INFO ] Taking a photo with capability: "
+                    "Taking a photo with capability: "
                     + '"{}"'.format(capability.to_string())
                     + "for device: "
                     + '"{}"'.format(device.get_display_name()),
@@ -542,7 +527,7 @@ def main():
 
 if __name__ == "__main__":
     old_env = os.environ.get("GST_DEBUG", None)
-    os.environ["GST_DEBUG"] = "2"  # error and warnings
+    os.environ["GST_DEBUG"] = "3"  # error and warnings
 
     main()
 

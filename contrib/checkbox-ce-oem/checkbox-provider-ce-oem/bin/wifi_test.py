@@ -147,14 +147,11 @@ class WiFiManager:
 
 
 def run_command(command):
-    try:
-        output = subprocess.check_output(
-            command, shell=True, stderr=subprocess.STDOUT
-        )
-        return output.decode()
-    except subprocess.CalledProcessError as e:
-        logging.error("Command failed: %s", e.output.decode())
-        raise
+    logging.info("Run command: %s", command)
+    output = subprocess.check_output(
+        command, shell=True, check=True, stderr=subprocess.STDOUT
+    )
+    return output.decode()
 
 
 def sshpass_cmd_gen(ip, user, pwd, cmd):

@@ -1,0 +1,30 @@
+id: ce-oem-wifi-ap-full
+unit: test plan
+_name: ce-oem WiFi AP mode tests
+_description: Full WiFi AP mode tests for ce-oem
+include:
+nested_part:
+    ce-oem-wifi-ap-manual
+    ce-oem-wifi-ap-automated
+
+id: ce-oem-wifi-ap-manual
+unit: test plan
+_name: ce-oem manual WiFi AP mode tests
+_description: Manual WiFi AP mode tests
+mandatory_include:
+bootstrap_include:
+include:
+
+id: ce-oem-wifi-ap-automated
+unit: test plan
+_name: ce-oem automated WiFi AP mode tests
+_description: automated WiFi AP mode tests for ce-oem
+mandatory_include:
+bootstrap_include:
+    com.canonical.certification::device
+    com.canonical.certification::wifi_interface_mode
+    com.canonical.certification::net_if_management
+    ce_oem_wifi_ap_mode
+include:
+    ce-oem-wireless/ap_open_.*_automated
+    ce-oem-wireless/ap_wpa_.*_automated

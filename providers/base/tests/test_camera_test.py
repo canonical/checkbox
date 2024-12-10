@@ -477,6 +477,26 @@ class CameraTestTests(unittest.TestCase):
             ],
         )
 
+    def test_capture_image_gstreamer_jpeg(self):
+        mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
+        mock_make = mock_camera.Gst.ElementFactory.make
+
+        CameraTest._capture_image_gstreamer(
+            mock_camera, "/tmp/test.jpg", 640, 480, "MJPG"
+        )
+        make_calls = mock_make.call_args_list
+        print(make_calls, flush=sys.stderr)
+        self.assertListEqual(
+            make_calls,
+            [
+                call("v4l2src", "video-source"),
+                call("capsfilter", "caps"),
+                call("valve", "photo-valve"),
+                call("filesink", "sink"),
+            ],
+        )
+
     def test_capture_image_gstreamer_error(self):
         mock_camera = MagicMock()
         mock_camera.photo_wait_seconds = 3

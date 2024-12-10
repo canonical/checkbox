@@ -544,18 +544,6 @@ class CameraTest:
         valve.set_property("drop", True)
         pipeline.add(valve)
 
-        # Add encoder
-        encoder = self.Gst.ElementFactory.make("jpegenc", "encoder")
-        # snapshot=True sends a EOS downstream
-        # when the first buffer reaches jpegenc
-        encoder.set_property("snapshot", True)
-        pipeline.add(encoder)
-
-        # Add sink
-        sink = self.Gst.ElementFactory.make("filesink", "sink")
-        sink.set_property("location", filename)
-        pipeline.add(sink)
-
         # Link elements
         source.link(caps)
         rgb_capture.link(valve)
@@ -574,8 +562,20 @@ class CameraTest:
             valve.link(sink)
 
         else:
+            # Add encoder
+            encoder = self.Gst.ElementFactory.make("jpegenc", "encoder")
+            # snapshot=True sends a EOS downstream
+            # when the first buffer reaches jpegenc
+            encoder.set_property("snapshot", True)
+            pipeline.add(encoder)
             valve.link(encoder)
             encoder.link(sink)
+
+        # Add sink
+        sink = self.Gst.ElementFactory.make("filesink", "sink")
+        sink.set_property("location", filename)
+        pipeline.add(sink)
+
         # source ! rgbcapture ! valve ! encoder ! filesink
 
         # Connect the bus to the message handler

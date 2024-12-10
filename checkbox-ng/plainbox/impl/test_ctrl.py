@@ -23,35 +23,33 @@ plainbox.impl.test_ctrl
 Test definitions for plainbox.impl.ctrl module
 """
 
-from subprocess import CalledProcessError
 from unittest import TestCase
 import json
-import os
-import shutil
 
 from plainbox.abc import IJobResult
-from plainbox.abc import IProvider1
-from plainbox.abc import IProviderBackend1
 from plainbox.suspend_consts import Suspend
-from plainbox.impl.ctrl import CheckBoxSessionStateController
-from plainbox.impl.ctrl import SymLinkNest
-from plainbox.impl.ctrl import gen_rfc822_records_from_io_log
+from plainbox.impl.ctrl import (
+    CheckBoxSessionStateController,
+    SymLinkNest,
+    gen_rfc822_records_from_io_log,
+)
 from plainbox.impl.job import JobDefinition
-from plainbox.impl.resource import Resource
-from plainbox.impl.resource import ResourceExpression
-from plainbox.impl.result import MemoryJobResult
-from plainbox.impl.secure.origin import JobOutputTextSource
-from plainbox.impl.secure.origin import Origin
+from plainbox.impl.unit.job import InvalidJob
+from plainbox.impl.resource import Resource, ResourceExpression
+from plainbox.impl.secure.origin import JobOutputTextSource, Origin
 from plainbox.impl.secure.providers.v1 import Provider1
-from plainbox.impl.secure.rfc822 import RFC822Record
-from plainbox.impl.secure.rfc822 import RFC822SyntaxError
-from plainbox.impl.session import InhibitionCause
-from plainbox.impl.session import JobReadinessInhibitor
-from plainbox.impl.session import JobState
-from plainbox.impl.session import SessionState
+from plainbox.impl.secure.rfc822 import RFC822Record, RFC822SyntaxError
+from plainbox.impl.session import (
+    InhibitionCause,
+    JobReadinessInhibitor,
+    JobState,
+    SessionState,
+)
+
 from plainbox.impl.testing_utils import make_job
 from plainbox.impl.unit.template import TemplateUnit
-from plainbox.vendor import extcmd
+from plainbox.impl.validation import Severity
+from plainbox.impl.unit.unit import MissingParam
 from plainbox.vendor import mock
 
 
@@ -441,6 +439,84 @@ class CheckBoxSessionStateControllerTests(TestCase):
             "foo-{missing}",
             "missing",
         )
+
+    @mock.patch("plainbox.impl.ctrl.logger")
+    def test__filter_invalid_log_valid(self, mock_logger):
+        unit_warning = mock.MagicMock(severity=Severity.warning)
+        valid_unit = mock.MagicMock()
+        valid_unit.check.return_value = [unit_warning]
+        kept = CheckBoxSessionStateController._filter_invalid_log(valid_unit)
+
+        self.assertTrue(mock_logger.warning.called)
+        # unit is valid, has to be kept
+        self.assertTrue(kept)
+
+    @mock.patch("plainbox.impl.ctrl.logger")
+    def test__filter_invalid_log_error(self, mock_logger):
+        unit_warning = mock.MagicMock(severity=Severity.warning)
+        unit_error = mock.MagicMock(severity=Severity.error)
+        invalid_unit = mock.MagicMock()
+        invalid_unit.check.return_value = [unit_warning, unit_error]
+        kept = CheckBoxSessionStateController._filter_invalid_log(invalid_unit)
+
+        self.assertTrue(mock_logger.warning.called)
+        # unit contains at least 1 error, it has to be discarded
+        self.assertFalse(kept)
+        # this is dangerous as the invalid unit will be ignored
+        self.assertTrue(mock_logger.critical.called)
+
+    @mock.patch("plainbox.impl.ctrl.logger")
+    def test__filter_invalid_log_error_missing_paramn(self, mock_logger):
+        invalid_unit = mock.MagicMock()
+        invalid_unit.check.side_effect = MissingParam(
+            "template_123", "id", "generated_unit_id{abc}", "abc"
+        )
+        kept = CheckBoxSessionStateController._filter_invalid_log(invalid_unit)
+
+        # unit contains at least 1 error, it has to be discarded
+        self.assertFalse(kept)
+        # this is dangerous as the invalid unit will be ignored
+        self.assertTrue(mock_logger.critical.called)
+
+    @mock.patch("plainbox.impl.ctrl.logger")
+    def test__wrap_invalid_units_valid(self, mock_logger):
+        unit_warning = mock.MagicMock(severity=Severity.warning)
+        valid_unit = mock.MagicMock()
+        valid_unit.check.return_value = [unit_warning]
+        wrapped = CheckBoxSessionStateController._wrap_invalid_units(
+            valid_unit
+        )
+
+        self.assertTrue(mock_logger.warning.called)
+        # unit is valid, has should return the unit unchanged
+        self.assertEqual(wrapped, valid_unit)
+
+    @mock.patch("plainbox.impl.ctrl.logger")
+    def test__wrap_invalid_units_errors(self, mock_logger):
+        unit_warning = mock.MagicMock(severity=Severity.warning)
+        unit_error = mock.MagicMock(severity=Severity.error)
+        invalid_unit = mock.MagicMock()
+        invalid_unit.check.return_value = [unit_warning, unit_error]
+        wrapped = CheckBoxSessionStateController._wrap_invalid_units(
+            invalid_unit
+        )
+
+        self.assertTrue(mock_logger.warning.called)
+        # unit contains at least 1 error, has to be wrapped to make reporting
+        # possible
+        self.assertIsInstance(wrapped, InvalidJob)
+
+    def test__wrap_invalid_units_missing_param(self):
+        invalid_unit = mock.MagicMock()
+        invalid_unit.check.side_effect = MissingParam(
+            "template_123", "id", "generated_unit_id{abc}", "abc"
+        )
+        wrapped = CheckBoxSessionStateController._wrap_invalid_units(
+            invalid_unit
+        )
+
+        # unit contains at least 1 error, it has to be discarded
+        self.assertIsInstance(wrapped, InvalidJob)
 
 
 class FunctionTests(TestCase):

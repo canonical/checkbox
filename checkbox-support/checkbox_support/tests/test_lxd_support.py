@@ -28,7 +28,7 @@ from checkbox_support.lxd_support import LXD, LXDVM
 
 
 @mock_retry()
-@patch("lxd_support.logging")
+@patch("checkbox_support.lxd_support.logging")
 class TestLXD(TestCase):
     """Test cases for LXD instance wrapper."""
 
@@ -38,7 +38,7 @@ class TestLXD(TestCase):
 
     @patch("os.path.isfile", return_value=True)
     @patch(
-        "lxd_support.urlparse",
+        "checkbox_support.lxd_support.urlparse",
         return_value=MagicMock(path="ubuntu.com/template"),
     )
     def test_template_exists(self, urlparse_mock, isfile_mock, logging_mock):
@@ -48,7 +48,7 @@ class TestLXD(TestCase):
     @patch.object(LXD, "download_image")
     @patch("os.path.isfile", return_value=False)
     @patch(
-        "lxd_support.urlparse",
+        "checkbox_support.lxd_support.urlparse",
         return_value=MagicMock(path="ubuntu.com/template"),
     )
     def test_template_download(
@@ -63,7 +63,7 @@ class TestLXD(TestCase):
 
     @patch("os.path.isfile", return_value=True)
     @patch(
-        "lxd_support.urlparse",
+        "checkbox_support.lxd_support.urlparse",
         return_value=MagicMock(path="ubuntu.com/image"),
     )
     def test_image_exists(self, urlparse_mock, isfile_mock, logging_mock):
@@ -73,7 +73,7 @@ class TestLXD(TestCase):
     @patch.object(LXD, "download_image")
     @patch("os.path.isfile", return_value=False)
     @patch(
-        "lxd_support.urlparse",
+        "checkbox_support.lxd_support.urlparse",
         return_value=MagicMock(path="ubuntu.com/image"),
     )
     def test_image_download(
@@ -184,7 +184,7 @@ class TestLXD(TestCase):
         self_mock = MagicMock(template="/tmp/template", image="/tmp/image")
         LXD.insert_images(self_mock)
 
-    @patch("lxd_support.run_with_retry")
+    @patch("checkbox_support.lxd_support.run_with_retry")
     def test_insert_images_remote_success(
         self, logging_mock, run_with_retry_mock
     ):
@@ -195,7 +195,7 @@ class TestLXD(TestCase):
             self.fail("insert_images raised RuntimeError")
 
     @patch(
-        "lxd_support.run_with_retry",
+        "checkbox_support.lxd_support.run_with_retry",
         side_effect=subprocess.CalledProcessError(1, "", ""),
     )
     def test_insert_images_remote_fail(
@@ -279,7 +279,7 @@ class TestLXD(TestCase):
 
 
 @mock_retry()
-@patch("lxd_support.logging")
+@patch("checkbox_support.lxd_support.logging")
 class TestLXDVM(TestCase):
     """Test cases for LXD VM instance wrapper."""
 
@@ -327,7 +327,7 @@ class TestLXDVM(TestCase):
         )
         LXDVM.launch(self_mock, options=["-d root,size=50GB"])
 
-    @patch("lxd_support.super")
+    @patch("checkbox_support.lxd_support.super")
     def test_add_device(self, super_mock, logging_mock):
         self_mock = MagicMock()
         LXDVM.add_device(self_mock, "gpu", "gpu")

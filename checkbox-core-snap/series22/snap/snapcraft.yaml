@@ -258,7 +258,6 @@ parts:
       - bc
       - bluez-tests
       - bonnie++
-      - bpftrace
       - cryptsetup-bin
       - dbus
       - debsums
@@ -328,6 +327,9 @@ parts:
         - python3-rpi.gpio # only in focal
       - on arm64:
         - python3-rpi.gpio # only in focal
+        - bpftrace
+      - on amd64:
+        - bpftrace
     build-packages:
       - libasound2-dev
       - libcap-dev

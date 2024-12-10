@@ -124,6 +124,27 @@ class TestLXD(TestCase):
         except subprocess.CalledProcessError:
             self.fail("run raised CalledProcessError")
 
+    def test_release_argument(self, logging_mock):
+        instance = LXD(release="24.04")
+        self.assertEqual(instance.release, "24.04")
+
+    @patch("distro.version", return_value="24.04")
+    def test_release_host(self, distro_version_mock, logging_mock):
+        instance = LXD()
+        self.assertEqual(instance.release, "24.04")
+
+    @patch("distro.version", side_effect=ImportError)
+    def test_release_host_lsb_release(self, distro_version_mock, logging_mock):
+        instance = LXD()
+        lsb_release_lib = MagicMock()
+        lsb_release_lib.get_distro_information.return_value = {
+            "RELEASE": "24.04"
+        }
+        with patch(
+            "checkbox_support.lxd_support.lsb_release", new=lsb_release_lib
+        ):
+            self.assertEqual(instance.release, "24.04")
+
     @patch("urllib.request.urlretrieve")
     @patch("os.path.isfile", return_value=True)
     def test_download_image_exists(

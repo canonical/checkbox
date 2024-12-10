@@ -50,6 +50,19 @@ except ImportError:
             return res
 
 
+try:
+    lsb_release = None  # Needed for unit tests
+    import distro
+
+    if distro.id() == "ubuntu-core":
+        HOST_RELEASE = "{}.04".format(distro.version())
+    HOST_RELEASE = distro.version()
+except ImportError:
+    import lsb_release  # type: ignore
+
+    HOST_RELEASE = lsb_release.get_distro_information()["RELEASE"]
+
+
 logger = logging.getLogger(__file__)
 logger.addHandler(logging.StreamHandler())
 
@@ -94,20 +107,11 @@ class LXD:
 
     @cached_property
     def release(self) -> str:
-        """Gets the Ubuntu release used."""
-        if self._release:
-            return self._release
+        """Gets the Ubuntu release used.
 
-        try:
-            import distro
-
-            if distro.id() == "ubuntu-core":
-                return "{}.04".format(distro.version())
-            return distro.version()
-        except ImportError:
-            import lsb_release  # type: ignore
-
-            return lsb_release.get_distro_information()["RELEASE"]
+        If a release was not provided, the host release is used.
+        """
+        return self._release or HOST_RELEASE
 
     @retry(5, 2)
     def download_image(self, url, filename):

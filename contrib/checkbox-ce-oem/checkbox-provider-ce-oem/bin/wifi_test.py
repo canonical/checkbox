@@ -101,7 +101,7 @@ class WiFiManager:
                 self.interface,
             )
         )
-        ip_addr = ip_addr.split("/")[0] if id_addr.find("/") != -1 else ""
+        ip_addr = ip_addr.split("/")[0] if ip_addr.find("/") != -1 else ""
         return ip_addr
 
     def up_conn(self):
@@ -136,6 +136,10 @@ class WiFiManager:
         self.init_conn()
         if self.type == "wifi":
             self.set_band_channel()
+        if self.keymgmt is not None:
+            self.set_secured()
+        if not self.up_conn():
+            raise RuntimeError("Connection initialization failed!")
 
     def __exit__(self, exc_type, exc_value, traceback):
         logging.info("Exiting context and cleaning up connection")
@@ -289,10 +293,6 @@ def main():
         args.ssid_pwd,
     )
     with manager:
-        if args.keymgmt is not None:
-            manager.set_secured()
-        if not manager.up_conn():
-            raise RuntimeError("Connection initialization failed!")
         if not args.set_ap_only:
             connect_host_device(
                 manager, args.host_ip, args.host_user, args.host_pwd

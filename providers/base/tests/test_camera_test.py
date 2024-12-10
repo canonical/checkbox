@@ -21,6 +21,7 @@ import textwrap
 import sys
 
 import unittest
+from unittest import mock
 from unittest.mock import patch, MagicMock, call, mock_open
 
 from camera_test import (
@@ -503,7 +504,9 @@ class CameraTestTests(unittest.TestCase):
         self.assertEqual(mock_GLib_timout_add.call_count, 3)
 
         stop_jpeg_pipeline_inserted = False
+        print(mock_GLib_timout_add.call_args_list)
         for mock_timeout_call in mock_GLib_timout_add.call_args_list:
+            print(dir(mock_timeout_call))
             callback = mock_timeout_call.args[1]
             if (
                 hasattr(callback, "__name__")
@@ -511,9 +514,7 @@ class CameraTestTests(unittest.TestCase):
             ):
                 stop_jpeg_pipeline_inserted = True
                 callback()
-                self.assertIsNone(
-                    mock_camera.timeout["stop_jpeg_pipeline"], None
-                )
+                self.assertIsNone(mock_camera.timeout["stop_jpeg_pipeline"])
         self.assertTrue(stop_jpeg_pipeline_inserted)
 
     def test_capture_image_gstreamer_error(self):

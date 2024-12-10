@@ -441,6 +441,7 @@ class CameraTestTests(unittest.TestCase):
             [
                 call("v4l2src", "video-source"),
                 call("capsfilter", "caps"),
+                call('valve', 'photo-valve'),
                 call("jpegenc", "encoder"),
                 call("filesink", "sink"),
             ],
@@ -463,6 +464,7 @@ class CameraTestTests(unittest.TestCase):
                 call("v4l2src", "video-source"),
                 call("capsfilter", "caps"),
                 call("bayer2rgb", "bayer2rgb"),
+                call("valve", "photo-valve"),
                 call("jpegenc", "encoder"),
                 call("filesink", "sink"),
             ],

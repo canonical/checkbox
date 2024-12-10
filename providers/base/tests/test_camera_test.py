@@ -507,14 +507,14 @@ class CameraTestTests(unittest.TestCase):
         open_valve_inserted = False
         for mock_timeout_call in mock_GLib_timout_add.call_args_list:
             callback = mock_timeout_call.args[1]
-            print(str(callback), dir(callback), flush=sys.stderr)
+            print(repr(callback), dir(callback), flush=sys.stderr)
 
-            if "stop_jpeg_pipeline" in str(callback):
+            if "stop_jpeg_pipeline" in repr(callback):
                 stop_jpeg_pipeline_inserted = True
                 callback()
                 self.assertIsNone(mock_camera.timeout["stop_jpeg_pipeline"])
 
-            if "open_valve" in str(callback):
+            if "open_valve" in repr(callback):
                 open_valve_inserted = True
                 callback()
                 self.assertIsNone(mock_camera.timeout["open_valve"])

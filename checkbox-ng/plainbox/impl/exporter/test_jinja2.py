@@ -80,9 +80,7 @@ class Jinja2SessionStateExporterTests(TestCase):
                 origin={
                     "name": "Checkbox",
                     "version": "1.0",
-                    "packaging": {
-                        "type": "source"
-                    }
+                    "packaging": {"type": "source"},
                 },
                 exporter_unit=exporter_unit,
             )
@@ -104,7 +102,14 @@ class Jinja2SessionStateExporterTests(TestCase):
             exporter_unit.data_dir = tmp
             exporter_unit.template = template_filename
             exporter_unit.option_list = ()
-            exporter = Jinja2SessionStateExporter(exporter_unit=exporter_unit)
+            exporter = Jinja2SessionStateExporter(
+                origin={
+                    "name": "Checkbox",
+                    "version": "1.0",
+                    "packaging": {"type": "source"},
+                },
+                exporter_unit=exporter_unit,
+            )
             exporter.validate_json = mock.Mock(return_value=[])
             stream = BytesIO()
             exporter.validate(stream)
@@ -127,11 +132,9 @@ class Jinja2SessionStateExporterTests(TestCase):
                 origin={
                     "name": "Checkbox",
                     "version": "1.0",
-                    "packaging": {
-                        "type": "source"
-                    }
+                    "packaging": {"type": "source"},
                 },
-                exporter_unit=exporter_unit
+                exporter_unit=exporter_unit,
             )
             stream = BytesIO()
             exporter.dump_from_session_manager(self.manager_single_job, stream)
@@ -153,11 +156,9 @@ class Jinja2SessionStateExporterTests(TestCase):
                 origin={
                     "name": "Checkbox",
                     "version": "1.0",
-                    "packaging": {
-                        "type": "source"
-                    }
+                    "packaging": {"type": "source"},
                 },
-                exporter_unit=exporter_unit
+                exporter_unit=exporter_unit,
             )
             stream = BytesIO()
             with self.assertRaises(ExporterError):

@@ -182,9 +182,7 @@ class HTMLExporterTests(TestCase):
             origin={
                 "name": "Checkbox",
                 "version": "1.0",
-                "packaging": {
-                    "type": "source"
-                }
+                "packaging": {"type": "source"},
             },
             exporter_unit=self.exporter_unit,
         )
@@ -212,9 +210,7 @@ class HTMLExporterTests(TestCase):
             origin={
                 "name": "Checkbox",
                 "version": "1.0",
-                "packaging": {
-                    "type": "source"
-                }
+                "packaging": {"type": "source"},
             },
             exporter_unit=self.exporter_unit,
         )

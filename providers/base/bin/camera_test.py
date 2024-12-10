@@ -178,7 +178,7 @@ class CameraTest:
             by the driver, and see if they are valid.
     """
 
-    PHOTO_DELAY_SECONDS = 2
+    DEFAULT_PHOTO_WAIT_SECONDS = 3
 
     def __init__(self, **kwargs):
         self._width = 640
@@ -188,6 +188,9 @@ class CameraTest:
         self.headless = kwargs.get("headless", False)
         self.output = kwargs.get("output", "")
         self.log_level = kwargs.get("log_level", logging.INFO)
+        self.photo_wait_seconds = kwargs.get(
+            "wait_seconds", CameraTest.DEFAULT_PHOTO_WAIT_SECONDS
+        )
 
         self.main_loop = None
         self.pipeline = None
@@ -448,8 +451,7 @@ class CameraTest:
         """
         command = [
             "fswebcam",
-            "-D 1",
-            "-S 50",
+            "-D {}".format(self.photo_wait_seconds),
             "--no-banner",
             "-d",
             self.device,
@@ -517,7 +519,8 @@ class CameraTest:
             pipeline.add(caps)
             rgb_capture = caps
 
-        # Add valve, doc says drop=True is default
+        # Add valve, note that we can't rely on the default value of drop
+        # it varies by installations
         valve = self.Gst.ElementFactory.make("valve", "photo-valve")
         assert valve, "Valve element could not be created"
         valve.set_property("drop", True)
@@ -525,7 +528,7 @@ class CameraTest:
 
         # Add encoder
         encoder = self.Gst.ElementFactory.make("jpegenc", "encoder")
-        # snapshot=True sends a EOS downstream 
+        # snapshot=True sends a EOS downstream
         # when the first buffer reaches jpegenc
         encoder.set_property("snapshot", True)
         pipeline.add(encoder)
@@ -554,8 +557,7 @@ class CameraTest:
         # Add a global timeout of 90 seconds to capture the image
         self.timeout = self.GLib.timeout_add_seconds(90, self._on_timeout)
         self.GLib.timeout_add_seconds(
-            self.PHOTO_DELAY_SECONDS,
-            lambda: valve.set_property("drop", False)
+            self.photo_wait_seconds, lambda: valve.set_property("drop", False)
         )
 
         # Start the main loop. If the loop finishes successfully, we will
@@ -941,6 +943,18 @@ def parse_arguments(argv):
         "--headless",
         action="store_true",
         help=("Don't display picture, just write the picture to a file"),
+    )
+    image_parser.add_argument(
+        "-ws",
+        "--wait-seconds",
+        type=int,
+        default=CameraTest.DEFAULT_PHOTO_WAIT_SECONDS,
+        help=(
+            "The number of seconds to keep the camera open "
+            "before taking the picture. Default = {} seconds".format(
+                CameraTest.DEFAULT_PHOTO_WAIT_SECONDS
+            )
+        ),
     )
 
     # Resolutions subparser

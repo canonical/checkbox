@@ -56,7 +56,7 @@ class WiFiManager:
                     self.mode,
                 )
             )
-        if self.type == "wifi-p2p":
+        elif self.type == "wifi-p2p":
             run_command(
                 "{} c add type {} ifname {} con-name {} \
                     wifi-p2p.peer {}".format(
@@ -67,6 +67,8 @@ class WiFiManager:
                     self.peer,
                 )
             )
+        else:
+            raise ValueError("Unsupported type: {}".format(self.type))
 
     def set_band_channel(self):
         run_command(

@@ -416,7 +416,13 @@ class CameraTest:
         """
         Captures an image to a file
         """
-        pixelformat = self._get_default_format()["pixelformat"]
+        default_format = self._get_default_format()
+        pixelformat = default_format["pixelformat"]
+        assert (
+            len(default_format["resolutions"]) > 0
+        ), "No default resolution was found"
+        # list[(int, int)]
+        self._width, self._height = default_format["resolutions"][0] 
         if self.output:
             self._capture_image(
                 self.output, self._width, self._height, pixelformat

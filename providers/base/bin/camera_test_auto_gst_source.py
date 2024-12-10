@@ -204,12 +204,15 @@ def run_pipeline(
         eos_handled = pipeline.send_event(Gst.Event.new_eos())
 
         if not eos_handled:
-            logging.error(
-                "EOS was not handled by the pipeline. "
-                "Forcefully setting the state to NULL."
-            )
-            pipeline.set_state(Gst.State.NULL)
+            logging.error("EOS was not handled by the pipeline. ")
 
+        bus = pipeline.get_bus()
+        assert bus
+        # at this point the previous signal_watch can be overriden
+        # (we are in the handler)
+        bus.add_signal_watch()
+        bus.timed_pop_filtered(Gst.CLOCK_TIME_NONE, Gst.MessageType.EOS)
+        pipeline.set_state(Gst.State.NULL)
         main_loop.quit()
 
     start()
@@ -491,7 +494,6 @@ def main():
     seconds_per_pipeline = (
         args.wait_seconds if args.subcommand == "take-photo" else args.seconds
     )
-    sleep_sec = 3
     logging.info("Found {} cameras!".format(len(devices)))
     print(
         '[ HINT ] For debugging, remove the "valve" element to get a pipeline',
@@ -506,7 +508,7 @@ def main():
         all_fixed_caps = get_all_fixated_caps(device.get_caps())
         logging.info(
             "Test for this device may take {} seconds.".format(
-                len(all_fixed_caps) * (seconds_per_pipeline + sleep_sec)
+                len(all_fixed_caps) * seconds_per_pipeline
             )
         )
         for cap_i, capability in enumerate(all_fixed_caps):
@@ -534,14 +536,6 @@ def main():
                     caps=capability,
                     record_n_seconds=args.seconds,
                 )
-
-            logging.info(
-                "Sleep {} seconds to release current device pipeline ".format(
-                    sleep_sec
-                )
-                + '"{}"'.format(elem_to_str(dev_element)),
-            )
-            time.sleep(sleep_sec)
 
     logging.info("[ OK ] All done!")
 

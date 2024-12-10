@@ -276,22 +276,23 @@ requires:
 unit: template
 template-resource: device
 template-filter: device.category == 'BLUETOOTH'
+template-engine: jinja2
 template-unit: job
-id: bluetooth4/beacon_eddystone_url_{interface}
+id: bluetooth4/beacon_eddystone_url_{{ interface }}
 template-id: bluetooth4/beacon_eddystone_url_interface
-_summary: Test system can get beacon EddyStone URL advertisements on the {interface} adapter
+_summary: Test system can get beacon EddyStone URL advertisements on the {{ interface }} adapter
 command:
- checkbox-support-eddystone_scanner -D {interface}
+ checkbox-support-eddystone_scanner -D {{ interface }}
 plugin: shell
 user: root
 flags: also-after-suspend
 category_id: com.canonical.plainbox::bluetooth
 estimated_duration: 10
 requires:
-  package.name == 'bluez' or snap.name == 'bluez'
-  {%- if __on_ubuntucore__ %}
-  connections.slot == 'bluez:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:bluez'
-  {% endif -%}
+ package.name == 'bluez' or snap.name == 'bluez'
+ {%- if __on_ubuntucore__ %}
+ connections.slot == 'bluez:service' and connections.plug == '{{ __system_env__["SNAP_NAME"] }}:bluez'
+ {% endif -%}
 
 unit: template
 template-resource: bluez-internal-rfcomm-tests

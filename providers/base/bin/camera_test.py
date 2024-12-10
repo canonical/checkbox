@@ -548,6 +548,11 @@ class CameraTest:
         source.link(caps)
         rgb_capture.link(valve)
 
+        # Add sink
+        sink = self.Gst.ElementFactory.make("filesink", "sink")
+        sink.set_property("location", filename)
+        pipeline.add(sink)
+
         if pixelformat == "MJPG":
 
             def stop_jpeg_pipeline():
@@ -570,11 +575,6 @@ class CameraTest:
             pipeline.add(encoder)
             valve.link(encoder)
             encoder.link(sink)
-
-        # Add sink
-        sink = self.Gst.ElementFactory.make("filesink", "sink")
-        sink.set_property("location", filename)
-        pipeline.add(sink)
 
         # source ! rgbcapture ! valve ! encoder ! filesink
 

@@ -442,14 +442,14 @@ class CameraTestTests(unittest.TestCase):
         )
         make_calls = mock_make.call_args_list
         print(make_calls, flush=sys.stderr)
-        self.assertEqual(
+        self.assertListEqual(
             make_calls,
             [
                 call("v4l2src", "video-source"),
                 call("capsfilter", "caps"),
                 call("valve", "photo-valve"),
+                call("filesink", "sink"),  # this gets created earlier
                 call("jpegenc", "encoder"),
-                call("filesink", "sink"),
             ],
         )
         mock_camera.pipeline.set_state.assert_has_calls([call("playing")])
@@ -472,8 +472,8 @@ class CameraTestTests(unittest.TestCase):
                 call("capsfilter", "caps"),
                 call("bayer2rgb", "bayer2rgb"),
                 call("valve", "photo-valve"),
-                call("jpegenc", "encoder"),
                 call("filesink", "sink"),
+                call("jpegenc", "encoder"),
             ],
         )
 

@@ -441,6 +441,36 @@ class CheckBoxSessionStateControllerTests(TestCase):
         )
 
     @mock.patch("plainbox.impl.ctrl.logger")
+    def test_observe_result__missing_resource_key_invalid_units(
+        self, mock_logger
+    ):
+        job = make_job("R", plugin="resource")
+        template = TemplateUnit(
+            {
+                "template-resource": job.id,
+                "id": "foo-{missing}",
+                "plugin": "shell",
+            }
+        )
+        result = mock.Mock(spec=IJobResult, outcome=IJobResult.OUTCOME_PASS)
+        result.get_io_log.return_value = [
+            (0, "stdout", b"attr: value1\n"),
+            (0, "stdout", b"\n"),
+            (0, "stdout", b"attr: value2\n"),
+        ]
+        session_state = SessionState([template, job])
+        session_state.metadata.flags.add(
+            session_state.metadata.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION
+        )
+        self.ctrl.observe_result(session_state, job, result)
+
+        job_ids = set(session_state.job_state_map.keys())
+        job_ids.remove("R")
+        # 2 resource outputs will generate 2 jobs
+        self.assertEqual(len(job_ids), 2)
+        self.assertTrue(all(job_id.startswith("foo-") for job_id in job_ids))
+
+    @mock.patch("plainbox.impl.ctrl.logger")
     def test__filter_invalid_log_valid(self, mock_logger):
         unit_warning = mock.MagicMock(severity=Severity.warning)
         valid_unit = mock.MagicMock()

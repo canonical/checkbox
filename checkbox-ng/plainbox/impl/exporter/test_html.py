@@ -179,6 +179,11 @@ class HTMLExporterTests(TestCase):
             system_id="",
             timestamp="2012-12-21T12:00:00",
             client_version="Checkbox 1.0",
+            origin={
+                "name": "Checkbox",
+                "version": "1.0",
+                "packaging": {"type": "source"},
+            },
             exporter_unit=self.exporter_unit,
         )
         stream = io.BytesIO()
@@ -202,6 +207,11 @@ class HTMLExporterTests(TestCase):
             system_id="",
             timestamp="2012-12-21T12:00:00",
             client_version="Checkbox 1.0",
+            origin={
+                "name": "Checkbox",
+                "version": "1.0",
+                "packaging": {"type": "source"},
+            },
             exporter_unit=self.exporter_unit,
         )
         stream = io.BytesIO()

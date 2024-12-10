@@ -54,3 +54,50 @@ def get_version_string():
     else:
         version_string = "{} {}".format("Checkbox", __version__)
     return version_string
+
+
+def get_origin():
+    """
+    Return a dictionary containing information such as the version and what
+    packaging method is being used (Python virtual environment, Snap or
+    Debian).
+    """
+    import os
+    import subprocess
+
+    if os.getenv("SNAP_NAME"):
+        origin = {
+            "name": "Checkbox",
+            "version": __version__,
+            "packaging": {
+                "type": "snap",
+                "name": os.getenv("SNAP_NAME"),
+                "version": os.getenv("SNAP_VERSION"),
+                "revision": os.getenv("SNAP_REVISION"),
+            },
+        }
+    elif os.getenv("VIRTUAL_ENV"):
+        origin = {
+            "name": "Checkbox",
+            "version": __version__,
+            "packaging": {
+                "type": "source",
+                "version": __version__,
+            },
+        }
+    else:
+        dpkg_info = subprocess.check_output(
+            ["dpkg", "-S", __path__[0]], universal_newlines=True
+        )
+        # 'python3-checkbox-ng: /usr/lib/python3/dist-packages/plainbox\n'
+        package_name = dpkg_info.split(":")[0]
+        origin = {
+            "name": "Checkbox",
+            "version": __version__,
+            "packaging": {
+                "type": "debian",
+                "name": package_name,
+                "version": __version__,
+            },
+        }
+    return origin

@@ -335,6 +335,7 @@ class CameraTestTests(unittest.TestCase):
 
     def test_setup_video_gstreamer_error(self):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_camera.GLib.Error = Exception
         mock_camera.GLib.MainLoop.return_value.run.side_effect = Exception()
         mock_camera.Gst.State.NULL = "null"
@@ -400,6 +401,7 @@ class CameraTestTests(unittest.TestCase):
     @patch("os.path.getsize")
     def test_capture_image_fswebcam(self, mock_get_size, mock_check_call):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_get_size.return_value = 1
         result = CameraTest._capture_image_fswebcam(
             mock_camera, "/tmp/test.jpg", 640, 480, "MJPG"
@@ -411,6 +413,7 @@ class CameraTestTests(unittest.TestCase):
     @patch("os.path.getsize")
     def test_capture_image_fswebcam_empty(self, mock_get_size):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_get_size.return_value = 0
         result = CameraTest._capture_image_fswebcam(
             mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
@@ -420,6 +423,7 @@ class CameraTestTests(unittest.TestCase):
     @patch("camera_test.check_call")
     def test_capture_image_fswebcam_error(self, mock_check_call):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_check_call.return_value = OSError()
         result = CameraTest._capture_image_fswebcam(
             mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
@@ -428,6 +432,7 @@ class CameraTestTests(unittest.TestCase):
 
     def test_capture_image_gstreamer(self):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_make = mock_camera.Gst.ElementFactory.make
         mock_camera.Gst.State.PLAYING = "playing"
 
@@ -451,6 +456,7 @@ class CameraTestTests(unittest.TestCase):
 
     def test_capture_image_gstreamer_bayer(self):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_make = mock_camera.Gst.ElementFactory.make
 
         CameraTest._capture_image_gstreamer(
@@ -472,6 +478,7 @@ class CameraTestTests(unittest.TestCase):
 
     def test_capture_image_gstreamer_error(self):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_camera.GLib.Error = Exception
         mock_camera.GLib.MainLoop.return_value.run.side_effect = Exception()
         mock_camera.Gst.State.NULL = "null"
@@ -482,8 +489,9 @@ class CameraTestTests(unittest.TestCase):
         self.assertEqual(mock_camera.main_loop.run.call_count, 1)
         mock_camera.pipeline.set_state.assert_called_with("null")
 
-    def test_capture_image_gstreamer_remove_timepout(self):
+    def test_capture_image_gstreamer_remove_timeout(self):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_camera.GLib.timeout_add_seconds.return_value = "timeout"
         CameraTest._capture_image_gstreamer(
             mock_camera, "/tmp/test.jpg", 640, 480, "RG10"

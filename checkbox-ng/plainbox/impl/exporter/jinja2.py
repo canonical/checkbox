@@ -94,6 +94,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         timestamp=None,
         client_version=None,
         client_name="plainbox",
+        origin=None,
         exporter_unit=None,
     ):
         """
@@ -110,6 +111,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         self._client_version = client_version or get_version_string()
         # Remember client name
         self._client_name = client_name
+        self._origin = origin or get_origin()
 
         self.option_list = None
         self.template = None
@@ -196,7 +198,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             "OUTCOME_METADATA_MAP": OUTCOME_METADATA_MAP,
             "client_name": self._client_name,
             "client_version": self._client_version,
-            "origin": get_origin(),
+            "origin": self._origin,
             "manager": session_manager,
             "app_blob": app_blob_data,
             "options": self.option_list,
@@ -222,7 +224,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
             "OUTCOME_METADATA_MAP": OUTCOME_METADATA_MAP,
             "client_name": self._client_name,
             "client_version": self._client_version,
-            "origin": get_origin(),
+            "origin": self._origin,
             "manager_list": session_manager_list,
             "app_blob": {},
             "options": self.option_list,

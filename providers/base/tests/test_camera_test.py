@@ -504,9 +504,9 @@ class CameraTestTests(unittest.TestCase):
         self.assertEqual(mock_GLib_timout_add.call_count, 3)
 
         stop_jpeg_pipeline_inserted = False
-        print(mock_GLib_timout_add.call_args_list)
+        print(mock_GLib_timout_add.call_args_list, flush=sys.stderr)
         for mock_timeout_call in mock_GLib_timout_add.call_args_list:
-            print(dir(mock_timeout_call))
+            print(dir(mock_timeout_call), flush=sys.stderr)
             callback = mock_timeout_call.args[1]
             if (
                 hasattr(callback, "__name__")

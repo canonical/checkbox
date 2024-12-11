@@ -217,9 +217,6 @@ def run_pipeline(
         if pipeline.ref_count > 1:
             pipeline.unref()
 
-    start()
-    logger.info(f"[ OK ] Pipeline is playing!")
-
     for delay, call in intermediate_calls:
         assert run_n_seconds == -1 or delay < run_n_seconds, (
             "Delay for each call must be smaller than total run seconds, "
@@ -240,6 +237,8 @@ def run_pipeline(
     else:
         GLib.timeout_add_seconds(run_n_seconds, graceful_quit)
 
+    start()
+    logger.info(f"[ OK ] Pipeline is playing!")
     main_loop.run()
 
 

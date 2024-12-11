@@ -19,6 +19,7 @@
 from unittest import TestCase, mock
 
 import os
+
 import plainbox
 
 
@@ -41,3 +42,11 @@ class PlainboxInitTests(TestCase):
         )
         origin = plainbox.get_origin()
         self.assertEqual(origin["packaging"]["type"], "debian")
+        self.assertEqual(origin["packaging"]["name"], "python3-checkbox-ng")
+
+    @mock.patch.dict(os.environ, {}, clear=True)
+    @mock.patch("subprocess.check_output")
+    def test_get_origin_exception(self, mock_sp_check_output):
+        mock_sp_check_output.side_effect = FileNotFoundError
+        origin = plainbox.get_origin()
+        self.assertEqual(origin["packaging"]["type"], "unknown")

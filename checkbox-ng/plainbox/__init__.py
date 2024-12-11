@@ -86,18 +86,30 @@ def get_origin():
             },
         }
     else:
-        dpkg_info = subprocess.check_output(
-            ["dpkg", "-S", __path__[0]], universal_newlines=True
-        )
-        # 'python3-checkbox-ng: /usr/lib/python3/dist-packages/plainbox\n'
-        package_name = dpkg_info.split(":")[0]
-        origin = {
-            "name": "Checkbox",
-            "version": __version__,
-            "packaging": {
-                "type": "debian",
-                "name": package_name,
+        try:
+            dpkg_info = subprocess.check_output(
+                ["dpkg", "-S", __path__[0]], universal_newlines=True
+            )
+            # 'python3-checkbox-ng: /usr/lib/python3/dist-packages/plainbox\n'
+            package_name = dpkg_info.split(":")[0]
+            origin = {
+                "name": "Checkbox",
                 "version": __version__,
-            },
-        }
+                "packaging": {
+                    "type": "debian",
+                    "name": package_name,
+                    "version": __version__,
+                },
+            }
+        # if all of the above failed and dpkg is not available on the system...
+        except FileNotFoundError:
+            origin = {
+                "name": "Checkbox",
+                "version": __version__,
+                "packaging": {
+                    "type": "unknown",
+                    "name": "unknown",
+                    "version": "unknown",
+                },
+            }
     return origin

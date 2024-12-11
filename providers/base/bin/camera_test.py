@@ -557,7 +557,7 @@ class CameraTest:
 
             def stop_jpeg_pipeline():
                 self.timeout["stop_jpeg_pipeline"] = None
-                self._stop_pipeline()
+                self.pipeline.send_event(self.Gst.Event.new_eos())
 
             # cannot use jpegenc here, so we directly link to the sink
             # give it 1 extra second in case MainLoop checks this timeout first
@@ -569,9 +569,6 @@ class CameraTest:
         else:
             # Add encoder
             encoder = self.Gst.ElementFactory.make("jpegenc", "encoder")
-            # snapshot=True sends a EOS downstream
-            # when the first buffer reaches jpegenc
-            encoder.set_property("snapshot", True)
             pipeline.add(encoder)
             valve.link(encoder)
             encoder.link(sink)
@@ -592,9 +589,9 @@ class CameraTest:
             90, self._on_timeout
         )
         if self.photo_wait_seconds > 0:
-
             def open_valve():
                 self.timeout["open_valve"] = None
+                print("Opening valve!")
                 valve.set_property("drop", False)
 
             self.timeout["open_valve"] = self.GLib.timeout_add_seconds(

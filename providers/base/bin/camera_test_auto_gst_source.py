@@ -30,13 +30,6 @@ gi.require_version("GLib", "2.0")
 from gi.repository import GLib  # type: ignore
 
 
-Gst.init(None)
-Gtk.init([])
-main_loop = GLib.MainLoop.new(  # type: GLib.MainLoop
-    None, False  # type: ignore
-)
-
-
 def get_devices() -> T.List[Gst.Device]:
     monitor = Gst.DeviceMonitor.new()  # type: Gst.DeviceMonitor
     monitor.add_filter("Video/Source")
@@ -181,6 +174,9 @@ def run_pipeline(
     """
     bus = pipeline.get_bus()
     assert bus
+    main_loop = GLib.MainLoop.new(  # type: GLib.MainLoop
+        None, False  # type: ignore
+    )
 
     # pipeline needs to start within 5 seconds
     def start():
@@ -212,7 +208,8 @@ def run_pipeline(
         logger.debug("Setting state to NULL.")
         pipeline.set_state(Gst.State.NULL)
         main_loop.quit()
-        # Must explicitly unref, otherwise source is never released
+        # Must explicitly unref if ref_count is somehow not 1,
+        # otherwise source is never released
         # not sure why graceful_quit doesn't need this
         if pipeline.ref_count > 1:
             pipeline.unref()
@@ -309,7 +306,7 @@ def take_photo(
         "decodebin",  # 1
         "videoconvert name=converter",  # 2
         "valve name=photo-valve drop=True",  # 4
-        "jpegenc snapshot=True",  # 3
+        "jpegenc",  # 3
         "filesink location={}".format(file_path),  # 5
     ]
     head_elem_name = "source-caps"
@@ -533,7 +530,11 @@ if __name__ == "__main__":
     old_env = os.environ.get("GST_DEBUG", None)
     os.environ["GST_DEBUG"] = "3"  # error and warnings
 
+    Gst.init(None)
+    Gtk.init([])
     main()
 
     if old_env:
         os.environ["GST_DEBUG"] = old_env
+    else:
+        del os.environ["GST_DEBUG"]

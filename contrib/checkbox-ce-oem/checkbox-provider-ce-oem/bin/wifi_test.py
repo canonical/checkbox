@@ -56,6 +56,9 @@ class WiFiManager:
                     self.mode,
                 )
             )
+            self.set_band_channel()
+            if self.keymgmt is not None:
+                self.set_secured()
         elif self.type == "wifi-p2p":
             run_command(
                 "{} c add type {} ifname {} con-name {} \
@@ -134,10 +137,6 @@ class WiFiManager:
 
     def __enter__(self):
         self.init_conn()
-        if self.type == "wifi":
-            self.set_band_channel()
-        if self.keymgmt is not None:
-            self.set_secured()
         if not self.up_conn():
             raise RuntimeError("Connection initialization failed!")
 

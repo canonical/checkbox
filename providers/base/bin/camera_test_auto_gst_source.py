@@ -561,7 +561,7 @@ def main():
         dev_element = device.create_element()
         all_fixed_caps = get_all_fixated_caps(device.get_caps())
 
-        logging.info("Testing device {}/{}", dev_i + 1, len(devices))
+        logging.info("Testing device {}/{}".format(dev_i + 1, len(devices)))
         logging.info(
             "Test for this device may take {} seconds for {} caps.".format(
                 len(all_fixed_caps) * seconds_per_pipeline, len(all_fixed_caps)

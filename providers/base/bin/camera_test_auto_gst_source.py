@@ -64,11 +64,6 @@ def validate_video_info(
 
     all_passed = True
 
-    print(
-        duration,
-        expected_duration_seconds * 10**9,
-        duration - expected_duration_seconds * 10**9,
-    )
     if (
         abs(duration - expected_duration_seconds * 10**9)
         > duration_tolerance_seconds * 10**9

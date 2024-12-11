@@ -213,53 +213,65 @@ def ping_test(manager, ip, user, pwd):
 
 def main():
     parser = argparse.ArgumentParser(description="WiFi test")
-
-    parser.add_argument(
-        "--type", required=True, default="wifi", help="Connection type."
+    subparsers = parser.add_subparsers(
+        dest="type",
+        required=True,
+        help="Type of connection. " 'Currentlly support "wifi" and "wifi-p2p"',
     )
-    parser.add_argument(
+    # Subparser for 'wifi'
+    wifi_parser = subparsers.add_parser("wifi", help="WiFi configuration")
+    wifi_parser.add_argument(
         "--mode",
         choices=["ap", "adhoc"],
-        required=False,
+        required=True,
         help="WiFi mode: ap or adhoc",
     )
-    parser.add_argument(
-        "--interface", required=True, help="WiFi interface to use"
+    wifi_parser.add_argument("--band", required=True, help="WiFi band to use")
+    wifi_parser.add_argument(
+        "--channel", required=True, help="WiFi channel to use"
     )
-    parser.add_argument("--band", required=True, help="WiFi band to use")
-    parser.add_argument("--channel", required=True, help="WiFi channel to use")
-    parser.add_argument(
+    wifi_parser.add_argument(
         "--keymgmt", required=False, help="Key management method"
     )
-    parser.add_argument(
+    wifi_parser.add_argument(
         "--group", required=False, help="Group key management method"
     )
-    parser.add_argument(
+    wifi_parser.add_argument(
         "--ssid",
         default="".join(
-            [random.choice(string.ascii_letters) for i in range(10)]
+            [random.choice(string.ascii_letters) for _ in range(10)]
         ),
         required=False,
         help="SSID for AP mode",
     )
-    parser.add_argument("--ssid-pwd", required=False, help="Password for SSID")
+    wifi_parser.add_argument(
+        "--ssid-pwd", required=False, help="Password for SSID"
+    )
+
+    # Subparser for 'wifi-p2p'
+    wifi_p2p_parser = subparsers.add_parser(
+        "wifi-p2p", help="WiFi P2P configuration"
+    )
+    wifi_p2p_parser.add_argument(
+        "--peer", required=True, help="MAC address for P2P peer"
+    )
     parser.add_argument(
-        "--peer", required=False, help="MAC address for p2p peer"
+        "--interface", required=True, help="WiFi interface to use"
     )
     parser.add_argument(
         "--host-ip",
-        required=False,
-        help="IP address of the Host device to connect to"
-        "The HOST is a device to access the DUT' AP.",
+        required=True,
+        help="IP address of the Host device to connect to."
+        "The HOST is a device to access the DUT's AP.",
     )
     parser.add_argument(
         "--host-user",
-        required=False,
+        required=True,
         help="Username of the Host device for SSH connection",
     )
     parser.add_argument(
         "--host-pwd",
-        required=False,
+        required=True,
         help="Password of the Host device for SSH connection",
     )
 
@@ -282,7 +294,6 @@ def main():
             manager, args.host_ip, args.host_user, args.host_pwd
         )
         ping_test(manager, args.host_ip, args.host_user, args.host_pwd)
-
 
 
 if __name__ == "__main__":

@@ -41,7 +41,7 @@ requires:
 estimated_duration: 120.0
 flags: preserve-locale also-after-suspend
 command:
-   wifi_test.py --type wifi --mode ap --interface {interface} --band {band} --channel {channel} --host-ip "$WIFI_AP_HOST_DEVICE_IP" --host-user "$WIFI_AP_HOST_DEVICE_USER" --host-pwd "$WIFI_AP_HOST_DEVICE_PWD"
+   wifi_test.py wifi --mode ap --interface {interface} --band {band} --channel {channel} --host-ip "$WIFI_AP_HOST_DEVICE_IP" --host-user "$WIFI_AP_HOST_DEVICE_USER" --host-pwd "$WIFI_AP_HOST_DEVICE_PWD"
 
 unit: template
 template-resource: ce_oem_wifi_ap_mode
@@ -64,4 +64,4 @@ requires:
 estimated_duration: 120.0
 flags: preserve-locale also-after-suspend
 command:
-   wifi_test.py --type wifi --mode ap --interface {interface} --band {band} --channel {channel} --keymgmt {key_mgmt} --group {group} --host-ip "$WIFI_AP_HOST_DEVICE_IP" --host-user "$WIFI_AP_HOST_DEVICE_USER" --host-pwd "$WIFI_AP_HOST_DEVICE_PWD"
+   wifi_test.py wifi --mode ap --interface {interface} --band {band} --channel {channel} --keymgmt {key_mgmt} --group {group} --host-ip "$WIFI_AP_HOST_DEVICE_IP" --host-user "$WIFI_AP_HOST_DEVICE_USER" --host-pwd "$WIFI_AP_HOST_DEVICE_PWD"

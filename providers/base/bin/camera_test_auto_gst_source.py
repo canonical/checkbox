@@ -97,13 +97,13 @@ def validate_video_info(
     return all_passed
 
 
-def get_all_fixated_caps(caps: Gst.Caps) -> T.List[Gst.Caps]:
+def get_all_fixated_caps(caps: Gst.Caps, maximum=100) -> T.List[Gst.Caps]:
     """Gets all the fixated(1 value per property) caps from a Gst.Caps object
 
     :param caps: A mixed Gst.Caps
     """
     fixed_caps = []
-    while not caps.is_fixed():
+    while not caps.is_fixed() and len(fixed_caps) < maximum:
         # keep fixating it until it's fixed
         fixed_cap = caps.fixate()
         fixed_caps.append(fixed_cap)
@@ -476,7 +476,6 @@ def record_video(
             str_elements[1] = ""
     else:
         # decodebin doesn't work with video/x-raw
-        # videorate doesn't work if source-caps was not created
         str_elements[0] = str_elements[1] = ""
         head_elem_name = "converter"
 
@@ -566,11 +565,14 @@ def main():
     for dev_i, device in enumerate(devices):
         dev_element = device.create_element()
         all_fixed_caps = get_all_fixated_caps(device.get_caps())
+
+        logging.info("Testing device {}/{}", dev_i + 1, len(devices))
         logging.info(
-            "---- Test for this device may take {} seconds for {} caps. ----".format(
+            "Test for this device may take {} seconds for {} caps.".format(
                 len(all_fixed_caps) * seconds_per_pipeline, len(all_fixed_caps)
             )
         )
+
         for cap_i, capability in enumerate(all_fixed_caps):
             cap_struct = capability.get_structure(0)
             if args.subcommand == "take-photo":

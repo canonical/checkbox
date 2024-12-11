@@ -70,7 +70,7 @@ class Scenario:
         self.agent_machine = None
         self.agent_revision = agent_revision
         self.start_session = True
-        self._failures = []
+        self.failures = []
         self._ret_code = None
         self._stdout = ""
         self._stderr = ""
@@ -81,10 +81,6 @@ class Scenario:
         if self._pts:
             return self._pts.stdout_data_full
         return self._outstr_full
-
-    def has_passed(self):
-        """Check whether all the assertions passed."""
-        return all(self._checks)
 
     def run(self):
         # Simple scenarios don't need to specify a START step
@@ -109,11 +105,11 @@ class Scenario:
                         break
                 step.kwargs["interactive"] = interactive
             try:
-                res = step(self)
-                if res is None:
-                    res = True
+                # step that fail explicitly return false or raise an exception
+                if step(self) not in [True, None]:
+                    self.failures.append(step)
             except (TimeoutError, ConnectionError):
-                self._checks.append(False)
+                self.failures.append(step)
                 break
         if self._pts:
             self._stdout = self._pts.stdout_data_full
@@ -128,7 +124,6 @@ class Scenario:
         self._stderr = stderr
         self._outstr_full = outstr_full
 
-    # TODO: add storing of what actually failed in the assert methods
     def assert_printed(self, pattern):
         """
         Check if during Checkbox execution a line produced that matches the

@@ -262,20 +262,8 @@ def main():
         required=False,
         help="Password of the Host device for SSH connection",
     )
-    parser.add_argument(
-        "--set-ap-only",
-        action="store_true",
-        help="Setup DUT's AP mode only. Mostly use for debugging.",
-    )
 
     args = parser.parse_args()
-
-    if not args.set_ap_only:
-        if not args.host_ip or not args.host_user or not args.host_pwd:
-            parser.error(
-                "--host-ip, --host-user, and --host-pwd are required, "
-                "if you are intend to execute auto test."
-            )
 
     manager = WiFiManager(
         args.interface,
@@ -290,13 +278,11 @@ def main():
         args.ssid_pwd,
     )
     with manager:
-        if not args.set_ap_only:
-            connect_host_device(
-                manager, args.host_ip, args.host_user, args.host_pwd
-            )
-            ping_test(manager, args.host_ip, args.host_user, args.host_pwd)
-        else:
-            input("Press Enter to exit after test finished...")
+        connect_host_device(
+            manager, args.host_ip, args.host_user, args.host_pwd
+        )
+        ping_test(manager, args.host_ip, args.host_user, args.host_pwd)
+
 
 
 if __name__ == "__main__":

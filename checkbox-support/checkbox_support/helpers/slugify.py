@@ -18,6 +18,7 @@
 
 import string
 
+
 def slugify(_string):
     """Transform any string to one that can be used in filenames."""
     valid_chars = frozenset(

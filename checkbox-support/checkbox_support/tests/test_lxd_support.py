@@ -78,11 +78,6 @@ class TestLXD(TestCase):
         self.assertEqual(lxd.release, "24.04")
 
     @patch("checkbox_support.lxd_support.distro.id", side_effect=ImportError)
-    def test_release_host_lsb_release(self, logging_mock):
-        lxd = LXD()
-        self.assertEqual(lxd.release, "24.04")
-
-    @patch("checkbox_support.lxd_support.distro.id", side_effect=ImportError)
     def test_release_host_lsb_release(self, distro_id_mock, logging_mock):
         lsb_release_lib = MagicMock()
         lsb_release_lib.get_distro_information.return_value = {

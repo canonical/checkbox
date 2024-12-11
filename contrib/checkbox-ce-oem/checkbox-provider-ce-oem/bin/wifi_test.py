@@ -1,4 +1,20 @@
 #!/usr/bin/env python3
+"""
+    This script base on network-manager. And network-manager has it own
+    limitation about wifi ap mode and wifi-p2p.
+    For wifi ap mode:
+        Only band a and bg are supported
+
+    For wifi-p2p:
+        We are not able to validate the result even following the user
+        manual of network-manager.
+
+    Please refer to following for more details:
+    [1] https://networkmanager.dev/docs/api/latest/nm-settings-nmcli.html
+    [2] https://netplan.readthedocs.io/en/stable/netplan-yaml
+    [3] https://bugs.launchpad.net/carmel/+bug/2080353/comments/2
+
+"""
 import argparse
 import subprocess
 import sys

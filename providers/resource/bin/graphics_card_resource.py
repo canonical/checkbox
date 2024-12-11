@@ -26,6 +26,7 @@ import re
 
 from checkbox_support.helpers.slugify import slugify
 
+
 def get_ubuntu_version():
     """Get Ubuntu release version for checking."""
     try:

@@ -70,7 +70,7 @@ class Scenario:
         self.agent_machine = None
         self.agent_revision = agent_revision
         self.start_session = True
-        self._checks = []
+        self._failures = []
         self._ret_code = None
         self._stdout = ""
         self._stderr = ""
@@ -109,7 +109,9 @@ class Scenario:
                         break
                 step.kwargs["interactive"] = interactive
             try:
-                step(self)
+                res = step(self)
+                if res is None:
+                    res = True
             except (TimeoutError, ConnectionError):
                 self._checks.append(False)
                 break
@@ -134,9 +136,8 @@ class Scenario:
         :param patter: regular expresion to check against the lines.
         """
         regex = re.compile(pattern)
-        self._checks.append(
-            bool(regex.search(self._stdout))
-            or bool(regex.search(self._stderr))
+        return bool(regex.search(self._stdout)) or bool(
+            regex.search(self._stderr)
         )
 
     def assert_not_printed(self, pattern):
@@ -150,20 +151,20 @@ class Scenario:
             found = regex.search(self._pts.stdout_data_full)
         else:
             found = regex.search(self._stdout) or regex.search(self._stderr)
-        self._checks.append(not found)
+        return not found
 
     def assert_ret_code(self, code):
         """Check if Checkbox returned given code."""
-        self._checks.append(code == self._ret_code)
+        return code == self._ret_code
 
     def assertIn(self, member, container):
-        self._checks.append(member in container)
+        return member in container
 
     def assertEqual(self, first, second):
-        self._checks.append(first == second)
+        return first == second
 
     def assertNotEqual(self, first, second):
-        self._checks.append(first != second)
+        return first != second
 
     def start(self, cmd="", interactive=False, timeout=0):
         if self.mode == "remote":
@@ -214,12 +215,12 @@ class Scenario:
     def expect(self, data, timeout=60):
         assert self._pts is not None
         outcome = self._pts.expect(data, timeout)
-        self._checks.append(outcome)
+        return outcome
 
     def expect_not(self, data, timeout=60):
         assert self._pts is not None
         outcome = self._pts.expect_not(data, timeout)
-        self._checks.append(outcome)
+        return outcome
 
     def send(self, data):
         assert self._pts is not None
@@ -235,7 +236,7 @@ class Scenario:
     def select_test_plan(self, testplan_id, timeout=60):
         assert self._pts is not None
         outcome = self._pts.select_test_plan(testplan_id, timeout)
-        self._checks.append(outcome)
+        return outcome
 
     def run_cmd(self, cmd, env={}, interactive=False, timeout=0, target="all"):
         if self.mode == "remote":
@@ -344,4 +345,4 @@ class Scenario:
 
         result = self.run_cmd(f"cat {path}")
         regex = re.compile(pattern)
-        self._checks.append(bool(regex.search(result.stdout)))
+        return bool(regex.search(result.stdout))

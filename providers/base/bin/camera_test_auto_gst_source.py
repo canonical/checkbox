@@ -459,15 +459,21 @@ def main():
     args = parse_args()
     print(args)
 
-    if not os.path.isdir(args.path):
-        # must validate early, filesink does not check if the path exists
-        raise FileNotFoundError('Path "{}" does not exist'.format(args.path))
-
     if os.getuid() == 0:
         logging.warning(
             "Running this script as root. "
             "This may lead to different results than running as regular user."
         )
+
+
+    if args.subcommand == 'play-video':
+        play_video(args.path)
+        return
+
+    if not os.path.isdir(args.path):
+        # must validate early, filesink does not check if the path exists
+        raise FileNotFoundError('Path "{}" does not exist'.format(args.path))
+
 
     devices = get_devices()
 

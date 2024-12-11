@@ -27,6 +27,7 @@ import os
 import re
 import string
 
+from checkbox_support.helpers.slugify import slugify
 from checkbox_support.lib.bit import get_bitmask
 from checkbox_support.lib.bit import test_bit
 from checkbox_support.lib.input import Input
@@ -94,14 +95,6 @@ ROOT_MOUNTPOINT = re.compile(
     r"ubuntu-seed|ubuntu-boot|ubuntu-save|data|boot)"
 )
 CAMERA_RE = re.compile(r"Camera", re.I)
-
-
-def slugify(_string):
-    """Transform any string to one that can be used in job IDs."""
-    valid_chars = frozenset(
-        "-_.{}{}".format(string.ascii_letters, string.digits)
-    )
-    return "".join(c if c in valid_chars else "_" for c in _string)
 
 
 def find_pkname_is_root_mountpoint(devname, lsblk=None):

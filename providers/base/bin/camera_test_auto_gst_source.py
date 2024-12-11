@@ -200,9 +200,12 @@ def run_pipeline(
 
         if not eos_handled:
             logging.error("EOS was not handled by the pipeline. ")
+            pipeline.set_state(Gst.State.NULL)  # force stop
+            main_loop.quit()
+            return
 
-        # at this point the previous signal_watch can be overriden
-        # (we are in the handler)
+        # at this point any previous signal_watch can be overriden
+        # pipeline is already finished
         bus.add_signal_watch()
         bus.timed_pop_filtered(Gst.CLOCK_TIME_NONE, Gst.MessageType.EOS)
         pipeline.set_state(Gst.State.NULL)
@@ -213,8 +216,9 @@ def run_pipeline(
         pipeline.set_state(Gst.State.NULL)
         main_loop.quit()
         # Must explicitly unref, otherwise source is never released
-        # not sure why graceful_quite doesn't need this
-        pipeline.unref()
+        # not sure why graceful_quit doesn't need this
+        if pipeline.ref_count > 1:
+            pipeline.unref()
 
     start()
     logger.info(f"[ OK ] Pipeline is playing!")
@@ -364,7 +368,7 @@ def take_photo(
 
     run_pipeline(
         pipeline,
-        -1,
+        delay_seconds + 1,
         [(delay_seconds, open_valve)],
     )
 

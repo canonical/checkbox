@@ -10,6 +10,8 @@ import typing as T
 import logging
 import PIL
 
+# from checkbox_support.helpers.timeout import run_with_timeout
+
 VoidFn = T.Callable[[], None]  # takes nothing and returns nothing
 
 # https://github.com/TheImagingSource/tiscamera/blob/master/examples/python/00-list-devices.py
@@ -26,7 +28,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # type: ignore
 
 gi.require_version("Gst", "1.0")
-from gi.repository import Gst  # type: ignore
+from gi.repository import Gst, GstPbutils  # type: ignore
 
 gi.require_version("GLib", "2.0")
 from gi.repository import GLib  # type: ignore
@@ -41,6 +43,58 @@ def get_devices() -> T.List[Gst.Device]:
 
     monitor.stop()
     return devices
+
+
+def validate_video_info(
+    video_file_path: str,
+    *,
+    expected_width: int,
+    expected_height: int,
+    expected_duration_seconds: int,
+    duration_tolerance_seconds=0.1,
+) -> bool:
+    discoverer = GstPbutils.Discoverer()
+
+    video_file_path.removeprefix("/")
+    info = discoverer.discover_uri("file://" + video_file_path)
+    duration = info.get_duration()  # type: int # This is in nanoseconds
+    video_track = info.get_stream_info().get_streams()[0]
+    width = video_track.get_width()
+    height = video_track.get_height()
+
+    all_passed = True
+
+    print(
+        duration,
+        expected_duration_seconds * 10**9,
+        duration - expected_duration_seconds * 10**9,
+    )
+    if (
+        abs(duration - expected_duration_seconds * 10**9)
+        > duration_tolerance_seconds * 10**9
+    ):
+        logging.error(
+            "Duration not within tolerance. Got {}ns, but expected {} +- {}s".format(
+                duration, expected_duration_seconds, duration_tolerance_seconds
+            )
+        )
+        all_passed = False
+    if width != expected_width:
+        logger.error(
+            "Video width mismatch. Expected = {}, actual = {}".format(
+                expected_width, width
+            )
+        )
+        all_passed = False
+    if height != expected_height:
+        logger.error(
+            "Video height mismatch. Expected = {}, actual = {}".format(
+                expected_height, height
+            )
+        )
+        all_passed = False
+
+    return all_passed
 
 
 def get_all_fixated_caps(caps: Gst.Caps) -> T.List[Gst.Caps]:
@@ -541,13 +595,20 @@ def main():
                     cap_struct.get_int("height").value,
                 )
             elif args.subcommand == "record-video":
+                file_path = "{}/video_dev_{}_cap_{}.mkv".format(
+                    args.path, dev_i, cap_i
+                )
                 record_video(
                     dev_element,
-                    file_path="{}/video_dev_{}_cap_{}.mkv".format(
-                        args.path, dev_i, cap_i
-                    ),
+                    file_path=file_path,
                     caps=capability,
                     record_n_seconds=args.seconds,
+                )
+                validate_video_info(
+                    file_path,
+                    expected_duration_seconds=args.seconds,
+                    expected_width=cap_struct.get_int("width").value,
+                    expected_height=cap_struct.get_int("height").value,
                 )
 
     logging.info("[ OK ] All done!")
@@ -559,6 +620,8 @@ if __name__ == "__main__":
 
     Gst.init(None)
     Gtk.init([])
+    GstPbutils.pb_utils_init()
+
     main()
 
     if old_env:

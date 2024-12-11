@@ -111,7 +111,7 @@ def get_all_fixated_caps(caps: Gst.Caps, maximum=100) -> T.List[Gst.Caps]:
 
 
 def validate_image_dimensions(
-    image_file_path: str, expected_width: int, expected_height: int
+    image_file_path: str, *, expected_width: int, expected_height: int
 ) -> bool:
     image = PIL.Image.open(image_file_path)
     if image.width != expected_width:
@@ -588,8 +588,8 @@ def main():
                 )
                 validate_image_dimensions(
                     file_path,
-                    cap_struct.get_int("width").value,
-                    cap_struct.get_int("height").value,
+                    expected_width=cap_struct.get_int("width").value,
+                    expected_height=cap_struct.get_int("height").value,
                 )
             elif args.subcommand == "record-video":
                 file_path = "{}/video_dev_{}_cap_{}.mkv".format(

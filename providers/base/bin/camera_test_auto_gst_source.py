@@ -3,10 +3,12 @@
 from enum import Enum
 import os
 import time
+import PIL.Image
 import gi
 from argparse import ArgumentParser
 import typing as T
 import logging
+import PIL
 
 VoidFn = T.Callable[[], None]  # takes nothing and returns nothing
 
@@ -57,6 +59,26 @@ def get_all_fixated_caps(caps: Gst.Caps) -> T.List[Gst.Caps]:
     fixed_caps.append(caps)  # append the final one
 
     return fixed_caps
+
+
+def validate_image_dimensions(
+    image_file_path: str, expected_width: int, expected_height: int
+) -> bool:
+    image = PIL.Image.open(image_file_path)
+    if image.width != expected_width:
+        logger.error(
+            "Image width mismatch. Expected = {}, actual = {}".format(
+                expected_width, image.width
+            )
+        )
+    if image.height != expected_height:
+        logger.error(
+            "Image height mismatch. Expected = {}, actual = {}".format(
+                expected_height, image.height
+            )
+        )
+
+    return image.width != expected_width and image.height == expected_height
 
 
 def parse_args():
@@ -352,11 +374,9 @@ def take_photo(
         valve.set_property("drop", False)
 
     logging.info(
-        "[ OK ] Created photo pipeline with {} second delay.".format(
-            delay_seconds
-        )
+        "Created photo pipeline with {} second delay.".format(delay_seconds)
+        + '"{} ! {}"'.format(elem_to_str(source), partial)
     )
-    logging.info("{} ! {}".format(elem_to_str(source), partial))
     logging.debug("Setting playing state")
 
     run_pipeline(
@@ -498,6 +518,7 @@ def main():
             )
         )
         for cap_i, capability in enumerate(all_fixed_caps):
+            cap_struct = capability.get_structure(0)
             if args.subcommand == "take-photo":
                 logging.info(
                     "Taking a photo with capability: "
@@ -505,13 +526,19 @@ def main():
                     + "for device: "
                     + '"{}"'.format(device.get_display_name()),
                 )
+                file_path = "{}/photo_dev_{}_cap_{}.jpeg".format(
+                    args.path, dev_i, cap_i
+                )
                 take_photo(
                     dev_element,
                     delay_seconds=args.wait_seconds,
                     caps=capability,
-                    file_path="{}/photo_dev_{}_cap_{}.jpeg".format(
-                        args.path, dev_i, cap_i
-                    ),
+                    file_path=file_path,
+                )
+                validate_image_dimensions(
+                    file_path,
+                    cap_struct.get_int("width").value,
+                    cap_struct.get_int("height").value,
                 )
             elif args.subcommand == "record-video":
                 record_video(
@@ -528,7 +555,7 @@ def main():
 
 if __name__ == "__main__":
     old_env = os.environ.get("GST_DEBUG", None)
-    os.environ["GST_DEBUG"] = "3"  # error and warnings
+    os.environ["GST_DEBUG"] = "2"  # error and warnings
 
     Gst.init(None)
     Gtk.init([])

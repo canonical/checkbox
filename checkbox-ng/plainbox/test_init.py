@@ -19,6 +19,7 @@
 from unittest import TestCase, mock
 
 import os
+from subprocess import CalledProcessError
 
 import plainbox
 
@@ -48,5 +49,8 @@ class PlainboxInitTests(TestCase):
     @mock.patch("subprocess.check_output")
     def test_get_origin_exception(self, mock_sp_check_output):
         mock_sp_check_output.side_effect = FileNotFoundError
+        origin = plainbox.get_origin()
+        self.assertEqual(origin["packaging"]["type"], "unknown")
+        mock_sp_check_output.side_effect = CalledProcessError(1, "error")
         origin = plainbox.get_origin()
         self.assertEqual(origin["packaging"]["type"], "unknown")

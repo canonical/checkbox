@@ -102,7 +102,7 @@ def get_origin():
                 },
             }
         # if all of the above failed and dpkg is not available on the system...
-        except FileNotFoundError:
+        except (FileNotFoundError, subprocess.CalledProcessError):
             origin = {
                 "name": "Checkbox",
                 "version": __version__,

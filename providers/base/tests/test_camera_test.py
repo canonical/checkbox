@@ -21,6 +21,7 @@ import textwrap
 import sys
 
 import unittest
+from unittest import mock
 from unittest.mock import patch, MagicMock, call, mock_open
 
 from camera_test import (
@@ -228,9 +229,10 @@ class CameraTestTests(unittest.TestCase):
 
     def test_on_timeout(self):
         mock_camera = MagicMock()
+        mock_camera.timeout = {}
         CameraTest._on_timeout(mock_camera)
         self.assertEqual(mock_camera._stop_pipeline.call_count, 1)
-        self.assertEqual(mock_camera.timeout, None)
+        self.assertEqual(mock_camera.timeout["global_timeout"], None)
 
     def test_supported_formats_to_string(self):
         formats = [
@@ -335,6 +337,7 @@ class CameraTestTests(unittest.TestCase):
 
     def test_setup_video_gstreamer_error(self):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_camera.GLib.Error = Exception
         mock_camera.GLib.MainLoop.return_value.run.side_effect = Exception()
         mock_camera.Gst.State.NULL = "null"
@@ -400,6 +403,7 @@ class CameraTestTests(unittest.TestCase):
     @patch("os.path.getsize")
     def test_capture_image_fswebcam(self, mock_get_size, mock_check_call):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_get_size.return_value = 1
         result = CameraTest._capture_image_fswebcam(
             mock_camera, "/tmp/test.jpg", 640, 480, "MJPG"
@@ -411,6 +415,7 @@ class CameraTestTests(unittest.TestCase):
     @patch("os.path.getsize")
     def test_capture_image_fswebcam_empty(self, mock_get_size):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_get_size.return_value = 0
         result = CameraTest._capture_image_fswebcam(
             mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
@@ -420,6 +425,7 @@ class CameraTestTests(unittest.TestCase):
     @patch("camera_test.check_call")
     def test_capture_image_fswebcam_error(self, mock_check_call):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_check_call.return_value = OSError()
         result = CameraTest._capture_image_fswebcam(
             mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
@@ -428,6 +434,7 @@ class CameraTestTests(unittest.TestCase):
 
     def test_capture_image_gstreamer(self):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_make = mock_camera.Gst.ElementFactory.make
         mock_camera.Gst.State.PLAYING = "playing"
 
@@ -436,13 +443,14 @@ class CameraTestTests(unittest.TestCase):
         )
         make_calls = mock_make.call_args_list
         print(make_calls, flush=sys.stderr)
-        self.assertEqual(
+        self.assertListEqual(
             make_calls,
             [
                 call("v4l2src", "video-source"),
                 call("capsfilter", "caps"),
+                call("valve", "photo-valve"),
+                call("filesink", "sink"),  # this gets created earlier
                 call("jpegenc", "encoder"),
-                call("filesink", "sink"),
             ],
         )
         mock_camera.pipeline.set_state.assert_has_calls([call("playing")])
@@ -450,6 +458,7 @@ class CameraTestTests(unittest.TestCase):
 
     def test_capture_image_gstreamer_bayer(self):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_make = mock_camera.Gst.ElementFactory.make
 
         CameraTest._capture_image_gstreamer(
@@ -463,13 +472,47 @@ class CameraTestTests(unittest.TestCase):
                 call("v4l2src", "video-source"),
                 call("capsfilter", "caps"),
                 call("bayer2rgb", "bayer2rgb"),
-                call("jpegenc", "encoder"),
+                call("valve", "photo-valve"),
                 call("filesink", "sink"),
+                call("jpegenc", "encoder"),
             ],
         )
 
+    def test_capture_image_gstreamer_jpeg(self):
+        mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
+        mock_camera.timeout = {}
+        mock_make = mock_camera.Gst.ElementFactory.make
+        mock_GLib_timout_add = mock_camera.GLib.timeout_add_seconds
+
+        CameraTest._capture_image_gstreamer(
+            mock_camera, "/tmp/test.jpg", 640, 480, "MJPG"
+        )
+        make_calls = mock_make.call_args_list
+        print(make_calls, flush=sys.stderr)
+        self.assertListEqual(
+            make_calls,
+            [
+                call("v4l2src", "video-source"),
+                call("capsfilter", "caps"),
+                call("valve", "photo-valve"),
+                call("filesink", "sink"),
+            ],
+        )
+        self.assertTrue(mock_GLib_timout_add.called)
+        # now simulate the timeout
+        self.assertEqual(mock_GLib_timout_add.call_count, 3)
+
+        for mock_timeout_call in mock_GLib_timout_add.call_args_list:
+            callback = mock_timeout_call.args[1]
+            callback()
+
+        self.assertIsNone(mock_camera.timeout["stop_jpeg_pipeline"])
+        self.assertIsNone(mock_camera.timeout["open_valve"])
+
     def test_capture_image_gstreamer_error(self):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
         mock_camera.GLib.Error = Exception
         mock_camera.GLib.MainLoop.return_value.run.side_effect = Exception()
         mock_camera.Gst.State.NULL = "null"
@@ -480,8 +523,10 @@ class CameraTestTests(unittest.TestCase):
         self.assertEqual(mock_camera.main_loop.run.call_count, 1)
         mock_camera.pipeline.set_state.assert_called_with("null")
 
-    def test_capture_image_gstreamer_remove_timepout(self):
+    def test_capture_image_gstreamer_remove_timeout(self):
         mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 3
+        mock_camera.timeout = {}
         mock_camera.GLib.timeout_add_seconds.return_value = "timeout"
         CameraTest._capture_image_gstreamer(
             mock_camera, "/tmp/test.jpg", 640, 480, "RG10"

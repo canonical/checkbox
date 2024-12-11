@@ -204,9 +204,6 @@ def run_pipeline(
             main_loop.quit()
             return
 
-        # at this point any previous signal_watch can be overriden
-        # pipeline is already finished
-        bus.add_signal_watch()
         bus.timed_pop_filtered(Gst.CLOCK_TIME_NONE, Gst.MessageType.EOS)
         pipeline.set_state(Gst.State.NULL)
         main_loop.quit()
@@ -368,7 +365,7 @@ def take_photo(
 
     run_pipeline(
         pipeline,
-        delay_seconds + 1,
+        delay_seconds + 1,  # workaround for now, weird problem with ref count
         [(delay_seconds, open_valve)],
     )
 
@@ -465,15 +462,13 @@ def main():
             "This may lead to different results than running as regular user."
         )
 
-
-    if args.subcommand == 'play-video':
+    if args.subcommand == "play-video":
         play_video(args.path)
         return
 
     if not os.path.isdir(args.path):
         # must validate early, filesink does not check if the path exists
         raise FileNotFoundError('Path "{}" does not exist'.format(args.path))
-
 
     devices = get_devices()
 

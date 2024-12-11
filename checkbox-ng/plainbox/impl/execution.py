@@ -38,16 +38,22 @@ from plainbox.i18n import gettext as _
 from plainbox.impl.color import Colorizer
 from plainbox.impl.unit.job import supported_plugins
 from plainbox.impl.unit.unit import on_ubuntucore
-from plainbox.impl.result import IOLogRecordWriter
-from plainbox.impl.result import JobResultBuilder
-from plainbox.impl.runner import CommandOutputWriter
-from plainbox.impl.runner import IOLogRecordGenerator
-from plainbox.impl.runner import JobRunnerUIDelegate
-from plainbox.impl.runner import slugify
+from plainbox.impl.result import (
+    IOLogRecordWriter,
+    JobResultBuilder,
+    IOLogRecord,
+)
+from plainbox.impl.runner import (
+    CommandOutputWriter,
+    IOLogRecordGenerator,
+    JobRunnerUIDelegate,
+    slugify,
+)
 from plainbox.impl.jobcache import ResourceJobCache
 from plainbox.impl.secure.sudo_broker import sudo_password_provider
 from plainbox.impl.session.storage import WellKnownDirsHelper
 from plainbox.vendor import extcmd
+from plainbox.impl.unit.job import InvalidJob
 
 logger = logging.getLogger("plainbox.unified")
 
@@ -91,6 +97,25 @@ class UnifiedRunner(IJobRunner):
 
     def run_job(self, job, job_state, environ=None, ui=None):
         logger.info(_("Running %r"), job)
+        self._job_runner_ui_delegate.ui = ui
+
+        if isinstance(job, InvalidJob):
+            self._job_runner_ui_delegate.on_begin("", dict())
+            for error_line in job.error_lines:
+                self._job_runner_ui_delegate.on_chunk(
+                    "stderr", (error_line + "\n").encode("utf8")
+                )
+            self._job_runner_ui_delegate.on_end(1)
+            return JobResultBuilder(
+                outcome=IJobResult.OUTCOME_FAIL,
+                return_code=1,
+                io_log=[
+                    IOLogRecord(
+                        0, "stderr", "\n".join(job.error_lines).encode("utf8")
+                    )
+                ],
+            ).get_result()
+
         if job.plugin not in supported_plugins:
             print(
                 Colorizer().RED(
@@ -108,7 +133,6 @@ class UnifiedRunner(IJobRunner):
                 outcome=IJobResult.OUTCOME_SKIP,
                 comments=_("Job skipped in dry-run mode"),
             ).get_result()
-        self._job_runner_ui_delegate.ui = ui
 
         # for cached resource jobs we get the result using cache
         # if it's not in the cache, ordinary "_run_command" will be run

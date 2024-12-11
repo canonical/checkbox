@@ -589,6 +589,7 @@ class CameraTest:
             90, self._on_timeout
         )
         if self.photo_wait_seconds > 0:
+
             def open_valve():
                 self.timeout["open_valve"] = None
                 print("Opening valve!")
@@ -844,7 +845,7 @@ class CameraTest:
         if not formats:
             raise SystemExit("No supported formats found")
         format = formats[0]
-        print(format)
+
         return format
 
     def _validate_image(self, filename, width, height):

@@ -87,15 +87,18 @@ class TestLXD(TestCase):
         self.assertEqual(lxd.image, "/tmp/image")
 
     @patch(
-        "subprocess.run",
+        "subprocess.check_output",
         return_value=MagicMock(returncode=0, stdout="success", stderr=""),
     )
     def test_run_success(self, run_mock, logging_mock):
         self_mock = MagicMock()
-        try:
-            LXD.run(self_mock, "ip a")
-        except subprocess.CalledProcessError:
-            self.fail("run raised CalledProcessError")
+        LXD.run(self_mock, "ip a")
+        run_mock.assert_called_with(
+            ["ip", "a"],
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL,
+            universal_newlines=True,
+        )
 
     @patch(
         "subprocess.run",

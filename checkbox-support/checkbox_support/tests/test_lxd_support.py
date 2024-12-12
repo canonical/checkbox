@@ -105,7 +105,7 @@ class TestLXD(TestCase):
         return_value=MagicMock(returncode=0, stdout="success", stderr=""),
     )
     def test_run_on_guest_success(self, run_mock, logging_mock):
-        self_mock = MagicMock(name="testbed")
+        self_mock = MagicMock()
         self_mock.name = "testbed"
         LXD.run(self_mock, "ip a", on_guest=True)
         run_mock.assert_called_with(
@@ -129,7 +129,8 @@ class TestLXD(TestCase):
         side_effect=subprocess.CalledProcessError(1, "", "fail"),
     )
     def test_run_ignore_errors(self, run_mock, logging_mock):
-        self_mock = MagicMock(name="testbed")
+        self_mock = MagicMock()
+        self_mock.name = "testbed"
         LXD.run(self_mock, "ip a", ignore_errors=True)
         run_mock.assert_called_with(
             ["ip", "a"],
@@ -235,7 +236,8 @@ class TestLXD(TestCase):
         LXD.launch(self_mock)
 
     def test_launch_options(self, logging_mock):
-        self_mock = MagicMock(name="testbed")
+        self_mock = MagicMock()
+        self_mock.name = "testbed"
         self_mock.image_alias = MagicMock(
             hex="656382d4-d820-4d01-944b-82b5b63041a7"
         )
@@ -265,7 +267,8 @@ class TestLXD(TestCase):
         LXD.add_device(self_mock, "gpu", "gpu")
 
     def test_add_device_options(self, logging_mock):
-        self_mock = MagicMock(name="testbed")
+        self_mock = MagicMock()
+        self_mock.name = "testbed"
         LXD.add_device(self_mock, "gpu", "gpu", ["pci=0000:0a:00.0"])
         self_mock.run.assert_called_with(
             "lxc config device add testbed gpu gpu pci=0000:0a:00.0"

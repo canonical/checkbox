@@ -132,7 +132,7 @@ class TestLXD(TestCase):
         self_mock = MagicMock(name="testbed")
         LXD.run(self_mock, "ip a", ignore_errors=True)
         run_mock.assert_called_with(
-            ["lxc", "exec", "testbed", "--", "ip", "a"],
+            ["ip", "a"],
             stderr=subprocess.STDOUT,
             stdin=subprocess.DEVNULL,
             universal_newlines=True,

@@ -27,7 +27,7 @@ include:
  after-suspend-camera/still_.*                     certification-status=blocker
  after-suspend-camera/display_.*                   certification-status=blocker
 bootstrap_include:
- device
+ device 
 
 id: camera-cert-automated
 unit: test plan
@@ -42,6 +42,7 @@ include:
  camera/camera-quality-image_.*                    certification-status=non-blocker
 bootstrap_include:
  device
+ camera/v4l2-ioctl_resource
 
 id: camera-cert-blockers
 unit: test plan

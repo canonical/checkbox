@@ -130,7 +130,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
     process.join(timeout_s)
 
     if process.is_alive():
-        # this kills the whole process tree, not just the child
+        # this tries to kill the whole process tree, not just the child.
         kill_tree(process.pid)
         raise TimeoutError("Task unable to finish in {}s".format(timeout_s))
 

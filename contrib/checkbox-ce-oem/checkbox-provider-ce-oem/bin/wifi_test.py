@@ -31,39 +31,31 @@ logging.basicConfig(
 
 
 class WiFiManager:
-    def __init__(
-        self,
-        interface,
-        type,
-        mode,
-        band,
-        channel,
-        key_mgmt,
-        group,
-        peer,
-        ssid,
-        ssid_pwd,
-    ):
+    def __init__(self, **kwargs):
+        """
+        Initialize the WiFiManager with dynamic arguments.
+        kwargs: Dictionary of configuration arguments.
+        """
         self._command = "nmcli"
-        self.interface = interface
-        self.type = type
-        self.mode = mode
-        self.band = band
-        self.channel = channel
-        self.key_mgmt = key_mgmt
-        self.group = group
-        self.ssid = ssid if ssid is not None else "qa-test-ssid"
-        self.ssid_pwd = ssid_pwd if ssid_pwd is not None else "insecure"
-        self.peer = peer
+        self.interface = kwargs.get("interface")
+        self.type = kwargs.get("type")
+        self.mode = kwargs.get("mode")
+        self.band = kwargs.get("band")
+        self.channel = kwargs.get("channel")
+        self.key_mgmt = kwargs.get("key_mgmt")
+        self.group = kwargs.get("group")
+        self.peer = kwargs.get("peer")
+        self.ssid = kwargs.get("ssid", "qa-test-ssid")
+        self.ssid_pwd = kwargs.get("ssid_pwd", "insecure")
         self.conname = "qa-test-ap"
 
     def init_conn(self):
         logging.info("Initializing connection")
         if self.type == "wifi":
             run_command(
-                "{} c add type {} ifname {} con-name {} \
-                    autoconnect no wifi.ssid {} wifi.mode \
-                    {} ipv4.method shared".format(
+                "{} c add type {} ifname {} con-name {} "
+                "autoconnect no wifi.ssid {} "
+                "wifi.mode {} ipv4.method shared".format(
                     self._command,
                     self.type,
                     self.interface,
@@ -73,7 +65,7 @@ class WiFiManager:
                 )
             )
             self.set_band_channel()
-            if self.keymgmt is not None:
+            if self.key_mgmt is not None:
                 self.set_secured()
         elif self.type == "wifi-p2p":
             run_command(
@@ -90,11 +82,16 @@ class WiFiManager:
             raise ValueError("Unsupported type: {}".format(self.type))
 
     def set_band_channel(self):
-        run_command(
-            "{} c modify {} wifi.band {} wifi.channel {}".format(
-                self._command, self.conname, self.band, self.channel
-            )
+        """
+        Set band, channel and channel-width.
+        If channel and channel-width in 0, run command with setting band only.
+        """
+        cmd = "{} c modify {} wifi.band {} ".format(
+            self._command, self.conname, self.band
         )
+        if self.channel:
+            cmd += "wifi.channel {} ".format(self.channel)
+        run_command(cmd)
 
     def set_secured(self):
         run_command(
@@ -164,7 +161,7 @@ class WiFiManager:
 def run_command(command):
     logging.info("Run command: %s", command)
     output = subprocess.check_output(
-        command, shell=True, check=True, stderr=subprocess.STDOUT
+        command, shell=True, stderr=subprocess.STDOUT
     )
     return output.decode()
 
@@ -183,20 +180,22 @@ def connect_host_device(manager, ip, user, pwd):
     connect_cmd = manager.connect_dut()
     ssid = manager.ssid
     logging.info("Ping target Host first ...")
-    run_command(ping_cmd(ip))
-    logging.info("Ping target Host %s successful...", ip)
-    logging.info("Attempting to connect DUT AP %s...", ssid)
-    for i in range(1, 11):
-        logging.info("Attempting to connect DUT AP %s %d time...", ssid, i)
-        try:
-            run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
-            logging.info("Connect successful!")
-            return True
-        except Exception:
-            logging.warning("Not able to found SSID %s", ssid)
-        time.sleep(10)
-    logging.error("Not able to connect to DUT AP SSID %s", ssid)
-    sys.exit(1)
+    try:
+        run_command(ping_cmd(ip))
+        logging.info("Ping target Host %s successful...", ip)
+        logging.info("Attempting to connect DUT AP %s...", ssid)
+        for i in range(1, 11):
+            logging.info("Attempting to connect DUT AP %s %d time...", ssid, i)
+            try:
+                run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
+                logging.info("Connect successful!")
+                return True
+            except Exception:
+                logging.warning("Not able to found SSID %s", ssid)
+            time.sleep(10)
+        logging.error("Not able to connect to DUT AP SSID %s", ssid)
+    except Exception:
+        logging.error("Not able to ping the HOST!")
 
 
 def ping_test(manager, ip, user, pwd):
@@ -243,7 +242,7 @@ def main():
     )
     wifi_parser.add_argument("--band", required=True, help="WiFi band to use")
     wifi_parser.add_argument(
-        "--channel", required=True, help="WiFi channel to use"
+        "--channel", required=True, type=int, help="WiFi channel to use"
     )
     wifi_parser.add_argument(
         "--keymgmt", required=False, help="Key management method"
@@ -291,24 +290,13 @@ def main():
     )
 
     args = parser.parse_args()
-
-    manager = WiFiManager(
-        args.interface,
-        args.type,
-        args.mode,
-        args.band,
-        args.channel,
-        args.keymgmt,
-        args.group,
-        args.peer,
-        args.ssid,
-        args.ssid_pwd,
-    )
+    config = vars(args)
+    manager = WiFiManager(**config)
     with manager:
-        connect_host_device(
+        if connect_host_device(
             manager, args.host_ip, args.host_user, args.host_pwd
-        )
-        ping_test(manager, args.host_ip, args.host_user, args.host_pwd)
+        ):
+            ping_test(manager, args.host_ip, args.host_user, args.host_pwd)
 
 
 if __name__ == "__main__":

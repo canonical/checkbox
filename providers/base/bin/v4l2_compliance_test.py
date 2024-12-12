@@ -70,4 +70,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    return_code = main()
+    exit(return_code)

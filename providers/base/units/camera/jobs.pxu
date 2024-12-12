@@ -22,6 +22,27 @@ command:
   udev_resource.py -f MMAL | grep "category: MMAL"
 _summary: Detect presence of a MMAL camera.
 
+id: camera/v4l2-ioctl_resource
+_summary: Generates ioctl names for v4l2 compliance test
+_description: Generates ioctl names for v4l2 compliance test
+estimated_duration: 0.02
+category_id: com.canonical.plainbox::camera
+plugin: resource
+command:
+  v4l2_ioctl_resource.py
+
+unit: template
+category_id: com.canonical.plainbox::camera
+template-resource: camera/v4l2-ioctl_resource
+template-unit: job
+template-id: camera/v4l2-compliance_ioctl_name
+_template-summary: To check if {ioctl_name} works on video0
+id: camera/v4l2-compliance_{ioctl_name}
+_summary: v4l2 compliance for {ioctl_name} on video0
+plugin: shell
+command:
+  v4l2_compliance_test.py --device /dev/video0 --ioctl {ioctl_name}
+
 unit: template
 template-resource: device
 template-filter: device.category == 'CAPTURE' and device.name != ''

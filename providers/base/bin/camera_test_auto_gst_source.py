@@ -395,7 +395,7 @@ def display_viewfinder(
         do that before calling this function
     :param show_n_seconds: number of seconds to keep the viewfinder on screen
     """
-
+    
     partial_pipeline = " ! ".join(["videoconvert name=head", "autovideosink"])
     pipeline = Gst.parse_launch(partial_pipeline)  # type: Gst.Pipeline
     head = pipeline.get_by_name("head")
@@ -482,7 +482,7 @@ def take_photo(
         valve.set_property("drop", False)
 
     logger.info(
-        "Created photo pipeline with {} second delay.".format(delay_seconds)
+        "Created photo pipeline with {} second delay. ".format(delay_seconds)
         + '"{} ! {}"'.format(elem_to_str(source), partial)
     )
     logging.debug("Setting playing state")

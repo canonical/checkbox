@@ -2,33 +2,29 @@
 
 from enum import Enum
 import os
-import time
 import PIL.Image
 import gi
 from argparse import ArgumentParser
 import typing as T
 import logging
-import PIL
-
-# from checkbox_support.helpers.timeout import run_with_timeout
+import time
 
 VoidFn = T.Callable[[], None]  # takes nothing and returns nothing
 
 # https://github.com/TheImagingSource/tiscamera/blob/master/examples/python/00-list-devices.py
 
+logger = logging.getLogger(__name__)
 logging.basicConfig(
     format="%(asctime)s %(levelname)s - %(message)s",
     datefmt="%m/%d %H:%M:%S",
-    level=logging.DEBUG,
 )
-logger = logging.getLogger(__name__)
-
+logger.setLevel(logging.DEBUG)
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # type: ignore
 
 gi.require_version("Gst", "1.0")
-from gi.repository import Gst, GstPbutils  # type: ignore
+from gi.repository import Gst, GstPbutils  # , GstPbutils  # type: ignore
 
 gi.require_version("GLib", "2.0")
 from gi.repository import GLib  # type: ignore
@@ -68,9 +64,11 @@ def validate_video_info(
         abs(duration - expected_duration_seconds * 10**9)
         > duration_tolerance_seconds * 10**9
     ):
-        logging.error(
-            "Duration not within tolerance. Got {}ns, but expected {} +- {}s".format(
-                duration, expected_duration_seconds, duration_tolerance_seconds
+        logger.error(
+            "Duration not within tolerance. Got {}s, but expected {} +- {}s".format(
+                round(duration / (10**9), 3),
+                expected_duration_seconds,
+                duration_tolerance_seconds,
             )
         )
         all_passed = False
@@ -105,7 +103,15 @@ def get_all_fixated_caps(caps: Gst.Caps, maximum=100) -> T.List[Gst.Caps]:
         caps = caps.subtract(fixed_cap)
         # this is useful to get around missing types
         # in default gst python binding on ubuntu, like Gst.Fraction
-    fixed_caps.append(caps)  # append the final one
+
+    if caps.is_fixed():
+        fixed_caps.append(caps)  # append the final one
+    else:
+        logger.error(
+            "Maximum cap amount reached: {}. Skipping the rest.".format(
+                maximum
+            )
+        )
 
     return fixed_caps
 
@@ -154,6 +160,14 @@ def parse_args():
         "--skip-validation",
         action="store_true",
         help="Skip image dimension validation",
+    )
+    photo_subparser.add_argument(
+        "--max-caps",
+        type=int,
+        help="Set the maximum number of capabilities to check for each device. "
+        "Default = 100. "
+        "This is useful for restraining the number of caps on devices "
+        'that have "continuous" caps.',
     )
 
     video_subparser = subparser.add_parser("record-video")
@@ -250,7 +264,8 @@ def elem_to_str(element: Gst.Element) -> str:
 
 def run_pipeline(
     pipeline: Gst.Pipeline,
-    run_n_seconds: int = -1,
+    run_n_seconds: T.Optional[int] = None,
+    force_kill_timeout: int = 300,
     intermediate_calls: T.List[T.Tuple[int, VoidFn]] = [],
 ):
     """Run the pipeline
@@ -258,7 +273,10 @@ def run_pipeline(
     :param pipeline: Gst.Pipeline. All element creation/linking steps
         should be done by this point
     :param run_n_seconds: how long until we stop the main loop.
-        - If -1, only wait for EOS
+        - If None, only wait for EOS.
+    :param force_kill_timeout: how long until a force kill is triggered.
+        - If None and run_n_seconds != None, then force_kill = run_n_seconds * 2
+        - If != None and run_n_seconds != None, an error is raised if force kill <= run_n_seconds
     :param intermedate_calls: a list of functions to call
         while the pipeline is running. list[(() -> None, int)], where 2nd elem
         is the number of seconds to wait RELATIVE to
@@ -288,14 +306,33 @@ def run_pipeline(
         eos_handled = pipeline.send_event(Gst.Event.new_eos())
 
         if not eos_handled:
-            logging.error("EOS was not handled by the pipeline. ")
+            logger.error("EOS was not handled by the pipeline. ")
             pipeline.set_state(Gst.State.NULL)  # force stop
             main_loop.quit()
             return
 
-        bus.timed_pop_filtered(Gst.CLOCK_TIME_NONE, Gst.MessageType.EOS)
+        if not force_kill_timeout and run_n_seconds:
+            bus_pop_timeout = run_n_seconds * 2
+        else:
+            bus_pop_timeout = force_kill_timeout
+
+        time.sleep(1)
+
+        # it's possible to immediately pop None (got EOS, but message is None)
+        # so wait 1 second for the message to be constructed before popping
+        eos_msg = bus.timed_pop_filtered(bus_pop_timeout, Gst.MessageType.EOS)
         pipeline.set_state(Gst.State.NULL)
         main_loop.quit()
+
+        if eos_msg is None:
+            # have to force system exit here,
+            # GLib.Mainloop overrides the sys.excepthook
+            raise SystemExit(
+                "Did not receive EOS after {} seconds. ".format(
+                    bus_pop_timeout
+                )
+                + "Pipeline likely hanged."
+            )
 
     def quit():
         logger.debug("Setting state to NULL.")
@@ -308,7 +345,7 @@ def run_pipeline(
             pipeline.unref()
 
     for delay, call in intermediate_calls:
-        assert run_n_seconds == -1 or delay < run_n_seconds, (
+        assert run_n_seconds is None or delay < run_n_seconds, (
             "Delay for each call must be smaller than total run seconds, "
             " (Got delay = {}, run_n_seconds = {})".format(
                 delay, run_n_seconds
@@ -316,7 +353,7 @@ def run_pipeline(
         )
         GLib.timeout_add_seconds(delay, call)
 
-    if run_n_seconds == -1:
+    if run_n_seconds is None:
         bus.add_signal_watch()
         bus.connect(
             "message",
@@ -367,7 +404,7 @@ def display_viewfinder(
     assert head
     assert source.link(head)
 
-    logging.info(
+    logger.info(
         "[ OK ] Created pipeline for viewfinder: {} ! {}".format(
             elem_to_str(source), partial_pipeline
         )
@@ -444,7 +481,7 @@ def take_photo(
         logging.debug("Opening valve!")
         valve.set_property("drop", False)
 
-    logging.info(
+    logger.info(
         "Created photo pipeline with {} second delay.".format(delay_seconds)
         + '"{} ! {}"'.format(elem_to_str(source), partial)
     )
@@ -453,10 +490,10 @@ def take_photo(
     run_pipeline(
         pipeline,
         delay_seconds + 1,  # workaround for now, weird problem with ref count
-        [(delay_seconds, open_valve)],
+        intermediate_calls=[(delay_seconds, open_valve)],
     )
 
-    logging.info("[ OK ] Photo was saved to {}".format(file_path))
+    logger.info("[ OK ] Photo was saved to {}".format(file_path))
 
 
 def record_video(
@@ -511,17 +548,17 @@ def record_video(
         head_elem
     ), "Could not link source element to {}".format(head_elem)
 
-    logging.info(
+    logger.info(
         "[ OK ] Created video pipeline to record {} seconds".format(
             record_n_seconds
         )
     )
-    logging.info("{} ! {}".format(elem_to_str(source), partial))
+    logger.info("{} ! {}".format(elem_to_str(source), partial))
     logging.debug("Setting playing state")
 
     run_pipeline(pipeline, record_n_seconds)
 
-    logging.info(
+    logger.info(
         "[ OK ] Video for this capability: "
         + "{}".format(caps.to_string() if caps else "[device default]")
         + " was saved to {}".format(file_path)
@@ -543,7 +580,7 @@ def main():
     print(args)
 
     if os.getuid() == 0:
-        logging.warning(
+        logger.warning(
             "Running this script as root. "
             "This may lead to different results than running as regular user."
         )
@@ -559,7 +596,7 @@ def main():
     devices = get_devices()
 
     if len(devices) == 0:
-        logging.error(
+        logger.error(
             "GStreamer cannot find any cameras on this device. "
             "If you know a camera element exists, then it did not implement "
             "Gst.DeviceProvider to make itself visible to GStreamer "
@@ -570,7 +607,7 @@ def main():
     seconds_per_pipeline = (
         args.wait_seconds if args.subcommand == "take-photo" else args.seconds
     )
-    logging.info("Found {} cameras!".format(len(devices)))
+    logger.info("Found {} cameras!".format(len(devices)))
     print(
         '[ HINT ] For debugging, remove the "valve" element to get a pipeline',
         "that can be run with gst-launch-1.0",
@@ -583,8 +620,8 @@ def main():
         dev_element = device.create_element()
         all_fixed_caps = get_all_fixated_caps(device.get_caps())
 
-        logging.info("Testing device {}/{}".format(dev_i + 1, len(devices)))
-        logging.info(
+        logger.info("Testing device {}/{}".format(dev_i + 1, len(devices)))
+        logger.info(
             "Test for this device may take {} seconds for {} caps.".format(
                 len(all_fixed_caps) * seconds_per_pipeline, len(all_fixed_caps)
             )
@@ -593,7 +630,7 @@ def main():
         for cap_i, capability in enumerate(all_fixed_caps):
             cap_struct = capability.get_structure(0)
             if args.subcommand == "take-photo":
-                logging.info(
+                logger.info(
                     "Taking a photo with capability: "
                     + '"{}"'.format(capability.to_string())
                     + "for device: "
@@ -638,20 +675,12 @@ def main():
                     expected_height=cap_struct.get_int("height").value,
                 )
 
-    logging.info("[ OK ] All done!")
+    logger.info("[ OK ] All done!")
 
 
 if __name__ == "__main__":
-    old_env = os.environ.get("GST_DEBUG", None)
-    os.environ["GST_DEBUG"] = "2"  # error and warnings
-
     Gst.init(None)
-    Gtk.init([])
     GstPbutils.pb_utils_init()
+    Gtk.init([])
 
     main()
-
-    if old_env:
-        os.environ["GST_DEBUG"] = old_env
-    else:
-        del os.environ["GST_DEBUG"]

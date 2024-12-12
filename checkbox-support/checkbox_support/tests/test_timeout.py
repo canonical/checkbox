@@ -17,6 +17,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import time
+import subprocess
 import multiprocessing
 
 from queue import Empty
@@ -28,6 +29,7 @@ from checkbox_support.helpers.timeout import (
     is_picklable,
     run_with_timeout,
     fake_run_with_timeout,
+    kill_tree,
 )
 
 
@@ -220,3 +222,22 @@ class TestTimeoutExec(TestCase):
     def test_is_picklable(self):
         self.assertFalse(is_picklable(lambda: ...))
         self.assertTrue(is_picklable([1, 2, 3]))
+
+    @patch("shutil.which")
+    @patch("subprocess.check_call")
+    @patch("subprocess.run")
+    def test_kill_tree_fallback(self, run_mock, check_call_mock, which_mock):
+        which_mock.return_value = None
+        check_call_mock.side_effect = subprocess.CalledProcessError(
+            1, "Some cmd"
+        )
+
+        kill_tree(123)
+        # kill_tree tried to search for known consoles
+        self.assertTrue(which_mock.called)
+        # kill_tree also tried to run the default shell to see if kill supports
+        # the -PID semantic
+        self.assertTrue(check_call_mock.called)
+        # finally the function tried to call kill without the - as a last ditch
+        # tentative
+        self.assertTrue(run_mock.called)

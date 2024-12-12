@@ -150,6 +150,11 @@ def parse_args():
         help="Where to save the file. This should be a directory.",
         required=True,
     )
+    photo_subparser.add_argument(
+        "--skip-validation",
+        action="store_true",
+        help="Skip image dimension validation",
+    )
 
     video_subparser = subparser.add_parser("record-video")
     video_subparser.add_argument(
@@ -165,6 +170,23 @@ def parse_args():
         type=str,
         help="Where to save the file. This should be a directory.",
         required=True,
+    )
+    video_subparser.add_argument(
+        "-t",
+        "--tolerance",
+        type=float,
+        help=(
+            "Tolerance for validating the recording duration in seconds. "
+            "Ex. If the video is supposed to be 5s, tolerance is 0.1s, "
+            "then durations in [4.9s, 5.1s] inclusive will pass the validation"
+            "Default is 0.1s."
+        ),
+        default=0.1,
+    )
+    video_subparser.add_argument(
+        "--skip-validation",
+        action="store_true",
+        help="Skip video dimension & duration validation",
     )
 
     player_subparser = subparser.add_parser("play-video")
@@ -586,6 +608,10 @@ def main():
                     caps=capability,
                     file_path=file_path,
                 )
+
+                if args.skip_validation:
+                    continue
+
                 validate_image_dimensions(
                     file_path,
                     expected_width=cap_struct.get_int("width").value,
@@ -601,6 +627,10 @@ def main():
                     caps=capability,
                     record_n_seconds=args.seconds,
                 )
+
+                if args.skip_validation:
+                    continue
+
                 validate_video_info(
                     file_path,
                     expected_duration_seconds=args.seconds,

@@ -64,7 +64,7 @@ except ImportError:
     HOST_RELEASE = lsb_release.get_distro_information()["RELEASE"]
 
 
-logger = logging.getLogger(__file__)
+logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler())
 
 

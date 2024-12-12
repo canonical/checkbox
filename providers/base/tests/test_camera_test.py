@@ -505,7 +505,8 @@ class CameraTestTests(unittest.TestCase):
 
         for mock_timeout_call in mock_GLib_timout_add.call_args_list:
             callback = mock_timeout_call.args[1]
-            callback()
+            if callable(callback):
+                callback()
 
         self.assertIsNone(mock_camera.timeout["stop_jpeg_pipeline"])
         self.assertIsNone(mock_camera.timeout["open_valve"])

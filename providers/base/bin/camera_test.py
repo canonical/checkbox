@@ -556,6 +556,7 @@ class CameraTest:
         if pixelformat == "MJPG":
 
             def stop_jpeg_pipeline():
+                # this relies on the eos handler in _on_gst_message
                 self.timeout["stop_jpeg_pipeline"] = None
                 self.pipeline.send_event(self.Gst.Event.new_eos())
 

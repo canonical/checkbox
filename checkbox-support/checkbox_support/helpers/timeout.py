@@ -23,6 +23,7 @@ Utility class that provides functionalities connected to placing timeouts on
 functions
 """
 import os
+import shutil
 import pickle
 import traceback
 import subprocess
@@ -48,6 +49,25 @@ def is_picklable(value):
     return False
 
 
+def kill_tree(pid):
+    """
+    Kill a process tree
+
+    This tries to force the shell to what we want instead of letting the system
+    decide. This is because `sh` kill doesn't support tree kill (-PID), so we
+    would rather avoid it
+    """
+    if shutil.which("bash"):
+        return subprocess.run(["bash", "-c", "kill -9 -{}".format(pid)])
+    elif shutil.which("zsh"):
+        return subprocess.run(["zsh", "-c", "kill -9 -{}".format(pid)])
+    with suppress(subprocess.CalledProcessError):
+        # if SHELL is sh or doesn't support -XX pid, this will fail
+        return subprocess.check_call("kill -9 -{}".format(pid), shell=True)
+    # lets at least kill the direct pid
+    return subprocess.run("kill -9 {}".format(pid), shell=True)
+
+
 def run_with_timeout(f, timeout_s, *args, **kwargs):
     """
     Runs a function with the given args and kwargs. If the function doesn't
@@ -56,6 +76,7 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
 
     Note: the function, *args and **kwargs must be picklable to use this.
     """
+    assert timeout_s > 0, "Timeout must be more than 0"
     result_queue = Queue()
     exception_queue = Queue()
 
@@ -109,8 +130,8 @@ def run_with_timeout(f, timeout_s, *args, **kwargs):
     process.join(timeout_s)
 
     if process.is_alive():
-        # this kills the whole process tree, not just the child
-        subprocess.run("kill -9 -{}".format(process.pid), shell=True)
+        # this tries to kill the whole process tree, not just the child.
+        kill_tree(process.pid)
         raise TimeoutError("Task unable to finish in {}s".format(timeout_s))
 
     with suppress(Empty):

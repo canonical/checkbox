@@ -101,15 +101,19 @@ class TestLXD(TestCase):
         )
 
     @patch(
-        "subprocess.run",
+        "subprocess.check_output",
         return_value=MagicMock(returncode=0, stdout="success", stderr=""),
     )
     def test_run_on_guest_success(self, run_mock, logging_mock):
         self_mock = MagicMock()
-        try:
-            LXD.run(self_mock, "ip a", on_guest=True)
-        except subprocess.CalledProcessError:
-            self.fail("run raised CalledProcessError")
+        self_mock.name = "testbed"
+        LXD.run(self_mock, "ip a", on_guest=True)
+        run_mock.assert_called_with(
+            ['lxc', 'exec', 'testbed', '--', 'ip', 'a'],
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL,
+            universal_newlines=True,
+        )
 
     @patch(
         "subprocess.run",

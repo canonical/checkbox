@@ -105,11 +105,11 @@ class TestLXD(TestCase):
         return_value=MagicMock(returncode=0, stdout="success", stderr=""),
     )
     def test_run_on_guest_success(self, run_mock, logging_mock):
-        self_mock = MagicMock()
+        self_mock = MagicMock(name="testbed")
         self_mock.name = "testbed"
         LXD.run(self_mock, "ip a", on_guest=True)
         run_mock.assert_called_with(
-            ['lxc', 'exec', 'testbed', '--', 'ip', 'a'],
+            ["lxc", "exec", "testbed", "--", "ip", "a"],
             stderr=subprocess.STDOUT,
             stdin=subprocess.DEVNULL,
             universal_newlines=True,
@@ -129,11 +129,14 @@ class TestLXD(TestCase):
         side_effect=subprocess.CalledProcessError(1, "", "fail"),
     )
     def test_run_ignore_errors(self, run_mock, logging_mock):
-        self_mock = MagicMock()
-        try:
-            LXD.run(self_mock, "ip a", ignore_errors=True)
-        except subprocess.CalledProcessError:
-            self.fail("run raised CalledProcessError")
+        self_mock = MagicMock(name="testbed")
+        LXD.run(self_mock, "ip a", ignore_errors=True)
+        run_mock.assert_called_with(
+            ["lxc", "exec", "testbed", "--", "ip", "a"],
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL,
+            universal_newlines=True,
+        )
 
     @patch("urllib.request.urlretrieve")
     @patch("os.path.isfile", return_value=True)
@@ -141,12 +144,7 @@ class TestLXD(TestCase):
         self, isfile_mock, urlretrieve_mock, logging_mock
     ):
         self_mock = MagicMock()
-        try:
-            LXD.download_image(
-                self_mock, "https://ubuntu.com/image", "/tmp/image"
-            )
-        except FileNotFoundError:
-            self.fail("download_image raised FileNotFoundError")
+        LXD.download_image(self_mock, "https://ubuntu.com/image", "/tmp/image")
         self.assertEqual(isfile_mock.call_count, 1)
         self.assertFalse(urlretrieve_mock.called)
 
@@ -156,12 +154,7 @@ class TestLXD(TestCase):
         self, urlretrieve_mock, isfile_mock, logging_mock
     ):
         self_mock = MagicMock()
-        try:
-            LXD.download_image(
-                self_mock, "https://ubuntu.com/image", "/tmp/image"
-            )
-        except FileNotFoundError:
-            self.fail("download_image raised FileNotFoundError")
+        LXD.download_image(self_mock, "https://ubuntu.com/image", "/tmp/image")
         self.assertEqual(isfile_mock.call_count, 2)
         self.assertTrue(urlretrieve_mock.called)
 
@@ -200,10 +193,7 @@ class TestLXD(TestCase):
         self, logging_mock, run_with_retry_mock
     ):
         self_mock = MagicMock(template=None, image=None, remote="ubuntu:")
-        try:
-            LXD.insert_images(self_mock)
-        except RuntimeError:
-            self.fail("insert_images raised RuntimeError")
+        LXD.insert_images(self_mock)
 
     @patch(
         "checkbox_support.lxd_support.run_with_retry",

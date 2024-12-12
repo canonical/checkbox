@@ -235,12 +235,14 @@ class TestLXD(TestCase):
         LXD.launch(self_mock)
 
     def test_launch_options(self, logging_mock):
-        self_mock = MagicMock()
-        self_mock.name = "testbed"
+        self_mock = MagicMock(name="testbed")
         self_mock.image_alias = MagicMock(
             hex="656382d4-d820-4d01-944b-82b5b63041a7"
         )
         LXD.launch(self_mock, ["-d root,size=50GB"])
+        self_mock.run.assert_called_with(
+            "lxc launch 656382d4-d820-4d01-944b-82b5b63041a7 testbed -d root,size=50GB"
+        )
 
     def test_stop_no_force(self, logging_mock):
         self_mock = MagicMock()
@@ -263,8 +265,11 @@ class TestLXD(TestCase):
         LXD.add_device(self_mock, "gpu", "gpu")
 
     def test_add_device_options(self, logging_mock):
-        self_mock = MagicMock()
+        self_mock = MagicMock(name="testbed")
         LXD.add_device(self_mock, "gpu", "gpu", ["pci=0000:0a:00.0"])
+        self_mock.run.assert_called_with(
+            "lxc config device add testbed gpu gpu pci=0000:0a:00.0"
+        )
 
     def test_wait_until_running(self, logging_mock):
         self_mock = MagicMock()

@@ -27,7 +27,7 @@ include:
  after-suspend-camera/still_.*                     certification-status=blocker
  after-suspend-camera/display_.*                   certification-status=blocker
 bootstrap_include:
- device 
+ device
 
 id: camera-cert-automated
 unit: test plan

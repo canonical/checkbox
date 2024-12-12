@@ -36,12 +36,12 @@ category_id: com.canonical.plainbox::camera
 template-resource: camera/v4l2-ioctl_resource
 template-unit: job
 template-id: camera/v4l2-compliance_ioctl_name
-_template-summary: To check if {ioctl_name} works on video0
+_template-summary: To check if {ioctl_name} works on {name}
 id: camera/v4l2-compliance_{ioctl_name}
-_summary: v4l2 compliance for {ioctl_name} on video0
+_summary: v4l2 compliance for {ioctl_name} on {name}
 plugin: shell
 command:
-  v4l2_compliance_test.py --device /dev/video0 --ioctl {ioctl_name}
+  v4l2_compliance_test.py --device /dev/{name} --ioctl {ioctl_name}
 
 unit: template
 template-resource: device

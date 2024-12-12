@@ -134,6 +134,9 @@ class TestLXD(TestCase):
         LXD.run(self_mock, "ip a", ignore_errors=True)
         run_mock.assert_called_with(
             ["ip", "a"],
+            stdout=subprocess.PIPE,
+            timeout=None,
+            check=True,
             stderr=subprocess.STDOUT,
             stdin=subprocess.DEVNULL,
             universal_newlines=True,

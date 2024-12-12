@@ -3,7 +3,7 @@ _summary: Generates a WiFi Access Point list for test
 _description:
     A WiFi Access Point mapping resource that relies on the user specifying in config varirable.
     Usage of parameter:
-    WIFI_AP_MODE={interface_name2}:{band in a|bg}:{channel}:{key_mgmt}:{group in one of ciphers wep40|wep104|tkip|ccmp}
+    WIFI_AP_MODE={interface_name}:{band in a|bg}:{channel}:{key_mgmt}:{group in one of ciphers wep40|wep104|tkip|ccmp}
     e.g. WIFI_AP_MODE=wlP1p1s0f0:a:36:wpa-psk:ccmp wlP1p1s0f0:bg:5:none:none
     For more detail please check
     https://networkmanager.dev/docs/api/latest/settings-802-11-wireless.html
@@ -12,6 +12,15 @@ estimated_duration: 0.02
 plugin: resource
 environ: WIFI_AP_MODE
 command:
+    # We will generate a default set of WIFI_AP_MODE to test both a and bg
+    # band in open and wpa-psk with the first avaliable interface
+    # if WIFI_AP_MODE has not been set.
+    if [ -z "$WIFI_AP_MODE" ]; then
+      interface=$(iw dev|grep Interface|awk 'NR==1{print $2 }')
+      if [ -n "$interface" ]; then
+        WIFI_AP_MODE="$interface:a:36:none:none $interface:bg:5:none:none $interface:a:36:wpa-psk:ccmp $interface:bg:5:wpa-psk:ccmp"
+      fi
+    fi
     awk '{
         split($0, record, " ")
         for (i in record) {
@@ -28,20 +37,19 @@ id: ce-oem-wireless/ap_open_{band}_ch{channel}_{group}_{interface}_automated
 category_id: com.canonical.certification::wifi_ap
 _summary: Create open 802.11{band} Wi-Fi AP on {interface} and check connection
 _description:
-   Create open 802.11{band} Wi-Fi AP on {interface} in channel{channel}
-   group {group} and check connection
+   Create open 802.11{band} Wi-Fi AP on {interface} in channel{channel} group {group} and check connection
 plugin: shell
 environ: WIFI_AP_HOST_DEVICE_IP WIFI_AP_HOST_DEVICE_USER WIFI_AP_HOST_DEVICE_PWD
 imports:
-  from com.canonical.certification import wifi_interface_mode
   from com.canonical.certification import net_if_management
 requires:
- ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'NetworkManager'
 estimated_duration: 120.0
 flags: preserve-locale also-after-suspend
 command:
-   wifi_test.py wifi --mode ap --interface {interface} --band {band} --channel {channel} --host-ip "$WIFI_AP_HOST_DEVICE_IP" --host-user "$WIFI_AP_HOST_DEVICE_USER" --host-pwd "$WIFI_AP_HOST_DEVICE_PWD"
+   wifi_test.py --interface {interface} --host-ip "$WIFI_AP_HOST_DEVICE_IP" \
+   --host-user "$WIFI_AP_HOST_DEVICE_USER" --host-pwd "$WIFI_AP_HOST_DEVICE_PWD" \
+   wifi --mode ap  --band {band} --channel {channel}
 
 unit: template
 template-resource: ce_oem_wifi_ap_mode
@@ -51,17 +59,16 @@ id: ce-oem-wireless/ap_wpa_{key_mgmt}_{band}_ch{channel}_{group}_{interface}_aut
 category_id: com.canonical.certification::wifi_ap
 _summary: Create wpa 802.11{band} Wi-Fi AP on {interface} and check connection
 _description:
-   Create wpa 802.11{band} Wi-Fi AP on {interface} in channel{channel}
-   group {group} and check connection
+   Create wpa 802.11{band} Wi-Fi AP on {interface} in channel{channel} group {group} and check connection
 plugin: shell
 environ: WIFI_AP_HOST_DEVICE_IP WIFI_AP_HOST_DEVICE_USER WIFI_AP_HOST_DEVICE_PWD
 imports:
-  from com.canonical.certification import wifi_interface_mode
   from com.canonical.certification import net_if_management
 requires:
- ( wifi_interface_mode.interface == '{interface}' and wifi_interface_mode.AP == 'supported' )
  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'NetworkManager'
 estimated_duration: 120.0
 flags: preserve-locale also-after-suspend
 command:
-   wifi_test.py wifi --mode ap --interface {interface} --band {band} --channel {channel} --keymgmt {key_mgmt} --group {group} --host-ip "$WIFI_AP_HOST_DEVICE_IP" --host-user "$WIFI_AP_HOST_DEVICE_USER" --host-pwd "$WIFI_AP_HOST_DEVICE_PWD"
+   wifi_test.py --interface {interface} --host-ip "$WIFI_AP_HOST_DEVICE_IP" \
+   --host-user "$WIFI_AP_HOST_DEVICE_USER" --host-pwd "$WIFI_AP_HOST_DEVICE_PWD" \
+   wifi --mode ap  --band {band} --channel {channel} --keymgmt {key_mgmt} --group {group}

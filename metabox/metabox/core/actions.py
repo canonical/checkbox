@@ -53,7 +53,7 @@ class ActionBase:
 
     def __call__(self, scn):
         assert self.handler is not None
-        getattr(scn, self.handler)(*self.args, **self.kwargs)
+        return getattr(scn, self.handler)(*self.args, **self.kwargs)
 
     def __str__(self):
         kwargs_str = ", ".join(

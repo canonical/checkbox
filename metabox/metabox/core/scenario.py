@@ -106,7 +106,7 @@ class Scenario:
                 step.kwargs["interactive"] = interactive
             try:
                 # step that fail explicitly return false or raise an exception
-                if step(self) not in [True, None]:
+                if not step(self):
                     self.failures.append(step)
             except (TimeoutError, ConnectionError):
                 self.failures.append(step)
@@ -181,6 +181,7 @@ class Scenario:
                 self._pts = outcome
             else:
                 self._assign_outcome(*outcome)
+        return True  # return code is checked with a different operator
 
     def start_all(self, interactive=False, timeout=0):
         self.start_agent()
@@ -264,6 +265,7 @@ class Scenario:
                 self.agent_machine.reboot(timeout)
         else:
             self.local_machine.reboot(timeout)
+        return True
 
     def put(self, filepath, data, mode=None, uid=1000, gid=1000, target="all"):
         if self.mode == "remote":
@@ -276,6 +278,8 @@ class Scenario:
                 self.agent_machine.put(filepath, data, mode, uid, gid)
         else:
             self.local_machine.put(filepath, data, mode, uid, gid)
+        # put raises an exception on failure
+        return True
 
     def switch_on_networking(self, target="all"):
         if self.mode == "remote":
@@ -288,6 +292,7 @@ class Scenario:
                 self.agent_machine.switch_on_networking()
         else:
             self.local_machine.switch_on_networking()
+        return True
 
     def switch_off_networking(self, target="all"):
         if self.mode == "remote":
@@ -300,6 +305,7 @@ class Scenario:
                 self.agent_machine.switch_off_networking()
         else:
             self.local_machine.switch_off_networking()
+        return True
 
     def stop_agent(self):
         return self.agent_machine.stop_agent()
@@ -318,7 +324,7 @@ class Scenario:
         if privileged:
             cmd = ["sudo"] + cmd
         cmd_str = shlex.join(cmd)
-        self.run_cmd(cmd_str, target=target, timeout=timeout)
+        return self.run_cmd(cmd_str, target=target, timeout=timeout)
 
     def run_manage(self, args, timeout=0, target="all"):
         """
@@ -326,7 +332,7 @@ class Scenario:
         """
         path = "/home/ubuntu/checkbox/metabox/metabox/metabox-provider"
         cmd = f"bash -c 'cd {path} ; python3 manage.py {args}'"
-        self.run_cmd(cmd, target=target, timeout=timeout)
+        return self.run_cmd(cmd, target=target, timeout=timeout)
 
     def assert_in_file(self, pattern, path):
         """

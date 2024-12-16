@@ -13,6 +13,9 @@ VoidFn = T.Callable[[], None]  # takes nothing and returns nothing
 
 # https://github.com/TheImagingSource/tiscamera/blob/master/examples/python/00-list-devices.py
 
+# detect intrange
+# http://gstreamer-devel.230.s1.nabble.com/gstreamer-python-binding-and-intRange-td969231.html#a969232
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     format="%(asctime)s %(levelname)s - %(message)s",
@@ -24,7 +27,8 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # type: ignore
 
 gi.require_version("Gst", "1.0")
-from gi.repository import Gst, GstPbutils  # , GstPbutils  # type: ignore
+gi.require_version("GstPbutils", "1.0")
+from gi.repository import Gst, GstPbutils  # type: ignore
 
 gi.require_version("GLib", "2.0")
 from gi.repository import GLib  # type: ignore
@@ -395,7 +399,7 @@ def display_viewfinder(
         do that before calling this function
     :param show_n_seconds: number of seconds to keep the viewfinder on screen
     """
-    
+
     partial_pipeline = " ! ".join(["videoconvert name=head", "autovideosink"])
     pipeline = Gst.parse_launch(partial_pipeline)  # type: Gst.Pipeline
     head = pipeline.get_by_name("head")

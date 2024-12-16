@@ -27,6 +27,8 @@ import re
 import time
 import shlex
 
+from pylxd.exceptions import NotFound
+
 from metabox.core.actions import Start, Expect, Send, SelectTestPlan
 from metabox.core.aggregator import aggregator
 
@@ -108,7 +110,7 @@ class Scenario:
                 # step that fail explicitly return false or raise an exception
                 if not step(self):
                     self.failures.append(step)
-            except (TimeoutError, ConnectionError):
+            except (TimeoutError, ConnectionError, NotFound):
                 self.failures.append(step)
                 break
         if self._pts:

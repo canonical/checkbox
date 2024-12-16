@@ -291,9 +291,9 @@ class Runner:
                 # let's escape < from the all outputs to avoid confusing loguru
                 # loguru assumes that <> is used for colorizing
                 logger.error("The following steps failed")
-                failed_steps = "\n".join(str(x) for x in scn.failures)
-                failed_steps = failed_steps.replace("<", r"\<")
-                logger.error(failed_steps)
+                for failed_steps in scn.failures:
+                    step = str(failed_steps).replace("<", r"\<")
+                    logger.error("  - {}".format(step))
 
                 output = scn.get_output_streams().strip().replace("<", r"\<")
                 logger.error("Scenario output:\n" + output)

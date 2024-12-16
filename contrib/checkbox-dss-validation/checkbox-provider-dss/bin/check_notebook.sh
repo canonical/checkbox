@@ -33,6 +33,7 @@ help_function() {
     echo -e "\t\t\t- verifying_tensorflow_can_use_xpu"
     echo -e "\t\t\t- verifying_pytorch_can_use_cuda"
     echo -e "\t\t\t- verifying_tensorflow_can_use_cuda"
+    exit 1
 }
 
 main() {

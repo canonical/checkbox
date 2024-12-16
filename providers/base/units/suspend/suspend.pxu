@@ -57,6 +57,17 @@ estimated_duration: 1.2
 _summary: Dumps memory info to a file for comparison after suspend
 command: meminfo_resource.py > "$PLAINBOX_SESSION_SHARE"/meminfo_before_suspend
 
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/power_mode_before_suspend
+estimated_duration: 1.2
+requires:
+  module.name == 'platform_profile'
+  package.name == 'power-profiles-daemon'
+  platform_profile.supported == 'True'
+_summary: Dumps power_mode info to a file for comparison after suspend
+command: check_power_mode.py > "$PLAINBOX_SESSION_SHARE"/power_mode_before_suspend
+
 unit: template
 template-resource: device
 template-filter: device.category == 'NETWORK'
@@ -622,6 +633,19 @@ _purpose:
  Verify that all memory is available after resuming from suspend.
 command: meminfo_resource.py | diff "$PLAINBOX_SESSION_SHARE"/meminfo_before_suspend -
 _summary: Ensure all memory is accessible after waking from suspend mode.
+
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+id: suspend/power_mode_after_suspend
+estimated_duration: 1.2
+requires:
+  module.name == 'platform_profile'
+  package.name == 'power-profiles-daemon'
+  platform_profile.supported == 'True'
+depends: suspend/suspend_advanced_auto suspend/power_mode_before_suspend
+_description:
+ Verify that power mode is changed after resuming from suspend.
+command: check_power_mode.py | diff "$PLAINBOX_SESSION_SHARE"/power_mode_before_suspend -
 
 plugin: manual
 category_id: com.canonical.plainbox::suspend

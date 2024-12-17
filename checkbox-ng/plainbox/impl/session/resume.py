@@ -1082,7 +1082,13 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     def _build_IOLogRecord(cls, record_repr):
         """Convert the representation of IOLogRecord back the object."""
         _validate(record_repr, value_type=list)
-        delay = _validate(record_repr, key=0, value_type=float)
+        delay = _validate(record_repr, key=0)
+        try:
+            delay = float(delay)
+        except ValueError:
+            raise CorruptedSessionError(
+                "IOLogRecord has invalid delay {}".format(delay)
+            )
         if delay < 0:
             # TRANSLATORS: please keep delay untranslated
             raise CorruptedSessionError(_("delay cannot be negative"))

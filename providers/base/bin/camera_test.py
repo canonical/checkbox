@@ -549,7 +549,7 @@ class CameraTest:
         rgb_capture.link(valve)
 
         # Add sink, use multifilesink to avoid large jpeg files.
-        # filesink does not stop writing after it receives the 1st buffer 
+        # filesink does not stop writing after it receives the 1st buffer
         sink = self.Gst.ElementFactory.make("multifilesink", "sink")
         sink.set_property("location", filename)
         pipeline.add(sink)

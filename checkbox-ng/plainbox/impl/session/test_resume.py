@@ -812,7 +812,9 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
         verify that _build_IOLogRecord() checks that ``delay`` is float
         """
         with self.assertRaises(CorruptedSessionError):
-            self.parameters.resume_cls._build_IOLogRecord([0, "stdout", ""])
+            self.parameters.resume_cls._build_IOLogRecord(
+                ["abc", "stdout", ""]
+            )
 
     def test_build_IOLogRecord_negative_delay(self):
         """

@@ -201,7 +201,7 @@ class CameraTest:
             # valve open timeout if using a valve
             "open_valve": None,
             # pipeline end timeout if mime type is jpeg
-            "stop_jpeg_pipeline": None,
+            "eos_timeout": None,
         }  # type: dict[str, int | None]
 
     def init_gstreamer(self):
@@ -548,23 +548,13 @@ class CameraTest:
         source.link(caps)
         rgb_capture.link(valve)
 
-        # Add sink
-        sink = self.Gst.ElementFactory.make("filesink", "sink")
+        # Add sink, use multifilesink to avoid large jpeg files.
+        # filesink does not stop writing after it receives the 1st buffer 
+        sink = self.Gst.ElementFactory.make("multifilesink", "sink")
         sink.set_property("location", filename)
         pipeline.add(sink)
 
         if pixelformat == "MJPG":
-
-            def stop_jpeg_pipeline():
-                # this relies on the eos handler in _on_gst_message
-                self.timeout["stop_jpeg_pipeline"] = None
-                self.pipeline.send_event(self.Gst.Event.new_eos())
-
-            # cannot use jpegenc here, so we directly link to the sink
-            # give it 1 extra second in case MainLoop checks this timeout first
-            self.timeout["stop_jpeg_pipeline"] = self.GLib.timeout_add_seconds(
-                self.photo_wait_seconds + 1, stop_jpeg_pipeline
-            )
             valve.link(sink)
 
         else:
@@ -589,6 +579,16 @@ class CameraTest:
         self.timeout["global_timeout"] = self.GLib.timeout_add_seconds(
             90, self._on_timeout
         )
+
+        def eos_timeout():
+            # this relies on the eos handler in _on_gst_message
+            self.timeout["eos_timeout"] = None
+            self.pipeline.send_event(self.Gst.Event.new_eos())
+
+        self.timeout["eos_timeout"] = self.GLib.timeout_add_seconds(
+            (self.photo_wait_seconds or 0) + 1, eos_timeout
+        )
+
         if self.photo_wait_seconds > 0:
 
             def open_valve():

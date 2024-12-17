@@ -449,7 +449,7 @@ class CameraTestTests(unittest.TestCase):
                 call("v4l2src", "video-source"),
                 call("capsfilter", "caps"),
                 call("valve", "photo-valve"),
-                call("filesink", "sink"),  # this gets created earlier
+                call("multifilesink", "sink"),  # this gets created earlier
                 call("jpegenc", "encoder"),
             ],
         )
@@ -473,7 +473,7 @@ class CameraTestTests(unittest.TestCase):
                 call("capsfilter", "caps"),
                 call("bayer2rgb", "bayer2rgb"),
                 call("valve", "photo-valve"),
-                call("filesink", "sink"),
+                call("multifilesink", "sink"),
                 call("jpegenc", "encoder"),
             ],
         )
@@ -495,21 +495,18 @@ class CameraTestTests(unittest.TestCase):
                 call("v4l2src", "video-source"),
                 call("capsfilter", "caps"),
                 call("valve", "photo-valve"),
-                call("filesink", "sink"),
+                call("multifilesink", "sink"),
             ],
         )
         self.assertTrue(mock_GLib_timout_add.called)
         # now simulate the timeout
         self.assertEqual(mock_GLib_timout_add.call_count, 3)
-
-        print("\nmock timeout\n")
-        # print(mock_GLib_timout_add.call_args_list, dir(mock_GLib_timout_add))
         for mock_timeout_call in mock_GLib_timout_add.call_args_list:
             # 0 extracts the (timeout_seconds, handler) tuple
             # 1 grabs the handler, then call it
             mock_timeout_call[0][1]()
 
-        self.assertIsNone(mock_camera.timeout["stop_jpeg_pipeline"])
+        self.assertIsNone(mock_camera.timeout["eos_timeout"])
         self.assertIsNone(mock_camera.timeout["open_valve"])
 
     def test_capture_image_gstreamer_error(self):

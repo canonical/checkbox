@@ -94,6 +94,27 @@ def validate_video_info(
     return all_passed
 
 
+def extract_int_range(
+    struct: Gst.Structure, prop_name: str
+) -> tuple[int, int]:
+    """Bit of a hack to work around the missing Gst.IntRange type
+
+    :param struct: structure whose prop_name property is a Gst.IntRange
+    :param prop_name: name of the property
+    :return: (low, high) integer tuple
+    """
+    # the introspected class exists, but we can't construct it
+    assert struct.has_field_typed(prop_name, Gst.IntRange)
+    INT32_MIN = -2147483648
+    INT32_MAX = 2147483647
+    low = struct.copy()  # type: Gst.Structure
+    high = struct.copy()  # type: Gst.Structure
+    low.fixate_field_nearest_int(prop_name, INT32_MIN)
+    high.fixate_field_nearest_int(prop_name, INT32_MAX)
+
+    return low.get_int(prop_name)[1], high.get_int(prop_name)[1]
+
+
 def get_all_fixated_caps(caps: Gst.Caps, maximum=100) -> T.List[Gst.Caps]:
     """Gets all the fixated(1 value per property) caps from a Gst.Caps object
 

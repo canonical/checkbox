@@ -482,14 +482,13 @@ class CameraTestTests(unittest.TestCase):
         mock_camera = MagicMock()
         mock_camera.photo_wait_seconds = 3
         mock_camera.timeout = {}
-        mock_make = mock_camera.Gst.ElementFactory.make
         mock_GLib_timout_add = mock_camera.GLib.timeout_add_seconds
 
         CameraTest._capture_image_gstreamer(
             mock_camera, "/tmp/test.jpg", 640, 480, "MJPG"
         )
-        make_calls = mock_make.call_args_list
-        print(make_calls, flush=sys.stderr)
+        make_calls = mock_camera.Gst.ElementFactory.make.call_args_list
+        print(make_calls, flush=True)
         self.assertListEqual(
             make_calls,
             [
@@ -503,10 +502,12 @@ class CameraTestTests(unittest.TestCase):
         # now simulate the timeout
         self.assertEqual(mock_GLib_timout_add.call_count, 3)
 
+        print("\nmock timeout\n")
+        # print(mock_GLib_timout_add.call_args_list, dir(mock_GLib_timout_add))
         for mock_timeout_call in mock_GLib_timout_add.call_args_list:
-            callback = mock_timeout_call.args[1]
-            if callable(callback):
-                callback()
+            # 0 extracts the (timeout_seconds, handler) tuple
+            # 1 grabs the handler, then call it
+            mock_timeout_call[0][1]()
 
         self.assertIsNone(mock_camera.timeout["stop_jpeg_pipeline"])
         self.assertIsNone(mock_camera.timeout["open_valve"])

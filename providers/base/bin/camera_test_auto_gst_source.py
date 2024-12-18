@@ -467,7 +467,7 @@ def run_pipeline(
         # it's possible to hang here if the source is broken
         # but the main thread will keep running,
         # so we check both an explicit fail and a hang
-        if pipeline.get_state(5)[0] == Gst.StateChangeReturn.FAILURE:
+        if pipeline.get_state(5 * 10**9)[0] != Gst.StateChangeReturn.SUCCESS:
             pipeline.set_state(Gst.State.NULL)
             raise RuntimeError("Failed to transition to playing state")
 

@@ -243,7 +243,6 @@ class CapsResolver:
 
         fixed_caps = []  # type: list[Gst.Caps]
 
-        print(f"\n{caps.get_size()}\n")
         for i in range(caps.get_size()):
             struct = caps.get_structure(i)
             caps_i = Gst.Caps.from_string(struct.to_string())  # type: Gst.Caps
@@ -537,7 +536,7 @@ def run_pipeline(
         GLib.timeout_add_seconds(run_n_seconds, graceful_quit)
 
     start()
-    logger.info(f"[ OK ] Pipeline is playing!")
+    logger.info("[ OK ] Pipeline is playing!")
     main_loop.run()
 
 

@@ -144,7 +144,7 @@ class CapsResolver:
 
     def extract_fraction_range(
         self, struct: Gst.Structure, prop_name: str
-    ) -> tuple[FractionTuple, FractionTuple]:
+    ) -> T.Tuple[FractionTuple, FractionTuple]:
         """Extracts (low, high) fraction range from a Gst.Structure
 
         :param struct: structure whose prop_name is a Gst.FractionRange
@@ -165,7 +165,7 @@ class CapsResolver:
 
     def extract_int_range(
         self, struct: Gst.Structure, prop_name: str
-    ) -> tuple[int, int]:
+    ) -> T.Tuple[int, int]:
         """Bit of a hack to work around the missing Gst.IntRange type
 
         :param struct: structure whose prop_name property is a Gst.IntRange
@@ -183,12 +183,20 @@ class CapsResolver:
         # get_int returns a (success, value) tuple
         return low.get_int(prop_name)[1], high.get_int(prop_name)[1]
 
+    @T.overload
+    def remap_range_to_list(
+        self, prop: str, low: int, high: int
+    ) -> T.List[int]: ...
+    @T.overload
+    def remap_range_to_list(
+        self, prop: str, low: FractionTuple, high: FractionTuple
+    ) -> T.List[FractionTuple]: ...
     def remap_range_to_list(
         self,
         prop: str,
         low: T.Union[int, FractionTuple],
         high: T.Union[int, FractionTuple],
-    ) -> GObject.ValueArray:
+    ) -> T.List:
         """Creates a GObject.ValueArray based on range
         that can be used in Gst.Caps
 
@@ -196,7 +204,7 @@ class CapsResolver:
         :param high: max value, inclusive
         :return: ValueArray object. Usage: Caps.set_property(prop, value_array)
         """
-        out = GObject.ValueArray()
+        out = []
         assert (
             prop in self.RANGE_REMAP
         ), "Property {} does not have a remap definition".format(prop)
@@ -207,6 +215,12 @@ class CapsResolver:
                 out.append(val)
 
         return out
+
+    def list_to_gobject_value_array(self, l: T.List):
+        out = GObject.ValueArray()
+        for e in l:
+            out.append(e)
+        return out  # this does not guarantee that out has a sensible value
 
     def get_all_fixated_caps(
         self,
@@ -239,16 +253,36 @@ class CapsResolver:
                 for prop in self.RANGE_REMAP.keys():
                     s_i = caps_i.get_structure(0)  # type: Gst.Structure
 
-                    low, high = None, None
+                    finite_list = None  # type GObject.ValueArray
                     if s_i.has_field_typed(prop, Gst.IntRange):
                         low, high = self.extract_int_range(s_i, prop)
+                        finite_list = self.list_to_gobject_value_array(
+                            self.remap_range_to_list(prop, low, high)
+                        )
                     elif s_i.has_field_typed(prop, Gst.FractionRange):
                         low, high = self.extract_fraction_range(s_i, prop)
+                        fraction_list = self.remap_range_to_list(
+                            prop, low, high
+                        )
+                        # workaround missing Gst.Fraction
+                        # we can't directly create fraction objects
+                        # but we can create a struct from str, then access it
+                        temp = Gst.Structure.from_string(
+                            "temp, {}={{{}}}".format(
+                                prop,
+                                ",".join(
+                                    "{}/{}".format(f[0], f[1])
+                                    for f in fraction_list
+                                ),
+                            )
+                        )[0]
+                        finite_list = temp.get_list(prop)[1]
 
-                    if low is not None and high is not None:
+                    if finite_list is not None:
+                        assert finite_list.n_values != 0
                         s_i.set_list(
                             prop,
-                            self.remap_range_to_list(prop, low, high),
+                            finite_list,
                         )
 
                         caps_i = Gst.Caps.from_string(s_i.to_string())
@@ -816,5 +850,5 @@ if __name__ == "__main__":
     Gst.init(None)
     GstPbutils.pb_utils_init()
     Gtk.init([])
-    
+
     main()

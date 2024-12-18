@@ -82,16 +82,22 @@ class MediaValidator:
         expected_width: int,
         expected_height: int,
         expected_duration_seconds: int,
+        expected_fps: int,
         duration_tolerance_seconds=0.1,
     ) -> bool:
         discoverer = GstPbutils.Discoverer()
 
-        video_file_path.removeprefix("/")
+        video_file_path.lstrip("/")
         info = discoverer.discover_uri("file://" + video_file_path)
         duration = info.get_duration()  # type: int # This is in nanoseconds
-        video_track = info.get_stream_info().get_streams()[0]
-        width = video_track.get_width()
-        height = video_track.get_height()
+        video_streams = info.get_video_streams()
+        if len(video_streams) == 0:
+            logger.error("{} has no video streams.".format(video_file_path))
+            return False
+
+        width = video_streams[0].get_width()
+        height = video_streams[0].get_height()
+        fps = video_streams[0].get_framerate_num()
 
         passed = True
 
@@ -118,6 +124,13 @@ class MediaValidator:
             logger.error(
                 "Video height mismatch. Expected = {}, actual = {}".format(
                     expected_height, height
+                )
+            )
+            passed = False
+        if fps != expected_fps:
+            logger.error(
+                "Video FPS mismatch. Expected = {}fps, actual = {}fps".format(
+                    expected_fps, fps
                 )
             )
             passed = False
@@ -697,7 +710,7 @@ def record_video(
         "videoconvert name=converter",  # 2
         "jpegenc",  # 3, avoid massiave uncompressed videos
         "matroskamux",  # 4
-        "multifilesink location={}".format(file_path),  # 5
+        "filesink location={}".format(file_path),  # 5
     ]
 
     head_elem_name = "source-caps"
@@ -868,6 +881,9 @@ def main():
                     expected_width=cap_struct.get_int("width").value,
                     expected_height=cap_struct.get_int("height").value,
                     duration_tolerance_seconds=args.tolerance,
+                    expected_fps=cap_struct.get_fraction(
+                        "framerate"
+                    ).value_numerator,
                 )
 
     logger.info("[ OK ] All done!")

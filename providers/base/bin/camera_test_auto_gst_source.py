@@ -562,7 +562,7 @@ def play_video(filepath: str):
     run_pipeline(pipeline)
 
 
-def display_viewfinder(
+def show_viewfinder(
     source: Gst.Element,
     *,
     show_n_seconds=5,
@@ -801,7 +801,7 @@ def main():
         dev_element = device.create_element()
 
         if args.subcommand == "show-viewfinder":
-            display_viewfinder(dev_element, show_n_seconds=args.seconds)
+            show_viewfinder(dev_element, show_n_seconds=args.seconds)
             continue
 
         if not os.path.isdir(args.path):

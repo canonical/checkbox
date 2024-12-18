@@ -25,8 +25,7 @@ logger.setLevel(logging.DEBUG)
 
 from gi.repository import GObject  # type: ignore
 
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk  # type: ignore
+Gtk = None
 
 gi.require_version("Gst", "1.0")
 gi.require_version("GstPbutils", "1.0")
@@ -367,6 +366,15 @@ def parse_args():
         help="Skip video dimension & duration validation",
     )
 
+    viewfinder_subparser = subparser.add_parser("show-viewfinder")
+    viewfinder_subparser.add_argument(
+        "-s",
+        "--seconds",
+        type=int,
+        help="Show the viewfinder for n seconds",
+        default=10,
+    )
+
     player_subparser = subparser.add_parser("play-video")
     player_subparser.add_argument(
         "-p",
@@ -534,6 +542,13 @@ def run_pipeline(
 
 
 def play_video(filepath: str):
+    global Gtk
+    if not Gtk:
+        gi.require_version("Gtk", "3.0")
+        from gi.repository import Gtk  # type: ignore
+
+        Gtk.init([])
+
     pipeline = Gst.parse_launch(
         " ! ".join(
             [
@@ -559,6 +574,12 @@ def display_viewfinder(
         do that before calling this function
     :param show_n_seconds: number of seconds to keep the viewfinder on screen
     """
+    global Gtk
+    if not Gtk:
+        gi.require_version("Gtk", "3.0")
+        from gi.repository import Gtk  # type: ignore
+
+        Gtk.init([])
 
     partial_pipeline = " ! ".join(["videoconvert name=head", "autovideosink"])
     pipeline = Gst.parse_launch(partial_pipeline)  # type: Gst.Pipeline
@@ -753,10 +774,6 @@ def main():
         play_video(args.path)
         return
 
-    if not os.path.isdir(args.path):
-        # must validate early, multifilesink does not check if the path exists
-        raise FileNotFoundError('Path "{}" does not exist'.format(args.path))
-
     devices = get_devices()
 
     if len(devices) == 0:
@@ -782,6 +799,17 @@ def main():
 
     for dev_i, device in enumerate(devices):
         dev_element = device.create_element()
+
+        if args.subcommand == "show-viewfinder":
+            display_viewfinder(dev_element, show_n_seconds=args.seconds)
+            continue
+
+        if not os.path.isdir(args.path):
+            # must validate early, multifilesink does not check if the path exists
+            raise FileNotFoundError(
+                'Path "{}" does not exist'.format(args.path)
+            )
+
         resolver = CapsResolver()
         all_fixed_caps = resolver.get_all_fixated_caps(
             device.get_caps(), "remap"
@@ -849,6 +877,5 @@ def main():
 if __name__ == "__main__":
     Gst.init(None)
     GstPbutils.pb_utils_init()
-    Gtk.init([])
 
     main()

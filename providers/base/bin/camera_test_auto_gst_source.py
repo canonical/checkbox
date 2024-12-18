@@ -246,13 +246,17 @@ class CapsResolver:
                         low, high = self.extract_fraction_range(s_i, prop)
 
                     if low is not None and high is not None:
-                        s_i.set_value(
+                        s_i.set_list(
                             prop,
                             self.remap_range_to_list(prop, low, high),
                         )
 
-            while not caps_i.is_fixed():
-                fixed_cap = caps_i.fixate()
+                        caps_i = Gst.Caps.from_string(s_i.to_string())
+
+            while not caps_i.is_fixed() and not caps_i.is_empty():
+                fixed_cap = caps_i.fixate()  # type: Gst.Caps
+                if fixed_cap.get_structure(0).get_name() == "video/x-bayer":
+                    continue
                 fixed_caps.append(fixed_cap)
                 caps_i = caps_i.subtract(fixed_cap)
 
@@ -812,5 +816,5 @@ if __name__ == "__main__":
     Gst.init(None)
     GstPbutils.pb_utils_init()
     Gtk.init([])
-
+    
     main()

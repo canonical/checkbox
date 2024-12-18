@@ -23,6 +23,8 @@ logging.basicConfig(
 )
 logger.setLevel(logging.DEBUG)
 
+from gi.repository import GObject  # type: ignore
+
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # type: ignore
 
@@ -45,120 +47,219 @@ def get_devices() -> T.List[Gst.Device]:
     return devices
 
 
-def validate_video_info(
-    video_file_path: str,
-    *,
-    expected_width: int,
-    expected_height: int,
-    expected_duration_seconds: int,
-    duration_tolerance_seconds=0.1,
-) -> bool:
-    discoverer = GstPbutils.Discoverer()
+class MediaValidator:
 
-    video_file_path.removeprefix("/")
-    info = discoverer.discover_uri("file://" + video_file_path)
-    duration = info.get_duration()  # type: int # This is in nanoseconds
-    video_track = info.get_stream_info().get_streams()[0]
-    width = video_track.get_width()
-    height = video_track.get_height()
+    @staticmethod
+    def validate_image_dimensions(
+        image_file_path: str,
+        *,
+        expected_width: int,
+        expected_height: int,
+    ) -> bool:
+        image = PIL.Image.open(image_file_path)
+        passed = True
 
-    all_passed = True
-
-    if (
-        abs(duration - expected_duration_seconds * 10**9)
-        > duration_tolerance_seconds * 10**9
-    ):
-        logger.error(
-            "Duration not within tolerance. Got {}s, but expected {} +- {}s".format(
-                round(duration / (10**9), 3),
-                expected_duration_seconds,
-                duration_tolerance_seconds,
+        if image.width != expected_width:
+            passed = False
+            logger.error(
+                "Image width mismatch. Expected = {}, actual = {}".format(
+                    expected_width, image.width
+                )
             )
-        )
-        all_passed = False
-    if width != expected_width:
-        logger.error(
-            "Video width mismatch. Expected = {}, actual = {}".format(
-                expected_width, width
+        if image.height != expected_height:
+            passed = False
+            logger.error(
+                "Image height mismatch. Expected = {}, actual = {}".format(
+                    expected_height, image.height
+                )
             )
-        )
-        all_passed = False
-    if height != expected_height:
-        logger.error(
-            "Video height mismatch. Expected = {}, actual = {}".format(
-                expected_height, height
+
+        return passed
+
+    @staticmethod
+    def validate_video_info(
+        video_file_path: str,
+        *,
+        expected_width: int,
+        expected_height: int,
+        expected_duration_seconds: int,
+        duration_tolerance_seconds=0.1,
+    ) -> bool:
+        discoverer = GstPbutils.Discoverer()
+
+        video_file_path.removeprefix("/")
+        info = discoverer.discover_uri("file://" + video_file_path)
+        duration = info.get_duration()  # type: int # This is in nanoseconds
+        video_track = info.get_stream_info().get_streams()[0]
+        width = video_track.get_width()
+        height = video_track.get_height()
+
+        passed = True
+
+        if (
+            abs(duration - expected_duration_seconds * 10**9)
+            > duration_tolerance_seconds * 10**9
+        ):
+            logger.error(
+                "Duration not within tolerance. Got {}s, but expected {} +- {}s".format(
+                    round(duration / (10**9), 3),
+                    expected_duration_seconds,
+                    duration_tolerance_seconds,
+                )
             )
-        )
-        all_passed = False
+            passed = False
+        if width != expected_width:
+            logger.error(
+                "Video width mismatch. Expected = {}, actual = {}".format(
+                    expected_width, width
+                )
+            )
+            passed = False
+        if height != expected_height:
+            logger.error(
+                "Video height mismatch. Expected = {}, actual = {}".format(
+                    expected_height, height
+                )
+            )
+            passed = False
 
-    return all_passed
+        return passed
 
 
-def extract_int_range(
-    struct: Gst.Structure, prop_name: str
-) -> tuple[int, int]:
-    """Bit of a hack to work around the missing Gst.IntRange type
-
-    :param struct: structure whose prop_name property is a Gst.IntRange
-    :param prop_name: name of the property
-    :return: (low, high) integer tuple
-    """
-    # the introspected class exists, but we can't construct it
-    assert struct.has_field_typed(prop_name, Gst.IntRange)
+class CapsResolver:
     INT32_MIN = -2147483648
     INT32_MAX = 2147483647
-    low = struct.copy()  # type: Gst.Structure
-    high = struct.copy()  # type: Gst.Structure
-    low.fixate_field_nearest_int(prop_name, INT32_MIN)
-    high.fixate_field_nearest_int(prop_name, INT32_MAX)
 
-    return low.get_int(prop_name)[1], high.get_int(prop_name)[1]
+    # (top, bottom) or (numerator, denominator)
+    FractionTuple = tuple[int, int]
+    # Used when we encounter IntRange or FractionRange types
+    # Simply fixating the caps will produce too many caps,
+    # so we restrict to these common ones
+    RangeResolveMethod = T.Literal["remap", "limit"]
+    RANGE_REMAP = {
+        "width": [640, 1280, 1920, 2560, 3840],
+        "height": [480, 720, 1080, 1440, 2160],
+        "framerate": [(15, 1), (30, 1), (60, 1)],  # 15fpx, 30fps, 60fps
+    }
 
+    def extract_fraction_range(
+        self, struct: Gst.Structure, prop_name: str
+    ) -> tuple[FractionTuple, FractionTuple]:
+        """Extracts (low, high) fraction range from a Gst.Structure
 
-def get_all_fixated_caps(caps: Gst.Caps, maximum=100) -> T.List[Gst.Caps]:
-    """Gets all the fixated(1 value per property) caps from a Gst.Caps object
+        :param struct: structure whose prop_name is a Gst.FractionRange
+        :param prop_name: name of the property
+        :return: (low, high) fraction tuple
+            - NOTE: low is defined as having a smaller numerator
+        """
+        assert struct.has_field_typed(prop_name, Gst.FractionRange)
+        low = struct.copy()  # type: Gst.Structure
+        high = struct.copy()  # type: Gst.Structure
+        low.fixate_field_nearest_fraction(prop_name, 0, 1)
+        high.fixate_field_nearest_fraction(prop_name, self.INT32_MAX, 1)
 
-    :param caps: A mixed Gst.Caps
-    """
-    fixed_caps = []
-    while not caps.is_fixed() and len(fixed_caps) < maximum:
-        # keep fixating it until it's fixed
-        fixed_cap = caps.fixate()
-        fixed_caps.append(fixed_cap)
-        caps = caps.subtract(fixed_cap)
-        # this is useful to get around missing types
-        # in default gst python binding on ubuntu, like Gst.Fraction
-
-    if caps.is_fixed():
-        fixed_caps.append(caps)  # append the final one
-    else:
-        logger.error(
-            "Maximum cap amount reached: {}. Skipping the rest.".format(
-                maximum
-            )
+        return (
+            low.get_fraction(prop_name)[1:],
+            high.get_fraction(prop_name)[1:],
         )
 
-    return fixed_caps
+    def extract_int_range(
+        self, struct: Gst.Structure, prop_name: str
+    ) -> tuple[int, int]:
+        """Bit of a hack to work around the missing Gst.IntRange type
 
+        :param struct: structure whose prop_name property is a Gst.IntRange
+        :param prop_name: name of the property
+        :return: (low, high) integer tuple
+        """
+        # the introspected class exists, but we can't construct it
+        assert struct.has_field_typed(prop_name, Gst.IntRange)
 
-def validate_image_dimensions(
-    image_file_path: str, *, expected_width: int, expected_height: int
-) -> bool:
-    image = PIL.Image.open(image_file_path)
-    if image.width != expected_width:
-        logger.error(
-            "Image width mismatch. Expected = {}, actual = {}".format(
-                expected_width, image.width
-            )
-        )
-    if image.height != expected_height:
-        logger.error(
-            "Image height mismatch. Expected = {}, actual = {}".format(
-                expected_height, image.height
-            )
-        )
+        low = struct.copy()  # type: Gst.Structure
+        high = struct.copy()  # type: Gst.Structure
+        low.fixate_field_nearest_int(prop_name, self.INT32_MIN)
+        high.fixate_field_nearest_int(prop_name, self.INT32_MAX)
 
-    return image.width != expected_width and image.height == expected_height
+        # get_int returns a (success, value) tuple
+        return low.get_int(prop_name)[1], high.get_int(prop_name)[1]
+
+    def remap_range_to_list(
+        self,
+        prop: str,
+        low: T.Union[int, FractionTuple],
+        high: T.Union[int, FractionTuple],
+    ) -> GObject.ValueArray:
+        """Creates a GObject.ValueArray based on range
+        that can be used in Gst.Caps
+
+        :param low: min value, inclusive
+        :param high: max value, inclusive
+        :return: ValueArray object. Usage: Caps.set_property(prop, value_array)
+        """
+        out = GObject.ValueArray()
+        assert (
+            prop in self.RANGE_REMAP
+        ), "Property {} does not have a remap definition".format(prop)
+
+        for val in self.RANGE_REMAP[prop]:
+            # lt gt are defined as pairwise comparison on tuples
+            if val >= low and val <= high:
+                out.append(val)
+
+        return out
+
+    def get_all_fixated_caps(
+        self,
+        caps: Gst.Caps,
+        resolve_method: RangeResolveMethod,
+        limit: T.Optional[int] = None,
+    ) -> T.List[Gst.Caps]:
+        """Gets all the fixated(1 value per property) caps from a Gst.Caps object
+
+        :param caps: a mixed Gst.Caps
+        :param resolve_method: how to resolve IntRange and FractionRange values
+        - Only applies to width, height, and framerate for now
+        - "remap" => picks out a set of common values within the original range
+        - "limit" => Use the caps.is_fixed while loop until we reaches limit
+
+        :param limit: the limit to use for the "limit" resolver, ignored otherwise
+        :return: a list of fixed caps
+        """
+        if caps.is_fixed():
+            return [caps]
+
+        fixed_caps = []  # type: list[Gst.Caps]
+
+        print(f"\n{caps.get_size()}\n")
+        for i in range(caps.get_size()):
+            struct = caps.get_structure(i)
+            caps_i = Gst.Caps.from_string(struct.to_string())  # type: Gst.Caps
+
+            if resolve_method == "remap":
+                for prop in self.RANGE_REMAP.keys():
+                    s_i = caps_i.get_structure(0)  # type: Gst.Structure
+
+                    low, high = None, None
+                    if s_i.has_field_typed(prop, Gst.IntRange):
+                        low, high = self.extract_int_range(s_i, prop)
+                    elif s_i.has_field_typed(prop, Gst.FractionRange):
+                        low, high = self.extract_fraction_range(s_i, prop)
+
+                    if low is not None and high is not None:
+                        s_i.set_value(
+                            prop,
+                            self.remap_range_to_list(prop, low, high),
+                        )
+
+            while not caps_i.is_fixed():
+                fixed_cap = caps_i.fixate()
+                fixed_caps.append(fixed_cap)
+                caps_i = caps_i.subtract(fixed_cap)
+
+            if caps_i.is_fixed():
+                fixed_caps.append(caps_i)
+
+        return fixed_caps
 
 
 def parse_args():
@@ -218,9 +319,9 @@ def parse_args():
             "Tolerance for validating the recording duration in seconds. "
             "Ex. If the video is supposed to be 5s, tolerance is 0.1s, "
             "then durations in [4.9s, 5.1s] inclusive will pass the validation"
-            "Default is 0.1s."
+            "Default is 0.5s."
         ),
-        default=0.1,
+        default=0.5,
     )
     video_subparser.add_argument(
         "--skip-validation",
@@ -260,7 +361,7 @@ def elem_to_str(element: Gst.Element) -> str:
         try:
             prop_value = element.get_property(prop.name)
         except:
-            logger.info(
+            logger.debug(
                 "Property {} is unreadable in {}".format(
                     prop.name, element_name
                 )  # not every property is readable, ignore unreadable ones
@@ -462,7 +563,7 @@ def take_photo(
         "videoconvert name=converter",  # 2
         "valve name=photo-valve drop=True",  # 4
         "jpegenc",  # 3
-        "filesink location={}".format(file_path),  # 5
+        "multifilesink location={}".format(file_path),  # 5
     ]
     head_elem_name = "source-caps"
 
@@ -538,7 +639,7 @@ def record_video(
         "videoconvert name=converter",  # 2
         "jpegenc",  # 3, avoid massiave uncompressed videos
         "matroskamux",  # 4
-        "filesink location={}".format(file_path),  # 5
+        "multifilesink location={}".format(file_path),  # 5
     ]
 
     head_elem_name = "source-caps"
@@ -593,7 +694,7 @@ def record_video(
     videotestsrc num-buffers=120 !
     queue !
     encodebin profile="video/quicktime,variant=iso:video/x-h264" !
-    filesink location=video.mp4
+    multifilesink location=video.mp4
     """
     """decode
     filesrc location=video.mp4 ! decodebin ! autovideosink
@@ -615,7 +716,7 @@ def main():
         return
 
     if not os.path.isdir(args.path):
-        # must validate early, filesink does not check if the path exists
+        # must validate early, multifilesink does not check if the path exists
         raise FileNotFoundError('Path "{}" does not exist'.format(args.path))
 
     devices = get_devices()
@@ -635,7 +736,7 @@ def main():
     logger.info("Found {} cameras!".format(len(devices)))
     print(
         '[ HINT ] For debugging, remove the "valve" element to get a pipeline',
-        "that can be run with gst-launch-1.0",
+        'that can be run with "gst-launch-1.0".',
         "Also keep the pipeline running for {} seconds".format(
             seconds_per_pipeline
         ),
@@ -643,7 +744,10 @@ def main():
 
     for dev_i, device in enumerate(devices):
         dev_element = device.create_element()
-        all_fixed_caps = get_all_fixated_caps(device.get_caps())
+        resolver = CapsResolver()
+        all_fixed_caps = resolver.get_all_fixated_caps(
+            device.get_caps(), "remap"
+        )
 
         logger.info("Testing device {}/{}".format(dev_i + 1, len(devices)))
         logger.info(
@@ -674,7 +778,7 @@ def main():
                 if args.skip_validation:
                     continue
 
-                validate_image_dimensions(
+                MediaValidator.validate_image_dimensions(
                     file_path,
                     expected_width=cap_struct.get_int("width").value,
                     expected_height=cap_struct.get_int("height").value,
@@ -693,11 +797,12 @@ def main():
                 if args.skip_validation:
                     continue
 
-                validate_video_info(
+                MediaValidator.validate_video_info(
                     file_path,
                     expected_duration_seconds=args.seconds,
                     expected_width=cap_struct.get_int("width").value,
                     expected_height=cap_struct.get_int("height").value,
+                    duration_tolerance_seconds=args.tolerance,
                 )
 
     logger.info("[ OK ] All done!")

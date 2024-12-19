@@ -85,6 +85,7 @@ class TestModelAsserts(unittest.TestCase):
             "kernel_track": "18",
             "gadget": "pc",
             "gadget_track": "18",
+            "store": "unknown",
         }
         self.assertDictEqual(correct_resource, model_to_resource(a))
         with self.assertRaises(StopIteration):
@@ -107,6 +108,7 @@ class TestModelAsserts(unittest.TestCase):
             "gadget_track": "20/edge",
             "kernel": "pc-kernel",
             "kernel_track": "20/edge",
+            "store": "unknown",
         }
         self.assertDictEqual(correct_resource, model_to_resource(a))
         with self.assertRaises(StopIteration):
@@ -133,6 +135,7 @@ class TestModelAsserts(unittest.TestCase):
             "brand-id": "generic",
             "model": "generic-classic",
             "sign-key-sha3-384": "d-JcZF9nD9eBw7bwMnH61x-bklnQOhQud1Is6o_cn2wTj8EYDi9musrIT9z2MdAa",
+            "store": "unknown",
         }
         self.assertDictEqual(correct_resource, model_to_resource(a))
         self.assertNotIn("kernel", model_to_resource(a))
@@ -160,6 +163,7 @@ class TestModelAsserts(unittest.TestCase):
             "brand-id": "generic",
             "model": "generic-classic",
             "sign-key-sha3-384": "d-JcZF9nD9eBw7bwMnH61x-bklnQOhQud1Is6o_cn2wTj8EYDi9musrIT9z2MdAa",
+            "store": "unknown",
         }
         self.assertDictEqual(correct_resource, model_to_resource(a))
         self.assertNotIn("kernel", model_to_resource(a))

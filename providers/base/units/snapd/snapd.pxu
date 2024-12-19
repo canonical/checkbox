@@ -254,6 +254,7 @@ environ: TEST_SNAP SNAPD_TASK_TIMEOUT SNAPD_POLL_INTERVAL CHECKBOX_RUNTIME
 unit: template
 template-resource: com.canonical.certification::model_assertion
 template-unit: job
+template-filter: model_assertion.store not in ('unknown')
 id: snappy/test-store-config-{store}
 template-id: snappy/test-store-config-store
 _summary: Test that image is using the correct snappy store configuration.

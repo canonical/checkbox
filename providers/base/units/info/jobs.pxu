@@ -548,7 +548,7 @@ plugin: shell
 category_id: com.canonical.plainbox::info
 estimated_duration: 0.2
 command:
-    if grep -q CONFIG_INTEL_IOMMU_DEFAULT_ON /boot/config-"$(uname -r)"; then
+    if grep -q CONFIG_INTEL_IOMMU_DEFAULT_ON=y /boot/config-"$(uname -r)"; then
         echo "Intel IOMMU is enabled"
     else
         echo "Intel IOMMU is disabled"

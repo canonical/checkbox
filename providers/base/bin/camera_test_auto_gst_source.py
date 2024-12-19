@@ -23,16 +23,16 @@ logging.basicConfig(
 )
 logger.setLevel(logging.DEBUG)
 
-from gi.repository import GObject  # type: ignore
+from gi.repository import GObject  # type: ignore # noqa: E402
 
 Gtk = None
 
 gi.require_version("Gst", "1.0")
 gi.require_version("GstPbutils", "1.0")
-from gi.repository import Gst, GstPbutils  # type: ignore
+from gi.repository import Gst, GstPbutils  # type: ignore # noqa: E402
 
 gi.require_version("GLib", "2.0")
-from gi.repository import GLib  # type: ignore
+from gi.repository import GLib  # type: ignore # noqa: E402
 
 
 ENCODING_PROFILES = {
@@ -62,6 +62,9 @@ class MediaValidator:
         expected_width: int,
         expected_height: int,
     ) -> bool:
+        assert os.path.isfile(
+            image_file_path
+        ), "Image file doesn't exist at {}".format(image_file_path)
         image = PIL.Image.open(image_file_path)
         passed = True
 
@@ -113,7 +116,8 @@ class MediaValidator:
             > duration_tolerance_seconds * 10**9
         ):
             logger.error(
-                "Duration not within tolerance. Got {}s, but expected {} +- {}s".format(
+                "Duration not within tolerance. "
+                "Got {}s, but expected {} +- {}s".format(
                     round(duration / (10**9), 3),
                     expected_duration_seconds,
                     duration_tolerance_seconds,
@@ -213,10 +217,12 @@ class CapsResolver:
     def remap_range_to_list(
         self, prop: str, low: int, high: int
     ) -> T.List[int]: ...
+
     @T.overload
     def remap_range_to_list(
         self, prop: str, low: FractionTuple, high: FractionTuple
     ) -> T.List[FractionTuple]: ...
+
     def remap_range_to_list(
         self,
         prop: str,
@@ -242,19 +248,13 @@ class CapsResolver:
 
         return out
 
-    def list_to_gobject_value_array(self, l: T.List):
-        out = GObject.ValueArray()
-        for e in l:
-            out.append(e)
-        return out  # this does not guarantee that out has a sensible value
-
     def get_all_fixated_caps(
         self,
         caps: Gst.Caps,
         resolve_method: RangeResolveMethod,
         limit: T.Optional[int] = None,
     ) -> T.List[Gst.Caps]:
-        """Gets all the fixated(1 value per property) caps from a Gst.Caps object
+        """Gets all the fixated(1 value per property) caps from a Gst.Caps obj
 
         :param caps: a mixed Gst.Caps
         :param resolve_method: how to resolve IntRange and FractionRange values
@@ -262,7 +262,8 @@ class CapsResolver:
         - "remap" => picks out a set of common values within the original range
         - "limit" => Use the caps.is_fixed while loop until we reaches limit
 
-        :param limit: the limit to use for the "limit" resolver, ignored otherwise
+        :param limit: the limit to use for the "limit" resolver
+        - ignored if resolve_method != "limit"
         :return: a list of fixed caps
         """
         if caps.is_fixed():
@@ -281,9 +282,10 @@ class CapsResolver:
                     finite_list = None  # type: GObject.ValueArray | None
                     if s_i.has_field_typed(prop, Gst.IntRange):
                         low, high = self.extract_int_range(s_i, prop)
-                        finite_list = self.list_to_gobject_value_array(
-                            self.remap_range_to_list(prop, low, high)
-                        )
+                        finite_list = GObject.ValueArray()
+                        for elem in self.remap_range_to_list(prop, low, high):
+                            finite_list.append(elem)
+
                     elif s_i.has_field_typed(prop, Gst.FractionRange):
                         low, high = self.extract_fraction_range(s_i, prop)
                         fraction_list = self.remap_range_to_list(
@@ -316,8 +318,6 @@ class CapsResolver:
 
             while not caps_i.is_fixed() and not caps_i.is_empty():
                 fixed_cap = caps_i.fixate()  # type: Gst.Caps
-                if fixed_cap.get_structure(0).get_name() == "video/x-bayer":
-                    continue
                 fixed_caps.append(fixed_cap)
                 caps_i = caps_i.subtract(fixed_cap)
 
@@ -356,7 +356,7 @@ def parse_args():
     photo_subparser.add_argument(
         "--max-caps",
         type=int,
-        help="Set the maximum number of capabilities to check for each device. "
+        help="Set the maximum number of caps to check for each device. "
         "Default = 100. "
         "This is useful for restraining the number of caps on devices "
         'that have "continuous" caps.',
@@ -398,10 +398,10 @@ def parse_args():
     encoding_group.add_argument(
         "--encoding",
         type=str,
-        choices=["mp4", "ogv", "mpegts"],
+        choices=list(ENCODING_PROFILES.keys()),
         help=(
             "Choose an encoding preset with this option. "
-            "Make sure your system actually has the proper muxers and encoders "
+            "Make sure your system actually has the proper elements "
             "that supports this profile."
         ),
     )
@@ -456,23 +456,20 @@ def elem_to_str(element: Gst.Element) -> str:
 
         try:
             prop_value = element.get_property(prop.name)
-        except:
+        except Exception:
             logger.debug(
-                "Property {} is unreadable in {}".format(
+                "Property {} is unreadable in {}, ignored.".format(
                     prop.name, element_name
                 )  # not every property is readable, ignore unreadable ones
             )
             continue
 
-        if (
-            hasattr(prop_value, "to_string")
-            and type(prop_value.to_string).__name__ == "method"
-        ):
+        if hasattr(prop_value, "to_string") and callable(prop_value.to_string):
             # sometimes we have a nice to_string method, prioritize this
             prop_strings.append(
                 "{}={}".format(prop.name, prop_value.to_string())
             )
-        elif type(prop_value) is Enum:
+        elif isinstance(prop, Enum):
             prop_strings.append("{}={}".format(prop.name, prop_value.value))
         else:
             prop_strings.append(
@@ -497,8 +494,9 @@ def run_pipeline(
     :param run_n_seconds: how long until we stop the main loop.
         - If None, only wait for EOS.
     :param force_kill_timeout: how long until a force kill is triggered.
-        - If None and run_n_seconds != None, then force_kill = run_n_seconds * 2
-        - If != None and run_n_seconds != None, an error is raised if force kill <= run_n_seconds
+        - If None and run_n_seconds != None, then force_kill = run_n_seconds*2
+        - If != None and run_n_seconds != None, an error is raised if
+            force kill <= run_n_seconds
     :param intermedate_calls: a list of functions to call
         while the pipeline is running. list[(() -> None, int)], where 2nd elem
         is the number of seconds to wait RELATIVE to
@@ -542,15 +540,15 @@ def run_pipeline(
         else:
             bus_pop_timeout = force_kill_timeout
 
-        time.sleep(1)
-
+        before_pop_t = time.time()
         # it's possible to immediately pop None (got EOS, but message is None)
-        # so wait 1 second for the message to be constructed before popping
+        # so we also check if bus_pop_timeout has actually elapsed
         eos_msg = bus.timed_pop_filtered(bus_pop_timeout, Gst.MessageType.EOS)
+        after_pop_t = time.time()
         pipeline.set_state(Gst.State.NULL)
         main_loop.quit()
 
-        if eos_msg is None:
+        if eos_msg is None and after_pop_t - before_pop_t >= bus_pop_timeout:
             # have to force system exit here,
             # GLib.Mainloop overrides the sys.excepthook
             raise SystemExit(
@@ -856,7 +854,8 @@ def main():
             continue
 
         if not os.path.isdir(args.path):
-            # must validate early, multifilesink does not check if the path exists
+            # must validate early
+            # multifilesink does not check if the path exists
             raise FileNotFoundError(
                 'Path "{}" does not exist'.format(args.path)
             )

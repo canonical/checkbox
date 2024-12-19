@@ -65,6 +65,10 @@ def model_to_resource(model_assertion):
                     resource["{}_track".format(key)] = track
                 else:
                     resource[key] = val
+
+    # Check if the model has a store
+    if "store" not in resource:
+        resource["store"] = "unknown"
     return resource
 
 

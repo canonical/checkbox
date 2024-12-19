@@ -18,7 +18,7 @@ VoidFn = T.Callable[[], None]  # takes nothing and returns nothing
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
-    format="%(asctime)s %(levelname)s - %(message)s",
+    format="%(asctime)s %(levelname)s - %(message)s\n",
     datefmt="%m/%d %H:%M:%S",
 )
 logger.setLevel(logging.DEBUG)
@@ -33,6 +33,13 @@ from gi.repository import Gst, GstPbutils  # type: ignore
 
 gi.require_version("GLib", "2.0")
 from gi.repository import GLib  # type: ignore
+
+
+ENCODING_PROFILES = {
+    "mp4_h264": "video/quicktime,variant=iso:video/x-h264",
+    "ogv_theora": "application/ogg:video/x-theora",
+    "webm_vp8": "video/webm:video/x-vp8",
+}
 
 
 def get_devices() -> T.List[Gst.Device]:
@@ -95,9 +102,9 @@ class MediaValidator:
             logger.error("{} has no video streams.".format(video_file_path))
             return False
 
-        width = video_streams[0].get_width()
-        height = video_streams[0].get_height()
-        fps = video_streams[0].get_framerate_num()
+        width = video_streams[0].get_width()  # type: int
+        height = video_streams[0].get_height()  # type: int
+        fps = video_streams[0].get_framerate_num()  # type: int
 
         passed = True
 
@@ -113,6 +120,7 @@ class MediaValidator:
                 )
             )
             passed = False
+
         if width != expected_width:
             logger.error(
                 "Video width mismatch. Expected = {}, actual = {}".format(
@@ -139,6 +147,7 @@ class MediaValidator:
 
 
 class CapsResolver:
+
     INT32_MIN = -2147483648
     INT32_MAX = 2147483647
 
@@ -151,7 +160,12 @@ class CapsResolver:
     RANGE_REMAP = {
         "width": [640, 1280, 1920, 2560, 3840],
         "height": [480, 720, 1080, 1440, 2160],
-        "framerate": [(15, 1), (30, 1), (60, 1)],  # 15fpx, 30fps, 60fps
+        "framerate": [
+            (15, 1),
+            (30, 1),
+            (60, 1),
+            (120, 1),
+        ],  # 15fpx, 30fps, 60fps, 120fps
     }
 
     def extract_fraction_range(
@@ -264,7 +278,7 @@ class CapsResolver:
                 for prop in self.RANGE_REMAP.keys():
                     s_i = caps_i.get_structure(0)  # type: Gst.Structure
 
-                    finite_list = None  # type GObject.ValueArray
+                    finite_list = None  # type: GObject.ValueArray | None
                     if s_i.has_field_typed(prop, Gst.IntRange):
                         low, high = self.extract_int_range(s_i, prop)
                         finite_list = self.list_to_gobject_value_array(
@@ -287,6 +301,8 @@ class CapsResolver:
                                 ),
                             )
                         )[0]
+                        # creates a struct of the form: temp, prop={30/1, 15/1}
+                        # now we simply get the prop by name
                         finite_list = temp.get_list(prop)[1]
 
                     if finite_list is not None:
@@ -320,6 +336,7 @@ def parse_args():
         "-ws",
         "--wait-seconds",
         type=int,
+        dest="seconds",
         help="Number of seconds to keep the pipeline running "
         "before taking the photo. Default = 2.",
         default=2,
@@ -376,6 +393,27 @@ def parse_args():
         "--skip-validation",
         action="store_true",
         help="Skip video dimension & duration validation",
+    )
+    encoding_group = video_subparser.add_mutually_exclusive_group()
+    encoding_group.add_argument(
+        "--encoding",
+        type=str,
+        choices=["mp4", "ogv", "mpegts"],
+        help=(
+            "Choose an encoding preset with this option. "
+            "Make sure your system actually has the proper muxers and encoders "
+            "that supports this profile."
+        ),
+    )
+    encoding_group.add_argument(
+        "--custom-encoding-string",
+        type=str,
+        help=(
+            "Directly set the encoding string for encodebin. "
+            "See GStreamer's GstEncodingProfiile page for examples. "
+            "The examples on that page are included in the --encoding option. "
+            "Only use this option if you have a custom encoding string."
+        ),
     )
 
     viewfinder_subparser = subparser.add_parser("show-viewfinder")
@@ -479,12 +517,13 @@ def run_pipeline(
         # it's possible to hang here if the source is broken
         # but the main thread will keep running,
         # so we check both an explicit fail and a hang
-        if (
-            pipeline.get_child_by_index(0).get_state(5 * 10**9)[0]
-            != Gst.StateChangeReturn.SUCCESS
-        ):
+        source_state = pipeline.get_child_by_index(0).get_state(1 * 10**9)[0]
+        if source_state != Gst.StateChangeReturn.SUCCESS:
             pipeline.set_state(Gst.State.NULL)
-            raise RuntimeError("Failed to transition to playing state")
+            raise RuntimeError(
+                "Failed to transition to playing state. "
+                "Source is still in {} state after 1 second."
+            )
 
     def graceful_quit():
         logger.debug("Sending EOS.")
@@ -560,8 +599,9 @@ def play_video(filepath: str):
     global Gtk
     if not Gtk:
         gi.require_version("Gtk", "3.0")
-        from gi.repository import Gtk  # type: ignore
+        from gi.repository import Gtk as _Gtk  # type: ignore
 
+        Gtk = _Gtk
         Gtk.init([])
 
     pipeline = Gst.parse_launch(
@@ -592,8 +632,9 @@ def show_viewfinder(
     global Gtk
     if not Gtk:
         gi.require_version("Gtk", "3.0")
-        from gi.repository import Gtk  # type: ignore
+        from gi.repository import Gtk as _Gtk  # type: ignore
 
+        Gtk = _Gtk
         Gtk.init([])
 
     partial_pipeline = " ! ".join(["videoconvert name=head", "autovideosink"])
@@ -678,14 +719,14 @@ def take_photo(
     ), "Could not link source element to {}".format(head_elem)
 
     def open_valve():
-        logging.debug("Opening valve!")
+        logger.debug("Opening valve!")
         valve.set_property("drop", False)
 
     logger.info(
         "Created photo pipeline with {} second delay. ".format(delay_seconds)
         + '"{} ! {}"'.format(elem_to_str(source), partial)
     )
-    logging.debug("Setting playing state")
+    logger.debug("Setting playing state")
 
     run_pipeline(
         pipeline,
@@ -754,7 +795,7 @@ def record_video(
         )
     )
     logger.info("{} ! {}".format(elem_to_str(source), partial))
-    logging.debug("Setting playing state")
+    logger.debug("Setting playing state")
 
     run_pipeline(pipeline, record_n_seconds)
 
@@ -800,16 +841,11 @@ def main():
         )
         exit(1)
 
-    seconds_per_pipeline = (
-        args.wait_seconds if args.subcommand == "take-photo" else args.seconds
-    )
     logger.info("Found {} cameras!".format(len(devices)))
     print(
         '[ HINT ] For debugging, remove the "valve" element to get a pipeline',
         'that can be run with "gst-launch-1.0".',
-        "Also keep the pipeline running for {} seconds".format(
-            seconds_per_pipeline
-        ),
+        "Also keep the pipeline running for {} seconds".format(args.seconds),
     )
 
     for dev_i, device in enumerate(devices):
@@ -833,7 +869,7 @@ def main():
         logger.info("Testing device {}/{}".format(dev_i + 1, len(devices)))
         logger.info(
             "Test for this device may take {} seconds for {} caps.".format(
-                len(all_fixed_caps) * seconds_per_pipeline, len(all_fixed_caps)
+                len(all_fixed_caps) * args.seconds, len(all_fixed_caps)
             )
         )
 
@@ -851,7 +887,7 @@ def main():
                 )
                 take_photo(
                     dev_element,
-                    delay_seconds=args.wait_seconds,
+                    delay_seconds=args.seconds,
                     caps=capability,
                     file_path=file_path,
                 )

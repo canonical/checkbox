@@ -35,7 +35,7 @@ developed, let's include them in a new ``test plan``.
     network_available
     network_speed
 
-To run the test plan we can use ``run`` as we previously did for inidivual
+To run the test plan we can use ``run`` as we previously did for individual
 tests:
 
 .. code-block::
@@ -43,7 +43,7 @@ tests:
    (checkbox_venv) $ checkbox-cli run com.canonical.certification::tutorial-extended
    [...]
    ==================================[ Results ]===================================
-   ☑ : Fetches information of all network intefaces
+   ☑ : Fetches information of all network interfaces
    ☑ : Test that the internet is reachable
    ☑ : Test that the network speed is acceptable
 
@@ -67,7 +67,7 @@ With that being said, let's fix it before we forget:
 
 Given the brevity of our Test Plan, we are able to reason about it by opening
 the definition but what if we want to inspect a more complicated one or do some
-more advanced querying? That is where ``expand`` comes to our resque.
+more advanced querying? That is where ``expand`` comes to our rescue.
 
 Run the following and see the result:
 
@@ -86,7 +86,7 @@ Run the following and see the result:
        "unit": "job"
      },
      {
-       "_summary": "Fetches information of all network intefaces",
+       "_summary": "Fetches information of all network interfaces",
        "certification-status": "non-blocker",
        "command": " ip -details -json link show | jq -r '\n     .[] | \"interface: \" + .ifname +\n     \"\\nlink_info_kind: \" + .linkinfo.info_kind +\n     \"\\nlink_type: \" + .link_type +\n     \"\\noperstate: \" + .operstate + \"\\n\"'",
        "id": "com.canonical.certification::network_iface_info",
@@ -150,6 +150,13 @@ Running expand we can see that the certification status changed:
     }
   ]
 
+Note that there are two ways of setting overrides. You should always prefer
+the inline override over the other if possible. The block override
+(``certification_status_overrides``) is meant to be used only when you want to
+use a regex to apply the override (to match a subset of a template expansion)
+or when the job you want to override is not in the list due to ``nested-parts``
+(that we will introduce further below).
+
 Bootstrap Inclusions
 ====================
 
@@ -160,8 +167,8 @@ and dependencies you may need into a test plan automatically, jobs may
 interfere or break resources so, ideally, we would like to run them before
 anything else. Bootstrap include does exactly this.
 
-The boostrap section of a test plan is the initial information gathering phase
-of a test plan. Although there aren't any limitation as to what you can include
+The bootstrap section of a test plan is the initial information gathering phase
+of a test plan. Although there aren't any limitations as to what you can include
 in the ``bootstrap_include`` section, we advise to only put there information
 gathering jobs.
 
@@ -182,9 +189,14 @@ in the ``bootstrap_include`` section:
     apply blocker to network_available
 
 You may have noticed we weren't including ``network_available_interface`` in
-the test plan, this is ..
+the test plan before, this is because it would not have expanded
+deterministically. One of the dangers of letting Checkbox
+automatically pull resource jobs for you is that, in some situations, like
+``template-resource``, it won't do it. If you were to remove the test that
+actually pulled the resource automatically (the one that uses it as in the
+``resource`` field), you would inadvertently lose test coverage.
 
-Let's update the tesplan including it:
+Let's update the test plan including it:
 
 .. code-block::
 
@@ -203,7 +215,7 @@ Let's update the tesplan including it:
 When we run expand on the test plan, two important changes occur in the output:
 
 First, the resource job is no longer visible - this is expected! The bootstrap
-section of a test plan is ment to gather essential data before the main test
+section of a test plan is meant to gather essential data before the main test
 execution but is not composed of actual tests, so the jobs there are excluded
 from the expand command.
 
@@ -232,13 +244,13 @@ Nested Parts
 ============
 
 It is often useful to re-use the same test plan to test a functionality. This
-is for many reasons but mainly the fact that test plan are always evolving,
+is for many reasons but mainly the fact that test plans are always evolving,
 adding better tests, increasing the coverage, removing old ones, and to keep
 them in sync is a very error prone chore. Checkbox has a feature to help with
 this: ``nested_part``.
 
 When a test plan has a ``nested_part``, all "parts" (jobs + other nested parts)
-are added to the test plan. Lets try this with an example. When a new test plan
+are added to the test plan. Let's try this with an example. When a new test plan
 is being developed for certification purposes, one nested part is compulsory to
 include (or the submissions will be rejected): ``submission-cert-automated``.
 Let's include it in our test plan:
@@ -259,6 +271,28 @@ Let's include it in our test plan:
   certification_status_overrides:
     apply blocker to network_available
 
+Another very useful thing you can do with nested parts is to create aliases.
+For example, if you were to rename a test plan in a provider that is used by
+others, it may be useful for everyone if you provide a backward compatible
+alias for some time, so that they can adjust to the change. Say for example we
+started publishing our tutorial test plan giving it the id
+``tutorial-extended-oldid``. This is how we would create the backward
+compatible alias:
+
+.. code-block::
+
+  unit: test plan
+  id: tutorial-extended-oldid
+  _name: (alias) Extended Tutorial Test Plan (Changed id to: `tutorial-extended`)
+  nested_part:
+    tutorial-extended
+
+.. note::
+  Notice how we also changed the ``_name`` so that it points to the "new" id.
+  This makes the migration from the old id (now an alias) to the new one way
+  easier and frictionless.
+
+
 Exclusions
 ==========
 
@@ -268,7 +302,7 @@ is that we may not want to introduce all tests in a test plan, but just most of
 them. If this is the case then ``exclusions`` are the way to go.
 
 For example, the ``network_speed`` test that we have in our test plan may be
-expansive to run, we can create a new test plan with it excluded as follows:
+expensive to run, we can create a new test plan with it excluded as follows:
 
 .. code-block::
 
@@ -280,7 +314,7 @@ expansive to run, we can create a new test plan with it excluded as follows:
   exclude:
     network_speed
 
-Now if we ``list-boostrapped`` the test plan we will see that the test is
+Now if we ``list-bootstrapped`` the test plan we will see that the test is
 missing:
 
 .. code-block::
@@ -308,10 +342,10 @@ about why you are excluding those tests, maybe some need an updated definition!
 
 .. warning::
    While ``exclude`` is a list of regexes, so you can use a regex to exclude
-   jobs, you should most likely avoid doing that as you may inadvertedly loose
+   jobs, you should most likely avoid doing that as you may inadvertently lose
    more jobs (and time) than you were aiming for. Try to always precisely match
    what you want to exclude, for templates, for example, use the template id
-   whenever you can instead of regex matching the genrated id
+   whenever you can instead of regex matching the generated id
 
 Mandatory Inclusions
 ====================

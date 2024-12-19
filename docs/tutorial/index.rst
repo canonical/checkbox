@@ -47,3 +47,4 @@ sections can be followed in any order - they don’t depend on each other.
    :maxdepth: 1
 
   writing-tests/test-case
+  writing-tests/test-plan

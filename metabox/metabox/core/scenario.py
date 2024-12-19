@@ -223,13 +223,18 @@ class Scenario:
     def send(self, data):
         assert self._pts is not None
         self._pts.send(data.encode("utf-8"), binary=True)
+        # send raises an exception on failure
+        return True
 
     def sleep(self, secs):
         time.sleep(secs)
+        return True
 
     def signal(self, signal):
         assert self._pts is not None
         self._pts.send_signal(signal)
+        # same as send, this uses send under the hood
+        return True
 
     def select_test_plan(self, testplan_id, timeout=60):
         assert self._pts is not None

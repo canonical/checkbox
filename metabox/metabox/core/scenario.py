@@ -27,6 +27,8 @@ import re
 import time
 import shlex
 
+from pylxd.exceptions import NotFound
+
 from metabox.core.actions import Start, Expect, Send, SelectTestPlan
 from metabox.core.aggregator import aggregator
 
@@ -70,7 +72,7 @@ class Scenario:
         self.agent_machine = None
         self.agent_revision = agent_revision
         self.start_session = True
-        self._checks = []
+        self.failures = []
         self._ret_code = None
         self._stdout = ""
         self._stderr = ""
@@ -81,10 +83,6 @@ class Scenario:
         if self._pts:
             return self._pts.stdout_data_full
         return self._outstr_full
-
-    def has_passed(self):
-        """Check whether all the assertions passed."""
-        return all(self._checks)
 
     def run(self):
         # Simple scenarios don't need to specify a START step
@@ -109,9 +107,11 @@ class Scenario:
                         break
                 step.kwargs["interactive"] = interactive
             try:
-                step(self)
-            except (TimeoutError, ConnectionError):
-                self._checks.append(False)
+                # step that fail explicitly return false or raise an exception
+                if not step(self):
+                    self.failures.append(step)
+            except (TimeoutError, ConnectionError, NotFound):
+                self.failures.append(step)
                 break
         if self._pts:
             self._stdout = self._pts.stdout_data_full
@@ -126,7 +126,6 @@ class Scenario:
         self._stderr = stderr
         self._outstr_full = outstr_full
 
-    # TODO: add storing of what actually failed in the assert methods
     def assert_printed(self, pattern):
         """
         Check if during Checkbox execution a line produced that matches the
@@ -134,9 +133,8 @@ class Scenario:
         :param patter: regular expresion to check against the lines.
         """
         regex = re.compile(pattern)
-        self._checks.append(
-            bool(regex.search(self._stdout))
-            or bool(regex.search(self._stderr))
+        return bool(regex.search(self._stdout)) or bool(
+            regex.search(self._stderr)
         )
 
     def assert_not_printed(self, pattern):
@@ -150,20 +148,20 @@ class Scenario:
             found = regex.search(self._pts.stdout_data_full)
         else:
             found = regex.search(self._stdout) or regex.search(self._stderr)
-        self._checks.append(not found)
+        return not found
 
     def assert_ret_code(self, code):
         """Check if Checkbox returned given code."""
-        self._checks.append(code == self._ret_code)
+        return code == self._ret_code
 
     def assertIn(self, member, container):
-        self._checks.append(member in container)
+        return member in container
 
     def assertEqual(self, first, second):
-        self._checks.append(first == second)
+        return first == second
 
     def assertNotEqual(self, first, second):
-        self._checks.append(first != second)
+        return first != second
 
     def start(self, cmd="", interactive=False, timeout=0):
         if self.mode == "remote":
@@ -185,6 +183,7 @@ class Scenario:
                 self._pts = outcome
             else:
                 self._assign_outcome(*outcome)
+        return True  # return code is checked with a different operator
 
     def start_all(self, interactive=False, timeout=0):
         self.start_agent()
@@ -214,28 +213,33 @@ class Scenario:
     def expect(self, data, timeout=60):
         assert self._pts is not None
         outcome = self._pts.expect(data, timeout)
-        self._checks.append(outcome)
+        return outcome
 
     def expect_not(self, data, timeout=60):
         assert self._pts is not None
         outcome = self._pts.expect_not(data, timeout)
-        self._checks.append(outcome)
+        return outcome
 
     def send(self, data):
         assert self._pts is not None
         self._pts.send(data.encode("utf-8"), binary=True)
+        # send raises an exception on failure
+        return True
 
     def sleep(self, secs):
         time.sleep(secs)
+        return True
 
     def signal(self, signal):
         assert self._pts is not None
         self._pts.send_signal(signal)
+        # same as send, this uses send under the hood
+        return True
 
     def select_test_plan(self, testplan_id, timeout=60):
         assert self._pts is not None
         outcome = self._pts.select_test_plan(testplan_id, timeout)
-        self._checks.append(outcome)
+        return outcome
 
     def run_cmd(self, cmd, env={}, interactive=False, timeout=0, target="all"):
         if self.mode == "remote":
@@ -268,6 +272,7 @@ class Scenario:
                 self.agent_machine.reboot(timeout)
         else:
             self.local_machine.reboot(timeout)
+        return True
 
     def put(self, filepath, data, mode=None, uid=1000, gid=1000, target="all"):
         if self.mode == "remote":
@@ -280,6 +285,8 @@ class Scenario:
                 self.agent_machine.put(filepath, data, mode, uid, gid)
         else:
             self.local_machine.put(filepath, data, mode, uid, gid)
+        # put raises an exception on failure
+        return True
 
     def switch_on_networking(self, target="all"):
         if self.mode == "remote":
@@ -292,6 +299,7 @@ class Scenario:
                 self.agent_machine.switch_on_networking()
         else:
             self.local_machine.switch_on_networking()
+        return True
 
     def switch_off_networking(self, target="all"):
         if self.mode == "remote":
@@ -304,6 +312,7 @@ class Scenario:
                 self.agent_machine.switch_off_networking()
         else:
             self.local_machine.switch_off_networking()
+        return True
 
     def stop_agent(self):
         return self.agent_machine.stop_agent()
@@ -322,7 +331,7 @@ class Scenario:
         if privileged:
             cmd = ["sudo"] + cmd
         cmd_str = shlex.join(cmd)
-        self.run_cmd(cmd_str, target=target, timeout=timeout)
+        return self.run_cmd(cmd_str, target=target, timeout=timeout)
 
     def run_manage(self, args, timeout=0, target="all"):
         """
@@ -330,7 +339,7 @@ class Scenario:
         """
         path = "/home/ubuntu/checkbox/metabox/metabox/metabox-provider"
         cmd = f"bash -c 'cd {path} ; python3 manage.py {args}'"
-        self.run_cmd(cmd, target=target, timeout=timeout)
+        return self.run_cmd(cmd, target=target, timeout=timeout)
 
     def assert_in_file(self, pattern, path):
         """
@@ -344,4 +353,4 @@ class Scenario:
 
         result = self.run_cmd(f"cat {path}")
         regex = re.compile(pattern)
-        self._checks.append(bool(regex.search(result.stdout)))
+        return bool(regex.search(result.stdout))

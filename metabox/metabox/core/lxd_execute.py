@@ -39,7 +39,21 @@ base_env = {
 login_shell = ["sudo", "--user", "ubuntu", "--login"]
 
 
-class InteractiveWebsocket(WebSocketClient):
+class SafeWebSocketClient(WebSocketClient):
+    def send(self, *args, **kwargs):
+        """
+        This makes it so send will raise ConnectionError when send fails
+        """
+        # there is a race condition in the base WebSocketClient that leads
+        # calls to send on terminated connections to raise an AttributeError.
+        # This mainly happens when the process crashes in an unexpected step
+        try:
+            return super().send(*args, **kwargs)
+        except AttributeError as e:
+            raise ConnectionError("Unable to send, process crashed") from e
+
+
+class InteractiveWebsocket(SafeWebSocketClient):
     # https://stackoverflow.com/a/14693789/1154487
     ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
@@ -232,7 +246,7 @@ def interactive_execute(container, cmd, env={}, verbose=False, timeout=0):
     )
 
     base_websocket_url = container.client.websocket_url
-    ctl = WebSocketClient(base_websocket_url)
+    ctl = SafeWebSocketClient(base_websocket_url)
     ctl.resource = ws_urls["control"]
     ctl.connect()
     pts = InteractiveWebsocket(base_websocket_url)

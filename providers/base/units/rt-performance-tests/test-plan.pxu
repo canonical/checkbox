@@ -19,6 +19,7 @@ unit: test plan
 include:
     rt-performance-tests/cyclictest_rt
 bootstrap_include:
+    executable
 
 id: rt-performance-tests-stress
 _name: Realtime Performance Tests (Stress)
@@ -26,3 +27,4 @@ unit: test plan
 include:
     rt-performance-tests/cyclictest_rt_latency
 bootstrap_include:
+    executable

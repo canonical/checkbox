@@ -1082,7 +1082,13 @@ class SessionResumeHelper1(MetaDataHelper1MixIn):
     def _build_IOLogRecord(cls, record_repr):
         """Convert the representation of IOLogRecord back the object."""
         _validate(record_repr, value_type=list)
-        delay = _validate(record_repr, key=0, value_type=float)
+        delay = _validate(record_repr, key=0)
+        try:
+            delay = float(delay)
+        except ValueError:
+            raise CorruptedSessionError(
+                "IOLogRecord has invalid delay {}".format(delay)
+            )
         if delay < 0:
             # TRANSLATORS: please keep delay untranslated
             raise CorruptedSessionError(_("delay cannot be negative"))
@@ -1239,13 +1245,13 @@ class SessionResumeHelper6(MetaDataHelper6MixIn, SessionResumeHelper5):
                 )
                 session = new_session
         # Restore bits and pieces of state
+        logger.debug(_("Starting to restore metadata..."))
+        self._restore_SessionState_metadata(session.metadata, session_repr)
+        logger.debug(_("restored metadata %r"), session.metadata)
         logger.debug(
             _("Starting to restore jobs and results to %r..."), session
         )
         self._restore_SessionState_jobs_and_results(session, session_repr)
-        logger.debug(_("Starting to restore metadata..."))
-        self._restore_SessionState_metadata(session.metadata, session_repr)
-        logger.debug(_("restored metadata %r"), session.metadata)
         logger.debug(_("Starting to restore mandatory job list..."))
         self._restore_SessionState_mandatory_job_list(session, session_repr)
         logger.debug(_("Starting to restore desired job list..."))

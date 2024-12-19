@@ -173,6 +173,7 @@ parts:
       - python3-requests-oauthlib
       - python3-urwid
       - python3-xlsxwriter
+      - python3-yaml
     python-packages:
       - tqdm
     build-environment:

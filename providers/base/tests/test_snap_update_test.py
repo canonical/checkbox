@@ -1,5 +1,6 @@
 import io
 import logging
+import tempfile
 import unittest
 from unittest.mock import patch, mock_open, MagicMock
 
@@ -13,6 +14,8 @@ from test_data.snap_update_test_data import (
     snapd_find_firefox_snap,
     snap_info_pi_kernel,
 )
+
+from checkbox_support.snap_utils.snapd import SnapdRequestError
 
 
 class SnapUpdateTests(unittest.TestCase):
@@ -179,6 +182,17 @@ class SnapRefreshRevertTests(unittest.TestCase):
         snap_update_test.SnapRefreshRevert.snap_refresh(mock_self)
         self.assertTrue(mock_self.snapd.refresh.called)
 
+    @patch("os.getenv")
+    def test_snap_refresh_exception(self, mock_getenv):
+        mock_self = MagicMock()
+        mock_self.snapd.refresh.side_effect = SnapdRequestError(
+            "test msg", "test"
+        )
+        with self.assertRaises(SnapdRequestError):
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                mock_getenv.return_value = tmpdirname
+                snap_update_test.SnapRefreshRevert.snap_refresh(mock_self)
+
     @patch("snap_update_test.Snapd.revert")
     @patch("snap_update_test.load_change_info")
     @patch("snap_update_test.save_change_info")
@@ -189,6 +203,18 @@ class SnapRefreshRevertTests(unittest.TestCase):
         snap_update_test.SnapRefreshRevert.snap_revert(mock_self)
         self.assertTrue(snap_update_test.load_change_info.called)
         self.assertTrue(snap_update_test.save_change_info.called)
+
+    @patch("os.getenv")
+    @patch("snap_update_test.load_change_info")
+    def test_snap_revert_exception(self, mock_load_change_info, mock_getenv):
+        mock_self = MagicMock()
+        mock_self.snapd.revert.side_effect = SnapdRequestError(
+            "test msg", "test"
+        )
+        with self.assertRaises(SnapdRequestError):
+            with tempfile.TemporaryDirectory() as tmpdirname:
+                mock_getenv.return_value = tmpdirname
+                snap_update_test.SnapRefreshRevert.snap_revert(mock_self)
 
     def test_verify_invalid(self):
         mock_self = MagicMock()

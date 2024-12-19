@@ -110,7 +110,7 @@ class Scenario:
                 step.kwargs["interactive"] = interactive
             try:
                 step(self)
-            except TimeoutError:
+            except (TimeoutError, ConnectionError):
                 self._checks.append(False)
                 break
         if self._pts:

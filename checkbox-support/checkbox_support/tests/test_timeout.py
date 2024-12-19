@@ -17,6 +17,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import os
 import time
+import subprocess
 import multiprocessing
 
 from queue import Empty
@@ -28,6 +29,7 @@ from checkbox_support.helpers.timeout import (
     is_picklable,
     run_with_timeout,
     fake_run_with_timeout,
+    kill_tree,
 )
 
 
@@ -61,7 +63,7 @@ class TestTimeoutExec(TestCase):
     def test_class_field_timeouts(self):
         some = ClassSupport(1)
         with self.assertRaises(TimeoutError):
-            run_with_timeout(some.heavy_function, 0)
+            run_with_timeout(some.heavy_function, 0.1)
 
     def test_class_field_ok_return(self):
         some = ClassSupport(0)
@@ -72,11 +74,11 @@ class TestTimeoutExec(TestCase):
 
     def test_function_timeouts(self):
         with self.assertRaises(TimeoutError):
-            run_with_timeout(heavy_function, 0, 10)
+            run_with_timeout(heavy_function, 0.1, 10)
 
     def test_function_ok_return(self):
         self.assertEqual(
-            run_with_timeout(heavy_function, 10, 0),
+            run_with_timeout(heavy_function, 10, 0.1),
             "ClassSupport return value",
         )
 
@@ -104,7 +106,7 @@ class TestTimeoutExec(TestCase):
         self.assertEqual(f(1, 2, 3), (1, 2, 3))
 
     def test_decorator_test_fail(self):
-        @timeout(0)
+        @timeout(0.1)
         def f(first, second, third):
             time.sleep(100)
             return (first, second, third)
@@ -203,7 +205,7 @@ class TestTimeoutExec(TestCase):
         ]
 
         with self.assertRaises(ValueError):
-            run_with_timeout(lambda: ..., 0)
+            run_with_timeout(lambda: ..., 0.1)
 
     @patch("checkbox_support.helpers.timeout.Queue")
     @patch("checkbox_support.helpers.timeout.Process")
@@ -215,8 +217,27 @@ class TestTimeoutExec(TestCase):
         queue_mock().get.side_effect = Empty()
 
         with self.assertRaises(SystemExit):
-            run_with_timeout(lambda: ..., 0)
+            run_with_timeout(lambda: ..., 0.1)
 
     def test_is_picklable(self):
         self.assertFalse(is_picklable(lambda: ...))
         self.assertTrue(is_picklable([1, 2, 3]))
+
+    @patch("shutil.which")
+    @patch("subprocess.check_call")
+    @patch("subprocess.run")
+    def test_kill_tree_fallback(self, run_mock, check_call_mock, which_mock):
+        which_mock.return_value = None
+        check_call_mock.side_effect = subprocess.CalledProcessError(
+            1, "Some cmd"
+        )
+
+        kill_tree(123)
+        # kill_tree tried to search for known consoles
+        self.assertTrue(which_mock.called)
+        # kill_tree also tried to run the default shell to see if kill supports
+        # the -PID semantic
+        self.assertTrue(check_call_mock.called)
+        # finally the function tried to call kill without the - as a last ditch
+        # tentative
+        self.assertTrue(run_mock.called)

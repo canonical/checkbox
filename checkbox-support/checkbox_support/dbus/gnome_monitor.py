@@ -22,8 +22,9 @@ Original script that inspired this class:
 """
 
 from collections import namedtuple
-from typing import Dict, List, Tuple, Set
+from typing import Dict, List, Tuple, Set, Callable, Any
 from gi.repository import GLib, Gio
+import itertools
 
 from checkbox_support.monitor_config import MonitorConfig
 
@@ -103,6 +104,84 @@ class MonitorConfigGnome(MonitorConfig):
 
         self._apply_monitors_config(state[0], extended_logical_monitors)
         return configuration
+
+    def cycle(
+        self,
+        resolution: bool = True,
+        transform: bool = False,
+        resolution_filter: Callable[[List[Mode]], List[Mode]] = None,
+        action: Callable[..., Any] = None,
+        **kwargs
+    ):
+        """
+        Automatically cycle through the supported monitor configurations.
+
+        Args:
+            resolution: Cycling the resolution or not.
+
+            transform: Cycling the transform or not.
+
+            resolution_filter: For filtering resolution then returning needed,
+                    it will take List[Mode] as parameter and return
+                    the same data type
+
+            action: For extra steps for each cycle,
+                    the string is constructed by
+                    [monitor name]_[resolution]_[transform]_.
+                    Please note that the delay is needed inside this
+                    callback to wait the monitors to response
+        """
+        monitors = []
+        modes_list = []
+        # ["normal": 0, "left": 1, "inverted": 6, "right": 3]
+        trans_list = [0, 1, 6, 3] if transform else [0]
+
+        # for multiple monitors, we need to create resolution combination
+        state = self._get_current_state()
+        for monitor, modes in state[1].items():
+            monitors.append(monitor)
+            if resolution_filter:
+                modes_list.append(resolution_filter(modes))
+            else:
+                modes_list.append(modes)
+        mode_combination = list(itertools.product(*modes_list))
+
+        for mode in mode_combination:
+            for trans in trans_list:
+                logical_monitors = []
+                position_x = 0
+                uni_string = ""
+                for monitor, m in zip(monitors, mode):
+                    uni_string += "{}_{}_{}_".format(
+                        monitor,
+                        m.resolution,
+                        {
+                            0: "normal",
+                            1: "left",
+                            3: "right",
+                            6: "inverted",
+                        }.get(trans),
+                    )
+                    logical_monitors.append(
+                        (
+                            position_x,
+                            0,
+                            1.0,
+                            trans,
+                            position_x == 0,  # first monitor is primary
+                            [(monitor, m.id, {})],
+                        )
+                    )
+                    # left and right should convert x and y
+                    xy = 1 if (trans == 1 or trans == 3) else 0
+                    position_x += int(m.resolution.split("x")[xy])
+                self._apply_monitors_config(state[0], logical_monitors)
+                if action:
+                    action(uni_string, **kwargs)
+            if not resolution:
+                break
+        # change back to preferred monitor configuration
+        self.set_extended_mode()
 
     def _get_current_state(self) -> Tuple[str, Dict[str, List[Mode]]]:
         """

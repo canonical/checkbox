@@ -76,15 +76,19 @@ Let's begin by creating the container and installing the needed packages.
 # Note: Always use the version of ubuntu for the snap you 
 #       are building, series22 -> ubuntu22.04 (jammy)
 (host) > lxc launch ubuntu:22.04 jammy
-(host) > lxc exec jammy bash
-# Once in the container install snapcraft.
+# Launch a shell from the container
+(host) > lxc shell jammy
+# Make sure the package repositories are up-to-date and install
+# the required packages
+(jammy)> apt update
+(jammy)> apt install python3-setuptools-scm git snapd
+# Install snapcraft.
 # Note: For series16 you will need snapcraft4.x, to install
 #       it use run: 
 #       snap install snapcraft --classic --channel=4.x
 (jammy)> snap install snapcraft --classic
 # Now clone the checkbox repository
 (jammy)> git clone https://github.com/canonical/checkbox
-(jammy)> apt install python3-setuptools-scm git snapd
 ```
 If you are debugging a build, this is a good step to make a backup of the
 environment, so that you don't need to repeat the above steps if something
@@ -96,7 +100,7 @@ goes wrong.
 If at any point you need to rollback to this backup run
 ```bash
 (host) > lxc restore jammy backup
-(host) > lxc exec jammy bash
+(host) > lxc shell jammy
 # This you may want to do if you made any updates to the repo
 # in the meantime
 (jammy)> (cd checkbox && git pull)

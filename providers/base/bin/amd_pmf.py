@@ -22,11 +22,14 @@ import subprocess
 
 class AMDPMF:
     """
-    This is a simple class to use lsmod to verify
-    amd pmf driver is loaded or not
+    This class is used to verify AMD Platform Management Framework
     """
 
-    def is_pmf_loaded(self):
+    def check_pmf_loaded(self):
+        """
+        This is a simple function to use lsmod to verify
+        AMD Platform Management Framework driver is loaded or not
+        """
         cmd = ["lsmod"]
         try:
             output = subprocess.check_output(
@@ -34,12 +37,14 @@ class AMDPMF:
                 universal_newlines=True,
             )
             if "amd_pmf" in output.lower():
-                print("AMD PMF is loaded")
+                print("AMD Platform Management Framework is loaded")
             else:
-                raise SystemExit("AMD PMF isn't loaded")
+                raise SystemExit(
+                    "AMD Platform Management Framework isn't loaded"
+                )
         except (subprocess.CalledProcessError, FileNotFoundError) as e:
             raise SystemExit("running cmd:[{}] fail:{}".format(cmd, repr(e)))
 
 
 if __name__ == "__main__":
-    AMDPMF().is_pmf_loaded()
+    AMDPMF().check_pmf_loaded()

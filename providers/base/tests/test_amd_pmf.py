@@ -15,14 +15,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from amd_pmf import *
 from unittest.mock import patch
 import unittest
+import amd_pmf
 
 
-class IsPMFLoadedTests(unittest.TestCase):
+class CheckPMFLoadedTests(unittest.TestCase):
     """
-    This function should validate the amd_pmf is shown in the output
+    This function should validate that amd_pmf is shown in the output
     of lsmod
     """
 
@@ -44,20 +44,21 @@ vhost_vsock            24576  0
 
     @patch("subprocess.check_output")
     def test_succ(self, mock_output):
-        ap = AMDPMF()
+        ap = amd_pmf.AMDPMF()
         mock_output.return_value = self.with_pmf_output
-        ap.is_pmf_loaded()
+        ap.check_pmf_loaded()
 
     @patch("subprocess.check_output")
     def test_fail(self, mock_output):
-        ap = AMDPMF()
+        ap = amd_pmf.AMDPMF()
         mock_output.return_value = self.without_pmf_output
         with self.assertRaises(SystemExit):
-            ap.is_pmf_loaded()
+            ap.check_pmf_loaded()
 
     @patch("subprocess.check_output")
     def test_command_fail(self, mock_output):
-        ap = AMDPMF()
+        """Test outcome when `lsmod` command is not available"""
+        ap = amd_pmf.AMDPMF()
         mock_output.side_effect = FileNotFoundError
         with self.assertRaises(SystemExit):
-            ap.is_pmf_loaded()
+            ap.check_pmf_loaded()

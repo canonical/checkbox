@@ -1,5 +1,4 @@
 unit: manifest entry
 id: has_amd_pmf
-_name: AMD_PMF
-_prompt: Does this machine have the AMD PMF (Platform Management Framework) support?
+_name: AMD PMF (Platform Management Framework) support
 value-type: bool

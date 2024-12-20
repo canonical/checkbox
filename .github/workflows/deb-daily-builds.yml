@@ -25,6 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: Wandalen/wretry.action/main@v3.4.0_js_action
         name: Make LP pull the monorepo
         env:
@@ -69,6 +70,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       - uses: Wandalen/wretry.action/main@v3.4.0_js_action
         name: Update the recipe in the checkbox PPA
         env:

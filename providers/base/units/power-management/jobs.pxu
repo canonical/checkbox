@@ -570,7 +570,7 @@ command:
  amd_pmf.py
 estimated_duration: 5s
 summary:
-    Test this machine have the AMD PMF support or not
+    Test this machine have the AMD Platform Management Framework support or not
 description:
     The AMD PMF driver should be loaded while the BIOS enabling this function and could be validated by
     the outcome of lsmod automatically.

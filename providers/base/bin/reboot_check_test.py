@@ -323,14 +323,15 @@ class HardwareRendererTester:
                     ],
                     stdout=sp.DEVNULL,
                     stderr=sp.DEVNULL,
+                    timeout=min(5, max_wait_seconds),
                 )
                 if out.returncode == 0:
                     print("Graphical target reached!")
                     return True
                 else:
                     time.sleep(1)
-            except sp.CalledProcessError:
-                pass
+            except sp.TimeoutExpired:
+                return False
 
         return False
 

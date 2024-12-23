@@ -150,13 +150,13 @@ class DisplayConnectionTests(unittest.TestCase):
 
     def test_slow_boot_scenario(self):
 
-        def fake_time(delta: int):
+        def fake_time(delta: int, ticks=2):
             # fake a time.time() delta using closure
-            call_idx = ["start"]
+            call_idx = [0]
 
             def wrapped():
-                if call_idx[0] == "start":
-                    call_idx[0] = "end"
+                if call_idx[0] != ticks:
+                    call_idx[0] += 1
                     return 0  # when time.time is initially called
                 else:
                     return delta  # the "last" time when time.time is called
@@ -181,9 +181,17 @@ class DisplayConnectionTests(unittest.TestCase):
 
             self.assertFalse(tester.wait_for_graphical_target(2))
 
+            mock_sleep.reset_mock()
             mock_time.side_effect = fake_time(3)
             tester = RCT.HardwareRendererTester()
             self.assertEqual(RCT.main(), 1)
+            self.assertTrue(mock_time.called)
+            self.assertTrue(mock_sleep.called)
+
+            mock_time.side_effect = fake_time(3)
+            mock_run.side_effect = sp.TimeoutExpired([], 1)
+            tester = RCT.HardwareRendererTester()
+            self.assertFalse(tester.wait_for_graphical_target(2))
 
 
 class InfoDumpTests(unittest.TestCase):

@@ -10,6 +10,7 @@ import sys
 import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
 from datetime import datetime
+from checkbox_support.helpers.timeout import timeout
 
 
 # Checkbox could run in a snap container, so we need to prepend this root path
@@ -302,6 +303,41 @@ class HardwareRendererTester:
         print("[ ERR ] Software rendering detected", file=sys.stderr)
         return False
 
+    def wait_for_graphical_target(self, max_wait_seconds: int) -> bool:
+        """Wait for the DUT to reach graphical.target in systemd critical chain
+
+        :param max_wait_seconds: num seconds to wait at most, defaults to 120
+        :return: whether graphical.target was reached within max_wait_seconds
+        """
+
+        @timeout(max_wait_seconds)
+        def check_systemd():
+            print("Checking if DUT has reached graphical.target...")
+            while True:
+                try:
+                    out = sp.run(
+                        [
+                            "systemd-analyze",
+                            "critical-chain",
+                            "graphical.target",
+                            "--no-pager",
+                        ],
+                        stdout=sp.DEVNULL,
+                        stderr=sp.DEVNULL,
+                    )
+                    if out.returncode == 0:
+                        print("Graphical target reached!")
+                        return True
+                except sp.CalledProcessError:
+                    pass
+
+        try:
+            if check_systemd():
+                return True
+        except TimeoutError:
+            return False
+        return False
+
     def parse_unity_support_output(
         self, unity_output_string: str
     ) -> T.Dict[str, str]:
@@ -390,6 +426,16 @@ def create_parser():
         action="store_true",
         help="If specified, check if hardware rendering is being used",
     )
+    parser.add_argument(
+        "--graphical-target-timeout",
+        default=120,
+        type=int,
+        dest="graphical_target_timeout",
+        help="How many seconds should we wait for systemd to report "
+        "that it has reached graphical.target in its critical chain "
+        "before the renderer check starts. "
+        "Default is 120 seconds. Ignored if -g/--graphics is not specified.",
+    )
 
     return parser
 
@@ -469,7 +515,17 @@ def main() -> int:
 
     if args.do_renderer_check:
         tester = HardwareRendererTester()
-        if has_desktop_environment() and tester.has_display_connection():
+        graphical_target_reached = tester.wait_for_graphical_target(
+            args.graphical_target_timeout
+        )
+        if not graphical_target_reached:
+            print(
+                "[ ERR ] systemd's graphical.target was not reached",
+                "in {} seconds.".format(args.graphical_target_timeout),
+                "Marking the renderer test as failed.",
+            )
+            renderer_test_passed = False
+        elif has_desktop_environment() and tester.has_display_connection():
             # skip renderer test if there's no display
             renderer_test_passed = tester.is_hardware_renderer_available()
 

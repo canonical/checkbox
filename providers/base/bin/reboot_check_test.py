@@ -10,6 +10,7 @@ import sys
 import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
 from datetime import datetime
+import time
 from checkbox_support.helpers.timeout import timeout
 
 
@@ -328,6 +329,8 @@ class HardwareRendererTester:
                     if out.returncode == 0:
                         print("Graphical target reached!")
                         return True
+                    else:
+                        time.sleep(1)
                 except sp.CalledProcessError:
                     pass
 

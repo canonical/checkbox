@@ -497,7 +497,7 @@ def run_pipeline(
         - If None and run_n_seconds != None, then force_kill = run_n_seconds*2
         - If != None and run_n_seconds != None, an error is raised if
             force kill <= run_n_seconds
-    :param intermedate_calls: a list of functions to call
+    :param intermediate_calls: a list of functions to call
         while the pipeline is running. list[(() -> None, int)], where 2nd elem
         is the number of seconds to wait RELATIVE to
         when the pipeline started running

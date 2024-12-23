@@ -11,7 +11,6 @@ import typing as T
 from checkbox_support.scripts.image_checker import has_desktop_environment
 from datetime import datetime
 import time
-from checkbox_support.helpers.timeout import timeout
 
 
 # Checkbox could run in a snap container, so we need to prepend this root path
@@ -311,34 +310,28 @@ class HardwareRendererTester:
         :return: whether graphical.target was reached within max_wait_seconds
         """
 
-        @timeout(max_wait_seconds)
-        def check_systemd():
-            print("Checking if DUT has reached graphical.target...")
-            while True:
-                try:
-                    out = sp.run(
-                        [
-                            "systemd-analyze",
-                            "critical-chain",
-                            "graphical.target",
-                            "--no-pager",
-                        ],
-                        stdout=sp.DEVNULL,
-                        stderr=sp.DEVNULL,
-                    )
-                    if out.returncode == 0:
-                        print("Graphical target reached!")
-                        return True
-                    else:
-                        time.sleep(1)
-                except sp.CalledProcessError:
-                    pass
+        start = time.time()
+        print("Checking if DUT has reached graphical.target...")
+        while time.time() - start < max_wait_seconds:
+            try:
+                out = sp.run(
+                    [
+                        "systemd-analyze",
+                        "critical-chain",
+                        "graphical.target",
+                        "--no-pager",
+                    ],
+                    stdout=sp.DEVNULL,
+                    stderr=sp.DEVNULL,
+                )
+                if out.returncode == 0:
+                    print("Graphical target reached!")
+                    return True
+                else:
+                    time.sleep(1)
+            except sp.CalledProcessError:
+                pass
 
-        try:
-            if check_systemd():
-                return True
-        except TimeoutError:
-            return False
         return False
 
     def parse_unity_support_output(

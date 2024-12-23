@@ -148,6 +148,36 @@ class DisplayConnectionTests(unittest.TestCase):
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
 
+    def test_slow_boot_scenario(self):
+
+        def fake_time(delta: int):
+            # fake a time.time() delta using closure
+            call_idx = ["start"]
+
+            def wrapped():
+                if call_idx[0] == "start":
+                    call_idx[0] = "end"
+                    return 0  # when time.time is initially called
+                else:
+                    return delta  # the "last" time when time.time is called
+
+            return wrapped
+
+        with patch("subprocess.run") as mock_run, patch(
+            "time.sleep"
+        ) as mock_sleep, patch("time.time") as mock_time:
+            mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
+                [],
+                1,
+                "systemd says it's not ready",
+                "graphical target not reached blah",
+            )
+            mock_sleep.side_effect = do_nothing
+            mock_time.side_effect = fake_time(3)
+            tester = RCT.HardwareRendererTester()
+
+            self.assertFalse(tester.wait_for_graphical_target(2))
+
 
 class InfoDumpTests(unittest.TestCase):
     @classmethod

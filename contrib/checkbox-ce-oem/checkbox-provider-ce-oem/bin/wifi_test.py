@@ -23,6 +23,7 @@ import logging
 import re
 import random
 import string
+from contextlib import contextmanager
 
 # Configure logging
 logging.basicConfig(
@@ -47,7 +48,12 @@ class WiFiManager:
         self.peer = kwargs.get("peer")
         self.ssid = kwargs.get("ssid", "qa-test-ssid")
         self.ssid_pwd = kwargs.get("ssid_pwd", "insecure")
-        self.conname = "qa-test-ap"
+        # The connection name is set to the SSID, as the connection name
+        # will match the SSID when connecting Wi-Fi from the HOST to the
+        # DUT. If we use a hardcoded connection name or something
+        # different from the SSID, additional handling will be required
+        # in the del_conn function.
+        self.conname = kwargs.get("ssid", "qa-test-ssid")
 
     def init_conn(self):
         logging.info("Initializing connection")
@@ -138,11 +144,12 @@ class WiFiManager:
         return False
 
     def del_conn(self):
-        run_command("{} c delete {}".format(self._command, self.conname))
+        del_conn_cmd = ("{} c delete {}".format(self._command, self.conname))
+        return del_conn_cmd
 
     def connect_dut(self):
         connect_cmd = "{} d wifi c {}".format(self._command, self.ssid)
-        if self.key_mgmt != "none":
+        if self.key_mgmt:
             connect_cmd += " password {}".format(self.ssid_pwd)
         if self.mode == "adhoc":
             connect_cmd += " wifi.mode {}".format(self.mode)
@@ -152,10 +159,12 @@ class WiFiManager:
         self.init_conn()
         if not self.up_conn():
             raise RuntimeError("Connection initialization failed!")
+        return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         logging.info("Exiting context and cleaning up connection")
-        self.del_conn()
+        cmd = self.del_conn()
+        run_command(cmd)
 
 
 def run_command(command):
@@ -176,53 +185,85 @@ def ping_cmd(ip):
     return "ping {} -c 4".format(ip)
 
 
-def connect_host_device(manager, ip, user, pwd):
-    connect_cmd = manager.connect_dut()
-    ssid = manager.ssid
-    logging.info("Ping target Host first ...")
+@contextmanager
+def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
+    ip = host_net_info["ip"]
+    user = host_net_info["user"]
+    pwd = host_net_info["pwd"]
+    ssid = connect_info["ssid"]
+    connect_cmd = connect_info["connect_cmd"]
+    del_host_conn = connect_info["delete_cmd"]
+    connected = False
+
+    logging.info("Pinging target host first...")
     try:
         run_command(ping_cmd(ip))
-        logging.info("Ping target Host %s successful...", ip)
-        logging.info("Attempting to connect DUT AP %s...", ssid)
+        logging.info("Ping to target host %s successful.", ip)
+    except Exception as e:
+        logging.error("Unable to ping the HOST! Error: %s", str(e))
+        sys.exit(1)
+    try:
         for i in range(1, 11):
-            logging.info("Attempting to connect DUT AP %s %d time...", ssid, i)
+            logging.info(
+                "Attempting to connect to DUT AP %s (%d/%d)...", ssid, i, 10
+            )
             try:
                 run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
-                logging.info("Connect successful!")
-                return True
-            except Exception:
-                logging.warning("Not able to found SSID %s", ssid)
-            time.sleep(10)
-        logging.error("Not able to connect to DUT AP SSID %s", ssid)
-    except Exception:
-        logging.error("Not able to ping the HOST!")
+                logging.info("Connection successful!")
+                connected = True
+                yield
+                break
+            except Exception as e:
+                logging.warning(
+                    "Unable to find SSID %s. Attempt %d failed. Error: %s",
+                    ssid,
+                    i,
+                    str(e),
+                )
+                time.sleep(10)
+    finally:
+        if connected:
+            try:
+                run_command(sshpass_cmd_gen(ip, user, pwd, del_host_conn))
+                logging.info("Deleted host connection successfully.")
+            except Exception as e:
+                logging.error("Failed to delete host connection: %s", str(e))
+        else:
+            logging.error(
+                "Unable to connect to DUT AP SSID %s after 10 attempts.", ssid
+            )
+            sys.exit(1)
 
 
-def ping_test(manager, ip, user, pwd):
+def ping_test(target_ip, host_net_info: dict):
+    ip = host_net_info["ip"]
+    user = host_net_info["user"]
+    pwd = host_net_info["pwd"]
     try:
         logging.info("Attempting to ping DUT...")
         ping_result = run_command(
-            sshpass_cmd_gen(ip, user, pwd, ping_cmd(manager.get_ip_addr()))
+            sshpass_cmd_gen(ip, user, pwd, ping_cmd(target_ip))
         )
-        packet_loss = re.search(r"(\d+)% packet loss", ping_result).group(1)
-        logging.info("Packet loss: %s %%", packet_loss)
-        if packet_loss == "0":
-            logging.info("Ping DUT pass")
-            exit_code = 0
+
+        packet_loss_match = re.search(r"(\d+)% packet loss", ping_result)
+        if packet_loss_match:
+            packet_loss = packet_loss_match.group(1)
+            logging.info("Packet loss: %s %%", packet_loss)
+            if packet_loss == "0":
+                logging.info("Ping DUT passed.")
+                return 0
+            else:
+                logging.error(
+                    "Ping DUT failed with %s %% packet loss!", packet_loss
+                )
+                return 1
         else:
-            logging.error("Ping DUT fail with %s %% packet loss!", packet_loss)
-            exit_code = 1
+            logging.error("Could not parse packet loss from ping result.")
+            return 1
+
     except Exception as e:
         logging.error("An error occurred during ping_test: %s", str(e))
-        exit_code = 1
-    finally:
-        del_host_conn = "{} c delete {}".format(manager._command, manager.ssid)
-        try:
-            run_command(sshpass_cmd_gen(ip, user, pwd, del_host_conn))
-            logging.info("Deleted host connection successfully.")
-        except Exception as e:
-            logging.error("Failed to delete host connection: %s", str(e))
-        sys.exit(exit_code)
+        return 1
 
 
 def main():
@@ -291,12 +332,20 @@ def main():
 
     args = parser.parse_args()
     config = vars(args)
-    manager = WiFiManager(**config)
-    with manager:
-        if connect_host_device(
-            manager, args.host_ip, args.host_user, args.host_pwd
-        ):
-            ping_test(manager, args.host_ip, args.host_user, args.host_pwd)
+    with WiFiManager(**config) as manager:
+        host_net_info = {
+            "ip": args.host_ip,
+            "user": args.host_user,
+            "pwd": args.host_pwd,
+        }
+        connect_info = {
+            "ssid": args.ssid,
+            "connect_cmd": manager.connect_dut(),
+            "delete_cmd": manager.del_conn(),
+        }
+        with connect_dut_from_host_via_wifi(host_net_info, connect_info):
+            ret = ping_test(manager.get_ip_addr(), host_net_info)
+    sys.exit(ret)
 
 
 if __name__ == "__main__":

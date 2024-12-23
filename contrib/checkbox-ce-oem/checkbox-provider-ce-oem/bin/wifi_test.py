@@ -161,9 +161,9 @@ class WiFiManager:
 def run_command(command):
     logging.info("Run command: %s", command)
     output = subprocess.check_output(
-        command, shell=True, stderr=subprocess.STDOUT
+        command, shell=True, text=True, stderr=subprocess.STDOUT
     )
-    return output.decode()
+    return output
 
 
 def sshpass_cmd_gen(ip, user, pwd, cmd):

@@ -51,11 +51,17 @@ class DeviceInfoCollector:
     # to modify, add more values in the enum
     # and reference them in required/optional respectively
 
+    COMMAND_TIMEOUT_SECONDS = 30
+
     def get_drm_info(self) -> str:
         return str(os.listdir("/sys/class/drm"))
 
     def get_wireless_info(self) -> str:
-        iw_out = sp.check_output(["iw", "dev"], universal_newlines=True)
+        iw_out = sp.check_output(
+            ["iw", "dev"],
+            timeout=self.COMMAND_TIMEOUT_SECONDS,
+            universal_newlines=True,
+        )
         lines = iw_out.splitlines()
         lines_to_write = list(
             filter(
@@ -76,6 +82,7 @@ class DeviceInfoCollector:
                 "-s",
             ],
             universal_newlines=True,
+            timeout=self.COMMAND_TIMEOUT_SECONDS,
         ).splitlines()
         out.sort()
         return "\n".join(out)
@@ -83,6 +90,7 @@ class DeviceInfoCollector:
     def get_pci_info(self) -> str:
         return sp.check_output(
             ["lspci", "-i", "{}/usr/share/misc/pci.ids".format(SNAP)],
+            timeout=self.COMMAND_TIMEOUT_SECONDS,
             universal_newlines=True,
         )
 
@@ -306,7 +314,7 @@ class HardwareRendererTester:
     def wait_for_graphical_target(self, max_wait_seconds: int) -> bool:
         """Wait for the DUT to reach graphical.target in systemd critical chain
 
-        :param max_wait_seconds: num seconds to wait at most, defaults to 120
+        :param max_wait_seconds: num seconds to wait at most
         :return: whether graphical.target was reached within max_wait_seconds
         """
 

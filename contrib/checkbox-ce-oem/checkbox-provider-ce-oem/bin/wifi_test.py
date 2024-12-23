@@ -144,7 +144,7 @@ class WiFiManager:
         return False
 
     def del_conn(self):
-        del_conn_cmd = ("{} c delete {}".format(self._command, self.conname))
+        del_conn_cmd = "{} c delete {}".format(self._command, self.conname)
         return del_conn_cmd
 
     def connect_dut(self):

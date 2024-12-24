@@ -12,23 +12,23 @@ plugs:
   checkbox-runtime:
     interface: content
     target: $SNAP/checkbox-runtime
-    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
+    default-provider: checkbox24
   provider-resource:
     interface: content
     target: $SNAP/providers/plainbox-provider-resource
-    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
+    default-provider: checkbox24
   provider-checkbox:
     interface: content
     target: $SNAP/providers/plainbox-provider-checkbox
-    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
+    default-provider: checkbox24
   provider-tpm2:
     interface: content
     target: $SNAP/providers/plainbox-provider-tpm2
-    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
+    default-provider: checkbox24
   provider-certification-client:
     interface: content
     target: $SNAP/providers/plainbox-provider-certification-client
-    # default-provider: checkbox24  #TODO: Remove the comments when checkbox24 is released in stable channel
+    default-provider: checkbox24
 apps:
   checkbox-cli:
     command-chain: [bin/wrapper_local]
@@ -82,15 +82,13 @@ parts:
       craftctl default
       rm lib/systemd/system/alsa-utils.service
     override-build: |
-      sudo snap install checkbox24 --edge  #TODO: Remove this line when checkbox24 is released in stable channel
       export PYTHONPATH=/snap/checkbox24/current/lib/python3.12/site-packages/
       for path in $(find "/snap/checkbox24/current/providers/" -mindepth 1 -maxdepth 1 -type d); do export PROVIDERPATH=$path${PROVIDERPATH:+:$PROVIDERPATH}; done
       python3 manage.py validate
       python3 manage.py build
       python3 manage.py install --layout=relocatable --prefix=/providers/checkbox-provider-ce-oem --root="$CRAFT_PART_INSTALL"
-    #TODO: Remove the comments when checkbox24 is released in stable channel
-    # build-snaps:
-    #   - checkbox24
+    build-snaps:
+      - checkbox24
     build-packages:
       - python3-dev
       - python3-jinja2

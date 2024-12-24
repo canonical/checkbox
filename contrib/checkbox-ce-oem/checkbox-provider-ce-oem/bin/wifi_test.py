@@ -201,7 +201,7 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
         logging.info("Ping to target host %s successful.", ip)
     except Exception as e:
         logging.error("Unable to ping the HOST! Error: %s", str(e))
-        sys.exit(1)
+        raise SystemError()
     try:
         for i in range(1, 11):
             logging.info(
@@ -211,7 +211,6 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
                 run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
                 logging.info("Connection successful!")
                 connected = True
-                yield
                 break
             except Exception as e:
                 logging.warning(
@@ -221,6 +220,7 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
                     str(e),
                 )
                 time.sleep(10)
+        yield
     finally:
         if connected:
             try:
@@ -228,11 +228,12 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
                 logging.info("Deleted host connection successfully.")
             except Exception as e:
                 logging.error("Failed to delete host connection: %s", str(e))
+                raise SystemError()
         else:
             logging.error(
                 "Unable to connect to DUT AP SSID %s after 10 attempts.", ssid
             )
-            sys.exit(1)
+            raise SystemError()
 
 
 def ping_test(target_ip, host_net_info: dict):
@@ -256,14 +257,12 @@ def ping_test(target_ip, host_net_info: dict):
                 logging.error(
                     "Ping DUT failed with %s %% packet loss!", packet_loss
                 )
-                return 1
         else:
             logging.error("Could not parse packet loss from ping result.")
-            return 1
 
     except Exception as e:
         logging.error("An error occurred during ping_test: %s", str(e))
-        return 1
+    return 1
 
 
 def main():
@@ -332,20 +331,24 @@ def main():
 
     args = parser.parse_args()
     config = vars(args)
-    with WiFiManager(**config) as manager:
-        host_net_info = {
-            "ip": args.host_ip,
-            "user": args.host_user,
-            "pwd": args.host_pwd,
-        }
-        connect_info = {
-            "ssid": args.ssid,
-            "connect_cmd": manager.connect_dut(),
-            "delete_cmd": manager.del_conn(),
-        }
-        with connect_dut_from_host_via_wifi(host_net_info, connect_info):
-            ret = ping_test(manager.get_ip_addr(), host_net_info)
-    sys.exit(ret)
+    try:
+        with WiFiManager(**config) as manager:
+            host_net_info = {
+                "ip": args.host_ip,
+                "user": args.host_user,
+                "pwd": args.host_pwd,
+            }
+            connect_info = {
+                "ssid": args.ssid,
+                "connect_cmd": manager.connect_dut(),
+                "delete_cmd": manager.del_conn(),
+            }
+            with connect_dut_from_host_via_wifi(host_net_info, connect_info):
+                ret = ping_test(manager.get_ip_addr(), host_net_info)
+        sys.exit(ret)
+    except SystemError:
+        logging.error("Failed to establish connection or perform cleanup.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

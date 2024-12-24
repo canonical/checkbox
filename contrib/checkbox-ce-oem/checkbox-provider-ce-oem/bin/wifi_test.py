@@ -145,9 +145,15 @@ class WiFiManager:
         return "{} c delete {}".format(self._command, self.conname)
 
     def connect_dut_cmd(self, host_if):
-        connect_cmd = "{} con add type wifi ifname {} con-name {} ssid {}".format(self._command, host_if, self.conname, self.ssid)
+        connect_cmd = (
+            "{} con add type wifi ifname {} con-name {} ssid {}".format(
+                self._command, host_if, self.conname, self.ssid
+            )
+        )
         if self.key_mgmt:
-            connect_cmd += " wifi-sec.key-mgmt  wifi-sec.psk {}".format(self.key_mgmt, self.ssid_pwd)
+            connect_cmd += " wifi-sec.key-mgmt  wifi-sec.psk {}".format(
+                self.key_mgmt, self.ssid_pwd
+            )
         if self.mode == "adhoc":
             connect_cmd += " wifi.mode {}".format(self.mode)
         return connect_cmd
@@ -232,7 +238,8 @@ def create_conn_from_host(ip, user, pwd, connect_cmd):
             return True
         except Exception as e:
             logging.warning(
-                "Unable to create connection on HOST. Attempt %d failed. Error: %s",
+                "Unable to create connection on HOST. Attempt %d failed."
+                " Error: %s",
                 i,
                 str(e),
             )
@@ -250,7 +257,8 @@ def bring_up_conn_from_host(ip, user, pwd, up_host_conn):
             return True
         except Exception as e:
             logging.warning(
-                "Unable to bring up connection on HOST. Attempt %d failed. Error: %s",
+                "Unable to bring up connection on HOST. Attempt %d failed."
+                " Error: %s",
                 i,
                 str(e),
             )

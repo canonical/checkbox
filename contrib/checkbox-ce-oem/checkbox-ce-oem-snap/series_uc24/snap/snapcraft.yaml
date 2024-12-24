@@ -25,6 +25,10 @@ plugs:
     interface: content
     target: $SNAP/providers/plainbox-provider-tpm2
     default-provider: checkbox24
+  provider-docker:
+    interface: content
+    target: $SNAP/providers/checkbox-provider-docker
+    default-provider: checkbox24
   provider-certification-client:
     interface: content
     target: $SNAP/providers/plainbox-provider-certification-client

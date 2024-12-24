@@ -151,11 +151,8 @@ class WiFiManager:
             )
         )
         if self.key_mgmt:
-            connect_cmd += (
-                " wifi-sec.key-mgmt {}"
-                " wifi-sec.psk {}".format(
-                    self.key_mgmt, self.ssid_pwd
-                )
+            connect_cmd += " wifi-sec.key-mgmt {}" " wifi-sec.psk {}".format(
+                self.key_mgmt, self.ssid_pwd
             )
         if self.mode == "adhoc":
             connect_cmd += " wifi.mode {}".format(self.mode)

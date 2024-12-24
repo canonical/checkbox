@@ -48,12 +48,7 @@ class WiFiManager:
         self.peer = kwargs.get("peer")
         self.ssid = kwargs.get("ssid", "qa-test-ssid")
         self.ssid_pwd = kwargs.get("ssid_pwd", "insecure")
-        # The connection name is set to the SSID, as the connection name
-        # will match the SSID when connecting Wi-Fi from the HOST to the
-        # DUT. If we use a hardcoded connection name or something
-        # different from the SSID, additional handling will be required
-        # in the del_conn function.
-        self.conname = kwargs.get("ssid", "qa-test-ssid")
+        self.conname = "qa-test-ap"
 
     def init_conn(self):
         logging.info("Initializing connection")
@@ -126,9 +121,12 @@ class WiFiManager:
         ip_addr = ip_addr.split("/")[0] if ip_addr.find("/") != -1 else ""
         return ip_addr
 
+    def up_cmd(self):
+        return "{} c up {}".format(self._command, self.conname)
+
     def up_conn(self):
         try:
-            run_command("{} c up {}".format(self._command, self.conname))
+            run_command(self.up_cmd())
             logging.info("Initialized connection successful!")
         except Exception:
             raise SystemError("Bring up connection failed!")
@@ -143,14 +141,13 @@ class WiFiManager:
             time.sleep(5)
         return False
 
-    def del_conn(self):
-        del_conn_cmd = "{} c delete {}".format(self._command, self.conname)
-        return del_conn_cmd
+    def del_cmd(self):
+        return "{} c delete {}".format(self._command, self.conname)
 
-    def connect_dut(self):
-        connect_cmd = "{} d wifi c {}".format(self._command, self.ssid)
+    def connect_dut_cmd(self, host_if):
+        connect_cmd = "{} con add type wifi ifname {} con-name {} ssid {}".format(self._command, host_if, self.conname, self.ssid)
         if self.key_mgmt:
-            connect_cmd += " password {}".format(self.ssid_pwd)
+            connect_cmd += " wifi-sec.key-mgmt  wifi-sec.psk {}".format(self.key_mgmt, self.ssid_pwd)
         if self.mode == "adhoc":
             connect_cmd += " wifi.mode {}".format(self.mode)
         return connect_cmd
@@ -163,7 +160,7 @@ class WiFiManager:
 
     def __exit__(self, exc_type, exc_value, traceback):
         logging.info("Exiting context and cleaning up connection")
-        cmd = self.del_conn()
+        cmd = self.del_cmd()
         run_command(cmd)
 
 
@@ -193,6 +190,7 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
     ssid = connect_info["ssid"]
     connect_cmd = connect_info["connect_cmd"]
     del_host_conn = connect_info["delete_cmd"]
+    up_host_conn = connect_info["up_cmd"]
     connected = False
 
     logging.info("Pinging target host first...")
@@ -202,24 +200,12 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
     except Exception as e:
         raise SystemError("Unable to ping the HOST! Error: %s", str(e))
     try:
-        for i in range(1, 11):
-            logging.info(
-                "Attempting to connect to DUT AP %s (%d/%d)...", ssid, i, 10
-            )
-            try:
-                run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
-                logging.info("Connection successful!")
-                connected = True
-                break
-            except Exception as e:
-                logging.warning(
-                    "Unable to find SSID %s. Attempt %d failed. Error: %s",
-                    ssid,
-                    i,
-                    str(e),
-                )
-                time.sleep(10)
-        yield
+        connected = create_conn_from_host(ip, user, pwd, connect_cmd)
+        if connected:
+            if bring_up_conn_from_host(ip, user, pwd, up_host_conn):
+                yield
+    except Exception as e:
+        raise SystemError(e)
     finally:
         if connected:
             try:
@@ -233,6 +219,42 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
             raise SystemError(
                 "Unable to connect to DUT AP SSID %s after 10 attempts.", ssid
             )
+
+
+def create_conn_from_host(ip, user, pwd, connect_cmd):
+    for i in range(1, 11):
+        logging.info(
+            "Attempting to create the connection on HOST (%d/%d)...", i, 10
+        )
+        try:
+            run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
+            logging.info("Create connection successful!")
+            return True
+        except Exception as e:
+            logging.warning(
+                "Unable to create connection on HOST. Attempt %d failed. Error: %s",
+                i,
+                str(e),
+            )
+            time.sleep(10)
+
+
+def bring_up_conn_from_host(ip, user, pwd, up_host_conn):
+    for i in range(1, 11):
+        logging.info(
+            "Attempting to bring up the connection on HOST (%d/%d)...", i, 10
+        )
+        try:
+            run_command(sshpass_cmd_gen(ip, user, pwd, up_host_conn))
+            logging.info("Bring up connection successful!")
+            return True
+        except Exception as e:
+            logging.warning(
+                "Unable to bring up connection on HOST. Attempt %d failed. Error: %s",
+                i,
+                str(e),
+            )
+            time.sleep(10)
 
 
 def ping_test(target_ip, host_net_info: dict):
@@ -327,6 +349,11 @@ def main():
         required=True,
         help="Password of the Host device for SSH connection",
     )
+    parser.add_argument(
+        "--host-interface",
+        required=True,
+        help="The wifi interface name of the Host device",
+    )
 
     args = parser.parse_args()
     config = vars(args)
@@ -339,8 +366,9 @@ def main():
             }
             connect_info = {
                 "ssid": args.ssid,
-                "connect_cmd": manager.connect_dut(),
-                "delete_cmd": manager.del_conn(),
+                "connect_cmd": manager.connect_dut_cmd(args.host_interface),
+                "delete_cmd": manager.del_cmd(),
+                "up_cmd": manager.up_cmd(),
             }
             with connect_dut_from_host_via_wifi(host_net_info, connect_info):
                 ret = ping_test(manager.get_ip_addr(), host_net_info)

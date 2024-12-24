@@ -43,11 +43,11 @@ class WiFiManager:
         self.mode = kwargs.get("mode")
         self.band = kwargs.get("band")
         self.channel = kwargs.get("channel")
-        self.key_mgmt = kwargs.get("key_mgmt")
+        self.key_mgmt = kwargs.get("keymgmt")
         self.group = kwargs.get("group")
         self.peer = kwargs.get("peer")
-        self.ssid = kwargs.get("ssid", "qa-test-ssid")
-        self.ssid_pwd = kwargs.get("ssid_pwd", "insecure")
+        self.ssid = kwargs.get("ssid")
+        self.ssid_pwd = kwargs.get("ssid_pwd")
         self.conname = "qa-test-ap"
 
     def init_conn(self):
@@ -66,12 +66,12 @@ class WiFiManager:
                 )
             )
             self.set_band_channel()
-            if self.key_mgmt is not None:
+            if self.key_mgmt:
                 self.set_secured()
         elif self.type == "wifi-p2p":
             run_command(
-                "{} c add type {} ifname {} con-name {} \
-                    wifi-p2p.peer {}".format(
+                "{} c add type {} ifname {} con-name {} "
+                "wifi-p2p.peer {}".format(
                     self._command,
                     self.type,
                     self.interface,
@@ -96,8 +96,8 @@ class WiFiManager:
 
     def set_secured(self):
         run_command(
-            "{} c modify {} wifi-sec.key-mgmt {} wifi-sec.psk {}\
-                  wifi-sec.group {}".format(
+            "{} c modify {} wifi-sec.key-mgmt {} wifi-sec.psk {} "
+            "wifi-sec.group {}".format(
                 self._command,
                 self.conname,
                 self.key_mgmt,
@@ -151,8 +151,11 @@ class WiFiManager:
             )
         )
         if self.key_mgmt:
-            connect_cmd += " wifi-sec.key-mgmt  wifi-sec.psk {}".format(
-                self.key_mgmt, self.ssid_pwd
+            connect_cmd += (
+                " wifi-sec.key-mgmt {}"
+                " wifi-sec.psk {}".format(
+                    self.key_mgmt, self.ssid_pwd
+                )
             )
         if self.mode == "adhoc":
             connect_cmd += " wifi.mode {}".format(self.mode)
@@ -328,7 +331,10 @@ def main():
         help="SSID for AP mode",
     )
     wifi_parser.add_argument(
-        "--ssid-pwd", required=False, help="Password for SSID"
+        "--ssid-pwd",
+        required=False,
+        default="insecure",
+        help="Password for SSID",
     )
 
     # Subparser for 'wifi-p2p'

@@ -39,7 +39,7 @@ _summary: Create open 802.11{band} Wi-Fi AP on {interface} and check connection
 _description:
    Create open 802.11{band} Wi-Fi AP on {interface} in channel{channel} group {group} and check connection
 plugin: shell
-environ: WIFI_AP_HOST_DEVICE_IP WIFI_AP_HOST_DEVICE_USER WIFI_AP_HOST_DEVICE_PWD
+environ: WIFI_AP_HOST_DEVICE_IP WIFI_AP_HOST_DEVICE_USER WIFI_AP_HOST_DEVICE_PWD WIFI_AP_HOST_DEVICE_INTERFACE
 imports:
   from com.canonical.certification import net_if_management
 requires:
@@ -49,7 +49,7 @@ flags: preserve-locale also-after-suspend
 command:
    wifi_test.py --interface {interface} --host-ip "$WIFI_AP_HOST_DEVICE_IP" \
    --host-user "$WIFI_AP_HOST_DEVICE_USER" --host-pwd "$WIFI_AP_HOST_DEVICE_PWD" \
-   wifi --mode ap  --band {band} --channel {channel}
+   --host-interface "$WIFI_AP_HOST_DEVICE_INTERFACE" wifi --mode ap  --band {band} --channel {channel}
 
 unit: template
 template-resource: ce_oem_wifi_ap_mode
@@ -61,7 +61,7 @@ _summary: Create wpa 802.11{band} Wi-Fi AP on {interface} and check connection
 _description:
    Create wpa 802.11{band} Wi-Fi AP on {interface} in channel{channel} group {group} and check connection
 plugin: shell
-environ: WIFI_AP_HOST_DEVICE_IP WIFI_AP_HOST_DEVICE_USER WIFI_AP_HOST_DEVICE_PWD
+environ: WIFI_AP_HOST_DEVICE_IP WIFI_AP_HOST_DEVICE_USER WIFI_AP_HOST_DEVICE_PWD WIFI_AP_HOST_DEVICE_INTERFACE
 imports:
   from com.canonical.certification import net_if_management
 requires:
@@ -71,4 +71,5 @@ flags: preserve-locale also-after-suspend
 command:
    wifi_test.py --interface {interface} --host-ip "$WIFI_AP_HOST_DEVICE_IP" \
    --host-user "$WIFI_AP_HOST_DEVICE_USER" --host-pwd "$WIFI_AP_HOST_DEVICE_PWD" \
-   wifi --mode ap  --band {band} --channel {channel} --keymgmt {key_mgmt} --group {group}
+   --host-interface "$WIFI_AP_HOST_DEVICE_INTERFACE" wifi --mode ap  --band {band} \
+   --channel {channel} --keymgmt {key_mgmt} --group {group}

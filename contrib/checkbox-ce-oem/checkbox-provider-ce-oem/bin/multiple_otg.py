@@ -2,281 +2,359 @@ import argparse
 import glob
 import logging
 import os
-import re
-import shutil
 import subprocess
 import tempfile
+import time
 
-from contextlib import contextmanager
+from importlib import import_module
+from multiprocessing import Process
 from pathlib import Path
 from rpyc_client import rpyc_client
+from typing import Union
 
-
-MODULE_MAPPING = {
-    "usb": "usb_f_mass_storage",
-    "ethernet": "usb_f_ecm",
-    "serial": "usb_f_acm",
-}
 OTG_MODULE = "libcomposite"
-GADGET_PATH = "/sys/kernel/config/usb_gadget"
-UDC_G1_NODE = Path(GADGET_PATH).joinpath("g1")
-UDC_CONFIG = UDC_G1_NODE.joinpath("configs", "c.1")
-UDC_NODE = UDC_G1_NODE.joinpath("UDC")
+
+logging.basicConfig(level=logging.DEBUG)
 
 
-def _get_otg_module():
-    ret = subprocess.run(
-        "lsmod | grep {}".format(OTG_MODULE),
-        shell=True,
-        universal_newlines=True
-    )
-    return ret.stdout.strip()
+def initial_configfs() -> Union[tempfile.TemporaryDirectory, Path]:
+    """
+    return a Path object with current mount point
+        when the kernel configfs has been mounted
+    Or return a TemporaryDirectory object and mount it as a kernel configfs
 
-
-def enable_otg_module():
-    disable_otg_related_modules()
-
-    if not _get_otg_module():
-        subprocess.run("modprode {}".format(OTG_MODULE))
-
-
-def disable_otg_related_modules():
-    ret = subprocess.run("lsmod | awk '/^libcomposite/ {print $4}'")
-    if ret.returncode == 0:
-        for module in ret.stdout.split(","):
-            subprocess.run("modprobe -r {}".format(module))
-
-
-def _initial_gadget():
-    logging.info("initial gadget")
-    enable_otg_module()
-
-    ret = subprocess.run("mount | configfs")
-    if not ret.stdout.strip():
-        subprocess.run(
-            "mount -t configfs none {}".format(os.path.split(GADGET_PATH))
-        )
-
-
-def _create_otg_configs():
-    logging.info("create gadget")
-    os.makedirs(UDC_G1_NODE.name)
-
-    path_lang = UDC_G1_NODE.joinpath("strings", "0x409")
-    os.makedirs(path_lang.name) # english language
-
-    vid_file = UDC_G1_NODE.joinpath("idVendor")
-    vid_file.write_text("0xabcd")
-    pid_file = UDC_G1_NODE.joinpath("idProduct")
-    pid_file.write_text("0x9999")
-
-    # create configs
-    os.makedirs(UDC_CONFIG.name)
-    max_power_file = UDC_CONFIG.joinpath("MaxPower")
-    max_power_file.write_text("120")
-
-
-def _create_function(function):
-    logging.info("create function")
-    subprocess.run("modprobe usb_f_{}".format(function))
-    function_path = UDC_G1_NODE.joinpath("functions", "{}.0".format(function))
-
-    if not os.path.isdir(function_path):
-        os.makedirs(function_path)
-
-    if function == "mass_storage":
-        with tempfile.TemporaryDirectory() as tmp_dir:
-            img = os.path.join(tmp_dir, "lun0.img")
-            subprocess.run("dd if=/dev/zero of={} bs=1M count=16".format(img))
-            subprocess.run("mkdosfs -F 32 {}".format(img))
-
-            with open(os.path.join(function_path, "lun.0", "file"), "w") as f:
-                f.write(img)
-
-    os.symlink(
-        function_path,
-        UDC_CONFIG.joinpath("{}.0".format(function)).name
-        )
-
-
-def otg_testing(method):
-    pass
-
-
-def _identify_udc_bus(otg_bus, udc_list):
-    for udc in udc_list:
-        if udc in otg_bus:
-            return udc
-        elif glob.glob(
-            "/sys/devices/platform/**/{}/{}*".format(udc, otg_bus)
-        ):
-            return udc
-    return "None"
+    Returns:
+        Union[tempfile.TemporaryDirectory, Path]: kernel configfs directory
+    """
+    logging.info("initialize configfs")
+    ret = subprocess.check_output("mount -t configfs", shell=True, text=True)
+    if ret.strip():
+        configfs_dir = Path(ret.split()[2])
+        logging.info("kernel configfs has been mounted on %s", configfs_dir)
+    else:
+        configfs_dir = Path(tempfile.NamedTemporaryDirectory().name)
+        subprocess.run("mount -t configfs none {}".format(configfs_dir.name))
+        logging.info("mount configfs on %s", configfs_dir.name)
+    return configfs_dir
 
 
 def dump_otg_info(configs):
-    otg_nodes = glob.glob(
-        "/sys/firmware/devicetree/base/**/dr_mode", recursive=True
-    )
-    udc_list = [os.path.basename(f) for f in glob.glob("/sys/class/udc/*")]
-    otg_mapping = {}
-    for node in otg_nodes:
-        mode = Path(node).read_text().strip()
-        usb_bus = re.search(r"usb@([a-z0-9]*)", node)
-        otg_mapping[usb_bus] = mode
-
     for config in configs.split():
         otg_conf = config.split(":")
         if len(otg_conf) == 2:
-            udc_bus = _identify_udc_bus(otg_conf[1], udc_list)
-            print("USB_port: {}".format(otg_conf[0]))
-            print("USB_node: {}".format(otg_conf[1]))
-            print("Mode: {}".format(otg_mapping.get(config[0], "")))
-            print("UDC: {}".format(udc_bus))
+            print("USB_CONNECTOR: {}".format(otg_conf[0]))
+            print("USB_BUS: {}".format(otg_conf[1]))
             print()
 
 
-class ConfigFsOperator(tempfile.TemporaryDirectory):
-
-    def __enter__(self):
-        subprocess.run(
-            "mount -t configfs none {}".format(self.name),
-            shell=True,
-            check=True
-        )
-        super.__init__()
-
-    def __exit__(self, exc, value, tb):
-        subprocess.run("umount {}".format(self.name))
-        super.__exit__(exc, value, tb)
-
-    def create_otg_gadget(self):
-        gadget_root = Path(self.name, "usb_gadget")
-        gadget_root.mkdir()
-        self.gadget_node = gadget_root.joinpath("g1")
-        self.gadget_node.mkdir()
-
-        # create PID and VID file
-        self.gadget_node.joinpath("idVendor").write_text("0xabcd")
-        self.gadget_node.joinpath("idProduct").write_text("0x9999")
-
-        # create serial no, manufacture and product
-        string_dir = self.gadget_node.joinpath("strings")
-        string_dir.mkdir()
-        lang_dir = string_dir.joinpath("0x409")
-        lang_dir.mkdir()
-        lang_dir.joinpath("serialnumber").write_text("1234567")
-        lang_dir.joinpath("manufacturer").write_text("canonical")
-        lang_dir.joinpath("product").write_text("otg_device")
-
-    def create_otg_config(self):
-        config_root = self.gadget_node.joinpath("configs")
-        config_root.mkdir()
-        config_node = config_root.joinpath("c.1")
-        config_node.mkdir()
-
-        config_node.joinpath("MaxPower").write_text("120")
-        string_dir = config_node.joinpath("strings")
-        string_dir.mkdir()
-        lang_dir = string_dir.joinpath("0x409")
-        lang_dir.mkdir()
-        lang_dir.joinpath("configuration").write_text("otg")
-
-    def create_otg_function(self):
-        pass
-
-class OtgTestBase():
+class OtgConfigFsOperatorBase:
     """
     This is a object to setup the USB gadget to support different OTG scenario
     Reference https://www.kernel.org/doc/Documentation/usb/gadget_configfs.txt
     """
-    def __init__(self, bus_addr):
-        self._addr = bus_addr
 
-    def _get_related_libcomposite_modules(self):
-        ret = subprocess.run("lsmod | awk '/^libcomposite/ {print $4}'")
-        if ret.returncode == 0:
-            return ret.stdout.split(",")
-        return []
+    OTG_FUNCTION = ""
+    OTG_TARGET_MODULE = ""
 
-    def _enable_libcomposite_module(self):
-        modules = self._get_related_libcomposite_modules()
-        if modules:
-            # libcomposite module has been loaded, unload corresponding module
-            for module in modules:
-                subprocess.run("modprobe -r {}".format(module), check=True)
-        else:
-            # load libcomposite
-            subprocess.run("modprobe {}".format(module), check=True)
-
-    def _identify_configfs_dir(self):
-
-
-    def _pre_setup_env(self):
-        self._enable_libcomposite_module()
-
-    def create_gadget(self):
-        pass
-
-    def create_config(self):
-        pass
-
-    def create_function(self):
-        pass
-
-    def associate_function_and_config(self):
-        pass
-
-    def enable_gadget(self):
-        pass
-
-    def disable_gadget(self):
-        pass
-
-    def clean_up(self):
-        pass
-
-
-class OtgTest():
-
-    def __init__(self, mode, address):
-        self._mode = mode
-        self._address = address
+    def __init__(self, root_path: Path, udc_path: str):
+        self._child_modules = self._get_child_modules()
+        self.root_path = root_path
+        self.usb_gadget_node = None
+        self.udc_node = Path("/sys/class/udc").joinpath(udc_path)
 
     def __enter__(self):
-        self._prepare_env()
+        logging.debug("enter setup function")
+        if self._child_modules:
+            logging.info(self._child_modules)
+            # To clean up the OTG modules
+            self.disable_otg_related_modules(self._child_modules)
+        self.enable_otg_module([OTG_MODULE])
+        self.usb_gadget_node = Path(
+            tempfile.TemporaryDirectory(
+                dir=self.root_path.joinpath("usb_gadget"),
+                prefix="udc_"
+            ).name
+        )
+        self.otg_setup()
+        self.create_otg_configs()
+        self.create_otg_function()
+        return self
 
-    def __exit__(self):
-        try:
-            UDC_NODE.write_text("")
-            shutil.rmtree(GADGET_PATH)
-        except Exception as err:
-            logging.error(err)
+    def __exit__(self, exec, value, tb):
+        logging.debug("enter teardown function")
+        self._cleanup_usb_gadget()
+        cur_modules = [
+            mod for mod in self._get_child_modules() if mod not in self._child_modules]
+        self.disable_otg_related_modules(cur_modules)
+        if self._child_modules:
+            self.enable_otg_module(self._child_modules)
+        self.otg_teardown()
 
-    def _prepare_env(self):
-        _initial_gadget()
-        _create_otg_configs()
-        _create_function(self._mode)
+    def _get_child_modules(self):
+        output = subprocess.check_output(
+            "lsmod | awk '/^libcomposite/ {print $4}'",
+            shell=True,
+            text=True,
+            universal_newlines=True,
+        )
+        return output.strip("\n").split(",") if output.strip("\n") else []
 
-    def activate_otg(self):
-        # Activate OTG
-        UDC_NODE.write_text(self._address)
+    def enable_otg_module(self, modules):
+        for module in modules:
+            subprocess.run("modprobe {}".format(module), shell=True, check=True)
 
-    @classmethod
-    def mass_storage(cls, type, address):
-        rpyc_client()
+    def disable_otg_related_modules(self, modules):
+        for module in modules:
+            subprocess.run("modprobe -r {}".format(module), shell=True, check=True)
 
-    def ethernet(self, type, address):
+    def otg_setup(self):
+        """
+        This is function for doing any extra step for specific OTG function
+        such as collecting ethernet interface, serial interface
+             and create an USB image file
+        """
         pass
 
-    def serial(self, type, address):
+    def otg_teardown(self):
+        """
+        This is function for doing any extra step for specific OTG function
+        such as delete an USB image file
+        """
         pass
+
+    def create_otg_configs(self):
+        logging.info("create USB gadget")
+        path_lang = self.usb_gadget_node.joinpath("strings", "0x409")
+        path_lang.mkdir()
+
+        vid_file = self.usb_gadget_node.joinpath("idVendor")
+        vid_file.write_text("0xabcd")
+        pid_file = self.usb_gadget_node.joinpath("idProduct")
+        pid_file.write_text("0x9999")
+
+        # create configs
+        udc_configs = self.usb_gadget_node.joinpath("configs", "c.1")
+        udc_configs.mkdir()
+        max_power_file = udc_configs.joinpath("MaxPower")
+        max_power_file.write_text("120")
+
+    def create_otg_function(self):
+        logging.info("create function")
+        self.enable_otg_module([self.OTG_TARGET_MODULE])
+        func_name = "{}.0".format(self.OTG_FUNCTION)
+        function_path = self.usb_gadget_node.joinpath("functions", func_name)
+
+        if not function_path.exists():
+            function_path.mkdir()
+
+        self.usb_gadget_node.joinpath(
+            "configs", "c.1", func_name).symlink_to(function_path, True)
+
+    def _cleanup_usb_gadget(self):
+        func_name = "{}.0".format(self.OTG_FUNCTION)
+        self.usb_gadget_node.joinpath("strings", "0x409").rmdir()
+        self.usb_gadget_node.joinpath("configs", "c.1", func_name).unlink(True)
+        self.usb_gadget_node.joinpath("configs", "c.1").rmdir()
+        self.usb_gadget_node.joinpath("functions", func_name).rmdir()
+        self.usb_gadget_node.rmdir()
+
+    def enable_otg(self):
+        if self.udc_node.exists():
+            self.usb_gadget_node.joinpath("UDC").write_text(self.udc_node.name)
+        else:
+            logging.error("UDC node '%s' not exists", self.udc_node)
+            raise ValueError(self.udc_node)
+
+    def disable_otg(self):
+        self.usb_gadget_node.joinpath("UDC").write_text("")
+
+    def self_check(self):
+        """ensure the USB device been generated.
+
+        Returns:
+            bool: return True when a USB device been detected
+        """
+        logging.debug("check")
+        return True
+
+    def detection_check_on_rpyc(self, rpyc_ip):
+        """
+        This is a function to detect OTG device on client
+        """
+        pass
+
+    def function_check_on_rpyc(self, rpyc_ip):
+        """
+        this is a function to perform OTG testing on client
+        """
+        pass
+
+
+class OtgMassStorageSetup(OtgConfigFsOperatorBase):
+
+    OTG_FUNCTION = "mass_storage"
+    OTG_TARGET_MODULE = "usb_f_mass_storage"
+
+    def otg_setup(self):
+        """
+        This is function for doing any extra step for specific OTG function
+        such as collecting ethernet interface, serial interface
+             and create an USB storage
+        """
+        self._usb_img = tempfile.NamedTemporaryFile("+bw", delete=False)
+        subprocess.run(
+            "dd if=/dev/zero of={} bs=1M count=16".format(self._usb_img.name),
+            shell=True,
+            check=True,
+        )
+        subprocess.run(
+            "mkdosfs -F 32 {}".format(self._usb_img.name),
+            shell=True,
+            check=True,
+        )
+        logging.info("Create an USB image file to %s", self._usb_img.name)
+
+    def otg_teardown(self):
+        logging.info("Delete USB image file from %s", self._usb_img.name)
+        os.remove(self._usb_img.name)
+
+    def create_otg_function(self):
+        logging.info("create function")
+        self.enable_otg_module([self.OTG_TARGET_MODULE])
+        func_name = "{}.0".format(self.OTG_FUNCTION)
+        function_path = self.usb_gadget_node.joinpath("functions", func_name)
+
+        if not function_path.exists():
+            function_path.mkdir()
+
+        function_path.joinpath("lun.0", "file").write_text(self._usb_img.name)
+
+        self.usb_gadget_node.joinpath(
+            "configs", "c.1", func_name).symlink_to(function_path, True)
+
+    def self_check(self):
+        time.sleep(10)
+
+
+class OtgEthernetSetup(OtgConfigFsOperatorBase):
+
+    OTG_FUNCTION = "ecm"
+    OTG_TARGET_MODULE = "usb_f_ecm"
+
+    def _collect_net_intfs(self):
+        return [os.path.basename(intf) for intf in glob.glob("/sys/class/net/*")]
+
+    def otg_setup(self):
+        self._net_intfs = self._collect_net_intfs()
+
+    def self_check(self):
+        """
+        Ensure the ethernet device been generated by usb gadget
+
+        Returns:
+            bool: Return True when an USB Ethernet interface been detected
+        """
+        logging.info("Validate a new network interface been generated")
+        cur_net_intfs = self._collect_net_intfs()
+        if len(cur_net_intfs) == len(self._net_intfs):
+            raise RuntimeError("OTG network interface not available")
+
+        otg_net_intf = [x for x in cur_net_intfs if x not in self._net_intfs]
+        if len(otg_net_intf) != 1:
+            logging.error("Found more than one new interface. %s", otg_net_intf)
+        else:
+            logging.info("Found new network interface '%s'", otg_net_intf[0])
+        self._net_dev = otg_net_intf[0]
+
+    def detection_check_on_rpyc(self, rpyc_ip):
+        ret = rpyc_client(rpyc_ip, "exposed_net_check")
+        if ret:
+            logging.info("Found %s network interface on rpyc server", ret)
+        else:
+            logging.debug("No network interface found on rpyc server")
+        self._target_net_dev = ret
+
+    def _configure_local_network(self, interface, net_info):
+        subprocess.check_output(
+            "ip addr add {} dev {}".format(net_info, interface),
+            shell=True,
+            text=True,
+        )
+
+    def function_check_on_rpyc(self, rpyc_ip):
+        self._configure_local_network(self._net_dev, "169.254.0.1/24")
+        rpyc_client(
+            rpyc_ip,
+            "exposed_configure_local_network",
+            self._target_net_dev,
+            "169.254.0.10/24",
+        )
+        ret = rpyc_client(rpyc_ip, "exposed_network_ping", "169.254.0.1", self._target_net_dev)
+        logging.debug(ret)
+
+
+class OtgSerialSetup(OtgConfigFsOperatorBase):
+
+    OTG_FUNCTION = "acm"
+    OTG_TARGET_MODULE = "usb_f_acm"
+
+    def _collect_serial_intfs(self):
+        return [os.path.basename(intf) for intf in glob.glob("/dev/ttyGS*")]
+
+    def otg_setup(self):
+        self._ser_intfs = self._collect_serial_intfs()
+
+    def self_check(self):
+        """
+        Ensure a Serial device been generated by usb gadget
+
+        Returns:
+            bool: Return True when a Serial interface been detected
+        """
+        logging.info("Validate a new serial interface been generated")
+        cur_ser_intfs = self._collect_serial_intfs()
+        if len(cur_ser_intfs) == len(self._ser_intfs):
+            raise RuntimeError("OTG network interface not available")
+
+        otg_ser_intf = [x for x in cur_ser_intfs if x not in self._ser_intfs]
+        if len(otg_ser_intf) != 1:
+            logging.error("Found more than one new interface. %s", otg_ser_intf)
+        else:
+            logging.info("Found new network interface '%s'", otg_ser_intf[0])
+        return otg_ser_intf[0]
+
+
+OTG_TESTING_MAPPING = {
+    "mass_storage": {
+        "detection": "",
+        "function": "",
+        "setup": OtgMassStorageSetup,
+    },
+    "ethernet": {
+        "detection": "",
+        "function": "",
+        "setup": OtgEthernetSetup,
+    },
+    "serial": {
+        "detection": "",
+        "function": "",
+        "setup": OtgSerialSetup,
+    },
+}
+
+
+def otg_testing(udc_node, test_func, rpyc_ip):
+    configfs_dir = initial_configfs()
+    with OTG_TESTING_MAPPING[test_func]["setup"](configfs_dir, udc_node) as otg_cfg:
+        otg_cfg.enable_otg()
+        otg_cfg.self_check()
+        otg_cfg.detection_check_on_rpyc(rpyc_ip)
+        otg_cfg.function_check_on_rpyc(rpyc_ip)
+        otg_cfg.disable_otg()
 
 
 def register_arguments():
-    parser = argparse.ArgumentParser(
-        description="OTG test method"
-    )
+    parser = argparse.ArgumentParser(description="OTG test method")
 
     sub_parser = parser.add_subparsers(
         dest="mode",
@@ -287,9 +365,10 @@ def register_arguments():
         "-t",
         "--type",
         required=True,
-        choices=["mass_storage", "ethernet", "serial"]
+        choices=["mass_storage", "ethernet", "serial"],
     )
-    test_parser.add_argument("-a", "--address", required=True, type=str)
+    test_parser.add_argument("-u", "--udc-node", required=True, type=str)
+    test_parser.add_argument("--rpyc-address", required=True, type=str)
 
     info_parser = sub_parser.add_parser("info")
     info_parser.add_argument("-c", "--config", required=True, type=str)
@@ -300,8 +379,7 @@ def register_arguments():
 def main():
     args = register_arguments()
     if args.mode == "test":
-        with prepare_env():
-            getattr(OtgTest, args.type)(args.type, args.address)
+        otg_testing(args.udc_node, args.type, args.rpyc_address)
     elif args.mode == "info":
         dump_otg_info(args.config)
 

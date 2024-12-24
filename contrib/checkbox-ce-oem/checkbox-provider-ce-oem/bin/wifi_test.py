@@ -200,8 +200,7 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
         run_command(ping_cmd(ip))
         logging.info("Ping to target host %s successful.", ip)
     except Exception as e:
-        logging.error("Unable to ping the HOST! Error: %s", str(e))
-        raise SystemError()
+        raise SystemError("Unable to ping the HOST! Error: %s", str(e))
     try:
         for i in range(1, 11):
             logging.info(
@@ -227,13 +226,13 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
                 run_command(sshpass_cmd_gen(ip, user, pwd, del_host_conn))
                 logging.info("Deleted host connection successfully.")
             except Exception as e:
-                logging.error("Failed to delete host connection: %s", str(e))
-                raise SystemError()
+                raise SystemError(
+                    "Failed to delete host connection: %s", str(e)
+                )
         else:
-            logging.error(
+            raise SystemError(
                 "Unable to connect to DUT AP SSID %s after 10 attempts.", ssid
             )
-            raise SystemError()
 
 
 def ping_test(target_ip, host_net_info: dict):
@@ -346,8 +345,8 @@ def main():
             with connect_dut_from_host_via_wifi(host_net_info, connect_info):
                 ret = ping_test(manager.get_ip_addr(), host_net_info)
         sys.exit(ret)
-    except SystemError:
-        logging.error("Failed to establish connection or perform cleanup.")
+    except SystemError as e:
+        logging.error(e)
         sys.exit(1)
 
 

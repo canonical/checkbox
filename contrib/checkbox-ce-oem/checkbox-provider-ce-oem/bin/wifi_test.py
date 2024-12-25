@@ -228,17 +228,14 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
 
 
 def create_conn_from_host(ip, user, pwd, connect_cmd):
-    logging.info(
-        "Attempting to create the connection configuration on HOST"
-    )
+    logging.info("Attempting to create the connection configuration on HOST")
     try:
         run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
         logging.info("Create connection configuration successful!")
         return True
     except Exception as e:
         logging.warning(
-            "Unable to create connection configuration on HOST. %s",
-            str(e)
+            "Unable to create connection configuration on HOST. %s", str(e)
         )
 
 

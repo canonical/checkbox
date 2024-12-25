@@ -5,6 +5,8 @@ _description: This creates baseline data sets which be considered the master
  copies and all further tests will be compared against these.
 unit: job
 plugin: shell
+imports: from com.canonical.plainbox import manifest
+requires: manifest.has_pdu == 'True'
 command:
     reboot_check_test.sh -d "$PLAINBOX_SESSION_SHARE/before_reboot"
 environ: LD_LIBRARY_PATH

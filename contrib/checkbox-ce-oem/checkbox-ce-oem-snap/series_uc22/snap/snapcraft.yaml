@@ -15,19 +15,23 @@ plugs:
     default-provider: checkbox22
   provider-resource:
     interface: content
-    target: $SNAP/providers/plainbox-provider-resource
+    target: $SNAP/providers/checkbox-provider-resource
     default-provider: checkbox22
   provider-checkbox:
     interface: content
-    target: $SNAP/providers/plainbox-provider-checkbox
+    target: $SNAP/providers/checkbox-provider-checkbox
     default-provider: checkbox22
   provider-tpm2:
     interface: content
-    target: $SNAP/providers/plainbox-provider-tpm2
+    target: $SNAP/providers/checkbox-provider-tpm2
+    default-provider: checkbox22
+  provider-docker:
+    interface: content
+    target: $SNAP/providers/checkbox-provider-docker
     default-provider: checkbox22
   provider-certification-client:
     interface: content
-    target: $SNAP/providers/plainbox-provider-certification-client
+    target: $SNAP/providers/checkbox-provider-certification-client
     default-provider: checkbox22
 apps:
   checkbox-cli:

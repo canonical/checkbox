@@ -228,28 +228,24 @@ def connect_dut_from_host_via_wifi(host_net_info: dict, connect_info: dict):
 
 
 def create_conn_from_host(ip, user, pwd, connect_cmd):
-    for i in range(1, 11):
-        logging.info(
-            "Attempting to create the connection on HOST (%d/%d)...", i, 10
+    logging.info(
+        "Attempting to create the connection configuration on HOST"
+    )
+    try:
+        run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
+        logging.info("Create connection configuration successful!")
+        return True
+    except Exception as e:
+        logging.warning(
+            "Unable to create connection configuration on HOST. %s",
+            str(e)
         )
-        try:
-            run_command(sshpass_cmd_gen(ip, user, pwd, connect_cmd))
-            logging.info("Create connection successful!")
-            return True
-        except Exception as e:
-            logging.warning(
-                "Unable to create connection on HOST. Attempt %d failed."
-                " Error: %s",
-                i,
-                str(e),
-            )
-            time.sleep(10)
 
 
 def bring_up_conn_from_host(ip, user, pwd, up_host_conn):
-    for i in range(1, 11):
+    for i in range(1, 4):
         logging.info(
-            "Attempting to bring up the connection on HOST (%d/%d)...", i, 10
+            "Attempting to bring up the connection on HOST (%d/%d)...", i, 3
         )
         try:
             run_command(sshpass_cmd_gen(ip, user, pwd, up_host_conn))

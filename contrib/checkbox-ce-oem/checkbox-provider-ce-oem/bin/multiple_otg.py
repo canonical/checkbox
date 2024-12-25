@@ -10,6 +10,7 @@ from importlib import import_module
 from multiprocessing import Process
 from pathlib import Path
 from rpyc_client import rpyc_client
+from threading import Thread
 from typing import Union
 
 OTG_MODULE = "libcomposite"
@@ -183,7 +184,7 @@ class OtgConfigFsOperatorBase:
         """
         pass
 
-    def function_check_on_rpyc(self, rpyc_ip):
+    def function_check_with_rpyc(self, rpyc_ip):
         """
         this is a function to perform OTG testing on client
         """
@@ -267,12 +268,12 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
         self._net_dev = otg_net_intf[0]
 
     def detection_check_on_rpyc(self, rpyc_ip):
-        ret = rpyc_client(rpyc_ip, "exposed_net_check")
+        ret = rpyc_client(rpyc_ip, "net_check")
         if ret:
             logging.info("Found %s network interface on rpyc server", ret)
         else:
             logging.debug("No network interface found on rpyc server")
-        self._target_net_dev = ret
+        self._target_net_dev = list(ret)[0]
 
     def _configure_local_network(self, interface, net_info):
         subprocess.check_output(
@@ -281,15 +282,15 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
             text=True,
         )
 
-    def function_check_on_rpyc(self, rpyc_ip):
+    def function_check_with_rpyc(self, rpyc_ip):
         self._configure_local_network(self._net_dev, "169.254.0.1/24")
         rpyc_client(
             rpyc_ip,
-            "exposed_configure_local_network",
+            "configure_local_network",
             self._target_net_dev,
             "169.254.0.10/24",
         )
-        ret = rpyc_client(rpyc_ip, "exposed_network_ping", "169.254.0.1", self._target_net_dev)
+        ret = rpyc_client(rpyc_ip, "network_ping", "169.254.0.1", self._target_net_dev)
         logging.debug(ret)
 
 
@@ -321,35 +322,101 @@ class OtgSerialSetup(OtgConfigFsOperatorBase):
             logging.error("Found more than one new interface. %s", otg_ser_intf)
         else:
             logging.info("Found new network interface '%s'", otg_ser_intf[0])
-        return otg_ser_intf[0]
+        self._serial_iface = otg_ser_intf[0]
+
+    def detection_check_on_rpyc(self, rpyc_ip):
+        ret = rpyc_client(rpyc_ip, "serial_check")
+        if ret:
+            logging.info("Found %s serial interface on rpyc server", ret)
+        else:
+            logging.debug("No serial interface found on rpyc server")
+        self._target_serial_dev = list(ret)[0]
+
+    def function_check_with_rpyc(self, rpyc_ip):
+        logging.info("start serial server on rpyc server")
+        t_thread = Process(
+            target=rpyc_client,
+            args=(
+                rpyc_ip,
+                "enable_serial_server",
+                "/dev/serial/by-id/{}".format(self._target_serial_dev),
+                "USB",
+                [],
+                115200,
+                8,
+                "N",
+                1,
+                3,
+                1024
+            )
+        )
+        t_thread.start()
+        logging.info("perform serial client test on DUT")
+        func = getattr(import_module("serial_test"), "client_mode")
+        try:
+            func(
+                "/dev/{}".format(self._serial_iface),
+                "USB",
+                [],
+                115200,
+                8,
+                "N",
+                1,
+                3,
+                1024,
+            )
+        except SystemExit as err:
+            logging.debug(err)
+        t_thread.kill()
+
+        # func = getattr(import_module("serial_test"), "server_mode")
+        # t_thread = Thread(
+        #     target=func,
+        #     args=(
+        #         "/dev/{}".format(self._serial_iface),
+        #         "USB",
+        #         [],
+        #         115200,
+        #         8,
+        #         "N",
+        #         1,
+        #         3,
+        #         1024,
+        #     )
+        # )
+        # t_thread.start()
+        # try:
+        #     rpyc_client(rpyc_ip, "serial_client_test",
+        #         "/dev/serial/by-id/{}".format(self._target_serial_dev),
+        #         "USB",
+        #         [],
+        #         115200,
+        #         8,
+        #         "N",
+        #         1,
+        #         3,
+        #         1024
+        #     )
+        # except SystemExit as err:
+        #     logging.debug(err)
+        # t_thread.join()
+        # t_thread.terminate()
 
 
 OTG_TESTING_MAPPING = {
-    "mass_storage": {
-        "detection": "",
-        "function": "",
-        "setup": OtgMassStorageSetup,
-    },
-    "ethernet": {
-        "detection": "",
-        "function": "",
-        "setup": OtgEthernetSetup,
-    },
-    "serial": {
-        "detection": "",
-        "function": "",
-        "setup": OtgSerialSetup,
-    },
+    "mass_storage": OtgMassStorageSetup,
+    "ethernet": OtgEthernetSetup,
+    "serial": OtgSerialSetup,
 }
 
 
 def otg_testing(udc_node, test_func, rpyc_ip):
     configfs_dir = initial_configfs()
-    with OTG_TESTING_MAPPING[test_func]["setup"](configfs_dir, udc_node) as otg_cfg:
+    with OTG_TESTING_MAPPING[test_func](configfs_dir, udc_node) as otg_cfg:
         otg_cfg.enable_otg()
         otg_cfg.self_check()
         otg_cfg.detection_check_on_rpyc(rpyc_ip)
-        otg_cfg.function_check_on_rpyc(rpyc_ip)
+        otg_cfg.function_check_with_rpyc(rpyc_ip)
         otg_cfg.disable_otg()
 
 

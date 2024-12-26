@@ -2,6 +2,7 @@
 
 from enum import Enum
 import os
+import sys
 import PIL.Image
 import gi
 from argparse import ArgumentParser
@@ -147,6 +148,8 @@ class MediaValidator:
             )
             passed = False
 
+        if passed:
+            print("video validation pass!")
         return passed
 
 
@@ -507,90 +510,32 @@ def elem_to_str(element: Gst.Element) -> str:
 def run_pipeline(
     pipeline: Gst.Pipeline,
     run_n_seconds: T.Optional[int] = None,
-    force_kill_timeout: int = 300,
     intermediate_calls: T.List[T.Tuple[int, VoidFn]] = [],
+    stop_on_error=True,
 ):
-    """Run the pipeline
+    loop = GLib.MainLoop()
 
-    :param pipeline: Gst.Pipeline. All element creation/linking steps
-        should be done by this point
-    :param run_n_seconds: how long until we stop the main loop.
-        - If None, only wait for EOS.
-    :param force_kill_timeout: how long until a force kill is triggered.
-        - If None and run_n_seconds != None, then force_kill = run_n_seconds*2
-        - If != None and run_n_seconds != None, an error is raised if
-            force kill <= run_n_seconds
-    :param intermediate_calls: a list of functions to call
-        while the pipeline is running. list[(() -> None, int)], where 2nd elem
-        is the number of seconds to wait RELATIVE to
-        when the pipeline started running
-    :raises RuntimeError: When set_state(PLAYING) fails
-    """
-    bus = pipeline.get_bus()
-    assert bus
-    main_loop = GLib.MainLoop.new(  # type: GLib.MainLoop
-        None, False  # type: ignore
-    )
+    def err_handler(_, msg: Gst.Message):
+        if msg.type == Gst.MessageType.ERROR:
+            logger.error("Got Gst Error: " + str(msg.parse_error()[0]))
+            if stop_on_error:
+                loop.quit()
+                pipeline.set_state(Gst.State.NULL)
 
-    # pipeline needs to start within 5 seconds
-    def start():
-        pipeline.set_state(Gst.State.PLAYING)
-        # it's possible to hang here if the source is broken
-        # but the main thread will keep running,
-        # so we check both an explicit fail and a hang
-        source_state = pipeline.get_child_by_index(0).get_state(1 * 10**9)[0]
-        if source_state != Gst.StateChangeReturn.SUCCESS:
-            pipeline.set_state(Gst.State.NULL)
-            raise RuntimeError(
-                "Failed to transition to playing state. "
-                "Source is still in {} state after 1 second."
-            )
-
-    def graceful_quit():
+    def send_eos_and_wait():
         logger.debug("Sending EOS.")
-        # Terminate gracefully with EOS.
-        # Directly setting it to null can cause videos to have timestamp issues
-        eos_handled = pipeline.send_event(Gst.Event.new_eos())
-
-        if not eos_handled:
-            logger.error("EOS was not handled by the pipeline. ")
-            pipeline.set_state(Gst.State.NULL)  # force stop
-            main_loop.quit()
-            return
-
-        if not force_kill_timeout and run_n_seconds:
-            bus_pop_timeout = run_n_seconds * 2
-        else:
-            bus_pop_timeout = force_kill_timeout
-
-        before_pop_t = time.time()
-        # it's possible to immediately pop None (got EOS, but message is None)
-        # so we also check if bus_pop_timeout has actually elapsed
-        eos_msg = bus.timed_pop_filtered(bus_pop_timeout, Gst.MessageType.EOS)
-        after_pop_t = time.time()
+        pipeline.send_event(Gst.Event.new_eos())
+        bus = pipeline.get_bus()
+        # this time is relative to when the EOS is sent
+        # we just wait a bit for EOS to appear
+        bus.timed_pop_filtered(
+            3 * Gst.SECOND, Gst.MessageType.EOS | Gst.MessageType.ERROR
+        )
+        loop.quit()
         pipeline.set_state(Gst.State.NULL)
-        main_loop.quit()
 
-        if eos_msg is None and after_pop_t - before_pop_t >= bus_pop_timeout:
-            # have to force system exit here,
-            # GLib.Mainloop overrides the sys.excepthook
-            raise SystemExit(
-                "Did not receive EOS after {} seconds. ".format(
-                    bus_pop_timeout
-                )
-                + "Pipeline likely hanged."
-            )
-
-    def quit():
-        logger.debug("Setting state to NULL.")
-        pipeline.set_state(Gst.State.NULL)
-        main_loop.quit()
-        # Must explicitly unref if ref_count is somehow not 1,
-        # otherwise source is never released
-        # not sure why graceful_quit doesn't need this
-        if pipeline.ref_count > 1:
-            pipeline.unref()
-
+    if run_n_seconds:
+        GLib.timeout_add_seconds(run_n_seconds, send_eos_and_wait)
     for delay, call in intermediate_calls:
         assert run_n_seconds is None or delay < run_n_seconds, (
             "Delay for each call must be smaller than total run seconds, "
@@ -600,20 +545,21 @@ def run_pipeline(
         )
         GLib.timeout_add_seconds(delay, call)
 
-    if run_n_seconds is None:
-        bus.add_signal_watch()
-        bus.connect(
-            "message",
-            lambda _, msg: msg.type
-            in (Gst.MessageType.EOS, Gst.MessageType.ERROR)
-            and quit(),
-        )
-    else:
-        GLib.timeout_add_seconds(run_n_seconds, graceful_quit)
+    b = pipeline.get_bus()
+    b.add_signal_watch()
+    b.connect("message", err_handler)
 
-    start()
+    pipeline.set_state(Gst.State.PLAYING)
+    source_state = pipeline.get_child_by_index(0).get_state(1 * 10**9)[0]
+    if source_state != Gst.StateChangeReturn.SUCCESS:
+        pipeline.set_state(Gst.State.NULL)
+        raise RuntimeError(
+            "Failed to transition to playing state. "
+            "Source is still in {} state after 1 second."
+        )
+
     logger.info("[ OK ] Pipeline is playing!")
-    main_loop.run()
+    loop.run()
 
 
 def play_video(filepath: str):

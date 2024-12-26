@@ -1,4 +1,4 @@
 unit: manifest entry
 id: has_pdu
-_name: Does network PDU available in test environment?
+_name: Does platform not supported RTC wake and intend to power cycle via PDU?
 value-type: bool

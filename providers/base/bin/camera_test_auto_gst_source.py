@@ -248,6 +248,14 @@ class CapsResolver:
 
         return out
 
+    @T.overload
+    def get_all_fixated_caps(
+        self, caps: Gst.Caps, resolve_method: T.Literal["remap"]
+    ): ...
+    @T.overload
+    def get_all_fixated_caps(
+        self, caps: Gst.Caps, resolve_method: T.Literal["limit"], limit: int
+    ): ...
     def get_all_fixated_caps(
         self,
         caps: Gst.Caps,
@@ -317,6 +325,10 @@ class CapsResolver:
                         caps_i = Gst.Caps.from_string(s_i.to_string())
 
             while not caps_i.is_fixed() and not caps_i.is_empty():
+                if resolve_method == "limit":
+                    assert limit
+                    if len(fixed_caps) >= limit:
+                        break
                 fixed_cap = caps_i.fixate()  # type: Gst.Caps
                 fixed_caps.append(fixed_cap)
                 caps_i = caps_i.subtract(fixed_cap)
@@ -332,14 +344,15 @@ def parse_args():
 
     subparser = parser.add_subparsers(dest="subcommand", required=True)
     photo_subparser = subparser.add_parser("take-photo")
+    default_wait_seconds = 2
     photo_subparser.add_argument(
         "-ws",
         "--wait-seconds",
         type=int,
         dest="seconds",
         help="Number of seconds to keep the pipeline running "
-        "before taking the photo. Default = 2.",
-        default=2,
+        "before taking the photo. Default = {}.".format(default_wait_seconds),
+        default=default_wait_seconds,
     )
     photo_subparser.add_argument(
         "-p",
@@ -353,22 +366,28 @@ def parse_args():
         action="store_true",
         help="Skip image dimension validation",
     )
+    default_max_caps = 100
     photo_subparser.add_argument(
         "--max-caps",
         type=int,
+        default=default_max_caps,
         help="Set the maximum number of caps to check for each device. "
-        "Default = 100. "
-        "This is useful for restraining the number of caps on devices "
-        'that have "continuous" caps.',
+        "Default = {}. ".format(default_max_caps)
+        + "This is useful for restraining the number of caps on devices "
+        'that have "continuous" caps. '
+        "Note that the caps are chosen by GStreamer's GstCaps.fixate()",
     )
 
     video_subparser = subparser.add_parser("record-video")
+    default_record_seconds = 5
     video_subparser.add_argument(
         "-s",
         "--seconds",
         type=int,
-        help="Number of seconds to record. Default = 5.",
-        default=5,
+        help="Number of seconds to record. Default = {}.".format(
+            default_record_seconds
+        ),
+        default=default_record_seconds,
     )
     video_subparser.add_argument(
         "-p",
@@ -377,6 +396,7 @@ def parse_args():
         help="Where to save the file. This should be a directory.",
         required=True,
     )
+    default_tolerance = 0.5
     video_subparser.add_argument(
         "-t",
         "--tolerance",
@@ -384,10 +404,10 @@ def parse_args():
         help=(
             "Tolerance for validating the recording duration in seconds. "
             "Ex. If the video is supposed to be 5s, tolerance is 0.1s, "
-            "then durations in [4.9s, 5.1s] inclusive will pass the validation"
-            "Default is 0.5s."
+            "then 4.9s <= duration <= 5.1s will pass the validation. "
+            + "Default is {}s.".format(default_tolerance)
         ),
-        default=0.5,
+        default=default_tolerance,
     )
     video_subparser.add_argument(
         "--skip-validation",
@@ -410,19 +430,22 @@ def parse_args():
         type=str,
         help=(
             "Directly set the encoding string for encodebin. "
-            "See GStreamer's GstEncodingProfiile page for examples. "
+            "See GStreamer's GstEncodingProfile page for examples. "
             "The examples on that page are included in the --encoding option. "
             "Only use this option if you have a custom encoding string."
         ),
     )
 
     viewfinder_subparser = subparser.add_parser("show-viewfinder")
+    default_viewfinder_seconds = 10
     viewfinder_subparser.add_argument(
         "-s",
         "--seconds",
         type=int,
-        help="Show the viewfinder for n seconds",
-        default=10,
+        help="Show the viewfinder for n seconds. Default = {}".format(
+            default_viewfinder_seconds
+        ),
+        default=default_viewfinder_seconds,
     )
 
     player_subparser = subparser.add_parser("play-video")
@@ -441,8 +464,8 @@ def elem_to_str(element: Gst.Element) -> str:
     """Prints an element to string
     - Excluding parent & client name
 
-    :param element: gstreamer element
-    :return: String representaion
+    :param element: GStreamer element
+    :return: String representation
     """
     properties = element.list_properties()  # list[GObject.GParamSpec]
     element_name = element.get_factory().get_name()
@@ -816,7 +839,6 @@ def record_video(
 
 def main():
     args = parse_args()
-    print(args)
 
     if os.getuid() == 0:
         logger.warning(

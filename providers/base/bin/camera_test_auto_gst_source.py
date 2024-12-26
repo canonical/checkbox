@@ -2,13 +2,11 @@
 
 from enum import Enum
 import os
-import sys
 import PIL.Image
 import gi
 from argparse import ArgumentParser
 import typing as T
 import logging
-import time
 
 VoidFn = T.Callable[[], None]  # takes nothing and returns nothing
 
@@ -148,8 +146,6 @@ class MediaValidator:
             )
             passed = False
 
-        if passed:
-            print("video validation pass!")
         return passed
 
 
@@ -511,16 +507,8 @@ def run_pipeline(
     pipeline: Gst.Pipeline,
     run_n_seconds: T.Optional[int] = None,
     intermediate_calls: T.List[T.Tuple[int, VoidFn]] = [],
-    stop_on_error=True,
 ):
     loop = GLib.MainLoop()
-
-    def err_handler(_, msg: Gst.Message):
-        if msg.type == Gst.MessageType.ERROR:
-            logger.error("Got Gst Error: " + str(msg.parse_error()[0]))
-            if stop_on_error:
-                loop.quit()
-                pipeline.set_state(Gst.State.NULL)
 
     def send_eos_and_wait():
         logger.debug("Sending EOS.")
@@ -544,10 +532,6 @@ def run_pipeline(
             )
         )
         GLib.timeout_add_seconds(delay, call)
-
-    b = pipeline.get_bus()
-    b.add_signal_watch()
-    b.connect("message", err_handler)
 
     pipeline.set_state(Gst.State.PLAYING)
     source_state = pipeline.get_child_by_index(0).get_state(1 * 10**9)[0]
@@ -599,10 +583,14 @@ def show_viewfinder(
     global Gtk
     if not Gtk:
         gi.require_version("Gtk", "3.0")
-        from gi.repository import Gtk as _Gtk  # type: ignore
+        try:
+            from gi.repository import Gtk as _Gtk  # type: ignore
 
-        Gtk = _Gtk
-        Gtk.init([])
+            Gtk = _Gtk
+            Gtk.init([])
+        except ImportError:
+            logger.error("Unable to import Gtk")
+            return
 
     partial_pipeline = " ! ".join(["videoconvert name=head", "autovideosink"])
     pipeline = Gst.parse_launch(partial_pipeline)  # type: Gst.Pipeline

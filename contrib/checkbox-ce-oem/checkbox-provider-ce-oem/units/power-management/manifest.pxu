@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_pdu
+_name: Does network PDU available in test environment?
+value-type: bool

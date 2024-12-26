@@ -22,8 +22,9 @@ import argparse
 import collections
 import subprocess
 import shlex
-import string
 import re
+
+from checkbox_support.helpers.slugify import slugify
 
 
 def get_ubuntu_version():
@@ -57,14 +58,6 @@ def compare_ubuntu_release_version(_version):
         return version.parse(os_version) >= version.parse(_version)
     except (ImportError, subprocess.CalledProcessError):
         return os_version >= _version
-
-
-def slugify(_string):
-    """Transform any string to one that can be used in job IDs."""
-    valid_chars = frozenset(
-        "-_.{}{}".format(string.ascii_letters, string.digits)
-    )
-    return "".join(c if c in valid_chars else "_" for c in _string)
 
 
 def subprocess_lines_generator(command):

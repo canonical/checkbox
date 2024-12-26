@@ -6,8 +6,7 @@
 {%- set system_information = state.system_information -%}
 {
     "title": {{ state.metadata.title | jsonify | safe }},
-    "client_version": {{ client_version | jsonify | safe }},
-    "checkbox_version": {{ checkbox_version | jsonify | safe }},
+    "origin": {{ origin | jsonify | safe }},
 {%- if "testplan_id" in app_blob %}
 {%- if app_blob['testplan_id'] %}
     "testplan_id": {{ app_blob['testplan_id'] | jsonify | safe }},

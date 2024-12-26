@@ -1005,6 +1005,40 @@ class SessionMetadataTests(TestCase):
             "com.canonical.certification.plainbox",
         )
 
+    def test_update_feature_flags_strict_template_expansion(self):
+        self_mock = MagicMock()
+        self_mock._flags = set()
+        self_mock.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION = (
+            SessionMetaData.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION
+        )
+
+        config_mock = MagicMock()
+        config_mock.get_value.return_value = True
+        SessionMetaData.update_feature_flags(self_mock, config_mock)
+
+        self.assertIn(
+            SessionMetaData.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION,
+            self_mock._flags,
+        )
+
+    @patch("plainbox.impl.session.state.logger")
+    def test_update_feature_flags_strict_template_expansion_warn(self, logger):
+        self_mock = MagicMock()
+        self_mock._flags = set()
+        self_mock.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION = (
+            SessionMetaData.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION
+        )
+
+        config_mock = MagicMock()
+        config_mock.get_value.return_value = False
+        SessionMetaData.update_feature_flags(self_mock, config_mock)
+
+        self.assertNotIn(
+            SessionMetaData.FLAG_FEATURE_STRICT_TEMPLATE_EXPANSION,
+            self_mock._flags,
+        )
+        self.assertTrue(logger.warning.called)
+
 
 class SessionDeviceContextTests(SignalTestCase):
     def setUp(self):

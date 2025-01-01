@@ -10,11 +10,6 @@ import logging
 
 VoidFn = T.Callable[[], None]  # takes nothing and returns nothing
 
-# https://github.com/TheImagingSource/tiscamera/blob/master/examples/python/00-list-devices.py
-
-# detect intrange
-# http://gstreamer-devel.230.s1.nabble.com/gstreamer-python-binding-and-intRange-td969231.html#a969232
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     format="%(asctime)s %(levelname)s - %(message)s\n",
@@ -56,10 +51,7 @@ class MediaValidator:
 
     @staticmethod
     def validate_image_dimensions(
-        image_file_path: str,
-        *,
-        expected_width: int,
-        expected_height: int,
+        image_file_path: str, *, expected_width: int, expected_height: int
     ) -> bool:
         assert os.path.isfile(
             image_file_path
@@ -92,7 +84,7 @@ class MediaValidator:
         expected_height: int,
         expected_duration_seconds: int,
         expected_fps: int,
-        duration_tolerance_seconds=0.1,
+        duration_tolerance_seconds=0.1
     ) -> bool:
         discoverer = GstPbutils.Discoverer()
 
@@ -155,7 +147,7 @@ class CapsResolver:
     INT32_MAX = 2147483647
 
     # (top, bottom) or (numerator, denominator)
-    FractionTuple = tuple[int, int]
+    FractionTuple = T.Tuple[int, int]
     # Used when we encounter IntRange or FractionRange types
     # Simply fixating the caps will produce too many caps,
     # so we restrict to these common ones
@@ -291,7 +283,7 @@ class CapsResolver:
                         low, high = self.extract_int_range(s_i, prop)
                         finite_list = GObject.ValueArray()
                         for elem in self.remap_range_to_list(prop, low, high):
-                            finite_list.append(elem)
+                            finite_list.append(elem)  # type: ignore
 
                     elif s_i.has_field_typed(prop, Gst.FractionRange):
                         low, high = self.extract_fraction_range(s_i, prop)
@@ -305,8 +297,11 @@ class CapsResolver:
                             "temp, {}={{{}}}".format(
                                 prop,
                                 ",".join(
-                                    "{}/{}".format(f[0], f[1])
-                                    for f in fraction_list
+                                    "{}/{}".format(numerator, denominator)
+                                    for (
+                                        numerator,
+                                        denominator,
+                                    ) in fraction_list
                                 ),
                             )
                         )[0]
@@ -568,11 +563,7 @@ def play_video(filepath: str):
     run_pipeline(pipeline)
 
 
-def show_viewfinder(
-    source: Gst.Element,
-    *,
-    show_n_seconds=5,
-):
+def show_viewfinder(source: Gst.Element, *, show_n_seconds=5):
     """Shows a viewfinder for the given camera source
 
     :param source: camera source element.
@@ -613,7 +604,7 @@ def take_photo(
     *,
     caps: T.Optional[Gst.Caps] = None,
     file_path: str,
-    delay_seconds=0,
+    delay_seconds=0
 ):
     """Take a photo using the source element
 
@@ -697,7 +688,7 @@ def record_video(
     *,
     caps: T.Optional[Gst.Caps] = None,
     file_path: str,
-    record_n_seconds=0,
+    record_n_seconds=0
 ):
     assert file_path.endswith(
         ".mkv"

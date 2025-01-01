@@ -267,7 +267,6 @@ def run_pipeline(
 ):
     loop = GLib.MainLoop()
     remaining_timeouts = set()  # type: set[int]
-    print('curr pipeline id', id(pipeline))
     def gst_msg_handler(_, msg: Gst.Message):
         if msg.type == Gst.MessageType.EOS:
             logger.info("Received EOS")

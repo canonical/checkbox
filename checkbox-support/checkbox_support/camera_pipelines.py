@@ -122,19 +122,11 @@ class CapsResolver:
 
         return out
 
-    @T.overload
-    def get_all_fixated_caps(
-        self, caps: Gst.Caps, resolve_method: T.Literal["remap"]
-    ): ...
-    @T.overload
-    def get_all_fixated_caps(
-        self, caps: Gst.Caps, resolve_method: T.Literal["limit"], limit: int
-    ): ...
     def get_all_fixated_caps(
         self,
         caps: Gst.Caps,
         resolve_method: RangeResolveMethod,
-        limit: T.Optional[int] = None,
+        limit: int = 10_000,
     ) -> T.List[Gst.Caps]:
         """Gets all the fixated(1 value per property) caps from a Gst.Caps obj
 
@@ -145,7 +137,7 @@ class CapsResolver:
         - "limit" => Use the caps.is_fixed while loop until we reaches limit
 
         :param limit: the limit to use for the "limit" resolver
-        - ignored if resolve_method != "limit"
+        - if resolve method is remap, this is still in effect
         :return: a list of fixed caps
         """
         if caps.is_fixed():
@@ -193,7 +185,13 @@ class CapsResolver:
                         finite_list = temp.get_list(prop)[1]
 
                     if finite_list is not None:
-                        assert finite_list.n_values != 0
+                        if finite_list.n_values == 0:
+                            print(
+                                "Resolve method is remap,"
+                                "but original caps doesn't have any",
+                                "of the common values.",
+                                "Skipping.",
+                            )
                         s_i.set_list(
                             prop,
                             finite_list,
@@ -202,11 +200,12 @@ class CapsResolver:
                         caps_i = Gst.Caps.from_string(s_i.to_string())
 
             while not caps_i.is_fixed() and not caps_i.is_empty():
-                if resolve_method == "limit":
-                    assert limit
-                    if len(fixed_caps) >= limit:
-                        break
+                if len(fixed_caps) >= limit:
+                    break
                 fixed_cap = caps_i.fixate()  # type: Gst.Caps
+                if len(fixed_caps) != 0 and fixed_cap.is_equal(fixed_caps[-1]):
+                    # if the caps is already seen
+                    break
                 fixed_caps.append(fixed_cap)
                 caps_i = caps_i.subtract(fixed_cap)
 
@@ -488,7 +487,7 @@ def record_video(
         'capsfilter name=source-caps caps="{}"',  # 0
         "decodebin",  # 1
         "videoconvert name=converter",  # 2
-        "jpegenc",  # 3, avoid massiave uncompressed videos
+        "jpegenc",  # 3, avoid massive uncompressed videos
         "matroskamux",  # 4
         "filesink location={}".format(file_path),  # 5
     ]

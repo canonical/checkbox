@@ -261,13 +261,20 @@ def run_pipeline(
     intermediate_calls: T.List[T.Tuple[int, TimeoutCallback]] = [],
 ):
     loop = GLib.MainLoop()
-    remaining_timeouts = set()  # type: set[int]
+    timeout_sources = set()  # type: set[GLib.Source]
+
+    assert (
+        run_n_seconds is None or run_n_seconds >= 1
+    ), "run_n_seconds must be >= 1 if specified"
 
     def gst_msg_handler(_, msg: Gst.Message):
         if msg.type == Gst.MessageType.EOS:
-            logger.info("Received EOS")
+            logger.debug("Received EOS.")
             loop.quit()
             pipeline.set_state(Gst.State.NULL)
+
+            for timeout in timeout_sources:
+                timeout.destroy()
 
         if msg.type == Gst.MessageType.ERROR:
             logger.error(
@@ -277,13 +284,13 @@ def run_pipeline(
             loop.quit()
             pipeline.set_state(Gst.State.NULL)
 
-            for timeout in remaining_timeouts:
+            for timeout in timeout_sources:
                 # if the pipeline is terminated early, remove all timers
                 # because loop.quit() won't remove those
                 # that are already scheduled => segfault (EOS on null pipeline)
                 # calling source_remove may produce warnings,
                 # but won't stop normal execution
-                GLib.source_remove(timeout)
+                timeout.destroy()
 
         if msg.type == Gst.MessageType.WARNING:
             logger.warning(Gst.Message.parse_warning(msg))
@@ -293,30 +300,39 @@ def run_pipeline(
         pipeline.send_event(Gst.Event.new_eos())
 
     if run_n_seconds:
-        remaining_timeouts.add(
-            GLib.timeout_add_seconds(run_n_seconds, send_eos)
+        eos_timeout_id = GLib.timeout_add_seconds(run_n_seconds, send_eos)
+        # get the actual source object, so we can call .destroy()
+        # removing a timeout by id will cause warnings if it doesn't exist
+        timeout_sources.add(
+            loop.get_context().find_source_by_id(eos_timeout_id)
         )
 
     for delay, call in intermediate_calls:
         assert run_n_seconds is None or delay < run_n_seconds, (
             "Delay for each call must be smaller than total run seconds, "
-            " (Got delay = {}, run_n_seconds = {})".format(
-                delay, run_n_seconds
+            " (Got delay = {} for {}, run_n_seconds = {})".format(
+                delay, call.__name__, run_n_seconds
             )
         )
-        remaining_timeouts.add(GLib.timeout_add_seconds(delay, call))
+        timeout_id = GLib.timeout_add_seconds(delay, call)
+        timeout_sources.add(loop.get_context().find_source_by_id(timeout_id))
 
     bus = pipeline.get_bus()
     bus.add_signal_watch()
     bus.connect("message", gst_msg_handler)
 
     pipeline.set_state(Gst.State.PLAYING)
-    source_state = pipeline.get_child_by_index(0).get_state(1 * Gst.SECOND)[0]
-    if source_state != Gst.StateChangeReturn.SUCCESS:
+    # get_state returns (state_change_result, curr_state, target_state)
+    source_state_change_result = pipeline.get_child_by_index(0).get_state(
+        500 * Gst.MSECOND
+    )[0]
+    if source_state_change_result != Gst.StateChangeReturn.SUCCESS:
         pipeline.set_state(Gst.State.NULL)
         raise RuntimeError(
             "Failed to transition to playing state. "
-            "Source is still in {} state after 1 second.".format(source_state)
+            "Source is still in {} state after 500ms.".format(
+                source_state_change_result
+            )
         )
 
     logger.info("[ OK ] Pipeline is playing!")
@@ -422,7 +438,8 @@ def take_photo(
         mime_type = caps.get_structure(0).get_name()  # type: str
 
         if mime_type == "image/jpeg":
-            # decodebin has funny clock problem with live sources in image/jpeg
+            # decodebin has a clock problem with pipewiresrc
+            # that outputs image/jpeg
             str_elements[1] = "jpegdec"
         elif mime_type == "video/x-raw":
             # don't need a decoder for raw
@@ -455,18 +472,27 @@ def take_photo(
         logger.debug("Opening valve!")
         valve.set_property("drop", False)
 
-    logger.info(
-        "Created photo pipeline with {} second delay. ".format(delay_seconds)
-        + '"{} ! {}"'.format(elem_to_str(source), partial)
-    )
-    logger.debug("Setting playing state")
+    delay_seconds = max(delay_seconds, 0)
+    if delay_seconds <= 0:
+        logger.info(
+            "Created photo pipeline with no delay. "
+            + '"{} ! {}"'.format(elem_to_str(source), partial)
+        )
+        valve.set_property("drop", False)
+        intermediate_calls = []
+    else:
+        logger.info(
+            "Created photo pipeline with {} second delay. ".format(
+                delay_seconds
+            )
+            + '"{} ! {}"'.format(elem_to_str(source), partial)
+        )
+        intermediate_calls = [(delay_seconds, open_valve)]
 
     run_pipeline(
         pipeline,
-        delay_seconds + 1,  # workaround for now, weird problem with ref count
-        intermediate_calls=[
-            (delay_seconds, open_valve),
-        ],
+        delay_seconds + 1,
+        intermediate_calls=intermediate_calls,
     )
 
     logger.info("[ OK ] Photo was saved to {}".format(file_path))

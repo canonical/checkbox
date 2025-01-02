@@ -388,7 +388,7 @@ def take_photo(
     *,
     caps: T.Optional[Gst.Caps] = None,
     file_path: str,
-    delay_seconds=0
+    delay_seconds: int
 ):
     """Take a photo using the source element
 
@@ -426,6 +426,8 @@ def take_photo(
         elif mime_type == "video/x-raw":
             # don't need a decoder for raw
             str_elements[1] = ""
+        elif mime_type == "video/x-bayer":
+            str_elements[1] = "bayer2rgb"
         # else case is using decodebin as a fallback
     else:
         # decode bin doesn't work with video/x-raw
@@ -501,6 +503,10 @@ def record_video(
             str_elements[1] = "jpegdec"
         elif mime_type == "video/x-raw":
             str_elements[1] = ""
+        elif mime_type == "video/x-bayer":
+            # bayer2rgb is not considered a decoder
+            # so decodebin can't automatically find this
+            str_elements[1] = "bayer2rgb"
     else:
         # decodebin doesn't work with video/x-raw
         str_elements[0] = str_elements[1] = ""

@@ -122,7 +122,7 @@ class CapsResolver:
         self,
         caps: Gst.Caps,
         resolve_method: str,  # type T.Literal["remap", "limit"]
-        limit: int = 10_000,
+        limit: int = 10000,
     ) -> T.List[Gst.Caps]:
         """Gets all the fixated(1 value per property) caps from a Gst.Caps obj
 
@@ -388,7 +388,7 @@ def take_photo(
     *,
     caps: T.Optional[Gst.Caps] = None,
     file_path: str,
-    delay_seconds=0,
+    delay_seconds=0
 ):
     """Take a photo using the source element
 
@@ -474,7 +474,7 @@ def record_video(
     *,
     caps: T.Optional[Gst.Caps] = None,
     file_path: str,
-    record_n_seconds=0,
+    record_n_seconds=0
 ):
     assert file_path.endswith(
         ".mkv"

@@ -31,10 +31,6 @@ class CapsResolver:
 
     # (top, bottom) or (numerator, denominator)
     FractionTuple = T.Tuple[int, int]
-    # Used when we encounter IntRange or FractionRange types
-    # Simply fixating the caps will produce too many caps,
-    # so we restrict to these common ones
-    RangeResolveMethod = T.Literal["remap", "limit"]
     RANGE_REMAP = {
         "width": [640, 1280, 1920, 2560, 3840],
         "height": [480, 720, 1080, 1440, 2160],
@@ -125,7 +121,7 @@ class CapsResolver:
     def get_all_fixated_caps(
         self,
         caps: Gst.Caps,
-        resolve_method: RangeResolveMethod,
+        resolve_method: str,  # type T.Literal["remap", "limit"]
         limit: int = 10_000,
     ) -> T.List[Gst.Caps]:
         """Gets all the fixated(1 value per property) caps from a Gst.Caps obj
@@ -266,6 +262,7 @@ def run_pipeline(
 ):
     loop = GLib.MainLoop()
     remaining_timeouts = set()  # type: set[int]
+
     def gst_msg_handler(_, msg: Gst.Message):
         if msg.type == Gst.MessageType.EOS:
             logger.info("Received EOS")
@@ -391,7 +388,7 @@ def take_photo(
     *,
     caps: T.Optional[Gst.Caps] = None,
     file_path: str,
-    delay_seconds=0
+    delay_seconds=0,
 ):
     """Take a photo using the source element
 
@@ -477,7 +474,7 @@ def record_video(
     *,
     caps: T.Optional[Gst.Caps] = None,
     file_path: str,
-    record_n_seconds=0
+    record_n_seconds=0,
 ):
     assert file_path.endswith(
         ".mkv"

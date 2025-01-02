@@ -200,7 +200,12 @@ class CapsResolver:
                     break
                 fixed_cap = caps_i.fixate()  # type: Gst.Caps
                 if len(fixed_caps) != 0 and fixed_cap.is_equal(fixed_caps[-1]):
-                    # if the caps is already seen
+                    # if the caps is already seen last time,
+                    # we are probably stuck at an unresolvable value
+                    # can happen e.g when we have framerate = [1/3, 1/4]
+                    # - doesn't contain any known value
+                    # - fixate() will keep returning the same thing
+                    # - subtract() does nothing
                     break
                 fixed_caps.append(fixed_cap)
                 caps_i = caps_i.subtract(fixed_cap)
@@ -221,7 +226,7 @@ def elem_to_str(element: Gst.Element) -> str:
     properties = element.list_properties()  # list[GObject.GParamSpec]
     element_name = element.get_factory().get_name()
 
-    exclude = ["client-name"]
+    exclude = ["parent", "client-name"]
     prop_strings = []  # type: list[str]
 
     for prop in properties:
@@ -286,10 +291,9 @@ def run_pipeline(
 
             for timeout in timeout_sources:
                 # if the pipeline is terminated early, remove all timers
-                # because loop.quit() won't remove those
+                # because loop.quit() won't remove/stop those
                 # that are already scheduled => segfault (EOS on null pipeline)
-                # calling source_remove may produce warnings,
-                # but won't stop normal execution
+                # See: https://docs.gtk.org/glib/method.MainLoop.quit.html
                 timeout.destroy()
 
         if msg.type == Gst.MessageType.WARNING:
@@ -301,8 +305,11 @@ def run_pipeline(
 
     if run_n_seconds:
         eos_timeout_id = GLib.timeout_add_seconds(run_n_seconds, send_eos)
-        # get the actual source object, so we can call .destroy()
-        # removing a timeout by id will cause warnings if it doesn't exist
+        # get the actual source object, so we can call .destroy() later.
+        # Removing a timeout by id will cause warnings if it doesn't exist,
+        # but destroying an unused source is ok
+        # See: https://docs.gtk.org/glib/method.Source.destroy.html
+        # and: https://docs.gtk.org/glib/type_func.Source.remove.html
         timeout_sources.add(
             loop.get_context().find_source_by_id(eos_timeout_id)
         )
@@ -445,6 +452,8 @@ def take_photo(
             # don't need a decoder for raw
             str_elements[1] = ""
         elif mime_type == "video/x-bayer":
+            # bayer2rgb is not considered a decoder
+            # so decodebin can't automatically find this
             str_elements[1] = "bayer2rgb"
         # else case is using decodebin as a fallback
     else:
@@ -495,7 +504,11 @@ def take_photo(
         intermediate_calls=intermediate_calls,
     )
 
-    logger.info("[ OK ] Photo was saved to {}".format(file_path))
+    logger.info(
+        '[ OK ] Photo pipeline for "{}" capability has finished!'.format(
+            caps.to_string() if caps else "device default"
+        )
+    )
 
 
 def record_video(
@@ -510,8 +523,8 @@ def record_video(
         'capsfilter name=source-caps caps="{}"',  # 0
         "decodebin",  # 1
         "videoconvert name=converter",  # 2
-        "encodebin profile={}".format(encoding_profile),
-        "filesink location={}".format(file_path),  # 5
+        "encodebin profile={}".format(encoding_profile),  # 3
+        "filesink location={}".format(file_path),  # 4
     ]
 
     head_elem_name = "source-caps"
@@ -527,11 +540,8 @@ def record_video(
         elif mime_type == "video/x-raw":
             str_elements[1] = ""
         elif mime_type == "video/x-bayer":
-            # bayer2rgb is not considered a decoder
-            # so decodebin can't automatically find this
             str_elements[1] = "bayer2rgb"
     else:
-        # decodebin doesn't work with video/x-raw
         str_elements[0] = str_elements[1] = ""
         head_elem_name = "converter"
 
@@ -565,13 +575,3 @@ def record_video(
         + "{}".format(caps.to_string() if caps else "[device default]")
         + " was saved to {}".format(file_path)
     )
-
-    """record
-    videotestsrc num-buffers=120 !
-    queue !
-    encodebin profile="video/quicktime,variant=iso:video/x-h264" !
-    multifilesink location=video.mp4
-    """
-    """decode
-    filesrc location=video.mp4 ! decodebin ! autovideosink
-    """

@@ -3,6 +3,8 @@ import gi
 import typing as T
 import logging
 
+from numpy import True_
+
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -273,19 +275,22 @@ def run_pipeline(
     ), "run_n_seconds must be >= 1 if specified"
 
     def gst_msg_handler(_, msg: Gst.Message):
+        should_quit = False
+        if msg.type == Gst.MessageType.WARNING:
+            logger.warning(Gst.Message.parse_warning(msg))
+
         if msg.type == Gst.MessageType.EOS:
             logger.debug("Received EOS.")
-            loop.quit()
-            pipeline.set_state(Gst.State.NULL)
-
-            for timeout in timeout_sources:
-                timeout.destroy()
+            should_quit = True
 
         if msg.type == Gst.MessageType.ERROR:
             logger.error(
                 "Pipeline encountered an error, stopping. "
                 + str(Gst.Message.parse_error(msg))
             )
+            should_quit = True
+
+        if should_quit:
             loop.quit()
             pipeline.set_state(Gst.State.NULL)
 
@@ -295,9 +300,6 @@ def run_pipeline(
                 # that are already scheduled => segfault (EOS on null pipeline)
                 # See: https://docs.gtk.org/glib/method.MainLoop.quit.html
                 timeout.destroy()
-
-        if msg.type == Gst.MessageType.WARNING:
-            logger.warning(Gst.Message.parse_warning(msg))
 
     def send_eos():
         logger.debug("Sending EOS.")

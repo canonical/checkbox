@@ -221,7 +221,7 @@ def elem_to_str(element: Gst.Element) -> str:
     properties = element.list_properties()  # list[GObject.GParamSpec]
     element_name = element.get_factory().get_name()
 
-    exclude = ["parent", "client-name"]
+    exclude = ["client-name"]
     prop_strings = []  # type: list[str]
 
     for prop in properties:
@@ -280,8 +280,9 @@ def run_pipeline(
             for timeout in remaining_timeouts:
                 # if the pipeline is terminated early, remove all timers
                 # because loop.quit() won't remove those
-                # that are already scheduled
-                # this may produce warnings, but won't stop execution
+                # that are already scheduled => segfault (EOS on null pipeline)
+                # calling source_remove may produce warnings,
+                # but won't stop normal execution
                 GLib.source_remove(timeout)
 
         if msg.type == Gst.MessageType.WARNING:
@@ -476,18 +477,14 @@ def record_video(
     *,
     caps: T.Optional[Gst.Caps] = None,
     file_path: str,
-    record_n_seconds=0
+    record_n_seconds: int,
+    encoding_profile: str
 ):
-    assert file_path.endswith(
-        ".mkv"
-    ), "This function uses matroskamux, so the filename must end in .mkv"
-
     str_elements = [
         'capsfilter name=source-caps caps="{}"',  # 0
         "decodebin",  # 1
         "videoconvert name=converter",  # 2
-        "jpegenc",  # 3, avoid massive uncompressed videos
-        "matroskamux",  # 4
+        "encodebin profile={}".format(encoding_profile),
         "filesink location={}".format(file_path),  # 5
     ]
 

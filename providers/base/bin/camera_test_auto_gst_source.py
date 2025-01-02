@@ -211,7 +211,9 @@ def parse_args():
         action="store_true",
         help="Skip video dimension & duration validation",
     )
-    encoding_group = video_subparser.add_mutually_exclusive_group()
+    encoding_group = video_subparser.add_mutually_exclusive_group(
+        required=True
+    )
     encoding_group.add_argument(
         "--encoding",
         type=str,
@@ -289,7 +291,7 @@ def main():
     )
 
     for dev_i, device in enumerate(devices):
-        dev_element = device.create_element()
+        dev_element = device.create_element()  # type: Gst.Element
 
         if args.subcommand == "show-viewfinder":
             cam.show_viewfinder(dev_element, show_n_seconds=args.seconds)
@@ -315,6 +317,10 @@ def main():
         )
 
         for cap_i, capability in enumerate(all_fixed_caps):
+            # since we use the same element for all caps
+            # previous parent pipelines are not auto removed
+            # need to explicitly unref
+            dev_element.unparent()
             cap_struct = capability.get_structure(0)
             if args.subcommand == "take-photo":
                 logger.info(
@@ -342,7 +348,7 @@ def main():
                     expected_height=cap_struct.get_int("height").value,
                 )
             elif args.subcommand == "record-video":
-                file_path = "{}/video_dev_{}_cap_{}.mkv".format(
+                file_path = "{}/video_dev_{}_cap_{}.mp4".format(
                     args.path, dev_i, cap_i
                 )
                 cam.record_video(
@@ -350,6 +356,11 @@ def main():
                     file_path=file_path,
                     caps=capability,
                     record_n_seconds=args.seconds,
+                    encoding_profile=(
+                        ENCODING_PROFILES[args.encoding]
+                        if hasattr(args, "encoding")
+                        else args.custom_encoding_string
+                    ),
                 )
 
                 if args.skip_validation:

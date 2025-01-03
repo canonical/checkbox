@@ -1,6 +1,5 @@
 import time
-
-from importlib import import_module
+import rpyc
 
 
 def rpyc_client(host, cmd, *args, **kwargs):
@@ -16,18 +15,13 @@ def rpyc_client(host, cmd, *args, **kwargs):
                         or the command is unknown
                         or a service error occurs
     """
-    try:
-        _rpyc = import_module("rpyc")
-    except ImportError:
-        try:
-            _rpyc = import_module("plainbox.vendor.rpyc")
-        except ImportError as exc:
-            msg = "RPyC not found. Neither from sys nor from Checkbox"
-            raise SystemExit(msg) from exc
-
     for _ in range(2):
         try:
-            conn = _rpyc.connect(host, 60000, config={"allow_all_attrs": True})
+            conn = rpyc.connect(host, 60000, config={
+                "allow_all_attrs": True,
+                "allow_exposed_attrs": False
+                }
+            )
             break
         except ConnectionRefusedError:
             time.sleep(1)
@@ -35,12 +29,22 @@ def rpyc_client(host, cmd, *args, **kwargs):
         raise SystemExit("Cannot connect to RPYC Host.")
 
     try:
-        return getattr(conn.root, cmd)(*args, **kwargs)
+        func = getattr(conn.root, cmd)
+        wrap = rpyc.async_(func)
+        res = wrap(*args, **kwargs)
+        while res.ready:
+            print("Waiting for RPYC server complete %s".format(func))
+            time.sleep(1)
+            break
+        if getattr(res._conn.root, "logs"):
+            print(res._conn.root.logs)
+        return res.value
+        # return getattr(conn.root, cmd)(*args, **kwargs)
     except AttributeError:
         raise SystemExit(
             "RPYC host does not provide a '{}' command.".format(cmd)
         )
-    except _rpyc.core.vinegar.GenericException as exc:
+    except rpyc.core.vinegar.GenericException as exc:
         raise SystemExit(
             "Zapper host failed to process the requested command."
         ) from exc

@@ -3,9 +3,6 @@ import gi
 import typing as T
 import logging
 
-from numpy import True_
-
-
 logger = logging.getLogger(__name__)
 logging.basicConfig(
     format="%(asctime)s %(levelname)s - %(message)s\n",
@@ -33,7 +30,7 @@ class CapsResolver:
 
     # (top, bottom) or (numerator, denominator)
     FractionTuple = T.Tuple[int, int]
-    RANGE_REMAP = {
+    KNOWN_RANGE_VALUES = {
         "width": [640, 1280, 1920, 2560, 3840],
         "height": [480, 720, 1080, 1440, 2160],
         "framerate": [
@@ -86,16 +83,16 @@ class CapsResolver:
         return low.get_int(prop_name)[1], high.get_int(prop_name)[1]
 
     @T.overload
-    def remap_range_to_list(
+    def select_known_values_from_range(
         self, prop: str, low: int, high: int
     ) -> T.List[int]: ...
 
     @T.overload
-    def remap_range_to_list(
+    def select_known_values_from_range(
         self, prop: str, low: FractionTuple, high: FractionTuple
     ) -> T.List[FractionTuple]: ...
 
-    def remap_range_to_list(
+    def select_known_values_from_range(
         self,
         prop: str,
         low: T.Union[int, FractionTuple],
@@ -110,10 +107,10 @@ class CapsResolver:
         """
         out = []
         assert (
-            prop in self.RANGE_REMAP
-        ), "Property {} does not have a remap definition".format(prop)
+            prop in self.KNOWN_RANGE_VALUES
+        ), "Property {} does not have a known value definition".format(prop)
 
-        for val in self.RANGE_REMAP[prop]:
+        for val in self.KNOWN_RANGE_VALUES[prop]:
             # lt gt are defined as pairwise comparison on tuples
             if val >= low and val <= high:
                 out.append(val)
@@ -123,7 +120,7 @@ class CapsResolver:
     def get_all_fixated_caps(
         self,
         caps: Gst.Caps,
-        resolve_method: str,  # type T.Literal["remap", "limit"]
+        resolve_method: str,  # type T.Literal["known_values", "limit"]
         limit: int = 10000,
     ) -> T.List[Gst.Caps]:
         """Gets all the fixated(1 value per property) caps from a Gst.Caps obj
@@ -131,11 +128,11 @@ class CapsResolver:
         :param caps: a mixed Gst.Caps
         :param resolve_method: how to resolve IntRange and FractionRange values
         - Only applies to width, height, and framerate for now
-        - "remap" => picks out a set of common values within the original range
+        - "known_values" => picks out known values within the original range
         - "limit" => Use the caps.is_fixed while loop until we reaches limit
 
         :param limit: the limit to use for the "limit" resolver
-        - if resolve method is remap, this is still in effect
+        - if resolve method is known_values, this is still in effect
         :return: a list of fixed caps
         """
         if caps.is_fixed():
@@ -145,22 +142,22 @@ class CapsResolver:
 
         for i in range(caps.get_size()):
             struct = caps.get_structure(i)
-            caps_i = Gst.Caps.from_string(struct.to_string())  # type: Gst.Caps
 
-            if resolve_method == "remap":
-                for prop in self.RANGE_REMAP.keys():
-                    s_i = caps_i.get_structure(0)  # type: Gst.Structure
+            if resolve_method == "known_values":
+                for prop in self.KNOWN_RANGE_VALUES.keys():
 
                     finite_list = None  # type: GObject.ValueArray | None
-                    if s_i.has_field_typed(prop, Gst.IntRange):
-                        low, high = self.extract_int_range(s_i, prop)
+                    if struct.has_field_typed(prop, Gst.IntRange):
+                        low, high = self.extract_int_range(struct, prop)
                         finite_list = GObject.ValueArray()
-                        for elem in self.remap_range_to_list(prop, low, high):
+                        for elem in self.select_known_values_from_range(
+                            prop, low, high
+                        ):
                             finite_list.append(elem)  # type: ignore
 
-                    elif s_i.has_field_typed(prop, Gst.FractionRange):
-                        low, high = self.extract_fraction_range(s_i, prop)
-                        fraction_list = self.remap_range_to_list(
+                    elif struct.has_field_typed(prop, Gst.FractionRange):
+                        low, high = self.extract_fraction_range(struct, prop)
+                        fraction_list = self.select_known_values_from_range(
                             prop, low, high
                         )
                         # workaround missing Gst.Fraction
@@ -184,19 +181,20 @@ class CapsResolver:
 
                     if finite_list is not None:
                         if finite_list.n_values == 0:
-                            print(
-                                "Resolve method is remap,"
+                            logger.debug(
+                                "Resolve method is known_values,"
                                 "but original caps doesn't have any",
                                 "of the common values.",
                                 "Skipping.",
                             )
-                        s_i.set_list(
+                        struct.set_list(
                             prop,
                             finite_list,
                         )
 
-                        caps_i = Gst.Caps.from_string(s_i.to_string())
+                        caps_i = Gst.Caps.from_string(struct.to_string())
 
+            caps_i = Gst.Caps.from_string(struct.to_string())  # type: Gst.Caps
             while not caps_i.is_fixed() and not caps_i.is_empty():
                 if len(fixed_caps) >= limit:
                     break

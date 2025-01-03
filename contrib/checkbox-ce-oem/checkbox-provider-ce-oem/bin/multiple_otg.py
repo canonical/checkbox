@@ -10,10 +10,10 @@ from importlib import import_module
 from multiprocessing import Process
 from pathlib import Path
 from rpyc_client import rpyc_client
-from threading import Thread
 from typing import Union
 
 OTG_MODULE = "libcomposite"
+
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -39,15 +39,6 @@ def initial_configfs() -> Union[tempfile.TemporaryDirectory, Path]:
     return configfs_dir
 
 
-def dump_otg_info(configs):
-    for config in configs.split():
-        otg_conf = config.split(":")
-        if len(otg_conf) == 2:
-            print("USB_CONNECTOR: {}".format(otg_conf[0]))
-            print("USB_BUS: {}".format(otg_conf[1]))
-            print()
-
-
 class OtgConfigFsOperatorBase:
     """
     This is a object to setup the USB gadget to support different OTG scenario
@@ -64,7 +55,7 @@ class OtgConfigFsOperatorBase:
         self.udc_node = Path("/sys/class/udc").joinpath(udc_path)
 
     def __enter__(self):
-        logging.debug("enter setup function")
+        logging.debug("Setup the OTG configurations")
         if self._child_modules:
             logging.info(self._child_modules)
             # To clean up the OTG modules
@@ -82,7 +73,7 @@ class OtgConfigFsOperatorBase:
         return self
 
     def __exit__(self, exec, value, tb):
-        logging.debug("enter teardown function")
+        logging.debug("Clean up OTG configurations")
         self._cleanup_usb_gadget()
         cur_modules = [
             mod for mod in self._get_child_modules() if mod not in self._child_modules]
@@ -202,9 +193,10 @@ class OtgMassStorageSetup(OtgConfigFsOperatorBase):
         such as collecting ethernet interface, serial interface
              and create an USB storage
         """
+        logging.info("Create an USB image file for Mass Storage Test")
         self._usb_img = tempfile.NamedTemporaryFile("+bw", delete=False)
         subprocess.run(
-            "dd if=/dev/zero of={} bs=1M count=16".format(self._usb_img.name),
+            "dd if=/dev/zero of={} bs=1M count=1024".format(self._usb_img.name),
             shell=True,
             check=True,
         )
@@ -213,7 +205,7 @@ class OtgMassStorageSetup(OtgConfigFsOperatorBase):
             shell=True,
             check=True,
         )
-        logging.info("Create an USB image file to %s", self._usb_img.name)
+        logging.info("%s file been created", self._usb_img.name)
 
     def otg_teardown(self):
         logging.info("Delete USB image file from %s", self._usb_img.name)
@@ -233,8 +225,44 @@ class OtgMassStorageSetup(OtgConfigFsOperatorBase):
         self.usb_gadget_node.joinpath(
             "configs", "c.1", func_name).symlink_to(function_path, True)
 
-    def self_check(self):
-        time.sleep(10)
+    def detection_check_on_rpyc(self, rpyc_ip):
+        logging.info("USB drive detection on RPYC")
+        mounted_drive = rpyc_client(rpyc_ip, "usb_drive_check", "usb2")
+        if mounted_drive:
+            logging.info(
+                "Found USB device and mounted as '%s' on rpyc server",
+                mounted_drive,
+            )
+        else:
+            raise RuntimeError("No USB device found on rpyc server")
+        self._target_dev = mounted_drive
+
+    def function_check_with_rpyc(self, rpyc_ip):
+        logging.info("USB read/write testing on RPYC")
+        raise SystemExit(rpyc_client(
+            rpyc_ip,
+            "usb_storage_test",
+            "usb2",
+        ))
+
+    def otg_test_process(self, rpyc_ip):
+        logging.info("Start Mass Storage Testing with OTG interface")
+        t_thread = Process(
+            target=self.function_check_with_rpyc, args=(rpyc_ip,)
+        )
+        t_thread.start()
+        logging.debug("Launch USB detection and storage tests on RPYC server")
+        # Sleep few seconds to activate USB detection on RPYC server
+        time.sleep(3)
+        self.enable_otg()
+        t_thread.join()
+        self.disable_otg()
+
+        if t_thread.exitcode == 0:
+            logging.info("OTG Mass Storage test passed")
+        else:
+            logging.debug("Exit code: %s", t_thread.exitcode)
+            raise RuntimeError("OTG Mass Storage test failed")
 
 
 class OtgEthernetSetup(OtgConfigFsOperatorBase):
@@ -268,11 +296,12 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
         self._net_dev = otg_net_intf[0]
 
     def detection_check_on_rpyc(self, rpyc_ip):
-        ret = rpyc_client(rpyc_ip, "net_check")
+        logging.info("Network interface detection on RPYC")
+        ret = rpyc_client(rpyc_ip, "ethernet_check")
         if ret:
             logging.info("Found %s network interface on rpyc server", ret)
         else:
-            logging.debug("No network interface found on rpyc server")
+            raise RuntimeError("No network interface found on rpyc server")
         self._target_net_dev = list(ret)[0]
 
     def _configure_local_network(self, interface, net_info):
@@ -283,6 +312,7 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
         )
 
     def function_check_with_rpyc(self, rpyc_ip):
+        logging.info("Ping DUT from RPYC")
         self._configure_local_network(self._net_dev, "169.254.0.1/24")
         rpyc_client(
             rpyc_ip,
@@ -290,8 +320,18 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
             self._target_net_dev,
             "169.254.0.10/24",
         )
-        ret = rpyc_client(rpyc_ip, "network_ping", "169.254.0.1", self._target_net_dev)
-        logging.debug(ret)
+        ret = rpyc_client(
+            rpyc_ip, "network_ping", [self._target_net_dev], "169.254.0.1"
+        )
+        if ret != 0:
+            raise RuntimeError("Failed to ping DUT from RPYC server")
+
+    def otg_test_process(self, rpyc_ip):
+        self.enable_otg()
+        self.self_check()
+        self.detection_check_on_rpyc(rpyc_ip)
+        self.function_check_with_rpyc(rpyc_ip)
+        self.disable_otg()
 
 
 class OtgSerialSetup(OtgConfigFsOperatorBase):
@@ -333,74 +373,51 @@ class OtgSerialSetup(OtgConfigFsOperatorBase):
         self._target_serial_dev = list(ret)[0]
 
     def function_check_with_rpyc(self, rpyc_ip):
-        logging.info("start serial server on rpyc server")
-        t_thread = Process(
-            target=rpyc_client,
-            args=(
-                rpyc_ip,
-                "enable_serial_server",
-                "/dev/serial/by-id/{}".format(self._target_serial_dev),
-                "USB",
-                [],
-                115200,
-                8,
-                "N",
-                1,
-                3,
-                1024
-            )
-        )
-        t_thread.start()
         logging.info("perform serial client test on DUT")
         func = getattr(import_module("serial_test"), "client_mode")
+        func(
+            "/dev/{}".format(self._serial_iface),
+            "USB",
+            [],
+            115200,
+            8,
+            "N",
+            1,
+            3,
+            1024,
+        )
+
+    def otg_test_process(self, rpyc_ip):
+        self.enable_otg()
+        self.self_check()
+        self.detection_check_on_rpyc(rpyc_ip)
+
         try:
-            func(
-                "/dev/{}".format(self._serial_iface),
-                "USB",
-                [],
-                115200,
-                8,
-                "N",
-                1,
-                3,
-                1024,
+            logging.info("start serial server on rpyc server")
+            t_thread = Process(
+                target=rpyc_client,
+                args=(
+                    rpyc_ip,
+                    "enable_serial_server",
+                    "/dev/serial/by-id/{}".format(self._target_serial_dev),
+                    "USB",
+                    [],
+                    115200,
+                    8,
+                    "N",
+                    1,
+                    3,
+                    1024
+                )
             )
+            t_thread.start()
+            time.sleep(3)
+            self.function_check_with_rpyc(rpyc_ip)
         except SystemExit as err:
             logging.debug(err)
-        t_thread.kill()
-
-        # func = getattr(import_module("serial_test"), "server_mode")
-        # t_thread = Thread(
-        #     target=func,
-        #     args=(
-        #         "/dev/{}".format(self._serial_iface),
-        #         "USB",
-        #         [],
-        #         115200,
-        #         8,
-        #         "N",
-        #         1,
-        #         3,
-        #         1024,
-        #     )
-        # )
-        # t_thread.start()
-        # try:
-        #     rpyc_client(rpyc_ip, "serial_client_test",
-        #         "/dev/serial/by-id/{}".format(self._target_serial_dev),
-        #         "USB",
-        #         [],
-        #         115200,
-        #         8,
-        #         "N",
-        #         1,
-        #         3,
-        #         1024
-        #     )
-        # except SystemExit as err:
-        #     logging.debug(err)
-        # t_thread.join()
-        # t_thread.terminate()
+        finally:
+            t_thread.kill()
+        self.disable_otg()
 
 
 OTG_TESTING_MAPPING = {
@@ -413,11 +430,16 @@ OTG_TESTING_MAPPING = {
 def otg_testing(udc_node, test_func, rpyc_ip):
     configfs_dir = initial_configfs()
     with OTG_TESTING_MAPPING[test_func](configfs_dir, udc_node) as otg_cfg:
-        otg_cfg.enable_otg()
-        otg_cfg.self_check()
-        otg_cfg.detection_check_on_rpyc(rpyc_ip)
-        otg_cfg.function_check_with_rpyc(rpyc_ip)
-        otg_cfg.disable_otg()
+        otg_cfg.otg_test_process(rpyc_ip)
+
+
+def dump_otg_info(configs):
+    for config in configs.split():
+        otg_conf = config.split(":")
+        if len(otg_conf) == 2:
+            print("USB_CONNECTOR: {}".format(otg_conf[0]))
+            print("USB_BUS: {}".format(otg_conf[1]))
+            print()
 
 
 def register_arguments():

@@ -465,12 +465,12 @@ def take_photo(
 
     delay_seconds = max(delay_seconds, 0)
     if delay_seconds <= 0:
+        valve.set_property("drop", False)
+        intermediate_calls = []
         logger.info(
             "Created photo pipeline with no delay. "
             + '"{} ! {}"'.format(elem_to_str(source), partial)
         )
-        valve.set_property("drop", False)
-        intermediate_calls = []
     else:
         logger.info(
             "Created photo pipeline with {} second delay. ".format(

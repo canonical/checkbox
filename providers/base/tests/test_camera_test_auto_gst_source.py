@@ -17,7 +17,6 @@ mock_gi = MagicMock()
 )
 class CameraTestAutoGstSourceTests(ut.TestCase):
     def test_correct_subcommand_is_executed(self):
-        import camera_test_auto_gst_source as CTAGS
 
         with patch("os.path.isdir") as mock_isdir, patch(
             "os.path.isfile"
@@ -28,6 +27,8 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         ) as mock_cam, patch(
             "camera_test_auto_gst_source.MediaValidator"
         ) as mock_validator:
+            import camera_test_auto_gst_source as CTAGS
+
             mock_isdir.return_value = True
             mock_isfile.return_value = True
             mock_get_devices.return_value = [MagicMock()]
@@ -45,7 +46,6 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
                 ),
             ):
                 CTAGS.main()
-                print(dir(mock_cam.take_photo))
                 self.assertEqual(mock_cam.take_photo.call_count, 1)
 
             with patch(
@@ -64,8 +64,53 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
             ):
                 CTAGS.main()
                 self.assertEqual(mock_cam.show_viewfinder.call_count, 1)
-    def test_correct_subcommand_is_executed(self):
-        ...
+
+    @patch("os.path.isfile")
+    # @patch("gi.repository.GstPbutils.Discoverer")
+    @patch("camera_test_auto_gst_source.logger")
+    @patch("camera_test_auto_gst_source.Image")
+    def test_image_validator(
+        self,
+        mock_pil: MagicMock,
+        mock_logger: MagicMock,
+        mock_isfile: MagicMock,
+    ):
+        import camera_test_auto_gst_source as CTAGS
+
+        expected_width = 640
+        expected_height = 480
+
+        mock_isfile.return_value = True
+        mock_pil.open().width = expected_width
+        mock_pil.open().height = expected_height
+
+        validator = CTAGS.MediaValidator()
+
+        self.assertTrue(
+            validator.validate_image_dimensions(
+                "some/path",
+                expected_height=expected_height,
+                expected_width=expected_width,
+            )
+        )
+
+        bad_width = 1237219831
+        mock_pil.open().width = bad_width
+        mock_pil.open().height = expected_height
+
+        self.assertFalse(
+            validator.validate_image_dimensions(
+                "some/path",
+                expected_height=expected_height,
+                expected_width=expected_width,
+            )
+        )
+
+        mock_logger.error.assert_called_with(
+            "Image width mismatch. Expected = {}, actual = {}".format(
+                expected_width, bad_width
+            )
+        )
 
 
 if __name__ == "__main__":

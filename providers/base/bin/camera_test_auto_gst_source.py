@@ -30,9 +30,12 @@ class MediaValidator:
     def validate_image_dimensions(
         image_file_path: str, *, expected_width: int, expected_height: int
     ) -> bool:
-        assert os.path.isfile(
-            image_file_path
-        ), "Image file doesn't exist at {}".format(image_file_path)
+        if not os.path.isfile(image_file_path):
+            logger.error(
+                "Image file doesn't exist at {}".format(image_file_path)
+            )
+            return False
+
         image = PIL.Image.open(image_file_path)
         passed = True
 
@@ -61,8 +64,14 @@ class MediaValidator:
         expected_height: int,
         expected_duration_seconds: int,
         expected_fps: int,
-        duration_tolerance_seconds=0.1
+        duration_tolerance_seconds: float
     ) -> bool:
+        if not os.path.isfile(video_file_path):
+            logger.error(
+                "Video file doesn't exist at {}".format(video_file_path)
+            )
+            return False
+
         discoverer = GstPbutils.Discoverer()
 
         video_file_path.lstrip("/")
@@ -119,9 +128,18 @@ class MediaValidator:
 
 
 ENCODING_PROFILES = {
-    "mp4_h264": "video/quicktime,variant=iso:video/x-h264",
-    "ogv_theora": "application/ogg:video/x-theora",
-    "webm_vp8": "video/webm:video/x-vp8",
+    "mp4_h264": {
+        "profile_str": "video/quicktime,variant=iso:video/x-h264",
+        "file_extension": "mp4",
+    },
+    "ogv_theora": {
+        "profile_str": "application/ogg:video/x-theora",
+        "file_extension": "ogv",
+    },
+    "webm_vp8": {
+        "profile_str": "video/webm:video/x-vp8",
+        "file_extension": "webm",
+    },
 }
 
 
@@ -163,7 +181,7 @@ def parse_args():
         action="store_true",
         help="Skip image dimension validation",
     )
-    default_max_caps = 100
+    default_max_caps = 10000
     photo_subparser.add_argument(
         "--max-caps",
         type=int,
@@ -234,6 +252,16 @@ def parse_args():
             "Only use this option if you have a custom encoding string."
         ),
     )
+    video_subparser.add_argument(
+        "--file-extension",
+        type=str,
+        help=(
+            "Custom file extension. "
+            "This is required when --custom-encoding-string is specified. "
+            "If --encoding is specified, "
+            "this overrides the default file extension."
+        ),
+    )  # need to explicitly check this
 
     viewfinder_subparser = subparser.add_parser("show-viewfinder")
     default_viewfinder_seconds = 10
@@ -261,15 +289,19 @@ def parse_args():
 
 def main():
     args = parse_args()
-
+    print(args)
     if os.getuid() == 0:
         logger.warning(
             "Running this script as root. "
             "This may lead to different results than running as regular user."
         )
 
+    abs_path = os.path.abspath(
+        os.path.expanduser(os.path.expandvars(args.path))
+    )
+
     if args.subcommand == "play-video":
-        cam.play_video(args.path)
+        cam.play_video(abs_path)
         return
 
     devices = get_devices()
@@ -297,16 +329,16 @@ def main():
             cam.show_viewfinder(dev_element, show_n_seconds=args.seconds)
             continue
 
-        if not os.path.isdir(args.path):
+        if not os.path.isdir(abs_path):
             # must validate early
             # multifilesink does not check if the path exists
             raise FileNotFoundError(
-                'Path "{}" does not exist'.format(args.path)
+                'Path "{}" does not exist'.format(abs_path)
             )
 
         resolver = cam.CapsResolver()
         all_fixed_caps = resolver.get_all_fixated_caps(
-            device.get_caps(), "remap"
+            device.get_caps(), "known_values"
         )
 
         logger.info("Testing device {}/{}".format(dev_i + 1, len(devices)))
@@ -330,7 +362,7 @@ def main():
                     + '"{}"'.format(device.get_display_name()),
                 )
                 file_path = "{}/photo_dev_{}_cap_{}.jpeg".format(
-                    args.path, dev_i, cap_i
+                    abs_path, dev_i, cap_i
                 )
                 cam.take_photo(
                     dev_element,
@@ -348,19 +380,32 @@ def main():
                     expected_height=cap_struct.get_int("height").value,
                 )
             elif args.subcommand == "record-video":
-                file_path = "{}/video_dev_{}_cap_{}.mp4".format(
-                    args.path, dev_i, cap_i
+                if args.encoding is not None:
+                    encoding_profile = ENCODING_PROFILES[args.encoding][
+                        "profile_str"
+                    ]
+                    file_extension = ENCODING_PROFILES[args.encoding][
+                        "file_extension"
+                    ]
+                    if args.file_extension is not None:
+                        file_extension = args.file_extension
+                else:
+                    encoding_profile = args.custom_encoding_string
+                    assert args.file_extension, (
+                        "File extension must be specified "
+                        "when using custom encoding string"
+                    )
+                    file_extension = args.file_extension
+
+                file_path = "{}/video_dev_{}_cap_{}.{}".format(
+                    abs_path, dev_i, cap_i, file_extension
                 )
                 cam.record_video(
                     dev_element,
                     file_path=file_path,
                     caps=capability,
                     record_n_seconds=args.seconds,
-                    encoding_profile=(
-                        ENCODING_PROFILES[args.encoding]
-                        if hasattr(args, "encoding")
-                        else args.custom_encoding_string
-                    ),
+                    encoding_profile=encoding_profile,
                 )
 
                 if args.skip_validation:

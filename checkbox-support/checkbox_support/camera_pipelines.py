@@ -493,9 +493,9 @@ def take_photo(
     )
 
     logger.info(
-        '[ OK ] Photo pipeline for "{}" capability has finished!'.format(
-            caps.to_string() if caps else "device default"
-        )
+        "[ OK ] Photo pipeline for this capability: "
+        + "{}".format(caps.to_string() if caps else "device default")
+        + " has finished!"
     )
 
 
@@ -507,6 +507,11 @@ def record_video(
     record_n_seconds: int,
     encoding_profile: str
 ):
+    assert record_n_seconds >= 1, (
+        "Recording pipeline must run for at least 1 second. "
+        "Got {} seconds.".format(record_n_seconds)
+    )
+
     str_elements = [
         'capsfilter name=source-caps caps="{}"',  # 0
         "decodebin",  # 1
@@ -549,17 +554,16 @@ def record_video(
     ), "Could not link source element to {}".format(head_elem)
 
     logger.info(
-        "[ OK ] Created video pipeline to record {} seconds".format(
+        "[ OK ] Created video pipeline to record {} seconds: ".format(
             record_n_seconds
         )
+        + '"{} ! {}"'.format(elem_to_str(source), partial)
     )
-    logger.info("{} ! {}".format(elem_to_str(source), partial))
-    logger.debug("Setting playing state")
 
     run_pipeline(pipeline, record_n_seconds)
 
     logger.info(
-        "[ OK ] Video for this capability: "
-        + "{}".format(caps.to_string() if caps else "[device default]")
-        + " was saved to {}".format(file_path)
+        "[ OK ] Recording pipeline for this capability: "
+        + "{}".format(caps.to_string() if caps else "device default")
+        + " has finished!"
     )

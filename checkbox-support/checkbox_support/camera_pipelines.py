@@ -153,7 +153,7 @@ class CapsResolver:
                         for elem in self.select_known_values_from_range(
                             prop, low, high
                         ):
-                            finite_list.append(elem)  # type: ignore
+                            finite_list.append(elem)
 
                     elif struct.has_field_typed(prop, Gst.FractionRange):
                         low, high = self.extract_fraction_range(struct, prop)
@@ -330,15 +330,19 @@ def run_pipeline(
 
     pipeline.set_state(Gst.State.PLAYING)
     # get_state returns (state_change_result, curr_state, target_state)
+    # the 1st element isn't named, so we must access by index
     source_state_change_result = pipeline.get_child_by_index(0).get_state(
         500 * Gst.MSECOND
-    )[0]
-    if source_state_change_result != Gst.StateChangeReturn.SUCCESS:
+    )
+    if source_state_change_result[0] != Gst.StateChangeReturn.SUCCESS:
         pipeline.set_state(Gst.State.NULL)
         raise RuntimeError(
             "Failed to transition to playing state. "
-            "Source is still in {} state after 500ms.".format(
-                source_state_change_result
+            + "Source is still in {} state after 500ms, ".format(
+                source_state_change_result.state
+            )
+            + "was trying to transition to {}".format(
+                source_state_change_result.pending
             )
         )
 

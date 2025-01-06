@@ -289,18 +289,16 @@ def parse_args():
 
 def main():
     args = parse_args()
-    print(args)
     if os.getuid() == 0:
         logger.warning(
             "Running this script as root. "
             "This may lead to different results than running as regular user."
         )
 
-    abs_path = os.path.abspath(
-        os.path.expanduser(os.path.expandvars(args.path))
-    )
-
     if args.subcommand == "play-video":
+        abs_path = os.path.abspath(
+            os.path.expanduser(os.path.expandvars(args.path))
+        )
         cam.play_video(abs_path)
         return
 
@@ -329,6 +327,9 @@ def main():
             cam.show_viewfinder(dev_element, show_n_seconds=args.seconds)
             continue
 
+        abs_path = os.path.abspath(
+            os.path.expanduser(os.path.expandvars(args.path))
+        )
         if not os.path.isdir(abs_path):
             # must validate early
             # multifilesink does not check if the path exists

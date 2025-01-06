@@ -299,7 +299,13 @@ def main():
     print(
         '[ HINT ] For debugging, remove the "valve" element to get a pipeline',
         'that can be run with "gst-launch-1.0".',
-        "Also keep the pipeline running for {} seconds".format(args.seconds),
+        (
+            "Also keep the pipeline running for {} seconds.\n".format(
+                args.seconds
+            )
+            if args.seconds > 0
+            else "Terminate the pipeline as soon as possible.\n"
+        ),
     )
 
     for dev_i, device in enumerate(devices):
@@ -325,9 +331,9 @@ def main():
         )
 
         logger.info("Testing device {}/{}".format(dev_i + 1, len(devices)))
-        logger.info(
+        logger.info(  # just an estimate
             "Test for this device may take {} seconds for {} caps.".format(
-                len(all_fixed_caps) * args.seconds, len(all_fixed_caps)
+                len(all_fixed_caps) * max(args.seconds, 1), len(all_fixed_caps)
             )
         )
 

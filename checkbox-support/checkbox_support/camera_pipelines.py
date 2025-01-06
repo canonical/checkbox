@@ -268,9 +268,11 @@ def run_pipeline(
     loop = GLib.MainLoop()
     timeout_sources = set()  # type: set[GLib.Source]
 
+    # 0 means send eos as soon as possible
+    # we can do this because MainLoop doesn't start until pipeline has started
     assert (
-        run_n_seconds is None or run_n_seconds >= 1
-    ), "run_n_seconds must be >= 1 if specified"
+        run_n_seconds is None or run_n_seconds >= 0
+    ), "run_n_seconds must be >= 0 if specified"
 
     def gst_msg_handler(_, msg: Gst.Message):
         should_quit = False
@@ -303,7 +305,7 @@ def run_pipeline(
         logger.debug("Sending EOS.")
         pipeline.send_event(Gst.Event.new_eos())
 
-    if run_n_seconds:
+    if run_n_seconds is not None:
         eos_timeout_id = GLib.timeout_add_seconds(run_n_seconds, send_eos)
         # get the actual source object, so we can call .destroy() later.
         # Removing a timeout by id will cause warnings if it doesn't exist,
@@ -412,8 +414,8 @@ def take_photo(
         'capsfilter name=source-caps caps="{}"',  # 0
         "decodebin",  # 1
         "videoconvert name=converter",  # 2
-        "valve name=photo-valve drop=True",  # 4
-        "jpegenc",  # 3
+        "valve name=photo-valve drop=True",  # 3
+        "jpegenc",  # 4
         "multifilesink location={}".format(file_path),  # 5
     ]
     head_elem_name = "source-caps"
@@ -443,10 +445,13 @@ def take_photo(
         str_elements[0] = str_elements[1] = str_elements[3] = ""
         head_elem_name = "converter"
 
+    delay_seconds = max(delay_seconds, 0)
+    if delay_seconds == 0:
+        str_elements[3] = ""
+
     partial = " ! ".join(elem for elem in str_elements if elem)
     pipeline = Gst.parse_launch(partial)  # type: Gst.Pipeline
     head_elem = pipeline.get_by_name(head_elem_name)
-    valve = pipeline.get_by_name("photo-valve")
 
     # parse the partial pipeline, then get head element by name
     assert pipeline.add(
@@ -454,35 +459,36 @@ def take_photo(
     ), "Could not add source element {} to the pipeline".format(
         elem_to_str(source)
     )
-    assert head_elem and valve
+    assert head_elem
     assert source.link(
         head_elem
     ), "Could not link source element to {}".format(head_elem)
 
-    def open_valve():
-        logger.debug("Opening valve!")
-        valve.set_property("drop", False)
-
-    delay_seconds = max(delay_seconds, 0)
-    if delay_seconds <= 0:
-        valve.set_property("drop", False)
+    if delay_seconds == 0:
         intermediate_calls = []
         logger.info(
             "Created photo pipeline with no delay. "
             + '"{} ! {}"'.format(elem_to_str(source), partial)
         )
     else:
+        valve = pipeline.get_by_name("photo-valve")
+
+        def open_valve():
+            assert valve
+            logger.debug("Opening valve!")
+            valve.set_property("drop", False)
+
+        intermediate_calls = [(delay_seconds, open_valve)]
         logger.info(
             "Created photo pipeline with {} second delay. ".format(
                 delay_seconds
             )
             + '"{} ! {}"'.format(elem_to_str(source), partial)
         )
-        intermediate_calls = [(delay_seconds, open_valve)]
 
     run_pipeline(
         pipeline,
-        delay_seconds + 1,
+        delay_seconds,
         intermediate_calls=intermediate_calls,
     )
 

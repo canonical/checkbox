@@ -350,28 +350,6 @@ def run_pipeline(
     loop.run()
 
 
-def play_video(filepath: str):
-    global Gtk
-    if not Gtk:
-        gi.require_version("Gtk", "3.0")
-        from gi.repository import Gtk as _Gtk  # type: ignore
-
-        Gtk = _Gtk
-        Gtk.init([])
-
-    pipeline = Gst.parse_launch(
-        " ! ".join(
-            [
-                "filesrc location={}".format(filepath),
-                "decodebin",
-                "videoconvert",
-                "autovideosink",
-            ]
-        )
-    )
-    run_pipeline(pipeline)
-
-
 def show_viewfinder(source: Gst.Element, *, show_n_seconds=5):
     """Shows a viewfinder for the given camera source
 

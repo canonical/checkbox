@@ -15,8 +15,6 @@ logging.basicConfig(
 )
 logger.setLevel(logging.DEBUG)
 
-Gtk = None
-
 gi.require_version("Gst", "1.0")
 gi.require_version("GstPbutils", "1.0")
 from gi.repository import Gst, GstPbutils  # type: ignore # noqa: E402
@@ -275,15 +273,6 @@ def parse_args():
         default=default_viewfinder_seconds,
     )
 
-    player_subparser = subparser.add_parser("play-video")
-    player_subparser.add_argument(
-        "-p",
-        "--path",
-        type=str,
-        help="Path to the video file",
-        required=True,
-    )
-
     return parser.parse_args()
 
 
@@ -294,13 +283,6 @@ def main():
             "Running this script as root. "
             "This may lead to different results than running as regular user."
         )
-
-    if args.subcommand == "play-video":
-        abs_path = os.path.abspath(
-            os.path.expanduser(os.path.expandvars(args.path))
-        )
-        cam.play_video(abs_path)
-        return
 
     devices = get_devices()
 

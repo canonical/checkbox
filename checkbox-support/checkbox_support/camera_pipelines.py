@@ -216,17 +216,19 @@ class CapsResolver:
         return fixed_caps
 
 
-def elem_to_str(element: Gst.Element) -> str:
+def elem_to_str(
+    element: Gst.Element, exclude: T.List[str] = ["parent", "client-name"]
+) -> str:
     """Prints an element to string
-    - Excluding parent & client name
 
     :param element: GStreamer element
-    :return: String representation
+    :param exclude: property names to exclude
+    :return: String representation. This is a best guess for debug purposes,
+        not 100% accurate since there can be arbitrary objects in properties.
     """
     properties = element.list_properties()  # list[GObject.GParamSpec]
     element_name = element.get_factory().get_name()
 
-    exclude = ["parent", "client-name"]
     prop_strings = []  # type: list[str]
 
     for prop in properties:
@@ -266,6 +268,21 @@ def run_pipeline(
     intermediate_calls: T.List[T.Tuple[int, TimeoutCallback]] = [],
     custom_quit_handler: T.Optional[T.Callable[[Gst.Message], bool]] = None,
 ):
+    """Runs a GStreamer pipeline and handle Gst messages
+
+    :param pipeline: the pipeline to run
+    :param run_n_seconds: Number of seconds to run the pipeline
+        before sending EOS, defaults to None
+        - If None, only wait for an EOS signal
+    :param intermediate_calls: list of functions to run
+        while the pipeline is running
+        - Each element is a (delay, callback) tuple
+        - Delay is the number of seconds to wait
+            (relative to the start of the pipeline) before calling the callback
+    :param custom_quit_handler: quit the pipeline if this function returns true
+    :raises RuntimeError: if the source element did not transition to playing
+        state in 500ms after set_state(PLAYING) is called
+    """
     loop = GLib.MainLoop()
     timeout_sources = set()  # type: set[GLib.Source]
 
@@ -297,7 +314,7 @@ def run_pipeline(
             loop.quit()
             pipeline.set_state(Gst.State.NULL)
             for timeout in timeout_sources:
-                # if the pipeline is terminated early, remove all timers
+                # if the pipeline is terminated early, remove all timers asap
                 # because loop.quit() won't remove/stop those
                 # that are already scheduled => segfault (EOS on null pipeline)
                 # See: https://docs.gtk.org/glib/method.MainLoop.quit.html
@@ -333,11 +350,13 @@ def run_pipeline(
     bus.connect("message", gst_msg_handler)
 
     pipeline.set_state(Gst.State.PLAYING)
-    # get_state returns (state_change_result, curr_state, target_state)
-    # the 1st element isn't named, so we must access by index
+
     source_state_change_result = pipeline.get_child_by_index(0).get_state(
         500 * Gst.MSECOND
     )
+    # get_state returns a 3-tuple
+    # (Gst.StateChangeReturn, curr_state: Gst.State, target_state: Gst.State)
+    # the 1st element isn't named, so we must access by index
     if source_state_change_result[0] != Gst.StateChangeReturn.SUCCESS:
         pipeline.set_state(Gst.State.NULL)
         raise RuntimeError(

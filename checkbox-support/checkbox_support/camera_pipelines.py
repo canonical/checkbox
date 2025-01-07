@@ -264,18 +264,18 @@ def run_pipeline(
     pipeline: Gst.Pipeline,
     run_n_seconds: T.Optional[int] = None,
     intermediate_calls: T.List[T.Tuple[int, TimeoutCallback]] = [],
+    custom_quit_handler: T.Optional[T.Callable[[Gst.Message], bool]] = None,
 ):
     loop = GLib.MainLoop()
     timeout_sources = set()  # type: set[GLib.Source]
 
-    # 0 means send eos as soon as possible
-    # we can do this because MainLoop doesn't start until pipeline has started
     assert (
-        run_n_seconds is None or run_n_seconds >= 0
-    ), "run_n_seconds must be >= 0 if specified"
+        run_n_seconds is None or run_n_seconds >= 1
+    ), "run_n_seconds must be >= 1 if specified"
 
     def gst_msg_handler(_, msg: Gst.Message):
         should_quit = False
+
         if msg.type == Gst.MessageType.WARNING:
             logger.warning(Gst.Message.parse_warning(msg))
 
@@ -290,10 +290,12 @@ def run_pipeline(
             )
             should_quit = True
 
+        if custom_quit_handler:
+            should_quit = custom_quit_handler(msg)
+
         if should_quit:
             loop.quit()
             pipeline.set_state(Gst.State.NULL)
-
             for timeout in timeout_sources:
                 # if the pipeline is terminated early, remove all timers
                 # because loop.quit() won't remove/stop those
@@ -305,11 +307,11 @@ def run_pipeline(
         logger.debug("Sending EOS.")
         pipeline.send_event(Gst.Event.new_eos())
 
-    if run_n_seconds is not None:
+    if run_n_seconds:
         eos_timeout_id = GLib.timeout_add_seconds(run_n_seconds, send_eos)
         # get the actual source object, so we can call .destroy() later.
         # Removing a timeout by id will cause warnings if it doesn't exist,
-        # but destroying an unused source is ok
+        # but destroying an already destroyed source is ok
         # See: https://docs.gtk.org/glib/method.Source.destroy.html
         # and: https://docs.gtk.org/glib/type_func.Source.remove.html
         timeout_sources.add(
@@ -391,6 +393,23 @@ def show_viewfinder(source: Gst.Element, *, show_n_seconds=5):
     )
 
 
+def msg_is_multifilesink_save(msg: Gst.Message) -> bool:
+    """Returns true when multifilesink saves a buffer
+
+    :param msg: the GstMessage object
+    :return: whether msg is a multifilesink save message
+    """
+    if msg.type == Gst.MessageType.ELEMENT:
+        struct = msg.get_structure()
+        return (
+            struct is not None
+            and struct.get_name() == "GstMultiFileSink"
+            and struct.has_field("filename")
+        )
+    else:
+        return False
+
+
 def take_photo(
     source: Gst.Element,
     *,
@@ -416,7 +435,7 @@ def take_photo(
         "videoconvert name=converter",  # 2
         "valve name=photo-valve drop=True",  # 3
         "jpegenc",  # 4
-        "multifilesink location={}".format(file_path),  # 5
+        "multifilesink post-messages=True location={}".format(file_path),  # 5
     ]
     head_elem_name = "source-caps"
 
@@ -488,8 +507,8 @@ def take_photo(
 
     run_pipeline(
         pipeline,
-        delay_seconds,
         intermediate_calls=intermediate_calls,
+        custom_quit_handler=msg_is_multifilesink_save,
     )
 
     logger.info(

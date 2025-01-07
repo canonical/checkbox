@@ -1,7 +1,6 @@
 #! /usr/bin/python3
 
 import os
-import PIL.Image
 import gi
 from argparse import ArgumentParser
 import typing as T
@@ -20,6 +19,7 @@ gi.require_version("GstPbutils", "1.0")
 from gi.repository import Gst, GstPbutils  # type: ignore # noqa: E402
 
 gi.require_version("GLib", "2.0")
+from gi.repository import GLib  # type: ignore
 
 
 class MediaValidator:
@@ -34,21 +34,35 @@ class MediaValidator:
             )
             return False
 
-        image = PIL.Image.open(image_file_path)
-        passed = True
+        discoverer = GstPbutils.Discoverer()
+        try:
+            info = discoverer.discover_uri("file://{}".format(image_file_path))
+        except GLib.GError as e:
+            logger.error(
+                "Encountered an error when attempting to read {}.".format(
+                    image_file_path
+                )
+                + str(e)  # cleaner message is in e.message
+            )
+            return False
 
-        if image.width != expected_width:
+        image_video_stream = info.get_video_streams()
+        width = image_video_stream[0].get_width()  # type: int
+        height = image_video_stream[0].get_height()  # type: int
+
+        passed = True
+        if width != expected_width:
             passed = False
             logger.error(
                 "Image width mismatch. Expected = {}, actual = {}".format(
-                    expected_width, image.width
+                    expected_width, width
                 )
             )
-        if image.height != expected_height:
+        if height != expected_height:
             passed = False
             logger.error(
                 "Image height mismatch. Expected = {}, actual = {}".format(
-                    expected_height, image.height
+                    expected_height, height
                 )
             )
 
@@ -72,8 +86,7 @@ class MediaValidator:
 
         discoverer = GstPbutils.Discoverer()
 
-        video_file_path.lstrip("/")
-        info = discoverer.discover_uri("file://" + video_file_path)
+        info = discoverer.discover_uri("file://{}".format(video_file_path))
         duration = info.get_duration()  # type: int # This is in nanoseconds
         video_streams = info.get_video_streams()
         if len(video_streams) == 0:

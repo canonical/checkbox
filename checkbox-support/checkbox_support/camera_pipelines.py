@@ -293,6 +293,10 @@ def run_pipeline(
     def gst_msg_handler(_, msg: Gst.Message):
         should_quit = False
 
+        if custom_quit_handler:
+            # has the lowest precedence, ERROR and EOS will always take over
+            should_quit = custom_quit_handler(msg)
+
         if msg.type == Gst.MessageType.WARNING:
             logger.warning(Gst.Message.parse_warning(msg))
 
@@ -306,9 +310,6 @@ def run_pipeline(
                 + str(Gst.Message.parse_error(msg))
             )
             should_quit = True
-
-        if custom_quit_handler:
-            should_quit = custom_quit_handler(msg)
 
         if should_quit:
             loop.quit()
@@ -531,6 +532,8 @@ def take_photo(
         custom_quit_handler=msg_is_multifilesink_save,
     )
 
+    # NOTE: reaching here just means the pipeline successfully stopped
+    # not necessarily stopped gracefully
     logger.info(
         "[ OK ] Photo pipeline for this capability: "
         + "{}".format(caps.to_string() if caps else "device default")

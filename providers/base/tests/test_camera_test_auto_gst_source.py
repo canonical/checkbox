@@ -335,28 +335,52 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
     @patch("os.path.isfile")
     @patch("camera_test_auto_gst_source.GstPbutils")
     @patch("camera_test_auto_gst_source.GLib")
+    @patch("camera_test_auto_gst_source.logger")
     def test_handle_glib_errors(
         self,
+        mock_logger: MagicMock,
         mock_glib: MagicMock,
         mock_pbutils: MagicMock,
         mock_isfile: MagicMock,
     ):
-        mock_glib.GError = Exception
+        class GError(BaseException):
+            pass
+
+        mock_glib.GError = GError
+        mock_glib.Error = GError
         mock_isfile.return_value = True
         mock_discoverer = MagicMock()
         mock_discoverer.name = "bruh"
         mock_pbutils.Discoverer.return_value = mock_discoverer
-        mock_discoverer.discover_uri.side_effect = Exception()
+        mock_discoverer.discover_uri.side_effect = GError("some message")
 
         import camera_test_auto_gst_source as CTAGS
 
-        self.assertRaises(
-            Exception,
-            lambda: CTAGS.MediaValidator.validate_image_dimensions(
+        self.assertFalse(
+            CTAGS.MediaValidator.validate_image_dimensions(
                 Path("some/path"),
                 expected_height=1,
                 expected_width=1,
             ),
+        )
+
+        mock_logger.error.assert_called_with(
+            "Encountered an error when attempting to read some/path. some message"
+        )
+
+        self.assertFalse(
+            CTAGS.MediaValidator.validate_video_info(
+                Path("some/path"),
+                expected_height=1,
+                expected_width=1,
+                duration_tolerance_seconds=1,
+                expected_duration_seconds=1,
+                expected_fps=1,
+            ),
+        )
+
+        mock_logger.error.assert_called_with(
+            "Encountered an error when attempting to read some/path. some message"
         )
 
     def _make_mock_video_info(

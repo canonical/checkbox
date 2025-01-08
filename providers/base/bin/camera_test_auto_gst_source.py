@@ -47,7 +47,7 @@ class MediaValidator:
             )
         except (GLib.GError, GLib.Error) as e:
             logger.error(
-                "Encountered an error when attempting to read {}.".format(
+                "Encountered an error when attempting to read {}. ".format(
                     image_file_path
                 )
                 + str(e)  # cleaner message is in e.message

@@ -180,7 +180,7 @@ class RpycTestService(rpyc.Service):
 
 
 def main():
-    rpyc_service = append_method_to_service(RpycTestService())
+    rpyc_service = append_method_to_service(RpycTestService)
 
     t = ThreadedServer(
         rpyc_service,

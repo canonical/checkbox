@@ -19,7 +19,7 @@ gi.require_version("GstPbutils", "1.0")
 from gi.repository import Gst, GstPbutils  # type: ignore # noqa: E402
 
 gi.require_version("GLib", "2.0")
-from gi.repository import GLib  # type: ignore
+from gi.repository import GLib  # type: ignore # noqa: E402
 
 
 class MediaValidator:
@@ -37,7 +37,7 @@ class MediaValidator:
         discoverer = GstPbutils.Discoverer()
         try:
             info = discoverer.discover_uri("file://{}".format(image_file_path))
-        except GLib.GError as e:
+        except (GLib.GError, GLib.Error) as e:
             logger.error(
                 "Encountered an error when attempting to read {}.".format(
                     image_file_path
@@ -86,7 +86,17 @@ class MediaValidator:
 
         discoverer = GstPbutils.Discoverer()
 
-        info = discoverer.discover_uri("file://{}".format(video_file_path))
+        try:
+            info = discoverer.discover_uri("file://{}".format(video_file_path))
+        except (GLib.GError, GLib.Error) as e:
+            logger.error(
+                "Encountered an error when attempting to read {}.".format(
+                    video_file_path
+                )
+                + str(e)
+            )
+            return False
+
         duration = info.get_duration()  # type: int # This is in nanoseconds
         video_streams = info.get_video_streams()
         if len(video_streams) == 0:
@@ -100,13 +110,13 @@ class MediaValidator:
         passed = True
 
         if (
-            abs(duration - expected_duration_seconds * 10**9)
-            > duration_tolerance_seconds * 10**9
+            abs(duration - expected_duration_seconds * Gst.SECOND)
+            > duration_tolerance_seconds * Gst.SECOND
         ):
             logger.error(
                 "Duration not within tolerance. "
                 "Got {}s, but expected {} +- {}s".format(
-                    round(duration / (10**9), 3),
+                    round(duration / Gst.SECOND, 3),
                     expected_duration_seconds,
                     duration_tolerance_seconds,
                 )
@@ -168,7 +178,8 @@ def get_devices() -> T.List[Gst.Device]:
 def parse_args():
     parser = ArgumentParser()
 
-    subparser = parser.add_subparsers(dest="subcommand", required=True)
+    subparser = parser.add_subparsers(dest="subcommand")
+    subparser.required = True  # workaround for older python versions
     photo_subparser = subparser.add_parser("take-photo")
     default_wait_seconds = 2
     photo_subparser.add_argument(

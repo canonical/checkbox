@@ -346,6 +346,7 @@ def run_pipeline(
         timeout_sources.add(loop.get_context().find_source_by_id(timeout_id))
 
     bus = pipeline.get_bus()
+    assert bus
     bus.add_signal_watch()
     bus.connect("message", gst_msg_handler)
 

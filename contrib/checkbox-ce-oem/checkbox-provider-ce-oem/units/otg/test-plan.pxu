@@ -22,7 +22,12 @@ id: ce-oem-otg-automated
 unit: test plan
 _name: OTG auto tests
 _description: Automated OTG tests for devices
+bootstrap_include:
+    otg_port_mapping
 include:
+    ce-oem-otg/otg-network-test
+    ce-oem-otg/otg-serial-test
+    ce-oem-otg/otg-mass-storage-test
 
 id: after-suspend-ce-oem-otg-manual
 unit: test plan

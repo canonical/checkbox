@@ -7,12 +7,17 @@ import tempfile
 import time
 
 from importlib import import_module
+from importlib.machinery import SourceFileLoader
 from multiprocessing import Process
 from pathlib import Path
 from rpyc_client import rpyc_client
 from typing import Union
 
 OTG_MODULE = "libcomposite"
+CHECKBOX_RUNTIME = os.environ.get("CHECKBOX_RUNTIME", "")
+CHECKBOX_BASE_PROVIDER = os.path.join(
+    CHECKBOX_RUNTIME, "providers/checkbox-provider-base"
+)
 
 
 logging.basicConfig(level=logging.DEBUG)
@@ -48,11 +53,12 @@ class OtgConfigFsOperatorBase:
     OTG_FUNCTION = ""
     OTG_TARGET_MODULE = ""
 
-    def __init__(self, root_path: Path, udc_path: str):
+    def __init__(self, root_path: Path, udc_path: str, usb_type: str):
         self._child_modules = self._get_child_modules()
         self.root_path = root_path
         self.usb_gadget_node = None
         self.udc_node = Path("/sys/class/udc").joinpath(udc_path)
+        self.usb_type = usb_type
 
     def __enter__(self):
         logging.debug("Setup the OTG configurations")
@@ -227,7 +233,7 @@ class OtgMassStorageSetup(OtgConfigFsOperatorBase):
 
     def detection_check_on_rpyc(self, rpyc_ip):
         logging.info("USB drive detection on RPYC")
-        mounted_drive = rpyc_client(rpyc_ip, "usb_drive_check", "usb2")
+        mounted_drive = rpyc_client(rpyc_ip, "usb_drive_check", self.usb_type)
         if mounted_drive:
             logging.info(
                 "Found USB device and mounted as '%s' on rpyc server",
@@ -242,7 +248,7 @@ class OtgMassStorageSetup(OtgConfigFsOperatorBase):
         raise SystemExit(rpyc_client(
             rpyc_ip,
             "usb_storage_test",
-            "usb2",
+            self.usb_type,
         ))
 
     def otg_test_process(self, rpyc_ip):
@@ -263,6 +269,27 @@ class OtgMassStorageSetup(OtgConfigFsOperatorBase):
         else:
             logging.debug("Exit code: %s", t_thread.exitcode)
             raise RuntimeError("OTG Mass Storage test failed")
+
+
+def configure_local_network(interface, net_info):
+    logging.info("Turn down the link of %s interface", interface)
+    subprocess.check_output(
+        "ip link set dev {} down".format(interface),
+        shell=True,
+        text=True,
+    )
+    logging.info("Turn down the link of %s interface", interface)
+    subprocess.check_output(
+        "ip addr add {} dev {}".format(net_info, interface),
+        shell=True,
+        text=True,
+    )
+    logging.info("Turn up the link of %s interface", interface)
+    subprocess.check_output(
+        "ip link set dev {} up".format(interface),
+        shell=True,
+        text=True,
+    )
 
 
 class OtgEthernetSetup(OtgConfigFsOperatorBase):
@@ -304,25 +331,22 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
             raise RuntimeError("No network interface found on rpyc server")
         self._target_net_dev = list(ret)[0]
 
-    def _configure_local_network(self, interface, net_info):
-        subprocess.check_output(
-            "ip addr add {} dev {}".format(net_info, interface),
-            shell=True,
-            text=True,
-        )
-
     def function_check_with_rpyc(self, rpyc_ip):
-        logging.info("Ping DUT from RPYC")
-        self._configure_local_network(self._net_dev, "169.254.0.1/24")
+        configure_local_network(self._net_dev, "169.245.0.1/24")
+        logging.info("Configure the %s network on RPYC", self._target_net_dev)
         rpyc_client(
             rpyc_ip,
             "configure_local_network",
             self._target_net_dev,
             "169.254.0.10/24",
         )
-        ret = rpyc_client(
-            rpyc_ip, "network_ping", [self._target_net_dev], "169.254.0.1"
-        )
+        logging.info("Ping from DUT to Target")
+        _module = SourceFileLoader(
+            "_",
+            os.path.join(CHECKBOX_BASE_PROVIDER, "bin/gateway_ping_test.py")
+        ).load_module()
+        test_func = getattr(_module, "perform_ping_test")
+        ret = test_func([self._net_dev], "169.254.0.10")
         if ret != 0:
             raise RuntimeError("Failed to ping DUT from RPYC server")
 
@@ -427,18 +451,21 @@ OTG_TESTING_MAPPING = {
 }
 
 
-def otg_testing(udc_node, test_func, rpyc_ip):
+def otg_testing(udc_node, test_func, rpyc_ip, usb_type):
     configfs_dir = initial_configfs()
-    with OTG_TESTING_MAPPING[test_func](configfs_dir, udc_node) as otg_cfg:
+    with OTG_TESTING_MAPPING[test_func](
+        configfs_dir, udc_node, usb_type
+    ) as otg_cfg:
         otg_cfg.otg_test_process(rpyc_ip)
 
 
 def dump_otg_info(configs):
     for config in configs.split():
         otg_conf = config.split(":")
-        if len(otg_conf) == 2:
+        if len(otg_conf) == 3:
             print("USB_CONNECTOR: {}".format(otg_conf[0]))
-            print("USB_BUS: {}".format(otg_conf[1]))
+            print("UDC_NODE: {}".format(otg_conf[1]))
+            print("USB_TYPE: {}".format(otg_conf[2]))
             print()
 
 
@@ -457,6 +484,9 @@ def register_arguments():
         choices=["mass_storage", "ethernet", "serial"],
     )
     test_parser.add_argument("-u", "--udc-node", required=True, type=str)
+    test_parser.add_argument(
+        "--usb-type", default="usb2", type=str, choices=["usb2", "usb3"]
+    )
     test_parser.add_argument("--rpyc-address", required=True, type=str)
 
     info_parser = sub_parser.add_parser("info")
@@ -468,7 +498,9 @@ def register_arguments():
 def main():
     args = register_arguments()
     if args.mode == "test":
-        otg_testing(args.udc_node, args.type, args.rpyc_address)
+        otg_testing(
+            args.udc_node, args.type, args.rpyc_address, args.usb_type
+        )
     elif args.mode == "info":
         dump_otg_info(args.config)
 

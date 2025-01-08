@@ -7,7 +7,7 @@ from argparse import ArgumentParser
 import typing as T
 import logging
 from checkbox_support import camera_pipelines as cam
-from contextlib import nullcontext
+from contextlib import ExitStack
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
@@ -334,12 +334,12 @@ def main() -> int:
         ),
     )
 
-    with (
-        TemporaryDirectory(prefix="camera_test_auto_gst_")
-        if not (hasattr(args, "path") and args.path)
-        else nullcontext()
-    ) as tmp_dir:
-        if tmp_dir:
+    with ExitStack() as stack:
+
+        if not (hasattr(args, "path") and args.path):
+            tmp_dir = stack.enter_context(
+                TemporaryDirectory(prefix="camera_test_auto_gst_")
+            )
             abs_path = Path(tmp_dir)
         else:
             abs_path = Path(

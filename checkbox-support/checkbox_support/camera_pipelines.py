@@ -2,7 +2,7 @@ from enum import Enum
 import gi
 import typing as T
 import logging
-from os import PathLike, fspath
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -437,7 +437,7 @@ def take_photo(
     source: Gst.Element,
     *,
     caps: T.Optional[Gst.Caps] = None,
-    file_path: PathLike,
+    file_path: Path,
     delay_seconds: int
 ):
     """Take a photo using the source element
@@ -459,7 +459,7 @@ def take_photo(
         "valve name=photo-valve drop=True",  # 3
         "jpegenc",  # 4
         "multifilesink post-messages=True location={}".format(
-            fspath(file_path)
+            str(file_path)
         ),  # 5
     ]
     head_elem_name = "source-caps"
@@ -549,7 +549,7 @@ def record_video(
     source: Gst.Element,
     *,
     caps: T.Optional[Gst.Caps] = None,
-    file_path: PathLike,
+    file_path: Path,
     record_n_seconds: int,
     encoding_profile: str
 ):
@@ -563,7 +563,7 @@ def record_video(
         "decodebin",  # 1
         "videoconvert name=converter",  # 2
         "encodebin profile={}".format(encoding_profile),  # 3
-        "filesink location={}".format(fspath(file_path)),  # 4
+        "filesink location={}".format(str(file_path)),  # 4
     ]
 
     head_elem_name = "source-caps"

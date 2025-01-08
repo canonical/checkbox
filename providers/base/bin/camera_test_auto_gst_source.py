@@ -29,10 +29,7 @@ class MediaValidator:
 
     @staticmethod
     def validate_image_dimensions(
-        image_file_path: os.PathLike,
-        *,
-        expected_width: int,
-        expected_height: int
+        image_file_path: Path, *, expected_width: int, expected_height: int
     ) -> bool:
         if not os.path.isfile(image_file_path):
             logger.error(
@@ -78,7 +75,7 @@ class MediaValidator:
 
     @staticmethod
     def validate_video_info(
-        video_file_path: os.PathLike,
+        video_file_path: Path,
         *,
         expected_width: int,
         expected_height: int,
@@ -453,6 +450,7 @@ def main() -> int:
 
     logger.info("[ OK ] All done!")
     return 0
+
 
 if __name__ == "__main__":
     Gst.init(None)

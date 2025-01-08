@@ -22,3 +22,32 @@ _name: Checkbox Base Tutorial Test Plan (using manifest)
 include:
  tutorial/passing
  tutorial/manifest
+
+unit: test plan
+id: tutorial-extended
+_name: Extended Tutorial Test Plan
+bootstrap_include:
+  network_iface_info
+include:
+  network_available_.*
+  network_available
+  network_speed certification-status=blocker
+nested_part:
+  submission-cert-automated
+certification_status_overrides:
+  apply blocker to network_available
+
+unit: test plan
+id: tutorial-extended-oldid
+_name: (alias) Extended Tutorial Test Plan (now called just tutorial-extended)
+nested_part:
+  tutorial-extended
+
+unit: test plan
+id: tutorial-extended-no-speed
+_name: Extended Tutorial Test Plan without the speed test
+nested_part:
+  tutorial-extended
+exclude:
+  network_speed
+  info/systemd-analyze-critical-chain

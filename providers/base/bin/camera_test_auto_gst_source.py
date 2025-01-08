@@ -305,7 +305,7 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> int:
     args = parse_args()
     if os.getuid() == 0:
         logger.warning(
@@ -322,7 +322,7 @@ def main():
             "Gst.DeviceProvider to make itself visible to GStreamer "
             "or it is inaccessible without sudo."
         )
-        exit(1)
+        return 1
 
     logger.info("Found {} cameras!".format(len(devices)))
     print(
@@ -452,7 +452,7 @@ def main():
                     )
 
     logger.info("[ OK ] All done!")
-
+    return 0
 
 if __name__ == "__main__":
     Gst.init(None)

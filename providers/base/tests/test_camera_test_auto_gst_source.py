@@ -1,5 +1,6 @@
+from os import fspath
 import unittest as ut
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, call, patch
 from shlex import split as sh_split
 import sys
 from io import StringIO
@@ -20,7 +21,6 @@ mock_gi = MagicMock()
 class CameraTestAutoGstSourceTests(ut.TestCase):
     @patch("sys.stdout", new=StringIO())
     def test_correct_subcommand_is_executed(self):
-
         with patch("os.path.isdir") as mock_isdir, patch(
             "os.path.isfile"
         ) as mock_isfile, patch(
@@ -37,7 +37,6 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
             mock_get_devices.return_value = [MagicMock()]
             mock_validator.validate_image_dimensions.return_value = True
 
-            # print(dir(mock_cam.take_photo))
             mock_resolver = MagicMock()
             mock_cam.CapsResolver.return_value = mock_resolver
             mock_resolver.get_all_fixated_caps.return_value = [MagicMock()]
@@ -70,7 +69,6 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
 
     @patch("os.path.isfile")
     @patch("camera_test_auto_gst_source.logger")
-    # @patch("camera_test_auto_gst_source.PIL.Image")
     @patch("camera_test_auto_gst_source.GstPbutils")
     def test_image_validator(
         self,
@@ -99,7 +97,8 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         )
 
         bad_width = 1237219831
-        self._make_mock_video_info(mock_pbutils, bad_width, expected_height)
+        bad_height = 1133222
+        self._make_mock_video_info(mock_pbutils, bad_width, bad_height)
 
         self.assertFalse(
             validator.validate_image_dimensions(
@@ -109,10 +108,19 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
             )
         )
 
-        mock_logger.error.assert_called_with(
-            "Image width mismatch. Expected = {}, actual = {}".format(
-                expected_width, bad_width
-            )
+        mock_logger.error.assert_has_calls(
+            [
+                call(
+                    "Image width mismatch. Expected = {}, actual = {}".format(
+                        expected_width, bad_width
+                    )
+                ),
+                call(
+                    "Image height mismatch. Expected = {}, actual = {}".format(
+                        expected_height, bad_height
+                    )
+                ),
+            ]
         )
 
     @patch("camera_test_auto_gst_source.Gst")
@@ -154,6 +162,203 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         )
         self.assertTrue(result)
 
+        bad_width = 1237219831
+        bad_height = 113322
+        bad_fps = 123
+        bad_duration = 1
+
+        self._make_mock_video_info(
+            mock_pbutils,
+            bad_width,
+            bad_height,
+            bad_fps,
+            bad_duration,
+        )
+
+        mock_gst.SECOND = 1
+        result = validator.validate_video_info(
+            Path("some/path"),
+            expected_width=expected_width,
+            expected_height=expected_height,
+            expected_fps=expected_fps,
+            expected_duration_seconds=expected_duration,
+            duration_tolerance_seconds=0.5,
+        )
+        self.assertFalse(result)
+
+        mock_logger.error.assert_has_calls(
+            [
+                call(
+                    "Duration not within tolerance. "
+                    "Got {}s, but expected {} +- {}s".format(
+                        round(bad_duration / mock_gst.SECOND, 3),
+                        expected_duration,
+                        0.5,
+                    )
+                ),
+                call(
+                    "Video width mismatch. Expected = {}, actual = {}".format(
+                        expected_width, bad_width
+                    )
+                ),
+                call(
+                    "Video height mismatch. Expected = {}, actual = {}".format(
+                        expected_height, bad_height
+                    )
+                ),
+                call(
+                    "Video FPS mismatch. Expected = {}fps, actual = {}fps".format(
+                        expected_fps, bad_fps
+                    )
+                ),
+            ]
+        )
+
+        mock_isfile.return_value = False
+
+        result = validator.validate_video_info(
+            Path("some/path"),
+            expected_width=expected_width,
+            expected_height=expected_height,
+            expected_fps=expected_fps,
+            expected_duration_seconds=expected_duration,
+            duration_tolerance_seconds=0.5,
+        )
+        mock_logger.error.assert_called_with(
+            "Video file doesn't exist at some/path"
+        )
+
+    @patch(
+        "sys.argv",
+        sh_split("camera_test_auto_gst_source.py take-photo -p some/dir"),
+    )
+    @patch("camera_test_auto_gst_source.get_devices")
+    @patch("camera_test_auto_gst_source.logger")
+    def test_exit_if_no_cameras(
+        self,
+        mock_logger: MagicMock,
+        mock_get_devices: MagicMock,
+    ):
+        mock_get_devices.return_value = []
+        import camera_test_auto_gst_source as CTAGS
+
+        self.assertEqual(CTAGS.main(), 1)
+        mock_logger.error.assert_called_with(
+            "GStreamer cannot find any cameras on this device. "
+            "If you know a camera element exists, then it did not implement "
+            "Gst.DeviceProvider to make itself visible to GStreamer "
+            "or it is inaccessible without sudo."
+        )
+
+    @patch("camera_test_auto_gst_source.get_devices")
+    @patch("camera_test_auto_gst_source.cam")
+    def test_encoding_arg_group(
+        self, mock_cam: MagicMock, mock_get_devices: MagicMock
+    ):
+        import camera_test_auto_gst_source as CTAGS
+
+        mock_resolver = MagicMock()
+        mock_cam.CapsResolver.return_value = mock_resolver
+        mock_resolver.get_all_fixated_caps.return_value = [MagicMock()]
+        mock_get_devices.return_value = [MagicMock()]
+
+        with patch(
+            "sys.argv",
+            sh_split(
+                "camera_test_auto_gst_source.py record-video "
+                "--encoding mp4_h264 --skip-validation"
+            ),
+        ):
+            CTAGS.main()
+            last_called_args = mock_cam.record_video.call_args[-1]
+            self.assertEqual(
+                last_called_args["encoding_profile"],
+                CTAGS.ENCODING_PROFILES["mp4_h264"]["profile_str"],
+            )
+            self.assertIn(
+                CTAGS.ENCODING_PROFILES["mp4_h264"]["file_extension"],
+                fspath(last_called_args["file_path"]),
+            )
+
+        file_ext = "ext"
+        with patch(
+            "sys.argv",
+            sh_split(
+                "camera_test_auto_gst_source.py record-video "
+                "--encoding mp4_h264 --file-extension {}".format(file_ext)
+            ),
+        ):
+            CTAGS.main()
+            last_called_args = mock_cam.record_video.call_args[-1]
+            self.assertEqual(
+                last_called_args["encoding_profile"],
+                CTAGS.ENCODING_PROFILES["mp4_h264"]["profile_str"],
+            )
+            self.assertIn(
+                file_ext,
+                fspath(last_called_args["file_path"]),
+            )
+
+        encoding_str = "video/something, str"
+        with patch(
+            "sys.argv",
+            sh_split(
+                "camera_test_auto_gst_source.py record-video "
+                + '--custom-encoding-string "{}" '.format(encoding_str)
+                + "--file-extension {}".format(file_ext)
+            ),
+        ):
+            CTAGS.main()
+            last_called_args = mock_cam.record_video.call_args[-1]
+            self.assertEqual(
+                last_called_args["encoding_profile"],
+                encoding_str,
+            )
+            self.assertIn(
+                file_ext,
+                fspath(last_called_args["file_path"]),
+            )
+
+        with patch(
+            "sys.argv",
+            sh_split(
+                "camera_test_auto_gst_source.py record-video "
+                + '--custom-encoding-string "{}" '.format(encoding_str)
+            ),
+        ):
+            self.assertRaises(AssertionError, CTAGS.main)
+
+    @patch(
+        "sys.argv",
+        sh_split("camera_test_auto_gst_source.py take-photo -p some/dir"),
+    )
+    @patch("os.path.isfile")
+    @patch("camera_test_auto_gst_source.GstPbutils")
+    @patch("camera_test_auto_gst_source.GLib")
+    def test_handle_glib_errors(
+        self,
+        mock_glib: MagicMock,
+        mock_pbutils: MagicMock,
+        mock_isfile: MagicMock,
+    ):
+        mock_glib.GError = Exception
+        mock_isfile.return_value = True
+        mock_discoverer = MagicMock()
+        mock_discoverer.name = "bruh"
+        mock_pbutils.Discoverer.return_value = mock_discoverer
+        mock_discoverer.discover_uri.side_effect = Exception()
+
+        import camera_test_auto_gst_source as CTAGS
+
+        self.assertRaises(
+            Exception,
+            lambda: CTAGS.MediaValidator.validate_image_dimensions(
+                Path("some/path"),
+                expected_height=1,
+                expected_width=1,
+            ),
+        )
+
     def _make_mock_video_info(
         self,
         mock_pbutils: MagicMock,
@@ -162,11 +367,9 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         fps=None,
         duration=None,
     ):
-        # mock_discoverer = MagicMock()
         mock_pbutils.reset_mock()
         video_info = MagicMock()
-        mock_pbutils.name = "mymockpbutils"
-        if duration:
+        if duration is not None:
             video_info.get_duration.return_value = duration
         mock_pbutils.Discoverer.return_value = MagicMock()
 
@@ -175,7 +378,7 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         video_stream.get_width.return_value = width
         video_stream.get_height.return_value = height
 
-        if fps:
+        if fps is not None:
             video_stream.get_framerate_num.return_value = fps
 
         video_info.get_video_streams.return_value = [video_stream]

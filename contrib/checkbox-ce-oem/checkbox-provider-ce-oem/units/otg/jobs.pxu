@@ -24,15 +24,15 @@ id: ce-oem-otg/g_serial-{USB_port}
 estimated_duration: 60
 plugin: user-interact-verify
 user: root
-imports: 
+imports:
     from com.canonical.plainbox import manifest
     from com.canonical.certification import cpuinfo
-requires: 
+requires:
     manifest.has_otg == 'True'
     cpuinfo.platform in ("aarch64", "armv7l")
 flags: also-after-suspend
 _summary: Check {USB_port} can be detected as a serial device
-_purpose: 
+_purpose:
     Check that after connecting the device under test (DUT) to another device
     (host), {USB_port} can be detected as a serial device by the host.
 _steps:
@@ -50,11 +50,11 @@ _steps:
     7. Check the string sending from the host to {USB_port} by repeating steps 4-6, but swap the send and receive sides.
 _verification:
     Does string send and receive work?
-command: 
+command:
     # shellcheck disable=SC2050
     if [ {Mode} != "otg" ]; then
         echo -e "Error: USB mode is {Mode} mode, but expected in otg mode."
-        exit 1 
+        exit 1
     fi
     multiple-otg.sh -u {UDC} -f acm
 
@@ -62,14 +62,14 @@ unit: template
 template-resource: otg_ports
 template-unit: job
 category_id: com.canonical.plainbox::usb
-id: ce-oem-otg/g_mass_storage-{USB_port} 
+id: ce-oem-otg/g_mass_storage-{USB_port}
 estimated_duration: 60
 plugin: user-interact-verify
 user: root
-imports: 
+imports:
     from com.canonical.plainbox import manifest
     from com.canonical.certification import cpuinfo
-requires: 
+requires:
     manifest.has_otg == 'True'
     cpuinfo.platform in ("aarch64", "armv7l")
 flags: also-after-suspend
@@ -79,16 +79,16 @@ _purpose:
     (host), {USB_port} can be detected as a mass storage device by the host.
 _steps:
     1. Press Enter to setup a 16 MB FAT32 image on the device.
-    2. From an Ubuntu host, connect a cable to the USB OTG port 
+    2. From an Ubuntu host, connect a cable to the USB OTG port
     (it's the USB connector) of the DUT.
 _verification:
-    The host detects and mounts a mass storage device. It has read and write 
+    The host detects and mounts a mass storage device. It has read and write
     permissions on it.
 command:
     # shellcheck disable=SC2050
     if [ {Mode} != "otg" ]; then
         echo -e "Error: USB mode is {Mode} mode, but expected in otg mode."
-        exit 1 
+        exit 1
     fi
     multiple-otg.sh -u {UDC} -f mass_storage
 
@@ -99,23 +99,23 @@ category_id: com.canonical.plainbox::usb
 id: ce-oem-otg/g_ether-{USB_port}
 plugin: user-interact-verify
 user: root
-imports: 
+imports:
     from com.canonical.plainbox import manifest
     from com.canonical.certification import cpuinfo
-requires: 
+requires:
     manifest.has_otg == 'True'
     cpuinfo.platform in ("aarch64", "armv7l")
 flags: also-after-suspend
 _summary: Check {USB_port} can be detected as USB ethernet device.
-_purpose: 
+_purpose:
     Check that after connecting the device under test (DUT) to another device
     (host), {USB_port} can be detected as a USB ethernet device by the host.
 _steps:
-    1. From an Ubuntu host, connect a cable to the USB OTG port 
+    1. From an Ubuntu host, connect a cable to the USB OTG port
      (it's the USB connector) of the {USB_port}.
     2. Press Enter to config the IP address for the USB OTG ethernet interface on the DUT.
      (IP will be 192.168.9.1/24)
-    3. On the host, config the IP address for the USB OTG ethernet interface. And it should be 
+    3. On the host, config the IP address for the USB OTG ethernet interface. And it should be
       the same subnet with {USB_port}. (eg. 192.168.9.2/24)
     4. Try to ping between the host and {USB_port}.
 _verification:
@@ -124,6 +124,103 @@ command:
     # shellcheck disable=SC2050
     if [ {Mode} != "otg" ]; then
         echo -e "Error: USB mode is {Mode} mode, but expected in otg mode."
-        exit 1 
+        exit 1
     fi
     multiple-otg.sh -u {UDC} -f ecm
+
+
+id: otg_port_mapping
+plugin: resource
+_summary: Gather list of USB ports and UDC.
+_description:
+    A USB port and UDC mapping resource that relies on the user specifying in config varirable.
+    Usage of parameter: OTG={port1}:{udc_node1}:{usb_type1} {port2}:{udc_node2}:{usb_type2} ...
+    e.g. OTG=USB-C1:11200000.usb:usb2 USB-Micro:112a1000.usb:usb3
+estimated_duration: 1s
+environ: OTG
+flags: preserve-locale
+user: root
+command:
+    if [ "$OTG" ]; then
+        multiple_otg.py info -c "$OTG"
+    else
+        echo "OTG config variable: not found"
+    fi
+
+unit: template
+template-resource: otg_port_mapping
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-otg/otg-network-test
+category_id: com.canonical.plainbox::usb
+id: ce-oem-otg/OTG-Ethernet-{{ USB_CONNECTOR }}-{{ USB_TYPE }}
+estimated_duration: 60
+plugin: shell
+user: root
+environ:
+    RYPC_SERVER
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import cpuinfo
+requires:
+    manifest.has_otg == 'True'
+    cpuinfo.platform in ("aarch64", "armv7l")
+flags: also-after-suspend
+_summary: Check OTG {{ USB_CONNETOR }} can be detected as a network device and can ping from DUT to Server
+_description:
+    The test will setup the OTG configuration within {{ UDC_NODE }} on the device under test (DUT)
+    Then setup the USB network interface on both DUT and RPYC server and perform ping test on DUT
+command:
+    multiple_otg.py test -t ethernet -u {{ UDC_NODE }} --rpyc-address {{ RPYC_SERVER }} --usb-type {{ USB_TYPE }}
+
+unit: template
+template-resource: otg_port_mapping
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-otg/otg-serial-test
+category_id: com.canonical.plainbox::usb
+id: ce-oem-otg/OTG-Serial-{{ USB_CONNECTOR }}-{{ USB_TYPE }}
+estimated_duration: 60
+plugin: shell
+user: root
+environ:
+    RYPC_SERVER
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import cpuinfo
+requires:
+    manifest.has_otg == 'True'
+    cpuinfo.platform in ("aarch64", "armv7l")
+flags: also-after-suspend
+_summary: Check OTG {{ USB_CONNETOR }} can be detected as a serial device and transfer data via OTG Serial
+_description:
+    The test will setup the OTG configuration within {{ UDC_NODE }} on the device under test (DUT)
+    Then start serial server on RPYC server and perform data read/write test via serial interface
+command:
+    multiple_otg.py test -t serial -u {{ UDC_NODE }} --rpyc-address {{ RPYC_SERVER }} --usb-type {{ USB_TYPE }}
+
+unit: template
+template-resource: otg_port_mapping
+template-unit: job
+template-engine: jinja2
+template-id: ce-oem-otg/otg-mass-storage-test
+category_id: com.canonical.plainbox::usb
+id: ce-oem-otg/OTG-Mass-Storage-{{ USB_CONNECTOR }}-{{ USB_TYPE }}
+estimated_duration: 60
+plugin: shell
+user: root
+environ:
+    RYPC_SERVER
+imports:
+    from com.canonical.plainbox import manifest
+    from com.canonical.certification import cpuinfo
+requires:
+    manifest.has_otg == 'True'
+    cpuinfo.platform in ("aarch64", "armv7l")
+flags: also-after-suspend
+_summary: Check OTG {{ USB_CONNETOR }} can be detected as a mass storage device and be able to access
+_description:
+    The test will setup the OTG configuration within {{ UDC_NODE }} on the device under test (DUT)
+    the USB interface will be detected as a mass storage and perform data read/write test
+command:
+    multiple_otg.py test -t mass_storage -u {{ UDC_NODE }} --rpyc-address {{ RPYC_SERVER }} --usb-type {{ USB_TYPE }}

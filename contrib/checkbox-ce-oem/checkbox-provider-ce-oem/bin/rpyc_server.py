@@ -1,7 +1,7 @@
 import io
 import logging
+import os
 import rpyc
-import subprocess
 import sys
 import time
 
@@ -30,12 +30,12 @@ LIBS = {
         ),
         "function": "server_mode",
     },
-    "network_ping": {
+    "configure_local_network": {
         "source": (
-            "/snap/checkbox22/current/providers/"
-            "checkbox-provider-base/bin/gateway_ping_test.py"
+            "/snap/checkbox-ce-oem/current/providers/"
+            "checkbox-provider-ce-oem/bin/multiple_otg.py"
         ),
-        "function": "perform_ping_test",
+        "function": "configure_local_network",
     },
     "serial_check": {
         "source": __file__,
@@ -146,15 +146,6 @@ def serial_check():
 
 def ethernet_check():
     return _device_node_detect(_get_ethernet_ifaces, "ethernet")
-
-
-def configure_local_network(interface, net_info):
-    logger.info("set %s to %s interface on RPYC", net_info, interface)
-    subprocess.check_output(
-        "ip addr add {} dev {}".format(net_info, interface),
-        shell=True,
-        text=True,
-    )
 
 
 def usb_storage_test(usb_type):

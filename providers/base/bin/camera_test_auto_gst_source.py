@@ -1,11 +1,14 @@
 #! /usr/bin/python3
 
 import os
+from tempfile import TemporaryDirectory
 import gi
 from argparse import ArgumentParser
 import typing as T
 import logging
 from checkbox_support import camera_pipelines as cam
+from contextlib import nullcontext
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -26,7 +29,10 @@ class MediaValidator:
 
     @staticmethod
     def validate_image_dimensions(
-        image_file_path: str, *, expected_width: int, expected_height: int
+        image_file_path: os.PathLike,
+        *,
+        expected_width: int,
+        expected_height: int
     ) -> bool:
         if not os.path.isfile(image_file_path):
             logger.error(
@@ -36,7 +42,9 @@ class MediaValidator:
 
         discoverer = GstPbutils.Discoverer()
         try:
-            info = discoverer.discover_uri("file://{}".format(image_file_path))
+            info = discoverer.discover_uri(
+                "file://{}".format(os.fspath(image_file_path))
+            )
         except (GLib.GError, GLib.Error) as e:
             logger.error(
                 "Encountered an error when attempting to read {}.".format(
@@ -70,7 +78,7 @@ class MediaValidator:
 
     @staticmethod
     def validate_video_info(
-        video_file_path: str,
+        video_file_path: os.PathLike,
         *,
         expected_width: int,
         expected_height: int,
@@ -87,10 +95,12 @@ class MediaValidator:
         discoverer = GstPbutils.Discoverer()
 
         try:
-            info = discoverer.discover_uri("file://{}".format(video_file_path))
+            info = discoverer.discover_uri(
+                "file://{}".format(os.fspath(video_file_path))
+            )
         except (GLib.GError, GLib.Error) as e:
             logger.error(
-                "Encountered an error when attempting to read {}.".format(
+                "Encountered an error when attempting to read {}. ".format(
                     video_file_path
                 )
                 + str(e)
@@ -192,13 +202,6 @@ def parse_args():
         default=default_wait_seconds,
     )
     photo_subparser.add_argument(
-        "-p",
-        "--path",
-        type=str,
-        help="Where to save the file. This should be a directory.",
-        required=True,
-    )
-    photo_subparser.add_argument(
         "--skip-validation",
         action="store_true",
         help="Skip image dimension validation",
@@ -225,13 +228,6 @@ def parse_args():
             default_record_seconds
         ),
         default=default_record_seconds,
-    )
-    video_subparser.add_argument(
-        "-p",
-        "--path",
-        type=str,
-        help="Where to save the file. This should be a directory.",
-        required=True,
     )
     default_tolerance = 0.5
     video_subparser.add_argument(
@@ -296,6 +292,15 @@ def parse_args():
         ),
         default=default_viewfinder_seconds,
     )
+    for file_needed_parser in (video_subparser, photo_subparser):
+        file_needed_parser.add_argument(
+            "-p",
+            "--path",
+            type=str,
+            help="Where to save output files. This should be a directory. "
+            "If not specified, a directory will be created in /tmp "
+            'with the prefix "camera_test_auto_gst_"',
+        )
 
     return parser.parse_args()
 
@@ -332,16 +337,19 @@ def main():
         ),
     )
 
-    for dev_i, device in enumerate(devices):
-        dev_element = device.create_element()  # type: Gst.Element
-
-        if args.subcommand == "show-viewfinder":
-            cam.show_viewfinder(dev_element, show_n_seconds=args.seconds)
-            continue
-
-        abs_path = os.path.abspath(
-            os.path.expanduser(os.path.expandvars(args.path))
-        )
+    with (
+        TemporaryDirectory(prefix="camera_test_auto_gst_")
+        if not (hasattr(args, "path") and args.path)
+        else nullcontext()
+    ) as tmp_dir:
+        if tmp_dir:
+            abs_path = Path(tmp_dir)
+        else:
+            abs_path = Path(
+                os.path.abspath(
+                    os.path.expanduser(os.path.expandvars(args.path))
+                )
+            )
         if not os.path.isdir(abs_path):
             # must validate early
             # multifilesink does not check if the path exists
@@ -349,91 +357,99 @@ def main():
                 'Path "{}" does not exist'.format(abs_path)
             )
 
-        resolver = cam.CapsResolver()
-        all_fixed_caps = resolver.get_all_fixated_caps(
-            device.get_caps(), "known_values"
-        )
+        for dev_i, device in enumerate(devices):
+            dev_element = device.create_element()  # type: Gst.Element
 
-        logger.info("Testing device {}/{}".format(dev_i + 1, len(devices)))
-        logger.info(  # just an estimate
-            "Test for this device may take {} seconds for {} caps.".format(
-                len(all_fixed_caps) * max(args.seconds, 1), len(all_fixed_caps)
+            if args.subcommand == "show-viewfinder":
+                cam.show_viewfinder(dev_element, show_n_seconds=args.seconds)
+                continue
+
+            resolver = cam.CapsResolver()
+            all_fixed_caps = resolver.get_all_fixated_caps(
+                device.get_caps(), "known_values"
             )
-        )
 
-        for cap_i, capability in enumerate(all_fixed_caps):
-            # since we use the same element for all caps
-            # previous parent pipelines are not auto removed
-            # need to explicitly unref
-            dev_element.unparent()
-            cap_struct = capability.get_structure(0)
-            if args.subcommand == "take-photo":
-                logger.info(
-                    "Taking a photo with capability: "
-                    + '"{}"'.format(capability.to_string())
-                    + "for device: "
-                    + '"{}"'.format(device.get_display_name()),
+            logger.info("Testing device {}/{}".format(dev_i + 1, len(devices)))
+            logger.info(  # just an estimate
+                "Test for this device may take {} seconds for {} caps.".format(
+                    len(all_fixed_caps) * max(args.seconds, 1),
+                    len(all_fixed_caps),
                 )
-                file_path = "{}/photo_dev_{}_cap_{}.jpeg".format(
-                    abs_path, dev_i, cap_i
-                )
-                cam.take_photo(
-                    dev_element,
-                    delay_seconds=args.seconds,
-                    caps=capability,
-                    file_path=file_path,
-                )
+            )
 
-                if args.skip_validation:
-                    continue
-
-                MediaValidator.validate_image_dimensions(
-                    file_path,
-                    expected_width=cap_struct.get_int("width").value,
-                    expected_height=cap_struct.get_int("height").value,
-                )
-            elif args.subcommand == "record-video":
-                if args.encoding is not None:
-                    encoding_profile = ENCODING_PROFILES[args.encoding][
-                        "profile_str"
-                    ]
-                    file_extension = ENCODING_PROFILES[args.encoding][
-                        "file_extension"
-                    ]
-                    if args.file_extension is not None:
-                        file_extension = args.file_extension
-                else:
-                    encoding_profile = args.custom_encoding_string
-                    assert args.file_extension, (
-                        "File extension must be specified "
-                        "when using custom encoding string"
+            for cap_i, capability in enumerate(all_fixed_caps):
+                # since we use the same element for all caps
+                # previous parent pipelines are not auto removed
+                # need to explicitly unref
+                dev_element.unparent()
+                cap_struct = capability.get_structure(0)
+                if args.subcommand == "take-photo":
+                    logger.info(
+                        "Taking a photo with capability: "
+                        + '"{}"'.format(capability.to_string())
+                        + "for device: "
+                        + '"{}"'.format(device.get_display_name()),
                     )
-                    file_extension = args.file_extension
+                    file_path = abs_path / "photo_dev_{}_cap_{}.jpeg".format(
+                        dev_i, cap_i
+                    )
+                    cam.take_photo(
+                        dev_element,
+                        delay_seconds=args.seconds,
+                        caps=capability,
+                        file_path=file_path,
+                    )
 
-                file_path = "{}/video_dev_{}_cap_{}.{}".format(
-                    abs_path, dev_i, cap_i, file_extension
-                )
-                cam.record_video(
-                    dev_element,
-                    file_path=file_path,
-                    caps=capability,
-                    record_n_seconds=args.seconds,
-                    encoding_profile=encoding_profile,
-                )
+                    if args.skip_validation:
+                        continue
 
-                if args.skip_validation:
-                    continue
+                    MediaValidator.validate_image_dimensions(
+                        file_path,
+                        expected_width=cap_struct.get_int("width").value,
+                        expected_height=cap_struct.get_int("height").value,
+                    )
+                elif args.subcommand == "record-video":
+                    if args.encoding is not None:
+                        encoding_profile = ENCODING_PROFILES[args.encoding][
+                            "profile_str"
+                        ]
+                        file_extension = ENCODING_PROFILES[args.encoding][
+                            "file_extension"
+                        ]
+                        if args.file_extension is not None:
+                            file_extension = args.file_extension
+                    else:
+                        encoding_profile = args.custom_encoding_string
+                        assert args.file_extension, (
+                            "File extension must be specified "
+                            "when using custom encoding string"
+                        )
+                        file_extension = args.file_extension
 
-                MediaValidator.validate_video_info(
-                    file_path,
-                    expected_duration_seconds=args.seconds,
-                    expected_width=cap_struct.get_int("width").value,
-                    expected_height=cap_struct.get_int("height").value,
-                    duration_tolerance_seconds=args.tolerance,
-                    expected_fps=cap_struct.get_fraction(
-                        "framerate"
-                    ).value_numerator,
-                )
+                    file_path = abs_path / "video_dev_{}_cap_{}.{}".format(
+                        dev_i, cap_i, file_extension
+                    )
+                    cam.record_video(
+                        dev_element,
+                        file_path=file_path,
+                        caps=capability,
+                        record_n_seconds=args.seconds,
+                        encoding_profile=encoding_profile,
+                    )
+
+                    if args.skip_validation:
+                        continue
+
+                    MediaValidator.validate_video_info(
+                        file_path,
+                        expected_duration_seconds=args.seconds,
+                        expected_width=cap_struct.get_int("width").value,
+                        expected_height=cap_struct.get_int("height").value,
+                        duration_tolerance_seconds=args.tolerance,
+                        expected_fps=cap_struct.get_fraction(
+                            "framerate"
+                        ).value_numerator,
+                    )
 
     logger.info("[ OK ] All done!")
 

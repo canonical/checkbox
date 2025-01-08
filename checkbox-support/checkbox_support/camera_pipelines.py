@@ -313,13 +313,14 @@ def run_pipeline(
 
         if should_quit:
             loop.quit()
-            pipeline.set_state(Gst.State.NULL)
             for timeout in timeout_sources:
                 # if the pipeline is terminated early, remove all timers asap
                 # because loop.quit() won't remove/stop those
                 # that are already scheduled => segfault (EOS on null pipeline)
                 # See: https://docs.gtk.org/glib/method.MainLoop.quit.html
                 timeout.destroy()
+            # setting NULL can be slow on certain encoders
+            pipeline.set_state(Gst.State.NULL)
 
     def send_eos():
         logger.debug("Sending EOS.")

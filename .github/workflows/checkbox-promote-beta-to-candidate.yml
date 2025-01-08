@@ -58,6 +58,8 @@ jobs:
     steps:
     - name: Checkout checkbox monorepo
       uses: actions/checkout@v4
+      with:
+          persist-credentials: false
 
     - name: Create job file (by instantiating template)
       id: create-job

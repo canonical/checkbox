@@ -54,6 +54,8 @@ jobs:
     steps:
       - name: Checkout Checkbox monorepo
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       # needed by providers that pull checkbox-support
       - name: Install PPA and dependencies
         run: |

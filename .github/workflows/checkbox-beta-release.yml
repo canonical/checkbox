@@ -25,6 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Verify Promotion Conditions
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -43,6 +44,8 @@ jobs:
           sudo apt install -qq -y python3-launchpadlib
       - name: Checkout checkbox monorepo
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - name: Copy deb packages from edge to beta ppa
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

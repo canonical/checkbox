@@ -45,7 +45,7 @@ class TestV4L2IoctlResource(ut.TestCase):
                     for ioctl_name in ioctl_names:
                         expected_calls.append(call("name: {}".format(name)))
                         expected_calls.append(
-                            call("ioctl_name: ".format(ioctl_name))
+                            call("ioctl_name: {}".format(ioctl_name))
                         )
                         expected_calls.append(call())
             mock_print.assert_has_calls(expected_calls)

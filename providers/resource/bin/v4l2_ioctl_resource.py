@@ -15,7 +15,7 @@ def main():
             for ioctl_names in TEST_NAME_TO_IOCTL_MAP.values():
                 for name in ioctl_names:
                     print(line)
-                    print("ioctl_name: ".format(name))
+                    print("ioctl_name: {}".format(name))
                     print()  # empty line to mark end of list item
 
 

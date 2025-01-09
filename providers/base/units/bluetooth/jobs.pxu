@@ -285,7 +285,7 @@ command:
  checkbox-support-eddystone_scanner -D {{ interface }}
 plugin: shell
 user: root
-flags: also-after-suspend
+flags: also-after-suspend fail-on-resource
 category_id: com.canonical.plainbox::bluetooth
 estimated_duration: 10
 requires:

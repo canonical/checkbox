@@ -285,7 +285,7 @@ def run_pipeline(
         state in 500ms after set_state(PLAYING) is called
     """
     loop = GLib.MainLoop()
-    timeout_sources = set()  # type: set[GLib.Source]
+    timeout_sources = []  # type: list[GLib.Source]
 
     assert (
         run_n_seconds is None or run_n_seconds >= 1
@@ -334,7 +334,7 @@ def run_pipeline(
         # but destroying an already destroyed source is ok
         # See: https://docs.gtk.org/glib/method.Source.destroy.html
         # and: https://docs.gtk.org/glib/type_func.Source.remove.html
-        timeout_sources.add(
+        timeout_sources.append(
             loop.get_context().find_source_by_id(eos_timeout_id)
         )
 
@@ -346,7 +346,7 @@ def run_pipeline(
             )
         )
         timeout_id = GLib.timeout_add_seconds(delay, call)
-        timeout_sources.add(loop.get_context().find_source_by_id(timeout_id))
+        timeout_sources.append(loop.get_context().find_source_by_id(timeout_id))
 
     bus = pipeline.get_bus()
     assert bus

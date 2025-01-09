@@ -5,20 +5,17 @@ import subprocess as sp
 
 
 def main():
-    try:
-        udev_out = sp.check_output(
-            "udev_resource.py -f CAPTURE", universal_newlines=True, shell=True
-        )
-        lines = udev_out.splitlines()
-    except Exception as e:
-        lines = [f"name: broken {str(e)}"]
+    udev_out = sp.check_output(
+        "udev_resource.py -f CAPTURE", universal_newlines=True, shell=True
+    )
+    lines = udev_out.splitlines()
 
     for line in lines:
         if line.startswith("name:"):
             for ioctl_names in TEST_NAME_TO_IOCTL_MAP.values():
                 for name in ioctl_names:
                     print(line)
-                    print("ioctl_name:", format(name))
+                    print("ioctl_name: ".format(name))
                     print()  # empty line to mark end of list item
 
 

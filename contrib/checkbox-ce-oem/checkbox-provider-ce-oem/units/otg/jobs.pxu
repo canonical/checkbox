@@ -130,21 +130,22 @@ command:
 
 
 id: otg_port_mapping
+category_id: com.canonical.plainbox::usb
 plugin: resource
 _summary: Gather list of USB ports and UDC.
 _description:
     A USB port and UDC mapping resource that relies on the user specifying in config varirable.
-    Usage of parameter: OTG={port1}:{udc_node1}:{usb_type1} {port2}:{udc_node2}:{usb_type2} ...
-    e.g. OTG=USB-C1:11200000.usb:usb2 USB-Micro:112a1000.usb:usb3
+    Usage of parameter: USB_OTG_MAPPING={port1}:{udc_node1}:{usb_type1} {port2}:{udc_node2}:{usb_type2} ...
+    e.g. USB_OTG_MAPPING=USB-C1:11200000.usb:usb2 USB-Micro:112a1000.usb:usb3
 estimated_duration: 1s
-environ: OTG
+environ: USB_OTG_MAPPING
 flags: preserve-locale
 user: root
 command:
-    if [ "$OTG" ]; then
-        multiple_otg.py info -c "$OTG"
+    if [ "$USB_OTG_MAPPING" ]; then
+        multiple_otg.py info -c "$USB_OTG_MAPPING"
     else
-        echo "OTG config variable: not found"
+        echo "USB_OTG_MAPPING config variable: not found"
     fi
 
 unit: template
@@ -152,8 +153,15 @@ template-resource: otg_port_mapping
 template-unit: job
 template-engine: jinja2
 template-id: ce-oem-otg/otg-network-test
+_template-summary:
+    OTG USB drive read/write test
+_purpose:
+    Validate DUT can be detected as a network device through OTG {{ USB_CONNETOR }} and can ping to RPYC Server
+_description:
+    The test will setup the OTG configuration within {{ UDC_NODE }} on the device under test (DUT)
+    Then setup the USB network interface on both DUT and RPYC server and perform ping test on DUT
 category_id: com.canonical.plainbox::usb
-id: ce-oem-otg/OTG-Ethernet-{{ USB_CONNECTOR }}-{{ USB_TYPE }}
+id: ce-oem-otg/OTG-Ethernet-on-port-{{ USB_CONNECTOR }}
 estimated_duration: 60
 plugin: shell
 user: root
@@ -164,22 +172,30 @@ imports:
     from com.canonical.certification import cpuinfo
 requires:
     manifest.has_otg == 'True'
+    manifest.has_rpyc_otg_server == 'True'
     cpuinfo.platform in ("aarch64", "armv7l")
 flags: also-after-suspend
-_summary: Check OTG {{ USB_CONNETOR }} can be detected as a network device and can ping from DUT to Server
-_description:
-    The test will setup the OTG configuration within {{ UDC_NODE }} on the device under test (DUT)
-    Then setup the USB network interface on both DUT and RPYC server and perform ping test on DUT
 command:
-    multiple_otg.py test -t ethernet -u {{ UDC_NODE }} --rpyc-address {{ RPYC_SERVER }} --usb-type {{ USB_TYPE }}
+    if [ -z "$RPYC_SERVER" ]; then
+        echo "Error: RPYC_SERVER is not defined"
+        exit 1
+    fi
+    multiple_otg.py test -t ethernet -u {{ UDC_NODE }} --rpyc-address "$RPYC_SERVER" --usb-type {{ USB_TYPE }}
 
 unit: template
 template-resource: otg_port_mapping
 template-unit: job
 template-engine: jinja2
 template-id: ce-oem-otg/otg-serial-test
+_template-summary:
+    OTG USB drive read/write test
+_purpose:
+    Validate DUT can be detected as a serial device through OTG {{ USB_CONNETOR }} and transfer data via OTG Serial
+_description:
+    The test will setup the OTG configuration within {{ UDC_NODE }} on the device under test (DUT)
+    Then start serial server on RPYC server and perform data read/write test via serial interface
 category_id: com.canonical.plainbox::usb
-id: ce-oem-otg/OTG-Serial-{{ USB_CONNECTOR }}-{{ USB_TYPE }}
+id: ce-oem-otg/OTG-Serial-on-port-{{ USB_CONNECTOR }}
 estimated_duration: 60
 plugin: shell
 user: root
@@ -190,22 +206,30 @@ imports:
     from com.canonical.certification import cpuinfo
 requires:
     manifest.has_otg == 'True'
+    manifest.has_rpyc_otg_server == 'True'
     cpuinfo.platform in ("aarch64", "armv7l")
 flags: also-after-suspend
-_summary: Check OTG {{ USB_CONNETOR }} can be detected as a serial device and transfer data via OTG Serial
-_description:
-    The test will setup the OTG configuration within {{ UDC_NODE }} on the device under test (DUT)
-    Then start serial server on RPYC server and perform data read/write test via serial interface
 command:
-    multiple_otg.py test -t serial -u {{ UDC_NODE }} --rpyc-address {{ RPYC_SERVER }} --usb-type {{ USB_TYPE }}
+    if [ -z "$RPYC_SERVER" ]; then
+        echo "Error: RPYC_SERVER is not defined"
+        exit 1
+    fi
+    multiple_otg.py test -t serial -u {{ UDC_NODE }} --rpyc-address "$RPYC_SERVER" --usb-type {{ USB_TYPE }}
 
 unit: template
 template-resource: otg_port_mapping
 template-unit: job
 template-engine: jinja2
 template-id: ce-oem-otg/otg-mass-storage-test
+_template-summary:
+    OTG USB drive read/write test
+_purpose:
+    Validate DUT can be detected as a mass storage device through OTG {{ USB_CONNETOR }} and be able to access
+_description:
+    The test will setup the OTG configuration within {{ UDC_NODE }} on the device under test (DUT)
+    the USB interface will be detected as a mass storage and perform data read/write test
 category_id: com.canonical.plainbox::usb
-id: ce-oem-otg/OTG-Mass-Storage-{{ USB_CONNECTOR }}-{{ USB_TYPE }}
+id: ce-oem-otg/OTG-Mass-Storage-on-port-{{ USB_CONNECTOR }}
 estimated_duration: 60
 plugin: shell
 user: root
@@ -216,11 +240,12 @@ imports:
     from com.canonical.certification import cpuinfo
 requires:
     manifest.has_otg == 'True'
+    manifest.has_rpyc_otg_server == 'True'
     cpuinfo.platform in ("aarch64", "armv7l")
 flags: also-after-suspend
-_summary: Check OTG {{ USB_CONNETOR }} can be detected as a mass storage device and be able to access
-_description:
-    The test will setup the OTG configuration within {{ UDC_NODE }} on the device under test (DUT)
-    the USB interface will be detected as a mass storage and perform data read/write test
 command:
-    multiple_otg.py test -t mass_storage -u {{ UDC_NODE }} --rpyc-address {{ RPYC_SERVER }} --usb-type {{ USB_TYPE }}
+    if [ -z "$RPYC_SERVER" ]; then
+        echo "Error: RPYC_SERVER is not defined"
+        exit 1
+    fi
+    multiple_otg.py test -t mass_storage -u {{ UDC_NODE }} --rpyc-address "$RPYC_SERVER" --usb-type {{ USB_TYPE }}

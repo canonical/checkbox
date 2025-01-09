@@ -82,6 +82,7 @@ parts:
       - device-tree-compiler
       - linuxptp
       - snmp
+      - python3-rpyc
     override-prime: |
       snapcraftctl prime
       rm lib/systemd/system/alsa-utils.service
@@ -100,8 +101,6 @@ parts:
       - python3-urwid
       - python3-xlsxwriter
       - python3-requests-oauthlib
-    python-packages:
-      - rpyc
   input-pcspkr:
     plugin: nil
     after: [checkbox-provider-ce-oem]

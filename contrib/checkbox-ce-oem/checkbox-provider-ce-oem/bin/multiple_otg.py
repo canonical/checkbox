@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import argparse
 import glob
 import logging
@@ -11,6 +13,7 @@ from importlib.machinery import SourceFileLoader
 from multiprocessing import Process
 from pathlib import Path
 from rpyc_client import rpyc_client
+from rpyc_test_methods import configure_local_network
 from typing import Union
 
 OTG_MODULE = "libcomposite"
@@ -61,7 +64,9 @@ class OtgConfigFsOperatorBase:
         self.usb_type = usb_type
 
     def __enter__(self):
-        logging.debug("Setup the OTG configurations")
+        logging.info(
+            "Setup the OTG configurations on %s UDC node", self.udc_node
+        )
         if self._child_modules:
             logging.info(self._child_modules)
             # To clean up the OTG modules
@@ -271,27 +276,6 @@ class OtgMassStorageSetup(OtgConfigFsOperatorBase):
             raise RuntimeError("OTG Mass Storage test failed")
 
 
-def configure_local_network(interface, net_info):
-    logging.info("Turn down the link of %s interface", interface)
-    subprocess.check_output(
-        "ip link set dev {} down".format(interface),
-        shell=True,
-        text=True,
-    )
-    logging.info("Turn down the link of %s interface", interface)
-    subprocess.check_output(
-        "ip addr add {} dev {}".format(net_info, interface),
-        shell=True,
-        text=True,
-    )
-    logging.info("Turn up the link of %s interface", interface)
-    subprocess.check_output(
-        "ip link set dev {} up".format(interface),
-        shell=True,
-        text=True,
-    )
-
-
 class OtgEthernetSetup(OtgConfigFsOperatorBase):
 
     OTG_FUNCTION = "ecm"
@@ -332,7 +316,7 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
         self._target_net_dev = list(ret)[0]
 
     def function_check_with_rpyc(self, rpyc_ip):
-        configure_local_network(self._net_dev, "169.245.0.1/24")
+        configure_local_network(self._net_dev, "169.254.0.1/24")
         logging.info("Configure the %s network on RPYC", self._target_net_dev)
         rpyc_client(
             rpyc_ip,

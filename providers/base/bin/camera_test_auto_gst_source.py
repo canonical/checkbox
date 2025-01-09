@@ -9,6 +9,7 @@ import logging
 from checkbox_support import camera_pipelines as cam
 from contextlib import ExitStack
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -334,8 +335,7 @@ def main() -> int:
         ),
     )
 
-    with ExitStack() as stack:
-
+    with ExitStack() as stack, ThreadPoolExecutor(max_workers=1) as executor:
         if not (hasattr(args, "path") and args.path):
             tmp_dir = stack.enter_context(
                 TemporaryDirectory(prefix="camera_test_auto_gst_")
@@ -390,12 +390,14 @@ def main() -> int:
                     file_path = abs_path / "photo_dev_{}_cap_{}.jpeg".format(
                         dev_i, cap_i
                     )
-                    cam.take_photo(
+                    future = executor.submit(
+                        cam.take_photo,
                         dev_element,
                         delay_seconds=args.seconds,
                         caps=capability,
                         file_path=file_path,
                     )
+                    future.result(timeout=args.seconds + 60)
 
                     if args.skip_validation:
                         continue
@@ -426,13 +428,16 @@ def main() -> int:
                     file_path = abs_path / "video_dev_{}_cap_{}.{}".format(
                         dev_i, cap_i, file_extension
                     )
-                    cam.record_video(
+                    future = executor.submit(
+                        cam.record_video,
                         dev_element,
                         file_path=file_path,
                         caps=capability,
                         record_n_seconds=args.seconds,
                         encoding_profile=encoding_profile,
                     )
+                    # wait up to an minute before forcefully killing
+                    future.result(timeout=args.seconds + 60)
 
                     if args.skip_validation:
                         continue

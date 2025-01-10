@@ -408,7 +408,6 @@ def main():
     else:
         rs485_settings = None
 
-
     if args.mode == "server":
         server_mode(
             args.node,

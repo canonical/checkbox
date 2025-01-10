@@ -45,9 +45,7 @@ def _device_node_detect(func, device_type=""):
         print(".", end="", flush=True)
         attempts -= 1
     print()
-    raise SystemExit(
-        "Failed to detect new {} interface".format(device_type)
-    )
+    raise SystemExit("Failed to detect new {} interface".format(device_type))
 
 
 def configure_local_network(interface, net_info):

@@ -17,10 +17,10 @@ def rpyc_client(host, cmd, *args, **kwargs):
     """
     for _ in range(2):
         try:
-            conn = rpyc.connect(host, 60000, config={
-                "allow_all_attrs": True,
-                "allow_exposed_attrs": False
-                }
+            conn = rpyc.connect(
+                host,
+                60000,
+                config={"allow_all_attrs": True, "allow_exposed_attrs": False},
             )
             break
         except ConnectionRefusedError:

@@ -74,8 +74,7 @@ class OtgConfigFsOperatorBase:
         self.enable_otg_module([OTG_MODULE])
         self.usb_gadget_node = Path(
             tempfile.TemporaryDirectory(
-                dir=self.root_path.joinpath("usb_gadget"),
-                prefix="udc_"
+                dir=self.root_path.joinpath("usb_gadget"), prefix="udc_"
             ).name
         )
         self.otg_setup()
@@ -87,7 +86,10 @@ class OtgConfigFsOperatorBase:
         logging.debug("Clean up OTG configurations")
         self._cleanup_usb_gadget()
         cur_modules = [
-            mod for mod in self._get_child_modules() if mod not in self._child_modules]
+            mod
+            for mod in self._get_child_modules()
+            if mod not in self._child_modules
+        ]
         self.disable_otg_related_modules(cur_modules)
         if self._child_modules:
             self.enable_otg_module(self._child_modules)
@@ -104,11 +106,15 @@ class OtgConfigFsOperatorBase:
 
     def enable_otg_module(self, modules):
         for module in modules:
-            subprocess.run("modprobe {}".format(module), shell=True, check=True)
+            subprocess.run(
+                "modprobe {}".format(module), shell=True, check=True
+            )
 
     def disable_otg_related_modules(self, modules):
         for module in modules:
-            subprocess.run("modprobe -r {}".format(module), shell=True, check=True)
+            subprocess.run(
+                "modprobe -r {}".format(module), shell=True, check=True
+            )
 
     def otg_setup(self):
         """
@@ -150,8 +156,9 @@ class OtgConfigFsOperatorBase:
         if not function_path.exists():
             function_path.mkdir()
 
-        self.usb_gadget_node.joinpath(
-            "configs", "c.1", func_name).symlink_to(function_path, True)
+        self.usb_gadget_node.joinpath("configs", "c.1", func_name).symlink_to(
+            function_path, True
+        )
 
     def _cleanup_usb_gadget(self):
         func_name = "{}.0".format(self.OTG_FUNCTION)
@@ -207,7 +214,9 @@ class OtgMassStorageSetup(OtgConfigFsOperatorBase):
         logging.info("Create an USB image file for Mass Storage Test")
         self._usb_img = tempfile.NamedTemporaryFile("+bw", delete=False)
         subprocess.run(
-            "dd if=/dev/zero of={} bs=1M count=1024".format(self._usb_img.name),
+            "dd if=/dev/zero of={} bs=1M count=1024".format(
+                self._usb_img.name
+            ),
             shell=True,
             check=True,
         )
@@ -233,8 +242,9 @@ class OtgMassStorageSetup(OtgConfigFsOperatorBase):
 
         function_path.joinpath("lun.0", "file").write_text(self._usb_img.name)
 
-        self.usb_gadget_node.joinpath(
-            "configs", "c.1", func_name).symlink_to(function_path, True)
+        self.usb_gadget_node.joinpath("configs", "c.1", func_name).symlink_to(
+            function_path, True
+        )
 
     def detection_check_on_rpyc(self, rpyc_ip):
         logging.info("USB drive detection on RPYC")
@@ -250,11 +260,13 @@ class OtgMassStorageSetup(OtgConfigFsOperatorBase):
 
     def function_check_with_rpyc(self, rpyc_ip):
         logging.info("USB read/write testing on RPYC")
-        raise SystemExit(rpyc_client(
-            rpyc_ip,
-            "usb_storage_test",
-            self.usb_type,
-        ))
+        raise SystemExit(
+            rpyc_client(
+                rpyc_ip,
+                "usb_storage_test",
+                self.usb_type,
+            )
+        )
 
     def otg_test_process(self, rpyc_ip):
         logging.info("Start Mass Storage Testing with OTG interface")
@@ -282,7 +294,9 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
     OTG_TARGET_MODULE = "usb_f_ecm"
 
     def _collect_net_intfs(self):
-        return [os.path.basename(intf) for intf in glob.glob("/sys/class/net/*")]
+        return [
+            os.path.basename(intf) for intf in glob.glob("/sys/class/net/*")
+        ]
 
     def otg_setup(self):
         self._net_intfs = self._collect_net_intfs()
@@ -301,7 +315,9 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
 
         otg_net_intf = [x for x in cur_net_intfs if x not in self._net_intfs]
         if len(otg_net_intf) != 1:
-            logging.error("Found more than one new interface. %s", otg_net_intf)
+            logging.error(
+                "Found more than one new interface. %s", otg_net_intf
+            )
         else:
             logging.info("Found new network interface '%s'", otg_net_intf[0])
         self._net_dev = otg_net_intf[0]
@@ -327,7 +343,7 @@ class OtgEthernetSetup(OtgConfigFsOperatorBase):
         logging.info("Ping from DUT to Target")
         _module = SourceFileLoader(
             "_",
-            os.path.join(CHECKBOX_BASE_PROVIDER, "bin/gateway_ping_test.py")
+            os.path.join(CHECKBOX_BASE_PROVIDER, "bin/gateway_ping_test.py"),
         ).load_module()
         test_func = getattr(_module, "perform_ping_test")
         ret = test_func([self._net_dev], "169.254.0.10")
@@ -367,7 +383,9 @@ class OtgSerialSetup(OtgConfigFsOperatorBase):
 
         otg_ser_intf = [x for x in cur_ser_intfs if x not in self._ser_intfs]
         if len(otg_ser_intf) != 1:
-            logging.error("Found more than one new interface. %s", otg_ser_intf)
+            logging.error(
+                "Found more than one new interface. %s", otg_ser_intf
+            )
         else:
             logging.info("Found new network interface '%s'", otg_ser_intf[0])
         self._serial_iface = otg_ser_intf[0]
@@ -415,8 +433,8 @@ class OtgSerialSetup(OtgConfigFsOperatorBase):
                     "N",
                     1,
                     3,
-                    1024
-                )
+                    1024,
+                ),
             )
             t_thread.start()
             time.sleep(3)
@@ -482,9 +500,7 @@ def register_arguments():
 def main():
     args = register_arguments()
     if args.mode == "test":
-        otg_testing(
-            args.udc_node, args.type, args.rpyc_address, args.usb_type
-        )
+        otg_testing(args.udc_node, args.type, args.rpyc_address, args.usb_type)
     elif args.mode == "info":
         dump_otg_info(args.config)
 

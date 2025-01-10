@@ -9,7 +9,6 @@ from importlib.machinery import SourceFileLoader
 from rpyc.utils.server import ThreadedServer
 
 
-
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 handler_std = logging.StreamHandler(sys.stdout)
@@ -19,9 +18,7 @@ CHECKBOX_PROVIDER_CEOEM_PATH = (
 )
 LIBS = {
     "enable_serial_server": {
-        "source": os.path.join(
-            CHECKBOX_PROVIDER_CEOEM_PATH, "serial_test.py"
-        ),
+        "source": os.path.join(CHECKBOX_PROVIDER_CEOEM_PATH, "serial_test.py"),
         "function": "server_mode",
     },
     "serial_check": {
@@ -60,7 +57,9 @@ def capture_io_logs(func):
         if func.__name__ in dynamic_integrate_funcs:
             args = args[1:]
 
-        with redirect_stderr(sio_stderr) as stderr, redirect_stdout(sio_stdout) as stdout:
+        with redirect_stderr(sio_stderr) as stderr, redirect_stdout(
+            sio_stdout
+        ) as stdout:
             try:
                 ret = func(*args, **kwargs)
             except SystemExit as exp:
@@ -70,6 +69,7 @@ def capture_io_logs(func):
         cls.logs = "stdout logs: {}".format(stdout.getvalue())
         cls.logs += "\nstderr logs: {}".format(stderr.getvalue())
         return ret
+
     return wrap
 
 
@@ -87,9 +87,7 @@ def _load_method_from_file(name, file, func):
 
 def append_method_to_service(cls):
     for key, value in LIBS.items():
-        func = _load_method_from_file(
-            key, value["source"], value["function"]
-        )
+        func = _load_method_from_file(key, value["source"], value["function"])
         if func:
             setattr(cls, key, capture_io_logs(func))
 

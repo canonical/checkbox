@@ -33,7 +33,7 @@ def rpyc_client(host, cmd, *args, **kwargs):
         wrap = rpyc.async_(func)
         res = wrap(*args, **kwargs)
         while res.ready:
-            print("Waiting for RPYC server complete %s".format(func))
+            print("Waiting for RPYC server complete {}".format(func))
             time.sleep(1)
             break
         if getattr(res._conn.root, "logs"):

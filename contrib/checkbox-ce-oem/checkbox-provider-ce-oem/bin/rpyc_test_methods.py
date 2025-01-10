@@ -87,6 +87,8 @@ def usb_storage_test(usb_type):
     )
     watcher.run_storage(mounted_partition)
     # usb_read_write been imported in run_watcher
-    # the temporary mount point been created while import it and been removed in gen_random_file function
-    # thus, we need to reload it to create temporary mount point in every testing cycle
+    # the temporary mount point been created while import it
+    #   and the directory been removed in gen_random_file function
+    # thus, we need to reload it to create temporary mount point
+    #   in every testing cycle
     reload(usb_read_write)

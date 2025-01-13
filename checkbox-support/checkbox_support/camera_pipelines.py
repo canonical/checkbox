@@ -22,6 +22,7 @@ gi.require_version("GLib", "2.0")
 from gi.repository import GLib  # type: ignore # noqa: E402
 
 TimeoutCallback = T.Callable[[], None]
+PipelineQuitHandler = T.Callable[[Gst.Message], bool]
 
 
 class CapsResolver:
@@ -31,6 +32,8 @@ class CapsResolver:
 
     # (top, bottom) or (numerator, denominator)
     FractionTuple = T.Tuple[int, int]
+    IntOrFractionTuple = T.Union[int, FractionTuple]
+
     KNOWN_RANGE_VALUES = {
         "width": [640, 1280, 1920, 2560, 3840],
         "height": [480, 720, 1080, 1440, 2160],
@@ -96,8 +99,8 @@ class CapsResolver:
     def select_known_values_from_range(
         self,
         prop: str,
-        low: T.Union[int, FractionTuple],
-        high: T.Union[int, FractionTuple],
+        low: IntOrFractionTuple,
+        high: IntOrFractionTuple,
     ) -> T.List:
         """Creates a GObject.ValueArray based on range
         that can be used in Gst.Caps
@@ -136,6 +139,13 @@ class CapsResolver:
         - if resolve method is known_values, this is still in effect
         :return: a list of fixed caps
         """
+        acceptable_resolve_methods = "known_values", "limit"
+        assert (
+            resolve_method in acceptable_resolve_methods
+        ), "Resolve method must be one of {}".format(
+            acceptable_resolve_methods
+        )
+
         if caps.is_fixed():
             return [caps]
 
@@ -263,11 +273,53 @@ def elem_to_str(
     )  # libcamerasrc name=cam_name location=p.jpeg
 
 
+def gst_msg_handler(
+    _: Gst.Bus,
+    msg: Gst.Message,
+    pipeline: Gst.Pipeline,
+    custom_quit_handler: PipelineQuitHandler,
+    loop: GLib.MainLoop,
+    timeout_sources: T.List[GLib.Source] = [],
+):
+    should_quit = False
+
+    if custom_quit_handler:
+        # has the lowest precedence, ERROR and EOS will always take over
+        should_quit = custom_quit_handler(msg)
+
+    if msg.type == Gst.MessageType.WARNING:
+        logger.warning(Gst.Message.parse_warning(msg))
+
+    if msg.type == Gst.MessageType.EOS:
+        logger.debug("Received EOS.")
+        should_quit = True
+
+    if msg.type == Gst.MessageType.ERROR:
+        logger.error(
+            "Pipeline encountered an error, stopping. "
+            + str(Gst.Message.parse_error(msg))
+        )
+        should_quit = True
+
+    if should_quit:
+        loop.quit()
+        for timeout in timeout_sources:
+            # if the pipeline is terminated early, remove all timers asap
+            # because loop.quit() won't remove/stop those
+            # that are already scheduled => segfault (EOS on null pipeline)
+            # See: https://docs.gtk.org/glib/method.MainLoop.quit.html
+            timeout.destroy()
+        # setting NULL can be slow on certain encoders
+        # it's also possible to block infinitely here. use an external
+        # timeout to be extra safe
+        pipeline.set_state(Gst.State.NULL)
+
+
 def run_pipeline(
     pipeline: Gst.Pipeline,
     run_n_seconds: T.Optional[int] = None,
     intermediate_calls: T.List[T.Tuple[int, TimeoutCallback]] = [],
-    custom_quit_handler: T.Optional[T.Callable[[Gst.Message], bool]] = None,
+    custom_quit_handler: T.Optional[PipelineQuitHandler] = None,
 ):
     """Runs a GStreamer pipeline and handle Gst messages
 
@@ -275,14 +327,13 @@ def run_pipeline(
     :param run_n_seconds: Number of seconds to run the pipeline
         before sending EOS, defaults to None
         - If None, only wait for an EOS signal
-    :param intermediate_calls: list of functions to run
-        while the pipeline is running
+    :param intermediate_calls: functions to run while the pipeline is running
         - Each element is a (delay, callback) tuple
         - Delay is the number of seconds to wait
             (relative to the start of the pipeline) before calling the callback
     :param custom_quit_handler: quit the pipeline if this function returns true
     :raises RuntimeError: if the source element did not transition to playing
-        state in 500ms after set_state(PLAYING) is called
+        state in 5s after set_state(PLAYING) is called
     """
     loop = GLib.MainLoop()
     timeout_sources = []  # type: list[GLib.Source]
@@ -290,38 +341,6 @@ def run_pipeline(
     assert (
         run_n_seconds is None or run_n_seconds >= 1
     ), "run_n_seconds must be >= 1 if specified"
-
-    def gst_msg_handler(_, msg: Gst.Message):
-        should_quit = False
-
-        if custom_quit_handler:
-            # has the lowest precedence, ERROR and EOS will always take over
-            should_quit = custom_quit_handler(msg)
-
-        if msg.type == Gst.MessageType.WARNING:
-            logger.warning(Gst.Message.parse_warning(msg))
-
-        if msg.type == Gst.MessageType.EOS:
-            logger.debug("Received EOS.")
-            should_quit = True
-
-        if msg.type == Gst.MessageType.ERROR:
-            logger.error(
-                "Pipeline encountered an error, stopping. "
-                + str(Gst.Message.parse_error(msg))
-            )
-            should_quit = True
-
-        if should_quit:
-            loop.quit()
-            for timeout in timeout_sources:
-                # if the pipeline is terminated early, remove all timers asap
-                # because loop.quit() won't remove/stop those
-                # that are already scheduled => segfault (EOS on null pipeline)
-                # See: https://docs.gtk.org/glib/method.MainLoop.quit.html
-                timeout.destroy()
-            # setting NULL can be slow on certain encoders
-            pipeline.set_state(Gst.State.NULL)
 
     def send_eos():
         logger.debug("Sending EOS.")
@@ -346,22 +365,35 @@ def run_pipeline(
             )
         )
         timeout_id = GLib.timeout_add_seconds(delay, call)
-        timeout_sources.append(loop.get_context().find_source_by_id(timeout_id))
+        timeout_sources.append(
+            loop.get_context().find_source_by_id(timeout_id)
+        )
 
     bus = pipeline.get_bus()
     assert bus
     bus.add_signal_watch()
-    bus.connect("message", gst_msg_handler)
+    bus.connect(
+        "message",
+        gst_msg_handler,
+        pipeline,
+        custom_quit_handler,
+        loop,
+        timeout_sources,
+    )
 
+    # this can get stuck, an external timeout is recommended to be extra safe
     pipeline.set_state(Gst.State.PLAYING)
 
     source_state_change_result = pipeline.get_child_by_index(0).get_state(
-        500 * Gst.MSECOND
+        5 * Gst.SECOND
     )
     # get_state returns a 3-tuple
     # (Gst.StateChangeReturn, curr_state: Gst.State, target_state: Gst.State)
     # the 1st element isn't named, so we must access by index
     if source_state_change_result[0] != Gst.StateChangeReturn.SUCCESS:
+        # checking only the source here because
+        # multifilesink does not transition until it receives the 1st buffer
+        # which makes the pipeline state = Gst.State.ASYNC
         pipeline.set_state(Gst.State.NULL)
         raise RuntimeError(
             "Failed to transition to playing state. "

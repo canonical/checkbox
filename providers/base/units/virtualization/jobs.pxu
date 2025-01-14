@@ -25,3 +25,31 @@ _purpose:
  Verifies that an LXD container can be created and launched
 _summary:
  Verify LXD container launches
+
+plugin: shell
+category_id: com.canonical.plainbox::virtualization
+id: virtualization/verify_lxd_vm_sriov
+environ: LXD_TEMPLATE KVM_IMAGE
+estimated_duration: 60.0
+requires:
+ executable.name == 'lxc'
+ package.name == 'lxd-installer' or snap.name == 'lxd'
+command: virtualization.py --debug sriov --type vm
+_purpose:
+ Verifies that an SRIOV network device was created on an LXD Virtual Machine
+_summary:
+ Verify SRIOV on LXD Virtual Machine 
+
+plugin: shell
+category_id: com.canonical.plainbox::virtualization
+id: virtualization/verify_lxd_container_sriov
+environ: LXD_TEMPLATE LXD_ROOTFS
+estimated_duration: 60.0
+requires:
+ executable.name == 'lxc'
+ package.name == 'lxd-installer' or snap.name == 'lxd'
+command: virtualization.py --debug sriov --type container
+_purpose:
+ Verifies that an SRIOV network device was created on an LXD Container
+_summary:
+ Verify SRIOV on LXD Container 

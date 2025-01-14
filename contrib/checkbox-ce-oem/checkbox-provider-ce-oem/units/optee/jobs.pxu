@@ -102,6 +102,7 @@ depends: ce-oem-optee/device-node
 flags: also-after-suspend
 command:
     if pgrep -x "tee-supplicant"  > /dev/null; then
+        echo "Perform {{ description }}"
         {{ tool }} -t {{ suite }} {{ test_id }}
     else
         echo "Error: Not found tee-supplicant!"

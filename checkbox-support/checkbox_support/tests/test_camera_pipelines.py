@@ -44,32 +44,38 @@ class TestCapsResolver(ut.TestCase):
         self.assertCountEqual(r, [fixed1, fixed2])
 
     @patch("camera_pipelines.GObject")
-    def test_resolvable_int_range(self, mock_g_object: MagicMock):
-        # test the get_all_fixated_caps function
-        # using a mixed caps object that contain a int range
+    @patch("camera_pipelines.Gst")
+    def test_resolvable_int_range(
+        self, mock_Gst: MagicMock, mock_GObject: MagicMock
+    ):
+        # for simplicity we will only test up to the struct.set_list call
         resolver = cam.CapsResolver()
-        mixed = MagicMock()
+        caps = MagicMock()
         struct = MagicMock()
+        struct.name = "test_struct"
+        struct.has_field_typed.side_effect = (
+            lambda p, t: p == "width" and t == mock_Gst.IntRange
+        )
+
+        mock_array = MagicMock()
+        mock_GObject.ValueArray.return_value = mock_array
+        mock_array.n_values = 2
+
+        resolver.extract_int_range = MagicMock()
+        resolver.extract_int_range.side_effect = ([640, 1280], [480, 720])
 
         # cap is video/x-raw, width=[ 600, 1300 ], height=[ 400, 800 ]
-        mixed.get_structure(0).return_value = struct
+        caps.get_structure.return_value = struct
+        caps.get_size.return_value = 1
+        caps.is_fixed.return_value = False
 
-        fixed1 = MagicMock()  # caps
-        fixed2 = MagicMock()  # caps
-        fixed1.is_fixed.return_value = True
-        fixed2.is_fixed.return_value = True
+        mock_Gst.Caps.from_string.is_fixed.return_value = True
+        mock_Gst.Caps.from_string.is_empty.return_value = True
 
-        mock_g_object.ValueArray = list  # has the same interface as list
+        resolver.get_all_fixated_caps(caps, "known_values")
 
-        struct.copy.return_value = struct
-        struct.fixate_field_nearest_int.side_effect = lambda prop, target: (
-            self._mock_fixate_nearest(struct, prop, target, 600, 1300, False)
-            if prop == "width"
-            else self._mock_fixate_nearest(
-                struct, prop, target, 400, 800, False
-            )
-        )
-        struct.subtract.return_value = fixed2  # fixed 1 is extracted first
+        mock_GObject.ValueArray.assert_called()
+        self.assertEqual(mock_array.append.call_count, 2)
 
     def test_extract_int_range(self):
         # test just the extract function
@@ -539,13 +545,8 @@ class UtilityFunctionTests(ut.TestCase):
             + "stringifiable_prop={}".format(prop_with_to_string.to_string()),
         )
 
-
-        elem4 = self.MockElement() # type: cam.Gst.Element # type: ignore
-        setattr(
-            elem4,
-            "parent",
-            'asjldlkas'
-        )
+        elem4 = self.MockElement()  # type: cam.Gst.Element # type: ignore
+        setattr(elem4, "parent", "asjldlkas")
         self.assertEqual(  # parent should be omitted
             cam.elem_to_str(elem4),
             "someelement name=someelement0 some_int_value=1",

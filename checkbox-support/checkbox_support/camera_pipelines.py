@@ -107,7 +107,7 @@ class CapsResolver:
 
         :param low: min value, inclusive
         :param high: max value, inclusive
-        :return: ValueArray object. Usage: Caps.set_property(prop, value_array)
+        :return: list of known values in range
         """
 
         assert (
@@ -168,8 +168,8 @@ class CapsResolver:
 
             if resolve_method == "known_values":
                 for prop in self.KNOWN_RANGE_VALUES.keys():
-
                     finite_list = None  # type: GObject.ValueArray | None
+
                     if struct.has_field_typed(prop, Gst.IntRange):
                         low, high = self.extract_int_range(struct, prop)
                         finite_list = GObject.ValueArray()

@@ -277,7 +277,7 @@ def gst_msg_handler(
     _: Gst.Bus,
     msg: Gst.Message,
     pipeline: Gst.Pipeline,
-    custom_quit_handler: PipelineQuitHandler,
+    custom_quit_handler: T.Optional[PipelineQuitHandler],
     loop: GLib.MainLoop,
     timeout_sources: T.List[GLib.Source] = [],
 ):

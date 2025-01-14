@@ -534,7 +534,8 @@ def take_photo(
         source
     ), "Could not add source element {} to the pipeline".format(
         elem_to_str(source)
-    )
+    )  # NOTE: this assertion only applies to the default python binding
+    # if the python3-gst-1.0 package is installed, .add() always return None
     assert head_elem
     assert source.link(
         head_elem
@@ -594,8 +595,8 @@ def record_video(
         'capsfilter name=source-caps caps="{}"',  # 0
         "decodebin",  # 1
         "videoconvert name=converter",  # 2
-        "encodebin profile={}".format(encoding_profile),  # 3
-        "filesink location={}".format(str(file_path)),  # 4
+        'encodebin profile="{}"'.format(encoding_profile),  # 3
+        'filesink location="{}"'.format(str(file_path)),  # 4
     ]
 
     head_elem_name = "source-caps"

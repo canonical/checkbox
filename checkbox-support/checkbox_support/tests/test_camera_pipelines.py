@@ -1,4 +1,3 @@
-import typing as T
 import unittest as ut
 from unittest.mock import MagicMock, patch
 import sys
@@ -225,7 +224,7 @@ class TestPipelineLogic(ut.TestCase):
     @patch("camera_pipelines.logger")
     @patch("camera_pipelines.run_pipeline")
     @patch("camera_pipelines.Gst")
-    def test_take_photo_build_pipeline_step(
+    def test_pipeline_build_step_x_raw(
         self, mock_Gst: MagicMock, mock_run_pipeline, mock_logger
     ):
         mock_caps = MagicMock()
@@ -238,7 +237,8 @@ class TestPipelineLogic(ut.TestCase):
             file_path=Path("some/path"),
             delay_seconds=2,  # with delay, valve should be inserted
         )
-        parse_launch_arg = mock_Gst.parse_launch.call_args_list[0][0][0]
+        # -1 is taking the most recent call
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
         self.assertEqual(
             parse_launch_arg,
             " ! ".join(
@@ -252,16 +252,13 @@ class TestPipelineLogic(ut.TestCase):
                 ]
             ),
         )
-
-        mock_Gst.reset_mock()
-
         cam.take_photo(
             MagicMock(),
             caps=mock_caps,
             file_path=Path("some/path"),
             delay_seconds=0,  # no delay -> no valve
         )
-        parse_launch_arg = mock_Gst.parse_launch.call_args_list[0][0][0]
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
         self.assertEqual(
             parse_launch_arg,
             " ! ".join(
@@ -275,7 +272,34 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
-        mock_Gst.reset_mock()
+        cam.record_video(
+            MagicMock(),
+            encoding_profile="some/profile",
+            caps=mock_caps,
+            file_path=Path("some/path"),
+            record_n_seconds=3,
+        )
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
+        self.assertEqual(
+            parse_launch_arg,
+            " ! ".join(
+                [
+                    "capsfilter name=source-caps "
+                    'caps="video/x-raw,width=1280,height=720"',
+                    "videoconvert name=converter",
+                    'encodebin profile="some/profile"',
+                    'filesink location="some/path"',
+                ]
+            ),
+        )
+
+    @patch("camera_pipelines.logger")
+    @patch("camera_pipelines.run_pipeline")
+    @patch("camera_pipelines.Gst")
+    def test_pipeline_build_step_image_jpeg(
+        self, mock_Gst: MagicMock, mock_run_pipeline, mock_logger
+    ):
+        mock_caps = MagicMock()
         # jpeg caps should be handled by jpegdec
         mock_caps.to_string.return_value = "image/jpeg,width=1280,height=720"
         mock_caps.get_structure(0).get_name.return_value = "image/jpeg"
@@ -285,7 +309,7 @@ class TestPipelineLogic(ut.TestCase):
             file_path=Path("some/path"),
             delay_seconds=0,  # no delay -> no valve
         )
-        parse_launch_arg = mock_Gst.parse_launch.call_args_list[0][0][0]
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
         self.assertEqual(
             parse_launch_arg,
             " ! ".join(
@@ -299,17 +323,13 @@ class TestPipelineLogic(ut.TestCase):
                 ]
             ),
         )
-
-        mock_Gst.reset_mock()
-        mock_caps.to_string.return_value = "image/jpeg,width=1280,height=720"
-        mock_caps.get_structure(0).get_name.return_value = "image/jpeg"
         cam.take_photo(
             MagicMock(),
             caps=mock_caps,
             file_path=Path("some/path"),
             delay_seconds=3,  # with delay
         )
-        parse_launch_arg = mock_Gst.parse_launch.call_args_list[0][0][0]
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
         self.assertEqual(
             parse_launch_arg,
             " ! ".join(
@@ -325,7 +345,35 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
-        mock_Gst.reset_mock()
+        cam.record_video(
+            MagicMock(),
+            encoding_profile="some/profile",
+            caps=mock_caps,
+            file_path=Path("some/path"),
+            record_n_seconds=3,  # with delay
+        )
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
+        self.assertEqual(
+            parse_launch_arg,
+            " ! ".join(
+                [
+                    "capsfilter name=source-caps "
+                    'caps="image/jpeg,width=1280,height=720"',
+                    "jpegdec",
+                    "videoconvert name=converter",
+                    'encodebin profile="some/profile"',
+                    'filesink location="some/path"',
+                ]
+            ),
+        )
+
+    @patch("camera_pipelines.logger")
+    @patch("camera_pipelines.run_pipeline")
+    @patch("camera_pipelines.Gst")
+    def test_pipeline_build_step_x_bayer(
+        self, mock_Gst: MagicMock, mock_run_pipeline, mock_logger
+    ):
+        mock_caps = MagicMock()
         mock_caps.to_string.return_value = (
             "video/x-bayer,width=1280,height=720,format=rggb"
         )
@@ -336,7 +384,7 @@ class TestPipelineLogic(ut.TestCase):
             file_path=Path("some/path"),
             delay_seconds=3,  # with delay
         )
-        parse_launch_arg = mock_Gst.parse_launch.call_args_list[0][0][0]
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
         self.assertEqual(
             parse_launch_arg,
             " ! ".join(
@@ -348,6 +396,28 @@ class TestPipelineLogic(ut.TestCase):
                     "valve name=photo-valve drop=True",
                     "jpegenc",
                     "multifilesink post-messages=True location=some/path",
+                ]
+            ),
+        )
+
+        cam.record_video(
+            MagicMock(),
+            encoding_profile="some/profile",
+            caps=mock_caps,
+            file_path=Path("some/path"),
+            record_n_seconds=3,
+        )
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
+        self.assertEqual(
+            parse_launch_arg,
+            " ! ".join(
+                [
+                    "capsfilter name=source-caps "
+                    'caps="video/x-bayer,width=1280,height=720,format=rggb"',
+                    "bayer2rgb",
+                    "videoconvert name=converter",
+                    'encodebin profile="some/profile"',
+                    'filesink location="some/path"',
                 ]
             ),
         )

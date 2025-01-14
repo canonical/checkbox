@@ -1,3 +1,4 @@
+import enum
 import unittest as ut
 from unittest.mock import MagicMock, patch
 import sys
@@ -172,10 +173,11 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
+    @patch("camera_pipelines.logger")
     @patch("camera_pipelines.GLib")
     @patch("camera_pipelines.Gst")
     def test_run_pipeline_happy_path(
-        self, mock_Gst: MagicMock, mock_GLib: MagicMock
+        self, mock_Gst: MagicMock, mock_GLib: MagicMock, mock_logger
     ):
         pipeline = MagicMock()
 
@@ -422,21 +424,132 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
+    @patch("camera_pipelines.run_pipeline")
+    @patch("camera_pipelines.Gst")
+    def test_show_viewfinder(self, mock_Gst: MagicMock, mock_run):
+        cam.show_viewfinder(MagicMock(), show_n_seconds=5)
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
+        self.assertEqual(
+            parse_launch_arg,
+            " ! ".join(["videoconvert name=head", "autovideosink"]),
+        )
 
-class TestElementToString(ut.TestCase):
+
+class UtilityFunctionTests(ut.TestCase):
+
+    class PropWithToString:
+        def to_string(self):
+            return "special-value"
+
     class MockElement:
-        name = "someelement"
+        name = "someelement0"
         some_int_value = 1
 
-        def to_string(self):
-            return "someelement prop1=value1 name={}".format(self.name)
+        # above properties should be printed
 
         def list_properties(self):
-            return [
-                p
-                for p in dir(self)
-                if not p.startswith("__") and not callable(getattr(self, p))
-            ]
+            props = []
+            for p in dir(self):
+                if not p.startswith("__") and not callable(getattr(self, p)):
+                    mock_prop = MagicMock()
+                    mock_prop.name = p
+                    props.append(mock_prop)
+            return props
+
+        def get_factory(self):
+            mock = MagicMock()
+            mock.get_name.return_value = "someelement"
+            return mock
+
+        def get_property(self, prop_name: str):
+            return getattr(self, prop_name)
+
+    class E(enum.Enum):
+        key = "value"
+
+    def test_select_known_values_from_range_int(self):
+        resolver = cam.CapsResolver()
+
+        selected_values = resolver.select_known_values_from_range(
+            "width", 80, 5376
+        )  # real value from genio g350
+        self.assertCountEqual(selected_values, [640, 1280, 1920, 2560, 3840])
+
+        selected_values = resolver.select_known_values_from_range(
+            "width", 1000, 2000
+        )
+        self.assertCountEqual(selected_values, [1280, 1920])
+
+    def test_select_known_values_from_range_fraction(self):
+        resolver = cam.CapsResolver()
+        selected_values = resolver.select_known_values_from_range(
+            "framerate", (0, 1), (1000, 1)
+        )
+        self.assertCountEqual(
+            selected_values,
+            [(15, 1), (30, 1), (60, 1), (120, 1)],
+        )
+
+    def test_select_known_values_mixed_types(self):
+        resolver = cam.CapsResolver()
+        self.assertRaises(
+            AssertionError,
+            # static analyis should already complain about bad types here
+            lambda: resolver.select_known_values_from_range(
+                "width", 80, (30, 1)  # type: ignore
+            ),
+        )
+        self.assertRaises(
+            AssertionError,
+            # static analyis should already complain about bad types here
+            lambda: resolver.select_known_values_from_range(
+                "width", "blah", (30, 1)  # type: ignore
+            ),
+        )
+        self.assertRaises(
+            AssertionError,
+            # static analyis should already complain about bad types here
+            lambda: resolver.select_known_values_from_range(
+                "width", (25, 1), 1  # type: ignore
+            ),
+        )
+
+    def test_elem_to_str(self):
+        elem = self.MockElement()  # type: cam.Gst.Element # type: ignore
+        self.assertEqual(
+            cam.elem_to_str(elem),
+            "someelement name=someelement0 some_int_value=1",
+        )
+
+        elem2 = self.MockElement()  # type: cam.Gst.Element # type: ignore
+        setattr(elem2, "enum_value", self.E.key)
+
+        self.assertEqual(
+            cam.elem_to_str(elem2),
+            "someelement enum_value=value name=someelement0 some_int_value=1",
+        )
+
+        elem3 = self.MockElement()  # type: cam.Gst.Element # type: ignore
+        prop_with_to_string = self.PropWithToString()
+        setattr(elem3, "stringifiable_prop", prop_with_to_string)
+
+        self.assertEqual(
+            cam.elem_to_str(elem3),
+            "someelement name=someelement0 some_int_value=1 "
+            + "stringifiable_prop={}".format(prop_with_to_string.to_string()),
+        )
+
+
+        elem4 = self.MockElement() # type: cam.Gst.Element # type: ignore
+        setattr(
+            elem4,
+            "parent",
+            'asjldlkas'
+        )
+        self.assertEqual(  # parent should be omitted
+            cam.elem_to_str(elem4),
+            "someelement name=someelement0 some_int_value=1",
+        )
 
 
 if __name__ == "__main__":

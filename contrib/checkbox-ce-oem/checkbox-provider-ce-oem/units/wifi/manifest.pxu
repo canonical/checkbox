@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_wifi_ap_host
+_name: Does WiFi AP paring HOST machine available for testing WiFi AP mode?
+value-type: bool

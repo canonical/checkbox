@@ -42,8 +42,10 @@ plugin: shell
 environ: WIFI_AP_HOST_DEVICE_IP WIFI_AP_HOST_DEVICE_USER WIFI_AP_HOST_DEVICE_PWD WIFI_AP_HOST_DEVICE_INTERFACE
 imports:
   from com.canonical.certification import net_if_management
+  from com.canonical.plainbox import manifest
 requires:
- net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'NetworkManager'
+  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'NetworkManager'
+  manifest.has_wifi_ap_host == 'True'
 estimated_duration: 120.0
 flags: preserve-locale also-after-suspend
 command:
@@ -64,8 +66,10 @@ plugin: shell
 environ: WIFI_AP_HOST_DEVICE_IP WIFI_AP_HOST_DEVICE_USER WIFI_AP_HOST_DEVICE_PWD WIFI_AP_HOST_DEVICE_INTERFACE
 imports:
   from com.canonical.certification import net_if_management
+  from com.canonical.plainbox import manifest
 requires:
- net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'NetworkManager'
+  net_if_management.device == '{interface}' and net_if_management.master_mode_managed_by == 'NetworkManager'
+  manifest.has_wifi_ap_host == 'True'
 estimated_duration: 120.0
 flags: preserve-locale also-after-suspend
 command:

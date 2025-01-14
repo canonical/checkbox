@@ -101,19 +101,31 @@ class CapsResolver:
         prop: str,
         low: IntOrFractionTuple,
         high: IntOrFractionTuple,
-    ) -> T.List:
-        """Creates a GObject.ValueArray based on range
-        that can be used in Gst.Caps
+    ) -> T.Sequence[IntOrFractionTuple]:
+        """
+        Creates a list of values in (low, high) that can be used in Gst.Caps
 
         :param low: min value, inclusive
         :param high: max value, inclusive
         :return: ValueArray object. Usage: Caps.set_property(prop, value_array)
         """
-        out = []
+
         assert (
             prop in self.KNOWN_RANGE_VALUES
         ), "Property {} does not have a known value definition".format(prop)
+        assert type(low) == type(
+            high
+        ), "Range (low, high) must have the same type, got ({}, {})".format(
+            type(low), type(high)
+        )
+        assert type(low) in (
+            int,
+            tuple,
+        ), "Only int and fraction tuples are supported, got {} for low".format(
+            type(low)
+        )
 
+        out = []
         for val in self.KNOWN_RANGE_VALUES[prop]:
             # lt gt are defined as pairwise comparison on tuples
             if val >= low and val <= high:
@@ -261,7 +273,7 @@ def elem_to_str(
             prop_strings.append(
                 "{}={}".format(prop.name, prop_value.to_string())
             )
-        elif isinstance(prop, Enum):
+        elif isinstance(prop_value, Enum):
             prop_strings.append("{}={}".format(prop.name, prop_value.value))
         else:
             prop_strings.append(

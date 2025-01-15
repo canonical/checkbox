@@ -171,14 +171,19 @@ ENCODING_PROFILES = {
     },
 }
 
-SPECIAL_ERROR_MESSAGES_BY_DEVICE = {
-    "Intel MIPI Camera (V4L2)": """
-This device seems to be an Intel MIPI camera. If all the pipeline fails, 
-the error message is "cannot negotiate buffers on port", and the generated 
-pipeline uses "pipewiresrc", check if VIDIOC_EXPBUF is supported by running 
-"v4l2-compliance | grep VIDIOC_EXPBUF".
-"""
-}
+SPECIAL_WARNINGS_BY_DEVICE = {
+    "Intel MIPI Camera (V4L2)": (
+        "This DUT seems to have an Intel MIPI camera. "
+        "If all the pipeline fails, the error message is "
+        '"cannot negotiate buffers on port", '
+        'and the generated pipeline uses "pipewiresrc", '
+        "check if VIDIOC_REQBUF passes the test by running "
+        '"v4l2-compliance | grep VIDIOC_REQBUF". '
+        "Additionally if a pipeline using v4l2src works, it means the pipewire "
+        "installation on this DUT likely doesn't contain the fix that handles "
+        "unsupported USERPTR io mode."
+    )
+}  # type: dict[str, str]
 
 
 def get_devices() -> T.List[Gst.Device]:
@@ -188,7 +193,7 @@ def get_devices() -> T.List[Gst.Device]:
 
     devices = monitor.get_devices()
 
-    monitor.stop()
+    monitor.stop()  
     return devices
 
 
@@ -366,9 +371,9 @@ def main() -> int:
         for dev_i, device in enumerate(devices):
             dev_element = device.create_element()  # type: Gst.Element
 
-            if device.get_display_name() in SPECIAL_ERROR_MESSAGES_BY_DEVICE:
-                logger.info(
-                    SPECIAL_ERROR_MESSAGES_BY_DEVICE[device.get_display_name()]
+            if device.get_display_name() in SPECIAL_WARNINGS_BY_DEVICE:
+                logger.warning(
+                    SPECIAL_WARNINGS_BY_DEVICE[device.get_display_name()]
                 )
 
             if args.subcommand == "show-viewfinder":

@@ -82,9 +82,7 @@ class Serial:
             try:
                 self.group.append(self.serial_init(ser))
             except Exception:
-                raise SystemError(
-                    "Failed to init serial port: {}".format(ser)
-                )
+                raise SystemError("Failed to init serial port: {}".format(ser))
 
     def serial_init(self, node: str) -> serial.Serial:
         """Create a serial.Serial object based on the class variables"""
@@ -165,7 +163,7 @@ def client_mode(ser: Serial, data_size: int = 1024):
     random_string = generate_random_string(data_size)
 
     # clean up the garbage in the serial before test
-    while ser.recv() :
+    while ser.recv():
         continue
     ser.send(random_string.encode())
     for i in range(1, 6):
@@ -201,9 +199,7 @@ def console_mode(ser: Serial):
             logging.info("[PASS] Serial console test successful.")
         else:
             logging.error("[FAIL] Serial console test failed.")
-            logging.error(
-                "Expected response should contain ':~$' or 'login:'"
-            )
+            logging.error("Expected response should contain ':~$' or 'login:'")
             raise SystemExit(1)
     except Exception:
         logging.exception("Caught an exception.")
@@ -214,9 +210,7 @@ def create_args():
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument(
-        "node", help="Serial port device node e.g. /dev/ttyS1"
-    )
+    parser.add_argument("node", help="Serial port device node e.g. /dev/ttyS1")
     parser.add_argument(
         "--mode",
         choices=["server", "client", "console"],

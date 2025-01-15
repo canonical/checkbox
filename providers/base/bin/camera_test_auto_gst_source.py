@@ -171,6 +171,15 @@ ENCODING_PROFILES = {
     },
 }
 
+SPECIAL_ERROR_MESSAGES_BY_DEVICE = {
+    "Intel MIPI Camera (V4L2)": """
+This device seems to be an Intel MIPI camera. If all the pipeline fails, 
+the error message is "cannot negotiate buffers on port", and the generated 
+pipeline uses "pipewiresrc", check if VIDIOC_EXPBUF is supported by running 
+"v4l2-compliance | grep VIDIOC_EXPBUF".
+"""
+}
+
 
 def get_devices() -> T.List[Gst.Device]:
     monitor = Gst.DeviceMonitor.new()  # type: Gst.DeviceMonitor
@@ -356,6 +365,11 @@ def main() -> int:
 
         for dev_i, device in enumerate(devices):
             dev_element = device.create_element()  # type: Gst.Element
+
+            if device.get_display_name() in SPECIAL_ERROR_MESSAGES_BY_DEVICE:
+                logger.info(
+                    SPECIAL_ERROR_MESSAGES_BY_DEVICE[device.get_display_name()]
+                )
 
             if args.subcommand == "show-viewfinder":
                 cam.show_viewfinder(dev_element, show_n_seconds=args.seconds)

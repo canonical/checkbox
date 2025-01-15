@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
-import camera_pipelines as cam
+import checkbox_support.camera_pipelines as cam
 
 
 class TestCapsResolver(ut.TestCase):

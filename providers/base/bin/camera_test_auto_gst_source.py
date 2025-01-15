@@ -45,7 +45,7 @@ class MediaValidator:
 
         try:
             info = self.discoverer.discover_uri(
-                "file://{}".format(os.fspath(image_file_path))
+                "file://{}".format(str(image_file_path))
             )
         except (GLib.GError, GLib.Error) as e:
             logger.error(
@@ -96,7 +96,7 @@ class MediaValidator:
 
         try:
             info = self.discoverer.discover_uri(
-                "file://{}".format(os.fspath(video_file_path))
+                "file://{}".format(str(video_file_path))
             )
         except (GLib.GError, GLib.Error) as e:
             logger.error(
@@ -375,6 +375,7 @@ def main() -> int:
         ),
     )
 
+    # conditionally enter the temp file context
     with ExitStack() as stack:
         if not (hasattr(args, "path") and args.path):
             tmp_dir = stack.enter_context(

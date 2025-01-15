@@ -1,4 +1,3 @@
-from os import fspath
 import unittest as ut
 from unittest.mock import MagicMock, call, patch
 from shlex import split as sh_split
@@ -86,10 +85,8 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
             mock_pbutils, expected_width, expected_height
         )
 
-        validator = CTAGS.MediaValidator()
-
         self.assertTrue(
-            validator.validate_image_dimensions(
+            CTAGS.MediaValidator().validate_image_dimensions(
                 Path("some/path"),
                 expected_height=expected_height,
                 expected_width=expected_width,
@@ -101,7 +98,7 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         self._make_mock_video_info(mock_pbutils, bad_width, bad_height)
 
         self.assertFalse(
-            validator.validate_image_dimensions(
+            CTAGS.MediaValidator().validate_image_dimensions(
                 Path("some/path"),
                 expected_height=expected_height,
                 expected_width=expected_width,
@@ -151,8 +148,7 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
             expected_duration,
         )
         mock_isfile.return_value = True
-        validator = CTAGS.MediaValidator()
-        result = validator.validate_video_info(
+        result = CTAGS.MediaValidator().validate_video_info(
             Path("some/path"),
             expected_width=expected_width,
             expected_height=expected_height,
@@ -176,7 +172,7 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         )
 
         mock_gst.SECOND = 1
-        result = validator.validate_video_info(
+        result = CTAGS.MediaValidator().validate_video_info(
             Path("some/path"),
             expected_width=expected_width,
             expected_height=expected_height,
@@ -216,7 +212,7 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
 
         mock_isfile.return_value = False
 
-        result = validator.validate_video_info(
+        result = CTAGS.MediaValidator().validate_video_info(
             Path("some/path"),
             expected_width=expected_width,
             expected_height=expected_height,
@@ -277,7 +273,7 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
             )
             self.assertIn(
                 CTAGS.ENCODING_PROFILES["mp4_h264"]["file_extension"],
-                fspath(last_called_args["file_path"]),
+                str(last_called_args["file_path"]),
             )
 
         file_ext = "ext"
@@ -296,7 +292,7 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
             )
             self.assertIn(
                 file_ext,
-                fspath(last_called_args["file_path"]),
+                str(last_called_args["file_path"]),
             )
 
         encoding_str = "video/something, str"
@@ -316,7 +312,7 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
             )
             self.assertIn(
                 file_ext,
-                fspath(last_called_args["file_path"]),
+                str(last_called_args["file_path"]),
             )
 
         with patch(
@@ -357,7 +353,7 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         import camera_test_auto_gst_source as CTAGS
 
         self.assertFalse(
-            CTAGS.MediaValidator.validate_image_dimensions(
+            CTAGS.MediaValidator().validate_image_dimensions(
                 Path("some/path"),
                 expected_height=1,
                 expected_width=1,
@@ -369,7 +365,7 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         )
 
         self.assertFalse(
-            CTAGS.MediaValidator.validate_video_info(
+            CTAGS.MediaValidator().validate_video_info(
                 Path("some/path"),
                 expected_height=1,
                 expected_width=1,
@@ -395,9 +391,10 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         video_info = MagicMock()
         if duration is not None:
             video_info.get_duration.return_value = duration
-        mock_pbutils.Discoverer.return_value = MagicMock()
+        mock_discoverer = MagicMock()
+        mock_pbutils.Discoverer.return_value = mock_discoverer
 
-        mock_pbutils.Discoverer().discover_uri.return_value = video_info
+        mock_discoverer.discover_uri.return_value = video_info
         video_stream = MagicMock()
         video_stream.get_width.return_value = width
         video_stream.get_height.return_value = height

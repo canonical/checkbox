@@ -421,33 +421,63 @@ def run_pipeline(
     loop.run()
 
 
-def show_viewfinder(source: Gst.Element, *, show_n_seconds=5):
+def show_viewfinder(
+    source: Gst.Element,
+    *,
+    caps: T.Optional[Gst.Caps] = None,
+    show_n_seconds=5,
+):
     """Shows a viewfinder for the given camera source
 
     :param source: camera source element.
         If there is any property that needs to be set,
         do that before calling this function
+    :param caps: capability of the source. If this is specified, capsfilter
+        and decodebin are inserted
     :param show_n_seconds: number of seconds to keep the viewfinder on screen
     """
     global Gtk
     if not Gtk:
         gi.require_version("Gtk", "3.0")
         try:
-            from gi.repository import Gtk as _Gtk  # type: ignore
+            from gi.repository import Gtk as Gtk  # type: ignore
 
-            Gtk = _Gtk
             Gtk.init([])
         except ImportError:
             logger.error("Unable to import Gtk")
             return
 
-    partial_pipeline = " ! ".join(["videoconvert name=head", "autovideosink"])
+    if caps:
+        partial_pipeline = " ! ".join(
+            [
+                'capsfilter caps="{}" name=head'.format(caps.to_string()),
+                "decodebin",
+                "videoconvert",
+                "autovideosink",
+            ]
+        )
+    else:
+        # do not put decodebin here
+        # pipewiresrc can't negotiate with decodebin without caps
+        partial_pipeline = " ! ".join(
+            [
+                "videoconvert name=head",
+                "autovideosink",
+            ]
+        )
     pipeline = Gst.parse_launch(partial_pipeline)  # type: Gst.Pipeline
     head = pipeline.get_by_name("head")
 
-    assert pipeline.add(source)
+    str_source = elem_to_str(source)
+    assert pipeline.add(source), "Could not add {} to the pipeline".format(
+        str_source
+    )
     assert head
-    assert source.link(head)
+    assert source.link(
+        head
+    ), "Could not link {} to the rest of the pipeline: {}".format(
+        str_source, partial_pipeline
+    )
 
     logger.info(
         "[ OK ] Created pipeline for viewfinder: {} ! {}".format(
@@ -482,7 +512,7 @@ def take_photo(
     *,
     caps: T.Optional[Gst.Caps] = None,
     file_path: Path,
-    delay_seconds: int
+    delay_seconds: int,
 ):
     """Take a photo using the source element
 
@@ -596,7 +626,7 @@ def record_video(
     caps: T.Optional[Gst.Caps] = None,
     file_path: Path,
     record_n_seconds: int,
-    encoding_profile: str
+    encoding_profile: str,
 ):
     assert record_n_seconds >= 1, (
         "Recording pipeline must run for at least 1 second. "

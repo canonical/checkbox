@@ -28,9 +28,15 @@ from gi.repository import GLib  # type: ignore # noqa: E402
 
 class MediaValidator:
 
-    @staticmethod
+    def __init__(self) -> None:
+        self.discoverer = GstPbutils.Discoverer()
+
     def validate_image_dimensions(
-        image_file_path: Path, *, expected_width: int, expected_height: int
+        self,
+        image_file_path: Path,
+        *,
+        expected_width: int,
+        expected_height: int
     ) -> bool:
         if not os.path.isfile(image_file_path):
             logger.error(
@@ -38,9 +44,8 @@ class MediaValidator:
             )
             return False
 
-        discoverer = GstPbutils.Discoverer()
         try:
-            info = discoverer.discover_uri(
+            info = self.discoverer.discover_uri(
                 "file://{}".format(os.fspath(image_file_path))
             )
         except (GLib.GError, GLib.Error) as e:
@@ -74,8 +79,8 @@ class MediaValidator:
 
         return passed
 
-    @staticmethod
     def validate_video_info(
+        self,
         video_file_path: Path,
         *,
         expected_width: int,
@@ -90,10 +95,8 @@ class MediaValidator:
             )
             return False
 
-        discoverer = GstPbutils.Discoverer()
-
         try:
-            info = discoverer.discover_uri(
+            info = self.discoverer.discover_uri(
                 "file://{}".format(os.fspath(video_file_path))
             )
         except (GLib.GError, GLib.Error) as e:
@@ -198,7 +201,10 @@ def get_devices() -> T.List[Gst.Device]:
 
 
 def parse_args():
-    parser = ArgumentParser()
+    parser = ArgumentParser(
+        prog="Automatically test all cameras for each of their capabilities. "
+        "Specify a subcommand and -h to show more help messages."
+    )
 
     subparser = parser.add_subparsers(dest="subcommand")
     subparser.required = True  # workaround for older python versions
@@ -311,7 +317,27 @@ def parse_args():
             type=str,
             help="Where to save output files. This should be a directory. "
             "If not specified, a directory will be created in /tmp "
-            'with the prefix "camera_test_auto_gst_"',
+            'with the prefix "camera_test_auto_gst_" and cleaned up upon exit',
+        )
+
+    for timeout_needed_parser in (
+        video_subparser,
+        photo_subparser,
+        viewfinder_subparser,
+    ):
+        default_kill_timeout = 60
+        timeout_needed_parser.add_argument(
+            "-k",
+            "--force-kill-timeout",
+            type=int,
+            help=(
+                "Seconds to wait before forcefully stopping the pipeline. "
+                "Example: If the pipeline is supposed to run for 5 seconds, "
+                "force_kill_timeout is 10s, "
+                "then the kill happens at the 15 second mark. "
+                "Default = {} seconds".format(default_kill_timeout)
+            ),
+            default=default_kill_timeout,
         )
 
     return parser.parse_args()
@@ -368,6 +394,8 @@ def main() -> int:
                 'Path "{}" does not exist'.format(abs_path)
             )
 
+        validator = MediaValidator()
+        resolver = cam.CapsResolver()
         for dev_i, device in enumerate(devices):
             dev_element = device.create_element()  # type: Gst.Element
 
@@ -381,11 +409,10 @@ def main() -> int:
                     lambda: cam.show_viewfinder(
                         dev_element, show_n_seconds=args.seconds
                     ),
-                    args.seconds + 60,
+                    args.seconds + args.force_kill_timeout,
                 )
                 continue
 
-            resolver = cam.CapsResolver()
             all_fixed_caps = resolver.get_all_fixated_caps(
                 device.get_caps(), "known_values"
             )
@@ -421,13 +448,13 @@ def main() -> int:
                             caps=capability,
                             file_path=file_path,
                         ),
-                        args.seconds + 60,
+                        args.seconds + args.force_kill_timeout,
                     )
 
                     if args.skip_validation:
                         continue
 
-                    MediaValidator.validate_image_dimensions(
+                    validator.validate_image_dimensions(
                         file_path,
                         expected_width=cap_struct.get_int("width").value,
                         expected_height=cap_struct.get_int("height").value,
@@ -462,14 +489,13 @@ def main() -> int:
                             record_n_seconds=args.seconds,
                             encoding_profile=encoding_profile,
                         ),
-                        # wait up to an minute before forcefully killing
-                        args.seconds + 60,
+                        args.seconds + args.force_kill_timeout,
                     )
 
                     if args.skip_validation:
                         continue
 
-                    MediaValidator.validate_video_info(
+                    validator.validate_video_info(
                         file_path,
                         expected_duration_seconds=args.seconds,
                         expected_width=cap_struct.get_int("width").value,

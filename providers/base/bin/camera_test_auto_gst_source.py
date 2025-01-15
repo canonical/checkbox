@@ -37,20 +37,21 @@ class MediaValidator:
         expected_width: int,
         expected_height: int
     ) -> bool:
-        if not os.path.isfile(image_file_path):
+        const_str_path = str(image_file_path)
+        if not os.path.isfile(const_str_path):
             logger.error(
-                "Image file doesn't exist at {}".format(image_file_path)
+                "Image file doesn't exist at {}".format(const_str_path)
             )
             return False
 
         try:
             info = self.discoverer.discover_uri(
-                "file://{}".format(str(image_file_path))
+                "file://{}".format(const_str_path)
             )
         except (GLib.GError, GLib.Error) as e:
             logger.error(
                 "Encountered an error when attempting to read {}. ".format(
-                    image_file_path
+                    const_str_path
                 )
                 + str(e)  # cleaner message is in e.message
             )
@@ -88,20 +89,21 @@ class MediaValidator:
         expected_fps: int,
         duration_tolerance_seconds: float
     ) -> bool:
-        if not os.path.isfile(video_file_path):
+        const_str_path = str(video_file_path)
+        if not os.path.isfile(const_str_path):
             logger.error(
-                "Video file doesn't exist at {}".format(video_file_path)
+                "Video file doesn't exist at {}".format(const_str_path)
             )
             return False
 
         try:
             info = self.discoverer.discover_uri(
-                "file://{}".format(str(video_file_path))
+                "file://{}".format(const_str_path)
             )
         except (GLib.GError, GLib.Error) as e:
             logger.error(
                 "Encountered an error when attempting to read {}. ".format(
-                    video_file_path
+                    const_str_path
                 )
                 + str(e)
             )
@@ -110,7 +112,7 @@ class MediaValidator:
         duration = info.get_duration()  # type: int # This is in nanoseconds
         video_streams = info.get_video_streams()
         if len(video_streams) == 0:
-            logger.error("{} has no video streams.".format(video_file_path))
+            logger.error("{} has no video streams.".format(const_str_path))
             return False
 
         width = video_streams[0].get_width()  # type: int

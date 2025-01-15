@@ -4,6 +4,7 @@ from shlex import split as sh_split
 import sys
 from io import StringIO
 from pathlib import Path
+from checkbox_support.helpers.timeout import mock_timeout
 
 
 mock_gi = MagicMock()
@@ -18,6 +19,7 @@ mock_gi = MagicMock()
     },
 )
 class CameraTestAutoGstSourceTests(ut.TestCase):
+    @mock_timeout()
     @patch("sys.stdout", new=StringIO())
     def test_correct_subcommand_is_executed(self):
         with patch("os.path.isdir") as mock_isdir, patch(

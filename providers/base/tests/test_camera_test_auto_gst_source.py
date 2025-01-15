@@ -248,8 +248,10 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
             "or it is inaccessible without sudo."
         )
 
+    
     @patch("camera_test_auto_gst_source.get_devices")
     @patch("camera_test_auto_gst_source.cam")
+    @mock_timeout()
     def test_encoding_arg_group(
         self, mock_cam: MagicMock, mock_get_devices: MagicMock
     ):

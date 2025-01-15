@@ -390,7 +390,7 @@ def main() -> int:
                     os.path.expanduser(os.path.expandvars(args.path))
                 )
             )
-        if not os.path.isdir(abs_path):
+        if not os.path.isdir(str(abs_path)):
             # must validate early
             # multifilesink does not check if the path exists
             raise FileNotFoundError(

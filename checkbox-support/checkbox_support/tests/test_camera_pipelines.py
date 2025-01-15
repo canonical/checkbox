@@ -43,8 +43,8 @@ class TestCapsResolver(ut.TestCase):
 
         self.assertCountEqual(r, [fixed1, fixed2])
 
-    @patch("camera_pipelines.GObject")
-    @patch("camera_pipelines.Gst")
+    @patch("checkbox_support.camera_pipelines.GObject")
+    @patch("checkbox_support.camera_pipelines.Gst")
     def test_resolvable_int_range(
         self, mock_Gst: MagicMock, mock_GObject: MagicMock
     ):
@@ -179,9 +179,9 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
-    @patch("camera_pipelines.logger")
-    @patch("camera_pipelines.GLib")
-    @patch("camera_pipelines.Gst")
+    @patch("checkbox_support.camera_pipelines.logger")
+    @patch("checkbox_support.camera_pipelines.GLib")
+    @patch("checkbox_support.camera_pipelines.Gst")
     def test_run_pipeline_happy_path(
         self, mock_Gst: MagicMock, mock_GLib: MagicMock, mock_logger
     ):
@@ -229,9 +229,9 @@ class TestPipelineLogic(ut.TestCase):
 
         mock_main_loop.quit.assert_called()
 
-    @patch("camera_pipelines.logger")
-    @patch("camera_pipelines.run_pipeline")
-    @patch("camera_pipelines.Gst")
+    @patch("checkbox_support.camera_pipelines.logger")
+    @patch("checkbox_support.camera_pipelines.run_pipeline")
+    @patch("checkbox_support.camera_pipelines.Gst")
     def test_pipeline_build_step_x_raw(
         self, mock_Gst: MagicMock, mock_run_pipeline, mock_logger
     ):
@@ -301,9 +301,9 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
-    @patch("camera_pipelines.logger")
-    @patch("camera_pipelines.run_pipeline")
-    @patch("camera_pipelines.Gst")
+    @patch("checkbox_support.camera_pipelines.logger")
+    @patch("checkbox_support.camera_pipelines.run_pipeline")
+    @patch("checkbox_support.camera_pipelines.Gst")
     def test_pipeline_build_step_image_jpeg(
         self, mock_Gst: MagicMock, mock_run_pipeline, mock_logger
     ):
@@ -375,9 +375,9 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
-    @patch("camera_pipelines.logger")
-    @patch("camera_pipelines.run_pipeline")
-    @patch("camera_pipelines.Gst")
+    @patch("checkbox_support.camera_pipelines.logger")
+    @patch("checkbox_support.camera_pipelines.run_pipeline")
+    @patch("checkbox_support.camera_pipelines.Gst")
     def test_pipeline_build_step_x_bayer(
         self, mock_Gst: MagicMock, mock_run_pipeline, mock_logger
     ):
@@ -430,8 +430,8 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
-    @patch("camera_pipelines.run_pipeline")
-    @patch("camera_pipelines.Gst")
+    @patch("checkbox_support.camera_pipelines.run_pipeline")
+    @patch("checkbox_support.camera_pipelines.Gst")
     def test_show_viewfinder(self, mock_Gst: MagicMock, mock_run):
         cam.show_viewfinder(MagicMock(), show_n_seconds=5)
         parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]

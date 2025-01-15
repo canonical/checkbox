@@ -422,10 +422,7 @@ def run_pipeline(
 
 
 def show_viewfinder(
-    source: Gst.Element,
-    *,
-    caps: T.Optional[Gst.Caps] = None,
-    show_n_seconds=5,
+    source: Gst.Element, *, caps: T.Optional[Gst.Caps] = None, show_n_seconds=5
 ):
     """Shows a viewfinder for the given camera source
 
@@ -512,7 +509,7 @@ def take_photo(
     *,
     caps: T.Optional[Gst.Caps] = None,
     file_path: Path,
-    delay_seconds: int,
+    delay_seconds: int
 ):
     """Take a photo using the source element
 
@@ -626,7 +623,7 @@ def record_video(
     caps: T.Optional[Gst.Caps] = None,
     file_path: Path,
     record_n_seconds: int,
-    encoding_profile: str,
+    encoding_profile: str
 ):
     assert record_n_seconds >= 1, (
         "Recording pipeline must run for at least 1 second. "

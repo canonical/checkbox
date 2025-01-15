@@ -27,7 +27,6 @@ from gi.repository import GLib  # type: ignore # noqa: E402
 
 
 class MediaValidator:
-
     def __init__(self) -> None:
         self.discoverer = GstPbutils.Discoverer()
 
@@ -216,24 +215,14 @@ def parse_args():
         type=int,
         dest="seconds",
         help="Number of seconds to keep the pipeline running "
-        "before taking the photo. Default = {}.".format(default_wait_seconds),
+        "before taking the photo. 0 is allowed here. "
+        "Default = {}.".format(default_wait_seconds),
         default=default_wait_seconds,
     )
     photo_subparser.add_argument(
         "--skip-validation",
         action="store_true",
         help="Skip image dimension validation",
-    )
-    default_max_caps = 10000
-    photo_subparser.add_argument(
-        "--max-caps",
-        type=int,
-        default=default_max_caps,
-        help="Set the maximum number of caps to check for each device. "
-        "Default = {}. ".format(default_max_caps)
-        + "This is useful for restraining the number of caps on devices "
-        'that have "continuous" caps. '
-        "Note that the caps are chosen by GStreamer's GstCaps.fixate()",
     )
 
     video_subparser = subparser.add_parser("record-video")
@@ -318,6 +307,17 @@ def parse_args():
             help="Where to save output files. This should be a directory. "
             "If not specified, a directory will be created in /tmp "
             'with the prefix "camera_test_auto_gst_" and cleaned up upon exit',
+        )
+        default_max_caps = 10000
+        file_needed_parser.add_argument(
+            "--max-caps",
+            type=int,
+            default=default_max_caps,
+            help="Set the maximum number of caps to check for each device. "
+            "Default = {}. ".format(default_max_caps)
+            + "This is useful for restraining the number of caps on devices "
+            'that have "continuous" caps. '
+            "Note that the caps are chosen by GStreamer's GstCaps.fixate()",
         )
 
     for timeout_needed_parser in (

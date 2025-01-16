@@ -6,7 +6,7 @@ from pathlib import Path
 
 sys.modules["gi"] = MagicMock()
 sys.modules["gi.repository"] = MagicMock()
-import checkbox_support.camera_pipelines as cam
+import checkbox_support.camera_pipelines as cam  # noqa: E402
 
 
 class TestCapsResolver(ut.TestCase):
@@ -74,7 +74,8 @@ class TestCapsResolver(ut.TestCase):
 
         resolver.get_all_fixated_caps(caps, "known_values")
 
-        mock_GObject.ValueArray.assert_called()
+        # print(dir(mock_GObject.ValueArray))
+        self.assertTrue(mock_GObject.ValueArray.called)
         self.assertEqual(mock_array.append.call_count, 2)
 
     def test_extract_int_range(self):
@@ -207,9 +208,10 @@ class TestPipelineLogic(ut.TestCase):
 
         self.assertEqual(mock_GLib.timeout_add_seconds.call_count, 2)
 
-        real_eos_handler = mock_GLib.timeout_add_seconds.call_args_list[
-            0
-        ].args[1]
+        # first call, first pair, 2nd element
+        real_eos_handler = mock_GLib.timeout_add_seconds.call_args_list[0][0][
+            1
+        ]
         real_eos_handler()
         pipeline.send_event.assert_called_with(mock_eos_signal_obj)
 
@@ -225,9 +227,9 @@ class TestPipelineLogic(ut.TestCase):
         )
         pipeline.set_state.assert_called_with(mock_Gst.State.NULL)
         for mock_timeout in mock_timeout_sources:
-            mock_timeout.destroy.assert_called_once()
+            mock_timeout.destroy.assert_called_once_with()
 
-        mock_main_loop.quit.assert_called()
+        self.assertTrue(mock_main_loop.quit.called)
 
     @patch("checkbox_support.camera_pipelines.logger")
     @patch("checkbox_support.camera_pipelines.run_pipeline")

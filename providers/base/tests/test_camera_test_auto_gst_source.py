@@ -205,7 +205,8 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
                     )
                 ),
                 call(
-                    "Video FPS mismatch. Expected = {}fps, actual = {}fps".format(
+                    "Video FPS mismatch. "
+                    "Expected = {}fps, actual = {}fps".format(
                         expected_fps, bad_fps
                     )
                 ),
@@ -248,7 +249,6 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
             "or it is inaccessible without sudo."
         )
 
-    
     @patch("camera_test_auto_gst_source.get_devices")
     @patch("camera_test_auto_gst_source.cam")
     @mock_timeout()
@@ -365,7 +365,8 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         )
 
         mock_logger.error.assert_called_with(
-            "Encountered an error when attempting to read some/path. some message"
+            "Encountered an error when attempting to read some/path. "
+            "some message"
         )
 
         self.assertFalse(
@@ -380,7 +381,8 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         )
 
         mock_logger.error.assert_called_with(
-            "Encountered an error when attempting to read some/path. some message"
+            "Encountered an error when attempting to read some/path. "
+            "some message"
         )
 
     def _make_mock_video_info(

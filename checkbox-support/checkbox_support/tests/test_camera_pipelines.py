@@ -74,9 +74,39 @@ class TestCapsResolver(ut.TestCase):
 
         resolver.get_all_fixated_caps(caps, "known_values")
 
-        # print(dir(mock_GObject.ValueArray))
         self.assertTrue(mock_GObject.ValueArray.called)
         self.assertEqual(mock_array.append.call_count, 2)
+
+    @patch("checkbox_support.camera_pipelines.GObject")
+    @patch("checkbox_support.camera_pipelines.Gst")
+    def test_resolvable_fraction_range(
+        self, mock_Gst: MagicMock, mock_GObject: MagicMock
+    ):
+        resolver = cam.CapsResolver()
+        caps = MagicMock()
+        struct = MagicMock()
+        struct.name = "test_struct"
+        struct.has_field_typed.side_effect = (
+            lambda p, t: p == "framerate" and t == mock_Gst.FractionRange
+        )
+
+        mock_array = MagicMock()
+        mock_GObject.ValueArray.return_value = mock_array
+        mock_array.n_values = 2
+
+        resolver.extract_fraction_range = MagicMock()
+        resolver.extract_fraction_range.return_value = ((15, 1), (60, 1))
+
+        # cap is video/x-raw, width=[ 600, 1300 ], height=[ 400, 800 ]
+        caps.get_structure.return_value = struct
+        caps.get_size.return_value = 1
+        caps.is_fixed.return_value = False
+
+        resolver.get_all_fixated_caps(caps, "known_values")
+
+        mock_Gst.Structure.from_string.assert_called_with(
+            "temp, framerate={15/1,30/1,60/1}"
+        )
 
     def test_extract_int_range(self):
         # test just the extract function
@@ -432,6 +462,69 @@ class TestPipelineLogic(ut.TestCase):
             ),
         )
 
+    @patch("checkbox_support.camera_pipelines.logger")
+    @patch("checkbox_support.camera_pipelines.run_pipeline")
+    @patch("checkbox_support.camera_pipelines.Gst")
+    def test_pipeline_build_step_no_caps(
+        self, mock_Gst: MagicMock, mock_run_pipeline, mock_logger
+    ):
+        cam.take_photo(
+            MagicMock(),
+            caps=None,
+            file_path=Path("some/path"),
+            delay_seconds=3,  # with delay
+        )
+
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
+        self.assertEqual(
+            parse_launch_arg,
+            " ! ".join(
+                [
+                    "videoconvert name=converter",
+                    "valve name=photo-valve drop=True",
+                    "jpegenc",
+                    "multifilesink post-messages=True location=some/path",
+                ]
+            ),
+        )
+
+        cam.take_photo(
+            MagicMock(),
+            caps=None,
+            file_path=Path("some/path"),
+            delay_seconds=0,
+        )
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
+        self.assertEqual(
+            parse_launch_arg,
+            " ! ".join(
+                [
+                    "videoconvert name=converter",
+                    "jpegenc",
+                    "multifilesink post-messages=True location=some/path",
+                ]
+            ),
+        )
+
+        cam.record_video(
+            MagicMock(),
+            caps=None,
+            file_path=Path("some/path"),
+            record_n_seconds=1,
+            encoding_profile="some/profile",
+        )
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
+        self.assertEqual(
+            parse_launch_arg,
+            " ! ".join(
+                [
+                    "videoconvert name=converter",
+                    'encodebin profile="some/profile"',
+                    'filesink location="some/path"',
+                ]
+            ),
+        )
+
     @patch("checkbox_support.camera_pipelines.run_pipeline")
     @patch("checkbox_support.camera_pipelines.Gst")
     def test_show_viewfinder(self, mock_Gst: MagicMock, mock_run):
@@ -441,6 +534,39 @@ class TestPipelineLogic(ut.TestCase):
             parse_launch_arg,
             " ! ".join(["videoconvert name=head", "autovideosink"]),
         )
+
+    @patch("checkbox_support.camera_pipelines.Gst")
+    def test_custom_quit_has_lowest_precedence(self, mock_Gst: MagicMock):
+        mock_message = MagicMock()
+        mock_message.type = mock_Gst.MessageType.ERROR
+        mock_loop = MagicMock()
+        mock_quit_handler = (
+            lambda *args: False
+        )  # custom handler says it shouldn't quit, but got an error msg
+        # so we should still quit
+        cam.gst_msg_handler(
+            MagicMock(),
+            mock_message,
+            MagicMock(),
+            mock_quit_handler,
+            mock_loop,
+            [],
+        )
+        self.assertTrue(mock_loop.quit.called)
+
+        # Now suppose we have an element message
+        mock_loop.reset_mock()
+        mock_message.type = mock_Gst.MessageType.ELEMENT
+        mock_quit_handler = lambda *args: True
+        cam.gst_msg_handler(
+            MagicMock(),
+            mock_message,
+            MagicMock(),
+            mock_quit_handler,
+            mock_loop,
+            [],
+        )
+        self.assertTrue(mock_loop.quit.called)
 
 
 class UtilityFunctionTests(ut.TestCase):

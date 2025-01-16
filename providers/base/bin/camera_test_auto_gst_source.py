@@ -183,7 +183,7 @@ SPECIAL_WARNINGS_BY_DEVICE = {
         'and the generated pipeline uses "pipewiresrc", '
         "check if VIDIOC_REQBUF passes the test by running "
         '"v4l2-compliance | grep VIDIOC_REQBUF". '
-        "Additionally if a pipeline using v4l2src works, it means the pipewire "
+        "Additionally if a pipeline using v4l2src works, then the pipewire "
         "installation on this DUT likely doesn't contain the fix that handles "
         "unsupported USERPTR io mode."
     )

@@ -622,7 +622,7 @@ class UtilityFunctionTests(ut.TestCase):
     class MockElement:
         name = "someelement0"
         some_int_value = 1
-
+        unreadable = "reading this will raise an exception"
         # above properties should be printed
 
         def list_properties(self):
@@ -640,6 +640,8 @@ class UtilityFunctionTests(ut.TestCase):
             return mock
 
         def get_property(self, prop_name: str):
+            if prop_name == "unreadable":
+                raise Exception("unreadable prop")
             return getattr(self, prop_name)
 
     class E(enum.Enum):
@@ -692,12 +694,14 @@ class UtilityFunctionTests(ut.TestCase):
             ),
         )
 
-    def test_elem_to_str(self):
+    @patch("checkbox_support.camera_pipelines.logger")
+    def test_elem_to_str(self, mock_logger):
         elem = self.MockElement()  # type: cam.Gst.Element # type: ignore
         self.assertEqual(
             cam.elem_to_str(elem),
             "someelement name=someelement0 some_int_value=1",
         )
+        self.assertTrue(mock_logger.debug.called)
 
         elem2 = self.MockElement()  # type: cam.Gst.Element # type: ignore
         setattr(elem2, "enum_value", self.E.key)

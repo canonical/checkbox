@@ -10,6 +10,15 @@ import checkbox_support.camera_pipelines as cam  # noqa: E402
 
 
 class TestCapsResolver(ut.TestCase):
+    def test_already_fixed(self):
+        resolver = cam.CapsResolver()
+        fixed_caps = MagicMock()
+        fixed_caps.is_fixed.return_value = True
+
+        r = resolver.get_all_fixated_caps(fixed_caps, "known_values")
+
+        self.assertCountEqual(r, [fixed_caps])
+
     def test_discrete_caps(self):
         resolver = cam.CapsResolver()
         mixed = MagicMock()  # caps
@@ -535,8 +544,29 @@ class TestPipelineLogic(ut.TestCase):
             " ! ".join(["videoconvert name=head", "autovideosink"]),
         )
 
+        mock_caps = MagicMock()
+        mock_caps.to_string.return_value = "mock/caps"
+        cam.show_viewfinder(MagicMock(), caps=mock_caps, show_n_seconds=5)
+        parse_launch_arg = mock_Gst.parse_launch.call_args_list[-1][0][0]
+        self.assertEqual(
+            parse_launch_arg,
+            " ! ".join(
+                [
+                    'capsfilter caps="{}" name=head'.format(
+                        mock_caps.to_string()
+                    ),
+                    "decodebin",
+                    "videoconvert",
+                    "autovideosink",
+                ]
+            ),
+        )
+
+    @patch("checkbox_support.camera_pipelines.logger")
     @patch("checkbox_support.camera_pipelines.Gst")
-    def test_custom_quit_has_lowest_precedence(self, mock_Gst: MagicMock):
+    def test_custom_quit_has_lowest_precedence(
+        self, mock_Gst: MagicMock, mock_logger: MagicMock
+    ):
         mock_message = MagicMock()
         mock_message.type = mock_Gst.MessageType.ERROR
         mock_loop = MagicMock()
@@ -553,6 +583,20 @@ class TestPipelineLogic(ut.TestCase):
             [],
         )
         self.assertTrue(mock_loop.quit.called)
+
+        # warnings should be produced
+        mock_loop.reset_mock()
+        mock_message.type = mock_Gst.MessageType.WARNING
+        mock_quit_handler = lambda *args: False
+        cam.gst_msg_handler(
+            MagicMock(),
+            mock_message,
+            MagicMock(),
+            mock_quit_handler,
+            mock_loop,
+            [],
+        )
+        self.assertTrue(mock_logger.warning.called)
 
         # Now suppose we have an element message
         mock_loop.reset_mock()

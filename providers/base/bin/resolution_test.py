@@ -2,6 +2,7 @@
 
 import gi
 import sys
+import tkinter as tk
 
 from argparse import ArgumentParser
 
@@ -19,12 +20,16 @@ def check_resolution():
 
 
 def compare_resolution(min_h, min_v):
-    # Evaluate just the primary display
-    screen = Gdk.Screen.get_default()
-    geom = screen.get_monitor_geometry(screen.get_primary_monitor())
+    try:
+        root = tk.Tk()
+    except tk.TclError as e:
+        print(e)
+        print("Are you sure the device is logged in and has a screen?")
+    width = root.winfo_screenwidth()
+    height = root.winfo_screenheight()
     print("Minimum acceptable display resolution: %d x %d" % (min_h, min_v))
-    print("Detected display resolution: %d x %d" % (geom.width, geom.height))
-    return geom.width >= min_h and geom.height >= min_v
+    print("Detected display resolution: %d x %d" % (width, height))
+    return width >= min_h and height >= min_v
 
 
 def main():

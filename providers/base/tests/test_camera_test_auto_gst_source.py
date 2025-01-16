@@ -82,6 +82,15 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         expected_width = 640
         expected_height = 480
 
+        mock_isfile.return_value = False
+        self.assertFalse(
+            CTAGS.MediaValidator().validate_image_dimensions(
+                Path("some/path"),
+                expected_height=expected_height,
+                expected_width=expected_width,
+            )
+        )
+
         mock_isfile.return_value = True
         self._make_mock_video_info(
             mock_pbutils, expected_width, expected_height
@@ -149,16 +158,46 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
             expected_fps,
             expected_duration,
         )
-        mock_isfile.return_value = True
-        result = CTAGS.MediaValidator().validate_video_info(
-            Path("some/path"),
-            expected_width=expected_width,
-            expected_height=expected_height,
-            expected_fps=expected_fps,
-            expected_duration_seconds=expected_duration,
-            duration_tolerance_seconds=0.5,
+        mock_isfile.return_value = False
+        self.assertFalse(
+            CTAGS.MediaValidator().validate_video_info(
+                Path("some/path"),
+                expected_width=expected_width,
+                expected_height=expected_height,
+                expected_fps=expected_fps,
+                expected_duration_seconds=expected_duration,
+                duration_tolerance_seconds=0.5,
+            )
         )
-        self.assertTrue(result)
+
+        mock_isfile.return_value = True
+        self.assertTrue(
+            CTAGS.MediaValidator().validate_video_info(
+                Path("some/path"),
+                expected_width=expected_width,
+                expected_height=expected_height,
+                expected_fps=expected_fps,
+                expected_duration_seconds=expected_duration,
+                duration_tolerance_seconds=0.5,
+            )
+        )
+
+        self._make_mock_video_info(
+            mock_pbutils, expected_width, expected_height
+        )
+        mock_pbutils.Discoverer.return_value.discover_uri.return_value.get_video_streams.return_value = (
+            []
+        )
+        self.assertFalse(
+            CTAGS.MediaValidator().validate_video_info(
+                Path("some/path"),
+                expected_width=expected_width,
+                expected_height=expected_height,
+                expected_fps=expected_fps,
+                expected_duration_seconds=expected_duration,
+                duration_tolerance_seconds=0.5,
+            )
+        )
 
         bad_width = 1237219831
         bad_height = 113322
@@ -350,7 +389,6 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         mock_glib.Error = GError
         mock_isfile.return_value = True
         mock_discoverer = MagicMock()
-        mock_discoverer.name = "bruh"
         mock_pbutils.Discoverer.return_value = mock_discoverer
         mock_discoverer.discover_uri.side_effect = GError("some message")
 

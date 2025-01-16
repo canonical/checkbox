@@ -557,7 +557,7 @@ def take_photo(
         # else case is using decodebin as a fallback
     else:
         # decode bin doesn't work with video/x-raw
-        str_elements[0] = str_elements[1] = str_elements[3] = ""
+        str_elements[0] = str_elements[1] = ""
         head_elem_name = "converter"
 
     delay_seconds = max(delay_seconds, 0)

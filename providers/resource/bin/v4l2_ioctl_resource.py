@@ -15,7 +15,7 @@ def main():
     for device in udev.run():
         category = getattr(device, "category", None)
         device_name = getattr(device, "name", None)
-        
+
         if category == "CAPTURE" and device_name is not None:
             for ioctl_names in TEST_NAME_TO_IOCTL_MAP.values():
                 for ioctl_name in ioctl_names:

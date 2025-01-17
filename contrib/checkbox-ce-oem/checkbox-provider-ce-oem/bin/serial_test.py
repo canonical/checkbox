@@ -119,8 +119,10 @@ class Serial:
             if rcv:
                 logging.info("Received: {}".format(rcv.decode()))
         except Exception:
-            logging.exception("Received unmanageable string format")
-            raise SystemExit(1)
+            logging.exception(
+                "Received unmanageable string format {}".format(rcv)
+            )
+            return None
         return rcv
 
 
@@ -157,7 +159,12 @@ def client_mode(ser: Serial, data_size: int = 1024):
     running on port /dev/ttymxc1 as a client
     $ sudo ./serial_test.py /dev/ttymxc1 --mode client --type RS485
     """
+
     random_string = generate_random_string(data_size)
+
+    # clean up the garbage in the serial before test
+    while ser.recv():
+        continue
     ser.send(random_string.encode())
     for i in range(1, 6):
         logging.info("Attempting receive string... {} time".format(i))

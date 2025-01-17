@@ -1,21 +1,25 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
+
+import subprocess as sp
 
 from checkbox_support.parsers.v4l2_compliance import TEST_NAME_TO_IOCTL_MAP
-import subprocess as sp
+from checkbox_support.parsers.udevadm import UdevadmParser
 
 
 def main():
-    udev_out = sp.check_output(
-        "udev_resource.py -f CAPTURE", universal_newlines=True, shell=True
+    udevadm_output = sp.check_output(
+        ["udevadm", "info", "--export-db"], universal_newlines=True
     )
-    lines = udev_out.splitlines()
 
-    for line in lines:
-        if line.startswith("name:"):
+    udev = UdevadmParser(udevadm_output)
+    for device in udev.run():
+        category = getattr(device, "category", None)
+        if category == "CAPTURE":
+            device_name = getattr(device, "name")
             for ioctl_names in TEST_NAME_TO_IOCTL_MAP.values():
-                for name in ioctl_names:
-                    print(line)
-                    print("ioctl_name: {}".format(name))
+                for ioctl_name in ioctl_names:
+                    print("name: {}".format(device_name))
+                    print("ioctl_name: {}".format(ioctl_name))
                     print()  # empty line to mark end of list item
 
 

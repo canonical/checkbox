@@ -7,7 +7,6 @@ from argparse import ArgumentParser
 import typing as T
 import logging
 from checkbox_support import camera_pipelines as cam
-from checkbox_support.helpers.timeout import run_with_timeout
 from contextlib import ExitStack
 from pathlib import Path
 
@@ -322,26 +321,6 @@ def parse_args():
             "Note that the caps are chosen by GStreamer's GstCaps.fixate()",
         )
 
-    for timeout_needed_parser in (
-        video_subparser,
-        photo_subparser,
-        viewfinder_subparser,
-    ):
-        default_kill_timeout = 60
-        timeout_needed_parser.add_argument(
-            "-k",
-            "--force-kill-timeout",
-            type=int,
-            help=(
-                "Seconds to wait before forcefully stopping the pipeline. "
-                "Example: If the pipeline is supposed to run for 5 seconds, "
-                "force_kill_timeout is 10s, "
-                "then the kill happens at the 15 second mark. "
-                "Default = {} seconds".format(default_kill_timeout)
-            ),
-            default=default_kill_timeout,
-        )
-
     return parser.parse_args()
 
 
@@ -408,12 +387,7 @@ def main() -> int:
                 )
 
             if args.subcommand == "show-viewfinder":
-                run_with_timeout(
-                    lambda: cam.show_viewfinder(
-                        dev_element, show_n_seconds=args.seconds
-                    ),
-                    args.seconds + args.force_kill_timeout,
-                )
+                cam.show_viewfinder(dev_element, show_n_seconds=args.seconds)
                 continue
 
             all_fixed_caps = resolver.get_all_fixated_caps(
@@ -444,14 +418,11 @@ def main() -> int:
                     file_path = abs_path / "photo_dev_{}_cap_{}.jpeg".format(
                         dev_i, cap_i
                     )
-                    run_with_timeout(
-                        lambda: cam.take_photo(
-                            dev_element,
-                            delay_seconds=args.seconds,
-                            caps=capability,
-                            file_path=file_path,
-                        ),
-                        args.seconds + args.force_kill_timeout,
+                    cam.take_photo(
+                        dev_element,
+                        delay_seconds=args.seconds,
+                        caps=capability,
+                        file_path=file_path,
                     )
 
                     if args.skip_validation:
@@ -484,15 +455,12 @@ def main() -> int:
                         dev_i, cap_i, file_extension
                     )
 
-                    run_with_timeout(
-                        lambda: cam.record_video(
-                            dev_element,
-                            file_path=file_path,
-                            caps=capability,
-                            record_n_seconds=args.seconds,
-                            encoding_profile=encoding_profile,
-                        ),
-                        args.seconds + args.force_kill_timeout,
+                    cam.record_video(
+                        dev_element,
+                        file_path=file_path,
+                        caps=capability,
+                        record_n_seconds=args.seconds,
+                        encoding_profile=encoding_profile,
                     )
 
                     if args.skip_validation:

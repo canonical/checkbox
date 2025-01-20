@@ -452,11 +452,34 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
         mock_device.create_element.return_value = None
         self.assertEqual(CTAGS.main(), 1)
 
-        mock_validator.validate_image_dimensions.return_value = False
+        mock_device = MagicMock()
+        mock_get_devices.return_value = [mock_device]
+        mock_validator_instance = MagicMock()
+        mock_validator.return_value = mock_validator_instance
+        mock_validator_instance.validate_image_dimensions.return_value = False
+
+        mock_resolver = MagicMock()
+        mock_cam.CapsResolver.return_value = mock_resolver
+
+        mock_resolver.get_all_fixated_caps.return_value = []
         self.assertEqual(CTAGS.main(), 1)
 
-        mock_validator.validate_video_info.return_value = False
+        mock_resolver.get_all_fixated_caps.return_value = [MagicMock()]
         self.assertEqual(CTAGS.main(), 1)
+        self.assertTrue(
+            mock_validator_instance.validate_image_dimensions.called
+        )
+
+        with patch(
+            "sys.argv",
+            sh_split(
+                "camera_test_auto_gst_source.py record-video -p some/dir"
+                + " --encoding mp4_h264"
+            ),
+        ):
+            mock_validator_instance.validate_video_info.return_value = False
+            self.assertEqual(CTAGS.main(), 1)
+            self.assertTrue(mock_validator_instance.validate_video_info.called)
 
     def _make_mock_video_info(
         self,

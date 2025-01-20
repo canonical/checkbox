@@ -439,7 +439,7 @@ def show_viewfinder(
         try:
             from gi.repository import Gtk as Gtk  # type: ignore
 
-            Gtk.init([])
+            Gtk.init()
         except ImportError:
             logger.error("Unable to import Gtk")
             return

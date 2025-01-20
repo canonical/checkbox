@@ -25,6 +25,36 @@ gi.require_version("GLib", "2.0")
 from gi.repository import GLib  # type: ignore # noqa: E402
 
 
+ENCODING_PROFILES = {
+    "mp4_h264": {
+        "profile_str": "video/quicktime,variant=iso:video/x-h264",
+        "file_extension": "mp4",
+    },
+    "ogv_theora": {
+        "profile_str": "application/ogg:video/x-theora",
+        "file_extension": "ogv",
+    },
+    "webm_vp8": {
+        "profile_str": "video/webm:video/x-vp8",
+        "file_extension": "webm",
+    },
+}
+
+SPECIAL_WARNINGS_BY_DEVICE = {
+    "Intel MIPI Camera (V4L2)": (
+        "This DUT seems to have an Intel MIPI camera. "
+        "If all the pipeline fails, the error message is "
+        '"cannot negotiate buffers on port", '
+        'and the generated pipeline uses "pipewiresrc", '
+        "check if VIDIOC_REQBUF passes the test by running "
+        '"v4l2-compliance | grep VIDIOC_REQBUF". '
+        "Additionally if a pipeline using v4l2src works, then the pipewire "
+        "installation on this DUT likely doesn't contain the fix that handles "
+        "unsupported USERPTR io mode."
+    )
+}  # type: dict[str, str]
+
+
 class MediaValidator:
     def __init__(self) -> None:
         self.discoverer = GstPbutils.Discoverer()
@@ -159,42 +189,12 @@ class MediaValidator:
         return passed
 
 
-ENCODING_PROFILES = {
-    "mp4_h264": {
-        "profile_str": "video/quicktime,variant=iso:video/x-h264",
-        "file_extension": "mp4",
-    },
-    "ogv_theora": {
-        "profile_str": "application/ogg:video/x-theora",
-        "file_extension": "ogv",
-    },
-    "webm_vp8": {
-        "profile_str": "video/webm:video/x-vp8",
-        "file_extension": "webm",
-    },
-}
-
-SPECIAL_WARNINGS_BY_DEVICE = {
-    "Intel MIPI Camera (V4L2)": (
-        "This DUT seems to have an Intel MIPI camera. "
-        "If all the pipeline fails, the error message is "
-        '"cannot negotiate buffers on port", '
-        'and the generated pipeline uses "pipewiresrc", '
-        "check if VIDIOC_REQBUF passes the test by running "
-        '"v4l2-compliance | grep VIDIOC_REQBUF". '
-        "Additionally if a pipeline using v4l2src works, then the pipewire "
-        "installation on this DUT likely doesn't contain the fix that handles "
-        "unsupported USERPTR io mode."
-    )
-}  # type: dict[str, str]
-
-
 def get_devices() -> T.List[Gst.Device]:
     monitor = Gst.DeviceMonitor.new()  # type: Gst.DeviceMonitor
     monitor.add_filter("Video/Source")
     monitor.start()
 
-    devices = monitor.get_devices()
+    devices = monitor.get_devices() or []
 
     monitor.stop()
     return devices
@@ -380,7 +380,25 @@ def main() -> int:
         validator = MediaValidator()
         resolver = cam.CapsResolver()
         for dev_i, device in enumerate(devices):
-            dev_element = device.create_element()  # type: Gst.Element
+            dev_element = device.create_element()
+            if dev_element is None:
+                logger.error(
+                    "Could not create element for this device: {}".format(
+                        device.get_display_name()
+                    )
+                )
+                return_value = 1
+                continue
+
+            device_caps = device.get_caps()
+            if device_caps is None:
+                logger.error(
+                    "Could not get capabilities for this device: {}".format(
+                        device.get_display_name()
+                    )
+                )
+                return_value = 1
+                continue
 
             if device.get_display_name() in SPECIAL_WARNINGS_BY_DEVICE:
                 logger.warning(
@@ -392,7 +410,7 @@ def main() -> int:
                 continue
 
             all_fixed_caps = resolver.get_all_fixated_caps(
-                device.get_caps(), "known_values", limit=args.max_caps
+                device_caps, "known_values", limit=args.max_caps
             )
 
             if len(all_fixed_caps) == 0:
@@ -436,8 +454,8 @@ def main() -> int:
 
                     if not validator.validate_image_dimensions(
                         file_path,
-                        expected_width=cap_struct.get_int("width").value,
-                        expected_height=cap_struct.get_int("height").value,
+                        expected_width=cap_struct.get_int("width")[1],
+                        expected_height=cap_struct.get_int("height")[1],
                     ):
                         return_value = 1
                 elif args.subcommand == "record-video":
@@ -476,12 +494,10 @@ def main() -> int:
                     if not validator.validate_video_info(
                         file_path,
                         expected_duration_seconds=args.seconds,
-                        expected_width=cap_struct.get_int("width").value,
-                        expected_height=cap_struct.get_int("height").value,
+                        expected_width=cap_struct.get_int("width")[1],
+                        expected_height=cap_struct.get_int("height")[1],
                         duration_tolerance_seconds=args.tolerance,
-                        expected_fps=cap_struct.get_fraction(
-                            "framerate"
-                        ).value_numerator,
+                        expected_fps=cap_struct.get_fraction("framerate")[1],
                     ):
                         return_value = 1
 

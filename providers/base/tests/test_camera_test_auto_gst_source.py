@@ -423,6 +423,41 @@ class CameraTestAutoGstSourceTests(ut.TestCase):
             "some message"
         )
 
+    @patch(
+        "sys.argv",
+        sh_split("camera_test_auto_gst_source.py take-photo -p some/dir"),
+    )
+    @patch("os.path.isdir")
+    @patch("camera_test_auto_gst_source.cam")
+    @patch("camera_test_auto_gst_source.MediaValidator")
+    @patch("camera_test_auto_gst_source.get_devices")
+    def test_return_1_on_any_validation_failure(
+        self,
+        mock_get_devices: MagicMock,
+        mock_validator: MagicMock,
+        mock_cam: MagicMock,
+        mock_isdir: MagicMock,
+    ):
+        import camera_test_auto_gst_source as CTAGS
+
+        mock_get_devices.return_value = []
+        self.assertEqual(CTAGS.main(), 1)
+
+        mock_device = MagicMock()
+        mock_device.get_caps.return_value = None
+
+        mock_get_devices.return_value = [mock_device]
+        self.assertEqual(CTAGS.main(), 1)
+
+        mock_device.create_element.return_value = None
+        self.assertEqual(CTAGS.main(), 1)
+
+        mock_validator.validate_image_dimensions.return_value = False
+        self.assertEqual(CTAGS.main(), 1)
+
+        mock_validator.validate_video_info.return_value = False
+        self.assertEqual(CTAGS.main(), 1)
+
     def _make_mock_video_info(
         self,
         mock_pbutils: MagicMock,

@@ -356,6 +356,7 @@ def main() -> int:
         ),
     )
 
+    return_value = 0
     # conditionally enter the temp file context
     with ExitStack() as stack:
         if not (hasattr(args, "path") and args.path):
@@ -391,8 +392,13 @@ def main() -> int:
                 continue
 
             all_fixed_caps = resolver.get_all_fixated_caps(
-                device.get_caps(), "known_values"
+                device.get_caps(), "known_values", limit=args.max_caps
             )
+
+            if len(all_fixed_caps) == 0:
+                logger.error("This device did not provide any capability.")
+                return_value = 1
+                continue
 
             logger.info("Testing device {}/{}".format(dev_i + 1, len(devices)))
             logger.info(  # just an estimate
@@ -428,11 +434,12 @@ def main() -> int:
                     if args.skip_validation:
                         continue
 
-                    validator.validate_image_dimensions(
+                    if not validator.validate_image_dimensions(
                         file_path,
                         expected_width=cap_struct.get_int("width").value,
                         expected_height=cap_struct.get_int("height").value,
-                    )
+                    ):
+                        return_value = 1
                 elif args.subcommand == "record-video":
                     if args.encoding is not None:
                         encoding_profile = ENCODING_PROFILES[args.encoding][
@@ -466,7 +473,7 @@ def main() -> int:
                     if args.skip_validation:
                         continue
 
-                    validator.validate_video_info(
+                    if not validator.validate_video_info(
                         file_path,
                         expected_duration_seconds=args.seconds,
                         expected_width=cap_struct.get_int("width").value,
@@ -475,14 +482,15 @@ def main() -> int:
                         expected_fps=cap_struct.get_fraction(
                             "framerate"
                         ).value_numerator,
-                    )
+                    ):
+                        return_value = 1
 
     logger.info("[ OK ] All done!")
-    return 0
+    return return_value
 
 
 if __name__ == "__main__":
     Gst.init(None)
     GstPbutils.pb_utils_init()
 
-    main()
+    exit(main())

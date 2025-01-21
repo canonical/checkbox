@@ -815,13 +815,26 @@ class TestExpand(TestCase):
         self.ctx = Mock()
         self.ctx.args = Mock(TEST_PLAN="", format="")
 
-        selected_1 = Mock(unit="manifest entry", id="some", partial_id="some")
+        selected_1 = Mock(
+            unit="manifest entry",
+            id="some",
+            partial_id="some",
+            is_hidden=False,
+        )
         selected_1._raw_data.copy.return_value = {}
         selected_2 = Mock(
-            unit="manifest entry", id="other", partial_id="other"
+            unit="manifest entry",
+            id="other",
+            partial_id="other",
+            is_hidden=False,
         )
         selected_2._raw_data.copy.return_value = {}
         not_selected = Mock(unit="manifest entry", partial_id="not_selected")
+        not_selected._raw_data.copy.return_value = {}
+        # hidden manifests are not exposed via expand
+        not_selected_1 = Mock(
+            unit="manifest entry", partial_id="_hidden", is_hidden=True
+        )
         not_selected._raw_data.copy.return_value = {}
 
         self.ctx.sa = Mock(
@@ -832,7 +845,12 @@ class TestExpand(TestCase):
             _context=Mock(
                 state=Mock(unit_list=[]),
                 _test_plan_list=[Mock()],
-                unit_list=[selected_1, selected_2, not_selected],
+                unit_list=[
+                    selected_1,
+                    selected_2,
+                    not_selected,
+                    not_selected_1,
+                ],
             ),
         )
 
@@ -856,7 +874,7 @@ class TestExpand(TestCase):
                 "template-id": "test-template",
                 "id": "test-{res}",
                 "template-summary": "Test Template Summary",
-                "requires": "manifest.some == 'True'",
+                "requires": "manifest.some == 'True'\nmanifest._hidden == 'False'",
             }
         )
         job1 = JobDefinition(
@@ -872,6 +890,7 @@ class TestExpand(TestCase):
         self.assertIn("Manifest 'some'", stdout.getvalue())
         self.assertIn("Manifest 'other'", stdout.getvalue())
         self.assertNotIn("Manifest 'not_selected'", stdout.getvalue())
+        self.assertNotIn("Manifest '_hidden'", stdout.getvalue())
 
     @patch("sys.stdout", new_callable=StringIO)
     @patch("checkbox_ng.launcher.subcommands.TestPlanUnitSupport")
@@ -882,7 +901,7 @@ class TestExpand(TestCase):
                 "template-id": "test-template",
                 "id": "test-{res}",
                 "template-summary": "Test Template Summary",
-                "requires": "manifest.some == 'True'",
+                "requires": "manifest.some == 'True'\nmanifest._hidden == 'False'",
             }
         )
         job1 = JobDefinition(
@@ -900,6 +919,7 @@ class TestExpand(TestCase):
         self.assertIn('"id": "some"', stdout.getvalue())
         self.assertIn('"id": "other"', stdout.getvalue())
         self.assertNotIn('"id": "not_selected"', stdout.getvalue())
+        self.assertNotIn('"id": "_hidden"', stdout.getvalue())
 
     def test_get_effective_certificate_status(self):
         job1 = JobDefinition(

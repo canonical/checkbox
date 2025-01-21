@@ -639,8 +639,7 @@ class RemoteController(ReportsStage, MainLoopStage):
 
     def select_jobs(self, all_jobs):
         if self.launcher.get_value("test selection", "forced"):
-            if self.launcher.manifest:
-                self._save_manifest(interactive=False)
+            self._save_manifest(interactive=False)
         else:
             _logger.info("controller: Selecting jobs.")
             reprs = json.loads(self.sa.get_jobs_repr(all_jobs))

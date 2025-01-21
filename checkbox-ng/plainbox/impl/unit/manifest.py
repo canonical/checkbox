@@ -23,7 +23,10 @@ import logging
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit_with_id import UnitWithId
-from plainbox.impl.unit.validators import MemberOfFieldValidator
+from plainbox.impl.unit.validators import (
+    MemberOfFieldValidator,
+    PresentFieldValidator,
+)
 
 logger = logging.getLogger("plainbox.unit.manifest")
 
@@ -39,6 +42,10 @@ class ManifestEntryUnit(UnitWithId):
     quantitative) of a device under test. Manifest data is provided externally
     and cannot or should not be detected by the code running on the device.
     """
+
+    @property
+    def is_hidden(self):
+        return self.partial_id.startswith("_")
 
     @property
     def name(self):
@@ -100,6 +107,7 @@ class ManifestEntryUnit(UnitWithId):
             value_type = "value-type"
             value_unit = "value-unit"
             resource_key = "resource-key"
+            hidden_reason = "hidden-reason"
 
         field_validators = {
             fields.name: [
@@ -119,4 +127,10 @@ class ManifestEntryUnit(UnitWithId):
                 # OPTIONAL
             ],
             fields.resource_key: [concrete_validators.untranslatable],
+            fields.hidden_reason: [
+                PresentFieldValidator(
+                    message="hidden_reason is mandatory for hidden manifests",
+                    onlyif=lambda unit: unit.is_hidden,
+                )
+            ],
         }

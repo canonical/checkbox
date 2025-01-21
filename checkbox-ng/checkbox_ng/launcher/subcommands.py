@@ -697,20 +697,16 @@ class Launcher(MainLoopStage, ReportsStage):
             # repr is question : [manifests]
             #   manifest ex m1 is [conf_m1_1, conf_m1_2, ...]
             # here we recover [conf_m1_1, conf_m1_2, ..., conf_m2_1, ...]
-            all_preconf = (
-                conf
+            to_save_manifest = {
+                conf["id"]: conf["value"]
                 for conf_list in manifest_repr.values()
                 for conf in conf_list
-            )
-            to_save_manifest = {
-                conf["id"]: conf["value"] for conf in all_preconf
             }
         self.ctx.sa.save_manifest(to_save_manifest)
 
     def _pick_jobs_to_run(self):
         if self.configuration.get_value("test selection", "forced"):
-            if self.configuration.manifest:
-                self._save_manifest(interactive=False)
+            self._save_manifest(interactive=False)
             # by default all tests are selected; so we're done here
             return
         job_list = [
@@ -1347,13 +1343,16 @@ class Expand:
 
         # only return manifest entries that are actually required by any job in
         # the list
-        return filter(
+        # Note: This doesn't take into consideration the manifest namespace so
+        #       it may be inaccurate (overinclusive) when manifests are aliased
+        all_manifests = filter(
             lambda manifest_unit: any(
                 "manifest.{}".format(manifest_unit.partial_id) in require
                 for require in job_requires
             ),
             manifest_units,
         )
+        return filter(lambda x: not x.is_hidden, all_manifests)
 
     def invoked(self, ctx):
         self.ctx = ctx

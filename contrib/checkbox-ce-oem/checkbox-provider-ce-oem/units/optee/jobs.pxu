@@ -77,6 +77,8 @@ user: root
 category_id: optee
 estimated_duration: 30
 flags: also-after-suspend
+requires: manifest.has_optee == 'True'
+imports: from com.canonical.plainbox import manifest
 depends: ce-oem-optee/ta-install
 command:
     if pgrep -x "tee-supplicant"  > /dev/null; then
@@ -98,6 +100,8 @@ plugin: shell
 user: root
 category_id: optee
 estimated_duration: 30
+requires: manifest.has_optee == 'True'
+imports: from com.canonical.plainbox import manifest
 depends: ce-oem-optee/device-node
 flags: also-after-suspend
 command:

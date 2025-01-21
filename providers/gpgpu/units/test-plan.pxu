@@ -4,9 +4,13 @@ _name: GPGPU Compute Stress Testing
 _description:
  Stress Tests for GPGPU Computations (non-graphical)
 include:
-    gpgpu/gpu-burn
-    gpgpu/rvs-iet
-    gpgpu/rvs-gst
+    gpgpu/gpu-burn    certification-status=blocker
+    gpgpu/rvs-iet     certification-status=non-blocker
+    gpgpu/rvs-gst     certification-status=blocker
+bootstrap_include:
+    graphics_card
+    snap
+    uname
 
 id: gpgpu-automated
 unit: test plan
@@ -14,15 +18,19 @@ _name: GPGPU Compute Automated Testing
 _description:
  Automated Tests for GPGPU Computations (non-graphical)
 include:
-    gpgpu/matrix-mul-drv
-    gpgpu/vector-add-drv
-    gpgpu/device-query-drv
-    gpgpu/simple-texture-drv
-    gpgpu/rvs-gpup
-    gpgpu/rvs-peqt
-    gpgpu/rvs-pebb
-    gpgpu/rvs-pbqt
-    gpgpu/rvs-babel
+    gpgpu/device-query-drv      certification-status=blocker
+    gpgpu/matrix-mul-drv        certification-status=non-blocker
+    gpgpu/vector-add-drv        certification-status=non-blocker
+    gpgpu/simple-texture-drv    certification-status=non-blocker
+    gpgpu/rvs-gpup              certification-status=blocker
+    gpgpu/rvs-peqt              certification-status=non-blocker
+    gpgpu/rvs-pebb              certification-status=non-blocker
+    gpgpu/rvs-pbqt              certification-status=non-blocker
+    gpgpu/rvs-babel             certification-status=non-blocker
+bootstrap_include:
+    graphics_card
+    snap
+    uname
 
 id: gpgpu-passthrough
 unit: test plan
@@ -30,7 +38,7 @@ _name: GPGPU Virtualization Passthrough Testing
 _description:
  Automated Tests for GPGPU Passthrough (non-graphical)
 include:
-    gpgpu/lxd-nvidia-gpu-passthrough-index
+    gpgpu/lxd-nvidia-gpu-passthrough-pci-device-name    certification-status=blocker
 bootstrap_include:
     graphics_card
     executable

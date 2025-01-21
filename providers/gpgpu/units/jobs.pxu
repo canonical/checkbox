@@ -74,8 +74,8 @@ _siblings: [
 unit: template
 template-resource: graphics_card
 template-filter: graphics_card.vendor == 'NVIDIA Corporation'
-template-id: gpgpu/lxd-nvidia-gpu-passthrough-index
-id: gpgpu/lxd-nvidia-gpu-passthrough-{index}
+template-id: gpgpu/lxd-nvidia-gpu-passthrough-pci-device-name
+id: gpgpu/lxd-nvidia-gpu-passthrough-{pci_device_name}
 requires:
     graphics_card.driver == 'nvidia'
     executable.name == 'lxc'

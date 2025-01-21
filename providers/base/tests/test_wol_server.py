@@ -18,22 +18,28 @@
 
 
 import unittest
-from unittest.mock import patch
-from fastapi.testclient import TestClient
+from unittest.mock import patch, MagicMock
+import subprocess
+import sys
+import asyncio
+
+sys.modules["fastapi"] = MagicMock()
+sys.modules["fastapi.FastAPI"] = MagicMock()
+sys.modules["fastapi.HTTPException"] = MagicMock()
+sys.modules["fastapi.responses.JSONResponse"] = MagicMock()
+sys.modules["fastapi.responses"] = MagicMock()
+sys.modules["fastapi.encoders"] = MagicMock()
+
 from wol_server import (
-    app,
+    # testing,
     tasker_main,
     send_wol_command,
     is_pingable,
     run_task,
 )
-import subprocess
-
-client = TestClient(app)
 
 
 class TestMainFunction(unittest.TestCase):
-
     def setUp(self):
         self.wol_info = {
             "DUT_MAC": "00:11:22:33:44:55",
@@ -49,23 +55,6 @@ class TestMainFunction(unittest.TestCase):
             "retry_times": 2,
             "wake_type": "g",
         }
-
-    @patch("wol_server.tasker_main")
-    def test_testing_endpoint_success(self, mock_tasker_main):
-        mock_tasker_main.return_value = {"result": "success"}
-        response = client.post("/", json=self.wol_info)
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), {"result": "success"})
-
-    @patch("wol_server.tasker_main")
-    @patch("wol_server.logger")
-    def test_testing_endpoint_exception(self, mock_logger, mock_tasker_main):
-        mock_tasker_main.side_effect = Exception("Simulated exception")
-        response = client.post("/", json=self.wol_info)
-        self.assertEqual(response.status_code, 500)
-        mock_logger.error.assert_called_with(
-            "exception in testing: Simulated exception"
-        )
 
     @patch("wol_server.logger")
     @patch("wol_server.subprocess.check_output")

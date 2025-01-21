@@ -13,6 +13,7 @@ include:
 nested_part:
     ce-oem-iot-server-24-04-manual
     ce-oem-iot-server-24-04-automated
+    ce-oem-iot-server-24-04-stress
 certification_status_overrides:
     apply blocker to .*
 
@@ -25,6 +26,7 @@ include:
 nested_part:
     ce-oem-iot-server-22-04-manual
     ce-oem-iot-server-22-04-automated
+    ce-oem-iot-server-22-04-stress
 certification_status_overrides:
     apply blocker to .*
 
@@ -37,6 +39,7 @@ include:
 nested_part:
     ce-oem-iot-server-20-04-manual
     ce-oem-iot-server-20-04-automated
+    ce-oem-iot-server-20-04-stress
 certification_status_overrides:
     apply blocker to .*
 

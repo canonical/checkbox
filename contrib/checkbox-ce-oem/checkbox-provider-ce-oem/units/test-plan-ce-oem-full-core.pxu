@@ -13,6 +13,7 @@ include:
 nested_part:
     ce-oem-iot-ubuntucore-24-manual
     ce-oem-iot-ubuntucore-24-automated
+    ce-oem-iot-ubuntucore-24-stress
 certification_status_overrides:
     apply blocker to .*
 
@@ -25,6 +26,7 @@ include:
 nested_part:
     ce-oem-iot-ubuntucore-22-manual
     ce-oem-iot-ubuntucore-22-automated
+    ce-oem-iot-ubuntucore-22-stress
 certification_status_overrides:
     apply blocker to .*
 
@@ -37,6 +39,7 @@ include:
 nested_part:
     ce-oem-iot-ubuntucore-20-manual
     ce-oem-iot-ubuntucore-20-automated
+    ce-oem-iot-ubuntucore-20-stress
 certification_status_overrides:
     apply blocker to .*
 

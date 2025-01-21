@@ -30,18 +30,22 @@ _ = gettext.gettext
 
 
 def main():
-    """ Main function. """
-    gettext.textdomain('plainbox-provider-manifest')
-    gettext.bindtextdomain('plainbox-provider-manifest',
-                           os.getenv('PLAINBOX_PROVIDER_LOCALE_DIR'))
+    """Main function."""
+    gettext.textdomain("plainbox-provider-manifest")
+    gettext.bindtextdomain(
+        "plainbox-provider-manifest", os.getenv("PLAINBOX_PROVIDER_LOCALE_DIR")
+    )
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '-m', '--manifest', metavar='PATH',
-        default='/var/tmp/checkbox-ng/machine-manifest.json',
-        help=_('Path to alternate machine manifest'))
+        "-m",
+        "--manifest",
+        metavar="PATH",
+        default="/var/tmp/checkbox-ng/machine-manifest.json",
+        help=_("Path to alternate machine manifest"),
+    )
     args = parser.parse_args()
     if os.path.isfile(args.manifest):
-        with open(args.manifest, 'rt', encoding='UTF-8') as stream:
+        with open(args.manifest, "rt", encoding="UTF-8") as stream:
             manifest = json.load(stream)
     else:
         manifest = {}
@@ -51,12 +55,15 @@ def main():
         print("ns: {}".format(provider.namespace))
         print("name: {}".format(provider.name))
         for unit in provider.unit_list:
-            if unit.Meta.name != 'manifest entry':
+            if unit.Meta.name != "manifest entry":
                 continue
-            print("{}: {}".format(
-                unit.resource_key, manifest.get(unit.id, '')))
+            print(
+                "{}: {}".format(
+                    unit.resource_key, manifest.get(unit.id, "False")
+                )
+            )
         print()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -29,7 +29,7 @@ from fastapi import HTTPException
 
 app = FastAPI()
 
-LOG_LEVEL = "DEBUG"
+LOG_LEVEL = "INFO"
 logging.basicConfig(level=LOG_LEVEL)
 logger = logging.getLogger(__name__)
 

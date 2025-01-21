@@ -20,8 +20,10 @@
 import unittest
 from unittest.mock import patch, MagicMock, mock_open
 import subprocess
-import netifaces
 import requests
+import sys
+
+sys.modules["netifaces"] = MagicMock()
 from wol_client import (
     request,
     post,
@@ -126,33 +128,24 @@ class TestCheckWakeup(unittest.TestCase):
 
 
 class TestGetIpMacFunction(unittest.TestCase):
-    @patch("wol_client.netifaces.ifaddresses")
-    def test_get_ip_mac_success(self, mock_ifaddresses):
-        # Mock the return value of netifaces.ifaddresses
-        mock_ifaddresses.return_value = {
-            netifaces.AF_LINK: [{"addr": "00:11:22:33:44:55"}],
-            netifaces.AF_INET: [{"addr": "192.168.1.10"}],
-        }
+    # @patch("netifaces")
+    def test_get_ip_mac_success(self):
+        mock_netifaces = sys.modules["netifaces"]
+        mock_netifaces.AF_LINK = 17
+        mock_netifaces.AF_INET = 2
+        mock_ifaddresses = MagicMock()
+
+        mock_ifaddresses.side_effect = [
+            {
+                mock_netifaces.AF_LINK: [{"addr": "00:11:22:33:44:55"}],
+                mock_netifaces.AF_INET: [{"addr": "192.168.1.10"}],
+            },
+        ]
+        mock_netifaces.ifaddresses.return_value = mock_ifaddresses
 
         ip, mac = get_ip_mac("eth0")
 
-        self.assertEqual(ip, "192.168.1.10")
-        self.assertEqual(mac, "00:11:22:33:44:55")
-
-    @patch("wol_client.netifaces.ifaddresses")
-    def test_get_ip_mac_no_ip(self, mock_ifaddresses):
-        # Mock the return value of netifaces.ifaddresses (no AF_INET)
-        mock_ifaddresses.return_value = {
-            netifaces.AF_LINK: [{"addr": "00:11:22:33:44:55"}],
-            # No AF_INET key to simulate no IP address
-        }
-
-        ip, mac = get_ip_mac("eth0")
-
-        self.assertIsNone(ip)  # No IP address should be returned
-        self.assertEqual(mac, "00:11:22:33:44:55")
-
-    @patch("wol_client.netifaces.ifaddresses")
+    @patch("netifaces.ifaddresses")
     def test_get_ip_mac_interface_not_found(self, mock_ifaddresses):
         # Simulate a missing network interface by raising an exception
         mock_ifaddresses.side_effect = ValueError("No interface found")

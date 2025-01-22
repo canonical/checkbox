@@ -345,8 +345,8 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         # Ensure that the wrapper is :class:`PlugIn`
         self.assertEqual(self.col._wrapper, PlugIn)
 
-    @mock.patch("plainbox.impl.secure.plugins.metadata")
-    def test_load(self, mock_metadata):
+    @mock.patch("plainbox.impl.secure.plugins.get_entry_points")
+    def test_load(self, mock_get_entry_points):
         # Create a mocked entry point
         mock_ep1 = mock.Mock()
         mock_ep1.name = "zzz"
@@ -356,18 +356,18 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         mock_ep2.name = "aaa"
         mock_ep2.load.return_value = "one"
         # Make the collection load both mocked entry points
-        mock_metadata.entry_points.return_value = [mock_ep1, mock_ep2]
+        mock_get_entry_points.return_value = [mock_ep1, mock_ep2]
         # Load plugins
         self.col.load()
         # Ensure that pkg_resources were interrogated
-        mock_metadata.entry_points.assert_called_with(group=self._NAMESPACE)
+        mock_get_entry_points.assert_called_with(group=self._NAMESPACE)
         # Ensure that both entry points were loaded
         mock_ep1.load.assert_called_with()
         mock_ep2.load.assert_called_with()
 
     @mock.patch("plainbox.impl.secure.plugins.logger")
-    @mock.patch("plainbox.impl.secure.plugins.metadata")
-    def test_load_failing(self, mock_metadata, mock_logger):
+    @mock.patch("plainbox.impl.secure.plugins.get_entry_points")
+    def test_load_failing(self, mock_get_entry_points, mock_logger):
         # Create a mocked entry point
         mock_ep1 = mock.Mock()
         mock_ep1.name = "zzz"
@@ -377,11 +377,11 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         mock_ep2.name = "aaa"
         mock_ep2.load.side_effect = ImportError("boom")
         # Make the collection load both mocked entry points
-        mock_metadata.entry_points.return_value = [mock_ep1, mock_ep2]
+        mock_get_entry_points.return_value = [mock_ep1, mock_ep2]
         # Load plugins
         self.col.load()
         # Ensure that pkg_resources were interrogated
-        mock_metadata.entry_points.assert_called_with(group=self._NAMESPACE)
+        mock_get_entry_points.assert_called_with(group=self._NAMESPACE)
         # Ensure that both entry points were loaded
         mock_ep1.load.assert_called_with()
         mock_ep2.load.assert_called_with()

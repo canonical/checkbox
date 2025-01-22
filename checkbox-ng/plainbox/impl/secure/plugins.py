@@ -40,19 +40,28 @@ The set of loaded plugins can be overridden by mock/patching
 testing in isolation from whatever entry points may exist in the system.
 """
 
+import os
 import abc
+import time
+import logging
 import collections
 import contextlib
-import logging
-import os
-import time
-
-try:
-    from importlib import metadata
-except ImportError:
-    import importlib_metadata as metadata
+from contextlib import suppress
 
 from plainbox.i18n import gettext as _
+
+try:
+    from importlib.metadata import entry_points
+except ImportError:
+    from importlib_metadata import entry_points
+
+
+def get_entry_points(**kwargs):
+    with suppress(TypeError):
+        return entry_points(**kwargs)
+    import pkg_resources
+
+    return pkg_resources.iter_entry_points(**kwargs)
 
 
 logger = logging.getLogger("plainbox.secure.plugins")
@@ -540,7 +549,7 @@ class PkgResourcesPlugInCollection(PlugInCollectionBase):
         This is the method you want to mock if you are writing unit tests
         """
 
-        return metadata.entry_points(group=self._namespace)
+        return get_entry_points(group=self._namespace)
 
 
 class FsPlugInCollection(PlugInCollectionBase):

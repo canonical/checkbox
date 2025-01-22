@@ -29,22 +29,31 @@ Shared code for test data transports..
 """
 
 import sys
+import requests
 
 from io import TextIOWrapper
 from logging import getLogger
 from shutil import copyfileobj
+from contextlib import suppress
 from collections import OrderedDict
-
-try:
-    from importlib import metadata
-except ImportError:
-    import importlib_metadata as metadata
 
 from plainbox.abc import ISessionStateTransport
 from plainbox.i18n import gettext as _
 from plainbox.impl.exporter import ByteStringStreamTranslator
 
-import requests
+try:
+    from importlib.metadata import entry_points
+except ImportError:
+    from importlib_metadata import entry_points
+
+
+def get_entry_points(**kwargs):
+    with suppress(TypeError):
+        return entry_points(**kwargs)
+    import pkg_resources
+
+    return pkg_resources.iter_entry_points(**kwargs)
+
 
 # OAuth is not always available on all platforms.
 _oauth_available = True
@@ -258,7 +267,7 @@ def get_all_transports():
     Returns a map of transports (mapping from name to transport class)
     """
     transport_map = OrderedDict()
-    iterator = metadata.entry_points(group="plainbox.transport")
+    iterator = get_entry_points(group="plainbox.transport")
     for entry_point in sorted(iterator, key=lambda ep: ep.name):
         try:
             transport_cls = entry_point.load()

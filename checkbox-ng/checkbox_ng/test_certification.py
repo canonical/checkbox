@@ -43,7 +43,7 @@ try:
     def resource_string(module, path):
         return files(module).joinpath(path).read_bytes()
 
-except (ModuleNotFoundError, ImportError):
+except ImportError:
     from pkg_resources import resource_string
 
 

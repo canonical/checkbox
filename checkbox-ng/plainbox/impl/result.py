@@ -479,7 +479,7 @@ class _JobResultBase(IJobResult):
             return ""
         filename = io_log_filename.replace("record.gz", "stdout")
 
-        with suppress(ModuleNotFoundError):
+        with suppress(ImportError):
             import imghdr  # removed since python3.13
 
             return imghdr.what(filename)

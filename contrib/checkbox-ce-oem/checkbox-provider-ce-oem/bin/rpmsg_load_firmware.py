@@ -59,9 +59,14 @@ class RpmsgLoadFirmwareTest:
 
     def _teardown(self):
         self.rpmsg_state = "stop"
-        for key in self.properties:
-            if getattr(self, key) != self._previous_config[key]:
-                setattr(self, key, self._previous_config[key])
+        self._firmware_path = self._previous_config["firmware_path"]
+        self._firmware_file = self._previous_config["firmware_file"]
+        if (
+            self._firmware_file.strip()
+            and self._previous_config["rpmsg_state"] == "running"
+        ):
+            # start RPMSG again when firmware file been configured
+            self.rpmsg_state = "start"
 
     @property
     def firmware_path(self) -> str:
@@ -81,10 +86,51 @@ class RpmsgLoadFirmwareTest:
 
     @property
     def rpmsg_state(self) -> str:
+        """
+        Reports the state of the remote processor, which will be one of:
+
+        - "offline"
+        - "suspended"
+        - "running"
+        - "crashed"
+        - "invalid"
+
+        "offline" means the remote processor is powered off.
+        "suspended" means that the remote processor is suspended and
+        must be woken to receive messages.
+        "running" is the normal state of an available remote processor
+        "crashed" indicates that a problem/crash has been detected on
+        the remote processor.
+        "invalid" is returned if the remote processor is in an
+        unknown state.
+
+        Returns:
+            str: remote processor state
+        """
         return self._rpmsg_state.read_text()
 
     @rpmsg_state.setter
     def rpmsg_state(self, value: str) -> None:
+        """
+        Writing this file controls the state of the remote processor.
+
+        The following states can be written:
+        - "start"
+        - "stop"
+
+        Writing "start" will attempt to start the processor running the
+        firmware indicated by, or written to,
+        /sys/class/remoteproc/.../firmware. The remote processor should
+        transition to "running" state.
+
+        Writing "stop" will attempt to halt the remote processor and
+        return it to the "offline" state.
+
+        Returns:
+            None
+        """
+        if value not in ["start", "stop"]:
+            raise ValueError("Unsupported value for remote processor state")
         self._rpmsg_state.write_text(value)
 
     @property
@@ -169,7 +215,11 @@ def load_firmware_test(args) -> None:
     with RpmsgLoadFirmwareTest(remote_proc_dev) as rpmsg_handler:
         rpmsg_handler.search_pattern = search_patterns
         rpmsg_handler._init_logger()
-        if rpmsg_handler.rpmsg_state == "online":
+        if rpmsg_handler.rpmsg_state.strip() in [
+            "running",
+            "suspended",
+            "invalid",
+        ]:
             logging.info("Stop the Remote processor")
             rpmsg_handler.rpmsg_state = "stop"
         logging.info(

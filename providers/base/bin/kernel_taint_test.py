@@ -96,6 +96,10 @@ def remove_ignored_modules(modules):
         "znvpair",
         "zunicode",
         "zzstd",
+        "nvidia_uvm",
+        "nvidia_drm",
+        "nvidia_modeset",
+        "nvidia",
     ]
     for ignore_mod in ignored_modules:
         try:

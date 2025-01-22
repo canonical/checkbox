@@ -95,6 +95,16 @@ class ManifestEntryUnit(UnitWithId):
         """
         return self.get_record_value("resource-key", self.partial_id)
 
+    @property
+    def hidden_reason(self):
+        """
+        Reason why a manifest entry was hidden.
+
+        This is a "required" documentation field to preserve the reason why a
+        manifest entry was hidden (or introduced hidden)
+        """
+        return self.get_record_value("hidden-reason")
+
     class Meta:
 
         name = "manifest entry"

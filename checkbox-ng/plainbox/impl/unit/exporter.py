@@ -23,7 +23,10 @@ import logging
 import os.path
 import re
 
-import pkg_resources
+try:
+    from importlib import metadata
+except ImportError:
+    import importlib_metadata as metadata
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.symbol import SymbolDef
@@ -122,9 +125,13 @@ class ExporterUnit(UnitWithId):
                 concrete_validators.present,
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
-                    lambda entry_point: pkg_resources.load_entry_point(
-                        "checkbox-ng", "plainbox.exporter", entry_point
-                    ),
+                    lambda entry_point: next(
+                        iter(
+                            metadata.entry_points(
+                                group="plainbox.exporter", name=entry_point
+                            )
+                        )
+                    ).load(),
                     Problem.wrong,
                     Severity.error,
                 ),
@@ -218,9 +225,13 @@ class ExporterUnitSupport:
 
     def _get_exporter_cls(self, exporter):
         """Return the exporter class."""
-        return pkg_resources.load_entry_point(
-            "checkbox-ng", "plainbox.exporter", exporter.entry_point
-        )
+        return next(
+            iter(
+                metadata.entry_points(
+                    group="plainbox.exporter", name=exporter.entry_point
+                )
+            )
+        ).load()
 
 
 class ExporterError(Exception):

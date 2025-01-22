@@ -28,13 +28,17 @@ Shared code for test data transports..
     THIS MODULE DOES NOT HAVE STABLE PUBLIC API
 """
 
-from collections import OrderedDict
+import sys
+
 from io import TextIOWrapper
 from logging import getLogger
-import pkg_resources
-import re
 from shutil import copyfileobj
-import sys
+from collections import OrderedDict
+
+try:
+    from importlib import metadata
+except ImportError:
+    import importlib_metadata as metadata
 
 from plainbox.abc import ISessionStateTransport
 from plainbox.i18n import gettext as _
@@ -254,7 +258,7 @@ def get_all_transports():
     Returns a map of transports (mapping from name to transport class)
     """
     transport_map = OrderedDict()
-    iterator = pkg_resources.iter_entry_points("plainbox.transport")
+    iterator = metadata.entry_points(group="plainbox.transport")
     for entry_point in sorted(iterator, key=lambda ep: ep.name):
         try:
             transport_cls = entry_point.load()

@@ -126,7 +126,16 @@ class SymbolDefNs:
     :class:`Symbol` and added to the namespace.
     """
 
-    PASSTHRU = frozenset(("__name__", "__qualname__", "__doc__", "__module__"))
+    PASSTHRU = frozenset(
+        (
+            "__name__",
+            "__qualname__",
+            "__doc__",
+            "__module__",
+            "__firstlineno__",
+            "__static_attributes__",
+        )
+    )
 
     def __init__(self, allow_outer=None):
         self.data = {}

@@ -22,16 +22,18 @@ plainbox.impl.secure.test_plugins
 Test definitions for plainbox.impl.secure.plugins module
 """
 
-from unittest import TestCase
-import collections
 import os
+import collections
+from unittest import TestCase, mock
 
-from plainbox.impl.secure.plugins import FsPlugInCollection
-from plainbox.impl.secure.plugins import IPlugIn, PlugIn
-from plainbox.impl.secure.plugins import PkgResourcesPlugInCollection
-from plainbox.impl.secure.plugins import PlugInCollectionBase
-from plainbox.impl.secure.plugins import PlugInError
-from plainbox.vendor import mock
+from plainbox.impl.secure.plugins import (
+    FsPlugInCollection,
+    IPlugIn,
+    PlugIn,
+    PkgResourcesPlugInCollection,
+    PlugInCollectionBase,
+    PlugInError,
+)
 
 
 class PlugInTests(TestCase):
@@ -343,8 +345,8 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         # Ensure that the wrapper is :class:`PlugIn`
         self.assertEqual(self.col._wrapper, PlugIn)
 
-    @mock.patch("pkg_resources.iter_entry_points")
-    def test_load(self, mock_iter):
+    @mock.patch("plainbox.impl.secure.plugins.metadata")
+    def test_load(self, mock_metadata):
         # Create a mocked entry point
         mock_ep1 = mock.Mock()
         mock_ep1.name = "zzz"
@@ -354,18 +356,18 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         mock_ep2.name = "aaa"
         mock_ep2.load.return_value = "one"
         # Make the collection load both mocked entry points
-        mock_iter.return_value = [mock_ep1, mock_ep2]
+        mock_metadata.entry_points.return_value = [mock_ep1, mock_ep2]
         # Load plugins
         self.col.load()
         # Ensure that pkg_resources were interrogated
-        mock_iter.assert_called_with(self._NAMESPACE)
+        mock_metadata.entry_points.assert_called_with(group=self._NAMESPACE)
         # Ensure that both entry points were loaded
         mock_ep1.load.assert_called_with()
         mock_ep2.load.assert_called_with()
 
     @mock.patch("plainbox.impl.secure.plugins.logger")
-    @mock.patch("pkg_resources.iter_entry_points")
-    def test_load_failing(self, mock_iter, mock_logger):
+    @mock.patch("plainbox.impl.secure.plugins.metadata")
+    def test_load_failing(self, mock_metadata, mock_logger):
         # Create a mocked entry point
         mock_ep1 = mock.Mock()
         mock_ep1.name = "zzz"
@@ -375,11 +377,11 @@ class PkgResourcesPlugInCollectionTests(TestCase):
         mock_ep2.name = "aaa"
         mock_ep2.load.side_effect = ImportError("boom")
         # Make the collection load both mocked entry points
-        mock_iter.return_value = [mock_ep1, mock_ep2]
+        mock_metadata.entry_points.return_value = [mock_ep1, mock_ep2]
         # Load plugins
         self.col.load()
         # Ensure that pkg_resources were interrogated
-        mock_iter.assert_called_with(self._NAMESPACE)
+        mock_metadata.entry_points.assert_called_with(group=self._NAMESPACE)
         # Ensure that both entry points were loaded
         mock_ep1.load.assert_called_with()
         mock_ep2.load.assert_called_with()

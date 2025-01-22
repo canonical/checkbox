@@ -25,22 +25,17 @@ Test definitions for plainbox.provider_manager module
 """
 
 from unittest import TestCase
-import inspect
 import os
 import shutil
-import sys
 import tarfile
 import tempfile
 import textwrap
-import plainbox
 
-from plainbox.impl.providers.v1 import get_universal_PROVIDERPATH_entry
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.provider_manager import InstallCommand
 from plainbox.provider_manager import ManageCommand
 from plainbox.provider_manager import ProviderManagerTool
 from plainbox.provider_manager import manage_py_extension
-from plainbox.testing_utils.argparse_compat import optionals_section
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor import mock
 
@@ -654,9 +649,18 @@ class ProviderManagerToolTests(TestCase):
         :param content:
             expected text of the extracted member
         """
+
+        def tarfile_extract(tar, member, temp):
+            # since python3.12 not using the filter parameter yields a
+            # deprecation warning but the parameter wasn't there before
+            try:
+                return tar.extract(member, temp, filter="data")
+            except TypeError:
+                return tar.extract(member, temp)
+
         with tarfile.open(tarball, "r:*") as tar:
             with tempfile.TemporaryDirectory() as temp:
-                tar.extract(member, temp)
+                tarfile_extract(tar, member, temp)
                 extracted = os.path.join(temp, member)
                 with open(extracted, "rt", encoding="UTF-8") as stream:
                     self.assertEqual(stream.read(), content)

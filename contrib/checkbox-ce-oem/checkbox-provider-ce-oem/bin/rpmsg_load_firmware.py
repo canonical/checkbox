@@ -59,18 +59,18 @@ class RpmsgLoadFirmwareTest:
 
     def _teardown(self):
         self.rpmsg_state = "stop"
-        self._firmware_path = self._previous_config["firmware_path"]
-        self._firmware_file = self._previous_config["firmware_file"]
+        self.firmware_path = self._previous_config["firmware_path"]
+        self.firmware_file = self._previous_config["firmware_file"]
         if (
-            self._firmware_file.strip()
-            and self._previous_config["rpmsg_state"] == "running"
+            self.firmware_file.strip() != "(null)"
+            and self._previous_config["rpmsg_state"].strip() == "running"
         ):
             # start RPMSG again when firmware file been configured
             self.rpmsg_state = "start"
 
     @property
     def firmware_path(self) -> str:
-        return self._firmware_path.read_text()
+        return self._firmware_path.read_text().strip()
 
     @firmware_path.setter
     def firmware_path(self, value: str) -> None:

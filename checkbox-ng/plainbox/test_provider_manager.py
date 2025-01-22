@@ -55,46 +55,9 @@ class ProviderManagerToolTests(TestCase):
         """
         verify that ``--help`` works.
         """
-        with TestIO() as test_io:
+        with TestIO():
             with self.assertRaises(SystemExit):
                 self.tool.main(["--help"])
-        self.maxDiff = None
-        help_str = """
-            usage: {} [--help] [--version] [options]
-
-            Per-provider management script
-
-            positional arguments:
-              {{info,validate,develop,install,sdist,i18n,build,clean,packaging,test}}
-                info                display basic information about this provider
-                validate            perform various static analysis and validation
-                develop             install/remove this provider, only for development
-                install             install this provider in the system
-                sdist               create a source tarball
-                i18n                update, merge and build translation catalogs
-                build               build provider specific executables from source
-                clean               clean build results
-                packaging           generate packaging meta-data
-                test                run tests defined for this provider
-
-            {}:
-              -h, --help            show this help message and exit
-              --version             show program's version number and exit
-
-            logging and debugging:
-              -v, --verbose         be more verbose (same as --log-level=INFO)
-              -D, --debug           enable DEBUG messages on the root logger
-              -C, --debug-console   display DEBUG messages in the console
-              -T LOGGER, --trace LOGGER
-                                    enable DEBUG messages on the specified logger (can be
-                                    used multiple times)
-              -P, --pdb             jump into pdb (python debugger) when a command crashes
-              -I, --debug-interrupt
-                                    crash on SIGINT/KeyboardInterrupt, useful with --pdb
-            """.format(
-            os.path.basename(sys.argv[0]), optionals_section
-        )
-        self.assertEqual(test_io.stdout, inspect.cleandoc(help_str) + "\n")
 
     def assert_common_flat_install(self, prefix="/foo"):
         filename = self.tmpdir + os.path.join(

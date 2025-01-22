@@ -104,7 +104,7 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         self._system_id = system_id
         # Generate a time-stamp if needed
         self._timestamp = timestamp or datetime.datetime.now(
-            datetime.UTC
+            datetime.timezone.utc
         ).strftime("%Y-%m-%dT%H:%M:%S")
         # Use current version unless told otherwise
         self._client_version = client_version or get_version_string()

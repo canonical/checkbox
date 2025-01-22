@@ -62,7 +62,7 @@ class IOLogRecordGenerator(extcmd.DelegateBase):
 
         Begins tracking time (relative time entries)
         """
-        self.last_msg = datetime.datetime.now(datetime.UTC)
+        self.last_msg = datetime.datetime.now(datetime.timezone.utc)
 
     def on_line(self, stream_name, line):
         """
@@ -72,7 +72,7 @@ class IOLogRecordGenerator(extcmd.DelegateBase):
         Maintains a timestamp of the last message so that approximate delay
         between each piece of output can be recorded as well.
         """
-        now = datetime.datetime.now(datetime.UTC)
+        now = datetime.datetime.now(datetime.timezone.utc)
         delay = now - self.last_msg
         self.last_msg = now
         record = IOLogRecord(delay.total_seconds(), stream_name, line)

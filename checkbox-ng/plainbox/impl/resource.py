@@ -28,6 +28,7 @@
 """
 
 import ast
+import sys
 import itertools
 import logging
 
@@ -381,8 +382,6 @@ class ResourceNodeVisitor(ast.NodeVisitor):
         ast.Compare,  # comparisons
         ast.List,  # lists
         ast.Name,  # name access (top-level name references)
-        ast.Num,  # numbers
-        ast.Str,  # strings
         ast.Tuple,  # tuples
         ast.UnaryOp,  # unary operators
         # Allow all comparison operators
@@ -392,6 +391,17 @@ class ResourceNodeVisitor(ast.NodeVisitor):
         # Allowed expression context (ast.expr_context)
         ast.Load,  # allow all loads
     )
+    if sys.version_info[0] == 3 and sys.version_info[1] < 8:
+        # legacy lemmas, replaced with ast.Constant
+        _allowed_node_cls_list += (
+            ast.Num,  # numbers
+            ast.Str,  # strings
+        )
+    try:
+        # new in python3.6, use legacy lemmas on 3.5
+        _allowed_node_cls_list += (ast.Constant,)
+    except AttributeError:
+        ...
 
     def __init__(self):
         """

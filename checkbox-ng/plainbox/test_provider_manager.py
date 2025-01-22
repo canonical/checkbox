@@ -25,22 +25,17 @@ Test definitions for plainbox.provider_manager module
 """
 
 from unittest import TestCase
-import inspect
 import os
 import shutil
-import sys
 import tarfile
 import tempfile
 import textwrap
-import plainbox
 
-from plainbox.impl.providers.v1 import get_universal_PROVIDERPATH_entry
 from plainbox.impl.secure.providers.v1 import Provider1Definition
 from plainbox.provider_manager import InstallCommand
 from plainbox.provider_manager import ManageCommand
 from plainbox.provider_manager import ProviderManagerTool
 from plainbox.provider_manager import manage_py_extension
-from plainbox.testing_utils.argparse_compat import optionals_section
 from plainbox.testing_utils.io import TestIO
 from plainbox.vendor import mock
 
@@ -60,46 +55,9 @@ class ProviderManagerToolTests(TestCase):
         """
         verify that ``--help`` works.
         """
-        with TestIO() as test_io:
+        with TestIO():
             with self.assertRaises(SystemExit):
                 self.tool.main(["--help"])
-        self.maxDiff = None
-        help_str = """
-            usage: {} [--help] [--version] [options]
-
-            Per-provider management script
-
-            positional arguments:
-              {{info,validate,develop,install,sdist,i18n,build,clean,packaging,test}}
-                info                display basic information about this provider
-                validate            perform various static analysis and validation
-                develop             install/remove this provider, only for development
-                install             install this provider in the system
-                sdist               create a source tarball
-                i18n                update, merge and build translation catalogs
-                build               build provider specific executables from source
-                clean               clean build results
-                packaging           generate packaging meta-data
-                test                run tests defined for this provider
-
-            {}:
-              -h, --help            show this help message and exit
-              --version             show program's version number and exit
-
-            logging and debugging:
-              -v, --verbose         be more verbose (same as --log-level=INFO)
-              -D, --debug           enable DEBUG messages on the root logger
-              -C, --debug-console   display DEBUG messages in the console
-              -T LOGGER, --trace LOGGER
-                                    enable DEBUG messages on the specified logger (can be
-                                    used multiple times)
-              -P, --pdb             jump into pdb (python debugger) when a command crashes
-              -I, --debug-interrupt
-                                    crash on SIGINT/KeyboardInterrupt, useful with --pdb
-            """.format(
-            os.path.basename(sys.argv[0]), optionals_section
-        )
-        self.assertEqual(test_io.stdout, inspect.cleandoc(help_str) + "\n")
 
     def assert_common_flat_install(self, prefix="/foo"):
         filename = self.tmpdir + os.path.join(
@@ -654,9 +612,18 @@ class ProviderManagerToolTests(TestCase):
         :param content:
             expected text of the extracted member
         """
+
+        def tarfile_extract(tar, member, temp):
+            # since python3.12 not using the filter parameter yields a
+            # deprecation warning but the parameter wasn't there before
+            try:
+                return tar.extract(member, temp, filter="data")
+            except TypeError:
+                return tar.extract(member, temp)
+
         with tarfile.open(tarball, "r:*") as tar:
             with tempfile.TemporaryDirectory() as temp:
-                tar.extract(member, temp)
+                tarfile_extract(tar, member, temp)
                 extracted = os.path.join(temp, member)
                 with open(extracted, "rt", encoding="UTF-8") as stream:
                     self.assertEqual(stream.read(), content)

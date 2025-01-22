@@ -30,17 +30,16 @@ This module has two basic implementation of :class:`IJobResult`:
 import base64
 import codecs
 import gzip
-import imghdr
 import inspect
 import io
 import json
 import logging
 import re
+from contextlib import suppress
 from collections import namedtuple
 
 from plainbox.abc import IJobResult
-from plainbox.i18n import gettext as _
-from plainbox.i18n import pgettext as C_
+from plainbox.i18n import gettext as _, pgettext as C_
 from plainbox.impl import pod
 from plainbox.impl.decorators import raises
 
@@ -479,7 +478,18 @@ class _JobResultBase(IJobResult):
         except AttributeError:
             return ""
         filename = io_log_filename.replace("record.gz", "stdout")
-        return imghdr.what(filename)
+
+        with suppress(ImportError):
+            import imghdr  # removed since python3.13
+
+            return imghdr.what(filename)
+
+        import filetype
+
+        kind = filetype.guess(filename)
+        if kind and kind.mime.startswith("image"):
+            return kind.extension
+        return ""
 
     @property
     def io_log_as_base64(self):

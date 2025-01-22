@@ -27,8 +27,8 @@
 
 import json
 import re
+import datetime
 from collections import OrderedDict
-from datetime import datetime
 from packaging import version
 
 import jinja2
@@ -46,7 +46,6 @@ except ImportError:  # renamed in jinja2 3.1
 
 from plainbox import get_version_string
 from plainbox import get_origin
-from plainbox.abc import ISessionStateExporter
 from plainbox.impl.exporter import SessionStateExporterBase
 from plainbox.impl.result import OUTCOME_METADATA_MAP
 from plainbox.impl.unit.exporter import ExporterError
@@ -104,9 +103,9 @@ class Jinja2SessionStateExporter(SessionStateExporterBase):
         self._unit = exporter_unit
         self._system_id = system_id
         # Generate a time-stamp if needed
-        self._timestamp = timestamp or datetime.utcnow().strftime(
-            "%Y-%m-%dT%H:%M:%S"
-        )
+        self._timestamp = timestamp or datetime.datetime.now(
+            datetime.timezone.utc
+        ).strftime("%Y-%m-%dT%H:%M:%S")
         # Use current version unless told otherwise
         self._client_version = client_version or get_version_string()
         # Remember client name

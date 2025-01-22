@@ -18,21 +18,35 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """Exporter Entry Unit."""
+import re
 import json
 import logging
 import os.path
-import re
-
-import pkg_resources
+from contextlib import suppress
 
 from plainbox.i18n import gettext as _
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit_with_id import UnitWithId
-from plainbox.impl.unit.validators import CorrectFieldValueValidator
-from plainbox.impl.unit.validators import PresentFieldValidator
-from plainbox.impl.validation import Problem
-from plainbox.impl.validation import Severity
+from plainbox.impl.unit.validators import (
+    CorrectFieldValueValidator,
+    PresentFieldValidator,
+)
+from plainbox.impl.validation import Problem, Severity
+
+try:
+    from importlib.metadata import entry_points
+except ImportError:
+    from importlib_metadata import entry_points
+
+
+def get_entry_points(**kwargs):
+    with suppress(TypeError):
+        return entry_points(**kwargs)
+    import pkg_resources
+
+    return pkg_resources.iter_entry_points(**kwargs)
+
 
 logger = logging.getLogger("plainbox.unit.exporter")
 
@@ -122,9 +136,13 @@ class ExporterUnit(UnitWithId):
                 concrete_validators.present,
                 concrete_validators.untranslatable,
                 CorrectFieldValueValidator(
-                    lambda entry_point: pkg_resources.load_entry_point(
-                        "checkbox-ng", "plainbox.exporter", entry_point
-                    ),
+                    lambda entry_point: next(
+                        iter(
+                            get_entry_points(
+                                group="plainbox.exporter", name=entry_point
+                            )
+                        )
+                    ).load(),
                     Problem.wrong,
                     Severity.error,
                 ),
@@ -218,9 +236,13 @@ class ExporterUnitSupport:
 
     def _get_exporter_cls(self, exporter):
         """Return the exporter class."""
-        return pkg_resources.load_entry_point(
-            "checkbox-ng", "plainbox.exporter", exporter.entry_point
-        )
+        return next(
+            iter(
+                get_entry_points(
+                    group="plainbox.exporter", name=exporter.entry_point
+                )
+            )
+        ).load()
 
 
 class ExporterError(Exception):

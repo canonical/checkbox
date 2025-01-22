@@ -31,7 +31,13 @@ import itertools
 import logging
 import operator
 import re
-import sre_constants
+
+try:
+    # deprecated from python3.11.
+    # See: https://github.com/python/cpython/pull/32177/files
+    sre_constants = re._constants
+except AttributeError:
+    import sre_constants
 
 from plainbox.abc import IUnitQualifier
 from plainbox.i18n import gettext as _

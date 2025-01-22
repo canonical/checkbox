@@ -1345,14 +1345,13 @@ class Expand:
         # the list
         # Note: This doesn't take into consideration the manifest namespace so
         #       it may be inaccurate (overinclusive) when manifests are aliased
-        all_manifests = filter(
+        return filter(
             lambda manifest_unit: any(
                 "manifest.{}".format(manifest_unit.partial_id) in require
                 for require in job_requires
             ),
             manifest_units,
         )
-        return filter(lambda x: not x.is_hidden, all_manifests)
 
     def invoked(self, ctx):
         self.ctx = ctx

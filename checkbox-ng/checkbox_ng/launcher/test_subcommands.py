@@ -810,32 +810,31 @@ class TestLListBootstrapped(TestCase):
 
 
 class TestExpand(TestCase):
+    def make_unit(self, **kwargs):
+        unit = Mock(partial_id=kwargs["id"], **kwargs)
+        unit._raw_data.copy.return_value = kwargs
+        return unit
+
     def setUp(self):
         self.launcher = Expand()
         self.ctx = Mock()
         self.ctx.args = Mock(TEST_PLAN="", format="")
 
-        selected_1 = Mock(
+        selected_1 = self.make_unit(
             unit="manifest entry",
             id="some",
-            partial_id="some",
             is_hidden=False,
         )
-        selected_1._raw_data.copy.return_value = {}
-        selected_2 = Mock(
+        selected_2 = self.make_unit(
             unit="manifest entry",
             id="other",
-            partial_id="other",
             is_hidden=False,
         )
-        selected_2._raw_data.copy.return_value = {}
-        not_selected = Mock(unit="manifest entry", partial_id="not_selected")
-        not_selected._raw_data.copy.return_value = {}
-        # hidden manifests are not exposed via expand
-        not_selected_1 = Mock(
-            unit="manifest entry", partial_id="_hidden", is_hidden=True
+        not_selected = self.make_unit(unit="manifest entry", id="not_selected")
+        # hidden manifests are not hidden in the expose output
+        hidden = self.make_unit(
+            unit="manifest entry", id="_hidden", is_hidden=True
         )
-        not_selected._raw_data.copy.return_value = {}
 
         self.ctx.sa = Mock(
             start_new_session=Mock(),
@@ -849,7 +848,7 @@ class TestExpand(TestCase):
                     selected_1,
                     selected_2,
                     not_selected,
-                    not_selected_1,
+                    hidden,
                 ],
             ),
         )
@@ -889,8 +888,8 @@ class TestExpand(TestCase):
         self.assertIn("Template 'test-template'", stdout.getvalue())
         self.assertIn("Manifest 'some'", stdout.getvalue())
         self.assertIn("Manifest 'other'", stdout.getvalue())
+        self.assertIn("Manifest '_hidden'", stdout.getvalue())
         self.assertNotIn("Manifest 'not_selected'", stdout.getvalue())
-        self.assertNotIn("Manifest '_hidden'", stdout.getvalue())
 
     @patch("sys.stdout", new_callable=StringIO)
     @patch("checkbox_ng.launcher.subcommands.TestPlanUnitSupport")
@@ -918,8 +917,8 @@ class TestExpand(TestCase):
         self.assertIn('"template-id": "test-template"', stdout.getvalue())
         self.assertIn('"id": "some"', stdout.getvalue())
         self.assertIn('"id": "other"', stdout.getvalue())
+        self.assertIn('"id": "_hidden"', stdout.getvalue())
         self.assertNotIn('"id": "not_selected"', stdout.getvalue())
-        self.assertNotIn('"id": "_hidden"', stdout.getvalue())
 
     def test_get_effective_certificate_status(self):
         job1 = JobDefinition(

@@ -64,6 +64,18 @@ class ManifestEntryUnit(UnitWithId):
         """Prompt presented (translated)."""
         return self.get_translated_record_value("prompt")
 
+    def default_prompt(self):
+        return {
+            "bool": "Does this machine have this piece of hardware?",
+            "natural": "Please enter the requested data:",
+        }[self.value_type]
+
+    def default_value(self):
+        return {
+            "bool": "False",
+            "natural": "0",
+        }.get(self.value_type, "")
+
     @property
     def value_type(self):
         """

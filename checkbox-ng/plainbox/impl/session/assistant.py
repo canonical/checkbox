@@ -1316,15 +1316,6 @@ class SessionAssistant:
             return False
         raise ValueError(val)
 
-    def _get_default_prompt(self, manifest_type):
-        if manifest_type == "bool":
-            return "Does this machine have this piece of hardware?"
-        elif manifest_type == "natural":
-            return "Please enter the requested data:"
-        raise SystemExit(
-            "Unsupported manifest value-type: '%s'", manifest_type
-        )
-
     def _parse_value(self, m, value):
         try:
             if m.value_type == "bool":
@@ -1338,15 +1329,6 @@ class SessionAssistant:
                     value,
                 )
             )
-
-    def _default_value(self, m):
-        if m.value_type == "bool":
-            return "False"
-        elif m.value_type == "natural":
-            return "-1"
-        raise SystemExit(
-            "Invalid manifest type {} (Type: {})".format(m.id, m.value_type)
-        )
 
     @raises(SystemExit, UnexpectedMethodCall)
     def get_manifest_repr(self) -> "Dict[List[Dict]]":
@@ -1373,19 +1355,19 @@ class SessionAssistant:
         todo_list = filter(didnt_run_yet, run_list)
         resource_programs = (job.get_resource_program() for job in todo_list)
         resource_programs = filter(bool, resource_programs)
-        manifest_id_set = set(
+        manifest_id_set = {
             manifest_id
             for resource_program in resource_programs
             for expression in resource_program.expression_list
             for manifest_id in expression.manifest_id_list
-        )
+        }
 
-        manifest_list = [
+        manifest_list = (
             unit
             for unit in self._context.unit_list
             if unit.Meta.name == "manifest entry"
             and unit.id in manifest_id_set
-        ]
+        )
         disk_manifest = {}
         manifest_path = WellKnownDirsHelper.manifest_file()
         if os.path.isfile(manifest_path):
@@ -1397,11 +1379,11 @@ class SessionAssistant:
             config_manifest = {}
         manifest_info_dict = defaultdict(list)
         for m in manifest_list:
-            prompt = m.prompt() or self._get_default_prompt(m.value_type)
+            prompt = m.prompt() or m.default_prompt()
             value = config_manifest.get(m.id)
             if m.is_hidden:
                 # set all hidden manifests not set in the launcher to default
-                value = value or self._default_value(m)
+                value = value or m.default_value()
             else:
                 # only load from the disk_manifest values of non-hidden manifests
                 value = value or disk_manifest.get(m.id, "")

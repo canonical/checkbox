@@ -29,13 +29,6 @@ from plainbox.impl.providers.v1 import all_providers
 _ = gettext.gettext
 
 
-def default_value(unit):
-    return {
-        "bool": "False",
-        "natural": "0",
-    }.get(unit.value_type, "")
-
-
 def main():
     """Main function."""
     gettext.textdomain("plainbox-provider-manifest")
@@ -67,7 +60,7 @@ def main():
             print(
                 "{}: {}".format(
                     unit.resource_key,
-                    manifest.get(unit.id, default_value(unit)),
+                    manifest.get(unit.id, unit.default_value()),
                 )
             )
         print()

@@ -1318,10 +1318,9 @@ class SessionAssistant:
 
     def _parse_value(self, m, value):
         try:
-            if m.value_type == "bool":
-                return self._strtobool(value)
-            elif m.value_type == "natural":
-                return int(value)
+            return {"bool": self._strtobool, "natural": int}[m.value_type](
+                value
+            )
         except ValueError:
             raise SystemExit(
                 ("Invalid manifest {} value '{}'").format(

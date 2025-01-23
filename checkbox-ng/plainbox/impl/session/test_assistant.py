@@ -343,18 +343,24 @@ class SessionAssistantTests(morris.SignalTestCase):
         "plainbox.impl.session.assistant.UsageExpectation",
         new=mock.MagicMock(),
     )
-    @mock.patch("os.path.isfile", return_value=False)
+    @mock.patch(
+        "plainbox.impl.session.assistant.open",
+        new=mock.mock_open(read_data="{}"),
+    )
+    @mock.patch("os.path.isfile", return_value=True)
     def test_get_manifest_repr(self, isfile, _):
         self_mock = mock.MagicMock()
         self_mock._parse_value = partial(
             SessionAssistant._parse_value, self_mock
         )
 
-        selected_unit = mock.MagicMock(id="selected_manifest", is_hidden=False)
+        selected_unit = mock.MagicMock(
+            id="selected_manifest", is_hidden=False, value_type="bool"
+        )
         selected_unit.Meta.name = "manifest entry"
 
         selected_but_hidden = mock.MagicMock(
-            id="_hidden_manifest", is_hidden=True
+            id="_hidden_manifest", is_hidden=True, value_type="bool"
         )
         selected_but_hidden.Meta.name = "manifest entry"
 
@@ -412,3 +418,33 @@ class SessionAssistantTests(morris.SignalTestCase):
 
         with self.assertRaises(ValueError):
             strtobool(None, "value")
+
+    def test__parse_value(self, _):
+        self_mock = mock.MagicMock()
+
+        SessionAssistant._parse_value(
+            self_mock, mock.MagicMock(value_type="bool"), "t"
+        )
+
+        self.assertTrue(self_mock._strtobool.called)
+
+        self.assertEqual(
+            SessionAssistant._parse_value(
+                self_mock, mock.MagicMock(value_type="natural"), "1"
+            ),
+            1,
+        )
+
+        with self.assertRaises(SystemExit):
+            SessionAssistant._parse_value(
+                self_mock,
+                mock.MagicMock(value_type="natural"),
+                "abc",
+            )
+
+        with self.assertRaises(KeyError):
+            SessionAssistant._parse_value(
+                self_mock,
+                mock.MagicMock(value_type="weird new invention"),
+                "abc",
+            )

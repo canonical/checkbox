@@ -350,7 +350,7 @@ class EthHotpluggingTests(TestCase):
 
 
 class TestMain(TestCase):
-    @patch("eth_hotplugging.perform_ping_test")
+    @patch("eth_hotplugging.perform_ping_test", return_value=0)
     @patch("eth_hotplugging.help_wait_cable_and_routable_state")
     @patch("eth_hotplugging._check_routable_state")
     @patch("eth_hotplugging.has_cable")
@@ -369,10 +369,32 @@ class TestMain(TestCase):
     ):
         mock_has_cable.return_value = True
         mock_check_routable_state.return_value = (True, "routable")
-
         main()
 
-        mock_ping_test.assert_called_once_with("eth0")
+
+    @patch("eth_hotplugging.perform_ping_test", return_value=1)
+    @patch("eth_hotplugging.help_wait_cable_and_routable_state")
+    @patch("eth_hotplugging._check_routable_state")
+    @patch("eth_hotplugging.has_cable")
+    @patch("builtins.input", return_value="")
+    @patch("sys.argv", ["eth_hotplugging.py", "eth0"])
+    @patch("builtins.print")
+    @patch("eth_hotplugging.time.sleep", new=MagicMock())
+    def test_main_ping_test_failure(
+        self,
+        mock_print,
+        mock_input,
+        mock_has_cable,
+        mock_check_routable_state,
+        mock_help_wait,
+        mock_ping_test,
+    ):
+        mock_has_cable.return_value = True
+        mock_check_routable_state.return_value = (True, "routable")
+        with self.assertRaises(SystemExit):
+            main()
+
+
 
     @patch("sys.argv", ["eth_hotplugging.py"])
     def test_main_no_interface_argument(self):

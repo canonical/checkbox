@@ -138,7 +138,8 @@ def help_wait_cable_and_routable_state(iface, do_check=True):
     print(
         "Waiting for cable to get {}.".format(
             "connected" if do_cable else "disconnected"
-        )
+        ),
+        flush=True,
     )
     wait_for_cable_state(iface, do_cable, 60)
 
@@ -176,12 +177,16 @@ def main():
 
     help_wait_cable_and_routable_state(iface, False)
 
-    print("Please plug the cable back in.")
+    print("\n\nPlease plug the cable back in.\n\n")
 
     help_wait_cable_and_routable_state(iface, True)
 
     print("Pinging gateway...")
-    perform_ping_test(iface)
+    ping_state = perform_ping_test([iface])
+    if ping_state == 0:
+        print("PASS: Ping to gateway successful")
+    else:
+        raise SystemExit("FAIL: Ping to gateway failed")
 
 
 if __name__ == "__main__":

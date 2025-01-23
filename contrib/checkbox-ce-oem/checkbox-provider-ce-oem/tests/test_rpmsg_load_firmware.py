@@ -91,10 +91,16 @@ class RpmsgLoardFirmwareTests(unittest.TestCase):
         self.assertEqual(self._rpmsg_load_fw_test.rpmsg_state, expected_result)
 
     @patch("pathlib.Path.write_text")
-    def test_set_rpmsg_state(self, mock_write):
-        expected_result = "test-response"
+    def test_set_rpmsg_state_success(self, mock_write):
+        expected_result = "start"
         self._rpmsg_load_fw_test.rpmsg_state = expected_result
         mock_write.assert_called_once_with(expected_result)
+
+    def test_set_rpmsg_state_invalid_value(self):
+        with self.assertRaisesRegex(
+            ValueError, "Unsupported value for remote processor state"
+        ):
+            self._rpmsg_load_fw_test.rpmsg_state = "invalid value"
 
     def test_get_search_pattern(self):
         self.assertDictEqual(

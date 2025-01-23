@@ -706,7 +706,8 @@ class Launcher(MainLoopStage, ReportsStage):
 
     def _pick_jobs_to_run(self):
         if self.configuration.get_value("test selection", "forced"):
-            self._save_manifest(interactive=False)
+            if self.configuration.manifest:
+                self._save_manifest(interactive=False)
             # by default all tests are selected; so we're done here
             return
         job_list = [

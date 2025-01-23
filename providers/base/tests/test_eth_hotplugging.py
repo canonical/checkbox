@@ -200,7 +200,9 @@ class EthHotpluggingTests(TestCase):
         "eth_hotplugging.get_interface_info",
         return_value={"state": "connected"},
     )
-    def test_check_routable_state_networkmanager(self, mock_get_interface_info):
+    def test_check_routable_state_networkmanager(
+        self, mock_get_interface_info
+    ):
         renderer = "NetworkManager"
         self.assertTrue(_check_routable_state("eth0", renderer))
 
@@ -241,9 +243,7 @@ class EthHotpluggingTests(TestCase):
     def test_never_routable(self, mock_check_state):
         with self.assertRaises(SystemExit) as cm:
             wait_for_routable_state("eth0", "networkd", max_wait=3)
-        self.assertEqual(
-            str(cm.exception), "Failed to reach routable state!"
-        )
+        self.assertEqual(str(cm.exception), "Failed to reach routable state!")
 
     @patch(
         "builtins.open",

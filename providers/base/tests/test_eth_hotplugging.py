@@ -371,7 +371,6 @@ class TestMain(TestCase):
         mock_check_routable_state.return_value = (True, "routable")
         main()
 
-
     @patch("eth_hotplugging.perform_ping_test", return_value=1)
     @patch("eth_hotplugging.help_wait_cable_and_routable_state")
     @patch("eth_hotplugging._check_routable_state")
@@ -393,8 +392,6 @@ class TestMain(TestCase):
         mock_check_routable_state.return_value = (True, "routable")
         with self.assertRaises(SystemExit):
             main()
-
-
 
     @patch("sys.argv", ["eth_hotplugging.py"])
     def test_main_no_interface_argument(self):

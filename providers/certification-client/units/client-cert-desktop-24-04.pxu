@@ -144,6 +144,7 @@ nested_part:
     # with.
     power-automated
     tpm-cert-automated
+    ethernet-wake-on-lan-cert-auto
 bootstrap_include:
     device
     graphics_card

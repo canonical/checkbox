@@ -45,6 +45,7 @@ parts:
       - device-tree-compiler
       - linuxptp
       - snmp
+      - python3-rpyc
     override-prime: |
       craftctl default
       rm lib/systemd/system/alsa-utils.service

@@ -68,26 +68,18 @@ class SuspendStats:
         """
         return (
             self.contents["success"] != "0"
+            and self.contents["failed_prepare"] == "0"
             and self.contents["failed_suspend"] == "0"
+            and self.contents["failed_resume"] == "0"
         )
 
-    def is_device_failed(self) -> bool:
+    def is_any_failed(self) -> bool:
         """
-        Is any device failed during suspend
+        Is any failed during suspend
 
-        :returns: return Ture while one device failed during suspend
+        :returns: return Ture while one failed during suspend
         """
         return self.contents["fail"] != "0"
-
-    def get_last_failed_device(self) -> str:
-        """
-        show the last failed device during the suspend process
-
-        :returns: return the last failed device
-        """
-        if self.is_device_failed():
-            return self.contents["last_failed_dev"]
-        return "There is no failed device"
 
     def parse_args(self, args=sys.argv[1:]):
         """
@@ -117,23 +109,16 @@ class SuspendStats:
             help="Print content",
         )
         # Add parser for printing last failed device
-        parser_failed_device = subparsers.add_parser(
-            "failed_device",
-            help="validating the system is after suspend or not",
+        parser_any = subparsers.add_parser(
+            "any",
+            help="Is there any failed during suspend",
         )
-        parser_failed_device.add_argument(
+        parser_any.add_argument(
             "-p",
             "--print",
             dest="print",
             action="store_true",
             help="Print content",
-        )
-        parser_failed_device.add_argument(
-            "-r",
-            "--raise_exit",
-            dest="raise_exit",
-            action="store_true",
-            help="raise SystemExit while finding failed device",
         )
 
         return parser.parse_args(args)
@@ -145,19 +130,13 @@ class SuspendStats:
                 self.print_all_content()
             if not self.is_after_suspend():
                 raise SystemExit("System is not under after suspend status")
-        elif args.type == "failed_device":
+        elif args.type == "any":
             if args.print:
                 self.print_all_content()
-            failed_device = self.get_last_failed_device()
-            if (
-                args.raise_exit
-                and failed_device != "There is no failed device"
-            ):
+            if self.is_any_failed():
                 raise SystemExit(
-                    "last failed device:[{}]".format(failed_device)
+                    "There are [{}] failed".format(self.contents["fail"])
                 )
-            else:
-                print("last failed device:[{}]".format(failed_device))
 
 
 if __name__ == "__main__":

@@ -49,16 +49,26 @@ class TestSuspendStats(unittest.TestCase):
         stats = SuspendStats()
         stats.contents = {
             "success": "1",
+            "failed_prepare": "0",
             "failed_suspend": "0",
+            "failed_resume": "0",
             "fail": "0",
             "last_failed_dev": "",
         }
         self.assertTrue(stats.is_after_suspend())
 
+        stats.contents["failed_prepare"] = "1"
+        self.assertFalse(stats.is_after_suspend())
+
+        stats.contents["failed_prepare"] = "0"
         stats.contents["failed_suspend"] = "1"
         self.assertFalse(stats.is_after_suspend())
 
-    def test_is_device_failed(self):
+        stats.contents["failed_suspend"] = "0"
+        stats.contents["failed_resume"] = "1"
+        self.assertFalse(stats.is_after_suspend())
+
+    def test_is_any_failed(self):
         stats = SuspendStats()
         stats.contents = {
             "success": "1",
@@ -66,26 +76,10 @@ class TestSuspendStats(unittest.TestCase):
             "fail": "1",
             "last_failed_dev": "",
         }
-        self.assertTrue(stats.is_device_failed())
+        self.assertTrue(stats.is_any_failed())
 
         stats.contents["fail"] = "0"
-        self.assertFalse(stats.is_device_failed())
-
-    def test_get_last_failed_device(self):
-        stats = SuspendStats()
-
-        stats.contents = {
-            "success": "1",
-            "failed_suspend": "0",
-            "fail": "1",
-            "last_failed_dev": "deviceA",
-        }
-        self.assertEqual(stats.get_last_failed_device(), "deviceA")
-
-        stats.contents["fail"] = "0"
-        self.assertEqual(
-            stats.get_last_failed_device(), "There is no failed device"
-        )
+        self.assertFalse(stats.is_any_failed())
 
     def test_parse_args_valid(self):
         stats = SuspendStats()
@@ -95,12 +89,12 @@ class TestSuspendStats(unittest.TestCase):
         self.assertEqual(rv.type, "valid")
         self.assertTrue(rv.print)
 
-    def test_parse_args_failed_device(self):
+    def test_parse_args_any(self):
         stats = SuspendStats()
-        args = ["failed_device", "--print"]
+        args = ["any", "--print"]
         rv = stats.parse_args(args)
 
-        self.assertEqual(rv.type, "failed_device")
+        self.assertEqual(rv.type, "any")
         self.assertTrue(rv.print)
 
 
@@ -129,47 +123,31 @@ class MainTests(unittest.TestCase):
             SuspendStats().main()
 
     @patch("suspend_stats.SuspendStats.parse_args")
-    @patch("suspend_stats.SuspendStats.get_last_failed_device")
+    @patch("suspend_stats.SuspendStats.is_any_failed")
     @patch("suspend_stats.SuspendStats.print_all_content")
-    def test_run_failed_device_succ(
-        self, mock_print, mock_device, mock_parse_args
+    def test_run_any_succ(
+        self, mock_print, mock_any, mock_parse_args
     ):
         args_mock = MagicMock()
-        args_mock.type = "failed_device"
-        args_mock.print = True
-        args_mock.raise_exit = False
+        args_mock.type = "any"
+        args_mock.print = False
         mock_parse_args.return_value = args_mock
-        mock_device.return_value = "There is no failed device"
+        mock_any.return_value = False
         self.assertEqual(SuspendStats().main(), None)
 
     @patch("suspend_stats.SuspendStats.parse_args")
-    @patch("suspend_stats.SuspendStats.get_last_failed_device")
+    @patch("suspend_stats.SuspendStats.is_any_failed")
     @patch("suspend_stats.SuspendStats.print_all_content")
-    def test_run_failed_device_fail(
-        self, mock_print, mock_device, mock_parse_args
+    def test_run_any_fail(
+        self, mock_print, mock_any, mock_parse_args
     ):
         args_mock = MagicMock()
-        args_mock.type = "failed_device"
+        args_mock.type = "any"
         args_mock.print = True
-        args_mock.raise_exit = True
         mock_parse_args.return_value = args_mock
-        mock_device.return_value = "deviceA"
+        mock_any.return_value = True
         with self.assertRaises(SystemExit):
             SuspendStats().main()
-
-    @patch("suspend_stats.SuspendStats.parse_args")
-    @patch("suspend_stats.SuspendStats.get_last_failed_device")
-    @patch("suspend_stats.SuspendStats.print_all_content")
-    def test_run_failed_device_fail_no_raise(
-        self, mock_print, mock_device, mock_parse_args
-    ):
-        args_mock = MagicMock()
-        args_mock.type = "failed_device"
-        args_mock.print = False
-        args_mock.raise_exit = False
-        mock_parse_args.return_value = args_mock
-        mock_device.return_value = "deviceA"
-        self.assertEqual(SuspendStats().main(), None)
 
     @patch("suspend_stats.SuspendStats.parse_args")
     def test_run_nothing(self, mock_parse_args):

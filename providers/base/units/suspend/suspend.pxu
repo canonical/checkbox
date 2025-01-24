@@ -1717,24 +1717,24 @@ command:
 _purpose: Attaches the FWTS oops results log to the submission after suspend
 _summary: Attach FWTS oops results log post-suspend.
 
-id: suspend/is_suspend_success
+id: suspend/valid_suspend_status
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 depends: suspend/suspend_advanced_auto
 estimated_duration: 5s
 command: suspend_stats.py valid -p
 summary:
-    Test this machine suspend status is failed or not
+    Test this machine suspend status is success or not
 description:
     If the suspend is successed, the count in /sys/power/suspend_stats/success will be non zero
     and the /sys/power/suspend_stats/failed_suspend will be zero
 
-id: suspend/is_device_suspend_success
+id: suspend/any_fail_during_suspend
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 depends: suspend/suspend_advanced_auto
 estimated_duration: 5s
-command: suspend_stats.py failed_device -p -r
+command: suspend_stats.py any -p
 summary:
     Test all devices in this machine suspend status is failed or not
 description:

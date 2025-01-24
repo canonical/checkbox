@@ -125,9 +125,7 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.parse_args")
     @patch("suspend_stats.SuspendStats.is_any_failed")
     @patch("suspend_stats.SuspendStats.print_all_content")
-    def test_run_any_succ(
-        self, mock_print, mock_any, mock_parse_args
-    ):
+    def test_run_any_succ(self, mock_print, mock_any, mock_parse_args):
         args_mock = MagicMock()
         args_mock.type = "any"
         args_mock.print = False
@@ -138,9 +136,7 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.parse_args")
     @patch("suspend_stats.SuspendStats.is_any_failed")
     @patch("suspend_stats.SuspendStats.print_all_content")
-    def test_run_any_fail(
-        self, mock_print, mock_any, mock_parse_args
-    ):
+    def test_run_any_fail(self, mock_print, mock_any, mock_parse_args):
         args_mock = MagicMock()
         args_mock.type = "any"
         args_mock.print = True

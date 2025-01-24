@@ -1,0 +1,164 @@
+#!/usr/bin/env python3
+# This file is part of Checkbox.
+#
+# Copyright 2025 Canonical Ltd.
+# Written by:
+#   Hanhsuan Lee <hanhsuan.lee@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+import argparse
+import sys
+import os
+
+
+class SuspendStats:
+    """
+    This class is used to parse the information under
+    /sys/power/suspend_stats/
+
+    """
+
+    contents = {}
+
+    def __init__(self):
+        suspend_stat_path = "/sys/power/suspend_stats/"
+        self.contents = self.collect_content_under_directory(suspend_stat_path)
+
+    def collect_content_under_directory(self, search_directory: str) -> dict:
+        """
+        Collect all content under specific directory by filename
+
+        :param search_directory: The directory to search through.
+
+        :returns: collected content by filename
+        """
+        content = {}
+        for root, dirs, files in os.walk(search_directory):
+            for file_name in files:
+                file_path = os.path.join(root, file_name)
+                with open(
+                    file_path, "r", encoding="utf-8", errors="ignore"
+                ) as file:
+                    content[file_name] = file.read().splitlines()[0]
+        return content
+
+    def print_all_content(self):
+        """
+        Print all contents under suspend_stats
+
+        """
+        for c in self.contents:
+            print("{}:{}".format(c, self.contents[c]))
+
+    def is_after_suspend(self) -> bool:
+        """
+        The system is under after suspend status or not
+
+        :returns: return Ture while system is under after suspend status
+        """
+        return (
+            self.contents["success"] != "0"
+            and self.contents["failed_suspend"] == "0"
+        )
+
+    def is_device_failed(self) -> bool:
+        """
+        Is any device failed during suspend
+
+        :returns: return Ture while one device failed during suspend
+        """
+        return self.contents["fail"] != "0"
+
+    def get_last_failed_device(self) -> str:
+        """
+        show the last failed device during the suspend process
+
+        :returns: return the last failed device
+        """
+        if self.is_device_failed():
+            return self.contents["last_failed_dev"]
+        return "There is no failed device"
+
+    def parse_args(self, args=sys.argv[1:]):
+        """
+        command line arguments parsing
+
+        :param args: arguments from sys
+        :type args: sys.argv
+        """
+        parser = argparse.ArgumentParser(
+            prog="suspend status validator",
+            description="Get and valid the content"
+            "under /sys/power/suspend_stats/",
+        )
+
+        subparsers = parser.add_subparsers(dest="type")
+        subparsers.required = True
+
+        # Add parser for validating the system is after suspend or not
+        parser_valid = subparsers.add_parser(
+            "valid", help="validating the system is after suspend or not"
+        )
+        parser_valid.add_argument(
+            "-p",
+            "--print",
+            dest="print",
+            action="store_true",
+            help="Print content",
+        )
+        # Add parser for printing last failed device
+        parser_failed_device = subparsers.add_parser(
+            "failed_device",
+            help="validating the system is after suspend or not",
+        )
+        parser_failed_device.add_argument(
+            "-p",
+            "--print",
+            dest="print",
+            action="store_true",
+            help="Print content",
+        )
+        parser_failed_device.add_argument(
+            "-r",
+            "--raise_exit",
+            dest="raise_exit",
+            action="store_true",
+            help="raise SystemExit while finding failed device",
+        )
+
+        return parser.parse_args(args)
+
+    def main(self):
+        args = self.parse_args()
+        if args.type == "valid":
+            if args.print:
+                self.print_all_content()
+            if not self.is_after_suspend():
+                raise SystemExit("System is not under after suspend status")
+        elif args.type == "failed_device":
+            if args.print:
+                self.print_all_content()
+            failed_device = self.get_last_failed_device()
+            if (
+                args.raise_exit
+                and failed_device != "There is no failed device"
+            ):
+                raise SystemExit(
+                    "last failed device:[{}]".format(failed_device)
+                )
+            else:
+                print("last failed device:[{}]".format(failed_device))
+
+
+if __name__ == "__main__":
+    SuspendStats().main()

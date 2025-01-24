@@ -1716,3 +1716,28 @@ command:
  [ -e "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results_after_s3.log ] && xz -c "${PLAINBOX_SESSION_SHARE}"/fwts_oops_results_after_s3.log
 _purpose: Attaches the FWTS oops results log to the submission after suspend
 _summary: Attach FWTS oops results log post-suspend.
+
+id: suspend/is_suspend_success
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+depends: suspend/suspend_advanced_auto
+estimated_duration: 5s
+command: suspend_stats.py valid -p
+summary:
+    Test this machine suspend status is failed or not
+description:
+    If the suspend is successed, the count in /sys/power/suspend_stats/success will be non zero
+    and the /sys/power/suspend_stats/failed_suspend will be zero
+
+id: suspend/is_device_suspend_success
+plugin: shell
+category_id: com.canonical.plainbox::suspend
+depends: suspend/suspend_advanced_auto
+estimated_duration: 5s
+command: suspend_stats.py failed_device -p -r
+summary:
+    Test all devices in this machine suspend status is failed or not
+description:
+    If the suspend is successed, the count in /sys/power/suspend_stats/success will be non zero
+    and the /sys/power/suspend_stats/fail will be zero. If there is device failed,
+    /sys/power/suspend_stats/last_failed_dev will show the failed device

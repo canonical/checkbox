@@ -131,7 +131,9 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.parse_args")
     @patch("suspend_stats.SuspendStats.get_last_failed_device")
     @patch("suspend_stats.SuspendStats.print_all_content")
-    def test_run_failed_device_succ(self, mock_print, mock_device, mock_parse_args):
+    def test_run_failed_device_succ(
+        self, mock_print, mock_device, mock_parse_args
+    ):
         args_mock = MagicMock()
         args_mock.type = "failed_device"
         args_mock.print = True
@@ -143,7 +145,9 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.parse_args")
     @patch("suspend_stats.SuspendStats.get_last_failed_device")
     @patch("suspend_stats.SuspendStats.print_all_content")
-    def test_run_failed_device_fail(self, mock_print, mock_device, mock_parse_args):
+    def test_run_failed_device_fail(
+        self, mock_print, mock_device, mock_parse_args
+    ):
         args_mock = MagicMock()
         args_mock.type = "failed_device"
         args_mock.print = True
@@ -156,7 +160,9 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.parse_args")
     @patch("suspend_stats.SuspendStats.get_last_failed_device")
     @patch("suspend_stats.SuspendStats.print_all_content")
-    def test_run_failed_device_fail_no_raise(self, mock_print, mock_device, mock_parse_args):
+    def test_run_failed_device_fail_no_raise(
+        self, mock_print, mock_device, mock_parse_args
+    ):
         args_mock = MagicMock()
         args_mock.type = "failed_device"
         args_mock.print = False

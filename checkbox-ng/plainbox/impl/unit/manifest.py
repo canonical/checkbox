@@ -23,7 +23,10 @@ import logging
 from plainbox.impl.symbol import SymbolDef
 from plainbox.impl.unit import concrete_validators
 from plainbox.impl.unit.unit_with_id import UnitWithId
-from plainbox.impl.unit.validators import MemberOfFieldValidator
+from plainbox.impl.unit.validators import (
+    MemberOfFieldValidator,
+    PresentFieldValidator,
+)
 
 logger = logging.getLogger("plainbox.unit.manifest")
 
@@ -41,6 +44,10 @@ class ManifestEntryUnit(UnitWithId):
     """
 
     @property
+    def is_hidden(self):
+        return self.partial_id.startswith("_")
+
+    @property
     def name(self):
         """Name of the entry."""
         return self.get_record_value("name")
@@ -56,6 +63,18 @@ class ManifestEntryUnit(UnitWithId):
     def tr_prompt(self):
         """Prompt presented (translated)."""
         return self.get_translated_record_value("prompt")
+
+    def default_prompt(self):
+        return {
+            "bool": "Does this machine have this piece of hardware?",
+            "natural": "Please enter the requested data:",
+        }[self.value_type]
+
+    def default_value(self):
+        return {
+            "bool": "False",
+            "natural": "0",
+        }.get(self.value_type, "")
 
     @property
     def value_type(self):
@@ -88,6 +107,16 @@ class ManifestEntryUnit(UnitWithId):
         """
         return self.get_record_value("resource-key", self.partial_id)
 
+    @property
+    def hidden_reason(self):
+        """
+        Reason why a manifest entry was hidden.
+
+        This is a "required" documentation field to preserve the reason why a
+        manifest entry was hidden (or introduced hidden)
+        """
+        return self.get_record_value("hidden-reason")
+
     class Meta:
 
         name = "manifest entry"
@@ -100,6 +129,7 @@ class ManifestEntryUnit(UnitWithId):
             value_type = "value-type"
             value_unit = "value-unit"
             resource_key = "resource-key"
+            hidden_reason = "hidden-reason"
 
         field_validators = {
             fields.name: [
@@ -119,4 +149,10 @@ class ManifestEntryUnit(UnitWithId):
                 # OPTIONAL
             ],
             fields.resource_key: [concrete_validators.untranslatable],
+            fields.hidden_reason: [
+                PresentFieldValidator(
+                    message="hidden_reason is mandatory for hidden manifests",
+                    onlyif=lambda unit: unit.is_hidden,
+                )
+            ],
         }

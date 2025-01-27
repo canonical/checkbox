@@ -42,8 +42,8 @@ GPU_VENDORS = {
             "config_cmds": [
                 "apt-get -q update -y",
                 "apt-get -q upgrade -y",
-                "apt-get -q install -y linux-generic ubuntu-drivers-common",
-                "ubuntu-drivers install --gpgpu",
+                "apt-get -q install -y ubuntu-drivers-common",
+                "ubuntu-drivers install --recommended",
             ],
         },
     },

@@ -41,7 +41,7 @@ class UnitWithIdFieldValidationTests(TestCase):
             ManifestEntryUnit({"value-type": "natural"}).default_value()
         )
         self.assertTrue(
-            ManifestEntryUnit({"value-type": "bool"}).default_prompt()
+            ManifestEntryUnit({"value-type": "bool"}).default_value()
         )
 
     def test_raises_no_hidden_reason(self):

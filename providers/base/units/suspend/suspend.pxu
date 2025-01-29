@@ -1266,13 +1266,6 @@ command: audio_test.py
 _purpose: This will check to make sure that your audio device works properly after a suspend and resume. This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 _summary: Ensure audio device works correctly after suspend and resume cycle.
 
-plugin: attachment
-category_id: com.canonical.plainbox::suspend
-id: suspend/suspend-auto-single-log-attach
-command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_auto_single_log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_auto_single_log
-_purpose: Attaches the log from the single suspend/resume test to the results
-_summary: Attach the single suspend/resume test log to the results.
-
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 id: suspend/gpu_lockup_after_suspend

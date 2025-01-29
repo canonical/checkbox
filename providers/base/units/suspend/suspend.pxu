@@ -193,7 +193,7 @@ command:
      fi
  else
      echo "Calling sleep_test.py"
-     set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/2_suspend_single_times.log
+     set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
  fi
 estimated_duration: 90.0
 _summary: Manual test of suspend function

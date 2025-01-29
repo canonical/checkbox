@@ -40,7 +40,7 @@ template-unit: job
 id: network_available_{interface}
 template-id: network_available_interface
 template-filter:
-  network_iface_info.link_type == "ether" and network_iface_info.link_info_kind == ""
+  (network_iface_info.link_type == "ether" and network_iface_info.link_info_kind == "")
 requires:
   (network_iface_info.interface == "{interface}" and network_iface_info.operstate == "UP")
 command:

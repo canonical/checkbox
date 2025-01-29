@@ -1,18 +1,18 @@
 .. _test_plan:
 
-=================
-Writing Test Plan
-=================
+===================
+Writing A Test Plan
+===================
 
 This tutorial will guide you in writing a test plan to test the Network
-connection in your machine. We will do this by re-using tests that are already
+connection on your machine. We will do this by re-using tests that are already
 available in the ``tutorial provider`` and that you got to write yourself in
 the previous tutorial.
 
 Inclusions
 ==========
 
-When we want a test plan to contain a test what we do in Checkbox is including
+When we want a test plan to contain a test, what we do in Checkbox is including
 it. There are a few kinds of inclusions but they all have the same underlying
 purpose: to tell Checkbox that we want to run something. Start by creating a
 new test plan in the same provider we created in the previous tutorial.
@@ -24,7 +24,7 @@ new test plan in the same provider we created in the previous tutorial.
   ``providers/tutorial/units/test-plan.pxu``
 
 We now have a convenient container where to put all tests we previously
-developed, let's include them in a new ``test plan``.
+developed, let's include them in a new ``test plan``:
 
 .. code-block::
 
@@ -48,7 +48,7 @@ tests:
    ☑ : Test that the network speed is acceptable
 
 Note how, as we previously saw, Checkbox automatically pulled the resource
-job need. This operation, as we previously mention, is not the safe way to go
+job needed. This operation, as we previously mentioned, is not the safe way to go
 about dependency management, it is just an aid Checkbox gives you while
 developing. Jobs that are automatically pulled are placed in a random spot in
 the list where you may already have broken the thing you are trying to fetch
@@ -110,11 +110,11 @@ Status Overrides
 The certification status of a job can be defined in its definition. This is
 useful, but limiting, as one may want the same test to be a certification
 blocker in one test plan while not in another. Checkbox supports overrides in
-test plan that allow you to change the certification status (common) or the
+test plans that allow you to change the certification status (common) or the
 category (uncommon) of a job in that specific test plan.
 
 Going back to the test plan we just defined let's add the following and see the
-effect in the expand output:
+effect in the ``expand`` output:
 
 .. code-block::
 
@@ -129,7 +129,7 @@ effect in the expand output:
     apply blocker to network_available
 
 
-Running expand we can see that the certification status changed:
+Running ``expand`` we can see that the certification status changed:
 
 .. code-block::
 
@@ -161,7 +161,7 @@ Bootstrap Inclusions
 ====================
 
 As we have previously discussed, resources are the backbone of Checkbox
-information gathering. Using the data they generate jobs are skipped or ran and
+information gathering. Using the data they generate, jobs are skipped or ran and
 templates are instantiated. Although Checkbox does try to pull all resources
 and dependencies you may need into a test plan automatically, jobs may
 interfere or break resources so, ideally, we would like to run them before
@@ -180,7 +180,7 @@ in the ``bootstrap_include`` section:
   unit: test plan
   id: tutorial-extended
   _name: Extended Tutorial Test Plan
-  bootstrap-include:
+  bootstrap_include:
     network_iface_info
   include:
     network_available
@@ -203,7 +203,7 @@ Let's update the test plan including it:
   unit: test plan
   id: tutorial-extended
   _name: Extended Tutorial Test Plan
-  bootstrap-include:
+  bootstrap_include:
     network_iface_info
   include:
     network_available_interface
@@ -212,20 +212,18 @@ Let's update the test plan including it:
   certification_status_overrides:
     apply blocker to network_available
 
-When we run expand on the test plan, two important changes occur in the output:
+When we run ``expand`` on the test plan, two important changes occur in the
+output:
 
-First, the resource job is no longer visible - this is expected! The bootstrap
-section of a test plan is meant to gather essential data before the main test
-execution but is not composed of actual tests, so the jobs there are excluded
-from the expand command.
-
-Second, our newly added template wasn't expanded. This happens because a
-template is expanded on the result of a resource, and only running the resource
-can give that output (that is often specific to one machine!). If we want to
-see what would the test plan expand to on the current machine, we can use
-``list-bootstrapped``:
-
-Try to run the following
+- First, the resource job is no longer visible – this is expected! The
+  bootstrap section of a test plan is meant to gather essential data before the
+  main test execution but is not composed of actual tests, so the jobs there
+  are excluded from the expand command.
+- Second, our newly added template wasn't expanded. This happens because a
+  template is expanded on the result of a resource, and only running the
+  resource can give that output (that is often specific to one machine!). If we
+  want to see all the jobs that would be executed on the current machine if we
+  ran that test plan, we can use ``list-bootstrapped``:
 
 .. code-block::
 
@@ -333,7 +331,7 @@ missing:
    Excluding a test via ``exclude`` in the test plan is different from using
    ``exclude`` in the launcher. If you use ``exclude`` in the launcher, you
    are modifying the test plan, so it will not be accepted as a submission on
-   C3, while if you use ``exclude`` in a test plan, you are creating a new,
+   C3, whereas if you use ``exclude`` in a test plan, you are creating a new,
    different test plan.
 
 Using exclude to remove tests is one mechanism to customize your test plan, but
@@ -343,10 +341,10 @@ about why you are excluding those tests, maybe some need an updated definition!
 
 .. warning::
    While ``exclude`` is a list of regexes, so you can use a regex to exclude
-   jobs, you should most likely avoid doing that as you may inadvertently lose
-   more jobs (and time) than you were aiming for. Try to always precisely match
+   jobs, you should most likely avoid doing that as you may inadvertently deselect
+   more jobs than you were aiming for. Try to always precisely match
    what you want to exclude, for templates, for example, use the template id
-   whenever you can instead of regex matching the generated id
+   whenever you can instead of regex matching the generated id.
 
 Mandatory Inclusions
 ====================
@@ -380,5 +378,5 @@ See how the output of ``list-bootstrapped`` is unaffected.
   com.canonical.certification::info/systemd-analyze-critical-chain
   [...]
 
-The reason is that all tests in the ``submission-cert-automated`` are mandatory
-includes
+The reason is that all tests in the ``submission-cert-automated`` nested part are mandatory
+includes: they will be executed regardless of any other rule in your test plan.

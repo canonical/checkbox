@@ -25,6 +25,7 @@ debian
 defs
 desc
 dev
+deterministically
 discoverable
 DMI
 DNS
@@ -37,6 +38,7 @@ ethernet
 Fi
 FooBar
 formatter
+frictionless
 frontend
 frontends
 github
@@ -88,6 +90,7 @@ pxu
 pypi
 PyPI
 QML
+regexes
 repo
 rfc
 rtc

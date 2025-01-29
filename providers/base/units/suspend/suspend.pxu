@@ -193,7 +193,7 @@ command:
      fi
  else
      echo "Calling sleep_test.py"
-     set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/2_suspend_single_times.log
+     set -o pipefail; sleep_test.py -p | tee "$PLAINBOX_SESSION_SHARE"/suspend_single_times.log
  fi
 estimated_duration: 90.0
 _summary: Manual test of suspend function
@@ -1265,13 +1265,6 @@ requires:
 command: audio_test.py
 _purpose: This will check to make sure that your audio device works properly after a suspend and resume. This may work fine with speakers and onboard microphone, however, it works best if used with a cable connecting the audio-out jack to the audio-in jack.
 _summary: Ensure audio device works correctly after suspend and resume cycle.
-
-plugin: attachment
-category_id: com.canonical.plainbox::suspend
-id: suspend/suspend-auto-single-log-attach
-command: [ -e "$PLAINBOX_SESSION_SHARE"/suspend_auto_single_log ] && cat "$PLAINBOX_SESSION_SHARE"/suspend_auto_single_log
-_purpose: Attaches the log from the single suspend/resume test to the results
-_summary: Attach the single suspend/resume test log to the results.
 
 plugin: shell
 category_id: com.canonical.plainbox::suspend

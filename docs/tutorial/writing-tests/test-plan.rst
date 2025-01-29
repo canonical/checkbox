@@ -256,6 +256,7 @@ include (or the submissions will be rejected): ``submission-cert-automated``.
 Let's include it in our test plan:
 
 .. code-block::
+  :emphasize-lines: 10-12
 
   unit: test plan
   id: tutorial-extended
@@ -263,7 +264,7 @@ Let's include it in our test plan:
   bootstrap_include:
     network_iface_info
   include:
-    network_available_.*
+    network_available_interface
     network_available
     network_speed certification-status=blocker
   nested_part:

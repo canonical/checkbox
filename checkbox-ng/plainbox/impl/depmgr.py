@@ -30,10 +30,13 @@ Job Dependency Solver.
 
 from abc import ABCMeta
 from abc import abstractproperty
+from collections import deque, OrderedDict
 from logging import getLogger
 import enum
+import itertools
 
 from plainbox.i18n import gettext as _
+from plainbox.impl.unit.job import JobDefinition
 
 
 logger = getLogger("plainbox.depmgr")
@@ -309,6 +312,10 @@ class DependencySolver:
         """
         return cls(job_list)._solve(visit_list)
 
+    @classmethod
+    def resolve_dependencies2(cls, job_list, desired_job_list):
+        return cls(job_list).order_job_list(job_list, desired_job_list)
+
     def __init__(self, job_list):
         """
         Instantiate a new dependency solver with the specified list of jobs.
@@ -326,6 +333,58 @@ class DependencySolver:
         # necessarily the only solution but the algorithm computes the same
         # value each time, given the same input.
         self._solution = []
+
+    def order_job_list(self,
+        job_list: list[JobDefinition], desired_job_list: list[JobDefinition], special_cases: list[JobDefinition] = {}
+    ) -> list[JobDefinition]:
+        final_order = OrderedDict()
+        # special cases are ordered, as in special_case1, special_case2 means that
+        # all jobs that depend on special_case1 are added before all jobs that
+        # depend on special case 2
+        special_cases = OrderedDict({job.id: job for job in special_cases})
+        # Note: special cases are removed from the job list, so they will never be
+        # "resolved" automatically, but only when there is no other alternative
+        desired_job_list = filter(lambda x: x.id not in special_cases, job_list)
+        to_add = deque(desired_job_list)
+
+        # on len(to_add) => there is a missing dependency/loop
+        max_push_pop = len(to_add)
+        while to_add:
+            job = to_add.popleft()
+            job_deps = set(itertools.chain(job.get_direct_dependencies(), job.get_after_dependencies(), job.get_resource_dependencies()))
+            # if job.depends & final_order.keys() != job.depends:
+            missing_job_deps = job_deps - set(final_order.keys())
+            print(missing_job_deps)
+            if missing_job_deps != {}: # != job_deps:
+                # some dependency is missing
+                if max_push_pop == 0:
+                    for job in missing_job_deps:
+                        if job not in to_add:
+                            if job in job_list:
+                                to_add.appendleft(job)
+                                max_push_pop += 1
+                            else:
+                                raise ValueError("Job {} unknown".format(job.id))
+                    if max_push_pop >= 1:
+                        max_push_pop = len(to_add)
+                        continue
+                    try:
+                        special_case_id, special_case = next(
+                            iter(special_cases.items())
+                        )
+                    except StopIteration:
+                        raise ValueError(f"Circular dependency: {to_add}")
+                    del special_cases[special_case_id]
+                    to_add.appendleft(special_case)
+                    max_push_pop = len(to_add)
+                    continue
+                to_add.append(job)
+
+                max_push_pop -= 1
+                continue
+            max_push_pop = len(to_add)
+            final_order[job.id] = job
+        return list(final_order.values())
 
     def _solve(self, visit_list=None):
         """

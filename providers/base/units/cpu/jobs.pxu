@@ -126,6 +126,8 @@ _purpose:
 plugin: shell
 category_id: com.canonical.plainbox::cpu
 id: cpu/clocktest
+requires:
+ cpuinfo.platform not in ("s390x")
 flags: also-after-suspend
 estimated_duration: 300.0
 command: clocktest

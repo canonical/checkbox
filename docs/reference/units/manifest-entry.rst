@@ -32,7 +32,9 @@ Following fields may be used by a manifest entry unit.
 ``id``:
     (mandatory) - Unique identifier of the entry. This field is used to look up
     and store data so please keep it stable across the lifetime of your
-    provider.
+    provider. If the id starts with a ``_``, then the manifest will be hidden
+    from the interactive selection. These manifests can only be given a value
+    via configurations.
 
 .. _Manifest Entry name field:
 
@@ -77,6 +79,13 @@ Following fields may be used by a manifest entry unit.
     default prompt is "Does this machine have this piece of hardware?", when
     the ``value-type`` is ``natural`` the default prompt is "Please enter the
     requested data".
+
+.. _Manifest Entry hidden reason:
+
+``hidden-reason``:
+    (mandatory if hidden) - Explains why a manifest unit was hidden. The reason
+    should be clear and specific, as this field serves as documentation for
+    future reference.
 
 Example
 -------

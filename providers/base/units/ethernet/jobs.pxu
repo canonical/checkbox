@@ -209,6 +209,9 @@ template-resource: device
 template-filter: device.category == 'NETWORK' and device.interface != 'UNKNOWN'
 id: ethernet/ping_{interface}
 template-id: ethernet/ping_interface
+imports: from com.canonical.plainbox import manifest
+requires:
+ manifest._ignore_disconnected_ethernet_interfaces == 'False'
 _summary: Can ping another machine over Ethernet port {interface}
 _purpose: Check Ethernet works by pinging another machine
 plugin: shell

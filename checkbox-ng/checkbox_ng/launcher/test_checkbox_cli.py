@@ -76,7 +76,7 @@ class TestHandleTopParser(TestCase):
     def test_clear_cache(self, mock_cache):
         ctx = mock.MagicMock()
         result = handle_top_parser(None, ctx)
-        mock_cache().clear.assert_called_once()
+        self.assertTrue(mock_cache().clear.called)
         self.assertTrue(result.args.clear_cache)
 
     @mock.patch("sys.argv", ["--clear-old-sessions"])

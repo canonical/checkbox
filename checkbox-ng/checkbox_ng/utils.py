@@ -20,10 +20,23 @@
 Generic utility functions.
 """
 import json
+import logging
 import textwrap
 import datetime
 
 from plainbox.impl.color import Colorizer
+
+
+def set_all_loggers_level(level):
+    """
+    Sets the level of loggers already instantiated
+    """
+    logging.root.setLevel(level)
+    for logger in logging.root.manager.loggerDict.values():
+        try:
+            logger.setLevel(level)
+        except AttributeError:
+            pass
 
 
 def newline_join(head: str, *tail: str) -> str:

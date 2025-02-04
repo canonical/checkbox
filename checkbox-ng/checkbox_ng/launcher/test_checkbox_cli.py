@@ -19,7 +19,10 @@
 from collections import namedtuple
 from unittest import TestCase, mock
 
-from checkbox_ng.launcher.checkbox_cli import main
+from checkbox_ng.launcher.checkbox_cli import (
+    main,
+    handle_top_parser,
+)
 
 
 class CheckboxCliTests(TestCase):
@@ -47,3 +50,46 @@ class CheckboxCliTests(TestCase):
 
         self.assertTrue(launcher_mock.called)
         self.assertTrue(launcher_mock.invoked.called)
+
+
+@mock.patch("checkbox_ng.launcher.checkbox_cli.logging", new=mock.MagicMock())
+class TestHandleTopParser(TestCase):
+
+    @mock.patch("sys.argv", ["--debug"])
+    @mock.patch("checkbox_ng.launcher.checkbox_cli.set_all_loggers_level")
+    def test_debug_flag(self, set_all_loggers_level_mock):
+        ctx = mock.MagicMock()
+        result = handle_top_parser(None, ctx)
+        self.assertTrue(result.args.debug)
+        self.assertTrue(set_all_loggers_level_mock.called)
+
+    @mock.patch("sys.argv", ["--verbose"])
+    @mock.patch("checkbox_ng.launcher.checkbox_cli.set_all_loggers_level")
+    def test_verbose_flag(self, set_all_loggers_level_mock):
+        ctx = mock.MagicMock()
+        result = handle_top_parser(None, ctx)
+        self.assertTrue(result.args.verbose)
+        self.assertTrue(set_all_loggers_level_mock.called)
+
+    @mock.patch("sys.argv", ["--clear-cache"])
+    @mock.patch("checkbox_ng.launcher.checkbox_cli.ResourceJobCache")
+    def test_clear_cache(self, mock_cache):
+        ctx = mock.MagicMock()
+        result = handle_top_parser(None, ctx)
+        mock_cache().clear.assert_called_once()
+        self.assertTrue(result.args.clear_cache)
+
+    @mock.patch("sys.argv", ["--clear-old-sessions"])
+    def test_clear_old_sessions(self):
+        ctx = mock.MagicMock()
+        ctx.sa.get_old_sessions.return_value = [("session1",)]
+        result = handle_top_parser(None, ctx)
+        ctx.sa.delete_sessions.assert_called_with(["session1"])
+        self.assertTrue(result.args.clear_old_sessions)
+
+    @mock.patch("sys.argv", ["--version"])
+    def test_version_flag(self):
+        ctx = mock.MagicMock()
+        with self.assertRaises(SystemExit) as cm:
+            handle_top_parser(None, ctx)
+        self.assertEqual(cm.exception.code, 0)

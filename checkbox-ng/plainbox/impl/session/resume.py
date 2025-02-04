@@ -491,6 +491,7 @@ class MetaDataHelper7MixIn(MetaDataHelper6MixIn):
             session_repr["metadata"],
             key="last_job_start_time",
             value_type=float,
+            value_none=True,
         )
 
 

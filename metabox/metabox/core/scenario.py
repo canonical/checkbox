@@ -172,7 +172,7 @@ class Scenario:
                 self._assign_outcome(*outcome)
         else:
             if self.launcher:
-                cmd = self.LAUNCHER_PATH
+                cmd += " " + self.LAUNCHER_PATH
             outcome = self.local_machine.start(
                 cmd=cmd,
                 env=self.environment,

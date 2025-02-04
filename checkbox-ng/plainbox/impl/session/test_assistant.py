@@ -21,6 +21,7 @@
 """Tests for the session assistant module class."""
 
 from unittest import mock
+from functools import partial
 
 from plainbox.impl.secure.providers.v1 import Provider1
 from plainbox.impl.session.assistant import (
@@ -337,3 +338,113 @@ class SessionAssistantTests(morris.SignalTestCase):
             ["already-rejected-job", job3_id],
         )
         self_mock._context.get_unit.assert_called_once_with(job2_id, "job")
+
+    @mock.patch(
+        "plainbox.impl.session.assistant.UsageExpectation",
+        new=mock.MagicMock(),
+    )
+    @mock.patch(
+        "plainbox.impl.session.assistant.open",
+        new=mock.mock_open(read_data="{}"),
+    )
+    @mock.patch("os.path.isfile", return_value=True)
+    def test_get_manifest_repr(self, isfile, _):
+        self_mock = mock.MagicMock()
+        self_mock._parse_value = partial(
+            SessionAssistant._parse_value, self_mock
+        )
+
+        selected_unit = mock.MagicMock(
+            id="selected_manifest", is_hidden=False, value_type="bool"
+        )
+        selected_unit.Meta.name = "manifest entry"
+
+        selected_but_hidden = mock.MagicMock(
+            id="_hidden_manifest", is_hidden=True, value_type="bool"
+        )
+        selected_but_hidden.Meta.name = "manifest entry"
+
+        selected_unit.prompt.return_value = (
+            selected_but_hidden.prompt.return_value
+        ) = "prompt"
+
+        unselected_unit = mock.MagicMock(id="unselected_manifest")
+        unselected_unit.Meta.name = "manifest entry"
+
+        done_job_mock = mock.MagicMock(id="done")
+        done_job_mock.result.outcome = "pass"
+
+        to_run_job_mock = mock.MagicMock(id="to_run")
+        to_run_job_mock.result.outcome = None
+        to_run_job_mock.get_resource_program.return_value = mock.MagicMock(
+            expression_list=[
+                mock.MagicMock(
+                    manifest_id_list=["selected_manifest", "_hidden_manifest"]
+                )
+            ]
+        )
+
+        to_run_no_resource = mock.MagicMock(id="no_resource")
+        to_run_no_resource.result.outcome = None
+        to_run_no_resource.get_resource_program.return_value = []
+
+        run_list = [done_job_mock, to_run_job_mock]
+        job_state_map = {job.id: job for job in run_list}
+
+        self_mock._context.state.job_state_map = job_state_map
+        self_mock._context.state.run_list = run_list
+        self_mock._context.unit_list = [
+            selected_unit,
+            selected_but_hidden,
+            unselected_unit,
+        ]
+        self_mock._config.manifest = {"_hidden_manifest": "True"}
+        manifest_info_dict = SessionAssistant.get_manifest_repr(self_mock)
+
+        self.assertEqual(len(manifest_info_dict), 1)
+        self.assertEqual(
+            [x["id"] for x in list(manifest_info_dict.values())[0]],
+            ["selected_manifest", "_hidden_manifest"],
+        )
+
+    def test__strtobool(self, _):
+        strtobool = SessionAssistant._strtobool
+        self.assertTrue(
+            all(strtobool(None, x) for x in ("true", "t", "True", "yes"))
+        )
+        self.assertFalse(
+            any(strtobool(None, x) for x in ("false", "f", "False", "no"))
+        )
+
+        with self.assertRaises(ValueError):
+            strtobool(None, "value")
+
+    def test__parse_value(self, _):
+        self_mock = mock.MagicMock()
+
+        SessionAssistant._parse_value(
+            self_mock, mock.MagicMock(value_type="bool"), "t"
+        )
+
+        self.assertTrue(self_mock._strtobool.called)
+
+        self.assertEqual(
+            SessionAssistant._parse_value(
+                self_mock, mock.MagicMock(value_type="natural"), "1"
+            ),
+            1,
+        )
+
+        with self.assertRaises(SystemExit):
+            SessionAssistant._parse_value(
+                self_mock,
+                mock.MagicMock(value_type="natural"),
+                "abc",
+            )
+
+        with self.assertRaises(KeyError):
+            SessionAssistant._parse_value(
+                self_mock,
+                mock.MagicMock(value_type="weird new invention"),
+                "abc",
+            )

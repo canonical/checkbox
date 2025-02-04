@@ -697,13 +697,10 @@ class Launcher(MainLoopStage, ReportsStage):
             # repr is question : [manifests]
             #   manifest ex m1 is [conf_m1_1, conf_m1_2, ...]
             # here we recover [conf_m1_1, conf_m1_2, ..., conf_m2_1, ...]
-            all_preconf = (
-                conf
+            to_save_manifest = {
+                conf["id"]: conf["value"]
                 for conf_list in manifest_repr.values()
                 for conf in conf_list
-            )
-            to_save_manifest = {
-                conf["id"]: conf["value"] for conf in all_preconf
             }
         self.ctx.sa.save_manifest(to_save_manifest)
 
@@ -1347,6 +1344,8 @@ class Expand:
 
         # only return manifest entries that are actually required by any job in
         # the list
+        # Note: This doesn't take into consideration the manifest namespace so
+        #       it may be inaccurate (overinclusive) when manifests are aliased
         return filter(
             lambda manifest_unit: any(
                 "manifest.{}".format(manifest_unit.partial_id) in require

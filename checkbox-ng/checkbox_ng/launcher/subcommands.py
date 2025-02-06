@@ -1287,9 +1287,14 @@ class List:
                     end="",
                 )
             return
-        elif ctx.args.format:
+        elif ctx.args.format != "json":
             print(_("--format applies only to 'all-jobs' group.  Ignoring..."))
-        print_objs(ctx.args.GROUP, ctx.sa, ctx.args.attrs)
+        print_objs(
+            ctx.args.GROUP,
+            ctx.sa,
+            ctx.args.attrs,
+            json_repr=ctx.args.format == "json",
+        )
 
 
 class Expand:
@@ -1545,7 +1550,7 @@ def get_all_jobs(sa):
     return sorted(get_jobs(root), key=operator.itemgetter("full_id"))
 
 
-def print_objs(group, sa, show_attrs=False, filter_fun=None):
+def print_objs(group, sa, show_attrs=False, filter_fun=None, json_repr=False):
     providers = sa.get_selected_providers()
     obj = Explorer(providers).get_object_tree()
 
@@ -1567,7 +1572,17 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None):
             for child in obj.children:
                 _show(child, indent)
 
-    _show(obj, "")
+    if not json_repr:
+        return _show(obj, "")
+
+    to_print = []
+    childrens = obj.children
+    while childrens:
+        obj = childrens.pop()
+        if group is None or obj.group == group:
+            to_print.append(obj.attrs)
+        childrens += obj.children or []
+    json.dump(to_print, sys.stdout)
 
 
 class Show:

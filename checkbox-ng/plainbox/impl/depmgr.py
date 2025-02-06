@@ -32,6 +32,7 @@ from abc import ABCMeta
 from abc import abstractproperty
 from collections import deque, OrderedDict
 from logging import getLogger
+from contextlib import suppress
 import enum
 import itertools
 
@@ -334,56 +335,83 @@ class DependencySolver:
         # value each time, given the same input.
         self._solution = []
 
-    def order_job_list(self,
-        job_list: list[JobDefinition], desired_job_list: list[JobDefinition], special_cases: list[JobDefinition] = {}
+    def order_job_list(
+        self,
+        job_list: list[JobDefinition],
+        desired_job_list: list[JobDefinition],
+        special_cases: list[JobDefinition] = {},
     ) -> list[JobDefinition]:
         final_order = OrderedDict()
+        special_cases = [
+            job
+            for job in job_list
+            if job.id == "2021.com.canonical.certification::some0"
+        ]
         # special cases are ordered, as in special_case1, special_case2 means that
         # all jobs that depend on special_case1 are added before all jobs that
         # depend on special case 2
         special_cases = OrderedDict({job.id: job for job in special_cases})
+        special_desired = [
+            x for x in desired_job_list if x.id in special_cases
+        ]
         # Note: special cases are removed from the job list, so they will never be
         # "resolved" automatically, but only when there is no other alternative
-        desired_job_list = filter(lambda x: x.id not in special_cases, job_list)
+        desired_job_list = filter(
+            lambda x: x.id not in special_cases, desired_job_list
+        )
         to_add = deque(desired_job_list)
 
         # on len(to_add) => there is a missing dependency/loop
         max_push_pop = len(to_add)
+
+        def get_job_by_id(job_id):
+            with suppress(StopIteration):
+                return next(job for job in job_list if job.id == job_id)
+            raise ValueError("Unknown job error")
+
         while to_add:
             job = to_add.popleft()
-            job_deps = set(itertools.chain(job.get_direct_dependencies(), job.get_after_dependencies(), job.get_resource_dependencies()))
-            # if job.depends & final_order.keys() != job.depends:
-            missing_job_deps = job_deps - set(final_order.keys())
-            print(missing_job_deps)
-            if missing_job_deps != {}: # != job_deps:
-                # some dependency is missing
-                if max_push_pop == 0:
-                    for job in missing_job_deps:
-                        if job not in to_add:
-                            if job in job_list:
-                                to_add.appendleft(job)
-                                max_push_pop += 1
-                            else:
-                                raise ValueError("Job {} unknown".format(job.id))
-                    if max_push_pop >= 1:
-                        max_push_pop = len(to_add)
-                        continue
-                    try:
-                        special_case_id, special_case = next(
-                            iter(special_cases.items())
-                        )
-                    except StopIteration:
-                        raise ValueError(f"Circular dependency: {to_add}")
-                    del special_cases[special_case_id]
-                    to_add.appendleft(special_case)
-                    max_push_pop = len(to_add)
-                    continue
-                to_add.append(job)
-
-                max_push_pop -= 1
+            job_deps = set(
+                itertools.chain(
+                    job.get_direct_dependencies(),
+                    job.get_after_dependencies(),
+                    job.get_resource_dependencies(),
+                )
+            )
+            missing_job_id_deps = job_deps - final_order.keys()
+            if not missing_job_id_deps:
+                max_push_pop = len(to_add)
+                final_order[job.id] = job
+                if not to_add and special_desired:
+                    to_add += special_desired
+                    special_desired = []
                 continue
-            max_push_pop = len(to_add)
-            final_order[job.id] = job
+
+            # some dependency is missing from desired
+            nonspecial_missing_ids = missing_job_id_deps - special_cases.keys()
+            nonspecial_missing_jobs = map(
+                get_job_by_id, nonspecial_missing_ids
+            )
+            _to_add = list(
+                filter(lambda x: x not in to_add, nonspecial_missing_jobs)
+            )
+            if _to_add:
+                to_add += _to_add
+                max_push_pop = len(to_add)
+            elif max_push_pop == 0:
+                try:
+                    special_case_id, special_case = next(
+                        iter(special_cases.items())
+                    )
+                except StopIteration:
+                    raise ValueError(f"Circular dependency: {to_add}")
+                del special_cases[special_case_id]
+                to_add.append(special_case)
+                max_push_pop = len(to_add)
+            else:
+                max_push_pop -= 1
+            to_add.append(job)
+
         return list(final_order.values())
 
     def _solve(self, visit_list=None):

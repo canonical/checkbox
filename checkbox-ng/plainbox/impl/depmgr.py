@@ -342,11 +342,6 @@ class DependencySolver:
         special_cases: list[JobDefinition] = {},
     ) -> list[JobDefinition]:
         final_order = OrderedDict()
-        special_cases = [
-            job
-            for job in job_list
-            if job.id == "2021.com.canonical.certification::some0"
-        ]
         # special cases are ordered, as in special_case1, special_case2 means that
         # all jobs that depend on special_case1 are added before all jobs that
         # depend on special case 2

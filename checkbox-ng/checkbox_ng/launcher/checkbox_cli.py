@@ -73,7 +73,7 @@ def handle_top_parser(args, ctx):
         logging.basicConfig(level=logging_level)
         set_all_loggers_level(logging.DEBUG)
         ctx.args.debug = True
-    if "--verbose" in sys.argv or "-v" in sys.argv:
+    elif "--verbose" in sys.argv or "-v" in sys.argv:
         logging_level = logging.INFO
         logging.basicConfig(level=logging_level)
         set_all_loggers_level(logging.INFO)

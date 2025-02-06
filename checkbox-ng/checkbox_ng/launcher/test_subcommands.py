@@ -724,7 +724,7 @@ class TestLauncher(TestCase):
     def test__auto_resume_session_autoresume(self):
         self_mock = MagicMock()
         resume_candidate_mock = MagicMock(id="session_to_resume")
-        # session id wasnt provided directly via the cli
+        # session id wasn't provided directly via the cli
         self_mock.ctx.args.session_id = None
         # --clear-old-sessions wasn't used
         self_mock.ctx.args.clear_old_sessions = False
@@ -738,7 +738,7 @@ class TestLauncher(TestCase):
     def test__auto_resume_session_no_autoresume_on_clear(self):
         self_mock = MagicMock()
         resume_candidate_mock = MagicMock(id="session_to_resume")
-        # session id wasnt provided directly via the cli
+        # session id wasn't provided directly via the cli
         self_mock.ctx.args.session_id = None
         # --clear-old-sessions was used, so we don't autoresume
         self_mock.ctx.args.clear_old_sessions = True

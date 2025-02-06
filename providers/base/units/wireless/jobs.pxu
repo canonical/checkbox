@@ -23,6 +23,7 @@ command:
   wifi_nmcli_test.py scan {{ interface }}
 plugin: shell
 category_id: com.canonical.plainbox::wireless
+imports: from com.canonical.plainbox import manifest
 estimated_duration: 6
 _purpose:
  Check system can find a wireless network AP nearby

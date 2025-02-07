@@ -285,11 +285,13 @@ compatible alias:
   _name: (alias) Extended Tutorial Test Plan (Changed id to: `tutorial-extended`)
   nested_part:
     tutorial-extended
+  include:
 
 .. note::
   Notice how we also changed the ``_name`` so that it points to the "new" id.
   This makes the migration from the old id (now an alias) to the new one way
-  easier and frictionless.
+  easier and frictionless. Also note that include is mandatory, so you have to
+  place it there empty.
 
 
 Exclusions
@@ -312,6 +314,7 @@ expensive to run, we can create a new test plan with it excluded as follows:
     tutorial-extended
   exclude:
     network_speed
+  include:
 
 Now if we ``list-bootstrapped`` the test plan we will see that the test is
 missing:

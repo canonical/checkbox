@@ -42,6 +42,7 @@ id: tutorial-extended-oldid
 _name: (alias) Extended Tutorial Test Plan (now called just tutorial-extended)
 nested_part:
   tutorial-extended
+include:
 
 unit: test plan
 id: tutorial-extended-no-speed
@@ -51,3 +52,4 @@ nested_part:
 exclude:
   network_speed
   info/systemd-analyze-critical-chain
+include:

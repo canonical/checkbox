@@ -1,10 +1,10 @@
-name: Test provider-base with tox
+name: Test provider-tutorial with tox
 
 on:
   push:
     branches: [ main ]
     paths:
-      - providers/base/**
+      - providers/tutorial/**
   pull_request:
     branches: [ main ]
     paths:
@@ -12,8 +12,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  tox_test_provider_base:
-    name: Test provider-base with tox
+  tox_test_provider_tutorial:
+    name: Test provider-tutorial with tox
     defaults:
       run:
         working-directory: providers/tutorial

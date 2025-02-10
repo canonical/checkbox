@@ -27,6 +27,7 @@ depends:
  lspci_standard_config_json
  system_info_json
  kernel_cmdline_attachment
+ kernel_config_attachment
 estimated_duration: 1.0
 command: true
 _summary:

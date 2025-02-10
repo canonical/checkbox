@@ -25,3 +25,4 @@ mandatory_include:
     miscellanea/submission-resources
     info/systemd-analyze                  certification-status=non-blocker
     info/systemd-analyze-critical-chain   certification-status=non-blocker
+    info/kernel-config-iommu-flag           certification-status=non-blocker

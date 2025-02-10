@@ -467,6 +467,35 @@ estimated_duration: 0.005
 _purpose: Attaches the kernel command line used to boot
 _summary: Attach a copy of /proc/cmdline
 
+id: info/kernel_config
+plugin: shell
+category_id: com.canonical.plainbox::info
+command: 
+ kernel_config.py --output "$PLAINBOX_SESSION_SHARE"/kernel_config
+estimated_duration: 0.005
+_purpose: Gathers the kernel configuration and saves it to a file
+_summary: Gather the kernel configuration
+
+id: kernel_config_attachment
+plugin: attachment
+depends: info/kernel_config
+category_id: com.canonical.plainbox::info
+command: 
+ [ -f "$PLAINBOX_SESSION_SHARE"/kernel_config ] && cat "$PLAINBOX_SESSION_SHARE"/kernel_config
+estimated_duration: 0.005
+_purpose: Attaches the kernel configuration
+_summary: Attach a copy of the kernel configuration
+
+id: info/kernel-config-iommu-flag
+plugin: shell
+category_id: com.canonical.plainbox::info
+command: 
+ kernel_config.py --config-flag CONFIG_INTEL_IOMMU_DEFAULT_ON --min-version 6.8.0-20
+estimated_duration: 0.005
+_purpose: Checks the value of the CONFIG_INTEL_IOMMU_DEFAULT_ON flag in the kernel configuration
+_summary: Check if the kernel is compiled with IOMMU support
+
+
 plugin: shell
 category_id: com.canonical.plainbox::info
 id: info/systemd-analyze

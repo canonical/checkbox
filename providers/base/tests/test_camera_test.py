@@ -22,6 +22,7 @@ import sys
 
 import unittest
 from unittest.mock import patch, MagicMock, call, mock_open
+import unittest.mock
 
 from camera_test import (
     CameraTest,
@@ -432,6 +433,9 @@ class CameraTestTests(unittest.TestCase):
         self.assertEqual(result, False)
 
     def test_capture_image_gstreamer(self):
+        with self.assertRaises(ValueError):
+            CameraTest(wait_seconds=-1)
+
         mock_camera = MagicMock()
         mock_camera.photo_wait_seconds = 3
         mock_make = mock_camera.Gst.ElementFactory.make
@@ -454,6 +458,20 @@ class CameraTestTests(unittest.TestCase):
         )
         mock_camera.pipeline.set_state.assert_has_calls([call("playing")])
         mock_camera.main_loop.run.assert_called_with()
+
+    def test_capture_image_gstreamer_no_delay(self):
+        mock_camera = MagicMock()
+        mock_camera.photo_wait_seconds = 0
+        mock_valve = MagicMock()
+
+        mock_camera.Gst.ElementFactory.make.side_effect = lambda *args: (
+            mock_valve if "valve" in args else unittest.mock.DEFAULT
+        )
+
+        CameraTest._capture_image_gstreamer(
+            mock_camera, "/tmp/test.jpg", 640, 480, "YUYV"
+        )
+        mock_valve.set_property.assert_called_with("drop", False)
 
     def test_capture_image_gstreamer_bayer(self):
         mock_camera = MagicMock()

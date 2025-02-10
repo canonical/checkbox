@@ -21,7 +21,6 @@ import textwrap
 import sys
 
 import unittest
-from unittest import mock
 from unittest.mock import patch, MagicMock, call, mock_open
 
 from camera_test import (
@@ -789,6 +788,19 @@ class CameraTestTests(unittest.TestCase):
         mock_camera = MagicMock()
         mock_camera._get_supported_formats.return_value = []
         with self.assertRaises(SystemExit):
+            CameraTest._get_default_format(mock_camera)
+
+    def test_get_default_format_broken_format(self):
+        mock_camera = MagicMock()
+
+        mock_camera._get_supported_formats.return_value = [
+            {
+                "pixelformat": "YUYV",
+                "description": "YUYV",
+                "resolutions": [],
+            }
+        ]
+        with self.assertRaises(ValueError):
             CameraTest._get_default_format(mock_camera)
 
     @patch("os.path.exists")

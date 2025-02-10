@@ -191,7 +191,12 @@ class CameraTest:
         self.photo_wait_seconds = kwargs.get(
             "wait_seconds", CameraTest.DEFAULT_PHOTO_WAIT_SECONDS
         )
-        assert self.photo_wait_seconds >= 0, "Wait seconds must be nonnegative"
+        if self.photo_wait_seconds < 0:
+            raise ValueError(
+                "Wait seconds must be nonnegative. Got: {}".format(
+                    self.photo_wait_seconds
+                )
+            )
 
         self.main_loop = None
         self.pipeline = None
@@ -426,9 +431,6 @@ class CameraTest:
         """
         default_format = self._get_default_format()
         pixelformat = default_format["pixelformat"]
-        assert (
-            len(default_format["resolutions"]) > 0
-        ), "No default resolution was found"
         # list[(int, int)]
         self._width, self._height = default_format["resolutions"][0]
         if self.output:
@@ -555,16 +557,16 @@ class CameraTest:
         pipeline.add(sink)
 
         if pixelformat == "MJPG":
+            # source ! rgbcapture ! valve ! filesink
             valve.link(sink)
 
         else:
             # Add encoder
+            # source ! rgbcapture ! valve ! encoder ! filesink
             encoder = self.Gst.ElementFactory.make("jpegenc", "encoder")
             pipeline.add(encoder)
             valve.link(encoder)
             encoder.link(sink)
-
-        # source ! rgbcapture ! valve ! encoder ! filesink
 
         # Connect the bus to the message handler
         bus = pipeline.get_bus()
@@ -586,7 +588,7 @@ class CameraTest:
             self.pipeline.send_event(self.Gst.Event.new_eos())
 
         self.timeout["eos_timeout"] = self.GLib.timeout_add_seconds(
-            (self.photo_wait_seconds or 0) + 1, eos_timeout
+            self.photo_wait_seconds + 1, eos_timeout
         )
 
         if self.photo_wait_seconds > 0:
@@ -607,6 +609,13 @@ class CameraTest:
         # pipeline calling the _on_timeout method and stop both the
         self.main_loop = self.GLib.MainLoop()
         try:
+            print(
+                "Starting GStreamer image capture pipeline with {}...".format(
+                    "{} second delay".format(self.photo_wait_seconds)
+                    if self.photo_wait_seconds > 0
+                    else "no delay"
+                )
+            )
             self.main_loop.run()
         except self.GLib.Error:
             self.main_loop.quit()
@@ -623,7 +632,7 @@ class CameraTest:
         """
         Display an image using Gtk
         """
-        print("starting GTK")
+        print("Starting GTK")
         # Initialize GTK application
         window = self.Gtk.Window(title="Image Viewer")
         window.set_default_size(width, height)
@@ -845,7 +854,11 @@ class CameraTest:
         # a default format.
         if not formats:
             raise SystemExit("No supported formats found")
+
         format = formats[0]
+
+        if "resolutions" not in format or len(format["resolutions"]) == 0:
+            raise ValueError("Default format conatins no resolutions")
 
         return format
 

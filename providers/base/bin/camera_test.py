@@ -542,7 +542,9 @@ class CameraTest:
         # Add valve, note that we can't rely on the default value of drop
         # it varies by installations
         valve = self.Gst.ElementFactory.make("valve", "photo-valve")
-        assert valve, "Valve element could not be created"
+        if not valve:
+            raise RuntimeError("Valve element could not be created")
+
         valve.set_property("drop", True)
         pipeline.add(valve)
 

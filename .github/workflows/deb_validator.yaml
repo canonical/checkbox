@@ -59,8 +59,9 @@ jobs:
       # needed by providers that pull checkbox-support
       - name: Install PPA and dependencies (fix GPG Key Issue)
         run: |
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 753F8DAABFD945830D46A6BB968504F7952C9377
-          sudo add-apt-repository ppa:checkbox-dev/edge
+          sudo mkdir -p /etc/apt/keyrings
+          curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x753F8DAABFD945830D46A6BB968504F7952C9377" | sudo gpg --dearmor -o /etc/apt/keyrings/checkbox-dev.gpg
+          echo "deb [signed-by=/etc/apt/keyrings/checkbox-dev.gpg] https://ppa.launchpadcontent.net/checkbox-dev/edge/ubuntu $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/checkbox-dev.list
           sudo apt-get update
           sudo apt-get install -qq -y dpkg-dev
       - name: Prepare installation

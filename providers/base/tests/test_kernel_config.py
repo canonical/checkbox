@@ -123,7 +123,7 @@ class TestKernelConfig(TestCase):
                 check_flag("CONFIG_INTEL_IOMMU_DEFAULT_ON", "6.8.0-20")
         self.assertEqual(
             str(context.exception),
-            "Flag CONFIG_INTEL_IOMMU_DEFAULT_ON not found in the config.",
+            "Flag CONFIG_INTEL_IOMMU_DEFAULT_ON not found in the kernel config.",
         )
 
     @patch("kernel_config.os.uname")
@@ -136,7 +136,7 @@ class TestKernelConfig(TestCase):
                 check_flag("CONFIG_INTEL_IOMMU_DEFAULT_ON", "6.8.0-20")
         self.assertEqual(
             str(context.exception),
-            "Flag CONFIG_INTEL_IOMMU_DEFAULT_ON not found in the config.",
+            "Flag CONFIG_INTEL_IOMMU_DEFAULT_ON not found in the kernel config.",
         )
 
     @patch("kernel_config.argparse.ArgumentParser.parse_args")

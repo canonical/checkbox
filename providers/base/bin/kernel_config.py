@@ -16,7 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
-
 import argparse
 import os
 import shutil
@@ -55,7 +54,7 @@ def check_flag(flag, min_version):
         min_version
     ):
         print(
-            "Skipping flag check as kernel version"
+            "Skipping: kernel version"
             " {} is lower than {}.".format(kernel_version, min_version)
         )
         return
@@ -70,7 +69,7 @@ def check_flag(flag, min_version):
                 print("Flag {} is present and set to 'y'.".format(flag))
                 return
 
-    raise SystemExit("Flag {} not found in the kernel config.".format(flag))
+    raise SystemExit("Flag {} not found in the config.".format(flag))
 
 
 def parse_args():

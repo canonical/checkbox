@@ -30,8 +30,8 @@ def get_kernel_config_path():
     kernel_version = os.uname().release
     if on_ubuntucore():
         kernel_snap = get_kernel_snap()
-        return f"/snap/{kernel_snap}/current/config-{kernel_version}"
-    return f"/boot/config-{kernel_version}"
+        return "/snap/{}/current/config-{}".format(kernel_snap, kernel_version)
+    return "/boot/config-{}".format(kernel_version)
 
 
 def get_configuration(output=None):
@@ -69,7 +69,7 @@ def check_flag(flag, min_version):
                 print("Flag {} is present and set to 'y'.".format(flag))
                 return
 
-    raise SystemExit("Flag {} not found in the config.".format(flag))
+    raise SystemExit("Flag {} not found in the kernel config.".format(flag))
 
 
 def parse_args():

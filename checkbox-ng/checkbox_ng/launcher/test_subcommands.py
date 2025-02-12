@@ -103,12 +103,16 @@ class TestSharedFunctions(TestCase):
     @patch("checkbox_ng.launcher.subcommands.Explorer")
     def test_print_objs_json_print_all(self, mock_explorer, stdout_mock):
         mock_explorer().get_object_tree.return_value = self.get_test_tree()
-        print_objs(group=None, sa=MagicMock(), show_attrs=True, json_repr=True)
+        print_objs(
+            group=None, sa=MagicMock(), show_attrs=False, json_repr=True
+        )
         printed = stdout_mock.getvalue()
         self.assertIn("job name", printed)
-        self.assertIn("job id", printed)
-        self.assertIn("exporter id", printed)
-        self.assertIn("exporter id", printed)
+        self.assertNotIn(
+            "job id", printed
+        )  # job id is an attr, so shouldnt be here
+        self.assertIn("exporter name", printed)
+        self.assertNotIn("exporter id", printed)  # same for exporter id
 
 
 class TestLauncher(TestCase):

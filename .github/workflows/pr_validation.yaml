@@ -145,9 +145,9 @@ jobs:
           # we are on current branch/commit
           . venv/bin/activate
           # Export list of manifest entries as a JSON array
-          checkbox-cli list 'manifest entry' | python -c 'import sys, json;print(json.dumps([m.replace("manifest entry","").strip().strip("\'") for m in sys.stdin.readlines()]))' > manifest_pr.json
+          checkbox-cli list 'manifest entry' | python -c 'import sys, json;print(json.dumps([m.replace("manifest entry","").strip().strip('\'') for m in sys.stdin.readlines()]))' > manifest_pr.json
           git checkout origin/main
-          checkbox-cli list 'manifest entry' | python -c 'import sys, json;print(json.dumps([m.replace("manifest entry","").strip().strip("\'") for m in sys.stdin.readlines()]))' > manifest_main.json
+          checkbox-cli list 'manifest entry' | python -c 'import sys, json;print(json.dumps([m.replace("manifest entry","").strip().strip('\'') for m in sys.stdin.readlines()]))' > manifest_main.json
           # back to PR branch
           git checkout -
       - name: Trigger workflow in DUT config repo

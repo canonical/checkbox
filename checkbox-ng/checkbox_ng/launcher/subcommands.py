@@ -1551,6 +1551,7 @@ def get_all_jobs(sa):
 
 
 def print_objs(group, sa, show_attrs=False, filter_fun=None, json_repr=False):
+    # note: group is unit type (including internal units like File)
     providers = sa.get_selected_providers()
     obj = Explorer(providers).get_object_tree()
 
@@ -1575,11 +1576,13 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None, json_repr=False):
     if not json_repr:
         return _show(obj, "")
 
+    assert not filter_fun, "The json exporter doesn't support filtering"
     to_print = []
     childrens = obj.children
     while childrens:
         obj = childrens.pop()
         if group is None or obj.group == group:
+            obj.attrs.update({"unit": obj.group, "name": obj.name})
             to_print.append(obj.attrs)
         childrens += obj.children or []
     json.dump(to_print, sys.stdout)

@@ -1,3 +1,6 @@
 #!/usr/bin/env bash
 
-snap install gpu-burn rocm-validation-suite cuda-samples
+# Need to install in devmode for now
+# See: https://forum.snapcraft.io/t/rocm-validation-suite-dev-shm-errors/45672
+snap install rocm-validation-suite --devmode
+snap install gpu-burn cuda-samples

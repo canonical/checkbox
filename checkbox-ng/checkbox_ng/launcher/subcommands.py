@@ -1237,7 +1237,8 @@ class List:
             help=_(
                 (
                     "output format, as passed to print function. "
-                    "Use '?' to list possible values"
+                    "Use '?' to list possible values. "
+                    "Use 'json' to print all objects as a json"
                 )
             ),
         )
@@ -1581,10 +1582,13 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None, json_repr=False):
     childrens = obj.children
     while childrens:
         obj = childrens.pop()
-        if group is None or obj.group == group:
-            obj.attrs.update({"unit": obj.group, "name": obj.name})
-            to_print.append(obj.attrs)
         childrens += obj.children or []
+        if group and obj.group != group:
+            continue
+        obj_repr = {"unit": obj.group, "name": obj.name}
+        if show_attrs:
+            obj_repr.update(obj.attrs)
+        to_print.append(obj_repr)
     json.dump(to_print, sys.stdout)
 
 

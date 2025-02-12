@@ -1244,7 +1244,9 @@ class List:
         )
 
     def invoked(self, ctx):
-        if ctx.args.GROUP == "all-jobs":
+        # print_objs supports json-printing all-jobs, so we can forward the
+        # query if json is requested
+        if ctx.args.GROUP == "all-jobs" and ctx.args.format != "json":
             if ctx.args.attrs:
                 print_objs("job", ctx.sa, True)
 
@@ -1288,7 +1290,7 @@ class List:
                     end="",
                 )
             return
-        elif ctx.args.format != "json":
+        elif ctx.args.format and ctx.args.format != "json":
             print(_("--format applies only to 'all-jobs' group.  Ignoring..."))
         print_objs(
             ctx.args.GROUP,
@@ -1578,12 +1580,17 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None, json_repr=False):
         return _show(obj, "")
 
     assert not filter_fun, "The json exporter doesn't support filtering"
+
+    # all-jobs is a meta-group that include all jobs + all templates
+    # note: if group is none, everything should be printed
+    groups = {group} if group != "all-jobs" else {"job", "template"}
+
     to_print = []
     childrens = obj.children
     while childrens:
         obj = childrens.pop()
         childrens += obj.children or []
-        if group and obj.group != group:
+        if group and obj.group not in groups:
             continue
         obj_repr = {"unit": obj.group, "name": obj.name}
         if show_attrs:

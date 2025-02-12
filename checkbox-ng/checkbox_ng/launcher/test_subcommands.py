@@ -71,6 +71,12 @@ class TestSharedFunctions(TestCase):
                     children=None,
                     attrs={"id": "job id"},
                 ),
+                self.make_unit_mock(
+                    group="template",
+                    name="template name",
+                    children=None,
+                    attrs={"id": "template id"},
+                ),
             ],
         )
 
@@ -113,6 +119,18 @@ class TestSharedFunctions(TestCase):
         )  # job id is an attr, so shouldnt be here
         self.assertIn("exporter name", printed)
         self.assertNotIn("exporter id", printed)  # same for exporter id
+
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_print_objs_json_print_all_jobs(self, mock_explorer, stdout_mock):
+        mock_explorer().get_object_tree.return_value = self.get_test_tree()
+        print_objs(
+            group="all-jobs", sa=MagicMock(), show_attrs=False, json_repr=True
+        )
+        printed = stdout_mock.getvalue()
+        self.assertIn("job name", printed)
+        self.assertIn("template name", printed)
+        self.assertNotIn("exporter name", printed)
 
 
 class TestLauncher(TestCase):

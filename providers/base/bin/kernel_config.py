@@ -74,7 +74,7 @@ def check_flag(flag, min_version):
             line = line.strip()
             if line.startswith("#"):
                 continue  # Ignore commented lines
-            if line == "{}=y".format(flag):
+            if "{}=y".format(flag) in line:
                 print("Flag {} is present and set to 'y'.".format(flag))
                 return
 

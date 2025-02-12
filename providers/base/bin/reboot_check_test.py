@@ -319,7 +319,6 @@ class HardwareRendererTester:
         """
 
         start = time.time()
-        print("Checking if DUT has reached graphical.target...")
         while time.time() - start < max_wait_seconds:
             try:
                 out = sp.run(
@@ -334,7 +333,6 @@ class HardwareRendererTester:
                     timeout=min(5, max_wait_seconds),
                 )
                 if out.returncode == 0:
-                    print("Graphical target reached!")
                     return True
                 else:
                     time.sleep(1)
@@ -520,9 +518,12 @@ def main() -> int:
 
     if args.do_renderer_check:
         tester = HardwareRendererTester()
+        
+        print("Checking if DUT has reached graphical.target...")
         graphical_target_reached = tester.wait_for_graphical_target(
             args.graphical_target_timeout
         )
+        
         if not graphical_target_reached:
             print(
                 "[ ERR ] systemd's graphical.target was not reached",
@@ -530,9 +531,11 @@ def main() -> int:
                 "Marking the renderer test as failed.",
             )
             renderer_test_passed = False
-        elif has_desktop_environment() and tester.has_display_connection():
-            # skip renderer test if there's no display
-            renderer_test_passed = tester.is_hardware_renderer_available()
+        else:
+            print('Graphical target was reached!')
+            if has_desktop_environment() and tester.has_display_connection():
+                # skip renderer test if there's no display
+                renderer_test_passed = tester.is_hardware_renderer_available()
 
     print("Finished reboot checks. {}".format(get_timestamp_str()))
 

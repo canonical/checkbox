@@ -8,7 +8,6 @@ Authors:
     - Abdullah (@motjuste) <abdullah.abdullah@canonical.com>
 """
 
-import argparse
 import subprocess
 import unittest
 from unittest import mock
@@ -97,11 +96,10 @@ class TestCreateParserWithChecks(unittest.TestCase):
             _common.create_parser_with_checks_as_commands([check_1, check_2, check_p2])
 
     def test_catches_duplicate_checks(self):
-        with self.assertRaises(argparse.ArgumentError) as caught:
+        with self.assertRaises(AssertionError):
             _common.create_parser_with_checks_as_commands(
                 [check_1, check_2, check_p2, check_1]
             )
-        assert "conflicting subparser: check_1" in caught.exception.message
 
     def test_creates_expected_sub_parsesr_funcs(self):
         parser = _common.create_parser_with_checks_as_commands(

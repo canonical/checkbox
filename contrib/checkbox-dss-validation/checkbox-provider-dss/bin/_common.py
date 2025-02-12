@@ -18,6 +18,7 @@ def create_parser_with_checks_as_commands(
     checks: t.List[t.Callable], **kwargs
 ) -> argparse.ArgumentParser:
     assert len(checks) > 0, "must provide at least one check"
+    assert len(checks) == len(set(checks)), "duplicate checks are not allowed"
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter, **kwargs

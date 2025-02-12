@@ -1072,7 +1072,7 @@ class ManifestBrowser:
             q: [
                 manifest
                 for manifest in manifests
-                if manifest["hidden"] == hidden
+                if manifest.get("hidden", False) == hidden
             ]
             for q, manifests in question_manifests.items()
         }

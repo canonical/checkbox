@@ -81,6 +81,7 @@ class StressNg:
         command = "stress-ng --aggressive --verify --timeout {} {} {}".format(
             self.sng_timeout, self.extra_options, stressor_list
         )
+        print("Running command: {}".format(command))
         time_str = time.strftime("%d %b %H:%M", time.gmtime())
         if len(self.stressors) == 1:
             print(

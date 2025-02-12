@@ -62,7 +62,11 @@ def check_flag(flag, min_version):
     kernel_config_path = get_kernel_config_path()
     with open(kernel_config_path) as config:
         # Check the header and ignore arm architecture configurations
-        for line in config:
+        lines = config.readlines()
+        header = lines[:4]
+        values = lines[4:]
+
+        for line in header:
             if "Kernel Configuration" in line:
                 if "arm" in line:
                     print("Skipping: arm architecture detected.")
@@ -70,7 +74,7 @@ def check_flag(flag, min_version):
                 break
 
         # Look for the flag in the configuration
-        for line in config:
+        for line in values:
             line = line.strip()
             if line.startswith("#"):
                 continue  # Ignore commented lines

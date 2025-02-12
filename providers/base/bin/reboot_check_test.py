@@ -518,12 +518,12 @@ def main() -> int:
 
     if args.do_renderer_check:
         tester = HardwareRendererTester()
-        
+
         print("Checking if DUT has reached graphical.target...")
         graphical_target_reached = tester.wait_for_graphical_target(
             args.graphical_target_timeout
         )
-        
+
         if not graphical_target_reached:
             print(
                 "[ ERR ] systemd's graphical.target was not reached",
@@ -532,7 +532,7 @@ def main() -> int:
             )
             renderer_test_passed = False
         else:
-            print('Graphical target was reached!')
+            print("Graphical target was reached!")
             if has_desktop_environment() and tester.has_display_connection():
                 # skip renderer test if there's no display
                 renderer_test_passed = tester.is_hardware_renderer_available()

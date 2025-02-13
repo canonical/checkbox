@@ -354,26 +354,20 @@ _summary: Checkout and setup the DSS integration tests
 estimated_duration: 5m
 command:
   set -eo pipefail
-
   export DSS_CLONE_PATH="$HOME/data-science-stack"
   if [ ! -d "$DSS_REPO_CLONE_PATH" ]; then
     echo "cloning DSS repo"
     git clone https://github.com/canonical/data-science-stack.git "$DSS_REPO_CLONE_PATH"
   fi
-
   pushd $DSS_CLONE_PATH
-
   echo "Latest commit in DSS repo:"
   git log --name-status HEAD^..HEAD
-
   if [ ! -d ".venv" ]; then
     echo "creating venv"
     python3 -m venv .venv
-
     echo "install tox"
     .venv/bin/pip install tox
   fi
-
   popd
   echo "Setup complete for DSS integration tests"
 

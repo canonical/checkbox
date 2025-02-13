@@ -359,11 +359,11 @@ estimated_duration: 5m
 command:
   set -eo pipefail
   export DSS_CLONE_PATH="$HOME/data-science-stack"
-  if [ ! -d "$DSS_REPO_CLONE_PATH" ]; then
+  if [ ! -d "$DSS_CLONE_PATH" ]; then
     echo "cloning DSS repo"
-    git clone https://github.com/canonical/data-science-stack.git "$DSS_REPO_CLONE_PATH"
+    git clone https://github.com/canonical/data-science-stack.git "$DSS_CLONE_PATH"
   fi
-  pushd $DSS_CLONE_PATH
+  pushd "$DSS_CLONE_PATH"
   echo "Latest commit in DSS repo:"
   git log --name-status HEAD^..HEAD
   if [ ! -d ".venv" ]; then
@@ -391,7 +391,7 @@ estimated_duration: 15m
 command:
   set -eo pipefail
   export DSS_CLONE_PATH="$HOME/data-science-stack"
-  pushd $DSS_CLONE_PATH
+  pushd "$DSS_CLONE_PATH"
   .venv/bni/tox -e integration
   popd
   echo "DSS integration tests passed on CPU"
@@ -414,7 +414,7 @@ estimated_duration: 15m
 command:
   set -eo pipefail
   export DSS_CLONE_PATH="$HOME/data-science-stack"
-  pushd $DSS_CLONE_PATH
+  pushd "$DSS_CLONE_PATH"
   .venv/bni/tox -e integration-gpu
   popd
   echo "DSS integration tests passed on NVIDIA GPU"

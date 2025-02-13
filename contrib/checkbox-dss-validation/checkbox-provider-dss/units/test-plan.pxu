@@ -42,3 +42,4 @@ bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
     com.canonical.certification::graphics_card
+    com.canonical.certification::package

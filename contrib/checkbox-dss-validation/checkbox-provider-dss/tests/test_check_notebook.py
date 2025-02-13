@@ -8,6 +8,7 @@ Authors:
     - Abdullah (@motjuste) <abdullah.abdullah@canonical.com>
 """
 
+import subprocess
 import textwrap
 import unittest
 from unittest import mock
@@ -116,15 +117,13 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
 
     @mock.patch("check_notebook.pod_for_running_notebook")
     @mock.patch("check_notebook.run_script_in_pod")
-    def test_fails_when_running_script_gives_bad_exit_code(
-        self, mocked_run, mocked_pod
-    ):
-        exception = SystemExit(2)
+    def test_fails_when_running_script_raises_error(self, mocked_run, mocked_pod):
+        exception = subprocess.CalledProcessError(2, "command")
         mocked_run.side_effect = exception
         mocked_pod.return_value = "pod"
-        with self.assertRaises(SystemExit) as caught:
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
             check_notebook.script_must_succeed_in_notebook("notebook", "script")
-        assert caught.exception.code == 2
+        assert caught.exception == exception
 
     @mock.patch("check_notebook.pod_for_running_notebook")
     @mock.patch("check_notebook.run_script_in_pod")
@@ -169,11 +168,12 @@ class TestPodForRunningNotebook(unittest.TestCase):
             assert result == pod
 
     @mock.patch("check_notebook.run_command")
-    def test_fails_on_bad_exit_from_run_command(self, mocked):
-        mocked.side_effect = SystemExit(1)
-        with self.assertRaises(SystemExit) as caught:
+    def test_fails_on_failed_run_command(self, mocked):
+        exception = subprocess.CalledProcessError(1, "command")
+        mocked.side_effect = exception
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
             check_notebook.pod_for_running_notebook("notebook")
-        assert caught.exception.code == 1
+        assert caught.exception == exception
 
     @mock.patch("check_notebook.run_command")
     def test_fails_on_missing_pod(self, mocked):
@@ -208,11 +208,12 @@ class TestRunScriptInPod(unittest.TestCase):
             assert result == "expected"
 
     @mock.patch("check_notebook.run_command")
-    def test_fails_on_bad_exit_from_run_command(self, mocked):
-        mocked.side_effect = SystemExit(1)
-        with self.assertRaises(SystemExit) as caught:
+    def test_fails_on_failed_run_command(self, mocked):
+        exception = subprocess.CalledProcessError(1, "command")
+        mocked.side_effect = exception
+        with self.assertRaises(subprocess.SubprocessError) as caught:
             check_notebook.run_script_in_pod("pod", "script")
-        assert caught.exception.code == 1
+        assert caught.exception == exception
 
 
 class TestCommands(unittest.TestCase):

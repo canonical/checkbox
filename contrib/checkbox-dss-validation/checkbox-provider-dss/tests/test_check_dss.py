@@ -9,6 +9,7 @@ Authors:
 """
 
 import os
+import subprocess
 import textwrap
 import unittest
 from unittest import mock
@@ -149,12 +150,12 @@ class TestDssInitialize(unittest.TestCase):
         )
 
     @mock.patch("check_dss.run_command")
-    def test_failure_on_bad_exit_code(self, mocked):
-        expected_exceptinon = SystemExit(5)
+    def test_failure_failed_run_command(self, mocked):
+        expected_exceptinon = subprocess.CalledProcessError(5, "command")
         mocked.side_effect = expected_exceptinon
-        with self.assertRaises(SystemExit) as caught:
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
             check_dss.can_be_initialized(self.valid_kubeconfig_value)
-        assert caught.exception.code == 5
+        assert caught.exception == expected_exceptinon
 
     @mock.patch("check_dss.run_command")
     def test_failure_on_wrong_response(self, mocked):
@@ -182,12 +183,12 @@ class TestDssPurge(unittest.TestCase):
         mocked.assert_called_once_with("dss", "purge")
 
     @mock.patch("check_dss.run_command")
-    def test_failure_on_bad_exit_code(self, mocked):
-        expected_exceptinon = SystemExit(5)
+    def test_failure_on_failed_run_command(self, mocked):
+        expected_exceptinon = subprocess.CalledProcessError(5, "command")
         mocked.side_effect = expected_exceptinon
-        with self.assertRaises(SystemExit) as caught:
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
             check_dss.can_be_purged()
-        assert caught.exception.code == 5
+        assert caught.exception == expected_exceptinon
 
     @mock.patch("check_dss.run_command")
     def test_failure_on_wrong_response(self, mocked):
@@ -249,12 +250,12 @@ class TestDssHasMlflow(unittest.TestCase):
                 mocked.reset_mock()
 
     @mock.patch("check_dss.run_command")
-    def test_failure_on_bad_exit_code(self, mocked):
-        expected_exceptinon = SystemExit(1)
+    def test_failure_on_failed_run_command(self, mocked):
+        expected_exceptinon = subprocess.CalledProcessError(1, "command")
         mocked.side_effect = expected_exceptinon
-        with self.assertRaises(SystemExit) as caught:
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
             check_dss.has_mlflow_ready()
-        assert caught.exception.code == 1
+        assert caught.exception == expected_exceptinon
 
     @mock.patch("check_dss.run_command")
     def test_failure_on_wrong_response(self, mocked):
@@ -302,12 +303,12 @@ class TestDssHasIntelGpu(unittest.TestCase):
                 mocked.reset_mock()
 
     @mock.patch("check_dss.run_command")
-    def test_failure_on_bad_exit_code(self, mocked):
-        expected_exceptinon = SystemExit(1)
+    def test_failure_on_failed_run_command(self, mocked):
+        expected_exceptinon = subprocess.CalledProcessError(1, "command")
         mocked.side_effect = expected_exceptinon
-        with self.assertRaises(SystemExit) as caught:
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
             check_dss.has_intel_gpu_acceleration_enabled()
-        assert caught.exception.code == 1
+        assert caught.exception == expected_exceptinon
 
     @mock.patch("check_dss.run_command")
     def test_failure_on_wrong_response(self, mocked):
@@ -354,12 +355,12 @@ class TestDssHasNvidiaGpu(unittest.TestCase):
                 mocked.reset_mock()
 
     @mock.patch("check_dss.run_command")
-    def test_failure_on_bad_exit_code(self, mocked):
-        expected_exceptinon = SystemExit(1)
+    def test_failure_on_failed_run_command(self, mocked):
+        expected_exceptinon = subprocess.CalledProcessError(5, "command")
         mocked.side_effect = expected_exceptinon
-        with self.assertRaises(SystemExit) as caught:
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
             check_dss.has_nvidia_gpu_acceleration_enabled()
-        assert caught.exception.code == 1
+        assert caught.exception == expected_exceptinon
 
     @mock.patch("check_dss.run_command")
     def test_failure_on_wrong_response(self, mocked):
@@ -394,12 +395,12 @@ class TestDssCreatingNotebook(unittest.TestCase):
         mocked.assert_called_with("dss", "create", name, "--image", image)
 
     @mock.patch("check_dss.run_command")
-    def test_failure_on_bad_exit_code(self, mocked):
-        expected_exceptinon = SystemExit(7)
+    def test_failure_on_failed_run_command(self, mocked):
+        expected_exceptinon = subprocess.CalledProcessError(7, "command")
         mocked.side_effect = expected_exceptinon
-        with self.assertRaises(SystemExit) as caught:
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
             check_dss.can_create_notebook("tensorflow", "tensorflow-intel")
-        assert caught.exception.code == 7
+        assert caught.exception == expected_exceptinon
 
     @mock.patch("check_dss.run_command")
     def test_failure_on_wrong_response(self, mocked):
@@ -458,12 +459,12 @@ class TestDssRemovingNotebook(unittest.TestCase):
         mocked.assert_called_with("dss", "remove", name)
 
     @mock.patch("check_dss.run_command")
-    def test_failure_on_bad_exit_code(self, mocked):
-        expected_exceptinon = SystemExit(7)
+    def test_failure_failed_run_command(self, mocked):
+        expected_exceptinon = subprocess.CalledProcessError(3, "command")
         mocked.side_effect = expected_exceptinon
-        with self.assertRaises(SystemExit) as caught:
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
             check_dss.can_start_removing_notebook("tensorflow")
-        assert caught.exception.code == 7
+        assert caught.exception == expected_exceptinon
 
     @mock.patch("check_dss.run_command")
     def test_failure_on_wrong_response(self, mocked):

@@ -48,25 +48,14 @@ class TestRunCommand(unittest.TestCase):
                 mocked.reset_mock()
 
     @mock.patch("subprocess.check_output")
-    def test_raises_system_exit_on_error_with_correct_code(self, mocked):
-        causing_exception = subprocess.CalledProcessError(
+    def test_raises_subprocess_error(self, mocked):
+        exception = subprocess.CalledProcessError(
             2, "testing", output="out", stderr="err"
         )
-        mocked.side_effect = causing_exception
-        with self.assertRaises(SystemExit) as caught:
+        mocked.side_effect = exception
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
             common.run_command("testing")
-        assert caught.exception.code == causing_exception.returncode
-
-    @mock.patch("subprocess.check_output")
-    def test_raises_system_exit_on_error_with_correct_cause(self, mocked):
-        causing_exception = subprocess.CalledProcessError(
-            2, "testing", output="out", stderr="err"
-        )
-        mocked.side_effect = causing_exception
-        with self.assertRaises(SystemExit) as caught:
-            common.run_command("testing")
-        assert caught.exception.__cause__ == causing_exception
-
+        assert caught.exception == exception
 
 def check_1():
     """check 1"""

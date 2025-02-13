@@ -8,6 +8,7 @@ Authors:
     - Abdullah (@motjuste) <abdullah.abdullah@canonical.com>
 """
 
+import subprocess
 import textwrap
 import unittest
 from unittest import mock
@@ -31,10 +32,10 @@ class TestVerifyingValidations(unittest.TestCase):
         )
 
     @mock.patch("check_cuda_with_mk8s.run_command")
-    def test_failure_on_bad_exit(self, mocked_run):
-        exception = SystemExit(3)
+    def test_failure_on_failed_run_command(self, mocked_run):
+        exception = subprocess.CalledProcessError(3, "command")
         mocked_run.side_effect = exception
-        with self.assertRaises(SystemExit) as caught:
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
             check_cuda_with_mk8s.has_all_validations_successful()
         assert caught.exception == exception
 
@@ -234,11 +235,11 @@ class TestEnablingCudaWithOperatorVersion(unittest.TestCase):
 
     @mock.patch("check_cuda_with_mk8s.verify_all_rollouts")
     @mock.patch("check_cuda_with_mk8s.run_command")
-    def test_fails_on_bad_exit_from_command(self, mocked_run, mocked_rollout):
-        exception = SystemExit(8)
+    def test_fails_on_failed_run_command(self, mocked_run, mocked_rollout):
+        exception = subprocess.CalledProcessError(1, "command")
         mocked_run.side_effect = exception
         operator_version = "24.6.2"
-        with self.assertRaises(SystemExit) as caught:
+        with self.assertRaises(subprocess.CalledProcessError) as caught:
             check_cuda_with_mk8s.can_be_enabled_with_operator_version(operator_version)
         assert caught.exception == exception
 

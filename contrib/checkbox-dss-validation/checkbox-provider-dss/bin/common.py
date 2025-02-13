@@ -42,15 +42,12 @@ def create_parser_with_checks_as_commands(
 
 def run_command(*command: str, **kwargs) -> str:
     """Run a shell command and return its output"""
-    try:
-        result = subprocess.check_output(
-            command,
-            stderr=subprocess.STDOUT,  # We capture stdout and stderr in stdout
-            universal_newlines=True,
-            **kwargs,
-        )
-        print(result)
-        result = result.strip()
-        return result
-    except subprocess.CalledProcessError as e:
-        raise SystemExit(e.returncode) from e
+    result = subprocess.check_output(
+        command,
+        stderr=subprocess.STDOUT,  # We capture stdout and stderr in stdout
+        universal_newlines=True,
+        **kwargs,
+    )
+    print(result)
+    result = result.strip()
+    return result

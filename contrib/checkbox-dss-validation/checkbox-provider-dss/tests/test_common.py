@@ -12,7 +12,7 @@ import subprocess
 import unittest
 from unittest import mock
 
-import _common
+import common
 
 
 class TestRunCommand(unittest.TestCase):
@@ -26,7 +26,7 @@ class TestRunCommand(unittest.TestCase):
         ):
             with self.subTest(i=i):
                 assert isinstance(kwargs, dict)
-                _common.run_command(*args, **kwargs)
+                common.run_command(*args, **kwargs)
                 mocked.assert_called_with(
                     args, stderr=subprocess.STDOUT, universal_newlines=True, **kwargs
                 )
@@ -43,7 +43,7 @@ class TestRunCommand(unittest.TestCase):
         ):
             with self.subTest(i=i):
                 mocked.return_value = value
-                result = _common.run_command()
+                result = common.run_command()
                 assert expected == result
                 mocked.reset_mock()
 
@@ -54,7 +54,7 @@ class TestRunCommand(unittest.TestCase):
         )
         mocked.side_effect = causing_exception
         with self.assertRaises(SystemExit) as caught:
-            _common.run_command("testing")
+            common.run_command("testing")
         assert caught.exception.code == causing_exception.returncode
 
     @mock.patch("subprocess.check_output")
@@ -64,7 +64,7 @@ class TestRunCommand(unittest.TestCase):
         )
         mocked.side_effect = causing_exception
         with self.assertRaises(SystemExit) as caught:
-            _common.run_command("testing")
+            common.run_command("testing")
         assert caught.exception.__cause__ == causing_exception
 
 
@@ -87,22 +87,22 @@ class TestCreateParserWithChecks(unittest.TestCase):
     def test_accepts_at_least_one_check(self):
         with self.subTest("no checks"):
             with self.assertRaises(AssertionError):
-                _common.create_parser_with_checks_as_commands([])
+                common.create_parser_with_checks_as_commands([])
         with self.subTest("1 check"):
-            _common.create_parser_with_checks_as_commands([check_1])
+            common.create_parser_with_checks_as_commands([check_1])
         with self.subTest("2 checks"):
-            _common.create_parser_with_checks_as_commands([check_1, check_2])
+            common.create_parser_with_checks_as_commands([check_1, check_2])
         with self.subTest("3 checks"):
-            _common.create_parser_with_checks_as_commands([check_1, check_2, check_p2])
+            common.create_parser_with_checks_as_commands([check_1, check_2, check_p2])
 
     def test_catches_duplicate_checks(self):
         with self.assertRaises(AssertionError):
-            _common.create_parser_with_checks_as_commands(
+            common.create_parser_with_checks_as_commands(
                 [check_1, check_2, check_p2, check_1]
             )
 
     def test_creates_expected_sub_parsesr_funcs(self):
-        parser = _common.create_parser_with_checks_as_commands(
+        parser = common.create_parser_with_checks_as_commands(
             [check_1, check_2, check_p2]
         )
         for check, args in [

@@ -49,6 +49,7 @@ def run_command(*command: str, **kwargs) -> str:
             universal_newlines=True,
             **kwargs,
         )
+        print(result)
         result = result.strip()
         return result
     except subprocess.CalledProcessError as e:

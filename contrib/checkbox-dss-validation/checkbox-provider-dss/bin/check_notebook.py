@@ -11,7 +11,7 @@ Authors:
 import textwrap
 import typing as t
 
-from _common import (
+from common import (
     create_parser_with_checks_as_commands,
     run_command as common_run_command,
 )

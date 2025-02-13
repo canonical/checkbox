@@ -78,7 +78,12 @@ class TestMain(unittest.TestCase):
             timeout = 1010101
             assert timeout != orig_timeout
             check_notebook.main(
-                ["--timeout", str(timeout), "has_pytorch_available", "notebook"]
+                [
+                    "--timeout",
+                    str(timeout),
+                    "has_pytorch_available",
+                    "notebook",
+                ]
             )
             assert check_notebook._TIMEOUT_SEC == timeout
         finally:
@@ -112,17 +117,27 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
         exception = AssertionError("notebook not found")
         mocked.side_effect = exception
         with self.assertRaises(AssertionError) as caught:
-            check_notebook.script_must_succeed_in_notebook("notebook", "script")
+            check_notebook.script_must_succeed_in_notebook(
+                "notebook",
+                "script",
+            )
         assert caught.exception == exception
 
     @mock.patch("check_notebook.pod_for_running_notebook")
     @mock.patch("check_notebook.run_script_in_pod")
-    def test_fails_when_running_script_raises_error(self, mocked_run, mocked_pod):
+    def test_fails_when_running_script_raises_error(
+        self,
+        mocked_run,
+        mocked_pod,
+    ):
         exception = subprocess.CalledProcessError(2, "command")
         mocked_run.side_effect = exception
         mocked_pod.return_value = "pod"
         with self.assertRaises(subprocess.CalledProcessError) as caught:
-            check_notebook.script_must_succeed_in_notebook("notebook", "script")
+            check_notebook.script_must_succeed_in_notebook(
+                "notebook",
+                "script",
+            )
         assert caught.exception == exception
 
     @mock.patch("check_notebook.pod_for_running_notebook")
@@ -135,7 +150,10 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
         mocked_run.return_value = garbage_result
         mocked_pod.return_value = "pod"
         with self.assertRaises(AssertionError) as caught:
-            check_notebook.script_must_succeed_in_notebook("notebook", "script")
+            check_notebook.script_must_succeed_in_notebook(
+                "notebook",
+                "script",
+            )
         assert (
             caught.exception.args[0]
             == f"{check_notebook.SUCCESS_MARKER} not in results"
@@ -202,7 +220,15 @@ class TestRunScriptInPod(unittest.TestCase):
         result = check_notebook.run_script_in_pod("pod", "script")
         with self.subTest("runs expected command"):
             mocked.assert_called_once_with(
-                "kubectl", "-n", "dss", "exec", "pod", "--", "python", "-c", "script"
+                "kubectl",
+                "-n",
+                "dss",
+                "exec",
+                "pod",
+                "--",
+                "python",
+                "-c",
+                "script",
             )
         with self.subTest("returns expected value"):
             assert result == "expected"
@@ -222,8 +248,14 @@ class TestCommands(unittest.TestCase):
         notebook = "notebook"
         for i, (check, script_name) in enumerate(
             [
-                (check_notebook.has_pytorch_available, "pytorch_is_available"),
-                (check_notebook.has_tensorflow_available, "tensorflow_is_available"),
+                (
+                    check_notebook.has_pytorch_available,
+                    "pytorch_is_available",
+                ),
+                (
+                    check_notebook.has_tensorflow_available,
+                    "tensorflow_is_available",
+                ),
                 (
                     check_notebook.can_use_intel_gpu_in_pytorch,
                     "pytorch_can_use_intel_gpu",

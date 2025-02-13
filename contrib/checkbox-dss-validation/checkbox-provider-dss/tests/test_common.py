@@ -28,7 +28,10 @@ class TestRunCommand(unittest.TestCase):
                 assert isinstance(kwargs, dict)
                 common.run_command(*args, **kwargs)
                 mocked.assert_called_with(
-                    args, stderr=subprocess.STDOUT, universal_newlines=True, **kwargs
+                    args,
+                    stderr=subprocess.STDOUT,
+                    universal_newlines=True,
+                    **kwargs,
                 )
                 mocked.reset_mock()
 
@@ -57,6 +60,7 @@ class TestRunCommand(unittest.TestCase):
             common.run_command("testing")
         assert caught.exception == exception
 
+
 def check_1():
     """check 1"""
     return 1
@@ -82,7 +86,13 @@ class TestCreateParserWithChecks(unittest.TestCase):
         with self.subTest("2 checks"):
             common.create_parser_with_checks_as_commands([check_1, check_2])
         with self.subTest("3 checks"):
-            common.create_parser_with_checks_as_commands([check_1, check_2, check_p2])
+            common.create_parser_with_checks_as_commands(
+                [
+                    check_1,
+                    check_2,
+                    check_p2,
+                ]
+            )
 
     def test_catches_duplicate_checks(self):
         with self.assertRaises(AssertionError):

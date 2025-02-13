@@ -37,7 +37,11 @@ class TestRunCommand(unittest.TestCase):
     def test_calls_with_default_timeout(self, mocked):
         check_dss.run_command("ls", "-lah")
         mocked.assert_called_once_with(
-            "ls", "-lah", timeout=check_dss._TIMEOUT_SEC, env=mock.ANY, cwd=mock.ANY
+            "ls",
+            "-lah",
+            timeout=check_dss._TIMEOUT_SEC,
+            env=mock.ANY,
+            cwd=mock.ANY,
         )
 
     @mock.patch("check_dss.common_run_command")
@@ -108,7 +112,14 @@ class TestMain(unittest.TestCase):
             timeout = 1010101
             assert timeout != orig_timeout
             mocked.return_value = "DSS initialized"
-            check_dss.main(["--timeout", str(timeout), "can_be_initialized", "config"])
+            check_dss.main(
+                [
+                    "--timeout",
+                    str(timeout),
+                    "can_be_initialized",
+                    "config",
+                ]
+            )
             assert check_dss._TIMEOUT_SEC == timeout
         finally:
             check_dss._TIMEOUT_SEC = orig_timeout
@@ -117,7 +128,12 @@ class TestMain(unittest.TestCase):
     def test_calls_appropriate_check(self, mocked):
         mocked.return_value = "DSS initialized"
         check_dss.main(["can_be_initialized", "config"])
-        mocked.assert_called_once_with("dss", "initialize", "--kubeconfig", "config")
+        mocked.assert_called_once_with(
+            "dss",
+            "initialize",
+            "--kubeconfig",
+            "config",
+        )
 
 
 class TestDssInitialize(unittest.TestCase):
@@ -141,7 +157,7 @@ class TestDssInitialize(unittest.TestCase):
 
             Examples:
               dss create my-notebook --image=pytorch
-              dss create my-notebook --image=kubeflownotebookswg/jupyter-scipy:v1.8.0
+              dss create my-notebook --image=jupyter-scipy:v1.8.0
             """
         )
         check_dss.can_be_initialized(self.valid_kubeconfig_value)
@@ -403,7 +419,7 @@ class TestDssCreatingNotebook(unittest.TestCase):
         assert caught.exception == expected_exceptinon
 
     @mock.patch("check_dss.run_command")
-    def test_failure_on_wrong_response(self, mocked):
+    def test_failure_on_wrong_response(self, mocked):  # noqa: E501
         notebook_name = "playground"
         image = "tensorflow-intel"
         some_other_notebook_name = "numpy"

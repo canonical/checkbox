@@ -44,18 +44,11 @@ SCRIPT = {
         print(torch.__version__)
         print(ipex.__version__)
 
-        try:
-            [
-                print(i, torch.xpu.get_device_properties(i))
-                for i in range(torch.xpu.device_count())
-            ]
-            print("{SUCCESS_MARKER}")
-            sys.exit(0)
-        except Exception:
-            print(
-                "Encountered an error getting XPU device properties", file=sys.stderr
-            )
-            sys.exit(1)
+        [
+            print(i, torch.xpu.get_device_properties(i))
+            for i in range(torch.xpu.device_count())
+        ]
+        print("{SUCCESS_MARKER}")
         """
     ),
     "tensorflow_can_use_intel_gpu": textwrap.dedent(
@@ -124,33 +117,46 @@ def parse_args(args: t.List[str] | None = None) -> dict[str, t.Any]:
 
 def has_pytorch_available(notebook_name: str) -> None:
     """Check that notebook with given name has Pytorch available"""
-    script_must_succeed_in_notebook(notebook_name, SCRIPT["pytorch_is_available"])
+    script_must_succeed_in_notebook(
+        notebook_name,
+        SCRIPT["pytorch_is_available"],
+    )
 
 
 def has_tensorflow_available(notebook_name: str) -> None:
     """Check that notebook with given name has Tensorflow available"""
-    script_must_succeed_in_notebook(notebook_name, SCRIPT["tensorflow_is_available"])
+    script_must_succeed_in_notebook(
+        notebook_name,
+        SCRIPT["tensorflow_is_available"],
+    )
 
 
 def can_use_intel_gpu_in_pytorch(notebook_name: str) -> None:
-    """Check that notebook with given name has can use Intel GPU in Pytorch"""
-    script_must_succeed_in_notebook(notebook_name, SCRIPT["pytorch_can_use_intel_gpu"])
+    """Check that notebook with given name can use Intel GPU in Pytorch"""
+    script_must_succeed_in_notebook(
+        notebook_name,
+        SCRIPT["pytorch_can_use_intel_gpu"],
+    )
 
 
 def can_use_intel_gpu_in_tensorflow(notebook_name: str) -> None:
-    """Check that notebook with given name has can use Intel GPU in Tensorflow"""
+    """Check that notebook with given name can use Intel GPU in Tensorflow"""
     script_must_succeed_in_notebook(
-        notebook_name, SCRIPT["tensorflow_can_use_intel_gpu"]
+        notebook_name,
+        SCRIPT["tensorflow_can_use_intel_gpu"],
     )
 
 
 def can_use_nvidia_gpu_in_pytorch(notebook_name: str) -> None:
-    """Check that notebook with given name has can use Intel GPU in Pytorch"""
-    script_must_succeed_in_notebook(notebook_name, SCRIPT["pytorch_can_use_nvidia_gpu"])
+    """Check that notebook with given name can use Intel GPU in Pytorch"""
+    script_must_succeed_in_notebook(
+        notebook_name,
+        SCRIPT["pytorch_can_use_nvidia_gpu"],
+    )
 
 
 def can_use_nvidia_gpu_in_tensorflow(notebook_name: str) -> None:
-    """Check that notebook with given name has can use Intel GPU in Tensorflow"""
+    """Check that notebook with given name can use Intel GPU in Tensorflow"""
     script_must_succeed_in_notebook(
         notebook_name, SCRIPT["tensorflow_can_use_nvidia_gpu"]
     )
@@ -183,7 +189,9 @@ def pod_for_running_notebook(notebook_name: str) -> str:
         pod_name = line.split()[0]
         if pod_name.startswith(f"{notebook_name}-"):
             return pod_name
-    raise AssertionError(f"no RUNNING pod for notebook {notebook_name} was found")
+    raise AssertionError(
+        f"no RUNNING pod for notebook {notebook_name} was found",
+    )
 
 
 def main(args: t.List[str] | None = None) -> None:

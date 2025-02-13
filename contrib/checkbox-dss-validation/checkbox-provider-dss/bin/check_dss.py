@@ -20,7 +20,7 @@ _TIMEOUT_SEC: float = 10.0 * 60  # seconds
 
 
 def run_command(*command: str, **kwargs) -> str:
-    # IMPORTANT NOTE:@motjuste: Clear Python-related env vars to avoid conflicts
+    # IMPORTANT NOTE:@motjuste: Clear Python env vars to avoid conflicts
     #   between Checkbox's Python, and what DSS expects.
     env = os.environ
     env.pop("PYTHONPATH", None)
@@ -76,7 +76,8 @@ def can_be_initialized(kube_config_text: str) -> None:
 def can_be_purged() -> None:
     """Check that `dss` can be purged"""
     result = run_command("dss", "purge")
-    assert "Success: All DSS components and notebooks purged successfully" in result
+    expected = "Success: All DSS components and notebooks purged successfully"
+    assert expected in result
 
 
 def has_mlflow_ready() -> None:
@@ -95,7 +96,7 @@ def has_nvidia_gpu_acceleration_enabled() -> None:
 
 
 def can_create_notebook(name: str, image: str) -> None:
-    """Check that `dss` can create notebook with given `name` using given `image`"""
+    """Check that `dss` can create notebook with `name` using given `image`"""
     result = run_command("dss", "create", name, "--image", image)
     assert (
         f"Success: Notebook {name} created successfully" in result
@@ -110,9 +111,9 @@ def can_start_removing_notebook(name: str) -> None:
     ), f"dss could not remove notebook '{name}'"
 
 
-def _status_must_have(expected_result: str) -> None:
+def _status_must_have(expected: str) -> None:
     result = run_command("dss", "status")
-    assert expected_result in result, f"dss status does not have '{expected_result}'"
+    assert expected in result, f"dss status does not have '{expected}'"
 
 
 if __name__ == "__main__":

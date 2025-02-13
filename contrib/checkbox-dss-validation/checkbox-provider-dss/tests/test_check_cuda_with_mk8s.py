@@ -50,9 +50,9 @@ class TestVerifyingRollout(unittest.TestCase):
     @mock.patch("check_cuda_with_mk8s.time.sleep")
     @mock.patch("check_cuda_with_mk8s.run_command")
     def test_normal_success(self, mocked, mocked_sleep):
-        daemonset = "something"
-        mocked.return_value = f'daemon set "{daemonset}" successfully rolled out'
-        check_cuda_with_mk8s.verify_rollout_of_daemonset(daemonset)
+        ds = "something"
+        mocked.return_value = f'daemon set "{ds}" successfully rolled out'
+        check_cuda_with_mk8s.verify_rollout_of_daemonset(ds)
         mocked_sleep.assert_called_once_with(10)
         mocked.assert_called_once_with(
             "kubectl",
@@ -60,7 +60,7 @@ class TestVerifyingRollout(unittest.TestCase):
             "gpu-operator-resources",
             "rollout",
             "status",
-            f"ds/{daemonset}",
+            f"ds/{ds}",
         )
 
     @mock.patch("check_cuda_with_mk8s.time.sleep")
@@ -74,7 +74,9 @@ class TestVerifyingRollout(unittest.TestCase):
             return f'daemon set "{daemonset}" successfully rolled out'
 
         mocked_run.side_effect = tracked_run
-        mocked_sleep.side_effect = lambda *_, **__: call_order.append(mocked_sleep)
+        mocked_sleep.side_effect = lambda *_, **__: call_order.append(
+            mocked_sleep,
+        )
         check_cuda_with_mk8s.verify_rollout_of_daemonset(daemonset)
         self.assertListEqual(call_order, [mocked_sleep, mocked_run])
 
@@ -164,7 +166,11 @@ class TestVerifyAllRollouts(unittest.TestCase):
 class TestEnablingCudaWithOperatorVersion(unittest.TestCase):
     @mock.patch("check_cuda_with_mk8s.verify_all_rollouts")
     @mock.patch("check_cuda_with_mk8s.run_command")
-    def test_success_when_enabled_for_first_time(self, mocked_run, mocked_rollout):
+    def test_success_when_enabled_for_first_time(
+        self,
+        mocked_run,
+        mocked_rollout,
+    ):
         mocked_run.return_value = textwrap.dedent(
             """
             Infer repository core for addon gpu
@@ -186,7 +192,9 @@ class TestEnablingCudaWithOperatorVersion(unittest.TestCase):
             """
         ).strip()
         operator_version = "24.6.2"
-        check_cuda_with_mk8s.can_be_enabled_with_operator_version(operator_version)
+        check_cuda_with_mk8s.can_be_enabled_with_operator_version(
+            operator_version,
+        )
         mocked_run.assert_called_once_with(
             "sudo",
             "microk8s",
@@ -207,7 +215,9 @@ class TestEnablingCudaWithOperatorVersion(unittest.TestCase):
             """
         ).strip()
         operator_version = "24.6.2"
-        check_cuda_with_mk8s.can_be_enabled_with_operator_version(operator_version)
+        check_cuda_with_mk8s.can_be_enabled_with_operator_version(
+            operator_version,
+        )
         mocked_run.assert_called_once_with(
             "sudo",
             "microk8s",
@@ -220,7 +230,11 @@ class TestEnablingCudaWithOperatorVersion(unittest.TestCase):
 
     @mock.patch("check_cuda_with_mk8s.verify_all_rollouts")
     @mock.patch("check_cuda_with_mk8s.run_command")
-    def test_verifying_rollout_is_called_after_enable(self, mocked_run, mocked_rollout):
+    def test_verifying_rollout_is_called_after_enable(
+        self,
+        mocked_run,
+        mocked_rollout,
+    ):
         call_order = []
 
         def tracking_run(*_, **__):
@@ -230,7 +244,9 @@ class TestEnablingCudaWithOperatorVersion(unittest.TestCase):
         mocked_run.side_effect = tracking_run
         mocked_rollout.side_effect = lambda: call_order.append(mocked_rollout)
         operator_version = "24.6.2"
-        check_cuda_with_mk8s.can_be_enabled_with_operator_version(operator_version)
+        check_cuda_with_mk8s.can_be_enabled_with_operator_version(
+            operator_version,
+        )
         self.assertListEqual(call_order, [mocked_run, mocked_rollout])
 
     @mock.patch("check_cuda_with_mk8s.verify_all_rollouts")
@@ -240,16 +256,24 @@ class TestEnablingCudaWithOperatorVersion(unittest.TestCase):
         mocked_run.side_effect = exception
         operator_version = "24.6.2"
         with self.assertRaises(subprocess.CalledProcessError) as caught:
-            check_cuda_with_mk8s.can_be_enabled_with_operator_version(operator_version)
+            check_cuda_with_mk8s.can_be_enabled_with_operator_version(
+                operator_version,
+            )
         assert caught.exception == exception
 
     @mock.patch("check_cuda_with_mk8s.verify_all_rollouts")
     @mock.patch("check_cuda_with_mk8s.run_command")
-    def test_fails_on_failed_rollout_verification(self, mocked_run, mocked_rollout):
+    def test_fails_on_failed_rollout_verification(
+        self,
+        mocked_run,
+        mocked_rollout,
+    ):
         exception = AssertionError()
         mocked_run.return_value = "NVIDIA is enabled"
         mocked_rollout.side_effect = exception
         operator_version = "24.6.2"
         with self.assertRaises(AssertionError) as caught:
-            check_cuda_with_mk8s.can_be_enabled_with_operator_version(operator_version)
+            check_cuda_with_mk8s.can_be_enabled_with_operator_version(
+                operator_version,
+            )
         assert caught.exception == exception

@@ -3,7 +3,6 @@ unit: test plan
 _name: DSS validations with Intel and NVIDIA GPUs if available
 include:
     dss/initialize
-    dss/namespace
     dss/status_mlflow
     dss/create_pytorch_cpu_notebook
     cpu/pytorch_can_use_cpu

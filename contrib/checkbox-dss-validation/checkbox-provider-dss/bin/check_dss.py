@@ -28,6 +28,11 @@ def run_command(*command: str, **kwargs) -> str:
     env.pop("PYTHONUSERBASE", None)
     kwargs["env"] = env
 
+    # IMPORTANT NOTE:@motjuste: Run DSS commands from the $HOME directory since
+    #   DSS won't have permissions to write to the directory of these Checkbox
+    #   tests.
+    kwargs["cwd"] = env["HOME"]
+
     if "timeout" not in kwargs:
         kwargs["timeout"] = _TIMEOUT_SEC
     return common_run_command(*command, **kwargs)

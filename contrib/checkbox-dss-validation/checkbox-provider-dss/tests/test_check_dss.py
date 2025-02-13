@@ -8,6 +8,7 @@ Authors:
     - Abdullah (@motjuste) <abdullah.abdullah@canonical.com>
 """
 
+import os
 import textwrap
 import unittest
 from unittest import mock
@@ -35,7 +36,7 @@ class TestRunCommand(unittest.TestCase):
     def test_calls_with_default_timeout(self, mocked):
         check_dss.run_command("ls", "-lah")
         mocked.assert_called_once_with(
-            "ls", "-lah", timeout=check_dss._TIMEOUT_SEC, env=mock.ANY
+            "ls", "-lah", timeout=check_dss._TIMEOUT_SEC, env=mock.ANY, cwd=mock.ANY
         )
 
     @mock.patch("check_dss.common_run_command")
@@ -51,13 +52,23 @@ class TestRunCommand(unittest.TestCase):
             assert "PYTHONUSERBASE" not in passed_env
 
     @mock.patch("check_dss.common_run_command")
+    def test_calls_with_cwd_set_to_home(self, mocked):
+        orig_home = os.environ["HOME"]
+        check_dss.run_command("ls", "-lah")
+        sent_kwargs = mocked.call_args.kwargs
+        passed_cwd = sent_kwargs["cwd"]
+        assert passed_cwd == orig_home
+
+    @mock.patch("check_dss.common_run_command")
     def test_calls_with_given_timeout(self, mocked):
         orig_timeout = check_dss._TIMEOUT_SEC
         try:
             timeout = 1010101
             assert timeout != orig_timeout
             check_dss.run_command("ls", "-lah", timeout=timeout)
-            mocked.assert_called_once_with("ls", "-lah", timeout=timeout, env=mock.ANY)
+            mocked.assert_called_once_with(
+                "ls", "-lah", timeout=timeout, env=mock.ANY, cwd=mock.ANY
+            )
         finally:
             check_dss._TIMEOUT_SEC = orig_timeout
 

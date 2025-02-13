@@ -71,19 +71,22 @@ main() {
         esac
     done
 
-    echo -e "\n Step 1/4: Setting up microk8s"
+    echo -e "\n Step 1/5: Setting up microk8s"
     setup_microk8s_snap "$microk8s_snap_channel"
 
-    echo -e "\n Step 2/4: Setting up kubectl"
+    echo -e "\n Step 2/5: Setting up kubectl"
     setup_kubectl_snap "$kubectl_snap_channel"
 
     # intel_gpu_top command used for host-level GPU check
     # jq used for cases where jsonpath is insufficient for parsing json results
-    echo -e "\nStep 3/4: Installing intel-gpu-tools"
+    echo -e "\nStep 3/5: Installing intel-gpu-tools"
     DEBIAN_FRONTEND=noninteractive sudo apt install -y intel-gpu-tools jq
 
-    echo -e "\nStep 4/4: Installing data-science-stack snap from channel $dss_snap_channel"
+    echo -e "\nStep 4/5: Installing data-science-stack snap from channel $dss_snap_channel"
     sudo snap install data-science-stack --channel "$dss_snap_channel"
+
+    echo -e "\nStep 5/5: Installing python3-venv for DSS integration tests"
+    DEBIAN_FRONTEND=noninteractive sudo apt install -y python3-venv
 }
 
 main "$@"

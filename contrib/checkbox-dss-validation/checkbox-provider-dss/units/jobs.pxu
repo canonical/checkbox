@@ -344,7 +344,9 @@ command: check_dss.py can_be_purged
 id: dss_integration_tests/setup
 category_id: dss-regress
 flags: simple
-imports: from com.canonical.certification import executable
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import package
 requires:
   executable.name == 'git'
   executable.name == 'python3'

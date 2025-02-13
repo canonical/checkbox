@@ -1237,13 +1237,16 @@ class List:
             help=_(
                 (
                     "output format, as passed to print function. "
-                    "Use '?' to list possible values"
+                    "Use '?' to list possible values. "
+                    "Use 'json' to print all objects as a json"
                 )
             ),
         )
 
     def invoked(self, ctx):
-        if ctx.args.GROUP == "all-jobs":
+        # print_objs supports json-printing all-jobs, so we can forward the
+        # query if json is requested
+        if ctx.args.GROUP == "all-jobs" and ctx.args.format != "json":
             if ctx.args.attrs:
                 print_objs("job", ctx.sa, True)
 
@@ -1287,9 +1290,14 @@ class List:
                     end="",
                 )
             return
-        elif ctx.args.format:
+        elif ctx.args.format and ctx.args.format != "json":
             print(_("--format applies only to 'all-jobs' group.  Ignoring..."))
-        print_objs(ctx.args.GROUP, ctx.sa, ctx.args.attrs)
+        print_objs(
+            ctx.args.GROUP,
+            ctx.sa,
+            ctx.args.attrs,
+            json_repr=ctx.args.format == "json",
+        )
 
 
 class Expand:
@@ -1545,7 +1553,8 @@ def get_all_jobs(sa):
     return sorted(get_jobs(root), key=operator.itemgetter("full_id"))
 
 
-def print_objs(group, sa, show_attrs=False, filter_fun=None):
+def print_objs(group, sa, show_attrs=False, filter_fun=None, json_repr=False):
+    # note: group is unit type (including internal units like File)
     providers = sa.get_selected_providers()
     obj = Explorer(providers).get_object_tree()
 
@@ -1567,7 +1576,27 @@ def print_objs(group, sa, show_attrs=False, filter_fun=None):
             for child in obj.children:
                 _show(child, indent)
 
-    _show(obj, "")
+    if not json_repr:
+        return _show(obj, "")
+
+    assert not filter_fun, "The json exporter doesn't support filtering"
+
+    # all-jobs is a meta-group that include all jobs + all templates
+    # note: if group is none, everything should be printed
+    groups = {group} if group != "all-jobs" else {"job", "template"}
+
+    to_print = []
+    childrens = obj.children
+    while childrens:
+        obj = childrens.pop()
+        childrens += obj.children or []
+        if group and obj.group not in groups:
+            continue
+        obj_repr = {"unit": obj.group, "name": obj.name}
+        if show_attrs:
+            obj_repr.update(obj.attrs)
+        to_print.append(obj_repr)
+    json.dump(to_print, sys.stdout)
 
 
 class Show:

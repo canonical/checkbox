@@ -31,6 +31,7 @@ from plainbox.impl.unit.template import TemplateUnit
 
 from checkbox_ng.launcher.subcommands import (
     Expand,
+    List,
     Launcher,
     ListBootstrapped,
     IncompatibleJobError,
@@ -38,7 +39,98 @@ from checkbox_ng.launcher.subcommands import (
     IJobResult,
     request_comment,
     generate_resume_candidate_description,
+    print_objs,
 )
+
+
+class TestSharedFunctions(TestCase):
+    def make_unit_mock(self, **kwargs):
+        to_r = MagicMock(**kwargs)
+        try:
+            # name is a kwarg of mock, so we need to set it manually
+            to_r.name = kwargs["name"]
+        except KeyError:
+            pass
+        return to_r
+
+    def get_test_tree(self):
+        # made this uniform as the function should be able to handle any valid
+        # unit tree
+        return self.make_unit_mock(
+            group="service",
+            children=[
+                self.make_unit_mock(
+                    group="exporter",
+                    children=None,
+                    name="exporter name",
+                    attrs={"id": "exporter id"},
+                ),
+                self.make_unit_mock(
+                    group="job",
+                    name="job name",
+                    children=None,
+                    attrs={"id": "job id"},
+                ),
+                self.make_unit_mock(
+                    group="template",
+                    name="template name",
+                    children=None,
+                    attrs={"id": "template id"},
+                ),
+            ],
+        )
+
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_print_objs_nojson(self, mock_explorer, stdout_mock):
+        mock_explorer().get_object_tree.return_value = self.get_test_tree()
+
+        print_objs(group="job", sa=MagicMock(), show_attrs=True)
+        printed = stdout_mock.getvalue()
+        self.assertIn("job name", printed)
+        self.assertIn("job id", printed)
+        self.assertNotIn("exporter id", printed)
+        self.assertNotIn("exporter id", printed)
+
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_print_objs_json(self, mock_explorer, stdout_mock):
+        mock_explorer().get_object_tree.return_value = self.get_test_tree()
+        print_objs(
+            group="job", sa=MagicMock(), show_attrs=True, json_repr=True
+        )
+        printed = stdout_mock.getvalue()
+        self.assertIn("job name", printed)
+        self.assertIn("job id", printed)
+        self.assertNotIn("exporter id", printed)
+        self.assertNotIn("exporter id", printed)
+
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_print_objs_json_print_all(self, mock_explorer, stdout_mock):
+        mock_explorer().get_object_tree.return_value = self.get_test_tree()
+        print_objs(
+            group=None, sa=MagicMock(), show_attrs=False, json_repr=True
+        )
+        printed = stdout_mock.getvalue()
+        self.assertIn("job name", printed)
+        self.assertNotIn(
+            "job id", printed
+        )  # job id is an attr, so shouldnt be here
+        self.assertIn("exporter name", printed)
+        self.assertNotIn("exporter id", printed)  # same for exporter id
+
+    @patch("sys.stdout", new_callable=StringIO)
+    @patch("checkbox_ng.launcher.subcommands.Explorer")
+    def test_print_objs_json_print_all_jobs(self, mock_explorer, stdout_mock):
+        mock_explorer().get_object_tree.return_value = self.get_test_tree()
+        print_objs(
+            group="all-jobs", sa=MagicMock(), show_attrs=False, json_repr=True
+        )
+        printed = stdout_mock.getvalue()
+        self.assertIn("job name", printed)
+        self.assertIn("template name", printed)
+        self.assertNotIn("exporter name", printed)
 
 
 class TestLauncher(TestCase):

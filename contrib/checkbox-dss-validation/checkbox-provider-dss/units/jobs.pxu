@@ -392,7 +392,7 @@ command:
   set -eo pipefail
   export DSS_CLONE_PATH="$HOME/data-science-stack"
   pushd "$DSS_CLONE_PATH"
-  .venv/bni/tox -e integration
+  .venv/bin/tox -e integration
   popd
   echo "DSS integration tests passed on CPU"
 
@@ -415,6 +415,6 @@ command:
   set -eo pipefail
   export DSS_CLONE_PATH="$HOME/data-science-stack"
   pushd "$DSS_CLONE_PATH"
-  .venv/bni/tox -e integration-gpu
+  .venv/bin/tox -e integration-gpu
   popd
   echo "DSS integration tests passed on NVIDIA GPU"

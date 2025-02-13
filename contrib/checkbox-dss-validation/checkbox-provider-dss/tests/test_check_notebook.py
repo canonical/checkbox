@@ -2,7 +2,7 @@
 # Copyright 2025 Canonical Ltd.
 # All rights reserved.
 #
-"""Tests for `check_dss.py`
+"""Tests for `check_notebook.py`
 
 Authors:
     - Abdullah (@motjuste) <abdullah.abdullah@canonical.com>
@@ -184,7 +184,7 @@ class TestPodForRunningNotebook(unittest.TestCase):
             f"""
             NAME                            READY   STATUS    RESTARTS   AGE
             mlflow-7fcf655ff9-pffk6         1/1     Running   0          6m43s
-            {some_other_pod}                           1/1     Running   0          5m27s
+            {some_other_pod}                1/1     Running   0          5m27s
             """
         )
         with self.assertRaises(AssertionError) as caught:

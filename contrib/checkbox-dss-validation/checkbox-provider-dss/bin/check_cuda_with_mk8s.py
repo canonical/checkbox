@@ -26,6 +26,7 @@ def parse_args(args: t.List[str] | None = None) -> dict[str, t.Any]:
 
 
 def can_be_enabled_with_operator_version(operator_version: str) -> None:
+    """Verify enabling CUDA addon in microk8s of given operator_version"""
     result = run_command(
         "sudo",
         "microk8s",
@@ -41,6 +42,7 @@ def can_be_enabled_with_operator_version(operator_version: str) -> None:
 
 
 def has_all_validations_successful() -> None:
+    """Verify that all NVIDIA operator validations were successful"""
     result = run_command(
         "kubectl",
         "logs",

@@ -27,7 +27,7 @@ requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that an PyTorch CPU notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.py can_create_notebook pytorch-cpu pytorch
+command: check_dss.py can_create_notebook checkbox-pytorch-cpu pytorch
 
 id: cpu/pytorch_can_use_cpu
 category_id: dss-regress
@@ -37,7 +37,7 @@ requires: executable.name == 'microk8s'
 depends: dss/create_pytorch_cpu_notebook
 _summary: Check that PyTorch can use CPU in notebook
 estimated_duration: 1m
-command: check_notebook.sh pytorch-cpu can_run_python_script_in_pod verifying_pytorch_can_use_cpu
+command: check_notebook.py has_pytorch_available checkbox-pytorch-cpu
 
 id: dss/remove_pytorch_cpu_notebook
 category_id: dss-regress
@@ -47,7 +47,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_cpu_notebook
 _summary: Check that the PyTorch CPU notebook can be removed
 estimated_duration: 1m
-command: check_dss.py can_start_removing_notebook pytorch-cpu
+command: check_dss.py can_start_removing_notebook checkbox-pytorch-cpu
 
 id: dss/create_tensorflow_cpu_notebook
 category_id: dss-regress
@@ -57,7 +57,7 @@ requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that an Tensorflow CPU notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.py can_create_notebook tensorflow-cpu tensorflow
+command: check_dss.py can_create_notebook checkbox-tensorflow-cpu tensorflow
 
 id: cpu/tensorflow_can_use_cpu
 category_id: dss-regress
@@ -67,7 +67,7 @@ requires: executable.name == 'microk8s'
 depends: dss/create_tensorflow_cpu_notebook
 _summary: Check that Tensorflow can use CPU in notebook
 estimated_duration: 1m
-command: check_notebook.sh tensorflow-cpu can_run_python_script_in_pod verifying_tensorflow_can_use_cpu
+command: check_notebook.py has_tensorflow_available checkbox-tensorflow-cpu
 
 id: dss/remove_tensorflow_cpu_notebook
 category_id: dss-regress
@@ -77,7 +77,7 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cpu_notebook
 _summary: Check that the Tensorflow CPU notebook can be removed
 estimated_duration: 1m
-command: check_dss.py can_start_removing_notebook tensorflow-cpu
+command: check_dss.py can_start_removing_notebook checkbox-tensorflow-cpu
 
 # Intel XPU jobs ##############################################################
 
@@ -183,7 +183,7 @@ requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that a Tensorflow Intel notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.py can_create_notebook tensorflow-intel tensorflow-intel
+command: check_dss.py can_create_notebook checkbox-tensorflow-intel tensorflow-intel
 
 id: xpu/tensorflow_can_use_xpu
 category_id: dss-regress
@@ -193,7 +193,7 @@ requires: executable.name == 'microk8s'
 depends: dss/create_tensorflow_intel_notebook
 _summary: Check that Tensorflow can use XPU in the notebook
 estimated_duration: 1m
-command: check_notebook.sh tensorflow-intel can_run_python_script_in_pod verifying_tensorflow_can_use_xpu
+command: check_notebook.py can_use_intel_gpu_in_tensorflow checkbox-tensorflow-intel
 
 id: dss/remove_tensorflow_intel_notebook
 category_id: dss-regress
@@ -203,7 +203,7 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_intel_notebook
 _summary: Check that the Tensorflow Intel notebook can be removed
 estimated_duration: 1m
-command: check_dss.py can_start_removing_notebook tensorflow-intel
+command: check_dss.py can_start_removing_notebook checkbox-tensorflow-intel
 
 id: dss/create_pytorch_intel_notebook
 category_id: dss-regress
@@ -213,7 +213,7 @@ requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that a PyTorch Intel notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.py can_create_notebook pytorch-intel pytorch-intel
+command: check_dss.py can_create_notebook checkbox-pytorch-intel pytorch-intel
 
 id: xpu/pytorch_can_use_xpu
 category_id: dss-regress
@@ -223,7 +223,7 @@ requires: executable.name == 'microk8s'
 depends: dss/create_pytorch_intel_notebook
 _summary: Check that Pytorch can use XPU in the notebook
 estimated_duration: 1m
-command: check_notebook.sh pytorch-intel can_run_python_script_in_pod verifying_pytorch_can_use_xpu
+command: check_notebook.py can_use_intel_gpu_in_pytorch checkbox-pytorch-intel
 
 id: dss/remove_pytorch_intel_notebook
 category_id: dss-regress
@@ -233,7 +233,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_intel_notebook
 _summary: Check that the PyTorch Intel notebook can be removed
 estimated_duration: 1m
-command: check_dss.py can_start_removing_notebook pytorch-intel
+command: check_dss.py can_start_removing_notebook checkbox-pytorch-intel
 
 # NVIDIA CUDA jobs ############################################################
 
@@ -279,7 +279,7 @@ requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an PyTorch CUDA notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.py can_create_notebook pytorch-cuda pytorch-cuda
+command: check_dss.py can_create_notebook checkbox-pytorch-cuda pytorch-cuda
 
 id: cuda/pytorch_can_use_cuda
 category_id: dss-regress
@@ -289,7 +289,7 @@ requires: executable.name == 'microk8s'
 depends: dss/create_pytorch_cuda_notebook
 _summary: Check PyTorch can use CUDA
 estimated_duration: 1m
-command: check_notebook.sh pytorch-cuda can_run_python_script_in_pod verifying_pytorch_can_use_cuda
+command: check_notebook.py can_use_nvidia_gpu_in_pytorch checkbox-pytorch-cuda
 
 id: dss/remove_pytorch_cuda_notebook
 category_id: dss-regress
@@ -299,7 +299,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_cuda_notebook
 _summary: Check that the PyTorch CUDA notebook can be removed
 estimated_duration: 1m
-command: check_dss.py can_start_removing_notebook pytorch-cuda
+command: check_dss.py can_start_removing_notebook checkbox-pytorch-cuda
 
 id: dss/create_tensorflow_cuda_notebook
 category_id: dss-regress
@@ -309,7 +309,7 @@ requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an Tensorflow CUDA notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.py can_create_notebook tensorflow-cuda tensorflow-cuda
+command: check_dss.py can_create_notebook checkbox-tensorflow-cuda tensorflow-cuda
 
 id: cuda/tensorflow_can_use_cuda
 category_id: dss-regress
@@ -319,7 +319,7 @@ requires: executable.name == 'microk8s'
 depends: dss/create_tensorflow_cuda_notebook
 _summary: Check Tensorflow can use CUDA
 estimated_duration: 1m
-command: check_notebook.sh tensorflow-cuda can_run_python_script_in_pod verifying_tensorflow_can_use_cuda
+command: check_notebook.py can_use_nvidia_gpu_in_tensorflow checkbox-tensorflow-cuda
 
 id: dss/remove_tensorflow_cuda_notebook
 category_id: dss-regress
@@ -329,7 +329,7 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cuda_notebook
 _summary: Check that the Tensorflow CUDA notebook can be removed
 estimated_duration: 1m
-command: check_dss.py can_start_removing_notebook tensorflow-cuda
+command: check_dss.py can_start_removing_notebook checkbox-tensorflow-cuda
 
 id: dss/purge
 category_id: dss-regress

@@ -50,6 +50,7 @@ setup_kubectl_snap() {
 help_function() {
     echo "This script is used install all dependencies for checkbox-dss to run; defaults for optional arguments are shown in usage"
     echo "Usage: checkbox-dss.install-deps [--dss-snap-channel $dss_snap_channel] [--microk8s-snap-channel $microk8s_snap_channel] [--kubectl-snap-channel $kubectl_snap_channel]"
+    exit 2
 }
 
 main() {

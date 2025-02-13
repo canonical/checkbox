@@ -8,6 +8,7 @@ Authors:
     - Abdullah (@motjuste) <abdullah.abdullah@canonical.com>
 """
 
+import os
 import typing as t
 
 from common import (
@@ -19,6 +20,14 @@ _TIMEOUT_SEC: float = 10.0 * 60  # seconds
 
 
 def run_command(*command: str, **kwargs) -> str:
+    # IMPORTANT NOTE:@motjuste: Clear Python-related env vars to avoid conflicts
+    #   between Checkbox's Python, and what DSS expects.
+    env = os.environ
+    env.pop("PYTHONPATH", None)
+    env.pop("PYTHONHOME", None)
+    env.pop("PYTHONUSERBASE", None)
+    kwargs["env"] = env
+
     if "timeout" not in kwargs:
         kwargs["timeout"] = _TIMEOUT_SEC
     return common_run_command(*command, **kwargs)

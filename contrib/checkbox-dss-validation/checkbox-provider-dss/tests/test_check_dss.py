@@ -34,7 +34,21 @@ class TestRunCommand(unittest.TestCase):
     @mock.patch("check_dss.common_run_command")
     def test_calls_with_default_timeout(self, mocked):
         check_dss.run_command("ls", "-lah")
-        mocked.assert_called_once_with("ls", "-lah", timeout=check_dss._TIMEOUT_SEC)
+        mocked.assert_called_once_with(
+            "ls", "-lah", timeout=check_dss._TIMEOUT_SEC, env=mock.ANY
+        )
+
+    @mock.patch("check_dss.common_run_command")
+    def test_calls_with_env_without_python_vars(self, mocked):
+        check_dss.run_command("ls", "-lah")
+        sent_kwargs = mocked.call_args.kwargs
+        passed_env = sent_kwargs["env"]
+        with self.subTest("env must not have PYTHONPATH"):
+            assert "PYTHONPATH" not in passed_env
+        with self.subTest("env must not have PYTHONHOME"):
+            assert "PYTHONHOME" not in passed_env
+        with self.subTest("env must not have PYTHONUSERBASE"):
+            assert "PYTHONUSERBASE" not in passed_env
 
     @mock.patch("check_dss.common_run_command")
     def test_calls_with_given_timeout(self, mocked):
@@ -43,7 +57,7 @@ class TestRunCommand(unittest.TestCase):
             timeout = 1010101
             assert timeout != orig_timeout
             check_dss.run_command("ls", "-lah", timeout=timeout)
-            mocked.assert_called_once_with("ls", "-lah", timeout=timeout)
+            mocked.assert_called_once_with("ls", "-lah", timeout=timeout, env=mock.ANY)
         finally:
             check_dss._TIMEOUT_SEC = orig_timeout
 

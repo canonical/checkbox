@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_mipi_camera
+_name: Vendor Specific MIPI Cameras
+value-type: bool

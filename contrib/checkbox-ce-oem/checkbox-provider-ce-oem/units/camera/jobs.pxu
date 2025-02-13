@@ -1,0 +1,63 @@
+id: mipi_camera_resource
+_summary: Generates mappings for all MIPI camera modules
+_description: Generate resource for all MIPI camera modules.
+estimated_duration: 0.02
+category_id: com.canonical.plainbox::camera
+plugin: resource
+environ: MIPI_SCENARIO_DEFINITION_FILE_PATH
+command:
+    camera_test.py generate_resource -sf "$MIPI_SCENARIO_DEFINITION_FILE_PATH"
+
+unit: template
+template-engine: jinja2
+template-resource: mipi_camera_resource
+template-unit: job
+template-id: mipi-camera/capture-image-scenario
+template-filter:
+    mipi_camera_resource.scenario == "capture_image"
+id: mipi-camera/capture-image_{{ camera }}_{{ physical_interface }}_{{ method }}_{{ width }}x{{ height }}_{{ format }}
+_template-summary: {{ camera }} captures {{ width }}x{{ height }} {{ format }} images via {{ method }}
+_summary: {{ camera }} captures {{ width }}x{{ height }} {{ format }} images via {{ method }}
+_description: Test {{ camera }} sensor on the {{ physical_interface }} slot can capture {{ width }}x{{ height }} {{ format }} images via {{ method }} method
+plugin: shell
+category_id: com.canonical.plainbox::camera
+estimated_duration: 10s
+flags: also-after-suspend
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == "v4l2-ctl"
+    executable.name == "media-ctl"
+    executable.name == "gst-launch-1.0"
+    executable.name == "gst-discoverer-1.0"
+environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH
+command:
+    camera_test.py testing -sn {{ scenario }} -p "$PLATFORM_NAME" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_deivce_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH"
+
+unit: template
+template-engine: jinja2
+template-resource: mipi_camera_resource
+template-unit: job
+template-id: mipi-camera/record-video-scenario
+template-filter:
+    mipi_camera_resource.scenario == "record_video"
+id: mipi-camera/record-video_{{ camera }}_{{ physical_interface }}_{{ method }}_{{ width }}x{{ height }}@{{ fps }}fps_{{ format }}
+_template-summary: {{ camera }} records a {{ width }}x{{ height }}@{{ fps }}fps {{ format }} video via {{ method }}
+_summary: {{ camera }} records a {{ width }}x{{ height }}@{{ fps }}fps {{ format }} video via {{ method }}
+_description: Test {{ camera }} sensor on the {{ physical_interface }} slot can record {{ width }}x{{ height }}@{{ fps }}fps {{ format }} video via {{ method }} method
+plugin: shell
+category_id: com.canonical.plainbox::camera
+estimated_duration: 10s
+flags: also-after-suspend
+imports:
+    from com.canonical.certification import executable
+    from com.canonical.plainbox import manifest
+requires:
+    executable.name == "v4l2-ctl"
+    executable.name == "media-ctl"
+    executable.name == "gst-launch-1.0"
+    executable.name == "gst-discoverer-1.0"
+environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH
+command:
+    camera_test.py testing -sn {{ scenario }} -p ""$PLATFORM_NAME"" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_deivce_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH" -fps {{ fps }}

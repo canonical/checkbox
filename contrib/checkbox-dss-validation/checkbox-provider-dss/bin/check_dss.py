@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2018-2022 Canonical Ltd.
+# Copyright 2025 Canonical Ltd.
 # All rights reserved.
 #
 """Run and check `dss` commands

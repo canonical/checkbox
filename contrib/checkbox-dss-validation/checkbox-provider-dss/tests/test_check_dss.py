@@ -384,6 +384,7 @@ class TestDssCreatingNotebook(unittest.TestCase):
         for i, garbage in enumerate(
             [
                 *GARBAGE_OUTPUTS,
+                "",
                 textwrap.dedent(
                     f"""
                     Executing create command
@@ -391,6 +392,22 @@ class TestDssCreatingNotebook(unittest.TestCase):
                     Deployment pytorch in namespace dss is ready
                     Success: Notebook {some_other_notebook_name} created successfully.
                     Access the notebook at http://localhost:80.
+                    """
+                ),
+                textwrap.dedent(
+                    f"""
+                    Executing create command
+                    [ERROR] Failed to create Notebook. Notebook with name '{notebook_name}' already exists.
+                    Please specify a different name.
+                    [ERROR] Failed to get the URL of notebook name with error code 404.
+                    """
+                ),
+                textwrap.dedent(
+                    f"""
+                    Executing create command
+                    Waiting for deployment {notebook_name} in namespace dss to be ready...
+
+                    Aborted!
                     """
                 ),
             ]

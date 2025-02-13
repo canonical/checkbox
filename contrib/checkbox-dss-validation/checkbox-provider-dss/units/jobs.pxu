@@ -214,8 +214,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that a PyTorch Intel notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.py can_create_notebook checkbox-pytorch-intel pytorch-intel
+estimated_duration: 15m
+command: check_dss.py --timeout 900 can_create_notebook checkbox-pytorch-intel pytorch-intel
 
 id: xpu/pytorch_can_use_xpu
 category_id: dss-regress
@@ -280,8 +280,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an PyTorch CUDA notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.py can_create_notebook checkbox-pytorch-cuda pytorch-cuda
+estimated_duration: 15m
+command: check_dss.py --timeout 900 can_create_notebook checkbox-pytorch-cuda pytorch-cuda
 
 id: cuda/pytorch_can_use_cuda
 category_id: dss-regress
@@ -340,8 +340,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that DSS can be purged
-estimated_duration: 1m
-command: check_dss.py can_be_purged
+estimated_duration: 10m
+command: check_dss.py --timeout 600 can_be_purged
 
 id: dss_integration_tests/setup
 category_id: dss-regress

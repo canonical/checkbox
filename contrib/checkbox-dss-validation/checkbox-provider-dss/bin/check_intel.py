@@ -28,18 +28,20 @@ def parse_args(args: t.List[str] | None = None) -> dict[str, t.Any]:
             has_enough_capacity_slots,
             has_enough_allocatable_slots,
         ],
-        description="Check enabling CUDA with microk8s",
+        description="Check enabling Intel GPU acceleration in Kubernetes",
     )
     return dict(parser.parse_args(args).__dict__)
 
 
 def can_be_enabled_with_plugin_version(plugin_version: str) -> None:
+    """Verify enabling Intel GPU plugin with the given version in K8s"""
     result = run_command("enable_intel.sh", plugin_version, str(SLOTS_PER_GPU))
     assert SUCCESS_MARKER in result
     verify_all_rollouts()
 
 
 def node_label_is_attached() -> None:
+    """Verify appropriate Intel GPU label is attached to the node"""
     result = run_command(
         "kubectl",
         "get",
@@ -51,6 +53,7 @@ def node_label_is_attached() -> None:
 
 
 def has_enough_capacity_slots() -> None:
+    """Verify that the node has enough Intel GPU capacity slots"""
     print("sleeping for 10 seconds before checking capacity slots")
     time.sleep(10)
     result = run_command(
@@ -66,6 +69,7 @@ def has_enough_capacity_slots() -> None:
 
 
 def has_enough_allocatable_slots() -> None:
+    """Verify that the node has enough Intel GPU allocatable slots"""
     print("sleeping for 10 seconds before checking allocatable slots")
     time.sleep(10)
     result = run_command(

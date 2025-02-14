@@ -267,3 +267,30 @@ class TestHasEnoughAllocatableSlots(unittest.TestCase):
         mocked_run.return_value = "''"
         with self.assertRaises(AssertionError):
             check_intel.has_enough_allocatable_slots()
+
+
+class TestArgumentParsingAndMain(unittest.TestCase):
+    @mock.patch("check_intel.create_parser_with_checks_as_commands")
+    def test_expected_checks_are_used_for_parser(self, mocked):
+        check_intel.parse_args()
+        mocked.assert_called_once_with(
+            [
+                check_intel.can_be_enabled_with_plugin_version,
+                check_intel.node_label_is_attached,
+                check_intel.has_enough_capacity_slots,
+                check_intel.has_enough_allocatable_slots,
+            ],
+            description="Check enabling Intel GPU acceleration in Kubernetes",
+        )
+
+    @mock.patch("check_intel.run_command")
+    def test_main_calls_appropriate_check(self, mocked):
+        mocked.return_value = "true"
+        check_intel.main(["node_label_is_attached"])
+        mocked.assert_called_once_with(
+            "kubectl",
+            "get",
+            "node",
+            "-o",
+            "jsonpath='{.items[0].metadata.labels.intel\\.feature\\.node\\.kubernetes\\.io/gpu}')",  # noqa: E501
+        )

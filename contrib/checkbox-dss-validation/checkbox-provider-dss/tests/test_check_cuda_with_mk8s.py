@@ -277,3 +277,30 @@ class TestEnablingCudaWithOperatorVersion(unittest.TestCase):
                 operator_version,
             )
         assert caught.exception == exception
+
+
+class TestArgumentParsingAndMain(unittest.TestCase):
+    @mock.patch("check_cuda_with_mk8s.create_parser_with_checks_as_commands")
+    def test_expected_checks_are_used_for_parser(self, mocked):
+        check_cuda_with_mk8s.parse_args()
+        mocked.assert_called_once_with(
+            [
+                check_cuda_with_mk8s.can_be_enabled_with_operator_version,
+                check_cuda_with_mk8s.has_all_validations_successful,
+            ],
+            description="Check enabling CUDA with microk8s",
+        )
+
+    @mock.patch("check_cuda_with_mk8s.run_command")
+    def test_main_calls_appropriate_check(self, mocked):
+        mocked.return_value = "all validations are successful"
+        check_cuda_with_mk8s.main(["has_all_validations_successful"])
+        mocked.assert_called_once_with(
+            "kubectl",
+            "logs",
+            "-n",
+            "gpu-operator-resources",
+            "-lapp=nvidia-operator-validator",
+            "-c",
+            "nvidia-operator-validator",
+        )

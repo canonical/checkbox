@@ -24,11 +24,13 @@ import time
 
 from contextlib import suppress
 
+from urllib import parse
 from loguru import logger
 import metabox.core.keys as keys
 from metabox.core.utils import ExecuteResult
 from ws4py.client.threadedclient import WebSocketClient
 from metabox.core.utils import _re
+from pylxd.models.operation import Operation
 
 
 base_env = {
@@ -65,10 +67,16 @@ class InteractiveWebsocket(SafeWebSocketClient):
         self._new_data = False
         self._lookup_by_id = False
         self._connection_closed = False
+        self.result = None
 
     def received_message(self, message):
         if len(message.data) == 0:
             self.close()
+            # this is technically a race condition as the container won't hold
+            # on to the operation forever, but it should be very unlikely as
+            # the connection waits on the websocket, so it won't clear the
+            # result till a few seconds after we close self
+            self.result = self._fetch_result()
             self._connection_closed = True
         message_data_str = message.data.decode("utf-8", errors="ignore")
         raw_msg = message_data_str = self.ansi_escape.sub("", message_data_str)
@@ -78,6 +86,15 @@ class InteractiveWebsocket(SafeWebSocketClient):
             self.stdout_data += message_data_str
             self.stdout_data_full += message_data_str
             self._new_data = True
+
+    def _fetch_result(self):
+        if not self.client_terminated:
+            raise ValueError("No result to propagate as operation isn't done")
+        operation = self.client.operations.get(self.operation_id)
+        try:
+            return operation.metadata["return"]
+        except KeyError as e:
+            raise KeyError("Operation doesn't have a return yet") from e
 
     def get_search_split(self, search_pattern):
         if isinstance(search_pattern, _re):
@@ -243,8 +260,11 @@ def timeout_wrapper(timeout):
 def interactive_execute(container, cmd, env={}, verbose=False, timeout=0):
     if verbose:
         logger.trace(cmd)
-    ws_urls = container.raw_interactive_execute(
-        login_shell + env_wrapper(env) + shlex.split(cmd)
+    ws_urls = raw_interactive_execute(
+        container,
+        timeout_wrapper(timeout) + shlex.split(cmd),
+        environment=env,
+        user=1000,
     )
 
     base_websocket_url = container.client.websocket_url
@@ -256,6 +276,8 @@ def interactive_execute(container, cmd, env={}, verbose=False, timeout=0):
     pts.verbose = verbose
     pts.container = container
     pts.ctl = ctl
+    pts.client = container.client
+    pts.operation_id = ws_urls["operation_id"]
     pts.connect()
     return pts
 
@@ -301,3 +323,40 @@ def run_or_raise(container, cmd, env={}, verbose=False, timeout=0):
         "".join(stderr_data),
         "".join(outdata_full),
     )
+
+
+# https://github.com/canonical/pylxd/blob/main/pylxd/models/instance.py#L526
+# Fork of the upstream raw_interactive_execute that also returns the
+# operation_id, we need this to query the outcome of a command in interactive
+# mode, we have to do this instead of use execute because it doesn't support to
+# interactively send commands, even the stdio parameter fd is read whole
+# before sending it
+def raw_interactive_execute(
+    container, commands, environment=None, user=None, group=None, cwd=None
+):
+    if environment is None:
+        environment = {}
+
+    response = container.api["exec"].post(
+        json={
+            "command": commands,
+            "environment": environment,
+            "wait-for-websocket": True,
+            "interactive": True,
+            "user": user,
+            "group": group,
+            "cwd": cwd,
+        }
+    )
+
+    fds = response.json()["metadata"]["metadata"]["fds"]
+    operation_id = response.json()["operation"].split("/")[-1].split("?")[0]
+    parsed = parse.urlparse(
+        container.client.api.operations[operation_id].websocket._api_endpoint
+    )
+
+    return {
+        "ws": f"{parsed.path}?secret={fds['0']}",
+        "control": f"{parsed.path}?secret={fds['control']}",
+        "operation_id": Operation.extract_operation_id(operation_id),
+    }

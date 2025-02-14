@@ -241,7 +241,24 @@ class Scenario:
         outcome = self._pts.select_test_plan(testplan_id, timeout)
         return outcome
 
+    def booleanize_result(self, result, deadline):
+        if isinstance(result, bool):
+            return result
+        elif isinstance(result, list):
+            return all(map(self.booleanize_result, result))
+        # result is interactive pts, underlying socket will close once the cmd
+        # is done
+        while result.result is None:
+            if time.time() < deadline:
+                time.sleep(0.1)
+            else:
+                raise TimeoutError("cmd didn't finish before the deadline")
+        return result.result == 0
+
     def run_cmd(self, cmd, env={}, interactive=False, timeout=0, target="all"):
+        # interactive mode run_cmd is non-interactive, therefore we may need
+        # to wait till deadline to fetch the result
+        deadline = time.time() + timeout
         if self.mode == "remote":
             if target == "controller":
                 result = self.controller_machine.run_cmd(
@@ -252,14 +269,16 @@ class Scenario:
                     cmd, env, interactive, timeout
                 )
             else:
-                self.controller_machine.run_cmd(cmd, env, interactive, timeout)
-                result = self.agent_machine.run_cmd(
+                result = self.controller_machine.run_cmd(
                     cmd, env, interactive, timeout
+                )
+                result.append(
+                    self.agent_machine.run_cmd(cmd, env, interactive, timeout)
                 )
         else:
             result = self.local_machine.run_cmd(cmd, env, interactive, timeout)
 
-        return result
+        return self.booleanize_result(result, deadline)
 
     def reboot(self, timeout=0, target="all"):
         if self.mode == "remote":

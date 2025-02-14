@@ -50,6 +50,8 @@ def node_label_is_attached() -> None:
 
 
 def has_enough_capacity_slots() -> None:
+    print("sleeping for 10 seconds before checking capacity slots")
+    time.sleep(10)
     result = run_command(
         "kubectl",
         "get",
@@ -57,10 +59,14 @@ def has_enough_capacity_slots() -> None:
         "-o",
         "jsonpath='{.items[0].status.capacity.gpu\\.intel\\.com/i915}'",
     )
+    result = result.replace("'", "")
+    assert len(result) > 0
     assert int(result) >= SLOTS_PER_GPU
 
 
 def has_enough_allocatable_slots() -> None:
+    print("sleeping for 10 seconds before checking allocatable slots")
+    time.sleep(10)
     result = run_command(
         "kubectl",
         "get",
@@ -68,6 +74,8 @@ def has_enough_allocatable_slots() -> None:
         "-o",
         "jsonpath='{.items[0].status.allocatable.gpu\\.intel\\.com/i915}'",
     )
+    result = result.replace("'", "")
+    assert len(result) > 0
     assert int(result) >= SLOTS_PER_GPU
 
 

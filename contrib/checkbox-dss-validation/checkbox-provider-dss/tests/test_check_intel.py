@@ -181,3 +181,89 @@ class TestEnablingIntelWithPluginVersion(unittest.TestCase):
         with self.assertRaises(AssertionError) as caught:
             check_intel.can_be_enabled_with_plugin_version(self.plugin_version)
         assert caught.exception == exception
+
+
+class TestHasEnoughCapacitySlots(unittest.TestCase):
+    @mock.patch("check_intel.time.sleep")
+    @mock.patch("check_intel.run_command")
+    def test_normal_success(self, mocked_run, mocked_sleep):
+        for i in range(1, 4):
+            with self.subTest(i=i):
+                mocked_run.return_value = f"'{check_intel.SLOTS_PER_GPU * i}'"
+                check_intel.has_enough_capacity_slots()
+                mocked_sleep.assert_called_once_with(10)
+                mocked_run.assert_called_once_with(
+                    "kubectl",
+                    "get",
+                    "node",
+                    "-o",
+                    "jsonpath='{.items[0].status.capacity.gpu\\.intel\\.com/i915}'",
+                )
+                mocked_run.reset_mock()
+                mocked_sleep.reset_mock()
+
+    @mock.patch("check_intel.time.sleep")
+    @mock.patch("check_intel.run_command")
+    def test_sleeps_before_running(self, mocked_run, mocked_sleep):
+        call_order = []
+
+        def tracked_run(*_, **__):
+            call_order.append(mocked_run)
+            return f"'{check_intel.SLOTS_PER_GPU}'"
+
+        mocked_run.side_effect = tracked_run
+        mocked_sleep.side_effect = lambda *_, **__: call_order.append(
+            mocked_sleep,
+        )
+        check_intel.has_enough_capacity_slots()
+        self.assertListEqual(call_order, [mocked_sleep, mocked_run])
+
+    @mock.patch("check_intel.time.sleep")
+    @mock.patch("check_intel.run_command")
+    def test_fails_on_wrong_output(self, mocked_run, mocked_sleep):
+        mocked_run.return_value = "''"
+        with self.assertRaises(AssertionError):
+            check_intel.has_enough_capacity_slots()
+
+
+class TestHasEnoughAllocatableSlots(unittest.TestCase):
+    @mock.patch("check_intel.time.sleep")
+    @mock.patch("check_intel.run_command")
+    def test_normal_success(self, mocked_run, mocked_sleep):
+        for i in range(1, 4):
+            with self.subTest(i=i):
+                mocked_run.return_value = f"'{check_intel.SLOTS_PER_GPU * i}'"
+                check_intel.has_enough_allocatable_slots()
+                mocked_sleep.assert_called_once_with(10)
+                mocked_run.assert_called_once_with(
+                    "kubectl",
+                    "get",
+                    "node",
+                    "-o",
+                    "jsonpath='{.items[0].status.allocatable.gpu\\.intel\\.com/i915}'",
+                )
+                mocked_run.reset_mock()
+                mocked_sleep.reset_mock()
+
+    @mock.patch("check_intel.time.sleep")
+    @mock.patch("check_intel.run_command")
+    def test_sleeps_before_running(self, mocked_run, mocked_sleep):
+        call_order = []
+
+        def tracked_run(*_, **__):
+            call_order.append(mocked_run)
+            return f"'{check_intel.SLOTS_PER_GPU}'"
+
+        mocked_run.side_effect = tracked_run
+        mocked_sleep.side_effect = lambda *_, **__: call_order.append(
+            mocked_sleep,
+        )
+        check_intel.has_enough_allocatable_slots()
+        self.assertListEqual(call_order, [mocked_sleep, mocked_run])
+
+    @mock.patch("check_intel.time.sleep")
+    @mock.patch("check_intel.run_command")
+    def test_fails_on_wrong_output(self, mocked_run, mocked_sleep):
+        mocked_run.return_value = "''"
+        with self.assertRaises(AssertionError):
+            check_intel.has_enough_allocatable_slots()

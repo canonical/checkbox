@@ -49,7 +49,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_cpu_notebook
 _summary: Check that the PyTorch CPU notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook pytorch-cpu
+command: check_dss.py can_start_removing_notebook pytorch-cpu
 
 id: dss/create_tensorflow_cpu_notebook
 category_id: dss-regress
@@ -79,7 +79,7 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cpu_notebook
 _summary: Check that the Tensorflow CPU notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook tensorflow-cpu
+command: check_dss.py can_start_removing_notebook tensorflow-cpu
 
 # Intel XPU jobs ##############################################################
 
@@ -205,7 +205,7 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_intel_notebook
 _summary: Check that the Tensorflow Intel notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook tensorflow-intel
+command: check_dss.py can_start_removing_notebook tensorflow-intel
 
 id: dss/create_pytorch_intel_notebook
 category_id: dss-regress
@@ -235,7 +235,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_intel_notebook
 _summary: Check that the PyTorch Intel notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook pytorch-intel
+command: check_dss.py can_start_removing_notebook pytorch-intel
 
 # NVIDIA CUDA jobs ############################################################
 
@@ -301,7 +301,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_cuda_notebook
 _summary: Check that the PyTorch CUDA notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook pytorch-cuda
+command: check_dss.py can_start_removing_notebook pytorch-cuda
 
 id: dss/create_tensorflow_cuda_notebook
 category_id: dss-regress
@@ -331,4 +331,4 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cuda_notebook
 _summary: Check that the Tensorflow CUDA notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook tensorflow-cuda
+command: check_dss.py can_start_removing_notebook tensorflow-cuda

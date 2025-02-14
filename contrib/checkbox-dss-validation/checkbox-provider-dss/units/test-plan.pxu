@@ -13,7 +13,6 @@ include:
     dss/remove_tensorflow_cpu_notebook
     intel_gpu_plugin/install
     intel_gpu_plugin/labels
-    intel_gpu_plugin/gpu_count
     intel_gpu_plugin/node_gpu_capacity
     intel_gpu_plugin/node_gpu_allocatable
     dss/status_intel_gpu

@@ -74,18 +74,6 @@ check_intel_gpu_node_label_is_attached() {
     fi
 }
 
-check_at_least_one_intel_gpu_is_available() {
-    # IMPORTANT NOTE: this test also counts NVIDIA GPUs once their plugin is enabled.
-    #   The inaccuracy in gpu.intel.com label's value and not controlled by us
-    result=$(microk8s.kubectl get node -o json | jq '.items[0].metadata.labels | with_entries(select(.key|match("gpu.intel.com/device-id.*.count";"i")))[] | tonumber' | awk '{cnt+=$1} END{print cnt}')
-    if [ "${result}" -ge 1 ]; then
-        echo "Test success: Found ${result} GPUs on system."
-    else
-        >&2 echo "Test failure: expected at least 1 GPU but got ${result}"
-        exit 1
-    fi
-}
-
 check_capacity_slots_for_intel_gpus_match() {
     result=$(microk8s.kubectl get node -o jsonpath='{.items[0].status.capacity.gpu\.intel\.com/i915}')
     if [ "${result}" -ge "${SLOTS_PER_GPU}" ]; then

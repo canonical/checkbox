@@ -11,22 +11,12 @@ command:
   KUBECONFIG="$(cat "$HOME/.kube/config")"
   check_dss.py can_be_initialized "$KUBECONFIG"
 
-id: dss/namespace
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: dss/initialize
-_summary: Check that the dss namespace is deployed
-estimated_duration: 5s
-command: check_dss.sh namespace_is_deployed
-
 id: dss/status_mlflow
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
-depends: dss/namespace
+depends: dss/initialize
 _summary: Check that the dss mlflow is deployed
 estimated_duration: 5s
 command: check_dss.sh mlflow_status_is_ready

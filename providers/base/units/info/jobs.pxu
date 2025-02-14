@@ -488,6 +488,7 @@ _summary: Attach a copy of the kernel configuration
 
 id: info/kernel-config-iommu-flag
 plugin: shell
+requires: cpuinfo.platform in ("i386", "x86_64")
 category_id: com.canonical.plainbox::info
 command: 
  kernel_config.py --config-flag CONFIG_INTEL_IOMMU_DEFAULT_ON --min-version 6.8.0-20

@@ -88,13 +88,20 @@ class InteractiveWebsocket(SafeWebSocketClient):
             self._new_data = True
 
     def _fetch_result(self):
+        # Note: this has an implicit 0.5 timeout
         if not self.client_terminated:
             raise ValueError("No result to propagate as operation isn't done")
-        operation = self.client.operations.get(self.operation_id)
-        try:
-            return operation.metadata["return"]
-        except KeyError as e:
-            raise KeyError("Operation doesn't have a return yet") from e
+        deadline = time.time() + 0.5
+        while True:
+            operation = self.client.operations.get(self.operation_id)
+            try:
+                return operation.metadata["return"]
+            except KeyError as e:
+                if time.time() > deadline:
+                    raise KeyError(
+                        "Operation doesn't have a return yet"
+                    ) from e
+                time.sleep(0.1)
 
     def get_search_split(self, search_pattern):
         if isinstance(search_pattern, _re):

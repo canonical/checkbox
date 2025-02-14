@@ -332,3 +332,13 @@ depends: dss/create_tensorflow_cuda_notebook
 _summary: Check that the Tensorflow CUDA notebook can be removed
 estimated_duration: 1m
 command: check_dss.py can_start_removing_notebook tensorflow-cuda
+
+id: dss/purge
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/initialize
+_summary: Check that DSS can be purged
+estimated_duration: 5m
+command: check_dss.py can_be_purged

@@ -91,13 +91,19 @@ class TestKernelConfig(TestCase):
         print_mock.assert_has_calls(
             [
                 call(
-                    "Skipping: kernel version 5.4.0-42 is lower than 6.8.0-20."
+                    "Kernel version is 5.4.0-42.",
+                    "Versions lower than 6.8.0-20 don't require ",
+                    "the flag CONFIG_INTEL_IOMMU_DEFAULT_ON to be set.",
                 ),
                 call(
-                    "Skipping: kernel version 5.4.0-42 is lower than 6.8.0-20."
+                    "Kernel version is 5.4.0-42.",
+                    "Versions lower than 6.8.0-20 don't require ",
+                    "the flag CONFIG_INTEL_IOMMU_DEFAULT_ON to be set.",
                 ),
                 call(
-                    "Skipping: kernel version 6.8.0-11 is lower than 6.8.0-20."
+                    "Kernel version is 6.8.0-11.",
+                    "Versions lower than 6.8.0-20 don't require ",
+                    "the flag CONFIG_INTEL_IOMMU_DEFAULT_ON to be set.",
                 ),
             ]
         )
@@ -156,22 +162,6 @@ class TestKernelConfig(TestCase):
         self.assertEqual(
             str(context.exception),
             "Flag CONFIG_INTEL_IOMMU_DEFAULT_ON not found in the kernel config.",
-        )
-
-    @patch("kernel_config.os.uname")
-    @patch("kernel_config.print")
-    def test_check_flag_arm(self, print_mock, uname_mock):
-        uname_mock.return_value = MagicMock(release="6.8.0-45-generic")
-        data = (
-            "#\n"
-            "# Automatically generated file; DO NOT EDIT.\n"
-            "# Linux/arm64 6.8.12 Kernel Configuration\n"
-            "#\n"
-        )
-        with patch("builtins.open", mock_open(read_data=data)):
-            check_flag("CONFIG_INTEL_IOMMU_DEFAULT_ON", "6.8.0-20")
-        print_mock.assert_called_once_with(
-            "Skipping: arm architecture detected."
         )
 
     @patch("kernel_config.argparse.ArgumentParser.parse_args")

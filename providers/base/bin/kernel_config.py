@@ -54,8 +54,9 @@ def check_flag(flag, min_version):
         min_version
     ):
         print(
-            "Skipping: kernel version"
-            " {} is lower than {}.".format(kernel_version, min_version)
+            "Kernel version is {}.".format(kernel_version),
+            "Versions lower than {} don't require ".format(min_version),
+            "the flag {} to be set.".format(flag),
         )
         return
 
@@ -63,18 +64,9 @@ def check_flag(flag, min_version):
     with open(kernel_config_path) as config:
         # Check the header and ignore arm architecture configurations
         lines = config.readlines()
-        header = lines[:4]
-        values = lines[4:]
-
-        for line in header:
-            if "Kernel Configuration" in line:
-                if "arm" in line:
-                    print("Skipping: arm architecture detected.")
-                    return
-                break
 
         # Look for the flag in the configuration
-        for line in values:
+        for line in lines:
             line = line.strip()
             if line.startswith("#"):
                 continue  # Ignore commented lines

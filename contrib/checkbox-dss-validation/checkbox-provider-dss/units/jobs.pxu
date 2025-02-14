@@ -129,21 +129,21 @@ id: intel_gpu_plugin/node_gpu_capacity
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: intel_gpu_plugin/gpu_count
 _summary: Check that at least expected capacity slots for Intel GPU are availabled
 estimated_duration: 5s
-command: check_intel.sh capacity_slots_for_gpus_match
+command: check_intel.py has_enough_capacity_slots
 
 id: intel_gpu_plugin/node_gpu_allocatable
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: intel_gpu_plugin/node_gpu_capacity
 _summary: Check that at least expected allocatable slots for Intel GPU are available
 estimated_duration: 5s
-command: check_intel.sh allocatable_slots_for_gpus_match
+command: check_intel.py has_enough_allocatable_slots
 
 id: dss/status_intel_gpu
 category_id: dss-regress

@@ -114,7 +114,7 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'kubectl'
 depends: intel_gpu_plugin/labels
 _summary: Check that at least expected capacity slots for Intel GPU are availabled
-estimated_duration: 5s
+estimated_duration: 15s
 command: check_intel.py has_enough_capacity_slots
 
 id: intel_gpu_plugin/node_gpu_allocatable
@@ -124,7 +124,7 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'kubectl'
 depends: intel_gpu_plugin/node_gpu_capacity
 _summary: Check that at least expected allocatable slots for Intel GPU are available
-estimated_duration: 5s
+estimated_duration: 15s
 command: check_intel.py has_enough_allocatable_slots
 
 id: dss/status_intel_gpu

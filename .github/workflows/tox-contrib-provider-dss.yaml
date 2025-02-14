@@ -1,0 +1,44 @@
+name: Test checkbox-provider-dss (from contrib area) with tox
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-dss-validation/checkbox-provider-dss/**
+  pull_request:
+    branches: [ main ]
+    paths:
+      - contrib/checkbox-dss-validation/checkbox-provider-dss/**
+  workflow_dispatch:
+
+jobs:
+  tox_test_contrib_dss_provider:
+    name: Test checkbox-provider-dss (from contrib area) with tox
+    defaults:
+      run:
+        working-directory: contrib/checkbox-dss-validation/checkbox-provider-dss
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        python: ["3.10"]
+        include:
+          - python: "3.10"
+            tox_env_name: "py310"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+        env:
+          PIP_TRUSTED_HOST: pypi.python.org pypi.org files.pythonhosted.org
+      - name: Install libsystemd-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsystemd-dev
+      - name: Install tox
+        run: pip install tox
+      - name: Run tox
+        run: tox -e${{ matrix.tox_env_name }}

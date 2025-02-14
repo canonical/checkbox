@@ -91,7 +91,9 @@ def check_wakeup(interface):
         elif wakeup_status == "disabled":
             return False
         else:
-            raise ValueError(f"Unexpected wakeup status: {wakeup_status}")
+            raise ValueError(
+                "Unexpected wakeup status: {}".format(wakeup_status)
+            )
 
     except FileNotFoundError:
         raise FileNotFoundError(

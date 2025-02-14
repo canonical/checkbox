@@ -38,6 +38,10 @@ class ExecuteResult(NamedTuple):
     stderr: str
     outstr_full: str
 
+    @property
+    def result(self):
+        return self.exit_code == 0
+
 
 class _re:
     def __init__(self, pattern, flags=0):

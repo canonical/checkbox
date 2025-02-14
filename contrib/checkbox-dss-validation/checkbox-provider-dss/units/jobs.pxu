@@ -144,8 +144,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that a Tensorflow Intel notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.py can_create_notebook checkbox-tensorflow-intel tensorflow-intel
+estimated_duration: 20m
+command: check_dss.py --timeout 1200 can_create_notebook checkbox-tensorflow-intel tensorflow-intel
 
 id: xpu/tensorflow_can_use_xpu
 category_id: dss-regress

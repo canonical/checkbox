@@ -35,7 +35,9 @@ def can_be_enabled_with_operator_version(operator_version: str) -> None:
         "--driver=operator",
         f"--version={operator_version}",
     )
-    nvidia_was_enabled = "NVIDIA is enabled" in result
+    was_enabled_mk8s_in_1_28 = "NVIDIA is enabled" in result
+    was_enabled_mk8s_in_1_31 = "Deployed NVIDIA GPU operator" in result
+    nvidia_was_enabled = was_enabled_mk8s_in_1_28 or was_enabled_mk8s_in_1_31
     gpu_was_already_enabled = "gpu is already enabled" in result
     assert nvidia_was_enabled or gpu_was_already_enabled
     verify_all_rollouts()

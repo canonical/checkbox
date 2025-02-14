@@ -166,7 +166,7 @@ class TestVerifyAllRollouts(unittest.TestCase):
 class TestEnablingCudaWithOperatorVersion(unittest.TestCase):
     @mock.patch("check_cuda_with_mk8s.verify_all_rollouts")
     @mock.patch("check_cuda_with_mk8s.run_command")
-    def test_success_when_enabled_for_first_time(
+    def test_success_when_enabled_for_first_time_mk8s_1_28(
         self,
         mocked_run,
         mocked_rollout,
@@ -189,6 +189,57 @@ class TestEnablingCudaWithOperatorVersion(unittest.TestCase):
             REVISION: 1
             TEST SUITE: None
             NVIDIA is enabled
+            """
+        ).strip()
+        operator_version = "24.6.2"
+        check_cuda_with_mk8s.can_be_enabled_with_operator_version(
+            operator_version,
+        )
+        mocked_run.assert_called_once_with(
+            "sudo",
+            "microk8s",
+            "enable",
+            "gpu",
+            "--driver=operator",
+            f"--version={operator_version}",
+        )
+        mocked_rollout.assert_called_once_with()
+
+    @mock.patch("check_cuda_with_mk8s.verify_all_rollouts")
+    @mock.patch("check_cuda_with_mk8s.run_command")
+    def test_success_when_enabled_for_first_time_mk8s_1_31(
+        self,
+        mocked_run,
+        mocked_rollout,
+    ):
+        mocked_run.return_value = textwrap.dedent(
+            """
+            Infer repository core for addon gpu
+
+            WARNING: The gpu addon has been renamed to nvidia.
+
+            Please use 'microk8s enable nvidia' instead.
+
+
+            Addon core/dns is already enabled
+            Addon core/helm3 is already enabled
+            WARNING: --driver is deprecated, please use --gpu-operator-driver instead
+            WARNING: --version is deprecated, please use --gpu-operator-version instead
+            "nvidia" has been added to your repositories
+            Hang tight while we grab the latest from your chart repositories...
+            ...Successfully got an update from the "nvidia" chart repository
+            Update Complete. ⎈Happy Helming!⎈
+            Deploy NVIDIA GPU operator
+            Using operator GPU driver
+            W0214 10:02:01.391895   75846 warnings.go:70] spec.template.spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key: node-role.kubernetes.io/master is use "node-role.kubernetes.io/control-plane" instead
+            W0214 10:02:01.406554   75846 warnings.go:70] spec.template.spec.affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key: node-role.kubernetes.io/master is use "node-role.kubernetes.io/control-plane" instead
+            NAME: gpu-operator
+            LAST DEPLOYED: Fri Feb 14 10:02:00 2025
+            NAMESPACE: gpu-operator-resources
+            STATUS: deployed
+            REVISION: 1
+            TEST SUITE: None
+            Deployed NVIDIA GPU operator
             """
         ).strip()
         operator_version = "24.6.2"

@@ -19,6 +19,7 @@ INTEL_DEVICE_PLUGIN_BASE_URL = (
 SLOTS_PER_GPU = 10
 SUCCESS_MARKER = "CHECKBOX_DSS_ENABLE_INTEL_SUCCESSFUL"
 
+
 def parse_args(args: t.List[str] | None = None) -> dict[str, t.Any]:
     parser = create_parser_with_checks_as_commands(
         [

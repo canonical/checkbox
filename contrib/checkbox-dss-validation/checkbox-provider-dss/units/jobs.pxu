@@ -256,20 +256,21 @@ imports:
 requires:
   graphics_card.vendor == 'NVIDIA Corporation'
   executable.name == 'microk8s'
+  executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Enable NVIDIA GPU addon
 estimated_duration: 5m
-command: check_cuda.sh gpu_addon_can_be_enabled
+command: check_cuda_with_mk8s.py can_be_enabled_with_operator_version "24.6.2"
 
 id: nvidia_gpu_addon/validations_succeed
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: nvidia_gpu_addon/enable
 _summary: NVIDIA GPU validations should succeed
 estimated_duration: 10s
-command: check_cuda.sh gpu_validations_succeed
+command: check_cuda_with_mk8s.py has_all_validations_successful
 
 id: dss/status_nvidia_gpu
 category_id: dss-regress

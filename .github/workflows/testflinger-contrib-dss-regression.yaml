@@ -25,7 +25,7 @@ jobs:
       matrix:
         dss_channel:
           - 1/stable
-          - 1/candidate
+          - latest/stable
           - latest/edge
         microk8s_channel:
           - 1.28/stable

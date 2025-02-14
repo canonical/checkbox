@@ -283,6 +283,7 @@ class OnsemiAP1302AR0830(CameraInterface):
 
             logger.info("Executing command:\n{}".format(cmd))
             execute_command(cmd=cmd)
+            # TODO: handle gstreamer under V4L2 Sensor Arch
         else:
             logger.error("No suitable method such as 'gstreamer' be provided")
             raise SystemExit(1)

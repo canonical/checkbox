@@ -29,7 +29,7 @@ requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that an PyTorch CPU notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.sh can_create_notebook pytorch-cpu --image=pytorch
+command: check_dss.py can_create_notebook pytorch-cpu pytorch
 
 id: cpu/pytorch_can_use_cpu
 category_id: dss-regress
@@ -59,7 +59,7 @@ requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that an Tensorflow CPU notebook can be successfully created
 estimated_duration: 3m
-command: check_dss.sh can_create_notebook tensorflow-cpu --image=tensorflow
+command: check_dss.py can_create_notebook tensorflow-cpu tensorflow
 
 id: cpu/tensorflow_can_use_cpu
 category_id: dss-regress
@@ -184,8 +184,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that a Tensorflow Intel notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.sh can_create_notebook tensorflow-intel --image tensorflow-intel
+estimated_duration: 15m
+command: check_dss.py --timeout 900 can_create_notebook tensorflow-intel tensorflow-intel
 
 id: xpu/tensorflow_can_use_xpu
 category_id: dss-regress
@@ -214,8 +214,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that a PyTorch Intel notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.sh can_create_notebook pytorch-intel --image pytorch-intel
+estimated_duration: 15m
+command: check_dss.py --timeout 900 can_create_notebook pytorch-intel pytorch-intel
 
 id: xpu/pytorch_can_use_xpu
 category_id: dss-regress
@@ -280,8 +280,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an PyTorch CUDA notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.sh can_create_notebook pytorch-cuda --image=pytorch-cuda
+estimated_duration: 15m
+command: check_dss.py --timeout 900 can_create_notebook pytorch-cuda pytorch-cuda
 
 id: cuda/pytorch_can_use_cuda
 category_id: dss-regress
@@ -310,8 +310,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an Tensorflow CUDA notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.sh can_create_notebook tensorflow-cuda --image=tensorflow-cuda
+estimated_duration: 15m
+command: check_dss.py --timeout 900 can_create_notebook tensorflow-cuda tensorflow-cuda
 
 id: cuda/tensorflow_can_use_cuda
 category_id: dss-regress

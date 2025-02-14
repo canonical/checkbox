@@ -27,6 +27,7 @@ import re
 import time
 import shlex
 
+from subprocess import CalledProcessError
 from pylxd.exceptions import NotFound
 
 from metabox.core.actions import Start, Expect, Send, SelectTestPlan
@@ -110,7 +111,12 @@ class Scenario:
                 # step that fail explicitly return false or raise an exception
                 if not step(self):
                     self.failures.append(step)
-            except (TimeoutError, ConnectionError, NotFound):
+            except (
+                TimeoutError,
+                ConnectionError,
+                NotFound,
+                CalledProcessError,
+            ):
                 self.failures.append(step)
                 break
         if self._pts:
@@ -241,21 +247,24 @@ class Scenario:
         outcome = self._pts.select_test_plan(testplan_id, timeout)
         return outcome
 
-    def booleanize_result(self, result, deadline):
-        if isinstance(result, bool):
+    def check(self, result, timeout):
+        if timeout < 0:
+            timeout = 0
+        if isinstance(result, list):
+            return all(x.check(timeout) for x in result)
+        elif isinstance(result, bool):
             return result
-        elif isinstance(result, list):
-            return all(map(self.booleanize_result, result))
-        # result is interactive pts, underlying socket will close once the cmd
-        # is done
-        while result.result is None:
-            if time.time() < deadline:
-                time.sleep(0.1)
-            else:
-                raise TimeoutError("cmd didn't finish before the deadline")
-        return result.result == 0
+        return result.check(timeout)
 
-    def run_cmd(self, cmd, env={}, interactive=False, timeout=0, target="all"):
+    def run_cmd(
+        self,
+        cmd,
+        env={},
+        interactive=False,
+        timeout=0,
+        target="all",
+        check=True,
+    ):
         # interactive mode run_cmd is non-interactive, therefore we may need
         # to wait till deadline to fetch the result
         deadline = time.time() + timeout
@@ -278,7 +287,10 @@ class Scenario:
         else:
             result = self.local_machine.run_cmd(cmd, env, interactive, timeout)
 
-        return self.booleanize_result(result, deadline)
+        if check:
+            return self.check(result, time.time() - deadline)
+        else:
+            return result
 
     def reboot(self, timeout=0, target="all"):
         if self.mode == "remote":
@@ -342,7 +354,9 @@ class Scenario:
     def is_agent_active(self):
         return self.agent_machine.is_agent_active()
 
-    def mktree(self, path, privileged=False, timeout=0, target="all"):
+    def mktree(
+        self, path, privileged=False, timeout=0, target="all", check=False
+    ):
         """
         Creates a directory including any missing parent
         """
@@ -350,7 +364,9 @@ class Scenario:
         if privileged:
             cmd = ["sudo"] + cmd
         cmd_str = shlex.join(cmd)
-        return self.run_cmd(cmd_str, target=target, timeout=timeout)
+        return self.run_cmd(
+            cmd_str, target=target, timeout=timeout, check=check
+        )
 
     def run_manage(self, args, timeout=0, target="all"):
         """
@@ -370,6 +386,6 @@ class Scenario:
         if isinstance(path, Path):
             path = str(path)
 
-        result = self.run_cmd(f"cat {path}")
+        result = self.run_cmd(f"cat {path}", check=False)
         regex = re.compile(pattern)
         return bool(regex.search(result.stdout))

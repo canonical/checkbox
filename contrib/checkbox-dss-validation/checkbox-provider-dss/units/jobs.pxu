@@ -102,8 +102,8 @@ requires:
   executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
-estimated_duration: 2m
-command: check_intel.sh gpu_plugin_can_be_installed
+estimated_duration: 10m
+command: check_intel.py can_be_enabled_with_plugin_version "v0.30.0"
 
 id: intel_gpu_plugin/daemonset_name
 category_id: dss-regress

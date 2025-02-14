@@ -26,3 +26,5 @@ sed -i "s/enable-monitoring/enable-monitoring\n        - -shared-dev-num=${SLOTS
 kubectl apply -f /tmp/node_feature_discovery.yaml
 kubectl apply -f /tmp/node_feature_rules.yaml
 kubectl apply -f /tmp/gpu_plugin.yaml
+
+echo "CHECKBOX_DSS_ENABLE_INTEL_SUCCESSFUL"

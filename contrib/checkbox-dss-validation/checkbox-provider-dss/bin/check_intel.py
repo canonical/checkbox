@@ -17,7 +17,7 @@ INTEL_DEVICE_PLUGIN_BASE_URL = (
     "https://github.com/intel/intel-device-plugins-for-kubernetes/deployments"
 )
 SLOTS_PER_GPU = 10
-
+SUCCESS_MARKER = "CHECKBOX_DSS_ENABLE_INTEL_SUCCESSFUL"
 
 def parse_args(args: t.List[str] | None = None) -> dict[str, t.Any]:
     parser = create_parser_with_checks_as_commands(
@@ -34,9 +34,7 @@ def parse_args(args: t.List[str] | None = None) -> dict[str, t.Any]:
 
 def can_be_enabled_with_plugin_version(plugin_version: str) -> None:
     result = run_command("enable_intel.sh", plugin_version, str(SLOTS_PER_GPU))
-    # nvidia_was_enabled = "NVIDIA is enabled" in result
-    # gpu_was_already_enabled = "gpu is already enabled" in result
-    # assert nvidia_was_enabled or gpu_was_already_enabled
+    assert SUCCESS_MARKER in result
     verify_all_rollouts()
 
 

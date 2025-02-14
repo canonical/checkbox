@@ -16,7 +16,7 @@ template-id: mipi-camera/capture-image-scenario
 template-filter:
     mipi_camera_resource.scenario == "capture_image"
 id: mipi-camera/capture-image_{{ camera }}_{{ physical_interface }}_{{ method }}_{{ width }}x{{ height }}_{{ format }}
-_template-summary: {{ camera }} captures {{ width }}x{{ height }} {{ format }} images via {{ method }}
+_template-summary: MIPI Camera Captures Image
 _summary: {{ camera }} captures {{ width }}x{{ height }} {{ format }} images via {{ method }}
 _description: Test {{ camera }} sensor on the {{ physical_interface }} slot can capture {{ width }}x{{ height }} {{ format }} images via {{ method }} method
 plugin: shell
@@ -31,6 +31,7 @@ requires:
     executable.name == "media-ctl"
     executable.name == "gst-launch-1.0"
     executable.name == "gst-discoverer-1.0"
+    manifest.has_vendor_specific_mipi_camera == "True"
 environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH
 command:
     camera_test.py testing -sn {{ scenario }} -p "$PLATFORM_NAME" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_deivce_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH"
@@ -43,7 +44,7 @@ template-id: mipi-camera/record-video-scenario
 template-filter:
     mipi_camera_resource.scenario == "record_video"
 id: mipi-camera/record-video_{{ camera }}_{{ physical_interface }}_{{ method }}_{{ width }}x{{ height }}@{{ fps }}fps_{{ format }}
-_template-summary: {{ camera }} records a {{ width }}x{{ height }}@{{ fps }}fps {{ format }} video via {{ method }}
+_template-summary: MIPI Camera Records Video
 _summary: {{ camera }} records a {{ width }}x{{ height }}@{{ fps }}fps {{ format }} video via {{ method }}
 _description: Test {{ camera }} sensor on the {{ physical_interface }} slot can record {{ width }}x{{ height }}@{{ fps }}fps {{ format }} video via {{ method }} method
 plugin: shell
@@ -58,6 +59,7 @@ requires:
     executable.name == "media-ctl"
     executable.name == "gst-launch-1.0"
     executable.name == "gst-discoverer-1.0"
+    manifest.has_vendor_specific_mipi_camera == "True"
 environ: PLATFORM_NAME MIPI_CAMERA_SETUP_CONF_FILE_PATH
 command:
     camera_test.py testing -sn {{ scenario }} -p ""$PLATFORM_NAME"" -c {{ camera }} -pi {{ physical_interface }} -m {{ method }} -wi {{ width }} -hi {{ height }} -f {{ format }} -vdn "{{ v4l2_deivce_name }}" -cscf "$MIPI_CAMERA_SETUP_CONF_FILE_PATH" -fps {{ fps }}

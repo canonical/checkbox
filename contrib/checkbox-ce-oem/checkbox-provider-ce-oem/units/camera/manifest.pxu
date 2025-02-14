@@ -1,4 +1,4 @@
 unit: manifest entry
-id: has_mipi_camera
+id: has_vendor_specific_mipi_camera
 _name: Vendor Specific MIPI Cameras
 value-type: bool

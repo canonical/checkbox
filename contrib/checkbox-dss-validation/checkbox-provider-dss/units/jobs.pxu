@@ -95,77 +95,37 @@ requires:
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
 estimated_duration: 2m
-command: check_intel.sh gpu_plugin_can_be_installed
-
-id: intel_gpu_plugin/daemonset_name
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: intel_gpu_plugin/install
-_summary: Check that Intel GPU plugin daemonset is deployed
-estimated_duration: 5s
-command: check_intel.sh gpu_plugin_daemonset_is_deployed
-
-id: intel_gpu_plugin/daemonset_number_available
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: intel_gpu_plugin/install
-_summary: Check that at least one Intel GPU daemonset is available
-estimated_duration: 5s
-command: check_intel.sh one_daemonset_is_available
-
-id: intel_gpu_plugin/daemonset_number_ready
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: intel_gpu_plugin/daemonset_number_available
-_summary: Check that at least one Intel GPU daemonset is ready
-estimated_duration: 5s
-command: check_intel.sh one_daemonset_is_ready
+command: check_intel.py can_be_enabled_with_plugin_version "v0.30.0"
 
 id: intel_gpu_plugin/labels
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: intel_gpu_plugin/daemonset_number_ready
+requires: executable.name == 'kubectl'
+depends: intel_gpu_plugin/install
 _summary: Check that Kubernetes has label intel.feature.node.kubernetes.io/gpu
 estimated_duration: 5s
-command: check_intel.sh gpu_node_label_is_attached
-
-id: intel_gpu_plugin/gpu_count
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: intel_gpu_plugin/labels
-_summary: Check that at least one Intel GPU is available on k8s node
-estimated_duration: 5s
-command: check_intel.sh at_least_one_gpu_is_available
+command: check_intel.py node_label_is_attached
 
 id: intel_gpu_plugin/node_gpu_capacity
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: intel_gpu_plugin/gpu_count
+requires: executable.name == 'kubectl'
+depends: intel_gpu_plugin/labels
 _summary: Check that at least expected capacity slots for Intel GPU are availabled
 estimated_duration: 5s
-command: check_intel.sh capacity_slots_for_gpus_match
+command: check_intel.py has_enough_capacity_slots
 
 id: intel_gpu_plugin/node_gpu_allocatable
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: intel_gpu_plugin/node_gpu_capacity
 _summary: Check that at least expected allocatable slots for Intel GPU are available
 estimated_duration: 5s
-command: check_intel.sh allocatable_slots_for_gpus_match
+command: check_intel.py has_enough_allocatable_slots
 
 id: dss/status_intel_gpu
 category_id: dss-regress

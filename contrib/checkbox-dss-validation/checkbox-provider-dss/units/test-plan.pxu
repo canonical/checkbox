@@ -39,3 +39,13 @@ bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap
     com.canonical.certification::graphics_card
+
+id: dss-validation-with-reboot
+unit: test plan
+_name: DSS validations with Intel and NVIDIA GPUs if available, with reboot
+include:
+    dss/initialize
+bootstrap_include:
+    com.canonical.certification::executable
+    com.canonical.certification::snap
+    com.canonical.certification::graphics_card

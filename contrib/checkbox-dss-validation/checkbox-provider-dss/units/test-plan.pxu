@@ -40,12 +40,47 @@ bootstrap_include:
     com.canonical.certification::snap
     com.canonical.certification::graphics_card
 
+id: dss-validation-reboot
+unit: test plan
+_name: Reboot before performing DSS validations again
+include:
+    dss/reboot
+    dss/wait_after_reboot
+
+id: dss-validation-after-reboot
+unit: test plan
+_name: DSS validations with Intel and NVIDIA GPUs if available, after reboot
+include:
+    dss/initialize_after_reboot
+    dss/status_mlflow_after_reboot
+    dss/create_pytorch_cpu_notebook_after_reboot
+    cpu/pytorch_can_use_cpu_after_reboot
+    dss/remove_pytorch_cpu_notebook_after_reboot
+    dss/create_tensorflow_cpu_notebook_after_reboot
+    cpu/tensorflow_can_use_cpu_after_reboot
+    dss/remove_tensorflow_cpu_notebook_after_reboot
+    dss/status_intel_gpu_after_reboot
+    dss/create_tensorflow_intel_notebook_after_reboot
+    xpu/tensorflow_can_use_xpu_after_reboot
+    dss/remove_tensorflow_intel_notebook_after_reboot
+    dss/create_pytorch_intel_notebook_after_reboot
+    xpu/pytorch_can_use_xpu_after_reboot
+    dss/remove_pytorch_intel_notebook_after_reboot
+    dss/status_nvidia_gpu_after_reboot
+    dss/create_pytorch_cuda_notebook_after_reboot
+    cuda/pytorch_can_use_cuda_after_reboot
+    dss/remove_pytorch_cuda_notebook_after_reboot
+    dss/create_tensorflow_cuda_notebook_after_reboot
+    cuda/tensorflow_can_use_cuda_after_reboot
+    dss/remove_tensorflow_cuda_notebook_after_reboot
+bootstrap_include:
+    com.canonical.certification::executable
+
 id: dss-validation-with-reboot
 unit: test plan
 _name: DSS validations with Intel and NVIDIA GPUs if available, with reboot
 include:
-    dss/initialize
-bootstrap_include:
-    com.canonical.certification::executable
-    com.canonical.certification::snap
-    com.canonical.certification::graphics_card
+nested_part:
+  dss-validation
+  dss-validation-reboot
+  dss-validation-after-reboot

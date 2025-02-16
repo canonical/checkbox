@@ -340,3 +340,248 @@ depends: dss/create_tensorflow_cuda_notebook
 _summary: Check that the Tensorflow CUDA notebook can be removed
 estimated_duration: 1m
 command: check_dss.sh can_remove_notebook tensorflow-cuda
+
+# Reboot and re-test ##########################################################
+
+id: dss/reboot
+category_id: dss-regress
+flags: simple noreturn
+depends: dss/initialize
+_summary: Check that the DSS checks pass after reboot.  This job performs the reboot.
+estimated_duration: 5m
+user: root
+command: echo "rebooting"
+
+id: dss/wait_after_reboot
+category_id: dss-regress
+flags: simple
+depends: dss/reboot
+_summary: Check that the DSS checks pass after reboot.  This job waits after reboot.
+estimated_duration: 1m
+command: sleep 90
+
+id: dss/initialize_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires:
+  executable.name == 'dss'
+  executable.name == 'microk8s'
+_summary: Check that the DSS environment initializes after reboot
+depends: dss/wait_after_reboot
+estimated_duration: 2m
+command: check_dss.sh can_be_initialized
+
+id: dss/status_mlflow_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+_summary: Check that the dss mlflow is deployed after reboot
+depends: dss/initialize_after_reboot
+estimated_duration: 5s
+command: check_dss.sh mlflow_status_is_ready
+
+id: dss/create_pytorch_cpu_notebook_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/status_mlflow_after_reboot
+_summary: Check that an PyTorch CPU notebook can be successfully created after reboot
+estimated_duration: 3m
+command: check_dss.sh can_create_notebook pytorch-cpu-ar --image=pytorch
+
+id: cpu/pytorch_can_use_cpu_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: dss/create_pytorch_cpu_notebook_after_reboot
+_summary: Check that PyTorch can use CPU in notebook created after reboot
+estimated_duration: 1m
+command: check_notebook.sh pytorch-cpu-ar can_run_python_script_in_pod verifying_pytorch_can_use_cpu
+
+id: dss/remove_pytorch_cpu_notebook_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_pytorch_cpu_notebook_after_reboot
+_summary: Check that the PyTorch CPU notebook created after reboot can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook pytorch-cpu-ar
+
+id: dss/create_tensorflow_cpu_notebook_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/status_mlflow_after_reboot
+_summary: Check that an Tensorflow CPU notebook can be successfully created after reboot
+estimated_duration: 3m
+command: check_dss.sh can_create_notebook tensorflow-cpu-ar --image=tensorflow
+
+id: cpu/tensorflow_can_use_cpu_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: dss/create_tensorflow_cpu_notebook_after_reboot
+_summary: Check that Tensorflow can use CPU in notebook created after reboot
+estimated_duration: 1m
+command: check_notebook.sh tensorflow-cpu-ar can_run_python_script_in_pod verifying_tensorflow_can_use_cpu
+
+id: dss/remove_tensorflow_cpu_notebook_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_tensorflow_cpu_notebook_after_reboot
+_summary: Check that the Tensorflow CPU notebook created after reboot can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook tensorflow-cpu-ar
+
+id: dss/status_intel_gpu_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends:
+  dss/status_mlflow_after_reboot
+  dss/status_intel_gpu
+_summary: Check that DSS status still has Intel GPU acceleration enabled after reboot
+estimated_duration: 5s
+command: check_dss.sh intel_gpu_acceleration_is_enabled
+
+id: dss/create_tensorflow_intel_notebook_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/status_intel_gpu_after_reboot
+_summary: Check that a Tensorflow Intel notebook can be successfully created after reboot
+estimated_duration: 3m
+command: check_dss.sh can_create_notebook tensorflow-intel-ar --image tensorflow-intel
+
+id: xpu/tensorflow_can_use_xpu_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: dss/create_tensorflow_intel_notebook_after_reboot
+_summary: Check that Tensorflow can use XPU in the notebook created after reboot
+estimated_duration: 1m
+command: check_notebook.sh tensorflow-intel-ar can_run_python_script_in_pod verifying_tensorflow_can_use_xpu
+
+id: dss/remove_tensorflow_intel_notebook_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_tensorflow_intel_notebook_after_reboot
+_summary: Check that the Tensorflow Intel notebook created after reboot can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook tensorflow-intel-ar
+
+id: dss/create_pytorch_intel_notebook_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/status_intel_gpu_after_reboot
+_summary: Check that a PyTorch Intel notebook can be successfully created after reboot
+estimated_duration: 3m
+command: check_dss.sh can_create_notebook pytorch-intel-ar --image pytorch-intel
+
+id: xpu/pytorch_can_use_xpu_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: dss/create_pytorch_intel_notebook_after_reboot
+_summary: Check that Pytorch can use XPU in the notebook created after reboot
+estimated_duration: 1m
+command: check_notebook.sh pytorch-intel-ar can_run_python_script_in_pod verifying_pytorch_can_use_xpu
+
+id: dss/remove_pytorch_intel_notebook_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_pytorch_intel_notebook_after_reboot
+_summary: Check that the PyTorch Intel notebook created after reboot can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook pytorch-intel-ar
+
+id: dss/status_nvidia_gpu_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends:
+  dss/status_nvidia_gpu
+  dss/status_mlflow_after_reboot
+_summary: Check that dss status still has NVIDIA GPU acceleration enabled after reboot
+estimated_duration: 5s
+command: check_dss.sh nvidia_gpu_acceleration_is_enabled
+
+id: dss/create_pytorch_cuda_notebook_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/status_nvidia_gpu_after_reboot
+_summary: Check that an PyTorch CUDA notebook can be successfully created after reboot
+estimated_duration: 3m
+command: check_dss.sh can_create_notebook pytorch-cuda-ar --image=pytorch-cuda
+
+id: cuda/pytorch_can_use_cuda_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: dss/create_pytorch_cuda_notebook_after_reboot
+_summary: Check PyTorch can use CUDA in the notebook created after reboot
+estimated_duration: 1m
+command: check_notebook.sh pytorch-cuda-ar can_run_python_script_in_pod verifying_pytorch_can_use_cuda
+
+id: dss/remove_pytorch_cuda_notebook_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_pytorch_cuda_notebook_after_reboot
+_summary: Check that the PyTorch CUDA notebook created after reboot can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook pytorch-cuda-ar
+
+id: dss/create_tensorflow_cuda_notebook_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/status_nvidia_gpu_after_reboot
+_summary: Check that an Tensorflow CUDA notebook can be successfully created after reboot
+estimated_duration: 3m
+command: check_dss.sh can_create_notebook tensorflow-cuda-ar --image=tensorflow-cuda
+
+id: cuda/tensorflow_can_use_cuda_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'microk8s'
+depends: dss/create_tensorflow_cuda_notebook_after_reboot
+_summary: Check Tensorflow can use CUDA in the notebook created after reboot
+estimated_duration: 1m
+command: check_notebook.sh tensorflow-cuda-ar can_run_python_script_in_pod verifying_tensorflow_can_use_cuda
+
+id: dss/remove_tensorflow_cuda_notebook_after_reboot
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_tensorflow_cuda_notebook_after_reboot
+_summary: Check that the Tensorflow CUDA notebook created after reboot can be removed
+estimated_duration: 1m
+command: check_dss.sh can_remove_notebook tensorflow-cuda-ar

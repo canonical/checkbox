@@ -64,10 +64,12 @@ class TestSuspendStats(unittest.TestCase):
         SuspendStats()
 
         mock_collect.assert_called_once_with("/sys/power/suspend_stats/")
-        mock_parse.assert_called_once()
+        mock_parse.assert_called_once_with()
 
+    @patch("suspend_stats.SuspendStats.__init__")
     @patch("builtins.open", new_callable=mock_open, read_data=debugfs)
-    def test_parse_suspend_stats(self, mock_file):
+    def test_parse_suspend_stats(self, mock_file, mock_init):
+        mock_init.return_value = None
         stats = SuspendStats()
         expected_output = {
             "success": "1",

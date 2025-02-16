@@ -125,7 +125,7 @@ class SuspendStats:
 
         parser.add_argument(
             "check_type",
-            help="The type to take e.g. after_suspend or any_failure."
+            help="The type to take e.g. after_suspend or any_failure.",
         )
 
         return parser.parse_args(args)

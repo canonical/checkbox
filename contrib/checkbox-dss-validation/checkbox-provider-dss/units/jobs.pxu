@@ -350,7 +350,9 @@ depends: dss/initialize
 _summary: Check that the DSS checks pass after reboot.  This job performs the reboot.
 estimated_duration: 5m
 user: root
-command: echo "rebooting"
+command:
+  echo "rebooting"
+  reboot
 
 id: dss/wait_after_reboot
 category_id: dss-regress

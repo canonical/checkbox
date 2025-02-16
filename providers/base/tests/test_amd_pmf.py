@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2024 Canonical Ltd.
+# Copyright 2025 Canonical Ltd.
 # Written by:
 #   Hanhsuan Lee <hanhsuan.lee@canonical.com>
 #
@@ -17,7 +17,7 @@
 
 from unittest.mock import patch
 import unittest
-import amd_pmf
+from amd_pmf import check_pmf_loaded
 
 
 class CheckPMFLoadedTests(unittest.TestCase):
@@ -44,21 +44,18 @@ vhost_vsock            24576  0
 
     @patch("subprocess.check_output")
     def test_succ(self, mock_output):
-        ap = amd_pmf.AMDPMF()
         mock_output.return_value = self.with_pmf_output
-        ap.check_pmf_loaded()
+        check_pmf_loaded()
 
     @patch("subprocess.check_output")
     def test_fail(self, mock_output):
-        ap = amd_pmf.AMDPMF()
         mock_output.return_value = self.without_pmf_output
         with self.assertRaises(SystemExit):
-            ap.check_pmf_loaded()
+            check_pmf_loaded()
 
     @patch("subprocess.check_output")
     def test_command_fail(self, mock_output):
         """Test outcome when `lsmod` command is not available"""
-        ap = amd_pmf.AMDPMF()
         mock_output.side_effect = FileNotFoundError
         with self.assertRaises(SystemExit):
-            ap.check_pmf_loaded()
+            check_pmf_loaded()

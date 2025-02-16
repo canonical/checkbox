@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # This file is part of Checkbox.
 #
-# Copyright 2024 Canonical Ltd.
+# Copyright 2025 Canonical Ltd.
 # Written by:
 #   Hanhsuan Lee <hanhsuan.lee@canonical.com>
 #
@@ -20,31 +20,24 @@
 import subprocess
 
 
-class AMDPMF:
+def check_pmf_loaded():
     """
-    This class is used to verify AMD Platform Management Framework
+    This is a simple function to use lsmod to verify
+    AMD Platform Management Framework driver is loaded or not
     """
-
-    def check_pmf_loaded(self):
-        """
-        This is a simple function to use lsmod to verify
-        AMD Platform Management Framework driver is loaded or not
-        """
-        cmd = ["lsmod"]
-        try:
-            output = subprocess.check_output(
-                cmd,
-                universal_newlines=True,
-            )
-            if "amd_pmf" in output.lower():
-                print("AMD Platform Management Framework is loaded")
-            else:
-                raise SystemExit(
-                    "AMD Platform Management Framework isn't loaded"
-                )
-        except (subprocess.CalledProcessError, FileNotFoundError) as e:
-            raise SystemExit("running cmd:[{}] fail:{}".format(cmd, repr(e)))
+    cmd = ["lsmod"]
+    try:
+        output = subprocess.check_output(
+            cmd,
+            universal_newlines=True,
+        )
+        if "amd_pmf" in output.lower():
+            print("AMD Platform Management Framework is loaded")
+        else:
+            raise SystemExit("AMD Platform Management Framework isn't loaded")
+    except (subprocess.CalledProcessError, FileNotFoundError) as e:
+        raise SystemExit("running cmd:[{}] fail:{}".format(cmd, repr(e)))
 
 
 if __name__ == "__main__":
-    AMDPMF().check_pmf_loaded()
+    check_pmf_loaded()

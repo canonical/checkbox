@@ -1,0 +1,4 @@
+unit: manifest entry
+id: has_amd_pmf
+_name: AMD PMF (Platform Management Framework) support
+value-type: bool

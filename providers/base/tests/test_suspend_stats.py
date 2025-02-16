@@ -18,32 +18,112 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 from unittest.mock import patch, mock_open, MagicMock
+from pathlib import Path
+import tempfile
 import unittest
 
 from suspend_stats import SuspendStats
 
+debugfs = """
+success: 1
+fail: 0
+failed_freeze: 0
+failed_prepare: 0
+failed_suspend: 0
+failed_suspend_late: 0
+failed_suspend_noirq: 0
+failed_resume: 0
+failed_resume_early: 0
+failed_resume_noirq: 0
+failures:
+  last_failed_dev:	
+			
+  last_failed_errno:	0
+			0
+  last_failed_step:
+"""
+
 
 class TestSuspendStats(unittest.TestCase):
-    @patch("os.walk")
-    @patch("builtins.open", new_callable=mock_open, read_data="1\n")
-    def test_collect_content_under_directory(self, mock_file, mock_os_walk):
-        mock_os_walk.return_value = [
-            (
-                "/sys/power/suspend_stats/",
-                [],
-                ["success", "failed_suspend", "fail", "last_failed_dev"],
-            ),
-        ]
+    @patch("suspend_stats.SuspendStats.collect_content_under_directory")
+    @patch("suspend_stats.SuspendStats.parse_suspend_stats_in_debugfs")
+    def test_init_with_existing_directory(self, mock_parse, mock_collect):
+        mock_collect.return_value = "mocked content"
 
+        collector = SuspendStats()
+
+        mock_collect.assert_called_once_with("/sys/power/suspend_stats/")
+        self.assertIsNotNone(collector)
+
+    @patch("suspend_stats.SuspendStats.collect_content_under_directory")
+    @patch("suspend_stats.SuspendStats.parse_suspend_stats_in_debugfs")
+    def test_init_with_non_existing_directory(self, mock_parse, mock_collect):
+        mock_collect.side_effect = FileNotFoundError
+        mock_parse.return_value = "parsed debugfs content"
+
+        SuspendStats()
+
+        mock_collect.assert_called_once_with("/sys/power/suspend_stats/")
+        mock_parse.assert_called_once()
+
+    @patch("builtins.open", new_callable=mock_open, read_data=debugfs)
+    def test_parse_suspend_stats(self, mock_file):
         stats = SuspendStats()
-        expected_content = {
+        expected_output = {
             "success": "1",
-            "failed_suspend": "1",
-            "fail": "1",
-            "last_failed_dev": "1",
+            "fail": "0",
+            "failed_freeze": "0",
+            "failed_prepare": "0",
+            "failed_suspend": "0",
+            "failed_suspend_late": "0",
+            "failed_suspend_noirq": "0",
+            "failed_resume": "0",
+            "failed_resume_early": "0",
+            "failed_resume_noirq": "0",
+            "last_failed_dev": "",
+            "last_failed_errno": "0",
+            "last_failed_step": "",
         }
+        result = stats.parse_suspend_stats_in_debugfs()
+        self.assertEqual(result, expected_output)
 
-        self.assertEqual(stats.contents, expected_content)
+    def test_empty_directory(self):
+        stats = SuspendStats()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            self.assertEqual(
+                stats.collect_content_under_directory(tmp_dir), {}
+            )
+
+    def test_single_file(self):
+        stats = SuspendStats()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            file_path = Path(tmp_dir) / "test.txt"
+            file_path.write_text("Line1\nLine2")
+
+            result = stats.collect_content_under_directory(tmp_dir)
+            self.assertEqual(result, {"test.txt": "Line1"})
+
+    def test_multiple_files(self):
+        stats = SuspendStats()
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            file_path_1 = Path(tmp_dir) / "file1.txt"
+            file_path_2 = Path(tmp_dir) / "file2.txt"
+
+            file_path_1.write_text("Line11\nLine12")
+            file_path_2.write_text("Line21\nLine22")
+
+            result = stats.collect_content_under_directory(tmp_dir)
+            self.assertEqual(
+                result, {"file1.txt": "Line11", "file2.txt": "Line21"}
+            )
+
+    @patch("pathlib.Path.iterdir")
+    def test_invalid_search_directories(self, mock_path):
+        stats = SuspendStats()
+        mock_path.side_effect = FileNotFoundError
+
+        with self.assertRaises(FileNotFoundError):
+            stats.collect_content_under_directory("/non/existent/directory")
 
     def test_is_after_suspend(self):
         stats = SuspendStats()
@@ -83,19 +163,17 @@ class TestSuspendStats(unittest.TestCase):
 
     def test_parse_args_valid(self):
         stats = SuspendStats()
-        args = ["valid", "--print"]
+        args = ["after_suspend"]
         rv = stats.parse_args(args)
 
-        self.assertEqual(rv.type, "valid")
-        self.assertTrue(rv.print)
+        self.assertEqual(rv.check_type, "after_suspend")
 
     def test_parse_args_any(self):
         stats = SuspendStats()
-        args = ["any", "--print"]
+        args = ["any_failure"]
         rv = stats.parse_args(args)
 
-        self.assertEqual(rv.type, "any")
-        self.assertTrue(rv.print)
+        self.assertEqual(rv.check_type, "any_failure")
 
 
 class MainTests(unittest.TestCase):
@@ -104,8 +182,7 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.print_all_content")
     def test_run_valid_succ(self, mock_print, mock_after, mock_parse_args):
         args_mock = MagicMock()
-        args_mock.type = "valid"
-        args_mock.print = True
+        args_mock.check_type = "after_suspend"
         mock_parse_args.return_value = args_mock
         mock_after.return_value = True
         self.assertEqual(SuspendStats().main(), None)
@@ -115,8 +192,7 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.print_all_content")
     def test_run_valid_fail(self, mock_print, mock_after, mock_parse_args):
         args_mock = MagicMock()
-        args_mock.type = "valid"
-        args_mock.print = False
+        args_mock.check_type = "after_suspend"
         mock_parse_args.return_value = args_mock
         mock_after.return_value = False
         with self.assertRaises(SystemExit):
@@ -127,8 +203,7 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.print_all_content")
     def test_run_any_succ(self, mock_print, mock_any, mock_parse_args):
         args_mock = MagicMock()
-        args_mock.type = "any"
-        args_mock.print = False
+        args_mock.check_type = "any_failure"
         mock_parse_args.return_value = args_mock
         mock_any.return_value = False
         self.assertEqual(SuspendStats().main(), None)
@@ -138,8 +213,7 @@ class MainTests(unittest.TestCase):
     @patch("suspend_stats.SuspendStats.print_all_content")
     def test_run_any_fail(self, mock_print, mock_any, mock_parse_args):
         args_mock = MagicMock()
-        args_mock.type = "any"
-        args_mock.print = True
+        args_mock.check_type = "any_failure"
         mock_parse_args.return_value = args_mock
         mock_any.return_value = True
         with self.assertRaises(SystemExit):
@@ -149,8 +223,6 @@ class MainTests(unittest.TestCase):
     def test_run_nothing(self, mock_parse_args):
         args_mock = MagicMock()
         args_mock.type = "Unknown"
-        args_mock.print = False
-        args_mock.raise_exit = False
         mock_parse_args.return_value = args_mock
         self.assertEqual(SuspendStats().main(), None)
 

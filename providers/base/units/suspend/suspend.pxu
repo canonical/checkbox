@@ -1717,27 +1717,29 @@ command:
 _purpose: Attaches the FWTS oops results log to the submission after suspend
 _summary: Attach FWTS oops results log post-suspend.
 
-id: suspend/valid_suspend_status
+id: suspend/validate_suspend_status
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 depends: suspend/suspend_advanced_auto
 estimated_duration: 5s
-command: suspend_stats.py valid -p
+command: suspend_stats.py after_suspend
 summary:
-    Test this machine suspend status is success or not
+    Tests that the machine suspended correctly
 description:
-    If the suspend is successed, the count in /sys/power/suspend_stats/success will be non zero
-    and the /sys/power/suspend_stats/failed_suspend will be zero
+    Query sysfs and debugfs for the amount of times the system was suspended.
+    We expect the count in /sys/power/suspend_stats/success
+    and suscess in /sys/kernel/debugfs/suspend_stats to be non zero
 
-id: suspend/any_fail_during_suspend
+id: suspend/any_suspend_failure
 plugin: shell
 category_id: com.canonical.plainbox::suspend
 depends: suspend/suspend_advanced_auto
 estimated_duration: 5s
-command: suspend_stats.py any -p
+command: suspend_stats.py any_failure
 summary:
-    Test all devices in this machine suspend status is failed or not
+    Tests if any device in this machine reports a suspend failure
 description:
-    If the suspend is successed, the count in /sys/power/suspend_stats/success will be non zero
-    and the /sys/power/suspend_stats/fail will be zero. If there is device failed,
-    /sys/power/suspend_stats/last_failed_dev will show the failed device
+    If the DUT suspended successfully, /sys/power/suspend_stats/fail
+    and fail in /sys/kernel/debug/suspend_stats will be zero.
+    If a device failed /sys/power/suspend_stats/last_failed_dev
+    and last_failed_dev in /sys/kernel/debug/suspend_stats will show the failed device

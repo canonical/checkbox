@@ -16,9 +16,9 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+from pathlib import Path
 import argparse
 import sys
-import os
 
 
 class SuspendStats:
@@ -32,7 +32,38 @@ class SuspendStats:
 
     def __init__(self):
         suspend_stat_path = "/sys/power/suspend_stats/"
-        self.contents = self.collect_content_under_directory(suspend_stat_path)
+        try:
+            self.contents = self.collect_content_under_directory(
+                suspend_stat_path
+            )
+        except FileNotFoundError:
+            print(
+                "There is no {}, use the information in debugfs".format(
+                    suspend_stat_path
+                )
+            )
+            self.contents = self.parse_suspend_stats_in_debugfs()
+
+    def parse_suspend_stats_in_debugfs(self):
+        """
+        Collect needed content in /sys/kernel/debug/suspend_stats
+
+        :param search_directory: The directory to search through.
+
+        :returns: collected content by each line
+        """
+        debugfs = "/sys/kernel/debug/suspend_stats"
+        content = {}
+
+        with open(debugfs, "r") as d:
+            for p in filter(None, (line.strip() for line in d)):
+                if p != "failures:" and ":" in p:
+                    kv = p.split(":")
+                    if len(kv) > 1:
+                        content[kv[0]] = kv[1].strip()
+                    else:
+                        content[kv[0]] = ""
+        return content
 
     def collect_content_under_directory(self, search_directory: str) -> dict:
         """
@@ -43,13 +74,10 @@ class SuspendStats:
         :returns: collected content by filename
         """
         content = {}
-        for root, dirs, files in os.walk(search_directory):
-            for file_name in files:
-                file_path = os.path.join(root, file_name)
-                with open(
-                    file_path, "r", encoding="utf-8", errors="ignore"
-                ) as file:
-                    content[file_name] = file.read().splitlines()[0]
+
+        search_directory = Path(search_directory)
+        for p in filter(lambda x: x.is_file(), search_directory.iterdir()):
+            content[p.name], *_ = p.read_text().splitlines()
         return content
 
     def print_all_content(self):
@@ -57,8 +85,8 @@ class SuspendStats:
         Print all contents under suspend_stats
 
         """
-        for c in self.contents:
-            print("{}:{}".format(c, self.contents[c]))
+        for c, v in self.contents.items():
+            print("{}:{}".format(c, v))
 
     def is_after_suspend(self) -> bool:
         """
@@ -91,48 +119,24 @@ class SuspendStats:
         parser = argparse.ArgumentParser(
             prog="suspend status validator",
             description="Get and valid the content"
-            "under /sys/power/suspend_stats/",
+            "under /sys/power/suspend_stats/"
+            "or /sys/kernel/debug/suspend_stats",
         )
 
-        subparsers = parser.add_subparsers(dest="type")
-        subparsers.required = True
-
-        # Add parser for validating the system is after suspend or not
-        parser_valid = subparsers.add_parser(
-            "valid", help="validating the system is after suspend or not"
-        )
-        parser_valid.add_argument(
-            "-p",
-            "--print",
-            dest="print",
-            action="store_true",
-            help="Print content",
-        )
-        # Add parser for printing last failed device
-        parser_any = subparsers.add_parser(
-            "any",
-            help="Is there any failed during suspend",
-        )
-        parser_any.add_argument(
-            "-p",
-            "--print",
-            dest="print",
-            action="store_true",
-            help="Print content",
+        parser.add_argument(
+            "check_type",
+            help="The type to take e.g. after_suspend or any_failure."
         )
 
         return parser.parse_args(args)
 
     def main(self):
         args = self.parse_args()
-        if args.type == "valid":
-            if args.print:
-                self.print_all_content()
+        self.print_all_content()
+        if args.check_type == "after_suspend":
             if not self.is_after_suspend():
                 raise SystemExit("System is not under after suspend status")
-        elif args.type == "any":
-            if args.print:
-                self.print_all_content()
+        else:
             if self.is_any_failed():
                 raise SystemExit(
                     "There are [{}] failed".format(self.contents["fail"])

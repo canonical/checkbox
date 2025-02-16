@@ -56,7 +56,7 @@ class SuspendStats:
         content = {}
 
         with open(debugfs, "r") as d:
-            for p in filter(None, (line.strip() for line in d)):
+            for p in filter(None, (line.strip() for line in d.readlines())):
                 if p != "failures:" and ":" in p:
                     kv = p.split(":")
                     if len(kv) > 1:

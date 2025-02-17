@@ -263,6 +263,66 @@ class CapsResolver:
         return fixed_caps
 
 
+def get_launch_line(device: Gst.Device) -> T.Optional[str]:
+    """Get the gst-device-monitor launch line for a device
+
+    :param device: _description_
+    :return: _description_
+    """
+    ignored_propnames = set(
+        ["name", "parent", "direction", "template", "caps"]
+    )  # type: set[str]
+    element = device.create_element()
+    if element is None:
+        return None
+
+    factory = element.get_factory()
+    if factory is None:
+        return None
+
+    factory_name = factory.get_name()
+    if factory_name is None:
+        return None
+
+    pure_element = Gst.ElementFactory.make(factory_name, None)
+    if pure_element is None:
+        return None
+
+    launch_line_components = [factory_name]  # type: list[str]
+    for prop in element.list_properties():
+        if prop.name in ignored_propnames:
+            continue
+        # eliminate all default properties and non-read-writable props
+        read_and_writable = (
+            prop.flags & GObject.PARAM_READWRITE == GObject.PARAM_READWRITE
+        )
+        if not read_and_writable:
+            continue
+
+        pvalue = pure_element.get_property(prop.name)
+        value = element.get_property(prop.name)
+        print(prop.name, pvalue, value)
+
+        if (
+            value
+            and pvalue
+            and Gst.value_compare(pvalue, value) == Gst.VALUE_EQUAL
+        ):
+            continue
+
+        if value is None:
+            continue
+
+        # now we only have the non-default values
+        serialized = Gst.value_serialize(value)
+        if not serialized:
+            continue  # ignore non-serializable ones
+
+        launch_line_components.append("{}={}".format(prop.name, serialized))
+
+    return " ".join(launch_line_components)
+
+
 def elem_to_str(
     element: Gst.Element, exclude: T.List[str] = ["parent", "client-name"]
 ) -> str:
@@ -418,7 +478,6 @@ def run_pipeline(
     )
 
     def check_state_change():
-        logger.info("Checking state change...")
         # do not use Gst.CLOCK_TIME_NONE for get_state, it will wait forever
         state_change_result = pipeline.get_state(Gst.SECOND * 1)
         # get_state returns a 3-tuple
@@ -438,6 +497,11 @@ def run_pipeline(
                     state_change_result[2].value_name
                 )
             )
+        logger.debug(
+            "[ OK ] Pipeline successfully transitioned to {}".format(
+                state_change_result[1].value_name
+            )
+        )
 
     # the mainloop is unlikely to get stuck (it's only doing timeouts and checking messages)
     # so we set a timeout on the mainloop to check if the pipeline hanged
@@ -445,6 +509,8 @@ def run_pipeline(
 
     pipeline.set_state(Gst.State.PLAYING)
 
+    # this does not necessarily mean that the pipeline has the PLAYING state
+    # it just means that set_state didn't hang
     logger.info("[ OK ] Pipeline is playing!")
     loop.run()
 
@@ -545,7 +611,7 @@ def take_photo(
     *,
     caps: T.Optional[Gst.Caps] = None,
     file_path: Path,
-    delay_seconds: int
+    delay_seconds: int,
 ):
     """Take a photo using the source element
 
@@ -667,7 +733,7 @@ def record_video(
     caps: T.Optional[Gst.Caps] = None,
     file_path: Path,
     record_n_seconds: int,
-    encoding_profile: str
+    encoding_profile: str,
 ):
     assert record_n_seconds >= 1, (
         "Recording pipeline must run for at least 1 second. "

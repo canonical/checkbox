@@ -210,11 +210,7 @@ class MediaValidator:
 def get_devices() -> T.List[Gst.Device]:
     monitor = Gst.DeviceMonitor.new()  # type: Gst.DeviceMonitor
     monitor.add_filter("Video/Source")
-    monitor.start()
-
     devices = monitor.get_devices() or []
-
-    monitor.stop()
     return devices
 
 
@@ -398,6 +394,7 @@ def main() -> int:
         validator = MediaValidator()
         resolver = cam.CapsResolver()
         for dev_i, device in enumerate(devices):
+            print("device launch line: ", cam.get_launch_line(device))
             dev_element = device.create_element()
             if dev_element is None:
                 logger.error(

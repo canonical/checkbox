@@ -251,7 +251,7 @@ class Scenario:
         if timeout < 0:
             timeout = 0
         if isinstance(result, list):
-            return all(x.check(timeout) for x in result)
+            return all(self.check(x, timeout) for x in result)
         elif isinstance(result, bool):
             return result
         return result.check(timeout)

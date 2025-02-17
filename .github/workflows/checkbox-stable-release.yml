@@ -85,15 +85,10 @@ jobs:
           sudo snap install snapcraft --classic
       - name: Promote checkbox core snaps to the stable channel
         run: |
-          snapcraft promote checkbox16 --from-channel latest/beta --to-channel latest/candidate --yes
           snapcraft promote checkbox16 --from-channel latest/beta --to-channel latest/stable --yes
-          snapcraft promote checkbox18 --from-channel latest/beta --to-channel latest/candidate --yes
           snapcraft promote checkbox18 --from-channel latest/beta --to-channel latest/stable --yes
-          snapcraft promote checkbox20 --from-channel latest/beta --to-channel latest/candidate --yes
           snapcraft promote checkbox20 --from-channel latest/beta --to-channel latest/stable --yes
-          snapcraft promote checkbox22 --from-channel latest/beta --to-channel latest/candidate --yes
           snapcraft promote checkbox22 --from-channel latest/beta --to-channel latest/stable --yes
-          snapcraft promote checkbox24 --from-channel latest/beta --to-channel latest/candidate --yes
           snapcraft promote checkbox24 --from-channel latest/beta --to-channel latest/stable --yes
 
   checkbox_snap:
@@ -114,23 +109,14 @@ jobs:
           sudo snap install snapcraft --classic
       - name: Promote checkbox snaps to the stable channel
         run: |
-          snapcraft promote checkbox --from-channel uc16/beta --to-channel uc16/candidate --yes
           snapcraft promote checkbox --from-channel uc16/beta --to-channel uc16/stable --yes
-          snapcraft promote checkbox --from-channel uc18/beta --to-channel uc18/candidate --yes
           snapcraft promote checkbox --from-channel uc18/beta --to-channel uc18/stable --yes
-          snapcraft promote checkbox --from-channel uc20/beta --to-channel uc20/candidate --yes
           snapcraft promote checkbox --from-channel uc20/beta --to-channel uc20/stable --yes
-          snapcraft promote checkbox --from-channel uc22/beta --to-channel uc22/candidate --yes
           snapcraft promote checkbox --from-channel uc22/beta --to-channel uc22/stable --yes
-          snapcraft promote checkbox --from-channel 16.04/beta --to-channel 16.04/candidate --yes
+          snapcraft promote checkbox --from-channel uc24/beta --to-channel uc22/stable --yes
           snapcraft promote checkbox --from-channel 16.04/beta --to-channel 16.04/stable --yes
-          snapcraft promote checkbox --from-channel 18.04/beta --to-channel 18.04/candidate --yes
           snapcraft promote checkbox --from-channel 18.04/beta --to-channel 18.04/stable --yes
-          snapcraft promote checkbox --from-channel 20.04/beta --to-channel 20.04/candidate --yes
           snapcraft promote checkbox --from-channel 20.04/beta --to-channel 20.04/stable --yes
-          snapcraft promote checkbox --from-channel 22.04/beta --to-channel 22.04/candidate --yes
           snapcraft promote checkbox --from-channel 22.04/beta --to-channel 22.04/stable --yes
-          snapcraft promote checkbox --from-channel 24.04/beta --to-channel 24.04/candidate --yes
           snapcraft promote checkbox --from-channel 24.04/beta --to-channel 24.04/stable --yes
-          snapcraft promote checkbox --from-channel 22.04/beta --to-channel latest/candidate --yes
-          snapcraft promote checkbox --from-channel 22.04/beta --to-channel latest/stable --yes
+          snapcraft promote checkbox --from-channel 24.04/beta --to-channel latest/stable --yes

@@ -178,6 +178,8 @@ class CameraTest:
             by the driver, and see if they are valid.
     """
 
+    DEFAULT_PHOTO_WAIT_SECONDS = 3
+
     def __init__(self, **kwargs):
         self._width = 640
         self._height = 480
@@ -186,10 +188,26 @@ class CameraTest:
         self.headless = kwargs.get("headless", False)
         self.output = kwargs.get("output", "")
         self.log_level = kwargs.get("log_level", logging.INFO)
+        self.photo_wait_seconds = kwargs.get(
+            "wait_seconds", CameraTest.DEFAULT_PHOTO_WAIT_SECONDS
+        )
+        if self.photo_wait_seconds < 0:
+            raise ValueError(
+                "Wait seconds must be nonnegative. Got: {}".format(
+                    self.photo_wait_seconds
+                )
+            )
 
         self.main_loop = None
         self.pipeline = None
-        self.timeout = None
+        self.timeout = {
+            # the 90 seconds global timeout
+            "global_timeout": None,
+            # valve open timeout if using a valve
+            "open_valve": None,
+            # pipeline end timeout if mime type is jpeg
+            "eos_timeout": None,
+        }  # type: dict[str, int | None]
 
     def init_gstreamer(self):
         """
@@ -330,7 +348,7 @@ class CameraTest:
         Stop the  pipeline when the timeout is reached and remove the timeout
         """
         print("Timeout exceeded")
-        self.timeout = None
+        self.timeout["global_timeout"] = None
         self._stop_pipeline()
 
     def led(self):
@@ -411,7 +429,10 @@ class CameraTest:
         """
         Captures an image to a file
         """
-        pixelformat = self._get_default_format()["pixelformat"]
+        default_format = self._get_default_format()
+        pixelformat = default_format["pixelformat"]
+        # list[(int, int)]
+        self._width, self._height = default_format["resolutions"][0]
         if self.output:
             self._capture_image(
                 self.output, self._width, self._height, pixelformat
@@ -446,8 +467,6 @@ class CameraTest:
         """
         command = [
             "fswebcam",
-            "-D 1",
-            "-S 50",
             "--no-banner",
             "-d",
             self.device,
@@ -455,6 +474,9 @@ class CameraTest:
             "%dx%d" % (width, height),
             filename,
         ]
+        if self.photo_wait_seconds > 0:
+            command.insert(1, "-D {}".format(self.photo_wait_seconds))
+
         if pixelformat:
             # special tweak for fswebcam
             command.extend(
@@ -483,7 +505,6 @@ class CameraTest:
         # Add source
         source = self.Gst.ElementFactory.make("v4l2src", "video-source")
         source.set_property("device", self.device)
-        source.set_property("num-buffers", 10)
         pipeline.add(source)
 
         # Add the caps element and include a format converter if needed to
@@ -505,30 +526,49 @@ class CameraTest:
             pipeline.add(bayer2rgb)
             caps.link(bayer2rgb)
             rgb_capture = bayer2rgb
-
         else:
+            mime_type = "video/x-raw"
+            if pixelformat == "MJPG":
+                mime_type = "image/jpeg"
             caps.set_property(
                 "caps",
                 self.Gst.Caps.from_string(
-                    "video/x-raw,width={},height={}".format(width, height)
+                    "{},width={},height={}".format(mime_type, width, height)
                 ),
             )
             pipeline.add(caps)
             rgb_capture = caps
 
-        # Add encoder
-        encoder = self.Gst.ElementFactory.make("jpegenc", "encoder")
-        pipeline.add(encoder)
+        # Add valve, note that we can't rely on the default value of drop
+        # it varies by installations
+        valve = self.Gst.ElementFactory.make("valve", "photo-valve")
+        if not valve:
+            raise RuntimeError("Valve element could not be created")
 
-        # Add sink
-        sink = self.Gst.ElementFactory.make("filesink", "sink")
-        sink.set_property("location", filename)
-        pipeline.add(sink)
+        valve.set_property("drop", True)
+        pipeline.add(valve)
 
         # Link elements
         source.link(caps)
-        rgb_capture.link(encoder)
-        encoder.link(sink)
+        rgb_capture.link(valve)
+
+        # Add sink, use multifilesink to avoid large jpeg files.
+        # filesink does not stop writing after it receives the 1st buffer
+        sink = self.Gst.ElementFactory.make("multifilesink", "sink")
+        sink.set_property("location", filename)
+        pipeline.add(sink)
+
+        if pixelformat == "MJPG":
+            # source ! rgbcapture ! valve ! filesink
+            valve.link(sink)
+
+        else:
+            # Add encoder
+            # source ! rgbcapture ! valve ! encoder ! filesink
+            encoder = self.Gst.ElementFactory.make("jpegenc", "encoder")
+            pipeline.add(encoder)
+            valve.link(encoder)
+            encoder.link(sink)
 
         # Connect the bus to the message handler
         bus = pipeline.get_bus()
@@ -539,14 +579,45 @@ class CameraTest:
         self.pipeline = pipeline
         self.pipeline.set_state(self.Gst.State.PLAYING)
 
-        # Add a timeout of 90 seconds to capture the image
-        self.timeout = self.GLib.timeout_add_seconds(90, self._on_timeout)
+        # Add a global timeout of 90 seconds to capture the image
+        self.timeout["global_timeout"] = self.GLib.timeout_add_seconds(
+            90, self._on_timeout
+        )
+
+        def eos_timeout():
+            # this relies on the eos handler in _on_gst_message
+            self.timeout["eos_timeout"] = None
+            self.pipeline.send_event(self.Gst.Event.new_eos())
+
+        self.timeout["eos_timeout"] = self.GLib.timeout_add_seconds(
+            self.photo_wait_seconds + 1, eos_timeout
+        )
+
+        if self.photo_wait_seconds > 0:
+
+            def open_valve():
+                self.timeout["open_valve"] = None
+                print("Opening valve!")
+                valve.set_property("drop", False)
+
+            self.timeout["open_valve"] = self.GLib.timeout_add_seconds(
+                self.photo_wait_seconds, open_valve
+            )
+        else:
+            valve.set_property("drop", False)
 
         # Start the main loop. If the loop finishes successfully, we will
         # remove the timeout. If the timeout is reached, we will stop the
         # pipeline calling the _on_timeout method and stop both the
         self.main_loop = self.GLib.MainLoop()
         try:
+            print(
+                "Starting GStreamer image capture pipeline with {}...".format(
+                    "{} second delay".format(self.photo_wait_seconds)
+                    if self.photo_wait_seconds > 0
+                    else "no delay"
+                )
+            )
             self.main_loop.run()
         except self.GLib.Error:
             self.main_loop.quit()
@@ -555,14 +626,15 @@ class CameraTest:
         # If the image is captured correctly and the timeout is not reached,
         # remove the GLib timeout, so it does not interfere with the next
         # iteration.
-        if self.timeout:
-            self.GLib.source_remove(self.timeout)
+        for timeout in self.timeout.values():
+            if timeout:
+                self.GLib.source_remove(timeout)
 
     def _display_image(self, filename, width, height):
         """
         Display an image using Gtk
         """
-        print("starting GTK")
+        print("Starting GTK")
         # Initialize GTK application
         window = self.Gtk.Window(title="Image Viewer")
         window.set_default_size(width, height)
@@ -784,7 +856,12 @@ class CameraTest:
         # a default format.
         if not formats:
             raise SystemExit("No supported formats found")
+
         format = formats[0]
+
+        if "resolutions" not in format or len(format["resolutions"]) == 0:
+            raise ValueError("Default format conatins no resolutions")
+
         return format
 
     def _validate_image(self, filename, width, height):
@@ -925,6 +1002,18 @@ def parse_arguments(argv):
         "--headless",
         action="store_true",
         help=("Don't display picture, just write the picture to a file"),
+    )
+    image_parser.add_argument(
+        "-ws",
+        "--wait-seconds",
+        type=int,
+        default=CameraTest.DEFAULT_PHOTO_WAIT_SECONDS,
+        help=(
+            "The number of seconds to keep the camera open "
+            "before taking the picture. Default = {} seconds".format(
+                CameraTest.DEFAULT_PHOTO_WAIT_SECONDS
+            )
+        ),
     )
 
     # Resolutions subparser

@@ -22,7 +22,8 @@ from unittest.mock import patch, MagicMock
 from wol_check import (
     get_timestamp,
     extract_timestamp,
-    get_suspend_boot_time,
+    get_wakeup_timestamp,
+    get_first_boot_timestamp,
     parse_args,
     main,
 )
@@ -57,33 +58,35 @@ class TestExtractTimeStamp(unittest.TestCase):
         self.assertIsNone(timestamp)
 
 
-class TestGetSuspendBootTime(unittest.TestCase):
+class TestGetFirstdBootTime(unittest.TestCase):
     @patch("subprocess.check_output")
-    def test_get_suspend_boot_time_s3(self, mock_check_output):
+    def test_get_first_boot_timestamp_s5(self, mock_check_output):
+        mock_check_output.return_value = (
+            r"1734512121.128220 M70s kernel: Linux version 6.11.0-1009-oem"
+        )
+        time = get_first_boot_timestamp()
+        self.assertEqual(time, 1734512121.128220)
+
+
+class TestGetWakeupTimestamp(unittest.TestCase):
+
+    @patch("subprocess.check_output")
+    def test_get_wakeup_timestamp(self, mock_check_output):
         mock_check_output.return_value = (
             r"1734472364.392919 M70s-Gen6-1 kernel: PM: suspend exit"
         )
-        time = get_suspend_boot_time("s3")
-        self.assertEqual(time, 1734472364.392919)
+        result = get_wakeup_timestamp()
+
+        self.assertEqual(result, 1734472364.392919)
 
     @patch("subprocess.check_output")
-    def test_get_suspend_boot_time_s5(self, mock_check_output):
+    def test_get_wakeup_timestamp_fail(self, mock_check_output):
         mock_check_output.return_value = (
-            r"1734512121.128220 M70s kernel: Linux version 6.11.0-1009-oem"
+            r"1734472364.392919 M70s-Gen6-1 kernel: PM: no s3 key word"
         )
-        time = get_suspend_boot_time("s5")
-        self.assertEqual(time, 1734512121.128220)
+        result = get_wakeup_timestamp()
 
-    @patch("subprocess.check_output")
-    def test_get_suspend_boot_time_wrong_power_type(self, mock_check_output):
-        mock_check_output.return_value = (
-            r"1734512121.128220 M70s kernel: Linux version 6.11.0-1009-oem"
-        )
-        with self.assertRaises(SystemExit) as cm:
-            get_suspend_boot_time("wrong_power_type")
-        self.assertEqual(
-            str(cm.exception), "Invalid power type. Please use s3 or s5."
-        )
+        self.assertEqual(result, None)
 
 
 class ParseArgsTests(unittest.TestCase):
@@ -120,9 +123,9 @@ class ParseArgsTests(unittest.TestCase):
 class TestMain(unittest.TestCase):
     @patch("wol_check.parse_args")
     @patch("wol_check.get_timestamp")
-    @patch("wol_check.get_suspend_boot_time")
+    @patch("wol_check.get_wakeup_timestamp")
     def test_main_success(
-        self, mock_get_suspend_boot_time, mock_get_timestamp, mock_parse_args
+        self, mock_get_wakeup_timestamp, mock_get_timestamp, mock_parse_args
     ):
         args_mock = MagicMock()
         args_mock.interface = "eth0"
@@ -133,7 +136,7 @@ class TestMain(unittest.TestCase):
         mock_parse_args.return_value = args_mock
 
         mock_get_timestamp.return_value = 100.0
-        mock_get_suspend_boot_time.return_value = 160.0
+        mock_get_wakeup_timestamp.return_value = 160.0
 
         # Call main function
         with self.assertLogs(level="INFO") as log_messages:
@@ -149,9 +152,9 @@ class TestMain(unittest.TestCase):
 
     @patch("wol_check.parse_args")
     @patch("wol_check.get_timestamp")
-    @patch("wol_check.get_suspend_boot_time")
+    @patch("wol_check.get_wakeup_timestamp")
     def test_main_wakeonlan_fail_too_large_difference(
-        self, mock_get_suspend_boot_time, mock_get_timestamp, mock_parse_args
+        self, mock_get_wakeup_timestamp, mock_get_timestamp, mock_parse_args
     ):
         args_mock = MagicMock()
         args_mock.interface = "eth0"
@@ -162,7 +165,7 @@ class TestMain(unittest.TestCase):
         mock_parse_args.return_value = args_mock
 
         mock_get_timestamp.return_value = 100.0
-        mock_get_suspend_boot_time.return_value = 400.0
+        mock_get_wakeup_timestamp.return_value = 400.0
 
         # Expect SystemExit exception with specific message
         with self.assertRaises(SystemExit) as cm:
@@ -175,9 +178,9 @@ class TestMain(unittest.TestCase):
 
     @patch("wol_check.parse_args")
     @patch("wol_check.get_timestamp")
-    @patch("wol_check.get_suspend_boot_time")
+    @patch("wol_check.get_wakeup_timestamp")
     def test_main_wakeonlan_fail_negative_difference(
-        self, mock_get_suspend_boot_time, mock_get_timestamp, mock_parse_args
+        self, mock_get_wakeup_timestamp, mock_get_timestamp, mock_parse_args
     ):
         args_mock = MagicMock()
         args_mock.interface = "eth0"
@@ -188,7 +191,7 @@ class TestMain(unittest.TestCase):
         mock_parse_args.return_value = args_mock
 
         mock_get_timestamp.return_value = 150.0
-        mock_get_suspend_boot_time.return_value = 100.0
+        mock_get_wakeup_timestamp.return_value = 100.0
 
         with self.assertRaises(SystemExit) as cm:
             main()

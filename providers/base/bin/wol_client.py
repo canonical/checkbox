@@ -16,64 +16,58 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 import logging
-from urllib3.util import Retry
-from requests import Session
-from requests.adapters import HTTPAdapter
-import requests
+import urllib
+import urllib.request
 import argparse
-import netifaces
 import subprocess
 import sys
 import time
+import json
+import socket
+import fcntl
+import struct
 
 
-def request(method, url, retry=3, **kwargs):
-    """Constructs and sends a :class:`Request <Request>`.
-    Args:
-        method (str):
-            method for the new :class:`Request` object:
-                `GET`, `OPTIONS`, `HEAD`, `POST`,
-                `PUT`, `PATCH`, or `DELETE`.
-        url (str): URL for the new :class:`Request` object.
-        retry (int, optional):
-            The maximum number of retries each connection should attempt.
-            Defaults to 3.
-    Returns:
-        requests.Response: requests.Response
-    """
-    retries = Retry(total=retry)
+def send_request_to_wol_server(url, data=None, retry=3):
+    # Convert data to JSON format
+    data_encoded = json.dumps(data).encode("utf-8")
 
-    with Session() as session:
-        session.mount("https://", HTTPAdapter(max_retries=retries))
-        session.mount("http://", HTTPAdapter(max_retries=retries))
-        logging.info("Send {} request to {}".format(method, url))
-        logging.debug("Request parameter: {}".format(kwargs))
+    # Construct request
+    headers = {"Content-Type": "application/json"}
+    req = urllib.request.Request(url, data=data_encoded, headers=headers)
 
-        resp = session.request(method=method, url=url, **kwargs)
-        logging.debug(resp.text)
-        return resp
+    attempts = 0
+    while attempts < retry:
+        try:
+            with urllib.request.urlopen(req) as response:
+                logging.info("in the urllib request.")
+                response_data = json.loads(response.read().decode("utf-8"))
+                logging.debug("Response: {}".format(response_data))
+                status_code = response.getcode()
+                logging.debug("Status code: {}".format(status_code))
+                # Handle returned status and message
+                if status_code == 200 and response_data["result"] == "success":
+                    logging.info(
+                        "Send request to Wake-on-lan server successful."
+                    )
+                    return
+                else:
+                    logging.error(
+                        "Failded to send request to Wkae-on-lan server."
+                    )
+        except Exception as e:
+            logging.error("An unexpected error occurred: {}".format(e))
 
+        attempts += 1
+        time.sleep(1)  # Wait for a second before retrying
+        logging.debug("Retrying... ({}/{})".format(attempts, retry))
 
-def post(url, data=None, json=None, retry=3, **kwargs):
-    """Sends a POST request
-    Args:
-        url (str): URL for the new :class:`Request` object.
-        data (dict|list|bytes, optional):
-            Dictionary, list of tuples, bytes, or file-like
-            object to send in the body of the :class:`Request`.
-            Defaults to None.
-        json (json, optional):
-            A JSON serializable Python object to send in
-                the body of the :class:`Request`.
-            Defaults to None.
-        retry (int, optional):
-            The maximum number of retries each connection should attempt.
-            Defaults to 3.
-    Returns:
-        requests.Response: requests.Response
-    """
-    return request("post", url, data=data, json=json, retry=retry, **kwargs)
+    raise SystemExit(
+        "Failed to send request to WOL server. "
+        "Please ensure the WOL server setup correctlly."
+    )
 
 
 def check_wakeup(interface):
@@ -104,18 +98,34 @@ def check_wakeup(interface):
 
 
 def get_ip_mac(interface):
-    try:
-        # get the mac address
-        mac_a = netifaces.ifaddresses(interface)[netifaces.AF_LINK][0]["addr"]
+    def get_ip_address(interface):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            ip_addr = fcntl.ioctl(
+                s.fileno(),
+                0x8915,
+                struct.pack("256s", interface[:15].encode("utf-8")),
+            )
+            return socket.inet_ntoa(ip_addr[20:24])
+        except IOError:
+            return None
 
-        # get the ip address
-        ip_info = netifaces.ifaddresses(interface).get(netifaces.AF_INET)
+    def get_mac_address(interface):
+        try:
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            mac_addr = fcntl.ioctl(
+                s.fileno(),
+                0x8927,
+                struct.pack("256s", interface[:15].encode("utf-8")),
+            )
+            return ":".join("%02x" % b for b in mac_addr[18:24])
+        except IOError:
+            raise SystemExit("Error: Unable to retrieve MAC address")
 
-        ip_a = ip_info[0]["addr"] if ip_info else None
-        return ip_a, mac_a
+    ip_a = get_ip_address(interface)
+    mac_a = get_mac_address(interface)
 
-    except ValueError as e:
-        raise SystemExit("Error: {}".format(e))
+    return ip_a, mac_a
 
 
 # set the rtc wake time to bring up system in case the wake-on-lan failed
@@ -230,7 +240,6 @@ def main():
     logging.info("Test network interface: {}".format(args.interface))
 
     wakeup_enabled = check_wakeup(args.interface)
-    # wakeup_enabled = False
     if not wakeup_enabled:
         raise SystemExit(
             "wake-on-LAN of {} is disabled!".format(args.interface)
@@ -255,19 +264,8 @@ def main():
         "wake_type": args.waketype,
     }
 
-    try:
-        # send the request to wol server
-        resp = post(url, json=req, retry=3)
-        result_dict = resp.json()
-    except requests.exceptions.RequestException as e:
-        raise SystemExit("Request error: {}".format(e))
+    send_request_to_wol_server(url, data=req, retry=3)
 
-    if resp.status_code != 200 or result_dict["result"] != "success":
-        raise SystemExit(
-            "get the wrong response: {}".format(result_dict["result"])
-        )
-
-    # bring up the system. The time should be delay*retry*2
     bring_up_system("rtc", delay * retry * 2)
     logging.debug(
         "set the rtcwake time: {} seconds ".format(delay * retry * 2)

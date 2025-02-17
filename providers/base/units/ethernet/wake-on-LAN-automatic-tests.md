@@ -7,7 +7,7 @@
 
   Once the DUT wakes up, it compares the previously recorded timestamp with the time when the system last exited suspend mode. If the system wakes up within a reasonable timeframe, it can be inferred that the wake-up was triggered by the Wake-on-LAN request, indicating a successful test. Otherwise, the system was woken up by the RTC, it implies that the Wake-on-LAN attempt failed.
 
-## id: ethernet/wol_S3_auto_{{ interface }}
+## id: ethernet/wol_auto_S3_{{ interface }}
 
 ## Test Case enviroment
 WOL server:

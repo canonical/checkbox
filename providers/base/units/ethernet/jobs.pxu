@@ -440,8 +440,8 @@ _summary: Network reconnect resume test (wired)
 _purpose:
  Checks the length of time it takes to reconnect an existing wired connection after a suspend/resume cycle.
 
-id: ethernet/wol_S3_auto_{{ interface }}
-template-id: ethernet/wol_S3_auto_interface
+id: ethernet/wol_auto_S3_{{ interface }}
+template-id: ethernet/wol_auto_S3_interface
 category_id: com.canonical.plainbox::ethernet
 unit: template
 template-resource: device

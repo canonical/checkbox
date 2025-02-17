@@ -29,6 +29,8 @@ def get_timestamp(file):
     with open(file, "r") as f:
         saved_timestamp = float(f.read())
         # logging.info("saved_timestamp: {}".format(saved_timestamp))
+    readable_start_time = datetime.datetime.fromtimestamp(saved_timestamp)
+    logging.debug("Test started at: {}".format(readable_start_time))
     return saved_timestamp
 
 
@@ -38,34 +40,43 @@ def extract_timestamp(log_line):
     return float(match.group(1)) if match else None
 
 
-def get_suspend_boot_time(type):
-    # get the time stamp of the system resume from suspend for s3
-    # or boot up for s5
+def get_wakeup_timestamp():
+    # Get the time stamp of the system resume from suspend for s3
     command = ["journalctl", "-b", "0", "--output=short-unix"]
     result = subprocess.check_output(
         command, shell=False, universal_newlines=True
     )
     logs = result.splitlines()
 
-    latest_system_back_time = None
+    for log in reversed(logs):
+        if r"suspend exit" in log:
+            logging.debug(log)
+            latest_system_back_time = extract_timestamp(log)
+            readable_back_time = datetime.datetime.fromtimestamp(
+                latest_system_back_time
+            )
+            logging.debug("System back time: {}".format(readable_back_time))
+            return float(latest_system_back_time)
 
-    if type == "s3":
-        for log in reversed(logs):
-            if r"suspend exit" in log:
-                logging.debug(log)
-                latest_system_back_time = extract_timestamp(log)
-                # logging.info(
-                #     "suspend time: {}".format(latest_system_back_time)
-                # )
-                return latest_system_back_time
-    elif type == "s5":
-        # the first line of system boot up
-        log = logs[0]
-        latest_system_back_time = extract_timestamp(log)
-        # logging.info("boot_time: {}".format(latest_system_back_time))
-        return latest_system_back_time
-    else:
-        raise SystemExit("Invalid power type. Please use s3 or s5.")
+    return None
+
+
+def get_first_boot_timestamp():
+    # Get the time stamp of the system boot up for s5
+    command = ["journalctl", "-b", "0", "--output=short-unix"]
+    result = subprocess.check_output(
+        command, shell=False, universal_newlines=True
+    )
+    logs = result.splitlines()
+
+    # The first line of system boot up
+    log = logs[0]
+    latest_system_back_time = extract_timestamp(log)
+    readable_back_time = datetime.datetime.fromtimestamp(
+        latest_system_back_time
+    )
+    logging.debug("System back time: {}".format(readable_back_time))
+    return float(latest_system_back_time)
 
 
 def parse_args(args=sys.argv[1:]):
@@ -121,20 +132,16 @@ def main():
     logging.info("Interface: {}".format(interface))
     logging.info("PowerType: {}".format(powertype))
 
-    test_start_time = float(get_timestamp(timestamp_file))
-    actual_start_time = datetime.datetime.fromtimestamp(test_start_time)
-    logging.debug(
-        "Test started at: {}({})".format(test_start_time, actual_start_time)
-    )
+    test_start_time = get_timestamp(timestamp_file)
 
-    system_back_time = float(get_suspend_boot_time(powertype))
-    actual_back_time = datetime.datetime.fromtimestamp(system_back_time)
-    logging.debug(
-        "System back time: {}({})".format(system_back_time, actual_back_time)
+    system_back_time = (
+        get_wakeup_timestamp()
+        if powertype == "s3"
+        else get_first_boot_timestamp()
     )
 
     time_difference = system_back_time - test_start_time
-    logging.debug("time difference: {}".format(int(time_difference)))
+    logging.debug("time difference: {} seconds".format(time_difference))
 
     # system_back_time - test_start_time > 1.5*max_retries*delay which meanse
     # the system was bring up by rtc other than Wake-on-LAN

@@ -1722,6 +1722,7 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 depends: suspend/suspend_advanced_auto
 estimated_duration: 5s
+user: root
 command: suspend_stats.py after_suspend
 summary:
     Tests that the machine suspended correctly
@@ -1735,6 +1736,7 @@ plugin: shell
 category_id: com.canonical.plainbox::suspend
 depends: suspend/suspend_advanced_auto
 estimated_duration: 5s
+user: root
 command: suspend_stats.py any_failure
 summary:
     Tests if any device in this machine reports a suspend failure

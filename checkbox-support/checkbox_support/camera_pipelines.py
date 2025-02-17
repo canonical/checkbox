@@ -205,7 +205,7 @@ class CapsResolver:
                         # workaround missing Gst.Fraction
                         # we can't directly create fraction objects
                         # but we can create a struct from str, then access it
-                        temp = Gst.Structure.from_string(
+                        temp = Gst.Structure.from_string(  # type: ignore
                             "temp, {}={{{}}}".format(
                                 prop,
                                 ",".join(
@@ -234,9 +234,14 @@ class CapsResolver:
                             finite_list,
                         )
 
-                        caps_i = Gst.Caps.from_string(struct.to_string())
+            caps_i = Gst.Caps.from_string(struct.to_string())
+            if not caps_i:
+                raise RuntimeError(
+                    'Unexpected failure when converting "{}" to caps'.format(
+                        struct.to_string()
+                    )
+                )
 
-            caps_i = Gst.Caps.from_string(struct.to_string())  # type: Gst.Caps
             while not caps_i.is_fixed() and not caps_i.is_empty():
                 if len(fixed_caps) >= limit:
                     break
@@ -269,7 +274,7 @@ def elem_to_str(
         not 100% accurate since there can be arbitrary objects in properties.
     """
     properties = element.list_properties()  # list[GObject.GParamSpec]
-    element_name = element.get_factory().get_name()
+    element_name = element.get_factory().get_name()  # type: ignore
 
     prop_strings = []  # type: list[str]
 
@@ -279,7 +284,7 @@ def elem_to_str(
 
         try:
             prop_value = element.get_property(prop.name)
-        except Exception:
+        except TypeError:
             logger.debug(
                 "Property {} is unreadable in {}, ignored.".format(
                     prop.name, element_name
@@ -412,29 +417,33 @@ def run_pipeline(
         timeout_sources,
     )
 
-    # this can get stuck, an external timeout is recommended to be extra safe
-    pipeline.set_state(Gst.State.PLAYING)
+    def check_state_change():
+        logger.info("Checking state change...")
+        # do not use Gst.CLOCK_TIME_NONE for get_state, it will wait forever
+        state_change_result = pipeline.get_state(Gst.SECOND * 1)
+        # get_state returns a 3-tuple
+        # (Gst.StateChangeReturn, curr: Gst.State, target: Gst.State)
+        if state_change_result[0] != Gst.StateChangeReturn.SUCCESS:
+            pipeline.set_state(Gst.State.NULL)
+            # must use SystemExit here to force stop the entire process
+            # anything inheriting the Exception class (not BaseException)
+            # is caught by mainloop
+            raise SystemExit(
+                "Failed to transition to playing state. "
+                + "Source is still in {} state, ".format(
+                    # these are GObject.GEnums, not the standard library Enum
+                    state_change_result[1].value_name
+                )
+                + "was trying to transition to {}".format(
+                    state_change_result[2].value_name
+                )
+            )
 
-    source_state_change_result = pipeline.get_child_by_index(0).get_state(
-        5 * Gst.SECOND
-    )
-    # get_state returns a 3-tuple
-    # (Gst.StateChangeReturn, curr_state: Gst.State, target_state: Gst.State)
-    # the 1st element isn't named, so we must access by index
-    if source_state_change_result[0] != Gst.StateChangeReturn.SUCCESS:
-        # checking only the source here because
-        # multifilesink does not transition until it receives the 1st buffer
-        # which makes the pipeline state = Gst.State.ASYNC
-        pipeline.set_state(Gst.State.NULL)
-        raise RuntimeError(
-            "Failed to transition to playing state. "
-            + "Source is still in {} state after 500ms, ".format(
-                source_state_change_result.state
-            )
-            + "was trying to transition to {}".format(
-                source_state_change_result.pending
-            )
-        )
+    # the mainloop is unlikely to get stuck (it's only doing timeouts and checking messages)
+    # so we set a timeout on the mainloop to check if the pipeline hanged
+    GLib.timeout_add_seconds(5, check_state_change)
+
+    pipeline.set_state(Gst.State.PLAYING)
 
     logger.info("[ OK ] Pipeline is playing!")
     loop.run()
@@ -481,7 +490,15 @@ def show_viewfinder(
                 "autovideosink",
             ]
         )
-    pipeline = Gst.parse_launch(partial_pipeline)  # type: Gst.Pipeline
+
+    pipeline = Gst.parse_launch(partial_pipeline)
+    if type(pipeline) is not Gst.Pipeline:
+        raise TypeError(
+            "Unexpected return type from parse_launch: Got {}".format(
+                type(pipeline)
+            )
+        )
+
     head = pipeline.get_by_name("head")
 
     str_source = elem_to_str(source)
@@ -584,7 +601,15 @@ def take_photo(
         str_elements[3] = ""
 
     partial = " ! ".join(elem for elem in str_elements if elem)
-    pipeline = Gst.parse_launch(partial)  # type: Gst.Pipeline
+    pipeline = Gst.parse_launch(partial)
+
+    if type(pipeline) is not Gst.Pipeline:
+        raise TypeError(
+            "Unexpected return type from parse_launch: Got {}".format(
+                type(pipeline)
+            )
+        )
+
     head_elem = pipeline.get_by_name(head_elem_name)
 
     # parse the partial pipeline, then get head element by name
@@ -676,7 +701,14 @@ def record_video(
         head_elem_name = "converter"
 
     partial = " ! ".join(elem for elem in str_elements if elem)
-    pipeline = Gst.parse_launch(partial)  # type: Gst.Pipeline
+    pipeline = Gst.parse_launch(partial)
+    if type(pipeline) is not Gst.Pipeline:
+        raise TypeError(
+            "Unexpected return type from parse_launch: Got {}".format(
+                type(pipeline)
+            )
+        )
+
     head_elem = pipeline.get_by_name(head_elem_name)
 
     # parse the partial pipeline, then get head element by name

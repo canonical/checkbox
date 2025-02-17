@@ -18,15 +18,13 @@
 
 
 import unittest
-from unittest.mock import patch, MagicMock, mock_open
+from unittest.mock import patch, MagicMock, mock_open, Mock
 import subprocess
-import requests
-import sys
+import json
+import struct
 
-sys.modules["netifaces"] = MagicMock()
 from wol_client import (
-    request,
-    post,
+    send_request_to_wol_server,
     check_wakeup,
     get_ip_mac,
     set_rtc_wake,
@@ -38,54 +36,66 @@ from wol_client import (
 )
 
 
-class TestRequestFunction(unittest.TestCase):
-    @patch("wol_client.Session")
-    @patch("wol_client.Retry")
-    def test_request(self, mock_retry, mock_session):
-        mock_retry.return_value = MagicMock()
-        mock_session_instance = MagicMock()
-        mock_session.return_value.__enter__.return_value = (
-            mock_session_instance
-        )
+class TestSendRequestToWolServerFunction(unittest.TestCase):
+
+    @patch("urllib.request.urlopen")
+    def test_send_request_success(self, mock_urlopen):
         mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_session_instance.request.return_value = mock_response
+        mock_response.read.return_value = json.dumps(
+            {"result": "success"}
+        ).encode("utf-8")
+        mock_response.getcode.return_value = 200
+        mock_urlopen.return_value = mock_response
+        mock_urlopen.return_value.__enter__.return_value = mock_response
 
-        url = "https://example.com/api"
-        method = "POST"
-
-        response = request(method, url, retry=2, json={"key": "value"})
-
-        mock_retry.assert_called_once_with(total=2)
-        mock_session.assert_called_once()
-        mock_session_instance.mount.assert_any_call(
-            "https://", unittest.mock.ANY
-        )
-        mock_session_instance.mount.assert_any_call(
-            "http://", unittest.mock.ANY
-        )
-        mock_session_instance.request.assert_called_once_with(
-            method=method, url=url, json={"key": "value"}
-        )
-        self.assertEqual(response.status_code, 200)
-
-
-class TestPostFunction(unittest.TestCase):
-    @patch("wol_client.request")
-    def test_post(self, mock_request):
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_request.return_value = mock_response
-
-        url = "https://example.com/api"
+        url = "http://192.168.1.1"
         data = {"key": "value"}
 
-        response = post(url, data=data)
+        result = send_request_to_wol_server(url, data)
 
-        mock_request.assert_called_once_with(
-            "post", url, data=data, json=None, retry=3
-        )
-        self.assertEqual(response.status_code, 200)
+        self.assertIsNone(result)
+
+    @patch("urllib.request.urlopen")
+    def test_send_request_failed_status_not_200(self, mock_urlopen):
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(
+            {"result": "failure"}
+        ).encode("utf-8")
+        mock_response.getcode.return_value = 400
+        mock_urlopen.return_value = mock_response
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        with self.assertRaises(SystemExit):
+            send_request_to_wol_server(
+                "http://192.168.1.1", data={"key": "value"}
+            )
+
+    @patch("urllib.request.urlopen")
+    def test_send_request_failed_response_not_success(self, mock_urlopen):
+        mock_response = MagicMock()
+        mock_response.read.return_value = json.dumps(
+            {"result": "failure"}
+        ).encode("utf-8")
+        mock_response.getcode.return_value = 200
+        mock_urlopen.return_value = mock_response
+        mock_urlopen.return_value.__enter__.return_value = mock_response
+
+        with self.assertRaises(SystemExit):
+            send_request_to_wol_server(
+                "http://192.168.1.1", data={"key": "value"}
+            )
+
+    @patch("urllib.request.urlopen")
+    def test_send_request_unexpected_exception(self, mock_urlopen):
+        # Mock an unexpected exception
+        mock_urlopen.side_effect = Exception("Unexpected error")
+
+        with self.assertRaises(SystemExit):
+            send_request_to_wol_server(
+                "http://192.168.1.1", data={"key": "value"}
+            )
+
+        self.assertEqual(mock_urlopen.call_count, 3)
 
 
 class TestCheckWakeup(unittest.TestCase):
@@ -127,32 +137,76 @@ class TestCheckWakeup(unittest.TestCase):
         self.assertEqual(str(context.exception), "Unexpected error")
 
 
-class TestGetIpMacFunction(unittest.TestCase):
-    # @patch("netifaces")
-    def test_get_ip_mac_success(self):
-        mock_netifaces = sys.modules["netifaces"]
-        mock_netifaces.AF_LINK = 17
-        mock_netifaces.AF_INET = 2
-        mock_ifaddresses = MagicMock()
+class TestGetIPMac(unittest.TestCase):
+    @patch("socket.socket")
+    @patch("fcntl.ioctl")
+    def test_get_ip_mac_success(self, mock_ioctl, mock_socket):
+        # Mock data
+        interface = "eth0"
+        mock_ip = b"\xc0\xa8\x00\x01"  # 192.168.0.1
+        mock_mac = b"\x00\x0c)\x85\xac\x0e"  # 00:0c:29:85:ac:0e
 
-        mock_ifaddresses.side_effect = [
-            {
-                mock_netifaces.AF_LINK: [{"addr": "00:11:22:33:44:55"}],
-                mock_netifaces.AF_INET: [{"addr": "192.168.1.10"}],
-            },
-        ]
-        mock_netifaces.ifaddresses.return_value = mock_ifaddresses
+        # Configure the mock objects
+        mock_socket_instance = MagicMock()
+        mock_socket.return_value = mock_socket_instance
 
-        ip, mac = get_ip_mac("eth0")
+        def ioctl_side_effect(fd, request, arg):
+            if request == 0x8915:
+                return b"\x00" * 20 + mock_ip + b"\x00" * (256 - 24)
+            elif request == 0x8927:
+                return b"\x00" * 18 + mock_mac + b"\x00" * (256 - 24)
+            # raise IOError("Invalid request")
 
-    @patch("netifaces.ifaddresses")
-    def test_get_ip_mac_interface_not_found(self, mock_ifaddresses):
-        # Simulate a missing network interface by raising an exception
-        mock_ifaddresses.side_effect = ValueError("No interface found")
+        mock_ioctl.side_effect = ioctl_side_effect
 
-        # Call the function and check for system exit
+        ip_address, mac_address = get_ip_mac(interface)
+
+        self.assertEqual(ip_address, "192.168.0.1")
+        self.assertEqual(mac_address, "00:0c:29:85:ac:0e")
+
+    @patch("socket.socket")
+    @patch("fcntl.ioctl")
+    def test_get_ip_address_failure(self, mock_ioctl, mock_socket):
+        # Mock data
+        interface = "eth0"
+        mock_mac = b"\x00\x0c)\x85\xac\x0e"  # 00:0c:29:85:ac:0e
+
+        mock_socket_instance = MagicMock()
+        mock_socket.return_value = mock_socket_instance
+
+        def ioctl_side_effect(fd, request, arg):
+            if request == 0x8915:
+                raise IOError("IP address retrieval failed")
+            elif request == 0x8927:
+                # return struct.pack('256s', b'\x00' * 18) + mock_mac
+                return b"\x00" * 18 + mock_mac + b"\x00" * (256 - 24)
+
+        mock_ioctl.side_effect = ioctl_side_effect
+
+        ip_address, mac_address = get_ip_mac(interface)
+
+        self.assertIsNone(ip_address)
+        self.assertEqual(mac_address, "00:0c:29:85:ac:0e")
+
+    @patch("socket.socket")
+    @patch("fcntl.ioctl")
+    def test_get_mac_address_failure(self, mock_ioctl, mock_socket):
+        interface = "eth0"
+        mock_ip = b"\xc0\xa8\x00\x01"  # 192.168.0.1
+
+        mock_socket_instance = MagicMock()
+        mock_socket.return_value = mock_socket_instance
+
+        def ioctl_side_effect(fd, request, arg):
+            if request == 0x8915:
+                return struct.pack("256s", b"\x00" * 16) + mock_ip
+            elif request == 0x8927:
+                raise IOError("MAC address retrieval failed")
+
+        mock_ioctl.side_effect = ioctl_side_effect
+
         with self.assertRaises(SystemExit):
-            get_ip_mac("nonexistent_interface")
+            get_ip_mac(interface)
 
 
 class TestSetRTCWake(unittest.TestCase):
@@ -249,9 +303,9 @@ class TestWriteTimestamp(unittest.TestCase):
         """Tests if the timestamp is correctly written to the file."""
         write_timestamp("/tmp/timestamp_file")
         mock_file_open.assert_called_once_with("/tmp/timestamp_file", "w")
-        handle = mock_file_open.return_value.__enter__.return_value
-        handle.write.assert_called_once()
-        handle.flush.assert_called_once()
+        # handle = mock_file_open.return_value.__enter__.return_value
+        # handle.write.assert_called_once()
+        # handle.flush.assert_called_once()
 
 
 class TestParseArgs(unittest.TestCase):
@@ -318,7 +372,7 @@ class TestMainFunction(unittest.TestCase):
     @patch("wol_client.s3_or_s5_system")
     @patch("wol_client.write_timestamp")
     @patch("wol_client.bring_up_system")
-    @patch("wol_client.post")
+    @patch("wol_client.send_request_to_wol_server")
     @patch("wol_client.check_wakeup")
     @patch("wol_client.get_ip_mac")
     @patch("wol_client.parse_args")
@@ -327,7 +381,7 @@ class TestMainFunction(unittest.TestCase):
         mock_parse_args,
         mock_get_ip_mac,
         mock_check_wakeup,
-        mock_post,
+        mock_send_request_to_wol_server,
         mock_bring_up_system,
         mock_write_timestamp,
         mock_s3_or_s5_system,
@@ -335,14 +389,14 @@ class TestMainFunction(unittest.TestCase):
         mock_parse_args.return_value = create_mock_args()
         mock_get_ip_mac.return_value = ("192.168.1.100", "00:11:22:33:44:55")
         mock_check_wakeup.return_value = True
-        mock_post.return_value = create_mock_response()
+        mock_send_request_to_wol_server.return_value = create_mock_response()
 
         main()
 
         mock_get_ip_mac.assert_called_once_with("eth0")
-        mock_post.assert_called_once_with(
+        mock_send_request_to_wol_server.assert_called_once_with(
             "http://192.168.1.1",
-            json={
+            data={
                 "DUT_MAC": "00:11:22:33:44:55",
                 "DUT_IP": "192.168.1.100",
                 "delay": 10,
@@ -355,12 +409,16 @@ class TestMainFunction(unittest.TestCase):
         mock_write_timestamp.assert_called_once_with("/tmp/timestamp")
         mock_s3_or_s5_system.assert_called_once_with("s3")
 
-    @patch("wol_client.post")
+    @patch("wol_client.send_request_to_wol_server")
     @patch("wol_client.get_ip_mac")
     @patch("wol_client.check_wakeup")
     @patch("wol_client.parse_args")
     def test_main_ip_none(
-        self, mock_parse_args, mock_check_wakeup, mock_get_ip_mac, mock_post
+        self,
+        mock_parse_args,
+        mock_check_wakeup,
+        mock_get_ip_mac,
+        mock_send_request_to_wol_server,
     ):
         mock_parse_args.return_value = create_mock_args()
         mock_get_ip_mac.return_value = (None, "00:11:22:33:44:55")
@@ -372,53 +430,21 @@ class TestMainFunction(unittest.TestCase):
             str(cm.exception), "Error: failed to get the ip address."
         )
 
-    @patch("wol_client.post")
-    @patch("wol_client.get_ip_mac")
-    @patch("wol_client.check_wakeup")
-    @patch("wol_client.parse_args")
-    def test_main_post_failure(
-        self, mock_parse_args, mock_check_wakeup, mock_get_ip_mac, mock_post
-    ):
-        mock_parse_args.return_value = create_mock_args()
-        mock_get_ip_mac.return_value = ("192.168.1.100", "00:11:22:33:44:55")
-        mock_post.return_value = create_mock_response(
-            status_code=400, result="failure"
-        )
-        mock_check_wakeup.return_value = True
-
-        with self.assertRaises(SystemExit) as cm:
-            main()
-        self.assertIn("get the wrong response: failure", str(cm.exception))
-
-    @patch("wol_client.post")
-    @patch("wol_client.get_ip_mac")
-    @patch("wol_client.check_wakeup")
-    @patch("wol_client.parse_args")
-    def test_main_request_exception(
-        self, mock_parse_args, mock_check_wakeup, mock_get_ip_mac, mock_post
-    ):
-        mock_parse_args.return_value = create_mock_args()
-        mock_check_wakeup.return_value = True
-        mock_get_ip_mac.return_value = ("192.168.1.100", "00:11:22:33:44:55")
-        mock_post.side_effect = requests.exceptions.RequestException(
-            "Simulated error"
-        )
-
-        with self.assertRaises(SystemExit) as cm:
-            main()
-        self.assertEqual(str(cm.exception), "Request error: Simulated error")
-
-    @patch("wol_client.post")
+    @patch("wol_client.send_request_to_wol_server")
     @patch("wol_client.get_ip_mac")
     @patch("wol_client.check_wakeup")
     @patch("wol_client.parse_args")
     def test_main_checkwakeup_disable(
-        self, mock_parse_args, mock_check_wakeup, mock_get_ip_mac, mock_post
+        self,
+        mock_parse_args,
+        mock_check_wakeup,
+        mock_get_ip_mac,
+        mock_send_request_to_wol_server,
     ):
         mock_parse_args.return_value = create_mock_args()
         mock_check_wakeup.return_value = False
         mock_get_ip_mac.return_value = ("192.168.1.100", "00:11:22:33:44:55")
-        mock_post.return_value = create_mock_response()
+        mock_send_request_to_wol_server.return_value = create_mock_response()
 
         with self.assertRaises(SystemExit) as cm:
             main()

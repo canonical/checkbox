@@ -39,8 +39,7 @@ class ExecuteResult(NamedTuple):
     stderr: str
     outstr_full: str
 
-    @property
-    def check(self):
+    def check(self, timeout=0):
         if self.exit_code == 0:
             return True
         raise CalledProcessError(

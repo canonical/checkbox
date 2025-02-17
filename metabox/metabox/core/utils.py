@@ -43,7 +43,7 @@ class ExecuteResult(NamedTuple):
         if self.exit_code == 0:
             return True
         raise CalledProcessError(
-            self.exit_code, stdout=self.stdout, stderr=self.stderr
+            self.exit_code, output=self.stdout, stderr=self.stderr
         )
 
 

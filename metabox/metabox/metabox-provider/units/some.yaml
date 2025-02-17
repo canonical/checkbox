@@ -1,0 +1,12 @@
+id: basic-shell-passing-yaml
+flags: simple
+command: |
+  true
+
+
+unit: test plan
+id: testplan-yaml
+_name: yaml test plan that also includes some pxu unit
+include: |
+  basic-shell-passing
+  basic-shell-passing-yaml

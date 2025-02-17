@@ -5,7 +5,7 @@ from pathlib import Path
 
 
 def corrupt(path):
-    with gzip.open(str(path), "rb") as f:
+    with gzip.open(str(path), "rt") as f:
         session = json.load(f)
     session["session"]["desired_job_list"].append(
         "@ invalid id - intentionally corrupted session"

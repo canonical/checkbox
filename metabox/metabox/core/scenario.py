@@ -278,9 +278,11 @@ class Scenario:
                     cmd, env, interactive, timeout
                 )
             else:
-                result = self.controller_machine.run_cmd(
-                    cmd, env, interactive, timeout
-                )
+                result = [
+                    self.controller_machine.run_cmd(
+                        cmd, env, interactive, timeout
+                    )
+                ]
                 result.append(
                     self.agent_machine.run_cmd(cmd, env, interactive, timeout)
                 )

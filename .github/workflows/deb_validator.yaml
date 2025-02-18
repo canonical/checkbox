@@ -29,7 +29,36 @@ on:
   workflow_dispatch:
 
 jobs:
+  get_path_matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      paths: ${{ steps.paths.outputs.paths }}
+    steps:
+      - name: Checkout Checkbox monorepo
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - id: paths
+        run: |
+          DIFF=$(git diff --name-only origin/main)
+          changed(){ echo "$DIFF" | grep -o $1; }
+
+          paths=()
+          for path in \
+              checkbox-ng \
+              checkbox-support \
+              providers/*/; do
+            if changed $path; then
+              paths+=("\"$path\"");
+            fi;
+          done
+          path_array=`echo "["${paths[*]}"]" | sed 's/" "/","/g'`
+          echo "paths=$path_array" >> $GITHUB_OUTPUT
+
+
   deb_validation:
+    needs: get_path_matrix
     strategy:
       fail-fast: false
       matrix:
@@ -40,16 +69,7 @@ jobs:
           - ubuntu-20.04
           - ubuntu-22.04
           - ubuntu-24.04
-        path:
-          - checkbox-ng
-          - checkbox-support
-          - providers/base
-          - providers/certification-client
-          - providers/certification-server
-          - providers/gpgpu
-          - providers/resource
-          - providers/sru
-          - providers/tpm2
+        path: ${{ fromJson(needs.get_path_matrix.outputs.paths) }}
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Checkbox monorepo
@@ -63,7 +83,9 @@ jobs:
           sudo apt-get update
           sudo apt-get install -qq -y dpkg-dev
       - name: Prepare installation
-        run: mv ${{ matrix.path }}/debian .
+        env:
+          MATRIX_PATH: ${{ matrix.path }}
+        run: mv "$MATRIX_PATH/debian" .
       - name: Install dependencies
         run: sudo apt-get build-dep .
       - name: Build source, test and build binary

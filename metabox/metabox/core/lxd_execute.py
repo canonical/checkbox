@@ -144,6 +144,8 @@ class InteractiveWebsocket(SafeWebSocketClient):
         attempt = 0
         still_on_first_screen = True
         old_stdout_data = ""
+        postfix = data[:-6]  # used to search
+        self.send(f"/{postfix}\ni".encode("utf8"), binary=True)
         if len(data) > 67:
             data = data[:67] + "   │\r\n│        " + data[67:]
         while attempt < max_attemps:

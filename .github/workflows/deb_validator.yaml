@@ -52,7 +52,6 @@ jobs:
             if changed $path; then
               paths+=("\"$path\"");
             fi;
-            echo $path
           done
           path_array=`echo "["${paths[*]}"]" | sed 's/" "/","/g'`
           echo "paths=$path_array" >> $GITHUB_OUTPUT

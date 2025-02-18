@@ -312,14 +312,20 @@ class ContainerSourceMachine(ContainerBaseMachine):
         ]
 
     def _get_install_source_cmds(self):
+        # Use envvar instead of --options for pip as we don't know if the
+        # installed version supports the option
+        # PIP_BREAK_SYSTEM_PACKAGES: required from noble+ to install packages
+        #                            globally
+        # PIP_IGNORE_INSTALLED: required from noble+ because dependencies may
+        #                       be already installed via deb
         commands = [
             (
                 "bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
-                "sudo PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install -e .'"
+                "sudo PIP_IGNORE_INSTALLED=1 PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install -e .'"
             ),
             (
                 "bash -c 'pushd /home/ubuntu/checkbox/checkbox-support ; "
-                "sudo PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install -e .'"
+                "sudo PIP_IGNORE_INSTALLED=1 PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install -e .'"
             ),
         ]
         if self.config.alias == "xenial":

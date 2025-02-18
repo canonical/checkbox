@@ -299,15 +299,17 @@ class ContainerSourceMachine(ContainerBaseMachine):
 
     def _get_install_dependencies_cmds(self):
         # We need any pip version >20 because we use pyproject.toml
+        to_run = [
+            "bash -c 'sudo apt-get install -qq -y pkg-config libsystemd-dev'"
+        ]
         if self.config.alias == "noble":
-            return []  # noble pip is recent enough
+            return to_run  # noble pip is recent enough
         pip_version = (
             '"pip<21"'
             if self.config.alias in ["xenial", "bionic"]
             else '"pip>20"'
         )
-        return [
-            "bash -c 'sudo apt-get install -qq -y pkg-config libsystemd-dev'",
+        return to_run + [
             "bash -c 'sudo python3 -m pip install -U {}'".format(pip_version),
         ]
 

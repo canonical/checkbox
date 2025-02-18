@@ -299,22 +299,23 @@ def get_launch_line(device: Gst.Device) -> T.Optional[str]:
         if not read_and_writable:
             continue
 
-        pvalue = pure_element.get_property(prop.name)
-        value = element.get_property(prop.name)
-        print(prop.name, pvalue, value)
+        default_value = pure_element.get_property(prop.name)
+        actual_value = element.get_property(prop.name)
+        print(prop.name, default_value, actual_value)
 
         if (
-            value
-            and pvalue
-            and Gst.value_compare(pvalue, value) == Gst.VALUE_EQUAL
+            actual_value
+            and default_value
+            and Gst.value_compare(default_value, actual_value)
+            == Gst.VALUE_EQUAL
         ):
             continue
 
-        if value is None:
+        if actual_value is None:
             continue
 
         # now we only have the non-default values
-        serialized = Gst.value_serialize(value)
+        serialized = Gst.value_serialize(actual_value)
         if not serialized:
             continue  # ignore non-serializable ones
 
@@ -503,10 +504,14 @@ def run_pipeline(
             )
         )
 
-    # the mainloop is unlikely to get stuck (it's only doing timeouts and checking messages)
+    # the mainloop is unlikely to get stuck
     # so we set a timeout on the mainloop to check if the pipeline hanged
-    GLib.timeout_add_seconds(5, check_state_change)
-
+    # this also avoids the problem of unable to check pipeline state with
+    # get_state() immediately after a set_state call
+    check_state_change_id = GLib.timeout_add_seconds(5, check_state_change)
+    timeout_sources.append(
+        loop.get_context().find_source_by_id(check_state_change_id)
+    )
     pipeline.set_state(Gst.State.PLAYING)
 
     # this does not necessarily mean that the pipeline has the PLAYING state

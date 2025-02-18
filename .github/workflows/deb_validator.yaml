@@ -48,7 +48,13 @@ jobs:
           for path in \
               checkbox-ng \
               checkbox-support \
-              providers/*/; do
+              providers/base \
+              providers/certification-client \
+              providers/certification-server \
+              providers/gpgpu \
+              providers/resource \
+              providers/sru \
+              providers/tpm2; do
             if changed $path; then
               paths+=("\"$path\"");
             fi;

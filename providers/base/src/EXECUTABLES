@@ -3,4 +3,3 @@ clocktest
 threaded_memtest
 ptrace_test
 testptp
-keyboard-mouse_test

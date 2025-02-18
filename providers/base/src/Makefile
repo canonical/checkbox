@@ -15,6 +15,5 @@ clocktest: CFLAGS += -D_POSIX_C_SOURCE=199309L -D_DEFAULT_SOURCE
 clocktest: LDLIBS += -lrt
 alsa_test: CXXFLAGS += -std=c++11
 alsa_test: LDLIBS += -lasound -pthread
-keyboard-mouse_test:
 
 CFLAGS += -Wall

@@ -331,7 +331,7 @@ _steps:
  2. Follow the instructions on the screen.
 plugin: user-interact
 command:
- eth_hotplugging.py {{ interface }} && gateway_ping_test.py --interface {{ interface }}
+ eth_hotplugging.py {{ interface }}
 category_id: com.canonical.plainbox::ethernet
 estimated_duration: 60.0
 user: root

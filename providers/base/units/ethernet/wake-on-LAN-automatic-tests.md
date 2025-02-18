@@ -20,6 +20,7 @@ DUT:
   - manifest:
     - has_ethernet_adapter
     - has_ethernet_wake_on_lan_support
+    - has_wake_on_lan_server
 
   - enviroment variable:
     - SERVER_WAKE_ON_LAN

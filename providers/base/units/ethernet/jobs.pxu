@@ -453,7 +453,8 @@ environ: SERVER_WAKE_ON_LAN WAKE_ON_LAN_DELAY WAKE_ON_LAN_RETRY PLAINBOX_SESSION
 imports: from com.canonical.plainbox import manifest
 requires:
  manifest.has_ethernet_adapter == 'True'
- manifest.has_ethernet_wake_on_lan_support== 'True'
+ manifest.has_ethernet_wake_on_lan_support == 'True'
+ manifest.has_wake_on_lan_server == 'True'
 command:
  set -e
  wol_client.py --interface {{ interface }} --target "$SERVER_WAKE_ON_LAN" --delay "$WAKE_ON_LAN_DELAY" --retry "$WAKE_ON_LAN_RETRY" --waketype g --powertype s3  --timestamp_file "$PLAINBOX_SESSION_SHARE"/{{ interface }}_s3_timestamp

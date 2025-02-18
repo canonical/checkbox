@@ -97,33 +97,35 @@ def check_wakeup(interface):
         raise e
 
 
+def __get_ip_address(interface):
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        ip_addr = fcntl.ioctl(
+            s.fileno(),
+            0x8915,
+            struct.pack("256s", interface[:15].encode("utf-8")),
+        )
+        return socket.inet_ntoa(ip_addr[20:24])
+    except IOError:
+        return None
+
+
+def __get_mac_address(interface):
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        mac_addr = fcntl.ioctl(
+            s.fileno(),
+            0x8927,
+            struct.pack("256s", interface[:15].encode("utf-8")),
+        )
+        return ":".join("%02x" % b for b in mac_addr[18:24])
+    except IOError:
+        raise SystemExit("Error: Unable to retrieve MAC address")
+
+
 def get_ip_mac(interface):
-    def get_ip_address(interface):
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            ip_addr = fcntl.ioctl(
-                s.fileno(),
-                0x8915,
-                struct.pack("256s", interface[:15].encode("utf-8")),
-            )
-            return socket.inet_ntoa(ip_addr[20:24])
-        except IOError:
-            return None
-
-    def get_mac_address(interface):
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            mac_addr = fcntl.ioctl(
-                s.fileno(),
-                0x8927,
-                struct.pack("256s", interface[:15].encode("utf-8")),
-            )
-            return ":".join("%02x" % b for b in mac_addr[18:24])
-        except IOError:
-            raise SystemExit("Error: Unable to retrieve MAC address")
-
-    ip_a = get_ip_address(interface)
-    mac_a = get_mac_address(interface)
+    ip_a = __get_ip_address(interface)
+    mac_a = __get_mac_address(interface)
 
     return ip_a, mac_a
 

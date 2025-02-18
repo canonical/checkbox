@@ -303,9 +303,6 @@ class TestWriteTimestamp(unittest.TestCase):
         """Tests if the timestamp is correctly written to the file."""
         write_timestamp("/tmp/timestamp_file")
         mock_file_open.assert_called_once_with("/tmp/timestamp_file", "w")
-        # handle = mock_file_open.return_value.__enter__.return_value
-        # handle.write.assert_called_once()
-        # handle.flush.assert_called_once()
 
 
 class TestParseArgs(unittest.TestCase):

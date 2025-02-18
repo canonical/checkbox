@@ -306,18 +306,21 @@ class ContainerSourceMachine(ContainerBaseMachine):
         )
         return [
             "bash -c 'sudo apt-get install -qq -y pkg-config libsystemd-dev'",
-            "bash -c 'sudo python3 -m pip install -U {}'".format(pip_version),
+            "bash -c '"
+            "sudo PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install -U {}'".format(
+                pip_version
+            ),
         ]
 
     def _get_install_source_cmds(self):
         commands = [
             (
                 "bash -c 'pushd /home/ubuntu/checkbox/checkbox-ng ; "
-                "sudo python3 -m pip install -e .'"
+                "sudo PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install -e .'"
             ),
             (
                 "bash -c 'pushd /home/ubuntu/checkbox/checkbox-support ; "
-                "sudo python3 -m pip install -e .'"
+                "sudo PIP_BREAK_SYSTEM_PACKAGES=1 python3 -m pip install -e .'"
             ),
         ]
         if self.config.alias == "xenial":

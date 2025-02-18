@@ -21,11 +21,11 @@
 
 import sys
 import os
-import time
 import glob
 import yaml
 import subprocess as sp
 
+from checkbox_support.helpers.retry import retry
 from gateway_ping_test import perform_ping_test
 
 NETPLAN_CFG_PATHS = ("/etc/netplan", "/lib/netplan", "/run/netplan")
@@ -85,7 +85,11 @@ def _get_cmd_info(cmd, key_map, renderer):
             if key in key_map:
                 info[key_map[key]] = val
     except sp.CalledProcessError as e:
-        print("Error running {} command: {}".format(renderer, e))
+        raise SystemExit(
+            "Error running command '{}' for renderer '{}': {}".format(
+                cmd, renderer, e
+            )
+        ) from e
     return info
 
 
@@ -104,18 +108,13 @@ def _check_routable_state(interface, renderer):
     return (routable, state)
 
 
-def wait_for_routable_state(
-    interface, renderer, do_routable=True, max_wait=30
-):
-    attempts = 0
+@retry(max_attempts=10, delay=5)
+def wait_for_routable_state(interface, renderer, do_routable=True):
     routable_msg = "routable" if do_routable else "NOT routable"
-    while attempts <= max_wait:
-        attempts += 1
-        (routable, _) = _check_routable_state(interface, renderer)
-        if routable == do_routable:
-            print("Reached {} state".format(routable_msg))
-            return
-        time.sleep(1)
+    (routable, _) = _check_routable_state(interface, renderer)
+    if routable == do_routable:
+        print("Reached {} state".format(routable_msg))
+        return
     raise SystemExit("Failed to reach {} state!".format(routable_msg))
 
 
@@ -126,16 +125,13 @@ def has_cable(iface):
         return carrier.read()[0] == "1"
 
 
-def wait_for_cable_state(iface, do_cable=True, max_wait=30):
+@retry(max_attempts=10, delay=5)
+def wait_for_cable_state(iface, do_cable=True):
     """Wait for the cable state to be True or False."""
-    attempts = 0
     cable_msg = "plugged" if do_cable else "unplugged"
-    while attempts <= max_wait:
-        attempts += 1
-        if has_cable(iface) == do_cable:
-            print("Detected cable state: {}".format(cable_msg))
-            return
-        time.sleep(1)
+    if has_cable(iface) == do_cable:
+        print("Detected cable state: {}".format(cable_msg))
+        return
     raise SystemExit("Failed to detect {}!".format(cable_msg))
 
 
@@ -154,14 +150,14 @@ def help_wait_cable_and_routable_state(iface, do_check=True):
         ),
         flush=True,
     )
-    wait_for_cable_state(iface, do_cable, 60)
+    wait_for_cable_state(iface, do_cable)
 
     print(
         "Waiting for networkd/NetworkManager {}.".format(
             "routable" if do_routable else "NOT routable"
         )
     )
-    wait_for_routable_state(iface, renderer, do_routable, 60)
+    wait_for_routable_state(iface, renderer, do_routable)
 
     print("Cable {}!".format("connected" if do_cable else "disconnected"))
     print("Network {}!".format("routable" if do_routable else "NOT routable"))

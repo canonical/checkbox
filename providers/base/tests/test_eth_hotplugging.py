@@ -37,6 +37,8 @@ from eth_hotplugging import (
     main,
 )
 
+from checkbox_support.helpers.retry import mock_retry
+
 
 class EthHotpluggingTests(TestCase):
     @patch(
@@ -94,14 +96,14 @@ class EthHotpluggingTests(TestCase):
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_any_name(self, mock_check_output):
         mock_check_output.return_value = (
-            b"State: routable\nGateway: 192.168.1.1 (TP-Link 123)\n"
+            b"State: routable\nGateway: 192.168.1.1 (ABC 123)\n"
             b"Path: pci-0000:02:00.0"
         )
         interface = "eth0"
         renderer = "networkd"
         info = get_interface_info(interface, renderer)
         self.assertEqual(info["state"], "routable")
-        self.assertEqual(info["gateway"], "192.168.1.1 (TP-Link 123)")
+        self.assertEqual(info["gateway"], "192.168.1.1 (ABC 123)")
 
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_no_state(self, mock_check_output):
@@ -116,7 +118,7 @@ class EthHotpluggingTests(TestCase):
 
     @patch("subprocess.check_output")
     def test_get_interface_info_networkd_empty_output(self, mock_check_output):
-        mock_check_output.return_value = b""
+        mock_check_output.return_value = b" "
         interface = "eth0"
         renderer = "networkd"
         info = get_interface_info(interface, renderer)
@@ -129,15 +131,15 @@ class EthHotpluggingTests(TestCase):
     def test_get_interface_info_networkd_command_fails(
         self, mock_check_output
     ):
-        captured_output = io.StringIO()
-        sys.stdout = captured_output
         interface = "eth0"
         renderer = "networkd"
-        info = get_interface_info(interface, renderer)
-        sys.stdout = sys.__stdout__
-        self.assertEqual(info, {})
+        with self.assertRaises(SystemExit) as cm:
+            get_interface_info(interface, renderer)
         self.assertIn(
-            "Error running networkd command", captured_output.getvalue()
+            "Error running command "
+            "'networkctl status --no-pager --no-legend eth0' "
+            "for renderer 'networkd':",
+            str(cm.exception),
         )
 
     @patch("subprocess.check_output")
@@ -170,16 +172,14 @@ class EthHotpluggingTests(TestCase):
     def test_get_interface_info_networkmanager_command_fails(
         self, mock_check_output
     ):
-        captured_output = io.StringIO()
-        sys.stdout = captured_output
         interface = "eth0"
         renderer = "NetworkManager"
-        info = get_interface_info(interface, renderer)
-        sys.stdout = sys.__stdout__
-        self.assertEqual(info, {})
+        with self.assertRaises(SystemExit) as cm:
+            get_interface_info(interface, renderer)
         self.assertIn(
-            "Error running NetworkManager command",
-            captured_output.getvalue(),
+            "Error running command 'nmcli device show eth0' "
+            "for renderer 'NetworkManager':",
+            str(cm.exception),
         )
 
     def test_get_interface_info_unknown_renderer(self):
@@ -207,45 +207,6 @@ class EthHotpluggingTests(TestCase):
         self.assertTrue(_check_routable_state("eth0", renderer))
 
     @patch(
-        "eth_hotplugging._check_routable_state",
-        return_value=(True, "routable"),
-    )
-    @patch("eth_hotplugging.time.sleep", new=MagicMock())
-    def test_immediate_routable(self, mock_check_state):
-        captured_output = io.StringIO()
-        sys.stdout = captured_output
-        wait_for_routable_state("eth0", "networkd")
-        sys.stdout = sys.__stdout__
-        mock_check_state.assert_called_once_with("eth0", "networkd")
-        self.assertIn("Reached routable state", captured_output.getvalue())
-
-    @patch(
-        "eth_hotplugging._check_routable_state",
-        side_effect=[
-            (False, "configuring"),
-            (False, "configuring"),
-            (True, "routable"),
-        ],
-    )
-    @patch("eth_hotplugging.time.sleep", new=MagicMock())
-    def test_eventually_routable(self, mock_check_state):
-        captured_output = io.StringIO()
-        sys.stdout = captured_output
-        wait_for_routable_state("eth0", "networkd")
-        sys.stdout = sys.__stdout__
-        self.assertIn("Reached routable state", captured_output.getvalue())
-
-    @patch(
-        "eth_hotplugging._check_routable_state",
-        return_value=(False, "configuring"),
-    )
-    @patch("eth_hotplugging.time.sleep", new=MagicMock())
-    def test_never_routable(self, mock_check_state):
-        with self.assertRaises(SystemExit) as cm:
-            wait_for_routable_state("eth0", "networkd", max_wait=3)
-        self.assertEqual(str(cm.exception), "Failed to reach routable state!")
-
-    @patch(
         "builtins.open",
         new_callable=mock_open,
         read_data="1",
@@ -265,52 +226,8 @@ class EthHotpluggingTests(TestCase):
         self.assertFalse(result)
         mock_open.assert_called_once_with("/sys/class/net/eth0/carrier")
 
-    @patch(
-        "eth_hotplugging.has_cable",
-        return_value=True,
-    )
-    @patch("eth_hotplugging.time.sleep", new=MagicMock())
-    def test_immediate_cable(self, mock_has_cable):
-        captured_output = io.StringIO()
-        sys.stdout = captured_output
-        wait_for_cable_state("eth0", do_cable=True)
-        sys.stdout = sys.__stdout__
-        mock_has_cable.assert_called_once_with("eth0")
-        self.assertIn(
-            "Detected cable state: plugged", captured_output.getvalue()
-        )
-
-    @patch(
-        "eth_hotplugging.has_cable",
-        side_effect=[
-            False,
-            False,
-            True,
-        ],
-    )
-    @patch("eth_hotplugging.time.sleep", new=MagicMock())
-    def test_eventually_cable(self, mock_has_cable):
-        captured_output = io.StringIO()
-        sys.stdout = captured_output
-        wait_for_cable_state("eth0", do_cable=True, max_wait=3)
-        sys.stdout = sys.__stdout__
-        self.assertIn(
-            "Detected cable state: plugged", captured_output.getvalue()
-        )
-
-    @patch(
-        "eth_hotplugging.has_cable",
-        return_value=False,
-    )
-    @patch("eth_hotplugging.time.sleep", new=MagicMock())
-    def test_never_cable(self, mock_has_cable):
-        with self.assertRaises(SystemExit) as cm:
-            wait_for_cable_state("eth0", do_cable=True, max_wait=3)
-        self.assertEqual(str(cm.exception), "Failed to detect plugged!")
-
     @patch("eth_hotplugging.netplan_renderer", return_value="networkd")
     @patch("eth_hotplugging.has_cable", return_value=True)
-    @patch("eth_hotplugging.time.sleep", new=MagicMock())
     @patch(
         "eth_hotplugging._check_routable_state",
         return_value=(True, "routable"),
@@ -330,7 +247,6 @@ class EthHotpluggingTests(TestCase):
 
     @patch("eth_hotplugging.netplan_renderer", return_value="NetworkManager")
     @patch("eth_hotplugging.has_cable", return_value=False)
-    @patch("eth_hotplugging.time.sleep", new=MagicMock())
     @patch(
         "eth_hotplugging._check_routable_state",
         return_value=(False, "routable"),
@@ -349,6 +265,88 @@ class EthHotpluggingTests(TestCase):
         self.assertIn("Network NOT routable!", captured_output.getvalue())
 
 
+@mock_retry()
+class TestWaitForRoutableState(TestCase):
+    @patch(
+        "eth_hotplugging._check_routable_state",
+        return_value=(True, "routable"),
+    )
+    def test_reached_routable(self, mock_check_state):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        wait_for_routable_state("eth0", "networkd", do_routable=True)
+        sys.stdout = sys.__stdout__
+        mock_check_state.assert_called_once_with("eth0", "networkd")
+        self.assertIn("Reached routable state", captured_output.getvalue())
+
+    @patch(
+        "eth_hotplugging._check_routable_state",
+        return_value=(False, "configuring"),
+    )
+    def test_not_reached_routable(self, mock_check_state):
+        with self.assertRaises(SystemExit) as cm:
+            wait_for_routable_state("eth0", "networkd", do_routable=True)
+        self.assertEqual(str(cm.exception), "Failed to reach routable state!")
+
+    @patch(
+        "eth_hotplugging._check_routable_state",
+        return_value=(False, ""),
+    )
+    def test_reached_not_routable(self, mock_check_state):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        wait_for_routable_state("eth0", "networkd", do_routable=False)
+        sys.stdout = sys.__stdout__
+        self.assertIn("Reached NOT routable state", captured_output.getvalue())
+
+    @patch(
+        "eth_hotplugging._check_routable_state",
+        return_value=(True, "routable"),
+    )
+    def test_not_reached_not_routable(self, mock_check_state):
+        with self.assertRaises(SystemExit) as cm:
+            wait_for_routable_state("eth0", "networkd", do_routable=False)
+        self.assertEqual(
+            str(cm.exception), "Failed to reach NOT routable state!"
+        )
+
+
+@mock_retry()
+class TestWaitForCableState(TestCase):
+    @patch("eth_hotplugging.has_cable", return_value=True)
+    def test_reached_cable_plugged(self, mock_has_cable):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        wait_for_cable_state("eth0", do_cable=True)
+        sys.stdout = sys.__stdout__
+        self.assertIn(
+            "Detected cable state: plugged", captured_output.getvalue()
+        )
+
+    @patch("eth_hotplugging.has_cable", return_value=False)
+    def test_not_reached_cable_plugged(self, mock_has_cable):
+        with self.assertRaises(SystemExit) as cm:
+            wait_for_cable_state("eth0", do_cable=True)
+        self.assertEqual(str(cm.exception), "Failed to detect plugged!")
+
+    @patch("eth_hotplugging.has_cable", return_value=False)
+    def test_reached_cable_unplugged(self, mock_has_cable):
+        captured_output = io.StringIO()
+        sys.stdout = captured_output
+        wait_for_cable_state("eth0", do_cable=False)
+        sys.stdout = sys.__stdout__
+        self.assertIn(
+            "Detected cable state: unplugged",
+            captured_output.getvalue(),
+        )
+
+    @patch("eth_hotplugging.has_cable", return_value=True)
+    def test_not_reached_cable_unplugged(self, mock_has_cable):
+        with self.assertRaises(SystemExit) as cm:
+            wait_for_cable_state("eth0", do_cable=False)
+        self.assertEqual(str(cm.exception), "Failed to detect unplugged!")
+
+
 class TestMain(TestCase):
     @patch("eth_hotplugging.perform_ping_test", return_value=0)
     @patch("eth_hotplugging.help_wait_cable_and_routable_state")
@@ -357,7 +355,6 @@ class TestMain(TestCase):
     @patch("builtins.input", return_value="")
     @patch("sys.argv", ["eth_hotplugging.py", "eth0"])
     @patch("builtins.print")
-    @patch("eth_hotplugging.time.sleep", new=MagicMock())
     def test_main_successful_execution(
         self,
         mock_print,
@@ -378,7 +375,6 @@ class TestMain(TestCase):
     @patch("builtins.input", return_value="")
     @patch("sys.argv", ["eth_hotplugging.py", "eth0"])
     @patch("builtins.print")
-    @patch("eth_hotplugging.time.sleep", new=MagicMock())
     def test_main_ping_test_failure(
         self,
         mock_print,

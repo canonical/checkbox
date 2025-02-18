@@ -12,4 +12,6 @@ unit: manifest entry
 id: _ignore_disconnected_ethernet_interfaces
 _name: Ignore disconnected Ethernet interfaces
 value-type: bool
-hidden-reason: All Ethernet interfaces should be tested during enablement. However, when running regression tests in the lab, only one interface may be connected, but that should not trigger any failure.
+hidden-reason: All Ethernet interfaces should be tested during enablement.
+  However, when running regression tests in the lab, only one interface may be
+  connected, but that should not trigger any failure.

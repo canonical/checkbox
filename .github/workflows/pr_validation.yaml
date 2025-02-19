@@ -164,4 +164,5 @@ jobs:
               -d '{"ref":"main","inputs":{"manifest-entries":"$OUTPUT"}}'
           else
             echo "No new hidden manifest entries found. No need to check DUT configuration in the lab."
+          fi
 

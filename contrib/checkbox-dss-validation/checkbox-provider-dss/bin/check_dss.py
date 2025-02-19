@@ -83,14 +83,16 @@ def main(args: t.List[str] | None = None) -> None:
 def can_be_initialized(kube_config_text: str) -> None:
     """Check that `dss` can be initialized with the given `kube_config`"""
     result = run_command("dss", "initialize", "--kubeconfig", kube_config_text)
-    assert "DSS initialized" in result, "dss was not initialised"
+    if "DSS initialized" not in result:
+        raise AssertionError("dss was not initialised")
 
 
 def can_be_purged() -> None:
     """Check that `dss` can be purged"""
     result = run_command("dss", "purge")
     expected = "Success: All DSS components and notebooks purged successfully"
-    assert expected in result
+    if expected not in result:
+        raise AssertionError(f"{expected} was not found in result")
 
 
 def has_mlflow_ready() -> None:
@@ -111,22 +113,25 @@ def has_nvidia_gpu_acceleration_enabled() -> None:
 def can_create_notebook(name: str, image: str) -> None:
     """Check that `dss` can create notebook with `name` using given `image`"""
     result = run_command("dss", "create", name, "--image", image)
-    assert (
-        f"Success: Notebook {name} created successfully" in result
-    ), f"dss could not create notebook '{name}' with image '{image}'"
+    expected = f"Success: Notebook {name} created successfully"
+    if expected not in result:
+        raise AssertionError(
+            f"dss could not create notebook '{name}' with image '{image}'"
+        )
 
 
 def can_start_removing_notebook(name: str) -> None:
     """Check that `dss` can start removing notebook with given `name`"""
     result = run_command("dss", "remove", name)
-    assert (
-        f"Removing the notebook {name}" in result
-    ), f"dss could not remove notebook '{name}'"
+    expected = f"Removing the notebook {name}"
+    if expected not in result:
+        raise AssertionError(f"dss could not remove notebook '{name}'")
 
 
 def _status_must_have(expected: str) -> None:
     result = run_command("dss", "status")
-    assert expected in result, f"dss status does not have '{expected}'"
+    if expected not in result:
+        raise AssertionError(f"dss status does not have '{expected}'")
 
 
 if __name__ == "__main__":

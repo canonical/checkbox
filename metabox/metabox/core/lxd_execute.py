@@ -349,7 +349,7 @@ def run_or_raise(container, cmd, env={}, verbose=False, timeout=0):
     )
 
 
-# https://github.com/canonical/pylxd/blob/main/pylxd/models/instance.py#L526
+# https://github.com/canonical/pylxd/blob/330f4a34cc0978eb41d809c713799bd88a20a43b/pylxd/models/instance.py#L526
 # Fork of the upstream raw_interactive_execute that also returns the
 # operation_id, we need this to query the outcome of a command in interactive
 # mode, we have to do this instead of use execute because it doesn't support to

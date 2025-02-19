@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+#
+# This file is part of Checkbox.
+#
+# Copyright 2022 Canonical Ltd.
+#
+# Authors:
+#     Abdullah (@motjuste) <abdullah.abdullah@canonical.com>
+#
+# Checkbox is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# Checkbox is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
+#
+"""Run and check `dss` commands"""
+
+import os
+import typing as t
+
+from common import (
+    create_parser_with_checks_as_commands,
+    run_command as common_run_command,
+)
+
+_TIMEOUT_SEC: float = 15.0 * 60  # seconds
+
+
+def run_command(*command: str, **kwargs) -> str:
+    # IMPORTANT NOTE:@motjuste: Clear Python env vars to avoid conflicts
+    #   between Checkbox's Python, and what DSS expects.
+    env = os.environ
+    env.pop("PYTHONPATH", None)
+    env.pop("PYTHONHOME", None)
+    env.pop("PYTHONUSERBASE", None)
+    kwargs["env"] = env
+
+    # IMPORTANT NOTE:@motjuste: Run DSS commands from the $HOME directory since
+    #   DSS won't have permissions to write to the directory of these Checkbox
+    #   tests.
+    kwargs["cwd"] = env["HOME"]
+
+    if "timeout" not in kwargs:
+        kwargs["timeout"] = _TIMEOUT_SEC
+    return common_run_command(*command, **kwargs)
+
+
+def parse_args(args: t.List[str] | None = None) -> dict[str, t.Any]:
+    parser = create_parser_with_checks_as_commands(
+        [
+            can_be_initialized,
+            can_be_purged,
+            has_mlflow_ready,
+            has_intel_gpu_acceleration_enabled,
+            has_nvidia_gpu_acceleration_enabled,
+            can_create_notebook,
+            can_start_removing_notebook,
+        ],
+        description="Run and check 'dss' commands",
+    )
+    parser.add_argument(
+        "--timeout",
+        default=_TIMEOUT_SEC,
+        type=float,
+        help="set timeout for command, in seconds",
+    )
+    return dict(parser.parse_args(args).__dict__)
+
+
+def main(args: t.List[str] | None = None) -> None:
+    global _TIMEOUT_SEC
+    parsed = parse_args(args)
+    _TIMEOUT_SEC = parsed.pop("timeout")
+    parsed.pop("func")(**parsed)
+
+
+def can_be_initialized(kube_config_text: str) -> None:
+    """Check that `dss` can be initialized with the given `kube_config`"""
+    result = run_command("dss", "initialize", "--kubeconfig", kube_config_text)
+    if "DSS initialized" not in result:
+        raise AssertionError("dss was not initialised")
+
+
+def can_be_purged() -> None:
+    """Check that `dss` can be purged"""
+    result = run_command("dss", "purge")
+    expected = "Success: All DSS components and notebooks purged successfully"
+    if expected not in result:
+        raise AssertionError(f"{expected} was not found in result")
+
+
+def has_mlflow_ready() -> None:
+    """Check that `dss status` shows MLFlow in ready state"""
+    _status_must_have("MLflow deployment: Ready")
+
+
+def has_intel_gpu_acceleration_enabled() -> None:
+    """Check that `dss status` shows Intel GPU acceleration enabled"""
+    _status_must_have("Intel GPU acceleration: Enabled")
+
+
+def has_nvidia_gpu_acceleration_enabled() -> None:
+    """Check that `dss status` shows NVIDIA GPU acceleration enabled"""
+    _status_must_have("NVIDIA GPU acceleration: Enabled")
+
+
+def can_create_notebook(name: str, image: str) -> None:
+    """Check that `dss` can create notebook with `name` using given `image`"""
+    result = run_command("dss", "create", name, "--image", image)
+    expected = f"Success: Notebook {name} created successfully"
+    if expected not in result:
+        raise AssertionError(
+            f"dss could not create notebook '{name}' with image '{image}'"
+        )
+
+
+def can_start_removing_notebook(name: str) -> None:
+    """Check that `dss` can start removing notebook with given `name`"""
+    result = run_command("dss", "remove", name)
+    expected = f"Removing the notebook {name}"
+    if expected not in result:
+        raise AssertionError(f"dss could not remove notebook '{name}'")
+
+
+def _status_must_have(expected: str) -> None:
+    result = run_command("dss", "status")
+    if expected not in result:
+        raise AssertionError(f"dss status does not have '{expected}'")
+
+
+if __name__ == "__main__":
+    main()

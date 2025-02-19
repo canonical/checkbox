@@ -26,9 +26,6 @@ import typing as t
 
 from common import create_parser_with_checks_as_commands, run_command
 
-INTEL_DEVICE_PLUGIN_BASE_URL = (
-    "https://github.com/intel/intel-device-plugins-for-kubernetes/deployments"
-)
 SLOTS_PER_GPU = 10
 SUCCESS_MARKER = "CHECKBOX_DSS_ENABLE_INTEL_SUCCESSFUL"
 

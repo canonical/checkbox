@@ -178,7 +178,8 @@ def can_use_nvidia_gpu_in_tensorflow(notebook_name: str) -> None:
 def script_must_succeed_in_notebook(notebook_name: str, script: str) -> None:
     pod = pod_for_running_notebook(notebook_name)
     result = run_script_in_pod(pod, script)
-    assert SUCCESS_MARKER in result, f"{SUCCESS_MARKER} not in results"
+    if SUCCESS_MARKER not in result:
+        raise AssertionError(f"{SUCCESS_MARKER} not in results:\n{result}")
 
 
 def run_script_in_pod(pod_name: str, script: str) -> str:

@@ -30,8 +30,12 @@ import typing as t
 def create_parser_with_checks_as_commands(
     checks: t.List[t.Callable], **kwargs
 ) -> argparse.ArgumentParser:
-    assert len(checks) > 0, "must provide at least one check"
-    assert len(checks) == len(set(checks)), "duplicate checks are not allowed"
+    if len(checks) <= 0:
+        raise AssertionError("must provide at least one check")
+
+    if len(checks) != len(set(checks)):
+        # NOTE:@motjuste: Python 3.10 does not de-duplicate sub parser commands
+        raise AssertionError("duplicate checks are not allowed")
 
     parser = argparse.ArgumentParser(
         formatter_class=argparse.ArgumentDefaultsHelpFormatter, **kwargs

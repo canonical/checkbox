@@ -171,7 +171,7 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
             )
         assert (
             caught.exception.args[0]
-            == f"{check_notebook.SUCCESS_MARKER} not in results"
+            == f"{check_notebook.SUCCESS_MARKER} not in results:\n{garbage_result}"
         )
 
 

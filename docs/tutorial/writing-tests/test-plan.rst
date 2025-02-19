@@ -9,6 +9,12 @@ connection on your machine. We will do this by re-using tests that are already
 available in the ``tutorial provider`` and that you got to write yourself in
 the previous tutorial.
 
+.. note::
+   All of the commands in this tutorial are using the
+   ``com.canonical.certification`` namespace. If you want to continue the one
+   you have started before, remember to change the namespace in the commands
+   as well!
+
 Inclusions
 ==========
 
@@ -270,9 +276,15 @@ Let's include it in our test plan:
     network_available
     network_speed certification-status=blocker
   nested_part:
-    submission-cert-automated
+    com.canonical.certification::submission-cert-automated
   certification_status_overrides:
     apply blocker to network_available
+
+.. note::
+   In your provider, you have to specify the full namespace to get access to
+   ``submission-cert-automated``. Also, if you didn't install it before, you
+   have to install the base provider, as there is where this test plan is
+   defined.
 
 Another very useful thing you can do with nested parts is to create aliases.
 For example, if you were to rename a test plan in a provider that is used by

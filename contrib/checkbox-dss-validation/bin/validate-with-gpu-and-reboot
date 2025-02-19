@@ -1,0 +1,23 @@
+#!/bin/sh
+
+print_usage() {
+    echo "Usage:"
+    echo "  validate-with-gpu-and-reboot IP"
+    echo ""
+    echo "  IP  IP address of the System Under Test"
+    echo "      'localhost' or '127.0.0.1' are not accepted"
+    echo ""
+    exit 1
+}
+
+if [ $# -ne 1 ]; then
+    print_usage
+fi
+
+if [ "$1" = "localhost" ]; then
+    print_usage
+elif [ "$1" = "127.0.0.1" ]; then
+    print_usage
+fi
+
+exec checkbox-cli-wrapper control "$1" "$SNAP"/bin/dss-validation-with-reboot-launcher

@@ -214,5 +214,5 @@ def main(args: t.List[str] | None = None) -> None:
     parsed.pop("func")(**parsed)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()

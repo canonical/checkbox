@@ -1,5 +1,5 @@
 .PHONY:
-all: alsa_test clocktest threaded_memtest ptrace_test testptp keyboard-mouse_test
+all: alsa_test clocktest threaded_memtest ptrace_test testptp
 
 ifeq ($(shell uname -m), x86_64)
 all: testptp

@@ -95,5 +95,22 @@ You can then modify the content of the provider in `/var/tmp/checkbox-providers/
 
 Please refer to the [Checkbox documentation] on side-loading providers for more information.
 
+## Runninig the tests
+
+The jobs in the provider are implemented as Python scripts, located in `checkbox-provider-dss/bin`, and their tests are in `checkbox-provider-dss/tests`. The Tox file at `checkbox-provider-dss/tox.ini` can be used to run the tests from that directory.
+
+Please note that only Python 3.10 is currently tested, and will be the minimum supported version for the foreseeable future.
+
+Running the tests locally may require some additional packages.  Here's what a run from clean slate may look like:
+
+```console
+$ sudo apt install python3-dev python3-venv shellcheck pkg-config libsystemd-dev gcc
+$ cd checkbox/contrib/checkbox-dss-validation/checkbox-provider-dss
+$ python3 -m venv .venv
+$ . .venv/bin/activate
+$ pip install tox
+$ tox
+```
+
 [Checkbox]: https://checkbox.readthedocs.io/
 [Checkbox documentation]: https://checkbox.readthedocs.io/en/latest/side-loading.html

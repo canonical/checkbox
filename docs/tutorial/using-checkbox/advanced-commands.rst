@@ -303,5 +303,5 @@ one device to control another device, and used Checkbox commands to navigate
 the available objects in Checkbox. You are now ready to use Checkbox to test
 any kind of devices!
 
-In the :ref:`advanced tutorial<TODO>`, you will learn how to write new tests
-for Checkbox and how to create your own Checkbox-based snaps.
+In the :ref:`Writing test jobs tutorial <test_case>`, you will learn how to 
+write new tests for Checkbox and how to create your own Checkbox-based snaps.

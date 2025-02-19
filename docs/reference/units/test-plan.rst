@@ -11,10 +11,10 @@ Jobs are selected by either listing their identifier or a regular expression
 that matches their identifier. Listing a template identifier will select all
 the jobs instantiated by it. Selected jobs are executed in the sequence they
 appear in the list, unless they need to be reordered to satisfy dependencies
-which always take priority. It is also possible to :ref:`exclude<Test Plan
-exclude field>` jobs from the selection using the same principles.
+which always take priority. It is also possible to :option:`test-plan exclude`
+jobs from the selection using the same principles.
 
-Test plans can be :ref:`nested<Test Plan nested_part field>`, so you can
+Test plans can be :option:`test-plan nested_part`, so you can
 define several smaller test plans and combine them into a bigger one, which
 helps with maintenance and flexibility.
 
@@ -36,9 +36,10 @@ maintain backwards compatibility so some of the test plans it defines may have
 non-typical constructs required to ensure proper behavior. You don't have to
 copy such constructs when working on a new test plan from scratch
 
-.. _Test Plan id field:
+.. program:: test-plan
 
-``id``:
+.. option:: id
+
     Each test plan needs to have a unique identifier. This is exactly the same
     as with other units that have an identifier (like job definitions
     and categories).
@@ -46,9 +47,8 @@ copy such constructs when working on a new test plan from scratch
     This field is not used for display purposes but you may need to refer
     to it on command line so keeping it descriptive is useful
 
-.. _Test Plan name field:
+.. option:: name
 
-``name``:
     A human-readable name of the test plan. The name should be relatively short
     as it may be used to display a list of test plans to the test operator.
 
@@ -67,9 +67,8 @@ copy such constructs when working on a new test plan from scratch
     lines. This field should be marked as translatable by prepending the
     underscore character (\_) in front. This field is mandatory.
 
-.. _Test Plan description field:
+.. option:: description
 
-``description``:
     A human-readable description of this test plan. Here you can include as
     many or few details as you'd like. Some applications may offer a way
     of viewing this data. In general it is recommended to include a description
@@ -86,9 +85,8 @@ copy such constructs when working on a new test plan from scratch
     should be marked as translatable by prepending the underscore character
     (\_) in front. This field is optional.
 
-.. _Test Plan include field:
+.. option:: include
 
-``include``:
     A multi-line list of job identifiers, patterns matching such identifiers or
     template identifiers that should be included for execution.
 
@@ -122,9 +120,8 @@ copy such constructs when working on a new test plan from scratch
     below for examples on how you can refer to jobs from other providers
     (you simply use their fully qualified name for that).
 
-.. _Test Plan mandatory_include field:
+.. option:: mandatory_include
 
-``mandatory_include``:
     A multi-line list of job identifiers or patterns matching such identifiers
     that should always be executed.
 
@@ -142,9 +139,8 @@ copy such constructs when working on a new test plan from scratch
     Note that mandatory jobs will always be run first (along with their
     dependent jobs).
 
-.. _Test Plan bootstrap_include field:
+.. option:: bootstrap_include
 
-``bootstrap_include``:
     A multi-line list of job identifiers that should be run first, before the
     main body of testing begins. The job that should be included in the
     bootstrapping sections are the ones generating or helping to generate other
@@ -159,18 +155,16 @@ copy such constructs when working on a new test plan from scratch
     identifier and cannot be a regular expression pattern.
     Also note that only resource jobs are allowed in this section.
 
-.. _Test Plan nested_part field:
+.. option:: nested_part
 
-``nested_part``:
    A multi-line list of test-plan identifiers whose contents will become part
    of this test-plan. This is a method of creating a tree of test plans,
    something that can be useful for organization and de-duplication of test plan
    definitions. For a full discussion of this capability see
    :ref:`nested-test-plan`.
 
-.. _Test Plan exclude field:
+.. option:: exclude
 
-``exclude``:
     A multi-line list of job identifiers or patterns matching such identifiers
     that should be excluded from execution.
 
@@ -184,9 +178,8 @@ copy such constructs when working on a new test plan from scratch
 
     When a job is both included and excluded, exclusion always takes priority.
 
-.. _Test Plan category_overrides field:
+.. option:: category_overrides
 
-``category_overrides``:
     A multi-line list of category override statements.
 
     This optional field can be used to alter the natural job definition
@@ -236,17 +229,16 @@ copy such constructs when working on a new test plan from scratch
     The job definition with the partial identifier ``foo`` will be associated
     with the ``cat-2`` category.
 
-.. _Test Plan certification_status_overrides field:
+.. option:: certification_status_overrides
 
-``certification_status_overrides``:
     A multi-line list of certification status override statements.
 
-    Similar to the :ref:`category_overrides<Test Plan category_overrides field>`
+    Similar to the :option:`test-plan category_overrides`
     field, this field can be used to modify the certification status of the
     jobs matching the given regular expression.
 
     The possible values are the same as for the
-    :ref:`certification-status<Job certification-status field>` job field.
+    :option:`job certification-status` job field.
 
     For instance, the following will force every wireless job to become a
     certification blocker::
@@ -275,9 +267,8 @@ copy such constructs when working on a new test plan from scratch
 
         to apply the override to every job of every namespaces.
 
-.. _Test Plan estimated_duration field:
+.. option:: estimated_duration
 
-``estimated_duration``:
     An approximate time to execute this test plan, in seconds.
 
     This field can be expressed in two formats. The old format, a floating

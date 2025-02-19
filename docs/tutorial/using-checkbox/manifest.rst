@@ -104,8 +104,8 @@ A bit below, we see a ``Hardware Manifest`` job being executed:
 
 This job will collect the information from the manifest file so that it
 can be used by Checkbox later for each :ref:`manifest_entry` defined in the
-providers. We can see that ``has_touchscreen`` (the :ref:`id<Manifest Entry
-id field>` of the manifest entry unit that represents whether or not this
+providers. We can see that ``has_touchscreen`` (the :option:`manifest-entry
+id` of the manifest entry unit that represents whether or not this
 device has a touch screen) is set to ``True`` because we selected it in the
 System Manifest screen.
 

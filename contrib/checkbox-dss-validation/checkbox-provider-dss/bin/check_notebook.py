@@ -57,6 +57,9 @@ SCRIPT = {
         print(torch.__version__)
         print(ipex.__version__)
 
+        if torch.xpu.device_count() < 1:
+            raise AssertionError("no XPUs are available")
+
         [
             print(i, torch.xpu.get_device_properties(i))
             for i in range(torch.xpu.device_count())
@@ -70,10 +73,8 @@ SCRIPT = {
         import intel_extension_for_tensorflow as itex
 
         devices = tf.config.experimental.list_physical_devices()
-        for device_str in devices:
-            if "XPU" in device_str:
-                print("{SUCCESS_MARKER}")
-                break
+        if any("XPU" in device for device in devices):
+            print("{SUCCESS_MARKER}")
         else:
             raise AssertionError("XPU device not found")
         """
@@ -81,7 +82,8 @@ SCRIPT = {
     "pytorch_can_use_nvidia_gpu": textwrap.dedent(
         f"""
         import torch
-        assert torch.cuda.is_available(), 'CUDA is not available'
+        if not torch.cuda.is_available():
+            raise AssertionError("CUDA is not available")
         print("{SUCCESS_MARKER}")
         """
     ),
@@ -90,10 +92,8 @@ SCRIPT = {
         import tensorflow as tf
 
         devices = tf.config.experimental.list_physical_devices("GPU")
-        for device_str in devices:
-            if "GPU" in device_str:
-                print("{SUCCESS_MARKER}")
-                break
+        if any("GPU" in device for device in devices):
+            print("{SUCCESS_MARKER}")
         else:
             raise AssertionError("CUDA device not found")
         """

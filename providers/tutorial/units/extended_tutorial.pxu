@@ -1,5 +1,6 @@
 id: network_iface_info
 _summary: Fetches information of all network intefaces
+category_id: com.canonical.plainbox::networking
 plugin: resource
 command:
   ip -details -json link show | jq -r '
@@ -11,6 +12,7 @@ command:
 id: network_available
 flags: simple
 _summary: Test that the internet is reachable
+category_id: com.canonical.plainbox::networking
 requires:
   (network_iface_info.link_info_kind == "" and network_iface_info.link_type == "ether")
 command:
@@ -18,6 +20,7 @@ command:
 
 id: network_speed
 flags: simple
+category_id: com.canonical.plainbox::networking
 _summary: Test that the network speed is acceptable
 depends: network_available
 command:
@@ -27,6 +30,7 @@ command:
 id: network_speed_99
 flags: simple
 _summary: Test that the network speed is acceptable
+category_id: com.canonical.plainbox::networking
 environ:
   ACCEPTABLE_BYTES_PER_SECOND_SPEED
 command:
@@ -38,6 +42,7 @@ unit: template
 template-resource: network_iface_info
 template-unit: job
 id: network_available_{interface}
+category_id: com.canonical.plainbox::networking
 template-id: network_available_interface
 template-filter:
   (network_iface_info.link_type == "ether" and network_iface_info.link_info_kind == "")
@@ -49,6 +54,7 @@ _summary: Test that the internet is reachable via {interface}
 flags: simple
 
 id: vfork_memory_share
+category_id: com.canonical.plainbox::memory
 _summary: Check that vfork syscall shares the memory between parent and child
 flags: simple
 command:

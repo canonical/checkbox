@@ -1,4 +1,4 @@
-.. _test_plan:
+.. _adv_test_plan:
 
 ===================
 Writing A Test Plan
@@ -46,6 +46,10 @@ tests:
    ☑ : Fetches information of all network interfaces
    ☑ : Test that the internet is reachable
    ☑ : Test that the network speed is acceptable
+
+.. important::
+   Remember to run ``python3 manage.py validate`` before trying your changes.
+   You will catch many mistakes that way.
 
 Note how, as we previously saw, Checkbox automatically pulled the resource
 job needed. This operation, as we previously mentioned, is not the safe way to go

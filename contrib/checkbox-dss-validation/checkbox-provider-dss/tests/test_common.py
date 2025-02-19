@@ -27,6 +27,8 @@ from unittest import mock
 
 import common
 
+# pragma: no cover
+
 
 class TestRunCommand(unittest.TestCase):
     @mock.patch("subprocess.check_output")

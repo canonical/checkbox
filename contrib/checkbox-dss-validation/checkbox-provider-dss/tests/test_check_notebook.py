@@ -28,6 +28,8 @@ from unittest import mock
 
 import check_notebook
 
+# pragma: no cover
+
 
 class TestArgumentParsing(unittest.TestCase):
     @mock.patch("check_notebook.create_parser_with_checks_as_commands")

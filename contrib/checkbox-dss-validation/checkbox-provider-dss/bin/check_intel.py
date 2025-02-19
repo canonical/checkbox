@@ -46,7 +46,8 @@ def parse_args(args: t.List[str] | None = None) -> dict[str, t.Any]:
 def can_be_enabled_with_plugin_version(plugin_version: str) -> None:
     """Verify enabling Intel GPU plugin with the given version in K8s"""
     result = run_command("enable_intel.sh", plugin_version, str(SLOTS_PER_GPU))
-    assert SUCCESS_MARKER in result
+    if SUCCESS_MARKER not in result:
+        raise AssertionError("Couldn't verify enabling Intel GPU plugin")
     verify_all_rollouts()
 
 
@@ -74,8 +75,12 @@ def has_enough_capacity_slots() -> None:
         "jsonpath='{.items[0].status.capacity.gpu\\.intel\\.com/i915}'",
     )
     result = result.replace("'", "")
-    assert len(result) > 0
-    assert int(result) >= SLOTS_PER_GPU
+    if len(result) < 1:
+        raise AssertionError("No result for Intel GPU capacity slots")
+    if int(result) < SLOTS_PER_GPU:
+        raise AssertionError(
+            f"{result} is less than expected capacity slots {SLOTS_PER_GPU}"
+        )
 
 
 def has_enough_allocatable_slots() -> None:
@@ -90,8 +95,12 @@ def has_enough_allocatable_slots() -> None:
         "jsonpath='{.items[0].status.allocatable.gpu\\.intel\\.com/i915}'",
     )
     result = result.replace("'", "")
-    assert len(result) > 0
-    assert int(result) >= SLOTS_PER_GPU
+    if len(result) < 1:
+        raise AssertionError("No result for Intel GPU allocatable slots")
+    if int(result) < SLOTS_PER_GPU:
+        raise AssertionError(
+            f"{result} is less than expected allocatable slots {SLOTS_PER_GPU}"
+        )
 
 
 def verify_all_rollouts():
@@ -119,7 +128,8 @@ def verify_rollout_of_daemonset(daemonset: str, namespace: str):
         f"ds/{daemonset}",
     )
     expected = f'daemon set "{daemonset}" successfully rolled out'
-    assert expected in result
+    if expected not in result:
+        raise AssertionError(f"Couldn't verify rollout of {daemonset}")
 
 
 def main(args: t.List[str] | None = None) -> None:

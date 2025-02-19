@@ -191,19 +191,22 @@ def wait_for_connected(interface, essid):
     print_cmd(cmd)
     output = sp.check_output(shlex.split(cmd), universal_newlines=True)
     print(output)
-    state, ssid = output.strip().splitlines()
+    # if state is not connected, no ssid will be provided
+    state, *ssid = output.strip().splitlines()
+    ssid = next(iter(ssid), None)
 
     if state.startswith("100") and ssid == essid:
         print("Reached connected state with ESSID: {}".format(essid))
+    elif not state.startswith("100"):
+        error_msg = "State is not connected: {}".format(state)
+        raise SystemExit(error_msg)
     elif ssid != essid:
         error_msg = (
             "ERROR: did not reach connected state with ESSID: {}\n"
             "ESSID mismatch:\n  Excepted:{}\n  Actually:{}"
         ).format(essid, ssid, essid)
         raise SystemExit(error_msg)
-    elif not state.startswith("100"):
-        error_msg = "State is not connected: {}".format(state)
-        raise SystemExit(error_msg)
+
     print()
 
 

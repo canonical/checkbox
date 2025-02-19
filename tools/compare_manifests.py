@@ -12,12 +12,17 @@ def open_json(json_file: str) -> list[str]:
     return json_data
 
 
-def diff_manifests(manifest1: list[str], manifest2: list[str]) -> list[str]:
+def diff_manifests(manifest1: list[dict], manifest2: list[dict]) -> list[str]:
     """
     Return a list of hidden manifests that are present in manifest2 but not in
     manifest1.
     """
-    return [k for k in manifest2 if k not in manifest1 if "::_" in k]
+    return [
+        k["name"]
+        for k in manifest2
+        if k not in manifest1
+        if "::_" in k["name"]
+    ]
 
 
 def main(args):

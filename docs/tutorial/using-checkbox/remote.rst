@@ -20,33 +20,29 @@ Run the following command:
 
 .. code-block:: none
 
-    systemctl status snap.checkbox.agent.service
+    snap services checkbox
 
 You should see something like this:
 
 .. code-block:: none
 
-    ● snap.checkbox.agent.service - Service for snap application checkbox.service
-         Loaded: loaded (/etc/systemd/system/snap.checkbox.service.service; enabled; vendor preset: enabled)
-         Active: active (running) since Fri 2023-07-21 13:38:48 CST; 1h 29min ago
-       Main PID: 1411 (python3)
-          Tasks: 1 (limit: 19014)
-         Memory: 69.7M
-            CPU: 2.537s
-         CGroup: /system.slice/snap.checkbox.agent.service
-                 └─1411 python3 /snap/checkbox22/current/bin/checkbox-cli run-agent
-
-    Jul 21 13:38:48 coltrane systemd[1]: Started Service for snap application checkbox.service.
-    (...)
+    Service         Startup   Current   Notes
+    checkbox.agent  disabled  inactive  -
 
 When you install Checkbox on a device, a Systemd service is started to turn
-this device into a Checkbox agent.
-
-For the sake of this tutorial, let's stop this service for the moment:
+the device into a Checkbox agent. We have instructed you to disable this
+service in :ref:`installing_checkbox` but in case you didn't do so, run the
+following:
 
 .. code-block:: none
 
-    sudo systemctl stop snap.checkbox.agent.service
+   snap stop --disable checkbox
+
+.. warning::
+   Remember that while the agent is running, the device is fully controllable
+   via the network at a root level without any authentication! This is the
+   purpose of Checkbox, but a bit too scary to keep this enabled on your
+   personal device.
 
 Now, open two terminal windows using ``Ctrl+Alt+T``. In the first one,
 start the Checkbox agent:

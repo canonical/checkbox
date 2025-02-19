@@ -52,7 +52,8 @@ def can_be_enabled_with_operator_version(operator_version: str) -> None:
     was_enabled_mk8s_in_1_31 = "Deployed NVIDIA GPU operator" in result
     nvidia_was_enabled = was_enabled_mk8s_in_1_28 or was_enabled_mk8s_in_1_31
     gpu_was_already_enabled = "gpu is already enabled" in result
-    assert nvidia_was_enabled or gpu_was_already_enabled
+    if not (nvidia_was_enabled or gpu_was_already_enabled):
+        raise AssertionError("Couldn't verify if NVIDIA GPU was or is enabled")
     verify_all_rollouts()
 
 
@@ -67,7 +68,8 @@ def has_all_validations_successful() -> None:
         "-c",
         "nvidia-operator-validator",
     )
-    assert "all validations are successful" in result
+    if "all validations are successful" not in result:
+        raise AssertionError("Couldn't verify that GPU validations succeeded")
 
 
 def verify_all_rollouts():
@@ -100,7 +102,8 @@ def verify_rollout_of_daemonset(daemonset: str):
         f"ds/{daemonset}",
     )
     expected = f'daemon set "{daemonset}" successfully rolled out'
-    assert expected in result
+    if expected not in result:
+        raise AssertionError(f"Couldn't verify rollout of {daemonset}")
 
 
 def main(args: t.List[str] | None = None) -> None:

@@ -41,7 +41,10 @@ from plainbox.abc import IJobResult
 from plainbox.impl.result import MemoryJobResult
 from plainbox.impl.color import Colorizer
 from plainbox.impl.config import Configuration
-from plainbox.impl.session.resume import IncompatibleJobError
+from plainbox.impl.session.resume import (
+    IncompatibleJobError,
+    CorruptedSessionError,
+)
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
 from plainbox.vendor import rpyc
 from checkbox_ng.resume_menu import ResumeMenu
@@ -384,6 +387,8 @@ class RemoteController(ReportsStage, MainLoopStage):
             # so that it can be treated as a normal "local" exception"
             if "plainbox.impl.session.resume.IncompatibleJobError" in str(e):
                 raise IncompatibleJobError(*e.args)
+            if "plainbox.impl.session.resume.CorruptedSessionError" in str(e):
+                raise CorruptedSessionError(*e.args)
             raise
         finally:
             self.sa.abandon_session()
@@ -408,9 +413,9 @@ class RemoteController(ReportsStage, MainLoopStage):
         # FIXME: IncompatibleJobError is raised if the resume candidate is
         #        invalid, this is a workaround till get_resumable_sessions is
         #        fixed
-        with contextlib.suppress(IncompatibleJobError), self._resumed_session(
-            last_abandoned_session.id
-        ) as metadata:
+        with contextlib.suppress(IncompatibleJobError), contextlib.suppress(
+            CorruptedSessionError
+        ), self._resumed_session(last_abandoned_session.id) as metadata:
             app_blob = json.loads(metadata.app_blob.decode("UTF-8"))
 
             if not app_blob.get("testplan_id"):

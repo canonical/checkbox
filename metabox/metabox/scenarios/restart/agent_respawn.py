@@ -15,12 +15,17 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 import textwrap
 
+from importlib.resources import read_text
+
+from metabox import tools
 from metabox.core import keys
 from metabox.core.actions import (
     AssertPrinted,
     AssertRetCode,
     SelectTestPlan,
     Send,
+    Put,
+    RunCmd,
     Expect,
     Start,
     Signal,
@@ -238,4 +243,44 @@ class RemoteResumePreservesRejectedJobsStateMap(Scenario):
         # will fail if the info about the session is not complete in the job
         # state map (as it was prior to this regression)
         Expect("Do you want to submit 'upload to certification' report?"),
+    ]
+
+
+@tag("resume", "manual")
+class ResumeDontCrashIncompatibleSession(Scenario):
+    session_corruptor = read_text(tools, "session_corruptor.py")
+    modes = ["local"]
+    launcher = "# no launcher"
+    steps = [
+        Start(),
+        Expect("Select test plan"),
+        SelectTestPlan("2021.com.canonical.certification::pass-only-rerun"),
+        Send(keys.KEY_ENTER),
+        Expect("Press (T) to start"),
+        Send("T"),
+        Expect("Select jobs to re-run"),
+        Send(keys.KEY_SPACE),
+        Expect("[X]"),
+        Send("r"),
+        Expect("Select jobs to re-run"),
+        Signal(keys.SIGINT),
+        Put("/home/session_corruptor.py", session_corruptor),
+        RunCmd("python3 /home/session_corruptor.py"),
+        Start(),
+        Expect("Checkbox tried to resume"),
+        # the error message has to contain the job id
+        Expect("intentionally corrupted session"),
+        Send(keys.KEY_ENTER),
+        Expect("Select test plan"),
+        Signal(keys.SIGINT),
+        # The error doesn't go away on its own
+        Start(),
+        Expect("Checkbox tried to resume"),
+        # the error message has to contain the job id
+        Expect("intentionally corrupted session"),
+        Send(keys.KEY_ENTER),
+        Expect("Select test plan"),
+        Signal(keys.SIGINT),
+        Start("--clear-old-sessions"),
+        Expect("Select test plan"),
     ]

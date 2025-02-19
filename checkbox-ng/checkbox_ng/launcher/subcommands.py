@@ -40,7 +40,10 @@ import time
 
 from plainbox.abc import IJobResult
 from plainbox.impl.color import Colorizer
-from plainbox.impl.session.resume import IncompatibleJobError
+from plainbox.impl.session.resume import (
+    IncompatibleJobError,
+    CorruptedSessionError,
+)
 from plainbox.impl.execution import UnifiedRunner
 from plainbox.impl.highlevel import Explorer
 from plainbox.impl.result import MemoryJobResult
@@ -378,7 +381,7 @@ class Launcher(MainLoopStage, ReportsStage):
                 if job_state.job.plugin != "shell":
                     return False
                 return True
-        except IncompatibleJobError as ije:
+        except (CorruptedSessionError, IncompatibleJobError) as ije:
             # last resumable session is incompatible, produce a helpful log
             _logger.error(
                 "Checkbox tried to resume last session (%s), but the "
@@ -420,6 +423,8 @@ class Launcher(MainLoopStage, ReportsStage):
                 return True
             else:
                 raise RuntimeError("Requested session is not resumable!")
+        elif self.ctx.args.clear_old_sessions:
+            return False
         elif self._should_autoresume_last_run(resume_candidates):
             last_session = resume_candidates[0]
             self._resume_session(last_session.id, None)

@@ -1,3 +1,12 @@
+/* :option: directive for unit fields */
+.sig-name {
+    color: var(--color-code-foreground);
+}
+.sig:not(.sig-inline) {
+    background-color: var(--color-inline-code-background);
+}
+
+/* mermaid diagrams */
 .mermaid {
     display: flex;
     justify-content: center;

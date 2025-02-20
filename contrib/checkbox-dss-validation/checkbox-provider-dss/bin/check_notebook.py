@@ -29,25 +29,21 @@ from common import create_parser_with_checks_as_commands, run_command
 
 _TIMEOUT_SEC: float = 15.0 * 60  # seconds
 
-SUCCESS_MARKER = "CHECKBOX_DSS_TEST_SUCCESSFUL"
-
 SCRIPT = {
     "pytorch_is_available": textwrap.dedent(
-        f"""
+        """
         import torch
         print(torch.__version__)
-        print("{SUCCESS_MARKER}")
         """
     ),
     "tensorflow_is_available": textwrap.dedent(
-        f"""
+        """
         import tensorflow as tf
         print(tf.config.experimental.list_physical_devices())
-        print("{SUCCESS_MARKER}")
         """
     ),
     "pytorch_can_use_intel_gpu": textwrap.dedent(
-        f"""
+        """
         import sys
         import torch
         import intel_extension_for_pytorch as ipex
@@ -62,37 +58,31 @@ SCRIPT = {
             print(i, torch.xpu.get_device_properties(i))
             for i in range(torch.xpu.device_count())
         ]
-        print("{SUCCESS_MARKER}")
         """
     ),
     "tensorflow_can_use_intel_gpu": textwrap.dedent(
-        f"""
+        """
         import tensorflow as tf
         import intel_extension_for_tensorflow as itex
 
         devices = tf.config.experimental.list_physical_devices()
-        if any("XPU" in device for device in devices):
-            print("{SUCCESS_MARKER}")
-        else:
+        if not any("XPU" in device for device in devices):
             raise AssertionError("XPU device not found")
         """
     ),
     "pytorch_can_use_nvidia_gpu": textwrap.dedent(
-        f"""
+        """
         import torch
         if not torch.cuda.is_available():
             raise AssertionError("CUDA is not available")
-        print("{SUCCESS_MARKER}")
         """
     ),
     "tensorflow_can_use_nvidia_gpu": textwrap.dedent(
-        f"""
+        """
         import tensorflow as tf
 
         devices = tf.config.experimental.list_physical_devices("GPU")
-        if any("GPU" in device for device in devices):
-            print("{SUCCESS_MARKER}")
-        else:
+        if not any("GPU" in device for device in devices):
             raise AssertionError("CUDA device not found")
         """
     ),
@@ -169,9 +159,7 @@ def can_use_nvidia_gpu_in_tensorflow(notebook_name: str) -> None:
 
 def run_script_in_notebook(notebook_name: str, script: str) -> None:
     pod = get_notebook_pod(notebook_name)
-    result = run_script_in_pod(pod, script)
-    if SUCCESS_MARKER not in result:
-        raise AssertionError(f"{SUCCESS_MARKER} not in results:\n{result}")
+    run_script_in_pod(pod, script)
 
 
 def run_script_in_pod(pod_name: str, script: str) -> str:

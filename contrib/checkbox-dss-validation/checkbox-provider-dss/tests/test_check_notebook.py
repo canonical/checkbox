@@ -49,7 +49,6 @@ class TestArgumentParsing(unittest.TestCase):
 
     @mock.patch("check_notebook.run_command")
     def test_parser_accepts_timeout(self, mocked):
-        mocked.return_value = check_notebook.SUCCESS_MARKER
         parsed = check_notebook.parse_args(
             ["--timeout", "3.5", "has_pytorch_available", "test-notebook"]
         )
@@ -91,7 +90,6 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
         pod_name = "notebokk-xyz"
         script = "import gravity"
         mocked_pod.return_value = pod_name
-        mocked_run.return_value = check_notebook.SUCCESS_MARKER
         check_notebook.run_script_in_notebook(notebook, script)
         with self.subTest("asked for pod"):
             mocked_pod.assert_called_once_with(notebook)
@@ -125,26 +123,6 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
                 "script",
             )
         assert caught.exception == exception
-
-    @mock.patch("check_notebook.get_notebook_pod")
-    @mock.patch("check_notebook.run_script_in_pod")
-    def test_fails_when_running_script_does_not_have_success_marker(
-        self, mocked_run, mocked_pod
-    ):
-        garbage_result = "garbage"
-        assert check_notebook.SUCCESS_MARKER not in garbage_result
-        mocked_run.return_value = garbage_result
-        mocked_pod.return_value = "pod"
-        with self.assertRaises(AssertionError) as caught:
-            check_notebook.run_script_in_notebook(
-                "notebook",
-                "script",
-            )
-        assert (
-            caught.exception.args[0]
-            == f"{check_notebook.SUCCESS_MARKER} not in results:\n{garbage_result}"
-        )
-
 
 class TestGetNotebookPod(unittest.TestCase):
     @mock.patch("subprocess.check_output")

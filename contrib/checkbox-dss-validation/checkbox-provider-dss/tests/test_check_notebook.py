@@ -192,36 +192,6 @@ class TestGetNotebookPod(unittest.TestCase):
         )
 
 
-class TestRunScriptInPod(unittest.TestCase):
-    @mock.patch("check_notebook.run_command")
-    def test_normal_success(self, mocked):
-        mocked.return_value = "expected"
-        result = check_notebook.run_script_in_pod("pod", "script")
-        with self.subTest("runs expected command"):
-            mocked.assert_called_once_with(
-                "kubectl",
-                "-n",
-                "dss",
-                "exec",
-                "pod",
-                "--",
-                "python",
-                "-c",
-                "script",
-                timeout=check_notebook._TIMEOUT_SEC,
-            )
-        with self.subTest("returns expected value"):
-            assert result == "expected"
-
-    @mock.patch("check_notebook.run_command")
-    def test_fails_on_failed_run_command(self, mocked):
-        exception = subprocess.CalledProcessError(1, "command")
-        mocked.side_effect = exception
-        with self.assertRaises(subprocess.SubprocessError) as caught:
-            check_notebook.run_script_in_pod("pod", "script")
-        assert caught.exception == exception
-
-
 class TestCommands(unittest.TestCase):
     @mock.patch("check_notebook.run_script_in_notebook")
     def test_asks_to_run_expected_script(self, mocked):

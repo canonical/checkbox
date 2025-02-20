@@ -152,30 +152,13 @@ def can_use_nvidia_gpu_in_pytorch(notebook_name: str) -> None:
 
 def can_use_nvidia_gpu_in_tensorflow(notebook_name: str) -> None:
     """Check that notebook with given name can use Intel GPU in Tensorflow"""
-    run_script_in_notebook(
-        notebook_name, SCRIPT["tensorflow_can_use_nvidia_gpu"]
-    )
+    run_script_in_notebook(notebook_name, SCRIPT["tensorflow_can_use_nvidia_gpu"])
 
 
 def run_script_in_notebook(notebook_name: str, script: str) -> None:
     pod = get_notebook_pod(notebook_name)
     base_cmd = f"kubectl -n dss exec {pod} -- python -c"
     subprocess.check_call([*base_cmd.split(), script], timeout=_TIMEOUT_SEC)
-
-
-def run_script_in_pod(pod_name: str, script: str) -> str:
-    return run_command(
-        "kubectl",
-        "-n",
-        "dss",
-        "exec",
-        pod_name,
-        "--",
-        "python",
-        "-c",
-        script,
-        timeout=_TIMEOUT_SEC,
-    )
 
 
 def get_notebook_pod(notebook_name: str) -> str:
@@ -189,7 +172,7 @@ def get_notebook_pod(notebook_name: str) -> str:
             return pod_name
     raise AssertionError(
         f"no RUNNING pod for notebook {notebook_name} was found",
-        f"available pods: {all_pods}"
+        f"available pods: {all_pods}",
     )
 
 

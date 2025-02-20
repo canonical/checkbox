@@ -22,13 +22,10 @@
 """Tests for `check_notebook.py`"""
 
 import subprocess
-import textwrap
 import unittest
 from unittest import mock
 
 import check_notebook
-
-# pragma: no cover
 
 
 class TestArgumentParsing(unittest.TestCase):

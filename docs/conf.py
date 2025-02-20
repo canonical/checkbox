@@ -157,7 +157,8 @@ html_theme_options = {
 
 html_static_path = [".sphinx/_static"]
 html_css_files = [
-    "checkbox-doc.css" "custom.css",
+    "checkbox-doc.css",
+    "custom.css",
     "github_issue_links.css",
 ]
 html_js_files = [

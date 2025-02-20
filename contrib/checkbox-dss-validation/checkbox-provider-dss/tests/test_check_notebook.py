@@ -82,7 +82,7 @@ class TestMain(unittest.TestCase):
         )
 
 
-class TestScriptMustSucceedInNotebook(unittest.TestCase):
+class TestRunScriptInNotebook(unittest.TestCase):
     @mock.patch("check_notebook.get_notebook_pod")
     @mock.patch("check_notebook.run_script_in_pod")
     def test_normal_success(self, mocked_run, mocked_pod):

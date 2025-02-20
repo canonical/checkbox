@@ -25,7 +25,7 @@ import subprocess
 import textwrap
 import typing as t
 
-from common import create_parser_with_checks_as_commands, run_command
+from common import create_parser_with_checks_as_commands
 
 _TIMEOUT_SEC: float = 15.0 * 60  # seconds
 
@@ -162,12 +162,18 @@ def run_script_in_notebook(notebook_name: str, script: str) -> None:
 
 
 def get_notebook_pod(notebook_name: str) -> str:
-    cmd = "kubectl get pods -n dss --field-selector=status.phase==Running"
-    all_pods = subprocess.check_output(cmd.split(), text=True)
-    for line in all_pods.splitlines():
-        if len(line) == 0:
-            continue
-        pod_name = line.split()[0]
+    cmd = [
+        "kubectl",
+        "get",
+        "pods",
+        "-n",
+        "dss",
+        "--field-selector=status.phase==Running",
+        "-o",
+        "jsonpath={.items[*].metadata.name}",
+    ]
+    all_pods = subprocess.check_output(cmd, text=True)
+    for pod_name in all_pods.split():
         if pod_name.startswith(f"{notebook_name}-"):
             return pod_name
     raise AssertionError(

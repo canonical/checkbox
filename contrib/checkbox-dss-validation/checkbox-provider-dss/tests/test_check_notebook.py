@@ -47,7 +47,7 @@ class TestArgumentParsing(unittest.TestCase):
             description="Check notebooks in DSS",
         )
 
-    @mock.patch("check_notebook.run_command")
+    @mock.patch("subprocess.check_call")
     def test_parser_accepts_timeout(self, mocked):
         parsed = check_notebook.parse_args(
             ["--timeout", "3.5", "has_pytorch_available", "test-notebook"]
@@ -144,18 +144,20 @@ class TestGetNotebookPod(unittest.TestCase):
     def test_normal_success(self, mocked):
         notebook = "pytorch-test"
         pod = f"{notebook}-77f7b848f5-hfjcn"
-        mocked.return_value = textwrap.dedent(
-            f"""
-            NAME                            READY   STATUS    RESTARTS   AGE
-            mlflow-7fcf655ff9-pffk6         1/1     Running   0          6m43s
-            {pod}                           1/1     Running   0          5m27s
-
-            """
-        )
+        mocked.return_value = f"mlflow-7fcf655ff9-pffk6 {pod}"
         result = check_notebook.get_notebook_pod(notebook)
         with self.subTest("asks for running notebooks"):
-            cmd = "kubectl get pods -n dss --field-selector=status.phase==Running"
-            mocked.assert_called_once_with(cmd.split(), text=True)
+            cmd = [
+                "kubectl",
+                "get",
+                "pods",
+                "-n",
+                "dss",
+                "--field-selector=status.phase==Running",
+                "-o",
+                "jsonpath={.items[*].metadata.name}",
+            ]
+            mocked.assert_called_once_with(cmd, text=True)
         with self.subTest("finds the pod"):
             assert result == pod
 
@@ -172,14 +174,7 @@ class TestGetNotebookPod(unittest.TestCase):
         notebook = "pytorch-test"
         some_other_notebook = "tensorflow-test"
         some_other_pod = f"{some_other_notebook}-77f7b848f5-hfjcn"
-        available_pods = textwrap.dedent(
-            f"""
-            NAME                            READY   STATUS    RESTARTS   AGE
-            mlflow-7fcf655ff9-pffk6         1/1     Running   0          6m43s
-            {some_other_pod}                1/1     Running   0          5m27s
-
-            """
-        )
+        available_pods = f"mlflow-7fcf655ff9-pffk6 {some_other_pod}"
         mocked.return_value = available_pods
         with self.assertRaises(AssertionError) as caught:
             check_notebook.get_notebook_pod(notebook)

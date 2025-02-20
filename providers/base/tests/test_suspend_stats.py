@@ -150,15 +150,15 @@ class TestSuspendStats(unittest.TestCase):
         self.assertTrue(stats.is_after_suspend())
 
         stats.contents["failed_prepare"] = "1"
-        self.assertFalse(stats.is_after_suspend())
+        self.assertTrue(stats.is_after_suspend())
 
         stats.contents["failed_prepare"] = "0"
         stats.contents["failed_suspend"] = "1"
-        self.assertFalse(stats.is_after_suspend())
+        self.assertTrue(stats.is_after_suspend())
 
         stats.contents["failed_suspend"] = "0"
         stats.contents["failed_resume"] = "1"
-        self.assertFalse(stats.is_after_suspend())
+        self.assertTrue(stats.is_after_suspend())
 
     @patch("suspend_stats.SuspendStats.__init__")
     def test_is_any_failed(self, mock_init):
@@ -174,6 +174,17 @@ class TestSuspendStats(unittest.TestCase):
 
         stats.contents["fail"] = "0"
         self.assertFalse(stats.is_any_failed())
+
+        stats.contents["failed_prepare"] = "1"
+        self.assertTrue(stats.is_any_failed())
+
+        stats.contents["failed_prepare"] = "0"
+        stats.contents["failed_suspend"] = "1"
+        self.assertTrue(stats.is_any_failed())
+
+        stats.contents["failed_suspend"] = "0"
+        stats.contents["failed_resume"] = "1"
+        self.assertTrue(stats.is_any_failed())
 
     @patch("suspend_stats.SuspendStats.__init__")
     def test_parse_args_valid(self, mock_init):

@@ -94,12 +94,7 @@ class SuspendStats:
 
         :returns: return Ture while system is under after suspend status
         """
-        return (
-            self.contents["success"] != "0"
-            and self.contents["failed_prepare"] == "0"
-            and self.contents["failed_suspend"] == "0"
-            and self.contents["failed_resume"] == "0"
-        )
+        return self.contents["success"] != "0"
 
     def is_any_failed(self) -> bool:
         """
@@ -107,7 +102,10 @@ class SuspendStats:
 
         :returns: return Ture while one failed during suspend
         """
-        return self.contents["fail"] != "0"
+        for c, v in self.contents.items():
+            if c.startswith("fail") and v != "0":
+                return True
+        return False
 
     def parse_args(self, args=sys.argv[1:]):
         """

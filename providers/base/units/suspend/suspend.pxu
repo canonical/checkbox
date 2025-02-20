@@ -1741,7 +1741,7 @@ command: suspend_stats.py any_failure
 summary:
     Tests if any device in this machine reports a suspend failure
 description:
-    If the DUT suspended successfully, /sys/power/suspend_stats/fail
-    and fail in /sys/kernel/debug/suspend_stats will be zero.
+    If the DUT suspended successfully, /sys/power/suspend_stats/fail*
+    and fail* in /sys/kernel/debug/suspend_stats will be zero.
     If a device failed /sys/power/suspend_stats/last_failed_dev
     and last_failed_dev in /sys/kernel/debug/suspend_stats will show the failed device

@@ -21,6 +21,7 @@
 #
 """Check notebooks in DSS"""
 
+import subprocess
 import textwrap
 import typing as t
 
@@ -189,15 +190,9 @@ def run_script_in_pod(pod_name: str, script: str) -> str:
 
 
 def get_notebook_pod(notebook_name: str) -> str:
-    all_pods = run_command(
-        "kubectl",
-        "get",
-        "pods",
-        "-n",
-        "dss",
-        "--field-selector=status.phase==Running",
-    ).splitlines()
-    for line in all_pods:
+    cmd = "kubectl get pods -n dss --field-selector=status.phase==Running"
+    all_pods = subprocess.check_output(cmd.split(), text=True)
+    for line in all_pods.splitlines():
         if len(line) == 0:
             continue
         pod_name = line.split()[0]
@@ -205,6 +200,7 @@ def get_notebook_pod(notebook_name: str) -> str:
             return pod_name
     raise AssertionError(
         f"no RUNNING pod for notebook {notebook_name} was found",
+        f"available pods: {all_pods}"
     )
 
 

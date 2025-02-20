@@ -147,7 +147,7 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
 
 
 class TestGetNotebookPod(unittest.TestCase):
-    @mock.patch("check_notebook.run_command")
+    @mock.patch("subprocess.check_output")
     def test_normal_success(self, mocked):
         notebook = "pytorch-test"
         pod = f"{notebook}-77f7b848f5-hfjcn"
@@ -156,22 +156,17 @@ class TestGetNotebookPod(unittest.TestCase):
             NAME                            READY   STATUS    RESTARTS   AGE
             mlflow-7fcf655ff9-pffk6         1/1     Running   0          6m43s
             {pod}                           1/1     Running   0          5m27s
+
             """
         )
         result = check_notebook.get_notebook_pod(notebook)
         with self.subTest("asks for running notebooks"):
-            mocked.assert_called_once_with(
-                "kubectl",
-                "get",
-                "pods",
-                "-n",
-                "dss",
-                "--field-selector=status.phase==Running",
-            )
+            cmd = "kubectl get pods -n dss --field-selector=status.phase==Running"
+            mocked.assert_called_once_with(cmd.split(), text=True)
         with self.subTest("finds the pod"):
             assert result == pod
 
-    @mock.patch("check_notebook.run_command")
+    @mock.patch("subprocess.check_output")
     def test_fails_on_failed_run_command(self, mocked):
         exception = subprocess.CalledProcessError(1, "command")
         mocked.side_effect = exception
@@ -179,23 +174,28 @@ class TestGetNotebookPod(unittest.TestCase):
             check_notebook.get_notebook_pod("notebook")
         assert caught.exception == exception
 
-    @mock.patch("check_notebook.run_command")
+    @mock.patch("subprocess.check_output")
     def test_fails_on_missing_pod(self, mocked):
         notebook = "pytorch-test"
         some_other_notebook = "tensorflow-test"
         some_other_pod = f"{some_other_notebook}-77f7b848f5-hfjcn"
-        mocked.return_value = textwrap.dedent(
+        available_pods = textwrap.dedent(
             f"""
             NAME                            READY   STATUS    RESTARTS   AGE
             mlflow-7fcf655ff9-pffk6         1/1     Running   0          6m43s
             {some_other_pod}                1/1     Running   0          5m27s
+
             """
         )
+        mocked.return_value = available_pods
         with self.assertRaises(AssertionError) as caught:
             check_notebook.get_notebook_pod(notebook)
-        assert (
-            caught.exception.args[0]
-            == f"no RUNNING pod for notebook {notebook} was found"
+        self.assertEqual(
+            caught.exception.args,
+            (
+                f"no RUNNING pod for notebook {notebook} was found",
+                f"available pods: {available_pods}",
+            ),
         )
 
 

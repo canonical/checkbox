@@ -46,7 +46,7 @@ Once you have completed the core tutorial, the extended optional tutorial
 sections can be followed in any order - they don’t depend on each other.
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
    writing-tests/test-case
    writing-tests/test-plan

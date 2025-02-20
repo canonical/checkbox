@@ -23,11 +23,26 @@ run the following::
   [...]
   checkbox (22.04/stable) X.Y.Z from Canonical Certification Team (ce-certification-qa) installed
 
+If you are on Ubuntu Core, then you can't install the classic frontend.
+You should use the following strict frontend instead::
+
+  $ sudo snap install checkbox --channel=uc22/stable --devmode
+  [...]
+  checkbox (22.04/stable) X.Y.Z from Canonical Certification Team (ce-certification-qa) installed
+
 .. note::
   There are multiple frontends as you may discover by typing ``snap info checkbox``.
   If you are unsure about what ``frontend`` you should use, consider
   reading this page: :ref:`ref_which_snap`, but for the scope of this tutorial the one
   installed in this snipped is enough.
+
+.. warning::
+   Checkbox will automatically start a agent service on your device when you
+   install it. To follow this tutorial you will need this service but you
+   should consider stopping it whenever you don't need it as it allows full
+   unauthenticated root level remote control of your machine! To disable it run
+   ``snap stop --disable checkbox``. To start it once you need it run
+   ``snap start checkbox``.
 
 Now that we have installed both we can launch Checkbox running:
 

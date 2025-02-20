@@ -82,7 +82,9 @@ class TestCreateParserWithChecks(unittest.TestCase):
                 self.assertEqual(func, check)
 
     def test_checks_without_args_are_called(self):
-        parser = common.create_parser_with_checks_as_commands([check_1, check_2])
+        parser = common.create_parser_with_checks_as_commands(
+            [check_1, check_2]
+        )
         for check, args, expected in [
             (check_1, ["check_1"], 1),
             (check_2, ["check_2"], 2),

@@ -122,7 +122,7 @@ def parse_args(args: t.List[str] | None = None) -> dict[str, t.Any]:
 
 def has_pytorch_available(notebook_name: str) -> None:
     """Check that notebook with given name has Pytorch available"""
-    script_must_succeed_in_notebook(
+    run_script_in_notebook(
         notebook_name,
         SCRIPT["pytorch_is_available"],
     )
@@ -130,7 +130,7 @@ def has_pytorch_available(notebook_name: str) -> None:
 
 def has_tensorflow_available(notebook_name: str) -> None:
     """Check that notebook with given name has Tensorflow available"""
-    script_must_succeed_in_notebook(
+    run_script_in_notebook(
         notebook_name,
         SCRIPT["tensorflow_is_available"],
     )
@@ -138,7 +138,7 @@ def has_tensorflow_available(notebook_name: str) -> None:
 
 def can_use_intel_gpu_in_pytorch(notebook_name: str) -> None:
     """Check that notebook with given name can use Intel GPU in Pytorch"""
-    script_must_succeed_in_notebook(
+    run_script_in_notebook(
         notebook_name,
         SCRIPT["pytorch_can_use_intel_gpu"],
     )
@@ -146,7 +146,7 @@ def can_use_intel_gpu_in_pytorch(notebook_name: str) -> None:
 
 def can_use_intel_gpu_in_tensorflow(notebook_name: str) -> None:
     """Check that notebook with given name can use Intel GPU in Tensorflow"""
-    script_must_succeed_in_notebook(
+    run_script_in_notebook(
         notebook_name,
         SCRIPT["tensorflow_can_use_intel_gpu"],
     )
@@ -154,7 +154,7 @@ def can_use_intel_gpu_in_tensorflow(notebook_name: str) -> None:
 
 def can_use_nvidia_gpu_in_pytorch(notebook_name: str) -> None:
     """Check that notebook with given name can use Intel GPU in Pytorch"""
-    script_must_succeed_in_notebook(
+    run_script_in_notebook(
         notebook_name,
         SCRIPT["pytorch_can_use_nvidia_gpu"],
     )
@@ -162,12 +162,12 @@ def can_use_nvidia_gpu_in_pytorch(notebook_name: str) -> None:
 
 def can_use_nvidia_gpu_in_tensorflow(notebook_name: str) -> None:
     """Check that notebook with given name can use Intel GPU in Tensorflow"""
-    script_must_succeed_in_notebook(
+    run_script_in_notebook(
         notebook_name, SCRIPT["tensorflow_can_use_nvidia_gpu"]
     )
 
 
-def script_must_succeed_in_notebook(notebook_name: str, script: str) -> None:
+def run_script_in_notebook(notebook_name: str, script: str) -> None:
     pod = get_notebook_pod(notebook_name)
     result = run_script_in_pod(pod, script)
     if SUCCESS_MARKER not in result:

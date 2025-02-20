@@ -57,7 +57,7 @@ class TestArgumentParsing(unittest.TestCase):
 
 
 class TestMain(unittest.TestCase):
-    @mock.patch("check_notebook.script_must_succeed_in_notebook")
+    @mock.patch("check_notebook.run_script_in_notebook")
     def test_sets_global_timeout(self, mocked):
         orig_timeout = check_notebook._TIMEOUT_SEC
         try:
@@ -75,7 +75,7 @@ class TestMain(unittest.TestCase):
         finally:
             check_notebook._TIMEOUT_SEC = orig_timeout
 
-    @mock.patch("check_notebook.script_must_succeed_in_notebook")
+    @mock.patch("check_notebook.run_script_in_notebook")
     def test_calls_appropriate_check(self, mocked_run):
         check_notebook.main(["has_pytorch_available", "notebook"])
         mocked_run.assert_called_once_with(
@@ -92,7 +92,7 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
         script = "import gravity"
         mocked_pod.return_value = pod_name
         mocked_run.return_value = check_notebook.SUCCESS_MARKER
-        check_notebook.script_must_succeed_in_notebook(notebook, script)
+        check_notebook.run_script_in_notebook(notebook, script)
         with self.subTest("asked for pod"):
             mocked_pod.assert_called_once_with(notebook)
         with self.subTest("asked to run script"):
@@ -103,7 +103,7 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
         exception = AssertionError("notebook not found")
         mocked.side_effect = exception
         with self.assertRaises(AssertionError) as caught:
-            check_notebook.script_must_succeed_in_notebook(
+            check_notebook.run_script_in_notebook(
                 "notebook",
                 "script",
             )
@@ -120,7 +120,7 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
         mocked_run.side_effect = exception
         mocked_pod.return_value = "pod"
         with self.assertRaises(subprocess.CalledProcessError) as caught:
-            check_notebook.script_must_succeed_in_notebook(
+            check_notebook.run_script_in_notebook(
                 "notebook",
                 "script",
             )
@@ -136,7 +136,7 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
         mocked_run.return_value = garbage_result
         mocked_pod.return_value = "pod"
         with self.assertRaises(AssertionError) as caught:
-            check_notebook.script_must_succeed_in_notebook(
+            check_notebook.run_script_in_notebook(
                 "notebook",
                 "script",
             )
@@ -230,7 +230,7 @@ class TestRunScriptInPod(unittest.TestCase):
 
 
 class TestCommands(unittest.TestCase):
-    @mock.patch("check_notebook.script_must_succeed_in_notebook")
+    @mock.patch("check_notebook.run_script_in_notebook")
     def test_asks_to_run_expected_script(self, mocked):
         notebook = "notebook"
         for i, (check, script_name) in enumerate(
@@ -268,7 +268,7 @@ class TestCommands(unittest.TestCase):
                 )
                 mocked.reset_mock()
 
-    @mock.patch("check_notebook.script_must_succeed_in_notebook")
+    @mock.patch("check_notebook.run_script_in_notebook")
     def test_fails_on_failure(self, mocked):
         notebook = "notebook"
         for i, check in enumerate(

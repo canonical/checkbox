@@ -56,35 +56,6 @@ class TestArgumentParsing(unittest.TestCase):
         assert parsed["timeout"] == 3.5
 
 
-class TestRunCommand(unittest.TestCase):
-    @mock.patch("check_notebook.common_run_command")
-    def test_calls_common_run_command(self, mocked):
-        mocked.return_value = "expected"
-        result = check_notebook.run_command("ls", "-lah")
-        with self.subTest("mock was called"):
-            mocked.assert_called_once()
-        with self.subTest("result was as expected"):
-            assert result == "expected"
-
-    @mock.patch("check_notebook.common_run_command")
-    def test_calls_with_default_timeout(self, mocked):
-        check_notebook.run_command("ls", "-lah")
-        mocked.assert_called_once_with(
-            "ls", "-lah", timeout=check_notebook._TIMEOUT_SEC
-        )
-
-    @mock.patch("check_notebook.common_run_command")
-    def test_calls_with_given_timeout(self, mocked):
-        orig_timeout = check_notebook._TIMEOUT_SEC
-        try:
-            timeout = 1010101
-            assert timeout != orig_timeout
-            check_notebook.run_command("ls", "-lah", timeout=timeout)
-            mocked.assert_called_once_with("ls", "-lah", timeout=timeout)
-        finally:
-            check_notebook._TIMEOUT_SEC = orig_timeout
-
-
 class TestMain(unittest.TestCase):
     @mock.patch("check_notebook.script_must_succeed_in_notebook")
     def test_sets_global_timeout(self, mocked):
@@ -244,6 +215,7 @@ class TestRunScriptInPod(unittest.TestCase):
                 "python",
                 "-c",
                 "script",
+                timeout=check_notebook._TIMEOUT_SEC,
             )
         with self.subTest("returns expected value"):
             assert result == "expected"

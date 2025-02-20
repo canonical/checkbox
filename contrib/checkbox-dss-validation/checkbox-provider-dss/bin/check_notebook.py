@@ -24,10 +24,7 @@
 import textwrap
 import typing as t
 
-from common import (
-    create_parser_with_checks_as_commands,
-    run_command as common_run_command,
-)
+from common import create_parser_with_checks_as_commands, run_command
 
 _TIMEOUT_SEC: float = 15.0 * 60  # seconds
 
@@ -99,12 +96,6 @@ SCRIPT = {
         """
     ),
 }
-
-
-def run_command(*command: str, **kwargs) -> str:
-    if "timeout" not in kwargs:
-        kwargs["timeout"] = _TIMEOUT_SEC
-    return common_run_command(*command, **kwargs)
 
 
 def parse_args(args: t.List[str] | None = None) -> dict[str, t.Any]:
@@ -184,7 +175,16 @@ def script_must_succeed_in_notebook(notebook_name: str, script: str) -> None:
 
 def run_script_in_pod(pod_name: str, script: str) -> str:
     return run_command(
-        "kubectl", "-n", "dss", "exec", pod_name, "--", "python", "-c", script
+        "kubectl",
+        "-n",
+        "dss",
+        "exec",
+        pod_name,
+        "--",
+        "python",
+        "-c",
+        script,
+        timeout=_TIMEOUT_SEC,
     )
 
 

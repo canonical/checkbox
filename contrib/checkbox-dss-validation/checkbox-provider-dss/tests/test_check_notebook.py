@@ -84,7 +84,7 @@ class TestMain(unittest.TestCase):
 
 
 class TestScriptMustSucceedInNotebook(unittest.TestCase):
-    @mock.patch("check_notebook.pod_for_running_notebook")
+    @mock.patch("check_notebook.get_notebook_pod")
     @mock.patch("check_notebook.run_script_in_pod")
     def test_normal_success(self, mocked_run, mocked_pod):
         notebook = "notebook"
@@ -98,7 +98,7 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
         with self.subTest("asked to run script"):
             mocked_run.assert_called_once_with(pod_name, script)
 
-    @mock.patch("check_notebook.pod_for_running_notebook")
+    @mock.patch("check_notebook.get_notebook_pod")
     def test_fails_on_missing_pod(self, mocked):
         exception = AssertionError("notebook not found")
         mocked.side_effect = exception
@@ -109,7 +109,7 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
             )
         assert caught.exception == exception
 
-    @mock.patch("check_notebook.pod_for_running_notebook")
+    @mock.patch("check_notebook.get_notebook_pod")
     @mock.patch("check_notebook.run_script_in_pod")
     def test_fails_when_running_script_raises_error(
         self,
@@ -126,7 +126,7 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
             )
         assert caught.exception == exception
 
-    @mock.patch("check_notebook.pod_for_running_notebook")
+    @mock.patch("check_notebook.get_notebook_pod")
     @mock.patch("check_notebook.run_script_in_pod")
     def test_fails_when_running_script_does_not_have_success_marker(
         self, mocked_run, mocked_pod
@@ -146,7 +146,7 @@ class TestScriptMustSucceedInNotebook(unittest.TestCase):
         )
 
 
-class TestPodForRunningNotebook(unittest.TestCase):
+class TestGetNotebookPod(unittest.TestCase):
     @mock.patch("check_notebook.run_command")
     def test_normal_success(self, mocked):
         notebook = "pytorch-test"
@@ -158,7 +158,7 @@ class TestPodForRunningNotebook(unittest.TestCase):
             {pod}                           1/1     Running   0          5m27s
             """
         )
-        result = check_notebook.pod_for_running_notebook(notebook)
+        result = check_notebook.get_notebook_pod(notebook)
         with self.subTest("asks for running notebooks"):
             mocked.assert_called_once_with(
                 "kubectl",
@@ -176,7 +176,7 @@ class TestPodForRunningNotebook(unittest.TestCase):
         exception = subprocess.CalledProcessError(1, "command")
         mocked.side_effect = exception
         with self.assertRaises(subprocess.CalledProcessError) as caught:
-            check_notebook.pod_for_running_notebook("notebook")
+            check_notebook.get_notebook_pod("notebook")
         assert caught.exception == exception
 
     @mock.patch("check_notebook.run_command")
@@ -192,7 +192,7 @@ class TestPodForRunningNotebook(unittest.TestCase):
             """
         )
         with self.assertRaises(AssertionError) as caught:
-            check_notebook.pod_for_running_notebook(notebook)
+            check_notebook.get_notebook_pod(notebook)
         assert (
             caught.exception.args[0]
             == f"no RUNNING pod for notebook {notebook} was found"

@@ -148,7 +148,6 @@ parts:
       - python3-markupsafe
       - python3-jinja2
       - python3-packaging
-      - python3-padme
       - python3-requests-oauthlib
       - python3-urwid
       - python3-xlsxwriter

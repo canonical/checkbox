@@ -84,7 +84,7 @@ class TestMain(unittest.TestCase):
 
 class TestRunScriptInNotebook(unittest.TestCase):
     @mock.patch("check_notebook.get_notebook_pod")
-    @mock.patch("check_notebook.run_script_in_pod")
+    @mock.patch("subprocess.check_call")
     def test_normal_success(self, mocked_run, mocked_pod):
         notebook = "notebook"
         pod_name = "notebokk-xyz"
@@ -94,7 +94,21 @@ class TestRunScriptInNotebook(unittest.TestCase):
         with self.subTest("asked for pod"):
             mocked_pod.assert_called_once_with(notebook)
         with self.subTest("asked to run script"):
-            mocked_run.assert_called_once_with(pod_name, script)
+            cmd = [
+                "kubectl",
+                "-n",
+                "dss",
+                "exec",
+                pod_name,
+                "--",
+                "python",
+                "-c",
+                script,
+            ]
+            mocked_run.assert_called_once_with(
+                cmd,
+                timeout=check_notebook._TIMEOUT_SEC,
+            )
 
     @mock.patch("check_notebook.get_notebook_pod")
     def test_fails_on_missing_pod(self, mocked):
@@ -108,7 +122,7 @@ class TestRunScriptInNotebook(unittest.TestCase):
         assert caught.exception == exception
 
     @mock.patch("check_notebook.get_notebook_pod")
-    @mock.patch("check_notebook.run_script_in_pod")
+    @mock.patch("subprocess.check_call")
     def test_fails_when_running_script_raises_error(
         self,
         mocked_run,
@@ -123,6 +137,7 @@ class TestRunScriptInNotebook(unittest.TestCase):
                 "script",
             )
         assert caught.exception == exception
+
 
 class TestGetNotebookPod(unittest.TestCase):
     @mock.patch("subprocess.check_output")

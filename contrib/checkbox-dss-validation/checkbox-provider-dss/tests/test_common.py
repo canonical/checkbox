@@ -21,59 +21,11 @@
 #
 """Tests for `common.py`"""
 
-import subprocess
 import unittest
-from unittest import mock
 
 import common
 
 # pragma: no cover
-
-
-class TestRunCommand(unittest.TestCase):
-    @mock.patch("subprocess.check_output")
-    def test_calls_subprocess(self, mocked):
-        for i, (args, kwargs) in enumerate(
-            [
-                [("ls", "-lah"), {"timeout": 30}],
-                [("ls", "-lh"), {}],
-            ]
-        ):
-            with self.subTest(i=i):
-                assert isinstance(kwargs, dict)
-                common.run_command(*args, **kwargs)
-                mocked.assert_called_with(
-                    args,
-                    stderr=subprocess.STDOUT,
-                    universal_newlines=True,
-                    **kwargs,
-                )
-                mocked.reset_mock()
-
-    @mock.patch("subprocess.check_output")
-    def test_returns_stripped_output_from_subprocess(self, mocked):
-        for i, (value, expected) in enumerate(
-            [
-                ("something", "something"),
-                (" with spaces   ", "with spaces"),
-                ("\nmulti \nline ", "multi \nline"),
-            ]
-        ):
-            with self.subTest(i=i):
-                mocked.return_value = value
-                result = common.run_command()
-                assert expected == result
-                mocked.reset_mock()
-
-    @mock.patch("subprocess.check_output")
-    def test_raises_subprocess_error(self, mocked):
-        exception = subprocess.CalledProcessError(
-            2, "testing", output="out", stderr="err"
-        )
-        mocked.side_effect = exception
-        with self.assertRaises(subprocess.CalledProcessError) as caught:
-            common.run_command("testing")
-        assert caught.exception == exception
 
 
 def check_1():

@@ -23,7 +23,6 @@
 
 import argparse
 import inspect
-import subprocess
 import typing as t
 
 
@@ -55,21 +54,3 @@ def create_parser_with_checks_as_commands(
             command_parser.add_argument(name, type=param.annotation)
 
     return parser
-
-
-def run_command(*command: str, **kwargs) -> str:
-    """Run a shell command and return its output"""
-    try:
-        result = subprocess.check_output(
-            command,
-            stderr=subprocess.STDOUT,  # We capture stdout and stderr in stdout
-            universal_newlines=True,
-            **kwargs,
-        )
-        print(result)
-        result = result.strip()
-        return result
-    except subprocess.CalledProcessError as err:
-        print(err.stdout)
-        print(err.stderr)
-        raise

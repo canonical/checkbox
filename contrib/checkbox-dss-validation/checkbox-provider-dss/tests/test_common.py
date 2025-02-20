@@ -25,8 +25,6 @@ import unittest
 
 import common
 
-# pragma: no cover
-
 
 def check_1():
     """check 1"""
@@ -40,6 +38,7 @@ def check_2():
 
 def check_p2(n: int):
     """check p2"""
+    assert isinstance(n, int)
     return n**2
 
 
@@ -76,9 +75,36 @@ class TestCreateParserWithChecks(unittest.TestCase):
             (check_2, ["check_2"]),
             (check_p2, ["check_p2", "2"]),
         ]:
-            with self.subTest(check):
+            with self.subTest(check.__name__):
                 parsed = parser.parse_args(args)
-                assert parsed.func == check
+                parsed_dict = dict(parsed.__dict__)
+                func = parsed_dict.pop("func")
+                self.assertEqual(func, check)
+
+    def test_checks_without_args_are_called(self):
+        parser = common.create_parser_with_checks_as_commands([check_1, check_2])
+        for check, args, expected in [
+            (check_1, ["check_1"], 1),
+            (check_2, ["check_2"], 2),
+        ]:
+            with self.subTest(check.__name__):
+                parsed = parser.parse_args(args)
+                parsed_dict = dict(parsed.__dict__)
+                func = parsed_dict.pop("func")
+                self.assertEqual(func(**parsed_dict), expected)
+
+    def test_exits_with_code_2_for_missing_args(self):
+        parser = common.create_parser_with_checks_as_commands([check_p2])
+        with self.assertRaises(SystemExit) as caught:
+            parser.parse_args(["check_p2"])  # no required arg
+        self.assertEqual(caught.exception.code, 2)
+
+    def test_parses_required_arg(self):
+        parser = common.create_parser_with_checks_as_commands([check_p2])
+        parsed = parser.parse_args(["check_p2", "2"])
+        parsed_dict = dict(parsed.__dict__)
+        func = parsed_dict.pop("func")
+        self.assertEqual(func(**parsed_dict), 2**2)
 
     # XXX:@motjuste: argparse provides very limited introspecting for sub-parsers?
     #   Otherwise, tests should be added about setting appropriate help, type, and

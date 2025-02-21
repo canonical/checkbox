@@ -437,6 +437,7 @@ parts:
     source: .
     override-pull: |
       snapcraftctl pull
+      sudo apt-get install --reinstall ca-certificates
       wget https://raw.githubusercontent.com/snapcore/snapd/master/include/lk/snappy_boot_common.h
       wget https://raw.githubusercontent.com/snapcore/snapd/master/include/lk/snappy_boot_v2.h
       wget https://raw.githubusercontent.com/kubiko/dragonboard-gadget/20-lk/snap-boot-sel/lk-boot-env.c

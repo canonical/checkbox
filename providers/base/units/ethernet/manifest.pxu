@@ -7,3 +7,8 @@ unit: manifest entry
 id: has_ethernet_wake_on_lan_support
 _name: Wake-on-LAN support through Ethernet port
 value-type: bool
+
+unit: manifest entry
+id: has_wake_on_lan_server
+_name: Has wake-on-Lan server for automation setup and running
+value-type: bool

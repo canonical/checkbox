@@ -29,7 +29,6 @@ Shared code for test data transports..
 """
 
 import sys
-import requests
 
 from io import TextIOWrapper
 from logging import getLogger
@@ -155,6 +154,8 @@ class _OAuthTransport(TransportBase):
         self.uploader_email = transport_details["uploader_email"]
 
     def send(self, data, config=None, session_state=None):
+        import requests
+
         headers = {}
         if self.oauth_creds:
             client = oauth1.Client(
@@ -268,6 +269,7 @@ def get_all_transports():
     """
     transport_map = OrderedDict()
     iterator = get_entry_points(group="plainbox.transport")
+
     for entry_point in sorted(iterator, key=lambda ep: ep.name):
         try:
             transport_cls = entry_point.load()
@@ -275,4 +277,5 @@ def get_all_transports():
             logger.exception(_("Unable to import {}: {}"), entry_point, exc)
         else:
             transport_map[entry_point.name] = transport_cls
+
     return transport_map

@@ -47,7 +47,33 @@ from plainbox.impl.session.suspend import SessionSuspendHelper
 from plainbox.impl.unit.testplan import TestPlanUnit
 from plainbox.vendor import morris
 
+
 logger = logging.getLogger("plainbox.session.manager")
+
+import linecache
+import tracemalloc
+
+
+def display_top(snapshot, key_type="lineno", limit=10):
+    top_stats = snapshot.statistics(key_type, cumulative=True)
+
+    print("Top %s lines" % limit)
+    for index, stat in enumerate(top_stats[:limit], 1):
+        frame = stat.traceback[0]
+        print(
+            "#%s: %s:%s: %.1f KiB"
+            % (index, frame.filename, frame.lineno, stat.size / 1024)
+        )
+        line = linecache.getline(frame.filename, frame.lineno).strip()
+        if line:
+            print("    %s" % line)
+
+    other = top_stats[limit:]
+    if other:
+        size = sum(stat.size for stat in other)
+        print("%s other: %.1f KiB" % (len(other), size / 1024))
+    total = sum(stat.size for stat in top_stats)
+    print("Total allocated size: %.1f KiB" % (total / 1024))
 
 
 def at_most_one_context_filter(
@@ -178,7 +204,9 @@ class SessionManager(pod.POD):
         """
         logger.debug("SessionManager.create()")
         storage = SessionStorage.create(prefix)
-        return cls([], storage)
+        to_r = cls([], storage)
+        cls._throwaway_managers["root"] = to_r
+        return to_r
 
     @classmethod
     def create_with_state(cls, state):
@@ -286,6 +314,10 @@ class SessionManager(pod.POD):
         After calling this method you can later reopen the same session with
         :meth:`SessionManager.load_session()`.
         """
+        try:
+            self.count += 1
+        except AttributeError:
+            self.count = 1
         logger.debug("SessionManager.checkpoint()")
         data = SessionSuspendHelper().suspend(
             self.state, self.storage.location
@@ -299,6 +331,23 @@ class SessionManager(pod.POD):
             len(data),
             self.storage.location,
         )
+
+        """if self.count % 30 == 0:
+            print()
+            print()
+            print()
+            snapshot = tracemalloc.take_snapshot()
+            display_top(snapshot, limit=50)
+            breakpoint()"""
+        if self.count % 100 == 0:
+            print("Tearing down", flush=True)
+            print("Forcing gc")
+            import gc
+
+            gc.collect()
+            print("Actual teardown", flush=True)
+
+            raise SystemExit(0)
         try:
             self.storage.save_checkpoint(data)
         except LockedStorageError:
@@ -493,16 +542,17 @@ class SessionManager(pod.POD):
         and other objects stored in providers.
         """
         key = hash(frozenset(provider_list)) if provider_list else ""
-        if not cls._throwaway_managers.get(key):
-            # for safety let's create more persistent tempdir than
-            # the TemporaryDirectory context_manager
-            if provider_list is None:
-                provider_list = get_providers()
-            manager = cls.create(prefix="throwaway-")
-            atexit.register(lambda: manager.destroy())
-            manager.add_local_device_context()
-            device_context = manager.default_device_context
-            cls._throwaway_managers[key] = manager
-            for provider in provider_list:
-                device_context.add_provider(provider)
+        yield cls._throwaway_managers["root"]
+        return
+        # for safety let's create more persistent tempdir than
+        # the TemporaryDirectory context_manager
+        if provider_list is None:
+            provider_list = get_providers()
+        manager = cls.create(prefix="throwaway-")
+        atexit.register(lambda: manager.destroy())
+        manager.add_local_device_context()
+        device_context = manager.default_device_context
+        cls._throwaway_managers[key] = manager
+        for provider in provider_list:
+            device_context.add_provider(provider)
         yield cls._throwaway_managers[key]

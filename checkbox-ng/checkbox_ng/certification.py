@@ -34,7 +34,6 @@ from plainbox.impl.transport import InvalidSecureIDError
 from plainbox.impl.transport import SECURE_ID_PATTERN
 from plainbox.impl.transport import TransportBase
 from plainbox.impl.transport import TransportError
-import requests
 
 
 logger = getLogger("checkbox.ng.certification")
@@ -62,6 +61,8 @@ class SubmissionServiceTransport(TransportBase):
             self._validate_secure_id(self._secure_id)
 
     def send(self, data, config=None, session_state=None):
+        import requests
+
         """
         Sends data to the specified server.
 

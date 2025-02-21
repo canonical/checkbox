@@ -330,7 +330,6 @@ class TemplateUnit(UnitWithId):
         """
         return self.get_record_value("template-summary")
 
-    @instance_method_lru_cache(maxsize=None)
     def tr_template_summary(self):
         """
         Get the translated version of :meth:`template_summary`.
@@ -347,7 +346,6 @@ class TemplateUnit(UnitWithId):
         """
         return self.get_record_value("template-description")
 
-    @instance_method_lru_cache(maxsize=None)
     def tr_template_description(self):
         """
         Get the translated version of :meth:`template_description`.

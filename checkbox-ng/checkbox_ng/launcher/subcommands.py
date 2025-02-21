@@ -68,12 +68,6 @@ from checkbox_ng.launcher.startprovider import (
 )
 from checkbox_ng.launcher.run import Action
 from checkbox_ng.launcher.run import NormalUI
-from checkbox_ng.resume_menu import ResumeMenu
-from checkbox_ng.urwid_ui import CategoryBrowser
-from checkbox_ng.urwid_ui import ManifestBrowser
-from checkbox_ng.urwid_ui import ReRunBrowser
-from checkbox_ng.urwid_ui import ResumeInstead
-from checkbox_ng.urwid_ui import TestPlanBrowser
 from checkbox_ng.utils import (
     newline_join,
     generate_resume_candidate_description,
@@ -230,6 +224,8 @@ class Launcher(MainLoopStage, ReportsStage):
         return [SA_RESTARTABLE]
 
     def invoked(self, ctx):
+        from checkbox_ng.urwid_ui import ResumeInstead
+
         if ctx.args.version:
             import checkbox_ng
 
@@ -436,6 +432,9 @@ class Launcher(MainLoopStage, ReportsStage):
         Run the interactive resume menu.
         Returns True if a session was resumed, False otherwise.
         """
+
+        from checkbox_ng.resume_menu import ResumeMenu
+
         entries = [
             (
                 candidate.id,
@@ -668,6 +667,8 @@ class Launcher(MainLoopStage, ReportsStage):
         self.ctx.sa.delete_sessions(completed_ids + ids)
 
     def _interactively_pick_test_plan(self):
+        from checkbox_ng.urwid_ui import TestPlanBrowser
+
         test_plan_ids = self.ctx.sa.get_test_plans()
         filtered_tp_ids = set()
         for filter in self.configuration.get_value("test plan", "filter"):
@@ -688,6 +689,8 @@ class Launcher(MainLoopStage, ReportsStage):
         return val.lower() in ("y", "yes", "t", "true", "on", "1")
 
     def _save_manifest(self, interactive):
+        from checkbox_ng.urwid_ui import ManifestBrowser
+
         manifest_repr = self.ctx.sa.get_manifest_repr()
         if not manifest_repr:
             _logger.info("Skipping saving of the manifest")
@@ -710,6 +713,8 @@ class Launcher(MainLoopStage, ReportsStage):
         self.ctx.sa.save_manifest(to_save_manifest)
 
     def _pick_jobs_to_run(self):
+        from checkbox_ng.urwid_ui import CategoryBrowser
+
         if self.configuration.get_value("test selection", "forced"):
             if self.configuration.manifest:
                 self._save_manifest(interactive=False)
@@ -892,6 +897,8 @@ class Launcher(MainLoopStage, ReportsStage):
         return True
 
     def _maybe_rerun_jobs(self):
+        from checkbox_ng.urwid_ui import ReRunBrowser
+
         # create a list of jobs that qualify for rerunning
         rerun_candidates = self.ctx.sa.get_rerun_candidates("manual")
         # bail-out early if no job qualifies for rerunning

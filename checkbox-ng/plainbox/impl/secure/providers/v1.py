@@ -657,6 +657,7 @@ class ProviderContentLoader:
             text = file_plugin.plugin_object
             self._load_file(filename, text, plugin_kwargs)
         self.problem_list.extend(self.provider.content_collection.problem_list)
+        del self.provider._enumerator._content_collection
         self.is_loaded = True
 
     def _warn_ignored_file(self, filename):

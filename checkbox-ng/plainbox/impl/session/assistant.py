@@ -513,6 +513,7 @@ class SessionAssistant:
                     provider.name,
                     provider.problem_list,
                 )
+            print(len(provider.problem_list))
             self._context.add_provider(provider)
         self._metadata = self._context.state.metadata
         self._metadata.app_id = self._app_id

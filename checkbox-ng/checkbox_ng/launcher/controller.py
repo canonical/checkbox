@@ -46,17 +46,7 @@ from plainbox.impl.session.resume import (
     CorruptedSessionError,
 )
 from plainbox.impl.session.remote_assistant import RemoteSessionAssistant
-from plainbox.vendor import rpyc
-from checkbox_ng.resume_menu import ResumeMenu
-from checkbox_ng.urwid_ui import (
-    TestPlanBrowser,
-    CategoryBrowser,
-    ManifestBrowser,
-    ReRunBrowser,
-    interrupt_dialog,
-    resume_dialog,
-    ResumeInstead,
-)
+
 from checkbox_ng.utils import (
     generate_resume_candidate_description,
     newline_join,
@@ -225,6 +215,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         )
 
     def connect_and_run(self, host, port=18871):
+        from plainbox.vendor import rpyc
+
         config = rpyc.core.protocol.DEFAULT_CONFIG.copy()
         config["allow_all_attrs"] = True
         config["sync_request_timeout"] = 120
@@ -379,6 +371,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         Used to temporarily resume a session to inspect it, abandoning it
         before exiting the context
         """
+        from checkbox_ng.vendor import rpyc
+
         try:
             yield self.sa.resume_session(session_id)
         except rpyc.core.vinegar.GenericException as e:
@@ -469,6 +463,7 @@ class RemoteController(ReportsStage, MainLoopStage):
         self.run_jobs()
 
     def _new_session_flow(self, tps, resumable_sessions):
+
         tp_info_list = [{"id": tp[0], "name": tp[1]} for tp in tps]
         if not tp_info_list:
             _logger.error(_("There were no test plans to select from!"))
@@ -490,6 +485,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         self.select_jobs(self.jobs)
 
     def _resume_session_menu(self, resumable_sessions):
+        from checkbox_ng.resume_menu import ResumeMenu
+
         """
         Run the interactive resume menu.
         Returns True if a session was resumed, False otherwise.
@@ -719,6 +716,8 @@ class RemoteController(ReportsStage, MainLoopStage):
         )
 
         self.sa.finalize_session()
+
+        raise SystemExit(0)
         return False
 
     def wait_and_continue(self):

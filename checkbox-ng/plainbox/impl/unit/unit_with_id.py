@@ -81,14 +81,14 @@ class UnitWithId(Unit):
     the namespace part.
     """
 
-    @cached_property
+    @property
     def partial_id(self):
         """
         Identifier of this unit, without the provider namespace
         """
         return self.get_record_value("id")
 
-    @cached_property
+    @property
     def id(self):
         """
         Identifier of this unit, with the provider namespace.
@@ -102,6 +102,12 @@ class UnitWithId(Unit):
             return "{}::{}".format(self.provider.namespace, self.partial_id)
         else:
             return self.partial_id
+
+    def __hash__(self):
+        try:
+            return hash(self._data["id"])
+        except KeyError:
+            return super().__hash__()
 
     class Meta:
 

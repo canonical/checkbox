@@ -158,7 +158,7 @@ class TestPlanUnit(UnitWithId):
     def __repr__(self):
         return "<TestPlanUnit id:{!r} name:{!r}>".format(self.id, self.name)
 
-    @cached_property
+    @property
     def name(self):
         """
         name of this test plan
@@ -169,7 +169,7 @@ class TestPlanUnit(UnitWithId):
         """
         return self.get_record_value("name")
 
-    @cached_property
+    @property
     def description(self):
         """
         description of this test plan
@@ -180,35 +180,35 @@ class TestPlanUnit(UnitWithId):
         """
         return self.get_record_value("description")
 
-    @cached_property
+    @property
     def include(self):
         return self.get_record_value("include")
 
-    @cached_property
+    @property
     def mandatory_include(self):
         return self.get_record_value("mandatory_include")
 
-    @cached_property
+    @property
     def bootstrap_include(self):
         return self.get_record_value("bootstrap_include")
 
-    @cached_property
+    @property
     def exclude(self):
         return self.get_record_value("exclude")
 
-    @cached_property
+    @property
     def nested_part(self):
         return self.get_record_value("nested_part")
 
-    @cached_property
+    @property
     def icon(self):
         return self.get_record_value("icon")
 
-    @cached_property
+    @property
     def category_overrides(self):
         return self.get_record_value("category_overrides")
 
-    @cached_property
+    @property
     def certification_status_overrides(self):
         return self.get_record_value("certification_status_overrides")
 
@@ -225,7 +225,7 @@ class TestPlanUnit(UnitWithId):
     def provider_list(self, value):
         self._provider_list = value
 
-    @cached_property
+    @property
     def estimated_duration(self):
         """
         estimated duration of this test plan in seconds.
@@ -261,14 +261,12 @@ class TestPlanUnit(UnitWithId):
         else:
             return float(value)
 
-    @instance_method_lru_cache(maxsize=None)
     def tr_name(self):
         """
         Get the translated version of :meth:`summary`
         """
         return self.get_translated_record_value("name")
 
-    @instance_method_lru_cache(maxsize=None)
     def tr_description(self):
         """
         Get the translated version of :meth:`description`

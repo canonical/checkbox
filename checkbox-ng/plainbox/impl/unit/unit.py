@@ -446,6 +446,7 @@ class Unit(metaclass=UnitType):
         parameters=None,
         field_offset_map=None,
         virtual=False,
+        context=None,
     ):
         """
         Initialize a new unit
@@ -477,8 +478,7 @@ class Unit(metaclass=UnitType):
             operations can treat them differently. It also helps with merging
             non-virtual and virtual units.
         """
-        if raw_data is None:
-            raw_data = data
+        raw_data = data
         if origin is None:
             origin = Origin.get_caller_origin()
         if field_offset_map is None:
@@ -529,7 +529,7 @@ class Unit(metaclass=UnitType):
             self._hash_cache = int(self.checksum, 16)
         return self._hash_cache
 
-    @cached_property
+    @property
     def unit(self):
         """
         the value of the unit field
@@ -539,7 +539,6 @@ class Unit(metaclass=UnitType):
         """
         return self.get_record_value("unit")
 
-    @instance_method_lru_cache(maxsize=None)
     def tr_unit(self):
         """
         Translated (optionally) value of the unit field (overridden)
@@ -548,14 +547,14 @@ class Unit(metaclass=UnitType):
         """
         return _(self.Meta.name)
 
-    @cached_property
+    @property
     def origin(self):
         """
         The Origin object associated with this Unit
         """
         return self._origin
 
-    @cached_property
+    @property
     def field_offset_map(self):
         """
         The field-to-line-number-offset mapping.
@@ -567,14 +566,14 @@ class Unit(metaclass=UnitType):
         """
         return self._field_offset_map
 
-    @cached_property
+    @property
     def provider(self):
         """
         The provider object associated with this Unit
         """
         return self._provider
 
-    @cached_property
+    @property
     def parameters(self):
         """
         The mapping of parameters supplied to this Unit
@@ -586,7 +585,7 @@ class Unit(metaclass=UnitType):
         """
         return self._parameters
 
-    @cached_property
+    @property
     def template_engine(self):
         """
         value of the 'template-engine' field.
@@ -596,7 +595,7 @@ class Unit(metaclass=UnitType):
         """
         return self._data.get("template-engine", "default")
 
-    @cached_property
+    @property
     def virtual(self):
         """
         Flag indicating if this unit is a virtual unit
@@ -606,7 +605,7 @@ class Unit(metaclass=UnitType):
         """
         return self._virtual
 
-    @cached_property
+    @property
     def is_parametric(self):
         """
         If true, then this unit is parametric
@@ -685,18 +684,7 @@ class Unit(metaclass=UnitType):
             return {}
 
     @instance_method_lru_cache(maxsize=None)
-    def get_record_value(self, name, default=None):
-        """
-        Obtain the normalized value of the specified record attribute
-
-        :param name:
-            Name of the field to access
-        :param default:
-            Default value, used if the field is not defined in the unit
-        :returns:
-            The value of the field, possibly with parameters inserted, or the
-            default value
-        """
+    def _get_parametrized_value(self, name, default=None):
         value = self._data.get("_{}".format(name))
         if value is None:
             value = self._data.get(name, default)
@@ -735,8 +723,28 @@ class Unit(metaclass=UnitType):
             value = Template(value).render(tmp_params)
         return value
 
+    def get_record_value(self, name, default=None):
+        """
+        Obtain the normalized value of the specified record attribute
+
+        :param name:
+            Name of the field to access
+        :param default:
+            Default value, used if the field is not defined in the unit
+        :returns:
+            The value of the field, possibly with parameters inserted, or the
+            default value
+        """
+        if self.is_parametric or self.template_engine == "jinja2":
+            # do this to avoid caching all values
+            return self._get_parametrized_value(name, default)
+        value = self._data.get("_{}".format(name))
+        if value is None:
+            value = self._data.get(name, default)
+        return value
+
     @instance_method_lru_cache(maxsize=None)
-    def get_raw_record_value(self, name, default=None):
+    def _get_raw_record_value(self, name, default=None):
         """
         Obtain the raw value of the specified record attribute
 
@@ -778,7 +786,15 @@ class Unit(metaclass=UnitType):
             value = Template(value).render(tmp_params)
         return value
 
-    @instance_method_lru_cache(maxsize=None)
+    def get_raw_record_value(self, name, default=None):
+        if self.is_parametric or self.template_engine == "jinja2":
+            # do this to avoid caching all values
+            return self._get_raw_record_value(name, default)
+        value = self._data.get("_{}".format(name))
+        if value is None:
+            value = self._data.get(name, default)
+        return value
+
     def get_translated_record_value(self, name, default=None):
         """
         Obtain the translated value of the specified record attribute
@@ -800,6 +816,7 @@ class Unit(metaclass=UnitType):
         """
         # Try to access the marked-for-translation record
         msgid = self._raw_data.get("_{}".format(name))
+        return msgid
         if msgid is not None:
             # We now have a translatable message that we can look up in the
             # provider translation database.
@@ -865,7 +882,6 @@ class Unit(metaclass=UnitType):
         # If we have nothing better let's just return the default value
         return default
 
-    @instance_method_lru_cache(maxsize=None)
     def is_translatable_field(self, name):
         """
         Check if a field is marked as translatable

@@ -270,11 +270,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         return "job"
 
-    @cached_property
+    @property
     def name(self):
         return self.get_record_value("name")
 
-    @cached_property
+    @property
     def partial_id(self):
         """
         Identifier of this job, without the provider name
@@ -290,11 +290,11 @@ class JobDefinition(UnitWithId, IJobDefinition):
             plugin = "shell"
         return plugin
 
-    @cached_property
+    @property
     def summary(self):
         return self.get_record_value("summary", self.partial_id)
 
-    @cached_property
+    @property
     def description(self):
         # since version 0.17 description field should be replaced with
         # purpose/steps/verification fields. To keep backwards compability
@@ -314,55 +314,55 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 description = None
         return description
 
-    @cached_property
+    @property
     def purpose(self):
         return self.get_record_value("purpose")
 
-    @cached_property
+    @property
     def steps(self):
         return self.get_record_value("steps")
 
-    @cached_property
+    @property
     def verification(self):
         return self.get_record_value("verification")
 
-    @cached_property
+    @property
     def requires(self):
         return self.get_record_value("requires")
 
-    @cached_property
+    @property
     def depends(self):
         return self.get_record_value("depends")
 
-    @cached_property
+    @property
     def after(self):
         return self.get_record_value("after")
 
-    @cached_property
+    @property
     def salvages(self):
         return self.get_record_value("salvages")
 
-    @cached_property
+    @property
     def command(self):
         return self.get_record_value("command")
 
-    @cached_property
+    @property
     def environ(self):
         return self.get_record_value("environ")
 
-    @cached_property
+    @property
     def user(self):
         return self.get_record_value("user")
 
-    @cached_property
+    @property
     def flags(self):
         return self.get_record_value("flags")
 
-    @cached_property
+    @property
     def siblings(self):
         return self.get_record_value("siblings")
 
-    @cached_property
+    @property
     def shell(self):
         """
         Shell that is used to interpret the command
@@ -371,7 +371,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         return self.get_record_value("shell", "bash")
 
-    @cached_property
+    @property
     def imports(self):
         return self.get_record_value("imports")
 
@@ -395,7 +395,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
             )
         )
 
-    @cached_property
+    @property
     def template_id(self):
         """
         Fully qualified identifier of the template this job is instantiated
@@ -438,7 +438,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         return self.get_record_value("certification-status", "non-blocker")
 
-    @cached_property
+    @property
     def estimated_duration(self):
         """
         estimated duration of this job in seconds.
@@ -480,21 +480,19 @@ class JobDefinition(UnitWithId, IJobDefinition):
             except ValueError:
                 pass
 
-    @cached_property
+    @property
     def controller(self):
         """
         The controller object associated with this JobDefinition
         """
         return self._controller
 
-    @instance_method_lru_cache(maxsize=None)
     def tr_summary(self):
         """
         Get the translated version of :meth:`summary`
         """
         return self.get_translated_record_value("summary", self.partial_id)
 
-    @instance_method_lru_cache(maxsize=None)
     def tr_description(self):
         """
         Get the translated version of :meth:`description`
@@ -520,28 +518,24 @@ class JobDefinition(UnitWithId, IJobDefinition):
                 tr_description = None
         return tr_description
 
-    @instance_method_lru_cache(maxsize=None)
     def tr_purpose(self):
         """
         Get the translated version of :meth:`purpose`
         """
         return self.get_translated_record_value("purpose")
 
-    @instance_method_lru_cache(maxsize=None)
     def tr_steps(self):
         """
         Get the translated version of :meth:`steps`
         """
         return self.get_translated_record_value("steps")
 
-    @instance_method_lru_cache(maxsize=None)
     def tr_verification(self):
         """
         Get the translated version of :meth:`verification`
         """
         return self.get_translated_record_value("verification")
 
-    @instance_method_lru_cache(maxsize=None)
     def tr_siblings(self):
         """
         Get the translated version of :meth:`siblings`
@@ -584,7 +578,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         imports = self.imports or ""
         return parse_imports_stmt(imports)
 
-    @cached_property
+    @property
     def automated(self):
         """
         Whether the job is fully automated and runs without any
@@ -592,7 +586,7 @@ class JobDefinition(UnitWithId, IJobDefinition):
         """
         return self.plugin in ["shell", "resource", "attachment"]
 
-    @cached_property
+    @property
     def startup_user_interaction_required(self):
         """
         The job needs to be started explicitly by the test operator. This is

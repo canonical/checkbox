@@ -352,7 +352,7 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
         if line.startswith("#"):
             pass
         # Treat empty lines as record separators
-        elif line.strip() == "":
+        elif line.isspace():
             # Commit the current record so that the multi-line value of the
             # last key, if any, is saved as a string
             _commit_key_value_if_needed()
@@ -401,7 +401,7 @@ def gen_rfc822_records(stream, data_cls=dict, source=None):
                         "with old value {!r} and new value {!r}"
                     ).format(key, record.raw_data[key], value)
                 )
-            if value.strip() != "":
+            if not value.isspace():
                 # Construct initial value list out of the (only) value that we
                 # have so far. Additional multi-line values will just append to
                 # value_list

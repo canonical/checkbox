@@ -44,7 +44,7 @@ class TestSendRequestToWolServerFunction(unittest.TestCase):
         mock_response.read.return_value = json.dumps(
             {"result": "success"}
         ).encode("utf-8")
-        mock_response.getcode.return_value = 200
+        mock_response.status = 200
         mock_urlopen.return_value = mock_response
         mock_urlopen.return_value.__enter__.return_value = mock_response
 

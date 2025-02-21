@@ -28,7 +28,6 @@ import sys
 def get_timestamp(file):
     with open(file, "r") as f:
         saved_timestamp = float(f.read())
-        # logging.info("saved_timestamp: {}".format(saved_timestamp))
     readable_start_time = datetime.datetime.fromtimestamp(saved_timestamp)
     logging.debug("Test started at: {}".format(readable_start_time))
     return saved_timestamp
@@ -56,7 +55,7 @@ def get_wakeup_timestamp():
                 latest_system_back_time
             )
             logging.debug("System back time: {}".format(readable_back_time))
-            return float(latest_system_back_time)
+            return latest_system_back_time
 
     return None
 
@@ -76,7 +75,7 @@ def get_first_boot_timestamp():
         latest_system_back_time
     )
     logging.debug("System back time: {}".format(readable_back_time))
-    return float(latest_system_back_time)
+    return latest_system_back_time
 
 
 def parse_args(args=sys.argv[1:]):

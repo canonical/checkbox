@@ -45,7 +45,7 @@ def send_request_to_wol_server(url, data=None, retry=3):
                 logging.info("in the urllib request.")
                 response_data = json.loads(response.read().decode("utf-8"))
                 logging.debug("Response: {}".format(response_data))
-                status_code = response.getcode()
+                status_code = response.status
                 logging.debug("Status code: {}".format(status_code))
                 # Handle returned status and message
                 if status_code == 200 and response_data["result"] == "success":
@@ -93,8 +93,6 @@ def check_wakeup(interface):
         raise FileNotFoundError(
             "The network interface {} does not exist.".format(interface)
         )
-    except Exception as e:
-        raise e
 
 
 def __get_ip_address(interface):
@@ -179,6 +177,7 @@ def bring_up_system(way, time):
     # try to wake up the system by rtc
     if way == "rtc":
         set_rtc_wake(time)
+        logging.debug("set the rtcwake time: {} seconds ".format(time))
     else:
         # try to wake up the system other than RTC which not support
         raise SystemExit(
@@ -269,9 +268,6 @@ def main():
     send_request_to_wol_server(url, data=req, retry=3)
 
     bring_up_system("rtc", delay * retry * 2)
-    logging.debug(
-        "set the rtcwake time: {} seconds ".format(delay * retry * 2)
-    )
 
     # write the time stamp
     write_timestamp(args.timestamp_file)

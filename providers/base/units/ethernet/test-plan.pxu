@@ -81,6 +81,7 @@ estimated_duration: 1m
 include:
     ethernet/detect    certification-status=blocker
     ethernet/ping_.*   certification-status=blocker
+    ethernet/ping-with-any-cable-interface  certification-status=blocker
 bootstrap_include:
     device
 
@@ -112,6 +113,7 @@ estimated_duration: 1m
 include:
     after-suspend-ethernet/detect
     after-suspend-ethernet/ping_.*
+    after-suspend-ethernet/ping-with-any-cable-interface
 bootstrap_include:
     device
 

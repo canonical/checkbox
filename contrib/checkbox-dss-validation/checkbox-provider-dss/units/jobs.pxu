@@ -16,11 +16,11 @@ id: dss/namespace
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Check that the dss namespace is deployed
 estimated_duration: 5s
-command: check_dss.sh namespace_is_deployed
+command: kubectl get ns dss
 
 id: dss/status_mlflow
 category_id: dss-regress

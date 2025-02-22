@@ -1,4 +1,4 @@
-#!/usr/bin/env -i -S -C ${HOME} dss
+#!/usr/bin/env bash
 # This file is part of Checkbox.
 #
 # Copyright 2022 Canonical Ltd.
@@ -27,3 +27,8 @@
 #   Furthermore, the working directory needs to be changed to, e.g.
 #   $HOME, because `dss` likes to write files out, and it won't have
 #   permission to write into the checkbox / snap directory.
+set -eo pipefail
+
+export -n PYTHONHOME PYTHONPATH PYTHONUSERBASE
+
+env -C "$HOME" dss "$@"

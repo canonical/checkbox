@@ -7,17 +7,20 @@ requires:
   executable.name == 'microk8s'
 _summary: Check that the DSS environment initializes
 estimated_duration: 2m
-command: check_dss.sh can_be_initialized
+command:
+  set -eo pipefail
+  KUBECONFIG="$(cat ~/.kube/config)"
+  run_dss.sh initialize --kubeconfig "$KUBECONFIG"
 
 id: dss/namespace
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: dss/initialize
 _summary: Check that the dss namespace is deployed
 estimated_duration: 5s
-command: check_dss.sh namespace_is_deployed
+command: kubectl get ns dss
 
 id: dss/status_mlflow
 category_id: dss-regress
@@ -27,7 +30,9 @@ requires: executable.name == 'dss'
 depends: dss/namespace
 _summary: Check that the dss mlflow is deployed
 estimated_duration: 5s
-command: check_dss.sh mlflow_status_is_ready
+command:
+  set -eo pipefail
+  run_dss.sh status | grep "MLflow deployment: Ready"
 
 id: dss/create_pytorch_cpu_notebook
 category_id: dss-regress
@@ -36,8 +41,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that an PyTorch CPU notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.sh can_create_notebook pytorch-cpu --image=pytorch
+estimated_duration: 5m
+command: timeout 5m run_dss.sh create pytorch-cpu --image=pytorch
 
 id: cpu/pytorch_can_use_cpu
 category_id: dss-regress
@@ -57,7 +62,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_cpu_notebook
 _summary: Check that the PyTorch CPU notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook pytorch-cpu
+command: run_dss.sh remove pytorch-cpu
 
 id: dss/create_tensorflow_cpu_notebook
 category_id: dss-regress
@@ -66,8 +71,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/initialize
 _summary: Check that an Tensorflow CPU notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.sh can_create_notebook tensorflow-cpu --image=tensorflow
+estimated_duration: 5m
+command: timeout 5m run_dss.sh create tensorflow-cpu --image=tensorflow
 
 id: cpu/tensorflow_can_use_cpu
 category_id: dss-regress
@@ -87,7 +92,7 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cpu_notebook
 _summary: Check that the Tensorflow CPU notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook tensorflow-cpu
+command: run_dss.sh remove tensorflow-cpu
 
 # Intel XPU jobs ##############################################################
 
@@ -183,7 +188,9 @@ requires: executable.name == 'dss'
 depends: intel_gpu_plugin/node_gpu_allocatable
 _summary: Check that DSS status reports Intel GPU acceleration is enabled
 estimated_duration: 5s
-command: check_dss.sh intel_gpu_acceleration_is_enabled
+command:
+  set -eo pipefail
+  run_dss.sh status | grep "Intel GPU acceleration: Enabled.*"
 
 id: dss/create_tensorflow_intel_notebook
 category_id: dss-regress
@@ -192,8 +199,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that a Tensorflow Intel notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.sh can_create_notebook tensorflow-intel --image tensorflow-intel
+estimated_duration: 5m
+command: timeout 5m run_dss.sh create tensorflow-intel --image=tensorflow-intel
 
 id: xpu/tensorflow_can_use_xpu
 category_id: dss-regress
@@ -213,7 +220,7 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_intel_notebook
 _summary: Check that the Tensorflow Intel notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook tensorflow-intel
+command: run_dss.sh remove tensorflow-intel
 
 id: dss/create_pytorch_intel_notebook
 category_id: dss-regress
@@ -222,8 +229,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_intel_gpu
 _summary: Check that a PyTorch Intel notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.sh can_create_notebook pytorch-intel --image pytorch-intel
+estimated_duration: 5m
+command: timeout 5m run_dss.sh create pytorch-intel --image=pytorch-intel
 
 id: xpu/pytorch_can_use_xpu
 category_id: dss-regress
@@ -243,7 +250,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_intel_notebook
 _summary: Check that the PyTorch Intel notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook pytorch-intel
+command: run_dss.sh remove pytorch-intel
 
 # NVIDIA CUDA jobs ############################################################
 
@@ -279,7 +286,9 @@ requires: executable.name == 'dss'
 depends: nvidia_gpu_addon/validations_succeed
 _summary: Check that dss status reports that NVIDIA GPU acceleration is enabled
 estimated_duration: 5s
-command: check_dss.sh nvidia_gpu_acceleration_is_enabled
+command:
+  set -eo pipefail
+  run_dss.sh status | grep "NVIDIA GPU acceleration: Enabled.*"
 
 id: dss/create_pytorch_cuda_notebook
 category_id: dss-regress
@@ -288,8 +297,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an PyTorch CUDA notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.sh can_create_notebook pytorch-cuda --image=pytorch-cuda
+estimated_duration: 5m
+command: timeout 5m run_dss.sh create pytorch-cuda --image=pytorch-cuda
 
 id: cuda/pytorch_can_use_cuda
 category_id: dss-regress
@@ -309,7 +318,7 @@ requires: executable.name == 'dss'
 depends: dss/create_pytorch_cuda_notebook
 _summary: Check that the PyTorch CUDA notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook pytorch-cuda
+command: run_dss.sh remove pytorch-cuda
 
 id: dss/create_tensorflow_cuda_notebook
 category_id: dss-regress
@@ -318,8 +327,8 @@ imports: from com.canonical.certification import executable
 requires: executable.name == 'dss'
 depends: dss/status_nvidia_gpu
 _summary: Check that an Tensorflow CUDA notebook can be successfully created
-estimated_duration: 3m
-command: check_dss.sh can_create_notebook tensorflow-cuda --image=tensorflow-cuda
+estimated_duration: 5m
+command: timeout 5m run_dss.sh create tensorflow-cuda --image=tensorflow-cuda
 
 id: cuda/tensorflow_can_use_cuda
 category_id: dss-regress
@@ -339,4 +348,14 @@ requires: executable.name == 'dss'
 depends: dss/create_tensorflow_cuda_notebook
 _summary: Check that the Tensorflow CUDA notebook can be removed
 estimated_duration: 1m
-command: check_dss.sh can_remove_notebook tensorflow-cuda
+command: run_dss.sh remove tensorflow-cuda
+
+id: dss/purge
+category_id: dss-regress
+flags: simple
+imports: from com.canonical.certification import executable
+requires: executable.name == 'dss'
+depends: dss/create_tensorflow_cuda_notebook
+_summary: Check that DSS can be purged
+estimated_duration: 5m
+command: timeout 5m run_dss.sh purge

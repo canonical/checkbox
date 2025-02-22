@@ -10,9 +10,11 @@ test_data:
 
     # Clone repo from appropriate branch/commit.
     ssh ubuntu@$DEVICE_IP '
-      DEBIAN_FRONTEND=noninteractive sudo apt update
-      DEBIAN_FRONTEND=noninteractive sudo apt -y upgrade
-      DEBIAN_FRONTEND=noninteractive sudo apt -y install git
+      export DEBIAN_FRONTEND=noninteractive
+      export NEEDRESTART_MODE=a
+      sudo -E apt update
+      sudo -E apt -y upgrade
+      sudo -E apt -y install git
       git clone -b REPLACE_BRANCH \
         https://github.com/canonical/checkbox.git \
         ~ubuntu/checkbox

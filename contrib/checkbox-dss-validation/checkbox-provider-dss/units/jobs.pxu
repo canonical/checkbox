@@ -30,7 +30,9 @@ requires: executable.name == 'dss'
 depends: dss/namespace
 _summary: Check that the dss mlflow is deployed
 estimated_duration: 5s
-command: check_dss.sh mlflow_status_is_ready
+command:
+  set -eo pipefail
+  run_dss.sh status | grep "MLflow deployment: Ready"
 
 id: dss/create_pytorch_cpu_notebook
 category_id: dss-regress
@@ -186,7 +188,9 @@ requires: executable.name == 'dss'
 depends: intel_gpu_plugin/node_gpu_allocatable
 _summary: Check that DSS status reports Intel GPU acceleration is enabled
 estimated_duration: 5s
-command: check_dss.sh intel_gpu_acceleration_is_enabled
+command:
+  set -eo pipefail
+  run_dss.sh status | grep "Intel GPU acceleration: Enabled.*"
 
 id: dss/create_tensorflow_intel_notebook
 category_id: dss-regress
@@ -282,7 +286,9 @@ requires: executable.name == 'dss'
 depends: nvidia_gpu_addon/validations_succeed
 _summary: Check that dss status reports that NVIDIA GPU acceleration is enabled
 estimated_duration: 5s
-command: check_dss.sh nvidia_gpu_acceleration_is_enabled
+command:
+  set -eo pipefail
+  run_dss.sh status | grep "NVIDIA GPU acceleration: Enabled.*"
 
 id: dss/create_pytorch_cuda_notebook
 category_id: dss-regress

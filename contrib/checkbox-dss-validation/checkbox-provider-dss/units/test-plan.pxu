@@ -35,6 +35,7 @@ include:
     dss/create_tensorflow_cuda_notebook
     cuda/tensorflow_can_use_cuda
     dss/remove_tensorflow_cuda_notebook
+    dss/purge
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap

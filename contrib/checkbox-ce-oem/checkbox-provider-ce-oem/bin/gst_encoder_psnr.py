@@ -295,6 +295,7 @@ class GenioProject(PipelineInterface):
 
 class CarmelProject(PipelineInterface):
     """Carmel project pipeline handler and builder"""
+
     def __init__(
         self,
         platform: str,

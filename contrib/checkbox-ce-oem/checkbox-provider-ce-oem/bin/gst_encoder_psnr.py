@@ -142,7 +142,7 @@ def project_factory(args: argparse.Namespace) -> Any:
             codec=args.encoder_plugin,
             width=args.width,
             height=args.height,
-            framerate=args.framerate
+            framerate=args.framerate,
         )
     else:
         raise SystemExit(
@@ -301,7 +301,7 @@ class CarmelProject(PipelineInterface):
         codec: str,
         width: int,
         height: int,
-        framerate: int
+        framerate: int,
     ) -> None:
         self._platform = platform
         self._codec = codec
@@ -317,7 +317,7 @@ class CarmelProject(PipelineInterface):
         self._golden_sample = os.path.join(
             VIDEO_CODEC_TESTING_DATA,
             "video",
-            "{}p_{}fps_h264.mp4".format(self._height, self._framerate)
+            "{}p_{}fps_h264.mp4".format(self._height, self._framerate),
         )
         self._artifact_file = ""
 

@@ -267,9 +267,10 @@ class CarmelProject(PipelineInterface):
         golden_sample_file = "{}p_{}fps_h264.mp4".format(
             self._height_from,
             self._framerate,
-            )
+        )
         self._golden_sample = os.path.join(
-            VIDEO_CODEC_TESTING_DATA, "video", golden_sample_file)
+            VIDEO_CODEC_TESTING_DATA, "video", golden_sample_file
+        )
         self._artifact_file = ""
 
     @property
@@ -286,7 +287,7 @@ class CarmelProject(PipelineInterface):
         """
         golden_reference = "{}p_30fps_h264.mp4".format(
             self._height_to,
-            )
+        )
 
         full_path = os.path.join(
             VIDEO_CODEC_TESTING_DATA, "video", golden_reference

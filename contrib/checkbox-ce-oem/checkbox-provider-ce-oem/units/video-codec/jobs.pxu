@@ -147,7 +147,7 @@ template-filter:
 template-unit: job
 template-id: ce-oem-video-codec/carmel-gst_transform_resize
 _template-summary: Check if the resize (scale up or down) are functional
-id: ce-oem-video-codec/{{ scenario }}-{{ encoder_plugin }}_from_{{ width_from }}x{{ height_from }}_{{ framerate }}fps_to_{{ width_to }}x{{ height_to }}
+id: ce-oem-video-codec/{{ scenario }}-{{ encoder_plugin }}_from_{{ width_from }}x{{ height_from }}_to_{{ width_to }}x{{ height_to }}
 _summary: Perform resize - from {{ width_from }}x{{ height_from }} to {{ width_to }}x{{ height_to }} file
 plugin: shell
 user: root

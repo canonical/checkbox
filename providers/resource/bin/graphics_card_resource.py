@@ -22,7 +22,6 @@ import argparse
 import collections
 import subprocess
 import shlex
-import re
 
 from checkbox_support.helpers.slugify import slugify
 import os_resource

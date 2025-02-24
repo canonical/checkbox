@@ -1,4 +1,21 @@
-#! /usr/bin/python3
+#! /usr/bin/env python3
+
+# Copyright 2025 Canonical Ltd.
+# Written by:
+#   Zhongning Li <zhongning.li@canonical.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 3,
+# as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 
 import argparse
 import sys
@@ -36,8 +53,8 @@ def parse_args():
     parser.add_argument(
         "--treat-unsupported-as-fail",
         action="store_true",
-        help="If specified, and if any of the ioctls are in unsupported, "
-        "they are treated as fail and will fail the test case",
+        help="If specified, and if any of the ioctls are unsupported, "
+        "they are treated as failures and will fail the test case",
         default=False,
     )
     return parser.parse_args()  # type: ignore
@@ -54,21 +71,26 @@ def main():
 
     _, details = parse_v4l2_compliance(args.device)
 
-    return_code = 0
+    all_passed = True
 
     if "VIDIOC_QUERYCAP" in details["failed"]:
-        return_code = 1
+        all_passed = False
     for ioctl_request in args.ioctl:
         if ioctl_request in details["failed"]:
             print(ioctl_request, "failed the test", file=sys.stderr)
-            return_code = 1
+            all_passed = False
+        elif (
+            ioctl_request in details["not_supported"]
+            and args.treat_unsupported_as_fail
+        ):
+            print(ioctl_request, "is not supported", file=sys.stderr)
+            all_passed = False
 
-    if return_code == 0:
+    if all_passed:
         print(args.ioctl, "are all supported")
-
-    return return_code
+    else:
+        raise SystemExit("V4L2 compliance test failed")
 
 
 if __name__ == "__main__":
-    return_code = main()
-    exit(return_code)
+    main()

@@ -36,7 +36,7 @@ category_id: com.canonical.plainbox::camera
 template-resource: camera/v4l2-ioctl_resource
 template-unit: job
 template-id: camera/v4l2-compliance_ioctl_name
-_template-summary: To check if {ioctl_name} works on {name}
+_template-summary: To check if the ioctl request works on a v4l2 device
 id: camera/v4l2-compliance_{ioctl_name}
 _summary: v4l2 compliance for {ioctl_name} on {name}
 plugin: shell

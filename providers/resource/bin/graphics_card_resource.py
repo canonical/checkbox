@@ -25,25 +25,7 @@ import shlex
 import re
 
 from checkbox_support.helpers.slugify import slugify
-
-
-def get_ubuntu_version():
-    """Get Ubuntu release version for checking."""
-    try:
-        import distro
-
-        return distro.version()
-    except (ImportError, subprocess.CalledProcessError):
-        try:
-            with open("/etc/lsb-release", "r") as lsb:
-                for line in lsb.readlines():
-                    (key, value) = line.split("=", 1)
-                    if key == "DISTRIB_RELEASE":
-                        return re.sub('["\n]', "", value)
-        except OSError:
-            # Missing file or permissions? Return the default lsb_release
-            pass
-    return 0
+import os_resource
 
 
 def compare_ubuntu_release_version(_version):
@@ -51,7 +33,8 @@ def compare_ubuntu_release_version(_version):
     Compare ubuntu release version.
     If host version is higher or equal provided, it will return True.
     """
-    os_version = get_ubuntu_version()
+    release_file_path = os_resource.get_release_file_path()
+    os_version = os_resource.get_release_info(release_file_path)["release"]
     try:
         from packaging import version
 

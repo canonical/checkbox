@@ -30,9 +30,7 @@ PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-poli
 UBUNTU_CODENAME=noble
 LOGO=ubuntu-logo
 """
-        with patch(
-            "os_resource.open", mock_open(read_data=data)
-        ) as _:
+        with patch("os_resource.open", mock_open(read_data=data)) as _:
             print(data)
             os_release = os_resource.get_release_info("")
         expected = {

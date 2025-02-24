@@ -66,7 +66,7 @@ def main():
         "Testing if all of the following ioctl requests",
         args.ioctl,
         "are supported on",
-        args.device or "/dev/video0",
+        args.device,
     )
 
     _, details = parse_v4l2_compliance(args.device)

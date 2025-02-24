@@ -111,6 +111,30 @@ class TestV4L2ComplianceTest(ut.TestCase):
             ]
         )
 
+    @patch(
+        "sys.argv",
+        sh_split(
+            "v4l2_compliance_test.py "
+            + "--ioctl VIDOC_G_FMT --device /dev/video1 "
+            + "--treat-unsupported-as-fail"
+        ),
+    )
+    @patch("v4l2_compliance_test.parse_v4l2_compliance")
+    def test_treat_unsupported_as_fail(
+        self,
+        mock_parser: MagicMock,
+    ):
+        mock_parser.return_value = (
+            {},
+            {
+                "succeeded": [],
+                "failed": [],
+                "not_supported": ["VIDOC_G_FMT"],
+            },
+        )
+
+        self.assertRaises(SystemExit, main_under_test)
+
 
 if __name__ == "__main__":
     ut.main()

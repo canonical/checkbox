@@ -28,29 +28,10 @@ from unittest import mock
 import check_notebook
 
 
-class TestArgumentParsing(unittest.TestCase):
-    @mock.patch("check_notebook.create_parser_with_checks_as_commands")
-    def test_expected_checks_are_used_for_parser(self, mocked):
-        check_notebook.parse_args()
-        mocked.assert_called_once_with(
-            [
-                check_notebook.has_pytorch_available,
-                check_notebook.has_tensorflow_available,
-                check_notebook.can_use_intel_gpu_in_pytorch,
-                check_notebook.can_use_intel_gpu_in_tensorflow,
-                check_notebook.can_use_nvidia_gpu_in_pytorch,
-                check_notebook.can_use_nvidia_gpu_in_tensorflow,
-            ],
-            description="Check notebooks in DSS",
-        )
+class TestArgumentParsing(unittest.TestCase): ...
 
-class TestMain(unittest.TestCase):
-    @mock.patch("check_notebook.run_script_in_notebook")
-    def test_calls_appropriate_check(self, mocked_run):
-        check_notebook.main(["has_pytorch_available", "notebook"])
-        mocked_run.assert_called_once_with(
-            "notebook", check_notebook.SCRIPT["pytorch_is_available"]
-        )
+
+class TestMain(unittest.TestCase): ...
 
 
 class TestRunScriptInNotebook(unittest.TestCase):
@@ -153,64 +134,3 @@ class TestGetNotebookPod(unittest.TestCase):
                 f"available pods: {available_pods}",
             ),
         )
-
-
-class TestCommands(unittest.TestCase):
-    @mock.patch("check_notebook.run_script_in_notebook")
-    def test_asks_to_run_expected_script(self, mocked):
-        notebook = "notebook"
-        for i, (check, script_name) in enumerate(
-            [
-                (
-                    check_notebook.has_pytorch_available,
-                    "pytorch_is_available",
-                ),
-                (
-                    check_notebook.has_tensorflow_available,
-                    "tensorflow_is_available",
-                ),
-                (
-                    check_notebook.can_use_intel_gpu_in_pytorch,
-                    "pytorch_can_use_intel_gpu",
-                ),
-                (
-                    check_notebook.can_use_intel_gpu_in_tensorflow,
-                    "tensorflow_can_use_intel_gpu",
-                ),
-                (
-                    check_notebook.can_use_nvidia_gpu_in_pytorch,
-                    "pytorch_can_use_nvidia_gpu",
-                ),
-                (
-                    check_notebook.can_use_nvidia_gpu_in_tensorflow,
-                    "tensorflow_can_use_nvidia_gpu",
-                ),
-            ]
-        ):
-            with self.subTest(i=i):
-                check(notebook)
-                mocked.assert_called_once_with(
-                    notebook, check_notebook.SCRIPT[script_name]
-                )
-                mocked.reset_mock()
-
-    @mock.patch("check_notebook.run_script_in_notebook")
-    def test_fails_on_failure(self, mocked):
-        notebook = "notebook"
-        for i, check in enumerate(
-            [
-                check_notebook.has_pytorch_available,
-                check_notebook.has_tensorflow_available,
-                check_notebook.can_use_intel_gpu_in_pytorch,
-                check_notebook.can_use_intel_gpu_in_tensorflow,
-                check_notebook.can_use_nvidia_gpu_in_pytorch,
-                check_notebook.can_use_nvidia_gpu_in_tensorflow,
-            ]
-        ):
-            with self.subTest(i=i):
-                exception = AssertionError("missing success marker")
-                mocked.side_effect = exception
-                with self.assertRaises(AssertionError) as caught:
-                    check(notebook)
-                assert caught.exception == exception
-                mocked.reset_mock()

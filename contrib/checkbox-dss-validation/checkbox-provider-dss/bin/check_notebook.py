@@ -22,131 +22,7 @@
 """Check notebooks in DSS"""
 
 import subprocess
-import textwrap
 import typing as t
-
-from common import create_parser_with_checks_as_commands
-
-SCRIPT = {
-    "pytorch_is_available": textwrap.dedent(
-        """
-        import torch
-        print(torch.__version__)
-        """
-    ),
-    "tensorflow_is_available": textwrap.dedent(
-        """
-        import tensorflow as tf
-        print(tf.config.experimental.list_physical_devices())
-        """
-    ),
-    "pytorch_can_use_intel_gpu": textwrap.dedent(
-        """
-        import sys
-        import torch
-        import intel_extension_for_pytorch as ipex
-
-        print(torch.__version__)
-        print(ipex.__version__)
-
-        if torch.xpu.device_count() < 1:
-            raise AssertionError("no XPUs are available")
-
-        [
-            print(i, torch.xpu.get_device_properties(i))
-            for i in range(torch.xpu.device_count())
-        ]
-        """
-    ),
-    "tensorflow_can_use_intel_gpu": textwrap.dedent(
-        """
-        import tensorflow as tf
-        import intel_extension_for_tensorflow as itex
-
-        devices = tf.config.experimental.list_physical_devices()
-        if not any("XPU" in device for device in devices):
-            raise AssertionError("XPU device not found")
-        """
-    ),
-    "pytorch_can_use_nvidia_gpu": textwrap.dedent(
-        """
-        import torch
-        if not torch.cuda.is_available():
-            raise AssertionError("CUDA is not available")
-        """
-    ),
-    "tensorflow_can_use_nvidia_gpu": textwrap.dedent(
-        """
-        import tensorflow as tf
-
-        devices = tf.config.experimental.list_physical_devices("GPU")
-        if not any("GPU" in device for device in devices):
-            raise AssertionError("CUDA device not found")
-        """
-    ),
-}
-
-
-def parse_args(args: t.List[str] | None = None) -> dict[str, t.Any]:
-    parser = create_parser_with_checks_as_commands(
-        [
-            has_pytorch_available,
-            has_tensorflow_available,
-            can_use_intel_gpu_in_pytorch,
-            can_use_intel_gpu_in_tensorflow,
-            can_use_nvidia_gpu_in_pytorch,
-            can_use_nvidia_gpu_in_tensorflow,
-        ],
-        description="Check notebooks in DSS",
-    )
-    return dict(parser.parse_args(args).__dict__)
-
-
-def has_pytorch_available(notebook_name: str) -> None:
-    """Check that notebook with given name has Pytorch available"""
-    run_script_in_notebook(
-        notebook_name,
-        SCRIPT["pytorch_is_available"],
-    )
-
-
-def has_tensorflow_available(notebook_name: str) -> None:
-    """Check that notebook with given name has Tensorflow available"""
-    run_script_in_notebook(
-        notebook_name,
-        SCRIPT["tensorflow_is_available"],
-    )
-
-
-def can_use_intel_gpu_in_pytorch(notebook_name: str) -> None:
-    """Check that notebook with given name can use Intel GPU in Pytorch"""
-    run_script_in_notebook(
-        notebook_name,
-        SCRIPT["pytorch_can_use_intel_gpu"],
-    )
-
-
-def can_use_intel_gpu_in_tensorflow(notebook_name: str) -> None:
-    """Check that notebook with given name can use Intel GPU in Tensorflow"""
-    run_script_in_notebook(
-        notebook_name,
-        SCRIPT["tensorflow_can_use_intel_gpu"],
-    )
-
-
-def can_use_nvidia_gpu_in_pytorch(notebook_name: str) -> None:
-    """Check that notebook with given name can use Intel GPU in Pytorch"""
-    run_script_in_notebook(
-        notebook_name,
-        SCRIPT["pytorch_can_use_nvidia_gpu"],
-    )
-
-
-def can_use_nvidia_gpu_in_tensorflow(notebook_name: str) -> None:
-    """Check that notebook with given name can use Intel GPU in Tensorflow"""
-    run_script_in_notebook(
-        notebook_name, SCRIPT["tensorflow_can_use_nvidia_gpu"]
-    )
 
 
 def run_script_in_notebook(notebook_name: str, script: str) -> None:
@@ -177,8 +53,7 @@ def get_notebook_pod(notebook_name: str) -> str:
 
 
 def main(args: t.List[str] | None = None) -> None:
-    parsed = parse_args(args)
-    parsed.pop("func")(**parsed)
+    raise NotImplementedError
 
 
 if __name__ == "__main__":  # pragma: no cover

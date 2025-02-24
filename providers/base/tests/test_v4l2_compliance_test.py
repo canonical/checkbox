@@ -22,7 +22,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
                 },
             )
 
-            self.assertEqual(main_under_test(), 1)
+            self.assertRaises(SystemExit, main_under_test)
 
         with patch(
             "sys.argv",
@@ -37,7 +37,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
                 },
             )
             # also fail even if query cap is not listed in the args
-            self.assertEqual(main_under_test(), 1)
+            self.assertRaises(SystemExit, main_under_test)
 
     @patch(
         "sys.argv",
@@ -64,7 +64,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
             },
         )
 
-        self.assertEqual(main_under_test(), 1)
+        self.assertRaises(SystemExit, main_under_test)
         mock_print.assert_called_with(
             "VIDIOC_ENUM_FMT", "failed the test", file=mock_stderr
         )
@@ -79,7 +79,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
             },
         )
 
-        self.assertEqual(main_under_test(), 1)
+        self.assertRaises(SystemExit, main_under_test)
         mock_print.assert_called_with(
             "VIDIOC_QUERYCTRL", "failed the test", file=mock_stderr
         )
@@ -94,7 +94,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
             },
         )
 
-        self.assertEqual(main_under_test(), 1)
+        self.assertRaises(SystemExit, main_under_test)
         mock_print.assert_has_calls(
             [
                 call(

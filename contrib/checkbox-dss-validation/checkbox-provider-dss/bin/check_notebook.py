@@ -27,8 +27,6 @@ import typing as t
 
 from common import create_parser_with_checks_as_commands
 
-_TIMEOUT_SEC: float = 15.0 * 60  # seconds
-
 SCRIPT = {
     "pytorch_is_available": textwrap.dedent(
         """
@@ -101,12 +99,6 @@ def parse_args(args: t.List[str] | None = None) -> dict[str, t.Any]:
         ],
         description="Check notebooks in DSS",
     )
-    parser.add_argument(
-        "--timeout",
-        default=_TIMEOUT_SEC,
-        type=float,
-        help="set timeout for command, in seconds",
-    )
     return dict(parser.parse_args(args).__dict__)
 
 
@@ -160,7 +152,7 @@ def can_use_nvidia_gpu_in_tensorflow(notebook_name: str) -> None:
 def run_script_in_notebook(notebook_name: str, script: str) -> None:
     pod = get_notebook_pod(notebook_name)
     base_cmd = f"kubectl -n dss exec {pod} -- python -c"
-    subprocess.check_call([*base_cmd.split(), script], timeout=_TIMEOUT_SEC)
+    subprocess.check_call([*base_cmd.split(), script])
 
 
 def get_notebook_pod(notebook_name: str) -> str:
@@ -185,9 +177,7 @@ def get_notebook_pod(notebook_name: str) -> str:
 
 
 def main(args: t.List[str] | None = None) -> None:
-    global _TIMEOUT_SEC
     parsed = parse_args(args)
-    _TIMEOUT_SEC = parsed.pop("timeout")
     parsed.pop("func")(**parsed)
 
 

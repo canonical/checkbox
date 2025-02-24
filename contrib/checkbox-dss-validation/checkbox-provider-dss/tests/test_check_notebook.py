@@ -44,33 +44,7 @@ class TestArgumentParsing(unittest.TestCase):
             description="Check notebooks in DSS",
         )
 
-    @mock.patch("subprocess.check_call")
-    def test_parser_accepts_timeout(self, mocked):
-        parsed = check_notebook.parse_args(
-            ["--timeout", "3.5", "has_pytorch_available", "test-notebook"]
-        )
-        assert parsed["timeout"] == 3.5
-
-
 class TestMain(unittest.TestCase):
-    @mock.patch("check_notebook.run_script_in_notebook")
-    def test_sets_global_timeout(self, mocked):
-        orig_timeout = check_notebook._TIMEOUT_SEC
-        try:
-            timeout = 1010101
-            assert timeout != orig_timeout
-            check_notebook.main(
-                [
-                    "--timeout",
-                    str(timeout),
-                    "has_pytorch_available",
-                    "notebook",
-                ]
-            )
-            assert check_notebook._TIMEOUT_SEC == timeout
-        finally:
-            check_notebook._TIMEOUT_SEC = orig_timeout
-
     @mock.patch("check_notebook.run_script_in_notebook")
     def test_calls_appropriate_check(self, mocked_run):
         check_notebook.main(["has_pytorch_available", "notebook"])
@@ -102,10 +76,7 @@ class TestRunScriptInNotebook(unittest.TestCase):
                 "-c",
                 script,
             ]
-            mocked_run.assert_called_once_with(
-                cmd,
-                timeout=check_notebook._TIMEOUT_SEC,
-            )
+            mocked_run.assert_called_once_with(cmd)
 
     @mock.patch("check_notebook.get_notebook_pod")
     def test_fails_on_missing_pod(self, mocked):

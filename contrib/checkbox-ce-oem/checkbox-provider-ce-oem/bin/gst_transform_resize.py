@@ -312,7 +312,7 @@ class CarmelProject(PipelineInterface):
         pipeline = (
             "{} -e filesrc location={} ! qtdemux ! queue ! "
             "h264parse ! v4l2h264dec capture-io-mode=5 output-io-mode=5 ! "
-            "qtivtransform ! video/x-raw\(memory:GBM\),format=NV12,"
+            "qtivtransform ! video/x-raw\\(memory:GBM\\),format=NV12,"
             "width={},height={},framerate=30/1 ! "
             "v4l2h264enc capture-io-mode=5 output-io-mode=5 ! "
             "queue ! h264parse ! mp4mux ! queue ! "

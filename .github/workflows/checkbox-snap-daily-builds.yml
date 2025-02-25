@@ -16,14 +16,22 @@ jobs:
           # other arch built on self hosted runners by the other workflow
           - releases: 16
             arch: amd64
+            type: classic
           - releases: 16
             arch: arm64
+            type: classic
+          - releases: 16
+            arch: amd64
+            type: uc
+          - releases: 16
+            arch: arm64
+            type: uc
     runs-on: ubuntu-20.04
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:
       SERIES: series_${{ matrix.type }}${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-    name: Frontend ${{ matrix.type }}${{ matrix.releases }}
+    name: Frontend ${{ matrix.type }}${{ matrix.releases }} - ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v4
         with:

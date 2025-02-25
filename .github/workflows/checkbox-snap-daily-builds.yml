@@ -11,14 +11,13 @@ jobs:
       matrix:
         type: [classic, uc]
         releases: [16, 18, 20]
+        arch: [armhf]
         include:
           # other arch built on self hosted runners by the other workflow
           - releases: 16
-            arch: "amd64,arm64,armhf"
-          - releases: 18
-            arch: "armhf"
-          - releases: 20
-            arch: "armhf"
+            arch: amd64
+          - releases: 16
+            arch: arm64
     runs-on: ubuntu-20.04
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:
@@ -35,6 +34,8 @@ jobs:
           cd checkbox-snap/
           sudo apt update && sudo apt install -qq -y python3-setuptools-scm
           ./prepare_${{ matrix.type }}.sh $SERIES
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
       - name: Build (retries on fail)
         uses: Wandalen/wretry.action@master
         id: snapcraft

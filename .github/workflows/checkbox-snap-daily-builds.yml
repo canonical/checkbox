@@ -43,7 +43,7 @@ jobs:
           action: canonical/snapcraft-multiarch-action@v1
           with: |
             architecture: ${{ matrix.arch }}
-            path: checkbox-snap/series${{ matrix.releases }}
+            path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()

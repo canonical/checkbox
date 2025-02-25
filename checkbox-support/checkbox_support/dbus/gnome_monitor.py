@@ -175,6 +175,9 @@ class MonitorConfigGnome(MonitorConfig):
                     # left and right should convert x and y
                     xy = 1 if (trans == 1 or trans == 3) else 0
                     position_x += int(m.resolution.split("x")[xy])
+                # Sometimes the NVIDIA driver won't update the state.
+                # Get the state before applying to avoid this issue.
+                state = self._get_current_state()
                 self._apply_monitors_config(state[0], logical_monitors)
                 if action:
                     action(uni_string, **kwargs)

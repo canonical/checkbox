@@ -247,7 +247,7 @@ command: check_dss.sh can_remove_notebook pytorch-intel
 
 # NVIDIA CUDA jobs ############################################################
 
-id: nvidia_gpu_addon/enable
+id: microk8s_nvidia_gpu_addon/enable
 category_id: dss-regress
 flags: simple
 imports:
@@ -256,17 +256,27 @@ imports:
 requires:
   graphics_card.vendor == 'NVIDIA Corporation'
   executable.name == 'microk8s'
+  executable.name == 'kubectl'
 depends: dss/initialize
-_summary: Enable NVIDIA GPU addon
-estimated_duration: 5m
-command: check_cuda.sh gpu_addon_can_be_enabled
+_summary: Enable NVIDIA GPU addon in microk8s
+estimated_duration: 10m
+command:
+  set -eo pipefail
+  OPERATOR_VERSION="24.6.2"
+  microk8s enable gpu --driver=operator --version="${OPERATOR_VERSION}"
+  sleep 10
+  kubectl -n gpu-operator-resources rollout status ds/gpu-operator-node-feature-discovery-worker
+  sleep 10
+  kubectl -n gpu-operator-resources rollout status ds/nvidia-device-plugin-daemonset
+  sleep 10
+  kubectl -n gpu-operator-resources rollout status ds/nvidia-operator-validator
 
 id: nvidia_gpu_addon/validations_succeed
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
-depends: nvidia_gpu_addon/enable
+depends: microk8s_nvidia_gpu_addon/enable
 _summary: NVIDIA GPU validations should succeed
 estimated_duration: 10s
 command: check_cuda.sh gpu_validations_succeed

@@ -25,10 +25,10 @@
 #   system's Python.
 #
 #   Furthermore, the working directory needs to be changed to, e.g.
-#   $HOME, because `dss` likes to write files out, and it won't have
-#   permission to write into the checkbox / snap directory.
+#   /tmp, because `dss` writes logs out to the working directory,
+#   and it won't have permission inside checkbox / snap directory.
 set -eo pipefail
 
 export -n PYTHONHOME PYTHONPATH PYTHONUSERBASE
 
-env -C "$HOME" dss "$@"
+env -C /tmp dss "$@"

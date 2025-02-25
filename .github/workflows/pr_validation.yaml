@@ -155,13 +155,14 @@ jobs:
         run: |
           OUTPUT=$(python3 tools/compare_manifests.py manifest_main.json manifest_pr.json)
           if [[ "$OUTPUT" ]]; then
+            echo "Differences: $OUTPUT"
             echo "New hidden manifest entries found. Checking DUT configuration in the lab..."
             curl -X POST \
               -H "Accept: application/vnd.github+json" \
               -H "Authorization: Bearer ${DUT_CONFIG_TOKEN}" \
               -H "X-GitHub-Api-Version: 2022-11-28" \
               https://api.github.com/repos/canonical/ce-oem-dut-checkbox-configuration/dispatches \
-              -d '{"event_type":"check-missing-manifests","client_payload":{"manifest-entries":"$OUTPUT", "commit": "${{ github.sha }}"}}'
+              -d "{\"event_type\":\"check-missing-manifests\",\"client_payload\":{\"manifest-entries\":\"$OUTPUT\", \"commit\": \"${{ github.sha }}\"}}"
           else
             echo "No new hidden manifest entries found. No need to check DUT configuration in the lab."
           fi

@@ -11,21 +11,17 @@ jobs:
       matrix:
         type: [classic, uc]
         releases: [16, 18, 20]
-        arch: [armhf]
-        include:
+        arch: [armhf, amd64, arm64]
+        exclude:
           # other arch built on self hosted runners by the other workflow
-          - releases: 16
+          - releases: 18
             arch: amd64
-            type: classic
-          - releases: 16
+          - releases: 18
             arch: arm64
-            type: classic
-          - releases: 16
+          - releases: 20
             arch: amd64
-            type: uc
-          - releases: 16
+          - releases: 20
             arch: arm64
-            type: uc
     runs-on: ubuntu-20.04
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     env:

@@ -138,7 +138,6 @@ include:
     ethernet/info_automated_server          certification-status=non-blocker
     ethernet/ethtool_info                   certification-status=non-blocker
     ethernet/ethertool_check_.*             certification-status=non-blocker
-    ethernet/sru_iperf3_stress_device-.*    certification-status=blocker
 bootstrap_include:
     device
     executable

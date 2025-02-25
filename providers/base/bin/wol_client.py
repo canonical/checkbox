@@ -44,11 +44,12 @@ def send_request_to_wol_server(url, data=None, retry=3):
             with urllib.request.urlopen(req) as response:
                 logging.info("in the urllib request.")
                 response_data = json.loads(response.read().decode("utf-8"))
-                logging.debug("Response: {}".format(response_data))
+                logging.debug(
+                    "Response message: {}".format(response_data["message"])
+                )
                 status_code = response.status
                 logging.debug("Status code: {}".format(status_code))
-                # Handle returned status and message
-                if status_code == 200 and response_data["result"] == "success":
+                if status_code == 200:
                     logging.info(
                         "Send request to Wake-on-lan server successful."
                     )

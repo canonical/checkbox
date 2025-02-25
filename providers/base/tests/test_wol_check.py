@@ -90,10 +90,8 @@ class TestGetWakeupTimestamp(unittest.TestCase):
 
 
 class ParseArgsTests(unittest.TestCase):
-    def test_parse_args_with_interface(self):
+    def test_parse_args(self):
         args = [
-            "--interface",
-            "enp0s31f6",
             "--delay",
             "10",
             "--retry",
@@ -104,16 +102,14 @@ class ParseArgsTests(unittest.TestCase):
             "/tmp/time_file",
         ]
         rv = parse_args(args)
-        self.assertEqual(rv.interface, "enp0s31f6")
         self.assertEqual(rv.powertype, "s5")
         self.assertEqual(rv.timestamp_file, "/tmp/time_file")
         self.assertEqual(rv.delay, 10)
         self.assertEqual(rv.retry, 5)
 
     def test_parse_args_with_default_value(self):
-        args = ["--interface", "eth0", "--powertype", "s3"]
+        args = ["--powertype", "s3"]
         rv = parse_args(args)
-        self.assertEqual(rv.interface, "eth0")
         self.assertEqual(rv.powertype, "s3")
         self.assertIsNone(rv.timestamp_file)
         self.assertEqual(rv.delay, 60)
@@ -128,7 +124,6 @@ class TestMain(unittest.TestCase):
         self, mock_get_wakeup_timestamp, mock_get_timestamp, mock_parse_args
     ):
         args_mock = MagicMock()
-        args_mock.interface = "eth0"
         args_mock.powertype = "s3"
         args_mock.timestamp_file = "/tmp/test"
         args_mock.delay = 60
@@ -146,9 +141,8 @@ class TestMain(unittest.TestCase):
         self.assertIn(
             "wake-on-LAN check test started.", log_messages.output[0]
         )
-        self.assertIn("Interface: eth0", log_messages.output[1])
-        self.assertIn("PowerType: s3", log_messages.output[2])
-        self.assertIn("wake-on-LAN workes well.", log_messages.output[3])
+        self.assertIn("PowerType: s3", log_messages.output[1])
+        self.assertIn("wake-on-LAN workes well.", log_messages.output[2])
 
     @patch("wol_check.parse_args")
     @patch("wol_check.get_timestamp")
@@ -157,7 +151,6 @@ class TestMain(unittest.TestCase):
         self, mock_get_wakeup_timestamp, mock_get_timestamp, mock_parse_args
     ):
         args_mock = MagicMock()
-        args_mock.interface = "eth0"
         args_mock.powertype = "s3"
         args_mock.timestamp_file = "/tmp/test"
         args_mock.delay = 60
@@ -183,7 +176,6 @@ class TestMain(unittest.TestCase):
         self, mock_get_wakeup_timestamp, mock_get_timestamp, mock_parse_args
     ):
         args_mock = MagicMock()
-        args_mock.interface = "eth0"
         args_mock.powertype = "s3"
         args_mock.timestamp_file = "/tmp/test"
         args_mock.delay = 60

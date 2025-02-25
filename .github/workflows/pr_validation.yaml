@@ -139,9 +139,6 @@ jobs:
           python3 providers/tpm2/manage.py develop
           python3 providers/sru/manage.py develop
       - name: Export manifest entries
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DUT_CONFIG_TOKEN: ${{ secrets.DUT_CONFIG_PAT }}
         run: |
           # we are on current branch/commit
           . venv/bin/activate
@@ -152,6 +149,9 @@ jobs:
           # back to PR branch
           git checkout -
       - name: Trigger workflow in DUT config repo
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DUT_CONFIG_TOKEN: ${{ secrets.DUT_CONFIG_PAT }}
         run: |
           OUTPUT=$(python3 tools/compare_manifests.py manifest_main.json manifest_pr.json)
           if [[ "$OUTPUT" ]]; then

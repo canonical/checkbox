@@ -252,7 +252,8 @@ class GenioProject(PipelineInterface):
 
 
 class CarmelProject(PipelineInterface):
-    """Carmel project pipeline handler and builder"""
+    """Carmel project pipeline handler and builder"""   
+
     def __init__(
         self,
         platform: str,
@@ -276,13 +277,13 @@ class CarmelProject(PipelineInterface):
             Actions.ROTATE_270: "rotate=90CCW",
             Actions.HORIZONTAL_FLIP: "flip-horizontal=true",
             Actions.VERTICAL_FLIP: "flip-vertical=true",
-            }
+        }
         # This sample video file will be consumed by any gstreamer piple as
         # input video.
         self._golden_sample = os.path.join(
             VIDEO_CODEC_TESTING_DATA,
             "video",
-            "{}p_30fps_h264.mp4".format(self._height)
+            "{}p_30fps_h264.mp4".format(self._height),
         )
         self._artifact_file = ""
 
@@ -303,9 +304,7 @@ class CarmelProject(PipelineInterface):
         )
 
         full_path = os.path.join(
-            VIDEO_CODEC_TESTING_DATA,
-            "video",
-            golden_reference
+            VIDEO_CODEC_TESTING_DATA, "video", golden_reference
         )
         if not os.path.exists(full_path):
             raise SystemExit(

@@ -177,5 +177,4 @@ imports: from com.canonical.plainbox import manifest
 requires: manifest.has_video_codec == 'True'
 environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
 command:
-    export XDG_RUNTIME_DIR=/run/user/$(id -u ubuntu)/
     gst_transform_rotate_and_flip.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wi "{{ width }}" -hi "{{ height }}" -a "{{ action }}" -f 30

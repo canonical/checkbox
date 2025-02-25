@@ -137,3 +137,23 @@ flags: also-after-suspend
 environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
 command:
     gst_transform_resize.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wf "{{ width_from }}" -hf "{{ height_from }}" -wt "{{ width_to }}" -ht "{{ height_to }}" -f "{{ framerate }}"
+
+unit: template
+template-engine: jinja2
+template-resource: video_codec_resource
+template-filter:
+    video_codec_resource.scenario == "gst_encoder_psnr"
+    video_codec_resource.platform == "carmel"
+template-unit: job
+template-id: ce-oem-video-codec/carmel-gst_encoder_psnr
+_template-summary: Verify the PSNR ratio meets requirement for specific encoder on Carmel
+id: ce-oem-video-codec/{{ scenario }}-{{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps
+_summary: Encoder PSNR - Carmel - {{ encoder_plugin }}-{{ width }}x{{ height }}@{{ framerate }}fps
+_description: Test if the PSNR value of an artifact which is generated from {{ encoder_plugin }} encoder reaches the acceptable threshold on Carmel platform
+plugin: shell
+user: root
+category_id: video-codec
+estimated_duration: 60s
+environ: GST_LAUNCH_BIN, PLAINBOX_SESSION_SHARE, VIDEO_CODEC_TESTING_DATA
+command:
+    gst_encoder_psnr.py -p "{{ platform }}" -ep "{{ encoder_plugin }}" -wi {{ width }} -hi {{ height }} -f "{{ framerate }}"

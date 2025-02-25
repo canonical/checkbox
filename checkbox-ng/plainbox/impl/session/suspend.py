@@ -665,17 +665,5 @@ class SessionSuspendHelper7(SessionSuspendHelper6):
         return data
 
 
-class SessionSuspendHelper8(SessionSuspendHelper7):
-    VERSION = 8
-
-    def _repr_SessionState(self, obj, session_dir):
-        data = super()._repr_SessionState(obj, session_dir)
-        data["system_information"] = {
-            tool_name: tool_output.to_dict()
-            for (tool_name, tool_output) in obj.system_information.items()
-        }
-        return data
-
-
 # Alias for the most recent version
-SessionSuspendHelper = SessionSuspendHelper8
+SessionSuspendHelper = SessionSuspendHelper7

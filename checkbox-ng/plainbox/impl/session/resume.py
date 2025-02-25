@@ -1268,29 +1268,6 @@ class SessionResumeHelper7(MetaDataHelper7MixIn, SessionResumeHelper6):
     pass
 
 
-class SessionResumeHelper8(SessionResumeHelper7):
-    def _restore_SessionState_system_information(
-        self, session_state, session_repr
-    ):
-        _validate(session_repr, key="system_information", value_type=dict)
-        system_information = CollectorOutputs(
-            {
-                tool_name: CollectionOutput.from_dict(tool_output_json)
-                for (tool_name, tool_output_json) in session_repr[
-                    "system_information"
-                ].items()
-            }
-        )
-        session_state.system_information = system_information
-
-    def _build_SessionState(self, session_repr, early_cb=None):
-        session_state = super()._build_SessionState(session_repr, early_cb)
-        self._restore_SessionState_system_information(
-            session_state, session_repr
-        )
-        return session_state
-
-
 def _validate(obj, **flags):
     """Multi-purpose extraction and validation function."""
     # Fetch data from the container OR use json_repr directly

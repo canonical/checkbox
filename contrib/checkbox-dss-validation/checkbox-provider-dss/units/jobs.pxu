@@ -261,15 +261,10 @@ depends: dss/initialize
 _summary: Enable NVIDIA GPU addon in microk8s
 estimated_duration: 10m
 command:
-  set -eo pipefail
+  set -eou pipefail
   OPERATOR_VERSION="24.6.2"
   microk8s enable gpu --driver=operator --version="${OPERATOR_VERSION}"
-  sleep 10
-  kubectl -n gpu-operator-resources rollout status ds/gpu-operator-node-feature-discovery-worker
-  sleep 10
-  kubectl -n gpu-operator-resources rollout status ds/nvidia-device-plugin-daemonset
-  sleep 10
-  kubectl -n gpu-operator-resources rollout status ds/nvidia-operator-validator
+  check_cuda_rollout.sh
 
 id: nvidia_gpu_addon/validations_succeed
 category_id: dss-regress

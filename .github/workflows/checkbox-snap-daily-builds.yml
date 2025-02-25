@@ -61,5 +61,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         name: Upload the snaps as artefacts
         with:
-          name: frontend_snaps${{ matrix.type }}${{ matrix.releases }}
+          name: frontend_snaps_${{ matrix.type }}${{ matrix.releases }}_${{matrix.arch}}.snap
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap

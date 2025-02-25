@@ -89,9 +89,6 @@ def parse_args(args=sys.argv[1:]):
         description="Parse command line arguments."
     )
 
-    parser.add_argument(
-        "--interface", required=True, help="The network interface to use."
-    )
     parser.add_argument("--powertype", type=str, help="Waked from s3 or s5.")
     parser.add_argument(
         "--timestamp_file",
@@ -122,13 +119,11 @@ def main():
 
     logging.info("wake-on-LAN check test started.")
 
-    interface = args.interface
     powertype = args.powertype
     timestamp_file = args.timestamp_file
     delay = args.delay
     max_retries = args.retry
 
-    logging.info("Interface: {}".format(interface))
     logging.info("PowerType: {}".format(powertype))
 
     test_start_time = get_timestamp(timestamp_file)

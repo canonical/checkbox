@@ -459,7 +459,7 @@ command:
  set -e
  wol_client.py --interface {{ interface }} --target "$SERVER_WAKE_ON_LAN" --delay "$WAKE_ON_LAN_DELAY" --retry "$WAKE_ON_LAN_RETRY" --waketype g --powertype s3  --timestamp_file "$PLAINBOX_SESSION_SHARE"/{{ interface }}_s3_timestamp
  sleep 30
- wol_check.py --interface {{ interface }} --delay "$WAKE_ON_LAN_DELAY" --retry "$WAKE_ON_LAN_RETRY" --powertype s3 --timestamp_file "$PLAINBOX_SESSION_SHARE"/{{ interface }}_s3_timestamp
+ wol_check.py --delay "$WAKE_ON_LAN_DELAY" --retry "$WAKE_ON_LAN_RETRY" --powertype s3 --timestamp_file "$PLAINBOX_SESSION_SHARE"/{{ interface }}_s3_timestamp
 user: root
 estimated_duration: 600
 flags: preserve-locale

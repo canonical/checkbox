@@ -42,7 +42,7 @@ class TestSendRequestToWolServerFunction(unittest.TestCase):
     def test_send_request_success(self, mock_urlopen):
         mock_response = MagicMock()
         mock_response.read.return_value = json.dumps(
-            {"result": "success"}
+            {"message": "success"}
         ).encode("utf-8")
         mock_response.status = 200
         mock_urlopen.return_value = mock_response
@@ -59,7 +59,7 @@ class TestSendRequestToWolServerFunction(unittest.TestCase):
     def test_send_request_failed_status_not_200(self, mock_urlopen):
         mock_response = MagicMock()
         mock_response.read.return_value = json.dumps(
-            {"result": "failure"}
+            {"message": "failure"}
         ).encode("utf-8")
         mock_response.getcode.return_value = 400
         mock_urlopen.return_value = mock_response
@@ -74,9 +74,9 @@ class TestSendRequestToWolServerFunction(unittest.TestCase):
     def test_send_request_failed_response_not_success(self, mock_urlopen):
         mock_response = MagicMock()
         mock_response.read.return_value = json.dumps(
-            {"result": "failure"}
+            {"message": "failure"}
         ).encode("utf-8")
-        mock_response.getcode.return_value = 200
+        mock_response.getcode.return_value = 500
         mock_urlopen.return_value = mock_response
         mock_urlopen.return_value.__enter__.return_value = mock_response
 

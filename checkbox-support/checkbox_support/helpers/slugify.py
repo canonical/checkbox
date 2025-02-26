@@ -30,6 +30,6 @@ def slugify(_string):
         "_{}{}".format(string.ascii_letters, string.digits)
     )
     # Python identifiers cannot start with a digit
-    if _string[0] in "1234567890":
+    if _string[0].isdigit():
         _string = "_" + _string
     return "".join(c if c in valid_chars else "_" for c in _string)

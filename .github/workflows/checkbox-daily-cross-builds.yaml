@@ -19,7 +19,7 @@ jobs:
             arch: arm64
     runs-on: ${{ matrix.release == 16 && 'ubuntu-20.04' || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
-    name: Runtime ${{ matrix.release }}-${{ matrix.arch }}
+    name: Runtime ${{ matrix.release }} (${{ matrix.arch }})
     steps:
       - uses: actions/checkout@v4
         with:
@@ -96,7 +96,7 @@ jobs:
             arch: arm64
     runs-on: ${{ matrix.release == 16 && 'ubuntu-20.04' || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
-    name: Frontend ${{ matrix.type }}${{ matrix.release }} - ${{ matrix.arch }}
+    name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{ matrix.arch }})
     steps:
       - uses: actions/checkout@v4
         with:

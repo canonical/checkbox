@@ -21,10 +21,12 @@ import string
 
 def slugify(_string):
     """
-    Transform any string to one that can be used in filenames
-    and Python identifers.
+    Slugify a string
+
+    Transform any string to one that can be used in filenames and Python
+    identifers.
     """
     valid_chars = frozenset(
-        "_.{}{}".format(string.ascii_letters, string.digits)
+        "_{}{}".format(string.ascii_letters, string.digits)
     )
     return "".join(c if c in valid_chars else "_" for c in _string)

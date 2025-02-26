@@ -33,3 +33,7 @@ class TestSlugify(TestCase):
     def test_slugify_hyphens(self):
         result = slugify("usb-vendor")
         self.assertEqual(result, "usb_vendor")
+
+    def test_slugify_dots(self):
+        result = slugify("my.funny.valentine")
+        self.assertEqual(result, "my_funny_valentine")

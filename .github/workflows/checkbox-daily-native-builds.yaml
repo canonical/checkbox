@@ -30,7 +30,7 @@ jobs:
             snapcraft_version: 8.x
     runs-on:
       group: "Canonical self-hosted runners"
-      labels: [self-hosted, linux, jammy, large, ${{ matrix.tag }}]
+      labels: ["self-hosted", "linux", "jammy", "large", "${{ matrix.tag }}"]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Runtime ${{ matrix.release }}  (${{matrix.arch}})
     steps:
@@ -104,7 +104,7 @@ jobs:
             snapcraft_version: 8.x
     runs-on:
       group: "Canonical self-hosted runners"
-      labels: [self-hosted, linux, jammy, large, ${{ matrix.tag }}]
+      labels: ["self-hosted", "linux", "jammy", "large", "${{ matrix.tag }}"]
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{matrix.arch}})
     steps:

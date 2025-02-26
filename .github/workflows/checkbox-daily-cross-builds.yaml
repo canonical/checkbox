@@ -3,6 +3,10 @@ name: Checkbox Snap daily cross-builds
 on:
   workflow_dispatch:
   workflow_call:
+  push:
+    branches:
+      - build_new_action
+
 
 jobs:
   snap-runtime:
@@ -17,7 +21,7 @@ jobs:
             arch: amd64
           - release: 16
             arch: arm64
-    runs-on: ${{ matrix.release == 16 && "ubuntu-20.04" || "ubuntu-latest" }}
+    runs-on: ${{ matrix.release == 16 && 'ubuntu-20.04' || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Runtime ${{ matrix.release }}-${{ matrix.arch }}
     steps:
@@ -30,7 +34,7 @@ jobs:
         run: |
           cd checkbox-core-snap/
           sudo apt update && sudo apt install -qq -y python3-setuptools-scm
-          ./prepare.sh ${{ matrix.release }}
+          ./prepare.sh series${{ matrix.release }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -59,15 +63,15 @@ jobs:
         name: Upload the snap as artifact
         with:
           name: runtime_snap${{ matrix.release }}_${{ matrix.arch }}.snap
-          path: checkbox-core-snap/series${{ matrix.release }}/*.snap
+          path: checkbox-core-snap/*/*.snap
 
       - name: Publish track
-        if: ${{ github.event_name != 'workflow_dispatch' }}
+        if: ${{ github.event_name == 'workflow_call' }}
         uses: canonical/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
         with:
-          snap: ${{ steps.snapcraft.outputs.snap }}
+          snap: checkbox-core-snap/*/*.snap
           release: latest/edge
 
   snap-frontend:
@@ -95,7 +99,7 @@ jobs:
             arch: amd64
           - release: 24
             arch: arm64
-    runs-on: ${{ matrix.release == 16 && "ubuntu-20.04" || "ubuntu-latest" }}
+    runs-on: ${{ matrix.release == 16 && 'ubuntu-20.04' || 'ubuntu-latest' }}
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} - ${{ matrix.arch }}
     steps:
@@ -137,14 +141,14 @@ jobs:
         name: Upload the snaps as artefacts
         with:
           name: frontend_snaps_${{ matrix.type }}${{ matrix.release }}_${{matrix.arch}}.snap
-          path: ${{ steps.snapcraft.outputs.snap }}
+          path: checkbox-snap/*/*.snap
 
       - name: Publish track
-        if: ${{ github.event_name != 'workflow_dispatch' }}
+        if: ${{ github.event_name == 'workflow_call' }}
         uses: canonical/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
         with:
-          snap: ${{ steps.snapcraft.outputs.snap }}
+          snap: checkbox-snap/*/*.snap
           # channel is ucXX for uc snaps and XX.04 for classic snaps
           release: ${{ matrix.type == 'uc' && format('uc{0}', matrix.release) || format('{0}.04', matrix.release) }}/edge

@@ -48,11 +48,11 @@ id: cpu/pytorch_can_use_cpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: dss/create_pytorch_cpu_notebook
 _summary: Check that PyTorch can use CPU in notebook
 estimated_duration: 1m
-command: check_notebook.sh pytorch-cpu can_run_python_script_in_pod verifying_pytorch_can_use_cpu
+command: check_notebook.py pytorch-cpu has_pytorch_available
 
 id: dss/remove_pytorch_cpu_notebook
 category_id: dss-regress
@@ -78,11 +78,11 @@ id: cpu/tensorflow_can_use_cpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: dss/create_tensorflow_cpu_notebook
 _summary: Check that Tensorflow can use CPU in notebook
 estimated_duration: 1m
-command: check_notebook.sh tensorflow-cpu can_run_python_script_in_pod verifying_tensorflow_can_use_cpu
+command: check_notebook.py tensorflow-cpu has_tensorflow_available
 
 id: dss/remove_tensorflow_cpu_notebook
 category_id: dss-regress
@@ -206,11 +206,11 @@ id: xpu/tensorflow_can_use_xpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: dss/create_tensorflow_intel_notebook
 _summary: Check that Tensorflow can use XPU in the notebook
 estimated_duration: 1m
-command: check_notebook.sh tensorflow-intel can_run_python_script_in_pod verifying_tensorflow_can_use_xpu
+command: check_notebook.py tensorflow-intel sees_intel_gpu_in_tensorflow
 
 id: dss/remove_tensorflow_intel_notebook
 category_id: dss-regress
@@ -236,11 +236,11 @@ id: xpu/pytorch_can_use_xpu
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: dss/create_pytorch_intel_notebook
 _summary: Check that Pytorch can use XPU in the notebook
 estimated_duration: 1m
-command: check_notebook.sh pytorch-intel can_run_python_script_in_pod verifying_pytorch_can_use_xpu
+command: check_notebook.py pytorch-intel sees_intel_gpu_in_pytorch
 
 id: dss/remove_pytorch_intel_notebook
 category_id: dss-regress
@@ -304,11 +304,11 @@ id: cuda/pytorch_can_use_cuda
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: dss/create_pytorch_cuda_notebook
 _summary: Check PyTorch can use CUDA
 estimated_duration: 1m
-command: check_notebook.sh pytorch-cuda can_run_python_script_in_pod verifying_pytorch_can_use_cuda
+command: check_notebook.py pytorch-cuda sees_nvidia_gpu_in_pytorch
 
 id: dss/remove_pytorch_cuda_notebook
 category_id: dss-regress
@@ -334,11 +334,11 @@ id: cuda/tensorflow_can_use_cuda
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: dss/create_tensorflow_cuda_notebook
 _summary: Check Tensorflow can use CUDA
 estimated_duration: 1m
-command: check_notebook.sh tensorflow-cuda can_run_python_script_in_pod verifying_tensorflow_can_use_cuda
+command: check_notebook.py tensorflow-cuda sees_nvidia_gpu_in_tensorflow
 
 id: dss/remove_tensorflow_cuda_notebook
 category_id: dss-regress

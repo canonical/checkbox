@@ -1,4 +1,4 @@
-name: Checkbox Snapcraft8 builds
+name: Checkbox Snap daily native builds
 
 on:
   workflow_dispatch:

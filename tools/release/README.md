@@ -92,8 +92,8 @@ You can use the previously described script to do so:
 3 workflows are triggered on tag push events:
 
 - [checkbox deb packages] *(copy packages to the stable PPA)*
-- [checkbox snap packages] *(copy snaps to the stable channels)*
-- [checkbox core snap packages] *(copy snaps to the stable channels)*
+- [checkbox cross-build snap] *(copy snaps to the stable channels)*
+- [checkbox native snap] *(copy snaps to the stable channels)*
 
 In addition to the above workflows, a [Draft Release Note] is created on Github
 with an auto-generated changelog.
@@ -157,8 +157,8 @@ be able to send an e-mail to them.
 [edge]: https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/edge
 [Launchpad Builders status]: https://launchpad.net/builders
 [checkbox deb packages]: https://github.com/canonical/checkbox/actions/workflows/deb-beta-release.yml
-[checkbox snap packages]: https://github.com/canonical/checkbox/actions/workflows/checkbox-snap-beta-release.yml
-[checkbox core snap packages]: https://github.com/canonical/checkbox/actions/workflows/checkbox-core-snap-beta-release.yml
+[checkbox cross-build snap]: https://github.com/canonical/checkbox/actions/workflows/.github/workflows/checkbox-daily-cross-builds.yaml
+[checkbox native snap]: https://github.com/canonical/checkbox/actions/workflows/checkbox-daily-native-builds.yaml
 [build]: https://github.com/canonical/checkbox/actions/runs/4371649401/jobs/7649877336
 [Draft Release Note]: https://github.com/canonical/checkbox/releases
 [mailing list page]: https://lists.ubuntu.com/mailman/listinfo/Checkbox-devel

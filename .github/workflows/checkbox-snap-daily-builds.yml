@@ -1,4 +1,4 @@
-name: checkbox snap daily build
+name: Checkbox Frontend snap daily cross-build
 
 on:
   workflow_dispatch:
@@ -10,36 +10,36 @@ jobs:
       fail-fast: false
       matrix:
         type: [classic, uc]
-        releases: [16, 18, 20]
+        release: [16, 18, 20]
         arch: [armhf, amd64, arm64]
         exclude:
           # other arch built on self hosted runners by the other workflow
-          - releases: 18
+          - release: 18
             arch: amd64
-          - releases: 18
+          - release: 18
             arch: arm64
-          - releases: 20
+          - release: 20
             arch: amd64
-          - releases: 20
+          - release: 20
             arch: arm64
     runs-on: ubuntu-20.04
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
-    env:
-      SERIES: series_${{ matrix.type }}${{ matrix.releases }}
-      SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-    name: Frontend ${{ matrix.type }}${{ matrix.releases }} - ${{ matrix.arch }}
+    name: Frontend ${{ matrix.type }}${{ matrix.release }} - ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
-      - name: Copy over the common files for series ${{ matrix.type }}${{ matrix.releases }}
+
+      - name: Copy over the common files for series ${{ matrix.type }}${{ matrix.release }}
         run: |
           cd checkbox-snap/
           sudo apt update && sudo apt install -qq -y python3-setuptools-scm
-          ./prepare_${{ matrix.type }}.sh $SERIES
+          ./prepare_${{ matrix.type }}.sh series_${{ matrix.type }}${{ matrix.release }}
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+
       - name: Build (retries on fail)
         uses: Wandalen/wretry.action@master
         id: snapcraft
@@ -48,18 +48,30 @@ jobs:
           action: canonical/snapcraft-multiarch-action@v1
           with: |
             architecture: ${{ matrix.arch }}
-            path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}
+            path: checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}
+
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()
         with:
-          name: frontend-build-log-${{ matrix.type }}${{ matrix.releases }}
+          name: frontend-build-log-${{ matrix.type }}${{ matrix.release }}-${{ matrix.arch }}
           path: |
             /home/runner/.cache/snapcraft/log/
             /home/runner/.local/state/snapcraft/log/
-            checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/checkbox*.txt
+            checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}/checkbox*.txt
+
       - uses: actions/upload-artifact@v4
         name: Upload the snaps as artefacts
         with:
-          name: frontend_snaps_${{ matrix.type }}${{ matrix.releases }}_${{matrix.arch}}.snap
-          path: checkbox-snap/series_${{ matrix.type }}${{ matrix.releases }}/*.snap
+          name: frontend_snaps_${{ matrix.type }}${{ matrix.release }}_${{matrix.arch}}.snap
+          path: ${{ steps.snapcraft.outputs.snap }}
+
+      - name: Publish track
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        uses: canonical/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+        with:
+          snap: ${{ steps.snapcraft.outputs.snap }}
+          # channel is ucXX for uc snaps and XX.04 for classic snaps
+          release: ${{ matrix.type == 'uc' && format('uc{0}', matrix.release) || format('{0}.04', matrix.release) }}/edge

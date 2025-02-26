@@ -1,4 +1,4 @@
-name: checkbox core snap daily build
+name: Checkbox Runtime Snap daily cross-builds
 
 on:
   workflow_dispatch:
@@ -22,22 +22,22 @@ jobs:
     env:
       SERIES: series${{ matrix.releases }}
       SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
-      # snapcraft remote-build will create a repository with the name decided by the --build-id arg
-      # URL to this repo echoed below to help debug builds (does not change if the workflow is re-run)
-      SNAPCRAFT_BUILDER_ID: checkbox${{ matrix.releases }}-${{ matrix.arch }}-${{ github.run_id }}
     name: Runtime (Core) ${{ matrix.releases }}-${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
           persist-credentials: false
+
       - name: Copy over the common files for series ${{ matrix.releases }}
         run: |
           cd checkbox-core-snap/
           sudo apt update && sudo apt install -qq -y python3-setuptools-scm
           ./prepare.sh $SERIES
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
+
       - name: Build (retries on fail)
         uses: Wandalen/wretry.action@master
         id: snapcraft
@@ -47,6 +47,7 @@ jobs:
           with: |
             architecture: ${{ matrix.arch }}
             path: checkbox-core-snap/series${{ matrix.releases }}
+
       - uses: actions/upload-artifact@v4
         name: Upload logs on failure
         if: failure()
@@ -56,8 +57,18 @@ jobs:
             /home/runner/.cache/snapcraft/log/
             /home/runner/.local/state/snapcraft/log/
             checkbox-core-snap/series${{ matrix.releases }}/checkbox*.txt
+
       - uses: actions/upload-artifact@v4
         name: Upload the snap as artifact
         with:
           name: runtime_snap${{ matrix.releases }}_${{ matrix.arch }}.snap
           path: checkbox-core-snap/series${{ matrix.releases }}/*.snap
+
+      - name: Publish track
+        if: ${{ github.event_name != 'workflow_dispatch' }}
+        uses: canonical/action-publish@v1
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
+        with:
+          snap: ${{ steps.snapcraft.outputs.snap }}
+          release: latest/edge

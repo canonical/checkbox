@@ -37,3 +37,7 @@ class TestSlugify(TestCase):
     def test_slugify_dots(self):
         result = slugify("my.funny.valentine")
         self.assertEqual(result, "my_funny_valentine")
+
+    def test_slugify_string_starting_with_number(self):
+        result = slugify("123abc")
+        self.assertEqual(result, "_123abc")

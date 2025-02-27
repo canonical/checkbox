@@ -37,6 +37,12 @@ ideal for prototyping. To provision Checkbox from source do the following:
     Remember to activate the virtual environment! You can also create an alias
     in your ``~/.bashrc`` to enable it when you need it.
 
+.. note::
+  All of the commands in this tutorial are using the
+  com.canonical.certification namespace. If you want to continue the one you
+  have started before, remember to change the namespace
+  (i.e. 2024.com.tutorial::tutorial) in the commands as well!
+
 Creating a new provider
 =======================
 
@@ -45,7 +51,7 @@ Checkbox organizes and manages all jobs, test plans and other test units in vari
 Let's create a new Checkbox provider by using the Checkbox sub-command
 ``startprovider``.
 
-.. code-block:: shell
+.. code-block:: none
 
    (checkbox_venv) $ checkbox-cli startprovider 2024.com.tutorial:tutorial
 
@@ -389,9 +395,10 @@ a packaging meta-data unit to our ``units/extended_tutorial.pxu`` file:
     Depends:
       jq
 
-If you have developed the other providers that Checkbox comes with, by running
-the following command you will notice a validation error. If you don't see this
-error, don't worry, it means you don't have the base provider installed yet.
+If you have ``developed`` the other providers that Checkbox comes with, by
+running the following command you will notice a validation error. If you don't
+see this error, don't worry, it means you don't have the base provider
+``installed`` or ``developed`` yet.
 
 .. code-block:: none
 

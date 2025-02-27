@@ -120,7 +120,7 @@ class TestUsbReadWrite(unittest.TestCase):
             write_test_unit(random_file)
 
 
-# update the following content from existing file: checkbox/checkbox-support/checkbox_support/tests/test_usb_read_write.py
+
 class TestMountUsbStorage(unittest.TestCase):
     @patch("checkbox_support.scripts.usb_read_write.subprocess.call")
     @patch(

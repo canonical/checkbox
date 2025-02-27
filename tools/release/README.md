@@ -157,7 +157,7 @@ be able to send an e-mail to them.
 [edge]: https://code.launchpad.net/~checkbox-dev/+archive/ubuntu/edge
 [Launchpad Builders status]: https://launchpad.net/builders
 [checkbox deb packages]: https://github.com/canonical/checkbox/actions/workflows/deb-beta-release.yml
-[checkbox cross-build snap]: https://github.com/canonical/checkbox/actions/workflows/.github/workflows/checkbox-daily-cross-builds.yaml
+[checkbox cross-build snap]: https://github.com/canonical/checkbox/actions/workflows/checkbox-daily-cross-builds.yaml
 [checkbox native snap]: https://github.com/canonical/checkbox/actions/workflows/checkbox-daily-native-builds.yaml
 [build]: https://github.com/canonical/checkbox/actions/runs/4371649401/jobs/7649877336
 [Draft Release Note]: https://github.com/canonical/checkbox/releases

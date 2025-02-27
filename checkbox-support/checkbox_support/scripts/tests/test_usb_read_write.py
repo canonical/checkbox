@@ -29,7 +29,6 @@ from subprocess import CompletedProcess
 from checkbox_support.scripts.usb_read_write import mount_usb_storage
 
 
-
 from checkbox_support.scripts.usb_read_write import (
     write_test_unit,
 )
@@ -120,7 +119,8 @@ class TestUsbReadWrite(unittest.TestCase):
         with self.assertRaises(SystemExit):
             write_test_unit(random_file)
 
-#update the following content from existing file: checkbox/checkbox-support/checkbox_support/tests/test_usb_read_write.py
+
+# update the following content from existing file: checkbox/checkbox-support/checkbox_support/tests/test_usb_read_write.py
 class TestMountUsbStorage(unittest.TestCase):
     @patch("checkbox_support.scripts.usb_read_write.subprocess.call")
     @patch(
@@ -193,7 +193,6 @@ class TestMountUsbStorage(unittest.TestCase):
                 return 0
 
         mock_call.side_effect = call_side_effect
-
 
         with patch(
             "checkbox_support.scripts.usb_read_write.FOLDER_TO_MOUNT",

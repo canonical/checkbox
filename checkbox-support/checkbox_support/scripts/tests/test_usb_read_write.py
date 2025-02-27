@@ -120,7 +120,6 @@ class TestUsbReadWrite(unittest.TestCase):
             write_test_unit(random_file)
 
 
-
 class TestMountUsbStorage(unittest.TestCase):
     @patch("checkbox_support.scripts.usb_read_write.subprocess.call")
     @patch(

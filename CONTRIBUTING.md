@@ -362,6 +362,13 @@ When non-blocking issues are encountered by the reviewer, they mark the PR "appr
 
 They are not confident in making a call, delegating explicitly in a comment to a reviewer who they believe _can_ make a call, as quickly and as early as possible in the process.
 
+### New hidden manifest entry
+
+If your PR is about adding a new hidden [manifest entry], please ensure this
+new entry has been input in the configuration (`manifest.json`) file used by
+the devices in the lab. This is currently done by modifying the manifest files
+in a [separate repository].
+
 ## Documentation
 
 [Checkbox documentation] lives in the `docs/` directory and is deployed on
@@ -423,3 +430,5 @@ changes using a pull request.
 [sign your commits]: https://docs.github.com/en/authentication/managing-commit-signature-verification/signing-commits
 [github-runner-operator]: https://github.com/canonical/github-runner-operator
 [this SO thread]: https://stackoverflow.com/a/70484849/504931
+[manifest entry]: https://canonical-checkbox.readthedocs-hosted.com/en/stable/reference/units/manifest-entry.html
+[separate repository]: https://github.com/canonical/ce-oem-dut-checkbox-configuration

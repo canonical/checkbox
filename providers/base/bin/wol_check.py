@@ -60,22 +60,27 @@ def get_wakeup_timestamp():
     return None
 
 
-def get_first_boot_timestamp():
-    # Get the time stamp of the system boot up for s5
-    command = ["journalctl", "-b", "0", "--output=short-unix"]
-    result = subprocess.check_output(
-        command, shell=False, universal_newlines=True
-    )
-    logs = result.splitlines()
-
-    # The first line of system boot up
-    log = logs[0]
-    latest_system_back_time = extract_timestamp(log)
-    readable_back_time = datetime.datetime.fromtimestamp(
-        latest_system_back_time
-    )
-    logging.debug("System back time: {}".format(readable_back_time))
-    return latest_system_back_time
+def get_system_boot_time():
+    """
+    Read btime from /proc/stat and
+    return the system boot timestamp (Unix timestamp, in seconds).
+    """
+    try:
+        with open("/proc/stat", "r") as f:
+            for line in f:
+                if line.startswith("btime"):
+                    btime = float(line.split()[1])
+                    back_time = datetime.datetime.fromtimestamp(btime)
+                    logging.debug("System back time: {}".format(back_time))
+                    return btime
+        logging.error("cannot find btime")
+        return None
+    except FileNotFoundError:
+        logging.error("cannot open /proc/stat.")
+        return None
+    except Exception as e:
+        logging.error("error while read btime: {}".format(e))
+        return None
 
 
 def parse_args(args=sys.argv[1:]):
@@ -127,12 +132,16 @@ def main():
     logging.info("PowerType: {}".format(powertype))
 
     test_start_time = get_timestamp(timestamp_file)
+    if test_start_time is None:
+        raise SystemExit(
+            "Couldn't get the test start time from timestamp file."
+        )
 
     system_back_time = (
-        get_wakeup_timestamp()
-        if powertype == "s3"
-        else get_first_boot_timestamp()
+        get_wakeup_timestamp() if powertype == "s3" else get_system_boot_time()
     )
+    if system_back_time is None:
+        raise SystemExit("Couldn't get system back time.")
 
     time_difference = system_back_time - test_start_time
     logging.debug("time difference: {} seconds".format(time_difference))
@@ -143,12 +152,12 @@ def main():
     if time_difference > expect_time_range:
         raise SystemExit(
             "The system took much longer than expected to wake up,"
-            "and it wasn't awakened by wake-on-LAN."
+            " and it wasn't awakened by wake-on-LAN."
         )
     elif time_difference < 0:
-        raise SystemExit("System resume up earlier than expected.")
+        raise SystemExit("System resumed earlier than expected.")
     else:
-        logging.info("wake-on-LAN workes well.")
+        logging.info("wake-on-LAN works well.")
         return True
 
 

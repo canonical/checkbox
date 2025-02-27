@@ -18,12 +18,12 @@
 
 
 import unittest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, mock_open
 from wol_check import (
     get_timestamp,
     extract_timestamp,
     get_wakeup_timestamp,
-    get_first_boot_timestamp,
+    get_system_boot_time,
     parse_args,
     main,
 )
@@ -58,14 +58,39 @@ class TestExtractTimeStamp(unittest.TestCase):
         self.assertIsNone(timestamp)
 
 
-class TestGetFirstdBootTime(unittest.TestCase):
-    @patch("subprocess.check_output")
-    def test_get_first_boot_timestamp_s5(self, mock_check_output):
-        mock_check_output.return_value = (
-            r"1734512121.128220 M70s kernel: Linux version 6.11.0-1009-oem"
-        )
-        time = get_first_boot_timestamp()
-        self.assertEqual(time, 1734512121.128220)
+class TestGetSystemBootTime(unittest.TestCase):
+    @patch("builtins.open")
+    def test_get_system_boot_time_success(self, mock_open):
+        mock_file = MagicMock()
+        mock_file.__enter__.return_value = mock_file
+        mock_file.__iter__.return_value = ["btime 1618912536\n"]
+        mock_open.return_value = mock_file
+
+        boot_time = get_system_boot_time()
+        self.assertEqual(boot_time, 1618912536.0)
+
+    @patch(
+        "builtins.open", new_callable=mock_open, read_data="some other data\n"
+    )
+    def test_get_system_boot_time_no_btime(self, mock_file):
+        with self.assertLogs(level="ERROR") as log:
+            boot_time = get_system_boot_time()
+            self.assertIsNone(boot_time)
+            self.assertIn("cannot find btime", log.output[0])
+
+    @patch("builtins.open", side_effect=FileNotFoundError)
+    def test_get_system_boot_time_file_not_found(self, mock_file):
+        with self.assertLogs(level="ERROR") as log:
+            boot_time = get_system_boot_time()
+            self.assertIsNone(boot_time)
+            self.assertIn("cannot open /proc/stat.", log.output[0])
+
+    @patch("builtins.open", side_effect=Exception("some error"))
+    def test_get_system_boot_time_exception(self, mock_file):
+        with self.assertLogs(level="ERROR") as log:
+            boot_time = get_system_boot_time()
+            self.assertIsNone(boot_time)
+            self.assertIn("error while read btime: some error", log.output[0])
 
 
 class TestGetWakeupTimestamp(unittest.TestCase):
@@ -117,19 +142,20 @@ class ParseArgsTests(unittest.TestCase):
 
 
 class TestMain(unittest.TestCase):
+    def setUp(self):
+        self.args_mock = MagicMock()
+        self.args_mock.powertype = "s3"
+        self.args_mock.timestamp_file = "/tmp/test"
+        self.args_mock.delay = 60
+        self.args_mock.retry = 3
+
     @patch("wol_check.parse_args")
     @patch("wol_check.get_timestamp")
     @patch("wol_check.get_wakeup_timestamp")
     def test_main_success(
         self, mock_get_wakeup_timestamp, mock_get_timestamp, mock_parse_args
     ):
-        args_mock = MagicMock()
-        args_mock.powertype = "s3"
-        args_mock.timestamp_file = "/tmp/test"
-        args_mock.delay = 60
-        args_mock.retry = 3
-        mock_parse_args.return_value = args_mock
-
+        mock_parse_args.return_value = self.args_mock
         mock_get_timestamp.return_value = 100.0
         mock_get_wakeup_timestamp.return_value = 160.0
 
@@ -142,7 +168,7 @@ class TestMain(unittest.TestCase):
             "wake-on-LAN check test started.", log_messages.output[0]
         )
         self.assertIn("PowerType: s3", log_messages.output[1])
-        self.assertIn("wake-on-LAN workes well.", log_messages.output[2])
+        self.assertIn("wake-on-LAN works well.", log_messages.output[2])
 
     @patch("wol_check.parse_args")
     @patch("wol_check.get_timestamp")
@@ -150,13 +176,7 @@ class TestMain(unittest.TestCase):
     def test_main_wakeonlan_fail_too_large_difference(
         self, mock_get_wakeup_timestamp, mock_get_timestamp, mock_parse_args
     ):
-        args_mock = MagicMock()
-        args_mock.powertype = "s3"
-        args_mock.timestamp_file = "/tmp/test"
-        args_mock.delay = 60
-        args_mock.retry = 3
-        mock_parse_args.return_value = args_mock
-
+        mock_parse_args.return_value = self.args_mock
         mock_get_timestamp.return_value = 100.0
         mock_get_wakeup_timestamp.return_value = 400.0
 
@@ -166,7 +186,7 @@ class TestMain(unittest.TestCase):
         self.assertEqual(
             str(cm.exception),
             "The system took much longer than expected to wake up,"
-            "and it wasn't awakened by wake-on-LAN.",
+            " and it wasn't awakened by wake-on-LAN.",
         )
 
     @patch("wol_check.parse_args")
@@ -175,21 +195,46 @@ class TestMain(unittest.TestCase):
     def test_main_wakeonlan_fail_negative_difference(
         self, mock_get_wakeup_timestamp, mock_get_timestamp, mock_parse_args
     ):
-        args_mock = MagicMock()
-        args_mock.powertype = "s3"
-        args_mock.timestamp_file = "/tmp/test"
-        args_mock.delay = 60
-        args_mock.retry = 3
-        mock_parse_args.return_value = args_mock
-
+        mock_parse_args.return_value = self.args_mock
         mock_get_timestamp.return_value = 150.0
         mock_get_wakeup_timestamp.return_value = 100.0
 
         with self.assertRaises(SystemExit) as cm:
             main()
         self.assertEqual(
-            str(cm.exception), "System resume up earlier than expected."
+            str(cm.exception), "System resumed earlier than expected."
         )
+
+    @patch("wol_check.parse_args")
+    @patch("wol_check.get_timestamp")
+    @patch("wol_check.get_wakeup_timestamp")
+    def test_main_get_timestamp_none(
+        self, mock_get_wakeup_timestamp, mock_get_timestamp, mock_parse_args
+    ):
+        mock_parse_args.return_value = self.args_mock
+        mock_get_timestamp.return_value = None
+        mock_get_wakeup_timestamp.return_value = 100.0
+
+        with self.assertRaises(SystemExit) as cm:
+            main()
+        self.assertEqual(
+            str(cm.exception),
+            "Couldn't get the test start time from timestamp file.",
+        )
+
+    @patch("wol_check.parse_args")
+    @patch("wol_check.get_timestamp")
+    @patch("wol_check.get_wakeup_timestamp")
+    def test_main_get_systembacktime_none(
+        self, mock_get_wakeup_timestamp, mock_get_timestamp, mock_parse_args
+    ):
+        mock_parse_args.return_value = self.args_mock
+        mock_get_timestamp.return_value = 100.0
+        mock_get_wakeup_timestamp.return_value = None
+
+        with self.assertRaises(SystemExit) as cm:
+            main()
+        self.assertEqual(str(cm.exception), "Couldn't get system back time.")
 
 
 if __name__ == "__main__":

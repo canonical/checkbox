@@ -1,7 +1,7 @@
 .. _test_case:
 
 =================
-Writing Test Jobs
+Writing test jobs
 =================
 Let's begin our journey in Checkbox test jobs by writing our first test job. Our
 objective is to detect if the :term:`DUT` is correctly connected to the Internet.
@@ -507,7 +507,7 @@ Let's propagate this newfound knowledge over to our ``requires`` constraint:
     requires:
       (device.category == "NETWORK" or device.category == "WIRELESS")
 
-Template Jobs
+Template jobs
 =============
 
 Currently we are testing if any interface has access to the internet in our
@@ -527,7 +527,7 @@ connection checking.
     without relying on the "real" hardware while developing.
 
 Create a new unit that uses the ``network_iface_info`` resource and, for now,
-only print out the ``interface`` field to get the hang of it. It should look
+only print out the ``interface`` field to learn more about it. It should look
 something like this:
 
 .. code-block:: none
@@ -979,7 +979,7 @@ To run the tests go to the root of the provider and run the following:
    (for the ``commands:`` sections) and flake8 (for all ``bin/*.py`` files).
    Not providing ``-u`` will simply run all tests.
 
-Gathering Coverage from Unit Tests
+Gathering coverage from unit tests
 ----------------------------------
 
 In Checkbox we have a coverage requirement for new pull requests.
@@ -1037,7 +1037,7 @@ usage of the script. Add the following to ``tests/test_network_available.py``
 
 
 
-Dealing with complexity - Source builds
+Dealing with complexity - source builds
 =======================================
 
 There are very few situations where we need to include a source file to be

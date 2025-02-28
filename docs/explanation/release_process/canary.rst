@@ -1,4 +1,4 @@
-Canary Testing for Checkbox Edge Version: In-depth Process
+Canary testing for Checkbox edge version: in-depth process
 ==========================================================
 
 Introduction
@@ -6,31 +6,31 @@ Introduction
 
 Canary testing applies on Checkbox snaps that are released through the `edge channel <https://snapcraft.io/docs/channels>`_ in the Snap Store. New versions are built daily if changes are made in the code repository.
 
-The following sections provide a detailed walk-through of the Canary Testing process for the Checkbox Edge version, starting from snap building to the outcomes of the testing.
+The following sections provide a detailed walk-through of the canary testing process for the Checkbox Edge version, starting from snap building to the outcomes of the testing.
 
-Snap Build and Release
+Snap build and release
 -----------------------
 
-Trigger Conditions
+Trigger conditions
 ^^^^^^^^^^^^^^^^^^
 The GitHub action responsible for building the snap runs every day. However, it only triggers when the following condition is met:
 
 At least one pull request (PR) has been merged since the last edge build.
 
-Build Workflow
+Build workflow
 ^^^^^^^^^^^^^^^
 
 To monitor the build process, or to review the configuration and logs, see `the GitHub workflow <https://github.com/canonical/checkbox/actions/workflows/checkbox-snap-daily-builds.yml>`_.
 
-Post-Build Actions
+Post-build actions
 ^^^^^^^^^^^^^^^^^^
 
 Once the build is successful, the snap packages are automatically pushed to the Snap Store in the edge channel. Testers and early adopters can access the latest version through edge releases.
 
-Jenkins Monitoring and Validation
+Jenkins monitoring and validation
 ---------------------------------
 
-Snap Monitoring
+Snap monitoring
 ^^^^^^^^^^^^^^^
 
 Once the snap is published to the edge channel in the Snap Store, our Jenkins job titled ``checkbox-edge-validation-detect-new-build`` gets into action.
@@ -48,7 +48,7 @@ The specific JSON path that's being monitored for changes is:
 
 The job checks this path every minute for updates.
 
-Validation and Wait Logic
+Validation and wait logic
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Upon detecting a new snap:
@@ -57,14 +57,14 @@ Upon detecting a new snap:
 2. If any snap is missing, the job waits for an hour, periodically checking for its availability.
 3. If the snaps are available within the waiting period, the next stage of testing is initiated.
 
-checkbox-edge-canary-validation Pipeline
+checkbox-edge-canary-validation pipeline
 ----------------------------------------
 
 Upon successful snap validation, the ``checkbox-edge-canary-validation`` pipeline begins its operation.
 
 The :doc:`canary_pipeline` contains the groovy script implementing the pipeline.
 
-Testing Platforms and Specifications
+Testing platforms and specifications
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
@@ -79,12 +79,12 @@ The :doc:`validation_job_example` contains the Jenkins job definition for the am
 For a detailed look on how the job execution is carried out by all the entities in the chain,
 refer to the :doc:`validation_pipeline_execution`.
 
-Canary Test Plan Criteria
+Canary test plan criteria
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The canary test plan outlines specific tests that are imperative for the new snap's validation. The pipeline's successful conclusion is contingent upon all these tests passing on each of the mentioned platforms.
 
-Outcome and Information propagation
+Outcome and information propagation
 -----------------------------------
 
 Should the validation complete without errors, the `beta` reference in the Checkbox repository is set to point at the revision that got validated.
@@ -93,7 +93,7 @@ The `beta` branch head is then updated on GitHub.
 Conclusion
 ----------
 
-This Canary Testing process, complete from snap building to testing, ensures that every release of Checkbox in the edge channel is thoroughly vetted and stable. 
+This canary testing process, complete from snap building to testing, ensures that every release of Checkbox in the edge channel is thoroughly vetted and stable. 
 
 
 .. toctree::

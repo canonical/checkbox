@@ -1,7 +1,7 @@
 .. _test_plan:
 
 ===================
-Writing A Test Plan
+Writing a test plan
 ===================
 
 This tutorial will guide you in writing a test plan to test the Network
@@ -104,7 +104,7 @@ Run the following and see the result:
      }
   ]
 
-Status Overrides
+Status overrides
 ================
 
 The certification status of a job can be defined in its definition. This is
@@ -238,7 +238,7 @@ output:
   com.canonical.certification::network_speed
 
 
-Nested Parts
+Nested parts
 ============
 
 It is often useful to re-use the same test plan to test a functionality. This
@@ -349,7 +349,7 @@ about why you are excluding those tests, maybe some need an updated definition!
    what you want to exclude, for templates, for example, use the template id
    whenever you can instead of regex matching the generated id.
 
-Mandatory Inclusions
+Mandatory inclusions
 ====================
 
 Exclusions are a nice mechanism to inherit a test plan partially, but they are

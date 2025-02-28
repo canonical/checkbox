@@ -1,6 +1,6 @@
 :orphan:
 
-Reporting Bugs
+Reporting bugs
 ==============
 
 If you have an issue with Checkbox or with the test cases coming from its

@@ -1,5 +1,5 @@
 =============
-Category Unit
+Category unit
 =============
 
 The category unit is a normalized implementation of a "test category" concept.
@@ -10,8 +10,8 @@ Job definitions can be associated with at most one category using the
 ``category_id`` field (see :option:`job unit reference <job category_id>`).
 Categories can be used by particular applications to facilitate test selection.
 
-Category Fields
----------------
+Fields
+-------
 
 There are two fields that are used by the category unit:
 

@@ -28,7 +28,7 @@ Installing Ubuntu Core
 You can try out Ubuntu Core on a range of devices or in a virtual machine. For
 downloads and instructions see this `page <https://ubuntu.com/download/iot>`.
 
-Installing Checkbox Snap
+Installing Checkbox snap
 ````````````````````````
 
 Now you are ready to install the Checkbox snap your Ubuntu Core device. It can
@@ -95,7 +95,7 @@ the test:
 .. image:: ../_images/checkbox-snappy-4-user-interact-job.png
 
 
-Getting Results
+Getting results
 ---------------
 
 When the test selection has been run, the first displayed screen will allow you

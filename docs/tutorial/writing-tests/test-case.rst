@@ -1,4 +1,4 @@
-.. _test_case:
+.. _adv_test_case:
 
 =================
 Writing Test Jobs
@@ -15,7 +15,7 @@ ideal for prototyping. To provision Checkbox from source do the following:
 .. code-block:: shell
 
     # first install python3 and python3-venv
-    $ sudo apt install python3 python3-venv python3-pip
+    $ sudo apt install python3 python3-virtualenv python3-pip
     # clone the Checkbox repository
     $ git clone https://github.com/canonical/checkbox.git
     # call the mk-venv script with the location of your virtualenv
@@ -37,6 +37,12 @@ ideal for prototyping. To provision Checkbox from source do the following:
     Remember to activate the virtual environment! You can also create an alias
     in your ``~/.bashrc`` to enable it when you need it.
 
+.. note::
+  All of the commands in this tutorial are using the
+  ``com.canonical.certification`` namespace. If you want to continue the one you
+  have started before, remember to change the namespace
+  (i.e. ``2024.com.tutorial::tutorial``) in the commands as well!
+
 Creating a new provider
 =======================
 
@@ -45,7 +51,7 @@ Checkbox organizes and manages all jobs, test plans and other test units in vari
 Let's create a new Checkbox provider by using the Checkbox sub-command
 ``startprovider``.
 
-.. code-block:: shell
+.. code-block:: none
 
    (checkbox_venv) $ checkbox-cli startprovider 2024.com.tutorial:tutorial
 
@@ -105,6 +111,13 @@ Now to run our test we can use the ``run`` sub-command. Try the following:
      ☑ : A job that always passes
 
 
+.. important::
+   You should always run ``python3 manage.py validate`` before running your
+   tests. This ensures that your unit is valid and Checkbox will interpret it
+   correctly. When you don't do it, Checkbox may ignore some errors in your
+   unit and, for example, fail to load some jobs leaving you wondering why the
+   ``run`` command doesn't work!
+
 First concrete test example
 ===========================
 
@@ -151,12 +164,44 @@ like this:
     ==================================[ Results ]===================================
      ☑ : Test that the internet is reachable
 
+Similarly to ``summary`` and ``id``, consider also providing a ``category`` for
+your tests. It makes the output easier to read and clearer (you can see that we
+are getting an ``uncategorised`` category right now). Additionally it is used
+in the Test Selection screen to group your tests, so when you have many of
+them, it makes sifting through them that much easier. You can create your own
+category (See: :ref:`category_unit`), but consider using the built-in ones.
+
+To get a list of them, try the following:
+
+.. code-block:: none
+
+   (checkbox_venv) $ checkbox-cli list "category" | grep "com.canonical.plainbox"
+
 .. note::
-   Similarly to ``summary`` and ``id``, consider also providing a ``category``
-   for your tests. It makes the output easier to read and clearer (you can see
-   that we are getting an ``uncategorised`` category right now). Additionally
-   it is used in the Test Selection screen to group your tests, so when you
-   have many of them, it makes sifting through them that much easier.
+    We grep for ``com.canonical.plainbox`` categories because those are part of
+    Checkbox. If you use a category id that is not builtin, remember that doing
+    so adds a new dependency between your provider and the one that defines the
+    category unit you are using!
+
+We can use the ``com.canonical.plainbox::networking`` category for our tests by
+modifying the unit as follows:
+
+.. code-block:: none
+
+    id: network_available
+    flags: simple
+    _summary: Test that the internet is reachable
+    category_id: com.canonical.plainbox::networking
+    command:
+      ping -c 1 1.1.1.1
+
+As any other unit that is not defined in the same namespace you are using, when
+referring to it you have to use the full name, including the namespace!
+
+.. note::
+   We will omit the ``category_id`` from all units in this tutorial to make the
+   snippets shorter but you should always use it for your production unit.
+
 
 Dependencies
 ============
@@ -337,7 +382,8 @@ Create a new job with the following content:
           "\nlink_info_kind: " + .linkinfo.info_kind +
           "\nlink_type: " + .link_type + "\n"'
 
-We are using ``jq`` to parse the output of the ``ip`` command, which means we need to make sure ``jq`` is available. We need to declare this in
+We are using ``jq`` to parse the output of the ``ip`` command, which means we
+need to make sure ``jq`` is available. We need to declare this in
 the correct spot, otherwise this will not work in a reproducible manner. Let's add
 a packaging meta-data unit to our ``units/extended_tutorial.pxu`` file:
 
@@ -349,7 +395,10 @@ a packaging meta-data unit to our ``units/extended_tutorial.pxu`` file:
     Depends:
       jq
 
-If you now run the following command you will notice a validation error.
+If you have ``developed`` the other providers that Checkbox comes with, by
+running the following command you will notice a validation error. If you don't
+see this error, don't worry, it means you don't have the base provider
+``installed`` or ``developed`` yet.
 
 .. code-block:: none
 

@@ -39,9 +39,9 @@ ideal for prototyping. To provision Checkbox from source do the following:
 
 .. note::
   All of the commands in this tutorial are using the
-  com.canonical.certification namespace. If you want to continue the one you
+  ``com.canonical.certification`` namespace. If you want to continue the one you
   have started before, remember to change the namespace
-  (i.e. 2024.com.tutorial::tutorial) in the commands as well!
+  (i.e. ``2024.com.tutorial::tutorial``) in the commands as well!
 
 Creating a new provider
 =======================

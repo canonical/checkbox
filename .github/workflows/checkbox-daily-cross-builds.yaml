@@ -62,7 +62,7 @@ jobs:
           path: checkbox-core-snap/*/*.snap
 
       - name: Publish track
-        if: ${{ github.event_name == 'workflow_call' }}
+        if: github.event_name == 'workflow_call'
         uses: canonical/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
@@ -140,7 +140,7 @@ jobs:
           path: checkbox-snap/*/*.snap
 
       - name: Publish track
-        if: ${{ github.event_name == 'workflow_call' }}
+        if: github.event_name == 'workflow_call'
         uses: canonical/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
@@ -150,7 +150,7 @@ jobs:
           release: ${{ matrix.type == 'uc' && format('uc{0}', matrix.release) || format('{0}.04', matrix.release) }}/edge
 
       - name: Publish latest
-        if: ${{ github.event_name == 'workflow_call' && matrix.release == 24 && matrix.type == 'classic' }}
+        if: github.event_name == 'workflow_call' && matrix.release == 24 && matrix.type == 'classic'
         uses: canonical/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}

@@ -21,17 +21,17 @@ requires:
     snap.name == 'cuda-samples'
     uname.machine == 'x86_64'
 _summary: NVIDIA GPGPU query device test
-command: cuda-samples deviceQueryDrv
+command: cuda-samples 1_Utilities deviceQueryDrv deviceQueryDrv
 _siblings: [
   { "id": "gpgpu/vector-add-drv",
     "_summary": "NVIDIA GPGPU vector addition test",
-    "command": "cuda-samples vectorAddDrv"},
+    "command": "cuda-samples 0_Introduction vectorAddDrv vectorAddDrv"},
   { "id": "gpgpu/matrix-mul-drv",
     "_summary": "NVIDIA GPGPU matrix multiplication test",
-    "command": "cuda-samples matrixMulDrv"},
+    "command": "cuda-samples 0_Introduction matrixMulDrv matrixMulDrv"},
   { "id": "gpgpu/simple-texture-drv",
     "_summary": "NVIDIA GPGPU simple textures test",
-    "command": "cuda-samples simpleTextureDrv"}
+    "command": "cuda-samples 0_Introduction simpleTextureDrv simpleTextureDrv"}
   ]
 
 id: gpgpu/rvs-gpup

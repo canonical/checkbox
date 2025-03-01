@@ -24,7 +24,7 @@ Description: Checkbox provider for GPGPU testing
  This package provides a test plan and tooling to be used by Canonical for the
  testing and certification of GPGPU devices in "server" computer systems
  .
- This provider depends heavily on the installation of the latest nVidia drivers
- and the CUDA tool kit from nVidia, as well as testing software hosted on
- github.
+ This provider depends heavily on the installation of the latest NVIDIA drivers
+ and the CUDA tool kit from NVIDIA, as well as testing software hosted on
+ GitHub.
 

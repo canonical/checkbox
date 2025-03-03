@@ -22,7 +22,7 @@ def modify_definition(
         del schema["definitions"][definition_key]
 
     def replace_refs(
-        obj: Union[Dict[str, Any], List[Any]]
+        obj: Union[Dict[str, Any], List[Any]],
     ) -> Union[Dict[str, Any], List[Any]]:
         if isinstance(obj, dict):
             if obj.get("$ref") == f"#/definitions/{definition_key}":

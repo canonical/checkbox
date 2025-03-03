@@ -416,7 +416,7 @@ class _JobResultBase(IJobResult):
 
         >>> result = MemoryJobResult({'io_log': [
         ...            (0, 'stdout', b'foo\\n'),
-        ...            (1, 'stderr', b'\u001Ebar\\n')]})
+        ...            (1, 'stderr', b'\u001ebar\\n')]})
         >>> result.io_log_as_flat_text
         'foo\\nbar\\n'
 

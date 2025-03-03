@@ -5,8 +5,8 @@
 #
 # Author: Marcin Maka <marcin.maka@linux.intel.com>
 
-""" Parses manifests included in sof binary and prints extracted metadata
-    in readable form.
+"""Parses manifests included in sof binary and prints extracted metadata
+in readable form.
 """
 
 # pylint: disable=too-few-public-methods

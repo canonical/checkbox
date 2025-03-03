@@ -108,18 +108,18 @@ class ParsingMixIn(object):
                 if c.isprintable():
                     print(c, end="")
                 elif c == "\t":
-                    print("\x1B[33mT\x1B[0m", end="")
+                    print("\x1b[33mT\x1b[0m", end="")
                 elif c == "\n":
-                    print("\x1B[32;1m\\n\x1B[0m", end="")
+                    print("\x1b[32;1m\\n\x1b[0m", end="")
                 else:
-                    print("\x1B[33m%r\x1B[0m" % c, end="")
+                    print("\x1b[33m%r\x1b[0m" % c, end="")
             print()
             if lineno == hl_line:
                 print(
-                    "\x1B[37;1m"
+                    "\x1b[37;1m"
                     + "_" * (line_cols_needed + 1)
                     + hl_col * "_"
-                    + "^\x1B[0m"
+                    + "^\x1b[0m"
                 )
 
 

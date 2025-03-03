@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
-""" Manifest Entry Unit. """
+"""Manifest Entry Unit."""
 import logging
 
 from plainbox.impl.symbol import SymbolDef

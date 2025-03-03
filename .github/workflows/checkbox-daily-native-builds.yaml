@@ -2,7 +2,19 @@ name: Checkbox Snap daily native builds
 
 on:
   workflow_dispatch:
+    inputs:
+      store_upload:
+        description: 'Should the workflow upload to the store?'
+        default: false
+        required: false
+        type: boolean
   workflow_call:
+    inputs:
+      store_upload:
+        description: 'Should the workflow upload to the store?'
+        default: false
+        required: false
+        type: boolean
 
 jobs:
   snap_runtime_native:
@@ -70,7 +82,7 @@ jobs:
           path: checkbox-core-snap/series${{ matrix.release }}/*.snap
 
       - name: Publish track
-        if: github.event_name == 'workflow_call'
+        if: inputs.store_upload
         uses: canonical/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
@@ -144,7 +156,7 @@ jobs:
           path: checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}/*.snap
 
       - name: Publish track
-        if: github.event_name == 'workflow_call'
+        if: inputs.store_upload
         uses: canonical/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
@@ -154,7 +166,7 @@ jobs:
           release: ${{ matrix.type == 'uc' && format('uc{0}', matrix.release) || format('{0}.04', matrix.release) }}/edge
 
       - name: Publish latest
-        if: github.event_name == 'workflow_call' && matrix.release == 24 && matrix.type == 'classic'
+        if: inputs.store_upload && matrix.release == 24 && matrix.type == 'classic'
         uses: canonical/action-publish@v1
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}

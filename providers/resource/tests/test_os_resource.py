@@ -1,4 +1,5 @@
 import os
+import textwrap
 import unittest
 from unittest.mock import patch, mock_open
 
@@ -16,22 +17,24 @@ class LsbResourceTests(unittest.TestCase):
         self.assertEqual(path, "/etc/os-release")
 
     def test_get_release_info(self):
-        data = """PRETTY_NAME="Ubuntu 24.04.2 LTS"
-NAME="Ubuntu"
-VERSION_ID="24.04"
-VERSION="24.04.2 LTS (Noble Numbat)"
-VERSION_CODENAME=noble
-ID=ubuntu
-ID_LIKE=debian
-HOME_URL="https://www.ubuntu.com/"
-SUPPORT_URL="https://help.ubuntu.com/"
-BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
-PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
-UBUNTU_CODENAME=noble
-LOGO=ubuntu-logo
-"""
+        data = textwrap.dedent(
+            """
+            PRETTY_NAME="Ubuntu 24.04.2 LTS"
+            NAME="Ubuntu"
+            VERSION_ID="24.04"
+            VERSION="24.04.2 LTS (Noble Numbat)"
+            VERSION_CODENAME=noble
+            ID=ubuntu
+            ID_LIKE=debian
+            HOME_URL="https://www.ubuntu.com/"
+            SUPPORT_URL="https://help.ubuntu.com/"
+            BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+            PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+            UBUNTU_CODENAME=noble
+            LOGO=ubuntu-logo
+            """
+        ).strip()
         with patch("os_resource.open", mock_open(read_data=data)) as _:
-            print(data)
             os_release = os_resource.get_release_info("")
         expected = {
             "distributor_id": "Ubuntu",

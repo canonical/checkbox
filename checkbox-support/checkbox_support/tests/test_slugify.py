@@ -41,3 +41,7 @@ class TestSlugify(TestCase):
     def test_slugify_string_starting_with_number(self):
         result = slugify("123abc")
         self.assertEqual(result, "_123abc")
+
+    def test_slugify_empty_string(self):
+        result = slugify("")
+        self.assertEqual(result, "_")

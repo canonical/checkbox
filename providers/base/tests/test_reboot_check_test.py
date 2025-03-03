@@ -25,18 +25,18 @@ class UnitySupportParserTests(unittest.TestCase):
         OpenGL renderer string: Mesa Intel(R) UHD Graphics (ICL GT1)
         OpenGL version string:  4.6 (Compatibility Profile) Mesa 23.2.1
 
-        Not software rendered:    \x1B[033myes\x1B[0m
-        Not blacklisted:          \x1B[033myes\x1B[0m
-        GLX fbconfig:             \x1B[033myes\x1B[0m
-        GLX texture from pixmap:  \x1B[033myes\x1B[0m
-        GL npot or rect textures: \x1B[033myes\x1B[0m
-        GL vertex program:        \x1B[033myes\x1B[0m
-        GL fragment program:      \x1B[033myes\x1B[0m
-        GL vertex buffer object:  \x1B[033mno\x1B[0m
-        GL framebuffer object:    \x1B[033myes\x1B[0m
-        GL version is 1.4+:       \x1B[033myes\x1B[0m
+        Not software rendered:    \x1b[033myes\x1b[0m
+        Not blacklisted:          \x1b[033myes\x1b[0m
+        GLX fbconfig:             \x1b[033myes\x1b[0m
+        GLX texture from pixmap:  \x1b[033myes\x1b[0m
+        GL npot or rect textures: \x1b[033myes\x1b[0m
+        GL vertex program:        \x1b[033myes\x1b[0m
+        GL fragment program:      \x1b[033myes\x1b[0m
+        GL vertex buffer object:  \x1b[033mno\x1b[0m
+        GL framebuffer object:    \x1b[033myes\x1b[0m
+        GL version is 1.4+:       \x1b[033myes\x1b[0m
 
-        Unity 3D supported:       \x1B[033myes\x1B[0m
+        Unity 3D supported:       \x1b[033myes\x1b[0m
         """
 
         expected = {
@@ -64,7 +64,7 @@ class UnitySupportParserTests(unittest.TestCase):
         OpenGL vendor string   Intel
         OpenGL renderer string: Mesa Intel(R) UHD Graphics (ICL GT1)
         OpenGL version string  4.6 (Compatibility Profile) Mesa 23.2.1-1ubuntu
-        GL version is 1.4+%       \x1B[033myes\x1B[0m
+        GL version is 1.4+%       \x1b[033myes\x1b[0m
         """
         actual = self.tester.parse_unity_support_output(BAD_UNITY_STRING)
 

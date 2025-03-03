@@ -24,7 +24,8 @@ This script checks if the active port on either sinks (speakers or headphones)
 or sources (microphones, webcams) is changed after an appropriate device is
 plugged into the DUT. The script is fully automatic and either times out after
 30 seconds or returns as soon as the change is detected.
-
+
+
 The script monitors pulse audio events with `pactl subscribe`. Any changes to
 sinks (or sources, depending on the mode) are treated as a possible match. A
 match is verified by running `pactl list sinks` (or `pactl list sources`) and
@@ -34,7 +35,8 @@ initially computed set, is considered a match.
 
 Due to the algorithm used, it will also detect things like USB headsets, HDMI
 monitors/speakers, webcams, etc.
-
+
+
 The script depends on:
     python3-checkbox-support
 Which depends on:

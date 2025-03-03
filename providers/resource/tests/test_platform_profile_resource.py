@@ -17,7 +17,7 @@
 
 # pylint: disable=import-error
 
-""" A unittest module for the platform_profile_resource module. """
+"""A unittest module for the platform_profile_resource module."""
 import unittest
 from unittest.mock import patch
 import platform_profile_resource

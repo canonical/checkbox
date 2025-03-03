@@ -6,4 +6,4 @@ if [[ "$machine" = "x86_64" ]]; then
 	snap install rocm-validation-suite
 fi
 
-snap install gpu-burn cuda-samples
+snap install lxd gpu-burn cuda-samples

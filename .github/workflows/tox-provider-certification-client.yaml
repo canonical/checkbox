@@ -1,5 +1,6 @@
 name: Test provider-certification-client with tox
-
+permissions:
+  contents: read
 on:
   push:
     branches: [ main ]

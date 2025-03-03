@@ -1,5 +1,6 @@
 name: Checkbox Snap daily cross-builds
-
+permissions:
+  contents: read
 on:
   workflow_dispatch:
     inputs:

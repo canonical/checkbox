@@ -1,5 +1,7 @@
 name: Stable version of checkbox
 run-name: Promote beta versions of checkbox to stable
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:

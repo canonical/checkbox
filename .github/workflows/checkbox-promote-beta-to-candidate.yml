@@ -1,6 +1,8 @@
 name: Promote Checkbox beta to candidate
 on:
     workflow_dispatch:
+permissions:
+  contents: read
 
 jobs:
   checkbox-promotion-beta-to-candidate-test:

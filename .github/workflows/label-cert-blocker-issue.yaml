@@ -1,5 +1,4 @@
 name: Label issue related to cert-blocker test cases
-
 on:
   issues:
     types: [opened]

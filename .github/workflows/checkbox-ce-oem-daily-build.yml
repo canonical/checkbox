@@ -1,5 +1,6 @@
 name: checkbox-ce-oem daily builds
-
+permissions:
+  contents: read
 on:
   schedule:
     - cron: '00 21 * * *'

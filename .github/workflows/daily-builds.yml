@@ -1,5 +1,6 @@
 name: Daily builds
-
+permissions:
+  contents: read
 on:
   schedule:
     - cron: '00 18 * * *'

@@ -1,5 +1,6 @@
 name: Test release tools with tox
-
+permissions:
+  contents: read
 on:
   push:
     branches: [ main ]

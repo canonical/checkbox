@@ -48,5 +48,5 @@ sections can be followed in any order - they don’t depend on each other.
 .. toctree::
   :maxdepth: 1
 
-   writing-tests/test-case
-   writing-tests/test-plan
+  writing-tests/test-case
+  writing-tests/test-plan

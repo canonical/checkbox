@@ -29,10 +29,10 @@ from checkbox_support.lxd_support import LXD, LXDVM
 
 # Map vendor IDs to vendor names
 VENDOR_INFO = {
-        '0x8086': ('Intel'),
-        '0x15b3': ('Mellanox'),
-        '0x14e4': ('Broadcom')
-        }
+    "0x8086": ("Intel"),
+    "0x15b3": ("Mellanox"),
+    "0x14e4": ("Broadcom"),
+}
 
 # Number of virutal interfaces created for SRIOV Enabled Interfaces
 NUM_OF_VIRTUAL_IFACES = 1
@@ -46,8 +46,9 @@ def check_ubuntu_version():
 
         # Check if the OS is Ubuntu and the version is greater than 24.04
         if float(version) < 24.04:
-            logging.info("24.04 or greater is required, this is {}"
-                         .format(version))
+            logging.info(
+                "24.04 or greater is required, this is {}".format(version)
+            )
             sys.exit(1)
         else:
             logging.info("The system is 24.04 or greater, proceed")
@@ -64,20 +65,26 @@ def check_interface_vendor(interface):
 
     try:
         if os.path.exists(vendor_id_path):
-            with open(vendor_id_path, 'r') as file:
+            with open(vendor_id_path, "r") as file:
                 vendor_id = file.read().strip()
 
         if vendor_id in VENDOR_INFO:
             vendor_name = VENDOR_INFO[vendor_id]
             if vendor_name != "Broadcom":
-                logging.info("The interface {} is a(n) {} NIC"
-                             .format(interface, vendor_name))
+                logging.info(
+                    "The interface {} is a(n) {} NIC".format(
+                        interface, vendor_name
+                    )
+                )
             else:
-                logging.info("Broadcom SRIOV testing is not supported at this time")
+                logging.info(
+                    "Broadcom SRIOV testing is not supported at this time"
+                )
                 sys.exit(1)
         else:
-            logging.info("{} has an unknown vendor  ID {}"
-                         .format(interface, vendor_id))
+            logging.info(
+                "{} has an unknown vendor  ID {}".format(interface, vendor_id)
+            )
             sys.exit(1)
 
     except Exception as e:
@@ -90,34 +97,42 @@ def is_sriov_capable(interface):
     Check if the specified network interface is SR-IOV capable and
     configured to support at least one Virtual Function.
     """
-    sriov_path = "/sys/class/net/{}/device/sriov_numvfs"\
-                 .format(interface)
+    sriov_path = "/sys/class/net/{}/device/sriov_numvfs".format(interface)
     num_vfs = NUM_OF_VIRTUAL_IFACES
 
     try:
         # Check if the interface supports SR-IOV
         logging.info("checking if sriov_numvfs exits")
         if not os.path.exists(sriov_path):
-            logging.error("SR-IOV not supported or interface {} \
-                          does not exist.".format(interface))
+            logging.error(
+                "SR-IOV not supported or interface {} \
+                          does not exist.".format(
+                    interface
+                )
+            )
         else:
-            logging.info("SR-IOV before change {} VFs on interface {}."
-                         .format(num_vfs, interface))
+            logging.info(
+                "SR-IOV before change {} VFs on interface {}.".format(
+                    num_vfs, interface
+                )
+            )
             # First, disable VFs before changing the number to avoid issues
             logging.info("setting numvfs to zero")
-            with open(sriov_path, 'w') as f:
-                f.write('0')
+            with open(sriov_path, "w") as f:
+                f.write("0")
 
             # Set the desired number of VFs
-            with open(sriov_path, 'w') as f:
+            with open(sriov_path, "w") as f:
                 f.write(str(num_vfs))
 
-            logging.info("SR-IOV enabled with {} VFs on interface {}."
-                         .format(num_vfs, interface))
+            logging.info(
+                "SR-IOV enabled with {} VFs on interface {}.".format(
+                    num_vfs, interface
+                )
+            )
 
     except (IOError, FileNotFoundError) as e:
-        logging.info("Failed to enable SR-IOV on {}: {}"
-                     .format(interface, e))
+        logging.info("Failed to enable SR-IOV on {}: {}".format(interface, e))
         sys.exit(1)
 
     except Exception as e:
@@ -127,10 +142,11 @@ def is_sriov_capable(interface):
 
 def test_lxd_sriov(args):
     logging.info("Starting lxd SRIOV Test")
-    verify_cmds = "bash -c \"lspci | grep Virtual\""
+    verify_cmds = 'bash -c "lspci | grep Virtual"'
     options = ["--network", "lab_sriov"]
-    network_cmd = "lxc network create lab_sriov --type=sriov parent={}"\
-                  .format(args.interface)
+    network_cmd = "lxc network create lab_sriov --type=sriov parent={}".format(
+        args.interface
+    )
 
     check_ubuntu_version()
     check_interface_vendor(args.interface)
@@ -155,11 +171,11 @@ def test_lxd_sriov(args):
 
 def test_lxd_vm_sriov(args):
     logging.info("Starting lxd vm SRIOV")
-    verify_cmds = "bash -c \"lspci | grep Virtual\""
-    options = ["-c", "security.secureboot=false", "--network",
-               "lab_sriov"]
-    network_cmd = "lxc network create lab_sriov --type=sriov parent={}"\
-                  .format(args.interface)
+    verify_cmds = 'bash -c "lspci | grep Virtual"'
+    options = ["-c", "security.secureboot=false", "--network", "lab_sriov"]
+    network_cmd = "lxc network create lab_sriov --type=sriov parent={}".format(
+        args.interface
+    )
 
     check_ubuntu_version()
     check_interface_vendor(args.interface)
@@ -204,31 +220,28 @@ def main():
     )
 
     parser.add_argument(
-        "--interface",
-        type=str,
-        default=None,
-        help="SRIOV Interface"
+        "--interface", type=str, default=None, help="SRIOV Interface"
     )
 
     # Sub test options
-    lxd_sriov_parser.add_argument("--template",
-                                  type=str,
-                                  default=os.getenv("LXD_TEMPLATE"))
+    lxd_sriov_parser.add_argument(
+        "--template", type=str, default=os.getenv("LXD_TEMPLATE")
+    )
 
-    lxd_sriov_parser.add_argument("--rootfs",
-                                  type=str,
-                                  default=os.getenv("LXD_ROOTFS"))
+    lxd_sriov_parser.add_argument(
+        "--rootfs", type=str, default=os.getenv("LXD_ROOTFS")
+    )
 
     lxd_sriov_parser.set_defaults(func=test_lxd_sriov)
 
     # Sub test options
-    lxd_vm_sriov_parser.add_argument("--template",
-                                     type=str,
-                                     default=os.getenv("LXD_TEMPLATE"))
+    lxd_vm_sriov_parser.add_argument(
+        "--template", type=str, default=os.getenv("LXD_TEMPLATE")
+    )
 
-    lxd_vm_sriov_parser.add_argument("--image",
-                                     type=str,
-                                     default=os.getenv("KVM_IMAGE"))
+    lxd_vm_sriov_parser.add_argument(
+        "--image", type=str, default=os.getenv("KVM_IMAGE")
+    )
 
     lxd_vm_sriov_parser.set_defaults(func=test_lxd_vm_sriov)
 

@@ -11,6 +11,6 @@ nested_part:
     com.canonical.certification::server-miscellaneous
 include:
     sriov/verify_lxd_sriov-.*               certification-status=blocker
-    sriov/verify_lxd_vm_sriov               certification-status=blocker
+    sriov/verify_lxd_vm_sriov-.*             certification-status=blocker
 bootstrap_include:
     device

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Unit Tests for sriov.py 
+Unit Tests for sriov.py
 Copyright (C) 2025 Canonical Ltd.
 
 Author
@@ -25,13 +25,13 @@ from unittest.mock import MagicMock, patch, mock_open
 import sriov
 
 
-class TestSriovFunctions(TestCase): 
+class TestSriovFunctions(TestCase):
     @patch("sriov.distro.version", return_value="24.04")
     @patch("sriov.logging.info")
     def test_check_ubuntu_version_valid(self, mock_logging, mock_version):
         sriov.check_ubuntu_version()
         mock_logging.assert_called_with("The system is 24.04 or greater, proceed")
-    
+
     @patch("sriov.distro.version", return_value="22.04")
     @patch("sriov.logging.info")
     @patch("sriov.sys.exit")
@@ -39,14 +39,26 @@ class TestSriovFunctions(TestCase):
         sriov.check_ubuntu_version()
         mock_logging.assert_called_with("24.04 or greater is required, this is 22.04")
         mock_exit.assert_called_once_with(1)
-    
+
+    @patch("distro.version", side_effect=Exception("Mocked exception"))
+    @patch("sys.exit")
+    @patch("logging.info")
+    def test_check_ubuntu_version_exception(self, mock_logging, mock_exit, mock_distro_version):
+        sriov.check_ubuntu_version()
+
+        # Verify that the exception was logged
+        mock_logging.assert_any_call("An error occurred: Mocked exception")
+
+        # Verify that sys.exit(1) was called
+        mock_exit.assert_called_once_with(1)
+
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open, read_data='0x8086')
     @patch("sriov.logging.info")
     def test_check_interface_vendor_intel(self, mock_logging, mock_open, mock_exists):
         sriov.check_interface_vendor("eth0")
         mock_logging.assert_called_with("The interface eth0 is a(n) Intel NIC")
-    
+
     @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open, read_data='0x15b3')
     @patch("sriov.logging.info")
@@ -73,18 +85,44 @@ class TestSriovFunctions(TestCase):
         mock_exit.assert_called_once_with(1)
 
     @patch("os.path.exists", return_value=True)
+    @patch("builtins.open", side_effect=Exception("File read error"))
+    @patch("sys.exit")  # Mock sys.exit to prevent actual exit
+    def test_check_interface_vendor_exception(self, mock_exit, mock_open, mock_exists):
+        with self.assertLogs(level="INFO") as log:
+            sriov.check_interface_vendor("eth0")
+
+        mock_exit.assert_called_once_with(1)
+        self.assertIn("An error occurred: File read error", log.output[0])
+
+    @patch("os.path.exists", return_value=True)
     @patch("builtins.open", new_callable=mock_open)
     @patch("sriov.logging.info")
     def test_is_sriov_capable(self, mock_logging, mock_open, mock_exists):
         sriov.is_sriov_capable("eth0")
         mock_logging.assert_any_call("SR-IOV enabled with 1 VFs on interface eth0.")
 
-    @patch("os.path.exists", return_value=False)
-    @patch("sriov.logging.info")
-    @patch("sriov.sys.exit")
-    def test_is_sriov_capable_not_supported(self, mock_logging, mock_exists, mock_exit):
+    @patch("os.path.exists", return_value=True)
+    @patch("builtins.open", side_effect=IOError("Permission denied"))
+    @patch("sys.exit")
+    def test_sriov_ioerror(self, mock_exit, mock_open, mock_exists):
+        """Test when opening the file raises IOError."""
         sriov.is_sriov_capable("eth0")
-        mock_logging.assert_called_with("SR-IOV not supported or interface eth0 does not exist.")
+        mock_exit.assert_called_once_with(1)
+
+    @patch("os.path.exists", return_value=True)
+    @patch("builtins.open", side_effect=FileNotFoundError("File not found"))
+    @patch("sys.exit")
+    def test_sriov_filenotfound(self, mock_exit, mock_open, mock_exists):
+        """Test when the sriov file is missing, raising FileNotFoundError."""
+        sriov.is_sriov_capable("eth0")
+        mock_exit.assert_called_once_with(1)
+
+    @patch("os.path.exists", return_value=True)
+    @patch("builtins.open", side_effect=Exception("Unknown error"))
+    @patch("sys.exit")
+    def test_sriov_general_exception(self, mock_exit, mock_open, mock_exists):
+        """Test when a general exception occurs in is_sriov_capable."""
+        sriov.is_sriov_capable("eth0")
         mock_exit.assert_called_once_with(1)
 
     @patch("sriov.check_ubuntu_version")
@@ -99,9 +137,9 @@ class TestSriovFunctions(TestCase):
         args.interface = "eth0"
         args.template = "template"
         args.rootfs = "rootfs"
-        
+
         sriov.test_lxd_sriov(args)
-        
+
         mock_check_version.assert_called_once()
         mock_check_vendor.assert_called_once_with("eth0")
         mock_sriov_capable.assert_called_once_with("eth0")
@@ -123,9 +161,9 @@ class TestSriovFunctions(TestCase):
         args.interface = "eth0"
         args.template = "template"
         args.image = "image"
-        
+
         sriov.test_lxd_vm_sriov(args)
-        
+
         mock_check_version.assert_called_once()
         mock_check_vendor.assert_called_once_with("eth0")
         mock_sriov_capable.assert_called_once_with("eth0")
@@ -146,4 +184,3 @@ class TestSriovFunctions(TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

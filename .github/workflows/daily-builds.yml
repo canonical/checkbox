@@ -42,7 +42,9 @@ jobs:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-daily-cross-builds.yaml
-    secrets: inherit
+    secrets:
+      SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
       store_upload: true
 
@@ -50,7 +52,9 @@ jobs:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-daily-native-builds.yaml
-    secrets: inherit
+    secrets:
+      SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
       store_upload: true
 
@@ -58,4 +62,6 @@ jobs:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/deb-daily-builds.yml
-    secrets: inherit
+    secrets:
+      LP_CREDS: ${{ secrets.LP_CREDS }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

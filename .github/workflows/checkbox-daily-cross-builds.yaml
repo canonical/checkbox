@@ -16,7 +16,11 @@ on:
         default: false
         required: false
         type: boolean
-
+    secrets:
+      SNAPCRAFT7_CREDS:
+        required: true
+      GITHUB_TOKEN:
+        required: true
 jobs:
   snap-runtime:
     strategy:

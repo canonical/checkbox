@@ -4,6 +4,11 @@ permissions:
 on:
   workflow_dispatch:
   workflow_call:
+    secrets:
+      SNAPCRAFT7_CREDS:
+        required: true
+      GITHUB_TOKEN:
+        required: true
 
 jobs:
   snap:

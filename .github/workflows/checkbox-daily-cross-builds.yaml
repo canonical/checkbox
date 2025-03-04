@@ -48,8 +48,9 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Build (retries on fail)
-        uses: Wandalen/wretry.action@master
+      - id: snap_build
+        name: Build (retries on fail)
+        uses: Wandalen/wretry.action@v3.4.0_js_action
         with:
           attempt_limit: 5
           action: canonical/snapcraft-multiarch-action@v1
@@ -71,7 +72,7 @@ jobs:
         name: Upload the snap as artifact
         with:
           name: runtime_snap${{ matrix.release }}_${{ matrix.arch }}.snap
-          path: checkbox-core-snap/*/*.snap
+          path: ${{ steps.snap_build.outputs.snap }}
 
       - name: Publish track
         if: inputs.store_upload
@@ -79,7 +80,7 @@ jobs:
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
         with:
-          snap: checkbox-core-snap/*/*.snap
+          snap: ${{ steps.snap_build.outputs.snap }}
           release: latest/edge
 
   snap-frontend:
@@ -126,8 +127,9 @@ jobs:
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
 
-      - name: Build (retries on fail)
-        uses: Wandalen/wretry.action@master
+      - id: snap_build
+        name: Build (retries on fail)
+        uses: Wandalen/wretry.action@v3.4.0_js_action
         with:
           attempt_limit: 5
           action: canonical/snapcraft-multiarch-action@v1
@@ -149,7 +151,7 @@ jobs:
         name: Upload the snaps as artefacts
         with:
           name: frontend_snaps_${{ matrix.type }}${{ matrix.release }}_${{matrix.arch}}.snap
-          path: checkbox-snap/*/*.snap
+          path: ${{ steps.snap_build.outputs.snap }}
 
       - name: Publish track
         if: inputs.store_upload
@@ -157,7 +159,7 @@ jobs:
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
         with:
-          snap: checkbox-snap/*/*.snap
+          snap: ${{ steps.snap_build.outputs.snap }}
           # channel is ucXX for uc snaps and XX.04 for classic snaps
           release: ${{ matrix.type == 'uc' && format('uc{0}', matrix.release) || format('{0}.04', matrix.release) }}/edge
 
@@ -167,6 +169,6 @@ jobs:
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT7_CREDS }}
         with:
-          snap: checkbox-snap/*/*.snap
+          snap: ${{ steps.snap_build.outputs.snap }}
           # classic 24.04 is published to latest/edge as well
           release: latest/edge

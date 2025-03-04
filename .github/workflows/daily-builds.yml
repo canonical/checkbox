@@ -1,6 +1,7 @@
 name: Daily builds
 permissions:
   contents: read
+  actions: read # used by gh api
 on:
   schedule:
     - cron: '00 18 * * *'

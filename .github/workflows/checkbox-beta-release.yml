@@ -2,7 +2,7 @@ name: Beta version of checkbox
 run-name: Promote edge versions of checkbox to beta
 permissions:
   contents: read
-  actions: read
+  actions: read # used by can_promote_edge.py to query past daily builds
 on:
   push:
     branches:

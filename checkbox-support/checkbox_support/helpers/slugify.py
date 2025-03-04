@@ -27,7 +27,7 @@ def slugify(_string):
     identifers.
     """
     if not _string:
-        return "_"
+        return _string
 
     valid_chars = frozenset(
         "_{}{}".format(string.ascii_letters, string.digits)

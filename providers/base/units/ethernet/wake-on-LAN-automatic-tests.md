@@ -12,8 +12,8 @@
 ## Test Case enviroment
 WOL server:
   - apt install wakeonlan
-  - pip install fastapi
-  - pip install uvicorn
+  - apt install python3-fastapi
+  - apt install uvicorn
   - running wol_server.py
 
 DUT:

@@ -54,7 +54,7 @@ class DeviceInfoCollector:
     COMMAND_TIMEOUT_SECONDS = 30
 
     def get_drm_info(self) -> str:
-        return str(os.listdir("/sys/class/drm"))
+        return str(sorted(os.listdir("/sys/class/drm")))
 
     def get_wireless_info(self) -> str:
         iw_out = sp.check_output(

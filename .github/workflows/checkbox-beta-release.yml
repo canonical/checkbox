@@ -2,6 +2,7 @@ name: Beta version of checkbox
 run-name: Promote edge versions of checkbox to beta
 permissions:
   contents: read
+  actions: read
 on:
   push:
     branches:

@@ -1,5 +1,6 @@
 name: Workflow validation
-permissions: read-all
+permissions:
+  contents: read
 on:
   push:
     paths:

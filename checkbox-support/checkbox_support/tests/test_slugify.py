@@ -44,4 +44,8 @@ class TestSlugify(TestCase):
 
     def test_slugify_empty_string(self):
         result = slugify("")
-        self.assertEqual(result, "_")
+        self.assertEqual(result, "")
+
+    def test_slugify_none(self):
+        result = slugify(None)
+        self.assertEqual(result, None)

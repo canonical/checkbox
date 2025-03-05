@@ -16,7 +16,7 @@ Build-Depends: checkbox-ng,
 Standards-Version: 3.9.6
 
 Package: checkbox-provider-gpgpu
-Architecture: all
+Architecture: any-amd64 arm64
 Depends: checkbox-provider-base, fwts, ipmitool, ${plainbox:Depends}, ${misc:Depends}
 Suggests: ubuntu-drivers-common, ${plainbox:Suggests}
 X-Plainbox-Provider: yes

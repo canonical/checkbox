@@ -5,7 +5,7 @@ estimated_duration: 14400
 requires:
     graphics_card.vendor == 'NVIDIA Corporation'
     snap.name == 'gpu-burn'
-    uname.machine == 'x86_64'
+    uname.machine in ['x86_64', 'aarch64']
 _summary: NVIDIA GPGPU stress testing
 command:
     set -eo pipefail
@@ -19,7 +19,7 @@ estimated_duration: 4
 requires:
     graphics_card.vendor == 'NVIDIA Corporation'
     snap.name == 'cuda-samples'
-    uname.machine == 'x86_64'
+    uname.machine in ['x86_64', 'aarch64']
 _summary: NVIDIA GPGPU query device test
 command: cuda-samples 1_Utilities deviceQueryDrv deviceQueryDrv
 _siblings: [

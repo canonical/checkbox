@@ -26,6 +26,9 @@ def slugify(_string):
     Transform any string to one that can be used in filenames and Python
     identifers.
     """
+    if not _string:
+        return _string
+
     valid_chars = frozenset(
         "_{}{}".format(string.ascii_letters, string.digits)
     )

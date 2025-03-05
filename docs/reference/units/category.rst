@@ -1,3 +1,5 @@
+.. _category_unit:
+
 =============
 Category unit
 =============

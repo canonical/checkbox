@@ -1,4 +1,4 @@
-.. _test_plan:
+.. _adv_test_plan:
 
 ===================
 Writing a test plan
@@ -8,6 +8,12 @@ This tutorial will guide you in writing a test plan to test the Network
 connection on your machine. We will do this by re-using tests that are already
 available in the ``tutorial provider`` and that you got to write yourself in
 the previous tutorial.
+
+.. note::
+  All of the commands in this tutorial are using the
+  ``com.canonical.certification`` namespace. If you want to continue the one you
+  have started before, remember to change the namespace
+  (i.e. ``2024.com.tutorial::tutorial``) in the commands as well!
 
 Inclusions
 ==========
@@ -19,14 +25,14 @@ new test plan in the same provider we created in the previous tutorial.
 
 .. note::
 
-  We generally advise to keep test plans ant test jobs in separate files, but
+  We generally advise to keep test plans and test jobs in separate files, but
   this is not compulsory. You can find this definition in
   ``providers/tutorial/units/test-plan.pxu``
 
 We now have a convenient container where to put all tests we previously
 developed, let's include them in a new ``test plan``:
 
-.. code-block::
+.. code-block:: none
 
   unit: test plan
   id: tutorial-extended
@@ -38,7 +44,7 @@ developed, let's include them in a new ``test plan``:
 To run the test plan we can use ``run`` as we previously did for individual
 tests:
 
-.. code-block::
+.. code-block:: none
 
    (checkbox_venv) $ checkbox-cli run com.canonical.certification::tutorial-extended
    [...]
@@ -46,6 +52,10 @@ tests:
    ☑ : Fetches information of all network interfaces
    ☑ : Test that the internet is reachable
    ☑ : Test that the network speed is acceptable
+
+.. important::
+   Remember to run ``python3 manage.py validate`` before trying your changes.
+   You will catch many mistakes that way.
 
 Note how, as we previously saw, Checkbox automatically pulled the resource
 job needed. This operation, as we previously mentioned, is not the safe way to go
@@ -55,7 +65,7 @@ the list where you may already have broken the thing you are trying to fetch
 info about!
 With that being said, let's fix it before we forget:
 
-.. code-block::
+.. code-block:: none
 
   unit: test plan
   id: tutorial-extended
@@ -71,7 +81,7 @@ more advanced querying? That is where ``expand`` comes to our rescue.
 
 Run the following and see the result:
 
-.. code-block::
+.. code-block:: none
 
    (checkbox_venv) $ checkbox-cli expand -f json com.canonical.certification::tutorial-extended  | jq
 
@@ -116,7 +126,7 @@ category (uncommon) of a job in that specific test plan.
 Going back to the test plan we just defined let's add the following and see the
 effect in the ``expand`` output:
 
-.. code-block::
+.. code-block:: none
 
   unit: test plan
   id: tutorial-extended
@@ -131,7 +141,7 @@ effect in the ``expand`` output:
 
 Running ``expand`` we can see that the certification status changed:
 
-.. code-block::
+.. code-block:: none
 
 
   (checkbox_venv) $ checkbox-cli expand -f json com.canonical.certification::tutorial-extended  | jq 'map({id: .id, "certification-status": .["certification-status"]})'
@@ -175,7 +185,7 @@ gathering jobs.
 Let's go back to our test plan and move the resource job ``network_iface_info``
 in the ``bootstrap_include`` section:
 
-.. code-block::
+.. code-block:: none
 
   unit: test plan
   id: tutorial-extended
@@ -198,7 +208,7 @@ actually pulled the resource automatically (the one that uses it as in the
 
 Let's update the test plan including it:
 
-.. code-block::
+.. code-block:: none
 
   unit: test plan
   id: tutorial-extended
@@ -225,7 +235,7 @@ output:
   want to see all the jobs that would be executed on the current machine if we
   ran that test plan, we can use ``list-bootstrapped``:
 
-.. code-block::
+.. code-block:: none
 
   # Note: your output will be slightly different, depending on how many ifaces you have!
   (checkbox_venv) $ checkbox-cli list-bootstrapped com.canonical.certification::tutorial-extended
@@ -253,7 +263,7 @@ is being developed for certification purposes, one nested part is compulsory to
 include (or the submissions will be rejected): ``submission-cert-automated``.
 Let's include it in our test plan:
 
-.. code-block::
+.. code-block:: none
   :emphasize-lines: 10-12
 
   unit: test plan
@@ -266,9 +276,16 @@ Let's include it in our test plan:
     network_available
     network_speed certification-status=blocker
   nested_part:
-    submission-cert-automated
+    com.canonical.certification::submission-cert-automated
   certification_status_overrides:
     apply blocker to network_available
+
+.. note::
+   In your provider, you have to specify the full namespace to get access to
+   ``submission-cert-automated``. Also, if you didn't install it before, you
+   have to install the base provider, as there is where this test plan is
+   defined. As you did for your, run ``python3 manage.py develop`` while having
+   the virtual env active.
 
 Another very useful thing you can do with nested parts is to create aliases.
 For example, if you were to rename a test plan in a provider that is used by
@@ -278,7 +295,7 @@ started publishing our tutorial test plan giving it the id
 ``tutorial-extended-oldid``. This is how we would create the backward
 compatible alias:
 
-.. code-block::
+.. code-block:: none
 
   unit: test plan
   id: tutorial-extended-oldid
@@ -305,7 +322,7 @@ them. If this is the case then ``exclusions`` are the way to go.
 For example, the ``network_speed`` test that we have in our test plan may be
 expensive to run, we can create a new test plan with it excluded as follows:
 
-.. code-block::
+.. code-block:: none
 
   unit: test plan
   id: tutorial-extended-no-speed
@@ -319,7 +336,7 @@ expensive to run, we can create a new test plan with it excluded as follows:
 Now if we ``list-bootstrapped`` the test plan we will see that the test is
 missing:
 
-.. code-block::
+.. code-block:: none
 
   (checkbox_venv) $ checkbox-cli list-bootstrapped com.canonical.certification::tutorial-extended-no-speed
   [...jobs from submission-cert-automated...]
@@ -361,7 +378,7 @@ included, it is not affected by exclude.
 To get an example, let's go back to our new test plan and try to exclude the
 ``info/systemd-analyze-critical-chain`` test:
 
-.. code-block::
+.. code-block:: none
 
   unit: test plan
   id: tutorial-extended-no-speed
@@ -374,7 +391,7 @@ To get an example, let's go back to our new test plan and try to exclude the
 
 See how the output of ``list-bootstrapped`` is unaffected.
 
-.. code-block::
+.. code-block:: none
 
   (checkbox_venv) $ checkbox-cli list-bootstrapped com.canonical.certification::tutorial-extended-no-speed
   [...]

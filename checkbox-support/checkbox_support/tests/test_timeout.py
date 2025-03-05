@@ -167,32 +167,25 @@ class TestTimeoutExec(TestCase):
         Checkbox waits for all children to be done)
         """
 
-        def inner(pid_pipe):
-            pid_pipe.send(os.getpid())
-            pid_pipe.close()
+        def inner():
             time.sleep(1e4)
 
-        def outer(pid_pipe):
-            inner_p = multiprocessing.Process(target=inner, args=(pid_pipe,))
+        def outer():
+            inner_p = multiprocessing.Process(target=inner)
             inner_p.start()
             inner_p.join()
 
         @timeout(0.1)
-        def f(pid_pipe):
-            outer_p = multiprocessing.Process(target=outer, args=(pid_pipe,))
+        def f():
+            outer_p = multiprocessing.Process(target=outer)
             outer_p.start()
             outer_p.join()
 
-        read, write = multiprocessing.Pipe()
         with self.assertRaises(TimeoutError):
-            f(write)
-        with self.assertRaises(OSError):
-            pid = read.recv()
-            # give the process a few ms to wind down
-            time.sleep(0.01)
-            # this throws an exception if the process we are trying to send
-            # a signal to doesn't exist
-            os.kill(pid, 0)
+            f()
+        # give the process a few ms to wind down
+        time.sleep(0.1)
+        self.assertEqual(multiprocessing.active_children(), [])
 
     @patch("checkbox_support.helpers.timeout.Queue")
     @patch("checkbox_support.helpers.timeout.Process")

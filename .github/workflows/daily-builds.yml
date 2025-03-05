@@ -37,26 +37,24 @@ jobs:
           commit_count=$(git log --since="$LAST_PASS_DAILY_BUILD" --oneline -- checkbox-ng checkbox-support providers checkbox-core-snap checkbox-snap | wc -l)
           echo "new_commit_count=$commit_count" | tee $GITHUB_OUTPUT
 
-  snapcraft7-runtime:
+  snap-cross-build-upload-daily:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
-    uses: ./.github/workflows/checkbox-core-snap-daily-builds.yml
+    uses: ./.github/workflows/checkbox-daily-cross-builds.yaml
     secrets: inherit
+    with:
+      store_upload: true
 
-  snapcraft7-frontend:
+  snap-native-build-upload-daily:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
-    uses: ./.github/workflows/checkbox-snap-daily-builds.yml
+    uses: ./.github/workflows/checkbox-daily-native-builds.yaml
     secrets: inherit
+    with:
+      store_upload: true
 
   deb-daily:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/deb-daily-builds.yml
-    secrets: inherit
-
-  snapcraft8-daily:
-    needs: check_for_commits
-    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
-    uses: ./.github/workflows/snapcraft8_builds.yaml
     secrets: inherit

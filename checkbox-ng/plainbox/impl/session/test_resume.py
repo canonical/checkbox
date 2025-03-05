@@ -858,7 +858,7 @@ class IOLogRecordResumeTests(TestCaseWithParameters):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             self.parameters.resume_cls._build_IOLogRecord(
-                [0.0, "stdout", "\uFFFD"]
+                [0.0, "stdout", "\ufffd"]
             )
         self.assertIsInstance(boom.exception.__context__, UnicodeEncodeError)
 
@@ -1641,7 +1641,7 @@ class SessionMetaDataResumeTests2(TestCase):
         """
         with self.assertRaises(CorruptedSessionError) as boom:
             obj_repr = copy.copy(self.good_repr)
-            obj_repr["metadata"]["app_blob"] = "\uFFFD"
+            obj_repr["metadata"]["app_blob"] = "\ufffd"
             self.resume_fn(self.session.metadata, obj_repr)
         self.assertEqual(str(boom.exception), "app_blob is not ASCII")
         self.assertIsInstance(boom.exception.__context__, UnicodeEncodeError)

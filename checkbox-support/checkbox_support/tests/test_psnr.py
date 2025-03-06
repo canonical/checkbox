@@ -3,11 +3,11 @@ import numpy as np
 from unittest.mock import patch, MagicMock
 from argparse import Namespace
 from io import StringIO
+import cv2
 
 from checkbox_support.scripts.psnr import (
     main,
     psnr_args,
-    _get_psnr,
     get_average_psnr,
     _get_frame_resolution,
 )
@@ -51,30 +51,6 @@ class TestGetFrameResolution(unittest.TestCase):
         self.assertEqual(height, 200)
 
 
-class TestGetPSNR(unittest.TestCase):
-
-    def create_image(self, width, height, color):
-        """Creates an image with the specified color."""
-        return np.full((height, width, 3), color, dtype=np.uint8)
-
-    def test_identical_images(self):
-        img1 = self.create_image(100, 100, 255)
-        img2 = self.create_image(100, 100, 255)
-        self.assertEqual(_get_psnr(img1, img2), 0.0)
-
-    def test_different_images(self):
-        img1 = self.create_image(100, 100, 255)
-        img2 = self.create_image(100, 100, 0)
-        self.assertNotEqual(_get_psnr(img1, img2), 0.0)
-        self.assertLessEqual(_get_psnr(img1, img2), 50.0)
-
-    def test_similar_images(self):
-        img1 = self.create_image(100, 100, 125)
-        img2 = self.create_image(100, 100, 125)
-        img2[0:10, 0:10] = [120, 120, 120]
-        self.assertGreaterEqual(_get_psnr(img1, img2), 50.0)
-
-
 class TestGetAveragePSNR(unittest.TestCase):
     @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
     def test_get_average_psnr_file_not_found(self, mock_vc):
@@ -103,11 +79,11 @@ class TestGetAveragePSNR(unittest.TestCase):
         with self.assertRaises(SystemExit):
             get_average_psnr("ref_file.mp4", "test_file.mp4")
 
-    @patch("checkbox_support.scripts.psnr._get_psnr")
+    @patch("checkbox_support.scripts.psnr.cv2.PSNR")
     @patch("checkbox_support.scripts.psnr._get_frame_resolution")
     @patch("checkbox_support.scripts.psnr.cv2.VideoCapture")
     def test_get_average_psnr(
-        self, mock_VideoCapture, mock_get_frame_resolution, mock_get_psnr
+        self, mock_VideoCapture, mock_get_frame_resolution, mock_psnr
     ):
         # Setup
         reference_file_path = "reference.mp4"
@@ -128,7 +104,7 @@ class TestGetAveragePSNR(unittest.TestCase):
         mock_capt_refrnc.read.return_value = (True, "frameReference")
         mock_capt_undTst.read.return_value = (True, "frameUnderTest")
 
-        mock_get_psnr.return_value = 30
+        mock_psnr.return_value = 30
 
         # Code under test
         avg_psnr, psnr_array = get_average_psnr(
@@ -152,7 +128,7 @@ class TestGetAveragePSNR(unittest.TestCase):
         self.assertEqual(mock_capt_refrnc.get.call_count, 1)
         self.assertEqual(mock_capt_refrnc.read.call_count, total_frame_count)
         self.assertEqual(mock_capt_undTst.read.call_count, total_frame_count)
-        self.assertEqual(mock_get_psnr.call_count, total_frame_count)
+        self.assertEqual(mock_psnr.call_count, total_frame_count)
 
 
 class TestMainFunction(unittest.TestCase):

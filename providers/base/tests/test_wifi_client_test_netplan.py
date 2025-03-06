@@ -822,7 +822,6 @@ class TestMain(TestCase):
         mock_renderer.return_value = "networkd"
         mock_wait_routable.return_value = True
         mock_ping.return_value = True
-        mock_apply.return_value = True
 
         # Execute
         main()
@@ -875,7 +874,7 @@ class TestMain(TestCase):
         mock_args.renderer = "networkd"
         mock_parse_args.return_value = mock_args
         mock_renderer.return_value = "networkd"
-        mock_apply.return_value = False
+        mock_apply.side_effect = SystemExit("ERROR: failed netplan apply call")
 
         # Execute and Assert
         with self.assertRaises(SystemExit):
@@ -921,7 +920,6 @@ class TestMain(TestCase):
         mock_parse_args.return_value = mock_args
         mock_renderer.return_value = "networkd"
         mock_wait_routable.return_value = True
-        mock_apply.return_value = True
         mock_ping.return_value = False
 
         # Execute and Assert
@@ -930,5 +928,6 @@ class TestMain(TestCase):
 
         self.assertEqual(mock_delete.call_count, 1)
         self.assertEqual(mock_restore.call_count, 1)
+        self.assertEqual(mock_apply.call_count, 2)
         self.assertEqual(mock_print_journal.call_count, 1)
         mock_ping.assert_called_once_with("wlan0", "networkd")

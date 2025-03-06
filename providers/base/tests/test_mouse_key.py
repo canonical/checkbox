@@ -2,7 +2,7 @@
 
 import unittest
 from unittest.mock import patch
-import mouse
+import mouse_keyboard
 
 
 class TestMouse(unittest.TestCase):

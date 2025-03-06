@@ -21,17 +21,28 @@ import os
 import shutil
 from packaging import version
 
-from checkbox_support.snap_utils.system import get_kernel_snap
-from checkbox_support.snap_utils.system import on_ubuntucore
+from checkbox_support.snap_utils.asserts import decode, model_to_resource
+
+from checkbox_support.snap_utils.snapd import Snapd
 
 
 def get_kernel_config_path():
     """Retrieve the path to the kernel configuration file."""
     kernel_version = os.uname().release
-    if on_ubuntucore():
-        kernel_snap = get_kernel_snap()
-        return "/snap/{}/current/config-{}".format(kernel_snap, kernel_version)
-    return "/boot/config-{}".format(kernel_version)
+    for model in decode(Snapd().get_assertions("model")):
+        resource = model_to_resource(model)
+        if resource.get("kernel"):
+            config_path = "/snap/{}/current/config-{}".format(
+                resource["kernel"], kernel_version
+            )
+            if os.path.exists(config_path):
+                return config_path
+
+    config_path = "/boot/config-{}".format(kernel_version)
+    if os.path.exists(config_path):
+        return config_path
+
+    raise SystemExit("Kernel configuration not found.")
 
 
 def get_configuration(output=None):

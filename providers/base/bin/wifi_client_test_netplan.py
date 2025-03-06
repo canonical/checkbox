@@ -232,11 +232,8 @@ def netplan_apply_config():
     env.pop("PYTHONUSERBASE", None)
     retcode = sp.call(cmd, shell=True, env=env)
     if retcode != 0:
-        print("ERROR: failed netplan apply call")
-        print()
-        return False
+        raise SystemExit("ERROR: failed netplan apply call")
     print()
-    return True
 
 
 def get_interface_info(interface, renderer):
@@ -460,54 +457,50 @@ def main():
     netplan_config_backup()
     netplan_config_wipe()
 
-    # Create wireless network test configuration file
-    print_head("Generate a test netplan configuration")
-    config_data = generate_test_config(**vars(args))
-    print(config_data)
-    print()
+    try:
+        # Create wireless network test configuration file
+        print_head("Generate a test netplan configuration")
+        config_data = generate_test_config(**vars(args))
+        print(config_data)
+        print()
+        write_test_config(config_data)
 
-    write_test_config(config_data)
+        # Bring up the interface
+        print_head("Apply the test configuration")
+        netplan_apply_config()
+        time.sleep(20)
 
-    # Bring up the interface
-    print_head("Apply the test configuration")
-    if not netplan_apply_config():
+        print_head("Wait for interface to be routable")
+        reached_routable = wait_for_routable(args.interface, renderer)
+
+        test_result = False
+        if reached_routable:
+            print_head("Display address")
+            print_address_info(args.interface)
+
+            print_head("Display route table")
+            print_route_info()
+
+            # Check connection by ping or link status
+            print_head("Perform a ping test")
+            test_result = perform_ping_test(args.interface, renderer)
+            if test_result:
+                print("Connection test passed\n")
+            else:
+                print("Connection test failed\n")
+    except SystemExit:
+        print_journal_entries(start_time, renderer)
+        raise
+    finally:
         delete_test_config()
         netplan_config_restore()
+
+    try:
+        netplan_apply_config()
+    finally:
         print_journal_entries(start_time, renderer)
-        raise SystemExit(1)
-    time.sleep(20)
-
-    print_head("Wait for interface to be routable")
-    reached_routable = wait_for_routable(args.interface, renderer)
-
-    test_result = False
-    if reached_routable:
-        print_head("Display address")
-        print_address_info(args.interface)
-
-        print_head("Display route table")
-        print_route_info()
-
-        # Check connection by ping or link status
-        print_head("Perform a ping test")
-        test_result = perform_ping_test(args.interface, renderer)
-        if test_result:
-            print("Connection test passed\n")
-        else:
-            print("Connection test failed\n")
-
-    delete_test_config()
-    netplan_config_restore()
-
-    if not netplan_apply_config():
-        print_journal_entries(start_time, renderer)
-        raise SystemExit("ERROR: failed to apply restored config")
-
     if not test_result:
-        print_journal_entries(start_time, renderer)
         raise SystemExit(1)
-
-    print_journal_entries(start_time, renderer)
 
 
 if __name__ == "__main__":

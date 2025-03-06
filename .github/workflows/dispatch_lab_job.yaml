@@ -1,4 +1,6 @@
 name: Dispatch Checkbox jobs in the lab
+permissions:
+  contents: read
 on:
   workflow_dispatch:
     inputs:

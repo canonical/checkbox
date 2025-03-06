@@ -1,5 +1,6 @@
 name: Test provider-genio with tox
-
+permissions:
+  contents: read
 on:
   push:
     branches: [ main ]

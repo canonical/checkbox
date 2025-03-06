@@ -1,5 +1,6 @@
 name: Test provider-ce-oem (from contrib area) with tox
-
+permissions:
+  contents: read
 on:
   push:
     branches: [ main ]

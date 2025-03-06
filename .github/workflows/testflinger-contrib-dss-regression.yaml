@@ -1,4 +1,6 @@
 name: Data Science Stack (DSS) Regression Testing
+permissions:
+  contents: read
 on:
   workflow_dispatch:
   # schedule:

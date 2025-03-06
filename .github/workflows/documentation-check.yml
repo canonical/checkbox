@@ -1,5 +1,6 @@
 name: Automatic documentation checks
-
+permissions:
+  contents: read
 on:
   pull_request:
     paths:

@@ -51,6 +51,7 @@ def psnr_args() -> argparse.ArgumentParser:
     )
     return parser.parse_args()
 
+
 def _get_frame_resolution(capture) -> Tuple[int, int]:
     return (
         int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)),

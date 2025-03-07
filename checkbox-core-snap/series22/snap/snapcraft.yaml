@@ -152,6 +152,7 @@ parts:
       - python3-distutils
       - python3-pkg-resources
       - python3.10-minimal
+      - python3-tk
     build-packages:
       - libbluetooth-dev
       - libsystemd-dev

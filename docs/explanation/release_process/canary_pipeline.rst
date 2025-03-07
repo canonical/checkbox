@@ -1,6 +1,6 @@
 .. _canary_pipeline:
 
-Canary Pipeline
+Canary pipeline
 ^^^^^^^^^^^^^^^
 This is an example on how the whole pipeline can be implemented in Jenkins.
 
@@ -15,15 +15,15 @@ This is an example on how the whole pipeline can be implemented in Jenkins.
                     script {
                         parallel (
                             "Checkbox series-22 for amd64": {
-                                echo 'Running Canary on core22 amd64'
+                                echo 'Running canary on core22 amd64'
                                 build job: 'checkbox-edge-validation-core22-amd64', wait: true, propagate: true
                             },
                             "Checkbox series-22 for arm64": {
-                                echo 'Running Canary on core22 arm64'
+                                echo 'Running canary on core22 arm64'
                                 build job: 'checkbox-edge-validation-core22-arm64', wait: true, propagate: true
                             },
                             "Checkbox series-16 for amd64": {
-                                echo 'Running Canary on core16 amd64'
+                                echo 'Running canary on core16 amd64'
                                 build job: 'checkbox-edge-validation-core16-amd64', wait: true, propagate: true
                             }
 

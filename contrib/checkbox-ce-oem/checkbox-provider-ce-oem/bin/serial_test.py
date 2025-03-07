@@ -57,15 +57,15 @@ class Serial:
     def __init__(
         self,
         node,
-        type=None,
-        group=None,
-        baudrate=None,
-        bytesize=None,
-        parity=None,
-        stopbits=None,
-        timeout=None,
-        data_size=None,
-        rs485_settings=None,
+        type: str | None = None,
+        group: list | None = None,
+        baudrate: int | None = None,
+        bytesize: int | None = None,
+        parity: int | None = None,
+        stopbits: int | None = None,
+        timeout: int | None = None,
+        data_size: int | None = None,
+        rs485_settings: dict | None = None,
     ) -> None:
         self.node = node
         self.type = type if type else "USB"
@@ -315,7 +315,6 @@ def create_args():
         help="Baud rate for the serial ports",
         default=115200,
         type=int,
-        required=False,
     )
     parser.add_argument(
         "--bytesize",

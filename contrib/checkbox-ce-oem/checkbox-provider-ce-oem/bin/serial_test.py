@@ -57,25 +57,40 @@ class Serial:
     def __init__(
         self,
         node,
-        type,
-        group: list = [],
-        baudrate: int = 115200,
-        bytesize: int = serial.EIGHTBITS,
-        parity: str = serial.PARITY_NONE,
-        stopbits: int = serial.STOPBITS_ONE,
-        timeout: int = 3,
-        data_size: int = 1024,
-        rs485_settings: dict = None,
+        type=None,
+        group=None,
+        baudrate=None,
+        bytesize=None,
+        parity=None,
+        stopbits=None,
+        timeout=None,
+        data_size=None,
+        rs485_settings=None,
     ) -> None:
         self.node = node
-        self.type = type
-        self.baudrate = baudrate
-        self.bytesize = bytesize
-        self.parity = parity
-        self.stopbits = stopbits
-        self.timeout = timeout
-        self.data_size = data_size
-        self.rs485_settings = rs485_settings
+        self.type = type if type is not None else "USB"
+        self.baudrate = baudrate if baudrate is not None else 115200
+        self.bytesize = bytesize if bytesize is not None else serial.EIGHTBITS
+        self.parity = parity if parity is not None else serial.PARITY_NONE
+        self.stopbits = (
+            stopbits if stopbits is not None else serial.STOPBITS_ONE
+        )
+        self.timeout = timeout if timeout is not None else 3
+        self.data_size = data_size if data_size is not None else 1024
+        self.rs485_settings = (
+            rs485_settings if rs485_settings is not None else {}
+        )
+        self.rs485_settings = {
+            "rts_level_for_tx": self.rs485_settings.get(
+                "rts_level_for_tx", True
+            ),
+            "rts_level_for_rx": self.rs485_settings.get(
+                "rts_level_for_rx", False
+            ),
+            "delay_before_tx": self.rs485_settings.get("delay_before_tx", 0.0),
+            "delay_before_rx": self.rs485_settings.get("delay_before_rx", 0.0),
+        }
+        group = group if group is not None else []
         self.ser = self.serial_init(node)
         self.group = []
         for ser in group:
@@ -134,15 +149,15 @@ def generate_random_string(length):
 
 def server_mode(
     node,
-    type,
-    group,
-    baudrate,
-    bytesize,
-    parity,
-    stopbits,
-    timeout,
-    datasize,
-    rs485_settings,
+    type=None,
+    group=None,
+    baudrate=None,
+    bytesize=None,
+    parity=None,
+    stopbits=None,
+    timeout=None,
+    data_size=None,
+    rs485_settings=None,
 ) -> None:
     """
     Running as a server, it will be sniffing for received string.
@@ -160,7 +175,7 @@ def server_mode(
         parity,
         stopbits,
         timeout,
-        datasize,
+        data_size,
         rs485_settings,
     )
     logging.info("Listening on port {} ...".format(ser.node))
@@ -175,15 +190,15 @@ def server_mode(
 
 def client_mode(
     node,
-    type,
-    group,
-    baudrate,
-    bytesize,
-    parity,
-    stopbits,
-    timeout,
-    datasize,
-    rs485_settings,
+    type=None,
+    group=None,
+    baudrate=None,
+    bytesize=None,
+    parity=None,
+    stopbits=None,
+    timeout=None,
+    data_size=1024,
+    rs485_settings=None,
 ):
     """
     Running as a clinet and it will sending out a string and wait
@@ -202,7 +217,7 @@ def client_mode(
         parity,
         stopbits,
         timeout,
-        datasize,
+        data_size,
         rs485_settings,
     )
 
@@ -210,7 +225,7 @@ def client_mode(
     while ser.recv():
         continue
 
-    random_string = generate_random_string(datasize)
+    random_string = generate_random_string(data_size)
     ser.send(random_string.encode())
     for i in range(1, 6):
         logging.info("Attempting receive string... {} time".format(i))
@@ -229,15 +244,15 @@ def client_mode(
 
 def console_mode(
     node,
-    type,
-    group,
-    baudrate,
-    bytesize,
-    parity,
-    stopbits,
-    timeout,
-    datasize,
-    rs485_settings,
+    type=None,
+    group=None,
+    baudrate=None,
+    bytesize=None,
+    parity=None,
+    stopbits=None,
+    timeout=None,
+    data_size=None,
+    rs485_settings=None,
 ):
     """
     Test the serial port when it is in console mode
@@ -254,7 +269,7 @@ def console_mode(
         parity,
         stopbits,
         timeout,
-        datasize,
+        data_size,
         rs485_settings,
     )
     try:
@@ -291,20 +306,21 @@ def create_args():
         "--type",
         type=str,
         help="The type of serial port (e.g. RS485, RS422, RS232, USB)",
-        default="USB",
+        required=False,
     )
     parser.add_argument(
         "--group",
         type=str,
         help="The group of serial ports that needed to be brought up also",
         nargs="*",
-        default=[],
+        required=False,
     )
     parser.add_argument(
         "--baudrate",
         help="Baud rate for the serial ports",
         default=115200,
         type=int,
+        required=False,
     )
     parser.add_argument(
         "--bytesize",
@@ -316,7 +332,7 @@ def create_args():
         ],
         type=int,
         help="Bytesize",
-        default=8,
+        required=False,
     )
     parser.add_argument(
         "--parity",
@@ -329,26 +345,26 @@ def create_args():
         ],
         type=lambda c: c.upper(),
         help="Parity",
-        default="N",
+        required=False,
     )
     parser.add_argument(
         "--stopbits",
         choices=[serial.STOPBITS_ONE, serial.STOPBITS_TWO],
         type=int,
         help="Stopbits",
-        default=1,
+        required=False,
     )
     parser.add_argument(
         "--datasize",
         type=int,
         help="Data size to send and receive",
-        default=1024,
+        required=False,
     )
     parser.add_argument(
         "--timeout",
         type=int,
         help="Timeout to receive",
-        default=3,
+        required=False,
     )
 
     # Create RS485 subparser that only activates when --type=RS485
@@ -360,7 +376,6 @@ def create_args():
         choices=["True", "False"],
         type=str,
         help="RTS level for transmission." "Equal to RTS_ON_SEND",
-        default="True",
         required=False,
     )
     rs485_group.add_argument(
@@ -368,21 +383,18 @@ def create_args():
         choices=["True", "False"],
         type=str,
         help="RTS level for reception." "Equal to RTS_AFTER_SEND",
-        default="False",
         required=False,
     )
     rs485_group.add_argument(
         "--rts-delay-before-tx",
         type=float,
         help="Delay after setting RTS but before transmission starts.",
-        default=0.0,
         required=False,
     )
     rs485_group.add_argument(
         "--rts-delay-before-rx",
         type=float,
         help="Delay after transmission ends and resetting RTS.",
-        default=0.0,
         required=False,
     )
     return parser
@@ -393,15 +405,10 @@ def main():
     args = parser.parse_args()
 
     init_logger()
-    rs485_settings = {}
     if args.type == "RS485":
         rs485_settings = {
-            "rts_level_for_tx": (
-                True if args.rts_level_for_tx == "True" else False
-            ),
-            "rts_level_for_rx": (
-                True if args.rts_level_for_rx == "True" else False
-            ),
+            "rts_level_for_tx": args.rts_level_for_tx,
+            "rts_level_for_rx": args.rts_level_for_rx,
             "delay_before_tx": args.rts_delay_before_tx,
             "delay_before_rx": args.rts_delay_before_rx,
         }

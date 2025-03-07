@@ -31,24 +31,6 @@ from kernel_config import (
 
 class TestKernelConfig(TestCase):
 
-    # def get_kernel_config_path():
-    #     """Retrieve the path to the kernel configuration file."""
-    #     kernel_version = os.uname().release
-    #     for model in decode(Snapd().get_assertions("model")):
-    #         resource = model_to_resource(model)
-    #         if resource.get("kernel"):
-    #             config_path = "/snap/{}/current/config-{}".format(
-    #                 resource["kernel"], kernel_version
-    #             )
-    #             if os.path.exists(config_path):
-    #                 return config_path
-
-    #     config_path = "/boot/config-{}".format(kernel_version)
-    #     if os.path.exists(config_path):
-    #         return config_path
-
-    #     raise SystemExit("Kernel configuration not found.")
-
     @patch("kernel_config.os.uname")
     @patch("kernel_config.decode")
     @patch("kernel_config.os.path.exists")

@@ -218,7 +218,10 @@ def write_test_config(config):
 
 def delete_test_config():
     print_head("Delete the test file")
-    os.remove(NETPLAN_TEST_CFG)
+    try:
+        os.remove(NETPLAN_TEST_CFG)
+    except FileNotFoundError:
+        print("Test config {} not found, ignoring...".format(NETPLAN_TEST_CFG))
     print()
 
 

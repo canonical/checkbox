@@ -52,36 +52,6 @@ def psnr_args() -> argparse.ArgumentParser:
     return parser.parse_args()
 
 
-def _get_psnr(I1: np.ndarray, I2: np.ndarray) -> float:
-    """
-    Calculate the Peak Signal-to-Noise Ratio (PSNR) between two frames.
-
-    Args:
-        I1 (np.ndarray): Reference frame.
-        I2 (np.ndarray): Frame to be compared with the reference.
-
-    Returns:
-        float: PSNR value indicating the quality of I2 compared to I1.
-    """
-    # Calculate the absolute difference
-    s1 = cv2.absdiff(I1, I2)
-    # cannot make a square on 8 bits
-    s1 = np.float32(s1)
-    # Calculate squared differences
-    s1 = s1 * s1
-    # Sum of squared differences per channel
-    sse = s1.sum()
-    # sum channels
-    if sse <= 1e-10:
-        # for small values return zero
-        return 0.0
-    else:
-        shape = I1.shape
-        mse = 1.0 * sse / (shape[0] * shape[1] * shape[2])
-        psnr = 10.0 * np.log10((255 * 255) / mse)
-    return psnr
-
-
 def _get_frame_resolution(capture) -> Tuple[int, int]:
     return (
         int(capture.get(cv2.CAP_PROP_FRAME_WIDTH)),
@@ -124,7 +94,7 @@ def get_average_psnr(
     for _ in range(total_frame_count):
         _, frameReference = capt_refrnc.read()
         _, frameUnderTest = capt_undTst.read()
-        psnr = _get_psnr(frameReference, frameUnderTest)
+        psnr = cv2.PSNR(frameReference, frameUnderTest)
         psnr_each_frame.append(psnr)
 
     psnr_array = np.array(psnr_each_frame)

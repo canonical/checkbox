@@ -64,7 +64,7 @@ class Serial:
         parity: int | None = None,
         stopbits: int | None = None,
         timeout: int | None = None,
-        data_size: int | None = None,
+        datasize: int | None = None,
         rs485_settings: dict | None = None,
     ) -> None:
         self.node = node
@@ -74,7 +74,7 @@ class Serial:
         self.parity = parity if parity else serial.PARITY_NONE
         self.stopbits = stopbits if stopbits else serial.STOPBITS_ONE
         self.timeout = timeout if timeout else 3
-        self.data_size = data_size if data_size else 1024
+        self.datasize = datasize if datasize else 1024
         self.rs485_settings = (
             rs485_settings
             if rs485_settings
@@ -125,7 +125,7 @@ class Serial:
     def recv(self) -> bytes:
         rcv = ""
         try:
-            rcv = self.ser.read(self.data_size)
+            rcv = self.ser.read(self.datasize)
             if rcv:
                 logging.info("Received: {}".format(rcv.decode()))
         except Exception:
@@ -151,7 +151,7 @@ def server_mode(
     parity=None,
     stopbits=None,
     timeout=None,
-    data_size=None,
+    datasize=None,
     rs485_settings=None,
 ) -> None:
     """
@@ -170,7 +170,7 @@ def server_mode(
         parity,
         stopbits,
         timeout,
-        data_size,
+        datasize,
         rs485_settings,
     )
     logging.info("Listening on port {} ...".format(ser.node))
@@ -192,7 +192,7 @@ def client_mode(
     parity=None,
     stopbits=None,
     timeout=None,
-    data_size=1024,
+    datasize=1024,
     rs485_settings=None,
 ):
     """
@@ -212,7 +212,7 @@ def client_mode(
         parity,
         stopbits,
         timeout,
-        data_size,
+        datasize,
         rs485_settings,
     )
 
@@ -220,7 +220,7 @@ def client_mode(
     while ser.recv():
         continue
 
-    random_string = generate_random_string(data_size)
+    random_string = generate_random_string(datasize)
     ser.send(random_string.encode())
     for i in range(1, 6):
         logging.info("Attempting receive string... {} time".format(i))
@@ -246,7 +246,7 @@ def console_mode(
     parity=None,
     stopbits=None,
     timeout=None,
-    data_size=None,
+    datasize=None,
     rs485_settings=None,
 ):
     """
@@ -264,7 +264,7 @@ def console_mode(
         parity,
         stopbits,
         timeout,
-        data_size,
+        datasize,
         rs485_settings,
     )
     try:

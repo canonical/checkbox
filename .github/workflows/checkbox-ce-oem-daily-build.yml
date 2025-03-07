@@ -45,4 +45,3 @@ jobs:
     uses: ./.github/workflows/checkbox-ce-oem-edge-builds.yml
     secrets:
       SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

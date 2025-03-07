@@ -45,7 +45,6 @@ jobs:
     uses: ./.github/workflows/checkbox-daily-cross-builds.yaml
     secrets:
       SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
       store_upload: true
 
@@ -55,7 +54,6 @@ jobs:
     uses: ./.github/workflows/checkbox-daily-native-builds.yaml
     secrets:
       SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     with:
       store_upload: true
 
@@ -65,4 +63,3 @@ jobs:
     uses: ./.github/workflows/deb-daily-builds.yml
     secrets:
       LP_CREDS: ${{ secrets.LP_CREDS }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

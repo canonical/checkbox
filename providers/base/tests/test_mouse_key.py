@@ -3,6 +3,7 @@
 import unittest
 from unittest.mock import patch, MagicMock
 import sys
+
 sys.modules["evdev"] = MagicMock()
 from mouse_keyboard import *
 

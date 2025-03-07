@@ -39,11 +39,28 @@ class TestKernelConfig(TestCase):
     ):
         uname_mock.return_value = MagicMock(release="5.4.0-42-generic")
         decode_mock.return_value = [{"kernel": "pc-kernel"}]
-        exists_mock.return_value = True
-
+        exists_mock.side_effect = (
+            lambda x: x == "/snap/pc-kernel/current/config-5.4.0-42-generic"
+        )
         self.assertEqual(
             get_kernel_config_path(),
             "/snap/pc-kernel/current/config-5.4.0-42-generic",
+        )
+
+    @patch("kernel_config.os.uname")
+    @patch("kernel_config.decode")
+    @patch("kernel_config.os.path.exists")
+    def test_get_kernel_config_path_host(
+        self, exists_mock, decode_mock, uname_mock
+    ):
+        uname_mock.return_value = MagicMock(release="5.4.0-42-generic")
+        decode_mock.return_value = []
+        exists_mock.side_effect = (
+            lambda x: x == "/var/lib/snapd/hostfs/boot/config-5.4.0-42-generic"
+        )
+        self.assertEqual(
+            get_kernel_config_path(),
+            "/var/lib/snapd/hostfs/boot/config-5.4.0-42-generic",
         )
 
     @patch("kernel_config.os.uname")
@@ -54,8 +71,9 @@ class TestKernelConfig(TestCase):
     ):
         uname_mock.return_value = MagicMock(release="5.4.0-42-generic")
         decode_mock.return_value = []
-        exists_mock.return_value = True
-
+        exists_mock.side_effect = (
+            lambda x: x == "/boot/config-5.4.0-42-generic"
+        )
         self.assertEqual(
             get_kernel_config_path(), "/boot/config-5.4.0-42-generic"
         )
@@ -131,6 +149,7 @@ class TestKernelConfig(TestCase):
 
     @patch("kernel_config.os.uname")
     @patch("kernel_config.print")
+    @patch("kernel_config.get_kernel_config_path", MagicMock())
     def test_check_flag_present(self, print_mock, uname_mock):
         uname_mock.return_value = MagicMock(release="6.8.0-45-generic")
         data = (
@@ -149,6 +168,7 @@ class TestKernelConfig(TestCase):
 
     @patch("kernel_config.os.uname")
     @patch("kernel_config.print", MagicMock())
+    @patch("kernel_config.get_kernel_config_path", MagicMock())
     def test_check_flag_not_present(self, uname_mock):
         uname_mock.return_value = MagicMock(release="6.8.0-45-generic")
         data = (
@@ -168,6 +188,7 @@ class TestKernelConfig(TestCase):
 
     @patch("kernel_config.os.uname")
     @patch("kernel_config.print", MagicMock())
+    @patch("kernel_config.get_kernel_config_path", MagicMock())
     def test_check_flag_commented(self, uname_mock):
         uname_mock.return_value = MagicMock(release="6.8.0-45-generic")
         data = (

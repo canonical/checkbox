@@ -29,19 +29,27 @@ from checkbox_support.snap_utils.snapd import Snapd
 def get_kernel_config_path():
     """Retrieve the path to the kernel configuration file."""
     kernel_version = os.uname().release
+    path_list = []
     for model in decode(Snapd().get_assertions("model")):
         resource = model_to_resource(model)
         if resource.get("kernel"):
             config_path = "/snap/{}/current/config-{}".format(
                 resource["kernel"], kernel_version
             )
-            if os.path.exists(config_path):
-                return config_path
+            path_list.append(config_path)
 
-    config_path = "/boot/config-{}".format(kernel_version)
-    if os.path.exists(config_path):
-        return config_path
+    # Check for the kernel configuration in the host filesystem and in the
+    # boot partition
+    path_list.extend(
+        [
+            "/var/lib/snapd/hostfs/boot/config-{}".format(kernel_version),
+            "/boot/config-{}".format(kernel_version),
+        ]
+    )
 
+    for path in path_list:
+        if os.path.exists(path):
+            return path
     raise SystemExit("Kernel configuration not found.")
 
 

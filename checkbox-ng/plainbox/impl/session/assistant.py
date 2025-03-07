@@ -1380,14 +1380,14 @@ class SessionAssistant:
         for m in manifest_list:
             prompt = m.prompt() or m.default_prompt()
             value = config_manifest.get(m.id)
-            if m.is_hidden:
-                # set all hidden manifests not set in the launcher to default
-                value = value or m.default_value()
-            else:
-                # only load from the disk_manifest values of non-hidden manifests
-                value = value or disk_manifest.get(m.id, "")
-
-            if value:
+            if value is None:
+                if m.is_hidden:
+                    # set all hidden manifests not set in the launcher to default
+                    value = m.default_value()
+                else:
+                    # only load from the disk_manifest values of non-hidden manifests
+                    value = disk_manifest.get(m.id)
+            if value is not None:
                 value = self._parse_value(m, value)
             manifest_info_dict[prompt].append(
                 {

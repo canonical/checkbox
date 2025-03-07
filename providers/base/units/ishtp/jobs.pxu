@@ -8,7 +8,12 @@ requires:
     manifest.has_ishtp == 'True'
 flags: simple
 command:
-    expected_modules='intel_ishtp_loader intel_ishtp_hid intel_ish_ipc intel_ishtp'
+    release=$(lsb_release -rs)
+    if [ "$release" -ge 24 ]; then
+        expected_modules='intel_ishtp_hid intel_ish_ipc intel_ishtp'
+    else
+        expected_modules='intel_ishtp_loader intel_ishtp_hid intel_ish_ipc intel_ishtp'
+    fi
     EXIT=0
     for m in $expected_modules
     do

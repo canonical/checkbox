@@ -6,3 +6,4 @@ Depends: gnome-randr
 unit: packaging meta-data
 os-id: debian
 Depends: gnome-screenshot 
+Depends: python3-evdev

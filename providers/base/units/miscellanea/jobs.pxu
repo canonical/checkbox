@@ -365,12 +365,12 @@ category_id: com.canonical.plainbox::miscellanea
 estimated_duration: 10.0
 requires:
  executable.name == 'fwts'
- cpuinfo.platform in ("ppc64el")
+ cpuinfo.platform in ("ppc64el", "ppc64le")
 user: root
 _description:
- Run Firmware Test Suite (fwts) olog tests (ppc64el only).
+ Run Firmware Test Suite (fwts) olog tests (IBM Power only).
 _summary:
- Run FWTS OLOG check on ppc64el
+ Run FWTS OLOG check on Power systems
 environ: PLAINBOX_SESSION_SHARE
 command:
  checkbox-support-fwts_test -l "$PLAINBOX_SESSION_SHARE"/fwts_olog_results.log -t olog

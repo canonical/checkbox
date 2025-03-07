@@ -168,6 +168,12 @@ def mount_usb_storage(partition):
     try:
         device_to_mount = os.path.join("/dev", partition)
 
+        # Flush pending writes to prevent "Device or resource busy" errors.
+        subprocess.call(["sync"])
+
+        # Wait for udev events to complete before mounting.
+        subprocess.call(["udevadm", "settle", "--timeout=10"])
+
         # Unmounting the folder ignoring any "not mounted" error messages.
         subprocess.call(["umount", FOLDER_TO_MOUNT], stderr=subprocess.PIPE)
 

@@ -68,29 +68,24 @@ class Serial:
         rs485_settings=None,
     ) -> None:
         self.node = node
-        self.type = type if type is not None else "USB"
-        self.baudrate = baudrate if baudrate is not None else 115200
-        self.bytesize = bytesize if bytesize is not None else serial.EIGHTBITS
-        self.parity = parity if parity is not None else serial.PARITY_NONE
-        self.stopbits = (
-            stopbits if stopbits is not None else serial.STOPBITS_ONE
-        )
-        self.timeout = timeout if timeout is not None else 3
-        self.data_size = data_size if data_size is not None else 1024
+        self.type = type if type else "USB"
+        self.baudrate = baudrate if baudrate else 115200
+        self.bytesize = bytesize if bytesize else serial.EIGHTBITS
+        self.parity = parity if parity else serial.PARITY_NONE
+        self.stopbits = stopbits if stopbits else serial.STOPBITS_ONE
+        self.timeout = timeout if timeout else 3
+        self.data_size = data_size if data_size else 1024
         self.rs485_settings = (
-            rs485_settings if rs485_settings is not None else {}
+            rs485_settings
+            if rs485_settings
+            else {
+                "rts_level_for_tx": True,
+                "rts_level_for_rx": False,
+                "delay_before_tx": 0.0,
+                "delay_before_rx": 0.0,
+            }
         )
-        self.rs485_settings = {
-            "rts_level_for_tx": self.rs485_settings.get(
-                "rts_level_for_tx", True
-            ),
-            "rts_level_for_rx": self.rs485_settings.get(
-                "rts_level_for_rx", False
-            ),
-            "delay_before_tx": self.rs485_settings.get("delay_before_tx", 0.0),
-            "delay_before_rx": self.rs485_settings.get("delay_before_rx", 0.0),
-        }
-        group = group if group is not None else []
+        group = group if group else []
         self.ser = self.serial_init(node)
         self.group = []
         for ser in group:
@@ -306,14 +301,14 @@ def create_args():
         "--type",
         type=str,
         help="The type of serial port (e.g. RS485, RS422, RS232, USB)",
-        required=False,
+        default="USB",
     )
     parser.add_argument(
         "--group",
         type=str,
         help="The group of serial ports that needed to be brought up also",
         nargs="*",
-        required=False,
+        default=[],
     )
     parser.add_argument(
         "--baudrate",
@@ -332,7 +327,7 @@ def create_args():
         ],
         type=int,
         help="Bytesize",
-        required=False,
+        default=serial.EIGHTBITS,
     )
     parser.add_argument(
         "--parity",
@@ -345,26 +340,26 @@ def create_args():
         ],
         type=lambda c: c.upper(),
         help="Parity",
-        required=False,
+        default=serial.PARITY_NONE,
     )
     parser.add_argument(
         "--stopbits",
         choices=[serial.STOPBITS_ONE, serial.STOPBITS_TWO],
         type=int,
         help="Stopbits",
-        required=False,
+        default=serial.STOPBITS_ONE,
     )
     parser.add_argument(
         "--datasize",
         type=int,
         help="Data size to send and receive",
-        required=False,
+        default=1024,
     )
     parser.add_argument(
         "--timeout",
         type=int,
         help="Timeout to receive",
-        required=False,
+        default=3,
     )
 
     # Create RS485 subparser that only activates when --type=RS485
@@ -376,6 +371,7 @@ def create_args():
         choices=["True", "False"],
         type=str,
         help="RTS level for transmission." "Equal to RTS_ON_SEND",
+        default="True",
         required=False,
     )
     rs485_group.add_argument(
@@ -383,18 +379,21 @@ def create_args():
         choices=["True", "False"],
         type=str,
         help="RTS level for reception." "Equal to RTS_AFTER_SEND",
+        default="False",
         required=False,
     )
     rs485_group.add_argument(
         "--rts-delay-before-tx",
         type=float,
         help="Delay after setting RTS but before transmission starts.",
+        default=0.0,
         required=False,
     )
     rs485_group.add_argument(
         "--rts-delay-before-rx",
         type=float,
         help="Delay after transmission ends and resetting RTS.",
+        default=0.0,
         required=False,
     )
     return parser
@@ -407,8 +406,12 @@ def main():
     init_logger()
     if args.type == "RS485":
         rs485_settings = {
-            "rts_level_for_tx": args.rts_level_for_tx,
-            "rts_level_for_rx": args.rts_level_for_rx,
+            "rts_level_for_tx": (
+                True if args.rts_level_for_tx == "True" else False
+            ),
+            "rts_level_for_rx": (
+                True if args.rts_level_for_rx == "True" else False
+            ),
             "delay_before_tx": args.rts_delay_before_tx,
             "delay_before_rx": args.rts_delay_before_rx,
         }

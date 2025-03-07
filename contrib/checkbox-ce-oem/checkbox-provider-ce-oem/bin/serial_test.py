@@ -57,15 +57,15 @@ class Serial:
     def __init__(
         self,
         node,
-        type: str | None = None,
-        group: list | None = None,
-        baudrate: int | None = None,
-        bytesize: int | None = None,
-        parity: int | None = None,
-        stopbits: int | None = None,
-        timeout: int | None = None,
-        datasize: int | None = None,
-        rs485_settings: dict | None = None,
+        type: str = None,
+        group: list = None,
+        baudrate: int = None,
+        bytesize: int = None,
+        parity: str = None,
+        stopbits: int = None,
+        timeout: int = None,
+        datasize: int = None,
+        rs485_settings: dict = None,
     ) -> None:
         self.node = node
         self.type = type if type else "USB"

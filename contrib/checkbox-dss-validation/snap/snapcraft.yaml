@@ -50,6 +50,9 @@ apps:
     command: bin/install-deps
   remove-deps:
     command: bin/remove-deps
+  validate-with-gpu-and-reboot:
+    command-chain: [bin/wrapper_local]
+    command: bin/validate-with-gpu-and-reboot
 
 passthrough:
   hooks:

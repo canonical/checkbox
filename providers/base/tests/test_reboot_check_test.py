@@ -148,6 +148,51 @@ class DisplayConnectionTests(unittest.TestCase):
         tester = RCT.HardwareRendererTester()
         self.assertFalse(tester.is_hardware_renderer_available())
 
+    def test_slow_boot_scenario(self):
+
+        def fake_time(delta: int, ticks=2):
+            # fake a time.time() delta using closure
+            call_idx = [0]
+
+            def wrapped():
+                if call_idx[0] != ticks:
+                    call_idx[0] += 1
+                    return 0  # when time.time is initially called
+                else:
+                    return delta  # the "last" time when time.time is called
+
+            return wrapped
+
+        with patch("subprocess.run") as mock_run, patch(
+            "time.sleep"
+        ) as mock_sleep, patch("time.time") as mock_time, patch(
+            "sys.argv",
+            sh_split("reboot_check_test.py -g --graphical-target-timeout 2"),
+        ):
+            mock_run.side_effect = lambda *args, **kwargs: sp.CompletedProcess(
+                [],
+                1,
+                "systemd says it's not ready",
+                "graphical target not reached blah",
+            )
+            mock_sleep.side_effect = do_nothing
+            mock_time.side_effect = fake_time(3)
+            tester = RCT.HardwareRendererTester()
+
+            self.assertFalse(tester.wait_for_graphical_target(2))
+
+            mock_sleep.reset_mock()
+            mock_time.side_effect = fake_time(3)
+            tester = RCT.HardwareRendererTester()
+            self.assertEqual(RCT.main(), 1)
+            self.assertTrue(mock_time.called)
+            self.assertTrue(mock_sleep.called)
+
+            mock_time.side_effect = fake_time(3)
+            mock_run.side_effect = sp.TimeoutExpired([], 1)
+            tester = RCT.HardwareRendererTester()
+            self.assertFalse(tester.wait_for_graphical_target(2))
+
 
 class InfoDumpTests(unittest.TestCase):
     @classmethod

@@ -30,29 +30,68 @@ from kernel_config import (
 
 
 class TestKernelConfig(TestCase):
-    @patch("kernel_config.on_ubuntucore")
+
+    # def get_kernel_config_path():
+    #     """Retrieve the path to the kernel configuration file."""
+    #     kernel_version = os.uname().release
+    #     for model in decode(Snapd().get_assertions("model")):
+    #         resource = model_to_resource(model)
+    #         if resource.get("kernel"):
+    #             config_path = "/snap/{}/current/config-{}".format(
+    #                 resource["kernel"], kernel_version
+    #             )
+    #             if os.path.exists(config_path):
+    #                 return config_path
+
+    #     config_path = "/boot/config-{}".format(kernel_version)
+    #     if os.path.exists(config_path):
+    #         return config_path
+
+    #     raise SystemExit("Kernel configuration not found.")
+
     @patch("kernel_config.os.uname")
-    def test_get_kernel_config_path(self, uname_mock, on_core_mock):
-        on_core_mock.return_value = False
+    @patch("kernel_config.decode")
+    @patch("kernel_config.os.path.exists")
+    def test_get_kernel_config_path_snap(
+        self, exists_mock, decode_mock, uname_mock
+    ):
         uname_mock.return_value = MagicMock(release="5.4.0-42-generic")
+        decode_mock.return_value = [{"kernel": "pc-kernel"}]
+        exists_mock.return_value = True
+
+        self.assertEqual(
+            get_kernel_config_path(),
+            "/snap/pc-kernel/current/config-5.4.0-42-generic",
+        )
+
+    @patch("kernel_config.os.uname")
+    @patch("kernel_config.decode")
+    @patch("kernel_config.os.path.exists")
+    def test_get_kernel_config_path_classic(
+        self, exists_mock, decode_mock, uname_mock
+    ):
+        uname_mock.return_value = MagicMock(release="5.4.0-42-generic")
+        decode_mock.return_value = []
+        exists_mock.return_value = True
 
         self.assertEqual(
             get_kernel_config_path(), "/boot/config-5.4.0-42-generic"
         )
 
-    @patch("kernel_config.get_kernel_snap")
-    @patch("kernel_config.on_ubuntucore")
     @patch("kernel_config.os.uname")
-    def test_get_kernel_config_path_ubuntucore(
-        self, uname_mock, on_core_mock, get_kernel_mock
+    @patch("kernel_config.decode")
+    @patch("kernel_config.os.path.exists")
+    def test_get_kernel_config_path_not_found(
+        self, exists_mock, decode_mock, uname_mock
     ):
-        on_core_mock.return_value = True
-        get_kernel_mock.return_value = "pc-kernel"
         uname_mock.return_value = MagicMock(release="5.4.0-42-generic")
+        decode_mock.return_value = []
+        exists_mock.return_value = False
 
+        with self.assertRaises(SystemExit) as context:
+            get_kernel_config_path()
         self.assertEqual(
-            get_kernel_config_path(),
-            "/snap/pc-kernel/current/config-5.4.0-42-generic",
+            str(context.exception), "Kernel configuration not found."
         )
 
     @patch("kernel_config.get_kernel_config_path")

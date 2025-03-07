@@ -7,8 +7,6 @@ on:
     secrets:
       SNAPCRAFT7_CREDS:
         required: true
-      GITHUB_TOKEN:
-        required: true
 
 jobs:
   snap:

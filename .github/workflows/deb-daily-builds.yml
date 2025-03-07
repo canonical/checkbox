@@ -7,8 +7,6 @@ on:
     secrets:
       LP_CREDS:
         required: true
-      GITHUB_TOKEN:
-        required: true
 jobs:
   ppa_update:
     name: Sync PPA history with monorepo

@@ -26,7 +26,7 @@ include:
     dss/create_pytorch_intel_notebook
     xpu/pytorch_can_use_xpu
     dss/remove_pytorch_intel_notebook
-    nvidia_gpu_addon/enable
+    microk8s_nvidia_gpu_addon/enable
     nvidia_gpu_addon/validations_succeed
     dss/status_nvidia_gpu
     dss/create_pytorch_cuda_notebook

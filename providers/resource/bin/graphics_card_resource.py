@@ -32,8 +32,8 @@ def compare_ubuntu_release_version(_version):
     Compare ubuntu release version.
     If host version is higher or equal provided, it will return True.
     """
-    release_file_path = os_resource.get_release_file_path()
-    os_version = os_resource.get_release_info(release_file_path)["release"]
+    release_file_content = os_resource.get_release_file_content()
+    os_version = os_resource.get_release_info(release_file_content)["release"]
     try:
         from packaging import version
 

@@ -1,4 +1,3 @@
-import os
 import textwrap
 import unittest
 from unittest.mock import patch, mock_open, MagicMock

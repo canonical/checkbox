@@ -19,6 +19,7 @@
 # along with Checkbox.  If not, see <http://www.gnu.org/licenses/>.
 
 """Tests for the session assistant module class."""
+import json
 
 from unittest import mock
 from functools import partial
@@ -345,31 +346,40 @@ class SessionAssistantTests(morris.SignalTestCase):
     )
     @mock.patch(
         "plainbox.impl.session.assistant.open",
-        new=mock.mock_open(read_data="{}"),
+        # set this to check that values are correctly loaded from disk
+        new=mock.mock_open(
+            read_data=json.dumps(
+                {
+                    "_hidden_unset_manifest": "True",
+                    "disk_selected_manifest_disk": "True",
+                }
+            )
+        ),
     )
     @mock.patch("os.path.isfile", return_value=True)
     def test_get_manifest_repr(self, isfile, _):
+        def get_manifest_unit(id):
+            to_r = mock.MagicMock(
+                id=id,
+                is_hidden=id.startswith("_"),
+                value_type="bool",
+            )
+            to_r.Meta.name = "manifest entry"
+            to_r.prompt.return_value = "prompt"
+            return to_r
+
         self_mock = mock.MagicMock()
         self_mock._parse_value = partial(
             SessionAssistant._parse_value, self_mock
         )
+        # make testing easier down below
+        self_mock._strtobool = lambda x: x
 
-        selected_unit = mock.MagicMock(
-            id="selected_manifest", is_hidden=False, value_type="bool"
-        )
-        selected_unit.Meta.name = "manifest entry"
-
-        selected_but_hidden = mock.MagicMock(
-            id="_hidden_manifest", is_hidden=True, value_type="bool"
-        )
-        selected_but_hidden.Meta.name = "manifest entry"
-
-        selected_unit.prompt.return_value = (
-            selected_but_hidden.prompt.return_value
-        ) = "prompt"
-
-        unselected_unit = mock.MagicMock(id="unselected_manifest")
-        unselected_unit.Meta.name = "manifest entry"
+        selected_unit = get_manifest_unit("selected_manifest")
+        selected_disk_unit = get_manifest_unit("disk_selected_manifest_disk")
+        selected_but_hidden = get_manifest_unit("_hidden_manifest")
+        selected_but_hidden_unset = get_manifest_unit("_hidden_unset_manifest")
+        unselected_unit = get_manifest_unit("unselected_manifest")
 
         done_job_mock = mock.MagicMock(id="done")
         done_job_mock.result.outcome = "pass"
@@ -379,7 +389,12 @@ class SessionAssistantTests(morris.SignalTestCase):
         to_run_job_mock.get_resource_program.return_value = mock.MagicMock(
             expression_list=[
                 mock.MagicMock(
-                    manifest_id_list=["selected_manifest", "_hidden_manifest"]
+                    manifest_id_list=[
+                        "selected_manifest",
+                        "disk_selected_manifest_disk",
+                        "_hidden_manifest",
+                        "_hidden_unset_manifest",
+                    ]
                 )
             ]
         )
@@ -395,7 +410,9 @@ class SessionAssistantTests(morris.SignalTestCase):
         self_mock._context.state.run_list = run_list
         self_mock._context.unit_list = [
             selected_unit,
+            selected_disk_unit,
             selected_but_hidden,
+            selected_but_hidden_unset,
             unselected_unit,
         ]
         self_mock._config.manifest = {"_hidden_manifest": "True"}
@@ -403,9 +420,26 @@ class SessionAssistantTests(morris.SignalTestCase):
 
         self.assertEqual(len(manifest_info_dict), 1)
         self.assertEqual(
-            [x["id"] for x in list(manifest_info_dict.values())[0]],
-            ["selected_manifest", "_hidden_manifest"],
+            {
+                (x["id"], x["value"])
+                for x in list(manifest_info_dict.values())[0]
+            },
+            {
+                # this is non-hidden and doesn't have a disk value
+                ("selected_manifest", None),
+                # this is non-hidden and does have a disk value
+                ("disk_selected_manifest_disk", "True"),
+                # this is hidden and has a config value which is True
+                ("_hidden_manifest", "True"),
+                # this is hidden but doesn't have a config value, only the
+                # config can set hidden manifests, so this must be default
+                (
+                    "_hidden_unset_manifest",
+                    selected_but_hidden_unset.default_value(),
+                ),
+            },
         )
+        self.assertTrue(selected_but_hidden_unset.default_value.called)
 
     def test__strtobool(self, _):
         strtobool = SessionAssistant._strtobool

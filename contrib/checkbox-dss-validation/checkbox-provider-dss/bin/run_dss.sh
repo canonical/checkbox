@@ -22,13 +22,15 @@
 #
 #   This wrapper is needed to call `dss` with the Python env vars
 #   from checkbox / snap removed from the shell, so that it uses
-#   system's Python.
+#   system's Python.  Relevant issue:
+#   - <https://github.com/canonical/data-science-stack/issues/212>
 #
 #   Furthermore, the working directory needs to be changed to, e.g.
 #   /tmp, because `dss` writes logs out to the working directory,
 #   and it won't have permission inside checkbox / snap directory.
 set -eo pipefail
 
-export -n PYTHONHOME PYTHONPATH PYTHONUSERBASE
+echo "[WARNING] Unsetting PYTHONHOME; See <https://github.com/canonical/data-science-stack/issues/212>"
+export -n PYTHONHOME
 
 env -C /tmp dss "$@"

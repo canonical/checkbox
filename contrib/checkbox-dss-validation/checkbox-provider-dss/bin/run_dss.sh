@@ -28,9 +28,12 @@
 #   Furthermore, the working directory needs to be changed to, e.g.
 #   /tmp, because `dss` writes logs out to the working directory,
 #   and it won't have permission inside checkbox / snap directory.
+#   Relevant issue:
+#   - <https://github.com/canonical/data-science-stack/issues/213>
 set -eo pipefail
 
 echo "[WARNING] Unsetting PYTHONHOME; See <https://github.com/canonical/data-science-stack/issues/212>"
 export -n PYTHONHOME
 
+echo "[WARNING] Running 'dss' from '/tmp'; See <https://github.com/canonical/data-science-stack/issues/213>"
 env -C /tmp dss "$@"

@@ -1,7 +1,7 @@
 .. _resource:
 
 =================
-Resource Job Unit
+Resource job unit
 =================
 
 Resources
@@ -15,10 +15,10 @@ a job can be started.
 
 Resources also serve as a "generator" for :ref:`template units<templates>`.
 
-Resource Jobs
+Resource jobs
 -------------
 
-Resource Jobs are jobs with a plugin set to resource::
+Resource jobs are jobs with a plugin set to resource::
 
     plugin: resource
 

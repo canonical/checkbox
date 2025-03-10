@@ -1,7 +1,7 @@
 .. _test-plan:
 
 ==============
-Test Plan Unit
+Test plan unit
 ==============
 
 The test plan unit is a facility that describes a sequence of :ref:`jobs
@@ -27,8 +27,8 @@ Test plans are also typical units so they can be defined with the familiar
 can also be multiple test plan definitions per file, just like with all the
 other units, including job definitions.
 
-Test Plan Fields
-================
+Fields
+======
 
 The following fields can be used in a test plan. Note that **not all** fields
 need to be used or even should be used. Please remember that Checkbox needs to

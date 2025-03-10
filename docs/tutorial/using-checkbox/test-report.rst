@@ -1,7 +1,7 @@
 .. _test-report:
 
 ==================
-Review Test Report 
+Review test report 
 ==================
 
 Once you finish your first test run, you may want to review the test reports. 
@@ -23,7 +23,7 @@ respective contents.
 
 .. _text-summary:
 
-Text Summary
+Text summary
 ============
 
 You should see a text summary displayed in the console once all jobs are 
@@ -69,7 +69,7 @@ will need to review submission files.
 
 .. _submission-files:
 
-Submission Files
+Submission files
 ================
  
 In Checkbox, submission files encompass report files in various formats (HTML, 

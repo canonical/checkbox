@@ -1,8 +1,8 @@
 =================================
-How to Freeze a Checkbox Version
+How to freeze a Checkbox version
 =================================
 
-How to freeze Checkbox Snaps
+How to freeze Checkbox snaps
 ============================
 
 
@@ -47,11 +47,11 @@ snap.
    checkbox    3.3.0-dev19    5224   22.04/stable   ce-certification-qa  classic
    checkbox22  3.3.0-dev19    726    latest/stable  ce-certification-qa  -
 
-How to freeze Checkbox Debs
+How to freeze Checkbox debs
 ============================
 
-Using Ubuntu Snapshot Service (20.04 or later)
-----------------------------------------------
+Using Ubuntu snapshot service (20.04 LTS or later)
+--------------------------------------------------
 
 To freeze the Checkbox version of a deb package we will make use of the `Ubuntu
 Snapshot Service <https://snapshot.ubuntu.com/>`_. This service allows you to
@@ -66,10 +66,10 @@ LTS(with ``apt`` 2.4.11).
 Enable the snapshot service
 ```````````````````````````
 
-For Ubuntu 24.04
-''''''''''''''''
+For Ubuntu 24.04 LTS
+''''''''''''''''''''
 
-The ``apt`` included in Ubuntu 24.04 and later automatically detects when snapshots
+The ``apt`` included in Ubuntu 24.04 LTS (Noble) and later automatically detects when snapshots
 are supported for a repository and are enabled by default.
 
 Nevertheless, for PPAs in Launchpad it is sometimes necessary to modify the URI
@@ -121,15 +121,15 @@ Snapshot ID to most ``apt`` or ``apt-get`` commands with ``--snapshot [Snapshot 
    $ apt install checkbox-ng --snapshot 20240416T000000Z
 
 
-Using a specific Snapshot ID for all apt commands
+Using a specific snapshot ID for all apt commands
 `````````````````````````````````````````````````
 
 It is possible to set apt to use a particular snapshot for all apt
 commands of a PPA repository. To do this, the specific Snapshot ID (e.g.
 20240416T000000Z) can be used in place of “yes” in the relevant source.
 
-For Ubuntu 24.04
-''''''''''''''''
+For Ubuntu 24.04 LTS
+''''''''''''''''''''
 
 .. code-block:: text
    
@@ -150,13 +150,13 @@ For Ubuntu 23.10 and earlier
    deb [snapshot=20240416T000000Z] https://ppa.launchpadcontent.net/~checkbox-dev/beta/ubuntu jammy main
 
 
-Disable Snapshot Service for a repository
+Disable snapshot service for a repository
 `````````````````````````````````````````
 
-For Ubuntu 24.04
-''''''''''''''''
+For Ubuntu 24.04 LTS
+''''''''''''''''''''
 
-For Ubuntu 24.04 and later, snapshots are enabled automatically for supported
+For Ubuntu 24.04 LTS and later, snapshots are enabled automatically for supported
 repositories. If you want to disable them for the Checkbox repository, edit the
 sources file To include ``Snapshot: no``.
 
@@ -178,10 +178,10 @@ On Ubuntu 23.10 and earlier the included version of apt did not automatically
 detect snapshot support, so snapshots should not be enabled unless you have
 added ``[snapshot=yes]`` to the relevant source.
 
-Using snapshots for 18.04 or earlier
-------------------------------------
+Using snapshots for 18.04 LTS or earlier
+-----------------------------------------
 
-The Ubuntu Snapshot Service is available for 18.04 (Bionic) and 16.04 (Xenial)
+The Ubuntu Snapshot Service is available for 18.04 LTS (Bionic) and 16.04 LTS (Xenial)
 but the apt version included does not support the ``--snapshot`` option. In this
 case, it is required to set up manually the URL in your sources to point to a
 specific snapshot. This option is also possible for later versions of Ubuntu.

@@ -368,3 +368,70 @@ depends: dss/create_tensorflow_cuda_notebook
 _summary: Check that DSS can be purged
 estimated_duration: 5m
 command: timeout 5m run_dss.sh purge
+
+id: dss_integration_tests/setup
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import package
+requires:
+  executable.name == 'git'
+  executable.name == 'python3'
+  package.name == 'python3-venv'
+depends: dss/purge
+_summary: Checkout and setup the DSS integration tests
+estimated_duration: 5m
+command:
+  set -eo pipefail
+  export DSS_CLONE_PATH="/tmp/data-science-stack"
+  if [ ! -d "$DSS_CLONE_PATH" ]; then
+    echo "cloning DSS repo"
+    git clone https://github.com/canonical/data-science-stack.git "$DSS_CLONE_PATH"
+  fi
+  cd "$DSS_CLONE_PATH"
+  echo "Latest commit in DSS repo:"
+  git log --name-status HEAD^..HEAD
+  if [ ! -d ".venv" ]; then
+    echo "creating venv"
+    python3 -m venv .venv
+    echo "install tox"
+    .venv/bin/pip install tox
+  fi
+  echo "Setup complete for DSS integration tests"
+
+id: dss_integration_tests/cpu
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import package
+requires:
+  executable.name == 'dss'
+depends: dss_integration_tests/setup
+_summary: Check that all DSS integration tests for CPU pass
+estimated_duration: 15m
+command:
+  set -eo pipefail
+  cd /tmp/data-science-stack
+  .venv/bin/tox -e integration
+  echo "DSS integration tests passed on CPU"
+
+id: dss_integration_tests/nvidia_gpu
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import package
+requires:
+  executable.name == 'dss'
+depends:
+  dss_integration_tests/setup
+  nvidia_gpu_addon/validations_succeed
+_summary: Check that all DSS integration tests for NVIDIA GPU pass
+estimated_duration: 15m
+command:
+  set -eo pipefail
+  cd /tmp/data-science-stack
+  .venv/bin/tox -e integration-gpu
+  echo "DSS integration tests passed on NVIDIA GPU"

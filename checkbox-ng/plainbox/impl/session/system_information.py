@@ -16,7 +16,7 @@ class CollectorOutputs(dict):
     collector will include in its output
     """
 
-    COLLECTOR_OUTPUTS_VERSION = 1
+    COLLECTOR_OUTPUTS_VERSION = 2
 
     def to_json(self) -> str:
         to_dump = {
@@ -263,6 +263,32 @@ class ImageInfoCollector(Collector):
                 str(vendor.IMAGE_INFO),
             ],
             version_cmd=["python3", str(vendor.IMAGE_INFO), "--version"],
+        )
+
+
+class DmesgCollector(Collector):
+    COLLECTOR_NAME = "dmesg"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=["dmesg", "--json"],
+            version_cmd=["dmesg", "--version"],
+        )
+
+
+class JournalctlCollector(Collector):
+    COLLECTOR_NAME = "journalctl"
+
+    def __init__(self):
+        super().__init__(
+            collection_cmd=[
+                "journalctl",
+                "--output",
+                "json",
+                "--since",
+                "-3 days",
+            ],
+            version_cmd=["journalctl", "--version"],
         )
 
 

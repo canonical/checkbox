@@ -341,10 +341,6 @@ class SessionResumeHelper(EnvelopeUnpackMixIn):
             helper = SessionResumeHelper7(
                 self.job_list, self.flags, self.location
             )
-        elif version == 8:
-            helper = SessionResumeHelper8(
-                self.job_list, self.flags, self.location
-            )
         else:
             raise IncompatibleSessionError(
                 _("Unsupported version {}").format(version)

@@ -60,7 +60,6 @@ from plainbox.impl.session.resume import SessionResumeHelper4
 from plainbox.impl.session.resume import SessionResumeHelper5
 from plainbox.impl.session.resume import SessionResumeHelper6
 from plainbox.impl.session.resume import SessionResumeHelper7
-from plainbox.impl.session.resume import SessionResumeHelper8
 from plainbox.impl.session.state import SessionState
 from plainbox.impl.testing_utils import make_job
 from plainbox.testing_utils.testcases import TestCaseWithParameters
@@ -340,40 +339,6 @@ class SessionResumeHelperTests(TestCase):
                 None,
             )
 
-    def test_resume_dispatch_v8(self):
-        helper8 = SessionResumeHelper8
-        with mock.patch.object(helper8, "resume_json"):
-            data = gzip.compress(
-                b'{"session":{"desired_job_list":[],"jobs":{},"metadata":'
-                b'{"app_blob":null,"app_id":null,"custom_joblist":false,"flags":[],'
-                b'"rejected_jobs":[],"running_job_name":null,"title":null,'
-                b'"last_job_start_time": null'
-                b'},"results":{}},"version":8, "system_information" : {}}'
-            )
-            SessionResumeHelper([], None, None).resume(data)
-            helper8.resume_json.assert_called_once_with(
-                {
-                    "session": {
-                        "jobs": {},
-                        "metadata": {
-                            "title": None,
-                            "last_job_start_time": None,
-                            "app_id": None,
-                            "running_job_name": None,
-                            "app_blob": None,
-                            "flags": [],
-                            "custom_joblist": False,
-                            "rejected_jobs": [],
-                        },
-                        "desired_job_list": [],
-                        "results": {},
-                    },
-                    "version": 8,
-                    "system_information": {},
-                },
-                None,
-            )
-
     def test_resume_dispatch_v9(self):
         data = gzip.compress(b'{"version":9}')
         with self.assertRaises(IncompatibleSessionError) as boom:
@@ -644,37 +609,6 @@ class SessionResumeTests(TestCase):
         with self.assertRaises(CorruptedSessionError) as boom:
             SessionResumeHelper([], None, None).resume(data)
         self.assertIsInstance(boom.exception.__context__, ValueError)
-
-
-class SessionStateResumeHelper8Tests(TestCase):
-    def test_calls_restore_SessionState_system_information(self):
-        self_mock = mock.MagicMock()
-        session_state_mock = mock.MagicMock()
-
-        session_repr = {"system_information": {}}
-
-        SessionResumeHelper8._restore_SessionState_system_information(
-            self_mock, session_state_mock, session_repr
-        )
-
-        with mock.patch(
-            "plainbox.impl.session.system_information.collect"
-        ) as collect_mock:
-            _ = session_state_mock.system_information
-            self.assertFalse(collect_mock.called)
-
-    @mock.patch("plainbox.impl.session.system_information.collect")
-    def test_calls_build_SessionState(self, collect_mock):
-        # mock super to avoid super._build_SessionState call in this test
-        with mock.patch(
-            "plainbox.impl.session.resume.SessionResumeHelper7._build_SessionState"
-        ):
-            session_resume_helper = SessionResumeHelper8([], None, None)
-            session_state = session_resume_helper._build_SessionState(
-                {"system_information": {}}
-            )
-        self.assertNotEqual(session_state.system_information, None)
-        self.assertFalse(collect_mock.called)
 
 
 class SessionStateResumeTests(TestCaseWithParameters):

@@ -5,16 +5,6 @@ set -euxo pipefail
 # IMPORTANT NOTE: this is the sharedDevNum we pass into the gpu_plugin.yaml during installation
 SLOTS_PER_GPU=10
 
-check_intel_gpu_node_label_is_attached() {
-    result=$(microk8s.kubectl get node -o jsonpath='{.items[0].metadata.labels.intel\.feature\.node\.kubernetes\.io/gpu}')
-    if [ "${result}" = "true" ]; then
-        echo "Test success: found expected label: 'intel.feature.node.kubernetes.io/gpu': 'true'"
-    else
-        >&2 echo "Test failure: expected 'true' but got ${result}"
-        exit 1
-    fi
-}
-
 check_at_least_one_intel_gpu_is_available() {
     # IMPORTANT NOTE: this test also counts NVIDIA GPUs once their plugin is enabled.
     #   The inaccuracy in gpu.intel.com label's value and not controlled by us
@@ -52,7 +42,6 @@ help_function() {
     echo "Usage: check.sh <test_case>"
     echo
     echo "Test cases currently implemented:"
-    echo -e "\t<gpu_node_label_is_attached>: check_intel_gpu_node_label_is_attached"
     echo -e "\t<at_least_one_gpu_is_available>: check_at_least_one_intel_gpu_is_available"
     echo -e "\t<capacity_slots_for_gpus_match>: check_capacity_slots_for_intel_gpus_match"
     echo -e "\t<allocatable_slots_for_gpus_match>: check_allocatable_slots_for_intel_gpus_match"
@@ -60,7 +49,6 @@ help_function() {
 
 main() {
     case ${1} in
-    gpu_node_label_is_attached) check_intel_gpu_node_label_is_attached ;;
     at_least_one_gpu_is_available) check_at_least_one_intel_gpu_is_available ;;
     capacity_slots_for_gpus_match) check_capacity_slots_for_intel_gpus_match ;;
     allocatable_slots_for_gpus_match) check_allocatable_slots_for_intel_gpus_match ;;

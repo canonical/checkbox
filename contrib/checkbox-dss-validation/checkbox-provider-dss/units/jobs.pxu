@@ -117,11 +117,15 @@ id: intel_gpu_plugin/labels
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
+requires: executable.name == 'kubectl'
 depends: intel_gpu_plugin/install
 _summary: Check that Kubernetes has label intel.feature.node.kubernetes.io/gpu
 estimated_duration: 5s
-command: check_intel.sh gpu_node_label_is_attached
+command:
+  set -eou pipefail
+  # NOTE: checks only the first node of the K8s cluster
+  result="$(kubectl get node -o jsonpath='{.items[0].metadata.labels.intel\.feature\.node\.kubernetes\.io/gpu}')"
+  echo "$result" | grep "true"
 
 id: intel_gpu_plugin/gpu_count
 category_id: dss-regress

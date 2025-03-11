@@ -113,42 +113,12 @@ command:
   enable_intel_gpu_plugin.sh "v0.30.0" "10"
   check_intel_gpu_rollout.sh
 
-id: intel_gpu_plugin/daemonset_name
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: intel_gpu_plugin/install
-_summary: Check that Intel GPU plugin daemonset is deployed
-estimated_duration: 5s
-command: check_intel.sh gpu_plugin_daemonset_is_deployed
-
-id: intel_gpu_plugin/daemonset_number_available
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: intel_gpu_plugin/install
-_summary: Check that at least one Intel GPU daemonset is available
-estimated_duration: 5s
-command: check_intel.sh one_daemonset_is_available
-
-id: intel_gpu_plugin/daemonset_number_ready
-category_id: dss-regress
-flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'microk8s'
-depends: intel_gpu_plugin/daemonset_number_available
-_summary: Check that at least one Intel GPU daemonset is ready
-estimated_duration: 5s
-command: check_intel.sh one_daemonset_is_ready
-
 id: intel_gpu_plugin/labels
 category_id: dss-regress
 flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'microk8s'
-depends: intel_gpu_plugin/daemonset_number_ready
+depends: intel_gpu_plugin/install
 _summary: Check that Kubernetes has label intel.feature.node.kubernetes.io/gpu
 estimated_duration: 5s
 command: check_intel.sh gpu_node_label_is_attached

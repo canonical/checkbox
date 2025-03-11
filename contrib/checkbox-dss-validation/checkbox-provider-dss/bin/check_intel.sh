@@ -5,36 +5,6 @@ set -euxo pipefail
 # IMPORTANT NOTE: this is the sharedDevNum we pass into the gpu_plugin.yaml during installation
 SLOTS_PER_GPU=10
 
-check_intel_gpu_plugin_daemonset_is_deployed() {
-    result=$(microk8s.kubectl get daemonset.apps -o jsonpath='{.items[0].metadata.name}')
-    if [ "${result}" = "intel-gpu-plugin" ]; then
-        echo "Test success: 'intel-gpu-plugin' daemonset is deployed!"
-    else
-        >&2 echo "Test failure: expected daemonset name 'intel-gpu-plugin' but got ${result}"
-        exit 1
-    fi
-}
-
-check_one_intel_gpu_plugin_daemonset_is_available() {
-    result=$(microk8s.kubectl get daemonset.apps -o jsonpath='{.items[0].status.numberAvailable}')
-    if [ "${result}" = "1" ]; then
-        echo "Test success: 1 daemonset in numberAvailable status."
-    else
-        >&2 echo "Test failure: expected numberAvailable to be 1 but got ${result}"
-        exit 1
-    fi
-}
-
-check_one_intel_gpu_plugin_daemonset_is_ready() {
-    result=$(microk8s.kubectl get daemonset.apps -o jsonpath='{.items[0].status.numberReady}')
-    if [ "${result}" = "1" ]; then
-        echo "Test success: 1 daemonset in numberReady status."
-    else
-        >&2 echo "Test failure: expected numberReady to be 1 but got ${result}"
-        exit 1
-    fi
-}
-
 check_intel_gpu_node_label_is_attached() {
     result=$(microk8s.kubectl get node -o jsonpath='{.items[0].metadata.labels.intel\.feature\.node\.kubernetes\.io/gpu}')
     if [ "${result}" = "true" ]; then
@@ -82,9 +52,6 @@ help_function() {
     echo "Usage: check.sh <test_case>"
     echo
     echo "Test cases currently implemented:"
-    echo -e "\t<gpu_plugin_daemonset_is_deployed>: check_intel_gpu_plugin_daemonset_is_deployed"
-    echo -e "\t<one_daemonset_is_available>: check_one_intel_gpu_plugin_daemonset_is_available"
-    echo -e "\t<one_daemonset_is_ready>: check_one_intel_gpu_plugin_daemonset_is_ready"
     echo -e "\t<gpu_node_label_is_attached>: check_intel_gpu_node_label_is_attached"
     echo -e "\t<at_least_one_gpu_is_available>: check_at_least_one_intel_gpu_is_available"
     echo -e "\t<capacity_slots_for_gpus_match>: check_capacity_slots_for_intel_gpus_match"
@@ -93,9 +60,6 @@ help_function() {
 
 main() {
     case ${1} in
-    gpu_plugin_daemonset_is_deployed) check_intel_gpu_plugin_daemonset_is_deployed ;;
-    one_daemonset_is_available) check_one_intel_gpu_plugin_daemonset_is_available ;;
-    one_daemonset_is_ready) check_one_intel_gpu_plugin_daemonset_is_ready ;;
     gpu_node_label_is_attached) check_intel_gpu_node_label_is_attached ;;
     at_least_one_gpu_is_available) check_at_least_one_intel_gpu_is_available ;;
     capacity_slots_for_gpus_match) check_capacity_slots_for_intel_gpus_match ;;

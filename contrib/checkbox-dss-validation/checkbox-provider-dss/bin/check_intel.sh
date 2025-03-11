@@ -5,35 +5,6 @@ set -euxo pipefail
 # IMPORTANT NOTE: this is the sharedDevNum we pass into the gpu_plugin.yaml during installation
 SLOTS_PER_GPU=10
 
-check_intel_gpu_plugin_can_be_installed() {
-    if microk8s.kubectl get daemonset.apps | grep -q "intel-gpu-plugin"; then
-        echo "Test success: 'intel-gpu-plugin' daemonset is already deployed!"
-        exit 0
-    fi
-
-    # NOTE: Using kubectl directly due to this bug: https://github.com/canonical/microk8s/issues/4453
-
-    # TODO: make version a param
-    VERSION=v0.30.0
-    # hack as redirecting stdout anywhere but /dev/null throws a permission denied error
-    # see: https://forum.snapcraft.io/t/eksctl-cannot-write-to-stdout/17254/4
-    kubectl kustomize https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/nfd?ref=${VERSION} | tee /tmp/node_feature_discovery.yaml >/dev/null
-    kubectl kustomize https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/nfd/overlays/node-feature-rules?ref=${VERSION} | tee /tmp/node_feature_rules.yaml >/dev/null
-    kubectl kustomize https://github.com/intel/intel-device-plugins-for-kubernetes/deployments/gpu_plugin/overlays/nfd_labeled_nodes?ref=${VERSION} | tee /tmp/gpu_plugin.yaml >/dev/null
-    sed -i "s/enable-monitoring/enable-monitoring\n        - -shared-dev-num=${SLOTS_PER_GPU}/" /tmp/gpu_plugin.yaml
-    kubectl apply -f /tmp/node_feature_discovery.yaml
-    kubectl apply -f /tmp/node_feature_rules.yaml
-    kubectl apply -f /tmp/gpu_plugin.yaml
-    SLEEP_SECS=15
-    echo "[INFO]: sleeping for ${SLEEP_SECS} seconds before checking rollout status."
-    sleep ${SLEEP_SECS}
-    kubectl -n node-feature-discovery rollout status ds/nfd-worker
-    kubectl -n default rollout status ds/intel-gpu-plugin
-    echo "[INFO]: sleeping for ${SLEEP_SECS} seconds to allow pod status to update for subsequent tests."
-    sleep ${SLEEP_SECS}
-    echo "Test success: Intel K8s GPU Device Plugin deployed."
-}
-
 check_intel_gpu_plugin_daemonset_is_deployed() {
     result=$(microk8s.kubectl get daemonset.apps -o jsonpath='{.items[0].metadata.name}')
     if [ "${result}" = "intel-gpu-plugin" ]; then
@@ -111,7 +82,6 @@ help_function() {
     echo "Usage: check.sh <test_case>"
     echo
     echo "Test cases currently implemented:"
-    echo -e "\t<gpu_plugin_can_be_installed>: check_intel_gpu_plugin_can_be_installed"
     echo -e "\t<gpu_plugin_daemonset_is_deployed>: check_intel_gpu_plugin_daemonset_is_deployed"
     echo -e "\t<one_daemonset_is_available>: check_one_intel_gpu_plugin_daemonset_is_available"
     echo -e "\t<one_daemonset_is_ready>: check_one_intel_gpu_plugin_daemonset_is_ready"
@@ -123,7 +93,6 @@ help_function() {
 
 main() {
     case ${1} in
-    gpu_plugin_can_be_installed) check_intel_gpu_plugin_can_be_installed ;;
     gpu_plugin_daemonset_is_deployed) check_intel_gpu_plugin_daemonset_is_deployed ;;
     one_daemonset_is_available) check_one_intel_gpu_plugin_daemonset_is_available ;;
     one_daemonset_is_ready) check_one_intel_gpu_plugin_daemonset_is_ready ;;

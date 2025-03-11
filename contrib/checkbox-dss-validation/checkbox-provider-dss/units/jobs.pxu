@@ -108,7 +108,10 @@ requires:
 depends: dss/initialize
 _summary: Install Intel K8s GPU Device Plugin
 estimated_duration: 2m
-command: check_intel.sh gpu_plugin_can_be_installed
+command:
+  set -eou pipefail
+  enable_intel_gpu_plugin.sh "v0.30.0" "10"
+  check_intel_gpu_rollout.sh
 
 id: intel_gpu_plugin/daemonset_name
 category_id: dss-regress

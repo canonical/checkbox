@@ -21,7 +21,7 @@ lxd init --auto
 git clone https://github.com/canonical/checkbox
 cd checkbox/contrib/checkbox-dss-validation
 snapcraft
-sudo snap install --dangerous --classic ./checkbox-dss_3.0_amd64.snap
+sudo snap install --dangerous --classic ./checkbox-dss_3.1_amd64.snap
 ```
 
 Make sure that the provider service is running and active:
@@ -38,20 +38,36 @@ Some test need dependencies, and a helper script is available to install them:
 checkbox-dss.install-deps
 ```
 
-By default this will install the `data-science-stack` snap from the `latest/stable`
-channel. To instead install from `latest/edge` use:
+By default this will install the `data-science-stack` snap from the `1.0/stable`
+channel. To instead install from `1.1/edge` use:
 
 ```shell
-checkbox-dss.install-deps --dss-snap-channel latest/edge
+checkbox-dss.install-deps --dss-snap-channel 1.1/edge
 ```
 
-Furthermore, the default `microk8s` snap channel is `1.28/stable` in classic mode,
-but this can be customized as
+Furthermore, by default, `microk8s` snap from channel `1.28/stable` is installed
+in classic mode.
+The channel for `microk8s` can be customized as
 (please note that this snap must to be `--classic` to enable GPU support):
 
 ```shell
-checkbox-dss.install-deps --microk8s-snap-channel 1.31/stable
+checkbox-dss.install-deps --microk8s-snap-channel 1.32/stable
 ```
+
+It is also possible to install [Canonical Kubernetes](https://snapcraft.io/k8s)
+**instead** of `microk8s`.
+**Only one of, and at least one of either**
+`microk8s` or Canonical Kubernetes must be installed.
+Canonical Kubernetes will be installed instead of `microk8s` if the argument
+`--canonical-k8s-snap-channel` is provided with a value:
+
+```shell
+checkbox-dss.install-deps --canonical-k8s-snap-channel 1.32/stable --dss-snap-channel 1.1/edge
+```
+
+When Canonical Kubernetes is install, the snape `helm` will also be installed from the
+default channel in `--classic` mode.
+`helm` will be used to enable NVIDIA GPU in the Canonical Kubernetes cluster.
 
 These validations also need the `kubectl` snap installed, and the default channel
 used for that is `1.29/stable`, but can be customized as shown previously by passing

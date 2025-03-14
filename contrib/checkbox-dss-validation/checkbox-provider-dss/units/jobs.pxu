@@ -119,12 +119,11 @@ flags: simple
 imports: from com.canonical.certification import executable
 requires: executable.name == 'kubectl'
 depends: intel_gpu_plugin/install
-_summary: Check that Kubernetes has label intel.feature.node.kubernetes.io/gpu
+_summary: Check that at least one k8s node has label Intel GPU label attached
 estimated_duration: 5s
 command:
   set -eou pipefail
-  # NOTE: checks only the first node of the K8s cluster
-  result="$(kubectl get node -o jsonpath='{.items[0].metadata.labels.intel\.feature\.node\.kubernetes\.io/gpu}')"
+  result="$(kubectl get nodes -o jsonpath='{.items[*].metadata.labels.intel\.feature\.node\.kubernetes\.io/gpu}')"
   echo "$result" | grep "true"
 
 id: dss/status_intel_gpu

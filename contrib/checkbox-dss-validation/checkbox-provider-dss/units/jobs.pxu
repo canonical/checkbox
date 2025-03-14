@@ -111,7 +111,7 @@ estimated_duration: 2m
 command:
   set -eou pipefail
   enable_intel_gpu_plugin.sh "v0.30.0" "10"
-  check_intel_gpu_rollout.sh
+  check_gpu_rollout.sh intel
 
 id: intel_gpu_plugin/labels
 category_id: dss-regress
@@ -218,7 +218,7 @@ command:
   set -eou pipefail
   OPERATOR_VERSION="24.6.2"
   microk8s enable gpu --driver=operator --version="${OPERATOR_VERSION}"
-  check_nvidia_gpu_rollout.sh
+  check_gpu_rollout.sh nvidia
 
 id: nvidia_gpu_addon/validations_succeed
 category_id: dss-regress

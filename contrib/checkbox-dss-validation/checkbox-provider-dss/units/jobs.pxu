@@ -273,6 +273,28 @@ command:
   microk8s enable gpu --driver=operator --version="${OPERATOR_VERSION}"
   check_cuda_rollout.sh
 
+id: canonical_k8s_nvidia_gpu_operator/install
+category_id: dss-regress
+flags: simple
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  graphics_card.vendor == 'NVIDIA Corporation'
+  executable.name == 'k8s'
+  executable.name == 'helm'
+  executable.name == 'kubectl'
+depends: dss/initialize
+_summary: Install NVIDIA GPU operator in Canonical k8s
+estimated_duration: 10m
+command:
+  set -eou pipefail
+  sudo helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+  sudo helm repo update
+  export KUBECONFIG="~/.kube/config"
+  sudo -E helm install --wait --generate-name -n gpu-operator-resources --create-namespace nvidia/gpu-operator
+  check_nvidia_gpu_rollout.sh
+
 id: nvidia_gpu_addon/validations_succeed
 category_id: dss-regress
 flags: simple

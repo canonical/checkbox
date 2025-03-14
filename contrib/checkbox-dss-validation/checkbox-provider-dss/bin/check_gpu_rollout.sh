@@ -22,7 +22,7 @@ set -eou pipefail
 check_nvidia_gpu_rollout() {
     NAMESPACE="gpu-operator-resources"
     sleep 10
-    kubectl -n "$NAMESPACE" rollout status ds/gpu-operator-node-feature-discovery-worker
+    kubectl -n "$NAMESPACE" rollout status ds/gpu-operator-feature-discovery
     sleep 10
     kubectl -n "$NAMESPACE" rollout status ds/nvidia-device-plugin-daemonset
     sleep 10

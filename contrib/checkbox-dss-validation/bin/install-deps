@@ -85,7 +85,7 @@ main() {
     echo -e "\nStep 4/5: Installing data-science-stack snap from channel $dss_snap_channel"
     sudo snap install data-science-stack --channel "$dss_snap_channel"
 
-    echo -e "\nStep 3/5: Installing git and python3-venv for DSS integration tests"
+    echo -e "\nStep 5/5: Installing git and python3-venv for DSS integration tests"
     DEBIAN_FRONTEND=noninteractive NEEDRESTART_MODE=a sudo -E apt install -y git python3-venv
 }
 

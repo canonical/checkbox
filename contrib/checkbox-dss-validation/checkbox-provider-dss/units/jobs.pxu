@@ -288,10 +288,9 @@ _summary: Install NVIDIA GPU operator in Canonical k8s
 estimated_duration: 10m
 command:
   set -eou pipefail
-  sudo helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
-  sudo helm repo update
-  export KUBECONFIG="~/.kube/config"
-  sudo -E helm install --wait --generate-name -n gpu-operator-resources --create-namespace nvidia/gpu-operator
+  helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
+  helm repo update
+  helm install --wait --generate-name -n gpu-operator-resources --create-namespace nvidia/gpu-operator --kubeconfig ~/.kube/config
   check_nvidia_gpu_rollout.sh
 
 id: nvidia_gpu_addon/validations_succeed

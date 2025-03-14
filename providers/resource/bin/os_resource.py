@@ -46,7 +46,8 @@ def get_release_info(release_file_content: str):
             # Strip out quotes and newlines
             os_release[k] = re.sub('["\n]', "", value)
     # this is needed by C3, on core there is no VERSION_CODENAME, lets put
-    # description here by default which will yield
+    # description (PRETTY_NAME) here by default or unknown (which should be
+    # impossible but resources aren't supposed to crash)
     os_release["codename"] = os_release.get(
         "codename", os_release.get("description", "unknown")
     )

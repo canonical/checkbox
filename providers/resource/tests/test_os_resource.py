@@ -71,3 +71,25 @@ class OsResourceTests(unittest.TestCase):
             "codename": "jammy",
         }
         self.assertEqual(os_release, expected)
+
+    def test_get_release_info_core_no_codename(self):
+        # core doesn't have codename
+        os_release_data = textwrap.dedent(
+            """
+            NAME="Ubuntu Core"
+            VERSION="22"
+            ID=ubuntu-core
+            PRETTY_NAME="Ubuntu Core 22"
+            VERSION_ID="22"
+            HOME_URL="https://snapcraft.io/"
+            BUG_REPORT_URL="https://bugs.launchpad.net/snappy/
+            """
+        ).strip()
+        os_release = os_resource.get_release_info(os_release_data)
+        expected = {
+            "distributor_id": "Ubuntu Core",
+            "description": "Ubuntu Core 22",
+            "release": "22",
+            "codename": "Ubuntu Core 22",
+        }
+        self.assertEqual(os_release, expected)

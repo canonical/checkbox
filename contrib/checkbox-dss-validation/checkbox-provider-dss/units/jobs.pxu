@@ -271,7 +271,7 @@ command:
   set -eou pipefail
   OPERATOR_VERSION="24.6.2"
   microk8s enable gpu --driver=operator --version="${OPERATOR_VERSION}"
-  check_cuda_rollout.sh
+  check_nvidia_gpu_rollout.sh
 
 id: canonical_k8s_nvidia_gpu_operator/install
 category_id: dss-regress

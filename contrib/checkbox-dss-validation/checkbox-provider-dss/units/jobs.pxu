@@ -298,9 +298,13 @@ command:
 id: nvidia_gpu_addon/validations_succeed
 category_id: dss-regress
 flags: simple
-imports: from com.canonical.certification import executable
-requires: executable.name == 'kubectl'
-depends: microk8s_nvidia_gpu_addon/enable
+imports:
+  from com.canonical.certification import executable
+  from com.canonical.certification import graphics_card
+requires:
+  graphics_card.vendor == 'NVIDIA Corporation'
+  executable.name == 'kubectl'
+depends: dss/initialize
 _summary: NVIDIA GPU validations should succeed
 estimated_duration: 10s
 command:

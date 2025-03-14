@@ -35,6 +35,10 @@ setup_microk8s_snap() {
         deployment/coredns \
         deployment/hostpath-provisioner
     sudo microk8s.kubectl -n kube-system rollout status ds/calico-node
+
+    # hack as redirecting stdout anywhere but /dev/null throws a permission denied error
+    # see: https://forum.snapcraft.io/t/eksctl-cannot-write-to-stdout/17254/4
+    sudo microk8s.kubectl config view --raw | tee "${SNAP_REAL_HOME}/.kube/config" >/dev/null
 }
 
 setup_kubectl_snap() {
@@ -42,14 +46,30 @@ setup_kubectl_snap() {
     # https://github.com/canonical/microk8s/issues/4453
     echo -e "\nInstalling kubectl snap from channel $1"
     sudo snap install kubectl --classic --channel="$1"
+}
+
+setup_canonical_k8s_snap() {
+    echo -e "\nInstalling Canonical k8s snap from channel $1"
+    sudo snap install k8s --classic --channel "$1"
+    sudo k8s bootstrap
+    sudo k8s enable local-storage
+
+    # Directory needed for kubeconfig
+    mkdir -p "${SNAP_REAL_HOME}/.kube"
+
     # hack as redirecting stdout anywhere but /dev/null throws a permission denied error
     # see: https://forum.snapcraft.io/t/eksctl-cannot-write-to-stdout/17254/4
-    sudo microk8s.kubectl config view --raw | tee "${SNAP_REAL_HOME}/.kube/config" >/dev/null
+    sudo k8s config | tee "${SNAP_REAL_HOME}/.kube/config" >/dev/null
 }
 
 help_function() {
-    echo "This script is used install all dependencies for checkbox-dss to run; defaults for optional arguments are shown in usage"
-    echo "Usage: checkbox-dss.install-deps [--dss-snap-channel $dss_snap_channel] [--microk8s-snap-channel $microk8s_snap_channel] [--kubectl-snap-channel $kubectl_snap_channel]"
+    echo "This script is used install all dependencies for checkbox-dss to run;"
+    echo "defaults for optional arguments are shown in usage except for"
+    echo "'--canonical-k8s-channel':"
+    echo "if this arg is not provided, then microk8s will be installed from its default value,"
+    echo "otherwise Canonical k8s will be installed from the given channel instead of microk8s."
+    echo "Usage: checkbox-dss.install-deps [--dss-snap-channel $dss_snap_channel] [--canonical-k8s-channel NO-DEFAULT | --microk8s-snap-channel $microk8s_snap_channel] [--kubectl-snap-channel $kubectl_snap_channel]"
+    exit 2
 }
 
 main() {
@@ -67,12 +87,23 @@ main() {
             kubectl_snap_channel="$2"
             shift 2
             ;;
+        --canonical-k8s-snap-channel)
+            canonical_k8s_snap_channel="$2"
+            shift 2
+            ;;
         *) help_function ;;
         esac
     done
 
-    echo -e "\n Step 1/4: Setting up microk8s"
-    setup_microk8s_snap "$microk8s_snap_channel"
+    if [[ -n "$canonical_k8s_snap_channel" ]]; then
+        echo -e "\n Step 1/4: Setting up Canonical k8s and helm"
+        setup_canonical_k8s_snap "$canonical_k8s_snap_channel"
+        echo -e "\n Installing the helm snap"
+        sudo snap install helm --classic
+    else
+        echo -e "\n Step 1/4: Setting up microk8s"
+        setup_microk8s_snap "$microk8s_snap_channel"
+    fi
 
     echo -e "\n Step 2/4: Setting up kubectl"
     setup_kubectl_snap "$kubectl_snap_channel"

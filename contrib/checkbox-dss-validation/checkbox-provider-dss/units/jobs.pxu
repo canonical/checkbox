@@ -264,7 +264,7 @@ requires:
   executable.name == 'helm'
   executable.name == 'kubectl'
 depends: dss/initialize
-_summary: Install NVIDIA GPU operator in Canonical k8s
+_summary: Install NVIDIA GPU operator in the Kubernetes cluster
 estimated_duration: 10m
 command:
   set -eou pipefail

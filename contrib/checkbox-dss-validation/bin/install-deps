@@ -98,12 +98,12 @@ main() {
     if [[ -n "$canonical_k8s_snap_channel" ]]; then
         echo -e "\n Step 1/4: Setting up Canonical k8s and helm"
         setup_canonical_k8s_snap "$canonical_k8s_snap_channel"
-        echo -e "\n Installing the helm snap"
-        sudo snap install helm --classic
     else
-        echo -e "\n Step 1/4: Setting up microk8s"
+        echo -e "\n Step 1/4: Setting up microk8s and helm"
         setup_microk8s_snap "$microk8s_snap_channel"
     fi
+    echo -e "\n Installing the helm snap"
+    sudo snap install helm --classic
 
     echo -e "\n Step 2/4: Setting up kubectl"
     setup_kubectl_snap "$kubectl_snap_channel"

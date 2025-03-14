@@ -12,13 +12,7 @@ include:
     cpu/tensorflow_can_use_cpu
     dss/remove_tensorflow_cpu_notebook
     intel_gpu_plugin/install
-    intel_gpu_plugin/daemonset_name
-    intel_gpu_plugin/daemonset_number_available
-    intel_gpu_plugin/daemonset_number_ready
     intel_gpu_plugin/labels
-    intel_gpu_plugin/gpu_count
-    intel_gpu_plugin/node_gpu_capacity
-    intel_gpu_plugin/node_gpu_allocatable
     dss/status_intel_gpu
     dss/create_tensorflow_intel_notebook
     xpu/tensorflow_can_use_xpu

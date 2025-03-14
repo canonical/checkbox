@@ -291,6 +291,7 @@ command:
   helm repo add nvidia https://helm.ngc.nvidia.com/nvidia
   helm repo update
   helm install --wait --generate-name -n gpu-operator-resources --create-namespace nvidia/gpu-operator --kubeconfig ~/.kube/config
+  sleep 15
   check_nvidia_gpu_rollout.sh
 
 id: nvidia_gpu_addon/validations_succeed

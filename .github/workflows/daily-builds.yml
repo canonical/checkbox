@@ -1,5 +1,7 @@
 name: Daily builds
-
+permissions:
+  contents: read
+  actions: read # used by gh api
 on:
   schedule:
     - cron: '00 18 * * *'
@@ -41,16 +43,23 @@ jobs:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-daily-cross-builds.yaml
-    secrets: inherit
-
-  deb-daily:
-    needs: check_for_commits
-    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
-    uses: ./.github/workflows/deb-daily-builds.yml
-    secrets: inherit
+    secrets:
+      SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
+    with:
+      store_upload: true
 
   snap-native-build-upload-daily:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-daily-native-builds.yaml
-    secrets: inherit
+    secrets:
+      SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}
+    with:
+      store_upload: true
+
+  deb-daily:
+    needs: check_for_commits
+    if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
+    uses: ./.github/workflows/deb-daily-builds.yml
+    secrets:
+      LP_CREDS: ${{ secrets.LP_CREDS }}

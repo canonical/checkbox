@@ -1,5 +1,6 @@
 name: Check formatting with Black
-
+permissions:
+  contents: read
 on:
   push:
     branches: [ main ]

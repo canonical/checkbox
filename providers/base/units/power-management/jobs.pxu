@@ -226,7 +226,7 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/tickless_idle
 flags: also-after-suspend
 estimated_duration: 1.0
-requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'pSeries')
+requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'ppc64le', 'pSeries')
 _purpose: Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple regression check)
 command:
  zgrep 'CONFIG_NO_HZ=y' /boot/config-"$(uname -r)" >/dev/null 2>&1 || ( echo "WARNING: Tickless Idle is NOT set" >&2 && exit 1 )
@@ -531,7 +531,7 @@ category_id: com.canonical.plainbox::power-management
 id: power-management/tickless_idle_{kernel}
 template-id: power-management/tickless_idle_kernel
 estimated_duration: 1.0
-requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'pSeries')
+requires: cpuinfo.platform in ('i386', 'x86_64', 'ppc64el', 'ppc64le', 'pSeries')
 _purpose: Check to see if CONFIG_NO_HZ is set in the kernel (this is just a simple regression check)
 command:
  zgrep 'CONFIG_NO_HZ=y' /snap/{kernel}/current/config-"$(uname -r)" >/dev/null 2>&1 || ( echo "WARNING: Tickless Idle is NOT set" >&2 && exit 1 )

@@ -19,7 +19,7 @@
 
 # pylint: disable=consider-using-f-string
 
-""" Switching the power mode to check if the power mode can be switched. """
+"""Switching the power mode to check if the power mode can be switched."""
 from pathlib import Path
 import subprocess
 import contextlib

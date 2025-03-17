@@ -26,7 +26,7 @@ include:
     dss/create_pytorch_intel_notebook
     xpu/pytorch_can_use_xpu
     dss/remove_pytorch_intel_notebook
-    nvidia_gpu_addon/enable
+    microk8s_nvidia_gpu_addon/enable
     nvidia_gpu_addon/validations_succeed
     dss/status_nvidia_gpu
     dss/create_pytorch_cuda_notebook
@@ -35,6 +35,7 @@ include:
     dss/create_tensorflow_cuda_notebook
     cuda/tensorflow_can_use_cuda
     dss/remove_tensorflow_cuda_notebook
+    dss/purge
 bootstrap_include:
     com.canonical.certification::executable
     com.canonical.certification::snap

@@ -1,8 +1,12 @@
 name: checkbox-ce-oem snap edge build
-
+permissions:
+  contents: read
 on:
   workflow_dispatch:
   workflow_call:
+    secrets:
+      SNAPCRAFT7_CREDS:
+        required: true
 
 jobs:
   snap:

@@ -1,5 +1,6 @@
 name: Test pc-sanity (from contrib area) with tox
-
+permissions:
+  contents: read
 on:
   workflow_dispatch:
 

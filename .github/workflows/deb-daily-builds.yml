@@ -1,9 +1,12 @@
 name: Debian packages daily build
-
+permissions:
+  contents: read
 on:
   workflow_dispatch:
   workflow_call:
-
+    secrets:
+      LP_CREDS:
+        required: true
 jobs:
   ppa_update:
     name: Sync PPA history with monorepo

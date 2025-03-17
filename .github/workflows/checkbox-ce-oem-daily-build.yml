@@ -1,5 +1,7 @@
 name: checkbox-ce-oem daily builds
-
+permissions:
+  contents: read
+  actions: read # used by gh api
 on:
   schedule:
     - cron: '00 21 * * *'
@@ -41,4 +43,5 @@ jobs:
     needs: check_for_commits
     if: ${{ needs.check_for_commits.outputs.new_commit_count > 0 || github.event_name == 'workflow_dispatch' }}
     uses: ./.github/workflows/checkbox-ce-oem-edge-builds.yml
-    secrets: inherit
+    secrets:
+      SNAPCRAFT7_CREDS: ${{ secrets.SNAPCRAFT7_CREDS }}

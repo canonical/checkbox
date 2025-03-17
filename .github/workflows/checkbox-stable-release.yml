@@ -1,5 +1,7 @@
 name: Stable version of checkbox
 run-name: Promote beta versions of checkbox to stable
+permissions:
+  contents: read # write used to create the release
 
 on:
   workflow_dispatch:
@@ -18,6 +20,8 @@ jobs:
         - jammy
         - large
         - X64
+    permissions:
+      contents: write
     steps:
       - name: Checkout checkbox monorepo
         uses: actions/checkout@v4

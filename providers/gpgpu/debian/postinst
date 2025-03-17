@@ -1,3 +1,9 @@
 #!/usr/bin/env bash
 
-snap install gpu-burn rocm-validation-suite cuda-samples
+machine=$(uname -m)
+
+if [[ "$machine" = "x86_64" ]]; then
+	snap install rocm-validation-suite
+fi
+
+snap install lxd gpu-burn cuda-samples

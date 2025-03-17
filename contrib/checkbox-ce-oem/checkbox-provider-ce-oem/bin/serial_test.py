@@ -57,25 +57,35 @@ class Serial:
     def __init__(
         self,
         node,
-        type,
-        group: list = [],
-        baudrate: int = 115200,
-        bytesize: int = serial.EIGHTBITS,
-        parity: str = serial.PARITY_NONE,
-        stopbits: int = serial.STOPBITS_ONE,
-        timeout: int = 3,
-        data_size: int = 1024,
+        type: str = None,
+        group: list = None,
+        baudrate: int = None,
+        bytesize: int = None,
+        parity: str = None,
+        stopbits: int = None,
+        timeout: int = None,
+        datasize: int = None,
         rs485_settings: dict = None,
     ) -> None:
         self.node = node
-        self.type = type
-        self.baudrate = baudrate
-        self.bytesize = bytesize
-        self.parity = parity
-        self.stopbits = stopbits
-        self.timeout = timeout
-        self.data_size = data_size
-        self.rs485_settings = rs485_settings
+        self.type = type if type else "USB"
+        self.baudrate = baudrate if baudrate else 115200
+        self.bytesize = bytesize if bytesize else serial.EIGHTBITS
+        self.parity = parity if parity else serial.PARITY_NONE
+        self.stopbits = stopbits if stopbits else serial.STOPBITS_ONE
+        self.timeout = timeout if timeout else 3
+        self.datasize = datasize if datasize else 1024
+        self.rs485_settings = (
+            rs485_settings
+            if rs485_settings
+            else {
+                "rts_level_for_tx": True,
+                "rts_level_for_rx": False,
+                "delay_before_tx": 0.0,
+                "delay_before_rx": 0.0,
+            }
+        )
+        group = group if group else []
         self.ser = self.serial_init(node)
         self.group = []
         for ser in group:
@@ -115,7 +125,7 @@ class Serial:
     def recv(self) -> bytes:
         rcv = ""
         try:
-            rcv = self.ser.read(self.data_size)
+            rcv = self.ser.read(self.datasize)
             if rcv:
                 logging.info("Received: {}".format(rcv.decode()))
         except Exception:
@@ -134,15 +144,15 @@ def generate_random_string(length):
 
 def server_mode(
     node,
-    type,
-    group,
-    baudrate,
-    bytesize,
-    parity,
-    stopbits,
-    timeout,
-    datasize,
-    rs485_settings,
+    type=None,
+    group=None,
+    baudrate=None,
+    bytesize=None,
+    parity=None,
+    stopbits=None,
+    timeout=None,
+    datasize=None,
+    rs485_settings=None,
 ) -> None:
     """
     Running as a server, it will be sniffing for received string.
@@ -175,15 +185,15 @@ def server_mode(
 
 def client_mode(
     node,
-    type,
-    group,
-    baudrate,
-    bytesize,
-    parity,
-    stopbits,
-    timeout,
-    datasize,
-    rs485_settings,
+    type=None,
+    group=None,
+    baudrate=None,
+    bytesize=None,
+    parity=None,
+    stopbits=None,
+    timeout=None,
+    datasize=1024,
+    rs485_settings=None,
 ):
     """
     Running as a clinet and it will sending out a string and wait
@@ -229,15 +239,15 @@ def client_mode(
 
 def console_mode(
     node,
-    type,
-    group,
-    baudrate,
-    bytesize,
-    parity,
-    stopbits,
-    timeout,
-    datasize,
-    rs485_settings,
+    type=None,
+    group=None,
+    baudrate=None,
+    bytesize=None,
+    parity=None,
+    stopbits=None,
+    timeout=None,
+    datasize=None,
+    rs485_settings=None,
 ):
     """
     Test the serial port when it is in console mode
@@ -316,7 +326,7 @@ def create_args():
         ],
         type=int,
         help="Bytesize",
-        default=8,
+        default=serial.EIGHTBITS,
     )
     parser.add_argument(
         "--parity",
@@ -329,14 +339,14 @@ def create_args():
         ],
         type=lambda c: c.upper(),
         help="Parity",
-        default="N",
+        default=serial.PARITY_NONE,
     )
     parser.add_argument(
         "--stopbits",
         choices=[serial.STOPBITS_ONE, serial.STOPBITS_TWO],
         type=int,
         help="Stopbits",
-        default=1,
+        default=serial.STOPBITS_ONE,
     )
     parser.add_argument(
         "--datasize",
@@ -393,7 +403,6 @@ def main():
     args = parser.parse_args()
 
     init_logger()
-    rs485_settings = {}
     if args.type == "RS485":
         rs485_settings = {
             "rts_level_for_tx": (

@@ -968,11 +968,10 @@ class ManifestQuestion(urwid.WidgetWrap):
                 state=False,
                 on_state_change=self._set_bool_value,
             )
-            if question["value"] is not None:
-                if question["value"] is True:
-                    yes.set_state(True)
-                else:
-                    no.set_state(True)
+            if question["value"] is True:
+                yes.set_state(True)
+            elif question["value"] is False:
+                no.set_state(True)
             self.display_widget = urwid.Columns(
                 [
                     urwid.Padding(urwid.Text(question["name"]), left=2),

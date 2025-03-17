@@ -1,5 +1,6 @@
 name: Test provider-tpm2 with tox
-
+permissions:
+  contents: read
 on:
   push:
     branches: [ main ]

@@ -1,5 +1,6 @@
 name: Sanity Debian package build
-
+permissions:
+  contents: read
 on:
   schedule:
     - cron: '00 14 * * *'

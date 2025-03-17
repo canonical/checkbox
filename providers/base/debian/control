@@ -51,6 +51,7 @@ Suggests: fswebcam,
           render-bench,
           stress,
           wmctrl,
+          ipmitool,
           ${plainbox:Suggests}
 Replaces: plainbox-provider-checkbox (<< 2.0.0)
 Breaks: plainbox-provider-checkbox (<< 2.0.0)

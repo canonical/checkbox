@@ -1,5 +1,6 @@
 name: Test provider-sru with tox
-
+permissions:
+  contents: read
 on:
   push:
     branches: [ main ]

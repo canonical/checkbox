@@ -1,5 +1,8 @@
 name: Run Metabox when PR is approved
 
+permissions:
+  contents: read
+
 on:
   pull_request_review:
     types: [submitted]

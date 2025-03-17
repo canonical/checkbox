@@ -1,0 +1,65 @@
+# Copyright 2025 Canonical Ltd.
+# All rights reserved.
+#
+# Written by:
+#   Hector Cao <hector.cao@canonical.com>
+
+unit: job
+id: qat_pf
+category_id: intel-qat
+plugin: resource
+_summary: List of QAT PFs (Physical Function)
+_description: A physical function corresponds to a physical
+  QAT device. QAT device is connected to the system via PCIe
+  bus. This resource will output for each PF:
+  - the BDF (Bus, Device, Function) id (example : 70:00.0)
+  - the driver (example : 4xxx)
+  This resource only lists devices of gen 4 or newer by filtering
+  the kernel module:
+  ---------------------------
+  Driver Name | PFid | VFid
+  ---------------------------
+  4xxx        | 4940 | 4941
+  4xxx        | 4942 | 4943 (OOT Intel driver is 401xx)
+  4xxx        | 4944 | 4945 (OOT Intel driver is 402xx)
+  420xx       | 4946 | 4947
+  ---------------------------
+estimated_duration: 1s
+user: root
+command:
+  PFS=$(qatctl.py list --short)
+  for pf in ${PFS}; do
+    driver_path=$(readlink /sys/bus/pci/devices/0000:"${pf}"/driver)
+    driver=$(basename "${driver_path}")
+    if [ "${driver}" == "4xxx" ] || [ "${driver}" == "420xx" ]; then
+      echo "pf: ${pf}"
+      echo "driver: ${driver}"
+      echo ""
+    fi
+  done
+
+unit: job
+id: qat
+category_id: intel-qat
+plugin: resource
+_summary: QAT availability
+_description: Output the first PF and set available to qat if there is supported
+  QAT device in the platform.
+  This resource can be used if you want to generate only 1 test job
+  instead of one test job for each PF.
+estimated_duration: 1s
+user: root
+command:
+  PFS=$(qatctl.py list --short)
+  for pf in ${PFS}; do
+    driver_path=$(readlink /sys/bus/pci/devices/0000:"${pf}"/driver)
+    driver=$(basename "${driver_path}")
+    if [ "${driver}" == "4xxx" ] || [ "${driver}" == "420xx" ]; then
+      echo "pf: ${pf}"
+      echo "driver: ${driver}"
+      echo "available: qat"
+      echo ""
+      break
+    fi
+  done
+

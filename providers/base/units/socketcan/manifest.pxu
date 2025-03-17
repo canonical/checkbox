@@ -4,3 +4,8 @@ id: socket_can_echo_server_running
 _prompt: Is the device connected to the following?:
 _name: A SocketCAN Echo Server
 value-type: bool
+
+unit: manifest entry
+id: has_socket_can_fd
+_name: CAN FD capable devices
+value-type: bool

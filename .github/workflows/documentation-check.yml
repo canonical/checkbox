@@ -27,7 +27,7 @@ jobs:
         working-directory: docs
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: action/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
 
@@ -59,7 +59,7 @@ jobs:
         - X64
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: action/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
 
@@ -86,7 +86,7 @@ jobs:
         working-directory: docs
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: action/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
 

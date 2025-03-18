@@ -38,7 +38,7 @@ jobs:
       paths: ${{ steps.paths.outputs.paths }}
     steps:
       - name: Checkout Checkbox monorepo
-        uses: actions/checkout@v4
+        uses: action/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
           fetch-depth: 0
@@ -82,7 +82,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout Checkbox monorepo
-        uses: actions/checkout@v4
+        uses: action/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
       # needed by providers that pull checkbox-support

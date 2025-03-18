@@ -32,7 +32,7 @@ jobs:
           - python: "3.10"
             tox_env_name: "py310"
     steps:
-      - uses: actions/checkout@v4
+      - uses: action/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           persist-credentials: false
       # Python 3.5 setup was failing because of a CERTIFICATE_VERIFY_FAILED

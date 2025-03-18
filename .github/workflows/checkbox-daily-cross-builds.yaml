@@ -37,7 +37,7 @@ jobs:
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Runtime ${{ matrix.release }} (${{ matrix.arch }})
     steps:
-      - uses: actions/checkout@v4
+      - uses: action/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -116,7 +116,7 @@ jobs:
     timeout-minutes: 1200 #20h, this will timeout sooner due to inner timeouts
     name: Frontend ${{ matrix.type }}${{ matrix.release }} (${{ matrix.arch }})
     steps:
-      - uses: actions/checkout@v4
+      - uses: action/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
         with:
           fetch-depth: 0
           persist-credentials: false

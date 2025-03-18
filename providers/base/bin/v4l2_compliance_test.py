@@ -23,8 +23,10 @@ from checkbox_support.parsers.v4l2_compliance import parse_v4l2_compliance
 
 """
 class Input:
-    ioctl: T.List[str]
     device: str
+    exclude: list[str] | None
+    include: list[str] | None
+    treat_unsupported_as_fail: bool
 """
 
 
@@ -32,23 +34,18 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--device",
-        help="The device to test, if not specified, "
-        "we will let v4l2-compliance infer the default device "
-        "(usually /dev/video0)",
+        help="The device to test, usually /dev/video0",
         type=str,
+        required=True,
     )
-    parser.add_argument(
-        "--ioctl",
+    exclude_include_group = parser.add_mutually_exclusive_group()
+    exclude_include_group.add_argument(
+        "--exclude",
         nargs="+",
-        help=(
-            "List of ioctl requests. "
-            "If any of them is listed under FAIL in v4l2-compliance, "
-            "the entire test cases fails. "
-            "ioctl requests should start with VIDIOC_, "
-            "for example VIDIOC_ENUM_FMT "
-            "NOTE: VIDIOC_QUERYCAP is always required"
-        ),
-        default=["VIDIOC_QUERYCAP"],
+        help="List of ioctls to exclude or allowed to fail.",
+    )
+    exclude_include_group.add_argument(
+        "--include", nargs="+", help="Only include this list of ioctls."
     )
     parser.add_argument(
         "--treat-unsupported-as-fail",
@@ -62,32 +59,67 @@ def parse_args():
 
 def main():
     args = parse_args()
-    print(
-        "Testing if all of the following ioctl requests",
-        args.ioctl,
-        "are supported on",
-        args.device,
-    )
-
     _, details = parse_v4l2_compliance(args.device)
-
     all_passed = True
+
+    if args.include is not None:
+        print(
+            "Testing if all of the following ioctl requests",
+            args.include,
+            "are supported on device:",
+            args.device,
+        )
+        for ioctl_request in args.include:
+            if ioctl_request in details["failed"]:
+                print(ioctl_request, "failed the test", file=sys.stderr)
+                all_passed = False
+            elif (
+                ioctl_request in details["not_supported"]
+                and args.treat_unsupported_as_fail
+            ):
+                print(ioctl_request, "is not supported", file=sys.stderr)
+                all_passed = False
+
+    elif args.exclude is not None:
+        print(
+            "Testing all ioctl requests on device",
+            '"{}"'.format(args.device),
+            "except:",
+            args.exclude,
+        )
+
+        for ioctl_request in details["failed"]:
+            if ioctl_request in args.exclude:
+                continue
+            print(ioctl_request, "failed the test", file=sys.stderr)
+            all_passed = False
+
+        if args.treat_unsupported_as_fail:
+            for ioctl_request in details["not_supported"]:
+                if ioctl_request in args.exclude:
+                    continue
+                print(ioctl_request, "is not supported", file=sys.stderr)
+                all_passed = False
+
+    else:  # Don't skip anything
+        print('Testing all the ioctls on device "{}"'.format(args.device))
+        if len(details["failed"]) != 0:
+            print(details["failed"], "failed the test", file=sys.stderr)
+            all_passed = False
+        if (
+            len(details["not_supported"]) != 0
+            and args.treat_unsupported_as_fail
+        ):
+            print(
+                details["not_supported"], "are not supported", file=sys.stderr
+            )
+            all_passed = False
 
     if "VIDIOC_QUERYCAP" in details["failed"]:
         all_passed = False
-    for ioctl_request in args.ioctl:
-        if ioctl_request in details["failed"]:
-            print(ioctl_request, "failed the test", file=sys.stderr)
-            all_passed = False
-        elif (
-            ioctl_request in details["not_supported"]
-            and args.treat_unsupported_as_fail
-        ):
-            print(ioctl_request, "is not supported", file=sys.stderr)
-            all_passed = False
 
     if all_passed:
-        print(args.ioctl, "are all supported")
+        print("All the specified ioctls are supported!")
     else:
         raise SystemExit("V4L2 compliance test failed")
 

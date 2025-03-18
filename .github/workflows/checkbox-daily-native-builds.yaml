@@ -70,7 +70,7 @@ jobs:
             path: checkbox-core-snap/series${{ matrix.release }}
             snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
         name: Upload logs on failure
         if: failure()
         with:
@@ -80,7 +80,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-core-snap/series${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
         name: Upload the snap as artifact
         with:
           name: checkbox${{ matrix.release }}_${{ matrix.arch }}
@@ -145,7 +145,7 @@ jobs:
             path: checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}
             snapcraft-channel: ${{ matrix.snapcraft_version }}/stable
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
         name: Upload logs on failure
         if: failure()
         with:
@@ -155,7 +155,7 @@ jobs:
             /home/runner/.local/state/snapcraft/log/
             checkbox-snap/series_${{ matrix.type }}${{ matrix.release }}/checkbox*.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@4cec3d8aa04e39d1a68397de0c4cd6fb9dce8ec1
         name: Upload the snaps as artefacts
         with:
           name: series_${{ matrix.type }}${{ matrix.release }}${{ matrix.arch }}

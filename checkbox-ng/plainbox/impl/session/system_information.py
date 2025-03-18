@@ -266,16 +266,6 @@ class ImageInfoCollector(Collector):
         )
 
 
-class DmesgCollector(Collector):
-    COLLECTOR_NAME = "dmesg"
-
-    def __init__(self):
-        super().__init__(
-            collection_cmd=["dmesg", "--json"],
-            version_cmd=["dmesg", "--version"],
-        )
-
-
 class JournalctlCollector(Collector):
     COLLECTOR_NAME = "journalctl"
 

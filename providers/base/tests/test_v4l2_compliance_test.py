@@ -10,7 +10,13 @@ class TestV4L2ComplianceTest(ut.TestCase):
     def test_failed_query_cap(self, mock_parser: MagicMock):
         with patch(
             "sys.argv",
-            sh_split("v4l2_compliance_test.py --ioctl VIDIOC_QUERYCAP"),
+            [
+                "v4l2_compliance_test.py",
+                "--include",
+                "VIDIOC_QUERYCAP",
+                "--device",
+                "/dev/video0",
+            ],
         ):
             # query cap failure should always fail the test case
             mock_parser.return_value = (
@@ -26,7 +32,13 @@ class TestV4L2ComplianceTest(ut.TestCase):
 
         with patch(
             "sys.argv",
-            sh_split("v4l2_compliance_test.py --ioctl VIDIOC_ENUM_FMT"),
+            [
+                "v4l2_compliance_test.py",
+                "--include",
+                "VIDIOC_ENUM_FMT",
+                "--device",
+                "/dev/video0",
+            ],
         ):
             mock_parser.return_value = (
                 {},
@@ -41,10 +53,7 @@ class TestV4L2ComplianceTest(ut.TestCase):
 
     @patch(
         "sys.argv",
-        sh_split(
-            "v4l2_compliance_test.py "
-            + "--ioctl VIDIOC_ENUM_FMT VIDIOC_QUERYCTRL --device /dev/video1"
-        ),
+        ["v4l2_compliance_test.py", "--device", "/dev/video1"],
     )
     @patch("sys.stderr")
     @patch("builtins.print")
@@ -66,7 +75,9 @@ class TestV4L2ComplianceTest(ut.TestCase):
 
         self.assertRaises(SystemExit, main_under_test)
         mock_print.assert_called_with(
-            "VIDIOC_ENUM_FMT", "failed the test", file=mock_stderr
+            mock_parser.return_value[1]["failed"],
+            "failed the test",
+            file=mock_stderr,
         )
 
         mock_print.reset_mock()
@@ -81,7 +92,9 @@ class TestV4L2ComplianceTest(ut.TestCase):
 
         self.assertRaises(SystemExit, main_under_test)
         mock_print.assert_called_with(
-            "VIDIOC_QUERYCTRL", "failed the test", file=mock_stderr
+            mock_parser.return_value[1]["failed"],
+            "failed the test",
+            file=mock_stderr,
         )
 
         mock_print.reset_mock()
@@ -95,27 +108,17 @@ class TestV4L2ComplianceTest(ut.TestCase):
         )
 
         self.assertRaises(SystemExit, main_under_test)
-        mock_print.assert_has_calls(
-            [
-                call(
-                    "Testing if all of the following ioctl requests",
-                    [
-                        "VIDIOC_ENUM_FMT",
-                        "VIDIOC_QUERYCTRL",
-                    ],
-                    "are supported on",
-                    "/dev/video1",
-                ),
-                call("VIDIOC_ENUM_FMT", "failed the test", file=mock_stderr),
-                call("VIDIOC_QUERYCTRL", "failed the test", file=mock_stderr),
-            ]
+        mock_print.assert_called_with(
+            mock_parser.return_value[1]["failed"],
+            "failed the test",
+            file=mock_stderr,
         )
 
     @patch(
         "sys.argv",
         sh_split(
             "v4l2_compliance_test.py "
-            + "--ioctl VIDOC_G_FMT --device /dev/video1 "
+            + "--include VIDOC_G_FMT --device /dev/video1 "
             + "--treat-unsupported-as-fail"
         ),
     )
